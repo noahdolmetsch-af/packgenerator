@@ -2,10 +2,14 @@
   /**
    * TR7e «Leistungskurve: 90 Tage gegen das Jahr»: the best mean power per span (5 s … 60 min) of the last
    * 90 days (green) against the calendar year (grey), and one calm sentence on 20 and 60 minutes. weeks.js.
+   * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): an axis with round steps, the two numbers of a span when
+   * pointing, a tap opens the span with the days the bests came from, «Als Tabelle» the same as rows.
    */
   import AnaCard from '../AnaCard.svelte';
-  import { t, locale } from '../../i18n.svelte.js';
-  import { curveBests, nearSame, niceTicks } from './weeks.js';
+  import LineChart from '../../charts/LineChart.svelte';
+  import ChartSheet from '../../charts/ChartSheet.svelte';
+  import { t, num, locale } from '../../i18n.svelte.js';
+  import { curveBests, nearSame } from './weeks.js';
 
   let { acts = [], today = '' } = $props();
   const rows = $derived(today ? curveBests(acts, today) : []);
@@ -13,27 +17,22 @@
   const year = $derived(today.slice(0, 4));
   const spanName = (s) => (s < 60 ? t('{n} s|span', { n: s }) : t('{n} min', { n: s / 60 }));
   const monthName = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', timeZone: 'UTC' });
+  const dm = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const C = { d90: 'var(--ch-w)', yr: 'var(--pz1)' };
 
-  let w = $state(0);
-  const H = 140;
-  const T = 10;
-  const L = 40;
-  const R = 26;
-  const width = $derived(Math.max(240, w || 600));
-  const ax = $derived.by(() => {
-    if (!has) return null;
-    const vals = rows.flatMap((r) => [r.d90?.w, r.year?.w]).filter((v) => v > 0);
-    return niceTicks(Math.min(...vals) * 0.9, Math.max(...vals), 5);
-  });
-  const lx = (s) => Math.log(s);
-  const X = (s) => L + ((lx(s) - lx(rows[0].span)) / (lx(rows.at(-1).span) - lx(rows[0].span))) * (width - L - R);
-  const Y = (v) => T + ((ax.hi - v) / (ax.hi - ax.lo)) * H;
-  const path = (k) =>
-    rows
-      .filter((r) => r[k])
-      .map((r, i) => `${i ? 'L' : 'M'}${X(r.span).toFixed(1)},${Y(r[k].w).toFixed(1)}`)
-      .join('');
-
+  // the five spans are the columns, one under the other in the order of the duration
+  const cols = $derived(rows.map((r) => ({ key: String(r.span), x: spanName(r.span) })));
+  const series = $derived([
+    { key: 'yr', color: C.yr, dots: true, v: rows.map((r) => r.year?.w ?? null) },
+    { key: 'd90', color: C.d90, dots: true, v: rows.map((r) => r.d90?.w ?? null) },
+  ]);
+  const w = (x) => (x ? `${num(x.w)} W` : '–');
+  const items = (i) => [
+    { label: t('best of the last 90 days'), value: w(rows[i].d90), color: C.d90 },
+    { label: t('best {year}', { year }), value: w(rows[i].year), color: C.yr },
+  ];
+  const readout = (i) => ({ title: spanName(rows[i].span), items: items(i) });
+  const table = $derived({ head: [t('Duration'), t('best of the last 90 days'), t('best {year}', { year })], rows: rows.map((r) => ({ key: String(r.span), cells: [spanName(r.span), w(r.d90), w(r.year)] })) });
   const at = (s) => rows.find((r) => r.span === s);
   const sentence = (s) => {
     const r = at(s);
@@ -49,26 +48,12 @@
   const label = $derived(
     rows.map((r) => `${spanName(r.span)}: ${r.d90 ? `${r.d90.w} W` : '–'} / ${r.year ? `${r.year.w} W` : '–'}`).join(', '),
   );
+  let open = $state(null);
 </script>
 
 {#if has}
   <AnaCard key="pcurve" wide sub={t('best mean power per duration')}>
-    <div class="plot" bind:clientWidth={w}>
-      <svg width={width} height={H + T + 22} viewBox="0 0 {width} {H + T + 22}" role="img" aria-label={label}>
-        {#each ax.ticks as v (v)}
-          <line x1={L} x2={width - R} y1={Y(v)} y2={Y(v)} class="grid" />
-          <text x={L - 8} y={Y(v) + 4} text-anchor="end">{v}</text>
-        {/each}
-        <path d={path('year')} class="yr" />
-        <path d={path('d90')} class="d90" />
-        {#each rows as r (r.span)}
-          {#if r.year}<circle cx={X(r.span)} cy={Y(r.year.w)} r="3" class="yr" />{/if}
-          {#if r.d90}<circle cx={X(r.span)} cy={Y(r.d90.w)} r="3" class="d90" />{/if}
-          {@const last = r.span === rows.at(-1).span}
-          <text x={last ? width - 2 : X(r.span)} y={H + T + 18} text-anchor={last ? 'end' : r.span === rows[0].span ? 'start' : 'middle'}>{spanName(r.span)}</text>
-        {/each}
-      </svg>
-    </div>
+    <LineChart id="pcurve" {cols} {series} {readout} {table} {label} unit="W" maxTop={0} onopen={(i) => (open = i)} hint={t('Point at a duration for its numbers, tap it for the days.')} />
     <ul class="leg">
       <li><i class="k d90"></i>{t('best of the last 90 days')}</li>
       <li><i class="k yr"></i>{t('best {year}', { year })}</li>
@@ -77,38 +62,32 @@
   </AnaCard>
 {/if}
 
+{#if open != null && rows[open]}
+  <ChartSheet kicker={t('best mean power per duration')} title={spanName(rows[open].span)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < rows.length - 1 ? () => open++ : null} prevLabel={t('Shorter')} nextLabel={t('Longer')}>
+    <ul class="shl" data-pcurve-sheet>
+      {#each items(open) as it (it.label)}<li><span>{it.label}</span><b class="num">{it.value}</b></li>{/each}
+      {#if rows[open].d90}<li><span>{t('Day of the 90-day best')}</span><b>{dm(rows[open].d90.day)}</b></li>{/if}
+      {#if rows[open].year}<li><span>{t('Day of the best {year}', { year })}</span><b>{dm(rows[open].year.day)}</b></li>{/if}
+    </ul>
+  </ChartSheet>
+{/if}
+
 <style>
-  .plot {
-    min-width: 0;
-    overflow: hidden;
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
   }
-  svg {
-    display: block;
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
-  text {
-    fill: var(--ink-3);
-    font: 400 var(--fs-tiny) / 1 var(--font-body);
-  }
-  .grid {
-    stroke: var(--line);
-    stroke-dasharray: 3 4;
-  }
-  path {
-    fill: none;
-    stroke-width: 2.5;
-    stroke-linejoin: round;
-  }
-  path.d90 {
-    stroke: var(--ch-w);
-  }
-  path.yr {
-    stroke: var(--pz1);
-  }
-  circle.d90 {
-    fill: var(--ch-w);
-  }
-  circle.yr {
-    fill: var(--pz1);
+  .shl span {
+    color: var(--ink-2);
   }
   .leg {
     display: flex;
