@@ -63,4 +63,11 @@ describe('Schnellspur (Weg zu online)', () => {
     expect(v).toContain('tests/e2e/gesamttest');
     expect(v).toContain('gh issue create');
   });
+
+  it('a red night run names what is red and the PRs merged since the last green run', () => {
+    const v = files['volle-pruefung.yml'];
+    expect(v).toContain('Name the suspects');
+    expect(v).toContain('gh run list --workflow volle-pruefung.yml --status success');
+    expect(v).toContain('actions: read');
+  });
 });

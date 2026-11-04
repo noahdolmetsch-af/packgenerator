@@ -8,15 +8,18 @@
    * Rules: ghost.js. Fewer than one comparable earlier ride: nothing.
    */
   import AnaCard from '../AnaCard.svelte';
-  import { ghostsOf, compare, TEMP_FLAG, WIND_FLAG } from './ghost.js';
+  import { ghostCase, betterOf, TEMP_FLAG, WIND_FLAG } from './ghost.js';
   import { mss } from './analysen.js';
   import { t, tn, num, locale } from '../../i18n.svelte.js';
 
   let { act = null, all = [] } = $props();
   let pickId = $state('');
-  const ghosts = $derived(ghostsOf(all, act));
-  const ghost = $derived(ghosts.find((g) => g.act.id === pickId) ?? ghosts[0] ?? null);
-  const cmp = $derived(ghost ? compare(act, ghost.act) : null);
+  const gc = $derived(ghostCase(all, act, pickId));
+  const ghosts = $derived(gc?.list ?? []);
+  const ghost = $derived(gc?.ghost ?? null);
+  const cmp = $derived(gc?.cmp ?? null);
+  // «Beaten?» in one word (Noah 04.11.2026 «2a»); never a verdict on the day
+  const HEAD = { beat: 'Ghost beaten|gh', level: 'Level with your ghost|gh', behind: 'Not beaten this time|gh' };
   const dayShort = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'numeric' });
   const f = (v, dec = 0) => (Number.isFinite(v) ? v.toLocaleString(locale(), { minimumFractionDigits: dec, maximumFractionDigits: dec }) : '–');
   const sgn = (v, dec, unit = '') => (Number.isFinite(v) ? `${v > 0 ? '+' : v < 0 ? '−' : '±'}${f(Math.abs(v), dec)}${unit}` : '–');
@@ -29,7 +32,7 @@
     kmh: { name: 'km/h|an', show: (v) => f(v, 1), diff: (m, g) => sgn(Math.round((m - g) * 10) / 10, 1) },
     time: { name: 'Time|an', show: (v) => mss(v), diff: (m, g) => `${m - g > 0 ? '+' : m - g < 0 ? '−' : '±'}${mss(Math.abs(m - g))}` },
   };
-  const rows = $derived(cmp ? cmp.rows.map((r) => ({ ...r, ...ROWS[r.key] })) : []);
+  const rows = $derived(cmp ? cmp.rows.map((r) => ({ ...r, ...ROWS[r.key], better: betterOf(r.key, r.me, r.ghost) })) : []);
   const driftName = $derived(cmp?.drift ? t(cmp.drift.kind === 'wpb' ? 'Fall of watts per beat, 1st to 2nd half|gh' : 'Rise of heart rate, 1st to 2nd half|gh') : '');
 
   const sentence = $derived.by(() => {
@@ -67,7 +70,10 @@
         {#each ghosts as g (g.act.id)}<option value={g.act.id}>{optLabel(g)}</option>{/each}
       </select>
     </label>
-    {#if sentence}<p class="gs" data-ghost-verdict={cmp.verdict.key}>{sentence}</p>{/if}
+    <div class="gb {gc.result}" data-ghost-result={gc.result}>
+      <b>{#if gc.result === 'beat'}<span aria-hidden="true">✓ </span>{/if}{t(HEAD[gc.result])}</b>
+      {#if sentence}<p class="gs" data-ghost-verdict={cmp.verdict.key}>{sentence}</p>{/if}
+    </div>
     <div class="gw">
       <table class="gt">
         <thead>
@@ -84,7 +90,7 @@
               <th scope="row">{t(r.name)}</th>
               <td>{r.show(r.me)}</td>
               <td>{r.show(r.ghost)}</td>
-              <td class="df">{r.diff(r.me, r.ghost)}</td>
+              <td class="df" class:bt={r.better === true}>{r.diff(r.me, r.ghost)}{#if r.better === true}<span class="ck" aria-label={t('better|gh')}> ✓</span>{/if}</td>
             </tr>
           {/each}
           {#if cmp.drift}
@@ -92,7 +98,7 @@
               <th scope="row">{driftName}</th>
               <td>{f(cmp.drift.me, 1)} %</td>
               <td>{f(cmp.drift.ghost, 1)} %</td>
-              <td class="df">{sgn(Math.round((cmp.drift.me - cmp.drift.ghost) * 10) / 10, 1, ' %')}</td>
+              <td class="df" class:bt={cmp.drift.me < cmp.drift.ghost}>{sgn(Math.round((cmp.drift.me - cmp.drift.ghost) * 10) / 10, 1, ' %')}{#if cmp.drift.me < cmp.drift.ghost}<span class="ck" aria-label={t('better|gh')}> ✓</span>{/if}</td>
             </tr>
           {/if}
         </tbody>
@@ -104,7 +110,7 @@
         {#each checks as c (c.key)}<li class:ok={c.ok === true} class:off={c.ok === false} data-ghost-check={c.key}><span aria-hidden="true">{c.ok === true ? '✓' : c.ok === false ? '≠' : '?'}</span> {c.text}</li>{/each}
       </ul>
     </div>
-    <p class="cap">{[effNote, t('Wind, rain, traffic and sleep are only in the numbers where Strava weather knows them. A better number is an observation, not an order to ride harder.|gh')].filter(Boolean).join(' ')}</p>
+    <p class="cap">{[effNote, t('Beaten means: more watts per beat, or the same power with a lower heart rate. A tick marks the better value.|gh'), t('Wind, rain, traffic and sleep are only in the numbers where Strava weather knows them. A better number is an observation, not an order to ride harder.|gh')].filter(Boolean).join(' ')}</p>
   </AnaCard>
 {/if}
 
@@ -119,9 +125,30 @@
     min-width: 0;
     max-width: 100%;
   }
+  .gb {
+    display: grid;
+    gap: 2px;
+    padding: 10px 14px;
+    border-radius: var(--r-ctl, 10px);
+    background: var(--paper-2);
+  }
+  .gb.beat {
+    background: var(--ok-soft);
+    color: var(--ok);
+  }
+  .gb b {
+    font-size: var(--fs-sub);
+  }
   .gs {
     margin: 0;
     font-weight: 600;
+  }
+  .gb.beat .gs {
+    color: var(--ink);
+  }
+  .bt {
+    color: var(--ok);
+    font-weight: 700;
   }
   .gw {
     overflow-x: auto;

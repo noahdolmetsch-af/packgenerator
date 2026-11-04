@@ -4,7 +4,7 @@ import { HOME } from '../src/lib/know/heimat.js';
 import { MAX_TAPS, TAP_GAPS } from '../src/lib/know/tipps.js';
 
 /** Lower it when a page leaves TAP_GAPS; never raise it. */
-const MAX_TAP_GAPS = 16;
+const MAX_TAP_GAPS = 13;
 
 describe('tap guard', () => {
   it('keeps the list of far pages from growing', () => {
