@@ -9,7 +9,8 @@ import { MERKEN_KEY, loadTodos } from './merkendb.js';
 import { withVisits } from './workshop.js';
 import { wearRows } from './wear.js';
 import { serviceState } from './bikeservice.js';
-import { logPart } from './care.js';
+import { logPart, partName } from './care.js';
+import { shrinkImage } from './photo.js';
 import { localDay } from './localday.js';
 import { t } from './i18n.svelte.js';
 
@@ -58,4 +59,16 @@ export async function syncSpringTodo(db = appDb, today = localDay()) {
     const r = syncSpring(await loadTodos(db), { day, text });
     if (r.changed) await db.settings.put({ key: MERKEN_KEY, value: plain(r.todos) });
   });
+}
+
+/**
+ * A wear photo of one part (`key`: chain, chainring, tyres) for the bike, with the day and the km now.
+ * The page «Wear photos» and the window «Measure the chain» both add through this. → the stored photo (its id for Undo).
+ */
+export async function addWearShot(bike, key, file, day = localDay(), db = appDb) {
+  const data = await shrinkImage(file, 1400, 0.82);
+  const id = `wear-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  const rec = { id, bikeId: bike.id, name: partName({ key }), tripId: null, main: false, wear: key, date: day, km: typeof bike.km === 'number' ? bike.km : null, data, addedAt: new Date().toISOString() };
+  await db.photos.put(rec);
+  return rec;
 }

@@ -10,6 +10,7 @@
   import { menuSide, shownTabs, tabOf, placeHref } from '../nav.js';
   import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: your menu, tabs and names
   import { t } from '../i18n.svelte.js';
+  import LogoMark from '../logo/LogoMark.svelte'; // «Jahreszeit» (Idee 30)
   import Search from './Search.svelte';
   import HelpButton from './HelpButton.svelte';
   import MeButton from './MeButton.svelte';
@@ -64,7 +65,7 @@
 
 <aside class="side" aria-label={t('Places')}>
   <div class="in">
-    <a class="logo" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span>Pack Generator</span></a>
+    <a class="logo" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true"><LogoMark /></span><span>Pack Generator</span></a>
     {#if shownew}
       <button type="button" class="newbtn" onclick={(e) => (clicked(e, 'new', t('New')), onnew?.(e))} aria-haspopup="dialog" aria-keyshortcuts="n">
         <Plus size={20} strokeWidth={2.4} aria-hidden="true" /><span>{t('New')}</span><kbd aria-hidden="true">N</kbd>
@@ -152,6 +153,7 @@
     text-decoration: none;
   }
   .mark {
+    position: relative; /* the season drawing of «PG» (Idee 30) sits in its corner */
     display: grid;
     place-items: center;
     width: 32px;

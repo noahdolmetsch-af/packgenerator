@@ -4,6 +4,7 @@
   import Skeleton from '../ui/Skeleton.svelte';
   import { settling } from '../settled.js';
   import { tick } from 'svelte';
+  import { between, fadeIn } from './fadein.js';
 
   let { load, ...rest } = $props();
   let Page = $state(loadedOf(load));
@@ -24,8 +25,12 @@
     // while a page loads, <html data-ready> is off, as during the data tidy-up (the browser tests wait for it)
     settling(async () => {
       const c = await loadPage(l);
+      // «Ruhiges Einblenden»: after a slow load (the placeholders were shown) the page fades in over them instead of blinking in
+      const grey = slow ? document.querySelector('[data-page-loading]') : null;
+      const edge = grey ? { parent: grey.parentNode, prev: grey.previousSibling, next: grey.nextSibling } : null;
       if (l === load) Page = c;
       await tick(); // the page is drawn before data-ready comes back
+      if (edge && l === load) fadeIn(between(edge));
     }).catch((e) => {
         if (l === load) failed = e;
       })

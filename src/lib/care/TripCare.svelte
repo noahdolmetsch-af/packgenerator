@@ -63,6 +63,10 @@
         <!-- «Verschleiss» (Noah 20.10.2026, 5a): parts that run out before or on the trip, with the way to the page -->
         <ul class="wear-trip" data-trip-wear>{#each wear as w (w.key)}<li class:late={w.when === 'now'}><b class="rn"><a href={bikesHash({ tab: 'care', view: 'wear', bike: care.bikeId })}>{t('{part}: replace soon', { part: w.name })}</a></b> <small>{w.when === 'during' ? `${t('on the trip')} · ` : `${t('before the start')} · `}{w.left == null ? t('worn') : w.left > 0 ? t('{km} km left', { km: w.left }) : t('{km} km over', { km: -w.left })}</small></li>{/each}</ul>
       {/if}
+      {#if trip.arrival === 'train'}
+        <!-- «Velos-Pflege einbauen» (Noah 03.11.2026 «3a»): a trip by train: the way to «Pack the bike» -->
+        <ul class="pack-trip" data-trip-pack><li><b class="rn"><a href={bikesHash({ tab: 'care', view: 'bikepack', bike: care.bikeId })}>{t('Pack the bike for the train')}</a></b> <small>{t('Checklist and photos before packing')}</small></li></ul>
+      {/if}
       {#if !bikeRows.length && !wear.length && care.status === 'nodata'}
         <p class="nd">{t('No data: enter km and record a check or service, then the app can tell.')}</p>
       {/if}

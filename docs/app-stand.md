@@ -111,7 +111,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Mein Setup | `#/bikes?tab=rig` | Setupfotos, Taschenvarianten und Gesamtgewicht verwalten; Vorbilder und Änderungen dokumentieren. |
 | Taschenplan | `#/bikes?tab=rig&view=bags` | Taschenpositionen und Gewichtsverteilung vorne, mittig und hinten prüfen. |
 | Setup-Logbuch | `#/bikes?tab=rig&view=log` | Umbauen und Einstellungen mit Kilometerstand und anschliessenden Erfahrungen festhalten. |
-| Velopflege | `#/bikes?tab=care` | Wartungen nach Kilometern, Fahrstunden oder Zeit planen und erledigte Arbeiten dokumentieren. |
+| Velopflege | `#/bikes?tab=care` | Wartungen nach Kilometern, Fahrstunden oder Zeit planen und erledigte Arbeiten dokumentieren. Im November, Dezember und Februar schlägt die Karte «Passt jetzt» (auch auf Heute) Einwintern, Jahresrückblick und Frühling vor. |
 | Veloinspektion | `#/bikes?tab=care&view=inspect` | Schnellcheck, Monatscheck oder vollständige Inspektion Punkt für Punkt mit Werkzeugen und Arbeitsschritten durchführen. |
 | Verschleiss | `#/bikes?tab=care&view=wear` | † Laufleistung, Restlaufzeit und frühere Lebensdauer von Ketten, Reifen und Belägen verfolgen; Kosten kommender Wechsel abschätzen. |
 | Werte erfassen | `#/bikes?tab=compare&view=enter` | † Messwerte wie Reifendruck und Kettenmessungen dokumentieren. |
@@ -163,8 +163,10 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Fahrt hochladen | `#/debrief/ride` | Fahrdateien auswerten, Planung und Realität vergleichen sowie Erkenntnisse festhalten. |
 | Vergangene Touren | `#/pack/past` | Frühere Touren mit Distanz, Höhenmetern, Zeit und Erfahrungen durchsuchen. |
 | Logbuch | `#/debrief/logbook` | Auch ältere Touren nachtragen und nach Jahr oder Art filtern. |
+| Tourenpass | `#/debrief/tourenpass` | Nach dem Rückblick einen Stempel auf den Tourenpass setzen; Stempel selbst hinzufügen, ändern, entfernen und ablehnen. |
 | Gesammelte Erkenntnisse | `#/debrief/learnings` | Erfahrungen thematisch sammeln und für spätere Touren wiederfinden. |
 | Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten. |
+| Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
 | Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. |
 | Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. |
@@ -229,7 +231,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Kleine Apps | `#/me/apps` | Einzelne Appbereiche als eigene Verknüpfung auf den Startbildschirm legen. |
 | Push-Erinnerungen | `#/me/push` | Hinweise zu Touren, Wetter, Licht, Verschleiss und Fristen einstellen. |
 | Eigene Werte | `#/me/werte` | Grenzwerte, Standardannahmen und Erinnerungsabstände anpassen. |
-| Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen. |
+| Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen; auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
 | Entscheidungsregeln | `#/me/regeln` | Nachvollziehen, weshalb die App etwas vorschlägt und wo sich die zugrunde liegenden Werte ändern lassen. |
 | Neuigkeiten | `#/me/news` | Änderungen und neue Funktionen nach Version nachlesen. |
 

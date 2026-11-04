@@ -35,3 +35,9 @@ export function typing(e) {
   if (el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))) return true;
   return typeof document !== 'undefined' && !!document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]');
 }
+
+/**
+ * «Frage deine Daten» (Noah 03.11.2026, Idee 7): ⌘ K (Mac) or Ctrl K opens the search, also while a field is active.
+ * Only the pure chord counts (no Shift or Alt), so it never swallows another shortcut.
+ */
+export const isSearchChord = (e) => (e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && String(e.key).toLowerCase() === 'k';

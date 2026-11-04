@@ -56,6 +56,10 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await expect(line).toContainText('°C');
   await expect(line).toContainText('30 km/h');
   await expect(line).toContainText('15:00');
+  // «Windfahne beim Wetter» (Paket D, Idee 15): the wind icon is a small vane; 30 km/h from the west = strong, pennant to the east
+  const vane = line.locator('[data-vane]');
+  await expect(vane).toHaveAttribute('data-vane-wind', 'strong');
+  await expect(vane.locator('g').first()).toHaveAttribute('transform', 'rotate(0)');
   await noSideways(page, 'today');
 
   // the weather page

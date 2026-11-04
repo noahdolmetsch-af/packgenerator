@@ -20,7 +20,7 @@
   import { X, Check, Eye, EyeOff, Trash2, Lightbulb } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { entry = null, count = 0, stdIcon = 'Tag', words = null, full = true, hideable = false, onsave, onhide, onremove = null, onclose } = $props();
+  let { entry = null, count = 0, stdIcon = 'Tag', words = null, full = true, hideable = false, maxlen = 40, onsave, onhide, onremove = null, onclose } = $props();
   // «Alles selbst bearbeiten» (19.10.2026): hideable shows «Ausblenden» without symbol and «Gilt für» (sports);
   // without onremove the list only renames (places on the bike, care parts: the app needs each of them)
 
@@ -65,7 +65,7 @@
   </div>
 
   <form onsubmit={save}>
-    <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={name} autocomplete="off" maxlength="40" /></label>
+    <label class="fld"><span class="lbl">{t('Name')}</span><input class="inp" bind:value={name} autocomplete="off" maxlength={maxlen} /></label>
     {#if entry && !entry.own}
       <p class="vd-note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Standard name: «{name}». Your name only applies for you.', { name: t(entry.std) })}</span></p>
     {/if}

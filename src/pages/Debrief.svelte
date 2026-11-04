@@ -44,6 +44,8 @@
   import Hub from '../lib/review/Hub.svelte';
   import Logbook from '../lib/review/Logbook.svelte';
   import Learned from '../lib/review/Learned.svelte';
+  import Paesse from '../lib/paesse/Paesse.svelte'; // Paket E 24: «Pässe sammeln»
+  import Tourenpass from '../lib/tourenpass/Tourenpass.svelte'; // Paket E 18: «Tourenpass mit Stempel»
   import TripSaved from '../lib/review/TripSaved.svelte';
   import UndoToast from '../lib/review/UndoToast.svelte';
   import { packedList } from '../lib/review/ganz.js';
@@ -101,8 +103,8 @@
 
   // v0.25.1 (Noah 3a): 'compare' scrolls to "Your trips compared".
   // v0.49.0 R1: pace, learnings and logbook are pages one level below the Rückblick; compare is its section.
-  const SPOTS = ['learnings', 'pace', 'compare', 'logbook'];
-  const SUBS = ['pace', 'learnings', 'logbook'];
+  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass'];
+  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass'];
   const tripId = $derived(param && !SPOTS.includes(param) ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
@@ -749,7 +751,7 @@
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
        its own page; v0.61.0 R2 rebuilt all three. -->
   <!-- v0.109.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
-  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : t('Learned|review')}
+  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : t('Learned|review')}
   <div class="over rv-page">
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
     <h1 class="title">{here}</h1>
@@ -758,6 +760,12 @@
     {:else if param === 'logbook'}
       <!-- v0.61.0 R2 (Noah ★a): a diary of all trips, newest first; filter by year and area. -->
       <Logbook />
+    {:else if param === 'paesse'}
+      <!-- Paket E 24 (Noah 03.11.2026 «E und F»): the passes you rode over, as yellow signs -->
+      <Paesse />
+    {:else if param === 'tourenpass'}
+      <!-- Paket E 18 (Noah 03.11.2026 «E und F»): the tour pass with the stamps of the trips -->
+      <Tourenpass />
     {:else}
       <!-- v0.61.0 R2 (Noah ★a): every learning flat by topic. -->
       <Learned />
