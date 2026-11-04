@@ -1,6 +1,6 @@
 # Alles hier bei Velos und Material
 
-PR #? · 03.11.2026 · Auftrag: Noah «1a» und «freigabe» (Thread «Bringe versteckte Funktionen online»)
+PR «Alles hier bei Velos» · 03.11.2026 · Auftrag: Noah «1a» und «freigabe» (Thread «Bringe versteckte Funktionen online»)
 
 ## Was ist neu
 - Oben auf **Velos und Material** (unter dem Einstieg) das Feld **«Alles hier»**: 20 Velo-Funktionen als Kacheln, ein Tipp bis zur Seite. Verschleiss, Prüfen, Werkstatt, Spickzettel, Ersatzteile, Verschleiss-Fotos, Winter und Frühling, Jahresrückblick, Verkaufsinserat, Velo verpacken, Strava, km-Import, Setup, Taschenplan, Setup-Logbuch, Ausrüstung, Vergleich, Masse und mehr.
