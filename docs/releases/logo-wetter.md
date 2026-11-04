@@ -24,7 +24,7 @@ Baut auf der Zufallswahl `src/lib/logo/surprises.js` (H6) auf.
 - keine neuen.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- `vorhaben-liste.md`: H9 in Arbeit.
+- `vorhaben-liste.md`: H9 «gebaut (PR)».
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Auf Heute oben links fünfmal schnell auf «PG» tippen, mehrmals: manchmal erscheint das Wetter mit Zeichnung und Satz, wie auf Heute.
