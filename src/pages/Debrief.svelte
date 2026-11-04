@@ -53,6 +53,7 @@
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
+  import JoyPick from '../lib/tourenc/JoyPick.svelte';
   import FeelScale from '../lib/tourenc/FeelScale.svelte'; // Touren c 70
   import ReachChips from '../lib/tourenc/ReachChips.svelte'; // Touren c 65
   import VoiceDebrief from '../lib/tourenc/VoiceDebrief.svelte'; // Touren c 68
@@ -649,6 +650,8 @@
             <div class="rv-h"><div><h2 id="dfeel-h">{t('How hard was it?')}</h2><p class="rv-sub">{t('First your feeling; the numbers come after «Done».')}</p></div></div>
             <div class="rv-box pad"><FeelScale value={d.feel ?? null} onpick={(n) => set('feel', n)} /></div>
           </section>
+          <!-- Persönliches Lernen Idee 6 (Noah 04.11.2026 «3a»): what made the tour good, four optional scales -->
+          <JoyPick {d} onchange={(v) => set('joy', v)} />
           <!-- Touren c 68 «Rückblick als Sprachnachricht» -->
           <VoiceDebrief {trip} {d} {items} {persist} />
           <!-- Planungs-Notizen (IS 246–249): «Hat es geholfen?» -->

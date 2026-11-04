@@ -1,0 +1,25 @@
+// «Freude als Auswertung» (Noah 04.11.2026 «3a», Persönliches Lernen Idee 6): src/lib/freude.js,
+// src/lib/tourenc/JoyPick.svelte
+export default {
+  'Riding fun|joy': 'Fahrspass',
+  'Nature|joy': 'Natur',
+  'Flow|joy': 'Flow',
+  'Company|joy': 'Gesellschaft',
+  'How much did the riding itself please you?': 'Wie sehr hat dich das Fahren selbst gefreut?',
+  'How much did the landscape and the air do for you?': 'Wie gut haben dir Landschaft und Luft getan?',
+  'How often did time and effort fall away?': 'Wie oft sind Zeit und Anstrengung weggefallen?',
+  'How good was being together (or alone, as you wanted)?': 'Wie gut war das Zusammensein (oder das Alleinsein, wie du es wolltest)?',
+  'What made it good?': 'Was hat es gut gemacht?',
+  'Four small scales, all optional. 1 = a little, 5 = a lot.': 'Vier kleine Skalen, alle freiwillig. 1 = wenig, 5 = viel.',
+  'Over {n} tours «{name}» was highest on average ({mean} of 5). This only counts what you answered.': 'Bei {n} Touren war «{name}» im Schnitt am höchsten ({mean} von 5). Das zählt nur, was du beantwortet hast.',
+  'Over {n} tours no one of the four stands out. This only counts what you answered.': 'Bei {n} Touren sticht keines der vier heraus. Das zählt nur, was du beantwortet hast.',
+  // Katalog, Anleitung und Handbuch (src/lib/featreg/freude-auswertung.js)
+  'In the debrief four small scales, riding fun, nature, flow and company, each 1 to 5 and all optional. From three tours on one line says which of the four was highest on average.': 'Im Rückblick vier kleine Skalen, Fahrspass, Natur, Flow und Gesellschaft, je 1 bis 5 und alle freiwillig. Ab drei Touren sagt eine Zeile, welche der vier im Schnitt am höchsten war.',
+  'Open the debrief of a tour.': 'Öffne den Rückblick einer Tour.',
+  'Tap a number from 1 to 5 under riding fun, nature, flow or company.': 'Tipp unter Fahrspass, Natur, Flow oder Gesellschaft eine Zahl von 1 bis 5.',
+  'A second tap on your number takes it away; skipping all four is fine.': 'Ein zweiter Tipp auf deine Zahl nimmt sie weg; alle vier auszulassen ist in Ordnung.',
+  'Open the debrief of a tour (Trips › Look back).': 'Öffne den Rückblick einer Tour (Touren › Rückblick).',
+  'Under «What made it good?» tap a number from 1 to 5 for the scales you want to answer.': 'Tipp unter «Was hat es gut gemacht?» bei den Skalen, die du beantworten willst, eine Zahl von 1 bis 5.',
+  'From three tours on, a line says which of the four was highest on average. A second tap on a number takes it away.': 'Ab drei Touren sagt eine Zeile, welche der vier im Schnitt am höchsten war. Ein zweiter Tipp auf eine Zahl nimmt sie weg.',
+  'Example: riding fun 4, nature 5, flow 3 → after three tours «Nature was highest on average (4.7 of 5)».': 'Beispiel: Fahrspass 4, Natur 5, Flow 3 → nach drei Touren «Natur war im Schnitt am höchsten (4,7 von 5)».',
+};
