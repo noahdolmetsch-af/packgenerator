@@ -40,10 +40,11 @@
 {/if}
 
 <style>
-  .ex { display: grid; gap: 8px; min-width: 0; margin-top: 16px; }
+  .ex { container: expect / inline-size; display: grid; gap: 8px; min-width: 0; margin-top: 16px; }
   h2 { display: flex; align-items: center; gap: 8px; margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .exs { margin: 0; color: var(--ink-2); font-size: var(--fs-small); }
-  .fp { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+  .fp { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  @container expect (min-width: 540px) { .fp { grid-template-columns: repeat(10, minmax(0, 1fr)); } }
   .fb { min-height: 44px; padding: 0; border: 1px solid var(--line); border-radius: var(--r-ctl); background: var(--paper); color: var(--ink); font-weight: 600; cursor: pointer; }
   .fb[aria-pressed='true'] { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
 </style>

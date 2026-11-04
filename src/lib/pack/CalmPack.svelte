@@ -338,6 +338,8 @@
     <HintCard page="pack" />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
+    <!-- Persönliches Lernen Idee 1 (Noah 04.11.2026 «1a»): the guess for a bike tour, high up so it is seen -->
+    {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
     {#if planTop}
       <div class="plan-top">
         <div class="pcol">
@@ -361,12 +363,10 @@
           <ProbeRow {trip} {items} card />
           <PackExtras {trip} {trips} {itemsById} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
-          {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
           <PlanNotesCard {trip} {bike} {fixed} />
         </div>
       </div>
     {:else}
-      {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
       <PlanNotesCard {trip} {bike} {fixed} />
       <PlanHints {trip} {trips} {items} />
       <DoorCard {trip} />
