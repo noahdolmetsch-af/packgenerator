@@ -32,6 +32,9 @@ export const MOOD_DAYS = 3;
 export const MOOD_BELOW = 1;
 /** A long day: moving time of yesterday's Strava activities together, in hours (Noah 03.11.2026, step 2). */
 export const LONG_DAY_H = 3;
+/** A pause: this many days without any training logged (Strava or tennis). The activities are read this many days back. */
+export const PAUSE_DAYS = 4;
+export const ACT_DAYS = 40;
 
 const chip = (key, label) => ({ key, label: `${label}|data` });
 
@@ -100,6 +103,21 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'training',
   },
+  'daten.pause': {
+    id: 'daten.pause',
+    area: 'sport',
+    text: 'What kept you from training lately?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('noTime', 'No time'), chip('tired', 'Tired'), chip('weather', 'Weather'), chip('wantedBreak', 'Wanted a break'), chip('away', 'Away'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'pause',
+  },
 };
 
 /** The rules, in order. title/about are English keys for t() (about has {n}). */
@@ -135,6 +153,14 @@ export const RULES = [
     about: 'Asks when yesterday\'s Strava activities together took at least {n} hours.',
     vars: { n: LONG_DAY_H },
     param: { key: 'n', min: 1, max: 8, step: 0.5, def: LONG_DAY_H, label: 'At least (hours on the move)' },
+  },
+  {
+    id: 'pause',
+    qid: 'daten.pause',
+    title: 'A pause from training',
+    about: 'Asks when you have logged no training for {n} days (Strava or tennis).',
+    vars: { n: PAUSE_DAYS },
+    param: { key: 'n', min: 2, max: 14, step: 1, def: PAUSE_DAYS, label: 'Days without training' },
   },
 ];
 
@@ -264,7 +290,24 @@ export function trainingHit(acts = [], today, hours = LONG_DAY_H) {
   return { h: Math.floor(min / 60), m: min % 60 };
 }
 
+/** The days with any training logged: Strava activities and tennis played or taught (sport items). */
+export function trainingDays(acts = [], sport = []) {
+  const days = new Set();
+  for (const a of acts) if (a?.day) days.add(a.day);
+  for (const x of sport) if (x?.day && x.sport === 'act:tennis' && (x.kind === 'played' || x.kind === 'taught')) days.add(x.day);
+  return days;
+}
+/** No training for `days` days or more: { n } (days since the last one). Without any training in the days read there is nothing to count from: null. */
+export function pauseHit(acts = [], sport = [], today, days = PAUSE_DAYS) {
+  const last = [...trainingDays(acts, sport)].filter((d) => d <= today).sort().at(-1);
+  if (!last) return null;
+  let n = 0;
+  while (addDays(last, n) < today) n++;
+  return n >= days ? { n } : null;
+}
+
 const WHY = {
+  pause: 'Your last logged training was {n} days ago.',
   training: 'Yesterday you were on the move for {h} h {m} min.',
   ruhepuls: 'Your resting pulse today is {v}, your usual of the last 30 days is {normal}.',
   schlaf: 'You slept {h} h {m} min last night.',
@@ -272,6 +315,7 @@ const WHY = {
   stimmungN: 'Your mood on the last {days} days was {list}, your usual is {usual}.',
 };
 const HITS = {
+  pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
   training: ({ acts, today, val }) => trainingHit(acts, today, val),
   ruhepuls: ({ health, today, val }) => ruhepulsHit(health, today, val),
   schlaf: ({ health, today, val }) => schlafHit(health, today, val),
@@ -280,11 +324,11 @@ const HITS = {
 
 /**
  * The questions from data that are due today: [{ q, slot, last, why: { text, vars }, data: true }].
- * health: healthDays rows; answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
+ * health: healthDays rows; acts: Strava activities { day, movingS }; sport: sport items { sport, kind, day }; answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], acts = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const doneToday = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => a.qid)).size;
@@ -298,7 +342,7 @@ export function dataDue({ health = [], acts = [], answers = [], checks = [], sno
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, acts, answers, checks, today, val: ruleVal(cfg, rule.id) });
+    const hit = HITS[rule.id]({ health, acts, sport, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
     out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id });

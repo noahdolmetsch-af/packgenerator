@@ -39,6 +39,7 @@
     return out;
   });
   const sugg = $derived(suggestions(sources, st));
+  const sure = $derived(sugg.filter((s) => s.level === 'sure')); // «Collect all» takes only these; the others you confirm one by one
   const list = $derived(newestFirst(st.list));
   const top = $derived(highest(st.list));
 
@@ -50,8 +51,8 @@
     offerDone(t('«{name}» is in your collection.', { name: s.pass.name }));
   }
   async function takeAll() {
-    await save(collectAll(st, sugg));
-    offerDone(tn(sugg.length, '{n} pass is in your collection.', '{n} passes are in your collection.'));
+    await save(collectAll(st, sure));
+    offerDone(tn(sure.length, '{n} pass is in your collection.', '{n} passes are in your collection.'));
   }
   async function notRidden(s) {
     const before = st;
@@ -86,14 +87,14 @@
       <section class="card sug" aria-labelledby="pa-sug" data-pass-suggestions>
         <div class="sh">
           <h2 id="pa-sug">{tn(sugg.length, '{n} pass on your rides', '{n} passes on your rides')}</h2>
-          {#if sugg.length > 1}<button type="button" class="btn" onclick={takeAll} data-pass-all><Check size={16} aria-hidden="true" />{t('Collect all')}</button>{/if}
+          {#if sure.length > 1}<button type="button" class="btn" onclick={takeAll} data-pass-all><Check size={16} aria-hidden="true" />{sure.length < sugg.length ? t('Collect all sure ones') : t('Collect all')}</button>{/if}
         </div>
         <ul class="srows">
           {#each sugg as s (s.key)}
             <li data-suggest={s.key}>
-              <div class="sm"><b>{s.pass.name}</b> <span class="num">{t('{m} m', { m: num(s.pass.m) })}</span><small>{[dayText(s.date), s.title].filter(Boolean).join(' · ')}</small></div>
+              <div class="sm"><b>{s.pass.name}</b> <span class="num">{t('{m} m', { m: num(s.pass.m) })}</span><small>{[dayText(s.date), s.title].filter(Boolean).join(' · ')}</small>{#if s.level === 'maybe'}<small class="maybe" data-pass-maybe>{t('Please confirm: the line passed {n} m from the top.', { n: Math.round(s.km * 1000) })}</small>{/if}</div>
               <div class="sa">
-                <button type="button" class="btn hi" onclick={() => take(s)} aria-label={t('Collect «{name}»', { name: s.pass.name })} data-pass-take><Check size={16} aria-hidden="true" />{t('Collect')}</button>
+                <button type="button" class="btn hi" onclick={() => take(s)} aria-label={t('Collect «{name}»', { name: s.pass.name })} data-pass-take><Check size={16} aria-hidden="true" />{s.level === 'maybe' ? t('Yes, rode it') : t('Collect')}</button>
                 <button type="button" class="btn" onclick={() => notRidden(s)} aria-label={t('Not ridden: «{name}»', { name: s.pass.name })} data-pass-skip><X size={16} aria-hidden="true" />{t('Not ridden')}</button>
               </div>
             </li>
@@ -205,6 +206,10 @@
   }
   .sm small {
     color: var(--ink-3);
+  }
+  .sm small.maybe {
+    color: var(--ink-2);
+    font-weight: 600;
   }
   .sa,
   .pa,
