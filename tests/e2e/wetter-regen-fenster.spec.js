@@ -36,7 +36,7 @@ test('Weather: the rain strip and the two windows at the bottom', async ({ page,
   await openHome(page, context, info);
   await context.route(/api\.open-meteo\.com\/v1\/forecast\?.*cape/, (route) => route.fulfill({ json: core() }));
   await context.route(/landi\.ch|srf\.ch/, (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<body style="font:16px sans-serif;background:#dbe8ef;padding:24px">Fenster der fremden Seite (Beispiel)</body>' }));
-  await page.goto('./#/wetter');
+  await page.goto('./#/wetter?tab=radar');
   await page.reload();
 
   const strip = page.locator('[data-wx-r24]');

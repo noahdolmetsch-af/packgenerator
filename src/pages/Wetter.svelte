@@ -99,6 +99,30 @@
   const train = $derived(core ? trainInstead(core, today) : null);
   const outside = $derived(core ? outdoorOk(core, now) : null);
 
+  // «Wetter neu» PR 2 (Noah 04.11.2026 «5 alle»): four parts instead of one long page. The part comes from the address
+  // (#/wetter?tab=radar), else the one chosen last on this device, else «Jetzt».
+  const TABS = ['jetzt', 'radar', 'planen', 'rueckblick'];
+  const TAB_LABEL = { jetzt: 'Now|wxtab', radar: 'Radar and cameras', planen: 'Plan|wxtab', rueckblick: 'Look back|wxtab' };
+  const TAB_KEY = 'wx.tab';
+  const lastTab = () => {
+    try {
+      const v = localStorage.getItem(TAB_KEY);
+      return TABS.includes(v) ? v : null;
+    } catch {
+      return null;
+    }
+  };
+  let tabSel = $state(null);
+  const tab = $derived(tabSel ?? (TABS.includes(params.get('tab')) ? params.get('tab') : (lastTab() ?? 'jetzt')));
+  function pick(k) {
+    tabSel = k;
+    try {
+      localStorage.setItem(TAB_KEY, k);
+    } catch {
+      /* the part is only remembered, never needed */
+    }
+  }
+
   const DURS = [2, 4, 6, 8];
   let dur = $state(4);
   const windows = $derived(core ? bestWindows(core, { durH: dur, days: 7, now }) : { days: [], best: null });
@@ -213,6 +237,13 @@
   {#if err}<p class="rc-warn" role="status" data-wx-error>{err}</p>{/if}
   {#if busy && !core}<p class="rc-note">{t('Loading…')}</p>{/if}
 
+  <div class="wx-chips wx-tabs" role="tablist" aria-label={t('Parts of the weather page')} data-wx-tabs>
+    {#each TABS as k (k)}
+      <button type="button" class="wx-chip" role="tab" id="wx-tab-{k}" aria-selected={tab === k} onclick={() => pick(k)} data-wx-tab={k}>{t(TAB_LABEL[k])}</button>
+    {/each}
+  </div>
+
+  {#if tab === 'jetzt'}
   {#if core}
     <!-- today -->
     <section class="card wx-sec" aria-labelledby="wx-today" data-wx-today>
@@ -237,7 +268,29 @@
     </section>
 
     <NextHours {place} />
+  {/if}
+  <!-- «Aktiv neu» (Noah 22.10.2026, spec): the lake temperature, ozone and pollen moved here from the Aktiv start -->
+  <LakeCard headingLevel={2} />
+  <AirCard headingLevel={2} />
+  {/if}
 
+  {#if tab === 'radar'}
+  <!-- Noah 04.11.2026 «1a 2a 3a 4b»: the rain strip and two windows at the bottom, next to the webcams -->
+  <Regen24 {core} {now} />
+  <FensterBox id="landi" title={t('Landi rain radar')} url={LANDI_RADAR} why={t('Where the rain is now and when it comes, for the next hours.')} />
+  <FensterBox id="srf" title={t('SRF Meteo webcams')} url={SRF_WEBCAMS} why={t('Live pictures of many places in Switzerland.')} />
+
+  <!-- extra 7: my webcams -->
+  <section class="card wx-sec" aria-labelledby="wx-cams" data-wx-cams>
+    <h2 id="wx-cams" class="wx-h"><Camera size={18} aria-hidden="true" />{t('My webcams')}</h2>
+    <!-- «332 Use Cases» (Noah 26.10.2026 «webcams und live-karte» sichtbar) -->
+    <p class="cam-map" data-webcam-map><b>{t('Webcams on the live map')}</b>: {t('give a webcam a place, and it shows as a point on the live map under «My points».')}</p>
+    <WebcamList />
+  </section>
+  {/if}
+
+  {#if tab === 'planen'}
+  {#if core}
     <!-- 1a: the best weather window -->
     <section class="card wx-sec" aria-labelledby="wx-best" data-wx-best>
       <h2 id="wx-best" class="wx-h"><Target size={18} aria-hidden="true" />{t('Best time for a ride')}</h2>
@@ -285,7 +338,6 @@
       {/if}
     </section>
   {/if}
-
   {#if place}
     <!-- extra 2: climate far ahead -->
     <section class="card wx-sec" aria-labelledby="wx-clim" data-wx-climate>
@@ -299,7 +351,9 @@
       {#if cErr}<p class="rc-warn">{cErr}</p>{/if}
     </section>
   {/if}
+  {/if}
 
+  {#if tab === 'rueckblick'}
   {#if hitList.length}
     <!-- extra 6: forecast against what came -->
     <section class="card wx-sec" aria-labelledby="wx-hits" data-wx-hits>
@@ -311,7 +365,6 @@
       </ul>
     </section>
   {/if}
-
   {#if core}
     <!-- Lernen (2a): how it felt, for next time -->
     <section class="card wx-sec" aria-labelledby="wx-feel" data-wx-feel>
@@ -320,23 +373,8 @@
       {#if !picked && !trip}<HomeFeelCard {core} />{/if}
     </section>
   {/if}
+  {/if}
 
-  <!-- «Aktiv neu» (Noah 22.10.2026, spec): the lake temperature, ozone and pollen moved here from the Aktiv start -->
-  <LakeCard headingLevel={2} />
-  <AirCard headingLevel={2} />
-
-  <!-- Noah 04.11.2026 «1a 2a 3a 4b»: the rain strip and two windows at the bottom, next to the webcams -->
-  <Regen24 {core} {now} />
-  <FensterBox id="landi" title={t('Landi rain radar')} url={LANDI_RADAR} why={t('Where the rain is now and when it comes, for the next hours.')} />
-  <FensterBox id="srf" title={t('SRF Meteo webcams')} url={SRF_WEBCAMS} why={t('Live pictures of many places in Switzerland.')} />
-
-  <!-- extra 7: my webcams -->
-  <section class="card wx-sec" aria-labelledby="wx-cams" data-wx-cams>
-    <h2 id="wx-cams" class="wx-h"><Camera size={18} aria-hidden="true" />{t('My webcams')}</h2>
-    <!-- «332 Use Cases» (Noah 26.10.2026 «webcams und live-karte» sichtbar) -->
-    <p class="cam-map" data-webcam-map><b>{t('Webcams on the live map')}</b>: {t('give a webcam a place, and it shows as a point on the live map under «My points».')}</p>
-    <WebcamList />
-  </section>
   <p class="rc-src"><Mountain size={14} aria-hidden="true" /> {t('Weather from Open-Meteo (free, open data). Avalanches: the SLF bulletin, shown as it is; the app never rates the danger itself.')}</p>
 </section>
 
@@ -429,7 +467,8 @@
     font: 500 var(--fs-body) var(--font-body);
     cursor: pointer;
   }
-  .wx-chip[aria-pressed='true'] {
+  .wx-chip[aria-pressed='true'],
+  .wx-chip[aria-selected='true'] {
     background: var(--ink);
     border-color: var(--ink);
     color: var(--paper);

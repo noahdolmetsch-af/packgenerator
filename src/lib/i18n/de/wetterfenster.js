@@ -17,4 +17,10 @@ export default {
   'The window stays empty? Then the site does not allow it.': 'Das Fenster bleibt leer? Dann erlaubt die Seite es nicht.',
   'Stays empty? Show only the button': 'Bleibt leer? Nur den Knopf zeigen',
   'Open in a new tab': 'In neuem Tab öffnen',
+  // «Wetter neu» PR 2: die vier Reiter
+  'Parts of the weather page': 'Teile der Wetterseite',
+  'Now|wxtab': 'Jetzt',
+  'Radar and cameras': 'Radar und Kameras',
+  'Plan|wxtab': 'Planen',
+  'Look back|wxtab': 'Rückblick',
 };
