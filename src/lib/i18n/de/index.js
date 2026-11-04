@@ -131,6 +131,7 @@ import abfragen from './abfragen.js';
 import logogeheimnis from './logo-geheimnis.js';
 import logosprueche from './logo-sprueche.js';
 import logoplatten from './logo-platten.js';
+import logostreiche from './logo-streiche.js';
 
 // FE1, FE13, FE14, FE16: Daumen-Zone, Farbe nie allein, «?» an Ort und Stelle, passende Handy-Tastatur
 import daumen from './daumen.js';
@@ -537,6 +538,7 @@ import formgarmin from './formgarmin.js';
 import umweg from './umweg.js';
 // Paket Y «Wetter-Kern» (Noah 20.10.2026)
 import wetterkern from './wetterkern.js';
+import wetterfenster from './wetterfenster.js';
 import energie from './energie.js';
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»)
 import haustuer from './haustuer.js';
@@ -803,6 +805,7 @@ const ORDERED = [
   logogeheimnis,
   logosprueche,
   logoplatten,
+  logostreiche,
   daumen,
   hg1,
   runden,
@@ -970,6 +973,7 @@ const ORDERED = [
   umweg,
   haustuer,
   wetterkern,
+  wetterfenster,
   energie,
   tourlernen,
   schnellpacken,

@@ -224,3 +224,79 @@ test('the customer list: add a customer with an own price, edit and delete with 
   await page.getByRole('button', { name: T('Delete') }).last().click();
   await expect(page.locator('.cu-row', { hasText: 'Mia Muster' })).toHaveCount(0);
 });
+
+test('Heute reminds about tomorrow\'s lesson with a message ready', async ({ page }) => {
+  await page.goto('./#/me/offers');
+  await ready(page);
+  await page.locator('.of-chips .btn').first().click();
+  await expect(page).toHaveURL(/#\/me\/offers\/tennis-[a-z0-9]+$/);
+  const id = page.url().split('/').at(-1);
+  await page.getByRole('button', { name: T('Change') }).click();
+  const rules = page.getByRole('dialog', { name: T('How booking works') });
+  await rules.getByRole('button', { name: T('Booked at once') }).click();
+  await rules.getByRole('button', { name: T('Save') }).click();
+  await expect(rules).toBeHidden();
+  // a time tomorrow (the fixed day is a Wednesday, so tomorrow is the Thursday column of this week)
+  await page.locator('.of-dc').nth(3).locator('.of-sl.add').click();
+  const add = page.getByRole('dialog', { name: T('Open a time') });
+  await add.locator('input[type=time]').fill('18:00');
+  await add.getByRole('button', { name: T('Open the time') }).click();
+  await expect(add).toBeHidden();
+  await page.goto(`./buchen/#${id}`);
+  await page.getByLabel(T('Your name')).fill('Mia Muster');
+  await page.getByLabel(T('Phone or e-mail')).fill('079 000 00 00');
+  await page.getByRole('button', { name: T('Book the time') }).click();
+  await expect(page.getByRole('heading', { name: T('Booked') })).toBeVisible();
+  await page.goto('./#/');
+  await ready(page);
+  const remind = page.locator('li.row[data-row="remind"]');
+  await expect(remind).toContainText(T('tomorrow'));
+  await expect(remind).toContainText('Mia Muster');
+  await expect(remind.getByRole('link', { name: T('Remind') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
+});
+
+test('after the lesson: no-show counts the full price, cancelled late half, in the invoice draft', async ({ page }) => {
+  await page.goto('./#/me/offers');
+  await ready(page);
+  await page.locator('.of-chips .btn').first().click();
+  await expect(page).toHaveURL(/#\/me\/offers\/tennis-[a-z0-9]+$/);
+  const id = page.url().split('/').at(-1);
+  await page.getByRole('button', { name: T('Change') }).click();
+  const rules = page.getByRole('dialog', { name: T('How booking works') });
+  await rules.getByRole('button', { name: T('Booked at once') }).click();
+  await rules.getByRole('button', { name: T('Save') }).click();
+  await expect(rules).toBeHidden();
+  // a single lesson today at 18:00 (the fixed day is a Wednesday at noon)
+  await page.locator('.of-dc').nth(2).locator('.of-sl.add').click();
+  const add = page.getByRole('dialog', { name: T('Open a time') });
+  await add.locator('input[type=time]').fill('18:00');
+  await add.getByRole('button', { name: new RegExp(`^${T('Single')}`) }).click();
+  await add.getByRole('button', { name: T('Open the time') }).click();
+  await expect(add).toBeHidden();
+  await page.goto(`./buchen/#${id}`);
+  await page.getByLabel(T('Your name')).fill('Ben Beispiel');
+  await page.getByLabel(T('Phone or e-mail')).fill('ben@example.test');
+  await page.getByRole('button', { name: T('Book the time') }).click();
+  await expect(page.getByRole('heading', { name: T('Booked') })).toBeVisible();
+  // the lesson is over: later the same day
+  const evening = await page.evaluate(() => {
+    const d = new Date();
+    d.setHours(20, 0, 0, 0);
+    return d.getTime();
+  });
+  await page.clock.setFixedTime(evening);
+  await page.goto(`./#/me/offers/${id}`);
+  await page.evaluate(() => localStorage.setItem('pg.pay.account', JSON.stringify({ iban: 'CH44 3199 9123 0008 8901 2', name: 'Beispiel Tennis', street: '', house: '', zip: '8000', town: 'Zürich', twint: '079 000 00 00' })));
+  const card = page.locator('[data-lessons-over]');
+  await expect(card).toContainText('Ben Beispiel');
+  await card.locator('[data-outcome]').selectOption('noshow');
+  await card.getByRole('button', { name: T('Prepare invoice') }).click();
+  await expect(page.getByLabel(T('Amount|money'))).toHaveValue('60');
+  await expect(page.getByLabel(T('What for?'))).toHaveValue(new RegExp(T('did not come')));
+  await page.goBack();
+  await card.locator('[data-outcome]').selectOption('late');
+  await card.getByRole('button', { name: T('Prepare invoice') }).click();
+  await expect(page.getByLabel(T('Amount|money'))).toHaveValue('30');
+  await expect(page.getByLabel(T('What for?'))).toHaveValue(new RegExp(T('cancelled late')));
+});
+
