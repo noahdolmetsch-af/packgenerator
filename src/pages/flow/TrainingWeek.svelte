@@ -16,7 +16,7 @@
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
+  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
@@ -47,6 +47,9 @@
   $effect(() => {
     homeForecast(db).then((f) => (homeFc = f)).catch(() => {});
   });
+  const sgQ = liveQuery(async () => (await db.settings.get(SPORTGOALS_KEY))?.value ?? null);
+  const sportGoals = $derived(cleanSportGoals($sgQ));
+  const saveSportGoals = (v) => db.settings.put({ key: SPORTGOALS_KEY, value: cleanSportGoals(v) });
   const saveLimits = (v) => db.settings.put({ key: DAYS_KEY, value: cleanDayLimits(v) });
   const goal = $derived(goalOf($goalQ));
   // Gesamttest 20.10.2026 (journey): from the training back to the next race (the race already links to its plan)
@@ -266,7 +269,7 @@
         </ul>
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
         {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
-        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} onlimits={saveLimits} onapply={applySuggestion} />
+        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} onlimits={saveLimits} onapply={applySuggestion} />
       </div>
     </Sec>
 
