@@ -76,6 +76,8 @@
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
+  import NightLight from '../lib/live/NightLight.svelte'; // «Licht in der Nacht» (Paket D, Idee 20)
+  import { nightStrength, nightLightOn, beamDeg } from '../lib/live/nightlight.js';
   import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
@@ -97,6 +99,7 @@
   import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
+  import { nearestExit } from '../lib/live/exit.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -173,7 +176,7 @@
   const climbs = $derived(profile.length > 1 ? climbsOf(profile, 100) : []);
 
   /* ---------- options (settings 'live') ---------- */
-  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true };
+  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true, nightLight: true };
   const cfg = $derived({ ...OPTS, ...($cfgQ?.value ?? {}) });
   const setOpt = (k, v) => db.settings.put({ key: 'live', value: { ...cfg, [k]: v } });
 
@@ -380,6 +383,7 @@
   const WATER_FRAC = { full: 1, half: 0.5, low: 0.15 };
   const waterHave = $derived(Math.round(waterCap * WATER_FRAC[waterLeft]));
   const waterRateNow = $derived(waterRate > 0 ? waterRate : drinkPerH(null, DRINK_ML_H));
+  const exitNear = $derived(hasRoute && km != null ? nearestExit({ pois, km, now, pace, profile }) : null);
   const water = $derived(hasRoute && km != null ? nextWater({ pois, km, now, pace, profile, haveMl: waterHave, rateMlH: waterRateNow }) : null);
   const waterLoaded = $derived(pois.some((p) => p.kind === 'water' || p.kind === 'shop' || p.kind === 'fuel'));
   const ml = (v) => (v >= 1000 ? `${num(Math.round(v / 100) / 10)} l` : `${num(Math.round(v / 10) * 10)} ml`);
@@ -1212,6 +1216,9 @@
   let touchedAt = $state(Date.now());
   const warning = $derived(offWarn || !!storm || !!limitMsg || rec.paused || standing);
   const dimmed = $derived(cfg.dim && full && !warning && now - touchedAt > 120_000);
+  // «Licht in der Nacht» (Paket D, Idee 20): after sunset the edge of the map darkens and a cone of light lies ahead
+  const nightS = $derived(nightStrength(light, now));
+  const nightOn = $derived(nightLightOn({ strength: nightS, enabled: cfg.nightLight, battery: cfg.battery }));
   // Stromsparen 2a: after 2 min without a touch the first data page instead of the map; a warning brings the map back
   let autoSwitched = false;
   $effect(() => {
@@ -1366,6 +1373,8 @@
           <LiveSmallMap me={meOnMap} line={route?.line ?? []} {done} />
         {/snippet}
       </DataPages>
+
+      {#if nightOn && dpIndex === 0}<NightLight strength={nightS} deg={beamDeg({ rotated: goalOn && !northUp, deg })} />{/if}
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
@@ -1854,6 +1863,9 @@
         <label class="lv-opt"><input type="checkbox" checked={cfg.dim} onchange={(e) => setOpt('dim', e.currentTarget.checked)} data-live-opt="dim" /><span><b>{t('Save the screen')}</b><small>{t('After 2 minutes without a touch the map gets darker (less battery on most phones). A touch or a warning makes it bright again.')}</small></span></label>
       </li>
       <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.nightLight} onchange={(e) => setOpt('nightLight', e.currentTarget.checked)} data-live-opt="nightLight" /><span><b>{t('Night light')}</b><small>{t('After sunset the edge of the map gets darker and a warm cone of light lies ahead of you, like from a front lamp. Not with the battery saver.')}</small></span></label>
+      </li>
+      <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.sleepSpots ?? isRace} onchange={(e) => setOpt('sleepSpots', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="sleepSpots" /><span><b>{t('Places to sleep ahead')}</b><small>{hasRoute ? t('The next three places to sleep on the route in the panel: hotels, roofs, places open at night and your own spots. On by default in a race.') : t('Needs a route.')}</small></span></label>
       </li>
       <li class="rc-row">
@@ -1875,7 +1887,7 @@
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
-{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
+{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} exitNear={exitNear} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 

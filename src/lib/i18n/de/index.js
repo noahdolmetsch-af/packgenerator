@@ -127,6 +127,10 @@ import sn6plus from './sn6plus.js';
 // AB «Deine Abfragen»: the 50 questions in 10 areas, Ich › Deine Abfragen, the card on Heute, Ich › Daten › Verlauf
 import abfragen from './abfragen.js';
 
+// «Geheimnis im Logo» (Idee 29) and «Geheimmenü» (H6 …): the surprises behind five taps on «PG»
+import logogeheimnis from './logo-geheimnis.js';
+import logosprueche from './logo-sprueche.js';
+
 // FE1, FE13, FE14, FE16: Daumen-Zone, Farbe nie allein, «?» an Ort und Stelle, passende Handy-Tastatur
 import daumen from './daumen.js';
 
@@ -795,6 +799,8 @@ const ORDERED = [
   komoot,
   sn6plus,
   abfragen,
+  logogeheimnis,
+  logosprueche,
   daumen,
   hg1,
   runden,

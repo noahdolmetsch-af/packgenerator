@@ -94,13 +94,13 @@ export const isOpenRequest = (b) => b.status === 'requested';
  * address), the price of the kind and what it is for. The app fills the invoice form with it; nothing is
  * sent. `when` is the date written for people («Mo, 23.11.»).
  */
-export function invoiceDraft(offer, slot, booking, when) {
+export function invoiceDraft(offer, slot, booking, when, rate = null) {
   const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];
   const contact = String(booking.contact ?? '').trim();
   return {
     name: booking.name,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : '',
-    amount: ty ? chf(ty.price) : '',
+    amount: rate != null ? chf(rate) : ty ? chf(ty.price) : '',
     purpose: [offer.title, ty?.label, when].filter(Boolean).join(', '),
     bookings: [{ offer: offer.id, b: booking.id }],
   };
@@ -110,9 +110,9 @@ export function invoiceDraft(offer, slot, booking, when) {
  * One invoice for several lessons (Noah 03.11.2026: «mehrere Rechnungen zu einer kombinieren»): the
  * prices add up, the dates are listed. items: [{ slot, booking }], when(booking) writes the date.
  */
-export function invoiceDraftMany(offer, items, when) {
-  const drafts = items.map((x) => invoiceDraft(offer, x.slot, x.booking, when(x.booking)));
-  const rappen = items.reduce((n, x) => n + (((offer.types ?? []).find((y) => y.key === x.slot?.type) ?? offer.types?.[0])?.price ?? 0), 0);
+export function invoiceDraftMany(offer, items, when, rateOf = () => null) {
+  const drafts = items.map((x) => invoiceDraft(offer, x.slot, x.booking, when(x.booking), rateOf(x.booking.name)));
+  const rappen = items.reduce((n, x) => n + (rateOf(x.booking.name) ?? ((offer.types ?? []).find((y) => y.key === x.slot?.type) ?? offer.types?.[0])?.price ?? 0), 0);
   const names = [...new Set(drafts.map((d) => d.name))];
   return {
     name: names.join(', '),

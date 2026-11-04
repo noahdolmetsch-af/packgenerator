@@ -249,3 +249,11 @@ describe('cleanDayLimits', () => {
     expect(cleanDayLimits(null)).toEqual({});
   });
 });
+
+import { cleanSportGoals } from '../src/lib/training.js';
+describe('cleanSportGoals', () => {
+  it('keeps whole numbers 0–3 per sport id only', () => {
+    expect(cleanSportGoals({ yoga: 2, swim: 0, run: 4, x: 1.5, y: 'a' })).toEqual({ yoga: 2, swim: 0 });
+    expect(cleanSportGoals(null)).toEqual({});
+  });
+});

@@ -74,21 +74,23 @@ export function weatherLine(forecast, now = new Date()) {
   const temp = Math.round(tomorrow ? (day.max ?? temps?.[14] ?? 0) : (temps?.[from] ?? day.max ?? 0));
   let text;
   let dry;
+  let kind; // «Wetter-Sprüche auf Mundart» (Idee 27): 'rain' | 'showers' | 'dryuntil' | 'dry'
   if (pcts?.length === 24) {
     const wetAt = pcts.findIndex((p, h) => h >= from && h <= 22 && wetPct(p));
-    if (wetAt === from) (text = t('{t}° and rain likely.', { t: temp })), (dry = false);
-    else if (wetAt > 0) (text = t('{t}° and dry until {h}:00.', { t: temp, h: wetAt })), (dry = wetAt - from >= 3);
-    else (text = t('{t}° and dry.', { t: temp })), (dry = true);
+    if (wetAt === from) (text = t('{t}° and rain likely.', { t: temp })), (dry = false), (kind = 'rain');
+    else if (wetAt > 0) (text = t('{t}° and dry until {h}:00.', { t: temp, h: wetAt })), (dry = wetAt - from >= 3), (kind = 'dryuntil');
+    else (text = t('{t}° and dry.', { t: temp })), (dry = true), (kind = 'dry');
   } else {
     const rain = day.rain ?? 'none';
     dry = rain === 'none';
+    kind = rain === 'rain' ? 'rain' : rain === 'showers' ? 'showers' : 'dry';
     text = rain === 'rain' ? t('{t}° and rain.', { t: temp }) : rain === 'showers' ? t('{t}°, showers possible.', { t: temp }) : t('{t}° and dry.', { t: temp });
   }
   if (tomorrow) text = t('Tomorrow {weather}', { weather: text });
   // «332 Use Cases» (Noah 26.10.2026): the day's high and low beside the sentence
   const hi = day.max != null ? Math.round(day.max) : null;
   const lo = day.min != null ? Math.round(day.min) : null;
-  return { text, temp, dry, when: tomorrow ? 'tomorrow' : 'today', hi: hi != null && lo != null ? hi : null, lo: hi != null && lo != null ? lo : null };
+  return { text, temp, dry, kind, when: tomorrow ? 'tomorrow' : 'today', hi: hi != null && lo != null ? hi : null, lo: hi != null && lo != null ? lo : null };
 }
 
 /**

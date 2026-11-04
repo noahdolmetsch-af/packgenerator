@@ -8,7 +8,7 @@
 #   A running publish is never cancelled; merges that come meanwhile go online together right after.
 #   Since the evening of 27.10.2026 this is one job («online»: build, unit tests, publish, Releases entry):
 #   GitHub has no priority, so every extra job waited again behind all pull request tests.
-# - the full browser tests on the computer and the Gesamttest run after going online and every night
+# - the full browser tests on the computer and the Gesamttest run every night
 #   (.github/workflows/volle-pruefung.yml); a red one opens an issue, Claude repairs, «zurück» stays possible.
 # Noah 28.10.2026 «1a»: the phone browser tests of a pull request run only after his approval (a tap on
 # «Freigeben», or «ok N»). Claude then puts the label «ok» on the PR; that starts «e2e (phone)», and Claude
@@ -89,7 +89,7 @@ jobs:
       - if: steps.scope.outputs.mode == 'all'
         run: npm run e2e -- --project=phone --shard=${{ matrix.shard }}/5
         env:
-          E2E_SKIP_GESAMTTEST: '1' # runs after going online (volle-pruefung.yml)
+          E2E_SKIP_GESAMTTEST: '1' # runs every night (volle-pruefung.yml)
       - if: steps.scope.outputs.mode == 'specs' && matrix.shard == 1
         run: npm run e2e -- --project=phone ${{ steps.scope.outputs.specs }}
         env:
@@ -121,7 +121,7 @@ jobs:
       - run: test "${{ needs.e2e-part.result }}" = "success"
 
   # «e2e (desktop)»: the Wächter on the computer, every main page at 1440 px (sideways scrolling, broken
-  # words, one page title). The other computer tests run after going online and every night.
+  # words, one page title). The other computer tests run every night.
   e2e-desktop:
     name: e2e (desktop)
     if: github.event_name == 'pull_request' && github.event.action != 'labeled'

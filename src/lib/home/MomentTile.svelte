@@ -10,6 +10,7 @@
   import { momentName, stepFor, whenOf, stripOf } from './momentcard.js';
   import { switchTrip } from '../nav.js';
   import TileHead from './TileHead.svelte';
+  import SeasonNow from '../care/SeasonNow.svelte'; // «Velos-Pflege einbauen» 2a: what fits the month
 
   let { today, hour = 12, weekday = 3, trips = [], debriefDone = () => false, careDue = 0, inbox = 0, isnew = false } = $props();
   const now = $derived(momentOf({ today, hour, weekday, trips, debriefDone, careDue, inbox }));
@@ -36,6 +37,7 @@
       {/each}
     </ol>
   {/if}
+  <SeasonNow {today} compact />
   <p class="act"><a class="btn hi" href={step.href} onclick={go} data-moment-step>{t(step.label)}</a></p>
   <p class="why">{t('Today shows the moment you are in. Move or remove this card under «Customise the start page».')}</p>
 </section>

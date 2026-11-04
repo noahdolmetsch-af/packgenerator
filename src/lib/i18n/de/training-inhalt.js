@@ -92,6 +92,8 @@ export default {
   'The last {n} rides.|hl': 'Die letzten {n} Fahrten.',
   // Wochenrückblick W1–W6 (#/flow/review)
   'Week in review': 'Wochenrückblick',
+  'The week is almost over. Look back at it': 'Die Woche ist bald zu Ende. Schau zurück.',
+  'A new week begins. Look back at the last one': 'Eine neue Woche beginnt. Schau auf die letzte zurück.',
   'Your week in five numbers, a strip Monday to Sunday, highlights and one suggestion for next week; observation only.': 'Deine Woche in fünf Zahlen, ein Streifen Montag bis Sonntag, Höhepunkte und ein Vorschlag für die nächste Woche; nur beobachten.',
   'Open Aktiv › Week and tap «Week in review».': 'Öffne Aktiv › Woche und tippe «Wochenrückblick».',
   'Read the five numbers, the strip and the highlights.': 'Lies die fünf Zahlen, den Streifen und die Höhepunkte.',

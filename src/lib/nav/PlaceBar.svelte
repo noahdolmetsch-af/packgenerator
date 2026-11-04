@@ -13,14 +13,50 @@
   import { anp, placeLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: your menu, your names
   import { t } from '../i18n.svelte.js';
   import PlaceIcon from './PlaceIcon.svelte';
+  import { untrack } from 'svelte';
 
   let { place = null, hash = '#/', due = 0 } = $props();
   // AU1 «1b»: Velos and Ausrüstung share one slot; the switch on top of both pages changes between them
   const slot = $derived(barPlace(place));
   const places = $derived((void anp.v, menuBar()));
+
+  // «Markierung gleitet» (Paket A Seitenwechsel 3, Noah 03.11.2026 «b»): the soft pill behind the chosen icon is one
+  // piece that glides from place to place (about 0.2 s) instead of jumping. It takes its place and size from the chosen
+  // icon's box; the first time it just stands there, only a later change glides. «Reduce motion» and the switch
+  // «Bewegung: Aus» (app.css, theme.svelte.js) take the glide away; the pill still stands in the right place.
+  let nav = $state(null);
+  let mark = $state(null); // { x, y, w, h } of the chosen icon's box inside the bar, or null (no place chosen)
+  let glide = $state(false);
+  const measure = () => {
+    const box = nav?.querySelector("a[aria-current='page'] .pi");
+    if (!box) {
+      mark = null;
+      return;
+    }
+    const n = nav.getBoundingClientRect();
+    const r = box.getBoundingClientRect();
+    mark = { x: r.left - n.left - nav.clientLeft, y: r.top - n.top - nav.clientTop, w: r.width, h: r.height };
+  };
+  $effect(() => {
+    void slot;
+    void places;
+    void anp.v;
+    untrack(measure);
+    if (untrack(() => glide || !mark)) return;
+    const f = requestAnimationFrame(() => (glide = true));
+    return () => cancelAnimationFrame(f);
+  });
+  // a turned phone, a changed text size or a late font moves the icons: the pill follows without gliding
+  $effect(() => {
+    if (!nav || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => untrack(measure));
+    ro.observe(nav);
+    return () => ro.disconnect();
+  });
 </script>
 
-<nav class="bottom" aria-label={t('Sections')}>
+<nav class="bottom" class:has-mark={!!mark} class:glide aria-label={t('Sections')} bind:this={nav}>
+  {#if mark}<span class="mark" aria-hidden="true" data-place-mark style="--mx:{mark.x}px;--my:{mark.y}px;--mw:{mark.w}px;--mh:{mark.h}px"></span>{/if}
   {#each places as p (p.key)}
     <a href={(void anp.v, placeHref(p, slot, hash))} data-place={p.key} aria-current={slot === p.key ? 'page' : undefined}>
       <span class="pi"><PlaceIcon place={p.key} />{#if p.key === 'bikes' && due}<span class="due num" aria-hidden="true">{due}</span>{/if}</span>
@@ -92,8 +128,27 @@
     font-weight: 700;
   }
   a[aria-current='page'] .pi {
-    background: var(--paper-2);
     color: var(--ink);
+  }
+  /* before the pill is measured (the first frame) the icon box carries the colour itself */
+  .bottom:not(.has-mark) a[aria-current='page'] .pi {
+    background: var(--paper-2);
+  }
+  .mark {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--mw);
+    height: var(--mh);
+    transform: translate(var(--mx), var(--my));
+    border-radius: 15px;
+    background: var(--paper-2);
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .glide .mark {
+      transition: transform 200ms var(--ease-out), width 200ms var(--ease-out), height 200ms var(--ease-out);
+    }
   }
   .due {
     position: absolute;
