@@ -5,10 +5,13 @@
  * look back (what you learned; keep, adapt or drop) and is finished. «Again» starts a new one.
  *
  * Settings EXP_KEY = [{ id, q, change, from, days, ticks: { day: 'yes'|'no' }, notes: { day: text },
- *                       review: { learned, keep, at } | null, stopped: day | null }]
+ *                       review: { learned, keep, at } | null, stopped: day | null, metric?: key of EXP_METRICS }]
+ * `metric` (optional, 03.11.2026 Idee 6): a measured value of the Analyse pages that the look back compares
+ * (during the try against the same number of days before; versuch-wert.js).
  * Pure, tested in tests/ruhig.test.js.
  */
 import { clean, isDay, uid, addDays, daysBetween } from './base.js';
+import { EXP_METRICS } from './versuch-wert.js';
 
 export const EXP_KEY = 'ruhig.experiments';
 export const EXP_DAYS = [3, 7, 14, 21, 28];
@@ -37,6 +40,7 @@ export function expsOf(value) {
       const notes = {};
       for (const [d, v] of Object.entries(e.notes ?? {})) if (isDay(d) && clean(v, 300)) notes[d] = clean(v, 300);
       const r = e.review && typeof e.review === 'object' ? e.review : null;
+      const metric = EXP_METRICS.includes(e.metric) ? { metric: e.metric } : {};
       return {
         id: String(e.id),
         q: clean(e.q, 160),
@@ -47,12 +51,13 @@ export function expsOf(value) {
         notes,
         review: r ? { learned: clean(r.learned, 600, true), keep: KEEP.some((k) => k.key === r.keep) ? r.keep : '', at: isDay(r.at) ? r.at : '' } : null,
         stopped: isDay(e.stopped) ? e.stopped : null,
+        ...metric,
       };
     });
 }
-export function newExp({ q, change = '', from, days = 7 }, id = uid('exp')) {
+export function newExp({ q, change = '', from, days = 7, metric = '' }, id = uid('exp')) {
   const qq = clean(q, 160);
-  return qq && isDay(from) ? { id, q: qq, change: clean(change, 160), from, days: daysOk(days), ticks: {}, notes: {}, review: null, stopped: null } : null;
+  return qq && isDay(from) ? { id, q: qq, change: clean(change, 160), from, days: daysOk(days), ticks: {}, notes: {}, review: null, stopped: null, ...(EXP_METRICS.includes(metric) ? { metric } : {}) } : null;
 }
 /** The last day of the try. */
 export const expEnd = (e) => addDays(e.from, e.days - 1);
@@ -91,4 +96,4 @@ export const expReview = (e, { learned, keep }, today) => ({ ...e, review: { lea
 /** Stop early: it still gets its look back (state 'stopped' until reviewed). */
 export const expStop = (e, today) => ({ ...e, stopped: today });
 /** «Again»: a new try with the same question from today (never an extension of the old one). */
-export const expAgain = (e, today, id) => newExp({ q: e.q, change: e.change, from: today, days: e.days }, id);
+export const expAgain = (e, today, id) => newExp({ q: e.q, change: e.change, from: today, days: e.days, metric: e.metric }, id);
