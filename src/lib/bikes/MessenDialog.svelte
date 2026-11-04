@@ -20,6 +20,9 @@
   import { tripStats } from '../trips.js';
   import { nextTrip } from '../debrief.js';
   import { GROUNDS, WHEN, CHAIN_QUICK, suggestPressure, pressureStart, logPressure, pressures, pressureLoss, chainValues, chainState, widthMm } from '../messen.js';
+  import { addWearShot } from '../griffdb.js';
+  import PhotoPick from '../ui/PhotoPick.svelte';
+  import { bikesHash } from '../bikes.js';
   import { backClose } from '../ui/backclose.js';
   import { t, num, dateOf } from '../i18n.svelte.js';
   import './velo-dlg.css';
@@ -154,6 +157,22 @@
       busy = false;
     }
   }
+  // «Velos-Pflege einbauen» (Noah 03.11.2026 «3a»): a photo of the chain while you measure it; it goes to «Wear photos»
+  let shotBusy = $state(false);
+  let shotDone = $state(0);
+  async function addShot(file) {
+    if (!stored) return;
+    shotBusy = true;
+    msg = '';
+    try {
+      await addWearShot(stored, 'chain', file, today);
+      shotDone += 1;
+    } catch (err) {
+      msg = err?.message || t('This photo could not be read.');
+    } finally {
+      shotBusy = false;
+    }
+  }
   const save = () => (kind === 'calc' ? takeTarget() : kind === 'pressure' ? savePressure() : saveChain());
 </script>
 
@@ -256,6 +275,12 @@
         {#each vals as v (v.date + v.value)}<li><span>{dateOf(v.date)}{v.km != null ? ` · ${num(v.km)} km` : ''}</span><b class={toneOf(v.value)}>{num(v.value)} %</b></li>{/each}
       </ul>
     {/if}
+    <div class="vd-field" data-measure-photo>
+      <span class="vd-lbl">{t('Photo of the chain')}</span>
+      <p class="quiet">{t('Old next to new: take it from the same side each time. It goes to «Wear photos».')}</p>
+      <PhotoPick onfile={addShot} busy={shotBusy} has={shotDone > 0} camera="Take photo" again="Another photo" />
+      {#if shotDone}<p class="quiet" role="status" data-measure-photo-done>{t('Photo saved.')} <a href={bikesHash({ tab: 'care', view: 'photos', bike: stored.id })}>{t('See the wear photos')}</a></p>{/if}
+    </div>
     <p class="where quiet">{t('Saved in: the chain history, the Service plan, the Workshop order, the bike light on Today')}</p>
   {/if}
 

@@ -1,5 +1,9 @@
 // Paket VG «Das Velo im Griff» (Noah 20.10.2026 «1a 2a 3a», «4-6 alle», «7-8 beide»)
 export default {
+  // «Velos-Pflege einbauen» (Noah 03.11.2026 «3a»): a photo of the chain in the window «Measure the chain»
+  'Photo of the chain': 'Foto der Kette',
+  'Old next to new: take it from the same side each time. It goes to «Wear photos».': 'Alt neben neu: immer von derselben Seite fotografieren. Es kommt zu «Verschleiss-Fotos».',
+  'See the wear photos': 'Verschleiss-Fotos ansehen',
   // 1129 Verschleiss-Fotos
   'Photo saved: {part}, {date}.': 'Foto gespeichert: {part}, {date}.',
   'Delete the photo of {date}?': 'Foto vom {date} löschen?',
