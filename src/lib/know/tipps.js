@@ -27,3 +27,10 @@ export const TAP_GAPS = [
   '#/ski/start',
   '#/tagebuch/:entry',
 ];
+
+/**
+ * Pages in TAP_GAPS whose distance depends on the data: «#/live» is the free ride, and the tile «Fahrt starten» on
+ * Heute and Aktiv leads there only while no trip is planned for today (otherwise to «#/live/<trip>»). The robot
+ * may find such a page near or far, so «Near enough now» does not fail for it. Every entry must be in TAP_GAPS.
+ */
+export const TAP_GAPS_BY_DATA = ['#/live'];
