@@ -5,6 +5,8 @@
  *   { href, steps }                a page, then the steps of know/spot.js (tap, tap, … the last one lights up)
  *   { href, where, steps?, play? } a thing without a fixed place: the page where it shows up, and the line
  *                                  «where» (English key) says when; play: a day of the example trip (play.js DAYS)
+ *   { href, ride: 'ghost', steps, where, note? }  the same, but the page is the newest ride that has a ghost
+ *                                  (newsRun.js); note (English key) replaces the line's text in «New here: …»
  *   null                           no button: it no longer exists, or a fix without a place
  * New news files (src/lib/news/*.js) give each point its go (tests/newsgo.test.js); the older versions get
  * theirs from GO in newsgo-map.js, by the line's English text, newest first. A line without either keeps its

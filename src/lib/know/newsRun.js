@@ -30,15 +30,37 @@ const playGo = (day) =>
       }
     : null;
 
+/**
+ * A line that leads to a ride (go.ride === 'ghost', Noah 04.11.2026 «1a»): the card «Beat your ghost» sits inside one
+ * ride, so «Try it» opens the newest bike ride that has an earlier ride to race against and lights the card. With no
+ * such ride it opens Training and says in one line what a ride needs.
+ */
+async function goGhost(g, said, go) {
+  const [{ db }, { ghostsOf }] = await Promise.all([import('../db.js'), import('../training/act/ghost.js')]);
+  const all = await db.activities.toArray();
+  const when = (a) => `${a.day} ${a.time ?? ''}`;
+  const hit = all
+    .filter((a) => a.kind === 'bike' && a.hrAvg > 0)
+    .sort((a, b) => when(b).localeCompare(when(a)))
+    .find((a) => ghostsOf(all, a, 1).length);
+  if (!hit) {
+    location.hash = g.href;
+    return note(t(g.where), { go });
+  }
+  location.hash = `#/flow/training/a/${encodeURIComponent(hit.id)}`;
+  return showSteps(g.steps, 'news', { note: said, miss: t(g.where), go });
+}
+
 /** Tap on a line p (a point or a small thing of a version). ev: the click, its link opens nothing itself. */
 export function goNews(p, ev = null, { bikeId = null } = {}) {
   const g = goOf(p);
   if (!g) return;
   ev?.preventDefault();
-  const said = t('New here: {what}', { what: t(p.text) });
+  const said = t('New here: {what}', { what: t(g.note ?? p.text) });
   const go = playGo(g.play);
   if (g.action === 'data') return openData();
   if (g.feature) return goFeature(FEATURE[g.feature], { bikeId, spot: { note: said, miss: g.where ? t(g.where) : '', go } });
+  if (g.ride === 'ghost') return goGhost(g, said, go);
   const href = hrefOf(g, { bikeId });
   if (href) {
     if (location.hash === href) window.dispatchEvent(new HashChangeEvent('hashchange'));
