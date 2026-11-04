@@ -50,3 +50,25 @@ test('All here on Bikes: tiles open their page, change order, hide with Undo, sh
   await box.locator('[data-all-here-edit]').click();
   await expect(tiles.first()).toHaveAttribute('data-all-here-tile', first);
 });
+
+test('All here on Gear: the tiles show and open their page', async ({ page, context }, info) => {
+  await start(page, context, info);
+  await page.goto('./#/gear');
+  const box = page.locator('[data-all-here="gear"]');
+  await expect(box).toBeVisible();
+  await settle(page);
+  expect(await box.locator('[data-all-here-tile]').count()).toBeGreaterThan(10);
+  for (const id of ['favorites', 'f.supplies']) {
+    const tile = box.locator(`[data-all-here-tile="${id}"]`);
+    const href = await tile.getAttribute('href');
+    await tile.click();
+    await expect.poll(() => page.evaluate(() => location.hash)).toBe(href);
+    await page.goto('./#/gear');
+    await expect(box).toBeVisible();
+  }
+  // not on the wishlist view
+  await page.goto('./#/gear?tab=wishlist');
+  await page.locator('main').first().waitFor();
+  await settle(page);
+  await expect(box).toHaveCount(0);
+});
