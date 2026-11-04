@@ -59,3 +59,15 @@ export function lastOkFetchLine(t, { lastOkAt, when }) {
 
 /** The one limit for a whole fetch of any connection (Noah 03.11.2026 «1a»): 2 minutes. */
 export const FETCH_LIMIT_MS = 120_000;
+
+/**
+ * The reason for a failed fetch of any connection in one short sentence (Noah 03.11.2026 «3a»: the overview under
+ * Me › Connections shows every connection the same way). Each page keeps its own, more exact text.
+ */
+export function reasonLine(t, code) {
+  if (code === 'timeout') return t('It did not answer in time.');
+  if (code === 'network' || code === 'offline') return t('There was no connection.');
+  if (/login_needed|not_connected|unauthorized/.test(code)) return t('It needs a new login. Open it and connect again.');
+  if (/busy|daily_cap/.test(code)) return t('It is busy right now. The app tries again later.');
+  return t('The last fetch did not work.');
+}
