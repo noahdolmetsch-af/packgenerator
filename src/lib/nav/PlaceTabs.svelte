@@ -7,7 +7,7 @@
    * The tab opened last is remembered per place (nav.js keepTab / placeHref). An old address that
    * leads here (#/care, #/review …) says so once, in a small note you can close.
    */
-  import { PLACES, tabOf, tabStep, shownTabs, phoneTabs, setTabOrder, groupTabs } from '../nav.js';
+  import { PLACES, ALL_PLACES, tabOf, tabStep, shownTabs, phoneTabs, setTabOrder, groupTabs } from '../nav.js';
   import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: hidden tabs and own names
   import { t } from '../i18n.svelte.js';
   import { phone, wide } from '../media.svelte.js';
@@ -55,7 +55,7 @@
     setTabOrder(place, null);
     order++;
   }
-  const placeObj = $derived(PLACES.find((p) => p.key === place));
+  const placeObj = $derived(ALL_PLACES.find((p) => p.key === place)); // ALL_PLACES: Auswerten and Ausrüstung have no slot of their own but a name
   const placeName = $derived(placeObj ? placeLabel(placeObj) : '');
   const curTab = $derived(tabs.find((x) => x.key === cur));
   const curName = $derived(curTab ? tabLabel(place, curTab) : '');
