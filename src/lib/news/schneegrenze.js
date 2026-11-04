@@ -3,9 +3,9 @@ export default {
   title: 'Snow line every day',
   lead: 'The snow line in metres above sea level shows on the weather page and on Today.',
   points: [
-    { text: 'The weather page shows the snow line now, its low and high of the day and six times from 6 to 21 h', go: { href: '#/wetter', steps: [{ sel: '[data-snowline]' }], where: 'Weather › the card «Today», under the temperature line (needs a home place).' } },
-    { text: 'Today has one calm line for your home place', go: { href: '#/', steps: [{ sel: '[data-heute-snowline]' }], where: 'Today, under the weather line (needs a home place and the internet once).' } },
-    { text: 'A hint when the line goes down to your height', go: { href: '#/wetter', steps: [{ sel: '[data-snowline-set]' }], where: 'Weather › «Set snow line»: your height and the switch for Today.' } },
+    { text: 'The weather page shows the snow line now, its low and high of the day and six times from 6 to 21 h', go: { href: '#/wetter', where: 'Weather › the card «Today», under the temperature line (needs a home place).' } },
+    { text: 'Today has one calm line for your home place', go: { href: '#/', where: 'Today, under the weather line (needs a home place and the internet once).' } },
+    { text: 'A hint when the line goes down to your height', go: { href: '#/wetter', where: 'Weather › «Set snow line»: your height and the switch for Today.' } },
   ],
   small: [{ box: 'new', text: 'Offline the last kept value shows with its time' }],
   test: [
