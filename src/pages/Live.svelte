@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -100,6 +100,7 @@
   import { mergePois } from '../lib/race/more.js';
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { nearestExit } from '../lib/live/exit.js';
+  import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -381,6 +382,25 @@
     } catch {}
   };
   const WATER_FRAC = { full: 1, half: 0.5, low: 0.15 };
+  // «Licht» (Noah 02.11.2026, Vorschlag 4): does the bike lamp last through the dark part still ahead?
+  // How long it burns on a full charge and what is left are yours to change; kept in this browser.
+  const LAMP_KEY = 'pg-live-lamp';
+  const lampOwn = (() => {
+    try {
+      const o = JSON.parse(localStorage.getItem(LAMP_KEY) || '{}');
+      return { burn: Number(o.burn) > 0 ? Number(o.burn) : LAMP_H, left: ['full', 'half', 'low'].includes(o.left) ? o.left : 'full' };
+    } catch {
+      return { burn: LAMP_H, left: 'full' };
+    }
+  })();
+  let lampBurn = $state(lampOwn.burn);
+  let lampLeft = $state(lampOwn.left);
+  const keepLamp = () => {
+    try {
+      localStorage.setItem(LAMP_KEY, JSON.stringify({ burn: lampBurn, left: lampLeft }));
+    } catch {}
+  };
+  const lamp = $derived(me && hasRoute ? lampPlan({ lat: me.lat, lon: me.lon, now, endAt: arr?.eta ?? null, burnH: lampBurn, frac: LAMP_FRAC[lampLeft] }) : null);
   const waterHave = $derived(Math.round(waterCap * WATER_FRAC[waterLeft]));
   const waterRateNow = $derived(waterRate > 0 ? waterRate : drinkPerH(null, DRINK_ML_H));
   const exitNear = $derived(hasRoute && km != null ? nearestExit({ pois, km, now, pace, profile }) : null);
@@ -1674,6 +1694,23 @@
                     <summary>{t('Change bottle and drinking')}</summary>
                     <label class="lv-water-f">{t('Bottle size (ml)')}<input class="inp" type="number" inputmode="numeric" min="100" max="6000" step="50" value={waterCap} onchange={(e) => ((waterCap = Math.max(100, Math.min(6000, Number(e.currentTarget.value) || BOTTLE_ML))), keepWater())} data-live-water-cap /></label>
                     <label class="lv-water-f">{t('You drink (ml per hour, 0 = automatic)')}<input class="inp" type="number" inputmode="numeric" min="0" max="2000" step="50" value={waterRate} onchange={(e) => ((waterRate = Math.max(0, Math.min(2000, Number(e.currentTarget.value) || 0))), keepWater())} data-live-water-rate /></label>
+                  </details>
+                </div>
+              {/if}
+              {#if hasRoute && lamp}
+                <div class="lv-lastshop" data-live-lamp={lamp.state}>
+                  <h3 class="lv-h3"><Lightbulb size={16} aria-hidden="true" />{t('Light|lamp')}</h3>
+                  {#if lamp.state === 'day'}<p class="rc-note" data-live-lamp-say>{t('No darkness ahead on this ride: your lamp is not needed.')}</p>
+                  {:else if lamp.state === 'short'}<p class="rc-warn lv-line" data-live-lamp-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('Your lamp will not last: it burns until about {at}, but you ride about {d} h in the dark. Charge it, use a lower mode or take a spare light.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</span></p>
+                  {:else if lamp.state === 'tight'}<p class="rc-note" data-live-lamp-say>{t('Your lamp just lasts: it burns until about {at}, you ride about {d} h in the dark.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</p>
+                  {:else}<p class="rc-note" data-live-lamp-say>{t('Your lamp lasts: it burns until about {at}, you ride about {d} h in the dark.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</p>{/if}
+                  <div role="group" aria-label={t('What is left in your lamp?')}>
+                    <span class="rc-note">{t('What is left in your lamp?')}</span>
+                    <Seg small options={[{ key: 'full', name: t('Full|lamp') }, { key: 'half', name: t('Half|lamp') }, { key: 'low', name: t('Almost empty|lamp') }]} value={lampLeft} onchange={(k) => ((lampLeft = k), keepLamp())} />
+                  </div>
+                  <details class="lv-water-set" data-live-lamp-set>
+                    <summary>{t('Change lamp')}</summary>
+                    <label class="lv-water-f">{t('Your lamp burns on a full charge (hours)')}<input class="inp" type="number" inputmode="decimal" min="0.5" max="100" step="0.5" value={lampBurn} onchange={(e) => ((lampBurn = Math.max(0.5, Math.min(100, Number(e.currentTarget.value) || LAMP_H))), keepLamp())} data-live-lamp-burn /></label>
                   </details>
                 </div>
               {/if}
