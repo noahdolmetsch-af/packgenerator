@@ -13,7 +13,8 @@
  * through t(): raw tells the pages.
  */
 // daySports: the kinds of a trip day (Touren-Ideen 45, tourplan/prep.js)
-export const APP_LISTS = ['pointKinds', 'bikeKinds', 'awayTypes', 'journalQuestions', 'journalMoods', 'medMoods', 'daySports'];
+// sayings: the sayings behind five taps on «PG» (Geheimmenü H6, logo/sayings.js)
+export const APP_LISTS = ['pointKinds', 'bikeKinds', 'awayTypes', 'journalQuestions', 'journalMoods', 'medMoods', 'daySports', 'sayings'];
 
 // a plain object like the other lists (domains.js, care.js): App.svelte draws the page again when the
 // lists arrive (listsReady); plain, so the pure files and the browser tests can import it in Node
