@@ -142,6 +142,17 @@ export function freeAlternatives(offer, bookings = [], skipId = '', from = '', n
     .slice(0, n);
 }
 
+/**
+ * One e-mail to several people (Noah 04.11.2026): every address in the list goes into «bcc», so nobody sees the
+ * others. null when none of the contacts is an e-mail address.
+ */
+export function mailToAll(contacts = [], subject = '', text = '') {
+  const mails = [...new Set(contacts.map((c) => String(c ?? '').trim()).filter((c) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)))];
+  if (!mails.length) return null;
+  const q = [subject && `subject=${encodeURIComponent(subject)}`, text && `body=${encodeURIComponent(text)}`].filter(Boolean).join('&');
+  return `mailto:?bcc=${mails.join(',')}${q ? `&${q}` : ''}`;
+}
+
 /** 'free' | 'part' | 'full' for the week grid. */
 export function slotState(places, booked) {
   if (!booked) return 'free';

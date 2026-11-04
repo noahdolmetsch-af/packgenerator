@@ -119,7 +119,14 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   await sheet.getByRole('button', { name: T('Cancel the time') }).click();
   await sheet.getByRole('button', { name: T('Yes, cancel') }).click();
   await expect(sheet).toContainText(T('The time is cancelled. Tell {n} person:', { n: 1 }));
-  await expect(sheet.getByRole('link', { name: T('Write') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
+  await expect(sheet.getByRole('link', { name: T('By SMS') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
+  // the offered times can be ticked off: the message follows
+  await expect(sheet.locator('[data-alts] input[type=checkbox]')).toHaveCount(5); // five offered, the first three ticked
+  await expect(sheet.locator('[data-alts] input[type=checkbox]:checked')).toHaveCount(3);
+  await sheet.locator('[data-alts] input[type=checkbox]').first().uncheck();
+  await expect(sheet.locator('[data-alts] input[type=checkbox]:checked')).toHaveCount(2);
+  await expect(sheet.locator('[data-tell-text]')).toContainText(T('Free times:'));
+  await expect(sheet.locator('[data-mail-all]')).toHaveCount(0); // Mia gave a phone number, no e-mail
   // the message is shown too, so Noah sees what he sends
   await expect(sheet.locator('[data-tell-text]')).toContainText(T('Free times:'));
 });

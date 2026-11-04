@@ -4,13 +4,15 @@ PR · 04.11.2026 · Auftrag: Noah «1a» (Thread «Planen Tennisstunden anbieten
 
 ## Was ist neu
 - Beim Absagen einer gebuchten Zeit nennt die vorbereitete Nachricht bis zu drei freie Ersatzzeiten desselben Angebots («Freie Zeiten: …»). Der Text ist sichtbar und wird nur von dir gesendet.
+- Die Ersatzzeiten (die nächsten 5 freien Zeiten) sind auswählbar; die ersten drei sind vorangekreuzt, die Nachricht folgt der Auswahl.
+- «Eine E-Mail an alle»: ein Mail mit allen Adressen der Gruppe in «Bcc» (niemand sieht die anderen). Pro Person bleibt «Per E-Mail» oder «Per SMS», je nachdem, was sie angegeben hat.
 - Die abgesagte Stunde kostet nichts: sie hat nie eine Rechnung.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts
 
 ## Selbst entschieden
-- Ersatzzeiten sind die nächsten Zeiten mit freiem Platz, die nach der abgesagten (oder jetzt) liegen. Offene Anfragen zählen nicht als Platz.
+- Die Zeiten stammen aus demselben Angebot (Noah-Frage 04.11.): Ersatzzeiten sind die nächsten Zeiten mit freiem Platz, die nach der abgesagten (oder jetzt) liegen. Offene Anfragen zählen nicht als Platz.
 - Kein eigener Eintrag in features.js: es ist ein Schritt der bestehenden Absage.
 
 ## Entscheide (für decisions.md)

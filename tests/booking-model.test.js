@@ -1,6 +1,6 @@
 // Termine buchen (BU1–BU5): the shared rules of the app pages and the booking page.
 import { describe, it, expect } from 'vitest';
-import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives } from '../src/lib/booking/model.js';
+import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../src/lib/booking/model.js';
 import { cleanOffer } from '../api/_lib/booking.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
@@ -92,5 +92,9 @@ describe('the invoice of a booking', () => {
     expect(freeAlternatives(o, bookings, 's0', '2026-11-05T10:00').map((x) => x.id)).toEqual(['s2', 's3', 's4']);
     expect(freeAlternatives(o, bookings, 's0', '2026-11-05T10:00', 1)).toHaveLength(1);
     expect(freeAlternatives(o, [], 's0', '2026-12-01T00:00')).toEqual([]);
+  });
+  it('writes one e-mail to all, everyone in bcc; phone numbers are left out', () => {
+    expect(mailToAll(['mia@example.test', '079 000 00 00', 'ben@example.test', 'mia@example.test'], 'Abgesagt', 'Hallo äö')).toBe('mailto:?bcc=mia@example.test,ben@example.test&subject=Abgesagt&body=Hallo%20%C3%A4%C3%B6');
+    expect(mailToAll(['079 000 00 00'], 'x', 'y')).toBeNull();
   });
 });

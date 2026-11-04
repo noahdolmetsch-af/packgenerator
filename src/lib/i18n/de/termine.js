@@ -84,6 +84,13 @@ export default {
   'The time is cancelled. Tell {n} person:': 'Der Termin ist abgesagt. Sag es {n} Person:',
   'The time is cancelled. Tell {n} people:': 'Der Termin ist abgesagt. Sag es {n} Personen:',
   'Free times:': 'Freie Zeiten:',
+  'Which free times do you offer?': 'Welche freien Zeiten bietest du an?',
+  'These are the next free times of this offer.': 'Das sind die nächsten freien Zeiten dieses Angebots.',
+  'One e-mail to everyone': 'Eine E-Mail an alle',
+  'Everyone is in «bcc»: nobody sees the others.': 'Alle stehen in «Bcc»: niemand sieht die anderen.',
+  'By e-mail': 'Per E-Mail',
+  'By SMS': 'Per SMS',
+  'Cancelled: {title}, {when}': 'Abgesagt: {title}, {when}',
   '{title} on {when} is cancelled. Sorry! You can book another time with the same link.': '{title} am {when} ist abgesagt. Tut mir leid! Mit dem gleichen Link kannst du eine andere Zeit buchen.',
   'About {title} on {when}:': 'Zu {title} am {when}:',
 
