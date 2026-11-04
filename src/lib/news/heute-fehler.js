@@ -4,8 +4,8 @@ export default {
   lead: 'The greeting and «Wi gaht\'s?» are spelled the same, «This week» shows whole names, and «Bike this month» says what its percentage compares to.',
   points: [
     { text: '«Wi gaht\'s?» is spelled the same in the greeting and in the question', go: { href: '#/', steps: [{ sel: '[data-hello-tap]' }] } },
-    { text: '«This week»: the activities of each day stand in full lines instead of «Ten…»', go: { href: '#/', steps: [{ sel: '[data-week-list]' }] } },
-    { text: 'The tile «Bike this month» says what the percentage compares to', go: { href: '#/', steps: [{ sel: '[data-section="month"]' }] } },
+    { text: '«This week»: the activities of each day stand in full lines instead of «Ten…»', go: { href: '#/', steps: [{ sel: '[data-section="week"]' }] } },
+    { text: 'The tile «Bike this month» says what the percentage compares to', go: null },
   ],
   small: [],
   test: [
