@@ -16,6 +16,9 @@ test('the weather shows at the logo with the sentence of Today, then goes away',
   const wx = page.locator('[data-logo-weather]');
   await expect(wx).toBeVisible();
   await expect(wx).toContainText('14°');
+  await page.waitForTimeout(1000); // the bubble itself never turns (once the sun class turned the whole bubble)
+  const m = await wx.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform));
+  expect(Math.abs(m.b)).toBeLessThan(0.01);
   await expect(wx).toHaveCount(0, { timeout: 8000 }); // gone by itself
 });
 

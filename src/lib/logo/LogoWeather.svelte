@@ -7,7 +7,7 @@
   let { wx } = $props();
 </script>
 
-<div class="pg-wx {wx.kind}" role="status" data-logo-weather={wx.kind}>
+<div class="pg-wx" role="status" data-logo-weather={wx.kind}>
   <span class="tail" aria-hidden="true"></span>
   <svg viewBox="0 0 48 40" width="48" height="40" aria-hidden="true">
     {#if wx.kind === 'rain' || wx.kind === 'snow'}
