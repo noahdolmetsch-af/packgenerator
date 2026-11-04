@@ -1,6 +1,6 @@
 // Termine buchen (BU1–BU5): the shared rules of the app pages and the booking page.
 import { describe, it, expect } from 'vitest';
-import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice } from '../src/lib/booking/model.js';
+import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf } from '../src/lib/booking/model.js';
 import { cleanOffer } from '../api/_lib/booking.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
@@ -78,5 +78,34 @@ describe('the invoice of a booking', () => {
       { id: 'e', at: '2026-11-09T10:00' },
     ];
     expect(toInvoice(bookings, [{ bookings: [{ b: 'a' }] }], '2026-11-05T09:00').map((x) => x.id)).toEqual(['d']);
+  });
+  it('offers the next free times after a cancelled one (rain)', () => {
+    const o = { types: [{ key: 'one', places: 1 }, { key: 'group', places: 2 }], slots: [
+      { id: 's0', at: '2026-11-05T10:00', type: 'one' },
+      { id: 's1', at: '2026-11-06T10:00', type: 'one' },
+      { id: 's2', at: '2026-11-07T10:00', type: 'one' },
+      { id: 's3', at: '2026-11-08T10:00', type: 'group' },
+      { id: 's4', at: '2026-11-09T10:00', type: 'one' },
+      { id: 's5', at: '2026-11-10T10:00', type: 'one' },
+    ] };
+    const bookings = [{ slot: 's1' }, { slot: 's3' }, { slot: 's4', status: 'requested' }];
+    expect(freeAlternatives(o, bookings, 's0', '2026-11-05T10:00').map((x) => x.id)).toEqual(['s2', 's3', 's4']);
+    expect(freeAlternatives(o, bookings, 's0', '2026-11-05T10:00', 1)).toHaveLength(1);
+    expect(freeAlternatives(o, [], 's0', '2026-12-01T00:00')).toEqual([]);
+  });
+  it('writes one e-mail to all, everyone in bcc; phone numbers are left out', () => {
+    expect(mailToAll(['mia@example.test', '079 000 00 00', 'ben@example.test', 'mia@example.test'], 'Abgesagt', 'Hallo äö')).toBe('mailto:?bcc=mia@example.test,ben@example.test&subject=Abgesagt&body=Hallo%20%C3%A4%C3%B6');
+    expect(mailToAll(['079 000 00 00'], 'x', 'y')).toBeNull();
+  });
+  it('reminds about held lessons today (still ahead) and tomorrow only', () => {
+    const bookings = [
+      { id: 'a', at: '2026-11-22T09:00' },
+      { id: 'b', at: '2026-11-22T18:00' },
+      { id: 'c', at: '2026-11-23T08:00', status: 'confirmed' },
+      { id: 'd', at: '2026-11-23T09:00', status: 'requested' },
+      { id: 'e', at: '2026-11-23T10:00', status: 'declined' },
+      { id: 'f', at: '2026-11-24T08:00' },
+    ];
+    expect(remindersOf(bookings, '2026-11-22T12:00').map((b) => b.id)).toEqual(['b', 'c']);
   });
 });

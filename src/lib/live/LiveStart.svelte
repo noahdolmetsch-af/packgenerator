@@ -13,12 +13,17 @@
   let { trip = undefined, sub = '' } = $props();
   // svelte-ignore state_referenced_locally
   const tripsQ = trip === undefined ? liveQuery(() => db.trips.toArray()) : null;
+  // Without a trip the line waits for the trips: before they are read it would lead to a free ride and then
+  // jump to today's trip (a tap in that moment went to the wrong map; the tap-count robot saw «#/live» now and then).
+  const ready = $derived(trip !== undefined || $tripsQ !== undefined);
   const target = $derived(trip !== undefined ? trip : todayTrip(($tripsQ ?? []), localDay()));
 </script>
 
+{#if ready}
 <a class="lvs" href={liveHref(target)} data-live-start>
   <Navigation size={16} aria-hidden="true" /><span>{t('Start the ride')}{#if sub}<small> · {sub}</small>{/if}</span><ChevronRight size={16} aria-hidden="true" />
 </a>
+{/if}
 
 <style>
   .lvs {

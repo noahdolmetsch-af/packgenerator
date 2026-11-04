@@ -54,7 +54,12 @@ test(`every line of What is new goes to its exact place, part ${part + 1}`, asyn
     // a line with only `where` has no spot to light: the note then is its own text, not «New here: …»
     const first = ROWS.find(([version]) => version === NEWEST)[2];
     const only = typeof first === 'object' && first.where && !first.steps?.length;
-    await expect(page.locator('[data-spot-note]').first()).toContainText(only ? T(first.where) : T('New here: {what}').split('{')[0].trim());
+    const neu = T('New here: {what}').split('{')[0].trim();
+    // a line with steps AND `where` lights the spot when the page has it; a fixture without the data it needs (a ride with an
+    // earlier ride, a recorded tour) shows `where` instead: both are right
+    const either = typeof first === 'object' && first.where && first.steps?.length;
+    const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await expect(page.locator('[data-spot-note]').first()).toContainText(either ? new RegExp(`${esc(T(first.where))}|${esc(neu)}`) : only ? T(first.where) : neu);
   }
   const missing = [];
   for (const [version, text, g] of rows) {

@@ -129,6 +129,39 @@ export function toInvoice(bookings = [], invoices = [], now = '') {
   return bookings.filter((b) => holdsPlace(b) && b.at && b.at < now && !done.has(b.id));
 }
 
+/**
+ * The next free times of an offer after a cancelled one (Noah 04.11.2026 «1a», rain): up to n slots that lie
+ * after `from`, are not the cancelled slot and still have a free place. Open requests hold no place.
+ */
+export function freeAlternatives(offer, bookings = [], skipId = '', from = '', n = 3) {
+  const booked = bookedBySlot(bookings);
+  return (offer.slots ?? [])
+    .filter((s) => s.id !== skipId && s.at > from)
+    .filter((s) => (booked[s.id] ?? 0) < ((offer.types ?? []).find((x) => x.key === s.type) ?? offer.types?.[0])?.places)
+    .sort((a, b) => a.at.localeCompare(b.at))
+    .slice(0, n);
+}
+
+/**
+ * One e-mail to several people (Noah 04.11.2026): every address in the list goes into «bcc», so nobody sees the
+ * others. null when none of the contacts is an e-mail address.
+ */
+export function mailToAll(contacts = [], subject = '', text = '') {
+  const mails = [...new Set(contacts.map((c) => String(c ?? '').trim()).filter((c) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)))];
+  if (!mails.length) return null;
+  const q = [subject && `subject=${encodeURIComponent(subject)}`, text && `body=${encodeURIComponent(text)}`].filter(Boolean).join('&');
+  return `mailto:?bcc=${mails.join(',')}${q ? `&${q}` : ''}`;
+}
+
+/**
+ * Lessons to remind about (Noah 04.11.2026 «2a»): held bookings from now until the end of tomorrow, by time.
+ * Open and declined requests are left out. Nothing is sent: Heute shows a row with a prepared message.
+ */
+export function remindersOf(bookings = [], nowAt = '') {
+  const end = `${addDays(dayOf(nowAt), 1)}T23:59`;
+  return bookings.filter((b) => holdsPlace(b) && b.at >= nowAt && b.at <= end).sort((a, b) => a.at.localeCompare(b.at));
+}
+
 /** 'free' | 'part' | 'full' for the week grid. */
 export function slotState(places, booked) {
   if (!booked) return 'free';

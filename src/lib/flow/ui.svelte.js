@@ -17,6 +17,7 @@ import { saveSession } from '../flowdb.js';
 import { offerActivity, offerActivityById } from '../remind/ask.svelte.js';
 import { starsAfterTick } from './starcheck.js';
 import { almostOf } from './almost.js';
+import { sportHref } from './mysports.js';
 
 // sessionOpen: hobby pages 2, the running session in full (B7)
 // star: «Meilensteine als Belohnung» (Noah 22.10.2026 «4a»): the new star of the last tick, shown in its own small window
@@ -32,9 +33,10 @@ let toastTimer = null;
 // link { href, text }: a message with a link (rule A, Noah 14.10.2026 «a a»: nothing jumps by itself);
 // it stays until it is tapped or closed
 // hint { m, k, left }: «Fast geschafft» under the message, the next star is near (PR 4)
-export function toast(text, undo = null, link = null, hint = null) {
+// next [{ href, text }]: «Als Nächstes» under the message (Aktiv und Auswerten 7): where one tap goes on after a tick
+export function toast(text, undo = null, link = null, hint = null, next = null) {
   clearTimeout(toastTimer);
-  ui.toast = { text, undo, link, hint, id: Date.now() };
+  ui.toast = { text, undo, link, hint, next, id: Date.now() };
   if (!link) toastTimer = setTimeout(() => (ui.toast = null), undo ? UNDO_MS : 8000);
 }
 export function closeToast() {
@@ -99,7 +101,7 @@ export async function tickWith(a, opts) {
     await removeEntry(db, e.id);
     if (won.length) await db.flowStars.bulkDelete(won.map((s) => s.id));
     if (ui.star?.entryId === e.id) ui.star = null;
-  }, null, near ? { m: near.r.m, k: near.k, left: near.left } : null);
+  }, null, near ? { m: near.r.m, k: near.k, left: near.left } : null, [{ href: sportHref(a), text: t('Your history|next') }, { href: '#/flow/milestones', text: t('Milestones') }]);
   if (won.length) ui.star = { entryId: e.id, actId: a.id, act: actName(a), icon: a.icon, stars: won.map((s) => ({ id: s.id, msId: s.msId, star: s.star, m: s.r?.m ?? null, value: s.r?.value ?? null, target: s.r?.steps?.[s.star - 1] ?? null, next: s.r?.next ?? null, nextTarget: s.r?.next ? (s.r.steps?.[s.r.next - 1] ?? null) : null, left: s.r?.next && s.r.steps?.[s.r.next - 1] != null ? Math.max(0, Math.round((s.r.steps[s.r.next - 1] - s.r.value) * 10) / 10) : null })) };
   // ER1 (Noah 14.10.2026 «er1-er3 freigabe»): once per activity «Soll ich dich in Zukunft erinnern?»
   if (opts.via !== 'commute') offerActivity(a, actName(a));
