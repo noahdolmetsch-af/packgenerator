@@ -5,10 +5,15 @@
    * over the rides and a table: date, moving time, km/h, Ø W (with power), Ø heart rate and one
    * efficiency number (watts per heartbeat with power, else heart rate per km/h). This ride is marked;
    * one calm sentence compares it with the mean of the others. Fewer than 3 rides: nothing.
+   * «Schlag deinen Geist» (Noah 04.11.2026 «5b»): while the ghost card shows for this ride, it says the
+   * same thing against one earlier ride, so the sentence here is left out (the line and the table stay).
    */
   import AnaCard from '../AnaCard.svelte';
   import { homeLoop } from './inhalt-fahrt.js';
   import { mss } from '../act/analysen.js';
+  import { ghostsOf } from '../act/ghost.js';
+  import { ana } from '../analyses.svelte.js';
+  import { keysOf } from '../analyses.js';
   import { t, tn, num, locale } from '../../i18n.svelte.js';
 
   let { act = null, all = [], today = '' } = $props();
@@ -33,8 +38,10 @@
     return { pts: pts.map((p) => ({ ...p, x: x(p.i), y: y(p.kmh) })), d: pts.map((p, k) => `${k ? 'L' : 'M'}${x(p.i).toFixed(1)} ${y(p.kmh).toFixed(1)}`).join('') };
   });
 
+  // the ghost card is shown for this ride (switched on in «Analysen anpassen» and an earlier ride to compare with)
+  const ghostShown = $derived(keysOf(ana, 'act').includes('ghost') && ghostsOf(all, act, 1).length > 0);
   const sentence = $derived.by(() => {
-    if (!loop || loop.dS == null) return '';
+    if (!loop || loop.dS == null || ghostShown) return '';
     const now = act?.day === today;
     const time = mss(Math.abs(loop.dS));
     const same = Math.abs(loop.dS) < 10;
