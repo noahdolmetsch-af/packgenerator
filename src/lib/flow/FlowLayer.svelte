@@ -69,6 +69,9 @@
         <a class="undo lk" href={ui.toast.link.href} onclick={closeToast} data-toast-link>{ui.toast.link.text}<ChevronRight size={16} aria-hidden="true" /></a>
         <button type="button" class="undo x" onclick={closeToast} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
       {/if}
+      {#if ui.toast.next?.length}
+        <p class="fnx" data-toast-next><span class="fnl">{t('As next')}</span>{#each ui.toast.next as n (n.href)}<a href={n.href} onclick={closeToast} data-next-to={n.href}>{n.text}</a>{/each}</p>
+      {/if}
     </div>
   {/key}
 {/if}
@@ -155,6 +158,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;
     width: min(520px, calc(100vw - 32px));
     padding: 6px 8px 6px 16px;
     border-radius: 12px;
@@ -175,6 +179,32 @@
     display: block;
     font-weight: 400;
     opacity: 0.85;
+  }
+  .fnx {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 4px;
+    margin: 0;
+    padding-left: 28px;
+  }
+  .fnx .fnl {
+    flex: none;
+    font-weight: 400;
+    opacity: 0.85;
+  }
+  .fnx a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 8px;
+    color: var(--hi-bright);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .fnx a:focus-visible {
+    outline-color: var(--focus-on-dark);
   }
   .undo {
     min-height: 44px;

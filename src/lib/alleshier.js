@@ -7,12 +7,34 @@
  */
 import { FEATURES } from './features.js';
 
-/** The functions of each area, in their first order (feature ids). One PR per area adds its list. */
+/**
+ * The functions of each area, in their first order. One PR per area adds its list. An entry is a feature id, or
+ * { id, title, href } for a page that has no function of its own in features.js (its English title goes through t()).
+ */
 export const ALL_HERE = {
   // Aktiv (Noah 03.11.2026 «1a»): the functions of doing, ten tiles on top of Aktiv
   aktiv: ['f.sportpage', 'f.timer', 'f.trainplans', 'f.training', 'f.weekplan', 'f.weekreview', 'f.meditation', 'f.routine', 'f.gipfelbuch', 'f.milestones'],
   bikes: ['f.partwear', 'f.inspect', 'f.workshop', 'f.spick', 'f.workshoprounds', 'f.sparestock', 'f.wearphotos', 'f.bikeseason', 'f.bikeyear', 'f.sellbike', 'f.bikebox', 'f.velofaq', 'f.strava', 'f.kmimport', 'f.velosetup', 'f.bagplan', 'f.setuplog', 'f.equipment', 'f.bikecompare', 'f.measure', 'f.garmin', 'f.folder', 'f.breakin', 'f.repairkit', 'f.warranty', 'f.theft', 'f.bikeservice', 'f.setupphotos'],
+  gear: [
+    'f.gearimport',
+    { id: 'blocks', title: 'Building blocks', href: '#/blocks' },
+    'f.blockcheck',
+    'f.packcleanup',
+    'f.wardrobe',
+    { id: 'favorites', title: 'Favourites', href: '#/favorites' },
+    { id: 'wishlist', title: 'Wishlist', href: '#/gear?tab=wishlist' },
+    'f.shop',
+    { id: 'print', title: 'Share or print a list (PDF)', href: '#/pack?print' },
+    'f.supplies',
+    'f.power',
+    'f.lend',
+    'f.merge',
+    'f.lighter',
+  ],
 };
+
+const idOf = (e) => (typeof e === 'string' ? e : e.id);
+const ENTRY = Object.fromEntries(Object.values(ALL_HERE).flat().filter((e) => typeof e !== 'string').map((e) => [e.id, e]));
 
 /** The settings key of an area: { order: [ids], hidden: [ids] }. */
 export const allHereKey = (area) => `alleshier.${area}`;
@@ -20,13 +42,17 @@ export const allHereKey = (area) => `alleshier.${area}`;
 const BY_ID = Object.fromEntries(FEATURES.map((f) => [f.id, f]));
 
 /** A function the field can show: it has a page in features.js. */
-const known = (id) => !!BY_ID[id]?.href;
+const known = (id) => !!(ENTRY[id] ?? BY_ID[id])?.href;
+
+/** The ids of an area, in their first order. */
+export const areaIds = (area) => (ALL_HERE[area] ?? []).map(idOf);
 
 /**
  * The tile of a function: its id, English title (for t()) and page. A page with a place holder (e.g. «{bike}» for the
  * bike folder) takes it from vars; null when it has no page or a place holder stays open (e.g. no bike yet).
  */
 export function tileOf(id, vars = {}) {
+  if (ENTRY[id]) return { ...ENTRY[id] };
   const f = BY_ID[id];
   if (!f?.href) return null;
   const href = f.href.replace(/\{(\w+)\}/g, (m, k) => (vars[k] != null ? encodeURIComponent(vars[k]) : m));
@@ -36,7 +62,7 @@ export function tileOf(id, vars = {}) {
 
 /** The ids of an area as the user arranged them: all (hidden ones at their place), shown, hidden. Unknown ids are left out, new ones go last. */
 function ids(area, state) {
-  const list = (ALL_HERE[area] ?? []).filter(known);
+  const list = areaIds(area).filter(known);
   const order = (state?.order ?? []).filter((id) => list.includes(id));
   const all = [...order, ...list.filter((id) => !order.includes(id))];
   const hidden = new Set((state?.hidden ?? []).filter((id) => list.includes(id)));

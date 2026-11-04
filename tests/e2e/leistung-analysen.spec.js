@@ -126,7 +126,9 @@ test('Analysen auf der Aktivität: Anstiege, Abschnitte, Verlauf, Puls mal Leist
   const hl = card('homeloop');
   await expect(hl.getByRole('heading', { name: 'Deine Hausrunde über die Zeit' })).toBeVisible();
   await expect(hl).toContainText('4 Fahrten auf dieser Strecke');
-  await expect(hl.locator('[data-homeloop-sentence]')).toHaveText('Auf dieser Strecke warst du diesmal 1:20 schneller als im Schnitt, bei 4 Schlägen weniger Puls.');
+  // «Schlag deinen Geist» «5b»: while the ghost card shows, it says this already; the sentence here is left out
+  await expect(card('ghost')).toBeVisible();
+  await expect(hl.locator('[data-homeloop-sentence]')).toHaveCount(0);
   await expect(hl.getByRole('columnheader')).toHaveText(['Datum', 'Zeit', 'km/h', 'Ø W', 'Ø Puls', 'W/Schlag']);
   await expect(hl.locator('tbody tr')).toHaveCount(4);
   const meRow = hl.locator('[data-loop-row="3001"]');
@@ -202,6 +204,27 @@ test('Analysen auf der Aktivität: Anstiege, Abschnitte, Verlauf, Puls mal Leist
   await sheet.getByRole('button', { name: 'Fertig' }).click();
   await expect(sheet).toBeHidden();
   await expect(card('best')).toBeVisible();
+
+  // the ghost card off: the sentence of the home loop is back; on again: it is left out again
+  await best.getByRole('button', { name: 'Mehr zu Bestwerte' }).click();
+  await page.getByRole('menuitem', { name: 'Analysen anpassen' }).click();
+  await expect(sheet).toBeVisible();
+  await sheet.locator('[data-ana-switch="ghost"]').click();
+  await expect(card('ghost')).toHaveCount(0);
+  await expect(card('homeloop').locator('[data-homeloop-sentence]')).toHaveText('Auf dieser Strecke warst du diesmal 1:20 schneller als im Schnitt, bei 4 Schlägen weniger Puls.');
+  if (process.env.SHOTS) {
+    await sheet.getByRole('button', { name: 'Fertig' }).click();
+    await expect(sheet).toBeHidden();
+    await card('homeloop').screenshot({ path: `${process.env.SHOTS}/hausrunde-mit-satz-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await card('best').getByRole('button', { name: 'Mehr zu Bestwerte' }).click();
+    await page.getByRole('menuitem', { name: 'Analysen anpassen' }).click();
+    await expect(sheet).toBeVisible();
+  }
+  await sheet.locator('[data-ana-switch="ghost"]').click();
+  await sheet.getByRole('button', { name: 'Fertig' }).click();
+  await expect(card('ghost')).toBeVisible();
+  await expect(card('homeloop').locator('[data-homeloop-sentence]')).toHaveCount(0);
+  if (process.env.SHOTS) await card('homeloop').screenshot({ path: `${process.env.SHOTS}/hausrunde-ohne-satz-${info.project.name === 'phone' ? 390 : 1440}.png` });
 
   // a dot opens that ride
   const dot = sim.locator('[data-similar]').first();
