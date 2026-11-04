@@ -115,4 +115,9 @@ export default {
   'You rode {km} km today': 'Du bist heute {km} km gefahren',
   'You rode {km} km yesterday': 'Du bist gestern {km} km gefahren',
   'After a ride, protein and carbs help. Just a suggestion:': 'Nach einer Fahrt helfen Eiweiss und Kohlenhydrate. Nur ein Vorschlag:',
+  // online shop search
+  'Search «{name}» at {shop}': '«{name}» bei {shop} suchen',
+  'Online shop search': 'Suche im Online-Shop',
+  'Search online:': 'Online suchen:',
+  'The link opens the search of the shop in your browser. It needs the internet.': 'Der Link öffnet die Suche des Shops im Browser. Er braucht Internet.',
 };
