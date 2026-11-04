@@ -15,9 +15,10 @@ const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
-const shot = async (page, info, name, fullPage = false) => {
+const shot = async (page, info, name, card = null) => {
+  if (card) await card.evaluate((el) => el.scrollIntoView({ block: 'center' }));
   mkdirSync(SHOTS, { recursive: true });
-  await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage });
+  await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png` });
 };
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 const key = (k) => `#/tour/${encodeURIComponent(k)}`;
@@ -64,10 +65,10 @@ test('a) a tour marked «Nicht fahren» asks why; a reason stays, the same one a
   const card = page.locator('[data-change-why="skipped"]');
   await expect(card.getByRole('heading', { level: 2 })).toHaveText(T('Why are you not riding?'));
   await expect(card.locator('[data-why]')).toHaveCount(6);
-  await shot(page, info, 'G1-planen-fragt');
+  await shot(page, info, 'G1-planen-fragt', card);
   await card.locator('[data-why="weather"]').click();
   await expect(card.getByRole('heading', { level: 2 })).toHaveText(T('Noted: {reason}', { reason: T('Weather|reason') }));
-  await shot(page, info, 'G2-planen-notiert');
+  await shot(page, info, 'G2-planen-notiert', card);
   await card.locator('[data-why-change]').click();
   await expect(card.locator('[data-why="weather"]')).toHaveAttribute('aria-pressed', 'true');
   await card.locator('[data-why="weather"]').click();
@@ -95,11 +96,11 @@ test('b) a tour ridden far from its plan asks why; three answers give one calm l
   const card = page.locator('[data-change-why="shorter"]');
   await expect(card.getByRole('heading', { level: 2 })).toHaveText(T('Why was it different?'));
   await expect(card.locator('[data-why-pattern]')).toHaveCount(0); // two answers are too few
-  await shot(page, info, 'G3-tour-fragt');
+  await shot(page, info, 'G3-tour-fragt', card);
   await card.locator('[data-why="weather"]').click();
   await expect(card.getByRole('heading', { level: 2 })).toHaveText(T('Noted: {reason}', { reason: T('Weather|reason') }));
   await expect(card.locator('[data-why-pattern]')).toBeVisible();
-  await shot(page, info, 'G4-tour-muster');
+  await shot(page, info, 'G4-tour-muster', card);
   await noSideways(page);
   // a tour as planned shows no card
   await page.goto(`./${key(`t:${P}loop`)}`);
