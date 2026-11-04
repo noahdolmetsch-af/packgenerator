@@ -34,7 +34,8 @@ test('every function is at most 3 taps from Heute', async ({ page, context }, in
     await page.goto('./' + next);
     await page.locator('main').first().waitFor();
     await settle(page);
-    const links = await page.evaluate(() => [...document.querySelectorAll('a[href^="#/"]')].map((a) => {
+    // the tile «New» shows the newest merge, so its «Try it» link changes with every PR: it never counts as a way
+    const links = await page.evaluate(() => [...document.querySelectorAll('a[href^="#/"]')].filter((a) => !a.closest('[data-news]')).map((a) => {
       if (a.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return [a.getAttribute('href'), 1];
       return a.closest('details:not([open]), dialog:not([open])') ? [a.getAttribute('href'), 2] : null;
     }).filter(Boolean));

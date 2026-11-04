@@ -257,3 +257,11 @@ describe('cleanSportGoals', () => {
     expect(cleanSportGoals(null)).toEqual({});
   });
 });
+
+import { cleanHabits } from '../src/lib/training.js';
+describe('cleanHabits', () => {
+  it('keeps counts 1–5 and ratios 0.5–2 only', () => {
+    expect(cleanHabits({ drop: { a: 2, b: 9, c: 0 }, mins: { a: { n: 2, ratio: 1.234 }, b: { n: 2, ratio: 5 } } })).toEqual({ drop: { a: 2 }, mins: { a: { n: 2, ratio: 1.23 } } });
+    expect(cleanHabits(null)).toEqual({ drop: {}, mins: {} });
+  });
+});

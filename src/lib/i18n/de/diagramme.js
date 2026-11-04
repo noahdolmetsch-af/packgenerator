@@ -63,4 +63,10 @@ export default {
   'Start|tour': 'Start',
   'Resting pulse before and during the tour, {n} days': 'Ruhepuls vor und während der Tour, {n} Tage',
   'Numbers below: days before the tour (−) and tour days. Point at a day for the numbers, tap it for the whole day.': 'Zahlen unten: Tage vor der Tour (−) und Tourtage. Zeig auf einen Tag für die Zahlen, tippe ihn an für den ganzen Tag.',
+  // Körperwerte (Stats.svelte, LineChart.svelte)
+  '{what} from {a} to {b}': '{what} vom {a} bis {b}',
+  'Resting and highest pulse per day': 'Ruhepuls und höchster Puls pro Tag',
+  'Point at a day for its numbers, tap it for what is behind.': 'Zeig auf einen Tag für die Zahlen, tippe ihn an für das Dahinter.',
+  'Point at a ride or tap it for its numbers.': 'Zeig auf eine Fahrt oder tippe sie an für die Zahlen.',
+  'Mean pulse': 'Mittlerer Puls',
 };

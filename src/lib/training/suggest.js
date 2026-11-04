@@ -9,6 +9,7 @@ import { activeGoals } from '../flow.js';
 
 export const SRC = 'sug'; // src of a session written by a suggestion
 export const FOCUS = ['cardio', 'hit', 'kraft', 'ruhe']; // Ausdauer, Intervalle, Kraft, Erholung
+export const HABIT_AFTER = 2; // a change counts as a habit after this many times
 export const VARIANTS = 3; // «more suggestions»: three layouts of the week
 const NOT_SPORTS = ['bike', 'spin', 'run', 'meditation', 'sauna']; // the core kinds and the quiet ones are not «sports of the week»
 
@@ -52,10 +53,10 @@ const round5 = (x) => Math.max(5, Math.round(x / 5) * 5);
 /**
  * The suggestion for the week starting on monday. Input: { monday, today, goal, daysToRace (null without a race),
  * level ('rest' | 'easy' | 'normal' | 'hard' | null, today's readiness), recentMins (minutes per week of the last
- * weeks, or null), mainKind ('bike' …), sports (weeklySports), variant (0–2), nameOf (a sport's name in the language shown), hoursSet (hours per week the person chose, else null), push (−1 easier, 0, +1 harder), focus (one of FOCUS), strengthSport (id of a strength sport of Aktiv, or null), dayLimits ({ [dow 0 = Monday]: max minutes, 0 = keep the day free }), wx ({ [YYYY-MM-DD]: 'none' | 'showers' | 'rain' }, the forecast of the home place) }.
+ * weeks, or null), mainKind ('bike' …), sports (weeklySports), variant (0–2), nameOf (a sport's name in the language shown), hoursSet (hours per week the person chose, else null), push (−1 easier, 0, +1 harder), focus (one of FOCUS), strengthSport (id of a strength sport of Aktiv, or null), dayLimits ({ [dow 0 = Monday]: max minutes, 0 = keep the day free }), wx ({ [YYYY-MM-DD]: 'none' | 'showers' | 'rain' }, the forecast of the home place), habits (what the person changed before: { drop: { [session name]: times removed }, mins: { [session name]: { n, ratio } } }, or null) }.
  * Output: { sessions, why: [{ key, vars }], mins } (why: English keys for t()).
  */
-export function suggestWeek({ monday, today, goal = null, daysToRace = null, level = null, recentMins = null, mainKind = 'bike', sports = [], variant = 0, nameOf = (s) => s.name, hoursSet = null, push = 0, focus = 'cardio', strengthSport = null, dayLimits = {}, wx = {} } = {}) {
+export function suggestWeek({ monday, today, goal = null, daysToRace = null, level = null, recentMins = null, mainKind = 'bike', sports = [], variant = 0, nameOf = (s) => s.name, hoursSet = null, push = 0, focus = 'cardio', strengthSport = null, dayLimits = {}, wx = {}, habits = null } = {}) {
   const v = ((variant % VARIANTS) + VARIANTS) % VARIANTS;
   const why = [];
   let hours;
@@ -160,15 +161,51 @@ export function suggestWeek({ monday, today, goal = null, daysToRace = null, lev
     if (r.role === 'quality' && r.zone <= 2) r.role = 'mid';
     else if (r.role === 'quality' && r.zone >= 4) r.role = 'hit';
   });
+  const left = new Set(); // names left out because of the person's earlier changes
+  const scaled = new Set(); // names whose minutes follow the person's earlier changes
   const sessions = [
     ...rows.map((r) => ({ day: days[r.dow], kind: mainKind, name: NAMES[r.role], mins: r.mins, zone: r.zone })),
     ...strength.map((x) => ({ day: days[x.dow], kind: 'other', sport: strengthSport || undefined, name: strengthSport ? '' : NAMES.strength, mins: x.mins, zone: null })),
     ...sportSessions.map((s) => ({ day: days[s.dow], kind: 'other', sport: s.sport.id, name: '', mins: s.mins, zone: null })),
   ]
+    // «Own changes are remembered»: a session the person removed twice is left out, one they lengthened or shortened twice follows
+    .filter((s) => !(s.name && s.name !== NAMES.long && (habits?.drop?.[s.name] ?? 0) >= HABIT_AFTER && (left.add(s.name), true)))
+    .map((s) => {
+      const h = s.name ? habits?.mins?.[s.name] : null;
+      if (!h || h.n < HABIT_AFTER || Math.abs(h.ratio - 1) < 0.1) return s;
+      scaled.add(s.name);
+      return { ...s, mins: round5(s.mins * Math.max(0.6, Math.min(1.6, h.ratio))) };
+    })
     .map((s) => ({ ...s, mins: Math.max(5, Math.min(s.mins, limit(days.indexOf(s.day)))) }))
     .sort((a, b) => a.day.localeCompare(b.day))
     .filter((s) => s.day >= today)
     .map((s, i) => ({ ...s, id: `${SRC}-${s.day}-${i}`, src: SRC }));
+  left.forEach((name) => why.push({ key: 'You removed «{name}» twice, so it is left out.', vars: { name } }));
+  scaled.forEach((name) => why.push({ key: 'You changed the time of «{name}» before, so it follows.', vars: { name } }));
   why.push({ key: 'About {n} % in Z1–Z2 (your goal: {goal} %).', vars: { n: low(), goal: base } });
   return { sessions, why, hours, mins: sessions.reduce((a, s) => a + s.mins, 0), shiftTo: shiftDay(monday, 7) };
 }
+
+/**
+ * «Training verbessern» 3d: what the person changed in a suggestion before taking it over. `before` is the untouched
+ * suggestion, `after` the list taken over; `habits` the memory so far. Removed sessions and changed minutes of
+ * sessions that keep their name are counted (the count is kept small). Returns the new memory.
+ */
+export function learnHabits(habits, before = [], after = []) {
+  const out = { drop: { ...(habits?.drop ?? {}) }, mins: { ...(habits?.mins ?? {}) } };
+  const kept = new Map(after.map((s) => [s.id, s]));
+  for (const s of before) {
+    if (!s.name || s.sport) continue;
+    const now = kept.get(s.id);
+    if (!now) out.drop[s.name] = Math.min(5, (out.drop[s.name] ?? 0) + 1);
+    else if (now.name === s.name && now.mins !== s.mins && s.mins > 0) {
+      const h = out.mins[s.name] ?? { n: 0, ratio: 1 };
+      const r = Math.max(0.5, Math.min(2, now.mins / s.mins));
+      out.mins[s.name] = { n: Math.min(5, h.n + 1), ratio: Math.round(((h.ratio * h.n + r) / (h.n + 1)) * 100) / 100 };
+    } else if (now.name === s.name) out.drop[s.name] = Math.max(0, (out.drop[s.name] ?? 0) - 1); // taken as suggested: forgets a little
+  }
+  for (const k of Object.keys(out.drop)) if (!out.drop[k]) delete out.drop[k];
+  return out;
+}
+
+export const noHabits = (h) => !h || (!Object.keys(h.drop ?? {}).length && !Object.keys(h.mins ?? {}).length);

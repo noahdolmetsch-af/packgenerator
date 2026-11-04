@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, trainingHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -148,5 +148,29 @@ describe('Fragen aus deinen Daten', () => {
     expect(d.why.vars).toEqual({ h: 3, m: 30 });
     expect(dataDue({ acts, today: TODAY, cfg: setRule(null, 'training', false) })).toEqual([]);
     expect(RULES.map((r) => r.id)).toContain('training');
+  });
+  describe('Pause vom Training', () => {
+    const act = (n) => ({ id: `a${n}`, day: add(TODAY, n), movingS: 3600 });
+    it('asks when no training was logged for 4 days or more, counted from the last one', () => {
+      expect(pauseHit([act(-4)], [], TODAY)).toEqual({ n: 4 });
+      expect(pauseHit([act(-3)], [], TODAY)).toBeNull();
+      expect(pauseHit([act(-9), act(-6)], [], TODAY)).toEqual({ n: 6 });
+      expect(pauseHit([act(-9)], [], TODAY, 10)).toBeNull();
+      expect(pauseHit([], [], TODAY)).toBeNull(); // nothing to count from
+      expect(pauseHit([act(0)], [], TODAY)).toBeNull();
+    });
+    it('a tennis game or lesson counts as training, other sport items do not', () => {
+      const played = (n) => ({ sport: 'act:tennis', kind: 'played', day: add(TODAY, n) });
+      expect(pauseHit([act(-8)], [played(-2)], TODAY)).toBeNull();
+      expect(pauseHit([act(-8)], [{ sport: 'act:tennis', kind: 'slot', day: add(TODAY, -1) }, { sport: 'act:run', kind: 'played', day: add(TODAY, -1) }], TODAY)).toEqual({ n: 8 });
+      expect([...trainingDays([act(-1)], [played(-2)])].sort()).toEqual([add(TODAY, -2), add(TODAY, -1)]);
+    });
+    it('gives the question with its reason and respects the switch', () => {
+      const [d] = dataDue({ acts: [act(-6)], today: TODAY });
+      expect(d.q.id).toBe('daten.pause');
+      expect(d.why.vars).toEqual({ n: 6 });
+      expect(dataDue({ acts: [act(-6)], today: TODAY, cfg: setRule(null, 'pause', false) })).toEqual([]);
+      expect(RULES.map((r) => r.id)).toContain('pause');
+    });
   });
 });
