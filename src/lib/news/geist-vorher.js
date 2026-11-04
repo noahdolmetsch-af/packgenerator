@@ -5,11 +5,11 @@ export default {
   points: [
     {
       text: 'Before the start you choose your ghost: your last ride, an earlier one on this tour, or «Without a ghost»',
-      go: { href: '#/live', steps: [{ sel: '[data-live-ghostpick]' }], where: 'Open the live map with a tour that has an earlier ride recorded in the app: the box «Who do you ride against today?» sits above «During the ride».' },
+      go: { where: 'Open the live map with a tour that has an earlier ride recorded in the app: the box «Who do you ride against today?» sits above «During the ride».' },
     },
     {
       text: 'During the ride you can change the ghost, and the line says «ahead of / behind your ghost of» with its day',
-      go: { href: '#/live', steps: [{ sel: '[data-live-ghostpick]' }], where: 'Open the live map with a tour that has an earlier ride recorded in the app: the box «Who do you ride against today?» sits above «During the ride».' },
+      go: { where: 'Open the live map with a tour that has an earlier ride recorded in the app: the box «Who do you ride against today?» sits above «During the ride».' },
     },
   ],
   small: [{ box: 'new', text: 'Only rides recorded in the app can be a ghost; Strava rides keep no track here', go: null }],
