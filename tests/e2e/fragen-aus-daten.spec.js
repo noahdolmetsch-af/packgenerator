@@ -109,7 +109,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(card.locator('[data-q="erholung.akku"]')).toBeVisible();
     await expect(card.locator('[data-q^="daten."]')).toHaveCount(0);
     await page.goto('./#/me/abfragen');
-    for (const id of ['ruhepuls', 'schlaf', 'stimmung', 'training']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
+    for (const id of ['ruhepuls', 'schlaf', 'stimmung', 'training', 'pause']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
   });
 
   test('a long day yesterday asks how the legs feel, with the time as the reason', async ({ page, context }, info) => {
@@ -126,6 +126,28 @@ test.describe('Fragen aus deinen Daten', () => {
     await q.getByRole('button', { name: T('Heavy legs|data'), exact: true }).click();
     await card.locator('[data-ab-save]').click();
     await expect(card.locator('[data-q="daten.training"]')).toHaveCount(0);
+  });
+
+  test('six days without training ask what kept you from it', async ({ page, context }, info) => {
+    const d = data(52);
+    d.tables.activities = [{ id: 'fad-p1', day: day(-8), kind: 'bike', name: 'Loop', km: 40, movingS: 7200 }, { id: 'fad-p2', day: day(-6), kind: 'run', name: 'Run', km: 8, movingS: 3000 }];
+    const T = await openHome(page, context, info, { data: d });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.pause"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('What kept you from training lately?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('vor 6 Tagen');
+    await card.screenshot({ path: `${SHOTS}/fad4-pause-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Tired|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.pause"]')).toHaveCount(0);
+  });
+
+  test('no activities yet: the box says why the training rules are quiet', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-data-empty-training]')).toBeVisible();
+    await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad4-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
   });
 
   // leaving Heute with the window open counts as «Heute nicht» (quiet until the evening), so each way is its own test

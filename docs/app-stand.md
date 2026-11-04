@@ -150,6 +150,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Meditationsprotokoll | `#/flow/act/meditation/log` | Sitzungen, Regelmässigkeit, Tageszeiten und Notizen ansehen. |
 | Tennis | `#/flow/sport/act%3Atennis` | Spiele und erteilte Lektionen dokumentieren, geplante Termine und Platzbuchungslinks verwalten. |
 | Morgen-Check | `#/check/morning` | † Den eigenen Zustand am Morgen kurz erfassen (Schlaf, Stimmung, Sorgen). |
+| Fragen aus deinen Daten | `#/me/abfragen` | Fällt ein Wert auf (Ruhepuls, kurze Nacht, gedrückte Stimmung, langer Tag, Trainingspause), stellt der Check eine offene Frage und sagt warum; jede Regel mit Schalter, Schwelle und eigenen Worten. |
 | Erkenntnisse | `#/me/insights` | Zusammenhänge zwischen Schlaf, Stimmung, Bewegung, Meditation, Wetter und weiteren eigenen Daten erkunden. |
 | Was mir gut tut | `#/me/wohl` | Muster guter Tage sammeln, gewünschte Lebensbereiche vergleichen und kleine Experimente durchführen. |
 | Routinen | `#/routine` | Persönliche Gewohnheiten mit kurzen täglichen Checklisten verfolgen; Teil von Aktiv › Erholung, Kachel auf Heute. |
@@ -168,12 +169,12 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Tourenpass | `#/debrief/tourenpass` | Nach dem Rückblick einen Stempel auf den Tourenpass setzen; Stempel selbst hinzufügen, ändern, entfernen und ablehnen. |
 | Gesammelte Erkenntnisse | `#/debrief/learnings` | Erfahrungen thematisch sammeln und für spätere Touren wiederfinden. |
 | Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten. |
-| Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. |
+| Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. Eine Regel wie in Neuland: bis 600 m von der Passhöhe sicher, bis 1,2 km «bitte bestätigen». |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
 | Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
-| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Traumtouren | `#/trips/dreams` | Wunschabenteuer nach Saison sammeln, auf der Karte vergleichen und in konkrete Touren verwandeln; passende Wetterfenster und neue Ziele in der Nähe finden. |
 | Inspiration | `#/inspiration` | Links zu Routen, Videos, Ausrüstung und Rennen sammeln und daraus Ideen oder Packregeln ableiten. |
 
@@ -181,7 +182,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Wetter | `#/wetter` | Orte, Tage und Startzeiten vergleichen; Regen, Wind, Kälte, Hitze und Warnungen für die Planung berücksichtigen. |
+| Wetter | `#/wetter` | Orte, Tage und Startzeiten vergleichen; Regen, Wind, Kälte, Hitze und Warnungen für die Planung berücksichtigen; Regenstreifen für 24 Stunden sowie Landi-Regenradar und SRF-Webcams in Fenstern. |
 | Hinweise und News | `#/me/hinweise` | Regionale Hinweise, winterliche Lawineninformationen und eigene Nachrichtenquellen bündeln. |
 | Skitouren | `#/ski` | Nächste Tour mit Wetter, Nullgradgrenze und Neuschnee vorbereiten. |
 | Skitour planen | `#/ski/plan` | Bulletinangaben, Bedingungen, Zeitplan und Umkehrzeit dokumentieren. |
@@ -248,7 +249,7 @@ Diese Funktionen gibt es in der App (`features.js`), sie fehlten im Dokument. De
 | Werkzeugkasten | `#/me/tools` | Kleine Werkzeuge: Karte messen, Barcode, Packliste per Foto, Währungen, Lupe und Licht, Zeitzonen, Kompass, Redewendungen, Reisekosten, Übersetzungen der Gänge, Wasserwaage, Sitzposition, PDF, Fotos, Bildformat, Video verkleinern, QR-Code, Etiketten, Rechner, Einheiten, Werkzeugketten. |
 | Freie Zeit | `#/me/frei` | Erste Nacht, Für nächstes Mal, Mein Abend, Was mir wichtig ist, Reisewünsche, Wonach ist mir?, Meine Sammlungen. |
 | Gewicht | `#/me/weight` | Freiwillig und nur auf diesem Gerät: das eigene Gewicht mit Kurve, für Watt pro Kilo. |
-| Deine Fragen | `#/me/abfragen` | Spielerische Fragen mit eigenem Rhythmus, Morgen- und Abendrunde, Verlauf und Auswertung; Fragen und Bereiche ändern, löschen, ergänzen und sortieren. |
+| Deine Fragen | `#/me/abfragen` | Spielerische Fragen mit eigenem Rhythmus, Morgen- und Abendrunde, Verlauf und Auswertung; Fragen und Bereiche ändern, löschen, ergänzen und sortieren. Pro Thema nur eine Frage von selbst; Zusammengelegte stehen aus in der Liste. |
 | Abend-Check | `#/check/evening` | Am Tourtag abends bewerten, wie die Tour war (1 bis 10); landet im Rückblick und im Tagebuch. |
 | Chronik | `#/chronik` | Alles auf einer Zeitlinie, eine Seite pro Monat: Touren, Fahrten, Pflege, Meditation, Notizen; «Früher um diese Zeit». |
 | Stopps in der Nähe | `#/stopps` | Wasser, Tankstellen, Essen, Läden, WC, Bargeld, Apotheke, Pumpe, Velowerkstätten, Bahnhöfe und Betten um dich oder entlang der Route. |
