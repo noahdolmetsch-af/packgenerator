@@ -2,13 +2,15 @@
   /**
    * «Heute fällig» (Noah 24.10.2026 «1a», use cases 255, 257, 161): one line under the greeting with what is
    * really due today; each chip opens its place. Without anything due the line is not there.
+   * Paket C idea 17 (Noah 03.11.2026 «b»): the care chip carries a small bike bell that rings (wobbles) once when
+   * the line appears; «Reduce motion» switches it off. No sound.
    */
-  import { CalendarCheck, Cake, Flower2, Wrench } from '@lucide/svelte';
+  import { CalendarCheck, Cake, Flower2, BellRing } from '@lucide/svelte';
   import { dueToday } from './duetoday.js';
   import { t, tn } from '../i18n.svelte.js';
 
   let { todos = [], today, care = 0 } = $props();
-  const ICON = { todo: CalendarCheck, birthday: Cake, plant: Flower2, care: Wrench };
+  const ICON = { todo: CalendarCheck, birthday: Cake, plant: Flower2, care: BellRing };
   const rows = $derived(dueToday({ todos, today, care }));
   // names the user typed (to-dos, people, plants) never go through t()
   const text = (r) =>
@@ -72,5 +74,30 @@
   }
   .chip:hover {
     border-color: var(--line-strong);
+  }
+  /* idea 17: the bell wobbles once, from its top, a moment after the line appears */
+  @media (prefers-reduced-motion: no-preference) {
+    .chip[data-due='care'] :global(svg) {
+      transform-origin: 50% 12%;
+      animation: bell-ring 700ms ease-in-out 500ms 1 both;
+    }
+  }
+  @keyframes bell-ring {
+    0%,
+    100% {
+      transform: rotate(0);
+    }
+    15% {
+      transform: rotate(18deg);
+    }
+    35% {
+      transform: rotate(-16deg);
+    }
+    55% {
+      transform: rotate(10deg);
+    }
+    75% {
+      transform: rotate(-6deg);
+    }
   }
 </style>
