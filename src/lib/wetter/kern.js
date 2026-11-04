@@ -20,7 +20,7 @@ export const CORE_MAX_AGE_H = 3;
 /** Offline a kept answer is still shown up to this age (with its time). */
 export const CORE_SHOW_H = 24;
 export const OPEN_METEO = 'https://api.open-meteo.com/v1/forecast';
-export const HOURLY = ['temperature_2m', 'apparent_temperature', 'precipitation_probability', 'precipitation', 'weather_code', 'wind_speed_10m', 'wind_gusts_10m', 'wind_direction_10m', 'cape', 'freezing_level_height', 'visibility', 'snowfall', 'snow_depth'];
+export const HOURLY = ['temperature_2m', 'apparent_temperature', 'precipitation_probability', 'precipitation', 'weather_code', 'wind_speed_10m', 'wind_gusts_10m', 'wind_direction_10m', 'cape', 'freezing_level_height', 'visibility', 'snowfall', 'snow_depth', 'snowfall_height'];
 export const DAILY = ['sunrise', 'sunset', 'uv_index_max'];
 
 /** The limits (all km/h, °C, mm, %). Changed here, they change everywhere. */
@@ -66,7 +66,7 @@ export function coreUrl(place, days = 16) {
 
 /**
  * The answer as the app keeps it: { lat, lon, elev, offset (s), hours: [{ ms, temp, feels, rainP, rainMm,
- * code, wind, gust, dir, cape, frz, vis, snowCm, depth }], days: [{ date, rise, set, uv }] }.
+ * code, wind, gust, dir, cape, frz, vis, snowCm, depth, snowH }], days: [{ date, rise, set, uv }] }.
  */
 export function parseCore(j) {
   const h = j?.hourly ?? {};
@@ -86,6 +86,7 @@ export function parseCore(j) {
     vis: v(h.visibility, i),
     snowCm: v(h.snowfall, i),
     depth: v(h.snow_depth, i),
+    snowH: v(h.snowfall_height, i), // «Schneefallgrenze» (schneegrenze.js): Open-Meteo's own value where a model has it, else null
   }));
   const d = j?.daily ?? {};
   const offset = fin(j?.utc_offset_seconds) ? j.utc_offset_seconds : 0;
