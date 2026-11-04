@@ -16,13 +16,14 @@ import { localDay } from '../localday.js';
 import { syncOwn, savePrefs as saveOwn } from '../googleown.js';
 import { AGENDA_KEY, BACK_DAYS, AHEAD_DAYS, prefsOf, calsToFetch, addDays } from '../agenda.js';
 import { keepDayEvents } from '../daydata.js';
+import { FETCH_LIMIT_MS } from '../ui/connstatus.js';
 
 export const AGENDA_HASH = '#/me/agenda';
 /** db.meta (this device only): when this device last tried to fetch. */
 export const TRY_KEY = 'agenda.try';
 export const AUTO_EVERY_MS = 15 * 60 * 1000;
 
-export const agenda = $state({ loaded: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), events: [], tasks: [] });
+export const agenda = $state({ since: 0, loaded: false, busy: false, error: '', justConnected: false, prefs: prefsOf(null), events: [], tasks: [] });
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   liveQuery(async () => [(await appDb.settings.get(AGENDA_KEY))?.value, await appDb.gEvents.toArray(), await appDb.gTasks.toArray()]).subscribe({
@@ -76,11 +77,17 @@ export async function checkAllowed({ db = appDb, c = call } = {}) {
 
 let running = null;
 /** «Jetzt holen»: calendars, events of the span and tasks. Returns true when done. */
-export function fetchNow({ db = appDb, c = call, today = localDay() } = {}) {
+export function fetchNow({ db = appDb, c = call, today = localDay(), limitMs = FETCH_LIMIT_MS, clock = () => Date.now() } = {}) {
   if (running) return running;
   running = (async () => {
     agenda.busy = true;
     agenda.error = '';
+    const startedAt = clock();
+    agenda.since = startedAt;
+    // Noah 03.11.2026 «1a»: a whole fetch ends after 2 minutes (each call after 60 s); nothing half-written stays
+    const stop = () => {
+      if (clock() - startedAt > limitMs) throw Object.assign(new Error('timeout'), { code: 'timeout' });
+    };
     try {
       await db.meta.put({ key: TRY_KEY, at: new Date().toISOString() });
       const p = prefsOf((await db.settings.get(AGENDA_KEY))?.value);
@@ -91,14 +98,17 @@ export function fetchNow({ db = appDb, c = call, today = localDay() } = {}) {
         const cals = calsToFetch({ ...p, calendars }).filter((id) => id === 'primary' || calendars.some((x) => x.id === id));
         const from = addDays(today, -BACK_DAYS);
         const to = addDays(today, AHEAD_DAYS);
+        stop();
         const { events } = await c('cal-events', { params: { from, to, cal: cals.join(',') } });
         await keepEvents(db, events);
         // «Erkenntnisse» (Noah 19.10.2026 «3a»): the appointments per day, kept beyond the 7 days of the copy
         await keepDayEvents(db, events, from, to, today).catch(() => {});
       }
       if (p.tasks) {
+        stop();
         const { lists } = await c('task-lists');
         patch.lists = lists;
+        stop();
         const { tasks } = await c('tasks');
         await keepTasks(db, tasks);
       }

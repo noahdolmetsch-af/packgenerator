@@ -12,8 +12,8 @@ export const FOCUS = ['cardio', 'hit', 'kraft', 'ruhe']; // Ausdauer, Intervalle
 export const VARIANTS = 3; // «more suggestions»: three layouts of the week
 const NOT_SPORTS = ['bike', 'spin', 'run', 'meditation', 'sauna']; // the core kinds and the quiet ones are not «sports of the week»
 
-/** The sports of Aktiv the person wants this week: [{ id, name, mins, perWeek }], at most three. */
-export function weeklySports(acts = [], monday) {
+/** The sports of Aktiv that can be planned in a week: [{ id, name, nameDe, mins, perWeek }], perWeek from their goal in Aktiv (0 = none). */
+export function candidateSports(acts = [], monday) {
   return acts
     .filter((a) => a && !a.paused && a.ring === 'move' && !NOT_SPORTS.includes(a.id))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
@@ -21,9 +21,21 @@ export function weeklySports(acts = [], monday) {
       const goals = activeGoals(a, monday);
       const perWeek = Math.min(2, Math.round(goals.reduce((s, g) => s + (g.count * 7) / Math.max(1, g.days), 0)));
       return { id: a.id, name: a.name, nameDe: a.nameDe, mins: a.minMin > 0 ? a.minMin : 45, perWeek };
-    })
+    });
+}
+
+/**
+ * The sports of Aktiv the person wants this week: [{ id, name, mins, perWeek }], at most three. «Goal per sport»:
+ * `goals` ({ [id]: times per week, 0–3 }) set in the suggestion wins over the goal in Aktiv.
+ */
+export function weeklySports(acts = [], monday, goals = {}) {
+  const own = (s) => Number.isInteger(goals?.[s.id]);
+  return candidateSports(acts, monday)
+    .map((s) => ({ ...s, own: own(s), perWeek: own(s) ? Math.max(0, Math.min(3, goals[s.id])) : s.perWeek }))
     .filter((s) => s.perWeek >= 1)
-    .slice(0, 3);
+    .sort((a, b) => Number(b.own) - Number(a.own)) // the sports the person set here come first when more than three want a place
+    .slice(0, 3)
+    .map(({ own: _own, ...s }) => s);
 }
 
 /** Roles of the core sessions: [dow (0 = Monday), share of the core minutes, role]. */
@@ -78,16 +90,17 @@ export function suggestWeek({ monday, today, goal = null, daysToRace = null, lev
 
   const limit = (dow) => (dow in dayLimits && Number.isFinite(dayLimits[dow]) ? Math.max(0, dayLimits[dow]) : Infinity);
   const isOff = (dow) => limit(dow) === 0;
-  const free = FREE[v].filter((d) => !isOff(d));
+  const week = weekOf(monday);
+  const free = FREE[v].filter((d) => !isOff(d) && week[d] >= today); // days that have passed take no sport
   const sportSessions = [];
   const taken = new Set(LAYOUTS[v].map((d) => d[0]).filter((d) => !isOff(d)));
   const slots = free.filter((d) => !taken.has(d));
   sports.forEach((s) => {
     for (let i = 0; i < s.perWeek && slots.length; i++) sportSessions.push({ dow: slots.shift(), sport: s, mins: s.mins });
   });
-  // sports take at most a third of the time
+  // sports take at most a third of the time (but one session of a sport the person asked for always stays)
   let sportMin = sportSessions.reduce((a, s) => a + s.mins, 0);
-  while (sportSessions.length && sportMin > total / 3) sportMin -= sportSessions.pop().mins;
+  while (sportSessions.length > 1 && sportMin > total / 3) sportMin -= sportSessions.pop().mins;
 
   // focus strength: two strength sessions on free days (a sport of Aktiv when there is one)
   const strength = [];

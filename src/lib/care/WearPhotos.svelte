@@ -12,8 +12,8 @@
   import { sortBikes } from '../bikes.js';
   import { localDay } from '../localday.js';
   import { partName } from '../care.js';
-  import { shrinkImage } from '../photo.js';
   import { SHOT_PARTS, shotsOf, shotDue, prefsOf, PREFS_KEY } from '../griff.js';
+  import { addWearShot } from '../griffdb.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import PhotoPick from '../ui/PhotoPick.svelte';
@@ -41,9 +41,7 @@
     busy = key;
     msg = '';
     try {
-      const data = await shrinkImage(file, 1400, 0.82);
-      const id = `wear-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
-      await db.photos.put({ id, bikeId: bike.id, name: partName({ key }), tripId: null, main: false, wear: key, date: today, km: typeof bike.km === 'number' ? bike.km : null, data, addedAt: new Date().toISOString() });
+      const { id } = await addWearShot(bike, key, file, today);
       offerDone(t('Photo saved: {part}, {date}.', { part: partName({ key }), date: dateOf(today) }), () => db.photos.delete(id));
     } catch (err) {
       msg = err?.message || t('This photo could not be read.');

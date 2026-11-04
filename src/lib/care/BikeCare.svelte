@@ -46,6 +46,7 @@
   import '../helper/helper.css';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
+  import Odometer from '../ui/Odometer.svelte';
   import ShowMore from '../ui/ShowMore.svelte';
   import { phone } from '../media.svelte.js';
   import { PHONE_ROWS } from '../touren/kurz.js';
@@ -278,7 +279,7 @@
         <button type="button" class="ah-btn" aria-expanded={open} aria-controls="care-in-{bike.id}" title={open ? t('Close') : undefined} onclick={() => ontoggle?.(!open)}>{#if open}<span class="sr">{bike.name}</span><ChevronUp size={20} aria-hidden="true" />{:else}{bike.name}{/if}</button>
       </h2>
       <small class="sub num">
-        {#if bike.km != null}{num(bike.km)} km{:else}{t('km not set')}{/if}
+        {#if bike.km != null}<Odometer value={bike.km} />{' km'}{:else}{t('km not set')}{/if}
         <!-- «Verschleiss immer im Griff» (Noah 20.10.2026): the chain at a glance on every bike -->
         {#if chain}{' · '}<span class="chainw {chain.state}" data-chain-wear={chain.state}>{t('Chain {km} of {life} km', { km: num(chain.km), life: num(chain.life.km) })}</span>{/if}
         {#if open}

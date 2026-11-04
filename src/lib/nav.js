@@ -472,6 +472,12 @@ export const TAB_GROUPS = {
     { label: 'Find your way|group', keys: ['compass', 'alltag', 'frei'] },
     { label: 'Ideas and tools|group', keys: ['inspiration', 'links'] },
   ],
+  // «Aktiv und Auswerten» 2a (Noah 03.11.2026): the pages of Auswerten stand by the question you ask
+  analysis: [
+    { label: 'How am I doing?|group', keys: ['start', 'form', 'body', 'history', 'wohl', 'weight', 'insights', 'impulse'] },
+    { label: 'What did I do?|group', keys: ['rides', 'ticks', 'milestones'] },
+    { label: 'What did I learn?|group', keys: ['analyse'] },
+  ],
 };
 
 /** The tabs split into the groups of a place ([{ label, items }]), keeping their order; null when the place has no groups. */

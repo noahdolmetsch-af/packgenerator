@@ -54,7 +54,7 @@ export const ON_PAGES = [
   '#/me/data', '#/me/look', '#/me/connections', '#/me/push', '#/bikes?tab=care', '#/timer',
 ];
 /** Words that are fixed sub-pages, never the id of a placeholder (#/debrief/logbook is not a trip). */
-export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'play', 'ride', 'brief', 'new', 'shared'];
+export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'play', 'ride', 'brief', 'new', 'shared'];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
 export const FOLD_KEY = 'seiteninhalt.folded';

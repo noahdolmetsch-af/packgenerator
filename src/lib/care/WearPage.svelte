@@ -31,6 +31,7 @@
   import NoiseCard from './NoiseCard.svelte';
   import ChainPlan from './ChainPlan.svelte'; // «Kette vorausschauend» (25.10.2026)
   import StandCheck from './StandCheck.svelte'; // Einzelidee Heute 6: after the standstill
+  import TreadDraw from './TreadDraw.svelte';
   import { brandStats, bestFor } from '../griff.js';
   import './griff.css';
 
@@ -207,6 +208,7 @@
             </div>
             {#if r.km != null && r.life.km}
               <div class="bar" role="img" aria-label={t('{km} of {life} km', { km: num(r.km), life: num(r.life.km) })}><span style:width="{Math.min(100, Math.round(r.frac * 100))}%"></span></div>
+              {#if r.key === 'tyres'}<div class="tread-row" data-wear-tread><TreadDraw frac={r.frac} /></div>{/if}
               <p class="num line">
                 {t('{km} of {life} km', { km: num(r.km), life: num(r.life.km) })} ·
                 {r.left > 0 ? t('{km} km left', { km: num(r.left) }) : t('{km} km over', { km: num(-r.left) })}{#if r.due && r.left > 0}{' · '}{t('about in {month}', { month: month(r.due) })}{/if}
@@ -292,6 +294,9 @@
 </div>
 
 <style>
+  .tread-row {
+    margin: 6px 0 2px;
+  }
   .wearp {
     min-width: 0;
   }

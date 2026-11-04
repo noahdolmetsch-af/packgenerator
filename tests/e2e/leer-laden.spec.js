@@ -36,7 +36,7 @@ test('Leer with reduce motion: the picture stands still', async ({ page, context
   expect(await anim(pic)).toBe('none');
 });
 
-test('Laden: the placeholder cards come in one after another under a shimmer', async ({ page, context }, info) => {
+test('Laden: the placeholder cards come in one after another and a bike rides along the road', async ({ page, context }, info) => {
   await openHome(page, context, info);
   // hold the database answers for a moment, like a slow phone (as in au.spec A-U2)
   await page.addInitScript(() => {
@@ -54,6 +54,29 @@ test('Laden: the placeholder cards come in one after another under a shimmer', a
   const skel = page.locator('[data-skeleton]');
   await expect(skel).toBeVisible();
   expect(await anim(skel.locator('.sk-card').first())).toMatch(/sk-in$/);
-  expect(await anim(skel.locator('.sk').first())).toMatch(/sk$/);
+  // «Laden als Strasse» (Noah 03.11.2026): a small bike rides along the road instead of shimmering bars
+  expect(await anim(skel.locator('.sk-bike').first())).toMatch(/sk-ride$/);
+  await expect(page.locator('.wall [data-tile]').first()).toBeVisible({ timeout: 15_000 });
+});
+
+test('Laden: with reduce motion the bike stands still on the road', async ({ page, context }, info) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await openHome(page, context, info);
+  await page.addInitScript(() => {
+    const open = IDBFactory.prototype.open;
+    IDBFactory.prototype.open = function (...a) {
+      const req = open.apply(this, a);
+      const set = Object.getOwnPropertyDescriptor(IDBRequest.prototype, 'onsuccess').set;
+      Object.defineProperty(req, 'onsuccess', { configurable: true, set(fn) { set.call(this, fn && ((e) => setTimeout(() => fn.call(this, e), 1500))); } });
+      return req;
+    };
+  });
+  await page.goto('./#/me');
+  await page.reload();
+  await page.goto('./#/');
+  const skel = page.locator('[data-skeleton]');
+  await expect(skel).toBeVisible();
+  await expect(skel.locator('[data-roadbike]').first()).toBeVisible();
+  expect(await anim(skel.locator('.sk-bike').first())).toBe('none');
   await expect(page.locator('.wall [data-tile]').first()).toBeVisible({ timeout: 15_000 });
 });

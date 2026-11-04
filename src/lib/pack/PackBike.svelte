@@ -36,6 +36,8 @@
       <g class="bag" class:full class:open={s.key === cur} onclick={() => onpick(s.key)} data-bike-bag={s.key} data-bag-name={s.title}>
         <rect class="shell" x={b.x} y={b.y} width={b.w} height={b.h} rx="12" />
         <rect class="fill" x={b.x} y={b.y} width={b.w} height={b.h} rx="12" style:--fill={share(s)} />
+        <!-- Paket B (Noah 03.11.2026 «a»): a full bag rolls its top shut (a band along the upper edge) -->
+        <rect class="roll" x={b.x} y={b.y} width={b.w} height={Math.min(14, b.h * 0.3)} rx="7" />
         <text class="no num" x={b.x + b.w / 2} y={b.y + b.h / 2 + 8} text-anchor="middle" font-size="26" aria-hidden="true">{full ? '✓' : `${s.done}/${s.entries.length}`}</text>
       </g>
     {/each}
@@ -75,6 +77,16 @@
   .bag.full .fill {
     fill: color-mix(in srgb, var(--ok) 45%, var(--paper));
   }
+  .roll {
+    fill: var(--ok);
+    transform-box: fill-box;
+    transform-origin: top;
+    transform: scaleY(0);
+    pointer-events: none;
+  }
+  .bag.full .roll {
+    transform: none;
+  }
   .bag.open .shell,
   .no {
     fill: var(--ink);
@@ -85,6 +97,9 @@
     .fill {
       transition: transform 450ms ease-out;
       animation: pk-bike 700ms ease-out 120ms backwards;
+    }
+    .roll {
+      transition: transform 450ms cubic-bezier(0.3, 0.9, 0.3, 1);
     }
   }
   @keyframes pk-bike {

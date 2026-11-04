@@ -9,6 +9,9 @@
  * - search: the search offers go-to actions too (FE17), on by default
  * - path: the path line above every page (Noah 28.10.2026 «1a»), on by default
  * - explore: Explorer mode (Noah 28.10.2026 «1a»): a tap on a tile shows where it comes from instead of opening it, off by default
+ * - nussgipfel: the kcal of a ride also in nut croissants (Noah 03.11.2026, Idee 26), on by default
+ * - murmeltier: the little marmot on empty pages and beside tips (Noah 03.11.2026, Idee 28), on by default
+ * - mundart: a short Swiss German weather saying under the weather line on Today (Noah 03.11.2026, Idee 27), on by default
  * - contrast: high contrast for the sun outdoors (FE2), off by default
  * The pure part; bedienung.svelte.js holds the live state.
  */
@@ -20,6 +23,9 @@ export const OPS = [
   { key: 'search', name: 'Search can act', text: 'The search also offers backup, settings, a quick note or a bike.', on: true },
   { key: 'path', name: 'Show the path on every page', text: 'A quiet line above the title, for example Plan › Week, so you see where you are. Pages with their own path keep it.', on: true },
   { key: 'explore', name: 'Explorer mode', text: 'A tap on a tile with an «i» shows where it comes from instead of opening it. Switch it off in the bar at the top.', on: false },
+  { key: 'nussgipfel', name: 'Nut croissant sums', text: 'Next to the kcal of a ride: how many nut croissants that is.', on: true },
+  { key: 'murmeltier', name: 'The marmot', text: 'A little drawn marmot on empty pages and beside tips; it sleeps at night.', on: true },
+  { key: 'mundart', name: 'Weather sayings in dialect', text: 'A short Swiss German line about the weather under the weather on Today.', on: true },
   { key: 'contrast', name: 'High contrast (outdoors)', text: 'Darker text and stronger lines, easier to read in the sun.', on: false },
 ];
 export const OPS_KEY = 'ops.';
