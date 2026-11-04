@@ -153,6 +153,15 @@ export function mailToAll(contacts = [], subject = '', text = '') {
   return `mailto:?bcc=${mails.join(',')}${q ? `&${q}` : ''}`;
 }
 
+/**
+ * Lessons to remind about (Noah 04.11.2026 «2a»): held bookings from now until the end of tomorrow, by time.
+ * Open and declined requests are left out. Nothing is sent: Heute shows a row with a prepared message.
+ */
+export function remindersOf(bookings = [], nowAt = '') {
+  const end = `${addDays(dayOf(nowAt), 1)}T23:59`;
+  return bookings.filter((b) => holdsPlace(b) && b.at >= nowAt && b.at <= end).sort((a, b) => a.at.localeCompare(b.at));
+}
+
 /** 'free' | 'part' | 'full' for the week grid. */
 export function slotState(places, booked) {
   if (!booked) return 'free';
