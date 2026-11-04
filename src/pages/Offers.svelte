@@ -19,6 +19,7 @@
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
   import { rememberCustomer, listCustomers, rateOf } from '../lib/booking/customers.js';
+  import { listOutcomes, setOutcome } from '../lib/booking/outcomes.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
   import '../lib/ich/ich.css';
 
@@ -91,19 +92,27 @@
   };
   const lessonsOver = $derived(toInvoice(bookings ?? [], invoices, nowAt()).sort((a, b) => String(b.at).localeCompare(String(a.at))));
   const invoiceOf = (b) => invoices.find((x) => bookingIdsOf(x).includes(b.id)) ?? null;
+  /* late cancel and no-show (Noah 04.11.2026 «3a»): marked per lesson, only on this device; they change the amount in the draft */
+  let outcomes = $state({});
+  listOutcomes().then((o) => (outcomes = o));
+  const outcomeOf = (b) => outcomes[b.id] ?? 'held';
+  const outcomeTag = (o) => (o === 'late' ? t('cancelled late') : o === 'noshow' ? t('did not come') : '');
+  async function markOutcome(b, value) {
+    outcomes = await setOutcome(b.id, value);
+  }
   let picked = $state([]); // booking ids ticked for one invoice
   const pickedLessons = $derived(lessonsOver.filter((b) => picked.includes(b.id)));
   const toggle = (b) => (picked = picked.includes(b.id) ? picked.filter((x) => x !== b.id) : [...picked, b.id]);
   async function writeOne(items) {
     const o = { ...mine.offer, id: mine.id };
     const clist = await listCustomers();
-    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b })), (b) => fmtAt(b.at), (name) => rateOf(clist, name)))) return;
+    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b, outcome: outcomeOf(b), tag: outcomeTag(outcomeOf(b)) })), (b) => fmtAt(b.at), (name) => rateOf(clist, name)))) return;
     picked = [];
     location.hash = '#/me/pay/invoices/new';
   }
   async function writeInvoice(b) {
     const s = mine.offer.slots.find((x) => x.id === b.slot);
-    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at), rateOf(await listCustomers(), b.name)))) return;
+    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at), rateOf(await listCustomers(), b.name), outcomeOf(b), outcomeTag(outcomeOf(b))))) return;
     location.hash = '#/me/pay/invoices/new';
   }
 
@@ -325,9 +334,12 @@
           <section class="card" aria-labelledby="of-inv-h" data-lessons-over>
             <div class="of-wh"><h2 id="of-inv-h">{t('Lesson done? Write the invoice')}</h2><small class="muted">{tn(lessonsOver.length, '{n} lesson', '{n} lessons')}</small></div>
             <p class="muted">{t('The invoice is prepared with name, amount and lesson. You check it and send it yourself.')}</p>
+            <p class="muted">{t('Cancelled late counts half, no-show counts the full price. You can change the amount in the form.')}</p>
             <ul class="of-list">
               {#each lessonsOver as b (b.id)}
-                <li class="of-pp"><label class="of-pick"><input type="checkbox" checked={picked.includes(b.id)} onchange={() => toggle(b)} aria-label={t('Add to one invoice: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} /><span>{b.name}<small>{fmtAt(b.at)}</small></span></label><button type="button" class="btn hi sm" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
+                <li class="of-pp of-lo"><label class="of-pick"><input type="checkbox" checked={picked.includes(b.id)} onchange={() => toggle(b)} aria-label={t('Add to one invoice: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} /><span>{b.name}<small>{fmtAt(b.at)}</small></span></label>
+                  <select class="inp of-out" data-outcome aria-label={t('What happened: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} value={outcomeOf(b)} onchange={(e) => markOutcome(b, e.currentTarget.value)}><option value="held">{t('Took place')}</option><option value="late">{t('Cancelled late')}</option><option value="noshow">{t('No-show')}</option></select>
+                  <button type="button" class="btn hi sm" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
               {/each}
             </ul>
             {#if lessonsOver.length > 1}
@@ -843,5 +855,8 @@
   .of-ask-n { color: var(--accent, inherit); font-weight: 600; }
 .of-pick { display: flex; gap: 10px; align-items: center; min-width: 0; }
   .of-pick input { width: 22px; height: 22px; flex: none; }
+  .of-lo { flex-wrap: wrap; }
+  .of-lo .of-pick { flex: 1 1 100%; }
+  .of-out { flex: 1 1 9rem; width: auto; min-height: 40px; }
 .of-cust { margin: 0 0 16px; }
 </style>
