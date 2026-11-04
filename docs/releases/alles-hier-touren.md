@@ -1,6 +1,6 @@
 # Alles hier bei Touren
 
-PR #? · 03.11.2026 · Auftrag: Noah «1a» und «freigabe» (Thread «Bringe versteckte Funktionen online»)
+PR «Alles hier bei Touren» · 03.11.2026 · Auftrag: Noah «1a» und «freigabe» (Thread «Bringe versteckte Funktionen online»)
 
 ## Was ist neu
 - Oben auf **Touren** das Feld **«Alles hier»** mit 13 Kacheln: Vorlagen, Verpflegungsplan, Touren nebeneinander, Wetter für eine Fahrt, Reise-Links, Checks pro Tourart, Vor der Abfahrt, Traumtouren, Rennen, Rennen detailliert planen, Skitouren, Berg und Notfall, Quiz.
