@@ -3,7 +3,7 @@
 PR «Alles hier bei Velos» · 03.11.2026 · Auftrag: Noah «1a» und «freigabe» (Thread «Bringe versteckte Funktionen online»)
 
 ## Was ist neu
-- Oben auf **Velos und Material** (unter dem Einstieg) das Feld **«Alles hier»**: 20 Velo-Funktionen als Kacheln, ein Tipp bis zur Seite. Verschleiss, Prüfen, Werkstatt, Spickzettel, Ersatzteile, Verschleiss-Fotos, Winter und Frühling, Jahresrückblick, Verkaufsinserat, Velo verpacken, Strava, km-Import, Setup, Taschenplan, Setup-Logbuch, Ausrüstung, Vergleich, Masse und mehr.
+- Oben auf **Velos und Material** (unter dem Einstieg) das Feld **«Alles hier»**: 28 Velo-Funktionen als Kacheln, ein Tipp bis zur Seite. Verschleiss, Prüfen, Werkstatt, Spickzettel, Ersatzteile, Verschleiss-Fotos, Winter und Frühling, Jahresrückblick, Verkaufsinserat, Velo verpacken, Strava, km-Import, Setup, Taschenplan, Setup-Logbuch, Ausrüstung, Vergleich, Masse, Garmin-Seiten, Velo-Mappe, Einfahr-Plan, Repair-Kit, Garantie, Diebstahl-Blatt, Velo-Service und Velo-Fotos.
 - **«Ändern»**: Kacheln mit Pfeilen oder dem Griff verschieben, ausblenden (mit Rückgängig), wieder zeigen, «Wie am Anfang».
 - Baustein für alle Bereiche: `src/lib/alleshier.js` (Liste `ALL_HERE`, Namen und Seiten aus `features.js`) und `src/lib/ui/AllHere.svelte`. Die nächsten PRs fügen nur ihre Liste hinzu.
 
@@ -14,6 +14,8 @@ PR «Alles hier bei Velos» · 03.11.2026 · Auftrag: Noah «1a» und «freigabe
 - Die Liste nimmt nur Funktionen mit fester Seite aus `features.js`; Titel und Link kommen von dort, damit nichts doppelt gepflegt wird.
 - Die Reihenfolge und Ausgeblendetes liegen in den Einstellungen (`alleshier.bikes`), also auch im Backup.
 - Fertig-Regel: «Alles hier» ist ein Weg zu bestehenden Funktionen, keine neue Funktion; darum kein Eintrag in `features.js`, kein «Gut zu wissen» und kein «Als Nächstes». Leerer Zustand: sind alle Kacheln ausgeblendet, sagt das Feld, wie sie zurückkommen.
+
+- Die Velo-Mappe-Kacheln (Mappe, Einfahr-Plan, Repair-Kit, Garantie, Diebstahl-Blatt) öffnen das zuletzt gewählte Velo, sonst das erste. Ohne Velo warten sie unsichtbar an ihrem Platz. So bleiben alle Funktionen von Velos oben sichtbar (Test `heimat.spec`).
 
 ## Stand im Plan
 - Versteckte Funktionen: Schritt 3 von 9. Danach Material, Aktiv, Auswerten, Touren, Planen, Ich.

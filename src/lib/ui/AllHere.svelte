@@ -3,7 +3,7 @@
    * «Alles hier» (Noah 03.11.2026 «1a», plan «freigabe»): every function of an area as a tile on top of its page, one
    * tap away. «Change» opens the list: arrows and the handle move a tile, «Hide» takes it away (Undo), a hidden tile
    * comes back with «Show», «As at the start» resets. Lists and logic: src/lib/alleshier.js.
-   * area: a key of ALL_HERE (e.g. 'bikes').
+   * area: a key of ALL_HERE (e.g. 'bikes'); vars: values for place holders in a page (e.g. { bike } for the bike folder).
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -16,14 +16,16 @@
   import { ALL_HERE, allHereKey, arrange, step, moveTo, setHidden } from '../alleshier.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { area } = $props();
+  let { area, vars = {} } = $props();
 
   // svelte-ignore state_referenced_locally
   const key = allHereKey(area);
   const stateQ = liveQuery(() => db.settings.get(key));
   const cur = $derived($stateQ?.value ?? null);
   // svelte-ignore state_referenced_locally
-  const tiles = $derived(arrange(area, cur));
+  const tiles = $derived(arrange(area, cur, vars));
+  // a drag place in the shown tiles, as a place in all shown ids (a tile waiting for a bike is not shown)
+  const place = (i) => tiles.ids.indexOf(tiles.shown[i]?.id);
   let editing = $state(false);
 
   const save = (s) => putSetting(db, key, s);
@@ -44,7 +46,7 @@
     </div>
     {#if editing}
       <p class="ah-hint">{t('Move with the arrows or the handle. Hidden tiles stay in the app and come back with «Show».')}</p>
-      <ul class="ah-list" use:sortable={{ onmove: (from, to) => save(moveTo(area, cur, from, to)) }}>
+      <ul class="ah-list" use:sortable={{ onmove: (from, to) => save(moveTo(area, cur, place(from), place(to))) }}>
         {#each tiles.shown as x, i (x.id)}
           <li data-sort-id={x.id}>
             <SortGrip name={name(x)} onstep={(dir) => save(step(area, cur, x.id, dir))} />

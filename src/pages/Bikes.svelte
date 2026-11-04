@@ -7,7 +7,10 @@
    */
   import BikeCards from '../lib/bikes/BikeCards.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
-  import { parseBikesHash, bikesHash } from '../lib/bikes.js';
+  import { parseBikesHash, bikesHash, sortBikes } from '../lib/bikes.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../lib/db.js';
+  import { activeBikes } from '../lib/bikeretire.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
@@ -55,6 +58,12 @@
     }
   });
   const shownBike = $derived(route.bike ?? lastBike);
+  // «Alles hier»: the bike folder tiles open the bike chosen last, else the first bike
+  const bikesQ = liveQuery(() => db.bikes.toArray());
+  const tileBike = $derived.by(() => {
+    const list = sortBikes(activeBikes($bikesQ ?? []));
+    return (list.find((b) => b.id === shownBike) ?? list[0])?.id ?? null;
+  });
   const opened = () => (route = { ...route, open: false });
   // «Garmin-Seiten»: the Edge chosen on the pages list stays while you open a page and come back
   let garminDevice = $state('1040');
@@ -146,7 +155,7 @@
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <AreaIntro place="velos" />
-    <AllHere area="bikes" />
+    <AllHere area="bikes" vars={{ bike: tileBike }} />
     <BikeCards bikeId={shownBike} onbike={pickBike} />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
     <PinnedLists place="bikes" />
