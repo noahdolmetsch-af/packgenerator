@@ -17,6 +17,7 @@ export const TAP_GAPS = [
   '#/bikes?tab=setup',
   '#/blocks/aufraeumen',
   '#/blocks/check',
+  '#/live',
   '#/me/data?mehr',
   '#/me/data?names',
   '#/me/pros',
