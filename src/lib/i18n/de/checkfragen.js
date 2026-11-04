@@ -19,6 +19,7 @@ export default {
   'own|question': 'eigene',
   'changed|question': 'geändert',
   'sample|question': 'Muster',
+  'merged into «{q}»': 'zusammengelegt mit «{q}»',
   'Show {n} sample questions': '{n} Musterfragen zeigen',
   'Delete «{q}»': '«{q}» löschen',
   'Delete «{q}»?': '«{q}» löschen?',
