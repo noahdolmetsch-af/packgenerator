@@ -32,6 +32,7 @@
         </div>
       </div>
     {/each}
+    <p class="jw"><a href="#/debrief/freude">{t('Your answers over all tours')}</a></p>
     {#if top}<p class="jw" data-joy-line>{t('Over {n} tours «{name}» was highest on average ({mean} of 5). This only counts what you answered.', { n: seen.n, name: t(top.name), mean: num(topMean) })}</p>{:else if seen}<p class="jw" data-joy-line>{t('Over {n} tours no one of the four stands out. This only counts what you answered.', { n: seen.n })}</p>{/if}
   </div>
 </section>
@@ -43,6 +44,7 @@
   .jl { display: grid; gap: 2px; }
   .jh, .jw { color: var(--ink-2); font-size: var(--fs-small); }
   .jw { margin: 0; }
+  .jw a { display: inline-block; min-height: 44px; line-height: 44px; }
   .jb { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
   .fb { min-height: 44px; min-width: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--r-ctl); background: var(--paper); color: var(--ink); font-weight: 600; cursor: pointer; }
   .fb[aria-pressed='true'] { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }

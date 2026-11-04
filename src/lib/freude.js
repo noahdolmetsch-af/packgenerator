@@ -59,3 +59,22 @@ export function overview(debriefs) {
   const top = means.length > 1 && means[0].mean === means[1].mean ? null : means[0].key;
   return { n: answered.length, means, top };
 }
+
+const dayOf = (d) => String(d?.doneAt ?? d?.updatedAt ?? d?.createdAt ?? '').slice(0, 10);
+
+/** The debriefs with an answer, newest first: [{ tripId, day, joy: { fun, nature, flow, company } }]. */
+export function perTour(debriefs) {
+  return (debriefs ?? [])
+    .filter(hasJoy)
+    .map((d) => ({ tripId: d.tripId, day: dayOf(d), joy: joyOf(d) }))
+    .sort((a, b) => b.day.localeCompare(a.day) || String(a.tripId).localeCompare(String(b.tripId)));
+}
+
+/** The means over all answers whatever their number (for the page), highest first, or [] without answers. */
+export function means(debriefs) {
+  const answered = (debriefs ?? []).filter(hasJoy);
+  return JOY_KEYS.map((key) => {
+    const vals = answered.map((d) => joyOf(d)[key]).filter((v) => v != null);
+    return { key, count: vals.length, mean: vals.length ? r1(vals.reduce((s, v) => s + v, 0) / vals.length) : null };
+  }).filter((m) => m.mean != null).sort((a, b) => b.mean - a.mean);
+}

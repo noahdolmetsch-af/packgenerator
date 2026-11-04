@@ -106,3 +106,26 @@ test('c) the saved debrief shows the same card', async ({ page, context }, info)
   await expect(page.locator('[data-debrief-joy] [data-joy="company"][data-joy-n="3"]')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
+
+test('d) the page shows the means and every tour; empty it says why', async ({ page, context }, info) => {
+  const errors = await start(page, context, info, true);
+  await page.goto('./#/debrief/freude');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('What made it good?'));
+  const pg = page.locator('[data-freude]');
+  await expect(pg.locator('[data-joy-mean]')).toHaveCount(4);
+  await expect(pg.locator('[data-joy-mean="nature"]')).toContainText(T('{mean} of 5', { mean: '4.7' }));
+  await expect(pg.locator('[data-joy-tour]')).toHaveCount(3);
+  await shot(page, info, 'F4-seite', pg);
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
+test('e) without an answer the page says why and offers the debriefs', async ({ page, context }, info) => {
+  const errors = await start(page, context, info);
+  await page.goto('./#/debrief/freude');
+  const empty = page.locator('[data-freude] [data-empty]');
+  await expect(empty).toContainText(T('Nothing answered yet. In a debrief, tap a number under «What made it good?», and it shows up here.'));
+  await expect(empty.getByRole('link', { name: T('To the debriefs') })).toHaveAttribute('href', '#/debrief');
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});

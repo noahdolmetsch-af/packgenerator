@@ -1,6 +1,6 @@
 // «Freude als Auswertung» (Persönliches Lernen Idee 6): four optional scales on the debrief and the calm line over several tours.
 import { describe, it, expect } from 'vitest';
-import { JOY_KEYS, MAX, MIN_TOURS, joyOf, hasJoy, joyChange, overview } from '../src/lib/freude.js';
+import { JOY_KEYS, MAX, MIN_TOURS, joyOf, hasJoy, joyChange, overview, perTour, means } from '../src/lib/freude.js';
 
 const d = (joy) => ({ joy });
 
@@ -40,5 +40,18 @@ describe('over several tours', () => {
   });
   it('names no top on a tie', () => {
     expect(overview([d({ fun: 4, nature: 4 }), d({ fun: 4, nature: 4 }), d({ fun: 4, nature: 4 })]).top).toBe(null);
+  });
+});
+
+describe('for the page', () => {
+  it('lists the tours with an answer, newest first', () => {
+    const rows = perTour([{ tripId: 'a', doneAt: '2026-08-01T10:00:00Z', joy: { fun: 3 } }, { tripId: 'b', doneAt: '2026-09-01T10:00:00Z', joy: { nature: 5 } }, { tripId: 'c', doneAt: '2026-10-01T10:00:00Z' }]);
+    expect(rows.map((r) => r.tripId)).toEqual(['b', 'a']);
+    expect(rows[0]).toEqual({ tripId: 'b', day: '2026-09-01', joy: { fun: null, nature: 5, flow: null, company: null } });
+    expect(perTour(null)).toEqual([]);
+  });
+  it('gives the means from the first answer on', () => {
+    expect(means([d({ fun: 4 }), d({ fun: 2, flow: 5 })])).toEqual([{ key: 'flow', count: 1, mean: 5 }, { key: 'fun', count: 2, mean: 3 }]);
+    expect(means([{}])).toEqual([]);
   });
 });
