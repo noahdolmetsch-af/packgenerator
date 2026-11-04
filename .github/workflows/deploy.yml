@@ -90,6 +90,7 @@ jobs:
         run: npm run e2e -- --project=phone --shard=${{ matrix.shard }}/5
         env:
           E2E_SKIP_GESAMTTEST: '1' # runs every night (volle-pruefung.yml)
+          NEWS_ONLY: ${{ steps.scope.outputs.news }} # «Ausprobieren» taps only this PR's news lines (all of them at night)
       - if: steps.scope.outputs.mode == 'specs' && matrix.shard == 1
         run: npm run e2e -- --project=phone ${{ steps.scope.outputs.specs }}
         env:
