@@ -27,7 +27,8 @@ test.describe('P6 Heute erganzen', () => {
     expect(wall.indexOf('weighin')).toBeGreaterThan(wall.indexOf('now'));
     expect(wall.indexOf('weighin')).toBeLessThan(wall.indexOf('body'));
     for (const id of ['body', 'acts', 'balance', 'strava']) expect(o, id).toContain(id);
-    expect(o.indexOf('strava')).toBeGreaterThan(o.indexOf('balance'));
+    // changed on purpose («Velos-Pflege einbauen», Noah 03.11.2026 «5a»): the last activity stands in «On the road and bikes», over «Your week» with the balance
+    expect(o.indexOf('strava')).toBeLessThan(o.indexOf('balance'));
     await expect(page.locator('[data-tile="meditation"]').getByText(T('Meditation')).first()).toBeVisible();
     await expect(page.locator('[data-tile="strava"]')).toBeVisible();
     await expect(page.locator('[data-section="balance"] svg').first()).toBeVisible();
