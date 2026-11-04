@@ -15,13 +15,14 @@
   import LogoSaying from './LogoSaying.svelte';
   import LogoFlat from './LogoFlat.svelte';
   import LogoWeather from './LogoWeather.svelte';
+  import LogoPanorama from './LogoPanorama.svelte';
   import { loadLogoWeather } from './wetter.js';
   import { db } from '../db.js';
   import Murmeltier from '../murmeltier/Murmeltier.svelte'; // the one drawn marmot of the app (Idee 28)
   import { ops } from '../bedienung.svelte.js';
   import { partOfDay } from '../dayclock.js';
 
-  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | 'flat' | 'marmot' | 'weather' | 'wait' (weather is loading) | null
+  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | 'flat' | 'marmot' | 'weather' | 'panorama' | 'wait' (weather is loading) | null
   let wx = $state({ kind: 'none', text: '' }); // the weather on screen
   let night = $state(false); // the marmot sleeps at night instead of whistling
   let saying = $state(''); // the text of the saying on screen
@@ -69,7 +70,7 @@
     clearTimeout(timer);
     if (kind === 'weather') return showWeather();
     if (kind === 'flat') flatTyre(e.target.closest('.mark'));
-    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : kind === 'flat' ? 4200 : 3200);
+    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : kind === 'flat' ? 4200 : kind === 'panorama' ? 4800 : 3200);
   }
 
   // the weather comes from the forecast Today keeps; a slow answer is not waited for longer than 1.5 s
@@ -96,6 +97,8 @@
   </div>
 {:else if kind === 'weather'}
   <LogoWeather {wx} />
+{:else if kind === 'panorama'}
+  <LogoPanorama />
 {:else if kind === 'saying'}
   <LogoSaying text={saying} note={fresh ? t('New logo found: the bike sign. Change it in Me › Appearance.') : ''} />
 {:else if kind === 'flat'}
