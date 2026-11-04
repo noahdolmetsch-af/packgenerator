@@ -42,7 +42,7 @@ test('Schlag deinen Geist: Vergleich mit der Fahrt auf derselben Strecke', async
   const card = page.locator('[data-ana="ghost"]');
   await expect(card.getByRole('heading', { name: 'Schlag deinen Geist' })).toBeVisible();
   // the most alike ride comes first: the same route, 15 days ago (182 W at 142 bpm against 188 W at 138 bpm)
-  await expect(card.locator('[data-ghost-pick] option').first()).toContainText('gleiche Strecke');
+  await expect(card.locator('[data-ghost-pick] option').first()).toContainText('gleiche Route');
   await expect(card.locator('[data-ghost-verdict]')).toHaveAttribute('data-ghost-verdict', 'samepower-less');
   await expect(card.locator('[data-ghost-verdict]')).toHaveText('Gleiche Leistung wie dein Geist, 4 Schläge weniger Puls.');
   await expect(card.locator('[data-ghost-result]')).toHaveAttribute('data-ghost-result', 'beat');
@@ -58,12 +58,41 @@ test('Schlag deinen Geist: Vergleich mit der Fahrt auf derselben Strecke', async
   await expect(card.locator('[data-ghost-row="hr"]')).toContainText('142');
   await expect(card.locator('[data-ghost-row="hr"]')).toContainText('−4');
   await expect(card.locator('[data-ghost-alike]')).toHaveAttribute('data-ghost-alike', 'good');
-  await expect(card.locator('[data-ghost-check="route"]')).toContainText('Gleiche Strecke');
+  await expect(card.locator('[data-ghost-check="route"]')).toContainText('Gleiche Route');
   await expect(card.locator('[data-ghost-check="wind"]')).toContainText('Wind: nicht bekannt');
+  // the list shows the chosen ghost at once (not an empty field) and the chips say route and length apart
+  await expect(card.locator('[data-ghost-pick]')).not.toHaveValue('');
+  await expect(card.locator('[data-ghost-check="km"]')).toContainText('Länge');
+  await expect(card.locator('[data-ghost-row="drift"]')).toContainText('kleiner ist besser');
   // another ghost can be picked; the open link follows it
   const first = await card.locator('[data-ghost-open]').getAttribute('href');
   await card.locator('[data-ghost-pick]').selectOption({ index: 1 });
   await expect(card.locator('[data-ghost-open]')).not.toHaveAttribute('href', first);
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/ghost-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   expect(errors).toEqual([]);
+});
+
+test('Ausprobieren bei «Schlag deinen Geist» öffnet eine Fahrt und lässt die Karte leuchten', async ({ page, context, baseURL }, info) => {
+  await open(page, context, baseURL);
+  // a ride other than the one open now: start from Me › What is new
+  await page.goto('./#/me/news');
+  await ready(page);
+  await page.getByRole('searchbox', { name: 'Update oder Funktion suchen' }).fill('Schlag deinen Geist');
+  // several updates are about the ghost card: open them one after the other until the one with the link is open
+  const rows = page.locator('[data-row]').filter({ hasText: 'Schlag deinen Geist' });
+  const link = page.locator('.wn-vopen').getByRole('link', { name: 'Die App wählt die ähnlichste frühere Fahrt', exact: false }).first();
+  const n = await rows.count();
+  for (let i = 0; i < n && !(await link.isVisible()); i++) {
+    await rows.nth(i).click();
+    await link.waitFor({ state: 'visible', timeout: 2_000 }).catch(() => {});
+  }
+  await link.click();
+  await expect(page).toHaveURL(/#\/flow\/training\/a\//);
+  const card = page.locator('[data-ana="ghost"]');
+  await expect(card).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator('[data-spot-note]').first()).toContainText('Neu hier');
+  if (process.env.SHOTS) {
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: `${process.env.SHOTS}/ausprobieren-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
 });

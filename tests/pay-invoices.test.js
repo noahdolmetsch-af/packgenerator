@@ -97,6 +97,12 @@ describe('the invoice list', () => {
     expect(row.value).toHaveLength(2);
     expect(JSON.stringify(backup)).not.toContain('CH4431999123000889012');
   });
+  it('cash is an extra way, off unless chosen, and the mail names it', async () => {
+    const db = await freshDb();
+    const c = await createInvoice({ name: 'Mia Beispiel', amount: 8000, purpose: 'Tennis', ways: { cash: true } }, ACCOUNT, db);
+    expect(c.ways).toEqual({ qr: true, twint: true, cash: true });
+    expect(invoiceMail(c, ACCOUNT, (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v?.[k] ?? '')).body).toContain('cash');
+  });
   it('remembers the booking an invoice was made for', async () => {
     const db = await freshDb();
     const a = await createInvoice({ name: 'Mia Beispiel', amount: 6000, purpose: 'Tennis-Lektion', bookings: [{ offer: 'tennis-abc123', b: 'bk1' }, { offer: 'tennis-abc123', b: 'bk2' }] }, ACCOUNT, db);

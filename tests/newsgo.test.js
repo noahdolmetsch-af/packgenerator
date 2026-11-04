@@ -26,6 +26,9 @@ function wrong(g) {
     for (const k of [s.text, s.aria].filter(Boolean)) if (!de[own(k)] && !de[k]) bad.push(`no German for step «${k}»`);
   }
   if (g.where && !de[g.where]) bad.push(`no German for «${g.where}»`);
+  if (g.note && !de[g.note]) bad.push(`no German for «${g.note}»`);
+  if (g.ride && g.ride !== 'ghost') bad.push(`ride ${g.ride} is unknown`);
+  if (g.ride && !g.steps?.length) bad.push('ride without steps');
   if (g.play && !DAYS.includes(g.play)) bad.push(`play ${g.play} is no day of play.js`);
   return bad;
 }

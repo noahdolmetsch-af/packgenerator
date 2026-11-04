@@ -5,14 +5,18 @@
    * per week for 16 weeks. Observation only.
    * UI-Test 26.10.2026 T3 (G3-01): the same calculation as the page «Form» (form-data.js formOf, form.js
    * formWeeksOf), so both show the same fitness, «Müdigkeit» and form for today; form = fitness − Müdigkeit.
+   * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): an axis with round steps, the three numbers of a week when
+   * pointing, a tap opens the week, «Als Tabelle» the same as rows.
    */
   import { liveQuery } from 'dexie';
   import AnaCard from '../AnaCard.svelte';
-  import { t, num } from '../../i18n.svelte.js';
+  import LineChart from '../../charts/LineChart.svelte';
+  import ChartSheet from '../../charts/ChartSheet.svelte';
+  import { t, num, locale } from '../../i18n.svelte.js';
   import { loadTable } from '../../messwerte-data.js';
   import { formOf } from '../../form-data.js';
   import { formWeeksOf } from '../../form.js';
-  import { mondays, niceTicks, WEEKS } from './weeks.js';
+  import { mondays, WEEKS } from './weeks.js';
 
   // acts: given to every week card; this one reads the day table like the page «Form»
   let { acts: _acts = [], today = '' } = $props();
@@ -20,46 +24,35 @@
   const data = $derived($q ?? null);
   const has = $derived(!!data && data.weeks.some((w) => w.fit > 0 || w.fat > 0));
   const signed = (v) => (v > 0 ? `+${v}` : String(v));
+  const dm = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
+  const wkText = (x) => `${t('Wk {n}', { n: x.kw })} · ${dm(x.monday)}`;
+  const C = { fit: 'var(--ch-w)', fat: 'var(--ch-hr)', form: 'var(--pz4)' };
 
-  let w = $state(0);
-  const H = 150;
-  const L = 34;
-  const R = 8;
-  const T = 8;
-  const width = $derived(Math.max(240, w || 600));
-  const ax = $derived.by(() => {
-    if (!has) return null;
-    const vals = data.weeks.flatMap((x) => [x.fit, x.fat, x.form]);
-    return niceTicks(Math.min(0, ...vals), Math.max(...vals), 4);
-  });
-  const X = (i) => L + (i * (width - L - R)) / (WEEKS - 1);
-  const Y = (v) => T + ((ax.hi - v) / (ax.hi - ax.lo)) * H;
-  const line = (k) => data.weeks.map((x, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(x[k]).toFixed(1)}`).join('');
+  const weeks = $derived(data?.weeks ?? []);
+  const cols = $derived(weeks.map((x, i) => ({ key: x.monday, x: i % 5 === 0 ? t('Wk {n}', { n: x.kw }) : '' })));
+  const series = $derived([
+    { key: 'fit', color: C.fit, v: weeks.map((x) => x.fit) },
+    { key: 'fat', color: C.fat, dashed: true, v: weeks.map((x) => x.fat) },
+    { key: 'form', color: C.form, v: weeks.map((x) => x.form) },
+  ]);
+  const items = (i) => [
+    { label: t('Fitness|form'), value: num(weeks[i].fit), color: C.fit },
+    { label: t('Fatigue|form'), value: num(weeks[i].fat), color: C.fat },
+    { label: t('Form|form'), value: signed(weeks[i].form), color: C.form },
+  ];
+  const readout = (i) => ({ title: wkText(weeks[i]), items: items(i) });
+  const table = $derived({ head: [t('Week'), t('Fitness|form'), t('Fatigue|form'), t('Form|form')], rows: [...weeks].reverse().map((x) => ({ key: x.monday, cells: [wkText(x), num(x.fit), num(x.fat), signed(x.form)] })) });
   const label = $derived(
     has
       ? t('Fitness {f}, fatigue {a}, form {s} today; {n} weeks', { f: data.now.fit, a: data.now.fat, s: signed(data.now.form), n: WEEKS })
       : '',
   );
+  let open = $state(null);
 </script>
 
 {#if has}
   <AnaCard key="form" wide sub={t('{n} weeks · from the load of every activity', { n: WEEKS })}>
-    <div class="plot" bind:clientWidth={w}>
-      <svg width={width} height={H + T + 22} viewBox="0 0 {width} {H + T + 22}" role="img" aria-label={label}>
-        {#each ax.ticks as v (v)}
-          <line x1={L} x2={width - R} y1={Y(v)} y2={Y(v)} class={v === 0 ? 'zero' : 'grid'} />
-          <text x={L - 8} y={Y(v) + 4} text-anchor="end">{v}</text>
-        {/each}
-        <path d={line('fit')} class="ctl" />
-        <path d={line('fat')} class="atl" />
-        <path d={line('form')} class="tsb" />
-        {#each data.weeks as x, i (x.monday)}
-          {#if i % 5 === 0}
-            <text x={X(i)} y={H + T + 18} text-anchor={i === 0 ? 'start' : i === WEEKS - 1 ? 'end' : 'middle'}>{t('Wk {n}', { n: x.kw })}</text>
-          {/if}
-        {/each}
-      </svg>
-    </div>
+    <LineChart id="form" {cols} {series} {readout} {table} {label} maxTop={0} onopen={(i) => (open = i)} hint={t('Point at a week for its numbers, tap it for the week.')} />
     <ul class="leg">
       <li><i class="k ctl"></i>{t('Fitness {n} (42-day mean)', { n: data.now.fit })}</li>
       <li><i class="k atl"></i>{t('Fatigue {n} (7-day mean)', { n: data.now.fat })}</li>
@@ -70,41 +63,31 @@
   </AnaCard>
 {/if}
 
+{#if open != null && weeks[open]}
+  <ChartSheet kicker={t('Fitness, fatigue and form')} title={wkText(weeks[open])} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < weeks.length - 1 ? () => open++ : null} prevLabel={t('Week before')} nextLabel={t('Next week')}>
+    <ul class="shl" data-form-sheet>
+      {#each items(open) as it (it.label)}<li><span>{it.label}</span><b class="num">{it.value}</b></li>{/each}
+    </ul>
+    <p class="cap">{t('Form {form} = fitness {fit} − fatigue {fat}', { form: signed(weeks[open].form), fit: num(weeks[open].fit), fat: num(weeks[open].fat) })}</p>
+  </ChartSheet>
+{/if}
+
 <style>
-  .plot {
-    min-width: 0;
-    overflow: hidden;
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
   }
-  svg {
-    display: block;
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
-  text {
-    fill: var(--ink-3);
-    font: 400 var(--fs-tiny) / 1 var(--font-body);
-  }
-  .grid {
-    stroke: var(--line);
-    stroke-dasharray: 3 4;
-  }
-  .zero {
-    stroke: var(--ink-3);
-    stroke-width: 1;
-    opacity: 0.6;
-  }
-  path {
-    fill: none;
-    stroke-width: 2.5;
-    stroke-linejoin: round;
-  }
-  .ctl {
-    stroke: var(--ch-w);
-  }
-  .atl {
-    stroke: var(--ch-hr);
-    stroke-dasharray: 6 4;
-  }
-  .tsb {
-    stroke: var(--pz4);
+  .shl span {
+    color: var(--ink-2);
   }
   .leg {
     display: flex;

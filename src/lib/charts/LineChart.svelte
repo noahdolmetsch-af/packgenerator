@@ -9,7 +9,7 @@
    * - Pointing (mouse, or a finger moving sideways) shows the exact numbers of that day in the line above the
    *   chart (Readout); ← → Home End do the same. A tap, a click or Enter opens what is behind it (onopen(i)).
    * - «Als Tabelle» shows the same numbers as rows (table: { head, rows }).
-   * cols: [{ key, x }] (x: the label under it or ''), series: [{ key, color, dashed, v: [number|null] }],
+   * cols: [{ key, x }] (x: the label under it or ''), series: [{ key, color, dashed, line, dots, v: [number|null] }],
    * readout(i) → { title, items }, label: what the chart shows (for screen readers), unit: of the axis.
    */
   import { niceScale, fracOf, tickText } from './axis.js';
@@ -43,7 +43,8 @@
     });
     return out.trim();
   };
-  const paths = $derived(series.map((s) => pathOf(s.v)));
+  // a series may be dots only (line: false) and may always show its dots (dots: true), e.g. one dot per ride
+  const paths = $derived(series.map((s) => (s.line === false ? '' : pathOf(s.v))));
   const few = $derived(n <= maxTop);
 
   let sel = $state(null);
@@ -103,7 +104,7 @@
         </svg>
         {#each series as s (s.key)}
           {#each s.v as v, i (i)}
-            {#if v != null && (few || i === sel)}<i class="dot" class:on={i === sel} style:left="{((i + 0.5) / n) * 100}%" style:bottom="{100 - y(v)}%" style:background={s.color} data-point></i>{/if}
+            {#if v != null && (few || s.dots || i === sel)}<i class="dot" class:on={i === sel} style:left="{((i + 0.5) / n) * 100}%" style:bottom="{100 - y(v)}%" style:background={s.color} data-point></i>{/if}
           {/each}
         {/each}
         {#if few && series[0]}

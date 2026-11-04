@@ -79,7 +79,7 @@
   import NightLight from '../lib/live/NightLight.svelte'; // «Licht in der Nacht» (Paket D, Idee 20)
   import { nightStrength, nightLightOn, beamDeg } from '../lib/live/nightlight.js';
   import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
-  import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
+  import { lapNow, lapsOf, ghostOf, ghostDelta, ghostPicks, ghostRide, NO_GHOST, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
   import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
   import DataPagesEditor from '../lib/live/DataPagesEditor.svelte';
@@ -1038,7 +1038,13 @@
   }
   // «Gegen dich selbst» (laps.js): your last closed ride of this tour along the route
   const pastQ = liveQuery(() => db.tracks.where('kind').equals('rec').toArray());
-  const pastRide = $derived(hasRoute ? (lastRideOf($pastQ ?? [], { tripId: tid || null, notId: rec.id })[0] ?? null) : null);
+  // «Wer ist dein Geist?» (Noah 04.11.2026 «4b»): any of the earlier rides of this tour, the newest unless you pick another
+  let ghostPickId = $state('');
+  const ghostOpts = $derived({ tripId: tid || null, notId: rec.id });
+  const picks = $derived(hasRoute ? ghostPicks($pastQ ?? [], ghostOpts) : []);
+  const pastRide = $derived(hasRoute ? ghostRide($pastQ ?? [], ghostOpts, ghostPickId) : null);
+  const ghostDay = (r) => new Date(r.startAt).toLocaleDateString(locale(), { timeZone: 'Europe/Zurich', day: 'numeric', month: 'numeric' });
+  const ghostLine = (r, i) => `${ghostDay(r)} · ${num(Math.round((r.km ?? 0) * 10) / 10)} km${i === 0 ? ` · ${t('your last ride')}` : ''}`;
   const ghost = $derived(pastRide ? ghostOf(pastRide, pts) : []);
   let ghostStart = $state(null); // the route km where this ride began
   $effect(() => {
@@ -1301,6 +1307,20 @@
     <LiveRouteBox {trip} />
   {/if}
   {#if tooShort}<TooShortSheet points={tooShort.points} ondone={tooShortAnswer} />{/if}
+
+  <!-- «Wer ist dein Geist?» (Noah 04.11.2026 «4b»): before the start, the ride to race against; a suggestion, «without ghost» is one of the choices -->
+  {#if !rec.on && !after && picks.length}
+    <section class="rc-box" aria-labelledby="lv-gp-h" data-live-ghostpick>
+      <h2 id="lv-gp-h" class="rc-h2">{t('Who do you ride against today?')}</h2>
+      <p class="rc-note">{t('Your ghost is an earlier ride of yours on this tour. During the ride the live map shows how far ahead or behind it you are. A suggestion: you can ride without a ghost.')}</p>
+      <div class="lv-gp" role="radiogroup" aria-labelledby="lv-gp-h">
+        {#each picks as r, i (r.id)}
+          <label class="lv-gpr"><input type="radio" name="lv-ghost" value={r.id} checked={pastRide?.id === r.id} onchange={() => (ghostPickId = r.id)} data-ghost-opt={r.id} /><span>{ghostLine(r, i)}</span></label>
+        {/each}
+        <label class="lv-gpr"><input type="radio" name="lv-ghost" value={NO_GHOST} checked={ghostPickId === NO_GHOST} onchange={() => (ghostPickId = NO_GHOST)} data-ghost-opt="none" /><span>{t('Without a ghost')}</span></label>
+      </div>
+    </section>
+  {/if}
 
   {#if !rec.on && !after}
     <p class="rc-empty" data-live-empty>{t('Start the ride: then the map fills the screen and shows where you are, the numbers you choose and the stops ahead or around you.')}</p>
@@ -1745,11 +1765,19 @@
 
             <div class="lvf-part" data-live-ov><OvNearby at={me ? { lat: me.lat, lon: me.lon } : null} /></div>
 
-            {#if ghostS != null}
+            {#if (ghostS != null && pastRide) || (ghostPickId === NO_GHOST && picks.length)}
               <div class="lvf-part" data-live-ghost>
-                <h2 class="lvf-h">{t('Against your last ride')}</h2>
-                <p class="rc-text"><b>{deltaText(ghostS)}</b> · {ghostS > 0 ? t('slower than your last ride on this route, in riding time') : t('faster than your last ride on this route, in riding time')}</p>
-                <p class="rc-note">{t('Compared at the same km of the route, from where you started today. Pauses and stops do not count.')}</p>
+                <h2 class="lvf-h">{t('Against your ghost')}</h2>
+                {#if ghostS != null && pastRide}<p class="rc-text"><b>{deltaText(ghostS)}</b> · {ghostS > 0 ? t('slower than your ghost of {day} on this route, in riding time', { day: ghostDay(pastRide) }) : t('faster than your ghost of {day} on this route, in riding time', { day: ghostDay(pastRide) })}</p>{/if}
+                {#if picks.length}
+                  <label class="lv-gp-sel"><span>{t('Your ghost')}</span>
+                    <select class="inp" value={pastRide?.id ?? NO_GHOST} onchange={(e) => (ghostPickId = e.currentTarget.value)} data-live-ghost-pick>
+                      {#each picks as r, i (r.id)}<option value={r.id}>{ghostLine(r, i)}</option>{/each}
+                      <option value={NO_GHOST}>{t('Without a ghost')}</option>
+                    </select>
+                  </label>
+                {/if}
+                {#if ghostS != null && pastRide}<p class="rc-note">{t('Compared at the same km of the route, from where you started today. Pauses and stops do not count.')}</p>{/if}
               </div>
             {/if}
 
@@ -2868,6 +2896,26 @@
     }
   }
   /* «Während der Fahrt»: one quiet list, the name bold, a short line after it */
+  .lv-gp {
+    display: grid;
+    gap: 8px;
+  }
+  .lv-gpr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .lv-gp-sel {
+    display: grid;
+    gap: 4px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
   .lv-during ul {
     list-style: none;
     margin: 0;
