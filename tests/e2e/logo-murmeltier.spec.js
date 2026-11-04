@@ -41,6 +41,6 @@ test('with the switch «The marmot» off the marmot never comes', async ({ page,
   await openHome(page, context, info);
   await page.evaluate(() => (Math.random = () => 0.999)); // the last of the choice: the marmot, were it in the choice
   await five(mark(page, info));
-  await expect(page.locator('[data-logo-ride], [data-logo-saying]').first()).toBeVisible();
+  await expect(page.locator('[data-logo-ride], [data-logo-saying], [data-logo-flat]').first()).toBeVisible();
   await expect(page.locator('[data-logo-marmot]')).toHaveCount(0);
 });
