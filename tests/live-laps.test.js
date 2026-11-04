@@ -1,6 +1,6 @@
 // Runden und «Gegen dich selbst» (Noah 20.10.2026 «2-3 ja»): src/lib/live/laps.js.
 import { describe, it, expect } from 'vitest';
-import { lapsOf, lapNow, ghostOf, ghostAt, ghostDelta, lastRideOf, deltaText } from '../src/lib/live/laps.js';
+import { lapsOf, lapNow, ghostOf, ghostAt, ghostDelta, lastRideOf, ghostPicks, ghostRide, NO_GHOST, deltaText } from '../src/lib/live/laps.js';
 
 const T0 = 1_760_000_000_000;
 // a straight made-up route north, 10 km, a point every 100 m
@@ -45,5 +45,26 @@ describe('against your last ride', () => {
     const away = { ...last, pts: pts.map(([a, b, s]) => [a + 0.05, b + 0.05, s]) };
     expect(ghostOf(away, route)).toEqual([]);
     expect([deltaText(65), deltaText(-42), deltaText(0), deltaText(null)]).toEqual(['+1:05', '−0:42', '±0:00', '–']);
+  });
+});
+
+describe('Who is your ghost? (Noah 04.11.2026 «4b»)', () => {
+  const mk = (id, startAt, x = {}) => ({ id, kind: 'rec', tripId: 't1', startAt, open: false, pts: Array.from({ length: 12 }, (_, i) => [46.9, 7.4 + i / 1000, i * 10]), ...x });
+  const rows = [mk('old', 1000), mk('mid', 2000), mk('new', 3000), mk('other', 4000, { tripId: 't2' }), mk('open', 5000, { open: true }), mk('few', 6000, { pts: [[1, 1, 0]] })];
+  const opts = { tripId: 't1' };
+  it('ghostPicks lists the closed rides of this tour, newest first, at most six', () => {
+    expect(ghostPicks(rows, opts).map((r) => r.id)).toEqual(['new', 'mid', 'old']);
+    const many = Array.from({ length: 9 }, (_, i) => mk(`r${i}`, 1000 + i));
+    expect(ghostPicks(many, opts)).toHaveLength(6);
+  });
+  it('ghostRide: the newest unless another is chosen; nothing for «without a ghost»', () => {
+    expect(ghostRide(rows, opts)?.id).toBe('new');
+    expect(ghostRide(rows, opts, 'mid')?.id).toBe('mid');
+    expect(ghostRide(rows, opts, 'gone')?.id).toBe('new');
+    expect(ghostRide(rows, opts, NO_GHOST)).toBeNull();
+    expect(ghostRide([], opts)).toBeNull();
+  });
+  it('the ride that is running is never its own ghost', () => {
+    expect(ghostRide(rows, { tripId: 't1', notId: 'new' })?.id).toBe('mid');
   });
 });

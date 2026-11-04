@@ -2,7 +2,7 @@
 // Fictional data (home0460-fixture), nothing leaves the preview.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
-import { fixChance } from './logo-helpers.js';
+import { fixChance, ANY_SURPRISE } from './logo-helpers.js';
 
 const mark = (page, info) => (info.project.name === 'phone' ? page.locator('header.top .brand .mark') : page.locator('.logo .mark'));
 const five = async (m) => {
@@ -41,6 +41,6 @@ test('with the switch «The marmot» off the marmot never comes', async ({ page,
   await openHome(page, context, info);
   await page.evaluate(() => (Math.random = () => 0.999)); // the last of the choice: the marmot, were it in the choice
   await five(mark(page, info));
-  await expect(page.locator('[data-logo-ride], [data-logo-saying], [data-logo-flat]').first()).toBeVisible();
+  await expect(page.locator(ANY_SURPRISE).first()).toBeVisible();
   await expect(page.locator('[data-logo-marmot]')).toHaveCount(0);
 });

@@ -20,7 +20,7 @@
   import { localDay } from '../lib/localday.js';
   import { searchPlace } from '../lib/weather.js';
   import { compass } from '../lib/toursky.js';
-  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS } from '../lib/wetter/kern.js';
+  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS, SRF_WEBCAMS } from '../lib/wetter/kern.js';
   import { loadClimate, climateFor } from '../lib/wetter/klima.js';
   import { SAID_KEY, noteSaid, hits } from '../lib/wetter/treffer.js';
   import WebcamList from '../lib/wetter/WebcamList.svelte';
@@ -29,7 +29,10 @@
   import LakeChip from '../lib/lake/LakeChip.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
   import AirCard from '../lib/air/AirCard.svelte';
+  import Regen24 from '../lib/wetter/Regen24.svelte'; // «Regen 24 h» (Noah 04.11.2026 «2a»)
+  import FensterBox from '../lib/wetter/FensterBox.svelte'; // Fenster für Landi-Radar und SRF-Webcams (Noah 04.11.2026 «1a», «3a»)
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
+  import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -222,6 +225,7 @@
           <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
         </p>
       {/if}
+      <SchneeBlock {core} {now} />
       {#each warns as w (w.kind)}<p class="wx-warn" data-wx-warn={w.kind}><TriangleAlert size={16} aria-hidden="true" />{warnText(w)}</p>{/each}
       {#if fb}<p class="wx-note" data-wx-fb={fb}><Wind size={16} aria-hidden="true" />{fb === 'foehn' ? t('Föhn: strong, dry wind from the south. Gusty in the valleys.') : t('Bise: cold wind from the north-east. It feels colder than the number.')}</p>{/if}
       {#if train}<p class="wx-note" data-wx-train><Train size={16} aria-hidden="true" />{t('Today rather the train? On the way to and from work: {why}.', { why: train.why.map((k) => t(k === 'rain' ? 'heavy rain' : k === 'thunder' ? 'thunderstorms' : k === 'storm' ? 'storm gusts' : 'ice')).join(', ') })} <a href="https://www.sbb.ch/" target="_blank" rel="noopener noreferrer">SBB</a></p>{/if}
@@ -322,6 +326,11 @@
   <!-- «Aktiv neu» (Noah 22.10.2026, spec): the lake temperature, ozone and pollen moved here from the Aktiv start -->
   <LakeCard headingLevel={2} />
   <AirCard headingLevel={2} />
+
+  <!-- Noah 04.11.2026 «1a 2a 3a 4b»: the rain strip and two windows at the bottom, next to the webcams -->
+  <Regen24 {core} {now} />
+  <FensterBox id="landi" title={t('Landi rain radar')} url={LANDI_RADAR} why={t('Where the rain is now and when it comes, for the next hours.')} />
+  <FensterBox id="srf" title={t('SRF Meteo webcams')} url={SRF_WEBCAMS} why={t('Live pictures of many places in Switzerland.')} />
 
   <!-- extra 7: my webcams -->
   <section class="card wx-sec" aria-labelledby="wx-cams" data-wx-cams>

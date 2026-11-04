@@ -1,11 +1,14 @@
 // «Beat your Ghost» (Noah 03.11.2026, Cockpit-Idee 4): a ride against an earlier ride of your own
+// «Try it» opens the newest ride that has a ghost and lights the card (Noah 04.11.2026 «1a»)
+const GO = { href: '#/flow/training', ride: 'ghost', steps: [{ sel: '[data-ana="ghost"]' }], note: 'The card puts this ride against an earlier ride of yours: who is ahead, and how alike the two rides are.', where: 'Open a bike ride with heart rate that has an earlier ride of a similar length (Training › Activities): the card «Beat your ghost» is further down.' };
+
 export default {
   title: 'Beat your ghost',
   lead: 'On a ride the new card «Beat your ghost» sets it against an earlier ride of yours: same power with less heart rate? And it shows how alike the two rides are, so you know how fair the comparison is.',
   points: [
-    { text: 'The app picks the most alike earlier ride (the same route first); you can pick another one', go: { href: '#/flow/training', steps: [{ text: 'Training' }], where: 'Open a ride with heart rate, scroll to «Beat your ghost».' } },
-    { text: 'Power, heart rate, watts per beat, speed, time and drift side by side, with one calm sentence', go: { href: '#/flow/training', steps: [{ text: 'Training' }], where: 'Open a ride with heart rate, scroll to «Beat your ghost».' } },
-    { text: 'Route, distance, climbing, temperature and wind: how alike the two rides are, and what is not known', go: { href: '#/flow/training', steps: [{ text: 'Training' }], where: 'Open a ride with heart rate, scroll to «Beat your ghost».' } },
+    { text: 'The app picks the most alike earlier ride (the same route first); you can pick another one', go: GO },
+    { text: 'Power, heart rate, watts per beat, speed, time and drift side by side, with one calm sentence', go: GO },
+    { text: 'Route, distance, climbing, temperature and wind: how alike the two rides are, and what is not known', go: GO },
   ],
   small: [{ box: 'new', text: 'The card can be hidden or moved like every analysis' }],
   test: [
@@ -18,7 +21,8 @@ export default {
     'Beat your ghost': 'Schlag deinen Geist',
     'On a ride the new card «Beat your ghost» sets it against an earlier ride of yours: same power with less heart rate? And it shows how alike the two rides are, so you know how fair the comparison is.': 'Auf einer Fahrt stellt die neue Karte «Schlag deinen Geist» sie einer früheren Fahrt von dir gegenüber: gleiche Leistung mit weniger Puls? Und sie zeigt, wie ähnlich die beiden Fahrten sind, damit du weisst, wie fair der Vergleich ist.',
     'The app picks the most alike earlier ride (the same route first); you can pick another one': 'Die App wählt die ähnlichste frühere Fahrt (zuerst dieselbe Strecke); du kannst eine andere wählen',
-    'Open a ride with heart rate, scroll to «Beat your ghost».': 'Öffne eine Fahrt mit Puls und scrolle zu «Schlag deinen Geist».',
+    'The card puts this ride against an earlier ride of yours: who is ahead, and how alike the two rides are.': 'Die Karte stellt diese Fahrt einer früheren Fahrt von dir gegenüber: wer vorn liegt und wie ähnlich die beiden Fahrten sind.',
+    'Open a bike ride with heart rate that has an earlier ride of a similar length (Training › Activities): the card «Beat your ghost» is further down.': 'Öffne eine Velofahrt mit Puls, zu der es eine frühere Fahrt ähnlicher Länge gibt (Training › Aktivitäten): die Karte «Schlag deinen Geist» steht weiter unten.',
     'Power, heart rate, watts per beat, speed, time and drift side by side, with one calm sentence': 'Leistung, Puls, Watt pro Schlag, Tempo, Zeit und Drift nebeneinander, mit einem ruhigen Satz',
     'Route, distance, climbing, temperature and wind: how alike the two rides are, and what is not known': 'Strecke, Distanz, Höhenmeter, Temperatur und Wind: wie ähnlich die beiden Fahrten sind und was nicht bekannt ist',
     'The card can be hidden or moved like every analysis': 'Die Karte lässt sich ausblenden oder verschieben wie jede Analyse',

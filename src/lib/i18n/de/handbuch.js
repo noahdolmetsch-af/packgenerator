@@ -1892,7 +1892,7 @@ export default {
   'Example: «Tour report» with route, best moment, weather «rain» and 4 of 5.': 'Beispiel: «Tourenbericht» mit Strecke, schönstem Moment, Wetter «Regen» und 4 von 5.',
   // Idee A2 «Erinnerung zu deiner Zeit» (27.10.2026)
   'Nothing to switch on: it learns while you open the evening-before check.':
-    'Nichts einzuschalten: die App lernt, während du den Abend-Check öffnest.',
+    'Nichts einzuschalten: die App lernt, während du «Wi gaht\'s?» am Abend öffnest.',
   'The app notes the time you open the check on each evening before a trip (from 16:00).':
     'Die App merkt sich, um welche Zeit du den Check am Vorabend einer Tour öffnest (ab 16:00).',
   'From 3 evenings it takes your usual time and offers a reminder 15 minutes earlier.':

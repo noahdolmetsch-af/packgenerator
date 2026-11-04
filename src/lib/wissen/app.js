@@ -1,5 +1,6 @@
 // «Good to know» for the area «App» (Wegweiser PR 20): lists, privacy, rules, own values, search, assistant, helper, mini apps.
 export default {
+  'f.changewhy': 'One tap is enough, and «Not now» is fine too. After a few tours the pattern says more than any single answer.',
   'f.lists': 'Fewer categories pack faster. If one has only two things in it, move them and delete it: Undo is there if you miss it.',
   'f.editall': 'Deleting never takes the contents with it: the app asks where things go. So clean up without fear, the bike keeps its trips.',
   'f.listsmore': 'Name things the way you say them on the trail. «Pennplatz» finds itself faster than «Unterkunftstyp 3».',
