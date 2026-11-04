@@ -396,7 +396,7 @@ export const PLACE_TABS = {
     // «Träume und Neuland» (Noah 27.10.2026 «1-5 a»): Träume stands second, right after the overview
     { key: 'dreams', label: 'Dreams|tab', href: '#/trips/dreams', match: (h) => h.startsWith('#/trips/dreams') },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
-    { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') || h.startsWith('#/neuland') || h.startsWith('#/heatmap') },
+    { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') },
     // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
     { key: 'ski', label: 'Ski tours', href: '#/ski', match: (h) => h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?') || h === '#/mountain' || h.startsWith('#/mountain/') },
     // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): the travel links had no button, the toolbox left Ich
@@ -454,6 +454,12 @@ export const PLACE_TABS = {
     { key: 'weight', label: 'Weight|tab', href: '#/me/weight', match: (h) => h.startsWith('#/me/weight') },
     // «Meilensteine als Belohnung» (Noah 22.10.2026): the overview of all milestones and the trophies are for looking
     { key: 'milestones', label: 'Milestones', href: '#/flow/milestones', match: (h) => /^#\/flow\/(milestones|trophies)(\/|\?|$)/.test(h) },
+    // «Aktiv und Auswerten» 3a (Noah 03.11.2026): Heatmap, Neuland, Gelernt and Jahr are for looking back, so they stand
+    // in Auswerten; their addresses stay, and Touren › Rückblick still has its buttons to them
+    { key: 'heatmap', label: 'Heatmap', href: '#/heatmap', match: (h) => h.startsWith('#/heatmap') },
+    { key: 'neuland', label: 'New ground', href: '#/neuland', match: (h) => h.startsWith('#/neuland') },
+    { key: 'learned', label: 'Learned|review', href: '#/gelernt', match: (h) => h.startsWith('#/gelernt') },
+    { key: 'year', label: 'Year|tab', href: '#/jahr', match: (h) => /^#\/jahr(\/|\?|$)/.test(h) },
   ],
 };
 
@@ -475,8 +481,8 @@ export const TAB_GROUPS = {
   // «Aktiv und Auswerten» 2a (Noah 03.11.2026): the pages of Auswerten stand by the question you ask
   analysis: [
     { label: 'How am I doing?|group', keys: ['start', 'form', 'body', 'history', 'wohl', 'weight', 'insights', 'impulse'] },
-    { label: 'What did I do?|group', keys: ['rides', 'ticks', 'milestones'] },
-    { label: 'What did I learn?|group', keys: ['analyse'] },
+    { label: 'What did I do?|group', keys: ['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'year'] },
+    { label: 'What did I learn?|group', keys: ['analyse', 'learned'] },
   ],
 };
 
@@ -512,8 +518,8 @@ export function placeOf(page, hash = '') {
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
   if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'inspiration', 'weblinks'].includes(page)) return 'week';
   if (page === 'tools') return 'trips'; // «Alles finden 2» (Noah 22.10.2026 «4a»): the toolbox is a tab of Touren
-  if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'wohl', 'weight'].includes(page)) return 'analysis';
-  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'gelernt', 'jahr', 'neuland', 'heatmap', 'spur', 'tour', 'travel', 'race', 'raceplan', 'live', 'groupride', 'fuel', 'compare', 'wetter'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
+  if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'wohl', 'weight', 'heatmap', 'neuland', 'gelernt', 'jahr'].includes(page)) return 'analysis'; // «Aktiv und Auswerten» 3a: the four pages of looking back
+  if (['trips', 'dreams', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'spur', 'tour', 'travel', 'race', 'raceplan', 'live', 'groupride', 'fuel', 'compare', 'wetter'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'equipment';
