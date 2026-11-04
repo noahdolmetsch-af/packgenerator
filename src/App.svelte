@@ -450,6 +450,7 @@
     ShopBuy: () => import('./pages/ShopBuy.svelte'),
     InvoiceNew: () => import('./pages/InvoiceNew.svelte'),
     Offers: () => import('./pages/Offers.svelte'),
+    OfferCustomers: () => import('./pages/OfferCustomers.svelte'),
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
@@ -726,7 +727,7 @@
     <LazyPage load={PAGES.WebLinks} />
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
-    {#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
+    {#if hash.split('?')[0].split('/')[3] === 'customers'}<LazyPage load={PAGES.OfferCustomers} />{:else}{#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}{/if}
   {:else if page === 'privacy'}
     <!-- Paket R: Ich › Datenschutz und Nutzung -->
     <LazyPage load={PAGES.Privacy} />

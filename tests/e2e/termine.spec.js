@@ -195,3 +195,23 @@ test('the invoice form is filled from a booking draft and keeps the booking', as
   // read once: a second visit starts empty
   expect(await page.evaluate(() => sessionStorage.getItem('pg.invoice.prefill'))).toBeNull();
 });
+
+test('the customer list: add a customer with an own price, edit and delete with Undo', async ({ page }) => {
+  await page.goto('./#/');
+  await ready(page);
+  await page.goto('./#/me/offers/customers');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Customers'));
+  await page.getByRole('button', { name: T('Add a customer') }).first().click();
+  await page.locator('#cu-name').fill('Mia Muster');
+  await page.locator('#cu-contact').fill('mia@example.test');
+  await page.locator('#cu-rate').fill('50');
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
+  const row = page.locator('.cu-row', { hasText: 'Mia Muster' });
+  await expect(row).toBeVisible();
+  await expect(row).toContainText('50');
+  // delete asks first, then offers Undo
+  await row.click();
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Delete') }).click();
+  await page.getByRole('button', { name: T('Delete') }).last().click();
+  await expect(page.locator('.cu-row', { hasText: 'Mia Muster' })).toHaveCount(0);
+});
