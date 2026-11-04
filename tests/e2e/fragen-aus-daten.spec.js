@@ -13,7 +13,7 @@ const shot = async (page, info, name) => {
   await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 };
 
-function data(todayHr, { sleepMin = null, moods = null } = {}) {
+function data(todayHr, { sleepMin = null, moods = null, sport = null } = {}) {
   const d = homeFixture();
   const q = Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && x.id !== 'erholung.akku').map((x) => [x.id, { on: false }]));
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
@@ -21,6 +21,7 @@ function data(todayHr, { sleepMin = null, moods = null } = {}) {
     ...Array.from({ length: 20 }, (_, i) => ({ date: day(-(i + 1)), restingHr: 51 + (i % 3) })),
     { date: day(0), restingHr: todayHr, ...(sleepMin != null ? { sleep: { asleepMin: sleepMin } } : {}) },
   ];
+  if (sport) d.tables.sportItems = sport.map(([kind, n, extra], i) => ({ id: `fad-s${i}`, sport: 'act:tennis', kind, day: day(n), at: `${day(n)}T18:00`, ...extra }));
   if (moods) {
     const row = (n, v) => ({ id: `fad-m${n}`, qid: 'spass.stimmung', area: 'spass', day: day(n), at: `${day(n)}T20:40`, slot: `${day(n)}T20:30`, kind: 'scale', value: v, note: null, unit: null, src: 'hand' });
     d.tables.abAnswers = [...Array.from({ length: 20 }, (_, i) => row(-(i + 3), 8)), ...moods.map((v, i) => row(i - 2, v))];
@@ -109,7 +110,7 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(card.locator('[data-q="erholung.akku"]')).toBeVisible();
     await expect(card.locator('[data-q^="daten."]')).toHaveCount(0);
     await page.goto('./#/me/abfragen');
-    for (const id of ['ruhepuls', 'schlaf', 'stimmung', 'training', 'pause']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
+    for (const id of ['ruhepuls', 'schlaf', 'stimmung', 'training', 'pause', 'spiel', 'platz']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
   });
 
   test('a long day yesterday asks how the legs feel, with the time as the reason', async ({ page, context }, info) => {
@@ -141,6 +142,38 @@ test.describe('Fragen aus deinen Daten', () => {
     await q.getByRole('button', { name: T('Tired|data'), exact: true }).click();
     await card.locator('[data-ab-save]').click();
     await expect(card.locator('[data-q="daten.pause"]')).toHaveCount(0);
+  });
+
+  test('a game yesterday asks what worked, with the minutes as the reason', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52, { sport: [['played', -1, { type: 'training', min: 90, court: 'clay', result: 'none', worked: '' }]] }) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.spiel"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('How was the game yesterday? What worked, what did not?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('90 Minuten');
+    await card.screenshot({ path: `${SHOTS}/fad5-spiel-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Serve worked|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.spiel"]')).toHaveCount(0);
+  });
+
+  test('a court time marked as not played asks what got in the way', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52, { sport: [['slot', -1, { time: '18:00', min: 60, court: 'clay', answer: 'skipped' }]] }) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.platz"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('What got in the way of the court time?'))).toBeVisible();
+    await card.screenshot({ path: `${SHOTS}/fad5-platz-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Work came up|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.platz"]')).toHaveCount(0);
+  });
+
+  test('no tennis noted: the box says why the tennis rules are quiet', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-data-empty-tennis]')).toBeVisible();
+    await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad5-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
   });
 
   test('no activities yet: the box says why the training rules are quiet', async ({ page, context }, info) => {
