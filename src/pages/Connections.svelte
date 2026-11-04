@@ -21,6 +21,9 @@
   import { strava, STRAVA_HASH, PREFS_KEY as STRAVA_KEY, prefsOf as stravaPrefsOf, savePrefs as saveStrava, readKey } from '../lib/strava/client.svelte.js';
   import { health, FITBIT_HASH } from '../lib/health/client.svelte.js';
   import { agenda, AGENDA_HASH, saveEvent } from '../lib/agenda/client.svelte.js';
+  import { trello } from '../lib/trello/client.svelte.js';
+  import ConnStatus from '../lib/ui/ConnStatus.svelte';
+  import { reasonLine, lastOkFetchLine } from '../lib/ui/connstatus.js';
   import { TICKS_KEY, prefsOf as ticksOf, savePrefs as saveTicks, seenSports, setSport, applyTicks } from '../lib/stravaticks.js';
   import { OWN_KEY, prefsOf as ownOf, savePrefs as saveOwn, syncCal, syncNotes, connectOwn, tripItems } from '../lib/googleown.js';
   import { tripsIcs, parseIcs } from '../lib/icsio.js';
@@ -53,9 +56,10 @@
   const when = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
   const lakeAt = $derived(d?.lake?.data?.now?.at ?? d?.lake?.fetchedAt ?? null);
   const rows = $derived([
-    { key: 'strava', Icon: Activity, name: 'Strava', on: !!hasKey && !!strava.prefs.lastSync, line: strava.prefs.lastSync ? (hasKey ? t('last fetch {when}', { when: when(strava.prefs.lastSync) }) : t('not connected on this device · last fetch {when}', { when: when(strava.prefs.lastSync) })) : t('Rides and activities, ticks Aktiv'), href: STRAVA_HASH },
-    { key: 'fitbit', Icon: HeartPulse, name: t('Fitbit via Google'), on: !!health.prefs.connected, line: health.prefs.connected ? [health.last?.date ? t('values up to {day}', { day: health.last.date }) : t('connected'), hasKey ? '' : t('fetching needs the app key on this device')].filter(Boolean).join(' · ') : t('Sleep, steps, heart rate as observation'), href: FITBIT_HASH },
-    { key: 'agenda', Icon: CalendarDays, name: t('Google Calendar and Tasks'), on: agenda.prefs.calendar || agenda.prefs.tasks, line: agenda.prefs.lastSync ? t('last fetch {when}', { when: when(agenda.prefs.lastSync) }) : t('Appointments and tasks, the calendar «Packgenerator»'), href: AGENDA_HASH },
+    { key: 'strava', Icon: Activity, name: 'Strava', on: !!hasKey && !!strava.prefs.lastSync, line: strava.prefs.lastSync ? (hasKey ? t('last fetch {when}', { when: when(strava.prefs.lastSync) }) : t('not connected on this device · last fetch {when}', { when: when(strava.prefs.lastSync) })) : t('Rides and activities, ticks Aktiv'), href: STRAVA_HASH, st: { busy: strava.busy, since: strava.since, code: strava.error, lastOk: strava.prefs.lastSync } },
+    { key: 'fitbit', Icon: HeartPulse, name: t('Fitbit via Google'), on: !!health.prefs.connected, line: health.prefs.connected ? [health.last?.date ? t('values up to {day}', { day: health.last.date }) : t('connected'), hasKey ? '' : t('fetching needs the app key on this device')].filter(Boolean).join(' · ') : t('Sleep, steps, heart rate as observation'), href: FITBIT_HASH, st: { busy: health.busy, since: health.since, code: health.error || (health.lastTry && !health.lastTry.ok ? health.lastTry.code : ''), lastOk: health.prefs.lastSync } },
+    { key: 'agenda', Icon: CalendarDays, name: t('Google Calendar and Tasks'), on: agenda.prefs.calendar || agenda.prefs.tasks, line: agenda.prefs.lastSync ? t('last fetch {when}', { when: when(agenda.prefs.lastSync) }) : t('Appointments and tasks, the calendar «Packgenerator»'), href: AGENDA_HASH, st: { busy: agenda.busy, since: agenda.since, code: agenda.error, lastOk: agenda.prefs.lastSync } },
+    { key: 'trello', Icon: ListChecks, name: 'Trello', on: !!trello.prefs?.on, line: trello.prefs?.on ? (trello.prefs.lastSync ? t('last fetch {when}', { when: when(trello.prefs.lastSync) }) : t('connected')) : t('Your to-dos also on a Trello board'), href: '#/calendar', st: trello.prefs?.on ? { busy: trello.busy, since: trello.since, code: trello.error, lastOk: trello.prefs.lastSync } : null },
     { key: 'mail', Icon: Mail, name: t('Mail'), on: null, line: t('Your Gmail: read, search, answer, write'), href: '#/me/mail' },
     { key: 'lake', Icon: Waves, name: t('Lake temperature'), on: !!lakeAt, line: lakeAt ? t('last value {when} · City of Zurich and Eawag, no login', { when: when(lakeAt) }) : t('City of Zurich and Eawag, no login'), href: '#/flow' },
   ]);
@@ -168,6 +172,11 @@
                 {#if r.on === true}<span class="pill ok">{t('on|conn')}</span>{:else if r.on === false}<span class="pill">{t('off|conn')}</span>{/if}
                 <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
               </a>
+              {#if r.st?.busy}
+                <div class="conn-run"><ConnStatus name={r.name} busy since={r.st.since} /></div>
+              {:else if r.st?.code}
+                <p class="ich-help conn-fail" role="status" data-conn-fail={r.key}>{reasonLine(t, r.st.code)} {lastOkFetchLine(t, { lastOkAt: r.st.lastOk, when })}</p>
+              {/if}
             </li>
           {/each}
         </ul>
@@ -339,6 +348,14 @@
     gap: 8px;
   }
   .map li,
+  .conn-fail,
+  .conn-run {
+    margin: 0;
+    padding: 0 var(--sp-4) var(--sp-3);
+  }
+  .conn-fail {
+    color: var(--bad);
+  }
   .row {
     display: flex;
     align-items: center;
