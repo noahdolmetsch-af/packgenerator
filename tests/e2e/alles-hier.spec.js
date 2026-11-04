@@ -89,4 +89,7 @@ test('All here on Trips: the tiles show and open their page, komoot stays in the
     await expect(box).toBeVisible();
   }
   await expect(page.locator('[data-quick="komoot"]')).toBeVisible();
+  // «In numbers» opens the section on the same page (on a phone it waits behind one line)
+  await box.locator('[data-all-here-tile="numbers"]').click();
+  await expect(page.locator('#iz-h')).toBeVisible();
 });

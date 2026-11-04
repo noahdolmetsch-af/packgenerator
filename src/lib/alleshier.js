@@ -31,6 +31,7 @@ export const ALL_HERE = {
     'f.lighter',
   ],
   trips: [
+    { id: 'numbers', title: 'In numbers', href: '#/trips?numbers' },
     'templates',
     'f.fuel',
     'f.tripcompare',

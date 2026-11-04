@@ -104,7 +104,7 @@
   import { loadActs } from '../lib/review/actdata.js';
   import { phone, cols12 } from '../lib/media.svelte.js';
   import { PHONE_ROWS, TOUR_ROWS, nextRows, shortLine, capGroups } from '../lib/touren/kurz.js';
-  import { untrack } from 'svelte';
+  import { untrack, tick } from 'svelte';
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
   import { strava } from '../lib/strava/client.svelte.js';
@@ -283,6 +283,17 @@
   /* ---- 0.163.0 «Handy kurz»: five rows first on a phone, the values as one grey line ---- */
   let doneAll = $state(false);
   let extrasOpen = $state(false);
+  // «Alles hier» › «In numbers»: #/trips?numbers opens «In Zahlen» (on a phone behind one line) and goes there
+  function numbersFromHash() {
+    if (!/[?&]numbers\b/.test(location.hash)) return;
+    extrasOpen = true;
+    tick().then(() => setTimeout(() => document.getElementById('iz-h')?.scrollIntoView({ block: 'start' }), 50));
+  }
+  $effect(() => {
+    numbersFromHash();
+    addEventListener('hashchange', numbersFromHash);
+    return () => removeEventListener('hashchange', numbersFromHash);
+  });
   let packOpen = $state(false);
   const shortDone = $derived(phone.matches && !doneAll);
   // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
