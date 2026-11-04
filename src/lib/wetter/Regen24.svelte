@@ -21,9 +21,9 @@
   });
 </script>
 
-{#if strip}
-  <section class="card wx-r24" aria-labelledby="wx-r24" data-wx-r24>
-    <h2 id="wx-r24" class="wx-r24-h"><CloudRain size={18} aria-hidden="true" />{t('Rain in the next 24 hours')}</h2>
+<section class="card wx-r24" aria-labelledby="wx-r24" data-wx-r24>
+  <h2 id="wx-r24" class="wx-r24-h"><CloudRain size={18} aria-hidden="true" />{t('Rain in the next 24 hours')}</h2>
+  {#if strip}
     <p class="wx-r24-say" data-wx-r24-say>{say}</p>
     <div class="wx-r24-bars" role="img" aria-label={say}>
       {#each strip.bars as b (b.ms)}
@@ -34,8 +34,10 @@
       <span>{t('now')}</span><span>+6 h</span><span>+12 h</span><span>+18 h</span><span>+24 h</span>
     </div>
     <p class="rc-src">{t('From the forecast, hour by hour: {mm} mm in total.', { mm: num(strip.total) })}</p>
-  </section>
-{/if}
+  {:else}
+    <p class="rc-note" data-wx-r24-empty>{t('No forecast yet. Set a place and the rain strip shows here.')}</p>
+  {/if}
+</section>
 
 <style>
   .wx-r24 {

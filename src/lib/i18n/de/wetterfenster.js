@@ -7,6 +7,7 @@ export default {
   'Rain from about {from}.': 'Regen ab etwa {from}.',
   'Strongest around {at}.': 'Am stärksten gegen {at}.',
   'From the forecast, hour by hour: {mm} mm in total.': 'Aus der Vorhersage, Stunde für Stunde: zusammen {mm} mm.',
+  'No forecast yet. Set a place and the rain strip shows here.': 'Noch keine Vorhersage. Lege einen Ort fest, dann erscheint hier der Regenstreifen.',
   'SRF Meteo webcams': 'SRF-Meteo-Webcams',
   'Where the rain is now and when it comes, for the next hours.': 'Wo es jetzt regnet und wann der Regen kommt, für die nächsten Stunden.',
   'Live pictures of many places in Switzerland.': 'Live-Bilder von vielen Orten in der Schweiz.',
