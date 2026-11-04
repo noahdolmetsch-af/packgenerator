@@ -1,6 +1,6 @@
 # Alles hier bei Planen
 
-PR #? · 03.11.2026 · Auftrag: Noah «1a 3a» und «freigabe» (Thread «Bringe versteckte Funktionen online»)
+PR «Alles hier bei Planen» · 03.11.2026 · Auftrag: Noah «1a 3a» und «freigabe» (Thread «Bringe versteckte Funktionen online»)
 
 ## Was ist neu
 - Oben auf **Planen** (Woche, unter dem Einstieg) das Feld **«Alles hier»** mit 18 Kacheln: Termine und Aufgaben, Merken, Notizen, Eingang, Vorgänge, Erinnerungen, Einkaufsliste, Kochen, Verträge und Abos, Lange nicht gesehen, Mit Freunden, Mini-Tools, Tagebuch, Fotoalbum, Dokumente, Mein Kompass, Ruhig und persönlich, Pflanzenpass.
