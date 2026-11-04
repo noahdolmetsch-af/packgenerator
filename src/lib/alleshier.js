@@ -9,6 +9,8 @@ import { FEATURES } from './features.js';
 
 /** The functions of each area, in their first order (feature ids). One PR per area adds its list. */
 export const ALL_HERE = {
+  // Aktiv (Noah 03.11.2026 «1a»): the functions of doing, ten tiles on top of Aktiv
+  aktiv: ['f.sportpage', 'f.timer', 'f.trainplans', 'f.training', 'f.weekplan', 'f.weekreview', 'f.meditation', 'f.routine', 'f.gipfelbuch', 'f.milestones'],
   bikes: ['f.partwear', 'f.inspect', 'f.workshop', 'f.spick', 'f.workshoprounds', 'f.sparestock', 'f.wearphotos', 'f.bikeseason', 'f.bikeyear', 'f.sellbike', 'f.bikebox', 'f.velofaq', 'f.strava', 'f.kmimport', 'f.velosetup', 'f.bagplan', 'f.setuplog', 'f.equipment', 'f.bikecompare', 'f.measure', 'f.garmin', 'f.folder', 'f.breakin', 'f.repairkit', 'f.warranty', 'f.theft', 'f.bikeservice', 'f.setupphotos'],
 };
 
