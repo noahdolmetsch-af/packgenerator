@@ -165,6 +165,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Logbuch | `#/debrief/logbook` | Auch ältere Touren nachtragen und nach Jahr oder Art filtern. |
 | Gesammelte Erkenntnisse | `#/debrief/learnings` | Erfahrungen thematisch sammeln und für spätere Touren wiederfinden. |
 | Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten. |
+| Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
 | Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. |
 | Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. |
