@@ -4,7 +4,7 @@ import { SURPRISES, pickSurprise } from '../src/lib/logo/surprises.js';
 
 describe('logo surprises', () => {
   it('knows the bike and the saying', () => {
-    expect(SURPRISES).toEqual(expect.arrayContaining(['bike', 'saying', 'flat', 'marmot']));
+    expect(SURPRISES).toEqual(expect.arrayContaining(['bike', 'saying', 'flat', 'marmot', 'weather']));
   });
   it('the first time every surprise can come', () => {
     expect(pickSurprise(['a', 'b', 'c'], null, () => 0)).toBe('a');
