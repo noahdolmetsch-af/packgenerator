@@ -201,6 +201,9 @@ test('the invoice form is filled from a booking draft and keeps the booking', as
   await expect(page.getByLabel(T('For whom?'))).toHaveValue('Mia Muster');
   await expect(page.getByLabel(T('Amount|money'))).toHaveValue('60');
   await expect(page.getByLabel(T('What for?'))).toHaveValue('Tennis-Lektion, Einzel, Mo, 23.11.');
+  // cash is a way to pay of its own
+  await page.locator('[data-way-cash]').check();
+  await expect(page.locator('[data-way-cash]')).toBeChecked();
   // read once: a second visit starts empty
   expect(await page.evaluate(() => sessionStorage.getItem('pg.invoice.prefill'))).toBeNull();
 });

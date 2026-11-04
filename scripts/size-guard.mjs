@@ -28,6 +28,18 @@ export function heavyStatic(text) {
 export const MAX_START_JS_BYTES = 4_600_000;
 const START_NAME = /^assets\/(main|start|icons|i18n|de|de-texts-\d+|gear|index\.gen|preload-helper|modulepreload-polyfill|stravanames)[-.]/;
 
+// Warning before the limit (Noah 04.11.2026 «Test-Plan 1»): at 90 % of the start budget every build says so, as a
+// yellow note on the check and in the summary, without failing the PR. Then Noah decides (move texts behind
+// import(), or raise the budget with a reason) BEFORE the limit stops the next PR.
+export const WARN_START_RATIO = 0.9;
+
+/** The warning text when the start is at 90 % of the budget or more (and still within it), else null. */
+export function startWarning(start, limit = MAX_START_JS_BYTES) {
+  if (start <= limit * WARN_START_RATIO || start > limit) return null;
+  const pct = Math.round((start / limit) * 100);
+  return `The start loads ${(start / 1e6).toFixed(2)} MB of JavaScript: ${pct} % of the ${(limit / 1e6).toFixed(1)} MB budget (scripts/size-guard.mjs). Noah decides now what moves behind import() or whether the budget grows, before the next PR is stopped.`;
+}
+
 /** The bytes of the files that load before the first screen. files: [{ name, bytes }]. */
 export const startBytes = (files) => files.filter((f) => /\.m?js$/.test(f.name) && START_NAME.test(f.name)).reduce((n, f) => n + f.bytes, 0);
 
@@ -41,6 +53,12 @@ export function sizeGuard(limit = MAX_JS_BYTES) {
         .filter((c) => c.type === 'chunk')
         .map((c) => ({ name: c.fileName, bytes: Buffer.byteLength(c.code) }));
       const start = startBytes(files);
+      const warn = startWarning(start);
+      if (warn) {
+        this.warn(`size-guard: ${warn}`);
+        // GitHub shows this line as a yellow note on the check and in the summary; the build stays green
+        if (process.env.GITHUB_ACTIONS) console.log(`::warning title=Start-Grenze fast erreicht::${warn}`);
+      }
       if (start > MAX_START_JS_BYTES)
         this.error(`size-guard: the start loads ${(start / 1e6).toFixed(2)} MB of JavaScript, over the budget of ${(MAX_START_JS_BYTES / 1e6).toFixed(1)} MB (scripts/size-guard.mjs). Move texts and tools that are not needed at the start behind import().`);
       const big = oversize(files, limit);
