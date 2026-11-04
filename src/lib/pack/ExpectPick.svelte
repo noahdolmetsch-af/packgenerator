@@ -40,7 +40,7 @@
 {/if}
 
 <style>
-  .ex { container: expect / inline-size; display: grid; gap: 8px; min-width: 0; margin-top: 16px; }
+  .ex { container: expect / inline-size; display: grid; gap: 8px; min-width: 0; margin: 16px 0 8px; }
   h2 { display: flex; align-items: center; gap: 8px; margin: 0; font: 600 var(--fs-sub) / 1.3 var(--font-body); }
   .exs { margin: 0; color: var(--ink-2); font-size: var(--fs-small); }
   .fp { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }

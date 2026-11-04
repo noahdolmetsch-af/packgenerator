@@ -132,6 +132,8 @@ import logogeheimnis from './logo-geheimnis.js';
 import logosprueche from './logo-sprueche.js';
 import logoplatten from './logo-platten.js';
 import logostreiche from './logo-streiche.js';
+import logowetter from './logo-wetter.js';
+import logopanorama from './logo-panorama.js';
 
 // FE1, FE13, FE14, FE16: Daumen-Zone, Farbe nie allein, «?» an Ort und Stelle, passende Handy-Tastatur
 import daumen from './daumen.js';
@@ -806,6 +808,8 @@ const ORDERED = [
   logosprueche,
   logoplatten,
   logostreiche,
+  logowetter,
+  logopanorama,
   daumen,
   hg1,
   runden,

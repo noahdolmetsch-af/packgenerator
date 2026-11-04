@@ -3,32 +3,46 @@
    * TR7e «Effizienz: Watt pro Herzschlag»: NP ÷ mean heart rate of the calm rides (main zone Z2) of the last
    * four months as dots, with a straight trend. Only rides with a power meter and heart rate; at least 4.
    * weeks.js effPoints.
+   * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): a day is a column, a ride a dot on it; an axis with round
+   * steps, the ride and the trend of a day when pointing, a tap opens the day, «Als Tabelle» lists the rides.
    */
   import AnaCard from '../AnaCard.svelte';
+  import LineChart from '../../charts/LineChart.svelte';
+  import ChartSheet from '../../charts/ChartSheet.svelte';
   import { t, locale } from '../../i18n.svelte.js';
   import { zones } from '../../strava/zones.svelte.js';
-  import { effPoints, niceTicks, monthStart, daysBetween, EFF_MIN, EFF_MONTHS } from './weeks.js';
+  import { effPoints, monthStart, daysBetween, EFF_MIN, EFF_MONTHS } from './weeks.js';
+  import { shiftDay } from '../../training.js';
 
   let { acts = [], today = '' } = $props();
   const data = $derived(today ? effPoints(acts, today, zones.bounds) : null);
   const has = $derived(!!data && data.pts.length >= EFF_MIN && !!data.trend);
   const f2 = (v) => Number(v).toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const monthOf = (day, month = 'long') => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { month, timeZone: 'UTC' });
+  const dmy = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
+  const C = 'var(--ch-w)';
 
-  let w = $state(0);
-  const H = 110;
-  const T = 10;
-  const L = 42;
-  const R = 10;
-  const width = $derived(Math.max(240, w || 600));
-  const ax = $derived.by(() => {
-    if (!has) return null;
-    const vals = [...data.pts.map((p) => p.v), data.trend.start, data.trend.end];
-    return niceTicks(Math.min(...vals), Math.max(...vals), 3);
-  });
-  const X = (x) => L + (x / Math.max(1, data.span)) * (width - L - R);
-  const Y = (v) => T + ((ax.hi - v) / (ax.hi - ax.lo)) * H;
-  const months = $derived(has ? Array.from({ length: EFF_MONTHS }, (_, i) => monthStart(today, EFF_MONTHS - 1 - i)).map((d) => ({ d, x: daysBetween(data.from, d) })) : []);
+  // one column per day of the four months
+  const days = $derived(has ? Array.from({ length: data.span + 1 }, (_, i) => shiftDay(data.from, i)) : []);
+  const monthStarts = $derived(has ? new Set(Array.from({ length: EFF_MONTHS }, (_, i) => daysBetween(data.from, monthStart(today, EFF_MONTHS - 1 - i)))) : new Set());
+  const rides = $derived(has ? days.map((d) => data.pts.filter((p) => p.day === d)) : []);
+  const mean = (l) => (l.length ? l.reduce((s, p) => s + p.v, 0) / l.length : null);
+  const cols = $derived(days.map((d, i) => ({ key: d, x: monthStarts.has(i) ? monthOf(d, 'short') : '' })));
+  const trendAt = (i) => (has && i >= data.trend.x0 ? data.trend.a + data.trend.b * i : null);
+  const series = $derived(
+    has
+      ? [
+          { key: 'rides', color: C, line: false, dots: true, v: rides.map(mean) },
+          { key: 'trend', color: C, v: days.map((_, i) => trendAt(i)) },
+        ]
+      : [],
+  );
+  const items = (i) => [
+    { label: t('Watts per beat'), value: rides[i].length ? rides[i].map((p) => f2(p.v)).join(' · ') : '–', color: C },
+    { label: t('Trend'), value: trendAt(i) == null ? '–' : f2(trendAt(i)) },
+  ];
+  const readout = (i) => ({ title: dmy(days[i]), items: items(i) });
+  const table = $derived(has ? { head: [t('Day'), t('Watts per beat'), t('Trend')], rows: [...data.pts].reverse().map((p, k) => ({ key: `${p.day}-${k}`, cells: [dmy(p.day), f2(p.v), f2(trendAt(p.x))] })) } : null);
   const grows = $derived(has && data.trend.end - data.trend.start >= 0.005);
   const now = $derived(has ? f2(data.trend.end) : '');
   const then = $derived(has ? f2(data.trend.start) : '');
@@ -39,25 +53,12 @@
       : t('Watts per heartbeat on calm rides: today {now}, in {month} {then}. Only rides with a power meter and heart rate.', { now, then, month: thenMonth }),
   );
   const label = $derived(has ? t('{n} calm rides; trend from {then} to {now} W per beat', { n: data.pts.length, now, then }) : '');
+  let open = $state(null);
 </script>
 
 {#if has}
   <AnaCard key="eff" wide sub={t('NP ÷ mean heart rate, only calm rides (mostly Z2)')}>
-    <div class="plot" bind:clientWidth={w}>
-      <svg width={width} height={H + T + 30} viewBox="0 0 {width} {H + T + 30}" role="img" aria-label={label}>
-        {#each ax.ticks as v (v)}
-          <line x1={L} x2={width - R} y1={Y(v)} y2={Y(v)} class="grid" />
-          <text x={L - 8} y={Y(v) + 4} text-anchor="end">{f2(v)}</text>
-        {/each}
-        {#each data.pts as p, i (i)}
-          <circle cx={X(p.x)} cy={Y(p.v)} r="3.5" />
-        {/each}
-        <line class="trend" x1={X(data.trend.x0)} y1={Y(data.trend.start)} x2={X(data.span)} y2={Y(data.trend.end)} />
-        {#each months as m, i (m.d)}
-          <text x={X(m.x)} y={H + T + 24} text-anchor={i === 0 ? 'start' : 'middle'}>{monthOf(m.d, 'short')}</text>
-        {/each}
-      </svg>
-    </div>
+    <LineChart id="eff" {cols} {series} {readout} {table} {label} maxTop={0} tick={(v) => f2(v)} onopen={(i) => (open = i)} hint={t('Point at a day for its numbers, tap it for the day.')} />
     <ul class="leg">
       <li><i class="k"></i>{t('Trend')}</li>
     </ul>
@@ -65,30 +66,31 @@
   </AnaCard>
 {/if}
 
+{#if open != null && days[open]}
+  <ChartSheet kicker={t('Efficiency: watts per heartbeat')} title={dmy(days[open])} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < days.length - 1 ? () => open++ : null} prevLabel={t('Day before')} nextLabel={t('Next day')}>
+    <ul class="shl" data-eff-sheet>
+      {#each items(open) as it (it.label)}<li><span>{it.label}</span><b class="num">{it.value}</b></li>{/each}
+    </ul>
+    {#if !rides[open].length}<p class="cap">{t('No calm ride with a power meter on this day.')}</p>{/if}
+  </ChartSheet>
+{/if}
+
 <style>
-  .plot {
-    min-width: 0;
-    overflow: hidden;
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
   }
-  svg {
-    display: block;
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
-  text {
-    fill: var(--ink-3);
-    font: 400 var(--fs-tiny) / 1 var(--font-body);
-  }
-  .grid {
-    stroke: var(--line);
-    stroke-dasharray: 3 4;
-  }
-  circle {
-    fill: var(--ch-w);
-    opacity: 0.45;
-  }
-  .trend {
-    stroke: var(--ch-w);
-    stroke-width: 2.5;
-    stroke-linecap: round;
+  .shl span {
+    color: var(--ink-2);
   }
   .leg {
     display: flex;

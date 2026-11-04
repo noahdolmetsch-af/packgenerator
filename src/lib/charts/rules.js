@@ -7,21 +7,17 @@
  *   3. with few points (up to 12, bars up to 26) the number at each point or bar;
  *   4. a tap opens what is behind it (ChartSheet); 5. «Als Tabelle» shows the same numbers (DataTable);
  *   6. no data stays a gap, never a fall to 0; at least three dates under a time axis.
- * BarChart.svelte does all of it for bars. DONE: the charts that follow the rules. OPEN: the charts still
+ * BarChart.svelte does all of it for bars, LineChart.svelte for lines and dots. DONE: the charts that follow the rules. OPEN: the charts still
  * to change, one small PR per page (docs/releases/diagramme-tippen.md has the order). A new chart goes into
  * DONE; moving one from OPEN to DONE is how the work goes on.
  */
-export const DONE = ['src/lib/flow/auswertung/TkWeeks.svelte', 'src/lib/flow/auswertung/TkSpread.svelte', 'src/lib/flow/auswertung/TkLine.svelte', 'src/lib/flow/form/FormVerlauf.svelte', 'src/lib/touren/tour/TourAnalysis.svelte', 'src/lib/flow/form/FormTeile.svelte', 'src/lib/flow/form/FormTour.svelte', 'src/pages/flow/Stats.svelte'];
+export const DONE = ['src/lib/flow/auswertung/TkWeeks.svelte', 'src/lib/flow/auswertung/TkSpread.svelte', 'src/lib/flow/auswertung/TkLine.svelte', 'src/lib/flow/form/FormVerlauf.svelte', 'src/lib/touren/tour/TourAnalysis.svelte', 'src/lib/flow/form/FormTeile.svelte', 'src/lib/flow/form/FormTour.svelte', 'src/lib/training/week/AnaEff.svelte', 'src/lib/training/week/AnaForm.svelte', 'src/lib/training/week/AnaPCurve.svelte', 'src/lib/training/week/AnaWLoad.svelte', 'src/pages/flow/Stats.svelte'];
 
 export const OPEN = [
   // Haken und Antworten ausgewertet
   'src/lib/flow/auswertung/AnLine.svelte',
   'src/lib/flow/auswertung/AnDays.svelte',
   // Training: Woche und Fahrt
-  'src/lib/training/week/AnaEff.svelte',
-  'src/lib/training/week/AnaForm.svelte',
-  'src/lib/training/week/AnaPCurve.svelte',
-  'src/lib/training/week/AnaWLoad.svelte',
   'src/lib/training/act/LoadCurve.svelte',
   'src/lib/training/act/AnaCadence.svelte',
   'src/lib/training/act/AnaPzBars.svelte',

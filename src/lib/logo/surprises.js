@@ -3,7 +3,7 @@
 // Pure function (no screen, no clock), tested in tests/logosurprises.test.js.
 
 /** Every surprise that exists. A new one is added here and gets its own component in LogoRide.svelte. */
-export const SURPRISES = ['bike', 'saying', 'flat', 'marmot'];
+export const SURPRISES = ['bike', 'saying', 'flat', 'marmot', 'weather', 'panorama'];
 
 /** Picks one of `list`, not `prev` (unless it is the only one). rnd() is Math.random by default (0 ≤ r < 1). */
 export function pickSurprise(list = SURPRISES, prev = null, rnd = Math.random) {

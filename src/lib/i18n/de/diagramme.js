@@ -69,4 +69,16 @@ export default {
   'Point at a day for its numbers, tap it for what is behind.': 'Zeig auf einen Tag für die Zahlen, tippe ihn an für das Dahinter.',
   'Point at a ride or tap it for its numbers.': 'Zeig auf eine Fahrt oder tippe sie an für die Zahlen.',
   'Mean pulse': 'Mittlerer Puls',
+  // Training, Woche (AnaWLoad, AnaForm, AnaPCurve, AnaEff)
+  'Point at a week for its numbers, tap it for its activities.': 'Zeig auf eine Woche für die Zahlen, tippe sie an für ihre Aktivitäten.',
+  'No activity in this week.': 'Keine Aktivität in dieser Woche.',
+  'Point at a week for its numbers, tap it for the week.': 'Zeig auf eine Woche für die Zahlen, tippe sie an für die Woche.',
+  Duration: 'Dauer',
+  Shorter: 'Kürzer',
+  Longer: 'Länger',
+  'Day of the 90-day best': 'Tag der Bestleistung (90 Tage)',
+  'Day of the best {year}': 'Tag der Bestleistung {year}',
+  'Point at a duration for its numbers, tap it for the days.': 'Zeig auf eine Dauer für die Zahlen, tippe sie an für die Tage.',
+  'No calm ride with a power meter on this day.': 'An diesem Tag keine ruhige Fahrt mit Leistungsmesser.',
+  'Point at a day for its numbers, tap it for the day.': 'Zeig auf einen Tag für die Zahlen, tippe ihn an für den Tag.',
 };

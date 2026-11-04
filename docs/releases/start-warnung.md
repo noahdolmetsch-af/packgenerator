@@ -3,7 +3,7 @@
 PR (diese Änderung) · 04.11.2026 · Auftrag: Noah «Test-Plan 4 1 2», Punkt 1 (Thread «Prüfen: Warum die Tests langsam sind»)
 
 ## Was ist neu
-- Ab 90 % der Start-Grenze (aktuell 4.6 MB JavaScript, 90 % sind 4.14 MB) zeigt jeder Aufbau eine gelbe Notiz «Start-Grenze fast erreicht» mit der Prozentzahl, auf der Prüfung «build» und in der Zusammenfassung des Laufs.
+- Ab 90 % der Start-Grenze (aktuell 5.0 MB JavaScript, 90 % sind 4.5 MB) zeigt jeder Aufbau eine gelbe Notiz «Start-Grenze fast erreicht» mit der Prozentzahl, auf der Prüfung «build» und in der Zusammenfassung des Laufs.
 - Die Prüfung wird davon nie rot. Rot wird sie weiter erst über der Grenze selbst.
 - So entscheidet Noah vorher (Texte hinter `import()` verschieben oder die Grenze mit Begründung anheben), bevor der nächste PR abbricht wie bei #798.
 - In der App ändert sich nichts.

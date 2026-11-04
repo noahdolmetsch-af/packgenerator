@@ -46,7 +46,7 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
 
   // TR7d form: three lines, the legend with today's numbers, the calm caption
   // UI-Test T3 (G3-01, changed on purpose): one word «Müdigkeit», and the sum in words adds up
-  await expect(card('form').getByRole('img')).toHaveAttribute('aria-label', /^Heute Fitness \d+, Müdigkeit \d+, Form [+-]?\d+; 16 Wochen$/);
+  await expect(card('form').locator('[data-plot]')).toHaveAttribute('aria-label', /^Heute Fitness \d+, Müdigkeit \d+, Form [+-]?\d+; 16 Wochen$/);
   await expect(card('form')).toContainText(/Fitness \d+ \(Mittel 42 Tage\)/);
   await expect(card('form')).toContainText(/Müdigkeit \d+ \(Mittel 7 Tage\)/);
   await expect(card('form')).toContainText(/Form [+-]?\d+ \(Fitness – Müdigkeit\)/);
@@ -54,17 +54,36 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   expect(sum).not.toBeNull();
   expect(Number(sum[1])).toBe(Number(sum[2]) - Number(sum[3]));
   await expect(card('form')).toContainText('Form über null = eher ausgeruht');
-  await expect(card('form').locator('svg text', { hasText: /^KW \d+$/ })).toHaveCount(4);
+  await expect(card('form').locator('.xs span', { hasText: /^KW \d+$/ })).toHaveCount(4);
+  await expect(card('form').locator('[data-line]')).toHaveCount(3);
+  // «Diagramme zum Antippen»: the numbers of a week when pointing, the week behind a tap, the table
+  await card('form').locator('[data-plot]').focus();
+  await page.keyboard.press('End');
+  await expect(card('form').locator('[data-readout]')).toContainText(/Fitness\s*\d+/);
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-form-sheet]')).toContainText('Müdigkeit');
+  await page.keyboard.press('Escape');
+  await card('form').getByRole('button', { name: 'Als Tabelle' }).click();
+  await expect(card('form').locator('[data-chart-table] tbody tr')).toHaveCount(14);
+  await card('form').getByRole('button', { name: 'Diagramm' }).click();
   // load per week: 16 weeks, this week lighter
   await expect(card('wload')).toContainText('Hell = diese Woche bis heute.');
-  await expect(card('wload').locator('rect.now')).toHaveCount(1);
+  await expect(card('wload').locator('[data-plot]')).toHaveAttribute('data-n', '16');
+  await card('wload').locator('[data-plot]').focus();
+  await page.keyboard.press('End');
+  await expect(card('wload').locator('[data-readout]')).toContainText('Belastung');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-wload-sheet]')).toContainText('Aktivitäten');
+  await page.keyboard.press('Escape');
   // power curve: 90 days against the year
   await expect(card('pcurve')).toContainText('beste der letzten 90 Tage');
   await expect(card('pcurve')).toContainText(`beste ${zurichToday().slice(0, 4)}`);
   await expect(card('pcurve')).toContainText(/20 Min(: \d+ W in 90 Tagen, \d+ W im Jahr \(\w+\)| gleich: \d+ W| fast gleich: \d+ \/ \d+ W)\./);
   // efficiency: calm rides and a trend
-  await expect(card('eff').locator('circle').first()).toBeVisible();
-  expect(await card('eff').locator('circle').count()).toBeGreaterThanOrEqual(4);
+  await expect(card('eff').locator('[data-point]').first()).toBeVisible();
+  expect(await card('eff').locator('[data-point]').count()).toBeGreaterThanOrEqual(4);
+  await expect(card('eff').locator('[data-line="trend"]')).toHaveCount(1);
+  await expect(card('pcurve').locator('[data-line]')).toHaveCount(2);
   await expect(card('eff')).toContainText(/Heute \d+[.,]\d\d W pro Schlag|heute \d+[.,]\d\d, im/);
   await expect(card('eff')).toContainText('Nur Fahrten mit Leistungsmesser und Puls.');
   // month against month: last full month against the one before, then another one chosen
