@@ -76,3 +76,10 @@ export function hillPath(pts, base) {
   const line = smoothPath(pts);
   return line ? `${line} L${pts.at(-1).x.toFixed(2)},${base} L${pts[0].x.toFixed(2)},${base} Z` : null;
 }
+
+/** Map day → activities of that day (what plannedByDay needs to see what is done). */
+export function actsByDayOf(acts = []) {
+  const m = new Map();
+  for (const a of acts) if (a?.day) m.set(a.day, [...(m.get(a.day) ?? []), a]);
+  return m;
+}
