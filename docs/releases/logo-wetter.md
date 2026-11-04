@@ -18,7 +18,7 @@ Baut auf der Zufallswahl `src/lib/logo/surprises.js` (H6) auf.
 - Länger als 1,5 Sekunden wartet das Logo nicht auf die Vorhersage, dann sagt es «Kein Wetter geladen.»
 - Die Wolke zeigt keine Bewölkung (die Vorhersage kennt nur Regenwahrscheinlichkeit und Temperatur), nur Sonne, Regen oder Schnee.
 - Nicht abschaltbar und nicht im Funktionskatalog (wie das Velo: ein Geheimnis). Verraten nur im «Neu»-Eintrag.
-- `docs/app-stand.md` steht noch nicht auf `main` (PR #742 offen). Die Zeile kommt, sobald es gemerged ist.
+- Keine Zeile in `docs/app-stand.md`: keine neue Seite und keine neue Funktion mit Link.
 
 ## Entscheide (für decisions.md)
 - keine neuen.
