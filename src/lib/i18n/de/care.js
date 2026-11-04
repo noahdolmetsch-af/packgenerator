@@ -96,4 +96,7 @@ export default {
   'The noise came back: let the bike shop check bottom bracket, headset and the rear linkage.': 'Das Geräusch ist zurück: Tretlager, Steuersatz und Hinterbau in der Werkstatt prüfen lassen.',
   'Ask the bike shop.': 'Die Werkstatt fragen.',
   'This came back: ask the bike shop for a lasting fix.': 'Das kam wieder: die Werkstatt nach einer dauerhaften Lösung fragen.',
+  // «Velos-Pflege einbauen» (Noah 03.11.2026 «4a»): what is at home for a due part
+  'At home: {list}': 'Im Vorrat: {list}',
+  '{name} used up': '{name} aufgebraucht',
 };

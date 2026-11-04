@@ -210,6 +210,15 @@ export function stockRow(row, bikes) {
   const left = Math.max(0, (Number(row.qty) || 0) - used);
   return { ...row, used, left, empty: left === 0 };
 }
+/**
+ * The stock rows that follow a part (pads: front and rear count as one): [{ name, left }]. Nothing when no row follows it,
+ * so a part without stock row says nothing. rows: stockRow results.
+ */
+export function stockHint(rows = [], part) {
+  if (!part) return [];
+  const group = part === 'padsF' || part === 'padsR' ? ['padsF', 'padsR'] : [part];
+  return rows.filter((r) => group.includes(r.part)).map((r) => ({ name: r.name, left: r.left }));
+}
 export const addStock = (list, { name, part = null, qty = 1 }, id, day) => (clean(name, 60) ? [...list, { id, name: clean(name, 60), part: STOCK_PARTS.includes(part) ? part : null, qty: Math.max(0, Math.round(Number(qty) || 0)), since: day }] : list);
 /** A new count (or name, or part): the count starts again from today. */
 export function changeStock(list, id, patch, day) {
