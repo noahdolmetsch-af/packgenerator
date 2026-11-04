@@ -14,6 +14,7 @@
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import FormVerlauf from '../../lib/flow/form/FormVerlauf.svelte';
   import FormLandschaft from '../../lib/flow/form/FormLandschaft.svelte';
+  import FormWasWaere from '../../lib/flow/form/FormWasWaere.svelte';
   import FormTeile from '../../lib/flow/form/FormTeile.svelte';
   import FormTour from '../../lib/flow/form/FormTour.svelte';
   import { formQuery } from '../../lib/form-data.js';
@@ -84,6 +85,13 @@
     <Sec id="land-h" title={t('Load landscape')} sub={t('past days and planned sessions · hills or curves')}>
       <div class="card chart" data-form-landscape>
         <FormLandschaft {f} {today} />
+      </div>
+    </Sec>
+
+    <!-- «Was wäre, wenn …» (Noah 03.11.2026, Cockpit-Idee 2): pause, short or long session, a model with a range -->
+    <Sec id="whatif-h" title={t('What if …')} sub={t('a pause, a short or a long session · a model with a range')}>
+      <div class="card chart" data-form-whatif>
+        <FormWasWaere {f} {today} />
       </div>
     </Sec>
 
