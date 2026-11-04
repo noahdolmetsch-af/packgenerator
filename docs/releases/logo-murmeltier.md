@@ -18,7 +18,7 @@ Baut auf «Velo-Weisheit» (H6, mit der Zufallswahl `surprises.js`) und «Ein Mu
 - Der Schalter «Das Murmeltier» gilt auch hier (wer das Murmeltier abgeschaltet hat, will es auch hinter dem Logo nicht).
 - Nachts schläft das Murmeltier statt zu gähnen: dafür gibt es den Zustand schon, eine zweite Zeichnung ist unnötig.
 - Die E2E-Tests legen den Zufall über `tests/e2e/logo-helpers.js` fest (nach Id, nicht nach Reihenfolge), damit weitere Überraschungen sie nicht stören.
-- `docs/app-stand.md` steht noch nicht auf `main` (PR #742 offen). Die Zeile kommt, sobald es gemerged ist.
+- Keine Zeile in `docs/app-stand.md`: keine neue Seite und keine neue Funktion mit Link.
 
 ## Entscheide (für decisions.md)
 - keine neuen.
