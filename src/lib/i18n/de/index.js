@@ -130,6 +130,7 @@ import abfragen from './abfragen.js';
 // «Geheimnis im Logo» (Idee 29) and «Geheimmenü» (H6 …): the surprises behind five taps on «PG»
 import logogeheimnis from './logo-geheimnis.js';
 import logosprueche from './logo-sprueche.js';
+import logoplatten from './logo-platten.js';
 
 // FE1, FE13, FE14, FE16: Daumen-Zone, Farbe nie allein, «?» an Ort und Stelle, passende Handy-Tastatur
 import daumen from './daumen.js';
@@ -803,6 +804,7 @@ const ORDERED = [
   abfragen,
   logogeheimnis,
   logosprueche,
+  logoplatten,
   daumen,
   hg1,
   runden,

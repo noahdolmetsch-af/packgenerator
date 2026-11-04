@@ -15,7 +15,7 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice } from '../lib/booking/model.js';
+  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
   import { rememberCustomer, listCustomers, rateOf } from '../lib/booking/customers.js';
@@ -183,7 +183,22 @@
     if (decision === 'confirm') await rememberCustomer(b);
     await loadBookings();
   }
-  const tellText = (s) => t('{title} on {when} is cancelled. Sorry! You can book another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+  /* rain or other reasons (Noah 04.11.2026 «1a»): the message offers free times Noah picks; nothing is sent here */
+  const alternativesOf = (s) => (mine ? freeAlternatives(mine.offer, bookings ?? [], s.id, s.at > nowAt() ? s.at : nowAt(), 5) : []);
+  let unpicked = $state([]); // ids of offered times Noah unticked (the first three start ticked)
+  let pickedMore = $state([]); // ids of the 4th and 5th time Noah ticked
+  const tickedAlts = (s) => alternativesOf(s).filter((a, i) => (i < 3 ? !unpicked.includes(a.id) : pickedMore.includes(a.id)));
+  function flipAlt(a, i) {
+    if (i < 3) unpicked = unpicked.includes(a.id) ? unpicked.filter((x) => x !== a.id) : [...unpicked, a.id];
+    else pickedMore = pickedMore.includes(a.id) ? pickedMore.filter((x) => x !== a.id) : [...pickedMore, a.id];
+  }
+  const tellText = (s) => {
+    const alts = tickedAlts(s);
+    const base = t('{title} on {when} is cancelled. Sorry! You can book another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+    return alts.length ? `${base} ${t('Free times:')} ${alts.map((a) => fmtAt(a.at)).join('; ')}.` : base;
+  };
+  const tellSubject = (s) => t('Cancelled: {title}, {when}', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+  const mailHref = (b, s) => (/@/.test(b.contact ?? '') ? contactHref(b.contact, tellText(s)) : null);
   const helloText = (s) => t('About {title} on {when}:', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
   let askCancel = $state(false);
   async function dropSlot() {
@@ -383,14 +398,28 @@
   {#if slotOpen}
     {@const s = slotOpen}
     {@const ty = typeOf(o, s)}
-    <dialog class="sheet from-below of-sheet" bind:this={slotDlg} use:backClose={() => slotDlg.close()} onclose={() => ((slotOpen = null), (told = null), (askCancel = false), (replied = null))} aria-labelledby="of-slot-h">
+    <dialog class="sheet from-below of-sheet" bind:this={slotDlg} use:backClose={() => slotDlg.close()} onclose={() => ((slotOpen = null), (told = null), (askCancel = false), (replied = null), (unpicked = []), (pickedMore = []))} aria-labelledby="of-slot-h">
       <div class="of-sh"><h2 id="of-slot-h">{fmtAt(s.at)} · {ty.label}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => slotDlg.close()}><X size={20} aria-hidden="true" /></button></div>
       {#if told}
         <p>{tn(told.people.length, 'The time is cancelled. Tell {n} person:', 'The time is cancelled. Tell {n} people:')}</p>
+        {#if alternativesOf(s).length}
+          <h3 class="of-rq">{t('Which free times do you offer?')}</h3>
+          <ul class="of-list" data-alts>
+            {#each alternativesOf(s) as a, i (a.id)}
+              <li class="of-pp"><label class="of-pick"><input type="checkbox" checked={i < 3 ? !unpicked.includes(a.id) : pickedMore.includes(a.id)} onchange={() => flipAlt(a, i)} /><span>{fmtAt(a.at)}<small>{typeOf(o, a).label}</small></span></label></li>
+            {/each}
+          </ul>
+          <p class="muted">{t('These are the next free times of this offer.')}</p>
+        {/if}
+        <p class="of-note" data-tell-text>{tellText(s)}</p>
+        {#if mailToAll(told.people.map((b) => b.contact), tellSubject(s), tellText(s))}
+          <div class="of-foot"><a class="btn hi" data-mail-all href={mailToAll(told.people.map((b) => b.contact), tellSubject(s), tellText(s))}>{t('One e-mail to everyone')}</a></div>
+          <p class="muted">{t('Everyone is in «bcc»: nobody sees the others.')}</p>
+        {/if}
         <ul class="of-list">
           {#each told.people as b (b.id)}
             {@const href = contactHref(b.contact, tellText(s))}
-            <li class="of-pp"><span>{b.name}<small>{b.contact}</small></span>{#if href}<a class="btn sm" {href}>{t('Write')}</a>{/if}</li>
+            <li class="of-pp"><span>{b.name}<small>{b.contact}</small></span>{#if href}<a class="btn sm" {href}>{mailHref(b, s) ? t('By e-mail') : t('By SMS')}</a>{/if}</li>
           {/each}
         </ul>
         <div class="of-foot"><button type="button" class="btn hi" onclick={() => slotDlg.close()}>{t('Done')}</button></div>

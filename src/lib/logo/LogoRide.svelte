@@ -13,14 +13,36 @@
   import { pickSaying, sayingText, sayingsOffered } from './sayings.js';
   import { unlockLogo } from './logo.svelte.js';
   import LogoSaying from './LogoSaying.svelte';
+  import LogoFlat from './LogoFlat.svelte';
 
-  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | null
+  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | 'flat' | null
   let saying = $state(''); // the text of the saying on screen
   let fresh = $state(false); // the secret was found for the first time: the logo changes (Idee 30)
   let last = null; // the one before, so it never repeats
   let lastSaying = null; // the saying before, so it never repeats either
   let timer;
   const counter = makeTapCounter();
+
+  // «Platten im Logo» (H8): the mark loses its air and is pumped up again. Not with «reduce motion»: then only the bubble.
+  function flatTyre(mark) {
+    if (!mark?.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    mark.style.transformOrigin = '50% 100%';
+    const flat = 'scale(1.18, 0.42)';
+    const a = mark.animate(
+      [
+        { transform: 'scale(1)', offset: 0 },
+        { transform: flat, offset: 0.14 },
+        { transform: flat, offset: 0.55 },
+        { transform: 'scale(1.06, 0.62)', offset: 0.63 },
+        { transform: 'scale(1.14, 0.5)', offset: 0.7 },
+        { transform: 'scale(1.03, 0.8)', offset: 0.78 },
+        { transform: 'scale(1.08, 0.7)', offset: 0.84 },
+        { transform: 'scale(1)', offset: 1 },
+      ],
+      { duration: 3600, easing: 'ease-in-out' },
+    );
+    a.onfinish = a.oncancel = () => (mark.style.transformOrigin = '');
+  }
 
   function onClick(e) {
     if (kind || !e.target?.closest?.('.brand .mark, .logo .mark')) return;
@@ -34,7 +56,8 @@
       saying = sayingText(id, t);
     }
     clearTimeout(timer);
-    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : 3200);
+    if (kind === 'flat') flatTyre(e.target.closest('.mark'));
+    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : kind === 'flat' ? 4200 : 3200);
   }
 
   onMount(() => {
@@ -48,6 +71,8 @@
 
 {#if kind === 'saying'}
   <LogoSaying text={saying} note={fresh ? t('New logo found: the bike sign. Change it in Me › Appearance.') : ''} />
+{:else if kind === 'flat'}
+  <LogoFlat note={fresh ? t('New logo found: the bike sign. Change it in Me › Appearance.') : ''} />
 {:else if kind === 'bike'}
   <div class="pg-ride" role="status" data-logo-ride>
     <svg viewBox="0 0 84 52" width="84" height="52" aria-hidden="true">
