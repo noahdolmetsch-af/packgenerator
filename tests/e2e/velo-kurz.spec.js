@@ -32,7 +32,7 @@ test('Velo kurz: three rows, Import rides, More as rows', async ({ page, context
   await expect(rows.nth(3)).toContainText(T('Equipment|tab'));
   await expect(page.getByRole('button', { name: T('Edit mounts') })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Bags'), exact: true })).toBeVisible();
-  const imp = page.getByRole('link', { name: new RegExp(T('Import rides')) });
+  const imp = page.getByRole('link', { name: new RegExp(T('Import rides')) }).and(page.locator(':not([data-all-here-tile])')); // the bike card's row, not the tile in «Alles hier»
   await expect(imp).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 
