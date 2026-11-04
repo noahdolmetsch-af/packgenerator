@@ -1,5 +1,7 @@
 // «Wegweiser statt Katalog» PR 20: «Gut zu wissen» im Bereich App (src/lib/wissen/app.js).
 export default {
+  'One tap is enough, and «Not now» is fine too. After a few tours the pattern says more than any single answer.':
+    'Ein Tipp reicht, und «Jetzt nicht» ist auch in Ordnung. Nach ein paar Touren sagt das Muster mehr als jede einzelne Antwort.',
   'Fewer categories pack faster. If one has only two things in it, move them and delete it: Undo is there if you miss it.':
     'Weniger Kategorien packen schneller. Hat eine nur zwei Dinge, verschieb sie und lösch die Kategorie: Rückgängig ist da, falls sie dir fehlt.',
   'Deleting never takes the contents with it: the app asks where things go. So clean up without fear, the bike keeps its trips.':
