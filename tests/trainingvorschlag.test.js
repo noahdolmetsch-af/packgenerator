@@ -135,3 +135,32 @@ describe('weather in the suggestion (3b)', () => {
     expect(suggestWeek({ ...base, wx: {} })).toEqual(suggestWeek(base));
   });
 });
+
+describe('goal per sport (3c)', () => {
+  const acts = [
+    { id: 'yoga', name: 'Yoga', ring: 'move', order: 1, goals: [{ count: 1, days: 7 }] },
+    { id: 'swim', name: 'Swimming', ring: 'move', order: 2, goals: [] },
+  ];
+  it('lists every sport as a candidate, with 0 for none', async () => {
+    const { candidateSports } = await import('../src/lib/training/suggest.js');
+    expect(candidateSports(acts, MON).map((c) => [c.id, c.perWeek])).toEqual([['yoga', 1], ['swim', 0]]);
+  });
+  it('lets the number set in the suggestion win over the goal in Aktiv', () => {
+    expect(weeklySports(acts, MON).map((s) => s.id)).toEqual(['yoga']);
+    expect(weeklySports(acts, MON, { yoga: 0, swim: 2 }).map((s) => [s.id, s.perWeek])).toEqual([['swim', 2]]);
+    expect(weeklySports(acts, MON, { yoga: 9 })[0].perWeek).toBe(3);
+  });
+  it('gives a sport set here a place before sports that only have a goal in Aktiv', () => {
+    const many = ['a', 'b', 'c', 'd'].map((id, i) => ({ id, name: id, ring: 'move', order: i, goals: [{ count: 1, days: 7 }] }));
+    many.push({ id: 'z', name: 'Z', ring: 'move', order: 9, goals: [] });
+    expect(weeklySports(many, MON).map((s) => s.id)).toEqual(['a', 'b', 'c']);
+    expect(weeklySports(many, MON, { z: 1 }).map((s) => s.id)).toEqual(['z', 'a', 'b']);
+  });
+});
+
+describe('one session of a wanted sport stays (3c)', () => {
+  it('keeps a long sport session even when it is over a third of a short week', () => {
+    const r = suggestWeek({ ...base, goal: { hours: 3, base: 80 }, sports: [{ id: 'rowing', name: 'Rowing', mins: 120, perWeek: 1 }] });
+    expect(r.sessions.filter((s) => s.sport === 'rowing').length).toBe(1);
+  });
+});

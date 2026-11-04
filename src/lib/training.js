@@ -241,6 +241,13 @@ export function cleanDayLimits(v) {
   if (v && typeof v === 'object') for (const [k, m] of Object.entries(v)) if (/^[0-6]$/.test(k) && Number.isFinite(+m) && +m >= 0 && +m <= 600) out[k] = Math.round(+m);
   return out;
 }
+export const SPORTGOALS_KEY = 'training.sportgoals'; // { [sport id]: times per week 0–3 }, set in the week suggestion
+/** Goals per sport as stored: ids with a whole number 0–3. */
+export function cleanSportGoals(v) {
+  const out = {};
+  if (v && typeof v === 'object') for (const [k, n] of Object.entries(v)) if (k && k.length <= 80 && Number.isInteger(n) && n >= 0 && n <= 3) out[k] = n;
+  return out;
+}
 export const PLAN_KEY = 'training.plan'; // { sessions: [{ id, day, kind, name, mins, zone }] }
 export const GOAL_KEY = 'training.goal'; // { name, hours, base, until } or null
 export const PLAN_KEEP_DAYS = 120;
