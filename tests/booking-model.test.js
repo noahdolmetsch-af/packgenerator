@@ -1,6 +1,6 @@
 // Termine buchen (BU1–BU5): the shared rules of the app pages and the booking page.
 import { describe, it, expect } from 'vitest';
-import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../src/lib/booking/model.js';
+import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf } from '../src/lib/booking/model.js';
 import { cleanOffer } from '../api/_lib/booking.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
@@ -96,5 +96,16 @@ describe('the invoice of a booking', () => {
   it('writes one e-mail to all, everyone in bcc; phone numbers are left out', () => {
     expect(mailToAll(['mia@example.test', '079 000 00 00', 'ben@example.test', 'mia@example.test'], 'Abgesagt', 'Hallo äö')).toBe('mailto:?bcc=mia@example.test,ben@example.test&subject=Abgesagt&body=Hallo%20%C3%A4%C3%B6');
     expect(mailToAll(['079 000 00 00'], 'x', 'y')).toBeNull();
+  });
+  it('reminds about held lessons today (still ahead) and tomorrow only', () => {
+    const bookings = [
+      { id: 'a', at: '2026-11-22T09:00' },
+      { id: 'b', at: '2026-11-22T18:00' },
+      { id: 'c', at: '2026-11-23T08:00', status: 'confirmed' },
+      { id: 'd', at: '2026-11-23T09:00', status: 'requested' },
+      { id: 'e', at: '2026-11-23T10:00', status: 'declined' },
+      { id: 'f', at: '2026-11-24T08:00' },
+    ];
+    expect(remindersOf(bookings, '2026-11-22T12:00').map((b) => b.id)).toEqual(['b', 'c']);
   });
 });
