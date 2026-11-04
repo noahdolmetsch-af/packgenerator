@@ -11,10 +11,12 @@
   import { makeTapCounter } from './taps.js';
   import { SURPRISES, pickSurprise } from './surprises.js';
   import { pickSaying, sayingText, sayingsOffered } from './sayings.js';
+  import { unlockLogo } from './logo.svelte.js';
   import LogoSaying from './LogoSaying.svelte';
 
   let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | null
   let saying = $state(''); // the text of the saying on screen
+  let fresh = $state(false); // the secret was found for the first time: the logo changes (Idee 30)
   let last = null; // the one before, so it never repeats
   let lastSaying = null; // the saying before, so it never repeats either
   let timer;
@@ -23,6 +25,7 @@
   function onClick(e) {
     if (kind || !e.target?.closest?.('.brand .mark, .logo .mark')) return;
     if (!counter(performance.now())) return;
+    fresh = unlockLogo(); // «Das Logo zieht sich der Jahreszeit an» (Idee 30): the first find turns the logo into the bike sign
     // the sayings only count while at least one is left (the person may have hidden them all in «Listen und Typen»)
     const id = pickSaying(sayingsOffered(), lastSaying);
     kind = last = pickSurprise(id ? SURPRISES : SURPRISES.filter((s) => s !== 'saying'), last);
@@ -44,7 +47,7 @@
 </script>
 
 {#if kind === 'saying'}
-  <LogoSaying text={saying} />
+  <LogoSaying text={saying} note={fresh ? t('New logo found: the bike sign. Change it in Me › Appearance.') : ''} />
 {:else if kind === 'bike'}
   <div class="pg-ride" role="status" data-logo-ride>
     <svg viewBox="0 0 84 52" width="84" height="52" aria-hidden="true">
@@ -58,7 +61,7 @@
       </g>
       <path class="frame" d="M16 36H36L30 18ZM30 18H56L36 36M56 18L66 36M56 18L59 11H66M30 18L28 13M24 13H33" />
     </svg>
-    <span class="say">{t('Have a good ride!')}</span>
+    <span class="say">{t('Have a good ride!')}{#if fresh}<small>{t('New logo found: the bike sign. Change it in Me › Appearance.')}</small>{/if}</span>
   </div>
 {/if}
 
@@ -73,7 +76,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 12px 6px 6px;
-    border-radius: 999px;
+    border-radius: 24px;
     background: var(--paper);
     color: var(--accent);
     box-shadow: 0 2px 12px var(--shadow);
@@ -90,10 +93,15 @@
     stroke-width: 1;
   }
   .say {
+    display: grid;
     font-size: var(--fs-small);
     font-weight: 600;
     color: var(--ink);
-    white-space: nowrap;
+  }
+  .say small {
+    max-width: 190px;
+    font-weight: 400;
+    color: var(--ink-2);
   }
   @media (prefers-reduced-motion: no-preference) {
     .pg-ride {

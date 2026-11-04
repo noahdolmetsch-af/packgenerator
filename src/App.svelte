@@ -10,6 +10,7 @@
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
   import LogoRide from './lib/logo/LogoRide.svelte'; // «Geheimnis im Logo» (Idee 29)
+  import LogoMark from './lib/logo/LogoMark.svelte'; // «Jahreszeit» (Idee 30)
   import TourHost from './lib/tour/TourHost.svelte';
   import TourStart from './lib/tour/TourStart.svelte';
   import QuickNote from './lib/QuickNote.svelte';
@@ -489,7 +490,7 @@
   <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={!guest} onnew={() => (newMode = 'all')} />
 {:else}
   <header class="top">
-    {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true">PG</span><span class="long">Pack Generator</span></a>{/if}
+    {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true"><LogoMark /></span><span class="long">Pack Generator</span></a>{/if}
     <div class="tools">
       <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
       <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
@@ -941,6 +942,7 @@
     text-decoration: none;
   }
   .top .mark {
+    position: relative; /* the season drawing of «PG» (Idee 30) sits in its corner */
     display: grid;
     place-items: center;
     width: 32px;
