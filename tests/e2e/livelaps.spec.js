@@ -116,6 +116,11 @@ test('Sample race: a turn hint before the turn and against your last ride', asyn
   const p0 = pointAt(pts, startKm);
   await context.setGeolocation({ latitude: p0.lat, longitude: p0.lon, accuracy: 6 });
   await page.goto('./#/live/race-sample');
+  // before the start: who do you ride against (the earlier ride, or none)
+  const pick = page.locator('[data-live-ghostpick]');
+  await expect(pick).toBeVisible();
+  await expect(pick.locator('[data-ghost-opt]')).toHaveCount(2);
+  await expect(pick.locator('input:checked')).toHaveAttribute('data-ghost-opt', 'rec-test_data_gtp_past');
   await tap(page.locator('[data-live-start]'), info);
   await expect(page.locator('[data-live-full]')).toBeVisible();
   // 200 m before the turn: the arrow with the distance
@@ -132,6 +137,11 @@ test('Sample race: a turn hint before the turn and against your last ride', asyn
   await sheetFull(page, info);
   const ghost = page.locator('[data-live-sheet] [data-live-ghost]');
   await expect(ghost).toBeAttached({ timeout: 10_000 });
-  await expect(ghost).toContainText(T('Against your last ride'));
+  await expect(ghost).toContainText(T('Against your ghost'));
+  await expect(ghost.locator('b')).toHaveText(/^[+−±]\d+:\d\d$/);
+  // ride without the ghost, and back
+  await ghost.locator('[data-live-ghost-pick]').selectOption({ label: T('Without a ghost') });
+  await expect(ghost.locator('b')).toHaveCount(0);
+  await ghost.locator('[data-live-ghost-pick]').selectOption({ index: 0 });
   await expect(ghost.locator('b')).toHaveText(/^[+−±]\d+:\d\d$/);
 });
