@@ -1,0 +1,23 @@
+// «Warum zählt das?» in Neuland (Entdecken und Sammeln, Noah 04.11.2026 «1a 2a 3a 4b 5a»)
+export default {
+  'Why does it count?': 'Warum zählt das?',
+  '{n} m': '{n} m',
+  'On {day} your line ({source}) passed {dist} from this place. It counts within {zone}.': 'Am {day} ging deine Linie ({source}) {dist} an diesem Ort vorbei. Es zählt innerhalb von {zone}.',
+  'A clear hit: the line runs close to the place.': 'Ein klarer Treffer: die Linie führt nah am Ort vorbei.',
+  'A close call: the line only just touched the zone. If you were not there, tap «I was not there».': 'Knapp: die Linie hat die Zone nur gestreift. Warst du nicht dort, tippe «Doch nicht da gewesen».',
+  'Only the start of this trip counted, not a full line.': 'Nur der Start dieser Tour zählte, keine ganze Linie.',
+  'the route of a trip': 'die Route einer Tour',
+  'an uploaded ride': 'eine hochgeladene Fahrt',
+  'a Strava ride': 'eine Strava-Fahrt',
+  'a ride recorded in the app': 'eine in der App aufgezeichnete Fahrt',
+  'a line of yours': 'eine Linie von dir',
+  'Map: your line, the place and the closest point, {dist} apart': 'Karte: deine Linie, der Ort und der nächste Punkt, {dist} voneinander entfernt',
+  'Your line': 'Deine Linie',
+  'The place': 'Der Ort',
+  'Closest point': 'Nächster Punkt',
+  'Bar at the bottom: {len}': 'Strich unten: {len}',
+  'Zone where it counts': 'Zone, in der es zählt',
+  'On {day} your route ran through this area.': 'Am {day} führte deine Route durch dieses Gebiet.',
+  'The app did not find it on your routes. It counts because you ticked it.': 'Die App hat es auf deinen Routen nicht gefunden. Es zählt, weil du es angehakt hast.',
+  'The app found it on {day}, but the line is no longer there to show.': 'Die App hat es am {day} gefunden, aber die Linie ist nicht mehr da, um sie zu zeigen.',
+};

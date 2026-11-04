@@ -284,9 +284,9 @@ Ziel 5 Alltag. Fünf Tipps, eine Überraschung nach Zufall, nie dieselbe zweimal
 | # | Idee | Stand |
 |---|---|---|
 | H6 | Velo-Weisheit: ein Spruch in Mundart, änderbar in «Listen und Typen» | online |
-| H2 | Murmeltier streckt den Kopf aus dem Loch und pfeift (nutzt den Baustein aus Idee 28) | gewählt, wartet auf Idee 28 |
+| H2 | Murmeltier streckt den Kopf aus dem Loch und pfeift (nutzt den Baustein aus Idee 28) | gebaut (PR) |
 | H9 | Logo-Wetter: das echte Wetter von jetzt am Logo | gewählt |
-| H8 | Platten im Logo («Zum Glück nur im Logo») | gebaut (PR) |
+| H8 | Platten im Logo («Zum Glück nur im Logo») | online |
 | H7 | Alpenpanorama zieht durchs Bild | gewählt |
 | H1 | Kuhglocken (Ton nur, wenn eingeschaltet) | gewählt |
 | H5 | Pass-Sprint, ein Mini-Spiel | Idee für später |
