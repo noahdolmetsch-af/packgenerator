@@ -24,7 +24,9 @@ export function heavyStatic(text) {
 // Tempo-Budget (Noah 02.11.2026 «3a», thread «App wird langsam»): what a German app reads and compiles before the first
 // screen. Measured 02.11.2026: 3.8 MB JS (German texts 2.75 MB, start 0.61 MB, runtime 0.21 MB) = start 1.1–2.2 s at 4× slower CPU.
 // The budget leaves about 13 % room; going over it needs a reason (and a new number here), not a quiet creep.
-export const MAX_START_JS_BYTES = 4_500_000;
+// 04.11.2026: the start reached 4.50 MB and main could not go online; budget raised to 5.0 MB (Noah's decision, see
+// docs/decisions.md). The reason: the German texts and the app grew with the Cockpit ideas; loading texts per page is the next step.
+export const MAX_START_JS_BYTES = 5_000_000;
 const START_NAME = /^assets\/(main|start|icons|i18n|de|de-texts-\d+|gear|index\.gen|preload-helper|modulepreload-polyfill|stravanames)[-.]/;
 
 /** The bytes of the files that load before the first screen. files: [{ name, bytes }]. */

@@ -26,7 +26,7 @@ describe('size guard', () => {
       { name: 'assets/style.css', bytes: 999 },
     ];
     expect(startBytes(files)).toBe(1310);
-    expect(MAX_START_JS_BYTES).toBe(4_500_000);
+    expect(MAX_START_JS_BYTES).toBe(5_000_000);
   });
   it('tells a static import of a big tool from a dynamic one', () => {
     expect(heavyStatic("import { PDFDocument } from 'pdf-lib';")).toEqual(['pdf-lib']);

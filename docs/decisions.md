@@ -2044,3 +2044,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 03.11.2026 Volle Prüfung nur nachts
 - Noah «2a» (Thread «Prüfen: Warum die Tests langsam sind»): Die «Volle Prüfung» (Browsertests am Handy und am Computer, Gesamttest) läuft nur noch einmal pro Nacht (02:07 UTC) oder von Hand, nicht mehr nach jedem Merge. Grund: Sie belegte nach jedem Merge 9 der 20 GitHub-Rechner zusätzlich und verlängerte die Warteschlange der PRs auf bis zu 47 Minuten. Ein Fehler, der erst nach dem Merge auffällt, zeigt sich so am nächsten Morgen als Meldung «Volle Prüfung: ein Test ist rot»; «zurück» bleibt möglich.
+
+## 04.11.2026 Start-Grenze auf 5,0 MB
+- Noah (Thread «Prüfen: Warum die Tests langsam sind», Karte «Start-Grenze erreicht»): Die Start-Grenze (`MAX_START_JS_BYTES` in `scripts/size-guard.mjs`) steigt von 4,5 auf 5,0 MB. Grund: Der Start lag am 04.11. bei 4,50 MB, `main` konnte nicht mehr online gehen und jeder PR brach beim Bauen ab. Nächster Schritt: «Texte pro Seite laden» planen, damit die Grenze nicht in ein paar Tagen wieder voll ist.
