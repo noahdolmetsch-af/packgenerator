@@ -92,11 +92,11 @@
   }
   .ah-head h2 {
     margin: 0;
-    font-size: 1rem;
+    font-size: var(--fs-body);
   }
   .ah-n {
     color: var(--muted);
-    font-size: 0.875rem;
+    font-size: var(--fs-label);
   }
   .ah-edit {
     margin-left: auto;
@@ -122,7 +122,7 @@
     border-radius: 10px;
     color: var(--ink);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: var(--fs-label);
     line-height: 1.25;
     text-decoration: none;
   }
@@ -133,7 +133,7 @@
   .ah-sub {
     margin: 0 0 8px;
     color: var(--muted);
-    font-size: 0.875rem;
+    font-size: var(--fs-label);
   }
   .ah-list {
     list-style: none;
