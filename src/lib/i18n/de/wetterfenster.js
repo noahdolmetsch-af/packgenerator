@@ -1,0 +1,19 @@
+// «Wetter neu» PR 1 (Noah 04.11.2026 «1a 2a 3a 4b»): rain strip and windows for Landi radar and SRF webcams
+export default {
+  'Rain in the next 24 hours': 'Regen in den nächsten 24 Stunden',
+  'Dry for the next 24 hours.': 'Die nächsten 24 Stunden bleibt es trocken.',
+  'It rains now, until about {to}.': 'Es regnet jetzt, bis etwa {to}.',
+  'It rains now and stays wet for the next 24 hours.': 'Es regnet jetzt und bleibt die nächsten 24 Stunden nass.',
+  'Rain from about {from}.': 'Regen ab etwa {from}.',
+  'Strongest around {at}.': 'Am stärksten gegen {at}.',
+  'From the forecast, hour by hour: {mm} mm in total.': 'Aus der Vorhersage, Stunde für Stunde: zusammen {mm} mm.',
+  'SRF Meteo webcams': 'SRF-Meteo-Webcams',
+  'Where the rain is now and when it comes, for the next hours.': 'Wo es jetzt regnet und wann der Regen kommt, für die nächsten Stunden.',
+  'Live pictures of many places in Switzerland.': 'Live-Bilder von vielen Orten in der Schweiz.',
+  'You are offline right now. The window needs the internet.': 'Du bist gerade offline. Das Fenster braucht Internet.',
+  'This window stays closed on this device. The page opens in a new tab.': 'Dieses Fenster bleibt auf diesem Gerät zu. Die Seite öffnet sich in einem neuen Tab.',
+  'Try the window again': 'Fenster nochmals versuchen',
+  'The window stays empty? Then the site does not allow it.': 'Das Fenster bleibt leer? Dann erlaubt die Seite es nicht.',
+  'Stays empty? Show only the button': 'Bleibt leer? Nur den Knopf zeigen',
+  'Open in a new tab': 'In neuem Tab öffnen',
+};

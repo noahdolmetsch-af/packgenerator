@@ -20,7 +20,7 @@
   import { localDay } from '../lib/localday.js';
   import { searchPlace } from '../lib/weather.js';
   import { compass } from '../lib/toursky.js';
-  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS } from '../lib/wetter/kern.js';
+  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS, SRF_WEBCAMS } from '../lib/wetter/kern.js';
   import { loadClimate, climateFor } from '../lib/wetter/klima.js';
   import { SAID_KEY, noteSaid, hits } from '../lib/wetter/treffer.js';
   import WebcamList from '../lib/wetter/WebcamList.svelte';
@@ -29,6 +29,8 @@
   import LakeChip from '../lib/lake/LakeChip.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
   import AirCard from '../lib/air/AirCard.svelte';
+  import Regen24 from '../lib/wetter/Regen24.svelte'; // «Regen 24 h» (Noah 04.11.2026 «2a»)
+  import FensterBox from '../lib/wetter/FensterBox.svelte'; // Fenster für Landi-Radar und SRF-Webcams (Noah 04.11.2026 «1a», «3a»)
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
@@ -322,6 +324,11 @@
   <!-- «Aktiv neu» (Noah 22.10.2026, spec): the lake temperature, ozone and pollen moved here from the Aktiv start -->
   <LakeCard headingLevel={2} />
   <AirCard headingLevel={2} />
+
+  <!-- Noah 04.11.2026 «1a 2a 3a 4b»: the rain strip and two windows at the bottom, next to the webcams -->
+  <Regen24 {core} {now} />
+  <FensterBox id="landi" title={t('Landi rain radar')} url={LANDI_RADAR} why={t('Where the rain is now and when it comes, for the next hours.')} />
+  <FensterBox id="srf" title={t('SRF Meteo webcams')} url={SRF_WEBCAMS} why={t('Live pictures of many places in Switzerland.')} />
 
   <!-- extra 7: my webcams -->
   <section class="card wx-sec" aria-labelledby="wx-cams" data-wx-cams>
