@@ -17,6 +17,7 @@ import { LISTS_KEY } from '../ownlists.js';
 import { newTodo, tick } from '../merken.js';
 import { t } from '../i18n.svelte.js';
 import { TRELLO_KEY, TODOS_KEY, reconcile, bindIds, opParts, withIds } from '../trello.js';
+import { callWithTimeout, FETCH_LIMIT_MS } from '../ui/connstatus.js';
 
 export const TRELLO_URL = 'https://packgen-three.vercel.app/api/google?svc=trello';
 export const MERKEN_HASH = '#/calendar';
@@ -37,16 +38,17 @@ export async function call(step, { method = 'GET', body = null, key = readKey(),
   if (body) headers['Content-Type'] = 'application/json';
   let res;
   try {
-    res = await doFetch(`${TRELLO_URL}&step=${encodeURIComponent(step)}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
-  } catch {
-    throw new TrelloError('network');
+    // Noah 03.11.2026 «1a»: a call without an answer ends after 60 s
+    res = await callWithTimeout(doFetch, `${TRELLO_URL}&step=${encodeURIComponent(step)}`, { method, headers, body: body ? JSON.stringify(body) : undefined }, 60_000);
+  } catch (err) {
+    throw new TrelloError(err?.code === 'timeout' ? 'timeout' : 'network');
   }
   const data = await res.json().catch(() => null);
   if (!res.ok || !data || data.ok === false) throw new TrelloError(data?.code ?? data?.error ?? 'server_error');
   return data;
 }
 
-export const trello = $state({ loaded: false, busy: false, error: '', justConnected: false, prefs: {} });
+export const trello = $state({ since: 0, loaded: false, busy: false, error: '', justConnected: false, prefs: {} });
 
 if (typeof window !== 'undefined' && typeof indexedDB !== 'undefined') {
   liveQuery(async () => (await appDb.settings.get(TRELLO_KEY))?.value ?? {}).subscribe({
@@ -175,14 +177,18 @@ let running = null;
 /** What the last sync wrote: a change the watcher sees that is only this does not start another sync. */
 let lastWritten = '';
 /** «Jetzt abgleichen»: the board, the merge, the changes to Trello, the result here. True when done. */
-export function syncNow({ db = appDb, c = call, todosName } = {}) {
+export function syncNow({ db = appDb, c = call, todosName, limitMs = FETCH_LIMIT_MS, clock = () => Date.now() } = {}) {
   if (running) return running;
   running = (async () => {
     trello.busy = true;
     trello.error = '';
+    const startedAt = clock();
+    trello.since = startedAt;
     try {
       await db.meta.put({ key: TRY_KEY, at: new Date().toISOString() });
       const snap = await c('board');
+      // Noah 03.11.2026 «1a»: when reading the board took over 2 minutes, nothing is written to Trello this time
+      if (clock() - startedAt > limitMs) throw new TrelloError('timeout');
       const before = {
         todos: (await db.settings.get(MERKEN_KEY))?.value ?? [],
         lists: (await db.settings.get(LISTS_KEY))?.value ?? [],

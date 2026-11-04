@@ -80,3 +80,27 @@ describe('Google Kalender und Aufgaben', () => {
     expect((await db.gEvents.toArray()).map((e) => e.id)).toEqual(['old']);
   });
 });
+
+describe('Trello', () => {
+  it('a call without an answer ends with code timeout', async () => {
+    const { call } = await import('../src/lib/trello/client.svelte.js');
+    const hang = (_u, init) => new Promise((_ok, no) => init.signal.addEventListener('abort', () => no(new Error('aborted'))));
+    vi.useFakeTimers();
+    const p = call('board', { key: 'k', doFetch: hang });
+    const check = expect(p).rejects.toMatchObject({ code: 'timeout' });
+    await vi.advanceTimersByTimeAsync(61_000);
+    await check;
+    vi.useRealTimers();
+  });
+  it('a slow board read ends the sync before anything is written to Trello', async () => {
+    const { syncNow, trello } = await import('../src/lib/trello/client.svelte.js');
+    const db = createDb(`tr-${Math.random()}`);
+    const steps = [];
+    const c = async (step) => (steps.push(step), { board: { id: 'b'.repeat(24), name: 'Packgenerator' }, lists: [], cards: [] });
+    let tick = 0;
+    const ok = await syncNow({ db, c, clock: () => tick++ * 130_000 });
+    expect(ok).toBe(false);
+    expect(trello.error).toBe('timeout');
+    expect(steps).toEqual(['board']);
+  });
+});
