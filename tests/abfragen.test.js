@@ -8,7 +8,7 @@ import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, MERGED_INTO, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
   everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, skipToday, quietToday, isQuiet, dayEnd, eveningEve, QUIET_KEY, QUIET_ROUND, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
-  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY,
+  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY, roundQuestions,
 } from '../src/lib/abfragen.js';
 import { redirectOf, pageOf, CHECK_PAGES } from '../src/lib/nav.js';
 import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP } from '../src/lib/abauswertung.js';
@@ -506,5 +506,31 @@ describe('perDay', () => {
     expect(perDay(three)).toBe(base + 3);
     const off = setOn(three, three.own[0].id, false, `${D0}T11:00`);
     expect(perDay(off)).toBe(base);
+  });
+});
+
+// Noah 04.11.2026 «ein Fragebogen»: the page of a round asks the questions of the window
+describe('roundQuestions', () => {
+  const day = '2026-11-04';
+  it('the morning page asks the morning round, the evening page the evening round', () => {
+    const morning = roundQuestions(null, 'morning', day).map((d) => d.q.id);
+    const evening = roundQuestions(null, 'evening', day).map((d) => d.q.id);
+    expect(morning).toEqual(expect.arrayContaining(['erholung.schlaf', 'erholung.akku', 'ziele.ziel']));
+    expect(evening).toEqual(expect.arrayContaining(['erreicht.zufrieden', 'spass.stimmung'])); // the mood asks at 13:00, which is the evening round
+    expect(morning).not.toContain('spass.stimmung');
+    expect(morning).not.toContain('erreicht.zufrieden');
+    expect(evening).not.toContain('erholung.schlaf');
+  });
+  it('a question switched off is not asked; its slot is the round time of today', () => {
+    const off = setOn(null, 'erholung.akku', false, `${day}T06:00`);
+    const list = roundQuestions(off, 'morning', day);
+    expect(list.map((d) => d.q.id)).not.toContain('erholung.akku');
+    expect(list.find((d) => d.q.id === 'erholung.schlaf').slot).toBe(`${day}T07:00`);
+  });
+  it('a weekly question comes only on its day', () => {
+    const weekly = putOwn(null, newOwn({ text: 'Wöchentlich', form: { kind: 'scale' }, every: { kind: 'weekly', dow: 3, time: '07:00' } }, new Date(Date.UTC(2026, 10, 1))), `${day}T06:00`);
+    const id = weekly.own[0].id;
+    expect(roundQuestions(weekly, 'morning', '2026-11-04').map((d) => d.q.id)).toContain(id); // 04.11.2026 is a Wednesday
+    expect(roundQuestions(weekly, 'morning', '2026-11-05').map((d) => d.q.id)).not.toContain(id);
   });
 });

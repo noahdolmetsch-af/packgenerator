@@ -63,4 +63,10 @@ export default {
   'No Fitbit values for last night yet. They often come a little later.': 'Noch keine Fitbit-Werte für letzte Nacht. Sie kommen oft etwas später.',
   'Connect Fitbit once and your sleep, resting pulse and HRV show here.': 'Verbinde Fitbit einmal, dann stehen hier Schlaf, Ruhepuls und HRV.',
   'Steps and active zone minutes show here once Fitbit is connected.': 'Schritte und Aktivzonen-Minuten stehen hier, sobald Fitbit verbunden ist.',
+  // Noah 04.11.2026 «ein Fragebogen»
+  'Adjust your questions': 'Fragen anpassen',
+  'Now under Your questions': 'Jetzt unter Deine Fragen',
+  'sleep, battery, mood, goal': 'Schlaf, Akku, Stimmung, Ziel',
+  'Questions 1–5 and 7 are asked like the questions in the window: on, off and when you decide under Me › Your questions.': 'Die Fragen 1–5 und 7 werden wie die Fragen im Fenster gestellt: ob und wann, bestimmst du unter Ich › Deine Fragen.',
+  'Open Your questions': 'Deine Fragen öffnen',
 };

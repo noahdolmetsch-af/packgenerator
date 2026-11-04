@@ -305,9 +305,8 @@ export function answeredToday(c, { day, off = [], evening = false, pool = null, 
     if (on(1)) asked.push(x.sleep != null);
     if (on(2)) asked.push(x.energy != null);
     if (on(3)) asked.push(x.mood != null);
-    if (rotatingFor(pool, off, day)) asked.push(x.extra != null);
+    // Noah 04.11.2026 «ein Fragebogen»: the rotating question and the goal are asked like in the window now (Deine Abfragen)
     if (on(6)) asked.push(x.joy.length > 0);
-    if (on(7)) asked.push(!!x.goal);
   } else {
     if (on(8)) asked.push(x.sat != null);
     if (on(9)) asked.push(x.best.length > 0 || !!x.story.trim());
