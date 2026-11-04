@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -245,4 +245,56 @@ describe('Fragen aus deinen Daten', () => {
       expect(dataOf({ gaps: { ruhepuls: 99, schlaf: 2 }, skips: { ruhepuls: { n: 0, day: 'x' } } })).toMatchObject({ gaps: {}, skips: {} });
     });
   });
+  describe('Wetter', () => {
+    const wx = (o = {}) => ({ date: TODAY, min: 8, max: 19, rainMm: 0, rainPct: 10, ...o });
+    const ev = (start, end, o = {}) => ({ id: start, day: start.slice(0, 10), start, end, ...o });
+    it('grey day: rain likely and the latest mood clearly below the usual', () => {
+      const m = [...moods(7, []), { qid: 'spass.stimmung', day: add(TODAY, -1), value: 5 }];
+      expect(grauHit(wx({ rainPct: 80 }), m, [], TODAY)).toEqual({ mood: 5, usual: 7 });
+      expect(grauHit(wx({ rainPct: 50 }), m, [], TODAY)).toBeNull();
+      expect(grauHit(wx({ rainPct: 50 }), m, [], TODAY, 40)).not.toBeNull();
+      expect(grauHit(wx({ rainMm: 6, rainPct: 10 }), m, [], TODAY)).not.toBeNull(); // 5 mm or more is a rainy day by itself
+      expect(grauHit(wx({ rainPct: 80 }), [...moods(7, []), { qid: 'spass.stimmung', day: add(TODAY, -1), value: 6.5 }], [], TODAY)).toBeNull(); // not clearly below
+      expect(grauHit(wx({ rainPct: 80, date: add(TODAY, 1) }), m, [], TODAY)).toBeNull(); // forecast of another day
+      expect(grauHit(null, m, [], TODAY)).toBeNull();
+      expect(grauHit(wx({ rainPct: 80 }), moods(7, []), [], TODAY)).toBeNull(); // no recent mood
+    });
+    it('grey day: today\'s mood wins over yesterday\'s', () => {
+      const m = [...moods(7, []), { qid: 'spass.stimmung', day: add(TODAY, -1), value: 4 }, { qid: 'spass.stimmung', day: TODAY, value: 7 }];
+      expect(grauHit(wx({ rainPct: 80 }), m, [], TODAY)).toBeNull();
+    });
+    it('evening: only a busy appointment between 17 and 22 (Zurich) counts', () => {
+      const d = TODAY; // 3 November: winter time, UTC+1
+      expect(eveningBusy([ev(`${d}T17:30:00Z`, `${d}T18:30:00Z`)], d)).toBe(true); // 18:30–19:30 local
+      expect(eveningBusy([ev(`${d}T08:00:00Z`, `${d}T09:00:00Z`)], d)).toBe(false);
+      expect(eveningBusy([ev(`${d}T21:30:00Z`, `${d}T22:30:00Z`)], d)).toBe(false); // starts 22:30 local
+      expect(eveningBusy([ev(`${d}T15:00:00Z`, `${d}T16:00:00Z`)], d)).toBe(false); // 16:00–17:00 local ends at 17:00: not busy
+      expect(eveningBusy([ev(`${d}T15:00:00Z`, `${d}T16:30:00Z`)], d)).toBe(true); // until 17:30 local
+      expect(eveningBusy([ev(`${d}T17:30:00Z`, `${d}T18:30:00Z`, { allDay: true })], d)).toBe(false);
+      expect(eveningBusy([ev(`${d}T17:30:00Z`, `${d}T18:30:00Z`, { busy: false })], d)).toBe(false);
+      expect(eveningBusy([], d)).toBe(false);
+    });
+    it('fine weather: dry, warm and a free evening in a calendar that is in use', () => {
+      const cal = { used: true, events: [] };
+      expect(draussenHit(wx(), cal, TODAY)).toEqual({ max: 19 });
+      expect(draussenHit(wx({ max: 12 }), cal, TODAY)).toBeNull();
+      expect(draussenHit(wx({ max: 12 }), cal, TODAY, 10)).not.toBeNull();
+      expect(draussenHit(wx({ rainPct: 40 }), cal, TODAY)).toBeNull();
+      expect(draussenHit(wx({ rainMm: 1 }), cal, TODAY)).toBeNull();
+      expect(draussenHit(wx(), { used: false, events: [] }, TODAY)).toBeNull(); // no calendar: we cannot know the evening
+      expect(draussenHit(wx(), { used: true, events: [ev(`${TODAY}T18:00:00Z`, `${TODAY}T19:00:00Z`)] }, TODAY)).toBeNull();
+      expect(draussenHit(wx(), null, TODAY)).toBeNull();
+    });
+    it('both ask through dataDue, with their reason and their switch', () => {
+      const m = [...moods(7, []), { qid: 'spass.stimmung', day: add(TODAY, -1), value: 5 }];
+      const [a] = dataDue({ wx: wx({ rainPct: 90 }), answers: m, today: TODAY });
+      expect(a.q.id).toBe('daten.grau');
+      expect(a.why.vars).toEqual({ mood: 5, usual: 7 });
+      const [b] = dataDue({ wx: wx(), cal: { used: true, events: [] }, today: TODAY });
+      expect(b.q.id).toBe('daten.draussen');
+      expect(dataDue({ wx: wx(), cal: { used: true, events: [] }, today: TODAY, cfg: setRule(null, 'draussen', false) })).toEqual([]);
+      expect(RULES.map((r) => r.id)).toEqual(expect.arrayContaining(['grau', 'draussen']));
+    });
+  });
+
 });
