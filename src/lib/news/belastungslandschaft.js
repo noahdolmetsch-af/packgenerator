@@ -1,6 +1,6 @@
 // «Belastungslandschaft» (Noah 03.11.2026, Cockpit-Idee 1): past days and planned sessions as hills or curves
 export default {
-  title: 'Load landscape',
+  title: 'Load landscape|news',
   lead: 'On «Form and recovery» your last eight weeks are a landscape: fitness as the back hill, fatigue as the front hill, the days as ridges. Planned sessions of Training continue it to the right as an estimate. One tap shows the same days as exact curves.',
   points: [
     { text: 'Point at a day or use ← → to go through the days: its numbers and its single sessions, each a link', go: { href: '#/flow/form', steps: [{ sel: '[data-form-landscape]' }], where: 'Aktiv › Form und Erholung, the card «Load landscape».' } },
@@ -15,7 +15,8 @@ export default {
   ],
   since: [],
   de: {
-    'Load landscape': 'Belastungslandschaft',
+    // a hyphen so the long word may break at a hyphen on a 320 px phone (layout guard)
+    'Load landscape|news': 'Belastungs-Landschaft',
     Curves: 'Kurven',
     'On «Form and recovery» your last eight weeks are a landscape: fitness as the back hill, fatigue as the front hill, the days as ridges. Planned sessions of Training continue it to the right as an estimate. One tap shows the same days as exact curves.': 'Auf «Form und Erholung» sind deine letzten acht Wochen eine Landschaft: Fitness als hinterer Hügel, Müdigkeit als vorderer Hügel, die Tage als Grate. Geplante Einheiten aus dem Training führen sie nach rechts weiter, als Schätzung. Ein Tipp zeigt dieselben Tage als genaue Kurven.',
     'Point at a day or use ← → to go through the days: its numbers and its single sessions, each a link': 'Tippe auf einen Tag oder gehe mit ← → durch die Tage: seine Zahlen und seine einzelnen Einheiten, jede ein Link',
