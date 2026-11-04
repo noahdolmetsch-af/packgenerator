@@ -337,7 +337,7 @@
             <p class="muted">{t('Cancelled late counts half, no-show counts the full price. You can change the amount in the form.')}</p>
             <ul class="of-list">
               {#each lessonsOver as b (b.id)}
-                <li class="of-pp"><label class="of-pick"><input type="checkbox" checked={picked.includes(b.id)} onchange={() => toggle(b)} aria-label={t('Add to one invoice: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} /><span>{b.name}<small>{fmtAt(b.at)}</small></span></label>
+                <li class="of-pp of-lo"><label class="of-pick"><input type="checkbox" checked={picked.includes(b.id)} onchange={() => toggle(b)} aria-label={t('Add to one invoice: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} /><span>{b.name}<small>{fmtAt(b.at)}</small></span></label>
                   <select class="inp of-out" data-outcome aria-label={t('What happened: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} value={outcomeOf(b)} onchange={(e) => markOutcome(b, e.currentTarget.value)}><option value="held">{t('Took place')}</option><option value="late">{t('Cancelled late')}</option><option value="noshow">{t('No-show')}</option></select>
                   <button type="button" class="btn hi sm" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
               {/each}
@@ -855,6 +855,8 @@
   .of-ask-n { color: var(--accent, inherit); font-weight: 600; }
 .of-pick { display: flex; gap: 10px; align-items: center; min-width: 0; }
   .of-pick input { width: 22px; height: 22px; flex: none; }
-  .of-out { width: auto; max-width: 10.5rem; min-height: 40px; }
+  .of-lo { flex-wrap: wrap; }
+  .of-lo .of-pick { flex: 1 1 100%; }
+  .of-out { flex: 1 1 9rem; width: auto; min-height: 40px; }
 .of-cust { margin: 0 0 16px; }
 </style>
