@@ -237,6 +237,8 @@
     });
     return out;
   };
+  // «Gesundheitssignale» (Noah 03.11.2026): the Fitbit tabs and their page in Analyse (range, what stands out, source)
+  const SIGNAL_KEY = { hr: 'rhr', hrv: 'hrv', sleep: 'sleep', spo2: 'spo2', breath: 'breath', skin: 'skin' };
   const title = $derived(kind ? sportName(kind) : t('Body values'));
 </script>
 
@@ -446,6 +448,7 @@
     </ul>
     <p class="q">{t('At rest from Fitbit; highest from Fitbit, else from your activities. Garmin’s view of one day is missing: Fitbit gives the app only day values.')}</p>
   {/if}
+  {#if !kind && SIGNAL_KEY[bkey]}<p class="q" data-signal-link><a href="#/auswerten/analyse/{SIGNAL_KEY[bkey]}">{t('Your range and what stands out ›|signals')}</a></p>{/if}
   {#if !kind && !ownKeys.length}<p class="q" data-own-body-hint>{t('A value of your own (back pain, mood, blood sugar …)? Add an own question with a number in Me › Your questions: it shows here under «Own».')} <a href="#/me/abfragen">{t('Me › Your questions')} ›</a></p>{/if}
 </div>
 
