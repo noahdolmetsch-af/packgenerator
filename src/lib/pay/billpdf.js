@@ -82,6 +82,13 @@ async function drawPage(ctx, account, bill, tr) {
     text(tr('Message: {no}', { no: bill.no }), 25, y + 21.5);
     y += 34;
   }
+  if (bill.ways?.cash) {
+    font(11, true);
+    text(tr('Pay in cash'), 20, y + 4);
+    font(11);
+    text(tr('{amount} CHF at the next lesson', { amount: formatAmount(bill.amount) }), 20, y + 11);
+    y += 18;
+  }
   if (bill.ways?.qr) {
     font(11);
     text(tr('Or by bank: scan the QR code below with your banking app.'), 20, y + 4);

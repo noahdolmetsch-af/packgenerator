@@ -35,6 +35,9 @@ export const LONG_DAY_H = 3;
 /** A pause: this many days without any training logged (Strava or tennis). The activities are read this many days back. */
 export const PAUSE_DAYS = 4;
 export const ACT_DAYS = 40;
+/** Tennis: a game of at least this many minutes is asked about the day after; a missed court time counts this many days back. */
+export const GAME_MIN = 30;
+export const SLOT_DAYS = 2;
 
 const chip = (key, label) => ({ key, label: `${label}|data` });
 
@@ -118,6 +121,36 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'pause',
   },
+  'daten.spiel': {
+    id: 'daten.spiel',
+    area: 'sport',
+    text: 'How was the game yesterday? What worked, what did not?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('rhythm', 'Good rhythm'), chip('serve', 'Serve worked'), chip('legs', 'Legs were fast'), chip('focus', 'Lost focus'), chip('heavy', 'Heavy legs'), chip('fun', 'Great fun')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'spiel',
+  },
+  'daten.platz': {
+    id: 'daten.platz',
+    area: 'sport',
+    text: 'What got in the way of the court time?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('work', 'Work came up'), chip('tired', 'Tired'), chip('weather', 'Weather'), chip('cancelled', 'Cancelled by the other'), chip('court', 'No court free'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'platz',
+  },
 };
 
 /** The rules, in order. title/about are English keys for t() (about has {n}). */
@@ -161,6 +194,22 @@ export const RULES = [
     about: 'Asks when you have logged no training for {n} days (Strava or tennis).',
     vars: { n: PAUSE_DAYS },
     param: { key: 'n', min: 2, max: 14, step: 1, def: PAUSE_DAYS, label: 'Days without training' },
+  },
+  {
+    id: 'spiel',
+    qid: 'daten.spiel',
+    title: 'After a tennis game',
+    about: 'Asks the day after a tennis game you noted (at least {n} minutes).',
+    vars: { n: GAME_MIN },
+    param: { key: 'n', min: 15, max: 180, step: 15, def: GAME_MIN, label: 'Game of at least (minutes)' },
+  },
+  {
+    id: 'platz',
+    qid: 'daten.platz',
+    title: 'A court time that did not happen',
+    about: 'Asks when you noted «not played» for a planned court time in the last {n} days.',
+    vars: { n: SLOT_DAYS },
+    param: { key: 'n', min: 1, max: 7, step: 1, def: SLOT_DAYS, label: 'Looking back (days)' },
   },
 ];
 
@@ -306,7 +355,24 @@ export function pauseHit(acts = [], sport = [], today, days = PAUSE_DAYS) {
   return n >= days ? { n } : null;
 }
 
+const TENNIS = 'act:tennis';
+/** The longest tennis game noted yesterday of at least `min` minutes: { min } or null. */
+export function spielHit(sport = [], today, min = GAME_MIN) {
+  const yesterday = addDays(today, -1);
+  const g = sport.filter((x) => x?.sport === TENNIS && x.kind === 'played' && x.day === yesterday && (fin(Number(x.min)) ?? 0) >= min).sort((a, b) => b.min - a.min)[0];
+  return g ? { min: Math.round(g.min) } : null;
+}
+/** A planned court time answered «not played» within the last `days` days before today (and no game noted that day): { day } or null. */
+export function platzHit(sport = [], today, days = SLOT_DAYS) {
+  const from = addDays(today, -days);
+  const played = new Set(sport.filter((x) => x?.sport === TENNIS && x.kind === 'played').map((x) => x.day));
+  const miss = sport.filter((x) => x?.sport === TENNIS && x.kind === 'slot' && x.answer === 'skipped' && x.day >= from && x.day < today && !played.has(x.day)).sort((a, b) => b.day.localeCompare(a.day))[0];
+  return miss ? { day: miss.day } : null;
+}
+
 const WHY = {
+  spiel: 'You noted a game of {min} minutes yesterday.',
+  platz: 'You noted a planned court time as not played in the last days.',
   pause: 'Your last logged training was {n} days ago.',
   training: 'Yesterday you were on the move for {h} h {m} min.',
   ruhepuls: 'Your resting pulse today is {v}, your usual of the last 30 days is {normal}.',
@@ -316,6 +382,8 @@ const WHY = {
 };
 const HITS = {
   pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
+  spiel: ({ sport, today, val }) => spielHit(sport, today, val),
+  platz: ({ sport, today, val }) => platzHit(sport, today, val),
   training: ({ acts, today, val }) => trainingHit(acts, today, val),
   ruhepuls: ({ health, today, val }) => ruhepulsHit(health, today, val),
   schlaf: ({ health, today, val }) => schlafHit(health, today, val),

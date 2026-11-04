@@ -2047,3 +2047,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 03.11.2026 «Ausprobieren» pro PR nur mit den eigenen Zeilen
 - Noah «1a» (Thread «Prüfen: Warum die Tests langsam sind»): Der Test «Ausprobieren» tippt in einem PR nur die «Was ist neu»-Zeilen, die der PR selbst in `src/lib/news/` neu oder geändert hat. Alle Zeilen tippt die Nacht-Prüfung. Ändert ein PR die Update-Liste, die Ziel-Tabelle, den Ausprobieren-Code oder die Test-Helfer, tippt er weiter alle. Grund: Der Test wächst mit jedem PR (555 Zeilen, 10 Minuten) und belegte 21 der 33 Minuten von Handy-Teil 1.
+
+## 04.11.2026 Start-Grenze auf 5,0 MB
+- Noah «b» (Thread «Erklären und beheben: Start-Grenze bei 98 %»): Die Start-Grenze (`MAX_START_JS_BYTES` in `scripts/size-guard.mjs`) steigt von 4,6 auf 5,0 MB. Grund: Der Start lag bei 4,52 MB (98 %), der nächste PR mit mehr Text wäre am Aufbau gescheitert. Die gelbe Notiz kommt jetzt ab 4,5 MB (90 % von 5,0). Offen bleibt, was beim Start nicht gebraucht wird (Handbuch-Texte, «Was ist neu», zusammen etwa ein Drittel) erst beim Öffnen zu laden; Bericht: `notes/start-grenze-2026-11-04/` im Projektordner.
