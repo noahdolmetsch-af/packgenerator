@@ -245,6 +245,7 @@ Ziel 5 Alltag. Entscheid «1a 2a 3a 4a 5a und b»: Stil S2 «Kacheln mit Tiefe»
 | 3 | Aufklappen am Handy (alles zu ausser «Jetzt», gemerkt), nach «Heute ruhiger» Teil 3 | gewünscht |
 | 4 | Stil S2 auf Heute | gewünscht |
 | 5 | Packen: Wischen zum Abhaken, gezeichnetes Velo mit Taschen | gewünscht |
+| 5b | Packen fühlt sich echt an (Paket B, Noah 03.11.2026 «a»): Rollverschluss rollt zu und rastet ein; kurzes Vibrieren beim Abhaken gab es schon. Karten nacheinander (7) und Ringe füllen (8) auf weiteren Seiten bleiben Idee | gebaut (Rollverschluss) |
 | 6 | Startklar: grosser Moment | gewünscht |
 | 7 | Touren: Kacheln mit Tiefe, Jahres-Übersicht als Farbfelder | gewünscht |
 | 8 | Velo: gezeichnetes Velo, Verschleiss als Ringe | gewünscht |
