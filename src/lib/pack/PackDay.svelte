@@ -38,6 +38,7 @@
   import { localDay } from '../localday.js';
   import { swipeRight } from '../ui/swipe.js';
   import PackBike from './PackBike.svelte';
+  import BagRoll from './BagRoll.svelte';
   import '../trip/trip.css';
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, wxd = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
@@ -575,8 +576,11 @@
           {@const done = full(s)}
           <section class="pbag cur" aria-labelledby="pb-{s.key}" bind:this={openEl} onpointerdown={touchBag}>
             <div class="bagh">
-              <h2 class="sh"><b id="pb-{s.key}">{s.title}</b></h2>
-              <p class="ssub">{t('{done} of {n} · a full bag jumps to the next one', { done: s.done, n: s.entries.length })}{#if phone.matches && !fixed}{' · '}<span data-swipe-hint>{t('or swipe a row to the right')}</span>{/if}{#if s.sub}{' · '}{s.sub}{/if}</p>
+              <BagRoll closed={done} />
+              <div class="bagtxt">
+                <h2 class="sh"><b id="pb-{s.key}">{s.title}</b></h2>
+                <p class="ssub">{t('{done} of {n} · a full bag jumps to the next one', { done: s.done, n: s.entries.length })}{#if phone.matches && !fixed}{' · '}<span data-swipe-hint>{t('or swipe a row to the right')}</span>{/if}{#if s.sub}{' · '}{s.sub}{/if}</p>
+              </div>
             </div>
             <div class="card ibox">
               <ul class="items">
@@ -736,7 +740,8 @@
   @media (prefers-reduced-motion: reduce) {
     section.pbag.cur, .box :global(svg) { transition: none; }
   }
-  .pbag.cur .bagh { display: block; min-height: 0; padding: 0; cursor: default; }
+  .pbag.cur .bagh { display: flex; align-items: center; gap: 12px; min-height: 0; padding: 0; cursor: default; }
+  .bagtxt { flex: 1; min-width: 0; }
   .ibox { padding-top: 4px; padding-bottom: 4px; }
   .items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
   .items li + li { border-top: 1px solid var(--line); }

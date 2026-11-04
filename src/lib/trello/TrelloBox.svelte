@@ -7,6 +7,8 @@
   import { RefreshCw, Link, Unlink, ExternalLink } from '@lucide/svelte';
   import { t, locale } from '../i18n.svelte.js';
   import { readKey, STRAVA_HASH } from '../strava/client.svelte.js';
+  import ConnStatus from '../ui/ConnStatus.svelte';
+  import { lastOkFetchLine } from '../ui/connstatus.js';
   import { trello, connect, syncNow, disconnect, setTodosSync } from './client.svelte.js';
 
   const hasKey = readKey();
@@ -21,6 +23,7 @@
       not_set_up: t('Trello is not set up on the server yet.'),
       not_connected: t('Trello is not connected (any more). Connect it again.'),
       network: t('No connection. What is on this device stays; it syncs later.'),
+      timeout: t('Trello did not answer in time. What is on this device stays; it syncs later.'),
       trello_login_needed: t('Trello needs a new permission. Connect it again.'),
       trello_no_workspace: t('In Trello, make a workspace «Packgenerator» first. The app puts its board there.'),
       trello_board_limit: t('Trello allowed no new board in the workspace «Packgenerator».'),
@@ -36,7 +39,7 @@
   <div class="lh"><h2 id="tb-h">{t('Trello')}</h2></div>
   <div class="card body">
     <p class="hint" data-trello-why>{t('Only needed if you want to see your to-dos in Trello too, for example on the phone or with others. Without Trello everything works in the app as before.')}</p>
-    {#if trello.error}<p class="err" role="status">{errorText(trello.error)}</p>{/if}
+    {#if trello.error}<p class="err" role="status">{errorText(trello.error)}{#if p.on}{' '}{lastOkFetchLine(t, { lastOkAt: p.lastSync, when })}{/if}</p>{/if}
     {#if !p.on}
       <p>{t('Your to-dos and lists you choose also in Trello, on your own board «Packgenerator». A tick in Trello is a tick here, and back. Your other boards stay untouched.')}</p>
       {#if hasKey}
@@ -53,6 +56,7 @@
       </p>
       <label class="tsw"><input type="checkbox" checked={!!p.todos?.sync} onchange={(e) => setTodosSync(e.currentTarget.checked)} /><span><b>{t('To-dos also in Trello')}</b><small>{t('As the list «To-dos» on the board. Birthdays and plants stay in the app.')}</small></span></label>
       <p class="hint">{t('Each list chooses its place in its settings: only in the app, or also in Trello. Google Tasks keeps its own lists; nothing is copied between Trello and Google.')}</p>
+      <ConnStatus name="Trello" busy={trello.busy} since={trello.since} />
       <div class="acts">
         <button type="button" class="btn sm" disabled={trello.busy} onclick={() => syncNow()}><RefreshCw size={15} aria-hidden="true" />{trello.busy ? t('Syncing …') : t('Sync now')}</button>
         {#if p.lastSync}<small>{t('Last synced {when}', { when: when(p.lastSync) })}</small>{/if}

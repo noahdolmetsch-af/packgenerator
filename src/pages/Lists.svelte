@@ -30,7 +30,7 @@
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
-  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench, MapPin, Bike, Palmtree, Feather, Smile, Flower2 } from '@lucide/svelte';
+  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench, MapPin, Bike, Palmtree, Feather, Smile, Flower2, MessageCircle } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const overQ = liveQuery(() => db.settings.get(OVERRIDES_KEY));
@@ -130,6 +130,8 @@
       words: () => ({ edit: t('Rename mood'), own: '', empty: t('Give the mood a name.'), warn: '' }),
     },
     medMoods: simpleKind(Flower2, 'Active|place', 'The moods you can tick after meditating. Your notes keep the moods they have.', 'Own mood'),
+    // Geheimmenü H6 (Noah 03.11.2026): the sayings behind five taps on «PG»; long texts, so a longer field
+    sayings: { ...simpleKind(MessageCircle, 'Me|place', 'The sayings the logo can say after five taps. Add your own, change or delete any of them.', 'Own saying'), maxlen: 120 },
   };
   function simpleKind(icon, place, sub, ownWord) {
     return {
@@ -269,7 +271,7 @@
     <AreaIntro place="lists" />
 
     <div class="grid">
-      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups', 'bikeSlots', 'careParts', 'bikeKinds']], ['notes', 'Notes', ['noteTopics']], ['diary', 'Diary', ['journalQuestions', 'journalMoods']], ['active', 'Active|place', ['medMoods']], ['map', 'Maps and week', ['pointKinds', 'awayTypes']]] as [area, head, keys] (area)}
+      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups', 'bikeSlots', 'careParts', 'bikeKinds']], ['notes', 'Notes', ['noteTopics']], ['diary', 'Diary', ['journalQuestions', 'journalMoods']], ['active', 'Active|place', ['medMoods']], ['fun', 'Little surprises', ['sayings']], ['map', 'Maps and week', ['pointKinds', 'awayTypes']]] as [area, head, keys] (area)}
         <section class="ich-sec card box" aria-labelledby="ls-{area}-h">
           <h2 id="ls-{area}-h">{t(head)}</h2>
           <ul class="ich-list">
@@ -364,6 +366,7 @@
       count={n}
       full={K.full}
       hideable={!!K.hideable}
+      maxlen={K.maxlen ?? 40}
       words={K.words ? K.words(n) : null}
       stdIcon={e && K.full ? stdIconName(e.id) : 'Tag'}
       onsave={(v) => save(e ? edit(value, e, K.full ? { ...v, stdIcon: stdIconName(e.id) } : v) : addOwn(value, v).value)}

@@ -240,3 +240,17 @@ test('After a ride: a card with the groups that fit opens the group; without a r
   await expect(card).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Online shop: choose a shop and every ingredient has a search link; choose it again to switch off', async ({ page, context }, info) => {
+  const errors = await open(page, context, `./#/me/alltag/kochen/${oats.id}`);
+  await expect(page.locator('[data-ko-shop-link]')).toHaveCount(0);
+  await page.locator('[data-ko-shop-pick="migros"]').click();
+  const links = page.locator('[data-ko-shop-link]');
+  await expect(links).toHaveCount(oats.ingredients.length);
+  await expect(links.first()).toHaveAttribute('href', /^https:\/\/www\.migros\.ch\/de\/search\?query=/);
+  await expect(links.first()).toHaveAttribute('target', '_blank');
+  await shotTop(page, info, 'shop');
+  await page.locator('[data-ko-shop-pick="migros"]').click();
+  await expect(links).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

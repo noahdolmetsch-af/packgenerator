@@ -78,5 +78,7 @@ export function setStart(key) {
 
 /** FE7: a short buzz when an item is ticked, when switched on. */
 export const buzz = () => ops.buzz && buzzNow();
+/** Paket B (Noah 03.11.2026): the click when a bag rolls shut; the same switch as the tick buzz. */
+export const clickBuzz = () => ops.buzz && buzzNow(undefined, [10, 60, 18]);
 /** FE8: Today keeps its tips back now. */
 export const quietHome = (now = new Date()) => quietNow(now, ops.quiet);

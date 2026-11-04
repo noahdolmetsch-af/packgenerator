@@ -1,16 +1,14 @@
 # Volle Prüfung (Noah 27.10.2026 «1a 2a», thread «Weg von gebaut zu online»): the browser tests that no
-# longer hold up going online. After every publish of main it runs the computer browser tests (5 parts)
-# and the Gesamttest (phone and computer, 2 parts each) on exactly the version that just went online.
-# Every night it also runs the phone browser tests, so the whole set runs at least once a day.
+# longer hold up going online. They ran after every publish of main.
+# Noah 03.11.2026 «2a» (thread «Prüfen: Warum die Tests langsam sind»): since then only once a night
+# (02:07 UTC) or by hand («Run workflow»). After every merge it took 9 of the 20 GitHub computers on top of
+# the pull request checks, and the queue was 40 minutes long. It runs the phone and computer browser tests
+# (5 parts each) and the Gesamttest (phone and computer, 2 parts each) on main as it is then.
 # Only on a failure it opens an issue (or adds to the open one), so Noah gets a mail and Claude repairs
 # it (or Noah says «zurück»). When all is fine again, it closes the issue. Only GITHUB_TOKEN, no secret.
 name: Volle Prüfung
 
 on:
-  workflow_run:
-    workflows: ['Build and deploy']
-    types: [completed]
-    branches: [main]
   schedule:
     - cron: '7 2 * * *' # every night 02:07 UTC, after the Nacht-Rundgang has started
   workflow_dispatch:
@@ -26,8 +24,6 @@ concurrency:
 
 jobs:
   e2e-part:
-    # after a publish only when it went online (a red run published nothing)
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 45
     # The tag must match @playwright/test in package.json (tests/ci-image.test.js).
@@ -37,14 +33,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # the phone parts already ran on the pull request; at night both run
-        project: ${{ github.event_name == 'workflow_run' && fromJSON('["desktop"]') || fromJSON('["phone","desktop"]') }}
+        project: [phone, desktop]
         shard: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # the whole history: scripts/news.mjs numbers versions by the order of merges
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }} # the version that just went online
       - uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -67,7 +61,6 @@ jobs:
 
   # v0.45.1: the Gesamttest with the big fictional data set (tests/e2e/gesamttest, 700 items).
   gesamttest:
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
@@ -82,7 +75,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-node@v7
         with:
           node-version: 22
@@ -102,14 +94,14 @@ jobs:
 
   report:
     needs: [e2e-part, gesamttest]
-    if: always() && (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
       LABEL: volle-pruefung
-      SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      SHA: ${{ github.sha }}
       RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Write the report
@@ -117,7 +109,7 @@ jobs:
           {
             echo "### Volle Prüfung $(date -u +'%Y-%m-%d %H:%M') UTC"
             echo
-            echo "Version auf main: \`${SHA:0:8}\` · Anlass: ${{ github.event_name == 'workflow_run' && 'nach dem Online-Gehen' || 'Nacht oder von Hand' }}"
+            echo "Version auf main: \`${SHA:0:8}\` · Anlass: ${{ github.event_name == 'schedule' && 'Nacht' || 'von Hand' }}"
             echo
             echo "- Browsertests: ${{ needs.e2e-part.result }}"
             echo "- Gesamttest: ${{ needs.gesamttest.result }}"

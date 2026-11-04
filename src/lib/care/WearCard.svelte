@@ -14,6 +14,7 @@
   import { nextTrip } from '../debrief.js';
   import { chainPlan } from '../chainplan.js';
   import { stepTitle } from './chaintext.js';
+  import TreadDraw from './TreadDraw.svelte';
 
   let { bike, entries = [] } = $props();
 
@@ -49,6 +50,7 @@
           <span class="n">{r.name}</span>
           <span class="bar" aria-hidden="true"><span style:width="{Math.min(100, Math.round((r.frac ?? 0) * 100))}%"></span></span>
           <small class="num">{r.left == null ? t(r.state === 'due' ? 'replace now' : 'soon') : r.left > 0 ? t('{km} km left', { km: num(r.left) }) : t('{km} km over', { km: num(-r.left) })}{#if r.due && r.left > 0}{' · '}{month(r.due)}{/if}</small>
+          {#if r.key === 'tyres' && r.frac != null}<span class="tr"><TreadDraw frac={r.frac} /></span>{/if}
         </li>
       {/each}
     </ul>
@@ -105,6 +107,10 @@
     gap: 10px;
     min-height: 32px;
     font-size: var(--fs-small);
+  }
+  .tr {
+    grid-column: 1 / -1;
+    min-width: 0;
   }
   .n {
     overflow: hidden;

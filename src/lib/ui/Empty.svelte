@@ -12,6 +12,8 @@
    * with an icon the block shows a small drawn picture (a soft card with two lines, the icon in a bubble on its
    * corner) that rises in gently when the view opens; still with «Bewegung reduzieren».
    */
+  import Murmeltier from '../murmeltier/Murmeltier.svelte'; // «Ein Murmeltier als Begleiter» (Idee 28)
+  import { ops } from '../bedienung.svelte.js';
   let { text, title = '', level = 0, headId = undefined, action = null, action2 = null, icon = null, children = null } = $props();
 </script>
 
@@ -25,6 +27,7 @@
     <span class="pic" aria-hidden="true" data-empty-pic>
       <svg class="sheet" viewBox="0 0 120 84"><rect x="4" y="14" width="104" height="66" rx="12" /><rect class="clip" x="34" y="6" width="44" height="16" rx="8" /><path d="M24 44 H84 M24 58 H64" /></svg>
       <span class="ring"><Icon size={20} /></span>
+      {#if ops.murmeltier}<span class="mmw"><Murmeltier size={40} /></span>{/if}
     </span>
   {/if}
   {#if title && level}<svelte:element this={`h${level}`} class="head" id={headId}>{title}</svelte:element>
@@ -75,6 +78,11 @@
     stroke: var(--hi);
     stroke-width: 4;
     stroke-linecap: round;
+  }
+  .mmw {
+    position: absolute;
+    left: -34px;
+    bottom: -2px;
   }
   .ring {
     position: absolute;
