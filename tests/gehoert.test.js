@@ -35,10 +35,10 @@ describe('«Belongs to …» on top of a page (PR 7)', () => {
     expect(r.items.length).toBeGreaterThan(0);
     for (const f of r.items) expect(momentOfFeature(f.id)).toBe('app');
   });
-  it('Velos, Material and Aktiv show their moment (Wegweiser PR 10)', () => {
+  it('Velos and Material show their moment (Wegweiser PR 10); Aktiv has «Alles hier» instead (Noah 03.11.2026 «1a»)', () => {
     expect(PAGE_MOMENT.bikes).toBe('velo');
     expect(PAGE_MOMENT.gear).toBe('velo');
-    expect(PAGE_MOMENT.flow).toBe('koerper');
+    expect(PAGE_MOMENT.flow).toBeUndefined();
     for (const page of HUB_ONLY) {
       const r = gehoertDazu({ moment: PAGE_MOMENT[page], here: `#/${page}`, under: true });
       expect(r.items.length).toBe(SHOWN);
@@ -54,13 +54,13 @@ describe('«Belongs to …» on top of a page (PR 7)', () => {
     expect(showsRow('wetter', '#/wetter')).toBe(true);
   });
   it('on a hub page only on the page itself, and its own sub-pages are left out', () => {
-    expect(showsRow('flow', '#/flow')).toBe(true);
-    expect(showsRow('flow', '#/flow/edit/x')).toBe(false);
+    expect(showsRow('flow', '#/flow')).toBe(false);
+    expect(showsRow('debrief', '#/debrief/x')).toBe(false);
     expect(showsRow('bikes', '#/bikes?tab=rig')).toBe(true);
     expect(showsRow('pack', '#/pack/templates')).toBe(true);
     expect(showsRow('home', '#/')).toBe(false);
-    const r = gehoertDazu({ moment: 'koerper', here: '#/flow', under: true });
-    for (const f of r.items) expect(featureHref(f).startsWith('#/flow/')).toBe(false);
+    const r = gehoertDazu({ moment: 'velo', here: '#/bikes', under: true });
+    for (const f of r.items) expect(featureHref(f).startsWith('#/bikes/')).toBe(false);
   });
   it('«all n ›» opens the catalogue by moment', () => {
     expect(allHref('packen')).toBe('#/features?by=moment&moment=packen');
