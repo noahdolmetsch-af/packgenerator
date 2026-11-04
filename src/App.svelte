@@ -64,6 +64,7 @@
   import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
   import DiaryReminder from './lib/tagebuch/Reminder.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
+  import MiniTitle from './lib/nav/MiniTitle.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { toolKeyOf } from './lib/tools/tools.js';
   import { t, lang } from './lib/i18n.svelte.js';
@@ -490,6 +491,7 @@
 <OfflineLine />
 {#if ops.explore && ops.path && !guest && !mini}<Explorer />{/if}
 <DbWaitLine />
+<MiniTitle />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
 <main data-s2-page={page} data-s2-place={place} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
