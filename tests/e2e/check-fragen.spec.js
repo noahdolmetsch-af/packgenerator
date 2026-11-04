@@ -14,7 +14,7 @@ const noSideways = async (page) => expect(await page.evaluate(() => document.doc
 
 function data(keep) {
   const d = homeFixture();
-  const q = Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && !keep.includes(x.id)).map((x) => [x.id, { on: false }]));
+  const q = { ...Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && !keep.includes(x.id)).map((x) => [x.id, { on: false }])), ...Object.fromEntries(keep.filter((id) => !ON_AT_START.has(id)).map((id) => [id, { on: true }])) }; // a kept question that is off at the start (merged, MERGED_INTO) is switched on
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
   return d;
 }
@@ -60,7 +60,7 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
   test('CF3: edit, delete and add questions and groups', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data([...ON_AT_START]) });
     await page.goto('./#/me/abfragen');
-    await expect(page.getByText('10 Bereiche · 104 Fragen · 35 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 104 Fragen · 29 an')).toBeVisible();
     await page.locator('[data-ab-edit]').click();
     await expect(page.locator('[data-area-row]')).toHaveCount(11);
     await page.screenshot({ path: '/tmp/claude-0/-home-user-packgenerator/5925335f-4f29-5d9a-ab44-6982c7e2bd10/scratchpad/edit-' + info.project.name + '.png', fullPage: false });

@@ -19,11 +19,14 @@
   // 0.136.0: Strava rides without a bike count after «Passt»; the tile says how many still wait
   const waiting = $derived(waitingThisMonth($kmQ ?? [], today));
   const month = $derived(new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', timeZone: 'UTC' }));
+  // Noah 04.11.2026: «0 km ▼ 100 %» read as a contradiction; a quiet line says what the % compares to
+  const prevMonth = $derived(new Date(Date.UTC(Number(today.slice(0, 4)), Number(today.slice(5, 7)) - 2, 15, 12)).toLocaleDateString(locale(), { month: 'long', timeZone: 'UTC' }));
 </script>
 
 <a class="mo surf" href="#/debrief/ride" aria-labelledby="mo-h" data-section="month">
   <TileHead icon={Bike} id="mo-h" title={t('Bike in {month}', { month })} {isnew} />
   <p class="big num"><b>{num(m.km)}</b> km{#if m.pct != null}<span class="ch" class:down={m.pct < 0}>{m.pct >= 0 ? '▲' : '▼'} {num(Math.abs(m.pct))} %</span>{/if}</p>
+  {#if m.pct != null}<p class="cmp" data-month-cmp>{t('Same days in {month}: {km} km', { month: prevMonth, km: num(m.before) })}</p>{/if}
   <!-- «Werte überall» WU1: the metres climbed this month -->
   {#if m.hm}<p class="hm num" data-month-hm><Mountain size={14} aria-hidden="true" /><b>{t('{n} m climbed', { n: num(m.hm) })}</b></p>{/if}
   {#if waiting}<p class="wait" data-km-waiting>{tn(waiting, '+ {n} Strava ride to check', '+ {n} Strava rides to check')}</p>{/if}
@@ -53,6 +56,11 @@
   }
   .big b {
     font: 700 var(--fs-title)/1.1 var(--font-body);
+  }
+  .cmp {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .hm {
     display: inline-flex;

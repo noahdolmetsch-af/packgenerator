@@ -50,6 +50,10 @@
   // Noah 19.10.2026 «1a»: the active zone minutes of this week from Fitbit (healthDays) in the same line
   const azmQ = $derived(liveQuery(() => db.healthDays.where('date').aboveOrEqual(addDays(today, -7)).toArray()));
   const azm = $derived(azmWeek($azmQ ?? [], today));
+  // Noah 04.11.2026: a day column is too narrow for a name («Tennis spielen» ended in «Ten…», on a phone and on a
+  // computer). The columns keep weekday and dots; the full names stand in short lines under the row.
+  const partsOf = (d) => [d.ride ? (d.km ? t('Bike {km} km', { km: num(d.km) }) : t('Bike|ride')) : '', ...d.acts.map((a) => actName(acts[a]))].filter(Boolean);
+  const listed = $derived(days.filter((d) => partsOf(d).length));
   const wd = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 </script>
 
@@ -60,7 +64,6 @@
   <p class="sub" data-week-sub>{n ? tn(n, '{n} day active', '{n} days active') : t('Nothing entered yet')}{#if !n && azm.any}{' · '}{t('Fitbit measured {n} active zone min', { n: num(azm.sum) })}{/if}</p>
   <ol class="days">
     {#each days as d (d.day)}
-      {@const parts = [d.ride ? (d.km ? t('Bike {km} km', { km: num(d.km) }) : t('Bike|ride')) : '', ...d.acts.slice(0, 2).map((a) => actName(acts[a]))].filter(Boolean)}
       <li class:now={d.day === today} class:future={d.future} data-day={d.day}>
         <b>{wd(d.day)}</b>
         <span class="dots" aria-hidden="true">
@@ -68,11 +71,14 @@
           {#each d.acts.slice(0, 3) as a (a)}<i class={acts[a]?.ring ?? 'move'}></i>{/each}
         </span>
         {#if hasPlan && planOf(d.day)}<span class="pdots" aria-hidden="true" data-plan-dots>{#each dotsOf(planOf(d.day)) as k (k)}<i class="k-{k}"></i>{/each}</span>{/if}
-        <!-- 0.136.0: one line per thing, a long word ends in «…» instead of breaking inside («Liegestütz/e») -->
-        <small title={parts.join(', ')}>{#each parts as p, i (i)}<span class="it">{p}</span>{' '}{/each}</small>
       </li>
     {/each}
   </ol>
+  {#if listed.length}
+    <div class="dl" data-week-list>
+      {#each listed as d (d.day)}<p class:now={d.day === today}><b>{wd(d.day)}</b> {partsOf(d).join(' · ')}</p>{/each}
+    </div>
+  {/if}
   {#if hasPlan}
     <div class="plan" data-today-plan>
       <b>{t('Today by the plan')}</b>
@@ -225,17 +231,25 @@
   .dots i.rest {
     background: var(--l3);
   }
-  small {
-    max-width: 100%;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-    line-height: 1.2;
+  .dl {
+    display: grid;
+    gap: 2px;
   }
-  small .it {
-    display: block;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+  .dl p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.35;
+    overflow-wrap: break-word;
+  }
+  .dl p b {
+    display: inline-block;
+    min-width: 2.2em;
+    color: var(--ink);
+    font-size: inherit;
+  }
+  .dl p.now b {
+    color: var(--hi);
   }
   @media (max-width: 719px) {
     .days {

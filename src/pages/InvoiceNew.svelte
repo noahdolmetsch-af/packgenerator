@@ -56,7 +56,7 @@
       if (!viewId) {
         saved = null;
         note = '';
-        form = { name: '', email: '', amount: '', purpose: '', qr: true, twint: true };
+        form = { name: '', email: '', amount: '', purpose: '', qr: true, twint: true, cash: false };
         tried = false;
         formErrors = {};
       }
@@ -92,7 +92,7 @@
   }
 
   const amount = $derived(parseAmount(form.amount));
-  const ways = $derived({ qr: form.qr, twint: form.twint && !!account?.twint });
+  const ways = $derived({ qr: form.qr, twint: form.twint && !!account?.twint, cash: form.cash });
   /** What the preview shows before saving: the next number is only known when saved, so «R-…». */
   const draft = $derived(
     saved ?? {
@@ -113,7 +113,7 @@
     if (!form.name.trim()) out.name = t('Please enter who the invoice is for.');
     if (!amount) out.amount = t('Please enter an amount, for example 80.00.');
     if (!form.purpose.trim()) out.purpose = t('Please enter what it is for.');
-    if (!ways.qr && !ways.twint) out.ways = t('Switch on at least one way to pay.');
+    if (!ways.qr && !ways.twint && !ways.cash) out.ways = t('Switch on at least one way to pay.');
     return out;
   }
   let tried = $state(false);
@@ -263,6 +263,7 @@
               <input type="checkbox" bind:checked={form.twint} disabled={!account.twint} />
               <span><b>TWINT</b><small>{account.twint ? t('To your number {phone} · only on this device', { phone: account.twint }) : t('Add your TWINT number to the account to use it.')}</small></span>
             </label>
+            <label class="inv-way"><input type="checkbox" bind:checked={form.cash} data-way-cash /> <span><b>{t('Cash')}</b><small>{t('Paid in cash at the lesson. You mark it as paid yourself.')}</small></span></label>
             {#if formErrors.ways}<p class="fieldmsg" id="inv-ways-err">{formErrors.ways}</p>{/if}
           </fieldset>
           <p class="ich-fine">{t('The reference and the TWINT message are made automatically. That is how you recognise the payment later.')}</p>

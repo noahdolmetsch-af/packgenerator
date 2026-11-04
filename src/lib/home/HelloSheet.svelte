@@ -1,6 +1,6 @@
 <script>
   /**
-   * HG1d (2b) «Wie gaht's? / Was häsch vor?»: the quiet line under the greeting on Today and the small
+   * HG1d (2b) «Wi gaht's? / Was häsch vor?»: the quiet line under the greeting on Today and the small
    * sheet it opens (from below on a phone, in the middle on a computer). Two short questions, both
    * optional: five calm faces in one neutral colour (observation only) and the plan as a text field with
    * chips. «Speichern» puts the answer into the ONE history of «Deine Abfragen» (hallo-save.js).

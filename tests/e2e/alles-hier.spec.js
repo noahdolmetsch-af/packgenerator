@@ -93,3 +93,20 @@ test('All here on Trips: the tiles show and open their page, komoot stays in the
   await box.locator('[data-all-here-tile="numbers"]').click();
   await expect(page.locator('#iz-h')).toBeVisible();
 });
+
+test('All here on Plan: the tiles show and open their page', async ({ page, context }, info) => {
+  await start(page, context, info);
+  await page.goto('./#/week');
+  const box = page.locator('[data-all-here="plan"]');
+  await expect(box).toBeVisible();
+  await settle(page);
+  expect(await box.locator('[data-all-here-tile]').count()).toBeGreaterThan(10);
+  for (const id of ['f.shopping', 'notes', 'friends']) {
+    const tile = box.locator(`[data-all-here-tile="${id}"]`);
+    const href = await tile.getAttribute('href');
+    await tile.click();
+    await expect.poll(() => page.evaluate(() => location.hash)).toBe(href);
+    await page.goto('./#/week');
+    await expect(box).toBeVisible();
+  }
+});

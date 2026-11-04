@@ -569,7 +569,7 @@ Warum: Der Tagescheck soll aus Noahs Daten klug fragen (Ziel 5 «Alltag», dazu 
 
 - **Regeln:** Auffälliges löst eine offene Frage mit «Warum frage ich das?» aus, im normalen Morgen- oder Abendfenster, bis zu 3 pro Tag, ruhig und neugierig im Ton. Alles wird auf dem Gerät gerechnet, Gesundheit nur als Beobachtung.
 - **Stufe 1:** Regel-Motor mit Ruhepuls-Regel, Schlaf-kurz- und Stimmung-tief-Regel, Kasten «Fragen aus deinen Daten» mit Schalter, Schwelle und eigenem Text je Regel (alles gebaut).
-- **Stufe 2:** Regeln aus Training, Strava, Tennis und Wetter, Wiederholungsschutz, eine Zufallsfrage pro Tag aus den ausgeschalteten Musterfragen («Nie mehr»), Vermutungen testen aus «Was zusammenpasst».
+- **Stufe 2:** Regeln aus Training und Strava (gebaut: «Langer Tag gestern», «Pause vom Training»), Tennis (gebaut: «Nach einem Tennisspiel», «Platzzeit, die ausfiel») und Wetter, Wiederholungsschutz, eine Zufallsfrage pro Tag aus den ausgeschalteten Musterfragen («Nie mehr»), Vermutungen testen aus «Was zusammenpasst».
 - **Stufe 3:** Kalender, To-Dos, Wunschtouren, Gewicht, Achtsamkeit, eigene Regeln selbst bauen, die zwei Fragensysteme (15 Fragen und «Wi gaht's?») zusammenführen, Tonwahl.
 - **Je ein kleiner PR**, in dieser Reihenfolge.
 

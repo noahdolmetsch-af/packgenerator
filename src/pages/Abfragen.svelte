@@ -28,7 +28,7 @@
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
   import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
-  import { OWN_AREA, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
+  import { OWN_AREA, QUESTION, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -79,6 +79,8 @@
   const dcfg = $derived(data?.dataCfg ?? null);
   const saveD = (next) => (data ? saveDataCfg(next) : undefined);
   const hasFitbit = $derived((data?.health ?? []).length > 0);
+  const hasTraining = $derived((data?.acts ?? []).length > 0);
+  const hasTennis = $derived((data?.sport ?? []).some((x) => x.sport === 'act:tennis'));
   async function removeQuestion(q) {
     const name = qText(q);
     const answer = await askDelete({ title: t('Delete «{q}»?', { q: name }), text: q.own ? t('Your own question goes. Its answers stay in the history.') : t('The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.') });
@@ -182,6 +184,8 @@
         <h2 id="ab-data-h">{t('Questions from your data')}</h2>
         <p class="eh">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
         {#if !hasFitbit}<p class="eh" data-data-empty>{t('No Fitbit values yet. The rules for pulse and sleep wait until Fitbit brings them (Me › Fitbit); the mood rule needs your answers.')}</p>{/if}
+        {#if !hasTraining}<p class="eh" data-data-empty-training>{t('No training yet. The rules for long days and pauses wait until Strava brings your activities.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasTennis}<p class="eh" data-data-empty-tennis>{t('No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.')}</p>{/if}
         {#each RULES as r (r.id)}
           <div class="dr" data-rule={r.id}>
             <div class="rsw">
@@ -270,6 +274,7 @@
                       <span class="ab-tags">
                         <span class="ab-kind">{kindLabel(q.form)}</span>
                         {#if q.sample}<span class="ab-ex" data-sample>{t('sample|question')}</span>{/if}
+                        {#if !s.on && MERGED_INTO[q.id] && QUESTION[MERGED_INTO[q.id]]}<span class="ab-ex" data-merged={MERGED_INTO[q.id]}>{t('merged into «{q}»', { q: qText(QUESTION[MERGED_INTO[q.id]]) })}</span>{/if}
                         {#if kindExtra(q.form)}<span class="ab-ex">{kindExtra(q.form)}</span>{/if}
                         {#each q.src as k (k)}{@const I = ICON_SRC[k] ?? Hand}<span class="ab-src {k}"><I size={13} aria-hidden="true" />{srcText(k)}</span>{/each}
                       </span>

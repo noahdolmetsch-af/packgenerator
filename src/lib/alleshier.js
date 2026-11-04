@@ -46,6 +46,26 @@ export const ALL_HERE = {
     { id: 'mountain', title: 'Mountain and emergency', href: '#/mountain' },
     'f.quiz',
   ],
+  plan: [
+    'f.agenda',
+    'f.remember',
+    { id: 'notes', title: 'Notes', href: '#/notes' },
+    'f.inbox',
+    { id: 'matters', title: 'Matters', href: '#/inbox/vorgaenge' },
+    'f.reminders',
+    'f.shopping',
+    'f.cook',
+    'f.contracts',
+    'f.people',
+    { id: 'friends', title: 'With friends', href: '#/me/freunde' },
+    { id: 'minitools', title: 'Mini tools', href: '#/me/mini' },
+    'f.journal',
+    'f.photoalbum',
+    'f.docs',
+    'f.compass',
+    'f.ruhig',
+    'f.plantpass',
+  ],
 };
 
 const idOf = (e) => (typeof e === 'string' ? e : e.id);

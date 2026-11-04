@@ -32,6 +32,7 @@
   import Regen24 from '../lib/wetter/Regen24.svelte'; // «Regen 24 h» (Noah 04.11.2026 «2a»)
   import FensterBox from '../lib/wetter/FensterBox.svelte'; // Fenster für Landi-Radar und SRF-Webcams (Noah 04.11.2026 «1a», «3a»)
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
+  import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -245,6 +246,7 @@
           <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
         </p>
       {/if}
+      <SchneeBlock {core} {now} />
       {#each warns as w (w.kind)}<p class="wx-warn" data-wx-warn={w.kind}><TriangleAlert size={16} aria-hidden="true" />{warnText(w)}</p>{/each}
       {#if fb}<p class="wx-note" data-wx-fb={fb}><Wind size={16} aria-hidden="true" />{fb === 'foehn' ? t('Föhn: strong, dry wind from the south. Gusty in the valleys.') : t('Bise: cold wind from the north-east. It feels colder than the number.')}</p>{/if}
       {#if train}<p class="wx-note" data-wx-train><Train size={16} aria-hidden="true" />{t('Today rather the train? On the way to and from work: {why}.', { why: train.why.map((k) => t(k === 'rain' ? 'heavy rain' : k === 'thunder' ? 'thunderstorms' : k === 'storm' ? 'storm gusts' : 'ice')).join(', ') })} <a href="https://www.sbb.ch/" target="_blank" rel="noopener noreferrer">SBB</a></p>{/if}

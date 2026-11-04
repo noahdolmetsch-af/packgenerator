@@ -5,7 +5,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import 'fake-indexeddb/auto';
 import {
-  AREAS, QUESTIONS, QUESTION, ON_AT_START, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
+  AREAS, QUESTIONS, QUESTION, ON_AT_START, MERGED_INTO, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
   everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, skipToday, quietToday, isQuiet, dayEnd, eveningEve, QUIET_KEY, QUIET_ROUND, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
   ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY,
@@ -48,13 +48,21 @@ describe('the 50 questions', () => {
     expect(DE['How happy are you with the day: the best of both worlds?']).toBe('Wie zufrieden bist du mit dem Tag: Fünfer und Weggli?');
   });
 
-  it('31 are on at the start, as in AB5 (4·4·3·3·2·3·2·3·4·3), plus the 4 evening questions of Paket P; the other 19 can be switched on', () => {
-    expect(ON_AT_START.size).toBe(35);
+  it('29 are on at the start (AB5 and Paket P, minus the six that ask the same as another one); the others can be switched on', () => {
+    expect(ON_AT_START.size).toBe(29);
     for (const id of ON_AT_START) expect(QUESTION[id]).toBeTruthy();
     const n = counts(null);
-    expect(n).toMatchObject({ all: 104, on: 35 });
-    expect(AREAS.map((a) => n.per[a.key].on)).toEqual([5, 4, 3, 3, 4, 3, 2, 4, 4, 3]);
+    expect(n).toMatchObject({ all: 104, on: 29 });
+    expect(AREAS.map((a) => n.per[a.key].on)).toEqual([5, 2, 1, 3, 4, 3, 2, 3, 4, 2]);
     expect(settingOf(null, QUESTION['erholung.sofa']).on).toBe(false); // AB5: Sofa oder Sattel is off
+    // Noah 04.11.2026 «3a»: one question per topic: the merged ones are off at the start, the one they merge into is on
+    expect(Object.keys(MERGED_INTO)).toHaveLength(6);
+    for (const [gone, into] of Object.entries(MERGED_INTO)) {
+      expect(QUESTION[gone]).toBeTruthy();
+      expect(settingOf(null, QUESTION[gone]).on).toBe(false);
+      expect(settingOf(null, QUESTION[into]).on).toBe(true);
+      expect(settingOf({ q: { [gone]: { on: true } } }, QUESTION[gone]).on).toBe(true); // switched on again by hand
+    }
     expect(settingOf(null, QUESTION['erholung.akku']).every).toEqual({ kind: 'times', times: ['08:00', '13:00', '20:00'] });
   });
 
@@ -69,10 +77,10 @@ describe('switching and intervals', () => {
     let c = configOf({ since: `${d(-10)}T08:00` });
     c = setOn(c, 'spass.gelacht', true, `${D0}T20:30`);
     expect(settingOf(c, QUESTION['spass.gelacht'])).toMatchObject({ on: true, since: `${D0}T20:30` });
-    expect(counts(c).on).toBe(36);
+    expect(counts(c).on).toBe(30);
     c = setOn(c, 'erholung.akku', false, `${D0}T09:00`);
     expect(settingOf(c, QUESTION['erholung.akku']).on).toBe(false);
-    expect(counts(c).on).toBe(35);
+    expect(counts(c).on).toBe(29);
   });
 
   it('own interval per question, several times a day sorted and without doubles', () => {
@@ -111,7 +119,7 @@ describe('own questions (AB2)', () => {
     expect(own).toMatchObject({ text: 'Kaffee', area: 'eigene', form: { kind: 'number', unit: 'Tassen' }, own: true, src: ['only'] });
     let c = putOwn(null, own, `${D0}T10:00`);
     expect(c.own).toHaveLength(1);
-    expect(counts(c)).toMatchObject({ all: 105, on: 36 });
+    expect(counts(c)).toMatchObject({ all: 105, on: 30 });
     expect(settingOf(c, c.own[0])).toMatchObject({ on: true, since: `${D0}T10:00`, every: { kind: 'times', times: ['12:00', '18:00'] } });
     c = putOwn(c, { ...own, text: 'Espresso', every: { kind: 'off' } }, `${D0}T11:00`);
     expect(c.own[0].text).toBe('Espresso');
@@ -273,10 +281,10 @@ describe('what is due now (AB3)', () => {
     expect(pendingSlot({ kind: 'daily', time: '07:00' }, `${d(-5)}T00:00`, `${D0}T09:00`)).toBe(`${d(-5)}T07:00`);
     expect(pendingSlot({ kind: 'daily', time: '07:00' }, `${D0}T08:00`, `${D0}T09:00`)).toBe(null);
     const c = { since: `${d(-2)}T21:00`, ...OWN };
-    const wait = (ans, snooze = {}, now = `${D0}T09:00`) => dueList(c, ans, now, snooze).find((x) => x.q.id === 'spass.emoji') ?? null;
+    const wait = (ans, snooze = {}, now = `${D0}T09:00`) => dueList(c, ans, now, snooze).find((x) => x.q.id === 'spass.coolstes') ?? null;
     expect(wait([]).slot).toBe(`${d(-1)}T20:00`); // yesterday evening, still there this morning
     expect(wait([], {}, `${d(1)}T09:00`).slot).toBe(`${d(-1)}T20:00`); // and the day after
-    expect(wait([{ qid: 'spass.emoji', at: `${D0}T08:59` }])).toBe(null); // answered
+    expect(wait([{ qid: 'spass.coolstes', at: `${D0}T08:59` }])).toBe(null); // answered
     const tapped = snoozeAll({}, [wait([])]);
     expect(wait([], tapped)).toBe(null); // tapped away
     expect(wait([], tapped, `${D0}T20:00`).slot).toBe(`${D0}T20:00`); // back at its next time
