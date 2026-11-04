@@ -1,6 +1,6 @@
 # Körperwerte und Sportseiten: Diagramme zum Antippen
 
-PR #? · 04.11.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»), PR 5 von 8 (Körperwerte; Training folgt als eigener PR)
+PR #831 · 04.11.2026 · Auftrag: Noah «1-5 a» (Thread «Diagramme klickbar machen»), PR 5 von 8 (Körperwerte; Training folgt als eigener PR)
 
 ## Was ist neu
 - Alle Diagramme der Seite «Körperwerte» und der Sportseiten (`src/pages/flow/Stats.svelte`): Balken (Strecke, Zeit, Höhenmeter, Kalorien, Schlaf, Zonen) als `BarChart`, Linien (Ruhepuls und höchster Puls, Werte pro Tag, Blutdruck, Velo-km des Jahres) als neues gemeinsames `LineChart` (`src/lib/charts/LineChart.svelte`).
