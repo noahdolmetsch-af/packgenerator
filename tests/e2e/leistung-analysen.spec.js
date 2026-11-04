@@ -212,7 +212,14 @@ test('Analysen auf der Aktivität: Anstiege, Abschnitte, Verlauf, Puls mal Leist
   await sheet.locator('[data-ana-switch="ghost"]').click();
   await expect(card('ghost')).toHaveCount(0);
   await expect(card('homeloop').locator('[data-homeloop-sentence]')).toHaveText('Auf dieser Strecke warst du diesmal 1:20 schneller als im Schnitt, bei 4 Schlägen weniger Puls.');
-  if (process.env.SHOTS) await card('homeloop').screenshot({ path: `${process.env.SHOTS}/hausrunde-mit-satz-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  if (process.env.SHOTS) {
+    await sheet.getByRole('button', { name: 'Fertig' }).click();
+    await expect(sheet).toBeHidden();
+    await card('homeloop').screenshot({ path: `${process.env.SHOTS}/hausrunde-mit-satz-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await card('best').getByRole('button', { name: 'Mehr zu Bestwerte' }).click();
+    await page.getByRole('menuitem', { name: 'Analysen anpassen' }).click();
+    await expect(sheet).toBeVisible();
+  }
   await sheet.locator('[data-ana-switch="ghost"]').click();
   await sheet.getByRole('button', { name: 'Fertig' }).click();
   await expect(card('ghost')).toBeVisible();
