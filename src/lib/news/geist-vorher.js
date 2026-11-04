@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: 'Before the start you choose your ghost: your last ride, an earlier one on this tour, or «Without a ghost»',
-      go: { where: 'Open the live map with a tour that has an earlier ride recorded in the app: the box «Who do you ride against today?» sits above «During the ride».' },
+      go: { href: '#/trips', where: 'Open the live map with a tour that has an earlier ride recorded in the app: the box «Who do you ride against today?» sits above «During the ride».' },
     },
     {
       text: 'During the ride you can change the ghost, and the line says «ahead of / behind your ghost of» with its day',
