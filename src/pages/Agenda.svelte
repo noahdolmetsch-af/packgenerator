@@ -19,6 +19,8 @@
   import { eventQuery, MAIL_HASH } from '../lib/mail.js';
   import { CalendarDays, ListChecks, Link, Lock, RefreshCw, Plus, Check, Circle, CircleCheck, Pencil, Trash2, ExternalLink, MapPin, Clock, EyeOff, Mail, Copy, CopyPlus, X, ChevronLeft, ChevronRight } from '@lucide/svelte';
   import '../lib/ich/ich.css';
+  import ConnStatus from '../lib/ui/ConnStatus.svelte';
+  import { lastOkFetchLine } from '../lib/ui/connstatus.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
 
   const hasKey = readKey();
@@ -196,6 +198,7 @@
       unauthorized: t('This device has no key yet: connect Strava on this device first.'),
       not_set_up: t('Google is not set up on the server yet.'),
       network: t('No connection. What is on this device stays; try again later.'),
+      timeout: t('Google did not answer in time. What is on this device stays; try again.'),
       google_login_needed: t('Google needs a new login.'),
       calendar_not_allowed: t('The calendar is not allowed yet: connect it again.'),
       tasks_not_allowed: t('Google Tasks is not allowed yet: connect it again.'),
@@ -225,7 +228,7 @@
 <div class="agendapage">
   <VeloHead crumbs={[{ label: t('Plan|place'), href: '#/week' }]} here={t('Appointments and tasks')} title={t('Appointments and tasks')} sub={t('Your Google calendar and Google Tasks in the app: see, tick, add. Also for «Plan the week». Voluntary, you can switch it off at any time.')} />
 
-  {#if agenda.error}<p class="err" role="status">{errorText(agenda.error)}</p>{/if}
+  {#if agenda.error}<p class="err" role="status">{errorText(agenda.error)}{#if p.calendar || p.tasks}{' '}{lastOkFetchLine(t, { lastOkAt: p.lastSync, when: ago })}{/if}</p>{/if}
   {#if msg}<p class="msg" role="status">{msg}</p>{/if}
 
   <div class="ich-cols" class:wide={view === 'week' && p.calendar}>
@@ -430,6 +433,7 @@
           <div class="ich-h"><div><h2 id="st-h">{t('From Google')}</h2><p class="ich-hs">{p.lastSync ? t('fetched {when}', { when: ago(p.lastSync) }) : t('not fetched yet')}</p></div></div>
           <div class="card ich-body">
             <button type="button" class="btn wide" disabled={agenda.busy} onclick={fetchButton}><RefreshCw size={15} aria-hidden="true" />{agenda.busy ? t('Fetching…') : t('Fetch now')}</button>
+            <ConnStatus name="Google" busy={agenda.busy} since={agenda.since} />
             <p class="ich-help">{t('By itself when the app opens, at most every 15 minutes.')}</p>
           </div>
         </section>
