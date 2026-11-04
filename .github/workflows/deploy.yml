@@ -49,6 +49,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Noah 04.11.2026 «Test-Plan 2»: a yellow note when the branch left main more than a day ago. Never red.
+      - name: Behind main?
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: node scripts/behind-main.mjs
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       - run: npm test
       - run: npm run build
 
