@@ -50,7 +50,7 @@ export default defineConfig({
           { name: 'de-texts-1', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!auto\.gen\.)[a-g][^\\/]*\.js$/ },
           { name: 'de-texts-2', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!index\.)(?:[h-o][^\\/]*|vo2heute)\.js$/ },
           { name: 'de-texts-3', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/][p-s][^\\/]*\.js$/ },
-          { name: 'de-texts-4', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!vo2heute\.)[t-z][^\\/]*\.js$/ }] },
+          { name: 'de-texts-4', includeDependenciesRecursively: false, test: /src[\\/]lib[\\/]i18n[\\/]de[\\/](?!vo2heute\.|wissen-)[t-z][^\\/]*\.js$/ }] },
       },
     },
   },
