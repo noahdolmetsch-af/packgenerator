@@ -1,6 +1,6 @@
 # Gründe für Planänderungen
 
-PR folgt · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 4 von 6
+PR #855 · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 4 von 6
 
 ## Was ist neu
 - Setzt du eine Tour auf «Nicht fahren», fragt eine Karte in Planen: «Warum fährst du nicht?». Ein Tipp auf einen Grund (keine Zeit, müde Beine, Wetter, keine Lust, Material, nicht fit) genügt. «Jetzt nicht» legt die Frage weg.
