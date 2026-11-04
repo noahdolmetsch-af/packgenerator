@@ -12,7 +12,13 @@
    * with an icon the block shows a small drawn picture (a soft card with two lines, the icon in a bubble on its
    * corner) that rises in gently when the view opens; still with «Bewegung reduzieren».
    */
-  let { text, title = '', level = 0, headId = undefined, action = null, action2 = null, icon = null, children = null } = $props();
+  import Murmeltier from '../murmeltier/Murmeltier.svelte'; // «Ein Murmeltier als Begleiter» (Idee 28)
+  import { ops } from '../bedienung.svelte.js';
+  import { SCENES, sceneFor } from './emptyscene.js';
+  let { text, title = '', level = 0, headId = undefined, action = null, action2 = null, icon = null, children = null, scene = '' } = $props();
+  // «Leere Seiten mit Velo-Szenen» (Noah 03.11.2026 «b», Paket D, Idee 19): the drawing is a small scene of the bike world
+  // (a bike on the wall, a tent under stars, an empty bike rack); the page's area picks it, `scene` forces one.
+  const which = $derived(SCENES.includes(scene) ? scene : sceneFor(globalThis.location?.hash));
 </script>
 
 {#snippet btn(a, main)}
@@ -23,8 +29,22 @@
 <div class="empty" data-empty>
   {#if icon}{@const Icon = icon}
     <span class="pic" aria-hidden="true" data-empty-pic>
-      <svg class="sheet" viewBox="0 0 120 84"><rect x="4" y="14" width="104" height="66" rx="12" /><rect class="clip" x="34" y="6" width="44" height="16" rx="8" /><path d="M24 44 H84 M24 58 H64" /></svg>
+      <svg class="sheet" viewBox="0 0 120 84" data-scene={which}>
+        {#if which === 'tent'}
+          <g class="star"><circle cx="16" cy="16" r="1.8" /><circle cx="40" cy="8" r="1.8" /><circle cx="68" cy="14" r="1.8" /><circle cx="28" cy="34" r="1.8" /></g>
+          <path class="fill" d="M22 72 L58 26 L94 72Z" /><path class="cut" d="M50 72 L58 46 L66 72Z" /><path class="draw" d="M22 72 L58 26 L94 72 M8 72 H112" />
+        {:else if which === 'rack'}
+          <path class="draw" d="M6 72 H114" />
+          <path class="draw" d="M18 72V48Q18 36 28 36Q38 36 38 48V72M50 72V48Q50 36 60 36Q70 36 70 48V72M82 72V48Q82 36 92 36Q102 36 102 48V72" />
+        {:else}
+          <rect class="fill" x="4" y="8" width="104" height="66" rx="12" />
+          <path class="draw" d="M62 12V32" /><circle class="draw" cx="62" cy="11" r="2.4" />
+          <g class="draw"><circle cx="26" cy="58" r="13.5" /><circle cx="86" cy="58" r="13.5" /><path d="M26 58 L50 58 L62 38 L77 38 L86 58 M50 58 L62 38 M44 31 H56" /></g>
+          <path class="draw" d="M4 76 H108" />
+        {/if}
+      </svg>
       <span class="ring"><Icon size={20} /></span>
+      {#if ops.murmeltier}<span class="mmw"><Murmeltier size={40} /></span>{/if}
     </span>
   {/if}
   {#if title && level}<svelte:element this={`h${level}`} class="head" id={headId}>{title}</svelte:element>
@@ -62,19 +82,27 @@
     width: 100%;
     height: 100%;
   }
-  .sheet rect {
+  .sheet .fill {
     fill: color-mix(in srgb, var(--hi) 12%, var(--paper));
   }
-  .sheet .clip {
+  .sheet .cut {
     fill: var(--paper);
-    stroke: var(--hi);
-    stroke-width: 3;
   }
-  .sheet path {
+  .sheet .star circle {
+    fill: var(--hi);
+  }
+  .sheet .draw,
+  .sheet .draw :is(path, circle) {
     fill: none;
     stroke: var(--hi);
-    stroke-width: 4;
+    stroke-width: 3.5;
     stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .mmw {
+    position: absolute;
+    left: -34px;
+    bottom: -2px;
   }
   .ring {
     position: absolute;
@@ -96,9 +124,10 @@
     .ring {
       animation: em-pop 360ms var(--ease-out) 260ms both;
     }
-    .sheet path {
-      stroke-dasharray: 60;
-      animation: em-draw 520ms var(--ease-out) 160ms both;
+    .sheet .draw,
+    .sheet .draw :is(path, circle) {
+      stroke-dasharray: 400;
+      animation: em-draw 700ms var(--ease-out) 160ms both;
     }
   }
   @keyframes em-rise {
@@ -115,7 +144,7 @@
   }
   @keyframes em-draw {
     from {
-      stroke-dashoffset: 60;
+      stroke-dashoffset: 400;
     }
   }
   .head {

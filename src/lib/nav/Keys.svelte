@@ -19,6 +19,7 @@
   const close = () => (open = false);
   const ALL = [
     ['Search', '/'],
+    ['Search from anywhere|keys', '⌘ K  /  Ctrl K'],
     ['New', 'n'],
     ['Me|place', 'i'],
     ['This help', '?'],

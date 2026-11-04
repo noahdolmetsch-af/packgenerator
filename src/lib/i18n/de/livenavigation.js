@@ -189,4 +189,8 @@ export default {
   'You drink (ml per hour, 0 = automatic)': 'Du trinkst (ml pro Stunde, 0 = automatisch)',
   'Full|bottle': 'Voll',
   'Half|bottle': 'Halb',
+  'Way out': 'Ausstieg',
+  '{d} km off the route': '{d} km neben der Strecke',
+  'For a fall, a storm or a broken bike: the nearest station on the way. Trains need a ticket and a bike space, check on the spot.': 'Für einen Sturz, ein Gewitter oder ein defektes Velo: der nächste Bahnhof auf dem Weg. Im Zug brauchst du ein Ticket und einen Veloplatz, prüfe es vor Ort.',
+  'No station found on the way yet. Load the stops along the route.': 'Noch kein Bahnhof auf dem Weg gefunden. Lade die Stopps entlang der Strecke.',
 };

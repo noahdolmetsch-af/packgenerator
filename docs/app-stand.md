@@ -111,7 +111,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Mein Setup | `#/bikes?tab=rig` | Setupfotos, Taschenvarianten und Gesamtgewicht verwalten; Vorbilder und Änderungen dokumentieren. |
 | Taschenplan | `#/bikes?tab=rig&view=bags` | Taschenpositionen und Gewichtsverteilung vorne, mittig und hinten prüfen. |
 | Setup-Logbuch | `#/bikes?tab=rig&view=log` | Umbauen und Einstellungen mit Kilometerstand und anschliessenden Erfahrungen festhalten. |
-| Velopflege | `#/bikes?tab=care` | Wartungen nach Kilometern, Fahrstunden oder Zeit planen und erledigte Arbeiten dokumentieren. |
+| Velopflege | `#/bikes?tab=care` | Wartungen nach Kilometern, Fahrstunden oder Zeit planen und erledigte Arbeiten dokumentieren. Im November, Dezember und Februar schlägt die Karte «Passt jetzt» (auch auf Heute) Einwintern, Jahresrückblick und Frühling vor. |
 | Veloinspektion | `#/bikes?tab=care&view=inspect` | Schnellcheck, Monatscheck oder vollständige Inspektion Punkt für Punkt mit Werkzeugen und Arbeitsschritten durchführen. |
 | Verschleiss | `#/bikes?tab=care&view=wear` | † Laufleistung, Restlaufzeit und frühere Lebensdauer von Ketten, Reifen und Belägen verfolgen; Kosten kommender Wechsel abschätzen. |
 | Werte erfassen | `#/bikes?tab=compare&view=enter` | † Messwerte wie Reifendruck und Kettenmessungen dokumentieren. |
