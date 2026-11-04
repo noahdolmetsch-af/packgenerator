@@ -138,7 +138,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen; ganz oben das Feld «Alles hier» mit zehn Kacheln zu allen Funktionen von Aktiv; nach dem Abhaken führt «Als Nächstes» zu Verlauf und Meilensteinen. |
-| Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf und Zusatzbausteinen anlegen. |
+| Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf, Timer und Zusatzbausteinen anlegen; oben stehen die zuletzt genutzten. |
 | Training | `#/flow/training` | Einheiten mit Dauer und Zone planen; Aktivitäten, Pulszonen und subjektive Anstrengung auswerten. |
 | Leistungsanalysen | `#/flow/training?view=list` | Einzelne Aktivitäten mit Leistung, Herzfrequenz, Runden, Splits und weiteren verfügbaren Messwerten öffnen. |
 | Schlag deinen Geist | `#/flow/training?view=list` | Auf einer Velofahrt mit Puls die Analyse-Karte «Schlag deinen Geist»: diese Fahrt gegen eine frühere eigene Fahrt, mit Angabe, wie ähnlich die beiden sind. «Ausprobieren» in «Was ist neu» führt dorthin. |
