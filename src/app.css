@@ -1724,6 +1724,22 @@ html:root[data-contrast='high'][data-theme='dark'] {
   }
 }
 
+/* «Der Titel fliegt mit» (Noah 03.11.2026 «b», Paket A Seitenwechsel 2): a tour's name travels from the list to the heading of its page
+   (src/lib/nav/vtitle.js starts a View Transition when the name is tapped and sets <html data-vt> meanwhile). Only the name moves:
+   the rest of the page appears at once, as before (the new picture simply covers the old one). Not started with less motion. */
+html[data-vt] [data-tour-page] h1 {
+  view-transition-name: pg-title;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-group(pg-title) {
+  animation-duration: 260ms;
+  animation-timing-function: var(--ease-out);
+}
+
 /* «Neuer Schwung» Teil 2 (Noah 26.10.2026 «4a»: motion everywhere, kept subtle): Heute comes alive when it opens.
    The tiles fade in one after another (at most ten steps, 40 ms apart), big numbers rise in, packing bars fill
    from the left and rings draw themselves. Only opacity, clip-path and stroke move: no box changes size or
