@@ -49,6 +49,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Noah 04.11.2026 «Test-Plan 2»: a yellow note when the branch left main more than a day ago. Never red.
+      - name: Behind main?
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: node scripts/behind-main.mjs
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       - run: npm test
       - run: npm run build
 
@@ -90,6 +97,7 @@ jobs:
         run: npm run e2e -- --project=phone --shard=${{ matrix.shard }}/5
         env:
           E2E_SKIP_GESAMTTEST: '1' # runs every night (volle-pruefung.yml)
+          NEWS_ONLY: ${{ steps.scope.outputs.news }} # «Ausprobieren» taps only this PR's news lines (all of them at night)
       - if: steps.scope.outputs.mode == 'specs' && matrix.shard == 1
         run: npm run e2e -- --project=phone ${{ steps.scope.outputs.specs }}
         env:

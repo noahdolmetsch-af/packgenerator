@@ -10,6 +10,7 @@ import { featuresOn, textFits, homeMatches } from './pinmarks.js';
 import { HOME } from '../know/heimat.js';
 import { SPOT, showSpot, light } from '../know/spot.js';
 
+// [data-no-pin]: a block of links to other places (e.g. «All here», ui/AllHere.svelte) is no card of these functions
 const SEL = 'h1, h2, h3, h4, summary, button, a, label, [role=tab], th';
 const CARD = 'section, article, details, li, [role=tab], table, .card, [class*="card"], [class*="tile"]';
 // titles first (a card's heading), then folds, tabs and table heads, buttons and links last
@@ -20,7 +21,7 @@ export function findCards(hash, ids = null) {
   const main = document.querySelector('main');
   if (!main) return [];
   const els = [...main.querySelectorAll(SEL)]
-    .filter((e) => e.getClientRects().length && !e.closest('dialog, [role=dialog]'))
+    .filter((e) => e.getClientRects().length && !e.closest('dialog, [role=dialog], [data-no-pin]'))
     .sort((a, b) => rank(a) - rank(b));
   const used = new Set();
   const out = [];
