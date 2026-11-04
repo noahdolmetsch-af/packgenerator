@@ -34,6 +34,7 @@
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
   import PlanNotesCard from './PlanNotesCard.svelte';
+  import ExpectPick from './ExpectPick.svelte';
   import DocChecks from './DocChecks.svelte';
   import WhySheet from './WhySheet.svelte'; // P3 «Warum? und Regeln» (RG1): why a row is on the list
   import { hasStages } from '../stages.js';
@@ -360,10 +361,12 @@
           <ProbeRow {trip} {items} card />
           <PackExtras {trip} {trips} {itemsById} />
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
+          {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
           <PlanNotesCard {trip} {bike} {fixed} />
         </div>
       </div>
     {:else}
+      {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
       <PlanNotesCard {trip} {bike} {fixed} />
       <PlanHints {trip} {trips} {items} />
       <DoorCard {trip} />
