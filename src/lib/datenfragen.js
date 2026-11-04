@@ -1,7 +1,7 @@
 /**
  * «Fragen aus deinen Daten» (Noah 03.11.2026, thread «Brainstorme intelligenteren Tagescheck», «1b 2a 3a 4a 5a»):
  * when a value of the day stands out, the window of the round asks ONE open question about it and says why
- * («Warum frage ich das?»). Step 1: the rule engine and the rules from Fitbit and your answers. Step 2: more sources (Strava training so far).
+ * («Warum frage ich das?»). Step 1: the rule engine and the first rule, the resting pulse above your usual.
  *
  * - Everything is calculated on this device from the Fitbit days (healthDays) and the answers; nothing leaves it.
  * - Observation only: the question never judges and never names a cause; the answer is a plain chip or a sentence.
@@ -30,10 +30,10 @@ export const SHORT_SLEEP_MIN = 360;
 /** Mood: this many days in a row, each this far below your usual. */
 export const MOOD_DAYS = 3;
 export const MOOD_BELOW = 1;
-/** Training (Strava): yesterday out for this many hours or more counts as long; this many days without any training counts as a pause. */
-export const LONG_HOURS = 3;
+/** A long day: moving time of yesterday's Strava activities together, in hours (Noah 03.11.2026, step 2). */
+export const LONG_DAY_H = 3;
+/** A pause: this many days without any training logged (Strava or tennis). The activities are read this many days back. */
 export const PAUSE_DAYS = 4;
-/** How far back the activities are read (a pause needs a last training to count from). */
 export const ACT_DAYS = 40;
 
 const chip = (key, label) => ({ key, label: `${label}|data` });
@@ -88,20 +88,20 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'stimmung',
   },
-  'daten.fahrt': {
-    id: 'daten.fahrt',
-    area: 'koerper',
+  'daten.training': {
+    id: 'daten.training',
+    area: 'sport',
     text: 'How do your legs feel after yesterday?',
     form: {
       kind: 'chips',
       multi: true,
       note: true,
-      options: [chip('light', 'Light'), chip('fine', 'Fine'), chip('heavy', 'Heavy'), chip('sore', 'Sore'), chip('hungry', 'Still hungry'), chip('littleFood', 'Ate too little on the way')],
+      options: [chip('fresh', 'Fresh'), chip('heavy', 'Heavy legs'), chip('stiff', 'Stiff'), chip('tired', 'Tired'), chip('hungry', 'Very hungry'), chip('nothing', 'Nothing special')],
     },
     every: { kind: 'daily', time: '07:00' },
-    src: ['hand'],
+    src: ['strava'],
     data: true,
-    rule: 'fahrt',
+    rule: 'training',
   },
   'daten.pause': {
     id: 'daten.pause',
@@ -147,18 +147,16 @@ export const RULES = [
     param: { key: 'n', min: 2, max: 7, step: 1, def: MOOD_DAYS, label: 'Days in a row' },
   },
   {
-    id: 'fahrt',
-    qid: 'daten.fahrt',
-    needs: 'strava',
-    title: 'After a long day out',
-    about: 'Asks when you were out for {n} hours or more yesterday (a ride, run or hike from Strava).',
-    vars: { n: LONG_HOURS },
-    param: { key: 'n', min: 1, max: 8, step: 0.5, def: LONG_HOURS, label: 'Out for at least (hours)' },
+    id: 'training',
+    qid: 'daten.training',
+    title: 'Long day yesterday',
+    about: 'Asks when yesterday\'s Strava activities together took at least {n} hours.',
+    vars: { n: LONG_DAY_H },
+    param: { key: 'n', min: 1, max: 8, step: 0.5, def: LONG_DAY_H, label: 'At least (hours on the move)' },
   },
   {
     id: 'pause',
     qid: 'daten.pause',
-    needs: 'strava',
     title: 'A pause from training',
     about: 'Asks when you have logged no training for {n} days (Strava or tennis).',
     vars: { n: PAUSE_DAYS },
@@ -283,13 +281,13 @@ export function stimmungHit(answers = [], checks = [], today, days = MOOD_DAYS) 
   return days === 3 ? { a: r1(vals[0]), b: r1(vals[1]), c: r1(vals[2]), usual: r1(usual) } : { days, list: vals.map(r1).join(', '), usual: r1(usual) };
 }
 
-/** Seconds out and kilometres of the longest activity yesterday that lasted at least `hours`: { h, m, km } or null. */
-export function fahrtHit(acts = [], today, hours = LONG_HOURS) {
-  const yesterday = addDays(today, -1);
-  const long = acts.filter((a) => a?.day === yesterday && !a.commute && fin(a.movingS) != null && a.movingS >= hours * 3600).sort((a, b) => b.movingS - a.movingS)[0];
-  if (!long) return null;
-  const min = Math.round(long.movingS / 60);
-  return { h: Math.floor(min / 60), m: min % 60, km: Math.round(fin(long.km) ?? 0) };
+/** Yesterday's activities (Strava) together: { h, m } when the moving time is at least `hours`, else null. */
+export function trainingHit(acts = [], today, hours = LONG_DAY_H) {
+  const y = addDays(today, -1);
+  const sec = acts.filter((a) => a?.day === y).reduce((n, a) => n + (fin(a.movingS) > 0 ? a.movingS : 0), 0);
+  if (sec <= 0 || sec < hours * 3600) return null;
+  const min = Math.round(sec / 60);
+  return { h: Math.floor(min / 60), m: min % 60 };
 }
 
 /** The days with any training logged: Strava activities and tennis played or taught (sport items). */
@@ -299,10 +297,9 @@ export function trainingDays(acts = [], sport = []) {
   for (const x of sport) if (x?.day && x.sport === 'act:tennis' && (x.kind === 'played' || x.kind === 'taught')) days.add(x.day);
   return days;
 }
-/** No training for `days` days or more: { n } (days since the last one). Without a training in the days read there is nothing to count from: null. */
+/** No training for `days` days or more: { n } (days since the last one). Without any training in the days read there is nothing to count from: null. */
 export function pauseHit(acts = [], sport = [], today, days = PAUSE_DAYS) {
-  const all = [...trainingDays(acts, sport)].filter((d) => d <= today).sort();
-  const last = all.at(-1);
+  const last = [...trainingDays(acts, sport)].filter((d) => d <= today).sort().at(-1);
   if (!last) return null;
   let n = 0;
   while (addDays(last, n) < today) n++;
@@ -310,28 +307,28 @@ export function pauseHit(acts = [], sport = [], today, days = PAUSE_DAYS) {
 }
 
 const WHY = {
-  fahrt: 'Yesterday you were out for {h} h {m} min and {km} km.',
   pause: 'Your last logged training was {n} days ago.',
+  training: 'Yesterday you were on the move for {h} h {m} min.',
   ruhepuls: 'Your resting pulse today is {v}, your usual of the last 30 days is {normal}.',
   schlaf: 'You slept {h} h {m} min last night.',
   stimmung: 'Your mood was {a}, {b} and {c} on the last three days, your usual is {usual}.',
   stimmungN: 'Your mood on the last {days} days was {list}, your usual is {usual}.',
 };
 const HITS = {
+  pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
+  training: ({ acts, today, val }) => trainingHit(acts, today, val),
   ruhepuls: ({ health, today, val }) => ruhepulsHit(health, today, val),
   schlaf: ({ health, today, val }) => schlafHit(health, today, val),
   stimmung: ({ answers, checks, today, val }) => stimmungHit(answers, checks, today, val),
-  fahrt: ({ acts, today, val }) => fahrtHit(acts, today, val),
-  pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
 };
 
 /**
  * The questions from data that are due today: [{ q, slot, last, why: { text, vars }, data: true }].
- * health: healthDays rows; acts: Strava activities { day, movingS, km, commute }; sport: sport items { sport, kind, day }; answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
+ * health: healthDays rows; acts: Strava activities { day, movingS }; sport: sport items { sport, kind, day }; answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], answers = [], checks = [], acts = [], sport = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const doneToday = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => a.qid)).size;
@@ -345,7 +342,7 @@ export function dataDue({ health = [], answers = [], checks = [], acts = [], spo
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, answers, checks, acts, sport, today, val: ruleVal(cfg, rule.id) });
+    const hit = HITS[rule.id]({ health, acts, sport, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
     out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id });

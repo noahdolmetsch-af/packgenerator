@@ -1,26 +1,29 @@
 <script>
   /**
    * v0.127.0 A-U2 «Leer, Laden, Fehler: überall gleich» (mockup «Laden», Noah 13.10.2026 «A-U1–A-U5
-   * freigeben»): while a page reads its data, calm grey bars in the shape of what comes, so nothing jumps
-   * and no empty text flashes up. kind 'home': one big card and two small ones (Today); 'list': a card with
-   * `rows` lines (lists). Screen readers hear «Loading …» once.
-   * «Neuer Schwung» Laden (block B8 «Schimmer», Noah 27.10.2026): a warm shimmer runs over the bars, the cards
-   * come in one after another; still with «Bewegung reduzieren».
+   * freigeben»): while a page reads its data, a calm card in the shape of what comes, so nothing jumps
+   * and no empty text flashes up. kind 'home': one big card and two small ones (Today); 'list': a card whose
+   * height follows `rows` (lists). Screen readers hear «Loading …» once.
+   * «Neuer Schwung» Laden (block B8 «Schimmer», Noah 27.10.2026): the cards come in one after another.
+   * «Laden als Strasse» (Noah 03.11.2026 «b», Paket D, Idee 14): instead of grey bars a small bike rides along a
+   * dashed road in every card; with «Bewegung reduzieren» it stands still in the middle of the road.
    */
   import { t } from '../i18n.svelte.js';
+  import RoadBike from './RoadBike.svelte';
 
   let { kind = 'list', rows = 3 } = $props();
 </script>
 
+{#snippet road(size, delay = 0)}
+  <div class="road" style="--d:{delay}ms"><span class="sk-bike"><RoadBike {size} /></span></div>
+{/snippet}
+
 <div class="skel" data-kind={kind} role="status" aria-label={t('Loading…')} data-skeleton>
-  <div class="sk-card">
-    <i class="sk short"></i>
-    {#each { length: Math.max(1, rows) } as _, i (i)}<i class="sk" class:mid={i % 2 === 1}></i>{/each}
-  </div>
+  <div class="sk-card" style="--rows:{Math.max(1, rows)}">{@render road(52)}</div>
   {#if kind === 'home'}
     <div class="sk-two">
-      <div class="sk-card"><i class="sk"></i></div>
-      <div class="sk-card"><i class="sk"></i></div>
+      <div class="sk-card small">{@render road(38, 300)}</div>
+      <div class="sk-card small">{@render road(38, 700)}</div>
     </div>
   {/if}
 </div>
@@ -32,38 +35,37 @@
   }
   .sk-card {
     display: grid;
-    gap: 12px;
+    align-items: end;
+    min-height: calc(42px + var(--rows, 1) * 16px);
     padding: var(--sp-4);
     border-radius: var(--radius-card);
     background: var(--paper);
     box-shadow: var(--card-shadow);
+    overflow: hidden;
+  }
+  .sk-card.small {
+    min-height: 0;
   }
   .sk-two {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--sp-3);
   }
-  .sk {
-    display: block;
-    height: 12px;
-    border-radius: 6px;
-    background: linear-gradient(90deg, var(--paper-2) 0%, color-mix(in srgb, var(--warn) 10%, var(--paper)) 50%, var(--paper-2) 100%);
-    background-size: 200% 100%;
-    animation: sk 1.4s ease-in-out infinite;
+  /* the road: a dashed line; the bike stands on it */
+  .road {
+    position: relative;
+    container-type: inline-size;
+    height: 48px;
+    background: repeating-linear-gradient(90deg, var(--line) 0 14px, transparent 14px 26px) 0 100% / 100% 3px no-repeat;
   }
-  .sk.short {
-    width: 40%;
+  .small .road {
+    height: 34px;
   }
-  .sk.mid {
-    width: 80%;
-  }
-  @keyframes sk {
-    from {
-      background-position: 100% 0;
-    }
-    to {
-      background-position: -100% 0;
-    }
+  .sk-bike {
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    translate: -50% 0;
   }
   @media (prefers-reduced-motion: no-preference) {
     .sk-card {
@@ -75,15 +77,24 @@
     .sk-two .sk-card:nth-child(2) {
       animation-delay: 160ms;
     }
+    .sk-bike {
+      left: 0;
+      translate: none;
+      animation: sk-ride 2.6s linear var(--d, 0ms) infinite;
+    }
   }
   @keyframes sk-in {
     from {
       opacity: 0;
     }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .sk {
-      animation: none;
+  /* from just outside the left edge to just outside the right one */
+  @keyframes sk-ride {
+    from {
+      transform: translateX(-64px);
+    }
+    to {
+      transform: translateX(calc(100cqw + 8px));
     }
   }
 </style>

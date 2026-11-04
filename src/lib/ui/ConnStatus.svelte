@@ -7,7 +7,7 @@
   import { fetchingLine } from './connstatus.js';
   import { t } from '../i18n.svelte.js';
 
-  let { name, busy = false, since = 0, done = 0, total = 0 } = $props();
+  let { name, busy = false, since = 0, done = 0, total = 0, unit = 'days' } = $props();
   let now = $state(Date.now());
   $effect(() => {
     if (!busy) return;
@@ -18,7 +18,7 @@
 </script>
 
 {#if busy}
-  <p class="connstatus" role="status" data-conn-status>{fetchingLine(t, { name, since: since || now, now, done, total })}</p>
+  <p class="connstatus" role="status" data-conn-status>{fetchingLine(t, { name, since: since || now, now, done, total, unit })}</p>
 {/if}
 
 <style>

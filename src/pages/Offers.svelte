@@ -15,10 +15,11 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, toInvoice } from '../lib/booking/model.js';
+  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
-  import { listInvoices, setPrefill } from '../lib/pay/invoices.js';
+  import { rememberCustomer, listCustomers, rateOf } from '../lib/booking/customers.js';
+  import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
   import '../lib/ich/ich.css';
 
   let { id = '' } = $props();
@@ -89,10 +90,20 @@
     return `${localDay()}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
   const lessonsOver = $derived(toInvoice(bookings ?? [], invoices, nowAt()).sort((a, b) => String(b.at).localeCompare(String(a.at))));
-  const invoiceOf = (b) => invoices.find((x) => x.booking?.b === b.id) ?? null;
-  function writeInvoice(b) {
+  const invoiceOf = (b) => invoices.find((x) => bookingIdsOf(x).includes(b.id)) ?? null;
+  let picked = $state([]); // booking ids ticked for one invoice
+  const pickedLessons = $derived(lessonsOver.filter((b) => picked.includes(b.id)));
+  const toggle = (b) => (picked = picked.includes(b.id) ? picked.filter((x) => x !== b.id) : [...picked, b.id]);
+  async function writeOne(items) {
+    const o = { ...mine.offer, id: mine.id };
+    const clist = await listCustomers();
+    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b })), (b) => fmtAt(b.at), (name) => rateOf(clist, name)))) return;
+    picked = [];
+    location.hash = '#/me/pay/invoices/new';
+  }
+  async function writeInvoice(b) {
     const s = mine.offer.slots.find((x) => x.id === b.slot);
-    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at)))) return;
+    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at), rateOf(await listCustomers(), b.name)))) return;
     location.hash = '#/me/pay/invoices/new';
   }
 
@@ -169,9 +180,25 @@
     busy = false;
     if (!r.ok) return (error = t(errorText(r.code)));
     replied = { b, decision };
+    if (decision === 'confirm') await rememberCustomer(b);
     await loadBookings();
   }
-  const tellText = (s) => t('{title} on {when} is cancelled. Sorry! You can book another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+  /* rain or other reasons (Noah 04.11.2026 «1a»): the message offers free times Noah picks; nothing is sent here */
+  const alternativesOf = (s) => (mine ? freeAlternatives(mine.offer, bookings ?? [], s.id, s.at > nowAt() ? s.at : nowAt(), 5) : []);
+  let unpicked = $state([]); // ids of offered times Noah unticked (the first three start ticked)
+  let pickedMore = $state([]); // ids of the 4th and 5th time Noah ticked
+  const tickedAlts = (s) => alternativesOf(s).filter((a, i) => (i < 3 ? !unpicked.includes(a.id) : pickedMore.includes(a.id)));
+  function flipAlt(a, i) {
+    if (i < 3) unpicked = unpicked.includes(a.id) ? unpicked.filter((x) => x !== a.id) : [...unpicked, a.id];
+    else pickedMore = pickedMore.includes(a.id) ? pickedMore.filter((x) => x !== a.id) : [...pickedMore, a.id];
+  }
+  const tellText = (s) => {
+    const alts = tickedAlts(s);
+    const base = t('{title} on {when} is cancelled. Sorry! You can book another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+    return alts.length ? `${base} ${t('Free times:')} ${alts.map((a) => fmtAt(a.at)).join('; ')}.` : base;
+  };
+  const tellSubject = (s) => t('Cancelled: {title}, {when}', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+  const mailHref = (b, s) => (/@/.test(b.contact ?? '') ? contactHref(b.contact, tellText(s)) : null);
   const helloText = (s) => t('About {title} on {when}:', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
   let askCancel = $state(false);
   async function dropSlot() {
@@ -220,6 +247,7 @@
     <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your offers')} sub={t('One pattern for everything: open free times, share the link, people book themselves.')} />
     <p class="of-band" role="note"><span class="pill warn">{t('Test|offers')}</span> {t('Online payment runs in test mode only; no real money moves.')}</p>
     {#if error}<p class="err" role="alert">{error}</p>{/if}
+    <p class="of-cust"><a class="btn" href="#/me/offers/customers" data-customers-link><Users size={18} aria-hidden="true" />{t('Customers')}</a></p>
     {#if offers?.length}
       <ul class="of-kinds">
         {#each offers as o (o.id)}
@@ -299,9 +327,13 @@
             <p class="muted">{t('The invoice is prepared with name, amount and lesson. You check it and send it yourself.')}</p>
             <ul class="of-list">
               {#each lessonsOver as b (b.id)}
-                <li class="of-pp"><span>{b.name}<small>{fmtAt(b.at)}</small></span><button type="button" class="btn hi sm" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
+                <li class="of-pp"><label class="of-pick"><input type="checkbox" checked={picked.includes(b.id)} onchange={() => toggle(b)} aria-label={t('Add to one invoice: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} /><span>{b.name}<small>{fmtAt(b.at)}</small></span></label><button type="button" class="btn hi sm" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
               {/each}
             </ul>
+            {#if lessonsOver.length > 1}
+              <p class="muted">{t('Tick several lessons to put them on one invoice, for example at the end of the month.')}</p>
+              {#if pickedLessons.length > 1}<button type="button" class="btn hi" data-one-invoice onclick={() => writeOne(pickedLessons)}>{tn(pickedLessons.length, 'One invoice for {n} lesson', 'One invoice for {n} lessons')}</button>{/if}
+            {/if}
           </section>
         {/if}
 
@@ -366,14 +398,28 @@
   {#if slotOpen}
     {@const s = slotOpen}
     {@const ty = typeOf(o, s)}
-    <dialog class="sheet from-below of-sheet" bind:this={slotDlg} use:backClose={() => slotDlg.close()} onclose={() => ((slotOpen = null), (told = null), (askCancel = false), (replied = null))} aria-labelledby="of-slot-h">
+    <dialog class="sheet from-below of-sheet" bind:this={slotDlg} use:backClose={() => slotDlg.close()} onclose={() => ((slotOpen = null), (told = null), (askCancel = false), (replied = null), (unpicked = []), (pickedMore = []))} aria-labelledby="of-slot-h">
       <div class="of-sh"><h2 id="of-slot-h">{fmtAt(s.at)} · {ty.label}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => slotDlg.close()}><X size={20} aria-hidden="true" /></button></div>
       {#if told}
         <p>{tn(told.people.length, 'The time is cancelled. Tell {n} person:', 'The time is cancelled. Tell {n} people:')}</p>
+        {#if alternativesOf(s).length}
+          <h3 class="of-rq">{t('Which free times do you offer?')}</h3>
+          <ul class="of-list" data-alts>
+            {#each alternativesOf(s) as a, i (a.id)}
+              <li class="of-pp"><label class="of-pick"><input type="checkbox" checked={i < 3 ? !unpicked.includes(a.id) : pickedMore.includes(a.id)} onchange={() => flipAlt(a, i)} /><span>{fmtAt(a.at)}<small>{typeOf(o, a).label}</small></span></label></li>
+            {/each}
+          </ul>
+          <p class="muted">{t('These are the next free times of this offer.')}</p>
+        {/if}
+        <p class="of-note" data-tell-text>{tellText(s)}</p>
+        {#if mailToAll(told.people.map((b) => b.contact), tellSubject(s), tellText(s))}
+          <div class="of-foot"><a class="btn hi" data-mail-all href={mailToAll(told.people.map((b) => b.contact), tellSubject(s), tellText(s))}>{t('One e-mail to everyone')}</a></div>
+          <p class="muted">{t('Everyone is in «bcc»: nobody sees the others.')}</p>
+        {/if}
         <ul class="of-list">
           {#each told.people as b (b.id)}
             {@const href = contactHref(b.contact, tellText(s))}
-            <li class="of-pp"><span>{b.name}<small>{b.contact}</small></span>{#if href}<a class="btn sm" {href}>{t('Write')}</a>{/if}</li>
+            <li class="of-pp"><span>{b.name}<small>{b.contact}</small></span>{#if href}<a class="btn sm" {href}>{mailHref(b, s) ? t('By e-mail') : t('By SMS')}</a>{/if}</li>
           {/each}
         </ul>
         <div class="of-foot"><button type="button" class="btn hi" onclick={() => slotDlg.close()}>{t('Done')}</button></div>
@@ -795,4 +841,7 @@
   .of-rq { margin: 8px 0 0; }
   .of-rqrow { flex-wrap: wrap; }
   .of-ask-n { color: var(--accent, inherit); font-weight: 600; }
+.of-pick { display: flex; gap: 10px; align-items: center; min-width: 0; }
+  .of-pick input { width: 22px; height: 22px; flex: none; }
+.of-cust { margin: 0 0 16px; }
 </style>

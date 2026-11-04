@@ -94,22 +94,63 @@ export const isOpenRequest = (b) => b.status === 'requested';
  * address), the price of the kind and what it is for. The app fills the invoice form with it; nothing is
  * sent. `when` is the date written for people («Mo, 23.11.»).
  */
-export function invoiceDraft(offer, slot, booking, when) {
+export function invoiceDraft(offer, slot, booking, when, rate = null) {
   const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];
   const contact = String(booking.contact ?? '').trim();
   return {
     name: booking.name,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : '',
-    amount: ty ? chf(ty.price) : '',
+    amount: rate != null ? chf(rate) : ty ? chf(ty.price) : '',
     purpose: [offer.title, ty?.label, when].filter(Boolean).join(', '),
-    booking: { offer: offer.id, b: booking.id },
+    bookings: [{ offer: offer.id, b: booking.id }],
+  };
+}
+
+/**
+ * One invoice for several lessons (Noah 03.11.2026: «mehrere Rechnungen zu einer kombinieren»): the
+ * prices add up, the dates are listed. items: [{ slot, booking }], when(booking) writes the date.
+ */
+export function invoiceDraftMany(offer, items, when, rateOf = () => null) {
+  const drafts = items.map((x) => invoiceDraft(offer, x.slot, x.booking, when(x.booking), rateOf(x.booking.name)));
+  const rappen = items.reduce((n, x) => n + (rateOf(x.booking.name) ?? ((offer.types ?? []).find((y) => y.key === x.slot?.type) ?? offer.types?.[0])?.price ?? 0), 0);
+  const names = [...new Set(drafts.map((d) => d.name))];
+  return {
+    name: names.join(', '),
+    email: drafts.find((d) => d.email)?.email ?? '',
+    amount: chf(rappen),
+    purpose: `${offer.title}, ${items.map((x) => when(x.booking)).join('; ')}`,
+    bookings: drafts.flatMap((d) => d.bookings),
   };
 }
 
 /** Held bookings whose time is over and that have no invoice yet. `now` is «YYYY-MM-DDTHH:MM» (local). */
 export function toInvoice(bookings = [], invoices = [], now = '') {
-  const done = new Set(invoices.map((x) => x.booking?.b).filter(Boolean));
+  const done = new Set(invoices.flatMap((x) => [...(x.bookings ?? []), ...(x.booking ? [x.booking] : [])].map((y) => y.b)));
   return bookings.filter((b) => holdsPlace(b) && b.at && b.at < now && !done.has(b.id));
+}
+
+/**
+ * The next free times of an offer after a cancelled one (Noah 04.11.2026 «1a», rain): up to n slots that lie
+ * after `from`, are not the cancelled slot and still have a free place. Open requests hold no place.
+ */
+export function freeAlternatives(offer, bookings = [], skipId = '', from = '', n = 3) {
+  const booked = bookedBySlot(bookings);
+  return (offer.slots ?? [])
+    .filter((s) => s.id !== skipId && s.at > from)
+    .filter((s) => (booked[s.id] ?? 0) < ((offer.types ?? []).find((x) => x.key === s.type) ?? offer.types?.[0])?.places)
+    .sort((a, b) => a.at.localeCompare(b.at))
+    .slice(0, n);
+}
+
+/**
+ * One e-mail to several people (Noah 04.11.2026): every address in the list goes into «bcc», so nobody sees the
+ * others. null when none of the contacts is an e-mail address.
+ */
+export function mailToAll(contacts = [], subject = '', text = '') {
+  const mails = [...new Set(contacts.map((c) => String(c ?? '').trim()).filter((c) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)))];
+  if (!mails.length) return null;
+  const q = [subject && `subject=${encodeURIComponent(subject)}`, text && `body=${encodeURIComponent(text)}`].filter(Boolean).join('&');
+  return `mailto:?bcc=${mails.join(',')}${q ? `&${q}` : ''}`;
 }
 
 /** 'free' | 'part' | 'full' for the week grid. */

@@ -119,7 +119,16 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   await sheet.getByRole('button', { name: T('Cancel the time') }).click();
   await sheet.getByRole('button', { name: T('Yes, cancel') }).click();
   await expect(sheet).toContainText(T('The time is cancelled. Tell {n} person:', { n: 1 }));
-  await expect(sheet.getByRole('link', { name: T('Write') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
+  await expect(sheet.getByRole('link', { name: T('By SMS') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
+  // the offered times can be ticked off: the message follows
+  await expect(sheet.locator('[data-alts] input[type=checkbox]')).toHaveCount(5); // five offered, the first three ticked
+  await expect(sheet.locator('[data-alts] input[type=checkbox]:checked')).toHaveCount(3);
+  await sheet.locator('[data-alts] input[type=checkbox]').first().uncheck();
+  await expect(sheet.locator('[data-alts] input[type=checkbox]:checked')).toHaveCount(2);
+  await expect(sheet.locator('[data-tell-text]')).toContainText(T('Free times:'));
+  await expect(sheet.locator('[data-mail-all]')).toHaveCount(0); // Mia gave a phone number, no e-mail
+  // the message is shown too, so Noah sees what he sends
+  await expect(sheet.locator('[data-tell-text]')).toContainText(T('Free times:'));
 });
 
 test('a request with places and a note: Noah confirms it and writes back', async ({ page }) => {
@@ -186,7 +195,7 @@ test('the invoice form is filled from a booking draft and keeps the booking', as
   await ready(page);
   await page.evaluate(() => {
     localStorage.setItem('pg.pay.account', JSON.stringify({ iban: 'CH44 3199 9123 0008 8901 2', name: 'Beispiel Tennis', street: '', house: '', zip: '8000', town: 'Zürich', twint: '079 000 00 00' }));
-    sessionStorage.setItem('pg.invoice.prefill', JSON.stringify({ name: 'Mia Muster', email: 'mia@example.test', amount: '60', purpose: 'Tennis-Lektion, Einzel, Mo, 23.11.', booking: { offer: 'tennis-abc123', b: 'bk1' } }));
+    sessionStorage.setItem('pg.invoice.prefill', JSON.stringify({ name: 'Mia Muster', email: 'mia@example.test', amount: '60', purpose: 'Tennis-Lektion, Einzel, Mo, 23.11.', bookings: [{ offer: 'tennis-abc123', b: 'bk1' }] }));
   });
   await page.goto('./#/me/pay/invoices/new');
   await expect(page.getByLabel(T('For whom?'))).toHaveValue('Mia Muster');
@@ -194,4 +203,24 @@ test('the invoice form is filled from a booking draft and keeps the booking', as
   await expect(page.getByLabel(T('What for?'))).toHaveValue('Tennis-Lektion, Einzel, Mo, 23.11.');
   // read once: a second visit starts empty
   expect(await page.evaluate(() => sessionStorage.getItem('pg.invoice.prefill'))).toBeNull();
+});
+
+test('the customer list: add a customer with an own price, edit and delete with Undo', async ({ page }) => {
+  await page.goto('./#/');
+  await ready(page);
+  await page.goto('./#/me/offers/customers');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Customers'));
+  await page.getByRole('button', { name: T('Add a customer') }).first().click();
+  await page.locator('#cu-name').fill('Mia Muster');
+  await page.locator('#cu-contact').fill('mia@example.test');
+  await page.locator('#cu-rate').fill('50');
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
+  const row = page.locator('.cu-row', { hasText: 'Mia Muster' });
+  await expect(row).toBeVisible();
+  await expect(row).toContainText('50');
+  // delete asks first, then offers Undo
+  await row.click();
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Delete') }).click();
+  await page.getByRole('button', { name: T('Delete') }).last().click();
+  await expect(page.locator('.cu-row', { hasText: 'Mia Muster' })).toHaveCount(0);
 });

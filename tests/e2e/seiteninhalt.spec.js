@@ -270,3 +270,48 @@ test('Notes shows the functions of an open note with good to know', async ({ pag
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   expect(errors).toEqual([]);
 });
+
+// Wegweiser 26a: Data and backup, Appearance, Connections, Reminders on the phone, the care tab and the timer get the card,
+// as one line, so their own controls stay on the first screen
+test('Settings pages and the care tab show the card as one line with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  for (const [hash, id] of [['#/me/data', 'f.backupcheck'], ['#/me/push', 'f.push'], ['#/me/look', null], ['#/me/connections', null], ['#/bikes?tab=care', null], ['#/timer', null]]) {
+    await page.goto('./' + hash);
+    const line = page.locator('[data-seiteninhalt-line]');
+    await expect(line, hash).toBeVisible();
+    await (info.project.name === 'phone' ? line.tap() : line.click());
+    const card = page.locator('[data-seiteninhalt]');
+    if (id) {
+      // both pages have more than SHOWN functions, so «Show all» is always there
+      const all = card.locator('.si-all');
+      await expect(all, hash).toBeVisible();
+      await (info.project.name === 'phone' ? all.tap() : all.click());
+      await expect(card.locator(`[data-seiteninhalt-know="${id}"]`)).toContainText(T('Good to know'));
+    } else {
+      await expect(card.locator('[data-seiteninhalt-know]').first(), hash).toContainText(T('Good to know'));
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+// Wegweiser Werkzeuge (Noah 03.11.2026 «a»): the mini tools get the card as one line
+test('Tools shows the card as one line with good to know for the mini tools', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/me/tools');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toBeVisible();
+  await (info.project.name === 'phone' ? line.tap() : line.click());
+  const card = page.locator('[data-seiteninhalt]');
+  const all = card.locator('.si-all');
+  await expect(all).toBeVisible();
+  await (info.project.name === 'phone' ? all.tap() : all.click());
+  await expect(card.locator('[data-seiteninhalt-know="f.compasstool"]')).toContainText(T('Good to know'));
+  await expect(card.locator('[data-seiteninhalt-know="f.level"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  expect(errors).toEqual([]);
+});

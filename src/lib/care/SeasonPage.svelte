@@ -12,6 +12,7 @@
   import { t } from '../i18n.svelte.js';
   import { sortBikes } from '../bikes.js';
   import { localDay } from '../localday.js';
+  import { seasonYear as yearOf } from '../season.js';
   import { SEASON_KEY, seasonOf, addPackItem, renamePackItem, removePackItem, movePackItem, tickPack, ticksOf, clearPack } from '../griff.js';
   import { changeSetting, putSetting } from '../griffdb.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
@@ -26,7 +27,7 @@
   const today = localDay();
   const month = Number(today.slice(5, 7));
   // the ticks belong to a season: winter 2026 runs from October 2026 to the spring of 2027
-  const seasonYear = (kind) => String(kind === 'winter' && month <= 3 ? Number(today.slice(0, 4)) - 1 : Number(today.slice(0, 4)));
+  const seasonYear = (kind) => yearOf(kind, today);
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const seasonQ = liveQuery(() => db.settings.get(SEASON_KEY));
   const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
@@ -35,6 +36,8 @@
   let kind = $state(month >= 10 || month === 1 ? 'winter' : 'spring');
   const rec = $derived(all[kind]);
   const ticks = $derived(bike ? ticksOf(rec, bike.id, seasonYear(kind)) : []);
+  // «Velos-Pflege einbauen» 3a: after the last tick of the winter list, the way back (the spring reminder)
+  const allTicked = $derived(!!bike && rec.items.length > 0 && rec.items.every((x) => ticks.includes(x.id)));
   const change = (fn) => changeSetting(SEASON_KEY, {}, (old) => {
     const s = seasonOf(old);
     return { ...s, [kind]: fn(s[kind]) };
@@ -109,6 +112,12 @@
         <button type="submit" class="btn sm" data-season-add><Plus size={16} aria-hidden="true" />{t('Add|part')}</button>
       </form>
       {#if ticks.length}<p><button type="button" class="lnk" onclick={restart}><RotateCcw size={14} aria-hidden="true" />{t('Clear all ticks')}</button></p>{/if}
+      {#if kind === 'winter' && allTicked}
+        <div class="next" data-season-next>
+          <p><b>{t('Put away for the winter.')}</b> {t('In February «Fits now» on Care and on Today reminds you of spring.')}</p>
+          <button type="button" class="btn sm" onclick={() => ((kind = 'spring'), (editing = null))} data-season-to-spring>{t('See the spring list')}</button>
+        </div>
+      {/if}
       {#if msg}<p class="err" role="alert">{msg}</p>{/if}
     </section>
   {/if}
@@ -122,6 +131,18 @@
     min-height: 44px;
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  .next {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: var(--r-2, 10px);
+    background: var(--ok-soft);
+  }
+  .next p {
+    margin: 0;
   }
   .chip {
     display: inline-flex;

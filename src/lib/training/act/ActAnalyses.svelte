@@ -15,6 +15,7 @@
   import AnaGrid from './AnaGrid.svelte';
   import AnaHalves from './AnaHalves.svelte';
   import AnaSimilar from './AnaSimilar.svelte';
+  import AnaGhost from './AnaGhost.svelte';
   import AnaBest from './AnaBest.svelte';
   import AnaIntervals from '../inhalt/AnaIntervals.svelte';
   import AnaHomeloop from '../inhalt/AnaHomeloop.svelte';
@@ -23,7 +24,7 @@
   import AnaSegs from './AnaSegs.svelte';
 
   let { act, all = [], today = '' } = $props();
-  const CARDS = { more: AnaMore, pzbars: AnaPzBars, cadence: AnaCadence, climbs: AnaClimbs, sections: AnaSections, timeline: AnaTimeline, grid: AnaGrid, halves: AnaHalves, similar: AnaSimilar, best: AnaBest, intervals: AnaIntervals, homeloop: AnaHomeloop, laps: AnaLaps, splits: AnaSplits, segs: AnaSegs };
+  const CARDS = { more: AnaMore, pzbars: AnaPzBars, cadence: AnaCadence, climbs: AnaClimbs, sections: AnaSections, timeline: AnaTimeline, grid: AnaGrid, halves: AnaHalves, similar: AnaSimilar, ghost: AnaGhost, best: AnaBest, intervals: AnaIntervals, homeloop: AnaHomeloop, laps: AnaLaps, splits: AnaSplits, segs: AnaSegs };
   const keys = $derived(keysOf(ana, 'act'));
 </script>
 

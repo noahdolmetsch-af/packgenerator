@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, fahrtHit, pauseHit, trainingDays, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -135,43 +135,42 @@ describe('Fragen aus deinen Daten', () => {
     const two = [...Array.from({ length: 20 }, (_, i) => ({ qid: 'spass.stimmung', day: add(TODAY, -(i + 2)), value: 7 })), ...[5, 5].map((v, i) => ({ qid: 'spass.stimmung', day: add(TODAY, i - 1), value: v }))];
     expect(stimmungHit(two, [], TODAY, 2)).toMatchObject({ days: 2 });
   });
-  describe('Training (Strava)', () => {
-    const act = (n, movingS, extra = {}) => ({ id: `a${n}`, day: add(TODAY, n), movingS, km: 80, kind: 'bike', commute: false, ...extra });
-    it('long day out: asks the day after, 3 hours or more, commutes do not count', () => {
-      expect(fahrtHit([act(-1, 3 * 3600)], TODAY)).toEqual({ h: 3, m: 0, km: 80 });
-      expect(fahrtHit([act(-1, 3 * 3600 - 60)], TODAY)).toBeNull();
-      expect(fahrtHit([act(-1, 5 * 3600, { commute: true })], TODAY)).toBeNull();
-      expect(fahrtHit([act(-2, 5 * 3600)], TODAY)).toBeNull(); // only yesterday
-      expect(fahrtHit([act(0, 5 * 3600)], TODAY)).toBeNull(); // today's is not asked about yet
-      expect(fahrtHit([act(-1, 2 * 3600), act(-1, 4 * 3600 + 1500)], TODAY)).toEqual({ h: 4, m: 25, km: 80 }); // the longest
-      expect(fahrtHit([act(-1, 2 * 3600)], TODAY, 2)).not.toBeNull(); // own threshold
-      expect(fahrtHit([], TODAY)).toBeNull();
+
+  it('a long day yesterday asks about the legs, with the time as the reason', () => {
+    const acts = [{ day: add(TODAY, -1), movingS: 2 * 3600 }, { day: add(TODAY, -1), movingS: 1.5 * 3600 }];
+    expect(trainingHit(acts, TODAY)).toEqual({ h: 3, m: 30 });
+    expect(trainingHit([{ day: add(TODAY, -1), movingS: 2 * 3600 }], TODAY)).toBeNull(); // under 3 h
+    expect(trainingHit([{ day: TODAY, movingS: 5 * 3600 }, { day: add(TODAY, -2), movingS: 5 * 3600 }], TODAY)).toBeNull(); // only yesterday counts
+    expect(trainingHit(acts, TODAY, 2)).toEqual({ h: 3, m: 30 });
+    expect(trainingHit([{ day: add(TODAY, -1) }], TODAY, 1)).toBeNull(); // no time: nothing
+    const [d] = dataDue({ acts, today: TODAY });
+    expect(d.q.id).toBe('daten.training');
+    expect(d.why.vars).toEqual({ h: 3, m: 30 });
+    expect(dataDue({ acts, today: TODAY, cfg: setRule(null, 'training', false) })).toEqual([]);
+    expect(RULES.map((r) => r.id)).toContain('training');
+  });
+  describe('Pause vom Training', () => {
+    const act = (n) => ({ id: `a${n}`, day: add(TODAY, n), movingS: 3600 });
+    it('asks when no training was logged for 4 days or more, counted from the last one', () => {
+      expect(pauseHit([act(-4)], [], TODAY)).toEqual({ n: 4 });
+      expect(pauseHit([act(-3)], [], TODAY)).toBeNull();
+      expect(pauseHit([act(-9), act(-6)], [], TODAY)).toEqual({ n: 6 });
+      expect(pauseHit([act(-9)], [], TODAY, 10)).toBeNull();
+      expect(pauseHit([], [], TODAY)).toBeNull(); // nothing to count from
+      expect(pauseHit([act(0)], [], TODAY)).toBeNull();
+    });
+    it('a tennis game or lesson counts as training, other sport items do not', () => {
+      const played = (n) => ({ sport: 'act:tennis', kind: 'played', day: add(TODAY, n) });
+      expect(pauseHit([act(-8)], [played(-2)], TODAY)).toBeNull();
+      expect(pauseHit([act(-8)], [{ sport: 'act:tennis', kind: 'slot', day: add(TODAY, -1) }, { sport: 'act:run', kind: 'played', day: add(TODAY, -1) }], TODAY)).toEqual({ n: 8 });
+      expect([...trainingDays([act(-1)], [played(-2)])].sort()).toEqual([add(TODAY, -2), add(TODAY, -1)]);
     });
     it('gives the question with its reason and respects the switch', () => {
-      const [d] = dataDue({ acts: [act(-1, 4 * 3600)], today: TODAY });
-      expect(d.q.id).toBe('daten.fahrt');
-      expect(d.why.vars).toEqual({ h: 4, m: 0, km: 80 });
-      expect(dataDue({ acts: [act(-1, 4 * 3600)], today: TODAY, cfg: setRule(null, 'fahrt', false) })).toEqual([]);
-    });
-    it('pause: no training for 4 days or more, counted from the last one', () => {
-      expect(pauseHit([act(-4, 3600)], [], TODAY)).toEqual({ n: 4 });
-      expect(pauseHit([act(-3, 3600)], [], TODAY)).toBeNull();
-      expect(pauseHit([act(-9, 3600), act(-6, 3600)], [], TODAY)).toEqual({ n: 6 });
-      expect(pauseHit([act(-9, 3600)], [], TODAY, 10)).toBeNull();
-      expect(pauseHit([], [], TODAY)).toBeNull(); // nothing to count from
-      expect(pauseHit([act(0, 3600)], [], TODAY)).toBeNull();
-    });
-    it('a tennis game counts as training, other sport items do not', () => {
-      const played = (n) => ({ sport: 'act:tennis', kind: 'played', day: add(TODAY, n) });
-      expect(pauseHit([act(-8, 3600)], [played(-2)], TODAY)).toBeNull();
-      expect(pauseHit([act(-8, 3600)], [{ sport: 'act:tennis', kind: 'slot', day: add(TODAY, -1) }, { sport: 'act:run', kind: 'played', day: add(TODAY, -1) }], TODAY)).toEqual({ n: 8 });
-      expect([...trainingDays([act(-1, 1)], [played(-2)])].sort()).toEqual([add(TODAY, -2), add(TODAY, -1)]);
-    });
-    it('the pause question comes with its reason; both rules have German-ready questions', () => {
-      const [d] = dataDue({ acts: [act(-6, 3600)], today: TODAY });
+      const [d] = dataDue({ acts: [act(-6)], today: TODAY });
       expect(d.q.id).toBe('daten.pause');
       expect(d.why.vars).toEqual({ n: 6 });
-      for (const id of ['fahrt', 'pause']) expect(RULES.some((r) => r.id === id)).toBe(true);
+      expect(dataDue({ acts: [act(-6)], today: TODAY, cfg: setRule(null, 'pause', false) })).toEqual([]);
+      expect(RULES.map((r) => r.id)).toContain('pause');
     });
   });
 });

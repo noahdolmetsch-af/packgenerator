@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -76,6 +76,8 @@
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
+  import NightLight from '../lib/live/NightLight.svelte'; // «Licht in der Nacht» (Paket D, Idee 20)
+  import { nightStrength, nightLightOn, beamDeg } from '../lib/live/nightlight.js';
   import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
@@ -97,6 +99,8 @@
   import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
+  import { nearestExit } from '../lib/live/exit.js';
+  import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
   import { ownQuery, ownOnMap } from '../lib/map/ownpoints.js';
@@ -172,7 +176,7 @@
   const climbs = $derived(profile.length > 1 ? climbsOf(profile, 100) : []);
 
   /* ---------- options (settings 'live') ---------- */
-  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true };
+  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true, nightLight: true };
   const cfg = $derived({ ...OPTS, ...($cfgQ?.value ?? {}) });
   const setOpt = (k, v) => db.settings.put({ key: 'live', value: { ...cfg, [k]: v } });
 
@@ -357,6 +361,32 @@
   // «Letzter offener Laden vor der Nacht» (Noah 02.11.2026): only along a route, from the loaded stops
   const lastShop = $derived(hasRoute && km != null ? lastShopBeforeNight({ pois, km, now, pace, profile, light }) : null);
   const shopsLoaded = $derived(pois.some((p) => p.kind === 'shop' || p.kind === 'fuel'));
+  // «Nächstes Wasser» (Noah 02.11.2026, Vorschlag 2): the nearest place to fill up and whether the bottle lasts there.
+  // The bottle (size, what is left) and what you drink per hour are yours to change; they are kept in this browser.
+  const WATER_KEY = 'pg-live-water';
+  const waterOwn = (() => {
+    try {
+      const o = JSON.parse(localStorage.getItem(WATER_KEY) || '{}');
+      return { cap: Number(o.cap) > 0 ? Number(o.cap) : BOTTLE_ML, left: ['full', 'half', 'low'].includes(o.left) ? o.left : 'full', rate: Number(o.rate) > 0 ? Number(o.rate) : 0 };
+    } catch {
+      return { cap: BOTTLE_ML, left: 'full', rate: 0 };
+    }
+  })();
+  let waterCap = $state(waterOwn.cap);
+  let waterLeft = $state(waterOwn.left);
+  let waterRate = $state(waterOwn.rate); // 0 = automatic (warmer: more)
+  const keepWater = () => {
+    try {
+      localStorage.setItem(WATER_KEY, JSON.stringify({ cap: waterCap, left: waterLeft, rate: waterRate }));
+    } catch {}
+  };
+  const WATER_FRAC = { full: 1, half: 0.5, low: 0.15 };
+  const waterHave = $derived(Math.round(waterCap * WATER_FRAC[waterLeft]));
+  const waterRateNow = $derived(waterRate > 0 ? waterRate : drinkPerH(null, DRINK_ML_H));
+  const exitNear = $derived(hasRoute && km != null ? nearestExit({ pois, km, now, pace, profile }) : null);
+  const water = $derived(hasRoute && km != null ? nextWater({ pois, km, now, pace, profile, haveMl: waterHave, rateMlH: waterRateNow }) : null);
+  const waterLoaded = $derived(pois.some((p) => p.kind === 'water' || p.kind === 'shop' || p.kind === 'fuel'));
+  const ml = (v) => (v >= 1000 ? `${num(Math.round(v / 100) / 10)} l` : `${num(Math.round(v / 10) * 10)} ml`);
   const stops = $derived(me ? stopsAhead({ pois: alongMode ? pois : around, pts: alongMode ? pts : [], here: me, km, kinds: KINDS, n: 5, now, pace, profile }) : []);
   const climb = $derived(km != null ? nextClimb(climbs, km) : null);
   // Abbiege-Hinweise (turns.js): the turns of the route, once; the next one while you are on the route
@@ -1186,6 +1216,9 @@
   let touchedAt = $state(Date.now());
   const warning = $derived(offWarn || !!storm || !!limitMsg || rec.paused || standing);
   const dimmed = $derived(cfg.dim && full && !warning && now - touchedAt > 120_000);
+  // «Licht in der Nacht» (Paket D, Idee 20): after sunset the edge of the map darkens and a cone of light lies ahead
+  const nightS = $derived(nightStrength(light, now));
+  const nightOn = $derived(nightLightOn({ strength: nightS, enabled: cfg.nightLight, battery: cfg.battery }));
   // Stromsparen 2a: after 2 min without a touch the first data page instead of the map; a warning brings the map back
   let autoSwitched = false;
   $effect(() => {
@@ -1340,6 +1373,8 @@
           <LiveSmallMap me={meOnMap} line={route?.line ?? []} {done} />
         {/snippet}
       </DataPages>
+
+      {#if nightOn && dpIndex === 0}<NightLight strength={nightS} deg={beamDeg({ rotated: goalOn && !northUp, deg })} />{/if}
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
@@ -1600,6 +1635,48 @@
                   {/if}
                 </div>
               {/if}
+              {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-water={water?.state ?? 'load'}>
+                  <h3 class="lv-h3"><Droplet size={16} aria-hidden="true" />{t('Next water')}</h3>
+                  {#if !waterLoaded || !water}
+                    <p class="rc-note">{t('Load the stops along the route to see the next water.')}</p>
+                  {:else}
+                    {@const r = water.next}
+                    {#if r}
+                      {@const l = navLinks({ lat: Number(r.poi.lat), lon: Number(r.poi.lon) })}
+                      <div class="rc-row lv-srow" data-live-water-row>
+                        <KindIcon kind={r.poi.kind} size={18} />
+                        <span class="rc-row-main">
+                          <b>{r.poi.name || kindName(r.poi.kind)}</b>
+                          <small>{kindName(r.poi.kind)} · {t('{d} km', { d: fmtKm(r.distKm) })} · {t('there about {at}', { at: when(r.eta) })}</small>
+                          {#if !r.sure}<small>{t('Not sure: no opening hours known.')}</small>{/if}
+                        </span>
+                        <details class="lv-nav">
+                          <summary class="btn sm"><Navigation size={16} aria-hidden="true" />{t('Navigate')}</summary>
+                          <div class="lv-nav-menu">
+                            <a class="btn sm" href={l.google} target="_blank" rel="noopener noreferrer">{t('Google Maps')}</a>
+                            <a class="btn sm" href={l.osmand} target="_blank" rel="noopener noreferrer">{t('OsmAnd')}</a>
+                          </div>
+                        </details>
+                      </div>
+                      {#if water.state === 'short'}<p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('Your bottle will not last: about {need} needed, {have} left. Drink in small sips or fill up sooner.', { need: ml(water.needMl), have: ml(water.haveMl) })}</span></p>
+                      {:else if water.state === 'tight'}<p class="rc-note" data-live-water-say>{t('Your bottle just lasts: about {need} needed, {have} left.', { need: ml(water.needMl), have: ml(water.haveMl) })}</p>
+                      {:else}<p class="rc-note" data-live-water-say>{t('Your bottle lasts until there: about {need} needed, {have} left.', { need: ml(water.needMl), have: ml(water.haveMl) })}</p>{/if}
+                    {:else}
+                      <p class="rc-warn lv-line" data-live-water-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('No water or open shop found ahead on the route. Your bottle lasts about {d} km.', { d: fmtKm(water.lastsKm) })}</span></p>
+                    {/if}
+                  {/if}
+                  <div role="group" aria-label={t('What is left in your bottle?')}>
+                    <span class="rc-note">{t('What is left in your bottle?')}</span>
+                    <Seg small options={[{ key: 'full', name: t('Full|bottle') }, { key: 'half', name: t('Half|bottle') }, { key: 'low', name: t('Almost empty') }]} value={waterLeft} onchange={(k) => ((waterLeft = k), keepWater())} />
+                  </div>
+                  <details class="lv-water-set" data-live-water-set>
+                    <summary>{t('Change bottle and drinking')}</summary>
+                    <label class="lv-water-f">{t('Bottle size (ml)')}<input class="inp" type="number" inputmode="numeric" min="100" max="6000" step="50" value={waterCap} onchange={(e) => ((waterCap = Math.max(100, Math.min(6000, Number(e.currentTarget.value) || BOTTLE_ML))), keepWater())} data-live-water-cap /></label>
+                    <label class="lv-water-f">{t('You drink (ml per hour, 0 = automatic)')}<input class="inp" type="number" inputmode="numeric" min="0" max="2000" step="50" value={waterRate} onchange={(e) => ((waterRate = Math.max(0, Math.min(2000, Number(e.currentTarget.value) || 0))), keepWater())} data-live-water-rate /></label>
+                  </details>
+                </div>
+              {/if}
               {#if stops.length}
                 <ul class="rc-list">
                   {#each stops as s (s.id)}
@@ -1786,6 +1863,9 @@
         <label class="lv-opt"><input type="checkbox" checked={cfg.dim} onchange={(e) => setOpt('dim', e.currentTarget.checked)} data-live-opt="dim" /><span><b>{t('Save the screen')}</b><small>{t('After 2 minutes without a touch the map gets darker (less battery on most phones). A touch or a warning makes it bright again.')}</small></span></label>
       </li>
       <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.nightLight} onchange={(e) => setOpt('nightLight', e.currentTarget.checked)} data-live-opt="nightLight" /><span><b>{t('Night light')}</b><small>{t('After sunset the edge of the map gets darker and a warm cone of light lies ahead of you, like from a front lamp. Not with the battery saver.')}</small></span></label>
+      </li>
+      <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.sleepSpots ?? isRace} onchange={(e) => setOpt('sleepSpots', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="sleepSpots" /><span><b>{t('Places to sleep ahead')}</b><small>{hasRoute ? t('The next three places to sleep on the route in the panel: hotels, roofs, places open at night and your own spots. On by default in a race.') : t('Needs a route.')}</small></span></label>
       </li>
       <li class="rc-row">
@@ -1807,7 +1887,7 @@
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
-{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
+{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} exitNear={exitNear} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 
@@ -2596,6 +2676,22 @@
     padding: 10px 12px;
     border: 1px solid var(--line);
     border-radius: 12px;
+  }
+  .lv-water-set {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lv-water-set summary {
+    cursor: pointer;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .lv-water-f {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: var(--fs-small);
   }
   .lv-lastshop .lv-h3 {
     display: flex;

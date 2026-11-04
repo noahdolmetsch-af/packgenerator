@@ -1,28 +1,24 @@
-// «Fragen aus deinen Daten», Stufe 2, Schritt 1 (Noah 03.11.2026 «1b 2a 3a 4a 5a», «bau Stufe 2»): Training aus Strava
+// «Fragen aus deinen Daten», Stufe 2, Schritt 1 (Noah 03.11.2026, «bau stufe 2»): a long day on Strava asks about the legs
 export default {
-  title: 'Your training asks too',
-  lead: 'After a long day out and after a pause from training, the check asks one open question and says why.',
+  title: 'A question after a long day',
+  lead: 'After a long day on Strava the check asks how your legs feel, and says why.',
   points: [
-    { text: 'After a day of three hours or more outside, the morning check asks how your legs feel', go: 'f.datenfragen' },
-    { text: 'After four days without training (Strava or tennis) it asks what kept you from it', go: 'f.datenfragen' },
-    { text: 'Both rules have a switch, a threshold and your own wording, like the others', go: { href: '#/me/abfragen', steps: [{ sel: '[data-rule="fahrt"]' }] } },
+    { text: 'A long activity yesterday (3 hours or more) brings the question «How do your legs feel after yesterday?»', go: 'f.datenfragen' },
+    { text: 'Change the hours or the wording, or switch the rule off', go: { href: '#/me/abfragen', steps: [{ sel: '[data-rule-val="training"]' }] } },
   ],
-  small: [{ box: 'new', text: 'Without Strava activities the page says why the training rules are quiet' }],
   test: [
-    'Open Me › Your questions: «Questions from your data» now has two training rules.',
-    'Change the hours of «After a long day out» to 2 and write the question in your own words.',
-    'Switch «A pause from training» off and on again.',
+    'Open Me › Your questions: «Long day yesterday» is the fourth rule.',
+    'Change the hours to 1 or switch the rule off and on.',
+    'After a long ride, the next morning check asks about your legs with «Why am I asking this?».',
   ],
   since: [],
   de: {
-    'Your training asks too': 'Auch dein Training fragt nach',
-    'After a long day out and after a pause from training, the check asks one open question and says why.': 'Nach einem langen Tag unterwegs und nach einer Trainingspause stellt der Check eine offene Frage und sagt, warum.',
-    'After a day of three hours or more outside, the morning check asks how your legs feel': 'Nach einem Tag von drei Stunden oder mehr draussen fragt der Morgen-Check, wie sich die Beine anfühlen',
-    'After four days without training (Strava or tennis) it asks what kept you from it': 'Nach vier Tagen ohne Training (Strava oder Tennis) fragt er, was dich davon abgehalten hat',
-    'Both rules have a switch, a threshold and your own wording, like the others': 'Beide Regeln haben Schalter, Schwelle und eigene Worte, wie die anderen',
-    'Without Strava activities the page says why the training rules are quiet': 'Ohne Strava-Aktivitäten sagt die Seite, warum die Trainings-Regeln still sind',
-    'Open Me › Your questions: «Questions from your data» now has two training rules.': 'Öffne Ich › Deine Abfragen: «Fragen aus deinen Daten» hat jetzt zwei Trainings-Regeln.',
-    'Change the hours of «After a long day out» to 2 and write the question in your own words.': 'Ändere die Stunden bei «Nach einem langen Tag unterwegs» auf 2 und schreibe die Frage in deinen Worten.',
-    'Switch «A pause from training» off and on again.': 'Schalte «Pause vom Training» aus und wieder ein.',
+    'A question after a long day': 'Eine Frage nach einem langen Tag',
+    'After a long day on Strava the check asks how your legs feel, and says why.': 'Nach einem langen Tag auf Strava fragt der Check, wie sich deine Beine anfühlen, und sagt, warum.',
+    'A long activity yesterday (3 hours or more) brings the question «How do your legs feel after yesterday?»': 'Eine lange Aktivität gestern (3 Stunden oder mehr) bringt die Frage «Wie fühlen sich deine Beine nach gestern an?»',
+    'Change the hours or the wording, or switch the rule off': 'Ändere die Stunden oder die Worte, oder schalte die Regel aus',
+    'Open Me › Your questions: «Long day yesterday» is the fourth rule.': 'Öffne Ich › Deine Abfragen: «Langer Tag gestern» ist die vierte Regel.',
+    'Change the hours to 1 or switch the rule off and on.': 'Ändere die Stunden auf 1 oder schalte die Regel aus und wieder ein.',
+    'After a long ride, the next morning check asks about your legs with «Why am I asking this?».': 'Nach einer langen Fahrt fragt der Morgen-Check nach deinen Beinen, mit «Warum frage ich das?».',
   },
 };

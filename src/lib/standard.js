@@ -33,6 +33,7 @@ import { JOURNAL_Q_STD } from './tagebuch/fragen.js';
 import { JOURNAL_MOODS_STD } from './tagebuch/insights.js';
 import { MED_MOODS_STD } from './flowmed.js';
 import { DAY_SPORTS_STD } from './tourplan/prep.js';
+import { SAYINGS_STD } from './logo/sayings.js';
 
 /** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons, areas } }. */
 export const OVERRIDES_KEY = 'listOverrides';
@@ -85,6 +86,8 @@ export const STANDARD_LISTS = [
   { key: 'medMoods', area: 'active', name: 'Moods after meditating', entries: () => MED_MOODS_STD },
   // Touren-Ideen 45 (Noah 26.10.2026 «2b»): the kind of each day of a trip
   { key: 'daySports', area: 'trips', name: 'Kinds of trip days', entries: () => DAY_SPORTS_STD },
+  // Geheimmenü H6 (Noah 03.11.2026): the sayings of the speech bubble behind the «PG» logo
+  { key: 'sayings', area: 'active', name: 'Sayings in the logo', entries: () => SAYINGS_STD },
 ];
 export const STANDARD_LIST = Object.fromEntries(STANDARD_LISTS.map((l) => [l.key, l]));
 

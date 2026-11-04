@@ -13,7 +13,10 @@
   import { dueCards } from '../care/overview.js';
   import { localDay } from '../localday.js';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
+  import VeloDraw from './VeloDraw.svelte';
+  import { careLook } from './pflegezustand.js';
   import { phone } from '../media.svelte.js';
+  import Odometer from '../ui/Odometer.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   let { bikeId = null, onbike } = $props();
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -45,7 +48,9 @@
     bikes.map((b) => {
       const care = bikeCare(withVisits(b, visits), { tasks, visits, today });
       const w = bikeCareWords(care);
-      return { bike: b, w, status: care?.status ?? 'nodata', care };
+      // Paket C idea 22: the drawing shows the care (gleams, dusty, cobweb); the line says why, only when there is something to say
+      const look = careLook(withVisits(b, visits), tasks, today);
+      return { bike: b, w, status: care?.status ?? 'nodata', care, look };
     }),
   );
   // step 3: «Next up», the open work over all bikes, the most urgent first (the same rows as the care overview)
@@ -56,10 +61,16 @@
   <section class="cards" data-bike-cards aria-label={t('Your bikes at a glance')}>
     {#each cards as c (c.bike.id)}
       <article class="vcard" class:sel={c.bike.id === bikeId} data-velo-card={c.bike.id}>
+        <div class="pic"><VeloDraw look={c.look.look} /></div>
         <b class="nm">{c.bike.name}</b>
-        <small class="km num">{c.bike.km != null ? `${num(c.bike.km)} km` : t('km not set')}</small>
+        <small class="km num">{#if c.bike.km != null}<Odometer value={c.bike.km} />{' km'}{:else}{t('km not set')}{/if}</small>
         <span class="vpill {c.status}">{c.w.tag}</span>
         {#if c.w.text}<p class="next">{c.w.text}</p>{/if}
+        {#if c.look.look === 'clean'}
+          <p class="next look" data-velo-look="clean">{t('Cared for lately: the bike gleams.')}</p>
+        {:else if c.look.look === 'dusty' || c.look.look === 'web'}
+          <p class="next look" data-velo-look={c.look.look}>{t('No care recorded for {n} days: the bike gets dusty.', { n: c.look.days })}</p>
+        {/if}
         <div class="acts">
           <a class="btn sm" href={bikesHash({ tab: 'care', bike: c.bike.id, open: true })}>{t('Open care')}</a>
           <button type="button" class="btn sm hi" onclick={() => (dialog = { kind: 'visit', bikeId: c.bike.id })} data-card-visit>{t('Log a workshop visit')}</button>
@@ -145,6 +156,12 @@
   }
   .nm {
     overflow-wrap: break-word;
+  }
+  .pic {
+    width: 140px;
+  }
+  .look {
+    color: var(--ink-2);
   }
   .km {
     color: var(--ink-2);

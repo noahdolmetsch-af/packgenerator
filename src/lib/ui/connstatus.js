@@ -45,9 +45,9 @@ export function failedLine(t, { reason, lastOkAt, when }) {
  * Generic fetch line for the other connections (Noah 03.11.2026 «1a», «2 Fitbit, Strava, Google dann Abgleich»):
  * «Fitbit: fetching … 12 s. 30 of 90 days fetched so far.» + a hint after slowAfterS. done/total are optional.
  */
-export function fetchingLine(t, { name, since, now, done = 0, total = 0, slowAfterS = 90 }) {
+export function fetchingLine(t, { name, since, now, done = 0, total = 0, unit = 'days', slowAfterS = 90 }) {
   const s = Math.max(0, Math.round((now - since) / 1000));
-  const part = total > 0 ? ` ${t('{n} of {total} days fetched so far.', { n: Math.min(done, total), total })}` : '';
+  const part = unit === 'rides' ? (done > 0 ? ` ${t('{n} rides received so far.', { n: done })}` : '') : total > 0 ? ` ${t('{n} of {total} days fetched so far.', { n: Math.min(done, total), total })}` : '';
   const slow = s >= slowAfterS ? ` ${t('This takes unusually long. It stops by itself after 2 minutes.')}` : '';
   return `${name}: ${t('fetching …')} ${elapsedText(t, since, now)}.${part}${slow}`;
 }
@@ -59,3 +59,15 @@ export function lastOkFetchLine(t, { lastOkAt, when }) {
 
 /** The one limit for a whole fetch of any connection (Noah 03.11.2026 «1a»): 2 minutes. */
 export const FETCH_LIMIT_MS = 120_000;
+
+/**
+ * The reason for a failed fetch of any connection in one short sentence (Noah 03.11.2026 «3a»: the overview under
+ * Me › Connections shows every connection the same way). Each page keeps its own, more exact text.
+ */
+export function reasonLine(t, code) {
+  if (code === 'timeout') return t('It did not answer in time.');
+  if (code === 'network' || code === 'offline') return t('There was no connection.');
+  if (/login_needed|not_connected|unauthorized/.test(code)) return t('It needs a new login. Open it and connect again.');
+  if (/busy|daily_cap/.test(code)) return t('It is busy right now. The app tries again later.');
+  return t('The last fetch did not work.');
+}

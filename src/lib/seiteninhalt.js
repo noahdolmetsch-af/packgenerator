@@ -8,7 +8,6 @@
 import { FEATURES } from './features.js';
 import { HANDBOOK } from './handbook.js';
 import { HOME } from './know/heimat.js';
-import { WISSEN } from './wissen/index.js';
 
 /** The pages that show the card (page keys as pageKey writes them); one PR per area adds its pages. */
 export const ON_PAGES = [
@@ -50,9 +49,13 @@ export const ON_PAGES = [
   // Wegweiser 26b: pages without any content in the check of 02.11.2026 (Touren and Ski start as one line, FOLDED_FIRST)
   '#/trips', '#/trips/fuel', '#/neuland', '#/me/frei', '#/me/frei/sammlungen', '#/me/ruhig/herkunft', '#/me/ruhig/zahlen',
   '#/ski', '#/racecheck',
+  // Wegweiser 26a: pages with many functions that were left out for the 2.5-screen rule; the card starts as one line there
+  '#/me/data', '#/me/look', '#/me/connections', '#/me/push', '#/bikes?tab=care', '#/timer',
+  // Wegweiser Werkzeuge (Noah 03.11.2026 «a» after the final measurement): the mini tools, as one line
+  '#/me/tools',
 ];
 /** Words that are fixed sub-pages, never the id of a placeholder (#/debrief/logbook is not a trip). */
-export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'play', 'ride', 'brief', 'new', 'shared'];
+export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'play', 'ride', 'brief', 'new', 'shared'];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
 export const FOLD_KEY = 'seiteninhalt.folded';
@@ -62,7 +65,10 @@ export const FOLD_KEY = 'seiteninhalt.folded';
  */
 // Wegweiser 18: Training and Auswerten start as one line too (heimat.spec: their functions must stay within 2.5 screens)
 // Wegweiser 26b: Touren and Ski tours are main pages with their own list first
-export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten', '#/debrief/:trip', '#/trips', '#/ski'];
+export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten', '#/debrief/:trip', '#/trips', '#/ski',
+  // Wegweiser 26a: settings-like pages and the care tab keep their own controls on the first screen
+  '#/me/data', '#/me/look', '#/me/connections', '#/me/push', '#/bikes?tab=care', '#/timer',
+  '#/me/tools'];
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {
@@ -106,7 +112,11 @@ export function pagePattern(hash, on = ON_PAGES) {
  */
 export const SHOWS_TOO = { '#/notes': ['#/notes?open=:note'] };
 
-export function pageContent(hash, on = ON_PAGES) {
+/**
+ * know: the «Good to know» texts by function id (WISSEN). They are not part of the start (Tempo-Budget,
+ * scripts/size-guard.mjs): the card loads them with loadWissen() (src/lib/wissen/load.js) and hands them in.
+ */
+export function pageContent(hash, on = ON_PAGES, know = {}) {
   const here = pagePattern(hash, on);
   if (!here) return [];
   // the page's own functions first, then those of the windows it opens (SHOWS_TOO)
@@ -114,7 +124,7 @@ export function pageContent(hash, on = ON_PAGES) {
   const rank = (f) => homes.indexOf(pageKey(HOME[f.id]));
   return FEATURES.filter((f) => HOME[f.id] && rank(f) >= 0).sort((a, b) => rank(a) - rank(b)).map((f) => {
     const h = HANDBOOK[f.id] ?? {};
-    return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '', know: WISSEN[f.id] ?? '' };
+    return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '', know: know[f.id] ?? '' };
   });
 }
 

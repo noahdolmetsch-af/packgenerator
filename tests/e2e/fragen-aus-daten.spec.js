@@ -13,7 +13,7 @@ const shot = async (page, info, name) => {
   await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 };
 
-function data(todayHr, { sleepMin = null, moods = null, acts = null } = {}) {
+function data(todayHr, { sleepMin = null, moods = null } = {}) {
   const d = homeFixture();
   const q = Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && x.id !== 'erholung.akku').map((x) => [x.id, { on: false }]));
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
@@ -21,7 +21,6 @@ function data(todayHr, { sleepMin = null, moods = null, acts = null } = {}) {
     ...Array.from({ length: 20 }, (_, i) => ({ date: day(-(i + 1)), restingHr: 51 + (i % 3) })),
     { date: day(0), restingHr: todayHr, ...(sleepMin != null ? { sleep: { asleepMin: sleepMin } } : {}) },
   ];
-  if (acts) d.tables.activities = acts.map(([n, movingS, km], i) => ({ id: `fad-a${i}`, day: day(n), time: '08:00', name: 'Test', type: 'Ride', kind: 'bike', km, movingS, commute: false }));
   if (moods) {
     const row = (n, v) => ({ id: `fad-m${n}`, qid: 'spass.stimmung', area: 'spass', day: day(n), at: `${day(n)}T20:40`, slot: `${day(n)}T20:30`, kind: 'scale', value: v, note: null, unit: null, src: 'hand' });
     d.tables.abAnswers = [...Array.from({ length: 20 }, (_, i) => row(-(i + 3), 8)), ...moods.map((v, i) => row(i - 2, v))];
@@ -104,22 +103,35 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(card.locator('[data-q="daten.stimmung"]')).toHaveCount(0);
   });
 
-  test('a long day out yesterday asks about the legs, with the hours as the reason', async ({ page, context }, info) => {
-    const T = await openHome(page, context, info, { data: data(52, { acts: [[-1, 4 * 3600 + 600, 96]] }) });
+  test('normal sleep and mood ask nothing; all three rules have their switch', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52, { sleepMin: 450, moods: [7, 8, 7] }) });
     const card = page.locator('[data-section="abfragen"]');
-    const q = card.locator('[data-q="daten.fahrt"]');
+    await expect(card.locator('[data-q="erholung.akku"]')).toBeVisible();
+    await expect(card.locator('[data-q^="daten."]')).toHaveCount(0);
+    await page.goto('./#/me/abfragen');
+    for (const id of ['ruhepuls', 'schlaf', 'stimmung', 'training', 'pause']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
+  });
+
+  test('a long day yesterday asks how the legs feel, with the time as the reason', async ({ page, context }, info) => {
+    const d = data(52);
+    d.tables.activities = [{ id: 'fad-a1', day: day(-1), kind: 'bike', name: 'Long loop', km: 90, movingS: 3.4 * 3600 }];
+    const T = await openHome(page, context, info, { data: d });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.training"]');
     await expect(q).toBeVisible();
     await expect(q.getByText(T('How do your legs feel after yesterday?'))).toBeVisible();
-    await expect(q.locator('[data-why]')).toContainText('4 Std. 10 Min.');
-    await expect(q.locator('[data-why]')).toContainText('96 km');
-    await card.screenshot({ path: `${SHOTS}/fad4-fahrt-${info.project.name === 'phone' ? 390 : 1440}.png` });
-    await q.getByRole('button', { name: T('Heavy|data'), exact: true }).click();
+    await expect(q.locator('[data-why]')).toContainText('3 Std. 24 Min.');
+    mkdirSync(SHOTS, { recursive: true });
+    await card.screenshot({ path: `${SHOTS}/fad4-training-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Heavy legs|data'), exact: true }).click();
     await card.locator('[data-ab-save]').click();
-    await expect(card.locator('[data-q="daten.fahrt"]')).toHaveCount(0);
+    await expect(card.locator('[data-q="daten.training"]')).toHaveCount(0);
   });
 
   test('six days without training ask what kept you from it', async ({ page, context }, info) => {
-    const T = await openHome(page, context, info, { data: data(52, { acts: [[-8, 7200, 40], [-6, 3600, 20]] }) });
+    const d = data(52);
+    d.tables.activities = [{ id: 'fad-p1', day: day(-8), kind: 'bike', name: 'Loop', km: 40, movingS: 7200 }, { id: 'fad-p2', day: day(-6), kind: 'run', name: 'Run', km: 8, movingS: 3000 }];
+    const T = await openHome(page, context, info, { data: d });
     const card = page.locator('[data-section="abfragen"]');
     const q = card.locator('[data-q="daten.pause"]');
     await expect(q).toBeVisible();
@@ -131,28 +143,11 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(card.locator('[data-q="daten.pause"]')).toHaveCount(0);
   });
 
-  test('training from last night is quiet; without activities the page says why', async ({ page, context }, info) => {
-    await openHome(page, context, info, { data: data(52, { acts: [[-1, 3600, 20], [0, 1800, 10]] }) });
-    await expect(page.locator('[data-section="abfragen"] [data-q^="daten."]')).toHaveCount(0);
-    await page.goto('./#/me/abfragen');
-    for (const id of ['fahrt', 'pause']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
-    await expect(page.locator('[data-data-empty-training]')).toHaveCount(0);
-  });
-
   test('no activities yet: the box says why the training rules are quiet', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
     await page.goto('./#/me/abfragen');
     await expect(page.locator('[data-data-empty-training]')).toBeVisible();
     await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad4-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
-  });
-
-  test('normal sleep and mood ask nothing; all three rules have their switch', async ({ page, context }, info) => {
-    await openHome(page, context, info, { data: data(52, { sleepMin: 450, moods: [7, 8, 7] }) });
-    const card = page.locator('[data-section="abfragen"]');
-    await expect(card.locator('[data-q="erholung.akku"]')).toBeVisible();
-    await expect(card.locator('[data-q^="daten."]')).toHaveCount(0);
-    await page.goto('./#/me/abfragen');
-    for (const id of ['ruhepuls', 'schlaf', 'stimmung']) await expect(page.locator(`[data-rule="${id}"]`).getByRole('switch')).toBeChecked();
   });
 
   // leaving Heute with the window open counts as «Heute nicht» (quiet until the evening), so each way is its own test

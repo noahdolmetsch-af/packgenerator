@@ -16,6 +16,8 @@
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import LinksOff from '../lib/sk/LinksOff.svelte'; // SK: switched-off outside links come back here
   import Seg from '../lib/ui/Seg.svelte';
+  import { logo, setLogo } from '../lib/logo/logo.svelte.js'; // «Das Logo zieht sich der Jahreszeit an» (Idee 30)
+  import { LOGOS } from '../lib/logo/logo.js';
   import { ChevronRight, Check, Minus, Plus } from '@lucide/svelte';
   import NameSection from '../lib/home/NameSection.svelte'; // HG1c «Dein Name», the first section
   import { OPS, START_PLACES } from '../lib/bedienung.js';
@@ -116,6 +118,15 @@
           <Seg label={t('Light or dark')} value={theme.mode} options={MODES.map((m) => ({ key: m.key, name: t(m.name) }))} onchange={setMode} />
         </div>
       </section>
+
+      <!-- «Das Logo zieht sich der Jahreszeit an» (Idee 30): only after the secret of the logo was found -->
+      {#if logo.unlocked}
+        <section aria-labelledby="look-logo" data-logo-set>
+          <h2 id="look-logo">{t('Your logo')}</h2>
+          <p class="note">{t('Plain «PG», «PG» with a little extra for the season, or the bike sign with a bit of the season.')}</p>
+          <Seg labelledby="look-logo" value={logo.pick} options={LOGOS.map((l) => ({ key: l.key, name: t(l.name) }))} onchange={setLogo} />
+        </section>
+      {/if}
 
       <LinksOff />
       <!-- Bedienung (Noah 13.10.2026 23:52 and 23:56, without mockup): small helps, each one can be switched off -->
