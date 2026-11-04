@@ -121,6 +121,7 @@ test('Sample race: a turn hint before the turn and against your last ride', asyn
   await expect(pick).toBeVisible();
   await expect(pick.locator('[data-ghost-opt]')).toHaveCount(2);
   await expect(pick.locator('input:checked')).toHaveAttribute('data-ghost-opt', 'rec-test_data_gtp_past');
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/vorher-${info.project.name}.png` });
   await tap(page.locator('[data-live-start]'), info);
   await expect(page.locator('[data-live-full]')).toBeVisible();
   // 200 m before the turn: the arrow with the distance
@@ -138,6 +139,8 @@ test('Sample race: a turn hint before the turn and against your last ride', asyn
   const ghost = page.locator('[data-live-sheet] [data-live-ghost]');
   await expect(ghost).toBeAttached({ timeout: 10_000 });
   await expect(ghost).toContainText(T('Against your ghost'));
+  if (process.env.SHOTS) await ghost.scrollIntoViewIfNeeded();
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/unterwegs-${info.project.name}.png` });
   await expect(ghost.locator('b')).toHaveText(/^[+−±]\d+:\d\d$/);
   // ride without the ghost, and back
   await ghost.locator('[data-live-ghost-pick]').selectOption({ label: T('Without a ghost') });
