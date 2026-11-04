@@ -180,7 +180,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Wetter | `#/wetter` | Orte, Tage und Startzeiten vergleichen; Regen, Wind, Kälte, Hitze und Warnungen für die Planung berücksichtigen. |
+| Wetter | `#/wetter` | Orte, Tage und Startzeiten vergleichen; Regen, Wind, Kälte, Hitze und Warnungen für die Planung berücksichtigen; Regenstreifen für 24 Stunden sowie Landi-Regenradar und SRF-Webcams in Fenstern. |
 | Hinweise und News | `#/me/hinweise` | Regionale Hinweise, winterliche Lawineninformationen und eigene Nachrichtenquellen bündeln. |
 | Skitouren | `#/ski` | Nächste Tour mit Wetter, Nullgradgrenze und Neuschnee vorbereiten. |
 | Skitour planen | `#/ski/plan` | Bulletinangaben, Bedingungen, Zeitplan und Umkehrzeit dokumentieren. |

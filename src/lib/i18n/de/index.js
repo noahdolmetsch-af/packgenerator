@@ -538,6 +538,7 @@ import formgarmin from './formgarmin.js';
 import umweg from './umweg.js';
 // Paket Y «Wetter-Kern» (Noah 20.10.2026)
 import wetterkern from './wetterkern.js';
+import wetterfenster from './wetterfenster.js';
 import energie from './energie.js';
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»)
 import haustuer from './haustuer.js';
@@ -972,6 +973,7 @@ const ORDERED = [
   umweg,
   haustuer,
   wetterkern,
+  wetterfenster,
   energie,
   tourlernen,
   schnellpacken,
