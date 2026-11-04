@@ -93,3 +93,25 @@ test('Pulse over the day: the day range shows the hours', async ({ page, context
   await expect(page.getByText(T('This value is not there (any more).'))).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('Gesundheitssignale: your range, the days that stand out, a link from the body values', async ({ page, context }) => {
+  const errors = await open(page, context);
+  // Körperwerte › Herz leads to the page of the value
+  await page.goto('./#/flow/stats/hr');
+  await ready(page);
+  await page.locator('[data-signal-link] a').click();
+  await expect(page).toHaveURL(/#\/auswerten\/analyse\/rhr$/);
+  const sig = page.locator('[data-signals]');
+  await expect(sig).toBeVisible();
+  await expect(sig.locator('[data-sig-band]')).toContainText('48');
+  // the four elevated days (20 to 23 days back) are one run above the range; a tap opens its last day
+  const run = sig.locator(`[data-sig-run="${addDays(TODAY, -23)}"]`);
+  await expect(run).toContainText('4');
+  await run.click();
+  await expect(page.locator('[data-day]')).toHaveAttribute('data-day', addDays(TODAY, -20));
+  // a sum has no signals block
+  await page.goto('./#/auswerten/analyse/fitZones');
+  await expect(page.locator('[data-detail="fitZones"]')).toBeVisible();
+  await expect(page.locator('[data-signals]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

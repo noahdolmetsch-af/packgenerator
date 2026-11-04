@@ -135,7 +135,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen. |
+| Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen; nach dem Abhaken führt «Als Nächstes» zu Verlauf und Meilensteinen. |
 | Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf und Zusatzbausteinen anlegen. |
 | Training | `#/flow/training` | Einheiten mit Dauer und Zone planen; Aktivitäten, Pulszonen und subjektive Anstrengung auswerten. |
 | Leistungsanalysen | `#/flow/training?view=list` | Einzelne Aktivitäten mit Leistung, Herzfrequenz, Runden, Splits und weiteren verfügbaren Messwerten öffnen. |
@@ -150,7 +150,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Morgen-Check | `#/check/morning` | † Den eigenen Zustand am Morgen kurz erfassen (Schlaf, Stimmung, Sorgen). |
 | Erkenntnisse | `#/me/insights` | Zusammenhänge zwischen Schlaf, Stimmung, Bewegung, Meditation, Wetter und weiteren eigenen Daten erkunden. |
 | Was mir gut tut | `#/me/wohl` | Muster guter Tage sammeln, gewünschte Lebensbereiche vergleichen und kleine Experimente durchführen. |
-| Routinen | `#/routine` | Persönliche Gewohnheiten mit kurzen täglichen Checklisten verfolgen. |
+| Routinen | `#/routine` | Persönliche Gewohnheiten mit kurzen täglichen Checklisten verfolgen; Teil von Aktiv › Erholung, Kachel auf Heute. |
 | Timer | `#/timer` | Stoppuhr, Countdown, Intervalle und Pomodoro mit Zweck und Protokoll verwenden. |
 
 ### 8. Auswerten, Erinnerungen und neue Abenteuer
@@ -168,10 +168,10 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten. |
 | Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
-| Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. |
-| Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. |
-| Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. |
-| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. |
+| Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Traumtouren | `#/trips/dreams` | Wunschabenteuer nach Saison sammeln, auf der Karte vergleichen und in konkrete Touren verwandeln; passende Wetterfenster und neue Ziele in der Nähe finden. |
 | Inspiration | `#/inspiration` | Links zu Routen, Videos, Ausrüstung und Rennen sammeln und daraus Ideen oder Packregeln ableiten. |
 
@@ -223,7 +223,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | KI-Projekte | `#/me/ki-projekte` | Links zu eigenen KI-Projekten, Chats und Threads sammeln. |
 | KI-Helfer | `#/helper` | Optionale KI-Unterstützung konfigurieren; Vorschläge prüfen und gezielt übernehmen. |
 | Sprachsuche | `#/me/suche` | Sprachbefehle und die Beantwortung von Fragen einstellen. |
-| Verbindungen | `#/me/connections` | Strava, Fitbit und Google-Verbindungen verwalten und sehen, welche Funktionen davon abhängen. |
+| Verbindungen | `#/me/connections` | Strava, Fitbit, Google und Trello verwalten, bei jeder den Stand sehen (läuft seit, Fehler mit Grund, zuletzt erfolgreich) und welche Funktionen davon abhängen. |
 | Termine und Aufgaben | `#/me/agenda` | Die angebotene Google-Anbindung für Termine und Aufgaben verwenden. |
 | Mail | `#/me/mail` | Die angebotene Gmail-Anbindung nutzen und Nachrichten weiter organisieren. |
 | Daten und Backup | `#/me/data` | Daten exportieren und importieren, Sicherungen einrichten, optional verschlüsseln und Geräteabgleich konfigurieren. |

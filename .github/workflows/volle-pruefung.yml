@@ -16,6 +16,7 @@ on:
 permissions:
   issues: write
   contents: read
+  actions: read # the report reads the jobs of this run and the last green run
 
 # One runs, the newest waits; an older waiting one is replaced (the newer version holds its changes).
 concurrency:
@@ -116,6 +117,32 @@ jobs:
             echo
             echo "Ganzer Lauf: $RUN"
           } > report.md
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+      # Noah 04.11.2026 «Test-Plan 4»: a red night run says in one line what is red and which merged PRs came
+      # since the last green run, so the morning starts with the suspects and not with a search.
+      - name: Name the suspects
+        if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success'
+        run: |
+          failed=$(gh api "repos/$GH_REPO/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" --jq '[.jobs[] | select(.conclusion == "failure" and .name != "report") | .name] | join(", ")' || true)
+          good=$(gh run list --workflow volle-pruefung.yml --status success --limit 1 --json headSha --jq '.[0].headSha // empty' || true)
+          suspects=''
+          if [ -n "$good" ] && [ "$good" != "$SHA" ]; then
+            suspects=$(gh api "repos/$GH_REPO/compare/$good...$SHA" --jq '[.commits[].commit.message | split("\n")[0] | select(test("\\(#[0-9]+\\)$"))] | if length > 12 then (.[0:12] | join("; ")) + "; und \(length - 12) weitere" else join("; ") end' || true)
+          fi
+          {
+            echo "**Rot: ${failed:-(Lauf ansehen)}.**"
+            echo
+            if [ -n "$suspects" ]; then
+              echo "Verdächtig, seit dem letzten grünen Lauf auf main gemerged: $suspects"
+            elif [ -z "$good" ]; then
+              echo "Verdächtig: nicht bekannt (es gibt noch keinen grünen Lauf zum Vergleichen)."
+            else
+              echo "Seit dem letzten grünen Lauf (\`${good:0:8}\`) ist nichts Neues auf main: vermutlich ein Wackler."
+            fi
+            echo
+            cat report.md
+          } > report-new.md
+          mv report-new.md report.md
           cat report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Open or update the issue
         if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success'

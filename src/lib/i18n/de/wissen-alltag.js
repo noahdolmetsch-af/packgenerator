@@ -72,4 +72,49 @@ export default {
     'Ein Ton holt einen Ort schneller zurück als ein Foto: zehn Sekunden Bach neben dem Zelt reichen.',
   'Free time needs no goal. Pick one page that fits the mood, not the one with the most to do.':
     'Freie Zeit braucht kein Ziel. Nimm die Seite, die zur Stimmung passt, nicht die mit am meisten zu tun.',
+  // Wegweiser: Ich › Werkzeuge
+  'Measure along the road, not as the crow flies: three extra points on the hairpins make 20 km into the honest 26.':
+    'Miss der Strasse entlang, nicht Luftlinie: drei Punkte mehr in den Kehren machen aus 20 km die ehrlichen 26.',
+  'Scan new gear at home right after buying, while the box is still there: on the trail the code is in the bin.':
+    'Scann neues Material gleich nach dem Kauf zu Hause, solange die Schachtel noch da ist: unterwegs ist der Code im Abfall.',
+  'Lay things out on a plain floor with a little space between them; a cluttered bed hides the socks the app is looking for.':
+    'Leg die Sachen mit etwas Abstand auf einen ruhigen Boden; auf einem zerwühlten Bett findet die App die Socken nicht.',
+  'Open it once with internet before the border: the rate stays on the phone and works in the valley without signal.':
+    'Öffne es einmal mit Internet vor der Grenze: der Kurs bleibt auf dem Handy und funktioniert auch im Tal ohne Empfang.',
+  'The magnifier is made for the tiny print on tyres and spokes: pressure range and size are always too small to read.':
+    'Die Lupe ist für die kleine Schrift auf Reifen und Speichen gemacht: Druckbereich und Grösse sind immer zu klein zum Lesen.',
+  'Add the places of the people you call from the road, then you never wake anyone at home at 6 in the morning.':
+    'Leg die Orte der Leute an, die du unterwegs anrufst, dann weckst du zu Hause niemanden um 6 Uhr morgens.',
+  'Hold the phone flat and away from the handlebar: steel and the bike computer pull the needle a few degrees off.':
+    'Halt das Handy flach und weg vom Lenker: Stahl und der Velocomputer ziehen die Nadel ein paar Grad weg.',
+  'Learn «water», «toilet» and «thank you» before you leave; the rest you can show on the screen with a smile.':
+    'Lern «Wasser», «Toilette» und «Danke» vor der Abfahrt; den Rest kannst du mit einem Lächeln auf dem Bildschirm zeigen.',
+  'Enter costs the same evening: after three days nobody remembers who paid the second round of pasta.':
+    'Trag die Kosten am selben Abend ein: nach drei Tagen weiss niemand mehr, wer die zweite Runde Pasta bezahlt hat.',
+  'Check the lowest gear before a steep tour: below about 2 m per crank turn, loaded climbs stay sit-down climbs.':
+    'Prüf vor einer steilen Tour den leichtesten Gang: unter etwa 2 m pro Kurbelumdrehung bleiben Steigungen mit Gepäck Sitzsteigungen.',
+  'Use it on the camping table before you pitch: a tent on a slope means you wake up in the corner.':
+    'Nimm sie auf dem Campingtisch, bevor du das Zelt stellst: ein Zelt am Hang heisst, du wachst in der Ecke auf.',
+  'Film after 20 minutes of riding, not cold from the car park: a warm body sits differently on the bike.':
+    'Filme nach 20 Minuten Fahrt, nicht kalt vom Parkplatz: ein warmer Körper sitzt anders auf dem Velo.',
+  'Look at «Fits right now» before a trip: the app picks the tools that match it, like currencies when you cross a border.':
+    'Schau vor einer Tour bei «Passt gerade»: die App wählt die Werkzeuge dafür, etwa Währungen, wenn du über eine Grenze fährst.',
+  'Make tickets and bookings one PDF the evening before: at the counter one file beats five screenshots.':
+    'Mach Tickets und Buchungen am Vorabend zu einem PDF: am Schalter schlägt eine Datei fünf Screenshots.',
+  'Make photos smaller before you send them on a weak signal: the message goes out on the pass, not only in the valley.':
+    'Mach Fotos kleiner, bevor du sie bei schwachem Empfang schickst: die Nachricht geht auf dem Pass raus, nicht erst im Tal.',
+  'Keep the opening hours page and the booking number here, not only in an e-mail you have to search for with gloves on.':
+    'Leg die Seite mit den Öffnungszeiten und die Buchungsnummer hier ab, nicht nur in einer Mail, die du mit Handschuhen suchen musst.',
+  'Save a chain for what you do after every trip, like «photos smaller → one PDF»; the second time it is one tap.':
+    'Speicher eine Kette für das, was du nach jeder Tour machst, etwa «Fotos kleiner → ein PDF»; beim zweiten Mal ist es ein Tipp.',
+  'Turn HEIC into JPG before you upload to a form: many web pages still refuse the iPhone format without saying why.':
+    'Wandle HEIC vor dem Hochladen in ein Formular in JPG um: viele Webseiten lehnen das iPhone-Format immer noch ab, ohne zu sagen warum.',
+  'A 30-second clip of the descent is enough for the group chat; smaller first, then it also arrives on a weak signal.':
+    'Ein Clip von 30 Sekunden von der Abfahrt reicht für den Gruppenchat; erst kleiner machen, dann kommt er auch bei schwachem Empfang an.',
+  'A QR code of your WLAN on the fridge saves guests from typing; one of your route link lets friends follow in one scan.':
+    'Ein QR-Code vom WLAN am Kühlschrank erspart Gästen das Tippen; einer vom Routen-Link lässt Freunde mit einem Scan folgen.',
+  'Quick check before the shop: 4 days × 3 bars is 12 bars, not «a few». The numbers stay on the device.':
+    'Kurz rechnen vor dem Laden: 4 Tage × 3 Riegel sind 12 Riegel, nicht «ein paar». Die Zahlen bleiben auf dem Gerät.',
+  'Tyre pressure in bar or psi depends on the pump: check once here and write your number on the frame with tape.':
+    'Reifendruck in bar oder psi hängt von der Pumpe ab: einmal hier prüfen und deine Zahl mit Klebeband an den Rahmen schreiben.',
 };

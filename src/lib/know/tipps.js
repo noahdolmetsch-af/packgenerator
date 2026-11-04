@@ -14,8 +14,6 @@ export const FINDERS = ['#/quick', '#/features', '#/me/handbook', '#/me/karte'];
  */
 export const TAP_GAPS = [
   '#/bikes?tab=setup',
-  '#/blocks/aufraeumen',
-  '#/blocks/check',
   '#/live',
   '#/me/data?mehr',
   '#/me/data?names',
@@ -24,7 +22,6 @@ export const TAP_GAPS = [
   '#/notes/zusammenhang',
   '#/notes?open=:note',
   '#/pack?new',
-  '#/pack?print',
   '#/ski/after',
   '#/ski/check',
   '#/ski/start',

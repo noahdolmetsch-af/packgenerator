@@ -1,6 +1,6 @@
 // «Beat your Ghost» (Cockpit-Idee 4): which earlier ride can be the ghost, and how this ride compares.
 import { describe, it, expect } from 'vitest';
-import { alike, ghostsOf, driftOf, compare } from '../src/lib/training/act/ghost.js';
+import { alike, ghostsOf, driftOf, compare, resultOf, betterOf, ghostCase } from '../src/lib/training/act/ghost.js';
 
 const ride = (id, day, x = {}) => ({ id, day, time: '08:00', kind: 'bike', name: 'Abendrunde', km: 40, hm: 600, movingS: 5400, hrAvg: 140, wAvg: 190, wDevice: true, tempAvg: 14, ...x });
 const me = ride('me', '2026-10-20', { hrAvg: 136 });
@@ -85,5 +85,32 @@ describe('compare', () => {
   });
   it('is null without a heart rate', () => {
     expect(compare({ ...me, hrAvg: 0 }, ride('g', '2026-09-01'))).toBeNull();
+  });
+});
+
+describe('beaten?', () => {
+  it('resultOf turns the verdict into beat, level or behind', () => {
+    expect(resultOf({ verdict: { key: 'ahead' } })).toBe('beat');
+    expect(resultOf({ verdict: { key: 'samepower-less' } })).toBe('beat');
+    expect(resultOf({ verdict: { key: 'level' } })).toBe('level');
+    expect(resultOf({ verdict: { key: 'behind' } })).toBe('behind');
+    expect(resultOf({ verdict: { key: 'samepower-more' } })).toBe('behind');
+    expect(resultOf(null)).toBeNull();
+  });
+  it('betterOf: more is better for power and speed, less for heart rate, time and drift', () => {
+    expect(betterOf('w', 188, 179)).toBe(true);
+    expect(betterOf('hr', 138, 141)).toBe(true);
+    expect(betterOf('time', 5760, 5900)).toBe(true);
+    expect(betterOf('drift', 6.3, 6.6)).toBe(true);
+    expect(betterOf('hr', 150, 141)).toBe(false);
+    expect(betterOf('w', 180, 180)).toBeNull();
+    expect(betterOf('w', null, 180)).toBeNull();
+  });
+  it('ghostCase picks the ghost, the comparison and the result; null without a ghost', () => {
+    const g = ride('g', '2026-09-01', { hrAvg: 142 });
+    const c = ghostCase([me, g], me);
+    expect(c.ghost.act.id).toBe('g');
+    expect(c.result).toBe('beat');
+    expect(ghostCase([me], me)).toBeNull();
   });
 });
