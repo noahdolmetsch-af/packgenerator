@@ -9,9 +9,13 @@
   import { t } from '../i18n.svelte.js';
   import { db } from '../db.js';
   import { pageContent, pagePattern, SHOWN, FOLD_KEY, foldMapOf, isFolded } from '../seiteninhalt.js';
+  import { loadWissen } from '../wissen/load.js';
 
   let { hash = '' } = $props();
-  const rows = $derived(pageContent(hash));
+  // the tips load with the first card, not at the start (scripts/size-guard.mjs); rows show without them until then
+  let know = $state({});
+  loadWissen().then((w) => (know = w));
+  const rows = $derived(pageContent(hash, undefined, know));
   const key = $derived(pagePattern(hash)); // one fold choice for all trips (#/debrief/:trip), not one per trip
   const foldQ = liveQuery(async () => foldMapOf((await db.settings.get(FOLD_KEY))?.value));
   const folded = $derived(isFolded($foldQ, key));

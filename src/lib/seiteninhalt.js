@@ -8,7 +8,6 @@
 import { FEATURES } from './features.js';
 import { HANDBOOK } from './handbook.js';
 import { HOME } from './know/heimat.js';
-import { WISSEN } from './wissen/index.js';
 
 /** The pages that show the card (page keys as pageKey writes them); one PR per area adds its pages. */
 export const ON_PAGES = [
@@ -113,7 +112,11 @@ export function pagePattern(hash, on = ON_PAGES) {
  */
 export const SHOWS_TOO = { '#/notes': ['#/notes?open=:note'] };
 
-export function pageContent(hash, on = ON_PAGES) {
+/**
+ * know: the «Good to know» texts by function id (WISSEN). They are not part of the start (Tempo-Budget,
+ * scripts/size-guard.mjs): the card loads them with loadWissen() (src/lib/wissen/load.js) and hands them in.
+ */
+export function pageContent(hash, on = ON_PAGES, know = {}) {
   const here = pagePattern(hash, on);
   if (!here) return [];
   // the page's own functions first, then those of the windows it opens (SHOWS_TOO)
@@ -121,7 +124,7 @@ export function pageContent(hash, on = ON_PAGES) {
   const rank = (f) => homes.indexOf(pageKey(HOME[f.id]));
   return FEATURES.filter((f) => HOME[f.id] && rank(f) >= 0).sort((a, b) => rank(a) - rank(b)).map((f) => {
     const h = HANDBOOK[f.id] ?? {};
-    return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '', know: WISSEN[f.id] ?? '' };
+    return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '', know: know[f.id] ?? '' };
   });
 }
 
