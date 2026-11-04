@@ -42,6 +42,7 @@ test('All dreams on one map: numbered, most new first, a tap opens the dream', a
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./#/trips/dreams');
   await ready(page);
+  await page.locator('[data-view="map"]').click();
   await expect(page.locator('[data-dreams-map]')).toHaveCount(0); // no dream with a map yet
   await put(page, 'settings', [
     {
@@ -58,6 +59,7 @@ test('All dreams on one map: numbered, most new first, a tap opens the dream', a
   await page.reload();
   await ready(page);
 
+  await page.locator('[data-view="map"]').click();
   const sec = page.locator('[data-dreams-map]');
   await expect(sec.getByRole('img', { name: T('Map of all dreams') })).toBeVisible();
   const rows = sec.locator('[data-dm-row]');

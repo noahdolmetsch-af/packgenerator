@@ -80,11 +80,13 @@ test('Touren › Träume: a dream with its season in the year band', async ({ pa
   await root.locator('form.cap button[type="submit"]').click();
   await expect(root.locator('[data-dream]')).toHaveCount(1);
   await expect(root.locator('[data-dream]')).toContainText(T('Alpine passes'));
-  // July fits, January does not
+  // July fits, January does not (the year is a view of the page)
+  await root.locator('[data-view="year"]').click();
   await expect(root.locator('[data-month="7"] .num')).toHaveText('1');
   await expect(root.locator('[data-month="1"] .num')).toHaveText('0');
   await noSideScroll(page);
 
+  await root.locator('[data-view="list"]').click();
   await root.locator('[data-dream] button.open').click();
   const sheet = page.locator('dialog.dsheet');
   await sheet.locator('[data-months] button').nth(5).click(); // June on
@@ -99,8 +101,10 @@ test('Touren › Träume: a dream with its season in the year band', async ({ pa
   await sheet.getByRole('button', { name: T('Done') }).click();
   await expect(root.locator('[data-dream] img.thumb')).toBeVisible();
   await expect(root.locator('[data-dream]')).toContainText(' km');
+  await root.locator('[data-view="year"]').click();
   await expect(root.locator('[data-month="6"] .num')).toHaveText('1');
   await root.locator('[data-month="6"]').click();
+  await root.locator('[data-view="list"]').click();
   await expect(root.locator('#dr-list')).toContainText(T('Dreams in {month}').replace('{month}', T('Jun|month')));
   await expect(root.locator('[data-races]')).toBeVisible();
   await root.locator('[data-kinds] summary').click();
