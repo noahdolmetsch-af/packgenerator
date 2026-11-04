@@ -11,6 +11,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { readRaw, computeFrom, saveState } from '../lib/neuland/store.js';
+  import { reachOf } from '../lib/neuland/beleg.js';
   import { loadBase } from '../lib/neuland/load.js';
   import { newSince, dayBefore } from '../lib/neuland/neuheute.js'; // N11 «Neu heute» here too (Noah 28.10.2026 «1 a und b»)
   import {
@@ -352,6 +353,8 @@
       auto={c.found[openIt.id] ?? null}
       nope={!!state.nope[c.id]?.[openIt.id]}
       tripName={(id) => tripNames[id] ?? ''}
+      reachKm={reachOf(c, openIt)}
+      tracks={result?.tracks ?? []}
       {today}
       ontick={(day) => save(tick(state, c.id, openIt.id, day))}
       onuntick={() => save(untick(state, c.id, openIt.id, { found: !!c.found[openIt.id], day: today }))}
