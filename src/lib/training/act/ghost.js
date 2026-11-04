@@ -120,3 +120,24 @@ export function compare(act, g) {
   else verdict = { key: effPct > 0 ? 'ahead' : 'behind', n: Math.round(Math.abs(effPct)) };
   return { power, rows, eff: { me: r2(em), ghost: r2(eg), pct: effPct }, drift, verdict };
 }
+
+/**
+ * «Beaten?» in one word (Noah 04.11.2026 «2a»): 'beat' = more watts per beat, or the same power with fewer beats;
+ * 'level' = nearly the same; 'behind' = the other way. Observation only, never a verdict on the day.
+ */
+export const resultOf = (cmp) => (!cmp?.verdict ? null : cmp.verdict.key === 'ahead' || cmp.verdict.key === 'samepower-less' ? 'beat' : cmp.verdict.key === 'level' ? 'level' : 'behind');
+
+/** Which side of a table row is the better one: true = this ride, false = the ghost, null = equal or no direction. */
+const LOWER_IS_BETTER = new Set(['hr', 'time', 'drift']);
+export function betterOf(key, me, ghost) {
+  if (!Number.isFinite(me) || !Number.isFinite(ghost) || me === ghost) return null;
+  return LOWER_IS_BETTER.has(key) ? me < ghost : me > ghost;
+}
+
+/** The ghost of a ride and the comparison with it, or null: { ghost, cmp, result }. pickId: a ghost the person chose. */
+export function ghostCase(all, act, pickId = '') {
+  const list = ghostsOf(all, act);
+  const ghost = list.find((g) => g.act.id === pickId) ?? list[0] ?? null;
+  const cmp = ghost ? compare(act, ghost.act) : null;
+  return ghost && cmp ? { list, ghost, cmp, result: resultOf(cmp) } : null;
+}

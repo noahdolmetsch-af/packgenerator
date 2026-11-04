@@ -28,9 +28,14 @@
   import { widgetValues } from '../../lib/wohl.js';
   import { health, FITBIT_HASH } from '../../lib/health/client.svelte.js';
   import { addDays } from '../../lib/health.js';
+  import { routineQuery } from '../../lib/routine-data.js';
+  import { countFor } from '../../lib/routine.js';
   import { t, tn, locale, lang } from '../../lib/i18n.svelte.js';
 
   const today = localDay();
+  // «Aktiv und Auswerten» 5 (Noah 03.11.2026): the daily list «What does me good» stands here, with today's count
+  const rq = routineQuery(today);
+  const rcount = $derived($rq?.routine ? countFor($rq.routine, today, $rq.auto ?? {}) : { n: 0, of: 0 });
   const q = flowQuery(today);
   const data = $derived($q);
   $effect(() => {
@@ -147,7 +152,7 @@
           {/if}
           <a class="chip dash own" href="#/flow/new"><Plus size={16} aria-hidden="true" />{t('own recovery')}</a>
           <!-- «Versteckte Funktionen» (Noah 03.11.2026 «4b»): the daily list was only reachable from a Heute tile -->
-          <p class="sub"><a href="#/routine" data-rest-routine>{t('Your daily list «What does me good»')} ›</a> {t('small habits to tick, with days and times')}</p>
+          <p class="sub"><a href="#/routine" data-rest-routine>{t('Your daily list «What does me good»')} ›</a> {rcount.of ? t('{n} of {of} ticked today', { n: rcount.n, of: rcount.of }) : t('small habits to tick, with days and times')}</p>
         </Sec>
       </div>
 

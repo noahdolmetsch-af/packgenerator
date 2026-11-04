@@ -6,10 +6,10 @@ import { shortcutOf } from '../src/lib/nav/keys.js';
 
 describe('the pages under each place', () => {
   it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built; UC3 14.10.2026 «2a»: Velos gets «Setup» as a fifth; Paket 2: Aktiv gets «Meditation» (ME2, Noah 15.10.2026 «1a») and «Training» (TR2, Noah 13.10.2026 «1-5a» 1a) as its own tabs; Paket N: Touren gets «Träume» (Noah 19.10.2026 «1a») next to «Skitouren»)', () => {
-    const max = { bikes: 5, active: 4, analysis: 12, trips: 7, week: 12, gear: 6 }; // Analyse (Noah 27.10.2026 «1a»): Auswerten gets «Analyse» as a tab // Alltag sichtbar (Noah 24.10.2026 «1a»): Planen + Merken // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): Touren, Planen and Material got tabs; // «Aktiv neu» (Noah 22.10.2026): Aktiv has 4 tabs, «Auswerten» the looking pages // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
+    const max = { bikes: 5, active: 4, analysis: 16, trips: 7, week: 12, gear: 6 }; // «Aktiv und Auswerten» 3a (Noah 03.11.2026): Auswerten gets Heatmap, Neuland, Gelernt and Jahr // Analyse (Noah 27.10.2026 «1a»): Auswerten gets «Analyse» as a tab // Alltag sichtbar (Noah 24.10.2026 «1a»): Planen + Merken // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): Touren, Planen and Material got tabs; // «Aktiv neu» (Noah 22.10.2026): Aktiv has 4 tabs, «Auswerten» the looking pages // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
     for (const p of ALL_PLACES) expect((PLACE_TABS[p.key] ?? []).length, p.key).toBeLessThanOrEqual(max[p.key] ?? 4);
     const keys = Object.values(PLACE_TABS).flat().map((x) => x.key);
-    for (const later of ['neuland', 'heft']) expect(keys).not.toContain(later);
+    for (const later of ['heft']) expect(keys).not.toContain(later);
   });
 
   it('every entry leads to a page of its own place', () => {
@@ -21,6 +21,8 @@ describe('the pages under each place', () => {
     expect(tabOf('trips', '#/pack/templates')).toBe('templates');
     expect(tabOf('trips', '#/debrief/learnings')).toBe('lookback');
     expect(tabOf('trips', '#/pack/past')).toBe('lookback');
+    expect(tabOf('trips', '#/heatmap')).toBe(null); // «Aktiv und Auswerten» 3a: Heatmap, Neuland, Gelernt and Jahr are Auswerten now
+    for (const [h, k] of [['#/heatmap', 'heatmap'], ['#/neuland?c=cantons', 'neuland'], ['#/gelernt/2026-10', 'learned'], ['#/jahr/2026', 'year']]) expect(tabOf('analysis', h), h).toBe(k);
     expect(tabOf('trips', '#/pack')).toBe(null); // a trip: no entry lit
     expect(tabOf('trips', '#/trips/rides')).toBe(null); // N1: Fahrten is Auswerten › Fahrten now
     expect(tabOf('analysis', '#/trips/rides')).toBe('rides');

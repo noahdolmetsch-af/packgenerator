@@ -140,6 +140,8 @@ export function writeDeAuto() {
   const listed = new Set(files.flatMap((f) => [...readFileSync(join(dir, f), 'utf8').matchAll(/from '\.\/([\w-]+)\.js'/g)].map((m) => m[1])));
   const extra = files
     .filter((f) => f !== 'index.js' && !listed.has(f.slice(0, -3)))
+    // the «Good to know» tips load with their card, not at the start (src/lib/wissen/texte-de.js)
+    .filter((f) => !/^wissen-/.test(f))
     .sort();
   const id = (f) => `d_${f.slice(0, -3).replace(/-/g, '_')}`;
   const text = [
