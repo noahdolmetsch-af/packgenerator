@@ -10,6 +10,7 @@
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
   import { RETIRE_REASONS } from '../bikeretire.js';
+  import { bikesHash } from '../bikes.js';
   import '../ui/daumen.css';
 
   let { bike, onsave, onclose } = $props();
@@ -22,6 +23,11 @@
   $effect(() => {
     dialog.showModal();
   });
+  /** «Sold»: the sale listing first (Noah 03.11.2026 «3a»); the sheet closes, the listing page opens. */
+  function toListing() {
+    dialog.close();
+    location.hash = bikesHash({ tab: 'care', view: 'sell', bike: bike.id });
+  }
   async function save(e) {
     e?.preventDefault();
     if (busy) return;
@@ -48,6 +54,12 @@
     <div class="opts" role="group" aria-label={t('Why')}>
       {#each RETIRE_REASONS as r (r)}<OptionButton pressed={reason === r} label={t(WORDS[r])} onclick={() => (reason = r)} data-retire-reason={r} />{/each}
     </div>
+    {#if reason === 'sold'}
+      <div class="sell" data-retire-listing>
+        <p><b>{t('Before you retire it')}</b><br />{t('The sale listing turns km, services and parts into a text, with photos. Everything stays saved.')}</p>
+        <button type="button" class="btn" onclick={toListing} data-retire-listing-go>{t('Write the sale listing')}</button>
+      </div>
+    {/if}
     <label class="rlbl" for="rt-at">{t('Day')}</label>
     <input id="rt-at" class="rinp" type="date" bind:value={at} />
     <label class="rlbl" for="rt-note">{t('Note (optional)')}</label>
@@ -107,6 +119,23 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 12px;
+  }
+  .sell {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 4px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+  }
+  .sell p {
+    margin: 0;
+  }
+  .sell .btn {
+    justify-self: start;
   }
   .rlbl {
     display: block;

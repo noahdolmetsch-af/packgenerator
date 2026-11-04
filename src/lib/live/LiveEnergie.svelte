@@ -12,6 +12,7 @@
   import { loadCore, hoursBetween } from '../wetter/kern.js';
   import { RIDER_KEY } from '../weight.js';
   import { energyFor, riderKg } from '../energie.js';
+  import Nussgipfel from '../nussgipfel/Nussgipfel.svelte'; // «Nussgipfel-Rechner» (Idee 26)
   import { gainBetween } from './live-lib.js';
   import { t, num } from '../i18n.svelte.js';
 
@@ -44,7 +45,7 @@
 {#if hours >= 0.1}
   <p class="le-line" data-live-energy>
     <Flame size={18} aria-hidden="true" />
-    <span>{t('So far about {kcal} kcal used.', { kcal: num(e.burn) })} {t('Eat about {g} g carbohydrates and drink about {l} L per hour.', { g: num(valuesOf($fuelQ?.value).carbsGh), l: num(e.waterLh) })} <small>{t('A guess from your weight, time, km and climbing.')}</small></span>
+    <span>{t('So far about {kcal} kcal used.', { kcal: num(e.burn) })} <Nussgipfel kcal={e.burn} /> {t('Eat about {g} g carbohydrates and drink about {l} L per hour.', { g: num(valuesOf($fuelQ?.value).carbsGh), l: num(e.waterLh) })} <small>{t('A guess from your weight, time, km and climbing.')}</small></span>
   </p>
 {/if}
 

@@ -17,6 +17,7 @@
   import { RIDER_KEY } from '../lib/weight.js';
   import GpxStops from '../lib/route/GpxStops.svelte';
   import { energyFor, riderKg } from '../lib/energie.js';
+  import Nussgipfel from '../lib/nussgipfel/Nussgipfel.svelte'; // «Nussgipfel-Rechner» (Idee 26)
   import { upcomingTrips } from '../lib/gear/assign.js';
   import { nextTrip } from '../lib/debrief.js';
   import { hoursOf } from '../lib/situation.js';
@@ -257,7 +258,7 @@
           {#if used}<span data-fuel-kcal><Flame size={18} aria-hidden="true" /><b class="num">{num(used.burn)}</b><small>{t('kcal used, about')}</small></span>{/if}
         </div>
         {#if v.view === 'products'}<p class="note" data-fuel-pack>{t('In all: {list}', { list: packText(plan.totals.carbs) })}</p>{/if}
-        <p class="note">{t('{km} km, {n} h riding a day with your pace; water {a}–{b} l per hour by temperature and climbing. Your bottles hold {cap}.', { km: kmOf(totalKm), n: num(rideH), a: num(v.coolLh), b: num(v.hotLh), cap: l(plan.capacityL) })}{#if plan.guessedTemp}{' '}{t('No forecast for some parts yet: 20 °C assumed there.')}{/if}{#if !trip.startDate}{' '}{t('Without a start day the app cannot check the weather and the opening hours.')}{/if}</p>
+        <p class="note">{t('{km} km, {n} h riding a day with your pace; water {a}–{b} l per hour by temperature and climbing. Your bottles hold {cap}.', { km: kmOf(totalKm), n: num(rideH), a: num(v.coolLh), b: num(v.hotLh), cap: l(plan.capacityL) })}{#if plan.guessedTemp}{' '}{t('No forecast for some parts yet: 20 °C assumed there.')}{/if}{#if !trip.startDate}{' '}{t('Without a start day the app cannot check the weather and the opening hours.')}{/if}{#if used}{' '}<Nussgipfel kcal={used.burn} />{/if}</p>
       {:else if plain}
         <div class="sum">
           <span><Clock size={18} aria-hidden="true" /><b class="num">{h(plain.hours)}</b><small>{t('riding')}</small></span>

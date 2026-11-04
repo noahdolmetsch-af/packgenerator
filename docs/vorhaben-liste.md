@@ -245,6 +245,7 @@ Ziel 5 Alltag. Entscheid «1a 2a 3a 4a 5a und b»: Stil S2 «Kacheln mit Tiefe»
 | 3 | Aufklappen am Handy (alles zu ausser «Jetzt», gemerkt), nach «Heute ruhiger» Teil 3 | gewünscht |
 | 4 | Stil S2 auf Heute | gewünscht |
 | 5 | Packen: Wischen zum Abhaken, gezeichnetes Velo mit Taschen | gewünscht |
+| 5b | Packen fühlt sich echt an (Paket B, Noah 03.11.2026 «a»): Rollverschluss rollt zu und rastet ein; kurzes Vibrieren beim Abhaken gab es schon. Karten nacheinander (7) und Ringe füllen (8) auf weiteren Seiten bleiben Idee | gebaut (Rollverschluss) |
 | 6 | Startklar: grosser Moment | gewünscht |
 | 7 | Touren: Kacheln mit Tiefe, Jahres-Übersicht als Farbfelder | gewünscht |
 | 8 | Velo: gezeichnetes Velo, Verschleiss als Ringe | gewünscht |
@@ -263,6 +264,32 @@ Aus den 30 Ideen (`notes/ideen-bewegung-2026-11-03/README.md`). Jede Idee ein ei
 | 25 | Schweizer Berge statt Everest | gewählt |
 | 24 | Pässe sammeln | gewählt |
 | 18 | Tourenpass mit Stempel | gewählt |
+
+### Schmunzel-Ideen, Paket F (Noah 03.11.2026 «E und F», aus den 30 Ideen in `notes/ideen-bewegung-2026-11-03/`)
+
+Ziel 5 Alltag. Jede Idee ein eigener kleiner PR mit Bildern. Bewegung aus bei «Bewegung reduzieren».
+
+| # | Idee | Stand |
+|---|---|---|
+| 29 | Geheimnis im Logo: fünfmal auf «PG» tippen, ein kleines Velo fährt quer über den Bildschirm | in Arbeit (PR) |
+| 30 | Die App zieht sich der Jahreszeit an: Schneeflocken, Blatt, Blüte im Seitenkopf | gewählt |
+| 26 | Nussgipfel-Rechner: die Energie einer Fahrt in Nussgipfeln | gewählt |
+| 27 | Wetter-Sprüche auf Mundart unter dem Gruss auf Heute | gewählt |
+| 28 | Murmeltier als Begleiter auf leeren Seiten und bei Tipps | gewählt |
+
+### Geheimmenü: weitere Überraschungen hinter «PG» (Noah 03.11.2026 «H1 H2 H6 H7 H8 H9»)
+
+Ziel 5 Alltag. Fünf Tipps, eine Überraschung nach Zufall, nie dieselbe zweimal hintereinander. Jede ein eigener kleiner PR. Mockups: `notes/geheimmenue-ideen-2026-11-03/`.
+
+| # | Idee | Stand |
+|---|---|---|
+| H6 | Velo-Weisheit: ein Spruch in Mundart, änderbar in «Listen und Typen» | in Arbeit (PR) |
+| H2 | Murmeltier streckt den Kopf aus dem Loch und pfeift (nutzt den Baustein aus Idee 28) | gewählt, wartet auf Idee 28 |
+| H9 | Logo-Wetter: das echte Wetter von jetzt am Logo | gewählt |
+| H8 | Platten im Logo («Zum Glück nur im Logo») | gewählt |
+| H7 | Alpenpanorama zieht durchs Bild | gewählt |
+| H1 | Kuhglocken (Ton nur, wenn eingeschaltet) | gewählt |
+| H5 | Pass-Sprint, ein Mini-Spiel | Idee für später |
 
 ## Bewusst nicht
 

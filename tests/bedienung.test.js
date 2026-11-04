@@ -60,7 +60,7 @@ describe('FE10 speak instead of type', () => {
 
 describe('the switches', () => {
   it('everything on except high contrast; a stored 1 or 0 wins', () => {
-    expect(OPS.filter((o) => o.on).map((o) => o.key)).toEqual(['speak', 'keys', 'buzz', 'quiet', 'search', 'path']);
+    expect(OPS.filter((o) => o.on).map((o) => o.key)).toEqual(['speak', 'keys', 'buzz', 'quiet', 'search', 'path', 'nussgipfel', 'murmeltier', 'mundart']);
     expect(opOf('contrast', null)).toBe(false);
     expect(opOf('contrast', '1')).toBe(true);
     expect(opOf('keys', null)).toBe(true);

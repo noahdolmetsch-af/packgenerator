@@ -10,6 +10,7 @@
   import { hubBike, openIdeas, IDEAS_KEY } from '../hubs.js';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
   import MessenDialog from '../bikes/MessenDialog.svelte'; // «Werte messen» W5 + W6
+  import { bikeBirthdays } from './geburtstag.js';
   import { t, tn, num } from '../i18n.svelte.js';
 
   let { bikes = [], tasks = [], visits = [], next = null, today } = $props();
@@ -35,6 +36,26 @@
     }
   };
   let messen = $state(null); // 'chain' | 'pressure'
+  // Paket C idea 21: on the day a bike was bought, years ago, Today congratulates (one tap hides it for that year)
+  const BDAY_KEY = 'bikeBirthdaySeen';
+  const readSeen = () => {
+    try {
+      return JSON.parse(localStorage.getItem(BDAY_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  };
+  let seen = $state(readSeen());
+  const bdayId = (x) => `${x.bike.id}:${today.slice(0, 4)}`;
+  const birthdays = $derived(bikeBirthdays(bikes, today).filter((x) => !seen.includes(bdayId(x))));
+  function hideBday(x) {
+    seen = [...seen, bdayId(x)].slice(-40);
+    try {
+      localStorage.setItem(BDAY_KEY, JSON.stringify(seen));
+    } catch {
+      /* private mode: it shows again next time */
+    }
+  }
   const ideas = $derived(bikes.map((b) => ({ bike: b, n: openIdeas(b.ideas) })).filter((x) => x.n));
 
   const rows = $derived(
@@ -55,6 +76,12 @@
 {#if rows.length}
   <section class="bikes" aria-labelledby="bk-h">
     <h2 id="bk-h" class="sr">{t('Bikes|place')}</h2>
+    {#each birthdays as x (x.bike.id)}
+      <p class="bday" data-bike-birthday={x.bike.id}>
+        <span>{t('Your {bike} turns {n} today.', { bike: x.bike.name, n: x.years })}{#if x.km != null}{' '}{t('You have ridden {km} km together.', { km: num(x.km) })}{/if}</span>
+        <button type="button" class="lk quiet" onclick={() => hideBday(x)}>{t('Hide')}</button>
+      </p>
+    {/each}
     <ul>
       {#each rows as r (r.bike.id)}
         <li>
@@ -118,6 +145,22 @@
     border: 0;
     background: none;
     color: var(--ink-3);
+  }
+  .bday {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 0 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius-card);
+    background: var(--accent-soft);
+    color: var(--ink);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .bday span {
+    min-width: 0;
   }
   .saved {
     margin: 6px 0 0;

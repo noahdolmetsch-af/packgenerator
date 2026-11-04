@@ -16,6 +16,7 @@
   import VeloDraw from './VeloDraw.svelte';
   import { careLook } from './pflegezustand.js';
   import { phone } from '../media.svelte.js';
+  import Odometer from '../ui/Odometer.svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   let { bikeId = null, onbike } = $props();
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -62,7 +63,7 @@
       <article class="vcard" class:sel={c.bike.id === bikeId} data-velo-card={c.bike.id}>
         <div class="pic"><VeloDraw look={c.look.look} /></div>
         <b class="nm">{c.bike.name}</b>
-        <small class="km num">{c.bike.km != null ? `${num(c.bike.km)} km` : t('km not set')}</small>
+        <small class="km num">{#if c.bike.km != null}<Odometer value={c.bike.km} />{' km'}{:else}{t('km not set')}{/if}</small>
         <span class="vpill {c.status}">{c.w.tag}</span>
         {#if c.w.text}<p class="next">{c.w.text}</p>{/if}
         {#if c.look.look === 'clean'}

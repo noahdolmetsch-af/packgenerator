@@ -16,7 +16,7 @@
   import { t } from '../i18n.svelte.js';
 
   // ctx: { trip, race, stored, plan, save } of the race (null on a ride without a race); the sheet writes only the tiredness, the nap and the three goals
-  let { race = null, ctx = null, awake = 0, now = Date.now(), km = null, pace = {}, bed = null, shop = null, movingS = 0, pausedS = 0, sleep = null, ongo = null, onmap = null, onclose } = $props();
+  let { race = null, ctx = null, awake = 0, now = Date.now(), km = null, pace = {}, bed = null, shop = null, exitNear = null, movingS = 0, pausedS = 0, sleep = null, ongo = null, onmap = null, onclose } = $props();
   let dialog = $state();
   $effect(() => {
     if (dialog && !dialog.open) dialog.showModal();
@@ -124,6 +124,21 @@
         <button type="button" class="btn sm" onclick={() => goHere(emergency)} data-night-emergency-go><Navigation size={16} aria-hidden="true" />{t('Navigate there')}</button>
         <button type="button" class="btn sm" onclick={() => keep('emergencyBed', null, t('Emergency bed removed.'))} data-night-emergency-clear>{t('Remove')}</button>
       </div>
+    {/if}
+  </section>
+
+  <section class="lv-night-part" data-night-exit>
+    <h3 class="lv-night-h3">{t('Way out')}</h3>
+    {#if exitNear?.ahead || exitNear?.behind}
+      {#each [['ahead', exitNear.ahead], ['behind', exitNear.behind]] as [side, r] (side)}
+        {#if r}
+          <p class="lv-line" data-night-exit-row={side}><KindIcon kind="station" size={18} /><span><b>{r.poi.name || t('Station')}</b> · {side === 'ahead' ? t('{d} km ahead', { d: r.distKm }) : t('{km} km behind you', { km: r.distKm })}{#if r.offKm}{' '}· {t('{d} km off the route', { d: r.offKm })}{/if}{#if r.eta}{' '}· {t('there about {at}', { at: hhmm(r.eta) })}{/if}</span></p>
+          <div class="lv-night-acts"><button type="button" class="btn sm" onclick={() => goHere({ ...r.poi, kind: 'station' })} data-night-exit-go={side}><Navigation size={16} aria-hidden="true" />{t('Navigate there')}</button></div>
+        {/if}
+      {/each}
+      <p class="rc-note">{t('For a fall, a storm or a broken bike: the nearest station on the way. Trains need a ticket and a bike space, check on the spot.')}</p>
+    {:else}
+      <p class="rc-empty">{t('No station found on the way yet. Load the stops along the route.')}</p>
     {/if}
   </section>
 
