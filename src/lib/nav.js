@@ -431,7 +431,7 @@ export const PLACE_TABS = {
     // «Training» TR2 (Noah 13.10.2026 «1-5a»); Runde 2 «1b»: it stays in Aktiv, with the training plans
     { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|plans)(\/|\?|$)/.test(h) },
     // Runde 3 «2a»: «Erholung» stays its own tab (the ring, the list to tick)
-    { key: 'rest', label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/flow\/rest(\/|\?|$)/.test(h) },
+    { key: 'rest', label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
   ],
   // «Aktiv neu»: what you look at. The start takes the form card, Strava and «Wi gaht's?» from the old Aktiv.
   analysis: [
@@ -505,7 +505,7 @@ export function placeOf(page, hash = '') {
   if (page === 'quick') return 'quick'; // «Quick Links» (Noah 28.10.2026)
   if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'check') return 'today'; // Tages-Check (Noah 18.10.2026): pages of Heute
-  if (page === 'routine') return 'today'; // Routine «Das tut mir gut» (D2): opened from its tile on Heute
+  if (page === 'routine') return 'active'; // Routine «Das tut mir gut» (D2): the tile on Heute leads here; «Aktiv und Auswerten» 5 (Noah 03.11.2026): the list stands under Aktiv › Erholung
   // «Aktiv neu» (Noah 22.10.2026): the pages to look at are under Auswerten, the same addresses
   if (page === 'flow') return LOOK_FLOW.test(hash || '') ? 'analysis' : 'active';
   if (page === 'impulse' || page === 'auswerten') return 'analysis'; // Runde 3 «3b»: Impulse is in Auswerten
