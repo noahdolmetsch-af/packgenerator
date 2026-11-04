@@ -101,6 +101,7 @@
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { nearestExit } from '../lib/live/exit.js';
   import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
+  import { nextHours } from '../lib/live/next3h.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -433,6 +434,7 @@
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
   // U4 «Wo schlafe ich heute?»: the next places to sleep ahead on the route (on by default in a race)
   const wxQ = cacheQuery(WX_CACHE + (tid || '-'));
+  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null }) : null);
   const showSleep = $derived(hasRoute && km != null && (cfg.sleepSpots ?? isRace));
 
   /* ---------- formatting ---------- */
@@ -1676,6 +1678,25 @@
                 </div>
               {/if}
               {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-next3={next3?.verdict ?? 'load'}>
+                  <h3 class="lv-h3"><CloudRain size={16} aria-hidden="true" />{t('Next 3 hours')}</h3>
+                  {#if !next3}
+                    <p class="rc-note">{t('Load the weather along the route to see cold and rain of the next hours.')}</p>
+                  {:else}
+                    {#if next3.verdict === 'rain'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={18} aria-hidden="true" /><span>{next3.h === 0 ? t('Rain is likely now ({p} %): rain jacket on, dry socks in a bag.', { p: next3.value }) : t('Rain is likely in about {h} h ({p} %): put the rain jacket on top before.', { h: next3.h, p: next3.value })}</span></p>
+                    {:else if next3.verdict === 'cold'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('It gets cold: it feels like {t}° at the lowest. Warm layer and long gloves on, in about {h} h at the latest.', { t: next3.value, h: next3.h })}</span></p>
+                    {:else if next3.verdict === 'cool'}<p class="rc-note" data-live-next3-say>{t('Cool ahead: it feels like {t}° at the lowest. Arm warmers and a wind vest.', { t: next3.value })}</p>
+                    {:else if next3.verdict === 'wind'}<p class="rc-note" data-live-next3-say>{t('Strong wind ahead ({w} km/h): windproof layer, plan slower.', { w: next3.value })}</p>
+                    {:else}<p class="rc-note" data-live-next3-say>{t('The next 3 hours look fine: no cold, no rain.')}</p>{/if}
+                    <div class="lv-n3" data-live-next3-rows>
+                      {#each next3.rows as r (r.h)}
+                        <span class="lv-n3-c"><small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small><b>{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b><small>{r.rain != null ? r.rain + ' %' : ''}</small></span>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+              {/if}
+              {#if hasRoute && km != null}
                 <div class="lv-lastshop" data-live-water={water?.state ?? 'load'}>
                   <h3 class="lv-h3"><Droplet size={16} aria-hidden="true" />{t('Next water')}</h3>
                   {#if !waterLoaded || !water}
@@ -2741,6 +2762,23 @@
     padding: 10px 12px;
     border: 1px solid var(--line);
     border-radius: 12px;
+  }
+  .lv-n3 {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .lv-n3-c {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 6px 4px;
+  }
+  .lv-n3-c small {
+    color: var(--ink-2);
   }
   .lv-water-set {
     display: flex;
