@@ -2,7 +2,7 @@
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
-test('Weather: four parts, the address names one, the last one is remembered', async ({ page, context }) => {
+test('Weather: four parts, the address names one, the place is chosen in Jetzt', async ({ page, context }) => {
   await openHome(page, context, test.info());
   await page.goto('./#/wetter');
   const tabs = page.locator('[data-wx-tabs]');
@@ -21,14 +21,17 @@ test('Weather: four parts, the address names one, the last one is remembered', a
   await tabs.locator('[data-wx-tab="rueckblick"]').click();
   await expect(page.locator('[data-wx-climate]')).toHaveCount(0);
 
-  // the address wins over what was chosen last
+  // the address names a part; without one the page opens on «Jetzt» (Noah 04.11.2026 «3b»)
   await page.goto('./#/wetter?tab=radar');
   await page.reload();
   await expect(page.locator('[data-wx-tab="radar"]')).toHaveAttribute('aria-selected', 'true');
-  // without an address the last choice is back
+  await expect(page.locator('[data-wx-pick], [data-wx-q]').first()).toHaveCount(0); // the place is chosen in «Jetzt» only (Noah «2b»)
+  await page.locator('[data-wx-change-place]').click();
+  await expect(page.locator('[data-wx-tab="jetzt"]')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('[data-wx-q]')).toBeVisible();
   await page.goto('./#/wetter');
   await page.reload();
-  await expect(page.locator('[data-wx-tab="rueckblick"]')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('[data-wx-tab="jetzt"]')).toHaveAttribute('aria-selected', 'true');
   const side = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(side).toBeLessThanOrEqual(1);
 });

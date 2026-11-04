@@ -89,7 +89,7 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await page.goto('./#/');
   await expect(page.locator('[data-heute-cam]')).toBeVisible({ timeout: 15_000 });
   await expect(page.locator('[data-heute-cam]')).toContainText('test_data_gtp_ See');
-  await page.goto('./#/wetter');
+  await page.goto('./#/wetter?tab=radar');
   await tap(page.locator('[data-webcam-delete]'), info);
   await tap(page.getByTestId('ask-delete').locator('.btn.del'), info);
   await expect(page.locator('[data-webcam]')).toHaveCount(0);

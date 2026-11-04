@@ -23,4 +23,5 @@ export default {
   'Radar and cameras': 'Radar und Kameras',
   'Plan|wxtab': 'Planen',
   'Look back|wxtab': 'Rückblick',
+  'Change place': 'Ort ändern',
 };
