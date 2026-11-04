@@ -23,6 +23,12 @@ export const loadDe = () => (deLoad ??= Promise.all([import('./i18n/de/index.js'
 export const deTexts = () => DE;
 /** The gear file's own German words (a few differ from the shared ones: «Velobekleidung»); the gear import reads both. */
 export const deGearTexts = () => GEAR_DE;
+// German texts that load later than the start, with the part that needs them (the «Good to know» tips, wissen/load.js)
+let LATER = {};
+/** Add German texts that were loaded after the start. */
+export const addDe = (texts) => {
+  LATER = { ...LATER, ...texts };
+};
 
 const KEY = 'lang';
 /** The browser's own language: German for de, de-CH, de-DE …, else English. */
@@ -71,7 +77,7 @@ const fill = (text, vars) =>
  */
 export function t(en, vars) {
   if (typeof en !== 'string') return en ?? '';
-  const de = lang.v === 'de' ? DE[en] : null;
+  const de = lang.v === 'de' ? (DE[en] ?? LATER[en]) : null;
   return fill(de ?? en.replace(/\|[a-z]+$/, ''), vars);
 }
 

@@ -24,6 +24,7 @@ test('every function is at most 3 taps from Heute', async ({ page, context }, in
   test.skip(info.project.name !== 'phone', 'counted on the phone, where the bar has the least room');
   await start(page, context, info);
   const dist = { '#/': 0 };
+  const via = {};
   const done = new Set();
   // shortest first: a page is opened only while a link on it can still be within MAX_TAPS
   for (;;) {
@@ -37,13 +38,14 @@ test('every function is at most 3 taps from Heute', async ({ page, context }, in
       if (a.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return [a.getAttribute('href'), 1];
       return a.closest('details:not([open]), dialog:not([open])') ? [a.getAttribute('href'), 2] : null;
     }).filter(Boolean));
-    for (const [href, cost] of links) if (dist[href] === undefined || dist[next] + cost < dist[href]) dist[href] = dist[next] + cost;
+    for (const [href, cost] of links) if (dist[href] === undefined || dist[next] + cost < dist[href]) { dist[href] = dist[next] + cost; via[href] = next; }
   }
   const taps = (target) => Math.min(Infinity, ...Object.keys(dist).filter((h) => reaches(h, target)).map((h) => dist[h]));
   const pages = [...new Set(Object.values(HOME))];
   const far = pages.filter((p) => taps(p) > MAX_TAPS);
   console.log(`Tipps: ${pages.length} pages, ${far.length} further than ${MAX_TAPS} taps, ${done.size} pages opened`);
   if (process.env.TIPPS_LIST) console.log(JSON.stringify(far.sort()));
+  if (process.env.TIPPS_VIA) for (const h of Object.keys(dist).filter((x) => reaches(x, process.env.TIPPS_VIA))) console.log(`VIA ${h} = ${dist[h]} from ${via[h]} (${dist[via[h]]})`);
   const fns = (p) => Object.keys(HOME).filter((id) => HOME[id] === p).join(', ');
   expect(far.filter((p) => !TAP_GAPS.includes(p)).map((p) => `${p} (${fns(p)})`), `Further than ${MAX_TAPS} taps from Heute: give it a link on its area page (or add it to «Alles hier»)`).toEqual([]);
   expect(TAP_GAPS.filter((p) => !far.includes(p)), 'Near enough now: take it off TAP_GAPS in src/lib/know/tipps.js').toEqual([]);

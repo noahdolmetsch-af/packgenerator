@@ -116,3 +116,23 @@ describe('Auswerten in groups by question', () => {
     expect([...shown].sort()).toEqual([...names].sort());
   });
 });
+
+describe('Heatmap, Neuland, Gelernt and Jahr stand in Auswerten («Aktiv und Auswerten» 3a, Noah 03.11.2026)', () => {
+  const FOUR = [['#/heatmap', 'heatmap', 'heatmap'], ['#/neuland', 'neuland', 'neuland'], ['#/gelernt', 'gelernt', 'learned'], ['#/jahr', 'jahr', 'year']];
+  it('the addresses stay and belong to the place Auswerten, each with a tab', () => {
+    for (const [hash, page, tab] of FOUR) {
+      expect(pageOf(hash), hash).toBe(page);
+      expect(placeOf(pageOf(hash), hash), hash).toBe('analysis');
+      expect(PLACE_TABS.analysis.find((x) => x.key === tab)?.href, tab).toBe(hash);
+    }
+    expect(placeOf(pageOf('#/neuland?c=cantons'), '#/neuland?c=cantons')).toBe('analysis');
+    expect(placeOf(pageOf('#/gelernt/2026-10'), '#/gelernt/2026-10')).toBe('analysis');
+  });
+  it('Touren › Rückblick keeps its buttons to them, and its tab no longer claims them', () => {
+    const hub = readFileSync(new URL('../src/lib/review/Hub.svelte', import.meta.url), 'utf8');
+    for (const [hash] of FOUR) expect(hub, hash).toContain(`href: '${hash}'`);
+    const look = PLACE_TABS.trips.find((x) => x.key === 'lookback');
+    for (const [hash] of FOUR) expect(look.match(hash), hash).toBe(false);
+    expect(look.match('#/debrief')).toBe(true);
+  });
+});
