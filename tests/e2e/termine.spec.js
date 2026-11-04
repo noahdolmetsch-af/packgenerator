@@ -120,6 +120,8 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   await sheet.getByRole('button', { name: T('Yes, cancel') }).click();
   await expect(sheet).toContainText(T('The time is cancelled. Tell {n} person:', { n: 1 }));
   await expect(sheet.getByRole('link', { name: T('Write') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
+  // the message is shown too, so Noah sees what he sends
+  await expect(sheet.locator('[data-tell-text]')).toContainText(T('{title} on {when} is cancelled.', { title: '', when: '' }).split(' ')[1] ?? 'abgesagt');
 });
 
 test('a request with places and a note: Noah confirms it and writes back', async ({ page }) => {

@@ -83,6 +83,7 @@ export default {
   'Remove the time': 'Zeit entfernen',
   'The time is cancelled. Tell {n} person:': 'Der Termin ist abgesagt. Sag es {n} Person:',
   'The time is cancelled. Tell {n} people:': 'Der Termin ist abgesagt. Sag es {n} Personen:',
+  'Free times:': 'Freie Zeiten:',
   '{title} on {when} is cancelled. Sorry! You can book another time with the same link.': '{title} am {when} ist abgesagt. Tut mir leid! Mit dem gleichen Link kannst du eine andere Zeit buchen.',
   'About {title} on {when}:': 'Zu {title} am {when}:',
 

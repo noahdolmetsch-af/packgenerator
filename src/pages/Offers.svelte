@@ -15,7 +15,7 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice } from '../lib/booking/model.js';
+  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
   import { rememberCustomer, listCustomers, rateOf } from '../lib/booking/customers.js';
@@ -183,7 +183,13 @@
     if (decision === 'confirm') await rememberCustomer(b);
     await loadBookings();
   }
-  const tellText = (s) => t('{title} on {when} is cancelled. Sorry! You can book another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+  /* rain or other reasons (Noah 04.11.2026 «1a»): the message offers the next free times; free of charge, nothing is sent here */
+  const alternativesOf = (s) => (mine ? freeAlternatives(mine.offer, bookings ?? [], s.id, s.at > nowAt() ? s.at : nowAt(), 3) : []);
+  const tellText = (s) => {
+    const alts = alternativesOf(s);
+    const base = t('{title} on {when} is cancelled. Sorry! You can book another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+    return alts.length ? `${base} ${t('Free times:')} ${alts.map((a) => fmtAt(a.at)).join('; ')}.` : base;
+  };
   const helloText = (s) => t('About {title} on {when}:', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
   let askCancel = $state(false);
   async function dropSlot() {
@@ -387,6 +393,7 @@
       <div class="of-sh"><h2 id="of-slot-h">{fmtAt(s.at)} · {ty.label}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => slotDlg.close()}><X size={20} aria-hidden="true" /></button></div>
       {#if told}
         <p>{tn(told.people.length, 'The time is cancelled. Tell {n} person:', 'The time is cancelled. Tell {n} people:')}</p>
+        <p class="of-note" data-tell-text>{tellText(s)}</p>
         <ul class="of-list">
           {#each told.people as b (b.id)}
             {@const href = contactHref(b.contact, tellText(s))}

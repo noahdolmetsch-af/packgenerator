@@ -129,6 +129,19 @@ export function toInvoice(bookings = [], invoices = [], now = '') {
   return bookings.filter((b) => holdsPlace(b) && b.at && b.at < now && !done.has(b.id));
 }
 
+/**
+ * The next free times of an offer after a cancelled one (Noah 04.11.2026 «1a», rain): up to n slots that lie
+ * after `from`, are not the cancelled slot and still have a free place. Open requests hold no place.
+ */
+export function freeAlternatives(offer, bookings = [], skipId = '', from = '', n = 3) {
+  const booked = bookedBySlot(bookings);
+  return (offer.slots ?? [])
+    .filter((s) => s.id !== skipId && s.at > from)
+    .filter((s) => (booked[s.id] ?? 0) < ((offer.types ?? []).find((x) => x.key === s.type) ?? offer.types?.[0])?.places)
+    .sort((a, b) => a.at.localeCompare(b.at))
+    .slice(0, n);
+}
+
 /** 'free' | 'part' | 'full' for the week grid. */
 export function slotState(places, booked) {
   if (!booked) return 'free';
