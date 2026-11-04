@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Leaf, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, GraduationCap, ShoppingCart, MessageCircle, Search as SearchIcon } from '@lucide/svelte';
+  import { Leaf, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, GraduationCap, ShoppingCart, MessageCircle, FileText, Search as SearchIcon } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import { WHATS_NEW, shortVersion, newerThan, BEFORE } from '../lib/whatsnew.js';
@@ -64,6 +64,10 @@
   import VersionRow from '../lib/ich/VersionRow.svelte';
   import '../lib/ich/ich.css';
   import { agenda } from '../lib/agenda/client.svelte.js';
+  import { docs as docList } from '../lib/docs/client.svelte.js';
+  import { dueCount } from '../lib/docs.js';
+  // Ich schlank: the documents moved to Planen › «Alles hier»; when one expires soon it waits here
+  const docDue = $derived(dueCount(docList.list, localDay()));
   // «Heute neu» A 5b (Noah 20.10.2026): the banner «New in …» after an update lives here under Ich, not on Heute
   let newsBanner = $state(
     (() => {
@@ -142,6 +146,7 @@
     if (w.backup) out.push({ key: 'backup', icon: Database, text: w.days != null ? tn(w.days, 'Backup: the last one {n} day ago', 'Backup: the last one {n} days ago') : t('Backup: none yet'), sub: t('everything is only on this device'), label: t('Make a backup'), href: '#/me/data' });
     if (w.inbox) out.push({ key: 'inbox', icon: Inbox, text: tn(w.inbox, 'Inbox: {n} note to file', 'Inbox: {n} notes to file'), sub: t('Notes from on the way'), label: t('File'), href: '#/inbox' });
     if (w.bills.count) out.push({ key: 'bills', icon: CreditCard, text: tn(w.bills.count, 'Bills: {n} open', 'Bills: {n} open'), sub: `${formatAmount(w.bills.sum)} CHF${w.bills.next ? ` · ${t('due {date}', { date: dateShort(w.bills.next) })}` : ''}`, label: t('Open'), href: '#/me/pay/bills' });
+    if (docDue) out.push({ key: 'docs', icon: FileText, text: tn(docDue, 'Documents: {n} expires soon', 'Documents: {n} expire soon'), sub: t('Passport, insurance, emergency sheet'), label: t('Open'), href: '#/me/docs' });
     // Noah 19.10.2026 «1a»: while the sync is off, a line with «Switch on» (it opens Data and backup at «Phone and computer»)
     if (w.sync) out.push({ key: 'sync', icon: Link2, text: t('Sync phone and computer: off'), sub: t('New entries stay on this device'), label: t('Switch on'), onclick: openSync, skip: { label: t('Only one device'), onclick: hideSync } });
     return out;
