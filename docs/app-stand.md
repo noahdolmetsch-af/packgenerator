@@ -136,7 +136,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen. |
-| Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf und Zusatzbausteinen anlegen. |
+| Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf, Timer und Zusatzbausteinen anlegen; oben stehen die zuletzt genutzten. |
 | Training | `#/flow/training` | Einheiten mit Dauer und Zone planen; Aktivitäten, Pulszonen und subjektive Anstrengung auswerten. |
 | Leistungsanalysen | `#/flow/training?view=list` | Einzelne Aktivitäten mit Leistung, Herzfrequenz, Runden, Splits und weiteren verfügbaren Messwerten öffnen. |
 | Trainingspläne | `#/flow/plans` | Beispielpläne für Ultracycling an Wochenstunden und Zieldatum anpassen und in die Woche übernehmen. |
