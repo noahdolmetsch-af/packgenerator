@@ -168,10 +168,10 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten. |
 | Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
-| Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. |
-| Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. |
-| Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. |
-| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. |
+| Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Traumtouren | `#/trips/dreams` | Wunschabenteuer nach Saison sammeln, auf der Karte vergleichen und in konkrete Touren verwandeln; passende Wetterfenster und neue Ziele in der Nähe finden. |
 | Inspiration | `#/inspiration` | Links zu Routen, Videos, Ausrüstung und Rennen sammeln und daraus Ideen oder Packregeln ableiten. |
 
