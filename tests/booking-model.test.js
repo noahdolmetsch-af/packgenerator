@@ -1,6 +1,6 @@
 // Termine buchen (BU1–BU5): the shared rules of the app pages and the booking page.
 import { describe, it, expect } from 'vitest';
-import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf } from '../src/lib/booking/model.js';
+import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf, outcomeShare } from '../src/lib/booking/model.js';
 import { cleanOffer } from '../api/_lib/booking.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
@@ -107,5 +107,17 @@ describe('the invoice of a booking', () => {
       { id: 'f', at: '2026-11-24T08:00' },
     ];
     expect(remindersOf(bookings, '2026-11-22T12:00').map((b) => b.id)).toEqual(['b', 'c']);
+  });
+  it('prices a late cancel at half and a no-show in full, with the reason in the purpose', () => {
+    expect(outcomeShare('held')).toBe(1);
+    expect(outcomeShare('late')).toBe(0.5);
+    expect(outcomeShare('noshow')).toBe(1);
+    const b = { id: 'b1', name: 'Mia', contact: '' };
+    expect(invoiceDraft(offer, { type: 'one' }, b, 'Mo', null, 'late', 'spät abgesagt')).toMatchObject({ amount: '30', purpose: 'Tennis-Lektion, Einzel, Mo, spät abgesagt' });
+    expect(invoiceDraft(offer, { type: 'one' }, b, 'Mo', 5000, 'noshow', 'nicht erschienen').amount).toBe('50');
+    expect(invoiceDraft(offer, { type: 'one' }, b, 'Mo').amount).toBe('60');
+    const many = invoiceDraftMany(offer, [{ slot: { type: 'one' }, booking: b, outcome: 'late', tag: 'spät' }, { slot: { type: 'one' }, booking: { ...b, id: 'b2' }, outcome: 'held', tag: '' }], (x) => `am ${x.id}`);
+    expect(many.amount).toBe('90');
+    expect(many.purpose).toBe('Tennis-Lektion, am b1 (spät); am b2');
   });
 });

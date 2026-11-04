@@ -296,3 +296,22 @@ test('Settings pages and the care tab show the card as one line with good to kno
   }
   expect(errors).toEqual([]);
 });
+
+// Wegweiser Werkzeuge (Noah 03.11.2026 «a»): the mini tools get the card as one line
+test('Tools shows the card as one line with good to know for the mini tools', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/me/tools');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toBeVisible();
+  await (info.project.name === 'phone' ? line.tap() : line.click());
+  const card = page.locator('[data-seiteninhalt]');
+  const all = card.locator('.si-all');
+  await expect(all).toBeVisible();
+  await (info.project.name === 'phone' ? all.tap() : all.click());
+  await expect(card.locator('[data-seiteninhalt-know="f.compasstool"]')).toContainText(T('Good to know'));
+  await expect(card.locator('[data-seiteninhalt-know="f.level"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  expect(errors).toEqual([]);
+});

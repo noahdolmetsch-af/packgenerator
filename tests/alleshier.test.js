@@ -1,6 +1,6 @@
 // «Alles hier» (Noah 03.11.2026 «1a»): the tile field on top of an area page, src/lib/alleshier.js.
 import { describe, it, expect } from 'vitest';
-import { ALL_HERE, allHereKey, tileOf, arrange, step, moveTo, setHidden } from '../src/lib/alleshier.js';
+import { ALL_HERE, areaIds, allHereKey, tileOf, arrange, step, moveTo, setHidden } from '../src/lib/alleshier.js';
 
 const ids = (xs) => xs.map((x) => x.id);
 // a fictional bike for pages with a place holder (the bike folder: #/bikes?bike={bike}&sheet=…)
@@ -8,9 +8,17 @@ const V = { bike: 'test_data_gtp_bike' };
 
 describe('alleshier', () => {
   it('every listed function has a fixed page, and no id twice', () => {
-    for (const [area, list] of Object.entries(ALL_HERE)) {
+    const all = Object.keys(ALL_HERE).flatMap(areaIds);
+    expect(new Set(all).size, 'an id in two areas').toBe(all.length);
+    for (const area of Object.keys(ALL_HERE)) {
+      const list = areaIds(area);
       expect(new Set(list).size, area).toBe(list.length);
-      for (const id of list) expect(tileOf(id, V), `${area}: ${id}`).not.toBeNull();
+      for (const id of list) {
+        const x = tileOf(id, V);
+        expect(x, `${area}: ${id}`).not.toBeNull();
+        expect(x.href, `${area}: ${id}`).toMatch(/^#\//);
+        expect(x.title, `${area}: ${id}`).toBeTruthy();
+      }
     }
   });
 
