@@ -6,10 +6,10 @@
    */
   import { Sparkles, Pencil, X, Plus, Minus, CloudRain } from '@lucide/svelte';
   import { t, num, lang } from '../../i18n.svelte.js';
-  import { suggestWeek, weeklySports, VARIANTS, SRC, FOCUS } from '../suggest.js';
+  import { suggestWeek, weeklySports, candidateSports, VARIANTS, SRC, FOCUS } from '../suggest.js';
   import { KIND_NAMES, ZONE_NAMES, shiftDay, weekOf } from '../../training.js';
 
-  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, forecast = null, onlimits, onapply } = $props();
+  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, forecast = null, sportGoals = {}, onlimits, onsportgoals, onapply } = $props();
 
   let open = $state(false);
   let variant = $state(0);
@@ -19,7 +19,16 @@
   let hoursSet = $state(null); // hours per week set with + / −, or null = from the goal
 
   const sportName = (s) => (lang.v === 'de' && s.nameDe ? s.nameDe : s.name) || t('Activity');
-  const sports = $derived(weeklySports(flowActs, monday));
+  const sports = $derived(weeklySports(flowActs, monday, sportGoals));
+  // «Goal per sport»: how often per week each sport of Aktiv goes into the suggestion (0–3), remembered
+  const cands = $derived(candidateSports(flowActs, monday).map((c) => ({ ...c, n: sports.find((x) => x.id === c.id)?.perWeek ?? 0 })));
+  function stepSport(c, d) {
+    const n = Math.max(0, Math.min(3, c.n + d));
+    if (n === c.n) return;
+    onsportgoals?.({ ...sportGoals, [c.id]: n });
+    edits = null;
+    form = null;
+  }
   // minutes per week of the four weeks before the shown one (weeks with nothing do not count)
   const recent = $derived.by(() => {
     const weeks = [1, 2, 3, 4].map((i) => acts.filter((a) => a.day >= shiftDay(monday, -7 * i) && a.day < shiftDay(monday, -7 * (i - 1))).reduce((s, a) => s + (a.movingS || 0) / 60, 0)).filter((m) => m > 0);
@@ -144,6 +153,19 @@
       {/each}
     </div>
     <p class="sugw-note">{t('Tap a day: 1 h at most, 30 min at most, or free. Free days get no session.')}</p>
+    {#if cands.length}
+      <div class="sugw-sports" data-sug-sports>
+        <span class="sugw-sports-h">{t('Times per week')}</span>
+        {#each cands as c (c.id)}
+          <div class="sugw-sport" data-sug-sport={c.id}>
+            <span>{sportName(c)}</span>
+            <button type="button" class="ib" aria-label={t('Less often')} onclick={() => stepSport(c, -1)} data-sug-sport-minus><Minus size={16} aria-hidden="true" /></button>
+            <b class="num">{c.n}×</b>
+            <button type="button" class="ib" aria-label={t('More often')} onclick={() => stepSport(c, 1)} data-sug-sport-plus><Plus size={16} aria-hidden="true" /></button>
+          </div>
+        {/each}
+      </div>
+    {/if}
     {#if sug.sessions.length || edits}
       <div class="sugw-hours" data-sug-hours>
         <span>{t('Hours per week')}</span>
@@ -293,6 +315,22 @@
     display: block;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .sugw-sports {
+    display: grid;
+    gap: 0.2rem;
+  }
+  .sugw-sports-h {
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .sugw-sport {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .sugw-sport span {
+    flex: 1;
   }
   .sugw-ic {
     display: flex;

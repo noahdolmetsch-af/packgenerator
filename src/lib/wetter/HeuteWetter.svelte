@@ -8,7 +8,8 @@
    * Home.svelte mounts it with one line (owner: «Heute neu gestalten»).
    */
   import { liveQuery } from 'dexie';
-  import { Wind, CloudRain, TriangleAlert } from '@lucide/svelte';
+  import { CloudRain, TriangleAlert } from '@lucide/svelte';
+  import WindVane from './WindVane.svelte'; // «Windfahne beim Wetter» (Paket D, Idee 15)
   import { db } from '../db.js';
   import { HOME_PLACE } from '../know.js';
   import { onTripDay } from '../ride.js';
@@ -70,7 +71,7 @@
     {#if trip && line}
       <a class="hw-line" {href} data-heute-wetter-line>
         <span><b>{num(line.tmin)}–{num(line.tmax)} °C</b></span>
-        {#if line.windMax != null}<span><Wind size={16} aria-hidden="true" />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
+        {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
         <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
         {#if loopTip}<span class="hw-tip" data-heute-wetter-wind>{loopTip === 'keep' ? t('Ride the loop as planned: tailwind home.') : t('Ride the loop the other way: tailwind home.')}</span>{/if}
         {#if warn}<span class="hw-warn"><TriangleAlert size={16} aria-hidden="true" />{t(WARN_TEXT[warn.kind], { at: hm(warn.at), v: num(warn.value) })}</span>{/if}

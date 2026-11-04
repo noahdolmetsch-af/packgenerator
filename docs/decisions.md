@@ -2041,3 +2041,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 3a: Ein Start ohne Route vergisst jede alte Route: das gemerkte GPX (bei einer freien Fahrt nur, wenn es älter als 12 h ist) und einen alten Weg zu einem Ziel (älter als 2 h), auch nach dem Neuladen. Ein Weg, der eben erst geplant wurde, bleibt.
 - 4a: Das Fahrt-Protokoll steht in der Live-Karte (GPS-Punkte, Lücken, Neustarts, App im Hintergrund, Bildschirmsperre) mit einem Knopf zum Schicken.
 - Distanz ohne Route kommt nur aus der eigenen Spur; mit einer geladenen Route bleibt «Distanz» der Ort auf der Route (wie bisher).
+
+## 03.11.2026 Volle Prüfung nur nachts
+- Noah «2a» (Thread «Prüfen: Warum die Tests langsam sind»): Die «Volle Prüfung» (Browsertests am Handy und am Computer, Gesamttest) läuft nur noch einmal pro Nacht (02:07 UTC) oder von Hand, nicht mehr nach jedem Merge. Grund: Sie belegte nach jedem Merge 9 der 20 GitHub-Rechner zusätzlich und verlängerte die Warteschlange der PRs auf bis zu 47 Minuten. Ein Fehler, der erst nach dem Merge auffällt, zeigt sich so am nächsten Morgen als Meldung «Volle Prüfung: ein Test ist rot»; «zurück» bleibt möglich.

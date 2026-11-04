@@ -8,7 +8,8 @@
    * Packen: what to wear and take from the riding hours (packHints). RouteCard mounts it with one line; «Hide» folds it.
    */
   import { liveQuery } from 'dexie';
-  import { CloudRain, Wind, TriangleAlert, Target, Mountain, Moon, ExternalLink, ChevronRight, Shirt, Flame, MapPin } from '@lucide/svelte';
+  import { CloudRain, TriangleAlert, Target, Mountain, Moon, ExternalLink, ChevronRight, Shirt, Flame, MapPin } from '@lucide/svelte';
+  import WindVane from './WindVane.svelte'; // «Windfahne beim Wetter» (Paket D, Idee 15)
   import { db } from '../db.js';
   import { HOME_PLACE } from '../know.js';
   import { ridingHours } from '../route.js';
@@ -78,7 +79,7 @@
       {#if line}
         <p class="tw-line">
           <span><b>{num(line.tmin)}–{num(line.tmax)} °C</b></span>
-          {#if line.windMax != null}<span><Wind size={16} aria-hidden="true" />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
+          {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
           <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
         </p>
       {/if}

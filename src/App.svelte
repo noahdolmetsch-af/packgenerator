@@ -9,6 +9,7 @@
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
   import DemoBar from './lib/DemoBar.svelte';
+  import LogoRide from './lib/logo/LogoRide.svelte'; // «Geheimnis im Logo» (Idee 29)
   import TourHost from './lib/tour/TourHost.svelte';
   import TourStart from './lib/tour/TourStart.svelte';
   import QuickNote from './lib/QuickNote.svelte';
@@ -64,9 +65,11 @@
   import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
   import DiaryReminder from './lib/tagebuch/Reminder.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
+  import MiniTitle from './lib/nav/MiniTitle.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { toolKeyOf } from './lib/tools/tools.js';
   import { t, lang } from './lib/i18n.svelte.js';
+  import { slideDir, SLIDE_MS } from './lib/nav/slide.js';
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
@@ -100,11 +103,23 @@
     const p = ALL_PLACES.find((x) => x.key === place);
     return tabEntry && p ? `${t(p.label)} › ${t(tabEntry.label)}` : p ? t(p.label) : '';
   });
+  // «Richtung zeigen» (Noah 03.11.2026 «b»): deeper glides in from the right, back from the left (slide.js).
+  // The mark parity (fwd0/fwd1) lets the same direction play again at once; the mark goes after the glide,
+  // so a part of the page that appears later (a list, a card) does not glide on its own.
+  let slide = $state('');
+  let slideN = 0;
+  let slideTimer;
+  $effect(() => () => clearTimeout(slideTimer));
   $effect(() => {
     const update = () => {
       spot = '';
       moved = null;
+      const from = hash;
       hash = follow(location.hash);
+      clearTimeout(slideTimer);
+      const dir = slideDir(from, hash);
+      slide = dir ? `${dir}${slideN++ % 2}` : '';
+      if (dir) slideTimer = setTimeout(() => (slide = ''), SLIDE_MS + 60);
       // v0.127.0 A-U2: another address leaves the error page; the new page is built afresh
       if (failReset) {
         const r = failReset;
@@ -450,6 +465,7 @@
     ShopBuy: () => import('./pages/ShopBuy.svelte'),
     InvoiceNew: () => import('./pages/InvoiceNew.svelte'),
     Offers: () => import('./pages/Offers.svelte'),
+    OfferCustomers: () => import('./pages/OfferCustomers.svelte'),
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
@@ -486,12 +502,14 @@
 {/if}
 <div class="col">
 <DemoBar />
+<LogoRide />
 <OfflineLine />
 {#if ops.explore && ops.path && !guest && !mini}<Explorer />{/if}
 <DbWaitLine />
+<MiniTitle />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main data-s2-page={page} data-s2-place={place} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
+<main data-s2-page={page} data-s2-place={place} data-slide={slide || undefined} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -726,7 +744,7 @@
     <LazyPage load={PAGES.WebLinks} />
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
-    {#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}
+    {#if hash.split('?')[0].split('/')[3] === 'customers'}<LazyPage load={PAGES.OfferCustomers} />{:else}{#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}{/if}
   {:else if page === 'privacy'}
     <!-- Paket R: Ich › Datenschutz und Nutzung -->
     <LazyPage load={PAGES.Privacy} />

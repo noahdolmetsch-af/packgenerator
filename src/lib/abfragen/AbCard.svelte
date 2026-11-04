@@ -181,7 +181,7 @@
             <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
-        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)}</small>{/if}
+        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{t('Change this rule')}</a></small>{/if}
         <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
         {#if fit}<small class="last fit num" data-fitbit={fit.hint.key}><span class="ab-src fitbit">Fitbit</span> {fitText(fit.hint)}{fit.value != null ? ` · ${t('filled in, changeable')}` : ''}</small>{/if}
         {#if d.q.id === 'koerper.waage' && lastKg}
