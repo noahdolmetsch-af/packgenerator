@@ -104,3 +104,14 @@ describe('Trello', () => {
     expect(steps).toEqual(['board']);
   });
 });
+
+describe('reasonLine', () => {
+  it('names the reason in one sentence', async () => {
+    const { reasonLine } = await import('../src/lib/ui/connstatus.js');
+    expect(reasonLine(t, 'timeout')).toBe('It did not answer in time.');
+    expect(reasonLine(t, 'network')).toBe('There was no connection.');
+    expect(reasonLine(t, 'google_login_needed')).toContain('new login');
+    expect(reasonLine(t, 'strava_busy')).toContain('busy');
+    expect(reasonLine(t, 'weird')).toBe('The last fetch did not work.');
+  });
+});
