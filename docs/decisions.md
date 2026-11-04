@@ -2044,3 +2044,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 03.11.2026 Volle Prüfung nur nachts
 - Noah «2a» (Thread «Prüfen: Warum die Tests langsam sind»): Die «Volle Prüfung» (Browsertests am Handy und am Computer, Gesamttest) läuft nur noch einmal pro Nacht (02:07 UTC) oder von Hand, nicht mehr nach jedem Merge. Grund: Sie belegte nach jedem Merge 9 der 20 GitHub-Rechner zusätzlich und verlängerte die Warteschlange der PRs auf bis zu 47 Minuten. Ein Fehler, der erst nach dem Merge auffällt, zeigt sich so am nächsten Morgen als Meldung «Volle Prüfung: ein Test ist rot»; «zurück» bleibt möglich.
+
+## 03.11.2026 «Ausprobieren» pro PR nur mit den eigenen Zeilen
+- Noah «1a» (Thread «Prüfen: Warum die Tests langsam sind»): Der Test «Ausprobieren» tippt in einem PR nur die «Was ist neu»-Zeilen, die der PR selbst in `src/lib/news/` neu oder geändert hat. Alle Zeilen tippt die Nacht-Prüfung. Ändert ein PR die Update-Liste, die Ziel-Tabelle, den Ausprobieren-Code oder die Test-Helfer, tippt er weiter alle. Grund: Der Test wächst mit jedem PR (555 Zeilen, 10 Minuten) und belegte 21 der 33 Minuten von Handy-Teil 1.
