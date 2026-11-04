@@ -4,12 +4,13 @@
    * text: the saying as it is shown. LogoRide.svelte takes it away again after 4.6 s. With «reduce motion» it just
    * stands there, without fading.
    */
-  let { text } = $props();
+  let { text, note = '' } = $props(); // note: a second, quieter line (e.g. «New logo found»)
 </script>
 
 <div class="pg-saying" role="status" data-logo-saying>
   <span class="tail" aria-hidden="true"></span>
   <p>«{text}»</p>
+  {#if note}<small>{note}</small>{/if}
 </div>
 
 <style>
@@ -32,6 +33,12 @@
     font-weight: 600;
     line-height: 1.35;
     overflow-wrap: break-word;
+  }
+  small {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .tail {
     position: absolute;
