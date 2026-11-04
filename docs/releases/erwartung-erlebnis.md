@@ -1,6 +1,6 @@
 # Geschätzt und erlebt
 
-PR #? · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 1 von 6
+PR #849 · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 1 von 6
 
 ## Was ist neu
 - In Planen fragt eine Velotour, die noch nicht gefahren ist: «Wie anstrengend wird es?» mit einer Zahl von 1 bis 10 (Feld `expectEffort` an der Tour, `src/lib/pack/ExpectPick.svelte`). Ein zweiter Tipp auf dieselbe Zahl nimmt die Schätzung weg (mit Rückgängig).
