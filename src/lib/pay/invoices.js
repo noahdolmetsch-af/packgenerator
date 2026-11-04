@@ -75,7 +75,7 @@ async function saveAll(db, list) {
 export const invoiceNo = (seq) => 'R-' + String(seq).padStart(4, '0');
 
 /**
- * A new invoice. input: { name, email?, amount (rappen), purpose, ways: { qr, twint } }.
+ * A new invoice. input: { name, email?, amount (rappen), purpose, ways: { qr, twint, cash } }.
  * Returns the stored invoice.
  */
 export async function createInvoice(input, account, db = appDb) {
@@ -95,7 +95,7 @@ export async function createInvoice(input, account, db = appDb) {
       purpose: String(input.purpose ?? '').trim(),
       refType: type,
       ref,
-      ways: { qr: input.ways?.qr !== false, twint: input.ways?.twint !== false && !!account?.twint },
+      ways: { qr: input.ways?.qr !== false, twint: input.ways?.twint !== false && !!account?.twint, ...(input.ways?.cash === true ? { cash: true } : {}) },
       createdAt: localDay(),
       status: 'open',
       ...(input.ref ? { from: 'ebanking' } : {}),
@@ -179,6 +179,7 @@ export function invoiceMail(inv, account, tr, link = '') {
     lines.push(tr('Account: {iban}, {name}', { iban: account?.iban ?? '', name: account?.name ?? '' }));
     lines.push(tr('Reference: {ref}', { ref: inv.ref }), '');
   }
+  if (inv.ways?.cash) lines.push(tr('Or in cash at the next lesson: {amount} CHF.', { amount: formatAmount(inv.amount) }), '');
   if (link) lines.push(tr('Paid? Tell me with one tap: {link}', { link }), '');
   lines.push(tr('Thank you!'), account?.name ?? '');
   return {
