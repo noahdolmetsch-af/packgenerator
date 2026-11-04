@@ -45,6 +45,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Tourenübersicht | `#/trips` | Geplante, abgeschlossene und bewertete Touren verwalten; neue Touren und spontane Ausfahrten beginnen. |
 | Tour planen | `#/pack` | Sportart, Datum, Dauer, Startort, Velo und Bedingungen festlegen und daraus eine Packliste vorbereiten. |
 | Wie anstrengend wird es? | `#/pack` | Bei einer Velotour vor der Abfahrt von 1 bis 10 schätzen; nach der Fahrt stellt die Tour-Seite Schätzung und Erleben nebeneinander und sagt ab drei Touren, ob die Schätzungen eher in eine Richtung gehen. |
+| Gründe für eine andere Tour | `#/me/lists` | Wird eine Tour auf «Nicht fahren» gesetzt oder weicht die gefahrene Strecke stark ab, nennt ein Tipp den Grund (Liste in Ich › Listen und Typen); ab drei Antworten zählt eine Zeile, was am häufigsten vorkam. |
 | Routen und GPX | `#/pack` | GPX hinzufügen, Distanz, Höhenmeter, Fahrzeit, Höhenprofil und Anstiege ansehen; offene Stellen entlang der Route notieren. |
 | Tourvorlagen | `#/pack/templates` | Bewährte Touren als Vorlage speichern und erneut verwenden. Rückblicke liefern Vorschläge zur Verbesserung. |
 | Touren nebeneinander | `#/trips/compare` | Zwei Touren auf Terminüberschneidungen, gemeinsam benötigtes Material und offene Aufgaben vergleichen. |
@@ -248,7 +249,7 @@ Diese Funktionen gibt es in der App (`features.js`), sie fehlten im Dokument. De
 | Werkzeugkasten | `#/me/tools` | Kleine Werkzeuge: Karte messen, Barcode, Packliste per Foto, Währungen, Lupe und Licht, Zeitzonen, Kompass, Redewendungen, Reisekosten, Übersetzungen der Gänge, Wasserwaage, Sitzposition, PDF, Fotos, Bildformat, Video verkleinern, QR-Code, Etiketten, Rechner, Einheiten, Werkzeugketten. |
 | Freie Zeit | `#/me/frei` | Erste Nacht, Für nächstes Mal, Mein Abend, Was mir wichtig ist, Reisewünsche, Wonach ist mir?, Meine Sammlungen. |
 | Gewicht | `#/me/weight` | Freiwillig und nur auf diesem Gerät: das eigene Gewicht mit Kurve, für Watt pro Kilo. |
-| Deine Fragen | `#/me/abfragen` | Spielerische Fragen mit eigenem Rhythmus, Morgen- und Abendrunde, Verlauf und Auswertung; Fragen und Bereiche ändern, löschen, ergänzen und sortieren. |
+| Deine Fragen | `#/me/abfragen` | Spielerische Fragen mit eigenem Rhythmus, Morgen- und Abendrunde, Verlauf und Auswertung; Fragen und Bereiche ändern, löschen, ergänzen und sortieren. Pro Thema nur eine Frage von selbst; Zusammengelegte stehen aus in der Liste. |
 | Abend-Check | `#/check/evening` | Am Tourtag abends bewerten, wie die Tour war (1 bis 10); landet im Rückblick und im Tagebuch. |
 | Chronik | `#/chronik` | Alles auf einer Zeitlinie, eine Seite pro Monat: Touren, Fahrten, Pflege, Meditation, Notizen; «Früher um diese Zeit». |
 | Stopps in der Nähe | `#/stopps` | Wasser, Tankstellen, Essen, Läden, WC, Bargeld, Apotheke, Pumpe, Velowerkstätten, Bahnhöfe und Betten um dich oder entlang der Route. |

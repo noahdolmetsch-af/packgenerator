@@ -94,31 +94,37 @@ export const isOpenRequest = (b) => b.status === 'requested';
  * address), the price of the kind and what it is for. The app fills the invoice form with it; nothing is
  * sent. `when` is the date written for people («Mo, 23.11.»).
  */
-export function invoiceDraft(offer, slot, booking, when, rate = null) {
+/** What happened to a lesson (Noah 04.11.2026 «3a»): held (default), cancelled too late, or the person did not come. */
+export const OUTCOMES = ['held', 'late', 'noshow'];
+/** The share of the price that goes on the invoice: late cancel half, no-show all. Noah changes the amount in the form. */
+export const outcomeShare = (outcome) => (outcome === 'late' ? 0.5 : 1);
+const priceOf = (offer, slot, rate, outcome) => Math.round((rate ?? ((offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0])?.price ?? 0) * outcomeShare(outcome));
+
+export function invoiceDraft(offer, slot, booking, when, rate = null, outcome = 'held', tag = '') {
   const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];
   const contact = String(booking.contact ?? '').trim();
   return {
     name: booking.name,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : '',
-    amount: rate != null ? chf(rate) : ty ? chf(ty.price) : '',
-    purpose: [offer.title, ty?.label, when].filter(Boolean).join(', '),
+    amount: rate != null || ty ? chf(priceOf(offer, slot, rate, outcome)) : '',
+    purpose: [offer.title, ty?.label, when, outcome !== 'held' && tag].filter(Boolean).join(', '),
     bookings: [{ offer: offer.id, b: booking.id }],
   };
 }
 
 /**
  * One invoice for several lessons (Noah 03.11.2026: «mehrere Rechnungen zu einer kombinieren»): the
- * prices add up, the dates are listed. items: [{ slot, booking }], when(booking) writes the date.
+ * prices add up, the dates are listed. items: [{ slot, booking, outcome?, tag? }], when(booking) writes the date.
  */
 export function invoiceDraftMany(offer, items, when, rateOf = () => null) {
-  const drafts = items.map((x) => invoiceDraft(offer, x.slot, x.booking, when(x.booking), rateOf(x.booking.name)));
-  const rappen = items.reduce((n, x) => n + (rateOf(x.booking.name) ?? ((offer.types ?? []).find((y) => y.key === x.slot?.type) ?? offer.types?.[0])?.price ?? 0), 0);
+  const drafts = items.map((x) => invoiceDraft(offer, x.slot, x.booking, when(x.booking), rateOf(x.booking.name), x.outcome, x.tag));
+  const rappen = items.reduce((n, x) => n + priceOf(offer, x.slot, rateOf(x.booking.name), x.outcome), 0);
   const names = [...new Set(drafts.map((d) => d.name))];
   return {
     name: names.join(', '),
     email: drafts.find((d) => d.email)?.email ?? '',
     amount: chf(rappen),
-    purpose: `${offer.title}, ${items.map((x) => when(x.booking)).join('; ')}`,
+    purpose: `${offer.title}, ${items.map((x) => [when(x.booking), x.outcome && x.outcome !== 'held' && x.tag ? `(${x.tag})` : ''].filter(Boolean).join(' ')).join('; ')}`,
     bookings: drafts.flatMap((d) => d.bookings),
   };
 }
