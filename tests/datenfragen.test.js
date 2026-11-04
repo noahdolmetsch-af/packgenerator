@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, trainingHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -134,5 +134,19 @@ describe('Fragen aus deinen Daten', () => {
     expect(stimmungHit(four, [], TODAY, 4)).toMatchObject({ days: 4, usual: 7 });
     const two = [...Array.from({ length: 20 }, (_, i) => ({ qid: 'spass.stimmung', day: add(TODAY, -(i + 2)), value: 7 })), ...[5, 5].map((v, i) => ({ qid: 'spass.stimmung', day: add(TODAY, i - 1), value: v }))];
     expect(stimmungHit(two, [], TODAY, 2)).toMatchObject({ days: 2 });
+  });
+
+  it('a long day yesterday asks about the legs, with the time as the reason', () => {
+    const acts = [{ day: add(TODAY, -1), movingS: 2 * 3600 }, { day: add(TODAY, -1), movingS: 1.5 * 3600 }];
+    expect(trainingHit(acts, TODAY)).toEqual({ h: 3, m: 30 });
+    expect(trainingHit([{ day: add(TODAY, -1), movingS: 2 * 3600 }], TODAY)).toBeNull(); // under 3 h
+    expect(trainingHit([{ day: TODAY, movingS: 5 * 3600 }, { day: add(TODAY, -2), movingS: 5 * 3600 }], TODAY)).toBeNull(); // only yesterday counts
+    expect(trainingHit(acts, TODAY, 2)).toEqual({ h: 3, m: 30 });
+    expect(trainingHit([{ day: add(TODAY, -1) }], TODAY, 1)).toBeNull(); // no time: nothing
+    const [d] = dataDue({ acts, today: TODAY });
+    expect(d.q.id).toBe('daten.training');
+    expect(d.why.vars).toEqual({ h: 3, m: 30 });
+    expect(dataDue({ acts, today: TODAY, cfg: setRule(null, 'training', false) })).toEqual([]);
+    expect(RULES.map((r) => r.id)).toContain('training');
   });
 });

@@ -30,6 +30,8 @@ export const SHORT_SLEEP_MIN = 360;
 /** Mood: this many days in a row, each this far below your usual. */
 export const MOOD_DAYS = 3;
 export const MOOD_BELOW = 1;
+/** A long day: moving time of yesterday's Strava activities together, in hours (Noah 03.11.2026, step 2). */
+export const LONG_DAY_H = 3;
 
 const chip = (key, label) => ({ key, label: `${label}|data` });
 
@@ -83,6 +85,21 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'stimmung',
   },
+  'daten.training': {
+    id: 'daten.training',
+    area: 'sport',
+    text: 'How do your legs feel after yesterday?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('fresh', 'Fresh'), chip('heavy', 'Heavy legs'), chip('stiff', 'Stiff'), chip('tired', 'Tired'), chip('hungry', 'Very hungry'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['strava'],
+    data: true,
+    rule: 'training',
+  },
 };
 
 /** The rules, in order. title/about are English keys for t() (about has {n}). */
@@ -110,6 +127,14 @@ export const RULES = [
     about: 'Asks when your mood was clearly below your usual {n} days in a row.',
     vars: { n: MOOD_DAYS },
     param: { key: 'n', min: 2, max: 7, step: 1, def: MOOD_DAYS, label: 'Days in a row' },
+  },
+  {
+    id: 'training',
+    qid: 'daten.training',
+    title: 'Long day yesterday',
+    about: 'Asks when yesterday\'s Strava activities together took at least {n} hours.',
+    vars: { n: LONG_DAY_H },
+    param: { key: 'n', min: 1, max: 8, step: 0.5, def: LONG_DAY_H, label: 'At least (hours on the move)' },
   },
 ];
 
@@ -230,13 +255,24 @@ export function stimmungHit(answers = [], checks = [], today, days = MOOD_DAYS) 
   return days === 3 ? { a: r1(vals[0]), b: r1(vals[1]), c: r1(vals[2]), usual: r1(usual) } : { days, list: vals.map(r1).join(', '), usual: r1(usual) };
 }
 
+/** Yesterday's activities (Strava) together: { h, m } when the moving time is at least `hours`, else null. */
+export function trainingHit(acts = [], today, hours = LONG_DAY_H) {
+  const y = addDays(today, -1);
+  const sec = acts.filter((a) => a?.day === y).reduce((n, a) => n + (fin(a.movingS) > 0 ? a.movingS : 0), 0);
+  if (sec <= 0 || sec < hours * 3600) return null;
+  const min = Math.round(sec / 60);
+  return { h: Math.floor(min / 60), m: min % 60 };
+}
+
 const WHY = {
+  training: 'Yesterday you were on the move for {h} h {m} min.',
   ruhepuls: 'Your resting pulse today is {v}, your usual of the last 30 days is {normal}.',
   schlaf: 'You slept {h} h {m} min last night.',
   stimmung: 'Your mood was {a}, {b} and {c} on the last three days, your usual is {usual}.',
   stimmungN: 'Your mood on the last {days} days was {list}, your usual is {usual}.',
 };
 const HITS = {
+  training: ({ acts, today, val }) => trainingHit(acts, today, val),
   ruhepuls: ({ health, today, val }) => ruhepulsHit(health, today, val),
   schlaf: ({ health, today, val }) => schlafHit(health, today, val),
   stimmung: ({ answers, checks, today, val }) => stimmungHit(answers, checks, today, val),
@@ -248,7 +284,7 @@ const HITS = {
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const doneToday = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => a.qid)).size;
@@ -262,7 +298,7 @@ export function dataDue({ health = [], answers = [], checks = [], snooze = {}, c
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, answers, checks, today, val: ruleVal(cfg, rule.id) });
+    const hit = HITS[rule.id]({ health, acts, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
     out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id });
