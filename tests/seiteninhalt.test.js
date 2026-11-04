@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO } from '../src/lib/seiteninhalt.js';
 import { HOME } from '../src/lib/know/heimat.js';
+import { HANDBOOK } from '../src/lib/handbook.js'; // the card gets it from loadHandbook(); the tests hand it in
 
 describe('What you can do here', () => {
   it('reads the page from the hash, keeping only tab, view and open', () => {
@@ -10,7 +11,7 @@ describe('What you can do here', () => {
   });
   it('every switched-on page has at least one function, each with what for and how it works', () => {
     for (const p of ON_PAGES) {
-      const rows = pageContent(p);
+      const rows = pageContent(p, undefined, {}, HANDBOOK);
       expect(rows.length, p).toBeGreaterThan(0);
       for (const r of rows) {
         expect(r.text, r.id).toBeTruthy();
