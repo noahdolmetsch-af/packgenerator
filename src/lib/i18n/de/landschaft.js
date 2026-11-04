@@ -1,0 +1,22 @@
+// «Belastungslandschaft» (Noah 03.11.2026, Cockpit-Idee 1) auf «Form und Erholung»
+export default {
+  'Load landscape': 'Belastungslandschaft',
+  'past days and planned sessions · hills or curves': 'vergangene Tage und geplante Einheiten · Hügel oder Kurven',
+  'Landscape|ls': 'Landschaft',
+  'Curves|ls': 'Kurven',
+  'Legend|ls': 'Legende',
+  'Load of the day|ls': 'Belastung des Tages',
+  'Planned, estimated|ls': 'Geplant, geschätzt',
+  'planned, estimated|ls': 'geplant, geschätzt',
+  'planned|ls': 'geplant',
+  'Load landscape per day, {n} days': 'Belastungslandschaft pro Tag, {n} Tage',
+  'Height = load points. Back hill: fitness, front hill: fatigue, ridges: the days. Point at a day or use ← →.|ls': 'Höhe = Belastungspunkte. Hinterer Hügel: Fitness, vorderer Hügel: Müdigkeit, Grate: die einzelnen Tage. Tippe auf einen Tag oder nutze ← →.',
+  'The same days as exact curves. Point at a day or use ← →.|ls': 'Dieselben Tage als genaue Kurven. Tippe auf einen Tag oder nutze ← →.',
+  'load {n}|ls': 'Belastung {n}',
+  '~load {n}|ls': '~Belastung {n}',
+  'Nothing planned on this day.|ls': 'An diesem Tag ist nichts geplant.',
+  'Plan sessions in Training and they continue the landscape to the right, as an estimate.|ls': 'Plane Einheiten im Training: sie führen die Landschaft nach rechts weiter, als Schätzung.',
+  'Open the plan|ls': 'Plan öffnen',
+  'A planned session counts like a ride in the middle of its zone (minutes and zone only). Today counts only what you did.|ls': 'Eine geplante Einheit zählt wie eine Fahrt in der Mitte ihrer Zone (nur Minuten und Zone). Heute zählt nur, was du gemacht hast.',
+  'The landscape comes with your first activities from Strava. Planned sessions of Training continue it.|ls': 'Die Landschaft kommt mit deinen ersten Aktivitäten von Strava. Geplante Einheiten aus dem Training führen sie weiter.',
+};

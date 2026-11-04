@@ -16,6 +16,7 @@ import { sourceOf, ticksByDay, tickPeriod, hourProfile, activeHours, meanOfHours
 import { t } from '../i18n.svelte.js';
 import { sleepScoreOf, restlessOf, cardioLoadOf } from './own.js';
 import { valueHref } from './jump.js';
+import { lateOf, LATE_HOUR } from './late.js';
 
 export const detailHref = (key) => valueHref(key);
 
@@ -86,6 +87,8 @@ export function analyseGroups({ table = new Map(), weights = new Map(), ctx = {}
         body('wkg'),
         body('cad'),
         body('spd'),
+        // «Muster entdeckt» (Noah 03.11.2026, Idee 5): so the links can ask «do I sleep shorter after late sessions?»
+        at({ key: 'late', name: t('Late sessions'), unit: '×', src: 'strava', sum: true, how: t('Sessions that end at {h}:00 or later, counted per day; 0 on a day with sessions that are not late.|late', { h: LATE_HOUR }), get: (d) => lateOf(table.get(d)) }),
       ],
     },
     {
