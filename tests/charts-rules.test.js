@@ -22,9 +22,9 @@ describe('chart rules', () => {
   it('every chart marked done uses the shared pieces', () => {
     for (const p of DONE) {
       const s = src(p);
-      const bars = s.includes('charts/BarChart.svelte');
+      const bars = s.includes('charts/BarChart.svelte') || s.includes('charts/LineChart.svelte');
       const own = ['YTicks', 'Readout', 'DataTable'].every((x) => s.includes(x));
-      expect(bars || own, `${p}: BarChart or YTicks + Readout + DataTable`).toBe(true);
+      expect(bars || own, `${p}: BarChart, LineChart or YTicks + Readout + DataTable`).toBe(true);
       expect(s.includes('ChartSheet') || s.includes('Href('), `${p}: a tap opens something`).toBe(true);
       expect(s.includes('table'), `${p}: «Als Tabelle»`).toBe(true);
     }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -171,6 +171,35 @@ describe('Fragen aus deinen Daten', () => {
       expect(d.why.vars).toEqual({ n: 6 });
       expect(dataDue({ acts: [act(-6)], today: TODAY, cfg: setRule(null, 'pause', false) })).toEqual([]);
       expect(RULES.map((r) => r.id)).toContain('pause');
+    });
+  });
+  describe('Tennis', () => {
+    const played = (n, min = 90) => ({ sport: 'act:tennis', kind: 'played', day: add(TODAY, n), min });
+    const slot = (n, answer) => ({ sport: 'act:tennis', kind: 'slot', day: add(TODAY, n), answer });
+    it('after a game: asks the day after, for a game of 30 minutes or more', () => {
+      expect(spielHit([played(-1)], TODAY)).toEqual({ min: 90 });
+      expect(spielHit([played(-1, 20)], TODAY)).toBeNull();
+      expect(spielHit([played(-1, 20)], TODAY, 15)).toEqual({ min: 20 });
+      expect(spielHit([played(0)], TODAY)).toBeNull();
+      expect(spielHit([played(-2)], TODAY)).toBeNull();
+      expect(spielHit([{ ...played(-1), sport: 'act:run' }], TODAY)).toBeNull();
+      expect(spielHit([], TODAY)).toBeNull();
+      const [d] = dataDue({ sport: [played(-1, 60)], today: TODAY });
+      expect(d.q.id).toBe('daten.spiel');
+      expect(d.why.vars).toEqual({ min: 60 });
+    });
+    it('court time that did not happen: «not played» in the last 2 days, no game that day', () => {
+      expect(platzHit([slot(-1, 'skipped')], TODAY)).toEqual({ day: add(TODAY, -1) });
+      expect(platzHit([slot(-2, 'skipped')], TODAY)).not.toBeNull();
+      expect(platzHit([slot(-3, 'skipped')], TODAY)).toBeNull();
+      expect(platzHit([slot(-3, 'skipped')], TODAY, 3)).not.toBeNull();
+      expect(platzHit([slot(-1, 'played')], TODAY)).toBeNull();
+      expect(platzHit([slot(-1, null)], TODAY)).toBeNull(); // still open: «Gespielt?» on the tennis page asks first
+      expect(platzHit([slot(-1, 'skipped'), played(-1)], TODAY)).toBeNull(); // played another time that day
+      expect(platzHit([slot(0, 'skipped')], TODAY)).toBeNull();
+      const [d] = dataDue({ sport: [slot(-1, 'skipped')], today: TODAY });
+      expect(d.q.id).toBe('daten.platz');
+      expect(dataDue({ sport: [slot(-1, 'skipped')], today: TODAY, cfg: setRule(null, 'platz', false) })).toEqual([]);
     });
   });
 });
