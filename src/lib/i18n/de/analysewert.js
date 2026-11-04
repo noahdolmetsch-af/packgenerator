@@ -53,4 +53,14 @@ export default {
   'Show all {n} days|analyse': 'Alle {n} Tage zeigen',
   'Also in «Ticks evaluated»|analyse': 'Auch in «Haken ausgewertet»',
   'Also in the older view|analyse': 'Auch in der bisherigen Ansicht',
+  // «Gesundheitssignale» (Noah 03.11.2026): your range and what stands out
+  'What stands out|signals': 'Was auffällt',
+  'observation, no diagnosis|signals': 'Beobachtung, keine Diagnose',
+  'Your range: {lo} to {hi}|signals': 'Deine Bandbreite: {lo} bis {hi}',
+  'The middle 80 % of your last 60 days.|signals': 'Die mittleren 80 % deiner letzten 60 Tage.',
+  '{n} days in a row above your range|signals': '{n} Tage in Folge über deiner Bandbreite',
+  '{n} days in a row below your range|signals': '{n} Tage in Folge unter deiner Bandbreite',
+  'Nothing stands out: no 3 days in a row outside your range.|signals': 'Nichts fällt auf: keine 3 Tage in Folge ausserhalb deiner Bandbreite.',
+  'Your range appears after 14 days with a value.|signals': 'Deine Bandbreite erscheint nach 14 Tagen mit einem Wert.',
+  'Your range and what stands out ›|signals': 'Deine Bandbreite und was auffällt ›',
 };
