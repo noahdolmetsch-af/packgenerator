@@ -1,6 +1,6 @@
 # Fahrtechnik-Tagebuch
 
-PR folgt · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 3 von 6
+PR #872 · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 3 von 6
 
 ## Was ist neu
 - Im Rückblick (offen und gespeichert) steht unter «Wie anstrengend war es?» die Karte «Was hast du geübt?»: Spitzkehren, Bremsdosierung, steile Anstiege, schnelle Abfahrten, nasse Strasse, Schotter, Fahren in der Gruppe, Wiegetritt. Ein Tipp hakt ab, ein zweiter nimmt weg; unter jeder abgehakten steht «Ging gut» / «Noch unsicher» (`src/lib/tourenc/SkillPick.svelte`).
