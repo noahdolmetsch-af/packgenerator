@@ -38,10 +38,12 @@ export const LIMITS = {
   fogM: 1000, // visibility
 };
 
-/** The Landi rain radar (Noah: «unbedingt überall», the best rain forecast for Switzerland): opened, never framed or read. */
+/** The Landi rain radar (Noah: «unbedingt überall», the best rain forecast for Switzerland): opened, or shown in a window of the weather page (04.11.2026); never read. */
 export const LANDI_RADAR = 'https://www.landi.ch/wetter/niederschlagsradar';
 /** MeteoSwiss warnings (official, opened). */
 export const METEOSWISS = 'https://www.meteoswiss.admin.ch/';
+/** SRF Meteo: webcams of many places (Noah 04.11.2026, shown in a window or opened). */
+export const SRF_WEBCAMS = 'https://www.srf.ch/meteo/webcams';
 
 const fin = (v) => typeof v === 'number' && Number.isFinite(v);
 const r1 = (v) => Math.round(v * 10) / 10;

@@ -7,7 +7,8 @@
  * - skipped: suggestions the person said «not ridden» to; they stay away until they are let back in.
  * Nothing is collected without a tap. Pure, tested in tests/paesse.test.js.
  */
-import { PASSES, passesOnLine } from './katalog.js';
+import { PASSES, passHitsOnLine } from './katalog.js';
+import { hitLevel } from '../passregel.js';
 
 export const PAESSE_KEY = 'paesse';
 
@@ -25,19 +26,23 @@ const byKey = new Map(PASSES.map((p) => [p.key, p]));
 export const passOf = (key) => byKey.get(key) ?? null;
 
 /**
- * What the rides suggest: the passes crossed that are not collected and not skipped, each with its first ride.
- * sources: [{ id, date, title, line }] (rides with a line, no virtual rides) → [{ key, pass, date, title, ref }], by date.
+ * What the rides suggest: the passes crossed that are not collected and not skipped, each with its first ride and
+ * how close any ride came (passregel.js: 'sure' up to 600 m, 'maybe' up to 1.2 km: please confirm).
+ * sources: [{ id, date, title, line }] (rides with a line, no virtual rides) → [{ key, pass, date, title, ref, km, level }], by date.
  */
 export function suggestions(sources = [], state = stateOf(null)) {
   const have = new Set([...state.list.map((p) => p.key).filter(Boolean), ...state.skipped]);
   const first = new Map();
   for (const s of sources) {
-    for (const key of passesOnLine(s.line)) {
+    for (const { key, km } of passHitsOnLine(s.line)) {
       if (have.has(key)) continue;
       const cur = first.get(key);
-      if (!cur || (s.date && (!cur.date || s.date < cur.date))) first.set(key, { key, pass: byKey.get(key), date: s.date ?? '', title: s.title ?? '', ref: String(s.id ?? '') });
+      const best = Math.min(km, cur?.km ?? Infinity);
+      if (!cur || (s.date && (!cur.date || s.date < cur.date))) first.set(key, { key, pass: byKey.get(key), date: s.date ?? '', title: s.title ?? '', ref: String(s.id ?? ''), km: best });
+      else cur.km = best;
     }
   }
+  for (const v of first.values()) v.level = hitLevel(v.km) ?? 'maybe';
   return [...first.values()].sort((a, b) => (a.date || '9').localeCompare(b.date || '9') || a.pass.m - b.pass.m);
 }
 
