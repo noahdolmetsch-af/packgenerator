@@ -1,6 +1,6 @@
 # Training, Wochen: Diagramme zum Antippen
 
-PR #? · 04.11.2026 · Auftrag: Noah «ja PR 6» (Thread «Diagramme klickbar machen»), PR 6 von 8, erster Teil von «Training» (die vier Wochen-Analysen; Fahrt folgt)
+PR #859 · 04.11.2026 · Auftrag: Noah «ja PR 6» (Thread «Diagramme klickbar machen»), PR 6 von 8, erster Teil von «Training» (die vier Wochen-Analysen; Fahrt folgt)
 
 ## Was ist neu
 - Die vier Diagramme von Aktiv › Training › Woche › «Analysen über die Wochen» (`AnaWLoad`, `AnaForm`, `AnaPCurve`, `AnaEff`) laufen über die gemeinsamen Bausteine (`BarChart`, `LineChart`): Achse mit runden Stufen und feinen Linien, genaue Zahlen beim Zeigen oder mit den Pfeiltasten, Tippen öffnet ein Fenster, «Als Tabelle».
