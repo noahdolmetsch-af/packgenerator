@@ -1,6 +1,6 @@
 // «Belastungslandschaft» (Noah 03.11.2026, Cockpit-Idee 1) auf «Form und Erholung»
 export default {
-  'Load landscape': 'Belastungs-Landschaft',
+  'Load landscape': 'Belastungslandschaft',
   'past days and planned sessions · hills or curves': 'vergangene Tage und geplante Einheiten · Hügel oder Kurven',
   'Landscape|ls': 'Landschaft',
   'Curves|ls': 'Kurven',
