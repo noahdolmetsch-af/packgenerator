@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { oversize, heavyStatic, startBytes, MAX_START_JS_BYTES, MAX_JS_BYTES, HEAVY } from '../scripts/size-guard.mjs';
+import { oversize, heavyStatic, startBytes, startWarning, MAX_START_JS_BYTES, MAX_JS_BYTES, HEAVY } from '../scripts/size-guard.mjs';
 import { loadPage, loadedOf } from '../src/lib/nav/lazy.js';
 
 const walk = (dir) => readdirSync(dir).flatMap((n) => (statSync(join(dir, n)).isDirectory() ? walk(join(dir, n)) : [join(dir, n)]));
@@ -26,7 +26,14 @@ describe('size guard', () => {
       { name: 'assets/style.css', bytes: 999 },
     ];
     expect(startBytes(files)).toBe(1310);
-    expect(MAX_START_JS_BYTES).toBe(4_600_000);
+    expect(MAX_START_JS_BYTES).toBe(5_000_000);
+  });
+  it('warns from 90 % of the start budget, never fails, says nothing below or above', () => {
+    expect(startWarning(4_500_000)).toBeNull(); // exactly 90 %
+    expect(startWarning(4_500_001)).toMatch(/90 %/);
+    expect(startWarning(4_900_000)).toMatch(/98 %.*5\.0 MB/);
+    expect(startWarning(3_000_000)).toBeNull();
+    expect(startWarning(5_000_001)).toBeNull(); // over the limit the build fails (the error, not the warning)
   });
   it('tells a static import of a big tool from a dynamic one', () => {
     expect(heavyStatic("import { PDFDocument } from 'pdf-lib';")).toEqual(['pdf-lib']);

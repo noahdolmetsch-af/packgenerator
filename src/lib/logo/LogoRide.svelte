@@ -14,8 +14,17 @@
   import { unlockLogo } from './logo.svelte.js';
   import LogoSaying from './LogoSaying.svelte';
   import LogoFlat from './LogoFlat.svelte';
+  import LogoWeather from './LogoWeather.svelte';
+  import LogoPanorama from './LogoPanorama.svelte';
+  import { loadLogoWeather } from './wetter.js';
+  import { db } from '../db.js';
+  import Murmeltier from '../murmeltier/Murmeltier.svelte'; // the one drawn marmot of the app (Idee 28)
+  import { ops } from '../bedienung.svelte.js';
+  import { partOfDay } from '../dayclock.js';
 
-  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | 'flat' | null
+  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | 'flat' | 'marmot' | 'weather' | 'panorama' | 'wait' (weather is loading) | null
+  let wx = $state({ kind: 'none', text: '' }); // the weather on screen
+  let night = $state(false); // the marmot sleeps at night instead of whistling
   let saying = $state(''); // the text of the saying on screen
   let fresh = $state(false); // the secret was found for the first time: the logo changes (Idee 30)
   let last = null; // the one before, so it never repeats
@@ -50,14 +59,27 @@
     fresh = unlockLogo(); // «Das Logo zieht sich der Jahreszeit an» (Idee 30): the first find turns the logo into the bike sign
     // the sayings only count while at least one is left (the person may have hidden them all in «Listen und Typen»)
     const id = pickSaying(sayingsOffered(), lastSaying);
-    kind = last = pickSurprise(id ? SURPRISES : SURPRISES.filter((s) => s !== 'saying'), last);
+    // the marmot only while its switch in Bedienung is on (Idee 28)
+    const pool = SURPRISES.filter((s) => (s !== 'saying' || id) && (s !== 'marmot' || ops.murmeltier));
+    kind = last = pickSurprise(pool, last);
+    night = partOfDay(new Date().getHours()) === 'night';
     if (kind === 'saying') {
       lastSaying = id;
       saying = sayingText(id, t);
     }
     clearTimeout(timer);
+    if (kind === 'weather') return showWeather();
     if (kind === 'flat') flatTyre(e.target.closest('.mark'));
-    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : kind === 'flat' ? 4200 : 3200);
+    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : kind === 'flat' ? 4200 : kind === 'panorama' ? 4800 : 3200);
+  }
+
+  // the weather comes from the forecast Today keeps; a slow answer is not waited for longer than 1.5 s
+  async function showWeather() {
+    kind = 'wait'; // taps meanwhile do nothing
+    const w = await Promise.race([loadLogoWeather(db), new Promise((r) => setTimeout(() => r(null), 1500))]);
+    wx = w ?? { kind: 'none', text: t('No weather loaded.') };
+    kind = 'weather';
+    timer = setTimeout(() => (kind = null), 4200);
   }
 
   onMount(() => {
@@ -69,7 +91,15 @@
   });
 </script>
 
-{#if kind === 'saying'}
+{#if kind === 'marmot'}
+  <div class="pg-marmot" role="status" aria-label={night ? t('Sleeping marmot') : t('Peeep!')} data-logo-marmot>
+    <Murmeltier state={night ? 'sleep' : 'whistle'} size={150} say={night ? '' : t('Peeep!')} />
+  </div>
+{:else if kind === 'weather'}
+  <LogoWeather {wx} />
+{:else if kind === 'panorama'}
+  <LogoPanorama />
+{:else if kind === 'saying'}
   <LogoSaying text={saying} note={fresh ? t('New logo found: the bike sign. Change it in Me › Appearance.') : ''} />
 {:else if kind === 'flat'}
   <LogoFlat note={fresh ? t('New logo found: the bike sign. Change it in Me › Appearance.') : ''} />
@@ -91,6 +121,32 @@
 {/if}
 
 <style>
+  .pg-marmot {
+    position: fixed;
+    z-index: 9000;
+    bottom: env(safe-area-inset-bottom, 0px);
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    line-height: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pg-marmot {
+      animation: pg-marmot 3.2s ease-out forwards;
+    }
+  }
+  @keyframes pg-marmot {
+    0% {
+      transform: translate(-50%, 100%);
+    }
+    18%,
+    80% {
+      transform: translate(-50%, 0);
+    }
+    100% {
+      transform: translate(-50%, 100%);
+    }
+  }
   .pg-ride {
     position: fixed;
     z-index: 9000;

@@ -1,17 +1,17 @@
 // v0.127.0 «Tages-Check» 1: the morning check (T1) and the evening review (T2) as pages of Heute
 export default {
   // the head of the two pages and the entry on Heute
-  'Morning check': 'Morgen-Check',
+  'Morning check': 'Wi gaht\'s? am Morgen',
   'Evening review': 'Abend-Rückblick',
   'Good morning': 'Guten Morgen',
   'How was your day?': 'Wie war dein Tag?',
   'from 20:30 · about 30 seconds': 'ab 20:30 · etwa 30 Sekunden',
   'Evening review · from 20:30 · about 30 seconds · what the app already knows, it does not ask.': 'Abend-Rückblick · ab 20:30 · etwa 30 Sekunden · was die App schon weiss, fragt sie nicht.',
   'about 40 seconds · everything skippable': 'etwa 40 Sekunden · alles überspringbar',
-  'Morning check · {date} · about 40 seconds · every question skippable. The line under a number shows yesterday.': 'Morgen-Check · {date} · etwa 40 Sekunden · jede Frage überspringbar. Der Strich unter einer Zahl zeigt gestern.',
+  'Morning check · {date} · about 40 seconds · every question skippable. The line under a number shows yesterday.': 'Wi gaht\'s? am Morgen · {date} · etwa 40 Sekunden · jede Frage überspringbar. Der Strich unter einer Zahl zeigt gestern.',
   'Satisfaction {n} of 10': 'Zufriedenheit {n} von 10',
   'How was your day? · about 30 seconds': 'Wie war dein Tag? · etwa 30 Sekunden',
-  'Change the morning check': 'Morgen-Check ändern',
+  'Change the morning check': '«Wi gaht\'s?» am Morgen ändern',
   'a few questions · one tap each': 'ein paar Fragen · ein Tipp pro Frage',
   'daily|check': 'täglich',
   'today|check': 'heute',

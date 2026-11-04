@@ -18,6 +18,7 @@
   import { loadCore, hoursBetween, dayLine, warningsOf, rainWithin, localDate, atLocal, WARN_TEXT, LANDI_RADAR } from './kern.js';
   import { WEBCAMS_KEY, camsOf, homeCam, isImage, freshSrc, camLabel } from './webcams.js';
   import LakeChip from '../lake/LakeChip.svelte';
+  import HeuteSchnee from './HeuteSchnee.svelte'; // «Schneefallgrenze» (Noah 04.11.2026): one calm line for the home place
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -96,6 +97,7 @@
     {/if}
     <!-- the lake (thread «Seetemperatur und Sauna»): shows itself only with a value -->
     <LakeChip />
+    <HeuteSchnee />
   </section>
 
 <style>
