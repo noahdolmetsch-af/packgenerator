@@ -30,7 +30,7 @@
     time: { name: 'Time|an', show: (v) => mss(v), diff: (m, g) => `${m - g > 0 ? '+' : m - g < 0 ? '−' : '±'}${mss(Math.abs(m - g))}` },
   };
   const rows = $derived(cmp ? cmp.rows.map((r) => ({ ...r, ...ROWS[r.key] })) : []);
-  const driftName = $derived(cmp?.drift ? t(cmp.drift.kind === 'wpb' ? 'Fall of watts per beat, 1st to 2nd half|gh' : 'Rise of heart rate, 1st to 2nd half|gh') : '');
+  const driftName = $derived(cmp?.drift ? t(cmp.drift.kind === 'wpb' ? 'Fall of watts per beat, 1st to 2nd half (smaller is better)|gh' : 'Rise of heart rate, 1st to 2nd half (smaller is better)|gh') : '');
 
   const sentence = $derived.by(() => {
     const v = cmp?.verdict;
@@ -56,15 +56,17 @@
     else out.push({ key: 'wind', ok: null, text: t('Wind: not known|gh') });
     return out;
   });
-  const optLabel = (g) => `${dayShort(g.act.day)} · ${f(g.act.km, 1)} km${g.act.wDevice && g.act.wAvg > 0 ? ` · ${f(g.act.wAvg)} W` : ''} · ${f(g.act.hrAvg)} ${t('bpm|gh')}${g.alike.route ? ` · ${t('same route|gh')}` : ''}`;
+  // short enough for a phone: the day, the route when it is the same, the km (power and heart rate are in the table)
+  const optLabel = (g) => [dayShort(g.act.day), g.alike.route ? t('same route|gh') : '', `${f(g.act.km, 1)} km`].filter(Boolean).join(' · ');
 </script>
 
 {#if ghost && cmp}
   <AnaCard key="ghost" sub={t('an earlier ride of yours|gh')}>
+    <p class="gi">{t('Your ghost is an earlier ride of yours. You see whether you were more efficient today on a similar ride.|gh')}</p>
     <label class="gp">
       <span>{t('Your ghost|gh')}</span>
-      <select class="inp" bind:value={pickId} data-ghost-pick aria-label={t('Pick your ghost|gh')}>
-        {#each ghosts as g (g.act.id)}<option value={g.act.id}>{optLabel(g)}</option>{/each}
+      <select class="inp" value={ghost.act.id} onchange={(e) => (pickId = e.currentTarget.value)} data-ghost-pick aria-label={t('Pick your ghost|gh')}>
+        {#each ghosts as g (g.act.id)}<option value={g.act.id} selected={g.act.id === ghost.act.id}>{optLabel(g)}</option>{/each}
       </select>
     </label>
     {#if sentence}<p class="gs" data-ghost-verdict={cmp.verdict.key}>{sentence}</p>{/if}
@@ -109,6 +111,11 @@
 {/if}
 
 <style>
+  .gi {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .gp {
     display: grid;
     gap: 4px;
