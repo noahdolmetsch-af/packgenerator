@@ -9,11 +9,12 @@
   import { X, Check, Undo2, Pencil, EyeOff, Trash2, MapPin } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import DateInput from '../ui/DateInput.svelte';
+  import ItemProof from './ItemProof.svelte';
   import { dayLong } from '../review/fmt.js';
   import { t } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
 
-  let { item, what = '', label = '', visit = null, auto = null, nope = false, tripName = () => '', today, ontick, onuntick, onclearnope, onedit, onhide, onremove, onclose } = $props();
+  let { item, what = '', label = '', visit = null, auto = null, nope = false, tripName = () => '', reachKm = 0.5, tracks = [], today, ontick, onuntick, onclearnope, onedit, onhide, onremove, onclose } = $props();
 
   let dialog;
   // svelte-ignore state_referenced_locally
@@ -45,6 +46,7 @@
         <p class="q">{visit.by === 'hand' ? t('Ticked by you.') : t('Found by the app on your route.')}</p>
       </div>
     </div>
+    <ItemProof {item} found={auto} hand={visit.by === 'hand'} {reachKm} {tracks} />
     <div class="vd-foot">
       <button type="button" class="btn" onclick={() => (onuntick?.(), close())}><Undo2 size={16} aria-hidden="true" />{t('I was not there')}</button>
     </div>
@@ -53,6 +55,7 @@
       <p>{nope ? t('You marked it as «not there». The app does not count it.') : t('Not been there yet.')}</p>
       {#if nope && auto}<p class="q">{t('The app found it on {day}.', { day: dayLong(auto.day) })}</p>{/if}
     </div>
+    {#if nope && auto}<ItemProof {item} found={auto} {reachKm} {tracks} />{/if}
     <div class="tick">
       <label class="nl-lbl" for="nli-day">{t('Been there on')}</label>
       <DateInput id="nli-day" bind:value={day} max={today} />
