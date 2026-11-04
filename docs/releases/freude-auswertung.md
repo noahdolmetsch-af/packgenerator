@@ -1,6 +1,6 @@
 # Freude als Auswertung
 
-PR folgt · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 6 von 6
+PR #865 · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 6 von 6
 
 ## Was ist neu
 - Im Rückblick (offen und gespeichert) steht unter «Wie anstrengend war es?» die Karte «Was hat es gut gemacht?» mit vier kleinen Skalen: Fahrspass, Natur, Flow, Gesellschaft. Jede geht von 1 bis 5, jede ist freiwillig, ein zweiter Tipp auf die gewählte Zahl nimmt sie weg (`src/lib/tourenc/JoyPick.svelte`).
