@@ -28,7 +28,7 @@
   .srow {
     display: flex;
     align-items: center;
-    gap: var(--s-2, 0.5rem);
+    gap: 0.5rem;
     width: 100%;
     text-align: left;
   }
@@ -39,11 +39,11 @@
     min-width: 0;
   }
   .t small {
-    color: var(--ink-3, #6b6860);
+    color: var(--ink-3);
     font-weight: 400;
   }
   .none {
     margin: 0;
-    color: var(--ink-3, #6b6860);
+    color: var(--ink-3);
   }
 </style>
