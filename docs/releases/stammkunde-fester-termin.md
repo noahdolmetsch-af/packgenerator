@@ -7,6 +7,8 @@ PR · 05.11.2026 · Auftrag: Noah «8a» (Thread «Planen Tennisstunden anbieten
 - Gibt es in den nächsten 7 Tagen (auch derselbe Wochentag der nächsten Woche) in einem Angebot genau diese Zeit, mit freiem Platz und noch nicht von dieser Person gebucht, zeigt Heute «Fester Termin: Mia · Do 17:00 ist frei» mit dem Knopf «Vorschlagen». Die Nachricht («Dein fester Termin ist frei …») ist fertig, du sendest sie selbst.
 - Gespeichert am Kunden (Einstellung «booking.customers», im Backup).
 
+- **Fehler behoben (aus «Warteliste»):** Die Heute-Zeile «Platz frei: … wartet» erschien nie, weil Heute die Zeiten und Arten der Angebote nicht bekam. Jetzt kommen sie an; ein Browser-Test prüft die Zeile.
+
 ## Was fällt weg oder rutscht tiefer
 - nichts
 

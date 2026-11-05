@@ -205,6 +205,12 @@ test('a request with places and a note: Noah confirms it and writes back', async
   await full.getByRole('button', { name: T('Cancel|booking'), exact: true }).click();
   await expect(full.locator('[data-place-free]')).toBeVisible();
   await expect(full.locator('[data-waitlist] a')).toHaveAttribute('href', /^mailto:leo@example\.test/);
+  // Heute says it too
+  await page.goto('./#/');
+  await ready(page);
+  const free = page.locator('li.row[data-row="wait"]');
+  await expect(free).toContainText('Leo Muster');
+  await expect(free.getByRole('link', { name: T('Write') })).toHaveAttribute('href', /^mailto:leo@example\.test/);
 });
 
 test('the invoice form is filled from a booking draft and keeps the booking', async ({ page }) => {
@@ -351,3 +357,28 @@ test('after the lesson: no-show counts the full price, cancelled late half, in t
   await expect(page.getByLabel(T('What for?'))).toHaveValue(new RegExp(T('cancelled late')));
 });
 
+
+test('Heute suggests the usual time of a regular customer with a message ready', async ({ page }) => {
+  await page.goto('./#/me/offers');
+  await ready(page);
+  await page.locator('.of-chips .btn').first().click();
+  await expect(page).toHaveURL(/#\/me\/offers\/tennis-[a-z0-9]+$/);
+  // a free time tomorrow (the fixed day is a Wednesday, so tomorrow is the Thursday column)
+  await page.locator('.of-dc').nth(3).locator('.of-sl.add').click();
+  const add = page.getByRole('dialog', { name: T('Open a time') });
+  await add.locator('input[type=time]').fill('17:00');
+  await add.getByRole('button', { name: T('Open the time') }).click();
+  await expect(add).toBeHidden();
+  await page.goto('./#/me/offers/customers');
+  await page.getByRole('button', { name: T('Add a customer') }).first().click();
+  await page.locator('#cu-name').fill('Mia Muster');
+  await page.locator('#cu-contact').fill('079 000 00 00');
+  await page.locator('#cu-fday').selectOption('3');
+  await page.locator('#cu-ftime').fill('17:00');
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
+  await page.goto('./#/');
+  await ready(page);
+  const row = page.locator('li.row[data-row="fixed"]');
+  await expect(row).toContainText('Mia Muster');
+  await expect(row.getByRole('link', { name: T('Suggest') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
+});
