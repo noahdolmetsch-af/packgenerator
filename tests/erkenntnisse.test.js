@@ -1,6 +1,6 @@
 // «Erkenntnisse» (Noah 19.10.2026 «4b» + own page): fictional data only, calendar days.
 import { describe, it, expect } from 'vitest';
-import { seriesOf, spearman, look, insights, rhrHigh, lastDays, ownNumberQuestions, ownPairs, PAIRS, MIN_DAYS } from '../src/lib/erkenntnisse.js';
+import { seriesOf, spearman, look, insights, rhrHigh, lastDays, ownNumberQuestions, ownPairs, testHint, PAIRS, MIN_DAYS } from '../src/lib/erkenntnisse.js';
 
 const TODAY = '2026-10-19';
 const days = lastDays(TODAY, 30);
@@ -103,5 +103,38 @@ describe('Erkenntnisse', () => {
     days.forEach((d, i) => (coffee[d] = i % 2 ? 4 : 1));
     const all = insights({ 'own:own-a': coffee, mood }, days.at(-1), { own: [{ id: 'own-a', text: 'Kaffee' }] });
     expect(all.find((x) => x.id === 'own-own-a-mood')).toMatchObject({ shown: true, name: 'Kaffee' });
+  });
+
+  describe('a guess to test', () => {
+    const span = lastDays(TODAY, 21);
+    // long nights go with a better mood: every other day 8 h and mood 8, else 5 h and mood 5 (today is the last day)
+    const series = (todayH) => {
+      const sleepH = {};
+      const mood = {};
+      span.forEach((d, i) => {
+        const long = i % 2 === 0;
+        sleepH[d] = long ? 8 : 5;
+        mood[d] = long ? 8 : 5;
+      });
+      sleepH[TODAY] = todayH;
+      return { sleepH, mood };
+    };
+    it('gives the strongest same-day hint of something measured and a feeling when today fits', () => {
+      const h = testHint(series(8), TODAY);
+      expect(h).toMatchObject({ x: 'sleepH', y: 'mood', lag: 0, today: 8 });
+      expect(h.cut).toBeLessThan(8);
+    });
+    it('nothing when today lies below the cut, when there is no value today or when the pair is a feeling and a feeling', () => {
+      expect(testHint(series(4), TODAY)).toBeNull();
+      const s = series(8);
+      delete s.sleepH[TODAY];
+      expect(testHint(s, TODAY)).toBeNull();
+      const f = { sleepFelt: s.sleepH, mood: s.mood };
+      f.sleepFelt[TODAY] = 8;
+      expect(testHint(f, TODAY)).toBeNull();
+    });
+    it('a strength threshold keeps weak hints away', () => {
+      expect(testHint(series(8), TODAY, { minRho: 1.1 })).toBeNull();
+    });
   });
 });

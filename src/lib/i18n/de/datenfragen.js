@@ -95,6 +95,15 @@ export default {
   'Never again|question': 'Nie mehr',
   'Change this': 'Das ändern',
   'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.': 'Eine Zufallsfrage aus deinen Musterfragen, die ausgeschaltet sind, höchstens eine am Tag. Sie zählt zu den drei Fragen aus deinen Daten.',
+  // Vermutung testen
+  'Does that fit today?': 'Stimmt das heute?',
+  'Yes, that fits|data': 'Ja, das passt',
+  'No, not today|data': 'Nein, heute nicht',
+  'Not sure|data': 'Nicht sicher',
+  'Your data hints: {sentence} Today looks like such a day, so it is worth checking.': 'Deine Daten deuten darauf hin: {sentence} Heute sieht nach so einem Tag aus, darum lohnt sich das Nachprüfen.',
+  'A guess to test': 'Eine Vermutung zum Testen',
+  'Asks yes or no on a day that fits when «What goes together» already shows a hint at least {n} percent strong.': 'Fragt mit Ja oder Nein an einem passenden Tag, wenn «Was zusammenpasst» schon einen Hinweis zeigt, der mindestens {n} Prozent stark ist.',
+  'Hint strength from (percent)': 'Stärke des Hinweises ab (Prozent)',
   // Wiederholungsschutz
   'You skipped this question three times. Ask less often?': 'Du hast diese Frage dreimal übersprungen. Soll ich sie seltener fragen?',
   'Yes, less often': 'Ja, seltener',

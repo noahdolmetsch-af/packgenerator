@@ -11,7 +11,7 @@
   import { Bike, Tent, Info, Check } from '@lucide/svelte';
   import { db } from '../db.js';
   import { touched } from '../trips.js';
-  import { SPORT, BIKE_SPORTS, OLD_TRIPS_DONE } from '../sports.js';
+  import { SPORT, BIKE_SPORTS, OLD_TRIPS_DONE, sportLabel } from '../sports.js';
   import '../bikes/velo-dlg.css';
   import '../sports.css';
 
@@ -57,7 +57,7 @@
       <li class="sa-row">
         <span class="sa-t"><b>{r.trip.title}</b><small class="num">{[dateOf(r.trip.startDate), tn(Number(r.trip.days) || 1, '{n} day', '{n} days'), bikeName(r.trip.bikeId)].filter(Boolean).join(' · ')}{#if own}{' '}· <em>{t('changed by you')}</em>{/if}</small></span>
         <select class="sa-pick" class:own bind:value={picked[r.trip.id]} aria-label={t('Sport for {name}', { name: r.trip.title })}>
-          {#each BIKE_SPORTS as k (k)}<option value={k}>{t(SPORT[k].name)}</option>{/each}
+          {#each BIKE_SPORTS as k (k)}<option value={k}>{sportLabel(SPORT[k], t)}</option>{/each}
         </select>
       </li>
     {/each}

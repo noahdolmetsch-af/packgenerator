@@ -47,6 +47,7 @@
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, isSearchChord, G_WAIT } from './lib/nav/keys.js';
   import { sortBikes } from './lib/bikes.js';
+  import { activeBikes } from './lib/bikeretire.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
@@ -329,7 +330,7 @@
     useOwn(ownRec?.value); // the km check of «Eigene Werte» counts here too, also right after a change
     const today = localDay();
     // v0.137.0 (DK1): the points due over all bikes, the same number as Bikes › Care.
-    return sortBikes(bikes).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
+    return sortBikes(activeBikes(bikes)).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
   });
   // SN1c «Tour aus komoot übernehmen»: a GPX without times shared to the app (public/share-target.js)
   // opens #/komoot/shared; the sheet opens over Touren, where the new trip will be.
@@ -378,7 +379,6 @@
     BlockCheck: () => import('./pages/BlockCheck.svelte'),
     PackCleanup: () => import('./pages/PackCleanup.svelte'), // «Packliste aufräumen» (Noah 21.10.2026 «5a»)
     Check: () => import('./pages/Check.svelte'),
-    CheckQuestions: () => import('./pages/CheckQuestions.svelte'),
     CheckHistory: () => import('./pages/CheckHistory.svelte'), // «Heute-Check» step 3: #/check/history
     CheckInsights: () => import('./pages/CheckInsights.svelte'), // «Heute-Check» step 2: #/check/insights
     Routine: () => import('./pages/Routine.svelte'),
@@ -650,8 +650,7 @@
     {#key hash}{#if hash.startsWith('#/timer/faces')}<LazyPage load={PAGES.TimerFaces} />{:else if hash.startsWith('#/timer/log')}<LazyPage load={PAGES.TimerLog} />{:else}<LazyPage load={PAGES.Timer} />{/if}{/key}
   {:else if page === 'check'}
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
-    <!-- v0.127.0 «Tages-Check» 2: #/check/questions (T4), the 15 questions with a switch each -->
-    {#key hash}{#if checkPart(hash) === 'questions'}<LazyPage load={PAGES.CheckQuestions} />{:else if checkPart(hash) === 'history'}<LazyPage load={PAGES.CheckHistory} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
+    {#key hash}{#if checkPart(hash) === 'history'}<LazyPage load={PAGES.CheckHistory} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'frei' || page === 'impulse'}
     <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
