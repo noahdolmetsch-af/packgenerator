@@ -21,8 +21,11 @@
   const on = (n) => isOn(off, n);
   const flip = (n) => db.settings.put({ key: OFF_KEY, value: switchQuestion(off, n, !on(n)) });
   // taps per part: the rotating 4/5 and the alternating 12/13 are one tap each
+  // Noah 04.11.2026 «ein Fragebogen»: 1–5 (sleep, battery, mood, the rotating one) and 7 (goal) are asked like in the window now,
+  // under Deine Abfragen; they leave this table
+  const MOVED = [1, 2, 3, 4, 5, 7];
   const taps = $derived({
-    morning: [1, 2, 3, 6, 7].filter(on).length + (on(4) || on(5) ? 1 : 0),
+    morning: [6].filter(on).length,
     evening: [8, 9, 10, 11, 14].filter(on).length + (on(12) || on(13) ? 1 : 0),
   });
   const GROUPS = $derived([
@@ -60,7 +63,7 @@
         {#each GROUPS as g (g.part)}
           <tbody>
             <tr class="g"><th scope="rowgroup" colspan={phone.matches ? 4 : 6}>{g.title}</th></tr>
-            {#each QUESTIONS.filter((x) => x.part === g.part) as q (q.n)}
+            {#each QUESTIONS.filter((x) => x.part === g.part && !MOVED.includes(x.n)) as q (q.n)}
               <tr class:off={!on(q.n)} data-question={q.n}>
                 <td class="n num">{q.n}</td>
                 <td class="qx">{t(q.text)}</td>
@@ -82,6 +85,10 @@
             <li><span class="ib"><a.icon size={18} aria-hidden="true" /></span><span class="rt"><b>{t(a.name)}</b><small>{t(a.line)}</small></span></li>
           {/each}
         </ul>
+      </section>
+      <section class="card" aria-labelledby="cq-moved" data-moved>
+        <div class="hl"><h2 id="cq-moved">{t('Now under Your questions')}</h2><p>{t('sleep, battery, mood, goal')}</p></div>
+        <p class="mv">{t('Questions 1–5 and 7 are asked like the questions in the window: on, off and when you decide under Me › Your questions.')} <a href="#/me/abfragen" data-moved-link>{t('Open Your questions')}</a></p>
       </section>
       <p class="note"><Lightbulb size={18} aria-hidden="true" /><span>{t('Every question can be switched off and skipped. Observations come only after about 2 weeks, always with the number of days. Everything stays on your device and in the backup.')}</span></p>
     </div>
