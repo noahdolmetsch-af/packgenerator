@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind, Sun } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -434,7 +434,7 @@
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
   // U4 «Wo schlafe ich heute?»: the next places to sleep ahead on the route (on by default in a race)
   const wxQ = cacheQuery(WX_CACHE + (tid || '-'));
-  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null }) : null);
+  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null, pos: me ? { lat: me.lat, lon: me.lon } : null }) : null);
   const showSleep = $derived(hasRoute && km != null && (cfg.sleepSpots ?? isRace));
 
   /* ---------- formatting ---------- */
@@ -1687,8 +1687,8 @@
                       {#each next3.rows as r (r.h)}
                         {@const f = cellFlags(r)}
                         {@const wear = wearTip(f)}
-                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''}>
-                          <small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
+                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''} data-n3-dark={r.dark == null ? '' : r.dark ? 'night' : 'day'}>
+                          <small>{#if r.dark != null}{#if r.dark}<Moon size={14} aria-hidden="true" />{:else}<Sun size={14} aria-hidden="true" />{/if}{/if}{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
                           <b>{#if f.cold === 'cold'}<Snowflake size={14} aria-hidden="true" />{/if}{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b>
                           <small>{#if f.rain}<CloudRain size={14} aria-hidden="true" />{/if}{r.rain != null ? r.rain + ' %' : ''}</small>
                           {#if f.wind}<small class="n3-wind"><Wind size={14} aria-hidden="true" />{Math.round(r.wind)} km/h</small>{/if}
