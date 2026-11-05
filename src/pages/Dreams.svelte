@@ -40,7 +40,7 @@
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
   import { refreshDreamWx, windowsOf, dayRange, DREAM_WX } from '../lib/dreams/wetterfenster.js'; // N15 «Wetterfenster»
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
-  import { Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
+  import { Mountain, Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -205,6 +205,7 @@
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
   <p class="dr-intro">{t('Tours you dream of. The app tells you when they fit.')}</p>
+  <p class="dr-sug"><a class="btn" href="#/trips/vorschlaege" data-dreams-suggest><Mountain size={16} aria-hidden="true" />{t('Tour suggestions')}</a> <span class="ich-help">{t('Mountain bike tours from the official network, to keep as dreams.')}</span></p>
   <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>
@@ -404,6 +405,7 @@
   .dr-done > summary { display: flex; align-items: center; gap: var(--sp-2); cursor: pointer; padding: var(--sp-3) 0; }
   .dr-chips { display: block; margin-top: 2px; }
   .dr-chip { display: inline-block; white-space: nowrap; font-size: var(--fs-small); font-weight: 600; border-radius: 99px; padding: 1px var(--sp-2); background: var(--accent-soft); color: var(--accent-ink); }
+  .dr-sug { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin: 0 0 var(--sp-4); }
   .dr-intro {
     max-width: 65ch;
     margin: 0 0 var(--sp-4);

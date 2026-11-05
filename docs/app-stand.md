@@ -32,7 +32,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Heute | `#/` | Persönliche Übersicht mit nächsten Vorhaben, Wetter, fälligen Aufgaben, Körperdaten und Vorschlägen. Oben steht ein gezeichnetes Bild mit der nächsten Tour und dem Countdown; der Himmel folgt Tageszeit und Wetter (ausschaltbar unter Ich › Darstellung › Bedienung). Kacheln hinzufügen, ausblenden und sortieren. «Diese Woche» schreibt die Aktivitäten der Tage in ganzen Zeilen unter die Tage; «Velo im Monat» nennt den Vergleich («Gleiche Tage im Oktober: 38 km»). «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen». «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen». |
+| Heute | `#/` | Persönliche Übersicht mit nächsten Vorhaben, Wetter, fälligen Aufgaben, Körperdaten und Vorschlägen. Oben steht ein gezeichnetes Bild mit der nächsten Tour und dem Countdown; der Himmel folgt Tageszeit und Wetter (ausschaltbar unter Ich › Darstellung › Bedienung). Kacheln hinzufügen, ausblenden und sortieren. «Diese Woche» schreibt die Aktivitäten der Tage in ganzen Zeilen unter die Tage; «Velo im Monat» nennt den Vergleich («Gleiche Tage im Oktober: 38 km»). «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen»; jede ruhige Zeile hat «Später» (eine Woche weg), und «Zeilen wählen» (`src/lib/home/RowsSheet.svelte`) schaltet ganze Zeilenarten aus. «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen». |
 | Suche und Assistent | `#/assistent` | Fragen zu eigenen Daten stellen, Funktionen finden und eine Tour durch kurze Fragen vorbereiten. |
 | Quick Links | `#/quick` | Häufig verwendete Seiten und Kacheln anpinnen und in eigenen Gruppen ordnen. |
 | Funktionskatalog | `#/features` | Funktionen nach Situation, Seite oder Moment entdecken und suchen. |
@@ -180,6 +180,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Traumtouren | `#/trips/dreams` | Wunschabenteuer nach Saison sammeln, auf der Karte vergleichen und in konkrete Touren verwandeln; passende Wetterfenster und neue Ziele in der Nähe finden. |
+| Tourenvorschläge | `#/trips/vorschlaege` | Mountainbike-Touren aus dem offiziellen SchweizMobil-Netz (Pilot: fünf Touren in Zürich und Graubünden) mit Filtern für Region, Schwierigkeit und Zeit, «Warum dieser Vorschlag?», Höhenprofil mit Untergrund, Merken als Traum, GPX und «Nicht für mich». |
 | Inspiration | `#/inspiration` | Links zu Routen, Videos, Ausrüstung und Rennen sammeln und daraus Ideen oder Packregeln ableiten. |
 
 ### 9. Wetter, Berg und Skitouren
