@@ -216,12 +216,12 @@ test('WG evening (was «the evening review»): «Abend-Runde» with the satisfac
 
 test('check links: the three check pages are back (Noah 1ab, 3ab); other check addresses lead to Wi gahts', async ({ page, context }) => {
   await open(page, context, '21:00');
-  for (const [h, name] of [['#/check/morning', 'Good morning'], ['#/check/evening', 'How was your day?'], ['#/check/questions', 'Your 15 questions']]) {
+  for (const [h, name] of [['#/check/morning', 'Good morning'], ['#/check/evening', 'How was your day?']]) {
     await page.goto(`./${h}`);
     await expect(page).toHaveURL(new RegExp(`${h.replace(/\//g, '\\/')}$`));
     await expect(page.getByRole('heading', { level: 1, name: T(name) })).toBeVisible();
   }
-  for (const h of ['#/check', '#/check/other']) {
+  for (const h of ['#/check', '#/check/other', '#/check/questions']) {
     await page.goto(`./${h}`);
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
@@ -242,7 +242,7 @@ const setting = (page, key) =>
     key,
   );
 
-test('Heute: the big balance ring from the meditation and the answers of Wi gahts, the round tile, Deine 15 Fragen', async ({ page, context }) => {
+test('Heute: the big balance ring from the meditation and the answers of Wi gahts, the round tile', async ({ page, context }) => {
   const errors = await open(page, context, '07:52');
   const y = addDays(DAY, -1);
   const ab = (qid, area, kind, value) => ({ id: `test_ab_${qid}`, qid, area, day: y, at: `${y}T20:35`, slot: `${y}T20:30`, kind, value, note: null, unit: null, src: 'hand' });
@@ -271,11 +271,11 @@ test('Heute: the big balance ring from the meditation and the answers of Wi gaht
   await expect(ring.locator('[data-most]')).toContainText(T('the strongest|balance'));
   await expect(ring.getByRole('img')).toHaveAttribute('aria-label', new RegExp(T('Friends|cat') + ' 100'));
 
-  // the round tile: «Morgen-Runde», not yet today; «Deine 15 Fragen» is back (Noah «3 a und b»)
+  // the round tile: «Morgen-Runde», not yet today; «Deine 15 Fragen» is gone (Noah 04.11.2026 «ein Fragebogen»)
   const mc = page.locator('[data-section="morningcheck"]');
   await expect(mc).toHaveAttribute('data-done', 'false');
   await expect(mc.getByRole('heading', { name: T('Morning round') })).toBeVisible();
-  await expect(page.locator('[data-section="questions"]')).toHaveCount(1);
+  await expect(page.locator('[data-section="questions"]')).toHaveCount(0);
   await mc.click();
   await expect(page).toHaveURL(/#\/check\/morning$/);
   expect(errors).toEqual([]);

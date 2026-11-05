@@ -88,7 +88,6 @@ export const TILES = [
   { id: 'balance', area: 'flow', label: 'Your balance', icon: 'flow', sizes: ['l', 'long'], size: 'l', since: '0.132.0', pitch: 'Nine areas of your last 7 days in one ring, from the questions and your data.' },
   // WG «Wi gaht's?» takes over the daily check: the tile of its two fixed rounds (the id stays, so a stored wall keeps it)
   // Tages-Check back (Noah 18.10.2026 «3 a und b», mockup T3c): the questions folded on Heute, with their page
-  { id: 'questions', area: 'flow', label: 'Your 15 questions', icon: 'list', sizes: ['long'], size: 'long', since: '0.150.0', pitch: 'Which questions come when; each one can be switched off.' },
   { id: 'morningcheck', area: 'flow', label: 'Morning and evening round', icon: 'sun', sizes: ['w', 'l'], size: 'l', since: '0.132.0', pitch: 'The round of «Wi gaht\'s?»: sleep, energy and mood of today and your goal; in the evening your day.' },
   // Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the id stays so a stored wall keeps it
   { id: 'yearago', area: 'trips', label: 'Earlier at this time', icon: 'book', sizes: ['w', 'l'], size: 'w', since: '0.101.0', pitch: 'The trips and rides of this day and month in earlier years, on a small map.' },
@@ -118,9 +117,7 @@ export const ADDED_0127 = ['balance', 'morningcheck'];
  * WG «Wi gaht's?» takes over the daily check: the old daily-check tiles (the small «Tagescheck» and
  * «Deine 15 Fragen») are gone; a stored wall that still has them loses them when it is read.
  */
-export const GONE = ['check'];
-/** Tages-Check back (Noah 18.10.2026 «3 a und b»): «Deine 15 Fragen» comes back; a wall stored before (v < 6) gets it once, after the balance. */
-export const ADDED_TC = ['questions'];
+export const GONE = ['check', 'questions']; // Noah 04.11.2026 «ein Fragebogen»: «Deine 15 Fragen» is gone too, its questions are in «Deine Fragen»
 export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
 
 /**
@@ -177,7 +174,6 @@ export const READY_0155 = [
   ['routine', 'long'], // Routine «Das tut mir gut» (D1 1a «ganz oben»): right under the head of HN4, which stays as it is
   ['flow', 'l'],
   ['balance', 'l'],
-  ['questions', 'long'],
   ['week', 'l'],
   ['suggest', 'l'],
   ['month', 'w'],
@@ -259,8 +255,7 @@ export function wallOf8(value, legacy = null) {
   if (value && Array.isArray(value.tiles)) {
     const out = wallBefore5(value);
     const hn4 = (value.v ?? 1) < 5 ? toHN4(out) : out;
-    const q = (value.v ?? 1) < 6 ? withQuestions(hn4) : hn4;
-    const r = (value.v ?? 1) < 7 ? withRoutine(q) : q;
+    const r = (value.v ?? 1) < 7 ? withRoutine(hn4) : hn4;
     return (value.v ?? 1) < 8 ? withValues(withTip(r)) : r;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
@@ -325,15 +320,6 @@ export function wallBefore5(value) {
     const at = out.findIndex((x) => x.id === 'flow');
     out.splice(at < 0 ? out.length : at + 1, 0, ...add);
   }
-  return out;
-}
-/** Tages-Check back: «Deine 15 Fragen» once into a wall of before (v < 6), after the balance (else after Im Flow, else at the end). */
-export function withQuestions(tiles = []) {
-  if (tiles.some((x) => x.id === 'questions')) return tiles;
-  const out = [...tiles];
-  const b = out.findIndex((x) => x.id === 'balance');
-  const at = b >= 0 ? b : out.findIndex((x) => x.id === 'flow');
-  out.splice(at < 0 ? out.length : at + 1, 0, { id: 'questions', size: TILE.questions.size });
   return out;
 }
 /**
