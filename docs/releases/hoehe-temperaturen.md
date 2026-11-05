@@ -1,6 +1,6 @@
 # Temperaturen nach Höhe
 
-PR folgt · 05.11.2026 · Auftrag: Noah «1b 2a und c 3a (mehr Orte, Gipfelliste) 4b» (Thread «Temperaturen nach Höhe anzeigen»)
+PR folgt (baut auf PR #921 «Nebelgrenze» auf) · 05.11.2026 · Auftrag: Noah «1b 2a und c 3a (mehr Orte, Gipfelliste) 4b» (Thread «Temperaturen nach Höhe anzeigen»)
 
 Das ist der erste von drei kleinen PRs (Wetterseite, Zeile auf Heute, «Skitour planen»). Er braucht das gemeinsame Luftschichten-Modul `profil.js` aus dem Thread «Nebelgrenze».
 
