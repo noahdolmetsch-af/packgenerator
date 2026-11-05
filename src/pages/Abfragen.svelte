@@ -188,7 +188,7 @@
         {#if !hasFitbit}<p class="eh" data-data-empty>{t('No Fitbit values yet. The rules for pulse and sleep wait until Fitbit brings them (Me › Fitbit); the mood rule needs your answers.')}</p>{/if}
         {#if !hasTraining}<p class="eh" data-data-empty-training>{t('No training yet. The rules for long days and pauses wait until Strava brings your activities.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
         {#if !hasWeather}<p class="eh" data-data-empty-weather>{t('No weather for today yet. The weather rules wait until Today shows the forecast of your home place.')} <a class="ab-lnk" href="#/wetter">{t('Weather page ›')}</a></p>{/if}
-        {#if !hasCalendar}<p class="eh" data-data-empty-calendar>{t('No calendar on this device yet. The rule for a free evening waits until your Google calendar is connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasCalendar}<p class="eh" data-data-empty-calendar>{t('No calendar on this device yet. The rules for a free evening and for an activity yesterday wait until your Google calendar is connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
         {#if !hasTennis}<p class="eh" data-data-empty-tennis>{t('No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.')}</p>{/if}
         {#each RULES as r (r.id)}
           <div class="dr" data-rule={r.id}>

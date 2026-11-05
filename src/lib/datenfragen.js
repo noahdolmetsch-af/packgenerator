@@ -47,6 +47,7 @@ export const RAIN_PCT = 60;
 export const RAIN_DRY = 30;
 /** Warm enough for an evening outside (degrees, the day's high). */
 export const WARM_C = 15;
+export const EVENT_MIN = 30; // an appointment of this many minutes counts as «an activity»
 /** The evening for «nothing planned»: from 17:00 to 22:00. */
 export const EVENING = [17, 22];
 /** A random question is not repeated within this many days after an answer. */
@@ -194,6 +195,21 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'draussen',
   },
+  'daten.termin': {
+    id: 'daten.termin',
+    area: 'achtsamkeit',
+    text: 'An activity yesterday. How was it?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('good', 'Good'), chip('tiring', 'Tiring'), chip('boring', 'Boring'), chip('learned', 'Learned something'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'termin',
+  },
   'daten.vermutung': {
     id: 'daten.vermutung',
     area: 'achtsamkeit',
@@ -284,6 +300,14 @@ export const RULES = [
     about: 'Asks on a dry day of at least {n} degrees when your calendar has nothing from 17 to 22 o\'clock.',
     vars: { n: WARM_C },
     param: { key: 'n', min: 8, max: 28, step: 1, def: WARM_C, label: 'Warm from (degrees)' },
+  },
+  {
+    id: 'termin',
+    qid: 'daten.termin',
+    title: 'An activity yesterday',
+    about: 'Asks the day after an appointment in your calendar of at least {n} minutes.',
+    vars: { n: EVENT_MIN },
+    param: { key: 'n', min: 15, max: 240, step: 15, def: EVENT_MIN, label: 'Appointment of at least (minutes)' },
   },
   {
     id: 'vermutung',
@@ -510,15 +534,17 @@ export function grauHit(wx, answers = [], checks = [], today, pct = RAIN_PCT) {
   return { mood: r1(by[day]), usual: r1(usual) };
 }
 
+/** An ISO time as Zurich local «YYYY-MM-DDTHH:MM» (null when it is no time). */
+const zurichKey = (iso) => {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Zurich', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(d);
+  const get = (t) => parts.find((x) => x.type === t)?.value;
+  return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
+};
 /** Is a busy appointment in the evening (17–22, Europe/Zurich) of `day`? events: gEvents rows { start, end, allDay, busy }. */
 export function eveningBusy(events = [], day) {
-  const key = (iso) => {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return null;
-    const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Zurich', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(d);
-    const get = (t) => parts.find((x) => x.type === t)?.value;
-    return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
-  };
+  const key = zurichKey;
   const from = `${day}T${String(EVENING[0]).padStart(2, '0')}:00`;
   const to = `${day}T${String(EVENING[1]).padStart(2, '0')}:00`;
   return events.some((e) => {
@@ -528,6 +554,25 @@ export function eveningBusy(events = [], day) {
     const en = key(e.end ?? e.start) ?? st;
     return st < to && (en > from || (en === st && st >= from));
   });
+}
+/**
+ * The longest appointment of yesterday (Zurich) of at least `min` minutes in a calendar that is in use: { title, min } or null.
+ * cal: { used, events }; all-day and «free» entries do not count.
+ */
+export function terminHit(cal, today, min = EVENT_MIN) {
+  if (!cal?.used) return null;
+  const y = addDays(today, -1);
+  let best = null;
+  for (const e of cal.events ?? []) {
+    if (!e || e.allDay || e.busy === false) continue;
+    const st = zurichKey(e.start);
+    const en = zurichKey(e.end);
+    if (!st || !en || st.slice(0, 10) !== y) continue;
+    const len = Math.round((new Date(e.end) - new Date(e.start)) / 60000);
+    if (!(len >= min)) continue;
+    if (!best || len > best.min) best = { title: String(e.title ?? '').trim().slice(0, 40), min: len };
+  }
+  return best;
 }
 /** A dry, warm day (at least `warm` degrees, under 1 mm and a rain chance under RAIN_DRY) and a free evening in a calendar that is in use: { max } or null. cal: { used, events }. */
 export function draussenHit(wx, cal, today, warm = WARM_C) {
@@ -589,6 +634,8 @@ export function vermutungHit(hint, strength = 30) {
 const WHY = {
   vermutung: 'Your data hints: {sentence} Today looks like such a day, so it is worth checking.',
   zufall: 'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.',
+  termin: 'Your calendar had «{title}» yesterday, {min} minutes.',
+  terminNoTitle: 'Your calendar had an appointment yesterday, {min} minutes.',
   grau: 'Rain is likely today and your latest mood was {mood}, your usual is {usual}.',
   draussen: 'Dry and {max} degrees today, and nothing in your calendar this evening.',
   spiel: 'You noted a game of {min} minutes yesterday.',
@@ -602,6 +649,7 @@ const WHY = {
 };
 const HITS = {
   vermutung: ({ hint, val }) => vermutungHit(hint, val),
+  termin: ({ cal, today, val }) => terminHit(cal, today, val),
   grau: ({ wx, answers, checks, today, val }) => grauHit(wx, answers, checks, today, val),
   draussen: ({ wx, cal, today, val }) => draussenHit(wx, cal, today, val),
   pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
@@ -643,7 +691,7 @@ export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = n
     const hit = HITS[rule.id]({ health, acts, sport, wx, cal, hint, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
-    out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
+    out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : rule.id === 'termin' && !hit.title ? WHY.terminNoTitle : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
     usedAreas.add(q.area);
   }
   // the random question comes last, once a day, when there is room and its group is free; after «never again» not before tomorrow

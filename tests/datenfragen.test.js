@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, terminHit, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -294,6 +294,44 @@ describe('Fragen aus deinen Daten', () => {
       expect(b.q.id).toBe('daten.draussen');
       expect(dataDue({ wx: wx(), cal: { used: true, events: [] }, today: TODAY, cfg: setRule(null, 'draussen', false) })).toEqual([]);
       expect(RULES.map((r) => r.id)).toEqual(expect.arrayContaining(['grau', 'draussen']));
+    });
+  });
+
+  describe('Kalender: eine Aktivität gestern', () => {
+    const Y = add(TODAY, -1); // 2 November: winter time, UTC+1
+    const ev2 = (start, end, extra = {}) => ({ id: start, title: 'test_data_gtp_ Klettern', start, end, allDay: false, busy: true, ...extra });
+    const cal = (...events) => ({ used: true, events });
+    it('takes the longest appointment of yesterday of at least 30 minutes', () => {
+      expect(terminHit(cal(ev2(`${Y}T17:00:00Z`, `${Y}T18:30:00Z`)), TODAY)).toEqual({ title: 'test_data_gtp_ Klettern', min: 90 });
+      const two = cal(ev2(`${Y}T08:00:00Z`, `${Y}T08:45:00Z`, { title: 'kurz' }), ev2(`${Y}T17:00:00Z`, `${Y}T19:00:00Z`, { title: 'lang' }));
+      expect(terminHit(two, TODAY)).toEqual({ title: 'lang', min: 120 });
+    });
+    it('counts nothing shorter than the threshold, all-day or free entries, or other days', () => {
+      expect(terminHit(cal(ev2(`${Y}T17:00:00Z`, `${Y}T17:20:00Z`)), TODAY)).toBeNull();
+      expect(terminHit(cal(ev2(`${Y}T17:00:00Z`, `${Y}T17:20:00Z`)), TODAY, 15)).not.toBeNull();
+      expect(terminHit(cal(ev2(`${Y}T17:00:00Z`, `${Y}T19:00:00Z`, { allDay: true })), TODAY)).toBeNull();
+      expect(terminHit(cal(ev2(`${Y}T17:00:00Z`, `${Y}T19:00:00Z`, { busy: false })), TODAY)).toBeNull();
+      expect(terminHit(cal(ev2(`${TODAY}T17:00:00Z`, `${TODAY}T19:00:00Z`)), TODAY)).toBeNull();
+      expect(terminHit(cal(ev2(`${add(TODAY, -2)}T17:00:00Z`, `${add(TODAY, -2)}T19:00:00Z`)), TODAY)).toBeNull();
+    });
+    it('uses the Zurich day: 23:30 UTC the day before is already yesterday morning local', () => {
+      expect(terminHit(cal(ev2(`${add(Y, -1)}T23:30:00Z`, `${Y}T01:00:00Z`)), TODAY)).not.toBeNull(); // 00:30–02:00 local
+      expect(terminHit(cal(ev2(`${Y}T23:30:00Z`, `${TODAY}T01:00:00Z`)), TODAY)).toBeNull(); // 00:30 local of today
+    });
+    it('needs a calendar in use', () => {
+      expect(terminHit({ used: false, events: [] }, TODAY)).toBeNull();
+      expect(terminHit(null, TODAY)).toBeNull();
+    });
+    it('asks through dataDue with its reason, with and without a title, and has a switch', () => {
+      const [a] = dataDue({ cal: cal(ev2(`${Y}T17:00:00Z`, `${Y}T18:00:00Z`)), today: TODAY });
+      expect(a.q.id).toBe('daten.termin');
+      expect(a.rule).toBe('termin');
+      expect(a.why.vars).toEqual({ title: 'test_data_gtp_ Klettern', min: 60 });
+      expect(a.why.text).toContain('{title}');
+      const [b] = dataDue({ cal: cal(ev2(`${Y}T17:00:00Z`, `${Y}T18:00:00Z`, { title: '' })), today: TODAY });
+      expect(b.why.text).not.toContain('{title}');
+      expect(dataDue({ cal: cal(ev2(`${Y}T17:00:00Z`, `${Y}T18:00:00Z`)), today: TODAY, cfg: setRule(null, 'termin', false) })).toEqual([]);
+      expect(DATA_QUESTIONS['daten.termin'].text).toBe('An activity yesterday. How was it?');
     });
   });
 

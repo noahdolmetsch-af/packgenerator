@@ -38,8 +38,8 @@ function data(todayHr, { sleepMin = null, moods = null, sport = null, cfg = null
  * The saved home forecast of today (Heute fetched it) and the calendar copy: both tables are not in the backup, so they
  * are written into the open database, then the page loads again. wx: fields of today's forecast; cal: [[startHourUtc, hours]].
  */
-async function seed(page, { wx = null, cal = null }) {
-  await page.evaluate(async ({ wx, cal }) => {
+async function seed(page, { wx = null, cal = null, calYesterday = null }) {
+  await page.evaluate(async ({ wx, cal, calYesterday }) => {
     const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const today = iso(new Date());
     const db = await new Promise((ok) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => ok(r.result); });
@@ -53,8 +53,14 @@ async function seed(page, { wx = null, cal = null }) {
       await put('meta', [{ key: 'homeForecast', fetchedAt: new Date().toISOString(), place, days: [{ date: today, min: 9, max: 19, rainMm: 0, rainPct: 10, ...wx }] }]);
     }
     if (cal) await put('gEvents', cal.map(([h, len], i) => ({ id: `fad-e${i}`, gid: `fad-e${i}`, day: today, lastDay: today, cal: 'primary', title: 'Test', start: `${today}T${h}:00:00Z`, end: `${today}T${String(Number(h) + len).padStart(2, '0')}:00:00Z`, allDay: false, busy: true })));
+    if (calYesterday) {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      const y = iso(d);
+      await put('gEvents', calYesterday.map(([h, len], i) => ({ id: `fad-y${i}`, gid: `fad-y${i}`, day: y, lastDay: y, cal: 'primary', title: 'test_data_gtp_ Klettern', start: `${y}T${h}:00:00Z`, end: `${y}T${String(Number(h) + len).padStart(2, '0')}:00:00Z`, allDay: false, busy: true })));
+    }
     db.close();
-  }, { wx, cal });
+  }, { wx, cal, calYesterday });
   await page.reload();
 }
 
@@ -240,13 +246,36 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(page.locator('[data-q="daten.draussen"]')).toHaveCount(0);
   });
 
+  test('an appointment yesterday asks how it was, with the appointment as the reason', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52) });
+    await seed(page, { calYesterday: [['10', 2]] });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.termin"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('An activity yesterday. How was it?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('Klettern');
+    await expect(q.locator('[data-why]')).toContainText('120 Minuten');
+    await card.screenshot({ path: `${SHOTS}/fad10-termin-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Good|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.termin"]')).toHaveCount(0);
+  });
+
+  test('a short appointment or one on another day asks nothing', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await seed(page, { cal: [['10', 3]] }); // only today: the calendar is in use, but nothing yesterday
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.termin"]')).toHaveCount(0);
+  });
+
   test('no calendar or no weather yet: the box says why the weather rules are quiet', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
     await page.goto('./#/me/abfragen');
     await expect(page.locator('[data-data-empty-calendar]')).toBeVisible();
     await expect(page.locator('[data-rule="grau"]')).toBeVisible();
     await expect(page.locator('[data-rule="draussen"]')).toBeVisible();
-    await page.screenshot({ path: `${SHOTS}/fad7-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+    await expect(page.locator('[data-rule="termin"]')).toBeVisible();
+    await page.screenshot({ path: `${SHOTS}/fad10-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   });
 
   test('a random question from the switched-off samples comes marked and never again takes it out for good', async ({ page, context }, info) => {

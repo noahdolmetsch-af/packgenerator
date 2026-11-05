@@ -85,7 +85,7 @@ export default {
   "Asks on a dry day of at least {n} degrees when your calendar has nothing from 17 to 22 o'clock.": 'Fragt an einem trockenen Tag mit mindestens {n} Grad, wenn dein Kalender von 17 bis 22 Uhr nichts hat.',
   'Warm from (degrees)': 'Warm ab (Grad)',
   'No weather for today yet. The weather rules wait until Today shows the forecast of your home place.': 'Noch kein Wetter für heute. Die Wetter-Regeln warten, bis Heute die Vorhersage deines Wohnorts zeigt.',
-  'No calendar on this device yet. The rule for a free evening waits until your Google calendar is connected.': 'Noch kein Kalender auf diesem Gerät. Die Regel für den freien Abend wartet, bis dein Google-Kalender verbunden ist.',
+  'No calendar on this device yet. The rules for a free evening and for an activity yesterday wait until your Google calendar is connected.': 'Noch kein Kalender auf diesem Gerät. Die Regeln für den freien Abend und für eine Aktivität gestern warten, bis dein Google-Kalender verbunden ist.',
   // Zufallsfrage
   'A random question': 'Eine Zufallsfrage',
   'Once a day a question from your sample questions that are switched off. It counts toward the three questions from your data. «Never again» removes it for good.': 'Einmal am Tag eine Frage aus deinen Musterfragen, die ausgeschaltet sind. Sie zählt zu den drei Fragen aus deinen Daten. «Nie mehr» nimmt sie für immer heraus.',
@@ -134,4 +134,15 @@ export default {
   'Long day yesterday': 'Langer Tag gestern',
   "Asks when yesterday's Strava activities together took at least {n} hours.": 'Fragt, wenn deine Strava-Aktivitäten von gestern zusammen mindestens {n} Stunden gedauert haben.',
   'At least (hours on the move)': 'Mindestens (Stunden unterwegs)',
+  // Kalender: «Eine Aktivität gestern»
+  'An activity yesterday. How was it?': 'Eine Aktivität gestern. Wie war sie?',
+  'Good|data': 'Gut',
+  'Tiring|data': 'Anstrengend',
+  'Boring|data': 'Langweilig',
+  'Learned something|data': 'Etwas gelernt',
+  'Your calendar had «{title}» yesterday, {min} minutes.': 'In deinem Kalender stand gestern «{title}», {min} Minuten.',
+  'Your calendar had an appointment yesterday, {min} minutes.': 'In deinem Kalender stand gestern ein Termin, {min} Minuten.',
+  'An activity yesterday': 'Eine Aktivität gestern',
+  'Asks the day after an appointment in your calendar of at least {n} minutes.': 'Fragt am Tag nach einem Termin in deinem Kalender von mindestens {n} Minuten.',
+  'Appointment of at least (minutes)': 'Termin von mindestens (Minuten)',
 };
