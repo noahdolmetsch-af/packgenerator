@@ -42,6 +42,7 @@
   import SportsMosaic from '../../lib/sportpage/SportsMosaic.svelte';
   import { DOMAINS } from '../../lib/domains.js';
   import { allSports, orderedSports, moveId } from '../../lib/sportsbase.js';
+  import { BIKE_DAY_SPORTS } from '../../lib/sportlist.js';
   import { sportDays, goalOf } from '../../lib/sportshelp.js';
   import { sportCfg } from '../../lib/sportsbase.js';
   import { stravaOf } from '../../lib/sportsprogress.js';
@@ -208,13 +209,16 @@
   let renamingTrip = $state(null); // the trip sport being renamed
   let addingTrip = $state(false);
   const overrides = async () => (await db.settings.get(OVERRIDES_KEY))?.value ?? {};
-  const entryOf = (all, s) => listFor('domains', all).find((e) => e.id === s.key);
+  // Noah 05.11.2026: Fahrrad, Gravel, Cross Country and Downhill have no area: their names live in the list «tripSports»
+  const listOf = (s) => (BIKE_DAY_SPORTS.includes(s.key) ? 'tripSports' : 'domains');
+  const entryOf = (all, s) => listFor(listOf(s), all).find((e) => e.id === s.key);
   async function renameTrip(s, nm) {
     const all = await overrides();
     const e = entryOf(all, s);
     if (!e) return;
-    await saveList(db, 'domains', edit(all.domains, e, { name: nm }));
-    offerRename(nm, () => saveList(db, 'domains', all.domains ?? {}));
+    const lk = listOf(s);
+    await saveList(db, lk, edit(all[lk], e, { name: nm }));
+    offerRename(nm, () => saveList(db, lk, all[lk] ?? {}));
   }
   async function addTrip(nm) {
     const all = await overrides();
@@ -226,14 +230,16 @@
     const all = await overrides();
     const e = entryOf(all, s);
     if (!e) return;
-    await saveList(db, 'domains', toggleHidden(all.domains, e.id));
-    offerDone(t('«{name}» hidden.', { name: sportName(s) }), () => saveList(db, 'domains', all.domains ?? {}));
+    const lk = listOf(s);
+    await saveList(db, lk, toggleHidden(all[lk], e.id));
+    offerDone(t('«{name}» hidden.', { name: sportName(s) }), () => saveList(db, lk, all[lk] ?? {}));
   }
   async function removeTrip(s) {
     const all = await overrides();
     const e = entryOf(all, s);
     if (!e) return;
     const nm = sportName(s);
+    const lk = listOf(s);
     const answer = await askDelete({
       title: t('Delete sport «{name}»?', { name: nm }),
       text: e.own ? t('Its trips and items move to Bikepacking.') : t('Trips and items keep it; it is no longer offered for a new trip. «Back to Standard» brings it back.'),
@@ -247,10 +253,10 @@
           await db.trips.bulkPut(savedTrips.map((x) => ({ ...x, domain: 'bikepacking' })));
           await db.items.bulkPut(savedItems.map((i) => ({ ...i, domains: [...new Set(i.domains.map((d) => (d === e.id ? 'bikepacking' : d)))] })));
         }
-        await saveList(db, 'domains', remove(all.domains, e));
+        await saveList(db, lk, remove(all[lk], e));
       },
       undo: async () => {
-        await saveList(db, 'domains', all.domains ?? {});
+        await saveList(db, lk, all[lk] ?? {});
         if (savedTrips.length) await db.trips.bulkPut(savedTrips);
         if (savedItems.length) await db.items.bulkPut(savedItems);
       },
