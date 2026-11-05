@@ -17,6 +17,8 @@
   import { db } from '../db.js';
   import { cfgQuery, changeCfg, restoreCfg, rowsQuery, putRow, deleteRow, restoreRow } from '../freidb.js';
   import { longingsOf, longingCounts, uid } from '../frei.js';
+  import { DREAMS_KEY, storeOf, kindName } from '../dreams.js';
+  import { makeDream, seasonOf, thoughtKind } from './reise-traum.js';
   import { shrinkImage } from '../photo.js';
   import { isArchived, isTestTrip } from '../testname.js';
   import { tripEnd } from '../tripstate.js';
@@ -39,7 +41,15 @@
   const plans = $derived($plansQ ?? []);
   const tripsQ = liveQuery(() => db.trips.toArray());
   const trips = $derived(($tripsQ ?? []).filter((x) => !isArchived(x) && !isTestTrip(x)).sort((a, b) => String(b.startDate ?? '').localeCompare(String(a.startDate ?? ''))));
-  const tripName = (id) => trips.find((x) => x.id === id)?.name ?? '';
+  const tripName = (id) => trips.find((x) => x.id === id)?.title ?? '';
+  // the dream trips (Touren › Träume): the season of a wish and the link once it is one
+  const dreamsQ = liveQuery(() => db.settings.get(DREAMS_KEY));
+  const store = $derived(storeOf($dreamsQ?.value));
+  const dreamOf = (x) => (x.data?.dreamId ? store.dreams.find((d) => d.id === x.data.dreamId) ?? null : null);
+  async function toDream(x) {
+    const r = await makeDream(db, x.id, { fallback: t('A wish') });
+    if (r) offerDone(t('«{name}» is now a dream trip.', { name: r.dream.title }), r.undo);
+  }
   const over = (h) => {
     const trip = trips.find((x) => x.id === h.tripId);
     const end = trip ? tripEnd(trip) : null;
@@ -72,7 +82,7 @@
   /* ---------- thoughts, hopes, day plans: one window ---------- */
   let edit = $state(null); // { kind, row?, … }
   let photoBusy = $state(false);
-  const openThought = (row = null) => (edit = { kind: 'longing', row, text: row?.text ?? '', dest: row?.data?.dest ?? '', moods: [...(row?.data?.moods ?? (filter ? [filter] : []))], photos: [...(row?.photos ?? [])] });
+  const openThought = (row = null) => (edit = { kind: 'longing', row, text: row?.text ?? '', dest: row?.data?.dest ?? '', tour: row?.data?.kind ?? '', moods: [...(row?.data?.moods ?? (filter ? [filter] : []))], photos: [...(row?.photos ?? [])] });
   const openHope = (row = null) => (edit = { kind: 'hope', row, tripId: row?.tripId ?? '', title: row?.title ?? '', hope: row?.hope ?? '', lived: row?.lived ?? '' });
   const openPlan = (row = null) => (edit = { kind: 'dayplan', row, title: row?.title ?? '', fix: row?.fix ?? '', explore: row?.explore ?? '', arrive: row?.arrive ?? '' });
   async function addPhoto(file) {
@@ -90,7 +100,7 @@
     let rec;
     if (edit.kind === 'longing') {
       if (!edit.text.trim() && !edit.photos.length) return t('Please write a thought or add a photo.');
-      rec = { ...base, text: edit.text.trim(), photos: edit.photos, data: { moods: edit.moods, dest: edit.dest.trim() } };
+      rec = { ...base, text: edit.text.trim(), photos: edit.photos, data: { ...(base.data ?? {}), moods: edit.moods, dest: edit.dest.trim(), kind: edit.tour || undefined } };
     } else if (edit.kind === 'hope') {
       const title = edit.title.trim() || tripName(edit.tripId);
       if (!title) return t('Please choose a trip or give it a name.');
@@ -143,11 +153,21 @@
     {#if !shownThoughts.length}<p class="fz-empty">{t('No thought yet. A photo, a sentence, a place you dream of: all of it counts.')}</p>{/if}
     <div class="fz-grid three">
       {#each shownThoughts as x (x.id)}
-        <button type="button" class="fz-box fzr-card" onclick={() => openThought(x)} data-thought={x.id}>
-          {#if x.photos?.length}<img src={x.photos[x.photos.length - 1].src} alt="" />{/if}
-          {#if x.text}<span class="fz-text">{x.text}</span>{/if}
-          <span class="fz-note">{[...(x.data?.moods ?? []).map((k) => longings.find((l) => l.key === k)).filter(Boolean).map(lName), x.data?.dest].filter(Boolean).join(' · ')}</span>
-        </button>
+        {@const season = seasonOf(x, store, today, t)}
+        {@const dream = dreamOf(x)}
+        <article class="fz-box fzr-card" data-thought={x.id}>
+          <button type="button" class="fzr-body" onclick={() => openThought(x)} data-thought-open>
+            {#if x.photos?.length}<img src={x.photos[x.photos.length - 1].src} alt="" />{/if}
+            {#if x.text}<span class="fz-text">{x.text}</span>{/if}
+            <span class="fz-note">{[...(x.data?.moods ?? []).map((k) => longings.find((l) => l.key === k)).filter(Boolean).map(lName), x.data?.dest].filter(Boolean).join(' · ')}</span>
+          </button>
+          {#if season}<p class="fz-note" data-season>{t('Fits: {months}', { months: season.text })}{#if season.now}{' '}· {t('right now')}{/if}</p>{/if}
+          {#if dream}
+            <a class="btn sm" href="#/trips/dreams" data-dream-link>{t('On your dream trips')}</a>
+          {:else}
+            <button type="button" class="btn sm" onclick={() => toDream(x)} data-make-dream>{t('Make it a dream trip')}</button>
+          {/if}
+        </article>
       {/each}
     </div>
     <div class="fz-acts"><button type="button" class="btn" onclick={() => openThought()} data-new-thought><Plus size={16} aria-hidden="true" />{t('A thought or a picture')}</button></div>
@@ -204,6 +224,12 @@
         <div class="fz-chips">{#each longings as l (l.key)}<button type="button" class="fz-chip" aria-pressed={edit.moods.includes(l.key)} onclick={() => toggleMood(l.key)}>{lName(l)}</button>{/each}</div>
       </div>
       <label class="fz-lab">{t('A destination that fits (optional)')}<input class="inp" maxlength="80" bind:value={edit.dest} /></label>
+      <label class="fz-lab">{t('Kind of tour (sets the season)')}
+        <select class="inp" bind:value={edit.tour} data-thought-kind>
+          <option value="">{thoughtKind({ text: edit.text, data: { dest: edit.dest } }, store.kinds) ? t('Let the app suggest: {kind}', { kind: kindName(store.kinds, thoughtKind({ text: edit.text, data: { dest: edit.dest } }, store.kinds), t) }) : t('Let the app suggest')}</option>
+          {#each store.kinds as k (k.key)}<option value={k.key}>{kindName(store.kinds, k.key, t)}</option>{/each}
+        </select>
+      </label>
       <div class="fz-lab"><span>{t('Photos')}</span>
         {#if edit.photos.length}<div class="fz-thumbs">{#each edit.photos as p, n (n)}<img src={p.src} alt="" />{/each}</div><button type="button" class="btn sm" onclick={() => (edit.photos = edit.photos.slice(0, -1))}>{t('Remove the last photo')}</button>{/if}
         <PhotoPick onfile={addPhoto} busy={photoBusy} has={!!edit.photos.length} again="Add a photo" />
@@ -212,7 +238,7 @@
       <label class="fz-lab">{t('Trip')}
         <select class="inp" bind:value={edit.tripId}>
           <option value="">{t('Not in the app yet')}</option>
-          {#each trips as x (x.id)}<option value={x.id}>{x.name}</option>{/each}
+          {#each trips as x (x.id)}<option value={x.id}>{x.title}</option>{/each}
         </select>
       </label>
       {#if !edit.tripId}<label class="fz-lab">{t('Name of the trip')}<input class="inp" maxlength="80" bind:value={edit.title} data-hope-title /></label>{/if}
@@ -229,11 +255,26 @@
 
 <style>
   .fzr-card {
+    display: flex;
+    flex-direction: column;
     align-items: stretch;
+    gap: 8px;
+  }
+  .fzr-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: none;
     color: var(--ink);
     font: inherit;
     text-align: left;
     cursor: pointer;
+  }
+  .fzr-card .btn {
+    align-self: flex-start;
   }
   .fzr-card img {
     width: 100%;
