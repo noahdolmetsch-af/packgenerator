@@ -17,7 +17,6 @@ export default {
   'Show the direction only on the way': 'Richtung erst unterwegs zeigen',
   'Looking for a round…': 'Suche eine Runde …',
   'Suggest a round': 'Runde vorschlagen',
-  'Asks the free bike router once (BRouter). Nothing else leaves the device.': 'Fragt einmal den kostenlosen Velo-Router (BRouter). Sonst verlässt nichts das Gerät.',
   '{km} km · {up} m up · about {time}': '{km} km · {up} Hm · etwa {time}',
   'Direction: a surprise. The map shows the way once you ride.': 'Richtung: Überraschung. Die Karte zeigt den Weg, sobald du fährst.',
   'Towards the {dir}, where you rarely rode.': 'Richtung {dir}, wo du selten gefahren bist.',
