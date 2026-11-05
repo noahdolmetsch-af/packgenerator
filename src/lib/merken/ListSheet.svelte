@@ -48,12 +48,33 @@
   });
 
   async function del() {
+    if (busy) return;
+    busy = true;
+    try {
+      await delNow();
+    } finally {
+      busy = false;
+    }
+  }
+  async function delNow() {
     const undo = await removeList(db, from.id);
     dialog.close();
     ondone?.({ undo, removed: true });
   }
+  // a second tap on «Save» (or «Delete») while the first still writes would add the entry twice, and its
+  // dialog.close() would find the dialog already gone: one run at a time
+  let busy = false;
   async function save(e) {
     e?.preventDefault();
+    if (busy) return;
+    busy = true;
+    try {
+      await saveNow();
+    } finally {
+      busy = false;
+    }
+  }
+  async function saveNow() {
     if (!name.trim()) {
       error = t('Give the list a name.');
       return input?.focus();

@@ -68,13 +68,34 @@
   const rOf = (before) => reminds.find((r) => r.before === before);
 
   async function del() {
+    if (busy) return;
+    busy = true;
+    try {
+      await delNow();
+    } finally {
+      busy = false;
+    }
+  }
+  async function delNow() {
     const undo = await removeTodo(db, from.id);
     dialog.close();
     ondone?.({ undo, removed: true, name: from.text });
   }
 
+  // a second tap on «Save» (or «Delete») while the first still writes would add the entry twice, and its
+  // dialog.close() would find the dialog already gone: one run at a time
+  let busy = false;
   async function save(e) {
     e?.preventDefault();
+    if (busy) return;
+    busy = true;
+    try {
+      await saveNow();
+    } finally {
+      busy = false;
+    }
+  }
+  async function saveNow() {
     if (!name.trim()) {
       error = k === 'birthday' ? t('Write whose birthday it is.') : t('Write the name of the plant.');
       return input?.focus();
