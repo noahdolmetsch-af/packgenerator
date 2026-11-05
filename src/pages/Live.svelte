@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -101,6 +101,7 @@
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { nearestExit } from '../lib/live/exit.js';
   import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
+  import { nextHours, cellFlags } from '../lib/live/next3h.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -433,6 +434,7 @@
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
   // U4 «Wo schlafe ich heute?»: the next places to sleep ahead on the route (on by default in a race)
   const wxQ = cacheQuery(WX_CACHE + (tid || '-'));
+  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null }) : null);
   const showSleep = $derived(hasRoute && km != null && (cfg.sleepSpots ?? isRace));
 
   /* ---------- formatting ---------- */
@@ -1676,6 +1678,31 @@
                 </div>
               {/if}
               {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-next3={next3?.verdict ?? 'load'}>
+                  <h3 class="lv-h3"><CloudRain size={16} aria-hidden="true" />{t('Next 3 hours')}</h3>
+                  {#if !next3}
+                    <p class="rc-note">{t('Load the weather along the route to see cold and rain of the next hours.')}</p>
+                  {:else}
+                    {#if next3.verdict === 'rain'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={18} aria-hidden="true" /><span>{next3.h === 0 ? t('Rain is likely now ({p} %): rain jacket on, dry socks in a bag.', { p: next3.value }) : t('Rain is likely in about {h} h ({p} %): put the rain jacket on top before.', { h: next3.h, p: next3.value })}</span></p>
+                    {:else if next3.verdict === 'cold'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('It gets cold: it feels like {t}° at the lowest. Warm layer and long gloves on, in about {h} h at the latest.', { t: next3.value, h: next3.h })}</span></p>
+                    {:else if next3.verdict === 'cool'}<p class="rc-note" data-live-next3-say>{t('Cool ahead: it feels like {t}° at the lowest. Arm warmers and a wind vest.', { t: next3.value })}</p>
+                    {:else if next3.verdict === 'wind'}<p class="rc-note" data-live-next3-say>{t('Strong wind ahead ({w} km/h): windproof layer, plan slower.', { w: next3.value })}</p>
+                    {:else}<p class="rc-note" data-live-next3-say>{t('The next 3 hours look fine: no cold, no rain.')}</p>{/if}
+                    <div class="lv-n3" data-live-next3-rows>
+                      {#each next3.rows as r (r.h)}
+                        {@const f = cellFlags(r)}
+                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''}>
+                          <small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
+                          <b>{#if f.cold === 'cold'}<Snowflake size={14} aria-hidden="true" />{/if}{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b>
+                          <small>{#if f.rain}<CloudRain size={14} aria-hidden="true" />{/if}{r.rain != null ? r.rain + ' %' : ''}</small>
+                          {#if f.wind}<small class="n3-wind"><Wind size={14} aria-hidden="true" />{Math.round(r.wind)} km/h</small>{/if}
+                        </span>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+              {/if}
+              {#if hasRoute && km != null}
                 <div class="lv-lastshop" data-live-water={water?.state ?? 'load'}>
                   <h3 class="lv-h3"><Droplet size={16} aria-hidden="true" />{t('Next water')}</h3>
                   {#if !waterLoaded || !water}
@@ -2741,6 +2768,51 @@
     padding: 10px 12px;
     border: 1px solid var(--line);
     border-radius: 12px;
+  }
+  .lv-n3 {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .lv-n3-c {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 6px 4px;
+  }
+  .lv-n3-c small {
+    color: var(--ink-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .lv-n3-c b {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .lv-n3-c .n3-wind {
+    white-space: nowrap;
+    font-size: var(--fs-small);
+  }
+  .lv-n3-c.n3-some {
+    background: var(--info-soft);
+  }
+  .lv-n3-c.n3-rain {
+    background: var(--info-soft);
+    border-color: var(--ink-2);
+    border-width: 2px;
+  }
+  .lv-n3-c.n3-rain small,
+  .lv-n3-c.n3-some small {
+    color: var(--ink);
+  }
+  .lv-n3-c.n3-cold {
+    background: var(--bad-soft);
+    border-color: var(--bad);
   }
   .lv-water-set {
     display: flex;
