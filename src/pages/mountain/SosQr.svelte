@@ -225,6 +225,7 @@
   .txt {
     margin: 0;
     white-space: pre-wrap;
+    overflow-wrap: anywhere;
     font: var(--fs-small) / 1.4 var(--font-body);
     color: var(--ink-2);
   }
