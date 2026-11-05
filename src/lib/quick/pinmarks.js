@@ -60,14 +60,21 @@ export function textFits(text, name) {
 
 /**
  * Where a pin sits on a card (document coordinates, 44 px box): first straddling the card's top right
- * corner, else at the end of the title. `free(box)` says whether the box covers nothing to tap; the first
- * free candidate wins, none: null. The box never leaves the page (width w).
+ * corner, else at the end of the title, else just above the card's top right, else under the title at the right. `free(box)` says whether the box
+ * covers nothing to tap; `lines` are the boxes of the title's text lines ({ left, right, top, bottom }): the pin's
+ * 30 px dot must not cover any of them (a long title on a phone ran under the pin, frontend walk E1-005).
+ * The first free candidate wins, none: null. The box never leaves the page (width w).
  */
-export function placePin(card, title, w, free = () => true, size = 44) {
+export function placePin(card, title, w, free = () => true, size = 44, lines = []) {
   const clamp = (x) => Math.max(0, Math.min(x, w - size));
   const cands = [
     { x: clamp(card.right - size + 10), y: card.top - 14 },
     { x: clamp(title.right + 2), y: title.top + (title.height - size) / 2 },
+    { x: clamp(card.right - size), y: card.top - size + 6 },
+    { x: clamp(card.right - size), y: title.top + title.height - 6 }, // under the title, at the right (a title that runs the full width, with a bar of links above)
   ];
-  return cands.find((b) => free({ ...b, w: size, h: size })) ?? null;
+  const inset = (size - (size * 30) / 44) / 2; // the dot sits in the middle of the box
+  const covers = (b) =>
+    lines.some((l) => Math.min(l.right, b.x + size - inset) - Math.max(l.left, b.x + inset) > 2 && Math.min(l.bottom, b.y + size - inset) - Math.max(l.top, b.y + inset) > 2);
+  return cands.find((b) => !covers(b) && free({ ...b, w: size, h: size })) ?? null;
 }
