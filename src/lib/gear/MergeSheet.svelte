@@ -70,7 +70,7 @@
 {#snippet row(i, badge)}
   <li>
     <button type="button" class="opt" aria-pressed={chosen.includes(i.id)} onclick={() => flip(i.id)}>
-      <span class="box" aria-hidden="true">{#if chosen.includes(i.id)}<Check size={16} />{/if}</span>
+      <span class="tick" aria-hidden="true">{#if chosen.includes(i.id)}<Check size={16} />{/if}</span>
       <span class="nm"><b>{nameOf(i)}</b><small>{sub(i)}</small></span>
       {#if badge}<i class="badge">{t('Suggestion')}</i>{/if}
       <span class="w num">{i.weightG == null ? '–' : formatWeight(itemWeight(i))}</span>
@@ -225,7 +225,8 @@
       background: var(--paper-2);
     }
   }
-  .box {
+  /* E2-004: the tick square has its own name; as «.box» it also shaped the lists «.opts.box» (22 px wide, rows side by side) */
+  .tick {
     flex: none;
     display: inline-flex;
     align-items: center;
@@ -237,7 +238,7 @@
     background: var(--paper);
     color: var(--ok);
   }
-  .opt[aria-pressed='true'] .box {
+  .opt[aria-pressed='true'] .tick {
     border-color: var(--accent);
     background: var(--accent);
     color: var(--paper);
