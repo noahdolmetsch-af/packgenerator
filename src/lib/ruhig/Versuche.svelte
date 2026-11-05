@@ -11,6 +11,8 @@
   import { valueText, unitText } from '../analyse/format.js';
   import { addDays } from '../analyse.js';
   import { EXP_METRICS, RIDE_METRICS, RIDE_DAYS, MIN_SIDE, expResult } from './versuch-wert.js';
+  import { MIN_RIDES, rideResult } from './versuch-fahrt.js';
+  import RideDots from './RideDots.svelte';
   import { localDay } from '../localday.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { settingQ, saveSetting } from './store.js';
@@ -29,8 +31,12 @@
   const byKey = $derived(itemsByKey(analyseGroups({ table: data.table, weights: data.weights, ctx: data.ctx, acts: data.acts, log: data.log, ownKeys: data.ownKeys })));
   const metrics = $derived(EXP_METRICS.map((k) => byKey.get(k)).filter((x) => x?.get));
   // the main value and, if chosen, a second one read the same way (ride values: Idee 2)
-  const resultOf = (x, key = x.metric) => (key && byKey.get(key)?.get ? expResult({ ...x, metric: key }, byKey.get(key).get, today) : null);
-  const valuesOf = (x) => [x.metric, x.also].filter(Boolean).map((key) => ({ key, mi: byKey.get(key), res: resultOf(x, key) })).filter((v) => v.mi && v.res);
+  // ride values are compared ride against ride, similar rides only (versuch-fahrt.js); the other values day against day
+  const resultOf = (x, key = x.metric) => {
+    if (!key || !byKey.get(key)?.get) return null;
+    return RIDE_METRICS.includes(key) ? rideResult({ ...x, metric: key }, data.table, key, today, data.ctx.kgOn) : expResult({ ...x, metric: key }, byKey.get(key).get, today);
+  };
+  const valuesOf = (x) => [x.metric, x.also].filter(Boolean).map((key) => ({ key, ride: RIDE_METRICS.includes(key), mi: byKey.get(key), res: resultOf(x, key) })).filter((v) => v.mi && v.res);
   const vt = (it, v) => `${valueText(it, v, num)} ${unitText(it)}`.trim();
   const dt = (it, v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${vt(it, Math.abs(v))}`;
   const VERDICT = {
@@ -38,6 +44,7 @@
     down: 'On average lower during the try than before.|exp',
     unclear: 'No clear difference: the two means lie within the swing from day to day.|exp',
   };
+  const VERDICT_RIDE = { ...VERDICT, unclear: 'No clear difference: the two means lie within the swing from ride to ride.|exp' };
 
   let nq = $state('');
   let nchange = $state('');
@@ -45,10 +52,12 @@
   let nfrom = $state(today);
   let nmetric = $state('');
   let nalso = $state('');
-  const rideChosen = $derived(RIDE_METRICS.includes(nmetric) || RIDE_METRICS.includes(nalso));
+  const rideChosen = $derived(RIDE_METRICS.includes(nmetric));
+  // «show the cadence too» only makes sense next to another ride value
+  const cadOffered = $derived(rideChosen && nmetric !== 'cad');
   function add(e) {
     e.preventDefault();
-    const x = newExp({ q: nq, change: nchange, from: nfrom, days: ndays, metric: nmetric, also: nalso });
+    const x = newExp({ q: nq, change: nchange, from: nfrom, days: ndays, metric: nmetric, also: cadOffered && nalso === 'cad' ? 'cad' : '' });
     if (!x) return;
     save([x, ...exps]);
     nq = '';
@@ -87,15 +96,12 @@
         </select>
         <small class="rh-help">{t('The look back then compares the mean during the try with the same number of days before it. It needs that value in your data.')}</small>
       </label>
-      {#if nmetric}
-        <label class="rh-field"><span>{t('Also compare with (optional)|exp')}</span>
-          <select class="inp" bind:value={nalso} data-exp-also>
-            <option value="">{t('Nothing else|exp')}</option>
-            {#each metrics.filter((m) => m.key !== nmetric) as m (m.key)}<option value={m.key}>{m.name}</option>{/each}
-          </select>
-        </label>
+      {#if rideChosen}
+        <p class="rh-help" data-exp-ride-hint>{t('Ride values are compared ride against ride, only rides of a similar length and climb. Each side needs at least {min} rides, so a try of {n} days or more is better.|exp', { n: RIDE_DAYS, min: MIN_RIDES })}</p>
       {/if}
-      {#if rideChosen}<p class="rh-help" data-exp-ride-hint>{t('Ride values exist only on days with a ride, so a try of {n} days or more gives more to compare.|exp', { n: RIDE_DAYS })}</p>{/if}
+      {#if cadOffered}
+        <label class="rh-check"><input type="checkbox" checked={nalso === 'cad'} onchange={(e) => (nalso = e.currentTarget.checked ? 'cad' : '')} data-exp-cad /> <span>{t('Show the cadence too|exp')}<small class="rh-help">{t('Example: you pedal 5 rpm faster. The cadence then shows whether you really did, and the felt effort how the rides felt.|exp')}</small></span></label>
+      {/if}
       <div class="rh-chips">{#each EXP_EXAMPLES as x (x.q)}<button type="button" class="rh-chip" onclick={() => ((nq = t(x.q)), (nchange = t(x.change)), (nmetric = x.metric ?? ''), (nalso = x.also ?? ''), x.metric && RIDE_METRICS.includes(x.metric) && (ndays = RIDE_DAYS))}>{t(x.q)}</button>{/each}</div>
       <button type="submit" class="btn hi" disabled={!nq.trim()} data-exp-add><Plus size={16} aria-hidden="true" />{t('Start the experiment')}</button>
     </form>
@@ -120,9 +126,21 @@
         <p class="rh-help"><span class="rh-tag" class:ok={st === 'done'} class:warn={st === 'review' || st === 'stopped'}>{t(STATE[st], { day: dmy(x.from), n: p.day, days: x.days })}</span> · {dmy(x.from)} – {dmy(expEnd(x))}{#if p.yes || p.no}{' '}· {t('{yes} yes, {no} no', { yes: p.yes, no: p.no })}{/if}</p>
         {#if vals.length}
           {#each vals as v (v.key)}
-            <div class="rh-res" data-exp-result data-exp-value={v.key} data-verdict={v.res.verdict}>
+            <div class="rh-res" data-exp-result data-exp-value={v.key} data-verdict={v.res.verdict} data-exp-rides={v.ride ? '' : undefined}>
               <h4 class="rh-rt">{t('Your value: {name}|exp', { name: v.mi.name })}</h4>
-              {#if v.res.verdict === 'few'}
+              {#if v.ride}
+                <p class="rh-help" data-exp-similar>{t('{similar} of {all} rides are alike in length and climb and are compared.|exp', { similar: v.res.rides.similar, all: v.res.rides.all })}</p>
+                {#if v.res.before.n + v.res.during.n}<RideDots before={v.res.before} during={v.res.during} mi={v.mi} />{/if}
+                {#if v.res.verdict === 'few'}
+                  <p class="rh-help">{t('Not enough rides yet: at least {min} alike rides before and during the try are needed (now {before} and {during}).|exp', { min: MIN_RIDES, before: v.res.before.n, during: v.res.during.n })}</p>
+                {:else}
+                  <dl class="rh-cmp">
+                    <div><dt>{t('Before the try ({n} days)|exp', { n: v.res.days })}</dt><dd>{vt(v.mi, v.res.before.mean)}<small>{tn(v.res.before.n, '{n} ride', '{n} rides')}</small></dd></div>
+                    <div><dt>{t('During the try|exp')}</dt><dd>{vt(v.mi, v.res.during.mean)}<small>{tn(v.res.during.n, '{n} ride', '{n} rides')}</small></dd></div>
+                  </dl>
+                  <p class="rh-help"><strong>{dt(v.mi, v.res.diff)}</strong> · {t(VERDICT_RIDE[v.res.verdict])}</p>
+                {/if}
+              {:else if v.res.verdict === 'few'}
                 <p class="rh-help">{t('Not enough values yet: at least {n} days with a value before and during the try are needed.|exp', { n: MIN_SIDE })}</p>
               {:else}
                 <dl class="rh-cmp">
@@ -198,6 +216,14 @@
     display: block;
     font-weight: 400;
     opacity: 0.75;
+  }
+  .rh-check {
+    display: flex;
+    gap: var(--sp-2);
+    align-items: flex-start;
+  }
+  .rh-check small {
+    display: block;
   }
   .rh-grow2 {
     flex: 1;
