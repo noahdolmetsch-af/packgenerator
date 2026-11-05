@@ -10,7 +10,7 @@ PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 3, Befunde E3-004
 - nichts
 
 ## Selbst entschieden
-- Gleiche Ursache an zwei Stellen (langes Wort ohne Umbruchstelle), darum ein PR: `overflow-wrap: anywhere` auf `.rc-h1` (`src/lib/race/race.css`, gilt für alle Rennen-Seiten) und auf `.txt` (`src/pages/mountain/SosQr.svelte`).
+- Gleiche Ursache an zwei Stellen (langes Wort ohne Umbruchstelle), darum ein PR: `overflow-wrap: break-word` auf `.rc-h1` (`src/lib/race/race.css`, gilt für alle Rennen-Seiten) und auf `.txt` mit `max-width: 100%` (`src/pages/mountain/SosQr.svelte`; der Stil-Wächter erlaubt kein `anywhere`).
 - Regressionstests: `tests/e2e/lange-woerter-rennen-notfall.spec.js` (vorher rot: Rennseite 2355 px und Notfallkarte 1448 px auf einem 390-px-Handy).
 - Nicht geprüft (nur Noah): das gedruckte Kärtchen und das Sperrbild der Notfallkarte mit einem sehr langen Namen.
 
