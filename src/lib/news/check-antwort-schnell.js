@@ -2,7 +2,7 @@
 export default {
   title: 'Check answers without lag',
   lead: 'A tap in the morning check or the evening review no longer makes the page read everything again.',
-  points: [{ text: 'Morning check: tap an answer, the page stays calm', go: { href: '#/check/morning', steps: [{ sel: '[data-q="sleep"] button' }] } }],
+  points: [{ text: 'Morning check: tap an answer, the page stays calm', go: { href: '#/check/morning', steps: [{ sel: '[data-round-questions="morning"]' }] } }],
   small: [{ box: 'new', text: 'Your answers are saved as before' }],
   test: ['Open the morning check and tap answers one after another: each tap shows at once.', 'Reload the page: the answers are still there.'],
   since: [],
