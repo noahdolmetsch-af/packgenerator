@@ -1,6 +1,6 @@
 # Bild oben auf Heute
 
-PR #783 (neu aufgesetzt auf `main`, weil #783 einen Konflikt hatte) · 03.11.2026 · Noah 03.11. «a» (Paket G, Teil 1; Thread «Durchgehen: offene Fragen einzeln»); Ziel 5 «Alltag»
+PR #939 (ersetzt #783, neu auf `main` aufgesetzt, weil #783 einen Konflikt hatte) · 03.11.2026 · Noah 03.11. «a» (Paket G, Teil 1; Thread «Durchgehen: offene Fragen einzeln»); Ziel 5 «Alltag»
 
 ## Was ist neu
 - Oben auf Heute steht eine gezeichnete Landschaft (Hügel, Sonne oder Mond, ein kleines Velo auf der Strasse) mit deiner nächsten Tour und dem Countdown: «Noch 12 Tage bis Bodensee-Runde», «Morgen geht es los: …», «Heute: …» oder «… Tag 2 von 3». Darunter in einer kleinen Zeile das Wetter von Heute (wie unter dem Gruss).
