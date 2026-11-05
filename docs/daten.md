@@ -1,5 +1,7 @@
 # Daten: wo was liegt und welche Regeln gelten
 
+> **Zahlen überholt.** Schema-Version, Tabellenzahl und Besitzerliste stammen vom 14.10.2026; der heutige Stand steht im Code (`DATA_TABLES` in `src/lib/db.js`) und im Überblick [aufbau.md](aufbau.md), Abschnitt 4. Die Regeln und das Verzeichnis der Listen unten gelten weiter.
+
 Stand: 14. Oktober 2026 (v0.131.0, «Daten einmal bereinigen»). Gilt für jede Arbeit am Code, für alle Threads.
 
 ## In einem Bild

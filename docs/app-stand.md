@@ -277,7 +277,7 @@ Strava (nur lesen), Fitbit/Gesundheit, Google (Termine, Aufgaben, Mail), KI-Helf
 
 ## 6. Regeln, Pläne, offene Baustellen: nur Verweise
 
-Regeln: `CLAUDE.md` (gelten über allem). Pläne und Ziele: `docs/vorhaben.md`, `docs/roadmap.md`. Entscheide: `docs/decisions.md`. Offene PRs und Prüfungen: GitHub. Verlauf: `docs/projektstand.md`, `docs/status.md`, `docs/releases/`. Hier steht keine Kopie davon, damit nichts doppelt veraltet.
+Aufbau, Wege durch die App, Zusammenhänge, Daten, Regeln und Designregeln in einfachen Worten, mit Wörterbuch: `docs/aufbau.md`. Regeln: `CLAUDE.md` (gelten über allem). Pläne und Ziele: `docs/vorhaben.md`, `docs/roadmap.md`. Entscheide: `docs/decisions.md`. Offene PRs und Prüfungen: GitHub. Verlauf: `docs/projektstand.md`, `docs/status.md`, `docs/releases/`. Hier steht keine Kopie davon, damit nichts doppelt veraltet.
 
 ## 7. Offene Abweichungen beim Abgleich
 

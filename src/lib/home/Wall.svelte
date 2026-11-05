@@ -106,8 +106,8 @@
   $effect(() => () => clearTimeout(holdTimer));
 </script>
 
-{#snippet tileEl(x, cls = '', fill = undefined, i = 0)}
-  <div class="ti {x.size} {cls}" style:--fill={fill} style:--i={i} class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
+{#snippet tileEl(x, cls = '', fill = undefined, i = 0, fill4 = undefined)}
+  <div class="ti {x.size} {cls}" style:--fill={fill} style:--fill4={fill4} style:--i={i} class:moving={drag?.id === x.id} class:picked={picked === x.id} data-tile={x.id} data-size={x.size} role="listitem" onpointerdowncapture={(e) => holdDown(e, e.target.closest?.('[data-tile]')?.dataset.tile ?? x.id)} onpointermovecapture={holdMove} onpointerupcapture={holdStop} onpointercancelcapture={holdStop} onclickcapture={holdClick}>
     <!-- «Heute lädt nicht» (19.10.2026): an error in one tile stays in that tile; the rest of Heute works -->
     <div class="body" inert={editing}><svelte:boundary onerror={(e) => console.error(`Tile ${x.id}:`, e)}>{@render body(x)}{#snippet failed(_, reset)}<p class="tile-err" data-tile-error={x.id}>{t('This tile could not load.')} <button type="button" class="link" onclick={reset}>{t('Try again')}</button></p>{/snippet}</svelte:boundary></div>
     {#if editing}
@@ -155,8 +155,8 @@
           <div class="ti long disc" role="listitem"><div class="dgrid" role="list">{#each g.tiles as x (x.id)}{@render tileEl(x, 'di', undefined, seen.indexOf(x))}{/each}</div></div>
         {:else}
           <!-- a hidden «Open quickly» sends its small tiles elsewhere: they stay one calm list at the end of that area -->
-          {@const big = g.tiles.filter((x) => x.size !== 's')}{@const small = g.tiles.filter((x) => x.size === 's')}{@const fill = fillers(big)}
-          {#each big as x (x.id)}{@render tileEl(x, fill.has(x.id) ? 'fill' : '', fill.get(x.id), seen.indexOf(x))}{/each}
+          {@const big = g.tiles.filter((x) => x.size !== 's')}{@const small = g.tiles.filter((x) => x.size === 's')}{@const fill = fillers(big)}{@const fill4 = fillers(big, 4)}
+          {#each big as x (x.id)}{@render tileEl(x, `${fill.has(x.id) ? 'fill' : ''} ${fill4.has(x.id) ? 'fill4' : ''}`, fill.get(x.id), seen.indexOf(x), fill4.get(x.id))}{/each}
           {#if small.length}{@render quickS(small)}{/if}
         {/if}
       {/each}
@@ -246,6 +246,12 @@
   @media (min-width: 720px) {
     .wall.secs > .ti.fill {
       grid-column: span var(--fill, 1);
+    }
+  }
+  /* the same on the phone (4 columns): a half-width card alone in its row stretches to the row's end */
+  @media (max-width: 719.98px) {
+    .wall.secs > .ti.fill4 {
+      grid-column: span var(--fill4, 1);
     }
   }
   /* 3a: the heading of an area */

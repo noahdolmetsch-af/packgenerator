@@ -256,4 +256,6 @@ export default {
   'Price per month in CHF (empty: no subscription)': 'Preis pro Monat in CHF (leer: kein Abo)',
   'e.g. 200': 'z. B. 200',
   "Prepare this month's invoice": 'Rechnung für diesen Monat vorbereiten',
+  '{price} CHF per person': '{price} CHF pro Person',
+  'One e-mail to all participants': 'Eine E-Mail an alle Teilnehmenden',
 };

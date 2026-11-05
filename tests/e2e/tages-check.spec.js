@@ -101,7 +101,8 @@ const answers = (page) =>
 
 test('WG morning (was «the morning check»): the round of «Wi gaht\'s?» on Heute, the tile and Im Flow show its numbers', async ({ page, context }) => {
   const errors = await open(page, context, '07:52');
-  await put(page, { ...rows(), settings: [abConfig()] });
+  // the random question (04.11.2026) is off here: this test counts the questions of the round
+  await put(page, { ...rows(), settings: [abConfig(), { key: 'datenfragen', value: { zufall: { off: true } } }] });
   await page.reload();
   await ready(page);
 
