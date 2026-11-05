@@ -94,7 +94,7 @@ export function rowOf(prof, z, now = Date.now()) {
   for (let n = 1; n <= DAYS_AHEAD; n++) {
     const date = localDate(Date.parse(`${today}T12:00:00Z`) + n * 864e5, 0);
     const vals = (prof?.hours ?? [])
-      .filter((h) => localDate(h.ms, off) === date && localHour(h.ms, off) >= 6 && localHour(h.ms, off) <= 21)
+      .filter((h) => fin(h.ms) && localDate(h.ms, off) === date && localHour(h.ms, off) >= 6 && localHour(h.ms, off) <= 21)
       .map((h) => tempIn(prof, h, z))
       .filter(fin);
     days.push({ date, min: vals.length ? Math.min(...vals) : null, max: vals.length ? Math.max(...vals) : null });

@@ -82,6 +82,12 @@ describe('the rows of the card', () => {
     expect(r1.now).toBe(3.5);
     expect(rowOf(prof, 1000, at(14)).now).toBe(5.5);
   });
+  it('an answer without usable times gives empty values instead of an error', () => {
+    // a forecast that sends the times as text (or none): the card must not break the weather page
+    const odd = parseProfil({ hourly: { time: ['2026-10-14T00:00', '2026-10-14T01:00'], temperature_2m: [1, 2] } });
+    expect(() => rowsOf(odd, [1000, 2000], NOW)).not.toThrow();
+    expect(hasValue(rowsOf(odd, [1000, 2000], NOW))).toBe(false);
+  });
   it('hasValue is false when no height has any value', () => {
     expect(hasValue(rowsOf(prof, [100, 5000], NOW))).toBe(false);
     expect(hasValue([])).toBe(false);
