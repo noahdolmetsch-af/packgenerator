@@ -75,7 +75,7 @@
   });
   // the sample questions that are switched off: the pool of the random question
   const pool = $derived(data?.stored ? allQuestions(data.cfg).filter((x) => x.sample && !x.own && !settingOf(data.cfg, x).on) : []);
-  const fromData = $derived(data?.stored ? dataDue({ health: data.health, acts: data.acts, sport: data.sport, wx: data.wx, cal: data.cal, tasks: data.tasks, hint, pool, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
+  const fromData = $derived(data?.stored ? dataDue({ health: data.health, acts: data.acts, sport: data.sport, wx: data.wx, cal: data.cal, tasks: data.tasks, hint, pool, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, custom: allQuestions(data.cfg).filter((x) => x.rule), today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
   // the random question never opens the window on its own: it joins when something else is due, and comes last
   const shown = $derived.by(() => {
     if (!data?.stored) return [];
@@ -123,7 +123,7 @@
       const folded = ordered.slice(visible.length);
       await saveAnswers(rows);
       // an answer ends the count of skips of a rule from data (Noah 04.11.2026 «2a»)
-      const ruled = rows.map((r) => DATA_QUESTIONS[r.qid]?.rule).filter(Boolean);
+      const ruled = rows.map((r) => DATA_QUESTIONS[r.qid]?.rule ?? fromData.find((d) => d.custom && d.q.id === r.qid)?.rule).filter(Boolean);
       if (ruled.length) await saveDataCfg(ruled.reduce((c, id) => clearSkips(c, id), data?.dataCfg ?? null));
       if (folded.length) await saveSnooze(snoozeAll(data?.snooze, folded));
       more = false;
@@ -225,13 +225,13 @@
         <div class="dqh">
           <b id={qid}>{qText(d.q)}</b>
           <span class="meta">
-            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · {#if d.random}<span data-random>{t('a random question')}</span>{:else if d.why}<span data-from-data>{t('from your data')}</span>{:else}<span class="num">{dayOf(d.slot) === today ? timeText(d.slot) : t('question from {when}', { when: `${dayShort(dayOf(d.slot))} ${timeText(d.slot)}` })}</span>{/if}
+            {#if d.q.own && !d.q.rule}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · {#if d.random}<span data-random>{t('a random question')}</span>{:else if d.why}<span data-from-data>{t('from your data')}</span>{:else}<span class="num">{dayOf(d.slot) === today ? timeText(d.slot) : t('question from {when}', { when: `${dayShort(dayOf(d.slot))} ${timeText(d.slot)}` })}</span>{/if}
             {#each (d.q.src ?? []).filter((s) => s !== 'hand' && s !== 'fitbit') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
             {#if d.random}<button type="button" class="skip" onclick={() => never(d)} data-never>{t('Never again|question')}</button>{/if}
             <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
-        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{d.random ? t('Change this') : t('Change this rule')}</a></small>{/if}
+        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)}{#each d.why.facts ?? [] as f}{' '}{t(f.text, f.vars)}{/each} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{d.random ? t('Change this') : t('Change this rule')}</a></small>{/if}
         {#if d.fewer}
           <div class="fewer" data-fewer>
             <small>{t('You skipped this question three times. Ask less often?')}</small>
