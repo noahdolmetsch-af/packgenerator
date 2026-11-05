@@ -9,7 +9,7 @@
    */
   import { List, ChevronRight, ChevronDown, ChevronUp } from '@lucide/svelte';
   import { balanceQuery } from '../flow/data.svelte.js';
-  import { answeredToday, isEvening, isSunday, isOn, mindfulFound, QUESTIONS } from '../flowcheck.js';
+  import { answeredToday, isEvening, isOn, mindfulFound, IN_ABFRAGEN, QUESTIONS } from '../flowcheck.js';
   import { t } from '../i18n.svelte.js';
 
   let { today, isnew = false } = $props();
@@ -26,10 +26,9 @@
     if (!a) return '';
     const parts = [];
     if (a.of) parts.push(t(evening ? '{n} of {m} this evening' : '{n} of {m} this morning', { n: a.done, m: a.of }));
-    if (isOn(data.off, 15)) parts.push(isSunday(today) ? t('today comes question 15') : t('Sunday comes question 15'));
     return parts.join(' · ');
   });
-  const on = $derived(QUESTIONS.filter((x) => isOn(data?.off ?? [], x.n)));
+  const on = $derived(QUESTIONS.filter((x) => !IN_ABFRAGEN.includes(x.n) && isOn(data?.off ?? [], x.n)));
   const fixed = (part) => on.filter((x) => x.part === part && !x.often.startsWith('rotating'));
   const rotating = $derived(on.filter((x) => x.often.startsWith('rotating')));
   const GROUPS = [

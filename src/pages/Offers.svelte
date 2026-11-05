@@ -18,7 +18,7 @@
   import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
-  import { rememberCustomer, listCustomers, rateOf } from '../lib/booking/customers.js';
+  import { rememberCustomer, listCustomers, rateOf, packCover } from '../lib/booking/customers.js';
   import { listOutcomes, setOutcome } from '../lib/booking/outcomes.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
   import '../lib/ich/ich.css';
@@ -91,6 +91,13 @@
     return `${localDay()}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
   const lessonsOver = $derived(toInvoice(bookings ?? [], invoices, nowAt()).sort((a, b) => String(b.at).localeCompare(String(a.at))));
+  /* a lesson on a customer's lesson card needs no invoice of its own (Noah 04.11.2026 «5a») */
+  let clistAll = $state([]);
+  $effect(() => {
+    bookings;
+    listCustomers().then((l) => (clistAll = l));
+  });
+  const cover = $derived(packCover(clistAll, bookings ?? []));
   const invoiceOf = (b) => invoices.find((x) => bookingIdsOf(x).includes(b.id)) ?? null;
   /* late cancel and no-show (Noah 04.11.2026 «3a»): marked per lesson, only on this device; they change the amount in the draft */
   let outcomes = $state({});
@@ -339,7 +346,8 @@
               {#each lessonsOver as b (b.id)}
                 <li class="of-pp of-lo"><label class="of-pick"><input type="checkbox" checked={picked.includes(b.id)} onchange={() => toggle(b)} aria-label={t('Add to one invoice: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} /><span>{b.name}<small>{fmtAt(b.at)}</small></span></label>
                   <select class="inp of-out" data-outcome aria-label={t('What happened: {name}, {when}', { name: b.name, when: fmtAt(b.at) })} value={outcomeOf(b)} onchange={(e) => markOutcome(b, e.currentTarget.value)}><option value="held">{t('Took place')}</option><option value="late">{t('Cancelled late')}</option><option value="noshow">{t('No-show')}</option></select>
-                  <button type="button" class="btn hi sm" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
+                  {#if cover[b.id]}<small class="muted" data-on-card>{t('On the card: lesson {n} of {size}', cover[b.id])}</small>{/if}
+                  <button type="button" class={cover[b.id] ? 'btn sm' : 'btn hi sm'} onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button></li>
               {/each}
             </ul>
             {#if lessonsOver.length > 1}
