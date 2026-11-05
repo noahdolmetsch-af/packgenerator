@@ -11,8 +11,9 @@
   import { goOf, hrefOf } from './newsgo.js';
   import { goNews } from './newsRun.js';
   import { splitNews, groupOlder, shortVersion } from '../whatsnew.js';
+  import { WHATS_NEW } from '../whatsnew-all.js'; // the whole list: it loads with this card
 
-  const { recent, older } = splitNews();
+  const { recent, older } = splitNews(WHATS_NEW);
   const groups = groupOlder(older);
   const opened = typeof location !== 'undefined' && /[?&]news\b/.test(location.hash);
   const day = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' });

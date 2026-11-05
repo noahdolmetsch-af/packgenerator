@@ -13,16 +13,20 @@ const shot = async (page, info, name) => {
   await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 };
 
-function data(todayHr, { sleepMin = null, moods = null, sport = null, cfg = null } = {}) {
+function data(todayHr, { sleepMin = null, moods = null, sport = null, cfg = null, guess = false } = {}) {
   const d = homeFixture();
   const q = Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && x.id !== 'erholung.akku').map((x) => [x.id, { on: false }]));
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
   d.tables.healthDays = [
-    ...Array.from({ length: 20 }, (_, i) => ({ date: day(-(i + 1)), restingHr: 51 + (i % 3) })),
+    // guess: long nights (8 h) go with a good mood (8), short ones (5 h) with a low one (5), every other day
+    ...Array.from({ length: 20 }, (_, i) => ({ date: day(-(i + 1)), restingHr: 51 + (i % 3), ...(guess ? { sleep: { asleepMin: i % 2 ? 300 : 480 } } : {}) })),
     { date: day(0), restingHr: todayHr, ...(sleepMin != null ? { sleep: { asleepMin: sleepMin } } : {}) },
   ];
   if (sport) d.tables.sportItems = sport.map(([kind, n, extra], i) => ({ id: `fad-s${i}`, sport: 'act:tennis', kind, day: day(n), at: `${day(n)}T18:00`, ...extra }));
   if (cfg) d.tables.settings.push({ key: 'datenfragen', value: cfg });
+  if (guess) {
+    d.tables.abAnswers = Array.from({ length: 20 }, (_, i) => ({ id: `fad-g${i}`, qid: 'spass.stimmung', area: 'spass', day: day(-(i + 1)), at: `${day(-(i + 1))}T20:40`, slot: `${day(-(i + 1))}T20:30`, kind: 'scale', value: i % 2 ? 5 : 8, note: null, unit: null, src: 'hand' }));
+  }
   if (moods) {
     const row = (n, v) => ({ id: `fad-m${n}`, qid: 'spass.stimmung', area: 'spass', day: day(n), at: `${day(n)}T20:40`, slot: `${day(n)}T20:30`, kind: 'scale', value: v, note: null, unit: null, src: 'hand' });
     d.tables.abAnswers = [...Array.from({ length: 20 }, (_, i) => row(-(i + 3), 8)), ...moods.map((v, i) => row(i - 2, v))];
@@ -270,6 +274,31 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(page.locator('[data-random]')).toHaveCount(0);
     await page.goto('./#/me/abfragen');
     await expect(page.locator('[data-random-switch]')).not.toBeChecked();
+  });
+
+  test('a hint from what goes together asks yes or no on a day that fits, with the sentence as the reason', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52, { guess: true, sleepMin: 500 }) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.vermutung"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('Does that fit today?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('Deine Daten deuten darauf hin');
+    await expect(q.locator('[data-why]')).toContainText('Schlaf');
+    await card.screenshot({ path: `${SHOTS}/fad9-vermutung-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Yes, that fits|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.vermutung"]')).toHaveCount(0);
+    await page.goto('./#/me/history');
+    await expect(page.locator('[data-row="daten.vermutung"]').first()).toContainText('Ja, das passt');
+  });
+
+  test('a short night does not fit the hint: no guess, and the rule has its switch', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52, { guess: true, sleepMin: 250 }) });
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.vermutung"]')).toHaveCount(0);
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-rule="vermutung"]').getByRole('switch')).toBeChecked();
+    await page.screenshot({ path: `${SHOTS}/fad9-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   });
 
   test('no tennis noted: the box says why the tennis rules are quiet', async ({ page, context }, info) => {

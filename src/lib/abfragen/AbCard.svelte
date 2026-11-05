@@ -13,11 +13,11 @@
    */
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
-  import { abQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
+  import { abQuery, hintQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
   import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, QUIET_ROUND, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp, fitNow, allQuestions } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
-  import { dataDue, DATA_QUESTIONS, noteSkip, clearSkips, setGap, neverAgain, FEWER_GAP } from '../datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
-  import { t, tn } from '../i18n.svelte.js';
+  import { dataDue, ruleOn, DATA_QUESTIONS, noteSkip, clearSkips, setGap, neverAgain, FEWER_GAP } from '../datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+  import { t, tn, num as fmt } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
   import CheckLine from '../wohl/CheckLine.svelte'; // Paket P: ride numbers, recipe, morning tip, a moment from the jar
   import { qText, areaName, timeText, dayShort, srcText, unitText, everyShort } from './words.js';
@@ -46,9 +46,36 @@
   const answered = $derived(data ? [...data.answers, ...fromChecks(data.checks).map((r) => ({ qid: r.qid, at: `${r.day}T00:00` }))] : []);
   // Klick-Rundgang H15: in the evening a missed evening question asks about today (fitNow)
   // 03.11.2026 «Fragen aus deinen Daten» (Noah «2a»): a question about a value that stands out sits first in the same window, with its reason
+  // the guess to test (Noah 04.11.2026): the strongest hint of «What goes together» that fits today. Loaded on first use
+  // (the insights code stays out of the start), worked out on this device only, and only while the rule is on.
+  let hint = $state(null);
+  const guessOn = $derived(!!data?.stored && ruleOn(data.dataCfg, 'vermutung'));
+  $effect(() => {
+    if (!guessOn) {
+      hint = null;
+      return;
+    }
+    let gone = false;
+    const sub = hintQuery().subscribe({
+      next: async (h) => {
+        const [E, W] = await Promise.all([import('../erkenntnisse.js'), import('../erkenntnisse/words.js')]);
+        if (gone) return;
+        const ownAll = E.ownNumberQuestions(configOf(h.cfg).own);
+        const own = E.ownNumberQuestions(ownAll, h.ownOff);
+        const series = E.seriesOf({ rows: h.rows, health: h.health, log: h.log, days: E.lastDays(today, E.WINDOW_DAYS + 1), weather: h.weather, events: h.events, own });
+        const row = E.testHint(series, today, { own });
+        hint = row ? { ...row, sentence: W.sentenceOf(t, fmt, (key) => ownAll.find((q) => `own:${q.id}` === key)?.text ?? '', row) } : null;
+      },
+      error: () => (hint = null),
+    });
+    return () => {
+      gone = true;
+      sub.unsubscribe();
+    };
+  });
   // the sample questions that are switched off: the pool of the random question
   const pool = $derived(data?.stored ? allQuestions(data.cfg).filter((x) => x.sample && !x.own && !settingOf(data.cfg, x).on) : []);
-  const fromData = $derived(data?.stored ? dataDue({ health: data.health, acts: data.acts, sport: data.sport, wx: data.wx, cal: data.cal, pool, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
+  const fromData = $derived(data?.stored ? dataDue({ health: data.health, acts: data.acts, sport: data.sport, wx: data.wx, cal: data.cal, hint, pool, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
   // the random question never opens the window on its own: it joins when something else is due, and comes last
   const shown = $derived.by(() => {
     if (!data?.stored) return [];

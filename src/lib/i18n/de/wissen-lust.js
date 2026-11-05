@@ -33,5 +33,6 @@ export default {
   'Practise with the transceiver at the start of the season, not on the first tour. Ten minutes in the park are enough.':
     'Üb mit dem LVS zu Beginn der Saison, nicht auf der ersten Tour. Zehn Minuten im Park reichen.',
   "Two dry days in a row are enough for most day tours; look again the evening before, because a forecast three days out still moves.": "Zwei trockene Tage am Stück reichen für die meisten Tagestouren; schau am Vorabend nochmals nach, denn eine Vorhersage drei Tage voraus ändert sich noch.",
+  "An idea for this month is a nudge, not a duty: hide what does not suit you and add your own, so the list only shows what you would really do.": "Eine Idee für diesen Monat ist ein Anstoss, keine Pflicht: Blende aus, was nicht passt, und füge eigene hinzu, damit die Liste nur zeigt, was du wirklich machen würdest.",
   "Dreams that lie near each other make good pairs: one trip can cover two wishes, and the map shows which ones sit in the same valley.": "Träume, die nahe beieinander liegen, passen gut zusammen: Eine Tour kann zwei Wünsche abdecken, und die Karte zeigt, welche im selben Tal liegen.",
 };

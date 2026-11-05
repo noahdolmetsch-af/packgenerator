@@ -33,6 +33,7 @@
   import NeulandGoals from '../lib/neuland/NeulandGoals.svelte'; // Träume und Neuland N5
   import TripTips from '../lib/neuland/TripTips.svelte'; // N3 «Heute passt: Ausflugstipps»
   import DreamsMap from '../lib/dreams/DreamsMap.svelte'; // N14 «Karte aller Träume»
+  import MonthIdeas from '../lib/dreams/MonthIdeas.svelte'; // N8 «Passt jetzt: Ideen pro Monat»
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
   import { refreshDreamWx, windowsOf, dayRange, DREAM_WX } from '../lib/dreams/wetterfenster.js'; // N15 «Wetterfenster»
@@ -97,6 +98,12 @@
     await save({ dreams: [d, ...store.dreams] });
     title = '';
     done = t('«{name}» added under {kind}. Tap it to change the months.', { name: d.title, kind: kindName(kinds, d.kind, t) });
+  }
+  // N8: a month idea becomes a dream with its months
+  async function ideaDream({ title: name, months }) {
+    const d = { ...newDream({ title: name }, { id: `dream-${Date.now().toString(36)}`, kinds }), months: [...months] };
+    await save({ dreams: [d, ...store.dreams] });
+    done = t('«{name}» added as a dream. Tap it to change the months.', { name: d.title });
   }
   async function addFromLink(url, own) {
     reading = true;
@@ -197,7 +204,7 @@
   </form>
   {#if done}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{done}</p>{/if}
 
-  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list.')}</p>{/if}
+  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» sits under the list.')}</p>{/if}
 
   <TripTips />
 
@@ -262,6 +269,10 @@
     {/if}
   </section>
 
+  {/if}
+
+  {#if view !== 'map'}
+  <MonthIdeas month={month || nowMonth} current={!month || month === nowMonth} onmakedream={ideaDream} />
   {/if}
 
   {#if view === 'list'}
