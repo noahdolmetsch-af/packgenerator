@@ -49,10 +49,12 @@ test('after the night: three questions, then onto the packing list of the next t
     'Erste Nacht: Es war zu kalt. Plane etwas Wärmeres zum Schlafen ein. (Füsse und Rücken)',
     'Erste Nacht: Ich habe schlecht geschlafen. Denk an Matte, Kissen und einen ruhigeren Platz.',
   ]);
-  await shot(page, info, 'nacht-2-uebernommen');
   await page.getByRole('button', { name: /Rückgängig/ }).first().click();
   expect((await stored(page, 'trips', 'test_data_gtp_Herbstrunde')).entries.length).toBe(before.entries.length);
   await expect(page.locator('[data-night-taken]')).toHaveCount(0);
+  await page.locator('[data-night-take]').click(); // again, for the picture
+  await expect(page.locator('[data-night-taken]')).toBeVisible();
+  await shot(page, info, 'nacht-2-uebernommen');
   // the answers stay after a reload (they are saved as you go)
   await page.reload();
   await page.locator('[data-night-step="after"]').click();
