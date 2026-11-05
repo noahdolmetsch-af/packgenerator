@@ -308,6 +308,7 @@
     return r ? { key: 'left', cls: '', text: t('{n}× more in {d} days', { n: r.goal.count - r.done, d: r.goal.days }) } : { key: 'none', cls: '', text: t('no goal|sport') };
   }
   import PasstHier from '../../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
+  let mosaicSeen = $state(false);
 </script>
 
 {#snippet actRow(a, i, shown, list)}
@@ -455,9 +456,10 @@
     </div>
 
     {#if sdata && rows.length}
-      <details class="card fold hob sp" data-mosaic>
+      <!-- Tempo (Noah 05.11.2026 «a»): the squares are built only when the fold is opened (every sport × 14 days = hundreds of nodes) -->
+      <details class="card fold hob sp" data-mosaic ontoggle={(e) => (mosaicSeen ||= e.currentTarget.open)}>
         <summary><span>{t('All sports at a glance')}</span><small>{t('one square per day')}</small></summary>
-        <SportsMosaic list={sports} {rows} {cfg} {today} />
+        {#if mosaicSeen}<SportsMosaic list={sports} {rows} {cfg} {today} />{/if}
       </details>
     {/if}
   {/if}
