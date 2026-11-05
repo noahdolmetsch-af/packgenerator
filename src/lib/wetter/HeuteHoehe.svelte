@@ -49,7 +49,7 @@
   <a class="hh" href="#/wetter" data-heute-hoehe aria-label={t('Temperatures by height. Open the weather page.')}>
     <Mountain size={16} aria-hidden="true" />
     <span>
-      {#each rows as r, i (r.z)}{#if i}<span class="hh-sub"> · </span>{/if}<span data-heute-hoehe-row={r.z}>{num(r.z)} m <b>{deg(r.t)}</b></span>{/each}
+      {#each rows as r, i (r.z)}{#if i}<span class="hh-sub" aria-hidden="true">{' · '}</span>{/if}<span data-heute-hoehe-row={r.z}>{num(r.z)} m <b>{deg(r.t)}</b></span>{/each}
       {#if at}<span class="hh-sub"> · {t('As of {at}', { at })}</span>{/if}
     </span>
   </a>
