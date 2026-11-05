@@ -74,6 +74,7 @@
   import MedPatterns from './flow/MedPatterns.svelte';
   import MedReview from './flow/MedReview.svelte';
   import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier» on top of Aktiv (Noah 03.11.2026 «1a»)
+  import RuhetagHint from '../lib/flow/RuhetagHint.svelte'; // Aktiv 4a (Noah 05.11.2026): after three hard days one gentle line
   import { sportHref } from '../lib/flow/mysports.js';
   import { localDay } from '../lib/localday.js';
   import { sonntagsFaden } from '../lib/sonntag.js';
@@ -205,6 +206,7 @@
       <!-- «Aktiv neu» (Noah 22.10.2026, spec «Startseite Aktiv»): one question, «Was mache ich heute, und bin ich im
            Soll?», in three parts: tick off today, this week, the rings. The form card, Strava, «Wi gaht's?» and the
            tiles moved to Auswerten; the lake and the air to the weather page. -->
+      <RuhetagHint {today} />
       <div class="lay">
         <div class="col">
           <!-- the stopwatch sits in the head of this part (was Aktiv › Mehr › Stoppuhr) -->
