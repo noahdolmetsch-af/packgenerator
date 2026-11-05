@@ -47,6 +47,7 @@
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, isSearchChord, G_WAIT } from './lib/nav/keys.js';
   import { sortBikes } from './lib/bikes.js';
+  import { activeBikes } from './lib/bikeretire.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
@@ -329,7 +330,7 @@
     useOwn(ownRec?.value); // the km check of «Eigene Werte» counts here too, also right after a change
     const today = localDay();
     // v0.137.0 (DK1): the points due over all bikes, the same number as Bikes › Care.
-    return sortBikes(bikes).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
+    return sortBikes(activeBikes(bikes)).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
   });
   // SN1c «Tour aus komoot übernehmen»: a GPX without times shared to the app (public/share-target.js)
   // opens #/komoot/shared; the sheet opens over Touren, where the new trip will be.

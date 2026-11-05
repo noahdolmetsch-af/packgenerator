@@ -26,6 +26,7 @@ import { eatPushItems } from '../unterwegs/essen.js';
 import { wearPush } from '../wear.js';
 import { chainPush } from '../chainplan.js';
 import { withVisits } from '../workshop.js';
+import { activeBikes } from '../bikeretire.js';
 import { wetRides, prefsOf, wetSince, wetPushToday } from '../griff.js';
 import { wetOf } from '../inspect/rain.js';
 import { bundleMorning, morningOn } from './morning.js';
@@ -245,7 +246,7 @@ export function buildList(data) {
   }
   // Paket VG 1128: a ride in the rain today → at 19:00 «Kette trocknen und ölen» (the switch in griff.prefs too)
   if (on('wetchain') && prefsOf(data.griff).wetChain) {
-    const names = Object.fromEntries((data.bikes ?? []).map((b) => [b.id, b.name]));
+    const names = Object.fromEntries(activeBikes(data.bikes ?? []).map((b) => [b.id, b.name]));
     // Einzelidee Heute 5: one reminder per series of wet rides (its first day), later wet days only add to the task on «Wear»
     const isWet = wetOf(data.rain);
     const first = wetRides(data.kmBook ?? [], today, isWet).find((w) => wetPushToday(wetSince(data.kmBook ?? [], (data.bikes ?? []).find((b) => b.id === w.bikeId) ?? { id: w.bikeId }, today, isWet), today));
