@@ -20,6 +20,8 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { homeForecast } from '../home-weather.js';
   import { gpxOfRound } from '../ueberraschung.js';
+  import { routerMsg } from '../reroute.js';
+  import RouterNote from '../live/RouterNote.svelte';
   import { spotRoundPlan, planSpotRound } from './runde.js';
   import '../bikes/velo-dlg.css';
 
@@ -47,14 +49,7 @@
       round = await planSpotRound(home, plan);
       side = s;
     } catch (e) {
-      err =
-        e?.message === 'busy'
-          ? t('The bike router is busy right now. Try again in a minute.')
-          : e?.message === 'noroute'
-            ? t('The bike router found no round there. Tap «Other side».')
-            : navigator.onLine === false
-              ? t('Offline: a new round needs the internet.')
-              : t('The bike router did not answer. Try again.');
+      err = t(routerMsg(e, { round: true, noroute: 'The bike router found no round there. Tap «Other side».' }));
     } finally {
       busy = false;
     }
@@ -126,7 +121,7 @@
     <p class="sp-note err" role="alert">{err}</p>
     <button type="button" class="btn" disabled={busy} onclick={() => ask(round ? -side : side)} data-sp-retry><RefreshCw size={18} aria-hidden="true" />{t('Try again')}</button>
   {/if}
-  <p class="sp-note">{t('Asks the free bike router once (BRouter). Nothing else leaves the device.')}</p>
+  <RouterNote round cls="sp-note" />
 </dialog>
 
 <style>

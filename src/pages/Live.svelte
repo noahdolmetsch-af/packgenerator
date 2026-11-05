@@ -61,7 +61,7 @@
   import NightSheet from '../lib/live/NightSheet.svelte';
   import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
-  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour } from '../lib/reroute.js';
+  import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour, routerMsg } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
   import LiveWetter from '../lib/live/LiveWetter.svelte';
@@ -839,12 +839,7 @@
   $effect(() => {
     if (arrived && detour?.oneWay && !detour.reached) untrack(() => setDetour({ ...detour, reached: true }, false));
   });
-  const routerErr = (e) =>
-    e?.message === 'busy'
-      ? t('The bike router is busy right now. Try again in a minute, or use a navigation app.')
-      : navigator.onLine === false
-        ? t('Offline: a new way needs the internet. A navigation app with offline maps still works.')
-        : t('The bike router did not answer. Try again, or use a navigation app.');
+  const routerErr = (e) => t(routerMsg(e));
   async function planBack() {
     if (!me || !detour || backBusy) return;
     backBusy = true;
