@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -101,7 +101,7 @@
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { nearestExit } from '../lib/live/exit.js';
   import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
-  import { nextHours } from '../lib/live/next3h.js';
+  import { nextHours, cellFlags } from '../lib/live/next3h.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -1690,7 +1690,13 @@
                     {:else}<p class="rc-note" data-live-next3-say>{t('The next 3 hours look fine: no cold, no rain.')}</p>{/if}
                     <div class="lv-n3" data-live-next3-rows>
                       {#each next3.rows as r (r.h)}
-                        <span class="lv-n3-c"><small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small><b>{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b><small>{r.rain != null ? r.rain + ' %' : ''}</small></span>
+                        {@const f = cellFlags(r)}
+                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''}>
+                          <small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
+                          <b>{#if f.cold === 'cold'}<Snowflake size={14} aria-hidden="true" />{/if}{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b>
+                          <small>{#if f.rain}<CloudRain size={14} aria-hidden="true" />{/if}{r.rain != null ? r.rain + ' %' : ''}</small>
+                          {#if f.wind}<small class="n3-wind"><Wind size={14} aria-hidden="true" />{Math.round(r.wind)} km/h</small>{/if}
+                        </span>
                       {/each}
                     </div>
                   {/if}
@@ -2779,6 +2785,34 @@
   }
   .lv-n3-c small {
     color: var(--ink-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .lv-n3-c b {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .lv-n3-c .n3-wind {
+    white-space: nowrap;
+    font-size: 0.7rem;
+  }
+  .lv-n3-c.n3-some {
+    background: var(--info-soft);
+  }
+  .lv-n3-c.n3-rain {
+    background: var(--info-soft);
+    border-color: var(--ink-2);
+    border-width: 2px;
+  }
+  .lv-n3-c.n3-rain small,
+  .lv-n3-c.n3-some small {
+    color: var(--ink);
+  }
+  .lv-n3-c.n3-cold {
+    background: var(--bad-soft);
+    border-color: var(--bad);
   }
   .lv-water-set {
     display: flex;

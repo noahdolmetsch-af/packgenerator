@@ -34,3 +34,14 @@ export function nextHours({ wx, km, now = Date.now(), pace = {}, totalKm = null,
   if (windy) return { rows, verdict: 'wind', h: windy.h, value: Math.round(windy.wind) };
   return { rows, verdict: 'ok', h: null, value: null };
 }
+
+export const RAIN_SOME = 30;
+
+/** What one hour cell shows: rain 'high' (≥ 50 %) or 'some' (≥ 30 %), cold 'cold' (< 8 °) or 'cool' (< 15 °), wind (≥ 30 km/h). */
+export function cellFlags(r) {
+  return {
+    rain: r.rain != null && r.rain >= RAIN_AT ? 'high' : r.rain != null && r.rain >= RAIN_SOME ? 'some' : null,
+    cold: r.feels != null && r.feels < COLD_AT ? 'cold' : r.feels != null && r.feels < COOL_AT ? 'cool' : null,
+    wind: r.wind != null && r.wind >= WIND_AT,
+  };
+}

@@ -49,3 +49,13 @@ describe('nextHours', () => {
     expect(r.rows.at(-1).km).toBe(100);
   });
 });
+
+import { cellFlags } from '../src/lib/live/next3h.js';
+describe('cellFlags', () => {
+  it('marks rain, cold and wind of one hour', () => {
+    expect(cellFlags({ rain: 70, feels: 5, wind: 35 })).toEqual({ rain: 'high', cold: 'cold', wind: true });
+    expect(cellFlags({ rain: 35, feels: 12, wind: 10 })).toEqual({ rain: 'some', cold: 'cool', wind: false });
+    expect(cellFlags({ rain: 10, feels: 20, wind: 5 })).toEqual({ rain: null, cold: null, wind: false });
+    expect(cellFlags({ rain: null, feels: null, wind: null })).toEqual({ rain: null, cold: null, wind: false });
+  });
+});

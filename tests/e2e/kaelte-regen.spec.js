@@ -60,4 +60,7 @@ test('Live map: the next 3 hours show the cold and the rain with one sentence', 
   await expect(card).toHaveAttribute('data-live-next3', 'rain');
   await expect(page.locator('[data-live-next3-say]')).toBeVisible();
   await expect(page.locator('[data-live-next3-rows] > span')).toHaveCount(4);
+  // the hours with a likely rain are marked with colour and a symbol; the dry first hour is not
+  await expect(page.locator('[data-live-next3-rows] [data-n3-rain="high"]').first()).toBeVisible();
+  await expect(page.locator('[data-live-next3-rows] [data-n3-rain=""]').first()).toBeVisible();
 });
