@@ -461,7 +461,7 @@
             {/each}
           </ul>
         {/if}
-        <p class="muted">{t('{n} of {m} booked', { n: people.length, m: ty.places })}{#if ty.places > 1 && ty.price} · {t('{price} CHF per person', { price: chf(ty.price) })}{/if}</p>
+        <p class="muted">{[t('{n} of {m} booked', { n: people.length, m: ty.places }), ty.places > 1 && ty.price ? t('{price} CHF per person', { price: chf(ty.price) }) : ''].filter(Boolean).join(' · ')}</p>
         <ul class="of-list">
           {#each people as b (b.id)}
             {@const href = contactHref(b.contact, helloText(s))}
