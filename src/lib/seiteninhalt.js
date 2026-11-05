@@ -59,6 +59,8 @@ export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 't
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
 export const FOLD_KEY = 'seiteninhalt.folded';
+/** How many functions a page's card showed when the user last folded or opened it ({ [page key]: number }); the «new» dot compares with it. */
+export const SEEN_KEY = 'seiteninhalt.seen';
 /**
  * Pages where the card starts as one line (Noah 02.11.2026): on the way the helpers, «End trip» and the emergency button
  * must stay on the first screen; on Pack the packing list comes first. A tap opens it, and the choice is kept like ×.
@@ -146,4 +148,13 @@ export const foldedCount = (map, first = FOLDED_FIRST) => Object.entries(foldMap
 /** The stored choices without the folds the user made («Open all cards again»); opened choices and FOLDED_FIRST pages stay. */
 export function unfoldAll(map, first = FOLDED_FIRST) {
   return Object.fromEntries(Object.entries(foldMapOf(map)).filter(([k, v]) => v !== true || first.includes(k)));
+}
+
+/** The stored numbers ({ [page key]: functions seen }), other values left out. */
+export const seenMapOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => Number.isInteger(x) && x >= 0)) : {});
+
+/** How many functions came to a page since the user last folded or opened its card; 0 when nothing is known (older folds) or nothing is new. */
+export function newSince(seen, key, n) {
+  const m = seenMapOf(seen);
+  return key in m && n > m[key] ? n - m[key] : 0;
 }

@@ -1,6 +1,6 @@
 // «Wegweiser statt Katalog» PR 11: the card «What you can do here».
 import { describe, it, expect } from 'vitest';
-import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO, foldedCount, unfoldAll } from '../src/lib/seiteninhalt.js';
+import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO, foldedCount, unfoldAll, seenMapOf, newSince } from '../src/lib/seiteninhalt.js';
 import { HOME } from '../src/lib/know/heimat.js';
 
 describe('What you can do here', () => {
@@ -36,6 +36,14 @@ describe('What you can do here', () => {
     expect(foldedCount(unfoldAll(m))).toBe(0);
     expect(foldedCount(null)).toBe(0);
     expect(unfoldAll(undefined)).toEqual({});
+  });
+  it('the «new» dot counts functions that came after the card was last folded or opened; unknown pages show none (05.11.2026)', () => {
+    expect(newSince({ '#/trips/dreams': 3 }, '#/trips/dreams', 5)).toBe(2);
+    expect(newSince({ '#/trips/dreams': 5 }, '#/trips/dreams', 5)).toBe(0);
+    expect(newSince({ '#/trips/dreams': 5 }, '#/trips/dreams', 4)).toBe(0); // fewer now: nothing new
+    expect(newSince({}, '#/trips/dreams', 5)).toBe(0); // folded before this existed: nothing known, no dot
+    expect(newSince(null, '#/x', 5)).toBe(0);
+    expect(seenMapOf({ '#/a': 2, '#/b': 'x', '#/c': -1, '#/d': 1.5 })).toEqual({ '#/a': 2 });
   });
   it('starts folded on Unterwegs, keeps the choice everywhere', () => {
     expect(FOLDED_FIRST).toEqual(expect.arrayContaining(['#/ride', '#/bikes', '#/gear', '#/debrief/:trip']));

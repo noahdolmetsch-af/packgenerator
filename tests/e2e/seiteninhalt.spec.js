@@ -337,3 +337,26 @@ test('Appearance opens all folded cards again, with Undo', async ({ page, contex
   await expect(page.locator('[data-seiteninhalt]')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+// 05.11.2026 (Noah «c», part 2): a folded card shows «n neu» when the page got functions since it was folded or opened
+test('A folded card shows how many functions are new on the page', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const d = homeFixture();
+  d.tables.settings.push({ key: 'seiteninhalt.folded', value: { '#/trips/dreams': true, '#/inspiration': true } });
+  d.tables.settings.push({ key: 'seiteninhalt.seen', value: { '#/trips/dreams': 1, '#/inspiration': 99 } });
+  await openHome(page, context, info, { data: d });
+  await page.goto('./#/trips/dreams');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line.locator('[data-seiteninhalt-new]')).toContainText(/neu|new/);
+  // opening counts everything as seen: fold again, no dot
+  await tap(line, info);
+  await tap(page.locator('[data-seiteninhalt-fold]'), info);
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await expect(page.locator('[data-seiteninhalt-new]')).toHaveCount(0);
+  // a page whose seen number is as high as its rows shows no dot
+  await page.goto('./#/inspiration');
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await expect(page.locator('[data-seiteninhalt-new]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
