@@ -22,7 +22,9 @@
   const mine = $derived(Array.isArray(act?.pCurve) ? new Map(act.pCurve.filter((p) => p?.[1] > 0)) : null);
   const best = $derived(act && mine?.size ? bestCurve(all, act.day) : null);
   const bestOf = $derived(new Map((best ?? []).filter((b) => b[1] > 0)));
-  const cols = $derived(CURVE_SPANS.map(([s, n, unit]) => ({ key: String(s), x: spanLabel(n, unit) })));
+  // every duration is a column; the label under it only where it fits on a phone (the readout and the table name all)
+  const LABELLED = [5, 60, 300, 1200, 3600];
+  const cols = $derived(CURVE_SPANS.map(([s, n, unit]) => ({ key: String(s), x: LABELLED.includes(s) ? spanLabel(n, unit) : '' })));
   const series = $derived([
     { key: 'own', color: 'var(--hi)', v: CURVE_SPANS.map(([s]) => mine?.get(s) ?? null) },
     ...(bestOf.size > 1 ? [{ key: 'best', color: 'var(--ink-3)', dashed: true, v: CURVE_SPANS.map(([s]) => bestOf.get(s) ?? null) }] : []),
