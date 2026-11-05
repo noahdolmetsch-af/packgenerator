@@ -63,6 +63,15 @@
   const custom = $derived(!!due && !DUE.some(([d]) => d === due));
 
   async function del() {
+    if (busy) return;
+    busy = true;
+    try {
+      await delNow();
+    } finally {
+      busy = false;
+    }
+  }
+  async function delNow() {
     const undo = await removeTodo(db, from.id);
     dialog.close();
     ondone?.({ undo, removed: true });
@@ -79,8 +88,20 @@
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+  // a second tap on «Save» (or «Delete») while the first still writes would add the entry twice, and its
+  // dialog.close() would find the dialog already gone: one run at a time
+  let busy = false;
   async function save(e) {
     e?.preventDefault();
+    if (busy) return;
+    busy = true;
+    try {
+      await saveNow();
+    } finally {
+      busy = false;
+    }
+  }
+  async function saveNow() {
     if (!text.trim()) {
       error = t('Write what you want to remember.');
       return input?.focus();
