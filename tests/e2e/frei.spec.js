@@ -122,6 +122,42 @@ test('Worauf hab ich Lust: your week brings the weather and the free time, «Noc
   expect(errors).toEqual([]);
 });
 
+test('a collection as a page: the link opens a read-only page, and a collection links with a tour', async ({ page, context }, info) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  const errors = await open(page, context, './#/me/frei/sammlung/recipes');
+  await page.locator('[data-new-entry]').click();
+  await page.locator('[data-field="title"]').fill('test_data_frei_Pasta');
+  await page.locator('[data-field="ingredients"]').fill('Pasta\nTomaten');
+  await page.locator('[data-sheet-save]').click();
+  await expect(page.locator('[data-entry]')).toContainText('test_data_frei_Pasta');
+  // a fictional tour straight into the database, then reload
+  await page.evaluate(
+    () =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('trips', 'readwrite');
+          tx.objectStore('trips').put({ id: 'frei-trip', domain: 'bikepacking', title: 'test_data_frei_ Tour', startDate: '2026-11-01', days: 1, entries: [], ready: [], status: 'planned', createdAt: '2026-10-01T08:00:00.000Z' });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+  );
+  await page.reload();
+  await ready(page);
+  await page.locator('[data-tour-select]').selectOption('frei-trip');
+  await expect(page.locator('[data-tour-open]')).toHaveAttribute('href', /#\/tour\/t%3Afrei-trip/);
+  await shot(page, info, 'frei-sammlung-geteilt');
+  await page.locator('[data-share-page]').click();
+  const link = await page.evaluate(() => navigator.clipboard.readText());
+  expect(link).toContain('#/share/sammlung/');
+  await page.goto(link);
+  await expect(page.locator('[data-shared-coll]')).toContainText('test_data_frei_Pasta');
+  await expect(page.locator('[data-shared-coll]')).toContainText('Tomaten');
+  await expect(page.locator('[data-print]')).toBeVisible();
+  expect(await noScroll(page)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
 test('Worauf hab ich Lust: a choice gives up to three ideas', async ({ page, context }) => {
   const errors = await open(page, context, './#/me/frei/lust');
   await page.locator('[data-choice="play"]').first().click();

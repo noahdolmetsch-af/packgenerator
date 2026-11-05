@@ -1,6 +1,6 @@
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): the pure rules of Ich › Freie Zeit and its pages.
 import { describe, it, expect } from 'vitest';
-import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf } from '../src/lib/frei.js';
+import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf, collSharePayload, isCollShare, tourOfColl, tourHref } from '../src/lib/frei.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -218,5 +218,25 @@ describe('«Worauf hab ich Lust?» with your week', () => {
     const p = lustMore(ideas, { mood: 'play' }, [], shown, () => 0);
     expect(shown).not.toContain(p.idea.id);
     expect(lustMore(ideas, { mood: 'play' }, [], ideas.map((i) => i.id))).toBeNull();
+  });
+});
+
+describe('a collection as a page and linked with a tour', () => {
+  const recipes = collsOf({}).find((c) => c.type === 'recipes');
+  const entry = newEntry(recipes.id, { title: `${P}Pasta`, data: { ingredients: ['Pasta', 'Tomaten'], link: 'https://example.org/r' }, photos: [{ src: 'data:image/jpeg;base64,AAAA', day: '2026-10-19' }], place: { lat: 46.1, lon: 7.1 } });
+  it('the link carries the name and the text, never photos or positions', () => {
+    const p = collSharePayload(recipes, [entry]);
+    expect(isCollShare(p)).toBe(true);
+    expect(p.e).toHaveLength(1);
+    expect(p.e[0].t).toBe(`${P}Pasta`);
+    expect(JSON.stringify(p)).not.toMatch(/data:image|46\.1|lat/);
+    expect(p.e[0].f.some(([, v]) => v.includes('Pasta\nTomaten'))).toBe(true);
+    expect(collSharePayload(recipes, Array.from({ length: 80 }, () => entry)).e).toHaveLength(60);
+    expect(isCollShare({ v: 1, g: [] })).toBe(false); // a packing-list link is not a collection
+  });
+  it('the tour of a collection', () => {
+    expect(tourOfColl({ collTour: { c1: 't9' } }, 'c1')).toBe('t9');
+    expect(tourOfColl({}, 'c1')).toBe('');
+    expect(tourHref('t9')).toBe('#/tour/t%3At9');
   });
 });

@@ -351,6 +351,35 @@ export function entrySub(entry, coll) {
   }
   return '';
 }
+/* ---------- share a collection as a page (Noah 05.11.2026 «Touren 2a und b») ---------- */
+/**
+ * The small object for a link: the name and the entries as text (title, the filled fields, a link).
+ * Photos and positions stay on this device. `tr` turns the English field labels into the sender's language.
+ */
+export function collSharePayload(coll, entries, tr = (s) => s, max = 60) {
+  const fields = fieldsOf(coll).filter((f) => !['title', 'photos', 'place'].includes(f.kind));
+  return {
+    v: 1,
+    k: 'coll',
+    n: String(coll?.name || tr(COLL_TYPES[coll?.type]?.name ?? '')).slice(0, 80),
+    e: entries.slice(0, max).map((e) => ({
+      t: clean(e.title, 120),
+      f: fields
+        .map((f) => {
+          const v = e.data?.[f.key];
+          const text = Array.isArray(v) ? v.join(f.kind === 'lines' ? '\n' : ' · ') : typeof v === 'string' ? v : '';
+          return text ? [tr(f.label).replace(/\|[a-z]+$/, ''), text.slice(0, 1200)] : null;
+        })
+        .filter(Boolean),
+    })),
+  };
+}
+/** What a shared collection must look like; anything else is a broken link. */
+export const isCollShare = (o) => o?.k === 'coll' && typeof o.n === 'string' && Array.isArray(o.e);
+/** The tour a collection is linked to (cfg.collTour { collId: tripId }), or ''. */
+export const tourOfColl = (cfg, collId) => (cfg?.collTour && typeof cfg.collTour[collId] === 'string' ? cfg.collTour[collId] : '');
+export const tourHref = (tripId) => `#/tour/${encodeURIComponent(`t:${tripId}`)}`;
+
 /** Entries filtered by tag (places: Ruhe, Aussicht …) and a search word. */
 export function filterEntries(entries, { tag = '', q = '' } = {}) {
   const w = q.trim().toLowerCase();
