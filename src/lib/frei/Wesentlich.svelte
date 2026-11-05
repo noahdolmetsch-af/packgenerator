@@ -139,8 +139,8 @@
         </select>
       </label>
       <div class="fz-grid">
-        <div><span class="fz-kick">{t('Then')} · {fmtDay(earlier.day)}</span><p class="fz-text">{earlier.text}</p></div>
-        <div><span class="fz-kick">{t('Now')} · {fmtDay(newest.day)}</span><p class="fz-text">{newest.text}</p></div>
+        <div><span class="fz-kick">{t('Then|compare')} · {fmtDay(earlier.day)}</span><p class="fz-text">{earlier.text}</p></div>
+        <div><span class="fz-kick">{t('Now|compare')} · {fmtDay(newest.day)}</span><p class="fz-text">{newest.text}</p></div>
       </div>
       <dl class="fzw-cmp">
         <div><dt>{t('Stayed')}</dt><dd data-cmp-stayed>{cmp.stayed.join(', ') || t('no word in common')}</dd></div>
