@@ -18,6 +18,7 @@ import { hasBike } from './domains.js';
 import { fetchForecast, toWx } from './weather.js';
 import { t } from './i18n.svelte.js';
 import { localDay } from './localday.js';
+import { activeBikes } from './bikeretire.js';
 
 /** Hours of a day ride when no earlier day ride says otherwise. */
 export const DAY_HOURS = 2;
@@ -92,6 +93,7 @@ const usedAt = (trip, today) => tripUsedAt(trip, today); // v0.144.0 RE: one rul
  * It was the trip with the latest start date, so a trip planned weeks ahead on another bike won.
  */
 export function lastBikeId(trips = [], bikes = [], today = localDay()) {
+  bikes = activeBikes(bikes); // a retired bike is never the «last» one to ride («Velos ausmustern»)
   const known = new Set(bikes.map((b) => b.id));
   const last = [...trips]
     .filter((x) => hasBike(x) && !x.skipped && known.has(x.bikeId))

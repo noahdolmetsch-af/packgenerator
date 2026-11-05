@@ -56,6 +56,7 @@
   import { sync as autoSync, runSync } from '../lib/sync/auto.svelte.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
+  import { activeBikes } from '../lib/bikeretire.js';
   import { sheetReminders, laterChanges } from '../lib/sheets2.js';
   import { withVisits, tripPrep, tyreSetup } from '../lib/workshop.js';
   import { tripSchedule, stepWords, STEP_NAME, weatherKnown } from '../lib/schedule.js';
@@ -222,7 +223,10 @@
   const items = $derived($itemsQ ?? []);
   const visits = $derived($visitsQ ?? []);
   const debriefs = $derived($debriefsQ ?? []);
-  const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => withVisits(b, visits)));
+  // «Velos ausmustern» (Noah 1.11.2026): a retired bike never leads on Heute (idea, care, weighing, cards); trips
+  // that were ridden on it still find it (allBikes: the name on the trip card)
+  const allBikes = $derived(sortBikes($bikesQ ?? []).map((b) => withVisits(b, visits)));
+  const bikes = $derived(activeBikes(allBikes));
   const tasks = $derived($tasksQ ?? []);
   const S = $derived($setQ ?? {});
   const templates = $derived(S[TEMPLATES_KEY] ?? []);
@@ -345,7 +349,7 @@
     try {
       // offline: no weather (Noah 1a); online the home forecast (saved when fresh, else fetched)
       const forecast = navigator.onLine ? await homeForecast(db).catch(() => null) : null;
-      const raw = sortBikes(($bikesQ ?? []).map((b) => ({ ...b })));
+      const raw = sortBikes(activeBikes($bikesQ ?? []).map((b) => ({ ...b })));
       const trip = await quickStart(db, { trips: allTrips.map((x) => ({ ...x })), bikes: raw, items: items.map((x) => ({ ...x })), forecast, bikeId: suggestion?.bike?.id ?? suggestBikeId });
       if (!trip) return openNew('list'); // no bike yet: the New trip window says why
       const w = trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C ${t(RAIN[trip.wx.rain ?? 'none'])}` : t('no weather|quick');
@@ -390,11 +394,11 @@
   const ask = $derived(isLead && !!focus?.ask);
   // v0.125.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Heute): the state pill of the trip on the card
   const shownState = $derived(shown ? tripState(shown, { debrief: debriefs.find((d) => d.tripId === shown.id) ?? null, rides: $ridesQ ?? [], today }) : null);
-  const shownBike = $derived(shown ? bikes.find((b) => b.id === shown.bikeId) ?? null : null);
+  const shownBike = $derived(shown ? allBikes.find((b) => b.id === shown.bikeId) ?? null : null);
   const stats = $derived(shown ? tripStats(shown, items, $bagsQ ?? [], shownBike, S.riderWeightG) : null);
   // The facts the schedule needs (schedule.js is pure), as in v0.34.0, for the trip shown.
   function ctxFor(tr) {
-    const b = hasBike(tr) ? bikes.find((x) => x.id === tr.bikeId) : null;
+    const b = hasBike(tr) ? allBikes.find((x) => x.id === tr.bikeId) : null;
     let service = null;
     if (b && !isShortRide(tr)) {
       const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike' && !r.key.startsWith('bike:inspectQuick:'));
@@ -468,7 +472,7 @@
     const trip = $state.snapshot(of);
     const prev = debriefs.find((x) => x.tripId === trip.id) ?? null;
     const record = quickDebrief(trip, prev ? structuredClone($state.snapshot(prev)) : null);
-    const offer = templateOffer(trip, templates, trips) ? templateName(trip, bikes.find((b) => b.id === trip.bikeId), templates) : null;
+    const offer = templateOffer(trip, templates, trips) ? templateName(trip, allBikes.find((b) => b.id === trip.bikeId), templates) : null;
     await db.transaction('rw', db.debriefs, db.trips, async () => {
       await db.debriefs.put(record);
       await db.trips.update(trip.id, { status: 'done' });

@@ -16,6 +16,7 @@ import { buildBikeTrip, freeTitle, lastBikeId, forecastPreset, homeOf } from './
 import { ridesIntoDark } from './blockplan.js';
 import { rememberDomain, BIKEPACKING } from './domains.js';
 import { localDay } from './localday.js';
+import { activeBikes } from './bikeretire.js';
 import { t, locale } from './i18n.svelte.js';
 
 /** Riding hours of a quick start (Noah 1a). */
@@ -42,6 +43,7 @@ export const NO_WX = Object.freeze({ min: null, max: null, rain: 'none' });
  */
 export function quickPlan(trips = [], bikes = [], { now = new Date(), forecast = null, bikeId = null } = {}) {
   const startDate = localDay(now);
+  bikes = activeBikes(bikes); // «Velos ausmustern»: the idea of the day is never a retired bike
   const bike = (bikeId && bikes.find((b) => b.id === bikeId)) || bikes.find((b) => b.id === lastBikeId(trips, bikes, startDate)) || null;
   if (!bike) return null;
   const fwx = forecast ? forecastPreset(forecast, startDate) : null;
