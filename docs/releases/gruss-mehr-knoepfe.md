@@ -1,6 +1,6 @@
 # Gruss «Wi gahts?» A: mehr Knöpfe, sofort speichern, gestern markiert
 
-PR · 05.11.2026 · Auftrag: Noah «alle umsetzen» (Thread «Planen: Tagescheck mit Fragen»), Vorschlag [gruss-wi-gahts-vorschlag.md], Prüfliste [gruss-pruefliste.md] (Projektordner `tagescheck/`). Erster von vier PRs (A Knöpfe, B Anpassen, C Wetter + Wochenstreifen, D «Woran liegt's?» + Abend).
+PR #912 · 05.11.2026 · Auftrag: Noah «alle umsetzen» (Thread «Planen: Tagescheck mit Fragen»), Vorschlag [gruss-wi-gahts-vorschlag.md], Prüfliste [gruss-pruefliste.md] (Projektordner `tagescheck/`). Erster von vier PRs (A Knöpfe, B Anpassen, C Wetter + Wochenstreifen, D «Woran liegt's?» + Abend).
 
 ## Was ist neu
 - Der Tipp auf den Gruss öffnet das Fenster wie bisher (fünf Gesichter, Plan). Neu: «Mehr» unter den Gesichtern öffnet 17 weitere Knöpfe in zwei Gruppen: Energie (Wach, Glade, Schläfrig, Platt, Überdreht) und Gefühle (Ruhig, Glücklich, Dankbar, Stolz, Gwundrig, Motiviert, Verliebt, Gstresst, Gnervt, Truurig, Ängstlich, Eisam). Ein Gesicht plus beliebig viele Gefühle.
