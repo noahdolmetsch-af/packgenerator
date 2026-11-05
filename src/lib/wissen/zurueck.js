@@ -1,5 +1,6 @@
 // «Good to know» for the area «Zurück» (Wegweiser PR 14): Rückblick, Logbuch, Gelernt, letters, meaning, skills.
 export default {
+  'f.joy': 'Answer only what you felt, and skip the rest. Three tours say little: look at the line as a hint about what you like, not as a mark.',
   'f.passes': 'A pass found by your ride is only a suggestion: it is judged by the line of the ride. Check it and collect what you really rode.',
   'f.tourpass': 'A stamp says «I was there». Give it the place name you would use when you tell the story, not the name of the file.',
   'f.quiz': 'Three right answers the evening before beat a long list in the morning. Wrong ones show what to pack again.',

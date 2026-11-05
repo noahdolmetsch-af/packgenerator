@@ -17,7 +17,7 @@ globalThis.$state ??= (v) => v;
 const src = (p) => new URL(`../src/lib/${p}`, import.meta.url).href;
 const { FEATURES, FEATURE_GROUPS } = await import(src('features.js'));
 const { HANDBOOK, MINI_APPS_HANDBOOK } = await import(src('handbook.js'));
-const DE = { ...(await import(src('i18n/de/index.js'))).default, ...(await import(src('i18n/de/handbuch.js'))).default };
+const DE = { ...(await import(src('i18n/de/index.js'))).default, ...(await import(src('i18n/de/handbuch.js'))).default, ...(await import(src('../handbook/texte-de.js'))).default };
 
 /** The German text, like t(): without an entry the English one without its «|context». */
 const de = (en) => DE[en] ?? String(en).replace(/\|[a-z]+$/, '');

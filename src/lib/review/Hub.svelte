@@ -50,7 +50,7 @@
   import './review.css';
   import ChronikKarte from '../lernen/ChronikKarte.svelte'; // Paket M #1027
   import { storyReady } from '../lernen/jahrstory.js'; // Paket M #208
-  import { Compass, History, GraduationCap, Images, CircleHelp, Flame, Stamp } from '@lucide/svelte';
+  import { Compass, History, GraduationCap, Images, CircleHelp, Flame, Stamp, Smile } from '@lucide/svelte';
   import ListGroup from '../list/ListGroup.svelte';
   import { phone } from '../media.svelte.js';
   import { dhms } from '../touren/strava/fmt.js';
@@ -438,6 +438,7 @@
             <li><a class="rv-row" href="#/jahr" data-m-row="jahr"><span class="rv-ic" aria-hidden="true"><Images size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your year as pictures')}</span><span class="rv-s">{t('Your trips of a year as a picture story')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/quiz" data-m-row="quiz"><span class="rv-ic" aria-hidden="true"><CircleHelp size={18} /></span><span class="rv-m"><span class="rv-t">{t('Quiz the evening before')}</span><span class="rv-s">{t('3 questions on gear and route, your own ones too')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/paesse" data-m-row="paesse"><span class="rv-ic" aria-hidden="true"><Mountain size={18} /></span><span class="rv-m"><span class="rv-t">{t('Passes')}</span><span class="rv-s">{t('Passes you rode over as yellow signs')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/freude" data-m-row="freude"><span class="rv-ic" aria-hidden="true"><Smile size={18} /></span><span class="rv-m"><span class="rv-t">{t('What made it good?')}</span><span class="rv-s">{t('Fun, nature, flow and company of your tours')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/tourenpass" data-m-row="tourenpass"><span class="rv-ic" aria-hidden="true"><Stamp size={18} /></span><span class="rv-m"><span class="rv-t">{t('Tour pass')}</span><span class="rv-s">{t('A stamp for every trip you looked back on')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/logbook" aria-label={t('Logbook')}><span class="rv-ic" aria-hidden="true"><BookOpen size={18} /></span><span class="rv-m"><span class="rv-t">{t('Logbook')}</span><span class="rv-s">{log.length ? logbookLine(log.filter((x) => x.kind !== 'event').length, log.filter((x) => x.kind === 'event').length) : t('No entries yet.')}</span></span><span class="rv-v">{num(log.length)}</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/pack/past"><span class="rv-ic" aria-hidden="true"><Archive size={18} /></span><span class="rv-m"><span class="rv-t">{t('Past trips')}</span><span class="rv-s">{t('Table, filter, year')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>

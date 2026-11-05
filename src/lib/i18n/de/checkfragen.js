@@ -33,7 +33,7 @@ export default {
   '{n} question': '{n} Frage',
   '«Later» brings this window back in one hour. «Not today» and ✕ close it until tomorrow, without a reminder.': '«Später» zeigt dieses Fenster in einer Stunde wieder. «Heute nicht» und ✕ schliessen es bis morgen, ohne Erinnerung.',
   // Noah 26.10.2026 «1a»: in the morning «Heute nicht» and ✕ wait only until the evening check
-  '«Later» brings this window back in one hour. «Not today» and ✕ close it until the evening check, without a reminder.': '«Später» zeigt dieses Fenster in einer Stunde wieder. «Heute nicht» und ✕ schliessen es bis zum Abend-Check, ohne Erinnerung.',
+  '«Later» brings this window back in one hour. «Not today» and ✕ close it until the evening check, without a reminder.': '«Später» zeigt dieses Fenster in einer Stunde wieder. «Heute nicht» und ✕ schliessen es bis «Wi gaht\'s?» am Abend, ohne Erinnerung.',
   'The questions stay and show under «{name}».': 'Die Fragen bleiben und stehen unter «{name}».',
   'Your own question goes. Its answers stay in the history.': 'Deine eigene Frage geht. Ihre Antworten bleiben im Verlauf.',
   'The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.': 'Die Frage kommt nicht mehr. Ihre Antworten bleiben im Verlauf. «Gelöschte Fragen» holt sie zurück.',
@@ -63,4 +63,10 @@ export default {
   'No Fitbit values for last night yet. They often come a little later.': 'Noch keine Fitbit-Werte für letzte Nacht. Sie kommen oft etwas später.',
   'Connect Fitbit once and your sleep, resting pulse and HRV show here.': 'Verbinde Fitbit einmal, dann stehen hier Schlaf, Ruhepuls und HRV.',
   'Steps and active zone minutes show here once Fitbit is connected.': 'Schritte und Aktivzonen-Minuten stehen hier, sobald Fitbit verbunden ist.',
+  // Noah 04.11.2026 «ein Fragebogen»
+  'Adjust your questions': 'Fragen anpassen',
+  'Now under Your questions': 'Jetzt unter Deine Fragen',
+  'sleep, battery, mood, goal': 'Schlaf, Akku, Stimmung, Ziel',
+  'Questions 1–5 and 7 are asked like the questions in the window: on, off and when you decide under Me › Your questions.': 'Die Fragen 1–5 und 7 werden wie die Fragen im Fenster gestellt: ob und wann, bestimmst du unter Ich › Deine Fragen.',
+  'Open Your questions': 'Deine Fragen öffnen',
 };

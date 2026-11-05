@@ -53,3 +53,45 @@ export function invoicesOf(customer, invoices = []) {
   return invoices.filter((x) => keyOf(x.name) === k || (x.name ?? '').split(',').some((p) => keyOf(p) === k));
 }
 export const lessonsOf = (customer, bookings = []) => bookings.filter((b) => keyOf(b.name) === keyOf(customer.name));
+
+/**
+ * Lesson card (Noah 04.11.2026 «5a»): a customer can have a card of N lessons that starts on a day, with an
+ * own price for the whole card. { size, price: Rappen | null, from: 'YYYY-MM-DD' }. The first N lessons from
+ * that day on are «on the card»: they need no invoice of their own.
+ */
+export const packOf = (customer) => (customer?.pack && customer.pack.size > 0 ? customer.pack : null);
+
+/** { [bookingId]: { n, size } } for every lesson that lies on a customer's card (in time order, from the start day). */
+export function packCover(customers = [], bookings = []) {
+  const out = {};
+  for (const c of customers) {
+    const p = packOf(c);
+    if (!p) continue;
+    lessonsOf(c, bookings)
+      .filter((b) => b.at && String(b.at).slice(0, 10) >= (p.from || ''))
+      .sort((a, b) => String(a.at).localeCompare(String(b.at)))
+      .slice(0, p.size)
+      .forEach((b, i) => (out[b.id] = { n: i + 1, size: p.size }));
+  }
+  return out;
+}
+
+/** How many lessons of the card are over (`now` is «YYYY-MM-DDTHH:MM») and how many are left. */
+export function packState(customer, bookings = [], now = '') {
+  const p = packOf(customer);
+  if (!p) return null;
+  const cover = packCover([customer], bookings);
+  const used = bookings.filter((b) => cover[b.id] && b.at < now).length;
+  return { size: p.size, used, left: Math.max(0, p.size - used) };
+}
+
+/** The form fields «size» and «price» → a card, null (no card) or undefined (wrong). */
+export function parsePack(size, price, from) {
+  const n = String(size ?? '').trim();
+  if (!n) return null;
+  const count = Number(n);
+  if (!Number.isInteger(count) || count < 1 || count > 100) return undefined;
+  const rate = parseRate(price);
+  if (rate === undefined) return undefined;
+  return { size: count, price: rate, from: from || '' };
+}

@@ -11,7 +11,9 @@ import { FEATURES } from '../src/lib/features.js';
 import { HOWTO } from '../src/lib/know/howto.js';
 import { HANDBOOK } from '../src/lib/handbook.js';
 import { SINCE } from '../src/lib/know/wasneu.js';
-import DE from '../src/lib/i18n/de/index.js';
+import DE_START from '../src/lib/i18n/de/index.js';
+import DE_LATE from '../src/lib/handbook/texte-de.js'; // the handbook's own German loads with the handbook
+const DE = { ...DE_START, ...DE_LATE };
 
 // Paket L2 «Bilderkennung» (Noah 19.10.2026): fictional gear and made-up body points only.
 const items = [
