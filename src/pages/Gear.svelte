@@ -287,9 +287,36 @@
     history.replaceState(history.state, '', `${path || '#/gear'}${s ? `?${s}` : ''}`);
   }
   const clearFilters = () => {
+    clearTimeout(typeTimer);
+    typeTimer = null;
     filter = { q: '', category: '', role: '', fav: false, domain: '', bag: '' };
+    qText = '';
     setUnused(false);
   };
+  // Tempo (Noah 05.11.2026 «a», «Verzögerung bei Eingaben»): the letters show at once in the field; the list is built
+  // anew a moment after the last letter (before, every letter rebuilt it: the first one took ~1 s on a slow phone).
+  let qText = $state(filter.q);
+  let typeTimer = null;
+  const typed = (e) => {
+    qText = e.currentTarget.value;
+    clearTimeout(typeTimer);
+    // an emptied field (the × of the search field) clears the list at once; a letter waits for the next one
+    if (!qText) return flushQ();
+    typeTimer = setTimeout(flushQ, 180);
+  };
+  const flushQ = () => {
+    clearTimeout(typeTimer);
+    typeTimer = null;
+    if (filter.q !== qText) filter.q = qText;
+  };
+  // a search from outside (the top bar, a link, «Reset») changes the field too
+  $effect(() => {
+    const now = filter.q;
+    untrack(() => {
+      if (typeTimer == null && now !== qText) qText = now;
+    });
+  });
+  $effect(() => () => clearTimeout(typeTimer));
   // v0.22.0 (AP05): the same bases as the tabs; the button counts what the list below shows.
   const favN = $derived(favouriteCounts(items));
   // v0.21.0 (package 5): the area filter shows once items belong to more than one area.
@@ -707,7 +734,7 @@
         <!-- SL2/SL4 (answer 5a): the search stays on top with the category you are in -->
         <ListBar bind:active={activeCat} current={curCat && tab === 'inventory' && display === 'list' ? t(curCat.name) : ''} count={curCat && tab === 'inventory' && display === 'list' ? tn(curCat.items.length, '{n} item', '{n} items') : ''}>
         <div class="toolbar">
-          <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={18} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} bind:value={filter.q} bind:this={searchEl} /></label>
+          <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={18} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} value={qText} oninput={typed} onchange={flushQ} onkeydown={(e) => e.key === 'Enter' && flushQ()} bind:this={searchEl} /></label>
           <button type="button" class="btn fbtn" onclick={() => (sheet = true)}>
             <SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}
           </button>
