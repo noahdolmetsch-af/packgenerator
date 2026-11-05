@@ -24,7 +24,7 @@
 <section class="rv-sec skl" aria-labelledby="skl-h" data-debrief-skills>
   <div class="rv-h"><div><h2 id="skl-h"><Bike size={18} aria-hidden="true" />{t('What did you practise?')}</h2><p class="rv-sub">{t('Tick the riding techniques you worked on. All optional.')}</p></div></div>
   <div class="rv-box pad sk">
-    <div class="chips" role="group" aria-labelledby="skl-h">
+    <div class="techs" role="group" aria-labelledby="skl-h">
       {#each list as e (e.id)}
         <button type="button" class="chip" aria-pressed={e.id in mine} onclick={() => onchange(skillToggle(d, e.id))} data-skill={e.id}>{techName(e.id, t)}{#if want.has(e.id)}<span class="wish">· {t('you wanted this')}</span>{/if}</button>
       {/each}
@@ -43,7 +43,7 @@
 <style>
   h2 { display: flex; align-items: center; gap: 8px; }
   .sk { display: grid; gap: 12px; min-width: 0; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .techs { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip { min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--ink); font: inherit; cursor: pointer; }
   .chip[aria-pressed='true'] { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
   .wish { margin-left: 6px; font-size: var(--fs-small); opacity: 0.85; }
