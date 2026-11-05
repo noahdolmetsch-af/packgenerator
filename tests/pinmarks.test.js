@@ -40,6 +40,19 @@ describe('pins on the cards', () => {
     expect(placePin(card, title, 390, () => false)).toBe(null);
     expect(placePin({ top: 0, right: 400, height: 10 }, title, 390).x).toBe(346);
   });
+  it('a pin never covers the text of the title: a long title on a phone moves it above or under the title, or none', () => {
+    const card = { top: 100, right: 374, height: 40 };
+    const title = { top: 100, right: 374, height: 40 };
+    const long = [{ left: 16, right: 372, top: 100, bottom: 140 }]; // the line runs to the right edge
+    expect(placePin(card, title, 390, () => true, 44, [])).toEqual({ x: 340, y: 86 });
+    expect(placePin(card, title, 390, () => true, 44, long)).toEqual({ x: 330, y: 62 });
+    // a bar of links above: under the title, at the right
+    expect(placePin(card, title, 390, (b) => b.y >= 86, 44, long)).toEqual({ x: 330, y: 134 });
+    // nothing free at all
+    expect(placePin(card, title, 390, (b) => b.y === 86, 44, long)).toBe(null);
+    const short = [{ left: 16, right: 200, top: 100, bottom: 140 }];
+    expect(placePin(card, title, 390, () => true, 44, short)).toEqual({ x: 340, y: 86 });
+  });
   it('zoomed to 115 %, the pin is 50.6 screen pixels wide and still stays on the page (no sideways scroll)', () => {
     const at = placePin({ top: 0, right: 400, height: 10 }, { top: 0, right: 200, height: 10 }, 390, () => true, 44 * 1.15);
     expect(at.x + 44 * 1.15).toBeLessThanOrEqual(390);

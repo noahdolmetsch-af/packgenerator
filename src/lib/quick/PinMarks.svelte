@@ -113,7 +113,15 @@
       if (!r.width || r.bottom < 0 || r.top > innerHeight) continue;
       const tr = f.title.getBoundingClientRect();
       const doc = (q) => ({ top: q.top + scrollY, right: q.right + scrollX, height: q.height });
-      const at = placePin(doc(r), doc(tr), w, free, 44 * z); // the 44 px pin is 44 * z screen pixels wide while zoomed
+      // the text lines of the title: the pin must not cover them
+      const range = document.createRange();
+      range.selectNodeContents(f.title);
+      const rects = [...range.getClientRects()];
+      // a page title (view pin) also keeps the line of text under it free
+      const sub = f.card === f.title ? f.title.nextElementSibling : null;
+      if (sub && /^(P|DIV)$/.test(sub.tagName) && sub.innerText?.trim()) (range.selectNodeContents(sub), rects.push(...range.getClientRects()));
+      const lines = rects.filter((q) => q.width > 1).map((q) => ({ left: q.left + scrollX, right: q.right + scrollX, top: q.top + scrollY, bottom: q.bottom + scrollY }));
+      const at = placePin(doc(r), doc(tr), w, free, 44 * z, lines); // the 44 px pin is 44 * z screen pixels wide while zoomed
       if (at) next.push({ id: f.id, view: f.view, viewTitle: f.viewTitle, x: at.x / z, y: at.y / z });
     }
     marks = next;
