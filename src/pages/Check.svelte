@@ -27,7 +27,7 @@
   import RoundQuestions from '../lib/abfragen/RoundQuestions.svelte'; // Noah 04.11.2026 «ein Fragebogen»: the same questions as the window
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { checkQuery, seedIfNeeded, offQuery } from '../lib/flow/data.svelte.js';
+  import { checkQuery, checksQuery, seedIfNeeded, offQuery } from '../lib/flow/data.svelte.js';
   import { saveCheck } from '../lib/flowdb.js';
   import { isOn, eveningTurnFor, visionToday, checkOf, patchCheck, yesterdayOf, JOYS, BEST, GOALS, LAST_EVENING, OUTSIDE, PEOPLE, GOAL_DONE, toggleId, outsideFromRides, eveningTurn, mindfulFound, weekHighlights, suggestion } from '../lib/flowcheck.js';
   import { flowStates } from '../lib/flow.js';
@@ -45,6 +45,9 @@
   const today = localDay();
   const q = checkQuery(today);
   const data = $derived($q);
+  const checksQ = checksQuery(today);
+  const checks = $derived($checksQ ?? []);
+  const checksIn = $derived($checksQ != null);
   const offQ = offQuery();
   const off = $derived($offQ ?? []);
   const on = (n) => isOn(off, n);
@@ -55,7 +58,7 @@
   /* the day's answers: read once, then kept here and saved on every tap (no tap waits for the database) */
   let cur = $state(null);
   $effect(() => {
-    if (data && !cur) cur = checkOf(data.checks.find((c) => c.day === today), today);
+    if (data && checksIn && !cur) cur = checkOf(checks.find((c) => c.day === today), today);
   });
   function set(fields) {
     // the time the morning was first answered (the «Morgen-Check» tile on Heute shows it)
@@ -70,7 +73,7 @@
   const skippedHere = $derived((cur?.skip ?? []).filter((k) => (evening ? EVENING_KEYS : MORNING_KEYS).includes(k)));
   const MORNING_KEYS = ['joy'];
   const EVENING_KEYS = ['sat', 'best', 'goalDone', 'outside', 'people', 'fun', 'mindful', 'vision'];
-  const ydot = (key, qid = null) => yesterdayOf(data?.checks ?? [], today, key, qid);
+  const ydot = (key, qid = null) => yesterdayOf(checks, today, key, qid);
   const dateLong = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
   const dateShort = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   // Noah 21.10.2026 «immer das datum und die uhrzeit der befragung, damit wir testen können»: the clock, each minute
@@ -96,7 +99,7 @@
   // sleep, battery and mood answered on the page or in the window land in the day's check too (saveAnswers): take them over here,
   // so the next tap on this page does not write the old value back
   $effect(() => {
-    const row = data?.checks.find((c) => c.day === today);
+    const row = checks.find((c) => c.day === today);
     if (!row || !cur) return;
     const diff = ['sleep', 'energy', 'mood'].filter((f) => row[f] !== cur[f] && row[f] != null);
     if (diff.length) cur = { ...cur, ...Object.fromEntries(diff.map((f) => [f, row[f]])) };
@@ -141,7 +144,7 @@
   const viaStrava = $derived(!!data?.rides.some((r) => r.source === 'strava'));
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays).filter((s) => !s.resting) : []);
   const goalsMet = $derived(states.filter((s) => s.met).length);
-  const week = $derived(data ? weekHighlights([...data.checks.filter((c) => c.day !== today), ...(cur ? [cur] : [])], today) : []);
+  const week = $derived(data ? weekHighlights([...checks.filter((c) => c.day !== today), ...(cur ? [cur] : [])], today) : []);
   const DOT = { nature: 'var(--l1)', sport: 'var(--l2)', calm: 'var(--l4)', friends: 'var(--l3)', done: 'var(--hi)', new: 'var(--ink-3)' };
   async function finish() {
     // what was filled in by itself is kept as the answer (still changeable later)
