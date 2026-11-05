@@ -76,7 +76,7 @@
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
-  import { newsHint, newerThan, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
+  import { newsHint, newerThan, pointCount, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
   import { tileDaysLeft, unpinNews } from '../lib/know/wasneu.js';
   import { readUpdate, writeUpdate, readPin, writePin } from '../lib/know/wasneuStore.js';
   import MaintHint from '../lib/maintenance/MaintHint.svelte';
@@ -272,7 +272,7 @@
       writeUpdate({ v: h.mark, from: seen, at: localDay() });
       newsUpdate = readUpdate();
       // «Heute neu» A 5b: no tile «New» pinned on Heute any more; the news stay under Ich
-    } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
+    } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + pointCount(e), 0) : 0;
     // v0.127.0 A-U1: the calm banner after an update; «Heute neu» A 5b: it shows under Ich (Me.svelte)
     unpinNewsTile();
   });
