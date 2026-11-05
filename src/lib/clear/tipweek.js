@@ -24,8 +24,8 @@ export const partOf = (hour) => (hour >= 5 && hour < 11 ? 'morning' : hour >= 17
 
 /** Tiles that fit a part of the day, most fitting first. */
 export const TIME_TILES = {
-  morning: ['questions', 'suggest', 'tipweek'],
-  evening: ['questions', 'trip', 'week'],
+  morning: ['suggest', 'tipweek'],
+  evening: ['trip', 'week'],
 };
 
 /** Tiles that stay on top when they lead the wall. */

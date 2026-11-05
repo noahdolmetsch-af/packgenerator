@@ -1,5 +1,6 @@
 // «Good to know» for the area «Packen» (Wegweiser PR 16): Pack, templates, building blocks, labels, checks.
 export default {
+  'f.recipes': 'Write the recipe the evening you are back, while you remember the breakfast. «Something with oats» helps less than «porridge, banana, two coffees».',
   "gpx": "A GPX with many points is fine, but check the climbing: some apps count every bump twice. Compare with the map before you plan the day.",
   "wxsuggest": "Pack for the coldest hour, not the average: a 15 °C day can start at 6 °C in the valley. One thin layer more weighs less than a cold morning.",
   "f.packblocks": "Blocks save thinking, not grams. After adding one, look at the weight: a whole «Cook» block for one coffee is a lot of pot.",

@@ -1,6 +1,11 @@
 // Paket X «Umweg neu planen» (Noah 20.10.2026): reroute.js and the GPX writer gpxout.js, with made-up places.
-import { describe, it, expect } from 'vitest';
-import { brouterUrl, parseBrouter, rejoinOf, snapAhead, targetsOf, planDetour, planAlternatives, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_KEY, PROFILE_STD } from '../src/lib/reroute.js';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { brouterUrl, parseBrouter, rejoinOf, snapAhead, targetsOf, planDetour, planAlternatives, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_KEY, PROFILE_STD, clearRouterCache, ROUTER_TUNING } from '../src/lib/reroute.js';
+
+beforeEach(() => {
+  clearRouterCache();
+  ROUTER_TUNING.retryMs = 0;
+});
 import { gpxString, wptName, gpxFileName, WPT_NAME_MAX } from '../src/lib/gpxout.js';
 
 // a straight made-up route east along 47° N, about 0.76 km per 0.01°
@@ -291,5 +296,115 @@ describe('Wege zur Auswahl', () => {
   it('fails like planDetour when the first answer fails', async () => {
     const { fetcher } = fetcherOf([]);
     await expect(planAlternatives({ here, target, fetcher }, 3)).rejects.toThrow('noroute');
+  });
+});
+
+/* ---------- Sicherheitsnetz (Noah 05.11.2026 «ok bauen») ---------- */
+import { askRouter, routerMsg, longestLegKm, ROUTER_CACHE_MS, ROUTER_TOO_FAR_KM, ROUTER_CACHE_MAX } from '../src/lib/reroute.js';
+import DE from '../src/lib/i18n/de/index.js';
+
+describe('askRouter: safety net', () => {
+  const A = { lat: 47, lon: 8 };
+  const B = { lat: 47.01, lon: 8.02 };
+  const ok = (coords = [[8, 47, 400], [8.02, 47.01, 410]]) => ({ ok: true, status: 200, json: async () => geo(coords, { 'track-length': '2000' }) });
+  const never = (_u, { signal }) => new Promise((_ok, bad) => signal.addEventListener('abort', () => bad(new Error('aborted'))));
+
+  it('asks once and answers the same question from memory', async () => {
+    let n = 0;
+    const f = async () => (n++, ok());
+    const a = await askRouter([A, B], 'trekking', f);
+    const b = await askRouter([A, B], 'trekking', f);
+    expect(n).toBe(1);
+    expect(b).toEqual(a);
+    b.line[0][0] = 0; // a copy: changing it does not change the memory
+    expect((await askRouter([A, B], 'trekking', f)).line[0][0]).toBe(47);
+    await askRouter([A, B], 'fastbike', f); // another profile is another question
+    await askRouter([A, B], 'trekking', f, 1); // another way is another question
+    expect(n).toBe(3);
+  });
+  it('forgets after ROUTER_CACHE_MS and keeps at most ROUTER_CACHE_MAX answers', async () => {
+    let n = 0;
+    const f = async () => (n++, ok());
+    await askRouter([A, B], 'trekking', f, 0, { now: 1000 });
+    await askRouter([A, B], 'trekking', f, 0, { now: 1000 + ROUTER_CACHE_MS - 1 });
+    expect(n).toBe(1);
+    await askRouter([A, B], 'trekking', f, 0, { now: 1000 + ROUTER_CACHE_MS });
+    expect(n).toBe(2);
+    clearRouterCache();
+    for (let i = 0; i < ROUTER_CACHE_MAX + 5; i++) await askRouter([A, { lat: 47.01 + i / 1e4, lon: 8.02 }], 'trekking', f);
+    n = 0;
+    await askRouter([A, { lat: 47.01, lon: 8.02 }], 'trekking', f); // the oldest is gone
+    expect(n).toBe(1);
+  });
+  it('a failed answer is not kept', async () => {
+    await expect(askRouter([A, B], 'trekking', async () => ({ ok: false, status: 400 }))).rejects.toThrow('noroute');
+    await expect(askRouter([A, B], 'trekking', async () => ok())).resolves.toBeTruthy();
+  });
+  it('gives up after the time limit (no endless spinning) and does not ask again', async () => {
+    let n = 0;
+    const f = (...a) => (n++, never(...a));
+    await expect(askRouter([A, B], 'trekking', f, 0, { timeoutMs: 20 })).rejects.toThrow('timeout');
+    expect(n).toBe(1);
+  });
+  it('tries once more after a quick failure, then says failed', async () => {
+    let n = 0;
+    await expect(askRouter([A, B], 'trekking', async () => (n++, Promise.reject(new Error('net'))))).rejects.toThrow('failed');
+    expect(n).toBe(2);
+    n = 0;
+    const r = await askRouter([A, B], 'trekking', async () => (n++, n === 1 ? { ok: false, status: 502 } : ok()));
+    expect(r.km).toBe(2);
+    expect(n).toBe(2);
+    n = 0;
+    await expect(askRouter([A, B], 'fastbike', async () => (n++, { ok: false, status: 504 }))).rejects.toThrow('failed');
+    expect(n).toBe(2);
+  });
+  it('does not repeat «busy» (fair use of the free server)', async () => {
+    for (const status of [429, 503]) {
+      let n = 0;
+      await expect(askRouter([A, B], 'trekking', async () => (n++, { ok: false, status }))).rejects.toThrow('busy');
+      expect(n).toBe(1);
+    }
+  });
+  it('does not ask for a way that is too far, and says so', async () => {
+    let n = 0;
+    const far = { lat: 48.21, lon: 16.37 };
+    expect(longestLegKm([A, far])).toBeGreaterThan(ROUTER_TOO_FAR_KM);
+    await expect(askRouter([A, far], 'trekking', async () => (n++, ok()))).rejects.toThrow('toofar');
+    expect(n).toBe(0);
+  });
+  it('says offline at once, but still answers from memory', async () => {
+    let n = 0;
+    const f = async () => (n++, ok());
+    await expect(askRouter([A, B], 'trekking', f, 0, { online: false })).rejects.toThrow('offline');
+    expect(n).toBe(0);
+    await askRouter([A, B], 'trekking', f);
+    await expect(askRouter([A, B], 'trekking', f, 0, { online: false })).resolves.toBeTruthy();
+    expect(n).toBe(1);
+  });
+  it('the answers of planDetour and planReturn come through the same door', async () => {
+    let n = 0;
+    const f = async () => (n++, ok());
+    await planDetour({ here: A, target: B, fetcher: f });
+    await planDetour({ here: A, target: B, fetcher: f });
+    expect(n).toBe(1);
+  });
+});
+
+describe('routerMsg: clear words for every failure', () => {
+  const KINDS = ['busy', 'noroute', 'toofar', 'timeout', 'offline', 'failed'];
+  it('has a different text for every failure and has German for all of them', () => {
+    for (const round of [false, true]) {
+      const texts = KINDS.map((k) => routerMsg(new Error(k), { round, online: true }));
+      expect(new Set(texts).size).toBe(KINDS.length);
+      for (const t of texts) expect(DE[t], t).toBeTruthy();
+    }
+  });
+  it('knows «offline» from the browser too, and uses the caller\'s text for «no way»', () => {
+    expect(routerMsg(new Error('failed'), { online: false })).toBe(routerMsg(new Error('offline'), { online: true }));
+    expect(routerMsg(new Error('noroute'), { noroute: 'No round.' })).toBe('No round.');
+    expect(routerMsg(undefined, { online: true })).toBe(routerMsg(new Error('failed'), { online: true }));
+  });
+  it('the note about the position is in German too', () => {
+    for (const k of ['To plan a way, the app sends your position and the goal to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.', 'To plan a round, the app sends your home place and the points of the round to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.']) expect(DE[k]).toContain('brouter.de');
   });
 });

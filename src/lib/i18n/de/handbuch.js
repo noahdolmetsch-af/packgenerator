@@ -527,6 +527,27 @@ export default {
   'Open Trips › Dreams and paste the link of a tour in the field at the top.': 'Öffne Touren › Träume und füge oben ins Feld den Link einer Tour ein.',
   'Ride somewhere you have never been; the route or the ride counts.': 'Fahr irgendwohin, wo du noch nie warst; die Route oder die Fahrt zählt.',
   'Today shows «New since yesterday: …» under the greeting.': 'Heute zeigt «Neu seit gestern: …» unter dem Gruss.',
+  'Tap it for New ground, or × to close it.': 'Tippe es an für Neuland, oder × zum Schliessen.',
+  'Example: a ride round the lake → «New since yesterday: 3 municipalities, 1 lake».': 'Beispiel: eine Fahrt um den See → «Neu seit gestern: 3 Gemeinden, 1 See».',
+  // «Träume und Neuland» N17
+  'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
+  'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
+  'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N6
+  'Needs your home place and places to sleep (rated after a trip or marked on the map).': 'Braucht deinen Wohnort und Schlafplätze (nach einer Tour bewertet oder auf der Karte gesetzt).',
+  'Open Trips › Dreams: «After-work bivouac» names the next evening.': 'Öffne Touren › Träume: «Feierabend-Biwak» nennt den nächsten Abend.',
+  'Tap «Plan it» at a place to sleep: a two-day trip with the bivouac building block.': 'Tippe bei einem Schlafplatz «Einplanen»: eine Tour über zwei Tage mit dem Baustein Biwak.',
+  'Under «Change evening, times, distance» set your own evening.': 'Unter «Abend, Zeiten, Distanz ändern» stellst du deinen eigenen Abend ein.',
+  'Example: Fri 31 Oct 17:30 off · Sat 9:00 back · forest clearing 12 km, about 50 min.': 'Beispiel: Fr 31. Okt. 17:30 los · Sa 9:00 zurück · Waldlichtung 12 km, etwa 50 Min.',
+  // «Träume und Neuland» N8
+  'Pass opening is the usual months, not live.': 'Die Pass-Öffnung sind die üblichen Monate, nicht live.',
+  'Open Trips › Dreams: «Fits now» shows the ideas of this month.': 'Öffne Touren › Träume: «Passt jetzt» zeigt die Ideen dieses Monats.',
+  'Tap a month in «Your year» for its ideas.': 'Tippe einen Monat in «Dein Jahr» an für seine Ideen.',
+  'Add your own idea, or tap «As a dream».': 'Füge eine eigene Idee hinzu oder tippe «Als Traum».',
+  'Example: November → «Above the sea of fog», «Golden larches», «Long nights».': 'Beispiel: November → «Über dem Nebelmeer», «Goldene Lärchen», «Lange Nächte».',
+  // «Träume und Neuland» N14
+  'Needs dreams with a map (a GPX file or a Ride with GPS link).': 'Braucht Träume mit Karte (eine GPX-Datei oder ein Ride-with-GPS-Link).',
+  'Give two or more dreams a map.': 'Gib zwei oder mehr Träumen eine Karte.',
   'Open Trips › Dreams and scroll to «All dreams on one map».': 'Öffne Touren › Träume und scrolle zu «Alle Träume auf einer Karte».',
   'Open Trips › Dreams: the app checks the weather of the next 16 days.': 'Öffne Touren › Träume: die App schaut das Wetter der nächsten 16 Tage an.',
   'Scroll to «Ready for it?».': 'Scrolle zu «Bereit dafür?».',

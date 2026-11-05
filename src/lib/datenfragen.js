@@ -42,6 +42,15 @@ export const ACT_DAYS = 40;
 /** Tennis: a game of at least this many minutes is asked about the day after; a missed court time counts this many days back. */
 export const GAME_MIN = 30;
 export const SLOT_DAYS = 2;
+/** Rain chance (percent) from which a day counts as a rainy day; below RAIN_DRY and under 1 mm it counts as dry. */
+export const RAIN_PCT = 60;
+export const RAIN_DRY = 30;
+/** Warm enough for an evening outside (degrees, the day's high). */
+export const WARM_C = 15;
+/** The evening for «nothing planned»: from 17:00 to 22:00. */
+export const EVENING = [17, 22];
+/** A random question is not repeated within this many days after an answer. */
+export const RANDOM_REST = 30;
 
 const chip = (key, label) => ({ key, label: `${label}|data` });
 
@@ -155,6 +164,51 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'platz',
   },
+  'daten.grau': {
+    id: 'daten.grau',
+    area: 'spass',
+    text: 'What does you good on grey days?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('walk', 'A short walk'), chip('people', 'See someone'), chip('cook', 'Cook something'), chip('music', 'Music'), chip('rest', 'Rest'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'grau',
+  },
+  'daten.draussen': {
+    id: 'daten.draussen',
+    area: 'spass',
+    text: 'Anything planned outside?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('ride', 'A ride'), chip('run', 'A run'), chip('tennis', 'Tennis'), chip('walk', 'A walk'), chip('people', 'See someone'), chip('nothing', 'Nothing planned')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'draussen',
+  },
+  'daten.vermutung': {
+    id: 'daten.vermutung',
+    area: 'achtsamkeit',
+    text: 'Does that fit today?',
+    form: {
+      kind: 'chips',
+      multi: false,
+      note: true,
+      options: [chip('yes', 'Yes, that fits'), chip('no', 'No, not today'), chip('unsure', 'Not sure')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'vermutung',
+  },
 };
 
 /** The rules, in order. title/about are English keys for t() (about has {n}). */
@@ -215,6 +269,30 @@ export const RULES = [
     vars: { n: SLOT_DAYS },
     param: { key: 'n', min: 1, max: 7, step: 1, def: SLOT_DAYS, label: 'Looking back (days)' },
   },
+  {
+    id: 'grau',
+    qid: 'daten.grau',
+    title: 'Grey day and a low mood',
+    about: 'Asks on a day with a rain chance of at least {n} percent when your latest mood was clearly below your usual.',
+    vars: { n: RAIN_PCT },
+    param: { key: 'n', min: 30, max: 90, step: 10, def: RAIN_PCT, label: 'Rain chance from (percent)' },
+  },
+  {
+    id: 'draussen',
+    qid: 'daten.draussen',
+    title: 'Fine weather and a free evening',
+    about: 'Asks on a dry day of at least {n} degrees when your calendar has nothing from 17 to 22 o\'clock.',
+    vars: { n: WARM_C },
+    param: { key: 'n', min: 8, max: 28, step: 1, def: WARM_C, label: 'Warm from (degrees)' },
+  },
+  {
+    id: 'vermutung',
+    qid: 'daten.vermutung',
+    title: 'A guess to test',
+    about: 'Asks yes or no on a day that fits when «What goes together» already shows a hint at least {n} percent strong.',
+    vars: { n: 30 },
+    param: { key: 'n', min: 30, max: 80, step: 5, def: 30, label: 'Hint strength from (percent)' },
+  },
 ];
 
 const fin = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
@@ -254,7 +332,9 @@ export function dataOf(value) {
     const n = Number(k?.n);
     if (Number.isFinite(n) && n >= 1 && /^\d{4}-\d{2}-\d{2}$/.test(k?.day ?? '')) skips[r.id] = { n: Math.min(99, Math.round(n)), day: k.day };
   }
-  return { off: [...new Set(off)], vals, texts, gaps, skips };
+  const ids = Array.isArray(value?.zufall?.never) ? value.zufall.never.filter((x) => typeof x === 'string' && x).slice(0, 200) : [];
+  const zufall = { off: value?.zufall?.off === true, never: [...new Set(ids)], day: /^\d{4}-\d{2}-\d{2}$/.test(value?.zufall?.day ?? '') ? value.zufall.day : '' };
+  return { off: [...new Set(off)], vals, texts, gaps, skips, zufall };
 }
 /** Is a rule on? */
 export const ruleOn = (value, id) => !dataOf(value).off.includes(id);
@@ -407,7 +487,110 @@ export function platzHit(sport = [], today, days = SLOT_DAYS) {
   return miss ? { day: miss.day } : null;
 }
 
+/** The forecast day of today from the saved home forecast: { rainMm, rainPct, max } or null. */
+const wxOf = (wx, today) => (wx && wx.date === today ? wx : null);
+/** A rainy day (rain chance from `pct` or at least 5 mm) and the latest mood (today, else yesterday) clearly below the usual of the 30 days before: { pct, mood, usual } or null. */
+export function grauHit(wx, answers = [], checks = [], today, pct = RAIN_PCT) {
+  const w = wxOf(wx, today);
+  if (!w) return null;
+  const rainy = (fin(w.rainPct) ?? 0) >= pct || (fin(w.rainMm) ?? 0) >= 5;
+  if (!rainy) return null;
+  const by = moodByDay(answers, checks);
+  const day = by[today] != null ? today : by[addDays(today, -1)] != null ? addDays(today, -1) : null;
+  if (!day) return null;
+  const base = [];
+  for (let i = 1; i <= BASE_DAYS; i++) {
+    const x = by[addDays(day, -i)];
+    if (x != null) base.push(x);
+  }
+  if (base.length < MIN_BASE) return null;
+  const usual = base.reduce((x, y) => x + y, 0) / base.length;
+  if (by[day] > usual - MOOD_BELOW) return null;
+  const r1 = (x) => Math.round(x * 10) / 10;
+  return { mood: r1(by[day]), usual: r1(usual) };
+}
+
+/** Is a busy appointment in the evening (17–22, Europe/Zurich) of `day`? events: gEvents rows { start, end, allDay, busy }. */
+export function eveningBusy(events = [], day) {
+  const key = (iso) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Zurich', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(d);
+    const get = (t) => parts.find((x) => x.type === t)?.value;
+    return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
+  };
+  const from = `${day}T${String(EVENING[0]).padStart(2, '0')}:00`;
+  const to = `${day}T${String(EVENING[1]).padStart(2, '0')}:00`;
+  return events.some((e) => {
+    if (!e || e.allDay || e.busy === false) return false;
+    const st = key(e.start);
+    if (!st) return false;
+    const en = key(e.end ?? e.start) ?? st;
+    return st < to && (en > from || (en === st && st >= from));
+  });
+}
+/** A dry, warm day (at least `warm` degrees, under 1 mm and a rain chance under RAIN_DRY) and a free evening in a calendar that is in use: { max } or null. cal: { used, events }. */
+export function draussenHit(wx, cal, today, warm = WARM_C) {
+  const w = wxOf(wx, today);
+  if (!w || !cal?.used) return null;
+  const max = fin(w.max);
+  if (max == null || max < warm) return null;
+  if ((fin(w.rainMm) ?? 0) >= 1 || (fin(w.rainPct) ?? 0) >= RAIN_DRY) return null;
+  if (eveningBusy(cal.events, today)) return null;
+  return { max: Math.round(max) };
+}
+
+/* ---------- the random question (Noah 04.11.2026 «3a»: one a day from the switched-off sample questions) ---------- */
+/** Is the random question on? */
+export const randomOn = (value) => !dataOf(value).zufall.off;
+/** Switch the random question on or off → the new settings value. */
+export function setRandom(value, on) {
+  const cur = dataOf(value);
+  return { ...cur, zufall: { ...cur.zufall, off: !on } };
+}
+/** «Never again» for a question: it is not picked any more, and no other random question comes today → the new settings value. */
+export function neverAgain(value, id, today) {
+  const cur = dataOf(value);
+  return { ...cur, zufall: { ...cur.zufall, never: [...new Set([...cur.zufall.never, id])], day: today } };
+}
+/** Bring the «never again» questions back → the new settings value. */
+export function bringBack(value) {
+  const cur = dataOf(value);
+  return { ...cur, zufall: { ...cur.zufall, never: [], day: '' } };
+}
+/** The count of «never again» questions. */
+export const neverCount = (value) => dataOf(value).zufall.never.length;
+const hash = (str) => {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619) >>> 0;
+  return h;
+};
+/**
+ * Today's random question: the same all day (a hash of the day and the question, so it does not jump around),
+ * from `pool` (the sample questions that are switched off: { id, area, ... }), without the «never again» ones and the ones
+ * answered within RANDOM_REST days. answers: rows { qid, day }. → the question or null.
+ */
+export function randomPick(pool = [], answers = [], cfg = null, today) {
+  if (!today) return null;
+  const never = new Set(dataOf(cfg).zufall.never);
+  const since = addDays(today, -RANDOM_REST);
+  const recent = new Set(answers.filter((a) => a?.day >= since && a.day < today).map((a) => a.qid));
+  const left = pool.filter((x) => x?.id && !never.has(x.id) && !recent.has(x.id));
+  if (!left.length) return null;
+  return left.map((x) => [hash(`${today}|${x.id}`), x]).sort((a, b) => a[0] - b[0] || a[1].id.localeCompare(b[1].id))[0][1];
+}
+
+/** The guess of today: the hint (an insight row, with its `sentence` and `rho`) when it is strong enough: { sentence } or null. */
+export function vermutungHit(hint, strength = 30) {
+  if (!hint?.sentence || !(Math.abs(hint.rho) * 100 >= strength)) return null;
+  return { sentence: hint.sentence };
+}
+
 const WHY = {
+  vermutung: 'Your data hints: {sentence} Today looks like such a day, so it is worth checking.',
+  zufall: 'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.',
+  grau: 'Rain is likely today and your latest mood was {mood}, your usual is {usual}.',
+  draussen: 'Dry and {max} degrees today, and nothing in your calendar this evening.',
   spiel: 'You noted a game of {min} minutes yesterday.',
   platz: 'You noted a planned court time as not played in the last days.',
   pause: 'Your last logged training was {n} days ago.',
@@ -418,6 +601,9 @@ const WHY = {
   stimmungN: 'Your mood on the last {days} days was {list}, your usual is {usual}.',
 };
 const HITS = {
+  vermutung: ({ hint, val }) => vermutungHit(hint, val),
+  grau: ({ wx, answers, checks, today, val }) => grauHit(wx, answers, checks, today, val),
+  draussen: ({ wx, cal, today, val }) => draussenHit(wx, cal, today, val),
   pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
   spiel: ({ sport, today, val }) => spielHit(sport, today, val),
   platz: ({ sport, today, val }) => platzHit(sport, today, val),
@@ -433,13 +619,15 @@ const HITS = {
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], acts = [], sport = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, hint = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
-  const doneToday = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => a.qid)).size;
+  const pick = randomOn(cfg) ? randomPick(pool, answers, cfg, today) : null;
+  const doneToday = new Set(answers.filter((a) => (String(a?.qid ?? '').startsWith('daten.') || a?.qid === pick?.id) && a.day === today).map((a) => a.qid)).size;
   const room = Math.max(0, MAX_PER_DAY - doneToday);
   // not two questions from data of the same group on a day (Noah 04.11.2026 «2a»): answered ones count
   const usedAreas = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => DATA_QUESTIONS[a.qid]?.area).filter(Boolean));
+  if (pick && answers.some((a) => a?.qid === pick.id && a.day === today)) usedAreas.add(pick.area);
   // a question put away today (skipped, «Not today») keeps its group used as well
   for (const q of Object.values(DATA_QUESTIONS)) if (snooze?.[q.id] && dayOf(snooze[q.id]) >= today) usedAreas.add(q.area);
   const out = [];
@@ -452,11 +640,16 @@ export function dataDue({ health = [], acts = [], sport = [], answers = [], chec
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, acts, sport, answers, checks, today, val: ruleVal(cfg, rule.id) });
+    const hit = HITS[rule.id]({ health, acts, sport, wx, cal, hint, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
     out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
     usedAreas.add(q.area);
+  }
+  // the random question comes last, once a day, when there is room and its group is free; after «never again» not before tomorrow
+  const put = pick ? snooze?.[pick.id] : null;
+  if (pick && out.length < room && !usedAreas.has(pick.area) && dataOf(cfg).zufall.day !== today && !(put && dayOf(put) >= today) && !answers.some((a) => a?.qid === pick.id && a.day === today)) {
+    out.push({ q: pick, slot, last: slot, why: { text: WHY.zufall, vars: {} }, data: true, rule: 'zufall', random: true, fewer: false });
   }
   return out;
 }

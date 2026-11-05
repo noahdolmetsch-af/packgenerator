@@ -9,7 +9,7 @@
   import { ChevronDown, ChevronRight, ChevronUp, Lightbulb } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { db } from '../db.js';
-  import { pageContent, pagePattern, SHOWN, FOLD_KEY, foldMapOf, isFolded } from '../seiteninhalt.js';
+  import { pageContent, pagePattern, SHOWN, FOLD_KEY, SEEN_KEY, foldMapOf, isFolded, seenMapOf, newSince } from '../seiteninhalt.js';
   import { loadWissen } from '../wissen/load.js';
   import { loadHandbook } from '../handbook/load.js';
 
@@ -24,6 +24,9 @@
   const key = $derived(pagePattern(hash)); // one fold choice for all trips (#/debrief/:trip), not one per trip
   const foldQ = liveQuery(async () => foldMapOf((await db.settings.get(FOLD_KEY))?.value));
   const folded = $derived(isFolded($foldQ, key));
+  const seenQ = liveQuery(async () => seenMapOf((await db.settings.get(SEEN_KEY))?.value));
+  // new functions on this page since the card was last folded or opened: a dot on the folded line
+  const fresh = $derived(newSince($seenQ, key, rows.length));
   let all = $state(false);
   let open = $state({});
   const shown = $derived(all ? rows : rows.slice(0, SHOWN));
@@ -40,13 +43,17 @@
     const cur = foldMapOf((await db.settings.get(FOLD_KEY))?.value);
     cur[key] = on;
     await db.settings.put({ key: FOLD_KEY, value: cur });
+    // what the card showed now counts as seen, so «new» only means what comes later
+    const seen = seenMapOf((await db.settings.get(SEEN_KEY))?.value);
+    seen[key] = rows.length;
+    await db.settings.put({ key: SEEN_KEY, value: seen });
   }
 </script>
 
 {#if rows.length && $foldQ}
   {#if folded}
     <button type="button" class="si-line" onclick={() => setFold(false)} data-seiteninhalt-line>
-      <Lightbulb size={16} aria-hidden="true" /><span class="si-linet">{t('What you can do here')} <span class="num">{rows.length}</span></span><span class="si-open">{t('Open the card')}</span><ChevronDown size={16} aria-hidden="true" />
+      <Lightbulb size={16} aria-hidden="true" /><span class="si-linet">{t('What you can do here')} <span class="num">{rows.length}</span></span>{#if fresh}<span class="si-new" data-seiteninhalt-new title={t('{n} new on this page', { n: fresh })}>{t('{n} new', { n: fresh })}</span>{/if}<span class="si-open">{t('Open the card')}</span><ChevronDown size={16} aria-hidden="true" />
     </button>
   {:else}
     <section class="si" aria-labelledby="si-h" data-seiteninhalt={key}>
@@ -162,9 +169,18 @@
   .si-linet {
     flex: 1;
     text-align: left;
+    white-space: nowrap;
   }
   .si-open {
     color: var(--hi);
+  }
+  .si-new {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--hi);
+    color: var(--paper);
+    font-size: var(--fs-small);
+    white-space: nowrap;
   }
   /* A phone held sideways has no room above the trip band: the folded line waits until the phone is upright again. */
   @media (orientation: landscape) and (max-height: 500px) {

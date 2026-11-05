@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -50,7 +50,7 @@ describe('Fragen aus deinen Daten', () => {
     expect(dataDue({ health: health(52, 61), today: TODAY }).length).toBeLessThanOrEqual(MAX_PER_DAY);
   });
   it('keeps the switches safe', () => {
-    expect(dataOf(null)).toEqual({ off: [], vals: {}, texts: {}, gaps: {}, skips: {} });
+    expect(dataOf(null)).toEqual({ off: [], vals: {}, texts: {}, gaps: {}, skips: {}, zufall: { off: false, never: [], day: '' } });
     expect(dataOf({ off: ['ruhepuls', 'ruhepuls', 'nope', 3] }).off).toEqual(['ruhepuls']);
     expect(ruleOn(setRule(null, 'ruhepuls', false), 'ruhepuls')).toBe(false);
     expect(ruleOn(setRule({ off: ['ruhepuls'] }, 'ruhepuls', true), 'ruhepuls')).toBe(true);
@@ -245,4 +245,129 @@ describe('Fragen aus deinen Daten', () => {
       expect(dataOf({ gaps: { ruhepuls: 99, schlaf: 2 }, skips: { ruhepuls: { n: 0, day: 'x' } } })).toMatchObject({ gaps: {}, skips: {} });
     });
   });
+  describe('Wetter', () => {
+    const wx = (o = {}) => ({ date: TODAY, min: 8, max: 19, rainMm: 0, rainPct: 10, ...o });
+    const ev = (start, end, o = {}) => ({ id: start, day: start.slice(0, 10), start, end, ...o });
+    it('grey day: rain likely and the latest mood clearly below the usual', () => {
+      const m = [...moods(7, []), { qid: 'spass.stimmung', day: add(TODAY, -1), value: 5 }];
+      expect(grauHit(wx({ rainPct: 80 }), m, [], TODAY)).toEqual({ mood: 5, usual: 7 });
+      expect(grauHit(wx({ rainPct: 50 }), m, [], TODAY)).toBeNull();
+      expect(grauHit(wx({ rainPct: 50 }), m, [], TODAY, 40)).not.toBeNull();
+      expect(grauHit(wx({ rainMm: 6, rainPct: 10 }), m, [], TODAY)).not.toBeNull(); // 5 mm or more is a rainy day by itself
+      expect(grauHit(wx({ rainPct: 80 }), [...moods(7, []), { qid: 'spass.stimmung', day: add(TODAY, -1), value: 6.5 }], [], TODAY)).toBeNull(); // not clearly below
+      expect(grauHit(wx({ rainPct: 80, date: add(TODAY, 1) }), m, [], TODAY)).toBeNull(); // forecast of another day
+      expect(grauHit(null, m, [], TODAY)).toBeNull();
+      expect(grauHit(wx({ rainPct: 80 }), moods(7, []), [], TODAY)).toBeNull(); // no recent mood
+    });
+    it('grey day: today\'s mood wins over yesterday\'s', () => {
+      const m = [...moods(7, []), { qid: 'spass.stimmung', day: add(TODAY, -1), value: 4 }, { qid: 'spass.stimmung', day: TODAY, value: 7 }];
+      expect(grauHit(wx({ rainPct: 80 }), m, [], TODAY)).toBeNull();
+    });
+    it('evening: only a busy appointment between 17 and 22 (Zurich) counts', () => {
+      const d = TODAY; // 3 November: winter time, UTC+1
+      expect(eveningBusy([ev(`${d}T17:30:00Z`, `${d}T18:30:00Z`)], d)).toBe(true); // 18:30–19:30 local
+      expect(eveningBusy([ev(`${d}T08:00:00Z`, `${d}T09:00:00Z`)], d)).toBe(false);
+      expect(eveningBusy([ev(`${d}T21:30:00Z`, `${d}T22:30:00Z`)], d)).toBe(false); // starts 22:30 local
+      expect(eveningBusy([ev(`${d}T15:00:00Z`, `${d}T16:00:00Z`)], d)).toBe(false); // 16:00–17:00 local ends at 17:00: not busy
+      expect(eveningBusy([ev(`${d}T15:00:00Z`, `${d}T16:30:00Z`)], d)).toBe(true); // until 17:30 local
+      expect(eveningBusy([ev(`${d}T17:30:00Z`, `${d}T18:30:00Z`, { allDay: true })], d)).toBe(false);
+      expect(eveningBusy([ev(`${d}T17:30:00Z`, `${d}T18:30:00Z`, { busy: false })], d)).toBe(false);
+      expect(eveningBusy([], d)).toBe(false);
+    });
+    it('fine weather: dry, warm and a free evening in a calendar that is in use', () => {
+      const cal = { used: true, events: [] };
+      expect(draussenHit(wx(), cal, TODAY)).toEqual({ max: 19 });
+      expect(draussenHit(wx({ max: 12 }), cal, TODAY)).toBeNull();
+      expect(draussenHit(wx({ max: 12 }), cal, TODAY, 10)).not.toBeNull();
+      expect(draussenHit(wx({ rainPct: 40 }), cal, TODAY)).toBeNull();
+      expect(draussenHit(wx({ rainMm: 1 }), cal, TODAY)).toBeNull();
+      expect(draussenHit(wx(), { used: false, events: [] }, TODAY)).toBeNull(); // no calendar: we cannot know the evening
+      expect(draussenHit(wx(), { used: true, events: [ev(`${TODAY}T18:00:00Z`, `${TODAY}T19:00:00Z`)] }, TODAY)).toBeNull();
+      expect(draussenHit(wx(), null, TODAY)).toBeNull();
+    });
+    it('both ask through dataDue, with their reason and their switch', () => {
+      const m = [...moods(7, []), { qid: 'spass.stimmung', day: add(TODAY, -1), value: 5 }];
+      const [a] = dataDue({ wx: wx({ rainPct: 90 }), answers: m, today: TODAY });
+      expect(a.q.id).toBe('daten.grau');
+      expect(a.why.vars).toEqual({ mood: 5, usual: 7 });
+      const [b] = dataDue({ wx: wx(), cal: { used: true, events: [] }, today: TODAY });
+      expect(b.q.id).toBe('daten.draussen');
+      expect(dataDue({ wx: wx(), cal: { used: true, events: [] }, today: TODAY, cfg: setRule(null, 'draussen', false) })).toEqual([]);
+      expect(RULES.map((r) => r.id)).toEqual(expect.arrayContaining(['grau', 'draussen']));
+    });
+  });
+
+  describe('Zufallsfrage', () => {
+    const pool = ['a.eins', 'a.zwei', 'b.drei', 'c.vier'].map((id) => ({ id, area: id[0] === 'a' ? 'erholung' : 'spass', text: id, sample: true }));
+    it('picks one question for the day, the same all day, another one on other days', () => {
+      const p = randomPick(pool, [], null, TODAY);
+      expect(pool.map((x) => x.id)).toContain(p.id);
+      expect(randomPick(pool, [], null, TODAY).id).toBe(p.id);
+      const ids = new Set(Array.from({ length: 12 }, (_, i) => randomPick(pool, [], null, add(TODAY, i)).id));
+      expect(ids.size).toBeGreaterThan(1);
+      expect(randomPick([], [], null, TODAY)).toBeNull();
+    });
+    it('leaves out «never again» questions and ones answered in the last 30 days', () => {
+      const p = randomPick(pool, [], null, TODAY);
+      const c = neverAgain(null, p.id, add(TODAY, -5));
+      expect(neverCount(c)).toBe(1);
+      expect(randomPick(pool, [], c, TODAY).id).not.toBe(p.id);
+      const answered = pool.slice(1).map((x) => ({ qid: x.id, day: add(TODAY, -10) }));
+      expect(randomPick(pool, answered, null, TODAY).id).toBe('a.eins');
+      expect(randomPick(pool, pool.map((x) => ({ qid: x.id, day: add(TODAY, -10) })), null, TODAY)).toBeNull();
+      expect(randomPick(pool, pool.map((x) => ({ qid: x.id, day: add(TODAY, -31) })), null, TODAY)).not.toBeNull();
+      expect(neverCount(bringBack(c))).toBe(0);
+    });
+    it('comes last through dataDue, counts toward the three a day and respects the groups', () => {
+      const p = randomPick(pool, [], null, TODAY);
+      const [r] = dataDue({ pool, today: TODAY });
+      expect(r).toMatchObject({ q: { id: p.id }, rule: 'zufall', random: true, data: true });
+      // after the rules: a rule from data comes first
+      const withRule = dataDue({ health: health(52, 61), pool, today: TODAY }).map((x) => x.q.id);
+      expect(withRule[0]).toBe('daten.ruhepuls');
+      // the three a day: two answered data questions leave room for one, three leave none
+      const done = (...ids) => ids.map((qid) => ({ qid, day: TODAY }));
+      expect(dataDue({ pool: [{ id: 'z.x', area: 'natur' }], answers: done('daten.ruhepuls', 'daten.schlaf'), today: TODAY })).toHaveLength(1);
+      expect(dataDue({ pool: [{ id: 'z.x', area: 'natur' }], answers: done('daten.ruhepuls', 'daten.schlaf', 'daten.pause'), today: TODAY })).toEqual([]);
+      // the answered random question counts, too
+      expect(dataDue({ pool: [{ id: 'z.x', area: 'natur' }], answers: done('daten.ruhepuls', 'daten.schlaf', 'z.x'), today: TODAY })).toEqual([]);
+      // the group of the pick is used: no random question from a group already asked today
+      expect(dataDue({ pool: [{ id: 'z.x', area: 'koerper' }], answers: done('daten.ruhepuls'), today: TODAY })).toEqual([]);
+    });
+    it('stays away after skip, «never again» and the switch', () => {
+      const one = [{ id: 'z.x', area: 'natur' }];
+      expect(dataDue({ pool: one, snooze: { 'z.x': `${TODAY}T23:59` }, today: TODAY })).toEqual([]);
+      const gone = neverAgain(null, 'z.x', TODAY);
+      expect(dataDue({ pool: [...one, { id: 'z.y', area: 'natur' }], cfg: gone, today: TODAY })).toEqual([]); // no other one today
+      expect(dataDue({ pool: [...one, { id: 'z.y', area: 'natur' }], cfg: gone, today: add(TODAY, 1) })[0].q.id).toBe('z.y');
+      expect(randomOn(null)).toBe(true);
+      expect(dataDue({ pool: one, cfg: setRandom(null, false), today: TODAY })).toEqual([]);
+      expect(randomOn(setRandom(setRandom(null, false), true))).toBe(true);
+    });
+  });
+
+  describe('Vermutung testen', () => {
+    const hint = { id: 'sleep-mood', x: 'sleepH', y: 'mood', rho: 0.45, sentence: 'On days with more than 6 h of sleep, your mood was 8 on average, otherwise 5.' };
+    it('asks when the hint is strong enough, with the sentence as the reason', () => {
+      expect(vermutungHit(hint)).toEqual({ sentence: hint.sentence });
+      expect(vermutungHit({ ...hint, rho: 0.29 })).toBeNull();
+      expect(vermutungHit({ ...hint, rho: -0.5 })).not.toBeNull(); // a hint against counts as well
+      expect(vermutungHit(hint, 50)).toBeNull();
+      expect(vermutungHit(null)).toBeNull();
+      expect(vermutungHit({ ...hint, sentence: '' })).toBeNull();
+      const [d] = dataDue({ hint, today: TODAY });
+      expect(d.q.id).toBe('daten.vermutung');
+      expect(d.why.vars).toEqual({ sentence: hint.sentence });
+    });
+    it('has its switch, its threshold and its group', () => {
+      expect(dataDue({ hint, today: TODAY, cfg: setRule(null, 'vermutung', false) })).toEqual([]);
+      expect(dataDue({ hint, today: TODAY, cfg: setVal(null, 'vermutung', 50) })).toEqual([]);
+      expect(ruleVal(null, 'vermutung')).toBe(30);
+      expect(DATA_QUESTIONS['daten.vermutung'].form.multi).toBe(false);
+      // not twice in the gap, and the group (achtsamkeit) is used once a day
+      expect(dataDue({ hint, today: TODAY, answers: [{ qid: 'daten.vermutung', day: add(TODAY, -1) }] })).toEqual([]);
+      expect(dataDue({ hint, today: TODAY, answers: [{ qid: 'daten.vermutung', day: add(TODAY, -3) }] })).toHaveLength(1);
+    });
+  });
+
 });

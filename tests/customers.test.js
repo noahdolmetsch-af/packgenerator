@@ -31,3 +31,40 @@ describe('Kundenliste', () => {
     expect(d.amount).toBe('50');
   });
 });
+
+describe('lesson card', () => {
+  const c = { id: 'c1', name: 'Mia Muster', pack: { size: 2, price: 45000, from: '2026-11-02' } };
+  const bs = [
+    { id: 'a', name: 'mia muster', at: '2026-10-30T10:00' },
+    { id: 'b', name: 'Mia Muster', at: '2026-11-03T10:00' },
+    { id: 'c', name: 'Mia Muster', at: '2026-11-10T10:00' },
+    { id: 'd', name: 'Mia Muster', at: '2026-11-17T10:00' },
+  ];
+  it('covers the first N lessons from the start day, in time order', async () => {
+    const { packCover } = await import('../src/lib/booking/customers.js');
+    expect(packCover([c], bs)).toEqual({ b: { n: 1, size: 2 }, c: { n: 2, size: 2 } });
+  });
+  it('counts the lessons that are over', async () => {
+    const { packState } = await import('../src/lib/booking/customers.js');
+    expect(packState(c, bs, '2026-11-05T00:00')).toEqual({ size: 2, used: 1, left: 1 });
+    expect(packState({ name: 'x' }, bs, '')).toBeNull();
+  });
+  it('reads the card fields', async () => {
+    const { parsePack } = await import('../src/lib/booking/customers.js');
+    expect(parsePack('10', '450', '2026-11-04')).toEqual({ size: 10, price: 45000, from: '2026-11-04' });
+    expect(parsePack('', '', '')).toBeNull();
+    expect(parsePack('0', '', '')).toBeUndefined();
+    expect(parsePack('10', 'abc', '')).toBeUndefined();
+  });
+});
+
+describe('subscription', () => {
+  it('reads the price, empty means none', async () => {
+    const { parseAbo, aboOf } = await import('../src/lib/booking/customers.js');
+    expect(parseAbo('200')).toEqual({ price: 20000 });
+    expect(parseAbo('')).toBeNull();
+    expect(parseAbo('abc')).toBeUndefined();
+    expect(aboOf({ abo: { price: 20000 } })).toEqual({ price: 20000 });
+    expect(aboOf({})).toBeNull();
+  });
+});

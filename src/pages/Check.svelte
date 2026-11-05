@@ -1,35 +1,26 @@
 <script>
   /**
-   * v0.127.0 «Tages-Check» 1 (mockups T1 and T2, Noah 13.10.2026 «ich gebe hiermit alle mockups frei»):
-   * the morning check (#/check/morning) and the evening review (#/check/evening) as pages of Heute.
-   *   Morning: 1–3 sleep, energy, mood (as since v0.51.0, the line under a number is yesterday), 4 the
-   *   rotating question of the editable pool, 6 «Worauf freust du dich?», 7 the goal of the day, and
-   *   «Gestern Abend» (optional). At the side: a suggestion for today (rules, never mandatory, «Nicht
-   *   heute»), what the app already knows today, and the night from Fitbit (0.171; before: a placeholder).
-   *   Evening: 8 satisfaction, 9 the best of the day (+ a few words, spoken where the browser can),
-   *   10 the morning's goal reached?, 11 time outside (filled in from today's rides, changeable), 12 or 13
-   *   (they take turns), 14 a mindful moment (found by itself from today's meditation). At the side: the
-   *   day in numbers, morning → evening, the week so far.
-   * Every answer is saved at once in the day's row of flowChecks; every question can be skipped.
-   * v0.127.0 «Tages-Check» 2 (T4): a question switched off in «Deine 15 Fragen» (#/check/questions) is
-   * not asked; on Sundays the evening asks question 15 «Bist du deiner Vision näher gekommen?».
+   * The morning check (#/check/morning) and the evening review (#/check/evening) as pages of Heute (v0.127.0, mockups T1/T2).
+   * Noah 04.11.2026 «ein Fragebogen»: the questions on top are the window's (RoundQuestions, from «Deine Fragen»); every answer is
+   * saved at once and counts in the window too. Around them what is not a question: «Gestern Abend», the suggestion, what the app
+   * already knows today, the night from Fitbit (morning); the trip's rating, a few words of your own, the day in numbers, morning →
+   * evening and the week so far (evening). Sleep, battery and mood also land in the day's row of flowChecks (saveAnswers).
    */
   import SpeakButton from '../lib/ui/SpeakButton.svelte';
   import InputBar from '../lib/eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, photo, templates, prompts
   import { cleanInputs } from '../lib/eingabe/inputs.js';
   import { appendSpoken } from '../lib/speak.js';
-  import { Sun, Clock, CalendarClock, Route, Lightbulb, PenLine, Flower2, ListChecks, ChevronRight } from '@lucide/svelte';
+  import { Sun, Clock, CalendarClock, Route, Lightbulb, PenLine, Flower2 } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import AbendTour from '../lib/lernen/AbendTour.svelte'; // Paket M #223
-  import Scale from '../lib/flow/check/Scale.svelte';
   import CheckTabs from '../lib/flow/check/CheckTabs.svelte';
   import Chips from '../lib/flow/check/Chips.svelte';
   import RoundQuestions from '../lib/abfragen/RoundQuestions.svelte'; // Noah 04.11.2026 «ein Fragebogen»: the same questions as the window
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { checkQuery, seedIfNeeded, offQuery } from '../lib/flow/data.svelte.js';
+  import { checkQuery, checksQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { saveCheck } from '../lib/flowdb.js';
-  import { isOn, eveningTurnFor, visionToday, checkOf, patchCheck, yesterdayOf, JOYS, BEST, GOALS, LAST_EVENING, OUTSIDE, PEOPLE, GOAL_DONE, toggleId, outsideFromRides, eveningTurn, mindfulFound, weekHighlights, suggestion } from '../lib/flowcheck.js';
+  import { checkOf, patchCheck, BEST, GOALS, LAST_EVENING, toggleId, outsideFromRides, mindfulFound, weekHighlights, suggestion } from '../lib/flowcheck.js';
   import { flowStates } from '../lib/flow.js';
   import { streaks, zurichTime } from '../lib/flowmed.js';
   import { soonTrips } from '../lib/home/heute.js';
@@ -45,9 +36,9 @@
   const today = localDay();
   const q = checkQuery(today);
   const data = $derived($q);
-  const offQ = offQuery();
-  const off = $derived($offQ ?? []);
-  const on = (n) => isOn(off, n);
+  const checksQ = checksQuery(today);
+  const checks = $derived($checksQ ?? []);
+  const checksIn = $derived($checksQ != null);
   $effect(() => {
     seedIfNeeded(data);
   });
@@ -55,7 +46,7 @@
   /* the day's answers: read once, then kept here and saved on every tap (no tap waits for the database) */
   let cur = $state(null);
   $effect(() => {
-    if (data && !cur) cur = checkOf(data.checks.find((c) => c.day === today), today);
+    if (data && checksIn && !cur) cur = checkOf(checks.find((c) => c.day === today), today);
   });
   function set(fields) {
     // the time the morning was first answered (the «Morgen-Check» tile on Heute shows it)
@@ -64,13 +55,6 @@
     saveCheck(db, $state.snapshot(cur));
   }
   const evening = $derived(part === 'evening');
-  // Noah 20.10.2026 «frage überspringen button, sehr klein und dezent»: a skipped question hides for today
-  const sk = (key) => !!cur?.skip?.includes(key);
-  const skipQ = (key) => set({ skip: [...(cur.skip ?? []).filter((k) => k !== key), key] });
-  const skippedHere = $derived((cur?.skip ?? []).filter((k) => (evening ? EVENING_KEYS : MORNING_KEYS).includes(k)));
-  const MORNING_KEYS = ['joy'];
-  const EVENING_KEYS = ['sat', 'best', 'goalDone', 'outside', 'people', 'fun', 'mindful', 'vision'];
-  const ydot = (key, qid = null) => yesterdayOf(data?.checks ?? [], today, key, qid);
   const dateLong = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
   const dateShort = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
   // Noah 21.10.2026 «immer das datum und die uhrzeit der befragung, damit wir testen können»: the clock, each minute
@@ -83,25 +67,29 @@
     const x = list.find((y) => y.id === id);
     return x ? t(x.label) : id;
   };
-  // own chips (their text) after the given ones
-  const withOwn = (list, chosen = []) => [...list.map((x) => ({ id: x.id, label: t(x.label) })), ...chosen.filter((id) => !list.some((x) => x.id === id)).map((id) => ({ id, label: id }))];
 
   /* ---------- morning ---------- */
   const goalText = (g) => (g?.id ? label(GOALS, g.id) : (g?.text ?? ''));
   // the morning's goal is the answer to «Your goal for today» in the window and on the page (Deine Abfragen); the evening asks about it
-  const abQ = liveQuery(() => db.abAnswers.where('day').equals(today).toArray());
-  const abToday = $derived($abQ ?? []);
-  const goalAb = $derived(abToday.filter((r) => r.qid === 'ziele.ziel' && typeof r.value === 'string').sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')))[0]?.value ?? null);
+  const abQ = liveQuery(() => db.abAnswers.where('day').aboveOrEqual(addDay(today, -7)).toArray());
+  const abWeek = $derived($abQ ?? []);
+  const abToday = $derived(abWeek.filter((r) => r.day === today));
+  const lastAb = (qid, type = 'number') => abToday.filter((r) => r.qid === qid && typeof r.value === type).sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')))[0]?.value ?? null;
+  const goalAb = $derived(lastAb('ziele.ziel', 'string'));
+  // the satisfaction of the evening is the answer to «How happy are you with the day?» (Deine Abfragen), or the old daily check's
+  const satNow = $derived(lastAb('erreicht.zufrieden') ?? cur?.sat ?? null);
+  // what you look forward to: the answer to «What are you looking forward to most today?» (Deine Fragen, when it is on), else the old daily check's
+  const joyNow = $derived(lastAb('ziele.freude', 'object') ?? cur?.joy ?? []);
   const goalNow = $derived(cur?.goal ?? (goalAb ? { text: goalAb } : null));
   // sleep, battery and mood answered on the page or in the window land in the day's check too (saveAnswers): take them over here,
   // so the next tap on this page does not write the old value back
   $effect(() => {
-    const row = data?.checks.find((c) => c.day === today);
+    const row = checks.find((c) => c.day === today);
     if (!row || !cur) return;
     const diff = ['sleep', 'energy', 'mood'].filter((f) => row[f] !== cur[f] && row[f] != null);
     if (diff.length) cur = { ...cur, ...Object.fromEntries(diff.map((f) => [f, row[f]])) };
   });
-  const sugg = $derived(cur ? suggestion({ sleep: cur.sleep, energy: cur.energy, joy: cur.joy, weather: data?.weather ?? null }) : null);
+  const sugg = $derived(cur ? suggestion({ sleep: cur.sleep, energy: cur.energy, joy: joyNow, weather: data?.weather ?? null }) : null);
   const suggOff = $derived(cur?.sugg?.id === sugg?.id && cur?.sugg?.pick === 'no');
   const pickSugg = (id) => set({ sugg: cur.sugg?.id === sugg.id && cur.sugg.pick === id ? null : { id: sugg.id, pick: id } });
 
@@ -132,25 +120,31 @@
   /* ---------- evening ---------- */
   const outsidePre = $derived(data ? outsideFromRides(data.rides, today) : null);
   const outsideNow = $derived(cur?.outside ?? outsidePre?.step ?? null);
-  const turn = $derived(eveningTurnFor(today, off));
-  const vision = $derived(visionToday(today, off));
-  const OUT_LABEL = { 0: '0', lt30: 'up to 30 min', '30-90': '30–90 min', gt90: 'over 90 min' };
-  const PEOPLE_LABEL = { no: 'No|people', short: 'Briefly', lots: 'A lot|people' };
-  const DONE_LABEL = { yes: 'Yes|goal', part: 'Partly', no: 'No|goal' };
+  // a ride and a meditation of today fill in the evening questions by themselves (changeable, saved like a tap)
+  const OUT_ANSWER = { 0: 'm0', lt30: 'm30', '30-90': 'm90', gt90: 'more' };
+  const eveningPrefill = $derived({
+    ...(outsidePre && OUT_ANSWER[outsidePre.step] ? { 'natur.draussen': OUT_ANSWER[outsidePre.step] } : {}),
+    ...(medToday ? { 'achtsamkeit.moment': 'yes' } : {}),
+  });
+  const eveningHints = $derived({
+    'natur.draussen': t('filled in from your ride, changeable'),
+    'achtsamkeit.moment': medToday ? (zurichTime(medToday.at) ? t('found by itself: meditation {min} min at {time}', { min: medToday.min, time: zurichTime(medToday.at) }) : t('found by itself: meditation {min} min', { min: medToday.min })) : '',
+  });
   const kmToday = $derived(data ? Math.round(data.rides.reduce((s, r) => s + (Number(r.km) || 0), 0) * 10) / 10 : 0);
   const viaStrava = $derived(!!data?.rides.some((r) => r.source === 'strava'));
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays).filter((s) => !s.resting) : []);
   const goalsMet = $derived(states.filter((s) => s.met).length);
-  const week = $derived(data ? weekHighlights([...data.checks.filter((c) => c.day !== today), ...(cur ? [cur] : [])], today) : []);
+  // the coolest things of the week: the old daily checks and the answers to «What was the coolest thing today?» (one count per day and kind)
+  const week = $derived.by(() => {
+    if (!data) return [];
+    const byDay = new Map();
+    for (const c of [...checks.filter((x) => x.day !== today), ...(cur ? [cur] : [])]) byDay.set(c.day, new Set(c.best ?? []));
+    for (const r of abWeek) if (r.qid === 'spass.coolstes' && Array.isArray(r.value)) byDay.set(r.day, new Set([...(byDay.get(r.day) ?? []), ...r.value]));
+    return weekHighlights([...byDay].map(([day, best]) => ({ day, best: [...best] })), today);
+  });
   const DOT = { nature: 'var(--l1)', sport: 'var(--l2)', calm: 'var(--l4)', friends: 'var(--l3)', done: 'var(--hi)', new: 'var(--ink-3)' };
   async function finish() {
-    // what was filled in by itself is kept as the answer (still changeable later)
-    if (evening && cur) {
-      const fields = {};
-      if (cur.outside == null && outsidePre) fields.outside = outsidePre.step;
-      if (cur.mindful == null && medToday && on(14)) fields.mindful = 'auto';
-      if (Object.keys(fields).length) await saveCheck(db, patchCheck($state.snapshot(cur), fields, today));
-    }
+    // the evening's answers are saved at once (RoundQuestions), also what was filled in by itself
     location.hash = '#/';
   }
 
@@ -202,27 +196,10 @@
   {/if}
 </div>
 
-{#snippet head(n, id, text, small, tag, key = null)}
-  <div class="qh">
-    <!-- Gesamttest 20.10.2026 (B10): counted on screen 1, 2, 3 … (CSS counter), not the number of the 15 questions -->
-    <span class="qn num" aria-hidden="true" data-n={n}></span>
-    <span class="qt"><b id={id}>{text}</b>{#if small}<small>{small}</small>{/if}</span>
-    <span class="pill">{tag}</span>
-    {#if key}<button type="button" class="skip" onclick={() => skipQ(key)} aria-label={t('Skip «{q}»', { q: text })} data-skip={key}>{t('Skip|question')}</button>{/if}
-  </div>
-{/snippet}
-
 {#snippet morningQs()}
   <section class="card qs" aria-label={t('Morning check')}>
     <!-- Noah 04.11.2026 «ein Fragebogen»: sleep, battery, mood, the goal … are the questions of the window (Deine Abfragen) -->
     <RoundQuestions part="morning" {today} />
-    {#if on(6)}
-    <div class="q" data-q="joy" hidden={sk('joy')}>
-      {@render head(6, 'cq-joy', t('What are you looking forward to today?'), t('several possible'), t('daily|check'), 'joy')}
-      <Chips name="joy" label="cq-joy" multi items={withOwn(JOYS, cur.joy)} value={cur.joy} own={t('own|chip')} onpick={(id) => set({ joy: toggleId(cur.joy, id) })} onown={(s) => set({ joy: cur.joy.includes(s) ? cur.joy : [...cur.joy, s] })} />
-    </div>
-    {/if}
-    {@render allQs()}
   </section>
 {/snippet}
 
@@ -297,16 +274,10 @@
   <section class="card qs" aria-label={t('Evening review')}>
     <!-- Paket M #223: on a trip day, rate the trip while it is fresh (nothing shows on other days) -->
     <AbendTour trips={data.trips} {today} />
-    {#if on(8)}
-    <div class="q" data-q="sat" hidden={sk('sat')}>
-      {@render head(8, 'cq-sat', t('How happy are you with the day?'), `${t('not at all|sat')} … ${t('very|sat')}`, t('daily|check'), 'sat')}
-      <Scale value={cur.sat} yesterday={ydot('sat')} label="cq-sat" onpick={(v) => set({ sat: v })} />
-    </div>
-    {/if}
-    {#if on(9)}
-    <div class="q" data-q="best" hidden={sk('best')}>
-      {@render head(9, 'cq-best', t('What was the best part of today?'), t('several possible'), t('daily|check'), 'best')}
-      <Chips name="best" label="cq-best" multi items={withOwn(BEST, cur.best)} value={cur.best} own={t('own|chip')} onpick={(id) => set({ best: toggleId(cur.best, id) })} onown={(s) => set({ best: cur.best.includes(s) ? cur.best : [...cur.best, s] })} />
+    <!-- Noah 04.11.2026 «ein Fragebogen»: satisfaction, the coolest thing, the goal, outside, the mindful moment, friends and the
+         Sunday vision are the questions of the window (Deine Abfragen); a ride and a meditation of today fill in by themselves -->
+    <RoundQuestions part="evening" {today} prefill={eveningPrefill} hints={eveningHints} />
+    <div class="q" data-q="story">
       <div class="more">
         <PenLine size={16} aria-hidden="true" />
         <textarea class="st" rows="1" placeholder={t('Want to tell a bit more?')} aria-label={t('Want to tell a bit more?')} value={cur.story} onchange={(e) => set({ story: e.currentTarget.value })} data-story></textarea>
@@ -315,66 +286,7 @@
       </div>
       <InputBar place="check" text={cur.story ?? ''} ontext={(s) => set({ story: s })} inputs={cur.inputs} oninputs={(x) => set({ inputs: cleanInputs(x) })} />
     </div>
-    {/if}
-    {#if goalNow && on(10)}
-      <div class="q" data-q="goalDone" hidden={sk('goalDone')}>
-        {@render head(10, 'cq-gd', t('Goal from this morning: «{goal}»', { goal: goalText(goalNow) }), t('reached?'), t('daily|check'), 'goalDone')}
-        <Chips name="goalDone" label="cq-gd" items={GOAL_DONE.map((x) => ({ id: x, label: t(DONE_LABEL[x]) }))} value={cur.goalDone} onpick={(id) => set({ goalDone: cur.goalDone === id ? null : id })} />
-      </div>
-    {/if}
-    {#if on(11)}
-    <div class="q" data-q="outside" hidden={sk('outside')}>
-      {@render head(11, 'cq-out', t('How long were you outside?'), outsidePre && cur.outside == null ? t('filled in from your ride, changeable') : '', t('daily|check'), 'outside')}
-      <Chips name="outside" label="cq-out" items={OUTSIDE.map((x) => ({ id: x, label: t(OUT_LABEL[x]) }))} value={outsideNow} onpick={(id) => set({ outside: outsideNow === id && cur.outside != null ? null : id })} />
-    </div>
-    {/if}
-    {#if turn === 'people'}
-      <div class="q" data-q="people" hidden={sk('people')}>
-        {@render head(12, 'cq-ppl', t('Time with friends or family?'), on(13) ? t('takes turns with question 13') : '', t('today|check'), 'people')}
-        <Chips name="people" label="cq-ppl" items={PEOPLE.map((x) => ({ id: x, label: t(PEOPLE_LABEL[x]) }))} value={cur.people} onpick={(id) => set({ people: cur.people === id ? null : id })} />
-      </div>
-    {:else if turn === 'fun'}
-      <div class="q" data-q="fun" hidden={sk('fun')}>
-        {@render head(13, 'cq-fun', t('How much fun did you have?'), `${t('little|fun')} … ${t('a lot|fun')}${on(12) ? ` · ${t('takes turns with question 12')}` : ''}`, t('today|check'), 'fun')}
-        <Scale value={cur.fun} label="cq-fun" onpick={(v) => set({ fun: v })} />
-      </div>
-    {/if}
-    {#if !on(14)}
-      <!-- question 14 switched off -->
-    {:else if medToday}
-      <div class="q" data-q="mindful" hidden={sk('mindful')}>
-        <div class="auto" data-mindful-auto>
-          <Flower2 size={18} aria-hidden="true" />
-          <span><b>{t('Mindful moment')}</b> {zurichTime(medToday.at) ? t('found by itself: meditation {min} min at {time}', { min: medToday.min, time: zurichTime(medToday.at) }) : t('found by itself: meditation {min} min', { min: medToday.min })}</span>
-          <em>{t('question 14 is not needed today')}</em>
-        </div>
-      </div>
-    {:else}
-      <div class="q" data-q="mindful" hidden={sk('mindful')}>
-        {@render head(14, 'cq-mind', t('Did you have a mindful moment?'), t('a meditation counts by itself'), t('daily|check'), 'mindful')}
-        <Chips name="mindful" label="cq-mind" items={[{ id: 'yes', label: t('Yes|goal') }, { id: 'no', label: t('No|goal') }]} value={cur.mindful} onpick={(id) => set({ mindful: cur.mindful === id ? null : id })} />
-      </div>
-    {/if}
-    {#if vision}
-      <!-- v0.127.0 «Tages-Check» 2: question 15, on Sundays -->
-      <div class="q" data-q="vision" hidden={sk('vision')}>
-        {@render head(15, 'cq-vis', t('Did you get closer to your vision?'), `${t('not at all|vision')} … ${t('a big step')}`, t('Sunday|check'), 'vision')}
-        <Scale value={cur.vision} label="cq-vis" onpick={(v) => set({ vision: v })} />
-        <div class="more">
-          <PenLine size={16} aria-hidden="true" />
-          <textarea class="st" rows="1" placeholder={t('One sentence about it')} aria-label={t('One sentence about your vision')} value={cur.visionNote} onchange={(e) => set({ visionNote: e.currentTarget.value })} data-vision-note></textarea>
-        </div>
-      </div>
-    {/if}
-    {@render allQs()}
   </section>
-{/snippet}
-
-{#snippet allQs()}
-  {#if skippedHere.length}
-    <button type="button" class="lk" onclick={() => set({ skip: (cur.skip ?? []).filter((k) => !skippedHere.includes(k)) })} data-skip-back>{tn(skippedHere.length, 'Show {n} skipped question again', 'Show {n} skipped questions again')}</button>
-  {/if}
-  <a class="lk all" href="#/check/questions" data-all-questions><ListChecks size={16} aria-hidden="true" />{t('Your 15 questions')}<ChevronRight size={16} aria-hidden="true" /></a>
 {/snippet}
 
 {#snippet dayNumbers()}
@@ -399,11 +311,11 @@
 {#snippet morningEvening()}
   <section class="card" aria-labelledby="cq-me">
     <div class="ch2"><h2 id="cq-me">{t('Morning → evening')}</h2><p><span class="dt m" aria-hidden="true"></span>{t('Mood in the morning')} <span class="dt a" aria-hidden="true"></span>{t('Satisfaction in the evening')}</p></div>
-    {#if cur.mood != null && cur.sat != null}
+    {#if cur.mood != null && satNow != null}
       <div class="cmp" data-cmp>
         <span>{t('Feeling|cmp')}</span>
-        <div class="ln"><i class="m" style:left="{((cur.mood - 1) / 9) * 100}%"></i><i class="a" style:left="{((cur.sat - 1) / 9) * 100}%"></i></div>
-        <b class="num">{cur.mood} → {cur.sat}</b>
+        <div class="ln"><i class="m" style:left="{((cur.mood - 1) / 9) * 100}%"></i><i class="a" style:left="{((satNow - 1) / 9) * 100}%"></i></div>
+        <b class="num">{cur.mood} → {satNow}</b>
       </div>
       <p class="fine">{t('Two different questions, both on 1–10: an observation, no rating.')}</p>
     {:else}
@@ -469,45 +381,11 @@
   .q:first-child {
     border-top: 0;
   }
-  .qh {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--sp-2);
-    margin-bottom: var(--sp-2);
-  }
   .qs {
     counter-reset: q;
   }
   .qs :global(.q) {
     counter-increment: q;
-  }
-  .qn::before {
-    content: counter(q);
-  }
-  .qn {
-    display: grid;
-    flex: none;
-    place-items: center;
-    width: 24px;
-    height: 24px;
-    margin-top: 1px;
-    border-radius: 999px;
-    background: var(--paper-2);
-    color: var(--ink-2);
-    font: 700 var(--fs-tiny) / 1 var(--font-body);
-  }
-  .qt {
-    flex: 1;
-    min-width: 0;
-  }
-  .qt b {
-    display: block;
-    font: 500 var(--fs-body) / 1.35 var(--font-body);
-  }
-  .qt small {
-    display: block;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .ch2 {
     display: flex;
@@ -539,28 +417,6 @@
     font: 400 var(--fs-small) / 1.3 var(--font-body);
     text-decoration: underline;
     cursor: pointer;
-  }
-  /* «Überspringen»: small and quiet; the hit area is bigger than the word */
-  .skip {
-    position: relative;
-    flex: none;
-    align-self: center;
-    padding: 0 2px;
-    border: 0;
-    background: none;
-    color: var(--ink-3);
-    font: 400 var(--fs-tiny) / 1.2 var(--font-body);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    cursor: pointer;
-  }
-  .skip::after {
-    content: '';
-    position: absolute;
-    inset: -14px -8px;
-  }
-  .skip:hover {
-    color: var(--ink-2);
   }
   .big {
     width: 100%;
@@ -626,15 +482,6 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .ghost {
-    margin: 0;
-    padding: var(--sp-3) var(--sp-4);
-    border: 1.5px dashed var(--line-strong);
-    border-radius: var(--r-ctl);
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    line-height: 1.45;
-  }
   .mm {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -681,26 +528,6 @@
   .st:focus-visible {
     outline: 2px solid var(--hi);
     outline-offset: 2px;
-  }
-  .auto {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-2) var(--sp-3);
-    padding: var(--sp-3);
-    border-radius: var(--r-ctl);
-    background: var(--accent-soft);
-    color: var(--ok);
-  }
-  .auto span {
-    flex: 1 1 200px;
-    color: var(--ink);
-    font-size: var(--fs-small);
-  }
-  .auto em {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    font-style: normal;
   }
   .cmp {
     display: grid;

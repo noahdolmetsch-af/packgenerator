@@ -25,6 +25,7 @@ function data({ keep = KEEP } = {}) {
   const d = homeFixture();
   const q = { ...Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && !keep.includes(x.id)).map((x) => [x.id, { on: false }])), ...Object.fromEntries(keep.filter((id) => !ON_AT_START.has(id)).map((id) => [id, { on: true }])) }; // a kept question that is off at the start (merged, MERGED_INTO) is switched on
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
+  d.tables.settings.push({ key: 'datenfragen', value: { zufall: { off: true } } }); // this spec counts the questions of the window: no random one (04.11.2026)
   d.tables.flowChecks = [{ day: day(-1), sleep: 6, energy: 5, mood: 7, q: 'food', extra: 8 }];
   d.tables.abAnswers = [{ id: 'test_data_gtp_w1', qid: 'koerper.waage', area: 'koerper', day: day(-7), at: `${day(-7)}T08:10`, slot: `${day(-7)}T08:00`, kind: 'number', value: 72.4, note: null, unit: 'kg', src: 'hand' }];
   return d;

@@ -14,7 +14,9 @@
   import { qText, areaName, everyShort } from './words.js';
   import './ab.css';
 
-  let { part = 'morning', today } = $props();
+  // prefill: { qid: raw answer } found by itself (a ride, a meditation), filled in where nothing is answered today, saved like a tap
+  // hints: { qid: text } says where it comes from while it stands unchanged
+  let { part = 'morning', today, prefill = {}, hints = {} } = $props();
   const query = $derived(abQuery(today));
   const data = $derived($query);
   $effect(() => {
@@ -36,6 +38,7 @@
   let draft = $state({});
   let notes = $state({});
   let ready = $state({});
+  let auto = $state({});
   let saved = {};
   const sigOf = (qid) => JSON.stringify([draft[qid] ?? null, String(notes[qid] ?? '').trim()]);
   // fill in what is answered today, once per question
@@ -48,6 +51,10 @@
       if (r?.value != null) draft[id] = r.value;
       if (r?.note) notes[id] = r.note;
       saved[id] = sigOf(id);
+      if (!r && prefill[id] != null) {
+        draft[id] = prefill[id];
+        auto[id] = true;
+      }
       ready[id] = true;
     }
   });
@@ -59,6 +66,11 @@
     clearTimeout(timer);
     timer = setTimeout(flush, 450);
     return () => clearTimeout(timer);
+  });
+  // leaving the page (Done, back, a link) saves what the last tap changed
+  $effect(() => () => {
+    clearTimeout(timer);
+    flush();
   });
   async function flush() {
     const rows = [];
@@ -105,6 +117,7 @@
           </span>
         </div>
         <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} />
+        {#if auto[d.q.id] && hints[d.q.id] && draft[d.q.id] === prefill[d.q.id]}<small class="hint" data-auto={d.q.id}>{hints[d.q.id]}</small>{/if}
       </div>
     {/each}
     {#if skippedN}
@@ -170,6 +183,12 @@
   }
   .skip:hover {
     color: var(--ink-2);
+  }
+  .hint {
+    display: block;
+    margin-top: 6px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .lk {
     align-self: flex-start;

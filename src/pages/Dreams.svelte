@@ -33,11 +33,14 @@
   import NeulandGoals from '../lib/neuland/NeulandGoals.svelte'; // Träume und Neuland N5
   import TripTips from '../lib/neuland/TripTips.svelte'; // N3 «Heute passt: Ausflugstipps»
   import DreamsMap from '../lib/dreams/DreamsMap.svelte'; // N14 «Karte aller Träume»
+  import MonthIdeas from '../lib/dreams/MonthIdeas.svelte'; // N8 «Passt jetzt: Ideen pro Monat»
+  import BiwakCard from '../lib/dreams/BiwakCard.svelte'; // N6 «Feierabend-Biwak»
+  import { nightFields } from '../lib/context.js';
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
   import { refreshDreamWx, windowsOf, dayRange, DREAM_WX } from '../lib/dreams/wetterfenster.js'; // N15 «Wetterfenster»
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
-  import { Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
+  import { Mountain, Sparkles, Flag, ChevronRight, Plus, Check, CalendarClock, Route, Pencil, Compass, Flame } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -98,6 +101,17 @@
     title = '';
     done = t('«{name}» added under {kind}. Tap it to change the months.', { name: d.title, kind: kindName(kinds, d.kind, t) });
   }
+  // N6: an after-work bivouac becomes a two-day trip with the bivouac block; the note keeps the place and the times
+  function biwakPlan({ name, day, spot, cfg }) {
+    const where = spot ? `${spot.name || t('Place to sleep')} (${spot.lat}, ${spot.lon})` : '';
+    plan = { kind: 'biwak', name, start: day, days: 2, note: [t('Off {start}, back {back}', { start: cfg.start, back: cfg.back }), where].filter(Boolean).join(' · ') };
+  }
+  // N8: a month idea becomes a dream with its months
+  async function ideaDream({ title: name, months }) {
+    const d = { ...newDream({ title: name }, { id: `dream-${Date.now().toString(36)}`, kinds }), months: [...months] };
+    await save({ dreams: [d, ...store.dreams] });
+    done = t('«{name}» added as a dream. Tap it to change the months.', { name: d.title });
+  }
   async function addFromLink(url, own) {
     reading = true;
     done = '';
@@ -124,7 +138,7 @@
 
   let open = $state(null);
   const openDream = $derived(open ? store.dreams.find((d) => d.id === open) : null);
-  let plan = $state(null); // { kind: 'dream'|'race', dream?, race?, name, start, days }
+  let plan = $state(null); // { kind: 'dream'|'race'|'biwak', dream?, race?, note?, name, start, days }
   let done = $state('');
 
   const ymText = (ym) => new Date(`${ym}-15T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
@@ -144,8 +158,12 @@
     const all = await db.trips.toArray();
     const items = await db.items.toArray();
     let trip = { ...newTrip({ title: name, startDate: start, days, bike }, all, items), idea: !start };
+    // toggleSet gives only { sets, entries }: the trip keeps its id and the rest
     if (plan.kind === 'race') {
-      trip = { ...toggleSet(trip, items, 'race', true), event: raceEvent(plan.race, { signupBy }) };
+      trip = { ...trip, ...toggleSet(trip, items, 'race', true), event: raceEvent(plan.race, { signupBy }) };
+    } else if (plan.kind === 'biwak') {
+      // N6: the bivouac night brings its building block, so the packing list is ready
+      trip = { ...trip, ...nightFields('bivy'), ...toggleSet(trip, items, 'bivy', true), note: plan.note };
     } else {
       trip = { ...trip, fromDream: plan.dream.id, ...(plan.taste ? { note: plan.dream.taste ?? '' } : plan.dream.url ? { note: `${plan.dream.title} ${plan.dream.url}` } : {}) };
     }
@@ -187,6 +205,7 @@
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
   <p class="dr-intro">{t('Tours you dream of. The app tells you when they fit.')}</p>
+  <p class="dr-sug"><a class="btn" href="#/trips/vorschlaege" data-dreams-suggest><Mountain size={16} aria-hidden="true" />{t('Tour suggestions')}</a> <span class="ich-help">{t('Mountain bike tours from the official network, to keep as dreams.')}</span></p>
   <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>
@@ -197,7 +216,7 @@
   </form>
   {#if done}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{done}</p>{/if}
 
-  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list.')}</p>{/if}
+  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» sit under the list.')}</p>{/if}
 
   <TripTips />
 
@@ -262,6 +281,11 @@
     {/if}
   </section>
 
+  {/if}
+
+  {#if view !== 'map'}
+  <MonthIdeas month={month || nowMonth} current={!month || month === nowMonth} onmakedream={ideaDream} />
+  <BiwakCard onplan={biwakPlan} />
   {/if}
 
   {#if view === 'list'}
@@ -349,7 +373,7 @@
   {#key open}<DreamSheet dream={openDream} {kinds} onchange={putDream} onremove={async (id) => (await save({ dreams: store.dreams.filter((x) => x.id !== id) }), id)} onplan={(d, taste = false) => (plan = { kind: 'dream', dream: d, taste, name: taste ? t('Taste of {name}', { name: d.title }) : d.title, start: suggestStart(d, today, kinds), days: taste ? 1 : d.days || 2 })} onclose={() => (open = null)} />{/key}
 {/if}
 {#if plan}
-  <PlanSheet title={plan.kind === 'race' ? t('Plan the race as a trip') : t('Plan the tour')} sub={plan.kind === 'race' ? t('With the race building block and the registration deadline') : t('A trip draft from your dream')} name={plan.name} start={plan.start} days={plan.days} race={plan.kind === 'race'} {bikes} onsave={makeTrip} onclose={() => (plan = null)} />
+  <PlanSheet title={plan.kind === 'race' ? t('Plan the race as a trip') : t('Plan the tour')} sub={plan.kind === 'race' ? t('With the race building block and the registration deadline') : plan.kind === 'biwak' ? t('Two days with the bivouac building block: the packing list is ready') : t('A trip draft from your dream')} name={plan.name} start={plan.start} days={plan.days} race={plan.kind === 'race'} {bikes} onsave={makeTrip} onclose={() => (plan = null)} />
 {/if}
 {#if deleting}
   {@const k = deleting}
@@ -381,6 +405,7 @@
   .dr-done > summary { display: flex; align-items: center; gap: var(--sp-2); cursor: pointer; padding: var(--sp-3) 0; }
   .dr-chips { display: block; margin-top: 2px; }
   .dr-chip { display: inline-block; white-space: nowrap; font-size: var(--fs-small); font-weight: 600; border-radius: 99px; padding: 1px var(--sp-2); background: var(--accent-soft); color: var(--accent-ink); }
+  .dr-sug { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin: 0 0 var(--sp-4); }
   .dr-intro {
     max-width: 65ch;
     margin: 0 0 var(--sp-4);

@@ -246,3 +246,21 @@ export function rhrHigh(health = [], today) {
   const last = recent.map((d) => by[d]);
   return last.every((v) => v > normal + RHR_ABOVE) ? { normal: round1(normal), last } : null;
 }
+
+/** The feelings you answer yourself: a guess is about one of them, and the other side is something measured. */
+const FEELINGS = new Set(['mood', 'battery', 'sat', 'sleepFelt']);
+/**
+ * A guess to test (Noah 04.11.2026 «Vermutungen testen»): the strongest shown insight of the same day (not the day after)
+ * between something measured (x) and one of your feelings (y) whose x today lies above the cut of the sentence («On days with more …»), so that
+ * today is a day that fits. series: seriesOf(...), own: the own number questions that count. → the insight row plus `today` (x today) or null.
+ */
+export function testHint(series, today, { own = [], minRho = MIN_RHO } = {}) {
+  for (const row of insights(series, today, { own })) {
+    if (!row.shown || row.lag !== 0 || !FEELINGS.has(row.y) || FEELINGS.has(row.x)) continue;
+    if (Math.abs(row.rho) < minRho) continue;
+    const x = series[row.x]?.[today];
+    if (x == null || row.cut == null || !(x > row.cut)) continue;
+    return { ...row, today: x };
+  }
+  return null;
+}

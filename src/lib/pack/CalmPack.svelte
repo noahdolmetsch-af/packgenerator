@@ -35,6 +35,7 @@
   import LessonsCard from './LessonsCard.svelte';
   import PlanNotesCard from './PlanNotesCard.svelte';
   import ExpectPick from './ExpectPick.svelte';
+  import RecipePick from './RecipePick.svelte';
   import ReasonPick from './ReasonPick.svelte';
   import DocChecks from './DocChecks.svelte';
   import WhySheet from './WhySheet.svelte'; // P3 «Warum? und Regeln» (RG1): why a row is on the list
@@ -343,6 +344,8 @@
     <!-- v0.47.0 (Noah 8 a+b): the focal point of a bike trip: the drawing with the bag weights, or the setup photo -->
     <!-- Persönliches Lernen Idee 1 (Noah 04.11.2026 «1a»): the guess for a bike tour, high up so it is seen -->
     {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
+    <!-- Persönliches Lernen Idee 5 (Noah 04.11.2026 «5a»): a recipe that worked, next to this tour -->
+    {#if bikeTrip}<RecipePick {trip} {fixed} />{/if}
     {#if planTop}
       <div class="plan-top">
         <div class="pcol">

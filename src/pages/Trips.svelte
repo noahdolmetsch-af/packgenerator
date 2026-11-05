@@ -157,6 +157,8 @@
   const view = $derived(loaded ? tripsOverview(homeTrips($tripsQ), $debriefsQ, today, rides) : null);
   const hiddenTests = $derived(testTrips($tripsQ ?? []).length);
   let tidyOpen = $state(false);
+  // E2-003: the counts of «ridden» and «waiting for review» come from the second query (dataQ below); before it is
+  // there they read «0 ridden». The line shows only when both queries are in.
   const counts = $derived(overviewCounts(view));
   const byId = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x])));
   const debriefOf = $derived(Object.fromEntries(($debriefsQ ?? []).map((d) => [d.tripId, d])));
@@ -492,7 +494,7 @@
       {:else}
       <h1 class="title">{t('Trips|place')}</h1>
       <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->
-      {#if counts}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`, stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</p>{/if}
+      {#if counts && $dataQ}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`, stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</p>{/if}
       {#if hiddenTests}<p class="cnt tests" data-hidden-tests>{tn(hiddenTests, '{n} test trip hidden', '{n} test trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (tidyOpen = true)}>{t('Clean up test data')}</button></p>{/if}
       {/if}
     </div>
@@ -631,7 +633,7 @@
            Gesamttest 20.10.2026 B3: the Strava activities above it moved to the tab «Fahrten»; one quiet row below leads there. -->
       {#if phone.matches && !packOpen}
         <!-- 0.163.0: on a phone the list is one line with its count and what waits for a rating -->
-        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('With packing list|section')}</b><small class="num">{[tn(inPeriod.length, '{n} trip', '{n} trips'), stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('With packing list|section')}</b><small class="num">{[$dataQ ? tn(inPeriod.length, '{n} trip', '{n} trips') : '', stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       {:else}
       <section class="done" aria-labelledby="trips-done" data-finished data-packmode>
         <div class="sh">
