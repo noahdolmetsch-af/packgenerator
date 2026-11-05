@@ -1,7 +1,7 @@
 // «Zug hin, Velo heim» (Träume und Neuland N7, Noah 27.10.2026 «1-5 a»): on Touren › Träume three places in
 // areas never reached, about the chosen ride from the (fictional) home; a tap asks the (faked) timetable and
 // bike router once and shows the next trains and the way home; «Plan as a trip» makes the trip. No real network.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';

@@ -2,8 +2,8 @@
 export default {
   title: 'Train there, bike home',
   lead: 'Dreams suggests places in areas you do not know: by train there, by bike home through new ground.',
-  points: [{ text: 'Trips › Dreams: «Train there, bike home» with three places for 40 to 120 km home', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'A tap shows the next trains and the way home by bike; «Plan as a trip» or GPX for the Garmin' }],
+  points: [{ text: 'Trips › Dreams: «Train there, bike home» with three places for 40 to 120 km home', href: '#/trips/dreams', go: 'f.trainthere' }],
+  small: [{ box: 'new', text: 'A tap shows the next trains and the way home by bike; «Plan as a trip» or GPX for the Garmin', go: 'f.trainthere' }],
   test: [
     'Open Trips › Dreams: «Train there, bike home» shows three places.',
     'Choose 80 km: other places show.',

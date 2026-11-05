@@ -84,7 +84,7 @@ export default {
   'Dream tours with their season, races as event tours': 'Traumtouren mit ihrer Saison, Rennen als Event-Tour',
   'Tours you dream of. The app tells you when they fit.': 'Touren, von denen du träumst. Die App sagt dir, wann sie passen.',
   'View': 'Ansicht',
-  'Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» sit under the list.': 'Öffne einen Traum für «Bereit für den Traum?». Ein Traum, der jetzt passt, bekommt ein «Wetterfenster für Träume». «Alle Träume auf einer Karte» ist die Ansicht Karte; «Erfüllte Träume» ist die zugeklappte Zeile am Ende der Liste; «Passt jetzt: Ideen pro Monat» und «Feierabend-Biwak» stehen unter der Liste.',
+  'Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» and «Train there, bike home» sit under the list.': 'Öffne einen Traum für «Bereit für den Traum?». Ein Traum, der jetzt passt, bekommt ein «Wetterfenster für Träume». «Alle Träume auf einer Karte» ist die Ansicht Karte; «Erfüllte Träume» ist die zugeklappte Zeile am Ende der Liste; «Passt jetzt: Ideen pro Monat» und «Feierabend-Biwak» und «Zug hin, Velo heim» stehen unter der Liste.',
   'Year|view': 'Jahr',
   'No fulfilled dream yet. A dream counts once its trip has the debrief.': 'Noch kein erfüllter Traum. Ein Traum zählt, sobald die Tour ihren Rückblick hat.',
   'Write the name of a dream tour.': 'Schreib den Namen einer Traumtour.',
