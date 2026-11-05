@@ -42,6 +42,13 @@ export const ACT_DAYS = 40;
 /** Tennis: a game of at least this many minutes is asked about the day after; a missed court time counts this many days back. */
 export const GAME_MIN = 30;
 export const SLOT_DAYS = 2;
+/** Rain chance (percent) from which a day counts as a rainy day; below RAIN_DRY and under 1 mm it counts as dry. */
+export const RAIN_PCT = 60;
+export const RAIN_DRY = 30;
+/** Warm enough for an evening outside (degrees, the day's high). */
+export const WARM_C = 15;
+/** The evening for «nothing planned»: from 17:00 to 22:00. */
+export const EVENING = [17, 22];
 
 const chip = (key, label) => ({ key, label: `${label}|data` });
 
@@ -155,6 +162,36 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'platz',
   },
+  'daten.grau': {
+    id: 'daten.grau',
+    area: 'spass',
+    text: 'What does you good on grey days?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('walk', 'A short walk'), chip('people', 'See someone'), chip('cook', 'Cook something'), chip('music', 'Music'), chip('rest', 'Rest'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'grau',
+  },
+  'daten.draussen': {
+    id: 'daten.draussen',
+    area: 'spass',
+    text: 'Anything planned outside?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('ride', 'A ride'), chip('run', 'A run'), chip('tennis', 'Tennis'), chip('walk', 'A walk'), chip('people', 'See someone'), chip('nothing', 'Nothing planned')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'draussen',
+  },
 };
 
 /** The rules, in order. title/about are English keys for t() (about has {n}). */
@@ -214,6 +251,22 @@ export const RULES = [
     about: 'Asks when you noted «not played» for a planned court time in the last {n} days.',
     vars: { n: SLOT_DAYS },
     param: { key: 'n', min: 1, max: 7, step: 1, def: SLOT_DAYS, label: 'Looking back (days)' },
+  },
+  {
+    id: 'grau',
+    qid: 'daten.grau',
+    title: 'Grey day and a low mood',
+    about: 'Asks on a day with a rain chance of at least {n} percent when your latest mood was clearly below your usual.',
+    vars: { n: RAIN_PCT },
+    param: { key: 'n', min: 30, max: 90, step: 10, def: RAIN_PCT, label: 'Rain chance from (percent)' },
+  },
+  {
+    id: 'draussen',
+    qid: 'daten.draussen',
+    title: 'Fine weather and a free evening',
+    about: 'Asks on a dry day of at least {n} degrees when your calendar has nothing from 17 to 22 o\'clock.',
+    vars: { n: WARM_C },
+    param: { key: 'n', min: 8, max: 28, step: 1, def: WARM_C, label: 'Warm from (degrees)' },
   },
 ];
 
@@ -407,7 +460,62 @@ export function platzHit(sport = [], today, days = SLOT_DAYS) {
   return miss ? { day: miss.day } : null;
 }
 
+/** The forecast day of today from the saved home forecast: { rainMm, rainPct, max } or null. */
+const wxOf = (wx, today) => (wx && wx.date === today ? wx : null);
+/** A rainy day (rain chance from `pct` or at least 5 mm) and the latest mood (today, else yesterday) clearly below the usual of the 30 days before: { pct, mood, usual } or null. */
+export function grauHit(wx, answers = [], checks = [], today, pct = RAIN_PCT) {
+  const w = wxOf(wx, today);
+  if (!w) return null;
+  const rainy = (fin(w.rainPct) ?? 0) >= pct || (fin(w.rainMm) ?? 0) >= 5;
+  if (!rainy) return null;
+  const by = moodByDay(answers, checks);
+  const day = by[today] != null ? today : by[addDays(today, -1)] != null ? addDays(today, -1) : null;
+  if (!day) return null;
+  const base = [];
+  for (let i = 1; i <= BASE_DAYS; i++) {
+    const x = by[addDays(day, -i)];
+    if (x != null) base.push(x);
+  }
+  if (base.length < MIN_BASE) return null;
+  const usual = base.reduce((x, y) => x + y, 0) / base.length;
+  if (by[day] > usual - MOOD_BELOW) return null;
+  const r1 = (x) => Math.round(x * 10) / 10;
+  return { mood: r1(by[day]), usual: r1(usual) };
+}
+
+/** Is a busy appointment in the evening (17–22, Europe/Zurich) of `day`? events: gEvents rows { start, end, allDay, busy }. */
+export function eveningBusy(events = [], day) {
+  const key = (iso) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+    const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Zurich', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).formatToParts(d);
+    const get = (t) => parts.find((x) => x.type === t)?.value;
+    return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
+  };
+  const from = `${day}T${String(EVENING[0]).padStart(2, '0')}:00`;
+  const to = `${day}T${String(EVENING[1]).padStart(2, '0')}:00`;
+  return events.some((e) => {
+    if (!e || e.allDay || e.busy === false) return false;
+    const st = key(e.start);
+    if (!st) return false;
+    const en = key(e.end ?? e.start) ?? st;
+    return st < to && (en > from || (en === st && st >= from));
+  });
+}
+/** A dry, warm day (at least `warm` degrees, under 1 mm and a rain chance under RAIN_DRY) and a free evening in a calendar that is in use: { max } or null. cal: { used, events }. */
+export function draussenHit(wx, cal, today, warm = WARM_C) {
+  const w = wxOf(wx, today);
+  if (!w || !cal?.used) return null;
+  const max = fin(w.max);
+  if (max == null || max < warm) return null;
+  if ((fin(w.rainMm) ?? 0) >= 1 || (fin(w.rainPct) ?? 0) >= RAIN_DRY) return null;
+  if (eveningBusy(cal.events, today)) return null;
+  return { max: Math.round(max) };
+}
+
 const WHY = {
+  grau: 'Rain is likely today and your latest mood was {mood}, your usual is {usual}.',
+  draussen: 'Dry and {max} degrees today, and nothing in your calendar this evening.',
   spiel: 'You noted a game of {min} minutes yesterday.',
   platz: 'You noted a planned court time as not played in the last days.',
   pause: 'Your last logged training was {n} days ago.',
@@ -418,6 +526,8 @@ const WHY = {
   stimmungN: 'Your mood on the last {days} days was {list}, your usual is {usual}.',
 };
 const HITS = {
+  grau: ({ wx, answers, checks, today, val }) => grauHit(wx, answers, checks, today, val),
+  draussen: ({ wx, cal, today, val }) => draussenHit(wx, cal, today, val),
   pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
   spiel: ({ sport, today, val }) => spielHit(sport, today, val),
   platz: ({ sport, today, val }) => platzHit(sport, today, val),
@@ -433,7 +543,7 @@ const HITS = {
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], acts = [], sport = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const doneToday = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => a.qid)).size;
@@ -452,7 +562,7 @@ export function dataDue({ health = [], acts = [], sport = [], answers = [], chec
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, acts, sport, answers, checks, today, val: ruleVal(cfg, rule.id) });
+    const hit = HITS[rule.id]({ health, acts, sport, wx, cal, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
     out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });

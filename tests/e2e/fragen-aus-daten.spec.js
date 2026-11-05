@@ -30,6 +30,30 @@ function data(todayHr, { sleepMin = null, moods = null, sport = null, cfg = null
   return d;
 }
 
+/**
+ * The saved home forecast of today (Heute fetched it) and the calendar copy: both tables are not in the backup, so they
+ * are written into the open database, then the page loads again. wx: fields of today's forecast; cal: [[startHourUtc, hours]].
+ */
+async function seed(page, { wx = null, cal = null }) {
+  await page.evaluate(async ({ wx, cal }) => {
+    const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const today = iso(new Date());
+    const db = await new Promise((ok) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => ok(r.result); });
+    const put = (store, rows) => new Promise((ok) => {
+      const tx = db.transaction(store, 'readwrite');
+      for (const row of rows) tx.objectStore(store).put(row);
+      tx.oncomplete = ok;
+    });
+    if (wx) {
+      const place = await new Promise((ok) => { const q = db.transaction('settings').objectStore('settings').get('homePlace'); q.onsuccess = () => ok(q.result.value); });
+      await put('meta', [{ key: 'homeForecast', fetchedAt: new Date().toISOString(), place, days: [{ date: today, min: 9, max: 19, rainMm: 0, rainPct: 10, ...wx }] }]);
+    }
+    if (cal) await put('gEvents', cal.map(([h, len], i) => ({ id: `fad-e${i}`, gid: `fad-e${i}`, day: today, lastDay: today, cal: 'primary', title: 'Test', start: `${today}T${h}:00:00Z`, end: `${today}T${String(Number(h) + len).padStart(2, '0')}:00:00Z`, allDay: false, busy: true })));
+    db.close();
+  }, { wx, cal });
+  await page.reload();
+}
+
 test.describe('Fragen aus deinen Daten', () => {
   test('a standout resting pulse: the question comes first, with the reason, the answer is saved', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data(61) });
@@ -168,6 +192,57 @@ test.describe('Fragen aus deinen Daten', () => {
     await q.getByRole('button', { name: T('Work came up|data'), exact: true }).click();
     await card.locator('[data-ab-save]').click();
     await expect(card.locator('[data-q="daten.platz"]')).toHaveCount(0);
+  });
+
+  test('rain and a mood below your usual ask what does you good on grey days', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52, { moods: [8, 8, 5] }) });
+    await seed(page, { wx: { rainPct: 90, rainMm: 6 } });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.grau"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('What does you good on grey days?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('Regen');
+    await card.screenshot({ path: `${SHOTS}/fad7-grau-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('A short walk|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.grau"]')).toHaveCount(0);
+  });
+
+  test('rain with a normal mood, or a low mood on a dry day, asks nothing', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52, { moods: [8, 8, 8] }) });
+    await seed(page, { wx: { rainPct: 90 } });
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.grau"]')).toHaveCount(0);
+  });
+
+  test('fine weather and a free evening ask whether something is planned outside', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52) });
+    await seed(page, { wx: { max: 21 }, cal: [['08', 1]] });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.draussen"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('Anything planned outside?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('21 Grad');
+    await card.screenshot({ path: `${SHOTS}/fad7-draussen-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('A ride|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.draussen"]')).toHaveCount(0);
+  });
+
+  test('an appointment in the evening keeps the outside question away', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await seed(page, { wx: { max: 21 }, cal: [['17', 2]] });
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.draussen"]')).toHaveCount(0);
+  });
+
+  test('no calendar or no weather yet: the box says why the weather rules are quiet', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-data-empty-calendar]')).toBeVisible();
+    await expect(page.locator('[data-rule="grau"]')).toBeVisible();
+    await expect(page.locator('[data-rule="draussen"]')).toBeVisible();
+    await page.screenshot({ path: `${SHOTS}/fad7-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   });
 
   test('no tennis noted: the box says why the tennis rules are quiet', async ({ page, context }, info) => {
