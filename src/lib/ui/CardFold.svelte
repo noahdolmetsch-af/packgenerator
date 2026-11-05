@@ -1,3 +1,8 @@
+<script module>
+  // two taps at once (a spot that opens every folded card) must not overwrite each other's choice: one write after the other
+  let chain = Promise.resolve();
+</script>
+
 <script>
   /**
    * Durchklick Etappe 2, Frage 1a (Noah 05.11.2026): wraps a card that may start as one line on a phone («Belongs to …»,
@@ -15,12 +20,17 @@
   let { id, label = '', count = 0, children } = $props();
   const mapQ = liveQuery(async () => openMapOf((await db.settings.get(CARDS_KEY))?.value));
   const first = $derived(START_FOLDED.includes(id));
-  const folded = $derived($mapQ ? cardFolded($mapQ, id, phone.matches) : false);
+  // the browser tests set __pgCardsOpen (tests/e2e/clock.js) so that a spec that does not look at the cards finds them open as before
+  const onPhone = $derived(phone.matches && !globalThis.__pgCardsOpen);
+  const folded = $derived($mapQ ? cardFolded($mapQ, id, onPhone) : false);
 
-  async function setOpen(on) {
-    const cur = openMapOf((await db.settings.get(CARDS_KEY))?.value);
-    cur[id] = on;
-    await putSetting(db, CARDS_KEY, cur);
+  function setOpen(on) {
+    chain = chain.then(async () => {
+      const cur = openMapOf((await db.settings.get(CARDS_KEY))?.value);
+      cur[id] = on;
+      await putSetting(db, CARDS_KEY, cur);
+    }).catch(() => {});
+    return chain;
   }
 </script>
 
@@ -31,7 +41,7 @@
     </button>
   {:else}
     {@render children()}
-    {#if first && phone.matches}
+    {#if first && onPhone}
       <button type="button" class="cf-fold" onclick={() => setOpen(false)} data-card-fold={id}><ChevronUp size={16} aria-hidden="true" />{t('Fold the card')}</button>
     {/if}
   {/if}

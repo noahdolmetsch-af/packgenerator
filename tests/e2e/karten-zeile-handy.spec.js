@@ -4,6 +4,8 @@
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
+test.use({ cardsOpen: false });
+
 const PAGES = [
   ['#/pack', 'gd:pack', '[data-gehoert]'],
   ['#/trips', 'gd:trips', '[data-gehoert]'],

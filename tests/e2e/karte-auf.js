@@ -10,3 +10,12 @@ export async function openCard(page, id) {
   if (await line.count()) await line.click();
   await expect(card).toBeVisible();
 }
+
+/** Opens every card that shows as a line on this page (a computer shows them open already). */
+export async function openCards(page) {
+  const lines = page.locator('[data-card-line]');
+  for (let n = await lines.count(); n > 0; n = await lines.count()) {
+    await lines.first().click();
+    await expect(lines).toHaveCount(n - 1);
+  }
+}
