@@ -1,6 +1,6 @@
 # Keine halb leeren Zeilen auf Heute (Handy)
 
-PR #? · 05.11.2026 · Auftrag: Noah «ETAPPE 1» (Frontend-Durchklick, Thread «Durchklicken Etappe 1: Heute und Ich»)
+PR #891 · 05.11.2026 · Auftrag: Noah «ETAPPE 1» (Frontend-Durchklick, Thread «Durchklicken Etappe 1: Heute und Ich»)
 
 Fund E1-001 des Durchklicks mit dem echten Backup (Klasse C, Anzeige). Hier steht kein Wert aus den echten Daten; der Fehler lässt sich mit erfundenen Testdaten nachstellen (`tests/e2e/heute-halbe-karte.spec.js`).
 
