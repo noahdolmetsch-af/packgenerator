@@ -3,7 +3,7 @@
 // function's page (HOME in src/lib/know/heimat.js) must be at most MAX_TAPS away, except TAP_GAPS.
 import { test, expect } from './clock.js';
 import { HOME } from '../../src/lib/know/heimat.js';
-import { MAX_TAPS, FINDERS, TAP_GAPS } from '../../src/lib/know/tipps.js';
+import { MAX_TAPS, FINDERS, TAP_GAPS, TAP_GAPS_BY_DATA } from '../../src/lib/know/tipps.js';
 import { start } from './gesamttest/lib.js';
 import { settle } from './settle.js';
 
@@ -49,5 +49,5 @@ test('every function is at most 3 taps from Heute', async ({ page, context }, in
   if (process.env.TIPPS_VIA) for (const h of Object.keys(dist).filter((x) => reaches(x, process.env.TIPPS_VIA))) console.log(`VIA ${h} = ${dist[h]} from ${via[h]} (${dist[via[h]]})`);
   const fns = (p) => Object.keys(HOME).filter((id) => HOME[id] === p).join(', ');
   expect(far.filter((p) => !TAP_GAPS.includes(p)).map((p) => `${p} (${fns(p)})`), `Further than ${MAX_TAPS} taps from Heute: give it a link on its area page (or add it to «Alles hier»)`).toEqual([]);
-  expect(TAP_GAPS.filter((p) => !far.includes(p)), 'Near enough now: take it off TAP_GAPS in src/lib/know/tipps.js').toEqual([]);
+  expect(TAP_GAPS.filter((p) => !far.includes(p) && !TAP_GAPS_BY_DATA.includes(p)), 'Near enough now: take it off TAP_GAPS in src/lib/know/tipps.js').toEqual([]);
 });
