@@ -11,8 +11,9 @@
   import KindIcon from '../map/KindIcon.svelte';
   import { POI_KIND } from '../race/outside.js';
   import { searchPlace } from '../weather.js';
-  import { targetsOf, planAlternatives, PROFILES, PROFILE_STD } from '../reroute.js';
+  import { targetsOf, planAlternatives, routerMsg, PROFILES, PROFILE_STD } from '../reroute.js';
   import { navLinks } from './live-lib.js';
+  import RouterNote from './RouterNote.svelte';
   import { t, num } from '../i18n.svelte.js';
 
   let { here = null, pts = [], km = null, pois = [], own = [], picked = null, onplan, onclose } = $props();
@@ -51,14 +52,7 @@
       dialog.close();
     } catch (e) {
       failed = target;
-      err =
-        e?.message === 'busy'
-          ? t('The bike router is busy right now. Try again in a minute, or use a navigation app.')
-          : e?.message === 'noroute'
-            ? t('The bike router found no way there. Choose another place, or use a navigation app.')
-            : navigator.onLine === false
-              ? t('Offline: a new way needs the internet. A navigation app with offline maps still works.')
-              : t('The bike router did not answer. Try again, or use a navigation app.');
+      err = t(routerMsg(e));
     } finally {
       busy = '';
     }
@@ -126,6 +120,7 @@
     </div>
   {/if}
   {#if !here}<p class="rc-warn" role="status">{t('Waiting for the GPS …')}</p>{/if}
+  <RouterNote />
 
   <div class="rr-chips" role="group" aria-label={t('Kind of way')}>
     {#each PROFILES as p (p.key)}

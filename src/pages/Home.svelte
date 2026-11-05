@@ -108,6 +108,8 @@
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
+  import RowsSheet from '../lib/home/RowsSheet.svelte';
+  import { ROWS_KEY, isHidden, putOff } from '../lib/home/rows.js';
   import { HABITS_KEY } from '../lib/home/habits.js';
   import TagesKarte from '../lib/home/TagesKarte.svelte';
   import AktivTile from '../lib/home/AktivTile.svelte';
@@ -206,7 +208,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -760,7 +762,12 @@
     const rank = { party: 0, eve: 1, bad: 2, warn: 3, info: 4, quiet: 5 };
     // «Heute lädt nicht» (19.10.2026): a key twice would stop all of Heute (Svelte keyed each); the first one stays
     const seen = new Set();
-    const uniq = rows.filter((r) => !seen.has(r.key) && seen.add(r.key));
+    // «Jetzt dran» steuern (Noah 05.11.2026 «4a»): a kind that is switched off and a row put off for a week stay away;
+    // every calm row gets «Later» (one week, with Undo)
+    const uniq = rows
+      .filter((r) => !seen.has(r.key) && seen.add(r.key))
+      .filter((r) => r.tone === 'party' || !isHidden(r, S[ROWS_KEY], today))
+      .map((r) => (r.tone === 'quiet' && !r.later ? { ...r, later: () => laterRow(r) } : r));
     return uniq.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
   });
   // Gesamttest 20.10.2026 (Noah «5a»): milestones and challenges are a quiet line of their own;
@@ -784,6 +791,12 @@
     if (bike) await db.bikes.update(r.bikeId, { sheets: laterChanges(bike, r.key, today) });
   }
   let allRows = $state(false);
+  let rowsOpen = $state(false); // the window «Which rows in Up now?» (lib/home/RowsSheet.svelte)
+  async function laterRow(r) {
+    const before = $state.snapshot(S[ROWS_KEY] ?? null);
+    await db.settings.put({ key: ROWS_KEY, value: putOff(before, r, today) });
+    say(t('Hidden for a week: {text}', { text: String(r.short ?? r.text).slice(0, 60) }), () => db.settings.put({ key: ROWS_KEY, value: before }));
+  }
 
   /* ---------- «Heute neu» A «Ein Blick» (Noah 20.10.2026 10:14 «1A 2 … 3a 4a 5b») ---------- */
   // «Up now»: the round (when it waits), meditation and the idea for today first, then what is due (important)
@@ -804,13 +817,17 @@
     // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
     if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
     if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
-    if (suggestion && !night) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
+    if (suggestion && !night && !isHidden({ key: 'idea' }, S[ROWS_KEY], today)) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
   });
   // Impeccable 20.10.2026: on the last evening of a trip its evening rows (review, charging; Noah 32a) stay; other
   // rows of that same trip wait until it is finished, so it does not show three next steps at once
   const lastEveIds = $derived(new Set(trips.filter((x) => lastEvening(x, today, now.getHours())).map((x) => x.id)));
-  const upRows = $derived([...nowRows, ...important.filter((r) => r.tone === 'eve' || !(r.act?.trip && lastEveIds.has(r.act.trip)))]);
+  const hereRows = $derived(important.filter((r) => r.tone === 'eve' || !(r.act?.trip && lastEveIds.has(r.act.trip))));
+  // «Jetzt dran» (Noah 05.11.2026 «3a»): only what is red, amber or blue is «up now» and counted; the calm hints
+  // («Kette wachsen …», «3 Velos wägen», «183 Teile …») wait in their own folded line «Good to know»
+  const calmRows = $derived(hereRows.filter((r) => r.tone === 'quiet'));
+  const upRows = $derived([...nowRows, ...hereRows.filter((r) => r.tone !== 'quiet')]);
   const UP_N = 4;
   const upShown = $derived(allRows ? upRows : upRows.slice(0, UP_N));
   // the personal sentence under the greeting: the next trip and how much is up today
@@ -899,7 +916,7 @@
   // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
   const impQ = cfgQuery();
   const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
-  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick && !impulseUp);
+  const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp);
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -1132,6 +1149,31 @@
   {/if}
 {/snippet}
 
+<!-- one row of «Up now» and of «Good to know» -->
+{#snippet upRow(r, line = false)}
+    <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
+      {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
+      {#if r.key === 'tests' && cleanAsk}
+        <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
+        <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
+      {:else}
+        <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
+        {#if r.act2?.run}
+          <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
+          <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
+        {:else}
+        {#if r.act}
+          {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
+          {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
+          {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
+        {/if}
+        {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
+        {/if}
+        {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
+      {/if}
+    </li>
+{/snippet}
+
 <!-- 4. Important today and Tried it yet? -->
 {#snippet todayS(line = false)}
   <div class="impw" class:line data-section="today">
@@ -1152,33 +1194,22 @@
       {#if upRows.length}
         <ul>
           {#each line ? (allRows ? upRows : upRows.slice(0, 2)) : upShown as r (r.key)}
-            <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
-              {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
-              {#if r.key === 'tests' && cleanAsk}
-                <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
-                <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
-              {:else}
-                <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
-                {#if r.act2?.run}
-                  <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
-                  <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
-                {:else}
-                {#if r.act}
-                  {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
-                  {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
-                  {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
-                {/if}
-                {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
-                {/if}
-                {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
-              {/if}
-            </li>
+            {@render upRow(r, line)}
           {/each}
         </ul>
         {#if upRows.length > (line ? 2 : UP_N)}<button type="button" class="lkb more" aria-expanded={allRows} onclick={() => (allRows = !allRows)}>{allRows ? t('Show fewer') : t('Show all {n}', { n: upRows.length })}{#if line && !allRows}<ChevronRight size={16} aria-hidden="true" />{/if}</button>{/if}
       {:else if ready}
         <p class="calm">{t('Nothing urgent. Enjoy the day.')}</p>
       {/if}
+      {#if calmRows.length}
+        <details class="good" data-good>
+          <summary>{t('Good to know')} <span class="num">· {calmRows.length}</span></summary>
+          <ul>
+            {#each calmRows as r (r.key)}{@render upRow(r, false)}{/each}
+          </ul>
+        </details>
+      {/if}
+      {#if ready}<button type="button" class="lkb rowsbtn" onclick={() => (rowsOpen = true)} data-rows-open>{t('Choose rows')}</button>{/if}
       {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
     </section>
   </div>
@@ -1336,6 +1367,7 @@
       <label class="bytime" data-wall-sections><input type="checkbox" role="switch" checked={secOn} onchange={(e) => db.settings.put({ key: SECTIONS_KEY, value: e.currentTarget.checked })} />{t('Show the tiles in areas with a heading (Now, Your body, Your week …)')}</label>
       {#if secOn}<AreasEdit cfg={areasCfg} tiles={timeWall} />{/if}
       {#if timeWall.some((x) => x.id === 'meditation')}<button type="button" class="btn sm" onclick={() => (habitsOpen = true)} data-habits-open>{t('Choose habits on top')}</button>{/if}
+      <button type="button" class="btn sm" onclick={() => (rowsOpen = true)} data-rows-open-custom>{t('Choose rows of «Up now»')}</button>
     {:else}
       <!-- «Neuer Schwung» (Noah 26.10.2026 «3a», then «diesen bereich zusammen nehmen»): the end of Heute is one quiet
            block: stops nearby, all areas, «Customise the start page» (on a computer too; it was a button at the top
@@ -1370,6 +1402,7 @@
   </div>
 {/if}
 {#if medOpen && medSt}<MedStartSheet st={medSt} {today} onclose={() => (medOpen = false)} />{/if}
+{#if rowsOpen}<RowsSheet {today} cfg={S[ROWS_KEY] ?? null} onclose={() => (rowsOpen = false)} />{/if}
 {#if habitsOpen}<HabitsSheet {today} cfg={S[HABITS_KEY] ?? null} onclose={() => (habitsOpen = false)} />{/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
 <dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
@@ -2143,6 +2176,26 @@
   .notice span {
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  /* «Gut zu wissen» (Noah 05.11.2026 «3a»): the calm hints, folded under «Up now» */
+  .good {
+    margin-top: var(--sp-2);
+    border-top: 1px solid var(--line);
+  }
+  .good summary {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    min-height: 44px;
+    color: var(--ink-2);
+    font-size: var(--fs-body);
+    cursor: pointer;
+  }
+  .rowsbtn {
+    min-height: 44px;
+    margin-top: var(--sp-1);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .calm {
     margin: 8px 0;

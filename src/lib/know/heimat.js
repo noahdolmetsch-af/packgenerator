@@ -161,6 +161,7 @@ const LISTED_HOME = {
   'f.dreamwx': '#/trips/dreams',
   'f.dreamsmap': '#/trips/dreams',
   'f.monthideas': '#/trips/dreams',
+  'f.biwak': '#/trips/dreams',
   'f.newkm': '#/neuland',
   'f.triptips': '#/trips/dreams',
   'f.races': '#/trips/dreams',

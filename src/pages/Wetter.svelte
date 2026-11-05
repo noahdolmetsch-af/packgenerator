@@ -35,6 +35,7 @@
   import Licht from '../lib/wetter/Licht.svelte'; // «Licht für die Fahrt» (Noah 04.11.2026 «5 alle»)
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
+  import NebelBlock from '../lib/wetter/NebelBlock.svelte'; // «Nebelgrenze» (Noah 05.11.2026)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -251,6 +252,7 @@
         </p>
       {/if}
       <SchneeBlock {core} {now} />
+      <NebelBlock {core} {now} />
       {#each storms as x (x.from)}<p class="wx-warn" data-wx-warn="thunder" data-wx-thunder={x.day}><TriangleAlert size={16} aria-hidden="true" />{stormText(x)}{#if x.rainP != null}{' '}{t('Rain chance up to {p} %.', { p: num(Math.round(x.rainP)) })}{/if}</p>{/each}
       {#each warns as w (w.kind)}<p class="wx-warn" data-wx-warn={w.kind}><TriangleAlert size={16} aria-hidden="true" />{warnText(w)}</p>{/each}
       {#if fb}<p class="wx-note" data-wx-fb={fb}><Wind size={16} aria-hidden="true" />{fb === 'foehn' ? t('Föhn: strong, dry wind from the south. Gusty in the valleys.') : t('Bise: cold wind from the north-east. It feels colder than the number.')}</p>{/if}

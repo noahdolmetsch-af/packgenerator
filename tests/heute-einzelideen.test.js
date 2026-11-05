@@ -1,6 +1,7 @@
 // Einzelideen Heute (Noah 25./26.10.2026 «1-8 alle so bauen»): the pure parts of ideas 1, 2, 4, 5, 6, 7, 8.
 import { describe, it, expect } from 'vitest';
 import { LEVELS, SECTORS, bearing, destination, sectorOf, knownSectors, pickSector, surprisePlan, minutesOf, planSurprise, gpxOfRound } from '../src/lib/ueberraschung.js';
+import { clearRouterCache, ROUTER_TUNING } from '../src/lib/reroute.js';
 import { forecastOf, homeFeelsOf, addHomeFeel, removeHomeFeel, homeHints, hintFor, hintText, sideOf } from '../src/lib/wetter/terrasse.js';
 import { partsOf, rateEveningPart, POOR_FROM } from '../src/lib/lernen/abendtour.js';
 import { wetSince, wetTaskShows, wetPushToday, standstill, standChecks, standRec, markStand, finishStand, STAND_DAYS } from '../src/lib/griff.js';
@@ -44,12 +45,15 @@ describe('2 Überraschungsrunde', () => {
     expect(minutesOf(30, 600, 20)).toBe(150);
   });
   it('planSurprise asks the router once and reads busy and no route', async () => {
+    clearRouterCache();
+    ROUTER_TUNING.retryMs = 0;
     const plan = surprisePlan(HOME, { rnd: 0.5, turn: 0 });
     const json = { features: [{ properties: { 'track-length': '34200', 'filtered ascend': '320' }, geometry: { coordinates: [[8, 47, 400], [8.1, 47.1, 450], [8, 47, 400]] } }] };
     let urls = 0;
     const ok = await planSurprise(HOME, plan, { fetcher: async () => (urls++, { ok: true, status: 200, json: async () => json }) });
     expect(urls).toBe(1);
     expect(ok.km).toBeCloseTo(34.2, 0);
+    clearRouterCache(); // the same question is answered from memory, a failure must be asked again
     await expect(planSurprise(HOME, plan, { fetcher: async () => ({ ok: false, status: 429 }) })).rejects.toThrow('busy');
     await expect(planSurprise(HOME, plan, { fetcher: async () => ({ ok: false, status: 400 }) })).rejects.toThrow('noroute');
     await expect(planSurprise(HOME, plan, { fetcher: async () => { throw new Error('x'); } })).rejects.toThrow('failed');
