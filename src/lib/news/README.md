@@ -54,4 +54,4 @@ Once only, the **first** PR with a news file changes the `newerThan('0.33.0')` l
 by hand on 27.10.2026 (#282, #290, Touren c, Knöpfe) do not conflict with this change. After that,
 nobody touches that list again.
 
-`index.gen.js` is written at every build and test and is not in git.
+`index.gen.js` is written at every build and test and is not in git. The same run writes `neu.gen.js` (the newest 10 versions in full, a short line for every version, and the German the rest of the app uses) and `archiv.gen.js` (the older ones in full). The start reads only `neu.gen.js` through `src/lib/whatsnew.js`; the pages that show the whole list import `src/lib/whatsnew-all.js` (Node tests and specs: `whatsnew-full.js`).
