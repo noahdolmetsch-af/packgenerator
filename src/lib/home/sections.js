@@ -48,7 +48,6 @@ export const SECTION_OF = {
   du: 'body',
   aktiv: 'body',
   flow: 'body',
-  questions: 'body',
   morningcheck: 'body',
   week: 'week',
   balance: 'week',
