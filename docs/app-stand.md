@@ -203,7 +203,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Woche planen | `#/week` | Sport, Termine, Aufgaben, Ferien und Service in einer Woche zusammenbringen; freie Zeit mit gutem Wetter finden. |
+| Woche planen | `#/week` | Sport, Termine, Aufgaben, Ferien und Service in einer Woche zusammenbringen. Das beste freie, trockene Fenster der gezeigten Woche steht oben und ist an seinem Tag markiert («Hier passt eine 3-Stunden-Runde», sonst 2 Stunden); «Fahrt einplanen» setzt es als Termin in die Woche. Es zählen dein Google-Kalender (wenn an) und deine eigenen Termine. |
 | Merken und Listen | `#/calendar` | Aufgaben und eigene Listen verwalten; Abhängigkeiten und wartende Aufgaben festhalten. Eine Zeile oben nimmt «Kette ölen morgen 18 Uhr, jeden Sonntag» und erkennt Datum, Uhrzeit und Wiederholung; Aufgaben haben Schritte und gehören zu einer Tour, einem Velo oder einer Notiz (dort stehen sie auch); wischen (erledigt, morgen), sortieren und eine Suche über Aufgaben und Notizen. |
 | Notizen | `#/notes` | Texte, Checklisten, Fotos, Sprachnotizen, Skizzen, Dateien und Links sammeln; formatieren, verknüpfen, erinnern und frühere Fassungen wiederherstellen. Am grossen Bildschirm öffnet sich eine Notiz neben der Liste; die Suche findet auch Aufgaben. |
 | Eingang | `#/inbox` | Unsortierte Informationen sammeln und später als Notiz, Beleg, Aufgabe oder anderen Eintrag ablegen. |

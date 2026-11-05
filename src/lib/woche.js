@@ -79,8 +79,8 @@ export function cleanItem(x = {}) {
     day: kind === 'date' && !day ? null : day,
     time: isTime(x.time) ? x.time : '',
     done: !!x.done,
-    // «Planen als verbindende Mitte» 4a: how long it takes, in minutes (5–480), for a to-do; optional
-    ...(kind === 'todo' && Math.round(Number(x.mins)) >= 5 && Math.round(Number(x.mins)) <= 480 ? { mins: Math.round(Number(x.mins)) } : {}),
+    // «Planen als verbindende Mitte» 4a: how long it takes, in minutes (5–480), for a to-do; optional. Planen 2a: a date may have a length too (a planned ride).
+    ...((kind === 'todo' || kind === 'date') && Math.round(Number(x.mins)) >= 5 && Math.round(Number(x.mins)) <= 480 ? { mins: Math.round(Number(x.mins)) } : {}),
     ...(x.bikeId ? { bikeId: String(x.bikeId) } : {}),
     ...(x.part ? { part: String(x.part) } : {}),
     ...(x.ref ? { ref: String(x.ref) } : {}),

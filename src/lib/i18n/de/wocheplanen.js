@@ -163,7 +163,6 @@ export default {
   'Add to plan': 'Einplanen',
   'Nothing planned yet. Plan the week or add a day yourself.': 'Noch nichts geplant. Plane die Woche oder füge selbst einen Tag hinzu.',
   'Time needed (minutes, optional)': 'Zeit nötig (Minuten, freiwillig)',
-  'Based on your calendar and your home place; 30 minutes of the window stay free as a buffer.': 'Grundlage: dein Kalender und dein Wohnort; 30 Minuten des Fensters bleiben als Puffer frei.',
   'Put «{title}» here ({min})': '«{title}» hier einplanen ({min})',
   'Connect calendar': 'Kalender verbinden',
   'Set home place|week': 'Wohnort festlegen',
