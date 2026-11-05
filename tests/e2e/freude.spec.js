@@ -17,7 +17,7 @@ const T = (en, vars) => {
 };
 const shot = async (page, info, name, card) => {
   mkdirSync(SHOTS, { recursive: true });
-  await card.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  await card.evaluate((el) => { el.scrollIntoView({ block: 'center' }); el.style.outline = '3px solid #d9822b'; el.style.outlineOffset = '2px'; });
   await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png` });
 };
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);

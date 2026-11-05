@@ -11,7 +11,7 @@
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import { db } from '../lib/db.js';
   import { offQuery } from '../lib/flow/data.svelte.js';
-  import { QUESTIONS, OFF_KEY, isOn, switchQuestion } from '../lib/flowcheck.js';
+  import { QUESTIONS, OFF_KEY, IN_ABFRAGEN, isOn, switchQuestion } from '../lib/flowcheck.js';
   import { CAT } from '../lib/balance.js';
   import { phone } from '../lib/media.svelte.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -23,10 +23,10 @@
   // taps per part: the rotating 4/5 and the alternating 12/13 are one tap each
   // Noah 04.11.2026 «ein Fragebogen»: 1–5 (sleep, battery, mood, the rotating one) and 7 (goal) are asked like in the window now,
   // under Deine Abfragen; they leave this table
-  const MOVED = [1, 2, 3, 4, 5, 7];
+  const MOVED = IN_ABFRAGEN;
   const taps = $derived({
     morning: [6].filter(on).length,
-    evening: [8, 9, 10, 11, 14].filter(on).length + (on(12) || on(13) ? 1 : 0),
+    evening: 0,
   });
   const GROUPS = $derived([
     { part: 'morning', title: t('Morning · {n} taps', { n: taps.morning }) },
@@ -60,7 +60,7 @@
             <th scope="col" class="sw-c">{t('On|switch')}</th>
           </tr>
         </thead>
-        {#each GROUPS as g (g.part)}
+        {#each GROUPS.filter((g) => QUESTIONS.some((x) => x.part === g.part && !MOVED.includes(x.n))) as g (g.part)}
           <tbody>
             <tr class="g"><th scope="rowgroup" colspan={phone.matches ? 4 : 6}>{g.title}</th></tr>
             {#each QUESTIONS.filter((x) => x.part === g.part && !MOVED.includes(x.n)) as q (q.n)}
@@ -87,8 +87,8 @@
         </ul>
       </section>
       <section class="card" aria-labelledby="cq-moved" data-moved>
-        <div class="hl"><h2 id="cq-moved">{t('Now under Your questions')}</h2><p>{t('sleep, battery, mood, goal')}</p></div>
-        <p class="mv">{t('Questions 1–5 and 7 are asked like the questions in the window: on, off and when you decide under Me › Your questions.')} <a href="#/me/abfragen" data-moved-link>{t('Open Your questions')}</a></p>
+        <div class="hl"><h2 id="cq-moved">{t('Now under Your questions')}</h2><p>{t('sleep, mood, goal, the evening')}</p></div>
+        <p class="mv">{t('Almost all of these questions are asked like the questions in the window now: whether and when, you decide under Me › Your questions.')} <a href="#/me/abfragen" data-moved-link>{t('Open Your questions')}</a></p>
       </section>
       <p class="note"><Lightbulb size={18} aria-hidden="true" /><span>{t('Every question can be switched off and skipped. Observations come only after about 2 weeks, always with the number of days. Everything stays on your device and in the backup.')}</span></p>
     </div>

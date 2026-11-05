@@ -35,6 +35,7 @@ import { MED_MOODS_STD } from './flowmed.js';
 import { DAY_SPORTS_STD } from './tourplan/prep.js';
 import { SAYINGS_STD } from './logo/sayings.js';
 import { REASONS_STD } from './gruende.js';
+import { TECH_STD } from './technik.js';
 
 /** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons, areas } }. */
 export const OVERRIDES_KEY = 'listOverrides';
@@ -91,6 +92,7 @@ export const STANDARD_LISTS = [
   { key: 'sayings', area: 'active', name: 'Sayings in the logo', entries: () => SAYINGS_STD },
   // Persönliches Lernen Idee 4 (Noah 04.11.2026 «2a»): why a tour went differently
   { key: 'changeReasons', area: 'review', name: 'Reasons for a different tour', entries: () => REASONS_STD },
+  { key: 'techniques', area: 'review', name: 'Riding techniques', entries: () => TECH_STD },
 ];
 export const STANDARD_LIST = Object.fromEntries(STANDARD_LISTS.map((l) => [l.key, l]));
 

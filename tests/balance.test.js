@@ -242,11 +242,8 @@ describe('the 15 questions and their switches', () => {
     expect(answeredToday(c, { day: T })).toEqual({ part: 'morning', done: 4, of: 4 });
     expect(answeredToday(c, { day: T, off: [6] })).toEqual({ part: 'morning', done: 3, of: 3 });
     expect(answeredToday({ day: T, sleep: 6 }, { day: T })).toEqual({ part: 'morning', done: 1, of: 4 });
-    // the evening: Q10 only with a goal, Q14 found by itself, Q15 on Sundays
-    const e = answeredToday({ ...c, sat: 8 }, { day: T, evening: true, mindfulAuto: true });
-    expect(e).toEqual({ part: 'evening', done: 2, of: 6 });
-    expect(answeredToday({ day: SUN, vision: 6 }, { day: SUN, evening: true }).of).toBe(6);
-    expect(answeredToday({ day: SUN, vision: 6 }, { day: SUN, evening: true, off: [15] }).of).toBe(5);
+    // the evening is asked like in the window now (Noah 04.11.2026 «ein Fragebogen»): nothing counts on the tile
+    expect(answeredToday({ ...c, sat: 8 }, { day: T, evening: true, mindfulAuto: true })).toEqual({ part: 'evening', done: 0, of: 0 });
   });
   it('the address of the catalogue', () => {
     expect(checkPart('#/check/questions')).toBe('questions');

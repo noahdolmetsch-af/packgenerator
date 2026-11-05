@@ -48,6 +48,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Gründe für eine andere Tour | `#/me/lists` | Wird eine Tour auf «Nicht fahren» gesetzt oder weicht die gefahrene Strecke stark ab, nennt ein Tipp den Grund (Liste in Ich › Listen und Typen); ab drei Antworten zählt eine Zeile, was am häufigsten vorkam. |
 | Routen und GPX | `#/pack` | GPX hinzufügen, Distanz, Höhenmeter, Fahrzeit, Höhenprofil und Anstiege ansehen; offene Stellen entlang der Route notieren. |
 | Tourvorlagen | `#/pack/templates` | Bewährte Touren als Vorlage speichern und erneut verwenden. Rückblicke liefern Vorschläge zur Verbesserung. |
+| Erfolgsrezepte | `#/pack/templates` | Nach einer gelungenen Tour festhalten, was geklappt hat (Frühstück, Startzeit, Verpflegung, Tempo); die Rezepte stehen unter Vorlagen und lassen sich in Planen neben eine nächste Velotour legen. |
 | Touren nebeneinander | `#/trips/compare` | Zwei Touren auf Terminüberschneidungen, gemeinsam benötigtes Material und offene Aufgaben vergleichen. |
 | Verpflegungsplan | `#/trips/fuel` | Kohlenhydrate und Wasser pro Abschnitt planen, Flaschen und Vorräte berücksichtigen sowie Versorgungslücken erkennen. Stopps als GPX-Wegpunkte exportieren. |
 | Reise-Links | `#/travel` | Unterkunft, Flüge und Anreise recherchieren; Optionen mit Kosten, Stornierung und Entscheidungsgrund festhalten. |
@@ -165,6 +166,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Übergreifende Analyse | `#/auswerten/analyse` | Daten verschiedener Bereiche gemeinsam betrachten und vergleichen. |
 | Tour-Rückblick | `#/debrief` | Erfahrungen bewerten, ungenutztes und fehlendes Material markieren, Pannen dokumentieren und Verbrauch buchen. |
 | Was hat es gut gemacht? | `#/debrief/freude` | Im Rückblick vier freiwillige Skalen von 1 bis 5 (Fahrspass, Natur, Flow, Gesellschaft); die Seite zeigt Mittelwerte und jede Tour, ab drei Touren sagt der Rückblick, was im Schnitt am höchsten war. |
+| Fahrtechnik-Tagebuch | `#/debrief/technik` | Im Rückblick Fahrtechniken abhaken (Spitzkehren, Bremsdosierung …) und sagen, wie es ging; die Seite zeigt Anzahl und letztes Mal und nimmt Wunsch und Übungsort auf. Techniken als Liste in Ich › Listen und Typen. |
 | Fahrt hochladen | `#/debrief/ride` | Fahrdateien auswerten, Planung und Realität vergleichen sowie Erkenntnisse festhalten. |
 | Vergangene Touren | `#/pack/past` | Frühere Touren mit Distanz, Höhenmetern, Zeit und Erfahrungen durchsuchen. |
 | Logbuch | `#/debrief/logbook` | Auch ältere Touren nachtragen und nach Jahr oder Art filtern. |
@@ -252,7 +254,7 @@ Diese Funktionen gibt es in der App (`features.js`), sie fehlten im Dokument. De
 | Freie Zeit | `#/me/frei` | Erste Nacht, Für nächstes Mal, Mein Abend, Was mir wichtig ist, Reisewünsche, Wonach ist mir?, Meine Sammlungen. |
 | Gewicht | `#/me/weight` | Freiwillig und nur auf diesem Gerät: das eigene Gewicht mit Kurve, für Watt pro Kilo. |
 | Wi gaht's? | `#/me/abfragen` | Spielerische Fragen mit eigenem Rhythmus, Morgen- und Abendrunde, Verlauf und Auswertung; Fragen und Bereiche ändern, löschen, ergänzen und sortieren. Pro Thema nur eine Frage von selbst; Zusammengelegte stehen aus in der Liste. |
-| Wi gaht's? am Abend | `#/check/evening` | Am Tourtag abends bewerten, wie die Tour war (1 bis 10); landet im Rückblick und im Tagebuch. |
+| Wi gaht's? am Abend | `#/check/evening` | Am Tourtag abends bewerten, wie die Tour war (1 bis 10); landet im Rückblick und im Tagebuch. Die Fragen oben sind die der Abendrunde aus «Deine Fragen», dieselben wie im Fenster; eine Fahrt und eine Meditation von heute tragen sich selbst ein. |
 | Chronik | `#/chronik` | Alles auf einer Zeitlinie, eine Seite pro Monat: Touren, Fahrten, Pflege, Meditation, Notizen; «Früher um diese Zeit». |
 | Stopps in der Nähe | `#/stopps` | Wasser, Tankstellen, Essen, Läden, WC, Bargeld, Apotheke, Pumpe, Velowerkstätten, Bahnhöfe und Betten um dich oder entlang der Route. |
 | Karte mit steilen Hängen | `#/mountain/map` | Swisstopo-Karte mit Hangneigung über 30°, Skitourenrouten und Wanderwegen als Ebenen. |

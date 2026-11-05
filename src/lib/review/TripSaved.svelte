@@ -63,6 +63,7 @@
   import { situationHits } from '../situation.js';
   import { tripPower, effortOf, loadOf } from './power.js';
   import JoyPick from '../tourenc/JoyPick.svelte';
+  import SkillPick from '../tourenc/SkillPick.svelte';
   import FeelScale from '../tourenc/FeelScale.svelte'; // Touren c 70
   import { GROUPS, openOf, dayTabs, dayFacts, actsOn, timeline, stravaRides, tripNoteList, wearRows, chainLeft, packedList, packedTotals, pointsOf, compareGroup, similarRows, tripNumbers, compareRows, lastSeries } from './ganz.js';
   import TlVoice from './TlVoice.svelte'; // Noah 27.10.2026 «1a»: voice notes in the timeline
@@ -618,6 +619,7 @@
             <div class="rv-box pad"><FeelScale value={d.feel ?? null} onpick={(n) => onpatch?.({ feel: n })} /></div>
           </section>
           <JoyPick {d} onchange={(v) => onpatch?.({ joy: v })} />
+          <SkillPick {d} onchange={(v) => onpatch?.({ skills: v })} />
           {#if w}<HeartPower {values} zones={w.zones?.source ?? null} bike={meterBike || trip.bike || bike?.name || ''} {tempo} {power} {effort} {load} {efforts} {loads} mark={trip.id} {best} strava={acts.length > 0} sub={day != null ? t('Day {n} · from Strava · to look at, without rating', { n: day + 1 }) : ''} />{/if}
         </div>
         <div class="rv-col">
