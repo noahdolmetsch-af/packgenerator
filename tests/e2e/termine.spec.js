@@ -263,6 +263,12 @@ test('the customer list: add a customer with an own price, edit and delete with 
   await page.locator('#cu-abo').fill('200');
   await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
   await expect(row).toContainText('200');
+  // a usual time: weekday and time, shown in the list
+  await row.click();
+  await page.locator('#cu-fday').selectOption('3');
+  await page.locator('#cu-ftime').fill('17:00');
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
+  await expect(row).toContainText('17:00');
   // delete asks first, then offers Undo
   await row.click();
   await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Delete') }).click();
