@@ -17,6 +17,13 @@ import { t } from '../i18n.svelte.js';
 import { sleepScoreOf, restlessOf, cardioLoadOf } from './own.js';
 import { valueHref } from './jump.js';
 import { lateOf, LATE_HOUR } from './late.js';
+import { feelOf } from '../training.js';
+
+/** The mean felt effort of the bike rides of a day (the day's activities; answers 1–10), or null without one. */
+export function feelDay(dayActs) {
+  const v = (dayActs ?? []).filter((a) => a.kind === 'bike').map(feelOf).filter((x) => x != null);
+  return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+}
 
 export const detailHref = (key) => valueHref(key);
 
@@ -87,6 +94,8 @@ export function analyseGroups({ table = new Map(), weights = new Map(), ctx = {}
         body('wkg'),
         body('cad'),
         body('spd'),
+        // «Persönliche Experimente» (Noah 04.11.2026, Idee 2): how hard the rides of a day felt, so a try can ask «easier with …?»
+        at({ key: 'rideFeel', name: t('Felt effort of rides (1–10)'), unit: '', src: 'body', dec: 1, own: true, how: t('Own calculation: the mean of your answers to «How hard was your ride?» on that day, 1 (very easy) to 10 (all out).|own'), get: (d) => feelDay(table.get(d)?.acts) }),
         // «Muster entdeckt» (Noah 03.11.2026, Idee 5): so the links can ask «do I sleep shorter after late sessions?»
         at({ key: 'late', name: t('Late sessions'), unit: '×', src: 'strava', sum: true, how: t('Sessions that end at {h}:00 or later, counted per day; 0 on a day with sessions that are not late.|late', { h: LATE_HOUR }), get: (d) => lateOf(table.get(d)) }),
       ],

@@ -76,7 +76,7 @@
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
-  import { newsHint, newerThan, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
+  import { newsHint, newerThan, pointCount, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
   import { tileDaysLeft, unpinNews } from '../lib/know/wasneu.js';
   import { readUpdate, writeUpdate, readPin, writePin } from '../lib/know/wasneuStore.js';
   import MaintHint from '../lib/maintenance/MaintHint.svelte';
@@ -146,7 +146,6 @@
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
-  import QuestionsTile from '../lib/home/QuestionsTile.svelte';
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import SkiTile from '../lib/home/SkiTile.svelte';
   import { bookingNotes, bookingRow } from '../lib/booking/notice.js'; // Termine buchen (BU4, 9a)
@@ -273,7 +272,7 @@
       writeUpdate({ v: h.mark, from: seen, at: localDay() });
       newsUpdate = readUpdate();
       // «Heute neu» A 5b: no tile «New» pinned on Heute any more; the news stay under Ich
-    } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
+    } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + pointCount(e), 0) : 0;
     // v0.127.0 A-U1: the calm banner after an update; «Heute neu» A 5b: it shows under Ich (Me.svelte)
     unpinNewsTile();
   });
@@ -1229,7 +1228,6 @@
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
   {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
   {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} {bikes} {tripsDone} big />
-  {:else if x.id === 'questions'}<QuestionsTile {today} />
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
   <!-- Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the tile id stays -->
   {:else if x.id === 'yearago'}<ChronikKarte trips={homeTrips(allTrips)} {debriefs} {today} rides={$ridesQ ?? null} size={x.size} isnew={newTile('yearago')} />

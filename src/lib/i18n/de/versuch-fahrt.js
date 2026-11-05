@@ -1,0 +1,27 @@
+// «Persönliche Experimente» mit Fahrt-Werten (Noah 04.11.2026, Persönliches Lernen Idee 2)
+export default {
+  'Felt effort of rides (1–10)': 'Gefühlte Anstrengung der Fahrten (1–10)',
+  // the state line of a try had no German text yet
+  'Starts on {day}': 'Startet am {day}',
+  'Day {n} of {days}': 'Tag {n} von {days}',
+  'Over: your look back': 'Vorbei: dein Rückblick',
+  'Stopped: your look back': 'Beendet: dein Rückblick',
+  'Own calculation: the mean of your answers to «How hard was your ride?» on that day, 1 (very easy) to 10 (all out).|own': 'Eigene Rechnung: der Mittelwert deiner Antworten auf «Wie anstrengend war deine Fahrt?» an diesem Tag, 1 (sehr leicht) bis 10 (alles gegeben).',
+  'Ride values are compared ride against ride, only rides of a similar length and climb. Each side needs at least {min} rides, so a try of {n} days or more is better.|exp': 'Fahrt-Werte werden Fahrt gegen Fahrt verglichen, und zwar nur Fahrten ähnlicher Länge und mit ähnlich vielen Höhenmetern. Jede Seite braucht mindestens {min} Fahrten, darum ist ein Versuch von {n} Tagen oder mehr besser.',
+  'Before the try|exp': 'Vor dem Versuch',
+  'Try something new for about two weeks. The app then puts your rides before and during the try side by side.|exp': 'Probiere etwa zwei Wochen etwas Neues aus. Die App legt dann deine Fahrten davor und währenddessen nebeneinander.',
+  'Do my rides feel easier?': 'Fühlen sich meine Fahrten leichter an?',
+  'Do I pedal faster?': 'Trete ich schneller?',
+  'Do I ride faster?': 'Fahre ich schneller?',
+  'Do I get more watts per kilo?': 'Habe ich mehr Watt pro Kilo?',
+  'Warm up for 10 minutes before every ride': 'Vor jeder Fahrt 10 Minuten einfahren',
+  'Eat something before every ride': 'Vor jeder Fahrt etwas essen',
+  'More settings|exp': 'Mehr Einstellungen',
+  'Show the cadence too|exp': 'Kadenz gleich mitzeigen',
+  'Example: you pedal 5 rpm faster. The cadence then shows whether you really did, and the felt effort how the rides felt.|exp': 'Beispiel: Du trittst 5 Umdrehungen pro Minute schneller. Die Kadenz zeigt dann, ob du es wirklich getan hast, und die gefühlte Anstrengung, wie sich die Fahrten anfühlten.',
+  '{similar} of {all} rides are alike in length and climb and are compared.|exp': '{similar} von {all} Fahrten sind sich in Länge und Höhenmetern ähnlich und werden verglichen.',
+  'Not enough rides yet: at least {min} alike rides before and during the try are needed (now {before} and {during}).|exp': 'Noch zu wenige Fahrten: vor und während des Versuchs braucht es mindestens {min} ähnliche Fahrten (jetzt {before} und {during}).',
+  'No clear difference: the two means lie within the swing from ride to ride.|exp': 'Kein klarer Unterschied: die beiden Mittelwerte liegen innerhalb der Schwankung von Fahrt zu Fahrt.',
+  'Every ride as a dot, before and during the try, from {lo} to {hi}.|exp': 'Jede Fahrt als Punkt, vor und während des Versuchs, von {lo} bis {hi}.',
+  'Pedal 5 rpm faster on every ride': 'Auf jeder Fahrt 5 Umdrehungen pro Minute schneller treten',
+};

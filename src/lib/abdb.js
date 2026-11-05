@@ -94,18 +94,37 @@ export const putAnswer = (row) => saveAnswers([row]);
 export const deleteAnswer = (id) => db.abAnswers.delete(id);
 
 /** The whole history (AB4): the answers, the old daily checks and the rides from Strava, newest first. */
+async function historyRows() {
+  const [answers, checks, pool, cfg, acts] = await Promise.all([
+    db.abAnswers.toArray(),
+    db.flowChecks.toArray(),
+    db.settings.get(QUESTIONS_KEY),
+    db.settings.get(AB_KEY),
+    loadPastActs(db).catch(() => []),
+  ]);
+  const rides = acts
+    .filter((a) => a.day)
+    .map((a) => ({ id: `strava-${a.id}`, qid: 'tour', area: 'sport', day: a.day, at: a.startAt ? stampOf(new Date(a.startAt)) : null, kind: 'ride', value: a.km, note: null, unit: 'km', src: 'strava', ride: a }));
+  return { rows: mergeHistory([...answers, ...rides], checks, poolOf(pool?.value)), cfg: cfg?.value ?? null };
+}
 export function historyQuery() {
+  return liveQuery(historyRows);
+}
+/**
+ * What the guess to test needs (the same data as the page «Erkenntnisse»): the history, the Fitbit days, the meditation,
+ * the kept weather and appointments, and the switched-off own questions. Read only, nothing is fetched.
+ */
+export function hintQuery() {
   return liveQuery(async () => {
-    const [answers, checks, pool, cfg, acts] = await Promise.all([
-      db.abAnswers.toArray(),
-      db.flowChecks.toArray(),
-      db.settings.get(QUESTIONS_KEY),
-      db.settings.get(AB_KEY),
-      loadPastActs(db).catch(() => []),
+    // loaded on first use: the start stays small (the check window only needs this when the rule is on)
+    const [{ loadDayData }, { OWN_OFF_KEY }] = await Promise.all([import('./daydata.js'), import('./erkenntnisse.js')]);
+    const [hist, health, log, days, off] = await Promise.all([
+      historyRows(),
+      db.healthDays ? db.healthDays.toArray().catch(() => []) : [],
+      db.flowLog ? db.flowLog.where('actId').equals('meditation').toArray().catch(() => []) : [],
+      loadDayData(db).catch(() => ({ weather: {}, events: {} })),
+      db.settings.get(OWN_OFF_KEY),
     ]);
-    const rides = acts
-      .filter((a) => a.day)
-      .map((a) => ({ id: `strava-${a.id}`, qid: 'tour', area: 'sport', day: a.day, at: a.startAt ? stampOf(new Date(a.startAt)) : null, kind: 'ride', value: a.km, note: null, unit: 'km', src: 'strava', ride: a }));
-    return { rows: mergeHistory([...answers, ...rides], checks, poolOf(pool?.value)), cfg: cfg?.value ?? null };
+    return { ...hist, health, log, weather: days.weather, events: days.events, ownOff: off?.value ?? [] };
   });
 }
