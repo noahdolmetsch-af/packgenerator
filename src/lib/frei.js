@@ -411,6 +411,12 @@ export const LUST_IDEAS = [
   { id: 'dance', name: 'Dance in the kitchen', mood: ['play', 'power'], energy: ['low', 'mid', 'high'], after: ['move'], min: 15 },
 ];
 
+/** Ideas for the open air / for inside (the others are neutral); an own or changed idea may set `out` itself. */
+export const OUTDOOR_IDEAS = new Set(['intervals', 'hills', 'run', 'tennis', 'frisbee', 'corners', 'slow', 'walk', 'cafe', 'long']);
+export const INDOOR_IDEAS = new Set(['games', 'yoga', 'stretch', 'dance']);
+/** true outdoors, false indoors, null neutral. */
+export const outdoorOf = (i) => (typeof i?.out === 'boolean' ? i.out : OUTDOOR_IDEAS.has(i?.id) ? true : INDOOR_IDEAS.has(i?.id) ? false : null);
+
 /** Built-in ideas with edits, own ones, hidden ones left out. */
 export function lustIdeasOf(cfg) {
   const edits = cfg?.lustEdits ?? {};
@@ -425,7 +431,7 @@ export function lustIdeasOf(cfg) {
  * you have is left out (when nothing fits, the shortest ones). «Worked» ticks with the same energy
  * add 1 each (up to 3): your own good experience wins. → [{ idea, score, why: [keys] }]
  */
-export function lustPick(ideas, { mood = null, energy = null, after = null, time = null } = {}, log = [], top = 3) {
+export function lustPick(ideas, { mood = null, energy = null, after = null, time = null, wx = null } = {}, log = [], top = 3) {
   let pool = ideas.filter((i) => time == null || (Number(i.min) || 0) <= time);
   if (!pool.length) pool = [...ideas].sort((a, b) => (a.min ?? 0) - (b.min ?? 0)).slice(0, top);
   const scored = pool.map((idea) => {
@@ -434,11 +440,25 @@ export function lustPick(ideas, { mood = null, energy = null, after = null, time
     if (mood && idea.mood?.includes(mood)) (score += 3), why.push('mood');
     if (energy && idea.energy?.includes(energy)) (score += 2), why.push('energy');
     if (after && idea.after?.includes(after)) (score += 2), why.push('after');
+    // your week: dry → the open air gets 1 more; rain → the open air loses 3, ideas for inside get 1
+    const out = wx ? outdoorOf(idea) : null;
+    if (wx === 'good' && out === true) (score += 1), why.push('weather');
+    if (wx === 'bad' && out === true) score -= 3;
+    if (wx === 'bad' && out === false) (score += 1), why.push('weather');
     const worked = log.filter((l) => l.what === idea.id && l.ok && (!energy || l.energy === energy)).length;
     if (worked) (score += Math.min(3, worked)), why.push('worked');
     return { idea, score, why, worked };
   });
   return scored.sort((a, b) => b.score - a.score || (a.idea.min ?? 0) - (b.idea.min ?? 0)).slice(0, top);
+}
+
+/**
+ * «Another one» (the dice): one more idea for the same choice, picked at random among the five best ones
+ * that are not shown yet. → { idea, score, why } or null when nothing is left.
+ */
+export function lustMore(ideas, choice = {}, log = [], shownIds = [], rand = Math.random) {
+  const left = lustPick(ideas, choice, log, 999).filter((p) => !shownIds.includes(p.idea.id)).slice(0, 5);
+  return left.length ? left[Math.min(left.length - 1, Math.floor(rand() * left.length))] : null;
 }
 
 /** Technique ideas (any sport; a link can lead to a video). */

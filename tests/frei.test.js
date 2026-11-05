@@ -1,6 +1,6 @@
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): the pure rules of Ich › Freie Zeit and its pages.
 import { describe, it, expect } from 'vitest';
-import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES } from '../src/lib/frei.js';
+import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf } from '../src/lib/frei.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -191,5 +191,32 @@ describe('the evening timer and «did you good»', () => {
     ];
     expect(goodEvenings(rows, '2026-11-05')).toBe(2);
     expect(goodEvenings([], '2026-11-05')).toBe(0);
+  });
+});
+
+describe('«Worauf hab ich Lust?» with your week', () => {
+  const ideas = lustIdeasOf({});
+  it('dry weather lifts the open air; rain sinks it and lifts ideas for inside', () => {
+    const base = lustPick(ideas, { energy: 'mid' }, [], 999);
+    const dry = lustPick(ideas, { energy: 'mid', wx: 'good' }, [], 999);
+    const wet = lustPick(ideas, { energy: 'mid', wx: 'bad' }, [], 999);
+    const sc = (list, id) => list.find((p) => p.idea.id === id).score;
+    expect(sc(dry, 'walk')).toBe(sc(base, 'walk') + 1);
+    expect(sc(wet, 'walk')).toBe(sc(base, 'walk') - 3);
+    expect(sc(wet, 'yoga')).toBe(sc(base, 'yoga') + 1);
+    expect(wet.find((p) => p.idea.id === 'yoga').why).toContain('weather');
+    expect(sc(lustPick(ideas, { energy: 'mid', wx: null }, [], 999), 'walk')).toBe(sc(base, 'walk')); // no week data: as before
+  });
+  it('an own idea says itself where it is; the built-in ones are known', () => {
+    expect(outdoorOf({ id: 'walk' })).toBe(true);
+    expect(outdoorOf({ id: 'yoga' })).toBe(false);
+    expect(outdoorOf({ id: 'own1' })).toBeNull();
+    expect(outdoorOf({ id: 'walk', out: false })).toBe(false);
+  });
+  it('«Another one» is a new idea of the best five, never one that is shown', () => {
+    const shown = lustPick(ideas, { mood: 'play' }, []).map((p) => p.idea.id);
+    const p = lustMore(ideas, { mood: 'play' }, [], shown, () => 0);
+    expect(shown).not.toContain(p.idea.id);
+    expect(lustMore(ideas, { mood: 'play' }, [], ideas.map((i) => i.id))).toBeNull();
   });
 });
