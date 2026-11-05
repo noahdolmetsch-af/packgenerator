@@ -1275,6 +1275,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.monthideas': {
+    on: 'Pass opening is the usual months, not live.',
+    steps: ['Open Trips › Dreams: «Fits now» shows the ideas of this month.', 'Tap a month in «Your year» for its ideas.', 'Add your own idea, or tap «As a dream».'],
+    example: 'Example: November → «Above the sea of fog», «Golden larches», «Long nights».',
+  },
   'f.dreamsmap': {
     on: 'Needs dreams with a map (a GPX file or a Ride with GPS link).',
     steps: ['Give two or more dreams a map.', 'Open Trips › Dreams and scroll to «All dreams on one map».', 'The list shows what each brings new; a tap opens the dream.'],
