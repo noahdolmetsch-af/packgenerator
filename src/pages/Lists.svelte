@@ -93,6 +93,19 @@
       deleteTitle: (name) => t('Delete sport «{name}»?', { name }),
       words: (count) => ({ edit: t('Edit sport'), own: t('Own sport'), empty: t('Give the sport a name.'), warn: count ? tn(count, 'Delete: {n} trip has this sport. Hidden and deleted sports are no longer offered for a new trip.', 'Delete: {n} trips have this sport. Hidden and deleted sports are no longer offered for a new trip.') : t('Delete: no trip has this sport.') }),
     },
+    // Noah 05.11.2026: the four bike sports of a trip (no area of their own): rename, hide, order; deleting is in «Meine Sportarten»
+    tripSports: {
+      full: false,
+      hideable: true,
+      renameOnly: true,
+      icon: Bike,
+      place: 'Trips|place',
+      sub: 'The bike sports of your trips. The new name shows everywhere. The order is set in Active › My sports.',
+      noSort: true,
+      ownWord: '',
+      what: () => '',
+      words: () => ({ edit: t('Rename sport'), own: '', empty: t('Give the sport a name.'), warn: '' }),
+    },
     bikeSlots: {
       full: false,
       renameOnly: true,
@@ -157,7 +170,7 @@
   const countsOf = (key) => {
     if (key === 'categories') return ($itemsQ ?? []).reduce((m, i) => ((m[i.category] = (m[i.category] ?? 0) + 1), m), {});
     if (key === 'domains') return ($tripsQ ?? []).reduce((m, x) => ((m[x.domain ?? 'bikepacking'] = (m[x.domain ?? 'bikepacking'] ?? 0) + 1), m), {});
-    if (key === 'bikeSlots' || key === 'careParts' || KINDS[key]?.simple || key === 'journalMoods') return {};
+    if (key === 'bikeSlots' || key === 'careParts' || key === 'tripSports' || KINDS[key]?.simple || key === 'journalMoods') return {};
     if (key === 'noteTopics') return ($notesQ ?? []).filter(isKept).reduce((m, n) => ((m[noteTopic(n)] = (m[noteTopic(n)] ?? 0) + 1), m), {});
     return groupCounts($fieldsQ?.value);
   };
@@ -199,7 +212,7 @@
   const counts = $derived({ all: list.length, std: list.filter((e) => kindOf(e) === 'std').length, mine: list.filter((e) => kindOf(e) === 'mine').length, own: list.filter((e) => kindOf(e) === 'own').length });
   const marked = $derived(counts.mine + counts.own > 0);
   const rows = $derived(filter === 'all' || !marked ? list : list.filter((e) => kindOf(e) === filter));
-  const sorting = $derived(rows === list);
+  const sorting = $derived(rows === list && !K.noSort);
   $effect(() => {
     void KEY;
     filter = 'all';
@@ -298,6 +311,14 @@
               <span class="ich-ib"><Mountain size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t(STANDARD_LIST.domains.name)}</b><small>{lineOf('domains')}</small></span>
               <span class="badge" class:mine={isChanged(all.domains)}>{isChanged(all.domains) ? t('Adapted') : t('Standard')}</span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="ich-row" href="#/me/lists?tripSports">
+              <span class="ich-ib"><Bike size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t(STANDARD_LIST.tripSports.name)}</b><small>{lineOf('tripSports')}</small></span>
+              <span class="badge" class:mine={isChanged(all.tripSports)}>{isChanged(all.tripSports) ? t('Adapted') : t('Standard')}</span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

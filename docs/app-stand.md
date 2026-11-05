@@ -139,7 +139,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen; ganz oben das Feld «Alles hier» mit zehn Kacheln zu allen Funktionen von Aktiv; nach dem Abhaken führt «Als Nächstes» zu Verlauf und Meilensteinen. |
-| Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf, Timer und Zusatzbausteinen anlegen; oben stehen die zuletzt genutzten. |
+| Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf, Timer und Zusatzbausteinen anlegen; oben stehen die zuletzt genutzten. Auch die Sportarten der Touren (Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Skitouren, Wandern) lassen sich über «⋯» umbenennen, ausblenden und löschen; der neue Name gilt überall. |
 | Training | `#/flow/training` | Einheiten mit Dauer und Zone planen; Aktivitäten, Pulszonen und subjektive Anstrengung auswerten. |
 | Leistungsanalysen | `#/flow/training?view=list` | Einzelne Aktivitäten mit Leistung, Herzfrequenz, Runden, Splits und weiteren verfügbaren Messwerten öffnen. |
 | Schlag deinen Geist | `#/flow/training?view=list` | Auf einer Velofahrt mit Puls die Analyse-Karte «Schlag deinen Geist»: diese Fahrt gegen eine frühere eigene Fahrt, mit Angabe, wie ähnlich die beiden sind. «Ausprobieren» in «Was ist neu» führt dorthin. |
@@ -238,7 +238,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Kleine Apps | `#/me/apps` | Einzelne Appbereiche als eigene Verknüpfung auf den Startbildschirm legen. |
 | Push-Erinnerungen | `#/me/push` | Hinweise zu Touren, Wetter, Licht, Verschleiss und Fristen einstellen. |
 | Eigene Werte | `#/me/werte` | Grenzwerte, Standardannahmen und Erinnerungsabstände anpassen. |
-| Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen; auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
+| Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen (auch die Velo-Sportarten der Touren: Name und Ausblenden); auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
 | Entscheidungsregeln | `#/me/regeln` | Nachvollziehen, weshalb die App etwas vorschlägt und wo sich die zugrunde liegenden Werte ändern lassen. |
 | Neuigkeiten | `#/me/news` | Änderungen und neue Funktionen nach Version nachlesen. |
 
