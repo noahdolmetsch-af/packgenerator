@@ -45,3 +45,12 @@ export function cellFlags(r) {
     wind: r.wind != null && r.wind >= WIND_AT,
   };
 }
+
+/** One short thing to put on for an hour, from its flags (Noah 05.11.2026): 'rain', 'warm', 'arm', 'wind' or null. Rain wins, then cold, cool, wind. */
+export function wearTip(f) {
+  if (f.rain === 'high') return 'rain';
+  if (f.cold === 'cold') return 'warm';
+  if (f.cold === 'cool') return 'arm';
+  if (f.wind) return 'wind';
+  return null;
+}

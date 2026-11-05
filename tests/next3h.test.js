@@ -59,3 +59,14 @@ describe('cellFlags', () => {
     expect(cellFlags({ rain: null, feels: null, wind: null })).toEqual({ rain: null, cold: null, wind: false });
   });
 });
+
+describe('wearTip', () => {
+  it('names one thing to put on, rain first', async () => {
+    const { wearTip } = await import('../src/lib/live/next3h.js');
+    expect(wearTip({ rain: 'high', cold: 'cold', wind: true })).toBe('rain');
+    expect(wearTip({ rain: 'some', cold: 'cold', wind: false })).toBe('warm');
+    expect(wearTip({ rain: null, cold: 'cool', wind: true })).toBe('arm');
+    expect(wearTip({ rain: null, cold: null, wind: true })).toBe('wind');
+    expect(wearTip({ rain: 'some', cold: null, wind: false })).toBe(null);
+  });
+});
