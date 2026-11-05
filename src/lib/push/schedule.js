@@ -65,7 +65,6 @@ export const KINDS = [
   { key: 'eve', label: 'Evening before a trip', hint: 'The evening-before check, at the time of «Eigene Werte».' },
   { key: 'weather', label: 'Weather on the tour day', hint: 'At 06:30, only for a storm, heat, ice or a thunderstorm.' },
   { key: 'ice', label: 'Ice in the morning', hint: 'From October to April at 06:30, when roads at home can be icy (around 0 °C with rain or snow). Needs your home place.' },
-  { key: 'fog', label: 'Fog line in the morning', hint: 'From October to February at 07:00: how high the low fog reaches and where the sun is, or «no fog». Needs your home place.' },
   { key: 'wxwatch', label: 'Weather alarm', hint: 'Before a planned tour: when a good weather window comes or the weather turns. Twice a day, up to 10 days ahead.' },
   { key: 'dark', label: 'Light alarm', hint: 'The evening before, when the ride goes on after sunset: pack the light and the reflective vest.' },
   { key: 'rainsoon', label: 'Rain on the way', hint: 'While you ride: when rain comes in about 15 to 45 minutes where you should be.' },
@@ -87,6 +86,8 @@ export const KINDS = [
   { key: 'eat', label: 'Eat on the ride', hint: 'While the eat reminder runs on On the way, every 30 to 60 minutes.' },
   // Paket NE 1150 (Noah 20.10.2026 «9a»): a note with a reminder date
   { key: 'note', label: 'Note reminders', hint: 'At the time you set in a note.' },
+  // «Nebelgrenze am Morgen» sits last: the switches above keep their place on the page (heimat.spec measures how far down they are)
+  { key: 'fog', label: 'Fog line in the morning', hint: 'From October to February at 07:00: how high the low fog reaches and where the sun is, or «no fog». Needs your home place.' },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;

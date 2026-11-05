@@ -15,6 +15,7 @@ Auftrag: Noah «1a sonst „heute kein hochnebel - time to shine“, 2b, 3a» (T
 - «Sonst time to shine» gilt für Tage ohne Hochnebel. Bei Nebel mit Wolken darüber sagt die Nachricht die Wahrheit («darüber Wolken»), nicht «time to shine».
 - Standard an: nur wenn Push selbst an ist (vorher kommt nichts). Dafür gilt für diesen Schalter die Ausnahme von «alles aus am Anfang»; `tests/push-schedule.test.js` und `tests/glaette.test.js` sind darauf angepasst (der Nebel-Schalter wird dort ausgeschaltet, wo es um anderes geht).
 - Die Nachricht kommt um 07:00 (Glätte 06:30), die Rechnung nimmt 08:00 als Bezug, weil der Nebel dann meist noch steht. Die nächsten 7 Morgen werden vorgeplant, wie bei Glätte.
+- Der Schalter steht ganz unten in der Liste der Push-Erinnerungen, damit die anderen Schalter ihren Platz behalten (der Wächter «jede Funktion ist auf ihrer Seite sichtbar» misst, wie weit unten «Anmeldung zum Rennen» steht).
 - Von Oktober bis Februar (Hochnebelzeit), kein eigener Schalter für die Monate.
 - Fahrt-Vorschläge nur aus Touren mit Route (die Höhe kennt die App nur dort). Die Namen gehen wie bei Tourtiteln an den eigenen Server.
 - Neues in `api/_lib/push.js` und `api/push.js` (bestehende Dateien, keine neue unter `api/`): nach dem Merge den Vercel-Server «packgen» auf READY prüfen.
