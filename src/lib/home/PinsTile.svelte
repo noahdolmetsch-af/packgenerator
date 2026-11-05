@@ -166,7 +166,7 @@
   }
   .pt-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(168px, 100%), 1fr)); /* «Werkzeugkasten» needs about 130 px of text: 150 px broke it mid-word (frontend walk E1-006) */
     gap: var(--sp-2);
   }
   .pt-pin {
@@ -179,6 +179,7 @@
     font: inherit;
     text-align: left;
     overflow-wrap: break-word;
+    hyphens: auto;
     cursor: pointer;
   }
   .pt-pin:hover {
