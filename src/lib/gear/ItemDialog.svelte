@@ -11,7 +11,7 @@
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { RIDES, RAIN_ITEM } from '../layers.js';
-  import { choosable, CATEGORY, BAGS, BAG, OWNERSHIP, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
+  import { choosable, CATEGORY, UNKNOWN_CATEGORY, BAGS, BAG, OWNERSHIP, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
   import { liveQuery } from 'dexie';
   import { SETS_KEY, allSets } from '../sets.js';
   import { TEMPLATES_KEY } from '../templates.js';
@@ -308,7 +308,8 @@
    * after a change: «Changes to "…" saved.»; a new item: «"…" saved, under {cat}.». A second tap while
    * it saves does nothing (once); a failed save keeps the window and what was typed, with one line why.
    */
-  const catName = (c) => t(CATEGORY[c]?.name ?? '') || c;
+  // E2-002: a new item closed with a name only has no category yet; it shows under «Ohne Kategorie» (before: «unter .»)
+  const catName = (c) => (c ? t(CATEGORY[c]?.name ?? '') || c : t(UNKNOWN_CATEGORY.name));
   const save = once(async (event) => {
     event.preventDefault();
     error = '';
