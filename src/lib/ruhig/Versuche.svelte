@@ -17,7 +17,7 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { settingQ, saveSetting } from './store.js';
   import { dmy } from './base.js';
-  import { EXP_KEY, EXP_DAYS, EXP_EXAMPLES, KEEP, expsOf, newExp, expEnd, expState, expProgress, expTick, expNote, expReview, expStop, expAgain } from './versuche.js';
+  import { EXP_KEY, EXP_DAYS, EXP_CHOICES, EXP_EXAMPLES, KEEP, expsOf, newExp, expEnd, expState, expProgress, expTick, expNote, expReview, expStop, expAgain } from './versuche.js';
 
   const today = localDay();
   const q = settingQ(EXP_KEY);
@@ -52,6 +52,17 @@
   let nfrom = $state(today);
   let nmetric = $state('');
   let nalso = $state('');
+  // the plain question picked first (EXP_CHOICES key, or 'other'): it fills the rest
+  let pick = $state('');
+  let more = $state(false);
+  const hint = $derived(EXP_CHOICES.find((c) => c.key === pick)?.hint);
+  function choose(c) {
+    pick = c.key;
+    nq = t(c.q);
+    nmetric = c.metric;
+    nalso = c.also ?? '';
+    ndays = RIDE_DAYS;
+  }
   const rideChosen = $derived(RIDE_METRICS.includes(nmetric));
   // «show the cadence too» only makes sense next to another ride value
   const cadOffered = $derived(rideChosen && nmetric !== 'cad');
@@ -64,6 +75,8 @@
     nchange = '';
     nmetric = '';
     nalso = '';
+    pick = '';
+    more = false;
   }
   const STATE = { soon: 'Starts on {day}', running: 'Day {n} of {days}', review: 'Over: your look back', stopped: 'Stopped: your look back', done: 'Finished' };
   let learned = $state({});
@@ -83,26 +96,39 @@
   <Card id="exp" icon={FlaskConical} title={t('Experiment with an end')} lead={t('A question, what you change, how long; then a short look back')} bind:open={open.exp}>
     <p class="rh-help">{t('A try is never a routine: after the last day it asks what you learned and ends. You decide whether you keep it.')}</p>
     <form class="rh-new" onsubmit={add}>
-      <label class="rh-field"><span>{t('Your question')}</span><input class="inp" bind:value={nq} placeholder={t('e.g. Do I sleep better without a screen after 21:00?')} data-exp-q /></label>
-      <label class="rh-field"><span>{t('What you change')}</span><input class="inp" bind:value={nchange} placeholder={t('e.g. No phone after 21:00')} /></label>
-      <div class="rh-row">
-        <label class="rh-field"><span>{t('From')}</span><input class="inp" type="date" bind:value={nfrom} /></label>
-        <label class="rh-field"><span>{t('How long')}</span><select class="inp" bind:value={ndays}>{#each EXP_DAYS as d (d)}<option value={d}>{tn(d, '{n} day', '{n} days')}</option>{/each}</select></label>
+      <p class="rh-help">{t('Try something new for about two weeks. The app then puts your rides before and during the try side by side.|exp')}</p>
+      <div class="rh-field" role="group" aria-label={t('What do you want to find out?')} data-exp-choices>
+        <span>{t('What do you want to find out?')}</span>
+        <div class="rh-chips">
+          {#each EXP_CHOICES as c (c.key)}<button type="button" class="rh-chip" aria-pressed={pick === c.key} onclick={() => choose(c)} data-exp-choice={c.key}>{t(c.q)}</button>{/each}
+          <button type="button" class="rh-chip" aria-pressed={pick === 'other'} onclick={() => ((pick = 'other'), (more = true))} data-exp-choice="other">{t('Something else')}</button>
+        </div>
       </div>
-      <label class="rh-field"><span>{t('Measure it with a value (optional)')}</span>
-        <select class="inp" bind:value={nmetric} data-exp-metric>
-          <option value="">{t('No value, only my ticks')}</option>
-          {#each metrics as m (m.key)}<option value={m.key}>{m.name}</option>{/each}
-        </select>
-        <small class="rh-help">{t('The look back then compares the mean during the try with the same number of days before it. It needs that value in your data.')}</small>
-      </label>
-      {#if rideChosen}
-        <p class="rh-help" data-exp-ride-hint>{t('Ride values are compared ride against ride, only rides of a similar length and climb. Each side needs at least {min} rides, so a try of {n} days or more is better.|exp', { n: RIDE_DAYS, min: MIN_RIDES })}</p>
-      {/if}
-      {#if cadOffered}
-        <label class="rh-check"><input type="checkbox" checked={nalso === 'cad'} onchange={(e) => (nalso = e.currentTarget.checked ? 'cad' : '')} data-exp-cad /> <span>{t('Show the cadence too|exp')}<small class="rh-help">{t('Example: you pedal 5 rpm faster. The cadence then shows whether you really did, and the felt effort how the rides felt.|exp')}</small></span></label>
-      {/if}
-      <div class="rh-chips">{#each EXP_EXAMPLES as x (x.q)}<button type="button" class="rh-chip" onclick={() => ((nq = t(x.q)), (nchange = t(x.change)), (nmetric = x.metric ?? ''), (nalso = x.also ?? ''), x.metric && RIDE_METRICS.includes(x.metric) && (ndays = RIDE_DAYS))}>{t(x.q)}</button>{/each}</div>
+      <label class="rh-field"><span>{t('Your question')}</span><input class="inp" bind:value={nq} placeholder={t('e.g. Do I sleep better without a screen after 21:00?')} data-exp-q /></label>
+      <label class="rh-field"><span>{t('What you change')}</span><input class="inp" bind:value={nchange} placeholder={hint ? t('e.g. {x}', { x: t(hint) }) : t('e.g. No phone after 21:00')} data-exp-change /></label>
+      <details class="rh-more" bind:open={more} data-exp-more>
+        <summary>{t('More settings|exp')}</summary>
+        <div class="rh-new">
+          <div class="rh-row">
+            <label class="rh-field"><span>{t('From')}</span><input class="inp" type="date" bind:value={nfrom} /></label>
+            <label class="rh-field"><span>{t('How long')}</span><select class="inp" bind:value={ndays}>{#each EXP_DAYS as d (d)}<option value={d}>{tn(d, '{n} day', '{n} days')}</option>{/each}</select></label>
+          </div>
+          <label class="rh-field"><span>{t('Measure it with a value (optional)')}</span>
+            <select class="inp" bind:value={nmetric} data-exp-metric>
+              <option value="">{t('No value, only my ticks')}</option>
+              {#each metrics as m (m.key)}<option value={m.key}>{m.name}</option>{/each}
+            </select>
+            <small class="rh-help">{t('The look back then compares the mean during the try with the same number of days before it. It needs that value in your data.')}</small>
+          </label>
+          {#if rideChosen}
+            <p class="rh-help" data-exp-ride-hint>{t('Ride values are compared ride against ride, only rides of a similar length and climb. Each side needs at least {min} rides, so a try of {n} days or more is better.|exp', { n: RIDE_DAYS, min: MIN_RIDES })}</p>
+          {/if}
+          {#if cadOffered}
+            <label class="rh-check"><input type="checkbox" checked={nalso === 'cad'} onchange={(e) => (nalso = e.currentTarget.checked ? 'cad' : '')} data-exp-cad /> <span>{t('Show the cadence too|exp')}<small class="rh-help">{t('Example: you pedal 5 rpm faster. The cadence then shows whether you really did, and the felt effort how the rides felt.|exp')}</small></span></label>
+          {/if}
+        </div>
+      </details>
+      <div class="rh-chips">{#each EXP_EXAMPLES as x (x.q)}<button type="button" class="rh-chip" onclick={() => ((pick = ''), (nq = t(x.q)), (nchange = t(x.change)), (nmetric = x.metric ?? ''), (nalso = x.also ?? ''))}>{t(x.q)}</button>{/each}</div>
       <button type="submit" class="btn hi" disabled={!nq.trim()} data-exp-add><Plus size={16} aria-hidden="true" />{t('Start the experiment')}</button>
     </form>
   </Card>
@@ -216,6 +242,16 @@
     display: block;
     font-weight: 400;
     opacity: 0.75;
+  }
+  .rh-more > summary {
+    cursor: pointer;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+  }
+  .rh-more[open] > summary {
+    margin-bottom: var(--sp-2);
   }
   .rh-check {
     display: flex;

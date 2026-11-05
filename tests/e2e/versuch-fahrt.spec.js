@@ -36,8 +36,12 @@ test('Versuch mit Fahrt-Werten: Beispiel, zwei Werte, Vergleich', async ({ page,
   await page.reload();
   await ready(page);
 
-  // the example fills the form: question, both values and 14 days
-  await page.getByRole('button', { name: T('Do I ride more comfortably with a higher cadence?') }).click();
+  // the plain question fills the form: question, value, cadence next to it and 14 days; the rest sits under «More settings»
+  await expect(page.locator('[data-exp-more]')).not.toHaveAttribute('open', '');
+  await page.getByRole('button', { name: T('Do my rides feel easier?') }).click();
+  await expect(page.locator('[data-exp-q]')).toHaveValue(T('Do my rides feel easier?'));
+  await expect(page.locator('[data-exp-change]')).toHaveAttribute('placeholder', /5 Umdrehungen/);
+  await page.locator('[data-exp-more] summary').click();
   await expect(page.locator('[data-exp-metric]')).toHaveValue('rideFeel');
   await expect(page.locator('[data-exp-cad]')).toBeChecked();
   await expect(page.locator('[data-exp-ride-hint]')).toBeVisible();
@@ -57,7 +61,8 @@ test('Versuch mit Fahrt-Werten: Beispiel, zwei Werte, Vergleich', async ({ page,
   await expect(feel.locator('[data-dots="before"] .dot')).toHaveCount(7);
   await expect(feel.locator('[data-dots="during"] .dot')).toHaveCount(7);
 
-  // the examples stay under the form after the first try
-  await expect(page.getByRole('button', { name: T('Do I ride more comfortably with a higher cadence?') })).toBeVisible();
+  // the choices and examples stay under the form after the first try
+  await expect(page.getByRole('button', { name: T('Do my rides feel easier?') })).toBeVisible();
+  await expect(page.getByRole('button', { name: T('Do I sleep better without a screen after 21:00?') })).toBeVisible();
   expect(errors).toEqual([]);
 });
