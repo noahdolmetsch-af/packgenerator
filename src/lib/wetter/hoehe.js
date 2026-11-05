@@ -155,3 +155,12 @@ export const newOwnId = (own, now = Date.now()) => {
   while (own.some((o) => o.id === n)) n += 'x';
   return n;
 };
+
+/**
+ * The line on Today: the temperature now at each of the card's heights over one place → [{ z, t }] from low to high (1000, 2000, 3000 m), without the heights
+ * that have no value (under the ground, above the layers), or null when none has one.
+ */
+export function briefOf(prof, now = Date.now()) {
+  const out = [...HEIGHTS].reverse().map((z) => ({ z, t: tempNow(prof, z, now) })).filter((r) => fin(r.t));
+  return out.length ? out : null;
+}

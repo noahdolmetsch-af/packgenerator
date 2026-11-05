@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { atLocal } from '../src/lib/wetter/kern.js';
 import { parseProfil, LEVELS } from '../src/lib/wetter/profil.js';
-import { HEIGHTS, SKI_HEIGHTS, SPOTS, PEAKS, tempIn, tempNow, rowOf, rowsOf, hasValue, zeroLine, selOf, itemOf, ownOf, toggleSel, newOwnId, peaksNear } from '../src/lib/wetter/hoehe.js';
+import { HEIGHTS, SKI_HEIGHTS, SPOTS, PEAKS, tempIn, tempNow, rowOf, rowsOf, briefOf, hasValue, zeroLine, selOf, itemOf, ownOf, toggleSel, newOwnId, peaksNear } from '../src/lib/wetter/hoehe.js';
 
 const OFF = 3600;
 const DAY = '2026-11-05';
@@ -168,5 +168,17 @@ describe('the chosen items', () => {
   it('a new own id never repeats', () => {
     const id = newOwnId([], 1000);
     expect(newOwnId([{ id }], 1000)).not.toBe(id);
+  });
+});
+
+describe('the line on Today', () => {
+  it('the temperature now at 1000, 2000 and 3000 m, from low to high; a height without a value is left out', () => {
+    expect(briefOf(prof, NOW)).toEqual([{ z: 1000, t: 3.5 }, { z: 2000, t: -2.8 }, { z: 3000, t: -9 }]);
+    const davos = parseProfil(api({ elevation: 1560 }));
+    expect(briefOf(davos, NOW).map((r) => r.z)).toEqual([2000, 3000]);
+  });
+  it('no value at all: no line', () => {
+    expect(briefOf(null, NOW)).toBeNull();
+    expect(briefOf({ ...prof, hours: [] }, NOW)).toBeNull();
   });
 });
