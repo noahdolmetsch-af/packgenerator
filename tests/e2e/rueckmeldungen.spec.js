@@ -76,6 +76,7 @@ test('one gear item from start to end: every step says what happened', async ({ 
   // 2. Change it and close with ✕: saved, and the app says so
   const open = async (name) => {
     await page.getByLabel(T('Search gear')).fill(name);
+    await expect(page.getByLabel(T('Search gear'))).toHaveAttribute('data-applied', name); // the list follows the last letter a moment later
     await page.getByRole('button', { name: new RegExp(name) }).first().click();
     const d = page.getByRole('dialog', { name });
     await expect(d).toBeVisible();

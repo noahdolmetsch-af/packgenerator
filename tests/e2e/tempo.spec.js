@@ -15,6 +15,7 @@ test('Material search: five rows per category and Show more', async ({ page, con
   await page.goto('./#/gear');
   const box = page.locator('main input[type="search"]').first();
   await box.fill('e');
+  await expect(box).toHaveAttribute('data-applied', 'e'); // the list follows the last letter a moment later
   const cats = page.locator('main section.cat');
   await expect(cats.first()).toBeVisible();
   const n = await cats.count();
@@ -33,6 +34,7 @@ test('Material search: five rows per category and Show more', async ({ page, con
   expect(await capped.locator('ul.rows > li').count()).toBeGreaterThan(SHOW_ROWS + 1);
   // a new search starts short again
   await box.fill('a');
+  await expect(box).toHaveAttribute('data-applied', 'a');
   for (let i = 0; i < (await cats.count()); i++) expect(await cats.nth(i).locator('ul.rows > li').count()).toBeLessThanOrEqual(SHOW_ROWS + 1);
 });
 
