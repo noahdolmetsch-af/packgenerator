@@ -139,3 +139,11 @@ export function isFolded(map, key, first = FOLDED_FIRST) {
   const m = foldMapOf(map);
   return key in m ? m[key] : first.includes(key);
 }
+
+/** The pages whose folded card is the user's own choice: stored as folded and not folded at the start anyway. */
+export const foldedCount = (map, first = FOLDED_FIRST) => Object.entries(foldMapOf(map)).filter(([k, v]) => v === true && !first.includes(k)).length;
+
+/** The stored choices without the folds the user made («Open all cards again»); opened choices and FOLDED_FIRST pages stay. */
+export function unfoldAll(map, first = FOLDED_FIRST) {
+  return Object.fromEntries(Object.entries(foldMapOf(map)).filter(([k, v]) => v !== true || first.includes(k)));
+}
