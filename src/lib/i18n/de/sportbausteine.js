@@ -15,6 +15,12 @@ export default {
   'Brown|colour': 'Braun',
   'Rose|colour': 'Rosa',
   // Bausteine
+  'A stopwatch for this sport, with a time you set.': 'Eine Stoppuhr für diese Sportart, mit einer Zeit, die du einstellst.',
+  'Start the timer': 'Timer starten',
+  'A stopwatch for this sport, suggested {n} minutes.': 'Eine Stoppuhr für diese Sportart, vorgeschlagen sind {n} Minuten.',
+  'A stopwatch for this sport. You set the time.': 'Eine Stoppuhr für diese Sportart. Du stellst die Zeit ein.',
+  'The timer is for sports you tick off in Active.': 'Den Timer gibt es für Sportarten, die du in Aktiv abhakst.',
+  'Last used|sports': 'Zuletzt genutzt',
   'History and progress': 'Verlauf und Fortschritt',
   'Training plans': 'Trainingspläne',
   Lessons: 'Lektionen',

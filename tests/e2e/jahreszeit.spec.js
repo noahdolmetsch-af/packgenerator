@@ -3,6 +3,7 @@
 // Fictional data (home0460-fixture; the clock stands on 9 October = autumn), nothing leaves the preview.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
+import { ANY_SURPRISE } from './logo-helpers.js';
 
 const mark = (page, info) => (info.project.name === 'phone' ? page.locator('header.top .brand .mark') : page.locator('.logo .mark'));
 
@@ -12,8 +13,8 @@ test('plain PG until the secret, then the bike sign; Darstellung picks the other
   await expect(m.locator('[data-logo]')).toHaveCount(0); // plain «PG»
   for (let i = 0; i < 5; i++) await m.click();
   await expect(m.locator('[data-logo="bike"][data-season="autumn"]')).toHaveCount(1);
-  // one of the surprises, by chance: the bike, a saying, the flat tyre, the marmot (every state of the logo, see SURPRISES)
-  await expect(page.locator('[data-logo-ride], [data-logo-saying], [data-logo-flat], [data-logo-marmot]').first()).toBeVisible();
+  // one of the surprises, by chance: any of SURPRISES (the bike, a saying, the flat tyre, the marmot, the weather, the Alps)
+  await expect(page.locator(ANY_SURPRISE).first()).toBeVisible();
   await page.goto('./#/me/look');
   const set = page.locator('[data-logo-set]');
   await set.scrollIntoViewIfNeeded();

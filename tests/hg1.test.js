@@ -51,7 +51,7 @@ describe('the greeting by time of day (4b) and the night (3)', () => {
     expect(greetFor(22, '')).toBe(HELLO_NIGHT);
   });
   it('exactly the approved words; the night has no name and no question', () => {
-    expect(HELLO_ASK).toBe('wi gahts?'); // UI-Ziele #15 (Noah 20.10.2026 «freigabe»): short, the plan became the goal chips
+    expect(HELLO_ASK).toBe("wi gaht's?"); // UI-Ziele #15 (Noah 20.10.2026 «freigabe»): short, the plan became the goal chips
     expect(HELLO_NIGHT).toBe('Guät Nacht, Nachtülä');
     expect(HELLO_WORDS).toEqual({ morning: 'Guete Morge', day: 'Hoi', evening: 'Guete Abig' });
     expect(greetFor(23, 'Lena')).not.toContain('Lena');
@@ -95,7 +95,7 @@ describe('the answer in the ONE history of «Deine Abfragen» (2b)', () => {
     expect(helloRows({}, at)).toEqual([]);
     expect(helloRows({ mood: 'unknown' }, at)).toEqual([]);
     // the history shows them like any answer (its words are the Swiss ones, the same in both languages)
-    expect(rowText(rows[0])).toBe("Wie gaht's?");
+    expect(rowText(rows[0])).toBe("Wi gaht's?");
     expect(valueText(rows[0], QUESTION['hallo.gaht'])).toBe('Guet');
     expect(valueText(rows[1], QUESTION['hallo.vor'])).toBe('Training · Arbeit');
     expect(numberOf(QUESTION['hallo.gaht'].form, 'guet')).toBe(0.75);

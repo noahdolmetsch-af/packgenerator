@@ -71,3 +71,28 @@ test('Schlag deinen Geist: Vergleich mit der Fahrt auf derselben Strecke', async
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/ghost-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   expect(errors).toEqual([]);
 });
+
+test('Ausprobieren bei «Schlag deinen Geist» öffnet eine Fahrt und lässt die Karte leuchten', async ({ page, context, baseURL }, info) => {
+  await open(page, context, baseURL);
+  // a ride other than the one open now: start from Me › What is new
+  await page.goto('./#/me/news');
+  await ready(page);
+  await page.getByRole('searchbox', { name: 'Update oder Funktion suchen' }).fill('Schlag deinen Geist');
+  // several updates are about the ghost card: open them one after the other until the one with the link is open
+  const rows = page.locator('[data-row]').filter({ hasText: 'Schlag deinen Geist' });
+  const link = page.locator('.wn-vopen').getByRole('link', { name: 'Die App wählt die ähnlichste frühere Fahrt', exact: false }).first();
+  const n = await rows.count();
+  for (let i = 0; i < n && !(await link.isVisible()); i++) {
+    await rows.nth(i).click();
+    await link.waitFor({ state: 'visible', timeout: 2_000 }).catch(() => {});
+  }
+  await link.click();
+  await expect(page).toHaveURL(/#\/flow\/training\/a\//);
+  const card = page.locator('[data-ana="ghost"]');
+  await expect(card).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator('[data-spot-note]').first()).toContainText('Neu hier');
+  if (process.env.SHOTS) {
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: `${process.env.SHOTS}/ausprobieren-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+});

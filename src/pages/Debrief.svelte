@@ -44,6 +44,7 @@
   import Hub from '../lib/review/Hub.svelte';
   import Logbook from '../lib/review/Logbook.svelte';
   import Learned from '../lib/review/Learned.svelte';
+  import Freude from '../lib/freude/Freude.svelte';
   import Paesse from '../lib/paesse/Paesse.svelte'; // Paket E 24: «Pässe sammeln»
   import Tourenpass from '../lib/tourenpass/Tourenpass.svelte'; // Paket E 18: «Tourenpass mit Stempel»
   import TripSaved from '../lib/review/TripSaved.svelte';
@@ -53,6 +54,7 @@
   import { mainStep, betweenHref, isDayTrip } from '../lib/phase.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import DebriefPlanNotes from '../lib/debrief/DebriefPlanNotes.svelte';
+  import JoyPick from '../lib/tourenc/JoyPick.svelte';
   import FeelScale from '../lib/tourenc/FeelScale.svelte'; // Touren c 70
   import ReachChips from '../lib/tourenc/ReachChips.svelte'; // Touren c 65
   import VoiceDebrief from '../lib/tourenc/VoiceDebrief.svelte'; // Touren c 68
@@ -103,8 +105,8 @@
 
   // v0.25.1 (Noah 3a): 'compare' scrolls to "Your trips compared".
   // v0.49.0 R1: pace, learnings and logbook are pages one level below the Rückblick; compare is its section.
-  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass'];
-  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass'];
+  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude'];
+  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass', 'freude'];
   const tripId = $derived(param && !SPOTS.includes(param) ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
@@ -649,6 +651,8 @@
             <div class="rv-h"><div><h2 id="dfeel-h">{t('How hard was it?')}</h2><p class="rv-sub">{t('First your feeling; the numbers come after «Done».')}</p></div></div>
             <div class="rv-box pad"><FeelScale value={d.feel ?? null} onpick={(n) => set('feel', n)} /></div>
           </section>
+          <!-- Persönliches Lernen Idee 6 (Noah 04.11.2026 «3a»): what made the tour good, four optional scales -->
+          <JoyPick {d} onchange={(v) => set('joy', v)} />
           <!-- Touren c 68 «Rückblick als Sprachnachricht» -->
           <VoiceDebrief {trip} {d} {items} {persist} />
           <!-- Planungs-Notizen (IS 246–249): «Hat es geholfen?» -->
@@ -751,7 +755,7 @@
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
        its own page; v0.61.0 R2 rebuilt all three. -->
   <!-- v0.109.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
-  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : t('Learned|review')}
+  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : param === 'freude' ? t('What made it good?') : t('Learned|review')}
   <div class="over rv-page">
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
     <h1 class="title">{here}</h1>
@@ -763,6 +767,9 @@
     {:else if param === 'paesse'}
       <!-- Paket E 24 (Noah 03.11.2026 «E und F»): the passes you rode over, as yellow signs -->
       <Paesse />
+    {:else if param === 'freude'}
+      <!-- Persönliches Lernen Idee 6 (Noah 04.11.2026 «3a»): what made the tours good, over all debriefs -->
+      <Freude />
     {:else if param === 'tourenpass'}
       <!-- Paket E 18 (Noah 03.11.2026 «E und F»): the tour pass with the stamps of the trips -->
       <Tourenpass />
