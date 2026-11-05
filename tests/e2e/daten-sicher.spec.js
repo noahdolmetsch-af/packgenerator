@@ -74,8 +74,9 @@ test('Data and backup: kept by the browser, phone and computer, the second quest
 
 test('Me - Documents: add a PDF, valid until with a reminder, in the packing list', async ({ page, context }, info) => {
   const { errors } = await start(page, context, info);
-  await page.goto('./#/me');
-  await page.locator('main').getByRole('link', { name: new RegExp(T('Documents')) }).click();
+  // «Ich schlank» (Noah 04.11.2026 «a»): documents live in Planen › «Alles hier»
+  await page.goto('./#/week');
+  await page.locator('[data-all-here="plan"] [data-all-here-tile="f.docs"]').click();
   await expect(page).toHaveURL(/#\/me\/docs$/);
   const main = page.locator('main');
   await expect(main.getByRole('heading', { level: 1, name: T('Documents') })).toBeVisible();
@@ -102,9 +103,12 @@ test('Me - Documents: add a PDF, valid until with a reminder, in the packing lis
   const pack = main.locator('[data-doc-pack]');
   await expect(pack).toContainText(T('ID and cash with you?'));
   await expect(pack.getByRole('link', { name: T('See {name}', { name: 'Identitaetskarte Muster' }) })).toBeVisible();
-  // Ich says it in the line of «Dokumente»
+  // Ich says it under «Wartet auf dich» (Ich schlank: the «Dokumente» row moved to Planen › «Alles hier»)
   await page.goto('./#/me');
-  await expect(page.locator('main').getByRole('link', { name: new RegExp(T('{n} expires soon', { n: 1 })) })).toBeVisible();
+  const wait = page.locator('main [data-wait="docs"]');
+  await expect(wait).toContainText(T('Documents: {n} expires soon', { n: 1 }));
+  await wait.getByRole('link', { name: T('Open') }).click();
+  await expect(page).toHaveURL(/#\/me\/docs$/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });

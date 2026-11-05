@@ -18,17 +18,18 @@
   import InputBar from '../lib/eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, photo, templates, prompts
   import { cleanInputs } from '../lib/eingabe/inputs.js';
   import { appendSpoken } from '../lib/speak.js';
-  import { Sun, Clock, CalendarClock, Route, Lightbulb, PenLine, Flower2, Pencil, ListChecks, ChevronRight } from '@lucide/svelte';
+  import { Sun, Clock, CalendarClock, Route, Lightbulb, PenLine, Flower2, ListChecks, ChevronRight } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import AbendTour from '../lib/lernen/AbendTour.svelte'; // Paket M #223
   import Scale from '../lib/flow/check/Scale.svelte';
   import CheckTabs from '../lib/flow/check/CheckTabs.svelte';
   import Chips from '../lib/flow/check/Chips.svelte';
-  import PoolEditor from '../lib/flow/check/PoolEditor.svelte';
+  import RoundQuestions from '../lib/abfragen/RoundQuestions.svelte'; // Noah 04.11.2026 «ein Fragebogen»: the same questions as the window
+  import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { checkQuery, seedIfNeeded, offQuery } from '../lib/flow/data.svelte.js';
   import { saveCheck } from '../lib/flowdb.js';
-  import { FIXED, rotatingFor, isOn, eveningTurnFor, visionToday, checkOf, patchCheck, yesterdayOf, JOYS, BEST, GOALS, LAST_EVENING, OUTSIDE, PEOPLE, GOAL_DONE, toggleId, outsideFromRides, eveningTurn, mindfulFound, weekHighlights, suggestion } from '../lib/flowcheck.js';
+  import { isOn, eveningTurnFor, visionToday, checkOf, patchCheck, yesterdayOf, JOYS, BEST, GOALS, LAST_EVENING, OUTSIDE, PEOPLE, GOAL_DONE, toggleId, outsideFromRides, eveningTurn, mindfulFound, weekHighlights, suggestion } from '../lib/flowcheck.js';
   import { flowStates } from '../lib/flow.js';
   import { streaks, zurichTime } from '../lib/flowmed.js';
   import { soonTrips } from '../lib/home/heute.js';
@@ -67,9 +68,8 @@
   const sk = (key) => !!cur?.skip?.includes(key);
   const skipQ = (key) => set({ skip: [...(cur.skip ?? []).filter((k) => k !== key), key] });
   const skippedHere = $derived((cur?.skip ?? []).filter((k) => (evening ? EVENING_KEYS : MORNING_KEYS).includes(k)));
-  const MORNING_KEYS = ['sleep', 'energy', 'mood', 'extra', 'joy', 'goal'];
+  const MORNING_KEYS = ['joy'];
   const EVENING_KEYS = ['sat', 'best', 'goalDone', 'outside', 'people', 'fun', 'mindful', 'vision'];
-  const rot = $derived(data ? rotatingFor(data.pool, off, today) : null);
   const ydot = (key, qid = null) => yesterdayOf(data?.checks ?? [], today, key, qid);
   const dateLong = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
   const dateShort = new Date(`${today}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
@@ -87,12 +87,20 @@
   const withOwn = (list, chosen = []) => [...list.map((x) => ({ id: x.id, label: t(x.label) })), ...chosen.filter((id) => !list.some((x) => x.id === id)).map((id) => ({ id, label: id }))];
 
   /* ---------- morning ---------- */
-  const fixedQs = $derived(FIXED.map((f, i) => ({ n: i + 1, key: f.key, text: t(f.text), lo: t(f.lo), hi: t(f.hi) })).filter((f) => on(f.n)));
-  let editPool = $state(false);
   const goalText = (g) => (g?.id ? label(GOALS, g.id) : (g?.text ?? ''));
-  const goalItems = $derived([...GOALS.map((g) => ({ id: g.id, label: t(g.label) })), ...(cur?.goal?.text ? [{ id: 'own', label: cur.goal.text }] : [])]);
-  const goalValue = $derived(cur?.goal ? (cur.goal.id ?? 'own') : null);
-  const pickGoal = (id) => set({ goal: goalValue === id ? null : id === 'own' ? cur.goal : { id } });
+  // the morning's goal is the answer to «Your goal for today» in the window and on the page (Deine Abfragen); the evening asks about it
+  const abQ = liveQuery(() => db.abAnswers.where('day').equals(today).toArray());
+  const abToday = $derived($abQ ?? []);
+  const goalAb = $derived(abToday.filter((r) => r.qid === 'ziele.ziel' && typeof r.value === 'string').sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')))[0]?.value ?? null);
+  const goalNow = $derived(cur?.goal ?? (goalAb ? { text: goalAb } : null));
+  // sleep, battery and mood answered on the page or in the window land in the day's check too (saveAnswers): take them over here,
+  // so the next tap on this page does not write the old value back
+  $effect(() => {
+    const row = data?.checks.find((c) => c.day === today);
+    if (!row || !cur) return;
+    const diff = ['sleep', 'energy', 'mood'].filter((f) => row[f] !== cur[f] && row[f] != null);
+    if (diff.length) cur = { ...cur, ...Object.fromEntries(diff.map((f) => [f, row[f]])) };
+  });
   const sugg = $derived(cur ? suggestion({ sleep: cur.sleep, energy: cur.energy, joy: cur.joy, weather: data?.weather ?? null }) : null);
   const suggOff = $derived(cur?.sugg?.id === sugg?.id && cur?.sugg?.pick === 'no');
   const pickSugg = (id) => set({ sugg: cur.sugg?.id === sugg.id && cur.sugg.pick === id ? null : { id: sugg.id, pick: id } });
@@ -206,33 +214,12 @@
 
 {#snippet morningQs()}
   <section class="card qs" aria-label={t('Morning check')}>
-    {#each fixedQs as f (f.key)}
-      <div class="q" data-q={f.key} hidden={sk(f.key)}>
-        {@render head(f.n, `cq-${f.key}`, f.text, `${f.lo} … ${f.hi}`, t('daily|check'), f.key)}
-        <Scale value={cur[f.key]} yesterday={ydot(f.key)} label="cq-{f.key}" onpick={(v) => set({ [f.key]: v })} />
-      </div>
-    {/each}
-    {#if rot}
-      <div class="q" data-q="extra" hidden={sk('extra')}>
-        {@render head(rot.q.id === 'calm' ? 5 : 4, 'cq-extra', qText(rot.q), [qText(rot.q, 'lo'), qText(rot.q, 'hi')].filter(Boolean).join(' … ') + ` · ${t('changes daily')}`, t('today|check'), 'extra')}
-        <Scale value={cur.q === rot.q.id || cur.q == null ? cur.extra : null} yesterday={ydot('extra', rot.q.id)} label="cq-extra" onpick={(v) => set({ extra: v, q: rot.q.id })} />
-        {#if editPool}
-          <div class="pe"><PoolEditor pool={data.pool} onclose={() => (editPool = false)} /></div>
-        {:else}
-          <button type="button" class="lk" onclick={() => (editPool = true)} data-edit-pool><Pencil size={14} aria-hidden="true" />{t('Edit the rotating questions')}</button>
-        {/if}
-      </div>
-    {/if}
+    <!-- Noah 04.11.2026 «ein Fragebogen»: sleep, battery, mood, the goal … are the questions of the window (Deine Abfragen) -->
+    <RoundQuestions part="morning" {today} />
     {#if on(6)}
     <div class="q" data-q="joy" hidden={sk('joy')}>
       {@render head(6, 'cq-joy', t('What are you looking forward to today?'), t('several possible'), t('daily|check'), 'joy')}
       <Chips name="joy" label="cq-joy" multi items={withOwn(JOYS, cur.joy)} value={cur.joy} own={t('own|chip')} onpick={(id) => set({ joy: toggleId(cur.joy, id) })} onown={(s) => set({ joy: cur.joy.includes(s) ? cur.joy : [...cur.joy, s] })} />
-    </div>
-    {/if}
-    {#if on(7)}
-    <div class="q" data-q="goal" hidden={sk('goal')}>
-      {@render head(7, 'cq-goal', t('Your most important goal for today'), t('a suggestion or one sentence of your own'), t('daily|check'), 'goal')}
-      <Chips name="goal" label="cq-goal" items={goalItems} value={goalValue} own={t('own sentence')} onpick={pickGoal} onown={(s) => set({ goal: { text: s } })} />
     </div>
     {/if}
     {@render allQs()}
@@ -329,9 +316,9 @@
       <InputBar place="check" text={cur.story ?? ''} ontext={(s) => set({ story: s })} inputs={cur.inputs} oninputs={(x) => set({ inputs: cleanInputs(x) })} />
     </div>
     {/if}
-    {#if cur.goal && on(10)}
+    {#if goalNow && on(10)}
       <div class="q" data-q="goalDone" hidden={sk('goalDone')}>
-        {@render head(10, 'cq-gd', t('Goal from this morning: «{goal}»', { goal: goalText(cur.goal) }), t('reached?'), t('daily|check'), 'goalDone')}
+        {@render head(10, 'cq-gd', t('Goal from this morning: «{goal}»', { goal: goalText(goalNow) }), t('reached?'), t('daily|check'), 'goalDone')}
         <Chips name="goalDone" label="cq-gd" items={GOAL_DONE.map((x) => ({ id: x, label: t(DONE_LABEL[x]) }))} value={cur.goalDone} onpick={(id) => set({ goalDone: cur.goalDone === id ? null : id })} />
       </div>
     {/if}
@@ -552,9 +539,6 @@
     font: 400 var(--fs-small) / 1.3 var(--font-body);
     text-decoration: underline;
     cursor: pointer;
-  }
-  .pe {
-    margin-top: var(--sp-3);
   }
   /* «Überspringen»: small and quiet; the hit area is bigger than the word */
   .skip {

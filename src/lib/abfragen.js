@@ -673,6 +673,29 @@ export function dueList(cfg, answers = [], now, snooze = {}) {
   return out.sort((a, b) => a.slot.localeCompare(b.slot) || order.get(a.q.id) - order.get(b.q.id));
 }
 /**
+ * Noah 04.11.2026 «ein Fragebogen» (Tagescheck, «2a»): the questions the page of a round (Morning check / Evening review) shows,
+ * the same as the window: the ones that are on and have a time today in that round (the day's own times, the rounds applied;
+ * without the rounds a midday time counts to the morning page). part: 'morning' | 'evening'. → [{ q, slot }] by time, then list order.
+ */
+export function roundQuestions(cfg, part, today) {
+  const c = configOf(cfg);
+  const out = [];
+  allQuestions(c).forEach((x, i) => {
+    const s = settingOf(c, x);
+    if (!s.on) return;
+    const every = roundEvery(s.every, c.rounds);
+    for (const hm of timesOf(every)) {
+      const slot = `${today}T${hm}`;
+      if (lastSlot(every, slot) !== slot) continue;
+      if ((partOf({ slot }, c.rounds) === 'evening') !== (part === 'evening')) continue;
+      out.push({ q: x, slot, i });
+      break;
+    }
+  });
+  return out.sort((a, b) => a.slot.localeCompare(b.slot) || a.i - b.i).map(({ q, slot }) => ({ q, slot }));
+}
+
+/**
  * Klick-Rundgang 22.10.2026 H15: the window fits its questions to the time of day. A missed evening question
  * stays (Noah 2a) and says from when it is (AbCard: «Frage von …»), after today's questions. In the evening it
  * asks about today (its latest time), not about a day missed before. due: dueList rows; → the rows to show now.

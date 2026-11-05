@@ -97,8 +97,8 @@ export function colorOf(id, list = [], cfg = {}) {
 
 /* ---------- blocks ---------- */
 
-/** The seven basic blocks (#190), in their first order. */
-export const BASE_BLOCKS = ['gear', 'pack', 'log', 'goals', 'care', 'weather', 'next'];
+/** The basic blocks (#190; «Timer» since «Aktiv und Auswerten» 5a), in their first order. */
+export const BASE_BLOCKS = ['gear', 'pack', 'log', 'goals', 'timer', 'care', 'weather', 'next'];
 /** The extra blocks any sport can add. */
 export const EXTRAS = ['plans', 'lessons', 'matches', 'loops', 'commute', 'route', 'protect', 'parkdays'];
 /** Block names (English keys for t()). */
@@ -107,6 +107,7 @@ export const BLOCK_NAMES = {
   pack: 'Packing list',
   log: 'History and progress',
   goals: 'Goals',
+  timer: 'Timer',
   care: 'Care',
   weather: 'Weather',
   next: 'For next time',
@@ -125,6 +126,7 @@ export const BLOCK_HINTS = {
   pack: 'What comes along: the sport bag or the trip list.',
   log: 'What you did, and your own measures with a curve.',
   goals: 'How often, and how far you are.',
+  timer: 'A stopwatch for this sport, with a time you set.',
   care: 'What is due: care steps after uses, and the age of material.',
   weather: 'Today and tomorrow at home, with a tip for this sport.',
   next: 'What you want to do differently next time.',

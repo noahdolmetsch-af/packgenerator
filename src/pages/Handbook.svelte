@@ -11,6 +11,7 @@
   import { db } from '../lib/db.js';
   import { FEATURES, FEATURE_GROUPS } from '../lib/features.js';
   import { handbookOf } from '../lib/handbook.js';
+  import '../lib/handbook/late-de.js';
   import { goFeature } from '../lib/know/featureRun.js';
   import { sortBikes } from '../lib/bikes.js';
   import { t } from '../lib/i18n.svelte.js';

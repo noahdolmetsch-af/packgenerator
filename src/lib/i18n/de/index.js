@@ -134,6 +134,7 @@ import logoplatten from './logo-platten.js';
 import logostreiche from './logo-streiche.js';
 import logowetter from './logo-wetter.js';
 import logopanorama from './logo-panorama.js';
+import logokuhglocken from './logo-kuhglocken.js';
 
 // FE1, FE13, FE14, FE16: Daumen-Zone, Farbe nie allein, «?» an Ort und Stelle, passende Handy-Tastatur
 import daumen from './daumen.js';
@@ -812,6 +813,7 @@ const ORDERED = [
   logostreiche,
   logowetter,
   logopanorama,
+  logokuhglocken,
   daumen,
   hg1,
   runden,

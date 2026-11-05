@@ -4,6 +4,7 @@
    * (miniapps.js) with their icon, «Open» (their own address) and how to put them on the home screen.
    */
   import { MINI_APPS_HANDBOOK } from '../lib/handbook.js';
+  import '../lib/handbook/late-de.js';
   import { miniAppPath } from '../lib/miniapps.js';
   import { t } from '../lib/i18n.svelte.js';
   import { ChevronRight } from '@lucide/svelte';

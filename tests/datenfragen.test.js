@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -50,7 +50,7 @@ describe('Fragen aus deinen Daten', () => {
     expect(dataDue({ health: health(52, 61), today: TODAY }).length).toBeLessThanOrEqual(MAX_PER_DAY);
   });
   it('keeps the switches safe', () => {
-    expect(dataOf(null)).toEqual({ off: [], vals: {}, texts: {} });
+    expect(dataOf(null)).toEqual({ off: [], vals: {}, texts: {}, gaps: {}, skips: {} });
     expect(dataOf({ off: ['ruhepuls', 'ruhepuls', 'nope', 3] }).off).toEqual(['ruhepuls']);
     expect(ruleOn(setRule(null, 'ruhepuls', false), 'ruhepuls')).toBe(false);
     expect(ruleOn(setRule({ off: ['ruhepuls'] }, 'ruhepuls', true), 'ruhepuls')).toBe(true);
@@ -200,6 +200,49 @@ describe('Fragen aus deinen Daten', () => {
       const [d] = dataDue({ sport: [slot(-1, 'skipped')], today: TODAY });
       expect(d.q.id).toBe('daten.platz');
       expect(dataDue({ sport: [slot(-1, 'skipped')], today: TODAY, cfg: setRule(null, 'platz', false) })).toEqual([]);
+    });
+  });
+  describe('Wiederholungsschutz', () => {
+    const sleepAndPulse = [{ date: TODAY, restingHr: 61, sleep: { asleepMin: 300 } }, ...health(52, null)];
+    const trainAndPause = (n) => [{ id: 'a', day: add(TODAY, -n), movingS: 5 * 3600 }];
+    it('never two questions from the same group on a day, answered or put away ones count', () => {
+      // training (sport) and pause (sport): a long day yesterday AND a pause is not possible, so use rule order with two sport hits via a stale activity day
+      const acts = [{ id: 'a', day: add(TODAY, -1), movingS: 4 * 3600 }];
+      expect(dataDue({ acts, today: TODAY }).map((x) => x.q.id)).toEqual(['daten.training']);
+      // the group sport is used by the answered pause question: no second sport question
+      const answered = [{ qid: 'daten.pause', day: TODAY }];
+      expect(dataDue({ acts, answers: answered, today: TODAY }).map((x) => x.q.id)).toEqual([]);
+      // a skipped one keeps its group used for today
+      expect(dataDue({ acts, snooze: { 'daten.pause': `${TODAY}T23:59` }, today: TODAY })).toEqual([]);
+      // different groups still come together
+      expect(dataDue({ health: sleepAndPulse, today: TODAY }).map((x) => x.q.id)).toEqual(['daten.ruhepuls', 'daten.schlaf']);
+    });
+    it('counts skips once a day and offers to ask less often after three', () => {
+      let c = null;
+      c = noteSkip(c, 'ruhepuls', add(TODAY, -2));
+      c = noteSkip(c, 'ruhepuls', add(TODAY, -2));
+      expect(dataOf(c).skips.ruhepuls).toEqual({ n: 1, day: add(TODAY, -2) });
+      c = noteSkip(noteSkip(c, 'ruhepuls', add(TODAY, -1)), 'ruhepuls', TODAY);
+      expect(dataOf(c).skips.ruhepuls.n).toBe(SKIP_OFFER);
+      expect(fewerOffer(c, 'ruhepuls')).toBe(true);
+      expect(fewerOffer(c, 'schlaf')).toBe(false);
+      const [d] = dataDue({ health: health(52, 61), cfg: c, today: TODAY });
+      expect(d.fewer).toBe(true);
+      // an answer or «keep it» ends the count
+      expect(fewerOffer(clearSkips(c, 'ruhepuls'), 'ruhepuls')).toBe(false);
+    });
+    it('«less often» makes the gap longer for that rule only; back to standard resets it', () => {
+      const c = setGap(null, 'ruhepuls', FEWER_GAP);
+      expect(ruleGap(c, 'ruhepuls')).toBe(FEWER_GAP);
+      expect(ruleGap(c, 'schlaf')).toBe(GAP_DAYS);
+      expect(ruleChanged(c, 'ruhepuls')).toBe(true);
+      const answered = (n) => [{ qid: 'daten.ruhepuls', day: add(TODAY, -n) }];
+      expect(dataDue({ health: health(52, 61), cfg: c, answers: answered(GAP_DAYS), today: TODAY })).toEqual([]);
+      expect(dataDue({ health: health(52, 61), cfg: c, answers: answered(FEWER_GAP), today: TODAY })).toHaveLength(1);
+      expect(fewerOffer(setGap(noteSkip(noteSkip(noteSkip(c, 'ruhepuls', 'x'), 'ruhepuls', add(TODAY, -1)), 'ruhepuls', TODAY), 'ruhepuls', FEWER_GAP), 'ruhepuls')).toBe(false); // already asking less often
+      const back = resetRule(c, 'ruhepuls');
+      expect(ruleGap(back, 'ruhepuls')).toBe(GAP_DAYS);
+      expect(dataOf({ gaps: { ruhepuls: 99, schlaf: 2 }, skips: { ruhepuls: { n: 0, day: 'x' } } })).toMatchObject({ gaps: {}, skips: {} });
     });
   });
 });

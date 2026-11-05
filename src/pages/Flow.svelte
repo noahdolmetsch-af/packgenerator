@@ -73,6 +73,7 @@
   import MedMore from './flow/MedMore.svelte';
   import MedPatterns from './flow/MedPatterns.svelte';
   import MedReview from './flow/MedReview.svelte';
+  import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier» on top of Aktiv (Noah 03.11.2026 «1a»)
   import { sportHref } from '../lib/flow/mysports.js';
   import { localDay } from '../lib/localday.js';
   import { sonntagsFaden } from '../lib/sonntag.js';
@@ -191,6 +192,9 @@
       <LiveStart />
       {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
+
+    <!-- «Aktiv und Auswerten» 1a (Noah 03.11.2026): every function of Aktiv as a tile, right under the head -->
+    <AllHere area="aktiv" />
 
     <!-- Noah 19.10 «2a»: the Einstieg of Aktiv in the card «Was hier steht» (after the first visit one quiet line) -->
     <HintCard page="aktiv" intro="aktiv" />

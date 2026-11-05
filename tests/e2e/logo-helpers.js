@@ -18,4 +18,4 @@ export function chanceFor(id, prev = null) {
 export const fixChance = (page, id, prev = null) => page.evaluate((v) => (Math.random = () => v), chanceFor(id, prev));
 
 /** Every surprise has one of these on screen (the weather first waits up to 1.5 s for the forecast): for a test that only needs «some surprise came». */
-export const ANY_SURPRISE = '[data-logo-ride], [data-logo-saying], [data-logo-flat], [data-logo-marmot], [data-logo-weather], [data-logo-panorama]';
+export const ANY_SURPRISE = '[data-logo-ride], [data-logo-saying], [data-logo-flat], [data-logo-marmot], [data-logo-weather], [data-logo-panorama], [data-logo-bells]';

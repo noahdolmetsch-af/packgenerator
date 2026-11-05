@@ -86,9 +86,9 @@ test('Dokumente: two gallery photos become one PDF, rename, own group, then Goog
   await page.goto('./');
   await ready(page);
 
-  // Ich › Dokumente: empty, the two ways in
-  await page.goto('./#/me');
-  await page.getByRole('link', { name: new RegExp(de('Documents')) }).first().click();
+  // Planen › «Alles hier» › Dokumente (Ich schlank, Noah 04.11.2026 «a»): empty, the two ways in
+  await page.goto('./#/week');
+  await page.locator('[data-all-here="plan"] [data-all-here-tile="f.docs"]').click();
   await expect(page.getByRole('heading', { level: 1, name: de('Documents') })).toBeVisible();
   await expect(page.getByText(de('No documents yet'))).toBeVisible();
   await expect(page.getByRole('button', { name: de('Connect Google Drive') })).toBeVisible();

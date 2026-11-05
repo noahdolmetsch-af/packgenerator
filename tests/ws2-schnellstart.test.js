@@ -7,7 +7,9 @@ import { commandActions } from '../src/lib/search.js';
 import { ACTIONS } from '../src/lib/nav/menu.js';
 import { HANDBOOK } from '../src/lib/handbook.js';
 import { lang } from '../src/lib/i18n.svelte.js';
-import DE from '../src/lib/i18n/de/index.js';
+import DE_START from '../src/lib/i18n/de/index.js';
+import DE_LATE from '../src/lib/handbook/texte-de.js'; // the handbook's own German loads with the handbook
+const DE = { ...DE_START, ...DE_LATE };
 
 afterEach(() => {
   lang.v = 'en';
