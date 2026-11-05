@@ -2,7 +2,7 @@
 // evening, the own (fictional) places to sleep near home, best rated first, the (faked) night's weather;
 // «Plan it» makes a two-day trip with the bivouac building block; the evening can be changed and reset.
 // Fictional data only, no real network.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { readFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
