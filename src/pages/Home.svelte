@@ -102,7 +102,7 @@
   import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { isEveningOn } from '../lib/dayclock.js';
-  import { cfgQuery } from '../lib/freidb.js';
+  import { cfgQuery, rowsQuery as freiRows } from '../lib/freidb.js';
   import { todayImpulse } from '../lib/frei.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, VALUE_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
@@ -158,6 +158,8 @@
   import WeekTile from '../lib/home/WeekTile.svelte';
   import TodaySuggest from '../lib/home/TodaySuggest.svelte';
   import ImpulseHint from '../lib/home/ImpulseHint.svelte'; // Paket T «2a»: an impulse when there is no ride idea
+  import WesentlichHint from '../lib/home/WesentlichHint.svelte'; // «Was mir wesentlich ist»: once a quarter, look again
+  import { essentialDue } from '../lib/frei/wesentlich-rueckblick.js';
   import RoutineTile from '../lib/home/RoutineTile.svelte'; // Routine «Das tut mir gut» (D1)
   import BagReminder from '../lib/home/BagReminder.svelte';
   import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
@@ -926,7 +928,9 @@
   // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
   const impQ = cfgQuery();
   const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
-  const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp);
+  const essQ = freiRows('essential');
+  const essUp = $derived(!night && !!$impQ && !!$essQ && !!essentialDue({ entries: $essQ, cfg: $impQ, today }));
+  const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp && !essUp);
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -1223,6 +1227,7 @@
         </details>
       {/if}
       {#if ready}<button type="button" class="lkb rowsbtn" onclick={() => (rowsOpen = true)} data-rows-open>{t('Choose rows')}</button>{/if}
+      {#if ready && !night}<div class="impl"><WesentlichHint {today} /></div>{/if}
       {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
     </section>
   </div>
