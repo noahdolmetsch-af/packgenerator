@@ -11,6 +11,7 @@ export default {
   'f.dreamready': 'Compare with your own rides: if the longest ride is far below one day of the dream, add a few training rides first.',
   'f.dreamwx': 'Two dry days in a row are enough for most day tours; look again the evening before, because a forecast three days out still moves.',
   'f.dreamsmap': 'Dreams that lie near each other make good pairs: one trip can cover two wishes, and the map shows which ones sit in the same valley.',
+  'f.monthideas': 'An idea for this month is a nudge, not a duty: hide what does not suit you and add your own, so the list only shows what you would really do.',
   'f.whitespots': 'The nearest white spot is often only one valley away. Small roads you never took are the quickest new ground.',
   'f.nlgoals': 'Choose an end you can reach: five new villages in a month beats a hundred «some time».',
   'f.nlround': 'The router prefers small roads; check gravel and steep parts on the map before you leave.',

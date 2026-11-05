@@ -2,8 +2,8 @@
 export default {
   title: 'Fits now: ideas per month',
   lead: 'Dreams says what goes well this month, and you can add your own ideas.',
-  points: [{ text: 'Trips › Dreams: «Fits now» with ideas for the month (sea of fog, passes open, lakes for a swim); «As a dream» makes a dream', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'Tap a month in «Your year» for its ideas; hide ideas, add your own with their months' }],
+  points: [{ text: 'Trips › Dreams: «Fits now» with ideas for the month (sea of fog, passes open, lakes for a swim); «As a dream» makes a dream', href: '#/trips/dreams', go: 'f.monthideas' }],
+  small: [{ box: 'new', text: 'Tap a month in «Your year» for its ideas; hide ideas, add your own with their months', go: 'f.monthideas' }],
   test: [
     'Open Trips › Dreams: «Fits now: ideas for …» shows the month\'s ideas.',
     'Tap another month in «Your year»: its ideas show.',

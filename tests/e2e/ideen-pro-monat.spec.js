@@ -1,7 +1,7 @@
 // «Passt jetzt: Ideen pro Monat» (Träume und Neuland N8, Noah 27.10.2026 «1-5 a»): the ideas of this month on Träume,
 // another month from «Your year», an own idea added, renamed with another month, made a dream; a built-in idea
 // hidden and shown again. Fictional data only, no real network.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { MONTH_IDEAS } from '../../src/lib/dreams/monatsideen.js';
@@ -63,6 +63,7 @@ test('Ideas per month: this month, another month, an own idea, a dream from it, 
   await expect(own).toContainText(`${P}Fondue im Wald`);
 
   // 4. another month in «Your year» shows its ideas, the own one too
+  await page.locator('[data-view="year"]').click(); // the year band is a view of the page
   await page.locator(`.band [data-month="${other}"]`).click();
   const sec2 = page.locator(`[data-month-ideas="${other}"]`);
   await expect(sec2.getByRole('heading', { name: T('Ideas for {month}', { month: long(other) }) })).toBeVisible();
@@ -70,6 +71,7 @@ test('Ideas per month: this month, another month, an own idea, a dream from it, 
 
   // 5. «As a dream»: the dream is in the list with its months
   await sec2.locator('[data-idea^="mi-"] [data-idea-dream]').click();
+  await page.locator('[data-view="list"]').click();
   await expect(page.locator('[data-dream]').filter({ hasText: `${P}Fondue im Wald` })).toHaveCount(1);
   expect(errors).toEqual([]);
 });
