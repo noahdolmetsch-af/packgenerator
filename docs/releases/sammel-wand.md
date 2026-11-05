@@ -1,6 +1,6 @@
 # Sammel-Wand
 
-Auftrag: Noah «jetzt umsetzen A, B, F und G» (Thread «Neuer Schwung», 05.11.2026), Idee F · PR #<Nummer>
+Auftrag: Noah «jetzt umsetzen A, B, F und G» (Thread «Neuer Schwung», 05.11.2026), Idee F · PR #940
 
 ## Was ist neu
 - Neue Seite **Touren › Rückblick › Sammel-Wand** (`#/debrief/sammlung`): oben fünf Zahlen (Stempel, Pässe, Orte, Neuland, Sterne), darunter «Zuletzt dazugekommen» und je ein Regal für Tourenpass, Pässe, Gipfelbuch, Neuland und Sterne.

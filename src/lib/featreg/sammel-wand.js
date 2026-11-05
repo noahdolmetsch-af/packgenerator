@@ -11,5 +11,5 @@ export default {
       example: 'Example: 3 stamps, 2 passes (Furka, 2429 m), 1 summit and 14 municipalities on one page.',
     },
   },
-  home: { 'f.collectwall': '#/debrief' },
+  home: { 'f.collectwall': '#/debrief/sammlung' },
 };
