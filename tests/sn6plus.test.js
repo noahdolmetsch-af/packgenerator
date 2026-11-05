@@ -5,7 +5,8 @@ import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { FEATURES } from '../src/lib/features.js';
-import { WHATS_NEW, compareVersions } from '../src/lib/whatsnew.js';
+import { compareVersions } from '../src/lib/whatsnew.js';
+import { WHATS_NEW } from '../src/lib/whatsnew-all.js'; // the whole list (the start reads only its short lines)
 import { rowsOf, SINCE } from '../src/lib/know/wasneu.js';
 import { HOWTO, howtoOf } from '../src/lib/know/howto.js';
 import {

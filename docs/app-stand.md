@@ -32,7 +32,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Heute | `#/` | Persönliche Übersicht mit nächsten Vorhaben, Wetter, fälligen Aufgaben, Körperdaten und Vorschlägen. Kacheln hinzufügen, ausblenden und sortieren. «Diese Woche» schreibt die Aktivitäten der Tage in ganzen Zeilen unter die Tage; «Velo im Monat» nennt den Vergleich («Gleiche Tage im Oktober: 38 km»). «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen»; jede ruhige Zeile hat «Später» (eine Woche weg), und «Zeilen wählen» (`src/lib/home/RowsSheet.svelte`) schaltet ganze Zeilenarten aus. |
+| Heute | `#/` | Persönliche Übersicht mit nächsten Vorhaben, Wetter, fälligen Aufgaben, Körperdaten und Vorschlägen. Kacheln hinzufügen, ausblenden und sortieren. «Diese Woche» schreibt die Aktivitäten der Tage in ganzen Zeilen unter die Tage; «Velo im Monat» nennt den Vergleich («Gleiche Tage im Oktober: 38 km»). «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen»; jede ruhige Zeile hat «Später» (eine Woche weg), und «Zeilen wählen» (`src/lib/home/RowsSheet.svelte`) schaltet ganze Zeilenarten aus. «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen». |
 | Suche und Assistent | `#/assistent` | Fragen zu eigenen Daten stellen, Funktionen finden und eine Tour durch kurze Fragen vorbereiten. |
 | Quick Links | `#/quick` | Häufig verwendete Seiten und Kacheln anpinnen und in eigenen Gruppen ordnen. |
 | Funktionskatalog | `#/features` | Funktionen nach Situation, Seite oder Moment entdecken und suchen. |
@@ -139,7 +139,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen; ganz oben das Feld «Alles hier» mit zehn Kacheln zu allen Funktionen von Aktiv; nach dem Abhaken führt «Als Nächstes» zu Verlauf und Meilensteinen. |
-| Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf, Timer und Zusatzbausteinen anlegen; oben stehen die zuletzt genutzten. |
+| Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf, Timer und Zusatzbausteinen anlegen; oben stehen die zuletzt genutzten. Auch die Sportarten der Touren (Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Skitouren, Wandern) lassen sich über «⋯» umbenennen, ausblenden und löschen; der neue Name gilt überall. |
 | Training | `#/flow/training` | Einheiten mit Dauer und Zone planen; Aktivitäten, Pulszonen und subjektive Anstrengung auswerten. |
 | Leistungsanalysen | `#/flow/training?view=list` | Einzelne Aktivitäten mit Leistung, Herzfrequenz, Runden, Splits und weiteren verfügbaren Messwerten öffnen. |
 | Schlag deinen Geist | `#/flow/training?view=list` | Auf einer Velofahrt mit Puls die Analyse-Karte «Schlag deinen Geist»: diese Fahrt gegen eine frühere eigene Fahrt, mit Angabe, wie ähnlich die beiden sind. «Ausprobieren» in «Was ist neu» führt dorthin. |
@@ -164,7 +164,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 |---|---|---|
 | Auswerten | `#/auswerten` | Einstieg in Aktivitäts-, Körper- und Verlaufsanalysen. |
 | Übergreifende Analyse | `#/auswerten/analyse` | Daten verschiedener Bereiche gemeinsam betrachten und vergleichen. |
-| Tour-Rückblick | `#/debrief` | Erfahrungen bewerten, ungenutztes und fehlendes Material markieren, Pannen dokumentieren und Verbrauch buchen. |
+| Tour-Rückblick | `#/debrief` | Erfahrungen bewerten, ungenutztes und fehlendes Material markieren, Pannen dokumentieren und Verbrauch buchen. Die Antworten bei «Wie war es?» (Wetter, Essen und Trinken, Taschen) lassen sich in Ich › Listen und Typen umbenennen. |
 | Was hat es gut gemacht? | `#/debrief/freude` | Im Rückblick vier freiwillige Skalen von 1 bis 5 (Fahrspass, Natur, Flow, Gesellschaft); die Seite zeigt Mittelwerte und jede Tour, ab drei Touren sagt der Rückblick, was im Schnitt am höchsten war. |
 | Fahrtechnik-Tagebuch | `#/debrief/technik` | Im Rückblick Fahrtechniken abhaken (Spitzkehren, Bremsdosierung …) und sagen, wie es ging; die Seite zeigt Anzahl und letztes Mal und nimmt Wunsch und Übungsort auf. Techniken als Liste in Ich › Listen und Typen. |
 | Fahrt hochladen | `#/debrief/ride` | Fahrdateien auswerten, Planung und Realität vergleichen sowie Erkenntnisse festhalten. |
@@ -186,7 +186,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Wetter | `#/wetter` | Orte, Tage und Startzeiten vergleichen; Regen, Wind, Kälte, Hitze, Schneefallgrenze und Warnungen für die Planung berücksichtigen; Regenstreifen für 24 Stunden sowie Landi-Regenradar und SRF-Webcams in Fenstern. Die Schneefallgrenze (m ü. M.) steht auch als ruhige Zeile auf Heute und lässt sich dort ausschalten. |
+| Wetter | `#/wetter` | Orte, Tage und Startzeiten vergleichen; Regen, Wind, Kälte, Hitze, Schneefallgrenze und Warnungen für die Planung berücksichtigen; Regenstreifen für 24 Stunden sowie Landi-Regenradar und SRF-Webcams in Fenstern. Die Schneefallgrenze (m ü. M.) steht auch als ruhige Zeile auf Heute und lässt sich dort ausschalten. Die Nebelgrenze (Obergrenze des Hochnebels, m ü. M., geschätzt) steht daneben mit «darüber Sonne», deinem Ort im oder über dem Nebel, Auflösungszeit, Temperatur oben/unten und Sichtweite; auch sie hat eine ruhige Zeile auf Heute. |
 | Hinweise und News | `#/me/hinweise` | Regionale Hinweise, winterliche Lawineninformationen und eigene Nachrichtenquellen bündeln. |
 | Skitouren | `#/ski` | Nächste Tour mit Wetter, Nullgradgrenze und Neuschnee vorbereiten. |
 | Skitour planen | `#/ski/plan` | Bulletinangaben, Bedingungen, Zeitplan und Umkehrzeit dokumentieren. |
@@ -238,7 +238,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Kleine Apps | `#/me/apps` | Einzelne Appbereiche als eigene Verknüpfung auf den Startbildschirm legen. |
 | Push-Erinnerungen | `#/me/push` | Hinweise zu Touren, Wetter, Licht, Verschleiss und Fristen einstellen. |
 | Eigene Werte | `#/me/werte` | Grenzwerte, Standardannahmen und Erinnerungsabstände anpassen. |
-| Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen; auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
+| Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen (auch die Velo-Sportarten der Touren: Name und Ausblenden); auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
 | Entscheidungsregeln | `#/me/regeln` | Nachvollziehen, weshalb die App etwas vorschlägt und wo sich die zugrunde liegenden Werte ändern lassen. |
 | Neuigkeiten | `#/me/news` | Änderungen und neue Funktionen nach Version nachlesen. |
 

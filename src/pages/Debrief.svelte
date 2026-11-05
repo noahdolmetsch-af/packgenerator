@@ -39,7 +39,7 @@
   import '../lib/review/review.css';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
-  import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
+  import { choices, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
   import Pace from '../lib/debrief/Pace.svelte';
   import Hub from '../lib/review/Hub.svelte';
   import Logbook from '../lib/review/Logbook.svelte';
@@ -695,12 +695,12 @@
                 <div class="in">
                   <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
                   <div class="qa">
-                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={WEATHER.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('weather', v)} /></div>
+                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={choices('weather', t)} onchange={(v) => set('weather', v)} /></div>
                     <!-- v0.42.0 (Noah 6): how the clothing was; it slowly shifts the borders of the temperature kits. -->
                     <div class="segq"><span class="lbl" id="q-cloth">{t('Clothing')}</span><Seg labelledby="q-cloth" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} />
                       <p class="tp-muted tp-small clothhint">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div>
-                    <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={AMOUNT.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('amount', v)} /></div>
-                    <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={BAGS_OK.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('bags', v)} /></div>
+                    <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={choices('amount', t)} onchange={(v) => set('amount', v)} /></div>
+                    <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={choices('bags', t)} onchange={(v) => set('bags', v)} /></div>
                     {#if bike}
                       <label><span>{t('km for {bike}', { bike: bike.name })} <small>{bike.km != null ? t('now {km} km', { km: num(bike.km) }) : ''}</small></span><span class="kmin"><input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} aria-label={t('km of this trip')} /> km</span></label>
                     {/if}

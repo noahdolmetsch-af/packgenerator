@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -343,6 +343,30 @@ describe('Fragen aus deinen Daten', () => {
       expect(randomOn(null)).toBe(true);
       expect(dataDue({ pool: one, cfg: setRandom(null, false), today: TODAY })).toEqual([]);
       expect(randomOn(setRandom(setRandom(null, false), true))).toBe(true);
+    });
+  });
+
+  describe('Vermutung testen', () => {
+    const hint = { id: 'sleep-mood', x: 'sleepH', y: 'mood', rho: 0.45, sentence: 'On days with more than 6 h of sleep, your mood was 8 on average, otherwise 5.' };
+    it('asks when the hint is strong enough, with the sentence as the reason', () => {
+      expect(vermutungHit(hint)).toEqual({ sentence: hint.sentence });
+      expect(vermutungHit({ ...hint, rho: 0.29 })).toBeNull();
+      expect(vermutungHit({ ...hint, rho: -0.5 })).not.toBeNull(); // a hint against counts as well
+      expect(vermutungHit(hint, 50)).toBeNull();
+      expect(vermutungHit(null)).toBeNull();
+      expect(vermutungHit({ ...hint, sentence: '' })).toBeNull();
+      const [d] = dataDue({ hint, today: TODAY });
+      expect(d.q.id).toBe('daten.vermutung');
+      expect(d.why.vars).toEqual({ sentence: hint.sentence });
+    });
+    it('has its switch, its threshold and its group', () => {
+      expect(dataDue({ hint, today: TODAY, cfg: setRule(null, 'vermutung', false) })).toEqual([]);
+      expect(dataDue({ hint, today: TODAY, cfg: setVal(null, 'vermutung', 50) })).toEqual([]);
+      expect(ruleVal(null, 'vermutung')).toBe(30);
+      expect(DATA_QUESTIONS['daten.vermutung'].form.multi).toBe(false);
+      // not twice in the gap, and the group (achtsamkeit) is used once a day
+      expect(dataDue({ hint, today: TODAY, answers: [{ qid: 'daten.vermutung', day: add(TODAY, -1) }] })).toEqual([]);
+      expect(dataDue({ hint, today: TODAY, answers: [{ qid: 'daten.vermutung', day: add(TODAY, -3) }] })).toHaveLength(1);
     });
   });
 
