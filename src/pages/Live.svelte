@@ -2796,7 +2796,7 @@
   }
   .lv-n3-c .n3-wind {
     white-space: nowrap;
-    font-size: 0.7rem;
+    font-size: var(--fs-small);
   }
   .lv-n3-c.n3-some {
     background: var(--info-soft);
