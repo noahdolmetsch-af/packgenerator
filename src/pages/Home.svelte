@@ -807,7 +807,11 @@
   // Impeccable 20.10.2026: on the last evening of a trip its evening rows (review, charging; Noah 32a) stay; other
   // rows of that same trip wait until it is finished, so it does not show three next steps at once
   const lastEveIds = $derived(new Set(trips.filter((x) => lastEvening(x, today, now.getHours())).map((x) => x.id)));
-  const upRows = $derived([...nowRows, ...important.filter((r) => r.tone === 'eve' || !(r.act?.trip && lastEveIds.has(r.act.trip)))]);
+  const hereRows = $derived(important.filter((r) => r.tone === 'eve' || !(r.act?.trip && lastEveIds.has(r.act.trip))));
+  // «Jetzt dran» (Noah 05.11.2026 «3a»): only what is red, amber or blue is «up now» and counted; the calm hints
+  // («Kette wachsen …», «3 Velos wägen», «183 Teile …») wait in their own folded line «Good to know»
+  const calmRows = $derived(hereRows.filter((r) => r.tone === 'quiet'));
+  const upRows = $derived([...nowRows, ...hereRows.filter((r) => r.tone !== 'quiet')]);
   const UP_N = 4;
   const upShown = $derived(allRows ? upRows : upRows.slice(0, UP_N));
   // the personal sentence under the greeting: the next trip and how much is up today
@@ -896,7 +900,7 @@
   // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
   const impQ = cfgQuery();
   const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
-  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick && !impulseUp);
+  const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp);
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -1129,6 +1133,31 @@
   {/if}
 {/snippet}
 
+<!-- one row of «Up now» and of «Good to know» -->
+{#snippet upRow(r, line = false)}
+    <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
+      {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
+      {#if r.key === 'tests' && cleanAsk}
+        <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
+        <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
+      {:else}
+        <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
+        {#if r.act2?.run}
+          <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
+          <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
+        {:else}
+        {#if r.act}
+          {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
+          {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
+          {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
+        {/if}
+        {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
+        {/if}
+        {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
+      {/if}
+    </li>
+{/snippet}
+
 <!-- 4. Important today and Tried it yet? -->
 {#snippet todayS(line = false)}
   <div class="impw" class:line data-section="today">
@@ -1149,32 +1178,20 @@
       {#if upRows.length}
         <ul>
           {#each line ? (allRows ? upRows : upRows.slice(0, 2)) : upShown as r (r.key)}
-            <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
-              {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
-              {#if r.key === 'tests' && cleanAsk}
-                <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
-                <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
-              {:else}
-                <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
-                {#if r.act2?.run}
-                  <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
-                  <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
-                {:else}
-                {#if r.act}
-                  {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
-                  {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
-                  {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
-                {/if}
-                {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
-                {/if}
-                {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
-              {/if}
-            </li>
+            {@render upRow(r, line)}
           {/each}
         </ul>
         {#if upRows.length > (line ? 2 : UP_N)}<button type="button" class="lkb more" aria-expanded={allRows} onclick={() => (allRows = !allRows)}>{allRows ? t('Show fewer') : t('Show all {n}', { n: upRows.length })}{#if line && !allRows}<ChevronRight size={16} aria-hidden="true" />{/if}</button>{/if}
       {:else if ready}
         <p class="calm">{t('Nothing urgent. Enjoy the day.')}</p>
+      {/if}
+      {#if calmRows.length}
+        <details class="good" data-good>
+          <summary>{t('Good to know')} <span class="num">· {calmRows.length}</span></summary>
+          <ul>
+            {#each calmRows as r (r.key)}{@render upRow(r, false)}{/each}
+          </ul>
+        </details>
       {/if}
       {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
     </section>
@@ -2141,6 +2158,20 @@
   .notice span {
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  /* «Gut zu wissen» (Noah 05.11.2026 «3a»): the calm hints, folded under «Up now» */
+  .good {
+    margin-top: var(--sp-2);
+    border-top: 1px solid var(--line);
+  }
+  .good summary {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    min-height: 44px;
+    color: var(--ink-2);
+    font-size: var(--fs-body);
+    cursor: pointer;
   }
   .calm {
     margin: 8px 0;
