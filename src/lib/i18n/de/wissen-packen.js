@@ -1,5 +1,7 @@
 // «Wegweiser statt Katalog» PR 16: «Gut zu wissen» im Bereich Packen (src/lib/wissen/packen.js).
 export default {
+  'Write the recipe the evening you are back, while you remember the breakfast. «Something with oats» helps less than «porridge, banana, two coffees».':
+    'Schreib das Rezept am Abend, an dem du zurück bist, solange du dich ans Frühstück erinnerst. «Irgendwas mit Haferflocken» hilft weniger als «Porridge, Banane, zwei Kaffee».',
   'Guess first, then look: the gap between the two is the useful part. A few tours in, it shows how you usually read a route.':
     'Erst schätzen, dann nachschauen: die Lücke dazwischen ist der nützliche Teil. Nach ein paar Touren sieht man, wie du eine Strecke meist einschätzt.',
   "A GPX with many points is fine, but check the climbing: some apps count every bump twice. Compare with the map before you plan the day.":

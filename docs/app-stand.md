@@ -48,6 +48,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Gründe für eine andere Tour | `#/me/lists` | Wird eine Tour auf «Nicht fahren» gesetzt oder weicht die gefahrene Strecke stark ab, nennt ein Tipp den Grund (Liste in Ich › Listen und Typen); ab drei Antworten zählt eine Zeile, was am häufigsten vorkam. |
 | Routen und GPX | `#/pack` | GPX hinzufügen, Distanz, Höhenmeter, Fahrzeit, Höhenprofil und Anstiege ansehen; offene Stellen entlang der Route notieren. |
 | Tourvorlagen | `#/pack/templates` | Bewährte Touren als Vorlage speichern und erneut verwenden. Rückblicke liefern Vorschläge zur Verbesserung. |
+| Erfolgsrezepte | `#/pack/templates` | Nach einer gelungenen Tour festhalten, was geklappt hat (Frühstück, Startzeit, Verpflegung, Tempo); die Rezepte stehen unter Vorlagen und lassen sich in Planen neben eine nächste Velotour legen. |
 | Touren nebeneinander | `#/trips/compare` | Zwei Touren auf Terminüberschneidungen, gemeinsam benötigtes Material und offene Aufgaben vergleichen. |
 | Verpflegungsplan | `#/trips/fuel` | Kohlenhydrate und Wasser pro Abschnitt planen, Flaschen und Vorräte berücksichtigen sowie Versorgungslücken erkennen. Stopps als GPX-Wegpunkte exportieren. |
 | Reise-Links | `#/travel` | Unterkunft, Flüge und Anreise recherchieren; Optionen mit Kosten, Stornierung und Entscheidungsgrund festhalten. |

@@ -1,4 +1,5 @@
 <script>
+  import Recipes from '../lib/rezept/Recipes.svelte';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
   /**
    * Templates (Noah, 4.10.2026, answer 9): all saved packing setups on their own page.
@@ -275,6 +276,8 @@
         {/if}
       </aside>
     </div>
+    <!-- Persönliches Lernen Idee 5 (Noah 04.11.2026 «5a»): what worked on a good tour, kept as a recipe -->
+    <Recipes />
   </div>
 {/if}
 {#if saving}

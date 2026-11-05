@@ -211,6 +211,7 @@ test('the invoice form is filled from a booking draft and keeps the booking', as
 test('the customer list: add a customer with an own price, edit and delete with Undo', async ({ page }) => {
   await page.goto('./#/');
   await ready(page);
+  await page.evaluate(() => localStorage.setItem('pg.pay.account', JSON.stringify({ iban: 'CH44 3199 9123 0008 8901 2', name: 'Beispiel Tennis', street: '', house: '', zip: '8000', town: 'Zürich', twint: '079 000 00 00' })));
   await page.goto('./#/me/offers/customers');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Customers'));
   await page.getByRole('button', { name: T('Add a customer') }).first().click();
@@ -221,6 +222,20 @@ test('the customer list: add a customer with an own price, edit and delete with 
   const row = page.locator('.cu-row', { hasText: 'Mia Muster' });
   await expect(row).toBeVisible();
   await expect(row).toContainText('50');
+  // a lesson card: number and price, shown in the list, sold by an invoice draft
+  await row.click();
+  await page.locator('#cu-psize').fill('10');
+  await page.locator('#cu-pprice').fill('450');
+  await page.locator('[data-card-invoice]').click();
+  await expect(page.getByLabel(T('Amount|money'))).toHaveValue('450');
+  await expect(page.getByLabel(T('What for?'))).toHaveValue(T('{n}-lesson card', { n: 10 }));
+  await page.goBack();
+  await page.goto('./#/me/offers/customers');
+  await row.click();
+  await page.locator('#cu-psize').fill('10');
+  await page.locator('#cu-pprice').fill('450');
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
+  await expect(row).toContainText('10');
   // delete asks first, then offers Undo
   await row.click();
   await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Delete') }).click();
