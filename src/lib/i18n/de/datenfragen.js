@@ -86,6 +86,15 @@ export default {
   'Warm from (degrees)': 'Warm ab (Grad)',
   'No weather for today yet. The weather rules wait until Today shows the forecast of your home place.': 'Noch kein Wetter für heute. Die Wetter-Regeln warten, bis Heute die Vorhersage deines Wohnorts zeigt.',
   'No calendar on this device yet. The rule for a free evening waits until your Google calendar is connected.': 'Noch kein Kalender auf diesem Gerät. Die Regel für den freien Abend wartet, bis dein Google-Kalender verbunden ist.',
+  // Zufallsfrage
+  'A random question': 'Eine Zufallsfrage',
+  'Once a day a question from your sample questions that are switched off. It counts toward the three questions from your data. «Never again» removes it for good.': 'Einmal am Tag eine Frage aus deinen Musterfragen, die ausgeschaltet sind. Sie zählt zu den drei Fragen aus deinen Daten. «Nie mehr» nimmt sie für immer heraus.',
+  'Questions that will not be picked again: {n}': 'Fragen, die nicht mehr gewählt werden: {n}',
+  'Bring them back': 'Wieder zulassen',
+  'a random question': 'eine Zufallsfrage',
+  'Never again|question': 'Nie mehr',
+  'Change this': 'Das ändern',
+  'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.': 'Eine Zufallsfrage aus deinen Musterfragen, die ausgeschaltet sind, höchstens eine am Tag. Sie zählt zu den drei Fragen aus deinen Daten.',
   // Wiederholungsschutz
   'You skipped this question three times. Ask less often?': 'Du hast diese Frage dreimal übersprungen. Soll ich sie seltener fragen?',
   'Yes, less often': 'Ja, seltener',

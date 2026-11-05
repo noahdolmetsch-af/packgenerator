@@ -245,6 +245,33 @@ test.describe('Fragen aus deinen Daten', () => {
     await page.screenshot({ path: `${SHOTS}/fad7-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   });
 
+  test('a random question from the switched-off samples comes marked and never again takes it out for good', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q]').filter({ has: page.locator('[data-random]') });
+    await expect(q).toHaveCount(1);
+    await expect(q.locator('[data-random]')).toHaveText('eine Zufallsfrage');
+    await expect(q.locator('[data-why]')).toContainText('Zufallsfrage');
+    const id = await q.getAttribute('data-q');
+    await card.screenshot({ path: `${SHOTS}/fad8-zufall-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.locator('[data-never]').click();
+    await expect(card.locator(`[data-q="${id}"]`)).toHaveCount(0);
+    await page.goto('./#/me/abfragen');
+    const row = page.locator('[data-rule="zufall"]');
+    await expect(row.locator('[data-random-never]')).toContainText('1');
+    await page.screenshot({ path: `${SHOTS}/fad8-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+    await row.locator('[data-random-back]').click();
+    await expect(row.locator('[data-random-never]')).toHaveCount(0);
+  });
+
+  test('the switch under Deine Abfragen turns the random question off', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52, { cfg: { zufall: { off: true } } }) });
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-random]')).toHaveCount(0);
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-random-switch]')).not.toBeChecked();
+  });
+
   test('no tennis noted: the box says why the tennis rules are quiet', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
     await page.goto('./#/me/abfragen');
