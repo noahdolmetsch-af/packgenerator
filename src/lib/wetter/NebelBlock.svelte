@@ -74,7 +74,7 @@
     {#if sight}
       <p class="nb-row" data-fogline-sight><Eye size={16} aria-hidden="true" />{sight}</p>
     {/if}
-    <p class="nb-src">{t('A guess from the air layers of the weather model, about 200 m precise. A webcam shows how it really is.')}{#if at} {t('As of {at}', { at })}{/if}</p>
+    <p class="nb-src">{t('A guess from the air layers of the weather model, about 200 m precise. A webcam shows how it really is.')}{#if at}{' '}{t('As of {at}', { at })}{/if}</p>
     <details class="nb-set" data-fogline-set>
       <summary>{t('Set fog line')}</summary>
       <label class="nb-check"><input type="checkbox" checked={onHome} onchange={toggleHome} data-fogline-home />{t('Show the fog line on Today')}</label>
