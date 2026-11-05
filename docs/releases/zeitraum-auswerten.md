@@ -1,6 +1,6 @@
 # Ein Zeitraum für Auswerten
 
-PR #? · 05.11.2026 · Auftrag: Noah «Idee A verwerfen. Idee B: 1a 2b 3a 4a» (Thread «Aktiv und Auswerten»)
+PR #941 · 05.11.2026 · Auftrag: Noah «Idee A verwerfen. Idee B: 1a 2b 3a 4a» (Thread «Aktiv und Auswerten»)
 
 ## Was ist neu
 - Auf Auswerten steht oben ein Schalter «Zeitraum»: **Woche, Monat, Jahr, Alles, Eigener Zeitraum**. Woche, Monat und Jahr lassen sich mit ‹ › zurückblättern (nie über heute hinaus); «Eigener Zeitraum» hat zwei Datumsfelder.
