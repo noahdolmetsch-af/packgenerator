@@ -6,7 +6,7 @@
    * with the photos when the phone can). No price service, nothing leaves the device unless shared.
    */
   import { liveQuery } from 'dexie';
-  import { Copy, Share2 } from '@lucide/svelte';
+  import { Copy, Share2, Archive } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, num, dateOf } from '../i18n.svelte.js';
   import { sortBikes } from '../bikes.js';
@@ -19,6 +19,8 @@
   import { saleText, SELL_KEY } from '../griff.js';
   import { changeSetting } from '../griffdb.js';
   import { offerDone } from '../ui/rename.svelte.js';
+  import { retireBike, restoreBike } from '../bikeretire.js';
+  import RetireSheet from '../bikes/RetireSheet.svelte';
   import GriffHead from './GriffHead.svelte';
   import './griff.css';
   import Handover from '../werkstatt/Handover.svelte'; // Paket B part 3: handover after the sale
@@ -45,12 +47,21 @@
   );
   const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
   let msg = $state('');
+  // Rückweg (Noah 03.11.2026): once the text is copied, the next step is retiring the bike
+  let copied = $state(false);
+  let retireOpen = $state(false);
+  async function doRetire(info) {
+    const b = bike;
+    const before = await retireBike(db, b.id, info);
+    offerDone(t('«{name}» retired.', { name: b.name }), () => restoreBike(db, b.id, before));
+  }
 
   const save = (patch) => changeSetting(SELL_KEY, {}, (all) => ({ ...(all ?? {}), [bike.id]: { ...((all ?? {})[bike.id] ?? {}), ...patch } }));
   async function copy() {
     try {
       await navigator.clipboard.writeText(text);
       offerDone(t('Listing copied.'));
+      copied = true;
     } catch {
       msg = t('Copying did not work. Select the text and copy it by hand.');
     }
@@ -94,10 +105,19 @@
         {#if canShare}<button type="button" class="btn" onclick={share} data-sell-share><Share2 size={16} aria-hidden="true" />{t('Share')}</button>{/if}
       </div>
       {#if msg}<p class="err" role="alert">{msg}</p>{/if}
+      {#if copied && !bike.archived}
+        <div class="next" data-sell-next>
+          <p class="quiet">{t('Once the bike is sold, retire it: it leaves the lists, everything stays saved.')}</p>
+          <button type="button" class="btn" onclick={() => (retireOpen = true)} data-sell-retire><Archive size={16} aria-hidden="true" />{t('Retire this bike now')}</button>
+        </div>
+      {/if}
     </section>
     <Handover bikeId={bike.id} rec={own.handover ?? null} />
   {/if}
 </div>
+{#if retireOpen && bike}
+  <RetireSheet {bike} onsave={doRetire} onclose={() => (retireOpen = false)} />
+{/if}
 
 <style>
   .txt {
@@ -109,6 +129,16 @@
     font-size: var(--fs-small);
     white-space: pre-wrap;
     overflow-wrap: break-word;
+  }
+  .next {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .next .btn {
+    justify-self: start;
   }
   .shots {
     display: grid;

@@ -1,7 +1,8 @@
 // «Wegweiser statt Katalog» PR 11: the card «What you can do here».
 import { describe, it, expect } from 'vitest';
-import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO } from '../src/lib/seiteninhalt.js';
+import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO, foldedCount, unfoldAll, seenMapOf, newSince } from '../src/lib/seiteninhalt.js';
 import { HOME } from '../src/lib/know/heimat.js';
+import { HANDBOOK } from '../src/lib/handbook.js'; // the card gets it from loadHandbook(); the tests hand it in
 
 describe('What you can do here', () => {
   it('reads the page from the hash, keeping only tab, view and open', () => {
@@ -10,7 +11,7 @@ describe('What you can do here', () => {
   });
   it('every switched-on page has at least one function, each with what for and how it works', () => {
     for (const p of ON_PAGES) {
-      const rows = pageContent(p);
+      const rows = pageContent(p, undefined, {}, HANDBOOK);
       expect(rows.length, p).toBeGreaterThan(0);
       for (const r of rows) {
         expect(r.text, r.id).toBeTruthy();
@@ -28,6 +29,22 @@ describe('What you can do here', () => {
   it('keeps only folded pages from the stored setting', () => {
     expect(foldedOf({ '#/a': true, '#/b': false, '#/c': 1 })).toEqual({ '#/a': true });
     expect(foldedOf(null)).toEqual({});
+  });
+  it('«Open all cards again» removes the folds the user made, not the opened choices or pages that start folded (05.11.2026)', () => {
+    const m = { '#/trips/dreams': true, '#/inspiration': true, '#/ride': true, '#/pack': false, '#/x': 1 };
+    expect(foldedCount(m)).toBe(2);
+    expect(unfoldAll(m)).toEqual({ '#/ride': true, '#/pack': false });
+    expect(foldedCount(unfoldAll(m))).toBe(0);
+    expect(foldedCount(null)).toBe(0);
+    expect(unfoldAll(undefined)).toEqual({});
+  });
+  it('the «new» dot counts functions that came after the card was last folded or opened; unknown pages show none (05.11.2026)', () => {
+    expect(newSince({ '#/trips/dreams': 3 }, '#/trips/dreams', 5)).toBe(2);
+    expect(newSince({ '#/trips/dreams': 5 }, '#/trips/dreams', 5)).toBe(0);
+    expect(newSince({ '#/trips/dreams': 5 }, '#/trips/dreams', 4)).toBe(0); // fewer now: nothing new
+    expect(newSince({}, '#/trips/dreams', 5)).toBe(0); // folded before this existed: nothing known, no dot
+    expect(newSince(null, '#/x', 5)).toBe(0);
+    expect(seenMapOf({ '#/a': 2, '#/b': 'x', '#/c': -1, '#/d': 1.5 })).toEqual({ '#/a': 2 });
   });
   it('starts folded on Unterwegs, keeps the choice everywhere', () => {
     expect(FOLDED_FIRST).toEqual(expect.arrayContaining(['#/ride', '#/bikes', '#/gear', '#/debrief/:trip']));

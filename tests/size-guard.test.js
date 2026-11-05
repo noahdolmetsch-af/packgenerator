@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { oversize, heavyStatic, startBytes, MAX_START_JS_BYTES, MAX_JS_BYTES, HEAVY } from '../scripts/size-guard.mjs';
+import { oversize, heavyStatic, startBytes, startWarning, MAX_START_JS_BYTES, MAX_JS_BYTES, HEAVY } from '../scripts/size-guard.mjs';
 import { loadPage, loadedOf } from '../src/lib/nav/lazy.js';
 
 const walk = (dir) => readdirSync(dir).flatMap((n) => (statSync(join(dir, n)).isDirectory() ? walk(join(dir, n)) : [join(dir, n)]));
@@ -26,7 +26,14 @@ describe('size guard', () => {
       { name: 'assets/style.css', bytes: 999 },
     ];
     expect(startBytes(files)).toBe(1310);
-    expect(MAX_START_JS_BYTES).toBe(4_500_000);
+    expect(MAX_START_JS_BYTES).toBe(5_000_000);
+  });
+  it('warns from 90 % of the start budget, never fails, says nothing below or above', () => {
+    expect(startWarning(4_500_000)).toBeNull(); // exactly 90 %
+    expect(startWarning(4_500_001)).toMatch(/90 %/);
+    expect(startWarning(4_900_000)).toMatch(/98 %.*5\.0 MB/);
+    expect(startWarning(3_000_000)).toBeNull();
+    expect(startWarning(5_000_001)).toBeNull(); // over the limit the build fails (the error, not the warning)
   });
   it('tells a static import of a big tool from a dynamic one', () => {
     expect(heavyStatic("import { PDFDocument } from 'pdf-lib';")).toEqual(['pdf-lib']);
@@ -40,6 +47,28 @@ describe('size guard', () => {
       .filter(([, h]) => h.length);
     expect(hits, `load these with await import(): ${HEAVY.join(', ')}`).toEqual([]);
   });
+  it('the handbook (English and German) is not part of the start: only its pages and load.js import it', () => {
+    const allowed = ['src/lib/handbook/load.js', 'src/lib/handbook/late-de.js', 'src/pages/Handbook.svelte', 'src/pages/MiniApps.svelte'];
+    const hits = walk('src')
+      .filter((f) => /\.(js|svelte)$/.test(f))
+      .map((f) => f.replace(/\\/g, '/'))
+      .filter((f) => {
+        const text = readFileSync(f, 'utf8');
+        const own = f.startsWith('src/lib/handbook/') ? /['"]\.\/texte-de\.js['"]/.test(text) : false;
+        return own || /['"][^'"]*(\/handbook\.js|handbook\/texte-de\.js)['"]/.test(text);
+      });
+    expect(hits.sort()).toEqual(allowed.sort());
+  });
+  it('the handbook-only German is not used by any other place (it is not loaded there)', async () => {
+    // a text that is also used outside the handbook must stay in src/lib/i18n/de/handbuch.js (loaded at the start)
+    const LATE = (await import('../src/lib/handbook/texte-de.js')).default;
+    const others = walk('src')
+      .filter((f) => /\.(js|svelte)$/.test(f) && !f.replace(/\\/g, '/').startsWith('src/lib/i18n/de/') && !/src[\\/]lib[\\/](handbook\.js|handbook[\\/]texte-de\.js)$/.test(f))
+      .map((f) => readFileSync(f, 'utf8').replace(/\\/g, ''))
+      .join('\n');
+    const used = Object.keys(LATE).filter((k) => others.includes(k.replace(/\\/g, '').slice(0, 24)));
+    expect(used, 'move these texts from handbook/texte-de.js to i18n/de/handbuch.js').toEqual([]);
+  }, 30000);
   it('App.svelte loads only Heute at the start; every other page through PAGES', () => {
     const app = readFileSync('src/App.svelte', 'utf8');
     const eager = [...app.matchAll(/^\s*import (\w+) from '\.\/pages\/(\w+)\.svelte';/gm)].map((m) => m[2]);

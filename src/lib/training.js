@@ -241,6 +241,21 @@ export function cleanDayLimits(v) {
   if (v && typeof v === 'object') for (const [k, m] of Object.entries(v)) if (/^[0-6]$/.test(k) && Number.isFinite(+m) && +m >= 0 && +m <= 600) out[k] = Math.round(+m);
   return out;
 }
+export const SPORTGOALS_KEY = 'training.sportgoals'; // { [sport id]: times per week 0–3 }, set in the week suggestion
+/** Goals per sport as stored: ids with a whole number 0–3. */
+export function cleanSportGoals(v) {
+  const out = {};
+  if (v && typeof v === 'object') for (const [k, n] of Object.entries(v)) if (k && k.length <= 80 && Number.isInteger(n) && n >= 0 && n <= 3) out[k] = n;
+  return out;
+}
+export const HABITS_KEY = 'training.habits'; // { drop: { [session name]: times removed }, mins: { [session name]: { n, ratio } } }
+/** Habits as stored: counts 1–5 per name, ratios 0.5–2. */
+export function cleanHabits(v) {
+  const out = { drop: {}, mins: {} };
+  if (v?.drop && typeof v.drop === 'object') for (const [k, n] of Object.entries(v.drop)) if (k && k.length <= 80 && Number.isInteger(n) && n >= 1 && n <= 5) out.drop[k] = n;
+  if (v?.mins && typeof v.mins === 'object') for (const [k, h] of Object.entries(v.mins)) if (k && k.length <= 80 && Number.isInteger(h?.n) && h.n >= 1 && h.n <= 5 && Number.isFinite(h.ratio) && h.ratio >= 0.5 && h.ratio <= 2) out.mins[k] = { n: h.n, ratio: Math.round(h.ratio * 100) / 100 };
+  return out;
+}
 export const PLAN_KEY = 'training.plan'; // { sessions: [{ id, day, kind, name, mins, zone }] }
 export const GOAL_KEY = 'training.goal'; // { name, hours, base, until } or null
 export const PLAN_KEEP_DAYS = 120;

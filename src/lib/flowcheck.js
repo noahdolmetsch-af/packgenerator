@@ -215,7 +215,7 @@ export const isEvening = (d = new Date()) => d.getHours() * 60 + d.getMinutes() 
 /** Where the check entry leads now: the morning check, from 20:30 the evening review. */
 export const checkHref = (d = new Date()) => (isEvening(d) ? '#/check/evening' : '#/check/morning');
 /** The part of the check an address shows ('morning' or 'evening'). */
-export const checkPart = (hash = '') => (/^#\/check\/evening\b/.test(hash) ? 'evening' : /^#\/check\/questions\b/.test(hash) ? 'questions' : /^#\/check\/insights\b/.test(hash) ? 'insights' : /^#\/check\/history\b/.test(hash) ? 'history' : 'morning');
+export const checkPart = (hash = '') => (/^#\/check\/evening\b/.test(hash) ? 'evening' : /^#\/check\/insights\b/.test(hash) ? 'insights' : /^#\/check\/history\b/.test(hash) ? 'history' : 'morning');
 /** How many of the evening questions are answered (for the entry on Heute). */
 export const eveningDone = (c) => checkOf(c).sat != null;
 
@@ -263,6 +263,11 @@ export const QUESTIONS = [
   { n: 14, short: 'Mindfulness|q', part: 'evening', text: 'Mindful moment?', often: 'rotating, meditation counts by itself', answer: 'yes · no', cat: 'mind' },
   { n: 15, short: 'Vision|q', part: 'sunday', text: 'Closer to your vision?', often: 'weekly|often', answer: '1–10 + 1 sentence', cat: 'vision' },
 ];
+/**
+ * Noah 04.11.2026 «ein Fragebogen»: the questions of the 15 that are asked like the window's now (Deine Abfragen) and no longer
+ * by their own card: sleep, battery, mood, the rotating one, the goal and the whole evening incl. Sunday. Only 6 («Worauf freust du dich?») stays.
+ */
+export const IN_ABFRAGEN = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 /** The stored list of switched-off questions made safe: numbers 1–15, each once. */
 export const offOf = (value) => [...new Set((Array.isArray(value) ? value : []).map(Number).filter((n) => Number.isInteger(n) && n >= 1 && n <= 15))].sort((a, b) => a - b);
 /** Is question n on? */
@@ -305,19 +310,8 @@ export function answeredToday(c, { day, off = [], evening = false, pool = null, 
     if (on(1)) asked.push(x.sleep != null);
     if (on(2)) asked.push(x.energy != null);
     if (on(3)) asked.push(x.mood != null);
-    if (rotatingFor(pool, off, day)) asked.push(x.extra != null);
-    if (on(6)) asked.push(x.joy.length > 0);
-    if (on(7)) asked.push(!!x.goal);
-  } else {
-    if (on(8)) asked.push(x.sat != null);
-    if (on(9)) asked.push(x.best.length > 0 || !!x.story.trim());
-    if (on(10) && x.goal) asked.push(x.goalDone != null);
-    if (on(11)) asked.push(x.outside != null);
-    const turn = eveningTurnFor(day, off);
-    if (turn === 'people') asked.push(x.people != null);
-    if (turn === 'fun') asked.push(x.fun != null);
-    if (on(14)) asked.push(x.mindful != null || mindfulAuto);
-    if (visionToday(day, off)) asked.push(x.vision != null);
+    // Noah 04.11.2026 «ein Fragebogen»: the other questions are asked like in the window now (Deine Abfragen)
   }
+  // Noah 04.11.2026 «ein Fragebogen»: the evening's questions are asked like in the window now (Deine Abfragen), nothing counts here
   return { part: evening ? 'evening' : 'morning', done: asked.filter(Boolean).length, of: asked.length };
 }

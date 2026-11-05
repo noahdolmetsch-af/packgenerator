@@ -27,8 +27,8 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
-  import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
-  import { OWN_AREA, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
+  import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS, randomOn, setRandom, neverCount, bringBack as bringNeverBack } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+  import { OWN_AREA, QUESTION, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -79,6 +79,10 @@
   const dcfg = $derived(data?.dataCfg ?? null);
   const saveD = (next) => (data ? saveDataCfg(next) : undefined);
   const hasFitbit = $derived((data?.health ?? []).length > 0);
+  const hasTraining = $derived((data?.acts ?? []).length > 0);
+  const hasWeather = $derived(!!data?.wx);
+  const hasCalendar = $derived(!!data?.cal?.used);
+  const hasTennis = $derived((data?.sport ?? []).some((x) => x.sport === 'act:tennis'));
   async function removeQuestion(q) {
     const name = qText(q);
     const answer = await askDelete({ title: t('Delete «{q}»?', { q: name }), text: q.own ? t('Your own question goes. Its answers stay in the history.') : t('The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.') });
@@ -182,6 +186,10 @@
         <h2 id="ab-data-h">{t('Questions from your data')}</h2>
         <p class="eh">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
         {#if !hasFitbit}<p class="eh" data-data-empty>{t('No Fitbit values yet. The rules for pulse and sleep wait until Fitbit brings them (Me › Fitbit); the mood rule needs your answers.')}</p>{/if}
+        {#if !hasTraining}<p class="eh" data-data-empty-training>{t('No training yet. The rules for long days and pauses wait until Strava brings your activities.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasWeather}<p class="eh" data-data-empty-weather>{t('No weather for today yet. The weather rules wait until Today shows the forecast of your home place.')} <a class="ab-lnk" href="#/wetter">{t('Weather page ›')}</a></p>{/if}
+        {#if !hasCalendar}<p class="eh" data-data-empty-calendar>{t('No calendar on this device yet. The rule for a free evening waits until your Google calendar is connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasTennis}<p class="eh" data-data-empty-tennis>{t('No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.')}</p>{/if}
         {#each RULES as r (r.id)}
           <div class="dr" data-rule={r.id}>
             <div class="rsw">
@@ -192,11 +200,25 @@
               <div class="dset">
                 <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
                 <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => saveD(setText(dcfg, r.id, e.currentTarget.value))} data-rule-text={r.id} /></label>
+                {#if ruleGap(dcfg, r.id) !== GAP_DAYS}<p class="eh" data-rule-gap={r.id}>{t('Asks only every {n} days, because you chose «less often».', { n: ruleGap(dcfg, r.id) })}</p>{/if}
                 {#if ruleChanged(dcfg, r.id)}<button type="button" class="btn" onclick={() => saveD(resetRule(dcfg, r.id))} data-rule-reset={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button>{/if}
               </div>
             {/if}
           </div>
         {/each}
+        <!-- the random question (Noah 04.11.2026 «3a»): one a day from the sample questions that are switched off; counts toward the daily limit -->
+        <div class="dr" data-rule="zufall">
+          <div class="rsw">
+            <span class="rm"><b>{t('A random question')}</b><small>{t('Once a day a question from your sample questions that are switched off. It counts toward the three questions from your data. «Never again» removes it for good.')}</small></span>
+            <label class="ab-sw"><span class="sr">{t('A random question')}</span><input type="checkbox" role="switch" checked={randomOn(dcfg)} onchange={(e) => saveD(setRandom(dcfg, e.currentTarget.checked))} data-random-switch /></label>
+          </div>
+          {#if neverCount(dcfg)}
+            <div class="dset">
+              <p class="eh" data-random-never>{t('Questions that will not be picked again: {n}', { n: neverCount(dcfg) })}</p>
+              <button type="button" class="btn" onclick={() => saveD(bringNeverBack(dcfg))} data-random-back><RotateCcw size={16} aria-hidden="true" />{t('Bring them back')}</button>
+            </div>
+          {/if}
+        </div>
         <a class="ab-lnk" href="#/me/insights" data-data-next>{t('See what goes together')}<ChevronRight size={14} aria-hidden="true" /></a>
       </section>
       {#if editing}
@@ -270,6 +292,7 @@
                       <span class="ab-tags">
                         <span class="ab-kind">{kindLabel(q.form)}</span>
                         {#if q.sample}<span class="ab-ex" data-sample>{t('sample|question')}</span>{/if}
+                        {#if !s.on && MERGED_INTO[q.id] && QUESTION[MERGED_INTO[q.id]]}<span class="ab-ex" data-merged={MERGED_INTO[q.id]}>{t('merged into «{q}»', { q: qText(QUESTION[MERGED_INTO[q.id]]) })}</span>{/if}
                         {#if kindExtra(q.form)}<span class="ab-ex">{kindExtra(q.form)}</span>{/if}
                         {#each q.src as k (k)}{@const I = ICON_SRC[k] ?? Hand}<span class="ab-src {k}"><I size={13} aria-hidden="true" />{srcText(k)}</span>{/each}
                       </span>

@@ -28,6 +28,7 @@
   import CommuteBlock from '../../lib/sportpage/CommuteBlock.svelte';
   import RouteBlock from '../../lib/sportpage/RouteBlock.svelte';
   import ParkDaysBlock from '../../lib/sportpage/ParkDaysBlock.svelte';
+  import TimerBlock from '../../lib/sportpage/TimerBlock.svelte';
   import TennisTop from '../../lib/tennis/TennisTop.svelte';
   import SportCover from '../../lib/sportpage/SportCover.svelte';
   import { TENNIS_ID } from '../../lib/tennisday.js';
@@ -162,6 +163,7 @@
         {:else if b.key === 'pack'}<PackBlock {sport} {bag} {lastTrip} />
         {:else if b.key === 'log'}<LogBlock {sport} {dayMap} items={mine} activities={strava} {today} {color} />
         {:else if b.key === 'goals'}<GoalsBlock {sport} goals={sport.act ? activeGoals(sport.act, today) : []} own={c.goal} {dayMap} {today} onsave={saveGoal} />
+        {:else if b.key === 'timer'}<TimerBlock {sport} />
         {:else if b.key === 'care'}<CareBlock {sport} items={mine} {uses} {gearRows} {today} />
         {:else if b.key === 'weather'}<WeatherBlock {sport} days={data.days} {today} />
         {:else if b.key === 'next'}<TextList sport={sport.id} block="next" kind="note" items={linesOf('next')} placeholder={t('e.g. take the warmer gloves')} empty={t('Nothing yet. Write down what you want to do differently next time.')} />

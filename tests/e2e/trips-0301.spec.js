@@ -99,6 +99,8 @@ test('E5, E6: the day ride takes the bike of the last trip; every day ride is li
   await page.keyboard.press('Escape');
   // In Pack's trip chooser too.
   await page.goto('./#/pack');
+  // wait until the chooser is filled; allTextContents() does not wait by itself
+  await expect(page.locator('.list-menu select option').filter({ hasText: second })).toHaveCount(1);
   const names = await page.locator('.list-menu select option').allTextContents();
   expect(names).toEqual(expect.arrayContaining([title, second, 'test_data_gtp_ Gestern', 'test_data_gtp_ Später']));
   expect(errors).toEqual([]);

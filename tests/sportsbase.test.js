@@ -38,9 +38,9 @@ describe('Paket O: one list of all sports', () => {
 });
 
 describe('Paket O: the blocks of a sport (#190)', () => {
-  it('every sport has the seven basic blocks, on', () => {
+  it('every sport has the eight basic blocks, on', () => {
     const b = blocksOf('trip:ski', {});
-    expect(b.slice(0, 7).map((x) => x.key)).toEqual(BASE_BLOCKS);
+    expect(b.slice(0, 8).map((x) => x.key)).toEqual(BASE_BLOCKS);
     expect(b.every((x) => x.on)).toBe(true);
   });
   it('Gym has training plans, Tennis lessons and matches, Fahrrad commuting and loops; indoor without weather', () => {

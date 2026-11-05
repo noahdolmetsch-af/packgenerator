@@ -3,7 +3,7 @@
 // tests would look for a browser the image does not have. When Playwright is updated, update the
 // image tag in .github/workflows/deploy.yml and volle-pruefung.yml too.
 // Noah 27.10.2026 «1a 2a»: pull requests run the phone tests and the Wächter on the computer (deploy.yml),
-// main goes online right after the build, and the rest runs after going online (volle-pruefung.yml).
+// main goes online right after the build, and the rest runs at night (volle-pruefung.yml).
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 
@@ -56,10 +56,18 @@ describe('Schnellspur (Weg zu online)', () => {
     expect(deploy).toMatch(/\n  build:\n/);
   });
 
-  it('the full tests run after going online and report a red one', () => {
+  it('the full tests run once a night (not after every merge) and report a red one', () => {
     const v = files['volle-pruefung.yml'];
-    expect(v).toContain("workflows: ['Build and deploy']");
+    expect(v).toContain('schedule:');
+    expect(v).not.toContain('workflow_run');
     expect(v).toContain('tests/e2e/gesamttest');
     expect(v).toContain('gh issue create');
+  });
+
+  it('a red night run names what is red and the PRs merged since the last green run', () => {
+    const v = files['volle-pruefung.yml'];
+    expect(v).toContain('Name the suspects');
+    expect(v).toContain('gh run list --workflow volle-pruefung.yml --status success');
+    expect(v).toContain('actions: read');
   });
 });

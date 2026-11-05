@@ -18,8 +18,9 @@ test('Fotoalbum: add photos, give one a place, by place, off on Today, delete wi
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { data: withPhotos() });
-  await page.goto('./#/me');
-  await page.locator('a[data-row="album"]').click();
+  // «Ich schlank» (Noah 04.11.2026 «a»): the album lives in Planen › «Alles hier»
+  await page.goto('./#/week');
+  await page.locator('[data-all-here="plan"] [data-all-here-tile="f.photoalbum"]').click();
   const root = page.locator('[data-page="album"]');
   await expect(root.locator('h1')).toHaveText(T('Photo album'));
   await expect(root.locator('[data-album-photo="bike"]')).toHaveCount(1);

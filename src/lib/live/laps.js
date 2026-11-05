@@ -110,6 +110,23 @@ export function lastRideOf(rows = [], { tripId = null, notId = null } = {}) {
     .sort((a, b) => (b.startAt ?? 0) - (a.startAt ?? 0));
 }
 
+/** Value of the choice «ride without a ghost» (Noah 04.11.2026 «4b»). */
+export const NO_GHOST = '-';
+export const MAX_GHOST_PICKS = 6;
+
+/** The rides of this tour that can be the ghost, newest first (at most MAX_GHOST_PICKS). */
+export const ghostPicks = (rows = [], opts = {}) => lastRideOf(rows, opts).slice(0, MAX_GHOST_PICKS);
+
+/**
+ * The ghost of the ride: the one the person chose (an id from the list), nothing for NO_GHOST, else the newest
+ * ride of this tour (what «Against your last ride» always was). null when there is none.
+ */
+export function ghostRide(rows = [], opts = {}, pickId = '') {
+  if (pickId === NO_GHOST) return null;
+  const list = ghostPicks(rows, opts);
+  return list.find((r) => r.id === pickId) ?? list[0] ?? null;
+}
+
 /** «+1:05» behind, «−0:42» ahead, «±0:00». */
 export function deltaText(s) {
   if (!Number.isFinite(s)) return '–';

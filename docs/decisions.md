@@ -2041,3 +2041,16 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - 3a: Ein Start ohne Route vergisst jede alte Route: das gemerkte GPX (bei einer freien Fahrt nur, wenn es älter als 12 h ist) und einen alten Weg zu einem Ziel (älter als 2 h), auch nach dem Neuladen. Ein Weg, der eben erst geplant wurde, bleibt.
 - 4a: Das Fahrt-Protokoll steht in der Live-Karte (GPS-Punkte, Lücken, Neustarts, App im Hintergrund, Bildschirmsperre) mit einem Knopf zum Schicken.
 - Distanz ohne Route kommt nur aus der eigenen Spur; mit einer geladenen Route bleibt «Distanz» der Ort auf der Route (wie bisher).
+
+## 03.11.2026 Volle Prüfung nur nachts
+- Noah «2a» (Thread «Prüfen: Warum die Tests langsam sind»): Die «Volle Prüfung» (Browsertests am Handy und am Computer, Gesamttest) läuft nur noch einmal pro Nacht (02:07 UTC) oder von Hand, nicht mehr nach jedem Merge. Grund: Sie belegte nach jedem Merge 9 der 20 GitHub-Rechner zusätzlich und verlängerte die Warteschlange der PRs auf bis zu 47 Minuten. Ein Fehler, der erst nach dem Merge auffällt, zeigt sich so am nächsten Morgen als Meldung «Volle Prüfung: ein Test ist rot»; «zurück» bleibt möglich.
+
+## 03.11.2026 «Ausprobieren» pro PR nur mit den eigenen Zeilen
+- Noah «1a» (Thread «Prüfen: Warum die Tests langsam sind»): Der Test «Ausprobieren» tippt in einem PR nur die «Was ist neu»-Zeilen, die der PR selbst in `src/lib/news/` neu oder geändert hat. Alle Zeilen tippt die Nacht-Prüfung. Ändert ein PR die Update-Liste, die Ziel-Tabelle, den Ausprobieren-Code oder die Test-Helfer, tippt er weiter alle. Grund: Der Test wächst mit jedem PR (555 Zeilen, 10 Minuten) und belegte 21 der 33 Minuten von Handy-Teil 1.
+
+## 04.11.2026 Start-Grenze auf 5,0 MB
+- Noah «b» (Thread «Erklären und beheben: Start-Grenze bei 98 %»): Die Start-Grenze (`MAX_START_JS_BYTES` in `scripts/size-guard.mjs`) steigt von 4,6 auf 5,0 MB. Grund: Der Start lag bei 4,52 MB (98 %), der nächste PR mit mehr Text wäre am Aufbau gescheitert. Die gelbe Notiz kommt jetzt ab 4,5 MB (90 % von 5,0). Offen bleibt, was beim Start nicht gebraucht wird (Handbuch-Texte, «Was ist neu», zusammen etwa ein Drittel) erst beim Öffnen zu laden; Bericht: `notes/start-grenze-2026-11-04/` im Projektordner.
+## 04.11.2026 Handbuch erst beim Öffnen laden
+- Noah «a» (Thread «Erklären und beheben: Start-Grenze bei 98 %»): Das Handbuch (Schritte und Beispiele, Englisch und Deutsch) gehört nicht mehr zum Start, es lädt beim Öffnen von Ich › Handbuch, Ich › Kleine Apps und beim ersten Zeigen der Karte «Was du hier tun kannst» (`src/lib/handbook/load.js`). Danach folgt «Was ist neu» als eigener PR. Nichts wird gestrichen, auch offline bleibt alles.
+## 05.11.2026 «Was ist neu» erst beim Öffnen laden
+- Noah «a» (Thread «Erklären und beheben: Start-Grenze bei 98 %»): Beim Start liegen nur die neuesten 10 Versionen ganz und für alle Versionen eine kurze Zeile (Version, Tag, Zahl der Punkte, `since`). Alle Texte und das ganze Deutsch der älteren Versionen laden mit den Seiten «Was ist neu», «Weg und Releases» und der Liste in «Was die App kann» (`src/lib/whatsnew-all.js`). Nichts wird gestrichen, auch offline bleibt alles.

@@ -14,7 +14,7 @@ const noSideways = async (page) => expect(await page.evaluate(() => document.doc
 
 function data(keep) {
   const d = homeFixture();
-  const q = Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && !keep.includes(x.id)).map((x) => [x.id, { on: false }]));
+  const q = { ...Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && !keep.includes(x.id)).map((x) => [x.id, { on: false }])), ...Object.fromEntries(keep.filter((id) => !ON_AT_START.has(id)).map((id) => [id, { on: true }])) }; // a kept question that is off at the start (merged, MERGED_INTO) is switched on
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
   return d;
 }
@@ -42,25 +42,26 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
   });
 
   test('CF2: skip a question on the morning check page and show it again', async ({ page, context }, info) => {
-    const T = await openHome(page, context, info, { data: data([]) });
+    const T = await openHome(page, context, info, { data: data(['erholung.schlaf', 'erholung.akku']) });
     await page.goto('./#/check/morning');
-    const sleep = page.locator('[data-q="sleep"]');
+    // Noah 04.11.2026 «ein Fragebogen»: the page asks the questions of the window
+    const sleep = page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"]');
     await expect(sleep).toBeVisible();
     await expect(page.locator('[data-check-when]')).toHaveText(/^Fr\., 9\. Okt\. · 0?9:0\d$/); // the day and the time
-    await sleep.locator('[data-skip="sleep"]').click();
+    await sleep.locator('[data-ab-skip]').click();
     await expect(sleep).toBeHidden();
     const back = page.locator('[data-skip-back]').first();
     await expect(back).toHaveText(T('Show {n} skipped question again', { n: 1 }));
     await page.reload();
-    await expect(page.locator('[data-q="sleep"]')).toBeHidden(); // kept for the day
-    await page.locator('[data-skip-back]').first().click();
-    await expect(page.locator('[data-q="sleep"]')).toBeVisible();
+    await expect(page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"]')).toBeHidden(); // kept for the day
+    await page.locator('[data-round-questions] [data-skip-back]').first().click();
+    await expect(page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"]')).toBeVisible();
   });
 
   test('CF3: edit, delete and add questions and groups', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data([...ON_AT_START]) });
     await page.goto('./#/me/abfragen');
-    await expect(page.getByText('10 Bereiche · 104 Fragen · 35 an')).toBeVisible();
+    await expect(page.getByText('10 Bereiche · 104 Fragen · 29 an')).toBeVisible();
     await page.locator('[data-ab-edit]').click();
     await expect(page.locator('[data-area-row]')).toHaveCount(11);
     await page.screenshot({ path: '/tmp/claude-0/-home-user-packgenerator/5925335f-4f29-5d9a-ab44-6982c7e2bd10/scratchpad/edit-' + info.project.name + '.png', fullPage: false });

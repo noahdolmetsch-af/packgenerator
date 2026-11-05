@@ -238,19 +238,15 @@ describe('the 15 questions and their switches', () => {
   });
   it('«Deine 15 Fragen»: answered of the questions asked today', () => {
     const c = { day: T, sleep: 6, energy: 5, mood: 7, joy: ['nature'], goal: { id: 'ride' } };
-    expect(answeredToday(c, { day: T })).toEqual({ part: 'morning', done: 5, of: 6 });
-    expect(answeredToday(c, { day: T, off: [6, 7] })).toEqual({ part: 'morning', done: 3, of: 4 });
-    // 4 and 5 off: the other pool questions still rotate; a pool of only those two → no rotating question
-    expect(answeredToday(c, { day: T, off: [4, 5] }).of).toBe(6);
-    expect(answeredToday(c, { day: T, off: [4, 5], pool: [{ id: 'body', text: 'Body?' }, { id: 'calm', text: 'Calm?' }] }).of).toBe(5);
-    // the evening: Q10 only with a goal, Q14 found by itself, Q15 on Sundays
-    const e = answeredToday({ ...c, sat: 8 }, { day: T, evening: true, mindfulAuto: true });
-    expect(e).toEqual({ part: 'evening', done: 2, of: 6 });
-    expect(answeredToday({ day: SUN, vision: 6 }, { day: SUN, evening: true }).of).toBe(6);
-    expect(answeredToday({ day: SUN, vision: 6 }, { day: SUN, evening: true, off: [15] }).of).toBe(5);
+    // Noah 04.11.2026 «ein Fragebogen»: the morning counts sleep, battery and mood (all other questions are asked like in the window)
+    expect(answeredToday(c, { day: T })).toEqual({ part: 'morning', done: 3, of: 3 });
+    expect(answeredToday(c, { day: T, off: [1] })).toEqual({ part: 'morning', done: 2, of: 2 });
+    expect(answeredToday({ day: T, sleep: 6 }, { day: T })).toEqual({ part: 'morning', done: 1, of: 3 });
+    // the evening is asked like in the window now (Noah 04.11.2026 «ein Fragebogen»): nothing counts on the tile
+    expect(answeredToday({ ...c, sat: 8 }, { day: T, evening: true, mindfulAuto: true })).toEqual({ part: 'evening', done: 0, of: 0 });
   });
-  it('the address of the catalogue', () => {
-    expect(checkPart('#/check/questions')).toBe('questions');
+  it('the address of the catalogue is gone: the old address reads as the morning page, the guard sends it to «Deine Abfragen»', () => {
+    expect(checkPart('#/check/questions')).toBe('morning');
     expect(checkPart('#/check/evening')).toBe('evening');
     expect(checkPart('#/check/morning')).toBe('morning');
   });

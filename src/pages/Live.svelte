@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -76,8 +76,10 @@
   import ForgotPause from '../lib/tourenc/ForgotPause.svelte'; // Touren c 61
   import { forgotStep, whyOf } from '../lib/tourenc/pausewhy.js'; // Touren c 60/61
   import TurnHint from '../lib/live/TurnHint.svelte';
+  import NightLight from '../lib/live/NightLight.svelte'; // «Licht in der Nacht» (Paket D, Idee 20)
+  import { nightStrength, nightLightOn, beamDeg } from '../lib/live/nightlight.js';
   import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
-  import { lapNow, lapsOf, ghostOf, ghostDelta, lastRideOf, deltaText } from '../lib/live/laps.js';
+  import { lapNow, lapsOf, ghostOf, ghostDelta, ghostPicks, ghostRide, NO_GHOST, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
   import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
   import DataPagesEditor from '../lib/live/DataPagesEditor.svelte';
@@ -97,6 +99,9 @@
   import { POI_CACHE, POI_KIND, WX_CACHE } from '../lib/race/outside.js';
   import { mergePois } from '../lib/race/more.js';
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
+  import { nearestExit } from '../lib/live/exit.js';
+  import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
+  import { nextHours, cellFlags } from '../lib/live/next3h.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -173,7 +178,7 @@
   const climbs = $derived(profile.length > 1 ? climbsOf(profile, 100) : []);
 
   /* ---------- options (settings 'live') ---------- */
-  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true };
+  const OPTS = { voice: false, offRoute: false, battery: false, eatHm: false, storm: false, autoPause: false, autoKmh: 4, hrMax: 0, powerMax: 0, dim: false, autoData: false, turns: true, turnVoice: true, nightLight: true };
   const cfg = $derived({ ...OPTS, ...($cfgQ?.value ?? {}) });
   const setOpt = (k, v) => db.settings.put({ key: 'live', value: { ...cfg, [k]: v } });
 
@@ -378,8 +383,28 @@
     } catch {}
   };
   const WATER_FRAC = { full: 1, half: 0.5, low: 0.15 };
+  // «Licht» (Noah 02.11.2026, Vorschlag 4): does the bike lamp last through the dark part still ahead?
+  // How long it burns on a full charge and what is left are yours to change; kept in this browser.
+  const LAMP_KEY = 'pg-live-lamp';
+  const lampOwn = (() => {
+    try {
+      const o = JSON.parse(localStorage.getItem(LAMP_KEY) || '{}');
+      return { burn: Number(o.burn) > 0 ? Number(o.burn) : LAMP_H, left: ['full', 'half', 'low'].includes(o.left) ? o.left : 'full' };
+    } catch {
+      return { burn: LAMP_H, left: 'full' };
+    }
+  })();
+  let lampBurn = $state(lampOwn.burn);
+  let lampLeft = $state(lampOwn.left);
+  const keepLamp = () => {
+    try {
+      localStorage.setItem(LAMP_KEY, JSON.stringify({ burn: lampBurn, left: lampLeft }));
+    } catch {}
+  };
+  const lamp = $derived(me && hasRoute ? lampPlan({ lat: me.lat, lon: me.lon, now, endAt: arr?.eta ?? null, burnH: lampBurn, frac: LAMP_FRAC[lampLeft] }) : null);
   const waterHave = $derived(Math.round(waterCap * WATER_FRAC[waterLeft]));
   const waterRateNow = $derived(waterRate > 0 ? waterRate : drinkPerH(null, DRINK_ML_H));
+  const exitNear = $derived(hasRoute && km != null ? nearestExit({ pois, km, now, pace, profile }) : null);
   const water = $derived(hasRoute && km != null ? nextWater({ pois, km, now, pace, profile, haveMl: waterHave, rateMlH: waterRateNow }) : null);
   const waterLoaded = $derived(pois.some((p) => p.kind === 'water' || p.kind === 'shop' || p.kind === 'fuel'));
   const ml = (v) => (v >= 1000 ? `${num(Math.round(v / 100) / 10)} l` : `${num(Math.round(v / 10) * 10)} ml`);
@@ -409,6 +434,7 @@
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
   // U4 «Wo schlafe ich heute?»: the next places to sleep ahead on the route (on by default in a race)
   const wxQ = cacheQuery(WX_CACHE + (tid || '-'));
+  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null }) : null);
   const showSleep = $derived(hasRoute && km != null && (cfg.sleepSpots ?? isRace));
 
   /* ---------- formatting ---------- */
@@ -1034,7 +1060,13 @@
   }
   // «Gegen dich selbst» (laps.js): your last closed ride of this tour along the route
   const pastQ = liveQuery(() => db.tracks.where('kind').equals('rec').toArray());
-  const pastRide = $derived(hasRoute ? (lastRideOf($pastQ ?? [], { tripId: tid || null, notId: rec.id })[0] ?? null) : null);
+  // «Wer ist dein Geist?» (Noah 04.11.2026 «4b»): any of the earlier rides of this tour, the newest unless you pick another
+  let ghostPickId = $state('');
+  const ghostOpts = $derived({ tripId: tid || null, notId: rec.id });
+  const picks = $derived(hasRoute ? ghostPicks($pastQ ?? [], ghostOpts) : []);
+  const pastRide = $derived(hasRoute ? ghostRide($pastQ ?? [], ghostOpts, ghostPickId) : null);
+  const ghostDay = (r) => new Date(r.startAt).toLocaleDateString(locale(), { timeZone: 'Europe/Zurich', day: 'numeric', month: 'numeric' });
+  const ghostLine = (r, i) => `${ghostDay(r)} · ${num(Math.round((r.km ?? 0) * 10) / 10)} km${i === 0 ? ` · ${t('your last ride')}` : ''}`;
   const ghost = $derived(pastRide ? ghostOf(pastRide, pts) : []);
   let ghostStart = $state(null); // the route km where this ride began
   $effect(() => {
@@ -1212,6 +1244,9 @@
   let touchedAt = $state(Date.now());
   const warning = $derived(offWarn || !!storm || !!limitMsg || rec.paused || standing);
   const dimmed = $derived(cfg.dim && full && !warning && now - touchedAt > 120_000);
+  // «Licht in der Nacht» (Paket D, Idee 20): after sunset the edge of the map darkens and a cone of light lies ahead
+  const nightS = $derived(nightStrength(light, now));
+  const nightOn = $derived(nightLightOn({ strength: nightS, enabled: cfg.nightLight, battery: cfg.battery }));
   // Stromsparen 2a: after 2 min without a touch the first data page instead of the map; a warning brings the map back
   let autoSwitched = false;
   $effect(() => {
@@ -1295,6 +1330,20 @@
   {/if}
   {#if tooShort}<TooShortSheet points={tooShort.points} ondone={tooShortAnswer} />{/if}
 
+  <!-- «Wer ist dein Geist?» (Noah 04.11.2026 «4b»): before the start, the ride to race against; a suggestion, «without ghost» is one of the choices -->
+  {#if !rec.on && !after && picks.length}
+    <section class="rc-box" aria-labelledby="lv-gp-h" data-live-ghostpick>
+      <h2 id="lv-gp-h" class="rc-h2">{t('Who do you ride against today?')}</h2>
+      <p class="rc-note">{t('Your ghost is an earlier ride of yours on this tour. During the ride the live map shows how far ahead or behind it you are. A suggestion: you can ride without a ghost.')}</p>
+      <div class="lv-gp" role="radiogroup" aria-labelledby="lv-gp-h">
+        {#each picks as r, i (r.id)}
+          <label class="lv-gpr"><input type="radio" name="lv-ghost" value={r.id} checked={pastRide?.id === r.id} onchange={() => (ghostPickId = r.id)} data-ghost-opt={r.id} /><span>{ghostLine(r, i)}</span></label>
+        {/each}
+        <label class="lv-gpr"><input type="radio" name="lv-ghost" value={NO_GHOST} checked={ghostPickId === NO_GHOST} onchange={() => (ghostPickId = NO_GHOST)} data-ghost-opt="none" /><span>{t('Without a ghost')}</span></label>
+      </div>
+    </section>
+  {/if}
+
   {#if !rec.on && !after}
     <p class="rc-empty" data-live-empty>{t('Start the ride: then the map fills the screen and shows where you are, the numbers you choose and the stops ahead or around you.')}</p>
     <!-- «Live-Karte sichtbar» (Noah 25.10.2026 «bitte fortfahren»): what the map can do during the ride, named as in the catalogue -->
@@ -1366,6 +1415,8 @@
           <LiveSmallMap me={meOnMap} line={route?.line ?? []} {done} />
         {/snippet}
       </DataPages>
+
+      {#if nightOn && dpIndex === 0}<NightLight strength={nightS} deg={beamDeg({ rotated: goalOn && !northUp, deg })} />{/if}
 
       <!-- warnings over the map -->
       <div class="lvf-alerts">
@@ -1627,6 +1678,31 @@
                 </div>
               {/if}
               {#if hasRoute && km != null}
+                <div class="lv-lastshop" data-live-next3={next3?.verdict ?? 'load'}>
+                  <h3 class="lv-h3"><CloudRain size={16} aria-hidden="true" />{t('Next 3 hours')}</h3>
+                  {#if !next3}
+                    <p class="rc-note">{t('Load the weather along the route to see cold and rain of the next hours.')}</p>
+                  {:else}
+                    {#if next3.verdict === 'rain'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={18} aria-hidden="true" /><span>{next3.h === 0 ? t('Rain is likely now ({p} %): rain jacket on, dry socks in a bag.', { p: next3.value }) : t('Rain is likely in about {h} h ({p} %): put the rain jacket on top before.', { h: next3.h, p: next3.value })}</span></p>
+                    {:else if next3.verdict === 'cold'}<p class="rc-warn lv-line" data-live-next3-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('It gets cold: it feels like {t}° at the lowest. Warm layer and long gloves on, in about {h} h at the latest.', { t: next3.value, h: next3.h })}</span></p>
+                    {:else if next3.verdict === 'cool'}<p class="rc-note" data-live-next3-say>{t('Cool ahead: it feels like {t}° at the lowest. Arm warmers and a wind vest.', { t: next3.value })}</p>
+                    {:else if next3.verdict === 'wind'}<p class="rc-note" data-live-next3-say>{t('Strong wind ahead ({w} km/h): windproof layer, plan slower.', { w: next3.value })}</p>
+                    {:else}<p class="rc-note" data-live-next3-say>{t('The next 3 hours look fine: no cold, no rain.')}</p>{/if}
+                    <div class="lv-n3" data-live-next3-rows>
+                      {#each next3.rows as r (r.h)}
+                        {@const f = cellFlags(r)}
+                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''}>
+                          <small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
+                          <b>{#if f.cold === 'cold'}<Snowflake size={14} aria-hidden="true" />{/if}{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b>
+                          <small>{#if f.rain}<CloudRain size={14} aria-hidden="true" />{/if}{r.rain != null ? r.rain + ' %' : ''}</small>
+                          {#if f.wind}<small class="n3-wind"><Wind size={14} aria-hidden="true" />{Math.round(r.wind)} km/h</small>{/if}
+                        </span>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+              {/if}
+              {#if hasRoute && km != null}
                 <div class="lv-lastshop" data-live-water={water?.state ?? 'load'}>
                   <h3 class="lv-h3"><Droplet size={16} aria-hidden="true" />{t('Next water')}</h3>
                   {#if !waterLoaded || !water}
@@ -1665,6 +1741,23 @@
                     <summary>{t('Change bottle and drinking')}</summary>
                     <label class="lv-water-f">{t('Bottle size (ml)')}<input class="inp" type="number" inputmode="numeric" min="100" max="6000" step="50" value={waterCap} onchange={(e) => ((waterCap = Math.max(100, Math.min(6000, Number(e.currentTarget.value) || BOTTLE_ML))), keepWater())} data-live-water-cap /></label>
                     <label class="lv-water-f">{t('You drink (ml per hour, 0 = automatic)')}<input class="inp" type="number" inputmode="numeric" min="0" max="2000" step="50" value={waterRate} onchange={(e) => ((waterRate = Math.max(0, Math.min(2000, Number(e.currentTarget.value) || 0))), keepWater())} data-live-water-rate /></label>
+                  </details>
+                </div>
+              {/if}
+              {#if hasRoute && lamp}
+                <div class="lv-lastshop" data-live-lamp={lamp.state}>
+                  <h3 class="lv-h3"><Lightbulb size={16} aria-hidden="true" />{t('Light|lamp')}</h3>
+                  {#if lamp.state === 'day'}<p class="rc-note" data-live-lamp-say>{t('No darkness ahead on this ride: your lamp is not needed.')}</p>
+                  {:else if lamp.state === 'short'}<p class="rc-warn lv-line" data-live-lamp-say><TriangleAlert size={18} aria-hidden="true" /><span>{t('Your lamp will not last: it burns until about {at}, but you ride about {d} h in the dark. Charge it, use a lower mode or take a spare light.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</span></p>
+                  {:else if lamp.state === 'tight'}<p class="rc-note" data-live-lamp-say>{t('Your lamp just lasts: it burns until about {at}, you ride about {d} h in the dark.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</p>
+                  {:else}<p class="rc-note" data-live-lamp-say>{t('Your lamp lasts: it burns until about {at}, you ride about {d} h in the dark.', { at: when(lamp.untilAt), d: num(lamp.darkH) })}</p>{/if}
+                  <div role="group" aria-label={t('What is left in your lamp?')}>
+                    <span class="rc-note">{t('What is left in your lamp?')}</span>
+                    <Seg small options={[{ key: 'full', name: t('Full|lamp') }, { key: 'half', name: t('Half|lamp') }, { key: 'low', name: t('Almost empty|lamp') }]} value={lampLeft} onchange={(k) => ((lampLeft = k), keepLamp())} />
+                  </div>
+                  <details class="lv-water-set" data-live-lamp-set>
+                    <summary>{t('Change lamp')}</summary>
+                    <label class="lv-water-f">{t('Your lamp burns on a full charge (hours)')}<input class="inp" type="number" inputmode="decimal" min="0.5" max="100" step="0.5" value={lampBurn} onchange={(e) => ((lampBurn = Math.max(0.5, Math.min(100, Number(e.currentTarget.value) || LAMP_H))), keepLamp())} data-live-lamp-burn /></label>
                   </details>
                 </div>
               {/if}
@@ -1736,11 +1829,19 @@
 
             <div class="lvf-part" data-live-ov><OvNearby at={me ? { lat: me.lat, lon: me.lon } : null} /></div>
 
-            {#if ghostS != null}
+            {#if (ghostS != null && pastRide) || (ghostPickId === NO_GHOST && picks.length)}
               <div class="lvf-part" data-live-ghost>
-                <h2 class="lvf-h">{t('Against your last ride')}</h2>
-                <p class="rc-text"><b>{deltaText(ghostS)}</b> · {ghostS > 0 ? t('slower than your last ride on this route, in riding time') : t('faster than your last ride on this route, in riding time')}</p>
-                <p class="rc-note">{t('Compared at the same km of the route, from where you started today. Pauses and stops do not count.')}</p>
+                <h2 class="lvf-h">{t('Against your ghost')}</h2>
+                {#if ghostS != null && pastRide}<p class="rc-text"><b>{deltaText(ghostS)}</b> · {ghostS > 0 ? t('slower than your ghost of {day} on this route, in riding time', { day: ghostDay(pastRide) }) : t('faster than your ghost of {day} on this route, in riding time', { day: ghostDay(pastRide) })}</p>{/if}
+                {#if picks.length}
+                  <label class="lv-gp-sel"><span>{t('Your ghost')}</span>
+                    <select class="inp" value={pastRide?.id ?? NO_GHOST} onchange={(e) => (ghostPickId = e.currentTarget.value)} data-live-ghost-pick>
+                      {#each picks as r, i (r.id)}<option value={r.id}>{ghostLine(r, i)}</option>{/each}
+                      <option value={NO_GHOST}>{t('Without a ghost')}</option>
+                    </select>
+                  </label>
+                {/if}
+                {#if ghostS != null && pastRide}<p class="rc-note">{t('Compared at the same km of the route, from where you started today. Pauses and stops do not count.')}</p>{/if}
               </div>
             {/if}
 
@@ -1854,6 +1955,9 @@
         <label class="lv-opt"><input type="checkbox" checked={cfg.dim} onchange={(e) => setOpt('dim', e.currentTarget.checked)} data-live-opt="dim" /><span><b>{t('Save the screen')}</b><small>{t('After 2 minutes without a touch the map gets darker (less battery on most phones). A touch or a warning makes it bright again.')}</small></span></label>
       </li>
       <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.nightLight} onchange={(e) => setOpt('nightLight', e.currentTarget.checked)} data-live-opt="nightLight" /><span><b>{t('Night light')}</b><small>{t('After sunset the edge of the map gets darker and a warm cone of light lies ahead of you, like from a front lamp. Not with the battery saver.')}</small></span></label>
+      </li>
+      <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.sleepSpots ?? isRace} onchange={(e) => setOpt('sleepSpots', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="sleepSpots" /><span><b>{t('Places to sleep ahead')}</b><small>{hasRoute ? t('The next three places to sleep on the route in the panel: hotels, roofs, places open at night and your own spots. On by default in a race.') : t('Needs a route.')}</small></span></label>
       </li>
       <li class="rc-row">
@@ -1875,7 +1979,7 @@
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
-{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
+{#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} exitNear={exitNear} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
 
@@ -2665,6 +2769,51 @@
     border: 1px solid var(--line);
     border-radius: 12px;
   }
+  .lv-n3 {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .lv-n3-c {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 6px 4px;
+  }
+  .lv-n3-c small {
+    color: var(--ink-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .lv-n3-c b {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .lv-n3-c .n3-wind {
+    white-space: nowrap;
+    font-size: var(--fs-small);
+  }
+  .lv-n3-c.n3-some {
+    background: var(--info-soft);
+  }
+  .lv-n3-c.n3-rain {
+    background: var(--info-soft);
+    border-color: var(--ink-2);
+    border-width: 2px;
+  }
+  .lv-n3-c.n3-rain small,
+  .lv-n3-c.n3-some small {
+    color: var(--ink);
+  }
+  .lv-n3-c.n3-cold {
+    background: var(--bad-soft);
+    border-color: var(--bad);
+  }
   .lv-water-set {
     display: flex;
     flex-direction: column;
@@ -2856,6 +3005,26 @@
     }
   }
   /* «Während der Fahrt»: one quiet list, the name bold, a short line after it */
+  .lv-gp {
+    display: grid;
+    gap: 8px;
+  }
+  .lv-gpr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .lv-gp-sel {
+    display: grid;
+    gap: 4px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
   .lv-during ul {
     list-style: none;
     margin: 0;

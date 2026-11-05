@@ -378,3 +378,59 @@ test('Training › Woche: rain from the home place weather shows an indoor hint 
   await expect(sug).toContainText('kein trockenerer Tag');
   expect(errors).toEqual([]);
 });
+
+test('Training › Woche: a goal per sport («Mal pro Woche») in the suggestion is remembered', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  const plan = page.locator('[data-section="week-plan"]');
+  // a sport of Aktiv without a goal (made in the plan form)
+  await plan.locator(`[data-add="${day(0)}"]`).click();
+  const form = plan.locator('[data-session-form]');
+  await form.getByRole('button', { name: 'Andere', exact: true }).click();
+  await form.locator('[data-sport-new]').click();
+  await form.locator('[data-sport-name]').fill(`${P}Rudern`);
+  await form.locator('[data-sport-save]').click();
+  await expect(form.locator('[data-session-sport] option:checked')).toHaveText(`${P}Rudern`);
+  await plan.locator('[data-suggest-open]').click();
+  const sug = plan.locator('[data-suggest]');
+  const row = sug.locator('[data-sug-sport]').filter({ hasText: `${P}Rudern` });
+  await expect(row.locator('b')).toHaveText('0×');
+  await expect(sug.locator('[data-sug-row]').filter({ hasText: `${P}Rudern` })).toHaveCount(0);
+  await row.locator('[data-sug-sport-plus]').click();
+  await expect(row.locator('b')).toHaveText('1×');
+  await expect(sug.locator('[data-sug-row]').filter({ hasText: `${P}Rudern` })).toHaveCount(1);
+  // remembered after a reload
+  await page.reload();
+  await plan.locator('[data-suggest-open]').click();
+  await expect(sug.locator('[data-sug-sport]').filter({ hasText: `${P}Rudern` }).locator('b')).toHaveText('1×');
+  expect(errors).toEqual([]);
+});
+
+test('Training › Woche: a session removed twice stays out of the next suggestion until «Vergessen»', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  const plan = page.locator('[data-section="week-plan"]');
+  const sug = plan.locator('[data-suggest]');
+  const rows = () => sug.locator('[data-sug-row]').filter({ hasText: /Ausdauer-Einheit|Tempo-Einheit/, hasNotText: 'Lange' });
+  await plan.locator('[data-suggest-open]').click();
+  const name = (await rows().first().locator('span').first().innerText()).trim();
+  const same = () => sug.locator('[data-sug-row]').filter({ hasText: name });
+  for (let i = 0; i < 2; i++) {
+    if (i) await plan.locator('[data-suggest-open]').click();
+    await expect(same().first()).toBeVisible();
+    await same().first().locator('[data-sug-drop]').click();
+    await sug.locator('[data-suggest-take]').click();
+    await expect(sug).toHaveCount(0);
+  }
+  await plan.locator('[data-suggest-open]').click();
+  await expect(same()).toHaveCount(0);
+  await expect(sug).toContainText('zweimal entfernt');
+  await sug.locator('[data-sug-forget]').click();
+  await expect(same().first()).toBeVisible();
+  await expect(sug.locator('[data-sug-habits]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

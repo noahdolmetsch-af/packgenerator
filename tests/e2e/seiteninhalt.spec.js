@@ -270,3 +270,93 @@ test('Notes shows the functions of an open note with good to know', async ({ pag
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   expect(errors).toEqual([]);
 });
+
+// Wegweiser 26a: Data and backup, Appearance, Connections, Reminders on the phone, the care tab and the timer get the card,
+// as one line, so their own controls stay on the first screen
+test('Settings pages and the care tab show the card as one line with good to know', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  for (const [hash, id] of [['#/me/data', 'f.backupcheck'], ['#/me/push', 'f.push'], ['#/me/look', null], ['#/me/connections', null], ['#/bikes?tab=care', null], ['#/timer', null]]) {
+    await page.goto('./' + hash);
+    const line = page.locator('[data-seiteninhalt-line]');
+    await expect(line, hash).toBeVisible();
+    await (info.project.name === 'phone' ? line.tap() : line.click());
+    const card = page.locator('[data-seiteninhalt]');
+    if (id) {
+      // both pages have more than SHOWN functions, so «Show all» is always there
+      const all = card.locator('.si-all');
+      await expect(all, hash).toBeVisible();
+      await (info.project.name === 'phone' ? all.tap() : all.click());
+      await expect(card.locator(`[data-seiteninhalt-know="${id}"]`)).toContainText(T('Good to know'));
+    } else {
+      await expect(card.locator('[data-seiteninhalt-know]').first(), hash).toContainText(T('Good to know'));
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  }
+  expect(errors).toEqual([]);
+});
+
+// Wegweiser Werkzeuge (Noah 03.11.2026 «a»): the mini tools get the card as one line
+test('Tools shows the card as one line with good to know for the mini tools', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/me/tools');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toBeVisible();
+  await (info.project.name === 'phone' ? line.tap() : line.click());
+  const card = page.locator('[data-seiteninhalt]');
+  const all = card.locator('.si-all');
+  await expect(all).toBeVisible();
+  await (info.project.name === 'phone' ? all.tap() : all.click());
+  await expect(card.locator('[data-seiteninhalt-know="f.compasstool"]')).toContainText(T('Good to know'));
+  await expect(card.locator('[data-seiteninhalt-know="f.level"]')).toContainText(T('Good to know'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+// 05.11.2026 (Noah «c»): a folded card is not gone: the line says «Aufklappen», and Appearance opens all folded cards again, with Undo
+test('Appearance opens all folded cards again, with Undo', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/trips/dreams');
+  await tap(page.locator('[data-seiteninhalt-fold]'), info);
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toContainText(T('Open the card'));
+  await page.goto('./#/me/look');
+  const set = page.locator('[data-seiteninhalt-set]');
+  await expect(set.locator('[data-seiteninhalt-count]')).toContainText('1');
+  await tap(set.locator('[data-seiteninhalt-open-all]'), info);
+  await expect(set.locator('[data-seiteninhalt-none]')).toBeVisible();
+  await tap(page.locator('.rtoast').getByRole('button', { name: T('Undo') }), info);
+  await expect(set.locator('[data-seiteninhalt-count]')).toContainText('1');
+  await tap(set.locator('[data-seiteninhalt-open-all]'), info);
+  await page.goto('./#/trips/dreams');
+  await expect(page.locator('[data-seiteninhalt]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+// 05.11.2026 (Noah «c», part 2): a folded card shows «n neu» when the page got functions since it was folded or opened
+test('A folded card shows how many functions are new on the page', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const d = homeFixture();
+  d.tables.settings.push({ key: 'seiteninhalt.folded', value: { '#/trips/dreams': true, '#/inspiration': true } });
+  d.tables.settings.push({ key: 'seiteninhalt.seen', value: { '#/trips/dreams': 1, '#/inspiration': 99 } });
+  await openHome(page, context, info, { data: d });
+  await page.goto('./#/trips/dreams');
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line.locator('[data-seiteninhalt-new]')).toContainText(/neu|new/);
+  // opening counts everything as seen: fold again, no dot
+  await tap(line, info);
+  await tap(page.locator('[data-seiteninhalt-fold]'), info);
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await expect(page.locator('[data-seiteninhalt-new]')).toHaveCount(0);
+  // a page whose seen number is as high as its rows shows no dot
+  await page.goto('./#/inspiration');
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await expect(page.locator('[data-seiteninhalt-new]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

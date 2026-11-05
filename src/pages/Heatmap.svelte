@@ -115,7 +115,7 @@
 </script>
 
 <div class="rv-page hm">
-  <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Look back|page'), href: '#/debrief' }]} title={t('Heatmap')} sub={t('All your rides on one map. The more often you were somewhere, the stronger the colour.')}>
+  <PathHead crumbs={[{ label: t('Analysis|place'), href: '#/auswerten' }]} title={t('Heatmap')} sub={t('All your rides on one map. The more often you were somewhere, the stronger the colour.')}>
     <a class="btn" href="#/neuland"><Compass size={16} aria-hidden="true" />{t('New ground')}</a>
   </PathHead>
 

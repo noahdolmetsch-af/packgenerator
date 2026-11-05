@@ -97,12 +97,18 @@ describe('the invoice list', () => {
     expect(row.value).toHaveLength(2);
     expect(JSON.stringify(backup)).not.toContain('CH4431999123000889012');
   });
+  it('cash is an extra way, off unless chosen, and the mail names it', async () => {
+    const db = await freshDb();
+    const c = await createInvoice({ name: 'Mia Beispiel', amount: 8000, purpose: 'Tennis', ways: { cash: true } }, ACCOUNT, db);
+    expect(c.ways).toEqual({ qr: true, twint: true, cash: true });
+    expect(invoiceMail(c, ACCOUNT, (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v?.[k] ?? '')).body).toContain('cash');
+  });
   it('remembers the booking an invoice was made for', async () => {
     const db = await freshDb();
-    const a = await createInvoice({ name: 'Mia Beispiel', amount: 6000, purpose: 'Tennis-Lektion', booking: { offer: 'tennis-abc123', b: 'bk1' } }, ACCOUNT, db);
+    const a = await createInvoice({ name: 'Mia Beispiel', amount: 6000, purpose: 'Tennis-Lektion', bookings: [{ offer: 'tennis-abc123', b: 'bk1' }, { offer: 'tennis-abc123', b: 'bk2' }] }, ACCOUNT, db);
     const b = await createInvoice({ name: 'Leo Muster', amount: 500, purpose: 'Packliste' }, ACCOUNT, db);
-    expect(a.booking).toEqual({ offer: 'tennis-abc123', b: 'bk1' });
-    expect(b.booking).toBeUndefined();
+    expect(a.bookings).toEqual([{ offer: 'tennis-abc123', b: 'bk1' }, { offer: 'tennis-abc123', b: 'bk2' }]);
+    expect(b.bookings).toBeUndefined();
   });
   it('TWINT stays off without a number on the account', async () => {
     const db = await freshDb();

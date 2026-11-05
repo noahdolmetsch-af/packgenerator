@@ -26,7 +26,7 @@ test('the views: counts on the buttons, each filters the cards and stays in the 
     await b.click();
     await expect(b).toHaveAttribute('aria-pressed', 'true');
     await expect(cards(page)).toHaveCount(COUNTS[key]);
-    await expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name, exact: true })).toBeVisible();
     if (key === 'all') expect(page.url()).not.toContain('view=');
     else expect(page.url()).toContain(`view=${key}`);
   }

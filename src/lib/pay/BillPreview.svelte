@@ -35,6 +35,12 @@
       <span><b>{t('Pay with TWINT')}</b><br />{t('To')} <b>{account.twint}</b> · <b>{formatAmount(bill.amount)} CHF</b><br />{t('Message')}: <b>{bill.no}</b></span>
     </div>
   {/if}
+  {#if bill.ways?.cash}
+    <div class="bp-way">
+      <span class="bp-twint" aria-hidden="true">{t('Cash')}</span>
+      <span><b>{t('Pay in cash')}</b><br /><b>{formatAmount(bill.amount)} CHF</b> · {t('at the next lesson')}</span>
+    </div>
+  {/if}
   {#if bill.ways?.qr}
     <div class="bp-part">
       <div class="bp-title">{t('Payment part')} · {t('QR bill')}</div>

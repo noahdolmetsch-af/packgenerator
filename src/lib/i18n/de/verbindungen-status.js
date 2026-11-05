@@ -7,4 +7,12 @@ export default {
   'Not fetched successfully yet.': 'Noch nie erfolgreich geholt.',
   '{n} rides received so far.': '{n} Fahrten bisher erhalten.',
   'Strava did not answer in time. Nothing was changed. Try again.': 'Strava hat nicht rechtzeitig geantwortet. Es wurde nichts verändert. Versuch es nochmals.',
+  'Google did not answer in time. What is on this device stays; try again.': 'Google hat nicht rechtzeitig geantwortet. Was auf diesem Gerät ist, bleibt; versuch es nochmals.',
+  'Trello did not answer in time. What is on this device stays; it syncs later.': 'Trello hat nicht rechtzeitig geantwortet. Was auf diesem Gerät ist, bleibt; es gleicht später ab.',
+  'It did not answer in time.': 'Sie hat nicht rechtzeitig geantwortet.',
+  'There was no connection.': 'Es gab keine Verbindung.',
+  'It needs a new login. Open it and connect again.': 'Sie braucht eine neue Anmeldung. Öffne sie und verbinde neu.',
+  'It is busy right now. The app tries again later.': 'Sie ist gerade ausgelastet. Die App versucht es später nochmals.',
+  'The last fetch did not work.': 'Das letzte Holen hat nicht geklappt.',
+  'Your to-dos also on a Trello board': 'Deine To-dos auch auf einem Trello-Board',
 };

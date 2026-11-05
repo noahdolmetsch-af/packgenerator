@@ -28,8 +28,9 @@ test('Freunde fragen: pack together, the friend answers, the answer is kept with
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { data: homeFixture() });
-  await page.goto('./#/me');
-  await tap(page.locator('[data-row="freunde"]'), info);
+  // «Ich schlank» (Noah 04.11.2026 «a»): «Mit Freunden» lives in Planen › «Alles hier»
+  await page.goto('./#/week');
+  await tap(page.locator('[data-all-here="plan"] [data-all-here-tile="friends"]'), info);
   await expect(page).toHaveURL(/#\/me\/freunde$/);
   const fr = page.locator('[data-fr-page]');
   await expect(fr.getByRole('heading', { level: 1 })).toHaveText(T('With friends'));

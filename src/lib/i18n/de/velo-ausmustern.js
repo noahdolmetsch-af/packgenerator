@@ -17,4 +17,10 @@ export default {
   '{n} retired bike': '{n} ausgemustertes Velo',
   '{n} retired bikes': '{n} ausgemusterte Velos',
   'Their trips, km and services stay and still count in your reviews. They are not offered when you choose a bike.': 'Ihre Touren, km und Services bleiben und zählen weiter in deinen Auswertungen. Sie werden nicht angeboten, wenn du ein Velo wählst.',
+  // «Velo verkaufen» Absprung (Noah 03.11.2026 «3a»): the sale listing from the retire sheet, and back
+  'Before you retire it': 'Bevor du es ausmusterst',
+  'The sale listing turns km, services and parts into a text, with photos. Everything stays saved.': 'Das Inserat macht aus km, Services und Teilen einen Text, mit Fotos. Alles bleibt gespeichert.',
+  'Write the sale listing': 'Inserat schreiben',
+  'Once the bike is sold, retire it: it leaves the lists, everything stays saved.': 'Ist das Velo verkauft, mustere es aus: es verschwindet aus den Listen, alles bleibt gespeichert.',
+  'Retire this bike now': 'Velo jetzt ausmustern',
 };

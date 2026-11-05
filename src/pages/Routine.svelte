@@ -77,7 +77,7 @@
 </script>
 
 <div class="rtp">
-  <Crumb path={[{ href: '#/', label: t('Today|place') }]} here={t('What does me good')} />
+  <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/rest', label: t('Recovery|page') }]} here={t('What does me good')} />
   <h1 class="rtp-h1" tabindex="-1" data-page-title>{t('What does me good')}</h1>
   <p class="rtp-intro">{t('Put what does you good on your list. It counts every day until you change it.')}</p>
   <AreaIntro place="routine" />

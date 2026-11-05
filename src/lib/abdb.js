@@ -6,7 +6,8 @@
  */
 import { liveQuery } from 'dexie';
 import { db } from './db.js';
-import { DATA_KEY } from './datenfragen.js';
+import { DATA_KEY, ACT_DAYS } from './datenfragen.js';
+import { HOME_PLACE, HOME_FORECAST, usable } from './know.js';
 import { AB_KEY, AB_SNOOZE_KEY, MIRROR, configOf, mergeHistory, stampOf } from './abfragen.js';
 import { QUESTIONS_KEY, poolOf, checkOf } from './flowcheck.js';
 import { WEIGHT_KEY } from './review/actdata.js';
@@ -22,7 +23,13 @@ export function abQuery(today) {
     from.setUTCDate(from.getUTCDate() - 40);
     const near = new Date(`${today}T00:00:00Z`);
     near.setUTCDate(near.getUTCDate() - 31); // 03.11.2026: the 30 days before today give the usual resting pulse (datenfragen.js)
-    const [cfg, snooze, answers, weight, checks, health, dataCfg] = await Promise.all([
+    const actFrom = new Date(`${today}T00:00:00Z`);
+    actFrom.setUTCDate(actFrom.getUTCDate() - ACT_DAYS);
+    const calFrom = new Date(`${today}T00:00:00Z`);
+    calFrom.setUTCDate(calFrom.getUTCDate() - 7);
+    const calTo = new Date(`${today}T00:00:00Z`);
+    calTo.setUTCDate(calTo.getUTCDate() + 1);
+    const [cfg, snooze, answers, weight, checks, health, dataCfg, acts, sport, place, saved, gEvents] = await Promise.all([
       db.settings.get(AB_KEY),
       db.settings.get(AB_SNOOZE_KEY),
       db.abAnswers.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray(),
@@ -31,8 +38,16 @@ export function abQuery(today) {
       // 0.171: the Fitbit days of the last days, so the window fills in what Fitbit measured (fitbitFill)
       db.healthDays ? db.healthDays.where('date').aboveOrEqual(near.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
       db.settings.get(DATA_KEY),
+      // step 2: the Strava activities and the tennis entries of the last 40 days (rules «Long day yesterday» and «A pause from training»)
+      db.activities ? db.activities.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      db.sportItems ? db.sportItems.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      // step 2: the saved home forecast and the calendar copy on this device (rules «Grey day» and «Fine weather»); nothing is fetched here
+      db.settings.get(HOME_PLACE),
+      db.meta ? db.meta.get(HOME_FORECAST).catch(() => null) : null,
+      db.gEvents ? db.gEvents.where('day').between(calFrom.toISOString().slice(0, 10), calTo.toISOString().slice(0, 10), true, true).toArray().catch(() => []) : [],
     ]);
-    return { cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, dataCfg: dataCfg?.value ?? null };
+    const wx = usable(place?.value ?? null, saved, Date.now()) ? (saved.days ?? []).find((d) => d.date === today) ?? null : null;
+    return { wx, cal: { used: gEvents.length > 0, events: gEvents }, cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, acts, sport, dataCfg: dataCfg?.value ?? null };
   });
 }
 
@@ -79,18 +94,37 @@ export const putAnswer = (row) => saveAnswers([row]);
 export const deleteAnswer = (id) => db.abAnswers.delete(id);
 
 /** The whole history (AB4): the answers, the old daily checks and the rides from Strava, newest first. */
+async function historyRows() {
+  const [answers, checks, pool, cfg, acts] = await Promise.all([
+    db.abAnswers.toArray(),
+    db.flowChecks.toArray(),
+    db.settings.get(QUESTIONS_KEY),
+    db.settings.get(AB_KEY),
+    loadPastActs(db).catch(() => []),
+  ]);
+  const rides = acts
+    .filter((a) => a.day)
+    .map((a) => ({ id: `strava-${a.id}`, qid: 'tour', area: 'sport', day: a.day, at: a.startAt ? stampOf(new Date(a.startAt)) : null, kind: 'ride', value: a.km, note: null, unit: 'km', src: 'strava', ride: a }));
+  return { rows: mergeHistory([...answers, ...rides], checks, poolOf(pool?.value)), cfg: cfg?.value ?? null };
+}
 export function historyQuery() {
+  return liveQuery(historyRows);
+}
+/**
+ * What the guess to test needs (the same data as the page «Erkenntnisse»): the history, the Fitbit days, the meditation,
+ * the kept weather and appointments, and the switched-off own questions. Read only, nothing is fetched.
+ */
+export function hintQuery() {
   return liveQuery(async () => {
-    const [answers, checks, pool, cfg, acts] = await Promise.all([
-      db.abAnswers.toArray(),
-      db.flowChecks.toArray(),
-      db.settings.get(QUESTIONS_KEY),
-      db.settings.get(AB_KEY),
-      loadPastActs(db).catch(() => []),
+    // loaded on first use: the start stays small (the check window only needs this when the rule is on)
+    const [{ loadDayData }, { OWN_OFF_KEY }] = await Promise.all([import('./daydata.js'), import('./erkenntnisse.js')]);
+    const [hist, health, log, days, off] = await Promise.all([
+      historyRows(),
+      db.healthDays ? db.healthDays.toArray().catch(() => []) : [],
+      db.flowLog ? db.flowLog.where('actId').equals('meditation').toArray().catch(() => []) : [],
+      loadDayData(db).catch(() => ({ weather: {}, events: {} })),
+      db.settings.get(OWN_OFF_KEY),
     ]);
-    const rides = acts
-      .filter((a) => a.day)
-      .map((a) => ({ id: `strava-${a.id}`, qid: 'tour', area: 'sport', day: a.day, at: a.startAt ? stampOf(new Date(a.startAt)) : null, kind: 'ride', value: a.km, note: null, unit: 'km', src: 'strava', ride: a }));
-    return { rows: mergeHistory([...answers, ...rides], checks, poolOf(pool?.value)), cfg: cfg?.value ?? null };
+    return { ...hist, health, log, weather: days.weather, events: days.events, ownOff: off?.value ?? [] };
   });
 }

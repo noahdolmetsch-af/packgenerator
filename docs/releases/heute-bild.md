@@ -19,8 +19,8 @@ PR (diese Änderung) · 03.11.2026 · Noah 03.11. «a» (Paket G, Teil 1; Thread
 - Als Schalter in «Bedienung», keine eigene Funktion im Katalog (Zusatz ohne eigene Seite, Fertig-Regel 1 bis 5 entfallen).
 - Die Zeile «Sa trocken, So Regen ab Mittag» aus dem Entwurf gibt es hier noch nicht: es erscheint das Wetter von Heute (vorhanden und geprüft); Wetter pro Tourtag wäre ein späterer Schritt.
 - Mond und Sterne nachts und eine Regenwolke bei Regen sind meine Ergänzung zu «Farben nach Tageszeit oder Wetter».
-- `docs/app-stand.md` ist noch nicht auf `main` (PR #742 offen); die Zeile «Heute» folgt nach dessen Merge.
-- Dieser PR ändert wie #763, #766, #768 und #772 die Liste der Schalter in `bedienung.js` und `tests/bedienung.test.js`; spätere Merges brauchen einen kleinen Konflikt-Fix, den ich übernehme.
+- `docs/app-stand.md`: die Zeile «Heute» nennt jetzt das Bild (#742 ist inzwischen auf `main`).
+- Der Konflikt mit den Schaltern der anderen PRs (`bedienung.js`, `tests/bedienung.test.js`) und mit «Ziehen zum Aktualisieren» in `Home.svelte` ist gelöst: beide Seiten bleiben.
 
 ## Entscheide (für decisions.md)
 - keine neuen.

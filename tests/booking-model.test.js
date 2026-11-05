@@ -1,6 +1,6 @@
 // Termine buchen (BU1–BU5): the shared rules of the app pages and the booking page.
 import { describe, it, expect } from 'vitest';
-import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, toInvoice } from '../src/lib/booking/model.js';
+import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf, outcomeShare } from '../src/lib/booking/model.js';
 import { cleanOffer } from '../api/_lib/booking.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
@@ -57,10 +57,17 @@ describe('the invoice of a booking', () => {
   const offer = { id: 'tennis-abc123', title: 'Tennis-Lektion', types: [{ key: 'one', label: 'Einzel', places: 1, price: 6000 }, { key: 'group', label: 'Gruppe', places: 4, price: 2550 }] };
   it('fills name, e-mail, the price of the kind and what it is for', () => {
     const d = invoiceDraft(offer, { type: 'group' }, { id: 'b1', name: 'Mia Muster', contact: 'mia@example.test' }, 'Mo, 23.11.');
-    expect(d).toEqual({ name: 'Mia Muster', email: 'mia@example.test', amount: '25.50', purpose: 'Tennis-Lektion, Gruppe, Mo, 23.11.', booking: { offer: 'tennis-abc123', b: 'b1' } });
+    expect(d).toEqual({ name: 'Mia Muster', email: 'mia@example.test', amount: '25.50', purpose: 'Tennis-Lektion, Gruppe, Mo, 23.11.', bookings: [{ offer: 'tennis-abc123', b: 'b1' }] });
   });
   it('leaves the e-mail empty for a phone number', () => {
     expect(invoiceDraft(offer, { type: 'one' }, { id: 'b2', name: 'Ben', contact: '079 000 00 00' }, 'Sa').email).toBe('');
+  });
+  it('puts several lessons on one invoice: prices add up, dates are listed', () => {
+    const items = [
+      { slot: { type: 'one' }, booking: { id: 'b1', name: 'Mia Muster', contact: 'mia@example.test', at: 'x1' } },
+      { slot: { type: 'group' }, booking: { id: 'b2', name: 'Mia Muster', contact: '079 000 00 00', at: 'x2' } },
+    ];
+    expect(invoiceDraftMany(offer, items, (b) => `am ${b.at}`)).toEqual({ name: 'Mia Muster', email: 'mia@example.test', amount: '85.50', purpose: 'Tennis-Lektion, am x1; am x2', bookings: [{ offer: 'tennis-abc123', b: 'b1' }, { offer: 'tennis-abc123', b: 'b2' }] });
   });
   it('lists only held lessons that are over and not yet invoiced', () => {
     const bookings = [
@@ -70,6 +77,47 @@ describe('the invoice of a booking', () => {
       { id: 'd', at: '2026-11-02T12:00', status: 'confirmed' },
       { id: 'e', at: '2026-11-09T10:00' },
     ];
-    expect(toInvoice(bookings, [{ booking: { b: 'a' } }], '2026-11-05T09:00').map((x) => x.id)).toEqual(['d']);
+    expect(toInvoice(bookings, [{ bookings: [{ b: 'a' }] }], '2026-11-05T09:00').map((x) => x.id)).toEqual(['d']);
+  });
+  it('offers the next free times after a cancelled one (rain)', () => {
+    const o = { types: [{ key: 'one', places: 1 }, { key: 'group', places: 2 }], slots: [
+      { id: 's0', at: '2026-11-05T10:00', type: 'one' },
+      { id: 's1', at: '2026-11-06T10:00', type: 'one' },
+      { id: 's2', at: '2026-11-07T10:00', type: 'one' },
+      { id: 's3', at: '2026-11-08T10:00', type: 'group' },
+      { id: 's4', at: '2026-11-09T10:00', type: 'one' },
+      { id: 's5', at: '2026-11-10T10:00', type: 'one' },
+    ] };
+    const bookings = [{ slot: 's1' }, { slot: 's3' }, { slot: 's4', status: 'requested' }];
+    expect(freeAlternatives(o, bookings, 's0', '2026-11-05T10:00').map((x) => x.id)).toEqual(['s2', 's3', 's4']);
+    expect(freeAlternatives(o, bookings, 's0', '2026-11-05T10:00', 1)).toHaveLength(1);
+    expect(freeAlternatives(o, [], 's0', '2026-12-01T00:00')).toEqual([]);
+  });
+  it('writes one e-mail to all, everyone in bcc; phone numbers are left out', () => {
+    expect(mailToAll(['mia@example.test', '079 000 00 00', 'ben@example.test', 'mia@example.test'], 'Abgesagt', 'Hallo äö')).toBe('mailto:?bcc=mia@example.test,ben@example.test&subject=Abgesagt&body=Hallo%20%C3%A4%C3%B6');
+    expect(mailToAll(['079 000 00 00'], 'x', 'y')).toBeNull();
+  });
+  it('reminds about held lessons today (still ahead) and tomorrow only', () => {
+    const bookings = [
+      { id: 'a', at: '2026-11-22T09:00' },
+      { id: 'b', at: '2026-11-22T18:00' },
+      { id: 'c', at: '2026-11-23T08:00', status: 'confirmed' },
+      { id: 'd', at: '2026-11-23T09:00', status: 'requested' },
+      { id: 'e', at: '2026-11-23T10:00', status: 'declined' },
+      { id: 'f', at: '2026-11-24T08:00' },
+    ];
+    expect(remindersOf(bookings, '2026-11-22T12:00').map((b) => b.id)).toEqual(['b', 'c']);
+  });
+  it('prices a late cancel at half and a no-show in full, with the reason in the purpose', () => {
+    expect(outcomeShare('held')).toBe(1);
+    expect(outcomeShare('late')).toBe(0.5);
+    expect(outcomeShare('noshow')).toBe(1);
+    const b = { id: 'b1', name: 'Mia', contact: '' };
+    expect(invoiceDraft(offer, { type: 'one' }, b, 'Mo', null, 'late', 'spät abgesagt')).toMatchObject({ amount: '30', purpose: 'Tennis-Lektion, Einzel, Mo, spät abgesagt' });
+    expect(invoiceDraft(offer, { type: 'one' }, b, 'Mo', 5000, 'noshow', 'nicht erschienen').amount).toBe('50');
+    expect(invoiceDraft(offer, { type: 'one' }, b, 'Mo').amount).toBe('60');
+    const many = invoiceDraftMany(offer, [{ slot: { type: 'one' }, booking: b, outcome: 'late', tag: 'spät' }, { slot: { type: 'one' }, booking: { ...b, id: 'b2' }, outcome: 'held', tag: '' }], (x) => `am ${x.id}`);
+    expect(many.amount).toBe('90');
+    expect(many.purpose).toBe('Tennis-Lektion, am b1 (spät); am b2');
   });
 });

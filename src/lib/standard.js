@@ -14,6 +14,7 @@
  * categories, v0.134.0 «Listen und Typen»).
  */
 import { STD_DOMAINS } from './domains.js';
+import { STD_SPORTS, BIKE_DAY_SPORTS } from './sportlist.js';
 import { STD_CATEGORIES, BAGS, SETS } from './gear.js';
 import { STD_SLOTS } from './bikes.js';
 import { LAYERS, ZONES } from './wardrobe.js';
@@ -33,6 +34,9 @@ import { JOURNAL_Q_STD } from './tagebuch/fragen.js';
 import { JOURNAL_MOODS_STD } from './tagebuch/insights.js';
 import { MED_MOODS_STD } from './flowmed.js';
 import { DAY_SPORTS_STD } from './tourplan/prep.js';
+import { SAYINGS_STD } from './logo/sayings.js';
+import { REASONS_STD } from './gruende.js';
+import { TECH_STD } from './technik.js';
 
 /** The settings record of a person's changes: { [list key]: { names, hidden, order, own, deleted, icons, areas } }. */
 export const OVERRIDES_KEY = 'listOverrides';
@@ -57,6 +61,8 @@ function checkLists() {
  */
 export const STANDARD_LISTS = [
   { key: 'domains', area: 'trips', name: 'Sports and areas', entries: () => keyed(STD_DOMAINS) },
+  // Noah 05.11.2026: Fahrrad, Gravel, Cross Country and Downhill had no entry anywhere, so they could not be renamed
+  { key: 'tripSports', area: 'trips', name: 'Bike sports of trips', entries: () => keyed(STD_SPORTS.filter((x) => BIKE_DAY_SPORTS.includes(x.key))) },
   ...checkLists(),
   { key: 'categories', area: 'gear', name: 'Categories', entries: () => keyed(STD_CATEGORIES) },
   { key: 'bagPlaces', area: 'gear', name: 'Default places', entries: () => keyed(BAGS) },
@@ -85,6 +91,11 @@ export const STANDARD_LISTS = [
   { key: 'medMoods', area: 'active', name: 'Moods after meditating', entries: () => MED_MOODS_STD },
   // Touren-Ideen 45 (Noah 26.10.2026 «2b»): the kind of each day of a trip
   { key: 'daySports', area: 'trips', name: 'Kinds of trip days', entries: () => DAY_SPORTS_STD },
+  // Geheimmenü H6 (Noah 03.11.2026): the sayings of the speech bubble behind the «PG» logo
+  { key: 'sayings', area: 'active', name: 'Sayings in the logo', entries: () => SAYINGS_STD },
+  // Persönliches Lernen Idee 4 (Noah 04.11.2026 «2a»): why a tour went differently
+  { key: 'changeReasons', area: 'review', name: 'Reasons for a different tour', entries: () => REASONS_STD },
+  { key: 'techniques', area: 'review', name: 'Riding techniques', entries: () => TECH_STD },
 ];
 export const STANDARD_LIST = Object.fromEntries(STANDARD_LISTS.map((l) => [l.key, l]));
 

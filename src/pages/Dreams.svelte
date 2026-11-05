@@ -33,6 +33,9 @@
   import NeulandGoals from '../lib/neuland/NeulandGoals.svelte'; // Träume und Neuland N5
   import TripTips from '../lib/neuland/TripTips.svelte'; // N3 «Heute passt: Ausflugstipps»
   import DreamsMap from '../lib/dreams/DreamsMap.svelte'; // N14 «Karte aller Träume»
+  import MonthIdeas from '../lib/dreams/MonthIdeas.svelte'; // N8 «Passt jetzt: Ideen pro Monat»
+  import BiwakCard from '../lib/dreams/BiwakCard.svelte'; // N6 «Feierabend-Biwak»
+  import { nightFields } from '../lib/context.js';
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
   import { refreshDreamWx, windowsOf, dayRange, DREAM_WX } from '../lib/dreams/wetterfenster.js'; // N15 «Wetterfenster»
@@ -73,6 +76,7 @@
     refreshDreamWx(db, ds, home).catch(() => {});
   });
 
+  let view = $state('list'); // «list», «map» or «year»
   let month = $state(0); // 0: all months
   const shown = $derived(month ? list.filter((d) => !d.tripId && monthsOf(d, kinds).includes(month)) : list);
 
@@ -96,6 +100,17 @@
     await save({ dreams: [d, ...store.dreams] });
     title = '';
     done = t('«{name}» added under {kind}. Tap it to change the months.', { name: d.title, kind: kindName(kinds, d.kind, t) });
+  }
+  // N6: an after-work bivouac becomes a two-day trip with the bivouac block; the note keeps the place and the times
+  function biwakPlan({ name, day, spot, cfg }) {
+    const where = spot ? `${spot.name || t('Place to sleep')} (${spot.lat}, ${spot.lon})` : '';
+    plan = { kind: 'biwak', name, start: day, days: 2, note: [t('Off {start}, back {back}', { start: cfg.start, back: cfg.back }), where].filter(Boolean).join(' · ') };
+  }
+  // N8: a month idea becomes a dream with its months
+  async function ideaDream({ title: name, months }) {
+    const d = { ...newDream({ title: name }, { id: `dream-${Date.now().toString(36)}`, kinds }), months: [...months] };
+    await save({ dreams: [d, ...store.dreams] });
+    done = t('«{name}» added as a dream. Tap it to change the months.', { name: d.title });
   }
   async function addFromLink(url, own) {
     reading = true;
@@ -123,7 +138,7 @@
 
   let open = $state(null);
   const openDream = $derived(open ? store.dreams.find((d) => d.id === open) : null);
-  let plan = $state(null); // { kind: 'dream'|'race', dream?, race?, name, start, days }
+  let plan = $state(null); // { kind: 'dream'|'race'|'biwak', dream?, race?, note?, name, start, days }
   let done = $state('');
 
   const ymText = (ym) => new Date(`${ym}-15T12:00:00Z`).toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
@@ -135,14 +150,20 @@
     if (w?.now && wxWin.has(d.id)) return t('Fits now, dry {days}', { days: dayRange(wxWin.get(d.id), locale()) });
     return !w ? '' : w.now ? t('Fits now') : t('Next: {when}', { when: ymText(w.ym) });
   }
+  // Umbau Träume: a state (fits now, dry days, fulfilled, planned) is a chip; «Next: April 2027» stays in the grey line
+  const isChip = (d) => !!windowText(d) && (doneDay.has(d.id) || !!d.tripId || !!nextWindow(d, today, kinds)?.now);
   const dayText = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' });
 
   async function makeTrip({ name, start, days, bike, signupBy }) {
     const all = await db.trips.toArray();
     const items = await db.items.toArray();
     let trip = { ...newTrip({ title: name, startDate: start, days, bike }, all, items), idea: !start };
+    // toggleSet gives only { sets, entries }: the trip keeps its id and the rest
     if (plan.kind === 'race') {
-      trip = { ...toggleSet(trip, items, 'race', true), event: raceEvent(plan.race, { signupBy }) };
+      trip = { ...trip, ...toggleSet(trip, items, 'race', true), event: raceEvent(plan.race, { signupBy }) };
+    } else if (plan.kind === 'biwak') {
+      // N6: the bivouac night brings its building block, so the packing list is ready
+      trip = { ...trip, ...nightFields('bivy'), ...toggleSet(trip, items, 'bivy', true), note: plan.note };
     } else {
       trip = { ...trip, fromDream: plan.dream.id, ...(plan.taste ? { note: plan.dream.taste ?? '' } : plan.dream.url ? { note: `${plan.dream.title} ${plan.dream.url}` } : {}) };
     }
@@ -183,7 +204,7 @@
 
 <div class="ich-page dreams" data-page="dreams">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Dreams|page')} sub={t('Dream tours with their season, races as event tours')} />
-  <p class="dr-intro">{t('Write down tours you dream of. The app suggests when each one fits; you can change the months. One tap makes a trip from a dream. «New ground round» plans a round through a place you have never been. Done ones move to «Fulfilled dreams». A dream shows «Ready for the dream?». A dream that fits now shows a «Weather window for dreams». «All dreams on one map» shows which dream brings the most new.')}</p>
+  <p class="dr-intro">{t('Tours you dream of. The app tells you when they fit.')}</p>
   <AreaIntro place="dreams" />
 
   <form class="card cap" onsubmit={add}>
@@ -193,6 +214,8 @@
     {#if msg}<p class="err" role="alert">{msg}</p>{/if}
   </form>
   {#if done}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{done}</p>{/if}
+
+  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» sit under the list.')}</p>{/if}
 
   <TripTips />
 
@@ -211,6 +234,14 @@
     </section>
   {/if}
 
+  <!-- Umbau Träume-Seite (Noah 02.11.2026 «1a 2a 3a 4a 5a»): the list is the main thing; map and year are views, not blocks below -->
+  <div class="dr-seg" role="group" aria-label={t('View')} data-dreams-views>
+    <button type="button" aria-pressed={view === 'list'} data-view="list" onclick={() => (view = 'list')}>{t('List|view')}</button>
+    <button type="button" aria-pressed={view === 'map'} data-view="map" onclick={() => (view = 'map')}>{t('Map|view')}</button>
+    <button type="button" aria-pressed={view === 'year'} data-view="year" onclick={() => (view = 'year')}>{t('Year|view')}</button>
+  </div>
+
+  {#if view === 'year'}
   <section class="ich-sec" aria-labelledby="dr-year" data-yearband>
     <div class="ich-h"><div><h2 id="dr-year">{t('Your year')}</h2><p class="ich-hs">{t('How many dreams fit in each month. A tap shows them.')}</p></div></div>
     <div class="card band" role="group" aria-label={t('Your year')}>
@@ -223,7 +254,9 @@
       {/each}
     </div>
   </section>
+  {/if}
 
+  {#if view === 'list'}
   <section class="ich-sec" aria-labelledby="dr-list">
     <div class="ich-h"><div><h2 id="dr-list">{month ? t('Dreams in {month}', { month: t(MONTHS[month - 1]) }) : t('Your dreams')} <small class="n num">{shown.length}</small></h2>{#if month}<button type="button" class="btn btn-link" onclick={() => (month = 0)}>{t('Show all')}</button>{/if}</div></div>
     {#if !shown.length}
@@ -236,7 +269,7 @@
               {#if !month}<SortGrip name={d.title} onstep={(dir) => save({ dreams: moveDream(store.dreams, i, i + dir) })} />{/if}
               <button type="button" class="open" onclick={() => (open = d.id)}>
                 {#if d.photo}<img class="thumb" src={d.photo} alt="" />{:else}<span class="ich-ib">{#if d.tripId}<Route size={18} aria-hidden="true" />{:else}<Sparkles size={18} aria-hidden="true" />{/if}</span>{/if}
-                <span class="ich-m"><b>{d.title}</b><small>{[kindName(kinds, d.kind, t), monthsText(d), windowText(d), distText(d, num)].filter(Boolean).join(' · ')}</small></span>
+                <span class="ich-m"><b>{d.title}</b><small>{[kindName(kinds, d.kind, t), monthsText(d), isChip(d) ? '' : windowText(d), distText(d, num)].filter(Boolean).join(' · ')}</small>{#if isChip(d)}<span class="dr-chips"><span class="dr-chip">{windowText(d)}</span></span>{/if}</span>
               </button>
               {#if !month}<SortArrows name={d.title} {i} n={shown.length} onstep={(dir) => save({ dreams: moveDream(store.dreams, i, i + dir) })} />{/if}
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
@@ -247,12 +280,21 @@
     {/if}
   </section>
 
-  <DreamsMap dreams={list.filter((d) => !doneDay.has(d.id))} onopen={(id) => (open = id)} />
+  {/if}
 
-  {#if fulfilled.length}
-    <!-- N17 «Erfüllte Träume»: the dreams you rode, once the debrief is done; a tap opens the debrief -->
-    <section class="ich-sec" aria-labelledby="dr-done" data-dreams-done>
-      <div class="ich-h"><div><h2 id="dr-done">{t('Fulfilled dreams')} <small class="n num">{fulfilled.length}</small></h2><p class="ich-hs">{t('Dreams you rode. They count once the debrief is done.')}</p></div></div>
+  {#if view !== 'map'}
+  <MonthIdeas month={month || nowMonth} current={!month || month === nowMonth} onmakedream={ideaDream} />
+  <BiwakCard onplan={biwakPlan} />
+  {/if}
+
+  {#if view === 'list'}
+    <!-- N17 «Erfüllte Träume»: the dreams you rode, once the debrief is done; a closed row at the bottom of the list (Noah 03.11.2026 «5a»); a tap opens the debrief -->
+    <details class="dr-done" data-dreams-done>
+      <summary><Check size={16} aria-hidden="true" />{t('Fulfilled dreams')}<small class="num dr-cnt">{fulfilled.length}</small></summary>
+      <p class="ich-hs" id="dr-done">{t('Dreams you rode. They count once the debrief is done.')}</p>
+      {#if !fulfilled.length}
+        <Empty icon={Check} text={t('No fulfilled dream yet. A dream counts once its trip has the debrief.')} />
+      {:else}
       <ul class="card ich-list">
         {#each fulfilled as f (f.dream.id)}
           <li>
@@ -264,7 +306,12 @@
           </li>
         {/each}
       </ul>
-    </section>
+      {/if}
+    </details>
+  {/if}
+
+  {#if view === 'map'}
+  <DreamsMap dreams={list.filter((d) => !doneDay.has(d.id))} onopen={(id) => (open = id)} />
   {/if}
 
   <WhiteSpots />
@@ -325,7 +372,7 @@
   {#key open}<DreamSheet dream={openDream} {kinds} onchange={putDream} onremove={async (id) => (await save({ dreams: store.dreams.filter((x) => x.id !== id) }), id)} onplan={(d, taste = false) => (plan = { kind: 'dream', dream: d, taste, name: taste ? t('Taste of {name}', { name: d.title }) : d.title, start: suggestStart(d, today, kinds), days: taste ? 1 : d.days || 2 })} onclose={() => (open = null)} />{/key}
 {/if}
 {#if plan}
-  <PlanSheet title={plan.kind === 'race' ? t('Plan the race as a trip') : t('Plan the tour')} sub={plan.kind === 'race' ? t('With the race building block and the registration deadline') : t('A trip draft from your dream')} name={plan.name} start={plan.start} days={plan.days} race={plan.kind === 'race'} {bikes} onsave={makeTrip} onclose={() => (plan = null)} />
+  <PlanSheet title={plan.kind === 'race' ? t('Plan the race as a trip') : t('Plan the tour')} sub={plan.kind === 'race' ? t('With the race building block and the registration deadline') : plan.kind === 'biwak' ? t('Two days with the bivouac building block: the packing list is ready') : t('A trip draft from your dream')} name={plan.name} start={plan.start} days={plan.days} race={plan.kind === 'race'} {bikes} onsave={makeTrip} onclose={() => (plan = null)} />
 {/if}
 {#if deleting}
   {@const k = deleting}
@@ -348,6 +395,15 @@
   .dreams {
     max-width: 900px;
   }
+  .dr-seg { display: flex; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-ctl); padding: 3px; margin: 0 0 var(--sp-3); }
+  .dr-seg button { flex: 1; min-height: 44px; border: 0; border-radius: var(--r-ctl); background: transparent; font: inherit; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+  .dr-seg button[aria-pressed='true'] { background: var(--card); color: var(--ink); box-shadow: 0 0 0 1px var(--line); }
+  .dr-more { margin: var(--sp-3) 0; }
+  .dr-cnt { margin-left: var(--sp-2); }
+  .dr-done { margin-top: var(--sp-3); }
+  .dr-done > summary { display: flex; align-items: center; gap: var(--sp-2); cursor: pointer; padding: var(--sp-3) 0; }
+  .dr-chips { display: block; margin-top: 2px; }
+  .dr-chip { display: inline-block; white-space: nowrap; font-size: var(--fs-small); font-weight: 600; border-radius: 99px; padding: 1px var(--sp-2); background: var(--accent-soft); color: var(--accent-ink); }
   .dr-intro {
     max-width: 65ch;
     margin: 0 0 var(--sp-4);

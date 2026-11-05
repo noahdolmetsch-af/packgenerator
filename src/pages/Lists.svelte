@@ -30,7 +30,7 @@
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import { sortable } from '../lib/ui/sortable.js';
-  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench, MapPin, Bike, Palmtree, Feather, Smile, Flower2 } from '@lucide/svelte';
+  import { ChevronRight, ChevronUp, ChevronDown, Eye, EyeOff, Pencil, Plus, Undo2, Lightbulb, Tag, ListChecks, Info, NotebookPen, SlidersHorizontal, Mountain, Briefcase, Wrench, MapPin, Bike, Palmtree, Feather, Smile, Flower2, MessageCircle, Sun, Utensils } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const overQ = liveQuery(() => db.settings.get(OVERRIDES_KEY));
@@ -93,6 +93,23 @@
       deleteTitle: (name) => t('Delete sport «{name}»?', { name }),
       words: (count) => ({ edit: t('Edit sport'), own: t('Own sport'), empty: t('Give the sport a name.'), warn: count ? tn(count, 'Delete: {n} trip has this sport. Hidden and deleted sports are no longer offered for a new trip.', 'Delete: {n} trips have this sport. Hidden and deleted sports are no longer offered for a new trip.') : t('Delete: no trip has this sport.') }),
     },
+    // Noah 05.11.2026 (Rückblick-Auswahl änderbar): the answers of «How was it?»; only the words change, the debrief's rules need each one
+    'debrief.weather': choiceKind(Sun, 'The answers about the weather in the debrief. Only the name changes: «Warmer» leaves warm clothing at home.', 'Give the answer a name.'),
+    'debrief.amount': choiceKind(Utensils, 'The answers about food and drink in the debrief. Only the name changes.', 'Give the answer a name.'),
+    'debrief.bags': choiceKind(Briefcase, 'The answers about bags and bike in the debrief. Only the name changes.', 'Give the answer a name.'),
+    // Noah 05.11.2026: the four bike sports of a trip (no area of their own): rename, hide, order; deleting is in «Meine Sportarten»
+    tripSports: {
+      full: false,
+      hideable: true,
+      renameOnly: true,
+      icon: Bike,
+      place: 'Trips|place',
+      sub: 'The bike sports of your trips. The new name shows everywhere. The order is set in Active › My sports.',
+      noSort: true,
+      ownWord: '',
+      what: () => '',
+      words: () => ({ edit: t('Rename sport'), own: '', empty: t('Give the sport a name.'), warn: '' }),
+    },
     bikeSlots: {
       full: false,
       renameOnly: true,
@@ -130,7 +147,12 @@
       words: () => ({ edit: t('Rename mood'), own: '', empty: t('Give the mood a name.'), warn: '' }),
     },
     medMoods: simpleKind(Flower2, 'Active|place', 'The moods you can tick after meditating. Your notes keep the moods they have.', 'Own mood'),
+    // Geheimmenü H6 (Noah 03.11.2026): the sayings behind five taps on «PG»; long texts, so a longer field
+    sayings: { ...simpleKind(MessageCircle, 'Me|place', 'The sayings the logo can say after five taps. Add your own, change or delete any of them.', 'Own saying'), maxlen: 120 },
   };
+  function choiceKind(icon, sub, empty) {
+    return { full: false, renameOnly: true, noSort: true, icon, place: 'Debrief', sub, ownWord: '', what: () => '', words: () => ({ edit: t('Rename answer'), own: '', empty: t(empty), warn: '' }) };
+  }
   function simpleKind(icon, place, sub, ownWord) {
     return {
       full: false,
@@ -155,7 +177,7 @@
   const countsOf = (key) => {
     if (key === 'categories') return ($itemsQ ?? []).reduce((m, i) => ((m[i.category] = (m[i.category] ?? 0) + 1), m), {});
     if (key === 'domains') return ($tripsQ ?? []).reduce((m, x) => ((m[x.domain ?? 'bikepacking'] = (m[x.domain ?? 'bikepacking'] ?? 0) + 1), m), {});
-    if (key === 'bikeSlots' || key === 'careParts' || KINDS[key]?.simple || key === 'journalMoods') return {};
+    if (key === 'bikeSlots' || key === 'careParts' || key === 'tripSports' || key.startsWith('debrief.') || KINDS[key]?.simple || key === 'journalMoods') return {};
     if (key === 'noteTopics') return ($notesQ ?? []).filter(isKept).reduce((m, n) => ((m[noteTopic(n)] = (m[noteTopic(n)] ?? 0) + 1), m), {});
     return groupCounts($fieldsQ?.value);
   };
@@ -197,7 +219,7 @@
   const counts = $derived({ all: list.length, std: list.filter((e) => kindOf(e) === 'std').length, mine: list.filter((e) => kindOf(e) === 'mine').length, own: list.filter((e) => kindOf(e) === 'own').length });
   const marked = $derived(counts.mine + counts.own > 0);
   const rows = $derived(filter === 'all' || !marked ? list : list.filter((e) => kindOf(e) === filter));
-  const sorting = $derived(rows === list);
+  const sorting = $derived(rows === list && !K.noSort);
   $effect(() => {
     void KEY;
     filter = 'all';
@@ -269,7 +291,7 @@
     <AreaIntro place="lists" />
 
     <div class="grid">
-      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups', 'bikeSlots', 'careParts', 'bikeKinds']], ['notes', 'Notes', ['noteTopics']], ['diary', 'Diary', ['journalQuestions', 'journalMoods']], ['active', 'Active|place', ['medMoods']], ['map', 'Maps and week', ['pointKinds', 'awayTypes']]] as [area, head, keys] (area)}
+      {#each [['gear', 'Gear|place', ['categories']], ['bikes', 'Bikes|place', ['valueGroups', 'bikeSlots', 'careParts', 'bikeKinds']], ['notes', 'Notes', ['noteTopics']], ['diary', 'Diary', ['journalQuestions', 'journalMoods']], ['active', 'Active|place', ['medMoods']], ['fun', 'Little surprises', ['sayings']], ['map', 'Maps and week', ['pointKinds', 'awayTypes']], ['review', 'Debrief', ['debrief.weather', 'debrief.amount', 'debrief.bags']]] as [area, head, keys] (area)}
         <section class="ich-sec card box" aria-labelledby="ls-{area}-h">
           <h2 id="ls-{area}-h">{t(head)}</h2>
           <ul class="ich-list">
@@ -296,6 +318,14 @@
               <span class="ich-ib"><Mountain size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t(STANDARD_LIST.domains.name)}</b><small>{lineOf('domains')}</small></span>
               <span class="badge" class:mine={isChanged(all.domains)}>{isChanged(all.domains) ? t('Adapted') : t('Standard')}</span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="ich-row" href="#/me/lists?tripSports">
+              <span class="ich-ib"><Bike size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t(STANDARD_LIST.tripSports.name)}</b><small>{lineOf('tripSports')}</small></span>
+              <span class="badge" class:mine={isChanged(all.tripSports)}>{isChanged(all.tripSports) ? t('Adapted') : t('Standard')}</span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -364,6 +394,7 @@
       count={n}
       full={K.full}
       hideable={!!K.hideable}
+      maxlen={K.maxlen ?? 40}
       words={K.words ? K.words(n) : null}
       stdIcon={e && K.full ? stdIconName(e.id) : 'Tag'}
       onsave={(v) => save(e ? edit(value, e, K.full ? { ...v, stdIcon: stdIconName(e.id) } : v) : addOwn(value, v).value)}

@@ -142,12 +142,14 @@
   import { seasonCfg } from '../lib/woche/kalender.js';
   import BufferPick from '../lib/stand/BufferPick.svelte'; // Paket A part 3: buffer before and after a date
   import { bufferItems } from '../lib/stand/stand.js';
+  import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier»: every Planen function one tap away (Noah 03.11.2026 «1a»)
   let buf = $state({ before: 0, after: 0 });
 </script>
 
 <div class="wkp">
   <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
   <AreaIntro place="weekplan" />
+  <AllHere area="plan" />
   <FreeSlotCard />
 
   {#if week}

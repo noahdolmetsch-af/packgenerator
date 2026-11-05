@@ -20,6 +20,8 @@
   import YTicks from '../../lib/charts/YTicks.svelte';
   import { RANGES, DEFAULT_RANGE, windowOf, bucketsOf, statsOf, typicalOf, mean7, weekdays, weekdayExtremes, tripBands, yearBefore, firstDay } from '../../lib/analyse/detail.js';
   import { addDays } from '../../lib/analyse.js';
+  import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
+  import FitbitStand from '../../lib/health/FitbitStand.svelte';
   import { tripEnd } from '../../lib/tripstate.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
@@ -86,6 +88,14 @@
   const prevPts = $derived(prevYear && item?.get && !hours ? bucketsOf(yearBefore(win.days), item.get, !!item.sum) : []);
   const bands = $derived(hours ? [] : tripBands(data.trips, win.days, tripEnd).map((b) => ({ ...b, a: Math.floor(b.a / (pts.length < win.days.length ? 7 : 1)), b: Math.floor(b.b / (pts.length < win.days.length ? 7 : 1)) })));
   const bars = $derived(!!item?.sum || !!item?.bars);
+
+  // «Gesundheitssignale» (Noah 03.11.2026): your range of the last 60 days up to the last day shown, and the runs of 3 days or more outside it
+  const sig = $derived.by(() => {
+    if (!hasSignals(item) || hours || isDay) return null;
+    const base = windowOf('all', win.to, 0, addDays(win.to, -(BAND_DAYS - 1))).days;
+    const band = bandOf(base, item.get);
+    return { band, runs: runsOutside(win.days, item.get, band) };
+  });
 
   // the scales (Noah «genaue Werte»): round, labelled steps; bars from 0, lines near their values; a layer
   // has its own axis on the right
@@ -322,6 +332,29 @@
           </div>
         {/if}
       </section>
+
+      {#if sig}
+        <section class="card sig" aria-labelledby="wv-sig" data-signals>
+          <div class="ch"><h2 id="wv-sig">{t('What stands out|signals')}</h2><small>{t('observation, no diagnosis|signals')}</small></div>
+          {#if sig.band}
+            <p class="sigband" data-sig-band>{t('Your range: {lo} to {hi}|signals', { lo: v(item, sig.band[0]), hi: `${v(item, sig.band[1])}${unitText(item) ? ` ${unitText(item)}` : ''}` })}</p>
+            <p class="hint">{t('The middle 80 % of your last 60 days.|signals')}</p>
+            {#if sig.runs.length}
+              <ul class="runs">
+                {#each sig.runs as r (r.from)}
+                  <li><button type="button" class="lk" data-sig-run={r.from} onclick={() => (picked = r.to)}>{r.side === 'above' ? t('{n} days in a row above your range|signals', { n: r.n }) : t('{n} days in a row below your range|signals', { n: r.n })}<small>{r.n === 1 ? dayText(r.from) : `${dfmt(r.from, { day: 'numeric', month: 'short' })} – ${dfmt(r.to, { day: 'numeric', month: 'short' })}`}</small></button></li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="hint" data-sig-none>{t('Nothing stands out: no 3 days in a row outside your range.|signals')}</p>
+            {/if}
+          {:else}
+            <p class="hint" data-sig-none>{t('Your range appears after 14 days with a value.|signals')}</p>
+          {/if}
+          <p class="hint src">{t(SRC_TEXT[item.src] ?? SRC_TEXT.body)}</p>
+          <FitbitStand />
+        </section>
+      {/if}
 
       {#if picked}
         <section class="card dayall" aria-labelledby="wv-day" data-day={picked}>
@@ -717,6 +750,31 @@
   .lk.more {
     margin-top: 8px;
     color: var(--ink-2);
+  }
+  .sigband {
+    margin: 10px 0 0;
+    font-weight: 600;
+  }
+  .runs {
+    display: grid;
+    gap: 2px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .runs .lk {
+    min-height: 44px;
+    text-align: left;
+  }
+  .runs small {
+    display: block;
+    color: var(--ink-3);
+  }
+  .sig .ch {
+    flex-wrap: wrap;
+  }
+  .sig .src {
+    margin-top: 12px;
   }
   .dayall h3 {
     margin: 12px 0 4px;

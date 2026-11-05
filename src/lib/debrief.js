@@ -18,6 +18,7 @@ import { t, nameOf } from './i18n.svelte.js';
 import { own } from './ownlive.svelte.js';
 import { NEVER_USED_MIN } from './neverused.js';
 import { domainOf, hasBike } from './domains.js';
+import { nameOf as listName } from './applists.js';
 import { localDay } from './localday.js';
 import { tripEnd } from './tripstate.js';
 import { alwaysKeep, weatherCounts, tripSource } from './learn.js';
@@ -38,6 +39,19 @@ export const BAGS_OK = [
   { key: 'problems', name: 'Problems' },
   { key: 'fine', name: 'All fine' },
 ];
+/**
+ * The answers of «How was it?» as the person named them (Noah 05.11.2026, Rückblick-Auswahl änderbar): only the
+ * words change, the keys carry the rules («warmer» leaves warm clothing at home). A typed name never goes
+ * through tr. kind: 'weather' | 'amount' | 'bags' → [{ key, name }].
+ */
+const CHOICES = { weather: ['debrief.weather', WEATHER], amount: ['debrief.amount', AMOUNT], bags: ['debrief.bags', BAGS_OK] };
+export const choices = (kind, tr = (s) => s) => {
+  const [list, std] = CHOICES[kind];
+  const asStd = std.map((o) => ({ id: o.key, name: o.name }));
+  return std.map((o) => ({ key: o.key, name: listName(list, asStd, o.key, tr) }));
+};
+/** The name of one answer, '' when it is not one. */
+export const choiceName = (kind, key, tr = (s) => s) => choices(kind, tr).find((o) => o.key === key)?.name ?? '';
 /** Answers per item. Used is the default and is not stored. */
 export const ITEM_STATE = { used: 'Used', unused: 'Not used', broken: 'Broken' };
 

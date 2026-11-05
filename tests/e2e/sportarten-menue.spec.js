@@ -3,6 +3,7 @@ import { test, expect } from './clock.js';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { newButton } from './newbutton.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -107,4 +108,40 @@ test('Meine Sportarten: sports of trips can be added, renamed and hidden in the 
   await rows.filter({ hasText: 'Testrudern' }).locator('[data-row-menu]').click();
   await page.locator('[data-menu="hide"]').click();
   await expect(rows).toHaveCount(n);
+});
+
+// Noah 05.11.2026 «sportarten umbenennen funktioniert nicht»: the built-in bike sports (Gravel, Fahrrad …) had no list entry
+test('Meine Sportarten: a built-in sport of trips can be renamed, the name stays after a reload and shows in «New trip»', async ({ page, context }) => {
+  await start(page, context);
+  await page.goto('./#/flow/sports');
+  const rows = page.locator('[data-trip-sports] > li');
+  await expect(rows.first()).toBeVisible();
+  const row = rows.filter({ has: page.locator('[data-sport="trip:gravel"]') }).or(page.locator('[data-trip-sports] > li[data-sport="trip:gravel"]')).first();
+  await row.locator('[data-row-menu]').click();
+  await page.locator('[data-menu="rename"]').click();
+  const input = page.getByRole('dialog').locator('input').first();
+  await input.fill('Schotterpiste');
+  await input.press('Enter');
+  await expect(page.locator('[data-trip-sports]')).toContainText('Schotterpiste');
+  await expect(page.locator('[data-trip-sports]')).not.toContainText('Gravel');
+
+  await page.reload();
+  await expect(page.locator('[data-trip-sports]')).toContainText('Schotterpiste');
+
+  // the same name in the list of Ich › Listen und Typen
+  await page.goto('./#/me/lists?tripSports');
+  await expect(page.locator('.lists')).toContainText('Schotterpiste');
+
+  // «New trip» offers the new name too
+  await page.goto('./#/');
+  await (await newButton(page, T('New'))).click();
+  await page.locator('dialog.new').getByRole('button', { name: new RegExp(`^${T('Plan a trip')}`) }).click();
+  await expect(page.locator('dialog.trip-dlg fieldset.area .tp-chip').filter({ hasText: 'Schotterpiste' })).toHaveCount(1);
+  await page.keyboard.press('Escape');
+
+  // hide it from the list; it comes back with the eye in Listen und Typen
+  await page.goto('./#/flow/sports');
+  await rows.filter({ hasText: 'Schotterpiste' }).locator('[data-row-menu]').click();
+  await page.locator('[data-menu="hide"]').click();
+  await expect(page.locator('[data-trip-sports]')).not.toContainText('Schotterpiste');
 });

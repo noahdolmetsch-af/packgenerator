@@ -94,22 +94,90 @@ export const isOpenRequest = (b) => b.status === 'requested';
  * address), the price of the kind and what it is for. The app fills the invoice form with it; nothing is
  * sent. `when` is the date written for people («Mo, 23.11.»).
  */
-export function invoiceDraft(offer, slot, booking, when) {
+/** What happened to a lesson (Noah 04.11.2026 «3a»): held (default), cancelled too late, or the person did not come. */
+export const OUTCOMES = ['held', 'late', 'noshow'];
+/** The share of the price that goes on the invoice: late cancel half, no-show all. Noah changes the amount in the form. */
+export const outcomeShare = (outcome) => (outcome === 'late' ? 0.5 : 1);
+const priceOf = (offer, slot, rate, outcome) => Math.round((rate ?? ((offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0])?.price ?? 0) * outcomeShare(outcome));
+
+export function invoiceDraft(offer, slot, booking, when, rate = null, outcome = 'held', tag = '') {
   const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];
   const contact = String(booking.contact ?? '').trim();
   return {
     name: booking.name,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : '',
-    amount: ty ? chf(ty.price) : '',
-    purpose: [offer.title, ty?.label, when].filter(Boolean).join(', '),
-    booking: { offer: offer.id, b: booking.id },
+    amount: rate != null || ty ? chf(priceOf(offer, slot, rate, outcome)) : '',
+    purpose: [offer.title, ty?.label, when, outcome !== 'held' && tag].filter(Boolean).join(', '),
+    bookings: [{ offer: offer.id, b: booking.id }],
+  };
+}
+
+/**
+ * One invoice for several lessons (Noah 03.11.2026: «mehrere Rechnungen zu einer kombinieren»): the
+ * prices add up, the dates are listed. items: [{ slot, booking, outcome?, tag? }], when(booking) writes the date.
+ */
+export function invoiceDraftMany(offer, items, when, rateOf = () => null) {
+  const drafts = items.map((x) => invoiceDraft(offer, x.slot, x.booking, when(x.booking), rateOf(x.booking.name), x.outcome, x.tag));
+  const rappen = items.reduce((n, x) => n + priceOf(offer, x.slot, rateOf(x.booking.name), x.outcome), 0);
+  const names = [...new Set(drafts.map((d) => d.name))];
+  return {
+    name: names.join(', '),
+    email: drafts.find((d) => d.email)?.email ?? '',
+    amount: chf(rappen),
+    purpose: `${offer.title}, ${items.map((x) => [when(x.booking), x.outcome && x.outcome !== 'held' && x.tag ? `(${x.tag})` : ''].filter(Boolean).join(' ')).join('; ')}`,
+    bookings: drafts.flatMap((d) => d.bookings),
   };
 }
 
 /** Held bookings whose time is over and that have no invoice yet. `now` is «YYYY-MM-DDTHH:MM» (local). */
 export function toInvoice(bookings = [], invoices = [], now = '') {
-  const done = new Set(invoices.map((x) => x.booking?.b).filter(Boolean));
+  const done = new Set(invoices.flatMap((x) => [...(x.bookings ?? []), ...(x.booking ? [x.booking] : [])].map((y) => y.b)));
   return bookings.filter((b) => holdsPlace(b) && b.at && b.at < now && !done.has(b.id));
+}
+
+/**
+ * The next free times of an offer after a cancelled one (Noah 04.11.2026 «1a», rain): up to n slots that lie
+ * after `from`, are not the cancelled slot and still have a free place. Open requests hold no place.
+ */
+export function freeAlternatives(offer, bookings = [], skipId = '', from = '', n = 3) {
+  const booked = bookedBySlot(bookings);
+  return (offer.slots ?? [])
+    .filter((s) => s.id !== skipId && s.at > from)
+    .filter((s) => (booked[s.id] ?? 0) < ((offer.types ?? []).find((x) => x.key === s.type) ?? offer.types?.[0])?.places)
+    .sort((a, b) => a.at.localeCompare(b.at))
+    .slice(0, n);
+}
+
+/**
+ * People on the waiting list whose time has a free place again (Noah 04.11.2026 «7a»). `now` is «YYYY-MM-DDTHH:MM».
+ * → [{ w, slot }] in the order they were added.
+ */
+export function waitingFree(waitlist = [], offer, bookings = [], now = '') {
+  const booked = bookedBySlot(bookings);
+  return waitlist
+    .filter((w) => w.offer === offer.id)
+    .map((w) => ({ w, slot: (offer.slots ?? []).find((s) => s.id === w.slot) }))
+    .filter(({ slot }) => slot && slot.at > now && (booked[slot.id] ?? 0) < (((offer.types ?? []).find((x) => x.key === slot.type) ?? offer.types?.[0])?.places ?? 0));
+}
+
+/**
+ * One e-mail to several people (Noah 04.11.2026): every address in the list goes into «bcc», so nobody sees the
+ * others. null when none of the contacts is an e-mail address.
+ */
+export function mailToAll(contacts = [], subject = '', text = '') {
+  const mails = [...new Set(contacts.map((c) => String(c ?? '').trim()).filter((c) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)))];
+  if (!mails.length) return null;
+  const q = [subject && `subject=${encodeURIComponent(subject)}`, text && `body=${encodeURIComponent(text)}`].filter(Boolean).join('&');
+  return `mailto:?bcc=${mails.join(',')}${q ? `&${q}` : ''}`;
+}
+
+/**
+ * Lessons to remind about (Noah 04.11.2026 «2a»): held bookings from now until the end of tomorrow, by time.
+ * Open and declined requests are left out. Nothing is sent: Heute shows a row with a prepared message.
+ */
+export function remindersOf(bookings = [], nowAt = '') {
+  const end = `${addDays(dayOf(nowAt), 1)}T23:59`;
+  return bookings.filter((b) => holdsPlace(b) && b.at >= nowAt && b.at <= end).sort((a, b) => a.at.localeCompare(b.at));
 }
 
 /** 'free' | 'part' | 'full' for the week grid. */

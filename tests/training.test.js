@@ -249,3 +249,19 @@ describe('cleanDayLimits', () => {
     expect(cleanDayLimits(null)).toEqual({});
   });
 });
+
+import { cleanSportGoals } from '../src/lib/training.js';
+describe('cleanSportGoals', () => {
+  it('keeps whole numbers 0–3 per sport id only', () => {
+    expect(cleanSportGoals({ yoga: 2, swim: 0, run: 4, x: 1.5, y: 'a' })).toEqual({ yoga: 2, swim: 0 });
+    expect(cleanSportGoals(null)).toEqual({});
+  });
+});
+
+import { cleanHabits } from '../src/lib/training.js';
+describe('cleanHabits', () => {
+  it('keeps counts 1–5 and ratios 0.5–2 only', () => {
+    expect(cleanHabits({ drop: { a: 2, b: 9, c: 0 }, mins: { a: { n: 2, ratio: 1.234 }, b: { n: 2, ratio: 5 } } })).toEqual({ drop: { a: 2 }, mins: { a: { n: 2, ratio: 1.23 } } });
+    expect(cleanHabits(null)).toEqual({ drop: {}, mins: {} });
+  });
+});

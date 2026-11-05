@@ -28,6 +28,7 @@
   import GroupDeleteSheet from '../../lib/ui/GroupDeleteSheet.svelte';
   import { isMedAct } from '../../lib/flow/hobby/medstart.js';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
+  import { recentActs } from '../../lib/flow/recent.js';
   import GoneActs from '../../lib/flow/GoneActs.svelte';
   import YearGoals from '../../lib/flow/YearGoals.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
@@ -41,6 +42,7 @@
   import SportsMosaic from '../../lib/sportpage/SportsMosaic.svelte';
   import { DOMAINS } from '../../lib/domains.js';
   import { allSports, orderedSports, moveId } from '../../lib/sportsbase.js';
+  import { BIKE_DAY_SPORTS } from '../../lib/sportlist.js';
   import { sportDays, goalOf } from '../../lib/sportshelp.js';
   import { sportCfg } from '../../lib/sportsbase.js';
   import { stravaOf } from '../../lib/sportsprogress.js';
@@ -70,6 +72,8 @@
   /* the sports of trips (Paket O) and the mosaic over all sports */
   const sq = sportsQuery();
   const sdata = $derived($sq);
+  // «Aktiv und Auswerten» 5a (Noah 03.11.2026): the three sports ticked last, one tap away
+  const recent = $derived(data ? recentActs(data.acts, data.log) : []);
   const cfg = $derived(sdata?.cfg ?? {});
   // the lists of Ich › Listen (names, hidden, own sports) change DOMAINS; a change of the setting redraws the sports
   const ovQ = liveQuery(() => db.settings.get(OVERRIDES_KEY));
@@ -205,13 +209,16 @@
   let renamingTrip = $state(null); // the trip sport being renamed
   let addingTrip = $state(false);
   const overrides = async () => (await db.settings.get(OVERRIDES_KEY))?.value ?? {};
-  const entryOf = (all, s) => listFor('domains', all).find((e) => e.id === s.key);
+  // Noah 05.11.2026: Fahrrad, Gravel, Cross Country and Downhill have no area: their names live in the list «tripSports»
+  const listOf = (s) => (BIKE_DAY_SPORTS.includes(s.key) ? 'tripSports' : 'domains');
+  const entryOf = (all, s) => listFor(listOf(s), all).find((e) => e.id === s.key);
   async function renameTrip(s, nm) {
     const all = await overrides();
     const e = entryOf(all, s);
     if (!e) return;
-    await saveList(db, 'domains', edit(all.domains, e, { name: nm }));
-    offerRename(nm, () => saveList(db, 'domains', all.domains ?? {}));
+    const lk = listOf(s);
+    await saveList(db, lk, edit(all[lk], e, { name: nm }));
+    offerRename(nm, () => saveList(db, lk, all[lk] ?? {}));
   }
   async function addTrip(nm) {
     const all = await overrides();
@@ -223,14 +230,16 @@
     const all = await overrides();
     const e = entryOf(all, s);
     if (!e) return;
-    await saveList(db, 'domains', toggleHidden(all.domains, e.id));
-    offerDone(t('«{name}» hidden.', { name: sportName(s) }), () => saveList(db, 'domains', all.domains ?? {}));
+    const lk = listOf(s);
+    await saveList(db, lk, toggleHidden(all[lk], e.id));
+    offerDone(t('«{name}» hidden.', { name: sportName(s) }), () => saveList(db, lk, all[lk] ?? {}));
   }
   async function removeTrip(s) {
     const all = await overrides();
     const e = entryOf(all, s);
     if (!e) return;
     const nm = sportName(s);
+    const lk = listOf(s);
     const answer = await askDelete({
       title: t('Delete sport «{name}»?', { name: nm }),
       text: e.own ? t('Its trips and items move to Bikepacking.') : t('Trips and items keep it; it is no longer offered for a new trip. «Back to Standard» brings it back.'),
@@ -244,10 +253,10 @@
           await db.trips.bulkPut(savedTrips.map((x) => ({ ...x, domain: 'bikepacking' })));
           await db.items.bulkPut(savedItems.map((i) => ({ ...i, domains: [...new Set(i.domains.map((d) => (d === e.id ? 'bikepacking' : d)))] })));
         }
-        await saveList(db, 'domains', remove(all.domains, e));
+        await saveList(db, lk, remove(all[lk], e));
       },
       undo: async () => {
-        await saveList(db, 'domains', all.domains ?? {});
+        await saveList(db, lk, all[lk] ?? {});
         if (savedTrips.length) await db.trips.bulkPut(savedTrips);
         if (savedItems.length) await db.items.bulkPut(savedItems);
       },
@@ -305,6 +314,7 @@
     return r ? { key: 'left', cls: '', text: t('{n}× more in {d} days', { n: r.goal.count - r.done, d: r.goal.days }) } : { key: 'none', cls: '', text: t('no goal|sport') };
   }
   import PasstHier from '../../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
+  let mosaicSeen = $state(false);
 </script>
 
 {#snippet actRow(a, i, shown, list)}
@@ -339,6 +349,16 @@
   <AreaIntro place="goals" />
   <!-- «Nächstes Ziel» (Noah 27.10.2026 «3a»): the milestone closest to its next star, one line -->
   {#if data}<NextGoalRow acts={data.acts} tripDays={data.tripDays} {today} />{/if}
+  {#if recent.length}
+    <section class="recent" aria-labelledby="rc-h" data-recent-sports>
+      <h2 id="rc-h" class="rch">{t('Last used|sports')}</h2>
+      <div class="rcl">
+        {#each recent as a (a.id)}
+          <a class="rcc" href={sportHref(a)} data-recent={a.id}><span class="aico"><ActIcon icon={a.icon} ring={a.ring} /></span><b>{actName(a)}</b></a>
+        {/each}
+      </div>
+    </section>
+  {/if}
   <!-- «332 Use Cases» (Noah 26.10.2026: «aktivitätsmosaik, bikepark tage, jahresziele, sterne» sichtbar) -->
   <QuickLinks label={t('On this page')} links={[{ key: 'mosaic', jump: '[data-mosaic]', label: t('Activity mosaic') }, { key: 'year', jump: '#yg-h', label: t('Year goals') }, { key: 'park', href: `#/flow/sport/${encodeURIComponent('trip:downhill')}`, label: t('Bike park days') }, { key: 'stars', href: '#/flow/milestones', label: t('Stars from your data') }]} />
   <div class="tools">
@@ -442,9 +462,10 @@
     </div>
 
     {#if sdata && rows.length}
-      <details class="card fold hob sp" data-mosaic>
+      <!-- Tempo (Noah 05.11.2026 «a»): the squares are built only when the fold is opened (every sport × 14 days = hundreds of nodes) -->
+      <details class="card fold hob sp" data-mosaic ontoggle={(e) => (mosaicSeen ||= e.currentTarget.open)}>
         <summary><span>{t('All sports at a glance')}</span><small>{t('one square per day')}</small></summary>
-        <SportsMosaic list={sports} {rows} {cfg} {today} />
+        {#if mosaicSeen}<SportsMosaic list={sports} {rows} {cfg} {today} />{/if}
       </details>
     {/if}
   {/if}
@@ -478,6 +499,36 @@
 {/if}
 
 <style>
+  .rch {
+    margin: 0 0 var(--sp-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+  .rcl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .rcc {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 44px;
+    padding: 4px var(--sp-3) 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    max-width: 100%;
+  }
+  .rcc b {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .flow {
     display: flex;
     flex-direction: column;

@@ -135,3 +135,70 @@ describe('weather in the suggestion (3b)', () => {
     expect(suggestWeek({ ...base, wx: {} })).toEqual(suggestWeek(base));
   });
 });
+
+describe('goal per sport (3c)', () => {
+  const acts = [
+    { id: 'yoga', name: 'Yoga', ring: 'move', order: 1, goals: [{ count: 1, days: 7 }] },
+    { id: 'swim', name: 'Swimming', ring: 'move', order: 2, goals: [] },
+  ];
+  it('lists every sport as a candidate, with 0 for none', async () => {
+    const { candidateSports } = await import('../src/lib/training/suggest.js');
+    expect(candidateSports(acts, MON).map((c) => [c.id, c.perWeek])).toEqual([['yoga', 1], ['swim', 0]]);
+  });
+  it('lets the number set in the suggestion win over the goal in Aktiv', () => {
+    expect(weeklySports(acts, MON).map((s) => s.id)).toEqual(['yoga']);
+    expect(weeklySports(acts, MON, { yoga: 0, swim: 2 }).map((s) => [s.id, s.perWeek])).toEqual([['swim', 2]]);
+    expect(weeklySports(acts, MON, { yoga: 9 })[0].perWeek).toBe(3);
+  });
+  it('gives a sport set here a place before sports that only have a goal in Aktiv', () => {
+    const many = ['a', 'b', 'c', 'd'].map((id, i) => ({ id, name: id, ring: 'move', order: i, goals: [{ count: 1, days: 7 }] }));
+    many.push({ id: 'z', name: 'Z', ring: 'move', order: 9, goals: [] });
+    expect(weeklySports(many, MON).map((s) => s.id)).toEqual(['a', 'b', 'c']);
+    expect(weeklySports(many, MON, { z: 1 }).map((s) => s.id)).toEqual(['z', 'a', 'b']);
+  });
+});
+
+describe('one session of a wanted sport stays (3c)', () => {
+  it('keeps a long sport session even when it is over a third of a short week', () => {
+    const r = suggestWeek({ ...base, goal: { hours: 3, base: 80 }, sports: [{ id: 'rowing', name: 'Rowing', mins: 120, perWeek: 1 }] });
+    expect(r.sessions.filter((s) => s.sport === 'rowing').length).toBe(1);
+  });
+});
+
+describe('own changes are remembered (3d)', () => {
+  const sug0 = () => suggestWeek(base).sessions;
+  const tempo = () => sug0().find((s) => s.name === 'Tempo session');
+  it('learns from removing a session and applies it only after two times', async () => {
+    const { learnHabits } = await import('../src/lib/training/suggest.js');
+    const before = sug0();
+    const gone = tempo();
+    const after = before.filter((s) => s.id !== gone.id);
+    const once = learnHabits(null, before, after);
+    expect(once.drop[gone.name]).toBe(1);
+    expect(suggestWeek({ ...base, habits: once }).sessions.some((s) => s.name === gone.name)).toBe(true);
+    const twice = learnHabits(once, before, after);
+    expect(twice.drop[gone.name]).toBe(2);
+    const r = suggestWeek({ ...base, habits: twice });
+    expect(r.sessions.some((s) => s.name === gone.name)).toBe(false);
+    expect(r.why.some((w) => /twice/.test(w.key) && w.vars.name === gone.name)).toBe(true);
+  });
+  it('learns minutes and never drops the long session', async () => {
+    const { learnHabits } = await import('../src/lib/training/suggest.js');
+    const before = sug0();
+    const t0 = tempo();
+    const longS = before.find((s) => s.name === 'Long session, calm');
+    const after = before.map((s) => (s.id === t0.id ? { ...s, mins: s.mins * 2 } : s)).filter((s) => s.id !== longS.id);
+    let h = learnHabits(null, before, after);
+    h = learnHabits(h, before, after);
+    expect(h.mins[t0.name].ratio).toBeCloseTo(2, 1);
+    const r = suggestWeek({ ...base, habits: h });
+    expect(r.sessions.find((s) => s.name === t0.name).mins).toBeGreaterThan(t0.mins * 1.4);
+    expect(r.sessions.some((s) => s.name === 'Long session, calm')).toBe(true);
+  });
+  it('forgets a little when taken as suggested', async () => {
+    const { learnHabits } = await import('../src/lib/training/suggest.js');
+    const before = sug0();
+    const h = learnHabits({ drop: { 'Easy spin': 1 }, mins: {} }, before, before);
+    expect(h.drop['Easy spin']).toBeUndefined();
+  });
+});

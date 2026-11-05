@@ -56,6 +56,10 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await expect(line).toContainText('°C');
   await expect(line).toContainText('30 km/h');
   await expect(line).toContainText('15:00');
+  // «Windfahne beim Wetter» (Paket D, Idee 15): the wind icon is a small vane; 30 km/h from the west = strong, pennant to the east
+  const vane = line.locator('[data-vane]');
+  await expect(vane).toHaveAttribute('data-vane-wind', 'strong');
+  await expect(vane.locator('g').first()).toHaveAttribute('transform', 'rotate(0)');
   await noSideways(page, 'today');
 
   // the weather page
@@ -64,6 +68,8 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await expect(page.locator('[data-page="wetter"]')).toBeVisible();
   await expect(page.locator('[data-wx-today]')).toContainText('30 km/h');
   await expect(page.locator('[data-landi]')).toHaveAttribute('href', 'https://www.landi.ch/wetter/niederschlagsradar');
+  // «Wetter neu» PR 2: the page has four parts (Jetzt, Radar und Kameras, Planen, Rückblick)
+  await tap(page.locator('[data-wx-tab="planen"]'), info);
   const best = page.locator('[data-wx-bestline]');
   await expect(best).toBeVisible();
   await tap(page.locator('[data-wx-dur="2"]'), info);
@@ -72,6 +78,7 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await noSideways(page, 'weather page');
   await page.screenshot({ path: info.outputPath('wetter.png'), fullPage: true });
 
+  await tap(page.locator('[data-wx-tab="radar"]'), info);
   // Meine Webcams: add a home cam → small on Heute; delete with the app's question
   await page.locator('[data-webcam-name]').fill('test_data_gtp_ See');
   await page.locator('[data-webcam-url]').fill('https://cams.example/see.jpg');
@@ -82,12 +89,13 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await page.goto('./#/');
   await expect(page.locator('[data-heute-cam]')).toBeVisible({ timeout: 15_000 });
   await expect(page.locator('[data-heute-cam]')).toContainText('test_data_gtp_ See');
-  await page.goto('./#/wetter');
+  await page.goto('./#/wetter?tab=radar');
   await tap(page.locator('[data-webcam-delete]'), info);
   await tap(page.getByTestId('ask-delete').locator('.btn.del'), info);
   await expect(page.locator('[data-webcam]')).toHaveCount(0);
   await expect(page.locator('[data-webcam-empty]')).toBeVisible();
 
+  await tap(page.locator('[data-wx-tab="rueckblick"]'), info);
   // «Wie war es draussen?» (2a): a note with feel, where and what you wore → listed; delete asks first
   const feel = page.locator('[data-wx-feel]');
   await tap(feel.locator('[data-feel="cold"]'), info);
@@ -107,7 +115,7 @@ test('Webcams: a place for the live map, and off the map again', async ({ page, 
   await context.route(/api\.open-meteo\.com\/v1\/forecast\?.*cape/, (route) => route.fulfill({ json: core() }));
   await context.route(/cams\.example/, (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
   await context.route(/geocoding-api\.open-meteo\.com/, (route) => route.fulfill({ json: { results: [{ name: 'Testpass', admin1: 'Testkanton', country: 'Testland', latitude: 46.5, longitude: 8.4 }] } }));
-  await page.goto('./#/wetter');
+  await page.goto('./#/wetter?tab=radar');
   await page.locator('[data-webcam-name]').fill('test_data_gtp_ Pass');
   await page.locator('[data-webcam-url]').fill('https://cams.example/pass.jpg');
   await tap(page.locator('[data-webcam-add] button[type="submit"]'), info);

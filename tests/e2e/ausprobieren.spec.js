@@ -7,7 +7,7 @@ import { start, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
 import { NEWS, NEWS_DE } from '../../src/lib/news/index.gen.js';
 import { GO } from '../../src/lib/know/newsgo-map.js';
-import { WHATS_NEW } from '../../src/lib/whatsnew.js';
+import { WHATS_NEW } from '../../src/lib/whatsnew-full.js';
 
 const T0 = tr('de');
 const T = (en) => NEWS_DE[en] ?? T0(en);
@@ -20,23 +20,49 @@ const ROWS = WHATS_NEW.flatMap((e) =>
 );
 const NEWEST = WHATS_NEW[0].version;
 
-test.setTimeout(600_000);
+// Noah 03.11.2026 «1a»: a pull request taps only the lines of its own news files (NEWS_ONLY = their names, set by
+// deploy.yml from scripts/ci-scope.mjs; empty = none). Not set (the night run, locally) or «all»: every line.
+const ONLY = process.env.NEWS_ONLY;
+const mine = new Set();
+if (ONLY && ONLY !== 'all') {
+  for (const f of ONLY.split(/\s+/).filter(Boolean)) {
+    const e = (await import(`../../src/lib/news/${f}`)).default;
+    for (const p of [...e.points, ...(e.small ?? [])]) mine.add(p.text);
+  }
+}
+const LINES = ONLY === undefined || ONLY === 'all' ? ROWS : ROWS.filter(([, text]) => mine.has(text));
 
-test('every line of What is new goes to its exact place', async ({ page, context }, info) => {
-  await start(page, context, info);
+// The lines are tapped in parts of PART lines each, so that a part finishes well inside its time limit (one test over
+// all ~500 lines ran into the 10-minute limit). Every line is still tapped once; the parts are counted from the source.
+const PART = 40;
+const PARTS = Math.max(1, Math.ceil(LINES.length / PART));
+test.setTimeout(300_000);
+
+test('there are lines with an exact place', () => {
   expect(ROWS.length).toBeGreaterThan(0);
+});
+
+for (let part = 0; part < PARTS; part++) {
+test(`every line of What is new goes to its exact place, part ${part + 1}`, async ({ page, context }, info) => {
+  await start(page, context, info);
+  const rows = LINES.slice(part * PART, (part + 1) * PART);
   // «Try it» on the newest update goes to its place and says «New here: …»
   // (only when the newest update has a line with an exact place: a fix release with no place has nothing to go to)
   await page.goto('./#/me/news');
-  if (ROWS.some(([version]) => version === NEWEST)) {
+  if (part === 0 && ROWS.some(([version]) => version === NEWEST)) {
     await page.locator('[data-news-try]').first().click();
     // a line with only `where` has no spot to light: the note then is its own text, not «New here: …»
     const first = ROWS.find(([version]) => version === NEWEST)[2];
     const only = typeof first === 'object' && first.where && !first.steps?.length;
-    await expect(page.locator('[data-spot-note]').first()).toContainText(only ? T(first.where) : T('New here: {what}').split('{')[0].trim());
+    const neu = T('New here: {what}').split('{')[0].trim();
+    // a line with steps AND `where` lights the spot when the page has it; a fixture without the data it needs (a ride with an
+    // earlier ride, a recorded tour) shows `where` instead: both are right
+    const either = typeof first === 'object' && first.where && first.steps?.length;
+    const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    await expect(page.locator('[data-spot-note]').first()).toContainText(either ? new RegExp(`${esc(T(first.where))}|${esc(neu)}`) : only ? T(first.where) : neu);
   }
   const missing = [];
-  for (const [version, text, g] of ROWS) {
+  for (const [version, text, g] of rows) {
     await page.goto('./#/');
     await page.goto('./#/me/news');
     await page.locator('main h1').first().waitFor({ timeout: 8000 }).catch(() => {});
@@ -73,4 +99,4 @@ test('every line of What is new goes to its exact place', async ({ page, context
   }
   expect(missing).toEqual([]);
 });
-
+}

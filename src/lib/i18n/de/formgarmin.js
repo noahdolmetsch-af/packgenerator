@@ -82,7 +82,7 @@ export default {
   'Form and recovery': 'Form und Erholung',
   'Fitness {fit} ({delta} against the week before) · form {form}': 'Fitness {fit} ({delta} gegen die Vorwoche) · Form {form}',
   'How ready you are today, from your activities, Fitbit and the morning check. Only to look at, no diagnosis.':
-    'Wie bereit du heute bist, aus deinen Aktivitäten, Fitbit und dem Morgen-Check. Nur zum Anschauen, keine Diagnose.',
+    'Wie bereit du heute bist, aus deinen Aktivitäten, Fitbit und «Wi gaht\'s?» am Morgen. Nur zum Anschauen, keine Diagnose.',
   'What counts today': 'Was heute zählt',
   'against your normal of the last 30 days · + helps, − holds back': 'gegen dein Normal der letzten 30 Tage · + hilft, − bremst',
   '12 weeks': '12 Wochen',
@@ -107,17 +107,17 @@ export default {
   'Fitness is the mean load of about {a} days, fatigue of about {b} days. Form = fitness − fatigue: below 0 you are tired, above 0 fresh.':
     'Fitness ist die mittlere Belastung von etwa {a} Tagen, Müdigkeit die von etwa {b} Tagen. Form = Fitness − Müdigkeit: unter 0 bist du müde, über 0 frisch.',
   'Readiness starts at 60. Form, resting pulse, HRV and sleep against your normal, and how you felt in the morning check, add or take away points. 75 and more suits a hard ride, under 35 a rest day.':
-    'Die Bereitschaft beginnt bei 60. Form, Ruhepuls, HRV und Schlaf gegen dein Normal und wie du dich im Morgen-Check gefühlt hast, geben Punkte dazu oder ziehen ab. Ab 75 passt eine harte Fahrt, unter 35 ein Ruhetag.',
+    'Die Bereitschaft beginnt bei 60. Form, Ruhepuls, HRV und Schlaf gegen dein Normal und wie du dich in «Wi gaht\'s?» am Morgen gefühlt hast, geben Punkte dazu oder ziehen ab. Ab 75 passt eine harte Fahrt, unter 35 ein Ruhetag.',
   'Fitness rising by more than {n} a week is a lot: a calm hint, no rule.': 'Steigt die Fitness um mehr als {n} pro Woche, ist das viel: ein ruhiger Hinweis, keine Regel.',
   // the catalogue, the handbook and «So geht's» (f.form, f.overview)
   'Each morning a readiness from 0 to 100 with what today suits, from all your activities, Fitbit and the morning check; 12 weeks of fitness and form, and tour readiness.':
-    'Jeden Morgen eine Bereitschaft von 0 bis 100 und was heute passt, aus all deinen Aktivitäten, Fitbit und dem Morgen-Check; 12 Wochen Fitness und Form und die Tour-Bereitschaft.',
+    'Jeden Morgen eine Bereitschaft von 0 bis 100 und was heute passt, aus all deinen Aktivitäten, Fitbit und «Wi gaht\'s?» am Morgen; 12 Wochen Fitness und Form und die Tour-Bereitschaft.',
   'Overview like Garmin': 'Übersicht wie bei Garmin',
   "Today's activities, each sport's last 7 days to swipe, heart rate, active minutes, calories and sleep, a page per sport and «Body values»: heart, sleep, activity, body and bike, with blood pressure and water to enter.":
     'Die Aktivitäten von heute, die letzten 7 Tage jeder Sportart zum Wischen, Puls, Aktivzonen-Minuten, Kalorien und Schlaf, eine Seite pro Sportart und «Körperwerte»: Herz, Schlaf, Aktivität, Körper und Velo, mit Blutdruck und Trinkmenge zum Eintragen.',
   'Open Active: the card on top shows your readiness.': 'Öffne Aktiv: Die Karte oben zeigt deine Bereitschaft.',
   'Tap it for the page «Form and recovery».': 'Tipp sie an für die Seite «Form und Erholung».',
-  'Answer the morning check: your felt sleep and energy count too.': 'Beantworte den Morgen-Check: Dein gefühlter Schlaf und deine Energie zählen mit.',
+  'Answer the morning check: your felt sleep and energy count too.': 'Beantworte «Wi gaht\'s?» am Morgen: Dein gefühlter Schlaf und deine Energie zählen mit.',
   'Open Active and scroll to «In focus».': 'Öffne Aktiv und scroll zu «Im Fokus».',
   'Swipe for the next sport; tap a card for its page.': 'Wisch für die nächste Sportart; tipp eine Karte an für ihre Seite.',
   'Tap the heart rate tile for «Body values»: pick a group on top, then a value.': 'Tipp die Puls-Kachel an für «Körperwerte»: oben eine Gruppe wählen, dann einen Wert.',
@@ -134,8 +134,8 @@ export default {
   'From your Fitbit, observation only.': 'Von deiner Fitbit, nur zum Anschauen.',
   'deep {d} · REM {r}': 'tief {d} · REM {r}',
   'sleep {s} · mood {m}': 'Schlaf {s} · Stimmung {m}',
-  'Counted by the app from your activities, Fitbit and the morning check (see Form and recovery).': 'Von der App gerechnet aus deinen Aktivitäten, Fitbit und dem Morgen-Check (siehe Form und Erholung).',
-  'Your answers of the morning check, 1 to 10.': 'Deine Antworten im Morgen-Check, 1 bis 10.',
+  'Counted by the app from your activities, Fitbit and the morning check (see Form and recovery).': 'Von der App gerechnet aus deinen Aktivitäten, Fitbit und «Wi gaht\'s?» am Morgen (siehe Form und Erholung).',
+  'Your answers of the morning check, 1 to 10.': 'Deine Antworten in «Wi gaht\'s?» am Morgen, 1 bis 10.',
   'From your Strava activities; watts per kg with your weight of that day.': 'Aus deinen Strava-Aktivitäten; Watt pro kg mit deinem Gewicht an diesem Tag.',
   'Sleep phases': 'Schlafphasen',
   'Felt|body': 'Gefühlt',

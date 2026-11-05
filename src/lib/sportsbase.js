@@ -50,9 +50,10 @@ export function allSports({ domains = [], acts = [] } = {}) {
   const out = [];
   for (const s of SPORTS) {
     const d = dom[s.key];
-    if (d?.hidden) continue;
-    const raw = !!d?.raw && s.key === d.key;
-    out.push({ id: `trip:${s.key}`, kind: 'trip', key: s.key, name: raw ? d.name : s.name, raw, icon: TRIP_ICON[s.key] ?? 'heart', ring: 'move', bike: s.area === 'bikepacking' });
+    // s.name, s.raw and s.hidden are the person's version (sportlist.js setSportNames): the four bike sports have their own list
+    if (d?.hidden || s.hidden) continue;
+    const raw = !!s.raw || (!!d?.raw && s.key === d.key);
+    out.push({ id: `trip:${s.key}`, kind: 'trip', key: s.key, name: raw && !s.raw ? d.name : s.name, raw, icon: TRIP_ICON[s.key] ?? 'heart', ring: 'move', bike: s.area === 'bikepacking' });
   }
   for (const d of domains) {
     if (!d.own || d.hidden) continue;
@@ -97,8 +98,8 @@ export function colorOf(id, list = [], cfg = {}) {
 
 /* ---------- blocks ---------- */
 
-/** The seven basic blocks (#190), in their first order. */
-export const BASE_BLOCKS = ['gear', 'pack', 'log', 'goals', 'care', 'weather', 'next'];
+/** The basic blocks (#190; «Timer» since «Aktiv und Auswerten» 5a), in their first order. */
+export const BASE_BLOCKS = ['gear', 'pack', 'log', 'goals', 'timer', 'care', 'weather', 'next'];
 /** The extra blocks any sport can add. */
 export const EXTRAS = ['plans', 'lessons', 'matches', 'loops', 'commute', 'route', 'protect', 'parkdays'];
 /** Block names (English keys for t()). */
@@ -107,6 +108,7 @@ export const BLOCK_NAMES = {
   pack: 'Packing list',
   log: 'History and progress',
   goals: 'Goals',
+  timer: 'Timer',
   care: 'Care',
   weather: 'Weather',
   next: 'For next time',
@@ -125,6 +127,7 @@ export const BLOCK_HINTS = {
   pack: 'What comes along: the sport bag or the trip list.',
   log: 'What you did, and your own measures with a curve.',
   goals: 'How often, and how far you are.',
+  timer: 'A stopwatch for this sport, with a time you set.',
   care: 'What is due: care steps after uses, and the age of material.',
   weather: 'Today and tomorrow at home, with a tip for this sport.',
   next: 'What you want to do differently next time.',

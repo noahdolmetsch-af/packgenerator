@@ -9,11 +9,12 @@
    * rename, sort (arrows and drag), delete (asks where its recipes go, Undo), add own ones, back to the standard;
    * a recipe page puts the recipe in or out of any group.
    */
-  import { ChevronRight, Clock, Heart, Play, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat, X, RotateCcw } from '@lucide/svelte';
+  import { ChevronRight, Clock, Heart, Play, Minus, Plus, ShoppingCart, EyeOff, Eye, Pencil, ChefHat, X, RotateCcw, ExternalLink } from '@lucide/svelte';
   import CookMode from './CookMode.svelte';
   import KochTips from './KochTips.svelte';
   import KochTraining from './KochTraining.svelte';
   import { toggleLike } from '../kochen/tipps.js';
+  import { SHOPS, shopLink } from '../kochen/shop.js';
   import { nutritionOf, nutritionById } from '../kochen/naehrwerte.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
@@ -167,12 +168,19 @@
           {#if rows.length}
             <ul class="ko-rows">
               {#each rows as r, i (i)}
-                <li data-ko-ing={r.name}><span>{r.name}</span>{#if r.amount}<small>{r.amount} {r.unit}</small>{/if}</li>
+                <li data-ko-ing={r.name}><span>{r.name}</span><span class="ko-amt">{#if r.amount}<small>{r.amount} {r.unit}</small>{/if}{#if prefs.shop}<a class="fz-icon" href={shopLink(prefs.shop, r.name)} target="_blank" rel="noopener noreferrer" aria-label={t('Search «{name}» at {shop}', { name: r.name, shop: SHOPS.find((x) => x.key === prefs.shop)?.label })} data-ko-shop-link><ExternalLink size={16} aria-hidden="true" /></a>{/if}</span></li>
               {/each}
             </ul>
           {:else}
             <p class="fz-note">{t('This recipe has no ingredients yet.')}</p>
           {/if}
+          <div class="fz-chips" role="group" aria-label={t('Online shop search')} data-ko-shops>
+            <span class="fz-note">{t('Search online:')}</span>
+            {#each SHOPS as sh (sh.key)}
+              <button type="button" class="fz-chip" aria-pressed={prefs.shop === sh.key} onclick={() => save((p) => ({ ...p, shop: prefs.shop === sh.key ? '' : sh.key }))} data-ko-shop-pick={sh.key}>{sh.label}</button>
+            {/each}
+          </div>
+          {#if prefs.shop}<p class="fz-note">{t('The link opens the search of the shop in your browser. It needs the internet.')}</p>{/if}
           {#if !recipe.own}<p class="fz-note">{t('Salt, pepper and water are not on the list; you have them at home.')}</p>{/if}
           <div class="fz-acts"><button type="button" class="btn" onclick={toShopping} disabled={!rows.length} data-ko-shop><ShoppingCart size={16} aria-hidden="true" />{t('Add to the shopping list')}</button></div>
         </section>
@@ -355,6 +363,11 @@
   .ko-rows li:last-child,
   .ko-ol li:last-child {
     border-bottom: 0;
+  }
+  .ko-amt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
   .ko-rows small {
     color: var(--ink-2);

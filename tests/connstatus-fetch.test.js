@@ -65,3 +65,53 @@ describe('Strava', () => {
     expect(await db.settings.get('strava')).toBeUndefined();
   });
 });
+
+describe('Google Kalender und Aufgaben', () => {
+  it('a fetch over the limit ends with timeout and keeps the old copy', async () => {
+    const { fetchNow, agenda } = await import('../src/lib/agenda/client.svelte.js');
+    const db = createDb(`ag-${Math.random()}`);
+    await db.settings.put({ key: 'agenda', value: { calendar: true, tasks: true } });
+    await db.gEvents.put({ id: 'old', title: 'Alt', day: '2026-11-03' });
+    let tick = 0;
+    const c = async (step) => (step === 'cal-list' ? { calendars: [{ id: 'primary', primary: true }] } : { events: [], tasks: [], lists: [] });
+    const ok = await fetchNow({ db, c, today: '2026-11-03', clock: () => tick++ * 130_000 });
+    expect(ok).toBe(false);
+    expect(agenda.error).toBe('timeout');
+    expect((await db.gEvents.toArray()).map((e) => e.id)).toEqual(['old']);
+  });
+});
+
+describe('Trello', () => {
+  it('a call without an answer ends with code timeout', async () => {
+    const { call } = await import('../src/lib/trello/client.svelte.js');
+    const hang = (_u, init) => new Promise((_ok, no) => init.signal.addEventListener('abort', () => no(new Error('aborted'))));
+    vi.useFakeTimers();
+    const p = call('board', { key: 'k', doFetch: hang });
+    const check = expect(p).rejects.toMatchObject({ code: 'timeout' });
+    await vi.advanceTimersByTimeAsync(61_000);
+    await check;
+    vi.useRealTimers();
+  });
+  it('a slow board read ends the sync before anything is written to Trello', async () => {
+    const { syncNow, trello } = await import('../src/lib/trello/client.svelte.js');
+    const db = createDb(`tr-${Math.random()}`);
+    const steps = [];
+    const c = async (step) => (steps.push(step), { board: { id: 'b'.repeat(24), name: 'Packgenerator' }, lists: [], cards: [] });
+    let tick = 0;
+    const ok = await syncNow({ db, c, clock: () => tick++ * 130_000 });
+    expect(ok).toBe(false);
+    expect(trello.error).toBe('timeout');
+    expect(steps).toEqual(['board']);
+  });
+});
+
+describe('reasonLine', () => {
+  it('names the reason in one sentence', async () => {
+    const { reasonLine } = await import('../src/lib/ui/connstatus.js');
+    expect(reasonLine(t, 'timeout')).toBe('It did not answer in time.');
+    expect(reasonLine(t, 'network')).toBe('There was no connection.');
+    expect(reasonLine(t, 'google_login_needed')).toContain('new login');
+    expect(reasonLine(t, 'strava_busy')).toContain('busy');
+    expect(reasonLine(t, 'weird')).toBe('The last fetch did not work.');
+  });
+});

@@ -1,5 +1,6 @@
 // «Good to know» for the area «Packen» (Wegweiser PR 16): Pack, templates, building blocks, labels, checks.
 export default {
+  'f.recipes': 'Write the recipe the evening you are back, while you remember the breakfast. «Something with oats» helps less than «porridge, banana, two coffees».',
   "gpx": "A GPX with many points is fine, but check the climbing: some apps count every bump twice. Compare with the map before you plan the day.",
   "wxsuggest": "Pack for the coldest hour, not the average: a 15 °C day can start at 6 °C in the valley. One thin layer more weighs less than a cold morning.",
   "f.packblocks": "Blocks save thinking, not grams. After adding one, look at the weight: a whole «Cook» block for one coffee is a lot of pot.",
@@ -8,6 +9,7 @@ export default {
   "f.ballast": "What came along three times unused can stay home, except the rain jacket and the first-aid kit. Those are insurance, not ballast.",
   "f.tripbike": "The lighter bike is not always faster: on gravel with luggage, wider tyres often win back what the grams cost.",
   "f.switch": "Each trip keeps its own list and ticks. Switching never mixes them, so planning the next one while packing this one is safe.",
+  "f.expectfelt": "Guess first, then look: the gap between the two is the useful part. A few tours in, it shows how you usually read a route.",
   "f.planb": "The best plan B is the train timetable home from the halfway point. Save it before you leave; the signal is often weakest where you need it.",
   "f.daysports": "On a hiking day the cycling shoes stay in the bag: shoes for the change of sport are the item most often forgotten.",
   "f.unclear": "Write the question with the km: «water at km 80?» is easier to check on the map than «water somewhere».",

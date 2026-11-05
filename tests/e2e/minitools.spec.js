@@ -31,9 +31,9 @@ test('Find a date: make a link, a friend answers in the browser, the best day is
   const T = await openHome(page, context, info);
   const redis = await miniServer(context);
 
-  // Ich › Mini-Tools
-  await page.goto('./#/me');
-  await tap(page.locator('[data-row="minitools"]'), info);
+  // Planen › «Alles hier» › Mini-Tools (Ich schlank, Noah 04.11.2026 «a»)
+  await page.goto('./#/week');
+  await tap(page.locator('[data-all-here="plan"] [data-all-here-tile="minitools"]'), info);
   await expect(page.locator('[data-minitools]')).toBeVisible();
   await expect(page.locator('[data-mt-empty]')).toBeVisible();
   await noSideways(page, 'mini tools');

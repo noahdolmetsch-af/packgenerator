@@ -40,6 +40,7 @@
   import LiveLabel from '../lib/live/LiveLabel.svelte';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
+  import AllHere from '../lib/ui/AllHere.svelte';
   import { komootFindUrl } from '../lib/komoot.js';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -51,6 +52,8 @@
   import { stateExtraText } from '../lib/tripstatetext.js';
   import TripState from '../lib/ui/TripState.svelte';
   import Profile from '../lib/ui/Profile.svelte'; // HP4
+  import RouteShape from '../lib/touren/RouteShape.svelte'; // Paket E 23: the shape of the route
+  import { shapeOf } from '../lib/touren/streckenform.js';
   import StateChips from '../lib/ui/StateChips.svelte';
   import Btn from '../lib/ui/Btn.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -101,7 +104,7 @@
   import { loadActs } from '../lib/review/actdata.js';
   import { phone, cols12 } from '../lib/media.svelte.js';
   import { PHONE_ROWS, TOUR_ROWS, nextRows, shortLine, capGroups } from '../lib/touren/kurz.js';
-  import { untrack } from 'svelte';
+  import { untrack, tick } from 'svelte';
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
   import { strava } from '../lib/strava/client.svelte.js';
@@ -154,6 +157,8 @@
   const view = $derived(loaded ? tripsOverview(homeTrips($tripsQ), $debriefsQ, today, rides) : null);
   const hiddenTests = $derived(testTrips($tripsQ ?? []).length);
   let tidyOpen = $state(false);
+  // E2-003: the counts of «ridden» and «waiting for review» come from the second query (dataQ below); before it is
+  // there they read «0 ridden». The line shows only when both queries are in.
   const counts = $derived(overviewCounts(view));
   const byId = $derived(Object.fromEntries(($tripsQ ?? []).map((x) => [x.id, x])));
   const debriefOf = $derived(Object.fromEntries(($debriefsQ ?? []).map((d) => [d.tripId, d])));
@@ -280,6 +285,17 @@
   /* ---- 0.163.0 «Handy kurz»: five rows first on a phone, the values as one grey line ---- */
   let doneAll = $state(false);
   let extrasOpen = $state(false);
+  // «Alles hier» › «In numbers»: #/trips?numbers opens «In Zahlen» (on a phone behind one line) and goes there
+  function numbersFromHash() {
+    if (!/[?&]numbers\b/.test(location.hash)) return;
+    extrasOpen = true;
+    tick().then(() => setTimeout(() => document.getElementById('iz-h')?.scrollIntoView({ block: 'start' }), 50));
+  }
+  $effect(() => {
+    numbersFromHash();
+    addEventListener('hashchange', numbersFromHash);
+    return () => removeEventListener('hashchange', numbersFromHash);
+  });
   let packOpen = $state(false);
   const shortDone = $derived(phone.matches && !doneAll);
   // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
@@ -478,7 +494,7 @@
       {:else}
       <h1 class="title">{t('Trips|place')}</h1>
       <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->
-      {#if counts}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`, stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</p>{/if}
+      {#if counts && $dataQ}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`, stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</p>{/if}
       {#if hiddenTests}<p class="cnt tests" data-hidden-tests>{tn(hiddenTests, '{n} test trip hidden', '{n} test trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (tidyOpen = true)}>{t('Clean up test data')}</button></p>{/if}
       {/if}
     </div>
@@ -492,7 +508,9 @@
     </div>
   </header>
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
-  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'racecheck', href: '#/racecheck', label: t('Plan races in detail') }, { key: 'fuel', href: '#/trips/fuel', label: t('Food and water plan') }, { key: 'compare', href: '#/trips/compare', label: t('Trips side by side') }, { key: 'weather', href: '#/wetter', label: t('Weather for a ride') }, { key: 'travel', href: '#/travel', label: t('Travel links') }, { key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
+  <!-- «Alles hier» (Noah 03.11.2026 «1a»): every Touren function as a tile on top; the row «More for your tours» keeps only komoot (an outside page), its other links are tiles now -->
+  {#if !onRides}<AllHere area="trips" />{/if}
+  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
   {#if !onRides}<NextRaceRow />{/if}
   {#if !onRides}<DreamNowRow />{/if}
   {#if onRides}
@@ -580,7 +598,12 @@
                 <p class="ps">{r.kind === 'replan' ? `${day(r.date)} · ${t(r.state.label, r.state)}` : planLine(r)}</p>
                 <!-- v0.151.0 HP4 (Noah «2a»): a planned trip with a route shows its small profile -->
                 {#if rt?.profile?.length > 1}
-                  <div class="mprof" data-plan-profile><Profile points={rt.profile} small label="Elevation of the route" /><p class="ms num">{[rt.km != null ? `${num(Math.round(rt.km))} km` : '', rt.gainM != null ? `↑ ${num(Math.round(rt.gainM))} Hm` : '', t('highest point {m} m', { m: num(Math.max(...rt.profile.map((x) => x[1]))) })].filter(Boolean).join(' · ')}</p></div>
+                  <div class="pmid">
+                    {#if r.kind === 'trip'}<RouteShape d={shapeOf({ trip: byId[r.tripId] })} />{/if}
+                    <div class="mprof" data-plan-profile><Profile points={rt.profile} small label="Elevation of the route" /><p class="ms num">{[rt.km != null ? `${num(Math.round(rt.km))} km` : '', rt.gainM != null ? `↑ ${num(Math.round(rt.gainM))} Hm` : '', t('highest point {m} m', { m: num(Math.max(...rt.profile.map((x) => x[1]))) })].filter(Boolean).join(' · ')}</p></div>
+                  </div>
+                {:else if r.kind === 'trip' && rt?.line?.length > 1}
+                  <div class="pmid"><RouteShape d={shapeOf({ trip: byId[r.tripId] })} /></div>
                 {/if}
                 <KomootSign trip={byId[r.tripId]} small />
                 {#if r.kind === 'replan'}
@@ -610,7 +633,7 @@
            Gesamttest 20.10.2026 B3: the Strava activities above it moved to the tab «Fahrten»; one quiet row below leads there. -->
       {#if phone.matches && !packOpen}
         <!-- 0.163.0: on a phone the list is one line with its count and what waits for a rating -->
-        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('With packing list|section')}</b><small class="num">{[tn(inPeriod.length, '{n} trip', '{n} trips'), stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+        <button type="button" class="phone-more extras" aria-expanded="false" onclick={() => (packOpen = true)} data-packmode-open><Backpack size={16} aria-hidden="true" /><span><b>{t('With packing list|section')}</b><small class="num">{[$dataQ ? tn(inPeriod.length, '{n} trip', '{n} trips') : '', stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
       {:else}
       <section class="done" aria-labelledby="trips-done" data-finished data-packmode>
         <div class="sh">
@@ -656,11 +679,11 @@
                   <li class="tr st-{s?.state}" data-row={r.id} data-state={s?.state}>
                     <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} fill="currentColor" />{:else}<Flag size={18} />{/if}</span>
                     <div class="rm">
-                      <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
+                      <div class="rt"><a class="rn" href={rowHref(r)} data-vt-title={rowHref(r)?.startsWith('#/tour/') ? '' : undefined} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
                       {#if !hasLine(r) && !phone.matches}<p class="nr"><Info size={14} aria-hidden="true" />{t('without a route')}</p>{/if}
                     </div>
-                    <div class="rk num"><span><b>{n0(kv.km)}</b><small>km</small></span><span><b>{n0(kv.gainM)}</b><small>{t('Hm|col')}</small></span></div>
+                    <div class="rk num"><RouteShape d={shapeOf(r, (vals[r.id]?.acts ?? []))} /><span><b>{n0(kv.km)}</b><small>km</small></span><span><b>{n0(kv.gainM)}</b><small>{t('Hm|col')}</small></span></div>
                     {#if s?.state === 'done'}
                       <div class="rr"><Btn label={r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')} href={rateHref(r)} onclick={() => openRow(r)} aria="{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}: {r.title}" data-rate={r.id} /></div>
                     {/if}
@@ -1407,6 +1430,20 @@
   }
   .mprof {
     margin: 2px 0 8px;
+  }
+  .pmid {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 2px 0 8px;
+  }
+  .pmid .mprof {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+  .rk {
+    align-items: center;
   }
   .mprof .ms {
     margin: 4px 0 0;
