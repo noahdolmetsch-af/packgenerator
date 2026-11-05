@@ -6,7 +6,6 @@
  * knowledge per area). A page shows all its functions, whatever their moment. Heute ('#/') never shows the card. Pure; the card is src/lib/ui/SeitenInhalt.svelte, tested in tests/seiteninhalt.test.js.
  */
 import { FEATURES } from './features.js';
-import { HANDBOOK } from './handbook.js';
 import { HOME } from './know/heimat.js';
 
 /** The pages that show the card (page keys as pageKey writes them); one PR per area adds its pages. */
@@ -115,15 +114,17 @@ export const SHOWS_TOO = { '#/notes': ['#/notes?open=:note'] };
 /**
  * know: the «Good to know» texts by function id (WISSEN). They are not part of the start (Tempo-Budget,
  * scripts/size-guard.mjs): the card loads them with loadWissen() (src/lib/wissen/load.js) and hands them in.
+ * handbook: the handbook entries by function id (HANDBOOK), the same way (loadHandbook(), src/lib/handbook/load.js); without
+ * them the rows have a title and a text but no steps yet.
  */
-export function pageContent(hash, on = ON_PAGES, know = {}) {
+export function pageContent(hash, on = ON_PAGES, know = {}, handbook = {}) {
   const here = pagePattern(hash, on);
   if (!here) return [];
   // the page's own functions first, then those of the windows it opens (SHOWS_TOO)
   const homes = [here, ...(SHOWS_TOO[here] ?? [])];
   const rank = (f) => homes.indexOf(pageKey(HOME[f.id]));
   return FEATURES.filter((f) => HOME[f.id] && rank(f) >= 0).sort((a, b) => rank(a) - rank(b)).map((f) => {
-    const h = HANDBOOK[f.id] ?? {};
+    const h = handbook[f.id] ?? {};
     return { id: f.id, title: f.title, text: f.text, steps: h.steps ?? [], example: h.example ?? '', know: know[f.id] ?? '' };
   });
 }
