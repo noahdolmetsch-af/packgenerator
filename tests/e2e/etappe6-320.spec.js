@@ -20,6 +20,7 @@ test('at 320 px: Fertig gepackt, +Wert, Zeitzonen and Papierkram fit the screen'
     expect.soft(sw.sw, `${what}: the page is wider than the screen (${sw.wide.join(', ')})`).toBeLessThanOrEqual(sw.w + 1);
   };
   await fits('#/auswerten/analyse/late', 'Analyse, «+ Wert»');
+  await fits('#/auswerten/analyse/km%3Abike', 'Analyse, Namen über dem Diagramm');
   await fits('#/me/tools/zones', 'Zeitzonen');
   await fits('#/race/test_data_gtp_trip26/prepare', 'Rennen, Papierkram');
   expect.soft(await brokenWords(page), 'Papierkram at 320 px: no word broken letter by letter').toEqual([]);
@@ -29,6 +30,12 @@ test('at 320 px: Fertig gepackt, +Wert, Zeitzonen and Papierkram fit the screen'
   await ready(page);
   await page.waitForTimeout(700);
   expect.soft(await brokenWords(page), 'Papierkram at 390 px: no word broken letter by letter').toEqual([]);
+  await page.setViewportSize({ width: 320, height: 844 });
+  // Rennen-Check shows the same editable rows: «Ersatzschläuche» must stay one word at 390 px
+  await page.goto('./#/racecheck/test_data_gtp_trip26');
+  await ready(page);
+  await page.waitForTimeout(700);
+  expect.soft(await brokenWords(page), 'Rennen-Check at 390 px: no word broken letter by letter').toEqual([]);
   await page.setViewportSize({ width: 320, height: 844 });
   await fits('#/pack?day', 'Packtag');
   expect.soft(await cutOff(page), 'the main button says «Fertig gepackt» in full').toEqual([]);

@@ -590,6 +590,10 @@
     color: var(--ink-2);
     font-size: var(--fs-label);
     white-space: nowrap;
+    /* E6: a long name (a bike called like a sentence) stays inside the chart, it must not widen the page */
+    max-width: 45%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .bn.end {
     transform: translateX(calc(-100% - 4px));

@@ -94,7 +94,7 @@
   flex-wrap: wrap;
 }
 .rc-row.rc-edit > .rc-row-main {
-  flex-basis: 7rem;
+  flex-basis: 10rem;
 }
 .rc-row-main {
   display: flex;
