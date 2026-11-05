@@ -376,6 +376,9 @@ test('Heute suggests the usual time of a regular customer with a message ready',
   await page.locator('#cu-fday').selectOption('3');
   await page.locator('#cu-ftime').fill('17:00');
   await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
+  // the sheet closes and steps its history entry back; wait for that before leaving (on the phone it raced the next page)
+  await expect(page.locator('dialog.cu-sheet')).toBeHidden();
+  await expect(page).toHaveURL(/#\/me\/offers\/customers$/);
   await page.goto('./#/');
   await ready(page);
   const row = page.locator('li.row[data-row="fixed"]');
