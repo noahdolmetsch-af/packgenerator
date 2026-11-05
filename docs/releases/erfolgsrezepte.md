@@ -1,6 +1,6 @@
 # Erfolgsrezepte
 
-PR folgt · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 5 von 6
+PR #885 · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 5 von 6
 
 ## Was ist neu
 - Auf der Tour-Seite einer Velotour mit geschriebenem Rückblick steht die Karte «Ein Tag, der geklappt hat?» mit «Als Rezept speichern» (`src/lib/touren/tour/RecipeCard.svelte`). Das Formular hat Name, Frühstück, Startzeit, Verpflegung unterwegs und Tempo; Startzeit und Tempo kommen aus der Fahrt, wenn sie sie hat. Nichts wird von selbst gespeichert.
