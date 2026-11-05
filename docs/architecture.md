@@ -1,5 +1,7 @@
 # Architektur und Datenverträge
 
+> **Teilweise überholt.** Für den heutigen Aufbau, die Wege durch die App und die Daten gilt [aufbau.md](aufbau.md). Diese Datei bleibt als Stand der Packlisten-Arbeit von Anfang Oktober 2026.
+
 Abgleich: `main` nach PR #32, Commit `be041f14fd35fd3caf98e8e7b7284bda9dcb98f9`, 07.10.2026. Svelte 5 + Vite, lokale Daten über Dexie/IndexedDB. GitHub Pages stellt App-Dateien bereit; es synchronisiert keine Nutzerdaten. Backuptransfer bleibt der vorhandene Gerätewechsel. Schema-Version **4**; PR #32 führt keine neue Datenbankmigration ein.
 
 ## Fachliche Grundlage und heutiger Bestand
