@@ -249,6 +249,13 @@
     display: flex;
     align-items: center;
     font-weight: 600;
+    gap: var(--sp-2);
+  }
+  .rh-more > summary::after {
+    content: '▾';
+  }
+  .rh-more[open] > summary::after {
+    content: '▴';
   }
   .rh-more[open] > summary {
     margin-bottom: var(--sp-2);
