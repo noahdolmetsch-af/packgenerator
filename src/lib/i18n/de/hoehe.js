@@ -1,0 +1,22 @@
+// «Temperaturen nach Höhe» (Noah 05.11.2026 «1b 2a und c 3a …»): wetter/hoehe.js, HoeheBlock.svelte (Wetterseite)
+export default {
+  'Temperatures by height': 'Temperaturen nach Höhe',
+  'Over {name}': 'Über {name}',
+  'Over your place': 'Über deinem Ort',
+  'Place|hoehe': 'Ort',
+  'No value for this height now (it lies above or below the air layers of the weather model).': 'Für diese Höhe gibt es jetzt keinen Wert (sie liegt über oder unter den Luftschichten des Wettermodells).',
+  'No value for these heights over this place (it lies at {m} m, or higher than the air layers reach).': 'Für diese Höhen gibt es über diesem Ort keinen Wert (er liegt auf {m} m, oder es ist höher, als die Luftschichten reichen).',
+  'Offline: no air layers kept for this place yet.': 'Offline: Für diesen Ort sind noch keine Luftschichten gemerkt.',
+  'Looking up the air layers …': 'Luftschichten werden geholt …',
+  '0 °C line in the air now: about {m} m': 'Nullgradgrenze in der Luft jetzt: etwa {m} m',
+  'Choose a place or a peak below to see the temperature by height.': 'Wähle unten einen Ort oder einen Gipfel, um die Temperatur nach Höhe zu sehen.',
+  'The temperature of the free air at that height, from the air layers of the weather model (Open-Meteo). On a slope in the sun it can differ by a few degrees. A guess for planning.': 'Die Temperatur der freien Luft auf dieser Höhe, aus den Luftschichten des Wettermodells (Open-Meteo). An einem Hang in der Sonne kann sie um einige Grad abweichen. Eine Schätzung zum Planen.',
+  'Choose places and peaks': 'Orte und Gipfel wählen',
+  'This place': 'Dieser Ort',
+  'Peaks of about {m} m': 'Gipfel um {m} m',
+  'Your own places': 'Deine eigenen Orte',
+  'Add a place of your own': 'Eigenen Ort hinzufügen',
+  'e.g. Splügen': 'z. B. Splügen',
+  'Only the entry goes; the place itself stays where it is.': 'Nur der Eintrag verschwindet; der Ort selbst bleibt, wo er ist.',
+  'Everything here is a suggestion: pick as many as you like, take them away again, add your own.': 'Alles hier ist ein Vorschlag: Wähle so viele, wie du magst, nimm sie wieder weg, füge eigene hinzu.',
+};
