@@ -291,6 +291,20 @@ Ziel 5 Alltag. Fünf Tipps, eine Überraschung nach Zufall, nie dieselbe zweimal
 | H1 | Kuhglocken (Ton nur, wenn eingeschaltet) | gebaut (PR) |
 | H5 | Pass-Sprint, ein Mini-Spiel | Idee für später |
 
+## Neuer Schwung 2: sieben Ideen A–G (Noah 05.11.2026 «alle Vorschläge A-G speichern, jetzt umsetzen A, B, F und G»)
+
+Ziel 5 Alltag. Einschätzung und Begründung: `notes/neuer-schwung-2026-11-05/README.md` im Projektordner. Jeder Schritt ein eigener kleiner PR mit Bildern; Grosses (F, G) zuerst als Mockup. Die Buchstaben A–G gehören nur zu dieser Liste, nicht zu den Bewegungs-Paketen oben.
+
+| # | Idee | Stand |
+|---|---|---|
+| A | Tempo-Runde: schwere Abfragen pro Tabwechsel verkleinern, danach Messwert im Wächter | gewünscht (jetzt) |
+| B | Beschlossenes ausliefern: Bewegungs-Pakete A, C, D, G, Landschaftsbild, Cockpit-Signale | gewünscht (jetzt) |
+| C | Nutzungs-Spiegel und «Zuletzt geöffnet» in der Suche (nur lokal) | Idee (später) |
+| D | Winter-Seite «Dein Winter» auf Heute (einwintern, Jahresrückblick, Frühlingstouren) | Idee (später) |
+| E | Jahresrückblick als Bild zum Teilen | Idee (später) |
+| F | Sammel-Wand: Pässe, Stempel, Gipfel, Neuland, Meilensteine auf einer Seite, ohne Druck | gewünscht (jetzt, erst Mockup) |
+| G | Rückwärts-Plan zu einem grossen Ziel (Training, Packprobe, Wetterfenster) | gewünscht (jetzt, erst Mockup) |
+
 ## Bewusst nicht
 
 Foto-KI für Material · Live-Sync über Drive · Keine fremden Einbettungen, nur Links · Privat-Zone beim Teilen um dein Zuhause · Inhalte von anderen Nutzern · KI: aus einem Satz wird ein Eintrag · KI: Wochen-Rückblick am Sonntag · Einkauf, Lebenslauf, Werkstatt (D2) · Computer als Werkzeug (D4) · Rückkehr-Melder für Notfall-Person · Aussortieren und weitergeben · Leiste mit 7 Orten · Keine native App, die Web-App bleibt · App zieht nicht auf Vercel um · Ton-Aufnahmen (nur wenn klein)
