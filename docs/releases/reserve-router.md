@@ -1,6 +1,6 @@
 # Reserve-Router
 
-PR # · 05.11.2026 · Auftrag: Noah «2a und b» und «a und b beide möglich?» (Thread «Verbessern: Routing und Navigation»)
+PR #943 · 05.11.2026 · Auftrag: Noah «2a und b» und «a und b beide möglich?» (Thread «Verbessern: Routing und Navigation»)
 
 ## Was ist neu
 - Antwortet brouter.de nicht (Fehler, Zeitlimit, ausgelastet), fragt die App **einmal Valhalla** (`valhalla1.openstreetmap.de`, FOSSGIS) und, wenn auch das nicht hilft oder der Weg über 110 km Luftlinie geht, **einmal OSRM** (`routing.openstreetmap.de`). Vorher kam eine Fehlermeldung.
