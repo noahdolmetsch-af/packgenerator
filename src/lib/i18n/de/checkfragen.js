@@ -66,7 +66,7 @@ export default {
   // Noah 04.11.2026 «ein Fragebogen»
   'Adjust your questions': 'Fragen anpassen',
   'Now under Your questions': 'Jetzt unter Deine Fragen',
-  'sleep, battery, mood, goal': 'Schlaf, Akku, Stimmung, Ziel',
-  'Questions 1–5 and 7 are asked like the questions in the window: on, off and when you decide under Me › Your questions.': 'Die Fragen 1–5 und 7 werden wie die Fragen im Fenster gestellt: ob und wann, bestimmst du unter Ich › Deine Fragen.',
+  'sleep, mood, goal, the evening': 'Schlaf, Stimmung, Ziel, der Abend',
+  'Almost all of these questions are asked like the questions in the window now: whether and when, you decide under Me › Your questions.': 'Fast alle dieser Fragen werden jetzt wie die Fragen im Fenster gestellt: ob und wann, bestimmst du unter Ich › Deine Fragen.',
   'Open Your questions': 'Deine Fragen öffnen',
 };

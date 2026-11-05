@@ -70,6 +70,19 @@ const row = (page) =>
     DAY,
   );
 
+const abRows = (page) =>
+  page.evaluate(
+    (day) =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const g = r.result.transaction('abAnswers').objectStore('abAnswers').getAll();
+          g.onsuccess = () => (res((g.result ?? []).filter((x) => x.day === day)), r.result.close());
+        };
+      }),
+    DAY,
+  );
+
 async function shot(page, name) {
   if (!process.env.SHOTS) return;
   const w = page.viewportSize().width;
@@ -132,6 +145,7 @@ test('T1 morning check page: the questions of the window, joy, last night, the s
   // saved at once: a reload shows the answers
   await expect.poll(async () => (await row(page))?.last).toEqual(['phone']);
   await expect.poll(async () => (await row(page))?.energy).toBe(4);
+  await expect.poll(async () => (await abRows(page)).map((r) => r.qid)).toEqual(expect.arrayContaining(['erholung.schlaf', 'ziele.ziel']));
   await page.reload();
   await expect(page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"] [data-step="6"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-round-questions="morning"] [data-q="ziele.ziel"]').getByRole('textbox')).toHaveValue('Velo nach der Arbeit');
@@ -160,28 +174,21 @@ test('T2 evening review page: filled in from the ride and the meditation, the da
   await expect(page).toHaveURL(/#\/check\/evening$/);
   await expect(page.getByRole('heading', { level: 1, name: T('How was your day?') })).toBeVisible();
 
-  // 8 and 9
-  await page.locator('[data-q="sat"] .sv').nth(7).click();
-  await page.locator('[data-chips="best"]').getByRole('button', { name: T('Nature|joy'), exact: true }).click();
+  // Noah 04.11.2026 «ein Fragebogen»: the page asks what the window asks (Deine Abfragen)
+  const rq = page.locator('[data-round-questions="evening"]');
+  await rq.locator('[data-q="erreicht.zufrieden"] [data-step="8"]').click();
+  await rq.locator('[data-q="spass.coolstes"]').getByRole('button', { name: T('Nature'), exact: true }).click();
   await page.locator('[data-story]').fill('Ein fiktiver Abend am See.');
   await page.locator('[data-story]').blur();
   await expect(page.locator('[data-speak]')).toHaveCount(0); // no speech recognition in this browser
-  // 10: the goal of the morning
-  await expect(page.locator('[data-q="goalDone"]')).toContainText(T('Goal from this morning: «{goal}»', { goal: T('Ride after work') }));
-  await page.locator('[data-chips="goalDone"]').getByRole('button', { name: T('Yes|goal') }).click();
-  // 11: filled in from today's ride (66 min → 30–90), changeable
-  await expect(page.locator('[data-chips="outside"]').getByRole('button', { name: T('30–90 min') })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-q="outside"]')).toContainText(T('filled in from your ride, changeable'));
-  // 12 or 13, by the day
-  if (eveningTurn(DAY) === 'people') {
-    await expect(page.locator('[data-q="fun"]')).toHaveCount(0);
-    await page.locator('[data-chips="people"]').getByRole('button', { name: T('Briefly') }).click();
-  } else {
-    await expect(page.locator('[data-q="people"]')).toHaveCount(0);
-    await page.locator('[data-q="fun"] .sv').nth(7).click();
-  }
-  // 14: found by itself
-  await expect(page.locator('[data-mindful-auto]')).toContainText(T('found by itself: meditation {min} min at {time}', { min: 20, time: '06:40' }));
+  // the goal of the morning (the daily check's goal «Ride after work» is not asked again here: the window asks «reached?»)
+  await rq.locator('[data-q="erreicht.ziel"] .ab-opt').first().click();
+  // filled in from today's ride (66 min → 30–90), changeable
+  await expect(rq.locator('[data-q="natur.draussen"] .ab-opt').nth(2)).toHaveAttribute('aria-pressed', 'true');
+  await expect(rq.locator('[data-auto="natur.draussen"]')).toContainText(T('filled in from your ride, changeable'));
+  // the mindful moment: found by itself from the meditation
+  await expect(rq.locator('[data-auto="achtsamkeit.moment"]')).toContainText(T('found by itself: meditation {min} min at {time}', { min: 20, time: '06:40' }));
+  await expect(rq.locator('[data-q="achtsamkeit.moment"] .ab-opt').first()).toHaveAttribute('aria-pressed', 'true');
 
   // the side: the day in numbers, morning → evening, the week so far
   await expect(page.locator('[data-num="km"]')).toContainText('24 km');
@@ -194,8 +201,9 @@ test('T2 evening review page: filled in from the ride and the meditation, the da
   // «Fertig»: the filled-in answers are kept, back on Heute the row shows the satisfaction
   await page.locator('[data-check-done]').click();
   await expect(page).toHaveURL(/#\/$/);
-  await expect.poll(async () => (await row(page))?.mindful).toBe('auto');
-  expect(await row(page)).toMatchObject({ mood: 7, sat: 8, best: ['nature'], story: 'Ein fiktiver Abend am See.', goalDone: 'yes', outside: '30-90', mindful: 'auto' });
+  await expect.poll(async () => (await abRows(page)).map((r) => r.qid)).toEqual(expect.arrayContaining(['achtsamkeit.moment', 'erreicht.zufrieden', 'erreicht.ziel', 'natur.draussen', 'spass.coolstes']));
+  expect((await abRows(page)).find((r) => r.qid === 'natur.draussen')).toMatchObject({ value: 'm90', day: DAY });
+  expect(await row(page)).toMatchObject({ mood: 7, story: 'Ein fiktiver Abend am See.' });
   await expect(page.locator('[data-section="morningcheck"] [data-sat]')).toContainText(T('Satisfaction {n} of 10', { n: 8 }));
   expect(errors).toEqual([]);
 });
@@ -232,20 +240,20 @@ test('T4 questions page from the tile: the table by part, a switch hides the que
   // T3c: the tile folded in one line; unfolded the questions by when they come, then «Fragen anpassen»
   const tile = page.locator('[data-section="questions"]');
   await expect(tile).toContainText(T('Your 15 questions'));
-  await expect(tile).toContainText(T('Sunday comes question 15'));
   await expect(tile.locator('.chip')).toHaveCount(0);
   await tile.locator('[data-questions-toggle]').click();
   await expect(tile.locator('[data-questions-toggle]')).toHaveAttribute('aria-expanded', 'true');
-  for (const part of ['morning', 'evening', 'sunday']) await expect(tile.locator(`[data-part="${part}"]`)).toBeVisible();
-  await expect(tile.locator('[data-part="sunday"] [data-q="15"]')).toBeVisible();
+  // Noah 04.11.2026 «ein Fragebogen»: only «Worauf freust du dich?» is left; the others are the window's questions now
+  await expect(tile.locator('[data-part="morning"]')).toBeVisible();
+  await expect(tile.locator('[data-part="evening"]')).toHaveCount(0);
   expect(await noScroll(page)).toBe(true);
   await shot(page, 'T3c-fragen-offen');
   await tile.locator('[data-questions-page]').click();
   await expect(page).toHaveURL(/#\/check\/questions$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Your 15 questions') })).toBeVisible();
-  // Noah 04.11.2026 «ein Fragebogen»: 1–5 and 7 are asked like in the window now (Deine Abfragen): 9 of the 15 stay in this table
+  // Noah 04.11.2026 «ein Fragebogen»: 1–5 and 7 are asked like in the window now (Deine Abfragen): only question 6 stays in this table
   await expect(page.locator('[data-moved]')).toBeVisible();
-  await expect(page.locator('tr[data-question]')).toHaveCount(9);
+  await expect(page.locator('tr[data-question]')).toHaveCount(1);
   await expect(page.getByText(T('Comes by itself'))).toBeVisible();
   await expect(page.getByText(T('from Fitbit, shown in the check'))).toBeVisible(); // 0.171: Fitbit is there
   // a phone leaves the columns «Wie oft» and «Antwort» away
@@ -275,30 +283,31 @@ test('T4 questions page from the tile: the table by part, a switch hides the que
   expect(errors).toEqual([]);
 });
 
-test('T2 question 15 on a Sunday evening: 1 to 10 and one sentence, saved', async ({ page, context }) => {
+test('T2 the Sunday question on the evening page: 1 to 10 and one sentence, saved; not on a weekday', async ({ page, context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date('2026-10-18T21:00:00+02:00') }); // a Sunday
   await page.goto('./#/check/evening');
-  const q15 = page.locator('[data-q="vision"]');
-  await expect(q15).toContainText(T('Did you get closer to your vision?'));
-  await q15.locator('.sv').nth(6).click();
-  await page.locator('[data-vision-note]').fill('Ein fiktiver Schritt.');
-  await page.locator('[data-vision-note]').blur();
+  // Noah 04.11.2026 «ein Fragebogen»: it is the window's weekly question «Näher an deiner Vision?» (Deine Abfragen), not a card of its own
+  const v = page.locator('[data-round-questions="evening"] [data-q="visionen.vision"]');
+  await expect(v).toBeVisible();
+  await v.locator('[data-step="6"]').click(); // five steps with words, stored as 2 … 10
+  await v.getByRole('textbox').fill('Ein fiktiver Schritt.');
+  await v.getByRole('textbox').blur();
   await expect
     .poll(() => page.evaluate(() => new Promise((res) => {
       const r = indexedDB.open('pack-generator');
       r.onsuccess = () => {
-        const g = r.result.transaction('flowChecks').objectStore('flowChecks').get('2026-10-18');
-        g.onsuccess = () => (res(g.result ? { vision: g.result.vision, visionNote: g.result.visionNote } : null), r.result.close());
+        const g = r.result.transaction('abAnswers').objectStore('abAnswers').getAll();
+        g.onsuccess = () => (res((g.result ?? []).filter((x) => x.qid === 'visionen.vision' && x.day === '2026-10-18').map((x) => ({ value: x.value, note: x.note }))), r.result.close());
       };
     })))
-    .toEqual({ vision: 7, visionNote: 'Ein fiktiver Schritt.' });
+    .toEqual([{ value: 6, note: 'Ein fiktiver Schritt.' }]);
   // not on a weekday
   await page.clock.setSystemTime(new Date('2026-10-19T21:00:00+02:00'));
   await page.reload();
-  await expect(page.locator('[data-q="sat"]')).toBeVisible();
-  await expect(page.locator('[data-q="vision"]')).toHaveCount(0);
+  await expect(page.locator('[data-round-questions="evening"] [data-q="erreicht.zufrieden"]')).toBeVisible();
+  await expect(page.locator('[data-q="visionen.vision"]')).toHaveCount(0);
 });
 
 
