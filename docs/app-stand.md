@@ -32,7 +32,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Heute | `#/` | Persönliche Übersicht mit nächsten Vorhaben, Wetter, fälligen Aufgaben, Körperdaten und Vorschlägen. Kacheln hinzufügen, ausblenden und sortieren. «Diese Woche» schreibt die Aktivitäten der Tage in ganzen Zeilen unter die Tage; «Velo im Monat» nennt den Vergleich («Gleiche Tage im Oktober: 38 km»). |
+| Heute | `#/` | Persönliche Übersicht mit nächsten Vorhaben, Wetter, fälligen Aufgaben, Körperdaten und Vorschlägen. Kacheln hinzufügen, ausblenden und sortieren. «Diese Woche» schreibt die Aktivitäten der Tage in ganzen Zeilen unter die Tage; «Velo im Monat» nennt den Vergleich («Gleiche Tage im Oktober: 38 km»). Oben der Gruss «Guete Morge, wi gaht's?»: ein Tipp öffnet die Stimmung (fünf Gesichter, «Mehr» mit Energie und Gefühlen, beliebig viele) und den Plan; jeder Tipp wird sofort im Verlauf von «Wi gaht's?» gespeichert, gestern ist markiert. |
 | Suche und Assistent | `#/assistent` | Fragen zu eigenen Daten stellen, Funktionen finden und eine Tour durch kurze Fragen vorbereiten. |
 | Quick Links | `#/quick` | Häufig verwendete Seiten und Kacheln anpinnen und in eigenen Gruppen ordnen. |
 | Funktionskatalog | `#/features` | Funktionen nach Situation, Seite oder Moment entdecken und suchen. |

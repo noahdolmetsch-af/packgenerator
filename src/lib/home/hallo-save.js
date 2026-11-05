@@ -5,20 +5,31 @@
 import { QUESTION, answerRow, stampOf } from '../abfragen.js';
 import { saveAnswers } from '../abdb.js';
 import { db } from '../db.js';
-import { NAME_ASKED_KEY } from './hallo.js';
+import { NAME_ASKED_KEY, HELLO_QUESTIONS } from './hallo.js';
 
 /**
- * The history rows of one answer: { mood: a key of MOODS or null, plans: [keys of PLANS], text }.
+ * The history rows of one answer: { mood: a key of MOODS or null, feelings: [keys of FEELINGS], plans: [keys of PLANS], text }.
  * The free text goes into the note of «Was häsch vor?». Nothing chosen and nothing written: no rows.
+ * Gruss A: the row ids are fixed by question and time, so every tap saves over the same rows (nothing piles up).
  */
-export function helloRows({ mood = null, plans = [], text = '' } = {}, at = stampOf()) {
-  return [answerRow(QUESTION['hallo.gaht'], mood, { at }), answerRow(QUESTION['hallo.vor'], plans, { at, note: text })].filter(Boolean);
+export function helloRows({ mood = null, feelings = [], plans = [], text = '' } = {}, at = stampOf()) {
+  return [
+    answerRow(QUESTION['hallo.gaht'], mood, { at }),
+    answerRow(QUESTION['hallo.gefuehl'], feelings, { at }),
+    answerRow(QUESTION['hallo.vor'], plans, { at, note: text }),
+  ]
+    .filter(Boolean)
+    .map((r) => ({ ...r, id: helloId(r.qid, at) }));
 }
+const helloId = (qid, at) => `ab-${qid}-${at}`;
 
-/** HG1 2b: save the answer; returns how many rows went into the history. */
+/** Gruss A: save the answer as it stands (every tap); a row that is empty now is taken away. Returns how many rows stand. */
 export async function saveHello(answer, at = stampOf()) {
   const rows = helloRows(answer, at);
-  await saveAnswers(rows);
+  const keep = new Set(rows.map((r) => r.id));
+  const stale = HELLO_QUESTIONS.map((q) => helloId(q.id, at)).filter((id) => !keep.has(id));
+  if (stale.length) await db.abAnswers.bulkDelete(stale);
+  if (rows.length) await saveAnswers(rows);
   return rows.length;
 }
 
