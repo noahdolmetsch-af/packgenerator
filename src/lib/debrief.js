@@ -23,6 +23,7 @@ import { tripEnd } from './tripstate.js';
 import { alwaysKeep, weatherCounts, tripSource } from './learn.js';
 import { inStandard, isWorn } from './blocks2026.js';
 import { leaveHomeFields } from './gear/comes.js';
+import { bareLabel } from './barelabel.js';
 
 export const WEATHER = [
   { key: 'colder', name: 'Colder' },
@@ -345,7 +346,7 @@ export function learningsFor(trip, learnings, n = 3, today = new Date()) {
   const area = trip?.domain || 'bikepacking';
   // «Inspiration» UC2-2: a packing rule from your inspiration has its own hint (inspiration/PackHints)
   return learnings
-    .filter((l) => l.topic !== 'Open question' && !l.inspo && !l.archivedAt && (!l.area || l.area === area))
+    .filter((l) => l.topic !== 'Open question' && !l.inspo && !l.archivedAt && !bareLabel(l.rule) && (!l.area || l.area === area))
     .map((l) => ({ l, s: score(l) }))
     .sort((a, b) => b.s - a.s || String(a.l.id).localeCompare(String(b.l.id), undefined, { numeric: true }))
     .slice(0, n)
