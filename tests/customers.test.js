@@ -57,3 +57,14 @@ describe('lesson card', () => {
     expect(parsePack('10', 'abc', '')).toBeUndefined();
   });
 });
+
+describe('subscription', () => {
+  it('reads the price, empty means none', async () => {
+    const { parseAbo, aboOf } = await import('../src/lib/booking/customers.js');
+    expect(parseAbo('200')).toEqual({ price: 20000 });
+    expect(parseAbo('')).toBeNull();
+    expect(parseAbo('abc')).toBeUndefined();
+    expect(aboOf({ abo: { price: 20000 } })).toEqual({ price: 20000 });
+    expect(aboOf({})).toBeNull();
+  });
+});

@@ -47,6 +47,13 @@ describe('Heute ruhiger: no half-empty row inside an area', () => {
     // a wide card first and a long card next: it spans the whole row from its start, not only the last column
     expect([...fillers([t('a', 'w'), t('b', 'long')])]).toEqual([['a', 8]]);
   });
+  it('on the phone (4 columns) a half-width card without a partner stretches to the full row', () => {
+    const t = (id, size) => ({ id, size });
+    expect([...fillers([t('a', 'w'), t('b', 'long')], 4)]).toEqual([['a', 4]]);
+    expect([...fillers([t('a', 'w'), t('b', 'w'), t('c', 'long')], 4)]).toEqual([]);
+    expect([...fillers([t('a', 'w'), t('b', 'w'), t('c', 'w'), t('d', 'long')], 4)]).toEqual([['c', 4]]);
+    expect([...fillers([t('a', 'long'), t('b', 'l'), t('c', 'w')], 4)]).toEqual([['c', 4]]);
+  });
 });
 
 // «Bereiche anpassen» (Noah 27.10.2026 «1a 2a»): move, rename and hide the areas, with Undo in the page

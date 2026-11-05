@@ -157,22 +157,24 @@ export function showArea(cfg, key) {
 /**
  * On a computer (8 columns) a card that would leave the rest of its row empty (the next card does not fit beside it,
  * or it is the last of its area) stretches to the end of the row, so no area shows a half-empty row.
+ * On a phone (4 columns, `cols` = 4) the same: a half-width card (size w) without a partner in its row stretches
+ * to the full row (frontend walk, stage 1: «Today's check» sat alone at half width with an empty right half).
  * → Map of id → the columns it then spans (from where it starts to the end of the row)
  */
-export function fillers(tiles = []) {
-  const span = (x) => (x.size === 'l' ? 4 : x.size === 'w' ? 2 : x.size === 's' ? 1 : 8);
+export function fillers(tiles = [], cols = 8) {
+  const span = (x) => (x.size === 'l' ? 4 : x.size === 'w' ? 2 : x.size === 's' ? 1 : cols);
   const out = new Map();
   let col = 0;
   tiles.forEach((x, i) => {
     const n = span(x);
-    if (col + n > 8) col = 0;
+    if (col + n > cols) col = 0;
     col += n;
     const next = tiles[i + 1];
-    if (col < 8 && (!next || col + span(next) > 8)) {
-      out.set(x.id, 8 - (col - n));
-      col = 8;
+    if (col < cols && (!next || col + span(next) > cols)) {
+      out.set(x.id, cols - (col - n));
+      col = cols;
     }
-    if (col >= 8) col = 0;
+    if (col >= cols) col = 0;
   });
   return out;
 }

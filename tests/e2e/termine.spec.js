@@ -236,6 +236,16 @@ test('the customer list: add a customer with an own price, edit and delete with 
   await page.locator('#cu-pprice').fill('450');
   await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
   await expect(row).toContainText('10');
+  // a subscription: price per month, the month's invoice is prepared by one tap
+  await row.click();
+  await page.locator('#cu-abo').fill('200');
+  await page.locator('[data-abo-invoice]').click();
+  await expect(page.getByLabel(T('Amount|money'))).toHaveValue('200');
+  await page.goto('./#/me/offers/customers');
+  await row.click();
+  await page.locator('#cu-abo').fill('200');
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
+  await expect(row).toContainText('200');
   // delete asks first, then offers Undo
   await row.click();
   await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Delete') }).click();
