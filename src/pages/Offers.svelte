@@ -461,7 +461,7 @@
             {/each}
           </ul>
         {/if}
-        <p class="muted">{t('{n} of {m} booked', { n: people.length, m: ty.places })}</p>
+        <p class="muted">{t('{n} of {m} booked', { n: people.length, m: ty.places })}{#if ty.places > 1 && ty.price} · {t('{price} CHF per person', { price: chf(ty.price) })}{/if}</p>
         <ul class="of-list">
           {#each people as b (b.id)}
             {@const href = contactHref(b.contact, helloText(s))}
@@ -474,6 +474,9 @@
           {/each}
           {#if people.length < ty.places}<li class="of-pp"><span class="muted">{tn(ty.places - people.length, '{n} place free', '{n} places free')}</span><small class="muted">{t('stays bookable')}</small></li>{/if}
         </ul>
+        {#if people.length > 1 && mailToAll(people.map((b) => b.contact), helloText(s), '')}
+          <p><a class="btn sm" data-mail-group href={mailToAll(people.map((b) => b.contact), helloText(s), '')}>{t('One e-mail to all participants')}</a></p>
+        {/if}
         {#if askCancel}
           <p class="of-ask" role="alert">{everyone.length ? tn(everyone.length, 'Cancel this time? {n} person has booked; afterwards you write to them.', 'Cancel this time? {n} people have booked; afterwards you write to them.') : t('Remove this free time?')}</p>
           <div class="of-foot"><button type="button" class="btn bad" disabled={busy} onclick={dropSlot}>{everyone.length ? t('Yes, cancel') : t('Yes, remove')}</button><button type="button" class="btn" onclick={() => (askCancel = false)}>{t('Keep it')}</button></div>
