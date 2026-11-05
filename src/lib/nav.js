@@ -283,7 +283,7 @@ export function pageOf(hash = '', careTab = false) {
  * The pages of the daily check (v0.127.0). WG had sent them to «Wi gaht's?»; since 18.10.2026 (Noah «1 a und b»)
  * they are pages of Heute again, and their answers stay in «Wi gaht's?» (its history reads them).
  */
-export const CHECK_PAGES = ['#/check/morning', '#/check/evening', '#/check/questions', '#/check/insights', '#/check/history'];
+export const CHECK_PAGES = ['#/check/morning', '#/check/evening', '#/check/insights', '#/check/history'];
 export function redirectOf(hash = '') {
   const [h, query = ''] = (hash || '').split('?');
   if (h === '#/review' || h.startsWith('#/review/')) return { hash: '#/debrief', spot: 'period', old: '#/review' };

@@ -57,7 +57,7 @@ describe('the stored wall', () => {
     expect(wallOf({ v: 9, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);
     expect(wallOf({ v: 8, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);
     expect(wallOf8({ v: 8, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
-    expect(wallOf8({ v: 5, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'questions', 'tipweek', 'year']);
+    expect(wallOf8({ v: 5, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'tipweek', 'year']);
     expect(wallOf8({ v: 6, tiles: [{ id: 'flow', size: 'l' }, { id: 'balance', size: 'l' }, { id: 'year', size: 'long' }] }).map((x) => x.id)).toEqual(['routine', 'flow', 'balance', 'tipweek', 'year']);
   });
   it('v0.101.0: the new tiles are marked «neu» for two weeks from the release', () => {
@@ -90,16 +90,16 @@ describe('the stored wall', () => {
       expect(TILE[id].area).toBe('flow');
     }
   });
-  it('WG: the old small «Tagescheck» leaves a stored wall, the rest stays in place («Deine 15 Fragen» is back since 18.10.2026)', () => {
+  it('WG: the old small «Tagescheck» leaves a stored wall, the rest stays in place («Deine 15 Fragen» is gone since 04.11.2026 too)', () => {
     for (const id of GONE) {
       expect(TILE[id]).toBeUndefined();
       expect(READY.some((x) => x.id === id)).toBe(false);
       expect(catalog().flatMap((a) => a.tiles).some((x) => x.id === id)).toBe(false);
     }
     const stored = { v: 4, tiles: [{ id: 'trip', size: 'long' }, { id: 'check', size: 's' }, { id: 'balance', size: 'l' }, { id: 'morningcheck', size: 'w' }, { id: 'questions', size: 'long' }, { id: 'year', size: 'long' }] };
-    expect(wallBefore5(stored)).toEqual([{ id: 'trip', size: 'long' }, { id: 'balance', size: 'l' }, { id: 'morningcheck', size: 'w' }, { id: 'questions', size: 'long' }, { id: 'year', size: 'long' }]);
-    // a wall of before (v 3) with the 15 questions: they stay, the round tile comes once
-    expect(wallBefore5({ v: 3, tiles: [{ id: 'flow', size: 'l' }, { id: 'questions', size: 'long' }] }).map((x) => x.id)).toEqual(['flow', 'balance', 'morningcheck', 'questions']);
+    expect(wallBefore5(stored)).toEqual([{ id: 'trip', size: 'long' }, { id: 'balance', size: 'l' }, { id: 'morningcheck', size: 'w' }, { id: 'year', size: 'long' }]);
+    // a wall of before (v 3) with the 15 questions: they leave, the round tile comes once
+    expect(wallBefore5({ v: 3, tiles: [{ id: 'flow', size: 'l' }, { id: 'questions', size: 'long' }] }).map((x) => x.id)).toEqual(['flow', 'balance', 'morningcheck']);
     // saved again, the record has no trace of the small «Tagescheck»
     expect(wallRecord(wallBefore5(stored)).tiles.map((x) => x.id)).not.toContain('check');
   });

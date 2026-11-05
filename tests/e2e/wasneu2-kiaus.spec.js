@@ -9,7 +9,8 @@
 import { test, expect } from './clock.js';
 import { linkOf } from './newsgo-lib.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
-import { WHATS_NEW, BOXES, shortVersion } from '../../src/lib/whatsnew.js';
+import { BOXES, shortVersion } from '../../src/lib/whatsnew.js';
+import { WHATS_NEW } from '../../src/lib/whatsnew-full.js';
 import { READY, HELPER_TILES, wallRecord } from '../../src/lib/home/tiles.js';
 import { readFileSync } from 'node:fs';
 import { closeDialog } from './settle.js';

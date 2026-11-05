@@ -49,7 +49,7 @@
   import TourBikeAsk from '../bikes/TourBikeAsk.svelte';
   import BikeOrderSheet from '../bikes/BikeOrderSheet.svelte';
   import '../bikes/standardvelo.css';
-  import { SPORT, CYCLING, areaOf, sportForArea, orderSports, isSport, isBikeSport, sportBikeId, ownSportBike, wantsBikepacking, SPORT_BIKES } from '../sports.js';
+  import { SPORT, CYCLING, areaOf, sportForArea, sportOf, sportLabel, orderSports, isSport, isBikeSport, sportBikeId, ownSportBike, wantsBikepacking, SPORT_BIKES } from '../sports.js';
   import '../sports.css';
   import { askDelete, deleteWithUndo, saveFailed, once } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026
   import { offerDone } from '../ui/rename.svelte.js';
@@ -200,7 +200,7 @@
   // SA1–SA3 (Noah 14.10.2026 «SA1–SA3 freigegeben», «1a 2a 3a 4b 5b»): one sports list (sports.js). The bike
   // sports pack from the bike area; Fahrrad is chosen (1a); the sports used most come first (5b).
   // svelte-ignore state_referenced_locally
-  const SPORTS = orderSports(allTrips ?? []).map((s) => ({ key: s.key, name: s.name, icon: EX_ICON[s.icon] ?? BikeIcon }));
+  const SPORTS = orderSports(allTrips ?? [], trip ? sportOf(trip) : null).map((s) => ({ key: s.key, name: s.name, raw: !!s.raw, icon: EX_ICON[s.icon] ?? BikeIcon }));
   const otherAreas = TRIP_DOMAINS.filter((d) => d.key !== BIKEPACKING && !isSport(d.key));
   // svelte-ignore state_referenced_locally
   let sport = $state(isSport(sportForArea(area)) ? sportForArea(area) : null);
@@ -823,7 +823,7 @@
     {#if isNew && wantsBikepacking(sport, night)}
       <div class="sa-hint" role="note">
         <Tent size={18} aria-hidden="true" />
-        <span class="sa-ht"><b>{t('A night out? Bikepacking may fit better.')}</b><small>{t('Only a suggestion. {sport} stays until you tap.', { sport: t(SPORT[sport].name) })}</small></span>
+        <span class="sa-ht"><b>{t('A night out? Bikepacking may fit better.')}</b><small>{t('Only a suggestion. {sport} stays until you tap.', { sport: sportLabel(SPORT[sport], t) })}</small></span>
         <button type="button" class="btn sm sa-hb" onclick={() => pickSport('bikepacking')}>{t('Switch to Bikepacking')}</button>
       </div>
     {/if}
@@ -916,7 +916,7 @@
           {#each areaTemplates as tp (tp.id)}<OptionButton pressed={start === tp.id} icon={Star} label={tp.name} title={tplLine(tp)} onclick={() => pickStart(tp.id)} />{/each}
         </div>
         {#if examples.length}
-          <p class="grp-l">{t('Examples {sport}', { sport: t(SPORT[sport]?.name ?? domainName(area)) })}</p>
+          <p class="grp-l">{t('Examples {sport}', { sport: SPORT[sport] ? sportLabel(SPORT[sport], t) : t(domainName(area)) })}</p>
           <div class="obtns" role="group" aria-label={t('Examples')}>
             {#each examples as ex (ex.id)}<OptionButton pressed={example === ex.id} icon={EX_ICON[ex.icon] ?? BikeIcon} label={t(ex.name)} onclick={() => pickExample(ex)} />{/each}
           </div>
@@ -1007,9 +1007,9 @@
       <fieldset class="ctx area">
         <legend class="lbl">{t('Sport')}</legend>
         <div class="tp-chips areas">
-          {#each SPORTS as d (d.key)}{@const Icon = d.icon}<button type="button" class="tp-chip" aria-pressed={sport === d.key} onclick={() => pickSport(d.key)}><Icon size={16} aria-hidden="true" />{t(d.name)}</button>{/each}
+          {#each SPORTS as d (d.key)}{@const Icon = d.icon}<button type="button" class="tp-chip" aria-pressed={sport === d.key} onclick={() => pickSport(d.key)}><Icon size={16} aria-hidden="true" />{d.raw ? d.name : t(d.name)}</button>{/each}
           {#if othersOpen}
-            {#each otherAreas as d (d.key)}<button type="button" class="tp-chip" aria-pressed={!sport && area === d.key} onclick={() => pickArea(d.key)}>{t(d.name)}</button>{/each}
+            {#each otherAreas as d (d.key)}<button type="button" class="tp-chip" aria-pressed={!sport && area === d.key} onclick={() => pickArea(d.key)}>{d.raw ? d.name : t(d.name)}</button>{/each}
           {:else if otherAreas.length}
             <button type="button" class="tp-chip more" aria-expanded="false" onclick={() => (othersOpen = true)}><Plus size={16} aria-hidden="true" />{t('Other|sport')}</button>
           {/if}
@@ -1027,12 +1027,12 @@
           <legend class="lbl">{t('Bike')}</legend>
           {#if errors.bike}<p class="fieldmsg" id="tn-bike-err">{errors.bike}</p>{/if}
           <div class="tp-chips">
-            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if bikes.length > 1 && sport !== CYCLING && isBikeSport(sport) && ownSportBike(sport, bikes, savedSportBikes, b.id)}<span class="sv-pill sa-std" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard for {sport}', { sport: t(SPORT[sport].name) })}</span>{:else if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
+            {#each bikes as b (b.id)}<button type="button" class="tp-chip" aria-pressed={draft.bikeId === b.id} onclick={() => ((draft.bikeId = b.id), (bikeOwn = true))}><BikeIcon size={16} aria-hidden="true" />{b.name}{#if bikes.length > 1 && sport !== CYCLING && isBikeSport(sport) && ownSportBike(sport, bikes, savedSportBikes, b.id)}<span class="sv-pill sa-std" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard for {sport}', { sport: sportLabel(SPORT[sport], t) })}</span>{:else if b.id === stdBike?.id && bikes.length > 1}<span class="sv-pill" aria-hidden="true"><Star size={12} class="sv-star" />{t('Standard')}</span>{/if}</button>{/each}
           </div>
           {#if sportStd && !bikeOwn}
-            <small class="prefrom sa-pre">{t('standard bike for {sport} · you can change it', { sport: t(SPORT[sport].name) })}</small>
+            <small class="prefrom sa-pre">{t('standard bike for {sport} · you can change it', { sport: sportLabel(SPORT[sport], t) })}</small>
           {:else if canSetSportBike}
-            <p class="sv-hint sa-set"><span>{t('Bring {name} every time for {sport}?', { name: bike?.name ?? '', sport: t(SPORT[sport].name) })} <button type="button" class="std-link" onclick={setSportBike}>{t('Make standard for {sport}', { sport: t(SPORT[sport].name) })}</button></span></p>
+            <p class="sv-hint sa-set"><span>{t('Bring {name} every time for {sport}?', { name: bike?.name ?? '', sport: sportLabel(SPORT[sport], t) })} <button type="button" class="std-link" onclick={setSportBike}>{t('Make standard for {sport}', { sport: sportLabel(SPORT[sport], t) })}</button></span></p>
           {:else if stdPre}
             <p class="sv-hint std-pre"><Star size={14} class="sv-star" aria-hidden="true" /><span><b>{t('Standard bike')}</b> {t('is chosen. A tap on another bike counts only for this trip.')} <button type="button" class="std-link" onclick={() => (orderOpen = true)}>{t('Change standard')}</button></span></p>
           {:else if bikePre}<small class="prefrom">{bikeFromOpen ? t('the bike of the open trip · you can change it') : t('the bike of your last trip · you can change it')}</small>{/if}
