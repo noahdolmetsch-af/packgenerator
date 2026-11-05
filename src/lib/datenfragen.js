@@ -194,6 +194,21 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'draussen',
   },
+  'daten.vermutung': {
+    id: 'daten.vermutung',
+    area: 'achtsamkeit',
+    text: 'Does that fit today?',
+    form: {
+      kind: 'chips',
+      multi: false,
+      note: true,
+      options: [chip('yes', 'Yes, that fits'), chip('no', 'No, not today'), chip('unsure', 'Not sure')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'vermutung',
+  },
 };
 
 /** The rules, in order. title/about are English keys for t() (about has {n}). */
@@ -269,6 +284,14 @@ export const RULES = [
     about: 'Asks on a dry day of at least {n} degrees when your calendar has nothing from 17 to 22 o\'clock.',
     vars: { n: WARM_C },
     param: { key: 'n', min: 8, max: 28, step: 1, def: WARM_C, label: 'Warm from (degrees)' },
+  },
+  {
+    id: 'vermutung',
+    qid: 'daten.vermutung',
+    title: 'A guess to test',
+    about: 'Asks yes or no on a day that fits when «What goes together» already shows a hint at least {n} percent strong.',
+    vars: { n: 30 },
+    param: { key: 'n', min: 30, max: 80, step: 5, def: 30, label: 'Hint strength from (percent)' },
   },
 ];
 
@@ -557,7 +580,14 @@ export function randomPick(pool = [], answers = [], cfg = null, today) {
   return left.map((x) => [hash(`${today}|${x.id}`), x]).sort((a, b) => a[0] - b[0] || a[1].id.localeCompare(b[1].id))[0][1];
 }
 
+/** The guess of today: the hint (an insight row, with its `sentence` and `rho`) when it is strong enough: { sentence } or null. */
+export function vermutungHit(hint, strength = 30) {
+  if (!hint?.sentence || !(Math.abs(hint.rho) * 100 >= strength)) return null;
+  return { sentence: hint.sentence };
+}
+
 const WHY = {
+  vermutung: 'Your data hints: {sentence} Today looks like such a day, so it is worth checking.',
   zufall: 'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.',
   grau: 'Rain is likely today and your latest mood was {mood}, your usual is {usual}.',
   draussen: 'Dry and {max} degrees today, and nothing in your calendar this evening.',
@@ -571,6 +601,7 @@ const WHY = {
   stimmungN: 'Your mood on the last {days} days was {list}, your usual is {usual}.',
 };
 const HITS = {
+  vermutung: ({ hint, val }) => vermutungHit(hint, val),
   grau: ({ wx, answers, checks, today, val }) => grauHit(wx, answers, checks, today, val),
   draussen: ({ wx, cal, today, val }) => draussenHit(wx, cal, today, val),
   pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
@@ -588,7 +619,7 @@ const HITS = {
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, hint = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const pick = randomOn(cfg) ? randomPick(pool, answers, cfg, today) : null;
@@ -609,7 +640,7 @@ export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = n
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, acts, sport, wx, cal, answers, checks, today, val: ruleVal(cfg, rule.id) });
+    const hit = HITS[rule.id]({ health, acts, sport, wx, cal, hint, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
     out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
