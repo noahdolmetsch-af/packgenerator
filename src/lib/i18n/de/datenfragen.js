@@ -64,6 +64,11 @@ export default {
   'Asks when you noted «not played» for a planned court time in the last {n} days.': 'Fragt, wenn du in den letzten {n} Tagen eine geplante Platzzeit als «nicht gespielt» eingetragen hast.',
   'Looking back (days)': 'Rückblick (Tage)',
   'No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.': 'Noch kein Tennis eingetragen. Die Regeln für Spiele und ausgefallene Platzzeiten warten, bis du unter Aktiv › Sportarten › Tennis ein Spiel oder eine Platzzeit einträgst.',
+  // Wiederholungsschutz
+  'You skipped this question three times. Ask less often?': 'Du hast diese Frage dreimal übersprungen. Soll ich sie seltener fragen?',
+  'Yes, less often': 'Ja, seltener',
+  'No, keep it': 'Nein, so lassen',
+  'Asks only every {n} days, because you chose «less often».': 'Fragt nur alle {n} Tage, weil du «seltener» gewählt hast.',
   'The question|data': 'Die Frage',
   'Above your usual by (beats per minute)': 'Über deinem Üblichen um (Schläge pro Minute)',
   'Less than (hours asleep)': 'Weniger als (Stunden geschlafen)',

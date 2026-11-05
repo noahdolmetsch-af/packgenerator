@@ -20,6 +20,10 @@ export const DATA_KEY = 'datenfragen';
 export const MAX_PER_DAY = 3;
 /** A rule asks again earliest this many days after its last answer. */
 export const GAP_DAYS = 3;
+/** After this many skips of a rule's question (on different days, never answered between), the window offers to ask less often. */
+export const SKIP_OFFER = 3;
+/** «Ask less often» makes the gap of that rule this many days. */
+export const FEWER_GAP = 7;
 /** The resting pulse: this far above the median of the days before counts as «stands out» (same as erkenntnisse.js). */
 export const RHR_ABOVE = 5;
 /** The days before today that make the «usual», and the least days with a value needed. */
@@ -237,13 +241,20 @@ export function dataOf(value) {
   const off = Array.isArray(value?.off) ? value.off.filter((id) => RULE[id]) : [];
   const vals = {};
   const texts = {};
+  const gaps = {};
+  const skips = {};
   for (const r of RULES) {
     const v = Number(value?.vals?.[r.id]);
     if (value?.vals?.[r.id] != null && Number.isFinite(v) && v >= r.param.min && v <= r.param.max && v !== r.param.def) vals[r.id] = v;
     const t = typeof value?.texts?.[r.id] === 'string' ? value.texts[r.id].trim().slice(0, 140) : '';
     if (t && t !== DATA_QUESTIONS[r.qid].text) texts[r.id] = t;
+    const g = Number(value?.gaps?.[r.id]);
+    if (value?.gaps?.[r.id] != null && Number.isFinite(g) && g > GAP_DAYS && g <= 30) gaps[r.id] = Math.round(g);
+    const k = value?.skips?.[r.id];
+    const n = Number(k?.n);
+    if (Number.isFinite(n) && n >= 1 && /^\d{4}-\d{2}-\d{2}$/.test(k?.day ?? '')) skips[r.id] = { n: Math.min(99, Math.round(n)), day: k.day };
   }
-  return { off: [...new Set(off)], vals, texts };
+  return { off: [...new Set(off)], vals, texts, gaps, skips };
 }
 /** Is a rule on? */
 export const ruleOn = (value, id) => !dataOf(value).off.includes(id);
@@ -273,10 +284,36 @@ export function resetRule(value, id) {
   const cur = dataOf(value);
   const { [id]: _v, ...vals } = cur.vals;
   const { [id]: _t, ...texts } = cur.texts;
-  return { ...cur, vals, texts };
+  const { [id]: _g, ...gaps } = cur.gaps;
+  const { [id]: _s, ...skips } = cur.skips;
+  return { ...cur, vals, texts, gaps, skips };
 }
 /** Is a rule changed from the standard (threshold or text)? */
-export const ruleChanged = (value, id) => ruleVal(value, id) !== RULE[id].param.def || ruleText(value, id) != null;
+export const ruleChanged = (value, id) => ruleVal(value, id) !== RULE[id].param.def || ruleText(value, id) != null || ruleGap(value, id) !== GAP_DAYS;
+
+/** Days between two asks of a rule: GAP_DAYS, or longer after «Ask less often». */
+export const ruleGap = (value, id) => dataOf(value).gaps[id] ?? GAP_DAYS;
+/** Set the gap of a rule (GAP_DAYS or less: back to the default) → the new settings value. */
+export function setGap(value, id, days) {
+  const cur = dataOf(value);
+  const { [id]: _, ...rest } = cur.gaps;
+  return dataOf({ ...cur, gaps: days > GAP_DAYS ? { ...rest, [id]: days } : rest });
+}
+/** The person skipped the question of a rule today → the new settings value (counted once a day). */
+export function noteSkip(value, id, today) {
+  const cur = dataOf(value);
+  const k = cur.skips[id];
+  if (k?.day === today) return cur;
+  return dataOf({ ...cur, skips: { ...cur.skips, [id]: { n: (k?.n ?? 0) + 1, day: today } } });
+}
+/** An answer (or «keep it as it is») ends the count of skips of a rule → the new settings value. */
+export function clearSkips(value, id) {
+  const cur = dataOf(value);
+  const { [id]: _, ...skips } = cur.skips;
+  return { ...cur, skips };
+}
+/** Skipped often enough that the window offers to ask less often (and the rule is not yet asking less often)? */
+export const fewerOffer = (value, id) => (dataOf(value).skips[id]?.n ?? 0) >= SKIP_OFFER && ruleGap(value, id) === GAP_DAYS;
 
 /** The resting pulse today against the median of the days before: { v, normal } when it stands out, else null. */
 export function ruhepulsHit(health = [], today, above = RHR_ABOVE) {
@@ -401,19 +438,25 @@ export function dataDue({ health = [], acts = [], sport = [], answers = [], chec
   const off = new Set(dataOf(cfg).off);
   const doneToday = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => a.qid)).size;
   const room = Math.max(0, MAX_PER_DAY - doneToday);
-  const since = addDays(today, -(GAP_DAYS - 1));
+  // not two questions from data of the same group on a day (Noah 04.11.2026 «2a»): answered ones count
+  const usedAreas = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => DATA_QUESTIONS[a.qid]?.area).filter(Boolean));
+  // a question put away today (skipped, «Not today») keeps its group used as well
+  for (const q of Object.values(DATA_QUESTIONS)) if (snooze?.[q.id] && dayOf(snooze[q.id]) >= today) usedAreas.add(q.area);
   const out = [];
   for (const rule of RULES) {
     if (out.length >= room) break;
     if (off.has(rule.id)) continue;
     const q = DATA_QUESTIONS[rule.qid];
+    if (usedAreas.has(q.area)) continue;
+    const since = addDays(today, -(ruleGap(cfg, rule.id) - 1));
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
     const hit = HITS[rule.id]({ health, acts, sport, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
-    out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id });
+    out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
+    usedAreas.add(q.area);
   }
   return out;
 }

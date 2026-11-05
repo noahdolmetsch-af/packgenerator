@@ -13,10 +13,10 @@
    */
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
-  import { abQuery, ensureConfig, saveAnswers, saveSnooze } from '../abdb.js';
+  import { abQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
   import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, QUIET_ROUND, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp, fitNow } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
-  import { dataDue } from '../datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+  import { dataDue, DATA_QUESTIONS, noteSkip, clearSkips, setGap, FEWER_GAP } from '../datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { t, tn } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
   import CheckLine from '../wohl/CheckLine.svelte'; // Paket P: ride numbers, recipe, morning tip, a moment from the jar
@@ -86,6 +86,9 @@
       const rows = visible.map((d) => answerRow(d.q, draft[d.q.id], { at, slot: d.slot, note: notes[d.q.id], src: filledBy[d.q.id] !== undefined && draft[d.q.id] === filledBy[d.q.id] ? 'fitbit' : 'hand' })).filter(Boolean);
       const folded = ordered.slice(visible.length);
       await saveAnswers(rows);
+      // an answer ends the count of skips of a rule from data (Noah 04.11.2026 «2a»)
+      const ruled = rows.map((r) => DATA_QUESTIONS[r.qid]?.rule).filter(Boolean);
+      if (ruled.length) await saveDataCfg(ruled.reduce((c, id) => clearSkips(c, id), data?.dataCfg ?? null));
       if (folded.length) await saveSnooze(snoozeAll(data?.snooze, folded));
       more = false;
       for (const r of rows) {
@@ -102,7 +105,11 @@
     delete draft[d.q.id];
     delete notes[d.q.id];
     saveSnooze(skipToday(data?.snooze, d.q.id, now));
+    if (d.rule) saveDataCfg(noteSkip(data?.dataCfg, d.rule, today));
   }
+  // skipped three times: «Yes, less often» asks that rule only every FEWER_GAP days; «No, keep it» ends the count
+  const lessOften = (d) => saveDataCfg(clearSkips(setGap(data?.dataCfg, d.rule, FEWER_GAP), d.rule));
+  const keepAsIs = (d) => saveDataCfg(clearSkips(data?.dataCfg, d.rule));
   // «Heute nicht» and ✕ (Noah 21.10.2026 «nie mehr eine Erinnerung»): the shown questions away, and neither the window
   // nor Heute's hint come back before tomorrow; in the morning only until the evening check (Noah 26.10.2026 «1a»)
   const notToday = () => saveSnooze(quietToday(data?.snooze, shown, now, configOf(data?.cfg).rounds));
@@ -182,6 +189,13 @@
           </span>
         </div>
         {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{t('Change this rule')}</a></small>{/if}
+        {#if d.fewer}
+          <div class="fewer" data-fewer>
+            <small>{t('You skipped this question three times. Ask less often?')}</small>
+            <button type="button" class="btn sm" onclick={() => lessOften(d)} data-fewer-yes>{t('Yes, less often')}</button>
+            <button type="button" class="btn sm" onclick={() => keepAsIs(d)} data-fewer-no>{t('No, keep it')}</button>
+          </div>
+        {/if}
         <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
         {#if fit}<small class="last fit num" data-fitbit={fit.hint.key}><span class="ab-src fitbit">Fitbit</span> {fitText(fit.hint)}{fit.value != null ? ` · ${t('filled in, changeable')}` : ''}</small>{/if}
         {#if d.q.id === 'koerper.waage' && lastKg}
@@ -249,6 +263,12 @@
     font-size: var(--fs-small);
   }
   /* «Überspringen»: small and quiet, still 44 px to tap (the hit area is bigger than the word) */
+  .fewer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
   .skip {
     position: relative;
     padding: 0 2px;
