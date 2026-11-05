@@ -116,6 +116,8 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   const sheet = page.getByRole('dialog');
   await expect(sheet).toContainText('Mia Muster');
   await expect(sheet).toContainText(T('pays on site'));
+  await expect(sheet).toContainText(T('{price} CHF per person', { price: '25' })); // group: the price is per person
+  await expect(sheet.locator('[data-mail-group]')).toHaveCount(0); // one person: no group e-mail
   await sheet.getByRole('button', { name: T('Cancel the time') }).click();
   await sheet.getByRole('button', { name: T('Yes, cancel') }).click();
   await expect(sheet).toContainText(T('The time is cancelled. Tell {n} person:', { n: 1 }));
