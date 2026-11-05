@@ -15,7 +15,7 @@
   import AzmWeek from '../../health/AzmWeek.svelte';
   import WeekNumbers from '../WeekNumbers.svelte';
   import { tableQuery } from '../../messwerte-data.js';
-  import { kindsOf, lastWeek, caloriesOf, rhrLine, latestOf } from '../../uebersicht.js';
+  import { kindsOf, rangeSummary, caloriesOf, rhrLine, latestOf } from '../../uebersicht.js';
   import { shown } from '../../messwerte.js';
   import { addDays } from '../../health.js';
   import { health, FITBIT_HASH } from '../../health/client.svelte.js';
@@ -24,14 +24,17 @@
 
   // «Computer-Breite» (Noah 26.10.2026 «2a»): part 'main' leaves out «Letzte 7 Tage», part 'last7' is only
   // «Letzte 7 Tage»; Auswerten shows them in its two columns on a computer. A phone always shows everything.
-  let { today, children, part = 'all' } = $props();
+  // «Zeitraum» (Noah 05.11.2026 «1a 2b 3a 4a»): `range` = { from, to, now, title } of the switch on Auswerten; the list of
+  // the sports follows it, «Im Fokus» and the tiles of «Überblick» keep showing the latest days. Without it: 7 days.
+  let { today, children, part = 'all', range = null } = $props();
   const top = $derived(phone.matches || part !== 'last7');
   const tail = $derived(phone.matches || part !== 'main');
   const q = tableQuery();
   const table = $derived($q ?? new Map());
   const todays = $derived(table.get(today)?.acts ?? []);
   const kinds = $derived(kindsOf(table, today));
-  const week = $derived(lastWeek(table, today));
+  const asWeek = $derived(!range || range.week);
+  const week = $derived(rangeSummary(table, range?.from ?? addDays(today, -6), range?.to ?? today));
   // the calories of today, else of the latest day of the week that has some (Noah 21.10.2026: at night today has none yet)
   const kcalDay = $derived(Array.from({ length: 7 }, (_, i) => addDays(today, -i)).find((d) => { const c = caloriesOf(table.get(d)); return c.total != null || c.active != null; }) ?? today);
   const kcal = $derived(caloriesOf(table.get(kcalDay)));
@@ -123,7 +126,8 @@
 {/if}
 
 {#if tail}
-<Sec id="km-h" title={t('Last 7 days')} sub={t('compared with your usual week')}>
+<Sec id="km-h" title={asWeek ? t('Last 7 days') : range.title} sub={asWeek ? t('compared with your usual week') : ''}>
+  {#if asWeek || week.kinds.length || week.rhr != null || week.kcal != null}
   <ul class="card l7" data-last7>
     {#each week.kinds as k (k.kind)}
       {@const I = SPORT_ICON[k.kind]}
@@ -132,7 +136,9 @@
     {#if week.rhr != null}<li><a href="#/flow/stats/hr" data-l7="hr"><span class="ico hrt" aria-hidden="true"><Heart size={20} /></span><span>{t('Heart rate')}</span><b class="num">{t('{n} avg at rest', { n: num(week.rhr) })}</b></a></li>{/if}
     {#if week.kcal != null}<li data-l7="kcal"><span class="ico fl" aria-hidden="true"><Flame size={20} /></span><span>{t('Calories burned')}</span><b class="num">{t('avg {n}', { n: num(week.kcal) })}</b></li>{/if}
   </ul>
-  <WeekNumbers {today} />
+  {/if}
+  {#if !asWeek && !week.kinds.length && week.rhr == null && week.kcal == null}<p class="l7none" data-l7-none>{t('Nothing recorded in this period.')}</p>{/if}
+  {#if asWeek}<WeekNumbers {today} />{/if}
   {#if !phone.matches}{@render children?.()}{/if}
 </Sec>
 {/if}
@@ -140,7 +146,7 @@
 
 {#if phone.matches}
   <div class="card ovfold" data-ov-fold>
-    <FoldRow icon={LayoutGrid} label={t('Overview and last 7 days')} summary={foldSum} bind:open={more}>{@render body()}</FoldRow>
+    <FoldRow icon={LayoutGrid} label={asWeek ? t('Overview and last 7 days') : t('Overview and period')} summary={foldSum} bind:open={more}>{@render body()}</FoldRow>
   </div>
   {@render children?.()}
 {:else}
@@ -284,6 +290,11 @@
     color: var(--ink);
     font-size: var(--fs-small);
     font-weight: 600;
+  }
+  .l7none {
+    margin: var(--sp-2) 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .l7 {
     margin: 0 0 10px;
