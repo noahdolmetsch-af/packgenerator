@@ -1,6 +1,6 @@
 # Experimente mit Fahrt-Werten
 
-PR folgt · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 2 von 6
+PR #892 · 04.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Plane Persönliches Lernen für Touren»), Idee 2 von 6
 
 ## Was ist neu
 - Ein Versuch in Ich › Ruhig › Versuche kann jetzt Werte deiner Fahrten messen: **gefühlte Anstrengung der Fahrten** (Mittel deiner Antworten auf «Wie anstrengend war deine Fahrt?» an dem Tag, neu im Katalog von Auswerten als `rideFeel`), **Kadenz**, **Tempo** und **Watt pro Kilo**.
