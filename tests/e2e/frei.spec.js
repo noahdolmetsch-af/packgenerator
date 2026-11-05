@@ -69,6 +69,26 @@ test('Impulse: «Heute nicht» lets the idea rest, and «Jetzt zurückholen» br
   expect(errors).toEqual([]);
 });
 
+test('Mein Abend: the timer without the phone runs out, then «Hat gut getan» is counted', async ({ page, context }) => {
+  const errors = await open(page, context, './#/me/frei/abend');
+  await page.locator('[data-eve-min="10"]').click();
+  await page.locator('[data-eve-start]').click();
+  await expect(page.locator('[data-eve-left]')).toContainText('10:');
+  await page.clock.fastForward('05:00');
+  await expect(page.locator('[data-eve-left]')).toContainText(/[45]:/);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-eve-left]')).toBeVisible(); // the end time is remembered
+  await page.clock.fastForward('06:00');
+  await expect(page.locator('[data-eve-done]')).toContainText('10 Minuten ohne Handy');
+  await page.locator('[data-eve-good]').click();
+  await expect(page.locator('[data-eve-today]')).toContainText('gut getan');
+  await expect(page.locator('[data-eve-count]')).toContainText('1 Abend');
+  await page.locator('[data-eve-undo]').click();
+  await expect(page.locator('[data-eve-good-now]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
 test('Worauf hab ich Lust: a choice gives up to three ideas', async ({ page, context }) => {
   const errors = await open(page, context, './#/me/frei/lust');
   await page.locator('[data-choice="play"]').first().click();

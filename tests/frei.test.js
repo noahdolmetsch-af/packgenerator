@@ -1,6 +1,6 @@
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): the pure rules of Ich › Freie Zeit and its pages.
 import { describe, it, expect } from 'vitest';
-import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText } from '../src/lib/frei.js';
+import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES } from '../src/lib/frei.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -164,5 +164,32 @@ describe('«For next time»', () => {
     expect(p.missing).toHaveLength(1);
     expect(p.missing[0].n).toBe(2);
     expect(markLine('missing')).toBe('Take {name} next time');
+  });
+});
+
+describe('the evening timer and «did you good»', () => {
+  const T0 = Date.parse('2026-11-05T20:00:00Z');
+  it('idle, running, done', () => {
+    expect(eveTimerState(null, T0).state).toBe('idle');
+    expect(eveTimerState({ end: T0 + 20 * 6e4, min: 20 }, T0)).toEqual({ state: 'run', left: 20 * 6e4, min: 20 });
+    expect(eveTimerState({ end: T0 + 20 * 6e4, min: 20 }, T0 + 20 * 6e4)).toMatchObject({ state: 'done', min: 20 });
+    expect(eveTimerState({ end: 'x' }, T0).state).toBe('idle');
+    expect(EVE_MINUTES).toContain(20);
+  });
+  it('the clock text', () => {
+    expect(mmss(20 * 6e4)).toBe('20:00');
+    expect(mmss(61_500)).toBe('1:02');
+    expect(mmss(-5)).toBe('0:00');
+  });
+  it('evenings that did you good: one per day, last 30 days, «not really» does not count', () => {
+    const rows = [
+      { day: '2026-11-05', good: true },
+      { day: '2026-11-05', good: true },
+      { day: '2026-11-04', good: false },
+      { day: '2026-10-07', good: true }, // 29 days back: still in
+      { day: '2026-10-06', good: true }, // 30 days back: out
+    ];
+    expect(goodEvenings(rows, '2026-11-05')).toBe(2);
+    expect(goodEvenings([], '2026-11-05')).toBe(0);
   });
 });
