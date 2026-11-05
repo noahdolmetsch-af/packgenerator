@@ -108,6 +108,8 @@
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
+  import RowsSheet from '../lib/home/RowsSheet.svelte';
+  import { ROWS_KEY, isHidden, putOff } from '../lib/home/rows.js';
   import { HABITS_KEY } from '../lib/home/habits.js';
   import TagesKarte from '../lib/home/TagesKarte.svelte';
   import AktivTile from '../lib/home/AktivTile.svelte';
@@ -206,7 +208,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -760,7 +762,12 @@
     const rank = { party: 0, eve: 1, bad: 2, warn: 3, info: 4, quiet: 5 };
     // «Heute lädt nicht» (19.10.2026): a key twice would stop all of Heute (Svelte keyed each); the first one stays
     const seen = new Set();
-    const uniq = rows.filter((r) => !seen.has(r.key) && seen.add(r.key));
+    // «Jetzt dran» steuern (Noah 05.11.2026 «4a»): a kind that is switched off and a row put off for a week stay away;
+    // every calm row gets «Later» (one week, with Undo)
+    const uniq = rows
+      .filter((r) => !seen.has(r.key) && seen.add(r.key))
+      .filter((r) => r.tone === 'party' || !isHidden(r, S[ROWS_KEY], today))
+      .map((r) => (r.tone === 'quiet' && !r.later ? { ...r, later: () => laterRow(r) } : r));
     return uniq.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
   });
   // Gesamttest 20.10.2026 (Noah «5a»): milestones and challenges are a quiet line of their own;
@@ -785,6 +792,12 @@
   }
   let allRows = $state(false);
   let openHints = $state({}); // a row's longer explanation («More»), by the row's key
+  let rowsOpen = $state(false); // the window «Which rows in Up now?» (lib/home/RowsSheet.svelte)
+  async function laterRow(r) {
+    const before = $state.snapshot(S[ROWS_KEY] ?? null);
+    await db.settings.put({ key: ROWS_KEY, value: putOff(before, r, today) });
+    say(t('Hidden for a week: {text}', { text: String(r.short ?? r.text).slice(0, 60) }), () => db.settings.put({ key: ROWS_KEY, value: before }));
+  }
 
   /* ---------- «Heute neu» A «Ein Blick» (Noah 20.10.2026 10:14 «1A 2 … 3a 4a 5b») ---------- */
   // «Up now»: the round (when it waits), meditation and the idea for today first, then what is due (important)
@@ -805,7 +818,7 @@
     // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
     if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
     if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
-    if (suggestion && !night) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
+    if (suggestion && !night && !isHidden({ key: 'idea' }, S[ROWS_KEY], today)) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
   });
   // Impeccable 20.10.2026: on the last evening of a trip its evening rows (review, charging; Noah 32a) stay; other
@@ -1200,6 +1213,7 @@
           </ul>
         </details>
       {/if}
+      {#if ready}<button type="button" class="lkb rowsbtn" onclick={() => (rowsOpen = true)} data-rows-open>{t('Choose rows')}</button>{/if}
       {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
     </section>
   </div>
@@ -1357,6 +1371,7 @@
       <label class="bytime" data-wall-sections><input type="checkbox" role="switch" checked={secOn} onchange={(e) => db.settings.put({ key: SECTIONS_KEY, value: e.currentTarget.checked })} />{t('Show the tiles in areas with a heading (Now, Your body, Your week …)')}</label>
       {#if secOn}<AreasEdit cfg={areasCfg} tiles={timeWall} />{/if}
       {#if timeWall.some((x) => x.id === 'meditation')}<button type="button" class="btn sm" onclick={() => (habitsOpen = true)} data-habits-open>{t('Choose habits on top')}</button>{/if}
+      <button type="button" class="btn sm" onclick={() => (rowsOpen = true)} data-rows-open-custom>{t('Choose rows of «Up now»')}</button>
     {:else}
       <!-- «Neuer Schwung» (Noah 26.10.2026 «3a», then «diesen bereich zusammen nehmen»): the end of Heute is one quiet
            block: stops nearby, all areas, «Customise the start page» (on a computer too; it was a button at the top
@@ -1391,6 +1406,7 @@
   </div>
 {/if}
 {#if medOpen && medSt}<MedStartSheet st={medSt} {today} onclose={() => (medOpen = false)} />{/if}
+{#if rowsOpen}<RowsSheet {today} cfg={S[ROWS_KEY] ?? null} onclose={() => (rowsOpen = false)} />{/if}
 {#if habitsOpen}<HabitsSheet {today} cfg={S[HABITS_KEY] ?? null} onclose={() => (habitsOpen = false)} />{/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
 <dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
@@ -2192,6 +2208,12 @@
     color: var(--ink-2);
     font-size: var(--fs-body);
     cursor: pointer;
+  }
+  .rowsbtn {
+    min-height: 44px;
+    margin-top: var(--sp-1);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .calm {
     margin: 8px 0;
