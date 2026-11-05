@@ -9,7 +9,7 @@ PR #<Nummer> · 05.11.2026 · Auftrag: Noah (Durchklick Etappe 3, Befund E3-002;
 - nichts
 
 ## Selbst entschieden
-- `overflow-wrap: anywhere` auf der Hinweisbox `.rh-note` (`src/lib/ruhig/ruhig.css`), damit auch andere Texte dort (Fehler, Meldungen) nie breiter als der Bildschirm werden. Titel und Taschennamen der geteilten Seite selbst brechen schon um (geprüft).
+- `overflow-wrap: break-word` und `min-width: 0` auf der Hinweisbox `.rh-note` (`src/lib/ruhig/ruhig.css`; der Stil-Wächter erlaubt kein `anywhere`), damit auch andere Texte dort (Fehler, Meldungen) nie breiter als der Bildschirm werden. Titel und Taschennamen der geteilten Seite selbst brechen schon um (geprüft).
 - Regressionstest: `tests/e2e/teilen-langer-titel.spec.js` (vorher rot: Seite 1223 px breit auf 390 px).
 
 ## Entscheide (für decisions.md)
