@@ -457,6 +457,7 @@
   .tx b {
     display: block;
     font-weight: 500;
+    overflow-wrap: break-word;
   }
   .tx small {
     display: flex;
