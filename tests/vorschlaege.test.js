@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import TOURS from '../src/lib/vorschlaege/data/pilot.js';
-import { REGIONS, LEVELS, LEVELS_STD, levelsOf, matchLevels, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
+import { REGIONS, LEVELS, LEVELS_STD, ARTS, artsOf, levelsOf, matchLevels, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
 const by = (id) => TOURS.find((t) => t.id === id);
 
@@ -126,5 +126,28 @@ describe('Tourenvorschläge: GPX', () => {
     expect(g).toContain('<trkpt');
     expect(g).toContain('<ele>');
     expect(g).toContain('Winterthur');
+  });
+});
+
+describe('Tourenvorschläge: Art und Start', () => {
+  const ids = (o) => filterTours(TOURS, o).map((t) => t.id);
+  it('Art: Singletrail, Abfahrt, Schotter und Wege, Runde', () => {
+    expect(artsOf(by('sm-332'))).toEqual(['trail', 'loop']);
+    expect(artsOf(by('sm-10711'))).toEqual(['trail', 'downhill']);
+    expect(artsOf(by('sm-33'))).toEqual(['gravel']);
+    expect(artsOf(by('sm-636'))).toEqual(['gravel', 'loop']);
+    for (const t of TOURS) for (const k of artsOf(t)) expect(ARTS).toContain(k);
+  });
+  it('filtert nach Art (eine genügt); ohne Wahl alle', () => {
+    expect(ids({ levels: LEVELS_STD, arts: ['downhill'] })).toEqual(['sm-10711']);
+    expect(ids({ levels: LEVELS_STD, arts: ['trail'] })).toEqual(['sm-10711', 'sm-332']);
+    expect(ids({ levels: LEVELS_STD, arts: ['loop', 'downhill'] })).toEqual(['sm-10711', 'sm-250', 'sm-636', 'sm-332']);
+    expect(ids({ levels: LEVELS_STD, arts: [] }).length).toBe(5);
+  });
+  it('Start: bis x km vom Wohnort, ohne Wohnort kein Filter', () => {
+    const home = { lat: 47.3769, lon: 8.5417 };
+    expect(ids({ levels: LEVELS_STD, maxAway: 30, home })).toEqual(['sm-33', 'sm-10711']);
+    expect(ids({ levels: LEVELS_STD, maxAway: 30, home: null }).length).toBe(5);
+    expect(ids({ levels: LEVELS_STD, maxAway: 100, home }).length).toBeGreaterThanOrEqual(2);
   });
 });

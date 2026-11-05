@@ -21,7 +21,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Profil from '../lib/vorschlaege/Profil.svelte';
-  import { REGIONS, LEVELS, LEVELS_STD, HOURS, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
+  import { REGIONS, LEVELS, LEVELS_STD, HOURS, ARTS, AWAYS, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
   import { t, num } from '../lib/i18n.svelte.js';
   import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight } from '@lucide/svelte';
   import '../lib/ich/ich.css';
@@ -53,9 +53,11 @@
         regions: Array.isArray(f?.regions) ? f.regions.filter((k) => REGIONS.some((r) => r.key === k)) : [],
         levels: Array.isArray(f?.levels) ? f.levels.filter((l) => LEVELS.includes(l)) : [...LEVELS_STD],
         maxHours: HOURS.includes(f?.maxHours) ? f.maxHours : null,
+        arts: Array.isArray(f?.arts) ? f.arts.filter((k) => ARTS.includes(k)) : [],
+        maxAway: AWAYS.includes(f?.maxAway) ? f.maxAway : null,
       };
     } catch {
-      return { regions: [], levels: [...LEVELS_STD], maxHours: null };
+      return { regions: [], levels: [...LEVELS_STD], maxHours: null, arts: [], maxAway: null };
     }
   };
   let flt = $state(read());
@@ -71,7 +73,29 @@
     const list = flt[key];
     flt[key] = list.includes(val) ? list.filter((x) => x !== val) : [...list, val];
   };
-  const resetFilters = () => (flt = { regions: [], levels: [...LEVELS_STD], maxHours: null });
+  const resetFilters = () => (flt = { regions: [], levels: [...LEVELS_STD], maxHours: null, arts: [], maxAway: null });
+
+  // ---- the lines of «Why this suggestion?» you do not want (kept on this device)
+  const WHY_OFF_KEY = 'vorschlaege.whyoff';
+  const readOff = () => {
+    try {
+      const l = JSON.parse(localStorage.getItem(WHY_OFF_KEY) || '[]');
+      return Array.isArray(l) ? l.filter((k) => WHY_KEYS.includes(k)) : [];
+    } catch {
+      return [];
+    }
+  };
+  let whyOff = $state(readOff());
+  $effect(() => {
+    const v = $state.snapshot(whyOff);
+    try {
+      localStorage.setItem(WHY_OFF_KEY, JSON.stringify(v));
+    } catch {
+      /* not kept */
+    }
+  });
+  const toggleWhy = (k) => (whyOff = whyOff.includes(k) ? whyOff.filter((x) => x !== k) : [...whyOff, k]);
+  const WHY_NAME = { time: 'Time|why', snow: 'Snow|why', level: 'Difficulty|why', new: 'New for you|why', away: 'Distance from home|why' };
 
   // ---- your data (only read)
   const paceQ = liveQuery(async () => (await db.settings.get(PACE_KEY))?.value ?? null);
@@ -103,7 +127,7 @@
     });
 
   // ---- the lists
-  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, levels: flt.levels, maxHours: flt.maxHours, hidden, pace }) : []);
+  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, levels: flt.levels, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, home, hidden, pace }) : []);
   const split = $derived(splitNow(shown, month));
   const open = $derived(tours && openId ? tours.find((x) => x.id === openId) ?? null : null);
 
@@ -133,11 +157,13 @@
     if (r.k === 'new') return t('About {n} % of the line is new for you.', { n: r.share });
     return t('About {km} km from home to the start.', { km: r.km });
   }
+  const ART_NAME = { trail: 'Single trail|tour', downhill: 'Downhill|tour', gravel: 'Gravel and paths|tour', loop: 'Round trip|tour' };
+  const artCount = $derived(tours ? Object.fromEntries(ARTS.map((k) => [k, tours.filter((x) => artsOf(x).includes(k)).length])) : {});
   const toneIcon = (r) => (r.tone === 'warn' ? TriangleAlert : Check);
 
   // ---- the open tour
   let mark = $state(null);
-  const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home }) : []);
+  const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home }).filter((r) => !whyOff.includes(r.k)) : []);
   const warns = $derived(open ? warnsOf(open, month) : []);
   $effect(() => {
     open; // a new tour starts without the dot
@@ -215,6 +241,14 @@
             <li class:bad={r.tone === 'warn'}><Icon size={16} aria-hidden="true" /><span>{whyText(r)}</span></li>
           {/each}
         </ul>
+        <details class="lines" data-vs-lines>
+          <summary>{t('Choose the lines')}</summary>
+          <div class="vslrow">
+            {#each WHY_KEYS as k (k)}
+              <label class="lchk"><input type="checkbox" checked={!whyOff.includes(k)} onchange={() => toggleWhy(k)} data-vs-line={k} />{t(WHY_NAME[k])}</label>
+            {/each}
+          </div>
+        </details>
         {#if !grid}<p class="hint"><Info size={14} aria-hidden="true" />{t('With your own rides (Strava, GPX or recordings) the app also says how much of the tour is new for you.')}</p>{/if}
         {#if !home}<p class="hint"><Info size={14} aria-hidden="true" />{t('Set your home place and the app says how far the start is.')}</p>{/if}
       </details>
@@ -238,6 +272,23 @@
           <button type="button" class="chip" aria-pressed={flt.regions.includes(r.key)} data-vs-region={r.key} onclick={() => toggle('regions', r.key)}>{regionName(r.key)}</button>
         {/each}
       </div>
+      <div class="grp" role="group" aria-label={t('Kind of tour')} data-vs-arts>
+        <span class="gl">{t('Kind of tour')}</span>
+        {#each ARTS.filter((k) => artCount[k]) as k (k)}
+          <button type="button" class="chip" aria-pressed={flt.arts.includes(k)} data-vs-art={k} onclick={() => toggle('arts', k)}>{t(ART_NAME[k])}</button>
+        {/each}
+      </div>
+      <div class="grp" role="group" aria-label={t('Start|tour')} data-vs-start>
+        <span class="gl">{t('Start|tour')}</span>
+        {#if home}
+          <button type="button" class="chip" aria-pressed={flt.maxAway === null} data-vs-away="any" onclick={() => (flt.maxAway = null)}>{t('Any|tour')}</button>
+          {#each AWAYS as km (km)}
+            <button type="button" class="chip" aria-pressed={flt.maxAway === km} data-vs-away={km} onclick={() => (flt.maxAway = km)}>{t('Up to {km} km from home', { km })}</button>
+          {/each}
+        {:else}
+          <span class="hint">{t('Set your home place and you can choose how far the start may be.')}</span>
+        {/if}
+      </div>
       <div class="grp" role="group" aria-label={t('Difficulty|tour')}>
         <span class="gl">{t('Difficulty|tour')}</span>
         {#each LEVELS as l (l)}
@@ -257,7 +308,7 @@
     {#if !tours}
       <p class="hint" role="status">{t('Loading the tours…')}</p>
     {:else if !shown.length}
-      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, levels: flt.levels, maxHours: flt.maxHours, pace }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
+      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, levels: flt.levels, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, home, pace }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
     {:else}
       <section class="ich-sec" aria-labelledby="vs-fit" data-vs-fits>
         <div class="ich-h"><div><h2 id="vs-fit">{t('Fits now')} <small class="n num">{split.fits.length}</small></h2><p class="ich-hs">{t('Tours that suit this month.')}</p></div></div>
@@ -298,6 +349,7 @@
       <span class="th"><b>{tour.title}</b><small>{regionName(tour.region)} · {t(tourClass(tour))}</small></span>
       <span class="nums num"><span><Clock size={14} aria-hidden="true" />{hoursText(hoursOf(tour, pace))}</span><span>{num(tour.km)} km</span><span>+{num(tour.up)} m</span></span>
       {@render levels(tour)}
+      {#if artsOf(tour).length}<span class="lv">{#each artsOf(tour) as k (k)}<span class="lvp">{t(ART_NAME[k])}</span>{/each}</span>{/if}
       {#if grey}
         <span class="why"><Snowflake size={14} aria-hidden="true" />{t('Snow is likely at {m} m in this month.', { m: num(tour.max) })}</span>
       {:else if snowOf(tour, month) === 'possible'}
@@ -347,6 +399,10 @@
   .whybox li { display: flex; gap: 8px; align-items: flex-start; }
   .whybox li :global(svg) { flex: none; margin-top: 3px; color: var(--ok, var(--accent)); }
   .whybox li.bad :global(svg) { color: var(--bad); }
+  .lines { margin-top: var(--sp-2); }
+  .lines summary { cursor: pointer; color: var(--ink-2); min-height: 44px; display: flex; align-items: center; }
+  .vslrow { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .lchk { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
   .acts { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--sp-3) 0; }
   .next { display: flex; gap: 4px; align-items: center; color: var(--ink-3); font-size: var(--fs-small); }
 </style>
