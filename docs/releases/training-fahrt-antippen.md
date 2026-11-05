@@ -1,6 +1,6 @@
 # Training, Fahrt: Diagramme zum Antippen
 
-PR folgt · 05.11.2026 · Auftrag: Noah «ja pr 7» (Thread «Diagramme klickbar machen»), PR 7 von 8, zweiter Teil von «Training» (die Diagramme einer Fahrt)
+PR #952 · 05.11.2026 · Auftrag: Noah «ja pr 7» (Thread «Diagramme klickbar machen»), PR 7 von 8, zweiter Teil von «Training» (die Diagramme einer Fahrt)
 
 ## Was ist neu
 - Sechs Diagramme einer Fahrt laufen über die gemeinsamen Bausteine: «Leistungskurve» (`LoadCurve`), «Trittfrequenz verteilt» (`AnaCadence`), «Leistungsbereiche als Balken» (`AnaPzBars`), «Ähnliche Fahrten» (`AnaSimilar`), «Ausdauer-Check» (`AnaDecouple`) und «Deine Hausrunde über die Zeit» (`AnaHomeloop`).
