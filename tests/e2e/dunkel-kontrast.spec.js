@@ -1,5 +1,5 @@
 // Etappe 6 (Querschnitt, E6-005): in the dark theme the Kochen tips and the count in the chosen «Springen zu» chip
-// (Material, Neuland, Neuigkeiten) were nearly invisible. Reads the real colours of the text and of what is behind it.
+// (Material, Neuland, Neuigkeiten) were nearly invisible, and so was the kicker of the trip band in the wardrobe. Reads the real colours of the text and of what is behind it.
 import { test, expect } from './clock.js';
 import { start } from './gesamttest/lib.js';
 import { ready } from './settle.js';
@@ -38,4 +38,9 @@ test('dark theme: Kochen tips and the chip count can be read', async ({ page, co
   const chip = page.locator('.ls-c[aria-pressed="true"] em').first();
   await expect(chip).toBeVisible();
   expect.soft(await ratio(page, '.ls-c[aria-pressed="true"] em'), 'Material: count in the chosen chip').toBeGreaterThan(3);
+  // E6-006: the trip band of the wardrobe is the light card in the dark theme; its orange kicker was 1.9 : 1
+  await page.goto('./#/wardrobe/trip/test_data_gtp_trip25');
+  await ready(page);
+  await expect(page.locator('.tband .tk')).toBeVisible();
+  expect.soft(await ratio(page, '.tband .tk'), 'Kleider zur Tour: kicker in the band').toBeGreaterThan(4.5);
 });
