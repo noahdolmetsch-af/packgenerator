@@ -562,7 +562,7 @@ export function nightOf(cfg) {
   const n = cfg?.night && typeof cfg.night === 'object' ? cfg.night : {};
   const phases = {};
   for (const p of PHASES) phases[p.key] = Array.isArray(n.phases?.[p.key]) ? n.phases[p.key].filter((x) => x && clean(x.name)) : [];
-  return { step: Number.isInteger(n.step) ? Math.min(Math.max(n.step, 0), NIGHT_STEPS.length - 1) : 0, question: n.question ?? '', route: n.route ?? '', lunch: n.lunch ?? '', bed: n.bed ?? '', tripId: n.tripId ?? null, after: n.after ?? '', phases };
+  return { step: Number.isInteger(n.step) ? Math.min(Math.max(n.step, 0), NIGHT_STEPS.length - 1) : 0, question: n.question ?? '', route: n.route ?? '', lunch: n.lunch ?? '', bed: n.bed ?? '', tripId: n.tripId ?? null, after: n.after ?? '', answers: n.answers && typeof n.answers === 'object' ? n.answers : {}, phases };
 }
 /** All things of the day plan; how many are «within reach» and where each one sits. */
 export function phaseSummary(phases = {}) {

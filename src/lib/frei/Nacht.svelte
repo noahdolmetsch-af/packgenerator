@@ -8,7 +8,7 @@
    *   4 after the night: the answer to your question, then on to a real trip.
    * Everything is a suggestion: steps can be skipped, every thing changed, sorted and deleted.
    */
-  import { Tent, Plus, Pencil, ChevronLeft, ChevronRight, Hand, RotateCcw, Route } from '@lucide/svelte';
+  import { Tent, Plus, Pencil, ChevronLeft, ChevronRight, Hand, RotateCcw, Route, ClipboardCheck } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
@@ -22,6 +22,11 @@
   import { NIGHT_STEPS, PHASES, TEST_QUESTIONS, nightOf, phaseSummary, uid } from '../frei.js';
   import { ZONE } from '../trips.js';
   import { isArchived, isTestTrip } from '../testname.js';
+  import { SLEEP, COLD, answersOf, missingMarks, nightNotes, overCount } from './nacht-fragen.js';
+  import { applyTakeOver } from './uebernahme.js';
+  import { nextTrip } from '../debrief.js';
+  import { tripEnd } from '../tripstate.js';
+  import { localDay } from '../localday.js';
   import { phone } from '../media.svelte.js';
   import { t, tn, nameOf, bagName } from '../i18n.svelte.js';
 
@@ -44,7 +49,7 @@
   // The text fields: a local copy, saved when you leave the field (no write on every key press).
   let draft = $state(null);
   $effect(() => {
-    if ($q !== undefined && !draft) draft = { question: night.question, route: night.route, lunch: night.lunch, bed: night.bed, after: night.after };
+    if ($q !== undefined && !draft) draft = { question: night.question, route: night.route, lunch: night.lunch, bed: night.bed, after: night.after, coldWhere: answersOf(night).coldWhere, missing: answersOf(night).missing };
   });
   const save = (patch) => changeCfg((c) => ({ ...c, night: { ...nightOf(c), ...patch } }));
   const saveField = (k) => draft && save({ [k]: draft[k].trim() });
@@ -101,7 +106,45 @@
     if (answer !== 'delete') return;
     let before;
     await deleteWithUndo({ run: async () => (before = await changeCfg((c) => ({ ...c, night: {} }))), undo: () => restoreCfg(before), text: t('First night cleared.'), name: t('First night') });
-    draft = { question: '', route: '', lunch: '', bed: '', after: '' };
+    draft = { question: '', route: '', lunch: '', bed: '', after: '', coldWhere: '', missing: '' };
+  }
+
+  /* ---------- after the night: three questions, then onto the packing list of a real trip (Noah 05.11.2026 «7a») ---------- */
+  const ans = $derived(answersOf(night));
+  const saveAns = (patch) => changeCfg((c) => { const n = nightOf(c); return { ...c, night: { ...n, answers: { ...n.answers, ...patch } } }; });
+  const today = localDay();
+  const upcoming = $derived(
+    trips
+      .filter((x) => x.id !== night.tripId && !x.skipped && !x.finished && x.startDate && tripEnd(x) >= today)
+      .sort((a, b) => a.startDate.localeCompare(b.startDate)),
+  );
+  let picked = $state('');
+  const targetId = $derived(upcoming.some((x) => x.id === picked) ? picked : (nextTrip(upcoming, today)?.id ?? upcoming[0]?.id ?? ''));
+  const target = $derived(upcoming.find((x) => x.id === targetId) ?? null);
+  const tripLabel = (x) => x?.title || t('Untitled trip');
+  const takenTrip = $derived(trips.find((x) => x.id === ans.takenTo) ?? null);
+  const over = $derived(overCount(ans, t));
+  async function takeNight() {
+    if (!target || !over) return;
+    const r = await applyTakeOver(db, { tripId: target.id, marks: missingMarks(ans), notes: nightNotes(ans, t), tr: t });
+    if (!r) return;
+    const beforeCfg = await saveAns({ takenTo: target.id, takenAt: new Date().toISOString() });
+    const { added, noted, already } = r.result;
+    const bits = [
+      added.length ? tn(added.length, '{n} thing on the packing list', '{n} things on the packing list') : '',
+      noted.length ? tn(noted.length, '{n} planning note', '{n} planning notes') : '',
+      already.length ? tn(already.length, '{n} already fine', '{n} already fine') : '',
+    ].filter(Boolean);
+    const changed = added.length || noted.length;
+    offerDone(changed ? `${tripLabel(target)}: ${bits.join(' · ')}` : t('Nothing new: «{trip}» has it all already.', { trip: tripLabel(target) }), changed ? async () => { await r.undo(); await restoreCfg(beforeCfg); } : null);
+  }
+  function toPackList() {
+    try {
+      localStorage.setItem('pack.currentTrip', ans.takenTo);
+    } catch {
+      /* private mode: Packen then opens the next trip */
+    }
+    location.hash = '#/pack';
   }
   const answered = $derived([!!night.question, !!(night.route || night.bed), sum.n > 0, !!night.after]);
 </script>
@@ -135,7 +178,7 @@
         <label class="fz-lab">{t('Packing list (optional)')}
           <select class="inp" value={night.tripId ?? ''} onchange={(e) => save({ tripId: e.currentTarget.value || null })} data-night-trip>
             <option value="">{t('No trip in the app yet')}</option>
-            {#each trips as x (x.id)}<option value={x.id}>{x.name}</option>{/each}
+            {#each trips as x (x.id)}<option value={x.id}>{tripLabel(x)}</option>{/each}
           </select>
         </label>
         <p class="fz-note">{t('Pack as usual on a trip; in step 3 you can pick from its list.')} <a href="#/trips">{t('To the trips')}</a></p>
@@ -168,6 +211,42 @@
         <h2 class="fz-h2"><Tent size={18} aria-hidden="true" /> {t('After the night')}</h2>
         {#if night.question}<p class="fz-text"><b>{t('Your question:')}</b> {night.question}</p>{/if}
         <label class="fz-lab">{t('What I found out')}<textarea class="inp" rows="4" maxlength="2000" bind:value={draft.after} onchange={() => saveField('after')} placeholder={t('e.g. the bag was fine, the pillow was a joke')} data-night-after></textarea></label>
+        <section class="fzn-three" aria-labelledby="fzn-q-h" data-night-three>
+          <h3 id="fzn-q-h" class="fz-h2">{t('Three questions about the night')}</h3>
+          <div class="fz-lab" role="group" aria-labelledby="fzn-sleep-l">
+            <span id="fzn-sleep-l">{t('How did you sleep?')}</span>
+            <div class="fz-chips">{#each SLEEP as o (o.key)}<button type="button" class="fz-chip" aria-pressed={ans.sleep === o.key} onclick={() => saveAns({ sleep: ans.sleep === o.key ? '' : o.key })} data-night-sleep={o.key}>{t(o.name)}</button>{/each}</div>
+          </div>
+          <div class="fz-lab" role="group" aria-labelledby="fzn-cold-l">
+            <span id="fzn-cold-l">{t('Were you cold?')}</span>
+            <div class="fz-chips">{#each COLD as o (o.key)}<button type="button" class="fz-chip" aria-pressed={ans.cold === o.key} onclick={() => saveAns({ cold: ans.cold === o.key ? '' : o.key })} data-night-cold={o.key}>{t(o.name)}</button>{/each}</div>
+          </div>
+          {#if ans.cold === 'bit' || ans.cold === 'yes'}
+            <label class="fz-lab">{t('Where did you feel it?')}<input class="inp" maxlength="120" bind:value={draft.coldWhere} onchange={() => saveAns({ coldWhere: draft.coldWhere.trim() })} placeholder={t('e.g. feet and back')} data-night-cold-where /></label>
+          {/if}
+          <label class="fz-lab">{t('What was missing?')}
+            <textarea class="inp" rows="3" maxlength="1200" bind:value={draft.missing} onchange={() => saveAns({ missing: draft.missing })} placeholder={t('One thing per line, e.g. a warmer hat')} data-night-missing></textarea>
+          </label>
+        </section>
+        <section class="fz-box fz-soft" aria-labelledby="fzn-take-h" data-night-take-box>
+          <h3 id="fzn-take-h" class="fz-h2"><ClipboardCheck size={18} aria-hidden="true" /> {t('Onto the packing list')}</h3>
+          {#if !over}
+            <p class="fz-note">{t('Answer «What was missing?» or tell us it was cold or you slept badly: then you can put it on the packing list of a real trip.')}</p>
+          {:else if target}
+            <p class="fz-note">{t('What you learned goes onto the list of a real trip. Missing things become items, cold or a bad night become planning notes you can keep or delete.')}</p>
+            <label class="fz-lab">{t('Packing list of')}
+              <select class="inp" value={targetId} onchange={(e) => (picked = e.currentTarget.value)} data-night-take-trip>
+                {#each upcoming as x (x.id)}<option value={x.id}>{tripLabel(x)}</option>{/each}
+              </select>
+            </label>
+            <div class="fz-acts"><button type="button" class="btn hi" onclick={takeNight} data-night-take>{t('Put it on the packing list')}</button></div>
+          {:else}
+            <p class="fz-empty" data-night-take-none>{t('No trip to pack for yet. Plan one, and what you learned can go straight onto its packing list.')} <a href="#/trips">{t('To the trips')}</a></p>
+          {/if}
+          {#if takenTrip}
+            <p class="fz-note" data-night-taken>{t('Taken over to «{trip}»', { trip: tripLabel(takenTrip) })} <button type="button" class="fzn-link" onclick={toPackList} data-night-take-open>{t('To the packing list')}</button></p>
+          {/if}
+        </section>
         <p class="fz-note">{t('Survived? Then the next trip may be a little longer.')} <a href="#/trips">{t('Plan a real trip')}</a></p>
       {/if}
       <div class="fz-acts">
@@ -205,6 +284,21 @@
   .fzn-phase + .fzn-phase {
     border-top: 1px solid var(--line);
     padding-top: 6px;
+  }
+  .fzn-three {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .fzn-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    min-height: 44px;
   }
   .fzn-check {
     display: flex;

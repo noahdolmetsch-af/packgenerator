@@ -23,10 +23,11 @@ const slotOf = (trip, item) => (hasBike(trip) ? tripSlot(item, trip.setup) : (tr
 export const leaveText = (m, tr) => [tr(markLine('unused'), { name: m.name }), m.reason].filter(Boolean).join(' – ');
 
 /**
- * What taking `marks` over to `trip` changes. Pure.
+ * What taking `marks` over to `trip` changes. Pure. `notes`: more words for planning notes (the first night
+ * uses it: «It was cold at night»), each once.
  * → { entries, planNotes, newItems, added: [name], noted: [name], already: [name] }
  */
-export function takeOver({ marks = [], trip, items = [], now = new Date().toISOString(), tr = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v?.[k] ?? '') }) {
+export function takeOver({ marks = [], notes = [], trip, items = [], now = new Date().toISOString(), tr = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => v?.[k] ?? '') }) {
   const byId = new Map(items.map((i) => [i.id, i]));
   const pool = [...items];
   const newItems = [];
@@ -61,6 +62,11 @@ export function takeOver({ marks = [], trip, items = [], now = new Date().toISOS
     entries = addEntries(entries, [item.id], slotOf(trip, item), { packed: false, src: 'next' });
     added.push(m.name);
   }
+  for (const text of notes) {
+    if (planNotes.some((n) => n.text === text)) { already.push(text); continue; }
+    planNotes = addPlanNote(planNotes, text, new Date(now));
+    noted.push(text);
+  }
   return { entries, planNotes, newItems, added, noted, already };
 }
 
@@ -68,21 +74,23 @@ export function takeOver({ marks = [], trip, items = [], now = new Date().toISOS
  * Writes it: one transaction over trips, items and the marks. marks: the rows of the table «frei».
  * → { result, undo } (undo puts the trip, the new items and the marks back as they were).
  */
-export async function applyTakeOver(db, { tripId, marks, tr, now = new Date().toISOString() }) {
+export async function applyTakeOver(db, { tripId, marks = [], notes = [], tr, now = new Date().toISOString() }) {
   return db.transaction('rw', db.trips, db.items, db.frei, async () => {
     const trip = await db.trips.get(tripId);
     if (!trip) return null;
     const items = await db.items.toArray();
-    const result = takeOver({ marks, trip, items, now, tr });
+    const result = takeOver({ marks, notes, trip, items, now, tr });
     const before = { entries: trip.entries ?? [], planNotes: trip.planNotes, updatedAt: trip.updatedAt };
     const touchedAny = result.added.length || result.noted.length;
     if (touchedAny) {
       if (result.newItems.length) await db.items.bulkPut(result.newItems);
       await db.trips.update(tripId, touched({ entries: result.entries, planNotes: result.planNotes }, now));
     }
-    // every mark that was looked at now says where it went (also «already there», so the page can show it)
-    const oldMarks = marks.map((m) => ({ ...m }));
-    await db.frei.bulkPut(marks.map((m) => ({ ...m, takenTo: tripId, takenAt: now })));
+    // every mark that was looked at now says where it went (also «already there», so the page can show it);
+    // loose words without a row (the first night) have no id and write nothing
+    const rows = marks.filter((m) => m.id);
+    const oldMarks = rows.map((m) => ({ ...m }));
+    if (rows.length) await db.frei.bulkPut(rows.map((m) => ({ ...m, takenTo: tripId, takenAt: now })));
     const undo = async () => {
       await db.transaction('rw', db.trips, db.items, db.frei, async () => {
         if (touchedAny) await db.trips.update(tripId, { entries: before.entries, planNotes: before.planNotes ?? [], updatedAt: before.updatedAt });
