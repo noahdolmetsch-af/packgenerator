@@ -56,6 +56,7 @@
   import { sync as autoSync, runSync } from '../lib/sync/auto.svelte.js';
   import { knownWeight, isInventory } from '../lib/gear.js';
   import { sortBikes, bikesHash } from '../lib/bikes.js';
+  import { activeBikes } from '../lib/bikeretire.js';
   import { sheetReminders, laterChanges } from '../lib/sheets2.js';
   import { withVisits, tripPrep, tyreSetup } from '../lib/workshop.js';
   import { tripSchedule, stepWords, STEP_NAME, weatherKnown } from '../lib/schedule.js';
@@ -76,7 +77,7 @@
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import { phone } from '../lib/media.svelte.js';
-  import { newsHint, newerThan, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
+  import { newsHint, newerThan, pointCount, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
   import { tileDaysLeft, unpinNews } from '../lib/know/wasneu.js';
   import { readUpdate, writeUpdate, readPin, writePin } from '../lib/know/wasneuStore.js';
   import MaintHint from '../lib/maintenance/MaintHint.svelte';
@@ -146,7 +147,6 @@
   import NewsTile from '../lib/home/NewsTile.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
-  import QuestionsTile from '../lib/home/QuestionsTile.svelte';
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
   import SkiTile from '../lib/home/SkiTile.svelte';
   import { bookingNotes, bookingRow } from '../lib/booking/notice.js'; // Termine buchen (BU4, 9a)
@@ -223,7 +223,10 @@
   const items = $derived($itemsQ ?? []);
   const visits = $derived($visitsQ ?? []);
   const debriefs = $derived($debriefsQ ?? []);
-  const bikes = $derived(sortBikes($bikesQ ?? []).map((b) => withVisits(b, visits)));
+  // «Velos ausmustern» (Noah 1.11.2026): a retired bike never leads on Heute (idea, care, weighing, cards); trips
+  // that were ridden on it still find it (allBikes: the name on the trip card)
+  const allBikes = $derived(sortBikes($bikesQ ?? []).map((b) => withVisits(b, visits)));
+  const bikes = $derived(activeBikes(allBikes));
   const tasks = $derived($tasksQ ?? []);
   const S = $derived($setQ ?? {});
   const templates = $derived(S[TEMPLATES_KEY] ?? []);
@@ -273,7 +276,7 @@
       writeUpdate({ v: h.mark, from: seen, at: localDay() });
       newsUpdate = readUpdate();
       // «Heute neu» A 5b: no tile «New» pinned on Heute any more; the news stay under Ich
-    } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + e.points.length, 0) : 0;
+    } else newsN = h.show ? newerThan(seen ?? BEFORE).reduce((n, e) => n + pointCount(e), 0) : 0;
     // v0.127.0 A-U1: the calm banner after an update; «Heute neu» A 5b: it shows under Ich (Me.svelte)
     unpinNewsTile();
   });
@@ -346,7 +349,7 @@
     try {
       // offline: no weather (Noah 1a); online the home forecast (saved when fresh, else fetched)
       const forecast = navigator.onLine ? await homeForecast(db).catch(() => null) : null;
-      const raw = sortBikes(($bikesQ ?? []).map((b) => ({ ...b })));
+      const raw = sortBikes(activeBikes($bikesQ ?? []).map((b) => ({ ...b })));
       const trip = await quickStart(db, { trips: allTrips.map((x) => ({ ...x })), bikes: raw, items: items.map((x) => ({ ...x })), forecast, bikeId: suggestion?.bike?.id ?? suggestBikeId });
       if (!trip) return openNew('list'); // no bike yet: the New trip window says why
       const w = trip.wx?.min != null && trip.wx?.max != null ? `${trip.wx.min}–${trip.wx.max} °C ${t(RAIN[trip.wx.rain ?? 'none'])}` : t('no weather|quick');
@@ -391,11 +394,11 @@
   const ask = $derived(isLead && !!focus?.ask);
   // v0.125.0 TZ-1 «Zustand sichtbar» (mockup TZ2 Heute): the state pill of the trip on the card
   const shownState = $derived(shown ? tripState(shown, { debrief: debriefs.find((d) => d.tripId === shown.id) ?? null, rides: $ridesQ ?? [], today }) : null);
-  const shownBike = $derived(shown ? bikes.find((b) => b.id === shown.bikeId) ?? null : null);
+  const shownBike = $derived(shown ? allBikes.find((b) => b.id === shown.bikeId) ?? null : null);
   const stats = $derived(shown ? tripStats(shown, items, $bagsQ ?? [], shownBike, S.riderWeightG) : null);
   // The facts the schedule needs (schedule.js is pure), as in v0.34.0, for the trip shown.
   function ctxFor(tr) {
-    const b = hasBike(tr) ? bikes.find((x) => x.id === tr.bikeId) : null;
+    const b = hasBike(tr) ? allBikes.find((x) => x.id === tr.bikeId) : null;
     let service = null;
     if (b && !isShortRide(tr)) {
       const rows = (tripPrep(b, tr, tasks, tyreSetup(b, visits), today)?.rows ?? []).filter((r) => r.group === 'bike' && !r.key.startsWith('bike:inspectQuick:'));
@@ -469,7 +472,7 @@
     const trip = $state.snapshot(of);
     const prev = debriefs.find((x) => x.tripId === trip.id) ?? null;
     const record = quickDebrief(trip, prev ? structuredClone($state.snapshot(prev)) : null);
-    const offer = templateOffer(trip, templates, trips) ? templateName(trip, bikes.find((b) => b.id === trip.bikeId), templates) : null;
+    const offer = templateOffer(trip, templates, trips) ? templateName(trip, allBikes.find((b) => b.id === trip.bikeId), templates) : null;
     await db.transaction('rw', db.debriefs, db.trips, async () => {
       await db.debriefs.put(record);
       await db.trips.update(trip.id, { status: 'done' });
@@ -807,7 +810,11 @@
   // Impeccable 20.10.2026: on the last evening of a trip its evening rows (review, charging; Noah 32a) stay; other
   // rows of that same trip wait until it is finished, so it does not show three next steps at once
   const lastEveIds = $derived(new Set(trips.filter((x) => lastEvening(x, today, now.getHours())).map((x) => x.id)));
-  const upRows = $derived([...nowRows, ...important.filter((r) => r.tone === 'eve' || !(r.act?.trip && lastEveIds.has(r.act.trip)))]);
+  const hereRows = $derived(important.filter((r) => r.tone === 'eve' || !(r.act?.trip && lastEveIds.has(r.act.trip))));
+  // «Jetzt dran» (Noah 05.11.2026 «3a»): only what is red, amber or blue is «up now» and counted; the calm hints
+  // («Kette wachsen …», «3 Velos wägen», «183 Teile …») wait in their own folded line «Good to know»
+  const calmRows = $derived(hereRows.filter((r) => r.tone === 'quiet'));
+  const upRows = $derived([...nowRows, ...hereRows.filter((r) => r.tone !== 'quiet')]);
   const UP_N = 4;
   const upShown = $derived(allRows ? upRows : upRows.slice(0, UP_N));
   // the personal sentence under the greeting: the next trip and how much is up today
@@ -896,7 +903,7 @@
   // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
   const impQ = cfgQuery();
   const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
-  const upEmpty = $derived(ready && !upRows.length && !cheers.length && !notice && !quick && !impulseUp);
+  const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp);
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -1129,6 +1136,31 @@
   {/if}
 {/snippet}
 
+<!-- one row of «Up now» and of «Good to know» -->
+{#snippet upRow(r, line = false)}
+    <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
+      {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
+      {#if r.key === 'tests' && cleanAsk}
+        <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
+        <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
+      {:else}
+        <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
+        {#if r.act2?.run}
+          <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
+          <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
+        {:else}
+        {#if r.act}
+          {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
+          {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
+          {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
+        {/if}
+        {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
+        {/if}
+        {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
+      {/if}
+    </li>
+{/snippet}
+
 <!-- 4. Important today and Tried it yet? -->
 {#snippet todayS(line = false)}
   <div class="impw" class:line data-section="today">
@@ -1149,32 +1181,20 @@
       {#if upRows.length}
         <ul>
           {#each line ? (allRows ? upRows : upRows.slice(0, 2)) : upShown as r (r.key)}
-            <li class="row {r.tone}" data-row={r.key.split(':')[0]}>
-              {#if r.tone === 'party'}<PartyPopper size={18} aria-hidden="true" />{:else if r.ic}<span class="rico" aria-hidden="true"><r.ic size={18} /></span>{:else}<span class="dot" aria-hidden="true"></span>{/if}
-              {#if r.key === 'tests' && cleanAsk}
-                <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
-                <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
-              {:else}
-                <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
-                {#if r.act2?.run}
-                  <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
-                  <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
-                {:else}
-                {#if r.act}
-                  {#if r.act.href}<a class="lk" href={r.act.href} onclick={() => act(r)}>{r.act.label}</a>
-                  {:else if r.act.care}<button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button>
-                  {:else}<button type="button" class="btn sm" disabled={r.act.busy && backingUp} onclick={() => act(r)}>{r.act.label}</button>{/if}
-                {/if}
-                {#if r.act2}<a class="lk" href={r.act2.href} onclick={() => r.act2.trip && openTrip(r.act2.trip)}>{r.act2.label}</a>{/if}
-                {/if}
-                {#if r.later}<button type="button" class="lkb" onclick={r.later}>{t('later')}</button>{/if}
-              {/if}
-            </li>
+            {@render upRow(r, line)}
           {/each}
         </ul>
         {#if upRows.length > (line ? 2 : UP_N)}<button type="button" class="lkb more" aria-expanded={allRows} onclick={() => (allRows = !allRows)}>{allRows ? t('Show fewer') : t('Show all {n}', { n: upRows.length })}{#if line && !allRows}<ChevronRight size={16} aria-hidden="true" />{/if}</button>{/if}
       {:else if ready}
         <p class="calm">{t('Nothing urgent. Enjoy the day.')}</p>
+      {/if}
+      {#if calmRows.length}
+        <details class="good" data-good>
+          <summary>{t('Good to know')} <span class="num">· {calmRows.length}</span></summary>
+          <ul>
+            {#each calmRows as r (r.key)}{@render upRow(r, false)}{/each}
+          </ul>
+        </details>
       {/if}
       {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
     </section>
@@ -1229,7 +1249,6 @@
   {:else if x.id === 'nextms'}<NextMsTile {bikes} {tripsDone} isnew={newTile('nextms')} />
   {:else if x.id === 'strava'}<StravaTile isnew={newTile('strava')} />
   {:else if x.id === 'balance'}<BalanceTile {today} size={x.size} isnew={newTile('balance')} {bikes} {tripsDone} big />
-  {:else if x.id === 'questions'}<QuestionsTile {today} />
   {:else if x.id === 'morningcheck'}<RoundTile {today} size={x.size} isnew={newTile('morningcheck')} />
   <!-- Paket M #1027 (Noah «1b»): the Chronik-Karte «Früher um diese Zeit» replaces «Vor einem Jahr»; the tile id stays -->
   {:else if x.id === 'yearago'}<ChronikKarte trips={homeTrips(allTrips)} {debriefs} {today} rides={$ridesQ ?? null} size={x.size} isnew={newTile('yearago')} />
@@ -2141,6 +2160,20 @@
   .notice span {
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  /* «Gut zu wissen» (Noah 05.11.2026 «3a»): the calm hints, folded under «Up now» */
+  .good {
+    margin-top: var(--sp-2);
+    border-top: 1px solid var(--line);
+  }
+  .good summary {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-1);
+    min-height: 44px;
+    color: var(--ink-2);
+    font-size: var(--fs-body);
+    cursor: pointer;
   }
   .calm {
     margin: 8px 0;

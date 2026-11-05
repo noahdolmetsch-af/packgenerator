@@ -1,7 +1,8 @@
 // «Eigene Experimente» with a measured value (Cockpit-Idee 6): the look back compares the try with the days before.
 import { describe, it, expect } from 'vitest';
 import { newExp, expsOf, expAgain } from '../src/lib/ruhig/versuche.js';
-import { EXP_METRICS, MIN_SIDE, sideOf, expDaysSoFar, expResult } from '../src/lib/ruhig/versuch-wert.js';
+import { EXP_METRICS, RIDE_METRICS, MIN_SIDE, sideOf, expDaysSoFar, expResult } from '../src/lib/ruhig/versuch-wert.js';
+import { feelDay } from '../src/lib/analyse/catalog.js';
 
 const FROM = '2026-10-10';
 const e = (extra = {}) => ({ ...newExp({ q: 'Sleep better?', from: FROM, days: 7, metric: 'sleep' }, 'x1'), ...extra });
@@ -75,5 +76,39 @@ describe('result', () => {
   });
   it('identical values give no difference', () => {
     expect(expResult(e(), () => 420, '2026-10-16')).toMatchObject({ verdict: 'unclear', diff: 0 });
+  });
+});
+
+describe('ride values (Persönliches Lernen, Idee 2)', () => {
+  it('the ride values are part of the list', () => {
+    for (const k of RIDE_METRICS) expect(EXP_METRICS).toContain(k);
+    expect(RIDE_METRICS).toEqual(['rideFeel', 'cad', 'spd', 'wkg']);
+  });
+  it('a second value is kept only next to a first one and never twice the same', () => {
+    expect(newExp({ q: 'a', from: FROM, metric: 'rideFeel', also: 'cad' }, 'i')).toMatchObject({ metric: 'rideFeel', also: 'cad' });
+    expect(newExp({ q: 'a', from: FROM, metric: 'cad', also: 'cad' }, 'i')).not.toHaveProperty('also');
+    expect(newExp({ q: 'a', from: FROM, also: 'cad' }, 'i')).not.toHaveProperty('also');
+    expect(newExp({ q: 'a', from: FROM, metric: 'cad', also: 'nope' }, 'i')).not.toHaveProperty('also');
+    expect(expsOf([newExp({ q: 'a', from: FROM, metric: 'spd', also: 'wkg' }, 'i')])[0].also).toBe('wkg');
+    expect(expsOf([{ ...newExp({ q: 'a', from: FROM, metric: 'spd' }, 'i'), also: 'spd' }])[0]).not.toHaveProperty('also');
+  });
+  it('«again» keeps both values', () => {
+    const x = newExp({ q: 'a', from: FROM, metric: 'rideFeel', also: 'cad' }, 'i');
+    expect(expAgain(x, '2026-10-20', 'y')).toMatchObject({ metric: 'rideFeel', also: 'cad' });
+  });
+  it('days without a ride have no value and the verdict waits for three rides on each side', () => {
+    const get = (d) => ({ '2026-10-03': 5, '2026-10-06': 6, '2026-10-08': 5, '2026-10-12': 4, '2026-10-14': 4 }[d] ?? null);
+    const r = expResult({ ...e({ days: 7 }), metric: 'rideFeel' }, get, '2026-10-16');
+    expect(r.verdict).toBe('few');
+    expect(r.during.n).toBe(2);
+    expect(r.before.n).toBe(3);
+  });
+});
+
+describe('felt effort of a day', () => {
+  it('is the mean of the bike rides with an answer; own answer before Strava’s', () => {
+    expect(feelDay([{ kind: 'bike', feel: 4 }, { kind: 'bike', rpe: 6 }, { kind: 'bike' }, { kind: 'run', feel: 9 }])).toBe(5);
+    expect(feelDay([{ kind: 'bike' }])).toBeNull();
+    expect(feelDay(undefined)).toBeNull();
   });
 });

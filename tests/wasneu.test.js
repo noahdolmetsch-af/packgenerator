@@ -1,7 +1,8 @@
 import './setup/de.js'; // this test needs the German texts
 import { describe, it, expect, afterEach } from 'vitest';
 import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS } from '../src/lib/features.js';
-import { WHATS_NEW, compareVersions } from '../src/lib/whatsnew.js';
+import { compareVersions } from '../src/lib/whatsnew.js';
+import { WHATS_NEW } from '../src/lib/whatsnew-all.js'; // the whole list (the start reads only its short lines)
 import { FUNCTIONS } from '../src/lib/home/fnlist.js';
 import { TILE } from '../src/lib/home/tiles.js';
 import { t, lang } from '../src/lib/i18n.svelte.js';
@@ -182,7 +183,7 @@ describe('the list and its sorts', () => {
 
 describe('all versions by month', () => {
   it('nothing lost, newest month first, each month one key', () => {
-    const months = byMonth();
+    const months = byMonth(WHATS_NEW);
     expect(months.flatMap((m) => m.entries)).toEqual(WHATS_NEW);
     expect(months[0].key).toBe(WHATS_NEW[0].date.slice(0, 7));
     expect(new Set(months.map((m) => m.key)).size).toBe(months.length);

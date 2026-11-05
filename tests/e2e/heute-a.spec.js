@@ -135,6 +135,8 @@ test.describe('HA Heute neu A', () => {
         // nothing inside a tile reaches below the tile
         for (const el of t.querySelectorAll('.body *')) {
           const r = el.getBoundingClientRect();
+          // rows folded away in a closed «Good to know» are not shown (Jetzt dran, 05.11.2026 «3a»)
+          if (el.closest('details:not([open])') && !el.closest('summary')) continue;
           if (r.height && r.bottom > b.bottom + 1) out.push(`${t.dataset.tile}: ${el.className || el.tagName} ${Math.round(r.bottom - b.bottom)} px below`);
         }
         // and no two tiles cover each other

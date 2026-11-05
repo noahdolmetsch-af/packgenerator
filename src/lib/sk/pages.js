@@ -12,6 +12,7 @@ import { favouriteCounts } from '../gear.js';
 import { bikeCare } from '../readiness.js';
 import { withVisits } from '../workshop.js';
 import { sortBikes } from '../bikes.js';
+import { activeBikes } from '../bikeretire.js';
 import { checkOf } from '../flowcheck.js';
 import { isMedAct } from '../flow/hobby/medstart.js';
 import { daysBetween } from './tiles.js';
@@ -106,7 +107,7 @@ export function hintsFor(page, data = {}, today) {
   const trips = homeTrips(data.trips ?? []);
   const debriefs = data.debriefs ?? [];
   const learnings = data.learnings ?? [];
-  const bikes = sortBikes(data.bikes ?? []);
+  const bikes = sortBikes(activeBikes(data.bikes ?? []));
   const settings = Object.fromEntries((data.settings ?? []).map((r) => [r.key, r.value]));
   const done = trips.filter((x) => x.startDate && x.startDate <= today);
   const open = toDebrief(trips, debriefs, today);

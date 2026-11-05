@@ -256,4 +256,12 @@ export default {
   'Price per month in CHF (empty: no subscription)': 'Preis pro Monat in CHF (leer: kein Abo)',
   'e.g. 200': 'z. B. 200',
   "Prepare this month's invoice": 'Rechnung für diesen Monat vorbereiten',
+  '{price} CHF per person': '{price} CHF pro Person',
+  'One e-mail to all participants': 'Eine E-Mail an alle Teilnehmenden',
+  'Waiting list': 'Warteliste',
+  'A place is free: write to the first one.': 'Ein Platz ist frei: schreib der ersten Person.',
+  'Nobody is waiting. When a place is free again, Heute tells you.': 'Niemand wartet. Wenn wieder ein Platz frei ist, sagt dir Heute Bescheid.',
+  'Put on the waiting list': 'Auf die Warteliste setzen',
+  'Hello {name}! A place is free again: {title} on {when}. Do you want it? Just answer me.': 'Hallo {name}! Ein Platz ist wieder frei: {title} am {when}. Möchtest du ihn? Antworte mir einfach.',
+  'Place free: {title} · {when} · {name} is waiting': 'Platz frei: {title} · {when} · {name} wartet',
 };

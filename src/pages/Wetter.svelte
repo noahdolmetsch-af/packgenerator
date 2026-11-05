@@ -11,7 +11,7 @@
    * - Meine Webcams (extra 7): add, rename, order with arrows and drag, delete with Undo; on this device only.
    */
   import { liveQuery } from 'dexie';
-  import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target } from '@lucide/svelte';
+  import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target, Moon } from '@lucide/svelte';
   import WindVane from '../lib/wetter/WindVane.svelte'; // «Windfahne beim Wetter» (Paket D, Idee 15)
   import PageHead from '../lib/ui/PageHead.svelte';
   import Crumbs from '../lib/ui/Crumbs.svelte';
@@ -20,7 +20,7 @@
   import { localDay } from '../lib/localday.js';
   import { searchPlace } from '../lib/weather.js';
   import { compass } from '../lib/toursky.js';
-  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS, SRF_WEBCAMS } from '../lib/wetter/kern.js';
+  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, darkAfter, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS, SRF_WEBCAMS } from '../lib/wetter/kern.js';
   import { loadClimate, climateFor } from '../lib/wetter/klima.js';
   import { SAID_KEY, noteSaid, hits } from '../lib/wetter/treffer.js';
   import WebcamList from '../lib/wetter/WebcamList.svelte';
@@ -32,8 +32,10 @@
   import Regen24 from '../lib/wetter/Regen24.svelte'; // «Regen 24 h» (Noah 04.11.2026 «2a»)
   import FensterBox from '../lib/wetter/FensterBox.svelte'; // Fenster für Landi-Radar und SRF-Webcams (Noah 04.11.2026 «1a», «3a»)
   import { thunderSpans } from '../lib/wetter/gewitter.js'; // «Gewitter-Hinweis mit Uhrzeit» (Noah 04.11.2026 «5 alle»)
+  import Licht from '../lib/wetter/Licht.svelte'; // «Licht für die Fahrt» (Noah 04.11.2026 «5 alle»)
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
+  import NebelBlock from '../lib/wetter/NebelBlock.svelte'; // «Nebelgrenze» (Noah 05.11.2026)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -250,6 +252,7 @@
         </p>
       {/if}
       <SchneeBlock {core} {now} />
+      <NebelBlock {core} {now} />
       {#each storms as x (x.from)}<p class="wx-warn" data-wx-warn="thunder" data-wx-thunder={x.day}><TriangleAlert size={16} aria-hidden="true" />{stormText(x)}{#if x.rainP != null}{' '}{t('Rain chance up to {p} %.', { p: num(Math.round(x.rainP)) })}{/if}</p>{/each}
       {#each warns as w (w.kind)}<p class="wx-warn" data-wx-warn={w.kind}><TriangleAlert size={16} aria-hidden="true" />{warnText(w)}</p>{/each}
       {#if fb}<p class="wx-note" data-wx-fb={fb}><Wind size={16} aria-hidden="true" />{fb === 'foehn' ? t('Föhn: strong, dry wind from the south. Gusty in the valleys.') : t('Bise: cold wind from the north-east. It feels colder than the number.')}</p>{/if}
@@ -266,6 +269,7 @@
     <NextHours {place} />
   {/if}
   <!-- «Aktiv neu» (Noah 22.10.2026, spec): the lake temperature, ozone and pollen moved here from the Aktiv start -->
+  <Licht {core} {now} />
   <LakeCard headingLevel={2} />
   <AirCard headingLevel={2} />
   {/if}
@@ -295,6 +299,7 @@
       </div>
       {#if windows.best}
         <p class="wx-bestline" data-wx-bestline>{t('Best: {day}, {from}–{to}', { day: wd(windows.best.date), from: hm(windows.best.start), to: hm(windows.best.end) })}{#if windows.best.line}{' '}· {num(windows.best.line.tmin)}–{num(windows.best.line.tmax)} °C{/if}</p>
+        {#if darkAfter(core, windows.best.end)}<p class="wx-note" data-wx-best-dark><Moon size={16} aria-hidden="true" />{t('Back {n} min after sunset: lights on.', { n: num(darkAfter(core, windows.best.end)) })}</p>{/if}
         <ul class="wx-days">
           {#each windows.days as d (d.date)}
             <li class:best={d === windows.best} data-wx-day={costWord(d.cost)}>

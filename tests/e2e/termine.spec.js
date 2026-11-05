@@ -116,6 +116,8 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   const sheet = page.getByRole('dialog');
   await expect(sheet).toContainText('Mia Muster');
   await expect(sheet).toContainText(T('pays on site'));
+  await expect(sheet).toContainText(T('{price} CHF per person', { price: '25' })); // group: the price is per person
+  await expect(sheet.locator('[data-mail-group]')).toHaveCount(0); // one person: no group e-mail
   await sheet.getByRole('button', { name: T('Cancel the time') }).click();
   await sheet.getByRole('button', { name: T('Yes, cancel') }).click();
   await expect(sheet).toContainText(T('The time is cancelled. Tell {n} person:', { n: 1 }));
@@ -188,6 +190,21 @@ test('a request with places and a note: Noah confirms it and writes back', async
   await page.reload();
   await page.getByRole('link', { name: /18:00/ }).click();
   await expect(page.getByRole('heading', { name: T('Booked') })).toBeVisible();
+
+  // the time is full now: Noah puts Leo on the waiting list; when Mia cancels, the sheet says a place is free
+  await page.goto(`./#/me/offers/${id}`);
+  await page.getByRole('button', { name: T('Next week') }).click();
+  await page.locator('.of-dc .of-sl.full').first().click();
+  const full = page.getByRole('dialog');
+  await expect(full).toContainText(T('Waiting list'));
+  await full.locator('#of-wn').fill('Leo Muster');
+  await full.locator('#of-wc').fill('leo@example.test');
+  await full.locator('[data-wait-add]').click();
+  await expect(full.locator('[data-waitlist]')).toContainText('Leo Muster');
+  await expect(full.locator('[data-place-free]')).toHaveCount(0);
+  await full.getByRole('button', { name: T('Cancel|booking'), exact: true }).click();
+  await expect(full.locator('[data-place-free]')).toBeVisible();
+  await expect(full.locator('[data-waitlist] a')).toHaveAttribute('href', /^mailto:leo@example\.test/);
 });
 
 test('the invoice form is filled from a booking draft and keeps the booking', async ({ page }) => {

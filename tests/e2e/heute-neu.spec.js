@@ -57,13 +57,15 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
   await expect(page.locator('[data-med-card]')).toBeVisible();
   const imp = page.locator('[data-tile="important"] .imp.ln');
   await expect(imp).toBeVisible();
-  const n = await imp.locator('li.row').count();
+  // «Gut zu wissen» (calm rows, folded) sits in the same tile and does not count as «Important today»
+  const rowsOf = () => imp.locator('li.row:not(details.good li.row)');
+  const n = await rowsOf().count();
   expect(n).toBeLessThanOrEqual(2);
   const more = imp.locator('button.more');
   if (await more.count()) {
     await more.click();
     await expect(imp).toHaveClass(/open/);
-    expect(await imp.locator('li.row').count()).toBeGreaterThan(2);
+    expect(await rowsOf().count()).toBeGreaterThan(2);
     await more.click();
   }
 
