@@ -1,6 +1,6 @@
 # Experimente: einfacheres Formular und fairerer Vergleich
 
-PR folgt · 05.11.2026 · Auftrag: Noah «a» (04.11. 21:53, Thread «Plane Persönliches Lernen für Touren»), Idee 2 Teil 2 von 6
+PR #905 · 05.11.2026 · Auftrag: Noah «a» (04.11. 21:53, Thread «Plane Persönliches Lernen für Touren»), Idee 2 Teil 2 von 6
 
 ## Was ist neu
 - **Fahrt gegen Fahrt statt Tag gegen Tag.** Misst ein Versuch einen Fahrt-Wert (gefühlte Anstrengung, Kadenz, Tempo, Watt pro Kilo), vergleicht die Karte die einzelnen Fahrten: die Fahrten während des Versuchs mit den Fahrten in den gleich vielen Tagen davor (`src/lib/ruhig/versuch-fahrt.js`).
