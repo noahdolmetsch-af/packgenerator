@@ -439,6 +439,8 @@ export default {
   'Find free places nearby (OpenStreetMap)': 'Freie Plätze in der Nähe suchen (OpenStreetMap)',
   // «Träume und Neuland» N7 «Zug hin, Velo heim»
   'Train there, bike home': 'Zug hin, Velo heim',
+  'about {time} by train': 'ca. {time} mit dem Zug',
+  'about {time} by bike': 'ca. {time} mit dem Velo',
   'By train to an area you do not know, then ride home through new ground.': 'Mit dem Zug in eine Gegend, die du nicht kennst, dann durch Neuland nach Hause fahren.',
   'Ride home': 'Heimfahrt',
   '≈ {km} km home': '≈ {km} km heim',

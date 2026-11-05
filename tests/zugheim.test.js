@@ -60,3 +60,12 @@ describe('asking', () => {
     await expect(askRideHome({ lat: 47.4, lon: 8 }, { lat: 47, lon: 8 }, { fetcher: async () => json({}, 429) })).rejects.toThrow('busy');
   });
 });
+
+describe('bikeMinutes', () => {
+  it('estimates the ride time from the road km', async () => {
+    const { bikeMinutes } = await import('../src/lib/neuland/zugheim.js');
+    expect(bikeMinutes(0)).toBe(0);
+    expect(bikeMinutes(60)).toBeGreaterThan(bikeMinutes(30));
+    expect(bikeMinutes(60)).toBeLessThan(60 * 4);
+  });
+});

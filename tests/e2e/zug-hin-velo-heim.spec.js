@@ -73,12 +73,15 @@ test('Train there, bike home: three new places, another distance, trains and the
   await page.reload();
   await ready(page);
 
-  // 1. three places, nothing asked online yet
+  // 1. three places with the train time (asked when shown) and the bike time (estimated)
   const sec = page.locator('[data-train-home]');
   const rows = sec.locator('[data-th-start]');
   await expect(rows).toHaveCount(3, { timeout: 20000 });
   await expect(rows.first()).toContainText(T('≈ {km} km home').split('{')[0].trim());
-  expect(asked).toEqual([]);
+  const tm = rows.first().locator('[data-th-times]');
+  await expect(tm).toContainText(T('about {time} by train', { time: T('{h} h {m} min', { h: 1, m: '08' }) }), { timeout: 20000 });
+  await expect(tm).toContainText(T('about {time} by bike', { time: '' }).replace(/\s+/g, ' ').trim().split(' ').slice(-3).join(' '));
+  expect(asked.filter((u) => u.includes('brouter'))).toEqual([]);
   await noSideways(page);
   await shot(sec, info, 'ZV1-orte');
 

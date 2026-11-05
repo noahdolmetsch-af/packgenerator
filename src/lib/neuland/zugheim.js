@@ -4,7 +4,7 @@
  *
  * - Starts: municipalities of Neuland you have never reached, about the chosen ride away (straight line, roads
  *   ROAD_FACTOR longer), in different directions; the most new municipalities around them first.
- * - On a tap only (never in the background): transport.opendata.ch (free, no account, as «Nach Hause») for the
+ * - Train time per place when the part is shown (Noah 05.11.2026 «a»), the rest on a tap only: transport.opendata.ch (free, no account, as «Nach Hause») for the
  *   nearest stations and the next trains from home there, and the free bike router (BRouter) for the way home.
  * Pure helpers plus askTrains/askRideHome (a fetcher is passed in). Tested in tests/zugheim.test.js.
  */
@@ -19,6 +19,19 @@ export const RIDE_KM_STD = 60;
 /** Around a start, the municipalities within this many km count as «new around it». */
 export const AROUND_KM = 8;
 const KMH = LEVELS.find((l) => l.key === 'curious')?.kmh ?? 19;
+
+/** The ride home in minutes, estimated from its road km (no climb known yet) at the speed of «Curious». */
+export const bikeMinutes = (rideKm) => minutesOf(rideKm, 0, KMH);
+
+/**
+ * The shortest ride time of the next trains from home to a start (minutes) or null; asked online, so the caller
+ * decides when (Noah 05.11.2026 «a»: when the part is shown). Remembered per day by the caller.
+ */
+export async function trainMinutes(home, start, { fetcher = fetch } = {}) {
+  const { trains } = await askTrains(home, start, { fetcher });
+  const mins = trains.map((c) => c.min).filter((m) => Number.isFinite(m) && m > 0);
+  return mins.length ? Math.min(...mins) : null;
+}
 
 /**
  * Up to n starts: [{ id, name, lat, lon, km (straight), rideKm (on roads), around (new municipalities near), sector }].

@@ -8,11 +8,13 @@ PR (diese Änderung) · 28.10.2026 · Auftrag: Noah «1-5 a» (Thread «Träume 
 - «Als Tour planen» macht eine Schnellstart-Tour mit dem Heimweg als Strecke und dem ersten Zug in der Notiz; «GPX für den Garmin».
 - Neue Funktion im Katalog: `f.trainthere`.
 
+- Reisezeiten in der Vorschau (Noah 05.11.2026 «a»): «ca. 54 Min mit dem Zug · ca. 2 h 30 Min mit dem Velo» bei jedem Ort. Die Zugzeit holt die App beim Anzeigen des Blocks (ein Aufruf pro Ort bei transport.opendata.ch, für den Tag gemerkt); die Velozeit wird aus der Strecke geschätzt (Tempo «Neugierig»).
+
 ## Was fällt weg oder rutscht tiefer
 - Träume: «Alle Träume auf einer Karte», «Erfüllte Träume», «Weisse Flecken» und die Teile darunter rücken um diesen Teil nach unten.
 
 ## Selbst entschieden
-- Gefragt wird nur beim Antippen, nie im Hintergrund; Wohnort und Ort gehen nur an den freien Fahrplan und den freien Velo-Router.
+- Der Fahrplan wird für die Reisezeit beim Anzeigen des Blocks gefragt, der Heimweg per Velo nur beim Antippen; Wohnort und Ort gehen nur an den freien Fahrplan und den freien Velo-Router.
 - Start sind Gemeinden (nicht Pässe oder Seen), weil dort fast immer ein Bahnhof oder Bus in der Nähe ist.
 - «Neue Gegend» = viele noch nicht erreichte Gemeinden im Umkreis von 8 km.
 
