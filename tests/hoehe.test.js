@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { atLocal } from '../src/lib/wetter/kern.js';
 import { parseProfil, LEVELS } from '../src/lib/wetter/profil.js';
-import { HEIGHTS, SKI_HEIGHTS, SPOTS, PEAKS, tempIn, tempNow, rowOf, rowsOf, briefOf, hasValue, zeroLine, selOf, itemOf, ownOf, toggleSel, newOwnId, peaksNear } from '../src/lib/wetter/hoehe.js';
+import { HEIGHTS, SKI_HEIGHTS, SPOTS, PEAKS, tempIn, tempNow, rowOf, rowsOf, briefOf, hasDay, tempOnDay, dayRows, DAY_HOURS, skiHints, hasValue, zeroLine, selOf, itemOf, ownOf, toggleSel, newOwnId, peaksNear } from '../src/lib/wetter/hoehe.js';
 
 const OFF = 3600;
 const DAY = '2026-11-05';
@@ -180,5 +180,49 @@ describe('the line on Today', () => {
   it('no value at all: no line', () => {
     expect(briefOf(null, NOW)).toBeNull();
     expect(briefOf({ ...prof, hours: [] }, NOW)).toBeNull();
+  });
+});
+
+describe('the tour day', () => {
+  const D0 = '2026-11-05';
+  const D1 = '2026-11-06';
+  it('the answer knows only today and the next two days', () => {
+    expect(hasDay(prof, D0)).toBe(true);
+    expect(hasDay(prof, '2026-11-07')).toBe(true);
+    expect(hasDay(prof, '2026-11-09')).toBe(false);
+    expect(hasDay(null, D0)).toBe(false);
+  });
+  it('the temperature at a height and a clock time of the day', () => {
+    expect(tempOnDay(prof, D0, 6 * 60 + 30, 1000)).toBe(3.5);
+    expect(tempOnDay(prof, D0, 13 * 60, 1000)).toBe(5.5); // from 12 h two degrees warmer
+    expect(tempOnDay(prof, D1, 6 * 60, 1000)).toBe(7.5); // tomorrow +4
+    expect(tempOnDay(prof, D0, null, 1000)).toBeNull();
+  });
+  it('the table: eight heights from 4000 down to 500 m, four times; a height without a value is null', () => {
+    const rows = dayRows(prof, D0);
+    expect(rows.map((r) => r.z)).toEqual(SKI_HEIGHTS);
+    expect(rows[0].cells.map((c) => c.hour)).toEqual(DAY_HOURS);
+    expect(rows.find((r) => r.z === 1000).cells[0].t).toBe(3.5);
+    expect(rows.find((r) => r.z === 4000).cells[0].t).toBe(-17.3); // 700 hPa (3000 m, −9) to 600 hPa (4200 m, −19)... at 4000 m: −9 − 10 · 1000 / 1200
+    expect(rows.find((r) => r.z === 500).cells[0].t).toBeGreaterThan(6.5);
+    expect(dayRows(prof, D0, [100])[0].cells.every((c) => c.t === null)).toBe(true);
+  });
+  it('hints: the 0 °C line; a cold summit; a summit above zero; above zero already at the start', () => {
+    const cold = skiHints(prof, D0, { startM: 1000, peakM: 3000, ascentMin: 6 * 60, peakMin: 11 * 60 }).map((h) => h.key);
+    expect(cold).toEqual(['zero', 'startWarm']); // 3000 m at 11 h is −9 °C: not colder than −10 and not above zero; 1000 m at 6 h is 3.5 °C
+  });
+  it('a very cold summit gets the warm-layers hint', () => {
+    const k = skiHints(prof, D0, { peakM: 4000, peakMin: 11 * 60 });
+    expect(k.map((h) => h.key)).toContain('peakCold');
+    expect(k.find((h) => h.key === 'peakCold').t).toBeLessThanOrEqual(-10);
+  });
+  it('a summit and a start above zero: wet snow and unfrozen start', () => {
+    const k = skiHints(prof, D0, { startM: 1000, peakM: 1000, ascentMin: 6 * 60, peakMin: 13 * 60 }).map((h) => h.key);
+    expect(k).toContain('peakWarm');
+    expect(k).toContain('startWarm');
+  });
+  it('without heights only the 0 °C line; without a profile nothing', () => {
+    expect(skiHints(prof, D0).map((h) => h.key)).toEqual(['zero']);
+    expect(skiHints(null, D0, { startM: 1000, peakM: 3000 })).toEqual([]);
   });
 });

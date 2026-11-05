@@ -11,7 +11,7 @@
  *   metres climbed per ski.
  *
  * Where it lives: trip.ski.plan = { level, sub, wakeAt, leaveAt, ascentAt, peakPlanAt, hm, timeMin, temp,
- * wind, notes }; trip.ski.peakAt (the «Gipfel erreicht» tap) and trip.ski.turnAt / trainAt (Start-Check)
+ * wind, notes, startM, peakM (heights of the start and the peak in m, for the temperatures by height) }; trip.ski.peakAt (the «Gipfel erreicht» tap) and trip.ski.turnAt / trainAt (Start-Check)
  * stay where they were. The settings 'ski.goal', 'ski.wishes', 'ski.lvs', 'ski.courses'.
  */
 import { seasonId, seasonTrips, seasonStats, hmOf, isPastSki, hasNotes } from './ski.js';

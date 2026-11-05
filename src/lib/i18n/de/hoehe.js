@@ -1,4 +1,4 @@
-// «Temperaturen nach Höhe» (Noah 05.11.2026 «1b 2a und c 3a …»): wetter/hoehe.js, HoeheBlock.svelte (Wetterseite), HeuteHoehe.svelte (Heute)
+// «Temperaturen nach Höhe» (Noah 05.11.2026 «1b 2a und c 3a …»): wetter/hoehe.js, HoeheBlock.svelte (Wetterseite), HeuteHoehe.svelte (Heute), ski/SkiHoehe.svelte (Tour planen)
 export default {
   'Temperatures by height': 'Temperaturen nach Höhe',
   'Over {name}': 'Über {name}',
@@ -21,4 +21,18 @@ export default {
   'Everything here is a suggestion: pick as many as you like, take them away again, add your own.': 'Alles hier ist ein Vorschlag: Wähle so viele, wie du magst, nimm sie wieder weg, füge eigene hinzu.',
   'Temperatures by height. Open the weather page.': 'Temperaturen nach Höhe. Öffnet die Wetterseite.',
   'Show the temperatures by height on Today': 'Temperaturen nach Höhe auf Heute zeigen',
+  'The air temperature at 500 to 4000 m over the place of your tour, on the day of the tour.': 'Die Lufttemperatur auf 500 bis 4000 m über dem Ort deiner Tour, am Tag der Tour.',
+  'Give the tour a place to see the temperatures by height.': 'Gib der Tour einen Ort, dann siehst du die Temperaturen nach Höhe.',
+  'Open the tour': 'Tour öffnen',
+  'The air layers reach {n} days from today. Your tour is on {day}: the temperatures show here then.': 'Die Luftschichten reichen {n} Tage ab heute. Deine Tour ist am {day}: Dann stehen hier die Temperaturen.',
+  'Height of the start (m)': 'Höhe des Starts (m)',
+  'Height of the peak (m)': 'Höhe des Gipfels (m)',
+  'Air at the start ({m} m, {at}): {t} °C': 'Luft am Start ({m} m, {at}): {t} °C',
+  'Use for «Temperature at the start»': 'Für «Temperatur am Start» übernehmen',
+  'Used|hoehe': 'Übernommen',
+  '0 °C line at {at} about {m} m above sea level.': 'Nullgradgrenze um {at} Uhr etwa {m} m ü. M.',
+  'About {t} °C at the peak ({m} m): warm layers, a spare jacket and warm gloves.': 'Etwa {t} °C am Gipfel ({m} m): warme Schichten, eine Reservejacke und warme Handschuhe.',
+  'About {t} °C at the peak ({m} m): above zero, the snow can get wet. Think about an early start and an earlier turnaround.': 'Etwa {t} °C am Gipfel ({m} m): über null, der Schnee kann nass werden. Denk an einen frühen Start und eine frühere Umkehrzeit.',
+  'About {t} °C already at the start ({m} m): the snow may not have frozen overnight.': 'Schon etwa {t} °C am Start ({m} m): Der Schnee ist über Nacht vielleicht nicht gefroren.',
+  'A suggestion from the weather model, not a judgement of the slope. The avalanche bulletin and your own eyes decide.': 'Ein Vorschlag aus dem Wettermodell, keine Beurteilung des Hangs. Das Lawinenbulletin und dein eigener Blick entscheiden.',
 };
