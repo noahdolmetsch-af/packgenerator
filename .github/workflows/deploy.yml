@@ -67,7 +67,9 @@ jobs:
       (github.event.action != 'labeled' || github.event.label.name == 'ok')
     runs-on: ubuntu-latest
     # 45 since 22.10.2026: on slow runners the parts passed every test but hit 30 min (#238).
-    timeout-minutes: 45
+    # 35 since 05.11.2026 (Noah «3a», thread «GitHub-Warteschlange»): the slowest green part of that day took
+    # 26 min, so 35 keeps a margin; a stuck part now frees its computer 10 minutes sooner.
+    timeout-minutes: 35
     # Noah 26.10.2026 «1a»: the official Playwright image already has Chromium and its system
     # packages. The tag must match @playwright/test in package.json (tests/ci-image.test.js).
     container:
