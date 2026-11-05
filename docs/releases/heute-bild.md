@@ -1,6 +1,6 @@
 # Bild oben auf Heute
 
-PR (diese Änderung) · 03.11.2026 · Noah 03.11. «a» (Paket G, Teil 1; Thread «Durchgehen: offene Fragen einzeln»); Ziel 5 «Alltag»
+PR #783 (neu aufgesetzt auf `main`, weil #783 einen Konflikt hatte) · 03.11.2026 · Noah 03.11. «a» (Paket G, Teil 1; Thread «Durchgehen: offene Fragen einzeln»); Ziel 5 «Alltag»
 
 ## Was ist neu
 - Oben auf Heute steht eine gezeichnete Landschaft (Hügel, Sonne oder Mond, ein kleines Velo auf der Strasse) mit deiner nächsten Tour und dem Countdown: «Noch 12 Tage bis Bodensee-Runde», «Morgen geht es los: …», «Heute: …» oder «… Tag 2 von 3». Darunter in einer kleinen Zeile das Wetter von Heute (wie unter dem Gruss).
@@ -19,8 +19,8 @@ PR (diese Änderung) · 03.11.2026 · Noah 03.11. «a» (Paket G, Teil 1; Thread
 - Als Schalter in «Bedienung», keine eigene Funktion im Katalog (Zusatz ohne eigene Seite, Fertig-Regel 1 bis 5 entfallen).
 - Die Zeile «Sa trocken, So Regen ab Mittag» aus dem Entwurf gibt es hier noch nicht: es erscheint das Wetter von Heute (vorhanden und geprüft); Wetter pro Tourtag wäre ein späterer Schritt.
 - Mond und Sterne nachts und eine Regenwolke bei Regen sind meine Ergänzung zu «Farben nach Tageszeit oder Wetter».
-- `docs/app-stand.md` ist noch nicht auf `main` (PR #742 offen); die Zeile «Heute» folgt nach dessen Merge.
-- Dieser PR ändert wie #763, #766, #768 und #772 die Liste der Schalter in `bedienung.js` und `tests/bedienung.test.js`; spätere Merges brauchen einen kleinen Konflikt-Fix, den ich übernehme.
+- Der Konflikt von #783 (Schalter-Liste in `bedienung.js`, `tests/bedienung.test.js`, Imports und Kopf in `Home.svelte`, wegen Nussgipfel, Murmeltier, Mundart, Kuhglocke und Ziehen-zum-Aktualisieren auf `main`) ist gelöst: beide Seiten bleiben, der Schalter steht hinter «Mundart».
+- `docs/app-stand.md`: die Zeile «Heute» nennt jetzt das Bild oben.
 
 ## Entscheide (für decisions.md)
 - keine neuen.
