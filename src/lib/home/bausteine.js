@@ -32,7 +32,7 @@ export const activeCount = (days = []) => days.filter((x) => !x.future && (x.rid
 
 /**
  * km ridden this month up to today, and the change against the same days of last month in % (null when
- * last month had none). → { km, pct }
+ * last month had none), plus that «before» (km of the same days of last month, to say what the % compares to). → { km, pct, hm, before }
  */
 export function monthKm(rides = [], today) {
   const [y, m, dd] = today.split('-').map(Number);
@@ -46,7 +46,7 @@ export function monthKm(rides = [], today) {
   const before = sum(pFrom, pTo);
   // «Werte überall» WU1/WU2: the metres climbed this month (rides that know them)
   const hm = Math.round(rides.filter((r) => dayOf(r?.date) && dayOf(r.date) >= from && dayOf(r.date) <= today && Number.isFinite(r.gainM)).reduce((s, r) => s + r.gainM, 0));
-  return { km, pct: before > 0 ? Math.round(((km - before) / before) * 100) : null, hm };
+  return { km, pct: before > 0 ? Math.round(((km - before) / before) * 100) : null, hm, before: Math.round(before) };
 }
 
 /**

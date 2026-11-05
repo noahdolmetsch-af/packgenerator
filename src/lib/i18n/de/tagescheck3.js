@@ -29,9 +29,9 @@ export default {
   'the weakest|balance': 'am wenigsten',
   'Sport, mindfulness and recovery are part of the ring; it takes the place of the three small Im Flow rings.': 'Sport, Achtsamkeit und Erholung sind Teil des Rings; er ersetzt die 3 kleinen Im-Flow-Ringe.',
   // Noah 19.10.2026: the round as its own window
-  'Evening check': 'Abend-Check',
+  'Evening check': 'Wi gaht\'s? am Abend',
   'Later|mask': 'Später',
   'Not today|mask': 'Heute nicht',
-  'Whole morning check': 'Ganzer Morgen-Check',
+  'Whole morning check': 'Alle Fragen am Morgen',
   'Whole evening review': 'Ganzer Abend-Rückblick',
 };
