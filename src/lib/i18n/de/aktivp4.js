@@ -107,7 +107,7 @@ export default {
   'Keep this day': 'Diesen Tag merken',
   'Today again: «{text}»': 'Heute wieder: «{text}»',
   'short version: {text}': 'kurze Version: {text}',
-  'Planned for {day}. The morning check reminds you.': 'Für {day} geplant. Der Morgen-Check erinnert dich.',
+  'Planned for {day}. The morning check reminds you.': 'Für {day} geplant. «Wi gaht\'s?» am Morgen erinnert dich.',
   'Only this recipe goes.': 'Nur dieses Rezept geht weg.',
   'Kept good days': 'Gemerkte schöne Tage',
   Recipe: 'Rezept',

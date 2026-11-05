@@ -75,7 +75,7 @@ export default {
   'Alone and replanned': 'Allein und umgeplant',
   'From the evening questions, both can be switched off': 'Aus den Abendfragen, beide sind ausschaltbar',
   'Time alone did you good: {m} of 10 on {n} days.': 'Alleinsein hat dir gutgetan: {m} von 10 an {n} Tagen.',
-  'Not answered yet: «Were you alone on purpose today?» comes in the evening check.': 'Noch nicht beantwortet: «Warst du heute bewusst allein?» kommt im Abend-Check.',
+  'Not answered yet: «Were you alone on purpose today?» comes in the evening check.': 'Noch nicht beantwortet: «Warst du heute bewusst allein?» kommt in «Wi gaht\'s?» am Abend.',
   'Days alone: day score {a} instead of {b}.': 'Tage allein: Tagesbewertung {a} statt {b}.',
   'Replanning that was good:': 'Umplanen, das gut war:',
   'No good replanning noted yet. When it happens, it lands here.': 'Noch kein gutes Umplanen notiert. Wenn es passiert, landet es hier.',

@@ -1,5 +1,5 @@
 /**
- * HG1 2b «Wie gaht's? / Was häsch vor?»: the answer of the sheet on Today into the ONE history of
+ * HG1 2b «Wi gaht's? / Was häsch vor?»: the answer of the sheet on Today into the ONE history of
  * «Deine Abfragen» (abfragen.js answerRow, abdb.js saveAnswers; no table of its own).
  */
 import { QUESTION, answerRow, stampOf } from '../abfragen.js';

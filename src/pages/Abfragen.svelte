@@ -80,6 +80,7 @@
   const saveD = (next) => (data ? saveDataCfg(next) : undefined);
   const hasFitbit = $derived((data?.health ?? []).length > 0);
   const hasTraining = $derived((data?.acts ?? []).length > 0);
+  const hasTennis = $derived((data?.sport ?? []).some((x) => x.sport === 'act:tennis'));
   async function removeQuestion(q) {
     const name = qText(q);
     const answer = await askDelete({ title: t('Delete «{q}»?', { q: name }), text: q.own ? t('Your own question goes. Its answers stay in the history.') : t('The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.') });
@@ -184,6 +185,7 @@
         <p class="eh">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
         {#if !hasFitbit}<p class="eh" data-data-empty>{t('No Fitbit values yet. The rules for pulse and sleep wait until Fitbit brings them (Me › Fitbit); the mood rule needs your answers.')}</p>{/if}
         {#if !hasTraining}<p class="eh" data-data-empty-training>{t('No training yet. The rules for long days and pauses wait until Strava brings your activities.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasTennis}<p class="eh" data-data-empty-tennis>{t('No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.')}</p>{/if}
         {#each RULES as r (r.id)}
           <div class="dr" data-rule={r.id}>
             <div class="rsw">

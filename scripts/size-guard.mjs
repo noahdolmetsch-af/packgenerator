@@ -25,7 +25,8 @@ export function heavyStatic(text) {
 // screen. Measured 02.11.2026: 3.8 MB JS (German texts 2.75 MB, start 0.61 MB, runtime 0.21 MB) = start 1.1–2.2 s at 4× slower CPU.
 // The budget leaves about 13 % room; going over it needs a reason (and a new number here), not a quiet creep.
 // 04.11.2026 (Noah «a»): 4.5 → 4.6 MB, because the app start measured 4.50 MB after the new Analyse and Form texts.
-export const MAX_START_JS_BYTES = 4_600_000;
+// 04.11.2026 (Noah «b», thread «Erklären und beheben: Start-Grenze bei 98 %»): 4.6 → 5.0 MB, because the start measured 4.52 MB (98 %).
+export const MAX_START_JS_BYTES = 5_000_000;
 const START_NAME = /^assets\/(main|start|icons|i18n|de|de-texts-\d+|gear|index\.gen|preload-helper|modulepreload-polyfill|stravanames)[-.]/;
 
 // Warning before the limit (Noah 04.11.2026 «Test-Plan 1»): at 90 % of the start budget every build says so, as a

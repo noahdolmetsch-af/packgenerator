@@ -228,7 +228,7 @@ test('weather at home, surprise round, rating in parts', async ({ page, context 
   await load(page, context, info);
 
   // 1 the weather page of the home place: your own hint for today's west wind
-  await page.goto('./#/wetter');
+  await page.goto('./#/wetter?tab=rueckblick');
   const hf = page.locator('[data-home-feel]');
   await expect(hf).toBeVisible();
   await expect(hf.locator('[data-home-feel-hint]')).toContainText(T('With wind from the {side} it is mostly calmer on your spot than forecast ({n} of {of} times).', { side: T('west'), n: 3, of: 3 }));

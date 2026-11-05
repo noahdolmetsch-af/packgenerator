@@ -1,5 +1,7 @@
 // «Wegweiser statt Katalog» PR 14: «Gut zu wissen» im Bereich Zurück (src/lib/wissen/zurueck.js).
 export default {
+  'Answer only what you felt, and skip the rest. Three tours say little: look at the line as a hint about what you like, not as a mark.':
+    'Beantworte nur, was du gespürt hast, den Rest lass aus. Drei Touren sagen wenig: nimm die Zeile als Hinweis, was dir gefällt, nicht als Note.',
   "Three right answers the evening before beat a long list in the morning. Wrong ones show what to pack again.":
     "Drei richtige Antworten am Vorabend schlagen eine lange Liste am Morgen. Falsche zeigen, was du nochmals packen solltest.",
   "Do it the evening you get home, before the laundry: in a week you remember the weather, not the spare tube you never used.":

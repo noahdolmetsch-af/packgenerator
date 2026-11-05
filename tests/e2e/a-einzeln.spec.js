@@ -53,7 +53,7 @@ test('Webcams: what each one is for, and a tidy round for the ones not opened fo
     { id: 'wc-1', name: 'test_data_gtp_ Pass', url: 'https://cams.example/pass.jpg', home: false },
     { id: 'wc-2', name: 'test_data_gtp_ Alt', url: 'https://cams.example/alt.jpg', home: false, seen: day(-200) },
   ]);
-  await page.goto('./#/wetter');
+  await page.goto('./#/wetter?tab=radar');
   const cam = page.locator('[data-webcam]').first();
   await tap(cam.locator('[data-webcam-why-edit]'), info);
   const sheet = page.getByRole('dialog');
