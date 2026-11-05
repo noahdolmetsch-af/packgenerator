@@ -523,7 +523,15 @@
     color: var(--ink-3);
     cursor: pointer;
   }
+  /* Etappe 6 (E6-003): the list of all values is long; the chip keeps to the page width (320 px) and the select to the chip */
+  .chip.sel {
+    max-width: 100%;
+    min-width: 0;
+  }
   .chip.sel select {
+    max-width: 100%;
+    min-width: 0;
+    text-overflow: ellipsis;
     border: 0;
     background: none;
     color: inherit;

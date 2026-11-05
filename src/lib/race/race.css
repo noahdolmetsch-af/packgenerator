@@ -89,6 +89,13 @@
   flex: none;
   color: var(--ink-3);
 }
+/* Etappe 6 (E6-004): an editable row (tick, bell, arrows, pencil) wraps at 320 px instead of pushing the page wider */
+.rc-row.rc-edit {
+  flex-wrap: wrap;
+}
+.rc-row.rc-edit > .rc-row-main {
+  flex-basis: 7rem;
+}
 .rc-row-main {
   display: flex;
   flex: 1 1 auto;
