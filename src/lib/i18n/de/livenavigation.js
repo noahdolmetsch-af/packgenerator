@@ -214,4 +214,8 @@ export default {
   'The next 3 hours look fine: no cold, no rain.': 'Die nächsten 3 Stunden sehen gut aus: keine Kälte, kein Regen.',
   'Now|hours': 'Jetzt',
   '+{h} h': '+{h} Std.',
+  'Rain jacket': 'Regenjacke',
+  'Warm layer, gloves': 'Warme Schicht, Handschuhe',
+  'Arm warmers': 'Armlinge',
+  'Wind vest': 'Windweste',
 };
