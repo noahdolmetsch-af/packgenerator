@@ -1,7 +1,7 @@
 // «Sonnenaufgang auf dem Hügel» (Träume und Neuland N9, Noah 27.10.2026 «1-5 a»): with a (faked) clear forecast
 // the next clear sunrise and sunset near the (fictional) home show with «Leave …»; an own «View» point is named
 // with its km. Cloudy everywhere: one quiet line. No real network.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

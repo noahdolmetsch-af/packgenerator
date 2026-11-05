@@ -2,8 +2,8 @@
 export default {
   title: 'Sunrise on the hill',
   lead: 'Dreams names the next clear morning and evening, with the time to leave.',
-  points: [{ text: 'Trips › Dreams: «Sunrise on the hill» with the next clear sunrise and sunset near home', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'With a «View» point on the map, the tip says when to leave for it' }],
+  points: [{ text: 'Trips › Dreams: «Sunrise on the hill» with the next clear sunrise and sunset near home', href: '#/trips/dreams', go: 'f.suntip' }],
+  small: [{ box: 'new', text: 'With a «View» point on the map, the tip says when to leave for it', go: 'f.suntip' }],
   test: [
     'Open Trips › Dreams: «Sunrise on the hill» names a clear morning or evening.',
     'Mark a «View» point on the map near home: the tip names it with its km.',
