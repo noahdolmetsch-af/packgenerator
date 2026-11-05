@@ -248,4 +248,12 @@ export default {
   'Counts from': 'Zählt ab',
   'Prepare invoice for the card': 'Rechnung für die Karte vorbereiten',
   'On the card: lesson {n} of {size}': 'Auf der Karte: Stunde {n} von {size}',
+  'Please enter the subscription price like 200, or leave it empty.': 'Bitte den Abo-Preis eingeben, zum Beispiel 200, oder leer lassen.',
+  'Subscription {price} CHF per month': 'Abo {price} CHF pro Monat',
+  'Subscription, {month}': 'Abo, {month}',
+  'Subscription': 'Abo',
+  'A fixed price every month. Each month you prepare the invoice with one tap; nothing is sent by itself.': 'Ein fester Preis pro Monat. Jeden Monat bereitest du die Rechnung mit einem Tipp vor; nichts wird von selbst gesendet.',
+  'Price per month in CHF (empty: no subscription)': 'Preis pro Monat in CHF (leer: kein Abo)',
+  'e.g. 200': 'z. B. 200',
+  "Prepare this month's invoice": 'Rechnung für diesen Monat vorbereiten',
 };

@@ -14,7 +14,7 @@
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { OFFERS_KEY, allBookings } from '../lib/booking/client.js';
   import { chf, dayOf, timeOf, holdsPlace } from '../lib/booking/model.js';
-  import { listCustomers, saveCustomers, keyOf, parseRate, lessonsOf, invoicesOf, packOf, packState, parsePack } from '../lib/booking/customers.js';
+  import { listCustomers, saveCustomers, keyOf, parseRate, lessonsOf, invoicesOf, packOf, packState, parsePack, aboOf, parseAbo } from '../lib/booking/customers.js';
   import { listInvoices, setPrefill } from '../lib/pay/invoices.js';
   import { localDay } from '../lib/localday.js';
   import { Users, X, Plus } from '@lucide/svelte';
@@ -42,8 +42,8 @@
   $effect(() => {
     if (draft && dlg && !dlg.open) dlg.showModal();
   });
-  const openNew = () => ((error = ''), (draft = { id: null, name: '', contact: '', note: '', rate: '', packSize: '', packPrice: '', packFrom: localDay() }));
-  const openOne = (c) => ((error = ''), (draft = { id: c.id, name: c.name, contact: c.contact ?? '', note: c.note ?? '', rate: c.rate == null ? '' : chf(c.rate), packSize: packOf(c) ? String(packOf(c).size) : '', packPrice: packOf(c)?.price == null ? '' : chf(packOf(c).price), packFrom: packOf(c)?.from || localDay() }));
+  const openNew = () => ((error = ''), (draft = { id: null, name: '', contact: '', note: '', rate: '', packSize: '', packPrice: '', packFrom: localDay(), abo: '' }));
+  const openOne = (c) => ((error = ''), (draft = { id: c.id, name: c.name, contact: c.contact ?? '', note: c.note ?? '', rate: c.rate == null ? '' : chf(c.rate), packSize: packOf(c) ? String(packOf(c).size) : '', packPrice: packOf(c)?.price == null ? '' : chf(packOf(c).price), packFrom: packOf(c)?.from || localDay(), abo: aboOf(c) ? chf(aboOf(c).price) : '' }));
   const current = $derived(draft?.id ? (customers ?? []).find((c) => c.id === draft.id) : null);
   const lessons = $derived(current && bookings ? lessonsOf(current, bookings).sort((a, b) => String(b.at).localeCompare(String(a.at))) : []);
   const openInvoices = $derived(current ? invoicesOf(current, invoices).filter((x) => x.status === 'open') : []);
@@ -56,11 +56,13 @@
     if (rate === undefined) return (error = t('Please enter the price like 80 or 62.50, or leave it empty.'));
     const pack = parsePack(draft.packSize, draft.packPrice, draft.packFrom);
     if (pack === undefined) return (error = t('Please enter the card like 10 lessons and a price like 450, or leave it empty.'));
+    const abo = parseAbo(draft.abo);
+    if (abo === undefined) return (error = t('Please enter the subscription price like 200, or leave it empty.'));
     const list = customers ?? [];
     if (list.some((c) => c.id !== draft.id && keyOf(c.name) === keyOf(name))) return (error = t('This customer is already in the list.'));
     const next = draft.id
-      ? list.map((c) => (c.id === draft.id ? { ...c, name, contact: draft.contact.trim(), note: draft.note.trim(), rate, pack } : c))
-      : [...list, { id: crypto.randomUUID(), name, contact: draft.contact.trim(), note: draft.note.trim(), rate, pack, createdAt: new Date().toISOString().slice(0, 10) }];
+      ? list.map((c) => (c.id === draft.id ? { ...c, name, contact: draft.contact.trim(), note: draft.note.trim(), rate, pack, abo } : c))
+      : [...list, { id: crypto.randomUUID(), name, contact: draft.contact.trim(), note: draft.note.trim(), rate, pack, abo, createdAt: new Date().toISOString().slice(0, 10) }];
     await saveCustomers(next);
     dlg.close();
   }
@@ -88,6 +90,15 @@
     setPrefill({ name: draft.name.trim(), email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.contact.trim()) ? draft.contact.trim() : '', amount: p.price == null ? '' : chf(p.price), purpose: t('{n}-lesson card', { n: p.size }) });
     location.hash = '#/me/pay/invoices/new';
   }
+  const aboText = (c) => (aboOf(c) ? t('Subscription {price} CHF per month', { price: chf(aboOf(c).price) }) : '');
+  /* the month's invoice: name, price and «Subscription, November 2026» (nothing is sent here) */
+  function invoiceForAbo() {
+    const a = parseAbo(draft.abo);
+    if (!a) return (error = t('Please enter the subscription price like 200, or leave it empty.'));
+    const month = new Date().toLocaleDateString(locale(), { month: 'long', year: 'numeric' });
+    setPrefill({ name: draft.name.trim(), email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.contact.trim()) ? draft.contact.trim() : '', amount: chf(a.price), purpose: t('Subscription, {month}', { month }) });
+    location.hash = '#/me/pay/invoices/new';
+  }
   const rateText = (c) => (c.rate == null ? '' : t('{price} CHF per lesson', { price: chf(c.rate) }));
 </script>
 
@@ -103,7 +114,7 @@
           {@const n = bookings ? lessonsOf(c, bookings).length : null}
           {@const open = invoicesOf(c, invoices).filter((x) => x.status === 'open').length}
           <li><button type="button" class="cu-row" onclick={() => openOne(c)}>
-            <span><b>{c.name}</b><small>{[c.contact, rateText(c), packText(c), n != null ? tn(n, '{n} lesson', '{n} lessons') : '', open ? tn(open, '{n} open invoice', '{n} open invoices') : ''].filter(Boolean).join(' · ')}</small></span>
+            <span><b>{c.name}</b><small>{[c.contact, rateText(c), packText(c), aboText(c), n != null ? tn(n, '{n} lesson', '{n} lessons') : '', open ? tn(open, '{n} open invoice', '{n} open invoices') : ''].filter(Boolean).join(' · ')}</small></span>
           </button></li>
         {/each}
       </ul>
@@ -124,6 +135,10 @@
       <label class="lbl" for="cu-pprice">{t('Price of the whole card in CHF')}</label><input id="cu-pprice" class="inp" inputmode="decimal" bind:value={draft.packPrice} placeholder={t('e.g. 450')} />
       <label class="lbl" for="cu-pfrom">{t('Counts from')}</label><input id="cu-pfrom" type="date" class="inp" bind:value={draft.packFrom} />
       {#if draft.packSize.trim()}<button type="button" class="btn sm" data-card-invoice onclick={invoiceForCard}>{t('Prepare invoice for the card')}</button>{/if}
+      <h3 class="cu-h3">{t('Subscription')}</h3>
+      <p class="muted">{t('A fixed price every month. Each month you prepare the invoice with one tap; nothing is sent by itself.')}</p>
+      <label class="lbl" for="cu-abo">{t('Price per month in CHF (empty: no subscription)')}</label><input id="cu-abo" class="inp" inputmode="decimal" bind:value={draft.abo} placeholder={t('e.g. 200')} />
+      {#if draft.abo.trim()}<button type="button" class="btn sm" data-abo-invoice onclick={invoiceForAbo}>{t("Prepare this month's invoice")}</button>{/if}
       <label class="lbl" for="cu-note">{t('Your note')}</label><textarea id="cu-note" class="inp" rows="3" maxlength="500" bind:value={draft.note}></textarea>
       {#if current}
         <h3 class="cu-h3">{t('Lessons with this customer')}</h3>
