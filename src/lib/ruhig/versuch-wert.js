@@ -8,7 +8,11 @@
 import { addDays, daysBetween } from './base.js';
 
 /** The values a try can measure: keys of the Analyse catalog (analyse/catalog.js), a short, meaningful list. */
-export const EXP_METRICS = ['sleep', 'eff', 'rhr', 'hrv', 'ready', 'felt:sleep', 'felt:energy', 'felt:mood', 'steps'];
+export const EXP_METRICS = ['sleep', 'eff', 'rhr', 'hrv', 'ready', 'felt:sleep', 'felt:energy', 'felt:mood', 'steps', 'rideFeel', 'cad', 'spd', 'wkg'];
+/** The values of rides (Noah 04.11.2026, Persönliches Lernen Idee 2): only days with a ride have one. */
+export const RIDE_METRICS = ['rideFeel', 'cad', 'spd', 'wkg'];
+/** Ride values are thin: a try of at least this many days gives more rides to compare. */
+export const RIDE_DAYS = 14;
 /** At least this many days with a value on each side before anything is said. */
 export const MIN_SIDE = 3;
 /** The difference counts as «clear» when it is more than this many times its standard error. */

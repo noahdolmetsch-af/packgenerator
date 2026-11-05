@@ -218,7 +218,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Mini-Tools für Gruppen | `#/me/mini` | Terminfindung, Umfrage, Anmeldeliste mit Warteliste, spontane Einladung und Essensabfrage per Browserlink erstellen. |
 | Fair auslosen | `#/me/mini/los` | Aufgaben oder Rollen innerhalb einer Gruppe verteilen. |
 | Gemeinsam ankommen | `#/me/mini/abfahrt` | Abfahrtszeiten von unterschiedlichen Startorten für einen gemeinsamen Treffpunkt berechnen. |
-| Ruhig und persönlich | `#/me/ruhig` | App vereinfachen, Erinnerungen begrenzen, Briefe ans zukünftige Ich schreiben und persönliche Experimente oder gute Entscheidungen sammeln. |
+| Ruhig und persönlich | `#/me/ruhig` | App vereinfachen, Erinnerungen begrenzen, Briefe ans zukünftige Ich schreiben und persönliche Experimente (auch mit Fahrt-Werten wie Kadenz oder gefühlter Anstrengung) oder gute Entscheidungen sammeln. |
 
 ### 11. Dateien, Werkzeuge, Verbindungen und Datensicherung
 

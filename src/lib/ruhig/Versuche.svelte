@@ -10,7 +10,7 @@
   import { analyseGroups, itemsByKey } from '../analyse/catalog.js';
   import { valueText, unitText } from '../analyse/format.js';
   import { addDays } from '../analyse.js';
-  import { EXP_METRICS, MIN_SIDE, expResult } from './versuch-wert.js';
+  import { EXP_METRICS, RIDE_METRICS, RIDE_DAYS, MIN_SIDE, expResult } from './versuch-wert.js';
   import { localDay } from '../localday.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { settingQ, saveSetting } from './store.js';
@@ -28,7 +28,9 @@
   const data = analyseData({ from: () => addDays(today, -120) });
   const byKey = $derived(itemsByKey(analyseGroups({ table: data.table, weights: data.weights, ctx: data.ctx, acts: data.acts, log: data.log, ownKeys: data.ownKeys })));
   const metrics = $derived(EXP_METRICS.map((k) => byKey.get(k)).filter((x) => x?.get));
-  const resultOf = (x) => (x.metric && byKey.get(x.metric)?.get ? expResult(x, byKey.get(x.metric).get, today) : null);
+  // the main value and, if chosen, a second one read the same way (ride values: Idee 2)
+  const resultOf = (x, key = x.metric) => (key && byKey.get(key)?.get ? expResult({ ...x, metric: key }, byKey.get(key).get, today) : null);
+  const valuesOf = (x) => [x.metric, x.also].filter(Boolean).map((key) => ({ key, mi: byKey.get(key), res: resultOf(x, key) })).filter((v) => v.mi && v.res);
   const vt = (it, v) => `${valueText(it, v, num)} ${unitText(it)}`.trim();
   const dt = (it, v) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${vt(it, Math.abs(v))}`;
   const VERDICT = {
@@ -42,14 +44,17 @@
   let ndays = $state(7);
   let nfrom = $state(today);
   let nmetric = $state('');
+  let nalso = $state('');
+  const rideChosen = $derived(RIDE_METRICS.includes(nmetric) || RIDE_METRICS.includes(nalso));
   function add(e) {
     e.preventDefault();
-    const x = newExp({ q: nq, change: nchange, from: nfrom, days: ndays, metric: nmetric });
+    const x = newExp({ q: nq, change: nchange, from: nfrom, days: ndays, metric: nmetric, also: nalso });
     if (!x) return;
     save([x, ...exps]);
     nq = '';
     nchange = '';
     nmetric = '';
+    nalso = '';
   }
   const STATE = { soon: 'Starts on {day}', running: 'Day {n} of {days}', review: 'Over: your look back', stopped: 'Stopped: your look back', done: 'Finished' };
   let learned = $state({});
@@ -82,7 +87,16 @@
         </select>
         <small class="rh-help">{t('The look back then compares the mean during the try with the same number of days before it. It needs that value in your data.')}</small>
       </label>
-      {#if !exps.length}<div class="rh-chips">{#each EXP_EXAMPLES as x (x.q)}<button type="button" class="rh-chip" onclick={() => ((nq = t(x.q)), (nchange = t(x.change)))}>{t(x.q)}</button>{/each}</div>{/if}
+      {#if nmetric}
+        <label class="rh-field"><span>{t('Also compare with (optional)|exp')}</span>
+          <select class="inp" bind:value={nalso} data-exp-also>
+            <option value="">{t('Nothing else|exp')}</option>
+            {#each metrics.filter((m) => m.key !== nmetric) as m (m.key)}<option value={m.key}>{m.name}</option>{/each}
+          </select>
+        </label>
+      {/if}
+      {#if rideChosen}<p class="rh-help" data-exp-ride-hint>{t('Ride values exist only on days with a ride, so a try of {n} days or more gives more to compare.|exp', { n: RIDE_DAYS })}</p>{/if}
+      <div class="rh-chips">{#each EXP_EXAMPLES as x (x.q)}<button type="button" class="rh-chip" onclick={() => ((nq = t(x.q)), (nchange = t(x.change)), (nmetric = x.metric ?? ''), (nalso = x.also ?? ''), x.metric && RIDE_METRICS.includes(x.metric) && (ndays = RIDE_DAYS))}>{t(x.q)}</button>{/each}</div>
       <button type="submit" class="btn hi" disabled={!nq.trim()} data-exp-add><Plus size={16} aria-hidden="true" />{t('Start the experiment')}</button>
     </form>
   </Card>
@@ -90,8 +104,7 @@
   {#each exps as x (x.id)}
     {@const st = expState(x, today)}
     {@const p = expProgress(x, today)}
-    {@const res = st === 'soon' ? null : resultOf(x)}
-    {@const mi = x.metric ? byKey.get(x.metric) : null}
+    {@const vals = st === 'soon' ? [] : valuesOf(x)}
     <li class="rh-card rh-exp" data-exp={x.id} data-state={st}>
       <div class="rh-body rh-top">
         <div class="rh-row rh-eh">
@@ -105,20 +118,22 @@
         </div>
         {#if x.change}<p class="rh-help">{x.change}</p>{/if}
         <p class="rh-help"><span class="rh-tag" class:ok={st === 'done'} class:warn={st === 'review' || st === 'stopped'}>{t(STATE[st], { day: dmy(x.from), n: p.day, days: x.days })}</span> · {dmy(x.from)} – {dmy(expEnd(x))}{#if p.yes || p.no}{' '}· {t('{yes} yes, {no} no', { yes: p.yes, no: p.no })}{/if}</p>
-        {#if res && mi}
-          <div class="rh-res" data-exp-result data-verdict={res.verdict}>
-            <h4 class="rh-rt">{t('Your value: {name}|exp', { name: mi.name })}</h4>
-            {#if res.verdict === 'few'}
-              <p class="rh-help">{t('Not enough values yet: at least {n} days with a value before and during the try are needed.|exp', { n: MIN_SIDE })}</p>
-            {:else}
-              <dl class="rh-cmp">
-                <div><dt>{t('Before the try ({n} days)|exp', { n: res.days })}</dt><dd>{vt(mi, res.before.mean)}<small>{valueText(mi, res.before.lo, num)} – {valueText(mi, res.before.hi, num)} · {tn(res.before.n, '{n} value', '{n} values')}</small></dd></div>
-                <div><dt>{t('During the try|exp')}</dt><dd>{vt(mi, res.during.mean)}<small>{valueText(mi, res.during.lo, num)} – {valueText(mi, res.during.hi, num)} · {tn(res.during.n, '{n} value', '{n} values')}</small></dd></div>
-              </dl>
-              <p class="rh-help"><strong>{dt(mi, res.diff)}</strong> · {t(VERDICT[res.verdict])}</p>
-            {/if}
-            <p class="rh-help">{t('A hint, not proof: a few days are few, and other things change too. Whether higher is better, you judge.|exp')}</p>
-          </div>
+        {#if vals.length}
+          {#each vals as v (v.key)}
+            <div class="rh-res" data-exp-result data-exp-value={v.key} data-verdict={v.res.verdict}>
+              <h4 class="rh-rt">{t('Your value: {name}|exp', { name: v.mi.name })}</h4>
+              {#if v.res.verdict === 'few'}
+                <p class="rh-help">{t('Not enough values yet: at least {n} days with a value before and during the try are needed.|exp', { n: MIN_SIDE })}</p>
+              {:else}
+                <dl class="rh-cmp">
+                  <div><dt>{t('Before the try ({n} days)|exp', { n: v.res.days })}</dt><dd>{vt(v.mi, v.res.before.mean)}<small>{valueText(v.mi, v.res.before.lo, num)} – {valueText(v.mi, v.res.before.hi, num)} · {tn(v.res.before.n, '{n} value', '{n} values')}</small></dd></div>
+                  <div><dt>{t('During the try|exp')}</dt><dd>{vt(v.mi, v.res.during.mean)}<small>{valueText(v.mi, v.res.during.lo, num)} – {valueText(v.mi, v.res.during.hi, num)} · {tn(v.res.during.n, '{n} value', '{n} values')}</small></dd></div>
+                </dl>
+                <p class="rh-help"><strong>{dt(v.mi, v.res.diff)}</strong> · {t(VERDICT[v.res.verdict])}</p>
+              {/if}
+            </div>
+          {/each}
+          <p class="rh-help">{t('A hint, not proof: a few days are few, and other things change too. Whether higher is better, you judge.|exp')}</p>
         {/if}
         {#if st === 'running'}
           <div class="rh-row" aria-label={t('Today')}>
