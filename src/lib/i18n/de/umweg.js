@@ -36,4 +36,10 @@ export default {
   'Start a ride on the live map.': 'Starte eine Fahrt auf der Live-Karte.',
   'Tap «⋯» › «Plan a new way to …» or press long on the map.': 'Tippe «⋯» › «Neu planen zu …» oder drücke lange auf die Karte.',
   'Choose a place and tap «Plan»; × removes the detour.': 'Wähle einen Ort und tippe «Planen»; × entfernt den Umweg.',
+  'To plan a way, the app sends your position and the goal to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.': 'Für den Weg schickt die App deinen Standort und das Ziel an brouter.de (gratis, ohne Konto). Der Dienst speichert solche Anfragen zwei Wochen lang. Sonst verlässt nichts das Gerät.',
+  'To plan a round, the app sends your home place and the points of the round to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.': 'Für die Runde schickt die App deinen Wohnort und die Punkte der Runde an brouter.de (gratis, ohne Konto). Der Dienst speichert solche Anfragen zwei Wochen lang. Sonst verlässt nichts das Gerät.',
+  'That is too far for the bike router. Choose a place closer to you, or use a navigation app.': 'Das ist zu weit für den Velo-Routenplaner. Wähle einen Ort näher bei dir oder nimm eine Navi-App.',
+  'That is too far for the bike router. Choose a shorter round.': 'Das ist zu weit für den Velo-Router. Wähle eine kürzere Runde.',
+  'The bike router takes too long. Choose a place closer to you, or use a navigation app.': 'Der Velo-Routenplaner braucht zu lange. Wähle einen Ort näher bei dir oder nimm eine Navi-App.',
+  'The bike router takes too long. Try again.': 'Der Velo-Router braucht zu lange. Versuch es nochmals.',
 };

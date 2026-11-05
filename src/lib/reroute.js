@@ -7,9 +7,12 @@
  *
  * Router: BRouter (brouter.de, the public server of the open-source bike router; free, no account, no
  * key, fair use: one request per tap; off the route the app asks by itself at most once a minute). Profiles «trekking» (quiet roads and
- * good paths) and «fastbike» (road bike, short and paved). When it does not answer, the app says so and
- * offers the navigation apps instead. The answer stays on this device (localStorage, so a reload during
- * the ride keeps the detour); nothing else is sent.
+ * good paths) and «fastbike» (road bike, short and paved). askRouter is the one door to the router
+ * (Sicherheitsnetz, Noah 05.11.2026): a time limit, one more try after a quick failure, a short memory of
+ * answers, a stop for ways that are too far, and clear words for every failure (routerMsg). When it does not
+ * answer, the app says so and offers the navigation apps instead. The answer stays on this device
+ * (localStorage, so a reload during the ride keeps the detour). brouter.de gets the positions of the way
+ * and keeps the requests for two weeks (its privacy policy); RouterNote.svelte says so where the app asks.
  *
  * Pure functions plus planDetour (takes a fetcher for tests). Tested in tests/reroute.test.js.
  */
@@ -110,25 +113,99 @@ export function targetsOf({ pois = [], own = [], here = null, kinds = TARGET_KIN
   return [...out, ...mine];
 }
 
-/** One request to the router for the way [{ lat, lon }] → parseBrouter's answer. Throws 'busy', 'noroute' or 'failed'. */
-export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch, alt = 0) {
-  let res;
-  try {
-    res = await fetcher(brouterUrl(way, profile, alt));
-  } catch {
-    throw new Error('failed');
+/* ---------- Sicherheitsnetz für den Router (Noah 05.11.2026 «ok bauen») ---------- */
+
+/** The router gets this long to answer (ms). Measured 05.11.2026: 8 km 1 s, 50 km 3.5 s, 110 km 6 s. */
+export const ROUTER_TIMEOUT_MS = 15000;
+/** After a quick failure (no connection, 502, 504) one more try, after this pause (ms). A timeout or «busy» is never repeated. */
+export const ROUTER_RETRY_MS = 1500;
+/** A leg longer than this (km as the crow flies) is not asked: the free router did not answer for 600 km. */
+export const ROUTER_TOO_FAR_KM = 200;
+/** The same question within this time (ms) is answered from memory, at most ROUTER_CACHE_MAX answers are kept. */
+export const ROUTER_CACHE_MS = 10 * 60 * 1000;
+export const ROUTER_CACHE_MAX = 30;
+/** What askRouter uses when a call does not say otherwise (tests set a short pause). */
+export const ROUTER_TUNING = { timeoutMs: ROUTER_TIMEOUT_MS, retryMs: ROUTER_RETRY_MS };
+const cache = new Map();
+export const clearRouterCache = () => cache.clear();
+const copyOf = (r) => ({ ...r, line: r.line.map((p) => [...p]) });
+const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
+
+/** The longest leg of a way [{ lat, lon }] in km, as the crow flies. */
+export const longestLegKm = (way = []) => way.slice(1).reduce((m, p, i) => Math.max(m, distKm(P(way[i]), P(p))), 0);
+
+/**
+ * One request to the router for the way [{ lat, lon }] → parseBrouter's answer.
+ * Throws 'toofar' (a leg over ROUTER_TOO_FAR_KM, nothing is sent), 'offline' (no internet), 'busy' (429, 503),
+ * 'timeout' (no answer in ROUTER_TIMEOUT_MS), 'noroute' or 'failed'. A quick failure is tried once more.
+ * The same question within ROUTER_CACHE_MS is answered from memory, also without internet.
+ * opts: { timeoutMs, retryMs, now, online } (for tests).
+ */
+export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch, alt = 0, opts = {}) {
+  const { timeoutMs = ROUTER_TUNING.timeoutMs, retryMs = ROUTER_TUNING.retryMs, now = Date.now(), online = globalThis.navigator?.onLine } = opts;
+  if (longestLegKm(way) > ROUTER_TOO_FAR_KM) throw new Error('toofar');
+  const url = brouterUrl(way, profile, alt);
+  const kept = cache.get(url);
+  if (kept && now - kept.at < ROUTER_CACHE_MS) return copyOf(kept.r);
+  if (online === false) throw new Error('offline');
+  let fail = 'failed';
+  for (let tries = 0; tries < 2; tries++) {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), timeoutMs);
+    try {
+      let res;
+      try {
+        res = await fetcher(url, { signal: ctl.signal });
+      } catch {
+        // aborted by the timer: the router is too slow, trying again would only wait longer
+        if (ctl.signal.aborted) throw new Error('timeout');
+        fail = 'failed';
+        if (tries === 0) {
+          await wait(retryMs);
+          continue;
+        }
+        throw new Error('failed');
+      }
+      if (res.status === 429 || res.status === 503) throw new Error('busy');
+      if (res.status === 502 || res.status === 504) {
+        fail = 'failed';
+        if (tries === 0) {
+          await wait(retryMs);
+          continue;
+        }
+        throw new Error('failed');
+      }
+      if (!res.ok) throw new Error(res.status === 400 || res.status === 500 ? 'noroute' : 'failed');
+      let json;
+      try {
+        json = await res.json();
+      } catch {
+        throw new Error(ctl.signal.aborted ? 'timeout' : 'noroute');
+      }
+      const r = parseBrouter(json);
+      if (!r) throw new Error('noroute');
+      cache.set(url, { at: now, r: copyOf(r) });
+      while (cache.size > ROUTER_CACHE_MAX) cache.delete(cache.keys().next().value);
+      return r;
+    } finally {
+      clearTimeout(timer);
+    }
   }
-  if (res.status === 429 || res.status === 503) throw new Error('busy');
-  if (!res.ok) throw new Error(res.status === 400 || res.status === 500 ? 'noroute' : 'failed');
-  let json;
-  try {
-    json = await res.json();
-  } catch {
-    throw new Error('noroute');
-  }
-  const r = parseBrouter(json);
-  if (!r) throw new Error('noroute');
-  return r;
+  throw new Error(fail);
+}
+
+/**
+ * The words for an error of askRouter (English key; the caller puts it through t()). online: navigator.onLine.
+ * noroute: the caller's own text for «no way found» (a way, a round), otherwise the text for a way.
+ */
+export function routerMsg(e, { round = false, noroute = null, online = globalThis.navigator?.onLine } = {}) {
+  const m = e?.message;
+  if (m === 'busy') return round ? 'The bike router is busy right now. Try again in a minute.' : 'The bike router is busy right now. Try again in a minute, or use a navigation app.';
+  if (m === 'noroute') return noroute ?? 'The bike router found no way there. Choose another place, or use a navigation app.';
+  if (m === 'toofar') return round ? 'That is too far for the bike router. Choose a shorter round.' : 'That is too far for the bike router. Choose a place closer to you, or use a navigation app.';
+  if (m === 'timeout') return round ? 'The bike router takes too long. Try again.' : 'The bike router takes too long. Choose a place closer to you, or use a navigation app.';
+  if (m === 'offline' || online === false) return round ? 'Offline: a new round needs the internet.' : 'Offline: a new way needs the internet. A navigation app with offline maps still works.';
+  return round ? 'The bike router did not answer. Try again.' : 'The bike router did not answer. Try again, or use a navigation app.';
 }
 
 /**
