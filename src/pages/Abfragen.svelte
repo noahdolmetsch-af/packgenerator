@@ -27,7 +27,7 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
-  import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+  import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS, randomOn, setRandom, neverCount, bringBack as bringNeverBack } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { OWN_AREA, QUESTION, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
@@ -206,6 +206,19 @@
             {/if}
           </div>
         {/each}
+        <!-- the random question (Noah 04.11.2026 «3a»): one a day from the sample questions that are switched off; counts toward the daily limit -->
+        <div class="dr" data-rule="zufall">
+          <div class="rsw">
+            <span class="rm"><b>{t('A random question')}</b><small>{t('Once a day a question from your sample questions that are switched off. It counts toward the three questions from your data. «Never again» removes it for good.')}</small></span>
+            <label class="ab-sw"><span class="sr">{t('A random question')}</span><input type="checkbox" role="switch" checked={randomOn(dcfg)} onchange={(e) => saveD(setRandom(dcfg, e.currentTarget.checked))} data-random-switch /></label>
+          </div>
+          {#if neverCount(dcfg)}
+            <div class="dset">
+              <p class="eh" data-random-never>{t('Questions that will not be picked again: {n}', { n: neverCount(dcfg) })}</p>
+              <button type="button" class="btn" onclick={() => saveD(bringNeverBack(dcfg))} data-random-back><RotateCcw size={16} aria-hidden="true" />{t('Bring them back')}</button>
+            </div>
+          {/if}
+        </div>
         <a class="ab-lnk" href="#/me/insights" data-data-next>{t('See what goes together')}<ChevronRight size={14} aria-hidden="true" /></a>
       </section>
       {#if editing}

@@ -49,6 +49,8 @@ export const RAIN_DRY = 30;
 export const WARM_C = 15;
 /** The evening for «nothing planned»: from 17:00 to 22:00. */
 export const EVENING = [17, 22];
+/** A random question is not repeated within this many days after an answer. */
+export const RANDOM_REST = 30;
 
 const chip = (key, label) => ({ key, label: `${label}|data` });
 
@@ -307,7 +309,9 @@ export function dataOf(value) {
     const n = Number(k?.n);
     if (Number.isFinite(n) && n >= 1 && /^\d{4}-\d{2}-\d{2}$/.test(k?.day ?? '')) skips[r.id] = { n: Math.min(99, Math.round(n)), day: k.day };
   }
-  return { off: [...new Set(off)], vals, texts, gaps, skips };
+  const ids = Array.isArray(value?.zufall?.never) ? value.zufall.never.filter((x) => typeof x === 'string' && x).slice(0, 200) : [];
+  const zufall = { off: value?.zufall?.off === true, never: [...new Set(ids)], day: /^\d{4}-\d{2}-\d{2}$/.test(value?.zufall?.day ?? '') ? value.zufall.day : '' };
+  return { off: [...new Set(off)], vals, texts, gaps, skips, zufall };
 }
 /** Is a rule on? */
 export const ruleOn = (value, id) => !dataOf(value).off.includes(id);
@@ -513,7 +517,48 @@ export function draussenHit(wx, cal, today, warm = WARM_C) {
   return { max: Math.round(max) };
 }
 
+/* ---------- the random question (Noah 04.11.2026 «3a»: one a day from the switched-off sample questions) ---------- */
+/** Is the random question on? */
+export const randomOn = (value) => !dataOf(value).zufall.off;
+/** Switch the random question on or off → the new settings value. */
+export function setRandom(value, on) {
+  const cur = dataOf(value);
+  return { ...cur, zufall: { ...cur.zufall, off: !on } };
+}
+/** «Never again» for a question: it is not picked any more, and no other random question comes today → the new settings value. */
+export function neverAgain(value, id, today) {
+  const cur = dataOf(value);
+  return { ...cur, zufall: { ...cur.zufall, never: [...new Set([...cur.zufall.never, id])], day: today } };
+}
+/** Bring the «never again» questions back → the new settings value. */
+export function bringBack(value) {
+  const cur = dataOf(value);
+  return { ...cur, zufall: { ...cur.zufall, never: [], day: '' } };
+}
+/** The count of «never again» questions. */
+export const neverCount = (value) => dataOf(value).zufall.never.length;
+const hash = (str) => {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619) >>> 0;
+  return h;
+};
+/**
+ * Today's random question: the same all day (a hash of the day and the question, so it does not jump around),
+ * from `pool` (the sample questions that are switched off: { id, area, ... }), without the «never again» ones and the ones
+ * answered within RANDOM_REST days. answers: rows { qid, day }. → the question or null.
+ */
+export function randomPick(pool = [], answers = [], cfg = null, today) {
+  if (!today) return null;
+  const never = new Set(dataOf(cfg).zufall.never);
+  const since = addDays(today, -RANDOM_REST);
+  const recent = new Set(answers.filter((a) => a?.day >= since && a.day < today).map((a) => a.qid));
+  const left = pool.filter((x) => x?.id && !never.has(x.id) && !recent.has(x.id));
+  if (!left.length) return null;
+  return left.map((x) => [hash(`${today}|${x.id}`), x]).sort((a, b) => a[0] - b[0] || a[1].id.localeCompare(b[1].id))[0][1];
+}
+
 const WHY = {
+  zufall: 'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.',
   grau: 'Rain is likely today and your latest mood was {mood}, your usual is {usual}.',
   draussen: 'Dry and {max} degrees today, and nothing in your calendar this evening.',
   spiel: 'You noted a game of {min} minutes yesterday.',
@@ -543,13 +588,15 @@ const HITS = {
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
-  const doneToday = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => a.qid)).size;
+  const pick = randomOn(cfg) ? randomPick(pool, answers, cfg, today) : null;
+  const doneToday = new Set(answers.filter((a) => (String(a?.qid ?? '').startsWith('daten.') || a?.qid === pick?.id) && a.day === today).map((a) => a.qid)).size;
   const room = Math.max(0, MAX_PER_DAY - doneToday);
   // not two questions from data of the same group on a day (Noah 04.11.2026 «2a»): answered ones count
   const usedAreas = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => DATA_QUESTIONS[a.qid]?.area).filter(Boolean));
+  if (pick && answers.some((a) => a?.qid === pick.id && a.day === today)) usedAreas.add(pick.area);
   // a question put away today (skipped, «Not today») keeps its group used as well
   for (const q of Object.values(DATA_QUESTIONS)) if (snooze?.[q.id] && dayOf(snooze[q.id]) >= today) usedAreas.add(q.area);
   const out = [];
@@ -567,6 +614,11 @@ export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = n
     const own = ruleText(cfg, rule.id);
     out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
     usedAreas.add(q.area);
+  }
+  // the random question comes last, once a day, when there is room and its group is free; after «never again» not before tomorrow
+  const put = pick ? snooze?.[pick.id] : null;
+  if (pick && out.length < room && !usedAreas.has(pick.area) && dataOf(cfg).zufall.day !== today && !(put && dayOf(put) >= today) && !answers.some((a) => a?.qid === pick.id && a.day === today)) {
+    out.push({ q: pick, slot, last: slot, why: { text: WHY.zufall, vars: {} }, data: true, rule: 'zufall', random: true, fewer: false });
   }
   return out;
 }
