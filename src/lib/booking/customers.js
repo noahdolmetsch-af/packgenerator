@@ -95,3 +95,16 @@ export function parsePack(size, price, from) {
   if (rate === undefined) return undefined;
   return { size: count, price: rate, from: from || '' };
 }
+
+/**
+ * Subscription (Noah 04.11.2026 «5b»): a customer can pay a fixed price every month. { price: Rappen }.
+ * Every month Noah prepares the invoice by one tap; nothing runs by itself.
+ */
+export const aboOf = (customer) => (customer?.abo && customer.abo.price > 0 ? customer.abo : null);
+
+/** The price field → { price } (Rappen), null (no subscription) or undefined (wrong). */
+export function parseAbo(price) {
+  const rate = parseRate(price);
+  if (rate === undefined) return undefined;
+  return rate ? { price: rate } : null;
+}
