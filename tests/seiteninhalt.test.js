@@ -1,6 +1,6 @@
 // «Wegweiser statt Katalog» PR 11: the card «What you can do here».
 import { describe, it, expect } from 'vitest';
-import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO } from '../src/lib/seiteninhalt.js';
+import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO, foldedCount, unfoldAll } from '../src/lib/seiteninhalt.js';
 import { HOME } from '../src/lib/know/heimat.js';
 
 describe('What you can do here', () => {
@@ -28,6 +28,14 @@ describe('What you can do here', () => {
   it('keeps only folded pages from the stored setting', () => {
     expect(foldedOf({ '#/a': true, '#/b': false, '#/c': 1 })).toEqual({ '#/a': true });
     expect(foldedOf(null)).toEqual({});
+  });
+  it('«Open all cards again» removes the folds the user made, not the opened choices or pages that start folded (05.11.2026)', () => {
+    const m = { '#/trips/dreams': true, '#/inspiration': true, '#/ride': true, '#/pack': false, '#/x': 1 };
+    expect(foldedCount(m)).toBe(2);
+    expect(unfoldAll(m)).toEqual({ '#/ride': true, '#/pack': false });
+    expect(foldedCount(unfoldAll(m))).toBe(0);
+    expect(foldedCount(null)).toBe(0);
+    expect(unfoldAll(undefined)).toEqual({});
   });
   it('starts folded on Unterwegs, keeps the choice everywhere', () => {
     expect(FOLDED_FIRST).toEqual(expect.arrayContaining(['#/ride', '#/bikes', '#/gear', '#/debrief/:trip']));
