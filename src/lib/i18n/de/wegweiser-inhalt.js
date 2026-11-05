@@ -2,6 +2,8 @@
 export default {
   'What you can do here': 'Was du hier tun kannst',
   'Fold to one line': 'Auf eine Zeile zuklappen',
+  '{n} new': '{n} neu',
+  '{n} new on this page': '{n} neu auf dieser Seite',
   'Fold the card': 'Einklappen',
   'Open the card': 'Aufklappen',
   'Page cards': 'Karten auf den Seiten',
