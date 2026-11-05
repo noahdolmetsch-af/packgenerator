@@ -24,9 +24,18 @@ export const KEEP = [
   { key: 'adapt', label: 'Adapt it' },
   { key: 'drop', label: 'Let it go' },
 ];
-/** Examples to start from (English keys). */
+/**
+ * The first thing to pick in the form (Noah 05.11.2026 «a»): a plain question about your rides. It fills the question,
+ * the value, 14 days (rides are thin) and, for «easier», the cadence next to it; `hint` is an example of what you change.
+ */
+export const EXP_CHOICES = [
+  { key: 'feel', q: 'Do my rides feel easier?', hint: 'Pedal 5 rpm faster on every ride', metric: 'rideFeel', also: 'cad' },
+  { key: 'cad', q: 'Do I pedal faster?', hint: 'Pedal 5 rpm faster on every ride', metric: 'cad' },
+  { key: 'spd', q: 'Do I ride faster?', hint: 'Warm up for 10 minutes before every ride', metric: 'spd' },
+  { key: 'wkg', q: 'Do I get more watts per kilo?', hint: 'Eat something before every ride', metric: 'wkg' },
+];
+/** Other examples to start from (English keys). */
 export const EXP_EXAMPLES = [
-  { q: 'Do I ride more comfortably with a higher cadence?', change: 'Pedal 5 rpm faster on every ride', metric: 'rideFeel', also: 'cad' },
   { q: 'Do I sleep better without a screen after 21:00?', change: 'No phone after 21:00' },
   { q: 'Is the morning ride easier with breakfast first?', change: 'Breakfast before every ride' },
   { q: 'Do I pack faster with the list from the evening before?', change: 'Pack the evening before' },

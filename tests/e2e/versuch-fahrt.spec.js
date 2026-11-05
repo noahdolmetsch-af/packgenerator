@@ -1,5 +1,5 @@
 // «Persönliche Experimente» mit Fahrt-Werten (Persönliches Lernen, Idee 2): the cadence example fills the form,
-// and the card reads two ride values side by side. Fictional rides written straight into IndexedDB; the clock
+// and the card reads two ride values side by side, ride against ride with a dot for every ride. Fictional rides written straight into IndexedDB; the clock
 // stands on Friday 9 October 2026.
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -36,10 +36,14 @@ test('Versuch mit Fahrt-Werten: Beispiel, zwei Werte, Vergleich', async ({ page,
   await page.reload();
   await ready(page);
 
-  // the example fills the form: question, both values and 14 days
-  await page.getByRole('button', { name: T('Do I ride more comfortably with a higher cadence?') }).click();
+  // the plain question fills the form: question, value, cadence next to it and 14 days; the rest sits under «More settings»
+  await expect(page.locator('[data-exp-more]')).not.toHaveAttribute('open', '');
+  await page.getByRole('button', { name: T('Do my rides feel easier?') }).click();
+  await expect(page.locator('[data-exp-q]')).toHaveValue(T('Do my rides feel easier?'));
+  await expect(page.locator('[data-exp-change]')).toHaveAttribute('placeholder', /5 Umdrehungen/);
+  await page.locator('[data-exp-more] summary').click();
   await expect(page.locator('[data-exp-metric]')).toHaveValue('rideFeel');
-  await expect(page.locator('[data-exp-also]')).toHaveValue('cad');
+  await expect(page.locator('[data-exp-cad]')).toBeChecked();
   await expect(page.locator('[data-exp-ride-hint]')).toBeVisible();
   await page.locator('input[type="date"]').first().fill(addDays(TODAY, -13)); // 14 days so far (to and with today)
   await page.locator('[data-exp-add]').click();
@@ -52,8 +56,13 @@ test('Versuch mit Fahrt-Werten: Beispiel, zwei Werte, Vergleich', async ({ page,
   await expect(cad).toHaveAttribute('data-verdict', 'up');
   await expect(feel).toContainText(T('Felt effort of rides (1–10)'));
   await expect(cad).toContainText(T('Cadence'));
+  // ride against ride: how many rides fit, and every ride as a dot (7 before, 7 during)
+  await expect(feel.locator('[data-exp-similar]')).toContainText('14 von 14');
+  await expect(feel.locator('[data-dots="before"] .dot')).toHaveCount(7);
+  await expect(feel.locator('[data-dots="during"] .dot')).toHaveCount(7);
 
-  // the examples stay under the form after the first try
-  await expect(page.getByRole('button', { name: T('Do I ride more comfortably with a higher cadence?') })).toBeVisible();
+  // the choices and examples stay under the form after the first try
+  await expect(page.getByRole('button', { name: T('Do my rides feel easier?') })).toBeVisible();
+  await expect(page.getByRole('button', { name: T('Do I sleep better without a screen after 21:00?') })).toBeVisible();
   expect(errors).toEqual([]);
 });
