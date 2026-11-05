@@ -734,7 +734,7 @@
         <!-- SL2/SL4 (answer 5a): the search stays on top with the category you are in -->
         <ListBar bind:active={activeCat} current={curCat && tab === 'inventory' && display === 'list' ? t(curCat.name) : ''} count={curCat && tab === 'inventory' && display === 'list' ? tn(curCat.items.length, '{n} item', '{n} items') : ''}>
         <div class="toolbar">
-          <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={18} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} value={qText} oninput={typed} onchange={flushQ} onkeydown={(e) => e.key === 'Enter' && flushQ()} bind:this={searchEl} /></label>
+          <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={18} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} value={qText} data-applied={filter.q} oninput={typed} onchange={flushQ} onkeydown={(e) => e.key === 'Enter' && flushQ()} bind:this={searchEl} /></label>
           <button type="button" class="btn fbtn" onclick={() => (sheet = true)}>
             <SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}
           </button>
