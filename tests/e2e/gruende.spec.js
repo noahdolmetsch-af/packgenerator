@@ -16,7 +16,7 @@ const T = (en, vars) => {
   return vars ? text.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : text;
 };
 const shot = async (page, info, name, card = null) => {
-  if (card) await card.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  if (card) await card.evaluate((el) => { el.scrollIntoView({ block: 'center' }); el.style.outline = '3px solid #d9822b'; el.style.outlineOffset = '2px'; });
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png` });
 };
