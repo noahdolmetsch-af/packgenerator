@@ -208,6 +208,76 @@ test('Gruss A: yesterday is marked quietly, a tap on the chosen button takes it 
   expect(errors).toEqual([]);
 });
 
+test('Gruss B: adjust the buttons: add with an emoji, rename, hide, delete with Undo, groups; the window and the history follow', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const T = await openHome(page, context, info, { data: withName(), hour: 9 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  await sheet.locator('[data-hello-adjust]').click();
+  const edit = sheet.locator('[data-hello-edit]');
+  await expect(edit).toBeVisible();
+  // add an own feeling with an emoji
+  const feeling = edit.locator('[data-hb-group="feeling"]');
+  await feeling.locator('[data-hb-emoji]').fill('🎨');
+  await feeling.locator('[data-hb-new="feeling"]').fill('Kreativ');
+  await feeling.getByRole('button', { name: T('Add'), exact: true }).click();
+  await expect(feeling.locator('[data-hb-list="feeling"] li').last()).toContainText('Kreativ');
+  // rename a built-in one
+  await feeling.locator('[data-hb="ruehig"] [data-hb-edit]').click();
+  const bs = page.locator('dialog[data-button-sheet]');
+  await bs.locator('[data-button-name]').fill('Gelassen');
+  await bs.locator('[data-button-save]').click();
+  await expect(feeling.locator('[data-hb="ruehig"]')).toContainText('Gelassen');
+  // hide one in the energy group, delete another
+  const energy = edit.locator('[data-hb-group="energy"]');
+  await energy.locator('[data-hb="platt"] [data-hb-hide]').click();
+  await expect(energy.locator('[data-hb="platt"]')).toContainText(T('hidden'));
+  await energy.locator('[data-hb="wach"] [data-hb-del]').click();
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(energy.locator('[data-hb="wach"]')).toHaveCount(0);
+  // a plan of your own, a face renamed and hidden
+  await edit.locator('[data-hb-new="plans"]').fill('Familie');
+  await edit.locator('[data-hb-list="plans"] ~ form').getByRole('button', { name: T('Add'), exact: true }).click();
+  await expect(edit.locator('[data-hb-list="plans"] li').last()).toContainText('Familie');
+  await edit.locator('[data-hb="gahtso"] [data-hb-edit]').click();
+  await bs.locator('[data-button-name]').fill('Geht so');
+  await bs.locator('[data-button-save]').click();
+  await edit.locator('[data-hb="muede"] [data-hb-hide]').click();
+  // the whole energy group goes: its buttons go to «Ohne Gruppe»
+  await energy.locator('[data-hb-gdel]').click();
+  await page.getByRole('dialog', { name: T('Delete «{name}»?', { name: T('Energy|hello') }) }).getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(edit.locator('[data-hb-group="none"]')).toContainText('Platt');
+  await expect(edit.locator('[data-hb-group="energy"]')).toHaveCount(0);
+  await shot(page, info, 'gruss-b-anpassen');
+  // back to the window: it offers what is left
+  await sheet.locator('[data-hello-back]').click();
+  await expect(sheet.locator('[data-mood="muede"]')).toHaveCount(0);
+  await expect(sheet.locator('[data-mood="gahtso"]')).toContainText('Geht so');
+  await sheet.locator('[data-hello-more]').click();
+  await expect(sheet.locator('[data-feel-group="energy"]')).toHaveCount(0);
+  await expect(sheet.locator('[data-feel="wach"]')).toHaveCount(0);
+  await expect(sheet.locator('[data-feel="platt"]')).toHaveCount(0); // hidden
+  await expect(sheet.locator('[data-feel="ruehig"]')).toContainText('Gelassen');
+  await sheet.locator('[data-feel-group="feeling"] [data-feel]').last().click(); // the own «Kreativ»
+  await expect(sheet.locator('[data-feel-group="feeling"] [data-feel]').last()).toContainText('🎨');
+  await expect(sheet.locator('[data-plan]').last()).toContainText('Familie');
+  await sheet.locator('[data-feel="ruehig"]').click();
+  await sheet.getByRole('button', { name: T('Done|hello'), exact: true }).click();
+  // the history reads the own and renamed words; the same buttons stay after a reload
+  await page.goto('./#/me/history');
+  await expect(page.locator('[data-row="hallo.gefuehl"]')).toContainText('Gelassen');
+  await expect(page.locator('[data-row="hallo.gefuehl"]')).toContainText('Kreativ');
+  await page.reload();
+  await page.goto('./#/me/abfragen');
+  const section = page.locator('[data-hello-buttons]');
+  await section.locator('summary').click();
+  await expect(section.locator('[data-hb="own-nothing"]')).toHaveCount(0);
+  await expect(section.locator('[data-hb-list="feeling"] li').last()).toContainText('Kreativ');
+  await expect(section.locator('[data-hb="ruehig"]')).toContainText('Gelassen');
+  expect(errors).toEqual([]);
+});
+
 test('HG1f: the greeting by time of day (Morge, Tag, Abig)', async ({ page, context }, info) => {
   for (const hour of [8, 14, 20]) {
     await openHome(page, context, info, { data: withName(), hour });

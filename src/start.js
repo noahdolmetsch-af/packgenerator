@@ -48,6 +48,7 @@ try {
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
 import { loadLists, watchLists } from './lib/lists.js';
+import { watchHelloButtons } from './lib/home/hallobuttons.js'; // Gruss B: the user's own buttons of the greeting
 import { settling } from './lib/settled.js';
 import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
@@ -153,6 +154,7 @@ watchSync(db);
 // (App.svelte draws the page again once they are in place); later changes as they come.
 loadLists(db);
 watchLists(db);
+watchHelloButtons(); // Gruss B: names of own and renamed buttons in the history
 
 // Ask the browser to keep our data even when the device runs low on space.
 // Without this, a browser may delete website data it considers unimportant.
