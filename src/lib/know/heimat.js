@@ -353,6 +353,7 @@ const LISTED_HOME = {
   'f.feel': '#/flow/training',
   'f.analyses': '#/flow/training',
   'f.weekreview': '#/flow/training',
+  'f.weekgoals': '#/flow',
   'f.weekplan': '#/week',
   'f.milestones': '#/auswerten',
   'f.meditation': '#/flow/act/meditation',

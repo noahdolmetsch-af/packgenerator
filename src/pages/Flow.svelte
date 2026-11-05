@@ -74,6 +74,7 @@
   import MedPatterns from './flow/MedPatterns.svelte';
   import MedReview from './flow/MedReview.svelte';
   import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier» on top of Aktiv (Noah 03.11.2026 «1a»)
+  import WeekGoals from '../lib/flow/WeekGoals.svelte'; // Aktiv 4b (Noah 05.11.2026): own goals for the week Monday to Sunday
   import { sportHref } from '../lib/flow/mysports.js';
   import { localDay } from '../lib/localday.js';
   import { sonntagsFaden } from '../lib/sonntag.js';
@@ -227,6 +228,7 @@
               <a class="btn btn-link sm" href="#/flow/plans" data-to-plans>{t('Training plans')}<ChevronRight size={16} aria-hidden="true" /></a>
             </div>
           </Sec>
+          <WeekGoals acts={data.acts} log={data.log} tripDays={data.tripDays} {today} />
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')} more={{ href: '#/flow/form', label: t('See your form') }}>
             <div class="card ringc">
               <Rings {rings} size={phone.matches ? 112 : 140} quiet />

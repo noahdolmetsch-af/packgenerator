@@ -329,6 +329,7 @@ const LISTED = {
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
   // v0.147.0 Paket B «Leistung und Analysen»
   'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
+  'f.weekgoals': ['Open Aktiv › «My week goals».', 'Add a goal, like 2× meditation or 150 km.', 'The bar fills from Monday to Sunday; change or delete it any time.'],
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the body values, the strip and the highlights.', 'Write your note and a goal for next week; step to other weeks with ‹ ›.'],
   'f.wohl': ['Open Me › What is good for me.', 'Tap «Try it» for a 7-day experiment or start your own.', 'Under each result «How does the app know?» shows where it comes from.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],
