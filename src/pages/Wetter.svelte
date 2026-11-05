@@ -31,6 +31,7 @@
   import AirCard from '../lib/air/AirCard.svelte';
   import Regen24 from '../lib/wetter/Regen24.svelte'; // «Regen 24 h» (Noah 04.11.2026 «2a»)
   import FensterBox from '../lib/wetter/FensterBox.svelte'; // Fenster für Landi-Radar und SRF-Webcams (Noah 04.11.2026 «1a», «3a»)
+  import { thunderSpans } from '../lib/wetter/gewitter.js'; // «Gewitter-Hinweis mit Uhrzeit» (Noah 04.11.2026 «5 alle»)
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
@@ -95,7 +96,9 @@
   const today = $derived(core ? localDate(now, off) : '');
   const rest = $derived(core ? hoursBetween(core, now - 36e5, atLocal(today, 24, off)) : []);
   const line = $derived(dayLine(rest));
-  const warns = $derived(warningsOf(rest));
+  const warns = $derived(warningsOf(rest).filter((w) => w.kind !== 'thunder')); // thunderstorms: the spans below, with times
+  const storms = $derived(core ? thunderSpans(core, now) : []);
+  const stormText = (x) => t(x.day === 'today' ? 'Thunderstorms possible today, {from} to {to}.' : x.day === 'tomorrow' ? 'Thunderstorms possible tomorrow, {from} to {to}.' : 'Thunderstorms possible later, {from} to {to}.', { from: hm(x.from), to: hm(x.to) });
   const fb = $derived(foehnBise(rest));
   const train = $derived(core ? trainInstead(core, today) : null);
   const outside = $derived(core ? outdoorOk(core, now) : null);
@@ -247,6 +250,7 @@
         </p>
       {/if}
       <SchneeBlock {core} {now} />
+      {#each storms as x (x.from)}<p class="wx-warn" data-wx-warn="thunder" data-wx-thunder={x.day}><TriangleAlert size={16} aria-hidden="true" />{stormText(x)}{#if x.rainP != null}{' '}{t('Rain chance up to {p} %.', { p: num(Math.round(x.rainP)) })}{/if}</p>{/each}
       {#each warns as w (w.kind)}<p class="wx-warn" data-wx-warn={w.kind}><TriangleAlert size={16} aria-hidden="true" />{warnText(w)}</p>{/each}
       {#if fb}<p class="wx-note" data-wx-fb={fb}><Wind size={16} aria-hidden="true" />{fb === 'foehn' ? t('Föhn: strong, dry wind from the south. Gusty in the valleys.') : t('Bise: cold wind from the north-east. It feels colder than the number.')}</p>{/if}
       {#if train}<p class="wx-note" data-wx-train><Train size={16} aria-hidden="true" />{t('Today rather the train? On the way to and from work: {why}.', { why: train.why.map((k) => t(k === 'rain' ? 'heavy rain' : k === 'thunder' ? 'thunderstorms' : k === 'storm' ? 'storm gusts' : 'ice')).join(', ') })} <a href="https://www.sbb.ch/" target="_blank" rel="noopener noreferrer">SBB</a></p>{/if}
