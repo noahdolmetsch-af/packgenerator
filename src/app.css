@@ -953,6 +953,8 @@ body {
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: var(--lh);
+  /* Durchklick Etappe 3 (Noah «2a»): one very long word (a name, a note) is broken at the edge on every page, not only where a page asked for it. The property is inherited. */
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 720px) {
