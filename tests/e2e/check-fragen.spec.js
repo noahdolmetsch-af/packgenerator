@@ -42,19 +42,20 @@ test.describe('Check-Fragen selbst bearbeiten', () => {
   });
 
   test('CF2: skip a question on the morning check page and show it again', async ({ page, context }, info) => {
-    const T = await openHome(page, context, info, { data: data([]) });
+    const T = await openHome(page, context, info, { data: data(['erholung.schlaf', 'erholung.akku']) });
     await page.goto('./#/check/morning');
-    const sleep = page.locator('[data-q="sleep"]');
+    // Noah 04.11.2026 «ein Fragebogen»: the page asks the questions of the window
+    const sleep = page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"]');
     await expect(sleep).toBeVisible();
     await expect(page.locator('[data-check-when]')).toHaveText(/^Fr\., 9\. Okt\. · 0?9:0\d$/); // the day and the time
-    await sleep.locator('[data-skip="sleep"]').click();
+    await sleep.locator('[data-ab-skip]').click();
     await expect(sleep).toBeHidden();
     const back = page.locator('[data-skip-back]').first();
     await expect(back).toHaveText(T('Show {n} skipped question again', { n: 1 }));
     await page.reload();
-    await expect(page.locator('[data-q="sleep"]')).toBeHidden(); // kept for the day
-    await page.locator('[data-skip-back]').first().click();
-    await expect(page.locator('[data-q="sleep"]')).toBeVisible();
+    await expect(page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"]')).toBeHidden(); // kept for the day
+    await page.locator('[data-round-questions] [data-skip-back]').first().click();
+    await expect(page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"]')).toBeVisible();
   });
 
   test('CF3: edit, delete and add questions and groups', async ({ page, context }, info) => {

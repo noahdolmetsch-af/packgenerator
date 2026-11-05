@@ -28,6 +28,7 @@
   import GroupDeleteSheet from '../../lib/ui/GroupDeleteSheet.svelte';
   import { isMedAct } from '../../lib/flow/hobby/medstart.js';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
+  import { recentActs } from '../../lib/flow/recent.js';
   import GoneActs from '../../lib/flow/GoneActs.svelte';
   import YearGoals from '../../lib/flow/YearGoals.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
@@ -70,6 +71,8 @@
   /* the sports of trips (Paket O) and the mosaic over all sports */
   const sq = sportsQuery();
   const sdata = $derived($sq);
+  // «Aktiv und Auswerten» 5a (Noah 03.11.2026): the three sports ticked last, one tap away
+  const recent = $derived(data ? recentActs(data.acts, data.log) : []);
   const cfg = $derived(sdata?.cfg ?? {});
   // the lists of Ich › Listen (names, hidden, own sports) change DOMAINS; a change of the setting redraws the sports
   const ovQ = liveQuery(() => db.settings.get(OVERRIDES_KEY));
@@ -339,6 +342,16 @@
   <AreaIntro place="goals" />
   <!-- «Nächstes Ziel» (Noah 27.10.2026 «3a»): the milestone closest to its next star, one line -->
   {#if data}<NextGoalRow acts={data.acts} tripDays={data.tripDays} {today} />{/if}
+  {#if recent.length}
+    <section class="recent" aria-labelledby="rc-h" data-recent-sports>
+      <h2 id="rc-h" class="rch">{t('Last used|sports')}</h2>
+      <div class="rcl">
+        {#each recent as a (a.id)}
+          <a class="rcc" href={sportHref(a)} data-recent={a.id}><span class="aico"><ActIcon icon={a.icon} ring={a.ring} /></span><b>{actName(a)}</b></a>
+        {/each}
+      </div>
+    </section>
+  {/if}
   <!-- «332 Use Cases» (Noah 26.10.2026: «aktivitätsmosaik, bikepark tage, jahresziele, sterne» sichtbar) -->
   <QuickLinks label={t('On this page')} links={[{ key: 'mosaic', jump: '[data-mosaic]', label: t('Activity mosaic') }, { key: 'year', jump: '#yg-h', label: t('Year goals') }, { key: 'park', href: `#/flow/sport/${encodeURIComponent('trip:downhill')}`, label: t('Bike park days') }, { key: 'stars', href: '#/flow/milestones', label: t('Stars from your data') }]} />
   <div class="tools">
@@ -478,6 +491,36 @@
 {/if}
 
 <style>
+  .rch {
+    margin: 0 0 var(--sp-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--ink-3);
+  }
+  .rcl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .rcc {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 44px;
+    padding: 4px var(--sp-3) 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    max-width: 100%;
+  }
+  .rcc b {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .flow {
     display: flex;
     flex-direction: column;

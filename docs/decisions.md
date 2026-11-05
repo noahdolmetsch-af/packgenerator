@@ -2050,3 +2050,5 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 04.11.2026 Start-Grenze auf 5,0 MB
 - Noah «b» (Thread «Erklären und beheben: Start-Grenze bei 98 %»): Die Start-Grenze (`MAX_START_JS_BYTES` in `scripts/size-guard.mjs`) steigt von 4,6 auf 5,0 MB. Grund: Der Start lag bei 4,52 MB (98 %), der nächste PR mit mehr Text wäre am Aufbau gescheitert. Die gelbe Notiz kommt jetzt ab 4,5 MB (90 % von 5,0). Offen bleibt, was beim Start nicht gebraucht wird (Handbuch-Texte, «Was ist neu», zusammen etwa ein Drittel) erst beim Öffnen zu laden; Bericht: `notes/start-grenze-2026-11-04/` im Projektordner.
+## 04.11.2026 Handbuch erst beim Öffnen laden
+- Noah «a» (Thread «Erklären und beheben: Start-Grenze bei 98 %»): Das Handbuch (Schritte und Beispiele, Englisch und Deutsch) gehört nicht mehr zum Start, es lädt beim Öffnen von Ich › Handbuch, Ich › Kleine Apps und beim ersten Zeigen der Karte «Was du hier tun kannst» (`src/lib/handbook/load.js`). Danach folgt «Was ist neu» als eigener PR. Nichts wird gestrichen, auch offline bleibt alles.

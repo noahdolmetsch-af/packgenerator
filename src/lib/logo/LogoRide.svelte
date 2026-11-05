@@ -16,13 +16,16 @@
   import LogoFlat from './LogoFlat.svelte';
   import LogoWeather from './LogoWeather.svelte';
   import LogoPanorama from './LogoPanorama.svelte';
+  import LogoBells from './LogoBells.svelte';
+  import { ringBells } from './kuhglocke.js';
   import { loadLogoWeather } from './wetter.js';
   import { db } from '../db.js';
   import Murmeltier from '../murmeltier/Murmeltier.svelte'; // the one drawn marmot of the app (Idee 28)
   import { ops } from '../bedienung.svelte.js';
   import { partOfDay } from '../dayclock.js';
+  import { quietNow } from '../quiet.js';
 
-  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | 'flat' | 'marmot' | 'weather' | 'panorama' | 'wait' (weather is loading) | null
+  let kind = $state(null); // the surprise on screen: 'bike' | 'saying' | 'flat' | 'marmot' | 'weather' | 'panorama' | 'bells' | 'wait' (weather is loading) | null
   let wx = $state({ kind: 'none', text: '' }); // the weather on screen
   let night = $state(false); // the marmot sleeps at night instead of whistling
   let saying = $state(''); // the text of the saying on screen
@@ -53,6 +56,9 @@
     a.onfinish = a.oncancel = () => (mark.style.transformOrigin = '');
   }
 
+  // sound only with the switch «Cow bells» (off by default) and not in the night quiet (22–06, while «Night quiet» is on)
+  const bellsSound = () => ops.kuhglocke && !quietNow(new Date(), ops.quiet);
+
   function onClick(e) {
     if (kind || !e.target?.closest?.('.brand .mark, .logo .mark')) return;
     if (!counter(performance.now())) return;
@@ -69,8 +75,9 @@
     }
     clearTimeout(timer);
     if (kind === 'weather') return showWeather();
+    if (kind === 'bells' && bellsSound()) ringBells();
     if (kind === 'flat') flatTyre(e.target.closest('.mark'));
-    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : kind === 'flat' ? 4200 : kind === 'panorama' ? 4800 : 3200);
+    timer = setTimeout(() => (kind = null), kind === 'saying' ? 4600 : kind === 'flat' ? 4200 : kind === 'panorama' ? 4800 : kind === 'bells' ? 3800 : 3200);
   }
 
   // the weather comes from the forecast Today keeps; a slow answer is not waited for longer than 1.5 s
@@ -99,6 +106,8 @@
   <LogoWeather {wx} />
 {:else if kind === 'panorama'}
   <LogoPanorama />
+{:else if kind === 'bells'}
+  <LogoBells sound={bellsSound()} />
 {:else if kind === 'saying'}
   <LogoSaying text={saying} note={fresh ? t('New logo found: the bike sign. Change it in Me › Appearance.') : ''} />
 {:else if kind === 'flat'}

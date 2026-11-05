@@ -27,7 +27,7 @@
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
-  import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+  import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { OWN_AREA, QUESTION, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
@@ -196,6 +196,7 @@
               <div class="dset">
                 <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
                 <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => saveD(setText(dcfg, r.id, e.currentTarget.value))} data-rule-text={r.id} /></label>
+                {#if ruleGap(dcfg, r.id) !== GAP_DAYS}<p class="eh" data-rule-gap={r.id}>{t('Asks only every {n} days, because you chose «less often».', { n: ruleGap(dcfg, r.id) })}</p>{/if}
                 {#if ruleChanged(dcfg, r.id)}<button type="button" class="btn" onclick={() => saveD(resetRule(dcfg, r.id))} data-rule-reset={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button>{/if}
               </div>
             {/if}

@@ -47,9 +47,12 @@ test('I1: Ich in four groups; Data and backup opens its own page', async ({ page
   const main = page.locator('main');
   // «Alles finden 2» (Noah 22.10.2026 «4a», changed on purpose): Ich keeps data, settings and help
   for (const h of ['Data', 'Settings', 'Help|me', 'More']) await expect(main.getByRole('heading', { level: 2, name: T(h), exact: true })).toBeVisible();
-  for (const name of ['Connections', 'Documents', 'Help and functions']) await expect(main.getByRole('link', { name: new RegExp(T(name)) }).first()).toBeVisible();
+  for (const name of ['Connections', 'Help and functions']) await expect(main.getByRole('link', { name: new RegExp(T(name)) }).first()).toBeVisible();
+  // «Ich schlank» (Noah 04.11.2026 «a»): documents, album, friends and mini tools moved to Planen; the line says so
+  for (const row of ['album', 'freunde', 'minitools']) await expect(main.locator(`[data-row="${row}"]`)).toHaveCount(0);
+  await expect(main.locator('[data-me-moved]')).toContainText(T('Documents, photo album, friends and mini tools are in «All here» on'));
   // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): Inbox and notes went to Planen; one quiet line says where
-  await expect(main.locator('[data-me-moved] a[href="#/week"]')).toBeVisible();
+  await expect(main.locator('[data-me-moved] a[href="#/week"]').first()).toBeVisible();
   await expect(main.getByRole('link', { name: new RegExp(`^${T('Notes')}`) })).toHaveCount(0);
   await main.getByRole('link', { name: new RegExp(T('Data and backup')) }).click();
   await expect(page).toHaveURL(/#\/me\/data$/);

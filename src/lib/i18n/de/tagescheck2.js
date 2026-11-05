@@ -73,7 +73,7 @@ export default {
   'last 7 days · from questions and your data': 'letzte 7 Tage · aus Fragen und deinen Daten',
   'Least:': 'Am wenigsten:',
   'Suggestion: {tip}': 'Vorschlag: {tip}',
-  'Answer the morning check or tick something in Aktiv: the ring fills by itself.': 'Beantworte den Morgen-Check oder hake etwas in Aktiv ab: Der Ring füllt sich von selbst.',
+  'Answer the morning check or tick something in Aktiv: the ring fills by itself.': 'Beantworte «Wi gaht\'s?» am Morgen oder hake etwas in Aktiv ab: Der Ring füllt sich von selbst.',
   'done {time}': 'erledigt {time}',
   'Goal: {goal}': 'Ziel: {goal}',
   'not yet today · about 40 seconds': 'heute noch nicht · etwa 40 Sekunden',

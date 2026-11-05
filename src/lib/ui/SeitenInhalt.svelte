@@ -1,21 +1,26 @@
 <script>
   /**
    * «Wegweiser statt Katalog» PR 11 (Noah 01.11.2026 «1-5a», «einverstanden»): «What you can do here» on top of a page: each
-   * function of the page with what it is for, and «How it works» (steps and example) to open. × folds the card to one quiet
-   * line for this page (kept in settings, so in the backup); the line opens it again. Data: src/lib/seiteninhalt.js.
+   * function of the page with what it is for, and «How it works» (steps and example) to open. «Fold» folds the card to one
+   * line for this page (kept in settings, so in the backup); the line opens it again («Open»). Nothing is deleted. All
+   * folds can be undone at once under Appearance (SeitenInhaltReset.svelte). Data: src/lib/seiteninhalt.js.
    */
   import { liveQuery } from 'dexie';
-  import { ChevronDown, ChevronRight, X, Lightbulb } from '@lucide/svelte';
+  import { ChevronDown, ChevronRight, ChevronUp, Lightbulb } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { db } from '../db.js';
   import { pageContent, pagePattern, SHOWN, FOLD_KEY, foldMapOf, isFolded } from '../seiteninhalt.js';
   import { loadWissen } from '../wissen/load.js';
+  import { loadHandbook } from '../handbook/load.js';
 
   let { hash = '' } = $props();
   // the tips load with the first card, not at the start (scripts/size-guard.mjs); rows show without them until then
   let know = $state({});
   loadWissen().then((w) => (know = w));
-  const rows = $derived(pageContent(hash, undefined, know));
+  // the same for the steps and examples (the handbook)
+  let handbook = $state({});
+  loadHandbook().then((h) => (handbook = h.HANDBOOK));
+  const rows = $derived(pageContent(hash, undefined, know, handbook));
   const key = $derived(pagePattern(hash)); // one fold choice for all trips (#/debrief/:trip), not one per trip
   const foldQ = liveQuery(async () => foldMapOf((await db.settings.get(FOLD_KEY))?.value));
   const folded = $derived(isFolded($foldQ, key));
@@ -40,12 +45,14 @@
 
 {#if rows.length && $foldQ}
   {#if folded}
-    <button type="button" class="si-line" onclick={() => setFold(false)} data-seiteninhalt-line>{t('What you can do here')} <span class="num">{rows.length}</span><ChevronRight size={16} aria-hidden="true" /></button>
+    <button type="button" class="si-line" onclick={() => setFold(false)} data-seiteninhalt-line>
+      <Lightbulb size={16} aria-hidden="true" /><span class="si-linet">{t('What you can do here')} <span class="num">{rows.length}</span></span><span class="si-open">{t('Open the card')}</span><ChevronDown size={16} aria-hidden="true" />
+    </button>
   {:else}
     <section class="si" aria-labelledby="si-h" data-seiteninhalt={key}>
       <div class="si-head">
         <h2 id="si-h">{t('What you can do here')}</h2>
-        <button type="button" class="si-x" aria-label={t('Fold to one line')} onclick={() => setFold(true)} data-seiteninhalt-fold><X size={18} aria-hidden="true" /></button>
+        <button type="button" class="si-x" aria-label={t('Fold to one line')} onclick={() => setFold(true)} data-seiteninhalt-fold><ChevronUp size={16} aria-hidden="true" />{t('Fold the card')}</button>
       </div>
       <ul>
         {#each shown as r (r.id)}
@@ -140,13 +147,24 @@
     cursor: pointer;
   }
   .si-x {
-    min-width: 44px;
-    justify-content: center;
-    color: var(--ink-3);
-  }
-  .si-line {
-    margin: 0 0 8px;
     color: var(--ink-2);
+  }
+  /* the folded line: a quiet bar, but with its own frame and a word, so it is not taken for a leftover */
+  .si-line {
+    width: 100%;
+    margin: 0 0 8px;
+    padding: 0 12px;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    color: var(--ink-2);
+  }
+  .si-linet {
+    flex: 1;
+    text-align: left;
+  }
+  .si-open {
+    color: var(--hi);
   }
   /* A phone held sideways has no room above the trip band: the folded line waits until the phone is upright again. */
   @media (orientation: landscape) and (max-height: 500px) {

@@ -78,7 +78,7 @@ async function shot(page, name) {
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${w <= 500 ? 390 : 1440}.png`, fullPage: true });
 }
 
-test('T1 morning check page: four numbers, joy, goal, last night, the suggestion; saved at once', async ({ page, context }) => {
+test('T1 morning check page: the questions of the window, joy, last night, the suggestion; saved at once', async ({ page, context }) => {
   const errors = await open(page, context, '07:52');
   await put(page, rows());
   await page.reload();
@@ -89,13 +89,18 @@ test('T1 morning check page: four numbers, joy, goal, last night, the suggestion
   await expect(page).toHaveURL(/#\/check\/morning$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Good morning') })).toBeVisible();
 
-  // 1–3: yesterday's answer is marked under its number
-  await expect(page.locator('[data-q="sleep"] .sv.y')).toHaveText('7');
-  for (const [k, v] of [['sleep', 6], ['energy', 5], ['mood', 7], ['extra', 6]]) await page.locator(`[data-q="${k}"] .sv`).nth(v - 1).click();
-  await expect(page.locator('[data-q="mood"] .sv').nth(6)).toHaveAttribute('aria-pressed', 'true');
-  // a tap on the chosen number takes it back (every question can be skipped)
-  await page.locator('[data-q="extra"] .sv').nth(5).click();
-  await expect(page.locator('[data-q="extra"] .sv[aria-pressed="true"]')).toHaveCount(0);
+  // Noah 04.11.2026 «ein Fragebogen»: the page asks what the window asks (Deine Abfragen), in five steps; yesterday's answer is marked
+  const rq = page.locator('[data-round-questions="morning"]');
+  await expect(rq.locator('[data-q="erholung.schlaf"] [data-step="8"]')).toHaveClass(/yd/); // yesterday 7 → nearest step 8
+  await rq.locator('[data-q="erholung.schlaf"] [data-step="6"]').click();
+  await rq.locator('[data-q="erholung.akku"] [data-step="4"]').click();
+  await expect(rq.locator('[data-q="erholung.akku"] [data-step="4"]')).toHaveAttribute('aria-pressed', 'true');
+  // a tap on the chosen answer takes it back (every question can be skipped)
+  await rq.locator('[data-q="erholung.koerper"] [data-step="8"]').click();
+  await rq.locator('[data-q="erholung.koerper"] [data-step="8"]').click();
+  await expect(rq.locator('[data-q="erholung.koerper"] [aria-pressed="true"]')).toHaveCount(0);
+  // the goal is the window's text question
+  await rq.locator('[data-q="ziele.ziel"]').getByRole('textbox').fill('Velo nach der Arbeit');
 
   // 6: two chips and an own one
   const joy = page.locator('[data-chips="joy"]');
@@ -105,8 +110,7 @@ test('T1 morning check page: four numbers, joy, goal, last night, the suggestion
   await joy.getByRole('textbox').fill('Konzert');
   await joy.getByRole('button', { name: T('Add|chip') }).click();
   await expect(joy.getByRole('button', { name: 'Konzert' })).toHaveAttribute('aria-pressed', 'true');
-  // 7: the goal; «Gestern Abend»
-  await page.locator('[data-chips="goal"]').getByRole('button', { name: T('Ride after work') }).click();
+  // «Gestern Abend»
   await page.locator('[data-chips="last"]').getByRole('button', { name: T('Phone in bed') }).click();
 
   // the suggestion: never mandatory, «Nicht heute» puts it away, it can come back
@@ -127,19 +131,19 @@ test('T1 morning check page: four numbers, joy, goal, last night, the suggestion
 
   // saved at once: a reload shows the answers
   await expect.poll(async () => (await row(page))?.last).toEqual(['phone']);
+  await expect.poll(async () => (await row(page))?.energy).toBe(4);
   await page.reload();
-  await expect(page.locator('[data-q="sleep"] .sv').nth(5)).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('[data-chips="goal"]').getByRole('button', { name: T('Ride after work') })).toHaveAttribute('aria-pressed', 'true');
-  expect(await row(page)).toMatchObject({ sleep: 6, energy: 5, mood: 7, extra: null, joy: ['nature', 'sport', 'Konzert'], goal: { id: 'ride' }, last: ['phone'] });
+  await expect(page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"] [data-step="6"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-round-questions="morning"] [data-q="ziele.ziel"]').getByRole('textbox')).toHaveValue('Velo nach der Arbeit');
+  expect(await row(page)).toMatchObject({ sleep: 6, energy: 4, joy: ['nature', 'sport', 'Konzert'], last: ['phone'] });
 
-  // the 4th answered, «Fertig»: Heute shows the four numbers
-  await page.locator('[data-q="extra"] .sv').nth(5).click();
+  // «Fertig»: Heute shows the numbers
   await page.locator('[data-check-done]').click();
   await expect(page).toHaveURL(/#\/$/);
   // the answers count in «Wi gaht's?» too: the round on Heute is done and shows the numbers
   const mc = page.locator('[data-section="morningcheck"]');
   await expect(mc).toHaveAttribute('data-done', 'true');
-  await expect(mc.locator('[data-val="mood"] b')).toHaveText('7');
+  await expect(mc.locator('[data-val="sleep"] b')).toHaveText('6');
   await shot(page, 'heute-nach-morgen-check');
   expect(errors).toEqual([]);
 });
@@ -239,7 +243,9 @@ test('T4 questions page from the tile: the table by part, a switch hides the que
   await tile.locator('[data-questions-page]').click();
   await expect(page).toHaveURL(/#\/check\/questions$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Your 15 questions') })).toBeVisible();
-  await expect(page.locator('tr[data-question]')).toHaveCount(15);
+  // Noah 04.11.2026 «ein Fragebogen»: 1–5 and 7 are asked like in the window now (Deine Abfragen): 9 of the 15 stay in this table
+  await expect(page.locator('[data-moved]')).toBeVisible();
+  await expect(page.locator('tr[data-question]')).toHaveCount(9);
   await expect(page.getByText(T('Comes by itself'))).toBeVisible();
   await expect(page.getByText(T('from Fitbit, shown in the check'))).toBeVisible(); // 0.171: Fitbit is there
   // a phone leaves the columns «Wie oft» and «Antwort» away
@@ -253,14 +259,13 @@ test('T4 questions page from the tile: the table by part, a switch hides the que
   await expect(sw).toHaveAttribute('aria-checked', 'true');
   await sw.click();
   await expect(sw).toHaveAttribute('aria-checked', 'false');
-  await expect(page.locator('tr.g').first()).toContainText(T('Morning · {n} taps', { n: 5 }));
+  await expect(page.locator('tr.g').first()).toContainText(T('Morning · {n} taps', { n: 0 }));
   await expect.poll(() => setting(page, 'checkQuestionsOff')).toEqual([6]);
   await page.reload();
   await expect(page.locator('tr[data-question="6"]').getByRole('switch')).toHaveAttribute('aria-checked', 'false');
   await page.goto('./#/check/morning');
-  await expect(page.locator('[data-q="sleep"]')).toBeVisible();
+  await expect(page.locator('[data-round-questions="morning"] [data-q="erholung.schlaf"]')).toBeVisible();
   await expect(page.locator('[data-q="joy"]')).toHaveCount(0);
-  await expect(page.locator('[data-q="goal"]')).toBeVisible();
   // the morning page leads to the catalogue too; on again, the question is back
   await page.locator('[data-all-questions]').click();
   await expect(page).toHaveURL(/#\/check\/questions$/);

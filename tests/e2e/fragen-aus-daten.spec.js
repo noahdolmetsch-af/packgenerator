@@ -13,7 +13,7 @@ const shot = async (page, info, name) => {
   await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 };
 
-function data(todayHr, { sleepMin = null, moods = null, sport = null } = {}) {
+function data(todayHr, { sleepMin = null, moods = null, sport = null, cfg = null } = {}) {
   const d = homeFixture();
   const q = Object.fromEntries(QUESTIONS.filter((x) => ON_AT_START.has(x.id) && x.id !== 'erholung.akku').map((x) => [x.id, { on: false }]));
   d.tables.settings.push({ key: 'abfragen', value: { since: `${day(-1)}T19:00`, q, own: [] } });
@@ -22,6 +22,7 @@ function data(todayHr, { sleepMin = null, moods = null, sport = null } = {}) {
     { date: day(0), restingHr: todayHr, ...(sleepMin != null ? { sleep: { asleepMin: sleepMin } } : {}) },
   ];
   if (sport) d.tables.sportItems = sport.map(([kind, n, extra], i) => ({ id: `fad-s${i}`, sport: 'act:tennis', kind, day: day(n), at: `${day(n)}T18:00`, ...extra }));
+  if (cfg) d.tables.settings.push({ key: 'datenfragen', value: cfg });
   if (moods) {
     const row = (n, v) => ({ id: `fad-m${n}`, qid: 'spass.stimmung', area: 'spass', day: day(n), at: `${day(n)}T20:40`, slot: `${day(n)}T20:30`, kind: 'scale', value: v, note: null, unit: null, src: 'hand' });
     d.tables.abAnswers = [...Array.from({ length: 20 }, (_, i) => row(-(i + 3), 8)), ...moods.map((v, i) => row(i - 2, v))];
@@ -181,6 +182,22 @@ test.describe('Fragen aus deinen Daten', () => {
     await page.goto('./#/me/abfragen');
     await expect(page.locator('[data-data-empty-training]')).toBeVisible();
     await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad4-regeln-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  });
+
+  test('skipped three times: the window offers to ask less often, and the rule then says so', async ({ page, context }, info) => {
+    const cfg = { skips: { ruhepuls: { n: 3, day: day(-1) } } };
+    const T = await openHome(page, context, info, { data: data(61, { cfg }) });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.ruhepuls"]');
+    await expect(q.locator('[data-fewer]')).toContainText('dreimal übersprungen');
+    await card.screenshot({ path: `${SHOTS}/fad6-seltener-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.locator('[data-fewer-yes]').click();
+    await expect(q.locator('[data-fewer]')).toHaveCount(0);
+    await page.goto('./#/me/abfragen');
+    await expect(page.locator('[data-rule-gap="ruhepuls"]')).toContainText('alle 7 Tage');
+    await page.locator('[data-rule="ruhepuls"] [data-rule-reset]').click();
+    await expect(page.locator('[data-rule-gap="ruhepuls"]')).toHaveCount(0);
+    expect(T).toBeTruthy();
   });
 
   // leaving Heute with the window open counts as «Heute nicht» (quiet until the evening), so each way is its own test

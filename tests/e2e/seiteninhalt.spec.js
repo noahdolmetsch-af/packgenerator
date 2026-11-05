@@ -315,3 +315,25 @@ test('Tools shows the card as one line with good to know for the mini tools', as
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   expect(errors).toEqual([]);
 });
+
+// 05.11.2026 (Noah «c»): a folded card is not gone: the line says «Aufklappen», and Appearance opens all folded cards again, with Undo
+test('Appearance opens all folded cards again, with Undo', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info);
+  await page.goto('./#/trips/dreams');
+  await tap(page.locator('[data-seiteninhalt-fold]'), info);
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toContainText(T('Open the card'));
+  await page.goto('./#/me/look');
+  const set = page.locator('[data-seiteninhalt-set]');
+  await expect(set.locator('[data-seiteninhalt-count]')).toContainText('1');
+  await tap(set.locator('[data-seiteninhalt-open-all]'), info);
+  await expect(set.locator('[data-seiteninhalt-none]')).toBeVisible();
+  await tap(page.locator('.rtoast').getByRole('button', { name: T('Undo') }), info);
+  await expect(set.locator('[data-seiteninhalt-count]')).toContainText('1');
+  await tap(set.locator('[data-seiteninhalt-open-all]'), info);
+  await page.goto('./#/trips/dreams');
+  await expect(page.locator('[data-seiteninhalt]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
