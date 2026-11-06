@@ -13,6 +13,7 @@
    * screen readers).
    */
   import HintCard from '../lib/pageinfo/HintCard.svelte';
+  import { keepTyped } from '../lib/ui/keeptyped.js'; // Etappe 6 (Noah 06.11.2026 «4a»): a reload keeps the typed note until it is saved
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import ListTable from '../lib/ui/ListTable.svelte';
@@ -288,7 +289,7 @@
 
   <!-- Hinweistexte HT 3a (Noah 14.10.2026): the card «Was hier steht» -->
   <HintCard page="notes" />
-  <form class="cap card" onsubmit={(e) => (e.preventDefault(), save())}>
+  <form class="cap card" onsubmit={(e) => (e.preventDefault(), save())} use:keepTyped={'notes:new'}>
     <div class="caprow">
       <label class="capt"><span class="sr">{t('New note')}</span><textarea class="inp" rows={checkMode ? 4 : 1} bind:value={text} placeholder={t('Thought, link, photo …')}></textarea></label>
       <div class="tools">

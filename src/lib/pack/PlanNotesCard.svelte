@@ -13,6 +13,7 @@
   import { tripSlot } from '../sets.js';
   import { nextNumber } from '../notes.js';
   import { localDay } from '../localday.js';
+  import { keepTyped } from '../ui/keeptyped.js';
   import { NotebookPen, Check, ChevronDown } from '@lucide/svelte';
   import { MADE, MADE_WORD, EXAMPLES, planNotesOf, addPlanNote, removePlanNote, setMade, withTask, withStandard, planItem, planRepair, rowId } from '../plannotes.js';
 
@@ -120,7 +121,8 @@
       </div>
     {/if}
     {#if !fixed}
-      <form class="pn-add" onsubmit={submit}>
+      <!-- Etappe 6 (Noah 06.11.2026 «4a»): a reload keeps the typed note until it is added -->
+      <form class="pn-add" onsubmit={submit} use:keepTyped={'plannote:' + trip.id}>
         <input class="inp" bind:value={text} placeholder={t('New note …')} aria-label={t('New planning note')} />
         <button type="submit" class="btn">{t('Add')}</button>
       </form>

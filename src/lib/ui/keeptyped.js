@@ -13,6 +13,7 @@
  * Saving forgets the kept text: a click on the window's main button (`.hi`, a submit button or
  * [data-saves]) marks the window as saved, and its closing then drops the kept text. A button with
  * [data-keeps] never counts as saving. Fields inside [data-keep-off] are left alone.
+ * A form that stays on the page forgets the kept text at once when it is saved (submit).
  * Windows that save as you type (Quick note, item, trip, note) do not need it.
  */
 import { t } from '../i18n.svelte.js';
@@ -175,6 +176,13 @@ export function keepTyped(node, key) {
     // a <form method="dialog"> closes the window: only its main button counts as saving
     const by = e.submitter;
     if (!by || (by.matches(SAVES) && !by.matches('[data-keeps]'))) saved = true;
+    // a form that stays on the page (the note bar, a planning note): saving forgets the kept text at once, since
+    // nothing closes or removes it afterwards; the next key starts again from empty fields
+    if (saved && node.tagName !== 'DIALOG') {
+      drop(k);
+      first = Object.fromEntries(fieldsOf(node).map(({ name }) => [name, '']));
+      saved = false;
+    }
   };
 
   node.addEventListener('input', onInput, true);
