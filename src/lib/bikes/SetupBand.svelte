@@ -72,7 +72,7 @@
         <button type="button" role="tab" class="bcard" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} style:--i={i} onclick={() => onbike?.(b.id)} data-bike-card>
           <svg class="mini" viewBox="0 0 72 40" aria-hidden="true"><circle cx="15" cy="27" r="11" /><circle cx="57" cy="27" r="11" /><path d="M15 27 L32 27 L28 12 Z M28 12 L50 11 L57 27 M50 11 L52 6 M24 9 L33 9 M32 27 L50 11" /></svg>
           <span class="bt"><span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" />{/if}</span>
-          <small class="bs num">{[b.type ? t(bikeTypeName(b.type)) : '', b.km != null ? `${num(b.km)} km` : ''].filter(Boolean).join(' · ') || ' '}</small>
+          <small class="bs num" title={b.type ? t(bikeTypeName(b.type)) : undefined}>{[b.type ? t(bikeTypeName(b.type)).replace(/\//g, '/\u200b') : '', b.km != null ? `${num(b.km)} km` : ''].filter(Boolean).join(' · ') || ' '}</small>
         </button>
       {/each}
     </div>
@@ -179,11 +179,23 @@
     min-width: 0;
     overflow-wrap: break-word;
   }
+  /* A long type from an import («A/B (Quelle)») no longer breaks in the middle of a word: it may break after the
+     slash, and a third line is cut with «…». The chosen card shows all of it. */
   .bs {
     max-width: 100%;
     color: var(--ink-3);
     font-weight: 400;
     overflow-wrap: break-word;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  .strip .bcard[aria-selected='true'] .bs {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
   }
   .strip .bcard[aria-selected='true'] {
     border-color: var(--accent);
