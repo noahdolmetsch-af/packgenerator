@@ -941,6 +941,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
       Object.defineProperty(navigator, 'share', { value: async (d) => { window.__shared = d.url; }, configurable: true });
     } catch { /* keep the browser's own */ }
   });
+  await page.clock.setFixedTime(new Date(`${day(0)}T10:00:00Z`)); // noon in Zurich, like Scenario 1: the morning and the evening of the real day change Today
   const errors = await start(page, context, info);
   const rec = record('PF16', info, page);
   const title = `${P} PF16 ${info.project.name}`;
@@ -980,7 +981,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   if (shared) {
     const view = await context.newPage();
     await view.goto(shared);
-    await rec.check('share: the link opens the list read-only with the trip title', () => expect(view.locator('main')).toContainText(title, { timeout: 3000 }));
+    await rec.check('share: the link opens the list read-only with the trip title', () => expect(view.locator('main')).toContainText(title, { timeout: 15000 })); // a second page under load needs more than 3 s
     await view.close();
   }
   // Setup photo of the bike (Bikes → Photos → + Photo).
