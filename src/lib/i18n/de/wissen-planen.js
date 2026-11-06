@@ -86,4 +86,10 @@ export default {
     'Speicher die Webseite des Campingplatzes offline, bevor du losfährst: im Tal ohne Empfang brauchst du genau die Öffnungszeiten.',
   'Remind after the next trip, not on a date: «new brake pads» comes back exactly when the bike is dirty anyway.':
     'Erinnere nach der nächsten Tour statt an einem Datum: «neue Bremsbeläge» kommt genau dann, wenn das Velo sowieso dreckig ist.',
+  'Write the next step in the line, not the project: «call the shop about the hub» gets done, «fix bike» waits.':
+    'Schreib den nächsten Schritt in die Zeile, nicht das Projekt: «Laden wegen der Nabe anrufen» wird erledigt, «Velo reparieren» bleibt liegen.',
+  'Six steps under one to-do are easier to start than six loose to-dos; tick the first one today.':
+    'Sechs Schritte unter einem To-do fängt man leichter an als sechs lose To-dos; hake heute den ersten ab.',
+  'Move the one thing you really want to do today to the top; the rest can wait for tomorrow with one swipe.':
+    'Schieb das Eine, das du heute wirklich tun willst, nach oben; der Rest wartet mit einem Wisch bis morgen.',
 };

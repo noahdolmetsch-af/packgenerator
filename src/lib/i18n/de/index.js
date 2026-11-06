@@ -307,6 +307,8 @@ import deinefahrten from './deinefahrten.js';
 
 // Merken (Kal1, PL1–PL3) and Erinnerungen (ER1–ER3): own to-dos and reminders
 import merken from './merken.js';
+// To-dos und Notizen verbessern (Noah 05.11.2026)
+import todoneu from './todo-neu.js';
 // Merken: Geburtstage und Pflanzen (Noah 15.10.2026)
 import geburtstage from './geburtstage.js';
 
@@ -856,6 +858,7 @@ const ORDERED = [
   garmin,
   taschensetups,
   merken,
+  todoneu,
   geburtstage,
   eigenewerte,
   ausruestung,

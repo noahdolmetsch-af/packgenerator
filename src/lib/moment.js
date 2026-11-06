@@ -154,7 +154,7 @@ const LISTED_MOMENTS = {
   // Alltag und Woche
   alltag: [
     'f.wear', 'f.morningpush', 'note', 'f.icepush', 'f.weekplan', 'f.frei', 'f.journal', 'f.voiceletters',
-    'f.remember', 'f.reminders', 'f.birthdays', 'f.shopping', 'f.cook', 'f.contracts', 'f.people', 'f.inbox',
+    'f.remember', 'f.todoquick', 'f.todosteps', 'f.todosort', 'f.reminders', 'f.birthdays', 'f.shopping', 'f.cook', 'f.contracts', 'f.people', 'f.inbox',
     'f.notelinks', 'f.drawphoto', 'f.richtext', 'f.noteattach', 'f.noteocr', 'f.noteremind', 'f.notetrash',
     'f.plantpass', 'f.doubleinbox', 'f.mailcase', 'f.memorycard', 'f.noteformats', 'f.next', 'f.notes',
     'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools', 'f.markup',

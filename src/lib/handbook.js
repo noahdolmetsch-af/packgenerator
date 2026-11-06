@@ -834,6 +834,21 @@ const LISTED = {
     steps: ['Open Calendar › Remember and type a to-do; «New list» makes an own list such as «My ideas».', 'Tick a to-do off; «Undo» brings it back.'],
     example: 'Example: «Order new brake pads» → ticked off after the shop visit.',
   },
+  'f.todoquick': {
+    on: null,
+    steps: ['Open Remember and type in the top line, e.g. «Oil the chain tomorrow 6 pm».', 'Tap a found part to leave it out, or Today, Tomorrow, Weekend; Enter saves.', '«More …» opens the full window, already filled in.'],
+    example: 'Example: «Wash the bike every Sunday» → to-do on the next Sunday, repeating every week.',
+  },
+  'f.todosteps': {
+    on: null,
+    steps: ['Open a to-do and add steps under «Steps»; arrows and handle sort them.', 'Under «Belongs to» pick a trip, a bike or a note.', 'Tick steps in the list; trip, bike and note show the open to-dos.'],
+    example: 'Example: «Prepare the Alps tour» with 6 steps, belonging to the trip «Alps».',
+  },
+  'f.todosort': {
+    on: null,
+    steps: ['On a phone swipe a to-do right for done, left for tomorrow.', 'Tap «Sort»: arrows and a handle move to-dos within their group.', 'Search finds to-dos and notes together; on a wide screen a note opens beside.'],
+    example: 'Example: search «chain» → the to-do «Oil the chain» and the note «Replace the chain?».',
+  },
   'f.reminders': {
     on: null,
     steps: ['After a ride, before a trip or after bike care the app asks once whether it should remind you; «Never ask» stops it there.', 'Open Me › Reminders to switch one off or change when it comes.'],
