@@ -26,6 +26,8 @@ export const ICE_WET_MM = 0.2;
 /** Freezing drizzle and rain, snow and snow showers (WMO codes). */
 export const FREEZE = [56, 57, 66, 67, 71, 73, 75, 77, 85, 86];
 export const REASONS = ['thunder', 'ice', 'storm', 'heat'];
+/** The kinds of a weather check that have their own words and look: the morning fog line («Nebelgrenze am Morgen»). */
+export const CHECKS = [...REASONS, 'fog'];
 /* Wetter-Wecker (Paket G, Noah 19.10.2026): a planned tour is watched twice a day until the day before. */
 export const WATCH_MAX_DAYS = 5;
 export const WATCH_EVERY_MS = 12 * 3600 * 1000;
@@ -80,8 +82,10 @@ export function cleanWeather(x) {
   const key = str(x?.key, 100);
   if (at == null || lat == null || lon == null || Math.abs(lat) > 90 || Math.abs(lon) > 180 || !date || !key) return null;
   const url = str(x?.url, 200);
-  const only = Array.isArray(x?.only) ? [...new Set(x.only.filter((r) => REASONS.includes(r)))] : [];
-  return { key, at, date, lat, lon, title: str(x?.title, 80), url: url.startsWith('#/') ? url : '#/', ...(only.length ? { only } : {}) };
+  const only = Array.isArray(x?.only) ? [...new Set(x.only.filter((r) => CHECKS.includes(r)))] : [];
+  // «Nebelgrenze am Morgen»: up to 8 rides near home with their highest point, nearest first (the suggestion above the fog)
+  const spots = (Array.isArray(x?.spots) ? x.spots : []).map((o) => ({ name: str(o?.name, 40), m: num(o?.m) })).filter((o) => o.name && o.m != null && o.m >= 0 && o.m <= 5000).slice(0, 8);
+  return { key, at, date, lat, lon, title: str(x?.title, 80), url: url.startsWith('#/') ? url : '#/', ...(only.length ? { only } : {}), ...(only.includes('fog') && spots.length ? { spots } : {}) };
 }
 
 /** One Wetter-Wecker watch (Paket G): { key, at (ms, first check), date, days, lat, lon, title, url }. */
@@ -113,7 +117,7 @@ export function cleanAir(a) {
 /** The words of the weather messages, «{temp}», «{trip}», «{day}» filled in by the server. */
 export function cleanTexts(t) {
   const out = { storm: str(t?.storm, 200), heat: str(t?.heat, 200), thunder: str(t?.thunder, 200), ice: str(t?.ice, 200), title: str(t?.title, 80), ititle: str(t?.ititle, 80) };
-  for (const k of ['turn', 'good', 'window', 'bad', 'better', 'wtitle', 'rain', 'rtitle', 'ozone', 'pollen']) out[k] = str(t?.[k], 200);
+  for (const k of ['turn', 'good', 'window', 'bad', 'better', 'wtitle', 'rain', 'rtitle', 'ozone', 'pollen', 'fogtitle', 'fog', 'fogcloud', 'fogclear', 'fogspot']) out[k] = str(t?.[k], 200);
   out.pollenNames = Object.fromEntries(POLLEN.map((p) => [p.key, str(t?.pollenNames?.[p.key], 30)]));
   out.wdays = (Array.isArray(t?.wdays) ? t.wdays : []).slice(0, 7).map((d) => str(d, 6));
   return out;
@@ -340,4 +344,74 @@ export function airText(v, texts) {
   if (v.ozone != null && texts?.ozone) out.push(texts.ozone.replace('{n}', String(v.ozone)));
   if (v.pollen.length && texts?.pollen) out.push(texts.pollen.replace('{list}', v.pollen.map((p) => texts.pollenNames?.[p.key] || p.key).join(', ')));
   return out.join(' ');
+}
+
+/* ---------- Nebelgrenze am Morgen (Noah 05.11.2026 «1a 2b 3a») ---------- */
+
+/** The pressure levels (hPa) of the air layers, the hour of the look (local) and the rules; the same as src/lib/wetter/nebelgrenze.js (tests/push-fog.test.js keeps them equal). */
+export const FOG_LEVELS = [1000, 975, 950, 925, 900, 850];
+export const FOG_HOUR = 8;
+const FOG = { damp: 90, topAt: 85, lowCloud: 70, startsWithin: 1200, capLapse: -0.3, sunBelow: 50, step: 100, above: 100 };
+
+/** The air layers for one place and day (free, no key). */
+export const fogUrl = (w) => {
+  const hourly = ['temperature_2m', 'relative_humidity_2m', 'cloud_cover_low', 'cloud_cover_mid', 'cloud_cover_high'];
+  for (const l of FOG_LEVELS) hourly.push(`temperature_${l}hPa`, `relative_humidity_${l}hPa`, `geopotential_height_${l}hPa`);
+  return `https://api.open-meteo.com/v1/forecast?latitude=${w.lat.toFixed(3)}&longitude=${w.lon.toFixed(3)}&hourly=${hourly.join(',')}&timezone=Europe%2FZurich&start_date=${w.date}&end_date=${w.date}`;
+};
+
+/**
+ * The fog line at FOG_HOUR of a day → { top (m above sea level, rounded to 100), above: 'sun' | 'cloud' | null } (a fog deck),
+ * { top: null } (no deck) or null (no values). The damp layer (humidity 90 % or more) under low cloud, its top where the humidity
+ * falls through 85 %, capped by an inversion; a deep rain cloud gives none.
+ */
+export function fogVerdict(j, date, hour = FOG_HOUR) {
+  const h = j?.hourly ?? {};
+  const i = (h.time ?? []).indexOf(`${date}T${String(hour).padStart(2, '0')}:00`);
+  const elev = num(j?.elevation);
+  if (i < 0 || elev == null) return null;
+  const v = (k) => num(h[k]?.[i]);
+  const low = v('cloud_cover_low');
+  if (low == null) return null;
+  const pts = [];
+  if (v('temperature_2m') != null && v('relative_humidity_2m') != null) pts.push({ z: elev, t: v('temperature_2m'), rh: v('relative_humidity_2m') });
+  for (const l of FOG_LEVELS) {
+    const z = v(`geopotential_height_${l}hPa`);
+    const t = v(`temperature_${l}hPa`);
+    const rh = v(`relative_humidity_${l}hPa`);
+    if (z != null && t != null && rh != null && z > elev + 30) pts.push({ z, t, rh });
+  }
+  pts.sort((a, b) => a.z - b.z);
+  if (pts.length < 2) return null;
+  if (low < FOG.lowCloud) return { top: null };
+  const first = pts.findIndex((p) => p.rh >= FOG.damp && p.z - elev <= FOG.startsWithin);
+  if (first < 0) return { top: null };
+  let k = first;
+  while (k + 1 < pts.length && pts[k + 1].rh >= FOG.damp) k++;
+  const n = pts[k + 1];
+  if (!n) return { top: null };
+  const a = pts[k];
+  if (((n.t - a.t) / (n.z - a.z)) * 100 < FOG.capLapse) return { top: null };
+  const frac = Math.min(1, Math.max(0, (a.rh - FOG.topAt) / (a.rh - n.rh)));
+  const top = Math.max(0, Math.round((a.z + frac * (n.z - a.z)) / FOG.step) * FOG.step);
+  const mid = v('cloud_cover_mid');
+  const high = v('cloud_cover_high');
+  return { top, above: mid != null && high != null ? (Math.max(mid, high) < FOG.sunBelow ? 'sun' : 'cloud') : null };
+}
+
+/**
+ * The morning message about the fog line: fog with sun above («Low fog up to about {top} m, sun from {above} m.», plus a ride above
+ * the fog from the app's list when one reaches 100 m higher), fog with cloud above, or no fog («time to shine»). null without words.
+ */
+export function fogMessage(w, v, texts) {
+  if (!v) return null;
+  let body;
+  if (v.top == null) body = texts?.fogclear;
+  else if (v.above === 'sun') {
+    body = texts?.fog?.replace('{top}', String(v.top)).replace('{above}', String(v.top + FOG.above));
+    const spot = (w.spots ?? []).find((s) => s.m >= v.top + FOG.above);
+    if (body && spot && texts?.fogspot) body = `${body} ${texts.fogspot.replace('{name}', spot.name).replace('{m}', String(Math.round(spot.m)))}`;
+  } else body = texts?.fogcloud?.replace('{top}', String(v.top));
+  if (!body) return null;
+  return { title: texts?.fogtitle || texts?.title || 'Pack Generator', body, url: w.url, tag: w.key };
 }

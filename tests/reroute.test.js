@@ -1,6 +1,12 @@
 // Paket X «Umweg neu planen» (Noah 20.10.2026): reroute.js and the GPX writer gpxout.js, with made-up places.
-import { describe, it, expect } from 'vitest';
-import { brouterUrl, parseBrouter, rejoinOf, snapAhead, targetsOf, planDetour, planAlternatives, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_KEY, PROFILE_STD } from '../src/lib/reroute.js';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { brouterUrl, parseBrouter, rejoinOf, snapAhead, targetsOf, planDetour, planAlternatives, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_KEY, PROFILE_STD, clearRouterCache, ROUTER_TUNING } from '../src/lib/reroute.js';
+
+beforeEach(() => {
+  clearRouterCache();
+  ROUTER_TUNING.retryMs = 0;
+  ROUTER_TUNING.reserve = false; // the reserve routers have their own tests below
+});
 import { gpxString, wptName, gpxFileName, WPT_NAME_MAX } from '../src/lib/gpxout.js';
 
 // a straight made-up route east along 47° N, about 0.76 km per 0.01°
@@ -291,5 +297,258 @@ describe('Wege zur Auswahl', () => {
   it('fails like planDetour when the first answer fails', async () => {
     const { fetcher } = fetcherOf([]);
     await expect(planAlternatives({ here, target, fetcher }, 3)).rejects.toThrow('noroute');
+  });
+});
+
+/* ---------- Sicherheitsnetz (Noah 05.11.2026 «ok bauen») ---------- */
+import { askRouter, routerMsg, longestLegKm, ROUTER_CACHE_MS, ROUTER_TOO_FAR_KM, ROUTER_CACHE_MAX } from '../src/lib/reroute.js';
+import DE from '../src/lib/i18n/de/index.js';
+
+describe('askRouter: safety net', () => {
+  const A = { lat: 47, lon: 8 };
+  const B = { lat: 47.01, lon: 8.02 };
+  const ok = (coords = [[8, 47, 400], [8.02, 47.01, 410]]) => ({ ok: true, status: 200, json: async () => geo(coords, { 'track-length': '2000' }) });
+  const never = (_u, { signal }) => new Promise((_ok, bad) => signal.addEventListener('abort', () => bad(new Error('aborted'))));
+
+  it('asks once and answers the same question from memory', async () => {
+    let n = 0;
+    const f = async () => (n++, ok());
+    const a = await askRouter([A, B], 'trekking', f);
+    const b = await askRouter([A, B], 'trekking', f);
+    expect(n).toBe(1);
+    expect(b).toEqual(a);
+    b.line[0][0] = 0; // a copy: changing it does not change the memory
+    expect((await askRouter([A, B], 'trekking', f)).line[0][0]).toBe(47);
+    await askRouter([A, B], 'fastbike', f); // another profile is another question
+    await askRouter([A, B], 'trekking', f, 1); // another way is another question
+    expect(n).toBe(3);
+  });
+  it('forgets after ROUTER_CACHE_MS and keeps at most ROUTER_CACHE_MAX answers', async () => {
+    let n = 0;
+    const f = async () => (n++, ok());
+    await askRouter([A, B], 'trekking', f, 0, { now: 1000 });
+    await askRouter([A, B], 'trekking', f, 0, { now: 1000 + ROUTER_CACHE_MS - 1 });
+    expect(n).toBe(1);
+    await askRouter([A, B], 'trekking', f, 0, { now: 1000 + ROUTER_CACHE_MS });
+    expect(n).toBe(2);
+    clearRouterCache();
+    for (let i = 0; i < ROUTER_CACHE_MAX + 5; i++) await askRouter([A, { lat: 47.01 + i / 1e4, lon: 8.02 }], 'trekking', f);
+    n = 0;
+    await askRouter([A, { lat: 47.01, lon: 8.02 }], 'trekking', f); // the oldest is gone
+    expect(n).toBe(1);
+  });
+  it('a failed answer is not kept', async () => {
+    await expect(askRouter([A, B], 'trekking', async () => ({ ok: false, status: 400 }))).rejects.toThrow('noroute');
+    await expect(askRouter([A, B], 'trekking', async () => ok())).resolves.toBeTruthy();
+  });
+  it('gives up after the time limit (no endless spinning) and does not ask again', async () => {
+    let n = 0;
+    const f = (...a) => (n++, never(...a));
+    await expect(askRouter([A, B], 'trekking', f, 0, { timeoutMs: 20 })).rejects.toThrow('timeout');
+    expect(n).toBe(1);
+  });
+  it('tries once more after a quick failure, then says failed', async () => {
+    let n = 0;
+    await expect(askRouter([A, B], 'trekking', async () => (n++, Promise.reject(new Error('net'))))).rejects.toThrow('failed');
+    expect(n).toBe(2);
+    n = 0;
+    const r = await askRouter([A, B], 'trekking', async () => (n++, n === 1 ? { ok: false, status: 502 } : ok()));
+    expect(r.km).toBe(2);
+    expect(n).toBe(2);
+    n = 0;
+    await expect(askRouter([A, B], 'fastbike', async () => (n++, { ok: false, status: 504 }))).rejects.toThrow('failed');
+    expect(n).toBe(2);
+  });
+  it('does not repeat «busy» (fair use of the free server)', async () => {
+    for (const status of [429, 503]) {
+      let n = 0;
+      await expect(askRouter([A, B], 'trekking', async () => (n++, { ok: false, status }))).rejects.toThrow('busy');
+      expect(n).toBe(1);
+    }
+  });
+  it('does not ask for a way that is too far, and says so', async () => {
+    let n = 0;
+    const far = { lat: 48.21, lon: 16.37 };
+    expect(longestLegKm([A, far])).toBeGreaterThan(ROUTER_TOO_FAR_KM);
+    await expect(askRouter([A, far], 'trekking', async () => (n++, ok()))).rejects.toThrow('toofar');
+    expect(n).toBe(0);
+  });
+  it('says offline at once, but still answers from memory', async () => {
+    let n = 0;
+    const f = async () => (n++, ok());
+    await expect(askRouter([A, B], 'trekking', f, 0, { online: false })).rejects.toThrow('offline');
+    expect(n).toBe(0);
+    await askRouter([A, B], 'trekking', f);
+    await expect(askRouter([A, B], 'trekking', f, 0, { online: false })).resolves.toBeTruthy();
+    expect(n).toBe(1);
+  });
+  it('the answers of planDetour and planReturn come through the same door', async () => {
+    let n = 0;
+    const f = async () => (n++, ok());
+    await planDetour({ here: A, target: B, fetcher: f });
+    await planDetour({ here: A, target: B, fetcher: f });
+    expect(n).toBe(1);
+  });
+});
+
+describe('routerMsg: clear words for every failure', () => {
+  const KINDS = ['busy', 'noroute', 'toofar', 'timeout', 'offline', 'failed'];
+  it('has a different text for every failure and has German for all of them', () => {
+    for (const round of [false, true]) {
+      const texts = KINDS.map((k) => routerMsg(new Error(k), { round, online: true }));
+      expect(new Set(texts).size).toBe(KINDS.length);
+      for (const t of texts) expect(DE[t], t).toBeTruthy();
+    }
+  });
+  it('knows «offline» from the browser too, and uses the caller\'s text for «no way»', () => {
+    expect(routerMsg(new Error('failed'), { online: false })).toBe(routerMsg(new Error('offline'), { online: true }));
+    expect(routerMsg(new Error('noroute'), { noroute: 'No round.' })).toBe('No round.');
+    expect(routerMsg(undefined, { online: true })).toBe(routerMsg(new Error('failed'), { online: true }));
+  });
+  it('the note about the position is in German too', () => {
+    for (const k of ['To plan a way, the app sends your position and the goal to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.', 'To plan a round, the app sends your home place and the points of the round to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.']) expect(DE[k]).toContain('brouter.de');
+  });
+});
+
+/* ---------- Reserve-Router (Noah 05.11.2026 «2a und b») ---------- */
+import { askReserve, valhallaUrl, osrmUrl, decodeLine, parseValhalla, parseOsrm, VALHALLA, OSRM, VALHALLA_MAX_KM } from '../src/lib/reroute.js';
+
+describe('reserve routers', () => {
+  const A = { lat: 47, lon: 8 };
+  const B = { lat: 47.01, lon: 8.02 };
+  // «_p~iF~ps|U_ulLnnqC_mqNvxq`@» is the example of Google's polyline guide (38.5,-120.2 → 40.7,-120.95 → 43.252,-126.453), 5 digits
+  const enc5 = '_p~iF~ps|U_ulLnnqC_mqNvxq`@';
+  // the same line with 6 digits is made by encoding by hand below
+  const enc = (pts, digits = 6) => {
+    const f = 10 ** digits;
+    let la = 0;
+    let lo = 0;
+    const one = (v) => {
+      let n = v < 0 ? ~(v << 1) : v << 1;
+      let s = '';
+      while (n >= 32) {
+        s += String.fromCharCode((32 | (n & 31)) + 63);
+        n >>= 5;
+      }
+      return s + String.fromCharCode(n + 63);
+    };
+    return pts.map(([a, b]) => {
+      const x = Math.round(a * f);
+      const y = Math.round(b * f);
+      const r = one(x - la) + one(y - lo);
+      la = x;
+      lo = y;
+      return r;
+    }).join('');
+  };
+  const valhalla = { trip: { legs: [{ shape: enc([[47, 8], [47.005, 8.01]]) }, { shape: enc([[47.005, 8.01], [47.01, 8.02]]) }], summary: { length: 1.7, time: 420 } } };
+  const osrm = { code: 'Ok', routes: [{ distance: 1730, duration: 380, geometry: { coordinates: [[8, 47], [8.01, 47.005], [8.02, 47.01]] } }] };
+  const json = (o, status = 200) => ({ ok: status < 400, status, json: async () => o });
+  const brouterOk = { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': '2000' }, geometry: { coordinates: [[8, 47, 1], [8.02, 47.01, 2]] } }] };
+  /** a fake network: each host answers with its own function */
+  const net = (h) => {
+    const seen = [];
+    const f = async (u) => {
+      const host = new URL(u).hostname;
+      seen.push(host);
+      return h[host]?.(u) ?? Promise.reject(new Error('blocked'));
+    };
+    return { f, seen };
+  };
+  beforeEach(() => {
+    ROUTER_TUNING.reserve = true;
+  });
+
+  it('reads the encoded line (Google\'s own example) and our hand-made one', () => {
+    const g = decodeLine(enc5, 5);
+    expect(g).toEqual([[38.5, -120.2], [40.7, -120.95], [43.252, -126.453]]);
+    expect(decodeLine(enc([[47.123456, 8.654321], [47.2, 8.7]]))).toEqual([[47.123456, 8.654321], [47.2, 8.7]]);
+    expect(decodeLine('')).toEqual([]);
+  });
+  it('builds the addresses', () => {
+    const v = valhallaUrl([A, B], 'fastbike');
+    expect(v.startsWith(VALHALLA)).toBe(true);
+    const q = JSON.parse(decodeURIComponent(v.split('json=')[1]));
+    expect(q.costing).toBe('bicycle');
+    expect(q.costing_options.bicycle.bicycle_type).toBe('Road');
+    expect(q.locations).toEqual([{ lat: 47, lon: 8 }, { lat: 47.01, lon: 8.02 }]);
+    expect(JSON.parse(decodeURIComponent(valhallaUrl([A, B], 'mtb').split('json=')[1])).costing_options.bicycle.bicycle_type).toBe('Mountain');
+    expect(JSON.parse(decodeURIComponent(valhallaUrl([A, B], 'nonsense').split('json=')[1])).costing_options.bicycle.bicycle_type).toBe('Hybrid');
+    expect(osrmUrl([A, B])).toBe(`${OSRM}/8.00000,47.00000;8.02000,47.01000?overview=full&geometries=geojson`);
+  });
+  it('reads Valhalla and OSRM answers, null for nothing', () => {
+    const v = parseValhalla(valhalla);
+    expect(v.line).toHaveLength(3);
+    expect(v.line[0]).toEqual([47, 8]);
+    expect(v.km).toBe(1.7);
+    expect(v.min).toBe(7);
+    expect(v.gainM).toBeNull();
+    const o = parseOsrm(osrm);
+    expect(o.line).toEqual([[47, 8], [47.005, 8.01], [47.01, 8.02]]);
+    expect(o.km).toBe(1.7);
+    expect(o.min).toBe(6);
+    for (const bad of [null, {}, { trip: { legs: [] } }, { code: 'NoRoute' }, { code: 'Ok', routes: [] }]) {
+      expect(parseValhalla(bad)).toBeNull();
+      expect(parseOsrm(bad)).toBeNull();
+    }
+  });
+  it('after brouter.de fails: Valhalla first, marked via, kept in memory', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 503), 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    const r = await askRouter([A, B], 'trekking', n.f);
+    expect(r.via).toBe('valhalla');
+    expect(r.gainM).toBeNull();
+    expect(n.seen).toEqual(['brouter.de', 'valhalla1.openstreetmap.de']);
+    await askRouter([A, B], 'trekking', n.f); // the outage lasts: answered from memory, nobody is asked
+    expect(n.seen).toHaveLength(2);
+  });
+  it('Valhalla fails → OSRM; both fail → the first error', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 429), 'valhalla1.openstreetmap.de': async () => json({ error: 'x' }, 400), 'routing.openstreetmap.de': async () => json(osrm) });
+    expect((await askRouter([A, B], 'trekking', n.f)).via).toBe('osrm');
+    expect(n.seen).toEqual(['brouter.de', 'valhalla1.openstreetmap.de', 'routing.openstreetmap.de']);
+    clearRouterCache();
+    const none = net({ 'brouter.de': async () => json({}, 429) });
+    await expect(askRouter([A, B], 'trekking', none.f)).rejects.toThrow('busy');
+    expect(none.seen).toEqual(['brouter.de', 'valhalla1.openstreetmap.de', 'routing.openstreetmap.de']);
+  });
+  it('a timeout of brouter.de also goes on to the reserve', async () => {
+    const never = (_u, { signal }) => new Promise((_ok, bad) => signal.addEventListener('abort', () => bad(new Error('aborted'))));
+    const n = net({ 'brouter.de': never, 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    const r = await askRouter([A, B], 'trekking', n.f, 0, { timeoutMs: 20 });
+    expect(r.via).toBe('valhalla');
+  });
+  it('only a failed service goes on: «no way», «too far» and «offline» do not', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 400), 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    await expect(askRouter([A, B], 'trekking', n.f)).rejects.toThrow('noroute');
+    await expect(askRouter([A, { lat: 48.21, lon: 16.37 }], 'trekking', n.f)).rejects.toThrow('toofar');
+    await expect(askRouter([A, B], 'fastbike', n.f, 0, { online: false })).rejects.toThrow('offline');
+    expect(n.seen).toEqual(['brouter.de']);
+  });
+  it('the other ways (alt 1 to 3) never ask the reserve', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 503), 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    await expect(askRouter([A, B], 'trekking', n.f, 1)).rejects.toThrow('busy');
+    expect(n.seen).toEqual(['brouter.de']);
+    // so «Wege zur Auswahl» gets one way from the reserve and stops
+    const ways = await planAlternatives({ here: A, target: B, fetcher: n.f }, 3);
+    expect(ways).toHaveLength(1);
+    expect(ways[0].via).toBe('valhalla');
+  });
+  it('a way that is too long for Valhalla goes straight to OSRM', async () => {
+    const far = { lat: 47 + (VALHALLA_MAX_KM + 20) / 111, lon: 8 };
+    const n = net({ 'brouter.de': async () => json({}, 503), 'valhalla1.openstreetmap.de': async () => json(valhalla), 'routing.openstreetmap.de': async () => json(osrm) });
+    expect((await askRouter([A, far], 'trekking', n.f)).via).toBe('osrm');
+    expect(n.seen).toEqual(['brouter.de', 'routing.openstreetmap.de']);
+  });
+  it('joins the legs of a round with a via point', () => {
+    const r = parseValhalla(valhalla);
+    expect(r.line.map((p) => p.join())).toEqual(['47,8', '47.005,8.01', '47.01,8.02']);
+  });
+  it('askReserve says null when nobody answers', async () => {
+    expect(await askReserve([A, B], 'trekking', async () => Promise.reject(new Error('x')))).toBeNull();
+  });
+  it('planDetour carries «via» into the detour', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 503), 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    const d = await planDetour({ here: A, target: B, fetcher: n.f });
+    expect(d.via).toBe('valhalla');
+    expect(d.gainM).toBeNull();
   });
 });

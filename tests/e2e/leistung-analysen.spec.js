@@ -138,7 +138,7 @@ test('Analysen auf der Aktivität: Anstiege, Abschnitte, Verlauf, Puls mal Leist
   await expect(meRow).toContainText('1:36:00');
   await expect(meRow).toContainText('188');
   await expect(meRow).toContainText('1.36'); // 188 W ÷ 138 beats
-  await expect(hl.getByRole('img')).toHaveAttribute('aria-label', 'Ø Tempo auf 4 Fahrten dieser Strecke; diese Fahrt ist der grössere Punkt.');
+  await expect(hl.locator('[data-plot]')).toHaveAttribute('aria-label', 'Ø Tempo auf 4 Fahrten dieser Strecke; diese Fahrt ist der grössere Punkt.');
   await expect(hl).toContainText('Gleicher Name und km ±10 %.');
   expect(await hl.locator('table').evaluate((el) => el.scrollWidth <= el.parentElement.clientWidth + 1)).toBe(true); // every column fits, also on the phone
   await expect(hl.locator('a[href="#/flow/training/a/3801"]')).toHaveCount(1);
@@ -176,7 +176,13 @@ test('Analysen auf der Aktivität: Anstiege, Abschnitte, Verlauf, Puls mal Leist
   await expect(sim.getByRole('heading', { name: 'Ähnliche Fahrten' })).toBeVisible();
   await expect(sim).toContainText('gleiche Gruppe, km und Hm je ±20 %');
   await expect(sim.locator('.cap')).toContainText(new RegExp(`^\\d+ ähnliche Fahrten: ${P}Gravel Blau, 34–51 km, 544–816 Hm\\. Rechts unten = mehr Leistung bei weniger Puls\\. Punkt antippen öffnet die Fahrt\\.$`));
-  expect(await sim.locator('[data-similar]').count()).toBeGreaterThanOrEqual(3);
+  const nDots = await sim.locator('[data-similar]').count();
+  expect(nDots).toBeGreaterThanOrEqual(3);
+  await sim.locator('[data-similar]').first().focus();
+  await expect(sim.locator('[data-readout]')).toContainText('Ø Puls');
+  await sim.getByRole('button', { name: 'Als Tabelle' }).click();
+  await expect(sim.locator('[data-chart-table] tbody tr')).toHaveCount(Math.min(nDots + 1, 14)); // this ride and the others, the table shows 14 first
+  await sim.getByRole('button', { name: 'Diagramm' }).click();
 
   // no page wider than the screen
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

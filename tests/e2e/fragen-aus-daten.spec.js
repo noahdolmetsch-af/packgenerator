@@ -38,8 +38,8 @@ function data(todayHr, { sleepMin = null, moods = null, sport = null, cfg = null
  * The saved home forecast of today (Heute fetched it) and the calendar copy: both tables are not in the backup, so they
  * are written into the open database, then the page loads again. wx: fields of today's forecast; cal: [[startHourUtc, hours]].
  */
-async function seed(page, { wx = null, cal = null }) {
-  await page.evaluate(async ({ wx, cal }) => {
+async function seed(page, { wx = null, cal = null, tasks = null }) {
+  await page.evaluate(async ({ wx, cal, tasks }) => {
     const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const today = iso(new Date());
     const db = await new Promise((ok) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => ok(r.result); });
@@ -53,8 +53,15 @@ async function seed(page, { wx = null, cal = null }) {
       await put('meta', [{ key: 'homeForecast', fetchedAt: new Date().toISOString(), place, days: [{ date: today, min: 9, max: 19, rainMm: 0, rainPct: 10, ...wx }] }]);
     }
     if (cal) await put('gEvents', cal.map(([h, len], i) => ({ id: `fad-e${i}`, gid: `fad-e${i}`, day: today, lastDay: today, cal: 'primary', title: 'Test', start: `${today}T${h}:00:00Z`, end: `${today}T${String(Number(h) + len).padStart(2, '0')}:00:00Z`, allDay: false, busy: true })));
+    if (tasks) {
+      await put('gTasks', tasks.map((days, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - days);
+        return { id: `fad-t${i}`, list: 'l', title: 'test_data_gtp_ Steuern', due: iso(d), done: false };
+      }));
+    }
     db.close();
-  }, { wx, cal });
+  }, { wx, cal, tasks });
   await page.reload();
 }
 
@@ -240,13 +247,37 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(page.locator('[data-q="daten.draussen"]')).toHaveCount(0);
   });
 
+  test('a to-do that is long past its date asks what is in the way, with the to-do as the reason', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52) });
+    await seed(page, { tasks: [8] });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.todo"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('What is in the way of this to-do?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('Steuern');
+    await expect(q.locator('[data-why]')).toContainText('8 Tagen');
+    await card.screenshot({ path: `${SHOTS}/fad11-todo-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Too big|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.todo"]')).toHaveCount(0);
+  });
+
+  test('a to-do that is only a little past its date asks nothing', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await seed(page, { tasks: [2] });
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.todo"]')).toHaveCount(0);
+  });
+
   test('no calendar or no weather yet: the box says why the weather rules are quiet', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
     await page.goto('./#/me/abfragen');
     await expect(page.locator('[data-data-empty-calendar]')).toBeVisible();
     await expect(page.locator('[data-rule="grau"]')).toBeVisible();
     await expect(page.locator('[data-rule="draussen"]')).toBeVisible();
-    await page.screenshot({ path: `${SHOTS}/fad7-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+    await expect(page.locator('[data-rule="todo"]')).toBeVisible();
+    await expect(page.locator('[data-data-empty-tasks]')).toBeVisible();
+    await page.screenshot({ path: `${SHOTS}/fad11-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   });
 
   test('a random question from the switched-off samples comes marked and never again takes it out for good', async ({ page, context }, info) => {

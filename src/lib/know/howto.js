@@ -103,6 +103,8 @@ const LISTED = {
   'f.newtoday': ['Ride somewhere new (or tick a place in New ground).', 'Today shows «New since yesterday»; × closes it.', 'Tap the line: New ground shows what is new.'],
   'f.triptips': ['Open Trips › Dreams; «Fits today» is at the top.', 'Choose the hours you have.', 'Tap «Round through it» at a place.'],
   'f.newkm': ['Ride somewhere new; Strava lines, GPX and recordings count.', 'Open New ground and scroll to «New kilometres».', 'Each year shows its new km; below, the latest rides with new km.'],
+  'f.trainthere': ['Open Trips › Dreams and scroll to «Train there, bike home».', 'Choose how far you want to ride home.', 'Tap «Trains and the way home» at a place.'],
+  'f.biwak': ['Open Trips › Dreams and scroll to «After-work bivouac».', 'Choose a place to sleep and tap «Plan it».', 'Pack with the list of the new trip.'],
   'f.monthideas': ['Open Trips › Dreams.', 'Read the ideas of the month; tap another month in «Your year».', 'Add your own or tap «As a dream».'],
   'f.dreamsmap': ['Give dreams a map (GPX or link).', 'Scroll to «All dreams on one map».', 'Tap a dream in the list to open it.'],
   'f.dreamwx': ['Give a dream the months it fits.', 'Open Trips › Dreams.', 'Dry days show at the dream and in the trips overview.'],
@@ -215,6 +217,9 @@ const LISTED = {
   'f.lists': ['Open Me › «Lists and types» › Categories.', 'Tap the pen to rename, choose a symbol, hide or delete.', 'Add your own category; «Back to Standard» undoes everything.'],
   // v0.135.0
   'f.medreview': ['Open Aktiv › Meditation.', 'Tap «Look back».', 'Switch between week, month and year.'],
+  'f.todoquick': ['Open Calendar › Remember.', 'Type «Oil the chain tomorrow 6 pm» in the top line.', 'Press Enter; tap a found part to leave it out.'],
+  'f.todosteps': ['Open a to-do and add steps.', 'Pick a trip, bike or note under «Belongs to».', 'Tick the steps in the list.'],
+  'f.todosort': ['Swipe a to-do right (done) or left (tomorrow).', 'Tap «Sort» and use the arrows.', 'Search to-dos and notes in one field.'],
   'f.remember': ['Open Calendar › Remember.', 'Type a to-do or make an own list.', 'Tick it off; Undo brings it back.'],
   'f.reminders': ['After a ride or before a trip, answer the app’s question about a reminder.', 'Open Me › Reminders.', 'Switch a reminder off or change its time.'],
   'f.birthdays': ['Open Me › Reminders.', 'Add a birthday or a plant.', 'See it in Calendar › Remember when it is time.'],
@@ -328,6 +333,7 @@ const LISTED = {
   'f.komoot': ['Open New tour or On the way.', 'Tap «Tour from komoot»: komoot shows suggestions near you.', 'Share a tour from komoot to the app: it becomes a planned trip.'],
   // v0.147.0 Paket B «Leistung und Analysen»
   'f.analyses': ['Open Aktiv › Training and tap a ride.', 'Power, load and the analyses stand on its page.', 'Tap «…» on an analysis to hide or move it.'],
+  'f.weekgoals': ['Open Aktiv › «My week goals».', 'Add a goal, like 2× meditation or 150 km.', 'The bar fills from Monday to Sunday; change or delete it any time.'],
   'f.weekreview': ['Open Aktiv › Week and tap «Week in review».', 'Read the five numbers, the body values, the strip and the highlights.', 'Write your note and a goal for next week; step to other weeks with ‹ ›.'],
   'f.wohl': ['Open Me › What is good for me.', 'Tap «Try it» for a 7-day experiment or start your own.', 'Under each result «How does the app know?» shows where it comes from.'],
   'f.weight': ['Open Me › Weight.', 'Tap «Enter weight», type it and save.', 'The curve and watts per kg follow by themselves.'],

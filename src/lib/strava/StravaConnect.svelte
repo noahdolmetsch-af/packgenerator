@@ -95,4 +95,17 @@
       flex: 1 1 auto;
     }
   }
+  /* very narrow phone (320 px): the title would be squeezed so far that «verbinden» breaks mid-word, so the
+     title gets its own line and the two buttons sit below it (Durchklick Etappe 3, wrap rule on body) */
+  @media (max-width: 359px) {
+    .sc {
+      flex-wrap: wrap;
+    }
+    .m {
+      flex-basis: 100%;
+    }
+    .acts {
+      margin-left: auto;
+    }
+  }
 </style>

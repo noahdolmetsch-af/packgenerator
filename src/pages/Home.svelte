@@ -108,6 +108,8 @@
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
+  import RowsSheet from '../lib/home/RowsSheet.svelte';
+  import { ROWS_KEY, isHidden, putOff } from '../lib/home/rows.js';
   import { HABITS_KEY } from '../lib/home/habits.js';
   import TagesKarte from '../lib/home/TagesKarte.svelte';
   import AktivTile from '../lib/home/AktivTile.svelte';
@@ -190,6 +192,7 @@
   import { MERKEN_KEY } from '../lib/merkendb.js';
   import { LISTS_KEY } from '../lib/ownlists.js';
   import { TRELLO_KEY, dueInTrello } from '../lib/trello.js';
+  import { backClose } from '../lib/ui/backclose.js';
   import { unitsOf as trelloUnits } from '../lib/trello/client.svelte.js';
 
   /* ---------- the records ---------- */
@@ -206,7 +209,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -724,7 +727,7 @@
     // TZ-2: the newest trip whose date passed without an end: «Datum vorbei. Bist du gefahren?» Ja · Nicht gefahren
     const askT = askTrips[0];
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
-    if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK. One tap, the folder stays.', { name: folderName }) + ' ' + t('Tip: in Chrome choose «Allow on every visit» so it asks less often.'), act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
+    if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK.', { name: folderName }), hint: `${t('One tap, the folder stays.')} ${t('Tip: in Chrome choose «Allow on every visit» so it asks less often.')}`, act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
     rows.push(...zustand);
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
@@ -760,7 +763,12 @@
     const rank = { party: 0, eve: 1, bad: 2, warn: 3, info: 4, quiet: 5 };
     // «Heute lädt nicht» (19.10.2026): a key twice would stop all of Heute (Svelte keyed each); the first one stays
     const seen = new Set();
-    const uniq = rows.filter((r) => !seen.has(r.key) && seen.add(r.key));
+    // «Jetzt dran» steuern (Noah 05.11.2026 «4a»): a kind that is switched off and a row put off for a week stay away;
+    // every calm row gets «Later» (one week, with Undo)
+    const uniq = rows
+      .filter((r) => !seen.has(r.key) && seen.add(r.key))
+      .filter((r) => r.tone === 'party' || !isHidden(r, S[ROWS_KEY], today))
+      .map((r) => (r.tone === 'quiet' && !r.later ? { ...r, later: () => laterRow(r) } : r));
     return uniq.map((r, i) => ({ r, i })).sort((a, b) => rank[a.r.tone] - rank[b.r.tone] || a.i - b.i).map((x) => x.r);
   });
   // Gesamttest 20.10.2026 (Noah «5a»): milestones and challenges are a quiet line of their own;
@@ -784,6 +792,13 @@
     if (bike) await db.bikes.update(r.bikeId, { sheets: laterChanges(bike, r.key, today) });
   }
   let allRows = $state(false);
+  let openHints = $state({}); // a row's longer explanation («More»), by the row's key
+  let rowsOpen = $state(false); // the window «Which rows in Up now?» (lib/home/RowsSheet.svelte)
+  async function laterRow(r) {
+    const before = $state.snapshot(S[ROWS_KEY] ?? null);
+    await db.settings.put({ key: ROWS_KEY, value: putOff(before, r, today) });
+    say(t('Hidden for a week: {text}', { text: String(r.short ?? r.text).slice(0, 60) }), () => db.settings.put({ key: ROWS_KEY, value: before }));
+  }
 
   /* ---------- «Heute neu» A «Ein Blick» (Noah 20.10.2026 10:14 «1A 2 … 3a 4a 5b») ---------- */
   // «Up now»: the round (when it waits), meditation and the idea for today first, then what is due (important)
@@ -804,7 +819,7 @@
     // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
     if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
     if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
-    if (suggestion && !night) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
+    if (suggestion && !night && !isHidden({ key: 'idea' }, S[ROWS_KEY], today)) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
   });
   // Impeccable 20.10.2026: on the last evening of a trip its evening rows (review, charging; Noah 32a) stay; other
@@ -1144,7 +1159,10 @@
         <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
         <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
       {:else}
-        <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
+        <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}{#if r.hint}
+          <button type="button" class="lkb hintbtn" aria-expanded={!!openHints[r.key]} onclick={() => (openHints[r.key] = !openHints[r.key])}>{t('More')}</button>
+          {#if openHints[r.key]}<span class="rhint" data-row-hint>{r.hint}</span>{/if}
+        {/if}</span>
         {#if r.act2?.run}
           <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
           <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
@@ -1196,6 +1214,7 @@
           </ul>
         </details>
       {/if}
+      {#if ready}<button type="button" class="lkb rowsbtn" onclick={() => (rowsOpen = true)} data-rows-open>{t('Choose rows')}</button>{/if}
       {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
     </section>
   </div>
@@ -1217,7 +1236,7 @@
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
   {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}</div>
-  {:else if x.id === 'acts'}<ActsTile {today} />
+  {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
@@ -1353,6 +1372,7 @@
       <label class="bytime" data-wall-sections><input type="checkbox" role="switch" checked={secOn} onchange={(e) => db.settings.put({ key: SECTIONS_KEY, value: e.currentTarget.checked })} />{t('Show the tiles in areas with a heading (Now, Your body, Your week …)')}</label>
       {#if secOn}<AreasEdit cfg={areasCfg} tiles={timeWall} />{/if}
       {#if timeWall.some((x) => x.id === 'meditation')}<button type="button" class="btn sm" onclick={() => (habitsOpen = true)} data-habits-open>{t('Choose habits on top')}</button>{/if}
+      <button type="button" class="btn sm" onclick={() => (rowsOpen = true)} data-rows-open-custom>{t('Choose rows of «Up now»')}</button>
     {:else}
       <!-- «Neuer Schwung» (Noah 26.10.2026 «3a», then «diesen bereich zusammen nehmen»): the end of Heute is one quiet
            block: stops nearby, all areas, «Customise the start page» (on a computer too; it was a button at the top
@@ -1387,9 +1407,10 @@
   </div>
 {/if}
 {#if medOpen && medSt}<MedStartSheet st={medSt} {today} onclose={() => (medOpen = false)} />{/if}
+{#if rowsOpen}<RowsSheet {today} cfg={S[ROWS_KEY] ?? null} onclose={() => (rowsOpen = false)} />{/if}
 {#if habitsOpen}<HabitsSheet {today} cfg={S[HABITS_KEY] ?? null} onclose={() => (habitsOpen = false)} />{/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
-<dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
+<dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} use:backClose onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}
     <WearToday {items} {trips} edit />
@@ -1561,6 +1582,20 @@
     text-underline-offset: 2px;
     text-decoration-thickness: 1.5px;
     cursor: pointer;
+  }
+  /* «Jetzt dran»: the long explanation of a row waits behind «More» (Noah 05.11.2026 «2a») */
+  .hintbtn {
+    min-height: 32px;
+    margin-left: var(--sp-2);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .rhint {
+    display: block;
+    margin-top: var(--sp-1);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
   }
   .emptywall {
     margin: var(--sp-3) 0;
@@ -2174,6 +2209,12 @@
     color: var(--ink-2);
     font-size: var(--fs-body);
     cursor: pointer;
+  }
+  .rowsbtn {
+    min-height: 44px;
+    margin-top: var(--sp-1);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .calm {
     margin: 8px 0;

@@ -37,6 +37,7 @@
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
   import NebelBlock from '../lib/wetter/NebelBlock.svelte'; // «Nebelgrenze» (Noah 05.11.2026)
   import HoeheBlock from '../lib/wetter/HoeheBlock.svelte'; // «Temperaturen nach Höhe» (Noah 05.11.2026)
+  import NachtBlock from '../lib/wetter/NachtBlock.svelte'; // «Nachttemperatur» (Noah 06.11.2026)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -267,6 +268,8 @@
         <a class="btn sm" href="#/me/hinweise">{t('Warnings, avalanches, passes')}</a>
       </div>
     </section>
+
+    <NachtBlock {core} {now} />
 
     <NextHours {place} />
   {/if}

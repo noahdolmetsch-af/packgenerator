@@ -32,8 +32,8 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Heute | `#/` | Persönliche Übersicht mit nächsten Vorhaben, Wetter, fälligen Aufgaben, Körperdaten und Vorschlägen. Kacheln hinzufügen, ausblenden und sortieren. «Diese Woche» schreibt die Aktivitäten der Tage in ganzen Zeilen unter die Tage; «Velo im Monat» nennt den Vergleich («Gleiche Tage im Oktober: 38 km»). «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen». «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen». |
-| Suche und Assistent | `#/assistent` | Fragen zu eigenen Daten stellen, Funktionen finden und eine Tour durch kurze Fragen vorbereiten. |
+| Heute | `#/` | Persönliche Übersicht mit nächsten Vorhaben, Wetter, fälligen Aufgaben, Körperdaten und Vorschlägen. Kacheln hinzufügen, ausblenden und sortieren. «Aktiv heute» zeigt nicht nochmals, was oben als Gewohnheit steht (eine Zeile nennt es). «Diese Woche» schreibt die Aktivitäten der Tage in ganzen Zeilen unter die Tage; «Velo im Monat» nennt den Vergleich («Gleiche Tage im Oktober: 38 km»). «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen»; jede ruhige Zeile hat «Später» (eine Woche weg), und «Zeilen wählen» (`src/lib/home/RowsSheet.svelte`) schaltet ganze Zeilenarten aus. «Jetzt dran» zählt und zeigt nur Dringendes (rot, gelb, blau); ruhige Hinweise stehen eingeklappt darunter als «Gut zu wissen». |
+| Suche und Assistent | `#/assistent` | Fragen zu eigenen Daten stellen, Funktionen finden und eine Tour durch kurze Fragen vorbereiten. Das leere Suchfeld oben zeigt zuerst «Zuletzt geöffnet»: die letzten fünf Seiten dieses Geräts (dieselbe Liste wie in Quick Links; «Liste vergessen» mit Rückgängig), dann Befehle zum Ausprobieren und die letzten Suchwörter. |
 | Quick Links | `#/quick` | Häufig verwendete Seiten und Kacheln anpinnen und in eigenen Gruppen ordnen. |
 | Funktionskatalog | `#/features` | Funktionen nach Situation, Seite oder Moment entdecken und suchen. |
 | Handbuch | `#/me/handbook` | Voraussetzungen, kurze Anleitungen und Beispiele zu den Funktionen lesen; Rundgänge starten. |
@@ -43,7 +43,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Tourenübersicht | `#/trips` | Geplante, abgeschlossene und bewertete Touren verwalten; neue Touren und spontane Ausfahrten beginnen. |
-| Tour planen | `#/pack` | Sportart, Datum, Dauer, Startort, Velo und Bedingungen festlegen und daraus eine Packliste vorbereiten. |
+| Tour planen | `#/pack` | Sportart, Datum, Dauer, Startort, Velo und Bedingungen festlegen und daraus eine Packliste vorbereiten. «Wetter für diese Tour» sagt bei einem Start in den nächsten 3 Tagen auch, ob die Route im Nebel startet und ab welchem km sie darüber ist; das Höhenprofil zeigt den Nebel als Band. |
 | Wie anstrengend wird es? | `#/pack` | Bei einer Velotour vor der Abfahrt von 1 bis 10 schätzen; nach der Fahrt stellt die Tour-Seite Schätzung und Erleben nebeneinander und sagt ab drei Touren, ob die Schätzungen eher in eine Richtung gehen. |
 | Gründe für eine andere Tour | `#/me/lists` | Wird eine Tour auf «Nicht fahren» gesetzt oder weicht die gefahrene Strecke stark ab, nennt ein Tipp den Grund (Liste in Ich › Listen und Typen); ab drei Antworten zählt eine Zeile, was am häufigsten vorkam. |
 | Routen und GPX | `#/pack` | GPX hinzufügen, Distanz, Höhenmeter, Fahrzeit, Höhenprofil und Anstiege ansehen; offene Stellen entlang der Route notieren. |
@@ -138,7 +138,8 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen; ganz oben das Feld «Alles hier» mit zehn Kacheln zu allen Funktionen von Aktiv; nach dem Abhaken führt «Als Nächstes» zu Verlauf und Meilensteinen. |
+| Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen; ganz oben das Feld «Alles hier» mit zehn Kacheln zu allen Funktionen von Aktiv; nach dem Abhaken führt «Als Nächstes» zu Verlauf und Meilensteinen. Nach drei harten Tagen in Folge (hart = für dich im oberen Viertel der letzten sechs Wochen, aus Strava) steht über «Heute abhaken» eine ruhige Zeile «Heute locker?» (`src/lib/flow/RuhetagHint.svelte`); nur ein Hinweis, «Heute nicht» blendet sie für den Tag aus, Ich › Aussehen › Vorschläge › Leistungstipps schaltet sie ab. |
+| Meine Wochenziele | `#/flow` | Auf Aktiv, neben «Diese Woche»: ein paar eigene Ziele für die Kalenderwoche Montag bis Sonntag (zum Beispiel 2× Meditation, 150 km Velo), je mit einem Balken. Mit einem Tipp hinzufügen oder eigenes wählen, Zahl ändern, mit Pfeilen und Ziehen ordnen, löschen mit Rückgängig (`src/lib/flow/WeekGoals.svelte`, Regeln `weekgoals.js`). Die Ringe zählen weiter die letzten 7 Tage gegen die Ziele der Sportarten. |
 | Meine Sportarten | `#/flow/sports` | Eigene Sportarten mit Zielen, Messwerten, Ausrüstung, Verlauf, Timer und Zusatzbausteinen anlegen; oben stehen die zuletzt genutzten. Auch die Sportarten der Touren (Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Skitouren, Wandern) lassen sich über «⋯» umbenennen, ausblenden und löschen; der neue Name gilt überall. |
 | Training | `#/flow/training` | Einheiten mit Dauer und Zone planen; Aktivitäten, Pulszonen und subjektive Anstrengung auswerten. |
 | Leistungsanalysen | `#/flow/training?view=list` | Einzelne Aktivitäten mit Leistung, Herzfrequenz, Runden, Splits und weiteren verfügbaren Messwerten öffnen. |
@@ -152,7 +153,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Meditationsprotokoll | `#/flow/act/meditation/log` | Sitzungen, Regelmässigkeit, Tageszeiten und Notizen ansehen. |
 | Tennis | `#/flow/sport/act%3Atennis` | Spiele und erteilte Lektionen dokumentieren, geplante Termine und Platzbuchungslinks verwalten. |
 | Wi gaht's? am Morgen | `#/check/morning` | † Den eigenen Zustand am Morgen kurz erfassen (Schlaf, Stimmung, Sorgen). Die Fragen oben sind die der Morgenrunde aus «Deine Fragen», dieselben wie im Fenster; eine Antwort gilt für beide. |
-| Fragen aus deinen Daten | `#/me/abfragen` | Fällt ein Wert auf (Ruhepuls, kurze Nacht, gedrückte Stimmung, langer Tag, Trainingspause), stellt der Check eine offene Frage und sagt warum; jede Regel mit Schalter, Schwelle und eigenen Worten. |
+| Fragen aus deinen Daten | `#/me/abfragen` | Fällt ein Wert auf (Ruhepuls, kurze Nacht, gedrückte Stimmung, langer Tag, Trainingspause, Tennis, Wetter, ein überfälliges To-Do, eine Vermutung aus «Was zusammenpasst») oder kommt die Zufallsfrage, stellt der Check eine offene Frage und sagt warum; jede Regel mit Schalter, Schwelle und eigenen Worten, nie zwei aus einer Gruppe am Tag. |
 | Erkenntnisse | `#/me/insights` | Zusammenhänge zwischen Schlaf, Stimmung, Bewegung, Meditation, Wetter und weiteren eigenen Daten erkunden. |
 | Was mir gut tut | `#/me/wohl` | Muster guter Tage sammeln, gewünschte Lebensbereiche vergleichen und kleine Experimente durchführen. |
 | Routinen | `#/routine` | Persönliche Gewohnheiten mit kurzen täglichen Checklisten verfolgen; Teil von Aktiv › Erholung, Kachel auf Heute. |
@@ -162,7 +163,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Auswerten | `#/auswerten` | Einstieg in Aktivitäts-, Körper- und Verlaufsanalysen. |
+| Auswerten | `#/auswerten` | Einstieg in Aktivitäts-, Körper- und Verlaufsanalysen; oben ein Schalter «Zeitraum» (Woche, Monat, Jahr, Alles, eigener Zeitraum), dem die Liste der Sportarten und der Mittelwert bei «Wi gaht's?» folgen. |
 | Übergreifende Analyse | `#/auswerten/analyse` | Daten verschiedener Bereiche gemeinsam betrachten und vergleichen. |
 | Tour-Rückblick | `#/debrief` | Erfahrungen bewerten, ungenutztes und fehlendes Material markieren, Pannen dokumentieren und Verbrauch buchen. Die Antworten bei «Wie war es?» (Wetter, Essen und Trinken, Taschen) lassen sich in Ich › Listen und Typen umbenennen. |
 | Was hat es gut gemacht? | `#/debrief/freude` | Im Rückblick vier freiwillige Skalen von 1 bis 5 (Fahrspass, Natur, Flow, Gesellschaft); die Seite zeigt Mittelwerte und jede Tour, ab drei Touren sagt der Rückblick, was im Schnitt am höchsten war. |
@@ -174,19 +175,21 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Gesammelte Erkenntnisse | `#/debrief/learnings` | Erfahrungen thematisch sammeln und für spätere Touren wiederfinden. |
 | Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten. |
 | Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. Eine Regel wie in Neuland: bis 600 m von der Passhöhe sicher, bis 1,2 km «bitte bestätigen». |
+| Sammel-Wand | `#/debrief/sammlung` | Stempel, Pässe, Gipfelbuch-Orte, Neuland und Sterne auf einer Seite zum Anschauen: oben die Zahlen, «Zuletzt dazugekommen» und je ein Regal mit «Alle» zur ganzen Liste. Ohne Ziel und ohne Zahl für Fehlendes; geändert wird dort, wo die Dinge zu Hause sind. Touren › Rückblick führt hin. |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
 | Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Traumtouren | `#/trips/dreams` | Wunschabenteuer nach Saison sammeln, auf der Karte vergleichen und in konkrete Touren verwandeln; passende Wetterfenster und neue Ziele in der Nähe finden. |
+| Tourenvorschläge | `#/trips/vorschlaege` | Mountainbike-Touren aus dem offiziellen SchweizMobil-Netz (Pilot: fünf Touren in Zürich und Graubünden) mit Filtern für Region, Schwierigkeit und Zeit, «Warum dieser Vorschlag?», Höhenprofil mit Untergrund, Merken als Traum, GPX und «Nicht für mich». |
 | Inspiration | `#/inspiration` | Links zu Routen, Videos, Ausrüstung und Rennen sammeln und daraus Ideen oder Packregeln ableiten. |
 
 ### 9. Wetter, Berg und Skitouren
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Wetter | `#/wetter` | Orte, Tage und Startzeiten vergleichen; Regen, Wind, Kälte, Hitze, Schneefallgrenze und Warnungen für die Planung berücksichtigen; Regenstreifen für 24 Stunden sowie Landi-Regenradar und SRF-Webcams in Fenstern. Die Schneefallgrenze (m ü. M.) steht auch als ruhige Zeile auf Heute und lässt sich dort ausschalten. Die Nebelgrenze (Obergrenze des Hochnebels, m ü. M., geschätzt) steht daneben mit «darüber Sonne», deinem Ort im oder über dem Nebel, Auflösungszeit, Temperatur oben/unten und Sichtweite; auch sie hat eine ruhige Zeile auf Heute. Neben der Zürisee-Temperatur zeigt «Temperaturen nach Höhe» die Lufttemperatur auf 1000, 2000 und 3000 m (jetzt, 6, 12, 18 Uhr und die nächsten zwei Tage), über wählbaren Orten, eigenen Orten oder auf Schweizer Gipfeln. |
+| Wetter | `#/wetter` | Orte, Tage und Startzeiten vergleichen; Regen, Wind, Kälte, Hitze, Schneefallgrenze und Warnungen für die Planung berücksichtigen; Regenstreifen für 24 Stunden sowie Landi-Regenradar und SRF-Webcams in Fenstern. Die Schneefallgrenze (m ü. M.) steht auch als ruhige Zeile auf Heute und lässt sich dort ausschalten. Die Nebelgrenze (Obergrenze des Hochnebels, m ü. M., geschätzt) steht daneben mit «darüber Sonne», deinem Ort im oder über dem Nebel, Auflösungszeit, Temperatur oben/unten und Sichtweite; auch sie hat eine ruhige Zeile auf Heute. Die Nachttemperatur (Tiefstwert 18 bis 8 Uhr) zeigt «Heute früh» und «Morgen früh» mit Vergleich zu gestern und zur Vorwoche, 14 Säulen, Prognose-Trend, «Wieder 5 Plus in X Tagen» und Frost-Hinweis; sie hat eine ruhige Zeile auf Heute, die sich ausschalten lässt. Neben der Zürisee-Temperatur zeigt «Temperaturen nach Höhe» die Lufttemperatur auf 1000, 2000 und 3000 m (jetzt, 6, 12, 18 Uhr und die nächsten zwei Tage), über wählbaren Orten, eigenen Orten oder auf Schweizer Gipfeln. |
 | Hinweise und News | `#/me/hinweise` | Regionale Hinweise, winterliche Lawineninformationen und eigene Nachrichtenquellen bündeln. |
 | Skitouren | `#/ski` | Nächste Tour mit Wetter, Nullgradgrenze und Neuschnee vorbereiten. |
 | Skitour planen | `#/ski/plan` | Bulletinangaben, Bedingungen, Zeitplan und Umkehrzeit dokumentieren. |
@@ -201,8 +204,8 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Woche planen | `#/week` | Sport, Termine, Aufgaben, Ferien und Service in einer Woche zusammenbringen; freie Zeit mit gutem Wetter finden. |
-| Merken und Listen | `#/calendar` | Aufgaben und eigene Listen verwalten; Abhängigkeiten und wartende Aufgaben festhalten. |
-| Notizen | `#/notes` | Texte, Checklisten, Fotos, Sprachnotizen, Skizzen, Dateien und Links sammeln; formatieren, verknüpfen, erinnern und frühere Fassungen wiederherstellen. |
+| Merken und Listen | `#/calendar` | Aufgaben und eigene Listen verwalten; Abhängigkeiten und wartende Aufgaben festhalten. Eine Zeile oben nimmt «Kette ölen morgen 18 Uhr, jeden Sonntag» und erkennt Datum, Uhrzeit und Wiederholung; Aufgaben haben Schritte und gehören zu einer Tour, einem Velo oder einer Notiz (dort stehen sie auch); wischen (erledigt, morgen), sortieren und eine Suche über Aufgaben und Notizen. |
+| Notizen | `#/notes` | Texte, Checklisten, Fotos, Sprachnotizen, Skizzen, Dateien und Links sammeln; formatieren, verknüpfen, erinnern und frühere Fassungen wiederherstellen. Am grossen Bildschirm öffnet sich eine Notiz neben der Liste; die Suche findet auch Aufgaben. |
 | Eingang | `#/inbox` | Unsortierte Informationen sammeln und später als Notiz, Beleg, Aufgabe oder anderen Eintrag ablegen. |
 | Vorgänge | `#/inbox/vorgaenge` | Zusammengehörige Mails, Fotos, Rechnungen und Notizen zu einer Sache bündeln. |
 | Tagebuch | `#/tagebuch` | Persönliche Einträge mit Fotos, Ort, Wetter und Schlagwörtern schreiben oder sprechen. |
@@ -236,7 +239,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Daten und Backup | `#/me/data` | Daten exportieren und importieren, Sicherungen einrichten, optional verschlüsseln und Geräteabgleich konfigurieren. |
 | Aufs Handy | `#/me/phone` | Nutzung auf einem weiteren Gerät beziehungsweise auf dem Handy vorbereiten. |
 | Kleine Apps | `#/me/apps` | Einzelne Appbereiche als eigene Verknüpfung auf den Startbildschirm legen. |
-| Push-Erinnerungen | `#/me/push` | Hinweise zu Touren, Wetter, Licht, Verschleiss und Fristen einstellen. |
+| Push-Erinnerungen | `#/me/push` | Hinweise zu Touren, Wetter, Licht, Verschleiss und Fristen einstellen. Von Oktober bis Februar meldet «Nebelgrenze am Morgen» um 07:00, wie hoch der Hochnebel reicht und ab wo die Sonne scheint (oder «kein Nebel»), und nennt eine eigene Fahrt über dem Nebel. |
 | Eigene Werte | `#/me/werte` | Grenzwerte, Standardannahmen und Erinnerungsabstände anpassen. |
 | Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen (auch die Velo-Sportarten der Touren: Name und Ausblenden); auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
 | Entscheidungsregeln | `#/me/regeln` | Nachvollziehen, weshalb die App etwas vorschlägt und wo sich die zugrunde liegenden Werte ändern lassen. |
@@ -251,7 +254,7 @@ Diese Funktionen gibt es in der App (`features.js`), sie fehlten im Dokument. De
 | Ich (Einstieg) | `#/me` | Einstieg zu Daten, Verbindungen, Einstellungen, Aufräumen von Testdaten und Tastenkürzeln. |
 | Aussehen und Bedienung | `#/me/look` | Farbwelt, Grösse und Licht, Handschuh-Modus, eine Seite anpassen, Vorschläge an oder aus, eingeklappte Karten «Was du hier tun kannst» wieder aufklappen, KI auf diesem Gerät. |
 | Werkzeugkasten | `#/me/tools` | Kleine Werkzeuge: Karte messen, Barcode, Packliste per Foto, Währungen, Lupe und Licht, Zeitzonen, Kompass, Redewendungen, Reisekosten, Übersetzungen der Gänge, Wasserwaage, Sitzposition, PDF, Fotos, Bildformat, Video verkleinern, QR-Code, Etiketten, Rechner, Einheiten, Werkzeugketten. |
-| Freie Zeit | `#/me/frei` | Erste Nacht, Für nächstes Mal, Mein Abend, Was mir wichtig ist, Reisewünsche, Wonach ist mir?, Meine Sammlungen. |
+| Freie Zeit | `#/me/frei` | Erste Nacht, Für nächstes Mal (Notizen mit einem Tippen auf die Packliste der nächsten Tour setzen), Mein Abend, Was mir wichtig ist, Reisewünsche (ein Wunsch wird mit einem Tippen zur Traumtour, die passende Jahreszeit steht dabei), Wonach ist mir?, Meine Sammlungen. |
 | Gewicht | `#/me/weight` | Freiwillig und nur auf diesem Gerät: das eigene Gewicht mit Kurve, für Watt pro Kilo. |
 | Wi gaht's? | `#/me/abfragen` | Spielerische Fragen mit eigenem Rhythmus, Morgen- und Abendrunde, Verlauf und Auswertung; Fragen und Bereiche ändern, löschen, ergänzen und sortieren. Pro Thema nur eine Frage von selbst; Zusammengelegte stehen aus in der Liste. |
 | Wi gaht's? am Abend | `#/check/evening` | Am Tourtag abends bewerten, wie die Tour war (1 bis 10); landet im Rückblick und im Tagebuch. Die Fragen oben sind die der Abendrunde aus «Deine Fragen», dieselben wie im Fenster; eine Fahrt und eine Meditation von heute tragen sich selbst ein. |

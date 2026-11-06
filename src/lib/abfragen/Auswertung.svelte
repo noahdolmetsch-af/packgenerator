@@ -372,6 +372,8 @@
     font-weight: 500;
     text-align: center;
   }
+  /* table-layout is fixed, so the first row (thead) sets the column widths: the name column needs its width there */
+  .pt thead th:first-child,
   .pt tbody th {
     width: 120px;
     color: var(--ink-2);
@@ -448,6 +450,7 @@
       grid-row: 2;
       text-align: left;
     }
+    .pt thead th:first-child,
     .pt tbody th {
       width: 72px;
     }

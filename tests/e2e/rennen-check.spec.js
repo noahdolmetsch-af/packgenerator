@@ -2,6 +2,7 @@
 // the sheets that save by themselves and answers loaded from a file. Fictional data (sample race, made-up answers).
 import { test, expect } from './clock.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
+import { openCards } from './karte-auf.js';
 import { SHEETS, DAY_BEFORE } from '../../src/lib/race/check-lib.js';
 import { STEPS } from '../../src/lib/race/countdown-lib.js';
 import { STOP_STEPS } from '../../src/lib/race/stop-lib.js';
@@ -19,6 +20,7 @@ test('Race check: the races page, the sheets that keep what you write, answers f
   await expect(page).toHaveURL(/#\/race\/race-sample$/);
   // Touren › «Rennen detailliert planen»
   await page.goto('./#/trips');
+  await openCards(page);
   await page.getByRole('link', { name: T('Plan races in detail') }).first().click();
   await expect(page).toHaveURL(/#\/racecheck$/);
   await expect(page.locator('h1')).toHaveText(T('Plan races in detail'));
