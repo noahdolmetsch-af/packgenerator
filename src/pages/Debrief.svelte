@@ -47,6 +47,7 @@
   import Freude from '../lib/freude/Freude.svelte';
   import Technik from '../lib/technik/Technik.svelte';
   import Paesse from '../lib/paesse/Paesse.svelte'; // Paket E 24: «Pässe sammeln»
+  import Wand from '../lib/sammlung/Wand.svelte'; // Neuer Schwung F: «Sammel-Wand»
   import Tourenpass from '../lib/tourenpass/Tourenpass.svelte'; // Paket E 18: «Tourenpass mit Stempel»
   import TripSaved from '../lib/review/TripSaved.svelte';
   import UndoToast from '../lib/review/UndoToast.svelte';
@@ -107,8 +108,8 @@
 
   // v0.25.1 (Noah 3a): 'compare' scrolls to "Your trips compared".
   // v0.49.0 R1: pace, learnings and logbook are pages one level below the Rückblick; compare is its section.
-  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik'];
-  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik'];
+  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung'];
+  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung'];
   const tripId = $derived(param && !SPOTS.includes(param) ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
@@ -758,7 +759,7 @@
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
        its own page; v0.61.0 R2 rebuilt all three. -->
   <!-- v0.109.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
-  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : param === 'freude' ? t('What made it good?') : param === 'technik' ? t('Riding technique diary') : t('Learned|review')}
+  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : param === 'freude' ? t('What made it good?') : param === 'technik' ? t('Riding technique diary') : param === 'sammlung' ? t('Collection wall') : t('Learned|review')}
   <div class="over rv-page">
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
     <h1 class="title">{here}</h1>
@@ -776,6 +777,9 @@
     {:else if param === 'technik'}
       <!-- Persönliches Lernen Idee 3 (Noah 04.11.2026 «4a»): the riding techniques you worked on -->
       <Technik />
+    {:else if param === 'sammlung'}
+      <!-- Neuer Schwung F (Noah 05.11.2026): stamps, passes, places, new ground and stars on one page -->
+      <Wand />
     {:else if param === 'tourenpass'}
       <!-- Paket E 18 (Noah 03.11.2026 «E und F»): the tour pass with the stamps of the trips -->
       <Tourenpass />
