@@ -37,6 +37,12 @@ export const WEATHER_AT = '06:30';
 /** The ice warning at home: the next 7 mornings, only in the cold months. */
 export const ICE_DAYS = 7;
 export const ICE_MONTHS = [10, 11, 12, 1, 2, 3, 4];
+/** «Nebelgrenze am Morgen» (Noah 05.11.2026 «1a 2b 3a»): the next 7 mornings from October to February at 07:00, rides within 60 km of home as suggestions. */
+export const FOG_DAYS = 7;
+export const FOG_MONTHS = [10, 11, 12, 1, 2];
+export const FOG_AT = '07:00';
+export const FOG_NEAR_KM = 60;
+export const FOG_SPOTS = 8;
 export const DAY_AT = '08:00';
 export const BACKUP_AT = '19:00';
 export const EVE_STD = 19 * 60;
@@ -80,6 +86,8 @@ export const KINDS = [
   { key: 'eat', label: 'Eat on the ride', hint: 'While the eat reminder runs on On the way, every 30 to 60 minutes.' },
   // Paket NE 1150 (Noah 20.10.2026 «9a»): a note with a reminder date
   { key: 'note', label: 'Note reminders', hint: 'At the time you set in a note.' },
+  // «Nebelgrenze am Morgen» sits last: the switches above keep their place on the page (heimat.spec measures how far down they are)
+  { key: 'fog', label: 'Fog line in the morning', hint: 'From October to February at 07:00: how high the low fog reaches and where the sun is, or «no fog». Needs your home place.' },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
@@ -94,6 +102,8 @@ export function noteRemind(n) {
 /** The stored switches, made safe: everything off unless switched on. */
 export function pushOf(value) {
   const kinds = Object.fromEntries(KINDS.map((k) => [k.key, value?.kinds?.[k.key] === true]));
+  // «Nebelgrenze am Morgen»: once push is on, this one is on unless switched off (Noah «3a»); it also needs a home place
+  kinds.fog = value?.on === true && value?.kinds?.fog !== false;
   // Wetter-Wecker: single tours switched off (trip ids), everything is a suggestion
   const wxOff = (Array.isArray(value?.wxOff) ? value.wxOff : []).filter((x) => typeof x === 'string').slice(0, 200);
   // Idee A1: the morning message is on unless switched off (Noah «3a»)
@@ -128,6 +138,21 @@ function birthdayIn(md, year) {
 function plantNext(p) {
   const winter = [11, 12, 1, 2].includes(+p.last.slice(5, 7)) && p.winter !== false;
   return addDays(p.last, winter ? Math.round(p.every * 1.5) : p.every);
+}
+
+/** Rides with a route near home (within FOG_NEAR_KM of the start), nearest first, each with its highest point → [{ name, m }]. */
+export function fogSpots(trips, home) {
+  const rad = (d) => (d * Math.PI) / 180;
+  const dist = (a, b) => 6371 * 2 * Math.asin(Math.sqrt(Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lon - a.lon) / 2) ** 2));
+  const seen = new Set();
+  return trips
+    .filter((tr) => !tr.skipped && tr.title && tr.route?.start && Number.isFinite(tr.route.start.lat) && Number.isFinite(tr.route.start.lon) && (tr.route.profile ?? []).length > 1)
+    .map((tr) => ({ name: String(tr.title).slice(0, 40), m: Math.round(Math.max(...tr.route.profile.map((p) => Number(Array.isArray(p) ? p[1] : p?.m) || 0))), km: dist(home, tr.route.start) }))
+    .filter((o) => o.km <= FOG_NEAR_KM && o.m > 0)
+    .sort((a, b) => a.km - b.km)
+    .filter((o) => !seen.has(o.name) && seen.add(o.name))
+    .slice(0, FOG_SPOTS)
+    .map(({ name, m }) => ({ name, m }));
 }
 
 /**
@@ -208,6 +233,18 @@ export function buildList(data) {
         if (at <= ms || tourDay.has(day) || !ICE_MONTHS.includes(+day.slice(5, 7))) continue;
         weather.push({ key: `ice:${day}`, at, date: day, lat: home.lat, lon: home.lon, title: t('Ice warning'), url: '#/wetter', only: ['ice'] });
       }
+  }
+  if (on('fog')) {
+    const home = data.settings?.homePlace;
+    if (home && Number.isFinite(home.lat) && Number.isFinite(home.lon)) {
+      const spots = fogSpots(data.trips ?? [], home);
+      for (let d = 0; d < FOG_DAYS; d++) {
+        const day = addDays(today, d);
+        const at = atMs(day, FOG_AT);
+        if (at <= ms || !FOG_MONTHS.includes(+day.slice(5, 7))) continue;
+        weather.push({ key: `fog:${day}`, at, date: day, lat: home.lat, lon: home.lon, title: t('Fog line'), url: '#/wetter', only: ['fog'], ...(spots.length ? { spots } : {}) });
+      }
+    }
   }
   const watch = [];
   if (on('wxwatch')) {
@@ -337,6 +374,12 @@ export function buildList(data) {
     heat: wxOn ? t('Up to {temp} °C today. Take enough to drink.', { temp: '{temp}' }) : '',
     ice: wxOn || on('ice') ? t('Roads can be icy this morning (down to {temp} °C with rain or snow). Ride carefully or take the train.', { temp: '{temp}' }) : '',
     ititle: t('Ice warning'),
+    // «Nebelgrenze am Morgen»: only with the switch on, else the server has no words for it
+    fogtitle: t('Fog line'),
+    fog: on('fog') ? t('Low fog up to about {top} m, sun from {above} m.', { top: '{top}', above: '{above}' }) : '',
+    fogcloud: on('fog') ? t('Low fog up to about {top} m, clouds above.', { top: '{top}' }) : '',
+    fogclear: on('fog') ? t('Today no low fog: time to shine.') : '',
+    fogspot: on('fog') ? t('Ride above the fog: {name} (up to {m} m).', { name: '{name}', m: '{m}' }) : '',
     rtitle: t('Rain on the way'),
     rain: t('Rain in about {min} minutes on {trip}. Keep the rain jacket at hand.', { min: '{min}', trip: '{trip}' }),
     ozone: t('Much ozone today (up to {n} µg/m³): take it easier at midday.', { n: '{n}' }),

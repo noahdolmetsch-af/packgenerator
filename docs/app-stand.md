@@ -238,7 +238,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Daten und Backup | `#/me/data` | Daten exportieren und importieren, Sicherungen einrichten, optional verschlüsseln und Geräteabgleich konfigurieren. |
 | Aufs Handy | `#/me/phone` | Nutzung auf einem weiteren Gerät beziehungsweise auf dem Handy vorbereiten. |
 | Kleine Apps | `#/me/apps` | Einzelne Appbereiche als eigene Verknüpfung auf den Startbildschirm legen. |
-| Push-Erinnerungen | `#/me/push` | Hinweise zu Touren, Wetter, Licht, Verschleiss und Fristen einstellen. |
+| Push-Erinnerungen | `#/me/push` | Hinweise zu Touren, Wetter, Licht, Verschleiss und Fristen einstellen. Von Oktober bis Februar meldet «Nebelgrenze am Morgen» um 07:00, wie hoch der Hochnebel reicht und ab wo die Sonne scheint (oder «kein Nebel»), und nennt eine eigene Fahrt über dem Nebel. |
 | Eigene Werte | `#/me/werte` | Grenzwerte, Standardannahmen und Erinnerungsabstände anpassen. |
 | Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen (auch die Velo-Sportarten der Touren: Name und Ausblenden); auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
 | Entscheidungsregeln | `#/me/regeln` | Nachvollziehen, weshalb die App etwas vorschlägt und wo sich die zugrunde liegenden Werte ändern lassen. |

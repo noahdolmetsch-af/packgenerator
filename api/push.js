@@ -25,7 +25,7 @@ import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
 import { route, json, ApiError, pick, redis, redisEnv, NO_STORAGE, API_BASE, APP_ORIGIN } from './_lib/core.js';
 import { KEYS, hash, bearer as bearerOf } from './_lib/oauth.js';
 import { newVapidKeys, vapidOk, sendPush } from './_lib/webpush.js';
-import { devKey, cleanSub, cleanList, nextAt, split, weatherReasons, forecastUrl, weatherMessage, KEEP_S, keepWatch, watchUrl, watchVerdict, watchNews, watchMessage, zurichDay, WATCH_EVERY_MS, keepRain, placeNow, rainUrl, rainSoon, rainMessage, RAIN_EVERY_MS, RAIN_QUIET_MS, airUrl, airVerdict, airText } from './_lib/push.js';
+import { devKey, cleanSub, cleanList, nextAt, split, weatherReasons, forecastUrl, weatherMessage, KEEP_S, keepWatch, watchUrl, watchVerdict, watchNews, watchMessage, zurichDay, WATCH_EVERY_MS, keepRain, placeNow, rainUrl, rainSoon, rainMessage, RAIN_EVERY_MS, RAIN_QUIET_MS, airUrl, airVerdict, airText, fogUrl, fogVerdict, fogMessage } from './_lib/push.js';
 
 /** Compare two codes in constant time (their hashes, so the length does not leak); empty never matches. */
 export function sameToken(given, want) {
@@ -142,13 +142,14 @@ export function makeHandler({ env = () => pushEnv(), doFetch = (...a) => fetch(.
       const keepWx = [...wx.wait];
       if (!gone)
         for (const w of wx.due) {
-          const res = await doFetch(forecastUrl(w)).catch(() => null);
+          const fogCheck = w.only?.includes('fog'); // «Nebelgrenze am Morgen»: its own look at the air layers
+          const res = await doFetch(fogCheck ? fogUrl(w) : forecastUrl(w)).catch(() => null);
           const data = res?.ok ? await res.json().catch(() => null) : null;
           if (!data) {
             keepWx.push(w);
             continue;
           }
-          let msg = weatherMessage(w, weatherReasons(data.daily, w.date, rec.hotC), rec.texts ?? {});
+          let msg = fogCheck ? fogMessage(w, fogVerdict(data, w.date), rec.texts ?? {}) : weatherMessage(w, weatherReasons(data.daily, w.date, rec.hotC), rec.texts ?? {});
           // Paket G «Ozon und Pollen»: a strong day goes into the same morning message (or its own)
           if (rec.air && !w.only) {
             const ar = await doFetch(airUrl(w)).catch(() => null);

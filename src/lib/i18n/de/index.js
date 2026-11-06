@@ -547,6 +547,7 @@ import energie from './energie.js';
 import schneegrenze from './schneegrenze.js';
 import nebelgrenze from './nebelgrenze.js';
 import nebelroute from './nebelroute.js';
+import nebelpush from './nebelpush.js';
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»)
 import haustuer from './haustuer.js';
 // Paket Z «Aus jeder Tour lernen» and Paket SP «Schneller packen» (Noah 20.10.2026)
@@ -986,6 +987,7 @@ const ORDERED = [
   schneegrenze,
   nebelgrenze,
   nebelroute,
+  nebelpush,
   wetterfenster,
   energie,
   tourlernen,
