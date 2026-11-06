@@ -11,19 +11,12 @@
  * to change, one small PR per page (docs/releases/diagramme-tippen.md has the order). A new chart goes into
  * DONE; moving one from OPEN to DONE is how the work goes on.
  */
-export const DONE = ['src/lib/flow/auswertung/TkWeeks.svelte', 'src/lib/flow/auswertung/TkSpread.svelte', 'src/lib/flow/auswertung/TkLine.svelte', 'src/lib/flow/form/FormVerlauf.svelte', 'src/lib/touren/tour/TourAnalysis.svelte', 'src/lib/flow/form/FormTeile.svelte', 'src/lib/flow/form/FormTour.svelte', 'src/lib/training/week/AnaEff.svelte', 'src/lib/training/week/AnaForm.svelte', 'src/lib/training/week/AnaPCurve.svelte', 'src/lib/training/week/AnaWLoad.svelte', 'src/pages/flow/Stats.svelte'];
+export const DONE = ['src/lib/flow/auswertung/TkWeeks.svelte', 'src/lib/flow/auswertung/TkSpread.svelte', 'src/lib/flow/auswertung/TkLine.svelte', 'src/lib/flow/form/FormVerlauf.svelte', 'src/lib/touren/tour/TourAnalysis.svelte', 'src/lib/flow/form/FormTeile.svelte', 'src/lib/flow/form/FormTour.svelte', 'src/lib/training/week/AnaEff.svelte', 'src/lib/training/week/AnaForm.svelte', 'src/lib/training/week/AnaPCurve.svelte', 'src/lib/training/week/AnaWLoad.svelte', 'src/pages/flow/Stats.svelte', 'src/lib/training/act/LoadCurve.svelte', 'src/lib/training/act/AnaCadence.svelte', 'src/lib/training/act/AnaPzBars.svelte', 'src/lib/training/act/AnaSimilar.svelte', 'src/lib/training/inhalt/AnaDecouple.svelte', 'src/lib/training/inhalt/AnaHomeloop.svelte'];
 
 export const OPEN = [
   // Haken und Antworten ausgewertet
   'src/lib/flow/auswertung/AnLine.svelte',
   'src/lib/flow/auswertung/AnDays.svelte',
-  // Training: Woche und Fahrt
-  'src/lib/training/act/LoadCurve.svelte',
-  'src/lib/training/act/AnaCadence.svelte',
-  'src/lib/training/act/AnaPzBars.svelte',
-  'src/lib/training/act/AnaSimilar.svelte',
-  'src/lib/training/inhalt/AnaDecouple.svelte',
-  'src/lib/training/inhalt/AnaHomeloop.svelte',
   // Aktiv
   'src/lib/health/AzmWeek.svelte',
   'src/lib/flow/form/FormCard.svelte',

@@ -138,7 +138,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen; ganz oben das Feld «Alles hier» mit zehn Kacheln zu allen Funktionen von Aktiv; nach dem Abhaken führt «Als Nächstes» zu Verlauf und Meilensteinen. |
+| Aktiv | `#/flow` | Bewegung, Achtsamkeit und Erholung abhaken, Zeiten erfassen und den eigenen Rhythmus verfolgen; ganz oben das Feld «Alles hier» mit zehn Kacheln zu allen Funktionen von Aktiv; nach dem Abhaken führt «Als Nächstes» zu Verlauf und Meilensteinen. Nach drei harten Tagen in Folge (hart = für dich im oberen Viertel der letzten sechs Wochen, aus Strava) steht über «Heute abhaken» eine ruhige Zeile «Heute locker?» (`src/lib/flow/RuhetagHint.svelte`); nur ein Hinweis, «Heute nicht» blendet sie für den Tag aus, Ich › Aussehen › Vorschläge › Leistungstipps schaltet sie ab. |
 | Meine Aktivitäten | `#/flow/sports` | Eigene Aktivitäten (Sportarten, Yoga, Meditation …) mit Zielen, Messwerten, Ausrüstung, Verlauf, Timer und Zusatzbausteinen anlegen; oben stehen die zuletzt genutzten. Auch die Sportarten der Touren (Fahrrad, Gravel, Cross Country, Downhill, Bikepacking, Skitouren, Wandern) lassen sich über «⋯» umbenennen, ausblenden und löschen; der neue Name gilt überall. |
 | Training | `#/flow/training` | Einheiten mit Dauer und Zone planen; Aktivitäten, Pulszonen und subjektive Anstrengung auswerten. |
 | Leistungsanalysen | `#/flow/training?view=list` | Einzelne Aktivitäten mit Leistung, Herzfrequenz, Runden, Splits und weiteren verfügbaren Messwerten öffnen. |
@@ -174,6 +174,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Gesammelte Erkenntnisse | `#/debrief/learnings` | Erfahrungen thematisch sammeln und für spätere Touren wiederfinden. |
 | Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten. |
 | Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. Eine Regel wie in Neuland: bis 600 m von der Passhöhe sicher, bis 1,2 km «bitte bestätigen». |
+| Sammel-Wand | `#/debrief/sammlung` | Stempel, Pässe, Gipfelbuch-Orte, Neuland und Sterne auf einer Seite zum Anschauen: oben die Zahlen, «Zuletzt dazugekommen» und je ein Regal mit «Alle» zur ganzen Liste. Ohne Ziel und ohne Zahl für Fehlendes; geändert wird dort, wo die Dinge zu Hause sind. Touren › Rückblick führt hin. |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
 | Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
