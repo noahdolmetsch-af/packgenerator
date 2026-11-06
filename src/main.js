@@ -7,4 +7,15 @@ import { installTitleFlight } from './lib/nav/vtitle.js';
 installTitleFlight();
 
 if (lang.v === 'de') await loadDe();
-await import('./start.js');
+// Etappe 6 (E6-010): offline, now and then the app file could not be fetched ("Failed to fetch dynamically imported module")
+// and the screen stayed empty, although the file is in the offline copy. One fresh start fixes it; the flag stops a loop.
+const BOOT_RETRY = 'pg.bootRetry';
+try {
+  await import('./start.js');
+  try { sessionStorage.removeItem(BOOT_RETRY); } catch { /* private window */ }
+} catch (e) {
+  let again = false;
+  try { again = !sessionStorage.getItem(BOOT_RETRY); sessionStorage.setItem(BOOT_RETRY, '1'); } catch { /* no storage: no retry */ }
+  if (again) location.reload();
+  else throw e;
+}

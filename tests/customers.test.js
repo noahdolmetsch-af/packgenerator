@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { withCustomer, rateOf, parseRate, invoicesOf, lessonsOf, keyOf } from '../src/lib/booking/customers.js';
+import { withCustomer, rateOf, parseRate, invoicesOf, lessonsOf, keyOf, parseFixed, fixedSuggestions } from '../src/lib/booking/customers.js';
 import { newOffer, invoiceDraft } from '../src/lib/booking/model.js';
 
 describe('Kundenliste', () => {
@@ -66,5 +66,31 @@ describe('subscription', () => {
     expect(parseAbo('abc')).toBeUndefined();
     expect(aboOf({ abo: { price: 20000 } })).toEqual({ price: 20000 });
     expect(aboOf({})).toBeNull();
+  });
+});
+
+describe('fixed time', () => {
+  it('parses weekday and time', () => {
+    expect(parseFixed('', '')).toBeNull();
+    expect(parseFixed('3', '17:00')).toEqual({ weekday: 3, time: '17:00' });
+    expect(parseFixed('3', '')).toBeUndefined();
+    expect(parseFixed('7', '17:00')).toBeUndefined();
+    expect(parseFixed('1', '25:00')).toBeUndefined();
+  });
+  // 2026-11-05 is a Thursday (3)
+  const slot = { id: 's1', at: '2026-11-12T17:00', type: 'one' };
+  const offer = { id: 'o1', title: 'Tennis', types: [{ key: 'one', places: 1 }], slots: [slot], bookings: [] };
+  const mia = { id: 'c1', name: 'Mia Muster', fixed: { weekday: 3, time: '17:00' } };
+  it('suggests the next matching free time', () => {
+    const r = fixedSuggestions([mia], [offer], '2026-11-05T18:00');
+    expect(r).toHaveLength(1);
+    expect(r[0].slot.id).toBe('s1');
+  });
+  it('is quiet when booked by her, full, past, or no slot', () => {
+    expect(fixedSuggestions([mia], [{ ...offer, bookings: [{ slot: 's1', name: 'mia muster' }] }], '2026-11-05T18:00')).toEqual([]);
+    expect(fixedSuggestions([mia], [{ ...offer, bookings: [{ slot: 's1', name: 'Ben' }] }], '2026-11-05T18:00')).toEqual([]);
+    expect(fixedSuggestions([mia], [offer], '2026-11-12T17:30')).toEqual([]);
+    expect(fixedSuggestions([mia], [{ ...offer, slots: [] }], '2026-11-05T18:00')).toEqual([]);
+    expect(fixedSuggestions([{ ...mia, fixed: null }], [offer], '2026-11-05T18:00')).toEqual([]);
   });
 });

@@ -61,6 +61,7 @@
   import NightSheet from '../lib/live/NightSheet.svelte';
   import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
+  import ReserveNote from '../lib/live/ReserveNote.svelte';
   import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour, routerMsg } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
@@ -101,7 +102,7 @@
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { nearestExit } from '../lib/live/exit.js';
   import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
-  import { nextHours, cellFlags } from '../lib/live/next3h.js';
+  import { nextHours, cellFlags, wearTip } from '../lib/live/next3h.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -1439,6 +1440,7 @@
             <span class="lv-detour-main">
               <b>{detourTitle}</b>
               <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              {#if detour.via}<ReserveNote cls="lv-reserve" />{/if}
               {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
               {#if goalOn && detourTurns.length}
                 <details class="lv-steps" data-live-steps>
@@ -1686,11 +1688,13 @@
                     <div class="lv-n3" data-live-next3-rows>
                       {#each next3.rows as r (r.h)}
                         {@const f = cellFlags(r)}
+                        {@const wear = wearTip(f)}
                         <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''}>
                           <small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
                           <b>{#if f.cold === 'cold'}<Snowflake size={14} aria-hidden="true" />{/if}{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b>
                           <small>{#if f.rain}<CloudRain size={14} aria-hidden="true" />{/if}{r.rain != null ? r.rain + ' %' : ''}</small>
                           {#if f.wind}<small class="n3-wind"><Wind size={14} aria-hidden="true" />{Math.round(r.wind)} km/h</small>{/if}
+                          {#if wear}<small class="n3-tip" data-n3-wear={wear}>{wear === 'rain' ? t('Rain jacket') : wear === 'warm' ? t('Warm layer, gloves') : wear === 'arm' ? t('Arm warmers') : t('Wind vest')}</small>{/if}
                         </span>
                       {/each}
                     </div>
@@ -2464,6 +2468,11 @@
   .lv-detour .lv-back-err {
     color: var(--bad);
   }
+  .lv-detour :global(.lv-reserve) {
+    margin: 0;
+    font-size: var(--fs-small);
+    opacity: 0.85;
+  }
   .lv-detour-small {
     align-items: center;
     gap: var(--sp-1);
@@ -2788,6 +2797,10 @@
     display: inline-flex;
     align-items: center;
     gap: 3px;
+  }
+  .lv-n3-c .n3-tip {
+    font-weight: 600;
+    color: var(--ink);
   }
   .lv-n3-c .n3-wind {
     white-space: nowrap;

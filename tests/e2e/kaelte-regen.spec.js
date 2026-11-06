@@ -63,4 +63,6 @@ test('Live map: the next 3 hours show the cold and the rain with one sentence', 
   // the hours with a likely rain are marked with colour and a symbol; the dry first hour is not
   await expect(page.locator('[data-live-next3-rows] [data-n3-rain="high"]').first()).toBeVisible();
   await expect(page.locator('[data-live-next3-rows] [data-n3-rain=""]').first()).toBeVisible();
+  // the wet hours say what to put on
+  await expect(page.locator('[data-live-next3-rows] [data-n3-wear="rain"]').first()).toBeVisible();
 });

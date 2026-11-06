@@ -42,4 +42,7 @@ export default {
   'That is too far for the bike router. Choose a shorter round.': 'Das ist zu weit für den Velo-Router. Wähle eine kürzere Runde.',
   'The bike router takes too long. Choose a place closer to you, or use a navigation app.': 'Der Velo-Routenplaner braucht zu lange. Wähle einen Ort näher bei dir oder nimm eine Navi-App.',
   'The bike router takes too long. Try again.': 'Der Velo-Router braucht zu lange. Versuch es nochmals.',
+  'The usual bike router did not answer, so a reserve router planned this. It can differ, hardly cares about road, gravel or MTB, and gives no climb.': 'Der gewohnte Velo-Router hat nicht geantwortet, darum hat ein Reserve-Router das geplant. Der Weg kann abweichen, nimmt kaum Rücksicht auf Strasse, Gravel oder MTB und nennt keine Höhenmeter.',
+  'If brouter.de does not answer, the app asks once at a reserve router (valhalla1.openstreetmap.de, then routing.openstreetmap.de), which gets the same points.': 'Antwortet brouter.de nicht, fragt die App einmal bei einem Reserve-Router (valhalla1.openstreetmap.de, dann routing.openstreetmap.de), der dieselben Punkte bekommt.',
+  '{km} km · about {time}': '{km} km · etwa {time}',
 };
