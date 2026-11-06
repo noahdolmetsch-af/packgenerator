@@ -6,7 +6,7 @@ export default {
   small: [{ box: 'new', text: 'Only a look at your data: nothing is blocked' }],
   test: [
     'Open a planned trip in Pack: the card «Ready to go?» is under the trip header.',
-    'Tap a yellow line, for example «Packed 60 %»: the page takes you to what is open.',
+    'Tap the card to open its lines, then a yellow line, for example «Packed 60 %»: the page takes you to what is open.',
   ],
   since: [],
   de: {
@@ -16,6 +16,6 @@ export default {
     'Shows on Pack for a planned trip that has not started yet.': 'Steht in Packen bei einer geplanten Tour, die noch nicht begonnen hat.',
     'Only a look at your data: nothing is blocked': 'Nur ein Blick auf deine Daten: nichts wird gesperrt',
     'Open a planned trip in Pack: the card «Ready to go?» is under the trip header.': 'Öffne in Packen eine geplante Tour: unter dem Tourkopf steht die Karte «Bereit zur Abfahrt?».',
-    'Tap a yellow line, for example «Packed 60 %»: the page takes you to what is open.': 'Tippe auf eine gelbe Zeile, zum Beispiel «Gepackt 60 %»: die Seite führt dich zu dem, was offen ist.',
+    'Tap the card to open its lines, then a yellow line, for example «Packed 60 %»: the page takes you to what is open.': 'Tippe auf die Karte, damit die Zeilen aufklappen, dann auf eine gelbe Zeile, zum Beispiel «Gepackt 60 %»: die Seite führt dich zu dem, was offen ist.',
   },
 };

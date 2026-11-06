@@ -62,6 +62,9 @@ test('Tour-Ampel: four lines with sign and word; a tap on the packed line leads 
   await start(page, context, info);
   const card = page.locator('[data-ampel]');
   await expect(card).toBeVisible();
+  // closed at first (the page stays short): the title line carries the state, a tap on it opens the lines
+  await expect(card.locator('[data-ampel-row="pack"]')).toBeHidden();
+  await card.locator('summary').click();
   await expect(card.getByRole('heading', { name: T('Ready to go?') })).toBeVisible();
   await expect(card).toContainText(T('Almost ready'));
   await expect(card.locator('[data-ampel-row="pack"]')).toContainText(T('Packed {n} %', { n: '60' }));
@@ -77,6 +80,7 @@ test('Tour-Ampel: four lines with sign and word; a tap on the packed line leads 
 test('Tour-Ampel: everything packed, no gap: the packed line turns green, the card is not ready while the devices are open', async ({ page, context }, info) => {
   await start(page, context, info, { packed: 10, weather: false });
   const card = page.locator('[data-ampel]');
+  await card.locator('summary').click();
   await expect(card.locator('[data-ampel-row="pack"]')).toContainText(T('Everything is packed'));
   await expect(card.locator('[data-ampel-row="weather"]')).toContainText(T('No forecast for these days yet'));
   await expect(card.locator('[data-ampel-row="pack"] button')).toHaveCount(0);
