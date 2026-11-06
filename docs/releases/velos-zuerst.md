@@ -1,6 +1,6 @@
 # Velos: Die Velos zuerst
 
-PR #<Nummer> · 06.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Antwort «2a»), Thread «Durchklicken Etappe 4: Velos und Alltag»
+PR #1018 · 06.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Antwort «2a»), Thread «Durchklicken Etappe 4: Velos und Alltag»
 
 ## Was ist neu
 - Velos und Material (Übersicht): Die Velokarten und das gewählte Velo stehen jetzt oben, «Alles hier» (die Funktionsliste) darunter. Vorher musste man auf dem Handy erst an der Funktionsliste vorbeiscrollen, bevor man ein Velo sah.
