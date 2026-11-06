@@ -484,6 +484,7 @@ import liveRoute from './live-route.js';
 import livestart from './livestart.js';
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): Ich › Freie Zeit, Impulse, the line on Heute
 import frei from './frei.js';
+import freiReiseTraum from './frei-reise-traum.js';
 import freiUebernahme from './frei-uebernahme.js';
 import tagebuch from './tagebuch.js';
 // Paket V «Alltag» (Noah 19.10.2026 «3a oder b 4a 5a», «1a»): Ich › Alltag, contracts, people, abroad, flight
@@ -941,6 +942,7 @@ const ORDERED = [
   trello,
   stravafahrt,
   frei,
+  freiReiseTraum,
   freiUebernahme,
   alltag,
   strom,

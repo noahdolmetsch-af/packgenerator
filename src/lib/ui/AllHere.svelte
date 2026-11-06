@@ -145,17 +145,20 @@
     margin: 0 0 10px;
     padding: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr); /* E5-001: a column of «auto» grew to the widest row (446 px on a 390 px phone) */
     gap: 6px;
   }
   .ah-list li {
     display: flex;
+    flex-wrap: wrap; /* on a phone the «Hide» button drops under the name instead of pushing the page sideways */
     align-items: center;
-    gap: 8px;
+    gap: 4px 8px;
     min-height: 44px;
   }
   .ah-name {
-    flex: 1;
+    flex: 1 1 8rem;
     min-width: 0;
+    overflow-wrap: break-word;
   }
   .ah-reset {
     display: inline-flex;

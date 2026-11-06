@@ -192,6 +192,7 @@
   import { MERKEN_KEY } from '../lib/merkendb.js';
   import { LISTS_KEY } from '../lib/ownlists.js';
   import { TRELLO_KEY, dueInTrello } from '../lib/trello.js';
+  import { backClose } from '../lib/ui/backclose.js';
   import { unitsOf as trelloUnits } from '../lib/trello/client.svelte.js';
 
   /* ---------- the records ---------- */
@@ -1409,7 +1410,7 @@
 {#if rowsOpen}<RowsSheet {today} cfg={S[ROWS_KEY] ?? null} onclose={() => (rowsOpen = false)} />{/if}
 {#if habitsOpen}<HabitsSheet {today} cfg={S[HABITS_KEY] ?? null} onclose={() => (habitsOpen = false)} />{/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
-<dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
+<dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} use:backClose onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}
     <WearToday {items} {trips} edit />
