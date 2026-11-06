@@ -2,7 +2,7 @@
 export default {
   title: 'Week: removing a date can be undone',
   lead: 'The × on a date or to-do in the week plan now says what happened and offers «Undo».',
-  points: [{ text: 'Week: «Undo» after removing a date or to-do', go: { href: '#/week', steps: [{ text: 'Date' }] } }],
+  points: [{ text: 'Week: «Undo» after removing a date or to-do', go: { href: '#/week', steps: [{ text: 'Date|week' }] } }],
   small: [],
   test: ['Open Planning › Week, add a date and tap the × next to it.', 'The date is gone and «Undo» appears; tap it and the date is back.'],
   since: [],
