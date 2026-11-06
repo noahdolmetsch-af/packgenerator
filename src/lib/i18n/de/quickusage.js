@@ -7,4 +7,7 @@ export default {
   'Opened lately': 'Zuletzt geöffnet',
   'On this device. A pin keeps one for good.': 'Auf diesem Gerät. Ein Pin behält eine Seite für immer.',
   'Page|quick': 'Seite',
+  // 05.11.2026 «7a»: dieselbe Liste in der Suche
+  'Forget this list': 'Liste vergessen',
+  'Forgot the pages opened lately.': 'Die zuletzt geöffneten Seiten sind vergessen.',
 };

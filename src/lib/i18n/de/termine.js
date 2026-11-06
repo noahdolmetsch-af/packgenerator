@@ -264,4 +264,13 @@ export default {
   'Put on the waiting list': 'Auf die Warteliste setzen',
   'Hello {name}! A place is free again: {title} on {when}. Do you want it? Just answer me.': 'Hallo {name}! Ein Platz ist wieder frei: {title} am {when}. Möchtest du ihn? Antworte mir einfach.',
   'Place free: {title} · {when} · {name} is waiting': 'Platz frei: {title} · {when} · {name} wartet',
+  'Usual time': 'Fester Termin',
+  'For regular customers: when their usual time is free again, Heute suggests it with a ready message. Nothing is booked by itself.': 'Für Stammkunden: ist ihr fester Termin wieder frei, schlägt Heute ihn mit einer fertigen Nachricht vor. Es wird nichts von selbst gebucht.',
+  'No usual time': 'Kein fester Termin',
+  'Time (e.g. 17:00)': 'Uhrzeit (z. B. 17:00)',
+  'Please choose a weekday and a time like 17:00, or leave both empty.': 'Bitte wähle einen Wochentag und eine Uhrzeit wie 17:00, oder lass beides leer.',
+  'Usual time {day} {time}': 'Fester Termin {day} {time}',
+  'Usual time: {name} · {when} is free': 'Fester Termin: {name} · {when} ist frei',
+  'Hello {name}! Your usual time is free: {title} on {when}. Shall I book it for you? Just answer me.': 'Hallo {name}! Dein fester Termin ist frei: {title} am {when}. Soll ich ihn für dich buchen? Antworte mir einfach.',
+  Suggest: 'Vorschlagen',
 };

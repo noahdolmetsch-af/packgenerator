@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { HOME, GAPS } from '../../src/lib/know/heimat.js';
 import { start, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
+import { openCards } from './karte-auf.js';
 
 const T = tr('de');
 const SCREENS = 2.5;
@@ -18,6 +19,7 @@ const TITLE = Object.fromEntries([...(src('tips.js') + src('features.js') + read
 /** The German name of a function as «What the app can do» shows it, without brackets and stars. */
 const nameOf = (id) => T(TITLE[id]).replace(/\s*\(.*?\)\s*/g, ' ').replace(/[«»★]/g, '').trim();
 
+test.use({ cardsOpen: false });
 test.setTimeout(600_000);
 
 test('every function is visible on its home page', async ({ page, context }, info) => {
@@ -83,6 +85,8 @@ test('every function is visible on its home page', async ({ page, context }, inf
     // pages load later (lazy): wait for the page's own title before reading it (it sometimes came after settle)
     await page.locator('main h1').first().waitFor({ timeout: 5000 }).catch(() => {});
     await settle(page);
+    // on a phone the cards «Belongs to …» and «All here» start as one line (Etappe 2, 1a): open them, they hold the functions
+    await openCards(page);
     // parts that come with the page's data (mosaic, packing rows) can render a moment after settle: look a second time
     const look = () => page.evaluate(
       ({ names, screens }) => {

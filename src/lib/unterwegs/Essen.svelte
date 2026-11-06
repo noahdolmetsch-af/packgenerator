@@ -193,6 +193,10 @@
     border-radius: 12px;
     background: var(--paper-2);
   }
+  /* the title keeps room for a whole word; the «Hide» link wraps below on a very narrow phone */
+  .uw-eat .uw-row > .grow {
+    flex: 1 1 140px;
+  }
   .sh {
     margin: 0;
   }

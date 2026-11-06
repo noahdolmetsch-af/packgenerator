@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind, Sun } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -61,6 +61,7 @@
   import NightSheet from '../lib/live/NightSheet.svelte';
   import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
+  import ReserveNote from '../lib/live/ReserveNote.svelte';
   import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour, routerMsg } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
@@ -434,7 +435,7 @@
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
   // U4 «Wo schlafe ich heute?»: the next places to sleep ahead on the route (on by default in a race)
   const wxQ = cacheQuery(WX_CACHE + (tid || '-'));
-  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null }) : null);
+  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null, pos: me ? { lat: me.lat, lon: me.lon } : null }) : null);
   const showSleep = $derived(hasRoute && km != null && (cfg.sleepSpots ?? isRace));
 
   /* ---------- formatting ---------- */
@@ -1439,6 +1440,7 @@
             <span class="lv-detour-main">
               <b>{detourTitle}</b>
               <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              {#if detour.via}<ReserveNote cls="lv-reserve" />{/if}
               {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
               {#if goalOn && detourTurns.length}
                 <details class="lv-steps" data-live-steps>
@@ -1687,8 +1689,8 @@
                       {#each next3.rows as r (r.h)}
                         {@const f = cellFlags(r)}
                         {@const wear = wearTip(f)}
-                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''}>
-                          <small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
+                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''} data-n3-dark={r.dark == null ? '' : r.dark ? 'night' : 'day'}>
+                          <small>{#if r.dark != null}{#if r.dark}<Moon size={14} aria-hidden="true" />{:else}<Sun size={14} aria-hidden="true" />{/if}{/if}{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
                           <b>{#if f.cold === 'cold'}<Snowflake size={14} aria-hidden="true" />{/if}{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b>
                           <small>{#if f.rain}<CloudRain size={14} aria-hidden="true" />{/if}{r.rain != null ? r.rain + ' %' : ''}</small>
                           {#if f.wind}<small class="n3-wind"><Wind size={14} aria-hidden="true" />{Math.round(r.wind)} km/h</small>{/if}
@@ -1975,7 +1977,7 @@
   {/if}
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
-{#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
+{#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} tripBikeId={trip?.bikeId ?? null} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} exitNear={exitNear} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
@@ -2465,6 +2467,11 @@
   }
   .lv-detour .lv-back-err {
     color: var(--bad);
+  }
+  .lv-detour :global(.lv-reserve) {
+    margin: 0;
+    font-size: var(--fs-small);
+    opacity: 0.85;
   }
   .lv-detour-small {
     align-items: center;

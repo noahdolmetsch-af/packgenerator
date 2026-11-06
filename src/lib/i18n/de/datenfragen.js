@@ -134,4 +134,17 @@ export default {
   'Long day yesterday': 'Langer Tag gestern',
   "Asks when yesterday's Strava activities together took at least {n} hours.": 'Fragt, wenn deine Strava-Aktivitäten von gestern zusammen mindestens {n} Stunden gedauert haben.',
   'At least (hours on the move)': 'Mindestens (Stunden unterwegs)',
+  // To-Dos: «Ein To-Do, das feststeckt»
+  'What is in the way of this to-do?': 'Was steht diesem To-Do im Weg?',
+  'No time|data': 'Keine Zeit',
+  'Not clear what to do|data': 'Unklar, was zu tun ist',
+  'Too big|data': 'Zu gross',
+  'Waiting for someone|data': 'Wartet auf jemanden',
+  'Not important any more|data': 'Nicht mehr wichtig',
+  'Your to-do «{title}» is {days} days past its date.': 'Dein To-Do «{title}» ist seit {days} Tagen überfällig.',
+  'One of your to-dos is {days} days past its date.': 'Eines deiner To-Dos ist seit {days} Tagen überfällig.',
+  'A to-do that is stuck': 'Ein To-Do, das feststeckt',
+  'Asks when an open to-do in your Google tasks is {n} days or more past its date.': 'Fragt, wenn ein offenes To-Do in deinen Google-Aufgaben {n} Tage oder länger überfällig ist.',
+  'Days past its date': 'Tage nach dem Datum',
+  'No tasks on this device yet. The rule for a stuck to-do waits until your Google tasks are connected.': 'Noch keine Aufgaben auf diesem Gerät. Die Regel für ein festgefahrenes To-Do wartet, bis deine Google-Aufgaben verbunden sind.',
 };

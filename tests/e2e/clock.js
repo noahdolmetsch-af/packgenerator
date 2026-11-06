@@ -75,6 +75,12 @@ shiftDate(OFFSET);
  */
 export async function shiftContext(context) {
   if (OFFSET) await context.addInitScript(shiftDate, OFFSET);
+  await context.addInitScript(cardsOpen);
+}
+
+/** Etappe 2, 1a: on a phone the cards «Belongs to …» / «All here» start as one line; a spec that does not look at them finds them open. */
+function cardsOpen() {
+  globalThis.__pgCardsOpen = true;
 }
 
 /** Puts the real Date back (before Playwright's clock goes in, so its clock is the only one). */
@@ -88,7 +94,10 @@ const OWN_CLOCK = ['install', 'setFixedTime', 'setSystemTime'];
 
 export const test = base.extend({
   fixedNoon: [true, { option: true }],
-  page: async ({ page, fixedNoon }, use) => {
+  // test.use({ cardsOpen: false }): the spec looks at the cards that start as one line on a phone (kartenzeile.js)
+  cardsOpen: [true, { option: true }],
+  page: async ({ page, fixedNoon, cardsOpen: open }, use) => {
+    if (open) await page.addInitScript(cardsOpen);
     const on = fixedNoon && OFFSET;
     shiftDate(on ? OFFSET : 0);
     if (on) {

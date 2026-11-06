@@ -75,7 +75,7 @@
   });
   // the sample questions that are switched off: the pool of the random question
   const pool = $derived(data?.stored ? allQuestions(data.cfg).filter((x) => x.sample && !x.own && !settingOf(data.cfg, x).on) : []);
-  const fromData = $derived(data?.stored ? dataDue({ health: data.health, acts: data.acts, sport: data.sport, wx: data.wx, cal: data.cal, hint, pool, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
+  const fromData = $derived(data?.stored ? dataDue({ health: data.health, acts: data.acts, sport: data.sport, wx: data.wx, cal: data.cal, tasks: data.tasks, hint, pool, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
   // the random question never opens the window on its own: it joins when something else is due, and comes last
   const shown = $derived.by(() => {
     if (!data?.stored) return [];

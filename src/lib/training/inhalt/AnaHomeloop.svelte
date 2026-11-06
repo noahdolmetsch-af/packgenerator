@@ -9,6 +9,8 @@
    * same thing against one earlier ride, so the sentence here is left out (the line and the table stay).
    */
   import AnaCard from '../AnaCard.svelte';
+  import LineChart from '../../charts/LineChart.svelte';
+  import ChartSheet from '../../charts/ChartSheet.svelte';
   import { homeLoop } from './inhalt-fahrt.js';
   import { mss } from '../act/analysen.js';
   import { ghostsOf } from '../act/ghost.js';
@@ -23,20 +25,25 @@
   const v1 = (x) => (Number.isFinite(x) ? x.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '–');
   const v2 = (x) => (Number.isFinite(x) ? x.toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–');
 
-  // the small line: km/h over the rides shown, evenly spaced, this ride as the bigger dot
-  let cw = $state(0);
-  const H = 70;
-  const ch = $derived.by(() => {
-    if (!loop || !(cw > 0)) return null;
-    const pts = loop.rows.map((r, i) => ({ i, kmh: r.kmh, me: r.me })).filter((p) => Number.isFinite(p.kmh));
-    if (pts.length < 2) return null;
-    const lo = Math.min(...pts.map((p) => p.kmh));
-    const hi = Math.max(...pts.map((p) => p.kmh));
-    const pad = Math.max(0.5, (hi - lo) * 0.15);
-    const x = (i) => 12 + (i / Math.max(1, loop.rows.length - 1)) * (cw - 24);
-    const y = (k) => 10 + (1 - (k - (lo - pad)) / (hi - lo + 2 * pad)) * (H - 20);
-    return { pts: pts.map((p) => ({ ...p, x: x(p.i), y: y(p.kmh) })), d: pts.map((p, k) => `${k ? 'L' : 'M'}${x(p.i).toFixed(1)} ${y(p.kmh).toFixed(1)}`).join('') };
-  });
+  // the line: km/h over the rides shown, evenly spaced, this ride as the bigger dot; the table below has every number
+  const cols = $derived(loop ? loop.rows.map((r) => ({ key: String(r.id), x: dayShort(r.day) })) : []);
+  const series = $derived(
+    loop
+      ? [
+          { key: 'kmh', color: 'var(--pz2)', v: loop.rows.map((r) => (Number.isFinite(r.kmh) ? r.kmh : null)) },
+          { key: 'me', color: 'var(--accent)', line: false, dots: true, v: loop.rows.map((r) => (r.me && Number.isFinite(r.kmh) ? r.kmh : null)) },
+        ]
+      : [],
+  );
+  const lines = (r) => [
+    { label: t('Time|an'), value: r.s ? mss(r.s) : '–' },
+    { label: t('km/h|an'), value: v1(r.kmh), color: 'var(--pz2)' },
+    ...(loop.power ? [{ label: t('Ø W|an'), value: v(r.w) }] : []),
+    { label: t('Ø HR|an'), value: v(r.hr) },
+    { label: t(loop.eff === 'wpb' ? 'W/beat|hl' : 'HR/km/h|hl'), value: v2(r.eff) },
+  ];
+  const readout = (i) => ({ title: `${dayShort(loop.rows[i].day)}${loop.rows[i].me ? ` · ${t('this ride|hl')}` : ''}`, items: lines(loop.rows[i]) });
+  let open = $state(null);
 
   // the ghost card is shown for this ride (switched on in «Analysen anpassen» and an earlier ride to compare with)
   const ghostShown = $derived(keysOf(ana, 'act').includes('ghost') && ghostsOf(all, act, 1).length > 0);
@@ -59,16 +66,7 @@
 {#if loop}
   <AnaCard key="homeloop" sub={tn(loop.n, '{n} ride on this route|hl', '{n} rides on this route|hl')}>
     {#if sentence}<p class="hlsen" data-homeloop-sentence>{sentence}</p>{/if}
-    <div class="hlline" bind:clientWidth={cw}>
-      {#if ch}
-        <svg width={cw} height={H} viewBox="0 0 {cw} {H}" role="img" aria-label={label}>
-          <path class="ln" d={ch.d} />
-          {#each ch.pts as p (p.i)}
-            <circle class={p.me ? 'cme' : 'cdot'} cx={p.x} cy={p.y} r={p.me ? 6 : 4} />
-          {/each}
-        </svg>
-      {/if}
-    </div>
+    <LineChart id="homeloop" {cols} {series} {readout} {label} unit="km/h" tick={(x) => v1(x)} onopen={(i) => (open = i)} hint={t('Point at a ride for its numbers, tap it for the ride.')} />
     <div class="hlwrap">
       <table class="hltab">
         <thead>
@@ -104,29 +102,39 @@
   </AnaCard>
 {/if}
 
+{#if open != null && loop?.rows[open]}
+  {@const r = loop.rows[open]}
+  <ChartSheet kicker={t('Your home loop')} title={dayShort(r.day)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < loop.rows.length - 1 ? () => open++ : null} prevLabel={t('Ride before')} nextLabel={t('Next ride')}>
+    <ul class="shl" data-homeloop-sheet>
+      {#each lines(r) as it (it.label)}<li><span>{it.label}</span><b class="num">{it.value}</b></li>{/each}
+    </ul>
+    {#if !r.me}<a class="more" href="#/flow/training/a/{encodeURIComponent(r.id)}">{t('Open this ride')}</a>{:else}<p class="cap">{t('this ride|hl')}</p>{/if}
+  </ChartSheet>
+{/if}
+
 <style>
   .hlsen {
     margin: 0;
   }
-  .hlline {
-    min-height: 70px;
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
   }
-  svg {
-    display: block;
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
-  .ln {
-    fill: none;
-    stroke: var(--line);
-    stroke-width: 1.6;
-    stroke-linejoin: round;
+  .shl span {
+    color: var(--ink-2);
   }
-  .cdot {
-    fill: var(--pz2);
-  }
-  .cme {
-    fill: var(--accent);
-    stroke: var(--paper);
-    stroke-width: 2;
+  .more {
+    color: var(--accent);
+    font-weight: 600;
   }
   .hlwrap {
     overflow-x: auto;
