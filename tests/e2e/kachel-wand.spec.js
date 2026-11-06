@@ -201,10 +201,11 @@ test('one series over everything with the next milestone, a rest week, all miles
   // the title opens the milestones of all areas, the series on top
   await tile.getByRole('link', { name: T('Series and milestones') }).click();
   await expect(page).toHaveURL(/#\/flow\/milestones$/);
+  // «Meilensteine kürzer» (Noah 27.10.2026 «2a», changed on purpose): on a phone series, trips and bikes wait folded
+  // (Tempo-Runde 05.11.2026: and are built only when the fold is opened, so open it before looking inside)
+  if (info.project.name === 'phone') await page.locator('[data-ms-fold="areas"] > summary').click();
   const top = page.locator('[data-ms-series]');
   await expect(top.locator('[data-n]')).toHaveAttribute('data-n', '3');
-  // «Meilensteine kürzer» (Noah 27.10.2026 «2a», changed on purpose): on a phone series, trips and bikes wait folded
-  if (info.project.name === 'phone') await page.locator('[data-ms-fold="areas"] > summary').click();
   await expect(page.locator('[data-ms-trips]')).toBeVisible();
   await shot(page, info, 'D-Meilensteine');
   expect(errors).toEqual([]);
