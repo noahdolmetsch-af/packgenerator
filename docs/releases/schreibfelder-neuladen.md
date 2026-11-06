@@ -14,6 +14,7 @@ Auftrag: Noah 06.11.2026 «4a» (Frage 4 im Etappenbericht 6, Befund aus dem Lau
 ## Selbst entschieden
 - Der Text bleibt nur im geöffneten Tab (`sessionStorage`), nicht im Backup: keine Änderung an Datenspeicher, Backup-Format oder Dexie.
 - Eine Planungsnotiz wird pro Tour gemerkt (`plannote:<Tour>`).
+- Die Zeile «Dein Getipptes von vorhin ist wieder da.» hatte bisher keinen Stil (Fenster und Seite zeigten sie als nackten Text mit grauem Standardknopf). Sie bekommt einen ruhigen grauen Streifen und «Verwerfen» als unterstrichenes Wort (`.kept-bar` in `src/app.css`, Knopf `btn btn-link sm`); das gilt auch in den Fenstern.
 - Keine neuen Texte (die Zeile «Dein Text von vorhin …» gibt es schon); keine Änderung in `docs/app-stand.md`.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)

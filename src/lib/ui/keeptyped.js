@@ -112,7 +112,7 @@ export function keepTyped(node, key) {
     text.textContent = t('Your text from before is back.');
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'link';
+    btn.className = 'btn btn-link sm';
     btn.dataset.keeps = '';
     btn.textContent = t('Discard');
     btn.addEventListener('click', discard);
