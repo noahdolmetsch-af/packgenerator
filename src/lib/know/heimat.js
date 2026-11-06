@@ -162,6 +162,7 @@ const LISTED_HOME = {
   'f.dreamsmap': '#/trips/dreams',
   'f.monthideas': '#/trips/dreams',
   'f.biwak': '#/trips/dreams',
+  'f.trainthere': '#/trips/dreams',
   'f.newkm': '#/neuland',
   'f.triptips': '#/trips/dreams',
   'f.races': '#/trips/dreams',

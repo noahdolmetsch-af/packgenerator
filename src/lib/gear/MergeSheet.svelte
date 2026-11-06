@@ -35,7 +35,9 @@
     const words = fold(q).trim().split(/\s+/).filter(Boolean);
     if (!words.length) return [];
     return items
-      .filter((i) => i.id !== item.id && i.ownership !== 'gone' && !proposedIds.has(i.id) && words.every((w) => hay(i).includes(w)))
+      // Etappe 2, 3a (Noah 05.11.2026): a suggestion that fits the words is a hit too (with its badge), so a search never says
+      // «No item found» while the suggestions above hold the word
+      .filter((i) => i.id !== item.id && i.ownership !== 'gone' && words.every((w) => hay(i).includes(w)))
       .slice(0, 8);
   });
   // Chosen from the search, shown on top so a choice never disappears while typing.
@@ -103,7 +105,7 @@
   </label>
   {#if found.length}
     <ul class="opts box" aria-label={t('Search results')}>
-      {#each found as i (i.id)}{@render row(i, false)}{/each}
+      {#each found as i (i.id)}{@render row(i, proposedIds.has(i.id))}{/each}
     </ul>
   {:else if q.trim()}
     <p class="none">{t('No item found.')}</p>

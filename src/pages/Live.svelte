@@ -101,7 +101,7 @@
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { nearestExit } from '../lib/live/exit.js';
   import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
-  import { nextHours, cellFlags } from '../lib/live/next3h.js';
+  import { nextHours, cellFlags, wearTip } from '../lib/live/next3h.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -1686,11 +1686,13 @@
                     <div class="lv-n3" data-live-next3-rows>
                       {#each next3.rows as r (r.h)}
                         {@const f = cellFlags(r)}
+                        {@const wear = wearTip(f)}
                         <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''}>
                           <small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
                           <b>{#if f.cold === 'cold'}<Snowflake size={14} aria-hidden="true" />{/if}{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b>
                           <small>{#if f.rain}<CloudRain size={14} aria-hidden="true" />{/if}{r.rain != null ? r.rain + ' %' : ''}</small>
                           {#if f.wind}<small class="n3-wind"><Wind size={14} aria-hidden="true" />{Math.round(r.wind)} km/h</small>{/if}
+                          {#if wear}<small class="n3-tip" data-n3-wear={wear}>{wear === 'rain' ? t('Rain jacket') : wear === 'warm' ? t('Warm layer, gloves') : wear === 'arm' ? t('Arm warmers') : t('Wind vest')}</small>{/if}
                         </span>
                       {/each}
                     </div>
@@ -2788,6 +2790,10 @@
     display: inline-flex;
     align-items: center;
     gap: 3px;
+  }
+  .lv-n3-c .n3-tip {
+    font-weight: 600;
+    color: var(--ink);
   }
   .lv-n3-c .n3-wind {
     white-space: nowrap;

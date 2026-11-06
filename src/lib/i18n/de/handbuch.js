@@ -533,6 +533,12 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N7
+  'Needs your home place and the internet when you tap (timetable and bike router).': 'Braucht deinen Wohnort und beim Antippen Internet (Fahrplan und Velo-Router).',
+  'Open Trips › Dreams: «Train there, bike home» shows three places.': 'Öffne Touren › Träume: «Zug hin, Velo heim» zeigt drei Orte.',
+  'Choose the km of the ride home.': 'Wähle die km der Heimfahrt.',
+  'Tap «Trains and the way home», then «Plan as a trip».': 'Tippe «Züge und Heimweg», dann «Als Tour planen».',
+  'Example: 60 km → train to a village in the Jura, 14 new municipalities around, home in about 3 h 40.': 'Beispiel: 60 km → Zug in ein Dorf im Jura, 14 neue Gemeinden rundum, in etwa 3 h 40 zu Hause.',
   // «Träume und Neuland» N6
   'Needs your home place and places to sleep (rated after a trip or marked on the map).': 'Braucht deinen Wohnort und Schlafplätze (nach einer Tour bewertet oder auf der Karte gesetzt).',
   'Open Trips › Dreams: «After-work bivouac» names the next evening.': 'Öffne Touren › Träume: «Feierabend-Biwak» nennt den nächsten Abend.',

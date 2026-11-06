@@ -44,6 +44,7 @@
     meKm = null,
     withMap = true,
     upWhole = null,
+    fog = null, // «Nebel auf der Tour-Route» (Noah 05.11.2026): { top (m), hour } draws the fog band up to the fog line
     ride: rideOnOpen = false,
   } = $props();
 
@@ -77,6 +78,8 @@
   const x = (km) => Math.max(-10, Math.min(W + 10, ((km - vf) / span) * W));
   const y = (m) => TOP + (1 - (m - yr.lo) / (yr.hi - yr.lo || 1)) * (H - TOP);
   const P = (km, m) => `${x(km).toFixed(1)},${y(m).toFixed(1)}`;
+  // the fog band: from the fog line down to the bottom, only when the line lies inside the picture
+  const fogY = $derived(fog && Number.isFinite(fog.top) && fog.top > yr.lo ? (fog.top >= yr.hi ? TOP : y(fog.top)) : null);
   const ridge = $derived(pts.length > 1 ? `M${pts.map((p) => P(p.km, p.m)).join(' L')}` : '');
   // one path per steepness class: every piece is a polygon from the ridge down to the bottom
   const fills = $derived.by(() => {
@@ -284,6 +287,7 @@
           {#each fills as c (c.key)}
             <path class="ps-fill ps-{c.key}" d={c.d} vector-effect="non-scaling-stroke" />
           {/each}
+          {#if fogY != null}<rect class="ps-fog" x="0" y={fogY} width={W} height={H - fogY} />{/if}
           <path class="ps-ridge" d={ridge} vector-effect="non-scaling-stroke" />
           {#each snow as s, i (i)}
             {#if s.toKm > vf && s.fromKm < vt}<rect class="ps-snow" class:lies={s.state === 'lies'} x={x(s.fromKm)} y="0" width={Math.max(2, x(s.toKm) - x(s.fromKm))} height="7" />{/if}
@@ -301,6 +305,7 @@
             <line class="ps-cur" x1={x(at.km)} x2={x(at.km)} y1="0" y2={H} vector-effect="non-scaling-stroke" />
           {/if}
         </svg>
+ {#if fogY != null && fog.top < yr.hi}<span class="ps-fogtag" style:top={pctY(fog.top)} data-profile-fog>{t('Fog up to about {m} m at {h} h', { m: Math.round(fog.top).toLocaleString(locale()), h: fog.hour })}</span>{/if}
  {#if ride.running && f}<span class="ps-dot" style:left={pctX(vf + ride.p * span)} style:top={pctY(heightAt(f, vf + ride.p * span))} aria-hidden="true" data-ride-dot></span>{/if}
         {#if curIn}<span class="ps-dot" style:left={pctX(at.km)} style:top={pctY(at.m)} aria-hidden="true"></span>{/if}
         {#if meIn}<span class="ps-dot ps-me" style:left={pctX(meKm)} style:top={pctY(heightAt(f, meKm))} aria-hidden="true" data-profile-me></span>{/if}
@@ -480,6 +485,21 @@
   .ps-night {
     fill: var(--ink);
     opacity: 0.12;
+  }
+  .ps-fog {
+    fill: var(--ink-3);
+    opacity: 0.28;
+  }
+  .ps-fogtag {
+    position: absolute;
+    right: 6px;
+    transform: translateY(-100%);
+    padding: 0 4px;
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 500 var(--fs-tiny) var(--font-body);
+    pointer-events: none;
   }
   .ps-fill {
     stroke-width: 0.6;

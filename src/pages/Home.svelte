@@ -726,7 +726,7 @@
     // TZ-2: the newest trip whose date passed without an end: «Datum vorbei. Bist du gefahren?» Ja · Nicht gefahren
     const askT = askTrips[0];
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
-    if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK. One tap, the folder stays.', { name: folderName }) + ' ' + t('Tip: in Chrome choose «Allow on every visit» so it asks less often.'), act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
+    if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK.', { name: folderName }), hint: `${t('One tap, the folder stays.')} ${t('Tip: in Chrome choose «Allow on every visit» so it asks less often.')}`, act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
     rows.push(...zustand);
     if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
@@ -791,6 +791,7 @@
     if (bike) await db.bikes.update(r.bikeId, { sheets: laterChanges(bike, r.key, today) });
   }
   let allRows = $state(false);
+  let openHints = $state({}); // a row's longer explanation («More»), by the row's key
   let rowsOpen = $state(false); // the window «Which rows in Up now?» (lib/home/RowsSheet.svelte)
   async function laterRow(r) {
     const before = $state.snapshot(S[ROWS_KEY] ?? null);
@@ -1157,7 +1158,10 @@
         <span class="tx">{tn(tests.length, 'Archive {n} test trip? It stays in your data, Today leaves it out.', 'Archive {n} test trips? They stay in your data, Today leaves them out.')}</span>
         <span class="ra"><button type="button" class="btn sm" onclick={cleanTests}>{t('Archive')}</button><button type="button" class="lkb" onclick={() => (cleanAsk = false)}>{t('Cancel')}</button></span>
       {:else}
-        <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}</span>
+        <span class="tx" title={line && !allRows ? r.text : undefined}>{#if r.st}<span class="tsw"><TripState state={r.st} /></span>{/if}{line && !allRows ? (r.short ?? r.text) : r.text}{#if r.hint}
+          <button type="button" class="lkb hintbtn" aria-expanded={!!openHints[r.key]} onclick={() => (openHints[r.key] = !openHints[r.key])}>{t('More')}</button>
+          {#if openHints[r.key]}<span class="rhint" data-row-hint>{r.hint}</span>{/if}
+        {/if}</span>
         {#if r.act2?.run}
           <!-- TZ-2: two answers («Ja · Nicht gefahren», «Rückblick · Alles gut») stay together on one line -->
           <span class="ra"><button type="button" class="btn sm" onclick={() => act(r)}>{r.act.label}</button><button type="button" class={r.act2.quiet ? 'lkb' : 'btn sm'} onclick={r.act2.run}>{r.act2.label}</button></span>
@@ -1231,7 +1235,7 @@
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
   {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}</div>
-  {:else if x.id === 'acts'}<ActsTile {today} />
+  {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
@@ -1577,6 +1581,20 @@
     text-underline-offset: 2px;
     text-decoration-thickness: 1.5px;
     cursor: pointer;
+  }
+  /* «Jetzt dran»: the long explanation of a row waits behind «More» (Noah 05.11.2026 «2a») */
+  .hintbtn {
+    min-height: 32px;
+    margin-left: var(--sp-2);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .rhint {
+    display: block;
+    margin-top: var(--sp-1);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    line-height: 1.4;
   }
   .emptywall {
     margin: var(--sp-3) 0;

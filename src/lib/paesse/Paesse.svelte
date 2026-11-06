@@ -145,7 +145,7 @@
       <p class="quiet"><button type="button" class="btn btn-link" onclick={() => save(resetSkipped(st))} data-pass-reset>{tn(st.skipped.length, '{n} pass marked «not ridden»: suggest it again', '{n} passes marked «not ridden»: suggest them again')}</button></p>
     {/if}
 
-    <p class="next" data-pass-next>{t('Next:')} <a href="#/neuland">{t('New ground')}<ChevronRight size={14} aria-hidden="true" /></a> · <a href="#/heatmap">{t('Heatmap')}<ChevronRight size={14} aria-hidden="true" /></a></p>
+    <p class="next" data-pass-next>{t('Next:')} <a href="#/neuland">{t('New ground')}<ChevronRight size={14} aria-hidden="true" /></a> · <a href="#/heatmap">{t('Heatmap')}<ChevronRight size={14} aria-hidden="true" /></a> · <a href="#/debrief/sammlung">{t('Collection wall')}<ChevronRight size={14} aria-hidden="true" /></a></p>
   {/if}
 </div>
 

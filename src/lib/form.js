@@ -75,6 +75,23 @@ const median = (vals) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 
+const DAY_MS = 864e5;
+const dayStr = new Map(); // ms of a day at noon UTC → «YYYY-MM-DD»: the 30 days before each of 365 days are looked up, not calculated
+function daysBefore(today, n) {
+  const ms = Date.parse(`${today}T12:00:00Z`);
+  if (!Number.isFinite(ms)) return Array.from({ length: n }, (_, i) => addDays(today, -1 - i));
+  return Array.from({ length: n }, (_, i) => {
+    const k = ms - (1 + i) * DAY_MS;
+    let d = dayStr.get(k);
+    if (d === undefined) {
+      if (dayStr.size > 5000) dayStr.clear();
+      d = new Date(k).toISOString().slice(0, 10);
+      dayStr.set(k, d);
+    }
+    return d;
+  });
+}
+
 /**
  * Recovery of one day against the own normal (median of the 30 days before): the parts that count,
  * each { key, v, normal, delta, points } (points: + helps, − holds back).
@@ -82,7 +99,7 @@ const median = (vals) => {
  */
 export function recoveryParts(table, today, felt = null) {
   const row = table.get(today) ?? {};
-  const before = Array.from({ length: 30 }, (_, i) => table.get(addDays(today, -1 - i)) ?? {});
+  const before = daysBefore(today, 30).map((d) => table.get(d) ?? {});
   const parts = [];
   const rhrN = median(before.map((r) => r.rhr));
   if (fin(row.rhr) != null && rhrN != null) parts.push({ key: 'rhr', v: row.rhr, normal: rhrN, delta: Math.round(row.rhr - rhrN), points: clamp(-(row.rhr - rhrN) * 4, -25, 12) });
@@ -105,8 +122,12 @@ export function recoveryParts(table, today, felt = null) {
  * reason (the part that moved the score most), ramp (fitness up per week) } or null without any data.
  */
 export function readiness({ series, parts = [] }) {
-  const last = series?.at(-1);
-  const hasLoad = !!series?.some((s) => s.load > 0);
+  return readinessAt(series, series?.length ?? 0, !!series?.some((s) => s.load > 0), parts);
+}
+
+/** readiness() of the first n days of the series; hasLoad: one of them has a load (readinessOf counts it on the way, no copy per day). */
+function readinessAt(series, n, hasLoad, parts) {
+  const last = n > 0 ? series[n - 1] : undefined;
   if (!hasLoad && !parts.length) return null;
   // form: −30 (very tired) … +20 (fresh), relative to the fitness so small and big trainers compare
   const formPts = hasLoad ? clamp((last.form / Math.max(10, last.fit)) * 60, -30, 20) : 0;
@@ -115,7 +136,7 @@ export function readiness({ series, parts = [] }) {
   const level = score < 35 ? 'rest' : score < 55 ? 'easy' : score < 75 ? 'normal' : 'hard';
   const all = [...parts, ...(hasLoad ? [{ key: 'form', v: last.form, delta: last.form, points: formPts }] : [])];
   const reason = all.length ? all.reduce((a, b) => (Math.abs(b.points) > Math.abs(a.points) ? b : a)) : null;
-  const weekAgo = series.length > 7 ? series.at(-8) : null;
+  const weekAgo = n > 7 ? series[n - 8] : null;
   const ramp = weekAgo ? Math.round((last.fit - weekAgo.fit) * 10) / 10 : null;
   return { score, level, formPts: hasLoad ? formPts : null, form: last?.form ?? 0, fit: last?.fit ?? 0, fat: last?.fat ?? 0, parts, reason, ramp };
 }
@@ -232,10 +253,12 @@ export function weekForm(series, end) {
 export function readinessOf(loads, table, checks, from, to) {
   const series = formSeries(loads, addDays(from, -7), to);
   const out = new Map();
+  let hasLoad = false;
   series.forEach((s, i) => {
+    if (s.load > 0) hasLoad = true;
     if (s.day < from) return;
     const c = checks.get(s.day);
-    const r = readiness({ series: series.slice(0, i + 1), parts: recoveryParts(table, s.day, c ? { sleep: c.sleep, energy: c.energy } : null) });
+    const r = readinessAt(series, i + 1, hasLoad, recoveryParts(table, s.day, c ? { sleep: c.sleep, energy: c.energy } : null));
     if (r) out.set(s.day, r.score);
   });
   return out;
