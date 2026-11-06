@@ -1,6 +1,6 @@
 # Belag und Schwierigkeit
 
-PR # · 06.11.2026 · Auftrag: Noah «4a» (Thread «Verbessern: Routing und Navigation»)
+PR #1033 · 06.11.2026 · Auftrag: Noah «4a» (Thread «Verbessern: Routing und Navigation»)
 
 ## Was ist neu
 - Jeder Weg von «Neu planen zu …» zeigt eine Zeile «Belag: 85 % befestigt, 15 % unbefestigt» (bei vielen Stücken ohne Angabe auch «… % unklar»). Sie steht in der Wegauswahl bei jedem der bis zu drei Wege und auf der Karte des gewählten Wegs auf der Live-Karte.
