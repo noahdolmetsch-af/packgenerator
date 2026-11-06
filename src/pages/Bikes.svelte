@@ -155,9 +155,10 @@
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
     <AreaIntro place="velos" />
-    <AllHere area="bikes" vars={{ bike: tileBike }} />
+    <!-- Noah 06.11.2026 «2a» (Durchklick Etappe 4): the bikes first, «Alles hier» (the functions) under them -->
     <BikeCards bikeId={shownBike} onbike={pickBike} />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
+    <AllHere area="bikes" vars={{ bike: tileBike }} />
     <PinnedLists place="bikes" />
     <PageTiles page="bikes" extrasHint />
   {/if}
