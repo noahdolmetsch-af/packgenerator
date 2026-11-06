@@ -14,6 +14,7 @@ export default {
   'f.monthideas': 'An idea for this month is a nudge, not a duty: hide what does not suit you and add your own, so the list only shows what you would really do.',
   'f.biwak': 'A night out does not need a long trip: leave after work, sleep a few kilometres from home and be back for breakfast. Check the night\'s weather before you go.',
   'f.trainthere': 'A one-way ride is a different kind of trip: the train brings you far, the bike brings you home through ground you did not know. Check the last train before you set off.',
+  'f.suntip': 'A clear sky at dawn is rare and short: look at the cloud forecast the evening before, and be at the viewpoint twenty minutes before sunrise.',
   'f.whitespots': 'The nearest white spot is often only one valley away. Small roads you never took are the quickest new ground.',
   'f.nlgoals': 'Choose an end you can reach: five new villages in a month beats a hundred «some time».',
   'f.nlround': 'The router prefers small roads; check gravel and steep parts on the map before you leave.',

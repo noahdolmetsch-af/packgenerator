@@ -63,7 +63,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 |---|---|---|
 | Materialinventar | `#/gear` | Gegenstände mit Gewicht, Preis, Marke, Eigenschaften und Notizen verwalten; filtern, mehrere gleichzeitig bearbeiten und Dubletten zusammenführen. |
 | Material importieren | `#/gear/import` | Eine bestehende Materialliste einlesen und die vorgeschlagenen Übernahmen prüfen. |
-| Packliste | `#/pack` | Material auswählen, Mengen festlegen, Taschen zuordnen und Gesamtgewicht kontrollieren; auch nach Bedürfnissen wie Schlafen, Kochen oder Regenschutz packen. |
+| Packliste | `#/pack` | Material auswählen, Mengen festlegen, Taschen zuordnen und Gesamtgewicht kontrollieren; auch nach Bedürfnissen wie Schlafen, Kochen oder Regenschutz packen. Bei einer geplanten Tour steht unter dem Tourkopf die Karte «Bereit zur Abfahrt?» (zu: ein Zeichen pro Punkt; aufgeklappt vier Zeilen: Gepackt, Wetter, Velo, Geräte) mit Tipp zu dem, was offen ist. |
 | Tasche für Tasche packen | `#/pack?day` | Gegenstände beim Einpacken abhaken, zwischen Taschen verschieben und auf grossen Bildschirmen Taschen nebeneinander sehen. |
 | Packliste teilen | `#/pack?print` | Liste als Link teilen, drucken oder als PDF ausgeben; beim Packen zu zweit Verantwortlichkeiten und Gewichte verteilen. |
 | Bausteine | `#/blocks` | Wiederverwendbare Sets wie Reparatur, Regen oder Schlafen erstellen; eigene Wenn-dann-Regeln für Vorschläge hinterlegen. |
@@ -166,7 +166,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 |---|---|---|
 | Auswerten | `#/auswerten` | Einstieg in Aktivitäts-, Körper- und Verlaufsanalysen; oben ein Schalter «Zeitraum» (Woche, Monat, Jahr, Alles, eigener Zeitraum), dem die Liste der Sportarten und der Mittelwert bei «Wi gaht's?» folgen. |
 | Übergreifende Analyse | `#/auswerten/analyse` | Daten verschiedener Bereiche gemeinsam betrachten und vergleichen. |
-| Tour-Rückblick | `#/debrief` | Erfahrungen bewerten, ungenutztes und fehlendes Material markieren, Pannen dokumentieren und Verbrauch buchen. Die Antworten bei «Wie war es?» (Wetter, Essen und Trinken, Taschen) lassen sich in Ich › Listen und Typen umbenennen. |
+| Tour-Rückblick | `#/debrief` | Erfahrungen bewerten, ungenutztes und fehlendes Material markieren, Pannen dokumentieren und Verbrauch buchen. Die Antworten bei «Wie war es?» (Wetter, Essen und Trinken, Taschen) lassen sich in Ich › Listen und Typen umbenennen. Ganz oben steht «Rückblick in 30 Sekunden»: drei Fragen mit Gesichtern (Fahrt, Gepäck, Fehlendes) und «Kurzfassung speichern» für müde Abende; die lange Version bleibt darunter. |
 | Was hat es gut gemacht? | `#/debrief/freude` | Im Rückblick vier freiwillige Skalen von 1 bis 5 (Fahrspass, Natur, Flow, Gesellschaft); die Seite zeigt Mittelwerte und jede Tour, ab drei Touren sagt der Rückblick, was im Schnitt am höchsten war. |
 | Fahrtechnik-Tagebuch | `#/debrief/technik` | Im Rückblick Fahrtechniken abhaken (Spitzkehren, Bremsdosierung …) und sagen, wie es ging; die Seite zeigt Anzahl und letztes Mal und nimmt Wunsch und Übungsort auf. Techniken als Liste in Ich › Listen und Typen. |
 | Fahrt hochladen | `#/debrief/ride` | Fahrdateien auswerten, Planung und Realität vergleichen sowie Erkenntnisse festhalten. |
