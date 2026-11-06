@@ -8,6 +8,8 @@ PR · 06.11.2026 · Auftrag: Noah «4a» (Thread «Durchklicken Etappe 5»)
 - Findet er etwas, steht es im Bericht des Nacht-Rundgangs (Issue «Nacht-Rundgang: etwas gefunden») mit Seite, Knopf und dem Element, das zu breit ist. Ist alles gut, bleibt es still.
 - In der App ändert sich nichts. Der Roboter läuft nur nachts (`RUNDGANG=1`), nie in einem PR.
 
+- Beim ersten Lauf fand er vier echte Stellen, die zu breit wurden: Glas der guten Momente, Phasen und Saisonwechsel in Wohlbefinden (PR 1028) und «Sportarten deiner Touren» (PR 1029). Mit beiden PRs ist der Roboter auf Handy und Computer grün (0 Funde). Darum zuerst 1028 und 1029 mergen, dann diesen PR; sonst meldet die erste Nacht dieselben Funde.
+
 ## Was fällt weg oder rutscht tiefer
 - nichts
 
