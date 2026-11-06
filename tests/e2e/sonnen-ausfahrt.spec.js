@@ -56,8 +56,7 @@ const withRide = (n = 1) => {
 };
 
 test('On a foggy morning Today suggests a ride above the fog with its time window', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: withRide(2), hour: 7 });
-  await mock(context);
+  await openHome(page, context, info, { data: withRide(2), hour: 7, weather: (c) => mock(c) });
   await page.goto('./#/');
   const card = page.locator('[data-heute-sonne="rides"]');
   await expect(card).toBeVisible({ timeout: 20_000 });
@@ -76,8 +75,7 @@ test('On a foggy morning Today suggests a ride above the fog with its time windo
 });
 
 test('Not today puts the card aside for the day', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: withRide(1), hour: 7 });
-  await mock(context);
+  await openHome(page, context, info, { data: withRide(1), hour: 7, weather: (c) => mock(c) });
   await page.goto('./#/');
   await expect(page.locator('[data-heute-sonne]')).toBeVisible({ timeout: 20_000 });
   await page.locator('[data-heute-sonne-skip]').click();
@@ -88,8 +86,7 @@ test('Not today puts the card aside for the day', async ({ page, context }, info
 });
 
 test('The switch on the weather page turns the card off', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: withRide(1), hour: 7 });
-  await mock(context);
+  await openHome(page, context, info, { data: withRide(1), hour: 7, weather: (c) => mock(c) });
   await page.goto('./#/wetter');
   await page.locator('[data-fogline-set] summary').click();
   await expect(page.locator('[data-fogline-ride]')).toBeChecked();
@@ -100,8 +97,7 @@ test('The switch on the weather page turns the card off', async ({ page, context
 });
 
 test('Without a ride that reaches above the fog the card says so and leads to the planning', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture(), hour: 7 });
-  await mock(context);
+  await openHome(page, context, info, { data: homeFixture(), hour: 7, weather: (c) => mock(c) });
   await page.goto('./#/');
   const card = page.locator('[data-heute-sonne="none"]');
   await expect(card).toBeVisible({ timeout: 20_000 });
@@ -112,8 +108,7 @@ test('Without a ride that reaches above the fog the card says so and leads to th
 });
 
 test('On a clear day there is no card', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: withRide(1), hour: 7 });
-  await mock(context, { clear: true });
+  await openHome(page, context, info, { data: withRide(1), hour: 7, weather: (c) => mock(c, { clear: true }) });
   await page.goto('./#/');
   await expect(page.locator('[data-heute-fogline]')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('[data-heute-sonne]')).toHaveCount(0);
