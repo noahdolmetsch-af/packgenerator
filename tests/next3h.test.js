@@ -70,3 +70,14 @@ describe('wearTip', () => {
     expect(wearTip({ rain: 'some', cold: null, wind: false })).toBe(null);
   });
 });
+
+describe('dark hours', () => {
+  it('marks each hour as day or night at your place, only when the place is known', () => {
+    const t0 = Date.UTC(2026, 6, 10, 17, 0) / 1000; // 19:00 Zurich, sunset about 21:25, so 21:00 is still light
+    const s = { hourly: { time: [0, 1, 2, 3, 4, 5].map((i) => t0 + i * 3600), temperature_2m: [15, 15, 15, 15, 15, 15], apparent_temperature: [15, 15, 15, 15, 15, 15], wind_speed_10m: [5, 5, 5, 5, 5, 5], wind_direction_10m: [0, 0, 0, 0, 0, 0], precipitation_probability: [0, 0, 0, 0, 0, 0], uv_index: [0, 0, 0, 0, 0, 0] } };
+    const now = t0 * 1000;
+    const r = nextHours({ wx: wx(s), km: 0, now, pace, pos: { lat: 47.4, lon: 8.5 } });
+    expect(r.rows.map((x) => x.dark)).toEqual([false, false, false, true]);
+    expect(nextHours({ wx: wx(s), km: 0, now, pace }).rows.every((x) => x.dark === null)).toBe(true);
+  });
+});
