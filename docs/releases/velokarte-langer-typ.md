@@ -1,6 +1,6 @@
 # Velokarte: Ein langer Typ bricht nicht mehr mitten im Wort um
 
-PR #<Nummer> · 06.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Antwort «4a»), Thread «Durchklicken Etappe 4: Velos und Alltag»
+PR #1016 · 06.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Antwort «4a»), Thread «Durchklicken Etappe 4: Velos und Alltag»
 
 ## Was ist neu
 - Velos (Handy), kleine Velokarte: Ein langer Velotyp aus einem Import, zum Beispiel «A/B (Quelle)», brach mitten im Wort um («Fahrrad-fahren»). Jetzt bricht er nach dem Schrägstrich um und wird nach zwei Zeilen mit «…» gekürzt. Die gewählte Karte zeigt alles. Der volle Text steht beim Schweben als Hinweis.
