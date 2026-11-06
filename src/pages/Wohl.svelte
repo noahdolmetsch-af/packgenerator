@@ -906,6 +906,8 @@
   }
   .wl-jar {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow-wrap: break-word;
     gap: 2px;
     padding: 8px 10px;
     border-radius: 10px;
