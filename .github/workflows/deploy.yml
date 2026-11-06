@@ -14,6 +14,8 @@
 # «Freigeben», or «ok N»). Claude then puts the label «ok» on the PR; that starts «e2e (phone)», and Claude
 # merges when it is green. Before the ok a PR runs only build + unit tests and the Wächter on the computer, so PRs that are still changing leave the test
 # computers free. A push after the label runs everything again.
+# Noah 05.11.2026 «3a ja»: «e2e (phone)» runs only the specs of the pages the PR touches (scripts/ci-scope.mjs,
+# scripts/ci-map.mjs); anything unclear, or a file every page loads, still runs all five parts.
 name: Build and deploy
 
 on:
@@ -85,23 +87,28 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      # Noah 1.11.2026 «4a»: a PR with only docs, news or whole spec files runs only its own specs (part 1),
-      # or none. Shared helpers and app code run everything (scripts/ci-scope.mjs).
+      # Noah 1.11.2026 «4a» and 05.11.2026 «3a ja»: a PR runs only the phone specs of the areas it changed
+      # (scripts/ci-scope.mjs, ci-map.mjs: the app's own imports, the Kern always). Docs, news and German
+      # texts alone run none. A file every page loads, or anything not understood, runs everything.
+      # The scope needs only Node, so it runs before «npm ci»: a part that has nothing to do skips the install.
       - id: scope
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE" # the job runs in a container as another user
           git fetch --no-tags origin ${{ github.base_ref }}
           node scripts/ci-scope.mjs ${{ github.base_ref }} | tee -a "$GITHUB_OUTPUT"
+      - if: steps.scope.outputs.mode != 'none' && (steps.scope.outputs.mode == 'all' || matrix.shard <= steps.scope.outputs.parts)
+        run: npm ci
       - if: steps.scope.outputs.mode == 'all'
         run: npm run e2e -- --project=phone --shard=${{ matrix.shard }}/5
         env:
           E2E_SKIP_GESAMTTEST: '1' # runs every night (volle-pruefung.yml)
           NEWS_ONLY: ${{ steps.scope.outputs.news }} # «Ausprobieren» taps only this PR's news lines (all of them at night)
-      - if: steps.scope.outputs.mode == 'specs' && matrix.shard == 1
-        run: npm run e2e -- --project=phone ${{ steps.scope.outputs.specs }}
+      # Only the specs of the PR's areas, spread over as many parts as they need (2 to 5 parts for a big one, 1 for a few)
+      - if: steps.scope.outputs.mode == 'specs' && matrix.shard <= steps.scope.outputs.parts
+        run: npm run e2e -- --project=phone --shard=${{ matrix.shard }}/${{ steps.scope.outputs.parts }} --pass-with-no-tests ${{ steps.scope.outputs.specs }}
         env:
           E2E_SKIP_GESAMTTEST: '1'
+          NEWS_ONLY: ${{ steps.scope.outputs.news }}
       # Failed and flaky (passed only on the retry) tests by name, in the summary of the run
       - if: always()
         run: node scripts/test-summary.mjs pw-report.json "phone part ${{ matrix.shard }}"
