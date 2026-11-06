@@ -2,6 +2,7 @@
   import AskClaude from '../lib/assistent/AskClaude.svelte';
   import { askDelete } from '../lib/ui/ask.js';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
+  import LinkedTodos from '../lib/merken/LinkedTodos.svelte'; // N3: the to-dos that belong to this trip
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import { localDay } from '../lib/localday.js';
   import { liveQuery } from 'dexie';
@@ -1183,6 +1184,7 @@
   <OfflineSave {trip} />
   <!-- Eigene Listen (Noah 14.10.2026 «5 ok»): a list pinned to this trip, as an extra block -->
   {#if trip}<PinnedLists place="trips" tripId={trip.id} />{/if}
+  {#if trip}<LinkedTodos kind="trip" ref={trip.id} />{/if}
   <!-- «Mit Claude besprechen» (Noah 19.10.2026 «1a»): the list, only with the tick -->
   {#if trip}<AskClaude name="pack" ask={t('This is my packing list for «{trip}» ({days} days). What is missing, what is too much?', { trip: trip.title, days: trip.days ?? 1 })} lines={(trip.entries ?? []).slice(0, 80).map((e) => `${itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.name ?? e.itemId}${e.qty > 1 ? ` × ${e.qty}` : ''}`)} />{/if}
   <PageMore page="pack" name={t('Pack')} />

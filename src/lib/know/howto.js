@@ -216,6 +216,9 @@ const LISTED = {
   'f.lists': ['Open Me › «Lists and types» › Categories.', 'Tap the pen to rename, choose a symbol, hide or delete.', 'Add your own category; «Back to Standard» undoes everything.'],
   // v0.135.0
   'f.medreview': ['Open Aktiv › Meditation.', 'Tap «Look back».', 'Switch between week, month and year.'],
+  'f.todoquick': ['Open Calendar › Remember.', 'Type «Oil the chain tomorrow 6 pm» in the top line.', 'Press Enter; tap a found part to leave it out.'],
+  'f.todosteps': ['Open a to-do and add steps.', 'Pick a trip, bike or note under «Belongs to».', 'Tick the steps in the list.'],
+  'f.todosort': ['Swipe a to-do right (done) or left (tomorrow).', 'Tap «Sort» and use the arrows.', 'Search to-dos and notes in one field.'],
   'f.remember': ['Open Calendar › Remember.', 'Type a to-do or make an own list.', 'Tick it off; Undo brings it back.'],
   'f.reminders': ['After a ride or before a trip, answer the app’s question about a reminder.', 'Open Me › Reminders.', 'Switch a reminder off or change its time.'],
   'f.birthdays': ['Open Me › Reminders.', 'Add a birthday or a plant.', 'See it in Calendar › Remember when it is time.'],
