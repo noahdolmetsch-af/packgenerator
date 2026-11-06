@@ -1,6 +1,6 @@
 # Wie fährst du?
 
-PR # · 06.11.2026 · Auftrag: Noah «3a» (Thread «Verbessern: Routing und Navigation»)
+PR #1005 · 06.11.2026 · Auftrag: Noah «3a» (Thread «Verbessern: Routing und Navigation»)
 
 ## Was ist neu
 - Im Fenster «Neu planen zu …» steht über den Orten die Frage «Wie fährst du?» mit vier Arten: ruhige Strassen und gute Wege (wie bisher), kurz und asphaltiert (Rennvelo), **Gravel und Feldwege** und **Pfade (Mountainbike)**. Gravel und Mountainbike sind die Profile `gravel` und `mtb` von brouter.de.
