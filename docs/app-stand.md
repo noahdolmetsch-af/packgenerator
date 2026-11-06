@@ -62,7 +62,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 |---|---|---|
 | Materialinventar | `#/gear` | Gegenstände mit Gewicht, Preis, Marke, Eigenschaften und Notizen verwalten; filtern, mehrere gleichzeitig bearbeiten und Dubletten zusammenführen. |
 | Material importieren | `#/gear/import` | Eine bestehende Materialliste einlesen und die vorgeschlagenen Übernahmen prüfen. |
-| Packliste | `#/pack` | Material auswählen, Mengen festlegen, Taschen zuordnen und Gesamtgewicht kontrollieren; auch nach Bedürfnissen wie Schlafen, Kochen oder Regenschutz packen. |
+| Packliste | `#/pack` | Material auswählen, Mengen festlegen, Taschen zuordnen und Gesamtgewicht kontrollieren; auch nach Bedürfnissen wie Schlafen, Kochen oder Regenschutz packen. Bei einer geplanten Tour steht unter dem Tourkopf die Karte «Bereit zur Abfahrt?» (zu: ein Zeichen pro Punkt; aufgeklappt vier Zeilen: Gepackt, Wetter, Velo, Geräte) mit Tipp zu dem, was offen ist. |
 | Tasche für Tasche packen | `#/pack?day` | Gegenstände beim Einpacken abhaken, zwischen Taschen verschieben und auf grossen Bildschirmen Taschen nebeneinander sehen. |
 | Packliste teilen | `#/pack?print` | Liste als Link teilen, drucken oder als PDF ausgeben; beim Packen zu zweit Verantwortlichkeiten und Gewichte verteilen. |
 | Bausteine | `#/blocks` | Wiederverwendbare Sets wie Reparatur, Regen oder Schlafen erstellen; eigene Wenn-dann-Regeln für Vorschläge hinterlegen. |
