@@ -46,12 +46,18 @@
     margin: 0;
   }
   ul {
+    min-width: 0;
+    max-width: 100%;
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
     list-style: none;
     margin: 0;
     padding: 0;
+  }
+  li {
+    min-width: 0;
+    max-width: 100%;
   }
   .chip {
     display: inline-flex;
