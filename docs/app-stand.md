@@ -232,7 +232,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | KI-Projekte | `#/me/ki-projekte` | Links zu eigenen KI-Projekten, Chats und Threads sammeln. |
 | KI-Helfer | `#/helper` | Optionale KI-Unterstützung konfigurieren; Vorschläge prüfen und gezielt übernehmen. |
 | Sprachsuche | `#/me/suche` | Sprachbefehle und die Beantwortung von Fragen einstellen. |
-| Verbindungen | `#/me/connections` | Strava, Fitbit, Google und Trello verwalten, bei jeder den Stand sehen (läuft seit, Fehler mit Grund, zuletzt erfolgreich) und welche Funktionen davon abhängen. |
+| Verbindungen | `#/me/connections` | Strava, Fitbit, Google, Trello und die Spielerplus-Kalender der Teams (Link einfügen; Termine nur lesen in Woche, Heute und auf der Sportseite, mit Knopf zur Anmeldung in Spielerplus) verwalten, bei jeder den Stand sehen (läuft seit, Fehler mit Grund, zuletzt erfolgreich) und welche Funktionen davon abhängen. |
 | Termine und Aufgaben | `#/me/agenda` | Die angebotene Google-Anbindung für Termine und Aufgaben verwenden. |
 | Mail | `#/me/mail` | Die angebotene Gmail-Anbindung nutzen und Nachrichten weiter organisieren. |
 | Daten und Backup | `#/me/data` | Daten exportieren und importieren, Sicherungen einrichten, optional verschlüsseln und Geräteabgleich konfigurieren. |
@@ -275,7 +275,7 @@ Nur im Browser des Geräts (IndexedDB über Dexie, `src/lib/db.js`; die Tabellen
 
 ## 5. Verbindungen nach aussen
 
-Strava (nur lesen), Fitbit/Gesundheit, Google (Termine, Aufgaben, Mail), KI-Helfer (Schlüssel nur in Vercel), Push, Abgleich, Buchung und Bezahlen (Testmodus). Server-Code: `api/*.js` und `api/_lib/`. Alles nur über Ich › Verbindungen aufschaltbar und abwählbar.
+Strava (nur lesen), Fitbit/Gesundheit, Google (Termine, Aufgaben, Mail), Spielerplus-Kalender (privater Link, nur lesen, Server `api/linkcheck.js` erlaubt nur spielerplus.de), KI-Helfer (Schlüssel nur in Vercel), Push, Abgleich, Buchung und Bezahlen (Testmodus). Server-Code: `api/*.js` und `api/_lib/`. Alles nur über Ich › Verbindungen aufschaltbar und abwählbar.
 
 ## 6. Regeln, Pläne, offene Baustellen: nur Verweise
 

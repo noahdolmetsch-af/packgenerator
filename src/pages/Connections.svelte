@@ -15,6 +15,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import TickSuggest from '../lib/strava/TickSuggest.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
+  import SpielerplusCard from '../lib/spielerplus/SpielerplusCard.svelte';
   import FitbitImport from '../lib/fitbit/FitbitImport.svelte';
   import AppleImport from '../lib/applehealth/AppleImport.svelte';
   import { db } from '../lib/db.js';
@@ -250,6 +251,9 @@
           </div>
           {#if d.own.notes}<div class="card ich-body"><button type="button" class="btn" disabled={busy === 'notes'} onclick={() => notesOn(true)}><RefreshCw size={16} aria-hidden="true" />{t('Compare now')}</button></div>{/if}
         </section>
+
+        <!-- Spielerplus-Kalender (Noah 06.11.2026): the calendar links of the teams, read only -->
+        <SpielerplusCard />
 
         <section class="ich-sec" aria-labelledby="cn-ics-h" data-section="ics">
           <div class="ich-h"><div><h2 id="cn-ics-h">{t('Calendar file (.ics)')}</h2><p class="ich-hs">{t('for any calendar, also without Google')}</p></div></div>

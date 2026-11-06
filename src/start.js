@@ -64,6 +64,7 @@ import { takeReturn as takeGoogleReturn, watchAutoFetch as watchHealthFetch } fr
 import { takeReturn as takeDriveReturn } from './lib/docs/client.svelte.js';
 import { takeReturn as takeMailReturn } from './lib/mail/client.svelte.js';
 import { takeReturn as takeAgendaReturn, watchAutoFetch as watchAgendaFetch } from './lib/agenda/client.svelte.js';
+import { watchSpielerplus } from './lib/spielerplus/watch.js';
 import { takeReturn as takeTrelloReturn, watchAutoSync as watchTrelloSync } from './lib/trello/client.svelte.js';
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
 import { readMaint } from './lib/maintenance/settings.js';
@@ -182,6 +183,7 @@ settling(async () => {
     watchAutoFetch();
     watchHealthFetch(); // Fitbit: the new daily values when the app opens or comes back (answer 2a)
     watchAgendaFetch(); // Google Kalender und Aufgaben: the same, at most every 15 minutes
+    watchSpielerplus(); // Spielerplus-Kalender (Noah 06.11.2026): the team dates, at most every 30 minutes
     watchTrelloSync(); // Trello (Noah 19.10.2026 «2a»): Merken and the Trello lists, the same way
     autoCheck(db);
     // «Erster Start» (Noah 20.10.2026 «2a … b auch»): a new, empty app asks once «with examples» or «empty»

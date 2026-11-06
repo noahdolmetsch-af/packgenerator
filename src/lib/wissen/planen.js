@@ -4,6 +4,7 @@ export default {
   'f.weekplan': 'Plan rest days like dates: a week with one empty evening holds better than one packed full. The suggestion on Sunday is only a start.',
   'f.remember': 'Write the next step, not the project: «call the shop about the hub» gets done, «fix bike» waits for months.',
   'f.trello': 'Handy if you plan on the computer and tick on the road. Keep the board small: one list per area is enough.',
+  'f.spielerplus': 'Name each team after the team, not the sport: with two teams the week then shows at a glance which training is which.',
   'f.agenda': 'Put the train back home in the calendar as soon as you book it. A forgotten return is the most expensive bikepacking ticket.',
   'f.noteocr': 'Photograph the receipt the same day; thermal paper fades within months. The search then finds «chain» even in a picture.',
   'f.notetrash': 'Delete without fear: 30 days is enough time to notice you needed that note after all.',

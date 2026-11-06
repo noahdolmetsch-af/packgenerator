@@ -13,12 +13,12 @@
   const sub = $derived(subOf(e));
 </script>
 
-<div class="en k-{e.kind}" class:rmv={e.own && onremove} class:done={e.done} data-entry={e.id} data-kind={e.kind}>
+<div class="en k-{e.kind}" class:sp={e.sub?.src === 'spielerplus'} class:rmv={e.own && onremove} class:done={e.done} data-entry={e.id} data-kind={e.kind}>
   {#if tick}
     <button type="button" class="tk" aria-pressed={e.done} aria-label={e.done ? t('Not done yet: {title}', { title: titleOf(e) }) : t('Done: {title}', { title: titleOf(e) })} onclick={() => ondone(e)}>{#if e.done}<Check size={14} strokeWidth={3} aria-hidden="true" />{/if}</button>
   {/if}
   {#if e.href && !e.own}
-    <a class="tx" href={e.href}><b>{#if e.time}<span class="num">{e.time}</span>{' '}{/if}{titleOf(e)}</b><small>{sub}<span class="sr"> ({t(KIND_NAMES[e.kind])})</span></small></a>
+    <a class="tx" href={e.href} target={e.ext ? '_blank' : undefined} rel={e.ext ? 'noopener noreferrer' : undefined}><b>{#if e.time}<span class="num">{e.time}</span>{' '}{/if}{titleOf(e)}</b><small>{sub}<span class="sr"> ({t(KIND_NAMES[e.kind])})</span></small></a>
   {:else}
     <span class="tx"><b>{#if e.time}<span class="num">{e.time}</span>{' '}{/if}{titleOf(e)}</b><small>{sub}<span class="sr"> ({t(KIND_NAMES[e.kind])})</span></small></span>
   {/if}
@@ -43,6 +43,9 @@
   }
   .k-date {
     --k: var(--wk-date);
+  }
+  .sp {
+    --k: var(--wk-sp);
   }
   .k-todo {
     --k: var(--wk-todo);

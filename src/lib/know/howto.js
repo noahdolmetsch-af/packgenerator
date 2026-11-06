@@ -323,6 +323,7 @@ const LISTED = {
   'f.lake': ['Open Aktiv.', 'Look at the card «Lake Zurich».', 'Set from how many degrees it is warm enough for you.'],
   'f.datastars': ['Connect Strava or Fitbit.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday.'],
   'f.trello': ['Open Calendar › Remember.', 'Tap «Connect Trello» and allow it in Trello.', 'In a list\'s settings choose «Also in Trello».'],
+  'f.spielerplus': ['Open Me › Connections › Spielerplus calendar.', 'Paste the calendar link of your team and tap «Test and add».', 'Plan › Week shows the team dates; «Sign up ›» opens Spielerplus.'],
   'f.agenda': ['Open Me › Appointments and tasks.', 'Tick calendar and tasks and tap «Connect with Google».', 'Tick or add tasks; «New appointment» goes into your Google calendar.'],
   'f.docscan': ['Open Me › Documents.', 'Tap «Photograph document», photograph the pages, then «Save as PDF».', 'Sort, search and move them into groups; with Drive on they are also in your Google Drive.'],
   'f.fitbit': ['Open Me › Data and backup › Fitbit.', 'Tap «Connect with Google» and allow the values.', 'The app fetches new values when it opens.'],

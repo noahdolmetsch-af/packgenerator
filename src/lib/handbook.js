@@ -1727,6 +1727,11 @@ const LISTED = {
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
     example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
   },
+  'f.spielerplus': {
+    on: 'Paste the calendar link of your team once under Me › Connections › Spielerplus calendar.',
+    steps: ['Copy the calendar link of your team in Spielerplus, paste it under Me › Connections and tap «Test and add».', 'The dates show in Plan › Week, on Today and on the sport page; «Sign up in Spielerplus ›» opens Spielerplus.', 'Another team: paste its link the same way. Switch a team off or remove it any time (with Undo).'],
+    example: 'Example: «Training» on Wednesday at 19:00 → stands in the week with the word «Spielerplus»; on Wednesday it is also on Today.',
+  },
   'f.fitbit': {
     on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',
     steps: ['Tap «Connect with Google» and allow the values.', 'Back in the app, «Health data» shows how current each value is; «Choose values» switches single ones off.'],

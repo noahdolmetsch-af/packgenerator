@@ -434,6 +434,7 @@ const LISTED_HOME = {
   'f.mailin': '#/inbox',
   'f.mail': '#/me/mail',
   'f.agenda': '#/me/agenda',
+  'f.spielerplus': '#/me/connections',
   'f.trello': '#/calendar',
   'f.fitbit': '#/me/fitbit',
   'f.autobackup': '#/me/data?mehr',
