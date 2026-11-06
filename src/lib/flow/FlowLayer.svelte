@@ -97,8 +97,20 @@
       bottom: calc(86px + env(safe-area-inset-bottom));
     }
   }
+  /* Noah 06.11.2026 «2a» (Etappe 5): on a computer the pills sit at the top right (like the timer pill) */
+  @media (min-width: 720px) {
+    .fmini {
+      top: 12px;
+      bottom: auto;
+    }
+  }
   .fmini.lift {
     transform: translateY(-64px);
+  }
+  @media (min-width: 720px) {
+    .fmini.lift {
+      transform: none; /* the note sits at the bottom: nothing to lift away from */
+    }
   }
   .fmini :focus-visible {
     outline-color: var(--focus-on-dark);
