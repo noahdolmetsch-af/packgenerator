@@ -533,6 +533,12 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N9
+  'Needs your home place and the forecast (online now and then).': 'Braucht deinen Wohnort und die Prognose (ab und zu online).',
+  'Open Trips › Dreams: «Sunrise on the hill» names the next clear morning and evening.': 'Öffne Touren › Träume: «Sonnenaufgang auf dem Hügel» nennt den nächsten klaren Morgen und Abend.',
+  'Mark a «View» point on the map near home.': 'Setze auf der Karte nahe bei zu Hause einen Punkt «Aussicht».',
+  'The tip then says when to leave for it.': 'Der Tipp sagt dann, wann du dorthin losfährst.',
+  'Example: Clear morning Thursday: sunrise 7:21 · leave 6:41 for the view point (4 km).': 'Beispiel: Klarer Morgen Donnerstag: Sonnenaufgang 7:21 · los um 6:41 zum Aussichtspunkt (4 km).',
   // «Träume und Neuland» N7
   'Needs your home place and the internet when you tap (timetable and bike router).': 'Braucht deinen Wohnort und beim Antippen Internet (Fahrplan und Velo-Router).',
   'Open Trips › Dreams: «Train there, bike home» shows three places.': 'Öffne Touren › Träume: «Zug hin, Velo heim» zeigt drei Orte.',
