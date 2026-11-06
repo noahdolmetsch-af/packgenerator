@@ -101,6 +101,8 @@
   const firstNew = $derived([...nightCards, ...sitCards, ...bathCards].find((s) => isNewBlock(s.key))?.key ?? null);
   // Impeccable (18.10.2026): how many «Depending on the situation» blocks are still empty (they suggest nothing)
   const sitEmpty = $derived(sitCards.filter((s) => !s.inventory.length).length);
+  // Tempo (Noah 05.11.2026): the empty blocks (twelve cards, ~320 elements) are built when the fold is opened, not with the page
+  let emptySeen = $state(false);
   // Impeccable 20.10.2026 P3 (Noah «alles umsetzen»): the empty blocks wait in one folded row, the filled ones stay in view
   const sitFull = $derived(sitCards.filter((s) => s.inventory.length));
   const sitEmptyCards = $derived(sitCards.filter((s) => !s.inventory.length));
@@ -457,11 +459,13 @@
           </ul>
         {/if}
         {#if sitEmpty}
-          <details class="emptyfold" data-empty-blocks>
+          <details class="emptyfold" data-empty-blocks ontoggle={(e) => e.currentTarget.open && (emptySeen = true)}>
             <summary class="srow"><span class="sm"><b>{tn(sitEmpty, '{n} empty building block', '{n} empty building blocks')}</b><small>{t('Put in the items that should come along, for example in cold, heat or rain.')}</small></span><ChevronRight class="schev chev" size={18} aria-hidden="true" /></summary>
-            <ul class="card slist">
-              {#each sitEmptyCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
-            </ul>
+            {#if emptySeen}
+              <ul class="card slist">
+                {#each sitEmptyCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
+              </ul>
+            {/if}
           </details>
         {/if}
         {#if ownRain.length}<p class="shint"><CloudRain size={15} aria-hidden="true" /><span>{t('Your own block {names} follows the rule of {rain} too.', { names: ownRain.map((c) => `«${c.name}»`).join(', '), rain: blockLabel(sitCards.find((c) => c.key === 'rain') ?? { name: t('Rain|block') }) })}</span></p>{/if}

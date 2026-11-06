@@ -8,7 +8,8 @@ const { buildList, KINDS, ICE_DAYS } = await import('../src/lib/push/schedule.js
 
 const day = (o) => ({ time: ['2026-11-20'], weather_code: [o.code ?? 3], wind_gusts_10m_max: [o.gust ?? 20], temperature_2m_max: [o.tmax ?? 4], temperature_2m_min: [o.tmin ?? -1], precipitation_sum: [o.mm ?? 0] });
 const HOME = { name: 'Testdorf', lat: 47.1, lon: 8.2 };
-const ON = (kinds) => ({ on: true, kinds: Object.fromEntries(kinds.map((k) => [k, true])) });
+// the morning fog line is on by default once push is on (Noah 05.11.2026 «3a»); these tests are about ice only
+const ON = (kinds) => ({ on: true, kinds: { ...Object.fromEntries(kinds.map((k) => [k, true])), fog: false } });
 
 describe('ice on the server', () => {
   it('warns of ice only around 0 °C with rain or snow', () => {

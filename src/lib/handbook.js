@@ -334,6 +334,11 @@ const LISTED = {
     steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
   },
+  'f.weekgoals': {
+    on: null,
+    steps: ['Open Aktiv; «My week goals» sits next to «This week».', 'Tap «Add a week goal» (or one of the suggestions like 2× meditation), pick what and how much.', 'Tap «Change» to set another number, put the goals in another order or delete one; Undo brings it back.'],
+    example: 'Example: «150 km» for the week; on Wednesday the bar says «103 km of 150 km, 5 days left».',
+  },
   'f.wohl': {
     on: 'Nothing to switch on; results show after about 10 days with a day score.',
     steps: ['Open Me › What is good for me.', 'Read your recipe, what does you good and the good combinations; «How does the app know?» shows the days behind each line.', 'Start a small experiment, set your wished mix, add Neuland, phases or season points.'],
@@ -833,6 +838,21 @@ const LISTED = {
     on: null,
     steps: ['Open Calendar › Remember and type a to-do; «New list» makes an own list such as «My ideas».', 'Tick a to-do off; «Undo» brings it back.'],
     example: 'Example: «Order new brake pads» → ticked off after the shop visit.',
+  },
+  'f.todoquick': {
+    on: null,
+    steps: ['Open Remember and type in the top line, e.g. «Oil the chain tomorrow 6 pm».', 'Tap a found part to leave it out, or Today, Tomorrow, Weekend; Enter saves.', '«More …» opens the full window, already filled in.'],
+    example: 'Example: «Wash the bike every Sunday» → to-do on the next Sunday, repeating every week.',
+  },
+  'f.todosteps': {
+    on: null,
+    steps: ['Open a to-do and add steps under «Steps»; arrows and handle sort them.', 'Under «Belongs to» pick a trip, a bike or a note.', 'Tick steps in the list; trip, bike and note show the open to-dos.'],
+    example: 'Example: «Prepare the Alps tour» with 6 steps, belonging to the trip «Alps».',
+  },
+  'f.todosort': {
+    on: null,
+    steps: ['On a phone swipe a to-do right for done, left for tomorrow.', 'Tap «Sort»: arrows and a handle move to-dos within their group.', 'Search finds to-dos and notes together; on a wide screen a note opens beside.'],
+    example: 'Example: search «chain» → the to-do «Oil the chain» and the note «Replace the chain?».',
   },
   'f.reminders': {
     on: null,

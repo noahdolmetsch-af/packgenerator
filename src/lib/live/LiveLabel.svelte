@@ -15,9 +15,9 @@
     align-items: center;
     gap: 4px;
     padding: 1px 8px;
-    border: 1px solid var(--brand);
+    border: 1px solid var(--head);
     border-radius: 999px;
-    color: var(--brand);
+    color: var(--head);
     background: var(--ok-soft);
     font-size: var(--fs-tiny);
     font-weight: 600;

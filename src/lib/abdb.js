@@ -29,7 +29,7 @@ export function abQuery(today) {
     calFrom.setUTCDate(calFrom.getUTCDate() - 7);
     const calTo = new Date(`${today}T00:00:00Z`);
     calTo.setUTCDate(calTo.getUTCDate() + 1);
-    const [cfg, snooze, answers, weight, checks, health, dataCfg, acts, sport, place, saved, gEvents] = await Promise.all([
+    const [cfg, snooze, answers, weight, checks, health, dataCfg, acts, sport, place, saved, gEvents, gTasks] = await Promise.all([
       db.settings.get(AB_KEY),
       db.settings.get(AB_SNOOZE_KEY),
       db.abAnswers.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray(),
@@ -45,9 +45,11 @@ export function abQuery(today) {
       db.settings.get(HOME_PLACE),
       db.meta ? db.meta.get(HOME_FORECAST).catch(() => null) : null,
       db.gEvents ? db.gEvents.where('day').between(calFrom.toISOString().slice(0, 10), calTo.toISOString().slice(0, 10), true, true).toArray().catch(() => []) : [],
+      // step 3: the copy of the Google tasks on this device (rule «A to-do that is stuck»); nothing is fetched here
+      db.gTasks ? db.gTasks.toArray().catch(() => []) : [],
     ]);
     const wx = usable(place?.value ?? null, saved, Date.now()) ? (saved.days ?? []).find((d) => d.date === today) ?? null : null;
-    return { wx, cal: { used: gEvents.length > 0, events: gEvents }, cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, acts, sport, dataCfg: dataCfg?.value ?? null };
+    return { wx, cal: { used: gEvents.length > 0, events: gEvents }, tasks: { used: gTasks.length > 0, open: gTasks.filter((x) => !x.done && !x.parent && x.due) }, cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, acts, sport, dataCfg: dataCfg?.value ?? null };
   });
 }
 

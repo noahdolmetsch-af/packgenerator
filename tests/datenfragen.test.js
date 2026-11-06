@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, todoHit, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -294,6 +294,37 @@ describe('Fragen aus deinen Daten', () => {
       expect(b.q.id).toBe('daten.draussen');
       expect(dataDue({ wx: wx(), cal: { used: true, events: [] }, today: TODAY, cfg: setRule(null, 'draussen', false) })).toEqual([]);
       expect(RULES.map((r) => r.id)).toEqual(expect.arrayContaining(['grau', 'draussen']));
+    });
+  });
+
+  describe('To-Dos: ein festgefahrenes To-Do', () => {
+    const task = (due, extra = {}) => ({ id: `t${due}`, list: 'l', title: 'test_data_gtp_ Steuern', due, done: false, ...extra });
+    const tasks = (...open) => ({ used: true, open });
+    it('takes the open to-do that is longest past its date, from 5 days on', () => {
+      expect(todoHit(tasks(task(add(TODAY, -5))), TODAY)).toEqual({ title: 'test_data_gtp_ Steuern', days: 5 });
+      expect(todoHit(tasks(task(add(TODAY, -4))), TODAY)).toBeNull();
+      expect(todoHit(tasks(task(add(TODAY, -4))), TODAY, 3)).toEqual({ title: 'test_data_gtp_ Steuern', days: 4 });
+      expect(todoHit(tasks(task(add(TODAY, -6), { title: 'a' }), task(add(TODAY, -20), { title: 'b' })), TODAY)).toEqual({ title: 'b', days: 20 });
+    });
+    it('counts neither done, dated-in-future or undated nor sub-tasks', () => {
+      expect(todoHit(tasks(task(add(TODAY, -9), { done: true })), TODAY)).toBeNull();
+      expect(todoHit(tasks(task(add(TODAY, -9), { parent: 'p' })), TODAY)).toBeNull();
+      expect(todoHit(tasks(task(add(TODAY, 3))), TODAY)).toBeNull();
+      expect(todoHit(tasks(task(TODAY)), TODAY)).toBeNull();
+      expect(todoHit(tasks(task('')), TODAY)).toBeNull();
+    });
+    it('needs Google tasks on this device', () => {
+      expect(todoHit({ used: false, open: [] }, TODAY)).toBeNull();
+      expect(todoHit(null, TODAY)).toBeNull();
+    });
+    it('asks through dataDue with its reason, with and without a title, and has a switch', () => {
+      const [a] = dataDue({ tasks: tasks(task(add(TODAY, -7))), today: TODAY });
+      expect(a.q.id).toBe('daten.todo');
+      expect(a.why.vars).toEqual({ title: 'test_data_gtp_ Steuern', days: 7 });
+      expect(a.why.text).toContain('{title}');
+      const [b] = dataDue({ tasks: tasks(task(add(TODAY, -7), { title: '' })), today: TODAY });
+      expect(b.why.text).not.toContain('{title}');
+      expect(dataDue({ tasks: tasks(task(add(TODAY, -7))), today: TODAY, cfg: setRule(null, 'todo', false) })).toEqual([]);
     });
   });
 

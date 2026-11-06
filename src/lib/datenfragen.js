@@ -47,6 +47,7 @@ export const RAIN_PCT = 60;
 export const RAIN_DRY = 30;
 /** Warm enough for an evening outside (degrees, the day's high). */
 export const WARM_C = 15;
+export const TODO_DAYS = 5; // an open to-do this many days past its date counts as «stuck»
 /** The evening for «nothing planned»: from 17:00 to 22:00. */
 export const EVENING = [17, 22];
 /** A random question is not repeated within this many days after an answer. */
@@ -194,6 +195,21 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'draussen',
   },
+  'daten.todo': {
+    id: 'daten.todo',
+    area: 'erholung',
+    text: 'What is in the way of this to-do?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('time', 'No time'), chip('unclear', 'Not clear what to do'), chip('big', 'Too big'), chip('wait', 'Waiting for someone'), chip('gone', 'Not important any more'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'todo',
+  },
   'daten.vermutung': {
     id: 'daten.vermutung',
     area: 'achtsamkeit',
@@ -284,6 +300,14 @@ export const RULES = [
     about: 'Asks on a dry day of at least {n} degrees when your calendar has nothing from 17 to 22 o\'clock.',
     vars: { n: WARM_C },
     param: { key: 'n', min: 8, max: 28, step: 1, def: WARM_C, label: 'Warm from (degrees)' },
+  },
+  {
+    id: 'todo',
+    qid: 'daten.todo',
+    title: 'A to-do that is stuck',
+    about: 'Asks when an open to-do in your Google tasks is {n} days or more past its date.',
+    vars: { n: TODO_DAYS },
+    param: { key: 'n', min: 2, max: 30, step: 1, def: TODO_DAYS, label: 'Days past its date' },
   },
   {
     id: 'vermutung',
@@ -540,6 +564,23 @@ export function draussenHit(wx, cal, today, warm = WARM_C) {
   return { max: Math.round(max) };
 }
 
+/**
+ * The open to-do that is the longest past its date, at least `days` days: { title, days } or null.
+ * tasks: { used, open } with open: gTasks rows { title, due: 'YYYY-MM-DD', done }; sub-tasks do not count.
+ */
+export function todoHit(tasks, today, days = TODO_DAYS) {
+  if (!tasks?.used) return null;
+  let best = null;
+  for (const x of tasks.open ?? []) {
+    if (!x || x.done || x.parent || !/^\d{4}-\d{2}-\d{2}$/.test(x.due ?? '') || x.due >= today) continue;
+    let n = 0;
+    while (addDays(x.due, n) < today) n++;
+    if (n < days) continue;
+    if (!best || n > best.days) best = { title: String(x.title ?? '').trim().slice(0, 40), days: n };
+  }
+  return best;
+}
+
 /* ---------- the random question (Noah 04.11.2026 «3a»: one a day from the switched-off sample questions) ---------- */
 /** Is the random question on? */
 export const randomOn = (value) => !dataOf(value).zufall.off;
@@ -589,6 +630,8 @@ export function vermutungHit(hint, strength = 30) {
 const WHY = {
   vermutung: 'Your data hints: {sentence} Today looks like such a day, so it is worth checking.',
   zufall: 'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.',
+  todo: 'Your to-do «{title}» is {days} days past its date.',
+  todoNoTitle: 'One of your to-dos is {days} days past its date.',
   grau: 'Rain is likely today and your latest mood was {mood}, your usual is {usual}.',
   draussen: 'Dry and {max} degrees today, and nothing in your calendar this evening.',
   spiel: 'You noted a game of {min} minutes yesterday.',
@@ -602,6 +645,7 @@ const WHY = {
 };
 const HITS = {
   vermutung: ({ hint, val }) => vermutungHit(hint, val),
+  todo: ({ tasks, today, val }) => todoHit(tasks, today, val),
   grau: ({ wx, answers, checks, today, val }) => grauHit(wx, answers, checks, today, val),
   draussen: ({ wx, cal, today, val }) => draussenHit(wx, cal, today, val),
   pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
@@ -619,7 +663,7 @@ const HITS = {
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, hint = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, tasks = null, hint = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const pick = randomOn(cfg) ? randomPick(pool, answers, cfg, today) : null;
@@ -640,10 +684,10 @@ export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = n
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, acts, sport, wx, cal, hint, answers, checks, today, val: ruleVal(cfg, rule.id) });
+    const hit = HITS[rule.id]({ health, acts, sport, wx, cal, tasks, hint, answers, checks, today, val: ruleVal(cfg, rule.id) });
     if (!hit) continue;
     const own = ruleText(cfg, rule.id);
-    out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
+    out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : rule.id === 'todo' && !hit.title ? WHY.todoNoTitle : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
     usedAreas.add(q.area);
   }
   // the random question comes last, once a day, when there is room and its group is free; after «never again» not before tomorrow

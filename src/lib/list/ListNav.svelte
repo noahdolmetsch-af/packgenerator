@@ -74,6 +74,11 @@
     font-style: normal;
     font-size: var(--fs-tiny);
   }
+  /* Etappe 6 (E6-005): the chip of the chosen part is light in the dark theme: its count must not stay light grey */
+  .ls-c[aria-pressed='true'] em {
+    color: inherit;
+    opacity: 0.75;
+  }
   .ls-toc {
     padding: 14px 8px 10px;
     border: 1px solid var(--card-line);
