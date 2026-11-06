@@ -334,6 +334,11 @@ const LISTED = {
     steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
   },
+  'f.weekgoals': {
+    on: null,
+    steps: ['Open Aktiv; «My week goals» sits next to «This week».', 'Tap «Add a week goal» (or one of the suggestions like 2× meditation), pick what and how much.', 'Tap «Change» to set another number, put the goals in another order or delete one; Undo brings it back.'],
+    example: 'Example: «150 km» for the week; on Wednesday the bar says «103 km of 150 km, 5 days left».',
+  },
   'f.wohl': {
     on: 'Nothing to switch on; results show after about 10 days with a day score.',
     steps: ['Open Me › What is good for me.', 'Read your recipe, what does you good and the good combinations; «How does the app know?» shows the days behind each line.', 'Start a small experiment, set your wished mix, add Neuland, phases or season points.'],
