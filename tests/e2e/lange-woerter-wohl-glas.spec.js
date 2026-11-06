@@ -1,6 +1,7 @@
 // «Lange Wörter: Glas der guten Momente» (Nacht-Roboter «Langes Wort», Noah 06.11.2026 «4a»): ein sehr langes Wort
 // ohne Umbruchstelle in einer Dank- oder Stolz-Notiz machte Ich › Wohlbefinden breiter als den Bildschirm
-// (2060 px statt 1440 px). Dasselbe bei einem langen Namen einer eigenen Phase auf dem Handy (555 px statt 390 px).
+// (2060 px statt 1440 px). Dasselbe bei einem langen Namen einer eigenen Phase auf dem Handy (520 px statt 390 px) und bei einem Punkt
+// der Saisonwechsel-Liste (704 px).
 // Erfundene Texte.
 import { test, expect, noonToday } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
@@ -56,5 +57,26 @@ test('Wohlbefinden: eine Phase mit langem Namen bleibt auf dem Bildschirm', asyn
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw, 'the page is not wider than the screen').toBeLessThanOrEqual(vw);
   expect(await row.evaluate((e) => e.getBoundingClientRect().right), 'the row ends on the screen').toBeLessThanOrEqual(vw);
+  expect(errors).toEqual([]);
+});
+
+test('Wohlbefinden: ein Punkt der Saisonwechsel-Liste mit langem Namen bleibt auf dem Bildschirm', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./#/me/wohl');
+  await ready(page);
+  await page.locator('[data-season-add]').click();
+  const sheet = page.getByRole('dialog').filter({ has: page.locator('input') }).last();
+  const input = sheet.locator('input').first();
+  await input.fill('Wunderlangeswort'.repeat(5)); // a point is cut at 80
+  await input.press('Enter');
+  const item = page.locator('[data-wohl-season] .wl-season li', { hasText: 'Wunderlangeswort' }).first();
+  await expect(item).toBeVisible();
+  const vw = page.viewportSize().width;
+  const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(sw, 'the page is not wider than the screen').toBeLessThanOrEqual(vw);
+  expect(await item.evaluate((e) => e.getBoundingClientRect().right), 'the row ends on the screen').toBeLessThanOrEqual(vw);
   expect(errors).toEqual([]);
 });

@@ -857,6 +857,7 @@
     padding: 0;
     list-style: none;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 6px;
   }
   .wl-list li {
@@ -930,6 +931,10 @@
   }
   .wl-season label {
     min-width: 0;
+  }
+  .wl-season label span {
+    min-width: 0;
+    overflow-wrap: break-word;
   }
   .wl-add {
     margin-top: 10px;
