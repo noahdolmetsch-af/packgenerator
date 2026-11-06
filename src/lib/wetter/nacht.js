@@ -16,6 +16,8 @@
 import { CORE_MAX_AGE_H, CORE_SHOW_H, OPEN_METEO, atLocal, localDate } from './kern.js';
 
 export const NACHT_KEY = 'wx-nacht:';
+/** The setting that switches the calm line on Today off (false = no line), like 'fogHome' for the fog line. */
+export const HOME_KEY = 'nachtHome';
 export const BACK_DAYS = 8;
 export const AHEAD_DAYS = 9;
 /** The night: from this hour of the evening before to this hour of the morning (local time). */

@@ -9,10 +9,14 @@
   import { Moon, TrendingDown, TrendingUp, Snowflake, Sun } from '@lucide/svelte';
   import { db } from '../db.js';
   import { REFRESHED } from '../home/refresh.js';
-  import { loadNacht, summary, PLUS_C } from './nacht.js';
+  import { liveQuery } from 'dexie';
+  import { loadNacht, summary, PLUS_C, HOME_KEY } from './nacht.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { core, now = Date.now() } = $props();
+  const homeQ = liveQuery(() => db.settings.get(HOME_KEY));
+  const onHome = $derived($homeQ?.value !== false);
+  const toggleHome = (e) => db.settings.put({ key: HOME_KEY, value: e.currentTarget.checked });
 
   const place = $derived(core?.place && Number.isFinite(Number(core.place.lat)) ? { lat: Number(core.place.lat), lon: Number(core.place.lon), name: core.place.name ?? '' } : null);
   let data = $state(null);
@@ -109,6 +113,10 @@
         </div>
       {/if}
       <p class="nt-src" data-nacht-src>{t('A model value for the place, not a thermometer on the spot. In valleys and at lakes it can be 1 to 3 degrees off.')}{#if at}{' '}{t('As of {at}', { at })}{/if}</p>
+      <details class="nt-set" data-nacht-set>
+        <summary>{t('Set night line')}</summary>
+        <label class="nt-check"><input type="checkbox" checked={onHome} onchange={toggleHome} data-nacht-home />{t('Show the night temperature on Today')}</label>
+      </details>
     {:else}
       <p class="rc-note" data-nacht-empty>{t('No night values yet. They come as soon as the weather service answers; try again online.')}</p>
     {/if}
@@ -223,6 +231,19 @@
   .nt-bars li.today i {
     outline: 2px solid var(--ink);
     outline-offset: 1px;
+  }
+  .nt-set summary {
+    cursor: pointer;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .nt-set > * {
+    margin-top: 8px;
+  }
+  .nt-check {
+    display: flex;
+    gap: 8px;
+    align-items: center;
   }
   .nt-legend {
     display: flex;
