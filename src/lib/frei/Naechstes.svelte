@@ -5,7 +5,7 @@
    * used») and missing (named under «What was missing?»). One tap turns a thing into a note for the next
    * packing list, with a reason if you like; a note can become a to-do. Notes change and delete.
    */
-  import { Repeat, Check, Pencil, ListTodo, ChevronRight } from '@lucide/svelte';
+  import { Repeat, Check, Pencil, ListTodo, ChevronRight, ClipboardCheck } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
@@ -15,6 +15,10 @@
   import { addTodo } from '../merkendb.js';
   import { rowsQuery, putRow, deleteRow, restoreRow } from '../freidb.js';
   import { nextPiles, PILES, marksByKey, markLine } from '../frei.js';
+  import { applyTakeOver } from './uebernahme.js';
+  import { nextTrip } from '../debrief.js';
+  import { tripEnd } from '../tripstate.js';
+  import { isArchived, isTestTrip } from '../testname.js';
   import { localDay } from '../localday.js';
   import { t, tn, nameOf } from '../i18n.svelte.js';
 
@@ -32,6 +36,43 @@
     return nextPiles({ trips: $tripsQ ?? [], debriefs: $debriefsQ ?? [], nameOf: nameOfId });
   });
   const lineOf = (m) => t(markLine(m.pile), { name: m.name });
+
+  /* ---------- «Put on the packing list» (Noah 05.11.2026 «8b») ---------- */
+  const today = localDay();
+  /** The trips that can still use a note: not over, not skipped, not a test. */
+  const upcoming = $derived(
+    ($tripsQ ?? [])
+      .filter((x) => !x.skipped && !x.finished && !isArchived(x) && !isTestTrip(x) && x.startDate && tripEnd(x) >= today)
+      .sort((a, b) => a.startDate.localeCompare(b.startDate)),
+  );
+  let picked = $state('');
+  const targetId = $derived(upcoming.some((x) => x.id === picked) ? picked : (nextTrip($tripsQ ?? [], today)?.id ?? upcoming[0]?.id ?? ''));
+  const target = $derived(upcoming.find((x) => x.id === targetId) ?? null);
+  const tripLabel = (x) => x.title || t('Untitled trip');
+  const onList = (m) => m.takenTo === targetId;
+  let doneId = $state(''); // the trip the last take-over went to (for the link «To the packing list»)
+
+  async function takeOver(list) {
+    if (!target || !list.length) return;
+    const r = await applyTakeOver(db, { tripId: target.id, marks: list, tr: t });
+    if (!r) return;
+    const { added, noted, already } = r.result;
+    doneId = target.id;
+    const bits = [
+      added.length ? tn(added.length, '{n} thing on the packing list', '{n} things on the packing list') : '',
+      noted.length ? tn(noted.length, '{n} note «Leave it at home»', '{n} notes «Leave it at home»') : '',
+      already.length ? tn(already.length, '{n} already fine', '{n} already fine') : '',
+    ].filter(Boolean);
+    offerDone(added.length || noted.length ? `${tripLabel(target)}: ${bits.join(' · ')}` : t('Nothing new: «{trip}» has it all already.', { trip: tripLabel(target) }), added.length || noted.length ? r.undo : null);
+  }
+  function toPackList() {
+    try {
+      localStorage.setItem('pack.currentTrip', doneId);
+    } catch {
+      /* private mode: Packen then opens the next trip */
+    }
+    location.hash = '#/pack';
+  }
 
   let edit = $state(null); // { row?, key, name, pile, reason }
   const openMark = (pile, x) => (edit = byKey[x.key] ? { row: byKey[x.key], ...byKey[x.key], reason: byKey[x.key].reason ?? '' } : { row: null, key: x.key, name: x.name, pile, reason: '' });
@@ -59,10 +100,28 @@
   {#if marks.length}
     <section class="fz-box fz-soft" aria-labelledby="fzx-marks-h" data-marks>
       <h2 id="fzx-marks-h" class="fz-h2"><Check size={18} aria-hidden="true" /> {t('For the next packing list')}</h2>
+      {#if target}
+        <div class="fz-inline fzx-bar" data-take-bar>
+          <label class="fz-lab fzx-trip">{t('Packing list of')}
+            <select class="inp" value={targetId} onchange={(e) => (picked = e.currentTarget.value)} data-take-trip>
+              {#each upcoming as x (x.id)}<option value={x.id}>{tripLabel(x)}</option>{/each}
+            </select>
+          </label>
+          <button type="button" class="btn hi" onclick={() => takeOver(marks)} data-take-all><ClipboardCheck size={16} aria-hidden="true" />{t('Put all on the packing list')}</button>
+        </div>
+        {#if doneId === targetId}
+          <p class="fz-note" data-take-next>{t('Done? See how the list looks now.')} <button type="button" class="linkq" onclick={toPackList} data-take-open>{t('To the packing list')}</button></p>
+        {/if}
+      {:else}
+        <p class="fz-empty" data-take-none>{t('No trip to pack for yet. Plan one, and these notes can go straight onto its packing list.')} <a href="#/trips">{t('To the trips')}</a></p>
+      {/if}
       <ul class="fz-list">
         {#each marks as m (m.id)}
           <li class="fz-row" data-mark={m.key}>
-            <button type="button" class="fz-row-main" onclick={() => (edit = { row: m, ...m, reason: m.reason ?? '' })}><b>{lineOf(m)}</b>{#if m.reason}<small>{m.reason}</small>{/if}</button>
+            <button type="button" class="fz-row-main" onclick={() => (edit = { row: m, ...m, reason: m.reason ?? '' })}><b>{lineOf(m)}</b>{#if m.reason}<small>{m.reason}</small>{/if}{#if target && onList(m)}<small data-mark-on>{t('Taken over to «{trip}»', { trip: tripLabel(target) })}</small>{/if}</button>
+            {#if target && !onList(m)}
+              <button type="button" class="fz-icon" aria-label={t('Put «{name}» on the packing list', { name: lineOf(m) })} onclick={() => takeOver([m])} data-mark-take><ClipboardCheck size={18} aria-hidden="true" /></button>
+            {/if}
             <button type="button" class="fz-icon" aria-label={t('Add «{name}» to your to-dos', { name: lineOf(m) })} onclick={() => toTodo(m)} data-mark-todo><ListTodo size={18} aria-hidden="true" /></button>
             <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: m.name })} onclick={() => (edit = { row: m, ...m, reason: m.reason ?? '' })}><Pencil size={18} aria-hidden="true" /></button>
           </li>
@@ -116,3 +175,24 @@
     <label class="fz-lab">{t('Why (optional)')}<input class="inp" maxlength="200" bind:value={edit.reason} placeholder={t('e.g. only needed it once in three trips')} data-mark-reason /></label>
   </FreiSheet>
 {/if}
+
+<style>
+  .fzx-bar {
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+  .fzx-trip {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+  .linkq {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    min-height: 44px;
+  }
+</style>

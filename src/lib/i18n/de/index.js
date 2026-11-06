@@ -307,6 +307,8 @@ import deinefahrten from './deinefahrten.js';
 
 // Merken (Kal1, PL1–PL3) and Erinnerungen (ER1–ER3): own to-dos and reminders
 import merken from './merken.js';
+// To-dos und Notizen verbessern (Noah 05.11.2026)
+import todoneu from './todo-neu.js';
 // Merken: Geburtstage und Pflanzen (Noah 15.10.2026)
 import geburtstage from './geburtstage.js';
 
@@ -482,6 +484,7 @@ import liveRoute from './live-route.js';
 import livestart from './livestart.js';
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): Ich › Freie Zeit, Impulse, the line on Heute
 import frei from './frei.js';
+import freiUebernahme from './frei-uebernahme.js';
 import tagebuch from './tagebuch.js';
 // Paket V «Alltag» (Noah 19.10.2026 «3a oder b 4a 5a», «1a»): Ich › Alltag, contracts, people, abroad, flight
 import alltag from './alltag.js';
@@ -546,7 +549,9 @@ import energie from './energie.js';
 // «Schneefallgrenze» (Noah 04.11.2026 «1b 2a 3a 4a 5a»)
 import schneegrenze from './schneegrenze.js';
 import nebelgrenze from './nebelgrenze.js';
+import nachttemperatur from './nachttemperatur.js';
 import nebelroute from './nebelroute.js';
+import nebelpush from './nebelpush.js';
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»)
 import haustuer from './haustuer.js';
 // Paket Z «Aus jeder Tour lernen» and Paket SP «Schneller packen» (Noah 20.10.2026)
@@ -853,6 +858,7 @@ const ORDERED = [
   garmin,
   taschensetups,
   merken,
+  todoneu,
   geburtstage,
   eigenewerte,
   ausruestung,
@@ -934,6 +940,7 @@ const ORDERED = [
   trello,
   stravafahrt,
   frei,
+  freiUebernahme,
   alltag,
   strom,
   anleitungen,
@@ -985,7 +992,9 @@ const ORDERED = [
   wetterkern,
   schneegrenze,
   nebelgrenze,
+  nachttemperatur,
   nebelroute,
+  nebelpush,
   wetterfenster,
   energie,
   tourlernen,

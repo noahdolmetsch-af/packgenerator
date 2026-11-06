@@ -7,6 +7,7 @@ import { MAX_TAPS, FINDERS, TAP_GAPS, TAP_GAPS_BY_DATA } from '../../src/lib/kno
 import { start } from './gesamttest/lib.js';
 import { settle } from './settle.js';
 
+test.use({ cardsOpen: false });
 test.setTimeout(900_000);
 
 const isFinder = (h) => FINDERS.some((f) => h === f || h.startsWith(f + '?') || h.startsWith(f + '/'));
@@ -35,10 +36,27 @@ test('every function is at most 3 taps from Heute', async ({ page, context }, in
     await page.locator('main').first().waitFor();
     await settle(page);
     // the tile «New» shows the newest merge, so its «Try it» link changes with every PR: it never counts as a way
-    const links = await page.evaluate(() => [...document.querySelectorAll('a[href^="#/"]')].filter((a) => !a.closest('[data-news]')).map((a) => {
+    const scan = () => page.evaluate(() => [...document.querySelectorAll('a[href^="#/"]')].filter((a) => !a.closest('[data-news]')).map((a) => {
       if (a.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return [a.getAttribute('href'), 1];
       return a.closest('details:not([open]), dialog:not([open])') ? [a.getAttribute('href'), 2] : null;
     }).filter(Boolean));
+    const links = await scan();
+    // a card that starts as one line on the phone (Etappe 2, 1a) is a closed fold: its links cost 2 (the line, then the link)
+    const lines = page.locator('[data-card-line]');
+    if (await lines.count()) {
+      for (let n = await lines.count(); n > 0; n = await lines.count()) {
+        await lines.first().click();
+        await expect(lines).toHaveCount(n - 1);
+      }
+      const seen = new Set(links.map(([h]) => h));
+      for (const [h] of await scan()) if (!seen.has(h)) links.push([h, 2]);
+      // fold them again: the choice is kept, and the next page must start from the same state
+      const folds = page.locator('[data-card-fold]');
+      for (let n = await folds.count(); n > 0; n = await folds.count()) {
+        await folds.first().click();
+        await expect(folds).toHaveCount(n - 1);
+      }
+    }
     for (const [href, cost] of links) if (dist[href] === undefined || dist[next] + cost < dist[href]) { dist[href] = dist[next] + cost; via[href] = next; }
   }
   const taps = (target) => Math.min(Infinity, ...Object.keys(dist).filter((h) => reaches(h, target)).map((h) => dist[h]));

@@ -16,12 +16,14 @@ describe('push switches', () => {
     const p = pushOf(undefined);
     expect(p.on).toBe(false);
     expect(Object.values(p.kinds).every((v) => v === false)).toBe(true);
-    expect(anyOn(pushOf({ on: true, kinds: {} }))).toBe(false);
+    // the one exception (Noah 05.11.2026 «3a»): once push is on, the morning fog line is on unless switched off
+    expect(Object.entries(pushOf({ on: true, kinds: {} }).kinds).filter(([, v]) => v).map(([k]) => k)).toEqual(['fog']);
+    expect(anyOn(pushOf({ on: true, kinds: { fog: false } }))).toBe(false);
     expect(anyOn(pushOf({ on: true, kinds: { eve: true } }))).toBe(true);
     expect(buildList(base({ settings: { push: { on: false, kinds: allOn.kinds } }, trips: [trip('a', '2026-10-23')] })).items).toEqual([]);
   });
   it('a kind switched off sends nothing of its kind', () => {
-    const l = buildList(base({ settings: { push: { on: true, kinds: { weather: true } }, homePlace: { lat: 47, lon: 8 } }, trips: [trip('a', '2026-10-23')] }));
+    const l = buildList(base({ settings: { push: { on: true, kinds: { weather: true, fog: false } }, homePlace: { lat: 47, lon: 8 } }, trips: [trip('a', '2026-10-23')] }));
     expect(l.items).toEqual([]);
     expect(l.weather).toHaveLength(1);
   });
@@ -52,7 +54,7 @@ describe('the evening before and the tour-day weather (3a, Eigene Werte 3a 4b)',
       expect.objectContaining({ key: 'wx:b:2026-10-25', lat: 47.1, lon: 8.2 }),
     ]);
     // Glätte (Paket Wetter): with «Ice in the morning» on, the home place each morning, never on a tour day
-    const ice = l.weather.filter((w) => w.only);
+    const ice = l.weather.filter((w) => w.only && !w.only.includes('fog'));
     expect(ice.every((w) => w.only.join() === 'ice' && w.lat === 47.1)).toBe(true);
     expect(ice.map((w) => w.date)).not.toContain('2026-10-23');
     expect(ice.map((w) => w.date)).not.toContain('2026-10-25');

@@ -115,9 +115,11 @@ test('RE1: one rain limit, Pack names it and the rain jacket, a new limit counts
   await page.goto('./#/blocks');
   const rainRow = main.locator('button.sitrow', { has: page.locator('#blk-rain') });
   // Impeccable 0.174: empty blocks wait in a fold «n leere Bausteine»; open it when Regen is in there
-  const fold = main.locator('details', { has: page.locator('#blk-rain') });
-  await expect(page.locator('#blk-rain')).toHaveCount(1);
+  // the fold builds its cards only when opened (Tempo-Runde 4), so open it first
+  const fold = main.locator('details[data-empty-blocks]');
+  await expect(main.locator('#blk-rain, details[data-empty-blocks]').first()).toBeAttached(); // the page loads late
   if (await fold.count()) await tap(fold.locator('summary').first(), info);
+  await expect(page.locator('#blk-rain')).toHaveCount(1);
   await tap(rainRow, info);
   const sheet = page.locator('dialog.rsheet[open]');
   const box = sheet.locator('[data-rain-everywhere]');
