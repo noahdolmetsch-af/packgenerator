@@ -15,6 +15,7 @@ export default {
   'f.biwak': 'A night out does not need a long trip: leave after work, sleep a few kilometres from home and be back for breakfast. Check the night\'s weather before you go.',
   'f.trainthere': 'A one-way ride is a different kind of trip: the train brings you far, the bike brings you home through ground you did not know. Check the last train before you set off.',
   'f.suntip': 'A clear sky at dawn is rare and short: look at the cloud forecast the evening before, and be at the viewpoint twenty minutes before sunrise.',
+  'f.dice': 'A small rule makes an ordinary ride an adventure. Roll before you leave, and if the rule does not suit the day, roll again or hide it.',
   'f.whitespots': 'The nearest white spot is often only one valley away. Small roads you never took are the quickest new ground.',
   'f.nlgoals': 'Choose an end you can reach: five new villages in a month beats a hundred «some time».',
   'f.nlround': 'The router prefers small roads; check gravel and steep parts on the map before you leave.',

@@ -2,8 +2,8 @@
 export default {
   title: 'Adventure dice',
   lead: 'Dreams rolls a small game rule for your next ride, like «Only gravel».',
-  points: [{ text: 'Trips › Dreams: «Adventure dice» with twelve rules; the rule stays until the next roll', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'Add your own rules, rename, delete or hide them' }],
+  points: [{ text: 'Trips › Dreams: «Adventure dice» with twelve rules; the rule stays until the next roll', href: '#/trips/dreams', go: 'f.dice' }],
+  small: [{ box: 'new', text: 'Add your own rules, rename, delete or hide them', go: 'f.dice' }],
   test: [
     'Open Trips › Dreams: tap «Roll» at «Adventure dice»; a rule shows.',
     'Open «Rules», add an own rule, then hide a built-in one.',

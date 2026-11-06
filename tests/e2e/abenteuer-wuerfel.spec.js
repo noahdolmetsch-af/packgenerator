@@ -1,7 +1,7 @@
 // «Abenteuer-Würfel» (Träume und Neuland N19, Noah 27.10.2026 «1-5 a»): on Touren › Träume «Roll» shows a rule,
 // «Roll again» another one; an own rule is added, renamed and deleted (Undo brings it back); a built-in rule is
 // hidden and shown again. Offline, fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
