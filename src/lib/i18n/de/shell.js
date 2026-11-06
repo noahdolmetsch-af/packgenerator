@@ -543,4 +543,6 @@ export default {
   'Saved as 1 problem:': 'Wird als 1 Problem gespeichert:',
   'Saved as {n} problems:': 'Wird als {n} Probleme gespeichert:',
   'Each problem becomes its own open repair in Bike care.': 'Jedes Problem wird eine eigene offene Reparatur in der Velopflege.',
+  // Etappe 6 «3a»: the first stop for the keyboard
+  'Skip to content': 'Zum Inhalt springen',
 };
