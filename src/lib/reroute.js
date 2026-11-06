@@ -125,7 +125,7 @@ export const ROUTER_TOO_FAR_KM = 200;
 export const ROUTER_CACHE_MS = 10 * 60 * 1000;
 export const ROUTER_CACHE_MAX = 30;
 /** What askRouter uses when a call does not say otherwise (tests set a short pause). */
-export const ROUTER_TUNING = { timeoutMs: ROUTER_TIMEOUT_MS, retryMs: ROUTER_RETRY_MS };
+export const ROUTER_TUNING = { timeoutMs: ROUTER_TIMEOUT_MS, retryMs: ROUTER_RETRY_MS, reserve: true };
 const cache = new Map();
 export const clearRouterCache = () => cache.clear();
 const copyOf = (r) => ({ ...r, line: r.line.map((p) => [...p]) });
@@ -141,7 +141,7 @@ export const longestLegKm = (way = []) => way.slice(1).reduce((m, p, i) => Math.
  * The same question within ROUTER_CACHE_MS is answered from memory, also without internet.
  * opts: { timeoutMs, retryMs, now, online } (for tests).
  */
-export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch, alt = 0, opts = {}) {
+async function askBRouter(way, profile, fetcher, alt, opts) {
   const { timeoutMs = ROUTER_TUNING.timeoutMs, retryMs = ROUTER_TUNING.retryMs, now = Date.now(), online = globalThis.navigator?.onLine } = opts;
   if (longestLegKm(way) > ROUTER_TOO_FAR_KM) throw new Error('toofar');
   const url = brouterUrl(way, profile, alt);
@@ -192,6 +192,130 @@ export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch, alt
     }
   }
   throw new Error(fail);
+}
+
+/* ---------- Reserve-Router (Noah 05.11.2026 «2a und b») ---------- */
+
+/** The reserve routers, FOSSGIS public servers (free, no account, open to browsers). Asked only when brouter.de fails. */
+export const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
+export const OSRM = 'https://routing.openstreetmap.de/routed-bike/route/v1/driving';
+/** Valhalla refuses more than 150 km of path (measured 05.11.2026); as the crow flies we stop earlier. */
+export const VALHALLA_MAX_KM = 110;
+/** Valhalla's bicycle type for each BRouter profile (it changes the speed, hardly the way). */
+export const BICYCLE_TYPE = { trekking: 'Hybrid', fastbike: 'Road', gravel: 'Cross', mtb: 'Mountain' };
+/** A reserve gets this long (ms) and is asked once. */
+export const RESERVE_TIMEOUT_MS = 10000;
+/** These failures of brouter.de send the question on to the reserve; «no way», «too far» and «offline» do not. */
+const RESERVE_AFTER = ['failed', 'timeout', 'busy'];
+
+export const sumLegsKm = (way = []) => way.slice(1).reduce((m, p, i) => m + distKm(P(way[i]), P(p)), 0);
+
+/** Valhalla's route address for [{ lat, lon }]. */
+export function valhallaUrl(points, profile = PROFILE_STD) {
+  const type = BICYCLE_TYPE[profile] ?? BICYCLE_TYPE[PROFILE_STD];
+  const json = { locations: points.map((p) => ({ lat: Number(Number(p.lat).toFixed(5)), lon: Number(Number(p.lon).toFixed(5)) })), costing: 'bicycle', costing_options: { bicycle: { bicycle_type: type } }, units: 'kilometers' };
+  return `${VALHALLA}?json=${encodeURIComponent(JSON.stringify(json))}`;
+}
+
+/** OSRM's route address for [{ lat, lon }] (the path says «driving», the server's bike data is behind «routed-bike»). */
+export function osrmUrl(points) {
+  const c = points.map((p) => `${Number(p.lon).toFixed(5)},${Number(p.lat).toFixed(5)}`).join(';');
+  return `${OSRM}/${c}?overview=full&geometries=geojson`;
+}
+
+/** An encoded line (Valhalla: 6 digits) → [[lat, lon]]. */
+export function decodeLine(str = '', digits = 6) {
+  const f = 10 ** digits;
+  const out = [];
+  let i = 0;
+  let lat = 0;
+  let lon = 0;
+  const next = () => {
+    let shift = 0;
+    let res = 0;
+    let b;
+    do {
+      b = str.charCodeAt(i++) - 63;
+      res |= (b & 31) << shift;
+      shift += 5;
+    } while (b >= 32 && i <= str.length);
+    return res & 1 ? ~(res >> 1) : res >> 1;
+  };
+  while (i < str.length) {
+    lat += next();
+    lon += next();
+    out.push([lat / f, lon / f]);
+  }
+  return out;
+}
+
+/** Valhalla's answer → { line, km, gainM: null, min } or null. The legs are joined (their shared point once). */
+export function parseValhalla(json) {
+  const legs = json?.trip?.legs;
+  if (!Array.isArray(legs) || !legs.length) return null;
+  const line = [];
+  for (const l of legs) {
+    const pts = decodeLine(l?.shape ?? '');
+    line.push(...(line.length ? pts.slice(1) : pts));
+  }
+  const s = json.trip.summary ?? {};
+  if (line.length < 2 || !(Number(s.length) > 0)) return null;
+  return { line: line.filter((p) => fin(p[0]) && fin(p[1])), km: Math.round(Number(s.length) * 10) / 10, gainM: null, min: fin(s.time) ? Math.round(Number(s.time) / 60) : null };
+}
+
+/** OSRM's answer → { line, km, gainM: null, min } or null. */
+export function parseOsrm(json) {
+  const r = json?.code === 'Ok' ? json?.routes?.[0] : null;
+  const c = r?.geometry?.coordinates;
+  if (!Array.isArray(c) || c.length < 2 || !(Number(r.distance) > 0)) return null;
+  return { line: c.filter((x) => fin(x?.[0]) && fin(x?.[1])).map(([lon, lat]) => [lat, lon]), km: Math.round(Number(r.distance) / 100) / 10, gainM: null, min: fin(r.duration) ? Math.round(Number(r.duration) / 60) : null };
+}
+
+/**
+ * brouter.de did not answer: ask the reserve routers one after the other, each once (Valhalla, then OSRM).
+ * → the answer with `via: 'valhalla' | 'osrm'`, or null when none helps. The answer has no climb and hardly knows
+ * the kind of way, so the screens say so.
+ */
+export async function askReserve(way, profile = PROFILE_STD, fetcher = fetch, { timeoutMs = RESERVE_TIMEOUT_MS } = {}) {
+  const km = sumLegsKm(way);
+  const list = [
+    { key: 'valhalla', ok: km <= VALHALLA_MAX_KM, url: () => valhallaUrl(way, profile), parse: parseValhalla },
+    { key: 'osrm', ok: true, url: () => osrmUrl(way), parse: parseOsrm },
+  ];
+  for (const x of list) {
+    if (!x.ok) continue;
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), timeoutMs);
+    try {
+      const res = await fetcher(x.url(), { signal: ctl.signal });
+      if (!res?.ok) continue;
+      const r = x.parse(await res.json());
+      if (r) return { ...r, via: x.key };
+    } catch {
+      /* this reserve did not answer: the next one */
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return null;
+}
+
+/**
+ * The one door to the routers: brouter.de first (askBRouter, with its safety net); when it does not answer
+ * ('failed', 'timeout', 'busy') the reserve routers once each, for the first way only (alt 0). Without a
+ * reserve answer the first error is thrown as before.
+ */
+export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch, alt = 0, opts = {}) {
+  try {
+    return await askBRouter(way, profile, fetcher, alt, opts);
+  } catch (e) {
+    if (alt !== 0 || !RESERVE_AFTER.includes(e?.message) || !(opts.reserve ?? ROUTER_TUNING.reserve)) throw e;
+    const r = await askReserve(way, profile, fetcher, opts.reserveTimeoutMs ? { timeoutMs: opts.reserveTimeoutMs } : undefined);
+    if (!r) throw e;
+    // kept like any answer: the same question during the outage is answered from memory
+    cache.set(brouterUrl(way, profile, alt), { at: opts.now ?? Date.now(), r: { ...r, line: r.line.map((p) => [...p]) } });
+    return r;
+  }
 }
 
 /**

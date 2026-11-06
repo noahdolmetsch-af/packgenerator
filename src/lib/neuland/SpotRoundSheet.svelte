@@ -22,6 +22,7 @@
   import { gpxOfRound } from '../ueberraschung.js';
   import { routerMsg } from '../reroute.js';
   import RouterNote from '../live/RouterNote.svelte';
+  import ReserveNote from '../live/ReserveNote.svelte';
   import { spotRoundPlan, planSpotRound } from './runde.js';
   import '../bikes/velo-dlg.css';
 
@@ -108,8 +109,9 @@
   {/if}
   {#if round}
     <div class="sp-out" role="status" data-sp-result>
-      <b>{t('{km} km · {up} m up · about {time}', { km: num(Math.round(round.km)), up: num(round.gainM ?? 0), time: timeOf(round.min) })}</b>
+      <b>{(round.gainM == null ? t('{km} km · about {time}', { km: num(Math.round(round.km)), time: timeOf(round.min) }) : t('{km} km · {up} m up · about {time}', { km: num(Math.round(round.km)), up: num(round.gainM), time: timeOf(round.min) }))}</b>
       <span>{t('From home through {name} and back.', { name: spot.name })}</span>
+      {#if round.via}<ReserveNote cls="sp-note" />{/if}
     </div>
     <div class="sp-row">
       <button type="button" class="btn hi" disabled={busy} onclick={plan} data-sp-plan><Route size={18} aria-hidden="true" />{t('Plan as a trip')}</button>
