@@ -16,7 +16,7 @@
 import { createHash } from 'node:crypto';
 
 export const MAX_ITEMS = 200;
-export const MAX_WEATHER = 20;
+export const MAX_WEATHER = 40;
 export const STALE_MS = 6 * 3600 * 1000; // a message more than 6 hours late is not sent any more
 export const KEEP_S = 60 * 24 * 3600; // a phone that has not sent its list for 60 days is forgotten
 export const GUST_KMH = 60;
@@ -26,8 +26,8 @@ export const ICE_WET_MM = 0.2;
 /** Freezing drizzle and rain, snow and snow showers (WMO codes). */
 export const FREEZE = [56, 57, 66, 67, 71, 73, 75, 77, 85, 86];
 export const REASONS = ['thunder', 'ice', 'storm', 'heat'];
-/** The kinds of a weather check that have their own words and look: the morning fog line («Nebelgrenze am Morgen»). */
-export const CHECKS = [...REASONS, 'fog'];
+/** The kinds of a weather check that have their own words and look: the morning fog line («Nebelgrenze am Morgen») and the evening night temperature. */
+export const CHECKS = [...REASONS, 'fog', 'night'];
 /* Wetter-Wecker (Paket G, Noah 19.10.2026): a planned tour is watched twice a day until the day before. */
 export const WATCH_MAX_DAYS = 5;
 export const WATCH_EVERY_MS = 12 * 3600 * 1000;
@@ -117,7 +117,7 @@ export function cleanAir(a) {
 /** The words of the weather messages, «{temp}», «{trip}», «{day}» filled in by the server. */
 export function cleanTexts(t) {
   const out = { storm: str(t?.storm, 200), heat: str(t?.heat, 200), thunder: str(t?.thunder, 200), ice: str(t?.ice, 200), title: str(t?.title, 80), ititle: str(t?.ititle, 80) };
-  for (const k of ['turn', 'good', 'window', 'bad', 'better', 'wtitle', 'rain', 'rtitle', 'ozone', 'pollen', 'fogtitle', 'fog', 'fogcloud', 'fogclear', 'fogspot']) out[k] = str(t?.[k], 200);
+  for (const k of ['turn', 'good', 'window', 'bad', 'better', 'wtitle', 'rain', 'rtitle', 'ozone', 'pollen', 'fogtitle', 'fog', 'fogcloud', 'fogclear', 'fogspot', 'ntitle', 'night', 'nightfrost', 'nightwarm', 'nightcold']) out[k] = str(t?.[k], 200);
   out.pollenNames = Object.fromEntries(POLLEN.map((p) => [p.key, str(t?.pollenNames?.[p.key], 30)]));
   out.wdays = (Array.isArray(t?.wdays) ? t.wdays : []).slice(0, 7).map((d) => str(d, 6));
   return out;
@@ -414,4 +414,46 @@ export function fogMessage(w, v, texts) {
   } else body = texts?.fogcloud?.replace('{top}', String(v.top));
   if (!body) return null;
   return { title: texts?.fogtitle || texts?.title || 'Pack Generator', body, url: w.url, tag: w.key };
+}
+
+/* ---------- Nachttemperatur am Abend (Noah 06.11.2026 «5a»: Abend-Push später, «push ja») ---------- */
+
+/** The night and the words of its hints; the same as src/lib/wetter/nacht.js (tests/push-night.test.js keeps them equal). */
+export const NIGHT_FROM = 18;
+export const NIGHT_TO = 8;
+export const NIGHT_MIN_HOURS = 10;
+export const NIGHT_FROST_C = 0;
+export const NIGHT_WORTH_DAY = 2;
+
+/** The temperature of the hours around one evening (free, no key): last night, tonight; the times are the place's own. */
+export const nightUrl = (w) =>
+  `https://api.open-meteo.com/v1/forecast?latitude=${w.lat.toFixed(3)}&longitude=${w.lon.toFixed(3)}&hourly=temperature_2m&timezone=auto&start_date=${ymdAdd(w.date, -1)}&end_date=${ymdAdd(w.date, 1)}`;
+
+/**
+ * The lowest temperature (whole °C) of the night from the evening of `date` 18 h to the next morning 8 h, and of the night before it
+ * (the one that ended this morning) → { min, last (or null) }; null when tonight has fewer than NIGHT_MIN_HOURS hours.
+ */
+export function nightVerdict(j, date) {
+  const h = j?.hourly ?? {};
+  const low = (evening) => {
+    const from = `${evening}T${String(NIGHT_FROM).padStart(2, '0')}:00`;
+    const to = `${ymdAdd(evening, 1)}T${String(NIGHT_TO).padStart(2, '0')}:00`;
+    const v = (h.time ?? []).map((x, i) => [String(x), h.temperature_2m?.[i]]).filter(([x, t]) => x >= from && x < to && num(t) != null).map(([, t]) => t);
+    return v.length >= NIGHT_MIN_HOURS ? Math.round(Math.min(...v)) : null;
+  };
+  const min = low(date);
+  return min == null ? null : { min, last: low(ymdAdd(date, -1)) };
+}
+
+/**
+ * The evening message: «Tonight down to {temp} °C.» plus one word, frost first, else a change of 2° or more against the night
+ * that just ended. null without words or without a value.
+ */
+export function nightMessage(w, v, texts) {
+  if (!v || !texts?.night) return null;
+  let body = texts.night.replace('{temp}', String(v.min));
+  const diff = v.last == null ? 0 : v.min - v.last;
+  const hint = v.min < NIGHT_FROST_C ? texts.nightfrost : Math.abs(diff) >= NIGHT_WORTH_DAY ? (diff > 0 ? texts.nightwarm : texts.nightcold)?.replace('{d}', String(Math.abs(diff))) : '';
+  if (hint) body = `${body} ${hint}`;
+  return { title: texts.ntitle || texts.title || 'Pack Generator', body, url: w.url, tag: w.key };
 }
