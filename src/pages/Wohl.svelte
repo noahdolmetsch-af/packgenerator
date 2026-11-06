@@ -802,6 +802,8 @@
   }
   .wl-row .sm {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow-wrap: break-word;
     gap: 2px;
   }
   .wl-how summary {

@@ -1,6 +1,7 @@
 // «Lange Wörter: Glas der guten Momente» (Nacht-Roboter «Langes Wort», Noah 06.11.2026 «4a»): ein sehr langes Wort
 // ohne Umbruchstelle in einer Dank- oder Stolz-Notiz machte Ich › Wohlbefinden breiter als den Bildschirm
-// (2060 px statt 1440 px). Erfundene Texte.
+// (2060 px statt 1440 px). Dasselbe bei einem langen Namen einer eigenen Phase auf dem Handy (555 px statt 390 px).
+// Erfundene Texte.
 import { test, expect, noonToday } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
@@ -35,5 +36,25 @@ test('Wohlbefinden: eine Dank-Notiz mit langem Wort bleibt im Glas auf dem Bilds
     const right = await el.evaluate((e) => e.getBoundingClientRect().right);
     expect(right, T('Jar of good moments')).toBeLessThanOrEqual(vw);
   }
+  expect(errors).toEqual([]);
+});
+
+test('Wohlbefinden: eine Phase mit langem Namen bleibt auf dem Bildschirm', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./#/me/wohl');
+  await ready(page);
+  await page.locator('[data-phase-add]').click();
+  const sheet = page.locator('dialog[open][data-phase-sheet]');
+  await sheet.locator('input[type="text"]').first().fill('Wunderlangeswort'.repeat(3)); // a name is cut at 60
+  await sheet.locator('button[type="submit"]').click();
+  const row = page.locator('[data-phase] ', { hasText: 'Wunderlangeswort' }).first();
+  await expect(row).toBeVisible();
+  const vw = page.viewportSize().width;
+  const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(sw, 'the page is not wider than the screen').toBeLessThanOrEqual(vw);
+  expect(await row.evaluate((e) => e.getBoundingClientRect().right), 'the row ends on the screen').toBeLessThanOrEqual(vw);
   expect(errors).toEqual([]);
 });
