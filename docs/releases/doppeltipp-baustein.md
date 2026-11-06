@@ -1,6 +1,6 @@
 # Speichern gilt einmal, in jedem Fenster
 
-PR #<Nummer> · 06.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Antwort «5a»), Thread «Durchklicken Etappe 4: Velos und Alltag»
+PR #1017 · 06.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Antwort «5a»), Thread «Durchklicken Etappe 4: Velos und Alltag»
 
 ## Was ist neu
 - Ein zweiter Tipp auf denselben «Speichern»-Knopf innerhalb von 0,45 Sekunden tut nichts mehr. Das gilt für alle Fenster und Formulare der App auf einmal (`src/lib/ui/doubletap.js`, eingehängt in `src/main.js`), nicht nur für Merken und Notizen.
