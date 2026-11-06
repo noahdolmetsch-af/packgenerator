@@ -11,7 +11,7 @@ PR #1017 · 06.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Antwort «5a»), T
 
 ## Selbst entschieden
 - Ein globaler Fänger statt Umbau von über 200 Fenstern. `once()` in `ui/ask.js` bleibt für Arbeit, die sich auch nach 0,45 Sekunden nicht überlappen darf. Die Einzel-Absicherungen aus E4-003 (#976) und E4-004 (#984) bleiben als zweites Netz.
-- Test `tests/doubletap.test.js` (Regel) und `tests/e2e/doppeltipp-baustein.spec.js` (Notiz und To-do mit Doppeltipp, erfundene Daten): vorher rot, nachher grün.
+- Test `tests/doubletap.test.js` (Regel, vorher rot, weil der Baustein fehlte) und `tests/e2e/doppeltipp-baustein.spec.js` (Notiz und To-do mit Doppeltipp, erfundene Daten). Der Ablauf-Test war vor #976 und #984 rot (Notizen 41 → 42) und ist seither auch ohne den Baustein grün, weil beide Seiten ihren eigenen Schutz haben; er bleibt als Netz, dass es so bleibt.
 
 ## Entscheide (für decisions.md)
 - Doppeltipp-Schutz: ein gemeinsamer Baustein (Noah 06.11.2026 «5a»).
