@@ -179,4 +179,9 @@
     color: var(--paper);
     box-shadow: none;
   }
+  /* E6: the count in the chosen chip stays readable on the filled chip (it kept the grey of the unchosen ones) */
+  .chips button[aria-pressed='true'] .n {
+    color: inherit;
+    opacity: 0.8;
+  }
 </style>
