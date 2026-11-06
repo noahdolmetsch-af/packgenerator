@@ -253,7 +253,7 @@ Diese Funktionen gibt es in der App (`features.js`), sie fehlten im Dokument. De
 | Ich (Einstieg) | `#/me` | Einstieg zu Daten, Verbindungen, Einstellungen, Aufräumen von Testdaten und Tastenkürzeln. |
 | Aussehen und Bedienung | `#/me/look` | Farbwelt, Grösse und Licht, Handschuh-Modus, eine Seite anpassen, Vorschläge an oder aus, eingeklappte Karten «Was du hier tun kannst» wieder aufklappen, KI auf diesem Gerät. |
 | Werkzeugkasten | `#/me/tools` | Kleine Werkzeuge: Karte messen, Barcode, Packliste per Foto, Währungen, Lupe und Licht, Zeitzonen, Kompass, Redewendungen, Reisekosten, Übersetzungen der Gänge, Wasserwaage, Sitzposition, PDF, Fotos, Bildformat, Video verkleinern, QR-Code, Etiketten, Rechner, Einheiten, Werkzeugketten. |
-| Freie Zeit | `#/me/frei` | Erste Nacht, Für nächstes Mal, Mein Abend, Was mir wichtig ist, Reisewünsche, Wonach ist mir?, Meine Sammlungen. |
+| Freie Zeit | `#/me/frei` | Erste Nacht, Für nächstes Mal (Notizen mit einem Tippen auf die Packliste der nächsten Tour setzen), Mein Abend, Was mir wichtig ist, Reisewünsche, Wonach ist mir?, Meine Sammlungen. |
 | Gewicht | `#/me/weight` | Freiwillig und nur auf diesem Gerät: das eigene Gewicht mit Kurve, für Watt pro Kilo. |
 | Wi gaht's? | `#/me/abfragen` | Spielerische Fragen mit eigenem Rhythmus, Morgen- und Abendrunde, Verlauf und Auswertung; Fragen und Bereiche ändern, löschen, ergänzen und sortieren. Pro Thema nur eine Frage von selbst; Zusammengelegte stehen aus in der Liste. |
 | Wi gaht's? am Abend | `#/check/evening` | Am Tourtag abends bewerten, wie die Tour war (1 bis 10); landet im Rückblick und im Tagebuch. Die Fragen oben sind die der Abendrunde aus «Deine Fragen», dieselben wie im Fenster; eine Fahrt und eine Meditation von heute tragen sich selbst ein. |
