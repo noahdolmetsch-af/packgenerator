@@ -1,6 +1,6 @@
 # Wächter «Seitengrösse»
 
-PR #<Nummer> · 05.11.2026 · Auftrag: Noah «Idee A: Tempo-Runde für Seiten» (Thread «Umsetzen Tempo-Runde für Seiten»)
+PR #1009 · 05.11.2026 · Auftrag: Noah «Idee A: Tempo-Runde für Seiten» (Thread «Umsetzen Tempo-Runde für Seiten»)
 
 ## Was ist neu
 - Nichts in der App. Ein neuer Test (`tests/e2e/seitengroesse.spec.js`, Fenster 390 px breit) zählt auf den 14 langsamsten Seiten, wie viele Elemente sie aufbauen (Touren, Material, Wunschliste, Vorrat, Velos, Pflege, Bausteine, Aktiv, Meine Sportarten, Meilensteine, Träume, Neuland, Deine Abfragen, Wohlbefinden). Baut eine Seite mehr als ihr Budget, wird der Test rot: «Seite wird träger, baue zugeklappte Teile erst beim Öffnen».
