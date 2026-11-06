@@ -378,6 +378,50 @@ export const visitedFromLines = (lines, defs, today = null) => detect(defs, line
  * → { [collectionId]: { [itemId]: { day, tripId, rideId, years: { YYYY: day } } } }
  */
 export function detect(defs, tracks) {
+  // Heute, the Neuland page, Träume and the trip tips all ask the same question after each other; the polygon work is
+  // the heavy part, so the answers stay per collection: the same places and the same tracks give the same finds.
+  const tk = tracksKey(tracks);
+  const keys = defs.map((d) => `${defKey(d)}#${tk}`);
+  const todo = defs.filter((_, i) => !DETECT_MEMO.has(keys[i]));
+  if (todo.length) {
+    const fresh = detectNow(todo, tracks);
+    defs.forEach((d, i) => {
+      if (!DETECT_MEMO.has(keys[i])) DETECT_MEMO.set(keys[i], fresh[d.id]);
+    });
+    while (DETECT_MEMO.size > 40) DETECT_MEMO.delete(DETECT_MEMO.keys().next().value);
+  }
+  const found = {};
+  defs.forEach((d, i) => {
+    const f = DETECT_MEMO.get(keys[i]);
+    if (f) found[d.id] = f;
+  });
+  return found;
+}
+
+const DETECT_MEMO = new Map();
+const strHash = (s) => {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return h;
+};
+/** A short text that changes when a collection's places change. */
+function defKey(x) {
+  let c = 0;
+  for (const i of x.items) c += (Number.isFinite(i.lat) ? i.lat * 31 : 0) + (Number.isFinite(i.lon) ? i.lon * 17 : 0) + (i.rings?.length ?? 0) + (i.r ?? 0);
+  return `${x.id}:${x.kind}:${x.radius ?? ''}:${x.items.length}:${strHash(x.items.map((i) => i.id).join(','))}:${c}`;
+}
+/** A short text that changes when a track or one of its points changes. */
+function tracksKey(tracks) {
+  return tracks
+    .map((x) => {
+      let c = 0;
+      for (const [lat, lon] of x.pts) c += lat * 31 + lon * 17;
+      return `${x.day}:${x.tripId ?? ''}:${x.rideId ?? ''}:${x.src ?? ''}:${x.pts.length}:${c}`;
+    })
+    .join('|');
+}
+
+function detectNow(defs, tracks) {
   const found = {};
   const rec = (cid, id, tr) => {
     const m = (found[cid] ??= {});

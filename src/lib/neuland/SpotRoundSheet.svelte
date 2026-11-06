@@ -20,6 +20,9 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { homeForecast } from '../home-weather.js';
   import { gpxOfRound } from '../ueberraschung.js';
+  import { routerMsg } from '../reroute.js';
+  import RouterNote from '../live/RouterNote.svelte';
+  import ReserveNote from '../live/ReserveNote.svelte';
   import { spotRoundPlan, planSpotRound } from './runde.js';
   import '../bikes/velo-dlg.css';
 
@@ -47,14 +50,7 @@
       round = await planSpotRound(home, plan);
       side = s;
     } catch (e) {
-      err =
-        e?.message === 'busy'
-          ? t('The bike router is busy right now. Try again in a minute.')
-          : e?.message === 'noroute'
-            ? t('The bike router found no round there. Tap «Other side».')
-            : navigator.onLine === false
-              ? t('Offline: a new round needs the internet.')
-              : t('The bike router did not answer. Try again.');
+      err = t(routerMsg(e, { round: true, noroute: 'The bike router found no round there. Tap «Other side».' }));
     } finally {
       busy = false;
     }
@@ -113,8 +109,9 @@
   {/if}
   {#if round}
     <div class="sp-out" role="status" data-sp-result>
-      <b>{t('{km} km · {up} m up · about {time}', { km: num(Math.round(round.km)), up: num(round.gainM ?? 0), time: timeOf(round.min) })}</b>
+      <b>{(round.gainM == null ? t('{km} km · about {time}', { km: num(Math.round(round.km)), time: timeOf(round.min) }) : t('{km} km · {up} m up · about {time}', { km: num(Math.round(round.km)), up: num(round.gainM), time: timeOf(round.min) }))}</b>
       <span>{t('From home through {name} and back.', { name: spot.name })}</span>
+      {#if round.via}<ReserveNote cls="sp-note" />{/if}
     </div>
     <div class="sp-row">
       <button type="button" class="btn hi" disabled={busy} onclick={plan} data-sp-plan><Route size={18} aria-hidden="true" />{t('Plan as a trip')}</button>
@@ -126,7 +123,7 @@
     <p class="sp-note err" role="alert">{err}</p>
     <button type="button" class="btn" disabled={busy} onclick={() => ask(round ? -side : side)} data-sp-retry><RefreshCw size={18} aria-hidden="true" />{t('Try again')}</button>
   {/if}
-  <p class="sp-note">{t('Asks the free bike router once (BRouter). Nothing else leaves the device.')}</p>
+  <RouterNote round cls="sp-note" />
 </dialog>
 
 <style>

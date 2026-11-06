@@ -17,6 +17,7 @@
   import PathHead from '../lib/ui/PathHead.svelte';
   import ListTable from '../lib/ui/ListTable.svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import SearchSelect from '../lib/ui/SearchSelect.svelte';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
   import { nameCol, saveItemRows } from '../lib/gear/tablecols.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -150,13 +151,11 @@
       <Empty text={t('No supplies yet. Food & drink counts by itself; any other item becomes one as soon as you set a best-before date or a stock.')} />
     {/if}
     <div class="add">
-      <label>
-        <span>{t('Also keep as a supply')}</span>
-        <select bind:value={addId}>
-          <option value="">{t('Choose an item …')}</option>
-          {#each others as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
-        </select>
-      </label>
+      <div class="pick">
+        <span id="sup-add-h">{t('Also keep as a supply')}</span>
+        <!-- Etappe 2, 4a: hundreds of items; the search field narrows the list -->
+        <SearchSelect bind:value={addId} options={others.map((i) => ({ value: i.id, label: nameOf(i) }))} empty={t('Choose an item …')} label={t('Also keep as a supply')} searchLabel={t('Search all items')} />
+      </div>
       <button type="button" class="btn" disabled={!addId} onclick={addSupply}>{t('Add|supply')}</button>
     </div>
   </section>
@@ -263,7 +262,7 @@
     align-items: end;
     gap: 10px;
   }
-  .add label {
+  .add .pick {
     flex: 1 1 200px;
     min-width: 0;
     max-width: 100%;
@@ -272,7 +271,7 @@
     gap: 4px;
     font-size: var(--fs-small);
   }
-  .add select {
+  .add .pick :global(select) {
     width: 100%;
     min-height: 44px;
     border: 1px solid var(--line);

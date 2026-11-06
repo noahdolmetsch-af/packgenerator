@@ -168,3 +168,40 @@ describe('loading', () => {
     expect(await loadFog(db, null)).toBeNull();
   });
 });
+
+describe('the route against the fog (nebelroute.js)', () => {
+  const route = [[0, 400], [10, 600], [20, 900], [30, 1100], [40, 700]];
+  it('starts in the fog, goes above it where the profile crosses the top, and counts the km in the fog', async () => {
+    const { routeFog } = await import('../src/lib/wetter/nebelroute.js');
+    const r = routeFog(route, 800);
+    expect(r).toMatchObject({ startM: 400, startIn: true, aboveKm: 16.7, km: 40, topM: 1100 });
+    expect(r.kmIn).toBe(19.2); // 10 km + 6.7 km up to the crossing + 2.5 km on the way down
+  });
+  it('starts above the fog: no «above from km», only the km that dip into it', async () => {
+    const { routeFog } = await import('../src/lib/wetter/nebelroute.js');
+    const r = routeFog([[0, 1000], [10, 700], [20, 1000]], 800);
+    expect(r.startIn).toBe(false);
+    expect(r.aboveKm).toBeNull();
+    expect(r.kmIn).toBeCloseTo(6.7, 1);
+  });
+  it('a route that never leaves the fog, and no profile or no top', async () => {
+    const { routeFog } = await import('../src/lib/wetter/nebelroute.js');
+    const r = routeFog([[0, 400], [20, 650]], 800);
+    expect(r).toMatchObject({ startIn: true, aboveKm: null, kmIn: 20, topM: 650 });
+    expect(routeFog([[0, 400]], 800)).toBeNull();
+    expect(routeFog(route, null)).toBeNull();
+    expect(routeFog(null, 800)).toBeNull();
+  });
+  it('the fog of a trip at its start time; 9 h by default; nothing outside the 3 days or without a place', async () => {
+    const { tripFog, startOf } = await import('../src/lib/wetter/nebelroute.js');
+    const loader = async () => fog;
+    const trip = { startDate: DAY, route: { start: { lat: 47.37, lon: 8.54 } } };
+    const f = await tripFog(null, trip, { loader });
+    expect(f).toMatchObject({ top: 800, ground: true, clears: 11, old: false });
+    expect(f.at).toBe(startOf(DAY, 9, OFF));
+    expect((await tripFog(null, trip, { loader, startMs: startOf(DAY, 14, OFF) })).top).toBeNull(); // clear in the afternoon
+    expect(await tripFog(null, { ...trip, startDate: '2026-12-24' }, { loader })).toBeNull(); // not in the 3 days
+    expect(await tripFog(null, { startDate: DAY }, { loader })).toBeNull(); // no place
+    expect(await tripFog(null, trip, { loader: async () => null })).toBeNull();
+  });
+});

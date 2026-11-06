@@ -151,6 +151,7 @@
     list-style: none;
   }
   .pn-rows li {
+    min-width: 0; /* E2-006: a grid row is never narrower than its longest word, so a long note widened the whole page */
     padding: 6px 0;
     border-top: 1px solid var(--line);
   }
