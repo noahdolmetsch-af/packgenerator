@@ -1977,7 +1977,7 @@
   {/if}
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
-{#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
+{#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} tripBikeId={trip?.bikeId ?? null} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} exitNear={exitNear} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
