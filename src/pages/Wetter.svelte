@@ -36,6 +36,7 @@
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
   import NebelBlock from '../lib/wetter/NebelBlock.svelte'; // «Nebelgrenze» (Noah 05.11.2026)
+  import NachtBlock from '../lib/wetter/NachtBlock.svelte'; // «Nachttemperatur» (Noah 06.11.2026)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
@@ -265,6 +266,8 @@
         <a class="btn sm" href="#/me/hinweise">{t('Warnings, avalanches, passes')}</a>
       </div>
     </section>
+
+    <NachtBlock {core} {now} />
 
     <NextHours {place} />
   {/if}
