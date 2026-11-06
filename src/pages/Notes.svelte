@@ -246,7 +246,17 @@
     checkMode = true;
     if (!/(^|\n)- /.test(text)) text = `${text}${text ? '\n' : ''}- `;
   }
+  let saving = false; // the save waits for the database: a second tap meanwhile must not add the note again
   async function save() {
+    if (saving) return;
+    saving = true;
+    try {
+      await saveNow();
+    } finally {
+      saving = false;
+    }
+  }
+  async function saveNow() {
     msg = '';
     let link = null;
     if (linkOpen && linkUrl.trim()) {
