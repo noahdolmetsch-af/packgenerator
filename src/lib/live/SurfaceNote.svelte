@@ -24,6 +24,6 @@
     display: block;
   }
   .sf-warn {
-    color: var(--warn, #a3321f);
+    color: var(--warn);
   }
 </style>

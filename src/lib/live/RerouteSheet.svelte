@@ -263,7 +263,7 @@
     background: var(--paper);
   }
   .rr-way :global(.rr-surface) {
-    font-size: var(--fs-small, 12px);
+    font-size: var(--fs-small);
     margin-top: 2px;
   }
   .rr-tags {
