@@ -3,6 +3,7 @@
 import { test, expect } from './clock.js';
 import { start, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
+import { openCard } from './karte-auf.js';
 
 const T = tr('de');
 const fill = (key, name) => T(key).replace('{name}', name);
@@ -10,6 +11,7 @@ const fill = (key, name) => T(key).replace('{name}', name);
 test('All here on Bikes: tiles open their page, change order, hide with Undo, show again', async ({ page, context }, info) => {
   await start(page, context, info);
   await page.goto('./#/bikes');
+  await openCard(page, 'ah:bikes');
   const box = page.locator('[data-all-here="bikes"]');
   await expect(box).toBeVisible();
   await settle(page);
@@ -54,6 +56,7 @@ test('All here on Bikes: tiles open their page, change order, hide with Undo, sh
 test('All here on Gear: the tiles show and open their page', async ({ page, context }, info) => {
   await start(page, context, info);
   await page.goto('./#/gear');
+  await openCard(page, 'ah:gear');
   const box = page.locator('[data-all-here="gear"]');
   await expect(box).toBeVisible();
   await settle(page);
@@ -76,6 +79,7 @@ test('All here on Gear: the tiles show and open their page', async ({ page, cont
 test('All here on Trips: the tiles show and open their page, komoot stays in the row', async ({ page, context }, info) => {
   await start(page, context, info);
   await page.goto('./#/trips');
+  await openCard(page, 'ah:trips');
   const box = page.locator('[data-all-here="trips"]');
   await expect(box).toBeVisible();
   await settle(page);
