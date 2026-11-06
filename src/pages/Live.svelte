@@ -62,6 +62,7 @@
   import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
   import ReserveNote from '../lib/live/ReserveNote.svelte';
+  import SurfaceNote from '../lib/live/SurfaceNote.svelte';
   import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour, routerMsg } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
@@ -1441,6 +1442,7 @@
               <b>{detourTitle}</b>
               <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
               {#if detour.via}<ReserveNote cls="lv-reserve" />{/if}
+              <SurfaceNote surface={detour.surface} profile={detour.profile} cls="lv-surface" />
               {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
               {#if goalOn && detourTurns.length}
                 <details class="lv-steps" data-live-steps>
@@ -2467,6 +2469,11 @@
   }
   .lv-detour .lv-back-err {
     color: var(--bad);
+  }
+  .lv-detour :global(.lv-surface) {
+    margin: 0;
+    font-size: var(--fs-small);
+    opacity: 0.85;
   }
   .lv-detour :global(.lv-reserve) {
     margin: 0;

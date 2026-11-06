@@ -18,6 +18,7 @@
   import { targetsOf, planAlternatives, routerMsg, PROFILES, PROFILE_STD } from '../reroute.js';
   import { navLinks } from './live-lib.js';
   import RouterNote from './RouterNote.svelte';
+  import SurfaceNote from './SurfaceNote.svelte';
   import { t, num } from '../i18n.svelte.js';
 
   let { here = null, pts = [], km = null, pois = [], own = [], picked = null, tripBikeId = null, onplan, onclose } = $props();
@@ -164,6 +165,7 @@
             <span class="rc-row-main">
               <b>{t('Way {n}', { n: i + 1 })}</b>
               <small>{fmtKm(w.km)} km{w.min != null ? ` · ${hm(w.min)}` : ''}{w.gainM != null ? ` · ${num(w.gainM)} m ↑` : ''}</small>
+              <SurfaceNote surface={w.surface} profile={w.profile} cls="rr-surface" />
               {#if w.tags?.length}<span class="rr-tags">{#each w.tags as g (g)}<em>{t(TAGS[g])}</em>{/each}</span>{/if}
             </span>
             <button type="button" class="btn sm" onclick={() => take(w)} data-reroute-take={i}><Navigation size={16} aria-hidden="true" />{t('Take this way')}</button>
@@ -259,6 +261,10 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--paper);
+  }
+  .rr-way :global(.rr-surface) {
+    font-size: var(--fs-small, 12px);
+    margin-top: 2px;
   }
   .rr-tags {
     display: flex;
