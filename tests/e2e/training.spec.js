@@ -434,3 +434,42 @@ test('Training › Woche: a session removed twice stays out of the next suggesti
   await expect(sug.locator('[data-sug-habits]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Training › Heute passt: a tired day offers a lighter session, Undo, Keep it', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = localDay();
+  await page.evaluate(
+    (day) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction(['settings', 'flowChecks'], 'readwrite');
+          tx.objectStore('settings').put({ key: 'training.plan', value: { sessions: [{ id: 'hp1', day, kind: 'bike', name: 'Beispielrunde', mins: 90, zone: 4 }] } });
+          tx.objectStore('flowChecks').put({ day, sleep: 1, energy: 1 });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    today,
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="today-fits"]');
+  await expect(card).toBeVisible();
+  await expect(card).toContainText('Beispielrunde');
+  await card.locator('[data-today-lighter]').click();
+  await expect(card).toHaveCount(0);
+  await expect(page.locator('[data-section="week-plan"]')).toContainText('0:45');
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(page.locator('[data-section="week-plan"]')).toContainText('1:30');
+  await expect(card).toBeVisible();
+  await card.locator('[data-today-keep]').click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(card).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
