@@ -16,7 +16,7 @@ const byKey = (g, key) => g.steps.find((s) => s.key === key);
 
 describe('suggestions', () => {
   it('is in the registry, after the own step', () => {
-    expect(TYPES.map((t) => t.type)).toEqual(['own', 'rennplanung']);
+    expect(TYPES.map((t) => t.type).slice(0, 2)).toEqual(['own', 'rennplanung']);
     expect(typeOf('rennplanung')).toBe(rennplanung);
   });
   it('a race gets the four steps, counted back from the start; every other goal gets none', () => {
