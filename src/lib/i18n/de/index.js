@@ -486,6 +486,7 @@ import livestart from './livestart.js';
 import frei from './frei.js';
 import freiReiseTraum from './frei-reise-traum.js';
 import freiUebernahme from './frei-uebernahme.js';
+import freiWesentlich from './frei-wesentlich.js';
 import tagebuch from './tagebuch.js';
 // Paket V «Alltag» (Noah 19.10.2026 «3a oder b 4a 5a», «1a»): Ich › Alltag, contracts, people, abroad, flight
 import alltag from './alltag.js';
@@ -946,6 +947,7 @@ const ORDERED = [
   frei,
   freiReiseTraum,
   freiUebernahme,
+  freiWesentlich,
   alltag,
   strom,
   anleitungen,
