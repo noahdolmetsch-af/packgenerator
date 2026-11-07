@@ -314,7 +314,8 @@ test('Training › Woche: a suggestion for the week, another one, take over, und
   await expect(rows).toHaveCount(n0);
   await sug.locator('[data-suggest-take]').click();
   await expect(sug).toHaveCount(0);
-  expect(await plan.locator('[data-planned]').count()).toBeGreaterThan(0);
+  // the plan is saved after the suggestion closes: wait for the rows (a count() right away can still see none)
+  await expect(plan.locator('[data-planned]').first()).toBeVisible();
   await page.getByRole('button', { name: 'Rückgängig' }).first().click();
   await expect(plan.locator('[data-planned]')).toHaveCount(0);
   expect(errors).toEqual([]);
