@@ -130,6 +130,7 @@
   <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('Travel wishes')} />
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Travel wishes')}</h1>
   <p class="fz-intro">{t('First the longing, then the destination. And after the trip: did you find what you hoped for?')}</p>
+  <p class="fz-note" data-reise-dreams-link><a href="#/trips/dreams">{t('Your dream tours are under Trips › Dreams.')}</a></p>
 
   <section class="fz-form" aria-labelledby="fzr-long-h" data-longing>
     <h2 id="fzr-long-h" class="fz-h2"><Sparkles size={18} aria-hidden="true" /> {t('What I long for')}</h2>
