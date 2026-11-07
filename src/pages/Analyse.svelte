@@ -8,7 +8,7 @@
    * («2a»: no second page for the same thing). Only to look at, nothing is rated. Rules in lib/analyse.js.
    * Loaded only when opened (App.svelte PAGES.Analyse).
    */
-  import { ChevronRight } from '@lucide/svelte';
+  import { ChevronRight, ChevronDown } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -18,7 +18,7 @@
   import { analyseData } from '../lib/analyse/data.svelte.js';
   import { analyseGroups } from '../lib/analyse/catalog.js';
   import { localDay } from '../lib/localday.js';
-  import { t, num } from '../lib/i18n.svelte.js';
+  import { t, tn, num } from '../lib/i18n.svelte.js';
   import AnalyseWert from './analyse/AnalyseWert.svelte';
   import Diagramm from './analyse/Diagramm.svelte';
   import Ueberblick from './analyse/Ueberblick.svelte';
@@ -81,6 +81,13 @@
   const TABS = ['ueberblick', 'diagramm', 'vergleiche', 'rekorde', 'velos', 'werte'];
   const TAB_NAMES = { ueberblick: 'Overview|tab', diagramm: 'Own diagram|tab', vergleiche: 'Comparisons|tab', rekorde: 'Records and runs|tab', velos: 'Bikes|tab', werte: 'All values|tab' };
   let tab = $state(TABS.includes(saved.tab) ? saved.tab : 'ueberblick');
+  // The card «Data from / Period / Show» only on the tabs where it does something (Noah 07.11.2026 «3a»). Diagram and
+  // Comparisons have their own periods inside; there a line says so instead of a card that changes nothing.
+  const FILTERS = { ueberblick: ['src', 'period'], diagramm: [], vergleiche: [], rekorde: ['period'], velos: ['period'], werte: ['src', 'period', 'all'] };
+  const FILTER_NOTES = { diagramm: 'Here you choose the values and the period in the diagram itself.|analyse', vergleiche: 'Here you choose the periods in the cards below.|analyse' };
+  const filters = $derived(FILTERS[tab] ?? []);
+  // on a phone the card is one line, «30 days · 5 sources», that opens the choices
+  let filterOpen = $state(false);
   // Groups are closed (Noah 03.11.2026 «4a»); the open ones are remembered
   let openG = $state(Array.isArray(saved.openG) ? saved.openG : []);
   const toggleG = (k, isOpen) => (openG = isOpen ? (openG.includes(k) ? openG : [...openG, k]) : openG.filter((x) => x !== k));
@@ -137,6 +144,16 @@
   const SRC_NAMES = { aktiv: 'Aktiv', fitbit: 'Fitbit', strava: 'Strava', body: 'Body|group', check: "Wi gaht's?|analyse" };
   const periodOpts = $derived(PERIODS.map((p) => ({ key: String(p), name: p === 365 ? t('Year|analyse') : t('{n} days|analyse', { n: p }) })));
 
+  const filterLine = $derived(
+    [
+      filters.includes('period') ? periodOpts.find((o) => o.key === String(period))?.name : null,
+      filters.includes('src') ? tn(on.length, '{n} source|analyse', '{n} sources|analyse') : null,
+      filters.includes('all') && all ? t('with empty values|analyse') : null,
+    ]
+      .filter(Boolean)
+      .join(' · '),
+  );
+
   const valueText = (x) => fmtValue(x, x.value, num);
   const howText = (x) => (x.own && !x.empty ? `${t('own calculation|own')} · ${baseHow(x)}` : baseHow(x));
   const baseHow = (x) =>
@@ -164,24 +181,39 @@
     <PageHead title={t('Analyse|page')} sub={t('All your values from Fitbit, Strava, your body, «Wi gaht\'s?» and Aktiv. Tap a value to see its course. Only to look at, nothing is rated.')} />
   </header>
 
-  <section class="card pick" aria-label={t('Choose what you see')}>
-    <div class="pr">
-      <span class="pl" id="an-src">{t('Data from|analyse')}</span>
-      <div class="chips" role="group" aria-labelledby="an-src">
-        {#each SOURCES as s (s)}
-          <button type="button" class="chip" class:on={on.includes(s)} aria-pressed={on.includes(s)} data-src={s} onclick={() => toggle(s)}><i class="dot {s}" aria-hidden="true"></i>{t(SRC_NAMES[s])}</button>
-        {/each}
+  {#if filters.length}
+    <section class="card pick" aria-label={t('Choose what you see')}>
+      <button type="button" class="pk-sum" aria-expanded={filterOpen} aria-controls="an-pick-body" data-filter-toggle onclick={() => (filterOpen = !filterOpen)}>
+        <span>{filterLine}</span><ChevronDown size={18} aria-hidden="true" />
+      </button>
+      <div class="pk-body" class:open={filterOpen} id="an-pick-body">
+        {#if filters.includes('src')}
+          <div class="pr">
+            <span class="pl" id="an-src">{t('Data from|analyse')}</span>
+            <div class="chips" role="group" aria-labelledby="an-src">
+              {#each SOURCES as s (s)}
+                <button type="button" class="chip" class:on={on.includes(s)} aria-pressed={on.includes(s)} data-src={s} onclick={() => toggle(s)}><i class="dot {s}" aria-hidden="true"></i>{t(SRC_NAMES[s])}</button>
+              {/each}
+            </div>
+          </div>
+        {/if}
+        {#if filters.includes('period')}
+          <div class="pr">
+            <span class="pl" id="an-period">{t('Period|tk')}</span>
+            <Seg options={periodOpts} value={String(period)} onchange={(v) => (period = Number(v))} labelledby="an-period" full={false} />
+          </div>
+        {/if}
+        {#if filters.includes('all')}
+          <div class="pr">
+            <span class="pl" id="an-all">{t('Show|analyse')}</span>
+            <button type="button" class="chip" class:on={all} aria-pressed={all} data-all onclick={() => (all = !all)} aria-labelledby="an-all">{t('Also values without data')}</button>
+          </div>
+        {/if}
       </div>
-    </div>
-    <div class="pr">
-      <span class="pl" id="an-period">{t('Period|tk')}</span>
-      <Seg options={periodOpts} value={String(period)} onchange={(v) => (period = Number(v))} labelledby="an-period" full={false} />
-    </div>
-    <div class="pr">
-      <span class="pl" id="an-all">{t('Show|analyse')}</span>
-      <button type="button" class="chip" class:on={all} aria-pressed={all} data-all onclick={() => (all = !all)} aria-labelledby="an-all">{t('Also values without data')}</button>
-    </div>
-  </section>
+    </section>
+  {:else if FILTER_NOTES[tab]}
+    <p class="hint" data-filter-note>{t(FILTER_NOTES[tab])}</p>
+  {/if}
 
   <div class="tabs" role="tablist" aria-label={t('Parts of the analysis|analyse')}>
     {#each TABS as k (k)}
@@ -258,9 +290,41 @@
   }
   .pick {
     display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .pk-body {
+    display: flex;
     flex-wrap: wrap;
     gap: 12px 28px;
     align-items: flex-start;
+  }
+  .pk-sum {
+    display: none;
+  }
+  /* a phone: one line that opens the choices (Noah 07.11.2026 «3a») */
+  @media (max-width: 719px) {
+    .pk-sum {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+    }
+    .pk-sum[aria-expanded='true'] :global(svg) {
+      transform: rotate(180deg);
+    }
+    .pk-body:not(.open) {
+      display: none;
+    }
   }
   .tabs {
     display: flex;
