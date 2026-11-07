@@ -23,6 +23,7 @@
  * Pure functions; the pages are src/pages/Woche*.svelte, the data comes from lib/woche/load.js.
  */
 import { shiftDay, mondayOf, doneBy } from './training.js';
+import { spielerWeek } from './spielerplus.js';
 import { wxOf } from './flowweek.js';
 import { holidayOn, seasonOf } from './woche/kalender.js';
 import { prefsOf as agendaPrefs, weekItems, undatedTasks } from './agenda.js';
@@ -169,12 +170,13 @@ export function freeDay(days, from, away = []) {
  *   sessions (training plan), acts (Strava activities, for «done»), fixed [{ actId, wd, time }],
  *   plans [{ day, actId }] (Aktiv › Woche), actName(id), care [{ bikeId, bikeName, key, part, name }],
  *   google { events, tasks, prefs } (Paket B, see googleWeek)
+ *   spielerplus { cals } (lib/spielerplus.js prefsOf): the team dates, read only
  * → { days: [{ day, today, past, away, entries: [{ id, kind, title, sub, time, done, own }] }],
  *     sums: { sessions, mins, goalMins, dates, todos, away, bike }, suggestions: [...], paused: [...] }
  * suggestions: { ref, kind, title, sub, day (proposed), act 'take'|'drop' }
  */
 export function buildWeek(src) {
-  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null, flowLog = [], book = [], sgOff = [], sgNever = [], seasons = null } = src;
+  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null, spielerplus = null, flowLog = [], book = [], sgOff = [], sgNever = [], seasons = null } = src;
   const week = daysOf(monday);
   const end = shiftDay(monday, 7);
   const skipped = new Set(no.filter((k) => k.endsWith(`|${monday}`)).map((k) => k.slice(0, k.lastIndexOf('|'))));
@@ -218,6 +220,8 @@ export function buildWeek(src) {
   // dates: your own and the outside calendar's
   const g = googleWeek(google, monday);
   for (const x of [...cal, ...g.cal]) at(x.day)?.entries.push({ id: `cal:${x.id}`, kind: 'date', title: x.title, sub: { src: x.src }, time: x.time, done: false, own: false });
+  // Spielerplus (Noah 06.11.2026): the team dates, read only; a tap opens Spielerplus to sign up
+  for (const x of spielerWeek(spielerplus, monday)) at(x.day)?.entries.push({ id: `sp:${x.id}`, kind: 'date', title: x.title, sub: { src: 'spielerplus', name: x.name }, time: x.time, done: false, own: false, href: x.href, ext: true });
   for (const x of g.todos) at(x.day)?.entries.push({ id: x.id, kind: 'todo', title: x.title, sub: { src: 'google-tasks' }, time: '', done: x.done, own: false, href: '#/me/agenda' });
   // holidays and trips with dates
   for (const d of days) if (d.away) d.entries.push({ id: `aw:${d.away.id}`, kind: 'away', title: d.away.title || null, sub: { away: d.away.type }, time: '', done: false, own: false, href: '#/week/away' });

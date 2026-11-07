@@ -12,6 +12,8 @@ export const MAX_PULL = 96;
 export const REFRESHED = 'pg-refreshed';
 /** The wheel stays at least this long (ms), so a fast answer is still seen. */
 export const MIN_SHOW = 700;
+/** Fitbit may be slow (Google): the wheel does not wait for it longer than this (ms); the fetch goes on in the background. */
+export const FITBIT_MAX = 15_000;
 
 /** The finger's distance (px) → how far the wheel comes down: it resists (half the way), never more than MAX_PULL. */
 export const pullOf = (dy) => Math.max(0, Math.min(MAX_PULL, Math.round(Number(dy) * 0.5) || 0));
@@ -31,11 +33,12 @@ const safe = async (f) => {
 };
 
 /**
- * Loads fresh: the home weather (force, writes the kept answer every weather card reads) and the Strava rides
- * (only with a key on this device). Never throws. → { weather: boolean, strava: boolean } = what was asked for.
- * Everything is injected (db, loadCore, fetchNow, hasStrava) so it is testable without a network.
+ * Loads fresh: the home weather (force, writes the kept answer every weather card reads), the Strava rides
+ * (only with a key on this device) and, since 7.11.2026 (Noah «3a»), the Fitbit values (when connected). Never throws.
+ * → { weather: boolean, strava: boolean, fitbit?: true } = what was asked for.
+ * Everything is injected (db, loadCore, fetchNow, hasStrava, fetchFitbit, hasFitbit) so it is testable without a network.
  */
-export async function refreshToday({ db, loadCore, fetchNow, hasStrava = false }) {
+export async function refreshToday({ db, loadCore, fetchNow, hasStrava = false, fetchFitbit = null, hasFitbit = false, fitbitMax = FITBIT_MAX }) {
   const done = { weather: false, strava: false };
   const jobs = [];
   const home = (await db.settings.get(HOME_PLACE).catch(() => null))?.value;
@@ -46,6 +49,10 @@ export async function refreshToday({ db, loadCore, fetchNow, hasStrava = false }
   if (hasStrava) {
     done.strava = true;
     jobs.push(safe(() => fetchNow()));
+  }
+  if (hasFitbit && fetchFitbit) {
+    done.fitbit = true;
+    jobs.push(safe(() => Promise.race([fetchFitbit(), new Promise((ok) => setTimeout(ok, fitbitMax))])));
   }
   await Promise.all(jobs);
   return done;

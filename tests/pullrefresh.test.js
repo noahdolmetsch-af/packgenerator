@@ -50,4 +50,17 @@ describe('refreshToday', () => {
     const r = await refreshToday({ db: db({ lat: 1, lon: 2 }), loadCore, fetchNow, hasStrava: true });
     expect(r).toEqual({ weather: true, strava: true });
   });
+  it('Noah 7.11.2026 «3a»: fetches the Fitbit values too, and does not wait for a slow Google longer than the limit', async () => {
+    const fetchFitbit = vi.fn(async () => ({}));
+    const r = await refreshToday({ db: db(null), loadCore: vi.fn(), fetchNow: vi.fn(), fetchFitbit, hasFitbit: true });
+    expect(r).toEqual({ weather: false, strava: false, fitbit: true });
+    expect(fetchFitbit).toHaveBeenCalledTimes(1);
+    const slow = vi.fn(() => new Promise(() => {}));
+    const t0 = Date.now();
+    await refreshToday({ db: db(null), loadCore: vi.fn(), fetchNow: vi.fn(), fetchFitbit: slow, hasFitbit: true, fitbitMax: 30 });
+    expect(Date.now() - t0).toBeLessThan(1000);
+    const off = vi.fn();
+    expect(await refreshToday({ db: db(null), loadCore: vi.fn(), fetchNow: vi.fn(), fetchFitbit: off, hasFitbit: false })).toEqual({ weather: false, strava: false });
+    expect(off).not.toHaveBeenCalled();
+  });
 });

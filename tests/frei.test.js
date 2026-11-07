@@ -1,6 +1,6 @@
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): the pure rules of Ich › Freie Zeit and its pages.
 import { describe, it, expect } from 'vitest';
-import { freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText } from '../src/lib/frei.js';
+import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText } from '../src/lib/frei.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -45,6 +45,20 @@ describe('impulses', () => {
     expect(a.hidden).toBe(false);
     expect(impulseOfDay(list, '2026-10-19')).toBe(a);
     expect(nextOf(list.filter((i) => !i.hidden), a.id).id).not.toBe(a.id);
+  });
+  it('«Not today»: a resting impulse stays in the list, but the suggestions skip it until the saved day', () => {
+    const day = '2026-10-19';
+    const first = impulseOfDay(impulsesOf({}, day), day);
+    expect(laterUntil(day)).toBe('2026-11-18'); // calendar days, 30
+    expect(LATER_DAYS).toBe(30);
+    const cfg = { later: { [first.id]: laterUntil(day) } };
+    const list = impulsesOf(cfg, day);
+    expect(list).toHaveLength(30);
+    expect(list.find((i) => i.id === first.id)).toMatchObject({ later: true, laterUntil: '2026-11-18', hidden: false });
+    expect(impulseOfDay(list, day).id).not.toBe(first.id);
+    expect(todayImpulse(cfg, day).id).not.toBe(first.id);
+    expect(impulsesOf(cfg, '2026-11-18').find((i) => i.id === first.id).later).toBe(false); // back on the saved day
+    expect(impulsesOf(cfg).find((i) => i.id === first.id).later).toBe(false); // no day given: no rest
   });
   it('a deleted area: its impulses show under «Without an area»', () => {
     const cfg = { areas: [{ id: 'joy', hidden: true }] };

@@ -18,7 +18,7 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
   import { shown, addItem, editItem, setHidden, dropItem, moveItem, addGroup, renameGroup, moveGroup, dropGroup, groupName } from './hallobuttons.js';
-  import { HELLO_MOOD, HELLO_PLAN } from './hallo.js';
+  import { HELLO_MOOD, HELLO_PLAN, HELLO_WHY, HELLO_DAY } from './hallo.js';
 
   let { cfg, onsave } = $props();
   let editing = $state(null); // { where, item }
@@ -105,6 +105,14 @@
 
   <h3>{HELLO_PLAN}</h3>
   {@render list('plans', HELLO_PLAN, false, true)}
+
+  <h3>{HELLO_WHY}</h3>
+  <p class="sub">{t('Optional, behind the button in the window. Only what you notice.')}</p>
+  {@render list('reasons', HELLO_WHY, false, true)}
+
+  <h3>{HELLO_DAY}</h3>
+  <p class="sub">{t('In the evening the greeting asks this instead of the plan.')}</p>
+  {@render list('day', HELLO_DAY, false, true)}
 </div>
 
 {#if editing}

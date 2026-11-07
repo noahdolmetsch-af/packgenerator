@@ -8,4 +8,8 @@ export default {
   'Your data stays on this device.': 'Deine Daten bleiben auf diesem Gerät.',
   'Load now|update': 'Jetzt laden',
   'Later|update': 'Später',
+  // «Jetzt laden» sagt ehrlich, wenn es nicht geklappt hat (07.11.2026)
+  'Try again|update': 'Nochmal versuchen',
+  'Version {v} could not be loaded on this device. Close the app completely (swipe it away in the app overview) and open it again. Your data stays on this device.': 'Version {v} konnte auf diesem Gerät nicht geladen werden. Schliesse die App ganz (in der Übersicht nach oben wegwischen) und öffne sie neu. Deine Daten bleiben auf diesem Gerät.',
+  'Loading did not work. Close the app completely (swipe it away in the app overview) and open it again. Your data stays on this device.': 'Das Laden hat nicht geklappt. Schliesse die App ganz (in der Übersicht nach oben wegwischen) und öffne sie neu. Deine Daten bleiben auf diesem Gerät.',
 };
