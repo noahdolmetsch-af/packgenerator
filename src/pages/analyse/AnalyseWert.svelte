@@ -11,6 +11,7 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
+  import SourceLine from '../../lib/ui/SourceLine.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import { analyseData } from '../../lib/analyse/data.svelte.js';
   import { analyseGroups, itemsByKey, detailHref } from '../../lib/analyse/catalog.js';
@@ -20,8 +21,13 @@
   import YTicks from '../../lib/charts/YTicks.svelte';
   import { RANGES, DEFAULT_RANGE, windowOf, bucketsOf, statsOf, typicalOf, mean7, weekdays, weekdayExtremes, tripBands, yearBefore, firstDay } from '../../lib/analyse/detail.js';
   import { addDays } from '../../lib/analyse.js';
+  import { LOAD_WEIGHTS } from '../../lib/analyse/own.js';
+  import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
+  import { health } from '../../lib/health/client.svelte.js';
+  import { fitbitStand } from '../../lib/health/emptyline.js';
+  import { localDay } from '../../lib/localday.js';
   import { tripEnd } from '../../lib/tripstate.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
@@ -88,6 +94,15 @@
   const prevPts = $derived(prevYear && item?.get && !hours ? bucketsOf(yearBefore(win.days), item.get, !!item.sum) : []);
   const bands = $derived(hours ? [] : tripBands(data.trips, win.days, tripEnd).map((b) => ({ ...b, a: Math.floor(b.a / (pts.length < win.days.length ? 7 : 1)), b: Math.floor(b.b / (pts.length < win.days.length ? 7 : 1)) })));
   const bars = $derived(!!item?.sum || !!item?.bars);
+  // «Touren in dieser Zeit» (UI-Prüfung A2): the past trips inside the shown period, each a way to its tour page (at most 3, newest first)
+  const tripsIn = $derived(
+    hours || !win.days.length
+      ? []
+      : data.trips
+          .filter((tr) => tr.startDate && tr.startDate <= win.to && (tripEnd(tr) ?? tr.startDate) >= win.from && (tripEnd(tr) ?? tr.startDate) < today)
+          .sort((a, b) => (b.startDate > a.startDate ? 1 : -1))
+          .slice(0, 3),
+  );
 
   // «Gesundheitssignale» (Noah 03.11.2026): your range of the last 60 days up to the last day shown, and the runs of 3 days or more outside it
   const sig = $derived.by(() => {
@@ -154,6 +169,14 @@
   const rangeOpts = $derived(RANGES.map((r) => ({ key: r.key, name: t(RANGE_NAMES[r.key]) })));
   const v = (x, val) => valueText(x, val, num);
   const tripOn = (d) => data.trips.find((tr) => tr.startDate && tr.startDate <= d && (tripEnd(tr) ?? tr.startDate) >= d);
+  // «Quelle einmal» (UI-Prüfung A2, Noah «3a»): the source, its last fetch and the way to it in one line under the title; a failed fetch keeps its button
+  const fstand = $derived(item?.src === 'fitbit' ? fitbitStand(health) : null);
+  const standText = $derived.by(() => {
+    if (!fstand?.at) return '';
+    const d = new Date(fstand.at);
+    const hm = d.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+    return t('As of {time}', { time: localDay(d) === localDay() ? hm : `${d.toLocaleDateString(locale(), { weekday: 'short' })} ${hm}` });
+  });
   const SRC_TEXT = {
     fitbit: 'Fitbit · from your watch via Google.',
     strava: 'Strava · from your activities.',
@@ -216,6 +239,12 @@
   };
   const dropLayer = (k) => (layers = layers.filter((x) => x !== k));
   let pick = $state('');
+
+  // Idea D: «How is it calculated?» for the cardio load, with the newest day of the range that has zone minutes as the example
+  const ZONE_NAMES = { light: 'light|loadzone', mod: 'moderate|loadzone', vig: 'hard|loadzone', peak: 'peak|loadzone' };
+  const calcOf = (ex) => ex.parts.map((p) => t('{min} min {zone} ×{f}|analyse', { min: num(p.min), zone: t(ZONE_NAMES[p.zone]), f: p.weight })).join(' + ') + ` = ${t('{n} points|analyse', { n: num(ex.total) })}`;
+  const example = $derived(key === 'cardioLoad' ? lastExample(win.days, (d) => data.table.get(d)?.fit?.hrZones) : null);
+  const exampleText = $derived(example ? t('Example, {day}: {sum}|analyse', { day: dayText(example.day), sum: calcOf(example) }) : t('For example: {sum}|analyse', { sum: calcOf(loadExample(FIXED_EXAMPLE)) }));
 </script>
 
 {#if data.loading}
@@ -227,6 +256,14 @@
     <header>
       <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} />
       <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
+      <SourceLine src={item.src} stand={standText} data-source={item.src} />
+      {#if fstand?.failed}<FitbitStand />{/if}
+      {#if tripsIn.length}
+        <p class="tripsin" data-trips-in>
+          <span>{t('Trips in this time')}</span>
+          {#each tripsIn as tr (tr.id)}<a href={`#/tour/${encodeURIComponent(`t:${tr.id}`)}`}>{tr.title ?? tr.name ?? t('Trip')}<ChevronRight size={12} aria-hidden="true" /></a>{/each}
+        </p>
+      {/if}
     </header>
 
     {#if item.later}
@@ -359,8 +396,20 @@
           {:else}
             <p class="hint" data-sig-none>{t('Your range appears after 14 days with a value.|signals')}</p>
           {/if}
-          <p class="hint src">{t(SRC_TEXT[item.src] ?? SRC_TEXT.body)}</p>
-          <FitbitStand />
+        </section>
+      {/if}
+
+      {#if key === 'cardioLoad' && !hours}
+        <section class="card calc" aria-labelledby="wv-calc">
+          <details data-calc>
+            <summary id="wv-calc">{t('How is it calculated?|analyse')}</summary>
+            <p class="hint">{t('Your watch measures how many minutes your pulse spent in each zone. A minute counts more the higher the zone:|analyse')}</p>
+            <ul class="zw">
+              {#each Object.entries(LOAD_WEIGHTS) as [z, f] (z)}<li><span>{t(ZONE_NAMES[z])}</span><b class="num">×{f}</b></li>{/each}
+            </ul>
+            <p class="ex" data-calc-example>{exampleText}</p>
+            <p class="hint">{t('The points are only to look at, nothing is rated.|analyse')}</p>
+          </details>
         </section>
       {/if}
 
@@ -425,6 +474,28 @@
   }
   .wv section {
     min-width: 0;
+  }
+  .tripsin {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--sp-2);
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .tripsin a {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .tripsin a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .bar {
     display: flex;
@@ -829,6 +900,33 @@
   .trip {
     margin: 6px 0 0;
     color: var(--ink-2);
+  }
+  .calc summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .zw {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .zw li {
+    display: inline-flex;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+  }
+  .ex {
+    margin: 8px 0 0;
+    font-weight: 600;
   }
   .dnav {
     display: flex;
