@@ -308,6 +308,10 @@
           </label>
         </section>
 
+        <button type="button" class="btn hi go" onclick={start} data-start="timer"><Play size={22} aria-hidden="true" />{running ? t('Open the running session') : t('Start · {n} min', { n: minutes })}</button>
+        <!-- SK X8 (SKX4): «Meine Musik», your own link (e.g. a playlist), under «Start» (Noah 06.11.2026 «3a»: «Start» comes before «Save as a template?») -->
+        <Woanders stack links={[{ kind: 'x8', slot: slotOf('x8'), icon: 'music', sub: t('your playlist') }]} />
+
         {#if tplId}
           <section class="surf pad">
             <h2 class="zlabel">{t('Template')}</h2>
@@ -335,9 +339,6 @@
           </section>
         {/if}
 
-        <button type="button" class="btn hi go" onclick={start} data-start="timer"><Play size={22} aria-hidden="true" />{running ? t('Open the running session') : t('Start · {n} min', { n: minutes })}</button>
-        <!-- SK X8 (SKX4): «Meine Musik», your own link (e.g. a playlist), under «Start» -->
-        <Woanders stack links={[{ kind: 'x8', slot: slotOf('x8'), icon: 'music', sub: t('your playlist') }]} />
       </div>
     </div>
   {/if}
