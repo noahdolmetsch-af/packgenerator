@@ -1,10 +1,11 @@
-// «Spruch zum Einstieg» PR 1 (Noah 07.11.2026 «Bau spruch pr1»): the tile «Spruch» on Heute: a sentence in Bernese German
+// «Spruch zum Einstieg» PR 1 and 2 (Noah 07.11.2026 «Bau spruch pr1», «bau spruch pr2»): the tile «Spruch» on Heute: a sentence in Bernese German
 // from the numbers of the fictional data, «Warum?» shows the number behind it, «Neuer Spruch» gives another one;
-// without any number the tile says why it is empty.
+// without any number a quote of «Kissenzeit» comes; with every quote switched off the tile says why it is empty.
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, day, tr } from './home0460-fixture.js';
 import { put } from './aktiv-fixture.js';
 import { settle } from './settle.js';
+import { QUOTES, QUOTES_KEY } from '../../src/lib/flowquotes.js';
 
 const T = tr('de');
 const healthRows = () => Array.from({ length: 15 }, (_, i) => ({ date: day(i - 14), sleep: { asleepMin: 450 }, restingHr: 55, azm: 20, src: 'google' }));
@@ -37,11 +38,28 @@ test('Spruch: ein Satz auf Berndeutsch, der Wert dahinter und ein neuer Satz', a
   expect(order.indexOf('spruch')).toBeLessThan(order.indexOf('bikes'));
 });
 
-test('Spruch: ohne Zahlen sagt die Kachel, warum sie leer ist', async ({ page, context }, info) => {
+test('Spruch: ohne Zahlen kommt ein Zitat aus der Kissenzeit auf Hochdeutsch', async ({ page, context }, info) => {
   const d = homeFixture();
   d.tables.trips = [];
   d.tables.debriefs = [];
   d.tables.settings = d.tables.settings.filter((s) => s.key !== 'homePlace');
+  await openHome(page, context, info, { data: d });
+  const tile = page.locator('[data-section="spruch"]');
+  const text = tile.locator('[data-spruch]');
+  await expect(text).toBeVisible({ timeout: 15_000 }); // after the short wait for the data
+  await expect(text).toHaveAttribute('lang', 'de');
+  await expect(text).toHaveAttribute('data-spruch', /^z\./);
+  await expect(tile.locator('[data-empty]')).toHaveCount(0);
+  await tile.locator('[data-spruch-why-btn]').click();
+  await expect(tile.locator('[data-spruch-why]')).toContainText('Kissenzeit');
+});
+
+test('Spruch: ohne Zahlen und ohne Zitate sagt die Kachel, warum sie leer ist', async ({ page, context }, info) => {
+  const d = homeFixture();
+  d.tables.trips = [];
+  d.tables.debriefs = [];
+  d.tables.settings = d.tables.settings.filter((s) => s.key !== 'homePlace');
+  d.tables.settings.push({ key: QUOTES_KEY, value: { off: QUOTES.map((q) => q.id), add: [], own: [] } });
   await openHome(page, context, info, { data: d });
   const tile = page.locator('[data-section="spruch"]');
   await expect(tile.locator('[data-empty]')).toBeVisible({ timeout: 15_000 }); // after the short wait for the data
