@@ -533,6 +533,12 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland»: Träume an einem Ort
+  'Nothing moves by itself: you choose which compass dream becomes a dream tour.': 'Nichts wandert von selbst: du wählst, welcher Kompass-Traum eine Traumtour wird.',
+  'Open Trips › Dreams and scroll to «More dreams».': 'Öffne Touren › Träume und scrolle zu «Weitere Träume».',
+  'Tap «Make it a dream tour» at a compass dream.': 'Tippe bei einem Kompass-Traum auf «Als Traumtour».',
+  'The link leads to your travel wishes in Free time.': 'Der Link führt zu deinen Reise-Wünschen in Freie Zeit.',
+  'Example: «Once around Lake Constance» from the compass → a dream tour with months.': 'Beispiel: «Einmal um den Bodensee» aus dem Kompass → eine Traumtour mit Monaten.',
   // «Träume und Neuland» N19
   'Works offline; the rules are on the device.': 'Geht offline; die Regeln sind auf dem Gerät.',
   'Open Trips › Dreams: «Adventure dice».': 'Öffne Touren › Träume: «Abenteuer-Würfel».',
