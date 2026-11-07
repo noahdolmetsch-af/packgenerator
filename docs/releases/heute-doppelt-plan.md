@@ -12,6 +12,7 @@ PR folgt · 04.11.2026 · Auftrag: Noah «1a 2a» (Thread «Bereinigen: Doppelte
 ## Selbst entschieden
 - Keine neue Funktion im Katalog (`features.js`): Anpassung eines bestehenden Blocks.
 - «Morgen:» und die Tageszeilen bleiben, wie sie sind.
+- «Aktiv heute» (`ActsTile.svelte`) wartet jetzt, bis die Gewohnheiten geladen sind, bevor es die Kacheln zeigt. Vorher erschien eine Kachel kurz und sprang dann zu den Gewohnheiten nach oben; das machte den Test `analyse.spec.js:58` am Handy rot. Keine sichtbare Änderung ausser dem fehlenden Springen.
 
 ## Entscheide (für decisions.md)
 - 04.11.2026: «Heute laut Plan» zeigt nur Offenes (Noah «2a»).
