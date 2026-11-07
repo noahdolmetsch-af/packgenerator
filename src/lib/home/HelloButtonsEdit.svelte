@@ -178,7 +178,7 @@
       flex-wrap: wrap;
     }
     .hb-grow {
-      flex: 1 1 calc(100% - 72px);
+      flex: 1 1 calc(100% - 156px);
     }
   }
   .hb-grow small {
@@ -190,8 +190,8 @@
     flex: none;
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border: 0;
     border-radius: 50%;
     background: none;
