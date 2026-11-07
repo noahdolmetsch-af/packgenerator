@@ -417,6 +417,7 @@
     Freunde: () => import('./pages/Freunde.svelte'), // Paket D «Mit Freunden»: Ich › Mit Freunden
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
     Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
+    Quellen: () => import('./pages/Quellen.svelte'), // «Meine Datenquellen» (Noah 07.11.2026 «1a»): Auswerten › Datenquellen
     Weg: () => import('./pages/Weg.svelte'), // «Weg zum Ziel» (Noah 05.11.2026): Touren › Weg zum Ziel
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
@@ -717,6 +718,8 @@
     <LazyPage load={PAGES.Dreams} />
   {:else if page === 'vorschlaege'}
     <LazyPage load={PAGES.Vorschlaege} />
+  {:else if page === 'quellen'}
+    <LazyPage load={PAGES.Quellen} />
   {:else if page === 'weg'}
     <LazyPage load={PAGES.Weg} />
   {:else if page === 'next'}
