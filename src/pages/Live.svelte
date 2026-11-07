@@ -114,9 +114,11 @@
   import { EAT_KEY, eatOf, eaten } from '../lib/unterwegs/essen.js';
   import {
     onRoute, stopsAhead, nextClimb, arrival, lightLeft, darkMinutes, pauses, eatDue, batteryEnough, drainOf, planDelta, offRouteStep, nextSay, navLinks,
-    fixesOf, paceOf, planRunning, bedTonight, stormPoints, stormUrl, stormAhead, gainBetween,
+    fixesOf, paceOf, planRunning, bedTonight, stormPoints, stormUrl, skyAhead, gainBetween,
   } from '../lib/live/live-lib.js';
-  import { AROUND_CACHE, ALONG_AHEAD_KM, loadAround, loadAlong } from '../lib/live/stops.js';
+  import { AROUND_CACHE, ALONG_AHEAD_KM, loadAround, loadAlong, askServers } from '../lib/live/stops.js';
+  import { queued } from '../lib/route/oneatatime.js';
+  import { shelterQuery, sheltersFrom, nearestShelter } from '../lib/live/unterstand.js';
   import { beep, buzz, say } from '../lib/live/alert.js';
   import { DICTATION } from '../lib/live/dictation.js';
   import { refreshFamilyLink, LIVE_EVERY_MS } from '../lib/live/familylive.js';
@@ -566,7 +568,10 @@
   let offWarn = $state(false);
   let eatFromKm = $state(null);
   let eatRang = false;
-  let storm = $state(null); // { km, at, sure }
+  let storm = $state(null); // { kind: 'storm' | 'rain', km, at, sure }
+  let shelter = $state(null); // Wetter-Ausweichen: the nearest roof while a storm or heavy rain is ahead { kind, name, lat, lon, distKm }
+  let shelterSkip = $state(false); // «Not now» for this weather
+  let shelterFrom = null; // where the roofs were looked up
   let stormAt = 0;
   let bat = $state(null); // { level, at }
   let batFirst = null;
@@ -771,13 +776,41 @@
     try {
       const res = await fetch(stormUrl(points));
       if (!res.ok) return;
-      const s = stormAhead(await res.json(), points, Date.now(), 2);
+      const s = skyAhead(await res.json(), points, Date.now(), 2);
       if (s && !storm) buzz([500, 200, 500, 200, 500]);
       storm = s;
+      if (s) findShelter();
+      else {
+        shelter = null;
+        shelterSkip = false;
+        shelterFrom = null;
+      }
     } catch {
       /* no answer: try again in 15 min */
     }
   }
+  // Wetter-Ausweichen (Noah 07.11.2026 «1b 2a 3a»): the nearest roof, from the stops the map has and a fresh look around you;
+  // offered as «Plan there», never planned by itself. Offline only the known stops count.
+  async function findShelter() {
+    const here = me;
+    if (!here) return;
+    if (shelterFrom && distKmPts([shelterFrom.lat, shelterFrom.lon], [here.lat, here.lon]) < 1.5) return;
+    shelterFrom = { lat: here.lat, lon: here.lon };
+    let found = [];
+    if (navigator.onLine !== false) {
+      try {
+        found = sheltersFrom(await queued(() => askServers(fetch, shelterQuery(here), [here])));
+      } catch {
+        /* no answer: the known stops are enough */
+      }
+    }
+    shelter = nearestShelter({ here, found, pois });
+  }
+  const planShelter = () => {
+    if (!shelter) return;
+    picked = { lat: shelter.lat, lon: shelter.lon, name: shelter.name || t(POI_KIND.shelter.name) };
+    reroute = true;
+  };
   $effect(() => {
     if (cfg.storm && rec.on && me) untrack(() => stormAt === 0 && ((stormAt = Date.now()), checkStorm()));
   });
@@ -1424,7 +1457,14 @@
         {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={18} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
         {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{at?.offM >= 1000 ? t('Off the route: {d} km away.', { d: fmtKm(at.offM / 1000) }) : t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
-        {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
+        {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm={storm.kind}>{#if storm.kind === 'rain'}<CloudRain size={18} aria-hidden="true" />{:else}<CloudLightning size={18} aria-hidden="true" />{/if}<span>{storm.kind === 'rain' ? (storm.km != null ? t('Heavy rain possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Heavy rain possible here from {at}.', { at: hhmm(storm.at) })) : storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>
+          {#if shelter && !shelterSkip}
+            <p class="lvf-alert" role="status" data-live-shelter>
+              <span>{t('Nearest roof: {name}, {d} km away.', { name: shelter.name || t(POI_KIND[shelter.kind]?.name ?? 'Shelter'), d: fmtKm(shelter.distKm) })}</span>
+              <button type="button" class="btn sm" onclick={planShelter} data-live-shelter-plan>{t('Plan there')}</button>
+              <button type="button" class="btn sm" onclick={() => (shelterSkip = true)} data-live-shelter-skip>{t('Not now')}</button>
+            </p>
+          {/if}{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
         <LiveWetter {me} />
@@ -1964,7 +2004,7 @@
         <label class="lv-opt"><input type="checkbox" checked={cfg.sleepSpots ?? isRace} onchange={(e) => setOpt('sleepSpots', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="sleepSpots" /><span><b>{t('Places to sleep ahead')}</b><small>{hasRoute ? t('The next three places to sleep on the route in the panel: hotels, roofs, places open at night and your own spots. On by default in a race.') : t('Needs a route.')}</small></span></label>
       </li>
       <li class="rc-row">
-        <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration.')}</small></span></label>
+        <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm and heavy rain alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration. With the nearest roof, if you want it.')}</small></span></label>
       </li>
     </ul>
   </details>
