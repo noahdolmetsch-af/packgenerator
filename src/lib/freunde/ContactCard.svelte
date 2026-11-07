@@ -9,6 +9,7 @@
   import { liveQuery } from 'dexie';
   import { Pencil, Trash2, Plus, Camera, Phone, AtSign, Mail, Maximize, X, Smartphone, Sticker } from '@lucide/svelte';
   import { db } from '../db.js';
+  import { backClose } from '../ui/backclose.js';
   import { t, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
@@ -256,7 +257,7 @@
   </div>
 </section>
 
-<dialog class="cc-big" bind:this={big} onclose={onBigClose} aria-label={t('Your contact card')} data-card-bigview>
+<dialog class="cc-big" bind:this={big} use:backClose onclose={onBigClose} aria-label={t('Your contact card')} data-card-bigview>
   <button type="button" class="btn sm cc-big-x" onclick={closeBig} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
   <p class="cc-big-name">{shown.name}</p>
   {#if qrText}<div class="cc-big-qr"><QrCode text={qrText} label={t('Your contact card')} /></div>{/if}

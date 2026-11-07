@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { scope, newsScope } from '../scripts/ci-scope.mjs';
+import { scope, newsScope, partsFor, CORE_SPECS, MAX_SPECS } from '../scripts/ci-scope.mjs';
 
 describe('ci-scope: which phone tests a PR needs', () => {
   it('docs and news only: no phone tests', () => {
@@ -7,7 +7,7 @@ describe('ci-scope: which phone tests a PR needs', () => {
   });
   it('whole spec files: only these specs', () => {
     const r = scope(['tests/e2e/pf.spec.js', 'docs/releases/x.md', 'tests/e2e/gesamttest/scenarios.spec.js']);
-    expect(r).toEqual({ mode: 'specs', specs: ['tests/e2e/pf.spec.js', 'tests/e2e/gesamttest/scenarios.spec.js'] });
+    expect(r).toEqual({ mode: 'specs', specs: ['tests/e2e/pf.spec.js', 'tests/e2e/gesamttest/scenarios.spec.js'], parts: 1 });
   });
   it('shared helpers or app code: everything', () => {
     expect(scope(['tests/e2e/clock.js']).mode).toBe('all');
@@ -17,6 +17,41 @@ describe('ci-scope: which phone tests a PR needs', () => {
   });
   it('no files known: everything', () => {
     expect(scope([]).mode).toBe('all');
+  });
+  it('German text files alone: no phone tests; the files that wire them: everything', () => {
+    expect(scope(['src/lib/i18n/de/pack.js', 'docs/releases/x.md']).mode).toBe('none');
+    expect(scope(['src/lib/i18n/de/index.js']).mode).toBe('all');
+    expect(scope(['src/lib/i18n/de/auto.gen.js']).mode).toBe('all');
+  });
+});
+
+describe('ci-scope: app code with the map (Noah 05.11.2026 «3a ja»)', () => {
+  it('the mapped specs, the PR\'s own specs and the Kern, sorted and once', () => {
+    const r = scope(['src/pages/Lend.svelte', 'tests/e2e/own.spec.js', 'src/lib/i18n/de/lend.js'], () => ['tests/e2e/paket-h.spec.js', 'tests/e2e/guard.spec.js']);
+    expect(r.mode).toBe('specs');
+    expect(r.specs).toEqual([...new Set([...CORE_SPECS, 'tests/e2e/own.spec.js', 'tests/e2e/paket-h.spec.js'])].sort());
+  });
+  it('the map says unknown (null): everything', () => {
+    expect(scope(['src/lib/home/rows.js'], () => null).mode).toBe('all');
+  });
+  it('only app code is mapped; a config, build or workflow file runs everything, the map is not asked', () => {
+    let asked = false;
+    const map = () => { asked = true; return []; };
+    for (const f of ['package.json', 'vite.config.js', '.github/workflows/deploy.yml', 'public/x.png', 'src/app.css', 'index.html']) expect(scope([f], map).mode, f).toBe('all');
+    expect(scope(['src/pages/Lend.svelte', 'vite.config.js'], map).mode).toBe('all');
+    expect(asked).toBe(false);
+  });
+  it('a shared test helper is app code for the map (it reaches the specs that import it)', () => {
+    expect(scope(['tests/e2e/clock.js'], () => ['tests/e2e/a.spec.js']).mode).toBe('specs');
+  });
+  it('too many specs: everything', () => {
+    const many = Array.from({ length: MAX_SPECS + 1 }, (_, i) => `tests/e2e/s${i}.spec.js`);
+    expect(scope(['src/pages/Lend.svelte'], () => many).mode).toBe('all');
+  });
+  it('parts: one per 20 specs, 1 to 5', () => {
+    expect(partsFor(['a'])).toBe(1);
+    expect(partsFor(Array(21).fill('a'))).toBe(2);
+    expect(partsFor(Array(250).fill('a'))).toBe(5);
   });
 });
 

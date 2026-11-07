@@ -34,6 +34,10 @@
   import { spokenCommand } from '../suche/logic.js';
   import { looksLikeQuestion } from '../helper/logic.js';
   import { localDay } from '../localday.js';
+  // «Zuletzt geöffnet» in der Suche (Noah 05.11.2026 «7a»): the last pages this device opened, from Quick Links' count
+  import { deviceKind } from '../quick/quicklinks.js';
+  import { USAGE_KEYS, cleanUsage, recentPlaces, forgetVisits } from '../quick/usage.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   // «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»): values, reminders, several things at once, plan, jump
   import { actionOf, actionsOf, actionLabel, runActions } from '../suche/act.js';
   import { partsOf, jumpOf, planHref, weatherHref } from '../suche/say.js';
@@ -79,6 +83,27 @@
   // Paket Q Zusatz 2 (Noah «1-3 alle a»): a whole question («Wo stelle ich das Backup-Passwort ein?») that no
   // function fits word for word finds the functions that answer it, with their first step (instead of «Functions»).
   const help = $derived(isQuestion(q) ? helpAnswers(q, t) : []);
+  const USED = USAGE_KEYS[deviceKind()];
+  let used = $state(cleanUsage(null));
+  $effect(() => {
+    const sub = liveQuery(() => db.settings.get(USED)).subscribe({ next: (rec) => (used = cleanUsage(rec?.value)), error: () => {} });
+    return () => sub.unsubscribe();
+  });
+  // the page you are on is left out; the list is read when the search opens
+  const places = $derived(recentPlaces(used, open || focused ? location.hash : '', 5));
+  const saveUsed = (next) => db.settings.put({ key: USED, value: JSON.parse(JSON.stringify(next)) });
+  /** Forget the list; the note offers Undo. */
+  function forgetPlaces() {
+    const before = $state.snapshot(used);
+    saveUsed(forgetVisits(before));
+    offerDone(t('Forgot the pages opened lately.'), () => saveUsed(before));
+  }
+  /** A page of the list opens; the search closes. */
+  function leave() {
+    q = '';
+    open = false;
+    focused = false;
+  }
   let focused = $state(false); // the field has the focus: an empty field shows the commands to try
   // v0.96.0 (mockup B): an empty search shows 3 commands to try, the last searches and all functions.
   const firstBike = $derived($all ? (sortBikes($all.bikes)[0] ?? null) : null);
@@ -334,6 +359,15 @@
 
 {#snippet empty()}
   <div class="try" role="region" aria-label={t('Try a command')}>
+    {#if places.length}
+      <p class="gh">{t('Opened lately')}</p>
+      <ul class="cmds places" data-search-places>
+        {#each places as r (r.href)}
+          <li><a href={r.href} onclick={leave}><span class="m"><b>{r.title}</b></span><span class="go" aria-hidden="true">›</span></a></li>
+        {/each}
+      </ul>
+      <button type="button" class="btn btn-link forget" data-search-forget onclick={forgetPlaces}>{t('Forget this list')}</button>
+    {/if}
     <p class="gh">{t('Try a command')}</p>
     <ul class="cmds">
       {#each tries as x (x.say)}
@@ -616,6 +650,25 @@
   }
   .cmds li button {
     background: var(--hi-soft);
+  }
+  /* the pages opened lately: quiet rows, links */
+  .places li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 6px 10px;
+    border-radius: var(--r-ctl);
+    color: var(--ink);
+    font: 500 var(--fs-body) var(--font-body);
+    text-decoration: none;
+  }
+  .places li a:hover,
+  .places li a:focus-visible {
+    background: var(--paper-2);
+  }
+  .forget {
+    margin: 2px 6px 0;
   }
   .cmds li button:hover,
   .cmds li button:focus-visible {

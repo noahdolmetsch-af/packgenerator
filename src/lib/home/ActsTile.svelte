@@ -5,6 +5,9 @@
    * stopwatch, a tap on Meditation opens its start sheet. Activities with a goal first, in their order;
    * 4 on a phone, 8 on a computer. Analyse PR 1 (Noah 27.10.2026 «umbenennen: mehr»): the link below is
    * «Mehr» and opens Auswerten › Analyse, all your values and activities in charts.
+   * Noah 04.11.2026 «1a» (thread «Bereinigen: Doppeltes und Fehler auf Heute»): an activity that already stands on top of
+   * Heute as a habit card (HabitCards) is not shown a second time here; a quiet line says which ones are up there.
+   * `top`: the habit cards are on the wall; `cfg`: the chosen habits (HABITS_KEY).
    */
   import { Flame, ChevronRight } from '@lucide/svelte';
   import TickGrid from '../flow/TickGrid.svelte';
@@ -16,9 +19,14 @@
   import NextStars from './NextStars.svelte';
   import WeekStars from './WeekStars.svelte';
   import NudgeCards from './NudgeCards.svelte';
+  import { routineQuery } from '../routine-data.js';
+  import { isMedAct } from '../flow/hobby/medstart.js';
+  import { actName } from '../flow/ui.svelte.js';
+  import { habitActIds } from './habits.js';
   import { t } from '../i18n.svelte.js';
 
-  let { today } = $props();
+  let { today, top = false, cfg = null } = $props();
+  const rq = $derived(routineQuery(today));
   const q = $derived(flowQuery(today));
   const data = $derived($q);
   $effect(() => {
@@ -26,7 +34,10 @@
   });
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays) : []);
   const N = $derived(phone.matches ? 4 : 8);
-  const sorted = $derived([...states.filter((s) => !s.resting), ...states.filter((s) => s.resting)]);
+  const upIds = $derived(top && $rq ? new Set(habitActIds(cfg, states.map((s) => s.act), $rq.routine.items ?? [], isMedAct)) : new Set());
+  const up = $derived(states.filter((s) => upIds.has(s.act.id)));
+  const rest = $derived(states.filter((s) => !upIds.has(s.act.id)));
+  const sorted = $derived([...rest.filter((s) => !s.resting), ...rest.filter((s) => s.resting)]);
   const shown = $derived(sorted.slice(0, N));
   const done = $derived(states.filter((s) => s.todayDone).length);
   let medFor = $state(null);
@@ -39,9 +50,10 @@
   </div>
   {#if shown.length}
     <TickGrid states={shown} {today} cols={phone.matches ? 2 : 4} onmed={(s) => (medFor = s.act.id)} />
-  {:else if data}
+  {:else if data && !up.length}
     <p class="empty">{t('Add your activities in Aktiv, then you tick them off here in one tap.')}</p>
   {/if}
+  {#if up.length}<p class="up" data-acts-up>{t('{list}: up with your habits', { list: up.map((s) => actName(s.act)).join(', ') })}</p>{/if}
   <NudgeCards {today} />
   <WeekStars {today} />
   <NextStars {today} />
@@ -62,6 +74,11 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
     margin: 0;
+  }
+  .up {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .lk {
     display: inline-flex;

@@ -1,5 +1,6 @@
 <script>
   import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  import LinkedTodos from '../merken/LinkedTodos.svelte'; // N3: the to-dos that belong to this note
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
    * v0.48.0 one note, open (Noah 12a-16a): topic, pin (at most 3), title, text, link, photo,
@@ -76,7 +77,15 @@
     return new Date(`${r.day}T${r.hm}:00`).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
 
+  // F3 (Noah 05.11.2026): on a wide screen the note sits beside the list (no dark cover, the list stays usable);
+  // on a phone and a small window it stays a sheet over the page
+  const docked = typeof matchMedia !== 'undefined' && matchMedia('(min-width: 1100px)').matches;
   $effect(() => {
+    if (docked) {
+      dialog.show();
+      document.documentElement.classList.add('note-docked');
+      return () => document.documentElement.classList.remove('note-docked');
+    }
     dialog.showModal();
   });
 
@@ -284,7 +293,7 @@
      note's title with a quiet line (what it holds, topic, pinned) and ✕; title and text, the checklist on a
      soft panel with «+ Point», the topic as chips, «Turn the note into …» folded; at the bottom Delete,
      Pin / Unpin and «Done». The same functions as before. -->
-<dialog use:backClose class="sheet nsheet vdlg" bind:this={dialog} onclose={onclose} oncancel={(e) => (e.preventDefault(), closeIt())} aria-labelledby="note-h">
+<dialog use:backClose class="sheet nsheet vdlg" class:docked bind:this={dialog} onclose={onclose} oncancel={(e) => (e.preventDefault(), closeIt())} aria-labelledby="note-h">
   {#if !make}
     {@const cl = draft.checklist ?? []}
     <div class="vd-head">
@@ -412,6 +421,8 @@
       </div>
     {/if}
 
+    {#if draft.id}<LinkedTodos kind="note" ref={draft.id} />{/if}
+
     <details class="turn">
       <summary><b>{t('Turn the note into …')}</b><small>{t('a trip idea, a wish or a bike problem · the note links to it')}</small></summary>
       <div class="tiles">
@@ -473,6 +484,25 @@
 {#if readingAll}<NoteReader note={$state.snapshot(draft)} onclose={() => (readingAll = false)} />{/if}
 
 <style>
+  /* F3: beside the list on a wide screen (docked); the page keeps room on the right */
+  @media (min-width: 1100px) {
+    dialog.nsheet.docked {
+      position: fixed;
+      inset: 64px 16px auto auto;
+      margin: 0;
+      width: min(540px, 40vw);
+      max-height: calc(100vh - 80px);
+      overflow: auto;
+      z-index: 40;
+    }
+    :global(html.note-docked main) {
+      padding-right: calc(min(540px, 40vw) + 32px);
+    }
+    /* beside the note the list page is one column (the side column goes under the list) */
+    :global(html.note-docked .ich-cols) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
   .txh {
     display: flex;
     align-items: center;

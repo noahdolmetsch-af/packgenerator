@@ -3,12 +3,14 @@
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { mkdirSync } from 'node:fs';
+import { openCard } from './karte-auf.js';
 
 test('Belongs to: on Trips a row of links, «all» opens the catalogue by moment', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { hour: 9 });
   await page.goto('./#/trips');
+  await openCard(page, 'gd:trips');
   const row = page.locator('[data-gehoert="planen"]');
   await expect(row).toBeVisible();
   await expect(row).toContainText(T('Belongs to {moment}', { moment: T('Planning a trip|moment') }));

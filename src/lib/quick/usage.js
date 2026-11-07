@@ -100,3 +100,15 @@ export function stalePins(u, s, day) {
     .sort((a, b) => a.last.localeCompare(b.last))
     .map((x) => x.id);
 }
+
+/**
+ * «Zuletzt geöffnet» in the search (Ideen-Doc 05.11.2026, Noah «7a»): the last pages this device opened,
+ * newest first, at most `max`. The page you are on now is left out (it is no use to jump to it).
+ */
+export function recentPlaces(u, here = '', max = 5) {
+  const now = here ? pathOf(here) : null;
+  return u.recent.filter((r) => pathOf(r.href) !== now).slice(0, max);
+}
+
+/** Forget what this device opened: the list and the counts behind the pin suggestions. Pins and «No, thanks» stay. */
+export const forgetVisits = (u) => ({ ...u, recent: [], days: {} });

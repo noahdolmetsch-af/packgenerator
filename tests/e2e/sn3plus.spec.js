@@ -104,7 +104,11 @@ test('Bausteine: «Je nach Lage» is open with its seven blocks; the other group
   await expect(sit).toBeVisible();
   // Impeccable P3 (20.10.2026): the empty blocks sit in one fold; open it when it is there
   const fold = sit.locator('details[data-empty-blocks]');
-  if (await fold.count()) await fold.locator('> summary').click();
+  // Tempo-Runde (Noah 05.11.2026): closed, the fold holds no block yet; they are built when it opens
+  if (await fold.count()) {
+    await expect(fold.locator('li')).toHaveCount(0);
+    await fold.locator('> summary').click();
+  }
   for (const key of SITUATION_BLOCKS) await expect(sit.getByRole('listitem', { name: NAME(key), exact: true })).toBeVisible();
   const cold = sit.getByRole('listitem', { name: NAME('cold'), exact: true });
   await expect(cold).toContainText(`${T('comes along:')} ${T('below|rule')} 5 °C`);

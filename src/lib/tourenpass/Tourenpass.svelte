@@ -140,7 +140,7 @@
       <p class="quiet"><button type="button" class="btn btn-link" onclick={() => save(resetDeclined(st))} data-stamp-reset>{tn(away.length, '{n} trip marked «no stamp»: offer it again', '{n} trips marked «no stamp»: offer them again')}</button></p>
     {/if}
 
-    <p class="next" data-stamp-next>{t('Next up:')} <a href="#/trips">{t('Plan the next trip')}<ChevronRight size={14} aria-hidden="true" /></a></p>
+    <p class="next" data-stamp-next>{t('Next up:')} <a href="#/trips">{t('Plan the next trip')}<ChevronRight size={14} aria-hidden="true" /></a> · <a href="#/debrief/sammlung">{t('Collection wall')}<ChevronRight size={14} aria-hidden="true" /></a></p>
   {/if}
 </div>
 

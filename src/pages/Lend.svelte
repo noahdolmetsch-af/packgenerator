@@ -130,7 +130,7 @@
   </PathHead>
   <p class="intro">{t('A guest needs a helmet or a sleeping bag? Choose the things, send the list as a link or PDF, and the app remembers who has what. On the return day a reminder comes, if you switch it on under Me › Reminders.')}</p>
   <AreaIntro place="lend" />
-  {#if problem}<p class="err" role="alert">{problem}</p>{/if}
+  {#if problem && !form}<p class="err" role="alert">{problem}</p>{/if}
 
   {#if form}
     <form class="box form" onsubmit={save} aria-labelledby="nl-h">
@@ -147,6 +147,8 @@
           {/each}
         </ul>
       </fieldset>
+      <!-- E2-005: the message stands next to «Save» (before: above the form, out of sight with a long gear list) -->
+      {#if problem}<p class="err wide" role="alert">{problem}</p>{/if}
       <div class="foot wide">
         <button type="button" class="btn" onclick={() => (form = null)}>{t('Cancel')}</button>
         <button type="submit" class="btn hi">{t('Save')}</button>

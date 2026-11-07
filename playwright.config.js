@@ -19,6 +19,10 @@ const ignore = [
   ...(skipGesamttest ? ['**/gesamttest/**'] : []),
   ...(process.env.RUNDGANG ? [] : ['**/nachtrundgang/**']),
   ...(process.env.LIVE ? [] : ['**/live/**']),
+  // 06.11.2026: tests/e2e/tmp-durchklick are the Etappe-5 probes (click-through, fuzz, repro, shots; 30 to 60 minute
+  // timeouts, they write to /tmp, nothing asserts). They came onto main with #990 by mistake and slowed every phone
+  // part (part 4 hit the 35 minute limit). They run only by hand: TMP_DURCHKLICK=1 npx playwright test tests/e2e/tmp-durchklick
+  ...(process.env.TMP_DURCHKLICK ? [] : ['**/tmp-durchklick/**']),
 ];
 
 // 27.10.2026 (thread «Weg von gebaut zu online»): the tests never reach the real server packgen. On GitHub

@@ -25,10 +25,11 @@
   import AreaIcon from '../lib/abfragen/AreaIcon.svelte';
   import IntervalSheet from '../lib/abfragen/IntervalSheet.svelte';
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
+  import RuleSheet from '../lib/abfragen/RuleSheet.svelte';
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
-  import { RULES, MAX_PER_DAY, DATA_QUESTIONS, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS, randomOn, setRandom, neverCount, bringBack as bringNeverBack } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
-  import { OWN_AREA, QUESTION, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
+  import { MAX_PER_DAY, DATA_QUESTIONS, VALUES, ruleList, moveRule, ruleName, setRuleName, dropRule, restoreRule, goneRules, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS, randomOn, setRandom, neverCount, bringBack as bringNeverBack } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+  import { OWN_AREA, QUESTION, allQuestions, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -82,7 +83,53 @@
   const hasTraining = $derived((data?.acts ?? []).length > 0);
   const hasWeather = $derived(!!data?.wx);
   const hasCalendar = $derived(!!data?.cal?.used);
+  const hasTasks = $derived(!!data?.tasks?.used);
   const hasTennis = $derived((data?.sport ?? []).some((x) => x.sport === 'act:tennis'));
+  // 05.11.2026 (Noah «regeln im front end eingeben, ändern, löschen, neue erstellen»): the rules as the person has them, in their order
+  const customQs = $derived(allQuestions(cfg).filter((x) => x.rule));
+  const rules = $derived(ruleList(dcfg, customQs));
+  const goneRs = $derived(goneRules(dcfg));
+  let ruleEdit = $state(false);
+  let ruleFor = $state(undefined); // undefined: closed; null: a new rule; an own question: change it
+  let renamingRule = $state(null);
+  const ruleTitle = (x) => (x.q ? x.q.rule.title || x.q.text : (ruleName(dcfg, x.id) ?? t(x.rule.title)));
+  const specOf = (id) => VALUES.find((v) => v.id === id);
+  const condLine = (x) => x.q.rule.conds.map((c) => `${t(specOf(c.v).label)} ${c.op === 'over' ? t('is over') : t('is under')} ${c.n}`).join(` ${t('and')} `);
+  const stepRule = (from, to) => saveD(moveRule(dcfg, customQs, from, to));
+  function saveRule(x) {
+    const own = x.id ? x : newOwn(x);
+    if (own) save(putOwn(cfg, own, stampOf()));
+  }
+  async function removeRule(x) {
+    const name = ruleTitle(x);
+    const answer = await askDelete({ title: t('Delete the rule «{name}»?', { name }), text: x.q ? t('The rule goes. Answers it already got stay in the history.') : t('The rule no longer asks. «Deleted rules» brings it back.') });
+    if (answer !== 'delete') return;
+    await deleteWithUndo({
+      name,
+      text: t('Rule «{name}» deleted.', { name }),
+      run: async () => {
+        if (x.q) {
+          const before = fresh();
+          await save(deleteQuestion(before, x.id));
+          return { cfg: before };
+        }
+        const before = dcfg;
+        await saveD(dropRule(before, x.id));
+        return { dcfg: before };
+      },
+      undo: (b) => (b.cfg ? save(b.cfg) : saveD(b.dcfg ?? {})),
+    });
+  }
+  async function saveRuleName(name) {
+    const x = renamingRule;
+    const before = dcfg;
+    await saveD(setRuleName(before, x.id, name));
+    offerRename(String(name ?? '').trim() || t(x.rule.title), () => saveD(before ?? {}));
+  }
+  async function bringRuleBack(r) {
+    await saveD(restoreRule(dcfg, r.id));
+    offerDone(t('Rule «{name}» is back.', { name: ruleName(dcfg, r.id) ?? t(r.title) }));
+  }
   async function removeQuestion(q) {
     const name = qText(q);
     const answer = await askDelete({ title: t('Delete «{q}»?', { q: name }), text: q.own ? t('Your own question goes. Its answers stay in the history.') : t('The question no longer asks. Its answers stay in the history. «Deleted questions» brings it back.') });
@@ -189,23 +236,58 @@
         {#if !hasTraining}<p class="eh" data-data-empty-training>{t('No training yet. The rules for long days and pauses wait until Strava brings your activities.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
         {#if !hasWeather}<p class="eh" data-data-empty-weather>{t('No weather for today yet. The weather rules wait until Today shows the forecast of your home place.')} <a class="ab-lnk" href="#/wetter">{t('Weather page ›')}</a></p>{/if}
         {#if !hasCalendar}<p class="eh" data-data-empty-calendar>{t('No calendar on this device yet. The rule for a free evening waits until your Google calendar is connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasTasks}<p class="eh" data-data-empty-tasks>{t('No tasks on this device yet. The rule for a stuck to-do waits until your Google tasks are connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
         {#if !hasTennis}<p class="eh" data-data-empty-tennis>{t('No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.')}</p>{/if}
-        {#each RULES as r (r.id)}
-          <div class="dr" data-rule={r.id}>
+        <div class="rbar">
+          <button type="button" class="btn" onclick={() => (ruleFor = null)} data-rule-add><Plus size={16} aria-hidden="true" />{t('Create your own rule')}</button>
+          <button type="button" class="btn" class:hi={ruleEdit} aria-pressed={ruleEdit} onclick={() => (ruleEdit = !ruleEdit)} data-rule-edit>{#if ruleEdit}<Check size={16} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={16} aria-hidden="true" />{t('Sort, rename, delete')}{/if}</button>
+        </div>
+        {#if ruleEdit}
+          <p class="eh">{t('Sort with the arrows or drag the handle: the first rule that fits asks first. A deleted rule can be brought back.')}</p>
+          <ul class="er" use:sortable={{ onmove: stepRule }} data-rule-list>
+            {#each rules as x, i (x.id)}
+              <li data-sort-id={x.id} data-rule-row={x.id}>
+                <SortGrip name={ruleTitle(x)} onstep={(dir) => stepRule(i, i + dir)} />
+                <span class="nm">{ruleTitle(x)}{#if x.q}<small>{t('your own rule')}</small>{/if}</span>
+                <SortArrows name={ruleTitle(x)} {i} n={rules.length} onstep={(dir) => stepRule(i, i + dir)} />
+                <button type="button" class="eb" aria-label={t('Change {name}', { name: ruleTitle(x) })} onclick={() => (x.q ? (ruleFor = x.q) : (renamingRule = x))} data-rule-rename={x.id}><Pencil size={16} aria-hidden="true" /></button>
+                <button type="button" class="eb" aria-label={t('Delete {name}', { name: ruleTitle(x) })} onclick={() => removeRule(x)} data-rule-delete={x.id}><Trash2 size={16} aria-hidden="true" /></button>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+        {#each rules as x (x.id)}
+          {@const r = x.rule}
+          <div class="dr" data-rule={x.id}>
             <div class="rsw">
-              <span class="rm"><b>{t(r.title)}</b><small>{t(r.about, { n: ruleVal(dcfg, r.id) })}</small></span>
-              <label class="ab-sw"><span class="sr">{t(r.title)}</span><input type="checkbox" role="switch" checked={ruleOn(dcfg, r.id)} onchange={(e) => saveD(setRule(dcfg, r.id, e.currentTarget.checked))} /></label>
+              <span class="rm"><b>{ruleTitle(x)}</b><small>{#if r}{t(r.about, { n: ruleVal(dcfg, r.id) })}{:else}{t('If {cond}, ask «{q}».', { cond: condLine(x), q: x.q.text })}{/if}</small></span>
+              <label class="ab-sw"><span class="sr">{ruleTitle(x)}</span><input type="checkbox" role="switch" checked={ruleOn(dcfg, x.id)} onchange={(e) => saveD(setRule(dcfg, x.id, e.currentTarget.checked))} /></label>
             </div>
-            {#if ruleOn(dcfg, r.id)}
+            {#if ruleOn(dcfg, x.id)}
               <div class="dset">
-                <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
-                <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => saveD(setText(dcfg, r.id, e.currentTarget.value))} data-rule-text={r.id} /></label>
-                {#if ruleGap(dcfg, r.id) !== GAP_DAYS}<p class="eh" data-rule-gap={r.id}>{t('Asks only every {n} days, because you chose «less often».', { n: ruleGap(dcfg, r.id) })}</p>{/if}
-                {#if ruleChanged(dcfg, r.id)}<button type="button" class="btn" onclick={() => saveD(resetRule(dcfg, r.id))} data-rule-reset={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button>{/if}
+                {#if r}
+                  <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
+                  <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => saveD(setText(dcfg, r.id, e.currentTarget.value))} data-rule-text={r.id} /></label>
+                {:else}
+                  <button type="button" class="btn" onclick={() => (ruleFor = x.q)} data-rule-change={x.id}><Pencil size={16} aria-hidden="true" />{t('Change this rule')}</button>
+                {/if}
+                {#if ruleGap(dcfg, x.id) !== GAP_DAYS}<p class="eh" data-rule-gap={x.id}>{t('Asks only every {n} days, because you chose «less often».', { n: ruleGap(dcfg, x.id) })}</p>{/if}
+                {#if r && ruleChanged(dcfg, r.id)}<button type="button" class="btn" onclick={() => saveD(resetRule(dcfg, r.id))} data-rule-reset={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button>{/if}
               </div>
             {/if}
           </div>
         {/each}
+        {/if}
+        {#if goneRs.length}
+          <details class="gonef" data-rules-gone>
+            <summary>{t('Deleted rules ({n})', { n: goneRs.length })}</summary>
+            <ul class="er">
+              {#each goneRs as r (r.id)}
+                <li><span class="nm">{ruleName(dcfg, r.id) ?? t(r.title)}</span><button type="button" class="btn sm" onclick={() => bringRuleBack(r)} data-rule-restore={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Bring back')}</button></li>
+              {/each}
+            </ul>
+          </details>
+        {/if}
         <!-- the random question (Noah 04.11.2026 «3a»): one a day from the sample questions that are switched off; counts toward the daily limit -->
         <div class="dr" data-rule="zufall">
           <div class="rsw">
@@ -402,6 +484,29 @@
       if (q) removeQuestion(q);
     }}
     onclose={() => (ownFor = undefined)}
+  />
+{/if}
+{#if ruleFor !== undefined}
+  <RuleSheet
+    question={ruleFor}
+    areas={[...areas.map((a) => ({ key: a.key, name: nameOf(a.key) })), { key: OWN_AREA, name: nameOf(OWN_AREA) }]}
+    onsave={saveRule}
+    ondelete={(id) => {
+      const x = rules.find((y) => y.id === id);
+      if (x) removeRule(x);
+    }}
+    onclose={() => (ruleFor = undefined)}
+  />
+{/if}
+{#if renamingRule}
+  <RenameSheet
+    kicker={t('Rule')}
+    title={t('Rename rule')}
+    value={ruleTitle(renamingRule)}
+    empty={t('Empty: back to the standard name.')}
+    max={60}
+    onsave={saveRuleName}
+    onclose={() => (renamingRule = null)}
   />
 {/if}
 {#if renamingArea}
@@ -638,6 +743,7 @@
   }
   .qm {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     min-width: 0;
   }
   .qm b {
@@ -762,6 +868,15 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
     overflow-wrap: break-word;
+  }
+  .rbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .dfr .gonef {
+    margin-top: 0;
+    padding: 0;
   }
   .rtimes {
     display: flex;

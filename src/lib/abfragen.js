@@ -18,7 +18,7 @@
 import { addDays } from './flow.js';
 import { HELLO_QUESTIONS } from './home/hallo.js'; // HG1 2b: the two questions behind the greeting on Today
 import { clockOf } from './dayclock.js';
-import { DATA_QUESTIONS } from './datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+import { DATA_QUESTIONS, customRule } from './datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
 /** v0.144.0 RE: the day starts at 11:00, the evening at 18:00 (the one day clock). */
 const DAY_FROM = clockOf('day');
 const EVENING_FROM = clockOf('evening');
@@ -475,7 +475,9 @@ export function ownOf(x) {
   const form = kind === 'number' ? { kind, unit: String(x.form?.unit ?? '').trim().slice(0, 20) } : kind === 'yesno' ? { kind, options: [{ key: 'yes', label: 'yes', v: 1 }, { key: 'no', label: 'no', v: 0 }] } : { kind };
   // a group of the list or an own group (its key starts with «area-»); anything else: «Eigene»
   const area = AREA[x?.area] || /^area-/.test(String(x?.area ?? '')) ? x.area : OWN_AREA;
-  return { id: x.id, area, text: name, form, every: everyOf(x.every), src: ['only'], own: true, show: x.show !== false };
+  // a rule of your own («Fragen aus deinen Daten»): the question is asked by the rule, never by the clock
+  const rule = customRule(x.rule);
+  return { id: x.id, area, text: name, form, every: rule ? { kind: 'off' } : everyOf(x.every), src: ['only'], own: true, show: x.show !== false, ...(rule ? { rule } : {}) };
 }
 /** A new own question with a fresh id (the time it was made). */
 export const newOwn = (fields = {}, now = new Date()) => ownOf({ ...fields, id: `own-${now.getTime().toString(36)}` });
@@ -587,8 +589,8 @@ export function putOwn(cfg, question, now) {
   const q = { ...next.q };
   const was = q[own.id] ?? {};
   const off = own.every.kind === 'off';
-  // «Aus» in the sheet switches it off; a new one or one switched on again asks from its next time
-  q[own.id] = { on: !off, since: !has || (!off && was.on === false) ? now : was.since ?? now };
+  // «Aus» in the sheet switches it off; a new one or one switched on again asks from its next time; a rule of your own never asks by the clock
+  q[own.id] = own.rule ? { on: false, since: was.since ?? now } : { on: !off, since: !has || (!off && was.on === false) ? now : was.since ?? now };
   return { ...next, q };
 }
 /** Remove an own question (its answers stay in the history). */
@@ -603,7 +605,7 @@ export function dropOwn(cfg, id) {
 export function counts(cfg) {
   const per = {};
   let on = 0;
-  const list = allQuestions(configOf(cfg));
+  const list = allQuestions(configOf(cfg)).filter((x) => !x.rule); // a rule of your own is asked by its rule, not counted here
   for (const x of list) {
     const a = x.area;
     per[a] ??= { all: 0, on: 0 };

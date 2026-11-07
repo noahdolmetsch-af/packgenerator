@@ -10,6 +10,7 @@
 .rc-h1 {
   margin: 0;
   font: 800 var(--fs-page)/1.1 var(--font-brand);
+  overflow-wrap: break-word;
 }
 .rc-intro {
   margin: -6px 0 2px;
@@ -88,6 +89,13 @@
 .rc-row > svg:last-child {
   flex: none;
   color: var(--ink-3);
+}
+/* Etappe 6 (E6-004): an editable row (tick, bell, arrows, pencil) wraps at 320 px instead of pushing the page wider */
+.rc-row.rc-edit {
+  flex-wrap: wrap;
+}
+.rc-row.rc-edit > .rc-row-main {
+  flex-basis: 10rem;
 }
 .rc-row-main {
   display: flex;

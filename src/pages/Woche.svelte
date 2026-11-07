@@ -27,6 +27,7 @@
   import { PHONE_ROWS } from '../lib/touren/kurz.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
+  import { deleteWithUndo } from '../lib/ui/ask.js';
 
   const today = localDay();
   const q = weekQuery(today);
@@ -52,7 +53,11 @@
   }
   const items = () => src?.rawItems ?? [];
   const toggleDone = (e) => saveItems(items().map((x) => (x.id === e.id ? { ...x, done: !x.done } : x)));
-  const remove = (e) => saveItems(items().filter((x) => x.id !== e.id));
+  // Delete rule: «Remove» on a date or to-do offers Undo (it was gone for good before)
+  const remove = (e) => {
+    const gone = items().find((x) => x.id === e.id);
+    return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e) });
+  };
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
 
   // Impeccable P5: every suggestion button says what it did and offers Undo
