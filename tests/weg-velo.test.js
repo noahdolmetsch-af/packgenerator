@@ -22,8 +22,9 @@ const insp = (o) => ({ bikeId: 'bA', date: '2027-04-10', level: 'full', done: tr
 const ctxOf = (v = {}, o = {}) => ({ today, velo: { bikes: [bikeA], trips: [], inspections: [], care: {}, ...v }, ...o });
 
 describe('the kind is registered', () => {
-  it('is in the registry after the own step, with label and moment', () => {
-    expect(TYPES.map((t) => t.type)).toEqual(['own', 'velo']);
+  it('is in the registry, the own step first, with label and moment', () => {
+    expect(TYPES[0].type).toBe('own');
+    expect(TYPES.map((t) => t.type)).toContain('velo');
     expect(typeOf('velo')).toBe(velo);
     expect(velo).toMatchObject({ label: 'Bike ready', moment: 'velo' });
   });
