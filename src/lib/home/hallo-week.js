@@ -33,3 +33,16 @@ export function weekDots(rows = [], today, faces = MOODS) {
 
 /** How many of the seven days have an answer. */
 export const answeredDays = (dots) => dots.filter((d) => d.key).length;
+
+/**
+ * Gruss D «Woran liegt's?»: how often each button of `qid` was chosen in `rows` (rows of abAnswers), most often first, ties in the order met.
+ * Only counting, no reading into it (observation only).
+ */
+export function keyCounts(rows = [], qid) {
+  const n = new Map();
+  for (const r of rows) {
+    if (r?.qid !== qid || !Array.isArray(r.value)) continue;
+    for (const k of new Set(r.value)) n.set(k, (n.get(k) ?? 0) + 1);
+  }
+  return [...n].map(([key, count]) => ({ key, count })).sort((a, b) => b.count - a.count);
+}

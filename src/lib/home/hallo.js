@@ -107,6 +107,26 @@ export const PLANS = [
   { key: 'arbeit', label: 'Arbeit' },
 ];
 
+/** Gruss D (Noah 05.11.2026 «alle umsetzen»): «Woran liegt's?», optional, a few things that may play a part (observation only, never a verdict). */
+export const HELLO_WHY = "Woran liegt's?";
+export const REASONS = [
+  { key: 'r-schlaf', label: 'Schlaf' },
+  { key: 'r-wetter', label: 'Wetter' },
+  { key: 'r-arbeit', label: 'Arbeit' },
+  { key: 'r-mensche', label: 'Mensche' },
+  { key: 'r-koerper', label: 'Körper' },
+];
+/** Gruss D: in the evening the greeting asks about the day instead of the plan. */
+export const HELLO_DAY = "Wie war's?";
+export const DAY_WORDS = [
+  { key: 'gschafft', label: 'Gschafft' },
+  { key: 'schoen', label: 'Schön' },
+  { key: 'streng', label: 'Streng' },
+  { key: 'gmuetlech', label: 'Gmüetlech' },
+  { key: 'muehsam', label: 'Mühsam' },
+  { key: 'spannend', label: 'Spannend' },
+];
+
 /**
  * HG1 2b: the two questions in the shape of «Deine Abfragen» (abfragen.js), so the answers land in its
  * ONE history and show there like any answer. They are not in the list of 50 and never asked on their own
@@ -115,6 +135,8 @@ export const PLANS = [
 export const HELLO_QUESTIONS = [
   { id: 'hallo.gaht', area: 'spass', key: 'gaht', text: HELLO_MOOD, form: { kind: 'chips', options: MOODS.map((m) => ({ ...m })) }, every: { kind: 'off' }, src: ['hand'], hello: true },
   { id: 'hallo.gefuehl', area: 'spass', key: 'gefuehl', text: HELLO_FEEL, form: { kind: 'chips', options: FEELINGS.map((f) => ({ ...f })), multi: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.grund', area: 'spass', key: 'grund', text: HELLO_WHY, form: { kind: 'chips', options: REASONS.map((x) => ({ ...x })), multi: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.tag', area: 'spass', key: 'tag', text: HELLO_DAY, form: { kind: 'chips', options: DAY_WORDS.map((x) => ({ ...x })), multi: true, note: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
   { id: 'hallo.vor', area: 'ziele', key: 'vor', text: HELLO_PLAN, form: { kind: 'chips', options: PLANS.map((x) => ({ ...x })), multi: true, note: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
 ];
 
