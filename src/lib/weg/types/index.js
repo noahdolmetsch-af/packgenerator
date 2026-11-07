@@ -4,8 +4,9 @@
  */
 import own from './own.js';
 import rennplanung from './rennplanung.js';
+import gps from './gps.js';
 
-export const TYPES = [own, rennplanung];
+export const TYPES = [own, rennplanung, gps];
 
 export const typeOf = (id) => TYPES.find((t) => t.type === id) ?? own;
 
