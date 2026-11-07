@@ -1,6 +1,6 @@
 # Wetter-Ausweichen
 
-PR (Nummer folgt) · 07.11.2026 · Auftrag: Noah «1b 2a 3a» (Thread «Verbessern: Routing und Navigation»)
+PR #1045 · 07.11.2026 · Auftrag: Noah «1b 2a 3a» (Thread «Verbessern: Routing und Navigation»)
 
 ## Was ist neu
 - Die Gewitter-Warnung der Live-Karte warnt jetzt auch vor Starkregen in den nächsten 2 Stunden («Starkregen möglich um km 40 ab 15:30»). Gewitter hat Vorrang. Die Option heisst «Gewitter- und Starkregen-Warnung» und ist wie bisher ausgeschaltet, bis du sie einschaltest.
