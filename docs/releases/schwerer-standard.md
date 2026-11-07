@@ -1,6 +1,6 @@
 # Ein schwerer Standard sagt es
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #1101 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - Bausteine zeigt unter dem Gewichtsbalken einen ruhigen Satz, wenn «Standard» 5 kg oder mehr wiegt und «Aufräumen» weniger Teile vorschlägt: «Auf Bikepacking-Touren bringt dein Standard … mit (ohne Getragenes). «Aufräumen» schlägt N statt M Teile vor. Ansehen ›» (`standardHint` in src/lib/packcleanup.js). Kein Schema-Wechsel.
