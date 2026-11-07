@@ -87,6 +87,30 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   expect(errors).toEqual([]);
 });
 
+test('«Zurück zu Heute»: the page of a value remembers where you came from (A2, 4a)', async ({ page, context }) => {
+  const errors = await open(page, context);
+  // from Heute onto a value
+  await page.evaluate(() => (location.hash = '#/'));
+  await ready(page);
+  await page.evaluate(() => (location.hash = '#/auswerten/analyse/rhr'));
+  const wv = page.locator('[data-detail="rhr"]');
+  await expect(wv).toBeVisible();
+  const back = wv.locator('[data-crumb-back]');
+  await expect(back).toContainText(T('Today|place'));
+  await expect(back).toHaveAttribute('href', '#/');
+  // moving on to another value inside Analyse keeps it
+  await page.evaluate(() => (location.hash = '#/auswerten/analyse/sleep'));
+  await expect(page.locator('[data-detail="sleep"] [data-crumb-back]')).toContainText(T('Today|place'));
+  // from Aktiv onto a value
+  await page.evaluate(() => (location.hash = '#/flow'));
+  await ready(page);
+  await page.evaluate(() => (location.hash = '#/auswerten/analyse/rhr'));
+  await expect(page.locator('[data-detail="rhr"] [data-crumb-back]')).toContainText(T('Active|place'));
+  await page.locator('[data-detail="rhr"] [data-crumb-back]').click();
+  await expect(page).toHaveURL(/#\/flow$/);
+  expect(errors).toEqual([]);
+});
+
 test('Pulse over the day: the day range shows the hours', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await page.goto('./#/auswerten/analyse/hrDay');
