@@ -17,6 +17,7 @@
   import { listCustomers, saveCustomers, keyOf, parseRate, lessonsOf, invoicesOf, packOf, packState, parsePack, aboOf, parseAbo, fixedOf, parseFixed } from '../lib/booking/customers.js';
   import { listInvoices, setPrefill } from '../lib/pay/invoices.js';
   import { localDay } from '../lib/localday.js';
+  import { vouchersOf, openVouchers, parseVoucher, voucherText } from '../lib/booking/vouchers.js';
   import { Users, X, Plus } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
@@ -42,8 +43,8 @@
   $effect(() => {
     if (draft && dlg && !dlg.open) dlg.showModal();
   });
-  const openNew = () => ((error = ''), (draft = { id: null, name: '', contact: '', note: '', rate: '', packSize: '', packPrice: '', packFrom: localDay(), abo: '', fixedDay: '', fixedTime: '' }));
-  const openOne = (c) => ((error = ''), (draft = { id: c.id, name: c.name, contact: c.contact ?? '', note: c.note ?? '', rate: c.rate == null ? '' : chf(c.rate), packSize: packOf(c) ? String(packOf(c).size) : '', packPrice: packOf(c)?.price == null ? '' : chf(packOf(c).price), packFrom: packOf(c)?.from || localDay(), abo: aboOf(c) ? chf(aboOf(c).price) : '', fixedDay: fixedOf(c) ? String(fixedOf(c).weekday) : '', fixedTime: fixedOf(c)?.time ?? '' }));
+  const openNew = () => ((error = ''), (draft = { id: null, name: '', contact: '', note: '', rate: '', packSize: '', packPrice: '', packFrom: localDay(), abo: '', fixedDay: '', fixedTime: '', vouchers: [], vKind: 'amount', vValue: '' }));
+  const openOne = (c) => ((error = ''), (draft = { id: c.id, name: c.name, contact: c.contact ?? '', note: c.note ?? '', rate: c.rate == null ? '' : chf(c.rate), packSize: packOf(c) ? String(packOf(c).size) : '', packPrice: packOf(c)?.price == null ? '' : chf(packOf(c).price), packFrom: packOf(c)?.from || localDay(), abo: aboOf(c) ? chf(aboOf(c).price) : '', fixedDay: fixedOf(c) ? String(fixedOf(c).weekday) : '', fixedTime: fixedOf(c)?.time ?? '', vouchers: vouchersOf(c).map((v) => ({ ...v })), vKind: 'amount', vValue: '' }));
   const current = $derived(draft?.id ? (customers ?? []).find((c) => c.id === draft.id) : null);
   const lessons = $derived(current && bookings ? lessonsOf(current, bookings).sort((a, b) => String(b.at).localeCompare(String(a.at))) : []);
   const openInvoices = $derived(current ? invoicesOf(current, invoices).filter((x) => x.status === 'open') : []);
@@ -63,8 +64,8 @@
     const list = customers ?? [];
     if (list.some((c) => c.id !== draft.id && keyOf(c.name) === keyOf(name))) return (error = t('This customer is already in the list.'));
     const next = draft.id
-      ? list.map((c) => (c.id === draft.id ? { ...c, name, contact: draft.contact.trim(), note: draft.note.trim(), rate, pack, abo, fixed } : c))
-      : [...list, { id: crypto.randomUUID(), name, contact: draft.contact.trim(), note: draft.note.trim(), rate, pack, abo, fixed, createdAt: new Date().toISOString().slice(0, 10) }];
+      ? list.map((c) => (c.id === draft.id ? { ...c, name, contact: draft.contact.trim(), note: draft.note.trim(), rate, pack, abo, fixed, vouchers: draft.vouchers } : c))
+      : [...list, { id: crypto.randomUUID(), name, contact: draft.contact.trim(), note: draft.note.trim(), rate, pack, abo, fixed, vouchers: draft.vouchers, createdAt: new Date().toISOString().slice(0, 10) }];
     await saveCustomers(next);
     dlg.close();
   }
@@ -101,6 +102,15 @@
     setPrefill({ name: draft.name.trim(), email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.contact.trim()) ? draft.contact.trim() : '', amount: chf(a.price), purpose: t('Subscription, {month}', { month }) });
     location.hash = '#/me/pay/invoices/new';
   }
+  function addVoucher() {
+    const v = parseVoucher(draft.vKind, draft.vValue, crypto.randomUUID(), localDay());
+    if (!v) return (error = draft.vKind === 'lessons' ? t('Please enter the number of lessons, like 5.') : t('Please enter the amount like 100 or 62.50.'));
+    error = '';
+    draft.vouchers = [...draft.vouchers, v];
+    draft.vValue = '';
+  }
+  const dropVoucher = (id) => (draft.vouchers = draft.vouchers.filter((v) => v.id !== id));
+  const voucherLine = (c) => (openVouchers(c).length ? t('Voucher: {text}', { text: openVouchers(c).map((v) => voucherText(v)).join(' + ') }) : '');
   const dayNames = Array.from({ length: 7 }, (_, i) => new Date(`2026-11-0${2 + i}T12:00:00`).toLocaleDateString(locale(), { weekday: 'long' }));
   const fixedText = (c) => (fixedOf(c) ? t('Usual time {day} {time}', { day: dayNames[fixedOf(c).weekday], time: fixedOf(c).time }) : '');
   const rateText = (c) => (c.rate == null ? '' : t('{price} CHF per lesson', { price: chf(c.rate) }));
@@ -118,7 +128,7 @@
           {@const n = bookings ? lessonsOf(c, bookings).length : null}
           {@const open = invoicesOf(c, invoices).filter((x) => x.status === 'open').length}
           <li><button type="button" class="cu-row" onclick={() => openOne(c)}>
-            <span><b>{c.name}</b><small>{[c.contact, rateText(c), fixedText(c), packText(c), aboText(c), n != null ? tn(n, '{n} lesson', '{n} lessons') : '', open ? tn(open, '{n} open invoice', '{n} open invoices') : ''].filter(Boolean).join(' · ')}</small></span>
+            <span><b>{c.name}</b><small>{[c.contact, rateText(c), fixedText(c), voucherLine(c), packText(c), aboText(c), n != null ? tn(n, '{n} lesson', '{n} lessons') : '', open ? tn(open, '{n} open invoice', '{n} open invoices') : ''].filter(Boolean).join(' · ')}</small></span>
           </button></li>
         {/each}
       </ul>
@@ -138,6 +148,13 @@
       <label class="lbl" for="cu-fday">{t('Weekday')}</label>
       <select id="cu-fday" class="inp" bind:value={draft.fixedDay}><option value="">{t('No usual time')}</option>{#each dayNames as d, i (i)}<option value={String(i)}>{d}</option>{/each}</select>
       <label class="lbl" for="cu-ftime">{t('Time (e.g. 17:00)')}</label><input id="cu-ftime" class="inp" type="time" bind:value={draft.fixedTime} />
+      <h3 class="cu-h3">{t('Vouchers')}</h3>
+      <p class="muted">{t('A voucher for an amount or a number of lessons. When you prepare an invoice for this person, it is taken off in the draft.')}</p>
+      {#if draft.vouchers.length}<ul class="cu-mini">{#each draft.vouchers as v (v.id)}<li data-voucher>{v.code} · {voucherText(v)} <button type="button" class="lkb" aria-label={t('Remove voucher {code}', { code: v.code })} onclick={() => dropVoucher(v.id)}>{t('Remove')}</button></li>{/each}</ul>{/if}
+      <label class="lbl" for="cu-vkind">{t('New voucher')}</label>
+      <select id="cu-vkind" class="inp" bind:value={draft.vKind}><option value="amount">{t('Amount in CHF')}</option><option value="lessons">{t('Number of lessons')}</option></select>
+      <input id="cu-vvalue" class="inp" inputmode="decimal" bind:value={draft.vValue} placeholder={draft.vKind === 'lessons' ? t('e.g. 5') : t('e.g. 100')} aria-label={t('Value of the voucher')} />
+      <button type="button" class="btn sm" data-voucher-add onclick={addVoucher}>{t('Add voucher')}</button>
       <h3 class="cu-h3">{t('Lesson card')}</h3>
       <p class="muted">{t('For example 10 lessons for one price. The lessons from the start day on count against the card and need no invoice of their own.')}</p>
       <label class="lbl" for="cu-psize">{t('Lessons on the card (empty: no card)')}</label><input id="cu-psize" class="inp" inputmode="numeric" bind:value={draft.packSize} placeholder={t('e.g. 10')} />

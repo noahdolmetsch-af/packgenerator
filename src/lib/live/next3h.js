@@ -2,17 +2,18 @@
  * «Kälte und Regen der nächsten 3 Stunden» (Noah 02.11.2026, Vorschlag 3): from the weather along the route, what the
  * next hours bring where you will be then, and one plain sentence («Jacke jetzt»). Pure: the ride gives the km, the
  * pace and the saved forecast (wx: { points: [{ km }], series: [] }); nothing is stored.
- *   → null without a forecast, else { rows: [{ h, km, temp, feels, rain, wind }], verdict, h, value }
+ *   → null without a forecast, else { rows: [{ h, km, temp, feels, rain, wind, dark }], verdict, h, value }
  *   verdict: 'rain' (≥ 50 %), 'cold' (feels < 8 °), 'cool' (< 15 °), 'wind' (≥ 30 km/h), 'ok'
  */
 import { wxNear } from '../race/route-lib.js';
+import { lightLeft } from './live-lib.js';
 
 export const RAIN_AT = 50;
 export const COLD_AT = 8;
 export const COOL_AT = 15;
 export const WIND_AT = 30;
 
-export function nextHours({ wx, km, now = Date.now(), pace = {}, totalKm = null, hours = 3 }) {
+export function nextHours({ wx, km, now = Date.now(), pace = {}, totalKm = null, hours = 3, pos = null }) {
   if (!wx?.points?.length || !wx?.series?.length || !Number.isFinite(km)) return null;
   const kmh = pace?.kmh > 0 ? pace.kmh : 18;
   const rows = [];
@@ -20,7 +21,7 @@ export function nextHours({ wx, km, now = Date.now(), pace = {}, totalKm = null,
     const at = km + kmh * h;
     const k = Number.isFinite(totalKm) ? Math.min(at, totalKm) : at;
     const w = wxNear(wx, k, now + h * 36e5);
-    if (w) rows.push({ h, km: Math.round(k * 10) / 10, temp: w.temp, feels: w.feels ?? w.temp, rain: w.rain, wind: w.wind });
+    if (w) rows.push({ h, km: Math.round(k * 10) / 10, temp: w.temp, feels: w.feels ?? w.temp, rain: w.rain, wind: w.wind, dark: pos ? (lightLeft(pos.lat, pos.lon, now + h * 36e5)?.dark ?? null) : null });
   }
   if (!rows.length) return null;
   const first = (f) => rows.find(f);

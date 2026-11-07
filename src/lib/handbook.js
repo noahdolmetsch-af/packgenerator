@@ -1295,6 +1295,16 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.dice': {
+    on: 'Works offline; the rules are on the device.',
+    steps: ['Open Trips › Dreams: «Adventure dice».', 'Tap «Roll»; the rule stays until you roll again.', 'Under «Rules»: add, rename, delete or hide rules.'],
+    example: 'Example: «A coffee in a village you have never been to».',
+  },
+  'f.suntip': {
+    on: 'Needs your home place and the forecast (online now and then).',
+    steps: ['Open Trips › Dreams: «Sunrise on the hill» names the next clear morning and evening.', 'Mark a «View» point on the map near home.', 'The tip then says when to leave for it.'],
+    example: 'Example: Clear morning Thursday: sunrise 7:21 · leave 6:41 for the view point (4 km).',
+  },
   'f.trainthere': {
     on: 'Needs your home place and the internet when you tap (timetable and bike router).',
     steps: ['Open Trips › Dreams: «Train there, bike home» shows three places.', 'Choose the km of the ride home.', 'Tap «Trains and the way home», then «Plan as a trip».'],

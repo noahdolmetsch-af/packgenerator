@@ -1,0 +1,22 @@
+// «Tour-Ampel» (Noah 05.11.2026, Touren 3a): packed, weather, bike, devices in four lines before the trip
+export default {
+  'Ready to go?': 'Bereit zur Abfahrt?',
+  'Ready to go': 'Bereit',
+  'Almost ready': 'Fast bereit',
+  'Not ready yet': 'Noch nicht bereit',
+  'To do|ampel': 'Zu tun',
+  'Soon|ampel': 'Bald dran',
+  'No data|ampel': 'Keine Daten',
+  'Everything is packed': 'Alles ist gepackt',
+  'Packed {n} %': 'Gepackt {n} %',
+  'No forecast for these days yet': 'Noch keine Vorhersage für diese Tage',
+  'The forecast differs from your list': 'Die Vorhersage weicht von deiner Liste ab',
+  'The weather fits your list': 'Das Wetter passt zu deiner Liste',
+  'Bike: 1 thing to do': 'Velo: 1 Sache zu tun',
+  'Bike: {n} things to do': 'Velo: {n} Sachen zu tun',
+  'Bike: no check recorded yet': 'Velo: noch keine Prüfung erfasst',
+  'Bike: nothing due': 'Velo: nichts fällig',
+  'Devices charged': 'Geräte geladen',
+  'Charged {done} of {total} devices': '{done} von {total} Geräten geladen',
+  'Only a look at your data; nothing is blocked. Tap a line to fix it.': 'Nur ein Blick auf deine Daten; nichts wird gesperrt. Tippe auf eine Zeile, um es zu erledigen.',
+};
