@@ -89,6 +89,39 @@ test('Mein Abend: the timer without the phone runs out, then «Hat gut getan» i
   expect(errors).toEqual([]);
 });
 
+test('Worauf hab ich Lust: your week brings the weather and the free time, «Noch eine» adds an idea', async ({ page, context }, info) => {
+  const errors = await open(page, context, './#/me/frei/lust');
+  const now = new Date(`${DAY}T12:00:00+02:00`).getTime();
+  await page.evaluate(
+    ({ now }) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction(['settings', 'meta', 'gEvents'], 'readwrite');
+          tx.objectStore('settings').put({ key: 'homePlace', value: { lat: 46.95, lon: 7.45, name: 'Testort' } });
+          tx.objectStore('settings').put({ key: 'agenda', value: { calendar: true } });
+          tx.objectStore('meta').put({ key: 'wx-core:46.95,7.45', at: now, place: { lat: 46.95, lon: 7.45, name: 'Testort' }, days: [], offset: 7200, hours: [0, 1, 2, 3, 4, 5].map((n) => ({ ms: now + n * 36e5, rainP: 80, rainMm: 1, code: 61, cape: 0 })) });
+          tx.objectStore('gEvents').put({ id: 'primary|frei-1', gid: 'frei-1', cal: 'primary', title: 'test_data_frei_ Termin', day: '2026-10-19', allDay: false, start: new Date(now + 40 * 6e4).toISOString(), end: new Date(now + 100 * 6e4).toISOString(), busy: true });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    { now },
+  );
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-week-note]')).toContainText('Regen oder Gewitter');
+  await expect(page.locator('[data-week-free]')).toContainText(/Etwa (39|40) Min. frei/);
+  const first = await page.locator('[data-pick]').first().getAttribute('data-pick');
+  expect(['yoga', 'games', 'stretch', 'dance']).toContain(first); // rain: ideas for inside first
+  const before = await page.locator('[data-pick]').count();
+  await page.locator('[data-more]').click();
+  await expect(page.locator('[data-rolled]')).toHaveCount(1);
+  expect(await page.locator('[data-pick]').count()).toBe(before + 1);
+  await page.locator('[data-week-toggle]').uncheck();
+  await expect(page.locator('[data-week-note]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('Worauf hab ich Lust: a choice gives up to three ideas', async ({ page, context }) => {
   const errors = await open(page, context, './#/me/frei/lust');
   await page.locator('[data-choice="play"]').first().click();
