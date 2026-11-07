@@ -111,6 +111,26 @@ test('«Zurück zu Heute»: the page of a value remembers where you came from (A
   expect(errors).toEqual([]);
 });
 
+test('«Zurück zu Heute» also on the old page of a value (5a)', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await page.evaluate(() => (location.hash = '#/'));
+  await ready(page);
+  await page.evaluate(() => (location.hash = '#/flow/stats/hr'));
+  const old = page.locator('[data-stats="hr"]');
+  await expect(old).toBeVisible();
+  const back = old.locator('[data-crumb-back]');
+  await expect(back).toContainText(T('Today|place'));
+  await expect(back).toHaveAttribute('href', '#/');
+  expect((await back.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  // from Aktiv the crumb «‹ Aktiv» already leads back: no second button
+  await page.evaluate(() => (location.hash = '#/flow'));
+  await ready(page);
+  await page.evaluate(() => (location.hash = '#/flow/stats/hr'));
+  await expect(old).toBeVisible();
+  await expect(old.locator('[data-crumb-back]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('Pulse over the day: the day range shows the hours', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await page.goto('./#/auswerten/analyse/hrDay');

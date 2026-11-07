@@ -12,6 +12,12 @@ describe('noteMove', () => {
     expect(noteMove('#/', '#/auswerten/analyse/rhr', '#/auswerten/analyse/sleep')).toBe('#/');
     expect(noteMove('#/', '#/auswerten', '#/auswerten/analyse/rhr')).toBe('#/');
   });
+  it('does the same for the old page of a value, and keeps the address between the old and the new pages', () => {
+    expect(noteMove(null, '#/', '#/flow/stats/hr')).toBe('#/');
+    expect(noteMove('#/', '#/flow/stats/hr', '#/flow/stats/steps')).toBe('#/');
+    expect(noteMove('#/', '#/flow/stats/hr', '#/auswerten/analyse/rhr')).toBe('#/');
+    expect(noteMove('#/', '#/auswerten/analyse/rhr', '#/flow/stats/hr')).toBe('#/');
+  });
   it('does not change for other pages and without a start', () => {
     expect(noteMove('#/', '#/flow', '#/bikes')).toBe('#/');
     expect(noteMove(null, '#/flow', '#/bikes')).toBe(null);
@@ -29,5 +35,6 @@ describe('backOf', () => {
     expect(backOf(null)).toBe(null);
     expect(backOf('#/auswerten')).toBe(null);
     expect(backOf('#/auswerten/analyse')).toBe(null);
+    expect(backOf('#/flow/stats/hr')).toBe(null);
   });
 });
