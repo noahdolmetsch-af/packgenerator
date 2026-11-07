@@ -1,6 +1,6 @@
 # Paket E: Doku nachgetragen
 
-PR (noch nicht geöffnet) · 04.11.2026 · Auftrag: Noah «E und F» (Thread «Bauen: Touren als Sammlung»)
+PR (diese Änderung) · 07.11.2026 · Auftrag: Noah «E und F» (Thread «Bauen: Touren als Sammlung»)
 
 ## Was ist neu
 - Nichts in der App. Nur Doku: in `docs/vorhaben-liste.md` stehen alle fünf Ideen von Paket E (23, 13, 25, 24, 18) auf «gebaut».
@@ -17,3 +17,4 @@ PR (noch nicht geöffnet) · 04.11.2026 · Auftrag: Noah «E und F» (Thread «B
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
 - Paket E «Touren als Sammlung»: alle fünf Ideen gebaut und online.
+- Paket G «Heute persönlicher und ruhiger»: neuer Abschnitt in `docs/vorhaben-liste.md`, beide Teile (Bild oben, ein starker Knopf) gebaut und online.
