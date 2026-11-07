@@ -2,7 +2,7 @@
  * «Zahl mit Weg» und «Quelle-Zeile» (UI-Prüfung 07.11.2026, Noah «alle Vorschläge», Rang 1): the two small rules
  * behind a number that leads somewhere. Pure: no page, no database, no clock.
  *
- * numHref({ key, range, day, src }): where a tap on a number goes: the page of one value (key, with its period) or the
+ * numHref({ key, range, day, src, to }): where a tap on a number goes: the page of one value (key, with its period) or the
  * sheet of one day, both in Analyse (jump.js). A number without an analysis (Noah 07.11.2026 «2b»: every number can be
  * tapped) falls back to its source page (src, see sourceLink). Nothing to point at → null (plain text).
  * sourceLink(src): where a value comes from, as a name and a page of the app, for the line «Source: Fitbit ›».
@@ -21,7 +21,8 @@ export const SOURCE_PAGES = {
 };
 
 /** The link of a number: a value (key, optional period), a day, or else its source page; null when it names none. */
-export function numHref({ key = null, range = null, day = null, src = null } = {}) {
+export function numHref({ key = null, range = null, day = null, src = null, to = null } = {}) {
+  if (to) return to; // a page of the app that is no Analyse value (the care list of a bike, its year): the page names it
   if (key) return valueHref(key, range);
   if (day) {
     const h = dayHref(day);
