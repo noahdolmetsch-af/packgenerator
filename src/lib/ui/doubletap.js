@@ -15,11 +15,19 @@ export function isDoubleTap(last, el, time, gap = GAP_MS) {
 
 export function installDoubleTapGuard(root = document) {
   let last = null;
+  // anything else the person does in between (typing, another button, a key) ends the «double tap»:
+  // «Save» with an empty field, fix the text, «Save» again is two taps, not one.
+  const forget = () => {
+    last = null;
+  };
+  root.addEventListener('input', forget, true);
+  root.addEventListener('change', forget, true);
+  root.addEventListener('keydown', forget, true);
   root.addEventListener(
     'click',
     (e) => {
       const el = e.target?.closest?.(GUARDED);
-      if (!el) return;
+      if (!el) return forget();
       if (isDoubleTap(last, el, e.timeStamp)) {
         e.stopImmediatePropagation();
         e.preventDefault();

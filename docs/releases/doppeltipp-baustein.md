@@ -10,6 +10,7 @@ PR #1017 · 06.11.2026 · Auftrag: Noah (Durchklick Etappe 4, Antwort «5a»), T
 - nichts. Wer absichtlich zweimal innerhalb von 0,45 Sekunden auf denselben Speichern-Knopf tippt, bekommt einmal gespeichert (das war nie gewollt).
 
 ## Selbst entschieden
+- Dazwischen etwas tun (tippen, eine andere Taste, ein anderer Knopf) beendet den «Doppeltipp»: «Speichern» mit leerem Feld, Text ergänzen, nochmals «Speichern» zählt beide Male. Das hat der Test `erinnerungen.spec.js` (PL2/PL3) gezeigt, den die erste Fassung des Bausteins rot machte.
 - Ein globaler Fänger statt Umbau von über 200 Fenstern. `once()` in `ui/ask.js` bleibt für Arbeit, die sich auch nach 0,45 Sekunden nicht überlappen darf. Die Einzel-Absicherungen aus E4-003 (#976) und E4-004 (#984) bleiben als zweites Netz.
 - Test `tests/doubletap.test.js` (Regel, vorher rot, weil der Baustein fehlte) und `tests/e2e/doppeltipp-baustein.spec.js` (Notiz und To-do mit Doppeltipp, erfundene Daten). Der Ablauf-Test war vor #976 und #984 rot (Notizen 41 → 42) und ist seither auch ohne den Baustein grün, weil beide Seiten ihren eigenen Schutz haben; er bleibt als Netz, dass es so bleibt.
 

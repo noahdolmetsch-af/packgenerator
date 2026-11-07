@@ -26,7 +26,7 @@ test('a double tap on Save keeps one note and one to-do', async ({ page, context
   await dlg.getByRole('textbox', { name: T('What?') }).fill('Doppeltipp-Aufgabe');
   await dlg.getByRole('button', { name: T('Save'), exact: true }).dblclick();
   await expect(page.locator('dialog[open]')).toHaveCount(0);
-  await expect(page.locator('li.td', { hasText: 'Doppeltipp-Aufgabe' })).toHaveCount(1);
+  await expect(page.locator('main .td', { hasText: 'Doppeltipp-Aufgabe' })).toHaveCount(1);
 
   expect(errors).toEqual([]);
 });
