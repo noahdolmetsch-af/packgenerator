@@ -119,6 +119,7 @@
   import HeuteCheckTile from '../lib/home/HeuteCheckTile.svelte';
   import MomentTile from '../lib/home/MomentTile.svelte'; // «Heute als Begleiter» PR 4
   import DiscoverTile from '../lib/home/DiscoverTile.svelte'; // PR 5
+  import SpruchTile from '../lib/home/SpruchTile.svelte'; // «Spruch zum Einstieg» PR 1
   import { vo2Of, VO2_DAYS } from '../lib/home/vo2.js';
   import { addDays as addHealthDays } from '../lib/health.js';
   import WeighTile from '../lib/home/WeighTile.svelte';
@@ -1273,6 +1274,7 @@
   {:else if x.id === 'vitals'}<VitalsTile {today} isnew={newTile('vitals')} />
   {:else if x.id === 'heutecheck'}<HeuteCheckTile {today} due={abDue} evening={abEvening} isnew={newTile('heutecheck')} />
   {:else if x.id === 'moment'}<MomentTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('moment')} />
+  {:else if x.id === 'spruch'}<SpruchTile {today} {now} forecast={fc} trip={bildTrip} packed={bildTrip ? packedOf(bildTrip, itemsById, nameOf) : null} place={place?.lat != null ? { lat: Number(place.lat), lon: Number(place.lon) } : null} isnew={newTile('spruch')} />
   {:else if x.id === 'discover'}<DiscoverTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('discover')} />
   {:else if x.id === 'vo2max'}<Vo2Tile {today} isnew={newTile('vo2max')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
