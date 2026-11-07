@@ -1,7 +1,7 @@
 // «Träume an einem Ort» (Träume und Neuland, Frage 3a): a dream in the Kompass box shows on Träume and
 // becomes a dream tour in one tap (Undo brings it back); the Kompass and the travel wishes link to Träume.
 // Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

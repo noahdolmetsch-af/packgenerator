@@ -2,8 +2,8 @@
 export default {
   title: 'Dreams in one place',
   lead: 'Trips › Dreams now also shows the dreams of your compass and links to your travel wishes.',
-  points: [{ text: 'Trips › Dreams › «More dreams»: one tap makes a compass dream a dream tour, with Undo', href: '#/trips/dreams' }],
-  small: [{ box: 'new', text: 'The compass and the travel wishes link back to Dreams' }],
+  points: [{ text: 'Trips › Dreams › «More dreams»: one tap makes a compass dream a dream tour, with Undo', go: 'f.dreamsone' }],
+  small: [{ box: 'new', text: 'The compass and the travel wishes link back to Dreams', go: 'f.dreamsone' }],
   test: [
     'Write a dream in Me › My compass › Dreams.',
     'Open Trips › Dreams › «More dreams» and tap «Make it a dream tour»; it moves into your dreams.',

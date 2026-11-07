@@ -27,4 +27,5 @@ export default {
   // Wegweiser 26b: pages that had no card yet
   'f.freisamml': 'A collection grows by itself on rides: note the fountain when you drink from it, not later at home.',
   'f.skiseason': 'Practise with the transceiver at the start of the season, not on the first tour. Ten minutes in the park are enough.',
+  'f.dreamsone': 'Dreams that sit in one place are easier to compare: one list for tour dreams, compass dreams and travel wishes, so nothing gets forgotten.',
 };
