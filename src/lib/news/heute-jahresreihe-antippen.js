@@ -3,8 +3,8 @@ export default {
   title: 'The 12 months on Today: a chart you can point at',
   lead: 'The km of the last 12 months now have an axis, show exact numbers and open a month with a tap.',
   points: [
-    { text: 'Point at a month for its km; tap it to see the month and go to the look back', href: '#/', go: { href: '#/', steps: [{ sel: '[data-year-row]' }] } },
-    { text: '«As table» lists the 12 months under the chart', href: '#/', go: { href: '#/', steps: [{ sel: '[data-year-row]' }] } },
+    { text: 'Point at a month for its km; tap it to see the month and go to the look back', href: '#/debrief', go: { href: '#/', steps: [{ sel: '[data-year-row]' }] } },
+    { text: '«As table» lists the 12 months under the chart', href: '#/debrief', go: { href: '#/', steps: [{ sel: '[data-year-row]' }] } },
   ],
   test: [
     'Open Today, find the row «Last 12 months» and point at a bar (or use the arrow keys): month and km appear above the chart.',
