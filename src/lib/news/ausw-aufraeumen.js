@@ -9,7 +9,7 @@ export default {
     },
     {
       text: 'The tiles for resting pulse, active zone minutes and calories name their day or period',
-      go: { href: '#/auswerten', steps: [{ sel: '[data-overview]' }] },
+      go: { href: '#/auswerten', steps: [{ sel: '[data-overview], [data-ov-fold]' }] },
     },
   ],
   small: [],
