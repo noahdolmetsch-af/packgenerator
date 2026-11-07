@@ -144,14 +144,6 @@
     flex: none;
     color: var(--ink-3);
   }
-  .sr {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
   .compact .lg li {
     min-height: 34px;
     border-top: 0;
