@@ -2057,6 +2057,9 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 ## 05.11.2026 «Was ist neu» erst beim Öffnen laden
 - Noah «a» (Thread «Erklären und beheben: Start-Grenze bei 98 %»): Beim Start liegen nur die neuesten 10 Versionen ganz und für alle Versionen eine kurze Zeile (Version, Tag, Zahl der Punkte, `since`). Alle Texte und das ganze Deutsch der älteren Versionen laden mit den Seiten «Was ist neu», «Weg und Releases» und der Liste in «Was die App kann» (`src/lib/whatsnew-all.js`). Nichts wird gestrichen, auch offline bleibt alles.
 
+## 06.11.2026 Doppeltipp-Schutz als ein Baustein
+- Noah «5a» (Thread «Durchklicken Etappe 4: Velos und Alltag»): Ein zweiter Tipp auf denselben «Speichern»-Knopf innerhalb von 0,45 Sekunden tut nichts, für alle Fenster und Formulare auf einmal (`src/lib/ui/doubletap.js`, in `src/main.js` eingehängt). Kein Einbau eines Schutzes in jedes Fenster. `once()` in `ui/ask.js` bleibt für Arbeit, die sich nicht überlappen darf.
+
 ## 06.11.2026 Velos zuerst
 - Noah «2a» (Thread «Durchklicken Etappe 4: Velos und Alltag»): Auf Velos und Material stehen die Velos oben, «Alles hier» darunter. Das ändert die frühere Wahl «Alles hier oben» (03.11.2026 «1a») nur für diese Seite.
 
