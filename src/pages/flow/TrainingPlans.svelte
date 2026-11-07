@@ -262,7 +262,7 @@
         {#if dateErr}<p class="warn" role="alert">{dateErr}</p>{/if}
         <label class="lab">{t('Hours per week: {h}', { h: num(hrs) })}<input type="range" min={Math.max(1, plan.lo - 2)} max={plan.hi + 2} step="0.5" bind:value={hrs} data-plan-hours /></label>
         <p class="hint">{t('Suggested: {a} to {b} hours. The weeks rise from 80 % to 110 % of it, every fourth week is easier.', { a: num(plan.lo), b: num(plan.hi) })}</p>
-        {#if gone > 0 && ready}<p class="warn" data-plan-gone>{t('The race is close: the first {n} weeks fall away, the plan starts with this week.', { n: gone })}</p>{/if}
+        {#if gone > 0 && ready}<p class="warn" data-plan-gone>{ev ? tn(gone, 'The date is close: the first week falls away, the plan starts with this week.', 'The date is close: the first {n} weeks fall away, the plan starts with this week.') : t('The race is close: the first {n} weeks fall away, the plan starts with this week.', { n: gone })}</p>{/if}
         {#if !date}<p class="hint">{mode === 'race' ? (ev ? t('Choose the date. Tip: a goal with a day under Training fills it in.') : t('Choose the race day. Tip: a goal with a day under Training fills it in.')) : t('Choose a day.')}</p>{/if}
         <div class="row">
           <button type="button" class="btn hi" disabled={!ready} onclick={tryIt} data-plan-try><Play size={16} aria-hidden="true" />{active?.id === plan.id || more.some((m) => m.id === plan.id) ? t('Write in again') : t('Try it')}</button>

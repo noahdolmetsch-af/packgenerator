@@ -98,6 +98,8 @@ export default {
   'Core: plank and side plank': 'Rumpf: Unterarmstütz und seitlicher Stütz',
   'Mobility: shoulders and neck': 'Beweglichkeit: Schultern und Nacken',
   'Stretching: whole body': 'Dehnen: ganzer Körper',
+  'The date is close: the first week falls away, the plan starts with this week.': 'Der Termin ist nah: Die erste Woche fällt weg, der Plan beginnt mit dieser Woche.',
+  'The date is close: the first {n} weeks fall away, the plan starts with this week.': 'Der Termin ist nah: Die ersten {n} Wochen fallen weg, der Plan beginnt mit dieser Woche.',
   'The date lies in the past.': 'Der Termin liegt in der Vergangenheit.',
   'Back from the date': 'Rückwärts ab Termin',
   'Date (for example the start of the tour)': 'Termin (z. B. Tourstart)',
