@@ -481,3 +481,45 @@ export function powerLoad(a, ftp) {
 
 /** Watts per kg with one decimal; the weight stays on the device. */
 export const wkg = (w, kg) => (w > 0 && kg > 0 ? Math.round((w / kg) * 10) / 10 : null);
+
+// «Training verbessern» 11 «Ganze Wochen merken» (Noah 07.11.2026 «1a 2a 3a 4a»): a whole week kept as a template
+export const WEEKS_KEY = 'training.weeks';
+export const WEEKS_MAX = 20;
+/** The kept weeks as stored: up to 20 { id, name, group, uses, items: [{ dow 0–6, name, kind, mins, zone, sport }] }, 1–40 items each. */
+export function cleanWeeks(v) {
+  if (!Array.isArray(v)) return [];
+  const out = [];
+  for (const w of v) {
+    const name = String(w?.name ?? '').trim().slice(0, 60);
+    const items = (Array.isArray(w?.items) ? w.items : [])
+      .map((s) => {
+        const mins = Math.round(Number(s?.mins));
+        const zone = Math.round(Number(s?.zone));
+        const dow = Math.round(Number(s?.dow));
+        if (!(mins > 0 && mins <= 24 * 60) || !(dow >= 0 && dow <= 6)) return null;
+        return { dow, name: String(s?.name ?? '').trim().slice(0, 60), kind: KIND_KEYS.includes(s?.kind) ? s.kind : 'bike', mins, zone: zone >= 1 && zone <= 5 ? zone : null, sport: typeof s?.sport === 'string' ? s.sport.slice(0, 60) : '' };
+      })
+      .filter(Boolean)
+      .slice(0, 40);
+    if (!w?.id || !name || !items.length) continue;
+    const uses = Math.round(Number(w.uses));
+    out.push({ id: String(w.id).slice(0, 40), name, group: String(w?.group ?? '').trim().slice(0, 30), uses: uses > 0 ? Math.min(uses, 9999) : 0, items });
+    if (out.length >= WEEKS_MAX) break;
+  }
+  return out;
+}
+/** The sessions of the week at `monday` as a template (day → weekday; no date, no «done», no plan id). `nameOf(s)` gives the shown name. */
+export const weekTemplate = (sessions, monday, nameOf = (s) => s.name) =>
+  sessions
+    .filter((s) => s.day >= monday && s.day < shiftDay(monday, 7))
+    .map((s) => ({ dow: Math.round((new Date(`${s.day}T12:00:00Z`) - new Date(`${monday}T12:00:00Z`)) / 864e5), name: nameOf(s), kind: s.kind, mins: s.mins, zone: s.zone, sport: s.sport ?? '' }))
+    .sort((a, b) => a.dow - b.dow);
+/** The plan with a kept week put into the week at `monday`: mode 'add' keeps everything, 'replace' first removes the sessions of that week that are not done (`isDone(s)`). */
+export function insertWeek(sessions, tpl, monday, mode = 'add', isDone = (s) => !!s.done) {
+  const end = shiftDay(monday, 7);
+  const kept = mode === 'replace' ? sessions.filter((s) => !(s.day >= monday && s.day < end && !isDone(s))) : sessions;
+  const added = tpl.items.map((i) => cleanSession({ id: '', day: shiftDay(monday, i.dow), kind: i.kind, name: i.name, mins: i.mins, zone: i.zone, ...(i.sport ? { sport: i.sport } : {}) })).filter(Boolean);
+  return [...kept, ...added];
+}
+/** { n, mins } of a kept week. */
+export const weekTplStats = (w) => ({ n: w.items.length, mins: w.items.reduce((a, i) => a + i.mins, 0) });
