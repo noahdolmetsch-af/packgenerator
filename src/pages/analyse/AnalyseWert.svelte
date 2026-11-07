@@ -89,6 +89,15 @@
   const prevPts = $derived(prevYear && item?.get && !hours ? bucketsOf(yearBefore(win.days), item.get, !!item.sum) : []);
   const bands = $derived(hours ? [] : tripBands(data.trips, win.days, tripEnd).map((b) => ({ ...b, a: Math.floor(b.a / (pts.length < win.days.length ? 7 : 1)), b: Math.floor(b.b / (pts.length < win.days.length ? 7 : 1)) })));
   const bars = $derived(!!item?.sum || !!item?.bars);
+  // «Touren in dieser Zeit» (UI-Prüfung A2): the past trips inside the shown period, each a way to its tour page (at most 3, newest first)
+  const tripsIn = $derived(
+    hours || !win.days.length
+      ? []
+      : data.trips
+          .filter((tr) => tr.startDate && tr.startDate <= win.to && (tripEnd(tr) ?? tr.startDate) >= win.from && (tripEnd(tr) ?? tr.startDate) < today)
+          .sort((a, b) => (b.startDate > a.startDate ? 1 : -1))
+          .slice(0, 3),
+  );
 
   // «Gesundheitssignale» (Noah 03.11.2026): your range of the last 60 days up to the last day shown, and the runs of 3 days or more outside it
   const sig = $derived.by(() => {
@@ -221,6 +230,12 @@
       <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} />
       <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
       <SourceLine src={item.src} data-source={item.src} />
+      {#if tripsIn.length}
+        <p class="tripsin" data-trips-in>
+          <span>{t('Trips in this time')}</span>
+          {#each tripsIn as tr (tr.id)}<a href={`#/tour/${encodeURIComponent(`t:${tr.id}`)}`}>{tr.title ?? tr.name ?? t('Trip')}<ChevronRight size={12} aria-hidden="true" /></a>{/each}
+        </p>
+      {/if}
     </header>
 
     {#if item.later}
@@ -418,6 +433,28 @@
   }
   .wv section {
     min-width: 0;
+  }
+  .tripsin {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--sp-2);
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+  }
+  .tripsin a {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    color: var(--ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .tripsin a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .bar {
     display: flex;

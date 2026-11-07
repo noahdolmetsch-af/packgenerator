@@ -53,6 +53,9 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   await expect(src).toContainText('Fitbit');
   await expect(src.locator('a')).toHaveAttribute('href', '#/me/fitbit');
   await expect(src.locator('a')).toHaveCSS('min-height', '44px');
+  // a past trip inside the period is a way to its tour page
+  await expect(wv.locator('[data-trips-in] a')).toContainText('Probefahrt Jura');
+  await expect(wv.locator('[data-trips-in] a')).toHaveAttribute('href', /#\/tour\/t%3Ae2e-wert-trip$/);
   // 3 months by default: four boxes, the highest day names the trip
   for (const b of ['avg', 'lo', 'hi', 'typ']) await expect(wv.locator(`[data-box="${b}"]`), b).toBeVisible();
   await expect(wv.locator('[data-box="hi"] span')).toContainText('Probefahrt Jura');
