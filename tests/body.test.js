@@ -51,4 +51,19 @@ describe('«Dein Körper heute»', () => {
     expect(w.rows.find((r) => r.key === 'pulse')).toMatchObject({ now: 51, day: addDays(T, -2), share: 0 });
     expect(bodyWeek([], T).any).toBe(false);
   });
+  it('Noah 7.11.2026 «1a»: a value without a reading today carries the last one of the last 7 days, with its day', () => {
+    // the night and the pulse of today have not come yet, the active zone minutes have
+    const rows = [
+      { date: Y, restingHr: 54, azm: 30, sleep: { asleepMin: 180, efficiency: 94 } },
+      { date: T, azm: 10 },
+    ];
+    const by = Object.fromEntries(bodyToday(rows, T).rows.map((r) => [r.key, r]));
+    expect(by.pulse).toMatchObject({ now: null, last: { value: 54, day: Y } });
+    expect(by.sleep).toMatchObject({ now: null, last: { value: 3, day: Y } });
+    expect(by.score).toMatchObject({ now: null, last: { value: 94, day: Y }, kind: 'efficiency' });
+    expect(by.azm).toMatchObject({ now: 10, last: null });
+    // 3 days back still counts, 8 days back does not
+    expect(bodyToday([{ date: addDays(T, -3), restingHr: 49 }], T).rows[0].last).toEqual({ value: 49, day: addDays(T, -3) });
+    expect(bodyToday([{ date: addDays(T, -8), restingHr: 49 }], T).rows[0].last).toBeNull();
+  });
 });

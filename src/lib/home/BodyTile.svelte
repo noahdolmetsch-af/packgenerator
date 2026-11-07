@@ -12,8 +12,8 @@
   import { bodyToday, bodyWeek } from './body.js';
   import FitbitStand from '../health/FitbitStand.svelte';
   import TileHead from './TileHead.svelte';
-  import { health } from '../health/client.svelte.js';
-  import { fitbitEmpty } from '../health/emptyline.js';
+  import { health, fetchNow } from '../health/client.svelte.js';
+  import { fitbitEmpty, fitbitStand } from '../health/emptyline.js';
   import { phone } from '../media.svelte.js';
   import BodySheet from './BodySheet.svelte';
   import { t, tn, locale } from '../i18n.svelte.js';
@@ -24,6 +24,12 @@
   const body = $derived(bodyToday($hq ?? [], today));
   // Noah 2.11.2026 «1a»: nothing new from Fitbit yet → the last values of the last 7 days, each marked with its day
   const lastVals = $derived(body.rows.some((r) => r.now != null) ? null : bodyWeek($hq ?? [], today));
+  // Noah 7.11.2026 «1a 2a»: some values are of today, others not yet (Fitbit delivers the night late): each one that is
+  // missing shows the last value with its day, and one line says why, with «Fetch now»
+  const partial = $derived(body.rows.some((r) => r.now != null) && body.rows.some((r) => r.now == null && r.last));
+  const showHint = $derived(health.prefs?.connected && (partial || (lastVals?.any && lastVals.rows.some((r) => r.now != null && r.day !== today))));
+  const stand = $derived(fitbitStand(health));
+  const dayTag = (day) => (day === addDays(today, -1) ? t('from yesterday') : shortDay(day));
   const n1 = (x) => Number(x).toLocaleString(locale(), { maximumFractionDigits: 1 });
   const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body' };
   const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? `${n1(x)} h` : r.key === 'score' && r.kind === 'efficiency' ? `${x} %` : String(Math.round(x)));
@@ -49,13 +55,19 @@
         <div data-body={r.key}>
           <dt>{label(r)}</dt>
           <dd>
-            <b class="num">{fmt(r, r.now)}</b>
-            {#if r.dir != null}
-              <span class="yd" title={t('yesterday {v}', { v: fmt(r, r.before) })}>
-                {#if r.dir > 0}<ArrowUp size={14} aria-hidden="true" />{:else if r.dir < 0}<ArrowDown size={14} aria-hidden="true" />{:else}<ArrowRight size={14} aria-hidden="true" />{/if}
-                <span class="num">{t('yesterday {v}', { v: fmt(r, r.before) })}</span>
-              </span>
-            {:else if r.before != null}<span class="yd"><span class="num">{t('yesterday {v}', { v: fmt(r, r.before) })}</span></span>{/if}
+            {#if r.now == null && r.last}
+              <!-- no reading of today yet: the last value, with its day (never an empty dash) -->
+              <b class="num" data-body-stale>{fmt(r, r.last.value)}</b><span class="yd">{dayTag(r.last.day)}</span>
+            {:else}
+              <b class="num">{fmt(r, r.now)}</b>
+              {#if r.dir != null}
+                <span class="yd" title={t('yesterday {v}', { v: fmt(r, r.before) })}>
+                  {#if r.dir > 0}<ArrowUp size={14} aria-hidden="true" />{:else if r.dir < 0}<ArrowDown size={14} aria-hidden="true" />{:else}<ArrowRight size={14} aria-hidden="true" />{/if}
+                  <span class="num">{t('yesterday {v}', { v: fmt(r, r.before) })}</span>
+                </span>
+              {:else if r.before != null}<span class="yd"><span class="num">{t('yesterday {v}', { v: fmt(r, r.before) })}</span></span>
+              {:else if partial}<span class="yd">{t('today|body')}</span>{/if}
+            {/if}
           </dd>
         </div>
       {/each}
@@ -72,6 +84,13 @@
   {:else}
     {@const e = fitbitEmpty(health)}
     <p class="empty" data-fitbit-empty={e.why}>{e.text ? t(e.text, { date: e.date ? shortDay(e.date) : '' }) : t('Connect Fitbit and your resting pulse, sleep and active zone minutes show here.')} <a href={e.href}>{t(e.link)}</a></p>
+  {/if}
+  {#if showHint}
+    <!-- Noah 7.11.2026 «2a»: why a value is not of today, and the way to fetch it -->
+    <p class="hint" data-body-hint>
+      <span>{t('Fitbit has not delivered all of today\'s values yet. The last ones are shown with their day.')}</span>
+      {#if !stand?.failed}<button type="button" class="again" disabled={health.busy} onclick={() => fetchNow()} data-body-fetch>{health.busy ? t('Fetching …') : t('Fetch now|fitbit')}</button>{/if}
+    </p>
   {/if}
   <FitbitStand />
   <!-- the check of the moment: Morgen-Check, from the evening round time the Abend-Check -->
@@ -159,6 +178,32 @@
   .empty a {
     color: var(--hi);
     font-weight: 600;
+  }
+  .hint {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--hi) 8%, var(--paper));
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .hint span {
+    flex: 1 1 180px;
+  }
+  .again {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    min-height: 44px;
+    color: var(--hi);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
   }
   .ck {
     display: flex;
