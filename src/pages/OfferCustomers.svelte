@@ -8,6 +8,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import TennisTabs from '../lib/booking/TennisTabs.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { backClose } from '../lib/ui/backclose.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
@@ -117,9 +118,10 @@
 </script>
 
 <div class="ich-page cust">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Offers'), href: '#/me/offers' }]} title={t('Customers')} sub={t('The people who book you, only on this device. Added when you confirm a request.')} />
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Tennis'), href: '#/me/tennis' }]} title={t('Customers')} sub={t('The people who book you, only on this device. Added when you confirm a request.')} />
+  <TennisTabs current="customers" />
   {#if customers && !customers.length}
-    <Empty icon={Users} text={t('No customers yet. A person appears here when you confirm their request, or you add them yourself.')} action={{ label: t('Add a customer'), onclick: openNew }} action2={{ label: t('To your offers'), href: '#/me/offers' }} />
+    <Empty icon={Users} text={t('No customers yet. A person appears here when you confirm their request, or you add them yourself.')} action={{ label: t('Add a customer'), onclick: openNew }} action2={{ label: t('To your offers'), href: '#/me/tennis' }} />
   {:else if customers}
     <section class="card" aria-labelledby="cu-h">
       <div class="cu-wh"><h2 id="cu-h">{tn(sorted.length, '{n} customer', '{n} customers')}</h2><button type="button" class="btn sm" onclick={openNew}><Plus size={16} aria-hidden="true" />{t('Add a customer')}</button></div>
