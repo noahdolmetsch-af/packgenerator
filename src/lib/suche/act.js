@@ -41,6 +41,7 @@ export function actionLabel(a, today) {
   if (a.kind === 'value' && a.qid === 'koerper.waage') return t('Weight {v} kg', { v: num(a.value) });
   if (a.kind === 'value' && a.qid === 'koerper.ruhepuls') return t('Resting heart rate {v}', { v: a.value });
   if (a.kind === 'value') return t('Sleep {v} of 10', { v: a.value });
+  if (a.kind === 'remind' && !a.due) return t('To-do: {text}', { text: a.text });
   if (a.kind === 'remind') return t('Reminder {day}: {text}', { day: dayLabel(a.due, today), text: a.text });
   if (a.kind === 'list') return tn(a.points.length, 'List «{name}» with {n} point', 'List «{name}» with {n} points', { name: a.name || t('New list') });
   if (a.kind === 'weather') return a.place ? t('Weather in {place}', { place: a.place }) : t('Weather|page');
@@ -81,7 +82,7 @@ async function writeOne(a, { today, bikes = [], trips = [], made = [] }) {
     return r.undo; // puts back the lists as they were before, so the points go too
   }
   if (a.kind === 'remind') {
-    const r = await addTodo(db, { text: a.text, due: a.due, remind: { at: '08:00' }, src: 'search' });
+    const r = await addTodo(db, { text: a.text, ...(a.due ? { due: a.due, remind: { at: '08:00' } } : {}), src: 'search' });
     return r?.undo ?? null;
   }
   if (a.kind === 'cmd' && a.cmd.kind === 'note') {

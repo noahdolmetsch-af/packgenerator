@@ -309,7 +309,7 @@ const LISTED = {
   'f.pagetips': ['Open Aktiv › Heute: the tip of the day is under the title.', 'Tap «All tips ›» to switch single tips on or off.', 'At the page end, open «What the app can do here».'],
   // «Training» TR1–TR4 (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«Plan the week» sets the sessions and an optional goal.'],
-  'f.weekplan': ['Open Woche: the whole week in one place.', 'On Sunday «Plan the week»: take or leave out what the app suggests.', 'Holidays once under Woche › Holidays.'],
+  'f.weekplan': ['Open Woche: the whole week; on Sunday the wrap-up looks back.', 'On Sunday «Plan the week»: take or leave out what the app suggests.', 'Holidays once under Woche › Holidays.'],
   // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.sports': ['Open New tour.', 'Choose the sport: a bike sport brings its own standard bike.', 'Tap another bike and «Make standard for …» to keep it for that sport.'],
   // v0.147.0 Paket B (Fitbit)

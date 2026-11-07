@@ -33,6 +33,7 @@ export function probeDone(trip, ctx = {}) {
 }
 
 export default {
+  order: 20,
   type: 'packen',
   label: 'Test packing',
   icon: 'backpack',

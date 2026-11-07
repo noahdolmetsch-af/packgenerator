@@ -205,7 +205,7 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
 
   // the look back: six weeks, this week with the goal
   const back = page.locator('[data-section="look-back"]');
-  await expect(back.locator('li[data-week]')).toHaveCount(6);
+  await expect(back.locator('[data-chart="lookback"] [data-plot]')).toHaveAttribute('data-n', '6');
   await expect(back.locator('[data-this-week]')).toContainText('von 8:00 Std.');
   await expect(back).toContainText('mit Fitbit');
 
@@ -314,7 +314,8 @@ test('Training › Woche: a suggestion for the week, another one, take over, und
   await expect(rows).toHaveCount(n0);
   await sug.locator('[data-suggest-take]').click();
   await expect(sug).toHaveCount(0);
-  expect(await plan.locator('[data-planned]').count()).toBeGreaterThan(0);
+  // the plan is saved after the suggestion closes: wait for the rows (a count() right away can still see none)
+  await expect(plan.locator('[data-planned]').first()).toBeVisible();
   await page.getByRole('button', { name: 'Rückgängig' }).first().click();
   await expect(plan.locator('[data-planned]')).toHaveCount(0);
   expect(errors).toEqual([]);
@@ -432,5 +433,174 @@ test('Training › Woche: a session removed twice stays out of the next suggesti
   await sug.locator('[data-sug-forget]').click();
   await expect(same().first()).toBeVisible();
   await expect(sug.locator('[data-sug-habits]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Heute passt: a tired day offers a lighter session, Undo, Keep it', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = localDay();
+  await page.evaluate(
+    (day) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction(['settings', 'flowChecks'], 'readwrite');
+          tx.objectStore('settings').put({ key: 'training.plan', value: { sessions: [{ id: 'hp1', day, kind: 'bike', name: 'Beispielrunde', mins: 90, zone: 4 }] } });
+          tx.objectStore('flowChecks').put({ day, sleep: 1, energy: 1 });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    today,
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="today-fits"]');
+  await expect(card).toBeVisible();
+  await expect(card).toContainText('Beispielrunde');
+  await card.locator('[data-today-lighter]').click();
+  await expect(card).toHaveCount(0);
+  await expect(page.locator('[data-section="week-plan"]')).toContainText('0:45');
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(page.locator('[data-section="week-plan"]')).toContainText('1:30');
+  await expect(card).toBeVisible();
+  await card.locator('[data-today-keep]').click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(card).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Verpasst: a missed session is moved to a later day or let go, with Undo', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = localDay();
+  const yesterday = localDay(new Date(Date.now() - 86400000 + 3600000));
+  await page.evaluate(
+    ([a, b]) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('settings', 'readwrite');
+          tx.objectStore('settings').put({ key: 'training.plan', value: { sessions: [{ id: 'vp1', day: a, kind: 'run', name: 'Verpasste Runde', mins: 45, zone: 2 }, { id: 'vp2', day: b, kind: 'bike', name: 'Heutige Runde', mins: 60, zone: 2 }] } });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    [yesterday, today],
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="missed"]');
+  // yesterday is only «missed» when it is still in this week (Monday: no card)
+  if (!(await card.count())) test.skip(true, 'Monday: nothing earlier in this week');
+  await expect(card).toContainText('Verpasste Runde');
+  await card.locator(`[data-missed-move="${today}"]`).click();
+  await expect(card).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(card).toBeVisible();
+  await card.locator('[data-missed-skip]').click();
+  await expect(card).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Wochenlast: a week far above the last three offers a lighter week, Undo, Keep it', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = localDay();
+  // monday of this week, by calendar days at noon UTC
+  const dt = new Date(`${today}T12:00:00Z`);
+  const mon = new Date(dt.getTime() - ((dt.getUTCDay() + 6) % 7) * 86400000);
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const back = (n) => iso(new Date(mon.getTime() - n * 7 * 86400000 + 86400000));
+  await page.evaluate(
+    ([mondayIso, w1, w2, w3, last]) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction(['settings', 'activities'], 'readwrite');
+          const a = (id, day) => ({ id, day, kind: 'bike', type: 'Ride', name: 'test_data_gtp_ Wochenlast', movingS: 14400, elapsedS: 14400 });
+          for (const [i, d] of [w1, w2, w3].entries()) tx.objectStore('activities').put(a(`wl${i}`, d));
+          // 30 hours planned from the last day of the week: always far above the average
+          tx.objectStore('settings').put({ key: 'training.plan', value: { sessions: [{ id: 'wl-a', day: last, kind: 'bike', name: 'Grosse Runde', mins: 900, zone: 2 }, { id: 'wl-b', day: last, kind: 'bike', name: 'Zweite Runde', mins: 900, zone: 2 }] } });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    [iso(mon), back(3), back(2), back(1), iso(new Date(mon.getTime() + 6 * 86400000))],
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="week-load"]');
+  await expect(card).toBeVisible();
+  await card.locator('[data-load-shorten]').click();
+  await expect(card).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(card).toBeVisible();
+  await card.locator('[data-load-keep]').click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(card).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Bibliothek: examples, keep, plan again, groups, most used first, rename, delete with Undo', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const plan = page.locator('[data-section="week-plan"]');
+  const adds = plan.locator('[data-add]');
+  await adds.nth(2).click();
+  const form = plan.locator('[data-session-form]');
+  // it starts with the 6 examples
+  await expect(form.locator('[data-library-pick]')).toHaveCount(6);
+  await form.locator('[data-session-name]').fill('Beispiel Intervalle');
+  await form.locator('[data-session-mins]').fill('75');
+  await form.locator('[data-library-save]').click();
+  await expect(form.locator('[data-library-pick]')).toHaveCount(7);
+  await form.getByRole('button', { name: 'Abbrechen' }).click();
+  // another day: the kept session fills the form and counts as used, so it stands first
+  await adds.nth(4).click();
+  await plan.locator('[data-library-pick]', { hasText: 'Beispiel Intervalle' }).click();
+  await expect(plan.locator('[data-session-name]')).toHaveValue('Beispiel Intervalle');
+  await expect(plan.locator('[data-session-mins]')).toHaveValue('75');
+  await expect(plan.locator('[data-library-pick]').first()).toContainText('Beispiel Intervalle');
+  await expect(plan.locator('[data-library-pick]').first()).toContainText('1×');
+  // manage: a new group for the kept session, rename it, then delete it (the session stays, without a group)
+  await plan.locator('summary', { hasText: 'Bibliothek verwalten' }).click();
+  const id = await plan.locator('[data-library-pick]', { hasText: 'Beispiel Intervalle' }).getAttribute('data-library-pick');
+  await plan.locator(`[data-library-group="${id}"]`).selectOption('__new');
+  await plan.locator('[data-library-newgroup]').fill('Berg');
+  await plan.locator('[data-library-newgroup]').press('Enter');
+  await expect(plan.locator('[data-library-block="Berg"]')).toBeVisible();
+  await plan.locator('[data-library-group-delete]').click();
+  await page.locator('dialog.gds button.del').click();
+  await expect(plan.locator('[data-library-group-delete]')).toHaveCount(0);
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
+  // rename and delete one with Undo
+  const nameInput = plan.locator(`[data-library-name="${id}"]`);
+  await nameInput.fill('Umbenannt');
+  await nameInput.blur();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toContainText('Umbenannt');
+  await plan.locator(`[data-library-delete="${id}"]`).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
+  // remembered after a reload
+  await page.reload();
+  await ready(page);
+  await adds.nth(1).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
   expect(errors).toEqual([]);
 });

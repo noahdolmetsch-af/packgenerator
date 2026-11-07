@@ -137,7 +137,18 @@ test('Rückblick: week, month and year, the calendar, the goal line, what helps,
   await expect(main.locator('[data-cal] i[data-day]')).toHaveCount(31);
   await expect(main.locator(`[data-cal] i[data-day="${TODAY}"]`)).toHaveClass(/l2/);
   // the goal line: daily × 20 min = 140 min a week
-  await expect(main.locator('.goal')).toContainText(T('Goal {n} min', { n: 140 }));
+  const wk = main.locator('[data-chart="weeks"]');
+  await expect(wk.locator('[data-plot]')).toHaveAttribute('data-n', '8');
+  await wk.locator('[data-plot]').focus();
+  await page.keyboard.press('End');
+  await expect(wk.locator('[data-readout]')).toContainText(T('Goal'));
+  await expect(wk.locator('[data-readout]')).toContainText(T('{n} min', { n: 140 }));
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-weeks-sheet]')).toContainText(T('{n} min', { n: 140 }));
+  await page.keyboard.press('Escape');
+  await wk.getByRole('button', { name: T('As table') }).click();
+  await expect(wk.locator('[data-chart-table] tbody tr')).toHaveCount(8);
+  await wk.getByRole('button', { name: T('Chart|table') }).click();
   // what helps, observation only: deeper in the morning, longer with the bowl
   await expect(main.locator('[data-help="morning"]')).toContainText(T('Deeper in the morning'));
   await expect(main.locator('[data-help="gong"]')).toContainText(T('Longer with the singing bowl'));
@@ -151,12 +162,23 @@ test('Rückblick: week, month and year, the calendar, the goal line, what helps,
   await expect(main.locator('[data-period]')).toHaveAttribute('data-period', addDays(TODAY, -8));
   await expect(stats).toContainText('3/7');
   await main.locator('[data-range="year"]').click();
-  await expect(main.locator('.mb .mcol')).toHaveCount(12);
+  await expect(main.locator('[data-chart="months"] [data-plot]')).toHaveAttribute('data-n', '12');
   await fits(page, 'ME3 Jahr');
 
   // a filter that nothing has: all numbers go to 0
   await main.locator('[data-range="month"]').click();
   await main.locator('[data-filter="art"]').selectOption({ index: 1 });
   await expect(stats).toContainText('0/13');
+
+  // «Muster»: when it goes deepest is the shared bar chart, an hour opens with its sessions
+  await page.goto('./#/flow/act/meditation/muster');
+  const hr = page.locator('[data-chart="hours"]');
+  await expect(hr.locator('[data-plot]')).toBeVisible();
+  await hr.locator('[data-plot]').focus();
+  await page.keyboard.press('Home');
+  await expect(hr.locator('[data-readout]')).toContainText(T('Sessions'));
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-hours-sheet]')).toContainText(T('Sessions'));
+  await page.keyboard.press('Escape');
   expect(errors).toEqual([]);
 });

@@ -209,3 +209,51 @@ export function learnHabits(habits, before = [], after = []) {
 }
 
 export const noHabits = (h) => !h || (!Object.keys(h.drop ?? {}).length && !Object.keys(h.mins ?? {}).length);
+
+/**
+ * «Training verbessern» 4 «Heute passt» (Noah 03.11.2026): when today's readiness is low, a lighter version of
+ * a session planned for today. level 'rest' → half the time and at most zone 2; 'easy' → three quarters and
+ * at most zone 3. Returns the lighter session, or null when the level is fine, the session is done, or it is
+ * already light.
+ */
+export function lighterSession(s, level) {
+  if (!s || s.done || (level !== 'rest' && level !== 'easy')) return null;
+  const rest = level === 'rest';
+  const mins = Math.max(15, Math.round((s.mins * (rest ? 0.5 : 0.75)) / 5) * 5);
+  const cap = rest ? 2 : 3;
+  const zone = s.zone && s.zone > cap ? cap : s.zone;
+  if (mins >= s.mins && zone === s.zone) return null;
+  return { ...s, mins: Math.min(mins, s.mins), zone };
+}
+
+/**
+ * «Training verbessern» 6 «Wochenlast-Wächter» (Noah 03.11.2026): a calm hint about the planned load of a week.
+ * prev: the minutes actually trained in the 3 weeks before (oldest first), planned: the minutes planned for the week.
+ * 'high': planned is more than 30 % over the average of those weeks (average at least 2 h) → target = average × 1.2.
+ * 'deload': three weeks that each grew, and this week would grow again → an easier week, target = 60 % of the last one
+ * (the «Entlastungswoche» after a build-up). Otherwise null. Observation only, never a rule.
+ */
+export function weekLoadHint(prev = [], planned = 0) {
+  const p = prev.map((m) => Math.max(0, Math.round(m || 0)));
+  if (p.length < 3 || !(planned > 0)) return null;
+  const avg = p.reduce((s, x) => s + x, 0) / p.length;
+  if (avg < 120) return null;
+  if (p[0] < p[1] && p[1] < p[2] && planned >= p[2]) return { kind: 'deload', target: Math.round((p[2] * 0.6) / 5) * 5 };
+  if (planned > avg * 1.3) return { kind: 'high', target: Math.round((avg * 1.2) / 5) * 5 };
+  return null;
+}
+
+/**
+ * Scale the sessions of a week that are still to come (from today, not done) so the week adds up to target minutes.
+ * What is past or done stays. The factor is between 0.4 and 1 (it never makes a week longer); minutes in steps of 5, at least 15.
+ */
+export function scaleWeek(sessions, { monday, today, target }) {
+  const end = shiftDay(monday, 7);
+  const inWeek = (s) => s.day >= monday && s.day < end;
+  const flexible = (s) => inWeek(s) && s.day >= today && !s.done;
+  const fixed = sessions.filter((s) => inWeek(s) && !flexible(s)).reduce((a, s) => a + s.mins, 0);
+  const flex = sessions.filter(flexible).reduce((a, s) => a + s.mins, 0);
+  if (!flex) return sessions;
+  const f = Math.max(0.4, Math.min(1, (target - fixed) / flex));
+  return sessions.map((s) => (flexible(s) ? { ...s, mins: Math.max(15, Math.min(s.mins, Math.round((s.mins * f) / 5) * 5)) } : s));
+}

@@ -87,13 +87,14 @@ describe('the dream of the week', () => {
 });
 
 describe('the tile on the wall', () => {
-  it('a wall of before (v < 19) gets it once under «Discover»; a wall without the moment cards stays as it is', () => {
+  it('a wall of before (v < 20) gets it once under «Discover»; a wall without the moment cards stays as it is', () => {
     expect(withWochentraum([{ id: 'moment', size: 'long' }, { id: 'discover', size: 'long' }, { id: 'week', size: 'l' }]).map((x) => x.id)).toEqual(['moment', 'discover', 'wochentraum', 'week']);
     expect(withWochentraum([{ id: 'week', size: 'l' }]).map((x) => x.id)).toEqual(['week']);
-    expect(wallOf({ v: 18, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['moment', 'wochentraum', 'week']);
-    // stored as v 19: taken away stays away
-    expect(wallOf({ v: 19, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['moment', 'week']);
-    expect(wallRecord([]).v).toBe(19);
+    expect(wallOf({ v: 18, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['moment', 'wochentraum', 'spruch', 'week']);
+    // stored as v 19 (after «Spruch»): gets it once; stored as v 20: taken away stays away
+    expect(wallOf({ v: 19, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['moment', 'wochentraum', 'week']);
+    expect(wallOf({ v: 20, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['moment', 'week']);
+    expect(wallRecord([]).v).toBe(20);
     expect(TILE.wochentraum.sizes).toEqual(['long']);
     expect(READY.some((x) => x.id === 'wochentraum')).toBe(true);
   });

@@ -77,6 +77,11 @@ Verwandt: [Aufbau](aufbau.md) (Seiten, Wege, Zusammenhänge, Wörterbuch), [App-
 ### Texte und Sprache
 - Jeder neue UI-Text geht durch `t('English')` und braucht einen deutschen Eintrag in `src/lib/i18n/de/<name>.js`; die Dateien werden automatisch geladen (kein Eintrag in `de/index.js` nötig). `tests/de-luecken.test.js` und der Gesamttest scheitern bei fehlendem Deutsch oder englischen Wörtern in der deutschen Oberfläche. Vom Nutzer getippte Namen gehen nie durch `t()`.
 
+### Weg zum Ziel: Schrittarten (`src/lib/weg/types/`)
+- **Neue Art = neue Datei, sonst nichts.** Jede Schrittart (Rennplanung, Packen testen, Nachtplan, Bike ready, Training, Tracker, Organisation …) hat ihre eigene Datei in `src/lib/weg/types/<name>.js` mit `export default { type, label, icon, defaults, auto, link, … }`. `types/index.js` sammelt alle Dateien des Ordners selbst (`import.meta.glob`); dort steht keine Zeile pro Art mehr, darum kollidieren parallele PRs nicht. Nicht eintragen, nicht anhängen.
+- **Reihenfolge** im Blatt «Neuer Weg»: zuerst nach der Zahl `order` in der Art (Eigener Schritt 0, Rennplanung 10, Packen testen 20, Nachtplan 30, Bike ready 40), danach alle ohne `order` nach ihrem `type` (A–Z). Eine neue Art braucht `order` nur, wenn sie woanders stehen muss.
+- Der Ordner enthält nur Arten (eine Datei ohne `type` wird übersehen). Hilfscode gehört nach `src/lib/weg/`, nicht dorthin. Deutsche Texte der Art: eigene Datei `src/lib/i18n/de/weg-<name>.js` (wird ebenfalls selbst geladen). `tests/weg-arten.test.js` prüft, dass jede Datei eine Art ist und keine handgeschriebene Liste zurückkommt.
+
 ### Server (`api/`)
 Je Datei eine Aufgabe, Hilfsteile in `api/_lib/`:
 

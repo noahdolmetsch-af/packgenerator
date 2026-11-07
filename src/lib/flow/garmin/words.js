@@ -32,3 +32,5 @@ export const dm = (day) => `${Number(day.slice(8, 10))}.${Number(day.slice(5, 7)
 export const monthShort = (day) => new Date(`${day}T00:00:00Z`).toLocaleDateString(locale(), { month: 'short', timeZone: 'UTC' });
 /** Two decimals for km like Garmin (100.73), one for big sums. */
 export const km2 = (v) => num(Math.round((v ?? 0) * 100) / 100);
+/** «Di 28. Okt.» */
+export const dayLabel = (day) => new Date(`${day}T00:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });

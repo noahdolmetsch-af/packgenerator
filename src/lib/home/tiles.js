@@ -52,6 +52,8 @@ export const TILES = [
   { id: 'moment', area: 'today', label: 'Your moment', icon: 'route', sizes: ['long'], size: 'long', pitch: 'The moment you are in (packing, on the way, back home …), the five steps of a trip and one next step.' },
   // «Heute als Begleiter» PR 5 (Noah 28.10.2026 «1a 2a 3a»): one function a day that fits the moment and that you never opened
   { id: 'discover', area: 'today', label: 'Discover|tile', icon: 'sparkles', sizes: ['long'], size: 'long', pitch: 'One function a day that fits your moment and that you never opened; Later or Not for me.' },
+  // «Spruch zum Einstieg» PR 1 (Noah 07.11.2026 «Bau spruch pr1»): one sentence from your numbers, right under the moment card
+  { id: 'spruch', area: 'today', label: 'Saying|tile', icon: 'quote', sizes: ['w', 'l', 'long'], size: 'long', pitch: 'One short sentence in Bernese German from your own numbers: weather, zone minutes, sleep and resting pulse, your next trip.' },
   // «Traum der Woche» (Noah 07.11.2026 «1a»): one dream that fits now; the tile stays away while none does
   { id: 'wochentraum', area: 'today', label: 'Dream of the week', icon: 'sparkles', sizes: ['long'], size: 'long', pitch: 'One dream that fits right now, with a countdown and the weather for its days.' },
   { id: 'vo2max', area: 'flow', label: 'VO2max', icon: 'heart', sizes: ['w', 'l'], size: 'w', pitch: 'Your last VO2max from Fitbit or Apple Health and the change over four weeks; a tap opens its course.' },
@@ -132,6 +134,7 @@ export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
 export const READY = [
   ['meditation', 'long'],
   ['moment', 'long'], // «Heute als Begleiter» PR 4 (Noah 28.10.2026): the moment you are in, right under the habits
+  ['spruch', 'long'], // «Spruch zum Einstieg» (Noah 07.11.2026): right under the moment card, so it stays within the first screens
   ['discover', 'long'], // PR 5: one function a day right under it
   ['wochentraum', 'long'], // «Traum der Woche» (Noah 07.11.2026): shows only while a dream fits
   ['weighin', 'long'],
@@ -247,9 +250,11 @@ export function wallOf(value, legacy = null) {
     // «Heute-Check» (Noah 30.10.2026 «1-5a»): a wall of before (v < 17) gets the tile once
     const hc = (value.v ?? 1) < 17 ? withHeuteCheck(di) : di;
     // «Schnell öffnen» (Noah 01.11.2026 «5a»): a wall of before (v < 18) swaps the 8 small tiles for the tile with your pins once
-    const pn = (value.v ?? 1) < 18 ? withPins(hc) : hc;
-    // «Traum der Woche» (Noah 07.11.2026 «1a»): a wall of before (v < 19) gets the tile once, under «Discover»
-    return (value.v ?? 1) < 19 ? withWochentraum(pn) : pn;
+    const pi = (value.v ?? 1) < 18 ? withPins(hc) : hc;
+    // «Spruch zum Einstieg» (Noah 07.11.2026): a wall of before (v < 19) gets the tile once, right under the moment card
+    const sp = (value.v ?? 1) < 19 ? withSpruch(pi) : pi;
+    // «Traum der Woche» (Noah 07.11.2026 «1a»): a wall of before (v < 20) gets the tile once, under «Discover»
+    return (value.v ?? 1) < 20 ? withWochentraum(sp) : sp;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -456,7 +461,7 @@ export function withHeuteCheck(tiles = []) {
   return out;
 }
 
-/** «Traum der Woche»: a wall stored before (v < 19) gets the tile once, under «Discover» (else under the moment card; a wall without both stays as it is). Taken away after that, it stays away. */
+/** «Traum der Woche»: a wall stored before (v < 20) gets the tile once, under «Discover» (else under the moment card; a wall without both stays as it is). Taken away after that, it stays away. */
 export function withWochentraum(tiles = []) {
   if (tiles.some((x) => x.id === 'wochentraum')) return tiles;
   const out = [...tiles];
@@ -477,8 +482,19 @@ export function withPins(tiles = []) {
   out.splice(at, 0, { id: 'pins', size: TILE.pins.size });
   return out;
 }
-/** The record to store (v 19: the tile «Traum der Woche» came once; v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 19, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * «Spruch zum Einstieg» (Noah 07.11.2026 «2a»): a wall stored before (v < 19) gets the tile once, right under the moment card (else
+ * under the trip card, else at the end). Taken away after that, it stays away. → tiles
+ */
+export function withSpruch(tiles = []) {
+  if (tiles.some((x) => x.id === 'spruch')) return tiles;
+  const out = [...tiles];
+  const a = ['moment', 'trip'].map((id) => out.findIndex((x) => x.id === id)).find((i) => i >= 0);
+  out.splice(a !== undefined ? a + 1 : out.length, 0, { id: 'spruch', size: TILE.spruch.size });
+  return out;
+}
+/** The record to store (v 20: the tile «Traum der Woche» came once; v 19: the tile «Spruch» came once; v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 20, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

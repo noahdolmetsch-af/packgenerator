@@ -16,7 +16,7 @@ import { openOverview } from './ov-fold.js';
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const P = 'test_data_fu_';
 
-function rows() {
+function rows(quiet = false) {
   const healthDays = [];
   for (let i = 0; i < 40; i++) {
     const date = addDays(TODAY, -i);
@@ -33,10 +33,12 @@ function rows() {
   const trips = [{ id: `${P}trip`, title: `${P}Testtour`, startDate: addDays(TODAY, 3), days: 4, status: 'planned', entries: [], createdAt: `${TODAY}T07:00:00Z` }];
   const flowChecks = [{ day: TODAY, sleep: 8, energy: 9, mood: 7 }];
   const flowLog = [{ id: `${P}med`, actId: 'meditation', day: TODAY, at: `${TODAY}T07:00:00+02:00`, min: 20 }];
+  // quiet: the last activity is older than 7 days («Auswerten aufräumen», Noah 07.11.2026 «3a»)
+  if (quiet) return { healthDays, activities: activities.filter((a) => a.day < addDays(TODAY, -8)), trips, flowChecks, flowLog };
   return { healthDays, activities, trips, flowChecks, flowLog };
 }
 
-async function open(page, context) {
+async function open(page, context, quiet = false) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -44,7 +46,7 @@ async function open(page, context) {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/flow');
   await ready(page);
-  await put(page, rows());
+  await put(page, rows(quiet));
   return errors;
 }
 async function go(page, hash) {
@@ -419,5 +421,19 @@ test('Fitbit everywhere: Erholung shows the latest night next to your normal', a
   await expect(fit.locator('[data-fit="sleep"]')).toContainText(' h');
   await expect(fit.locator('[data-fit="hrv"]')).toContainText('ms');
   await fits(page, 'Erholung');
+  expect(errors).toEqual([]);
+});
+
+test('Auswerten: «Im Fokus» has no empty sport and says when the last activity was; the tiles name their days', async ({ page, context }) => {
+  const errors = await open(page, context, true);
+  await go(page, '#/auswerten');
+  await expect(page.locator('[data-focus-card]')).toHaveCount(0);
+  const none = page.locator('[data-focus-none]');
+  await expect(none).toContainText('In den letzten 7 Tagen keine Aktivität.');
+  await expect(none).toContainText('Die letzte: Velo,');
+  await openOverview(page);
+  await expect(page.locator('[data-ov="kcal"] [data-kcal-day]')).toHaveText('heute');
+  await expect(page.locator('[data-azm-range]')).toContainText('seit Montag');
+  await page.locator('[data-focus-none]').screenshot({ path: 'qa/form-uebersicht/fokus-leer.png' });
   expect(errors).toEqual([]);
 });

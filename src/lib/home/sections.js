@@ -45,6 +45,7 @@ export const SECTION_OF = {
   vitals: 'body',
   vo2max: 'body',
   heutecheck: 'now',
+  spruch: 'now', // «Spruch zum Einstieg»: under the moment card in the first area
   values: 'body',
   du: 'body',
   aktiv: 'body',
