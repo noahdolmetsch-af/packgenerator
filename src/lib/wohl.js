@@ -337,16 +337,34 @@ export function neulandOf(value) {
     .filter((x) => x && typeof x.id === 'string' && String(x.name ?? '').trim() && isDay(x.day))
     .map((x) => ({ id: x.id, name: String(x.name).trim().slice(0, 80), day: x.day }));
 }
+const sameName = (s) => String(s ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+/** Add finds (neuland/funde.js) to rows [{ id, name, day }]; a find with the name of a row already there is left out. Newest first. */
+export function withFinds(rows = [], finds = [], year = null) {
+  const y = year == null ? '' : String(year);
+  const names = new Set(rows.map((r) => sameName(r.name)));
+  const extra = [];
+  for (const f of finds) {
+    if (!f.day?.startsWith(y)) continue;
+    const k = sameName(f.name);
+    if (names.has(k)) continue;
+    names.add(k);
+    extra.push(f);
+  }
+  return [...rows, ...extra].sort((a, b) => b.day.localeCompare(a.day) || a.name.localeCompare(b.name));
+}
 /**
  * The Neuland of a year: your own entries and the evenings whose «coolest thing» was «New» with a
  * note (auto: true, from the history). Newest first.
+ * finds (N10, neuland/funde.js): what Neuland and the summit book found; year null = all years.
  */
-export function neulandYear(own = [], rows = [], year) {
-  const y = String(year);
+export function neulandYear(own = [], rows = [], year, finds = []) {
+  const y = year == null ? '' : String(year);
   const auto = rows
     .filter((r) => r.qid === 'spass.coolstes' && r.day?.startsWith(y) && (Array.isArray(r.value) ? r.value : [r.value]).includes('new') && String(r.note ?? '').trim())
-    .map((r) => ({ id: `auto-${r.day}`, name: String(r.note).trim().slice(0, 80), day: r.day, auto: true }));
-  return [...neulandOf(own).filter((x) => x.day.startsWith(y)), ...auto].sort((a, b) => b.day.localeCompare(a.day) || a.name.localeCompare(b.name));
+    .map((r) => ({ id: `auto-${r.day}`, name: String(r.note).trim().slice(0, 80), day: r.day, auto: true, from: 'evening' }));
+  const mine = [...neulandOf(own).filter((x) => x.day.startsWith(y)), ...auto].sort((a, b) => b.day.localeCompare(a.day) || a.name.localeCompare(b.name));
+  // N10 «Eine Fundliste»: what Neuland and the summit book found joins the list (a name already on it is not added twice)
+  return finds.length ? withFinds(mine, finds, year) : mine;
 }
 export const addNeuland = (list, name, day, id = `nl-${Date.now().toString(36)}`) => [...neulandOf(list), { id, name: String(name).trim().slice(0, 80), day }];
 export const renameNeuland = (list, id, name) => neulandOf(list).map((x) => (x.id === id ? { ...x, name: String(name).trim().slice(0, 80) } : x));

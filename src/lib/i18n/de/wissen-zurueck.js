@@ -66,4 +66,6 @@ export default {
     'Oft reicht ein kleiner Umweg für etwas Neues: eine unbekannte Strasse heim macht aus der Routine eine kleine Entdeckung.',
   'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.':
     'Neue Kilometer liegen selten weit weg: das Nachbartal ist oft unbekannter als ein Land am anderen Ende Europas.',
+  "A list of finds is a small diary of curiosity: a look at it before a free day shows where you have not been for a long time.":
+    "Eine Fundliste ist ein kleines Tagebuch der Neugier: ein Blick darauf vor einem freien Tag zeigt, wo du lange nicht warst.",
 };

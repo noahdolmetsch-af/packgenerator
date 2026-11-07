@@ -149,7 +149,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Form und Erholung | `#/flow/form` | Belastung, Form und Bereitschaft anhand vorhandener Aktivitäten, Körperdaten und Tageschecks betrachten. |
 | Wochenrückblick | `#/flow/review` | Sportumfang, Körperdaten, Zonen, Velokilometer und Höhenpunkte vergleichen; eigene Notiz und nächstes Ziel ergänzen. |
 | Meilensteine | `#/flow/milestones` | Fortschritte, Herausforderungen, Sterne und erreichte Bestwerte sammeln. |
-| Gipfelbuch | `#/flow/gipfelbuch` | Erreichte Pässe, Gipfel und weitere Sportorte festhalten. |
+| Gipfelbuch | `#/flow/gipfelbuch` | Erreichte Pässe, Gipfel und weitere Sportorte festhalten. Ein Besuch an einem Ort mit Koordinaten zählt auch in Neuland und in der «Fundliste». |
 | Meditation | `#/flow/act/meditation` | Sitzungen mit Timer, Klängen und Vorlagen starten; auch Yogastunden und Studiolinks organisieren. |
 | Meditationsprotokoll | `#/flow/act/meditation/log` | Sitzungen, Regelmässigkeit, Tageszeiten und Notizen ansehen. |
 | Tennis | `#/flow/sport/act%3Atennis` | Spiele und erteilte Lektionen dokumentieren, geplante Termine und Platzbuchungslinks verwalten. |
@@ -181,7 +181,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
-| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. Steht im Ort Auswerten; Touren › Rückblick führt hin. Oben steht die «Fundliste»: alles, was du zum ersten Mal erreicht hast (dieses Jahr oder alle Jahre) in einer Liste, aus Neuland, dem Gipfelbuch und deinen eigenen Einträgen; dieselbe Liste ist das «Neuland des Jahres» im Jahresheft und unter Ich › Was mir gut tut. Ein Ort im Gipfelbuch mit Koordinaten hakt Neuland mit ab und steht nur einmal in der Liste. |
 | Traumtouren | `#/trips/dreams` | Wunschabenteuer nach Saison sammeln, auf der Karte vergleichen und in konkrete Touren verwandeln; passende Wetterfenster und neue Ziele in der Nähe finden. |
 | Tourenvorschläge | `#/trips/vorschlaege` | Mountainbike-Touren aus dem offiziellen SchweizMobil-Netz (Pilot: fünf Touren in Zürich und Graubünden) mit Filtern für Region, Schwierigkeit und Zeit, «Warum dieser Vorschlag?», Höhenprofil mit Untergrund, Merken als Traum, GPX und «Nicht für mich». |
 | Inspiration | `#/inspiration` | Links zu Routen, Videos, Ausrüstung und Rennen sammeln und daraus Ideen oder Packregeln ableiten. |

@@ -7,6 +7,8 @@ import { loadBase } from './load.js';
 import { areaAt, gridOf } from './geo.js';
 import { localDay } from '../localday.js';
 import { splitNeuland } from './split.js';
+import { GB_KEY, bookOf } from '../gipfelbuch.js';
+import { visitLines } from './funde.js'; // N10: the summit book's visits count as lines too
 
 export async function readState(db) {
   return stateOf((await db.settings.get(NEULAND_KEY))?.value);
@@ -27,14 +29,16 @@ export async function cantonAt(place) {
 
 /** The person's data Neuland reads (only Dexie reads, so a liveQuery can watch it). */
 export async function readRaw(db) {
-  const [rec, trips, rides, activities, homeRec] = await Promise.all([
+  const [rec, trips, rides, activities, homeRec, gbRec] = await Promise.all([
     db.settings.get(NEULAND_KEY),
     db.trips.toArray(),
     db.rides.toArray(),
     db.activities ? db.activities.toArray() : [],
     db.settings.get('homePlace'),
+    db.settings.get(GB_KEY),
   ]);
-  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null };
+  const book = bookOf(gbRec?.value);
+  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null, book, lines: visitLines(book) };
 }
 
 /**
