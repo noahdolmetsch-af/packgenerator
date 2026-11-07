@@ -168,3 +168,63 @@ test('Performance tips off hides the week line and the short ride', async ({ pag
   await expect(page.locator('[data-heute-sonne-week]')).toHaveCount(0);
   await expect(page.locator('[data-heute-sonne-short]')).toHaveCount(0);
 });
+
+// Step D: «Remember today» keeps a fog sea day; the shelf on the Sammel-Wand shows, changes and removes it
+const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAGAAAABACAIAAABqVuVZAAABJElEQVR4nO3QRU4DABRF0bdsQgiupZRSSvHSEELIx90dRri7y4SEAStgB48pg5ucFRwVxScMFQ9/wFDJyDsMlY6+wVD52CsMVY6/wFD1xDMM1U4+wVD91CMMJaYfYCg5cw9Dqdk7GErP3cJQZv4GhrIL1zCUW7yCoY6lSxjqWr6AoZ6VcxjKr57BUGHtFIb6109gaGDjGIYGN49gaGjrEIZi+wCGRnb2YWhsdw+Gvr5/YBBEEEEEEfSPEUQQQQQR9I8R9FdQrhAw1NYXMJTNBwy19gYMZXoChlq6A4bSXQFDzZ0BQ6mOgKGm9oChZC5gqLEtYCiRDRhqaA0Yqs8EDNW1BAzVpgOGapoDhqpTAUNVTQFDlcmAoYrGgKHyRMBQWUPA+AVpwhT+F/Zu0QAAAABJRU5ErkJggg==', 'base64');
+
+test('Remember today keeps the day and the Sammel-Wand shelf can change and remove it', async ({ page, context }, info) => {
+  await openHome(page, context, info, { data: withRide(1), hour: 7, weather: (c) => mock(c) });
+  await page.goto('./#/');
+  const card = page.locator('[data-heute-sonne="rides"]');
+  await expect(card).toBeVisible({ timeout: 20_000 });
+  await card.screenshot({ path: info.outputPath(`nebel-karte-${info.project.name}.png`) });
+  await card.locator('[data-heute-sonne-keep]').click();
+  await expect(card.locator('[data-heute-sonne-kept]')).toBeVisible();
+  await card.screenshot({ path: info.outputPath(`nebel-karte-gemerkt-${info.project.name}.png`) });
+  await expect(card.locator('[data-heute-sonne-keep]')).toHaveCount(0);
+
+  await page.goto('./#/debrief/sammlung');
+  const shelf = page.locator('[data-shelf="fog"]');
+  await expect(shelf).toBeVisible({ timeout: 20_000 });
+  await expect(shelf.locator('[data-fog-count]')).toContainText('1 Nebelmeer-Tag diesen Winter');
+  const row = shelf.locator('[data-fog-day]');
+  await expect(row).toContainText('Hochplateau');
+  await expect(row).toContainText('Nebel bis');
+
+  // change the name
+  await row.locator('[data-fog-edit]').click();
+  await shelf.locator('#fog-title').fill('Hochplateau im Nebelmeer');
+  await shelf.locator('[data-fog-save]').click();
+  await expect(row).toContainText('Hochplateau im Nebelmeer');
+
+  // remove it, then Undo brings it back
+  await row.locator('[data-fog-del]').click();
+  await page.getByRole('button', { name: /^Löschen$|^Entfernen$/ }).last().click();
+  await expect(shelf.locator('[data-fog-day]')).toHaveCount(0);
+  await page.getByRole('button', { name: /Rückgängig/ }).click();
+  await expect(shelf.locator('[data-fog-day]')).toHaveCount(1);
+  await shelf.screenshot({ path: info.outputPath(`nebel-regal-${info.project.name}.png`) });
+});
+
+test('A day can be added by hand with a photo, and the photo is in the album', async ({ page, context }, info) => {
+  await openHome(page, context, info, { data: homeFixture(), hour: 7, weather: (c) => mock(c, { clear: true }) });
+  await page.goto('./#/debrief/sammlung');
+  const shelf = page.locator('[data-shelf="fog"]');
+  await expect(shelf).toBeVisible({ timeout: 20_000 });
+  await expect(shelf.locator('[data-shelf-empty]')).toBeVisible();
+  await shelf.locator('[data-fog-add]').click();
+  await shelf.locator('#fog-title').fill('Napf im Nebelmeer');
+  await shelf.locator('#fog-m').fill('900');
+  await shelf.locator('[data-fog-pick]').click();
+  await page.setInputFiles('[data-shelf="fog"] input[type="file"]', { name: 'oben.png', mimeType: 'image/png', buffer: PNG });
+  await expect(shelf.locator('[data-fog-form]')).toContainText('oben.png');
+  await shelf.locator('[data-fog-save]').click();
+  const row = shelf.locator('[data-fog-day]');
+  await expect(row).toContainText('Napf im Nebelmeer');
+  await expect(row).toContainText('Nebel bis 900 m');
+  await expect(row.locator('img.thumb')).toBeVisible();
+  await shelf.screenshot({ path: info.outputPath(`nebel-regal-foto-${info.project.name}.png`) });
+  await page.goto('./#/me/album');
+  await expect(page.locator('[data-album-photo="album"]').first()).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator('[data-album-photo="album"]').first()).toHaveAttribute('aria-label', /Napf im Nebelmeer/);
+});

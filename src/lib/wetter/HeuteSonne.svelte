@@ -9,6 +9,8 @@
    * Step C (Noah «3a»), quiet: with Fitbit values the card adds the week line (zone minutes against the weekly goal);
    * when last night's sleep was clearly under your normal it also shows the shortest ride above the fog next to the
    * first. No advice, no cause; «Performance tips» (Me › Look › Suggestions) switches both off. Rules: sonnenrest.js.
+   * Step D (Noah «4a»): «Remember today» keeps the day as a fog sea day on the Sammel-Wand (you say you were up there,
+   * the app does not guess it); once kept, the card says so and leads to the shelf. Rules: sammlung/nebelmeer.js.
    */
   import { liveQuery } from 'dexie';
   import { Sun, Camera } from '@lucide/svelte';
@@ -25,6 +27,7 @@
   import { weakSleep, weekLine, shorter, hours } from './sonnenrest.js';
   import { AZM_WEEK_KEY } from '../health.js';
   import { suggest as areas, watchSuggest } from '../clear/suggest.svelte.js';
+  import { KEY as FOG_KEY, daysOf, valueOf, hasDay, addDay } from '../sammlung/nebelmeer.js';
   import { t, num } from '../i18n.svelte.js';
 
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -35,6 +38,7 @@
   const camsQ = liveQuery(() => db.settings.get(WEBCAMS_KEY));
   const healthQ = liveQuery(() => db.healthDays.toArray());
   const goalQ = liveQuery(() => db.settings.get(AZM_WEEK_KEY));
+  const fogQ = liveQuery(() => db.settings.get(FOG_KEY));
   watchSuggest();
 
   const home = $derived($homeQ?.value && Number.isFinite(Number($homeQ.value.lat)) ? { lat: Number($homeQ.value.lat), lon: Number($homeQ.value.lon) } : null);
@@ -74,6 +78,8 @@
     location.hash = '#/pack';
   };
   const skip = () => db.settings.put({ key: SKIP_KEY, value: { day } });
+  const kept = $derived(hasDay(daysOf($fogQ?.value), day));
+  const remember = () => db.settings.put({ key: FOG_KEY, value: valueOf(addDay(daysOf($fogQ?.value), { date: day, title: ride.title, topM: s?.now?.top, tripId: ride.id })) });
 </script>
 
 {#if sug}
@@ -100,8 +106,12 @@
         <button type="button" class="btn sm hi" onclick={open} data-heute-sonne-open>{t('Open ride')}</button>
         <a class="btn sm" href={cam?.url ?? BERGFEX} target="_blank" rel="noopener noreferrer" data-heute-sonne-cam><Camera size={16} aria-hidden="true" />{t('See it on a webcam')}</a>
         {#if sug.list.length > 1}<button type="button" class="btn sm" onclick={() => (pick = (pick + 1) % sug.list.length)} data-heute-sonne-next>{t('Other ride')}</button>{/if}
+        {#if !kept}<button type="button" class="btn sm" onclick={remember} data-heute-sonne-keep>{t('Remember today')}</button>{/if}
         <button type="button" class="btn sm" onclick={skip} data-heute-sonne-skip>{t('Not today')}</button>
       </div>
+      {#if kept}
+        <p class="hs-sub" data-heute-sonne-kept>{t('Today is kept as a fog sea day.')} <a href="#/debrief/sammlung">{t('Open the collection wall')}</a></p>
+      {/if}
     {:else}
       <p class="hs-sub" data-heute-sonne-none>{t('The sun shines above the fog, but none of your saved rides near home reaches up there.')}</p>
       <div class="hs-btns">
