@@ -604,3 +604,79 @@ test('Training › Bibliothek: examples, keep, plan again, groups, most used fir
   await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
   expect(errors).toEqual([]);
 });
+
+test('Training › Nächste Woche: the look back offers hours for next week and opens its suggestion', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  // the card shows from Friday: the clock stands on the Friday of this week
+  const wed = new Date(`${localDay()}T12:00:00Z`);
+  const friDay = new Date(wed.getTime() + 2 * 86400000).toISOString().slice(0, 10);
+  await page.clock.setFixedTime(new Date(`${friDay}T12:00:00+01:00`));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = friDay;
+  const dt = new Date(`${today}T12:00:00Z`);
+  const mon = new Date(dt.getTime() - ((dt.getUTCDay() + 6) % 7) * 86400000);
+  const lastWed = new Date(mon.getTime() - 5 * 86400000).toISOString().slice(0, 10);
+  const nextMon = new Date(mon.getTime() + 7 * 86400000).toISOString().slice(0, 10);
+  await page.evaluate(
+    (day) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('activities', 'readwrite');
+          tx.objectStore('activities').put({ id: 'nw1', day, kind: 'bike', type: 'Ride', name: 'test_data_gtp_ Nächste Woche', movingS: 14400, elapsedS: 14400 });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    lastWed,
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="next-week"]');
+  await expect(card).toBeVisible();
+  await expect(card.locator('[data-next-reason]')).toBeVisible();
+  // the fixture activities of last week count too: take the hours from the button
+  const hoursOnButton = ((await card.locator('[data-next-pick="more"]').innerText()).match(/· ([\d.,]+) h/) ?? [])[1];
+  expect(hoursOnButton).toBeTruthy();
+  await card.locator('[data-next-pick="more"]').click();
+  const sug = page.locator('[data-suggest]');
+  await expect(sug).toBeVisible();
+  await expect(sug.locator('[data-sug-hours] b.num')).toHaveText(hoursOnButton);
+  // the shown week is next week: its Monday is the first day of the plan
+  await expect(page.locator(`[data-add="${nextMon}"]`)).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Nächste Woche: not before Friday, «Jetzt nicht» puts it away for the week', async ({ page, context, baseURL }) => {
+  const wed = new Date(`${localDay()}T12:00:00Z`);
+  const friDay = new Date(wed.getTime() + 2 * 86400000).toISOString().slice(0, 10);
+  await page.clock.setFixedTime(new Date(`${friDay}T12:00:00+01:00`));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const dt = new Date(`${friDay}T12:00:00Z`);
+  const lastWed = new Date(dt.getTime() - 9 * 86400000).toISOString().slice(0, 10);
+  await page.evaluate(
+    (day) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('activities', 'readwrite');
+          tx.objectStore('activities').put({ id: 'nw2', day, kind: 'bike', type: 'Ride', name: 'test_data_gtp_ Nächste Woche', movingS: 14400, elapsedS: 14400 });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    lastWed,
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="next-week"]');
+  await expect(card).toBeVisible();
+  await card.locator('[data-next-later]').click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-section="next-week"]')).toHaveCount(0);
+});

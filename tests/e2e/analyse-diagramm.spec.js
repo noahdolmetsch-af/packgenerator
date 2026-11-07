@@ -75,6 +75,11 @@ const shot = (page, name, info) => process.env.ANALYSE_SHOTS && page.screenshot(
 
 // the Analyse page shows one tab at a time (Noah 03.11.2026 «1a»); the choice is remembered
 const tab = (page, k) => page.locator(`[data-tab="${k}"]`).click();
+// on a phone the card «Data from / Period» is one line that opens the choices (Noah 07.11.2026 «3a»)
+const openFilter = async (page) => {
+  const b = page.locator('[data-filter-toggle]');
+  if ((await b.isVisible()) && (await b.getAttribute('aria-expanded')) === 'false') await b.click();
+};
 
 test('Eigenes Diagramm: the D1 values under each other, a tapped day with all values', async ({ page, context }, info) => {
   const errors = await open(page, context);
@@ -82,9 +87,10 @@ test('Eigenes Diagramm: the D1 values under each other, a tapped day with all va
   await tab(page, 'diagramm');
   const dg = page.locator('[data-diagram]');
   await expect(dg).toBeVisible();
-  // «Data from» and «Period» sit at the very top (Noah 03.11.2026 «3a»), the tabs under them
-  const [yp, yd] = await Promise.all([page.locator('.pick').boundingBox(), dg.boundingBox()]);
-  expect(yp.y).toBeLessThan(yd.y);
+  // the card «Data from / Period» changes nothing here (the diagram has its own period), so it is not shown (Noah 07.11.2026 «3a»);
+  // a line says where to choose
+  await expect(page.locator('.pick')).toHaveCount(0);
+  await expect(page.locator('[data-filter-note]')).toContainText(T('Here you choose the values and the period in the diagram itself.|analyse'));
   await expect(dg.locator('[data-dg-row]')).toHaveCount(DEFAULT_KEYS.length);
   for (const k of DEFAULT_KEYS) await expect(dg.locator(`[data-dg-row="${k}"]`), k).toBeVisible();
   await expect(dg.locator('[data-dg-row="rhr"] rect.band')).toHaveCount(1);
@@ -251,10 +257,19 @@ test('Überblick (M2): the numbers of the period, every day a field, ranking, ti
   const errors = await open(page, context);
   await go(page, '#/auswerten/analyse');
   await tab(page, 'ueberblick');
-  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90') }).click();
+  await openFilter(page);
+  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90'), exact: true }).click();
   const ov = page.locator('[data-overview]');
   for (const k of ['ticks', 'km:bike', 'sleep', 'azm', 'rhr', 'run']) await expect(ov.locator(`[data-ov-box="${k}"]`), k).toBeVisible();
   await expect(ov.locator('[data-ov-box="ticks"]')).toContainText(T('ticks in {n} days|overview').replace('{n}', '90'));
+  // Noah 07.11.2026 «2a»: active zone minutes are the mean per day (the fictional days have 20 to 70), not the total of 90 days;
+  // the bike box says that it is the total of the period
+  const azmBox = ov.locator('[data-ov-box="azm"]');
+  await expect(azmBox).toContainText(T('active zone minutes a day, mean of {n} days|overview').replace('{n}', '90'));
+  const perDay = Number((await azmBox.locator('b').innerText()).replace(/[^\d]/g, ''));
+  expect(perDay).toBeGreaterThanOrEqual(20);
+  expect(perDay).toBeLessThanOrEqual(70);
+  await expect(ov.locator('[data-ov-box="km:bike"]')).toContainText(T('Bike, Strava, in {n} days|overview').replace('{n}', '90'));
   const heat = page.locator('[data-heat]');
   await expect(heat.locator('button.cell')).toHaveCount(90);
   await expect(heat.locator('button.cell.l4').first()).toBeVisible();
@@ -365,8 +380,8 @@ test('Ansichten: a starter brings its values, a new view keeps what you see, ren
   await vw.locator('[data-view="start-sleep"]').click();
   await expect(dg.locator('[data-dg-row="sleepScore"]')).toBeVisible();
   await expect(vw.locator('[data-view="start-sleep"]')).toHaveAttribute('aria-pressed', 'true');
-  // a new view of what you see now, after a change
-  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '30') }).click();
+  // a new view of what you see now, after a change (the diagram's own period)
+  await dg.getByRole('button', { name: T('30 d|diagram') }).click();
   await vw.locator('[data-view-add]').click();
   await page.locator('[data-view-form] input').fill('Winterzeit');
   await page.locator('[data-view-form] button[type=submit]').click();

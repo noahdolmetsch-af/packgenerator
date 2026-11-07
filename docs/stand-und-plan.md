@@ -10,36 +10,39 @@ Schnappschuss vom **7. November 2026, abends**. Für Noah, in einfachem Deutsch.
 
 ## 1. Offene Änderungen (PRs) am Abend des 7.11.2026
 
-Seit dem Schnappschuss vom 5.11. sind über 150 Änderungen gemergt worden. Alles, was am 5.11. noch offen war (Wetter-Stapel #924 bis #937, Gruss «Wi gahts?» A, «Jetzt dran», Tagescheck #895, «Aktiv heute» #875, Bild oben auf Heute #783, Kleidungs-Tipp #932, Zug hin #934, Fester Termin #936, Doku #935), ist **online**. Zwei alte PRs wurden **geschlossen, nicht gemergt**: #757 («Unterwegs und Velos» über «Deine Woche», du hast «verwerfen» gesagt) und #824 (Start-Grenze 5 MB, überholt). Die Liste unten hat 28 offene PRs.
+Stand: 7.11., 23:40 Uhr UTC (kurz vor Mitternacht in Zürich 00:40 Uhr am 8.11.), 30 offene PRs. Seit dem Schnappschuss vom 5.11. sind über 150 Änderungen gemergt worden. Alles, was am 5.11. noch offen war (Wetter-Stapel #924 bis #937, Gruss «Wi gahts?» A, «Jetzt dran», Tagescheck #895, «Aktiv heute» #875, Bild oben auf Heute #783, Kleidungs-Tipp #932, Zug hin #934, Fester Termin #936, Doku #935), ist **online**. Zwei alte PRs wurden **geschlossen, nicht gemergt**: #757 («Unterwegs und Velos» über «Deine Woche», du hast «verwerfen» gesagt) und #824 (Start-Grenze 5 MB, überholt). In der letzten Stunde dazugekommen und gemergt: #1116, #1123, #1129, #1114, #1125, #1128, #1132, #973, #1133, #1134, #1137 und #1138.
 
 ### Du hast freigegeben (Label «ok»), es wartet auf grüne Tests und den Merge
 
 | PR | Was | Hinweis |
 |---|---|---|
-| #1120 bis #1124 | Cardio-Belastung A, B, C, D, F: Touren des Zeitraums als Liste, Wochenbalken ab 3 Monaten, üblicher Bereich als graues Band, «Wie wird gerechnet?» mit einem echten Tag, «Am Tag davor» zählt auch Fitbit-Trainings | Reihe, nacheinander |
-| #1116 | Analyse: Quelle und Touren der Zeit als Wege unter dem Titel eines Werts (A2) | |
-| #1114 | Analyse: Aktivzonen pro Tag als Tagesschnitt, Velo-Kachel mit Zeitraum | |
-| #1129 | Analyse: Filter-Karte nur auf Reitern, wo sie wirkt, am Handy eine Zeile | |
-| #1128 | Training: Karte «Nächste Woche» mit Grund und Zielen, ab Freitag (Schritt 8) | Test e2e-part 3 hat einmal geflackert (Neustart erlaubt) |
-| #1125, #1126 | Touren: vier Wege auf der Tourkarte (Packen, Wetter, Form, Rückblick); Wetter: Karte «Für deine Tour» | |
+| #1120, #1121, #1122, #1124 | Cardio-Belastung A, B, C, F: Touren des Zeitraums als Liste, Wochenbalken ab 3 Monaten, üblicher Bereich als graues Band, «Am Tag davor» zählt auch Fitbit-Trainings | D (#1123) ist online |
+| #1130 | Analyse: «Zurück zu Heute» merkt sich, woher man kam (4a) | |
+| #1140, #1141 | Analyse: leere Reiter erklären sich und bieten den nächsten Schritt; Aktiv: Ringe und Wochenziele führen in die Analyse | |
+| #1143 | Meine Datenquellen: woher die Zahlen kommen, wie frisch sie sind, wo Lücken sind | |
+| #1135, #1136 | Plan-Wächter (Test und Tabelle für den Plan «ganze App»); Tour-Stand: Rechnung, wo eine Tour steht (ohne Anzeige) | Nichts Sichtbares |
+| #1126 | Wetter: Karte «Für deine Tour» (Wetter, Regenzeug, Wege) | |
 | #1131 | Packen: zuerst die Liste, der Rest in fünf Gruppen unter «Mehr zu dieser Tour» | |
-| #1110 | Auswerten: Link-Karten weg, Gipfelbuch als Reiter | **Rot**, der bauende Thread arbeitet am Fix |
+| #1110 | Auswerten: Link-Karten weg, Gipfelbuch als Reiter | Am Nachmittag rot gemeldet; Stand auf GitHub prüfen |
 | #1106 | Test «Aktiv heute»: nur Kacheln mit Aktivität messen (Flake-Fix) | Nichts Sichtbares |
 | #1102 | Live-Karte: Schlafplatz finden, Schritt 1 (Dächer in der Nähe, eigene Plätze) | |
 | #1095, #1094, #1093 | Ausflugstipps ab 90 Minuten; Neuland-Sammlungen mit Bild, Farbton und Vorlagen; Untergrund der Anfahrt aus OpenStreetMap nachschlagen | |
+| #1091 | Traum der Woche: Kachel auf Heute mit Countdown und Wetter für die Tage | |
 | #1043 | Nebelmeer-Tage: Regal auf der Sammel-Wand mit Foto und leiser Winterzahl, «Heute merken» | |
 | #1038 | Heute: «Heute laut Plan» zeigt nur, was noch offen ist | |
-| #976, #973, #938 | Merken: Doppeltipp auf «Speichern» (E4-003); Planen 2b: Wochen-Abschluss am Sonntag; Tourenvorschläge: Art-Filter, Start-Filter, Zeilen wählen | Seit dem 5.11. offen |
+| #976, #938 | Merken: Doppeltipp auf «Speichern» (E4-003); Tourenvorschläge: Art-Filter, Start-Filter, Zeilen wählen | Seit dem 5.11. offen |
+| #1139 | Diese Doku-Änderung | |
 
-### Wartet auf dein «ok NNN»
+### Wartet auf dein «ok NNN» (ohne Label)
 
 | PR | Was |
 |---|---|
-| #1132 | Auswerten: Wochenzahlen und Kalorien führen in die Analyse, neue Werte Zeit, Distanz, Höhenmeter (A1) |
-| #1130 | Analyse: «Zurück zu Heute» merkt sich, woher man kam (4a) |
-| #1091 | Traum der Woche: Kachel auf Heute mit Countdown und Wetter für die Tage |
-| #1133 | Nichts Sichtbares: Baustein «Weiter von hier» für einen Block statt zwei Wegweiser-Reihen (Q1 vorbereitet) |
-| #1134 | Nichts Sichtbares: Regel «Leere Kachel nennt die fehlende Quelle» (A3/I1 vorbereitet), noch auf keiner Seite benutzt |
+| #1144 | Wege deutlicher: Zahlen, die weiterführen, sind grün, unterstrichen, mit dunklem Hintergrund lesbar |
+| #1145 | Weg zum Ziel: «Start in Tagen», wenn der Start nah ist |
+| #1146 | Tagebuch: Stimmungskurve zum Antippen (Diagramme 12) |
+| #1147 | Training: Pläne für Skitour, Wandern, Laufen, Kraft, Mobilität; Pläne mischen |
+| #1148 | Spruch PR 3: Ton wählen, Quellen und Sätze schalten, «Nicht mehr solche» |
+| #1149 | Velo-Zahlen als Wege, Teil 2: ein Velo in der Analyse, «passt», Gewicht und Tasche |
 
 Was **seit dem 2.11.** neu online ging, steht im [Verlauf](verlauf-und-entscheide.md#5-seit-dem-2-november-2026) und je PR in `docs/releases/`.
 
@@ -87,15 +90,16 @@ Ziel: Routen zuverlässiger, einfacher und intelligenter. Deine Antworten vom 05
 - **Jetzt dran:** nur Dringendes (#913), «Später» und «Zeilen wählen» (#915), Backup-Zeile kurz (#911), keine leeren Notizen (#908): alle **online**. «Heute laut Plan» zeigt nur, was noch offen ist (#1038): **offen, freigegeben**.
 - **Bild oben auf Heute** (#783) und **ein starker Knopf pro Karte** (#1090): **online**. «Aktiv heute» ohne doppelte Gewohnheiten (#875): **online**.
 - **Neu auf Heute (online):** Kachel «Spruch» (#1060, mehr Quellen und Zitate #1105), Körperwerte mit letztem Wert und «Jetzt holen» (#1061), «Schnell öffnen» schlägt eine Seite zum Anpinnen vor (#980), Letzte 12 Monate zum Antippen (#1100), Fester Termin für Stammkunden (#936).
-- **Beschlossen, nicht gebaut:** Spruch PR 3 (wartet auf dein «bau spruch pr3»). **Offen:** Traum der Woche (#1091, wartet auf «ok 1091»).
+- **Offen:** Spruch PR 3 (#1148, wartet auf dein «ok»), Traum der Woche (#1091, freigegeben).
 
 ### 2.5 Aktiv, Auswerten, Analyse, Training, Lernen
 
 - **Aktiv:** eigene Wochenziele mit Balken (#977), Ruhetag-Hinweis nach drei harten Tagen (#965), Rückblick Meditation und Training zum Antippen (#1083), «Meine Sportarten» heisst «Meine Aktivitäten» (#993): **online**.
-- **Auswerten:** ein Zeitraum-Schalter für alle Gruppen (#941), «Im Fokus» ohne leere Sportarten (#1104): **online**. Link-Karten weg und Gipfelbuch als Reiter (#1110): **offen, rot**. Wochenzahlen führen in die Analyse (#1132): wartet auf «ok 1132». Deine Antworten «3 ja, 6 ja» zu den Analyse-Punkten sind aufgenommen.
-- **Analyse:** schneller geöffnet (#948). **Offen:** Wege unter dem Titel eines Werts (#1116), Aktivzonen als Tagesschnitt (#1114), Filter-Karte nur wo sie wirkt (#1129), «Zurück zu Heute» (#1130, wartet auf «ok 1130»). **Cardio-Belastung** A bis F: Wochentag-Balken, Tour-Namen und lesbare Karten sind **online** (#1127), A bis D und F (#1120 bis #1124) **offen, freigegeben**.
-- **Zahlen mit Weg:** Bausteine für antippbare Zahlen und die Quelle-Zeile (#1109), Velo-Zahlen führen weiter (#1118), Rückblick-Tempo zum Antippen (#1119), Eigene Messwerte zum Antippen (#1044): **online**. Die Regel «Leere Kachel nennt die fehlende Quelle» (#1134) und «Weiter von hier» (#1133) sind Vorbereitungen ohne sichtbare Änderung (warten auf dein «ok»).
-- **Training** (Wochenpläne, 8 Schritte): Heute passt (#1088), Verpasst? Verschieben (#1096), Wochenlast-Wächter und Entlastungswoche (#1099), Einheiten-Bibliothek (#1113): **online**. Schritt 8 «Nächste Woche» (#1128): **offen, freigegeben**.
+- **Auswerten:** ein Zeitraum-Schalter für alle Gruppen (#941), «Im Fokus» ohne leere Sportarten (#1104): **online**. Link-Karten weg und Gipfelbuch als Reiter (#1110): **offen, rot**. Wochenzahlen und Kalorien führen in die Analyse (#1132): **online**; Aktiv-Ringe und Wochenziele führen dorthin (#1141, freigegeben); leere Reiter erklären sich (#1140, freigegeben). Deine Antworten «3 ja, 6 ja» zu den Analyse-Punkten sind aufgenommen.
+- **Analyse:** schneller geöffnet (#948). **Online:** Wege unter dem Titel eines Werts (#1116), Aktivzonen als Tagesschnitt (#1114), Filter-Karte nur wo sie wirkt (#1129). **Offen:** «Zurück zu Heute» (#1130, freigegeben). **Cardio-Belastung** A bis F: Wochentag-Balken, Tour-Namen und lesbare Karten (#1127) und D «Wie wird gerechnet?» (#1123) sind **online**, A, B, C und F (#1120, #1121, #1122, #1124) **offen, freigegeben**. **Meine Datenquellen** (#1143) **offen, freigegeben**.
+- **Zahlen mit Weg:** Bausteine für antippbare Zahlen und die Quelle-Zeile (#1109), Velo-Zahlen führen weiter (#1118), Rückblick-Tempo zum Antippen (#1119), Eigene Messwerte zum Antippen (#1044): **online**. Die Regel «Leere Kachel nennt die fehlende Quelle» (#1134), «Weiter von hier» (#1133) und das Regelbuch «Neun Hinweise» (#1137) sind Vorbereitungen ohne sichtbare Änderung (**online**, noch auf keiner Seite benutzt). **Offen:** Velo-Zahlen Teil 2 (#1149) und «Wege deutlicher» in Grün (#1144), beide warten auf dein «ok».
+- **Training** (Wochenpläne, 8 Schritte): Heute passt (#1088), Verpasst? Verschieben (#1096), Wochenlast-Wächter und Entlastungswoche (#1099), Einheiten-Bibliothek (#1113): **online**. Schritt 8 «Nächste Woche» (#1128): **online**. **Offen:** Pläne für Skitour, Wandern, Laufen, Kraft, Mobilität und Pläne mischen (#1147, wartet auf dein «ok»).
+- **Touren und Planen (online):** vier Wege auf der Tourkarte und «n warten auf Rückblick» (#1125), Wochen-Abschluss am Sonntag mit «Auf Montag verschieben» (#973).
 - **Persönliches Lernen:** alle sechs Ideen **online**. **Fragen aus deinen Daten:** Stufe 2 und Stufe 3 (To-Dos #956, Eigene Regeln #1011) **online**.
 - **Sieben Cockpit-Ideen** (03.11., «werden alle gebaut»): Signale zuerst (Idee 3, dann 5 zusammen mit Aktiv/Auswerten), Fragen (7) und Versuche (6), Ghost (4), Belastung (1, 2). Grenzen: das Wetter gibt es nur als Tageswert am Wohnort, es werden keine Rohdaten-Ströme gespeichert (also kein Live-Ghost), Ruhepuls, HRV und Schlaf sind nicht vorhersagbar. **Stand je Idee in den Threads prüfen.**
 
@@ -124,8 +128,8 @@ Ziel: Routen zuverlässiger, einfacher und intelligenter. Deine Antworten vom 05
 ### 2.9 Wegweiser, Alles hier, Auffindbarkeit, Weg zum Ziel
 
 - **Versteckte Funktionen:** alle neun Schritte **online**. **Wegweiser statt Katalog** (26 PRs): Teil A (Absprünge), Teil B (Inhalte pro Bereich), Teil C. Den Stand zeigt `docs/vorhaben.md` Nr. 17.
-- **Verlust-Wächter** (#1111, **online**): ein Test auf jedem PR wird rot, wenn beim Vereinfachen eine Funktion verloren geht oder nicht mehr auffindbar ist. Geplante Folgearbeit aus dem Vereinfachen: «Weiter von hier» (#1133) und «Leere Kachel nennt die fehlende Quelle» (#1134), beides vorbereitet, wartet auf dein «ok».
-- **Weg zum Ziel** (`#/trips/weg`, Rückwärts-Plan zum grossen Ziel): Gerüst (#1050), die Seite unter Touren (#1070), die Seite als eine Linie mit Punkten, Bearbeiten hinter «…» (#1117, Entwurf G1) und Schrittarten, die sich selbst anmelden (#1098): **online**. Schrittarten online: Rennplanung, Organisation, Probefahrten 50, 100, 200 km, Erholung, Velo bereit, Trainingsfortschritt, Verpflegung testen, Nachtplan, Packen testen, GPS-Tracker.
+- **Verlust-Wächter** (#1111, **online**): ein Test auf jedem PR wird rot, wenn beim Vereinfachen eine Funktion verloren geht oder nicht mehr auffindbar ist. Geplante Folgearbeit aus dem Vereinfachen: «Weiter von hier» (#1133) und «Leere Kachel nennt die fehlende Quelle» (#1134), beides **online**, noch auf keiner Seite benutzt.
+- **Weg zum Ziel** (`#/trips/weg`, Rückwärts-Plan zum grossen Ziel): Gerüst (#1050), die Seite unter Touren (#1070), die Seite als eine Linie mit Punkten, Bearbeiten hinter «…» (#1117, Entwurf G1) und Schrittarten, die sich selbst anmelden (#1098), dazu das Wetterfenster ab 7 Tagen vor dem Start (#1138): **online**. «Start in Tagen», wenn der Start nah ist (#1145): wartet auf dein «ok». Schrittarten online: Rennplanung, Organisation, Probefahrten 50, 100, 200 km, Erholung, Velo bereit, Trainingsfortschritt, Verpflegung testen, Nachtplan, Packen testen, GPS-Tracker.
 - **Umsetzungs-Prüfung** (du hast «a» gesagt am 07.11.): eine Plan-Datei `docs/plan-ganze-app.md` mit Wächter-Test (rot, wenn ein «online»-Schritt seinen Weg verliert), nach jedem Merge eine Zeile «Plan: X von Y online» und ein Abnahme-Bericht pro Schritt. **Noch nicht auf GitHub** (kein offener PR dazu gefunden); der PR ist im Thread «Tour A–Z / Datencenter» angekündigt.
 - **Schritt 0 und danach** (du hast am 07.11. entschieden): «Tour-Stand» und «Meine Datenquellen» als zwei PRs; danach Pfad-Baustein auf der Linie von «Weg zum Ziel», «Meine Tour» auf Heute, Ort-Vorlage Velos (mit den 5 Gruppen wie in Packen, #1131) und der Datencenter-Reiter «Fragen». Je ein Bau-Thread, sobald der Vorgänger online ist. Alles **beschlossen, noch nicht gebaut**.
 
@@ -163,8 +167,8 @@ Foto-KI für Material, Live-Sync über Drive, fremde Einbettungen (nur Links), P
 
 ## 3. Was auf dich wartet (höchstens die wichtigsten)
 
-1. **«ok 1132» und «ok 1130»** (Analyse A1 und «Zurück zu Heute»), danach bei Bedarf «ok 1091», «ok 1133», «ok 1134».
-2. **Antworten auf offene Fragen:** Schlafplatz «Extra-Runde» (Live-Karte), «bau spruch pr3» (Spruch PR 3), Entdecken und Sammeln (Fragerunde).
+1. **«ok NNN»** für #1144 bis #1149 (siehe Tabelle oben).
+2. **Antworten auf offene Fragen:** Schlafplatz «Extra-Runde» (Live-Karte), Entdecken und Sammeln (Fragerunde). Spruch PR 3 liegt als #1148 vor.
 3. Nach den Wetter-Merges: **auf der echten Seite prüfen** (Landi und SRF im Fenster, Nullgradgrenze, Nebel gegen Webcam).
 
 Alles Weitere: [Noah-Wissen](noah-wissen.md).
