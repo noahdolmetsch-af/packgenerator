@@ -40,6 +40,7 @@
   import { rideLog, rideLogText, GAP_S } from '../lib/live/ridelog.js';
   import { liveRouteQuery, liveRouteFor, clearLiveRoute } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
+  import ReadyCard from '../lib/live/ReadyCard.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
@@ -62,6 +63,7 @@
   import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
   import ReserveNote from '../lib/live/ReserveNote.svelte';
+  import SurfaceNote from '../lib/live/SurfaceNote.svelte';
   import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour, routerMsg } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
@@ -1293,6 +1295,7 @@
     {#if resumed && rec.on}<p class="rc-note" role="status" data-live-resumed>{t('The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.')}</p>{/if}
     {#if err || rec.error}<p class="rc-warn" role="alert">{err || t(rec.error)}</p>{/if}
     <p class="rc-note">{t('Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.')}</p>
+    {#if !rec.on && hasRoute}<ReadyCard line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} voice={cfg.voice} onvoice={(v) => setOpt('voice', v)} />{/if}
     {#if !rec.on}
       <details class="lv-tip" data-live-flight-tip>
         <summary>{t('Save battery: ride in flight mode')}</summary>
@@ -1441,6 +1444,7 @@
               <b>{detourTitle}</b>
               <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
               {#if detour.via}<ReserveNote cls="lv-reserve" />{/if}
+              <SurfaceNote surface={detour.surface} profile={detour.profile} cls="lv-surface" />
               {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
               {#if goalOn && detourTurns.length}
                 <details class="lv-steps" data-live-steps>
@@ -2467,6 +2471,11 @@
   }
   .lv-detour .lv-back-err {
     color: var(--bad);
+  }
+  .lv-detour :global(.lv-surface) {
+    margin: 0;
+    font-size: var(--fs-small);
+    opacity: 0.85;
   }
   .lv-detour :global(.lv-reserve) {
     margin: 0;
