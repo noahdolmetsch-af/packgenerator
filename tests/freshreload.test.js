@@ -1,7 +1,7 @@
 // «Neueste Version laden» (20.10.2026): online it removes the app's offline copy and reloads, so the newest
 // version comes from the internet; the data and the offline maps stay. Offline it only reloads.
 import { describe, it, expect, vi } from 'vitest';
-import { freshReload, askForUpdate, isAppCache, cleanFreshMarker, freshUrl } from '../src/lib/freshreload.js';
+import { freshReload, askForUpdate, isAppCache, cleanFreshMarker, freshUrl, STUCK_AFTER } from '../src/lib/freshreload.js';
 
 function fake({ online = true } = {}) {
   const reg = { unregister: vi.fn(async () => true), update: vi.fn(async () => {}) };
@@ -61,5 +61,40 @@ describe('freshReload', () => {
     cleanFreshMarker({ location: { href: 'https://x/packgenerator/?fresh=1#/me' }, history: { state: null, replaceState } });
     expect(replaceState).toHaveBeenCalledWith(null, '', '/packgenerator/#/me');
     expect(freshUrl({ origin: 'https://x', pathname: '/p/', hash: '' }, 5)).toBe('https://x/p/?fresh=5');
+  });
+
+  // 07.11.2026 (Noah: «Jetzt laden» does nothing on the phone): a loading that does not happen is told, not hidden
+  it('onStuck speaks when the page is still here after the waiting time, and not before', async () => {
+    vi.useFakeTimers();
+    const { w } = fake();
+    w.setTimeout = (f, ms) => setTimeout(f, ms);
+    const onStuck = vi.fn();
+    await freshReload(w, { onStuck });
+    await vi.advanceTimersByTimeAsync(STUCK_AFTER - 1);
+    expect(onStuck).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(2);
+    expect(onStuck).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+  it('a new address that cannot be opened falls back to the plain reload instead of staying silent', async () => {
+    const { w } = fake();
+    w.location.replace = vi.fn(() => {
+      throw new Error('blocked');
+    });
+    await freshReload(w);
+    expect(w.location.reload).toHaveBeenCalledTimes(1);
+  });
+  it('a worker that cannot be removed does not stop the loading', async () => {
+    const { w, reg } = fake();
+    reg.unregister = vi.fn(async () => {
+      throw new Error('no');
+    });
+    await freshReload(w);
+    expect(w.location.replace.mock.calls.length + w.location.reload.mock.calls.length).toBe(1);
+  });
+  it('cleanFreshMarker says whether the start came from «load fresh»', () => {
+    const replaceState = vi.fn();
+    expect(cleanFreshMarker({ location: { href: 'https://x/packgenerator/#/me' }, history: { state: null, replaceState } })).toBe(false);
+    expect(cleanFreshMarker({ location: { href: 'https://x/packgenerator/?fresh=1#/me' }, history: { state: null, replaceState } })).toBe(true);
   });
 });
