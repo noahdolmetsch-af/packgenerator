@@ -533,6 +533,12 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland» N19
+  'Works offline; the rules are on the device.': 'Geht offline; die Regeln sind auf dem Gerät.',
+  'Open Trips › Dreams: «Adventure dice».': 'Öffne Touren › Träume: «Abenteuer-Würfel».',
+  'Tap «Roll»; the rule stays until you roll again.': 'Tippe «Würfeln»; die Regel bleibt, bis du nochmals würfelst.',
+  'Under «Rules»: add, rename, delete or hide rules.': 'Unter «Regeln»: Regeln hinzufügen, umbenennen, löschen oder ausblenden.',
+  'Example: «A coffee in a village you have never been to».': 'Beispiel: «Ein Kaffee in einem Dorf, wo du nie warst».',
   // «Träume und Neuland» N9
   'Needs your home place and the forecast (online now and then).': 'Braucht deinen Wohnort und die Prognose (ab und zu online).',
   'Open Trips › Dreams: «Sunrise on the hill» names the next clear morning and evening.': 'Öffne Touren › Träume: «Sonnenaufgang auf dem Hügel» nennt den nächsten klaren Morgen und Abend.',
