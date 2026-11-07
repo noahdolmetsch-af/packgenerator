@@ -7,8 +7,8 @@ import { sessionState } from '../src/lib/training/inhalt/inhalt-woche.js';
 import de from '../src/lib/i18n/de/index.js';
 
 describe('sample plans', () => {
-  it('has the four plans of Noah «4 1-4», each with German texts', () => {
-    expect(PLAN_TEMPLATES.map((p) => p.id)).toEqual(['first', 'multi', 'ultra', 'short']);
+  it('has the four plans of Noah «4 1-4» and three for other sports, each with German texts', () => {
+    expect(PLAN_TEMPLATES.map((p) => p.id)).toEqual(['first', 'multi', 'ultra', 'short', 'skitour', 'hike', 'strength']);
     for (const p of PLAN_TEMPLATES) {
       expect(de[p.name]).toBeTruthy();
       expect(de[p.who]).toBeTruthy();
@@ -22,10 +22,20 @@ describe('sample plans', () => {
     const own = ownOf([{ id: 'own-1', name: ' Mein Plan ', base: 'multi', weeks: 30, lo: 9, hi: 3 }, { name: 'x', base: 'nope' }]);
     expect(own).toEqual([{ id: 'own-1', name: 'Mein Plan', base: 'multi', weeks: 24, lo: 9, hi: 9, order: 0 }]);
     const all = allPlans(own, ['first']);
-    expect(all.map((p) => p.id)).toEqual(['multi', 'ultra', 'short', 'own-1']);
+    expect(all.map((p) => p.id)).toEqual(['multi', 'ultra', 'short', 'skitour', 'hike', 'strength', 'own-1']);
     expect(all.at(-1)).toMatchObject({ own: true, days: PLAN_TEMPLATES[1].days, name: 'Mein Plan' });
     expect(cleanOwn({ base: 'multi', name: '' })).toBe(null);
     expect(midHours(PLAN_TEMPLATES[1])).toBe(8.5);
+  });
+});
+
+describe('plans for other sports', () => {
+  it('write sessions of their own sport; the bike plans stay bike', () => {
+    const kinds = Object.fromEntries(PLAN_TEMPLATES.map((p) => [p.id, new Set(buildPlan(p, { first: '2027-01-04' }).flatMap((w) => w.sessions.map((s) => s.kind)))]));
+    expect([...kinds.multi]).toEqual(['bike']);
+    expect([...kinds.skitour]).toEqual(['hike']);
+    expect([...kinds.hike]).toEqual(['hike']);
+    expect([...kinds.strength]).toEqual(['other']);
   });
 });
 

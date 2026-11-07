@@ -22,7 +22,7 @@ export const SRC = 'tpl'; // src of a session written by a plan
  */
 const D = (dow, share, zone, name, more = {}) => ({ dow, share, zone, name, ...more });
 
-/** The four sample plans; names and texts are English sources for t(). */
+/** The sample plans (kind: the sport of the sessions, bike when missing); names and texts are English sources for t(). */
 export const PLAN_TEMPLATES = [
   {
     id: 'first',
@@ -59,6 +59,36 @@ export const PLAN_TEMPLATES = [
     lo: 4,
     hi: 6,
     days: [D(1, 0.15, 4, 'Short and hard: 4 × 8 min'), D(3, 0.15, 3, 'Tempo: 2 × 12 min'), D(5, 0.55, 2, 'Long ride, calm', { long: true }), D(6, 0.15, 1, 'Easy spin')],
+  },
+  {
+    id: 'skitour',
+    name: 'Ski touring',
+    kind: 'hike',
+    who: 'For a winter of ski tours: legs and stamina first, long days in the mountains at the end.',
+    weeks: 10,
+    lo: 4,
+    hi: 7,
+    days: [D(1, 0.18, 2, 'Easy uphill walk'), D(3, 0.17, 3, 'Steady climb: 3 × 15 min'), D(5, 0.5, 2, 'Long mountain day, calm', { long: true }), D(6, 0.15, 1, 'Easy walk')],
+  },
+  {
+    id: 'hike',
+    name: 'Hiking',
+    kind: 'hike',
+    who: 'For a multi-day hike: more time on your feet, one long day a week.',
+    weeks: 8,
+    lo: 4,
+    hi: 8,
+    days: [D(2, 0.2, 2, 'Easy walk'), D(4, 0.2, 2, 'Walk with some climbing'), D(5, 0.45, 2, 'Long hike, calm', { long: true }), D(6, 0.15, 1, 'Easy walk')],
+  },
+  {
+    id: 'strength',
+    name: 'Strength',
+    kind: 'other',
+    who: 'For two or three strength sessions a week next to your sport.',
+    weeks: 8,
+    lo: 2,
+    hi: 4,
+    days: [D(0, 0.35, 3, 'Strength: legs and core'), D(2, 0.3, 3, 'Strength: back and arms'), D(4, 0.35, 3, 'Strength: full body')],
   },
 ];
 
@@ -137,7 +167,7 @@ export function buildPlan(plan, { first, hours, race = null }) {
       const day = shiftDay(monday, d.dow);
       if (race && day >= race) continue;
       const second = d.b2b && !b2bOn;
-      sessions.push({ day, kind: 'bike', name: second ? 'Endurance ride' : d.name, mins: mins15(week * d.share * (second ? 0.6 : 1)), zone: d.zone, long: !!d.long || (d.b2b && b2bOn) });
+      sessions.push({ day, kind: plan.kind ?? 'bike', name: second ? 'Endurance ride' : d.name, mins: mins15(week * d.share * (second ? 0.6 : 1)), zone: d.zone, long: !!d.long || (d.b2b && b2bOn) });
     }
     out.push({ i, monday, kind, mins: sessions.reduce((s, x) => s + x.mins, 0), sessions });
   }
