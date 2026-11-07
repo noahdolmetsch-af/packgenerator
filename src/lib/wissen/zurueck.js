@@ -37,4 +37,5 @@ export default {
   'f.homecoming': 'Empty the bags on the first evening, even when tired: wet tent and damp shorts do not get better until Saturday.',
   'f.newtoday': 'A small detour is often enough for something new: one unknown road home turns a routine ride into a little discovery.',
   'f.newkm': 'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.',
+  'f.osmsets': 'A waterfall or a tower is a good reason for a detour: the ride gets a goal, and the place stays in memory longer than the kilometres.',
 };

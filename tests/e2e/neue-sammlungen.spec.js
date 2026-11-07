@@ -1,6 +1,6 @@
 // «Neue Sammlungen» (Träume und Neuland N18): Wasserfälle load once from OpenStreetMap (a fake answer here),
 // a fictional route past one of them ticks it, the credit line shows. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';

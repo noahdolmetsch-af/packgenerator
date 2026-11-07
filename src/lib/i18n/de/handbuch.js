@@ -539,12 +539,6 @@ export default {
   'Wait a moment: the places load by themselves.': 'Warte einen Moment: die Orte laden von selbst.',
   'Your routes tick what you passed; tick more by hand.': 'Deine Routen haken ab, wo du vorbeikamst; weitere hakst du von Hand ab.',
   'Example: Waterfalls → 640 places, 12 reached.': 'Beispiel: Wasserfälle → 640 Orte, 12 erreicht.',
-  // «Träume und Neuland» N12
-  'Everything is a suggestion: «Not this month» always works.': 'Alles ist ein Vorschlag: «Diesen Monat nicht» geht immer.',
-  'Open Trips › Dreams: «Adventure of the month» at the top.': 'Öffne Touren › Träume: «Abenteuer des Monats» oben.',
-  'The button leads to the part that plans it; «Another one» switches.': 'Der Knopf führt zum Teil, der es plant; «Ein anderes» wechselt.',
-  'Afterwards tap «Done»; the count grows month by month.': 'Danach «Erledigt» tippen; die Zahl wächst Monat für Monat.',
-  'Example: October → «One night out after work» → to the after-work bivouac.': 'Beispiel: Oktober → «Eine Nacht draussen nach der Arbeit» → zum Feierabend-Biwak.',
   // «Träume und Neuland» N19
   'Works offline; the rules are on the device.': 'Geht offline; die Regeln sind auf dem Gerät.',
   'Open Trips › Dreams: «Adventure dice».': 'Öffne Touren › Träume: «Abenteuer-Würfel».',

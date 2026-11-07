@@ -538,10 +538,6 @@ export default {
   'Under «Kinds» add your own adventure.': 'Unter «Arten» ein eigenes Abenteuer hinzufügen.',
   'Works offline; the kinds that start from home need your home place.': 'Geht offline; die Arten, die von zu Hause ausgehen, brauchen deinen Wohnort.',
   'Example: «Adventure of the month: Train there, bike home» on Today.': 'Beispiel: «Abenteuer im Monat: Zug hin, Velo heim» auf Heute.',
-  'Once a month one small adventure on Dreams: a round somewhere new, a bivouac or train there, bike home; «Not this month» always works.': 'Einmal im Monat ein kleines Abenteuer auf Träume: eine Runde ins Neue, ein Biwak oder Zug hin, Velo heim; «Diesen Monat nicht» geht immer.',
-  'Open Trips › Dreams: «Adventure of the month» is at the top.': 'Öffne Touren › Träume: «Abenteuer des Monats» steht oben.',
-  'Tap the button to the part that plans it, or «Another one».': 'Tippe den Knopf zum Teil, der es plant, oder «Ein anderes».',
-  'After it: «Done»; or «Not this month».': 'Danach: «Erledigt»; oder «Diesen Monat nicht».',
   // «Träume und Neuland» N18 «Aussichtstürme, Hängebrücken, Wasserfälle»
   'Observation towers': 'Aussichtstürme',
   'Suspension bridges': 'Hängebrücken',

@@ -66,4 +66,5 @@ export default {
     'Oft reicht ein kleiner Umweg für etwas Neues: eine unbekannte Strasse heim macht aus der Routine eine kleine Entdeckung.',
   'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.':
     'Neue Kilometer liegen selten weit weg: das Nachbartal ist oft unbekannter als ein Land am anderen Ende Europas.',
+  'A waterfall or a tower is a good reason for a detour: the ride gets a goal, and the place stays in memory longer than the kilometres.': 'Ein Wasserfall oder ein Turm ist ein guter Grund für einen Umweg: Die Fahrt bekommt ein Ziel, und der Ort bleibt länger im Gedächtnis als die Kilometer.',
 };

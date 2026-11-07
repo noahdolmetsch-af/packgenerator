@@ -2,8 +2,8 @@
 export default {
   title: 'Towers, bridges, waterfalls',
   lead: 'New ground has three new collections: observation towers, suspension bridges and waterfalls.',
-  points: [{ text: 'New ground: «Observation towers», «Suspension bridges» and «Waterfalls» from OpenStreetMap; they load by themselves', href: '#/neuland' }],
-  small: [{ box: 'new', text: 'The places stay on this device and update by themselves once a week' }],
+  points: [{ text: 'New ground: «Observation towers», «Suspension bridges» and «Waterfalls» from OpenStreetMap; they load by themselves', go: 'f.osmsets' }],
+  small: [{ box: 'new', text: 'The places stay on this device and update by themselves once a week', go: 'f.osmsets' }],
   test: [
     'Open New ground and choose «Waterfalls»: after a moment the list fills by itself.',
     'A waterfall on one of your routes counts as reached.',
