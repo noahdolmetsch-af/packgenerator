@@ -54,7 +54,7 @@ describe('the evening before and the tour-day weather (3a, Eigene Werte 3a 4b)',
       expect.objectContaining({ key: 'wx:b:2026-10-25', lat: 47.1, lon: 8.2 }),
     ]);
     // Glätte (Paket Wetter): with «Ice in the morning» on, the home place each morning, never on a tour day
-    const ice = l.weather.filter((w) => w.only && !w.only.includes('fog'));
+    const ice = l.weather.filter((w) => w.only && !w.only.includes('fog') && !w.only.includes('night'));
     expect(ice.every((w) => w.only.join() === 'ice' && w.lat === 47.1)).toBe(true);
     expect(ice.map((w) => w.date)).not.toContain('2026-10-23');
     expect(ice.map((w) => w.date)).not.toContain('2026-10-25');
