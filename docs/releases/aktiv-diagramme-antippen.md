@@ -1,6 +1,6 @@
 # Aktiv: Rückblick Meditation und Training zum Antippen
 
-PR folgt · 07.11.2026 · Auftrag: Noah «ja pr 9» (Thread «Diagramme klickbar machen»), PR 9, Aktiv-Seiten (Teil 2)
+PR #1083 · 07.11.2026 · Auftrag: Noah «ja pr 9» (Thread «Diagramme klickbar machen»), PR 9, Aktiv-Seiten (Teil 2)
 
 ## Was ist neu
 - Drei weitere Diagramme laufen über `BarChart`: «Minuten pro Woche» (mit der Ziellinie) und «Minuten pro Monat» im Meditations-Rückblick (`MedReview`), «Wann es am tiefsten geht» in den Mustern (`MedPatterns`, Farbe = Tiefe bleibt) und «Rückblick» des Trainings (`TrainingWeek`, Stunden pro Woche nach Zone, Plan als Linie).
