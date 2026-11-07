@@ -71,3 +71,15 @@ describe('Schnellspur (Weg zu online)', () => {
     expect(v).toContain('actions: read');
   });
 });
+
+describe('Probe specs stay out of the CI runs', () => {
+  // tests/e2e/tmp-durchklick came onto main with #990 by mistake: 9 probes with 30 to 60 minute timeouts that
+  // slowed every phone part. They run only by hand (TMP_DURCHKLICK=1).
+  const config = readFileSync(new URL('../playwright.config.js', import.meta.url), 'utf8');
+  it('playwright.config.js ignores tmp-durchklick unless TMP_DURCHKLICK is set', () => {
+    expect(config).toMatch(/process\.env\.TMP_DURCHKLICK \? \[\] : \['\*\*\/tmp-durchklick\/\*\*'\]/);
+  });
+  it('no workflow sets TMP_DURCHKLICK', () => {
+    for (const s of Object.values(files)) expect(s).not.toContain('TMP_DURCHKLICK');
+  });
+});

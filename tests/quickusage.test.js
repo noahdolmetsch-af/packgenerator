@@ -1,7 +1,7 @@
 // «Quick Links» Schritt 4 (Noah 28.10.2026 «6a 7a», «20: 30 Tage»): recently opened, suggest pinning, clean-up.
 import { describe, it, expect } from 'vitest';
 import { starter, addView } from '../src/lib/quick/quicklinks.js';
-import { cleanUsage, recordVisit, suggestions, stalePins, usePin, pinsAt, pathOf, daysBetween, RECENT_MAX } from '../src/lib/quick/usage.js';
+import { cleanUsage, recordVisit, suggestions, stalePins, usePin, pinsAt, pathOf, daysBetween, RECENT_MAX, recentPlaces, forgetVisits } from '../src/lib/quick/usage.js';
 
 const day = (n) => { const d = new Date(Date.UTC(2026, 9, 1 + n)); return d.toISOString().slice(0, 10); };
 
@@ -50,5 +50,18 @@ describe('Quick Links usage', () => {
     s = addView(s, '#/calendar', 'Kalender', '', day(20));
     expect(stalePins(u, s, day(40))).not.toContain(s.pins.at(-1).id);
     expect(pinsAt(s, '#/calendar?x=1')).toEqual([s.pins.at(-1).id]);
+  });
+
+  it('the search lists the last five pages without the one you are on; forgetting clears the list and the counts', () => {
+    let u = cleanUsage(null);
+    for (let i = 0; i < 6; i++) u = recordVisit(u, `#/p${i}`, `P${i}`, day(i));
+    expect(recentPlaces(u).map((r) => r.href)).toEqual(['#/p5', '#/p4', '#/p3', '#/p2', '#/p1']);
+    expect(recentPlaces(u, '#/p5?f=x').map((r) => r.href)).toEqual(['#/p4', '#/p3', '#/p2', '#/p1', '#/p0']);
+    expect(recentPlaces(u, '#/p5', 2).map((r) => r.href)).toEqual(['#/p4', '#/p3']);
+    const f = forgetVisits({ ...u, no: { '#/p1': day(5) } });
+    expect(f.recent).toEqual([]);
+    expect(f.days).toEqual({});
+    expect(f.no).toEqual({ '#/p1': day(5) });
+    expect(recentPlaces(f)).toEqual([]);
   });
 });

@@ -20,6 +20,7 @@
   import LakeChip from '../lake/LakeChip.svelte';
   import HeuteSchnee from './HeuteSchnee.svelte'; // «Schneefallgrenze» (Noah 04.11.2026): one calm line for the home place
   import HeuteNebel from './HeuteNebel.svelte'; // «Nebelgrenze» (Noah 05.11.2026): one calm line under it
+  import HeuteNacht from './HeuteNacht.svelte'; // «Nachttemperatur» (Noah 06.11.2026): one calm line under that
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -100,6 +101,7 @@
     <LakeChip />
     <HeuteSchnee />
     <HeuteNebel />
+    <HeuteNacht />
   </section>
 
 <style>

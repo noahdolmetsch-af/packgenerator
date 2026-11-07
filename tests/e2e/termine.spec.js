@@ -385,3 +385,54 @@ test('Heute suggests the usual time of a regular customer with a message ready',
   await expect(row).toContainText('Mia Muster');
   await expect(row.getByRole('link', { name: T('Suggest') })).toHaveAttribute('href', /^sms:0790000000\?body=/);
 });
+
+test('a voucher on the customer is taken off in the invoice draft', async ({ page }) => {
+  await page.goto('./#/me/offers');
+  await ready(page);
+  await page.locator('.of-chips .btn').first().click();
+  await expect(page).toHaveURL(/#\/me\/offers\/tennis-[a-z0-9]+$/);
+  const id = page.url().split('/').at(-1);
+  await page.getByRole('button', { name: T('Change') }).click();
+  const rules = page.getByRole('dialog', { name: T('How booking works') });
+  await rules.getByRole('button', { name: T('Booked at once') }).click();
+  await rules.getByRole('button', { name: T('Save') }).click();
+  await expect(rules).toBeHidden();
+  await page.locator('.of-dc').nth(2).locator('.of-sl.add').click();
+  const add = page.getByRole('dialog', { name: T('Open a time') });
+  await add.locator('input[type=time]').fill('18:00');
+  await add.getByRole('button', { name: new RegExp(`^${T('Single')}`) }).click();
+  await add.getByRole('button', { name: T('Open the time') }).click();
+  await expect(add).toBeHidden();
+  // Ben gets a voucher of 25 CHF
+  await page.goto('./#/me/offers/customers');
+  await page.getByRole('button', { name: T('Add a customer') }).first().click();
+  await page.locator('#cu-name').fill('Ben Beispiel');
+  await page.locator('#cu-vvalue').fill('25');
+  await page.locator('[data-voucher-add]').click();
+  await expect(page.locator('[data-voucher]')).toContainText('GUT-');
+  await page.locator('dialog.cu-sheet').getByRole('button', { name: T('Save') }).click();
+  await expect(page.locator('.cu-row', { hasText: 'Ben Beispiel' })).toContainText(T('Voucher'));
+  await expect(page.locator('dialog.cu-sheet')).toBeHidden();
+  // he books and the lesson is over
+  await page.goto(`./buchen/#${id}`);
+  await page.getByLabel(T('Your name')).fill('Ben Beispiel');
+  await page.getByLabel(T('Phone or e-mail')).fill('ben@example.test');
+  await page.getByRole('button', { name: T('Book the time') }).click();
+  await expect(page.getByRole('heading', { name: T('Booked') })).toBeVisible();
+  const evening = await page.evaluate(() => {
+    const d = new Date();
+    d.setHours(20, 0, 0, 0);
+    return d.getTime();
+  });
+  await page.clock.setFixedTime(evening);
+  await page.goto(`./#/me/offers/${id}`);
+  await page.evaluate(() => localStorage.setItem('pg.pay.account', JSON.stringify({ iban: 'CH44 3199 9123 0008 8901 2', name: 'Beispiel Tennis', street: '', house: '', zip: '8000', town: 'Zürich', twint: '079 000 00 00' })));
+  const card = page.locator('[data-lessons-over]');
+  await card.getByRole('button', { name: T('Prepare invoice') }).click();
+  await expect(page.getByLabel(T('Amount|money'))).toHaveValue('35');
+  await expect(page.getByLabel(T('What for?'))).toHaveValue(new RegExp(T('Voucher')));
+  // the voucher is used up: the sheet shows what is left
+  await page.goto('./#/me/offers/customers');
+  await page.locator('.cu-row', { hasText: 'Ben Beispiel' }).click();
+  await expect(page.locator('[data-voucher]')).toContainText(T('{total} CHF, {left} left', { total: '25', left: '0' }));
+});

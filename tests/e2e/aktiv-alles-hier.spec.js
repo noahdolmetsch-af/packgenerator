@@ -47,3 +47,19 @@ test('AAH-2 a tile can be hidden with Undo and shown again', async ({ page, cont
   await page.getByRole('button', { name: T('Undo') }).last().click();
   await expect(box.locator('li[data-sort-id="f.gipfelbuch"]')).toHaveCount(1);
 });
+
+test('AAH-5 the list of «Change» fits a 390 px phone (E5-001)', async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, context);
+  const box = page.locator('[data-all-here="aktiv"]');
+  await box.locator('[data-all-here-edit]').click();
+  await expect(box.locator('li[data-sort-id="f.gipfelbuch"]')).toBeVisible();
+  // before: the column grew to the widest row and the page was 446 px wide
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  for (const li of await box.locator('li[data-sort-id]').all()) {
+    const r = await li.evaluate((el) => el.getBoundingClientRect().right);
+    expect(r).toBeLessThanOrEqual(390);
+    const hide = await li.locator('button.btn').evaluate((el) => el.getBoundingClientRect().right);
+    expect(hide).toBeLessThanOrEqual(390);
+  }
+});

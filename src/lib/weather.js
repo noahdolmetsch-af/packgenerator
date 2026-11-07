@@ -40,7 +40,7 @@ const round = (n, d = 4) => Math.round(n * 10 ** d) / 10 ** d;
 
 /** Fetch the daily forecast for a place. Returns the object to store as trip.forecast. */
 export async function fetchForecast(place, fetcher = fetch, now = new Date()) {
-  const url = `${API}?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max,wind_direction_10m_dominant,wind_gusts_10m_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,precipitation_probability&timezone=auto&forecast_days=${FORECAST_DAYS}`;
+  const url = `${API}?latitude=${place.lat}&longitude=${place.lon}&daily=temperature_2m_min,temperature_2m_max,precipitation_sum,precipitation_probability_max,wind_direction_10m_dominant,wind_gusts_10m_max,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,precipitation_probability,cloud_cover&timezone=auto&forecast_days=${FORECAST_DAYS}`;
   const res = await fetcher(url).catch((e) => {
     throw isOutage(e) ? outageError(t('Weather')) : e;
   });
@@ -63,16 +63,18 @@ export async function fetchForecast(place, fetcher = fetch, now = new Date()) {
   return { fetchedAt: now.toISOString(), place: { name: place.name, lat: place.lat, lon: place.lon }, days };
 }
 
-/** v0.42.0: Open-Meteo's hourly lists ("2026-10-15T08:00") → Map(date → { t: [24], p: [24] }). */
+/** v0.42.0: Open-Meteo's hourly lists ("2026-10-15T08:00") → Map(date → { t: [24], p: [24], c?: [24] }). */
 function hourlyByDate(h) {
   const out = new Map();
   for (const [n, stamp] of (h?.time ?? []).entries()) {
     const [date, time] = String(stamp).split('T');
     const hour = Number(String(time ?? '').slice(0, 2));
     if (!date || !Number.isInteger(hour) || hour < 0 || hour > 23) continue;
-    if (!out.has(date)) out.set(date, { t: Array(24).fill(null), p: Array(24).fill(null) });
+    // «Sonnenaufgang auf dem Hügel» (Träume und Neuland N9): the cloud cover in % as c, when the answer has it
+    if (!out.has(date)) out.set(date, { t: Array(24).fill(null), p: Array(24).fill(null), ...(h.cloud_cover ? { c: Array(24).fill(null) } : {}) });
     out.get(date).t[hour] = num(h.temperature_2m?.[n]);
     out.get(date).p[hour] = num(h.precipitation_probability?.[n]);
+    if (out.get(date).c) out.get(date).c[hour] = num(h.cloud_cover?.[n]);
   }
   return out;
 }

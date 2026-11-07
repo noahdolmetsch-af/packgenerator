@@ -12,6 +12,7 @@
   import { localDay } from '../lib/localday.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import PageHead from '../lib/ui/PageHead.svelte';
   import ZukunftHinweis from '../lib/lernen/ZukunftHinweis.svelte'; // Paket M #258
   /**
    * On the way (v0.29.0, Noah 1a, 7a, 8a; was "Ride day", v0.18.0): what do I need NOW? The block of
@@ -594,6 +595,8 @@
 {#snippet dayAside()}{#if dayOf}<span class="dayside"><b>{dayOf}</b>{#if nextLine}<small>{nextLine}</small>{/if}</span>{/if}{/snippet}
 
 {#if !trip}
+  <!-- Durchklick Etappe 3 (Noah «3a»): the page has its title also without a trip -->
+  <PageHead title={t('On the way')} />
   <!-- v0.127.0 A-U2: the one empty building block -->
   {#if $tripsQ?.length}<Empty icon={RouteIcon} title={t('No trip on the way today')} text={t('On the way shows a trip on its days. Plan or start one under Trips.')} action={{ label: t('To the trips'), href: '#/trips' }} />
   {:else if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} />{:else}<Skeleton rows={3} />{/if}
