@@ -1295,6 +1295,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.osmsets': {
+    on: 'Needs the internet now and then to load the places (once a week by itself); then it works offline.',
+    steps: ['Open Trips › Look back › New ground.', 'Choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load again» to bring the places up to date; the list shows what you reached.'],
+    example: 'Example: a waterfall on a ride is ticked by itself, with the day.',
+  },
   'f.dice': {
     on: 'Works offline; the rules are on the device.',
     steps: ['Open Trips › Dreams: «Adventure dice».', 'Tap «Roll»; the rule stays until you roll again.', 'Under «Rules»: add, rename, delete or hide rules.'],
