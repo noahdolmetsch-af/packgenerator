@@ -1,5 +1,7 @@
 # Pack Generator – Ablauf- und Umsetzungsplan
 
+> **Verlauf, gilt nicht mehr als Stand.** Was heute offen und geplant ist, steht in [Stand und Plan](stand-und-plan.md).
+
 > **Stand 18.10.2026:** Diese Roadmap ist der ursprüngliche Plan vom 7.10.2026 (AP01–AP30) mit Prüffällen und Fortschrittsregister. Die heutige Reihenfolge (sechs Pakete P3 → A → B → D → E → C → F) und was gebaut ist, stehen im [Projektstand](projektstand.md). Wie es von hier dorthin kam: [Geschichte](geschichte.md).
 
 > Umsetzung in einzeln prüfbaren Arbeitspaketen. Checkboxen bezeichnen vollständig erledigte Schritte; Teilumsetzungen werden im Fortschrittsregister beschrieben. Keine Delegation allein aufgrund dieses Dokuments.

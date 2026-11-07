@@ -85,14 +85,16 @@ Gehe die Schritte der Reihe nach durch. Hör auf, sobald es wieder geht.
 
 Die App ist ganz normale Web-Technik (Svelte, Vite, JavaScript). Jeder, der Webseiten baut, kann daran arbeiten. Auch andere KIs können es: zum Beispiel GitHub Copilot (direkt auf GitHub), ChatGPT oder Gemini.
 
-**Gib dem Helfer diese drei Dateien:**
+**Gib dem Helfer diese Dateien:**
 1. [CLAUDE.md](../CLAUDE.md): wie das Projekt funktioniert und welche Regeln gelten (gilt für jeden Helfer, nicht nur Claude).
-2. [Projektstand](projektstand.md): was gerade online ist und was geplant ist.
-3. Dieses Notfall-Handbuch und die [Konten-Liste](konten.md).
+2. [App-Stand](app-stand.md): was die App kann und wo es steht.
+3. [Stand und Plan](stand-und-plan.md): was offen und geplant ist.
+4. [Technik-Handbuch](technik-handbuch.md): wie Code, Tests und Veröffentlichung funktionieren.
+5. Dieses Notfall-Handbuch, die [Konten-Liste](konten.md) und [Noah-Wissen](noah-wissen.md).
 
 **Vorlage für die erste Nachricht** (kopieren und anpassen):
 
-> Ich habe eine Web-App: https://github.com/noahdolmetsch-af/packgenerator (öffentlich). Lies zuerst CLAUDE.md, docs/projektstand.md und docs/notfall-handbuch.md. Ich bin kein Entwickler. Erkläre mir alles in einfachem Deutsch, Klick für Klick. Mein Problem: … (was geht nicht, seit wann, Foto oder Fehlermeldung). Bitte ändere nur, was für dieses Problem nötig ist, und mach einen Pull Request, den ich selbst prüfen und mergen kann.
+> Ich habe eine Web-App: https://github.com/noahdolmetsch-af/packgenerator (öffentlich). Lies zuerst CLAUDE.md, docs/app-stand.md, docs/stand-und-plan.md, docs/technik-handbuch.md und docs/notfall-handbuch.md. Ich bin kein Entwickler. Erkläre mir alles in einfachem Deutsch, Klick für Klick. Mein Problem: … (was geht nicht, seit wann, Foto oder Fehlermeldung). Bitte ändere nur, was für dieses Problem nötig ist, und mach einen Pull Request, den ich selbst prüfen und mergen kann.
 
 **Geheimnisse nie weitergeben:** Schlüssel und Passwörter liegen nur bei Vercel und in deinem Passwort-Manager. Ein Helfer braucht sie nicht zu sehen. Wenn er etwas in Vercel ändern muss, klickst du selbst.
 
