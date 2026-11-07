@@ -11,7 +11,7 @@
   import { db } from '../lib/db.js';
   import { RACES_KEY, racesOf } from '../lib/race/race.js';
   import { raceChoices } from '../lib/training/plans.js';
-  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, untilStart, applyAuto } from '../lib/weg/weg.js';
+  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
   import { localDay } from '../lib/localday.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
@@ -81,6 +81,20 @@
   const rows = $derived(goal ? timeline(goal, today) : []);
   const prog = $derived(goal ? progress(goal, today) : null);
   const until = $derived(goal ? untilStart(goal, today) : null);
+  // the strip «Organisation: 3 of 5 settled» (Noah «1d»)
+  const orga = $derived(goal ? typeProgress(goal, 'orga', today) : null);
+  const orgaNext = $derived.by(() => {
+    const s = orga?.soon;
+    if (!s) return '';
+    const name = s.row.step.title;
+    if (s.days === 0) return t('Next deadline: {name}, today', { name });
+    if (s.days < 0) return tn(-s.days, 'Next deadline: {name}, {n} day late', 'Next deadline: {name}, {n} days late', { name });
+    return tn(s.days, 'Next deadline: {name}, in {n} day', 'Next deadline: {name}, in {n} days', { name });
+  });
+  function toOrgaList() {
+    const li = document.querySelector('[data-weg-step][data-type="orga"]:not(.done)') ?? document.querySelector('[data-weg-step][data-type="orga"]');
+    li?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
   const groups = $derived.by(() => {
     const out = [];
     for (const r of rows) {
@@ -231,6 +245,16 @@
       {/if}
     </section>
 
+    {#if orga?.total}
+      <section class="card pad wg-orga" class:all={orga.done === orga.total} data-weg-orga aria-label={t('Organisation')}>
+        <div class="wg-orga-text">
+          <b>{orga.done === orga.total ? t('Organisation: all {total} settled', { total: num(orga.total) }) : t('Organisation: {done} of {total} settled', { done: num(orga.done), total: num(orga.total) })}</b>
+          {#if orgaNext}<span class="wg-sub">{orgaNext}</span>{/if}
+        </div>
+        <button type="button" class="btn" onclick={toOrgaList} data-weg-orga-go>{t('To the list')} <ChevronRight size={14} aria-hidden="true" /></button>
+      </section>
+    {/if}
+
     {#if !rows.length}
       <Empty icon={Flag} text={t('No steps yet. Add your first step below: it stays a suggestion, you can change it any time.')} />
     {/if}
@@ -240,7 +264,7 @@
         <h3>{t(PHASE_NAMES[grp.phase])}</h3>
         <ul class="wg-steps">
           {#each grp.rows as r (r.step.id)}
-            <li class:done={r.state === 'done'} class:late={r.state === 'late'} data-weg-step>
+            <li class:done={r.state === 'done'} class:late={r.state === 'late'} data-weg-step data-type={r.step.type}>
               <button type="button" class="wg-check" class:on={r.step.done} aria-pressed={r.step.done} aria-label={t('Done: {name}', { name: r.step.title })} onclick={() => putGoal(setDone(goal, r.step.id, !r.step.done))}>{#if r.step.done}<Check size={16} aria-hidden="true" />{/if}</button>
               <div class="wg-body">
                 <b>{r.step.title}</b>
@@ -296,11 +320,14 @@
   .wg-tools { display: flex; gap: var(--sp-2); align-items: center; }
   .wg-f { display: grid; gap: var(--sp-1); margin: var(--sp-3) 0; }
   .wg-f > span { font-size: var(--fs-small); font-weight: 600; }
+  .wg-orga { display: flex; gap: var(--sp-3); align-items: center; justify-content: space-between; flex-wrap: wrap; border-left: 4px solid var(--warn); }
+  .wg-orga.all { border-left-color: var(--ok); }
+  .wg-orga-text { display: grid; gap: var(--sp-1); min-width: 0; }
   .wg-pick { display: flex; gap: var(--sp-2); align-items: center; min-height: 44px; }
   .wg-acts { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
   .wg-bar { height: 10px; border-radius: 6px; background: var(--paper-2); overflow: hidden; margin-top: var(--sp-3); }
   .wg-bar i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
-  .wg-phase, .wg-hero, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+  .wg-phase, .wg-hero, .wg-own, .wg-new, .wg-orga { margin-bottom: var(--sp-4); }
   .wg-phase h3, .wg-own h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-steps { list-style: none; margin: 0; padding: 0; }
   .wg-steps li { display: flex; gap: var(--sp-3); align-items: flex-start; padding: var(--sp-3) 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
