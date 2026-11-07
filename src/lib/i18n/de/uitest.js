@@ -68,5 +68,5 @@ export default {
   'One block after the other: keep, take out or move.': 'Ein Baustein nach dem anderen: behalten, rausnehmen oder verschieben.',
   '{n} block with suggestions': '{n} Baustein mit Vorschlägen',
   '{n} blocks with suggestions': '{n} Bausteine mit Vorschlägen',
-  'Check building blocks · {n} with suggestions': 'Bausteine prüfen · {n} mit Vorschlägen',
+  '{n} with suggestions. One building block after the other: keep, out or elsewhere': '{n} mit Vorschlägen. Ein Baustein nach dem anderen: behalten, raus oder anderswohin',
 };

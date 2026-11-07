@@ -4,7 +4,7 @@ export default {
   lead: 'Five small numbers now say what they count.',
   points: [{ text: 'Power banks named «20 000 mAh» count with 20\'000 mAh in the power budget', href: '#/gear/power', go: 'f.power' }, { text: '«Check building blocks» says how many blocks have suggestions and numbers the changes 1, 2, 3', href: '#/blocks/check', go: 'f.blockcheck' }],
   small: [{ box: 'fixed', text: 'A meditation ticked without minutes shows «ticked», not «0′»', go: 'f.medlog' }, { box: 'nicer', text: 'The shopping list says when the trip\'s things are ready below it', go: 'f.shopping' }],
-  test: ['Gear › Power: a power bank «… 20 000 mAh» shows 20\'000 mAh.', 'Building blocks: the button says «Check building blocks · N with suggestions»; the overview counts 1, 2, 3.'],
+  test: ['Gear › Power: a power bank «… 20 000 mAh» shows 20\'000 mAh.', 'Building blocks: the button says «Check building blocks · N» and its hint «N with suggestions»; the overview counts 1, 2, 3.'],
   since: [],
   de: {
     'Small numbers fixed': 'Kleine Zahlen korrigiert',
@@ -14,6 +14,6 @@ export default {
     'A meditation ticked without minutes shows «ticked», not «0′»': 'Eine Meditation ohne Minuten zeigt «abgehakt» statt «0′»',
     'The shopping list says when the trip\'s things are ready below it': 'Die Einkaufsliste sagt, wenn darunter die Dinge der Tour bereitstehen',
     'Gear › Power: a power bank «… 20 000 mAh» shows 20\'000 mAh.': 'Material › Strom: Eine Powerbank «… 20 000 mAh» zeigt 20\'000 mAh.',
-    'Building blocks: the button says «Check building blocks · N with suggestions»; the overview counts 1, 2, 3.': 'Bausteine: Der Knopf sagt «Bausteine prüfen · N mit Vorschlägen»; der Überblick zählt 1, 2, 3.',
+    'Building blocks: the button says «Check building blocks · N» and its hint «N with suggestions»; the overview counts 1, 2, 3.': 'Bausteine: Der Knopf sagt «Bausteine prüfen · N» (Erklärung: «N mit Vorschlägen»); der Überblick zählt 1, 2, 3.',
   },
 };

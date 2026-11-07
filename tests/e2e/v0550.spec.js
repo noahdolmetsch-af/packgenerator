@@ -123,8 +123,9 @@ test('old blocks are updated once; «Bausteine prüfen» keeps, takes out, moves
   const check = main.getByRole('link', { name: new RegExp(`^${T('Check building blocks')}`) });
   await expect(check).toHaveAttribute('href', '#/blocks/check');
   // Impeccable P3 (20.10.2026, changed on purpose): one way to the check; the head button carries the count
-  // (UI-Test T12: it says what it counts, «… mit Vorschlägen»)
-  await expect(check).toHaveText(new RegExp(`${T('Check building blocks · {n} with suggestions', { n: '\\d+' }).replace(/[·]/g, '.')}`));
+  await expect(check).toHaveText(new RegExp(`${T('Check building blocks · {n}', { n: '\\d+' }).replace(/[·]/g, '.')}`));
+  // UI-Test T12: the bubble says what the number counts (the label stays short, it never wraps on 320 px)
+  await expect(check).toHaveAttribute('data-explain', new RegExp(T('{n} with suggestions. One building block after the other: keep, out or elsewhere', { n: '\\d+' }).replace(/[.]/g, '\\.')));
   await expect(main.locator('.bsub a.chk')).toHaveCount(0);
   expect(await wide(page)).toBe(0);
   await shot(page, info, 'blocks');

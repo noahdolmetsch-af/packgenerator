@@ -396,7 +396,7 @@
     <!-- v0.66.0 (Noah 4a): one block after the other, every item keep / out / elsewhere; SN3: a normal button -->
     <!-- Impeccable runde 2 (Bausteine 2): the button says what it checks; how many wait is the chip under the title -->
     <!-- Impeccable 20.10.2026: one way to the check; the button carries how many wait (the chip under the title is gone) -->
-    <Btn icon={ListChecks} label={toCheck ? tn(checkN, 'Check building blocks · {n} with suggestions', 'Check building blocks · {n} with suggestions') : t('Check building blocks')} explain={t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
+    <Btn icon={ListChecks} label={toCheck ? t('Check building blocks · {n}', { n: checkN }) : t('Check building blocks')} explain={toCheck ? t('{n} with suggestions. One building block after the other: keep, out or elsewhere', { n: checkN }) : t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
     <!-- «Packliste aufräumen» (Noah 21.10.2026 «5a»): fewer things that come by themselves, on one page -->
     <Btn icon={Eraser} label={t('Tidy up')} explain={t('Tidy up the packing list: what comes along by itself')} href="#/blocks/aufraeumen" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
