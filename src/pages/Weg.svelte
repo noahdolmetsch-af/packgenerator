@@ -227,7 +227,7 @@
       <label class="wg-f wg-startf"><span><CalendarClock size={14} aria-hidden="true" /> {t('Start day')}</span><DateInput value={goal.start} onchange={(v) => putGoal(setStart({ goals: [goal] }, goal.id, v).goals[0])} data-weg-start-edit /></label>
       {#if prog?.total}
         <div class="wg-bar" role="progressbar" aria-valuemin="0" aria-valuemax={prog.total} aria-valuenow={prog.done} aria-label={t('Steps done')}><i style:width="{Math.round((prog.done / prog.total) * 100)}%"></i></div>
-        <p class="ich-help">{t('{done} of {total} steps done', { done: num(prog.done), total: num(prog.total) })}{#if prog.late} · {tn(prog.late, '{n} late', '{n} late')}{/if}</p>
+        <p class="ich-help">{t('{done} of {total} steps done', { done: num(prog.done), total: num(prog.total) })}{#if prog.late}{' · '}{tn(prog.late, '{n} late', '{n} late')}{/if}</p>
       {/if}
     </section>
 
@@ -244,7 +244,7 @@
               <button type="button" class="wg-check" class:on={r.step.done} aria-pressed={r.step.done} aria-label={t('Done: {name}', { name: r.step.title })} onclick={() => putGoal(setDone(goal, r.step.id, !r.step.done))}>{#if r.step.done}<Check size={16} aria-hidden="true" />{/if}</button>
               <div class="wg-body">
                 <b>{r.step.title}</b>
-                <span class="wg-sub">{dayText(r.due)}{#if r.state === 'late'} · <em>{t('Late|step')}</em>{/if}{#if r.step.by === 'auto'} · {t('ticked by the app')}{/if}</span>
+                <span class="wg-sub">{dayText(r.due)}{#if r.state === 'late'}{' · '}<em>{t('Late|step')}</em>{/if}{#if r.step.by === 'auto'}{' · '}{t('ticked by the app')}{/if}</span>
                 {#if linkOf(r)}<a class="wg-go" href={linkOf(r)}>{t('Open')} <ChevronRight size={14} aria-hidden="true" /></a>{/if}
               </div>
               <div class="wg-row-tools">
