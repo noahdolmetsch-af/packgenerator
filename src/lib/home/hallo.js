@@ -47,6 +47,45 @@ export const MOODS = [
   { key: 'guet', label: 'Guet', v: 0.75 },
   { key: 'super', label: 'Super', v: 1 },
 ];
+/**
+ * Gruss A (Noah 05.11.2026 «alle umsetzen»): behind the five faces «Mehr» opens more buttons, in groups, as many as you like at once.
+ * Plain Swiss German words like the faces (HG1 1a), one emoji each; the group names go through t(). The key is what history stores.
+ */
+export const FEELING_GROUPS = [
+  {
+    key: 'energy',
+    name: 'Energy|hello',
+    items: [
+      { key: 'wach', label: 'Wach', emoji: '☀️' },
+      { key: 'glade', label: 'Glade', emoji: '⚡' },
+      { key: 'schlaefrig', label: 'Schläfrig', emoji: '😴' },
+      { key: 'platt', label: 'Platt', emoji: '🪫' },
+      { key: 'ueberdreht', label: 'Überdreht', emoji: '🌀' },
+    ],
+  },
+  {
+    key: 'feeling',
+    name: 'Feelings|hello',
+    items: [
+      { key: 'ruehig', label: 'Ruhig', emoji: '😌' },
+      { key: 'glueckli', label: 'Glücklich', emoji: '😊' },
+      { key: 'dankbar', label: 'Dankbar', emoji: '🙏' },
+      { key: 'stolz', label: 'Stolz', emoji: '💪' },
+      { key: 'gwundrig', label: 'Gwundrig', emoji: '🔍' },
+      { key: 'motiviert', label: 'Motiviert', emoji: '🚀' },
+      { key: 'verliebt', label: 'Verliebt', emoji: '💛' },
+      { key: 'gstresst', label: 'Gstresst', emoji: '😰' },
+      { key: 'gnervt', label: 'Gnervt', emoji: '😤' },
+      { key: 'truurig', label: 'Truurig', emoji: '😢' },
+      { key: 'aengstlich', label: 'Ängstlich', emoji: '😟' },
+      { key: 'eisam', label: 'Eisam', emoji: '🫥' },
+    ],
+  },
+];
+export const FEELINGS = FEELING_GROUPS.flatMap((g) => g.items.map((i) => ({ ...i, group: g.key })));
+/** The title of the group behind «Mehr». */
+export const HELLO_FEEL = 'Und süsch?';
+
 /** HG1d: the plans as chips (several at once). */
 export const PLANS = [
   { key: 'tour', label: 'Tour' },
@@ -62,6 +101,7 @@ export const PLANS = [
  */
 export const HELLO_QUESTIONS = [
   { id: 'hallo.gaht', area: 'spass', key: 'gaht', text: HELLO_MOOD, form: { kind: 'chips', options: MOODS }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.gefuehl', area: 'spass', key: 'gefuehl', text: HELLO_FEEL, form: { kind: 'chips', options: FEELINGS, multi: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
   { id: 'hallo.vor', area: 'ziele', key: 'vor', text: HELLO_PLAN, form: { kind: 'chips', options: PLANS, multi: true, note: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
 ];
 
