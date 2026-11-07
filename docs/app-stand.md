@@ -43,11 +43,11 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Tourenübersicht | `#/trips` | Geplante, abgeschlossene und bewertete Touren verwalten; neue Touren und spontane Ausfahrten beginnen. |
+| Tourenübersicht | `#/trips` | Geplante, abgeschlossene und bewertete Touren verwalten; neue Touren und spontane Ausfahrten beginnen. Jede Tour mit Route zeigt ihre Streckenform als kleines Zeichen. |
 | Tour planen | `#/pack` | Sportart, Datum, Dauer, Startort, Velo und Bedingungen festlegen und daraus eine Packliste vorbereiten. «Wetter für diese Tour» sagt bei einem Start in den nächsten 3 Tagen auch, ob die Route im Nebel startet und ab welchem km sie darüber ist; das Höhenprofil zeigt den Nebel als Band. |
 | Wie anstrengend wird es? | `#/pack` | Bei einer Velotour vor der Abfahrt von 1 bis 10 schätzen; nach der Fahrt stellt die Tour-Seite Schätzung und Erleben nebeneinander und sagt ab drei Touren, ob die Schätzungen eher in eine Richtung gehen. |
 | Gründe für eine andere Tour | `#/me/lists` | Wird eine Tour auf «Nicht fahren» gesetzt oder weicht die gefahrene Strecke stark ab, nennt ein Tipp den Grund (Liste in Ich › Listen und Typen); ab drei Antworten zählt eine Zeile, was am häufigsten vorkam. |
-| Routen und GPX | `#/pack` | GPX hinzufügen, Distanz, Höhenmeter, Fahrzeit, Höhenprofil und Anstiege ansehen; offene Stellen entlang der Route notieren. |
+| Routen und GPX | `#/pack` | GPX hinzufügen, Distanz, Höhenmeter, Fahrzeit, Höhenprofil und Anstiege ansehen (ein Punkt fährt das Profil auf Wunsch einmal ab); offene Stellen entlang der Route notieren. |
 | Tourvorlagen | `#/pack/templates` | Bewährte Touren als Vorlage speichern und erneut verwenden. Rückblicke liefern Vorschläge zur Verbesserung. |
 | Erfolgsrezepte | `#/pack/templates` | Nach einer gelungenen Tour festhalten, was geklappt hat (Frühstück, Startzeit, Verpflegung, Tempo); die Rezepte stehen unter Vorlagen und lassen sich in Planen neben eine nächste Velotour legen. |
 | Touren nebeneinander | `#/trips/compare` | Zwei Touren auf Terminüberschneidungen, gemeinsam benötigtes Material und offene Aufgaben vergleichen. |
@@ -170,7 +170,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Was hat es gut gemacht? | `#/debrief/freude` | Im Rückblick vier freiwillige Skalen von 1 bis 5 (Fahrspass, Natur, Flow, Gesellschaft); die Seite zeigt Mittelwerte und jede Tour, ab drei Touren sagt der Rückblick, was im Schnitt am höchsten war. |
 | Fahrtechnik-Tagebuch | `#/debrief/technik` | Im Rückblick Fahrtechniken abhaken (Spitzkehren, Bremsdosierung …) und sagen, wie es ging; die Seite zeigt Anzahl und letztes Mal und nimmt Wunsch und Übungsort auf. Techniken als Liste in Ich › Listen und Typen. |
 | Fahrt hochladen | `#/debrief/ride` | Fahrdateien auswerten, Planung und Realität vergleichen sowie Erkenntnisse festhalten. |
-| Vergangene Touren | `#/pack/past` | Frühere Touren mit Distanz, Höhenmetern, Zeit und Erfahrungen durchsuchen. |
+| Vergangene Touren | `#/pack/past` | Frühere Touren mit Distanz, Höhenmetern, Zeit und Erfahrungen durchsuchen; die Höhenmeter werden mit Schweizer Bergen verglichen. |
 | Logbuch | `#/debrief/logbook` | Auch ältere Touren nachtragen und nach Jahr oder Art filtern. |
 | Tourenpass | `#/debrief/tourenpass` | Nach dem Rückblick einen Stempel auf den Tourenpass setzen; Stempel selbst hinzufügen, ändern, entfernen und ablehnen. |
 | Gesammelte Erkenntnisse | `#/debrief/learnings` | Erfahrungen thematisch sammeln und für spätere Touren wiederfinden. |
