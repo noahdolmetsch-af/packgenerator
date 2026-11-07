@@ -4,7 +4,7 @@ import { test, expect } from './clock.js';
 import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
 
-test('Cardio load: the day before shows the Fitbit workout of that day', async ({ page, context }) => {
+test('Cardio load: the day before shows the Fitbit workout of that day', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -25,5 +25,6 @@ test('Cardio load: the day before shows the Fitbit workout of that day', async (
   await expect(rows.first()).toContainText('Morgenlauf');
   await expect(rows.nth(1)).not.toContainText('Morgenlauf');
   await expect(rows.nth(1)).toContainText('nichts erfasst');
+  if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/analyse-tagdavor-${info.project.name}.png`, fullPage: true });
   expect(errors).toEqual([]);
 });
