@@ -265,3 +265,13 @@ describe('cleanHabits', () => {
     expect(cleanHabits(null)).toEqual({ drop: {}, mins: {} });
   });
 });
+
+import { cleanLibrary } from '../src/lib/training.js';
+describe('cleanLibrary', () => {
+  it('keeps valid entries, drops the rest, at most 30', () => {
+    const ok = { id: 'a', name: ' Intervalle ', kind: 'bike', mins: 60.4, zone: 4, sport: '' };
+    expect(cleanLibrary([ok, { id: 'b', name: '', mins: 30 }, { id: 'c', name: 'x', mins: 0 }, { name: 'y', mins: 30 }, null])).toEqual([{ id: 'a', name: 'Intervalle', kind: 'bike', mins: 60, zone: 4, sport: '' }]);
+    expect(cleanLibrary('x')).toEqual([]);
+    expect(cleanLibrary(Array.from({ length: 40 }, (_, i) => ({ id: `i${i}`, name: `n${i}`, mins: 30 })))).toHaveLength(30);
+  });
+});

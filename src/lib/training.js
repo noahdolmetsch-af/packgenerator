@@ -248,6 +248,22 @@ export function cleanSportGoals(v) {
   if (v && typeof v === 'object') for (const [k, n] of Object.entries(v)) if (k && k.length <= 80 && Number.isInteger(n) && n >= 0 && n <= 3) out[k] = n;
   return out;
 }
+// «Training verbessern» 7 «Einheiten-Bibliothek»: sessions the user keeps to plan again with one tap
+export const LIBRARY_KEY = 'training.library';
+/** The library as stored: up to 30 entries { id, name, kind, mins, zone, sport }. */
+export function cleanLibrary(v) {
+  if (!Array.isArray(v)) return [];
+  const out = [];
+  for (const e of v) {
+    const mins = Math.round(Number(e?.mins));
+    const zone = Math.round(Number(e?.zone));
+    const name = String(e?.name ?? '').trim().slice(0, 60);
+    if (!e?.id || !name || !(mins > 0 && mins <= 24 * 60)) continue;
+    out.push({ id: String(e.id).slice(0, 40), name, kind: KIND_KEYS.includes(e.kind) ? e.kind : 'bike', mins, zone: zone >= 1 && zone <= 5 ? zone : null, sport: typeof e.sport === 'string' ? e.sport.slice(0, 60) : '' });
+    if (out.length >= 30) break;
+  }
+  return out;
+}
 // «Training verbessern» 4: the day for which «Heute passt» was answered (Lighter or Keep it)
 export const TODAYKEEP_KEY = 'training.todaykeep';
 // «Training verbessern» 6: the Monday of the week for which the card «A lighter week would fit» was answered

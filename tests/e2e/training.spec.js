@@ -552,3 +552,41 @@ test('Training › Wochenlast: a week far above the last three offers a lighter 
   await expect(card).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Training › Bibliothek: keep a session, plan it again, rename, delete with Undo', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const plan = page.locator('[data-section="week-plan"]');
+  const adds = plan.locator('[data-add]');
+  await adds.nth(2).click();
+  const form = plan.locator('[data-session-form]');
+  await form.locator('[data-session-name]').fill('Beispiel Intervalle');
+  await form.locator('[data-session-mins]').fill('75');
+  await form.locator('[data-library-save]').click();
+  await expect(form.locator('[data-library-pick]')).toHaveCount(1);
+  await form.getByRole('button', { name: 'Abbrechen' }).click();
+  // another day: the kept session fills the form
+  await adds.nth(4).click();
+  await plan.locator('[data-library-pick]').first().click();
+  await expect(plan.locator('[data-session-name]')).toHaveValue('Beispiel Intervalle');
+  await expect(plan.locator('[data-session-mins]')).toHaveValue('75');
+  // rename and delete with Undo
+  await plan.locator('summary', { hasText: 'Bibliothek verwalten' }).click();
+  const nameInput = plan.locator('[data-library-name]').first();
+  await nameInput.fill('Umbenannt');
+  await nameInput.blur();
+  await expect(plan.locator('[data-library-pick]').first()).toContainText('Umbenannt');
+  await plan.locator('[data-library-delete]').first().click();
+  await expect(plan.locator('[data-library-pick]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(plan.locator('[data-library-pick]')).toHaveCount(1);
+  // remembered after a reload
+  await page.reload();
+  await ready(page);
+  await adds.nth(1).click();
+  await expect(plan.locator('[data-library-pick]')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
