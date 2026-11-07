@@ -42,6 +42,7 @@ export const ALL_HERE = {
     'f.tripcheck',
     'f.departsheet',
     'f.dreams',
+    'f.weg',
     'f.race',
     'f.racecheck',
     { id: 'ski', title: 'Ski tours', href: '#/ski' },

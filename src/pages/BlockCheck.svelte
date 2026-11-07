@@ -21,7 +21,7 @@
   import { SETS_KEY, allSets, qtyOf, setUse, blockLabel } from '../lib/sets.js';
   import { STANDARD } from '../lib/blocks2026.js';
   import { setStandard } from '../lib/gear/comes.js';
-  import { REVIEW_KEY, settle } from '../lib/blocksplit.js';
+  import { REVIEW_KEY, settle, reviewOpen, reviewBlocks } from '../lib/blocksplit.js';
   import { checkSteps, blockMembers, missingFor, blockTotal, suggestedIn, withBlock, inBlock, overviewRows } from '../lib/blockcheck.js';
   import { AID_KEY, inSmallAid } from '../lib/firstaid.js';
   import { refreshSnapshots } from '../lib/templates.js';
@@ -175,14 +175,14 @@
 
 <div class="bcheck">
   <!-- v0.72.0 (Noah 4a): first the overview, then one block after the other. SN3: the shared head. -->
-  <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }, { label: t('Building blocks'), href: '#/blocks' }]} here={t('Check|blocks')} title={t('Check building blocks')} sub={t('The building blocks are newly arranged. First the overview, then one block after the other: keep, take out or move.')} />
+  <PathHead crumbs={[{ label: t('Gear|place'), href: '#/gear' }, { label: t('Building blocks'), href: '#/blocks' }]} here={t('Check|blocks')} title={t('Check building blocks')} sub={reviewOpen(review) ? t('The building blocks are newly arranged. First the overview, then one block after the other: keep, take out or move.') : t('One block after the other: keep, take out or move.')} />
   <AreaIntro place="blockcheck" />
 
   {#if !steps}
     <Skeleton rows={4} />
   {:else if step}
     <div class="progress">
-      <span class="num">{t('Step {n} of {total}', { n: at + 1, total: steps.length })} · {stepName(step)}</span>
+      <span class="num">{t('Step {n} of {total}', { n: at + 1, total: steps.length })} · {stepName(step)}{#if reviewBlocks(review)}{' · '}{tn(reviewBlocks(review), '{n} block with suggestions', '{n} blocks with suggestions')}{/if}</span>
       <div class="bar" role="progressbar" aria-label={t('Progress')} aria-valuemin="1" aria-valuemax={steps.length} aria-valuenow={at + 1}><span style:width="{pct}%"></span></div>
     </div>
 
@@ -191,9 +191,10 @@
         <div class="ovw">
           <h2 class="ovh" id="step-h"><span class="ovt"><ListChecks size={18} aria-hidden="true" />{t('What has changed')}</span><small class="num">{tn(rows.length, '{n} change · before → after', '{n} changes · before → after')}</small></h2>
           <ol class="ovl">
-            {#each rows as r (r.n)}
+            {#each rows as r, i (r.n)}
               <li class="ovr">
-                <span class="ovn num" aria-hidden="true">{r.n}</span>
+                <!-- UI-Test T12 (G4-05): counted 1, 2, 3 … on the page, not by the old change numbers 5–10 -->
+                <span class="ovn num" aria-hidden="true">{i + 1}</span>
                 <div class="ovm">
                   <p class="ovchg">
                     <span class="ovfrom">

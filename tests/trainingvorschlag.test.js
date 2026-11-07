@@ -1,6 +1,6 @@
 // «Training verbessern» 2 (Noah 2.11.2026): the suggestion for the training week. Fictional only.
 import { describe, it, expect } from 'vitest';
-import { suggestWeek, weeklySports, VARIANTS, FOCUS } from '../src/lib/training/suggest.js';
+import { suggestWeek, weeklySports, lighterSession, VARIANTS, FOCUS } from '../src/lib/training/suggest.js';
 
 const MON = '2026-11-02';
 const base = { monday: MON, today: MON, goal: { hours: 8, base: 80 } };
@@ -200,5 +200,22 @@ describe('own changes are remembered (3d)', () => {
     const before = sug0();
     const h = learnHabits({ drop: { 'Easy spin': 1 }, mins: {} }, before, before);
     expect(h.drop['Easy spin']).toBeUndefined();
+  });
+});
+
+describe('Heute passt: a lighter session for a tired day', () => {
+  const s = { id: 'a', day: '2026-11-04', kind: 'bike', name: 'Grundlage', mins: 90, zone: 4 };
+  it('easy: three quarters, at most zone 3', () => {
+    expect(lighterSession(s, 'easy')).toMatchObject({ mins: 70, zone: 3 });
+  });
+  it('rest: half, at most zone 2, never under 15 minutes', () => {
+    expect(lighterSession(s, 'rest')).toMatchObject({ mins: 45, zone: 2 });
+    expect(lighterSession({ ...s, mins: 15, zone: 1 }, 'rest')).toBeNull();
+  });
+  it('nothing for a fresh day, a done session or an already light one', () => {
+    expect(lighterSession(s, 'normal')).toBeNull();
+    expect(lighterSession(s, null)).toBeNull();
+    expect(lighterSession({ ...s, done: true }, 'rest')).toBeNull();
+    expect(lighterSession({ ...s, mins: 15, zone: 1 }, 'easy')).toBeNull();
   });
 });

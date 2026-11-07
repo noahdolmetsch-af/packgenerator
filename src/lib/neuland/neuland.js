@@ -349,13 +349,13 @@ export function tracksOf({ trips = [], rides = [], activities = [], lines = [], 
     if (!r?.date || (today && r.date > today)) continue;
     const line = lineOf(r.line);
     const pts = line.length ? line : [asPair(r.start), asPair(r.end)].filter(Boolean).filter(okPoint);
-    if (pts.length) out.push({ day: r.date, tripId: r.tripId ?? null, rideId: r.id, src: 'ride', pts });
+    if (pts.length) out.push({ day: r.date, tripId: r.tripId ?? null, rideId: r.id, src: 'ride', type: 'Ride', pts });
   }
   for (const a of activities) {
     if (!a?.day || (today && a.day > today)) continue;
     const line = lineOf(a.line);
     const pts = line.length ? line : [asPair(a.startLatLng), asPair(a.endLatLng)].filter(Boolean).filter(okPoint);
-    if (pts.length) out.push({ day: a.day, tripId: a.tripId ?? null, rideId: null, actId: a.id, src: 'activity', pts });
+    if (pts.length) out.push({ day: a.day, tripId: a.tripId ?? null, rideId: null, actId: a.id, src: 'activity', type: a.type ?? '', pts });
   }
   return out.sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : 0));
 }

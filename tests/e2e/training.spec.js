@@ -205,7 +205,7 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
 
   // the look back: six weeks, this week with the goal
   const back = page.locator('[data-section="look-back"]');
-  await expect(back.locator('li[data-week]')).toHaveCount(6);
+  await expect(back.locator('[data-chart="lookback"] [data-plot]')).toHaveAttribute('data-n', '6');
   await expect(back.locator('[data-this-week]')).toContainText('von 8:00 Std.');
   await expect(back).toContainText('mit Fitbit');
 
@@ -314,7 +314,8 @@ test('Training › Woche: a suggestion for the week, another one, take over, und
   await expect(rows).toHaveCount(n0);
   await sug.locator('[data-suggest-take]').click();
   await expect(sug).toHaveCount(0);
-  expect(await plan.locator('[data-planned]').count()).toBeGreaterThan(0);
+  // the plan is saved after the suggestion closes: wait for the rows (a count() right away can still see none)
+  await expect(plan.locator('[data-planned]').first()).toBeVisible();
   await page.getByRole('button', { name: 'Rückgängig' }).first().click();
   await expect(plan.locator('[data-planned]')).toHaveCount(0);
   expect(errors).toEqual([]);
@@ -432,5 +433,44 @@ test('Training › Woche: a session removed twice stays out of the next suggesti
   await sug.locator('[data-sug-forget]').click();
   await expect(same().first()).toBeVisible();
   await expect(sug.locator('[data-sug-habits]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Heute passt: a tired day offers a lighter session, Undo, Keep it', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = localDay();
+  await page.evaluate(
+    (day) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction(['settings', 'flowChecks'], 'readwrite');
+          tx.objectStore('settings').put({ key: 'training.plan', value: { sessions: [{ id: 'hp1', day, kind: 'bike', name: 'Beispielrunde', mins: 90, zone: 4 }] } });
+          tx.objectStore('flowChecks').put({ day, sleep: 1, energy: 1 });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    today,
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="today-fits"]');
+  await expect(card).toBeVisible();
+  await expect(card).toContainText('Beispielrunde');
+  await card.locator('[data-today-lighter]').click();
+  await expect(card).toHaveCount(0);
+  await expect(page.locator('[data-section="week-plan"]')).toContainText('0:45');
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(page.locator('[data-section="week-plan"]')).toContainText('1:30');
+  await expect(card).toBeVisible();
+  await card.locator('[data-today-keep]').click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(card).toHaveCount(0);
   expect(errors).toEqual([]);
 });

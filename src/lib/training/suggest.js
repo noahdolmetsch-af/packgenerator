@@ -209,3 +209,19 @@ export function learnHabits(habits, before = [], after = []) {
 }
 
 export const noHabits = (h) => !h || (!Object.keys(h.drop ?? {}).length && !Object.keys(h.mins ?? {}).length);
+
+/**
+ * «Training verbessern» 4 «Heute passt» (Noah 03.11.2026): when today's readiness is low, a lighter version of
+ * a session planned for today. level 'rest' → half the time and at most zone 2; 'easy' → three quarters and
+ * at most zone 3. Returns the lighter session, or null when the level is fine, the session is done, or it is
+ * already light.
+ */
+export function lighterSession(s, level) {
+  if (!s || s.done || (level !== 'rest' && level !== 'easy')) return null;
+  const rest = level === 'rest';
+  const mins = Math.max(15, Math.round((s.mins * (rest ? 0.5 : 0.75)) / 5) * 5);
+  const cap = rest ? 2 : 3;
+  const zone = s.zone && s.zone > cap ? cap : s.zone;
+  if (mins >= s.mins && zone === s.zone) return null;
+  return { ...s, mins: Math.min(mins, s.mins), zone };
+}
