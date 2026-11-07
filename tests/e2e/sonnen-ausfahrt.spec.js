@@ -133,6 +133,10 @@ test('The card adds the week line and nothing about sleep when sleep is normal',
   await expect(card.locator('[data-heute-sonne-name]')).toHaveText('Hochplateau');
   await expect(card.locator('[data-heute-sonne-week]')).toContainText('102 von 150');
   await expect(card.locator('[data-heute-sonne-short]')).toHaveCount(0);
+  await page.waitForTimeout(800);
+  if (await page.locator('dialog[data-round][open]').count()) await page.keyboard.press('Escape');
+  await expect(page.locator('dialog[data-round][open]')).toHaveCount(0);
+  await page.locator('[data-heute-wetter]').screenshot({ path: info.outputPath(`sonne-woche-${info.project.name}.png`) });
 });
 
 test('After clearly short sleep the card also shows the shortest ride, without a word about sleep', async ({ page, context }, info) => {
