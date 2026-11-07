@@ -205,7 +205,7 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
 
   // the look back: six weeks, this week with the goal
   const back = page.locator('[data-section="look-back"]');
-  await expect(back.locator('li[data-week]')).toHaveCount(6);
+  await expect(back.locator('[data-chart="lookback"] [data-plot]')).toHaveAttribute('data-n', '6');
   await expect(back.locator('[data-this-week]')).toContainText('von 8:00 Std.');
   await expect(back).toContainText('mit Fitbit');
 
