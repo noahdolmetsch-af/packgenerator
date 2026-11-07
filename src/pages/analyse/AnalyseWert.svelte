@@ -163,16 +163,24 @@
   };
   const wdList = $derived(item?.get && !isDay ? weekdays(win.days, item.get) : []);
   const wdTop = $derived(Math.max(...wdList.map((x) => x.v ?? 0), 0) || 1);
-  // bars of means start a bit under the lowest weekday, so the differences show (sums start at 0)
+  // the bars start a bit under the lowest weekday, so the differences show (for sums too: they are means per weekday)
   const wdLo = $derived.by(() => {
-    if (item?.sum) return 0;
     const vals = wdList.filter((x) => x.v != null).map((x) => x.v);
     if (!vals.length) return 0;
-    const lo = Math.min(...vals);
-    const hi = Math.max(...vals);
+    const lo = Math.min(...vals), hi = Math.max(...vals);
     return hi > lo ? lo - (hi - lo) * 0.7 : lo * 0.9;
   });
   const ext = $derived(weekdayExtremes(wdList));
+  let plotW = $state(0);
+  const bandLabels = $derived.by(() => {
+    const out = []; let right = -1e9;
+    for (const b of bands) {
+      const x = 56 + (plotW - 56 - (layerItems[0] ? 62 : 0)) * (xOf(b.a, pts.length) / W);
+      const w = b.name.length * 6.4 + 12;
+      if (x >= right + 6 && x + w < plotW) { out.push({ ...b, x }); right = x + w; }
+    }
+    return out;
+  });
   // the rows of «Tage»: newest first, the first layer next to it, and what you did the day before
   const rows = $derived(item?.get ? [...win.days].reverse().map((d) => ({ d, v: item.get(d), l: layerItems[0]?.get(d) ?? null })).filter((r) => r.v != null) : []);
   const names = $derived(new Map(data.acts.map((a) => [a.id, actName(a)])));
@@ -180,7 +188,7 @@
     const prev = addDays(d, -1);
     const ticked = [...new Set(data.log.filter((e) => e.day === prev).map((e) => names.get(e.actId)).filter(Boolean))];
     const rides = (data.table.get(prev)?.acts ?? []).map((a) => a.sportName ?? a.type).filter(Boolean);
-    return [...new Set([...ticked, ...rides])].slice(0, 2).join(', ') || '–';
+    return [...new Set([...ticked, ...rides])].slice(0, 2).join(', ') || null;
   };
   // every value of the picked day, grouped (D6 short)
   const dayAll = $derived(
@@ -279,7 +287,7 @@
         {#if !pts.some((p) => p.v != null)}
           <p class="hint" role="status">{isDay && !item.hoursOf ? t('One value per day: see the week or month for its course.|analyse') : t('No value in this range.|analyse')}</p>
         {:else}
-          <div class="plot">
+          <div class="plot" bind:clientWidth={plotW}>
             <YTicks ticks={sc.ticks} y={(t) => yOf(t, sc)} h={H} text={axis.text} unit={unitText(item)} width={56} />
             <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
             <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" role="img" aria-label={t('Course of {name}|analyse', { name: item.name })} onclick={tap}>
@@ -313,7 +321,7 @@
               {#if i >= 0 && pts[i].v != null}<span class="pv num" class:end={xOf(i, pts.length) / W > 0.7} style="left:calc(62px + (100% - 62px) * {xOf(i, pts.length) / W})" data-picked-value>{dayText(picked)}: <b>{v(item, pts[i].v)}{#if unitText(item)}&nbsp;{unitText(item)}{/if}</b></span>{/if}
             {/if}
             {#if layerItems[0] && laxes[0]}<YTicks ticks={lsc[0].ticks} y={(t) => yOf(t, lsc[0])} h={H} text={laxes[0].text} unit={unitText(layerItems[0])} side="right" color={LAYER_COLORS[0]} width={56} />{/if}
-            {#each bands as b, bi (bi)}{@const at = xOf(b.a, pts.length) / W}<span class="bn" class:end={at > 0.6} style="left:calc(62px + (100% - 62px - {layerItems[0] ? 62 : 0}px) * {at})">{b.name}</span>{/each}
+            {#each bandLabels as b, bi (bi)}<span class="bn" style="left:{b.x + 4}px">{b.name}</span>{/each}
           </div>
           <div class="xl" aria-hidden="true">
             {#if hours}<span>0</span><span>6</span><span>12</span><span>18</span><span>24 h</span>{:else}<span>{dfmt(win.from, { day: 'numeric', month: 'short' })}</span><span>{dfmt(win.days[Math.floor(win.days.length / 2)], { day: 'numeric', month: 'short' })}</span><span>{dfmt(win.to, { day: 'numeric', month: 'short' })}</span>{/if}
@@ -323,7 +331,7 @@
             {#each layerItems as l, i (l.key)}<li><i class="lsw dash" style="border-color:{LAYER_COLORS[i]}"></i>{l.name}{#if i === 0}&nbsp;({t('right|axis')}){/if}</li>{/each}
             {#if typical}<li><i class="lsw typ"></i>{t('your typical range|analyse')}</li>{/if}
             {#if prevPts.length}<li><i class="lsw prev"></i>{t('year before|analyse')}</li>{/if}
-            {#if bands.length}<li><i class="lsw band"></i>{t('trips|analyse')}</li>{/if}
+            {#if bands.length}<li><i class="lsw band"></i>{t('{n} trips, names only where there is room|analyse', { n: bands.length })}</li>{/if}
           </ul>
           {#if !hours}<p class="hint">{t('Tap a point: the day with all its values (sleep, training, ticks, mood).')}</p>{/if}
           <!-- the points as buttons for the keyboard -->
@@ -384,18 +392,19 @@
             <div class="ch"><h2 id="wv-wd">{t('Per weekday|analyse')}</h2><small>{t('average|analyse')}</small></div>
             <div class="wdbars" aria-hidden="true">
               {#each wdList as x (x.wd)}
-                <div class="wdc"><i style="height:{x.v == null ? 0 : Math.max(4, ((x.v - wdLo) / (wdTop - wdLo || 1)) * 100)}%"></i><span>{WD[x.wd]}</span></div>
+                <div class="wdc"><b class="wvl num">{x.v == null ? '' : v(item, x.v)}</b><div class="barbox"><i style="height:{x.v == null ? 0 : Math.max(4, ((x.v - wdLo) / (wdTop - wdLo || 1)) * 100)}%"></i></div><span>{WD[x.wd]}</span></div>
               {/each}
             </div>
+            <p class="hint">{t('The bars start a little under the lowest value, the numbers above them are exact.|analyse')}</p>
             {#if ext}<p class="hint" data-wd-note>{t('Highest on {hi}, lowest on {lo}.|analyse', { hi: WD_LONG[ext.hi], lo: WD_LONG[ext.lo] })}</p>{/if}
           </section>
           <section class="card days" aria-labelledby="wv-days">
             <div class="ch"><h2 id="wv-days">{t('Days|analyse')}</h2><small>{t('newest first|analyse')}</small></div>
             <table>
-              <thead><tr><th>{t('Day|analyse')}</th><th class="n">{item.name}</th>{#if layerItems[0]}<th class="n">{layerItems[0].name}</th>{/if}<th class="n">{t('Day before|analyse')}</th></tr></thead>
+              <thead><tr><th>{t('Day|analyse')}</th><th class="n">{item.name}</th>{#if layerItems[0]}<th class="n">{layerItems[0].name}</th>{/if}<th class="n">{t('Done the day before|analyse')}</th></tr></thead>
               <tbody>
                 {#each allDays ? rows : rows.slice(0, 7) as r (r.d)}
-                  <tr><td><button type="button" class="lk" onclick={() => (picked = r.d)}>{dayText(r.d)}</button></td><td class="n num"><b>{v(item, r.v)}</b></td>{#if layerItems[0]}<td class="n num">{v(layerItems[0], r.l)}</td>{/if}<td class="n sm">{dayBefore(r.d)}</td></tr>
+                  <tr><td><button type="button" class="lk" onclick={() => (picked = r.d)}>{dayText(r.d)}</button></td><td class="n num"><b>{v(item, r.v)}</b></td>{#if layerItems[0]}<td class="n num">{v(layerItems[0], r.l)}</td>{/if}<td class="n sm">{dayBefore(r.d) ?? t('nothing ticked|analyse')}</td></tr>
                 {/each}
               </tbody>
             </table>
@@ -528,7 +537,9 @@
     max-width: 100%;
     min-width: 0;
   }
+  .chip.sel { flex: none; display: inline-flex; width: fit-content; }
   .chip.sel select {
+    width: 7.5em;
     max-width: 100%;
     min-width: 0;
     text-overflow: ellipsis;
@@ -594,9 +605,6 @@
     max-width: 45%;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  .bn.end {
-    transform: translateX(calc(-100% - 4px));
   }
   .band {
     fill: var(--pz4);
@@ -700,12 +708,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 16px;
+    align-items: start;
   }
   .wdbars {
     display: flex;
     align-items: flex-end;
     gap: 6px;
-    height: 130px;
+    height: 150px;
     margin-top: 12px;
   }
   .wdc {
@@ -717,6 +726,8 @@
     gap: 4px;
     height: 100%;
   }
+  .barbox { width: 100%; height: 96px; display: flex; align-items: flex-end; }
+  .wvl { font-size: var(--fs-label); color: var(--ink-2); font-weight: 600; min-height: 16px; }
   .wdc i {
     width: 100%;
     border-radius: 4px 4px 0 0;
