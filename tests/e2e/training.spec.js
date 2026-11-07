@@ -552,3 +552,55 @@ test('Training › Wochenlast: a week far above the last three offers a lighter 
   await expect(card).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Training › Bibliothek: examples, keep, plan again, groups, most used first, rename, delete with Undo', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const plan = page.locator('[data-section="week-plan"]');
+  const adds = plan.locator('[data-add]');
+  await adds.nth(2).click();
+  const form = plan.locator('[data-session-form]');
+  // it starts with the 6 examples
+  await expect(form.locator('[data-library-pick]')).toHaveCount(6);
+  await form.locator('[data-session-name]').fill('Beispiel Intervalle');
+  await form.locator('[data-session-mins]').fill('75');
+  await form.locator('[data-library-save]').click();
+  await expect(form.locator('[data-library-pick]')).toHaveCount(7);
+  await form.getByRole('button', { name: 'Abbrechen' }).click();
+  // another day: the kept session fills the form and counts as used, so it stands first
+  await adds.nth(4).click();
+  await plan.locator('[data-library-pick]', { hasText: 'Beispiel Intervalle' }).click();
+  await expect(plan.locator('[data-session-name]')).toHaveValue('Beispiel Intervalle');
+  await expect(plan.locator('[data-session-mins]')).toHaveValue('75');
+  await expect(plan.locator('[data-library-pick]').first()).toContainText('Beispiel Intervalle');
+  await expect(plan.locator('[data-library-pick]').first()).toContainText('1×');
+  // manage: a new group for the kept session, rename it, then delete it (the session stays, without a group)
+  await plan.locator('summary', { hasText: 'Bibliothek verwalten' }).click();
+  const id = await plan.locator('[data-library-pick]', { hasText: 'Beispiel Intervalle' }).getAttribute('data-library-pick');
+  await plan.locator(`[data-library-group="${id}"]`).selectOption('__new');
+  await plan.locator('[data-library-newgroup]').fill('Berg');
+  await plan.locator('[data-library-newgroup]').press('Enter');
+  await expect(plan.locator('[data-library-block="Berg"]')).toBeVisible();
+  await plan.locator('[data-library-group-delete]').click();
+  await page.locator('dialog.gds button.del').click();
+  await expect(plan.locator('[data-library-group-delete]')).toHaveCount(0);
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
+  // rename and delete one with Undo
+  const nameInput = plan.locator(`[data-library-name="${id}"]`);
+  await nameInput.fill('Umbenannt');
+  await nameInput.blur();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toContainText('Umbenannt');
+  await plan.locator(`[data-library-delete="${id}"]`).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
+  // remembered after a reload
+  await page.reload();
+  await ready(page);
+  await adds.nth(1).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
+  expect(errors).toEqual([]);
+});

@@ -265,3 +265,28 @@ describe('cleanHabits', () => {
     expect(cleanHabits(null)).toEqual({ drop: {}, mins: {} });
   });
 });
+
+import { cleanLibrary, libraryGroups, byUse, moveInGroup, renameLibraryGroup, deleteLibraryGroup, libraryOf, missingExamples } from '../src/lib/training.js';
+describe('cleanLibrary', () => {
+  it('keeps valid entries, drops the rest, at most 30', () => {
+    const ok = { id: 'a', name: ' Intervalle ', kind: 'bike', mins: 60.4, zone: 4, sport: '' };
+    expect(cleanLibrary([ok, { id: 'b', name: '', mins: 30 }, { id: 'c', name: 'x', mins: 0 }, { name: 'y', mins: 30 }, null])).toEqual([{ id: 'a', name: 'Intervalle', kind: 'bike', mins: 60, zone: 4, sport: '', group: '', uses: 0 }]);
+    expect(cleanLibrary('x')).toEqual([]);
+    expect(cleanLibrary(Array.from({ length: 40 }, (_, i) => ({ id: `i${i}`, name: `n${i}`, mins: 30 })))).toHaveLength(40);
+  });
+  it('keeps group and uses, starts with examples, orders and groups', () => {
+    const l = cleanLibrary([{ id: 'a', name: 'A', mins: 30, group: ' Berg ', uses: 3.4 }, { id: 'b', name: 'B', mins: 30, uses: 9 }, { id: 'c', name: 'C', mins: 30, group: 'Berg' }]);
+    expect(l.map((e) => [e.group, e.uses])).toEqual([['Berg', 3], ['', 9], ['Berg', 0]]);
+    expect(libraryGroups(l)).toEqual(['Berg']);
+    expect(byUse(l).map((e) => e.id)).toEqual(['b', 'a', 'c']);
+    expect(moveInGroup(l, 'a', 1).map((e) => e.id)).toEqual(['c', 'b', 'a']);
+    expect(moveInGroup(l, 'a', -1)).toBe(l);
+    expect(renameLibraryGroup(l, 'Berg', 'Hoch').map((e) => e.group)).toEqual(['Hoch', '', 'Hoch']);
+    expect(renameLibraryGroup(l, 'Berg', ' ')).toBe(l);
+    expect(deleteLibraryGroup(l, 'Berg').map((e) => e.group)).toEqual(['', '', '']);
+    expect(deleteLibraryGroup(l, 'Berg', 'X').map((e) => e.group)).toEqual(['X', '', 'X']);
+    expect(libraryOf(null)).toHaveLength(6);
+    expect(libraryOf([])).toEqual([]);
+    expect(missingExamples(libraryOf(null).slice(1))).toHaveLength(1);
+  });
+});
