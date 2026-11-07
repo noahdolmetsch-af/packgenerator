@@ -18,7 +18,7 @@
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, TODAYKEEP_KEY, LOADKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
+  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
@@ -26,6 +26,7 @@
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import { weekLoadHint, scaleWeek } from '../../lib/training/suggest.js';
+  import Library from '../../lib/training/plans/Library.svelte'; // «Training verbessern» 7: «From your library»
   import WeekLoad from '../../lib/training/plans/WeekLoad.svelte'; // «Training verbessern» 6: «A lighter week would fit»
   import Missed from '../../lib/training/plans/Missed.svelte'; // «Training verbessern» 5: «Missed one? Move it»
   import TodayFits from '../../lib/training/plans/TodayFits.svelte'; // «Training verbessern» 4: «Today a lighter one fits»
@@ -105,6 +106,28 @@
       await db.settings.delete(TODAYKEEP_KEY);
       await savePlan(plan.map((x) => (x.id === before.id ? before : x)));
     });
+  }
+
+  // «Training verbessern» 7 «Einheiten-Bibliothek»: keep a session, plan it again with one tap, rename, delete (Undo)
+  const libQ = liveQuery(async () => (await db.settings.get(LIBRARY_KEY))?.value ?? null);
+  const library = $derived(libraryOf($libQ, t));
+  const saveLibrary = (v) => db.settings.put({ key: LIBRARY_KEY, value: cleanLibrary(v) });
+  function pickFromLibrary(e) {
+    form = { ...form, kind: e.kind, name: e.name, mins: e.mins, zone: e.zone ?? 0, sport: e.sport ?? '' };
+    saveLibrary(library.map((x) => (x.id === e.id ? { ...x, uses: x.uses + 1 } : x))); // «Most used first»
+  }
+  async function saveToLibrary() {
+    const name = (form.name ?? '').trim() || (form.sport ? sportName(sportById(form.sport)) : '') || t(KIND_NAMES[form.kind]);
+    const mins = Math.round(Number(form.mins));
+    if (!(mins > 0)) return;
+    await saveLibrary([...library, { id: `lib-${Date.now().toString(36)}`, name, kind: form.kind, mins, zone: form.zone || null, sport: form.kind === 'other' ? form.sport : '', group: '', uses: 0 }]);
+    offerDone(t('«{name}» kept in the library.', { name }));
+  }
+  // every change of the library (rename, move, group, delete) offers Undo
+  function changeLibrary(list, msg) {
+    const before = library;
+    saveLibrary(list);
+    if (msg) offerDone(msg, () => saveLibrary(before));
   }
 
   // «Training verbessern» 6 «Wochenlast-Wächter»: the planned week against the 3 weeks before; «Shorten» scales what is still to come (Undo)
@@ -320,6 +343,7 @@
                       </select>
                     </label>
                   </div>
+                  <Library items={library} canSave {hours} onpick={pickFromLibrary} onsave={saveToLibrary} onchange={changeLibrary} />
                   <div class="row">
                     <button type="submit" class="btn hi sm">{t('Save')}</button>
                     {#if form.id}<button type="button" class="btn sm" onclick={() => markDone(!form.done)} data-session-done><Check size={16} aria-hidden="true" />{form.done ? t('Not done yet') : t('Done|session')}</button>{/if}
