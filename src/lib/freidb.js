@@ -8,7 +8,7 @@
  */
 import { liveQuery } from 'dexie';
 import { db as appDb } from './db.js';
-import { FREI_KEY, uid } from './frei.js';
+import { FREI_KEY, uid, collsOf } from './frei.js';
 
 const plain = (x) => JSON.parse(JSON.stringify(x ?? null));
 
@@ -53,3 +53,23 @@ export async function moveEntries(from, to, db = appDb) {
   });
 }
 export const restoreRows = (rows, db = appDb) => db.frei.bulkPut(rows ?? []);
+
+/**
+ * A taken-over collection (collImport in frei.js): the collection into the page settings, its entries into the
+ * table. Returns what Undo needs.
+ */
+export async function importColl({ coll, entries }, db = appDb) {
+  return db.transaction('rw', db.settings, db.frei, async () => {
+    const before = await loadCfg(db);
+    const colls = collsOf(before).map((x) => ({ id: x.id, type: x.type, name: x.name, own: x.own, hidden: x.hidden }));
+    await db.settings.put({ key: FREI_KEY, value: plain({ ...before, colls: [...colls, coll] }) });
+    await db.frei.bulkPut(plain(entries));
+    return { before, ids: entries.map((e) => e.id) };
+  });
+}
+export async function undoImportColl({ before, ids }, db = appDb) {
+  await db.transaction('rw', db.settings, db.frei, async () => {
+    await restoreCfg(before, db);
+    await db.frei.bulkDelete(ids);
+  });
+}

@@ -59,8 +59,8 @@
       <p class="text">{t(pick.feature.text)}</p>
       <p class="acts">
         <button type="button" class="btn hi" onclick={tryIt} data-discover-try>{t('Try it')}</button>
-        <button type="button" class="btn" onclick={later} data-discover-later>{t('Later|discover')}</button>
-        <button type="button" class="btn" onclick={notForMe} data-discover-not>{t('Not for me|discover')}</button>
+        <button type="button" class="btn btn-link" onclick={later} data-discover-later>{t('Later|discover')}</button>
+        <button type="button" class="btn btn-link" onclick={notForMe} data-discover-not>{t('Not for me|discover')}</button>
       </p>
       <p class="why">{t('One idea a day, only functions you never opened. «Not for me» hides it for good; you find it again in «What the app can do».')}</p>
     {/if}

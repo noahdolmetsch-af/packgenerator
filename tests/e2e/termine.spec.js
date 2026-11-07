@@ -37,7 +37,7 @@ test('an offer, a booking without the app, the note on Heute and cancelling', as
   // Klick-Rundgang Q05 (Noah 22.10.2026 «3a», changed on purpose): «App verkaufen» is dropped, Ich no longer lists this page; it opens by its address
   await expect(page.locator('a.ich-row[href="#/me/offers"]')).toHaveCount(0);
   await page.goto('./#/me/offers');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Your offers'));
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Tennis'));
   const kinds = page.locator('.of-chips .btn');
   await expect(kinds).toHaveCount(KINDS.length);
   for (const [i, k] of KINDS.entries()) await expect(kinds.nth(i)).toContainText(T(k.label));

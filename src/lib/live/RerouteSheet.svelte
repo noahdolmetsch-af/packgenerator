@@ -19,7 +19,8 @@
   import { navLinks } from './live-lib.js';
   import RouterNote from './RouterNote.svelte';
   import SurfaceNote from './SurfaceNote.svelte';
-  import { t, num } from '../i18n.svelte.js';
+  import { WAYS_KEY, cleanMemory } from './wegegedaechtnis.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { here = null, pts = [], km = null, pois = [], own = [], picked = null, tripBikeId = null, onplan, onclose } = $props();
   let dialog = $state();
@@ -32,6 +33,9 @@
   const lastBikeQ = liveQuery(() => db.settings.get(LIVE_BIKE_KEY));
   const bike = $derived(bikeFor(tripBikeId ? { bikeId: tripBikeId } : null, $bikesQ ?? [], $lastBikeQ?.value ?? null));
   const suggested = $derived(suggestProfile(bike));
+  // «Wege-Gedächtnis» (Noah 07.11.2026 «5a»): stretches you marked as bad are kept out of the new way
+  const memQ = liveQuery(() => db.settings.get(WAYS_KEY));
+  const avoid = $derived(cleanMemory($memQ?.value).ways.filter((w) => w.rating === 'down'));
   let chosen = $state(null);
   const profile = $derived(chosen ?? suggested ?? PROFILE_STD);
   // «Nur hin» first (Noah 27.10.2026 «2a»): only the way there, the app asks at the place how you go back
@@ -54,7 +58,7 @@
     err = '';
     failed = null;
     try {
-      const ways = await planAlternatives({ here, target, pts, fromKm: pts.length > 1 ? km : null, profile, oneWay: withRoute && oneWay });
+      const ways = await planAlternatives({ here, target, pts, fromKm: pts.length > 1 ? km : null, profile, oneWay: withRoute && oneWay, avoid });
       if (ways.length > 1) {
         choices = { target, ways };
         return;
@@ -132,6 +136,7 @@
   {/if}
   {#if !here}<p class="rc-warn" role="status">{t('Waiting for the GPS …')}</p>{/if}
   <RouterNote />
+  {#if avoid.length}<p class="rc-note" data-reroute-avoid>{tn(avoid.length, '{n} stretch you marked as bad is avoided on the way.', '{n} stretches you marked as bad are avoided on the way.')}</p>{/if}
 
   <p class="rr-q" id="rr-q">{t('How do you ride?')}</p>
   <div class="rr-chips" role="group" aria-labelledby="rr-q">

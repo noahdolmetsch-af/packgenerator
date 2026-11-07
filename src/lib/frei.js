@@ -376,6 +376,24 @@ export function collSharePayload(coll, entries, tr = (s) => s, max = 60) {
 }
 /** What a shared collection must look like; anything else is a broken link. */
 export const isCollShare = (o) => o?.k === 'coll' && typeof o.n === 'string' && Array.isArray(o.e);
+/**
+ * «In meine Sammlungen übernehmen»: a shared collection (the object of a link) becomes an own collection
+ * of the type «free» with its entries. The filled fields come along as lines «Label: text» in the text
+ * field (the sender's labels, as shared). Nothing else is taken: no photos, no positions, no tour.
+ * → { coll, entries } (not saved yet).
+ */
+export function collImport(share, { id = uid('coll'), now = new Date().toISOString() } = {}) {
+  const name = clean(share?.n, 80) || 'Shared collection';
+  const coll = { id, type: 'free', name, own: true, hidden: false };
+  const entries = (Array.isArray(share?.e) ? share.e : []).slice(0, 60).map((e, i) => {
+    const text = (Array.isArray(e?.f) ? e.f : [])
+      .filter((x) => Array.isArray(x) && x[1])
+      .map(([label, value]) => `${clean(label, 80)}: ${clean(value, 1200)}`)
+      .join('\n');
+    return newEntry(id, { title: clean(e?.t, 120) || name, data: text ? { text } : {} }, { id: `${id}-e${i}`, now });
+  });
+  return { coll, entries };
+}
 /** The tour a collection is linked to (cfg.collTour { collId: tripId }), or ''. */
 export const tourOfColl = (cfg, collId) => (cfg?.collTour && typeof cfg.collTour[collId] === 'string' ? cfg.collTour[collId] : '');
 export const tourHref = (tripId) => `#/tour/${encodeURIComponent(`t:${tripId}`)}`;
@@ -637,7 +655,7 @@ export function nightOf(cfg) {
   const n = cfg?.night && typeof cfg.night === 'object' ? cfg.night : {};
   const phases = {};
   for (const p of PHASES) phases[p.key] = Array.isArray(n.phases?.[p.key]) ? n.phases[p.key].filter((x) => x && clean(x.name)) : [];
-  return { step: Number.isInteger(n.step) ? Math.min(Math.max(n.step, 0), NIGHT_STEPS.length - 1) : 0, question: n.question ?? '', route: n.route ?? '', lunch: n.lunch ?? '', bed: n.bed ?? '', tripId: n.tripId ?? null, after: n.after ?? '', phases };
+  return { step: Number.isInteger(n.step) ? Math.min(Math.max(n.step, 0), NIGHT_STEPS.length - 1) : 0, question: n.question ?? '', route: n.route ?? '', lunch: n.lunch ?? '', bed: n.bed ?? '', tripId: n.tripId ?? null, after: n.after ?? '', answers: n.answers && typeof n.answers === 'object' ? n.answers : {}, phases };
 }
 /** All things of the day plan; how many are «within reach» and where each one sits. */
 export function phaseSummary(phases = {}) {

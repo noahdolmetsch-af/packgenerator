@@ -487,6 +487,7 @@ import frei from './frei.js';
 import freiReiseTraum from './frei-reise-traum.js';
 import freiUebernahme from './frei-uebernahme.js';
 import freiWesentlich from './frei-wesentlich.js';
+import freiNachtFragen from './frei-nacht-fragen.js';
 import tagebuch from './tagebuch.js';
 // Paket V «Alltag» (Noah 19.10.2026 «3a oder b 4a 5a», «1a»): Ich › Alltag, contracts, people, abroad, flight
 import alltag from './alltag.js';
@@ -668,6 +669,7 @@ import tourenb from './tourenb.js';
 import computerbreite from './computerbreite.js';
 // UI-Test 26.10.2026 (T1 and later small parts); spread last
 import uitest from './uitest.js';
+import tourkartewege from './tourkarte-wege.js';
 // «Heute ruhiger» (Noah 26.10.2026 «1a»): the small tiles on Heute as one list; spread last
 import heuteruhiger from './heuteruhiger.js';
 import bereicheanpassen from './bereicheanpassen.js';
@@ -948,6 +950,7 @@ const ORDERED = [
   freiReiseTraum,
   freiUebernahme,
   freiWesentlich,
+  freiNachtFragen,
   alltag,
   strom,
   anleitungen,
@@ -1070,6 +1073,7 @@ const ORDERED = [
   tourena2,
   tourenb,
   uitest,
+  tourkartewege,
   heuteruhiger,
   bereicheanpassen,
   velo2610,

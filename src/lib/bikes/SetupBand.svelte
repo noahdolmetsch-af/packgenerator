@@ -14,13 +14,16 @@
   import { tick } from 'svelte';
   import { Gauge, Weight, Briefcase, Pencil, Plus, Scale, Star } from '@lucide/svelte';
   import { t, tn, num, locale } from '../i18n.svelte.js';
-  import { formatVolume, bikeTypeName } from '../bikes.js';
+  import { formatVolume, bikeTypeName, bikesHash } from '../bikes.js';
+  import { velosHref } from '../analyse/jump.js';
+  import { openTrip } from '../nav.js';
+  import NumLink from '../ui/NumLink.svelte'; // «Zahl mit Weg» (UI-Prüfung 07.11.2026, V1): km, costs and care lead somewhere
   import { formatWeight } from '../gear.js';
   import { bagWords } from './bagwords.js';
   import './standardvelo.css';
   import MoreActions from '../ui/MoreActions.svelte';
 
-  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', onbike, onadd, onedit, onorder = null, menu = [], link = null } = $props();
+  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', ride = null, onbike, onadd, onedit, onorder = null, menu = [], link = null } = $props();
 
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const bagsG = $derived(setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : '');
@@ -65,7 +68,11 @@
 </script>
 
 <section class="setup-band" aria-label={t('Bike')}>
-  {#if sub}<p class="page-sub vb-sub">{sub}</p>{/if}
+  {#if sub || ride}
+    <!-- V1: «next trip» is a way to that trip's packing list (it was a sentence); the trip is chosen first, then the plain link opens Pack
+         (switchTrip would reload this page for the new address before the address has changed) -->
+    <p class="page-sub vb-sub">{sub}{#if ride}{sub ? ' · ' : ''}<a class="vb-ride" href="#/pack" data-bike-ride onclick={() => openTrip(ride.id)}>{ride.text}</a>{/if}</p>
+  {/if}
   <div class="tabsrow" bind:this={row}>
     <div class="strip" bind:this={strip} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
       {#each bikes as b, i (b.id)}
@@ -89,10 +96,10 @@
   </h2>
   <p class="meta num">
     {#if kick}<span class="kick">{kick}</span>{/if}
-    <span><Gauge size={15} aria-hidden="true" />{#if bike.km != null}<b>{num(bike.km)} km</b>{:else}{t('km not set')}{/if}</span>
+    <span><Gauge size={15} aria-hidden="true" />{#if bike.km != null}<NumLink to={velosHref()} data-bike-km-link><b>{num(bike.km)} km</b></NumLink>{:else}{t('km not set')}{/if}</span>
     <span><Weight size={15} aria-hidden="true" />{#if kind === 'missing'}{t('bike not weighed')}{:else}<b>{kind === 'estimate' ? '~' : ''}{kg(bike.weightG)}</b> {kind === 'estimate' ? t('estimate') : t('measured')}{/if}</span>
     <span data-bag-words><Briefcase size={15} aria-hidden="true" />{bagWords(setup.bagCount, setup.cageCount)} · {formatVolume(setup.volumeL)}{bagsG ? ` · ${bagsG}` : ''}{#if setup.unweighed}<i class="nw" title={tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}><Scale size={13} aria-hidden="true" />{setup.unweighed}<span class="sr">{tn(setup.unweighed, '{n} bag not weighed', '{n} bags not weighed')}</span></i>{/if}</span>
-    {#if cost}<span class="vb-cost" data-cost>{cost}</span>{/if}
+    {#if cost}<span class="vb-cost" data-cost><NumLink to={bikesHash({ tab: 'care', bike: bike.id, view: 'year' })} data-bike-cost-link>{cost}</NumLink></span>{/if}
     {#if link}<a class="vb-link" data-sk-link={link.kind} href={link.url} target="_blank" rel="noopener noreferrer">{link.name} ↗</a>{/if}
     {#if due}<a class="pill warn due" href={careHref}>{tn(due, 'Up now: {n} job · See', 'Up now: {n} jobs · See')}</a>{/if}
   </p>
@@ -329,6 +336,26 @@
   .meta > .vb-cost {
     color: var(--ink-2);
     font-weight: 600;
+  }
+  /* V1: a number that leads somewhere keeps the line as it was; the 44 px tap area sits around it (like «Up now») */
+  .meta :global(a.numlink) {
+    min-height: 0;
+  }
+  .meta :global(a.numlink)::after,
+  .vb-ride::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    right: -6px;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+  .vb-ride {
+    position: relative;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .bmenu {
     flex: none;

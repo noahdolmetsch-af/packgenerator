@@ -14,7 +14,7 @@ const bikes = [
 
 describe('search settings', () => {
   it('defaults follow Noah: mic always, commands at once, read aloud at once, every source on', () => {
-    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, gemini: true, geminiAuto: true, links: true, chrome: true, local: true });
+    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, gemini: true, geminiAuto: true, understand: true, links: true, chrome: true, local: true });
     expect(READ_MODES.map((m) => m.key)).toEqual(['auto', 'tap']);
   });
   it('a stored value wins, unknown values fall back', () => {
@@ -60,7 +60,7 @@ describe('where it lives', () => {
     const s = src('src/lib/nav/Search.svelte');
     expect(s).toContain('<SearchMic onsaid={said}');
     expect(s).toMatch(/\{#if asking && \(suche\.gemini \|\| suche\.links\)\}<AskElsewhere/);
-    expect(s).toContain('{#if suche.app}<AskAnswer');
+    expect(s).toContain('{#if suche.app && !quiet}<AskAnswer'); // behind its setting; a command sentence shows no answer beside it
     expect(s).toContain('chrome={suche.chrome} links={suche.links}');
   });
 });
@@ -158,5 +158,33 @@ describe('weather of a place (idea 3, with the weather page of 0.171)', () => {
   it('the search keeps the AI on this device behind its switch, without a second Gemini', () => {
     expect(src('src/lib/kisuche/SearchFree.svelte')).toContain('{#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly />');
     expect(src('src/lib/nav/Search.svelte')).toContain('local={suche.local}');
+  });
+});
+
+describe('a list from a sentence (07.11.2026)', async () => {
+  const { listOf } = await import('../src/lib/suche/say.js');
+  const { actionOf } = await import('../src/lib/suche/act.js');
+  it("Noah's sentence: name and three points", () => {
+    expect(listOf('Erstelle eine To-Do-Liste mit folgenden Inhalten. Erstens Aufräumen, zweitens Kette wachsen, drittens Anmeldung für das Rennen')).toEqual({
+      kind: 'list',
+      name: 'To-do',
+      points: ['Aufräumen', 'Kette wachsen', 'Anmeldung für das Rennen'],
+    });
+  });
+  it('a colon, a name after «Liste», a compound word, «und» before the last point', () => {
+    expect(listOf('Erstelle eine To-Do-Liste: Aufräumen, Kette wachsen, Anmeldung fürs Rennen').points).toHaveLength(3);
+    expect(listOf('Erstelle eine Liste Einkauf: Brot, Käse und Milch')).toEqual({ kind: 'list', name: 'Einkauf', points: ['Brot', 'Käse', 'Milch'] });
+    expect(listOf('Erstelle eine Einkaufsliste mit Brot und Käse')).toEqual({ kind: 'list', name: 'Einkaufsliste', points: ['Brot', 'Käse'] });
+    expect(listOf('mach mir eine To-do Liste').points).toEqual([]);
+  });
+  it('is no list: no verb, no name and no points, a note that only mentions a list', () => {
+    expect(listOf('Erstelle eine Liste')).toBeNull();
+    expect(listOf('Liste Einkauf: Brot, Käse')).toBeNull();
+    expect(listOf('Erstelle eine Notiz: Liste kaufen')).toBeNull();
+    expect(listOf('Gewicht 72')).toBeNull();
+  });
+  it('goes into the actions, as something that writes', () => {
+    const a = actionOf('Erstelle eine To-Do-Liste: A, B', { today: '2026-11-07' });
+    expect(a).toMatchObject({ kind: 'list', writes: true, name: 'To-do', points: ['A', 'B'] });
   });
 });

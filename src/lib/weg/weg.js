@@ -30,6 +30,8 @@ const D = (day) => Date.parse(`${day}T12:00:00Z`);
 const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
 export const isDay = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 const days = (a, b) => Math.round((D(b) - D(a)) / 864e5);
+/** Whole days from a to b (b later = positive). */
+export const daysBetween = days;
 /** A calendar day ± n days (no clock involved). */
 export const shift = (day, n) => iso(D(day) + n * 864e5);
 
@@ -152,11 +154,12 @@ export function progress(goal, today) {
   return { done: rows.length - open.length, total: rows.length, next: open[0] ?? null, late: open.filter((r) => r.state === 'late').length };
 }
 
-/** The same for one kind of step (the strip «3 of 5 sorted» above the timeline). */
+/** The same for one kind of step (the strip «3 of 5 sorted» above the timeline). next = the open step with the soonest day. */
 export function typeProgress(goal, type, today) {
   const rows = timeline(goal, today).filter((r) => r.step.type === type);
   const open = rows.filter((r) => r.state !== 'done');
-  return { done: rows.length - open.length, total: rows.length, next: open[0] ?? null };
+  const dated = open.find((r) => r.due) ?? null;
+  return { done: rows.length - open.length, total: rows.length, next: open[0] ?? null, soon: dated ? { row: dated, days: days(today, dated.due) } : null };
 }
 
 /** Whole weeks and days from today to the start; null without a start day, negative once it is past. */
@@ -211,5 +214,5 @@ export function todayStep(w, today) {
 
 /** The steps of a goal as templates for a new one: offsets kept, ticks and own days dropped. */
 export function templateOf(goal) {
-  return goal.steps.map((s) => ({ type: s.type, title: s.title, offset: s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null), note: s.note, own: s.own }));
+  return goal.steps.map((s) => ({ type: s.type, key: s.key, title: s.title, offset: s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null), note: s.note, own: s.own }));
 }

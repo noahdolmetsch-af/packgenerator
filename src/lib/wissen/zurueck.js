@@ -36,6 +36,7 @@ export default {
   'f.best': 'Records are nice, but the longest day says little alone. Look at how you felt the day after.',
   'f.homecoming': 'Empty the bags on the first evening, even when tired: wet tent and damp shorts do not get better until Saturday.',
   'f.newtoday': 'A small detour is often enough for something new: one unknown road home turns a routine ride into a little discovery.',
+  'f.findlist': 'A list of finds is a small diary of curiosity: a look at it before a free day shows where you have not been for a long time.',
   'f.osmsets': 'A tower, a bridge or a waterfall in the next valley is a good reason for a detour. Check the weather and whether the way is open before you go; after heavy rain a waterfall is at its best.',
   'f.newkm': 'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.',
 };
