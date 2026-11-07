@@ -255,6 +255,14 @@ test('Überblick (M2): the numbers of the period, every day a field, ranking, ti
   const ov = page.locator('[data-overview]');
   for (const k of ['ticks', 'km:bike', 'sleep', 'azm', 'rhr', 'run']) await expect(ov.locator(`[data-ov-box="${k}"]`), k).toBeVisible();
   await expect(ov.locator('[data-ov-box="ticks"]')).toContainText(T('ticks in {n} days|overview').replace('{n}', '90'));
+  // Noah 07.11.2026 «2a»: active zone minutes are the mean per day (the fictional days have 20 to 70), not the total of 90 days;
+  // the bike box says that it is the total of the period
+  const azmBox = ov.locator('[data-ov-box="azm"]');
+  await expect(azmBox).toContainText(T('active zone minutes a day, mean of {n} days|overview').replace('{n}', '90'));
+  const perDay = Number((await azmBox.locator('b').innerText()).replace(/[^\d]/g, ''));
+  expect(perDay).toBeGreaterThanOrEqual(20);
+  expect(perDay).toBeLessThanOrEqual(70);
+  await expect(ov.locator('[data-ov-box="km:bike"]')).toContainText(T('Bike, Strava, in {n} days|overview').replace('{n}', '90'));
   const heat = page.locator('[data-heat]');
   await expect(heat.locator('button.cell')).toHaveCount(90);
   await expect(heat.locator('button.cell.l4').first()).toBeVisible();
