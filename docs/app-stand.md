@@ -219,6 +219,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Geburtstage und Erinnerungen | `#/me/reminders` | Geburtstage, Geschenke, Pflanzenpflege und andere wiederkehrende Anliegen organisieren. |
 | Pflanzenpass | `#/calendar/pflanzen` | Pflanzen mit Standort, Sonnen- und Windbeobachtungen, Fotos und Veränderungen dokumentieren. |
 | Mit Freunden | `#/me/freunde` | Beiträge zu Vorhaben sammeln, Material zum Verleihen anbieten und Vorlagen teilen. |
+| Tennis (Angebote und Kunden) | `#/me/tennis` | Freie Zeiten anbieten, Link teilen, Anfragen beantworten und die Kundenliste führen, in einem Ort mit zwei Tabs. |
 | Mini-Tools für Gruppen | `#/me/mini` | Terminfindung, Umfrage, Anmeldeliste mit Warteliste, spontane Einladung und Essensabfrage per Browserlink erstellen. |
 | Fair auslosen | `#/me/mini/los` | Aufgaben oder Rollen innerhalb einer Gruppe verteilen. |
 | Gemeinsam ankommen | `#/me/mini/abfahrt` | Abfahrtszeiten von unterschiedlichen Startorten für einen gemeinsamen Treffpunkt berechnen. |
