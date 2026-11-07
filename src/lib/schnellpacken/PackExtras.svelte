@@ -23,7 +23,9 @@
   import { EXTRAS_KEY, twoOf, whoCarries, switchCarry, splitWeights, clothesOf, inWash, washDay, washSrc, morningOf, packTimeOf, startClock, stopClock, packTrend, minutesOf } from './spack.js';
   import { Zap, Users, Shirt, Sunrise, Timer, ChevronRight, Play, Square, Check } from '@lucide/svelte';
 
-  let { trip, trips = [], itemsById = {} } = $props();
+  /** only: show just these folds ('two', 'wash', 'morning', 'time'), without the card title: «Mehr zu dieser Tour» on Packen sorts them into its groups. */
+  let { trip, trips = [], itemsById = {}, only = null } = $props();
+  const on = (k) => !only || only.includes(k);
   const extrasQ = liveQuery(() => db.settings.get(EXTRAS_KEY));
   const timeOff = $derived(!!$extrasQ?.value?.timeOff);
   const save = (fields) => db.trips.update(trip.id, touched(fields));
@@ -92,10 +94,11 @@
 </script>
 
 {#if trip && !trip.finished}
-  <section class="card spk" aria-labelledby="spk-h" data-pack-extras>
-    <h3 id="spk-h"><Zap size={16} aria-hidden="true" />{t('Pack faster')}</h3>
-    {#if washing.length}<p class="wash" role="note" data-still-wash><Shirt size={16} aria-hidden="true" />{t('Still in the wash: {list}', { list: washing.map((i) => nameOf(i)).join(', ') })}</p>{/if}
+  <section class="card spk" class:grouped={!!only} aria-labelledby={only ? undefined : 'spk-h'} aria-label={only ? t('Pack faster') : undefined} data-pack-extras>
+    {#if !only}<h3 id="spk-h"><Zap size={16} aria-hidden="true" />{t('Pack faster')}</h3>{/if}
+    {#if on('wash') && washing.length}<p class="wash" role="note" data-still-wash><Shirt size={16} aria-hidden="true" />{t('Still in the wash: {list}', { list: washing.map((i) => nameOf(i)).join(', ') })}</p>{/if}
 
+    {#if on('two')}
     <details class="fold" data-two open={isOpen('two')} ontoggle={toggle('two')}>
       <summary><Users size={18} aria-hidden="true" /><span class="lab">{t('Packing for two')}</span><span class="r tp-small tp-muted">{two?.name ? t('with {name}', { name: two.name }) : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       {#if isOpen('two')}
@@ -119,7 +122,9 @@
       </div>
       {/if}
     </details>
+    {/if}
 
+    {#if on('wash')}
     <details class="fold" data-wash open={isOpen('wash')} ontoggle={toggle('wash')}>
       <summary><Shirt size={18} aria-hidden="true" /><span class="lab">{t('In the wash')}</span><span class="r tp-small tp-muted">{washing.length ? tn(washing.length, '{n} piece', '{n} pieces') : t('nothing')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       {#if isOpen('wash')}
@@ -131,7 +136,9 @@
       </div>
       {/if}
     </details>
+    {/if}
 
+    {#if on('morning')}
     <details class="fold" data-morning open={isOpen('morning')} ontoggle={toggle('morning')}>
       <summary><Sunrise size={18} aria-hidden="true" /><span class="lab">{t('Only on the morning')}</span><span class="r tp-small tp-muted">{morning.length ? tn(morning.length, '{n} item', '{n} items') : t('nothing')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       {#if isOpen('morning')}
@@ -141,8 +148,9 @@
       </div>
       {/if}
     </details>
+    {/if}
 
-    {#if !timeOff}
+    {#if !on('time')}{:else if !timeOff}
       <details class="fold" data-packtime open={isOpen('time') || !!pt.start} ontoggle={toggle('time')}>
         <summary><Timer size={18} aria-hidden="true" /><span class="lab">{t('Packing time')}</span><span class="r tp-small tp-muted">{pt.start ? t('running · {n} min', { n: running }) : pt.ms ? t('{n} min', { n: minutesOf(pt.ms) }) : t('not measured')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
         <div class="body">
@@ -165,6 +173,14 @@
   .spk {
     padding: 12px 16px;
     margin: 12px 0;
+  }
+  /* inside a group of «Mehr zu dieser Tour»: the group is the card */
+  .spk.grouped {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
   }
   h3 {
     display: flex;
