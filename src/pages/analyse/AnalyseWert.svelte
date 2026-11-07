@@ -23,6 +23,9 @@
   import { addDays } from '../../lib/analyse.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
+  import { health } from '../../lib/health/client.svelte.js';
+  import { fitbitStand } from '../../lib/health/emptyline.js';
+  import { localDay } from '../../lib/localday.js';
   import { tripEnd } from '../../lib/tripstate.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
@@ -164,6 +167,14 @@
   const rangeOpts = $derived(RANGES.map((r) => ({ key: r.key, name: t(RANGE_NAMES[r.key]) })));
   const v = (x, val) => valueText(x, val, num);
   const tripOn = (d) => data.trips.find((tr) => tr.startDate && tr.startDate <= d && (tripEnd(tr) ?? tr.startDate) >= d);
+  // «Quelle einmal» (UI-Prüfung A2, Noah «3a»): the source, its last fetch and the way to it in one line under the title; a failed fetch keeps its button
+  const fstand = $derived(item?.src === 'fitbit' ? fitbitStand(health) : null);
+  const standText = $derived.by(() => {
+    if (!fstand?.at) return '';
+    const d = new Date(fstand.at);
+    const hm = d.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+    return t('As of {time}', { time: localDay(d) === localDay() ? hm : `${d.toLocaleDateString(locale(), { weekday: 'short' })} ${hm}` });
+  });
   const SRC_TEXT = {
     fitbit: 'Fitbit · from your watch via Google.',
     strava: 'Strava · from your activities.',
@@ -229,7 +240,8 @@
     <header>
       <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} />
       <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
-      <SourceLine src={item.src} data-source={item.src} />
+      <SourceLine src={item.src} stand={standText} data-source={item.src} />
+      {#if fstand?.failed}<FitbitStand />{/if}
       {#if tripsIn.length}
         <p class="tripsin" data-trips-in>
           <span>{t('Trips in this time')}</span>
@@ -368,8 +380,6 @@
           {:else}
             <p class="hint" data-sig-none>{t('Your range appears after 14 days with a value.|signals')}</p>
           {/if}
-          <p class="hint src">{t(SRC_TEXT[item.src] ?? SRC_TEXT.body)}</p>
-          <FitbitStand />
         </section>
       {/if}
 

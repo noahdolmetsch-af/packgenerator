@@ -22,7 +22,9 @@ function rows() {
     });
   }
   const trips = [{ id: 'e2e-wert-trip', name: 'Probefahrt Jura', domain: 'bike', status: 'done', startDate: addDays(TODAY, -23), days: 4 }];
-  return { healthDays, trips };
+  // Fitbit connected, last fetch today 05:42 UTC: the source line names it (A2)
+  const settings = [{ key: 'health', value: { connected: true, values: ['sleep', 'steps', 'azm', 'restingHr', 'hrvMs'], fetch: 'manual', lastSync: `${TODAY}T05:42:00.000Z` } }];
+  return { healthDays, trips, settings };
 }
 
 async function open(page, context) {
@@ -53,6 +55,9 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   await expect(src).toContainText('Fitbit');
   await expect(src.locator('a')).toHaveAttribute('href', '#/me/fitbit');
   await expect(src.locator('a')).toHaveCSS('min-height', '44px');
+  // one line for the source and its fetch (Noah «3a»): «Quelle Fitbit · Stand 07:42 ›»; the old second sentence is gone
+  await expect(src).toContainText(/Stand \d\d[:.]\d\d/);
+  await expect(wv.locator('.hint.src')).toHaveCount(0);
   // a past trip inside the period is a way to its tour page
   await expect(wv.locator('[data-trips-in] a')).toContainText('Probefahrt Jura');
   await expect(wv.locator('[data-trips-in] a')).toHaveAttribute('href', /#\/tour\/t%3Ae2e-wert-trip$/);

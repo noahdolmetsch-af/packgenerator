@@ -5,15 +5,16 @@ PR #… · 07.11.2026 · Auftrag: Noah «alle Vorschläge» der UI-Prüfung, Ran
 ## Was ist neu
 - Die Seite eines Werts in der Analyse (`#/auswerten/analyse/<Wert>`) hat unter dem Titel die Zeile «Quelle: Fitbit ›». Ein Tipp führt zur Seite der Quelle: Fitbit, Strava (Ich › Verbindungen), «Wi gaht's?» oder Aktiv.
 - Darunter, wenn in diesem Zeitraum eine vergangene Tour lag: «Touren in dieser Zeit: Probefahrt Jura ›» (höchstens 3, jede führt zur Tourseite).
+- Die Quelle steht jetzt einmal, in einer Zeile: «Quelle Fitbit · Stand 07:42 ›» (Noah «3a»). Der zweite Quellensatz und die zweite «Stand»-Zeile im Block «Was auffällt» fallen weg; schlug der letzte Abruf fehl, bleibt «Jetzt nochmals versuchen» direkt darunter.
 - Bausteine aus dem PR «Zahl mit Weg» (`SourceLine`, `zahlweg.js`), kein neuer Baustein.
 
 ## Was fällt weg oder rutscht tiefer
-- nichts. Der Satz zur Quelle im Seitenkopf («Fitbit · von deiner Uhr über Google.») bleibt.
+- Der doppelte Quellensatz im Block «Was auffällt» («Fitbit · von deiner Uhr über Google.») und die zweite «Stand»-Zeile dort: beides steht jetzt in der Quelle-Zeile unter dem Titel. Der Satz im Seitenkopf bleibt.
 
 ## Selbst entschieden
 - Eigene Einträge und eigene Berechnungen («body») haben keine Quellseite: dort fehlt die Zeile, der Satz im Kopf bleibt.
 - Kein neuer Eintrag in `features.js`: es ist ein Weg auf einer bestehenden Seite, kein neues Werkzeug.
-- Nicht gebaut: «Zurück zu Heute» (die Brotkrume merkt sich, woher man kam) und «zuletzt heute 07:12» in der Quelle-Zeile. Das Erste braucht eine App-weite Herkunft (eigener Schritt), das Zweite steht schon als «Stand» weiter unten (FitbitStand).
+- Nicht in diesem PR: «Zurück zu Heute» (die Brotkrume merkt sich, woher man kam). Noah «4a»: kommt als eigener PR, weil es die ganze App betrifft.
 
 ## Entscheide (für decisions.md)
 - keine neuen
