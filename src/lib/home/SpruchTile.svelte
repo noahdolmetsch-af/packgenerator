@@ -6,8 +6,9 @@
 <script>
   /**
    * «Spruch zum Einstieg» PR 1 (Noah 07.11.2026 «Bau spruch pr1»): one short sentence in Bernese German, built from your own
-   * numbers (weather, zone minutes, sleep and resting pulse, the next trip). A new one at each fresh start of the app, «New»
-   * gives the next. «Why?» shows the number behind it. Observation only. The rules and the 16 sentences are in spruch.js.
+   * numbers (weather, zone minutes, sleep and resting pulse, the next trip; PR 2: steps, weeks in a row, bike km, a year ago, the
+   * fog, your quotes of «Cushion time» in High German). A new one at each fresh start of the app, «New» gives the next. «Why?»
+   * shows the number behind it. Observation only. The rules and the sentences are in spruch.js, the numbers in spruch-data.js.
    * Move or hide the tile under «Customise the start page».
    */
   import { liveQuery } from 'dexie';
@@ -20,6 +21,7 @@
   import Empty from '../ui/Empty.svelte';
   import TileHead from './TileHead.svelte';
   import { SPRUCH_KEY, TONE_NAME, SOURCE_NAME, contextOf, pickSpruch, remember } from './spruch.js';
+  import { readSpruchExtra } from './spruch-data.js';
 
   // forecast: the home forecast of Today; trip/packed: the next trip and how far packing is; place: { lat, lon } of home or null
   let { today, now = new Date(), forecast = null, trip = null, packed = null, place = null, isnew = false } = $props();
@@ -27,6 +29,8 @@
   const rowsQ = liveQuery(async () => ({ v: db.healthDays ? await db.healthDays.where('date').aboveOrEqual(addDays(today, -35)).toArray() : [] }));
   const recQ = liveQuery(async () => ({ v: (await db.settings.get(SPRUCH_KEY))?.value ?? null }));
   const goalQ = liveQuery(async () => ({ v: (await db.settings.get(AZM_WEEK_KEY))?.value ?? null }));
+  // PR 2: weeks in a row, bike km of the year, a year ago, your quotes (spruch-data.js)
+  const extraQ = $derived(liveQuery(() => readSpruchExtra(db, today)));
 
   let fog = $state(null);
   let fogDone = $state(!place);
@@ -60,6 +64,10 @@
       trip,
       packed,
       fog,
+      series: $extraQ?.series ?? null,
+      km: $extraQ?.km ?? null,
+      ago: $extraQ?.ago ?? null,
+      quotes: $extraQ?.quotes ?? [],
     }),
   );
 
@@ -69,7 +77,7 @@
   let why = $state(false);
   let none = $state(false); // «New» found no other sentence
 
-  const ready = $derived($rowsQ !== undefined && $recQ !== undefined && $goalQ !== undefined && (grace || (forecast && fogDone)));
+  const ready = $derived($rowsQ !== undefined && $recQ !== undefined && $goalQ !== undefined && $extraQ !== undefined && (grace || (forecast && fogDone)));
   $effect(() => {
     if (decided || !ready) return;
     decided = true;
@@ -97,7 +105,7 @@
 <section class="sp surf" aria-labelledby="sp-h" data-section="spruch">
   <TileHead icon={Quote} id="sp-h" title={t('Saying|tile')} {isnew} />
   {#if shown}
-    <p class="txt" lang="gsw" data-spruch={shown.id} aria-live="polite">{shown.text}</p>
+    <p class="txt" lang={shown.lang ?? 'gsw'} data-spruch={shown.id} aria-live="polite">{shown.text}</p>
     <p class="tags">
       <span class="tag" data-spruch-ton={shown.ton}>{t(TONE_NAME[shown.ton])}</span>
       <span class="src">{t(SOURCE_NAME[shown.src])}</span>
