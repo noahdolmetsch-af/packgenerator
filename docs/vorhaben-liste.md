@@ -260,10 +260,19 @@ Aus den 30 Ideen (`notes/ideen-bewegung-2026-11-03/README.md`). Jede Idee ein ei
 | # | Idee | Stand |
 |---|---|---|
 | 23 | Strecke als Bild: Streckenform als kleines Zeichen in der Tourenliste | gebaut |
-| 13 | Höhenprofil wird abgefahren | gewählt |
-| 25 | Schweizer Berge statt Everest | gewählt |
-| 24 | Pässe sammeln | gewählt |
-| 18 | Tourenpass mit Stempel | gewählt |
+| 13 | Höhenprofil wird abgefahren | gebaut |
+| 25 | Schweizer Berge statt Everest | gebaut |
+| 24 | Pässe sammeln | gebaut |
+| 18 | Tourenpass mit Stempel | gebaut |
+
+### Ideen Bewegung, Paket G «Heute persönlicher und ruhiger» (Noah 03.11.2026 «G beides», 07.11.2026 «paket g»)
+
+Ziel 5 Alltag. Zwei Teile, je ein eigener kleiner PR mit Bildern.
+
+| Teil | Idee | Stand |
+|---|---|---|
+| 1 | Bild oben auf Heute: gezeichnete Landschaft mit nächster Tour und Countdown | gebaut |
+| 2 | Pro Karte ein starker Knopf, der Rest leise (zuerst Entdecken und Gewicht; weitere Karten nur, wenn sie noch einen zweiten starken Knopf haben) | gebaut |
 
 ### Schmunzel-Ideen, Paket F (Noah 03.11.2026 «E und F», aus den 30 Ideen in `notes/ideen-bewegung-2026-11-03/`)
 

@@ -9,19 +9,12 @@
  * rainGear(trip, items): the rain things on the trip's packing list: { n, packed }.
  */
 import { atLocal, hoursBetween, dayLine } from './kern.js';
+import { lastDay } from '../touren/wege.js';
 import { rainOf } from '../layers.js';
 import { homeTrips } from '../home/heute.js';
 
 export const RIDE_FROM = 7;
 export const RIDE_TO = 20;
-
-/** The last day of a trip (ISO) from its start and days, calendar days; null without a start. */
-const lastDay = (trip) => {
-  if (!trip?.startDate) return null;
-  const d = new Date(`${trip.startDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + Math.max(1, Number(trip.days) || 1) - 1);
-  return d.toISOString().slice(0, 10);
-};
 
 const planned = (x) => !!x && !x.skipped && !x.finished && x.status !== 'done' && !!x.startDate;
 

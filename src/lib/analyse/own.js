@@ -40,13 +40,15 @@ export function restlessOf(night) {
   return Math.round((awake / (asleep / 60)) * 10) / 10;
 }
 
+/** The weight of a minute in each pulse zone (shown on the page of the value, «Wie wird gerechnet?»). */
+export const LOAD_WEIGHTS = { light: 1, mod: 2, vig: 3, peak: 4 };
+
 /** Cardio-Belastung of a day: minutes per pulse zone { light, mod, vig, peak } weighted 1, 2, 3, 4. */
 export function cardioLoadOf(zones) {
   if (!zones || typeof zones !== 'object') return null;
-  const w = { light: 1, mod: 2, vig: 3, peak: 4 };
   let sum = 0;
   let any = false;
-  for (const [k, f] of Object.entries(w)) {
+  for (const [k, f] of Object.entries(LOAD_WEIGHTS)) {
     const v = fin(zones[k]);
     if (v != null) {
       sum += v * f;

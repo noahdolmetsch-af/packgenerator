@@ -1,12 +1,15 @@
 <script>
   /**
    * «Meine Sammlungen» shared as a page (Noah 05.11.2026 «Touren 2a und b»): #/share/sammlung/<code>.
-   * Read only: the collection (name and entries as text) travels in the address itself, nothing is
-   * read from or written to this device's data. Photos and positions never go into the link.
+   * The collection (name and entries as text) travels in the address itself; opening the page reads and
+   * writes nothing on this device. Only «Keep in my collections» saves it (as an own collection, with Undo).
+   * Photos and positions never go into the link.
    */
-  import { Printer } from '@lucide/svelte';
+  import { Printer, BookmarkPlus } from '@lucide/svelte';
   import { decodeShare } from '../share.js';
-  import { isCollShare } from '../frei.js';
+  import { isCollShare, collImport, collHref } from '../frei.js';
+  import { importColl, undoImportColl } from '../freidb.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
 
   let { code = '' } = $props();
@@ -14,6 +17,23 @@
   $effect(() => {
     decodeShare(code, isCollShare).then((x) => (coll = x));
   });
+  let kept = $state(null); // { id, name } once it is in the own collections
+  let busy = false;
+  async function keep() {
+    if (busy || kept || !coll) return;
+    busy = true;
+    try {
+      const made = collImport(coll);
+      const done = await importColl(made);
+      kept = { id: made.coll.id, name: made.coll.name };
+      offerDone(t('«{name}» is now in your collections.', { name: made.coll.name }), async () => {
+        await undoImportColl(done);
+        kept = null;
+      });
+    } finally {
+      busy = false;
+    }
+  }
 </script>
 
 <div class="gs" data-shared-coll>
@@ -29,6 +49,15 @@
     <p class="gs-acts no-print">
       <button type="button" class="btn" onclick={() => window.print()} data-print><Printer size={16} aria-hidden="true" />{t('Print or save as PDF')}</button>
       <a class="gs-link" href="#/">{t('Open Pack Generator')}</a>
+    </p>
+    <p class="gs-acts no-print" data-keep-box>
+      {#if kept}
+        <span data-kept>{t('Kept as «{name}».', { name: kept.name })}</span>
+        <a class="gs-link" href={collHref(kept.id)} data-kept-open>{t('Open it')}</a>
+      {:else}
+        <button type="button" class="btn hi" onclick={keep} data-keep><BookmarkPlus size={16} aria-hidden="true" />{t('Keep in my collections')}</button>
+        <span class="gs-muted">{t('Only the text comes along, no photos.')}</span>
+      {/if}
     </p>
     {#each coll.e as e, n (n)}
       <article class="gs-card" data-shared-entry>

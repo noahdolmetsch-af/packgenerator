@@ -31,10 +31,12 @@ test('Way to the goal: create a way, own steps, tick, move, delete and undo', as
   await expect(page.locator('[data-weg-goal] h2')).toHaveText('Test Rennen im Mai');
   await expect(page.locator('[data-page="weg"]')).toContainText(T('No steps yet. Add your first step below: it stays a suggestion, you can change it any time.'));
 
-  // own steps: one with a day, one without
+  // own steps: one with a day, one without (the form opens with «Add your own step»)
+  await page.locator('[data-weg-own-open]').click();
   await page.locator('[data-weg-step-title]').fill('Zug buchen');
   await page.locator('[data-weg-own] input[type="date"]').fill('2027-03-01');
   await page.locator('[data-weg-own] button[type="submit"]').click();
+  await page.locator('[data-weg-own-open]').click();
   await page.locator('[data-weg-step-title]').fill('Ohne Tag');
   await page.locator('[data-weg-own] button[type="submit"]').click();
   const steps = page.locator('[data-weg-step]');
@@ -47,10 +49,11 @@ test('Way to the goal: create a way, own steps, tick, move, delete and undo', as
   await steps.first().getByRole('button', { name: T('Done: {name}').replace('{name}', 'Zug buchen') }).click();
   await expect(steps.first()).toHaveClass(/done/);
   await expect(page.locator('[data-weg-goal]')).toContainText(T('{done} of {total} steps done').replace('{done}', '1').replace('{total}', '2'));
+  await steps.last().getByRole('button', { name: T('Edit {name}').replace('{name}', 'Ohne Tag') }).click();
   await steps.last().locator('input[type="date"]').fill('2027-04-20');
   await expect(page.locator('[data-page="weg"]')).not.toContainText(T('No day yet'));
 
-  // delete a step, then undo
+  // delete a step (its «…» menu is still open from the day change), then undo
   await steps.last().getByRole('button', { name: T('Delete {name}').replace('{name}', 'Ohne Tag') }).click();
   await page.getByRole('button', { name: T('Delete') }).last().click();
   await expect(steps).toHaveCount(1);
@@ -64,6 +67,7 @@ test('Way to the goal: create a way, own steps, tick, move, delete and undo', as
   await expect(steps).toHaveCount(2);
 
   // change the start day: the page still shows the way, no sideways scroll
+  await page.locator('[data-weg-menu]').click();
   await page.locator('[data-weg-start-edit]').fill('2027-06-01');
   await expect(page.locator('[data-weg-goal]')).toContainText(/\d/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
@@ -103,6 +107,38 @@ test('Way to the goal › Organisation: the strip counts the settled steps and n
   await page.locator('[data-weg-step] .wg-check').first().click();
   await expect(strip).toContainText(T('Organisation: {done} of {total} settled').replace('{done}', '1').replace('{total}', '5'));
   await page.locator('[data-weg-orga-go]').click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('Way to the goal › Practice rides: three circles, a tap ticks by hand and takes it back', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+
+  await page.goto('./#/trips/weg');
+  await ready(page);
+  await page.getByRole('button', { name: T('New way') }).click();
+  await page.locator('[data-weg-title]').fill('Test Rennen im Mai');
+  await page.locator('[data-weg-start]').fill('2027-05-15');
+  // keep only the steps of «Practice rides»
+  const picks = page.locator('[data-weg-new] .wg-pick');
+  const titles = ['Practice ride: 50 km', 'Practice ride: 100 km', 'Practice ride: 200 km'].map(T);
+  for (const label of await picks.allTextContents()) {
+    if (!titles.includes(label.trim())) await picks.filter({ hasText: label.trim() }).first().locator('input').uncheck();
+  }
+  await page.getByRole('button', { name: T('Create way') }).click();
+
+  const strip = page.locator('[data-weg-proben]');
+  await expect(strip.locator('[data-weg-proben-circle]')).toHaveCount(3);
+  await expect(strip).toContainText(T('Practice rides'));
+  const first = strip.locator('[data-weg-proben-circle]').first();
+  await expect(first).toHaveAttribute('aria-pressed', 'false');
+  await first.click();
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
+  await first.click();
+  await expect(first).toHaveAttribute('aria-pressed', 'false');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(errors).toEqual([]);
 });

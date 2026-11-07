@@ -60,6 +60,7 @@
   import TripTable from '../lib/touren/TripTable.svelte';
   import { savedView, saveView } from '../lib/listtable.js';
   import Empty from '../lib/ui/Empty.svelte';
+  import { tripWays } from '../lib/touren/wege.js'; // UI-Prüfung T2: the ways on a planned trip's card
   import { overviewCounts, weatherWindow, packBand, tileRows, rideBand, PACK_HREF } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { HOME_PLACE } from '../lib/know.js';
@@ -297,6 +298,13 @@
     return () => removeEventListener('hashchange', numbersFromHash);
   });
   let packOpen = $state(false);
+  // UI-Prüfung T2: «4 warten auf deinen Rückblick» shows exactly those trips (the chip «Abgeschlossen» of the list)
+  async function showWaiting() {
+    st = 'done';
+    packOpen = true;
+    await tick();
+    document.getElementById('trips-done')?.scrollIntoView({ block: 'start' });
+  }
   const shortDone = $derived(phone.matches && !doneAll);
   // Tempo (Noah 19.10.2026 «3a»): 20 rows first on every screen, «Show n more» adds 20 at a time; a new
   // filter or period starts at 20 again. Before, every trip and ride was drawn at once.
@@ -494,7 +502,7 @@
       {:else}
       <h1 class="title">{t('Trips|place')}</h1>
       <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->
-      {#if counts && $dataQ}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`, stCounts.done ? tn(stCounts.done, '{n} waits for your review', '{n} wait for your review') : ''].filter(Boolean).join(' · ')}</p>{/if}
+      {#if counts && $dataQ}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`].join(' · ')}{#if stCounts.done}<span class="cntsep">{' · '}</span><!-- UI-Prüfung T2: the number is a way: it shows the trips that wait for a Rückblick --><button type="button" class="btn btn-link cntgo" onclick={showWaiting} data-waiting-go>{tn(stCounts.done, '{n} waits for your review', '{n} wait for your review')}<ChevronRight size={14} aria-hidden="true" /></button>{/if}</p>{/if}
       {#if hiddenTests}<p class="cnt tests" data-hidden-tests>{tn(hiddenTests, '{n} test trip hidden', '{n} test trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (tidyOpen = true)}>{t('Clean up test data')}</button></p>{/if}
       {/if}
     </div>
@@ -619,6 +627,15 @@
                 <!-- B4: the band above no longer repeats this trip, so its card is the way into Packen -->
                 {#if bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
                   <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('being packed')} · {t('Open packing')}<ChevronRight size={13} aria-hidden="true" /></a>
+                {/if}
+                <!-- UI-Prüfung T2: the ways of the trip by its phase (Packen, Wetter, Form; after the trip Rückblick, Form) -->
+                {#if r.kind === 'trip' && byId[r.tripId]}
+                  {@const hasPm = bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
+                  <nav class="pways" aria-label="{t('Ways for this trip')}: {r.title}" data-plan-ways>
+                    {#each tripWays(byId[r.tripId], today).filter((w) => !(w.key === 'pack' && hasPm)) as w (w.key)}
+                      <a class="pway" href={w.href} onclick={w.key === 'pack' ? (e) => (e.preventDefault(), switchTrip(r.tripId, w.href)) : undefined} data-way={w.key}>{t(w.label)}<ChevronRight size={13} aria-hidden="true" /></a>
+                    {/each}
+                  </nav>
                 {/if}
               </li>
             {/each}
@@ -919,6 +936,44 @@
     padding: 0 12px;
     font-size: var(--fs-small);
     text-decoration: none;
+  }
+  /* UI-Prüfung T2: the ways on a planned card (above the card's own whole-card link) */
+  .pways {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    position: relative;
+    z-index: 1;
+  }
+  .pway {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.4 var(--font-body);
+    text-decoration: none;
+  }
+  .pway:hover {
+    background: var(--paper-2);
+  }
+  .cntgo {
+    min-height: 44px;
+    padding: 0 4px;
+    font: inherit;
+  }
+  /* on a phone the number that leads on stands on its own line (no dot left at the end of the line above) */
+  @media (max-width: 719px) {
+    .cntsep {
+      display: none;
+    }
+    .cntgo {
+      display: flex;
+      padding: 0;
+    }
   }
   /* Touren 2: the line above the list */
   .vhead {
