@@ -208,6 +208,37 @@ test('Gruss A: yesterday is marked quietly, a tap on the chosen button takes it 
   expect(errors).toEqual([]);
 });
 
+test('Gruss C: the last 7 days as dots, today fills at the first tap; the weather in the head behind Mehr', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const data = withName();
+  const row = (id, n, key) => ({ id, qid: 'hallo.gaht', area: 'spass', day: day(n), at: `${day(n)}T08:10`, slot: null, kind: 'chips', value: key, note: null, unit: null, src: 'hand' });
+  data.tables.abAnswers = [row('test_hw1', -1, 'guet'), row('test_hw2', -2, 'muede'), row('test_hw3', -4, 'super')];
+  const T = await openHome(page, context, info, { data, hour: 9 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  const week = sheet.locator('[data-hello-week]');
+  await expect(week).toBeVisible();
+  await expect(week.locator('li')).toHaveCount(7);
+  await expect(week.locator(`li[data-day="${day(-1)}"]`)).toHaveAttribute('data-key', 'guet');
+  await expect(week.locator(`li[data-day="${day(-2)}"]`)).toHaveAttribute('data-key', 'muede');
+  await expect(week.locator(`li[data-day="${day(-3)}"]`)).toHaveAttribute('data-key', '');
+  await expect(week.locator(`li[data-day="${day(0)}"]`)).toHaveAttribute('data-key', '');
+  await expect(sheet.locator('[data-hello-week-count]')).toContainText(T('{n} of 7 days answered', { n: 3 }));
+  await sheet.locator('[data-mood="okay"]').click();
+  await expect(week.locator(`li[data-day="${day(0)}"]`)).toHaveAttribute('data-key', 'okay');
+  await expect(sheet.locator('[data-hello-week-count]')).toContainText(T('{n} of 7 days answered', { n: 4 }));
+  await sheet.locator('[data-hello-more]').click();
+  const weather = sheet.locator('[data-feel-group="weather"]');
+  await expect(weather).toContainText(T('Weather in my head|hello'));
+  await weather.locator('[data-feel="naebel"]').click();
+  await weather.locator('[data-feel="raegeboge"]').click();
+  await expect(weather.locator('[aria-pressed="true"]')).toHaveCount(2);
+  await shot(page, info, 'gruss-c-woche-wetter');
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
 test('Gruss B: adjust the buttons: add with an emoji, rename, hide, delete with Undo, groups; the window and the history follow', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
