@@ -30,8 +30,8 @@
     // resting pulse: up is not «more», so the words stay neutral for every value
     return r.pct > 0 ? t('{n} % above your usual', { n: num(r.pct) }) : t('{n} % below your usual', { n: num(-r.pct) });
   }
-  // «Zahl mit Weg» (UI-Prüfung A1): the three values that are a value of Analyse of their own open there, over 3 months
-  const ANALYSE = { azm: 'azm', sleep: 'sleep', rhr: 'rhr' };
+  // «Zahl mit Weg» (UI-Prüfung A1, Noah «1a»): every value of the card is a value of Analyse of its own (catalog.js); it opens there, over 3 months
+  const ANALYSE = { time: 'tMove', km: 'kmAll', hm: 'hmAll', azm: 'azm', sleep: 'sleep', rhr: 'rhr' };
   const wk = (w) => `${Number(w.from.slice(8, 10))}.${Number(w.from.slice(5, 7))}.`;
 </script>
 

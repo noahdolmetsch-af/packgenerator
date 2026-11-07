@@ -81,11 +81,21 @@ test('Aktiv: small tiles, the week in numbers, the rings and «Wi gaht\'s?» exp
   await wn.locator('[data-wn="rhr"]').click();
   await expect(wn.locator('[data-wn-detail="rhr"] .bar')).toHaveCount(12);
   await expect(wn.locator('[data-wn-detail="rhr"]')).toContainText(T('Source: Fitbit.'));
-  // «Zahl mit Weg» (UI-Prüfung A1): resting pulse opens its value in Analyse, over 3 months; the distance has no value of its own there
+  // «Zahl mit Weg» (UI-Prüfung A1, Noah «1a»): every value of the card opens its value in Analyse, over 3 months
   await expect(wn.locator('[data-wn-analyse="rhr"]')).toHaveAttribute('href', '#/auswerten/analyse/rhr?zeit=m3');
   await wn.locator('[data-wn="km"]').click();
-  await expect(wn.locator('[data-wn-detail="km"]')).toBeVisible();
-  await expect(wn.locator('[data-wn-analyse]')).toHaveCount(0);
+  await expect(wn.locator('[data-wn-analyse="km"]')).toHaveAttribute('href', '#/auswerten/analyse/kmAll?zeit=m3');
+  await wn.locator('[data-wn-analyse="km"]').click();
+  await expect(page).toHaveURL(/#\/auswerten\/analyse\/kmAll\?zeit=m3$/);
+  await expect(page.locator('[data-detail="kmAll"]')).toBeVisible();
+  // 21 + 8 + 40 km of the three months
+  await expect(page.locator('[data-detail="kmAll"] [data-box="avg"]')).toContainText('69');
+  await go(page, '#/auswerten');
+  await openOverview(page);
+  for (const k of ['time', 'hm']) {
+    await wn.locator(`[data-wn="${k}"]`).click();
+    await expect(wn.locator(`[data-wn-analyse="${k}"]`)).toHaveAttribute('href', /#\/auswerten\/analyse\/(tMove|hmAll)\?zeit=m3$/);
+  }
 
   await expect(page.locator('[data-check-why]')).toContainText(T('Where you see it'));
   await expect(page.locator('[data-check-why] a[href="#/me/history"]')).toBeVisible();
