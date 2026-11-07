@@ -15,7 +15,7 @@
   import { loadBase } from '../lib/neuland/load.js';
   import { newSince, dayBefore } from '../lib/neuland/neuheute.js'; // N11 «Neu heute» here too (Noah 28.10.2026 «1 a und b»)
   import {
-    stateOf, collectionsOf, collectionName, setOn, moveCollection, moveCollectionTo, addCustom, renameCollection, deleteCustom,
+    stateOf, collectionsOf, collectionName, defOf, setOn, moveCollection, moveCollectionTo, addCustom, renameCollection, deleteCustom,
     addItem, editItem, hideItem, removeItem, restoreItem, tick, untick, clearNope, newIn, bingoCard, bingoLines, cantonsInYear,
     itemLabel, whatOf, neulandSummary, placeText, isBuiltIn, LOOSE_ID, CANTON_IDS,
   } from '../lib/neuland/neuland.js';
@@ -23,6 +23,8 @@
   import Bingo from '../lib/neuland/Bingo.svelte';
   import NeueKm from '../lib/neuland/NeueKm.svelte'; // N4 «Neue Kilometer»
   import FundList from '../lib/neuland/FundList.svelte'; // N10 «Eine Fundliste»
+  import OsmBox from '../lib/neuland/OsmBox.svelte'; // N18 «Neue Sammlungen» from OpenStreetMap
+  import { refreshOsmIfDue } from '../lib/neuland/osm.js';
   import ItemSheet from '../lib/neuland/ItemSheet.svelte';
   import CollectionsSheet from '../lib/neuland/CollectionsSheet.svelte';
   import { maybeOf } from '../lib/neuland/vielleicht.js'; // «Eine Regel für Pässe»: 600 m sure, to 1.2 km please confirm
@@ -49,6 +51,7 @@
   const LS = 'pg.neuland.sel';
 
   const rawQ = liveQuery(() => readRaw(db));
+  refreshOsmIfDue(db).catch((err) => console.error(err)); // N18: once a week by itself (a second page open the same week does nothing)
   let result = $state.raw(null);
   let failed = $state(false);
   let bg = $state.raw({});
@@ -239,7 +242,7 @@
 </script>
 
 <div class="rv-page nl">
-  <PathHead crumbs={[{ label: t('Analysis|place'), href: '#/auswerten' }]} title={t('New ground')} sub={t('What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself. After a ride, «New since yesterday» shows what is new; «New kilometres» counts new roads.')}>
+  <PathHead crumbs={[{ label: t('Analysis|place'), href: '#/auswerten' }]} title={t('New ground')} sub={t('What you experienced for the first time. The app finds it from your routes and rides; you can tick everything yourself. After a ride, «New since yesterday» shows what is new; «New kilometres» counts new roads. «Towers, bridges, waterfalls» come from OpenStreetMap, once a week by themselves.')}>
     <button type="button" class="btn" aria-haspopup="dialog" onclick={() => (colsOpen = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Choose collections')}</button>
     <!-- «Heatmap» (Noah 20.10.2026 «1a und b»): all rides on one map, its own page -->
     <a class="btn" href="#/heatmap" data-neuland-heatmap><Flame size={16} aria-hidden="true" />{t('Heatmap')}</a>
@@ -304,7 +307,10 @@
             <MaybeList list={maybes} onyes={maybeYes} onno={maybeNo} onopen={(m) => (itemOpen = { cid: cur.id, id: m.id })} />
             <div class="rv-box nl-list">
               <label class="find"><Search size={16} aria-hidden="true" /><input type="search" bind:value={q} placeholder={t('Search in {name}', { name: name(cur) })} aria-label={t('Search in {name}', { name: name(cur) })} autocomplete="off" /></label>
-              {#if !cur.items.length}
+              {#if !cur.items.length && defOf(cur.id)?.osm}
+                <Empty icon={Compass} text={t('Nothing here yet. These places come from OpenStreetMap.')} />
+                <OsmBox cid={cur.id} empty />
+              {:else if !cur.items.length}
                 <Empty text={cur.builtIn ? t('All entries are hidden.') : t('No entries yet. Add a place, e.g. a café with its place.')} action={{ label: t('Add an entry'), onclick: () => startName('newItem', cur) }} />
               {:else if !rows.length}
                 <p class="none">{q.trim() ? t('Nothing found for «{q}».', { q: q.trim() }) : t('Nothing new in {year} yet.', { year })}</p>
@@ -328,6 +334,7 @@
                   <button type="button" class="btn more" onclick={() => (showAll = true)}>{t('Show all ({n})', { n: rows.length })}</button>
                 {/if}
               {/if}
+              {#if cur.items.length && defOf(cur.id)?.osm}<OsmBox cid={cur.id} />{/if}
               {#if cur.items.length}<button type="button" class="add" onclick={() => startName('newItem', cur)}><Plus size={18} aria-hidden="true" />{cur.builtIn ? t('Something missing? Add an entry') : t('Add an entry')}</button>{/if}
             </div>
             {#if cur.hidden.length}

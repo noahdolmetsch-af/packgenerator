@@ -1300,6 +1300,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground: the card «List of finds» is at the top.', 'Switch between «This year» and «All years»; «Show more» opens the whole list.', 'Add your own find under Ich › Was mir gut tut › «Add Neuland»; it shows in the list too.'],
     example: 'Example: a pass ticked in the summit book is ticked in New ground too and appears once in the list.',
   },
+  'f.osmsets': {
+    on: 'Needs the internet now and then to load the places (once a week by itself); then it works offline.',
+    steps: ['Open Trips › Look back › New ground.', 'Choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load again» to bring the places up to date; the list shows what you reached.'],
+    example: 'Example: a waterfall on a ride is ticked by itself, with the day.',
+  },
   'f.monthadv': {
     on: 'Works offline; the kinds that start from home need your home place.',
     steps: ['Open Trips › Dreams: «One adventure a month» names this month\'s adventure.', 'Tap «Show me»: you land at the card for it.', 'Under «Kinds» hide one, add your own, or switch the line on Today off.'],

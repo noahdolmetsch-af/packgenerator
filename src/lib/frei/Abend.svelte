@@ -6,7 +6,7 @@
    * (the browser's own voice, free, nothing leaves the device), stop any time. A question for your way:
    * by theme, «Another question», own ones. Everything changeable, nothing a must.
    */
-  import { Moon, Check, Plus, X, Pencil, Music, Volume2, Square, Shuffle, Footprints } from '@lucide/svelte';
+  import { Moon, Check, Plus, X, Pencil, Music, Volume2, Square, Shuffle, Footprints, PhoneOff, Heart } from '@lucide/svelte';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -14,8 +14,8 @@
   import { sortable } from '../ui/sortable.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  import { cfgQuery, changeCfg, restoreCfg } from '../freidb.js';
-  import { ritualsOf, tickRitual, eveningsInRow, MAX_RITUALS, RITUAL_IDEAS, ARRIVE, QUESTION_GROUPS, questionsOf, nextOf, dayNo, uid } from '../frei.js';
+  import { cfgQuery, changeCfg, restoreCfg, rowsQuery, putRow, deleteRow } from '../freidb.js';
+  import { ritualsOf, tickRitual, eveningsInRow, MAX_RITUALS, RITUAL_IDEAS, ARRIVE, EVE_MINUTES, EVE_DEFAULT, eveTimerState, mmss, goodEvenings, QUESTION_GROUPS, questionsOf, nextOf, dayNo, uid } from '../frei.js';
   import { localDay } from '../localday.js';
   import { phone } from '../media.svelte.js';
   import { t, tn, lang } from '../i18n.svelte.js';
@@ -69,6 +69,31 @@
     const to = Math.min(Math.max(i + dir, 0), ids().length - 1);
     return to === i ? null : reorder(id, to);
   };
+
+  /* ---------- the evening timer without the phone, and «did you good» ---------- */
+  const eveQ = rowsQuery('evening');
+  const eveRows = $derived($eveQ ?? []);
+  let now = $state(Date.now());
+  const timer = $derived(eveTimerState(cfg.eveTimer, now));
+  let eveMin = $state(EVE_DEFAULT);
+  $effect(() => {
+    if (timer.state !== 'run') return;
+    const id = setInterval(() => (now = Date.now()), 1000);
+    return () => clearInterval(id);
+  });
+  $effect(() => {
+    if (timer.state === 'done') navigator.vibrate?.([200, 100, 200]);
+  });
+  const startTimer = () => ((now = Date.now()), changeCfg((c) => ({ ...c, eveTimer: { end: Date.now() + eveMin * 60000, min: eveMin } })));
+  const stopTimer = () => changeCfg((c) => ({ ...c, eveTimer: null }));
+  const todayRow = $derived(eveRows.find((r) => r.day === today) ?? null);
+  const goodCount = $derived(goodEvenings(eveRows, today));
+  async function answerEvening(good) {
+    const min = timer.state === 'done' ? timer.min : undefined;
+    const rec = await putRow({ kind: 'evening', day: today, good, ...(min ? { min } : {}) });
+    if (timer.state === 'done') await stopTimer();
+    offerDone(good ? t('Noted: this evening did you good.') : t('Noted. Not every evening has to.'), () => deleteRow(rec.id));
+  }
 
   /* ---------- music ---------- */
   const music = $derived(cfg.music ?? null);
@@ -184,6 +209,40 @@
         <button type="submit" class="btn sm">{t('Add')}</button>
       </form>
     {/if}
+  </section>
+
+  <section class="fz-box" aria-labelledby="fza-eve-h" data-eve-timer>
+    <h2 id="fza-eve-h" class="fz-h2"><PhoneOff size={18} aria-hidden="true" /> {t('Time without the phone')}</h2>
+    {#if timer.state === 'idle'}
+      <p class="fz-note">{t('Pick a time, start, and put the phone away. The app remembers when it is over.')}</p>
+      <div class="fz-chips" role="group" aria-label={t('Minutes')}>
+        {#each EVE_MINUTES as m (m)}<button type="button" class="fz-chip" aria-pressed={eveMin === m} onclick={() => (eveMin = m)} data-eve-min={m}>{t('{n} min', { n: m })}</button>{/each}
+      </div>
+      <div class="fz-acts"><button type="button" class="btn hi" onclick={startTimer} data-eve-start>{t('Start')}</button></div>
+    {:else if timer.state === 'run'}
+      <p class="fz-big" role="timer" data-eve-left>{mmss(timer.left)}</p>
+      <p class="fz-note">{t('Phone away. Nothing to do now.')}</p>
+      <div class="fz-acts"><button type="button" class="btn sm" onclick={stopTimer} data-eve-stop>{t('Stop')}</button></div>
+    {:else}
+      <p class="fz-big" data-eve-done>{t('{n} minutes without the phone. Well done.', { n: timer.min })}</p>
+      <p class="fz-note">{t('Did it do you good?')}</p>
+      <div class="fz-acts">
+        <button type="button" class="btn hi" onclick={() => answerEvening(true)} data-eve-good><Heart size={16} aria-hidden="true" />{t('Did me good')}</button>
+        <button type="button" class="btn" onclick={() => answerEvening(false)} data-eve-notreally>{t('Not really')}</button>
+        <button type="button" class="btn sm" onclick={stopTimer} data-eve-skip>{t('Skip')}</button>
+      </div>
+    {/if}
+    {#if timer.state !== 'done'}
+      <div class="fz-acts">
+        {#if todayRow}
+          <span class="fz-note" data-eve-today>{todayRow.good ? t('Tonight did you good.') : t('Tonight: not really.')}</span>
+          <button type="button" class="btn sm" onclick={async () => (await deleteRow(todayRow.id), null)} data-eve-undo>{t('Take it back')}</button>
+        {:else}
+          <button type="button" class="btn sm" onclick={() => answerEvening(true)} data-eve-good-now><Heart size={16} aria-hidden="true" />{t('This evening did me good')}</button>
+        {/if}
+      </div>
+    {/if}
+    <p class="fz-note" data-eve-count>{goodCount ? tn(goodCount, '{n} evening in the last 30 days did you good.', '{n} evenings in the last 30 days did you good.') : t('Mark an evening that did you good and it is counted here.')}</p>
   </section>
 
   <section class="fz-box" aria-labelledby="fza-mus-h">

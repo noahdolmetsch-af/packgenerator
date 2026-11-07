@@ -487,6 +487,26 @@ export function eveningsInRow(rituals, ticks = {}, day) {
   }
   return n;
 }
+/* ---------- evening timer and «did you good» (Noah 05.11.2026 «Touren 2a und b») ---------- */
+export const EVE_MINUTES = [10, 20, 30, 45];
+export const EVE_DEFAULT = 20;
+/** The timer as saved ({ end: ms, min }) at `now`: idle, running (left ms) or done (the time is up, not answered yet). */
+export function eveTimerState(timer, now = Date.now()) {
+  const end = Number(timer?.end);
+  if (!Number.isFinite(end) || end <= 0) return { state: 'idle', left: 0, min: 0 };
+  const min = Math.max(1, Math.min(240, Math.round(Number(timer.min) || EVE_DEFAULT)));
+  return end > now ? { state: 'run', left: end - now, min } : { state: 'done', left: 0, min };
+}
+export const mmss = (ms) => {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+/** Evenings that did you good in the last `days` days up to `day` (rows of kind 'evening' { day, good }; one per day counts). */
+export function goodEvenings(rows = [], day, days = 30) {
+  const from = new Date(toMs(day) - (days - 1) * MS).toISOString().slice(0, 10);
+  return new Set(rows.filter((r) => r?.good === true && r.day >= from && r.day <= day).map((r) => r.day)).size;
+}
+
 /** Short texts to arrive: read them or let the device read them out. */
 export const ARRIVE = [
   { id: 'a1', name: 'Arrive for a moment', text: 'Sit or stand the way that feels good. Notice the floor under your feet or the chair under you. Watch a few breaths, no need to improve them. Then let your eyes wander and find three things that catch your attention. That is it. You have arrived.' },
