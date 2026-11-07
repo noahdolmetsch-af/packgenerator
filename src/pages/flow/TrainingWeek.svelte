@@ -26,6 +26,7 @@
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import { weekLoadHint, scaleWeek } from '../../lib/training/suggest.js';
+  import NextWeek from '../../lib/training/plans/NextWeek.svelte'; // «Training verbessern» 8: «Next week» in the look back
   import Library from '../../lib/training/plans/Library.svelte'; // «Training verbessern» 7: «From your library»
   import WeekLoad from '../../lib/training/plans/WeekLoad.svelte'; // «Training verbessern» 6: «A lighter week would fit»
   import Missed from '../../lib/training/plans/Missed.svelte'; // «Training verbessern» 5: «Missed one? Move it»
@@ -106,6 +107,15 @@
       await db.settings.delete(TODAYKEEP_KEY);
       await savePlan(plan.map((x) => (x.id === before.id ? before : x)));
     });
+  }
+
+  // «Training verbessern» 8: the look back suggests next week (hours like last week, a little more, easier); a tap opens its suggestion
+  let nextPreset = $state(null);
+  const lastWeekHours = $derived(weekNumbers(acts, plan, shiftDay(mondayOf(today), -7), zones.bounds).secs / 3600);
+  function pickNext(h) {
+    monday = shiftDay(mondayOf(today), 7);
+    nextPreset = { hours: h, n: Date.now() };
+    setTimeout(() => document.getElementById('plan-h')?.scrollIntoView?.({ block: 'start' }), 50);
   }
 
   // «Training verbessern» 7 «Einheiten-Bibliothek»: keep a session, plan it again with one tap, rename, delete (Undo)
@@ -357,7 +367,7 @@
         </ul>
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
         {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
-        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} />
+        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} preset={nextPreset} />
       </div>
     </Sec>
 
@@ -370,6 +380,7 @@
         <BarChart id="lookback" cols={wCols} line={wLine} lineColor="var(--ink)" readout={wRead} table={wTable} unit="h" label={t('Hours per week, last six weeks')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its hours, tap it for the zones.')} />
         <ZoneBar bar={false} legend />
         <p class="tw num" data-this-week>{goal?.hours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goal.hours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
+        {#if monday === mondayOf(today)}<NextWeek last={lastWeekHours} hours={(h) => `${num(h)} h`} onpick={pickNext} />{/if}
         {/if}
         <p class="fb"><span><Timer size={16} aria-hidden="true" />{t('Active zone minutes')} <i class="pill">{t('with Fitbit')}</i></span><span><Heart size={16} aria-hidden="true" />{t('Resting heart rate')} <i class="pill">{t('with Fitbit')}</i></span></p>
       </div>
