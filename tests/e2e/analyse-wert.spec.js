@@ -48,6 +48,11 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   await expect(page).toHaveURL(/#\/auswerten\/analyse\/rhr$/);
   const wv = page.locator('[data-detail="rhr"]');
   await expect(wv.getByRole('heading', { level: 1 })).toHaveText(T('Resting pulse'));
+  // the source is a way (A2): «Quelle: Fitbit ›» leads to the Fitbit page
+  const src = wv.locator('[data-source="fitbit"]');
+  await expect(src).toContainText('Fitbit');
+  await expect(src.locator('a')).toHaveAttribute('href', '#/me/fitbit');
+  await expect(src.locator('a')).toHaveCSS('min-height', '44px');
   // 3 months by default: four boxes, the highest day names the trip
   for (const b of ['avg', 'lo', 'hi', 'typ']) await expect(wv.locator(`[data-box="${b}"]`), b).toBeVisible();
   await expect(wv.locator('[data-box="hi"] span')).toContainText('Probefahrt Jura');

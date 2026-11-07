@@ -11,6 +11,7 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
+  import SourceLine from '../../lib/ui/SourceLine.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import { analyseData } from '../../lib/analyse/data.svelte.js';
   import { analyseGroups, itemsByKey, detailHref } from '../../lib/analyse/catalog.js';
@@ -219,6 +220,7 @@
     <header>
       <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} />
       <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
+      <SourceLine src={item.src} data-source={item.src} />
     </header>
 
     {#if item.later}
