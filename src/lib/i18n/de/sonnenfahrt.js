@@ -11,4 +11,9 @@ export default {
   'Plan a ride': 'Fahrt planen',
   'A guess from the fog line and your route. A webcam shows how it really is.': 'Eine Schätzung aus Nebelgrenze und Route. Eine Webcam zeigt, wie es wirklich ist.',
   'Suggest a ride above the fog on Today': 'Auf Heute eine Fahrt über dem Nebel vorschlagen',
+  // step C (Noah 06.11.2026 «3a»): wetter/sonnenrest.js
+  'Active zone minutes this week: {sum} of {of}.': 'Aktive Zonenminuten diese Woche: {sum} von {of}.',
+  'Active zone minutes this week: {sum} of {of}. The weekly goal is reached.': 'Aktive Zonenminuten diese Woche: {sum} von {of}. Das Wochenziel ist erreicht.',
+  'Shortest ride above the fog: {title}, {km} km, about {time} h.': 'Kürzeste Fahrt über dem Nebel: {title}, {km} km, etwa {time} h.',
+  'Show this ride': 'Diese Fahrt zeigen',
 };
