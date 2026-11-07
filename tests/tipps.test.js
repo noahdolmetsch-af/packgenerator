@@ -73,5 +73,8 @@ describe('free time from the calendar', () => {
     expect(startHours({ hours: 4.5 })).toBe(4);
     expect(startHours({ hours: 12 })).toBe(6);
     expect(startHours({ hours: 1 })).toBe(TIP_HOURS[0]);
+    expect(startHours({ hours: 1.5 })).toBe(1.5); // 90 minutes free
+    expect(startHours({ hours: 2.5 })).toBe(2);
+    expect(TIP_HOURS).toContain(1.5);
   });
 });
