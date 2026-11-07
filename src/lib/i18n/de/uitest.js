@@ -59,4 +59,14 @@ export default {
   'This device is still empty (at most the examples of the first start). Take the file over with «Replace all data».': 'Dieses Gerät ist noch leer (höchstens die Beispiele vom ersten Start). Übernimm die Datei mit «Alle Daten ersetzen».',
   'The examples of the first start are still here: «Remove the examples» below takes them away, your own data stays.': 'Die Beispiele vom ersten Start sind noch da: «Beispiele entfernen» weiter unten nimmt sie weg, deine eigenen Daten bleiben.',
   'This device has nothing of your own yet (at most the examples of the first start), so nothing is lost.': 'Auf diesem Gerät ist noch nichts von dir (höchstens die Beispiele vom ersten Start), es geht also nichts verloren.',
+  // T12 «Kleine Rechenfehler»
+  'Ticked off, without minutes.': 'Abgehakt, ohne Minuten.',
+  'ticked|med': 'abgehakt',
+  'Your own list is empty. For the trip «{title}» {n} thing is ready below.': 'Deine eigene Liste ist leer. Für die Tour «{title}» steht unten {n} Ding bereit.',
+  'Your own list is empty. For the trip «{title}» {n} things are ready below.': 'Deine eigene Liste ist leer. Für die Tour «{title}» stehen unten {n} Dinge bereit.',
+  'On: the food of your next trip shows here too. Off: it stays only at the trip, in Pack › Shopping and charging list.': 'An: Das Essen deiner nächsten Tour steht auch hier. Aus: Es bleibt nur bei der Tour, in Packen › Einkaufs- und Ladeliste.',
+  'One block after the other: keep, take out or move.': 'Ein Baustein nach dem anderen: behalten, rausnehmen oder verschieben.',
+  '{n} block with suggestions': '{n} Baustein mit Vorschlägen',
+  '{n} blocks with suggestions': '{n} Bausteine mit Vorschlägen',
+  '{n} with suggestions. One building block after the other: keep, out or elsewhere': '{n} mit Vorschlägen. Ein Baustein nach dem anderen: behalten, raus oder anderswohin',
 };

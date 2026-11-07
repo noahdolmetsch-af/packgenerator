@@ -200,7 +200,8 @@
                 <a href="{base}/s/{encodeURIComponent(r.e.id)}" class="srow">
                   <span class="d"><b>{wd(r.e.day)}</b>{dayShort(r.e.day)}</span>
                   <span class="rt"><b>{x ? tplName(x) : actName(act)}</b><small>{[kindName(r.s?.art), r.e.at ? timeShort(Date.parse(r.e.at)) : ''].filter(Boolean).join(' · ')}{#if n.depth}{' · '}{t('depth {n} of 5', { n: n.depth })}{/if}</small>{#if n.note}<em>«{n.note}»</em>{/if}</span>
-                  <b class="m num">{Math.round(Number(r.e.min) || 0)}′</b>
+                  <!-- UI-Test T12 (G3-15): a tick without minutes is no «0′» session -->
+                  <b class="m num">{Number(r.e.min) >= 1 ? `${Math.round(Number(r.e.min))}′` : t('ticked|med')}</b>
                 </a>
               </li>
             {/each}

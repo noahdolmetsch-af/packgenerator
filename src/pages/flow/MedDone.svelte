@@ -169,7 +169,7 @@
     </section>
   {:else if data && entry}
     <header class="hero">
-      <h1 class="big num" tabindex="-1" data-page-title>{tn(min, '{n} minute.', '{n} minutes.')}</h1>
+      <h1 class="big num" tabindex="-1" data-page-title>{min ? tn(min, '{n} minute.', '{n} minutes.') : t('Ticked off, without minutes.')}</h1>
       <p class="facts">{facts}</p>
       {#if quietLine}<p class="won" data-won><Star size={14} aria-hidden="true" />{quietLine}</p>{/if}
     </header>
