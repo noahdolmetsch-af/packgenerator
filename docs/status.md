@@ -1,6 +1,6 @@
 # Projektstand
 
-> **Verlauf.** Was die App heute kann und wo es steht, steht in [App-Stand](app-stand.md); diese Datei ist das Protokoll der einzelnen Releases.
+> **Verlauf.** Was die App heute kann und wo es steht, steht in [App-Stand](app-stand.md); diese Datei ist das Protokoll der einzelnen Releases (Verlauf, gilt nicht mehr als Stand; heutiger Stand: [Stand und Plan](stand-und-plan.md)).
 
 Stand: 26. Oktober 2026 (Kopf nachgetragen; die Einträge unten werden mit jedem Release ergänzt). Der kurze Überblick steht im [Projektstand](projektstand.md), der Verlauf in der [Geschichte](geschichte.md). Diese Datei ist das ausführliche Protokoll.
 
