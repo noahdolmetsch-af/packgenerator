@@ -1,6 +1,6 @@
 # Tagebuch: die Stimmungskurve zum Antippen
 
-PR 12 · 07.11.2026 · Auftrag: Noah «ja» (Thread «Diagramme klickbar machen»), PR 12, Rückblick (Teil 2)
+PR 12 (#1146) · 07.11.2026 · Auftrag: Noah «ja» (Thread «Diagramme klickbar machen»), PR 12, Rückblick (Teil 2)
 
 ## Was ist neu
 - Die Stimmungskurve der letzten 90 Tage (Tagebuch › Rückblick, `Rueckblick.svelte`) nutzt jetzt `LineChart`: die fünf Smileys als Achse, genaue Stimmung eines Tages beim Zeigen oder mit den Pfeiltasten, Tippen öffnet ein Fenster (Stimmung, Zahl der Einträge, «Tag davor» / «Nächster Tag»), «Als Tabelle» listet die Tage mit Stimmung, neuester zuerst.
