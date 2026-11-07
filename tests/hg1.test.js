@@ -100,6 +100,18 @@ describe('the answer in the ONE history of «Deine Abfragen» (2b)', () => {
     expect(valueText(rows[1], QUESTION['hallo.vor'])).toBe('Training · Arbeit');
     expect(numberOf(QUESTION['hallo.gaht'].form, 'guet')).toBe(0.75);
   });
+  it('Gruss D: reasons are their own row; in the evening the day words and the text replace the plan', () => {
+    const at = '2026-10-09T19:30';
+    const rows = helloRows({ mood: 'okay', reasons: ['r-schlaf'], plans: ['tour'], days: ['streng', 'schoen'], text: 'Lange Sitzung', evening: true }, at);
+    expect(rows.map((r) => r.qid)).toEqual(['hallo.gaht', 'hallo.grund', 'hallo.tag']);
+    expect(rows[1]).toMatchObject({ value: ['r-schlaf'] });
+    expect(rows[2]).toMatchObject({ value: ['streng', 'schoen'], note: 'Lange Sitzung' });
+    expect(valueText(rows[2], QUESTION['hallo.tag'])).toBe('Streng · Schön');
+    // by day the same input asks the plan, the day words are dropped
+    expect(helloRows({ plans: ['tour'], days: ['streng'], text: 'x' }, at).map((r) => r.qid)).toEqual(['hallo.vor']);
+    expect(rowText(rows[1])).toBe("Woran liegt's?");
+    expect(rowText(rows[2])).toBe("Wie war's?");
+  });
   it('saveHello writes into abAnswers, read back by the one history', async () => {
     const n = await saveHello({ mood: 'okay', plans: ['ruhetag'], text: '' }, '2026-10-09T19:30');
     expect(n).toBe(2);

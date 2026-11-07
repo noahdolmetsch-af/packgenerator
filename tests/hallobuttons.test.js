@@ -52,6 +52,27 @@ describe('Gruss C: the weather in the head comes once to older records', () => {
   });
 });
 
+describe('Gruss D: reasons and the words for the day are lists like the plans', () => {
+  it('built in, editable like the plans, options of their questions, old records get the built-in words', () => {
+    const d = cfgOf(undefined);
+    expect(d.reasons.map((x) => x.label)).toEqual(['Schlaf', 'Wetter', 'Arbeit', 'Mensche', 'Körper']);
+    expect(d.day.map((x) => x.label)).toEqual(['Gschafft', 'Schön', 'Streng', 'Gmüetlech', 'Mühsam', 'Spannend']);
+    let c = addItem(d, 'reasons', 'Ernährung', '', 'r-own');
+    c = editItem(c, 'reasons', 'r-wetter', { label: 'Wetter draussen' });
+    c = dropItem(c, 'reasons', 'r-schlaf');
+    c = setHidden(c, 'day', 'streng', true);
+    expect(shown(c, 'reasons').map((x) => x.label)).toEqual(['Wetter draussen', 'Arbeit', 'Mensche', 'Körper', 'Ernährung']);
+    expect(offered(c, 'day').map((x) => x.key)).not.toContain('streng');
+    expect(moveItem(c, 'reasons', 0, 1).reasons[1].key).toBe('r-wetter');
+    applyButtons(cfgOf(JSON.parse(JSON.stringify(c))));
+    expect(Q('hallo.grund').form.options.map((o) => o.label)).toEqual(expect.arrayContaining(['Schlaf', 'Wetter draussen', 'Ernährung']));
+    expect(Q('hallo.tag').form.options.map((o) => o.key)).toContain('streng'); // hidden: old answers keep their words
+    const old = cfgOf({ faces: [{ key: 'okay', label: 'Okay' }], groups: [], plans: [{ key: 'p', label: 'P' }] });
+    expect(old.reasons).toHaveLength(5);
+    expect(old.day).toHaveLength(6);
+  });
+});
+
 describe('edit the buttons', () => {
   it('add with an emoji (once per name), rename, hide, delete, restore', () => {
     let c = defaults();
