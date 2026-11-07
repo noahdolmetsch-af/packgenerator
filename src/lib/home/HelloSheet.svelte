@@ -9,11 +9,12 @@
    */
   import { keepTyped } from '../ui/keeptyped.js';
   import { ChevronRight, X, Plus, Clock3, Pencil, Smile, FaceSlightlyFrowning, FaceExpressionless, FaceNeutral, FaceSlightlySmiling, FaceGrinning } from '@lucide/svelte';
-  import { t } from '../i18n.svelte.js';
+  import { t, locale } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
   import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, HELLO_FEEL, helloTitle } from './hallo.js';
   import { buttonsQuery, saveButtons, offered, groupName, defaults } from './hallobuttons.js';
   import { saveHello } from './hallo-save.js';
+  import { weekDots, daysBefore, answeredDays } from './hallo-week.js';
   import { stampOf } from '../abfragen.js';
   import { db } from '../db.js';
   import '../bikes/velo-dlg.css';
@@ -48,6 +49,14 @@
   let ydMood = $state(null);
   let ydFeelings = $state([]);
   let at = '';
+  // Gruss C: the last seven days as dots (the answers of the faces, read once when the window opens and again after each save)
+  let weekRows = $state([]);
+  const dots = $derived(weekDots(weekRows, stampOf().slice(0, 10), faces));
+  const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '').slice(0, 2);
+  async function week() {
+    const to = stampOf().slice(0, 10);
+    weekRows = await db.abAnswers.where('day').between(daysBefore(to, 6), to, true, true).filter((r) => r.qid === 'hallo.gaht').toArray();
+  }
   let touched = false;
   let timer;
   $effect(() => {
@@ -74,8 +83,10 @@
     at = stampOf();
     ydMood = null;
     ydFeelings = [];
+    weekRows = [];
     open = true;
     yesterday();
+    week();
   }
   const toggle = (list, k) => (list.includes(k) ? list.filter((x) => x !== k) : [...list, k]);
   // every tap is saved after a short moment (the rows have fixed ids, so a changed answer replaces the old one)
@@ -91,6 +102,7 @@
     clearTimeout(timer);
     if (!touched) return;
     saved = await saveHello({ mood, feelings, plans, text }, at);
+    week();
   }
   const touch = () => (touched = true);
   async function done() {
@@ -126,6 +138,19 @@
       {/each}
     </div>
     <p class="obs">{t('Only an observation, no judgement.')}</p>
+    <div class="week" data-hello-week role="group" aria-labelledby="hs-week">
+      <span class="wl" id="hs-week">{t('Last 7 days')}</span>
+      <ol class="wd">
+        {#each dots as d, i (d.day)}
+          <li class="wday" class:today={i === 6} data-day={d.day} data-key={d.key ?? ''}>
+            <span class="dot" class:on={!!d.key} style:opacity={d.key ? 0.35 + 0.65 * (d.v ?? 0.5) : null} title={d.key ? d.label : ''}></span>
+            <small>{wd(d.day)}</small>
+            <span class="sr">{d.key ? `${wd(d.day)}: ${d.label}` : `${wd(d.day)}: ${t('no answer|hello')}`}</span>
+          </li>
+        {/each}
+      </ol>
+      <small class="wc" data-hello-week-count>{t('{n} of 7 days answered', { n: answeredDays(dots) })}</small>
+    </div>
     {#if groups.length}<button type="button" class="more" aria-expanded={more} onclick={() => (more = !more)} data-hello-more>{more ? t('Fewer|hello') : t('More|hello')}{feelings.length && !more ? ` · ${feelings.length}` : ''}</button>{/if}
     {#if more && groups.length}
       <div class="feel" data-hello-feel>
@@ -280,6 +305,54 @@
   }
   .chips {
     margin-top: 10px;
+  }
+  .week {
+    margin: 0 0 12px;
+  }
+  .wl {
+    display: block;
+    margin: 0 0 6px;
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+    color: var(--ink);
+  }
+  .wd {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .wday {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+    border-radius: 8px;
+  }
+  .wday small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .wday.today {
+    background: var(--paper-2);
+  }
+  .dot {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--line-strong);
+    border-radius: 50%;
+  }
+  .dot.on {
+    border-color: var(--ink);
+    background: var(--ink);
+  }
+  .wc {
+    display: block;
+    margin-top: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .own {
     display: inline-flex;

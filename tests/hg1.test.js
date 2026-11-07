@@ -113,7 +113,7 @@ describe('the answer in the ONE history of «Deine Abfragen» (2b)', () => {
     expect(await db.abAnswers.count()).toBe(2);
   });
   it('Gruss A: more buttons in groups, several feelings at once, every tap replaces the same rows', async () => {
-    expect(FEELING_GROUPS.map((g) => g.key)).toEqual(['energy', 'feeling']);
+    expect(FEELING_GROUPS.map((g) => g.key)).toEqual(['energy', 'feeling', 'weather']);
     expect(FEELINGS.length).toBeGreaterThanOrEqual(15);
     expect(new Set(FEELINGS.map((f) => f.key)).size).toBe(FEELINGS.length); // every key once
     expect(FEELINGS.every((f) => f.label && f.emoji)).toBe(true);

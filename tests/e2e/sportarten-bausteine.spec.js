@@ -82,7 +82,13 @@ test('Gym: the basic blocks, training plans, and own progress with the best valu
   await card.locator('[data-quick]').getByRole('button', { name: T('Save') }).click();
   await expect(card.locator('[data-last]')).toContainText('110');
   await expect(card.locator('[data-best]')).toContainText('110');
-  await expect(card.getByRole('img', { name: T('Curve of {name}: {n} values', { name: MEASURE, n: 2 }) })).toBeVisible();
+  await expect(card.locator('[data-plot]')).toHaveAttribute('aria-label', T('Curve of {name}: {n} values', { name: MEASURE, n: 2 }));
+  await card.locator('[data-plot]').focus();
+  await page.keyboard.press('Home');
+  await expect(card.locator('[data-readout]')).toContainText('100');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-measure-sheet]')).toContainText('100');
+  await page.keyboard.press('Escape');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 

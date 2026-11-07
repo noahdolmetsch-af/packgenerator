@@ -20,7 +20,7 @@ describe('defaults and the stored record', () => {
     const d = cfgOf(undefined);
     expect(d.faces.map((f) => f.label)).toEqual(['Müed', 'Gaht so', 'Okay', 'Guet', 'Super']);
     expect(d.plans.map((p) => p.label)).toEqual(['Tour', 'Training', 'Ruhetag', 'Arbeit']);
-    expect(d.groups.map((g) => g.id)).toEqual(['energy', 'feeling']);
+    expect(d.groups.map((g) => g.id)).toEqual(['energy', 'feeling', 'weather']);
     expect(d.groups.flatMap((g) => g.items)).toHaveLength(FEELINGS.length);
   });
   it('a broken record is made safe: no double keys, no empty names, no nameless groups', () => {
@@ -30,9 +30,25 @@ describe('defaults and the stored record', () => {
       plans: 'x',
     });
     expect(c.faces).toEqual([{ key: 'a', label: 'Eins', v: 0.5 }]);
-    expect(c.groups).toHaveLength(1);
+    expect(c.groups.map((g) => g.id)).toEqual(['g', 'weather']); // an older record gets the weather group once
     expect(c.groups[0].items).toEqual([{ key: 'c', label: 'Drei', emoji: '😀😀😀😀' }]);
     expect(c.plans).toEqual([]);
+  });
+});
+
+describe('Gruss C: the weather in the head comes once to older records', () => {
+  it('a record of revision 1 gets the group at the end; a deleted one does not come back at revision 2', () => {
+    const old = { faces: [{ key: 'okay', label: 'Okay' }], groups: [{ id: 'energy', std: 'Energy|hello', items: [{ key: 'wach', label: 'Wach', emoji: '☀️' }] }], plans: [] };
+    const c = cfgOf(old);
+    expect(c.groups.map((g) => g.id)).toEqual(['energy', 'weather']);
+    expect(c.rev).toBe(2);
+    expect(cfgOf(JSON.parse(JSON.stringify(dropGroup(c, 'weather')))).groups.map((g) => g.id)).not.toContain('weather');
+  });
+  it('the weather buttons are options of the feeling question and readable in the history', () => {
+    const c = cfgOf(undefined);
+    applyButtons(c);
+    const labels = Q('hallo.gefuehl').form.options.map((o) => o.label);
+    expect(labels).toEqual(expect.arrayContaining(['Sunnig', 'Näbel', 'Rägeboge']));
   });
 });
 
@@ -79,21 +95,21 @@ describe('edit the buttons', () => {
 describe('groups', () => {
   it('add, rename, sort', () => {
     let c = addGroup(defaults(), 'Körper', 'g-k');
-    expect(c.groups.map((g) => groupName(g, (s) => `T:${s}`))).toEqual(['T:Energy|hello', 'T:Feelings|hello', 'Körper']);
+    expect(c.groups.map((g) => groupName(g, (s) => `T:${s}`))).toEqual(['T:Energy|hello', 'T:Feelings|hello', 'T:Weather in my head|hello', 'Körper']);
     expect(addGroup(c, 'körper')).toBe(c);
     c = renameGroup(c, 'energy', 'Kraft');
     expect(groupName(c.groups[0])).toBe('Kraft');
-    c = moveGroup(c, 2, 0);
+    c = moveGroup(c, 3, 0);
     expect(c.groups[0].id).toBe('g-k');
   });
   it('delete: the buttons go to another group or to «Ohne Gruppe» (made if needed); nothing is lost', () => {
     const all = (c) => c.groups.flatMap((g) => g.items.map((i) => i.key)).sort();
     const keys = all(defaults());
     let c = dropGroup(defaults(), 'energy', 'feeling');
-    expect(c.groups.map((g) => g.id)).toEqual(['feeling']);
+    expect(c.groups.map((g) => g.id)).toEqual(['feeling', 'weather']);
     expect(all(c)).toEqual(keys);
     c = dropGroup(defaults(), 'energy');
-    expect(c.groups.map((g) => g.id)).toEqual(['feeling', NO_GROUP]);
+    expect(c.groups.map((g) => g.id)).toEqual(['feeling', 'weather', NO_GROUP]);
     expect(c.groups.find((g) => g.id === NO_GROUP).items.map((i) => i.key)).toEqual(['wach', 'glade', 'schlaefrig', 'platt', 'ueberdreht']);
     expect(all(c)).toEqual(keys);
     // a deleted button moves along too (its words stay for the history)
