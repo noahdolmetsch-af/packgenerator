@@ -509,3 +509,46 @@ test('Training › Verpasst: a missed session is moved to a later day or let go,
   await expect(card).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Training › Wochenlast: a week far above the last three offers a lighter week, Undo, Keep it', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = localDay();
+  // monday of this week, by calendar days at noon UTC
+  const dt = new Date(`${today}T12:00:00Z`);
+  const mon = new Date(dt.getTime() - ((dt.getUTCDay() + 6) % 7) * 86400000);
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const back = (n) => iso(new Date(mon.getTime() - n * 7 * 86400000 + 86400000));
+  await page.evaluate(
+    ([mondayIso, w1, w2, w3, last]) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction(['settings', 'activities'], 'readwrite');
+          const a = (id, day) => ({ id, day, kind: 'bike', type: 'Ride', name: 'test_data_gtp_ Wochenlast', movingS: 14400, elapsedS: 14400 });
+          for (const [i, d] of [w1, w2, w3].entries()) tx.objectStore('activities').put(a(`wl${i}`, d));
+          // 30 hours planned from the last day of the week: always far above the average
+          tx.objectStore('settings').put({ key: 'training.plan', value: { sessions: [{ id: 'wl-a', day: last, kind: 'bike', name: 'Grosse Runde', mins: 900, zone: 2 }, { id: 'wl-b', day: last, kind: 'bike', name: 'Zweite Runde', mins: 900, zone: 2 }] } });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    [iso(mon), back(3), back(2), back(1), iso(new Date(mon.getTime() + 6 * 86400000))],
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="week-load"]');
+  await expect(card).toBeVisible();
+  await card.locator('[data-load-shorten]').click();
+  await expect(card).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(card).toBeVisible();
+  await card.locator('[data-load-keep]').click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(card).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
