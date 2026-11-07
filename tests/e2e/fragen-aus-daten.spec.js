@@ -49,6 +49,10 @@ async function seed(page, { wx = null, cal = null, tasks = null }) {
       tx.oncomplete = ok;
     });
     if (wx) {
+      // Heute fetches the forecast when it opens; that fetch writes the table when it lands. Wait for it first,
+      // else it lands after the seed below and writes the mocked forecast (rain chance 60) over it.
+      const has = () => new Promise((ok) => { const q = db.transaction('meta').objectStore('meta').get('homeForecast'); q.onsuccess = () => ok(!!q.result); });
+      for (let i = 0; i < 100 && !(await has()); i++) await new Promise((r) => setTimeout(r, 100));
       const place = await new Promise((ok) => { const q = db.transaction('settings').objectStore('settings').get('homePlace'); q.onsuccess = () => ok(q.result.value); });
       await put('meta', [{ key: 'homeForecast', fetchedAt: new Date().toISOString(), place, days: [{ date: today, min: 9, max: 19, rainMm: 0, rainPct: 10, ...wx }] }]);
     }

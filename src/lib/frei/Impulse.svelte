@@ -7,7 +7,7 @@
    * Every impulse can be changed, hidden (built-in) or deleted (own), and own ones added. Some impulses
    * have a small helper right in the card (take-along list, silly ideas, invitation, sunrise).
    */
-  import { Sparkles, Shuffle, Check, Pencil, EyeOff, Eye, Plus, Settings2, Share2, Sunrise, ChevronRight, ChevronDown, X } from '@lucide/svelte';
+  import { Sparkles, Shuffle, Check, Pencil, EyeOff, Eye, Plus, Settings2, Share2, Sunrise, ChevronRight, ChevronDown, X, CalendarOff, Undo2 } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
@@ -20,7 +20,7 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { db } from '../db.js';
   import { cfgQuery, changeCfg, restoreCfg, putRow } from '../freidb.js';
-  import { areasOf, areaName, impulsesOf, inArea, impulseOfDay, nextOf, moveImpulses, collsOf, impulseHref, queryOf, uid, TAKE_ALONG, SUNRISE_LIST, SILLY, TOGETHER, TOGETHER_TIMES, inviteText } from '../frei.js';
+  import { LATER_DAYS, laterUntil, areasOf, areaName, impulsesOf, inArea, impulseOfDay, nextOf, moveImpulses, collsOf, impulseHref, queryOf, uid, TAKE_ALONG, SUNRISE_LIST, SILLY, TOGETHER, TOGETHER_TIMES, inviteText } from '../frei.js';
   import { sunTimes } from '../blockplan.js';
   import { localDay } from '../localday.js';
   import { phone } from '../media.svelte.js';
@@ -35,8 +35,9 @@
 
   const areas = $derived(areasOf(cfg));
   const shownAreas = $derived(areas.filter((a) => !a.hidden));
-  const all = $derived(impulsesOf(cfg));
+  const all = $derived(impulsesOf(cfg, today));
   const visible = $derived(all.filter((i) => !i.hidden));
+  const fresh = $derived(visible.filter((i) => !i.later)); // «Not today»: resting ones are skipped by the suggestions
   const colls = $derived(collsOf(cfg));
   let area = $state('all'); // 'all', an area id, or '' (without an area)
   let showHidden = $state(false);
@@ -47,8 +48,8 @@
   // the big card on top: the one the address names, else the one of the day; «Another idea» goes on
   // svelte-ignore state_referenced_locally
   let pick = $state(queryOf(hash, 'i') || null);
-  const top = $derived((pick && visible.find((i) => i.id === pick)) || impulseOfDay(visible, today));
-  const anotherTop = () => (pick = nextOf(visible, top?.id)?.id ?? null);
+  const top = $derived((pick && visible.find((i) => i.id === pick)) || impulseOfDay(fresh, today));
+  const anotherTop = () => (pick = nextOf(fresh, top?.id)?.id ?? null);
 
   const nameOfArea = (id) => areaName(areas.find((a) => a.id === id), t);
   const title = (i) => (i.own || i.edited ? i.title : t(i.title));
@@ -62,6 +63,14 @@
     await putRow({ kind: 'log', what: i.id, day: today, ok: true });
     offerDone(t('Nice. «{name}» is in your log.', { name: title(i) }));
   }
+  async function notToday(i) {
+    const until = laterUntil(today);
+    const before = await changeCfg((c) => ({ ...c, later: { ...(c.later ?? {}), [i.id]: until } }));
+    if (pick === i.id) pick = null;
+    offerDone(t('«{name}» rests for {n} days. It will not come back before.', { name: title(i), n: LATER_DAYS }), () => restoreCfg(before));
+  }
+  const bringBack = (i) => changeCfg((c) => ({ ...c, later: Object.fromEntries(Object.entries(c.later ?? {}).filter(([k]) => k !== i.id)) }));
+  const dayLabel = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'numeric' });
   async function hide(i) {
     const before = await changeCfg((c) => ({ ...c, hidden: [...new Set([...(c.hidden ?? []), i.id])] }));
     if (pick === i.id) pick = null;
@@ -248,6 +257,11 @@
     <div class="fz-acts">
       {#if i.go && !i.go.inline}<a class="btn sm hi" href={impulseHref(i, colls)} data-go>{goLabel(i)}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
       <button type="button" class="btn sm" onclick={() => done(i)} data-done><Check size={16} aria-hidden="true" />{t('Done it')}</button>
+      {#if i.later}
+        <button type="button" class="btn sm" onclick={() => bringBack(i)} data-back><Undo2 size={16} aria-hidden="true" />{t('Bring back now')}</button>
+      {:else if !i.hidden}
+        <button type="button" class="btn sm" onclick={() => notToday(i)} data-not-today><CalendarOff size={16} aria-hidden="true" />{t('Not today')}</button>
+      {/if}
       {#if big}<button type="button" class="btn sm" onclick={anotherTop} data-another><Shuffle size={16} aria-hidden="true" />{t('Another idea')}</button>{/if}
       <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: title(i) })} onclick={() => openEdit(i)} data-edit><Pencil size={18} aria-hidden="true" /></button>
       {#if i.own}
@@ -265,7 +279,7 @@
   {#if fromActive}
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Impulses')} />
   {:else}
-    <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('Impulses')} />
+    <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('Impulses')} />
   {/if}
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Impulses')}</h1>
   <p class="fz-intro">{t('Small ideas for free time, in ten areas. Tap one, try it, or hide what is not for you.')}</p>
@@ -315,7 +329,7 @@
       {#each listed as i (i.id)}
         <li class="fzi-li" class:fzi-off={i.hidden} data-impulse-row={i.id}>
           <button type="button" class="fzi-rowbtn" aria-expanded={openId === i.id} onclick={() => (openId = openId === i.id ? null : i.id)}>
-            <span class="fzi-rm"><b>{title(i)}</b><small>{nameOfArea(i.area) || t('Without an area')}{#if i.hidden}{' '}· {t('hidden')}{/if}</small></span>
+            <span class="fzi-rm"><b>{title(i)}</b><small>{nameOfArea(i.area) || t('Without an area')}{#if i.hidden}{' '}· {t('hidden')}{:else if i.later}{' '}· {t('rests until {day}', { day: dayLabel(i.laterUntil) })}{/if}</small></span>
             <ChevronDown class="fzi-chev" size={18} aria-hidden="true" />
           </button>
           {#if openId === i.id}{@render card(i)}{/if}

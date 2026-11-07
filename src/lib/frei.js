@@ -169,13 +169,19 @@ export function areasOf(cfg) {
 /** The name of an area as shown: typed names as they are, built-in ones through tr (t). */
 export const areaName = (a, tr = (s) => s) => (a?.name ? a.name : a?.std ? tr(a.std) : '');
 
+/** «Not today» (Noah 05.11.2026): an impulse rests until the saved day; it stays in the list, only the suggestions skip it. */
+export const LATER_DAYS = 30;
+export const laterUntil = (day, n = LATER_DAYS) => new Date(toMs(day) + n * MS).toISOString().slice(0, 10);
+const laterOf = (later, id, day) => (day && typeof later[id] === 'string' && later[id] > day ? { later: true, laterUntil: later[id] } : { later: false, laterUntil: '' });
+
 /** The impulses as shown: built-in ones with the person's edits, own ones; hidden ones flagged. */
-export function impulsesOf(cfg) {
+export function impulsesOf(cfg, day = '') {
+  const later = cfg?.later && typeof cfg.later === 'object' ? cfg.later : {};
   const edits = cfg?.edits && typeof cfg.edits === 'object' ? cfg.edits : {};
   const hidden = new Set(Array.isArray(cfg?.hidden) ? cfg.hidden : []);
   const moved = cfg?.moved && typeof cfg.moved === 'object' ? cfg.moved : {};
-  const std = IMPULSES.map((i) => ({ ...i, own: false, area: moved[i.id] ?? i.area, ...(edits[i.id] ?? {}), edited: !!edits[i.id], firstOwn: typeof edits[i.id]?.first === 'string', hidden: hidden.has(i.id) }));
-  const own = (Array.isArray(cfg?.own) ? cfg.own : []).filter((i) => i && i.id && clean(i.title)).map((i) => ({ go: null, text: '', ...i, own: true, area: moved[i.id] ?? i.area ?? '', hidden: hidden.has(i.id) }));
+  const std = IMPULSES.map((i) => ({ ...i, own: false, area: moved[i.id] ?? i.area, ...(edits[i.id] ?? {}), edited: !!edits[i.id], firstOwn: typeof edits[i.id]?.first === 'string', hidden: hidden.has(i.id), ...laterOf(later, i.id, day) }));
+  const own = (Array.isArray(cfg?.own) ? cfg.own : []).filter((i) => i && i.id && clean(i.title)).map((i) => ({ go: null, text: '', ...i, own: true, area: moved[i.id] ?? i.area ?? '', hidden: hidden.has(i.id), ...laterOf(later, i.id, day) }));
   return [...std, ...own];
 }
 /** The impulses of one area ('' = without an area, also those of a deleted area). */
@@ -185,7 +191,7 @@ export function inArea(list, areaId, areas) {
 }
 /** The impulse of the day among the shown ones (stable for a day, changes the next). */
 export function impulseOfDay(list, day, salt = 0) {
-  const shown = list.filter((i) => !i.hidden);
+  const shown = list.filter((i) => !i.hidden && !i.later);
   if (!shown.length) return null;
   return shown[(((dayNo(day) + salt) % shown.length) + shown.length) % shown.length];
 }
@@ -345,6 +351,35 @@ export function entrySub(entry, coll) {
   }
   return '';
 }
+/* ---------- share a collection as a page (Noah 05.11.2026 «Touren 2a und b») ---------- */
+/**
+ * The small object for a link: the name and the entries as text (title, the filled fields, a link).
+ * Photos and positions stay on this device. `tr` turns the English field labels into the sender's language.
+ */
+export function collSharePayload(coll, entries, tr = (s) => s, max = 60) {
+  const fields = fieldsOf(coll).filter((f) => !['title', 'photos', 'place'].includes(f.kind));
+  return {
+    v: 1,
+    k: 'coll',
+    n: String(coll?.name || tr(COLL_TYPES[coll?.type]?.name ?? '')).slice(0, 80),
+    e: entries.slice(0, max).map((e) => ({
+      t: clean(e.title, 120),
+      f: fields
+        .map((f) => {
+          const v = e.data?.[f.key];
+          const text = Array.isArray(v) ? v.join(f.kind === 'lines' ? '\n' : ' · ') : typeof v === 'string' ? v : '';
+          return text ? [tr(f.label).replace(/\|[a-z]+$/, ''), text.slice(0, 1200)] : null;
+        })
+        .filter(Boolean),
+    })),
+  };
+}
+/** What a shared collection must look like; anything else is a broken link. */
+export const isCollShare = (o) => o?.k === 'coll' && typeof o.n === 'string' && Array.isArray(o.e);
+/** The tour a collection is linked to (cfg.collTour { collId: tripId }), or ''. */
+export const tourOfColl = (cfg, collId) => (cfg?.collTour && typeof cfg.collTour[collId] === 'string' ? cfg.collTour[collId] : '');
+export const tourHref = (tripId) => `#/tour/${encodeURIComponent(`t:${tripId}`)}`;
+
 /** Entries filtered by tag (places: Ruhe, Aussicht …) and a search word. */
 export function filterEntries(entries, { tag = '', q = '' } = {}) {
   const w = q.trim().toLowerCase();
@@ -405,6 +440,12 @@ export const LUST_IDEAS = [
   { id: 'dance', name: 'Dance in the kitchen', mood: ['play', 'power'], energy: ['low', 'mid', 'high'], after: ['move'], min: 15 },
 ];
 
+/** Ideas for the open air / for inside (the others are neutral); an own or changed idea may set `out` itself. */
+export const OUTDOOR_IDEAS = new Set(['intervals', 'hills', 'run', 'tennis', 'frisbee', 'corners', 'slow', 'walk', 'cafe', 'long']);
+export const INDOOR_IDEAS = new Set(['games', 'yoga', 'stretch', 'dance']);
+/** true outdoors, false indoors, null neutral. */
+export const outdoorOf = (i) => (typeof i?.out === 'boolean' ? i.out : OUTDOOR_IDEAS.has(i?.id) ? true : INDOOR_IDEAS.has(i?.id) ? false : null);
+
 /** Built-in ideas with edits, own ones, hidden ones left out. */
 export function lustIdeasOf(cfg) {
   const edits = cfg?.lustEdits ?? {};
@@ -419,7 +460,7 @@ export function lustIdeasOf(cfg) {
  * you have is left out (when nothing fits, the shortest ones). «Worked» ticks with the same energy
  * add 1 each (up to 3): your own good experience wins. → [{ idea, score, why: [keys] }]
  */
-export function lustPick(ideas, { mood = null, energy = null, after = null, time = null } = {}, log = [], top = 3) {
+export function lustPick(ideas, { mood = null, energy = null, after = null, time = null, wx = null } = {}, log = [], top = 3) {
   let pool = ideas.filter((i) => time == null || (Number(i.min) || 0) <= time);
   if (!pool.length) pool = [...ideas].sort((a, b) => (a.min ?? 0) - (b.min ?? 0)).slice(0, top);
   const scored = pool.map((idea) => {
@@ -428,11 +469,25 @@ export function lustPick(ideas, { mood = null, energy = null, after = null, time
     if (mood && idea.mood?.includes(mood)) (score += 3), why.push('mood');
     if (energy && idea.energy?.includes(energy)) (score += 2), why.push('energy');
     if (after && idea.after?.includes(after)) (score += 2), why.push('after');
+    // your week: dry → the open air gets 1 more; rain → the open air loses 3, ideas for inside get 1
+    const out = wx ? outdoorOf(idea) : null;
+    if (wx === 'good' && out === true) (score += 1), why.push('weather');
+    if (wx === 'bad' && out === true) score -= 3;
+    if (wx === 'bad' && out === false) (score += 1), why.push('weather');
     const worked = log.filter((l) => l.what === idea.id && l.ok && (!energy || l.energy === energy)).length;
     if (worked) (score += Math.min(3, worked)), why.push('worked');
     return { idea, score, why, worked };
   });
   return scored.sort((a, b) => b.score - a.score || (a.idea.min ?? 0) - (b.idea.min ?? 0)).slice(0, top);
+}
+
+/**
+ * «Another one» (the dice): one more idea for the same choice, picked at random among the five best ones
+ * that are not shown yet. → { idea, score, why } or null when nothing is left.
+ */
+export function lustMore(ideas, choice = {}, log = [], shownIds = [], rand = Math.random) {
+  const left = lustPick(ideas, choice, log, 999).filter((p) => !shownIds.includes(p.idea.id)).slice(0, 5);
+  return left.length ? left[Math.min(left.length - 1, Math.floor(rand() * left.length))] : null;
 }
 
 /** Technique ideas (any sport; a link can lead to a video). */
@@ -481,6 +536,26 @@ export function eveningsInRow(rituals, ticks = {}, day) {
   }
   return n;
 }
+/* ---------- evening timer and «did you good» (Noah 05.11.2026 «Touren 2a und b») ---------- */
+export const EVE_MINUTES = [10, 20, 30, 45];
+export const EVE_DEFAULT = 20;
+/** The timer as saved ({ end: ms, min }) at `now`: idle, running (left ms) or done (the time is up, not answered yet). */
+export function eveTimerState(timer, now = Date.now()) {
+  const end = Number(timer?.end);
+  if (!Number.isFinite(end) || end <= 0) return { state: 'idle', left: 0, min: 0 };
+  const min = Math.max(1, Math.min(240, Math.round(Number(timer.min) || EVE_DEFAULT)));
+  return end > now ? { state: 'run', left: end - now, min } : { state: 'done', left: 0, min };
+}
+export const mmss = (ms) => {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+/** Evenings that did you good in the last `days` days up to `day` (rows of kind 'evening' { day, good }; one per day counts). */
+export function goodEvenings(rows = [], day, days = 30) {
+  const from = new Date(toMs(day) - (days - 1) * MS).toISOString().slice(0, 10);
+  return new Set(rows.filter((r) => r?.good === true && r.day >= from && r.day <= day).map((r) => r.day)).size;
+}
+
 /** Short texts to arrive: read them or let the device read them out. */
 export const ARRIVE = [
   { id: 'a1', name: 'Arrive for a moment', text: 'Sit or stand the way that feels good. Notice the floor under your feet or the chair under you. Watch a few breaths, no need to improve them. Then let your eyes wander and find three things that catch your attention. That is it. You have arrived.' },
@@ -562,7 +637,7 @@ export function nightOf(cfg) {
   const n = cfg?.night && typeof cfg.night === 'object' ? cfg.night : {};
   const phases = {};
   for (const p of PHASES) phases[p.key] = Array.isArray(n.phases?.[p.key]) ? n.phases[p.key].filter((x) => x && clean(x.name)) : [];
-  return { step: Number.isInteger(n.step) ? Math.min(Math.max(n.step, 0), NIGHT_STEPS.length - 1) : 0, question: n.question ?? '', route: n.route ?? '', lunch: n.lunch ?? '', bed: n.bed ?? '', tripId: n.tripId ?? null, after: n.after ?? '', phases };
+  return { step: Number.isInteger(n.step) ? Math.min(Math.max(n.step, 0), NIGHT_STEPS.length - 1) : 0, question: n.question ?? '', route: n.route ?? '', lunch: n.lunch ?? '', bed: n.bed ?? '', tripId: n.tripId ?? null, after: n.after ?? '', answers: n.answers && typeof n.answers === 'object' ? n.answers : {}, phases };
 }
 /** All things of the day plan; how many are «within reach» and where each one sits. */
 export function phaseSummary(phases = {}) {
@@ -624,7 +699,7 @@ export const markLine = (pile) => (pile === 'missing' ? 'Take {name} next time' 
 /** An impulse for Heute when there is no ride idea; null when switched off or none shown. */
 export function todayImpulse(cfg, day) {
   if (cfg?.onToday === false) return null;
-  return impulseOfDay(impulsesOf(cfg), day, 7);
+  return impulseOfDay(impulsesOf(cfg, day), day, 7);
 }
 /** Where «Try it» of an impulse leads. */
 export function impulseHref(imp, colls = []) {

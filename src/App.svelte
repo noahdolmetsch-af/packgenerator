@@ -365,6 +365,7 @@
     Ride: () => import('./pages/Ride.svelte'),
     Abfahrt: () => import('./pages/Abfahrt.svelte'),
     Hueter: () => import('./pages/Hueter.svelte'),
+    FreiGeteilt: () => import('./lib/frei/Geteilt.svelte'), // «Meine Sammlungen» as a page: #/share/sammlung/<code>
     Inbox: () => import('./pages/Inbox.svelte'),
     Notes: () => import('./pages/Notes.svelte'),
     Vorgaenge: () => import('./pages/Vorgaenge.svelte'),
@@ -581,6 +582,7 @@
   {:else if page === 'share'}
     <!-- Paket 4 «Wohnungs-Hüter-Liste»: #/share/hueter/<code>, the list travels in the link -->
     {#if param === 'hueter'}{#key hash}<LazyPage load={PAGES.Hueter} code={hash.split('/')[3] ?? ''} />{/key}
+    {:else if param === 'sammlung'}{#key hash}<LazyPage load={PAGES.FreiGeteilt} code={hash.split('/')[3] ?? ''} />{/key}
     {:else}{#key param}<LazyPage load={PAGES.Share} code={param} />{/key}{/if}
   {:else if page === 'live'}
     <!-- Paket U3 «Live-Karte»: the map with your position on a ride (#/live, #/live/<tripId>) -->

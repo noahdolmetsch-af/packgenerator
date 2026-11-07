@@ -915,6 +915,7 @@ html {
   --wk-todo: var(--l2);
   --wk-away: var(--l4);
   --wk-bike: var(--warn);
+  --wk-sp: var(--hi); /* Spielerplus dates (Noah 06.11.2026 «4a»): an own colour and the word «Spielerplus» */
 }
 :root,
 :root[data-place] {

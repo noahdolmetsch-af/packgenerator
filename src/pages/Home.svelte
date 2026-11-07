@@ -102,7 +102,7 @@
   import { helloPart, NAME_ASKED_KEY } from '../lib/home/hallo.js'; // HG1
   import { homeTrips, testTrips, archiveChanges, greeting, weatherLine, dayDry, dayPart, countdown, timeLeft, packedOf, soonTrips, milestoneLevels, milestoneStep, milestonesNow, milestoneText, stepOf as stepOfMs, MILESTONE_KEY, LAYOUT_KEY } from '../lib/home/heute.js';
   import { isEveningOn } from '../lib/dayclock.js';
-  import { cfgQuery } from '../lib/freidb.js';
+  import { cfgQuery, rowsQuery as freiRows } from '../lib/freidb.js';
   import { todayImpulse } from '../lib/frei.js';
   import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, VALUE_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
@@ -159,6 +159,8 @@
   import WeekTile from '../lib/home/WeekTile.svelte';
   import TodaySuggest from '../lib/home/TodaySuggest.svelte';
   import ImpulseHint from '../lib/home/ImpulseHint.svelte'; // Paket T «2a»: an impulse when there is no ride idea
+  import WesentlichHint from '../lib/home/WesentlichHint.svelte'; // «Was mir wesentlich ist»: once a quarter, look again
+  import { essentialDue } from '../lib/frei/wesentlich-rueckblick.js';
   import RoutineTile from '../lib/home/RoutineTile.svelte'; // Routine «Das tut mir gut» (D1)
   import BagReminder from '../lib/home/BagReminder.svelte';
   import { CHALLENGES_KEY, challengesOf, freshDone } from '../lib/challenge.js';
@@ -194,6 +196,7 @@
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { MERKEN_KEY } from '../lib/merkendb.js';
+  import { SP_KEY, prefsOf as spPrefsOf, dueToday as spDueToday } from '../lib/spielerplus.js';
   import { LISTS_KEY } from '../lib/ownlists.js';
   import { TRELLO_KEY, dueInTrello } from '../lib/trello.js';
   import { backClose } from '../lib/ui/backclose.js';
@@ -213,7 +216,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY];
+  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -547,6 +550,7 @@
   const usage = $derived(usageOf(S[USAGE_KEY]));
   const unweighed = $derived(items.filter((i) => isInventory(i) && i.weightG == null).length);
   const due = $derived(dueAll(bikes, { tasks, visits, today }));
+  const spDue = $derived(spDueToday(spPrefsOf(S[SP_KEY]), today)); // Spielerplus (Noah 06.11.2026): today's team dates in «Heute fällig»
   const badges = $derived({ weigh: unweighed, care: due.points, note: notes.length });
   const used = $derived(usedFunctions(usage, dataUsed({ trips: allTrips, items, bikes: $bikesQ ?? [], debriefs, templates, rides: $ridesQ ?? [], notesN: ($notesQ ?? []).length, sets: S[SETS_KEY] ?? [] })));
   let wearOpen = $state(false);
@@ -925,7 +929,9 @@
   // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
   const impQ = cfgQuery();
   const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
-  const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp);
+  const essQ = freiRows('essential');
+  const essUp = $derived(!night && !!$impQ && !!$essQ && !!essentialDue({ entries: $essQ, cfg: $impQ, today }));
+  const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp && !essUp);
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -1222,6 +1228,7 @@
         </details>
       {/if}
       {#if ready}<button type="button" class="lkb rowsbtn" onclick={() => (rowsOpen = true)} data-rows-open>{t('Choose rows')}</button>{/if}
+      {#if ready && !night}<div class="impl"><WesentlichHint {today} /></div>{/if}
       {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
     </section>
   </div>
@@ -1242,7 +1249,7 @@
     {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
-  {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}</div>
+  {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}</div>
   {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
@@ -1301,7 +1308,7 @@
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
   <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): «Heute fällig», only what is really due today: to-dos, birthdays, plants, bike care.
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
-  {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}
+  {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
   {#if loaded && !editing}<NeuHeute {today} />{/if}
   {#if loaded && !editing}<MonthAdventureRow {today} />{/if}

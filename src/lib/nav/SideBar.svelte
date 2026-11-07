@@ -42,6 +42,28 @@
   let seen = $state(first);
   // Einzelidee 31 «Tastenkürzel nach und nach»: after a few mouse clicks on the same place, its shortcut once
   let hint = $state(null); // { key, name }
+  // UI-Test T11 (G4-11): the list of places scrolls above «Ich». A soft edge says there is more, and the
+  // place of the page scrolls into view, so «Material» is never hidden behind the open «Velos»
+  let placesEl = $state(null);
+  let more = $state({ up: false, down: false });
+  const edges = () => {
+    const el = placesEl;
+    if (!el) return;
+    more = { up: el.scrollTop > 2, down: el.scrollTop + el.clientHeight < el.scrollHeight - 2 };
+  };
+  $effect(() => {
+    void place, hash;
+    const el = placesEl;
+    if (!el) return;
+    queueMicrotask(() => {
+      const cur = el.querySelector('.tabs [aria-current="page"]') ?? el.querySelector('.pl.on');
+      if (cur && typeof cur.scrollIntoView === 'function') cur.scrollIntoView({ block: 'nearest' });
+      edges();
+    });
+    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(edges) : null;
+    ro?.observe(el);
+    return () => ro?.disconnect();
+  });
   function clicked(e, key, name) {
     if (!e.detail) return; // a keyboard «Enter» has detail 0: only mouse clicks count
     const r = countClick(readHint(), key);
@@ -78,7 +100,7 @@
     <a class="asst" href="#/assistent" aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={18} aria-hidden="true" /><span>{t('Assistant')}</span></a>
     <!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page, under the assistant -->
     <HelpButton wide />
-    <nav class="places" aria-label={t('Sections')}>
+    <nav class="places" class:more-up={more.up} class:more-down={more.down} aria-label={t('Sections')} bind:this={placesEl} onscroll={edges}>
       <ul>
         {#each sidePlaces as p (p.key)}
           {@const tabs = (void anp.v, shownTabs(p.key, place === p.key ? hash : ''))}
@@ -233,6 +255,16 @@
     margin: var(--sp-1) calc(-1 * var(--sp-3)) 0;
     padding: 0 var(--sp-3);
     overflow-y: auto;
+  }
+  /* a soft edge where the list goes on */
+  .places.more-down {
+    mask-image: linear-gradient(to bottom, var(--ink) calc(100% - 28px), transparent);
+  }
+  .places.more-up {
+    mask-image: linear-gradient(to top, var(--ink) calc(100% - 28px), transparent);
+  }
+  .places.more-up.more-down {
+    mask-image: linear-gradient(to bottom, transparent, var(--ink) 28px, var(--ink) calc(100% - 28px), transparent);
   }
   ul {
     list-style: none;

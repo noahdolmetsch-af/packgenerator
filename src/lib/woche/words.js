@@ -22,6 +22,7 @@ export function subOf(e) {
   if (!s) return e.done ? t('done|week') : '';
   if (s.aktiv) return s.mins ? `${dur(s.mins)} · ${t('done in Aktiv')}` : t('done in Aktiv');
   if (s.mins) return `${dur(s.mins)}${e.done ? ` · ${t('done|week')}` : ''}`;
+  if (s.src === 'spielerplus') return [t('Spielerplus'), s.name, t('Sign up ›')].filter(Boolean).join(' · ');
   if (s.src) return s.src === 'google' ? t('Google Calendar') : s.src === 'google-tasks' ? t('Google Tasks') : t('Calendar');
   if (s.away) return awayName(s.away, t);
   if (s.trip) return s.of > 1 ? t('Trip · day {n} of {m}', { n: s.trip, m: s.of }) : t('Trip|week');

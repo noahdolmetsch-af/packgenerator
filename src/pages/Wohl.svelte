@@ -141,7 +141,21 @@
   const shortCats = $derived(bal ? [...bal.cats].sort((a, b) => (a.value ?? 101) - (b.value ?? 101)).slice(0, 3).map((c) => c.key) : keys.slice(0, 3));
 
   // #253 Neuland
-  const neu = $derived(neulandYear(ex?.neuland ?? [], rows, year));
+  // N10 «Eine Fundliste»: what Neuland and the summit book found joins the list (the same list as on the Neuland page)
+  let funde = $state.raw([]);
+  $effect(() => {
+    let live = true;
+    import('../lib/neuland/fundeload.js')
+      .then((m) => m.readFunde(db, null))
+      .then((f) => live && (funde = f))
+      .catch((err) => console.error(err));
+    return () => (live = false);
+  });
+  const neu = $derived(neulandYear(ex?.neuland ?? [], rows, year, funde));
+  const NEU_MAX = 8;
+  let neuAll = $state(false);
+  const neuShown = $derived(neuAll ? neu : neu.slice(0, NEU_MAX));
+  const neuNote = (x) => (x.from === 'neuland' ? `${x.what} · ` : x.from === 'gipfelbuch' ? `${t('From the summit book')} · ` : '');
   let nlEdit = $state(null); // { id?, name }
   async function saveNeuland(name) {
     const clean = String(name ?? '').trim();
@@ -611,16 +625,17 @@
       <!-- #253 Neuland -->
       <Section title={t('Neuland {year}', { year })} sub={t('New places and things of the year')}>
         <ul class="card slist" data-wohl-neuland>
-          {#each neu as x (x.id)}
+          {#each neuShown as x (x.id)}
             <li class="srow">
               <span class="sib done"><Compass size={18} aria-hidden="true" /></span>
-              <span class="sm"><b>{x.name}</b><small>{dayLong(x.day)}{x.auto ? ` · ${t('from your evening answer')}` : ''}</small></span>
+              <span class="sm"><b>{x.name}</b><small>{neuNote(x)}{dayLong(x.day)}{x.from === 'evening' ? ` · ${t('from your evening answer')}` : ''}</small></span>
               {#if !x.auto}<span class="rowacts"><button type="button" class="btn ic" aria-label={t('Rename «{name}»', { name: x.name })} onclick={() => (nlEdit = { id: x.id, name: x.name })}><Pencil size={16} aria-hidden="true" /></button><button type="button" class="btn ic" aria-label={t('Delete «{name}»', { name: x.name })} onclick={() => delNeuland(x)}><Trash2 size={16} aria-hidden="true" /></button></span>{/if}
             </li>
           {:else}
             <li class="srow"><span class="sm"><small>{t('Nothing new yet this year. An evening with «New» and a note lands here by itself.')}</small></span></li>
           {/each}
         </ul>
+        {#if neu.length > NEU_MAX}<button type="button" class="btn sm wl-add" onclick={() => (neuAll = !neuAll)} data-neuland-more>{neuAll ? t('Show fewer') : t('Show {n} more', { n: neu.length - NEU_MAX })}</button>{/if}
         <button type="button" class="btn wl-add" onclick={() => (nlEdit = { name: '' })} data-neuland-add><Plus size={18} aria-hidden="true" />{t('Add Neuland')}</button>
       </Section>
 

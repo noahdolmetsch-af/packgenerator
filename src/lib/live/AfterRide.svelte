@@ -18,6 +18,7 @@
   import { addEntries, deleteEntries, ensureKmBook } from '../kmbookdb.js';
   import { saveLiveRide, rememberBike, bikeFor, LIVE_BIKE_KEY } from './saveride.js';
   import SensorCurve from './SensorCurve.svelte';
+  import WayRating from './WayRating.svelte'; // Wege-Gedächtnis
   import { WHYS, whyTotals } from '../tourenc/pausewhy.js'; // Touren c 60
   import FeelScale from '../tourenc/FeelScale.svelte'; // Touren c 70
   import { rideSummary, bikeKmPlan, bikeEntryOf, durText, heightCurve, lapRows, twinActivity } from './after.js';
@@ -192,6 +193,8 @@
     <button type="button" class="btn hi" disabled={busy} onclick={toDebrief} data-after-debrief><ClipboardCheck size={18} aria-hidden="true" />{t('Debrief')}</button>
     <span class="tp-small tp-muted">{trip ? t('Opens the look back of this trip with the km and pauses filled in.') : t('Opens the saved ride with its km and pauses.')}</span>
   </div>
+
+  <WayRating ride={cur} />
 
   <div class="bk" data-after-share>
     <h3><Share2 size={16} aria-hidden="true" /> {t('Tour picture')}</h3>

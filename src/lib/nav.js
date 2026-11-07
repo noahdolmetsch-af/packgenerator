@@ -207,7 +207,8 @@ export function pageOf(hash = '', careTab = false) {
   if (/^#\/auswerten(\/|\?|$)/.test(h)) return 'auswerten'; // «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten
   if (h.startsWith('#/flow/impulse')) return 'impulse'; // Paket T «Freie Zeit»: Impulse as a tab of Aktiv (Noah «1a und b»)
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
-  if (h.startsWith('#/inspiration')) return 'inspiration'; // «Inspiration» UC2-1: your own links (sidebar; phone: Ich › Inspiration)
+  // UI-Test T11 (G1-13): the old address of Inspiration (under Ich) still opens Inspiration
+  if (h.startsWith('#/inspiration') || h.startsWith('#/me/inspiration')) return 'inspiration'; // «Inspiration» UC2-1: your own links (sidebar; phone: Ich › Inspiration)
   if (h.startsWith('#/assistent')) return 'assistent'; // «Assistent» (Noah 15.10.2026): Frag die App + Hilf mir planen
   if (h.startsWith('#/helper')) return 'helper'; // v0.77.0 KI-Helfer (K1a): Ich › Helfer
   if (h.startsWith('#/me/suche')) return 'suchesettings'; // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»)
@@ -240,7 +241,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/apps')) return 'miniapps'; // Ich › Kleine Apps (mockup HB2)
   if (h.startsWith('#/me/privacy')) return 'privacy'; // Paket R: Ich › Datenschutz und Nutzung
   if (h.startsWith('#/me/pros')) return 'pros'; // Paket R (Noah 19.10.2026 «4a»): Ich › Velomech und Guide
-  if (h.startsWith('#/me/offers')) return 'offers'; // Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026)
+  if (h.startsWith('#/me/offers') || h.startsWith('#/me/tennis')) return 'offers'; // Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026); Bereich «Tennis» (Noah 05.11.2026)
   if (h.startsWith('#/me/pay')) return 'pay'; // Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026)
   if (h.startsWith('#/me/hinweise')) return 'hinweise'; // Paket Q #148: Ich › Hinweise und News
   if (h.startsWith('#/stopps')) return 'stopps'; // «Stopps in der Nähe» (Noah 24.10.2026 «1a»)
