@@ -26,6 +26,7 @@
   import { LOAD_WEIGHTS } from '../../lib/analyse/own.js';
   import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
   import { dailyLimit } from '../../lib/analyse/wochenbalken.js';
+  import { sumBand } from '../../lib/analyse/ueblich.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
   import { health } from '../../lib/health/client.svelte.js';
@@ -94,6 +95,14 @@
   // Idea B: values that add up (cardio load, minutes) show one bar per week from 3 months on (90 day bars are hard to read); the days stay behind a tap
   const maxDaily = $derived(dailyLimit(!!item?.sum));
   const pts = $derived(item?.get ? (hours ? hours.map((v, i) => ({ key: `${i}`, v, days: [win.to] })) : bucketsOf(win.days, item.get, !!item.sum, maxDaily)) : []);
+  // Idea C: values that add up have no typical range as a box, but the chart can show where your days or weeks usually lie
+  // (the middle half of the last 3 months, per week when the bars are weeks)
+  const perWeek = $derived(!hours && pts.length > 0 && pts.length < win.days.length);
+  const typBand = $derived.by(() => {
+    if (!item?.sum || !item.get || hours || isDay) return null;
+    return sumBand(windowOf('m3', today).days, item.get, perWeek);
+  });
+  const typShown = $derived(typical ?? typBand);
   const avg7 = $derived(item?.sum || hours ? [] : mean7(pts));
   const layerPts = $derived(layerItems.map((it) => (hours ? [] : bucketsOf(win.days, it.get, !!it.sum, maxDaily))));
   const prevPts = $derived(prevYear && item?.get && !hours ? bucketsOf(yearBefore(win.days), item.get, !!item.sum, maxDaily) : []);
@@ -126,7 +135,7 @@
 
   // the scales (Noah «genaue Werte»): round, labelled steps; bars from 0, lines near their values; a layer
   // has its own axis on the right
-  const axis = $derived(axisOf(item, [...pts.map((p) => p.v), ...prevPts.map((p) => p.v), ...(typical ?? [])], num, { zero: bars }));
+  const axis = $derived(axisOf(item, [...pts.map((p) => p.v), ...prevPts.map((p) => p.v), ...(typShown ?? [])], num, { zero: bars }));
   const sc = $derived(axis.sc);
   const laxes = $derived(layerPts.map((lp, i) => axisOf(layerItems[i], lp.map((p) => p.v), num, { zero: !!layerItems[i]?.sum })));
   const lsc = $derived(laxes.map((a) => a.sc));
@@ -347,7 +356,7 @@
                 <rect class="band" x={xOf(b.a, pts.length) - 4} width={Math.max(8, xOf(b.b, pts.length) - xOf(b.a, pts.length) + 8)} y="4" height={H - 20} />
               {/each}
               <GridLines ticks={sc.ticks} y={(x) => yOf(x, sc)} x1={0} x2={W} />
-              {#if typical}<rect class="typ" x="20" width={W - 40} y={yOf(typical[1], sc)} height={Math.max(1, yOf(typical[0], sc) - yOf(typical[1], sc))} />{/if}
+              {#if typShown}<rect class="typ" x="20" width={W - 40} y={yOf(typShown[1], sc)} height={Math.max(1, yOf(typShown[0], sc) - yOf(typShown[1], sc))} data-typ-band />{/if}
               {#if prevPts.length}<path class="prev" d={path(prevPts, sc)} vector-effect="non-scaling-stroke" />{/if}
               {#if bars}
                 {#each pts as p, i (p.key)}
@@ -381,10 +390,11 @@
           <ul class="legend">
             <li><i class="lsw" style="background:{color}"></i>{item.name}{#if layerItems.length}&nbsp;({t('left|axis')}){/if}</li>
             {#each layerItems as l, i (l.key)}<li><i class="lsw dash" style="border-color:{LAYER_COLORS[i]}"></i>{l.name}{#if i === 0}&nbsp;({t('right|axis')}){/if}</li>{/each}
-            {#if typical}<li><i class="lsw typ"></i>{t('your typical range|analyse')}</li>{/if}
+            {#if typShown}<li><i class="lsw typ"></i>{typBand && !typical ? (perWeek ? t('your typical range per week|analyse') : t('your typical range per day|analyse')) : t('your typical range|analyse')}</li>{/if}
             {#if prevPts.length}<li><i class="lsw prev"></i>{t('year before|analyse')}</li>{/if}
             {#if bands.length}<li><i class="lsw band"></i>{t('{n} trips, names only where there is room|analyse', { n: bands.length })}</li>{/if}
           </ul>
+          {#if typBand && !typical}<p class="hint" data-typ-note>{perWeek ? t('The grey band: where the middle half of your weeks in the last 3 months lay.|analyse') : t('The grey band: where the middle half of your days in the last 3 months lay.|analyse')}</p>{/if}
           {#if !hours}<p class="hint">{t('Tap a point: the day with all its values (sleep, training, ticks, mood).')}</p>{/if}
           <!-- the points as buttons for the keyboard -->
           <div class="sr">
