@@ -1,6 +1,6 @@
 # Wege-Gedächtnis
 
-PR (Nummer folgt) · 07.11.2026 · Auftrag: Noah «4a 5a» (Thread «Verbessern: Routing und Navigation»)
+PR #1054 · 07.11.2026 · Auftrag: Noah «4a 5a» (Thread «Verbessern: Routing und Navigation»)
 
 ## Was ist neu
 - Nach einer Fahrt zeigt «Deine Fahrt» die Fahrt in Stücken von etwa 3 km (bei langen Fahrten längere, höchstens 14), jedes mit Daumen hoch und Daumen runter, dazu die Form der Fahrt in den Farben der Markierungen. Nichts ist Pflicht; ein zweiter Tipp auf denselben Daumen nimmt die Markierung zurück. Fahrten unter 1,5 km haben nichts zu bewerten.
