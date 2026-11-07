@@ -1,6 +1,6 @@
 # Gruss «Wi gahts?» D: «Woran liegt's?» und «Wie war's?» am Abend
 
-PR (Nummer folgt) · 07.11.2026 · Auftrag: Noah «alle umsetzen» (Thread «Planen: Tagescheck mit Fragen»), Prüfliste `tagescheck/gruss-pruefliste.md`. Vierter und letzter von vier PRs (nach A #912, B #1047, C).
+PR #1055 · 07.11.2026 · Auftrag: Noah «alle umsetzen» (Thread «Planen: Tagescheck mit Fragen»), Prüfliste `tagescheck/gruss-pruefliste.md`. Vierter und letzter von vier PRs (nach A #912, B #1047, C).
 
 ## Was ist neu
 - Im Fenster des Grusses steht unter den Gefühlen der Knopf «Woran liegt's?» (zugeklappt). Er zeigt freiwillige Knöpfe: Schlaf, Wetter, Arbeit, Mensche, Körper, beliebig viele. Eine ruhige Zeile zählt, was in den letzten 30 Tagen genannt wurde («Schlaf 5×, Arbeit 3×»): nur Zählen, keine Deutung, kein Urteil.
