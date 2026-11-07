@@ -116,7 +116,7 @@ const LISTED_MOMENTS = {
     'ride', 'f.basecheck', 'f.dayblocks', 'f.evening', 'f.ridenote', 'f.finish', 'f.trainhome', 'f.handlebar',
     'f.glove', 'f.eatremind', 'f.checklater', 'f.placenote', 'f.departsheet', 'f.komoottour',
     'f.routeconvert', 'f.waterfood', 'f.ready', 'f.listentip', 'f.skyplaces', 'f.housecheck', 'f.flatsitter',
-    'f.arrived', 'f.goodnight', 'f.parked', 'f.sos', 'f.webcammap', 'f.reroute', 'f.live', 'f.livepause',
+    'f.arrived', 'f.goodnight', 'f.parked', 'f.sos', 'f.webcammap', 'f.reroute', 'f.findsleep', 'f.live', 'f.livepause',
     'f.sensors', 'f.datapages', 'f.turns', 'f.laps', 'f.moreplaces', 'f.ovnear', 'f.groupmap', 'f.stopsnear',
     'f.sleeptonight', 'f.callhotels', 'f.powernap', 'f.here', 'f.record', 'f.money', 'f.light', 'f.rainsoon',
     'f.arrival', 'f.zones', 'f.compasstool', 'f.phrases', 'f.skistart',

@@ -229,6 +229,7 @@ const LISTED_HOME = {
   'f.icepush': '#/me/push',
   'f.webcams': '#/wetter',
   'f.reroute': '#/live',
+  'f.findsleep': '#/live',
   'f.live': '#/live',
   'f.livepause': '#/live',
   'f.sensors': '#/live',
