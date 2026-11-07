@@ -250,6 +250,8 @@ export function cleanSportGoals(v) {
 }
 // «Training verbessern» 4: the day for which «Heute passt» was answered (Lighter or Keep it)
 export const TODAYKEEP_KEY = 'training.todaykeep';
+// «Training verbessern» 6: the Monday of the week for which the card «A lighter week would fit» was answered
+export const LOADKEEP_KEY = 'training.loadkeep';
 export const HABITS_KEY = 'training.habits'; // { drop: { [session name]: times removed }, mins: { [session name]: { n, ratio } } }
 /** Habits as stored: counts 1–5 per name, ratios 0.5–2. */
 export function cleanHabits(v) {

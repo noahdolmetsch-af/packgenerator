@@ -1,6 +1,6 @@
 // «Training verbessern» 2 (Noah 2.11.2026): the suggestion for the training week. Fictional only.
 import { describe, it, expect } from 'vitest';
-import { suggestWeek, weeklySports, lighterSession, VARIANTS, FOCUS } from '../src/lib/training/suggest.js';
+import { suggestWeek, weeklySports, lighterSession, weekLoadHint, scaleWeek, VARIANTS, FOCUS } from '../src/lib/training/suggest.js';
 
 const MON = '2026-11-02';
 const base = { monday: MON, today: MON, goal: { hours: 8, base: 80 } };
@@ -217,5 +217,36 @@ describe('Heute passt: a lighter session for a tired day', () => {
     expect(lighterSession(s, null)).toBeNull();
     expect(lighterSession({ ...s, done: true }, 'rest')).toBeNull();
     expect(lighterSession({ ...s, mins: 15, zone: 1 }, 'easy')).toBeNull();
+  });
+});
+
+describe('Wochenlast-Wächter', () => {
+  it('a week more than 30 % over the last three is «high», target average + 20 %', () => {
+    expect(weekLoadHint([300, 300, 300], 420)).toEqual({ kind: 'high', target: 360 });
+  });
+  it('three growing weeks and a week that grows again is a «deload» (60 %)', () => {
+    expect(weekLoadHint([240, 280, 320], 330)).toEqual({ kind: 'deload', target: 190 });
+  });
+  it('nothing for a normal week, little training or too few weeks', () => {
+    expect(weekLoadHint([300, 300, 300], 330)).toBeNull();
+    expect(weekLoadHint([30, 40, 50], 200)).toBeNull();
+    expect(weekLoadHint([300, 300], 600)).toBeNull();
+    expect(weekLoadHint([300, 300, 300], 0)).toBeNull();
+  });
+  it('scaleWeek shortens only what is still to come, never longer', () => {
+    const plan = [
+      { id: 'a', day: '2026-11-02', mins: 60 },
+      { id: 'b', day: '2026-11-04', mins: 120 },
+      { id: 'c', day: '2026-11-06', mins: 60, done: true },
+      { id: 'd', day: '2026-11-07', mins: 120 },
+      { id: 'e', day: '2026-11-12', mins: 90 },
+    ];
+    const out = scaleWeek(plan, { monday: '2026-11-02', today: '2026-11-04', target: 300 });
+    expect(out.find((s) => s.id === 'a').mins).toBe(60);
+    expect(out.find((s) => s.id === 'c').mins).toBe(60);
+    expect(out.find((s) => s.id === 'e').mins).toBe(90);
+    const flex = out.filter((s) => s.id === 'b' || s.id === 'd').reduce((x, s) => x + s.mins, 0);
+    expect(flex).toBe(180);
+    expect(scaleWeek(plan, { monday: '2026-11-02', today: '2026-11-04', target: 9999 })).toEqual(plan);
   });
 });
