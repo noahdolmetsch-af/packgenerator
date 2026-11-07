@@ -242,7 +242,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/apps')) return 'miniapps'; // Ich › Kleine Apps (mockup HB2)
   if (h.startsWith('#/me/privacy')) return 'privacy'; // Paket R: Ich › Datenschutz und Nutzung
   if (h.startsWith('#/me/pros')) return 'pros'; // Paket R (Noah 19.10.2026 «4a»): Ich › Velomech und Guide
-  if (h.startsWith('#/me/offers')) return 'offers'; // Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026)
+  if (h.startsWith('#/me/offers') || h.startsWith('#/me/tennis')) return 'offers'; // Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026); Bereich «Tennis» (Noah 05.11.2026)
   if (h.startsWith('#/me/pay')) return 'pay'; // Ich › Bezahlen (mockups BZ1 + BZ2b, Noah 14.10.2026)
   if (h.startsWith('#/me/hinweise')) return 'hinweise'; // Paket Q #148: Ich › Hinweise und News
   if (h.startsWith('#/stopps')) return 'stopps'; // «Stopps in der Nähe» (Noah 24.10.2026 «1a»)
