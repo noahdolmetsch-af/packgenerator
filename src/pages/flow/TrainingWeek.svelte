@@ -16,13 +16,14 @@
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
+  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, TODAYKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
+  import TodayFits from '../../lib/training/plans/TodayFits.svelte'; // «Training verbessern» 4: «Today a lighter one fits»
   import FeelAsk from '../../lib/training/plans/FeelAsk.svelte'; // «Trainingspläne»: «How hard was it?» after each ride
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
   import { saveAct } from '../../lib/flowdb.js';
@@ -89,6 +90,16 @@
     const end = shiftDay(monday, 7);
     await savePlan([...plan.filter((s) => !(s.day >= monday && s.day < end && s.day >= today)), ...list]);
     offerDone(t('Suggestion for the week taken over.'), () => savePlan(before));
+  }
+
+  // «Training verbessern» 4 «Heute passt»: the session of today becomes the lighter one; Undo puts it back
+  async function lighterToday(before, lighter) {
+    await db.settings.put({ key: TODAYKEEP_KEY, value: { day: today } }); // answered: the card does not offer it twice
+    await savePlan(plan.map((x) => (x.id === before.id ? lighter : x)));
+    offerDone(t('«{name}» made lighter.', { name: planName(before) }), async () => {
+      await db.settings.delete(TODAYKEEP_KEY);
+      await savePlan(plan.map((x) => (x.id === before.id ? before : x)));
+    });
   }
 
   let monday = $state(mondayOf(today));
@@ -165,6 +176,7 @@
        review and the training plans stand 2 screens down; one chip row on top -->
   <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('Plan the week') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', jump: '#wka-h', label: t('Power and analyses') }]} />
   <FeelAsk {acts} {today} />
+  <TodayFits {plan} {today} level={$formQ?.ready?.level ?? null} name={planName} onlighter={lighterToday} />
   <section class="card goal" aria-labelledby="goal-h" data-section="goal">
     <span class="gi" aria-hidden="true"><Target size={22} /></span>
     {#if goalForm}

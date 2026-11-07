@@ -248,6 +248,8 @@ export function cleanSportGoals(v) {
   if (v && typeof v === 'object') for (const [k, n] of Object.entries(v)) if (k && k.length <= 80 && Number.isInteger(n) && n >= 0 && n <= 3) out[k] = n;
   return out;
 }
+// «Training verbessern» 4: the day for which «Heute passt» was answered (Lighter or Keep it)
+export const TODAYKEEP_KEY = 'training.todaykeep';
 export const HABITS_KEY = 'training.habits'; // { drop: { [session name]: times removed }, mins: { [session name]: { n, ratio } } }
 /** Habits as stored: counts 1–5 per name, ratios 0.5–2. */
 export function cleanHabits(v) {
