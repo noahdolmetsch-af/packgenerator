@@ -1,6 +1,6 @@
 # Richtige Links und Rückwege
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #1051 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - «Inspiration-Link» im +-Menü führt auf #/inspiration; die alte Adresse #/me/inspiration öffnet ebenfalls Inspiration (nav.js).
