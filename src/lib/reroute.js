@@ -20,6 +20,7 @@
 import { snap, pointAt } from './race/race.js';
 import { distKm } from './route.js';
 import { gpxString } from './gpxout.js';
+import { surfaceOf } from './live/belag.js';
 
 export const BROUTER = 'https://brouter.de/brouter';
 export const PROFILES = [
@@ -52,7 +53,7 @@ export function brouterUrl(points, profile = PROFILE_STD, alt = 0) {
   return `${BROUTER}?lonlats=${lonlats}&profile=${prof}&alternativeidx=${Math.max(0, Math.min(3, Math.round(Number(alt)) || 0))}&format=geojson`;
 }
 
-/** BRouter GeoJSON → { line: [[lat, lon, ele]], km, gainM, min } or null. */
+/** BRouter GeoJSON → { line: [[lat, lon, ele]], km, gainM, min, surface } or null (surface: belag.js, null without the table). */
 export function parseBrouter(json) {
   const f = json?.features?.[0];
   const c = f?.geometry?.coordinates;
@@ -63,7 +64,7 @@ export function parseBrouter(json) {
   if (!(km > 0)) km = line.slice(1).reduce((s, p, i) => s + distKm({ lat: line[i][0], lon: line[i][1] }, { lat: p[0], lon: p[1] }), 0);
   const gainM = fin(pr['filtered ascend']) ? Math.max(0, Math.round(Number(pr['filtered ascend']))) : null;
   const min = fin(pr['total-time']) ? Math.round(Number(pr['total-time']) / 60) : null;
-  return { line, km: Math.round(km * 10) / 10, gainM, min };
+  return { line, km: Math.round(km * 10) / 10, gainM, min, surface: surfaceOf(pr.messages) };
 }
 
 /** Where a place lies on the route from fromKm on: { km, offKm } (a round tour does not snap back to the start). */

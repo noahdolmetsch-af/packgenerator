@@ -8,6 +8,11 @@ const phone = (info) => info.project.name === 'phone';
 const tap = (loc, info) => (phone(info) ? loc.tap() : loc.click());
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
 
+// BRouter's message table: what the way is made of (belag.js)
+const HEAD = ['Longitude', 'Latitude', 'Elevation', 'Distance', 'CostPerKm', 'ElevCost', 'TurnCost', 'NodeCost', 'InitialCost', 'WayTags', 'NodeTags', 'Time', 'Energy'];
+const seg = (d, tags) => ['7450000', '46950000', '540', String(d), '0', '0', '0', '0', '0', tags, '', '0', '0'];
+const MESSAGES = [HEAD, seg(1900, 'highway=residential surface=asphalt'), seg(460, 'highway=track surface=gravel'), seg(40, 'highway=steps')];
+
 test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove it', async ({ page, context }, info) => {
   await openHome(page, context, info);
   await context.route(/tiles\.openfreemap\.org|wmts\.geo\.admin\.ch|tile\.openstreetmap\.org|opentopomap|rainviewer/, (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
@@ -25,7 +30,7 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   await context.route(/brouter\.de\/brouter/, (route) => {
     if (route.request().url().includes('alternativeidx=0')) asked.push(route.request().url()); // «Wege zur Auswahl» also asks for the other ways
     return route.fulfill({
-      json: { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': '2400', 'filtered ascend': '18', 'total-time': '480' }, geometry: { type: 'LineString', coordinates: [[7.45, 46.95, 540], [7.4505, 46.951, 545], [7.451, 46.952, 550]] } }] },
+      json: { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': '2400', 'filtered ascend': '18', 'total-time': '480', messages: MESSAGES }, geometry: { type: 'LineString', coordinates: [[7.45, 46.95, 540], [7.4505, 46.951, 545], [7.451, 46.952, 550]] } }] },
     });
   });
   await context.grantPermissions(['geolocation']);
@@ -56,6 +61,10 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   await expect(card).toBeVisible();
   await expect(card).toContainText('test_data_gtp_ Beck');
   await expect(card).toContainText(/\d[.,]\d km/);
+  // «Belag und Schwierigkeit»: the card tells the surface and warns about the steps (mountain bike: no warning about gravel)
+  await expect(card.locator('[data-surface]').first()).toContainText(/\d+ %/);
+  await expect(card.locator('[data-surface-warn]')).toHaveCount(1);
+  await expect(card.locator('[data-surface-warn]')).toContainText(/Treppen|Steps/);
   // Linie zum Ziel: the numbers on top count down to the goal, and the bar shows how far along you are
   await expect(page.locator('[data-live-tile="left"]')).toContainText(/km (to the goal|bis zum Ziel)/);
   await expect(page.locator('[data-live-goal-bar]')).toHaveCount(1);
