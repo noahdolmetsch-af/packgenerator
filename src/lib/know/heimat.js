@@ -169,7 +169,6 @@ const LISTED_HOME = {
   'f.findlist': '#/me/wohl',
   'f.osmsets': '#/neuland',
   'f.newkm': '#/neuland',
-  'f.osmsets': '#/neuland',
   'f.triptips': '#/trips/dreams',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',
