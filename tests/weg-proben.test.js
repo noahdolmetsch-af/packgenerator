@@ -21,10 +21,10 @@ describe('Practice rides', () => {
     expect(proben.defaults(goal('trip')).map((s) => s.key)).toEqual(['km50', 'km100', 'km200']);
     expect(proben.defaults(goal('free', '')).map((s) => s.key)).toEqual(['km50', 'km100']);
   });
-  it('has a German text for every title and note', () => {
+  it('has a German text for every title (the strip explains the rest, so no note)', () => {
     for (const s of proben.defaults(goal('race'))) {
       expect(DE[s.title]).toBeTruthy();
-      expect(DE[s.note]).toBeTruthy();
+      expect(s.note).toBeUndefined();
     }
   });
   it('knows the km of a step from its key', () => {

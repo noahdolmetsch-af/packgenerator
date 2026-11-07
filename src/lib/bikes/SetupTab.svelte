@@ -145,7 +145,8 @@
     const b = n ? bikes.find((x) => x.id === n.bikeId) ?? null : null;
     return n && b ? { trip: n, bike: b } : null;
   });
-  const sub = $derived([tn(bikes.length, '{n} bike', '{n} bikes'), nextRide ? t('next trip: {trip} on {date} with {bike}', { trip: nextRide.trip.title ?? '', date: dateOf(nextRide.trip.startDate), bike: nextRide.bike.name }) : ''].filter(Boolean).join(' · '));
+  const sub = $derived(tn(bikes.length, '{n} bike', '{n} bikes'));
+  const ride = $derived(nextRide ? { id: nextRide.trip.id, text: t('next trip: {trip} on {date} with {bike}', { trip: nextRide.trip.title ?? '', date: dateOf(nextRide.trip.startDate), bike: nextRide.bike.name }) } : null);
 
   /* ---------- Velos 2: the maker and warranty link in the bike's «…» ---------- */
   watchLinks();
@@ -432,7 +433,7 @@
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
+    <SetupBand {bikes} {bike} {setup} {sub} {ride} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
 
     <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a 2b», use cases 177–181, 198): the bike's folder and photos one tap
          away, under the names of «What the app can do» (were only in the fold «More» at the bottom) -->

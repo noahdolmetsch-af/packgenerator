@@ -17,6 +17,8 @@
   import { careLook } from './pflegezustand.js';
   import { phone } from '../media.svelte.js';
   import Odometer from '../ui/Odometer.svelte';
+  import NumLink from '../ui/NumLink.svelte'; // «Zahl mit Weg» (UI-Prüfung 07.11.2026, V1)
+  import { velosHref } from '../analyse/jump.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   let { bikeId = null, onbike } = $props();
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -63,8 +65,9 @@
       <article class="vcard" class:sel={c.bike.id === bikeId} data-velo-card={c.bike.id}>
         <div class="pic"><VeloDraw look={c.look.look} /></div>
         <b class="nm">{c.bike.name}</b>
-        <small class="km num">{#if c.bike.km != null}<Odometer value={c.bike.km} />{' km'}{:else}{t('km not set')}{/if}</small>
-        <span class="vpill {c.status}">{c.w.tag}</span>
+        <small class="km num">{#if c.bike.km != null}<NumLink to={velosHref()} data-card-km-link><Odometer value={c.bike.km} />{' km'}</NumLink>{:else}{t('km not set')}{/if}</small>
+        <!-- V1: «nothing due» / «n due» leads to the care list of this bike -->
+        <a class="vpill {c.status}" href={bikesHash({ tab: 'care', bike: c.bike.id, open: true })} data-card-status>{c.w.tag}</a>
         {#if c.w.text}<p class="next">{c.w.text}</p>{/if}
         {#if c.look.look === 'clean'}
           <p class="next look" data-velo-look="clean">{t('Cared for lately: the bike gleams.')}</p>
@@ -173,6 +176,32 @@
     font: 600 var(--fs-small) / 1.4 var(--font-body);
     background: var(--line);
     color: var(--ink-2);
+  }
+  a.vpill {
+    position: relative;
+    text-decoration: none;
+  }
+  /* 44 px tap area around the small pill, without moving the layout */
+  a.vpill::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    right: -6px;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+  .km :global(a.numlink) {
+    min-height: 0;
+  }
+  .km :global(a.numlink)::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    right: -6px;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
   }
   .vpill.due {
     background: var(--warn-soft);
