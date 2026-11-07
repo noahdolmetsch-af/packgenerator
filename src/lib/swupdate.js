@@ -11,7 +11,7 @@
 // 27.10.2026 (Noah «1-5 a»): the bar comes after 2 minutes; and 30 seconds after a start the app loads itself
 // fresh once when a newer version is online but has not arrived (autofresh.js).
 
-import { warnIfBehind } from './behind.js';
+import { warnIfBehind, verifyFresh } from './behind.js';
 import { held as heldNow } from './holdreload.js';
 import { autoFresh, AFTER } from './autofresh.js';
 import { cleanFreshMarker } from './freshreload.js';
@@ -28,8 +28,9 @@ const typing = (d) => {
  * Starts the watcher. `w` is the window (tests pass a fake one).
  * Returns { check, reloadPending } for the tests.
  */
-export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehind, held = heldNow, fresh = autoFresh } = {}) {
-  cleanFreshMarker(w);
+export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehind, held = heldNow, fresh = autoFresh, verify = verifyFresh } = {}) {
+  // true when this start came from «load fresh» (the button, the error page or autofresh.js)
+  const triedFresh = cleanFreshMarker(w);
   const sw = w.navigator?.serviceWorker;
   if (!sw) return null;
   const d = w.document;
@@ -80,6 +81,11 @@ export function watchUpdates(w = globalThis, { every = HOUR, behind = warnIfBehi
   w.setInterval(() => d.visibilityState === 'visible' && check(), every);
   // on start too (the browser itself looks for a new worker on a start; this only asks for the version):
   // a newer version that has not arrived after 30 seconds is loaded fresh once, else the bar may come
-  w.setTimeout?.(() => fresh(w).then((loading) => loading || behind(w)).catch(() => {}), AFTER);
+  // 07.11.2026: a start that came from «load fresh» checks after 5 seconds that the newest version really arrived;
+  // if not, the bar says so honestly (behind.js verifyFresh) instead of the button looking as if nothing happened
+  w.setTimeout?.(
+    () => (triedFresh ? verify(w).then((late) => late || behind(w)) : fresh(w).then((loading) => loading || behind(w))).catch(() => {}),
+    triedFresh ? 5000 : AFTER,
+  );
   return { check, reloadPending: () => pending };
 }

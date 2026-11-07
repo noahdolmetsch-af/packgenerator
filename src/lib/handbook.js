@@ -1295,6 +1295,16 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.osmsets': {
+    on: 'Needs the internet now and then to load the places (once a week by itself); then it works offline.',
+    steps: ['Open Trips › Look back › New ground.', 'Choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load again» to bring the places up to date; the list shows what you reached.'],
+    example: 'Example: a waterfall on a ride is ticked by itself, with the day.',
+  },
+  'f.monthadv': {
+    on: 'Works offline; the kinds that start from home need your home place.',
+    steps: ['Open Trips › Dreams: «One adventure a month» names this month\'s adventure.', 'Tap «Show me»: you land at the card for it.', 'Under «Kinds» hide one, add your own, or switch the line on Today off.'],
+    example: 'Example: «Adventure of the month: Train there, bike home» on Today.',
+  },
   'f.dice': {
     on: 'Works offline; the rules are on the device.',
     steps: ['Open Trips › Dreams: «Adventure dice».', 'Tap «Roll»; the rule stays until you roll again.', 'Under «Rules»: add, rename, delete or hide rules.'],
@@ -1756,6 +1766,11 @@ const LISTED = {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
     example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
+  },
+  'f.spielerplus': {
+    on: 'Paste the calendar link of your team once under Me › Connections › Spielerplus calendar.',
+    steps: ['Copy the calendar link of your team in Spielerplus, paste it under Me › Connections and tap «Test and add».', 'The dates show in Plan › Week, on Today and on the sport page; «Sign up in Spielerplus ›» opens Spielerplus.', 'Another team: paste its link the same way. Switch a team off or remove it any time (with Undo).'],
+    example: 'Example: «Training» on Wednesday at 19:00 → stands in the week with the word «Spielerplus»; on Wednesday it is also on Today.',
   },
   'f.fitbit': {
     on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',

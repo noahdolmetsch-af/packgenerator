@@ -32,7 +32,8 @@ const ignore = [
 // Only the check of the live app (LIVE=1) talks to the real server.
 // 28.10.2026: the same for GitHub's public API (Ich asks it which merges are not online yet, versionline.js);
 // without an account it answers 60 questions an hour, and that belongs to the real app too.
-export const NO_REAL_SERVER = '--host-resolver-rules=MAP packgen-three.vercel.app ~NOTFOUND, MAP api.github.com ~NOTFOUND';
+// 07.11.2026: the same for the Overpass servers (New ground asks them once a week for towers, bridges and waterfalls, osm.js).
+export const NO_REAL_SERVER = '--host-resolver-rules=MAP packgen-three.vercel.app ~NOTFOUND, MAP api.github.com ~NOTFOUND, MAP overpass-api.de ~NOTFOUND, MAP overpass.osm.ch ~NOTFOUND, MAP overpass.kumi.systems ~NOTFOUND, MAP overpass.private.coffee ~NOTFOUND';
 const browserArgs = process.env.LIVE ? [] : [NO_REAL_SERVER];
 
 export default defineConfig({

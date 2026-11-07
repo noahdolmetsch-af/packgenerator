@@ -27,7 +27,8 @@ test('the + menu: bike, activity, diary and inspiration lead to their place', as
   await expect(page).toHaveURL(/#\/flow$/);
   dlg = await open();
   await dlg.locator('[data-new-insp]').click();
-  await expect(page).toHaveURL(/#\/me\/inspiration$/);
+  // UI-Test T11 (G1-13): Inspiration lives at #/inspiration, not under Ich
+  await expect(page).toHaveURL(/#\/inspiration$/);
   dlg = await open();
   await dlg.locator('[data-new-bike]').click();
   await expect(page).toHaveURL(/#\/bikes/);

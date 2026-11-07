@@ -202,3 +202,13 @@
 .fz-done {
   color: var(--ok);
 }
+
+/* «Meine Sammlungen» print view (Noah 05.11.2026 «Touren 2a und b»): only the entries, no buttons */
+@media print {
+  .fz .no-print,
+  .fz .fz-icon,
+  .fz .fz-chips,
+  .fz article .fz-acts {
+    display: none !important;
+  }
+}

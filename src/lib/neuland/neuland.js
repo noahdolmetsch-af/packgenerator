@@ -39,6 +39,10 @@ export const COLLECTIONS = [
   { id: 'peaks', kind: 'point', title: 'Peaks over 3000 m', one: 'Peak', radius: 0.25, map: 'ch' },
   { id: 'lakes', kind: 'lake', title: 'Lakes', one: 'Lake', radius: 0.3, map: 'ch' },
   { id: 'municipalities', kind: 'area', title: 'Municipalities', one: 'Municipality', map: 'ch' },
+  // N18: from OpenStreetMap, loaded on the device (osm.js)
+  { id: 'towers', kind: 'point', title: 'Lookout towers', one: 'Tower', radius: 0.25, map: 'ch', osm: true },
+  { id: 'bridges', kind: 'point', title: 'Suspension bridges', one: 'Bridge', radius: 0.25, map: 'ch', osm: true },
+  { id: 'waterfalls', kind: 'point', title: 'Waterfalls', one: 'Waterfall', radius: 0.3, map: 'ch', osm: true },
 ];
 const BUILT = new Map(COLLECTIONS.map((c) => [c.id, c]));
 export const isBuiltIn = (cid) => BUILT.has(cid);
@@ -555,7 +559,7 @@ export function cantonsInYear(visited, year) {
 
 /* ---------------------------------------------------------------- words ---------------- */
 
-const WHAT = { cantons: 'Canton', municipalities: 'Municipality', countries: 'Country', passes: 'Pass', huts: 'Hut', peaks: 'Peak', lakes: 'Lake' };
+const WHAT = { cantons: 'Canton', municipalities: 'Municipality', countries: 'Country', passes: 'Pass', huts: 'Hut', peaks: 'Peak', lakes: 'Lake', towers: 'Tower', bridges: 'Bridge', waterfalls: 'Waterfall' };
 
 /** A short line for one item, ready for German: «Kanton Uri», «Altdorf (UR)», «Klausenpass · 1948 m». */
 export function itemLabel(cid, item) {
@@ -594,6 +598,9 @@ export const COUNT_WORDS = {
   huts: ['{n} hut', '{n} huts'],
   peaks: ['{n} peak', '{n} peaks'],
   lakes: ['{n} lake', '{n} lakes'],
+  towers: ['{n} lookout tower', '{n} lookout towers'],
+  bridges: ['{n} suspension bridge', '{n} suspension bridges'],
+  waterfalls: ['{n} waterfall', '{n} waterfalls'],
 };
 
 /**

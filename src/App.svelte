@@ -39,6 +39,7 @@
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
+  import SkipLink from './lib/nav/SkipLink.svelte';
   import HelpButton from './lib/nav/HelpButton.svelte';
   import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
@@ -364,6 +365,7 @@
     Ride: () => import('./pages/Ride.svelte'),
     Abfahrt: () => import('./pages/Abfahrt.svelte'),
     Hueter: () => import('./pages/Hueter.svelte'),
+    FreiGeteilt: () => import('./lib/frei/Geteilt.svelte'), // «Meine Sammlungen» as a page: #/share/sammlung/<code>
     Inbox: () => import('./pages/Inbox.svelte'),
     Notes: () => import('./pages/Notes.svelte'),
     Vorgaenge: () => import('./pages/Vorgaenge.svelte'),
@@ -494,6 +496,7 @@
      v0.98.0 Design-Refresh R2 (G4/G5 A★): the top bar and the sidebar are light; on a phone the + sits
      in the top bar next to the search (never over the page), the round + above the bottom bar is gone. -->
 <div class="shell" class:wide={wide.matches && !mini} class:mini={!!mini}>
+  <SkipLink />
 {#if wide.matches && !mini}
   <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={!guest} onnew={() => (newMode = 'all')} />
 {:else}
@@ -579,6 +582,7 @@
   {:else if page === 'share'}
     <!-- Paket 4 «Wohnungs-Hüter-Liste»: #/share/hueter/<code>, the list travels in the link -->
     {#if param === 'hueter'}{#key hash}<LazyPage load={PAGES.Hueter} code={hash.split('/')[3] ?? ''} />{/key}
+    {:else if param === 'sammlung'}{#key hash}<LazyPage load={PAGES.FreiGeteilt} code={hash.split('/')[3] ?? ''} />{/key}
     {:else}{#key param}<LazyPage load={PAGES.Share} code={param} />{/key}{/if}
   {:else if page === 'live'}
     <!-- Paket U3 «Live-Karte»: the map with your position on a ride (#/live, #/live/<tripId>) -->

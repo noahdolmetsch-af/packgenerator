@@ -185,7 +185,7 @@
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><span class="ic" aria-hidden="true"><StickyNote size={20} /></span><span class="tx"><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></span></button></li>
       <!-- Dokumente-PDF (Noah 15.10.2026): photograph a document, it becomes a PDF in Ich › Dokumente -->
-      <li><a class="opt" href="#/me/inspiration" onclick={close} data-new-insp><span class="ic" aria-hidden="true"><Lightbulb size={20} /></span><span class="tx"><b>{t('Inspiration link')}</b><span>{t('A rig, a route, a video: paste the link')}</span></span></a></li>
+      <li><a class="opt" href="#/inspiration" onclick={close} data-new-insp><span class="ic" aria-hidden="true"><Lightbulb size={20} /></span><span class="tx"><b>{t('Inspiration link')}</b><span>{t('A rig, a route, a video: paste the link')}</span></span></a></li>
       <li><a class="opt" href="#/me/docs/scan" onclick={close}><span class="ic" aria-hidden="true"><ScanLine size={20} /></span><span class="tx"><b>{t('Photograph document')}</b><span>{t('Becomes a PDF in «Imported PDFs»')}</span></span></a></li>
     </ul>
   {/if}

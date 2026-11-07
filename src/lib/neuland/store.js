@@ -7,6 +7,7 @@ import { loadBase } from './load.js';
 import { areaAt, gridOf } from './geo.js';
 import { localDay } from '../localday.js';
 import { splitNeuland } from './split.js';
+import { OSM_KEY } from './osm.js';
 
 export async function readState(db) {
   return stateOf((await db.settings.get(NEULAND_KEY))?.value);
@@ -27,14 +28,15 @@ export async function cantonAt(place) {
 
 /** The person's data Neuland reads (only Dexie reads, so a liveQuery can watch it). */
 export async function readRaw(db) {
-  const [rec, trips, rides, activities, homeRec] = await Promise.all([
+  const [rec, trips, rides, activities, homeRec, osmRec] = await Promise.all([
     db.settings.get(NEULAND_KEY),
     db.trips.toArray(),
     db.rides.toArray(),
     db.activities ? db.activities.toArray() : [],
     db.settings.get('homePlace'),
+    db.meta.get(OSM_KEY), // N18: when the OpenStreetMap places were loaded (so a liveQuery recomputes after a refresh)
   ]);
-  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null };
+  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null, osmAt: osmRec?.value?.at ?? 0 };
 }
 
 /**

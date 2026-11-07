@@ -87,7 +87,7 @@
 
 <div class="ta">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/goals', label: t('Activities|flow') }]} here={t('Evaluate|tk')} />
+    <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Ticks evaluated|tab')} />
     <PageHead title={what === 'answers' ? t('Your answers evaluated') : t('Your ticks evaluated')} sub={what === 'answers' ? t('your answers to the check questions · only to look at, nothing is rated') : t('everything you tick off · only to look at, nothing is rated')} />
   </header>
 

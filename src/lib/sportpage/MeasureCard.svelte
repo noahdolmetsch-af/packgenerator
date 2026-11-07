@@ -5,9 +5,11 @@
    * quick entry with the last values pre-filled and + / −. Auto measures (from Strava) only show.
    */
   import { Minus, Plus, Star, Pencil, Trash2, ChevronDown } from '@lucide/svelte';
+  import LineChart from '../charts/LineChart.svelte';
+  import ChartSheet from '../charts/ChartSheet.svelte';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { putItem, patchItem, dropItems, restoreItems } from '../sportsdb.js';
-  import { lastOf, bestOf, changeOf, monthCompare, curve, parseValue, stepValue, valueText, newValue, UNITS, UNIT_KEYS } from '../sportsprogress.js';
+  import { lastOf, bestOf, changeOf, monthCompare, parseValue, stepValue, valueText, newValue, UNITS, UNIT_KEYS } from '../sportsprogress.js';
   import { measureName, withUnit } from './words.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
 
@@ -18,7 +20,6 @@
   const best = $derived(bestOf(values, measure.unit));
   const change = $derived(changeOf(values, measure.unit));
   const month = $derived(monthCompare(values, measure.unit, today));
-  const path = $derived(curve(values, measure.unit));
   const fmt = (n) => num(n);
   const show = (v) => withUnit(v, measure.unit, fmt);
   const dayText = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' });
@@ -66,7 +67,18 @@
     if (n) await patchItem(measure.id, { name: n, unit: editing.unit });
     editing = null;
   }
+  const label = $derived(t('Curve of {name}: {n} values', { name, n: values.length }));
   const newest = $derived([...values].reverse());
+
+  // «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the curve is the shared line chart. One column per value
+  // (the last 24, oldest left), the exact value when pointing, a tap opens it, «As table» lists them.
+  const shownVals = $derived(values.slice(-24));
+  const cols = $derived(shownVals.map((x, i) => ({ key: String(x.id ?? i), x: i === 0 || i === shownVals.length - 1 ? dayText(x.day) : '' })));
+  const series = $derived([{ key: 'v', color, v: shownVals.map((x) => x.v) }]);
+  const setsText = (x) => [x.sets ? tn(x.sets, '{n} set', '{n} sets') : '', x.reps ? tn(x.reps, '{n} rep', '{n} reps') : ''].filter(Boolean).join(' × ');
+  const readout = (i) => ({ title: dayText(shownVals[i].day), items: [{ label: t('Value'), value: show(shownVals[i].v), color }, ...(setsText(shownVals[i]) ? [{ label: t('Sets'), value: setsText(shownVals[i]) }] : [])] });
+  const table = $derived({ head: [t('Day'), name], rows: [...shownVals].reverse().map((x, k) => ({ key: `${x.id ?? k}`, cells: [dayText(x.day), `${show(x.v)}${setsText(x) ? ` · ${setsText(x)}` : ''}`] })) });
+  let sel = $state(null);
 </script>
 
 <div class="meas" data-measure={name}>
@@ -99,11 +111,8 @@
     {#if month.now != null && month.before != null}
       <p class="small" data-month>{t('Last 30 days {now}, the 30 before {before}', { now: show(month.now), before: show(month.before) })}{#if month.better != null}{' · '}<span class={month.better ? 'up' : 'down'}>{month.better ? t('better') : t('lower')}</span>{/if}</p>
     {/if}
-    {#if path}
-      <svg class="curve" viewBox="0 0 280 64" preserveAspectRatio="none" role="img" aria-label={t('Curve of {name}: {n} values', { name, n: values.length })}>
-        <path d={path.d} style="stroke:{color}" />
-        {#each path.dots as p (p.i)}<circle cx={p.x} cy={p.y} r={p.best ? 4 : 2.5} style="fill:{p.best ? 'var(--warn)' : color}" />{/each}
-      </svg>
+    {#if values.length > 1}
+      <LineChart id="measure" {cols} {series} {readout} {table} {label} tick={(x) => show(x)} topText={(x) => show(x)} height={130} onopen={(i) => (sel = i)} hint={t('Point at a value for its numbers, tap it for the day.')} />
     {/if}
   {:else}
     <p class="none">{t('No value yet. Enter the first one below.')}</p>
@@ -137,3 +146,33 @@
     {/if}
   {/if}
 </div>
+
+{#if sel != null && shownVals[sel]}
+  {@const x = shownVals[sel]}
+  <ChartSheet kicker={name} title={dayText(x.day)} onclose={() => (sel = null)} onprev={sel > 0 ? () => sel-- : null} onnext={sel < shownVals.length - 1 ? () => sel++ : null} prevLabel={t('Value before')} nextLabel={t('Next value')}>
+    <ul class="shl" data-measure-sheet>
+      <li><span>{name}</span><b class="num">{show(x.v)}</b></li>
+      {#if setsText(x)}<li><span>{t('Sets')}</span><b class="num">{setsText(x)}</b></li>{/if}
+      {#if best && best.id === x.id}<li><span>{t('Best')}</span><b class="num">★</b></li>{/if}
+    </ul>
+  </ChartSheet>
+{/if}
+
+<style>
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .shl span {
+    color: var(--ink-2);
+  }
+</style>
