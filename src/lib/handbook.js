@@ -1300,6 +1300,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load again» to bring the places up to date; the list shows what you reached.'],
     example: 'Example: a waterfall on a ride is ticked by itself, with the day.',
   },
+  'f.monthadv': {
+    on: 'Works offline; the kinds that start from home need your home place.',
+    steps: ['Open Trips › Dreams: «One adventure a month» names this month\'s adventure.', 'Tap «Show me»: you land at the card for it.', 'Under «Kinds» hide one, add your own, or switch the line on Today off.'],
+    example: 'Example: «Adventure of the month: Train there, bike home» on Today.',
+  },
   'f.dice': {
     on: 'Works offline; the rules are on the device.',
     steps: ['Open Trips › Dreams: «Adventure dice».', 'Tap «Roll»; the rule stays until you roll again.', 'Under «Rules»: add, rename, delete or hide rules.'],

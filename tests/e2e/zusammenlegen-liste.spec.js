@@ -39,19 +39,26 @@ test('Zusammenlegen: die Vorschlaege stehen untereinander und sind breit genug',
   await page.getByLabel(T('Search all items'), { exact: true }).fill('Zeltseife');
   const lists = sheet.locator('ul.opts');
   await expect(lists.last().locator('li').first()).toBeVisible();
-  const sheetBox = await sheet.boundingBox();
-  for (let k = 0; k < (await lists.count()); k++) {
-    const rows = lists.nth(k).locator('li');
-    const n = await rows.count();
-    const lb = await lists.nth(k).boundingBox();
-    expect(lb.width, 'the list is as wide as the sheet, not 22 px').toBeGreaterThan(sheetBox.width * 0.6);
+  // One snapshot of all boxes in a single step: the sheet grows upwards when the search results appear, and measuring
+  // row after row (one await each) read the rows at different moments while it moved.
+  const snap = await page.evaluate(() => {
+    const r = (el) => {
+      const b = el.getBoundingClientRect();
+      return { x: b.x, y: b.y, width: b.width, height: b.height };
+    };
+    const dlg = document.querySelector('dialog.merge');
+    return { sheet: r(dlg), lists: [...dlg.querySelectorAll('ul.opts')].map((ul) => ({ box: r(ul), rows: [...ul.querySelectorAll(':scope > li')].map(r) })) };
+  });
+  const sheetBox = snap.sheet;
+  expect(snap.lists.length).toBeGreaterThan(0);
+  for (const list of snap.lists) {
+    expect(list.box.width, 'the list is as wide as the sheet, not 22 px').toBeGreaterThan(sheetBox.width * 0.6);
     let prevBottom = -1;
-    for (let i = 0; i < n; i++) {
-      const b = await rows.nth(i).boundingBox();
+    list.rows.forEach((b, i) => {
       expect(b.y, `row ${i} lies below the one before`).toBeGreaterThanOrEqual(prevBottom - 1);
       expect(b.x + b.width, 'a row stays inside the sheet').toBeLessThanOrEqual(sheetBox.x + sheetBox.width + 1);
       prevBottom = b.y + b.height;
-    }
+    });
   }
   expect(errors).toEqual([]);
 });

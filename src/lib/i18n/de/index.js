@@ -550,6 +550,7 @@ import energie from './energie.js';
 // «Schneefallgrenze» (Noah 04.11.2026 «1b 2a 3a 4a 5a»)
 import schneegrenze from './schneegrenze.js';
 import nebelgrenze from './nebelgrenze.js';
+import hoehe from './hoehe.js';
 import nachttemperatur from './nachttemperatur.js';
 import nebelroute from './nebelroute.js';
 import nebelpush from './nebelpush.js';
@@ -996,6 +997,7 @@ const ORDERED = [
   wetterkern,
   schneegrenze,
   nebelgrenze,
+  hoehe,
   nachttemperatur,
   nebelroute,
   nebelpush,

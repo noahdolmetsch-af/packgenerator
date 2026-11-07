@@ -24,7 +24,10 @@ describe('items and holidays', () => {
     expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: '30' }).mins).toBe(30);
     expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: 2 }).mins).toBeUndefined();
     expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: 9999 }).mins).toBeUndefined();
-    expect(cleanItem({ kind: 'date', title: 'Dentist', day: '2026-10-20', mins: 30 }).mins).toBeUndefined();
+    // «Planen 2a»: a date may have a length too (a planned ride), the same limits; a bike job has none
+    expect(cleanItem({ kind: 'date', title: 'Dentist', day: '2026-10-20', mins: 30 }).mins).toBe(30);
+    expect(cleanItem({ kind: 'date', title: 'Dentist', day: '2026-10-20', mins: 2 }).mins).toBeUndefined();
+    expect(cleanItem({ kind: 'bike', title: 'Oil the chain', mins: 30 }).mins).toBeUndefined();
     expect(itemsOf([{ kind: 'date', title: 'Dentist' }, { kind: 'date', title: 'Tennis', day: MON, time: '18:00' }])).toHaveLength(1);
   });
   it('a holiday defaults its follow-ups by type (Noah 4a: all suggested, all deselectable)', () => {

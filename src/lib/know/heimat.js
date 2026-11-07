@@ -165,6 +165,7 @@ const LISTED_HOME = {
   'f.trainthere': '#/trips/dreams',
   'f.suntip': '#/trips/dreams',
   'f.dice': '#/trips/dreams',
+  'f.monthadv': '#/trips/dreams',
   'f.newkm': '#/neuland',
   'f.osmsets': '#/neuland',
   'f.triptips': '#/trips/dreams',

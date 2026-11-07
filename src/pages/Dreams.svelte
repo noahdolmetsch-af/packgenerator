@@ -38,6 +38,7 @@
   import TrainHome from '../lib/neuland/TrainHome.svelte'; // N7 «Zug hin, Velo heim»
   import SunTip from '../lib/dreams/SunTip.svelte'; // N9 «Sonnenaufgang auf dem Hügel»
   import DiceCard from '../lib/dreams/DiceCard.svelte'; // N19 «Abenteuer-Würfel»
+  import MonthAdventureCard from '../lib/dreams/MonthAdventureCard.svelte'; // N12 «Ein Abenteuer im Monat»
   import { nightFields } from '../lib/context.js';
   import { linkIn, readLink, withLink, distText } from '../lib/dreams/fromlink.js'; // N13 «Ein Link wird ein Traum»
   import { fulfilledDreams } from '../lib/dreams/erfuellt.js'; // N17 «Erfüllte Träume»
@@ -219,7 +220,7 @@
   </form>
   {#if done}<p class="ok" role="status"><Check size={16} aria-hidden="true" /><span class="ok-text">{done}</span></p>{/if}
 
-  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» and «Train there, bike home» and «Sunrise on the hill» and «Adventure dice» sit under the list.')}</p>{/if}
+  {#if view === 'list'}<p class="ich-help dr-more" data-dreams-more>{t('Open a dream for «Ready for the dream?». A dream that fits now gets a «Weather window for dreams». «All dreams on one map» is the view Map; «Fulfilled dreams» is the closed row at the end of the list; «Fits now: ideas per month» and «After-work bivouac» and «Train there, bike home» and «Sunrise on the hill» and «Adventure dice» and «One adventure a month» sit under the list.')}</p>{/if}
 
   <TripTips />
 
@@ -287,6 +288,7 @@
   {/if}
 
   {#if view !== 'map'}
+  <MonthAdventureCard />
   <MonthIdeas month={month || nowMonth} current={!month || month === nowMonth} onmakedream={ideaDream} />
   <BiwakCard onplan={biwakPlan} />
   <TrainHome />

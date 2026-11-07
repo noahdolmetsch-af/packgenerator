@@ -101,4 +101,8 @@ export default {
   'Your home loop': 'Deine Hausrunde',
   'Ride before': 'Fahrt davor',
   'Next ride': 'Nächste Fahrt',
+  // Sport: eigene Messwerte (MeasureCard)
+  'Point at a value for its numbers, tap it for the day.': 'Zeig auf einen Wert für die Zahlen, tippe ihn an für den Tag.',
+  'Value before': 'Wert davor',
+  'Next value': 'Nächster Wert',
 };

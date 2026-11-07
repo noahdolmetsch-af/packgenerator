@@ -207,7 +207,8 @@ export function pageOf(hash = '', careTab = false) {
   if (/^#\/auswerten(\/|\?|$)/.test(h)) return 'auswerten'; // «Aktiv neu» (Noah 22.10.2026 «2a»): the start of Auswerten
   if (h.startsWith('#/flow/impulse')) return 'impulse'; // Paket T «Freie Zeit»: Impulse as a tab of Aktiv (Noah «1a und b»)
   if (h.startsWith('#/flow')) return 'flow'; // v0.51.0 «Im Flow»
-  if (h.startsWith('#/inspiration')) return 'inspiration'; // «Inspiration» UC2-1: your own links (sidebar; phone: Ich › Inspiration)
+  // UI-Test T11 (G1-13): the old address of Inspiration (under Ich) still opens Inspiration
+  if (h.startsWith('#/inspiration') || h.startsWith('#/me/inspiration')) return 'inspiration'; // «Inspiration» UC2-1: your own links (sidebar; phone: Ich › Inspiration)
   if (h.startsWith('#/assistent')) return 'assistent'; // «Assistent» (Noah 15.10.2026): Frag die App + Hilf mir planen
   if (h.startsWith('#/helper')) return 'helper'; // v0.77.0 KI-Helfer (K1a): Ich › Helfer
   if (h.startsWith('#/me/suche')) return 'suchesettings'; // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»)
