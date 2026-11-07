@@ -70,19 +70,10 @@ describe('links', () => {
 });
 
 describe('ticking by itself', () => {
-  const g = withSteps(goal());
-  it('«plan» ticks when the race paperwork has the tracker done; nothing else ticks', () => {
-    const r = applyAuto(g, TYPES, { tracker: { papers: [{ id: 'pp-signup', done: true }, { id: 'pp-tracker', done: true }] } });
-    expect(r.steps.map((s) => s.done)).toEqual([true, false, false, false, false]);
-    expect(r.steps[0].by).toBe('auto');
-  });
-  it('stays quiet without paperwork, with the tracker open, or after the user unticked it', () => {
-    expect(applyAuto(g, TYPES, {})).toBe(g);
-    expect(applyAuto(g, TYPES, { tracker: { papers: [{ id: 'pp-tracker', done: false }] } })).toBe(g);
-    const ticked = applyAuto(g, TYPES, { tracker: { papers: [{ id: 'pp-tracker', done: true }] } });
-    const unticked = setDone(ticked, 's1', false);
-    expect(applyAuto(unticked, TYPES, { tracker: { papers: [{ id: 'pp-tracker', done: true }] } }).steps[0].done).toBe(false);
-    expect(tracker.auto(g, { type: 'tracker', key: 'test' }, { tracker: { papers: [{ id: 'pp-tracker', done: true }] } })).toBeNull();
-    expect(tracker.auto(g, g.steps[0], { tracker: { papers: 'broken' } })).toBeNull();
+  it('nothing ticks by itself, not even with race paperwork that has the tracker done', () => {
+    const g = withSteps(goal());
+    expect(tracker.auto(g, g.steps[0], { tracker: { papers: [{ id: 'pp-tracker', done: true }] } })).toBeNull();
+    expect(applyAuto(g, TYPES, { tracker: { papers: [{ id: 'pp-tracker', done: true }] } })).toBe(g);
+    expect(setDone(g, 's1', true).steps[0]).toMatchObject({ done: true, by: 'user' });
   });
 });
