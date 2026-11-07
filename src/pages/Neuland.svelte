@@ -371,6 +371,7 @@
       nope={!!state.nope[c.id]?.[openIt.id]}
       tripName={(id) => tripNames[id] ?? ''}
       reachKm={reachOf(c, openIt)}
+      passes={c.id === 'passes'}
       tracks={result?.tracks ?? []}
       {today}
       ontick={(day) => save(tick(state, c.id, openIt.id, day))}

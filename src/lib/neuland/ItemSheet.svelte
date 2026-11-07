@@ -10,11 +10,12 @@
   import { backClose } from '../ui/backclose.js';
   import DateInput from '../ui/DateInput.svelte';
   import ItemProof from './ItemProof.svelte';
+  import ItemWays from './ItemWays.svelte';
   import { dayLong } from '../review/fmt.js';
   import { t } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
 
-  let { item, what = '', label = '', visit = null, auto = null, nope = false, tripName = () => '', reachKm = 0.5, tracks = [], today, ontick, onuntick, onclearnope, onedit, onhide, onremove, onclose } = $props();
+  let { item, what = '', label = '', visit = null, auto = null, nope = false, tripName = () => '', reachKm = 0.5, tracks = [], passes = false, today, ontick, onuntick, onclearnope, onedit, onhide, onremove, onclose } = $props();
 
   let dialog;
   // svelte-ignore state_referenced_locally
@@ -47,6 +48,7 @@
       </div>
     </div>
     <ItemProof {item} found={auto} hand={visit.by === 'hand'} {reachKm} {tracks} />
+    <ItemWays {item} {reachKm} {tracks} {passes} />
     <div class="vd-foot">
       <button type="button" class="btn" onclick={() => (onuntick?.(), close())}><Undo2 size={16} aria-hidden="true" />{t('I was not there')}</button>
     </div>
