@@ -554,6 +554,7 @@ import nachttemperatur from './nachttemperatur.js';
 import nebelroute from './nebelroute.js';
 import nebelpush from './nebelpush.js';
 import sonnenfahrt from './sonnenfahrt.js'; // «Sonnen-Ausfahrt» (Noah 06.11.2026 «1-5a»)
+import nachtpush from './nachtpush.js';
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»)
 import haustuer from './haustuer.js';
 // Paket Z «Aus jeder Tour lernen» and Paket SP «Schneller packen» (Noah 20.10.2026)
@@ -999,6 +1000,7 @@ const ORDERED = [
   nebelroute,
   nebelpush,
   sonnenfahrt,
+  nachtpush,
   wetterfenster,
   energie,
   tourlernen,

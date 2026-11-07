@@ -814,6 +814,8 @@
   }
   .tsl a span {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
   }
   .small {
     color: var(--ink-3);
