@@ -1,6 +1,6 @@
 # Weg zum Ziel: Wetterfenster (K7)
 
-PR # · 07.11.2026 · Auftrag: Noah «4a» (Wetterfenster ab 7 Tagen vor dem Start, Entwurf G3), Thread «Entwerfen Weg zum grossen Ziel»
+PR #1138 · 07.11.2026 · Auftrag: Noah «4a» (Wetterfenster ab 7 Tagen vor dem Start, Entwurf G3), Thread «Entwerfen Weg zum grossen Ziel»
 
 ## Was ist neu
 - Neue Schrittart **Wetterfenster** (`src/lib/weg/types/wetter.js`): ein Vorschlag «Wetterfenster prüfen», 7 Tage vor dem Start.
