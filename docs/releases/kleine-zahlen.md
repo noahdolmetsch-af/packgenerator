@@ -1,6 +1,6 @@
 # Kleine Zahlen korrigiert
 
-PR #? · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
+PR #1076 · 27.10.2026 · Auftrag: Noah 26.10.2026 20:31 «1a» alle B-Fehler aus dem UI-Test 0.205 (Thread «Testen komplette App mit Fehlerliste»)
 
 ## Was ist neu
 - Strom: «20 000 mAh» (Leerzeichen zwischen den Zifferngruppen) zählt als 20'000 mAh statt geschätzt 10'000 (`mahFromName` in src/lib/power.js).
