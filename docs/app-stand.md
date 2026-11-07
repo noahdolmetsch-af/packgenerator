@@ -83,7 +83,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Unterwegs-Übersicht | `#/ride` | Nächste Etappe, Wetter, Verpflegung, Material und Tagesablauf ansehen; Basischeck und Abendvorbereitung erledigen. |
-| Live-Karte | `#/live` | Position und Route verfolgen, Abbiegehinweise und Datenseiten nutzen sowie Pausen, Runden und Umwege bearbeiten. |
+| Live-Karte | `#/live` | Position und Route verfolgen, Abbiegehinweise und Datenseiten nutzen sowie Pausen, Runden und Umwege bearbeiten. Mit der Option «Gewitter- und Starkregen-Warnung» sagt die Karte, wenn in den nächsten 2 Stunden ein Gewitter oder Starkregen kommt, und nennt das nächste Dach mit «Dorthin planen». |
 | Sensoren und Fahrdaten | `#/live` | Unterstützte Bluetooth-Sensoren anbinden und Fahrwerte anzeigen. Die Verfügbarkeit hängt vom Browser und Gerät ab. |
 | Strecke aufzeichnen | `#/ride` | † Die eigene Strecke aufzeichnen. Laut Handbuch geht das nur bei eingeschaltetem Bildschirm beziehungsweise geöffneter App. |
 | Gruppenfahrt | `#/live` | Mitfahrende über einen Browserlink einladen und freigegebene Positionen auf einer Karte sehen; Treffpunkte, Bereitschaft und gemeinsame Ausrüstung koordinieren. |
