@@ -1,6 +1,6 @@
 # Eigene Messwerte: Kurve zum Antippen
 
-PR folgt · 07.11.2026 · Auftrag: Noah «fortfahren» (Thread «Diagramme klickbar machen»), PR 8 von 8+, Aktiv: Sportseiten
+PR #1044 · 07.11.2026 · Auftrag: Noah «fortfahren» (Thread «Diagramme klickbar machen»), PR 8 von 8+, Aktiv: Sportseiten
 
 ## Was ist neu
 - Die Kurve eines eigenen Messwerts auf einer Sportseite (`MeasureCard`: Beinpresse, Saunagänge, Pace …) läuft über den gemeinsamen `LineChart`: Achse mit runden Stufen (bei Pace in Minuten:Sekunden), die Zahl an jedem Punkt, genauer Wert mit Tag beim Zeigen oder mit den Pfeiltasten, Tippen öffnet ein Fenster (Wert, Sätze × Wiederholungen, Bestwert), «Als Tabelle».
