@@ -706,7 +706,7 @@ export default {
   '«Travel track» › «Travel book as PDF».': '«Reise-Spur» › «Reisebuch als PDF».',
   'Save or print the PDF.': 'PDF speichern oder drucken.',
   'Example: a cover with the whole line, then one page per day with its photos.': 'Beispiel: ein Titelblatt mit der ganzen Linie, dann eine Seite pro Tag mit ihren Fotos.',
-  'Open Active › Sports and tap a sport.': 'Öffne Aktiv › Sportarten und tippe auf eine Sportart.',
+  'Open Active › Sports and tap a sport.': 'Öffne Aktiv › Meine Aktivitäten und tippe auf eine Aktivität.',
   '«Adjust blocks»: switch blocks off, rename them, move them or add your own.': '«Bausteine anpassen»: Bausteine ausschalten, umbenennen, verschieben oder eigene dazunehmen.',
   'Choose a colour for the sport there too.': 'Dort wählst du auch eine Farbe für die Sportart.',
   'Example: Tennis without «Weather», with «Lessons» and «Matches» on top.': 'Beispiel: Tennis ohne «Wetter», mit «Lektionen» und «Spiele» zuoberst.',
