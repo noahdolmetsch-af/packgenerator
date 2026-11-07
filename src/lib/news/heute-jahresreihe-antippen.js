@@ -3,8 +3,8 @@ export default {
   title: 'The 12 months on Today: a chart you can point at',
   lead: 'The km of the last 12 months now have an axis, show exact numbers and open a month with a tap.',
   points: [
-    { text: 'Point at a month for its km; tap it to see the month and go to the look back', href: '#/debrief', go: { href: '#/', steps: [{ sel: '[data-year-row]' }] } },
-    { text: '«As table» lists the 12 months under the chart', href: '#/debrief', go: { href: '#/', steps: [{ sel: '[data-year-row]' }] } },
+    { text: 'Point at a month for its km; tap it to see the month and go to the look back', href: '#/debrief', go: { href: '#/', where: 'Today › the tile «Last 12 months» (add it under «Add a tile» if it is not on your Today).' } },
+    { text: '«As table» lists the 12 months under the chart', href: '#/debrief', go: { href: '#/', where: 'Today › the tile «Last 12 months» (add it under «Add a tile» if it is not on your Today).' } },
   ],
   test: [
     'Open Today, find the row «Last 12 months» and point at a bar (or use the arrow keys): month and km appear above the chart.',
@@ -13,6 +13,7 @@ export default {
   ],
   since: [],
   de: {
+    'Today › the tile «Last 12 months» (add it under «Add a tile» if it is not on your Today).': 'Heute › die Kachel «Letzte 12 Monate» (unter «Kachel hinzufügen» holst du sie, wenn sie nicht auf deiner Heute-Seite steht).',
     'The 12 months on Today: a chart you can point at': 'Die 12 Monate auf Heute: ein Diagramm zum Antippen',
     'The km of the last 12 months now have an axis, show exact numbers and open a month with a tap.': 'Die km der letzten 12 Monate haben jetzt eine Achse, zeigen genaue Zahlen und öffnen mit einem Tipp den Monat.',
     'Point at a month for its km; tap it to see the month and go to the look back': 'Zeig auf einen Monat für seine km; tippe ihn an für den Monat und den Weg zum Rückblick',
