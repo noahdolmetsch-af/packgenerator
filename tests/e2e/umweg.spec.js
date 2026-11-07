@@ -40,12 +40,17 @@ test('Live map: plan a new way to a shop, see it, save it for the Garmin, remove
   const sheet = page.locator('[data-reroute-sheet]');
   await expect(sheet).toBeVisible();
   await expect(sheet.locator('[data-reroute-list]')).toContainText('test_data_gtp_ Beck');
-  await expect(sheet.locator('[data-reroute-profile="trekking"]')).toHaveAttribute('aria-pressed', 'true');
+  // «Wie fährst du?»: the fictional bikes are gravel bikes, so gravel is suggested; a tap on another way wins
+  await expect(sheet.locator('[data-reroute-profile="gravel"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(sheet.locator('[data-reroute-suggest]')).toBeVisible();
   await page.screenshot({ path: info.outputPath('umweg-sheet.png') });
+  await tap(sheet.locator('[data-reroute-profile="mtb"]'), info);
+  await expect(sheet.locator('[data-reroute-profile="mtb"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(sheet.locator('[data-reroute-suggest]')).toHaveCount(0);
   await tap(sheet.locator('[data-reroute-go="shop"]').first(), info);
   await expect(sheet).toBeHidden();
   expect(asked).toHaveLength(1);
-  expect(asked[0]).toContain('profile=trekking');
+  expect(asked[0]).toContain('profile=mtb');
 
   const card = page.locator('[data-live-detour]');
   await expect(card).toBeVisible();

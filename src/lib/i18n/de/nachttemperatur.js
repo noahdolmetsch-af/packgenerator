@@ -27,4 +27,9 @@ export default {
   'After 5 days a forecast is unsure.': 'Nach 5 Tagen ist eine Prognose unsicher.',
   'A model value for the place, not a thermometer on the spot. In valleys and at lakes it can be 1 to 3 degrees off.': 'Ein Modellwert für den Ort, kein Thermometer vor Ort. In Tälern und am See kann er 1 bis 3 Grad abweichen.',
   'No night values yet. They come as soon as the weather service answers; try again online.': 'Noch keine Nachtwerte. Sie kommen, sobald der Wetterdienst antwortet; versuche es online noch einmal.',
+  'Set night line': 'Nachtzeile einstellen',
+  'Show the night temperature on Today': 'Nachttemperatur auf Heute zeigen',
+  'Night: this morning {a} °C, tomorrow morning {b} °C': 'Nacht: heute früh {a} °C, morgen früh {b} °C',
+  'Night: this morning {a} °C': 'Nacht: heute früh {a} °C',
+  'Night: tomorrow morning {b} °C': 'Nacht: morgen früh {b} °C',
 };

@@ -18,7 +18,8 @@
   import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
-  import { rememberCustomer, listCustomers, rateOf, packCover } from '../lib/booking/customers.js';
+  import { rememberCustomer, listCustomers, saveCustomers, rateOf, packCover } from '../lib/booking/customers.js';
+  import { applyVouchers } from '../lib/booking/vouchers.js';
   import { listOutcomes, setOutcome } from '../lib/booking/outcomes.js';
   import { listWaiting, addWaiting, removeWaiting } from '../lib/booking/waitlist.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
@@ -114,13 +115,18 @@
   async function writeOne(items) {
     const o = { ...mine.offer, id: mine.id };
     const clist = await listCustomers();
-    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b, outcome: outcomeOf(b), tag: outcomeTag(outcomeOf(b)) })), (b) => fmtAt(b.at), (name) => rateOf(clist, name)))) return;
+    const v = applyVouchers(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b, outcome: outcomeOf(b), tag: outcomeTag(outcomeOf(b)) })), (b) => fmtAt(b.at), (name) => rateOf(clist, name)), clist, items.length);
+    if (!setPrefill(v.draft)) return;
+    if (v.used.length) await saveCustomers(v.customers);
     picked = [];
     location.hash = '#/me/pay/invoices/new';
   }
   async function writeInvoice(b) {
     const s = mine.offer.slots.find((x) => x.id === b.slot);
-    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at), rateOf(await listCustomers(), b.name), outcomeOf(b), outcomeTag(outcomeOf(b))))) return;
+    const clist = await listCustomers();
+    const v = applyVouchers(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at), rateOf(clist, b.name), outcomeOf(b), outcomeTag(outcomeOf(b))), clist, 1);
+    if (!setPrefill(v.draft)) return;
+    if (v.used.length) await saveCustomers(v.customers);
     location.hash = '#/me/pay/invoices/new';
   }
 
