@@ -28,7 +28,6 @@ export const MILESTONES = [
 export const WINDOW = 150;
 
 const TITLE = { km50: 'Practice ride: 50 km', km100: 'Practice ride: 100 km', km200: 'Practice ride: 200 km' };
-const NOTE = 'One ride of this length ticks it. Rides from Strava count by themselves; you can tick by hand too.';
 
 const dayOf = (r) => String(r?.day ?? r?.date ?? '').slice(0, 10);
 const dataOf = (ctx = {}) => ({ today: ctx.today, ...(ctx.proben ?? ctx) });
@@ -64,7 +63,7 @@ export default {
   type: TYPE,
   label: 'Practice rides',
   icon: 'route',
-  defaults: (goal) => MILESTONES.filter((m) => goal?.kind !== 'free' || m.km < 200).map((m) => ({ key: m.key, title: TITLE[m.key], offset: m.offset, note: NOTE })),
+  defaults: (goal) => MILESTONES.filter((m) => goal?.kind !== 'free' || m.km < 200).map((m) => ({ key: m.key, title: TITLE[m.key], offset: m.offset })),
   /** The bike rides from the activities (Strava). */
   async load(db) {
     const acts = await db.activities.toArray();

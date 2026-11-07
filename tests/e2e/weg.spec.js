@@ -31,10 +31,12 @@ test('Way to the goal: create a way, own steps, tick, move, delete and undo', as
   await expect(page.locator('[data-weg-goal] h2')).toHaveText('Test Rennen im Mai');
   await expect(page.locator('[data-page="weg"]')).toContainText(T('No steps yet. Add your first step below: it stays a suggestion, you can change it any time.'));
 
-  // own steps: one with a day, one without
+  // own steps: one with a day, one without (the form opens with «Add your own step»)
+  await page.locator('[data-weg-own-open]').click();
   await page.locator('[data-weg-step-title]').fill('Zug buchen');
   await page.locator('[data-weg-own] input[type="date"]').fill('2027-03-01');
   await page.locator('[data-weg-own] button[type="submit"]').click();
+  await page.locator('[data-weg-own-open]').click();
   await page.locator('[data-weg-step-title]').fill('Ohne Tag');
   await page.locator('[data-weg-own] button[type="submit"]').click();
   const steps = page.locator('[data-weg-step]');
@@ -47,10 +49,11 @@ test('Way to the goal: create a way, own steps, tick, move, delete and undo', as
   await steps.first().getByRole('button', { name: T('Done: {name}').replace('{name}', 'Zug buchen') }).click();
   await expect(steps.first()).toHaveClass(/done/);
   await expect(page.locator('[data-weg-goal]')).toContainText(T('{done} of {total} steps done').replace('{done}', '1').replace('{total}', '2'));
+  await steps.last().getByRole('button', { name: T('Edit {name}').replace('{name}', 'Ohne Tag') }).click();
   await steps.last().locator('input[type="date"]').fill('2027-04-20');
   await expect(page.locator('[data-page="weg"]')).not.toContainText(T('No day yet'));
 
-  // delete a step, then undo
+  // delete a step (its «…» menu is still open from the day change), then undo
   await steps.last().getByRole('button', { name: T('Delete {name}').replace('{name}', 'Ohne Tag') }).click();
   await page.getByRole('button', { name: T('Delete') }).last().click();
   await expect(steps).toHaveCount(1);
@@ -64,6 +67,7 @@ test('Way to the goal: create a way, own steps, tick, move, delete and undo', as
   await expect(steps).toHaveCount(2);
 
   // change the start day: the page still shows the way, no sideways scroll
+  await page.locator('[data-weg-menu]').click();
   await page.locator('[data-weg-start-edit]').fill('2027-06-01');
   await expect(page.locator('[data-weg-goal]')).toContainText(/\d/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
