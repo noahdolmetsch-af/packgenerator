@@ -10,7 +10,7 @@ export default {
   'For everyday life: meditation, training, recovery. One tap ticks off, a long press enters the duration.': 'Für den Alltag: Meditation, Training, Erholung. Ein Tipp hakt ab, lange drücken trägt die Dauer ein.',
   'Done. Well done!': 'Fertig. Gut gemacht!',
   'You always find help under Me › Handbook. You can start the tour again there.': 'Hilfe findest du immer unter Ich › Handbuch. Dort kannst du den Rundgang auch neu starten.',
-  'One tile per sport. A tap ticks it off, a long press enters the duration, place or stopwatch.': 'Eine Kachel pro Sport. Ein Tipp hakt ab, lange drücken trägt Dauer, Ort oder Stoppuhr ein.',
+  'One tile per sport. A tap ticks it off, a long press enters the duration, place or stopwatch.': 'Eine Kachel pro Aktivität. Ein Tipp hakt ab, lange drücken trägt Dauer, Ort oder Stoppuhr ein.',
   'Your week': 'Deine Woche',
   'The rings count the last 7 days: move, mindful and recovery. A rest day does not cost everything at once.': 'Die Ringe zählen die letzten 7 Tage: Bewegen, Achtsam und Erholung. Ein Ruhetag kostet nicht gleich alles.',
   'A goal like «cycling 2× a week». You see what is on track, with its own window and season.': 'Ein Ziel wie «Velo 2× pro Woche». Du siehst, was im Soll ist, mit eigenem Zeitfenster und Saison.',
@@ -53,7 +53,7 @@ export default {
   '2 minutes, with an example trip. Your data stays untouched.': '2 Minuten, mit einer Beispieltour. Deine Daten bleiben unberührt.',
   // the Einstieg (lib/intro.js, AreaIntro.svelte)
   'Movement, rest and recovery in everyday life': 'Bewegung, Ruhe und Erholung im Alltag',
-  'One tile per sport. A long press enters the duration, place or stopwatch.': 'Eine Kachel pro Sport. Lange drücken trägt Dauer, Ort oder Stoppuhr ein.',
+  'One tile per sport. A long press enters the duration, place or stopwatch.': 'Eine Kachel pro Aktivität. Lange drücken trägt Dauer, Ort oder Stoppuhr ein.',
   'Set goals': 'Ziele setzen',
   'For example «cycling 2× a week». You see what is on track.': 'Zum Beispiel «Velo 2× pro Woche». Du siehst, was im Soll ist.',
   'Rest and recovery': 'Ruhe und Erholung',

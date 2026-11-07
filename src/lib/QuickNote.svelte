@@ -12,6 +12,7 @@
   import { newNote, guessBike, PAGE_NAMES, rideContext, sortNote, nextNumber } from './notes.js';
   import { localDay } from './localday.js';
   import { autoKeep, leaveWindow } from './drafts.js';
+  import { bareLabel } from './barelabel.js';
   import { nextTrip } from './debrief.js';
   import { sortBikes } from './bikes.js';
   import { shrinkImage } from './photo.js';
@@ -93,7 +94,9 @@
     const n = newNote({ text: text.trim() || (photo ? t('Photo') : extra?.voices ? t('Voice note') : extra?.files ? extra.files[0].name : t('Photo')), photo: $state.snapshot(photo), page, tripId: trip?.id ?? null, bikeId: bike, day: riding?.day ?? null }, { id: autoId, now: autoAt });
     return extra ? { ...n, inputs: extra } : n;
   }
-  const typed = () => autoKeep({ name: text.trim() || (photo ? 'photo' : hasInputs(inputs) ? 'inputs' : '') });
+  // a start like «Workshop receipt: » alone is no text: it is neither saved by itself nor by «Save» (without photo)
+  const written = () => (bareLabel(text) ? '' : text.trim());
+  const typed = () => autoKeep({ name: written() || (photo ? 'photo' : hasInputs(inputs) ? 'inputs' : '') });
   /** Saves r (default: the note now) after the saves before it. */
   function autoSave(r = null) {
     if (!r && (ended || !typed())) return autoBusy;
@@ -117,7 +120,7 @@
 
   async function save(event) {
     event.preventDefault();
-    if (!text.trim() && !photo && !hasInputs(inputs)) return (msg = t('Write a few words or add a photo.'));
+    if (!written() && !photo && !hasInputs(inputs)) return (msg = t('Write a few words or add a photo.'));
     clearTimeout(autoTimer);
     const r = record();
     ended = true;

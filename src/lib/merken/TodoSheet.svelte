@@ -9,7 +9,7 @@
    */
   import { tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { X, CalendarDays, Bell, Repeat2 } from '@lucide/svelte';
+  import { X, CalendarDays, Bell, Repeat2, ListChecks, Link2, Plus } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import DateInput from '../ui/DateInput.svelte';
   import { db } from '../db.js';
@@ -22,30 +22,52 @@
   import { icsCalendar } from '../flowmed.js';
   import { CalendarPlus } from '@lucide/svelte';
   import WaitPick from '../stand/WaitPick.svelte'; // Paket A part 1: «Waiting for something?»
+  import { parseWhen } from './parse.js'; // N1: «morgen 18 Uhr, jeden Sonntag» in the words
+  import { addStep, moveStep, removeStep, renameStep, stepsOf, MAX_STEPS } from './steps.js'; // N2
+  import { addLink, removeLink, linksOf, linkName } from './links.js'; // N3
+  import { noteTitle } from '../notebook.js';
+  import SortGrip from '../ui/SortGrip.svelte';
+  import SortArrows from '../ui/SortArrows.svelte';
+  import { sortable } from '../ui/sortable.js';
 
-  let { text: start = '', reminder = false, todo = null, onclose, ondone } = $props();
+  // preset: { due, remind, repeat } from the quick field (F1) when the window opens with «More …»
+  let { text: start = '', reminder = false, todo = null, preset = null, onclose, ondone } = $props();
 
   const today = localDay();
   // svelte-ignore state_referenced_locally
   const from = todo;
   const remindOf = (r) => (!r ? 'no' : r.before ? 'before' : r.at === '08:00' ? 'day' : 'time');
+  // N1: words in the start text («morgen 18 Uhr») are taken over as date, reminder and repeat
   // svelte-ignore state_referenced_locally
-  let text = $state(from?.text ?? start);
+  const p0 = !from && start && !preset ? parseWhen(start, today) : null;
+  const fromWords = !!p0?.found.length;
   // svelte-ignore state_referenced_locally
-  let due = $state(from ? (from.due ?? '') : reminder ? addDays(today, 1) : '');
+  let text = $state(from?.text ?? (fromWords ? p0.text : start));
   // svelte-ignore state_referenced_locally
-  let remind = $state(from ? remindOf(from.remind) : reminder ? 'day' : 'no'); // no · day · before · time
-  let time = $state(from?.remind?.at ?? '08:00');
-  let repeat = $state(from?.repeat?.every === 'rain' ? 'no' : (from?.repeat?.every ?? 'no')); // no · day · week · month · km
+  let due = $state(from ? (from.due ?? '') : (p0?.due ?? preset?.due ?? (reminder ? addDays(today, 1) : '')));
+  // svelte-ignore state_referenced_locally
+  let remind = $state(from ? remindOf(from.remind) : p0?.remind ? remindOf(p0.remind) : preset?.remind ? remindOf(preset.remind) : reminder ? 'day' : 'no'); // no · day · before · time
+  let time = $state(from?.remind?.at ?? p0?.remind?.at ?? preset?.remind?.at ?? '08:00');
+  let repeat = $state(from?.repeat?.every === 'rain' ? 'no' : (from?.repeat?.every ?? p0?.repeat?.every ?? preset?.repeat?.every ?? 'no')); // no · day · week · month · km
   let km = $state(from?.repeat?.km ?? 300);
   let bikeId = $state(from?.repeat?.bikeId ?? '');
   let google = $state(false);
   // svelte-ignore state_referenced_locally
   let wait = $state(from?.wait ?? null);
+  // N2 steps and N3 «belongs to» are edited here and saved with the to-do
+  // svelte-ignore state_referenced_locally
+  let steps = $state(stepsOf(from).map((x) => ({ ...x })));
+  // svelte-ignore state_referenced_locally
+  let links = $state(linksOf(from).map((x) => ({ ...x })));
+  let newStep = $state('');
   let error = $state('');
   let dialog;
   let input;
 
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const notesQ = liveQuery(() => db.notes.toArray());
+  const trips = $derived($tripsQ ?? []);
+  const notes = $derived(($notesQ ?? []).filter((n) => n.status !== 'open').sort((a, b) => (b.editedAt ?? b.at ?? '').localeCompare(a.editedAt ?? a.at ?? '')).slice(0, 40));
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   const bike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
@@ -79,18 +101,40 @@
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+  const stepList = (fn) => (steps = stepsOf(fn({ steps })));
+  function pushStep() {
+    stepList((td) => addStep(td, newStep, { id: `st-${Date.now().toString(36)}-${steps.length}` }));
+    newStep = '';
+  }
+  function pickLink(e) {
+    const [kind, ref] = e.currentTarget.value.split('|');
+    e.currentTarget.value = '';
+    if (!kind || !ref) return;
+    const label = kind === 'trip' ? trips.find((x) => x.id === ref)?.title : kind === 'bike' ? bikes.find((x) => x.id === ref)?.name : noteTitle(notes.find((x) => x.id === ref));
+    links = linksOf(addLink({ links }, { kind, ref, label }));
+  }
+  const linkText = (l) => linkName(l, { trips, bikes: $bikesQ ?? [], notes: $notesQ ?? [] }, noteTitle) || t('Note');
   async function save(e) {
     e?.preventDefault();
     if (!text.trim()) {
       error = t('Write what you want to remember.');
       return input?.focus();
     }
+    let words = null;
+    if (!from && due === '' && repeat === 'no' && remind === 'no') {
+      // N1: nothing chosen above, but the words say «morgen 18 Uhr» → take it over
+      const p = parseWhen(text, today);
+      if (p.found.length) words = p;
+    }
+    if (newStep.trim()) pushStep(); // a step typed but not added yet is not lost
     const fields = {
-      text,
+      text: words ? words.text : text,
+      steps: $state.snapshot(steps),
+      links: $state.snapshot(links),
       wait: wait ? $state.snapshot(wait) : null,
-      due: due || null,
-      remind: due && remind !== 'no' ? { at: remind === 'day' ? '08:00' : time, before: remind === 'before' ? 1 : 0 } : null,
-      repeat: repeat === 'km' ? (bike ? { every: 'km', km: Math.max(1, Math.round(+km || 300)), bikeId: bike.id, fromKm: bike.km ?? 0 } : null) : repeat === 'no' ? null : { every: repeat },
+      due: words ? words.due : due || null,
+      remind: words ? words.remind : due && remind !== 'no' ? { at: remind === 'day' ? '08:00' : time, before: remind === 'before' ? 1 : 0 } : null,
+      repeat: words ? words.repeat : repeat === 'km' ? (bike ? { every: 'km', km: Math.max(1, Math.round(+km || 300)), bikeId: bike.id, fromKm: bike.km ?? 0 } : null) : repeat === 'no' ? null : { every: repeat },
     };
     if (from?.repeat?.every === 'rain' && repeat === 'no') fields.repeat = from.repeat; // «after rain» stays
     if (from?.repeat?.every === 'month' && repeat === 'month') fields.repeat = from.repeat; // keeps «every 6 months»
@@ -157,6 +201,44 @@
     </fieldset>
 
     <WaitPick bind:wait {today} />
+
+    <!-- N2 (Noah 05.11.2026): steps inside a to-do; N3: where it belongs -->
+    <fieldset class="fld" data-todo-steps><legend class="lbl"><ListChecks size={16} aria-hidden="true" />{t('Steps')}</legend>
+      {#if steps.length}
+        <ul class="stl" use:sortable={{ onmove: (a, b) => (steps = moveStep({ steps }, a, b).steps) }}>
+          {#each steps as s, i (s.id)}
+            <li data-sort-id={s.id}>
+              <SortGrip name={s.text} onstep={(d) => (steps = moveStep({ steps }, i, i + d).steps)} />
+              <input class="inp" value={s.text} maxlength="160" aria-label={t('Step')} onchange={(e) => (steps = renameStep({ steps }, s.id, e.currentTarget.value || s.text).steps)} />
+              <SortArrows name={s.text} {i} n={steps.length} onstep={(d) => (steps = moveStep({ steps }, i, i + d).steps)} />
+              <button type="button" class="sx" aria-label={t('Remove step: {name}', { name: s.text })} onclick={() => (steps = removeStep({ steps }, s.id).steps)}><X size={16} aria-hidden="true" /></button>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      {#if steps.length < MAX_STEPS}
+        <div class="stadd">
+          <input class="inp" bind:value={newStep} maxlength="160" enterkeyhint="done" placeholder={t('Add a step')} aria-label={t('Add a step')} onkeydown={(e) => e.key === 'Enter' && (e.preventDefault(), pushStep())} data-step-new />
+          <button type="button" class="btn sm" onclick={pushStep} disabled={!newStep.trim()}><Plus size={14} aria-hidden="true" />{t('Add')}</button>
+        </div>
+      {/if}
+      <p class="hint">{t('Small points inside this to-do. The list shows «3 of 6».')}</p>
+    </fieldset>
+
+    <fieldset class="fld" data-todo-links><legend class="lbl"><Link2 size={16} aria-hidden="true" />{t('Belongs to')}</legend>
+      <div class="chips">
+        {#each links as l (l.kind + l.ref)}
+          <button type="button" class="chip on" onclick={() => (links = removeLink({ links }, l.kind, l.ref).links)} aria-label={t('Remove «{name}»', { name: linkText(l) })}>{t(l.kind === 'trip' ? 'Trip' : l.kind === 'bike' ? 'Bike' : 'Note')}: {linkText(l)} <X size={14} aria-hidden="true" /></button>
+        {/each}
+        <select class="inp pick" onchange={pickLink} aria-label={t('Belongs to')} data-link-pick>
+          <option value="">{t('Add a trip, bike or note …')}</option>
+          {#if trips.length}<optgroup label={t('Trips')}>{#each trips as x (x.id)}<option value={`trip|${x.id}`}>{x.title}</option>{/each}</optgroup>{/if}
+          {#if bikes.length}<optgroup label={t('Bikes')}>{#each bikes as b (b.id)}<option value={`bike|${b.id}`}>{b.name}</option>{/each}</optgroup>{/if}
+          {#if notes.length}<optgroup label={t('Notes')}>{#each notes as n (n.id)}<option value={`note|${n.id}`}>{noteTitle(n) || t('Note')}</option>{/each}</optgroup>{/if}
+        </select>
+      </div>
+      <p class="hint">{t('Then the trip, the bike or the note shows this to-do too. Always optional.')}</p>
+    </fieldset>
 
     <div class="acts">
       <button type="submit" class="btn hi">{t('Save')}</button>
@@ -270,6 +352,49 @@
   }
   .del {
     margin-left: auto;
+  }
+  .stl {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .stl li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stl .inp {
+    flex: 1;
+    min-width: 0;
+  }
+  .sx {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .stadd {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .stadd .inp {
+    flex: 1;
+    min-width: 0;
+  }
+  .pick {
+    min-height: 44px;
+    max-width: 100%;
+    width: auto;
   }
   .acts {
     display: flex;

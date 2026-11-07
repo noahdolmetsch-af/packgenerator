@@ -28,7 +28,7 @@ export function spotRoundPlan(home, spot, side = 1) {
   return { via: [S, B], sector: sectorOf(dir), km, side: side < 0 ? -1 : 1 };
 }
 
-/** Ask the router for the round. → as planSurprise (line, km, gainM, min …), throws 'busy', 'noroute' or 'failed'. */
+/** Ask the router for the round. → as planSurprise (line, km, gainM, min …), throws like askRouter ('busy', 'noroute', 'toofar', 'timeout', 'offline', 'failed'). */
 export function planSpotRound(home, plan, opts = {}) {
   if (!plan) return Promise.reject(new Error('failed'));
   return planSurprise(home, { level: 'curious', profile: 'trekking', hours: null, sector: plan.sector, km: plan.km, via: plan.via }, opts);

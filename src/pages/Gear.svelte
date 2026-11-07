@@ -2,6 +2,7 @@
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { askDelete } from '../lib/ui/ask.js';
   import { UNDO_MS } from '../lib/ui/undo.js';
+  import { backClose } from '../lib/ui/backclose.js';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -1186,7 +1187,7 @@
 {/if}
 
 <!-- v0.38.0 (Noah 4a): ••• on a row: every action, also without swiping (keyboard, screen reader). -->
-<dialog class="sheet rowmenu" class:phone={phone.matches} bind:this={menuDlg} onclose={() => (rowMenu = null)} aria-labelledby="rm-h">
+<dialog class="sheet rowmenu" class:phone={phone.matches} bind:this={menuDlg} use:backClose onclose={() => (rowMenu = null)} aria-labelledby="rm-h">
   {#if rowMenu}
     {@const used = (usedN[rowMenu.id] ?? 0) > 0}
     <div class="rmh"><h2 id="rm-h" class="title">{nameOf(rowMenu)}</h2><span class="num">{rowMenu.weightG == null ? '–' : formatWeight(itemWeight(rowMenu))}</span></div>

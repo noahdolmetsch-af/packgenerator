@@ -3,6 +3,7 @@
  * instead of nothing: a learning from an earlier trip or one of your inspiration links. The choice
  * changes once a day (the same all day). Pure, tested in tests/spark.test.js.
  */
+import { bareLabel } from '../barelabel.js';
 
 /** A small number from a text (the day plus the place), so every place picks its own thing. */
 function seedOf(s) {
@@ -17,7 +18,7 @@ function seedOf(s) {
  */
 export function sparkOf({ learnings = [], links = [] }, day, place = '') {
   const pool = [
-    ...learnings.filter((l) => l?.rule?.trim() && !l.archived).map((l) => ({ kind: 'learning', text: l.rule.trim(), from: l.source ?? '' })),
+    ...learnings.filter((l) => l?.rule?.trim() && !bareLabel(l.rule) && !l.archived).map((l) => ({ kind: 'learning', text: l.rule.trim(), from: l.source ?? '' })),
     ...links.filter((l) => l?.url && (l.title || l.url)).map((l) => ({ kind: 'link', text: l.title || l.url, href: l.url })),
   ];
   if (!pool.length) return null;

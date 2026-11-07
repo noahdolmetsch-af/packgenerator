@@ -89,6 +89,14 @@
 
   /* change the numbers (flow.msTune): own thresholds, hide, back to the suggestion */
   const tuneOpen = $derived(params.get('tune') === '1');
+  // Tempo (Noah 05.11.2026): the folds are built when they are opened for the first time, not with the page (the numbers fold alone had ~550 elements)
+  const seen = $state({ all: false, areas: false, tune: false });
+  $effect(() => {
+    if (tuneOpen) seen.tune = true;
+  });
+  const opened = (key) => (e) => {
+    if (e.currentTarget.open) seen[key] = true;
+  };
   const tuneList = $derived(list.filter(inFilter).filter((r) => r.m.group !== 'challenge'));
   const stepsText = (r) => r.steps.join(', ');
   async function setTune(r, patch) {
@@ -145,9 +153,9 @@
             <!-- phone: the first six, the rest after «Alle n zeigen» -->
             {#if fold && cards.length}
               <!-- Noah 27.10.2026 «2a»: on a phone only the next star per sport stays open (above); all cards wait folded -->
-              <details class="card fold" data-ms-fold="all">
+              <details class="card fold" data-ms-fold="all" ontoggle={opened('all')}>
                 <summary data-ms-all>{t('Show all {n}', { n: cards.length })}</summary>
-                <div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
+                {#if seen.all}<div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>{/if}
               </details>
             {:else}
               <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
@@ -159,9 +167,9 @@
         </Sec>
 
         {#if filter === 'all' && fold}
-          <details class="card fold" data-ms-fold="areas">
+          <details class="card fold" data-ms-fold="areas" ontoggle={opened('areas')}>
             <summary>{t('Series, trips and bikes')}</summary>
-            <MsHome />
+            {#if seen.areas}<MsHome />{/if}
           </details>
         {:else if filter === 'all'}<MsHome />{/if}
       </div>
@@ -182,23 +190,25 @@
       </aside>
     </div>
 
-    <details class="card tune" open={tuneOpen}>
+    <details class="card tune" open={tuneOpen} ontoggle={opened('tune')}>
       <summary>{t('Change numbers and stages')}</summary>
-      <ol class="stages">{#each STAGES as s, i (s)}<li>{i + 1} · {t(s)}</li>{/each}</ol>
-      <p class="hint">{t('Every milestone has up to 7 stars with these names.')}</p>
-      <p class="hint">{t('The numbers are suggestions. Separate them with commas; empty goes back to the suggestion. Stars reached stay.')}</p>
-      <ul class="tl">
-        {#each tuneList as r (r.id)}
-          <li data-tune={r.m.key}>
-            <span class="tn"><b>{msName(r.m)}</b>{#if r.m.sugg}<Sugg />{/if}{#if r.m.actId}<small>{tileName(data.acts.find((a) => a.id === r.m.actId))}</small>{:else if r.m.area}<small>{areaWord(r.m.area)}</small>{/if}</span>
-            <label class="ti"><span class="sr">{t('Thresholds of {name}', { name: msName(r.m) })}</span>
-              <input class="inp" inputmode="decimal" value={stepsText(r)} onchange={(e) => setSteps(r, e.currentTarget.value)} />
-            </label>
-            <label class="tc"><input type="checkbox" checked={!r.off} onchange={(e) => setTune(r, { off: !e.currentTarget.checked })} />{t('Show')}</label>
-            {#if own(r)}<button type="button" class="btn sm tb" onclick={() => setTune(r, { steps: null })}>{t('Suggestion: {list}', { list: r.m.steps.map((s) => num(s)).join(' · ') })}</button>{/if}
-          </li>
-        {/each}
-      </ul>
+      {#if seen.tune}
+        <ol class="stages">{#each STAGES as s, i (s)}<li>{i + 1} · {t(s)}</li>{/each}</ol>
+        <p class="hint">{t('Every milestone has up to 7 stars with these names.')}</p>
+        <p class="hint">{t('The numbers are suggestions. Separate them with commas; empty goes back to the suggestion. Stars reached stay.')}</p>
+        <ul class="tl">
+          {#each tuneList as r (r.id)}
+            <li data-tune={r.m.key}>
+              <span class="tn"><b>{msName(r.m)}</b>{#if r.m.sugg}<Sugg />{/if}{#if r.m.actId}<small>{tileName(data.acts.find((a) => a.id === r.m.actId))}</small>{:else if r.m.area}<small>{areaWord(r.m.area)}</small>{/if}</span>
+              <label class="ti"><span class="sr">{t('Thresholds of {name}', { name: msName(r.m) })}</span>
+                <input class="inp" inputmode="decimal" value={stepsText(r)} onchange={(e) => setSteps(r, e.currentTarget.value)} />
+              </label>
+              <label class="tc"><input type="checkbox" checked={!r.off} onchange={(e) => setTune(r, { off: !e.currentTarget.checked })} />{t('Show')}</label>
+              {#if own(r)}<button type="button" class="btn sm tb" onclick={() => setTune(r, { steps: null })}>{t('Suggestion: {list}', { list: r.m.steps.map((s) => num(s)).join(' · ') })}</button>{/if}
+            </li>
+          {/each}
+        </ul>
+      {/if}
     </details>
   {/if}
 </div>

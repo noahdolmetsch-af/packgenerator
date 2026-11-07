@@ -140,3 +140,6 @@ export function summary(fog, now = Date.now(), ownSet = null) {
   const up = diff != null && Math.abs(diff) >= UP_MIN ? { h: upM, diff } : null;
   return { now: f, above, own, up, clearing: clearing(fog, now), slots: slots(fog, now), sight: sightParts(sightNow(fog, now)) };
 }
+
+/** The fog at a time (ms): { top, ground } (a deck), { top: null } (none) or null (no data for that hour). */
+export const fogAtTime = (fog, ms) => fogOf(hourAt(fog, ms), fog?.elev);

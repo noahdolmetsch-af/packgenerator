@@ -97,3 +97,29 @@ test('Meilensteine: on a phone the long parts wait folded, on a computer they st
   await fits(page, 'milestones');
   expect(errors).toEqual([]);
 });
+
+// Tempo-Runde (Noah 05.11.2026): the folds of Meilensteine are built when they are opened, not with the page.
+test('Meilensteine: the numbers fold is built when opened (also from the address), the cards fold on a phone', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await page.goto('./#/flow/milestones');
+  await expect(page.locator('main h1')).toHaveText(T('Milestones'));
+  const tune = page.locator('main details.tune');
+  await expect(tune).toBeVisible();
+  await expect(page.locator('main [data-tune]')).toHaveCount(0); // closed: no rows yet
+  await tune.locator('summary').click();
+  await expect(page.locator('main [data-tune]').first()).toBeVisible();
+  // from the address (the button «Stufen ändern»): open at once, with the rows
+  await page.goto('./#/flow/milestones?tune=1');
+  await expect(page.locator('main details.tune')).toHaveAttribute('open', '');
+  await expect(page.locator('main [data-tune]').first()).toBeVisible();
+  // the cards fold on a phone: nothing inside before the tap, the cards after it
+  if (page.viewportSize().width < 720) {
+    await page.goto('./#/flow/milestones');
+    const all = page.locator('main [data-ms-fold="all"]');
+    await expect(all).toBeVisible();
+    await expect(all.locator('[data-ms]')).toHaveCount(0);
+    await all.locator('summary').click();
+    await expect(all.locator('[data-ms]').first()).toBeVisible();
+  }
+  expect(errors).toEqual([]);
+});

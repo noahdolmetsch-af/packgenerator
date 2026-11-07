@@ -2,6 +2,7 @@
 // since «Aktiv und Auswerten» 1a, Noah 03.11.2026), only on the page itself. German, phone and computer, fictional data (home0460-fixture), no sideways scroll.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
+import { openCard } from './karte-auf.js';
 
 const noScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
 
@@ -11,6 +12,7 @@ test('Belongs to on Bikes and Gear: a quiet row of links, not on sub-pages; Acti
   const T = await openHome(page, context, info, { hour: 9 });
   for (const [hash, moment, name] of [['#/bikes', 'velo', 'Bike and gear|moment'], ['#/gear', 'velo', 'Bike and gear|moment']]) {
     await page.goto('./' + hash);
+    await openCard(page, 'gd:' + hash.slice(2));
     const row = page.locator(`[data-gehoert="${moment}"]`);
     await expect(row).toBeVisible();
     await expect(row).toContainText(T('Belongs to {moment}', { moment: T(name) }));

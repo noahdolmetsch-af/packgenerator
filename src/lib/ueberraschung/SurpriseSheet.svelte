@@ -20,6 +20,9 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { homeForecast } from '../home-weather.js';
   import { LEVELS, LEVEL_STD, HOURS, HOURS_STD, SECTORS, knownSectors, surprisePlan, planSurprise, gpxOfRound } from '../ueberraschung.js';
+  import { routerMsg } from '../reroute.js';
+  import RouterNote from '../live/RouterNote.svelte';
+  import ReserveNote from '../live/ReserveNote.svelte';
   import '../bikes/velo-dlg.css';
 
   let { onclose } = $props();
@@ -53,14 +56,7 @@
       round = await planSurprise(home, plan);
       tried = skip;
     } catch (e) {
-      err =
-        e?.message === 'busy'
-          ? t('The bike router is busy right now. Try again in a minute.')
-          : e?.message === 'noroute'
-            ? t('The bike router found no round there. Tap «Another round».')
-            : navigator.onLine === false
-              ? t('Offline: a new round needs the internet.')
-              : t('The bike router did not answer. Try again.');
+      err = t(routerMsg(e, { round: true, noroute: 'The bike router found no round there. Tap «Another round».' }));
     } finally {
       busy = false;
     }
@@ -133,10 +129,11 @@
 
     {#if !round}
       <button type="button" class="btn hi" disabled={busy} onclick={() => suggest()} data-sr-go><Dices size={18} aria-hidden="true" />{busy ? t('Looking for a round…') : t('Suggest a round')}</button>
-      <p class="sr-note">{t('Asks the free bike router once (BRouter). Nothing else leaves the device.')}</p>
+      <RouterNote round cls="sr-note" />
     {:else}
       <div class="sr-out" role="status" data-sr-result>
-        <b>{t('{km} km · {up} m up · about {time}', { km: num(Math.round(round.km)), up: num(round.gainM ?? 0), time: timeOf(round.min) })}</b>
+        {#if round.via}<ReserveNote cls="sr-note" />{/if}
+        <b>{(round.gainM == null ? t('{km} km · about {time}', { km: num(Math.round(round.km)), time: timeOf(round.min) }) : t('{km} km · {up} m up · about {time}', { km: num(Math.round(round.km)), up: num(round.gainM), time: timeOf(round.min) }))}</b>
         {#if hide}<span><EyeOff size={14} aria-hidden="true" /> {t('Direction: a surprise. The map shows the way once you ride.')}</span>
         {:else}<span>{t('Towards the {dir}, where you rarely rode.', { dir: t(SECTORS[round.sector]) })}</span>{/if}
       </div>

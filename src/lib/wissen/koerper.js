@@ -18,6 +18,7 @@ export default {
   'f.feel': "Answer within an hour of the ride; later, every ride feels either heroic or easy.",
   'f.analyses': "Compare power over weeks, not single rides: wind, heat and a full stomach move the numbers a lot.",
   'f.weekreview': "Read it on Sunday evening with the plan for next week open; one small change is enough.",
+  'f.weekgoals': "Two or three goals are plenty: a goal you can reach by Thursday keeps the week friendly, a big one only on Sunday.",
   'f.form': "Readiness is an observation, not an order. If the number and your legs disagree, the legs know more.",
   'f.overview': "Sleep and pulse go up and down; look at the week, not at one night.",
   'f.milestones': "The next star is shown first; it is often closer than the big goal and keeps you moving.",

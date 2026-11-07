@@ -412,6 +412,7 @@
     Album: () => import('./pages/Album.svelte'), // Paket P8: Ich › Fotoalbum
     Freunde: () => import('./pages/Freunde.svelte'), // Paket D «Mit Freunden»: Ich › Mit Freunden
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
+    Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
@@ -517,7 +518,7 @@
 <MiniTitle />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main data-s2-page={page} data-s2-place={place} data-slide={slide || undefined} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
+<main data-s2-page={page} data-s2-place={place} data-slide={slide || undefined} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams' || page === 'vorschlaege'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -706,6 +707,8 @@
     <LazyPage load={PAGES.Compass} />
   {:else if page === 'dreams'}
     <LazyPage load={PAGES.Dreams} />
+  {:else if page === 'vorschlaege'}
+    <LazyPage load={PAGES.Vorschlaege} />
   {:else if page === 'next'}
     <LazyPage load={PAGES.WasKommt} />
   {:else if page === 'album'}

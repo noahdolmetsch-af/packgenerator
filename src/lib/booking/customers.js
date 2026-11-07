@@ -7,6 +7,7 @@
  */
 import { db as appDb } from '../db.js';
 import { localDay } from '../localday.js';
+import { addDays, atOf, bookedBySlot } from './model.js';
 
 export const CUSTOMERS_KEY = 'booking.customers';
 
@@ -107,4 +108,58 @@ export function parseAbo(price) {
   const rate = parseRate(price);
   if (rate === undefined) return undefined;
   return rate ? { price: rate } : null;
+}
+
+/**
+ * Fixed time (Noah 04.11.2026 «8a»): a regular customer can have a weekday and a time (Monday = 0). It is only a
+ * suggestion: Heute shows the next free time that matches, with a ready message; nothing is booked by itself.
+ */
+export const fixedOf = (customer) => (customer?.fixed && customer.fixed.time ? customer.fixed : null);
+
+/** The form fields → { weekday, time }, null (no fixed time) or undefined (wrong). */
+export function parseFixed(weekday, time) {
+  const w = String(weekday ?? '').trim();
+  const tm = String(time ?? '').trim();
+  if (!w && !tm) return null;
+  const n = Number(w);
+  if (!w || !Number.isInteger(n) || n < 0 || n > 6 || !/^([01]\d|2[0-3]):[0-5]\d$/.test(tm)) return undefined;
+  return { weekday: n, time: tm };
+}
+
+const weekdayOf = (day) => {
+  const [y, m, d] = day.split('-').map(Number);
+  return (new Date(Date.UTC(y, m - 1, d)).getUTCDay() + 6) % 7;
+};
+
+/**
+ * For every customer with a fixed time: the next time in the coming `days` days (8: today and the same weekday next week) that matches the weekday and the
+ * time, exists as a slot of an offer, has a free place and is not yet booked by that person.
+ * offers: [{ ...offer, bookings }]; `now` is «YYYY-MM-DDTHH:MM». → [{ customer, offer, slot }].
+ */
+export function fixedSuggestions(customers = [], offers = [], now = '', days = 8) {
+  const today = now.slice(0, 10);
+  const out = [];
+  for (const c of customers) {
+    const f = fixedOf(c);
+    if (!f) continue;
+    for (let i = 0; i < days; i++) {
+      const day = addDays(today, i);
+      if (weekdayOf(day) !== f.weekday) continue;
+      const at = atOf(day, f.time);
+      if (at <= now) continue;
+      let taken = false;
+      let hit = null;
+      for (const o of offers) {
+        const slot = (o.slots ?? []).find((s) => s.at === at);
+        if (!slot) continue;
+        const mine = (o.bookings ?? []).some((b) => b.slot === slot.id && b.status !== 'declined' && keyOf(b.name) === keyOf(c.name));
+        if (mine) taken = true;
+        const places = ((o.types ?? []).find((x) => x.key === slot.type) ?? o.types?.[0])?.places ?? 0;
+        if (!hit && (bookedBySlot(o.bookings)[slot.id] ?? 0) < places) hit = { customer: c, offer: o, slot };
+      }
+      if (hit && !taken) out.push(hit);
+      break;
+    }
+  }
+  return out;
 }

@@ -4,6 +4,7 @@
  * Every write returns the old list, so the caller can offer Undo.
  */
 import { newTodo, tick } from './merken.js';
+import { reorderGroup } from './merken/order.js';
 import { newBirthday, newPlant, watered } from './merken/kinds.js';
 
 export const MERKEN_KEY = 'merken';
@@ -47,6 +48,18 @@ export async function waterPlant(db, id, today) {
 
 export async function updateTodo(db, id, changes) {
   const { before } = await write(db, (list) => list.map((t) => (t.id === id ? { ...t, ...changes } : t)));
+  return () => restoreTodos(db, before);
+}
+
+/** Changes one to-do with a pure function (a step ticked, a link added); returns Undo. */
+export async function changeTodo(db, id, fn) {
+  const { before } = await write(db, (list) => list.map((t) => (t.id === id ? fn(t) : t)));
+  return () => restoreTodos(db, before);
+}
+
+/** F2: moves the to-do at `from` to `to` within a group (ids as shown); returns Undo. */
+export async function reorderTodos(db, ids, from, to) {
+  const { before } = await write(db, (list) => reorderGroup(list, ids, from, to));
   return () => restoreTodos(db, before);
 }
 

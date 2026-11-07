@@ -1,6 +1,6 @@
 // «Deine Gewohnheiten» on top of Heute (Noah 27.10.2026 «1a 2a und b 3b»): up to three chosen habits, meditation by default
 import { describe, it, expect } from 'vitest';
-import { normHabits, habitsOf, addHabit, removeHabit, moveHabit, lastSeven, MAX_HABITS } from '../src/lib/home/habits.js';
+import { normHabits, habitsOf, habitActIds, addHabit, removeHabit, moveHabit, lastSeven, MAX_HABITS } from '../src/lib/home/habits.js';
 import { addDays } from '../src/lib/routine.js';
 import { isMedAct } from '../src/lib/flow/hobby/medstart.js';
 
@@ -31,6 +31,12 @@ describe('habits on top of Today', () => {
     expect(l).toHaveLength(MAX_HABITS);
     expect(moveHabit(l, 2, 0).map((r) => r.id)).toEqual(['c', 'a', 'b']);
     expect(removeHabit(l, { kind: 'routine', id: 'b' }).map((r) => r.id)).toEqual(['a', 'c']);
+  });
+  it('04.11.2026 «1a»: the activities on top are the ones «Active today» leaves out (routine items and deleted ones are not)', () => {
+    const v = [{ kind: 'routine', id: 'r-1' }, { kind: 'act', id: 'test_data_gtp_stretch' }, { kind: 'act', id: 'gone' }];
+    expect(habitActIds(v, acts, items, isMedAct)).toEqual(['test_data_gtp_stretch']);
+    expect(habitActIds(null, acts, items, isMedAct)).toEqual(['meditation']);
+    expect(habitActIds([], acts, items, isMedAct)).toEqual([]);
   });
   it('the last seven days, oldest first', () => {
     const w = lastSeven(new Set(['2026-10-27', '2026-10-21']), '2026-10-27', addDays);
