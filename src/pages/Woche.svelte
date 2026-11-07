@@ -7,7 +7,7 @@
    * the button «Plan the week» and a small form to add a date or a to-do. On a phone the days fold to
    * one line each (Noah «2a»), today open. Rules: lib/woche.js; data: lib/woche/load.js.
    */
-  import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
+  import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Bike, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import FreeSlotCard from '../lib/freiezeit/FreeSlotCard.svelte'; // Idee A3: free time plus good weather
@@ -46,6 +46,9 @@
   // «Planen als verbindende Mitte» 5a: «For 2.–8. Nov.» instead of a bare number range
   const rangeLong = $derived(`${new Date(`${monday}T12:00:00Z`).getUTCDate()}.–${new Date(`${shiftDay(monday, 6)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' })}`);
   const range = $derived(`${shortDate(monday)}–${shortDate(shiftDay(monday, 6))}`);
+  // «Planen 2a»: the best free and dry window of the shown week; its day carries a small mark
+  let win = $state(null);
+  const winMins = (w) => `${new Date(w.start).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' })}–${new Date(w.end).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' })}`;
   const due = $derived(src && src.planned !== planMonday(today));
 
   async function saveItems(list) {
@@ -155,7 +158,7 @@
   <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
   <AreaIntro place="weekplan" />
   <AllHere area="plan" />
-  <FreeSlotCard />
+  <FreeSlotCard {monday} onfound={(w) => (win = w)} />
 
   {#if week}
     <div class="top">
@@ -211,6 +214,7 @@
               <summary>
                 <b>{dayName(d.day)}</b>
                 {#if d.wx}{@render wxMark(d.wx)}{/if}
+                {#if win?.date === d.day}{@render winMark(win)}{/if}
                 <span class="dots" aria-hidden="true">{#each dotsOf(d) as k (k)}<i class="k-{k}"></i>{/each}</span>
                 <span class="cnt">{d.holiday ? holidayName(d.holiday) : d.today ? t('today') : tn(d.entries.length, '{n} entry', '{n} entries')}</span>
                 <ChevronRight size={18} aria-hidden="true" />
@@ -223,7 +227,7 @@
           {:else}
             <div class="dc" class:today={d.today} class:past={d.past} data-day={d.day}>
               <h3><span>{dayName(d.day).split(' ')[0]}</span> <b class="num">{dayName(d.day).split(' ').slice(1).join(' ')}</b></h3>
-              {#if d.wx || d.holiday}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
+              {#if d.wx || d.holiday || win?.date === d.day}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if win?.date === d.day}{@render winMark(win)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
               {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{/each}
               {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
             </div>
@@ -321,6 +325,10 @@
   <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
   <PasstHier place="woche" />
 </div>
+
+{#snippet winMark(w)}
+  <span class="win" data-win-day title={t('Here a {n}-hour round fits: about {km} km.', { n: w.hours, km: w.km })}><Bike size={14} aria-hidden="true" />{winMins(w)}</span>
+{/snippet}
 
 {#snippet wxMark(wx)}
   <span class="wx" class:wet={wx.wet} data-wx={wx.wet ? 'wet' : wx.dry ? 'dry' : 'showers'}>
@@ -452,6 +460,16 @@
   }
   .wx.wet {
     color: var(--wk-date);
+  }
+  .win {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--hi-soft);
+    color: var(--hi);
+    font-size: var(--fs-tiny);
   }
   .hol {
     padding: 1px 6px;

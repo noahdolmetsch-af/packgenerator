@@ -82,6 +82,18 @@ export const FEELING_GROUPS = [
       { key: 'eisam', label: 'Eisam', emoji: '🫥' },
     ],
   },
+  /** Gruss C (Noah 05.11.2026 «4a»): the weather in the head, as many as fit. */
+  {
+    key: 'weather',
+    name: 'Weather in my head|hello',
+    items: [
+      { key: 'sunnig', label: 'Sunnig', emoji: '🌞' },
+      { key: 'wolkig', label: 'Wolkig', emoji: '⛅' },
+      { key: 'naebel', label: 'Näbel', emoji: '🌫️' },
+      { key: 'gwitter', label: 'Gwitter', emoji: '⛈️' },
+      { key: 'raegeboge', label: 'Rägeboge', emoji: '🌈' },
+    ],
+  },
 ];
 export const FEELINGS = FEELING_GROUPS.flatMap((g) => g.items.map((i) => ({ ...i, group: g.key })));
 /** The title of the group behind «Mehr». */
