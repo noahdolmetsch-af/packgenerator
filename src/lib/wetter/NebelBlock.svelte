@@ -12,12 +12,14 @@
   import { REFRESHED } from '../home/refresh.js';
   import { OWN_KEY } from './schneegrenze.js';
   import { summary, HOME_KEY } from './nebelgrenze.js';
+  import { KEY as RIDE_KEY } from './sonnenfahrt.js';
   import { loadProfil } from './profil.js'; // the air layers, shared with «Temperaturen nach Höhe»
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { core, now = Date.now() } = $props();
   const ownQ = liveQuery(() => db.settings.get(OWN_KEY));
   const homeQ = liveQuery(() => db.settings.get(HOME_KEY));
+  const rideQ = liveQuery(() => db.settings.get(RIDE_KEY));
 
   const place = $derived(core?.place && Number.isFinite(Number(core.place.lat)) ? { lat: Number(core.place.lat), lon: Number(core.place.lon) } : null);
   let fog = $state(null);
@@ -41,6 +43,8 @@
   const at = $derived(fog?.old && fog.at ? new Date(fog.at).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '');
   const sight = $derived(s?.sight ? (s.sight.over ? t('Sight over {v} km', { v: num(s.sight.v) }) : s.sight.unit === 'm' ? t('Sight {v} m', { v: num(s.sight.v) }) : t('Sight {v} km', { v: num(s.sight.v) })) : '');
   const toggleHome = (e) => db.settings.put({ key: HOME_KEY, value: e.currentTarget.checked });
+  const onRide = $derived($rideQ?.value !== false);
+  const toggleRide = (e) => db.settings.put({ key: RIDE_KEY, value: e.currentTarget.checked });
 </script>
 
 {#if s}
@@ -78,6 +82,7 @@
     <details class="nb-set" data-fogline-set>
       <summary>{t('Set fog line')}</summary>
       <label class="nb-check"><input type="checkbox" checked={onHome} onchange={toggleHome} data-fogline-home />{t('Show the fog line on Today')}</label>
+      <label class="nb-check"><input type="checkbox" checked={onRide} onchange={toggleRide} data-fogline-ride />{t('Suggest a ride above the fog on Today')}</label>
       <small class="nb-src">{t('Your height for «Your place» is set under «Set snow line».')}</small>
     </details>
   </div>

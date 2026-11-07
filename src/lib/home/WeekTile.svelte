@@ -43,7 +43,10 @@
   const ws = $derived($wq);
   const plan = $derived(ws ? buildWeek({ ...ws, monday: mondayOf(today), today, actName: (id) => actName(acts[id]) || id }) : null);
   const planOf = (day) => plan?.days.find((d) => d.day === day) ?? null;
-  const todayPlan = $derived(planOf(today)?.entries ?? []);
+  // Noah 04.11.2026 «2a»: «Today by the plan» shows what is still open; what you did stands in «Active today» and in the
+  // day lines above, so it does not stand a third time here
+  const todayAll = $derived(planOf(today)?.entries ?? []);
+  const todayPlan = $derived(todayAll.filter((e) => !e.done));
   const tomorrow = $derived(shiftDay(today, 1));
   const tomorrowPlan = $derived(planOf(tomorrow)?.entries ?? []);
   const hasPlan = $derived(!!plan?.days.some((d) => d.entries.length));
@@ -85,7 +88,7 @@
       {#if todayPlan.length}
         <div class="ens">{#each todayPlan.slice(0, 4) as e (e.id)}<Entry {e} />{/each}</div>
         {#if todayPlan.length > 4}<small>{t('and {n} more', { n: todayPlan.length - 4 })}</small>{/if}
-      {:else}<small>{t('Nothing planned today.')}</small>{/if}
+      {:else}<small>{todayAll.length ? t('Everything in today\'s plan is done.') : t('Nothing planned today.')}</small>{/if}
     </div>
     {#if tomorrowPlan.length}<p class="tmr" data-tomorrow>{t('Tomorrow: {list}', { list: tomorrowPlan.slice(0, 3).map((e) => `${titleOf(e)}${e.time ? ` ${e.time}` : ''}`).join(' · ') })}</p>{/if}
   {/if}
