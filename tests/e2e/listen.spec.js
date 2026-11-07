@@ -65,6 +65,26 @@ test('a list from the quick field: points, tick, pinned to Material, in Merken',
   expect(errors).toEqual([]);
 });
 
+// «Auswerten aufräumen» 3 (Noah 07.11.2026 «5a»): a list pinned to Active stands on Active, no longer on Analysis
+test('a list pinned to Active stands on Active and not on Analysis', async ({ page, context }) => {
+  const errors = await open(page, context, '#/calendar');
+  const main = page.locator('main');
+  await page.getByRole('button', { name: T('New'), exact: true }).first().click();
+  const sheet = page.locator('dialog.new');
+  await sheet.getByLabel(T('Quick field')).fill('Liste Dehnen: Waden, Rücken');
+  await sheet.getByLabel(T('Quick field')).press('Enter');
+  const ls = page.locator('dialog.lsheet');
+  await ls.getByRole('button', { name: T('Active|place') }).click();
+  await ls.getByRole('button', { name: T('Create list') }).click();
+  await expect(page).toHaveURL(/#\/calendar\/list\//);
+  await page.evaluate(() => (location.hash = '#/flow'));
+  await expect(main.locator('[data-pinned="active"]')).toContainText('Dehnen');
+  await page.evaluate(() => (location.hash = '#/auswerten'));
+  await expect(main.getByRole('heading', { name: T('Your questions') })).toBeVisible();
+  await expect(main.locator('[data-pinned="active"]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('Meine Ideen: a link on the page Impulse, an idea with a date gets a reminder in Merken', async ({ page, context }) => {
   const errors = await open(page, context, '#/flow/impulse'); // «Auswerten aufräumen» (Noah 07.11.2026 «4a»): the card on the start is gone, Ideen opens from Impulse
   const main = page.locator('main');
