@@ -50,6 +50,7 @@ export const ALL_HERE = {
   ],
   plan: [
     'f.agenda',
+    'f.spielerplus',
     'f.remember',
     { id: 'notes', title: 'Notes', href: '#/notes' },
     'f.inbox',

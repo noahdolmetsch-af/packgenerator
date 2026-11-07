@@ -55,6 +55,20 @@ test('Aktiv › Impulse: the impulse of the day, «Gemacht» and the line on Heu
   expect(errors).toEqual([]);
 });
 
+test('Impulse: «Heute nicht» lets the idea rest, and «Jetzt zurückholen» brings it back', async ({ page, context }) => {
+  const errors = await open(page, context, './#/flow/impulse');
+  const top = page.locator('[data-impulse]').first();
+  const id = await top.getAttribute('data-impulse');
+  await top.locator('[data-not-today]').click();
+  await expect(page.getByText(/ruht 30 Tage/).first()).toBeVisible();
+  await expect(page.locator(`[data-impulse="${id}"]`)).toHaveCount(0); // a different idea is on top now
+  await page.locator(`[data-impulse-row="${id}"] .fzi-rowbtn`).click();
+  await expect(page.locator(`[data-impulse-row="${id}"]`)).toContainText('ruht bis');
+  await page.locator(`[data-impulse-row="${id}"] [data-back]`).click();
+  await expect(page.locator(`[data-impulse-row="${id}"]`)).not.toContainText('ruht bis');
+  expect(errors).toEqual([]);
+});
+
 test('Worauf hab ich Lust: a choice gives up to three ideas', async ({ page, context }) => {
   const errors = await open(page, context, './#/me/frei/lust');
   await page.locator('[data-choice="play"]').first().click();

@@ -915,6 +915,7 @@ html {
   --wk-todo: var(--l2);
   --wk-away: var(--l4);
   --wk-bike: var(--warn);
+  --wk-sp: var(--hi); /* Spielerplus dates (Noah 06.11.2026 «4a»): an own colour and the word «Spielerplus» */
 }
 :root,
 :root[data-place] {
@@ -1089,6 +1090,19 @@ main[data-s2-place='active'] {
 }
 .btn.btn-link:hover {
   background: var(--paper-2);
+}
+/* Etappe 6 (4a): the quiet line «Your text from before is back.» (keeptyped.js) had no style at all */
+.kept-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0 0 10px;
+  padding: 4px 4px 4px 12px;
+  border-radius: 10px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-size: var(--fs-small);
 }
 .btn:disabled {
   opacity: 0.5;

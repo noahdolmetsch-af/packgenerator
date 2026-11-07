@@ -169,13 +169,19 @@ export function areasOf(cfg) {
 /** The name of an area as shown: typed names as they are, built-in ones through tr (t). */
 export const areaName = (a, tr = (s) => s) => (a?.name ? a.name : a?.std ? tr(a.std) : '');
 
+/** «Not today» (Noah 05.11.2026): an impulse rests until the saved day; it stays in the list, only the suggestions skip it. */
+export const LATER_DAYS = 30;
+export const laterUntil = (day, n = LATER_DAYS) => new Date(toMs(day) + n * MS).toISOString().slice(0, 10);
+const laterOf = (later, id, day) => (day && typeof later[id] === 'string' && later[id] > day ? { later: true, laterUntil: later[id] } : { later: false, laterUntil: '' });
+
 /** The impulses as shown: built-in ones with the person's edits, own ones; hidden ones flagged. */
-export function impulsesOf(cfg) {
+export function impulsesOf(cfg, day = '') {
+  const later = cfg?.later && typeof cfg.later === 'object' ? cfg.later : {};
   const edits = cfg?.edits && typeof cfg.edits === 'object' ? cfg.edits : {};
   const hidden = new Set(Array.isArray(cfg?.hidden) ? cfg.hidden : []);
   const moved = cfg?.moved && typeof cfg.moved === 'object' ? cfg.moved : {};
-  const std = IMPULSES.map((i) => ({ ...i, own: false, area: moved[i.id] ?? i.area, ...(edits[i.id] ?? {}), edited: !!edits[i.id], firstOwn: typeof edits[i.id]?.first === 'string', hidden: hidden.has(i.id) }));
-  const own = (Array.isArray(cfg?.own) ? cfg.own : []).filter((i) => i && i.id && clean(i.title)).map((i) => ({ go: null, text: '', ...i, own: true, area: moved[i.id] ?? i.area ?? '', hidden: hidden.has(i.id) }));
+  const std = IMPULSES.map((i) => ({ ...i, own: false, area: moved[i.id] ?? i.area, ...(edits[i.id] ?? {}), edited: !!edits[i.id], firstOwn: typeof edits[i.id]?.first === 'string', hidden: hidden.has(i.id), ...laterOf(later, i.id, day) }));
+  const own = (Array.isArray(cfg?.own) ? cfg.own : []).filter((i) => i && i.id && clean(i.title)).map((i) => ({ go: null, text: '', ...i, own: true, area: moved[i.id] ?? i.area ?? '', hidden: hidden.has(i.id), ...laterOf(later, i.id, day) }));
   return [...std, ...own];
 }
 /** The impulses of one area ('' = without an area, also those of a deleted area). */
@@ -185,7 +191,7 @@ export function inArea(list, areaId, areas) {
 }
 /** The impulse of the day among the shown ones (stable for a day, changes the next). */
 export function impulseOfDay(list, day, salt = 0) {
-  const shown = list.filter((i) => !i.hidden);
+  const shown = list.filter((i) => !i.hidden && !i.later);
   if (!shown.length) return null;
   return shown[(((dayNo(day) + salt) % shown.length) + shown.length) % shown.length];
 }
@@ -624,7 +630,7 @@ export const markLine = (pile) => (pile === 'missing' ? 'Take {name} next time' 
 /** An impulse for Heute when there is no ride idea; null when switched off or none shown. */
 export function todayImpulse(cfg, day) {
   if (cfg?.onToday === false) return null;
-  return impulseOfDay(impulsesOf(cfg), day, 7);
+  return impulseOfDay(impulsesOf(cfg, day), day, 7);
 }
 /** Where «Try it» of an impulse leads. */
 export function impulseHref(imp, colls = []) {

@@ -1,8 +1,10 @@
 <script>
   /**
-   * Idee A3 «Freie Zeit plus gutes Wetter gibt einen Vorschlag»: one calm card with the next free and dry
-   * window from your Google calendar and the weather at your home place (freiezeit/slots.js). Only with the
-   * calendar switched on (Ich › Termine und Aufgaben) and a home place; «Not now» hides that window.
+   * Idee A3 «Freie Zeit plus gutes Wetter gibt einen Vorschlag»: one calm card with the best free and dry
+   * window of the shown week, from your Google calendar (when it is on), your own dates and the weather at your
+   * home place (freiezeit/slots.js). «Planen 2a» (Noah 05.11.2026): the whole shown week (also next week), a
+   * 3-hour round when it fits, «Plan it» puts it into the week, and the day carries a mark (onfound).
+   * Needs a home place; «Not now» hides that window.
    */
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -12,10 +14,14 @@
   import { loadCore } from '../wetter/kern.js';
   import { localDay } from '../localday.js';
   import { t, locale } from '../i18n.svelte.js';
-  import { HIDE_KEY, freeSlot, hideSlot, DAYS } from './slots.js';
-  import { ITEMS_KEY } from '../woche.js';
+  import { HIDE_KEY, weekSlot, hideSlot } from './slots.js';
+  import { ITEMS_KEY, cleanItem } from '../woche.js';
   import { hours } from '../woche/words.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   import { Bike, ChevronRight } from '@lucide/svelte';
+
+  /** monday: the Monday of the shown week; onfound(slot | null): lets the week mark the day. */
+  let { monday = null, onfound = null } = $props();
 
   const setQ = liveQuery(() => db.settings.bulkGet([HOME_PLACE, AGENDA_KEY, PACE_KEY, HIDE_KEY, ITEMS_KEY]));
   const today = localDay();
@@ -27,13 +33,17 @@
   let core = $state(null);
   let key = '';
   $effect(() => {
-    const k = place && calOn ? `${place.lat},${place.lon}` : '';
+    const k = place ? `${place.lat},${place.lon}` : '';
     if (k === key) return;
     key = k;
     core = null;
     if (k) loadCore(db, place).then((c) => k === key && (core = c)).catch(() => {});
   });
-  const slot = $derived(core && $evQ ? freeSlot(core, $evQ, { now: Date.now(), kmh, hidden }) : null);
+  const ownItems = $derived(Array.isArray($setQ?.[4]?.value) ? $setQ[4].value : []);
+  const slot = $derived(core && $evQ && monday ? weekSlot(core, calOn ? $evQ : [], { monday, now: Date.now(), kmh, hidden, items: ownItems }) : null);
+  $effect(() => {
+    onfound?.(slot ? { date: slot.date, start: slot.start, end: slot.end, hours: slot.hours, km: slot.km } : null);
+  });
   // «Planen als verbindende Mitte» 4a: a to-do without a day whose time needed fits into the window can be put there
   const BUFFER = 30; // minutes of the window that stay free
   const slotMins = $derived(slot ? Math.floor((slot.end - slot.start) / 60000) : 0);
@@ -46,6 +56,16 @@
   }
   const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const dayWord = (date) => (date === today ? t('Today|day') : new Date(`${date}T12:00:00`).toLocaleDateString(locale(), { weekday: 'long' }));
+  // «Plan it»: the window becomes a date «Ride» in the week, as long as the window; Undo takes it out again
+  async function planIt() {
+    const before = ownItems;
+    const at = new Date(slot.start);
+    const time = `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`;
+    const it = cleanItem({ kind: 'date', title: t('Ride|week'), day: slot.date, time, mins: Math.round((slot.end - slot.start) / 60000) });
+    if (!it) return;
+    await db.settings.put({ key: ITEMS_KEY, value: JSON.parse(JSON.stringify([...before, it])) });
+    offerDone(t('«{name}» planned for {day}.', { name: t('Ride|week'), day: dayWord(slot.date) }), () => db.settings.put({ key: ITEMS_KEY, value: JSON.parse(JSON.stringify(before)) }));
+  }
   async function notNow() {
     await db.settings.put({ key: HIDE_KEY, value: hideSlot(hidden, slot.start) });
   }
@@ -56,18 +76,20 @@
     <span class="fz-ib" aria-hidden="true"><Bike size={18} /></span>
     <p class="fz-t">
       <b>{t('{day} {from}–{to} free and dry', { day: dayWord(slot.date), from: hm(slot.start), to: hm(slot.end) })}</b>
-      <small data-fz-basis>{t('Based on your calendar and your home place; 30 minutes of the window stay free as a buffer.')}</small>
-      <small>{t('A round of about {km} km? From your calendar and the weather at home, the next {n} days.', { km: slot.km, n: DAYS })}</small>
+      <small data-fz-basis>{calOn ? t('Based on your calendar, your own dates and your home place; 30 minutes of the window stay free as a buffer.') : t('Based on your own dates and your home place; 30 minutes of the window stay free as a buffer.')}</small>
+      <small data-fz-round>{t('Here a {n}-hour round fits: about {km} km.', { n: slot.hours, km: slot.km })}</small>
+      {#if !calOn}<small>{t('Without the calendar, only your own dates count.')}</small>{/if}
     </p>
     <span class="fz-acts">
       <a class="btn sm" href="#/wetter">{t('Weather')}<ChevronRight size={14} aria-hidden="true" /></a>
+      <button type="button" class="btn sm hi" onclick={planIt} data-fz-plan>{t('Plan the ride')}</button>
       {#if fits}<button type="button" class="btn sm hi" onclick={putHere} data-fz-put>{t('Put «{title}» here ({min})', { title: fits.title, min: hours(fits.mins) })}</button>{/if}
       <button type="button" class="btn sm" onclick={notNow}>{t('Not now')}</button>
     </span>
   </div>
 {:else}
   <p class="fz-hint" data-free-slot-hint>
-    <b>{t('Free time and good weather')}</b>: {calOn && place ? t('no free and dry window in the next {n} days yet.', { n: DAYS }) : t('with the calendar on and your home place set, the next free and dry window shows here.')}<span class="fz-btns">{#if !calOn}<a class="btn sm" href="#/me/agenda" data-fz-cal>{t('Connect calendar')}</a>{/if}{#if !place}<a class="btn sm" href="#/me" data-fz-place>{t('Set home place|week')}</a>{/if}</span>
+    <b>{t('Free time and good weather')}</b>: {place ? t('no free and dry window in this week yet.') : t('with your home place set, the best free and dry window of the week shows here.')}<span class="fz-btns">{#if !calOn}<a class="btn sm" href="#/me/agenda" data-fz-cal>{t('Connect calendar')}</a>{/if}{#if !place}<a class="btn sm" href="#/me" data-fz-place>{t('Set home place|week')}</a>{/if}</span>
   </p>
 {/if}
 

@@ -23,6 +23,7 @@
   import { ChevronDown, ChevronUp, Plus, Pencil, Hand, Watch, CircleDashed, Smartphone, Info, RotateCcw, Gauge, ChartLine, ChevronRight } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import AreaIcon from '../lib/abfragen/AreaIcon.svelte';
+  import HelloButtonsSection from '../lib/home/HelloButtonsSection.svelte'; // Gruss B: the buttons behind the greeting
   import IntervalSheet from '../lib/abfragen/IntervalSheet.svelte';
   import OwnSheet from '../lib/abfragen/OwnSheet.svelte';
   import RuleSheet from '../lib/abfragen/RuleSheet.svelte';
@@ -430,6 +431,7 @@
           {/if}
         </div>
       </section>
+      <HelloButtonsSection />
       <section class="ich-sec" aria-labelledby="ab-where-h">
         <div class="ich-h"><div><h2 id="ab-where-h">{t('Where the answers go')}</h2></div></div>
         <div class="card side">

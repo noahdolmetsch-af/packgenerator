@@ -90,7 +90,7 @@ export function loopOf(key) {
 const LISTED_MOMENTS = {
   // Lust und Ideen
   lust: [
-    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamlink', 'f.dreamsdone', 'f.triptips', 'f.dreamready', 'f.dreamwx', 'f.dreamsmap', 'f.monthideas', 'f.biwak', 'f.trainthere', 'f.suntip', 'f.dice', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
+    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamlink', 'f.dreamsdone', 'f.triptips', 'f.dreamready', 'f.dreamwx', 'f.dreamsmap', 'f.monthideas', 'f.biwak', 'f.trainthere', 'f.suntip', 'f.dice', 'f.monthadv', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
     'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot', 'f.freiwesentlich', 'f.freireise', 'f.freinacht', 'f.freilust', 'f.freisamml',
   ],
   // Tour planen
@@ -159,7 +159,7 @@ const LISTED_MOMENTS = {
     'f.plantpass', 'f.doubleinbox', 'f.mailcase', 'f.memorycard', 'f.noteformats', 'f.next', 'f.notes',
     'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools', 'f.markup',
     'f.phototools', 'f.ablage', 'f.weblinks', 'f.chains', 'f.convert', 'f.video', 'f.qr', 'f.docscan',
-    'f.mailin', 'f.mail', 'f.agenda', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate', 'f.minipoll', 'f.minilist', 'f.miniinvite', 'f.minifood', 'f.minilos', 'f.miniabfahrt',
+    'f.mailin', 'f.mail', 'f.agenda', 'f.spielerplus', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate', 'f.minipoll', 'f.minilist', 'f.miniinvite', 'f.minifood', 'f.minilos', 'f.miniabfahrt',
     'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard', 'f.calc', 'f.units', 'f.freiabend',
   ],
   // App, Daten und Hilfe

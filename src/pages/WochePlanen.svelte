@@ -27,6 +27,9 @@
   const week7 = daysOf(monday);
   // UI-Test T9 (G1-10): the Google line says what is true: connected (with how many dates) or not yet
   const calOn = $derived(!!agendaPrefs(src?.google?.prefs).calendar);
+  // Spielerplus (Noah 06.11.2026): the team dates of this week, read only
+  const spCount = $derived(week ? week.days.reduce((n, d) => n + d.entries.filter((e) => e.id.startsWith('sp:')).length, 0) : 0);
+  const spOn = $derived((src?.spielerplus?.cals ?? []).some((c) => c.on));
   const calCount = $derived(calOn ? weekItems({ events: src?.google?.events ?? [], from: week7[0], to: week7.at(-1) }).length : 0);
   const q = weekQuery(today);
   const src = $derived($q);
@@ -155,6 +158,7 @@
           </div>
         {/if}
         <p class="why sm" data-gcal-line={calOn ? 'on' : 'off'}>{#if !calOn}{t('Dates from Google Calendar come here by themselves once it is connected.')} <a href="#/me/agenda">{t('Connect Google ›')}</a>{:else if calCount}{tn(calCount, 'From your Google Calendar: {n} date this week.', 'From your Google Calendar: {n} dates this week.')}{:else}{t('From your Google Calendar: no dates this week.')}{/if}</p>
+        <p class="why sm" data-sp-line={spOn ? 'on' : 'off'}>{#if !spOn}{t('Team dates from Spielerplus come here too.')} <a href="#/me/connections">{t('Add team link ›')}</a>{:else if spCount}{tn(spCount, 'From Spielerplus: {n} team date this week.', 'From Spielerplus: {n} team dates this week.')}{:else}{t('From Spielerplus: no team dates this week.')}{/if}</p>
       {:else if step === 2}
         <h2 id="wpl-h">{t('Spread the training')}</h2>
         <p class="why">

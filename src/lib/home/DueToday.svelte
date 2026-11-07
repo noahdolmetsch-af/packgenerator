@@ -5,17 +5,18 @@
    * Paket C idea 17 (Noah 03.11.2026 «b»): the care chip carries a small bike bell that rings (wobbles) once when
    * the line appears; «Reduce motion» switches it off. No sound.
    */
-  import { CalendarCheck, Cake, Flower2, BellRing } from '@lucide/svelte';
+  import { CalendarCheck, Cake, Flower2, BellRing, Users } from '@lucide/svelte';
   import { dueToday } from './duetoday.js';
   import { t, tn } from '../i18n.svelte.js';
 
-  let { todos = [], today, care = 0 } = $props();
-  const ICON = { todo: CalendarCheck, birthday: Cake, plant: Flower2, care: BellRing };
-  const rows = $derived(dueToday({ todos, today, care }));
+  let { todos = [], today, care = 0, sp = [] } = $props();
+  const ICON = { todo: CalendarCheck, birthday: Cake, plant: Flower2, care: BellRing, sp: Users };
+  const rows = $derived(dueToday({ todos, today, care, sp }));
   // names the user typed (to-dos, people, plants) never go through t()
   const text = (r) =>
     r.kind === 'todo' ? (r.name ?? tn(r.n, '{n} to-do due', '{n} to-dos due'))
     : r.kind === 'birthday' ? t('Birthday: {name}', { name: r.name })
+    : r.kind === 'sp' ? [r.time, r.name].filter(Boolean).join(' ')
     : r.kind === 'plant' ? (r.name ? t('Water {name}', { name: r.name }) : tn(r.n, 'Water {n} plant', 'Water {n} plants'))
     : tn(r.n, '{n} care point due', '{n} care points due');
 </script>

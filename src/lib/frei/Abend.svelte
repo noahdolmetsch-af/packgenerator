@@ -156,7 +156,7 @@
 </script>
 
 <div class="fz" data-page="abend">
-  <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('My evening')} />
+  <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('My evening')} />
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('My evening')}</h1>
   <p class="fz-intro">{t('How do you want to notice the day is over? Three small rituals, your music, a moment to arrive.')}</p>
 

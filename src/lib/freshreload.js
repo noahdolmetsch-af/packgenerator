@@ -17,35 +17,57 @@ export function freshUrl(loc, now = Date.now()) {
   return `${loc.origin}${loc.pathname}?fresh=${now}${loc.hash || ''}`;
 }
 
-export async function freshReload(w = globalThis) {
-  if (w.navigator?.onLine !== false) {
-    await within(
-      (async () => {
-        const regs = (await w.navigator?.serviceWorker?.getRegistrations?.()) ?? [];
-        await Promise.all(regs.map((r) => r.unregister()));
-      })(),
-    );
-    await within(
-      (async () => {
-        const names = (await w.caches?.keys?.()) ?? [];
-        await Promise.all(names.filter(isAppCache).map((n) => w.caches.delete(n)));
-      })(),
-    );
-    // 30.10.2026 (Noah: «Jetzt laden» did nothing on the phone): a new address so the page is really fetched anew
-    if (w.location.replace && w.location.origin) return w.location.replace(freshUrl(w.location));
+/** How long a loading may take before the person is told it did not work. */
+export const STUCK_AFTER = 8000;
+
+/**
+ * Loads the newest version. `onStuck` runs when this page is still here after STUCK_AFTER seconds, which means
+ * the navigation did not happen (Noah 07.11.2026: «Jetzt laden» did nothing on his phone): the caller then says so
+ * and what to do, instead of leaving a button that looks busy forever. A page that really loads anew never
+ * runs it, because the old page is gone by then.
+ */
+export async function freshReload(w = globalThis, { onStuck } = {}) {
+  if (onStuck) (w.setTimeout ? w.setTimeout.bind(w) : setTimeout)(onStuck, STUCK_AFTER);
+  try {
+    if (w.navigator?.onLine !== false) {
+      await Promise.all([
+        within(
+          (async () => {
+            const regs = (await w.navigator?.serviceWorker?.getRegistrations?.()) ?? [];
+            await Promise.all(regs.map((r) => r.unregister()));
+          })(),
+        ),
+        within(
+          (async () => {
+            const names = (await w.caches?.keys?.()) ?? [];
+            await Promise.all(names.filter(isAppCache).map((n) => w.caches.delete(n)));
+          })(),
+        ),
+      ]);
+      // 30.10.2026 (Noah: «Jetzt laden» did nothing on the phone): a new address so the page is really fetched anew
+      if (w.location.replace && w.location.origin) return w.location.replace(freshUrl(w.location));
+    }
+    w.location.reload();
+  } catch {
+    // a step that throws must not leave the button silent: try the plain reload; onStuck still speaks if that fails too
+    try {
+      w.location.reload();
+    } catch {
+      /* onStuck tells the person */
+    }
   }
-  w.location.reload();
 }
 
-/** Takes the `?fresh=` marker off the address again after a fresh load (the data and the # place stay). */
+/** Takes the `?fresh=` marker off the address again after a fresh load (the data and the # place stay). Returns true when it was there. */
 export function cleanFreshMarker(w = globalThis) {
   try {
     const u = new URL(w.location.href);
-    if (!u.searchParams.has('fresh')) return;
+    if (!u.searchParams.has('fresh')) return false;
     u.searchParams.delete('fresh');
     w.history.replaceState(w.history.state, '', u.pathname + u.search + u.hash);
+    return true; // this start came from «load fresh»: swupdate.js checks that the newest version really arrived
   } catch {
-    /* the marker may stay */
+    return false; /* the marker may stay */
   }
 }
 
