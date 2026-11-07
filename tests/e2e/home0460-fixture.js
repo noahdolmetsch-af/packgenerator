@@ -60,9 +60,10 @@ export async function mockWeather(context) {
 }
 
 /** Today at 09:00 on D0, the language set, the data imported through "Your data". */
-export async function openHome(page, context, info, { lang = 'de', data = homeFixture(), hour = 9, palette = null, mode = null } = {}) {
+export async function openHome(page, context, info, { lang = 'de', data = homeFixture(), hour = 9, palette = null, mode = null, weather = null } = {}) {
   await context.route(/^https?:\/\/(?!localhost[:/])(?!.*open-meteo)/, (route) => route.abort());
   await mockWeather(context);
+  if (weather) await weather(context); // a spec's own forecast, set before Today first loads (a later route wins over the plain one above)
   await page.clock.setFixedTime(new Date(`${D0}T${String(hour).padStart(2, '0')}:00:00+02:00`));
   await context.addInitScript(([l, p, m]) => {
     localStorage.setItem('lang', l);

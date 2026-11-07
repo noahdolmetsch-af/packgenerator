@@ -247,7 +247,7 @@
                         <span class="row"><button type="button" class="btn sm" onclick={addSport} data-sport-save>{t('Add')}</button><button type="button" class="btn btn-link sm" onclick={() => (newSport = null)}>{t('Cancel')}</button></span>
                       {/if}
                     </div>
-                    <p class="hint">{t('Your sports are the ones from «Meine Sportarten». Done is ticked as soon as you tick the sport in Aktiv.')}</p>
+                    <p class="hint">{t('Your sports are the ones from «Meine Aktivitäten». Done is ticked as soon as you tick the sport in Aktiv.')}</p>
                   {/if}
                   <div class="sfl">
                     <label>{t('Name (optional)')}<input class="inp" bind:value={form.name} placeholder={t('e.g. Intervals 4 × 6 min')} data-session-name /></label>

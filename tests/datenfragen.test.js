@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, todoHit, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES } from '../src/lib/datenfragen.js';
-import { QUESTION, QUESTIONS, answerRow } from '../src/lib/abfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, todoHit, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES, VALUES, valueNow, customRule, customHit, condOf, ruleList, moveRule, setRuleName, ruleName, dropRule, restoreRule, goneRules } from '../src/lib/datenfragen.js';
+import { QUESTION, QUESTIONS, answerRow, newOwn, putOwn, allQuestions, settingOf, dueList, counts, configOf, deleteQuestion } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
 const add = (day, n) => {
@@ -50,7 +50,7 @@ describe('Fragen aus deinen Daten', () => {
     expect(dataDue({ health: health(52, 61), today: TODAY }).length).toBeLessThanOrEqual(MAX_PER_DAY);
   });
   it('keeps the switches safe', () => {
-    expect(dataOf(null)).toEqual({ off: [], vals: {}, texts: {}, gaps: {}, skips: {}, zufall: { off: false, never: [], day: '' } });
+    expect(dataOf(null)).toEqual({ off: [], vals: {}, texts: {}, gaps: {}, skips: {}, names: {}, gone: [], order: [], zufall: { off: false, never: [], day: '' } });
     expect(dataOf({ off: ['ruhepuls', 'ruhepuls', 'nope', 3] }).off).toEqual(['ruhepuls']);
     expect(ruleOn(setRule(null, 'ruhepuls', false), 'ruhepuls')).toBe(false);
     expect(ruleOn(setRule({ off: ['ruhepuls'] }, 'ruhepuls', true), 'ruhepuls')).toBe(true);
@@ -401,4 +401,125 @@ describe('Fragen aus deinen Daten', () => {
     });
   });
 
+  describe('Eigene Regeln', () => {
+    const sleepHealth = (min) => [{ date: TODAY, sleep: { asleepMin: min } }];
+    const make = (fields = {}) => newOwn({ text: 'What would help you?', form: { kind: 'text' }, rule: { title: 'Short night', conds: [{ v: 'sleep', op: 'under', n: 6 }] }, ...fields }, new Date(1e12));
+    it('has a value for every entry of the list, with limits', () => {
+      expect(VALUES.map((v) => v.id)).toEqual(['sleep', 'rhr', 'mood', 'hours', 'pause', 'rain', 'temp', 'todo']);
+      for (const v of VALUES) expect(v.min < v.max && v.def >= v.min && v.def <= v.max).toBe(true);
+    });
+    it('reads the values from the data and gives null when the data is missing', () => {
+      expect(valueNow('sleep', { health: sleepHealth(330), today: TODAY })).toBe(5.5);
+      expect(valueNow('sleep', { health: [], today: TODAY })).toBeNull();
+      expect(valueNow('rhr', { health: health(52, 58), today: TODAY })).toBe(6);
+      expect(valueNow('rhr', { health: health(52, 49), today: TODAY })).toBe(-3);
+      expect(valueNow('mood', { answers: moods(7, [6, 5, 4]), today: TODAY })).toBe(4);
+      expect(valueNow('hours', { acts: [{ day: add(TODAY, -1), movingS: 5400 }, { day: add(TODAY, -1), movingS: 1800 }], today: TODAY })).toBe(2);
+      expect(valueNow('hours', { acts: [], today: TODAY })).toBeNull();
+      expect(valueNow('pause', { acts: [{ day: add(TODAY, -5) }], today: TODAY })).toBe(5);
+      expect(valueNow('rain', { wx: { date: TODAY, rainPct: 70 }, today: TODAY })).toBe(70);
+      expect(valueNow('rain', { wx: { date: add(TODAY, -1), rainPct: 70 }, today: TODAY })).toBeNull();
+      expect(valueNow('temp', { wx: { date: TODAY, max: 18 }, today: TODAY })).toBe(18);
+      expect(valueNow('todo', { tasks: { used: true, open: [{ title: 'a', due: add(TODAY, -8) }] }, today: TODAY })).toBe(8);
+      expect(valueNow('todo', { tasks: { used: true, open: [] }, today: TODAY })).toBe(0);
+      expect(valueNow('todo', { tasks: null, today: TODAY })).toBeNull();
+      expect(valueNow('nope', { today: TODAY })).toBeNull();
+    });
+    it('makes a rule safe: 1 or 2 known conditions, a number within the limits', () => {
+      expect(customRule(null)).toBeNull();
+      expect(customRule({ conds: [] })).toBeNull();
+      expect(customRule({ conds: [{ v: 'nope', op: 'over', n: 1 }] })).toBeNull();
+      expect(customRule({ title: '  Mine  ', conds: [{ v: 'sleep', op: 'under', n: 99 }] })).toEqual({ title: 'Mine', conds: [{ v: 'sleep', op: 'under', n: 12 }] });
+      expect(condOf({ v: 'sleep', op: 'weird', n: 'x' })).toEqual({ v: 'sleep', op: 'over', n: 6 });
+      expect(customRule({ conds: [{ v: 'sleep', n: 5 }, { v: 'rain', n: 50 }, { v: 'temp', n: 9 }] }).conds).toHaveLength(2);
+    });
+    it('fits when every condition fits, and says what it saw', () => {
+      const rule = { conds: [{ v: 'sleep', op: 'under', n: 6 }] };
+      expect(customHit(rule, { health: sleepHealth(330), today: TODAY })).toEqual({ facts: [{ text: 'You slept {v} hours last night.', vars: { v: 5.5 } }] });
+      expect(customHit(rule, { health: sleepHealth(360), today: TODAY })).toBeNull(); // «under» is strictly under
+      expect(customHit(rule, { health: [], today: TODAY })).toBeNull(); // no value: no question
+      const two = { conds: [{ v: 'sleep', op: 'under', n: 6 }, { v: 'rain', op: 'over', n: 50 }] };
+      expect(customHit(two, { health: sleepHealth(300), wx: { date: TODAY, rainPct: 70 }, today: TODAY }).facts).toHaveLength(2);
+      expect(customHit(two, { health: sleepHealth(300), wx: { date: TODAY, rainPct: 20 }, today: TODAY })).toBeNull();
+      expect(customHit(two, { health: sleepHealth(300), today: TODAY })).toBeNull();
+    });
+    it('is an own question that the clock never asks and the list does not count', () => {
+      const q = make();
+      expect(q.rule.conds).toHaveLength(1);
+      expect(q.every).toEqual({ kind: 'off' });
+      const cfg = putOwn(null, q, '2026-11-03T08:00');
+      expect(settingOf(cfg, q).on).toBe(false);
+      expect(dueList(cfg, [], '2026-11-04T20:00').some((x) => x.q.id === q.id)).toBe(false);
+      expect(counts(cfg).all).toBe(counts(null).all);
+      expect(allQuestions(cfg).some((x) => x.id === q.id && x.rule)).toBe(true);
+      // without a valid condition it is an ordinary own question
+      expect(make({ rule: { conds: [] } }).rule).toBeUndefined();
+    });
+    it('asks through dataDue with its text, its reason and its group', () => {
+      const q = make({ area: 'koerper' });
+      const list = dataDue({ health: sleepHealth(300), custom: [q], today: TODAY });
+      const d = list.find((x) => x.custom);
+      expect(d.q.id).toBe(q.id);
+      expect(d.rule).toBe(q.id);
+      expect(d.why.vars).toEqual({ title: 'Short night' });
+      expect(d.why.facts).toHaveLength(1);
+      expect(dataDue({ health: sleepHealth(420), custom: [q], today: TODAY }).some((x) => x.custom)).toBe(false);
+    });
+    it('has its switch, its gap, the group rule and the daily limit like the others', () => {
+      const q = make({ area: 'koerper' });
+      const ctx = { health: sleepHealth(300), custom: [q], today: TODAY };
+      expect(dataDue({ ...ctx, cfg: setRule(null, q.id, false) }).some((x) => x.custom)).toBe(false);
+      expect(ruleOn(setRule(null, q.id, false), q.id)).toBe(false);
+      expect(dataDue({ ...ctx, answers: [{ qid: q.id, day: add(TODAY, -1) }] }).some((x) => x.custom)).toBe(false);
+      expect(dataDue({ ...ctx, answers: [{ qid: q.id, day: add(TODAY, -3) }] }).some((x) => x.custom)).toBe(true);
+      expect(ruleGap(setGap(null, q.id, 7), q.id)).toBe(7);
+      expect(noteSkip(null, q.id, TODAY).skips[q.id]).toEqual({ n: 1, day: TODAY });
+      // the group (koerper) is used once a day: an answered question of the same group keeps the rule away
+      expect(dataDue({ ...ctx, answers: [{ qid: 'daten.ruhepuls', day: TODAY }] }).some((x) => x.custom)).toBe(false);
+      // an answer of the rule today counts to the three a day
+      const areas = ['koerper', 'spass', 'sport', 'achtsamkeit'];
+      const many = areas.map((area, i) => ({ ...make({ area }), id: `own-x${i}` }));
+      const out = dataDue({ health: sleepHealth(300), custom: many, today: TODAY, answers: [{ qid: 'own-x0', day: TODAY }] });
+      expect(out).toHaveLength(MAX_PER_DAY - 1);
+      expect(out.filter((x) => x.custom).map((x) => x.rule)).toEqual(['own-x1']);
+    });
+    it('keeps the settings safe: ids of own rules stay, others go', () => {
+      expect(dataOf({ off: ['own-abc', 'nope', 'ruhepuls'] }).off).toEqual(['own-abc', 'ruhepuls']);
+      expect(dataOf({ gaps: { 'own-abc': 7, 'own-': 9, nope: 7 } }).gaps).toEqual({ 'own-abc': 7 });
+    });
+    it('renames, takes away and brings back a rule of the app, with its own order', () => {
+      expect(ruleName(null, 'schlaf')).toBeNull();
+      const named = setRuleName(null, 'schlaf', '  Kurze Nacht  ');
+      expect(ruleName(named, 'schlaf')).toBe('Kurze Nacht');
+      expect(ruleName(setRuleName(named, 'schlaf', ''), 'schlaf')).toBeNull();
+      expect(ruleChanged(named, 'schlaf')).toBe(true);
+      expect(ruleName(resetRule(named, 'schlaf'), 'schlaf')).toBeNull();
+      const dropped = dropRule(null, 'schlaf');
+      expect(ruleList(dropped).some((x) => x.id === 'schlaf')).toBe(false);
+      expect(goneRules(dropped).map((r) => r.id)).toEqual(['schlaf']);
+      expect(dataDue({ health: sleepHealth(300), today: TODAY, cfg: dropped }).some((x) => x.rule === 'schlaf')).toBe(false);
+      expect(ruleList(restoreRule(dropped, 'schlaf')).some((x) => x.id === 'schlaf')).toBe(true);
+      expect(dropRule(null, 'own-abc')).toEqual(dataOf(null)); // only a rule of the app is taken away this way
+    });
+    it('moves a rule: the order is the priority', () => {
+      const q = make({ area: 'koerper' });
+      const base = ruleList(null, [q]);
+      expect(base.at(-1).id).toBe(q.id);
+      const up = moveRule(null, [q], base.length - 1, 0);
+      expect(ruleList(up, [q])[0].id).toBe(q.id);
+      expect(ruleList(up, [q]).map((x) => x.id).sort()).toEqual(base.map((x) => x.id).sort());
+      expect(moveRule(null, [q], 0, 99)).toEqual(dataOf(null)); // outside the list: nothing moves
+      // the first that fits asks first: both fit, the same group, so only the first asks
+      const rule = { title: 'x', conds: [{ v: 'sleep', op: 'under', n: 8 }] };
+      const mine = make({ area: 'koerper', rule });
+      const ctx = { health: sleepHealth(300), custom: [mine], today: TODAY };
+      expect(dataDue({ ...ctx, cfg: moveRule(null, [mine], ruleList(null, [mine]).length - 1, 0) })[0].rule).toBe(mine.id);
+      expect(dataDue(ctx)[0].rule).toBe('schlaf');
+    });
+    it('gives a deleted rule back its place only through Undo (the question is gone from the settings)', () => {
+      const q = make();
+      const cfg = putOwn(null, q, '2026-11-03T08:00');
+      expect(configOf(deleteQuestion(cfg, q.id)).own.some((x) => x.id === q.id)).toBe(false);
+    });
+  });
 });

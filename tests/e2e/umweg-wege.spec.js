@@ -13,6 +13,11 @@ const WAYS = [
   { km: '3100', up: '45', s: '540', mid: [7.4498, 46.9512] },
 ];
 
+// BRouter's message table: what the way is made of (belag.js)
+const HEAD = ['Longitude', 'Latitude', 'Elevation', 'Distance', 'CostPerKm', 'ElevCost', 'TurnCost', 'NodeCost', 'InitialCost', 'WayTags', 'NodeTags', 'Time', 'Energy'];
+const seg = (d, tags) => ['7450000', '46950000', '540', String(d), '0', '0', '0', '0', '0', tags, '', '0', '0'];
+const MESSAGES = [HEAD, seg(1900, 'highway=residential surface=asphalt'), seg(460, 'highway=track surface=gravel'), seg(40, 'highway=steps')];
+
 test('Live: the router shows three ways to a goal, the chosen one is the way', async ({ page, context }, info) => {
   await openHome(page, context, info);
   await context.route(/tiles\.openfreemap\.org|wmts\.geo\.admin\.ch|tile\.openstreetmap\.org|opentopomap|rainviewer/, (route) => route.fulfill({ status: 200, contentType: 'image/png', body: PNG }));
@@ -26,7 +31,7 @@ test('Live: the router shows three ways to a goal, the chosen one is the way', a
     asked.push(i);
     const w = WAYS[i];
     return route.fulfill({
-      json: { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': w.km, 'filtered ascend': w.up, 'total-time': w.s }, geometry: { type: 'LineString', coordinates: [[7.45, 46.95, 540], [...w.mid, 545], [7.451, 46.952, 550]] } }] },
+      json: { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': w.km, 'filtered ascend': w.up, 'total-time': w.s, messages: MESSAGES }, geometry: { type: 'LineString', coordinates: [[7.45, 46.95, 540], [...w.mid, 545], [7.451, 46.952, 550]] } }] },
     });
   });
   await context.grantPermissions(['geolocation']);
@@ -46,6 +51,8 @@ test('Live: the router shows three ways to a goal, the chosen one is the way', a
   await expect(alts.locator('[data-reroute-alt]')).toHaveCount(3);
   expect(asked).toEqual([0, 1, 2]);
   await expect(page.locator('[data-live-detour]')).toHaveCount(0);
+  // «Belag und Schwierigkeit»: every way tells its surface
+  await expect(alts.locator('[data-reroute-alt] [data-surface]')).toHaveCount(3);
   await expect(alts.locator('[data-reroute-alt="0"]')).toContainText(/Shortest|Kürzester/);
   await expect(alts.locator('[data-reroute-alt="1"]')).toContainText(/Flattest|Flachster/);
   await expect(alts.locator('[data-reroute-alt="2"]')).toContainText(/Fastest|Schnellster/);
