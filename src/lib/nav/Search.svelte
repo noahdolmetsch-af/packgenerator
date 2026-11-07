@@ -758,7 +758,7 @@
   .ai {
     margin: 4px 6px 8px;
     padding: 8px 10px;
-    border: 1px solid var(--accent, #276a43);
+    border: 1px solid var(--accent);
     border-radius: 12px;
     display: flex;
     flex-direction: column;
@@ -768,7 +768,7 @@
     margin: 0;
   }
   .aiq.warn {
-    color: var(--warn, #8a5a00);
+    color: var(--warn);
   }
   .airow {
     display: flex;
@@ -787,15 +787,15 @@
     margin-left: 26px;
   }
   .aichoice .btn[aria-pressed='true'] {
-    background: var(--accent-soft, #d9eedf);
+    background: var(--accent-soft);
   }
   .aibtns {
     display: flex;
     gap: 8px;
   }
   .aibtns .btn:first-child {
-    background: var(--accent, #276a43);
-    color: #fff;
+    background: var(--accent);
+    color: var(--paper);
   }
   .none {
     margin: 6px;
