@@ -13,6 +13,7 @@
   import { raceChoices } from '../lib/training/plans.js';
   import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
+  import { milestones } from '../lib/weg/types/proben.js';
   import { localDay } from '../lib/localday.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -91,6 +92,8 @@
     if (s.days < 0) return tn(-s.days, 'Next deadline: {name}, {n} day late', 'Next deadline: {name}, {n} days late', { name });
     return tn(s.days, 'Next deadline: {name}, in {n} day', 'Next deadline: {name}, in {n} days', { name });
   });
+  // the strip «Practice rides» (Noah «3a»): circles for 50 / 100 / 200 km
+  const proben = $derived(goal ? milestones(goal, today, { ...ctx.proben, today }) : { best: 0, items: [] });
   function toOrgaList() {
     const li = document.querySelector('[data-weg-step][data-type="orga"]:not(.done)') ?? document.querySelector('[data-weg-step][data-type="orga"]');
     li?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -255,6 +258,25 @@
       </section>
     {/if}
 
+    {#if proben.items.length}
+      <section class="card pad wg-proben" data-weg-proben aria-label={t('Practice rides')}>
+        <h3>{t('Practice rides')}</h3>
+        <div class="wg-circles">
+          {#each proben.items as m (m.id)}
+            {@const done = goal.steps.find((s) => s.id === m.id)?.done}
+            <div class="wg-circle-box">
+              <button type="button" class="wg-circle" class:on={done} class:late={!done && m.state === 'late'} aria-pressed={!!done} aria-label={done ? t('Practice ride of {km} km, done', { km: m.km }) : t('Practice ride of {km} km, open', { km: m.km })} onclick={() => putGoal(setDone(goal, m.id, !done))} data-weg-proben-circle>
+                {#if done}<Check size={28} aria-hidden="true" />{:else}{num(m.km)}{/if}
+              </button>
+              <b>{t('{km} km', { km: num(m.km) })}</b>
+              <span class="wg-sub">{dayText(m.due)}</span>
+            </div>
+          {/each}
+        </div>
+        <p class="wg-sub wg-proben-note">{proben.best ? t('Longest ride so far: {km} km', { km: num(proben.best) }) : t('No ride counted yet. Strava rides tick the circles by themselves; tap a circle to tick by hand.')}</p>
+      </section>
+    {/if}
+
     {#if !rows.length}
       <Empty icon={Flag} text={t('No steps yet. Add your first step below: it stays a suggestion, you can change it any time.')} />
     {/if}
@@ -323,11 +345,18 @@
   .wg-orga { display: flex; gap: var(--sp-3); align-items: center; justify-content: space-between; flex-wrap: wrap; border-left: 4px solid var(--warn); }
   .wg-orga.all { border-left-color: var(--ok); }
   .wg-orga-text { display: grid; gap: var(--sp-1); min-width: 0; }
+  .wg-proben h3 { margin: 0 0 var(--sp-3); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-circles { display: flex; justify-content: space-around; gap: var(--sp-3); flex-wrap: wrap; }
+  .wg-circle-box { display: grid; justify-items: center; gap: 2px; text-align: center; }
+  .wg-circle { width: 64px; height: 64px; border-radius: 50%; border: 2px dashed var(--line); background: var(--paper); color: var(--ink-3); font-weight: 700; display: grid; place-items: center; cursor: pointer; margin-bottom: var(--sp-1); }
+  .wg-circle.on { border-style: solid; background: var(--accent); border-color: var(--accent); color: var(--brand-ink); }
+  .wg-circle.late { border-color: var(--warn); }
+  .wg-proben-note { margin: var(--sp-3) 0 0; text-align: center; }
   .wg-pick { display: flex; gap: var(--sp-2); align-items: center; min-height: 44px; }
   .wg-acts { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
   .wg-bar { height: 10px; border-radius: 6px; background: var(--paper-2); overflow: hidden; margin-top: var(--sp-3); }
   .wg-bar i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
-  .wg-phase, .wg-hero, .wg-own, .wg-new, .wg-orga { margin-bottom: var(--sp-4); }
+  .wg-phase, .wg-hero, .wg-own, .wg-new, .wg-orga, .wg-proben { margin-bottom: var(--sp-4); }
   .wg-phase h3, .wg-own h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-steps { list-style: none; margin: 0; padding: 0; }
   .wg-steps li { display: flex; gap: var(--sp-3); align-items: flex-start; padding: var(--sp-3) 0; border-top: 1px solid var(--line); flex-wrap: wrap; }

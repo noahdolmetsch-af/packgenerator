@@ -1,6 +1,6 @@
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): the pure rules of Ich › Freie Zeit and its pages.
 import { describe, it, expect } from 'vitest';
-import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf, collSharePayload, isCollShare, tourOfColl, tourHref } from '../src/lib/frei.js';
+import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf, collSharePayload, isCollShare, tourOfColl, tourHref, collImport } from '../src/lib/frei.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -233,6 +233,19 @@ describe('a collection as a page and linked with a tour', () => {
     expect(p.e[0].f.some(([, v]) => v.includes('Pasta\nTomaten'))).toBe(true);
     expect(collSharePayload(recipes, Array.from({ length: 80 }, () => entry)).e).toHaveLength(60);
     expect(isCollShare({ v: 1, g: [] })).toBe(false); // a packing-list link is not a collection
+  });
+  it('taking a shared collection over: an own collection, the text as lines, no photos', () => {
+    const share = collSharePayload(recipes, [entry]);
+    const { coll, entries } = collImport(share, { id: 'coll-x', now: '2026-11-07T10:00:00.000Z' });
+    expect(coll).toEqual({ id: 'coll-x', type: 'free', name: share.n, own: true, hidden: false });
+    expect(collsOf({ colls: [coll] }).some((c) => c.id === 'coll-x' && c.own && c.type === 'free')).toBe(true);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ kind: 'entry', coll: 'coll-x', title: `${P}Pasta`, photos: [], place: null });
+    expect(entries[0].data.text).toContain('Pasta\nTomaten');
+    expect(JSON.stringify(entries)).not.toMatch(/data:image|46\.1/);
+    expect(collImport(share, { id: 'a' }).entries[0].id).toBe('a-e0');
+    expect(collImport({ n: ' ', e: Array.from({ length: 80 }, () => ({ t: 'x' })) }).entries).toHaveLength(60);
+    expect(collImport({ n: 'Leer', e: [{ t: '', f: [] }] }).entries[0].title).toBe('Leer');
   });
   it('the tour of a collection', () => {
     expect(tourOfColl({ collTour: { c1: 't9' } }, 'c1')).toBe('t9');
