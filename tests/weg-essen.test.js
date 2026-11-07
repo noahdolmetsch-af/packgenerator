@@ -18,7 +18,8 @@ const auto = (g, c) => applyAuto(g, TYPES, { essen: c });
 
 describe('the kind «Test the food»', () => {
   it('is in the registry after «Own step» and suggests three steps with their days', () => {
-    expect(TYPES.map((t) => t.type)).toEqual(['own', 'essen']);
+    expect(TYPES[0].type).toBe('own');
+    expect(TYPES.map((t) => t.type)).toContain('essen'); // other kinds sit before and after it
     expect(typeOf('essen')).toBe(essenType);
     const g = withSteps();
     expect(g.steps.map((s) => [s.key, s.type, s.offset])).toEqual([['plan', 'essen', 28], ['test', 'essen', 14], ['note', 'essen', 10]]);

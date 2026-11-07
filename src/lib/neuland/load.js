@@ -15,6 +15,12 @@ const areas = (data, extra = () => ({})) =>
   });
 const points = (list, prefix) => list.map(([name, lat, lon, alt, region]) => ({ id: `${prefix}${slug(name)}`, name, kind: 'point', lat, lon, alt, region }));
 
+async function osmBase(cid) {
+  const [{ db }, osm] = await Promise.all([import('../db.js'), import('./osm.js')]);
+  return osm.osmItems((await db.meta.get(osm.OSM_KEY))?.value, cid);
+}
+
+const OSM_IDS = ['towers', 'bridges', 'waterfalls'];
 const LOADERS = {
   cantons: async () => areas((await import('./data/cantons.js')).default, (it) => ({ bfs: it.bfs })),
   municipalities: async () => areas((await import('./data/municipalities.js')).default, (it) => ({ kt: it.kt })),
@@ -22,6 +28,10 @@ const LOADERS = {
   passes: async () => points((await import('./data/passes.js')).default, 'p-'),
   huts: async () => points((await import('./data/huts.js')).default, 'h-'),
   peaks: async () => points((await import('./data/peaks.js')).default, 'k-'),
+  // N18: Lookout towers, Suspension bridges, Waterfalls: from OpenStreetMap, kept on the device (osm.js); [] until loaded
+  towers: () => osmBase('towers'),
+  bridges: () => osmBase('bridges'),
+  waterfalls: () => osmBase('waterfalls'),
   lakes: async () => {
     const [shapes, pts] = await Promise.all([import('./data/lakes-shapes.js'), import('./data/lakes-points.js')]);
     const big = areas(shapes.default, (it) => ({ kind: 'lake', km2: it.km2 }));
@@ -33,6 +43,7 @@ const LOADERS = {
 /** The built-in items of a collection ([] for an own one). */
 export function loadBase(cid) {
   if (!LOADERS[cid]) return Promise.resolve([]);
+  if (OSM_IDS.includes(cid)) return LOADERS[cid](); // read afresh each time: the places change when they are loaded again
   if (!cache.has(cid)) cache.set(cid, LOADERS[cid]().catch((err) => (cache.delete(cid), Promise.reject(err))));
   return cache.get(cid);
 }

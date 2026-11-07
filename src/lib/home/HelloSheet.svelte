@@ -11,10 +11,11 @@
   import { ChevronRight, X, Plus, Clock3, Pencil, Smile, FaceSlightlyFrowning, FaceExpressionless, FaceNeutral, FaceSlightlySmiling, FaceGrinning } from '@lucide/svelte';
   import { t, locale } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
-  import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, HELLO_FEEL, helloTitle } from './hallo.js';
+  import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, HELLO_FEEL, HELLO_WHY, HELLO_DAY, helloTitle } from './hallo.js';
+  import { partOfDay } from '../dayclock.js';
   import { buttonsQuery, saveButtons, offered, groupName, defaults } from './hallobuttons.js';
   import { saveHello } from './hallo-save.js';
-  import { weekDots, daysBefore, answeredDays } from './hallo-week.js';
+  import { weekDots, daysBefore, answeredDays, keyCounts } from './hallo-week.js';
   import { stampOf } from '../abfragen.js';
   import { db } from '../db.js';
   import '../bikes/velo-dlg.css';
@@ -30,6 +31,8 @@
   const faces = $derived(offered(cfg, 'faces'));
   const groups = $derived(cfg.groups.map((g) => ({ ...g, list: offered(cfg, g.id) })).filter((g) => g.list.length));
   const plansOffered = $derived(offered(cfg, 'plans'));
+  const reasonsOffered = $derived(offered(cfg, 'reasons'));
+  const daysOffered = $derived(offered(cfg, 'day'));
   let adjusting = $state(false);
   let Editor = $state(null); // the editor loads on first use (not part of the start)
   async function adjust() {
@@ -42,6 +45,11 @@
   let mood = $state(null);
   let feelings = $state([]);
   let plans = $state([]);
+  // Gruss D: «Woran liegt's?» (optional) and, in the evening, «Wie war's?» instead of the plan
+  let reasons = $state([]);
+  let days = $state([]);
+  let evening = $state(false);
+  let whyOpen = $state(false);
   let text = $state('');
   let more = $state(false);
   let saved = $state(0);
@@ -52,10 +60,12 @@
   // Gruss C: the last seven days as dots (the answers of the faces, read once when the window opens and again after each save)
   let weekRows = $state([]);
   const dots = $derived(weekDots(weekRows, stampOf().slice(0, 10), faces));
+  // Gruss D: what was named under «Woran liegt's?» in the last 30 days, only counted
+  const named = $derived(keyCounts(weekRows, 'hallo.grund').slice(0, 3).map((c) => ({ ...c, label: cfg.reasons.find((r) => r.key === c.key)?.label ?? c.key })));
   const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '').slice(0, 2);
   async function week() {
     const to = stampOf().slice(0, 10);
-    weekRows = await db.abAnswers.where('day').between(daysBefore(to, 6), to, true, true).filter((r) => r.qid === 'hallo.gaht').toArray();
+    weekRows = await db.abAnswers.where('day').between(daysBefore(to, 29), to, true, true).filter((r) => r.qid === 'hallo.gaht' || r.qid === 'hallo.grund').toArray();
   }
   let touched = false;
   let timer;
@@ -75,6 +85,10 @@
     mood = null;
     feelings = [];
     plans = [];
+    reasons = [];
+    days = [];
+    evening = partOfDay(new Date().getHours()) === 'evening';
+    whyOpen = false;
     text = '';
     more = false;
     adjusting = false;
@@ -90,7 +104,7 @@
   }
   const toggle = (list, k) => (list.includes(k) ? list.filter((x) => x !== k) : [...list, k]);
   // every tap is saved after a short moment (the rows have fixed ids, so a changed answer replaces the old one)
-  const sig = () => JSON.stringify([mood, feelings, plans, text.trim()]);
+  const sig = () => JSON.stringify([mood, feelings, reasons, plans, days, evening, text.trim()]);
   $effect(() => {
     sig();
     if (!open || !touched) return;
@@ -101,7 +115,7 @@
   async function flush() {
     clearTimeout(timer);
     if (!touched) return;
-    saved = await saveHello({ mood, feelings, plans, text }, at);
+    saved = await saveHello({ mood, feelings, reasons, plans, days, evening, text }, at);
     week();
   }
   const touch = () => (touched = true);
@@ -165,10 +179,26 @@
         {/each}
       </div>
     {/if}
-    <label class="lbl plan-l" for="hs-plan">{HELLO_PLAN}</label>
+    {#if reasonsOffered.length}
+      <button type="button" class="more" aria-expanded={whyOpen} onclick={() => (whyOpen = !whyOpen)} data-hello-why>{HELLO_WHY}{reasons.length && !whyOpen ? ` · ${reasons.length}` : ''}</button>
+      {#if whyOpen}
+        <div class="why" data-hello-why-box>
+          <p class="obs">{t('Optional. Only what you notice, not a verdict.')}</p>
+          <div class="ab-opts chips" role="group" aria-label={HELLO_WHY}>
+            {#each reasonsOffered as r (r.key)}<button type="button" class="ab-opt" aria-pressed={reasons.includes(r.key)} onclick={() => { touch(); reasons = toggle(reasons, r.key); }} data-why={r.key}>{r.label}</button>{/each}
+          </div>
+          {#if named.length}<small class="wc" data-hello-named>{t('Named in the last 30 days: {list}', { list: named.map((c) => `${c.label} ${c.count}×`).join(', ') })}</small>{/if}
+        </div>
+      {/if}
+    {/if}
+    <label class="lbl plan-l" for="hs-plan" data-hello-ask={evening ? 'day' : 'plan'}>{evening ? HELLO_DAY : HELLO_PLAN}</label>
     <input id="hs-plan" class="inp" type="text" maxlength="200" bind:this={field} bind:value={text} oninput={touch} placeholder={t('In a few words')} />
-    <div class="ab-opts chips" role="group" aria-label={HELLO_PLAN}>
-      {#each plansOffered as p (p.key)}<button type="button" class="ab-opt" aria-pressed={plans.includes(p.key)} onclick={() => { touch(); plans = toggle(plans, p.key); }} data-plan={p.key}>{p.label}</button>{/each}
+    <div class="ab-opts chips" role="group" aria-label={evening ? HELLO_DAY : HELLO_PLAN}>
+      {#if evening}
+        {#each daysOffered as p (p.key)}<button type="button" class="ab-opt" aria-pressed={days.includes(p.key)} onclick={() => { touch(); days = toggle(days, p.key); }} data-dayword={p.key}>{p.label}</button>{/each}
+      {:else}
+        {#each plansOffered as p (p.key)}<button type="button" class="ab-opt" aria-pressed={plans.includes(p.key)} onclick={() => { touch(); plans = toggle(plans, p.key); }} data-plan={p.key}>{p.label}</button>{/each}
+      {/if}
       <!-- HG1 (selbst entschieden): «+ eigener» puts the cursor into the field, an own plan is written there -->
       <button type="button" class="ab-opt own" onclick={() => field?.focus()}><Plus size={15} aria-hidden="true" />{HELLO_OWN}</button>
     </div>
@@ -305,6 +335,9 @@
   }
   .chips {
     margin-top: 10px;
+  }
+  .why {
+    margin: 0 0 8px;
   }
   .week {
     margin: 0 0 12px;

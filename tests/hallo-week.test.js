@@ -1,6 +1,6 @@
 // Gruss C «Letzte 7 Tage»: seven dots, observation only
 import { describe, it, expect } from 'vitest';
-import { weekDots, daysBefore, answeredDays } from '../src/lib/home/hallo-week.js';
+import { weekDots, daysBefore, answeredDays, keyCounts } from '../src/lib/home/hallo-week.js';
 import { MOODS } from '../src/lib/home/hallo.js';
 
 describe('daysBefore: calendar days', () => {
@@ -32,5 +32,14 @@ describe('weekDots', () => {
   it('a deleted or renamed face still shows its word', () => {
     const dots = weekDots([row('2026-11-07', 'ownface')], '2026-11-07', [{ key: 'okay', label: 'Okay', v: 0.5 }]);
     expect(dots[6]).toMatchObject({ key: 'ownface', label: 'ownface', v: 0.5 });
+  });
+});
+
+describe('keyCounts (Woran liegt\'s?): only counting', () => {
+  const r = (value, qid = 'hallo.grund') => ({ qid, value });
+  it('counts each button once per answer, most often first; other questions and plain values are left out', () => {
+    const c = keyCounts([r(['r-schlaf', 'r-arbeit']), r(['r-schlaf', 'r-schlaf']), r(['r-wetter']), r('guet', 'hallo.gaht'), r(['x'], 'hallo.gefuehl')], 'hallo.grund');
+    expect(c).toEqual([{ key: 'r-schlaf', count: 2 }, { key: 'r-arbeit', count: 1 }, { key: 'r-wetter', count: 1 }]);
+    expect(keyCounts([], 'hallo.grund')).toEqual([]);
   });
 });

@@ -2,6 +2,7 @@
 export default {
   'Let go to refresh': 'Loslassen zum Aktualisieren',
   'Refreshing weather and Strava …': 'Wetter und Strava werden neu geladen …',
+  'Refreshing weather, Strava and Fitbit …': 'Wetter, Strava und Fitbit werden neu geladen …',
   'Refreshing the weather …': 'Das Wetter wird neu geladen …',
   'Refreshing …': 'Wird aktualisiert …',
   'Up to date': 'Auf dem neuesten Stand',

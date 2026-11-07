@@ -5,7 +5,7 @@
    * Private on this device and in your backup. «My big maybe»: the adventure that keeps coming back,
    * why it draws you and exactly ONE next step; done → the next one. Change, sort, delete everything.
    */
-  import { Heart, Plus, Pencil, Check, Compass } from '@lucide/svelte';
+  import { Heart, Plus, Pencil, Check, Compass, BellRing, GitCompareArrows } from '@lucide/svelte';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
@@ -16,6 +16,7 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { cfgQuery, changeCfg, restoreCfg, loadCfg, rowsQuery, putRow, deleteRow, restoreRow } from '../freidb.js';
   import { maybesOf, stepDone, essentialSpan, uid } from '../frei.js';
+  import { remindOn, essentialDue, monthsSince, newestOf, pickEarlier, compareTexts } from './wesentlich-rueckblick.js';
   import { localDay } from '../localday.js';
   import { phone } from '../media.svelte.js';
   import { t, tn, locale } from '../i18n.svelte.js';
@@ -27,6 +28,18 @@
   const ess = $derived($essQ ?? []);
   const span = $derived(essentialSpan(ess));
   const fmtDay = (d) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' }) : '');
+
+  /* ---------- once a quarter: look again (Noah 05.11.2026 «8b») ---------- */
+  const remind = $derived(remindOn(cfg));
+  const due = $derived($q === undefined ? null : essentialDue({ entries: ess, cfg, today }));
+  const setRemind = (on) => changeCfg((c) => ({ ...c, essRemind: on, essSnooze: undefined }));
+
+  /* ---------- then and now: the newest entry beside an earlier one ---------- */
+  const newest = $derived(newestOf(ess));
+  let earlierId = $state('');
+  const earlier = $derived(ess.find((e) => e.id === earlierId && e.id !== newest?.id) ?? pickEarlier(ess, newest));
+  const cmp = $derived(newest && earlier ? compareTexts(newest.text, earlier.text) : null);
+  const older = $derived(ess.filter((e) => e.id !== newest?.id));
 
   let draft = $state('');
   async function addEss(e) {
@@ -113,6 +126,37 @@
     {/if}
   </section>
 
+  {#if due}
+    <p class="fz-note fzw-due" data-ess-page-due>{tn(monthsSince(due.days), 'It has been {n} month since your last entry. What matters to you now? Write it above, then look at what stayed.', 'It has been {n} months since your last entry. What matters to you now? Write it above, then look at what stayed.')}</p>
+  {/if}
+
+  {#if cmp}
+    <section class="fz-box" aria-labelledby="fzw-cmp-h" data-ess-compare>
+      <h2 id="fzw-cmp-h" class="fz-h2"><GitCompareArrows size={18} aria-hidden="true" /> {t('Then and now')}</h2>
+      <label class="fz-lab">{t('Compare with')}
+        <select class="inp" value={earlier.id} onchange={(e) => (earlierId = e.currentTarget.value)} data-ess-earlier>
+          {#each older as r (r.id)}<option value={r.id}>{fmtDay(r.day)}</option>{/each}
+        </select>
+      </label>
+      <div class="fz-grid">
+        <div><span class="fz-kick">{t('Then|compare')} · {fmtDay(earlier.day)}</span><p class="fz-text">{earlier.text}</p></div>
+        <div><span class="fz-kick">{t('Now|compare')} · {fmtDay(newest.day)}</span><p class="fz-text">{newest.text}</p></div>
+      </div>
+      <dl class="fzw-cmp">
+        <div><dt>{t('Stayed')}</dt><dd data-cmp-stayed>{cmp.stayed.join(', ') || t('no word in common')}</dd></div>
+        <div><dt>{t('New')}</dt><dd data-cmp-added>{cmp.added.join(', ') || '–'}</dd></div>
+        <div><dt>{t('Gone')}</dt><dd data-cmp-dropped>{cmp.dropped.join(', ') || '–'}</dd></div>
+      </dl>
+      <p class="fz-note">{t('Only a hint from the words: you know better what really changed.')}</p>
+    </section>
+  {/if}
+
+  <section class="fz-box" aria-labelledby="fzw-rem-h" data-ess-remind-box>
+    <h2 id="fzw-rem-h" class="fz-h2"><BellRing size={18} aria-hidden="true" /> {t('Look again every three months')}</h2>
+    <label class="fzw-check"><input type="checkbox" checked={remind} onchange={(e) => setRemind(e.currentTarget.checked)} data-ess-remind /> {t('Remind me on Today')}</label>
+    <p class="fz-note">{remind ? t('Three months after your last entry a quiet line on Today asks you to look again. «Later» waits two weeks.') : t('Off. Nothing will ask you.')}</p>
+  </section>
+
   <section class="fz-form" aria-labelledby="fzw-mb-h">
     <h2 id="fzw-mb-h" class="fz-h2"><Compass size={18} aria-hidden="true" /> {t('My big maybe')}</h2>
     <p class="fz-note">{t('The adventure that keeps popping up. Why it draws you, and exactly one next step to find out more.')}</p>
@@ -160,6 +204,33 @@
 {/if}
 
 <style>
+  .fzw-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+  }
+  .fzw-cmp {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+  }
+  .fzw-cmp div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+  }
+  .fzw-cmp dt {
+    min-width: 5em;
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .fzw-cmp dd {
+    margin: 0;
+    flex: 1 1 12em;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
   .fzw-mbs {
     gap: 10px;
   }

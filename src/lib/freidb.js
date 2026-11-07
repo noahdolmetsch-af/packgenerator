@@ -3,7 +3,7 @@
  * (areas, collections, rituals, own ideas …, frei.js); the entries are rows of the table «frei»
  * (Dexie version 18): kind 'entry' (a collection entry with photos), 'essential' («In this phase …»),
  * 'longing' (Reise-Wünsche), 'hope' (a trip's hope and what you experienced), 'dayplan', 'mark'
- * («Fürs nächste Mal»), 'log' («Worked» of «Worauf hab ich Lust?»). Both travel in every backup.
+ * («Fürs nächste Mal»), 'log' («Worked» of «Worauf hab ich Lust?»), 'evening' (how an evening was: { day, good, min? } from «Mein Abend»). Both travel in every backup.
  * Every write returns what Undo needs.
  */
 import { liveQuery } from 'dexie';

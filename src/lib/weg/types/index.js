@@ -3,9 +3,10 @@
  * pull requests only touch one line each). Order = order in the sheet «New way».
  */
 import own from './own.js';
+import rennplanung from './rennplanung.js';
 import essen from './essen.js';
 
-export const TYPES = [own, essen];
+export const TYPES = [own, rennplanung, essen];
 
 export const typeOf = (id) => TYPES.find((t) => t.type === id) ?? own;
 
