@@ -1,6 +1,6 @@
 # Gruss «Wi gahts?» C: Wetter im Kopf und «Letzte 7 Tage»
 
-PR (Nummer folgt) · 07.11.2026 · Auftrag: Noah «alle umsetzen» (Thread «Planen: Tagescheck mit Fragen»), seine frühere Antwort 4a (Wetter im Kopf), Prüfliste `tagescheck/gruss-pruefliste.md`. Dritter von vier PRs (nach A #912, B #1047).
+PR #1049 · 07.11.2026 · Auftrag: Noah «alle umsetzen» (Thread «Planen: Tagescheck mit Fragen»), seine frühere Antwort 4a (Wetter im Kopf), Prüfliste `tagescheck/gruss-pruefliste.md`. Dritter von vier PRs (nach A #912, B #1047).
 
 ## Was ist neu
 - Hinter «Mehr» steht eine dritte Gruppe «Wetter im Kopf»: Sunnig, Wolkig, Näbel, Gwitter, Rägeboge. Beliebig viele zugleich; wie alle anderen Knöpfe unter «Knöpfe anpassen» umbenennen, ausblenden, löschen und ordnen. Die Antworten gehen in dieselbe Frage «Und süsch?» (`hallo.gefuehl`) im einen Verlauf.
