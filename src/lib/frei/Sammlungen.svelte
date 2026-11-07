@@ -8,7 +8,7 @@
    * entries go, «Without a collection» first), own ones added. Entries: add, change, delete with Undo.
    * Photos stay on the device and in the backup (made small first, photo.js).
    */
-  import { Plus, Pencil, X, Search, MapPin, ShoppingCart, Share2, ChevronRight, Link2 } from '@lucide/svelte';
+  import { Plus, Pencil, X, Search, MapPin, ShoppingCart, Share2, ChevronRight, Link2, Printer, Route } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
@@ -22,8 +22,9 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { db } from '../db.js';
   import { cfgQuery, changeCfg, restoreCfg, putRow, deleteRow, restoreRow, moveEntries, restoreRows } from '../freidb.js';
-  import { collsOf, collName, fieldsOf, COLL_TYPES, newEntry, linesOf, entrySub, filterEntries, sortEntries, seriesOf, togetherText, collHref, collOfHash, freiPart, uid } from '../frei.js';
+  import { collsOf, collName, fieldsOf, COLL_TYPES, newEntry, linesOf, entrySub, filterEntries, sortEntries, seriesOf, togetherText, collHref, collOfHash, freiPart, uid, collSharePayload, tourOfColl, tourHref } from '../frei.js';
   import { shrinkImage } from '../photo.js';
+  import { encodeShare, SHARE_LONG } from '../share.js';
   import { loadLists, changeList, restoreLists } from './shoplist.js';
   import { localDay } from '../localday.js';
   import { phone } from '../media.svelte.js';
@@ -40,6 +41,9 @@
   const live = $derived(new Set(shown.map((c) => c.id)));
   const orphans = $derived(rows.filter((r) => !live.has(r.coll)));
   const countOf = (id) => rows.filter((r) => r.coll === id).length;
+
+  const tripsQ = liveQuery(() => db.trips.toArray());
+  const trips = $derived([...($tripsQ ?? [])].filter((x) => x.title).sort((a, b) => String(b.startDate ?? '').localeCompare(String(a.startDate ?? ''))));
 
   const part = $derived(freiPart(hash));
   const openId = $derived(part === 'sammlung' ? collOfHash(hash) : '');
@@ -166,6 +170,32 @@
       /* closed */
     }
   }
+  /* ---------- share as a page, print, link to a tour (Noah 05.11.2026 «Touren 2a und b») ---------- */
+  const tripId = $derived(coll && !coll.orphan ? tourOfColl(cfg, coll.id) : '');
+  const linked = $derived(trips.find((x) => x.id === tripId) ?? null);
+  async function setTour(id) {
+    const before = await changeCfg((c) => {
+      const map = { ...(c.collTour ?? {}) };
+      if (id) map[coll.id] = id;
+      else delete map[coll.id];
+      return { ...c, collTour: map };
+    });
+    offerDone(id ? t('Linked with the tour.') : t('Link to the tour removed.'), () => restoreCfg(before));
+  }
+  let shareMsg = $state('');
+  async function sharePage() {
+    const link = `${location.origin}${location.pathname}#/share/sammlung/${await encodeShare(collSharePayload(coll, sortEntries(rows.filter((r) => r.coll === coll.id)), t))}`;
+    shareMsg = link.length > SHARE_LONG ? t('A long link: some chat apps cut it. «Print or save as PDF» always works.') : '';
+    try {
+      if (navigator.share) await navigator.share({ title: collName(coll, t), url: link });
+      else {
+        await navigator.clipboard.writeText(link);
+        offerDone(t('Link copied. Paste it into a message.'));
+      }
+    } catch {
+      /* the person closed the share window */
+    }
+  }
   let compare = $state({});
   const thumb = (e) => e.photos?.[e.photos.length - 1]?.src ?? null;
 </script>
@@ -201,7 +231,24 @@
     <p class="fz-intro">{t(COLL_TYPES[coll.type].hint)}</p>
     <div class="fz-acts">
       <button type="button" class="btn hi" onclick={openNew} data-new-entry><Plus size={16} aria-hidden="true" />{t('New entry')}</button>
+      {#if !coll.orphan && entries.length}
+        <button type="button" class="btn no-print" onclick={sharePage} data-share-page><Share2 size={16} aria-hidden="true" />{t('Share as a page')}</button>
+        <button type="button" class="btn no-print" onclick={() => window.print()} data-print><Printer size={16} aria-hidden="true" />{t('Print or save as PDF')}</button>
+      {/if}
     </div>
+    {#if shareMsg}<p class="fz-note no-print" role="status">{shareMsg}</p>{/if}
+    {#if !coll.orphan && trips.length}
+      <div class="fz-box fzc-tour no-print" data-coll-tour>
+        <label class="fz-lab">{t('Linked tour')}
+          <select class="inp" value={linked ? linked.id : ''} onchange={(ev) => setTour(ev.currentTarget.value)} data-tour-select>
+            <option value="">{t('No tour')}</option>
+            {#each trips as x (x.id)}<option value={x.id}>{x.title}{x.startDate ? ` · ${fmtDay(x.startDate)}` : ''}</option>{/each}
+          </select>
+        </label>
+        {#if linked}<a class="btn sm" href={tourHref(linked.id)} data-tour-open><Route size={16} aria-hidden="true" />{t('Open the tour')}</a>{/if}
+        <p class="fz-note">{t('Optional. Ideas, places or recipes for this tour stay together with it.')}</p>
+      </div>
+    {/if}
     {#if tagField}
       <div class="fz-chips" role="group" aria-label={t(tagField.label)}>
         <button type="button" class="fz-chip" aria-pressed={!tag} onclick={() => (tag = '')}>{t('All')}</button>
@@ -356,6 +403,12 @@
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
+  }
+  .fzc-tour {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
   .fzc-search {
     align-items: center;
