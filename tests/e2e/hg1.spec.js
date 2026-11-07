@@ -228,6 +228,7 @@ test('Gruss C: the last 7 days as dots, today fills at the first tap; the weathe
   await sheet.locator('[data-mood="okay"]').click();
   await expect(week.locator(`li[data-day="${day(0)}"]`)).toHaveAttribute('data-key', 'okay');
   await expect(sheet.locator('[data-hello-week-count]')).toContainText(T('{n} of 7 days answered', { n: 4 }));
+  await shot(page, info, 'gruss-c-woche');
   await sheet.locator('[data-hello-more]').click();
   const weather = sheet.locator('[data-feel-group="weather"]');
   await expect(weather).toContainText(T('Weather in my head|hello'));
