@@ -76,3 +76,33 @@ test('Way to the goal: create a way, own steps, tick, move, delete and undo', as
   await expect(page.locator('[data-weg-goal] h2')).toHaveText('Test Rennen im Mai');
   expect(errors).toEqual([]);
 });
+
+test('Way to the goal › Organisation: the strip counts the settled steps and names the next deadline', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+
+  await page.goto('./#/trips/weg');
+  await ready(page);
+  await page.getByRole('button', { name: T('New way') }).click();
+  await page.locator('[data-weg-title]').fill('Test Rennen im Mai');
+  await page.locator('[data-weg-start]').fill('2027-05-15');
+  // keep the steps of «Organisation», drop all others
+  const picks = page.locator('[data-weg-new] .wg-pick');
+  const orgaTitles = ['Sign up for the race', 'Put the days off in your calendar', 'Book the stay at start and finish', 'Book the train to the start', 'Tell an emergency contact your plan'].map(T);
+  for (const label of await picks.allTextContents()) {
+    if (!orgaTitles.includes(label.trim())) await picks.filter({ hasText: label.trim() }).first().locator('input').uncheck();
+  }
+  await page.getByRole('button', { name: T('Create way') }).click();
+
+  const strip = page.locator('[data-weg-orga]');
+  await expect(strip).toContainText(T('Organisation: {done} of {total} settled').replace('{done}', '0').replace('{total}', '5'));
+  await expect(strip).toContainText(/Nächste Frist/);
+
+  await page.locator('[data-weg-step] .wg-check').first().click();
+  await expect(strip).toContainText(T('Organisation: {done} of {total} settled').replace('{done}', '1').replace('{total}', '5'));
+  await page.locator('[data-weg-orga-go]').click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
