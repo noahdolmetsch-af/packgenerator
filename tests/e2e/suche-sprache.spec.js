@@ -157,3 +157,31 @@ test('typed: «Do it now» offers the value; Enter saves it, Undo takes it back'
   await expect(done).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('a spoken list: the sentence makes the list with three points; Open shows it, Undo takes it back (07.11.2026)', async ({ page, context }) => {
+  const errors = await open(page, context, '#/');
+  const say = (s) => page.evaluate((x) => window.__said.push(x), s);
+  const mic = await searchMic(page);
+  await say('Erstelle eine To-Do-Liste mit folgenden Inhalten. Erstens Aufräumen, zweitens Kette wachsen, drittens Anmeldung für das Rennen');
+  await mic.click();
+  const done = page.locator('p.done:visible');
+  await expect(done).toContainText(T('List «{name}» with {n} points', { name: 'To-do', n: 3 }));
+  await done.getByRole('link', { name: T('Open') }).click();
+  await ready(page);
+  await expect(page.getByText('Kette wachsen').first()).toBeVisible();
+  await expect(page.locator('[data-list]')).toBeVisible();
+  await expect(page.getByText('Anmeldung für das Rennen').first()).toBeVisible();
+  // typed, then Undo
+  const glass = page.getByRole('button', { name: T('Search everything') });
+  if (await glass.first().isVisible()) await glass.first().click();
+  const field = page.locator('input[type="search"]:visible').first();
+  await field.fill('Erstelle eine Einkaufsliste: Brot, Käse');
+  await expect(page.locator('[data-cmd="says"]:visible')).toContainText(T('List «{name}» with {n} points', { name: 'Einkaufsliste', n: 2 }));
+  await field.press('Enter');
+  await page.locator('p.done:visible').getByRole('button', { name: T('Undo') }).click();
+  await page.goto('./#/calendar');
+  await ready(page);
+  await expect(page.getByText('Einkaufsliste')).toHaveCount(0);
+  await expect(page.getByText('Brot')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

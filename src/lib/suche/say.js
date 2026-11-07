@@ -95,6 +95,53 @@ export function remindOf(text, today) {
   return { kind: 'remind', text: what.replace(/^\p{Ll}/u, (c) => c.toUpperCase()), due: due ?? addDays(today, 1) };
 }
 
+/* ---------- a list with points («Erstelle eine To-do-Liste: …») ---------- */
+
+const cap = (x) => x.replace(/^\p{Ll}/u, (c) => c.toUpperCase());
+const ORDINALS = /\b(?:erstens|zweitens|drittens|viertens|fünftens|sechstens|siebtens|achtens|neuntens|zehntens|firstly|secondly|thirdly)\b[:,]?/gi;
+
+/**
+ * «Erstelle eine To-Do-Liste mit folgenden Inhalten. Erstens Aufräumen, zweitens Kette wachsen, drittens
+ * Anmeldung für das Rennen» → { kind: 'list', name: 'To-do', points: ['Aufräumen', 'Kette wachsen', 'Anmeldung für das Rennen'] }.
+ * Rules, no AI (Noah 07.11.2026 «1b»): a verb, the word «Liste» (alone or in «Einkaufsliste»), a name before or after
+ * it, and the points after «:» or «mit». Points are split at commas, «und», «sowie», full stops and «erstens …».
+ * A list needs a name or points; the points can be changed in the list afterwards.
+ */
+export function listOf(text) {
+  const s = String(text ?? '').trim().replace(/[.!]+$/, '');
+  const m = /^(?:erstelle|erstell|erstellen|mach|mache|leg|lege|schreib|schreibe|create|make|start)\b(?:\s+mir)?(?:\s+bitte)?(?:\s+(?:eine?|a|an|meine?|die|neue?))*\s+(.+)$/i.exec(s);
+  if (!m) return null;
+  const rest = m[1];
+  const w = /liste\b|\blist\b/i.exec(rest);
+  if (!w) return null;
+  let head = rest.slice(0, w.index).trim();
+  const tail = rest.slice(w.index + w[0].length);
+  if (/[:,;]/.test(head) || head.split(/\s+/).filter(Boolean).length > 2) return null;
+  let name = '';
+  if (head) {
+    const joined = /[\p{L}]$/u.test(rest.slice(0, w.index)); // «Einkaufs|liste»: one word
+    head = head.replace(/[-\s]+$/, '');
+    name = /^to-?\s?do$/i.test(head) || /^todo$/i.test(head) ? 'To-do' : joined ? cap(`${head}${w[0].toLowerCase()}`) : cap(head);
+  }
+  const k = /:|\bmit\b|\benthält\b|\bund\s+(?:schreib|schreibe|trag|trage)\s+\S+\s+(?:rein|ein)\b/i.exec(tail);
+  let before = k ? tail.slice(0, k.index) : tail;
+  let body = k ? tail.slice(k.index + k[0].length) : '';
+  before = before.replace(/^[\s:,-]*(?:namens|names|mit dem namen|called|named|für|fuer|for)?\s*(?:die|das|den|der|the)?\s*/i, '').trim();
+  if (!name && before) name = cap(before);
+  body = body
+    .replace(/^\s*(?:folgenden?|diesen|den folgenden)\b\s*/i, '')
+    .replace(/^\s*(?:inhalten|inhalt|punkten|punkte|eintr(?:ä|ae)gen|dingen|aufgaben|sachen|the following|items)\b\s*/i, '')
+    .replace(ORDINALS, ',');
+  const points = body
+    .split(/\s*(?:[,;]|\.\s|\s+und\s+|\s+and\s+|\s+sowie\s+)\s*/i)
+    .map((x) => x.replace(/^[\s:.\-–]+|[\s.]+$/g, '').replace(/^(?:und|and)\s+/i, '').trim())
+    .filter(Boolean)
+    .map((x) => cap(x).slice(0, 80))
+    .slice(0, 40);
+  if (!name && !points.length) return null;
+  return { kind: 'list', name: (name || '').slice(0, 60), points };
+}
+
 /* ---------- planning in a dialog («Hilf mir planen») ---------- */
 
 export function planOf(text, today) {
