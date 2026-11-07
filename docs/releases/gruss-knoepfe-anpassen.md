@@ -1,6 +1,6 @@
 # Gruss «Wi gahts?» B: Knöpfe anpassen
 
-PR · 05.11.2026 · Auftrag: Noah «alle umsetzen» (Thread «Planen: Tagescheck mit Fragen»), Vorschlag `tagescheck/gruss-wi-gahts-vorschlag.md`, Prüfliste `tagescheck/gruss-pruefliste.md`. Zweiter von vier PRs (nach A, #912).
+PR #1047 · 05.11.2026 · Auftrag: Noah «alle umsetzen» (Thread «Planen: Tagescheck mit Fragen»), Vorschlag `tagescheck/gruss-wi-gahts-vorschlag.md`, Prüfliste `tagescheck/gruss-pruefliste.md`. Zweiter von vier PRs (nach A, #912).
 
 ## Was ist neu
 - Im Fenster des Grusses steht unten «Knöpfe anpassen». Es zeigt die Liste aller Knöpfe: die fünf Gesichter, die Gruppen der Gefühle (Energie, Gefühle) und die Pläne.
