@@ -23,6 +23,7 @@
   import { localDay } from '../../lib/localday.js';
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
+  import Missed from '../../lib/training/plans/Missed.svelte'; // «Training verbessern» 5: «Missed one? Move it»
   import TodayFits from '../../lib/training/plans/TodayFits.svelte'; // «Training verbessern» 4: «Today a lighter one fits»
   import FeelAsk from '../../lib/training/plans/FeelAsk.svelte'; // «Trainingspläne»: «How hard was it?» after each ride
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
@@ -102,6 +103,20 @@
     });
   }
 
+  // «Training verbessern» 5 «Verpasst? Verschieben»: planned earlier this week, not done: move to a day that is left, or let go (Undo)
+  const missed = $derived(plan.filter((s) => s.day >= mondayOf(today) && s.day < today && !doneOf(s, acts.filter((a) => a.day === s.day))));
+  const targets = $derived(Array.from({ length: 7 }, (_, i) => shiftDay(today, i)).filter((d) => d < shiftDay(mondayOf(today), 7)).map((d, i) => ({ day: d, label: i === 0 ? t('Today|missed') : fmt(d, { weekday: 'short' }) })));
+  async function moveMissed(s, day) {
+    const before = plan;
+    await savePlan(plan.map((x) => (x.id === s.id ? { ...x, day } : x)));
+    offerDone(t('«{name}» moved.', { name: planName(s) }), () => savePlan(before));
+  }
+  async function skipMissed(s) {
+    const before = plan;
+    await savePlan(plan.filter((x) => x.id !== s.id));
+    offerDone(t('«{name}» let go.', { name: planName(s) }), () => savePlan(before));
+  }
+
   let monday = $state(mondayOf(today));
   const days = $derived(weekOf(monday));
   const sessions = $derived(plan.filter((s) => s.day >= monday && s.day < shiftDay(monday, 7)));
@@ -176,6 +191,7 @@
        review and the training plans stand 2 screens down; one chip row on top -->
   <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('Plan the week') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', jump: '#wka-h', label: t('Power and analyses') }]} />
   <FeelAsk {acts} {today} />
+  <Missed {missed} {targets} name={planName} {hours} dayLabel={(d) => fmt(d, { weekday: 'long' })} onmove={moveMissed} onskip={skipMissed} />
   <TodayFits {plan} {today} level={$formQ?.ready?.level ?? null} name={planName} onlighter={lighterToday} />
   <section class="card goal" aria-labelledby="goal-h" data-section="goal">
     <span class="gi" aria-hidden="true"><Target size={22} /></span>

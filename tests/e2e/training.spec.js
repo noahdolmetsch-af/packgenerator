@@ -473,3 +473,38 @@ test('Training › Heute passt: a tired day offers a lighter session, Undo, Keep
   await expect(card).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Training › Verpasst: a missed session is moved to a later day or let go, with Undo', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = localDay();
+  const yesterday = localDay(new Date(Date.now() - 86400000 + 3600000));
+  await page.evaluate(
+    ([a, b]) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('settings', 'readwrite');
+          tx.objectStore('settings').put({ key: 'training.plan', value: { sessions: [{ id: 'vp1', day: a, kind: 'run', name: 'Verpasste Runde', mins: 45, zone: 2 }, { id: 'vp2', day: b, kind: 'bike', name: 'Heutige Runde', mins: 60, zone: 2 }] } });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    [yesterday, today],
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="missed"]');
+  // yesterday is only «missed» when it is still in this week (Monday: no card)
+  if (!(await card.count())) test.skip(true, 'Monday: nothing earlier in this week');
+  await expect(card).toContainText('Verpasste Runde');
+  await card.locator(`[data-missed-move="${today}"]`).click();
+  await expect(card).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(card).toBeVisible();
+  await card.locator('[data-missed-skip]').click();
+  await expect(card).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
