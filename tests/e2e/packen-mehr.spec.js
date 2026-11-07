@@ -2,7 +2,7 @@
 // rest of a trip in five closed groups under «Mehr zu dieser Tour». For a real user they are closed (the other specs
 // run with 'pg.packmore' = 'open', playwright.config.js); this spec tests that default, that a tap opens a group with
 // the functions inside, and that nothing hides in a closed group. Fictional data only (test_data_gtp_), clock of home0460-fixture.js.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 
 const T = tr('de');
