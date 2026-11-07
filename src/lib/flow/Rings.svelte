@@ -6,8 +6,10 @@
    * («2 von 4 Ziele im Soll · letzte 7 Tage») instead of the big numbers.
    */
   import { ringFill } from '../flow.js';
+  import { ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  let { rings, size = 136, legend = true, compact = false, quiet = false } = $props();
+  // hrefs: { move, mind, rest } → where a tap on that row leads (Aktiv, «Zahl mit Weg»); without it the rows are plain text
+  let { rings, size = 136, legend = true, compact = false, quiet = false, hrefs = null } = $props();
 
   const ROWS = [
     { key: 'move', name: 'Move|ring', unit: 'goals on track' },
@@ -35,7 +37,11 @@
         <li>
           <span class="dot {r.key}" aria-hidden="true"></span>
           {#if quiet}
+            {#if hrefs?.[r.key]}
+              <a class="nm way" href={hrefs[r.key]} data-ring-way={r.key}><span class="wt"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span><ChevronRight size={14} class="wc" aria-hidden="true" /><span class="sr">{t('Open «{what}» in Analyse', { what: t(r.name) })}</span></a>
+            {:else}
             <span class="nm"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span>
+            {/if}
           {:else}
           <span class="nm"><b>{t(r.name)}</b>{#if !compact}<small>{t(r.unit)}</small>{/if}</span>
           <span class="v {r.key} num">{rings[r.key].of ? rings[r.key].n : '–'}<span class="of">/{rings[r.key].of || '–'}</span></span>
@@ -48,6 +54,7 @@
 
 <style>
   .rings {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -116,6 +123,34 @@
   .quiet .nm small {
     display: block;
     color: var(--ink-3);
+  }
+  .way {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .way:hover .wt b {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .way .wt {
+    flex: 1;
+    min-width: 0;
+  }
+  .way :global(.wc) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .compact .lg li {
     min-height: 34px;
