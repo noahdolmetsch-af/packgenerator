@@ -106,11 +106,15 @@ describe('Heute line and templates', () => {
     expect(todayStep({ ...w, onToday: false }, today)).toBeNull();
     expect(todayStep({ goals: [{ ...a, start: '2020-01-01' }], onToday: true }, today)).toBeNull();
   });
+  it('a template keeps the key of a suggested step', () => {
+    const g = addSteps(base(), [{ type: 'own', key: 'k1', title: 'Plan', offset: 30 }], { ids: ids('m') });
+    expect(templateOf(g)[0].key).toBe('k1');
+  });
   it('a template keeps the offsets and drops ticks and own days', () => {
     const g = setDone(addSteps(base(), [{ title: 'Plan', offset: 90 }, { title: 'Eigen', due: '2027-05-01' }], { ids: ids('m') }), 'm1', true);
     expect(templateOf(g)).toEqual([
-      { type: 'own', title: 'Plan', offset: 90, note: undefined, own: undefined },
-      { type: 'own', title: 'Eigen', offset: 14, note: undefined, own: undefined },
+      { type: 'own', key: undefined, title: 'Plan', offset: 90, note: undefined, own: undefined },
+      { type: 'own', key: undefined, title: 'Eigen', offset: 14, note: undefined, own: undefined },
     ]);
   });
 });
