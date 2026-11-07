@@ -171,12 +171,15 @@
   const says = $derived.by(() => {
     if (!$all || q.trim().length < 4) return null;
     const c = ctx();
+    const whole = actionOf(q, c);
+    if (whole?.kind === 'list') return [whole]; // «Erstelle eine Liste: A, B, C» has commas but is one thing
     const many = actionsOf(q, partsOf(q), c);
     if (many) return many;
     const one = actionOf(q, c);
     // a single command of the search list shows there already
     return one && one.kind !== 'cmd' ? [one] : null;
   });
+  const listSay = $derived(says?.[0]?.kind === 'list'); // a list sentence is a command: no «answer», no «add as new item» beside it
   const saysTitle = $derived(says ? (says.length > 1 ? t('Enter all {n}: {list}', { n: says.length, list: says.map((a) => actionLabel(a, localDay())).join(' · ') }) : actionLabel(says[0], localDay())) : '');
   /** Does it: a plan opens «Help me plan» with what was said; everything else is written with one Undo. */
   async function doSays(acts = says) {
@@ -194,7 +197,7 @@
     q = '';
     spoken = false;
     clearTimeout(doneTimer);
-    done = { text: r.lines.length > 1 ? t('Entered: {list}', { list: r.lines.join(' · ') }) : r.lines[0], undoFn: r.undo };
+    done = { text: r.lines.length > 1 ? t('Entered: {list}', { list: r.lines.join(' · ') }) : r.lines[0], undoFn: r.undo, href: r.listId ? `#/calendar/list/${r.listId}` : null };
     doneTimer = setTimeout(() => (done = null), UNDO_MS);
   }
   /**
@@ -398,13 +401,13 @@
 {#snippet results()}
   {#if done && !q.trim()}
     <div class="res" role="region" aria-label={t('Search results')}>
-      <p class="done" role="status"><span>{done.text}</span><button type="button" class="btn sm" onclick={undoDone}>{t('Undo')}</button></p>
+      <p class="done" role="status"><span>{done.text}</span>{#if done.href}<a class="btn sm" href={done.href} onclick={() => ((done = null), (open = false))}>{t('Open')}</a>{/if}<button type="button" class="btn sm" onclick={undoDone}>{t('Undo')}</button></p>
     </div>
   {/if}
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
       <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
-      {#if suche.app}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
+      {#if suche.app && !listSay}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
       <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
       {#if cmds.length || says}
         <p class="gh">{t('Do it now')}</p>
@@ -437,7 +440,7 @@
           {/each}
         </ul>
       {:else}
-        {#if !cmds.length && !feats.length && !help.length}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
+        {#if !cmds.length && !feats.length && !help.length && !listSay}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
       {/each}
       {#if help.length}
         <p class="gh">{t('Fits your question')}</p>
@@ -455,7 +458,7 @@
           {/each}
         </ul>
       {/if}
-      {#if !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
+      {#if !listSay && !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
         <button type="button" class="add" onclick={addNew}>+ {t('Add "{q}" as a new item', { q: q.trim() })}</button>
       {/if}
     </div>
