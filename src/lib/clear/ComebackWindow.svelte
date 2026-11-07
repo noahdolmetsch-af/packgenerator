@@ -8,7 +8,7 @@
   import { t, dateOf } from '../i18n.svelte.js';
   import { localDay } from '../localday.js';
   import { LAST_BACKUP, backupDue } from '../backup.js';
-  import { WHATS_NEW } from '../whatsnew.js';
+  import { NEWS_INDEX_ALL } from '../whatsnew.js';
   import { LAST_OPEN, COMEBACK, startComeback, showComeback, later, notToday, comebackLines, daysBetween } from './comeback.js';
   import CheckWindow from './CheckWindow.svelte';
 
@@ -30,7 +30,7 @@
       const next = trips.filter((x) => x.startDate && x.startDate >= today && !x.finished && x.status !== 'done' && !x.skipped).sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null;
       const b = backupDue(bk?.at ?? null, now);
       const since = r.since.slice(0, 10);
-      const news = WHATS_NEW.filter((e) => e.date > since).length;
+      const news = NEWS_INDEX_ALL.filter((e) => e.date > since).length;
       base = { trip: next, backupDue: b.due, backupDays: b.days, news, today };
       rec = r;
     })();

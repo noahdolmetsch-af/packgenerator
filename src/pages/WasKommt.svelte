@@ -11,7 +11,7 @@
    */
   import listMd from '../../docs/vorhaben-liste.md?raw';
   import { parseList, countStates, wayOf, STATES } from '../lib/projekt/ablage.js';
-  import { WHATS_NEW } from '../lib/whatsnew.js';
+  import { WHATS_NEW } from '../lib/whatsnew-all.js'; // the whole list: it loads with this page
   import ForYou from '../lib/projekt/ForYou.svelte';
   import IdeaBoard from '../lib/projekt/IdeaBoard.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';

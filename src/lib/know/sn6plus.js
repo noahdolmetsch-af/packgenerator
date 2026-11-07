@@ -10,7 +10,7 @@
  * - the order of the blocks (answer 3b).
  * Everything is a suggestion; without data each block says so in one quiet line. Tested in tests/sn6plus.test.js.
  */
-import { WHATS_NEW } from '../whatsnew.js';
+import { NEWS_INDEX_ALL } from '../whatsnew.js';
 import { rowsOf, sortRows, newSince, daysBetween } from './wasneu.js';
 import { toDebrief, nextTrip } from '../debrief.js';
 import { quickHints } from '../quickcare.js';
@@ -66,7 +66,7 @@ export function opensOf(value) {
 export const openApp = (value, at, v) => ({ prev: opensOf(value).last, last: { at, v } });
 
 /** The version the app had on a day (the newest entry of the list on or before it). */
-export const versionOn = (day, list = WHATS_NEW) => list.find((e) => String(e.date) <= day)?.version ?? null;
+export const versionOn = (day, list = NEWS_INDEX_ALL) => list.find((e) => String(e.date) <= day)?.version ?? null;
 
 /**
  * The functions newer than the previous opening, newest first: { from, rows } (from: the ISO time of

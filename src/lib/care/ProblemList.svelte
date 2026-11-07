@@ -195,8 +195,13 @@
     align-items: center;
     gap: 8px;
   }
+  .pf {
+    min-width: 0;
+    max-width: 100%;
+  }
   .pf .sel {
     width: auto;
+    max-width: 100%;
   }
   .none {
     margin: 8px 0;
@@ -284,6 +289,12 @@
   }
   .meta i {
     font-style: normal;
+  }
+  /* the bike's name is the person's own text: it breaks in its badge instead of widening the page */
+  .meta .nbadge {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word;
   }
   .when,
   .sub {

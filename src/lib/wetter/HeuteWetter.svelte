@@ -19,6 +19,9 @@
   import { WEBCAMS_KEY, camsOf, homeCam, isImage, freshSrc, camLabel } from './webcams.js';
   import LakeChip from '../lake/LakeChip.svelte';
   import HeuteSchnee from './HeuteSchnee.svelte'; // «Schneefallgrenze» (Noah 04.11.2026): one calm line for the home place
+  import HeuteNebel from './HeuteNebel.svelte'; // «Nebelgrenze» (Noah 05.11.2026): one calm line under it
+  import HeuteSonne from './HeuteSonne.svelte'; // «Sonnen-Ausfahrt» (Noah 06.11.2026): a ride above the fog, under the fog line
+  import HeuteNacht from './HeuteNacht.svelte'; // «Nachttemperatur» (Noah 06.11.2026): one calm line under that
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -98,6 +101,9 @@
     <!-- the lake (thread «Seetemperatur und Sauna»): shows itself only with a value -->
     <LakeChip />
     <HeuteSchnee />
+    <HeuteNebel />
+    <HeuteSonne />
+    <HeuteNacht />
   </section>
 
 <style>

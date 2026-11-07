@@ -4,8 +4,10 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { numberHistory, computeNews, bump, compare, zurichDay, ANCHOR_VERSION } from '../scripts/news.mjs';
 import { APP_VERSION, NEWS } from '../src/lib/news/index.gen.js';
-import { WHATS_NEW } from '../src/lib/whatsnew.js';
-import DE from '../src/lib/i18n/de/index.js';
+import { WHATS_NEW, DE_OLDER } from '../src/lib/whatsnew-all.js'; // the whole list and the German of its older versions
+import DE_START from '../src/lib/i18n/de/index.js';
+
+const DE = { ...DE_START, ...DE_OLDER };
 
 const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
@@ -45,7 +47,7 @@ describe('numbers at merge time', () => {
 
 describe('the news files', () => {
   const dir = new URL('../src/lib/news/', import.meta.url);
-  const files = readdirSync(dir).filter((f) => f.endsWith('.js') && f !== 'index.gen.js');
+  const files = readdirSync(dir).filter((f) => f.endsWith('.js') && !f.endsWith('.gen.js'));
 
   it('every file has a plain name and is in the list, newest first, versions unique', () => {
     for (const f of files) expect(f, f).toMatch(/^[a-z0-9][a-z0-9-]*\.js$/);

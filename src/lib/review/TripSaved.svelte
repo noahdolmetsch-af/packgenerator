@@ -29,7 +29,7 @@
   import Btn from '../ui/Btn.svelte';
   import { localDay } from '../localday.js';
   import { tripEnd } from '../debrief.js';
-  import { WEATHER, AMOUNT } from '../debrief.js';
+  import { choiceName } from '../debrief.js';
   import { CLOTHING } from '../wardrobe.js';
   import TemplateOffer from '../debrief/TemplateOffer.svelte';
   import MoreActions from '../ui/MoreActions.svelte';
@@ -327,7 +327,7 @@
       ? firstDot([dayF.date ? longDay(dayF.date) : '', [dayF.from, dayF.to].filter(Boolean).join(' – '), dayF.km != null ? `${n0(dayF.km)} km` : '', dayF.gainM != null ? `${n0(dayF.gainM)} Hm` : ''])
       : firstDot([row?.km != null ? `${n0(row.km)} km` : '', row?.gainM != null ? `${n0(row.gainM)} Hm` : '', row?.movingH ? rideTime(row.movingH) : '', trip.days > 1 ? tn(trip.days, '{n} day', '{n} days') : '', [line.length ? t('map') : '', tl.length ? t('timeline') : '', noteList.length ? tn(noteList.length, '{n} note', '{n} notes') : ''].filter(Boolean).join(', ')]),
     body: firstDot([values?.hrAvg != null ? t('Ø heart rate {n}', { n: num(values.hrAvg) }) : '', power ? (power.measured && power.np ? `NP ${num(power.np)} W` : t('Ø {w} W estimated', { w: num(power.avg) })) : '', effort != null ? `${t('Relative Effort')} ${num(effort)}` : '', load != null ? `${t('Load|power')} ${num(load)}` : '', dayMoods[0]?.c?.mood != null ? t('Mood {n} of 10', { n: dayMoods[0].c.mood }) : '']) || t('Heart rate and power · with Strava'),
-    way: firstDot([d.weather ? t(WEATHER.find((x) => x.key === d.weather)?.name ?? '') : '', rainText(row?.rain, trip.days) !== DASH ? rainText(row?.rain, trip.days) : '', d.amount ? `${t('Food and drink')}: ${t(AMOUNT.find((x) => x.key === d.amount)?.name ?? '')}` : '']),
+    way: firstDot([d.weather ? choiceName('weather', d.weather, t) : '', rainText(row?.rain, trip.days) !== DASH ? rainText(row?.rain, trip.days) : '', d.amount ? `${t('Food and drink')}: ${choiceName('amount', d.amount, t)}` : '']),
     pack: day != null ? t('for the whole trip · «Whole trip» on top shows it') : firstDot([ptot.g ? (allG && Math.round(allG / 100) !== Math.round(ptot.g / 100) ? t('{w} in all, {b} of it in {n} bags', { w: kg(allG), b: kg(ptot.g), n: ptot.bags }) : t('{w} in {n} bags', { w: kg(ptot.g), n: ptot.bags })) : '', unused.length ? tn(unused.length, '{n} item not used', '{n} items not used') : '', d.missing?.length ? tn(d.missing.length, '{n} was missing', '{n} were missing') : '', left != null ? (left > 0 ? t('Chain: {km} km to waxing', { km: num(left) }) : t('Chain: waxing due')) : '']),
     next: day != null ? t('for the whole trip') : firstDot([points.length ? tn(points.length, 'For next time {n} point', 'For next time {n} points') : '', row?.learnings.length ? tn(row.learnings.length, '{n} learning', '{n} learnings') : '', group ? (other ? t('Comparison in {group}: {trip}', { group: groupName(group), trip: other.title }) : t('Comparison in {group}', { group: groupName(group) })) : '']),
   });
@@ -683,7 +683,7 @@
                 <table class="wx">
                   <thead><tr><th scope="col"></th><th scope="col">{t('forecast')}</th><th scope="col">{t('how it was')}</th></tr></thead>
                   <tbody>
-                    <tr><th scope="row"><Thermometer size={16} aria-hidden="true" />{t('Temperature')}</th><td>{dayF ? temps(dayF.tmin, dayF.tmax) : temps(wxT.tmin, wxT.tmax)}</td><td>{[d.weather ? t(WEATHER.find((x) => x.key === d.weather)?.name ?? '') : '', tempo.temp ? `Ø ${num(tempo.temp.avg)}°` : ''].filter(Boolean).join(' · ') || DASH}</td></tr>
+                    <tr><th scope="row"><Thermometer size={16} aria-hidden="true" />{t('Temperature')}</th><td>{dayF ? temps(dayF.tmin, dayF.tmax) : temps(wxT.tmin, wxT.tmax)}</td><td>{[d.weather ? choiceName('weather', d.weather, t) : '', tempo.temp ? `Ø ${num(tempo.temp.avg)}°` : ''].filter(Boolean).join(' · ') || DASH}</td></tr>
                     <tr><th scope="row"><CloudSun size={16} aria-hidden="true" />{t('Rain|weather')}</th><td>{dayF ? (dayF.wet ? t('rain') : dayF.wet === false ? t('dry|weather') : DASH) : rainText(row?.rain, trip.days)}</td><td>{DASH}</td></tr>
                     {#if d.clothing}<tr><th scope="row"><Gauge size={16} aria-hidden="true" />{t('Clothing')}</th><td>{DASH}</td><td>{t(CLOTHING.find((x) => x.key === d.clothing)?.name ?? '')}</td></tr>{/if}
                   </tbody>
@@ -699,7 +699,7 @@
           <section class="rv-sec" aria-labelledby="fd-h" data-food>
             <div class="rv-h"><div><h2 id="fd-h">{t('Food and drink')}</h2><p class="rv-sub">{t('your answer in the debrief')}</p></div></div>
             {#if d.amount}
-              <p class="rv-box rv-row one"><span class="rv-ic" aria-hidden="true"><Utensils size={18} /></span><span class="rv-m"><span class="rv-t">{t('Amount of food and drink')}</span></span><span class="rv-v">{t(AMOUNT.find((x) => x.key === d.amount)?.name ?? '')}</span></p>
+              <p class="rv-box rv-row one"><span class="rv-ic" aria-hidden="true"><Utensils size={18} /></span><span class="rv-m"><span class="rv-t">{t('Amount of food and drink')}</span></span><span class="rv-v">{choiceName('amount', d.amount, t)}</span></p>
             {:else}
               <p class="quiet">{t('No answer on food and drink.')}</p>
             {/if}

@@ -14,6 +14,7 @@
  * categories, v0.134.0 «Listen und Typen»).
  */
 import { STD_DOMAINS } from './domains.js';
+import { STD_SPORTS, BIKE_DAY_SPORTS } from './sportlist.js';
 import { STD_CATEGORIES, BAGS, SETS } from './gear.js';
 import { STD_SLOTS } from './bikes.js';
 import { LAYERS, ZONES } from './wardrobe.js';
@@ -60,6 +61,8 @@ function checkLists() {
  */
 export const STANDARD_LISTS = [
   { key: 'domains', area: 'trips', name: 'Sports and areas', entries: () => keyed(STD_DOMAINS) },
+  // Noah 05.11.2026: Fahrrad, Gravel, Cross Country and Downhill had no entry anywhere, so they could not be renamed
+  { key: 'tripSports', area: 'trips', name: 'Bike sports of trips', entries: () => keyed(STD_SPORTS.filter((x) => BIKE_DAY_SPORTS.includes(x.key))) },
   ...checkLists(),
   { key: 'categories', area: 'gear', name: 'Categories', entries: () => keyed(STD_CATEGORIES) },
   { key: 'bagPlaces', area: 'gear', name: 'Default places', entries: () => keyed(BAGS) },

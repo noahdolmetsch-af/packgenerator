@@ -56,12 +56,12 @@ export const ERRORS = {
 };
 export const errorText = (code) => ERRORS[code] ?? 'Something went wrong. Try again later.';
 
-/** The bookings of all offers on this device (for the note on Heute): [{ id, title, bookings }]; offline → []. */
+/** The bookings of all offers on this device (for the note on Heute): [{ id, title, slots, types, bookings }]; offline → []. */
 export async function allBookings(offers = [], doFetch = fetch) {
   const out = [];
   for (const o of offers) {
     const r = await ownerBookings(o.id, o.owner, doFetch);
-    if (r.ok) out.push({ id: o.id, title: o.offer?.title ?? '', bookings: r.bookings });
+    if (r.ok) out.push({ id: o.id, title: o.offer?.title ?? '', slots: o.offer?.slots ?? [], types: o.offer?.types ?? [], bookings: r.bookings });
   }
   return out;
 }

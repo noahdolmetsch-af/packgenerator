@@ -11,7 +11,7 @@
  * Pure functions, tested in tests/tiles.test.js.
  */
 import { FUNCTIONS } from './fnlist.js';
-import { WHATS_NEW, compareVersions } from '../whatsnew.js';
+import { NEWS_INDEX_ALL, compareVersions } from '../whatsnew.js';
 
 export const WALL_KEY = 'homeWall';
 export const SIZES = ['s', 'w', 'l', 'long'];
@@ -512,7 +512,7 @@ export function keepHidden(next, stored, hidden = []) {
 
 /** Idea 1: a «New» dot for two weeks after the version that brought the tile. */
 export const NEW_DAYS = 14;
-export function isNew(tile, today, news = WHATS_NEW) {
+export function isNew(tile, today, news = NEWS_INDEX_ALL) {
   if (!tile?.since) return false;
   const e = news.find((x) => compareVersions(x.version, tile.since) === 0);
   if (!e?.date) return false;

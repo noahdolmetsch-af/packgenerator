@@ -14,9 +14,9 @@
  * Pure functions, easy to test.
  */
 import { BIKEPACKING, DOMAIN, domainOf, domainName, hasBike } from './domains.js';
-import { SPORTS } from './sportlist.js';
+import { SPORTS, sportLabel } from './sportlist.js';
 
-export { SPORTS };
+export { SPORTS, sportLabel };
 export const SPORT = Object.fromEntries(SPORTS.map((s) => [s.key, s]));
 export const CYCLING = 'cycling';
 export const BIKE_SPORTS = SPORTS.filter((s) => s.area === BIKEPACKING).map((s) => s.key);
@@ -45,15 +45,24 @@ export const kindName = (trip) => {
   const s = sportOf(trip);
   return s ? SPORT[s].name : domainName(domainOf(trip));
 };
+/** The same name for the page (Noah 05.11.2026): a name the person typed as it is, never through t(). tr: the translator. */
+export const kindText = (trip, tr = (x) => x) => {
+  const s = sportOf(trip);
+  if (s) return sportLabel(SPORT[s], tr);
+  const d = DOMAIN[domainOf(trip)];
+  return d?.raw ? d.name : tr(domainName(domainOf(trip)));
+};
 
 /** 5b: the sports, the ones with the most trips first; a tie keeps the fixed order. */
-export function orderSports(trips = []) {
+export function orderSports(trips = [], keep = null) {
   const n = {};
   for (const x of trips) {
     const s = sportOf(x);
     if (s) n[s] = (n[s] ?? 0) + 1;
   }
+  // a hidden sport is no longer offered for a new trip (keep: the sport of the trip being edited stays)
   return SPORTS.map((s, i) => ({ s, i, n: n[s.key] ?? 0 }))
+    .filter((x) => !x.s.hidden || x.s.key === keep)
     .sort((a, b) => b.n - a.n || a.i - b.i)
     .map((x) => x.s);
 }

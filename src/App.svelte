@@ -47,6 +47,7 @@
   import Keys from './lib/nav/Keys.svelte';
   import { shortcutOf, typing, isSearchChord, G_WAIT } from './lib/nav/keys.js';
   import { sortBikes } from './lib/bikes.js';
+  import { activeBikes } from './lib/bikeretire.js';
   import { withVisits } from './lib/workshop.js';
   import { bikeCare } from './lib/readiness.js';
   import { localDay } from './lib/localday.js';
@@ -329,7 +330,7 @@
     useOwn(ownRec?.value); // the km check of «Eigene Werte» counts here too, also right after a change
     const today = localDay();
     // v0.137.0 (DK1): the points due over all bikes, the same number as Bikes › Care.
-    return sortBikes(bikes).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
+    return sortBikes(activeBikes(bikes)).reduce((n, b) => n + (bikeCare(withVisits(b, visits), { tasks, visits, today })?.rows.length ?? 0), 0);
   });
   // SN1c «Tour aus komoot übernehmen»: a GPX without times shared to the app (public/share-target.js)
   // opens #/komoot/shared; the sheet opens over Touren, where the new trip will be.
@@ -411,6 +412,7 @@
     Album: () => import('./pages/Album.svelte'), // Paket P8: Ich › Fotoalbum
     Freunde: () => import('./pages/Freunde.svelte'), // Paket D «Mit Freunden»: Ich › Mit Freunden
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
+    Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
@@ -516,7 +518,7 @@
 <MiniTitle />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
-<main data-s2-page={page} data-s2-place={place} data-slide={slide || undefined} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
+<main data-s2-page={page} data-s2-place={place} data-slide={slide || undefined} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams' || page === 'vorschlaege'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
@@ -705,6 +707,8 @@
     <LazyPage load={PAGES.Compass} />
   {:else if page === 'dreams'}
     <LazyPage load={PAGES.Dreams} />
+  {:else if page === 'vorschlaege'}
+    <LazyPage load={PAGES.Vorschlaege} />
   {:else if page === 'next'}
     <LazyPage load={PAGES.WasKommt} />
   {:else if page === 'album'}

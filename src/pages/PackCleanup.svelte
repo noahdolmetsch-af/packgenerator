@@ -193,6 +193,12 @@
     gap: 16px;
     max-width: 760px;
   }
+  /* E2-001: a grid item never gets narrower than its longest word; with a long name in a row the whole page
+     grew wider than a phone. The boxes keep to the screen, the name breaks inside its row. */
+  .tidy > *,
+  .box > * {
+    min-width: 0;
+  }
   .intro {
     margin: 0;
     color: var(--ink-2);

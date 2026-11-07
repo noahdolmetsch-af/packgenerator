@@ -23,7 +23,8 @@
   import { liveQuery } from 'dexie';
   import { tick as settled } from 'svelte';
   import { phone } from '../lib/media.svelte.js';
-  import { WHATS_NEW, shortVersion, compareVersions, itemsOf } from '../lib/whatsnew.js';
+  import { shortVersion, compareVersions, itemsOf } from '../lib/whatsnew.js';
+  import { WHATS_NEW } from '../lib/whatsnew-all.js'; // the whole list with all its texts: it loads with this page
   import { FEATURES, FEATURE_GROUPS, PAGE_GROUPS } from '../lib/features.js';
   import { isUsed } from '../lib/tips.js';
   import { featureData, usedOf } from '../lib/know/featureData.js';

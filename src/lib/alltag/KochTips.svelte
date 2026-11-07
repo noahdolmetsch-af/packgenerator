@@ -110,7 +110,7 @@
   }
   .kt-meal {
     margin: 0;
-    color: var(--brand);
+    color: var(--head); /* Etappe 6 (E6-005): --brand is a dark ground colour; in the dark theme the text was nearly invisible */
     font-weight: 700;
     font-size: var(--fs-small);
   }
@@ -142,7 +142,7 @@
     padding: 0 6px;
     border: 0;
     background: none;
-    color: var(--brand);
+    color: var(--head);
     font: inherit;
     text-decoration: underline;
     cursor: pointer;

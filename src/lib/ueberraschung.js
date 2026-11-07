@@ -9,7 +9,7 @@
  * per tap, never in the background) finds the real way. Nothing is sent anywhere else.
  * Pure functions plus planSurprise (takes a fetcher for tests). Tested in tests/ueberraschung.test.js.
  */
-import { brouterUrl, parseBrouter } from './reroute.js';
+import { askRouter } from './reroute.js';
 import { distKm } from './route.js';
 
 /** The levels: speed on the flat (km/h), router profile, how strictly the unknown side is chosen. */
@@ -112,27 +112,12 @@ export const minutesOf = (km, gainM, kmh) => Math.round(((km || 0) / kmh + (gain
 
 /**
  * Ask the router for the round. → { line, km, gainM, min, sector, hours, level, home, at }.
- * Throws 'busy', 'noroute' or 'failed' (as planDetour).
+ * Throws like askRouter: 'busy', 'noroute', 'toofar', 'timeout', 'offline' or 'failed'.
  */
 export async function planSurprise(home, plan, { fetcher = fetch, now = Date.now() } = {}) {
   if (!home || !plan) throw new Error('failed');
   const P = { lat: Number(home.lat), lon: Number(home.lon) };
-  let res;
-  try {
-    res = await fetcher(brouterUrl([P, ...plan.via, P], plan.profile));
-  } catch {
-    throw new Error('failed');
-  }
-  if (res.status === 429 || res.status === 503) throw new Error('busy');
-  if (!res.ok) throw new Error(res.status === 400 || res.status === 500 ? 'noroute' : 'failed');
-  let json;
-  try {
-    json = await res.json();
-  } catch {
-    throw new Error('noroute');
-  }
-  const r = parseBrouter(json);
-  if (!r) throw new Error('noroute');
+  const r = await askRouter([P, ...plan.via, P], plan.profile, fetcher);
   const L = LEVELS.find((x) => x.key === plan.level) ?? LEVELS[1];
   return { ...r, min: minutesOf(r.km, r.gainM, L.kmh), sector: plan.sector, hours: plan.hours, level: plan.level, home: P, at: now };
 }

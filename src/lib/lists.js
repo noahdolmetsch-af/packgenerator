@@ -11,7 +11,8 @@ import { STD_CATEGORIES, setCategories } from './gear.js';
 import { listsReady } from './listsready.svelte.js';
 import { setTopics } from './notebook.js';
 import { setValueGroups } from './valuefields.js';
-import { setDomains } from './domains.js';
+import { setDomains, DOMAIN } from './domains.js';
+import { setSportNames } from './sportlist.js';
 import { setSlotNames } from './bikes.js';
 import { setPartNames } from './care.js';
 import { APP_LISTS, setAppList } from './applists.js';
@@ -43,6 +44,7 @@ export function applyLists(all) {
   setValueGroups(listFor('valueGroups', all ?? {}).map((e) => ({ key: e.id, name: e.name, raw: e.own || e.renamed })));
   // «Alles selbst bearbeiten» (Noah 19.10.2026): sports, places on the bike, care parts
   setDomains(listFor('domains', all ?? {}));
+  setSportNames(listFor('tripSports', all ?? {}), DOMAIN);
   setSlotNames(listFor('bikeSlots', all ?? {}));
   setPartNames(listFor('careParts', all ?? {}));
   // «Alle Daten anpassbar» (21.10.2026): map point kinds, bike kinds, time away, diary, meditation moods

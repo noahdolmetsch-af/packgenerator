@@ -14,7 +14,8 @@
 // Without the history (a shallow clone, e.g. a Vercel preview), the numbers are a guess after the
 // highest known version and EXACT is false; GitHub's checks and Pages use the full history.
 import { execFileSync } from 'node:child_process';
-import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -190,7 +191,93 @@ export function writeNewsIndex() {
   const out = join(ROOT, NEWS_DIR, 'index.gen.js');
   const text = lines.join('\n');
   if (!existsSync(out) || readFileSync(out, 'utf8') !== text) writeFileSync(out, text);
+  writeNewsSplit(r);
   return r;
+}
+
+// Tempo «Was ist neu später laden» (Noah 05.11.2026 «a», thread «Erklären und beheben: Start-Grenze bei 98 %»): the whole list
+// with all its texts was about 1 MB of the start. The app now reads two files instead of index.gen.js (which stays whole for
+// tests and tools): neu.gen.js (the newest NEW_COUNT entries in full, a short line for every entry: version, day, number of
+// points, «since») and archiv.gen.js (the older entries in full, loaded with the page «What is new» and its like, see
+// src/lib/whatsnew-all.js).
+export const NEW_COUNT = 10;
+
+/** One news file's content (the file is plain data: `export default { … }`, constants above it allowed). */
+export function readNewsFile(file, dir = join(ROOT, NEWS_DIR)) {
+  const m = { exports: null };
+  runInNewContext(readFileSync(join(dir, file), 'utf8').replace(/^export default /m, 'module.exports = '), { module: m }, { filename: file });
+  if (!m.exports || !Array.isArray(m.exports.points)) throw new Error(`${file}: a news file needs «export default { points: [...] }»`);
+  return m.exports;
+}
+
+const SRC_SKIP = /^src[\\/]lib[\\/](news|i18n[\\/]de|handbook)([\\/]|$)|^src[\\/]lib[\\/]whatsnew/;
+/** All program text of src/ (without the news, the German files and the late handbook), without backslashes. */
+export function uiText(dir = 'src') {
+  const out = [];
+  const walk = (d) => {
+    for (const n of readdirSync(join(ROOT, d))) {
+      const rel = `${d}/${n}`;
+      if (statSync(join(ROOT, rel)).isDirectory()) {
+        if (!SRC_SKIP.test(rel)) walk(rel);
+      } else if (/\.(js|svelte)$/.test(n) && !SRC_SKIP.test(rel)) out.push(readFileSync(join(ROOT, rel), 'utf8'));
+    }
+  };
+  walk(dir);
+  return out.join('\n').replace(/\\/g, '');
+}
+
+/**
+ * Pure: the German texts of the older entries that other places of the app use too (the key stands as a whole text in the
+ * program). They stay at the start, the rest of the older German loads with the archive.
+ */
+export function sharedDe(oldDe, text) {
+  const out = {};
+  for (const [k, v] of Object.entries(oldDe)) if (text.includes(k.replace(/\\/g, ''))) out[k] = v;
+  return out;
+}
+
+function writeNewsSplit(r) {
+  const neu = r.news.slice(0, NEW_COUNT);
+  const old = r.news.slice(NEW_COUNT);
+  const index = r.news.map((n) => {
+    const e = readNewsFile(n.file);
+    return { version: n.version, date: n.date, np: e.points.length, ns: (e.small ?? []).length, ...(e.since?.length ? { since: e.since } : {}) };
+  });
+  const oldDe = {};
+  for (const n of old) Object.assign(oldDe, readNewsFile(n.file).de ?? {});
+  const shared = sharedDe(oldDe, uiText());
+  const entry = (n) => `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)} },`;
+  const files = {
+    'neu.gen.js': [
+      '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',
+      ...neu.map((n) => `import ${ident(n.file)} from './${n.file}';`),
+      '/** The newest entries in full (they are read at the start: the tile «New», the banner after an update). */',
+      'export const NEWS_NEU = [',
+      ...neu.map(entry),
+      '];',
+      `export const NEWS_NEU_DE = Object.assign({}, ${neu.map((n) => `${ident(n.file)}.de`).join(', ') || '{}'});`,
+      '/** A short line for every entry, newest first: version, day, number of main points (np) and small things (ns), since. */',
+      `export const NEWS_INDEX = ${JSON.stringify(index)};`,
+      '/** German texts of older entries that other places of the app use too. */',
+      `export const NEWS_SHARED_DE = ${JSON.stringify(shared)};`,
+      '',
+    ],
+    'archiv.gen.js': [
+      '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',
+      ...old.map((n) => `import ${ident(n.file)} from './${n.file}';`),
+      '/** The older entries in full, newest first (loaded with «What is new», src/lib/whatsnew-all.js). */',
+      'export const NEWS_ARCHIV = [',
+      ...old.map(entry),
+      '];',
+      `export const NEWS_ARCHIV_DE = Object.assign({}, ${old.map((n) => `${ident(n.file)}.de`).join(', ') || '{}'});`,
+      '',
+    ],
+  };
+  for (const [name, lines] of Object.entries(files)) {
+    const out = join(ROOT, NEWS_DIR, name);
+    const text = lines.join('\n');
+    if (!existsSync(out) || readFileSync(out, 'utf8') !== text) writeFileSync(out, text);
+  }
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

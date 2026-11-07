@@ -149,6 +149,18 @@ export function freeAlternatives(offer, bookings = [], skipId = '', from = '', n
 }
 
 /**
+ * People on the waiting list whose time has a free place again (Noah 04.11.2026 «7a»). `now` is «YYYY-MM-DDTHH:MM».
+ * → [{ w, slot }] in the order they were added.
+ */
+export function waitingFree(waitlist = [], offer, bookings = [], now = '') {
+  const booked = bookedBySlot(bookings);
+  return waitlist
+    .filter((w) => w.offer === offer.id)
+    .map((w) => ({ w, slot: (offer.slots ?? []).find((s) => s.id === w.slot) }))
+    .filter(({ slot }) => slot && slot.at > now && (booked[slot.id] ?? 0) < (((offer.types ?? []).find((x) => x.key === slot.type) ?? offer.types?.[0])?.places ?? 0));
+}
+
+/**
  * One e-mail to several people (Noah 04.11.2026): every address in the list goes into «bcc», so nobody sees the
  * others. null when none of the contacts is an e-mail address.
  */

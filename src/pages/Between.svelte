@@ -17,7 +17,7 @@
   import { t, tn, num, locale, nameOf } from '../lib/i18n.svelte.js';
   import { tripStats, zoneName, RAIN } from '../lib/trips.js';
   import { hasBike, domainOf } from '../lib/domains.js';
-  import { kindName } from '../lib/sports.js';
+  import { kindText } from '../lib/sports.js';
   import { tabsOf, stepsOf, tabStatus, tripDates } from '../lib/tabs.js';
   import { tripEnd, quickDebrief } from '../lib/debrief.js';
   import { tripNotes } from '../lib/notes.js';
@@ -80,7 +80,7 @@
   const checkNext = $derived(nextOpen(checkList));
   const checkLine = $derived([t('{done} of {n} done', { done: checkN.done, n: checkN.total }), checkNext ? t('next: {name}', { name: t(checkNext.label) }) : null].filter(Boolean).join(' · '));
   // Klick-Rundgang H02: the trip's sport («Fahrrad»), not its packing area («Bikepacking»)
-  const area = $derived(trip ? t(kindName(trip)) : '');
+  const area = $derived(trip ? kindText(trip, t) : '');
   const TypeIcon = $derived(typeIcon(domain));
   // Today's evening row comes with «?check»: the sheet opens right away (and a reload does not again)
   const askCheck = /\?check\b/.test(location.hash);

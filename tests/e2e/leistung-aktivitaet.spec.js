@@ -82,10 +82,21 @@ test('TR5/TR5b: power, load, power curve and the analyses on one activity', asyn
   const pl = powerLoad({ wNorm: 211, movingS: 5760 }, FTP);
   await expect(load.locator('[data-load="power"]')).toContainText(String(pl.load));
   await expect(load.locator('[data-load="power"]')).toContainText(`TSS aus Leistung (IF ${pl.intensity.toFixed(2)} · 1:36 h)`);
-  const curve = page.locator('[data-section="power-curve"] svg');
-  await expect(curve).toHaveAttribute('aria-label', 'Leistungskurve: 5 s 584 W, 1 Min 402 W, 5 Min 296 W, 20 Min 248 W, 60 Min 214 W');
-  await expect(curve.locator('[data-best]')).toHaveCount(1);
-  await expect(curve.locator('circle')).toHaveCount(5);
+  const curve = page.locator('[data-section="power-curve"]');
+  await expect(curve.locator('[data-plot]')).toHaveAttribute('aria-label', 'Leistungskurve: 5 s 584 W, 1 Min 402 W, 5 Min 296 W, 20 Min 248 W, 60 Min 214 W');
+  await expect(curve.locator('[data-line="best"]')).toHaveCount(1);
+  await expect(curve.locator('[data-line="own"]')).toHaveCount(1);
+  // the exact numbers: the readout names the duration, a tap opens it, the table lists every duration
+  await expect(curve.locator('[data-readout]')).toContainText('Diese Fahrt');
+  await curve.locator('[data-plot]').focus();
+  await page.keyboard.press('Home');
+  await expect(curve.locator('[data-readout]')).toContainText('584 W');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-pcurve-act-sheet]')).toContainText('584 W');
+  await page.keyboard.press('Escape');
+  await curve.getByRole('button', { name: 'Als Tabelle' }).click();
+  await expect(curve.locator('[data-chart-table] tbody tr')).toHaveCount(7);
+  await curve.getByRole('button', { name: 'Diagramm' }).click();
 
   // TR5b: the three analyses
   const more = page.locator('[data-ana="more"]');
@@ -97,12 +108,21 @@ test('TR5/TR5b: power, load, power curve and the analyses on one activity', asyn
   await expect(more.locator('[data-more-sentence]')).toContainText('VI 1.12: wechselndes Tempo (1.00 = ganz gleichmässig). Nur zum Anschauen, ohne Wertung.');
   const bars = page.locator('[data-ana="pzbars"]');
   await expect(bars).toContainText('Leistungsbereiche als Balken');
-  await expect(bars.locator('[data-pz]')).toHaveCount(7);
+  await expect(bars.locator('[data-plot]')).toHaveAttribute('data-n', '7');
+  await bars.locator('[data-plot]').focus();
+  await page.keyboard.press('Home');
+  await expect(bars.locator('[data-readout]')).toContainText('Z1');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-pz-sheet]')).toContainText('Minuten');
+  await page.keyboard.press('Escape');
   await expect(bars).toContainText(`Minuten pro Leistungsbereich aus FTP ${FTP} W.`);
   const cad = page.locator('[data-ana="cadence"]');
   await expect(cad).toContainText('Trittfrequenz verteilt');
-  await expect(cad.locator('[data-cad]')).toHaveCount(9);
-  await expect(cad.locator('[data-cad="90"]')).toContainText('30 %');
+  await expect(cad.locator('[data-plot]')).toHaveAttribute('data-n', '9');
+  await cad.getByRole('button', { name: 'Als Tabelle' }).click();
+  await expect(cad.locator('[data-chart-table] tbody tr')).toHaveCount(9);
+  await expect(cad.locator('[data-chart-table] tbody tr', { hasText: '90–99' })).toContainText('30 %');
+  await cad.getByRole('button', { name: 'Diagramm' }).click();
   await expect(cad).toContainText('Ø 84, meist 80–90.');
   await shot(page, info, 'TR5');
 

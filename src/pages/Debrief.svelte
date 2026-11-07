@@ -39,14 +39,17 @@
   import '../lib/review/review.css';
   import { ZONE, touched } from '../lib/trips.js';
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
-  import { WEATHER, AMOUNT, BAGS_OK, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
+  import { choices, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
   import Pace from '../lib/debrief/Pace.svelte';
+  import Kurz from '../lib/debrief/Kurz.svelte'; // Touren 3b «Rückblick in 30 Sekunden»
+  import { joyChange } from '../lib/freude.js';
   import Hub from '../lib/review/Hub.svelte';
   import Logbook from '../lib/review/Logbook.svelte';
   import Learned from '../lib/review/Learned.svelte';
   import Freude from '../lib/freude/Freude.svelte';
   import Technik from '../lib/technik/Technik.svelte';
   import Paesse from '../lib/paesse/Paesse.svelte'; // Paket E 24: «Pässe sammeln»
+  import Wand from '../lib/sammlung/Wand.svelte'; // Neuer Schwung F: «Sammel-Wand»
   import Tourenpass from '../lib/tourenpass/Tourenpass.svelte'; // Paket E 18: «Tourenpass mit Stempel»
   import TripSaved from '../lib/review/TripSaved.svelte';
   import UndoToast from '../lib/review/UndoToast.svelte';
@@ -107,8 +110,8 @@
 
   // v0.25.1 (Noah 3a): 'compare' scrolls to "Your trips compared".
   // v0.49.0 R1: pace, learnings and logbook are pages one level below the Rückblick; compare is its section.
-  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik'];
-  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik'];
+  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung'];
+  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung'];
   const tripId = $derived(param && !SPOTS.includes(param) ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
@@ -561,6 +564,8 @@
            mockup. Left: what stayed in the bag (chips by bag, «Alle ✓ · Alle –»), what was missing with the
            suggestion for next time and the one sentence. Right: the notes on the way, upload a ride, «Mehr»
            (how it was, all items by bag). Everything the page could do stays; nothing is new. -->
+      <!-- «Rückblick in 30 Sekunden» (Noah 05.11.2026, Touren 3b): three questions with faces; the long form stays below -->
+      <Kurz {d} items={notOnTrip} onfun={(n) => set('joy', joyChange(d, 'fun', n))} onamount={(k) => set('amount', k)} onmissing={(list) => set('missing', list)} ondone={finish} {busy} />
       <div class="rv-lay dbf">
         <div class="rv-col">
           <section class="rv-sec unneeded" aria-labelledby="unneeded-h">
@@ -695,12 +700,12 @@
                 <div class="in">
                   <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
                   <div class="qa">
-                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={WEATHER.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('weather', v)} /></div>
+                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={choices('weather', t)} onchange={(v) => set('weather', v)} /></div>
                     <!-- v0.42.0 (Noah 6): how the clothing was; it slowly shifts the borders of the temperature kits. -->
                     <div class="segq"><span class="lbl" id="q-cloth">{t('Clothing')}</span><Seg labelledby="q-cloth" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} />
                       <p class="tp-muted tp-small clothhint">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div>
-                    <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={AMOUNT.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('amount', v)} /></div>
-                    <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={BAGS_OK.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('bags', v)} /></div>
+                    <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={choices('amount', t)} onchange={(v) => set('amount', v)} /></div>
+                    <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={choices('bags', t)} onchange={(v) => set('bags', v)} /></div>
                     {#if bike}
                       <label><span>{t('km for {bike}', { bike: bike.name })} <small>{bike.km != null ? t('now {km} km', { km: num(bike.km) }) : ''}</small></span><span class="kmin"><input class="inp num" type="text" inputmode="numeric" value={d.km ?? ''} onchange={(e) => setKm(e.currentTarget.value)} placeholder={t('e.g. 303')} aria-label={t('km of this trip')} /> km</span></label>
                     {/if}
@@ -758,7 +763,7 @@
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
        its own page; v0.61.0 R2 rebuilt all three. -->
   <!-- v0.109.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
-  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : param === 'freude' ? t('What made it good?') : param === 'technik' ? t('Riding technique diary') : t('Learned|review')}
+  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : param === 'freude' ? t('What made it good?') : param === 'technik' ? t('Riding technique diary') : param === 'sammlung' ? t('Collection wall') : t('Learned|review')}
   <div class="over rv-page">
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
     <h1 class="title">{here}</h1>
@@ -776,6 +781,9 @@
     {:else if param === 'technik'}
       <!-- Persönliches Lernen Idee 3 (Noah 04.11.2026 «4a»): the riding techniques you worked on -->
       <Technik />
+    {:else if param === 'sammlung'}
+      <!-- Neuer Schwung F (Noah 05.11.2026): stamps, passes, places, new ground and stars on one page -->
+      <Wand />
     {:else if param === 'tourenpass'}
       <!-- Paket E 18 (Noah 03.11.2026 «E und F»): the tour pass with the stamps of the trips -->
       <Tourenpass />

@@ -15,8 +15,8 @@
   import { FEATURES, FEATURE } from '../features.js';
   import { goFeature, runOf } from '../know/featureRun.js';
   import { glowFeature } from '../quick/findcard.js';
-  import { USAGE_KEYS, cleanUsage, usePin } from '../quick/usage.js';
-  import { QUICK_KEYS, deviceKind, cleanQuick, starter, pinLabel, flatPins, moveFlat, addPin, removePin, editPin, findForPin } from '../quick/quicklinks.js';
+  import { USAGE_KEYS, cleanUsage, usePin, suggestions, pathOf } from '../quick/usage.js';
+  import { QUICK_KEYS, deviceKind, cleanQuick, starter, pinLabel, flatPins, moveFlat, addPin, addView, removePin, editPin, findForPin } from '../quick/quicklinks.js';
   import { localDay } from '../localday.js';
   import { t } from '../i18n.svelte.js';
 
@@ -30,14 +30,22 @@
   let adding = $state(false);
   let q = $state('');
   let open = $state(null); // the pin being renamed
+  let u = $state(cleanUsage(null)); // what this device opened (for the suggestion to pin a page you open often)
 
   $effect(() => {
-    const sub = liveQuery(() => db.settings.get(KEY)).subscribe({ next: (r) => (s = cleanQuick(r?.value)), error: () => {} });
+    const sub = liveQuery(() => db.settings.bulkGet([KEY, USED])).subscribe({
+      next: ([r, used]) => ((s = cleanQuick(r?.value)), (u = cleanUsage(used?.value))),
+      error: () => {},
+    });
     return () => sub.unsubscribe();
   });
   db.bikes.toCollection().first().then((b) => (bikeId = b?.id ?? null)).catch(() => {});
 
   const pins = $derived(flatPins(s));
+  // Noah 05.11.2026 «6a»: the same suggestion as in Quick Links, here where the shortcuts are seen (one at a time, «No, thanks» holds 30 days)
+  const suggest = $derived(suggestions(u, s, localDay())[0] ?? null);
+  const pinSuggested = (r) => change(addView(s, r.href, r.title, s.groups.at(-1)?.id ?? '', localDay()), t('«{name}» pinned.', { name: r.title }));
+  const noThanks = (r) => db.settings.put({ key: USED, value: JSON.parse(JSON.stringify({ ...u, no: { ...u.no, [pathOf(r.href)]: localDay() } })) });
   const hits = $derived(findForPin(FEATURES, q, t).filter((f) => !pins.some((p) => p.feature === f.id)).slice(0, 8));
 
   const save = (next) => db.settings.put({ key: KEY, value: JSON.parse(JSON.stringify(next)) });
@@ -89,6 +97,15 @@
         <button type="button" class="pt-pin" role="listitem" data-pin={p.feature || p.href} onclick={() => go(p)}>{pinLabel(p, t)}</button>
       {/each}
     </div>
+    {#if suggest}
+      <div class="pt-tip" role="status" data-pins-suggest={suggest.href}>
+        <p>{t('You often open «{name}». Pin it here?', { name: suggest.title })}</p>
+        <div class="pt-tools">
+          <button type="button" class="btn sm hi" onclick={() => pinSuggested(suggest)}><Plus size={15} aria-hidden="true" />{t('Pin|quick')}</button>
+          <button type="button" class="btn sm" onclick={() => noThanks(suggest)}>{t('No, thanks')}</button>
+        </div>
+      </div>
+    {/if}
   {:else}
     <ul class="pt-list" use:sortable={{ onmove: move, row: ':scope > li.pt-row' }}>
       {#each pins as p, i (p.id)}
@@ -184,6 +201,19 @@
   }
   .pt-pin:hover {
     background: var(--paper-2);
+  }
+  .pt-tip {
+    display: grid;
+    gap: var(--sp-2);
+    padding: var(--sp-2) var(--sp-3);
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    background: var(--paper-2);
+  }
+  .pt-tip p {
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .pt-list,
   .pt-hits {

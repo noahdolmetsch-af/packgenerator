@@ -24,6 +24,8 @@
   import { shrinkImage } from '../lib/photo.js';
   import { localDay } from '../lib/localday.js';
   import NoteSheet from '../lib/notes/NoteSheet.svelte';
+  import { MERKEN_KEY } from '../lib/merkendb.js';
+  import { stepsOf } from '../lib/merken/steps.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import SpeakButton from '../lib/ui/SpeakButton.svelte';
@@ -50,6 +52,13 @@
   import SwipeRow from '../lib/ui/SwipeRow.svelte';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { Pin, PinOff } from '@lucide/svelte';
+  // F3 (Noah 05.11.2026): the search also finds the to-dos (Kalender › Merken), with their steps
+  const todosQ = liveQuery(async () => (await db.settings.get(MERKEN_KEY))?.value ?? []);
+  const todoHits = $derived.by(() => {
+    const q = query.trim().toLowerCase();
+    if (q.length < 2 || q.startsWith('#')) return [];
+    return ($todosQ ?? []).filter((x) => !x.kind && !x.doneAt && !x.off && (x.text.toLowerCase().includes(q) || stepsOf(x).some((s) => s.text.toLowerCase().includes(q)))).slice(0, 6);
+  });
   const tripsQ = liveQuery(() => db.trips.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
 
@@ -237,7 +246,17 @@
     checkMode = true;
     if (!/(^|\n)- /.test(text)) text = `${text}${text ? '\n' : ''}- `;
   }
+  let saving = false; // the save waits for the database: a second tap meanwhile must not add the note again
   async function save() {
+    if (saving) return;
+    saving = true;
+    try {
+      await saveNow();
+    } finally {
+      saving = false;
+    }
+  }
+  async function saveNow() {
     msg = '';
     let link = null;
     if (linkOpen && linkUrl.trim()) {
@@ -391,8 +410,14 @@
           <div class="ich-h"><div><h2 id="all-h">{filter === 'all' && !query ? t('All, newest first') : t('{n} found', { n: rest.length })}</h2></div></div>
           <ul class="card ich-list">{#each rest as n (n.id)}{@render row(n)}{/each}</ul>
         </section>
-      {:else if counts.all && !pinned.length}
+      {:else if counts.all && !pinned.length && !todoHits.length}
         <div class="nonote"><Empty icon={Search} text={t('Nothing found.')} /></div>
+      {/if}
+      {#if todoHits.length}
+        <section class="ich-sec" aria-labelledby="todo-h" data-note-todo-hits>
+          <div class="ich-h"><div><h2 id="todo-h"><ListChecks size={16} aria-hidden="true" /> {t('To-dos')} <small class="n num">{todoHits.length}</small></h2><p class="ich-hs">{t('Found in Calendar › Remember.')}</p></div></div>
+          <ul class="card ich-list">{#each todoHits as x (x.id)}<li><a class="ich-row open" href="#/calendar"><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{x.text}</b><small>{x.due ? dayShort(x.due) : t('Without date')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>{/each}</ul>
+        </section>
       {/if}
       {/if}
       <!-- «Tagebuch» (Noah 20.10.2026): one tap from the notes to the diary, also with no notes yet -->

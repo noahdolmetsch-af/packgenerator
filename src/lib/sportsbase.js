@@ -50,9 +50,10 @@ export function allSports({ domains = [], acts = [] } = {}) {
   const out = [];
   for (const s of SPORTS) {
     const d = dom[s.key];
-    if (d?.hidden) continue;
-    const raw = !!d?.raw && s.key === d.key;
-    out.push({ id: `trip:${s.key}`, kind: 'trip', key: s.key, name: raw ? d.name : s.name, raw, icon: TRIP_ICON[s.key] ?? 'heart', ring: 'move', bike: s.area === 'bikepacking' });
+    // s.name, s.raw and s.hidden are the person's version (sportlist.js setSportNames): the four bike sports have their own list
+    if (d?.hidden || s.hidden) continue;
+    const raw = !!s.raw || (!!d?.raw && s.key === d.key);
+    out.push({ id: `trip:${s.key}`, kind: 'trip', key: s.key, name: raw && !s.raw ? d.name : s.name, raw, icon: TRIP_ICON[s.key] ?? 'heart', ring: 'move', bike: s.area === 'bikepacking' });
   }
   for (const d of domains) {
     if (!d.own || d.hidden) continue;

@@ -117,9 +117,13 @@
 {/if}
 
 <style>
+  /* Etappe 6 (E6-004): grip, name, time, arrows, rename and delete wrap at 320 px instead of pushing the page wider */
+  .zones .tool-list > li {
+    flex-wrap: wrap;
+  }
   .z-m {
     display: grid;
-    flex: 1 1 auto;
+    flex: 1 1 7rem;
     min-width: 0;
   }
   .z-m b {

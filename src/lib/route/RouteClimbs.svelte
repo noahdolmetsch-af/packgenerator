@@ -16,6 +16,7 @@
   import { climbsDetail, climbProfile, sortClimbs, climbTotals, stepOf, LEVELS, SORTS } from '../race/climbs-lib.js';
   import { fineOf } from '../map/fineprofile.js';
   import { SHORT_LIST, PLAN_MIN_GAINS, minOf, viewFor, colourOf, noteKey, notesOf, withNote } from './routeclimbs.js';
+  import { tripFog } from '../wetter/nebelroute.js'; // «Nebel auf der Tour-Route» (Noah 05.11.2026): the fog band in the profile
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { db } from '../db.js';
   import { t, tn, locale } from '../i18n.svelte.js';
@@ -27,6 +28,13 @@
   const total = $derived(f?.km ?? Number(route?.km) ?? 0);
   const profile = $derived(climbProfile(route));
   const step = $derived(stepOf(profile));
+
+  // the fog line at 9 h of the first day (the next 3 days only); null: no band
+  let fogBand = $state(null);
+  $effect(() => {
+    const mine = trip;
+    tripFog(db, mine).then((f) => mine === trip && (fogBand = f && f.top != null ? { top: f.top, hour: 9 } : null)).catch(() => (fogBand = null));
+  });
 
   let view = $state(null);
   let cursorKm = $state(null);
@@ -101,7 +109,7 @@
   <div class="rcl" data-route-climbs>
     <div class="rcl-strip" bind:this={strip}>
       <h3 class="rcl-h">{t('Elevation profile')}</h3>
-      <ProfileStrip profile={route.profile ?? []} fine={route.profileFine ?? null} bind:view bind:cursorKm withMap={false} marks={climbs.map((c) => ({ km: c.fromKm }))} />
+      <ProfileStrip profile={route.profile ?? []} fine={route.profileFine ?? null} bind:view bind:cursorKm withMap={false} fog={fogBand} marks={climbs.map((c) => ({ km: c.fromKm }))} />
     </div>
 
     <section class="rcl-list" aria-labelledby="rcl-h-{trip.id}">

@@ -36,6 +36,7 @@ test('Versuch mit Messwert: Vergleich vor und während des Versuchs', async ({ p
   await page.reload();
   await ready(page);
   await page.locator('[data-exp-q]').fill('Sinkt mein Ruhepuls mit mehr Ruhe?');
+  await page.locator('[data-exp-more] summary').click();
   await page.locator('[data-exp-metric]').selectOption('rhr');
   await page.locator('input[type="date"]').first().fill(addDays(TODAY, -3)); // 4 days so far (to and with today)
   await page.locator('[data-exp-add]').click();

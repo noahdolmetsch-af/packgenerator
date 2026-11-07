@@ -1,0 +1,3689 @@
+/**
+ * The versions numbered by hand (0.1.0 up to the last hand-numbered one, newest first), moved out of whatsnew.js (Tempo, 05.11.2026,
+ * Noah «a»): they are about 190 KB of text that only the page «What is new» and its like read, so they load with it
+ * (src/lib/whatsnew-all.js), not with the start. Frozen: since 27.10.2026 a PR adds src/lib/news/<name>.js instead.
+ * Their short lines for the start are in whatsnew-alt-index.js (tests/whatsnew-split.test.js keeps both in step).
+ */
+
+export const WHATS_NEW_ALT = [
+  {
+    // v0.234.0 Live Navigation PR 5 «Umweg und zurück» (Noah 27.10.2026 «1a 2b 3a» + «entlang gleicher strecke zurück
+    // zur route»): at the place the app asks how you go back; off the route it plans the way back by itself
+    version: '0.234.0',
+    date: '2026-10-27',
+    title: 'And back onto the route',
+    lead: 'After a stop and off the route, the live map shows you the way back.',
+    points: [
+      { text: 'At the place of a detour: back where you left the route, or the fastest way', href: '#/live' },
+      { text: 'Off the route the app plans the way back by itself, with Undo and «The same way back»', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: 'In a race «back where I left» is chosen first' }],
+    test: ['Open a race or tour on the live map and turn on «Off-route warning» in the settings.', 'Plan a detour with «Nearby» › a place › «Go there» and ride to it: the card asks how you go back.', 'Ride off the route: after about 15 seconds a new way back shows up. Before, only the warning tone came.'],
+  },
+  {
+    // v0.233.0 «Heute ruhiger» part 2 (Noah 26.10.2026 «2a», mockup H2): tiles that show again what another tile shows
+    // leave Heute once (tiles.js DOUBLES, wall v 13); they stay under «Add a tile»
+    version: '0.233.0',
+    date: '2026-10-27',
+    title: 'Everything once on Today',
+    lead: 'Double tiles left Today.',
+    points: [
+      // on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Tiles that showed the same thing twice left Today once' },
+      { text: 'You find them under «Add a tile»' },
+    ],
+    small: [{ box: 'nicer', text: 'Body values: all of them behind «Details» in «Your body today»' }],
+    test: ['Open Today: your body values stand once, in «Your body today».', 'Customise the start page › Add a tile: «Body values» and the others are still there.'],
+  },
+  {
+    // v0.232.0 «Was ziehe ich an? selbst anpassen» Schritt 1 (Noah 27.10.2026 «1a 2a oder b wählbar 3a 4a … 5a»): in the
+    // window on Today every row can be swapped or left out and a layer added, for this ride day only; a gap says why
+    // (too light, still in «To sort», nothing yet) with «Take anyway» and the wishlist; «Why so?» explains the rule
+    version: '0.232.0',
+    date: '2026-10-27',
+    title: 'Your clothes, your call',
+    lead: '«What do I wear?» now lets you change the suggestion.',
+    points: [{ text: 'Swap any piece, leave one out or add a layer, for today only' }],
+    small: [
+      { box: 'new', text: 'A gap says why: too light, still to sort, or nothing yet' },
+      { box: 'new', text: '«Why so?» explains how the app chooses' },
+    ],
+    test: ['On Today tap «What do I wear?» and then «Swap» on a row: pick another piece; the row says «chosen by you · today only».', 'Open «Why so?» under the list: it names the temperature and from when each layer comes.'],
+  },
+  {
+    // v0.231.1 «332 sichtbar», next 4 hidden functions (Noah 26.10.2026 «wie kannst du weiter machen»): catalogue
+    // names like on the page, Ozone and pollen lives on Weather, Chain after rain on Messages, Receipts on the bike shop tab
+    version: '0.231.1',
+    date: '2026-10-27',
+    title: 'Found where you look',
+    lead: 'Four more tools now live on the page where you see them.',
+    points: [{ text: 'Ozone and pollen: found on the Weather page', href: '#/wetter' }, { text: 'Chain after rain: found under Messages', href: '#/me/push' }],
+    small: [{ box: 'nicer', text: 'Receipts and Ice in the morning carry the name the page shows', href: '#/bikes?tab=shop' }],
+    test: ['Open «What the app can do», search «Pollen» and tap «Try it».', 'The Weather page opens with ozone and pollen.'],
+  },
+  {
+    // v0.231.0 «Touren b» catalogue (996 Einzelideen 50–58): all in «What the app can do», the handbook and the home pages; idea 56 map
+    version: '0.231.0',
+    date: '2026-10-27',
+    title: 'Where you said it',
+    lead: 'Your day to listen to now shows a small map.',
+    points: [{ text: '«Your day to listen to» shows on a map where you recorded each note', href: '#/debrief' }],
+    small: [{ box: 'nicer', text: 'The tour ideas from 0.212.0 are now in «What the app can do», the handbook and on their home pages', href: '#/features' }],
+    test: ['After a day with voice notes open «Your day to listen to» in the debrief.', 'The map «Where you spoke them» shows a number for each note; a tap plays it.'],
+  },
+  {
+    // v0.227.0 Live Navigation PR 4 «In der Nähe» (Noah 27.10.2026 «1a 2a 3a 4a», «freigabe für alle mockups»): one
+    // window with all place filters, 14 situation buttons (map/situations.js), «Everything» at once, «Go there», 14 new kinds
+    version: '0.227.0',
+    date: '2026-10-27',
+    title: 'What do you need?',
+    lead: 'On the live map, «Nearby» opens one window with everything to find a place.',
+    points: [
+      { text: 'Situation buttons: hungry, thirsty, home by train, sleeping place and more', href: '#/live' },
+      { text: 'New places: sauna, indoor pool, Selecta, tube vending machine, farm shop, firepit, phone charging', href: '#/live' },
+    ],
+    small: [{ box: 'new', text: '«Everything» shows every kind of your row at once' }],
+    test: ['Open the live map and tap «Nearby».', 'Tap «Hunger»: only food places that are open now show up.', 'Tap a place and then «Go there». Before, the place search sat at the bottom of the sheet.'],
+  },
+  {
+    // v0.226.0 Tages-Check (Noah 26.10.2026 «1a»): «Not today» in the morning waits only until the evening check
+    version: '0.226.0',
+    date: '2026-10-27',
+    title: 'The evening check still comes',
+    lead: '«Not today» in the morning no longer skips the evening.',
+    points: [{ text: '«Not today» in the morning check waits only until the evening check', href: '#/me/abfragen' }],
+    small: [{ box: 'fixed', text: 'The hint in the check window says «until the evening check» in the morning' }],
+    test: ['In the morning check tap «Not today»: the window closes.', 'In the evening, at your evening time, the evening check comes as usual.'],
+  },
+  {
+    // v0.223.0 Live Navigation PR 3 «Strecke genau» (Noah 27.10.2026 «bitte umsetzen»): tour and race routes keep
+    // their bends (route/fineline.js, Douglas–Peucker 5 m, up to 3000 points) instead of 200 even points
+    version: '0.223.0',
+    date: '2026-10-27',
+    title: 'The route follows every bend',
+    lead: 'Routes from a GPX file now keep their curves on the map.',
+    points: [{ text: 'Tour and race routes keep their bends instead of cutting corners', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Add the GPX file once more for a tour you made before' }],
+    test: ['Open Pack, open a tour and tap «Add GPX route».', 'Choose a GPX file with many bends, then open the live map of this tour.', 'Zoom in close: the line follows the road. Before, it cut across bends.'],
+  },
+  {
+    // v0.222.0 Live Navigation PR 2 «Orte» (Noah 26.10.2026, filters 1–14, 17, 18): every server in turn with the
+    // true reason when all fail, a quick choice row, filters (open, on the way, detour, climb, features, sort) and presets
+    version: '0.222.0',
+    date: '2026-10-27',
+    title: 'Places that find you',
+    lead: 'Places on the live map: more servers, and filters that think ahead.',
+    points: [{ text: 'Filter places: open now or when you get there, on your way, small detour', href: '#/live' }],
+    small: [{ box: 'new', text: 'Save your filters and use them again' }],
+    test: ['Open the live map and search places around you.', 'Tap «Filter»: choose «Open when I get there» and a detour of 2 km. The list gets shorter and shows «there about …».', 'Tap «Save filters», switch the filter off and pick it again under «Saved filters».'],
+  },
+  {
+    // v0.221.0 Live Navigation PR 1 «Fahrt speichern» (Noah 26.10.2026, mockups M9/M10): «Fahrt beenden» asks once,
+    // every ride is saved at once as its own entry in Touren labelled «Live Navigation», bike km booked with Undo.
+    version: '0.221.0',
+    date: '2026-10-27',
+    title: 'Every ride is saved',
+    lead: '«End the ride» asks once and keeps the ride in Trips.',
+    points: [{ text: 'Each live ride is in Trips as «Live Navigation»', href: '#/trips' }],
+    small: [{ box: 'new', text: 'The km go to your bike by themselves, with Undo', href: '#/live' }],
+    test: ['Open the live map, start a ride and ride a few minutes (or walk).', 'Tap «End the ride», then «End and save»: a line says «Saved in Trips».', 'Open Trips: the ride is there with the label «Live Navigation».'],
+  },
+  {
+    // Velo-Ergänzungen (Noah 26.10.2026 «1 3 6 7 8 12a»): chain checker in the forecast, year in review, care series, calendar, noises, winter and spring. v0.220.0.
+    version: '0.220.0',
+    date: '2026-10-27',
+    title: 'More for your bike',
+    lead: 'Also noises and the calendar.',
+    points: [
+      { text: 'Chain checker corrects the forecast', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Bike year in review', href: '#/bikes?tab=care&view=year' },
+      { text: 'Winter and spring checklists', href: '#/bikes?tab=care&view=season' },
+    ],
+    small: [
+      { box: 'new', text: 'Noise notes with tips from the bike FAQ', href: '#/bikes?tab=care&view=wear' },
+      { box: 'new', text: 'Part changes in your Google calendar', href: '#/me/connections' },
+    ],
+    test: [
+      'Bikes › Care › a bike › «Wear» › «Year in review».',
+      'On «Wear» note a noise under «Noises».',
+    ],
+  },
+  {
+    // v0.219.0 «Heute ruhiger» part 1 (Noah 26.10.2026 «1a 5a», mockup H1): cards as tall as their content, the small
+    // tiles as one list «Schnell öffnen», the bike jobs as small round buttons
+    version: '0.219.0',
+    date: '2026-10-27',
+    title: 'A calmer Today',
+    lead: 'No more empty boxes on Today.',
+    points: [
+      // all on Today itself, so no «Try it» address (0.121.0: '#/' would do nothing)
+      { text: 'Today: every card is only as tall as its content' },
+      { text: 'The small buttons are one list «Open quickly»' },
+    ],
+    small: [{ box: 'nicer', text: 'Bikes on Today: the jobs are small round buttons' }],
+    test: ['Open Today: no card has a big empty space below.', 'Scroll to «Open quickly»: the small buttons stand in one list, a tap opens the place.', 'Look at the bike card: the jobs are small round buttons.'],
+  },
+  {
+    // v0.218.0 «Leere Taschen nehmen Teile auf» (Noah 26.10.2026 22:06 «starte mit 1, dann 3»): in «All bags side by
+    // side» an empty bag stays as a column to drag an item into
+    version: '0.218.0',
+    date: '2026-10-27',
+    title: 'Room in every bag',
+    lead: 'An empty bag now takes an item too.',
+    points: [{ text: 'All bags side by side: empty bags stay as a column to drag into', href: '#/pack?day' }],
+    small: [{ box: 'new', text: 'The arrows next to an item offer the empty bags too', href: '#/pack?day' }],
+    test: ['On the computer open Packen › Alle Taschen nebeneinander and drag an item into an empty bag, or use the arrows next to the item.', 'The bag now shows the item; «Undo» puts it back.'],
+  },
+  {
+    // v0.217.0 «332 sichtbar» (Noah 26.10.2026 «starte mit 1, dann 3 und danach 2», 2 = the 20 deeply hidden functions):
+    // catalogue names as the page shows them, short lines on Verpflegung, Fahrten, the meditation log and the evening check,
+    // a Trello button on Merken; hidden functions 77 → 57
+    version: '0.217.0',
+    date: '2026-10-27',
+    title: 'Nothing hides any more',
+    lead: 'Twenty tools that were hard to find now stand where you look.',
+    points: [{ text: 'Remember: a Trello button at the top leads to your board settings', href: '#/calendar' }],
+    small: [{ box: 'new', text: 'Food and water and Rides say in one line what they can do', href: '#/trips/fuel' }],
+    test: ['Open Planen › Merken and tap «Trello» next to «Reminders».', 'The page jumps down to the Trello box.'],
+  },
+  {
+    // v0.212.2 UI-Test 26.10.2026 T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren» (G2-07, G2-15): one start
+    // time of today on Unterwegs and «Vor der Abfahrt» (an open recording gives it), «Fahrt von … weiterführen» as the
+    // main button, «Tour beenden …» in «…» before setting off, the base check as a list with boxes
+    version: '0.212.2',
+    date: '2026-10-26',
+    title: 'One start time',
+    lead: 'On the way and «Before you leave» show the same start.',
+    points: [{ text: 'A ride still recording: the main button is «Continue the ride from 19:27»', href: '#/ride' }],
+    small: [
+      { box: 'nicer', text: 'Before you set off only «Start riding»; «End the trip …» is in «…»' },
+      { box: 'nicer', text: 'Base check as a list with boxes, like Pack' },
+    ],
+    test: ['Open On the way on a trip day before setting off: the one main button is «Start riding»; «End the trip …» is in «…».', 'Open «Before you leave»: it shows the same start time as On the way.'],
+  },
+  {
+    // v0.212.1 UI-Test 26.10.2026 T1 «Heutige Tour: ein Zustand überall»: a day ride not begun yet (not packed, not
+    // started) no longer shows «Letzter Abend», «Rückblick heute» or «Abgeschlossen»; the tour page says «Geplant»
+    version: '0.212.1',
+    date: '2026-10-26',
+    title: "Today's tour says one thing",
+    lead: 'Not packed yet means: still packing, not done.',
+    points: [{ text: 'A day ride not started yet no longer shows «Last evening» or «Completed»', href: '#/trips' }],
+    small: [{ box: 'fixed', text: 'Tour page before the ride: «Planned» and a button to the step you are in' }],
+    test: ['Plan a day ride for today and do not finish packing. In the evening Today shows no «Last evening» and no «Review today».', 'Open the tour page of that trip (step «Analysis»): it says «Planned» and «Continue to Pack».'],
+  },
+  {
+    // v0.212.0 «Touren b» (996 Einzelideen 50–58, Noah 25./26.10.2026 «freigabe 52 55 56 57 58»): trip from an intent,
+    // rule with an end, little stories, check from a breakdown, «check later», note at a place, your day to listen to,
+    // eat reminder at planned stops, book what was used
+    version: '0.212.0',
+    date: '2026-10-26',
+    title: 'Tours that remember',
+    lead: 'Start from what you want, get reminded at the right place.',
+    points: [{ text: 'New trip: start from what you have in mind', href: '#/trips' }],
+    small: [{ box: 'new', text: 'A note at a place of the route comes up when you get there', href: '#/ride' }],
+    test: ['Open Touren › Neue Tour: on top choose what you have in mind, the form stays below.', 'On the way tap «Später prüfen» and say what to check: it waits in the Inbox.'],
+  },
+  {
+    // v0.211.0 «Touren a» part 2 (996 Einzelideen 44, 45, 47, 49; Noah 26.10.2026 «1a 2b 3a 4b 5b»): trips side by side,
+    // sport per day with «When it changes», unclear spots with km, own border points per country
+    version: '0.211.0',
+    date: '2026-10-26',
+    title: 'Two tours, one look',
+    lead: 'Compare two trips and prepare one well.',
+    points: [
+      { text: 'Trips side by side: overlapping days and shared gear', href: '#/trips/compare' },
+    ],
+    small: [{ box: 'new', text: 'Prepare the tour: sport per day, unclear spots, border', href: '#/pack' }],
+    test: ['Open Trips › «Trips side by side» and tap two trips.', 'In Planen open «Prepare the tour» and set bike on day 1 and hiking on day 2.'],
+  },
+  {
+    // v0.210.0 «Noahs Liste sichtbar» (Noah 26.10.2026 «folgende möchte ich sichtbar»): jump buttons and quick rows for
+    // hidden tools (Packen, Material, Aktiv, Heute weather high/low, Velo); all bags side by side on a big screen
+    version: '0.210.0',
+    date: '2026-10-26',
+    title: 'Your list in sight',
+    lead: 'What you asked for now has its own button.',
+    points: [{ text: 'Planning: buttons for layer check, shopping list and bag by bag', href: '#/pack' }],
+    small: [{ box: 'new', text: 'On a big screen drag an item into another bag', href: '#/pack' }],
+    test: ['Open Planen with a trip: «Zwiebel-Check» and «Tasche für Tasche packen» stand as buttons on top.', 'Open Heute: the weather line shows the high and the low.'],
+  },
+  {
+    // v0.209.0 «Gruppenfahrt für Events» (Noah 26.10.2026 «1a 2b 3a 4a 5a»): own page with help, ready, checkpoints,
+    // meeting points, who has what, split costs, storm warning, night pause; contact card with QR code
+    version: '0.209.0',
+    date: '2026-10-26',
+    title: 'Riding together for days',
+    lead: 'A group ride with help, meeting points and shared costs.',
+    points: [{ text: 'Group ride: own page with help, ready and meeting points', href: '#/gruppenfahrt' }],
+    small: [{ box: 'new', text: 'Your contact card with a QR code', href: '#/me/freunde' }],
+    test: ['Open Touren › Live-Karte › Gruppenfahrt: help, ready and meeting points stand on one page.', 'Open Ich › Mit Freunden: your contact card shows a QR code.'],
+  },
+  {
+    // v0.208.1 Gesamttest 26.10.2026 (with a real backup, was PR #257 0.200.1): on a small phone words broke in the middle
+    // (shopping list, weight, small tiles, Ich lists, wear card); a long Strava name made a row of tiles on Today very tall.
+    version: '0.208.1',
+    date: '2026-10-26',
+    title: 'Whole words on a small phone',
+    lead: 'On a small phone names and titles keep their words whole again.',
+    points: [{ text: 'Shopping list: «To buy» stands under the name', href: '#/gear?view=wish' }],
+    small: [{ box: 'fixed', text: 'Shopping list and Weight in Plan no longer break in the middle' }],
+    test: ['On a small phone open Material › Einkauf: the names read normally, «Zu kaufen» stands under them.', 'Open Planen with a trip: «Einkaufsliste» and «Gewicht» stand as whole words.'],
+  },
+  {
+    // v0.208.0 «Computer-Breite besser nutzen» (UI-Ziel #14, Noah 26.10.2026 «1a 2a 3a 4a 5a»): Touren with a right
+    // column that goes along, Auswerten's «Letzte 7 Tage» on the right, Velos with the bike first, content at most 1120 px.
+    version: '0.208.0',
+    date: '2026-10-26',
+    title: 'More room on the computer',
+    lead: 'The main thing left, the extras right.',
+    points: [
+      { text: 'Trips: period, filter and open debriefs go along on the right', href: '#/trips' },
+    ],
+    small: [{ box: 'nicer', text: 'Analysis: the last 7 days stand right of the overview', href: '#/auswerten' }],
+    test: ['On the computer open Trips and scroll down the list: period, filter and open debriefs stay visible on the right.', 'Open Analysis: «Last 7 days» stands under «Wi gaht\'s?».', 'Open Bikes: «How it works» is one line, a tap opens it.'],
+  },
+  {
+    // v0.207.0 «Touren a» (996 Einzelideen Touren 41, 42, 43, 46, 48; Noah 25.10.2026): route check, Plan B with a trigger,
+    // what was left out, waiting time in the layer check, offline map with reserve
+    version: '0.207.0',
+    date: '2026-10-26',
+    title: 'Tours with a plan B',
+    lead: 'Check the route first, agree on Plan B.',
+    points: [
+      { text: 'Route check: jumps and missing heights before you take a GPX', href: '#/pack' },
+      { text: 'Plan B with your own trigger, like from 10 mm of rain', href: '#/pack' },
+    ],
+    small: [{ box: 'new', text: 'The review asks whether what you left out was missing', href: '#/debrief' }],
+    test: ['Open Planen › Strecke and load a GPX with a gap: a hint shows before «Trotzdem übernehmen».', 'Under «Von der Haustür bis zurück» › Plan B choose «Regen am Tag» «ab 10 mm».'],
+  },
+  {
+    // v0.206.0 «Fitbit-Werte auf Heute» (Noah 26.10.2026 «1a»): the last Fitbit value within 7 days, with its day
+    version: '0.206.0',
+    date: '2026-10-26',
+    title: 'Fitbit values with their day',
+    lead: 'Heute keeps the last Fitbit value until today\'s arrives.',
+    points: [{ text: 'Sleep, HRV and resting pulse show their day, like «yesterday»', href: '#/flow' }],
+    small: [{ box: 'fixed', text: 'In the morning the Fitbit tiles are no longer empty', href: '#/flow' }],
+    test: ['Open Heute in the morning before the Fitbit sync: the tiles show last night\'s values with «yesterday» or the day.', 'A value older than 7 days no longer shows.'],
+  },
+  {
+    // v0.205.0 Einzelideen Material und Überall (996 Ideen, Noah 25.10.2026: 19–22, 24, 37, 38, 40); provisional, the bundler sets the number
+    version: '0.205.0',
+    date: '2026-10-26',
+    title: 'Material that knows why',
+    lead: 'Own views, and why an item is a favourite.',
+    points: [
+      { text: 'Own views like Repair or Winter, without copies', href: '#/gear' },
+      { text: 'Why a favourite, and which trouble a wish solves', href: '#/gear?view=wish' },
+    ],
+    small: [{ box: 'new', text: 'Group ride: «I am waiting here» and stops', href: '#/live' }],
+    test: ['Open Material › «Eigene Ansichten» › «Bearbeiten» and add «Kinder».', 'Open an item, tick «Kinder» and save: the view shows it.'],
+  },
+  {
+    // v0.204.0 «Einzelideen Heute» (Noah 25./26.10.2026 «1-8 alle so bauen», ideas 1 2 4 5 6 7 8): surprise round,
+    // weather on your own spot, split rating, rain bundled, check after the standstill, examples by interest, life change.
+    version: '0.204.0',
+    date: '2026-10-26',
+    title: 'A little surprise',
+    lead: 'A round you do not know yet, and the app learns your own spot.',
+    points: [
+      { text: 'At home: note how wind and sun really felt', href: '#/wetter' },
+      { text: 'Surprise round: adventure and time, the app suggests the rest', href: '#/' },
+      { text: 'After a long standstill: what to check on the bike', href: '#/bikes?tab=care&view=wear' },
+    ],
+    small: [
+      { box: 'new', text: 'Rate experience, plan and body apart; «Something changed?» in «Still right?»' },
+      { box: 'nicer', text: 'Several rides in the rain: one chain task, one reminder' },
+    ],
+    test: ['Tap «Neu» › «Überraschungsrunde», choose «Neugierig» and 2 h, then «Runde vorschlagen».', 'Open the weather page at home: «Zu Hause: wie war es wirklich?» stands below.', 'Me › Daten und Backup › «Stimmt das noch?»: «Hat sich etwas geändert?» › «Ich bin umgezogen».'],
+  },
+  {
+    // v0.203.0 «Kleine Helfer unter Ich» (Einzelideen 27–36 of the 996 ideas, Noah 25.10.2026; big ones from the
+    // mockups, 26.10.2026 «1a 2a 3a 4a 5a»): last tool results, sign-in explained, own fuel numbers for one trip,
+    // everything hidden in one look, what depends on a connection; plus backup-folder messages, go on with a tour,
+    // shortcut tips, done on every device and suggestions by kind. Provisional number: the bundler sets the final one.
+    version: '0.203.0',
+    date: '2026-10-26',
+    title: 'Small helpers under Me',
+    lead: 'The app explains more and nags less.',
+    points: [
+      { text: 'Everything you hid, in one look, with «Show again»', href: '#/me/ruhig/aus' },
+      { text: 'Toolbox: your last results come back', href: '#/me/tools' },
+      { text: 'Food and water: own numbers for one trip only', href: '#/trips/fuel' },
+    ],
+    small: [{ box: 'new', text: 'Switch off suggestions by kind, on every page' }, { box: 'nicer', text: 'Before the Google sign-in the app says what happens' }],
+    test: ['Open Ich › Ruhig und persönlich › Ausgeblendet und aus: switch off «Kaufideen»; it shows under «Alles Ausgeblendete», «Wieder zeigen» brings it back.', 'Open Ich › Verbindungen: «Was davon abhängt» names the pages of each connection.', 'Start a tour under Ich › Handbuch, end it at step 3, start it again: «Weiter bei Schritt 3» is on top.'],
+  },
+  {
+    // v0.202.0 «Planen im Zusammenhang» (996 Ideen 10–16; Noah 25.10.2026, big parts 26.10.2026 «1a 2a 3a 4a 5a»):
+    // Pflanzenpass, Vorgänge in the inbox (double entries, mail as a matter), memory cards and «Notes in context»;
+    // links between notes with a meaning, a note back after the next trip or workshop visit, the trash says what comes back.
+    version: '0.202.0',
+    date: '2026-10-26',
+    title: 'Plan in context',
+    lead: 'Plants, mails and notes know what belongs together.',
+    points: [
+      { text: 'Plant passport: sun, wind, soil and every move of each plant', href: '#/calendar/pflanzen' },
+      { text: 'Matters in the inbox: booking, question and bill together', href: '#/inbox/vorgaenge' },
+      { text: 'Memory cards: text, picture, place and a sound as one scene', href: '#/notes/zusammenhang' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Links between notes with a meaning; a note back after the next trip or workshop visit', href: '#/notes/zusammenhang' },
+      { box: 'nicer', text: 'The trash shows what comes back with a note', href: '#/notes' },
+    ],
+    test: ['Planen › Merken › Pflanzenpass: «Beobachtung» for a plant, then «Umgezogen»: the old spot stays in the history.', 'Eingang › Vorgänge: a mail and a photo with the same number show as a pair; «Zusammenführen» puts both into one matter.', 'Open a note › «Erinnerungskarte machen» › «Karte behalten»; Notizen › Notizen im Zusammenhang shows it.'],
+  },
+  {
+    // v0.201.0 «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»): one input bar
+    // on ten pages (voice note up to 1 min, photo, file, place, tags, templates per page, prompts, AI), picture card,
+    // the diary in the app search.
+    version: '0.201.0',
+    date: '2026-10-26',
+    title: 'Speak, attach, start from a template',
+    lead: 'Under every text you can now add a voice note, a file or a template.',
+    points: [
+      { text: 'Voice note, file, place and templates under the text of ten pages', href: '#/tagebuch?neu' },
+      { text: 'Diary: gratitude, small joys and a picture card to share', href: '#/tagebuch' },
+    ],
+    small: [{ box: 'new', text: 'The search at the top also finds your diary' }, { box: 'new', text: 'Writing prompts when you are stuck' }],
+    test: ['Open Planen › Tagebuch › «Neuer Eintrag». Under the text tap «Sprachnotiz», speak a few seconds, then «Als Text».', 'Tap «Vorlage» › «Dankbarkeit»: the question stands under your text. Save; in the entry tap «Bildkarte».'],
+  },
+  {
+    // v0.200.0 Gruppen-Live-Karte (Paket U Bikepacking): ride with friends on one map; friends open a link in the browser
+    // without the app; ends after the ride, at the latest after 24 hours, and the places are deleted (api/sync.js ?action=group).
+    version: '0.200.0',
+    date: '2026-10-25',
+    title: 'Riding together on one map',
+    lead: 'Friends see each other on the map, without the app.',
+    points: [
+      { text: 'Group ride: send a link, everyone on one map', href: '#/live' },
+      { text: 'Ends after the ride, at the latest after 24 hours', href: '#/live' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Bike functions are called like their buttons' },
+    ],
+    test: ['Open Unterwegs › Live-Karte › «Gruppenfahrt» and send yourself the link.', 'Open the link in a private window: your name and km show on the map.'],
+  },
+  {
+    // v0.199.0 Paket A last single ideas (996 Ideen): webcams with a purpose, birthday steps, ideas together, repairs, borrow first
+    version: '0.199.0',
+    date: '2026-10-25',
+    title: 'Fix it, try it, meet up',
+    lead: 'Clothes get repair jobs, wishes can be borrowed first, and reminders turn into invitations.',
+    points: [
+      { text: 'Clothing: repair instead of sorting out', href: '#/wardrobe' },
+      { text: 'Wish: borrow first, then decide', href: '#/gear?view=wish' },
+      { text: 'Not seen for a while: ideas to do together', href: '#/me/alltag/menschen' },
+    ],
+    small: [
+      { box: 'new', text: 'Birthdays show small steps to tick, webcams say what they are for' },
+      { box: 'fixed', text: 'Renaming a webcam closes the window again' },
+    ],
+    test: ['Open a piece of clothing, fold «Repair instead of sorting out» and add «Replace the zip».', 'Open a wish, fold «Borrow before buying», note a friend and a day.', 'Under Me › Everyday life › Not seen for a while, give a person an idea to do together.'],
+  },
+  {
+    // v0.198.0 «Kette vorausschauend» (Noah 25.10.2026): the chain's next steps on «Wear» (replace, before the trip,
+    // soon, measure, oil), history and forecast from the own measurements, phone reminder «measure the chain».
+    version: '0.198.0',
+    date: '2026-10-25',
+    title: 'The chain, one step ahead',
+    lead: 'The app says what the chain needs next, before it is too late.',
+    points: [
+      { text: 'Chain: what comes next, with one button each', href: '#/bikes?tab=care&view=wear' },
+      { text: 'History and forecast from your measurements', href: '#/bikes?tab=care&view=wear' },
+    ],
+    small: [{ box: 'new', text: 'A new chain before the trip when it would run out on the way' }, { box: 'new', text: 'Phone reminder: time to measure the chain' }],
+    test: ['Open Velos › Pflege › Verschleiss: «Kette: was als Nächstes kommt» stands on top.', 'Tap «Jetzt messen», save a value: «Verlauf und Prognose» shows when the chain reaches 0.5 %.'],
+  },
+  {
+    // v0.195.1 fix: on a computer the shopping list broke item names letter by letter since «Wait 30 days» (0.192.0)
+    version: '0.195.1',
+    date: '2026-10-25',
+    title: 'Shopping list in one piece',
+    lead: 'Names in the shopping list read normally again.',
+    points: [{ text: 'With little room the buttons move under the name', href: '#/gear?view=wish' }],
+    small: [{ box: 'fixed', text: 'Item names no longer break letter by letter' }],
+    test: ['Open Material › Einkauf on the computer and tap a wish: the pane opens on the right.', 'The names in the list read normally, the buttons stand under them.'],
+  },
+  {
+    // v0.195.0 Paket B single ideas (996 Ideen, Noah «1b»): parked bike with key and parts taken off, «get in touch by»
+    // per night, hotel asks in race mode, options to compare on the travel links, a taste of a dream tour, a warranty claim draft.
+    version: '0.195.0',
+    date: '2026-10-25',
+    title: 'Small helpers for trip and bike',
+    lead: 'What you took off, whom to call back, what to compare.',
+    points: [
+      { text: 'Bike parked: key and what you took off', href: '#/ride' },
+      { text: 'Compare options on the travel links', href: '#/travel' },
+    ],
+    small: [{ box: 'new', text: 'A small taste of a dream tour first' }, { box: 'new', text: 'A draft for a warranty claim' }],
+    test: ['Open Touren › Reise-Links › «Optionen vergleichen» and add two options.', 'Open Touren › Träume, a dream: «Vorgeschmack planen».'],
+  },
+  {
+    // v0.194.0 Paket D «Mit Freunden» (996 Ideen, Noah 24.10.2026 «3b», «4b»):
+    // Ich › Mit Freunden: ask friends, lending shelf, share a template; everything as a link or a small file, no account.
+    version: '0.194.0',
+    date: '2026-10-25',
+    title: 'Together with friends',
+    lead: 'Friends add their part, without an account.',
+    points: [
+      { text: 'Ask friends: trip, place, photo, costs, packing', href: '#/me/freunde' },
+      { text: 'Lending shelf for friends', href: '#/me/freunde?tab=shelf' },
+    ],
+    small: [{ box: 'new', text: 'Share a building block or your layout' }],
+    test: ['Open Ich › Mit Freunden › Freunde fragen › Tour gemeinsam erzählen, choose a trip, «Link machen».', 'Open the link in a private window: answer and «Antwort machen».'],
+  },
+  {
+    // v0.193.0 Paket C «Ruhig und persönlich» (Noah 24.10.2026, 996 Ideen «5a»): Ich › Ruhig und persönlich with nine
+    // sub-pages: less app, experiments, where a value comes from, later self, meaning, skills, share with a preview,
+    // clear numbers, assistant with sources.
+    version: '0.193.0',
+    date: '2026-10-25',
+    title: 'Calm and personal',
+    lead: 'Less app when you want it, more of your own.',
+    points: [
+      { text: 'Letters to your later self, opened in the right moment', href: '#/me/ruhig/spaeter' },
+      { text: 'A workspace and a calm view: only what you do now', href: '#/me/ruhig/weniger' },
+    ],
+    small: [{ box: 'new', text: 'Skill map, own bingo, good decisions' }, { box: 'new', text: 'Assistant answers with your sources' }],
+    test: ['Open Ich › Ruhig und persönlich.', 'Open «Your later self» and write a letter for a date.'],
+  },
+  {
+    // v0.192.0 Paket A «Ehrlicher Stand im Alltag» (Noah 24.10.2026, 996 Ideen; 25.10 «mit A anfangen»): a to-do waits on
+    // something, lists and goals end honestly, a cancellation in steps, opened packs, chain care later, time around a date,
+    // and small ideas (contract use, smallest start, shopping by plan, timer purpose, buying pause, why not used).
+    version: '0.192.0',
+    date: '2026-10-25',
+    title: 'Honest about where things stand',
+    lead: 'Waiting, ended, sent but not confirmed: the app says it as it is.',
+    points: [
+      { text: 'A to-do can wait on an answer, a part or a person', href: '#/calendar' },
+      { text: 'Cancel a contract in steps: written, sent, confirmed', href: '#/me/alltag/abos' },
+      { text: 'A date with time before and after as its own entries', href: '#/week' },
+    ],
+    small: [{ box: 'new', text: 'Lists and goals end without ticking every point' }, { box: 'new', text: 'A wish can wait 30 days before you buy' }],
+    test: ['Open Planen › Merken, tap a to-do: «Wartest du auf etwas?» › «Eine Antwort».', 'Open Ich › Alltag › Verträge, a contract: tap «Von mir gesendet».'],
+  },
+  {
+    // v0.191.0 Paket B «Touren ohne Überraschung» part 3 (Noah 24.10.2026, 996 Ideen «1b»): the small ideas for the bike
+    // shop (cost limit, refund, handover after a sale, a problem seen before) and the trip (last look at the door, the
+    // home by the length of the absence, ended early: what is still booked).
+    version: '0.191.0',
+    date: '2026-10-25',
+    title: 'The workshop, clearly',
+    lead: 'How much at most, what came back, what goes with the bike.',
+    points: [
+      { text: 'Workshop order: at most CHF … and «call me first»', href: '#/bikes?tab=shop' },
+      { text: 'Sold a bike: a handover list', href: '#/bikes?tab=care&view=sell' },
+    ],
+    small: [{ box: 'new', text: 'A refund on a workshop visit, apart from what you paid' }, { box: 'new', text: 'Start morning: a last look at the door' }],
+    test: ['Open Velos › Werkstatt › «Auftrag teilen»: type 250 under «Höchstens CHF».', 'Open a visit: «Rückerstattung hinzufügen».'],
+  },
+  {
+    // v0.190.0 «Alltag sichtbar» + Sichtbar-Wächter (332 Use Cases P1 + P3, Noah 24.10.2026 «1a 2b 3a 4a 5b»): Heute fällig,
+    // Planen › Merken, bike folder buttons in Setup, Gear views one tap away; every function has its home page (heimat.js).
+    // + «Touren sichtbar» (P2, jtmsou 7c6b14bb) and «Touren ohne Überraschung» part 2 (6ruzpm eb6e8b60): pack by need, see the effect.
+    version: '0.190.0',
+    date: '2026-10-24',
+    title: 'Everyday in sight',
+    lead: 'What is due today, one line on Heute.',
+    points: [
+      { text: 'Remember is a tab of Plan', href: '#/calendar' },
+      { text: 'Due today: to-dos, birthdays, plants, bike care', href: '#/' },
+    ],
+    small: [{ box: 'new', text: 'Pack by need: sleep warm, cook, for two' }, { box: 'nicer', text: 'Tour picture: postcard and share picture in one' }],
+    test: ['Open Heute: below «Dein Körper heute» the line «Heute fällig» shows what is due.', 'Open Planen › Merken.'],
+  },
+  {
+    // v0.189.0 Paket B «Touren ohne Überraschung» part 1 (Noah 24.10.2026, 996 Ideen «1b 2a»): Generalprobe,
+    // Gut ankommen, Kisten-Etiketten.
+    version: '0.189.0',
+    date: '2026-10-24',
+    title: 'Trips without surprises',
+    lead: 'Try it at home first, arrive well after.',
+    points: [
+      { text: 'Dress rehearsal a week before the start', href: '#/trips' },
+      { text: 'Arrive well: the small things after a trip', href: '#/trips' },
+    ],
+    small: [{ box: 'new', text: 'Box labels with a QR code' }, { box: 'nicer', text: 'A gap becomes a to-do with one tap' }],
+    test: ['Open a trip that starts within a week: Pack › «Dress rehearsal», tap «Gap», then «Keep as to-do».', 'Toolbox › Box labels: add a box, put something in, «Print label».'],
+  },
+  {
+    // v0.188.0 «Alles fertig» (Noah 24.10.2026 «1a 2b 3a 4a»): the leftovers of all older threads in one package.
+    version: '0.188.0',
+    date: '2026-10-24',
+    title: 'The leftovers, done',
+    lead: 'Small things from older plans are in.',
+    points: [
+      { text: 'Good night: where you sleep, when to call', href: '#/ride' },
+      { text: 'Logbook: your own entry', href: '#/debrief/logbook' },
+    ],
+    small: [
+      { box: 'new', text: 'The next shop in the Live map button' },
+      { box: 'nicer', text: 'Your next race on top of Trips' },
+    ],
+    test: ['On the way of a trip of several days: tap «Good night» and share.', 'Review › Logbook: tap «New entry».'],
+  },
+  {
+    // v0.187.0 «Aktiv neu» (Noah 22.10.2026, Beschreibung «Aktiv-Bereich»): Aktiv is for doing (Heute, Meine Sportarten,
+    // Training, Erholung), Auswerten for looking; every sport has its page with goal, history and milestones.
+    // + «Meilensteine als Belohnung» (oz2o9i) and «Stopps in der Nähe» + «Ziel wählen» (b97xla).
+    version: '0.187.0',
+    date: '2026-10-24',
+    title: 'Doing here, looking there',
+    lead: 'Active is for ticking off, Analysis for looking back.',
+    points: [
+      { text: 'Every sport with its own page, summit book included', href: '#/flow/sports' },
+      { text: 'Form, body values and rides under Analysis', href: '#/auswerten' },
+      { text: 'Stops nearby: water, food, WC around you or along the route', href: '#/stopps' },
+    ],
+    small: [{ box: 'new', text: 'Every tick counts: a new star shows right away' }, { box: 'nicer', text: 'Active shows today, this week and the rings' }],
+    test: ['Open Active › My sports, tap a sport and tap «Tick now».', 'Open Analysis with the switch on top of Active.'],
+  },
+  {
+    // v0.186.1 «Abgleich ohne Fragen» (Noah 24.10.2026, screenshot «805 Einträge auf beiden Geräten geändert»)
+    version: '0.186.1',
+    date: '2026-10-24',
+    title: 'Sync without questions',
+    lead: 'Phone and computer agree by themselves.',
+    points: [{ text: 'Changed on both devices: the newer change counts', href: '#/me', action: 'data' }],
+    small: [{ box: 'fixed', text: 'The sync no longer asks about unchanged entries' }],
+    test: ['Change the same entry on the phone and on the computer: no message comes.', 'Ich › Daten und Backup › «Von selbst abgeglichen»: bring back the other version.'],
+  },
+  {
+    // v0.186.0 «Alles finden» (Paket B, Noah 22.10.2026 «1a–5a»; released 24.10.2026 «freigabe für alle»): help behind «?»
+    // on every page, «Alle n» as a grid of all pages, Ich slim; H19 the + menu offers more; H33 «Beispiel-Liste übernehmen»;
+    // «Weiter fragen» carries the question to Claude, Duck.ai and Gemini.
+    version: '0.186.0',
+    date: '2026-10-24',
+    title: 'Find everything',
+    lead: 'Help behind «?», every page in one grid.',
+    points: [
+      { text: '«?» on every page: what you do here and what the app can do', href: '#/features' },
+      { text: '«All n»: every page as a grid with one sentence each', href: '#/' },
+    ],
+    small: [{ box: 'new', text: '+ New offers more: bike, activity, diary, inspiration' }, { box: 'nicer', text: 'Ask elsewhere takes your question along' }],
+    test: ['Tap «?» at the top of a page and read its help.', 'Tap + New and add an activity.'],
+  },
+  {
+    // v0.185.0 «Fotoalbum» (Paket P8 of «Offene Mockups», Noah 21.10.2026 «7a»): Ich › Fotoalbum, all photos of the app
+    // by month or by place, album photos with place and date, single photos off for Heute.
+    version: '0.185.0',
+    date: '2026-10-24',
+    title: 'All your photos in one album',
+    lead: 'By month or by place.',
+    points: [
+      { text: 'Photo album: all photos of the app by month or place', href: '#/me/album' },
+      { text: 'Give your photos a place and a date', href: '#/me/album' },
+    ],
+    small: [{ box: 'new', text: 'Choose which photos greet you on Today' }],
+    test: ['Open Me › Photo album and add two photos.', 'Tap a photo, give it a place, then tap «By place».'],
+  },
+  {
+    // v0.184.0 «Projekt-Ablage» (Paket P7 of «Offene Mockups», Noah 21.10.2026 «6a»): Ich › Projekt-Ablage, everything
+    // about the app on one page (ideas live, for you now, the way, idea board, releases, knowledge, toolbox, jumps).
+    version: '0.184.0',
+    date: '2026-10-24',
+    title: 'The whole project on one page',
+    lead: 'Where the app stands and what comes.',
+    points: [
+      { text: 'Project shelf: ideas live, the way and what waits for you', href: '#/me/next' },
+      { text: 'All ideas as a board by goal', href: '#/me/next' },
+    ],
+    small: [{ box: 'new', text: 'Your own points under «For you now»' }],
+    test: ['Open Me › Project shelf.', 'Open «Ideas» under «Look up» and tap a goal.'],
+  },
+  {
+    // v0.183.0 «Eingang» (Paket P5 of «Offene Mockups», Noah 21.10.2026): A-J4 the «Ablegen-Runde», the open notes
+    // one after the other with the suggestion and why, and the end screen.
+    version: '0.183.0',
+    date: '2026-10-24',
+    title: 'Inbox empty in three minutes',
+    lead: 'One note after the other.',
+    points: [
+      { text: 'Sorting round: each note with a suggestion and why', href: '#/inbox' },
+      { text: 'At the end: how many filed, kept and deleted', href: '#/inbox' },
+    ],
+    small: [{ box: 'nicer', text: 'Each suggestion says why' }],
+    test: ['Open Me › Inbox and tap «Start the sorting round».', 'File one note, keep one, skip one, and look at the end screen.'],
+  },
+  {
+    // v0.182.0 «Aktiv» (Paket P4 of «Offene Mockups», Noah 21.10.2026): TN1–TN5 the top of the tennis page (only
+    // tennis, 5b), ME4 the yoga card on Meditation, E4 «Diesen Tag merken», E5 «Gewünscht und erlebt».
+    version: '0.182.0',
+    date: '2026-10-24',
+    title: 'Tennis, yoga and good days',
+    lead: 'Tick off faster, keep what does you good.',
+    points: [
+      { text: 'Tennis: played like last time, booked times ask «Played?»', href: '#/flow/sport/act%3Atennis' },
+      { text: 'Yoga: your regular classes on the Meditation page', href: '#/flow/act/meditation' },
+    ],
+    small: [{ box: 'new', text: 'Keep a good day in the evening review' }],
+    test: ['Open Aktiv › Sports › Tennis and tap «Played».', 'Open Aktiv › Meditation and add a yoga class.'],
+  },
+  {
+    // v0.181.4 «Aktiv ohne Sackgassen» (Klick-Rundgang «Aktiv fertig bauen» A01–A05, A07, A08, H29, and dead buttons part 2)
+    version: '0.181.4',
+    date: '2026-10-24',
+    title: 'Aktiv, without dead ends',
+    lead: 'Plans, sessions and tiles do what they say.',
+    points: [
+      { text: 'Training plan: a test run, with Undo', href: '#/flow' },
+      { text: 'A planned session: «Done» by hand, with Undo', href: '#/flow' },
+    ],
+    small: [{ box: 'fixed', text: 'Buttons no longer hide under the bars' }],
+    test: ['Aktiv: open a training plan and tap «Try it out», then «Undo».', 'Tick a planned session «Done» by hand.'],
+  },
+  {
+    // v0.181.3 «Alltag fertig bauen» (Klick-Rundgang 22.10.2026, Noah «1a 2a 3a … 5a»): repairs of the flows
+    // Mein Tag, Meine Woche and Velo pflegen; a robot plays them through before every release.
+    version: '0.181.3',
+    date: '2026-10-24',
+    title: 'Everyday, without dead ends',
+    lead: 'Day, week and bike run smoothly.',
+    points: [
+      { text: 'The Assistant knows your chain', href: '#/assistent' },
+      { text: 'Aktiv ticks show in the week', href: '#/week' },
+      { text: 'Bike care «Done» with Undo', href: '#/bikes?tab=care' },
+    ],
+    small: [{ box: 'nicer', text: 'Main buttons in sight' }],
+    test: ['Assistant: ask about the chain.', 'Bike care: «Done», then «Undo».'],
+  },
+  {
+    // v0.181.2 «Packen und nach der Tour, repariert» (Klick-Rundgang packages 3+5, Noah 22.10.2026: repairs first): one count
+    // while packing, «Losfahren» on the first day, light and food on Unterwegs, clear hints after the tour; Live-Karte stops
+    // load in 20 km pieces with fuel stations.
+    version: '0.181.2',
+    date: '2026-10-24',
+    title: 'Packing and after the tour, repaired',
+    lead: 'Clearer buttons from packing to the debrief.',
+    points: [
+      { text: 'Packing counts the same everywhere, and the button says what comes next', href: '#/trips' },
+      { text: 'On the way: «Start riding» remembers the start time; missing light is packed right there' },
+    ],
+    small: [{ box: 'fixed', text: 'Live map: stops along the route load again' }],
+    test: [
+      'Open a bike trip that starts today, pack it and tap «Start riding».',
+      'End the trip without a ride: the app says why and offers «Upload a ride».',
+    ],
+  },
+  {
+    // v0.181.1 «Fitbit-Schlaf und Gemini gehen wieder» (bug fix, 22.10.2026: Google sends nights without the wake-up date; the server
+    // now reads the wake-up day from the civil time string or the moment with its offset, and the app fetches 30 days once more)
+    version: '0.181.1',
+    date: '2026-10-22',
+    title: 'Fitbit sleep and Gemini work again',
+    lead: 'Your nights come from Google again, and Gemini answers.',
+    points: [
+      { text: 'Fitbit: last night comes in with «Fetch now»', href: '#/me/fitbit' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The last 30 nights are fetched once more' },
+    ],
+    test: [
+      'Open Me › Data and backup › Fitbit and tap «Fetch now».',
+      'Last night shows with today’s date.',
+    ],
+  },
+  {
+    // v0.181.0 «Warum? und Regeln» (Paket P3 of «Offene Mockups», Noah 21.10.2026): RG1 «Why?» next to a row in
+    // Plan, RG3 Me › How the app decides (every rule, search, block rules on/off), C «Most often forgotten» on Pack.
+    version: '0.181.0',
+    date: '2026-10-21',
+    title: 'Why, and by which rule',
+    lead: 'Every suggestion says why.',
+    points: [
+      { text: '«Why?» next to every suggested row', href: '#/pack' },
+      { text: 'All rules on one page', href: '#/me/regeln' },
+    ],
+    small: [{ box: 'new', text: 'Most often forgotten at the top of Pack' }],
+    test: ['Open Planen of a trip and tap «Why?» next to a row.', 'Open Me › How the app decides and search «rain».'],
+  },
+  {
+    // v0.180.0 «Heute ergänzt» (Mockup-Paket P6, Noah 21.10.2026 «2b»): ME1 meditation on top, TR1 the last
+    // activity, SN2l the weight once a week, AB3 the areas of the due questions, H1 «New» on top after an update.
+    version: '0.180.0',
+    date: '2026-10-21',
+    title: 'Today, filled in',
+    lead: 'Meditation, weight and your last ride on Heute.',
+    points: [
+      { text: 'Weight once a week on Heute', href: '#/me/weight' },
+      { text: 'Meditation and last activity on Heute', href: '#/flow/act/meditation' },
+    ],
+    small: [{ box: 'new', text: '«New» on top for 14 days after an update' }],
+    test: ['Open Heute: meditation is on top, «Last activity» after the ring.', 'Without a weight for a week, type it in «Weight this week?».'],
+  },
+  {
+    // v0.179.0 «Packen und Strom» (Paket P1 of «Offene Mockups», Noah 21.10.2026): NP1 new item while
+    // packing, L1 power values with source and light levels, L2 a base battery value, L4 the stopwatch,
+    // fix: a repair kit naming a battery no longer counts as a device.
+    version: '0.179.0',
+    date: '2026-10-21',
+    title: 'Packed and charged',
+    lead: 'New things straight into the bag.',
+    points: [
+      { text: 'New item straight into the bag', href: '#/pack' },
+      { text: 'Measure the charging time once', href: '#/gear' },
+    ],
+    small: [
+      { box: 'new', text: 'Light levels with their hours' },
+      { box: 'fixed', text: 'Repair kit is no device any more' },
+    ],
+    test: [
+      'Open Packen, «Add material», and tap «Add a new item and pack it».',
+      'Open a lamp in Gear, the row «Power», and add a light level.',
+    ],
+  },
+  {
+    // v0.178.0 «Skitour» (Paket P2 of «Offene Mockups», Noah 21.10.2026 «1a 2b 3a 4a 5b»): Tour planen with the
+    // danger level and «Dein Morgen», Saison with goal, wish tours, LVS practice, courses and metres per ski,
+    // «Gipfel erreicht», Plan und echt after the tour, the ski plan on the evening-before check.
+    version: '0.178.0',
+    date: '2026-10-21',
+    title: 'Ski tours, well planned',
+    lead: 'Plan the morning, enjoy the peak.',
+    points: [
+      { text: 'Plan a ski tour with the danger level', href: '#/ski/plan' },
+      { text: 'Your ski touring season at a glance', href: '#/ski/season' },
+    ],
+    small: [
+      { box: 'new', text: '«Reached the peak» on the way' },
+      { box: 'new', text: 'Plan and reality after the tour' },
+    ],
+    test: [
+      'Open Ski tours, tap «Plan the tour» and tap a danger level.',
+      'Open Ski tours › Season and add a wish tour.',
+    ],
+  },
+  {
+    // v0.177.0 «Wie Strava, nur ruhiger»: one package for everything after 0.176 (Noah 21.10.2026 «alles kommende in ein paket»): Tour-Auswertung deliveries 1+2 (Strava 1:1, Zeitleiste, readable title, Strava check #1–#10), Tages-Check with date and time, Gesamttest fixes C1–C9 + German names, Packliste aufräumen, Ess-Erinnerung; built without mockups
+    version: '0.177.0',
+    date: '2026-10-21',
+    title: 'Like Strava, only calmer',
+    lead: 'Rides like on Strava.',
+    points: [
+      { text: 'Look back like on Strava', href: '#/trips' },
+      { text: 'Daily check with date and time', href: '#/check/morning' },
+      { text: 'Tidy up building blocks', href: '#/blocks/aufraeumen' },
+    ],
+    small: [
+      { box: 'new', text: 'Timeline from Strava with photos' },
+      { box: 'nicer', text: 'Strava names in German' },
+    ],
+    test: [
+      'Open a past trip and tap «Analysis»: the overview looks like on Strava.',
+      'Open Building blocks and tap «Tidy up».',
+    ],
+  },
+  {
+    // v0.176.1 «Fitbit holt wieder» (bug fix, 21.10.2026: Google Health refused every value with 403 DISALLOWED_OAUTH_SCOPES because the one Google login also carries Mail, Calendar and Drive; the server now uses an access with only the Health rights)
+    version: '0.176.1',
+    date: '2026-10-21',
+    title: 'Fitbit values arrive',
+    lead: 'Sleep, resting pulse and steps come from Google again.',
+    points: [
+      { text: 'Fitbit: the values come in with «Fetch now»', href: '#/me/fitbit' },
+    ],
+    small: [
+      { box: 'fixed', text: 'One Google login stays enough for everything' },
+    ],
+    test: [
+      'Open Me › Data and backup › Fitbit and tap «Fetch now».',
+      'Last night, resting pulse and steps show with today’s date.',
+    ],
+  },
+  {
+    // v0.176.0 «Eine Tour, eine Seite» (UI-Ziele #5, #8, #10, #18, Noah 20.10.2026) + Fahrt-Analyse part 3 + Paket «Reste» (#194, #1038, #1041, #1152); built without mockups
+    version: '0.176.0',
+    date: '2026-10-21',
+    title: 'One trip, one page',
+    lead: 'Plan, pack, ride and look back in one place.',
+    points: [
+      { text: 'Trips: «Analysis» is the fifth step', href: '#/trips' },
+      { text: 'Plan starts with what is still missing', href: '#/trips' },
+      { text: 'After a trip: what stays at home?', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Bike park days as a block' },
+    ],
+    test: [
+      'Open a trip and tap «Analysis» in the step bar.',
+      'Open Plan of a trip: «Still missing» comes first.',
+    ],
+  },
+  {
+    // v0.175.0 «Anpassen» (Noah 20.10.2026 «1a 2a 3a 4a 5a»): every page, its tabs and the menu changed in the app; plus Körperwerte tile + countdown on Heute (Noah 21.10 06:49) and drawing on all photos; built without mockups
+    version: '0.175.0',
+    date: '2026-10-21',
+    title: 'Make it your own',
+    lead: 'Change every page yourself.',
+    points: [
+      { text: 'Every page: «Customise this page» at the end', href: '#/trips' },
+      { text: 'Menu: hide and sort the places', href: '#/me/look' },
+      { text: 'Today: body values and the days until your next trip', href: '#/' },
+    ],
+    small: [
+      { box: 'new', text: 'Draw on every photo' },
+    ],
+    test: [
+      'Scroll to the end of Trips and tap «Customise this page».',
+      'Hide a part and rename one; «As at the start» puts it back.',
+    ],
+  },
+  {
+    // v0.174.0 «Klarer und einheitlich»: Impeccable report (Noah 20.10.2026, all approved) and «Fahrt-Analyse als Vorbild» parts 1+2 (Auswertung wie Training); built without mockups
+    version: '0.174.0',
+    date: '2026-10-21',
+    title: 'Clearer and the same everywhere',
+    lead: 'Fewer tabs, one word per thing.',
+    points: [
+      { text: 'Phone: at most four tabs on top, the rest under «More»', href: '#/bikes?tab=care' },
+      { text: 'Evaluate what you tick, like a ride', href: '#/flow/auswertung' },
+      { text: 'Shorter pages, two columns on the computer', href: '#/trips' },
+    ],
+    small: [
+      { box: 'nicer', text: 'One word per thing: Parts, Look back, Trip type' },
+      { box: 'nicer', text: 'Week: Take, Leave out and Not this week with Undo', href: '#/week/plan' },
+      { box: 'fixed', text: 'Fitbit shows why nothing comes' },
+    ],
+    test: [
+      'On the phone, open Bikes and tap «More» at the top right.',
+      'Open Active › Goals › Evaluate.',
+    ],
+  },
+  {
+    // v0.173.0 «Suche und eigene Werte»: thread «Suche als Alleskönner» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b», ideas 1–8), Wetter follow-up (webcams, ice) and «Eigene Werte und alle Daten anpassbar» (Noah 21.10.2026 «1 a und b 2 a 3a 4a»); built without mockups
+    version: '0.173.0',
+    date: '2026-10-21',
+    title: 'Search and own values',
+    lead: 'Say it, and change every list yourself.',
+    points: [
+      { text: 'Speak into the search: «Chain oiled» runs at once, with Undo', href: '#/me/suche' },
+      { text: 'Questions get an answer from your data', href: '#/assistent' },
+      { text: 'Own reminders: every N km or days', href: '#/me/werte' },
+    ],
+    small: [
+      { box: 'new', text: 'Six more lists to change', href: '#/me/lists' },
+      { box: 'new', text: 'Your webcams on the live map', href: '#/wetter' },
+      { box: 'new', text: 'Phone warning: icy roads in the morning' },
+    ],
+    test: [
+      'Tap the microphone in the search and say «Weight 72».',
+      'Open Me › Own values › «+ Own reminder».',
+    ],
+  },
+  {
+    // v0.172.0 «Velo und Notizen»: Paket VG «Das Velo im Griff» (1128–1135; the chain window on Heute waits for Noah's OK) and Paket NE «Notizen wie Evernote» (Noah 20.10.2026); built without mockups
+    version: '0.172.0',
+    date: '2026-10-21',
+    title: 'Bike and notes',
+    lead: 'Look after the bike, keep everything in notes.',
+    points: [
+      { text: 'Wear: photos, spare parts, sale listing', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Notes: draw, format, attach files', href: '#/notes' },
+      { text: 'Notes: reminder and a bin for 30 days', href: '#/notes' },
+    ],
+    small: [{ box: 'new', text: 'Phone reminder: dry the chain after rain' }],
+    test: [
+      'Open Notes, start a note and draw on a photo.',
+      'Bikes › Care › a bike › «Wear»: add spare parts at home.',
+    ],
+  },
+  {
+    // v0.171.0 «Velo, Wetter und Körper»: Verschleiss, Bilder, Wetter-Kern X/Y 2–4, Körperwerte, Fitbit überall (Check, Heute), KI im Gerät, Z «Aus jeder Tour lernen», SP «Schneller packen», U4 Schlafplätze, Tagebuch unter Planen, See-Prognose (Noah 20.10.2026); built without mockups
+    version: '0.171.0',
+    date: '2026-10-21',
+    title: 'Bike, weather, body',
+    lead: 'Wear, weather and your values.',
+    points: [
+      { text: 'Wear: km left per part', href: '#/bikes?tab=care&view=wear' },
+      { text: 'Weather: best start, radar, webcams', href: '#/wetter' },
+      { text: 'Body values: 25 values, Fitbit everywhere', href: '#/flow/stats/hr' },
+    ],
+    small: [{ box: 'new', text: 'Phone AI, sleep spots, faster packing' }],
+    test: [
+      'Bikes › Care › a bike › «Wear»: look at the bars.',
+      'Tap the weather line on Today: the best start.',
+    ],
+  },
+  {
+    // v0.170.1 «Abgleich ruhig» (bug fix, Noah 21.10.2026: the sync window asked again and again about «strava.last» while navigating; «Später» did not help)
+    version: '0.170.1',
+    date: '2026-10-21',
+    title: 'Sync stays quiet',
+    lead: 'No more questions about values the app keeps for itself.',
+    points: [
+      { text: 'The sync no longer asks about values the app saves itself (e.g. the last Strava fetch)', href: '#/me/data' },
+    ],
+    small: [{ box: 'fixed', text: '«Decide later» now gives an hour of quiet' }],
+    test: [
+      'Tap around Today and Plan on the phone: the sync window stays closed.',
+      'If it opens, tap «Decide later»: it stays closed for an hour.',
+    ],
+  },
+  {
+    // v0.170.0 «Tagebuch, Form, Heatmap»: Tagebuch, Form und Erholung + Garmin overview, Tour-Auswertung, Heatmap, Check-Fragen, Erster Start, Zürisee and sauna (Noah 20.10.2026); built without mockups
+    version: '0.170.0',
+    date: '2026-10-20',
+    title: 'Live map, diary, form',
+    lead: 'Ride, write, recover.',
+    points: [
+      { text: 'Live map: pause, sensors, turn hints, detours', href: '#/live' },
+      { text: 'Diary: write or speak, with photos', href: '#/tagebuch' },
+      { text: 'Form and recovery: readiness 0–100', href: '#/flow' },
+    ],
+    small: [{ box: 'new', text: 'Heatmap, check questions, Zürisee' }],
+    test: [
+      'Open Me › Diary and write a first entry.',
+      'Open Trips › Look back › Heatmap.',
+    ],
+  },
+  {
+    // v0.169.0 «Neue Leiste und Heute neu»: N1 bar (Noah 20.10.2026 «1a 2a»), N2 Heute (15:49 «1a 2a 3a und b 4b 5a»), UI-Grundlagen (UI-Ziele #12 #15 #16 #17, 17:05 «freigabe»); built without mockups
+    version: '0.169.0',
+    date: '2026-10-20',
+    title: 'New bar, Today anew',
+    lead: 'Five places, your body on top.',
+    points: [
+      { text: 'Bar: Today, Plan, Trips, Analysis, Bikes', href: '#/week' },
+      { text: 'Today: your body and the check on top', href: '#/' },
+      { text: 'Me: only data, settings, help', href: '#/me' },
+    ],
+    small: [{ box: 'nicer', text: 'Warmer colours, round buttons' }],
+    test: [
+      'Tap Plan in the bar: Week, Appointments, Notes and more.',
+      'Open Today: your body stands on top.',
+    ],
+  },
+  {
+    // v0.168.0 «Touren und Aktiv»: tour page gear + design, Aktiv tiles + Aktiv neu, GPX climbs when planning, map ground on all maps, AI key hint fix.
+    version: '0.168.0',
+    date: '2026-10-20',
+    title: 'Tours and Aktiv',
+    lead: 'Gear, climbs, Aktiv anew.',
+    points: [
+      { text: 'Add gear to a ride, with notes', href: '#/trips/rides' },
+      { text: 'Tour page: big values, a landscape, the weather of the day', href: '#/trips' },
+      { text: 'Plan a tour: profile and climbs', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Aktiv: week in numbers; map ground on every map' },
+      { box: 'fixed', text: 'No wrong hints: AI key, Strava' },
+    ],
+    test: [
+      'Tours › Rides: tap «Enter the gear» on a ride.',
+      'Plan a tour with GPX, tap a climb.',
+    ],
+  },
+  {
+    // v0.167.0 «Balken Jetzt laden» (Noah 20.10.2026 «sicherstellen, dass das nicht wieder passiert»).
+    version: '0.167.0',
+    date: '2026-10-20',
+    title: 'No more old versions',
+    lead: 'If your phone ever hangs on an old version, the app notices it and offers to load the new one.',
+    points: [
+      { text: 'If your phone ever hangs on an old version, a bar on top offers «Load now»' },
+    ],
+    small: [{ box: 'new', text: '«Later» hides the bar for a while; trips, lists and notes stay when you load' }],
+    test: [
+      'Nothing to do: if a newer version is online for 15 minutes and your phone still shows the old one, a bar appears on top.',
+      'Tap «Load now»: the app loads fresh from the internet, your data stays.',
+    ],
+  },
+  {
+    // v0.166.1 «Heute am Handy» (bug fix, Noah 20.10.2026 15:16 UTC «Problem ist abgeschnitten»; same look, no mockup)
+    version: '0.166.1',
+    date: '2026-10-20',
+    title: 'Nothing cut off',
+    lead: 'On a phone the card «Up now» no longer slides under your trip.',
+    points: [
+      { text: 'Congratulations show as one quiet line; the full list stays in the milestones', href: '#/flow/milestones' },
+    ],
+    small: [{ box: 'fixed', text: 'On a phone «Up now» ends where its last line ends; the next card starts below it' }],
+    test: [
+      'Open Today on a phone after reaching a milestone: «Up now» and the trip card do not overlap.',
+      'Only one congratulation line stands above «Up now».',
+    ],
+  },
+  {
+    // v0.166.0 «Neueste Version laden» (20.10.2026: a phone stayed on 0.157; «Reload» served the old offline copy again).
+    version: '0.166.0',
+    date: '2026-10-20',
+    title: 'Always the newest version',
+    lead: 'When a page fails, one button loads the app fresh from the internet; your data stays on this device.',
+    points: [
+      { text: 'Error page: «Reload the newest version» loads the app anew from the internet; trips, lists and notes stay' },
+    ],
+    small: [
+      { box: 'fixed', text: 'An error page first looks for a newer version by itself; without internet it simply reloads' },
+    ],
+    test: [
+      'If a page ever shows «Something went wrong here»: tap «Reload the newest version».',
+      'After the reload, open Me › What is new: the newest version is on top, your data is still there.',
+    ],
+  },
+  {
+    // v0.165.0 «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A 2 Morgen-Check mit nur 3 Fragen … 3a 4a 5b»).
+    version: '0.165.0',
+    date: '2026-10-20',
+    title: 'Today at one look',
+    lead: 'Today is new: one sentence, what is up now, your trip, a calm card «You today» and eight shortcuts.',
+    points: [
+      { text: 'The morning check asks 3 questions; «Show more questions» brings the others', href: '#/check/morning' },
+      { text: '«Up now» gathers the morning check, meditation, the ride idea and what is due, at most four rows', href: '#/' },
+      { text: '«You today» shows your balance of 7 days, sleep, resting pulse and km in one card, only to look at', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Everything else is one tap away under «All areas»; your own tiles stay addable', href: '#/features' },
+      { box: 'nicer', text: 'Tip of the week and the hints now live under Me › What is new', href: '#/me/news' },
+    ],
+    test: [
+      'Open Today: one sentence on top, then «Up now» beside your trip.',
+      'Start the morning check: 3 questions, then «Show more questions».',
+    ],
+  },
+  {
+    // v0.164.0 «Tests automatisieren» (Noah «1a 2a 3a 4a 5a»): the app checks itself, every night and after every update.
+    version: '0.164.0',
+    date: '2026-10-20',
+    title: 'The app checks itself',
+    lead: 'Every night a robot opens all pages; after every update it checks the real app, offline too.',
+    points: [
+      { text: 'Updates now reach the phone by themselves, even when the app stays open' },
+      { text: 'Every night all pages are checked on a phone and a computer; after every update the real app too, offline included' },
+      { text: 'Libraries up to date; numbers keep their Swiss apostrophe «1’250» in every Chrome version' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Zoom buttons on the maps in your language', href: '#/trips' },
+      { box: 'nicer', text: 'Every older data version is tested to arrive complete in the new one' },
+      { box: 'nicer', text: 'The AI helpers are checked once a day' },
+    ],
+    test: [
+      'Leave the app open on the phone: after the next update it reloads by itself when you come back to it.',
+      'Open a map and point at + or −: the button says «Zoom in» in your language.',
+    ],
+  },
+  {
+    // v0.163.0 «Gesamttest 20.10.2026, round 2» (Noah «1a 2a 3a 4a 5a», «alle B, C und Design umsetzen»).
+    version: '0.163.0',
+    date: '2026-10-20',
+    title: 'Calmer and clearer',
+    lead: 'Round two of the walk through the whole app: Strava rides on their own tab, shorter help, a quiet word of praise.',
+    points: [
+      { text: 'Strava rides whose bike has the name of one of your bikes are assigned by themselves, with «Undo»', href: '#/bikes?tab=care&view=strava-check' },
+      { text: 'Trips has its own tab «Rides» for Strava activities; the button on Plan and Pack names the next step', href: '#/trips/rides' },
+      { text: 'Help boxes shrink to one line «How it works» after the first visit; praise gets its own quiet line «Well done» on Today', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Due now» shows everything due; a problem there is not repeated under «Open»', href: '#/bikes?tab=care' },
+      { box: 'nicer', text: 'History and Learned show 5 rows per day or topic, then «Show more»' },
+      { box: 'nicer', text: '«new» only on the first new item of a list' },
+    ],
+    test: [
+      'Open Trips › Rides: your Strava activities on their own tab.',
+      'Open a page a second time: its help is one line «How it works».',
+    ],
+  },
+  {
+    // v0.162.0 «Gesamttest 20.10.2026»: ten small fixes from the click-through of the whole app.
+    version: '0.162.0',
+    date: '2026-10-20',
+    title: 'Small things, set right',
+    lead: 'Ten small fixes from a walk through the whole app.',
+    points: [
+      { text: 'Missing spaces added all over the app', href: '#/trips' },
+      { text: 'On the way without a running trip leads to your trips; a trip under way shows no «Planned» on Today', href: '#/ride' },
+      { text: 'Strava «To check» shows 20 rides at a time', href: '#/bikes?tab=care&view=strava-check' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Race dates and the packed items of a tour in your language', href: '#/race' },
+      { box: 'fixed', text: '«1 week to go» in training, no year «0000» in the logbook', href: '#/flow/plans' },
+      { box: 'nicer', text: 'The offline box puts its button below the sentence on a phone' },
+    ],
+    test: [
+      'Open On the way on a day without a trip: it leads to your trips.',
+      'Open Bikes › Care › Strava «To check»: 20 rides, then «Show 20 more».',
+    ],
+  },
+  {
+    // v0.161.0 Paket 9 «Tour-Seite» (Noah 19.10.2026 «1a 2 beides 3b 4 beides 5a»): a page for every finished tour.
+    version: '0.161.0',
+    date: '2026-10-19',
+    title: 'A page for every tour',
+    lead: 'Every finished tour opens on its own page.',
+    points: [
+      { text: 'Every finished tour has its own page: map, profile, values, diary', href: '#/trips' },
+      { text: 'Correct Strava values, rename, hide or delete tours', href: '#/trips' },
+      { text: 'The list as tiles, map or calendar; join rides into one tour', href: '#/trips' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Race map: a new map ground no longer breaks the page', href: '#/race' },
+      { box: 'fixed', text: 'Race › Climbs: a link to one climb opens it after a reload too', href: '#/race' },
+      { box: 'nicer', text: 'On a narrow phone «Views» is just its icon, so the list stays short', href: '#/trips' },
+    ],
+    test: [
+      'Open Trips and tap a finished tour.',
+      'Tap «Choose several», pick two rides and tap «Join into one tour».',
+    ],
+  },
+  {
+    // Verpflegung (Noah 19.10.2026 21:11 «1a 2a 3a und b 4a 5a»): food and water plan per section. Paket 8.
+    version: '0.160.0',
+    date: '2026-10-19',
+    title: 'Enough food and water',
+    lead: 'How much to eat and drink on each part of the route.',
+    points: [
+      { text: 'Trips › Food and water: carbohydrates and water per section', href: '#/trips/fuel' },
+      { text: 'Link a training plan to a race: it moves along when the race day changes', href: '#/flow/plans' },
+      { text: 'The tile «What does me good»: a ring instead of a bar, done things move down', href: '#/routine' },
+    ],
+    small: [
+      { box: 'new', text: 'Warnings for long gaps, small bottles and closed shops', href: '#/trips/fuel' },
+      { box: 'new', text: 'Your own values and products, as grams or as bars and gels', href: '#/trips/fuel' },
+      { box: 'new', text: 'Seven dots for the week and «Did it do you good?»', href: '#/routine' },
+    ],
+    test: [
+      'Open Trips › Food and water and choose a trip with a GPX route.',
+      'Search the places along the route, then switch to «My products».',
+    ],
+  },
+  {
+    // Paket U «Bikepacking und Ultra-Rennen» (Noah 19.10.2026, ideas 1–40): Touren › Rennen with Plan, Strategie,
+    // Vorbereiten, Strecke, Unterwegs, Danach, the sample race and the countdown on Heute («3b»).
+    // Paket 7.
+    version: '0.159.0',
+    date: '2026-10-19',
+    title: 'Races and the live map',
+    lead: 'Plan a long race and ride with the live map.',
+    points: [
+      { text: 'Trips › Races: plan, map, climbs and a sample race', href: '#/race' },
+      { text: 'Live map for every ride: where you are, next stops, SOS', href: '#/live' },
+      { text: 'Map offline: a strip along the route on your phone', href: '#/race' },
+    ],
+    small: [
+      { box: 'new', text: 'Today: «Race in X days» and the tile «Start a ride»', href: '#/' },
+    ],
+    test: [
+      'Open Trips › Races › «See the sample race» and tap «Map».',
+      'Tap «Start a ride» on Active: the live map shows your km.',
+    ],
+  },
+  {
+    // v0.158.0 fix: Heute stayed grey or broke on a computer after an update or the exchange
+    // (a milestone came twice through sync; an old window held up the database update).
+    version: '0.158.0',
+    date: '2026-10-19',
+    title: 'Today stays steady',
+    lead: 'After an update or the exchange, Today always loads.',
+    points: [
+      { text: 'Today never stays grey or breaks after an update or the exchange', href: '#/me/data' },
+      { text: 'When an old window holds up the update, the app says so and how to fix it', href: '#/' },
+    ],
+    small: [
+      { box: 'fixed', text: 'A milestone that came twice through the exchange shows once', href: '#/' },
+      { box: 'fixed', text: 'If one tile fails, the other tiles still show', href: '#/' },
+    ],
+    test: [
+      'Open Today: all tiles show.',
+      'Open the app in two windows and reload one: Today still loads.',
+    ],
+  },
+  {
+    // v0.157.0 Paket 6: Velo-FAQ (Noah 19.10.2026 «bitte velo faq in neues paket 6 tun»), «Trainingspläne»
+    // (Noah «1a 2 kann eingestellt werden 3 a und b und gefühlte Anstrengung 4 1-4»); whole row of finished trips opens.
+    version: '0.157.0',
+    date: '2026-10-19',
+    title: 'Bike FAQ and training plans',
+    lead: 'Questions about your bike, answered with a wink, and plans to try.',
+    points: [
+      { text: 'Bike FAQ: 48 questions on care, breakdowns and myths, with a wink', href: '#/bikes?tab=care&view=faq' },
+      { text: 'Active › Training › Training plans: four plans, back from your race day', href: '#/flow/training' },
+      { text: 'After each ride: how hard was it, 1 to 10', href: '#/flow/training' },
+    ],
+    small: [
+      { box: 'new', text: 'Each zone in heart rate, watts and how it feels', href: '#/flow/training' },
+      { box: 'fixed', text: 'Finished trips: the whole row can be tapped', href: '#/trips' },
+    ],
+    test: [
+      'Open Bikes › Care and tap «Bike FAQ».',
+      'Open Active › Training › Training plans and pick «Multi-day race».',
+    ],
+  },
+  {
+    // v0.156.0 Paket 5: «Mail in die App» (Noah 19.10.2026 «bitte umsetzen»), «Grösse» (Noah «1b 2b»), Abend-Runde sync hint.
+    // U «Rennen» follows as Paket 7 (0.159.0).
+    version: '0.156.0',
+    date: '2026-10-19',
+    title: 'Mails into the app and the size',
+    lead: 'From Gmail into the Inbox, and the whole app smaller or larger.',
+    points: [
+      { text: 'Mails into the app: «Into the app» under Me › Mail, or the Gmail label «Packgenerator»', href: '#/me/mail' },
+      { text: 'The Inbox shows tips (bill, booking, deadline) and a button per attachment', href: '#/inbox' },
+      { text: 'Size: one slider under Me › Appearance makes the whole app smaller or larger (80–130 %)', href: '#/me/look' },
+    ],
+    small: [
+      { box: 'new', text: 'Mail a packing list or a document from the app', href: '#/me/mail' },
+      { box: 'new', text: 'Compact: the same text with less space between', href: '#/me/look' },
+      { box: 'new', text: 'Me shows a hint while phone and computer do not sync', href: '#/me' },
+    ],
+    test: [
+      'Open Me › Mail, open a mail and tap «Into the app».',
+      'Open the Inbox and tap the button of an attachment.',
+    ],
+  },
+  {
+    // v0.155.0 Paket 3+4 (Noah 19.10.2026 «paket 3 und 4 verbinden»): T «Freie Zeit», «Daten in der App», V «Alltag»,
+    // K extras (Haus-Check, Wohnungs-Hüter, «Bereit für morgen?»), H «Strombudget», «Reise-Links», «Anleitungen überall», «Diktat».
+    version: '0.155.0',
+    date: '2026-10-19',
+    title: 'Free time and everyday life',
+    lead: 'For free hours, everyday life and the evening before.',
+    points: [
+      { text: 'Me › Free time: collections, ideas and travel wishes; Impulses in Active', href: '#/me/frei' },
+      { text: 'Me › Everyday life: shopping list, contracts, people you miss', href: '#/me/alltag/einkauf' },
+      { text: 'Dictate until you tap stop; the app answers questions', href: '#/notes' },
+    ],
+    small: [
+      { box: 'new', text: 'Before you leave: house check, flat-sitter list, «Ready for tomorrow?»', href: '#/ride/abfahrt' },
+      { box: 'new', text: 'Power budget, travel links and a guide on every page', href: '#/gear/power' },
+    ],
+    test: [
+      'Open Me › Free time and start a collection.',
+      'Open Me › Everyday life and add something to the shopping list.',
+    ],
+  },
+  {
+    // v0.154.0 Paket 2 (Noah 19.10.2026 15:14 «1a»): K «Unterwegs», M «Aus Touren lernen» + «Neuland», S «Reise-Spur»,
+    // O «Sportarten», I «Velo im Griff» + «Velo-Inspektion», L2 «Bilderkennung», R «Andere Menschen», Trello, «Strava-Fahrten».
+    version: '0.154.0',
+    date: '2026-10-19',
+    title: 'Riding, learning and your bikes',
+    lead: 'On the road, after the tour and in the workshop.',
+    points: [
+      { text: 'On the road: handlebar view, «Before you leave», a link for your family', href: '#/ride' },
+      { text: 'Bikes › Care: inspection with photos, service by km, hours or days', href: '#/bikes?tab=care&view=inspect' },
+      { text: 'After the tour: diary, chronicle, quiz; Strava rides with all values', href: '#/chronik' },
+    ],
+    small: [
+      { box: 'new', text: 'Aktiv › Sports: a page for every sport', href: '#/flow/sports' },
+      { box: 'new', text: 'Packing list by photo, sitting position by camera', href: '#/me/tools/packphoto' },
+      { box: 'new', text: 'Trello, sign in with Google, bike mechanic and guide', href: '#/calendar' },
+    ],
+    test: [
+      'Open Trips › On the road and tap «Before you leave».',
+      'Open Bikes › Care and start a monthly inspection.',
+      'Open Aktiv › Training › List and open a ride.',
+    ],
+  },
+  {
+    // v0.153.0 Paket 1 (Noah 19.10.2026 15:14 «1a»): G «Daten kommen von selbst», L «Werkzeugkasten», P «Was mir gut tut»,
+    // N «Pläne und Träume», Q «App klarer», H «Packen leichter», J «Berg, Schnee und Notfall». Built on Tempo 0.152.0.
+    version: '0.153.0',
+    date: '2026-10-19',
+    title: 'Seven new parts at once',
+    lead: 'Data by itself, a toolbox, dreams, easier packing, help in the mountains.',
+    points: [
+      { text: 'Me › Connections: Strava, Fitbit and Google fill in the app; a weather alarm', href: '#/me/connections' },
+      { text: 'Me › Toolbox: PDF, photos, currencies, trip costs, QR code', href: '#/me/tools' },
+      { text: 'Trips › Dreams: dream tours, races and goals in small steps', href: '#/trips/dreams' },
+    ],
+    small: [
+      { box: 'new', text: 'Packing: from earlier trips, Supplies, Lent out, lists as a table', href: '#/gear/supplies' },
+      { box: 'new', text: 'Mountains: freezing level, new snow, swisstopo map, emergency page', href: '#/mountain' },
+      { box: 'nicer', text: 'What is good for me, alerts, tip of the week, backup with a password', href: '#/me/wohl' },
+    ],
+    test: [
+      'Open Me › Connections: every connection with its state and switches.',
+      'Open Me › Toolbox and turn three photos into one PDF.',
+      'Open Trips › Dreams and add a dream tour with a season.',
+    ],
+  },
+  {
+    // v0.152.0 Tempo «Seiten später laden» (#1045, Noah «1b» 19.10.2026): every page except Heute loads on its first
+    // visit, big tools on first use, and the build stops above 3 MB per file, so the app stays storable offline.
+    version: '0.152.0',
+    date: '2026-10-19',
+    title: 'Lighter on the phone',
+    lead: 'The app now loads each page when you first open it, so it stays small enough to be kept fully on your phone for offline use.',
+    points: [
+      { text: 'Pages load when you open them; the most used ones load quietly in the background, and everything still works offline', href: '#/gear' },
+    ],
+    small: [
+      { box: 'faster', text: 'After an update a page that is missing reloads the app once by itself instead of showing an error', href: '#/' },
+    ],
+    test: [
+      'Open Gear, Pack and Trips one after the other: each page opens as before.',
+      'Turn on flight mode, close the app and open it again: Today and the other pages still open.',
+    ],
+  },
+  {
+    // v0.151.0 Paket F «Woche»: Woche planen WP1–WP4 + Mehr Inhalt, Rundgang und Einstieg (Teil 1–3), Einstieg in
+    // der Karte «Was hier steht» (Noah 19.10 «2a»), Google Kalender und Aufgaben in der Woche.
+    // Built on C 0.150.0 (which carries E 0.149.0).
+    version: '0.151.0',
+    date: '2026-10-19',
+    title: 'Your week, and a tour of the app',
+    lead: 'Sport, dates, to-dos, holidays and bike service in one week, and a short tour that shows you around.',
+    points: [
+      { text: 'The place «Week»: Monday to Sunday with your training, dates, Google calendar and tasks, holidays and bike service; on Sunday «Plan the week» suggests, you decide', href: '#/week' },
+      { text: 'Tour of the app: six short steps with an example trip or your own data, and a small tour per place', href: '#/me/handbook' },
+      { text: 'On top of every page one card says what it is for, with three things to do, what to expect and a «Did you know» with its source', href: '#/flow' },
+    ],
+    small: [
+      { box: 'new', text: 'Holidays once under Week › Holidays: the app suggests pausing the plan, servicing the bike before and a packing list', href: '#/week/away' },
+      { box: 'nicer', text: 'The card «This week» on Today shows a dot per day and what the plan says for today', href: '#/' },
+    ],
+    test: [
+      'Open Week: your week from Monday to Sunday; hide a kind with its chip.',
+      'Tap «Plan the week» and take or skip a suggestion in each of the four steps.',
+      'Open Me › Handbook › Tour and go through the six steps with the example trip.',
+    ],
+  },
+  {
+    // v0.150.0 Paket C «Heute und Aktiv»: Heute neu geordnet (HN4 + HN4b), Bausteine mehr (SN3h–SN3j), Tages-Check
+    // as its own window (T1–T4, big balance ring, «Deine 15 Fragen»), Routine «Das tut mir gut» (D1/D2) and
+    // Impeccable round 2 (Aktiv · Heute, timer and the other pages), Fenster, Erkenntnisse, Bewegung 4b and Tempo.
+    // Paket Aktiv itself comes later. Three small boxes at most: Insights and the blocks share one, Tempo is one.
+    version: '0.150.0',
+    date: '2026-10-19',
+    title: 'Today in a calm order',
+    lead: 'Today follows the time of day: a day card on top, the daily check in its own window, your balance as one ring and a short list of what does you good.',
+    points: [
+      { text: '«What does me good»: a short list on Today, ticked off day by day; an empty day breaks the streak', href: '#/routine' },
+      { text: 'The day card: in the morning the weather and what to wear, by day Quick start and your bikes, in the evening debrief, km and bike care; below it Aktiv with sleep, last activity and next fixed date', href: '#/' },
+      { text: 'Morning check, evening review, packing the evening before a trip and the Sunday week review come as a window, one at a time, with «Later» (back in one hour) and «Not today»; the big ring shows your nine areas', href: '#/check/morning' },
+    ],
+    small: [
+      { box: 'new', text: 'Me › Insights: what goes together in your data; and nine new building blocks', href: '#/me/insights' },
+      { box: 'nicer', text: 'Ticked items slide down to the done ones a moment after your last tap: packing, charging, checks and the shopping list', href: '#/pack' },
+      { box: 'faster', text: 'Gear search reacts at once (first 5 hits per group); Trips shows 20 trips first', href: '#/gear' },
+    ],
+    test: [
+      'Open Today in the morning: the meditation card, then the day card «Morning»; tap «Day» in its small clock: Quick start and «Bikes ready?».',
+      'Open the morning check from the day card and tap «Later»: the window closes and comes back in one hour; «Not today» leaves it until tomorrow.',
+      'On Today tap a row of the tile «What does me good»: it is ticked; open «Change list» and add an item.',
+      'Open Gear › Building blocks: five groups; «Depending on the situation» and «Bathing» are open.',
+    ],
+  },
+  {
+    // v0.149.0 Paket E «Material, Velos, Merken»: P4/P5 (Werte messen W1–W6, Bausteine, Bezahl-Erinnerung, Garmin-Seiten
+    // with the Edge 850, Taschen-Setups, Erinnerungen ER1–ER3, Merken PL3), Geburtstage + Pflanzen, Eigene Werte,
+    // Skitour (Ausrüstung, Gipfelbuch, Saisonstart, Touren › Skitouren), Sportart SA1–SA3, Eigene Listen,
+    // UI-Regeln, Impeccable round 1 (12 pages), «Was hier steht» on 5 more pages, TWINT-Bildschirmfoto in Rechnungen (Noah 19.10 «2b»).
+    version: '0.149.0',
+    date: '2026-10-19',
+    title: 'Remember, set up, sport by sport',
+    lead: 'The app remembers your to-dos and birthdays, every bike keeps its bag setups, each trip has its own sport, and you can rename and delete everything yourself.',
+    points: [
+      { text: 'Calendar › Remember: your own to-dos and lists; after a ride or before a trip the app asks whether it should remind you', href: '#/calendar' },
+      { text: 'Bikes: several bag setups per bike, the Garmin pages for the Edge 1040 and 850, and the main equipment such as skis with its care', href: '#/equipment' },
+      { text: 'Every trip has a sport, a bike sport brings its standard bike; ski tours have their own page with the backpack check and the season care', href: '#/ski' },
+    ],
+    small: [
+      { box: 'new', text: 'Deleting a bike always works: the window asks which bike gets its trips; learnings, problems, rides, ideas and the logbook can be renamed and deleted', href: '#/bikes' },
+      { box: 'new', text: 'Me › Own values and Lists and types: your own numbers, sports, places on the bike and care parts', href: '#/me/werte' },
+      { box: 'new', text: 'Bills › Choose a TWINT screenshot: the app marks the right bill paid', href: '#/me/pay/invoices' },
+    ],
+    test: [
+      'Open Calendar › Remember and add a to-do; tick it off and take it back.',
+      'Open Bikes › Equipment and add a piece of equipment from Material; log a use.',
+      'Plan a new trip and choose Gravel: the trip takes your standard bike for that sport. Then open Trips › Ski tours: the backpack check is there.',
+    ],
+  },
+  {
+    // v0.148.0 Paket D «Touren und Unterwegs»: AT1 (Strava activities on Trips), Höhenprofil HP1–HP5, GPX-Weg R3a
+    // «Fahrt hochladen», Planungs-Notizen, Handy kurz (Noah 18.10 «1b», 19.10 «1a»), Bugfixes 0.132.2 + H3a,
+    // W1 «Deine Fahrten», Wörter DK6/DK7, Bewegung and Einheitliche Formulare (pilot in «Aus Notiz wird …»).
+    version: '0.148.0',
+    date: '2026-10-19',
+    title: 'Every ride in its place',
+    lead: 'Your Strava rides stand on Trips, one way uploads a ride, and every trip shows its climbs.',
+    points: [
+      { text: 'Trips: all your Strava rides with filters, your own filters and the values in the Packmode; on the phone the page stays short', href: '#/trips' },
+      { text: '«Upload ride» takes GPX, TCX and CSV and keeps the ride in the review with its elevation profile; «Your rides» in Pace show the five newest first', href: '#/debrief/ride' },
+      { text: 'Planning notes in the trip draft: a thought becomes a task, an item or a workshop job', href: '#/pack' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Pairing now shows «Syncing …» and on the first sync asks only once which device has the right state', href: '#/me/data' },
+      { box: 'nicer', text: 'Windows slide in, folds fade in, and on Pack a full bag lights up green before the next one opens' },
+      { box: 'nicer', text: 'Forms say «optional» and show a mistake right at the field; deleting always asks in a window of the app, with 4 seconds Undo' },
+    ],
+    test: [
+      'Open Trips: below «Planned» stand your Strava rides; filter them by kind.',
+      'Open Review › Upload ride and choose a GPX file: the ride is saved with its elevation profile.',
+      'Open a trip draft and write a planning note; tap «Turn into …» and choose a task.',
+    ],
+  },
+  {
+    // v0.147.0 Paket B «Server»: Training TR5–TR7 + Mehr Inhalt + Wochenrückblick, Fitbit, Dokument als PDF,
+    // Google Kalender und Aufgaben, Mail (GM), KI-Deckel + Assistent + «KI-Guthaben leer», Termine buchen, Shop,
+    // automatischer Abgleich Handy–Computer, Selbstwartung + Web-Push, Pulszonen eins, Gruppen überall (Dokumente
+    // included). One release for all the server parts.
+    version: '0.147.0',
+    date: '2026-10-18',
+    title: 'Connected, and it looks after itself',
+    lead: 'Your watch, your Google calendar and your rides talk to the app, phone and computer sync by themselves, and the server checks itself every day.',
+    points: [
+      { text: 'Training: power, weight and analyses on every ride, and the «Week in review» with five numbers', href: '#/flow/review' },
+      { text: 'Fitbit, Google calendar, tasks and Gmail, and documents photographed as a PDF, also in your Google Drive', href: '#/me/fitbit' },
+      { text: 'Phone and computer sync by themselves, sealed with a code; when both changed the same thing, the app asks', href: '#/me/data' },
+    ],
+    small: [
+      { box: 'new', text: 'Assistant: ask the app about your rides, bikes and gear, or plan a trip with it; the AI helper stops at CHF 2 a month and steps aside while the credit is empty', href: '#/assistent' },
+      { box: 'new', text: 'Under Me: people book your free times with one link, a shop without fees, and reminders on the phone', href: '#/me/offers' },
+      { box: 'nicer', text: 'Every group can be renamed and deleted, Documents too; deleting asks where the contents go. Note topics and the groups of the bike values are under Me › Lists and types, built-in building blocks can be deleted and brought back', href: '#/me/lists?categories' },
+    ],
+    test: [
+      'Open Aktiv › Heute › Woche and tap «Week in review ›»: five numbers, the week strip and the highlights.',
+      'Open Me › Documents, tap «Photograph document», choose two photos from the gallery and «Save as PDF»: the new document opens.',
+      'Open Me › Data and backup › Phone and computer, «Switch on sync»: a QR code and a code appear for the other device.',
+    ],
+  },
+  {
+    // v0.146.0 Paket A «Daten sicher und Bedienung»: P3b (data kept, phone and computer, Ich › Dokumente, rules 3a/5a),
+    // P3c (Bedienregeln, camera everywhere) and «Mehr Inhalt» with Hinweistexte HT1–HT2. Noah 18.10.2026 «1b»:
+    // a new tour takes the standard bike, the bike chosen last does not decide it.
+    version: '0.146.0',
+    date: '2026-10-18',
+    title: 'Safe data, calm hands',
+    lead: 'Your data stays and travels between phone and computer, windows keep what you typed, and every page says what it is for.',
+    points: [
+      { text: 'Me › Documents: passport, insurance and emergency sheet as PDF or photo, with a reminder before they expire', href: '#/me/docs' },
+      { text: '«Phone and computer»: send the backup to the other device; the app says which is newer, and «Replace all data» asks twice and keeps a copy', href: '#/me/data' },
+      { text: '«What is here» on top of 14 pages, tips and examples to keep as a note on ten more places', href: '#/gear' },
+    ],
+    small: [
+      { box: 'new', text: 'The camera opens with one tap for a note, an item, a bike and a problem; a receipt can have several pages', href: '#/bikes?tab=shop' },
+      { box: 'nicer', text: 'Closing a window keeps what you typed; only «Discard» deletes it. «Undo» stays 4 seconds everywhere' },
+      { box: 'nicer', text: 'The bike chosen last stays chosen in Bikes, Report a problem and quick jobs; a new tour still brings your standard bike', href: '#/bikes' },
+    ],
+    test: [
+      'Open Me › Documents, tap «Add PDF», choose a PDF or a photo, set «valid until» and switch on «In the packing list».',
+      'Open a window with a text field (for example a bag), type something and close it with ✕: open it again, the text is back.',
+      'Open Bike care: the card «What is here» is on top; × folds it to one line.',
+    ],
+  },
+  {
+    // v0.145.0 «Paket 3»: Navigation «Regeln der App» + Start-Karten (ST1–ST2), Standard-Velo (VS1–VS4), Scrollen und
+    // Listen (SL1–SL4), Wieder sichtbar (WS2, WS3, WS5, WS6) and four fixes from the 0.136.0 pictures. One release
+    // instead of the working numbers 0.140.0–0.143.0 and 0.145.0; RE «Regeln einheitlich» came first as 0.144.0 (#175).
+    version: '0.145.0',
+    date: '2026-10-15',
+    title: 'Clear rules, your standard bike',
+    lead: 'Nothing jumps on its own, long lists fold, and a new trip brings your standard bike.',
+    points: [
+      { text: 'Nothing jumps on its own: a tap opens to change, and on a trip day a card on Today leads on', href: '#/gear' },
+      { text: '«Standard bike and order» under Bikes: arrows, «Make standard» and what a new trip brings', href: '#/bikes?tab=setup' },
+      { text: 'Trips: «Start quickly» with «Like the last trip», your two templates used last and «All templates»', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Back again: the bike costs in the head, what counts for recovery, and quick start in New', href: '#/bikes?tab=setup' },
+      { box: 'nicer', text: 'Long lists fold by month and category with a jump bar; «What is new» by day', href: '#/gear' },
+      { box: 'fixed', text: 'The tile «Ride log» counts Strava rides like «Bike this month»; «23 h · 2 days» with a separator', href: '#/flow' },
+    ],
+    test: [
+      'Open Bikes › Setup › «Standard bike and order» › «Change», tap «Make standard» on another bike, save: it stands first with ★.',
+      'On the phone open Material, tap an item: the fields can be changed, «Save» at the bottom.',
+      'Open Trips: under «Planned» tap «Like the last trip»: the new trip starts as a copy of the trip you last rode with that bike.',
+    ],
+  },
+  {
+    // v0.144.0 RE «Regeln einheitlich» (Noah 14.10.2026 «1a 2a 3a 4a 5a»): one rain limit, «never used» from 3 trips,
+    // the debrief with nothing ticked, one day clock, care per bike («Pflege für …»)
+    version: '0.144.0',
+    date: '2026-10-15',
+    title: 'One set of rules for all',
+    lead: 'Rain, «never used» and the time of day now mean the same on every page, and you set your bike care yourself.',
+    points: [
+      { text: 'One rain limit for the whole app, set in the block Rain (30 %); over it the rain jacket comes along by itself, and you can take it out', href: '#/blocks' },
+      { text: 'Debrief: nothing is ticked to start with; «Done · 2 of 6 take over» says what happens', href: '#/debrief' },
+      { text: 'Care for your bike: choose what the app reminds you of, every … km and/or days, with a note', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Never used» counts from 3 trips everywhere; one day clock: morning until 11, day until 18, evening until 22' },
+      { box: 'fixed', text: 'A new trip copies the list of the trip you used last on this bike, like the bike that is picked' },
+    ],
+    test: [
+      'Open Gear › Building blocks › Rain: the box says the limit counts everywhere; change 30 to 40 and save.',
+      'Open a trip with 40 % rain in Pack: the block Rain is suggested, the rain jacket is on the list with «40 % rain · rain from 30 %».',
+      'Open a debrief with suggestions: nothing is ticked; tick two, the button says «Done · 2 of 6 take over».',
+      'Open Bikes › Care › a bike: the card «Care for …» above the parts; switch a care off, change the sealant to 60 days, add a note.',
+    ],
+  },
+  {
+    // v0.136.0 «Paket 2b»: Pfeile und Ziehen überall (Noah «2a und b»), LI3 «Gilt für» (Noah «2b»),
+    // Inspiration (Noah «1-3a»), one tile row on Aktiv › Heute, nine display fixes from the 0.135.0 screenshots.
+    version: '0.136.0',
+    date: '2026-10-15',
+    title: 'Sort your way',
+    lead: 'Drag a row or use the arrows in every list you can order, and a category can stay with some kinds of trips only.',
+    points: [
+      { text: 'Drag lists or sort them with the arrows: categories, tiles, goals and the checks of a trip', href: '#/me/lists?categories' },
+      { text: 'Category «Applies to»: a category only for some kinds of trips; packing for others leaves it out', href: '#/me/lists?categories' },
+      { text: 'Inspiration explains «What I take from it» and asks for the name of a new link first', href: '#/inspiration' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Bike this month also counts Strava rides that lie in a bike\'s start km; rides still to check are named', href: '#/flow' },
+      { box: 'fixed', text: 'The timer log shows the kind of a meditation instead of «Countdown»', href: '#/timer/log' },
+      { box: 'fixed', text: 'Neater display: even rows in What\'s new, no broken words or numbers, all five heart rate zones in one row, one tile row on Aktiv' },
+    ],
+    test: [
+      'Open Me › Lists and types › Categories: drag a category by its handle, or move it with the arrows; Gear shows the new order.',
+      'Open a category, under «Applies to» leave only one kind of trip: the row says «Only …», and packing for another kind no longer suggests its items.',
+      'Open Inspiration and paste a link to a start page (only the site): the cursor is in «Title», and you choose the kind yourself.',
+      'Open Aktiv › Heute: «Bike this month» counts your Strava rides; the timer log shows a meditation with its kind.',
+    ],
+  },
+  {
+    // v0.135.0 «Paket 2»: Meditation und Timer (ME2, ME3, Z2–Z5), Inhalte Flow + Wusstest du (IF1–IF3, WD1–WD3, #173),
+    // Eine Zahl pro Sache (DK1–DK3 + Heute H1/H2, #170), Training (TR1–TR4, #167), Rechnungen ohne Gebühren (QR1–QR9, #169).
+    // One release instead of the working numbers 0.135.0, 0.136.0, 0.137.0, 0.138.0 and 0.139.0.
+    version: '0.135.0',
+    date: '2026-10-15',
+    title: 'Calm, training and bills',
+    lead: 'Meditation and a timer, your Strava training zone by zone, invoices without fees, and one number for each thing.',
+    points: [
+      { text: 'Aktiv › Meditation with a look back, and a timer for anything else that keeps running on every page', href: '#/flow/act/meditation' },
+      { text: 'Aktiv › Training: every activity from Strava, runs and hikes too', href: '#/flow/training?view=list' },
+      { text: 'A QR bill from your own account, with TWINT as a second way to pay; send it by mail, as a PDF or as a pay link', href: '#/me/pay/invoices/new' },
+    ],
+    small: [
+      { box: 'new', text: 'A tip a day on Aktiv › Heute, with «Did you know» facts and a sentence that fits the weather', href: '#/flow' },
+      { box: 'new', text: '«To pay»: photograph a bill you got, the app reads it and reminds you three days before it is due', href: '#/me/pay/bills' },
+      { box: 'nicer', text: 'One number for each thing: due, weighed and the weight of a trip are the same everywhere', href: '#/bikes?tab=care' },
+    ],
+    test: [
+      'Open Aktiv › Meditation; tap «Like last time» and stop the session.',
+      'Open «What the app can do» › Timer: choose «Countdown», 5 min, tap «Start»; open another page, the timer runs small at the bottom right.',
+      'Open Aktiv › Heute: under the title is one tip. Tap «All tips ›»: all tips of the page, each with a switch.',
+      'Open Aktiv › Training › Week: tap + on a day, plan 60 minutes in Z2 and save.',
+      'Compare the number in the menu with Bike care and Today: all three are the same.',
+      'Open Today: under the next trip a small line «with food, water and worn items» shows the same weight as the trip head.',
+      'Open Ich › Bezahlen › Rechnungen and tap «New QR invoice». Enter a fictional account once, then a name, an amount and what for: the preview shows TWINT and the payment part.',
+      'Tap the tab «To pay», then «Enter by hand»: a bill with a due date in two days shows «due in 2 days».',
+    ],
+  },
+  {
+    // v0.134.0 «Paket 1 – Doku und Ich»: Inspiration (UC2-1, UC2-2, UC2-4), Listen und Typen (LI1–LI4),
+    // Handbuch + Kleine Apps (HB2), empty app without start bags, hiking 15 L. One release instead of the
+    // working numbers 0.133.1 (#166), 0.133.2 (#161), 0.133.3 (Inspiration) and 0.134.0 (#159).
+    version: '0.134.0',
+    date: '2026-10-15',
+    title: 'Your app, your way',
+    lead: 'Collect your own inspiration, order your categories yourself and look up how every function works.',
+    points: [
+      { text: 'Inspiration: your own links, the kind comes from the address; a note becomes a packing rule', href: '#/inspiration' },
+      { text: 'Change categories yourself: rename, add, hide and order them under Me › Lists and types', href: '#/me/lists?categories' },
+      { text: 'Me › Handbook shows how to switch on every function; Small apps open Meditation, Packing list or Bike care on their own', href: '#/me/handbook' },
+    ],
+    small: [
+      { box: 'new', text: 'In Gear › Sort and filter, «Edit list» opens the categories right away.', href: '#/gear' },
+      { box: 'nicer', text: 'Hiking starts with a 15 L backpack instead of 30 L' },
+      { box: 'fixed', text: 'An empty app starts without bags; the mini bag and the cargo cage only come with the matching gear', href: '#/bikes' },
+    ],
+    test: [
+      'Open Inspiration (phone: Me › Inspiration) and paste a link, e.g. a bikepacking.com rig: «Recognised: Rig» shows.',
+      'On a card tap «What I take from it», write a short rule and choose «Packing rule».',
+      'Open Pack for a planned trip: under «From earlier trips» your rule shows as a quiet hint.',
+      'Me › Lists and types › Categories: rename one category with the pen and save; in Gear the new name shows.',
+      'Open Me › Handbook: all functions stand folded; tap one: steps, an example and «Take me there».',
+      'Open Me › Small apps, tap «Open» on Meditation: the small app shows only its tabs and «Whole app».',
+      'Plan a hiking trip: the start backpack is 15 L.',
+    ],
+  },
+  {
+    // v0.133.0 «Design-Refresh» (bundle A): HG1 greeting, «Wi gaht's?» AB1–AB6 with the takeover of the daily check
+    // (WG, fixed rounds 07:00/20:30), komoot SN1b–SN1d, SN4g, SN5 plus, SN6 plus, FE1/FE13/FE14/FE16
+    version: '0.133.0',
+    date: '2026-10-14',
+    title: 'A greeting and your questions',
+    lead: 'Today greets you by name, «Wi gaht\'s?» asks your questions in a morning and an evening round, and many pages are calmer.',
+    points: [
+      { text: '«Wi gaht\'s?»: 50 playful questions, 31 of them on, each with its own rhythm, asked at 07:00 and 20:30', href: '#/me/abfragen' },
+      { text: 'Today greets you in Swiss German by the time of day; a tap tells how you are and what you are up to', href: '#/me/look' },
+      { text: 'History and analysis: all your values in one place, with your normal range', href: '#/me/history' },
+    ],
+    small: [
+      { box: 'new', text: 'Tour from komoot: suggestions near you, a shared tour becomes a planned trip', href: '#/trips' },
+      { box: 'nicer', text: 'Functions, Trips, Favourites and the import check in a calmer look', href: '#/features' },
+      { box: 'nicer', text: 'Tiles show «Open ›», every activity a ••• button, a short intro shows Today once; on the phone the main buttons sit at the bottom' },
+    ],
+    test: [
+      'Open Today: the greeting stands on top; tap «Wie gaht\'s? / Was häsch vor?», choose and save.',
+      'Open Me › «Wi gaht\'s?»: switch a question on, change its rhythm, add an own question, look at «Fixed rounds».',
+      'From 07:00 the card on Today asks the morning questions; the tile «Morning round» shows sleep, energy and mood.',
+      'Open Me › Data › History and Analysis: the answers stand there, old daily checks too.',
+      'In «New tour» tap «Tour from komoot»: komoot opens with suggestions near you.',
+      'On the phone open Trips and Material: the main button sits at the bottom.',
+      'Open Today: the short intro shows three steps; tap «Skip». Tap ••• on an activity: duration, place and stopwatch open.',
+      ],
+    },
+    {
+    // v0.132.2 «Velo draussen ohne falschen Haken» (bug fix, Noah 14.10.2026; same look, so no mockup)
+    version: '0.132.2',
+    date: '2026-10-14',
+    title: 'Only ticked when ridden',
+    lead: 'A tour planned for today no longer ticks «Cycling outdoors» before you rode it.',
+    points: [
+      { text: '«Cycling outdoors» is ticked by a bike tour only once the tour is ended; a tap ticks and unticks it again', href: '#/flow' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Hiking, ski tours and other trips without a bike no longer count as a bike trip' },
+    ],
+    test: [
+      'Plan a bike tour for today and open Aktiv: «Cycling outdoors» is not ticked.',
+      'Tap «Cycling outdoors»: it is ticked. Tap it again: it is unticked.',
+    ],
+  },
+  {
+    // v0.132.1 «Langer Name passt» (bug fix, Noah 14.10.2026 18:41 UTC «BUG auf live version dringend»; same look, so no mockup)
+    version: '0.132.1',
+    date: '2026-10-14',
+    title: 'Long names fit',
+    lead: 'A long trip name no longer runs out of the box when a trip ends.',
+    points: [
+      { text: 'On «Trip ended» a long trip name wraps inside the grey box', href: '#/trips' },
+    ],
+    small: [{ box: 'fixed', text: 'Also on «All packed»: a name without spaces breaks inside the box' }],
+    test: [
+      'Give a trip a very long name without spaces, end it: on «Trip ended» the name stays inside the grey box.',
+      'On a phone the name wraps over several lines, the page does not scroll sideways.',
+    ],
+  },
+  {
+    // v0.132.0 «Tagespaket» (PR #151, first numbered 0.125.0 + 0.126.0; 0.125.0 never went live, so its content ships here):
+    // Tages-Check 1+2, Aktiv ausweiten AK1–AK3 (#150), Feinschliff A-J1, TZ-1, A-U1/A-U2/A-U5 (#152), Werte überall WU1–WU4 + SV1 (#153),
+    // Velo-Setup UC3 (#155), Kluge Suche (#154), App-Wartung BF4/BF7/BF8, Bedienung FE2/6/7/8/9/10/11/17/18, Bezahlen BZ1/BZ2b (#156),
+    // Kleine Apps + Handbuch (#157)
+    version: '0.132.0',
+    date: '2026-10-14',
+    title: 'Lots of new things at once',
+    lead: 'A bigger update in one go: a daily check, a week in Aktiv, your bike setup, a smarter search and small apps.',
+    points: [
+      { text: 'Daily check: a morning check and, from 20:30, a short evening review; your balance of nine areas in one ring on Today', href: '#/me/abfragen' },
+      { text: 'Aktiv: a week with fixed dates and suggestions, a page for recovery and a short packing list for each sport', href: '#/flow/week' },
+      { text: 'Setup per bike: photos, total weight, a bag plan and a log of what you changed', href: '#/bikes?tab=rig' },
+    ],
+    small: [
+      { box: 'new', text: 'A search that finds similar words and small typos, and small apps for meditation, packing list and bike care with their own icon' },
+      { box: 'new', text: 'Every trip shows its state, a year goal for km, metres climbed and minutes, a workshop visit saved on the bike', href: '#/trips' },
+      { box: 'nicer', text: 'A backup before every update, high contrast outdoors, speaking instead of typing and an error never shows a white page', href: '#/me/data' },
+    ],
+    test: [
+      'On Today tap «Start» in the check row: the morning check opens. Answer a few questions, tap «Done».',
+      'On Today: «Your balance» shows the ring; tap «Your 15 questions» and switch a question off: the check no longer asks it.',
+      'Open Aktiv › Heute and tap the card «Week».',
+      'Open «Sport bag», tick a thing, then «All in».',
+      'Open Aktiv › Goals: on the right «Year goals» with three rows; switch one off and tap a goal number to change it.',
+      'Open Touren: under the title «n planned · n completed · n rated», then the chips. Tap «Completed»: only those trips show.',
+      'Tap + (New) › Workshop visit: the km and the last workshop stand on a green field with «from …».',
+      'Open Velos › Setup: photos, total weight, bag plan, log, comparison, races and ideas from others.',
+      'Tap «Whole bag plan»: tap «Move» on a hint, the item is in the other bag of that packing list.',
+      'Search «regenjacke» or «materal»: similar words and the corrected word are found; «backup» offers Data and backup on top, Enter opens it.',
+      'On the phone open …/apps/meditation/ and add it to the home screen: it starts on Meditation, «Whole app» leads back.',
+      'Open Me › Data and backup › «Before updates», and Me › «App maintenance».',
+      'Open Me › Appearance › Handling: switch on «High contrast (outdoors)», choose where the app opens.',
+      'Open Me › Payments: it explains what is prepared; nothing is locked and no money moves.',
+    ],
+  },
+  {
+    // v0.131.3 «Kamera-Knopf» (mockups K1–K4, Noah 14.10.2026 «K1–K4 freigegeben»)
+    version: '0.131.3',
+    date: '2026-10-14',
+    title: 'Receipt photo in one tap',
+    lead: 'On the phone the camera for a receipt opens with one tap, wherever a receipt is added.',
+    points: [
+      { text: 'Bikes › Workshop › Log a workshop visit: «Photograph the receipt» opens the camera', href: '#/bikes?tab=shop' },
+      { text: 'Inbox › File as … Receipt: a note without a photo gets its receipt photo here', href: '#/inbox' },
+    ],
+    small: [
+      { box: 'new', text: 'New › Workshop visit: the note shows «Photograph the receipt» too' },
+      { box: 'nicer', text: '«Gallery» next to it still takes a photo from the phone; the computer keeps «Choose photo»' },
+    ],
+    test: [
+      'On the phone, open Bikes › Workshop › «Log a workshop visit» and tap «Photograph the receipt»: the camera opens.',
+      'Take the photo: it shows small in the window; save the visit.',
+      'Write a note «Workshop receipt: …» without a photo, then Inbox › File › Receipt: «Photograph the receipt» is there.',
+    ],
+  },
+  {
+    // v0.131.2 «Velo-Reihenfolge» (Noah 13.10.2026 «1a», thread «Velo-Standard»; fix of the order 0.131.0 wrote)
+    version: '0.131.2',
+    date: '2026-10-14',
+    title: 'Bikes back in line',
+    lead: 'The bike tabs follow the order you chose again.',
+    points: [
+      { text: 'Bike tabs in your order, your main bike first.', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The tidy-up of the last update had brought back the old order' },
+    ],
+    test: [
+      'Open Velos: the tabs start with your main bike, in the order you chose.',
+      'Open Velos › Pflege: the bikes come in the same order.',
+    ],
+  },
+  {
+    // v0.131.1 «Abhaken wieder abwählbar» (bug fix, Noah 14.10.2026; same look, so no mockup)
+    version: '0.131.1',
+    date: '2026-10-14',
+    title: 'Ticked is ticked once',
+    lead: 'A quick double tap no longer ticks an activity twice, so a tap takes it back again.',
+    points: [
+      { text: 'A ticked activity can be unticked again with one tap; «Undo» brings it back', href: '#/flow' },
+    ],
+    small: [
+      { box: 'fixed', text: 'A quick double tap ticks only once; double ticks from before go away with the next untick' },
+      { box: 'fixed', text: 'A ticked commute on «In the flow» can be tapped to take it back' },
+    ],
+    test: [
+      'On Today tap an activity in «In the flow»: it is ticked. Tap it again: it is unticked.',
+      'Tick it, then tap «Undo» in the message below: the tick is gone again.',
+      'Tap an activity twice quickly: it is ticked once, one more tap unticks it.',
+      'Tap «Commute», then tap the line «… today: commute»: the commute is taken back.',
+    ],
+  },
+  {
+    // v0.131.0 «Daten einmal bereinigen» (Noah 14.10.2026 «1a», «2-5a»; nothing new on screen, so no mockups)
+    version: '0.131.0',
+    date: '2026-10-14',
+    title: 'Tidied up once',
+    lead: 'Behind the scenes the app tidied up: old copies in your data moved into their new place, nothing got lost.',
+    points: [
+      { text: 'The weight checks from the Excel are a note now: Notes › «Weight checks from the Excel».', href: '#/notes' },
+      { text: 'Old kits, old block marks and «On every trip» live in your building blocks; the old copies are gone.', href: '#/blocks' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Before tidying up, the app keeps a full copy of your data on this device' },
+      { box: 'nicer', text: 'The order of your bikes and their extra names are part of your data now', href: '#/bikes' },
+    ],
+    test: [
+      'Download a backup first: Ich › Daten › Backup.',
+      'Open Notes: the note «Weight checks from the Excel» lists the weights from the Excel.',
+      'Open Material and Bausteine: everything is in the same blocks as before; a new trip packs the same list.',
+    ],
+  },
+  {
+    // v0.124.0 «Neue Tour Teil 2» (mockups B4/B5, Noah 12.10.2026 «b2 b4 b5 ok»; B5 default a ★)
+    version: '0.124.0',
+    date: '2026-10-13',
+    title: 'Blocks you can tap',
+    lead: 'In Packen every building block is a big button now, and Repair travels light with at most 8 parts.',
+    points: [
+      { text: 'Building blocks as big buttons at the top of Packen: green with a check is on the trip, white with + can be added.', href: '#/pack?day' },
+      { text: 'Repair on the way: the app suggests at most 8 light parts, the rest stays in the workshop and in your gear.', href: '#/pack?day' },
+      { text: 'A slim Repair comes with every new trip as a suggestion; one tap takes it off.', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: 'Hover or hold a block: it shows what is inside', href: '#/pack?day' },
+      { box: 'nicer', text: 'The template buttons of a new trip use the same option buttons', href: '#/trips' },
+    ],
+    test: [
+      'Open a bike trip and go to Packen: at the top «Building blocks · n on · m to choose».',
+      'Tap a white block with +: it turns green with a check and its items are on the list. Tap it again: they go.',
+      'With a Repair of more than 8 parts tap its dashed button: choose the parts and tap «Take 8 parts».',
+    ],
+  },
+  {
+    // v0.123.0 «Trophäen-Vitrine» (mockups TV1–TV2, Noah 13.10.2026 «tv1-tv2 freigeben»)
+    version: '0.123.0',
+    date: '2026-10-13',
+    title: 'All your stars in one showcase',
+    lead: 'Every star you reached, by area and year, on one page. Reached ones stay.',
+    points: [
+      { text: 'Trophy showcase: all stars by area and year', href: '#/flow/trophies' },
+      { text: 'Trophy shelf: «See all trophies» opens it', href: '#/flow/milestones' },
+    ],
+    small: [{ box: 'new', text: 'Next within reach: the three closest stars', href: '#/flow/trophies' }],
+    test: [
+      'Open Aktiv › Aktivität › Milestones and tap «See all trophies» under the trophy shelf.',
+      'Tap a year: only the stars of that year stay.',
+    ],
+  },
+  {
+    // v0.122.0 «Bugfix Dateneingabe» D1–D4 (Noah 13.10.2026 «D1–D4 freigegeben», answers «1a 2a 3b 4b 5a», D1a ★)
+    version: '0.122.0',
+    date: '2026-10-13',
+    title: 'Values in one go',
+    lead: 'Bike values go in right where you are: on the sheet or on one page, field after field.',
+    points: [
+      { text: 'The Pick-up check shows each value as a card: tap it, type, and «Next» opens the next one. − and + help, and «As before» keeps the old value.', href: '#/bikes' },
+      { text: 'New page «Enter values» under Equipment: all values of a bike in four groups, every entry saves at once.', href: '#/bikes?tab=compare' },
+      { text: '«Choose fields» hides fields you never need, for all bikes; «Own field» adds a value with name and unit.', href: '#/bikes?tab=compare' },
+    ],
+    test: [
+      'Open a bike › Workshop › Pick-up check: tap a value, type a number and press Enter: the card is ticked and the next one opens.',
+      'Go to Equipment › «Enter values»: type a value and press Enter, the next field gets the cursor.',
+      'Tap «Choose fields», switch a field off: it is gone here, the Bike pass still shows it.',
+    ],
+  },
+  {
+    // v0.121.0 «Strava-Fahrten zählen mit» (mockups SZ1–SZ2, Noah 13.10.2026 «sz1-sz2 freigeben»)
+    version: '0.121.0',
+    date: '2026-10-13',
+    title: 'Strava rides count along',
+    lead: 'Your Strava rides now count in «This week» and «Bike this month», each ride once.',
+    points: [
+      // «Try it» takes the first point; '#/' does nothing when you are on Today already, so Aktiv comes first
+      { text: 'Aktiv: «Bike this month» from your rides and Strava', href: '#/flow' },
+      { text: 'Today: «This week» and «Bike this month» count your Strava rides', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A ride in «To check» counts after «Fits»', href: '#/bikes' },
+    ],
+    test: [
+      'Connect Strava and ride once: on Today «This week» shows the day as active.',
+      'Open Aktiv: «Bike this month» adds the Strava kilometres.',
+    ],
+  },
+  {
+    // v0.119.0 «Schnellstart» (mockups Q1–Q3, Noah 13.10.2026 00:05 «Q1–Q3 freigegeben»)
+    version: '0.119.0',
+    date: '2026-10-13',
+    title: 'Trip in one click',
+    lead: 'One click on Today plans a ride for today, and you stay on Today.',
+    points: [
+      { text: 'Quick start replaces the day ride: today, 2.5 hours, the bike you rode last, the standard items and the weather of the forecast.', href: '#/' },
+      { text: 'The trip is called by the time you made it, like 202610130000; a green card has «Open» and «Undo».', href: '#/' },
+      { text: 'A trip name field marks its whole name when you tap into it, so typing writes over it.', href: '#/trips' },
+    ],
+    test: [
+      'On Today tap «Quick start»: you stay on Today, the green card says «Trip planned» with the time as the name.',
+      'Tap «Undo»: the trip is gone again.',
+      'Open a trip and tap its name: the whole name is marked; type a new one.',
+    ],
+  },
+  {
+    // v0.118.0 «Was ist neu 2» (mockups W1–W3) and «KI-Helfer ausblenden» (mockups K1–K4)
+    version: '0.118.0',
+    date: '2026-10-13',
+    title: 'What is new, retold',
+    lead: 'After an update every news item sits open and each line takes you there. And the AI helper takes a break until you call it.',
+    points: [
+      { text: 'Every version with its own title, one sentence and its main points', href: '#/me/news' },
+      { text: 'Small things sorted into New, Nicer, Fixed and Faster', href: '#/me/news' },
+      { text: 'AI helper off by default: one switch under Me brings it back everywhere', href: '#/helper' },
+    ],
+    small: [
+      { box: 'nicer', text: 'All versions open, grouped by month', href: '#/me/news' },
+    ],
+    test: [
+      'Open Me › What is new: every version is open, grouped by month.',
+      'Tap a line of a version: its place opens.',
+      'Open Me › AI helper: the switch is off. Switch it on: the six places say «on».',
+    ],
+  },
+  {
+    // v0.117.0 «Knöpfe neu» (mockups N1–N4, Noah 12.10.2026 «n1-n4 freigeben»)
+    version: '0.117.0',
+    date: '2026-10-13',
+    title: 'Buttons that explain themselves',
+    lead: 'Not sure what a button does? Point at it on the computer or hold it on the phone, and it tells you.',
+    points: [
+      { text: 'Bike care: one main button per row, the rest behind «…»', href: '#/bikes?tab=care' },
+      { text: 'After «Done» one line says what was saved, with «Undo»', href: '#/bikes?tab=care' },
+      { text: 'Button labels with at most two words, the long text on hover', href: '#/gear' },
+    ],
+    small: [
+      { box: 'nicer', text: 'On the phone the buttons of a row sit under its text, card-wide', href: '#/inbox' },
+    ],
+    test: [
+      'Open Bike care and point at «Done» (computer) or hold it (phone): the explanation shows, nothing is saved.',
+      'Tap «…» in a row: every action with one line; on the phone the list opens from the bottom.',
+      'Tap «Done»: the line at the bottom says what was saved; tap «Undo».',
+    ],
+  },
+  {
+    // 0.116.2 «Bugfix Dateneingabe» (Noah 13.10.2026): «enter» on a sheet jumped to other pages.
+    version: '0.116.2',
+    date: '2026-10-13',
+    title: 'Enter bike values where you are',
+    lead: '«Enter» on a sheet of the bike folder opens exactly that value, and saving brings you back to the sheet.',
+    points: [
+      { text: 'Fixed: «enter» on the Bike pass, the Pick-up check and the other sheets led to the top of another page. Now it opens just that value of this bike for typing, Save or Cancel brings you back to the sheet.', href: '#/bikes' },
+      { text: '«Change values» on the Bike pass and the Pick-up check opens the bike\'s Equipment, where the measurements and parts are.', href: '#/bikes?tab=compare' },
+    ],
+    test: [
+      'Open Bike › More › Folder › Pick-up check and tap «enter» next to Saddle height.',
+      'Type a number and tap Save: you are back on the Pick-up check and the value is there.',
+    ],
+  },
+  {
+    // 0.116.1 (UI-Prüfung A1): an old debrief without its item list opened an empty page.
+    version: '0.116.1',
+    date: '2026-10-13',
+    title: 'Old trips open again',
+    lead: 'The debrief of an older trip opened an empty page; now it opens like any other.',
+    points: [
+      { text: 'Fixed: the debrief of an older trip (from an old backup or the Excel import) opened an empty page. It opens again, every item counted as used.', href: '#/pack/past' },
+    ],
+    test: [
+      'Open Trips › Look back › Past trips and tap an older trip.',
+      'The debrief opens with its numbers and «Not used».',
+    ],
+  },
+  {
+    // v0.116.0 «Strava-Verbindung» (E3, mockups S1–S5 approved by Noah 12.10.2026 13:39, heart rate P1–P6 22:07 UTC)
+    version: '0.116.0',
+    date: '2026-10-12',
+    title: 'Strava, come on in 🚴',
+    lead: 'Connect once, and your rides arrive with their bike, so every kilometre lands on the right one.',
+    points: [
+      { text: 'Connect Strava once: all old rides come, none counted twice', href: '#/bikes?tab=care&view=strava' },
+      { text: 'New rides come by themselves, or with «Fetch now»', href: '#/bikes?tab=care&view=strava' },
+      { text: 'Another bike in Strava? Today asks «Take over» or «Keep»', href: '#/' },
+    ],
+    small: [
+      { box: 'new', text: 'Heart rate per ride, Ø and max, only to look at', href: '#/flow' },
+      { box: 'new', text: 'A ride without a bike waits in «To check» with a suggestion', href: '#/bikes?tab=care&view=strava' },
+    ],
+    test: [
+      'Open Bike › Care › Strava and tap «Connect with Strava».',
+      'Log in to Strava and allow it: the app shows how many rides it found.',
+      'Tap «Done», then «Fetch now»: the tile «Strava» on Today shows the result.',
+      'Open the ride log of a bike: a ride with a heart rate monitor shows «Ø … · max … bpm».',
+    ],
+  },
+  {
+    // v0.115.0 Menü-Fix (Noah 12.10.2026): a ••• menu closes with one tap outside it.
+    version: '0.115.0',
+    date: '2026-10-12',
+    title: 'Menus that take a hint',
+    lead: 'A tap next to an open ••• menu closes it. No more hunting for the same ••• twice.',
+    points: [
+      { text: 'Bike care: the ••• of a problem closes with one tap beside it', href: '#/bikes?tab=care' },
+      { text: 'Same for the packing list and the trips in progress', href: '#/pack' },
+    ],
+    test: [
+      'Open Bikes › Care and tap ••• at a problem.',
+      'Tap anywhere next to the menu: it closes at once.',
+      'Tap ••• and pick an answer: it still works.',
+    ],
+  },
+  {
+    // v0.111.0 Bausteine bearbeiten: Vorabend- und Schluss-Check (mockups V1–V6)
+    // v0.114.0 «Rahmenbedingungen» (Noah 12.10.2026, mockups B1–B3 approved).
+    version: '0.114.0',
+    date: '2026-10-12',
+    title: 'A new trip, nicely framed',
+    lead: 'Sport, weather from your postcode and the event: the new trip asks the right things and sorts the list into groups.',
+    points: [
+      { text: '«Conditions»: sport, weather from the start postcode, the event', href: '#/trips' },
+      { text: 'Templates as buttons: Standard, yours and two examples', href: '#/trips' },
+      { text: 'The packing list in four groups, with a picture per item', href: '#/trips' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Repair and Charging only come when you switch them on', href: '#/pack' },
+    ],
+    test: [
+      'Open Trips and tap «New trip».',
+      'Type your postcode under Weather: the forecast suggests the weather.',
+      'Open «Choose a template» and tap «Weekend»: 2 days and Hotel/hut are set.',
+    ],
+  },
+  {
+    // v0.111.0 Bausteine bearbeiten: evening-before and after-trip check (mockups V1–V6)
+    version: '0.111.0',
+    date: '2026-10-12',
+    title: 'Tick off at night, head out in the morning',
+    lead: 'Bulletin read, skins packed, alarm set? The evening-before check asks, so you can sleep easy.',
+    points: [
+      { text: 'Evening-before check on «Packed», each trip type with its own list', href: '#/trips' },
+      { text: 'After-trip check: dry the skins before they get musty', href: '#/trips' },
+    ],
+    small: [
+      { box: 'new', text: '«Adjust the list»: your own points or ideas from earlier debriefs', href: '#/trips' },
+      { box: 'nicer', text: 'Checks per trip type now live under Me', href: '#/me/checks' },
+    ],
+    test: [
+      'Open a packed trip: tap «Evening-before check» under «Until the start» and tick a point.',
+      'Tap «Adjust the list», add your own point and save it for all trips of the type.',
+      'End a trip: tap the after-trip check under «Before you unpack».',
+      'Open Me › Checks per trip type and choose another type.',
+    ],
+  },
+  {
+    // v0.110.0 Design-Refresh P10 (I11): the newest version also has a name, one sentence and the
+    // steps «How to test it» (the card on top of Ich › Was ist neu); older versions do without.
+    version: '0.110.0',
+    date: '2026-10-12',
+    title: 'What is new? Well, exactly this.',
+    lead: 'Every function one by one, sorted the way you like. Your top 10 counts quietly, only on this device.',
+    points: [
+      { text: 'All functions with a search and six sorts', href: '#/me/news?all&sort=top' },
+      { text: 'The tile «New» waves at you on Today for 14 days', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Do not show again» holds until the next update', href: '#/me/news' },
+      { box: 'new', text: '«Your top 10» counts what you open, never in the playground', href: '#/me/news' },
+    ],
+    test: [
+      'Open Me › What is new and tap «Your top 10».',
+      'Tap «Go» at a function: its place opens.',
+      'Go back: the function now counts once more.',
+    ],
+  },
+  {
+    version: '0.109.0',
+    date: '2026-10-12',
+    title: 'Debrief, freshly showered 🚿',
+    lead: 'Trip over, legs tired, head full: the debrief now sorts it into two columns.',
+    points: [
+      { text: 'Trip ended and debrief in two columns, items as chips by bag', href: '#/debrief' },
+      { text: 'Debrief with number tiles, your 12 months and the comparison', href: '#/debrief' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Learned, pace, logbook, past trips and rides in light cards', href: '#/debrief/logbook' },
+    ],
+  },
+  {
+    version: '0.108.0',
+    date: '2026-10-12',
+    title: 'Me, finally tidied up',
+    lead: 'Four groups instead of a jumble box. And when the backup is due, a band on top tells you kindly.',
+    points: [
+      { text: 'Me in four groups, with a backup band on top', href: '#/me' },
+      { text: 'Data and backup with three lights and a QR code for the phone', href: '#/me/data' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Inbox, notes, helper, home place, shortcuts and playground in the light look', href: '#/me' },
+    ],
+  },
+  {
+    version: '0.107.0',
+    date: '2026-10-12',
+    title: 'Active turns the lights on',
+    lead: 'Today on top, goals with a path, milestones on a shelf. Plus a suggestion you can take as a challenge. Or not.',
+    points: [
+      { text: 'Active in light: today on top, goals with a path, milestones on a shelf', href: '#/flow' },
+      { text: 'A suggestion for today, as a challenge if you like', href: '#/flow' },
+    ],
+    small: [
+      { box: 'new', text: 'Page «Patterns»: records and what helped', href: '#/flow' },
+      { box: 'nicer', text: 'Meditation log with a 13-week calendar', href: '#/flow' },
+    ],
+  },
+  {
+    version: '0.106.0',
+    date: '2026-10-12',
+    title: 'Packing, bag by bag',
+    lead: 'Your bags as one tidy list: tap one, and its items unfold right below.',
+    points: [
+      { text: 'Packing shows your bags as one list, items open below', href: '#/pack' },
+      { text: 'On the way: the day in blocks, what to wear, eat and drink now', href: '#/ride' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Swap, charging, still to decide and end the trip as light windows', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.105.0',
+    date: '2026-10-12',
+    title: 'Bikes, polished up',
+    lead: 'The drawing and the bags open right on the page. Bike care says on top what is due.',
+    points: [
+      { text: 'Bikes in light, drawing and bags open on the page', href: '#/bikes' },
+      { text: 'Bike care: what is due on top, each bike its own page', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Part, workshop visit, order, import and receipts in light windows', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
+    version: '0.104.0',
+    date: '2026-10-12',
+    title: 'Trips, with a view',
+    lead: 'Where you left off sits on top, and planning shows the route on a small map with the height profile.',
+    points: [
+      { text: 'Trips: continue on top, light tiles with a packing bar', href: '#/trips' },
+      { text: 'Route on a small map, height profile and stages', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A new trip starts in one light window', href: '#/trips' },
+    ],
+  },
+  {
+    version: '0.103.0',
+    date: '2026-10-12',
+    title: 'Gear, list first',
+    lead: 'Less chrome, more stuff: the list comes first, the tools in one row.',
+    points: [
+      { text: 'Gear shows the list first, the views on the right', href: '#/gear' },
+      { text: 'An item opens with flat rows, the rare things under «More»', href: '#/gear' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Sort, filter, assign, merge and weigh as light cards', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.102.0',
+    date: '2026-10-12',
+    title: 'Swim or sauna?',
+    lead: 'A new tile asks the important questions of life. And any suggestion can become a challenge.',
+    points: [
+      { text: 'Tile «Swim or sauna today?» with your own alternatives', href: '#/' },
+      { text: 'Any suggestion becomes a challenge that counts by itself', href: '#/' },
+    ],
+    small: [
+      { box: 'new', text: 'A challenge reached is celebrated as a milestone', href: '#/' },
+    ],
+  },
+  {
+    version: '0.101.0',
+    date: '2026-10-12',
+    title: 'Today, calm and bright',
+    lead: 'The trip card counts the hours to go, and four new tiles keep you posted.',
+    points: [
+      { text: 'Trip card with hours to go, open steps and packing status', href: '#/' },
+      { text: 'New tiles: This week, Bike this month, Next milestone, A year ago', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: '«New» sorted by area, each way with its own picture', href: '#/' },
+      { box: 'nicer', text: 'Search results in light, over the tiles', href: '#/' },
+    ],
+  },
+  {
+    version: '0.100.0',
+    date: '2026-10-12',
+    title: 'Step by step',
+    lead: 'A trip now counts its four steps, and the next one always waits in the bar at the bottom.',
+    points: [
+      { text: 'The four steps of a trip, numbered', href: '#/pack' },
+      { text: 'Bar at the bottom: «Step 1 of 4» and the main button', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Trip page in light, with «‹ Trips» to go back', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.99.0',
+    date: '2026-10-12',
+    title: 'Soft corners, confetti included 🎉',
+    lead: 'Buttons and fields got rounder, empty pages got friendlier, and a full bag gets a little party.',
+    points: [
+      { text: 'Everything packed? A short burst of confetti', href: '#/pack' },
+      { text: 'Empty pages with a picture and what to do next', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Buttons, fields and badges with soft corners and one height', href: '#/' },
+      { box: 'nicer', text: '«Undo» notes at the bottom, dark and calm', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.98.0',
+    date: '2026-10-12',
+    title: 'Light up top, light on the side',
+    lead: 'The top bar and the sidebar got a fresh coat of paint, and «New» moved to the top on the phone.',
+    points: [
+      { text: 'On the phone «New» (+) sits up top next to the search', href: '#/' },
+      { text: 'Computer: sidebar with the pages of a place, «Me» at the bottom', href: '#/me' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Top bar and sidebar light and calm', href: '#/' },
+    ],
+  },
+  {
+    version: '0.97.0',
+    date: '2026-10-12',
+    title: 'Sage and Inter move in',
+    lead: 'A calm colour world and a clear font for the whole app. Prefer it your way? Me › Appearance.',
+    points: [
+      { text: 'New look: colour world «Sage» and the font Inter', href: '#/me/look' },
+      { text: 'Me › Appearance: 8 fonts, colour world, text size, light or dark', href: '#/me/look' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Dark mode stays, only on this device', href: '#/me/look' },
+    ],
+  },
+  {
+    version: '0.96.0',
+    date: '2026-10-11',
+    title: 'Everything the app can do',
+    lead: 'Every function by situation, what you never tried on top, and «Take me there» to its place.',
+    points: [
+      { text: 'Functions by situation or by page, never used on top', href: '#/features' },
+      { text: '«Take me there» and «Try it» in the playground', href: '#/features' },
+    ],
+    small: [
+      { box: 'nicer', text: 'The search finds functions too, for example «warranty»', href: '#/features' },
+    ],
+  },
+  {
+    version: '0.95.0',
+    date: '2026-10-11',
+    title: 'Bikes, short and sweet',
+    lead: 'Three rows instead of a long page, and importing rides got a big button.',
+    points: [
+      { text: 'Overview: care, bags and equipment as three rows', href: '#/bikes' },
+      { text: '«Import rides» as a big button on the bike page', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A missing weight or price is a quiet grey hint', href: '#/bikes?tab=compare' },
+    ],
+  },
+  {
+    version: '0.94.0',
+    date: '2026-10-11',
+    title: 'Today, your way',
+    lead: 'Today is a wall of tiles: move them, resize them, take them away. And one series counts everything you do.',
+    points: [
+      { text: 'Customise Today: move, resize or remove tiles', href: '#/' },
+      { text: '«+» adds any tile, with a «New» dot for two weeks', href: '#/' },
+      { text: 'One series over everything, all milestones on one page', href: '#/flow/milestones' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Data and backup» now lives under Me', href: '#/me', action: 'data' },
+    ],
+  },
+  {
+    version: '0.93.0',
+    date: '2026-10-11',
+    title: 'Sit down, the clock knows the rest 🧘',
+    lead: 'A new session in a few taps: minutes, sounds in between, and the clock you like to look at.',
+    points: [
+      { text: '«New session»: 10 to 60 minutes or any, sounds in between', href: '#/flow/act/meditation' },
+      { text: 'Four clocks: ring, hourglass, moon or only the number', href: '#/flow/act/meditation' },
+    ],
+    small: [
+      { box: 'new', text: '«Save as a template?» suggests a name by itself', href: '#/flow/act/meditation' },
+    ],
+  },
+  {
+    version: '0.92.0',
+    date: '2026-10-11',
+    title: 'What stayed in the bag?',
+    lead: 'The debrief starts with the honest question, and counts how much lighter you could ride next time.',
+    points: [
+      { text: 'Debrief: tap what you did not need, see what you save', href: '#/trips' },
+    ],
+    small: [
+      { box: 'nicer', text: '«What was missing?» and «How was it?» as short rows, button «Done»', href: '#/trips' },
+    ],
+  },
+  {
+    version: '0.91.0',
+    date: '2026-10-11',
+    title: 'No ride counted twice',
+    lead: 'Old rides whose kilometres are already in your bikes now politely step aside.',
+    points: [
+      { text: 'Strava export: old rides without a bike are set aside', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'fixed', text: 'A bike picked by hand checks its start value too', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
+    version: '0.88.0',
+    date: '2026-10-11',
+    title: 'A playground for trying things',
+    lead: 'Play a made-up trip from packing to debrief. When you stop, your data is exactly as before.',
+    points: [
+      { text: 'Me › «Try it out»: packing day, ride or debrief with a made-up trip', href: '#/me' },
+      { text: 'Me › «Clean up test data»: archive, never delete', href: '#/me' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A trip ended early asks first and comes back with «Plan again»', href: '#/trips' },
+    ],
+  },
+  {
+    version: '0.86.0',
+    date: '2026-10-11',
+    title: 'Meditation in two taps',
+    lead: 'Tap, sit, done. The meditation page got shorter and the running clock got quieter.',
+    points: [
+      { text: 'From «Tick off today» straight into a session', href: '#/flow' },
+      { text: 'Short page: like last time, a template, this week, the log', href: '#/flow/act/meditation' },
+    ],
+    small: [
+      { box: 'nicer', text: 'After the gong one sentence, the depth and «Done»', href: '#/flow/act/meditation' },
+    ],
+  },
+  {
+    version: '0.84.0',
+    date: '2026-10-11',
+    title: 'After the gong',
+    lead: 'A calm look back at each session, and a log that remembers everything without being nosy.',
+    points: [
+      { text: 'Evaluation after the gong: depth, mood, what helped', href: '#/flow/act/meditation' },
+      { text: 'The log with filters, heatmap and month comparison', href: '#/flow/act/meditation/log' },
+    ],
+    small: [
+      { box: 'new', text: 'Start a past session again in one tap', href: '#/flow/act/meditation/log' },
+    ],
+  },
+  {
+    version: '0.83.0',
+    date: '2026-10-11',
+    title: 'Every screw in its place',
+    lead: 'The new tab «Equipment» lists your bike like a maker\'s spec sheet, with weight and price.',
+    points: [
+      { text: 'Tab «Equipment»: every part in groups, with weight and price', href: '#/bikes?tab=compare' },
+      { text: 'Your four key measurements as tiles on top', href: '#/bikes?tab=compare' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Compare bikes» only shows rows with a value', href: '#/bikes?tab=compare' },
+    ],
+  },
+  {
+    version: '0.81.0',
+    date: '2026-10-11',
+    title: 'Cushion time',
+    lead: 'Meditation gets its own page, with intervals right on the round clock and seven built-in sounds.',
+    points: [
+      { text: 'Own meditation page: templates, kinds, sounds, places', href: '#/flow/act/meditation' },
+      { text: 'Intervals right on the round clock', href: '#/flow/act/meditation' },
+    ],
+    small: [
+      { box: 'new', text: 'Full screen while sitting, counts for your milestones', href: '#/flow/act/meditation' },
+    ],
+  },
+  {
+    version: '0.80.0',
+    date: '2026-10-11',
+    title: 'Behind the scenes',
+    lead: 'Nothing to see, but a lot to gain: new versions now reach you faster.',
+    points: [
+      { text: 'The automatic checks run more steadily' },
+    ],
+    small: [
+      { box: 'faster', text: 'New versions arrive sooner' },
+    ],
+  },
+  {
+    version: '0.79.0',
+    date: '2026-10-11',
+    title: 'Stars for showing up ⭐',
+    lead: 'Your six favourite activities as tiles, and milestones that only show the next star.',
+    points: [
+      { text: 'Tab «Activity»: six favourites with playful names', href: '#/flow/activity' },
+      { text: 'Milestones over all activities, a reached star stays', href: '#/flow/milestones' },
+    ],
+    small: [
+      { box: 'new', text: 'More ideas to tick off, hide what you do not want', href: '#/flow/activity' },
+    ],
+  },
+  {
+    version: '0.78.0',
+    date: '2026-10-10',
+    title: 'Every place, its tabs',
+    lead: 'Swipe sideways to the next tab, and every place remembers where you were.',
+    points: [
+      { text: 'Tabs on top of every place, swipe on the phone', href: '#/bikes' },
+      { text: 'Trips as tiles with their route, ordered by state', href: '#/trips' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Debrief starts with what is open; Gear has «Shopping»', href: '#/debrief' },
+      { box: 'new', text: 'After an update a calm sheet says what is new', href: '#/me/news' },
+    ],
+  },
+  {
+    version: '0.77.0',
+    date: '2026-10-10',
+    title: 'A helper, only when you ask',
+    lead: 'Claude suggests packing lists, learnings and bike care. Without the code everything stays as before.',
+    points: [
+      { text: 'A few words become a packing list suggestion', href: '#/trips' },
+      { text: '«Check the list» and a debrief draft from your notes', href: '#/trips' },
+      { text: 'Suggestions in «Due now», all just suggestions', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'new', text: 'Me › Helper: code only on this device, monthly limit CHF 5', href: '#/helper' },
+    ],
+  },
+  {
+    version: '0.76.0',
+    date: '2026-10-10',
+    title: 'Five places',
+    lead: 'Today, Trips, Gear, Bikes and Active: at the bottom on the phone, in a sidebar on the computer.',
+    points: [
+      { text: 'Five places with their own pages', href: '#/' },
+      { text: '«More» is gone, «Me» has language, theme, inbox and your data', href: '#/me' },
+    ],
+    small: [
+      { box: 'nicer', text: '«New» as a round + on the phone, each place with its colour', href: '#/' },
+      { box: 'new', text: 'Keyboard shortcuts: g plus a letter, n, / and ?', href: '#/me' },
+    ],
+  },
+  {
+    version: '0.75.0',
+    date: '2026-10-10',
+    title: 'Renaming, the same everywhere',
+    lead: 'The pencil opens a small sheet, Enter saves, «Undo» waits 10 seconds. Also for gear on the phone.',
+    points: [
+      { text: 'Rename everywhere the same way, with «Undo»', href: '#/bikes' },
+      { text: 'Importing rides learns which bike a ride type belongs to', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'fixed', text: 'The back key keeps what you typed in a window', href: '#/gear' },
+      { box: 'nicer', text: 'Gear summary in one line, lighter options under «Weight»', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.73.0',
+    date: '2026-10-10',
+    title: 'Today, a little quieter',
+    lead: 'The greeting fits in one line, the next trip follows right after, and the photo is sharp now.',
+    points: [
+      { text: 'Greeting in one line, the next trip right after it', href: '#/' },
+      { text: 'A sharp photo, on the phone as a slim band', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Suggestion for tomorrow» as a slim row on a trip day', href: '#/' },
+    ],
+  },
+  {
+    version: '0.70.0',
+    date: '2026-10-10',
+    title: 'Four more sheets for your bike',
+    lead: 'Break-in plan, repair kit, warranty and a theft sheet: hopefully you only ever need three of them.',
+    points: [
+      { text: 'New sheets: break-in plan, repair kit, warranty, theft', href: '#/bikes' },
+      { text: 'A new bike gets its break-in plan by itself', href: '#/bikes' },
+      { text: 'Repair kit that fits the parts of the bike', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'new', text: 'Reminder 30 days before a warranty ends', href: '#/bikes' },
+    ],
+  },
+  {
+    version: '0.69.1',
+    date: '2026-10-10',
+    title: 'Rules for rides',
+    lead: 'Tell the app once which bike a ride type belongs to, and it remembers.',
+    points: [
+      { text: 'Your own rule: a ride type belongs to a bike', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Long words no longer break in the middle', href: '#/flow' },
+    ],
+  },
+  {
+    version: '0.69.0',
+    date: '2026-10-10',
+    title: 'A folder per bike',
+    lead: 'Bike pass, service plan, workshop order and pick-up check, filled in from your data.',
+    points: [
+      { text: 'Every bike has a folder with sheets, filled in by the app', href: '#/bikes' },
+      { text: 'Share a sheet as a PDF or copy it as text', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'new', text: 'Ticked workshop jobs go straight into bike care', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
+    version: '0.68.0',
+    date: '2026-10-10',
+    title: 'Every kilometre accounted for',
+    lead: 'A ride log per bike: its kilometres are simply the sum of its rides.',
+    points: [
+      { text: 'Ride log per bike, unclear rides marked', href: '#/bikes?tab=care' },
+      { text: 'Import a Strava export or Garmin files', href: '#/bikes?tab=care' },
+      { text: 'Parts get a start point and count their own km', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'new', text: 'Once a week Today compares the km with Strava', href: '#/' },
+    ],
+  },
+  {
+    version: '0.67.1',
+    date: '2026-10-10',
+    title: 'Small fixes, big smile',
+    lead: 'Dates read like dates, bike types read like words.',
+    points: [
+      { text: 'Dates with the weekday, like «Sat, 10 Oct 2026»', href: '#/trips' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Bike types as words: full suspension, hardtail, gravel', href: '#/bikes?tab=care' },
+      { box: 'fixed', text: 'Im Flow has its icon in the menu', href: '#/flow' },
+    ],
+  },
+  {
+    version: '0.67.0',
+    date: '2026-10-10',
+    title: 'Always one next step',
+    lead: 'After packing, after the trip and after the debrief a calm page says what is done and what comes next.',
+    points: [
+      { text: 'A calm page between the steps, «Later» always works', href: '#/trips' },
+      { text: 'The main button follows the date of the trip', href: '#/pack' },
+      { text: '«Continue» on Today opens the step you are in', href: '#/' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Ending a trip early asks first and can be undone', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.66.0',
+    date: '2026-10-09',
+    title: 'New building blocks',
+    lead: 'Bivouac, tent or hut, repair, charging and light: the list knows what a trip needs. Your stuff moved along, nothing got lost.',
+    points: [
+      { text: 'Blocks for the night, the ride and comfort', href: '#/blocks' },
+      { text: 'A trip with nights asks: bivouac, tent or hut', href: '#/pack' },
+      { text: 'Check the blocks: keep, out or elsewhere, one by one', href: '#/blocks/check' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Warm» is no block any more, its things come with the weather', href: '#/blocks/check' },
+    ],
+  },
+  {
+    version: '0.65.0',
+    date: '2026-10-09',
+    title: 'Your measurements on top',
+    lead: 'Saddle height, tyre pressure, bar width: every bike shows its numbers on top. Tap one to change it.',
+    points: [
+      { text: 'Measurements on top of every bike', href: '#/bikes' },
+      { text: '«Compare bikes» starts with these values', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'nicer', text: 'The tyre check already knows your target pressure', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
+    version: '0.63.0',
+    date: '2026-10-09',
+    title: 'An item, at a glance',
+    lead: 'Name, weight and how it comes along. Everything else waits one tap away.',
+    points: [
+      { text: 'An item opens short, one row opens at a time', href: '#/gear' },
+      { text: 'Lighter options from your own gear', href: '#/gear' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Never used» explains its rule when empty', href: '#/gear?view=never' },
+    ],
+  },
+  {
+    version: '0.61.0',
+    date: '2026-10-09',
+    title: 'Your pace, in one sentence',
+    lead: 'From 5 rides on the app guesses your riding time by itself. And the logbook becomes a real diary.',
+    points: [
+      { text: '«Your pace» as one sentence, with three small charts', href: '#/debrief/pace' },
+      { text: 'The logbook as a diary of all your trips', href: '#/debrief/logbook' },
+    ],
+    small: [
+      { box: 'new', text: '«Back to the standard rule» in one tap', href: '#/debrief/pace' },
+      { box: 'nicer', text: '«Learned» lists everything by topic, nothing folded', href: '#/debrief/learnings' },
+    ],
+  },
+  {
+    version: '0.59.0',
+    date: '2026-10-09',
+    title: 'What are you wearing?',
+    lead: '«On me» from head to toe as the first card. One tap swaps an item for one that fits the weather.',
+    points: [
+      { text: '«On me» as the first card, tap to swap', href: '#/pack' },
+      { text: 'Open the wardrobe for this trip and its weather', href: '#/wardrobe' },
+    ],
+    small: [
+      { box: 'nicer', text: 'The app remembers what you chose last time', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.57.0',
+    date: '2026-10-09',
+    title: 'Bike care with an overview',
+    lead: 'One ring per bike, at most three cards for what is due, and all problems in one list.',
+    points: [
+      { text: 'Overview with a ring per bike and guided part changes', href: '#/bikes?tab=care' },
+      { text: 'The same parts list per bike, «Compare bikes» side by side', href: '#/bikes' },
+      { text: 'New page Notes: write, dictate, photo, checklist', href: '#/notes' },
+    ],
+    small: [
+      { box: 'nicer', text: 'The inbox is now «Incoming», with «File» and seven places', href: '#/inbox' },
+    ],
+  },
+  {
+    version: '0.56.0',
+    date: '2026-10-09',
+    title: 'One debrief instead of five',
+    lead: 'Your last ride, the last 12 months and your trips compared, on one page.',
+    points: [
+      { text: 'One page: last ride, 12 months, trips compared', href: '#/debrief' },
+      { text: '«Past trips» as a table, also on the phone', href: '#/pack/past' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A saved debrief tells how the trip really was', href: '#/pack/past' },
+    ],
+  },
+  {
+    version: '0.51.0',
+    date: '2026-10-09',
+    title: 'In the flow',
+    lead: 'Tick off an activity with one tap, three rings over 7 days, and a stopwatch with a singing bowl.',
+    points: [
+      { text: 'One tap ticks off an activity, with «Undo»', href: '#/flow' },
+      { text: 'Three rings: move, mindful, recovery', href: '#/flow' },
+      { text: 'Stopwatch with a singing bowl, keeps running on every page', href: '#/flow' },
+    ],
+    small: [
+      { box: 'new', text: 'Daily check: sleep, energy, mood and one more question', href: '#/flow/goals' },
+    ],
+  },
+  {
+    version: '0.47.3',
+    date: '2026-10-09',
+    title: 'The weather listens to you',
+    lead: 'Tap «Cool» or «Rain» and it stays, even when the forecast thought otherwise.',
+    points: [
+      { text: '«Cool» and «Rain» stay chosen when you tap them', href: '#/pack' },
+      { text: '«No weather» takes the weather away again', href: '#/pack' },
+    ],
+    small: [
+      { box: 'fixed', text: '••• menus stay fully on the phone screen', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.47.2',
+    date: '2026-10-09',
+    title: 'Seven ways to look at your gear',
+    lead: 'All, most used, proven, favourites, never used, unweighed and the wishlist, each with its number.',
+    points: [
+      { text: 'Gear with seven views, each with its count', href: '#/gear' },
+      { text: '«Dead weight» is now «Never used», with a clear sentence', href: '#/gear?view=never' },
+      { text: 'Each item shows its trips as dots', href: '#/gear' },
+    ],
+    small: [
+      { box: 'new', text: 'An item tells its year on tour and a rule from your debriefs', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.47.1',
+    date: '2026-10-09',
+    title: 'Change it right where it is',
+    lead: 'Tap the date, the duration, the weather or the bike on the trip card, and it changes on the spot.',
+    points: [
+      { text: 'Trip card: change date, duration, weather or bike in place', href: '#/pack' },
+      { text: '«Adapted to the weather» switches with one tap', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Inbox: the newest note on top', href: '#/inbox' },
+      { box: 'nicer', text: 'All problems of all bikes in one list, newest first', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
+    version: '0.47.0',
+    date: '2026-10-09',
+    title: 'A wardrobe in a new dress',
+    lead: 'The onion figure filters by zone or layer, and «Still to sort» gets shorter with every tap.',
+    points: [
+      { text: 'Wardrobe with onion figure and «Still to sort»', href: '#/wardrobe' },
+      { text: 'A bike trip shows the drawing with every bag and its weight', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Gear with a slim tab bar and calmer cards', href: '#/gear' },
+      { box: 'nicer', text: 'Bike care reads calmer, what is due on top', href: '#/bikes?tab=care' },
+    ],
+  },
+  {
+    version: '0.46.3',
+    date: '2026-10-09',
+    title: '«More» takes a breath',
+    lead: 'Your packing lists no longer crowd the top. You find them under «Trips».',
+    points: [
+      { text: 'Packing lists under «Trips», templates under Plan', href: '#/trips' },
+    ],
+  },
+  {
+    version: '0.46.2',
+    date: '2026-10-09',
+    title: 'Readable again',
+    lead: 'On the phone the section names no longer stood letter by letter.',
+    points: [
+      { text: '«Customise the start page» shows every section on its line', href: '#/' },
+    ],
+  },
+  {
+    version: '0.46.1',
+    date: '2026-10-09',
+    title: 'One problem per line',
+    lead: 'Several problems in one line become separate repairs, each to tick off on its own.',
+    points: [
+      { text: 'Several problems split into single repairs', href: '#/bikes?tab=care' },
+      { text: '«Trips» opens an overview by state', href: '#/trips' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Priority as a button in the row', href: '#/bikes?tab=care' },
+      { box: 'fixed', text: 'A dry day trip no longer brings rain gear because it is cold', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.46.0',
+    date: '2026-10-09',
+    title: 'Good morning, Today',
+    lead: 'A greeting with the weather, the next trip in a compact card, and a search that does things.',
+    points: [
+      { text: 'Greeting with weather and a day-trip suggestion', href: '#/' },
+      { text: '«Important today» shows at most three things, «Oiled ✓» right in the row', href: '#/' },
+      { text: 'The search does things: «weigh», «chain oiled spark»', href: '#/' },
+    ],
+    small: [
+      { box: 'new', text: 'Three colour worlds, Glacier, Sandstone and Classic', href: '#/' },
+    ],
+  },
+  {
+    version: '0.45.2',
+    date: '2026-10-09',
+    title: 'Something wrong with the bike?',
+    lead: 'Problem on a bike from the plus menu: one line per problem, the app sorts out who fixes it.',
+    points: [
+      { text: '«Problem on a bike»: one line per problem, priority, photo', href: '#/bikes?tab=care' },
+      { text: 'Each problem sorted: yourself, guide, workshop or part', href: '#/bikes?tab=care' },
+    ],
+    small: [
+      { box: 'new', text: 'Basic check before every ride: lock, bottle, helmet and more', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.45.1',
+    date: '2026-10-09',
+    title: 'Tidy imports, honest backups',
+    lead: 'A line that appears twice in the file waits instead of becoming a second item.',
+    points: [
+      { text: 'Double lines wait under «Unsure»', href: '#/gear/import' },
+      { text: 'A day trip mentions what is due on the bike', href: '#/pack' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Two backups without changes are the same', href: '#/', action: 'data' },
+      { box: 'faster', text: 'Gear on the computer opens faster', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.45.0',
+    date: '2026-10-09',
+    title: 'Warm to cold',
+    lead: 'The wardrobe shows gaps like «No gloves below 5 °C» and saves an outfit as a kit.',
+    points: [
+      { text: 'Wardrobe from warm to cold, with gaps and kits', href: '#/wardrobe' },
+      { text: '«What do I wear today?» on Today', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Import check says in words when it took over', href: '#/gear/import' },
+      { box: 'fixed', text: 'Bigger tap targets on the phone', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.44.1',
+    date: '2026-10-09',
+    title: 'Fingers and keys',
+    lead: 'Bigger tap targets, Escape where you expect it, and the app keeps its font offline.',
+    points: [
+      { text: 'Escape closes an open row in the packing list', href: '#/pack' },
+      { text: 'Bigger tap targets on the phone', href: '#/gear' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Backup import speaks plainly: «1 trip», «1 learning»', href: '#/', action: 'data' },
+      { box: 'fixed', text: 'Offline the app keeps its own font', href: '#/' },
+    ],
+  },
+  {
+    version: '0.44.0',
+    date: '2026-10-09',
+    title: 'Your last 12 months',
+    lead: 'Always the 12 months up to today: riding, packing, learned and bikes on one page.',
+    points: [
+      { text: 'Last 12 months with small differences to the year before', href: '#/review' },
+      { text: 'A calm card on Today with the most exciting number', href: '#/' },
+    ],
+    small: [
+      { box: 'new', text: 'Two small charts: km per month, base weight per trip', href: '#/review' },
+    ],
+  },
+  {
+    version: '0.43.0',
+    date: '2026-10-09',
+    title: 'On the scale',
+    lead: 'One item per screen, a big gram field, «Save & next». Bags and bikes first.',
+    points: [
+      { text: 'Weigh one item after the other, with «Undo»', href: '#/gear?tab=weigh' },
+      { text: 'Select in Gear: trip type and archive for many at once', href: '#/gear' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A smart order: bags, sleeping, layers, then the rest', href: '#/gear?tab=weigh' },
+      { box: 'new', text: 'Select in the wardrobe and in a block too', href: '#/wardrobe' },
+    ],
+  },
+  {
+    version: '0.42.0',
+    date: '2026-10-09',
+    title: 'The onion principle 🧅',
+    lead: 'Your clothes by layer and body zone, and planning checks that every layer is there.',
+    points: [
+      { text: 'The wardrobe: clothes by layer and body zone', href: '#/wardrobe' },
+      { text: 'Planning checks the onion and fills gaps in one tap', href: '#/pack' },
+      { text: 'Temperature kits as blocks, adjusted by your debriefs', href: '#/pack' },
+    ],
+    small: [
+      { box: 'new', text: 'Import step 2: kits, blocks, tasks and old trips', href: '#/gear/import' },
+    ],
+  },
+  {
+    version: '0.41.0',
+    date: '2026-10-09',
+    title: 'Planned versus real',
+    lead: 'Upload a ride and see how it compares with the plan. Faster than planned? The app notices.',
+    points: [
+      { text: 'Upload a GPX ride: distance, climbing, time, breaks', href: '#/debrief/ride' },
+      { text: 'Planned versus real for the trip of that day', href: '#/debrief/ride' },
+    ],
+    small: [
+      { box: 'new', text: 'Up to 3 learnings per ride, only kept with a tap', href: '#/debrief/ride' },
+      { box: 'new', text: 'Share a GPX file from Android straight to the app', href: '#/debrief/ride' },
+    ],
+  },
+  {
+    version: '0.40.0',
+    date: '2026-10-09',
+    title: 'Calmer side pages',
+    lead: 'Short rows instead of walls of text. The explanations wait behind a small «?».',
+    points: [
+      { text: 'Side pages as short rows, help behind «?»', href: '#/inbox' },
+      { text: 'Past trips as a list with the debrief state', href: '#/pack/past' },
+    ],
+    small: [
+      { box: 'new', text: 'A worn chain goes onto the wishlist by itself', href: '#/bikes' },
+      { box: 'nicer', text: 'New trip: the standard first, the rest folded', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.39.0',
+    date: '2026-10-09',
+    title: 'Templates that keep up',
+    lead: 'Change a block, and every template changes with it. No more copying around.',
+    points: [
+      { text: 'Templates are linked to your blocks', href: '#/pack/templates' },
+      { text: 'A new template in 3 steps', href: '#/pack/templates' },
+    ],
+    small: [
+      { box: 'nicer', text: 'The list shows content, weight and how often used', href: '#/pack/templates' },
+      { box: 'new', text: 'A quiet hint for templates unused for a year', href: '#/pack/templates' },
+    ],
+  },
+  {
+    version: '0.38.0',
+    date: '2026-10-09',
+    title: 'Ready to roll?',
+    lead: 'A ready light per bike and quick buttons: chain oiled, wear measured, cleaned. Each with «Undo».',
+    points: [
+      { text: 'Ready light per bike with quick buttons', href: '#/' },
+      { text: '«Jump to» on Today: due, never used, a year ago', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Menu «More» top right, the search finds pages', href: '#/' },
+      { box: 'nicer', text: 'Compact rows in Gear, swipe on the phone', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.37.1',
+    date: '2026-10-09',
+    title: 'Two become one',
+    lead: 'A double item merges into the imported one, and everything that used it follows along.',
+    points: [
+      { text: 'Merge a double item into the imported one', href: '#/gear/import' },
+      { text: 'Templates, blocks and planned trips take the new item', href: '#/gear/import' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Archived items no longer come into a new trip', href: '#/pack' },
+      { box: 'new', text: '«Merge with …» in the gear window', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.37.0',
+    date: '2026-10-08',
+    title: 'Real backpacks',
+    lead: 'Backpacks, hip bags and vests are bags with litres and weight now.',
+    points: [
+      { text: 'Backpacks, hip bags and vests in Your bags', href: '#/bikes' },
+      { text: 'A trip without a bike suggests a backpack by litres', href: '#/pack' },
+    ],
+    small: [
+      { box: 'new', text: 'Back and Hip count to «On me», not to the bike', href: '#/bikes' },
+      { box: 'new', text: 'A quiet note when the bag is too small', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.36.0',
+    date: '2026-10-08',
+    title: 'Check before it counts',
+    lead: 'Your gear list waits on its own page. Nothing goes into Gear before you have looked at it.',
+    points: [
+      { text: '«Check import»: nothing goes in unchecked', href: '#/gear/import' },
+      { text: 'One button for the safe ones, a backup first', href: '#/gear/import' },
+    ],
+    small: [
+      { box: 'new', text: 'Items the list does not name can be archived', href: '#/gear/import' },
+      { box: 'new', text: 'New areas: Cycling, Hiking and Everyday', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.35.0',
+    date: '2026-10-08',
+    title: 'Nothing gets lost',
+    lead: 'Typed is kept: new trip, new item and note stay, even if you close the window.',
+    points: [
+      { text: 'Switch between trips in the dark band', href: '#/pack' },
+      { text: 'Nothing typed gets lost when you close a window', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Saved ✓» shows briefly after every change', href: '#/pack?day' },
+      { box: 'new', text: 'This list: what is new, with «Try it»', href: '#/features' },
+    ],
+  },
+  {
+    version: '0.34.0',
+    date: '2026-10-08',
+    title: 'The days before the trip',
+    lead: 'Today shows the next step towards your trip, plus a shopping and a charging list.',
+    points: [
+      { text: 'The next step to the trip, with a small timeline', href: '#/' },
+      { text: 'A shopping list and a charging list', href: '#/pack?shop' },
+    ],
+    small: [
+      { box: 'new', text: 'An evening block on multi-day trips', href: '#/ride' },
+      { box: 'new', text: 'Send a backup to the other device', href: '#/', action: 'data' },
+    ],
+  },
+  {
+    version: '0.33.0',
+    date: '2026-10-08',
+    title: 'Standard for real',
+    lead: 'Every new trip brings everything from Standard, also from a template or a copy.',
+    points: [
+      { text: 'Every new trip brings all of Standard', href: '#/pack' },
+      { text: 'Unused standard items land on the ballast card', href: '#/pack' },
+    ],
+    small: [
+      { box: 'fixed', text: '«Leave at home» really takes the item out of Standard', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.32.0',
+    date: '2026-10-08',
+    title: 'Same words everywhere',
+    lead: 'Blocks, templates and «On me»: one word for one thing, all over the app.',
+    points: [
+      { text: 'The same words everywhere, blocks in three groups', href: '#/blocks' },
+      { text: 'Two switches in the gear window: Standard and On me', href: '#/gear' },
+    ],
+    small: [
+      { box: 'new', text: 'Filter «Comes along» on the computer', href: '#/gear' },
+      { box: 'nicer', text: 'The blocks page in three groups', href: '#/blocks' },
+    ],
+  },
+  {
+    version: '0.31.0',
+    date: '2026-10-08',
+    title: 'Who did the wrenching?',
+    lead: 'Every part shows its last job, when it is due again and whether you or the bike shop did it.',
+    points: [
+      { text: 'Bike care with one bike open, at most three «Due now»', href: '#/care' },
+      { text: 'Last job per part: date, km, cost and who', href: '#/care' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Setup with your bikes as tabs and a big drawing', href: '#/bikes' },
+      { box: 'new', text: 'You or the bike shop, chosen when you log a job', href: '#/care' },
+    ],
+  },
+  {
+    version: '0.30.2',
+    date: '2026-10-08',
+    title: 'Steady fingers',
+    lead: 'Rows stay put while you pack, so a quick tap never hits the wrong item.',
+    points: [
+      { text: 'Rows stay in place while packing', href: '#/pack?day' },
+      { text: 'Plan a trip without a bike too', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A search hit opens the item directly', href: '#/gear' },
+      { box: 'new', text: 'New learnings first on Today', href: '#/' },
+    ],
+  },
+  {
+    version: '0.30.1',
+    date: '2026-10-08',
+    title: 'Double tap, single count',
+    lead: 'A quick double tap counts once, and «Undo» after a whole bag opens it again.',
+    points: [
+      { text: 'A quick double tap counts once', href: '#/pack?day' },
+      { text: 'Rename a trip by tapping its name', href: '#/pack' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Kilometres with an apostrophe or a point between thousands', href: '#/bikes' },
+      { box: 'nicer', text: 'Templates read like «Standard + Rain + 3 items»', href: '#/pack/templates' },
+    ],
+  },
+  {
+    version: '0.30.0',
+    date: '2026-10-08',
+    title: 'Plan a trip',
+    lead: 'When, how long, weather, the standard card and blocks as chips: one window, and the list is ready.',
+    points: [
+      { text: '«Plan a trip» in one window', href: '#/pack' },
+      { text: 'Standard plus rain gear in four taps', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Good to know» with up to three important cards', href: '#/' },
+      { box: 'new', text: 'A new page: what the app can do', href: '#/features' },
+    ],
+  },
+  {
+    version: '0.29.2',
+    date: '2026-10-08',
+    title: 'Standard as a start',
+    lead: 'A new trip starts with the standard set, and «Day trip» packs it on the bike of your last trip.',
+    points: [
+      { text: 'A new trip starts with the standard set', href: '#/pack' },
+      { text: '«Day trip» packs standard plus weather', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: 'A green card shows the new trip, with change and undo' },
+    ],
+  },
+  {
+    version: '0.29.1',
+    date: '2026-10-08',
+    title: 'Packing you can trust',
+    lead: 'A quick second tap no longer takes the item out again. Phew.',
+    points: [
+      { text: 'A quick second tap no longer unpacks', href: '#/pack?day' },
+    ],
+    small: [
+      { box: 'fixed', text: 'A bag only moves on when it is really full', href: '#/pack?day' },
+    ],
+  },
+  {
+    version: '0.29.0',
+    date: '2026-10-08',
+    title: 'One band for the whole trip',
+    lead: 'Plan, pack, ride and debrief share a dark band with tabs and one button to the next step.',
+    points: [
+      { text: 'A dark band with tabs and the next step', href: '#/pack' },
+      { text: 'On the way starts with «Now», notes in one tap', href: '#/ride' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Weather changes with a reason and undo per row', href: '#/pack' },
+      { box: 'faster', text: 'Debrief prefilled: one tap if all went to plan', href: '#/debrief' },
+    ],
+  },
+  {
+    version: '0.28.0',
+    date: '2026-10-08',
+    title: 'Suggestions with a source',
+    lead: 'The templates ask instead of decide, and say why, for example «unused on 3 of 3 trips».',
+    points: [
+      { text: 'Template suggestions as questions with a source', href: '#/pack/templates' },
+      { text: 'First aid is its own block, only with a night out', href: '#/blocks' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Not now» rests until three more debriefs', href: '#/pack/templates' },
+      { box: 'fixed', text: 'Rain and cold items only count on trips with that weather' },
+    ],
+  },
+  {
+    version: '0.27.0',
+    date: '2026-10-08',
+    title: 'Every row has its reason',
+    lead: 'Why is this on the list? Every packing row now says it, for example «Below 6 °C».',
+    points: [
+      { text: 'Each packing row names its reason', href: '#/pack' },
+      { text: 'Before an import you see what gets replaced', href: '#/', action: 'data' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Windows keep the keyboard focus, tap targets 44 px' },
+      { box: 'fixed', text: 'Clear messages for broken photos and odd GPX files' },
+    ],
+  },
+  {
+    version: '0.26.1',
+    date: '2026-10-08',
+    title: 'Light for the night',
+    lead: 'A block for riding into the dark, and «Your data» only opens by itself once.',
+    points: [
+      { text: 'A block for the light at night', href: '#/blocks' },
+    ],
+    small: [
+      { box: 'fixed', text: '«Your data» opens by itself only once', href: '#/', action: 'data' },
+    ],
+  },
+  {
+    version: '0.26.0',
+    date: '2026-10-08',
+    title: 'Build your own blocks',
+    lead: 'Create and rename blocks, and drop many items into one at once.',
+    points: [
+      { text: 'New page Blocks: create and rename your own', href: '#/blocks' },
+      { text: '«Select» puts many items into a block, trip or template', href: '#/gear' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Templates ask «update or new»', href: '#/pack/templates' },
+      { box: 'new', text: 'Notes on the way belong to the trip and the day', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.25.1',
+    date: '2026-10-08',
+    title: 'A day trip in one tap',
+    lead: '«Day trip» on Today creates the trip right away, with name, date and weather.',
+    points: [
+      { text: '«Day trip» creates the trip at once', href: '#/' },
+      { text: 'Tiles Trips and Bikes with four buttons plus «More»', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: '«Good to know» only with content, urgent first', href: '#/' },
+      { box: 'fixed', text: '«Today» is right between midnight and 2 am too' },
+    ],
+  },
+  {
+    version: '0.25.0',
+    date: '2026-10-07',
+    title: 'A new trip asks first',
+    lead: 'Days, riding hours, night, weather and event, with a preview of what lands on the list.',
+    points: [
+      { text: 'New trip asks days, hours, night, weather and event', href: '#/pack' },
+      { text: 'Later changes work at once, with undo', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Short rides without an event skip bike care before the start' },
+    ],
+  },
+  {
+    version: '0.24.1',
+    date: '2026-10-07',
+    title: 'From 65 clicks to 8',
+    lead: 'A day trip from «New» to the debrief now takes 8 clicks. Your thumb says thanks.',
+    points: [
+      { text: 'Packing rows show only name, count and weight', href: '#/pack' },
+      { text: 'Debrief right from Today: «All good»', href: '#/' },
+      { text: 'Select several items in Gear at once', href: '#/gear' },
+    ],
+    small: [
+      { box: 'faster', text: 'A day trip in 8 clicks instead of 65' },
+    ],
+  },
+  {
+    version: '0.24.0',
+    date: '2026-10-07',
+    title: 'All in, onwards',
+    lead: 'One tap per bag on packing day, and «All as planned» in the debrief.',
+    points: [
+      { text: '«All in, next» per bag and «All packed»', href: '#/pack?day' },
+      { text: '«All as planned» in the debrief', href: '#/debrief' },
+    ],
+    small: [
+      { box: 'new', text: 'A new item straight from the search', href: '#/gear' },
+      { box: 'nicer', text: 'One-day trips start without the overnight set' },
+    ],
+  },
+  {
+    version: '0.23.1',
+    date: '2026-10-07',
+    title: 'Small things for the phone',
+    lead: 'Today folds up on the phone, and the language lives in the profile menu.',
+    points: [
+      { text: 'Today folded on the phone, item category changeable there too', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: 'The language is in the profile menu' },
+    ],
+  },
+  {
+    version: '0.23.0',
+    date: '2026-10-07',
+    title: 'One navigation for all',
+    lead: 'Today, Trips, Gear and Bikes on every page; on the phone at the bottom with + in the middle.',
+    points: [
+      { text: 'One navigation on every page', href: '#/' },
+      { text: 'Today shows the next trip with one main action', href: '#/' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Gear starts with search, filter and list', href: '#/gear' },
+      { box: 'new', text: 'The category of an item can change, links stay', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.22.1',
+    date: '2026-10-07',
+    title: 'Overdue, in words',
+    lead: '«For 3 weeks» says more than a date. And Gear fits the phone again.',
+    points: [
+      { text: 'Event preparation only for trips marked «Event»', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Overdue in words, like «for 3 weeks»' },
+      { box: 'fixed', text: 'Gear fits 390 px on the phone again' },
+    ],
+  },
+  {
+    version: '0.22.0',
+    date: '2026-10-07',
+    title: 'Honest weights',
+    lead: 'Totals are called «known» and say how many weights are missing. Plus a star for your favourites.',
+    points: [
+      { text: 'Totals say «known» and how many weights are missing', href: '#/pack' },
+      { text: 'A star marks a favourite in one tap', href: '#/gear' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Calmer type and colours, only the main action orange' },
+      { box: 'nicer', text: 'Today, Pack and bike care show the same readiness' },
+    ],
+  },
+  {
+    version: '0.21.0',
+    date: '2026-10-07',
+    title: 'Ski tour, weekend, world trip',
+    lead: 'More than bikepacking: new trip types, each with its own bags.',
+    points: [
+      { text: 'Trip types: ski tour, weekend and world trip', href: '#/pack' },
+      { text: 'Bikes and bike care on one page', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'new', text: 'Today shows what the app still needs to calculate for you', href: '#/' },
+      { box: 'new', text: 'A printable page with all your favourite items', href: '#/favorites' },
+    ],
+  },
+  {
+    version: '0.20.2',
+    date: '2026-10-05',
+    title: 'The big button',
+    lead: 'Always clear what comes next: one big button leads to the next step of the trip.',
+    points: [
+      { text: 'One big button to the next step: packing day, ride, debrief', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.20.1',
+    date: '2026-10-05',
+    title: 'A trip from start to finish',
+    lead: 'New list, pack, ride, end the trip, debrief: everything plays through in one go.',
+    points: [
+      { text: 'Play a whole trip from list to debrief', href: '#/pack' },
+    ],
+    small: [
+      { box: 'fixed', text: '«End the trip» ends it at once, not the next day', href: '#/ride' },
+    ],
+  },
+  {
+    version: '0.20.0',
+    date: '2026-10-05',
+    title: 'Grüezi and hello',
+    lead: 'German and English, chosen per device. What you wrote yourself stays as it is.',
+    points: [
+      { text: 'German and English, per device' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Dates and numbers follow the language' },
+    ],
+  },
+  {
+    version: '0.19.6',
+    date: '2026-10-05',
+    title: 'A new start page',
+    lead: 'The next trip as a dark band with a countdown, below it Trips, Gear and Bikes.',
+    points: [
+      { text: 'The next trip with a countdown on the start page' },
+      { text: 'Search over everything, «New» on every page' },
+    ],
+    small: [
+      { box: 'new', text: '«Good to know»: weather, sun times, a learning, your pace', href: '#/' },
+    ],
+  },
+  {
+    version: '0.19.5',
+    date: '2026-10-05',
+    title: 'Ballast, begone',
+    lead: 'What came along but was not needed the last few times gets a gentle «Leave at home?».',
+    points: [
+      { text: 'The ballast card: leave at home or keep', href: '#/pack' },
+      { text: 'On the way block by block: wear, eat, drink, light', href: '#/ride' },
+    ],
+    small: [
+      { box: 'new', text: 'Short marks like «3× not needed»', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.19.4',
+    date: '2026-10-05',
+    title: 'Favourites get a star',
+    lead: 'Load your favourites from a file, and they come first when you add items.',
+    points: [
+      { text: 'Load favourites from a file', href: '#/', action: 'data' },
+      { text: 'A «Favourites» button, favourites first when adding', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.19.3',
+    date: '2026-10-05',
+    title: 'Off to the workshop',
+    lead: 'Everything due before the next trip as one order, ready to send or print.',
+    points: [
+      { text: 'Workshop order with everything due before the trip', href: '#/care' },
+      { text: 'A profile per bike: km, costs, what is due next', href: '#/bikes' },
+    ],
+    small: [
+      { box: 'new', text: 'Compare your bikes for a trip and switch in one tap', href: '#/pack' },
+      { box: 'new', text: 'A note from any page, sort it later in the inbox', href: '#/inbox' },
+    ],
+  },
+  {
+    version: '0.19.2',
+    date: '2026-10-05',
+    title: 'Never needed?',
+    lead: 'Gear shows what you took along but never used. Honest, but kind.',
+    points: [
+      { text: 'Your trips compared: luggage, used and not used', href: '#/debrief/compare' },
+      { text: 'Gear shows what you never used', href: '#/gear' },
+    ],
+    small: [
+      { box: 'new', text: 'The wishlist with a reason, sorted by use', href: '#/gear' },
+      { box: 'new', text: 'Mark a trip as «Not riding»', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.19.0',
+    date: '2026-10-05',
+    title: 'Your own pace',
+    lead: 'Load GPX rides, and the app learns how fast you really are, with climbing and breaks.',
+    points: [
+      { text: 'GPX rides teach the app your pace', href: '#/debrief/pace' },
+      { text: 'Riding time and arrival with your pace', href: '#/ride' },
+    ],
+    small: [
+      { box: 'new', text: 'After three debriefs the templates suggest changes', href: '#/pack/templates' },
+    ],
+  },
+  {
+    version: '0.18.2',
+    date: '2026-10-05',
+    title: 'Before the trip',
+    lead: 'One list «Before the trip», with the same number on Today, Pack and bike care.',
+    points: [
+      { text: 'A list «Before the trip», the same number everywhere', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Overdue first and in red' },
+    ],
+  },
+  {
+    version: '0.18.1',
+    date: '2026-10-05',
+    title: 'Colder than packed?',
+    lead: 'The packing day warns when the forecast is colder or wetter than your bags.',
+    points: [
+      { text: 'Packing day warns about colder or wetter weather', href: '#/pack?day' },
+      { text: '«Was missing» suggests similar items from your gear', href: '#/debrief' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Packing day fits the phone without sideways scrolling' },
+    ],
+  },
+  {
+    version: '0.18.0',
+    date: '2026-10-05',
+    title: 'On the way',
+    lead: 'All bags, the stage with height profile, and the weather hour by hour, offline too.',
+    points: [
+      { text: 'On the way: bags, stage, height profile', href: '#/ride' },
+      { text: 'Weather hour by hour at start and finish, offline too', href: '#/ride' },
+    ],
+    small: [
+      { box: 'new', text: 'From 14 days before a trip: what the workshop still has to do', href: '#/care' },
+      { box: 'new', text: 'A demo mode, «End demo» resets everything', href: '#/', action: 'data' },
+    ],
+  },
+  {
+    version: '0.17.1',
+    date: '2026-10-04',
+    title: 'Unknown is not zero',
+    lead: 'A workshop visit without prices says «cost unknown» instead of CHF 0.',
+    points: [
+      { text: 'Cost unknown instead of CHF 0', href: '#/care' },
+    ],
+    small: [
+      { box: 'fixed', text: 'Cost per 1000 km only counts with enough data' },
+    ],
+  },
+  {
+    version: '0.17.0',
+    date: '2026-10-04',
+    title: 'Workshop visits',
+    lead: 'Amount, jobs, photos of the receipts and km per bike, and what is coming up.',
+    points: [
+      { text: 'Workshop visits per bike with receipts', href: '#/care' },
+      { text: 'Services like the yearly fork service', href: '#/care' },
+    ],
+    small: [
+      { box: 'new', text: 'Costs per year and per 1000 km', href: '#/care' },
+      { box: 'new', text: 'A photo gallery per bike', href: '#/bikes' },
+    ],
+  },
+  {
+    version: '0.16.0',
+    date: '2026-10-04',
+    title: 'A logbook and a link',
+    lead: 'Your past trips in a logbook, rides from Strava or Garmin, and a packing list to share.',
+    points: [
+      { text: 'A logbook of your past trips', href: '#/debrief' },
+      { text: 'Import rides from Strava or Garmin', href: '#/debrief' },
+    ],
+    small: [
+      { box: 'new', text: 'Share the packing list as a link or a PDF', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.15.0',
+    date: '2026-10-04',
+    title: 'Route and weather',
+    lead: 'Load a GPX route, and the forecast for every trip day packs along.',
+    points: [
+      { text: 'Load a GPX route: distance, climbing, riding hours', href: '#/pack' },
+      { text: 'Forecast for every trip day, one click packs for it', href: '#/pack' },
+    ],
+    small: [
+      { box: 'nicer', text: 'The last forecast stays visible offline' },
+      { box: 'new', text: 'A photo of your bike behind the bags', href: '#/bikes' },
+    ],
+  },
+  {
+    version: '0.14.0',
+    date: '2026-10-04',
+    title: 'Packing day, full screen',
+    lead: 'Bag by bag in big letters, and the screen stays on while your hands are busy.',
+    points: [
+      { text: 'Packing day full screen, the screen stays on', href: '#/pack?day' },
+      { text: 'Learnings as a small hint at the right item', href: '#/pack' },
+    ],
+    small: [
+      { box: 'new', text: 'The debrief adds the km to the bike', href: '#/debrief' },
+      { box: 'new', text: 'A reminder when the last backup is older than 14 days', href: '#/', action: 'data' },
+    ],
+  },
+  {
+    version: '0.13.0',
+    date: '2026-10-04',
+    title: 'The first debrief',
+    lead: 'How was it, go through the items, a summary with suggestions: three steps to learn from every trip.',
+    points: [
+      { text: 'The debrief in three steps' },
+      { text: 'All learnings in one place, with a search', href: '#/debrief/learnings' },
+    ],
+    small: [
+      { box: 'new', text: 'The start page shows the next trip with a countdown' },
+    ],
+  },
+  {
+    version: '0.12.0',
+    date: '2026-10-04',
+    title: 'Bags on the bike',
+    lead: 'Bags show their contents right on the bike, and items move between them.',
+    points: [
+      { text: 'Bags show their contents on the bike' },
+      { text: 'Move items between bags, with undo' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Calmer colours and a calmer header' },
+    ],
+  },
+  {
+    version: '0.11.0',
+    date: '2026-10-04',
+    title: 'Drag and drop',
+    lead: 'Drag items between bags, and edit templates right where they are.',
+    points: [
+      { text: 'Drag items between bags' },
+      { text: 'Edit templates directly', href: '#/pack/templates' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Weights in one line, the weather folds away' },
+    ],
+  },
+  {
+    version: '0.10.0',
+    date: '2026-10-04',
+    title: 'Templates are born',
+    lead: 'Save a packing setup once and start new trips from it.',
+    points: [
+      { text: 'Save a packing setup as a template', href: '#/pack/templates' },
+      { text: 'One page with all your templates', href: '#/pack/templates' },
+    ],
+  },
+  {
+    version: '0.9.1',
+    date: '2026-10-04',
+    title: 'Tidier packing',
+    lead: 'Smaller + buttons, only one category open, and the kind of ride as buttons.',
+    points: [
+      { text: 'The kind of ride as buttons that show what they add' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Smaller + buttons, one category open at a time' },
+    ],
+  },
+  {
+    version: '0.9.0',
+    date: '2026-10-04',
+    title: 'The start check',
+    lead: 'A short list before you go, and items marked «On every trip».',
+    points: [
+      { text: 'Start check as a short list, saved as your standard', href: '#/pack?day' },
+    ],
+    small: [
+      { box: 'new', text: 'Mark items as «On every trip»' },
+    ],
+  },
+  {
+    version: '0.8.0',
+    date: '2026-10-04',
+    title: 'Three columns',
+    lead: 'A new packing layout: what is not packed yet waits folded by category.',
+    points: [
+      { text: 'Packing in three columns, unpacked by category' },
+      { text: 'Add with + or by dragging, bags with a fill bar' },
+    ],
+    small: [
+      { box: 'nicer', text: 'On the phone a bar shows the bag you are filling' },
+    ],
+  },
+  {
+    version: '0.7.1',
+    date: '2026-10-04',
+    title: 'Pressure and sealant',
+    lead: 'Tyre pressure and sealant per bike, and a list of what was done when.',
+    points: [
+      { text: 'Tyre pressure and sealant per bike', href: '#/care' },
+      { text: 'A list of what was done when', href: '#/care' },
+    ],
+    small: [
+      { box: 'new', text: 'Brake disc wear limit per bike' },
+    ],
+  },
+  {
+    version: '0.7.0',
+    date: '2026-10-04',
+    title: 'Bike care is here 🔧',
+    lead: 'The parts of every bike with their history, and reminders by distance.',
+    points: [
+      { text: 'The parts of each bike with their history', href: '#/care' },
+      { text: 'Reminders by distance, like chain wax every 150 km', href: '#/care' },
+    ],
+    small: [
+      { box: 'new', text: 'Preparation tasks per trip', href: '#/pack' },
+    ],
+  },
+  {
+    version: '0.6.0',
+    date: '2026-10-04',
+    title: 'Weather-wise',
+    lead: 'Clothing suggestions for cold and rain, and a warning when a bag is too full.',
+    points: [
+      { text: 'Weather with clothing suggestions' },
+      { text: 'A warning when a bag is too full' },
+    ],
+    small: [
+      { box: 'new', text: 'Weigh and print from Pack, weight front and rear' },
+      { box: 'new', text: 'An inventory check of your gear', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.5.0',
+    date: '2026-10-04',
+    title: 'Bikes and bags',
+    lead: 'Your own bags, bike setups with a drawing, and packing bag by bag.',
+    points: [
+      { text: 'Bikes: own bags, setups with a drawing, weights', href: '#/bikes' },
+      { text: 'Pack: choose a bag on the drawing and add items', href: '#/pack' },
+    ],
+    small: [
+      { box: 'new', text: 'Tick off bag by bag, with start check and system weight', href: '#/pack?day' },
+    ],
+  },
+  {
+    version: '0.4.0',
+    date: '2026-10-04',
+    title: 'Neater gear',
+    lead: 'Categories fold, brand and model are separate, and weighing starts with what always comes along.',
+    points: [
+      { text: 'Gear weight without food and water, brand and model separate', href: '#/gear' },
+    ],
+    small: [
+      { box: 'nicer', text: 'Categories fold open and shut' },
+      { box: 'nicer', text: 'Weighing starts with the items for every trip' },
+    ],
+  },
+  {
+    version: '0.3.0',
+    date: '2026-10-04',
+    title: 'Gear, the page',
+    lead: 'Key figures, weight by category, the heaviest items, and a weigh mode.',
+    points: [
+      { text: 'Gear with key figures, heaviest items, search and filter', href: '#/gear' },
+      { text: 'Add, edit and delete items, the wishlist apart', href: '#/gear' },
+    ],
+    small: [
+      { box: 'new', text: 'Weigh mode: grams in, save, next', href: '#/gear' },
+    ],
+  },
+  {
+    version: '0.2.0',
+    date: '2026-10-04',
+    title: 'Your data stays with you',
+    lead: 'Everything in a local database on your device, with backups you control.',
+    points: [
+      { text: 'Data stays on your device' },
+      { text: 'Export and import a backup, replace or merge', href: '#/', action: 'data' },
+    ],
+    small: [
+      { box: 'new', text: 'Automatic backup into a folder on the computer' },
+      { box: 'new', text: 'Your packing spreadsheet converts for the app' },
+    ],
+  },
+  {
+    version: '0.1.0',
+    date: '2026-10-04',
+    title: 'Hello, Pack Generator 👋',
+    lead: 'It all started here: an app for packing, on the phone and offline.',
+    points: [
+      { text: 'Install it on your phone and use it offline' },
+      { text: 'Open it in the browser, on any device' },
+    ],
+  },
+];

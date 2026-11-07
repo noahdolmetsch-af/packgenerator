@@ -26,7 +26,7 @@
   const tripsQ = liveQuery(() => db.trips.toArray());
   const skills = $derived(skillsOf($q));
   const save = (list) => saveSetting(SKILLS_KEY, list);
-  const sports = SPORTS.map((s) => ({ key: s.key, name: t(s.name) }));
+  const sports = SPORTS.map((s) => ({ key: s.key, name: s.raw ? s.name : t(s.name) }));
   const map = $derived(skillMap(skills, sports));
   const LV = Object.fromEntries(LEVELS.map((l) => [l.key, l.label]));
 

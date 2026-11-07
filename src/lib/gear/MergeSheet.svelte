@@ -35,7 +35,9 @@
     const words = fold(q).trim().split(/\s+/).filter(Boolean);
     if (!words.length) return [];
     return items
-      .filter((i) => i.id !== item.id && i.ownership !== 'gone' && !proposedIds.has(i.id) && words.every((w) => hay(i).includes(w)))
+      // Etappe 2, 3a (Noah 05.11.2026): a suggestion that fits the words is a hit too (with its badge), so a search never says
+      // «No item found» while the suggestions above hold the word
+      .filter((i) => i.id !== item.id && i.ownership !== 'gone' && words.every((w) => hay(i).includes(w)))
       .slice(0, 8);
   });
   // Chosen from the search, shown on top so a choice never disappears while typing.
@@ -70,7 +72,7 @@
 {#snippet row(i, badge)}
   <li>
     <button type="button" class="opt" aria-pressed={chosen.includes(i.id)} onclick={() => flip(i.id)}>
-      <span class="box" aria-hidden="true">{#if chosen.includes(i.id)}<Check size={16} />{/if}</span>
+      <span class="tick" aria-hidden="true">{#if chosen.includes(i.id)}<Check size={16} />{/if}</span>
       <span class="nm"><b>{nameOf(i)}</b><small>{sub(i)}</small></span>
       {#if badge}<i class="badge">{t('Suggestion')}</i>{/if}
       <span class="w num">{i.weightG == null ? '–' : formatWeight(itemWeight(i))}</span>
@@ -103,7 +105,7 @@
   </label>
   {#if found.length}
     <ul class="opts box" aria-label={t('Search results')}>
-      {#each found as i (i.id)}{@render row(i, false)}{/each}
+      {#each found as i (i.id)}{@render row(i, proposedIds.has(i.id))}{/each}
     </ul>
   {:else if q.trim()}
     <p class="none">{t('No item found.')}</p>
@@ -225,7 +227,8 @@
       background: var(--paper-2);
     }
   }
-  .box {
+  /* E2-004: the tick square has its own name; as «.box» it also shaped the lists «.opts.box» (22 px wide, rows side by side) */
+  .tick {
     flex: none;
     display: inline-flex;
     align-items: center;
@@ -237,7 +240,7 @@
     background: var(--paper);
     color: var(--ok);
   }
-  .opt[aria-pressed='true'] .box {
+  .opt[aria-pressed='true'] .tick {
     border-color: var(--accent);
     background: var(--accent);
     color: var(--paper);

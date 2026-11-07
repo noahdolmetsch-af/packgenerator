@@ -27,12 +27,13 @@
   async function keep(e) {
     e.preventDefault();
     const before = ftpFixed.own;
+    const empty = draft == null || String(draft).trim() === ''; // an empty field takes the own FTP away
     if (!(await saveOwnFtp(draft))) {
       err = t('A whole number of watts between {a} and {b}.', { a: FTP_MIN, b: FTP_MAX });
       return;
     }
     editing = false;
-    offerDone(t('FTP saved.'), () => saveOwnFtp(before ?? null));
+    offerDone(empty ? t('Own FTP removed.') : t('FTP saved.'), () => saveOwnFtp(before ?? null));
   }
   async function back() {
     const before = ftpFixed.own;

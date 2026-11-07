@@ -45,9 +45,11 @@ test('Rueckblick antippen: chips on top, the rest below, Fertig', async ({ page,
   const chips = card.getByRole('group', { name: T('What did you not need?') }).locator('button.chip');
   await expect(chips).toHaveCount(items.length);
   await expect(card.getByRole('status')).toHaveText(T('Nothing tapped: everything counts as used.'));
-  // The first chip is the first thing on the page below the band: no scrolling to «not needed».
-  const top = await chips.first().boundingBox();
-  expect(top.y + top.height).toBeLessThan(page.viewportSize().height);
+  // The first chip is the first thing of the long form: right after «Rückblick in 30 Sekunden» (Noah 05.11.2026, Touren 3b,
+  // the short version stands in front), no other card between them.
+  const kurz = await page.locator('[data-debrief-kurz]').boundingBox();
+  const top = await card.boundingBox();
+  expect(top.y - (kurz.y + kurz.height)).toBeLessThan(80);
 
   // One tap: not needed (pressed, struck through); the tally names it with its weight.
   const first = items.find((i) => i.weightG) ?? items[0];

@@ -7,6 +7,7 @@ import { addDays } from '../merken.js';
 import { bikeCare } from '../readiness.js';
 import { withVisits } from '../workshop.js';
 import { bikesHash } from '../bikes.js';
+import { activeBikes } from '../bikeretire.js';
 
 export const SOURCES = [
   { key: 'trips', label: 'Trips|place' },
@@ -26,7 +27,7 @@ export function appDates({ trips = [], bikes = [], visits = [], tasks = [], toda
     }
   }
   if (!off.includes('care')) {
-    for (const b of bikes) {
+    for (const b of activeBikes(bikes)) {
       const care = bikeCare(withVisits(b, visits), { tasks, visits, today });
       for (const r of care?.rows ?? []) rows.push({ key: `care:${b.id}:${r.key}`, source: 'care', text: texts.care(b.name, r.name), sub: texts.careSub, day: today, href: bikesHash({ tab: 'care', bike: b.id }) });
     }

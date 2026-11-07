@@ -7,7 +7,7 @@ import { start, tr } from './gesamttest/lib.js';
 import { settle } from './settle.js';
 import { NEWS, NEWS_DE } from '../../src/lib/news/index.gen.js';
 import { GO } from '../../src/lib/know/newsgo-map.js';
-import { WHATS_NEW } from '../../src/lib/whatsnew.js';
+import { WHATS_NEW } from '../../src/lib/whatsnew-full.js';
 
 const T0 = tr('de');
 const T = (en) => NEWS_DE[en] ?? T0(en);

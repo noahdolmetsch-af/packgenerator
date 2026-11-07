@@ -176,3 +176,19 @@ describe('six more lists in «Listen und Typen» (Noah «4a»)', () => {
     expect(medMoodsOffered(['calm']).map((m) => m.id)).toContain('calm');
   });
 });
+
+// Noah 05.11.2026 «b»: the answers of «How was it?» in the debrief can be renamed (the keys keep their rules)
+describe('the answers of the debrief', () => {
+  afterEach(() => applyLists({}));
+  it('show the Standard until the person renames one', async () => {
+    const { choices, choiceName } = await import('../src/lib/debrief.js');
+    expect(choices('weather').map((o) => o.key)).toEqual(['colder', 'planned', 'warmer']);
+    expect(choiceName('weather', 'warmer', (s) => `T:${s}`)).toBe('T:Warmer');
+    applyLists({ 'debrief.weather': { names: { warmer: 'Sommerlich' } } });
+    // a typed name never goes through the translator; the keys stay
+    expect(choiceName('weather', 'warmer', (s) => `T:${s}`)).toBe('Sommerlich');
+    expect(choices('weather').map((o) => o.key)).toEqual(['colder', 'planned', 'warmer']);
+    expect(choiceName('amount', 'right', (s) => `T:${s}`)).toBe('T:Right');
+    expect(choiceName('weather', 'nothing')).toBe('');
+  });
+});

@@ -89,11 +89,13 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   // Up now, Tried it yet?, bikes, customise
   // «Heute neu» A (changed on purpose): at most 4 rows, «Show all» opens the rest; the 12 months left Heute (catalog)
   const imp = page.getByRole('region', { name: T('Up now') });
-  await expect(imp.locator('li')).toHaveCount(4);
+  // «Jetzt dran» (Noah 05.11.2026 «3a», changed on purpose): only the urgent rows are up now; the calm hints are folded in «Good to know»
+  const up = imp.locator(':scope > ul > li');
+  await expect(up).toHaveCount(4);
   await expect(imp.locator('button.more')).toHaveText(new RegExp(T('Show all {n}', { n: '(\\d+)' })));
   const all = Number((await imp.locator('button.more').textContent()).match(/\d+/)[0]);
   await imp.locator('button.more').click();
-  await expect(imp.locator('li')).toHaveCount(all);
+  await expect(up).toHaveCount(all);
   await expect(imp).toContainText(T('{bike}: lube the chain', { bike: 'test_data_gtp_ Scale' }));
   await expect(page.getByRole('region', { name: T('Tried it yet?') })).toHaveCount(0);
   await expect(page.locator('[data-section="bikes"] a.bk')).toHaveCount(4);
@@ -134,7 +136,8 @@ test('test trips: hidden as next trip, cleaned up after a question on the page, 
   const T = await openHome(page, context, info);
   await expect(page.locator('#next-h')).not.toHaveText(/TEST/);
   const imp = page.getByRole('region', { name: T('Up now') });
-  await imp.locator('button.more').click();
+  // the cleanup of test trips is a calm hint: it waits in «Gut zu wissen»
+  await imp.locator('details[data-good] summary').click();
   const row = imp.locator('li[data-row="tests"]');
   await expect(row).toContainText(T('Clean up {n} test trip', { n: 1 }));
   page.on('dialog', () => {

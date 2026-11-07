@@ -15,7 +15,9 @@
   const n = $derived(phone.matches ? 14 : 28);
   const grid = $derived(mosaic(rows, today, n));
   const shown = $derived(showAll ? grid : grid.filter((r) => r.active || r.goal));
-  const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
+  // one formatter for all squares (a new one per square cost ~25 ms per page)
+  const dayFmt = $derived(new Intl.DateTimeFormat(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }));
+  const fmt = (d) => dayFmt.format(new Date(`${d}T00:00:00Z`));
 </script>
 
 <p class="small">{t('One square per day you did the sport, in its colour. On the right: how far you are with its goal.')}</p>
@@ -26,7 +28,7 @@
       <li data-mosaic-row={r.sport.id}>
         <a class="mn" href="#/flow/sport/{encodeURIComponent(r.sport.id)}"><i class="dot" style="background:{c}"></i>{sportName(r.sport)}</a>
         <span class="cells" style="--n:{n}" aria-label={t('{name}: {k} of the last {n} days', { name: sportName(r.sport), k: r.cells.filter((x) => x.n).length, n })}>
-          {#each r.cells as x (x.day)}<i class="cell" class:on={x.n > 0} style={x.n ? `background:${c}` : ''} title={fmt(x.day, { weekday: 'short', day: 'numeric', month: 'short' })}></i>{/each}
+          {#each r.cells as x (x.day)}<i class="cell" class:on={x.n > 0} style={x.n ? `background:${c}` : ''} title={fmt(x.day)}></i>{/each}
         </span>
         <span class="mg num" class:met={r.met}>{#if r.goal}{t('{n} of {m}', { n: r.times, m: r.goal.count })}<small>{tn(r.goal.days, '{n} day', '{n} days')}</small>{/if}</span>
       </li>

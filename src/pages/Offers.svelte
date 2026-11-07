@@ -15,11 +15,13 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
+  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
-  import { rememberCustomer, listCustomers, rateOf, packCover } from '../lib/booking/customers.js';
+  import { rememberCustomer, listCustomers, saveCustomers, rateOf, packCover } from '../lib/booking/customers.js';
+  import { applyVouchers } from '../lib/booking/vouchers.js';
   import { listOutcomes, setOutcome } from '../lib/booking/outcomes.js';
+  import { listWaiting, addWaiting, removeWaiting } from '../lib/booking/waitlist.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
   import '../lib/ich/ich.css';
 
@@ -113,13 +115,18 @@
   async function writeOne(items) {
     const o = { ...mine.offer, id: mine.id };
     const clist = await listCustomers();
-    if (!setPrefill(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b, outcome: outcomeOf(b), tag: outcomeTag(outcomeOf(b)) })), (b) => fmtAt(b.at), (name) => rateOf(clist, name)))) return;
+    const v = applyVouchers(invoiceDraftMany(o, [...items].sort((x, y) => String(x.at).localeCompare(String(y.at))).map((b) => ({ slot: o.slots.find((x) => x.id === b.slot), booking: b, outcome: outcomeOf(b), tag: outcomeTag(outcomeOf(b)) })), (b) => fmtAt(b.at), (name) => rateOf(clist, name)), clist, items.length);
+    if (!setPrefill(v.draft)) return;
+    if (v.used.length) await saveCustomers(v.customers);
     picked = [];
     location.hash = '#/me/pay/invoices/new';
   }
   async function writeInvoice(b) {
     const s = mine.offer.slots.find((x) => x.id === b.slot);
-    if (!setPrefill(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at), rateOf(await listCustomers(), b.name), outcomeOf(b), outcomeTag(outcomeOf(b))))) return;
+    const clist = await listCustomers();
+    const v = applyVouchers(invoiceDraft({ ...mine.offer, id: mine.id }, s, b, fmtAt(b.at), rateOf(clist, b.name), outcomeOf(b), outcomeTag(outcomeOf(b))), clist, 1);
+    if (!setPrefill(v.draft)) return;
+    if (v.used.length) await saveCustomers(v.customers);
     location.hash = '#/me/pay/invoices/new';
   }
 
@@ -183,6 +190,22 @@
   });
   const here = $derived(slotOpen ? (bookings ?? []).filter((b) => b.slot === slotOpen.id) : []);
   const people = $derived(here.filter(holdsPlace));
+  /* waiting list (Noah 04.11.2026 «7a»): people who wait for this time; only on this device */
+  let waiting = $state([]);
+  listWaiting().then((l) => (waiting = l));
+  let waitName = $state('');
+  let waitContact = $state('');
+  const waitHere = $derived(slotOpen ? waiting.filter((w) => w.offer === id && w.slot === slotOpen.id) : []);
+  async function addWait() {
+    if (!slotOpen || !waitName.trim()) return;
+    waiting = await addWaiting({ offer: id, slot: slotOpen.id, name: waitName, contact: waitContact });
+    waitName = '';
+    waitContact = '';
+  }
+  async function dropWait(w) {
+    waiting = await removeWaiting(w.id);
+  }
+  const freeText = (s, w) => t('Hello {name}! A place is free again: {title} on {when}. Do you want it? Just answer me.', { name: w.name, title: mine?.offer.title ?? '', when: fmtAt(s.at) });
   const asking = $derived(here.filter(isOpenRequest));
   const everyone = $derived(here.filter((b) => b.status !== 'declined'));
   let replied = $state(null); // { b, decision }: after an answer, the message to send
@@ -461,7 +484,7 @@
             {/each}
           </ul>
         {/if}
-        <p class="muted">{t('{n} of {m} booked', { n: people.length, m: ty.places })}</p>
+        <p class="muted">{[t('{n} of {m} booked', { n: people.length, m: ty.places }), ty.places > 1 && ty.price ? t('{price} CHF per person', { price: chf(ty.price) }) : ''].filter(Boolean).join(' · ')}</p>
         <ul class="of-list">
           {#each people as b (b.id)}
             {@const href = contactHref(b.contact, helloText(s))}
@@ -474,6 +497,27 @@
           {/each}
           {#if people.length < ty.places}<li class="of-pp"><span class="muted">{tn(ty.places - people.length, '{n} place free', '{n} places free')}</span><small class="muted">{t('stays bookable')}</small></li>{/if}
         </ul>
+        {#if ty.places >= 1 && (people.length >= ty.places || waitHere.length)}
+          <h3 class="of-h3">{t('Waiting list')}</h3>
+          {#if people.length < ty.places && waitHere.length}<p class="muted" data-place-free>{t('A place is free: write to the first one.')}</p>{/if}
+          <ul class="of-list" data-waitlist>
+            {#each waitHere as w (w.id)}
+              {@const wh = contactHref(w.contact, freeText(s, w))}
+              <li class="of-pp"><span>{w.name}{#if w.contact}<small>{w.contact}</small>{/if}</span>
+                {#if wh && people.length < ty.places}<a class="btn hi sm" href={wh}>{t('Write')}</a>{/if}
+                <button type="button" class="lkb" onclick={() => dropWait(w)}>{t('Remove')}</button></li>
+            {/each}
+            {#if !waitHere.length}<li class="muted">{t('Nobody is waiting. When a place is free again, Heute tells you.')}</li>{/if}
+          </ul>
+          <form class="of-wait" onsubmit={(e) => (e.preventDefault(), addWait())}>
+            <label class="lbl" for="of-wn">{t('Name')}</label><input id="of-wn" class="inp" bind:value={waitName} maxlength="60" autocomplete="off" />
+            <label class="lbl" for="of-wc">{t('Phone or e-mail')}</label><input id="of-wc" class="inp" bind:value={waitContact} maxlength="80" autocomplete="off" />
+            <button type="submit" class="btn sm" data-wait-add>{t('Put on the waiting list')}</button>
+          </form>
+        {/if}
+        {#if people.length > 1 && mailToAll(people.map((b) => b.contact), helloText(s), '')}
+          <p><a class="btn sm" data-mail-group href={mailToAll(people.map((b) => b.contact), helloText(s), '')}>{t('One e-mail to all participants')}</a></p>
+        {/if}
         {#if askCancel}
           <p class="of-ask" role="alert">{everyone.length ? tn(everyone.length, 'Cancel this time? {n} person has booked; afterwards you write to them.', 'Cancel this time? {n} people have booked; afterwards you write to them.') : t('Remove this free time?')}</p>
           <div class="of-foot"><button type="button" class="btn bad" disabled={busy} onclick={dropSlot}>{everyone.length ? t('Yes, cancel') : t('Yes, remove')}</button><button type="button" class="btn" onclick={() => (askCancel = false)}>{t('Keep it')}</button></div>
@@ -867,4 +911,6 @@
   .of-lo .of-pick { flex: 1 1 100%; }
   .of-out { flex: 1 1 9rem; width: auto; min-height: 40px; }
 .of-cust { margin: 0 0 16px; }
+  .of-h3 { margin: 12px 0 0; font-size: var(--fs-body); }
+  .of-wait { display: grid; gap: 6px; margin-top: 8px; }
 </style>
