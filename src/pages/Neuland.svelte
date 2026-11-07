@@ -27,6 +27,9 @@
   import { refreshOsmIfDue } from '../lib/neuland/osm.js';
   import ItemSheet from '../lib/neuland/ItemSheet.svelte';
   import CollectionsSheet from '../lib/neuland/CollectionsSheet.svelte';
+  import LookBadge from '../lib/neuland/LookBadge.svelte';
+  import LookSheet from '../lib/neuland/LookSheet.svelte';
+  import { lookOf, setLook, resetLook, hasOwnLook } from '../lib/neuland/look.js';
   import { maybeOf } from '../lib/neuland/vielleicht.js'; // «Eine Regel für Pässe»: 600 m sure, to 1.2 km please confirm
   import MaybeList from '../lib/neuland/MaybeList.svelte';
   import ItemEditSheet from '../lib/neuland/ItemEditSheet.svelte';
@@ -170,6 +173,14 @@
   let colsOpen = $state(false);
   let naming = $state.raw(null); // { kind: 'newCol' | 'col' | 'newItem' | 'item', c, it }
   let deleting = $state.raw(null); // collection
+  let lookFor = $state.raw(null); // collection whose look is being chosen
+  const looks = $derived(Object.fromEntries(collectionsOf(state).map((c) => [c.id, lookOf(state, c.id)])));
+  async function fromTemplate(tp) {
+    const r = addCustom(state, t(tp.name));
+    await save(setLook(r.state, r.id, { icon: tp.icon, tint: tp.tint }));
+    colsOpen = false;
+    choose(r.id);
+  }
   const openItem = $derived(itemOpen ? on.find((c) => c.id === itemOpen.cid) : null);
   const openIt = $derived(openItem?.items.find((i) => i.id === itemOpen.id) ?? null);
 
@@ -279,7 +290,7 @@
       <section class="rv-sec nl-sec" aria-labelledby="nl-h">
         <div class="rv-h">
           <div>
-            <h2 id="nl-h">{name(cur)}</h2>
+            <h2 id="nl-h" class="nl-h2"><LookBadge look={looks[cur.id]} />{name(cur)}</h2>
             <p class="rv-sub" data-testid="nl-count">
               {t('{n} of {total}', { n: reached, total: cur.items.length })}{#if newYear}{' · '}{tn(newYear, '{n} new in {year}', '{n} new in {year}', { year })}{/if}
             </p>
@@ -387,6 +398,9 @@
     <CollectionsSheet
       list={collectionsOf(state)}
       {counts}
+      {looks}
+      onlook={(c) => (lookFor = c)}
+      ontemplate={fromTemplate}
       onswitch={(id, v) => save(setOn(state, id, v))}
       onmove={(from, to) => save(moveCollectionTo(state, from, to))}
       onstep={(id, dir) => save(moveCollection(state, id, dir))}
@@ -394,6 +408,16 @@
       ondelete={(c) => askDeleteCol(c)}
       onadd={() => startName('newCol')}
       onclose={() => (colsOpen = false)}
+    />
+  {/if}
+  {#if lookFor}
+    <LookSheet
+      name={collectionName(lookFor)}
+      look={looks[lookFor.id]}
+      own={hasOwnLook(state, lookFor.id)}
+      onpick={(l) => save(setLook(state, lookFor.id, l))}
+      onreset={() => save(resetLook(state, lookFor.id))}
+      onclose={() => (lookFor = null)}
     />
   {/if}
   {#if naming && (naming.kind === 'newCol' || naming.kind === 'col')}
@@ -488,6 +512,11 @@
   .nl-hint :global(svg) {
     flex: none;
     margin-top: 1px;
+  }
+  .nl-h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .nl-sec {
     margin-top: 18px;

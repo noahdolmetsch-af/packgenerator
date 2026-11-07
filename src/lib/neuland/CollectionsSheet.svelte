@@ -3,7 +3,8 @@
    * «Neuland» › «Sammlungen wählen»: every collection with its switch (on: it shows and the app looks
    * for it), the order (arrows and drag), rename (all, also the built-in ones) and delete (own ones; a
    * built-in one is switched off instead). «Eigene Sammlung» adds one, e.g. «Lieblingscafés».
-   * list: collectionsOf(); counts: { id: n items }; the page does the saving.
+   * list: collectionsOf(); counts: { id: n items }; looks: { id: { icon, tint } }; the page does the saving.
+   * The round picture is a button: picture and tint of a collection; templates: «Own collection» can start from «Viewpoints» and so on.
    */
   import { X, Pencil, Trash2, Plus } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
@@ -11,10 +12,12 @@
   import SortArrows from '../ui/SortArrows.svelte';
   import { sortable } from '../ui/sortable.js';
   import { collectionName } from './neuland.js';
+  import LookBadge from './LookBadge.svelte';
+  import { TEMPLATES } from './look.js';
   import { t, tn } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
 
-  let { list = [], counts = {}, onswitch, onmove, onstep, onrename, ondelete, onadd, onclose } = $props();
+  let { list = [], counts = {}, looks = {}, onlook, ontemplate, onswitch, onmove, onstep, onrename, ondelete, onadd, onclose } = $props();
 
   let dialog;
   $effect(() => {
@@ -37,6 +40,7 @@
       <li class="row" class:off={!c.on} data-sort-id={c.id}>
         <SortGrip {name} onstep={(dir) => onstep?.(c.id, dir)} />
         <SortArrows {name} {i} n={list.length} onstep={(dir) => onstep?.(c.id, dir)} />
+        <button type="button" class="ib lk" aria-label={t('Look: {name}', { name })} data-cols-look={c.id} onclick={() => onlook?.(c)}><LookBadge look={looks[c.id]} /></button>
         <span class="nm">
           <b>{name}</b>
           <small>{c.builtIn ? (c.name ? t('Own name · built in') : t('Built in')) : tn(counts[c.id] ?? 0, 'Own · {n} entry', 'Own · {n} entries')}</small>
@@ -48,6 +52,12 @@
     {/each}
   </ul>
   <button type="button" class="add" onclick={() => onadd?.()}><Plus size={18} aria-hidden="true" />{t('Own collection')}</button>
+  <div class="tpl" role="group" aria-label={t('Start from a template|look')}>
+    <span class="tpl-h">{t('Or start from a template:')}</span>
+    {#each TEMPLATES as tp (tp.key)}
+      <button type="button" class="chip" data-cols-template={tp.key} onclick={() => ontemplate?.(tp)}><LookBadge look={tp} size={14} />{t(tp.name)}</button>
+    {/each}
+  </div>
   <p class="hint">{t('Own collection: e.g. «Favourite cafés». Add places with a name; with a place the app finds them on your routes.')}</p>
   <div class="vd-foot"><button type="button" class="btn hi" onclick={() => dialog.close()}>{t('Done')}</button></div>
 </dialog>
@@ -100,6 +110,9 @@
     background: none;
     color: var(--ink-2);
     cursor: pointer;
+  }
+  .lk {
+    width: 40px;
   }
   .ib:hover {
     background: var(--paper-2);
@@ -164,6 +177,35 @@
     color: var(--ink);
     font: inherit;
     cursor: pointer;
+  }
+  .tpl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
+  }
+  .tpl-h {
+    flex-basis: 100%;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .tpl .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 12px 0 6px;
+    border: 1px solid var(--line-strong);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+  .tpl .chip :global(.lb) {
+    width: 28px;
+    height: 28px;
   }
   .hint {
     margin: 8px 0 0;
