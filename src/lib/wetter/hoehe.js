@@ -164,3 +164,43 @@ export function briefOf(prof, now = Date.now()) {
   const out = [...HEIGHTS].reverse().map((z) => ({ z, t: tempNow(prof, z, now) })).filter((r) => fin(r.t));
   return out.length ? out : null;
 }
+
+/* ---------- «Skitour planen» (Noah 05.11.2026 «4b»): the eight heights on the day of the tour ---------- */
+
+/** The times of the tour day the table shows (local hours). */
+export const DAY_HOURS = [6, 9, 12, 15];
+/** Hints (a suggestion, never a judgement of danger): at or below this the summit is very cold; above 0 the snow can get wet. */
+export const COLD_C = -10;
+
+/** True when the answer holds hours of this day (the layers reach only today and the next two days). */
+export const hasDay = (prof, date) => (prof?.hours ?? []).some((h) => localDate(h.ms, prof?.offset ?? 0) === date);
+
+/** The temperature at height z at a local clock time (minutes since midnight) of a day, or null. */
+export function tempOnDay(prof, date, minutes, z) {
+  if (!fin(minutes)) return null;
+  const off = prof?.offset ?? 0;
+  return tempIn(prof, hourAt(prof, atLocal(date, Math.floor(minutes / 60), off)), z);
+}
+
+/** The table of the tour day: every height (highest first) at DAY_HOURS → [{ z, cells: [{ hour, t }] }]. */
+export const dayRows = (prof, date, heights = SKI_HEIGHTS) => heights.map((z) => ({ z, cells: DAY_HOURS.map((hour) => ({ hour, t: tempOnDay(prof, date, hour * 60, z) })) }));
+
+/**
+ * Hints for the tour from the air at the start and at the peak (heights in m, times in minutes; any may be missing).
+ * → [{ key, ... }]: 'zero' (the 0 °C line at the peak's time), 'peakCold' (colder than COLD_C: warm layers),
+ * 'peakWarm' (above 0 °C at the peak: the snow can get wet), 'startWarm' (above 0 °C already at the start: it may not
+ * have frozen overnight). Never a rating of avalanche danger: that is the bulletin's.
+ */
+export function skiHints(prof, date, { startM = null, peakM = null, ascentMin = 7 * 60, peakMin = 11 * 60 } = {}) {
+  const out = [];
+  const off = prof?.offset ?? 0;
+  const at = (min) => atLocal(date, Math.floor(min / 60), off);
+  const z0 = zeroLine(prof, at(fin(peakMin) ? peakMin : 11 * 60));
+  if (z0 != null) out.push({ key: 'zero', m: z0, min: peakMin });
+  const tp = fin(peakM) ? tempOnDay(prof, date, peakMin, peakM) : null;
+  if (tp != null && tp <= COLD_C) out.push({ key: 'peakCold', t: tp, m: peakM });
+  if (tp != null && tp > 0) out.push({ key: 'peakWarm', t: tp, m: peakM });
+  const ts = fin(startM) ? tempOnDay(prof, date, ascentMin, startM) : null;
+  if (ts != null && ts > 0) out.push({ key: 'startWarm', t: ts, m: startM });
+  return out;
+}
