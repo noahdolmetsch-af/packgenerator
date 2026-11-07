@@ -167,6 +167,8 @@ const LISTED_HOME = {
   'f.dice': '#/trips/dreams',
   'f.monthadv': '#/trips/dreams',
   'f.newkm': '#/neuland',
+  'f.findlist': '#/neuland',
+  'f.osmsets': '#/neuland',
   'f.triptips': '#/trips/dreams',
   'f.races': '#/trips/dreams',
   'f.starters': '#/pack',

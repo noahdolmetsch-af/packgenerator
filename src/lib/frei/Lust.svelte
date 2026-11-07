@@ -6,13 +6,19 @@
    * Every idea can be changed, hidden or deleted, own ones added. Below: the technique of the week,
    * a new one every week; own ones with a link (e.g. a video), all changeable.
    */
-  import { Dices, ThumbsUp, Pencil, X, Plus, Link2, EyeOff, GraduationCap } from '@lucide/svelte';
+  import { Dices, ThumbsUp, CloudSun, Pencil, X, Plus, Link2, EyeOff, GraduationCap } from '@lucide/svelte';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { cfgQuery, changeCfg, restoreCfg, rowsQuery, putRow } from '../freidb.js';
-  import { MOODS, ENERGY, AFTER, TIMES, lustIdeasOf, lustPick, techniquesOf, techOfWeek, uid } from '../frei.js';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { HOME_PLACE } from '../know.js';
+  import { prefsOf, AGENDA_KEY } from '../agenda.js';
+  import { loadCore } from '../wetter/kern.js';
+  import { freeMinutes, timeChoice, weatherAhead, WEEK_CAP } from './lustwoche.js';
+  import { MOODS, ENERGY, AFTER, TIMES, outdoorOf, lustMore, lustIdeasOf, lustPick, techniquesOf, techOfWeek, uid } from '../frei.js';
   import { localDay } from '../localday.js';
   import { t, tn } from '../i18n.svelte.js';
 
@@ -27,10 +33,43 @@
   let energy = $state(null);
   let after = $state(null);
   let time = $state(null);
-  const picks = $derived(lustPick(ideas, { mood, energy, after, time }, log));
-  const chosen = $derived(!!(mood || energy || after || time));
+
+  /* ---------- your week: the weather of the next hours and the free minutes (Noah 05.11.2026) ---------- */
+  const weekOn = $derived(cfg.lustWeek !== false);
+  const setWeek = (v) => changeCfg((c) => ({ ...c, lustWeek: v }));
+  const setQ = liveQuery(() => db.settings.bulkGet([HOME_PLACE, AGENDA_KEY]));
+  const evQ = liveQuery(() => db.gEvents.where('day').aboveOrEqual(today).limit(300).toArray().catch(() => []));
+  const place = $derived($setQ?.[0]?.value && Number.isFinite(Number($setQ[0].value.lat)) ? $setQ[0].value : null);
+  const calOn = $derived(!!prefsOf($setQ?.[1]?.value).calendar);
+  let core = $state(null);
+  let coreKey = '';
+  $effect(() => {
+    const k = place && weekOn ? `${place.lat},${place.lon}` : '';
+    if (k === coreKey) return;
+    coreKey = k;
+    core = null;
+    if (k) loadCore(db, place).then((c) => k === coreKey && (core = c ?? false)).catch(() => k === coreKey && (core = false));
+  });
+  const nowMs = Date.now();
+  const wx = $derived(weekOn && core ? weatherAhead(core, nowMs) : null);
+  const free = $derived(weekOn && calOn && $evQ ? freeMinutes($evQ, nowMs) : null);
+  const weekTime = $derived(free == null ? null : timeChoice(free));
+  const useTime = $derived(time ?? weekTime);
+  const choice = $derived({ mood, energy, after, time: useTime, wx });
+  const choiceKey = $derived(JSON.stringify(choice));
+  const picks = $derived(lustPick(ideas, choice, log));
+  const chosen = $derived(!!(mood || energy || after || useTime || wx));
+  // «Another one»: the dice adds one more idea for the same choice
+  let rolled = $state({ key: '', list: [] });
+  const more = $derived(rolled.key === choiceKey ? rolled.list : []);
+  function rollOne() {
+    const shown = [...picks, ...more].map((p) => p.idea.id);
+    const p = lustMore(ideas, choice, log, shown);
+    if (p) rolled = { key: choiceKey, list: [...more, p] };
+    else offerDone(t('No more ideas for this choice. Add your own below.'));
+  }
   const name = (i) => (i.own || i.edited ? i.name : t(i.name));
-  const whyWords = { mood: 'fits your mood', energy: 'fits your energy', after: 'fits what you want afterwards', worked: 'worked for you before' };
+  const whyWords = { weather: 'fits the weather', mood: 'fits your mood', energy: 'fits your energy', after: 'fits what you want afterwards', worked: 'worked for you before' };
 
   async function worked(i) {
     await putRow({ kind: 'log', what: i.id, day: today, ok: true, energy, mood });
@@ -40,13 +79,13 @@
   /* ---------- ideas: add, change, hide, delete ---------- */
   let manage = $state(false);
   let edit = $state(null);
-  const blank = () => ({ id: null, std: false, name: '', mood: mood ? [mood] : [], energy: energy ? [energy] : [], after: after ? [after] : [], min: time ?? 30 });
-  const openEdit = (i) => (edit = { id: i.id, std: !i.own, name: name(i), mood: [...(i.mood ?? [])], energy: [...(i.energy ?? [])], after: [...(i.after ?? [])], min: i.min ?? 30 });
+  const blank = () => ({ id: null, std: false, out: '', name: '', mood: mood ? [mood] : [], energy: energy ? [energy] : [], after: after ? [after] : [], min: time ?? 30 });
+  const openEdit = (i) => (edit = { id: i.id, std: !i.own, out: outdoorOf(i) === true ? 'out' : outdoorOf(i) === false ? 'in' : '', name: name(i), mood: [...(i.mood ?? [])], energy: [...(i.energy ?? [])], after: [...(i.after ?? [])], min: i.min ?? 30 });
   const toggle = (key, v) => (edit[key] = edit[key].includes(v) ? edit[key].filter((x) => x !== v) : [...edit[key], v]);
   async function saveIdea() {
     const n = edit.name.trim();
     if (!n) return t('Please give it a name.');
-    const rec = { name: n, mood: edit.mood, energy: edit.energy, after: edit.after, min: Math.max(5, Number(edit.min) || 30) };
+    const rec = { name: n, mood: edit.mood, energy: edit.energy, after: edit.after, min: Math.max(5, Number(edit.min) || 30), ...(edit.out ? { out: edit.out === 'out' } : {}) };
     if (!edit.id) await changeCfg((c) => ({ ...c, lustOwn: [...(c.lustOwn ?? []), { id: uid('idea'), ...rec }] }));
     else if (edit.std) await changeCfg((c) => ({ ...c, lustEdits: { ...(c.lustEdits ?? {}), [edit.id]: rec } }));
     else await changeCfg((c) => ({ ...c, lustOwn: (c.lustOwn ?? []).map((x) => (x.id === edit.id ? { ...x, ...rec } : x)) }));
@@ -121,6 +160,27 @@
     {@render chips(TIMES, time, (v) => (time = v), t('Time I have'), (m) => (m >= 60 ? tn(m / 60, '{n} hour', '{n} hours') : t('{n} min', { n: m })))}
   </section>
 
+  <section class="fz-box fzl-week" aria-label={t('Your week')} data-week>
+    <label class="fz-row"><input type="checkbox" checked={weekOn} onchange={(e) => setWeek(e.currentTarget.checked)} data-week-toggle /><span>{t('Use the weather and free time of my week')}</span></label>
+    {#if weekOn}
+      <p class="fz-note" data-week-note>
+        <CloudSun size={14} aria-hidden="true" />
+        {#if !place}{t('Set your home place under Me to let the weather fit in.')}
+        {:else if core === null}{t('Looking at the weather …')}
+        {:else if wx === 'good'}{t('Dry in the next hours: the open air counts a little more.')}
+        {:else if wx === 'bad'}{t('Rain or thunder in the next hours: ideas for inside come first.')}
+        {:else}{t('No forecast for the next hours.')}{/if}
+      </p>
+      <p class="fz-note" data-week-free>
+        {#if !calOn}{t('With your calendar on (Me › Appointments and tasks) the free time fits in too.')} <a href="#/me/agenda">{t('Open the calendar settings')}</a>
+        {:else if free == null}{t('Looking at your appointments …')}
+        {:else if free >= WEEK_CAP}{t('No appointment in the next hours: time is not a limit.')}
+        {:else if weekTime}{t('About {n} min free before your next appointment.', { n: free })}{#if time}{' '}{t('Your own time choice stays.')}{/if}
+        {:else}{t('Less than 15 minutes before your next appointment.')}{/if}
+      </p>
+    {/if}
+  </section>
+
   <section class="fz-form" aria-labelledby="fzl-h">
     <h2 id="fzl-h" class="fz-h2"><Dices size={18} aria-hidden="true" /> {chosen ? t('This could fit') : t('A few ideas to start')}</h2>
     {#if !picks.length}<p class="fz-empty">{t('No idea left. Add your own below.')}</p>{/if}
@@ -128,12 +188,24 @@
       {#each picks as p, n (p.idea.id)}
         <article class="fz-box" class:fz-soft={n === 0 && chosen} data-pick={p.idea.id}>
           <h3 class="fzl-t">{name(p.idea)}</h3>
-          <p class="fz-note">{t('{n} min', { n: p.idea.min })}{#each p.why as w (w)} · {t(whyWords[w])}{/each}</p>
+          <p class="fz-note">{t('{n} min', { n: p.idea.min })}{#each p.why as w (w)}{' '}· {t(whyWords[w])}{/each}</p>
           <div class="fz-acts"><button type="button" class="btn sm" onclick={() => worked(p.idea)} data-worked><ThumbsUp size={16} aria-hidden="true" />{t('Did it, it worked')}</button></div>
         </article>
       {/each}
     </div>
+    {#if more.length}
+      <div class="fz-grid three" data-more-picks>
+        {#each more as p (p.idea.id)}
+          <article class="fz-box" data-pick={p.idea.id} data-rolled>
+            <h3 class="fzl-t">{name(p.idea)}</h3>
+            <p class="fz-note">{t('{n} min', { n: p.idea.min })}{#each p.why as w (w)}{' '}· {t(whyWords[w])}{/each}</p>
+            <div class="fz-acts"><button type="button" class="btn sm" onclick={() => worked(p.idea)} data-worked><ThumbsUp size={16} aria-hidden="true" />{t('Did it, it worked')}</button></div>
+          </article>
+        {/each}
+      </div>
+    {/if}
     <div class="fz-acts">
+      <button type="button" class="btn" onclick={rollOne} data-more><Dices size={16} aria-hidden="true" />{t('Another one')}</button>
       <button type="button" class="btn" onclick={() => (edit = blank())} data-new-idea><Plus size={16} aria-hidden="true" />{t('Your own idea')}</button>
       <button type="button" class="btn" aria-expanded={manage} onclick={() => (manage = !manage)} data-manage-ideas><Pencil size={16} aria-hidden="true" />{t('All ideas ({n})', { n: ideas.length })}</button>
     </div>
@@ -181,6 +253,13 @@
         <div class="fz-chips">{#each list as x (x.key)}<button type="button" class="fz-chip" aria-pressed={edit[key].includes(x.key)} onclick={() => toggle(key, x.key)}>{t(x.name)}</button>{/each}</div>
       </div>
     {/each}
+    <label class="fz-lab">{t('Where')}
+      <select class="inp" bind:value={edit.out} data-idea-out>
+        <option value="">{t('Does not matter')}</option>
+        <option value="out">{t('Outdoors')}</option>
+        <option value="in">{t('Inside')}</option>
+      </select>
+    </label>
     <label class="fz-lab">{t('Minutes')}<input class="inp fzl-min" type="number" min="5" max="600" step="5" bind:value={edit.min} /></label>
   </FreiSheet>
 {/if}

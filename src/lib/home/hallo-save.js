@@ -8,15 +8,17 @@ import { db } from '../db.js';
 import { NAME_ASKED_KEY, HELLO_QUESTIONS } from './hallo.js';
 
 /**
- * The history rows of one answer: { mood: a key of MOODS or null, feelings: [keys of FEELINGS], plans: [keys of PLANS], text }.
+ * The history rows of one answer: { mood: a key of MOODS or null, feelings: [keys of FEELINGS], plans: [keys of PLANS], reasons: [keys of REASONS], days: [keys of DAY_WORDS], text, evening }.
  * The free text goes into the note of «Was häsch vor?». Nothing chosen and nothing written: no rows.
  * Gruss A: the row ids are fixed by question and time, so every tap saves over the same rows (nothing piles up).
  */
-export function helloRows({ mood = null, feelings = [], plans = [], text = '' } = {}, at = stampOf()) {
+export function helloRows({ mood = null, feelings = [], reasons = [], plans = [], days = [], text = '', evening = false } = {}, at = stampOf()) {
   return [
     answerRow(QUESTION['hallo.gaht'], mood, { at }),
     answerRow(QUESTION['hallo.gefuehl'], feelings, { at }),
-    answerRow(QUESTION['hallo.vor'], plans, { at, note: text }),
+    answerRow(QUESTION['hallo.grund'], reasons, { at }),
+    // Gruss D: in the evening the field and the chips tell about the day («Wie war's?»), otherwise about the plan
+    evening ? answerRow(QUESTION['hallo.tag'], days, { at, note: text }) : answerRow(QUESTION['hallo.vor'], plans, { at, note: text }),
   ]
     .filter(Boolean)
     .map((r) => ({ ...r, id: helloId(r.qid, at) }));

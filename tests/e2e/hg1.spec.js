@@ -240,6 +240,64 @@ test('Gruss C: the last 7 days as dots, today fills at the first tap; the weathe
   expect(errors).toEqual([]);
 });
 
+const rowsOf = (page, qid) =>
+  page.evaluate(
+    (q) =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const g = r.result.transaction('abAnswers').objectStore('abAnswers').getAll();
+          g.onsuccess = () => (res(g.result.filter((x) => x.qid === q && !x.id.startsWith('test_'))), r.result.close());
+        };
+      }),
+    qid,
+  );
+
+test('Gruss D: Woran liegts, counted only; in the morning the plan, in the evening the day', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const data = withName();
+  const grund = (id, n, value) => ({ id, qid: 'hallo.grund', area: 'spass', day: day(n), at: `${day(n)}T08:10`, slot: null, kind: 'chips', value, note: null, unit: null, src: 'hand' });
+  data.tables.abAnswers = [grund('test_hd1', -1, ['r-schlaf', 'r-arbeit']), grund('test_hd2', -3, ['r-schlaf'])];
+  const T = await openHome(page, context, info, { data, hour: 9 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  await expect(sheet.locator('[data-hello-ask]')).toHaveAttribute('data-hello-ask', 'plan');
+  await expect(sheet.locator('[data-dayword]')).toHaveCount(0);
+  await expect(sheet.locator('[data-hello-why-box]')).toHaveCount(0);
+  await sheet.locator('[data-hello-why]').click();
+  await expect(sheet.locator('[data-why]')).toHaveCount(5);
+  await expect(sheet.locator('[data-hello-named]')).toContainText(T('Named in the last 30 days: {list}', { list: 'Schlaf 2×, Arbeit 1×' }));
+  await sheet.locator('[data-why="r-wetter"]').click();
+  await sheet.locator('[data-why="r-koerper"]').click();
+  await sheet.locator('[data-plan="tour"]').click();
+  await expect.poll(async () => (await rowsOf(page, 'hallo.grund'))[0]?.value).toEqual(['r-wetter', 'r-koerper']);
+  expect((await rowsOf(page, 'hallo.vor'))[0]?.value).toEqual(['tour']);
+  await shot(page, info, 'gruss-d-woran');
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
+test('Gruss D: in the evening the greeting asks Wie wars instead of the plan', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { data: withName(), hour: 19 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  await expect(sheet.locator('[data-hello-ask]')).toHaveAttribute('data-hello-ask', 'day');
+  await expect(sheet.locator('[data-plan]')).toHaveCount(0);
+  await expect(sheet.locator('[data-dayword]')).toHaveCount(6);
+  await sheet.locator('[data-dayword="streng"]').click();
+  await sheet.locator('[data-dayword="schoen"]').click();
+  await sheet.locator('#hs-plan').fill('Lange Sitzung');
+  await expect.poll(async () => (await rowsOf(page, 'hallo.tag'))[0]?.value).toEqual(['streng', 'schoen']);
+  expect((await rowsOf(page, 'hallo.tag'))[0]?.note).toBe('Lange Sitzung');
+  expect(await rowsOf(page, 'hallo.vor')).toEqual([]);
+  await shot(page, info, 'gruss-d-abend');
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
 test('Gruss B: adjust the buttons: add with an emoji, rename, hide, delete with Undo, groups; the window and the history follow', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -270,7 +328,7 @@ test('Gruss B: adjust the buttons: add with an emoji, rename, hide, delete with 
   await expect(energy.locator('[data-hb="wach"]')).toHaveCount(0);
   // a plan of your own, a face renamed and hidden
   await edit.locator('[data-hb-new="plans"]').fill('Familie');
-  await edit.locator('[data-hb-list="plans"] ~ form').getByRole('button', { name: T('Add'), exact: true }).click();
+  await edit.locator('form:has([data-hb-new="plans"])').getByRole('button', { name: T('Add'), exact: true }).click();
   await expect(edit.locator('[data-hb-list="plans"] li').last()).toContainText('Familie');
   await edit.locator('[data-hb="gahtso"] [data-hb-edit]').click();
   await bs.locator('[data-button-name]').fill('Geht so');

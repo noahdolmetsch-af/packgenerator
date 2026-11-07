@@ -103,6 +103,7 @@ const LISTED = {
   'f.newtoday': ['Ride somewhere new (or tick a place in New ground).', 'Today shows «New since yesterday»; × closes it.', 'Tap the line: New ground shows what is new.'],
   'f.triptips': ['Open Trips › Dreams; «Fits today» is at the top.', 'Choose the hours you have.', 'Tap «Round through it» at a place.'],
   'f.newkm': ['Ride somewhere new; Strava lines, GPX and recordings count.', 'Open New ground and scroll to «New kilometres».', 'Each year shows its new km; below, the latest rides with new km.'],
+  'f.osmsets': ['Open New ground and choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load now» the first time (later it loads by itself once a week).', 'Ride past one: it is ticked with the day.'],
   'f.monthadv': ['Open Trips › Dreams and scroll to «One adventure a month».', 'Tap «Show me» or «Not this month».', 'Under «Kinds» add your own adventure.'],
   'f.dice': ['Open Trips › Dreams and scroll to «Adventure dice».', 'Tap «Roll»: a rule for your next ride.', 'Under «Rules» add your own or hide one.'],
   'f.suntip': ['Open Trips › Dreams and scroll to «Sunrise on the hill».', 'Read the next clear morning or evening.', 'Mark a «View» point on the map: the tip names it.'],
@@ -403,6 +404,7 @@ const LISTED = {
   'f.gelernt': ['Open Trips › Look back › What the app learned.', 'Choose «Month» or «Year» and use the arrows.', 'In «Year»: «Print» or «Share» the letter.'],
   'f.jahr': ['Open Trips › Look back › Your year as pictures.', 'Tap right to go on, left to go back; or swipe.', 'Escape or × closes; the last picture leads to the year letter.'],
   'f.ridepage': ['Tap a Strava activity in any list.', 'Read the values at the top, then laps, splits per km and segment times.', '«…» on a card hides or moves it.'],
+  'f.findlist': ['Open New ground; the card «List of finds» is at the top.', 'Choose «This year» or «All years».', 'Add your own find with «Add your own Neuland»; it joins the list.'],
   'f.neuland': ['Open Trips › Look back › New ground.', 'Choose a collection; the app colours in what your routes reached.', 'Tick or untick by hand; «Choose collections» switches them on and off.'],
   'f.eveningtour': ['On a trip day, open the evening review from Today.', 'Tap a number at «How was the trip today?»; a second tap takes it back.', '«Whole debrief» opens the trip\'s debrief.'],
   // Paket S «Reise-Spur»

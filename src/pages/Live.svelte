@@ -119,6 +119,8 @@
   import { AROUND_CACHE, ALONG_AHEAD_KM, loadAround, loadAlong, askServers } from '../lib/live/stops.js';
   import { queued } from '../lib/route/oneatatime.js';
   import { shelterQuery, sheltersFrom, nearestShelter } from '../lib/live/unterstand.js';
+  import WayMemory from '../lib/live/WayMemory.svelte';
+  import { WAYS_KEY, cleanMemory, goodSigns, nameOf as wayName } from '../lib/live/wegegedaechtnis.js';
   import { beep, buzz, say } from '../lib/live/alert.js';
   import { DICTATION } from '../lib/live/dictation.js';
   import { refreshFamilyLink, LIVE_EVERY_MS } from '../lib/live/familylive.js';
@@ -457,10 +459,14 @@
 
   /* ---------- the map ---------- */
   const camsQ = camsQuery();
+  const wayMemQ = liveQuery(() => db.settings.get(WAYS_KEY));
+  const wayMem = $derived(cleanMemory($wayMemQ?.value));
   let camPicked = $state(null);
   const mapPoints = $derived([
     ...(shown.stops ? pois.map((p) => ({ id: p.id, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind), km: p.km })) : []),
     ...(shown.own ? ownOnMap(own, t) : []),
+    // Wege-Gedächtnis: a sign at the middle of each stretch you marked as good
+    ...(shown.own ? goodSigns(wayMem.ways, (w) => `${t('Good stretch')}: ${wayName(w, { km: (a, b) => t('km {a}–{b}', { a, b }) })}`) : []),
     ...(shown.own ? camsOnMap($camsQ) : []), // Paket Wetter: your webcams with a place
     // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
     ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
@@ -949,7 +955,7 @@
     goalBusy = true;
     goalAt = now;
     try {
-      const d = await planDetour({ here: me, target: old.target, pts: hasRoute ? pts : [], fromKm: old.fromKm, profile: old.profile, oneWay: !!old.oneWay });
+      const d = await planDetour({ here: me, target: old.target, pts: hasRoute ? pts : [], fromKm: old.fromKm, profile: old.profile, oneWay: !!old.oneWay, avoid: wayMem.ways });
       if (detour === old) {
         setDetour({ ...d, ...(old.small ? { small: true } : {}) }, false);
         goalOffSince = null;
@@ -2002,6 +2008,9 @@
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.sleepSpots ?? isRace} onchange={(e) => setOpt('sleepSpots', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="sleepSpots" /><span><b>{t('Places to sleep ahead')}</b><small>{hasRoute ? t('The next three places to sleep on the route in the panel: hotels, roofs, places open at night and your own spots. On by default in a race.') : t('Needs a route.')}</small></span></label>
+      </li>
+      <li class="rc-row">
+        <WayMemory />
       </li>
       <li class="rc-row">
         <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm and heavy rain alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration. With the nearest roof, if you want it.')}</small></span></label>

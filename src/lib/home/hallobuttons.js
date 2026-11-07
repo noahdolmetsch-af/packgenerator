@@ -9,7 +9,7 @@
  */
 import { liveQuery } from 'dexie';
 import { clean, uid, move } from '../ruhig/base.js';
-import { MOODS, PLANS, FEELING_GROUPS, HELLO_QUESTIONS } from './hallo.js';
+import { MOODS, PLANS, REASONS, DAY_WORDS, FEELING_GROUPS, HELLO_QUESTIONS } from './hallo.js';
 import { db } from '../db.js';
 
 export const BUTTONS_KEY = 'hello.buttons';
@@ -19,12 +19,14 @@ const LABEL = 24;
 /** Gruss C: records of an earlier revision get the built-in groups that came later (once), the weather in the head. */
 const REV = 2;
 
-/** The built-in buttons: { faces: [{ key, label, v }], groups: [{ id, std, items }], plans: [{ key, label }] }. */
+/** The built-in buttons: { faces: [{ key, label, v }], groups: [{ id, std, items }], plans, reasons, day: [{ key, label }] }. */
 export function defaults() {
   return {
     faces: MOODS.map(({ key, label, v }) => ({ key, label, v })),
     groups: FEELING_GROUPS.map((g) => ({ id: g.key, std: g.name, items: g.items.map(({ key, label, emoji }) => ({ key, label, emoji })) })),
     plans: PLANS.map(({ key, label }) => ({ key, label })),
+    reasons: REASONS.map(({ key, label }) => ({ key, label })),
+    day: DAY_WORDS.map(({ key, label }) => ({ key, label })),
     rev: REV,
   };
 }
@@ -48,26 +50,32 @@ export function cfgOf(value) {
     .map((g) => ({ id: String(g.id), ...(clean(g.name, 40) ? { name: clean(g.name, 40) } : {}), ...(g.std ? { std: String(g.std) } : {}), items: itemsClean(g.items, seen, true) }))
     .filter((g, i, all) => all.findIndex((x) => x.id === g.id) === i && (g.name || g.std));
   const plans = itemsClean(value.plans, seen, false);
+  // Gruss D: the lists that came later (a record without them gets the built-in words)
+  const d = defaults();
+  const reasons = Array.isArray(value.reasons) ? itemsClean(value.reasons, seen, false) : d.reasons;
+  const day = Array.isArray(value.day) ? itemsClean(value.day, seen, false) : d.day;
   if ((Number(value.rev) || 1) < REV) {
     for (const g of defaults().groups) {
       if (g.id === 'weather' && !groups.some((x) => x.id === g.id) && g.items.every((i) => !seen.has(i.key))) groups.push(g);
     }
   }
-  return { faces, groups, plans, rev: REV };
+  return { faces, groups, plans, reasons, day, rev: REV };
 }
 
 /** The name of a group: an own or renamed one as typed, a built-in one through tr (t). */
 export const groupName = (g, tr = (s) => s) => (g?.name ? g.name : g?.std ? tr(g.std) : '');
 
-/** The lists a button lives in: 'faces', 'plans' or the id of a group. */
+/** The lists without emoji and groups. */
+const FLAT = ['plans', 'reasons', 'day'];
+/** The lists a button lives in: 'faces', 'plans', 'reasons', 'day' or the id of a group. */
 export function itemsOf(cfg, where) {
   if (where === 'faces') return cfg.faces;
-  if (where === 'plans') return cfg.plans;
+  if (FLAT.includes(where)) return cfg[where];
   return cfg.groups.find((g) => g.id === where)?.items ?? [];
 }
 function withItems(cfg, where, fn) {
   if (where === 'faces') return { ...cfg, faces: fn(cfg.faces) };
-  if (where === 'plans') return { ...cfg, plans: fn(cfg.plans) };
+  if (FLAT.includes(where)) return { ...cfg, [where]: fn(cfg[where]) };
   return { ...cfg, groups: cfg.groups.map((g) => (g.id === where ? { ...g, items: fn(g.items) } : g)) };
 }
 /** What the editor lists: everything that is not deleted (hidden ones dimmed). */
@@ -78,7 +86,7 @@ export const offered = (cfg, where) => itemsOf(cfg, where).filter((x) => !x.gone
 export function addItem(cfg, where, label, emoji = '', key = uid('b')) {
   const l = clean(label, LABEL);
   if (!l || shown(cfg, where).some((x) => x.label.toLowerCase() === l.toLowerCase())) return cfg;
-  const item = { key, label: l, ...(where === 'faces' || where === 'plans' ? {} : { emoji: emojiOf(emoji) }), own: true, ...(where === 'faces' ? { v: 0.5 } : {}) };
+  const item = { key, label: l, ...(where === 'faces' || FLAT.includes(where) ? {} : { emoji: emojiOf(emoji) }), own: true, ...(where === 'faces' ? { v: 0.5 } : {}) };
   return withItems(cfg, where, (list) => [...list, item]);
 }
 export function editItem(cfg, where, key, { label, emoji } = {}) {
@@ -129,9 +137,11 @@ export function optionsOf(cfg) {
     faces: cfg.faces.map((f) => ({ key: f.key, label: f.label, v: f.v ?? 0.5 })),
     feelings: cfg.groups.flatMap((g) => g.items.map((i) => ({ key: i.key, label: i.label, emoji: i.emoji ?? '', group: g.id }))),
     plans: cfg.plans.map((p) => ({ key: p.key, label: p.label })),
+    reasons: cfg.reasons.map((p) => ({ key: p.key, label: p.label })),
+    day: cfg.day.map((p) => ({ key: p.key, label: p.label })),
   };
 }
-const QOPT = { 'hallo.gaht': 'faces', 'hallo.gefuehl': 'feelings', 'hallo.vor': 'plans' };
+const QOPT = { 'hallo.gaht': 'faces', 'hallo.gefuehl': 'feelings', 'hallo.vor': 'plans', 'hallo.grund': 'reasons', 'hallo.tag': 'day' };
 /** Put the buttons into the three questions of the history (in place: abfragen.js holds the same objects). */
 export function applyButtons(cfg) {
   const o = optionsOf(cfg);
