@@ -113,3 +113,58 @@ test('On a clear day there is no card', async ({ page, context }, info) => {
   await expect(page.locator('[data-heute-fogline]')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('[data-heute-sonne]')).toHaveCount(0);
 });
+
+// Step C (quiet): the week line and, after clearly short sleep, the shortest ride above the fog next to the first
+const SHORT = { start: { lat: 47.5, lon: 8.05 }, km: 16, gainM: 680, profile: [[0, 420], [2, 430], [8, 1100], [16, 420]] };
+const withTwo = ({ sleepToday = 440, off = false } = {}) => {
+  const data = withRide(1);
+  data.tables.trips.push({ ...trip('Kurzer Kamm', day(-31), { status: 'done', title: 'Kurzer Kamm' }), route: SHORT });
+  const normal = Array.from({ length: 30 }, (_, i) => ({ date: day(-30 + i), sleep: { asleepMin: 450 }, azm: i >= 26 ? 20 : undefined, src: 'google' }));
+  data.tables.healthDays = [...normal.filter((r) => r.date !== day(0)), { date: day(0), sleep: { asleepMin: sleepToday }, azm: 22, src: 'google' }];
+  if (off) data.tables.settings.push({ key: 'suggestOff', value: ['performance'] });
+  return data;
+};
+
+test('The card adds the week line and nothing about sleep when sleep is normal', async ({ page, context }, info) => {
+  await openHome(page, context, info, { data: withTwo(), hour: 7, weather: (c) => mock(c) });
+  await page.goto('./#/');
+  const card = page.locator('[data-heute-sonne="rides"]');
+  await expect(card).toBeVisible({ timeout: 20_000 });
+  await expect(card.locator('[data-heute-sonne-name]')).toHaveText('Hochplateau');
+  await expect(card.locator('[data-heute-sonne-week]')).toContainText('102 von 150');
+  await expect(card.locator('[data-heute-sonne-short]')).toHaveCount(0);
+  await page.waitForTimeout(800);
+  if (await page.locator('dialog[data-round][open]').count()) await page.keyboard.press('Escape');
+  await expect(page.locator('dialog[data-round][open]')).toHaveCount(0);
+  await page.locator('[data-heute-wetter]').screenshot({ path: info.outputPath(`sonne-woche-${info.project.name}.png`) });
+});
+
+test('After clearly short sleep the card also shows the shortest ride, without a word about sleep', async ({ page, context }, info) => {
+  await openHome(page, context, info, { data: withTwo({ sleepToday: 300 }), hour: 7, weather: (c) => mock(c) });
+  await page.goto('./#/');
+  const card = page.locator('[data-heute-sonne="rides"]');
+  await expect(card).toBeVisible({ timeout: 20_000 });
+  await expect(card.locator('[data-heute-sonne-name]')).toHaveText('Hochplateau');
+  const short = card.locator('[data-heute-sonne-short]');
+  await expect(short).toContainText('Kurzer Kamm');
+  await expect(short).toContainText('16 km');
+  await expect(card).not.toContainText(/Schlaf/i);
+  // the morning questions of the Fitbit values open on top: put them aside first
+  await page.locator('dialog[data-round][open]').waitFor({ timeout: 15_000 });
+  await page.keyboard.press('Escape');
+  await expect(page.locator('dialog[data-round][open]')).toHaveCount(0);
+  await page.waitForTimeout(500); // the window must stay away, it is quiet for the day now
+  await expect(page.locator('dialog[data-round][open]')).toHaveCount(0);
+  await page.locator('[data-heute-wetter]').screenshot({ path: info.outputPath(`sonne-kurz-${info.project.name}.png`) });
+  await card.locator('[data-heute-sonne-short-show]').click();
+  await expect(card.locator('[data-heute-sonne-name]')).toHaveText('Kurzer Kamm');
+  await expect(card.locator('[data-heute-sonne-short]')).toHaveCount(0);
+});
+
+test('Performance tips off hides the week line and the short ride', async ({ page, context }, info) => {
+  await openHome(page, context, info, { data: withTwo({ sleepToday: 300, off: true }), hour: 7, weather: (c) => mock(c) });
+  await page.goto('./#/');
+  await expect(page.locator('[data-heute-sonne="rides"]')).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator('[data-heute-sonne-week]')).toHaveCount(0);
+  await expect(page.locator('[data-heute-sonne-short]')).toHaveCount(0);
+});

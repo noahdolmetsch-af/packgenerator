@@ -6,6 +6,9 @@
    * With sun above but no ride of yours reaching it, the card says so and leads to the trips. It shows only with sun
    * above the fog, your place in the fog and a fog that holds 2 more hours; it is switched off on the weather page
    * (setting 'sunRide'). A guess, and the card says so. HeuteWetter mounts it with one line, under the fog line.
+   * Step C (Noah «3a»), quiet: with Fitbit values the card adds the week line (zone minutes against the weekly goal);
+   * when last night's sleep was clearly under your normal it also shows the shortest ride above the fog next to the
+   * first. No advice, no cause; «Performance tips» (Me › Look › Suggestions) switches both off. Rules: sonnenrest.js.
    */
   import { liveQuery } from 'dexie';
   import { Sun, Camera } from '@lucide/svelte';
@@ -19,6 +22,9 @@
   import { localDate } from './kern.js';
   import { WEBCAMS_KEY, camsOf, homeCam, BERGFEX } from './webcams.js';
   import { KEY, SKIP_KEY, suggest, clock } from './sonnenfahrt.js';
+  import { weakSleep, weekLine, shorter, hours } from './sonnenrest.js';
+  import { AZM_WEEK_KEY } from '../health.js';
+  import { suggest as areas, watchSuggest } from '../clear/suggest.svelte.js';
   import { t, num } from '../i18n.svelte.js';
 
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -27,6 +33,9 @@
   const skipQ = liveQuery(() => db.settings.get(SKIP_KEY));
   const tripsQ = liveQuery(() => db.trips.toArray());
   const camsQ = liveQuery(() => db.settings.get(WEBCAMS_KEY));
+  const healthQ = liveQuery(() => db.healthDays.toArray());
+  const goalQ = liveQuery(() => db.settings.get(AZM_WEEK_KEY));
+  watchSuggest();
 
   const home = $derived($homeQ?.value && Number.isFinite(Number($homeQ.value.lat)) ? { lat: Number($homeQ.value.lat), lon: Number($homeQ.value.lon) } : null);
   let fog = $state(null);
@@ -58,6 +67,7 @@
   let pick = $state(0);
   const ride = $derived(sug?.kind === 'rides' ? sug.list[pick % sug.list.length] : null);
   const cam = $derived(homeCam(camsOf($camsQ?.value)));
+  const quiet = $derived(areas.on.performance && ride && $healthQ ? { week: weekLine($healthQ, day, $goalQ?.value), short: weakSleep($healthQ, day) ? shorter(sug.list, ride) : null } : null);
 
   const open = () => {
     openTrip(ride.id);
@@ -80,6 +90,12 @@
         {/if}
         {#if sug.clearsAt != null}{' '}{t('The fog clears around {h} h', { h: num(sug.clearsAt) })}.{/if}
       </p>
+      {#if quiet?.week}
+        <p class="hs-sub" data-heute-sonne-week>{quiet.week.reached ? t('Active zone minutes this week: {sum} of {of}. The weekly goal is reached.', { sum: num(quiet.week.sum), of: num(quiet.week.of) }) : t('Active zone minutes this week: {sum} of {of}.', { sum: num(quiet.week.sum), of: num(quiet.week.of) })}</p>
+      {/if}
+      {#if quiet?.short}
+        <p class="hs-sub" data-heute-sonne-short>{t('Shortest ride above the fog: {title}, {km} km, about {time} h.', { title: quiet.short.ride.title, km: num(quiet.short.ride.km), time: hours(quiet.short.ride.totalMin) })} <button type="button" class="btn btn-link sm" onclick={() => (pick = quiet.short.index)} data-heute-sonne-short-show>{t('Show this ride')}</button></p>
+      {/if}
       <div class="hs-btns">
         <button type="button" class="btn sm hi" onclick={open} data-heute-sonne-open>{t('Open ride')}</button>
         <a class="btn sm" href={cam?.url ?? BERGFEX} target="_blank" rel="noopener noreferrer" data-heute-sonne-cam><Camera size={16} aria-hidden="true" />{t('See it on a webcam')}</a>
