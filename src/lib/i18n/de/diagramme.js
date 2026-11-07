@@ -123,4 +123,11 @@ export default {
   'No ride or trip in this month.': 'In diesem Monat keine Fahrt und keine Tour.',
   'Share of the last 12 months': 'Anteil der letzten 12 Monate',
   'Monthly mean {n} km': 'Monatsmittel {n} km',
+  'Rides': 'Fahrten',
+  'max. bpm': 'max. bpm',
+  'max. W': 'max. W',
+  'Best 20 min W': 'Beste 20 Min W',
+  'Pace per month': 'Tempo pro Monat',
+  'Point at a month for its numbers, tap it for the month.': 'Zeig auf einen Monat für die Zahlen, tippe ihn an für den Monat.',
+  'No ride in this month.': 'In diesem Monat keine Fahrt.',
 };
