@@ -23,6 +23,10 @@ test('Way to the goal: create a way, own steps, tick, move, delete and undo', as
   await page.getByRole('button', { name: T('New way') }).click();
   await page.locator('[data-weg-title]').fill('Test Rennen im Mai');
   await page.locator('[data-weg-start]').fill('2027-05-15');
+  // the kinds of steps (training, packing, race plan …) suggest steps: untick every one, this test writes its own
+  const ticked = page.locator('[data-weg-new] .wg-pick input:checked');
+  while ((await ticked.count()) > 0) await ticked.first().uncheck();
+  await expect(page.locator('[data-weg-new] .wg-pick input:checked')).toHaveCount(0);
   await page.getByRole('button', { name: T('Create way') }).click();
   await expect(page.locator('[data-weg-goal] h2')).toHaveText('Test Rennen im Mai');
   await expect(page.locator('[data-page="weg"]')).toContainText(T('No steps yet. Add your first step below: it stays a suggestion, you can change it any time.'));

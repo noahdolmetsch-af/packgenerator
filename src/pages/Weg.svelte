@@ -125,7 +125,7 @@
     e.preventDefault();
     if (!nTitle.trim()) return;
     let g = newGoal({ title: nTitle, kind: nKind, start: nStart, tripId: nKind === 'race' ? nRace : '' });
-    g = addSteps(g, sugg.filter((s, i) => nPick[suggKey(s, i)] !== false));
+    g = addSteps(g, sugg.filter((s, i) => nPick[suggKey(s, i)] !== false).map((s) => ({ ...s, title: t(s.title), note: s.note ? t(s.note) : s.note }))); // the titles are English keys: stored in your language, then yours to change
     await save(addGoal(w, g));
     adding = false;
     pick(g.id);
@@ -196,7 +196,7 @@
       {#if sugg.length}
         <div class="wg-f"><span>{t('Steps to suggest (untick what you do not want)')}</span>
           {#each sugg as s, i (suggKey(s, i))}
-            <label class="wg-pick"><input type="checkbox" checked={nPick[suggKey(s, i)] !== false} onchange={(e) => (nPick = { ...nPick, [suggKey(s, i)]: e.currentTarget.checked })} /> {s.title}</label>
+            <label class="wg-pick"><input type="checkbox" checked={nPick[suggKey(s, i)] !== false} onchange={(e) => (nPick = { ...nPick, [suggKey(s, i)]: e.currentTarget.checked })} /> {t(s.title)}</label>
           {/each}
         </div>
       {:else}
