@@ -9,6 +9,7 @@
   import { tableQuery } from '../messwerte-data.js';
   import { weekNumbers, weekSeries, shown, METRIC } from '../messwerte.js';
   import { health, FITBIT_HASH } from '../health/client.svelte.js';
+  import { numHref } from '../analyse/zahlweg.js';
   import { t, num } from '../i18n.svelte.js';
 
   let { today } = $props();
@@ -29,6 +30,8 @@
     // resting pulse: up is not «more», so the words stay neutral for every value
     return r.pct > 0 ? t('{n} % above your usual', { n: num(r.pct) }) : t('{n} % below your usual', { n: num(-r.pct) });
   }
+  // «Zahl mit Weg» (UI-Prüfung A1): the three values that are a value of Analyse of their own open there, over 3 months
+  const ANALYSE = { azm: 'azm', sleep: 'sleep', rhr: 'rhr' };
   const wk = (w) => `${Number(w.from.slice(8, 10))}.${Number(w.from.slice(5, 7))}.`;
 </script>
 
@@ -56,6 +59,7 @@
       </div>
       <div class="ax"><span>{wk(series[0])}</span><span>{t('this week')}</span></div>
       <p class="about"><Info size={15} aria-hidden="true" /><span>{t(m.about)} {m.src === 'fitbit' ? t('Source: Fitbit.') : t('Source: Strava and your rides.')}</span></p>
+      {#if ANALYSE[open]}<a class="link" href={numHref({ key: ANALYSE[open], range: 'm3' })} data-wn-analyse={open}>{t('Open «{what}» in Analyse', { what: t(m.name) })} ›</a>{/if}
       {#if m.src === 'fitbit' && fitbitOff}<a class="link" href={FITBIT_HASH}>{t('Connect Fitbit')} ›</a>{/if}
     </div>
   {/if}

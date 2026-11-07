@@ -81,10 +81,29 @@ test('Aktiv: small tiles, the week in numbers, the rings and «Wi gaht\'s?» exp
   await wn.locator('[data-wn="rhr"]').click();
   await expect(wn.locator('[data-wn-detail="rhr"] .bar')).toHaveCount(12);
   await expect(wn.locator('[data-wn-detail="rhr"]')).toContainText(T('Source: Fitbit.'));
+  // «Zahl mit Weg» (UI-Prüfung A1): resting pulse opens its value in Analyse, over 3 months; the distance has no value of its own there
+  await expect(wn.locator('[data-wn-analyse="rhr"]')).toHaveAttribute('href', '#/auswerten/analyse/rhr?zeit=m3');
+  await wn.locator('[data-wn="km"]').click();
+  await expect(wn.locator('[data-wn-detail="km"]')).toBeVisible();
+  await expect(wn.locator('[data-wn-analyse]')).toHaveCount(0);
 
   await expect(page.locator('[data-check-why]')).toContainText(T('Where you see it'));
   await expect(page.locator('[data-check-why] a[href="#/me/history"]')).toBeVisible();
   await fits(page, '#/auswerten');
+  expect(errors).toEqual([]);
+});
+
+test('Auswerten: the calories of «Letzte 7 Tage» open their value in Analyse (A1)', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await put(page, { healthDays: rows().healthDays.map((h) => ({ ...h, kcal: 2500, kcalActive: 700 })) });
+  await go(page, '#/auswerten');
+  await openOverview(page);
+  const row = page.locator('[data-l7="kcal"] a[data-l7-way="kcal"]');
+  await expect(row).toBeVisible();
+  await expect(row).toHaveAttribute('href', '#/auswerten/analyse/kcal?zeit=w');
+  await row.click();
+  await expect(page).toHaveURL(/#\/auswerten\/analyse\/kcal\?zeit=w$/);
+  await expect(page.locator('[data-detail="kcal"]')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
