@@ -8,8 +8,9 @@ import packen from './packen.js';
 import nacht from './nacht.js';
 import velo from './velo.js';
 import training from './training.js';
+import essen from './essen.js';
 
-export const TYPES = [own, rennplanung, packen, nacht, velo, training];
+export const TYPES = [own, rennplanung, packen, nacht, velo, training, essen];
 
 export const typeOf = (id) => TYPES.find((t) => t.type === id) ?? own;
 
