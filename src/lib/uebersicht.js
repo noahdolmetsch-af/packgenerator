@@ -65,6 +65,20 @@ export function kindsOf(table, today, days = 28) {
 }
 
 /**
+ * The latest day up to today with an activity, and its sport (the one with most activities that day).
+ * Used where «Im Fokus» has nothing for the last 7 days, to say when the last one was. → { day, kind } or null.
+ */
+export function lastActivity(table, today) {
+  let best = null;
+  for (const [day, row] of table) {
+    if (day > today || (best && day <= best.day)) continue;
+    const k = KIND_ORDER.map((kind) => ({ kind, n: kindDay(row, kind).n })).filter((x) => x.n).sort((a, b) => b.n - a.n)[0];
+    if (k) best = { day, kind: k.kind };
+  }
+  return best;
+}
+
+/**
  * «Im Fokus»: one sport over the last 7 days (today on the right) and the 28 days as dots.
  * → { kind, from, to, km, time, bars: [{ day, km }], dots: [{ day, size 0–3 }] }
  */

@@ -164,7 +164,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Auswerten | `#/auswerten` | Einstieg in Aktivitäts-, Körper- und Verlaufsanalysen; oben ein Schalter «Zeitraum» (Woche, Monat, Jahr, Alles, eigener Zeitraum), dem die Liste der Sportarten und der Mittelwert bei «Wi gaht's?» folgen. |
+| Auswerten | `#/auswerten` | Einstieg in Aktivitäts-, Körper- und Verlaufsanalysen; oben ein Schalter «Zeitraum» (Woche, Monat, Jahr, Alles, eigener Zeitraum), dem die Liste der Sportarten und der Mittelwert bei «Wi gaht's?» folgen. «Im Fokus» zeigt nur Sportarten der letzten 7 Tage, die Kacheln der Übersicht nennen ihren Tag oder Zeitraum. |
 | Übergreifende Analyse | `#/auswerten/analyse` | Daten verschiedener Bereiche gemeinsam betrachten und vergleichen. |
 | Tour-Rückblick | `#/debrief` | Erfahrungen bewerten, ungenutztes und fehlendes Material markieren, Pannen dokumentieren und Verbrauch buchen. Die Antworten bei «Wie war es?» (Wetter, Essen und Trinken, Taschen) lassen sich in Ich › Listen und Typen umbenennen. Ganz oben steht «Rückblick in 30 Sekunden»: drei Fragen mit Gesichtern (Fahrt, Gepäck, Fehlendes) und «Kurzfassung speichern» für müde Abende; die lange Version bleibt darunter. |
 | Was hat es gut gemacht? | `#/debrief/freude` | Im Rückblick vier freiwillige Skalen von 1 bis 5 (Fahrspass, Natur, Flow, Gesellschaft); die Seite zeigt Mittelwerte und jede Tour, ab drei Touren sagt der Rückblick, was im Schnitt am höchsten war. |
