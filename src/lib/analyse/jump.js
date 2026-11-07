@@ -23,6 +23,15 @@ const param = (hash, name) => {
   return q ? new URLSearchParams(q).get(name) : null;
 };
 
+/** The part «Velos» of Analyse (km per bike), opened from a bike's number (UI-Prüfung 07.11.2026, V1). */
+export const velosHref = () => `${BASE}?tab=velos`;
+
+/** The part (tab) asked for in the hash, if it is one of `tabs`, else null. */
+export const tabOfHash = (hash, tabs = []) => {
+  const x = param(hash, 'tab');
+  return x && tabs.includes(x) ? x : null;
+};
+
 /** The day asked for in the hash, or null. */
 export const dayOfHash = (hash) => {
   const d = param(hash, 'tag');
