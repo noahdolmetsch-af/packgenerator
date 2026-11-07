@@ -235,7 +235,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Externe Werkzeuge und Links | `#/me/links` | Eigene Links und passende externe Anwendungen organisieren. |
 | KI-Projekte | `#/me/ki-projekte` | Links zu eigenen KI-Projekten, Chats und Threads sammeln. |
 | KI-Helfer | `#/helper` | Optionale KI-Unterstützung konfigurieren; Vorschläge prüfen und gezielt übernehmen. |
-| Sprachsuche | `#/me/suche` | Sprachbefehle und die Beantwortung von Fragen einstellen; ein Satz wie «Erstelle eine To-do-Liste: A, B, C» legt eine Liste mit Punkten in Merken und Listen an (mit Rückgängig). |
+| Sprachsuche | `#/me/suche` | Sprachbefehle und die Beantwortung von Fragen einstellen; ein Satz wie «Erstelle eine To-do-Liste: A, B, C» legt eine Liste mit Punkten in Merken und Listen an (mit Rückgängig). Was die Regeln nicht kennen, kann Gemini (gratis, braucht den Helfer-Code) in Aktionen übersetzen: erst «Ich würde das tun», geschrieben wird nach «OK». |
 | Verbindungen | `#/me/connections` | Strava, Fitbit, Google, Trello und die Spielerplus-Kalender der Teams (Link einfügen; Termine nur lesen in Woche, Heute und auf der Sportseite, mit Knopf zur Anmeldung in Spielerplus) verwalten, bei jeder den Stand sehen (läuft seit, Fehler mit Grund, zuletzt erfolgreich) und welche Funktionen davon abhängen. |
 | Termine und Aufgaben | `#/me/agenda` | Die angebotene Google-Anbindung für Termine und Aufgaben verwenden. |
 | Mail | `#/me/mail` | Die angebotene Gmail-Anbindung nutzen und Nachrichten weiter organisieren. |
