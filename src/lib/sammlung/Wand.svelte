@@ -2,7 +2,8 @@
   /**
    * «Sammel-Wand» (Neuer Schwung, Idee F, Noah 05.11.2026): Touren › Rückblick › Sammel-Wand. The stamps of the tour pass,
    * the passes, the places of the Gipfelbuch, the new ground of Neuland and the stars on one page, only to look at: a few of
-   * each, «All» opens the full list. No goal, no percentage, no streak. Nothing here is changed; every shelf is edited where it lives.
+   * each, «All» opens the full list. No goal, no percentage, no streak. Every shelf is edited where it lives; only the shelf
+   * «Fog sea» (the days above the fog, Noah 06.11.2026 «4a») has no other home and is changed here.
    * Neuland is counted after the first paint (it loads map data) and only when something was ridden.
    */
   import { liveQuery } from 'dexie';
@@ -17,17 +18,20 @@
   import Stempel from '../tourenpass/Stempel.svelte';
   import Passschild from '../paesse/Passschild.svelte';
   import Empty from '../ui/Empty.svelte';
+  import NebelRegal from './NebelRegal.svelte';
+  import { KEY as FOG_KEY, daysOf as fogDaysOf } from './nebelmeer.js';
   import { SHELF_SHOWN, recent, highestPlaces, totals, isEmpty } from './wand.js';
   import { Stamp, Mountain, MountainSnow, Compass, Star, ChevronRight } from '@lucide/svelte';
 
   const dataQ = liveQuery(async () => {
-    const [pass, paesse, gb, stars] = await Promise.all([
+    const [pass, paesse, gb, stars, fog] = await Promise.all([
       db.settings.get(PASS_KEY),
       db.settings.get(PAESSE_KEY),
       db.settings.get(GB_KEY),
       db.flowStars ? db.flowStars.count().catch(() => 0) : 0,
+      db.settings.get(FOG_KEY),
     ]);
-    return { stamps: stampsOf(pass?.value).stamps, passes: passesOf(paesse?.value).list, book: bookOf(gb?.value), stars };
+    return { stamps: stampsOf(pass?.value).stamps, passes: passesOf(paesse?.value).list, book: bookOf(gb?.value), stars, fogDays: fogDaysOf(fog?.value).length };
   });
   const data = $derived($dataQ ?? null);
 
@@ -64,10 +68,11 @@
 <div class="wand" data-wand>
   <p class="lead">{t('Everything you collected, on one page. It only shows what is there: no goal, no count of what is missing. Each shelf is changed where it lives.')}</p>
 
-  {#if !data || (!ground && isEmpty(tot))}
+  {#if !data || (!ground && isEmpty(tot) && !data.fogDays)}
     <p class="quiet" data-wand-loading>{t('Loading …')}</p>
-  {:else if ground && isEmpty(tot)}
+  {:else if ground && isEmpty(tot) && !data.fogDays}
     <Empty icon={Stamp} title={t('Nothing on the wall yet')} text={t('Stamps, passes, summits and new ground appear here as soon as you collect them. They come from your looks back and your rides; you can also add your own.')} action={{ label: t('Open the tour pass'), href: '#/debrief/tourenpass', explain: t('A stamp for every trip you looked back on') }} action2={{ label: t('Open the passes'), href: '#/debrief/paesse' }} />
+    <NebelRegal />
   {:else}
     <ul class="tiles" data-wand-tiles>
       <li><a class="tile" href="#/debrief/tourenpass" data-wand-tile="stamps"><b class="num">{num(tot.stamps)}</b><span>{t('Stamps|wall')}</span></a></li>
@@ -140,6 +145,8 @@
         <p class="quiet" data-shelf-empty>{t('No place yet. A ride with a high point suggests one; you can also enter a place yourself, for any sport.')} <a href="#/flow/gipfelbuch">{t('Open the summit book')}</a></p>
       {/if}
     </section>
+
+    <NebelRegal />
 
     <section class="card shelf" aria-labelledby="wa-ground" data-shelf="neuland">
       <div class="sh">
