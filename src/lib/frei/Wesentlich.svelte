@@ -91,7 +91,7 @@
 </script>
 
 <div class="fz" data-page="wesentlich">
-  <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('What matters to me')} />
+  <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('What matters to me')} />
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('What matters to me')}</h1>
   <p class="fz-intro">{t('A quiet page for the big things. Write when you feel like it; nothing here is checked, scored or shared.')}</p>
 

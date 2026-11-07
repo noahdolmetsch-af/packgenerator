@@ -39,7 +39,7 @@
 
 <div class="fp">
   <header class="hd">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Form and recovery')} />
+    <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Form and recovery')} />
     <h1 class="ptitle" tabindex="-1" data-page-title>{t('Form and recovery')}</h1>
     <p class="sub">{t('How ready you are today, from your activities, Fitbit and the morning check. Only to look at, no diagnosis.')}</p>
   </header>
