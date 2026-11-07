@@ -16,6 +16,8 @@ export const BUTTONS_KEY = 'hello.buttons';
 /** The group that takes the buttons of a deleted group («Ohne Gruppe»). */
 export const NO_GROUP = 'none';
 const LABEL = 24;
+/** Gruss C: records of an earlier revision get the built-in groups that came later (once), the weather in the head. */
+const REV = 2;
 
 /** The built-in buttons: { faces: [{ key, label, v }], groups: [{ id, std, items }], plans: [{ key, label }] }. */
 export function defaults() {
@@ -23,6 +25,7 @@ export function defaults() {
     faces: MOODS.map(({ key, label, v }) => ({ key, label, v })),
     groups: FEELING_GROUPS.map((g) => ({ id: g.key, std: g.name, items: g.items.map(({ key, label, emoji }) => ({ key, label, emoji })) })),
     plans: PLANS.map(({ key, label }) => ({ key, label })),
+    rev: REV,
   };
 }
 
@@ -45,7 +48,12 @@ export function cfgOf(value) {
     .map((g) => ({ id: String(g.id), ...(clean(g.name, 40) ? { name: clean(g.name, 40) } : {}), ...(g.std ? { std: String(g.std) } : {}), items: itemsClean(g.items, seen, true) }))
     .filter((g, i, all) => all.findIndex((x) => x.id === g.id) === i && (g.name || g.std));
   const plans = itemsClean(value.plans, seen, false);
-  return { faces, groups, plans };
+  if ((Number(value.rev) || 1) < REV) {
+    for (const g of defaults().groups) {
+      if (g.id === 'weather' && !groups.some((x) => x.id === g.id) && g.items.every((i) => !seen.has(i.key))) groups.push(g);
+    }
+  }
+  return { faces, groups, plans, rev: REV };
 }
 
 /** The name of a group: an own or renamed one as typed, a built-in one through tr (t). */
