@@ -9,7 +9,7 @@ PR (diese Änderung) · 07.11.2026 · Auftrag: Noah «1a, 2, 3a, 4 weglassen» (
   - «Fährt durch die Nacht»: jede Tag muss trocken sein, die Nacht über 5 °C und der Wind höchstens 30 km/h.
 - Touren › Träume › Traum öffnen: neue Felder «Festes Datum» und «Fährt durch die Nacht» (beide freiwillig). Eigene Träume legt man wie bisher selbst an.
 - Der Wetterspeicher der Träume behält jetzt auch Nachttemperatur und Wind.
-- Neue Funktion `f.dreamweek`; Heute-Wand v 19 (die Kachel kommt einmal unter «Entdecken», danach bleibt sie weg, wenn man sie entfernt).
+- Neue Funktion `f.dreamweek`; Heute-Wand v 20 (die Kachel kommt einmal unter «Entdecken», danach bleibt sie weg, wenn man sie entfernt).
 
 ## Was fällt weg oder rutscht tiefer
 - Heute: unter «Entdecken» kommt eine Kachel dazu (nur wenn ein Traum passt); alles darunter rutscht entsprechend nach unten. Sonst nichts.
@@ -18,7 +18,7 @@ PR (diese Änderung) · 07.11.2026 · Auftrag: Noah «1a, 2, 3a, 4 weglassen» (
 - Ein Traum mit Datum zeigt sich ab 90 Tagen vorher; ein Traum mit Datum innerhalb der Vorhersage geht vor einem Traum ohne Datum.
 - Fehlt dem Speicher Nachttemperatur oder Wind (alter Stand), zählt das nicht gegen den Traum; nach der nächsten Aktualisierung (3 Stunden) ist alles da.
 - Teilen entfällt (Noah «4 weglassen»). Name und Datum eines Traums stehen nur in den Daten, nie im Code.
-- Eine zweite Kachel-Version (v 19) war nötig, weil die Kachel sonst auf einer gespeicherten Heute-Wand nie erscheinen würde.
+- Eine zweite Kachel-Version (v 20, nach «Spruch» mit v 19) war nötig, weil die Kachel sonst auf einer gespeicherten Heute-Wand nie erscheinen würde.
 
 ## Entscheide (für decisions.md)
 - keine neuen
