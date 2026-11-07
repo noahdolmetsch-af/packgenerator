@@ -7,6 +7,7 @@
    */
   import BikeCards from '../lib/bikes/BikeCards.svelte';
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
+  import LinkedTodos from '../lib/merken/LinkedTodos.svelte'; // N3: the to-dos that belong to this bike
   import { parseBikesHash, bikesHash, sortBikes } from '../lib/bikes.js';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -160,6 +161,7 @@
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
     <AllHere area="bikes" vars={{ bike: tileBike }} />
     <PinnedLists place="bikes" />
+    {#if shownBike}<LinkedTodos kind="bike" ref={shownBike} />{/if}
     <PageTiles page="bikes" extrasHint />
   {/if}
 </div>

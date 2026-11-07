@@ -3,12 +3,14 @@
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { mkdirSync } from 'node:fs';
+import { openCard } from './karte-auf.js';
 
 test('Belongs to: on Pack a row of links, «all» opens the catalogue by moment', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { hour: 9 });
   await page.goto('./#/pack');
+  await openCard(page, 'gd:pack');
   const row = page.locator('[data-gehoert="packen"]');
   await expect(row).toBeVisible();
   await expect(row).toContainText(T('Belongs to {moment}', { moment: T('Packing|moment') }));

@@ -38,8 +38,8 @@ function data(todayHr, { sleepMin = null, moods = null, sport = null, cfg = null
  * The saved home forecast of today (Heute fetched it) and the calendar copy: both tables are not in the backup, so they
  * are written into the open database, then the page loads again. wx: fields of today's forecast; cal: [[startHourUtc, hours]].
  */
-async function seed(page, { wx = null, cal = null }) {
-  await page.evaluate(async ({ wx, cal }) => {
+async function seed(page, { wx = null, cal = null, tasks = null }) {
+  await page.evaluate(async ({ wx, cal, tasks }) => {
     const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const today = iso(new Date());
     const db = await new Promise((ok) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => ok(r.result); });
@@ -53,8 +53,15 @@ async function seed(page, { wx = null, cal = null }) {
       await put('meta', [{ key: 'homeForecast', fetchedAt: new Date().toISOString(), place, days: [{ date: today, min: 9, max: 19, rainMm: 0, rainPct: 10, ...wx }] }]);
     }
     if (cal) await put('gEvents', cal.map(([h, len], i) => ({ id: `fad-e${i}`, gid: `fad-e${i}`, day: today, lastDay: today, cal: 'primary', title: 'Test', start: `${today}T${h}:00:00Z`, end: `${today}T${String(Number(h) + len).padStart(2, '0')}:00:00Z`, allDay: false, busy: true })));
+    if (tasks) {
+      await put('gTasks', tasks.map((days, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - days);
+        return { id: `fad-t${i}`, list: 'l', title: 'test_data_gtp_ Steuern', due: iso(d), done: false };
+      }));
+    }
     db.close();
-  }, { wx, cal });
+  }, { wx, cal, tasks });
   await page.reload();
 }
 
@@ -240,13 +247,37 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(page.locator('[data-q="daten.draussen"]')).toHaveCount(0);
   });
 
+  test('a to-do that is long past its date asks what is in the way, with the to-do as the reason', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52) });
+    await seed(page, { tasks: [8] });
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q="daten.todo"]');
+    await expect(q).toBeVisible();
+    await expect(q.getByText(T('What is in the way of this to-do?'))).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('Steuern');
+    await expect(q.locator('[data-why]')).toContainText('8 Tagen');
+    await card.screenshot({ path: `${SHOTS}/fad11-todo-${info.project.name === 'phone' ? 390 : 1440}.png` });
+    await q.getByRole('button', { name: T('Too big|data'), exact: true }).click();
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q="daten.todo"]')).toHaveCount(0);
+  });
+
+  test('a to-do that is only a little past its date asks nothing', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await seed(page, { tasks: [2] });
+    await expect(page.locator('[data-section="abfragen"] [data-q="erholung.akku"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.todo"]')).toHaveCount(0);
+  });
+
   test('no calendar or no weather yet: the box says why the weather rules are quiet', async ({ page, context }, info) => {
     await openHome(page, context, info, { data: data(52) });
     await page.goto('./#/me/abfragen');
     await expect(page.locator('[data-data-empty-calendar]')).toBeVisible();
     await expect(page.locator('[data-rule="grau"]')).toBeVisible();
     await expect(page.locator('[data-rule="draussen"]')).toBeVisible();
-    await page.screenshot({ path: `${SHOTS}/fad7-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
+    await expect(page.locator('[data-rule="todo"]')).toBeVisible();
+    await expect(page.locator('[data-data-empty-tasks]')).toBeVisible();
+    await page.screenshot({ path: `${SHOTS}/fad11-regeln-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   });
 
   test('a random question from the switched-off samples comes marked and never again takes it out for good', async ({ page, context }, info) => {
@@ -366,6 +397,132 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(rule.locator('[data-rule-reset]')).toHaveCount(0);
     await expect(rule.locator('[data-rule-text]')).toHaveValue('');
     await expect(rule.locator('[data-rule-val]')).toHaveValue('5');
+  });
+
+  // Noah 05.11.2026 «nutzer kann diese und andere regeln im front end eingeben, ändern, löschen, neue erstellen»
+  test('a rule of your own: make it, it asks with the reason, change it, delete it with Undo', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(52) });
+    await page.goto('./#/me/abfragen');
+    const px = info.project.name === 'phone' ? 390 : 1440;
+    await page.locator('[data-rule-add]').click();
+    const sheet = page.locator('[data-rule-sheet]');
+    await expect(sheet).toBeVisible();
+    await sheet.locator('[data-rule-title]').fill('Regentag');
+    await sheet.locator('[data-cond-value]').selectOption('rain');
+    await sheet.locator('[data-cond-op]').selectOption('over');
+    await sheet.locator('[data-cond-n]').fill('50');
+    await sheet.locator('[data-rule-question]').fill('Wie bleibe ich heute in Bewegung?');
+    await sheet.screenshot({ path: `${SHOTS}/fad12-regel-neu-${px}.png` });
+    await sheet.locator('[data-rule-save]').click();
+    const row = page.locator('[data-rule^="own-"]');
+    await expect(row).toHaveCount(1);
+    await expect(row).toContainText('Regentag');
+    await expect(row).toContainText('Regenchance heute (Prozent) ist über 50');
+    await expect(row).toContainText('Wie bleibe ich heute in Bewegung?');
+    await expect(row.getByRole('switch')).toBeChecked();
+    await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad13-regeln-liste-${px}.png` });
+    // a rainy day: the window asks the question, with the rule and what it saw
+    await seed(page, { wx: { rainPct: 80 } });
+    await page.goto('./#/');
+    const card = page.locator('[data-section="abfragen"]');
+    const q = card.locator('[data-q^="own-"]');
+    await expect(q).toBeVisible();
+    await expect(q.locator('b').filter({ hasText: 'Wie bleibe ich heute in Bewegung?' })).toBeVisible();
+    await expect(q.locator('[data-why]')).toContainText('Deine Regel «Regentag» passt heute.');
+    await expect(q.locator('[data-why]')).toContainText('Regenchance heute beträgt 80 Prozent');
+    await expect(q.locator('[data-from-data]')).toHaveText('aus deinen Daten');
+    await card.screenshot({ path: `${SHOTS}/fad14-regel-frage-${px}.png` });
+    await q.getByRole('textbox').first().fill('Spazieren');
+    await card.locator('[data-ab-save]').click();
+    await expect(card.locator('[data-q^="own-"]')).toHaveCount(0);
+    // change it: a second condition and another name
+    await page.goto('./#/me/abfragen');
+    await page.locator('[data-rule^="own-"] [data-rule-change]').click();
+    await expect(sheet.locator('[data-cond]')).toHaveCount(1);
+    await sheet.locator('[data-cond-add]').click();
+    await expect(sheet.locator('[data-cond]')).toHaveCount(2);
+    await expect(sheet.locator('[data-cond-add]')).toHaveCount(0);
+    await sheet.locator('[data-rule-title]').fill('Nasser Tag');
+    await sheet.locator('[data-rule-save]').click();
+    await expect(page.locator('[data-rule^="own-"]')).toContainText('Nasser Tag');
+    await expect(page.locator('[data-rule^="own-"]')).toContainText('und');
+    // the switch works for it as for the others
+    await page.locator('[data-rule^="own-"]').getByRole('switch').uncheck();
+    await expect(page.locator('[data-rule^="own-"]').getByRole('switch')).not.toBeChecked();
+    await page.locator('[data-rule^="own-"]').getByRole('switch').check();
+    // delete it: asks first, Undo brings it back
+    await page.locator('[data-rule-edit]').click();
+    await page.locator('[data-rule-row^="own-"] [data-rule-delete]').click();
+    await page.getByRole('dialog').getByRole('button', { name: T('Delete'), exact: true }).click();
+    await expect(page.locator('[data-rule-row^="own-"]')).toHaveCount(0);
+    await page.getByRole('button', { name: T('Undo') }).last().click();
+    await expect(page.locator('[data-rule-row^="own-"]')).toHaveCount(1);
+    await page.reload();
+    await expect(page.locator('[data-rule^="own-"]')).toContainText('Nasser Tag');
+  });
+
+  test('a rule of your own needs a question and a condition that fits the data; no data, no question', async ({ page, context }, info) => {
+    await openHome(page, context, info, { data: data(52) });
+    await page.goto('./#/me/abfragen');
+    await page.locator('[data-rule-add]').click();
+    const sheet = page.locator('[data-rule-sheet]');
+    await expect(sheet.locator('[data-rule-save]')).toBeDisabled();
+    await sheet.locator('[data-cond-value]').selectOption('rain');
+    await sheet.locator('[data-cond-op]').selectOption('over');
+    await sheet.locator('[data-cond-n]').fill('10');
+    await sheet.locator('[data-rule-question]').fill('Und jetzt?');
+    await expect(sheet.locator('[data-rule-save]')).toBeEnabled();
+    await sheet.locator('[data-rule-save]').click();
+    // there is no forecast for today: the rule stays quiet
+    await page.goto('./#/');
+    await expect(page.locator('[data-q^="own-"]')).toHaveCount(0);
+  });
+
+  test('rules of the app: rename, sort, delete with Undo, bring back', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data(61) });
+    await page.goto('./#/me/abfragen');
+    const px = info.project.name === 'phone' ? 390 : 1440;
+    await page.locator('[data-rule-edit]').click();
+    await expect(page.locator('[data-rule-row]').first()).toHaveAttribute('data-rule-row', 'ruhepuls');
+    await page.locator('[data-datenfragen]').screenshot({ path: `${SHOTS}/fad15-regeln-sortieren-${px}.png` });
+    // rename
+    await page.locator('[data-rule-row="schlaf"] [data-rule-rename]').click();
+    const rn = page.getByRole('dialog', { name: T('Rename rule') });
+    await rn.getByRole('textbox').fill('Wenig Schlaf');
+    await rn.getByRole('button', { name: T('Save') }).click();
+    await expect(page.locator('[data-rule-row="schlaf"]')).toContainText('Wenig Schlaf');
+    // sort: the second rule one place up
+    await page.locator('[data-rule-row="schlaf"] .sort-ar').first().click();
+    await expect(page.locator('[data-rule-row]').first()).toHaveAttribute('data-rule-row', 'schlaf');
+    await page.reload();
+    await page.locator('[data-rule-edit]').click();
+    await expect(page.locator('[data-rule-row]').first()).toHaveAttribute('data-rule-row', 'schlaf');
+    // the new name and place count on the normal view
+    await page.locator('[data-rule-edit]').click();
+    await expect(page.locator('[data-rule="schlaf"] b')).toHaveText('Wenig Schlaf');
+    await expect(page.locator('[data-rule]').first()).toHaveAttribute('data-rule', 'schlaf');
+    await expect(page.locator('[data-rule="schlaf"] [data-rule-reset]')).toBeVisible();
+    // delete: asks first; Undo brings it back
+    await page.locator('[data-rule-edit]').click();
+    await page.locator('[data-rule-row="ruhepuls"] [data-rule-delete]').click();
+    await page.getByRole('dialog').getByRole('button', { name: T('Delete'), exact: true }).click();
+    await expect(page.locator('[data-rule-row="ruhepuls"]')).toHaveCount(0);
+    await page.getByRole('button', { name: T('Undo') }).last().click();
+    await expect(page.locator('[data-rule-row="ruhepuls"]')).toHaveCount(1);
+    // delete for good: it no longer asks, and «Deleted rules» brings it back
+    await page.locator('[data-rule-row="ruhepuls"] [data-rule-delete]').click();
+    await page.getByRole('dialog').getByRole('button', { name: T('Delete'), exact: true }).click();
+    await expect(page.locator('[data-rule-row="ruhepuls"]')).toHaveCount(0);
+    await page.reload();
+    await page.goto('./#/');
+    await expect(page.locator('[data-q="daten.ruhepuls"]')).toHaveCount(0);
+    await page.goto('./#/me/abfragen');
+    await page.locator('[data-rules-gone] summary').click();
+    await page.locator('[data-rule-restore="ruhepuls"]').click();
+    await expect(page.locator('[data-rule="ruhepuls"]')).toBeVisible();
+    await expect(page.locator('[data-rules-gone]')).toHaveCount(0);
+    await page.goto('./#/');
+    await expect(page.locator('[data-q="daten.ruhepuls"]')).toBeVisible();
   });
 
   test('without Fitbit values the page says why the pulse and sleep rules are quiet', async ({ page, context }, info) => {

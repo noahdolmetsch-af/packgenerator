@@ -48,6 +48,7 @@ try {
 import { db } from './lib/db.js';
 import { tidyData } from './lib/tidy.js';
 import { loadLists, watchLists } from './lib/lists.js';
+import { watchHelloButtons } from './lib/home/hallobuttons.js'; // Gruss B: the user's own buttons of the greeting
 import { settling } from './lib/settled.js';
 import { applyClock } from './lib/demo.js';
 import { trackChanges } from './lib/backup.js';
@@ -58,6 +59,7 @@ import { initGlove } from './lib/unterwegs/handschuh.svelte.js'; // Paket K #285
 import './lib/unterwegs/handschuh.css';
 import { installExplain } from './lib/ui/explain.js';
 import { installBackdropClose } from './lib/ui/backdrop.js';
+import { installAlertSeen } from './lib/nav/alertseen.js';
 import { takeReturn, watchAutoFetch } from './lib/strava/client.svelte.js';
 import { noteAppOpen } from './lib/know/wasneuStore.js';
 import { takeReturn as takeGoogleReturn, watchAutoFetch as watchHealthFetch } from './lib/health/client.svelte.js';
@@ -121,6 +123,7 @@ if (__PREVIEW__) {
 installExplain();
 // P3b «Daten sicher» (rule 3a): a tap beside any window closes it like Escape, and what was typed stays.
 installBackdropClose();
+installAlertSeen();
 // v0.116.0 «Strava-Verbindung»: back from the Strava login, the address carries this device's key once
 // (#…&strava=connected&key=…): stored in localStorage and taken out of the address before the app reads it.
 takeReturn();
@@ -151,6 +154,7 @@ watchSync(db);
 // (App.svelte draws the page again once they are in place); later changes as they come.
 loadLists(db);
 watchLists(db);
+watchHelloButtons(); // Gruss B: names of own and renamed buttons in the history
 
 // Ask the browser to keep our data even when the device runs low on space.
 // Without this, a browser may delete website data it considers unimportant.

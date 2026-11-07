@@ -953,6 +953,8 @@ body {
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: var(--lh);
+  /* Durchklick Etappe 3 (Noah «2a»): one very long word (a name, a note) is broken at the edge on every page, not only where a page asked for it. The property is inherited. */
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 720px) {
@@ -1087,6 +1089,19 @@ main[data-s2-place='active'] {
 }
 .btn.btn-link:hover {
   background: var(--paper-2);
+}
+/* Etappe 6 (4a): the quiet line «Your text from before is back.» (keeptyped.js) had no style at all */
+.kept-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0 0 10px;
+  padding: 4px 4px 4px 12px;
+  border-radius: 10px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-size: var(--fs-small);
 }
 .btn:disabled {
   opacity: 0.5;

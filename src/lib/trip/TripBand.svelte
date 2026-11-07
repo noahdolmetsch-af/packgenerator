@@ -421,14 +421,16 @@
     .kline :global(.tst .x) {
       display: none;
     }
+    /* E6 (zoom 200 %, a short window): a basis of 0 let the name shrink to a few letters next to the pills; with a
+       real basis the pills wrap to their own line instead */
     h1 {
-      flex: 1 1 0;
+      flex: 1 1 12rem;
       min-width: 0;
       margin: 0 0 2px;
       font-size: var(--fs-section);
     }
     .rename {
-      flex: 1 1 0;
+      flex: 1 1 12rem;
     }
     .meta {
       order: 3;

@@ -51,6 +51,8 @@ export function checkFeed({ name = '', url = '' }, list = [], id = null) {
   try {
     const p = new URL(u);
     if (p.protocol !== 'https:') return { error: 'The address must start with https://.' };
+    // Chrome turns «kein url» or «hallo» into a valid address; a real site has a dot and no space
+    if (/\s/.test(u) || !p.hostname.includes('.') || p.hostname.endsWith('.')) return { error: 'This is not a web address.' };
   } catch {
     return { error: 'This is not a web address.' };
   }

@@ -5,6 +5,7 @@ import { brouterUrl, parseBrouter, rejoinOf, snapAhead, targetsOf, planDetour, p
 beforeEach(() => {
   clearRouterCache();
   ROUTER_TUNING.retryMs = 0;
+  ROUTER_TUNING.reserve = false; // the reserve routers have their own tests below
 });
 import { gpxString, wptName, gpxFileName, WPT_NAME_MAX } from '../src/lib/gpxout.js';
 
@@ -406,5 +407,148 @@ describe('routerMsg: clear words for every failure', () => {
   });
   it('the note about the position is in German too', () => {
     for (const k of ['To plan a way, the app sends your position and the goal to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.', 'To plan a round, the app sends your home place and the points of the round to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.']) expect(DE[k]).toContain('brouter.de');
+  });
+});
+
+/* ---------- Reserve-Router (Noah 05.11.2026 «2a und b») ---------- */
+import { askReserve, valhallaUrl, osrmUrl, decodeLine, parseValhalla, parseOsrm, VALHALLA, OSRM, VALHALLA_MAX_KM } from '../src/lib/reroute.js';
+
+describe('reserve routers', () => {
+  const A = { lat: 47, lon: 8 };
+  const B = { lat: 47.01, lon: 8.02 };
+  // «_p~iF~ps|U_ulLnnqC_mqNvxq`@» is the example of Google's polyline guide (38.5,-120.2 → 40.7,-120.95 → 43.252,-126.453), 5 digits
+  const enc5 = '_p~iF~ps|U_ulLnnqC_mqNvxq`@';
+  // the same line with 6 digits is made by encoding by hand below
+  const enc = (pts, digits = 6) => {
+    const f = 10 ** digits;
+    let la = 0;
+    let lo = 0;
+    const one = (v) => {
+      let n = v < 0 ? ~(v << 1) : v << 1;
+      let s = '';
+      while (n >= 32) {
+        s += String.fromCharCode((32 | (n & 31)) + 63);
+        n >>= 5;
+      }
+      return s + String.fromCharCode(n + 63);
+    };
+    return pts.map(([a, b]) => {
+      const x = Math.round(a * f);
+      const y = Math.round(b * f);
+      const r = one(x - la) + one(y - lo);
+      la = x;
+      lo = y;
+      return r;
+    }).join('');
+  };
+  const valhalla = { trip: { legs: [{ shape: enc([[47, 8], [47.005, 8.01]]) }, { shape: enc([[47.005, 8.01], [47.01, 8.02]]) }], summary: { length: 1.7, time: 420 } } };
+  const osrm = { code: 'Ok', routes: [{ distance: 1730, duration: 380, geometry: { coordinates: [[8, 47], [8.01, 47.005], [8.02, 47.01]] } }] };
+  const json = (o, status = 200) => ({ ok: status < 400, status, json: async () => o });
+  const brouterOk = { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { 'track-length': '2000' }, geometry: { coordinates: [[8, 47, 1], [8.02, 47.01, 2]] } }] };
+  /** a fake network: each host answers with its own function */
+  const net = (h) => {
+    const seen = [];
+    const f = async (u) => {
+      const host = new URL(u).hostname;
+      seen.push(host);
+      return h[host]?.(u) ?? Promise.reject(new Error('blocked'));
+    };
+    return { f, seen };
+  };
+  beforeEach(() => {
+    ROUTER_TUNING.reserve = true;
+  });
+
+  it('reads the encoded line (Google\'s own example) and our hand-made one', () => {
+    const g = decodeLine(enc5, 5);
+    expect(g).toEqual([[38.5, -120.2], [40.7, -120.95], [43.252, -126.453]]);
+    expect(decodeLine(enc([[47.123456, 8.654321], [47.2, 8.7]]))).toEqual([[47.123456, 8.654321], [47.2, 8.7]]);
+    expect(decodeLine('')).toEqual([]);
+  });
+  it('builds the addresses', () => {
+    const v = valhallaUrl([A, B], 'fastbike');
+    expect(v.startsWith(VALHALLA)).toBe(true);
+    const q = JSON.parse(decodeURIComponent(v.split('json=')[1]));
+    expect(q.costing).toBe('bicycle');
+    expect(q.costing_options.bicycle.bicycle_type).toBe('Road');
+    expect(q.locations).toEqual([{ lat: 47, lon: 8 }, { lat: 47.01, lon: 8.02 }]);
+    expect(JSON.parse(decodeURIComponent(valhallaUrl([A, B], 'mtb').split('json=')[1])).costing_options.bicycle.bicycle_type).toBe('Mountain');
+    expect(JSON.parse(decodeURIComponent(valhallaUrl([A, B], 'nonsense').split('json=')[1])).costing_options.bicycle.bicycle_type).toBe('Hybrid');
+    expect(osrmUrl([A, B])).toBe(`${OSRM}/8.00000,47.00000;8.02000,47.01000?overview=full&geometries=geojson`);
+  });
+  it('reads Valhalla and OSRM answers, null for nothing', () => {
+    const v = parseValhalla(valhalla);
+    expect(v.line).toHaveLength(3);
+    expect(v.line[0]).toEqual([47, 8]);
+    expect(v.km).toBe(1.7);
+    expect(v.min).toBe(7);
+    expect(v.gainM).toBeNull();
+    const o = parseOsrm(osrm);
+    expect(o.line).toEqual([[47, 8], [47.005, 8.01], [47.01, 8.02]]);
+    expect(o.km).toBe(1.7);
+    expect(o.min).toBe(6);
+    for (const bad of [null, {}, { trip: { legs: [] } }, { code: 'NoRoute' }, { code: 'Ok', routes: [] }]) {
+      expect(parseValhalla(bad)).toBeNull();
+      expect(parseOsrm(bad)).toBeNull();
+    }
+  });
+  it('after brouter.de fails: Valhalla first, marked via, kept in memory', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 503), 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    const r = await askRouter([A, B], 'trekking', n.f);
+    expect(r.via).toBe('valhalla');
+    expect(r.gainM).toBeNull();
+    expect(n.seen).toEqual(['brouter.de', 'valhalla1.openstreetmap.de']);
+    await askRouter([A, B], 'trekking', n.f); // the outage lasts: answered from memory, nobody is asked
+    expect(n.seen).toHaveLength(2);
+  });
+  it('Valhalla fails → OSRM; both fail → the first error', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 429), 'valhalla1.openstreetmap.de': async () => json({ error: 'x' }, 400), 'routing.openstreetmap.de': async () => json(osrm) });
+    expect((await askRouter([A, B], 'trekking', n.f)).via).toBe('osrm');
+    expect(n.seen).toEqual(['brouter.de', 'valhalla1.openstreetmap.de', 'routing.openstreetmap.de']);
+    clearRouterCache();
+    const none = net({ 'brouter.de': async () => json({}, 429) });
+    await expect(askRouter([A, B], 'trekking', none.f)).rejects.toThrow('busy');
+    expect(none.seen).toEqual(['brouter.de', 'valhalla1.openstreetmap.de', 'routing.openstreetmap.de']);
+  });
+  it('a timeout of brouter.de also goes on to the reserve', async () => {
+    const never = (_u, { signal }) => new Promise((_ok, bad) => signal.addEventListener('abort', () => bad(new Error('aborted'))));
+    const n = net({ 'brouter.de': never, 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    const r = await askRouter([A, B], 'trekking', n.f, 0, { timeoutMs: 20 });
+    expect(r.via).toBe('valhalla');
+  });
+  it('only a failed service goes on: «no way», «too far» and «offline» do not', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 400), 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    await expect(askRouter([A, B], 'trekking', n.f)).rejects.toThrow('noroute');
+    await expect(askRouter([A, { lat: 48.21, lon: 16.37 }], 'trekking', n.f)).rejects.toThrow('toofar');
+    await expect(askRouter([A, B], 'fastbike', n.f, 0, { online: false })).rejects.toThrow('offline');
+    expect(n.seen).toEqual(['brouter.de']);
+  });
+  it('the other ways (alt 1 to 3) never ask the reserve', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 503), 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    await expect(askRouter([A, B], 'trekking', n.f, 1)).rejects.toThrow('busy');
+    expect(n.seen).toEqual(['brouter.de']);
+    // so «Wege zur Auswahl» gets one way from the reserve and stops
+    const ways = await planAlternatives({ here: A, target: B, fetcher: n.f }, 3);
+    expect(ways).toHaveLength(1);
+    expect(ways[0].via).toBe('valhalla');
+  });
+  it('a way that is too long for Valhalla goes straight to OSRM', async () => {
+    const far = { lat: 47 + (VALHALLA_MAX_KM + 20) / 111, lon: 8 };
+    const n = net({ 'brouter.de': async () => json({}, 503), 'valhalla1.openstreetmap.de': async () => json(valhalla), 'routing.openstreetmap.de': async () => json(osrm) });
+    expect((await askRouter([A, far], 'trekking', n.f)).via).toBe('osrm');
+    expect(n.seen).toEqual(['brouter.de', 'routing.openstreetmap.de']);
+  });
+  it('joins the legs of a round with a via point', () => {
+    const r = parseValhalla(valhalla);
+    expect(r.line.map((p) => p.join())).toEqual(['47,8', '47.005,8.01', '47.01,8.02']);
+  });
+  it('askReserve says null when nobody answers', async () => {
+    expect(await askReserve([A, B], 'trekking', async () => Promise.reject(new Error('x')))).toBeNull();
+  });
+  it('planDetour carries «via» into the detour', async () => {
+    const n = net({ 'brouter.de': async () => json({}, 503), 'valhalla1.openstreetmap.de': async () => json(valhalla) });
+    const d = await planDetour({ here: A, target: B, fetcher: n.f });
+    expect(d.via).toBe('valhalla');
+    expect(d.gainM).toBeNull();
   });
 });

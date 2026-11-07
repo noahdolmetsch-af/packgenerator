@@ -110,9 +110,9 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   await expect(card('plan').locator(`[data-plan-week]`).filter({ hasText: /, 1 fast$/ })).toHaveCount(1);
   for (const l of ['wie geplant', 'eine Zone daneben', 'andere Zone', 'nicht gemacht']) await expect(card('plan').locator('.pk-leg')).toContainText(l);
   // T3 endurance check: a dot per long calm ride, a trend, one neutral sentence
-  expect(await card('decouple').locator('circle').count()).toBeGreaterThanOrEqual(3);
+  expect(await card('decouple').locator('[data-point]').count()).toBeGreaterThanOrEqual(3);
   await expect(card('decouple').locator('[data-decouple-sentence]')).toHaveText(/^Auf langen ruhigen Fahrten (steigt dein Puls im Schnitt um \d+\.\d %|bleibt dein Puls im Schnitt gleich bei gleicher Leistung \(-?\d+\.\d %\)).* Unter 5 % gilt als gute Ausdauer\.$/);
-  await expect(card('decouple').getByRole('img')).toHaveAttribute('aria-label', /^\d+ lange ruhige Fahrten, im Schnitt -?\d+\.\d %$/);
+  await expect(card('decouple').locator('[data-plot]')).toHaveAttribute('aria-label', /^\d+ lange ruhige Fahrten, im Schnitt -?\d+\.\d %$/);
   await expect(card('decouple')).toContainText(/\d+ Fahrten ab 1 Std\., meist Z1–Z2/);
   // T4 FTP over the months: a line over 12 months, today in W and W/kg, no hint (hard 20 minutes in the last 6 weeks)
   await expect(card('ftp').getByRole('img')).toHaveAttribute('aria-label', /^Geschätzte FTP über 12 Monate, heute \d+ W · \d\.\d W\/kg$/);

@@ -11,6 +11,7 @@
   import { placeLabel, tabLabel } from '../anpassen.svelte.js';
   import InfoDot from './InfoDot.svelte';
   import { infoOfTab } from './spotinfo.js';
+  import { pathLast } from './pathlast.js';
 
   let { place, hash } = $props();
 
@@ -46,7 +47,8 @@
 
   // the «i» of the tab (Schritt 2): where it comes from, what belongs to it
   const tabInfo = $derived(infoOfTab(place, tabOf(place, hash)));
-  const last = $derived(title && title !== steps.at(-1)?.label ? title : '');
+  // Etappe 2, 2a: not a step again when the title is the name of the place or of the tab
+  const last = $derived(pathLast(steps, title));
   const showPath = $derived(!own && steps.length > 0 && (steps.length > 1 || !!last));
 </script>
 

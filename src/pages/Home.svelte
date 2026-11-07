@@ -165,6 +165,7 @@
   import NextMsTile from '../lib/home/NextMsTile.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
   import NeuHeute from '../lib/neuland/NeuHeute.svelte'; // Träume und Neuland N11 «Neu heute»: one line after a ride, no tile
+  import MonthAdventureRow from '../lib/dreams/MonthAdventureRow.svelte'; // Träume und Neuland N12 «Ein Abenteuer im Monat»: one line, no tile
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
@@ -182,6 +183,8 @@
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
   import { quietHome, ops } from '../lib/bedienung.svelte.js';
   import { mundartFor } from '../lib/home/mundart.js'; // «Wetter-Sprüche auf Mundart» (Idee 27)
+  import HeuteBild from '../lib/home/HeuteBild.svelte'; // «Paket G»: the drawn landscape on top
+  import { bildOf, moodOf } from '../lib/home/heutebild.js';
   import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
@@ -192,6 +195,7 @@
   import { MERKEN_KEY } from '../lib/merkendb.js';
   import { LISTS_KEY } from '../lib/ownlists.js';
   import { TRELLO_KEY, dueInTrello } from '../lib/trello.js';
+  import { backClose } from '../lib/ui/backclose.js';
   import { unitsOf as trelloUnits } from '../lib/trello/client.svelte.js';
 
   /* ---------- the records ---------- */
@@ -311,6 +315,9 @@
   // HG1b: no name yet: one quiet row under the greeting, asked only once
   const wx = $derived(fc ? weatherLine(fc, now) : null);
   const mundart = $derived(ops.mundart && wx && !night ? mundartFor(wx, today) : null); // «Wetter-Sprüche auf Mundart» (Idee 27)
+  // «Paket G» (Noah 03.11.2026 «a»): the picture on top shows the next trip still to come and its countdown
+  const bildTrip = $derived(loaded ? soonTrips(trips, today)[0] ?? null : null);
+  const bild = $derived(bildTrip ? bildOf(bildTrip, today) : null);
   const shortDate = $derived(now.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }));
   const dateLine = $derived([now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' }), place?.name?.split(',')[0]].filter(Boolean).join(' · '));
   let placeOpen = $state(false);
@@ -1279,6 +1286,8 @@
 
 <div class="home">
   <PullRefresh />
+  <!-- «Paket G» (Noah 03.11.2026 «a»): the drawn landscape with the next trip and its countdown, on top; a switch in Ich › Darstellung › Bedienung takes it away -->
+  {#if ops.heutebild && !editing && bild}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
   <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
@@ -1293,6 +1302,7 @@
   {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
   {#if loaded && !editing}<NeuHeute {today} />{/if}
+  {#if loaded && !editing}<MonthAdventureRow {today} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
   {#if showFirst}
     <section class="card first" aria-labelledby="first-h">
@@ -1409,7 +1419,7 @@
 {#if rowsOpen}<RowsSheet {today} cfg={S[ROWS_KEY] ?? null} onclose={() => (rowsOpen = false)} />{/if}
 {#if habitsOpen}<HabitsSheet {today} cfg={S[HABITS_KEY] ?? null} onclose={() => (habitsOpen = false)} />{/if}
 {#if catalogOpen}<TileCatalog on={onWall} hidden={hiddenTiles} ontoggle={toggleTile} onclose={() => (catalogOpen = false)} />{/if}
-<dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
+<dialog data-backdrop="own" class="sheet wear" bind:this={wearDlg} use:backClose onclose={() => (wearOpen = false)} onclick={(e) => e.target === wearDlg && (wearOpen = false)} aria-label={t('What do I wear?')}>
   <div class="wh"><button type="button" class="btn sm" onclick={() => (wearOpen = false)}>{t('Close')}</button></div>
   {#if wearOpen}
     <WearToday {items} {trips} edit />
