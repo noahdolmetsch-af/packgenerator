@@ -802,6 +802,8 @@
   }
   .wl-row .sm {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow-wrap: break-word;
     gap: 2px;
   }
   .wl-how summary {
@@ -855,6 +857,7 @@
     padding: 0;
     list-style: none;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 6px;
   }
   .wl-list li {
@@ -906,6 +909,8 @@
   }
   .wl-jar {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow-wrap: break-word;
     gap: 2px;
     padding: 8px 10px;
     border-radius: 10px;
@@ -926,6 +931,10 @@
   }
   .wl-season label {
     min-width: 0;
+  }
+  .wl-season label span {
+    min-width: 0;
+    overflow-wrap: break-word;
   }
   .wl-add {
     margin-top: 10px;
