@@ -1,7 +1,7 @@
-// «Spruch zum Einstieg» PR 1 and 2 (Noah 07.11.2026 «Bau spruch pr1», «bau spruch pr2»): the sentences, the recovery rule, the history,
+// «Spruch zum Einstieg» PR 1, 2 and 3 (Noah 07.11.2026 «Bau spruch pr1», «bau spruch pr2», «bau spruch pr3 und 4»): the sentences, the recovery rule, the history,
 // the second wordings, steps, weeks in a row, bike km, a year ago, the fog clearing and the quotes.
 import { describe, it, expect } from 'vitest';
-import { TEMPLATES, TEMPLATE, TONES, TONE_NAME, SOURCE_NAME, HISTORY_MAX, KM_MARKS, baseId, spruchOf, remember, recoveryOf, contextOf, fitting, pickSpruch } from '../src/lib/home/spruch.js';
+import { TEMPLATES, TEMPLATE, TONES, TONE_NAME, SOURCE_NAME, HISTORY_MAX, KM_MARKS, baseId, spruchOf, remember, recoveryOf, contextOf, fitting, pickSpruch, SOURCES, TONE_CHOICES, ABOUT, setTon, setSource, setTemplate, stillFits } from '../src/lib/home/spruch.js';
 import DE from '../src/lib/i18n/de/spruch.js';
 
 const TODAY = '2026-11-04'; // a Wednesday
@@ -182,8 +182,8 @@ describe('never the same twice', () => {
     expect(rec.recent).toHaveLength(HISTORY_MAX);
     expect(rec.recent[0].id).toBe('x39');
     expect(remember(rec, { id: 'x39', src: 'weather', ton: 'mot' }).recent).toHaveLength(HISTORY_MAX);
-    expect(spruchOf(null)).toEqual({ recent: [], off: [] });
-    expect(spruchOf({ recent: [null, { id: 3 }, { id: 'a' }], off: ['b', 4] })).toEqual({ recent: [{ id: 'a', src: '', ton: '' }], off: ['b'] });
+    expect(spruchOf(null)).toEqual({ recent: [], off: [], ton: 'mix', offSrc: [] });
+    expect(spruchOf({ recent: [null, { id: 3 }, { id: 'a' }], off: ['b', 4], ton: 'unknown', offSrc: ['weather', 'nope', 3] })).toEqual({ recent: [{ id: 'a', src: '', ton: '' }], off: ['b'], ton: 'mix', offSrc: ['weather'] });
   });
   it('one after the other: never the one just shown, never the same source twice while another one not shown lately fits', () => {
     let rec = null;
@@ -224,7 +224,10 @@ describe('never the same twice', () => {
     for (let i = 0; i < 20; i++) expect(baseId(pickSpruch(rich, null, { rand: () => i / 20, not: p.id }).id)).not.toBe(baseId(p.id)); // not even the other wording
     const only = fitting(rich, { ton: 'vision' }).map((x) => x.id);
     expect(only.length).toBeGreaterThan(0);
-    expect(pickSpruch(rich, { off: only }, { ton: 'vision' })).toBeNull();
+    // the chosen tone has nothing left: a sentence of the mix comes, marked as such
+    const fb = pickSpruch(rich, { off: only }, { ton: 'vision' });
+    expect(fb.fallback).toBe(true);
+    expect(fb.ton).not.toBe('vision');
     expect(pickSpruch(rich, null, { ton: 'vision', rand: () => 0.99 }).ton).toBe('vision');
   });
   it('nothing fits: null (the tile says why it is empty)', () => {
@@ -357,5 +360,77 @@ describe('PR 2: the quotes of «Kissenzeit»', () => {
     expect(ids(c)).toEqual(['w.dry-mild', 'w.dry-mild~2']);
     expect(pickSpruch(c, null, { not: 'w.dry-mild', rand: () => 0 })).toBeNull();
     expect(baseId('w.dry-mild~2')).toBe('w.dry-mild');
+  });
+});
+
+describe('PR 3: tone, sources, sentences switched off', () => {
+  it('the row keeps the tone and the switched-off sources; the helpers return a new row and never lose the history', () => {
+    let rec = remember(null, { id: 'a.goal', src: 'azm', ton: 'lustig' });
+    rec = setTon(rec, 'lustig');
+    rec = setSource(rec, 'steps', false);
+    rec = setTemplate(rec, 'w.dry-mild~2', false); // the other wording counts as the same sentence
+    expect(spruchOf(rec)).toMatchObject({ ton: 'lustig', offSrc: ['steps'], off: ['w.dry-mild'] });
+    expect(spruchOf(rec).recent).toHaveLength(1);
+    expect(setSource(setSource(rec, 'steps', false), 'steps', false).offSrc).toEqual(['steps']); // no double entry
+    expect(setSource(rec, 'steps', true).offSrc).toEqual([]);
+    expect(setTemplate(rec, 'w.dry-mild', true).off).toEqual([]);
+    expect(setTon(rec, 'nonsense').ton).toBe('mix');
+    expect(remember(rec, { id: 'x', src: 'azm', ton: 'mot' })).toMatchObject({ ton: 'lustig', offSrc: ['steps'] }); // a new sentence keeps the choices
+  });
+  it('every source and every tone of the window has a name, every sentence a description with German', () => {
+    expect(TONE_CHOICES).toEqual(['mix', ...TONES]);
+    for (const s of SOURCES) expect(SOURCE_NAME[s], s).toBeTruthy();
+    for (const x of TEMPLATES) {
+      expect(ABOUT[x.id], x.id).toBeTruthy();
+      expect(DE[ABOUT[x.id]], `${x.id}: ${ABOUT[x.id]}`).toBeTruthy();
+    }
+    expect(Object.keys(ABOUT).sort()).toEqual(TEMPLATES.map((x) => x.id).sort());
+    for (const k of ['Tone|saying', 'Mix|saying', 'All sayings', 'No more like this']) expect(DE[k], k).toBeTruthy();
+  });
+  it('one tone: only that tone comes, from the row as well', () => {
+    const c = ctx({ rows: rows(), goal: 150, trip: { startDate: day(10), name: 'Pass' }, packed: { packed: 5, of: 10 } });
+    const tones = new Set(fitting(c, { ton: 'vision' }).map((x) => x.ton));
+    expect([...tones]).toEqual(['vision']);
+    for (let i = 0; i < 10; i++) expect(pickSpruch(c, { ton: 'vision' }, { rand: () => i / 10 }).ton).toBe('vision');
+  });
+  it('a source switched off does not come, a sentence switched off does not come, with both wordings', () => {
+    const c = ctx({ rows: rows(), goal: 150, trip: { startDate: day(10), name: 'Pass' }, packed: { packed: 5, of: 10 }, quotes: QUOTES3 });
+    expect(ids(c, { offSrc: ['tour'] }).some((i) => i.startsWith('t.'))).toBe(false);
+    expect(ids(c, { offSrc: ['quote'] }).some((i) => i.startsWith('z.'))).toBe(false);
+    expect(ids(c, {}).filter((i) => i.startsWith('t.far'))).toHaveLength(2);
+    expect(ids(c, { off: ['t.far'] }).some((i) => i.startsWith('t.far'))).toBe(false);
+    // from the row: every pick respects it for a whole year
+    let rec = setSource(setSource(null, 'tour', false), 'quote', false);
+    for (let i = 0; i < 60; i++) {
+      const p = pickSpruch(c, rec, { rand: () => (i % 7) / 7 });
+      expect(['tour', 'quote'], p.id).not.toContain(p.src);
+      rec = remember(rec, p);
+    }
+  });
+  it('the tone has nothing today: a sentence of the mix with fallback; with everything off: null', () => {
+    const c = ctx({ rows: rows(), goal: 150 });
+    const p = pickSpruch(c, setTon(null, 'vision'));
+    expect(p.fallback).toBe(true);
+    expect(pickSpruch(c, setTon(null, 'mix')).fallback).toBeUndefined();
+    let rec = null;
+    for (const s of SOURCES) rec = setSource(rec, s, false);
+    expect(pickSpruch(c, rec)).toBeNull();
+  });
+  it('on a day off the own normal «challenge» finds nothing and the mix comes instead; calm stays calm', () => {
+    const c = ctx({ rows: rows({ todaySleep: 330 }), goal: 150, trip: { startDate: day(3), name: 'Pass' }, packed: { packed: 3, of: 10 } });
+    expect(c.rec.state).toBe('off');
+    expect(fitting(c, { ton: 'chal' })).toEqual([]);
+    const p = pickSpruch(c, setTon(null, 'chal'));
+    expect(p.fallback).toBe(true);
+    expect(p.ton).not.toBe('chal');
+  });
+  it('stillFits: the shown sentence is checked against the row (tone, source, sentence)', () => {
+    const c = ctx({ rows: rows(), goal: 150, trip: { startDate: day(10), name: 'Pass' }, packed: { packed: 5, of: 10 } });
+    const shown = fitting(c).find((x) => x.id === 't.far');
+    expect(stillFits(c, null, shown)).toBe(true);
+    expect(stillFits(c, setTon(null, 'lustig'), shown)).toBe(false);
+    expect(stillFits(c, setSource(null, 'tour', false), shown)).toBe(false);
+    expect(stillFits(c, setTemplate(null, 't.far', false), shown)).toBe(false);
+    expect(stillFits(c, null, null)).toBe(false);
   });
 });

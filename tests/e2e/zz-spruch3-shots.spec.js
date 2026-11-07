@@ -1,0 +1,36 @@
+import { test, expect } from './clock.js';
+import { openHome, homeFixture, day, tr } from './home0460-fixture.js';
+import { put } from './aktiv-fixture.js';
+import { settle } from './settle.js';
+const OUT = '/tmp/claude-0/-home-user-packgenerator/1dc78582-01f5-5faf-b0c7-db89f9c9c242/scratchpad/shots3';
+const T = tr('de');
+const healthRows = () => Array.from({ length: 15 }, (_, i) => ({ date: day(i - 14), sleep: { asleepMin: 450 }, restingHr: 55, azm: 20, steps: 8000, src: 'google' }));
+test('shots', async ({ page, context }, info) => {
+  const p = info.project.name;
+  const d = homeFixture();
+  await openHome(page, context, info, { data: d });
+  await put(page, { healthDays: healthRows() });
+  await page.reload();
+  await settle(page);
+  const tile = page.locator('[data-section="spruch"]');
+  await expect(tile.locator('[data-spruch]')).toBeVisible();
+  await tile.scrollIntoViewIfNeeded();
+  await tile.screenshot({ path: `${OUT}/${p}-kachel.png` });
+  // the window
+  await tile.locator('[data-spruch-all]').click();
+  const sheet = page.locator('dialog[data-spruch-sheet]');
+  await expect(sheet).toBeVisible();
+  await sheet.locator('[data-spruch-tones] button', { hasText: T('Calm|saying') }).click();
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${OUT}/${p}-fenster-oben.png` });
+  await sheet.locator('[data-spruch-src-switch="steps"]').uncheck();
+  await sheet.locator('[data-spruch-source="azm"]').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${OUT}/${p}-fenster-quellen.png` });
+  await sheet.locator('[data-spruch-done]').click();
+  await expect(sheet).toHaveCount(0);
+  await tile.scrollIntoViewIfNeeded();
+  await tile.locator('[data-spruch-nomore]').click();
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: `${OUT}/${p}-nicht-mehr.png` });
+});
