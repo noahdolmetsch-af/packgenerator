@@ -12,6 +12,7 @@
   import { db } from '../lib/db.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
+  import TennisTabs from '../lib/booking/TennisTabs.svelte';
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -283,10 +284,10 @@
 {#if !id}
   <!-- BU5: Ich › Angebote -->
   <div class="ich-page offers">
-    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your offers')} sub={t('One pattern for everything: open free times, share the link, people book themselves.')} />
+    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Tennis')} sub={t('Offers and customers in one place: open free times, share the link, people book themselves.')} />
     <p class="of-band" role="note"><span class="pill warn">{t('Test|offers')}</span> {t('Online payment runs in test mode only; no real money moves.')}</p>
     {#if error}<p class="err" role="alert">{error}</p>{/if}
-    <p class="of-cust"><a class="btn" href="#/me/offers/customers" data-customers-link><Users size={18} aria-hidden="true" />{t('Customers')}</a></p>
+    <TennisTabs current="offers" />
     {#if offers?.length}
       <ul class="of-kinds">
         {#each offers as o (o.id)}
@@ -318,13 +319,13 @@
   </div>
 {:else if offers && !mine}
   <div class="ich-page offers">
-    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Offers'), href: '#/me/offers' }]} title={t('Offer not found')} sub={t('It is not on this device. Load the backup that has it, or start a new offer.')} />
+    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Tennis'), href: '#/me/tennis' }]} title={t('Offer not found')} sub={t('It is not on this device. Load the backup that has it, or start a new offer.')} />
   </div>
 {:else if mine}
   {@const o = mine.offer}
   <!-- BU1: the free times of one offer; BU4: who booked a time -->
   <div class="ich-page offers">
-    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Offers'), href: '#/me/offers' }]} title={o.title} sub={t('When you have time, people book themselves.')} />
+    <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Tennis'), href: '#/me/tennis' }]} title={o.title} sub={t('When you have time, people book themselves.')} />
     {#if error}<p class="err" role="alert">{error}</p>{/if}
     <div class="ich-cols">
       <div class="ich-main">
@@ -910,7 +911,6 @@
   .of-lo { flex-wrap: wrap; }
   .of-lo .of-pick { flex: 1 1 100%; }
   .of-out { flex: 1 1 9rem; width: auto; min-height: 40px; }
-.of-cust { margin: 0 0 16px; }
   .of-h3 { margin: 12px 0 0; font-size: var(--fs-body); }
   .of-wait { display: grid; gap: 6px; margin-top: 8px; }
 </style>
