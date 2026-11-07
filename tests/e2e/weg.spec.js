@@ -106,3 +106,35 @@ test('Way to the goal › Organisation: the strip counts the settled steps and n
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('Way to the goal › Practice rides: three circles, a tap ticks by hand and takes it back', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+
+  await page.goto('./#/trips/weg');
+  await ready(page);
+  await page.getByRole('button', { name: T('New way') }).click();
+  await page.locator('[data-weg-title]').fill('Test Rennen im Mai');
+  await page.locator('[data-weg-start]').fill('2027-05-15');
+  // keep only the steps of «Practice rides»
+  const picks = page.locator('[data-weg-new] .wg-pick');
+  const titles = ['Practice ride: 50 km', 'Practice ride: 100 km', 'Practice ride: 200 km'].map(T);
+  for (const label of await picks.allTextContents()) {
+    if (!titles.includes(label.trim())) await picks.filter({ hasText: label.trim() }).first().locator('input').uncheck();
+  }
+  await page.getByRole('button', { name: T('Create way') }).click();
+
+  const strip = page.locator('[data-weg-proben]');
+  await expect(strip.locator('[data-weg-proben-circle]')).toHaveCount(3);
+  await expect(strip).toContainText(T('Practice rides'));
+  const first = strip.locator('[data-weg-proben-circle]').first();
+  await expect(first).toHaveAttribute('aria-pressed', 'false');
+  await first.click();
+  await expect(first).toHaveAttribute('aria-pressed', 'true');
+  await first.click();
+  await expect(first).toHaveAttribute('aria-pressed', 'false');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
