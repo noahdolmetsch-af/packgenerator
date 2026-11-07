@@ -7,6 +7,7 @@
  * HG1 4b: Morge 05–11, Tag 11–18, Abig 18–22; 3: Nacht 22–05 only «Guät Nacht, Nachtülä» (no name,
  * no question, no tap line).
  * No imports on purpose: abfragen.js reads HELLO_QUESTIONS from here (the one history knows them).
+ * Gruss B: the options of the three questions are COPIES, hallobuttons.js puts the user's own buttons (names, own, deleted) into them.
  * v0.144.0 RE «Eine Tagesuhr» (4a): the hours come from dayclock.js (no imports itself); the morning now
  * starts at 06:00 like everywhere (was 05:00), the night is 22:00–05:59.
  */
@@ -100,9 +101,9 @@ export const PLANS = [
  * (every: off); only the tap on the greeting asks them.
  */
 export const HELLO_QUESTIONS = [
-  { id: 'hallo.gaht', area: 'spass', key: 'gaht', text: HELLO_MOOD, form: { kind: 'chips', options: MOODS }, every: { kind: 'off' }, src: ['hand'], hello: true },
-  { id: 'hallo.gefuehl', area: 'spass', key: 'gefuehl', text: HELLO_FEEL, form: { kind: 'chips', options: FEELINGS, multi: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
-  { id: 'hallo.vor', area: 'ziele', key: 'vor', text: HELLO_PLAN, form: { kind: 'chips', options: PLANS, multi: true, note: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.gaht', area: 'spass', key: 'gaht', text: HELLO_MOOD, form: { kind: 'chips', options: MOODS.map((m) => ({ ...m })) }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.gefuehl', area: 'spass', key: 'gefuehl', text: HELLO_FEEL, form: { kind: 'chips', options: FEELINGS.map((f) => ({ ...f })), multi: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.vor', area: 'ziele', key: 'vor', text: HELLO_PLAN, form: { kind: 'chips', options: PLANS.map((x) => ({ ...x })), multi: true, note: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
 ];
 
 /** HG1b: the settings record that says the name was asked once («Nicht jetzt» or «Speichern»). */

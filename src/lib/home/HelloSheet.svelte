@@ -8,10 +8,11 @@
    * The Swiss German words are constants in hallo.js (HG1 1a), the rest goes through t().
    */
   import { keepTyped } from '../ui/keeptyped.js';
-  import { ChevronRight, X, Plus, Clock3, FaceSlightlyFrowning, FaceExpressionless, FaceNeutral, FaceSlightlySmiling, FaceGrinning } from '@lucide/svelte';
+  import { ChevronRight, X, Plus, Clock3, Pencil, Smile, FaceSlightlyFrowning, FaceExpressionless, FaceNeutral, FaceSlightlySmiling, FaceGrinning } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
-  import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, HELLO_FEEL, MOODS, PLANS, FEELING_GROUPS, helloTitle } from './hallo.js';
+  import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, HELLO_FEEL, helloTitle } from './hallo.js';
+  import { buttonsQuery, saveButtons, offered, groupName, defaults } from './hallobuttons.js';
   import { saveHello } from './hallo-save.js';
   import { stampOf } from '../abfragen.js';
   import { db } from '../db.js';
@@ -22,6 +23,18 @@
   let { name = '', label = '', headId = 'hello-h' } = $props();
   const FACE = { muede: FaceSlightlyFrowning, gahtso: FaceExpressionless, okay: FaceNeutral, guet: FaceSlightlySmiling, super: FaceGrinning };
 
+  // Gruss B: the buttons as the user has them (own, renamed, hidden, deleted, sorted)
+  const cfgQ = buttonsQuery();
+  const cfg = $derived($cfgQ ?? defaults());
+  const faces = $derived(offered(cfg, 'faces'));
+  const groups = $derived(cfg.groups.map((g) => ({ ...g, list: offered(cfg, g.id) })).filter((g) => g.list.length));
+  const plansOffered = $derived(offered(cfg, 'plans'));
+  let adjusting = $state(false);
+  let Editor = $state(null); // the editor loads on first use (not part of the start)
+  async function adjust() {
+    Editor ??= (await import('./HelloButtonsEdit.svelte')).default;
+    adjusting = true;
+  }
   let open = $state(false);
   let dialog = $state();
   let field = $state();
@@ -55,6 +68,7 @@
     plans = [];
     text = '';
     more = false;
+    adjusting = false;
     saved = 0;
     touched = false;
     at = stampOf();
@@ -81,7 +95,7 @@
   const touch = () => (touched = true);
   async function done() {
     await flush();
-    dialog.close();
+    dialog?.close();
   }
 </script>
 
@@ -98,23 +112,29 @@
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
+    {#if adjusting}
+      {#if Editor}<Editor {cfg} onsave={saveButtons} />{/if}
+      <div class="vd-foot">
+        <button type="button" class="btn hi" onclick={() => (adjusting = false)} data-hello-back>{t('Back|hello')}</button>
+      </div>
+    {:else}
     <span class="lbl" id="hs-mood">{HELLO_MOOD}</span>
     <div class="faces" role="group" aria-labelledby="hs-mood">
-      {#each MOODS as m (m.key)}
-        {@const F = FACE[m.key]}
+      {#each faces as m (m.key)}
+        {@const F = FACE[m.key] ?? Smile}
         <button type="button" class="face" class:yd={ydMood === m.key} aria-pressed={mood === m.key} onclick={() => { touch(); mood = mood === m.key ? null : m.key; }} data-mood={m.key}><F size={26} aria-hidden="true" /><span>{m.label}</span>{#if ydMood === m.key}<em>{t('yesterday|hello')}</em>{/if}</button>
       {/each}
     </div>
     <p class="obs">{t('Only an observation, no judgement.')}</p>
-    <button type="button" class="more" aria-expanded={more} onclick={() => (more = !more)} data-hello-more>{more ? t('Fewer|hello') : t('More|hello')}{feelings.length && !more ? ` · ${feelings.length}` : ''}</button>
-    {#if more}
+    {#if groups.length}<button type="button" class="more" aria-expanded={more} onclick={() => (more = !more)} data-hello-more>{more ? t('Fewer|hello') : t('More|hello')}{feelings.length && !more ? ` · ${feelings.length}` : ''}</button>{/if}
+    {#if more && groups.length}
       <div class="feel" data-hello-feel>
         <span class="lbl">{HELLO_FEEL}</span>
-        {#each FEELING_GROUPS as g (g.key)}
-          <div class="ab-opts chips" role="group" aria-label={t(g.name)} data-feel-group={g.key}>
-            <span class="gn">{t(g.name)}</span>
-            {#each g.items as f (f.key)}
-              <button type="button" class="ab-opt" class:yd={ydFeelings.includes(f.key)} aria-pressed={feelings.includes(f.key)} onclick={() => { touch(); feelings = toggle(feelings, f.key); }} data-feel={f.key}><span aria-hidden="true">{f.emoji}</span> {f.label}</button>
+        {#each groups as g (g.id)}
+          <div class="ab-opts chips" role="group" aria-label={groupName(g, t)} data-feel-group={g.id}>
+            <span class="gn">{groupName(g, t)}</span>
+            {#each g.list as f (f.key)}
+              <button type="button" class="ab-opt" class:yd={ydFeelings.includes(f.key)} aria-pressed={feelings.includes(f.key)} onclick={() => { touch(); feelings = toggle(feelings, f.key); }} data-feel={f.key}>{#if f.emoji}<span aria-hidden="true">{f.emoji}</span> {/if}{f.label}</button>
             {/each}
           </div>
         {/each}
@@ -123,14 +143,16 @@
     <label class="lbl plan-l" for="hs-plan">{HELLO_PLAN}</label>
     <input id="hs-plan" class="inp" type="text" maxlength="200" bind:this={field} bind:value={text} oninput={touch} placeholder={t('In a few words')} />
     <div class="ab-opts chips" role="group" aria-label={HELLO_PLAN}>
-      {#each PLANS as p (p.key)}<button type="button" class="ab-opt" aria-pressed={plans.includes(p.key)} onclick={() => { touch(); plans = toggle(plans, p.key); }} data-plan={p.key}>{p.label}</button>{/each}
+      {#each plansOffered as p (p.key)}<button type="button" class="ab-opt" aria-pressed={plans.includes(p.key)} onclick={() => { touch(); plans = toggle(plans, p.key); }} data-plan={p.key}>{p.label}</button>{/each}
       <!-- HG1 (selbst entschieden): «+ eigener» puts the cursor into the field, an own plan is written there -->
       <button type="button" class="ab-opt own" onclick={() => field?.focus()}><Plus size={15} aria-hidden="true" />{HELLO_OWN}</button>
     </div>
+    <button type="button" class="more adj" onclick={adjust} data-hello-adjust><Pencil size={14} aria-hidden="true" />{t('Adjust buttons')}</button>
     <div class="vd-foot">
       <small class="where"><Clock3 size={15} aria-hidden="true" />{t('Saved as you tap, in the history of «Your questions»')}</small>
       <button type="button" class="btn hi" onclick={done} data-hello-save data-hello-done>{t('Done|hello')}</button>
     </div>
+    {/if}
   </dialog>
 {/if}
 
@@ -232,6 +254,10 @@
     text-decoration: underline;
     text-underline-offset: 2px;
     cursor: pointer;
+  }
+  .adj {
+    gap: 6px;
+    margin-top: 10px;
   }
   .feel {
     margin: 0 0 12px;
