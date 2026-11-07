@@ -1,5 +1,7 @@
 # Decision Log
 
+> **Verlauf, gilt nicht mehr als Stand.** Die Entscheide in einfachen Worten, mit Grund und den verworfenen Ideen, stehen in [Verlauf und Entscheide](verlauf-und-entscheide.md). Diese Datei bleibt das genaue Protokoll.
+
 Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten. Ältere Zeilen dokumentieren den damaligen Stand und bleiben erhalten.
 
 ## Aktuelle Geltung (Abgleich 07.10.2026, ergänzt 08.10.2026)

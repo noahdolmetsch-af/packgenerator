@@ -22,6 +22,7 @@
   import NeulandMap from '../lib/neuland/NeulandMap.svelte';
   import Bingo from '../lib/neuland/Bingo.svelte';
   import NeueKm from '../lib/neuland/NeueKm.svelte'; // N4 «Neue Kilometer»
+  import FundList from '../lib/neuland/FundList.svelte'; // N10 «Eine Fundliste»
   import OsmBox from '../lib/neuland/OsmBox.svelte'; // N18 «Neue Sammlungen» from OpenStreetMap
   import { refreshOsmIfDue } from '../lib/neuland/osm.js';
   import ItemSheet from '../lib/neuland/ItemSheet.svelte';
@@ -269,6 +270,8 @@
     {#if nothingYet}
       <p class="nl-hint card"><Info size={18} aria-hidden="true" /><span>{t('Nothing found yet. Upload a ride or give a trip a GPX route: the app then colours in where you were. You can also tick by hand.')} <a href="#/debrief/ride">{t('Upload a ride')}</a></span></p>
     {/if}
+
+    <FundList {result} book={$rawQ?.book} {year} />
 
     <Seg chips full={false} label={t('Collections')} value={cur?.id} onchange={choose} options={on.map((c) => ({ key: c.id, name: name(c), n: `${c.items.filter((i) => c.visited.has(i.id)).length}` }))} />
 

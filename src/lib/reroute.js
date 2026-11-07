@@ -21,6 +21,7 @@ import { snap, pointAt } from './race/race.js';
 import { distKm } from './route.js';
 import { gpxString } from './gpxout.js';
 import { surfaceOf } from './live/belag.js';
+import { nogosParam, nearBadWays, circlesOf } from './live/wegegedaechtnis.js';
 
 export const BROUTER = 'https://brouter.de/brouter';
 export const PROFILES = [
@@ -47,10 +48,10 @@ const fin = (v) => Number.isFinite(Number(v));
 const P = (p) => ({ lat: Number(p.lat), lon: Number(p.lon) });
 
 /** The router address for [{ lat, lon }] (start, places on the way, end). */
-export function brouterUrl(points, profile = PROFILE_STD, alt = 0) {
+export function brouterUrl(points, profile = PROFILE_STD, alt = 0, nogos = []) {
   const lonlats = points.map((p) => `${Number(p.lon).toFixed(5)},${Number(p.lat).toFixed(5)}`).join('|');
   const prof = PROFILES.some((x) => x.key === profile) ? profile : PROFILE_STD;
-  return `${BROUTER}?lonlats=${lonlats}&profile=${prof}&alternativeidx=${Math.max(0, Math.min(3, Math.round(Number(alt)) || 0))}&format=geojson`;
+  return `${BROUTER}?lonlats=${lonlats}&profile=${prof}&alternativeidx=${Math.max(0, Math.min(3, Math.round(Number(alt)) || 0))}${nogos.length ? `&nogos=${nogosParam(nogos)}` : ''}&format=geojson`;
 }
 
 /** BRouter GeoJSON → { line: [[lat, lon, ele]], km, gainM, min, surface } or null (surface: belag.js, null without the table). */
@@ -148,7 +149,7 @@ export const longestLegKm = (way = []) => way.slice(1).reduce((m, p, i) => Math.
 async function askBRouter(way, profile, fetcher, alt, opts) {
   const { timeoutMs = ROUTER_TUNING.timeoutMs, retryMs = ROUTER_TUNING.retryMs, now = Date.now(), online = globalThis.navigator?.onLine } = opts;
   if (longestLegKm(way) > ROUTER_TOO_FAR_KM) throw new Error('toofar');
-  const url = brouterUrl(way, profile, alt);
+  const url = brouterUrl(way, profile, alt, opts.nogos ?? []);
   const kept = cache.get(url);
   if (kept && now - kept.at < ROUTER_CACHE_MS) return copyOf(kept.r);
   if (online === false) throw new Error('offline');
@@ -317,7 +318,7 @@ export async function askRouter(way, profile = PROFILE_STD, fetcher = fetch, alt
     const r = await askReserve(way, profile, fetcher, opts.reserveTimeoutMs ? { timeoutMs: opts.reserveTimeoutMs } : undefined);
     if (!r) throw e;
     // kept like any answer: the same question during the outage is answered from memory
-    cache.set(brouterUrl(way, profile, alt), { at: opts.now ?? Date.now(), r: { ...r, line: r.line.map((p) => [...p]) } });
+    cache.set(brouterUrl(way, profile, alt, opts.nogos ?? []), { at: opts.now ?? Date.now(), r: { ...r, line: r.line.map((p) => [...p]) } });
     return r;
   }
 }
@@ -341,13 +342,25 @@ export function routerMsg(e, { round = false, noroute = null, online = globalThi
  * (optional). → the detour { line, km, gainM, min, target, rejoin, fromKm, extraKm, profile, at }.
  * Throws 'busy' (too many requests), 'noroute' (no way found) or 'failed'.
  */
-export async function planDetour({ here, target, pts = [], fromKm = null, profile = PROFILE_STD, oneWay = false, fetcher = fetch, now = Date.now(), alt = 0 }) {
+export async function planDetour({ here, target, pts = [], fromKm = null, profile = PROFILE_STD, oneWay = false, fetcher = fetch, now = Date.now(), alt = 0, avoid = [] }) {
   if (!here || !target) throw new Error('failed');
   const hasRoute = pts.length > 1 && fin(fromKm);
   // «Nur hin» (Noah 27.10.2026 «2a»): only the way there; at the place the app asks how you go back
   const rejoin = hasRoute && !oneWay ? rejoinOf(pts, target, fromKm) : null;
   const way = [P(here), P(target), ...(rejoin ? [rejoin] : [])];
-  const r = await askRouter(way, profile, fetcher, alt);
+  // «Wege-Gedächtnis»: stretches marked as bad are kept out of the way; when that leaves no way, the router is asked again without them
+  const near = avoid.length ? nearBadWays(avoid, way) : [];
+  const nogos = circlesOf(near);
+  let r;
+  let avoided = near.length;
+  try {
+    r = await askRouter(way, profile, fetcher, alt, nogos.length ? { nogos } : {});
+  } catch (e) {
+    if (!nogos.length || e?.message !== 'noroute') throw e;
+    r = await askRouter(way, profile, fetcher, alt);
+    avoided = 0;
+  }
+  if (r.via) avoided = 0; // the reserve routers do not know the circles
   const along = rejoin ? Math.max(0, rejoin.km - fromKm) : 0;
   return {
     ...r,
@@ -358,6 +371,7 @@ export async function planDetour({ here, target, pts = [], fromKm = null, profil
     ...(oneWay && hasRoute ? { oneWay: true } : {}),
     profile,
     at: now,
+    ...(avoided ? { avoided } : {}),
   };
 }
 

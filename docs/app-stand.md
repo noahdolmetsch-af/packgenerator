@@ -83,7 +83,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Unterwegs-Übersicht | `#/ride` | Nächste Etappe, Wetter, Verpflegung, Material und Tagesablauf ansehen; Basischeck und Abendvorbereitung erledigen. |
-| Live-Karte | `#/live` | Position und Route verfolgen, Abbiegehinweise und Datenseiten nutzen sowie Pausen, Runden und Umwege bearbeiten. Mit der Option «Gewitter- und Starkregen-Warnung» sagt die Karte, wenn in den nächsten 2 Stunden ein Gewitter oder Starkregen kommt, und nennt das nächste Dach mit «Dorthin planen». |
+| Live-Karte | `#/live` | Position und Route verfolgen, Abbiegehinweise und Datenseiten nutzen sowie Pausen, Runden und Umwege bearbeiten. Mit der Option «Gewitter- und Starkregen-Warnung» sagt die Karte, wenn in den nächsten 2 Stunden ein Gewitter oder Starkregen kommt, und nennt das nächste Dach mit «Dorthin planen». Nach der Fahrt lassen sich Stücke mit Daumen hoch oder runter markieren («Gemerkte Wege» in den Optionen, umbenennen, ändern, löschen); schlechte Stücke meidet «Neu planen zu …», gute zeigt die Karte als Zeichen. |
 | Sensoren und Fahrdaten | `#/live` | Unterstützte Bluetooth-Sensoren anbinden und Fahrwerte anzeigen. Die Verfügbarkeit hängt vom Browser und Gerät ab. |
 | Strecke aufzeichnen | `#/ride` | † Die eigene Strecke aufzeichnen. Laut Handbuch geht das nur bei eingeschaltetem Bildschirm beziehungsweise geöffneter App. |
 | Gruppenfahrt | `#/live` | Mitfahrende über einen Browserlink einladen und freigegebene Positionen auf einer Karte sehen; Treffpunkte, Bereitschaft und gemeinsame Ausrüstung koordinieren. |
@@ -149,7 +149,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Form und Erholung | `#/flow/form` | Belastung, Form und Bereitschaft anhand vorhandener Aktivitäten, Körperdaten und Tageschecks betrachten. |
 | Wochenrückblick | `#/flow/review` | Sportumfang, Körperdaten, Zonen, Velokilometer und Höhenpunkte vergleichen; eigene Notiz und nächstes Ziel ergänzen. |
 | Meilensteine | `#/flow/milestones` | Fortschritte, Herausforderungen, Sterne und erreichte Bestwerte sammeln. |
-| Gipfelbuch | `#/flow/gipfelbuch` | Erreichte Pässe, Gipfel und weitere Sportorte festhalten. |
+| Gipfelbuch | `#/flow/gipfelbuch` | Erreichte Pässe, Gipfel und weitere Sportorte festhalten. Ein Besuch an einem Ort mit Koordinaten zählt auch in Neuland und in der «Fundliste». |
 | Meditation | `#/flow/act/meditation` | Sitzungen mit Timer, Klängen und Vorlagen starten; auch Yogastunden und Studiolinks organisieren. |
 | Meditationsprotokoll | `#/flow/act/meditation/log` | Sitzungen, Regelmässigkeit, Tageszeiten und Notizen ansehen. |
 | Tennis | `#/flow/sport/act%3Atennis` | Spiele und erteilte Lektionen dokumentieren, geplante Termine und Platzbuchungslinks verwalten. |
@@ -181,7 +181,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
-| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. Steht im Ort Auswerten; Touren › Rückblick führt hin. «Aussichtstürme», «Hängebrücken» und «Wasserfälle» sind drei Sammlungen aus OpenStreetMap: die App lädt die Orte einmal pro Woche von selbst (oder auf Tipp «Neu laden»), speichert sie nur auf dem Gerät und hakt sie auf Fahrten ab. |
+| Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. Steht im Ort Auswerten; Touren › Rückblick führt hin. «Aussichtstürme», «Hängebrücken» und «Wasserfälle» sind drei Sammlungen aus OpenStreetMap: die App lädt die Orte einmal pro Woche von selbst (oder auf Tipp «Neu laden»), speichert sie nur auf dem Gerät und hakt sie auf Fahrten ab. Oben steht die «Fundliste»: alles, was du zum ersten Mal erreicht hast (dieses Jahr oder alle Jahre) in einer Liste, aus Neuland, dem Gipfelbuch und deinen eigenen Einträgen; dieselbe Liste ist das «Neuland des Jahres» im Jahresheft und unter Ich › Was mir gut tut. Ein Ort im Gipfelbuch mit Koordinaten hakt Neuland mit ab und steht nur einmal in der Liste. |
 | Traumtouren | `#/trips/dreams` | Wunschabenteuer nach Saison sammeln, auf der Karte vergleichen und in konkrete Touren verwandeln; passende Wetterfenster und neue Ziele in der Nähe finden. «Ein Abenteuer im Monat» schlägt einmal im Monat ein kleines Abenteuer vor (Feierabend-Biwak, Zug hin und Velo heim, Runde durch Neuland oder eine eigene Idee, die Arten wechseln sich ab); eine ruhige Zeile auf Heute nennt es, «Diesen Monat nicht» schliesst sie, Arten lassen sich ausblenden, ergänzen und löschen. |
 | Tourenvorschläge | `#/trips/vorschlaege` | Mountainbike-Touren aus dem offiziellen SchweizMobil-Netz (Pilot: fünf Touren in Zürich und Graubünden) mit Filtern für Region, Schwierigkeit und Zeit, «Warum dieser Vorschlag?», Höhenprofil mit Untergrund, Merken als Traum, GPX und «Nicht für mich». |
 | Inspiration | `#/inspiration` | Links zu Routen, Videos, Ausrüstung und Rennen sammeln und daraus Ideen oder Packregeln ableiten. |
@@ -282,7 +282,7 @@ Strava (nur lesen), Fitbit/Gesundheit, Google (Termine, Aufgaben, Mail), Spieler
 
 ## 6. Regeln, Pläne, offene Baustellen: nur Verweise
 
-Aufbau, Wege durch die App, Zusammenhänge, Daten, Regeln und Designregeln in einfachen Worten, mit Wörterbuch: `docs/aufbau.md`. Regeln: `CLAUDE.md` (gelten über allem). Pläne und Ziele: `docs/vorhaben.md`, `docs/roadmap.md`. Entscheide: `docs/decisions.md`. Offene PRs und Prüfungen: GitHub. Verlauf: `docs/projektstand.md`, `docs/status.md`, `docs/releases/`. Hier steht keine Kopie davon, damit nichts doppelt veraltet.
+Aufbau, Wege durch die App, Zusammenhänge, Daten, Regeln und Designregeln in einfachen Worten, mit Wörterbuch: `docs/aufbau.md`. Regeln: `CLAUDE.md` (gelten über allem). Pläne und Ziele: `docs/vorhaben.md`, `docs/roadmap.md`. Entscheide: `docs/decisions.md`. Offene PRs und Prüfungen: GitHub. Aktueller Stand und Plan: `docs/stand-und-plan.md`. Technik: `docs/technik-handbuch.md`. Verlauf und Entscheide mit Grund: `docs/verlauf-und-entscheide.md`. Was Noah wissen und tun muss: `docs/noah-wissen.md`. Älterer Verlauf: `docs/projektstand.md`, `docs/status.md`, `docs/releases/`. Hier steht keine Kopie davon, damit nichts doppelt veraltet.
 
 ## 7. Offene Abweichungen beim Abgleich
 

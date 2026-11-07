@@ -67,4 +67,6 @@ export default {
   'A tower, a bridge or a waterfall in the next valley is a good reason for a detour. Check the weather and whether the way is open before you go; after heavy rain a waterfall is at its best.': 'Ein Turm, eine Brücke oder ein Wasserfall im nächsten Tal ist ein guter Grund für einen Umweg. Prüfe vor der Abfahrt das Wetter und ob der Weg offen ist; nach starkem Regen ist ein Wasserfall am schönsten.',
   'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.':
     'Neue Kilometer liegen selten weit weg: das Nachbartal ist oft unbekannter als ein Land am anderen Ende Europas.',
+  "A list of finds is a small diary of curiosity: a look at it before a free day shows where you have not been for a long time.":
+    "Eine Fundliste ist ein kleines Tagebuch der Neugier: ein Blick darauf vor einem freien Tag zeigt, wo du lange nicht warst.",
 };

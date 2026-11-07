@@ -1295,6 +1295,11 @@ const LISTED = {
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
   },
+  'f.findlist': {
+    on: 'Nothing to set up: it reads what Neuland, the summit book and Ich › Was mir gut tut already hold.',
+    steps: ['Open Trips › Look back › New ground: the card «List of finds» is at the top.', 'Switch between «This year» and «All years»; «Show more» opens the whole list.', 'Add your own find under Ich › Was mir gut tut › «Add Neuland»; it shows in the list too.'],
+    example: 'Example: a pass ticked in the summit book is ticked in New ground too and appears once in the list.',
+  },
   'f.osmsets': {
     on: 'Needs the internet now and then to load the places (once a week by itself); then it works offline.',
     steps: ['Open Trips › Look back › New ground.', 'Choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load again» to bring the places up to date; the list shows what you reached.'],
