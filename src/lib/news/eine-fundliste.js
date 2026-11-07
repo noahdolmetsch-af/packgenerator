@@ -3,10 +3,10 @@ export default {
   title: 'One find list',
   lead: 'New ground, the summit book and «Neuland of the year» now read from one list, so nothing is ticked twice.',
   points: [
-    { text: 'A summit or pass in the summit book ticks it in New ground: «from your summit book»', href: '#/neuland' },
-    { text: '«Neuland» of the year shows what New ground and the summit book found first this year, each once', href: '#/me/wohl' },
+    { text: 'A summit or pass in the summit book ticks it in New ground: «from your summit book»', go: 'f.findlist' },
+    { text: '«Neuland» of the year shows what New ground and the summit book found first this year, each once', go: 'f.findlist' },
   ],
-  small: [{ box: 'new', text: 'Your own entries stay first; the same name never shows twice' }],
+  small: [{ box: 'new', text: 'Your own entries stay first; the same name never shows twice', go: 'f.findlist' }],
   test: [
     'Enter a summit with a place in the summit book; open New ground › Peaks: it is ticked «from your summit book».',
     'Open Me › What is good for me: under «Neuland» it shows once.',

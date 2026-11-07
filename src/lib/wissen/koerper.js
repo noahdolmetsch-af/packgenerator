@@ -46,4 +46,5 @@ export default {
   'f.tworoles': 'A ride to work can be training too. Give it both roles and count it once in the total.',
   'f.scalemeaning': 'Write what a 1 and a 10 mean in your own words; in a year your old 7 still says the same.',
   'f.bodytalk': 'Bring your questions, not your conclusions: the page is for the talk, the app makes no diagnosis.',
+  'f.findlist': 'Write the date next to a find: later you know which year a summit first counted, and nothing is counted twice.',
 };

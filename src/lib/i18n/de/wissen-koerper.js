@@ -86,4 +86,5 @@ export default {
     'Schreib in eigenen Worten, was 1 und 10 bedeuten; in einem Jahr sagt deine alte 7 noch dasselbe.',
   'Bring your questions, not your conclusions: the page is for the talk, the app makes no diagnosis.':
     'Bring deine Fragen mit, nicht deine Schlüsse: die Seite ist fürs Gespräch, die App stellt keine Diagnose.',
+  'Write the date next to a find: later you know which year a summit first counted, and nothing is counted twice.': 'Schreib das Datum zu einem Fund: später weisst du, in welchem Jahr ein Gipfel zum ersten Mal zählte, und nichts wird doppelt gezählt.',
 };

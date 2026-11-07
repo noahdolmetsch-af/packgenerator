@@ -1,6 +1,6 @@
 // «Eine Fundliste» (Träume und Neuland N10): a summit in the Gipfelbuch ticks the peak in New ground, and
 // «Neuland» of the year in «Was mir gut tut» shows it once, next to an own entry. Fictional data only.
-import { test, expect } from '@playwright/test';
+import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
