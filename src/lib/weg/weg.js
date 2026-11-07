@@ -211,5 +211,5 @@ export function todayStep(w, today) {
 
 /** The steps of a goal as templates for a new one: offsets kept, ticks and own days dropped. */
 export function templateOf(goal) {
-  return goal.steps.map((s) => ({ type: s.type, title: s.title, offset: s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null), note: s.note, own: s.own }));
+  return goal.steps.map((s) => ({ type: s.type, key: s.key, title: s.title, offset: s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null), note: s.note, own: s.own }));
 }
