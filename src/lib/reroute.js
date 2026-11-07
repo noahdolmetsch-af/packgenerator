@@ -7,7 +7,8 @@
  *
  * Router: BRouter (brouter.de, the public server of the open-source bike router; free, no account, no
  * key, fair use: one request per tap; off the route the app asks by itself at most once a minute). Profiles «trekking» (quiet roads and
- * good paths) and «fastbike» (road bike, short and paved). askRouter is the one door to the router
+ * good paths), «fastbike» (road bike, short and paved), «gravel» and «mtb» («Wie fährst du?», Noah 05.11.2026 «3a»: the
+ * window suggests one from the kind of your bike, live/wiefaehrst.js). askRouter is the one door to the router
  * (Sicherheitsnetz, Noah 05.11.2026): a time limit, one more try after a quick failure, a short memory of
  * answers, a stop for ways that are too far, and clear words for every failure (routerMsg). When it does not
  * answer, the app says so and offers the navigation apps instead. The answer stays on this device
@@ -24,6 +25,8 @@ export const BROUTER = 'https://brouter.de/brouter';
 export const PROFILES = [
   { key: 'trekking', name: 'Quiet roads and good paths' },
   { key: 'fastbike', name: 'Short and paved (road bike)' },
+  { key: 'gravel', name: 'Gravel and field paths' },
+  { key: 'mtb', name: 'Trails (mountain bike)' },
 ];
 export const PROFILE_STD = 'trekking';
 /** Back onto the route this far after the place (km), so you do not ride the same way back and forth. */

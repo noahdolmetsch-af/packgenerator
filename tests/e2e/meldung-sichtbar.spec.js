@@ -18,6 +18,16 @@ const writeMessage = (page, text) =>
 async function longPageDown(page, T) {
   await page.goto('./#/me/news');
   await page.locator('main h1').first().waitFor();
+  // The news page folds every version but the newest, so its length changes with the news and was once just under
+  // three screens. The test is about scrolling, not about this page: a spacer at the foot makes the page long for sure.
+  await page.evaluate(() => {
+    const room = 3.5 * innerHeight - document.documentElement.scrollHeight;
+    if (room <= 0) return;
+    const pad = document.createElement('div');
+    pad.setAttribute('aria-hidden', 'true');
+    pad.style.height = `${Math.ceil(room)}px`;
+    document.querySelector('main').append(pad);
+  });
   const long = await page.evaluate(() => document.documentElement.scrollHeight > 3 * innerHeight);
   expect(long, 'the page must be long for this test').toBe(true);
   await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));

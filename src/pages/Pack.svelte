@@ -88,6 +88,7 @@
   import EndTripSheet from '../lib/trip/EndTripSheet.svelte';
   import ChargeSheet from '../lib/trip/ChargeSheet.svelte';
   import ChargeList from '../lib/trip/ChargeList.svelte';
+  import { ampelShows, ampelRows } from '../lib/trip/ampel.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, homeOf } from '../lib/dayride.js';
@@ -289,6 +290,18 @@
     return colder || wetter ? { fc: fcWx, have } : null;
   });
   const wxd = $derived(wxGap && trip ? wxDiff(wxGap, allSets($setsQ?.value), items, trip.entries, offset + chill) : null);
+  // «Tour-Ampel» (Noah 05.11.2026, Touren 3a): packed, weather, bike, devices; a tap leads to what fixes it
+  const ampel = $derived.by(() => {
+    if (!ampelShows(trip, stats, today)) return [];
+    const c = before?.care ?? before?.shortCare ?? null;
+    const care = before ? { due: c?.status === 'due' ? c.rows.length : 0, late: !!c?.late, nodata: before.care?.status === 'nodata' && !before.prep.total, open: before.open.length } : null;
+    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null });
+  });
+  function ampelAct(act) {
+    if (act === 'pack' || act === 'weather') location.hash = '#/pack?day';
+    else if (act === 'bike') openBefore();
+    else if (act === 'power') chargeOpen = true;
+  }
   function useForecast() {
     changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) }, wxFrom: 'forecast' }));
     location.hash = '#/pack';
@@ -1096,7 +1109,7 @@
   {#if packTab}
     <PackDay top={fixed ? null : blocksCard} onread={!fixed && trip.entries.some((e) => !e.packed) ? () => (reading = true) : null} {trip} {fixed} bike={bikeTrip} pressure={pressureText(targetPressure(bike), num)} wxGap={bikeTrip && !fixed ? wxGap : null} wxd={bikeTrip && !fixed ? wxd : null} onwx={() => { useForecast(); review = true; }} steps={daySteps} {itemsById} {badges} {ready} onmove={moveTo} spare={spareSteps} ontoggle={toggleIn} onready={toggleReady} onpack={packIn} onreadyall={tickAllReady} onnext={finishPacking} onend={endTrip} main={mainStep(trip, today, 'pack', phaseOpts)} onundo={undoLast} {canUndo} lessons={learningsFor(trip, $learnQ ?? [], 2)} {reminders} oncharge={charge.length ? () => (chargeOpen = true) : null} {stats} charge={charge.length ? { ...charged, names: charge.map((r) => r.name) } : null} />
   {:else}
-  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} bind:q bind:zoneKey bind:review
+  <CalmPack {trip} {stats} {carry} {bike} {bikeTrip} domainLabel={t(domainName(domain))} {items} {itemsById} {trips} {candidates} {targets} {templates} hasPhoto={!!shot} photo={shot?.src ?? null} {openLayers} {canUndo} {changeNote} ctxChanged={!!ctxDiff} {ctxRows} {reasons} {notice} edit={locked ? null : factEdit} {fixed} {readyCount} {readyTotal} {over} {phaseOpts} made={!!(dayMade && dayMade.id === trip.id)} swapMemory={$swapQ?.value ?? {}} onroute={changeContext} onstages={(fn) => change(fn)} onlist={(fn) => change(fn)} prep={before} onprep={before ? openBefore : null} lessons={learningsFor(trip, $learnQ ?? [], 3)} {reminders} power={charge.length > 0 && !over} {ampel} onampel={ampelAct} bind:q bind:zoneKey bind:review
     actions={{
       // v0.25.0 (M3): an amount set by hand stays when the trip's context changes (qtyManual).
       // v0.26.1 (Noah 18b): a packed item stays packed when its amount changes (setQty).
