@@ -121,4 +121,6 @@ export default {
   'Month': 'Monat',
   'Point at a month for its km, tap it for the month.': 'Zeig auf einen Monat für die km, tippe ihn an für den Monat.',
   'No ride or trip in this month.': 'In diesem Monat keine Fahrt und keine Tour.',
+  'Share of the last 12 months': 'Anteil der letzten 12 Monate',
+  'Monthly mean {n} km': 'Monatsmittel {n} km',
 };

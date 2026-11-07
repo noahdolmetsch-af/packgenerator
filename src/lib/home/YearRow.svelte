@@ -38,19 +38,26 @@
   const read = (i) => ({ title: monthName(months[i].month), items: [{ label: 'km', value: num(months[i].km), color: months[i].month === nowMonth ? 'var(--hi)' : 'var(--bar)' }] });
   const table = $derived({ head: [t('Month'), 'km'], rows: months.map((m) => ({ key: m.month, cells: [monthName(m.month), num(m.km)] })) });
   let sel = $state(null);
+  // the tap window: the share of the 12 months and the distance to the monthly mean, so a month is not just a number
+  const total = $derived(months.reduce((a, m) => a + m.km, 0));
+  const mean = $derived(months.length ? Math.round(total / months.length) : 0);
+  const share = (km) => (total ? Math.round((km / total) * 100) : 0);
+  const signed = (n) => (n > 0 ? `+${num(n)}` : n < 0 ? `−${num(Math.abs(n))}` : '0');
 </script>
 
 {#if review && !review.empty}
   <section class="year" aria-labelledby="yr-h" data-year-row>
     <div class="nums card2">
       <h2 id="yr-h" class="sr">{t('Last 12 months')}</h2>
+      <div class="head">
       <dl>
         <div><dt>{tn(review.ride.trips, 'trip|count', 'trips|count')}</dt><dd class="num">{num(review.ride.trips)}</dd></div>
         <div><dt>km</dt><dd class="num">{num(review.ride.km)}</dd></div>
         {#if base}<div><dt>{t('base weight')}</dt><dd class="num" class:down={base < 0}>{base < 0 ? '−' : '+'}{formatWeight(Math.abs(base))}</dd></div>{/if}
       </dl>
       <a class="lnk" href="#/debrief">{t('Look back|function')} ›</a>
-      <div class="chart"><BarChart id="year" {cols} readout={read} {table} unit="km" height={110} label={t('km per month, last 12 months')} onopen={(i) => (sel = i)} hint={t('Point at a month for its km, tap it for the month.')} /></div>
+      </div>
+      <div class="chart"><BarChart id="year" {cols} readout={read} {table} unit="km" height={90} label={t('km per month, last 12 months')} onopen={(i) => (sel = i)} /></div>
     </div>
     {#if streak != null}<div class="streak" data-year-series={streak}>
       <span class="k">{t('Series')}</span>
@@ -70,6 +77,8 @@
   <ChartSheet kicker={t('Last 12 months')} title={monthName(m.month)} onclose={() => (sel = null)} onprev={sel > 0 ? () => sel-- : null} onnext={sel < months.length - 1 ? () => sel++ : null} prevLabel={t('Month before')} nextLabel={t('Next month')}>
     <ul class="shl" data-year-sheet>
       <li><span>km</span><b class="num">{num(m.km)}</b></li>
+      <li data-year-share><span>{t('Share of the last 12 months')}</span><b class="num">{share(m.km)} %</b></li>
+      <li data-year-mean><span>{t('Monthly mean {n} km', { n: num(mean) })}</span><b class="num">{signed(m.km - mean)} km</b></li>
     </ul>
     {#if !m.km}<p class="k">{t('No ride or trip in this month.')}</p>{/if}
     <a class="lnk" href="#/debrief">{t('Look back|function')} ›</a>
@@ -92,6 +101,17 @@
   }
   .shl span {
     color: var(--ink-2);
+  }
+  .shl b {
+    white-space: nowrap;
+  }
+  .head {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
   }
   .chart {
     grid-column: 1 / -1;
@@ -121,7 +141,7 @@
   }
   @media (min-width: 720px) {
     .card2 {
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
   dl {

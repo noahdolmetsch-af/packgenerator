@@ -5,8 +5,10 @@ PR 10 · 07.11.2026 · Auftrag: Noah «ja» (Thread «Diagramme klickbar machen�
 ## Was ist neu
 - Die Reihe «Letzte 12 Monate» auf Heute (`YearRow`) nutzt jetzt `BarChart`: Achse in km mit runden Stufen, genaue Zahlen beim Zeigen oder mit den Pfeiltasten, Tippen öffnet ein Fenster mit dem Monat (mit Weg zum Rückblick), «Als Tabelle».
 
+- Das Tipp-Fenster zeigt auch den Anteil an den 12 Monaten und den Abstand zum Monatsmittel (Noah «1-4 a», 07.11.2026 nach der Bilderrunde).
+
 ## Was fällt weg oder rutscht tiefer
-- Die kleinen Balken stehen nicht mehr in der Mitte der Zeile, sondern als Diagramm unter den Zahlen (Touren, km, Basisgewicht) und dem Link «Rückblick ›». Sonst nichts.
+- Die kleinen Balken stehen nicht mehr in der Mitte der Zeile, sondern als Diagramm unter den Zahlen (Touren, km, Basisgewicht) und dem Link «Rückblick ›». Der Hilfetext unter dem Diagramm fällt weg (er steht im Zeigen-Hinweis und im Fenster), das Diagramm ist niedriger (90 px). Sonst nichts.
 
 ## Selbst entschieden
 - Nur diese Kachel, ein Schritt pro PR. «Balance» (Ring, Mini-Linie des Ruhepulses) und «Routine» (Fortschrittsring) sind keine Balkendiagramme, sie bleiben in `OPEN` in `src/lib/charts/rules.js`.

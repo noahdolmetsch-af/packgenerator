@@ -82,6 +82,8 @@ test('Today: the row of the last 12 months opens the review', async ({ page, con
   // «Diagramme zum Antippen»: pointing shows the km of a month, a tap opens the month, the table lists all 12
   await row.locator('[data-chart="year"] [data-plot]').click({ position: { x: 10, y: 20 } });
   await expect(page.locator('[data-year-sheet]')).toContainText('km');
+  await expect(page.locator('[data-year-share]')).toContainText('%');
+  await expect(page.locator('[data-year-mean]')).toContainText('Monatsmittel');
   await page.keyboard.press('Escape');
   await row.getByRole('button', { name: 'Als Tabelle' }).click();
   await expect(row.locator('table tbody tr')).toHaveCount(12);
