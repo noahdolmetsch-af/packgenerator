@@ -14,7 +14,7 @@ PR (diese Änderung) · 28.10.2026 · Auftrag: Noah, Vorschlag «Schlafplatz fin
 
 ## Selbst entschieden
 - Die Suche läuft nur auf Tipp, nie im Hintergrund (freie Server, wie «Stopps in der Nähe»).
-- Ein Hinweis «Regeln je Kanton» steht nur als kleine Zeile im Fenster (Noah «kein Hinweis» heisst: kein eigener Warnhinweis auf der Karte).
+- Kein Hinweistext zu den Regeln der Kantone (Noah «kein Hinweis»); im Fenster steht nur «Nur Tipps».
 - Eigene Plätze zeigen sich auch auf der Karte, weil sie in der bestehenden Liste der eigenen Punkte liegen.
 
 ## Entscheide (für decisions.md)
