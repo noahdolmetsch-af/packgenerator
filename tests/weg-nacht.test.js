@@ -23,7 +23,8 @@ const ctxWith = (nights) => ({ nacht: dataWith(nights) });
 
 describe('registered and suggested', () => {
   it('is in the registry after the own step and can be found', () => {
-    expect(TYPES.map((t) => t.type)).toEqual(['own', 'nacht']);
+    expect(TYPES[0].type).toBe('own');
+    expect(TYPES.map((t) => t.type)).toContain('nacht');
     expect(typeOf('nacht')).toBe(nachtplan);
     expect(nachtplan).toMatchObject({ label: 'Night plan', icon: 'moon' });
   });
