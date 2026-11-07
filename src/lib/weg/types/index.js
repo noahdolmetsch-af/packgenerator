@@ -5,8 +5,9 @@
 import own from './own.js';
 import rennplanung from './rennplanung.js';
 import packen from './packen.js';
+import tracker from './tracker.js';
 
-export const TYPES = [own, rennplanung, packen];
+export const TYPES = [own, rennplanung, packen, tracker];
 
 export const typeOf = (id) => TYPES.find((t) => t.type === id) ?? own;
 
