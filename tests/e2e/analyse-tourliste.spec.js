@@ -20,7 +20,7 @@ function rows() {
   return { healthDays, trips };
 }
 
-test('Cardio load: the trips of the range are listed under the course with their mean', async ({ page, context }) => {
+test('Cardio load: the trips of the range are listed under the course with their mean', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -42,6 +42,7 @@ test('Cardio load: the trips of the range are listed under the course with their
   // newest first, each with a mean ("Ø …")
   await expect(list.locator('[data-trip-row]').first()).toContainText('Alpenrunde Nord');
   await expect(list.locator('[data-trip-row]').first()).toContainText('Ø');
+  if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/analyse-tourliste-${info.project.name}.png`, fullPage: true });
   // a finished trip opens its page
   await list.locator('a[data-trip-row]').first().click();
   await expect(page).toHaveURL(/#\/tour\/t%3Ae2e-tl-0$/);
