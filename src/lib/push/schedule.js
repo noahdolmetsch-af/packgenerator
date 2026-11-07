@@ -43,6 +43,9 @@ export const FOG_MONTHS = [10, 11, 12, 1, 2];
 export const FOG_AT = '07:00';
 export const FOG_NEAR_KM = 60;
 export const FOG_SPOTS = 8;
+/** «Nachttemperatur am Abend» (Noah 06.11.2026 «5a», «push ja»): the next 7 evenings at 19:00, all year, for the home place; off until switched on. */
+export const NIGHT_DAYS = 7;
+export const NIGHT_AT = '19:00';
 export const DAY_AT = '08:00';
 export const BACKUP_AT = '19:00';
 export const EVE_STD = 19 * 60;
@@ -88,6 +91,8 @@ export const KINDS = [
   { key: 'note', label: 'Note reminders', hint: 'At the time you set in a note.' },
   // «Nebelgrenze am Morgen» sits last: the switches above keep their place on the page (heimat.spec measures how far down they are)
   { key: 'fog', label: 'Fog line in the morning', hint: 'From October to February at 07:00: how high the low fog reaches and where the sun is, or «no fog». Needs your home place.' },
+  // «Nachttemperatur am Abend» sits after it for the same reason
+  { key: 'night', label: 'Night temperature in the evening', hint: 'Every evening at 19:00: how low it gets tonight, with a word on frost or a change against last night. Needs your home place.' },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
@@ -246,6 +251,15 @@ export function buildList(data) {
       }
     }
   }
+  if (on('night')) {
+    const home = data.settings?.homePlace;
+    if (home && Number.isFinite(home.lat) && Number.isFinite(home.lon))
+      for (let d = 0; d < NIGHT_DAYS; d++) {
+        const day = addDays(today, d);
+        const at = atMs(day, NIGHT_AT);
+        if (at > ms) weather.push({ key: `night:${day}`, at, date: day, lat: home.lat, lon: home.lon, title: t('Night temperature'), url: '#/wetter', only: ['night'] });
+      }
+  }
   const watch = [];
   if (on('wxwatch')) {
     const home = data.settings?.homePlace;
@@ -380,6 +394,12 @@ export function buildList(data) {
     fogcloud: on('fog') ? t('Low fog up to about {top} m, clouds above.', { top: '{top}' }) : '',
     fogclear: on('fog') ? t('Today no low fog: time to shine.') : '',
     fogspot: on('fog') ? t('Ride above the fog: {name} (up to {m} m).', { name: '{name}', m: '{m}' }) : '',
+    // «Nachttemperatur am Abend»: only with the switch on
+    ntitle: t('Night temperature'),
+    night: on('night') ? t('Tonight down to {temp} °C.', { temp: '{temp}' }) : '',
+    nightfrost: on('night') ? t('Frost is possible (under 0 °C).') : '',
+    nightwarm: on('night') ? t('{d}° warmer than last night.', { d: '{d}' }) : '',
+    nightcold: on('night') ? t('{d}° colder than last night.', { d: '{d}' }) : '',
     rtitle: t('Rain on the way'),
     rain: t('Rain in about {min} minutes on {trip}. Keep the rain jacket at hand.', { min: '{min}', trip: '{trip}' }),
     ozone: t('Much ozone today (up to {n} µg/m³): take it easier at midday.', { n: '{n}' }),

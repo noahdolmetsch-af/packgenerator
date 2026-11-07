@@ -41,6 +41,8 @@
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { choices, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
   import Pace from '../lib/debrief/Pace.svelte';
+  import Kurz from '../lib/debrief/Kurz.svelte'; // Touren 3b «Rückblick in 30 Sekunden»
+  import { joyChange } from '../lib/freude.js';
   import Hub from '../lib/review/Hub.svelte';
   import Logbook from '../lib/review/Logbook.svelte';
   import Learned from '../lib/review/Learned.svelte';
@@ -562,6 +564,8 @@
            mockup. Left: what stayed in the bag (chips by bag, «Alle ✓ · Alle –»), what was missing with the
            suggestion for next time and the one sentence. Right: the notes on the way, upload a ride, «Mehr»
            (how it was, all items by bag). Everything the page could do stays; nothing is new. -->
+      <!-- «Rückblick in 30 Sekunden» (Noah 05.11.2026, Touren 3b): three questions with faces; the long form stays below -->
+      <Kurz {d} items={notOnTrip} onfun={(n) => set('joy', joyChange(d, 'fun', n))} onamount={(k) => set('amount', k)} onmissing={(list) => set('missing', list)} ondone={finish} {busy} />
       <div class="rv-lay dbf">
         <div class="rv-col">
           <section class="rv-sec unneeded" aria-labelledby="unneeded-h">

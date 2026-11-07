@@ -163,6 +163,8 @@ const LISTED_HOME = {
   'f.monthideas': '#/trips/dreams',
   'f.biwak': '#/trips/dreams',
   'f.trainthere': '#/trips/dreams',
+  'f.suntip': '#/trips/dreams',
+  'f.dice': '#/trips/dreams',
   'f.newkm': '#/neuland',
   'f.triptips': '#/trips/dreams',
   'f.races': '#/trips/dreams',
