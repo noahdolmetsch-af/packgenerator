@@ -42,3 +42,45 @@ test('Heute: the pins tile shows the suggestions, a tap goes there, the pencil a
   await tile.locator('[data-pins-edit]').click();
   await expect(tile.locator('[data-pin]')).toHaveCount(STARTER.length);
 });
+
+// Ideen-Doc 05.11.2026 «6a»: a page you open often is suggested right in the tile; «Pin» adds it with Undo, «No, thanks» holds it back.
+test('Heute: the pins tile suggests a page you open often; Pin adds it, No thanks hides it', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  // this device opened the calendar on three days in the last two weeks (today is 09.10.2026 in this test)
+  await page.evaluate(
+    () =>
+      new Promise((ok, fail) => {
+        const r = indexedDB.open('pack-generator');
+        r.onerror = fail;
+        r.onsuccess = () => {
+          const key = matchMedia('(pointer: coarse)').matches ? 'quickLinks.used.phone' : 'quickLinks.used.computer';
+          const value = { start: '2026-10-01', recent: [{ href: '#/calendar', title: 'Kalender', at: '2026-10-09' }], days: { '#/calendar': ['2026-10-05', '2026-10-07', '2026-10-09'] }, used: {}, no: {}, keep: {} };
+          const tx = r.result.transaction('settings', 'readwrite');
+          tx.objectStore('settings').put({ key, value });
+          tx.oncomplete = () => ok();
+          tx.onerror = fail;
+        };
+      }),
+  );
+  await page.goto('./#/');
+  const tile = page.locator('[data-pins-tile]');
+  await tile.scrollIntoViewIfNeeded();
+  const tip = tile.locator('[data-pins-suggest="#/calendar"]');
+  await expect(tip).toBeVisible();
+  await expect(tip).toContainText('Kalender');
+
+  // Pin: the page becomes a shortcut and the suggestion is gone; Undo takes it back
+  await tip.getByRole('button', { name: T('Pin|quick') }).click();
+  await expect(tile.locator('[data-pin="#/calendar"]')).toBeVisible();
+  await expect(tip).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect(tile.locator('[data-pin="#/calendar"]')).toHaveCount(0);
+  await expect(tip).toBeVisible();
+
+  // No, thanks: the suggestion stays away (it also stays away after a reload)
+  await tip.getByRole('button', { name: T('No, thanks') }).click();
+  await expect(tip).toHaveCount(0);
+  await page.reload();
+  await tile.scrollIntoViewIfNeeded();
+  await expect(tile.locator('[data-pins-suggest]')).toHaveCount(0);
+});
