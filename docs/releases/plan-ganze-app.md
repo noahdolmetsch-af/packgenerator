@@ -1,6 +1,6 @@
 # Plan-Wächter: der Plan «ganze App» wird geprüft
 
-PR #? · 07.11.2026 · Auftrag: Noah «a» (Thread «Skizzieren: Tour von A bis Z und Datencenter», Frage «Wie stellen wir sicher, dass das umgesetzt wird?»)
+PR #1135 · 07.11.2026 · Auftrag: Noah «a» (Thread «Skizzieren: Tour von A bis Z und Datencenter», Frage «Wie stellen wir sicher, dass das umgesetzt wird?»)
 
 ## Was ist neu
 - `docs/plan-ganze-app.md`: alle Schritte 0 bis 8 des Entwurfs «Die ganze App aus einem Guss» in einer Tabelle (Schritt, Titel, PR, Stand `offen`/`gebaut`/`online`, Weg).
