@@ -31,7 +31,7 @@
   import { db } from '../lib/db.js';
   import { VIEWS_KEY, cleanViews, applyDiagram } from '../lib/analyse/views.js';
   import DaySheet from './analyse/DaySheet.svelte';
-  import { dayOfHash, rangeOfHash, tabOfHash } from '../lib/analyse/jump.js';
+  import { dayOfHash, rangeOfHash, tabOfHash, bikeOfHash } from '../lib/analyse/jump.js';
   import { itemsByKey } from '../lib/analyse/catalog.js';
   import { addDays } from '../lib/analyse.js';
   import { tripEnd } from '../lib/tripstate.js';
@@ -55,6 +55,7 @@
   });
   const detailKey = $derived(keyOf(hash));
   const askedRange = $derived(rangeOfHash(hash));
+  const askedBike = $derived(bikeOfHash(hash)); // «only this bike» in the part Velos (a bike's km on Velos lead here)
   // a link from another page (velosHref: the km of a bike) opens that part
   $effect(() => {
     const x = tabOfHash(hash, TABS);
@@ -238,7 +239,7 @@
   {:else if tab === 'rekorde'}
     <Muster {days} {byKey} acts={data.acts} log={data.log} {today} />
   {:else if tab === 'velos'}
-    <VeloKm {days} {today} />
+    <VeloKm {days} {today} only={askedBike} />
   {:else}
       {#if !on.length}
         <Empty text={t('Switch on at least one source above, then your values show here.')} />
