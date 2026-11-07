@@ -9,8 +9,9 @@ import nacht from './nacht.js';
 import velo from './velo.js';
 import training from './training.js';
 import essen from './essen.js';
+import tracker from './tracker.js';
 
-export const TYPES = [own, rennplanung, packen, nacht, velo, training, essen];
+export const TYPES = [own, rennplanung, packen, nacht, velo, training, essen, tracker];
 
 export const typeOf = (id) => TYPES.find((t) => t.type === id) ?? own;
 
