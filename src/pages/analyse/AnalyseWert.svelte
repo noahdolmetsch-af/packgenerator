@@ -11,6 +11,8 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
+  import { herkunft } from '../../lib/nav/herkunft.svelte.js';
+  import { backOf } from '../../lib/nav/herkunft.js';
   import Empty from '../../lib/ui/Empty.svelte';
   import { analyseData } from '../../lib/analyse/data.svelte.js';
   import { analyseGroups, itemsByKey, detailHref } from '../../lib/analyse/catalog.js';
@@ -88,6 +90,11 @@
   const prevPts = $derived(prevYear && item?.get && !hours ? bucketsOf(yearBefore(win.days), item.get, !!item.sum) : []);
   const bands = $derived(hours ? [] : tripBands(data.trips, win.days, tripEnd).map((b) => ({ ...b, a: Math.floor(b.a / (pts.length < win.days.length ? 7 : 1)), b: Math.floor(b.b / (pts.length < win.days.length ? 7 : 1)) })));
   const bars = $derived(!!item?.sum || !!item?.bars);
+  // «Zurück zu Heute» (UI-Prüfung A2, Noah «4a»): the page you came from, when it is not Auswerten itself
+  const cameFrom = $derived.by(() => {
+    const b = backOf(herkunft.from);
+    return b ? { href: b.href, label: t(b.place) } : null;
+  });
 
   // «Gesundheitssignale» (Noah 03.11.2026): your range of the last 60 days up to the last day shown, and the runs of 3 days or more outside it
   const sig = $derived.by(() => {
@@ -225,7 +232,7 @@
 {:else}
   <div class="wv" style="--c: {color}" data-detail={key}>
     <header>
-      <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} />
+      <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} back={cameFrom} />
       <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
     </header>
 
