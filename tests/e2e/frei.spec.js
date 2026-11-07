@@ -148,6 +148,8 @@ test('a collection as a page: the link opens a read-only page, and a collection 
   await expect(page.locator('[data-tour-open]')).toHaveAttribute('href', /#\/tour\/t%3Afrei-trip/);
   await shot(page, info, 'frei-sammlung-geteilt');
   await page.locator('[data-share-page]').click();
+  // the link is packed first (an async step), so it reaches the clipboard a moment after the tap
+  await expect(page.locator('[role="status"]').filter({ hasText: T('Link copied. Paste it into a message.') })).toBeVisible();
   const link = await page.evaluate(() => navigator.clipboard.readText());
   expect(link).toContain('#/share/sammlung/');
   await page.goto(link);
