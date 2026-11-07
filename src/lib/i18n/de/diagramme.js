@@ -118,4 +118,7 @@ export default {
   'Week {kw}': 'Woche {kw}',
   'Point at a week for its hours, tap it for the zones.': 'Zeig auf eine Woche für die Stunden, tippe sie an für die Zonen.',
   'Hours per week by zone': 'Stunden pro Woche nach Zone',
+  'Month': 'Monat',
+  'Point at a month for its km, tap it for the month.': 'Zeig auf einen Monat für die km, tippe ihn an für den Monat.',
+  'No ride or trip in this month.': 'In diesem Monat keine Fahrt und keine Tour.',
 };
