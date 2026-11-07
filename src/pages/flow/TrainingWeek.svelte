@@ -18,7 +18,7 @@
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
+  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, NEXTKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
@@ -112,6 +112,28 @@
   // «Training verbessern» 8: the look back suggests next week (hours like last week, a little more, easier); a tap opens its suggestion
   let nextPreset = $state(null);
   const lastWeekHours = $derived(weekNumbers(acts, plan, shiftDay(mondayOf(today), -7), zones.bounds).secs / 3600);
+  // from Friday to Sunday, until next week is planned or «Not now» is tapped; it says why and shows the goals per sport
+  const nextMonday = $derived(shiftDay(mondayOf(today), 7));
+  const todayDow = $derived((new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7);
+  const nextKeepQ = liveQuery(async () => (await db.settings.get(NEXTKEEP_KEY))?.value ?? null);
+  const nextPlanned = $derived(plan.some((s) => s.day >= nextMonday && s.day < shiftDay(nextMonday, 7)));
+  const showNext = $derived(monday === mondayOf(today) && todayDow >= 4 && !nextPlanned && $nextKeepQ?.monday !== mondayOf(today));
+  const lastPlanned = $derived(plan.filter((s) => s.day >= shiftDay(mondayOf(today), -7) && s.day < mondayOf(today)));
+  const lastMissed = $derived(lastPlanned.filter((s) => !doneOf(s, acts.filter((a) => a.day === s.day))));
+  const nextReason = $derived(
+    lastMissed.length
+      ? tn(lastMissed.length, '1 planned session did not happen last week.', '{n} planned sessions did not happen last week.')
+      : lastPlanned.length
+        ? t('All planned sessions of last week were done.')
+        : t('Nothing was planned last week: the hours you trained count.'),
+  );
+  const nextGoals = $derived(
+    Object.entries(sportGoals)
+      .filter(([, n]) => n > 0)
+      .map(([id, n]) => ({ id, n, name: sportName(sportById(id)) }))
+      .filter((g) => g.name),
+  );
+  const laterNext = () => db.settings.put({ key: NEXTKEEP_KEY, value: { monday: mondayOf(today) } });
   function pickNext(h) {
     monday = shiftDay(mondayOf(today), 7);
     nextPreset = { hours: h, n: Date.now() };
@@ -380,7 +402,7 @@
         <BarChart id="lookback" cols={wCols} line={wLine} lineColor="var(--ink)" readout={wRead} table={wTable} unit="h" label={t('Hours per week, last six weeks')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its hours, tap it for the zones.')} />
         <ZoneBar bar={false} legend />
         <p class="tw num" data-this-week>{goal?.hours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goal.hours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
-        {#if monday === mondayOf(today)}<NextWeek last={lastWeekHours} hours={(h) => `${num(h)} h`} onpick={pickNext} />{/if}
+        {#if showNext}<NextWeek last={lastWeekHours} reason={nextReason} goals={nextGoals} hours={(h) => `${num(h)} h`} onpick={pickNext} onlater={laterNext} />{/if}
         {/if}
         <p class="fb"><span><Timer size={16} aria-hidden="true" />{t('Active zone minutes')} <i class="pill">{t('with Fitbit')}</i></span><span><Heart size={16} aria-hidden="true" />{t('Resting heart rate')} <i class="pill">{t('with Fitbit')}</i></span></p>
       </div>
