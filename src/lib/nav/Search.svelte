@@ -41,6 +41,9 @@
   // «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»): values, reminders, several things at once, plan, jump
   import { actionOf, actionsOf, actionLabel, runActions } from '../suche/act.js';
   import { partsOf, jumpOf, planHref, weatherHref } from '../suche/say.js';
+  import { looksLikeCommand, askCommand, stepLabel } from '../suche/befehl.js';
+  import { geminiError } from '../assistent/gemini.js';
+  import { helper } from '../helper/client.svelte.js';
   // «Eingaben überall» (Noah 26.10.2026 «5a aber b möglich»): the diary in the search, switchable in its settings
   import { onDestroy } from 'svelte';
   import { gate } from '../tagebuch/lock.svelte.js';
@@ -201,6 +204,36 @@
     doneTimer = setTimeout(() => (done = null), UNDO_MS);
   }
   /**
+   * «Mit der App sprechen» (Etappe 2, Noah 07.11.2026 «1b 2a 3a 4a 5a»): a sentence the rules do not know goes to
+   * Gemini, which translates it into actions. Always shown first («I would do this»), written only after «Ok».
+   */
+  let ai = $state(null); // { sentence, busy, error, none, steps: [{ act, choices, on }] }
+  const aiOn = $derived(!!ai && (ai.busy || !!ai.steps?.length));
+  const quiet = $derived(listSay || aiOn); // a command sentence: no «answer», no «add as new item» beside it
+  const aiReady = $derived(suche.understand && suche.gemini && !!helper.code); // Gemini works through the helper code (Me › AI helper)
+  const aiOffer = $derived(aiReady && !ai && !says && !cmds.length && looksLikeCommand(q));
+  $effect(() => {
+    if (ai && q.trim() !== ai.sentence) ai = null; // another sentence: the old proposal is gone
+  });
+  async function understand(sentence = q.trim()) {
+    ai = { sentence, busy: true, steps: [] };
+    const r = await askCommand(sentence, ctx());
+    if (!ai || ai.sentence !== sentence) return; // the sentence changed meanwhile
+    if (!r.ok) ai = { sentence, error: geminiError(r.error), steps: [] };
+    else if (!r.steps.length) ai = { sentence, none: true, steps: [] };
+    else ai = { sentence, steps: r.steps.map((s) => ({ ...s, on: true })) };
+  }
+  function pickBike(i, act) {
+    ai.steps[i].act = act;
+  }
+  async function okAi() {
+    const acts = $state.snapshot(ai?.steps ?? []).filter((s) => s.on).map((s) => s.act);
+    ai = null;
+    if (!acts.length) return;
+    if (acts.length === 1 && !acts[0].writes) return doSays(acts); // a plan or the weather opens its page
+    await doSays(acts.filter((a) => a.writes));
+  }
+  /**
    * The microphone heard a sentence: it goes into the field. With «Run spoken commands at once» (2a):
    * several things that write → all of them; one value, reminder, note, care job or plan → that; one
    * command → it runs; a page or trip by its name («öffne Tagebuch») → it opens.
@@ -219,7 +252,8 @@
     const c = spokenCommand(cmds, { run: true });
     if (c) return run(c, { direct: true });
     const row = jumpOf(text, groups);
-    if (row && !asking) go(row);
+    if (row && !asking) return go(row);
+    if (aiReady && suche.geminiAuto && looksLikeCommand(text)) understand(text.trim());
   }
   async function run(c, { direct = false } = {}) {
     const cmd = c.cmd;
@@ -328,7 +362,9 @@
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
     if (e.key === 'Enter' && kh?.onEnter(q)) return e.preventDefault();
-    if (e.key === 'Enter' && says) doSays();
+    if (e.key === 'Enter' && ai?.steps?.length) okAi();
+    else if (e.key === 'Enter' && says) doSays();
+    else if (e.key === 'Enter' && aiOffer) understand();
     else if (e.key === 'Enter' && cmds.length) run(cmds[0]);
     else if (e.key === 'Enter' && count) go(groups[0].rows[0]);
   };
@@ -406,8 +442,32 @@
   {/if}
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
+      {#if aiOffer}
+        <ul class="cmds">
+          <li><button type="button" data-ai-offer onclick={() => understand()}><span class="m"><b>{t('Let Gemini understand it')}</b><small>{t('Sends your sentence and the names of your bikes and trips to Gemini. You see first what it would do.')}</small></span><span class="go" aria-hidden="true">↵</span></button></li>
+        </ul>
+      {/if}
+      {#if ai}
+        <div class="ai" data-ai-plan role="group" aria-label={t('I would do this')}>
+          {#if ai.busy}<p class="aiq">{t('Gemini is thinking …')}</p>
+          {:else if ai.error}<p class="aiq warn" role="alert">{ai.error}</p>
+          {:else if ai.none}<p class="aiq">{t('Gemini found nothing to do in this sentence.')}</p>
+          {:else}
+            <p class="gh">{t('I would do this')}</p>
+            {#each ai.steps as s, i (i)}
+              <label class="airow"><input type="checkbox" bind:checked={s.on} /><span>{stepLabel(s, localDay())}</span></label>
+              {#if s.choices}
+                <div class="aichoice"><span>{t('Which bike?')}</span>
+                  {#each s.choices as c (c.cmd.bikeId)}<button type="button" class="btn sm" aria-pressed={s.act === c} onclick={() => pickBike(i, c)}>{c.title}</button>{/each}
+                </div>
+              {/if}
+            {/each}
+            <div class="aibtns"><button type="button" class="btn" data-ai-ok onclick={okAi}>{t('OK')}</button><button type="button" class="btn" onclick={() => (ai = null)}>{t('Discard')}</button></div>
+          {/if}
+        </div>
+      {/if}
       <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
-      {#if suche.app && !listSay}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
+      {#if suche.app && !quiet}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
       <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
       {#if cmds.length || says}
         <p class="gh">{t('Do it now')}</p>
@@ -423,7 +483,7 @@
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
       <!-- «Suche mit Sprache» (3a + b): Gemini answers here, «Ask further at» opens Claude, ChatGPT … -->
       <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»): the Chrome AI and the AI on this device inside it -->
-      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas)} autoread={spoken && suche.read === 'auto'}>
+      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas) && !aiOn && !ai?.busy} autoread={spoken && suche.read === 'auto'}>
           {#snippet children()}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
         </AskElsewhere>
       {:else}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
@@ -440,7 +500,7 @@
           {/each}
         </ul>
       {:else}
-        {#if !cmds.length && !feats.length && !help.length && !listSay}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
+        {#if !cmds.length && !feats.length && !help.length && !quiet}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
       {/each}
       {#if help.length}
         <p class="gh">{t('Fits your question')}</p>
@@ -458,7 +518,7 @@
           {/each}
         </ul>
       {/if}
-      {#if !listSay && !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
+      {#if !quiet && !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
         <button type="button" class="add" onclick={addNew}>+ {t('Add "{q}" as a new item', { q: q.trim() })}</button>
       {/if}
     </div>
@@ -694,6 +754,48 @@
   .done span {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+  .ai {
+    margin: 4px 6px 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--accent, #276a43);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .aiq {
+    margin: 0;
+  }
+  .aiq.warn {
+    color: var(--warn, #8a5a00);
+  }
+  .airow {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-weight: 600;
+  }
+  .airow input {
+    margin-top: 4px;
+  }
+  .aichoice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-left: 26px;
+  }
+  .aichoice .btn[aria-pressed='true'] {
+    background: var(--accent-soft, #d9eedf);
+  }
+  .aibtns {
+    display: flex;
+    gap: 8px;
+  }
+  .aibtns .btn:first-child {
+    background: var(--accent, #276a43);
+    color: #fff;
   }
   .none {
     margin: 6px;
