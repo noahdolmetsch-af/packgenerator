@@ -15,7 +15,7 @@
   import { db } from '../db.js';
   import { REFRESHED } from '../home/refresh.js';
   import { loadProfil } from './profil.js';
-  import { HEIGHTS, SPOTS, PEAKS, SEL_KEY, OWN_KEY, selOf, ownOf, itemOf, toggleSel, newOwnId, rowsOf, hasValue, zeroLine } from './hoehe.js';
+  import { HEIGHTS, SPOTS, PEAKS, SEL_KEY, OWN_KEY, HOME_KEY, selOf, ownOf, itemOf, toggleSel, newOwnId, rowsOf, hasValue, zeroLine } from './hoehe.js';
   import { searchPlace } from '../weather.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
@@ -29,6 +29,9 @@
   const own = $derived(ownOf($ownQ?.value));
   const items = $derived(sel.map((id) => itemOf(id, { page: place, own })).filter(Boolean));
   const saveSel = (list) => db.settings.put({ key: SEL_KEY, value: list });
+  const homeQ = liveQuery(() => db.settings.get(HOME_KEY));
+  const onHome = $derived($homeQ?.value !== false);
+  const toggleHome = (e) => db.settings.put({ key: HOME_KEY, value: e.currentTarget.checked });
   const saveOwn = (list) => db.settings.put({ key: OWN_KEY, value: list });
 
   // the air layers of every shown item, by id (one request each, kept 3 h by profil.js)
@@ -171,6 +174,7 @@
 
   <details class="hh-set" data-hoehe-set>
     <summary>{t('Choose places and peaks')}</summary>
+    <label class="hh-check"><input type="checkbox" checked={onHome} onchange={toggleHome} data-hoehe-home />{t('Show the temperatures by height on Today')}</label>
     <div class="hh-chips" role="group" aria-label={t('Places')}>
       <button type="button" class="hh-chip" aria-pressed={isOn('page')} onclick={() => toggle('page')} data-hoehe-pick="page">{place?.name ? place.name : t('This place')}</button>
       {#each SPOTS as s (s.id)}<button type="button" class="hh-chip" aria-pressed={isOn(s.id)} onclick={() => toggle(s.id)} data-hoehe-pick={s.id}>{s.name}</button>{/each}
@@ -295,6 +299,11 @@
   }
   .hh-set > * {
     margin-top: 8px;
+  }
+  .hh-check {
+    display: flex;
+    gap: 8px;
+    align-items: center;
   }
   .hh-grp {
     margin: 12px 0 0;

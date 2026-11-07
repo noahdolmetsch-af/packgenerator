@@ -1,4 +1,4 @@
-// «Temperaturen nach Höhe» (Noah 05.11.2026 «1b 2a und c 3a …»): wetter/hoehe.js, HoeheBlock.svelte (Wetterseite)
+// «Temperaturen nach Höhe» (Noah 05.11.2026 «1b 2a und c 3a …»): wetter/hoehe.js, HoeheBlock.svelte (Wetterseite), HeuteHoehe.svelte (Heute)
 export default {
   'Temperatures by height': 'Temperaturen nach Höhe',
   'Over {name}': 'Über {name}',
@@ -19,4 +19,6 @@ export default {
   'e.g. Splügen': 'z. B. Splügen',
   'Only the entry goes; the place itself stays where it is.': 'Nur der Eintrag verschwindet; der Ort selbst bleibt, wo er ist.',
   'Everything here is a suggestion: pick as many as you like, take them away again, add your own.': 'Alles hier ist ein Vorschlag: Wähle so viele, wie du magst, nimm sie wieder weg, füge eigene hinzu.',
+  'Temperatures by height. Open the weather page.': 'Temperaturen nach Höhe. Öffnet die Wetterseite.',
+  'Show the temperatures by height on Today': 'Temperaturen nach Höhe auf Heute zeigen',
 };
