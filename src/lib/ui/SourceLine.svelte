@@ -6,7 +6,7 @@
    */
   import { ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  import { sourceLink } from '../analyse/weg.js';
+  import { sourceLink } from '../analyse/zahlweg.js';
 
   let { src = '', stand = '', ...rest } = $props();
   const s = $derived(sourceLink(src));

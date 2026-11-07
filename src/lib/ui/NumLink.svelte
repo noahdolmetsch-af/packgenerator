@@ -8,7 +8,7 @@
    */
   import { ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  import { numHref } from '../analyse/weg.js';
+  import { numHref } from '../analyse/zahlweg.js';
 
   let { key = null, range = null, day = null, src = null, what = '', children, ...rest } = $props();
   const href = $derived(numHref({ key, range, day, src }));

@@ -5,10 +5,10 @@ PR #… · 07.11.2026 · Auftrag: Noah «alle Vorschläge» der UI-Prüfung, Ran
 Dieser PR ändert nichts, was man in der App sieht. Er legt nur die zwei Bausteine bereit, die die späteren PRs (Aktiv, Auswerten, Analyse, Velos, Woche, Tourkarte) verwenden. Keine Seite benutzt sie schon.
 
 ## Was ist neu
-- `src/lib/analyse/weg.js` (rein, getestet): `numHref({ key, range, day, src })` sagt, wohin ein Tipp auf eine Zahl führt: die Seite des Werts in der Analyse (mit Zeitraum), das Blatt eines Tages, oder, ohne Analyse (Noah «2b»), die Seite der Quelle. `sourceLink(src)` nennt zu Fitbit, Strava, «Wi gaht's?» und Aktiv die Seite der App.
+- `src/lib/analyse/zahlweg.js` (rein, getestet): `numHref({ key, range, day, src })` sagt, wohin ein Tipp auf eine Zahl führt: die Seite des Werts in der Analyse (mit Zeitraum), das Blatt eines Tages, oder, ohne Analyse (Noah «2b»), die Seite der Quelle. `sourceLink(src)` nennt zu Fitbit, Strava, «Wi gaht's?» und Aktiv die Seite der App.
 - `src/lib/ui/NumLink.svelte`: eine Zahl mit kleinem Pfeil und 44 px Tippfläche; ohne Ziel bleibt sie ein einfacher Text.
 - `src/lib/ui/SourceLine.svelte`: die Zeile «Quelle: Fitbit ›».
-- Deutsche Texte in `src/lib/i18n/de/zahl-mit-weg.js`, Test `tests/weg.test.js`.
+- Deutsche Texte in `src/lib/i18n/de/zahl-mit-weg.js`, Test `tests/zahl-mit-weg.test.js`.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts

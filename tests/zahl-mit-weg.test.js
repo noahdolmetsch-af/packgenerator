@@ -1,6 +1,6 @@
 // «Zahl mit Weg» und «Quelle-Zeile» (UI-Prüfung 07.11.2026, Rang 1): where a number and a source lead to.
 import { describe, it, expect } from 'vitest';
-import { numHref, sourceLink, SOURCE_PAGES } from '../src/lib/analyse/weg.js';
+import { numHref, sourceLink, SOURCE_PAGES } from '../src/lib/analyse/zahlweg.js';
 import { valueHref, dayHref } from '../src/lib/analyse/jump.js';
 
 describe('numHref: where a tap on a number goes', () => {
