@@ -5,9 +5,13 @@
    * ones), filtered by kind and template. The numbers on top, minutes per week with the goal line, the
    * calendar (by day; for a year by month), «Was dir hilft» (observation only) and the notes.
    * The log with its list and filters stays (…/log, «Logbuch»); this page puts the overview in one place.
+   * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the minutes per week and per month are the shared bar chart:
+   * an axis in minutes, the exact minutes when pointing, a tap opens the week or month, «As table» lists them.
    */
   import { ChevronLeft, ChevronRight, Clock, Bell, Flower2 } from '@lucide/svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
+  import BarChart from '../../lib/charts/BarChart.svelte';
+  import ChartSheet from '../../lib/charts/ChartSheet.svelte';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { activeGoals } from '../../lib/flow.js';
   import { streaks, artsOf, sortTemplates } from '../../lib/flowmed.js';
@@ -43,10 +47,8 @@
   const bars = $derived(weekBars(rows, p.to < today ? p.to : today, 8));
   const usual = $derived(data ? (lastStart(data, actId)?.start.minutes ?? act?.minMin ?? 0) : 0);
   const goal = $derived(act ? weekGoalMin(activeGoals(act, today), usual) : null);
-  const max = $derived(Math.max(goal ?? 0, ...bars.map((b) => b.min), 1));
   const cal = $derived(range === 'year' ? [] : periodDays(rows, p, today));
   const months = $derived(range === 'year' ? monthBars(rows, Number(p.key)) : []);
-  const mMax = $derived(Math.max(1, ...months.map((m) => m.min)));
   const kindName = (id) => {
     const a = artOfData(data, id);
     return a ? artName(a) : '';
@@ -70,6 +72,21 @@
     const y = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
     return 1 + Math.round((d - y) / 864e5 / 7 - 0.5 + ((y.getUTCDay() + 6) % 7) / 7);
   };
+  const C = 'var(--accent)';
+  const weekRange = (monday) => {
+    const f = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
+    const sun = new Date(new Date(`${monday}T00:00:00Z`).getTime() + 6 * 864e5).toISOString().slice(0, 10);
+    return `${f(monday)} – ${f(sun)}`;
+  };
+  const wCols = $derived(bars.map((b, i) => ({ key: b.week, x: (bars.length - 1 - i) % 2 === 0 ? t('CW {n}', { n: kw(b.week) }) : '', top: b.min ? String(b.min) : '', parts: [{ v: b.min, color: i === bars.length - 1 ? C : 'var(--ok-soft)' }] })));
+  const wLine = $derived(goal ? bars.map(() => goal) : null);
+  const wRead = (i) => ({ title: `${t('CW {n}', { n: kw(bars[i].week) })} · ${weekRange(bars[i].week)}`, items: [{ label: t('Minutes'), value: t('{n} min', { n: bars[i].min }), color: C }, ...(goal ? [{ label: t('Goal'), value: t('{n} min', { n: goal }) }] : [])] });
+  const wTable = $derived({ head: [t('Week'), t('Minutes')], rows: [...bars].reverse().map((b) => ({ key: b.week, cells: [`${t('CW {n}', { n: kw(b.week) })} · ${weekRange(b.week)}`, t('{n} min', { n: b.min })] })) });
+  const mCols = $derived(months.map((m) => ({ key: m.month, x: monthWord(`${m.month}-01`), top: m.min ? String(m.min) : '', parts: [{ v: m.min, color: C }] })));
+  const mRead = (i) => ({ title: monthWord(`${months[i].month}-01`), items: [{ label: t('Minutes'), value: t('{n} min', { n: months[i].min }), color: C }, { label: t('Days with a session'), value: String(months[i].days) }] });
+  const mTable = $derived({ head: [t('Month'), t('Minutes'), t('Days with a session')], rows: months.map((m) => ({ key: m.month, cells: [monthWord(`${m.month}-01`), t('{n} min', { n: m.min }), String(m.days)] })) });
+  let wSel = $state(null);
+  let mSel = $state(null);
   const HELP_ICON = { morning: Clock, gong: Bell, kind: Flower2 };
   const pick = (r) => {
     range = r;
@@ -117,22 +134,13 @@
     <div class="col">
       <section class="surf pad" aria-labelledby="rv-weeks">
         <div class="hl"><h2 id="rv-weeks" class="h2">{t('Minutes per week')}</h2><p>{t('last 8 weeks')}</p></div>
-        <div class="wb" role="img" aria-label={bars.map((b) => `${t('CW {n}', { n: kw(b.week) })}: ${t('{n} min', { n: b.min })}`).join(', ')}>
-          {#if goal}<span class="goal" style:bottom="{(goal / max) * 100}%"><small>{t('Goal {n} min', { n: goal })}</small></span>{/if}
-          {#each bars as b, i (b.week)}
-            <span class="wcol"><i class:now={i === bars.length - 1} style:height="{(b.min / max) * 100}%"></i><small>{t('CW {n}', { n: kw(b.week) })}</small></span>
-          {/each}
-        </div>
+        <BarChart id="weeks" cols={wCols} line={wLine} lineColor="var(--warn)" readout={wRead} table={wTable} unit={t('min')} label={bars.map((b) => `${t('CW {n}', { n: kw(b.week) })}: ${t('{n} min', { n: b.min })}`).join(', ')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its minutes, tap it for the week.')} />
       </section>
 
       <section class="surf pad" aria-labelledby="rv-cal">
         <div class="hl"><h2 id="rv-cal" class="h2">{title}</h2><p>{range === 'year' ? t('{n} days · {time}', { n: ps.days, time: hm(ps.min) }) : t('{n} of {m} days · {time}', { n: ps.days, m: ps.of, time: hm(ps.min) })}</p></div>
         {#if range === 'year'}
-          <div class="mb">
-            {#each months as m (m.month)}
-              <span class="mcol" title={t('{n} min', { n: m.min })}><i style:height="{(m.min / mMax) * 100}%"></i><small>{monthWord(`${m.month}-01`)}</small></span>
-            {/each}
-          </div>
+          <BarChart id="months" cols={mCols} readout={mRead} table={mTable} unit={t('min')} label={t('Minutes per month')} onopen={(i) => (mSel = i)} hint={t('Point at a month for its minutes, tap it for the month.')} />
         {:else}
           <div class="cal" data-cal>
             {#each cal.slice(0, 7) as c, i (i)}<span class="h">{c ? wd(c.day) : ''}</span>{/each}
@@ -177,7 +185,44 @@
   </div>
 </div>
 
+{#if wSel != null && bars[wSel]}
+  {@const b = bars[wSel]}
+  <ChartSheet kicker={t('Minutes per week')} title={`${t('CW {n}', { n: kw(b.week) })} · ${weekRange(b.week)}`} onclose={() => (wSel = null)} onprev={wSel > 0 ? () => wSel-- : null} onnext={wSel < bars.length - 1 ? () => wSel++ : null} prevLabel={t('Week before')} nextLabel={t('Next week')}>
+    <ul class="shl" data-weeks-sheet>
+      <li><span>{t('Minutes')}</span><b class="num">{t('{n} min', { n: b.min })}</b></li>
+      {#if goal}<li><span>{t('Goal')}</span><b class="num">{t('{n} min', { n: goal })}</b></li>{/if}
+      {#if wSel > 0}<li><span>{t('Week before')}</span><b class="num">{t('{n} min', { n: bars[wSel - 1].min })}</b></li>{/if}
+    </ul>
+  </ChartSheet>
+{/if}
+
+{#if mSel != null && months[mSel]}
+  {@const m = months[mSel]}
+  <ChartSheet kicker={t('Minutes per month')} title={monthWord(`${m.month}-01`)} onclose={() => (mSel = null)} onprev={mSel > 0 ? () => mSel-- : null} onnext={mSel < months.length - 1 ? () => mSel++ : null} prevLabel={t('Month before')} nextLabel={t('Next month')}>
+    <ul class="shl" data-months-sheet>
+      <li><span>{t('Minutes')}</span><b class="num">{t('{n} min', { n: m.min })}</b></li>
+      <li><span>{t('Days with a session')}</span><b class="num">{m.days}</b></li>
+    </ul>
+  </ChartSheet>
+{/if}
+
 <style>
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .shl span {
+    color: var(--ink-2);
+  }
   .rv {
     display: flex;
     flex-direction: column;
@@ -323,63 +368,6 @@
     text-decoration: none;
     font-size: var(--fs-small);
     font-weight: 500;
-  }
-  .wb,
-  .mb {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    height: 170px;
-    padding-bottom: 22px;
-  }
-  .wcol,
-  .mcol {
-    position: relative;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    height: 100%;
-    min-width: 0;
-  }
-  .wcol i,
-  .mcol i {
-    display: block;
-    width: 100%;
-    max-width: 44px;
-    min-height: 2px;
-    border-radius: 5px;
-    background: var(--ok-soft);
-  }
-  .wcol i.now,
-  .mcol i {
-    background: var(--accent);
-  }
-  .wcol small,
-  .mcol small {
-    position: absolute;
-    bottom: -20px;
-    color: var(--ink-2);
-    font-size: var(--fs-tiny);
-    white-space: nowrap;
-  }
-  .goal {
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-bottom: 22px;
-    border-top: 1.5px dashed var(--warn);
-    pointer-events: none;
-    z-index: 1;
-  }
-  .goal small {
-    position: absolute;
-    top: -18px;
-    left: 2px;
-    color: var(--warn);
-    font-size: var(--fs-tiny);
   }
   .cal {
     display: grid;

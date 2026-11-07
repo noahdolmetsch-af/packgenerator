@@ -13,6 +13,8 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import KindIcon from '../../lib/strava/KindIcon.svelte';
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
+  import BarChart from '../../lib/charts/BarChart.svelte';
+  import ChartSheet from '../../lib/charts/ChartSheet.svelte';
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
@@ -153,7 +155,23 @@
   );
   // Impeccable runde 2 (onboard): six empty weeks get one sentence and the way to Strava instead of an empty chart
   const backEmpty = $derived(weeks.every((w) => !w.secs && !w.planned));
-  const top = $derived(Math.max(1, ...weeks.map((w) => Math.max(w.secs / 3600, w.planned / 60, goal?.hours ?? 0))));
+  // «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the look back is the shared bar chart, hours per week stacked by
+  // zone, the plan as the line; a tap opens the week with the hours of every zone, «As table» lists the weeks.
+  const ZONE_COLOR = ['var(--z1)', 'var(--z2)', 'var(--z3)', 'var(--z4)', 'var(--z5)'];
+  const h2 = (secs) => Math.round((secs / 3600) * 100) / 100;
+  const weekName = (w) => t('Week {kw}', { kw: w.kw });
+  const wCols = $derived(
+    weeks.map((w) => ({
+      key: w.m,
+      x: t('Wk {n}', { n: w.kw }),
+      top: w.secs ? hmm(w.secs) : '',
+      parts: [...w.zones.map((s, k) => ({ v: h2(s), color: ZONE_COLOR[k] })), { v: h2(w.unknown ?? 0), color: 'var(--bar)' }],
+    })),
+  );
+  const wLine = $derived(weeks.some((w) => w.planned) ? weeks.map((w) => (w.planned ? Math.round((w.planned / 60) * 100) / 100 : null)) : null);
+  const wRead = (i) => ({ title: weekName(weeks[i]), items: [{ label: t('Done'), value: `${hmm(weeks[i].secs)} h`, color: 'var(--z2)' }, ...(weeks[i].planned ? [{ label: t('Planned'), value: `${hours(weeks[i].planned)} h` }] : [])] });
+  const wTable = $derived({ head: [t('Week'), t('Done'), t('Planned')], rows: [...weeks].reverse().map((w) => ({ key: w.m, cells: [weekName(w), `${hmm(w.secs)} h`, w.planned ? `${hours(w.planned)} h` : '–'] })) });
+  let wSel = $state(null);
   const baseShare = $derived.by(() => {
     const z = nums.zones.reduce((s, x) => s + x, 0);
     return z ? Math.round(((nums.zones[0] + nums.zones[1]) / z) * 100) : null;
@@ -282,20 +300,7 @@
           <p class="none" data-back-empty>{t('No training time in the last 6 weeks yet. As soon as Strava brings an activity with heart rate, a bar per week stands here.')}</p>
           <a class="btn sm" href={STRAVA_HASH} data-back-strava>{strava.key ? t('To Strava') : t('Connect Strava')}</a>
         {:else}
-        <ol class="bars" aria-label={t('Hours per week, last six weeks')}>
-          {#each weeks as w (w.m)}
-            <li data-week={w.kw} aria-label={t('Week {kw}: {a} h done, {b} h planned', { kw: w.kw, a: hmm(w.secs), b: hours(w.planned) })}>
-              <span class="col" aria-hidden="true">
-                {#if w.planned}<i class="pl" style:bottom="{(w.planned / 60 / top) * 100}%"></i>{/if}
-                <span class="stack" style:height="{(w.secs / 3600 / top) * 100}%">
-                  {#if w.unknown}<i class="un" style:flex-grow={w.unknown}></i>{/if}
-                  {#each [...w.zones].reverse() as s, k (k)}{#if s}<i class="z{5 - k}" style:flex-grow={s}></i>{/if}{/each}
-                </span>
-              </span>
-              <small class="num">{t('Wk {n}', { n: w.kw })}</small>
-            </li>
-          {/each}
-        </ol>
+        <BarChart id="lookback" cols={wCols} line={wLine} lineColor="var(--ink)" readout={wRead} table={wTable} unit="h" label={t('Hours per week, last six weeks')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its hours, tap it for the zones.')} />
         <ZoneBar bar={false} legend />
         <p class="tw num" data-this-week>{goal?.hours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goal.hours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
         {/if}
@@ -306,6 +311,17 @@
 
   <WeekAnalyses {acts} {today} />
 </div>
+{#if wSel != null && weeks[wSel]}
+  {@const w = weeks[wSel]}
+  <ChartSheet kicker={t('Hours per week by zone')} title={weekName(w)} onclose={() => (wSel = null)} onprev={wSel > 0 ? () => wSel-- : null} onnext={wSel < weeks.length - 1 ? () => wSel++ : null} prevLabel={t('Week before')} nextLabel={t('Next week')}>
+    <ul class="shl" data-lookback-sheet>
+      <li><span>{t('Done')}</span><b class="num">{hmm(w.secs)} h</b></li>
+      {#if w.planned}<li><span>{t('Planned')}</span><b class="num">{hours(w.planned)} h</b></li>{/if}
+      {#each w.zones as s, k (k)}{#if s}<li><span>Z{k + 1}</span><b class="num">{hmm(s)} h</b></li>{/if}{/each}
+    </ul>
+  </ChartSheet>
+{/if}
+
 <AnaSheet />
 
 <style>
@@ -510,51 +526,21 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .bars {
+  .shl {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 12px;
-    margin: 8px 0 10px;
+    gap: 6px;
+    margin: 0 0 10px;
     padding: 0;
     list-style: none;
   }
-  .bars li {
+  .shl li {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
-  .col {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    width: 100%;
-    height: 120px;
-  }
-  .stack {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-height: 0;
-    border-radius: 4px 4px 0 0;
-    overflow: hidden;
-  }
-  .stack i {
-    flex: 1 1 0;
-  }
-  .pl {
-    position: absolute;
-    left: -2px;
-    right: -2px;
-    height: 2px;
-    background: var(--ink);
-  }
-  .bars small {
+  .shl span {
     color: var(--ink-2);
-    font-size: var(--fs-tiny);
-  }
-  .un {
-    background: var(--bar);
   }
   .z1 {
     background: var(--z1);

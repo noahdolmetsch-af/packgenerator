@@ -6,11 +6,15 @@
    * when it goes deepest (sessions per hour of the day, the colour the mean depth), the length of the
    * sessions and, at the side, what helped (from «Wie war es?», only what you noted). The charts count
    * the last 13 weeks; the records count every session.
+   * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the hours chart is the shared bar chart: an axis in sessions,
+   * the numbers of an hour when pointing, a tap opens the hour, «As table» lists the hours.
    */
   import { Lightbulb } from '@lucide/svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
+  import BarChart from '../../lib/charts/BarChart.svelte';
+  import ChartSheet from '../../lib/charts/ChartSheet.svelte';
   import { medQuery, seedMed } from '../../lib/flow/data.svelte.js';
   import { logRows, streaks, deepestHours, durationBins } from '../../lib/flowmed.js';
   import { addDays } from '../../lib/flow.js';
@@ -45,8 +49,14 @@
     const all = hourDepth(recent);
     return all.some((x) => x.h < 5 && x.n) ? all : all.filter((x) => x.h >= 5);
   });
-  const hourMax = $derived(Math.max(1, ...hours.map((x) => x.n)));
   const lvl = (d) => (d == null ? 0 : d >= 4 ? 3 : d >= 3 ? 2 : 1);
+  const DEPTH_COLOR = ['var(--line)', 'var(--ok-soft)', 'color-mix(in srgb, var(--accent) 55%, var(--paper))', 'var(--accent)'];
+  const hourName = (h) => `${h}:00–${h}:59`;
+  const hCols = $derived(hours.map((x) => ({ key: String(x.h), x: x.h % 6 === 0 ? t('{h} h', { h: x.h }) : '', top: x.n ? String(x.n) : '', parts: [{ v: x.n, color: DEPTH_COLOR[lvl(x.depth)] }] })));
+  const depthText = (x) => (x.depth == null ? '–' : String(Math.round(x.depth * 10) / 10));
+  const hRead = (i) => ({ title: hourName(hours[i].h), items: [{ label: t('Sessions'), value: String(hours[i].n), color: DEPTH_COLOR[lvl(hours[i].depth)] }, { label: t('Depth ⌀'), value: depthText(hours[i]) }] });
+  const hTable = $derived({ head: [t('Hour'), t('Sessions'), t('Depth ⌀')], rows: hours.map((x) => ({ key: String(x.h), cells: [hourName(x.h), String(x.n), depthText(x)] })) });
+  let hSel = $state(null);
   const deep = $derived(deepestHours(recent));
   const bins = $derived(durationBins(recent));
   const binMax = $derived(Math.max(1, ...bins.map((b) => b.n)));
@@ -82,12 +92,7 @@
 
         <Sec id="hr-h" title={t('When it goes deepest')} sub={t('sessions per time of day, last {n} weeks', { n: WEEKS })}>
           <div class="card pad">
-            <div class="hours" style:--n={hours.length} role="img" aria-label={t('Sessions per hour of the day')}>
-              {#each hours as x (x.h)}<span class="hb"><i class="d{lvl(x.depth)}" style:height="{x.n ? Math.max(6, Math.round((x.n / hourMax) * 100)) : 0}%" title="{x.h}:00 · {x.n}"></i></span>{/each}
-            </div>
-            <div class="hax" style:--n={hours.length} aria-hidden="true">
-              {#each hours as x (x.h)}<span>{x.h % 3 === 0 ? t('{h} h', { h: x.h }) : ''}</span>{/each}
-            </div>
+            <BarChart id="hours" cols={hCols} readout={hRead} table={hTable} unit={t('Sessions')} steps={[1, 2, 5, 10, 20, 50, 100]} label={t('Sessions per hour of the day')} onopen={(i) => (hSel = i)} hint={t('Point at an hour for its sessions, tap it for the hour.')} />
             <p class="legend"><span>{t('Colour = depth:')}</span><i class="d1"></i><i class="d2"></i><i class="d3"></i><span>{t('deep')}</span></p>
             <p class="line">{deep ? t('Deepest (depth 4–5): {from} to {to} o’clock', { from: deep.from, to: deep.to }) : t('With a depth in the note you see here when it goes deepest.')}</p>
           </div>
@@ -120,7 +125,34 @@
   {/if}
 </div>
 
+{#if hSel != null && hours[hSel]}
+  {@const x = hours[hSel]}
+  <ChartSheet kicker={t('When it goes deepest')} title={hourName(x.h)} onclose={() => (hSel = null)} onprev={hSel > 0 ? () => hSel-- : null} onnext={hSel < hours.length - 1 ? () => hSel++ : null} prevLabel={t('Hour before')} nextLabel={t('Next hour')}>
+    <ul class="shl" data-hours-sheet>
+      <li><span>{t('Sessions')}</span><b class="num">{x.n}</b></li>
+      <li><span>{t('Depth ⌀')}</span><b class="num">{depthText(x)}</b></li>
+    </ul>
+    {#if !x.n}<p class="line">{t('No session in this hour.')}</p>{/if}
+  </ChartSheet>
+{/if}
+
 <style>
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .shl span {
+    color: var(--ink-2);
+  }
   .mp {
     display: flex;
     flex-direction: column;
@@ -200,36 +232,6 @@
   .rc span {
     color: var(--ink-2);
     font-size: var(--fs-small);
-  }
-  .hours,
-  .hax {
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    gap: 4px;
-  }
-  .hours {
-    height: 140px;
-    border-bottom: 1px solid var(--line);
-  }
-  .hb {
-    display: flex;
-    align-items: flex-end;
-    min-width: 0;
-  }
-  .hb i {
-    display: block;
-    width: 100%;
-    border-radius: 4px 4px 0 0;
-  }
-  .hax span {
-    min-width: 0;
-    overflow: visible;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-    white-space: nowrap;
-  }
-  .d0 {
-    background: var(--line-strong);
   }
   .d1 {
     background: var(--ok-soft);

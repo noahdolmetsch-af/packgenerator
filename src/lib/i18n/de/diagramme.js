@@ -105,4 +105,17 @@ export default {
   'Point at a value for its numbers, tap it for the day.': 'Zeig auf einen Wert für die Zahlen, tippe ihn an für den Tag.',
   'Value before': 'Wert davor',
   'Next value': 'Nächster Wert',
+  // Aktiv: Meditation (Rückblick, Muster) und Training Woche (Rückblick)
+  'Days with a session': 'Tage mit einer Einheit',
+  'Point at a week for its minutes, tap it for the week.': 'Zeig auf eine Woche für die Minuten, tippe sie an für die Woche.',
+  'Minutes per month': 'Minuten pro Monat',
+  'Point at a month for its minutes, tap it for the month.': 'Zeig auf einen Monat für die Minuten, tippe ihn an für den Monat.',
+  Hour: 'Stunde',
+  'Point at an hour for its sessions, tap it for the hour.': 'Zeig auf eine Stunde für die Einheiten, tippe sie an für die Stunde.',
+  'Hour before': 'Stunde davor',
+  'Next hour': 'Nächste Stunde',
+  'No session in this hour.': 'In dieser Stunde keine Einheit.',
+  'Week {kw}': 'Woche {kw}',
+  'Point at a week for its hours, tap it for the zones.': 'Zeig auf eine Woche für die Stunden, tippe sie an für die Zonen.',
+  'Hours per week by zone': 'Stunden pro Woche nach Zone',
 };
