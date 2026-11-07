@@ -3,8 +3,9 @@
  * pull requests only touch one line each). Order = order in the sheet «New way».
  */
 import own from './own.js';
+import velo from './velo.js';
 
-export const TYPES = [own];
+export const TYPES = [own, velo];
 
 export const typeOf = (id) => TYPES.find((t) => t.type === id) ?? own;
 
