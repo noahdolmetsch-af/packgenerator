@@ -15,7 +15,7 @@
 {#if s}
   <p class="sourceline" {...rest}>
     <span class="lbl">{t('Source|weg')}</span>
-    <a href={s.href}>{s.name}{#if stand}<span class="stand"> · {stand}</span>{/if}<ChevronRight size={12} aria-hidden="true" /></a>
+    <a href={s.href}>{s.name}{#if stand}<span class="stand"> · {stand}</span>{/if}<ChevronRight size={16} strokeWidth={2.5} aria-hidden="true" /></a>
   </p>
 {/if}
 
@@ -34,13 +34,17 @@
     align-items: center;
     gap: 2px;
     min-height: 44px;
-    color: var(--ink);
+    color: var(--accent);
     font-weight: 600;
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
   }
   .sourceline a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
+  }
+  .sourceline a :global(svg) {
+    color: var(--ink);
   }
   .stand {
     font-weight: 400;

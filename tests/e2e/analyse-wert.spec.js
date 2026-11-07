@@ -55,6 +55,9 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   await expect(src).toContainText('Fitbit');
   await expect(src.locator('a')).toHaveAttribute('href', '#/me/fitbit');
   await expect(src.locator('a')).toHaveCSS('min-height', '44px');
+  // it looks like a way (Noah «1a»): underlined, with an arrow of 16 px
+  await expect(src.locator('a')).toHaveCSS('text-decoration-line', 'underline');
+  await expect(src.locator('a svg')).toHaveCSS('width', '16px');
   // one line for the source and its fetch (Noah «3a»): «Quelle Fitbit · Stand 07:42 ›»; the old second sentence is gone
   await expect(src).toContainText(/Stand \d\d[:.]\d\d/);
   await expect(wv.locator('.hint.src')).toHaveCount(0);

@@ -253,7 +253,7 @@
       {#if tripsIn.length}
         <p class="tripsin" data-trips-in>
           <span>{t('Trips in this time')}</span>
-          {#each tripsIn as tr (tr.id)}<a href={`#/tour/${encodeURIComponent(`t:${tr.id}`)}`}>{tr.title ?? tr.name ?? t('Trip')}<ChevronRight size={12} aria-hidden="true" /></a>{/each}
+          {#each tripsIn as tr (tr.id)}<a href={`#/tour/${encodeURIComponent(`t:${tr.id}`)}`}>{tr.title ?? tr.name ?? t('Trip')}<ChevronRight size={16} strokeWidth={2.5} aria-hidden="true" /></a>{/each}
         </p>
       {/if}
     </header>
@@ -467,13 +467,17 @@
     align-items: center;
     gap: 2px;
     min-height: 44px;
-    color: var(--ink);
+    color: var(--accent);
     font-weight: 600;
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .tripsin a :global(svg) {
+    color: var(--ink);
   }
   .tripsin a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
   }
   .bar {
     display: flex;
