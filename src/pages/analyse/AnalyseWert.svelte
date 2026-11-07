@@ -20,6 +20,8 @@
   import YTicks from '../../lib/charts/YTicks.svelte';
   import { RANGES, DEFAULT_RANGE, windowOf, bucketsOf, statsOf, typicalOf, mean7, weekdays, weekdayExtremes, tripBands, yearBefore, firstDay } from '../../lib/analyse/detail.js';
   import { addDays } from '../../lib/analyse.js';
+  import { LOAD_WEIGHTS } from '../../lib/analyse/own.js';
+  import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
   import { tripEnd } from '../../lib/tripstate.js';
@@ -216,6 +218,12 @@
   };
   const dropLayer = (k) => (layers = layers.filter((x) => x !== k));
   let pick = $state('');
+
+  // Idea D: «How is it calculated?» for the cardio load, with the newest day of the range that has zone minutes as the example
+  const ZONE_NAMES = { light: 'light|loadzone', mod: 'moderate|loadzone', vig: 'hard|loadzone', peak: 'peak|loadzone' };
+  const calcOf = (ex) => ex.parts.map((p) => t('{min} min {zone} ×{f}|analyse', { min: num(p.min), zone: t(ZONE_NAMES[p.zone]), f: p.weight })).join(' + ') + ` = ${t('{n} points|analyse', { n: num(ex.total) })}`;
+  const example = $derived(key === 'cardioLoad' ? lastExample(win.days, (d) => data.table.get(d)?.fit?.hrZones) : null);
+  const exampleText = $derived(example ? t('Example, {day}: {sum}|analyse', { day: dayText(example.day), sum: calcOf(example) }) : t('For example: {sum}|analyse', { sum: calcOf(loadExample(FIXED_EXAMPLE)) }));
 </script>
 
 {#if data.loading}
@@ -361,6 +369,20 @@
           {/if}
           <p class="hint src">{t(SRC_TEXT[item.src] ?? SRC_TEXT.body)}</p>
           <FitbitStand />
+        </section>
+      {/if}
+
+      {#if key === 'cardioLoad' && !hours}
+        <section class="card calc" aria-labelledby="wv-calc">
+          <details data-calc>
+            <summary id="wv-calc">{t('How is it calculated?|analyse')}</summary>
+            <p class="hint">{t('Your watch measures how many minutes your pulse spent in each zone. A minute counts more the higher the zone:|analyse')}</p>
+            <ul class="zw">
+              {#each Object.entries(LOAD_WEIGHTS) as [z, f] (z)}<li><span>{t(ZONE_NAMES[z])}</span><b class="num">×{f}</b></li>{/each}
+            </ul>
+            <p class="ex" data-calc-example>{exampleText}</p>
+            <p class="hint">{t('The points are only to look at, nothing is rated.|analyse')}</p>
+          </details>
         </section>
       {/if}
 
@@ -829,6 +851,33 @@
   .trip {
     margin: 6px 0 0;
     color: var(--ink-2);
+  }
+  .calc summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .zw {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .zw li {
+    display: inline-flex;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+  }
+  .ex {
+    margin: 8px 0 0;
+    font-weight: 600;
   }
   .dnav {
     display: flex;
