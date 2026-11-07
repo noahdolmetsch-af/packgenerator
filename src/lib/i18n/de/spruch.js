@@ -28,11 +28,5 @@ export default {
   'No saying yet. It is built from your numbers: the weather at your home place, your zone minutes, your sleep or your next trip.': 'Noch kein Spruch. Er entsteht aus deinen Zahlen: dem Wetter an deinem Wohnort, deinen Zonenminuten, deinem Schlaf oder deiner nächsten Tour.',
   'Set the weather place': 'Wetterort festlegen',
   'Plan a trip|saying': 'Tour planen',
-  'One short sentence on Today in Bernese German, built from your own numbers: weather, zone minutes, sleep and resting pulse, your next trip. A new one at each start, «New saying» gives the next, «Why?» shows the number behind it.': 'Ein kurzer Satz auf Heute in Berndeutsch, gebaut aus deinen eigenen Zahlen: Wetter, Zonenminuten, Schlaf und Ruhepuls, deine nächste Tour. Bei jedem Start ein neuer, «Neuer Spruch» gibt den nächsten, «Warum?» zeigt die Zahl dahinter.',
-  'Look at the tile «Saying» on Today (under the card «Your moment»).': 'Sieh dir die Kachel «Spruch» auf Heute an (unter der Karte «Dein Moment»).',
-  'Tap «Why?» to see the number behind the sentence.': 'Tippe auf «Warum?», um die Zahl hinter dem Satz zu sehen.',
-  'Tap «New saying» for the next one.': 'Tippe auf «Neuer Spruch» für den nächsten.',
-  'Example: 73 of 150 zone minutes → a sentence about the rest of the week.': 'Beispiel: 73 von 150 Zonenminuten → ein Satz über den Rest der Woche.',
-  'Read the tile «Saying».': 'Lies die Kachel «Spruch».',
   'Tap «Why?» to see the number behind it, «New saying» for the next.': 'Tippe auf «Warum?», um die Zahl dahinter zu sehen, auf «Neuer Spruch» für den nächsten.',
 };
