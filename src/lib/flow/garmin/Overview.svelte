@@ -18,6 +18,7 @@
   import { kindsOf, lastActivity, rangeSummary, caloriesOf, rhrLine, latestOf } from '../../uebersicht.js';
   import { shown } from '../../messwerte.js';
   import { addDays } from '../../health.js';
+  import { numHref } from '../../analyse/zahlweg.js';
   import { health, FITBIT_HASH } from '../../health/client.svelte.js';
   import { SPORT_ICON, sportName, km2, dayLabel } from './words.js';
   import { t, tn, num, locale } from '../../i18n.svelte.js';
@@ -140,7 +141,7 @@
       <li><a href="#/flow/stats/{k.kind}" data-l7={k.kind}><span class="ico si" aria-hidden="true"><I size={20} /></span><span>{tn(k.n, '{n}× {sport}', '{n}× {sport}', { sport: sportName(k.kind) })}</span><b class="num">{k.km ? `${km2(k.km)} km` : ''}</b></a></li>
     {/each}
     {#if week.rhr != null}<li><a href="#/flow/stats/hr" data-l7="hr"><span class="ico hrt" aria-hidden="true"><Heart size={20} /></span><span>{t('Heart rate')}</span><b class="num">{t('{n} avg at rest', { n: num(week.rhr) })}</b></a></li>{/if}
-    {#if week.kcal != null}<li data-l7="kcal"><span class="ico fl" aria-hidden="true"><Flame size={20} /></span><span>{t('Calories burned')}</span><b class="num">{t('avg {n}', { n: num(week.kcal) })}</b></li>{/if}
+    {#if week.kcal != null}<li data-l7="kcal"><a href={numHref({ key: 'kcal', range: asWeek ? 'w' : 'm' })} data-l7-way="kcal"><span class="ico fl" aria-hidden="true"><Flame size={20} /></span><span>{t('Calories burned')}</span><b class="num">{t('avg {n}', { n: num(week.kcal) })}</b></a></li>{/if}
   </ul>
   {/if}
   {#if !asWeek && !week.kinds.length && week.rhr == null && week.kcal == null}<p class="l7none" data-l7-none>{t('Nothing recorded in this period.')}</p>{/if}
