@@ -52,7 +52,7 @@ describe('the stored wall', () => {
     const w = wallOf({ v: 17, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'play', size: 's' }, { id: 'year', size: 'long' }]);
     expect(wallOf({ v: 17, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 18, tiles: w });
+    expect(wallRecord(w)).toEqual({ v: 19, tiles: w });
     expect(wallOf({ v: 17, tiles: [] })).toEqual([]);
     expect(wallOf({ v: 9, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);
     expect(wallOf({ v: 8, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);

@@ -52,6 +52,8 @@ export const TILES = [
   { id: 'moment', area: 'today', label: 'Your moment', icon: 'route', sizes: ['long'], size: 'long', pitch: 'The moment you are in (packing, on the way, back home …), the five steps of a trip and one next step.' },
   // «Heute als Begleiter» PR 5 (Noah 28.10.2026 «1a 2a 3a»): one function a day that fits the moment and that you never opened
   { id: 'discover', area: 'today', label: 'Discover|tile', icon: 'sparkles', sizes: ['long'], size: 'long', pitch: 'One function a day that fits your moment and that you never opened; Later or Not for me.' },
+  // «Traum der Woche» (Noah 07.11.2026 «1a»): one dream that fits now; the tile stays away while none does
+  { id: 'wochentraum', area: 'today', label: 'Dream of the week', icon: 'sparkles', sizes: ['long'], size: 'long', pitch: 'One dream that fits right now, with a countdown and the weather for its days.' },
   { id: 'vo2max', area: 'flow', label: 'VO2max', icon: 'heart', sizes: ['w', 'l'], size: 'w', pitch: 'Your last VO2max from Fitbit or Apple Health and the change over four weeks; a tap opens its course.' },
   // P6 «Heute ergänzen» SN2l (Noah 21.10.2026 «2b»): the weight once a week, only while no weight for 7 days
   { id: 'weighin', area: 'flow', label: 'Weight this week?', icon: 'scale', sizes: ['long'], size: 'long', pitch: 'Asks for your weight once a week; the same weight as under Me › Weight.' },
@@ -131,6 +133,7 @@ export const READY = [
   ['meditation', 'long'],
   ['moment', 'long'], // «Heute als Begleiter» PR 4 (Noah 28.10.2026): the moment you are in, right under the habits
   ['discover', 'long'], // PR 5: one function a day right under it
+  ['wochentraum', 'long'], // «Traum der Woche» (Noah 07.11.2026): shows only while a dream fits
   ['weighin', 'long'],
   ['body', 'l'],
   ['acts', 'l'],
@@ -210,7 +213,7 @@ export const REMOVED_0155 = ['morningcheck', 'fn:dayride', 'fn:trip', 'fn:wear',
 /** 0.155.0: the new pieces of HN4; a stored wall gets them once, in their place. */
 export const ADDED_0155 = ['meditation', 'daycard', 'aktiv'];
 /** «Heute neu» N2: the tiles on top of the wall; near a trip its card moves up right under them (tripUp). */
-export const HEAD_N2 = ['meditation', 'moment', 'weighin', 'discover', 'body', 'acts', 'vitals']; // PR 4: the moment card too
+export const HEAD_N2 = ['meditation', 'moment', 'weighin', 'discover', 'wochentraum', 'body', 'acts', 'vitals']; // PR 4: the moment card too
 /** The tiles that stand on top, in this order (the trip card may move up under the day card, tripUp). */
 export const HEAD_0155 = ['meditation', 'daycard', 'important'];
 
@@ -244,7 +247,9 @@ export function wallOf(value, legacy = null) {
     // «Heute-Check» (Noah 30.10.2026 «1-5a»): a wall of before (v < 17) gets the tile once
     const hc = (value.v ?? 1) < 17 ? withHeuteCheck(di) : di;
     // «Schnell öffnen» (Noah 01.11.2026 «5a»): a wall of before (v < 18) swaps the 8 small tiles for the tile with your pins once
-    return (value.v ?? 1) < 18 ? withPins(hc) : hc;
+    const pn = (value.v ?? 1) < 18 ? withPins(hc) : hc;
+    // «Traum der Woche» (Noah 07.11.2026 «1a»): a wall of before (v < 19) gets the tile once, under «Discover»
+    return (value.v ?? 1) < 19 ? withWochentraum(pn) : pn;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -451,6 +456,16 @@ export function withHeuteCheck(tiles = []) {
   return out;
 }
 
+/** «Traum der Woche»: a wall stored before (v < 19) gets the tile once, under «Discover» (else under the moment card; a wall without both stays as it is). Taken away after that, it stays away. */
+export function withWochentraum(tiles = []) {
+  if (tiles.some((x) => x.id === 'wochentraum')) return tiles;
+  const out = [...tiles];
+  const a = Math.max(out.findIndex((x) => x.id === 'discover'), out.findIndex((x) => x.id === 'moment'));
+  if (a < 0) return tiles; // the person made the wall their own without the moment cards: nothing to hang it under
+  out.splice(a + 1, 0, { id: 'wochentraum', size: TILE.wochentraum.size });
+  return out;
+}
+
 /** The 8 small tiles that «Open quickly» used to show (the ready wall of before v 18). */
 export const OLD_QUICK = ['fn:trip', 'fn:note', 'fn:km', 'fn:care', 'fn:gear', 'fn:wear', 'fn:templates', 'fn:favorites'];
 /** «Schnell öffnen» (Noah 01.11.2026 «5a»): the 8 small tiles go, the tile with your pins stands where the first one stood. They stay in the catalog. */
@@ -462,8 +477,8 @@ export function withPins(tiles = []) {
   out.splice(at, 0, { id: 'pins', size: TILE.pins.size });
   return out;
 }
-/** The record to store (v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 18, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/** The record to store (v 19: the tile «Traum der Woche» came once; v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 19, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {
@@ -500,7 +515,7 @@ export function catalog(query = '', tr = (s) => s, hidden = []) {
  */
 export const HELPER_TILES = ['helper'];
 // Tiles that show only once they have a value (a VO2max from a watch); without one they stay away.
-export const VALUE_TILES = ['vo2max'];
+export const VALUE_TILES = ['vo2max', 'wochentraum'];
 export const hideTiles = (tiles, hidden = []) => (hidden.length ? tiles.filter((x) => !hidden.includes(x.id)) : tiles);
 export function keepHidden(next, stored, hidden = []) {
   const out = next.filter((x) => !hidden.includes(x.id));
