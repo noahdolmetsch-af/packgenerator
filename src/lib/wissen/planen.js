@@ -2,6 +2,9 @@
 export default {
   'f.freeslot': 'A free window with sun beats the perfect plan for Saturday. Two dry hours are enough for a round of the lake.',
   'f.weekplan': 'Plan rest days like dates: a week with one empty evening holds better than one packed full. The suggestion on Sunday is only a start.',
+  'f.todoquick': 'Write the next step in the line, not the project: «call the shop about the hub» gets done, «fix bike» waits.',
+  'f.todosteps': 'Six steps under one to-do are easier to start than six loose to-dos; tick the first one today.',
+  'f.todosort': 'Move the one thing you really want to do today to the top; the rest can wait for tomorrow with one swipe.',
   'f.remember': 'Write the next step, not the project: «call the shop about the hub» gets done, «fix bike» waits for months.',
   'f.trello': 'Handy if you plan on the computer and tick on the road. Keep the board small: one list per area is enough.',
   'f.agenda': 'Put the train back home in the calendar as soon as you book it. A forgotten return is the most expensive bikepacking ticket.',

@@ -614,6 +614,7 @@
   .none {
     margin: 8px 0;
     color: var(--ink-3);
+    overflow-wrap: break-word; /* E5-002: «Nothing found for «…»» with a long word was 2955 px wide */
   }
   .more {
     margin: 8px 0;

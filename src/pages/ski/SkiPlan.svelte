@@ -13,6 +13,7 @@
   import { DANGER_LEVELS, SUB_LEVELS, BULLETIN_URL, MORNING, dangerOf } from '../../lib/skiplan.js';
   import { newTrip } from '../../lib/nav.js';
   import { localDay } from '../../lib/localday.js';
+  import SkiHoehe from '../../lib/ski/SkiHoehe.svelte'; // «Temperaturen nach Höhe» (Noah 05.11.2026 «4b»)
   import Empty from '../../lib/ui/Empty.svelte';
   import { t, locale } from '../../lib/i18n.svelte.js';
 
@@ -81,6 +82,8 @@
           </div>
           <label class="sk-field"><span>{t('Notes for the plan')}</span><textarea class="inp sk-text" value={plan.notes ?? ''} onchange={(e) => setPlan(trip.id, { notes: e.currentTarget.value.trim() })} placeholder={t('e.g. «key spot: the steep step below the saddle»')} data-f="notes"></textarea></label>
         </section>
+
+        <SkiHoehe {trip} {plan} />
       </div>
       <div class="col">
         <section class="surf sk-pad box" aria-labelledby="mo-h" data-plan="morning">

@@ -8,7 +8,10 @@
   import AnaCard from '../AnaCard.svelte';
   import { t, tn, locale } from '../../i18n.svelte.js';
   import { zones } from '../../strava/zones.svelte.js';
-  import { monthStart, daysBetween, niceTicks } from '../week/weeks.js';
+  import { monthStart, daysBetween } from '../week/weeks.js';
+  import { shiftDay } from '../../training.js';
+  import LineChart from '../../charts/LineChart.svelte';
+  import ChartSheet from '../../charts/ChartSheet.svelte';
   import { decouplePoints, DEC_MONTHS, DEC_GOOD } from './inhalt-woche.js';
 
   let { acts = [], today = '' } = $props();
@@ -17,20 +20,36 @@
   const f1 = (v) => Number(v).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const monthOf = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { month: 'short', timeZone: 'UTC' });
 
-  let w = $state(0);
-  const H = 120;
-  const T = 10;
-  const L = 42;
-  const R = 34;
-  const width = $derived(Math.max(240, w || 600));
-  const ax = $derived.by(() => {
-    if (!has) return null;
-    const vals = [...data.pts.map((p) => p.v), ...(data.trend ? [data.trend.start, data.trend.end] : [])];
-    return niceTicks(Math.min(0, ...vals), Math.max(DEC_GOOD + 1, ...vals), 4);
-  });
-  const X = (x) => L + (x / Math.max(1, data.span)) * (width - L - R);
-  const Y = (v) => T + ((ax.hi - v) / (ax.hi - ax.lo)) * H;
-  const months = $derived(has ? Array.from({ length: DEC_MONTHS }, (_, i) => monthStart(today, DEC_MONTHS - 1 - i)).map((d) => ({ d, x: daysBetween(data.from, d) })) : []);
+  const C = 'var(--ch-hr)';
+  // one column per day of the six months; a ride is a dot on its day
+  const days = $derived(has ? Array.from({ length: data.span + 1 }, (_, i) => shiftDay(data.from, i)) : []);
+  const monthStarts = $derived(has ? new Set(Array.from({ length: DEC_MONTHS }, (_, i) => daysBetween(data.from, monthStart(today, DEC_MONTHS - 1 - i)))) : new Set());
+  const rides = $derived(has ? days.map((d) => data.pts.filter((p) => p.day === d)) : []);
+  const mean = (l) => (l.length ? l.reduce((s, p) => s + p.v, 0) / l.length : null);
+  const cols = $derived(days.map((d, i) => ({ key: d, x: monthStarts.has(i) ? monthOf(d) : '' })));
+  const trendAt = (i) => {
+    const tr = data?.trend;
+    if (!tr || i < tr.x0) return null;
+    return data.span === tr.x0 ? tr.start : tr.start + ((tr.end - tr.start) * (i - tr.x0)) / (data.span - tr.x0);
+  };
+  const series = $derived(
+    has
+      ? [
+          { key: 'rides', color: C, line: false, dots: true, v: rides.map(mean) },
+          ...(data.trend ? [{ key: 'trend', color: C, v: days.map((_, i) => trendAt(i)) }] : []),
+          { key: 'ref', color: 'var(--pz4)', dashed: true, v: days.map(() => DEC_GOOD) },
+        ]
+      : [],
+  );
+  const pc = (v) => (v == null ? '–' : `${f1(v)} %`);
+  const dmy = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
+  const items = (i) => [
+    { label: t('Heart rate drift'), value: rides[i].length ? rides[i].map((p) => pc(p.v)).join(' · ') : '–', color: C },
+    ...(trendAt(i) == null ? [] : [{ label: t('Trend'), value: pc(trendAt(i)) }]),
+  ];
+  const readout = (i) => ({ title: dmy(days[i]), items: items(i) });
+  const table = $derived(has ? { head: [t('Day'), t('Heart rate drift'), t('Trend')], rows: [...data.pts].reverse().map((p, k) => ({ key: `${p.day}-${k}`, cells: [dmy(p.day), pc(p.v), pc(trendAt(p.x))] })) } : null);
+  let open = $state(null);
   const sentence = $derived(
     !has
       ? ''
@@ -44,24 +63,8 @@
 {#if data}
   <AnaCard key="decouple" sub={has ? tn(data.pts.length, '{n} ride of an hour or more, mostly Z1–Z2', '{n} rides of an hour or more, mostly Z1–Z2') : t('Heart rate drift at the same power')}>
     {#if has}
-      <div class="dc-plot" bind:clientWidth={w}>
-        <svg width={width} height={H + T + 30} viewBox="0 0 {width} {H + T + 30}" role="img" aria-label={label}>
-          {#each ax.ticks as v (v)}
-            <line x1={L} x2={width - R} y1={Y(v)} y2={Y(v)} class={v === 0 ? 'dc-zero' : 'dc-grid'} />
-            <text x={L - 8} y={Y(v) + 4} text-anchor="end">{Number.isInteger(v) ? v : f1(v)} %</text>
-          {/each}
-          <line class="dc-ref" x1={L} x2={width - R} y1={Y(DEC_GOOD)} y2={Y(DEC_GOOD)} />
-          <text class="dc-reft" x={width - R + 4} y={Y(DEC_GOOD) + 4}>{DEC_GOOD} %</text>
-          {#each data.pts as p (p.id)}
-            <circle cx={X(p.x)} cy={Y(p.v)} r="4" data-decouple={p.id} />
-          {/each}
-          {#if data.trend}
-            <line class="dc-trend" x1={X(data.trend.x0)} y1={Y(data.trend.start)} x2={X(data.span)} y2={Y(data.trend.end)} />
-          {/if}
-          {#each months as m, i (m.d)}
-            <text x={X(m.x)} y={H + T + 24} text-anchor={i === 0 ? 'start' : 'middle'}>{monthOf(m.d)}</text>
-          {/each}
-        </svg>
+      <div data-decouple-chart>
+        <LineChart id="decouple" {cols} {series} {readout} {table} {label} maxTop={0} unit="%" tick={(v) => f1(v)} onopen={(i) => (open = i)} hint={t('Point at a day for its numbers, tap it for the day.')} />
       </div>
       <ul class="dc-leg">
         <li><i class="dc-kd"></i>{t('one ride')}</li>
@@ -76,39 +79,31 @@
   </AnaCard>
 {/if}
 
+{#if open != null && days[open]}
+  <ChartSheet kicker={t('Endurance check')} title={dmy(days[open])} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < days.length - 1 ? () => open++ : null} prevLabel={t('Day before')} nextLabel={t('Next day')}>
+    <ul class="shl" data-decouple-sheet>
+      {#each items(open) as it (it.label)}<li><span>{it.label}</span><b class="num">{it.value}</b></li>{/each}
+    </ul>
+    {#if !rides[open].length}<p class="cap">{t('No long calm ride on this day.')}</p>{/if}
+  </ChartSheet>
+{/if}
+
 <style>
-  .dc-plot {
-    min-width: 0;
-    overflow: hidden;
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
   }
-  svg {
-    display: block;
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
-  text {
-    fill: var(--ink-3);
-    font: 400 var(--fs-tiny) / 1 var(--font-body);
-  }
-  .dc-grid {
-    stroke: var(--line);
-    stroke-dasharray: 3 4;
-  }
-  .dc-zero {
-    stroke: var(--ink-3);
-    opacity: 0.6;
-  }
-  .dc-ref {
-    stroke: var(--pz4);
-    stroke-width: 1.5;
-    stroke-dasharray: 6 4;
-  }
-  circle {
-    fill: var(--ch-hr);
-    opacity: 0.5;
-  }
-  .dc-trend {
-    stroke: var(--ch-hr);
-    stroke-width: 2.5;
-    stroke-linecap: round;
+  .shl span {
+    color: var(--ink-2);
   }
   .dc-leg {
     display: flex;

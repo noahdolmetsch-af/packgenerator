@@ -3,7 +3,7 @@
 // history of «Deine Abfragen». Fictional data only (the name «Lena»).
 import { describe, it, expect, beforeEach } from 'vitest';
 import 'fake-indexeddb/auto';
-import { greetFor, helloPart, helloTitle, HELLO_NIGHT, HELLO_WORDS, HELLO_ASK, HELLO_QUESTIONS, MOODS, PLANS, NAME_ASKED_KEY } from '../src/lib/home/hallo.js';
+import { greetFor, helloPart, helloTitle, HELLO_NIGHT, HELLO_WORDS, HELLO_ASK, HELLO_QUESTIONS, MOODS, PLANS, FEELINGS, FEELING_GROUPS, NAME_ASKED_KEY } from '../src/lib/home/hallo.js';
 import { greeting } from '../src/lib/home/heute.js';
 import { QUESTION, QUESTIONS, mergeHistory, numberOf } from '../src/lib/abfragen.js';
 import { helloRows, saveHello, saveUserName, nameAsked } from '../src/lib/home/hallo-save.js';
@@ -111,6 +111,31 @@ describe('the answer in the ONE history of «Deine Abfragen» (2b)', () => {
     expect(await db.flowChecks.count()).toBe(0);
     expect(await saveHello({}, '2026-10-09T19:31')).toBe(0);
     expect(await db.abAnswers.count()).toBe(2);
+  });
+  it('Gruss A: more buttons in groups, several feelings at once, every tap replaces the same rows', async () => {
+    expect(FEELING_GROUPS.map((g) => g.key)).toEqual(['energy', 'feeling']);
+    expect(FEELINGS.length).toBeGreaterThanOrEqual(15);
+    expect(new Set(FEELINGS.map((f) => f.key)).size).toBe(FEELINGS.length); // every key once
+    expect(FEELINGS.every((f) => f.label && f.emoji)).toBe(true);
+    const at = '2026-10-09T20:00';
+    const rows = helloRows({ mood: 'guet', feelings: ['ruehig', 'dankbar', 'nope'] }, at);
+    expect(rows.map((r) => r.qid)).toEqual(['hallo.gaht', 'hallo.gefuehl']);
+    expect(rows[1].value).toEqual(['ruehig', 'dankbar']);
+    expect(valueText(rows[1], QUESTION['hallo.gefuehl'])).toBe('Ruhig · Dankbar');
+    expect(rows[0].id).toBe(helloRows({ mood: 'super' }, at)[0].id); // fixed id: a changed answer replaces
+    // tap by tap
+    expect(await saveHello({ mood: 'guet' }, at)).toBe(1);
+    expect(await saveHello({ mood: 'guet', feelings: ['wach'] }, at)).toBe(2);
+    expect(await saveHello({ mood: 'super', feelings: ['wach', 'stolz'] }, at)).toBe(2);
+    let all = await db.abAnswers.toArray();
+    expect(all).toHaveLength(2);
+    expect(all.find((r) => r.qid === 'hallo.gaht').value).toBe('super');
+    // taken back with a second tap: the row goes
+    expect(await saveHello({ mood: 'super' }, at)).toBe(1);
+    all = await db.abAnswers.toArray();
+    expect(all.map((r) => r.qid)).toEqual(['hallo.gaht']);
+    expect(await saveHello({}, at)).toBe(0);
+    expect(await db.abAnswers.count()).toBe(0);
   });
   it('the name: saved and asked once; «Nicht jetzt» only marks it asked', async () => {
     await nameAsked();

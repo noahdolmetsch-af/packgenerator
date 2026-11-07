@@ -2057,3 +2057,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 06.11.2026 Doppeltipp-Schutz als ein Baustein
 - Noah «5a» (Thread «Durchklicken Etappe 4: Velos und Alltag»): Ein zweiter Tipp auf denselben «Speichern»-Knopf innerhalb von 0,45 Sekunden tut nichts, für alle Fenster und Formulare auf einmal (`src/lib/ui/doubletap.js`, in `src/main.js` eingehängt). Kein Einbau eines Schutzes in jedes Fenster. `once()` in `ui/ask.js` bleibt für Arbeit, die sich nicht überlappen darf.
+
+## 05.11.2026 Handy-Tests nur für den betroffenen Bereich
+- Noah «3a ja» (Thread «Handy-Tests nur für betroffenen Bereich»): Die Handy-Tests eines PR (Label `ok`) laufen nur noch für die Seiten, die der PR berührt. `scripts/ci-map.mjs` liest aus den Importen der App, in welchen Seiten eine geänderte Datei landet, und nimmt die Tests, die diese Seiten öffnen. Der Kern (`flow.spec.js`, `guard.spec.js`) läuft immer. Deutsche Textdateien (`src/lib/i18n/de/`), Doku und News allein lösen keinen Handy-Test aus. Alles läuft wie bisher, wenn eine Datei geändert wird, die jede Seite lädt (zum Beispiel `App.svelte`, `features.js`, Heute), wenn die Zuordnung unklar ist, bei Build- und Workflow-Dateien und bei mehr als 250 gefundenen Tests. Die Nacht-Prüfung läuft weiter mit allen Tests; ein Fehler, den die Auswahl übersieht, zeigt sich dort.

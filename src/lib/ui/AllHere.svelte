@@ -9,6 +9,7 @@
   import { db } from '../db.js';
   import { putSetting } from '../flowdb.js';
   import { EyeOff, Eye, SlidersHorizontal, RotateCcw } from '@lucide/svelte';
+  import CardFold from './CardFold.svelte';
   import SortGrip from './SortGrip.svelte';
   import SortArrows from './SortArrows.svelte';
   import { sortable } from './sortable.js';
@@ -38,6 +39,7 @@
 </script>
 
 {#if ALL_HERE[area]}
+  <CardFold id="ah:{area}" label={t('All here')} count={tiles.shown.length}>
   <section class="allhere" aria-labelledby="ah-h-{area}" data-all-here={area} data-no-pin>
     <div class="ah-head">
       <h2 id="ah-h-{area}">{t('All here')}</h2>
@@ -75,6 +77,7 @@
       <p class="ah-hint">{t('All tiles are hidden. Tap «Change» to show them again.')}</p>
     {/if}
   </section>
+  </CardFold>
 {/if}
 
 <style>
@@ -142,17 +145,20 @@
     margin: 0 0 10px;
     padding: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr); /* E5-001: a column of «auto» grew to the widest row (446 px on a 390 px phone) */
     gap: 6px;
   }
   .ah-list li {
     display: flex;
+    flex-wrap: wrap; /* on a phone the «Hide» button drops under the name instead of pushing the page sideways */
     align-items: center;
-    gap: 8px;
+    gap: 4px 8px;
     min-height: 44px;
   }
   .ah-name {
-    flex: 1;
+    flex: 1 1 8rem;
     min-width: 0;
+    overflow-wrap: break-word;
   }
   .ah-reset {
     display: inline-flex;

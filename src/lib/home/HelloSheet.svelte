@@ -1,17 +1,21 @@
 <script>
   /**
    * HG1d (2b) «Wi gaht's? / Was häsch vor?»: the quiet line under the greeting on Today and the small
-   * sheet it opens (from below on a phone, in the middle on a computer). Two short questions, both
-   * optional: five calm faces in one neutral colour (observation only) and the plan as a text field with
-   * chips. «Speichern» puts the answer into the ONE history of «Deine Abfragen» (hallo-save.js).
+   * sheet it opens (from below on a phone, in the middle on a computer). Everything optional: five calm
+   * faces in one neutral colour (observation only), «Mehr» with more buttons in groups, and the plan as a
+   * text field with chips. Gruss A (Noah 05.11.2026 «alle umsetzen»): every tap is saved at once into the ONE history
+   * of «Deine Abfragen» (hallo-save.js), no «Speichern»; yesterday's answer is marked quietly.
    * The Swiss German words are constants in hallo.js (HG1 1a), the rest goes through t().
    */
   import { keepTyped } from '../ui/keeptyped.js';
-  import { ChevronRight, X, Plus, Clock3, FaceSlightlyFrowning, FaceExpressionless, FaceNeutral, FaceSlightlySmiling, FaceGrinning } from '@lucide/svelte';
+  import { ChevronRight, X, Plus, Clock3, Pencil, Smile, FaceSlightlyFrowning, FaceExpressionless, FaceNeutral, FaceSlightlySmiling, FaceGrinning } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
-  import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, MOODS, PLANS, helloTitle } from './hallo.js';
+  import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, HELLO_FEEL, helloTitle } from './hallo.js';
+  import { buttonsQuery, saveButtons, offered, groupName, defaults } from './hallobuttons.js';
   import { saveHello } from './hallo-save.js';
+  import { stampOf } from '../abfragen.js';
+  import { db } from '../db.js';
   import '../bikes/velo-dlg.css';
   import '../abfragen/ab.css';
 
@@ -19,64 +23,136 @@
   let { name = '', label = '', headId = 'hello-h' } = $props();
   const FACE = { muede: FaceSlightlyFrowning, gahtso: FaceExpressionless, okay: FaceNeutral, guet: FaceSlightlySmiling, super: FaceGrinning };
 
+  // Gruss B: the buttons as the user has them (own, renamed, hidden, deleted, sorted)
+  const cfgQ = buttonsQuery();
+  const cfg = $derived($cfgQ ?? defaults());
+  const faces = $derived(offered(cfg, 'faces'));
+  const groups = $derived(cfg.groups.map((g) => ({ ...g, list: offered(cfg, g.id) })).filter((g) => g.list.length));
+  const plansOffered = $derived(offered(cfg, 'plans'));
+  let adjusting = $state(false);
+  let Editor = $state(null); // the editor loads on first use (not part of the start)
+  async function adjust() {
+    Editor ??= (await import('./HelloButtonsEdit.svelte')).default;
+    adjusting = true;
+  }
   let open = $state(false);
   let dialog = $state();
   let field = $state();
   let mood = $state(null);
+  let feelings = $state([]);
   let plans = $state([]);
   let text = $state('');
-  let saved = $state(false);
+  let more = $state(false);
+  let saved = $state(0);
+  // yesterday's answer, marked quietly (the same dashed mark as the five steps)
+  let ydMood = $state(null);
+  let ydFeelings = $state([]);
+  let at = '';
+  let touched = false;
+  let timer;
   $effect(() => {
     if (open && dialog && !dialog.open) dialog.showModal();
   });
+  async function yesterday() {
+    const d = new Date(`${stampOf().slice(0, 10)}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - 1);
+    const rows = await db.abAnswers.where('day').equals(d.toISOString().slice(0, 10)).toArray();
+    const last = (qid) => rows.filter((r) => r.qid === qid).sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')))[0]?.value ?? null;
+    ydMood = typeof last('hallo.gaht') === 'string' ? last('hallo.gaht') : null;
+    const f = last('hallo.gefuehl');
+    ydFeelings = Array.isArray(f) ? f : [];
+  }
   function start() {
     mood = null;
+    feelings = [];
     plans = [];
     text = '';
-    saved = false;
+    more = false;
+    adjusting = false;
+    saved = 0;
+    touched = false;
+    at = stampOf();
+    ydMood = null;
+    ydFeelings = [];
     open = true;
+    yesterday();
   }
-  const togglePlan = (k) => (plans = plans.includes(k) ? plans.filter((x) => x !== k) : [...plans, k]);
-  async function save() {
-    const n = await saveHello({ mood, plans, text });
-    saved = n > 0;
-    dialog.close();
+  const toggle = (list, k) => (list.includes(k) ? list.filter((x) => x !== k) : [...list, k]);
+  // every tap is saved after a short moment (the rows have fixed ids, so a changed answer replaces the old one)
+  const sig = () => JSON.stringify([mood, feelings, plans, text.trim()]);
+  $effect(() => {
+    sig();
+    if (!open || !touched) return;
+    clearTimeout(timer);
+    timer = setTimeout(flush, 300);
+    return () => clearTimeout(timer);
+  });
+  async function flush() {
+    clearTimeout(timer);
+    if (!touched) return;
+    saved = await saveHello({ mood, feelings, plans, text }, at);
+  }
+  const touch = () => (touched = true);
+  async function done() {
+    await flush();
+    dialog?.close();
   }
 </script>
 
 {#if label}<h1 id={headId} class="hello"><button type="button" class="hello-tap as-title" onclick={start} data-hello-tap aria-description={HELLO_TAP}>{label}<ChevronRight size={22} strokeWidth={2.4} aria-hidden="true" /></button></h1>
 {:else}<button type="button" class="hello-tap" onclick={start} data-hello-tap>{HELLO_TAP}<ChevronRight size={14} aria-hidden="true" /></button>{/if}
-{#if saved}<p class="done" role="status" data-hello-saved>{t('Saved in the history of «Your questions».')}</p>{/if}
+{#if saved > 0}<p class="done" role="status" data-hello-saved>{t('Saved in the history of «Your questions».')}</p>{/if}
 
 {#if open}
-  <dialog use:keepTyped={'hello'} class="sheet vdlg from-below hs" bind:this={dialog} use:backClose onclose={() => (open = false)} aria-labelledby="hs-h" data-hello-sheet>
+  <dialog use:keepTyped={'hello'} class="sheet vdlg from-below hs" bind:this={dialog} use:backClose onclose={() => { flush(); open = false; }} aria-labelledby="hs-h" data-hello-sheet>
     <div class="vd-head">
       <div class="vd-t">
         <h2 id="hs-h">{helloTitle(name)}</h2>
-        <p class="vd-sub">{t('Two short questions, both optional')}</p>
+        <p class="vd-sub">{t('Everything optional, saved as you tap')}</p>
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
+    {#if adjusting}
+      {#if Editor}<Editor {cfg} onsave={saveButtons} />{/if}
+      <div class="vd-foot">
+        <button type="button" class="btn hi" onclick={() => (adjusting = false)} data-hello-back>{t('Back|hello')}</button>
+      </div>
+    {:else}
     <span class="lbl" id="hs-mood">{HELLO_MOOD}</span>
     <div class="faces" role="group" aria-labelledby="hs-mood">
-      {#each MOODS as m (m.key)}
-        {@const F = FACE[m.key]}
-        <button type="button" class="face" aria-pressed={mood === m.key} onclick={() => (mood = mood === m.key ? null : m.key)} data-mood={m.key}><F size={26} aria-hidden="true" /><span>{m.label}</span></button>
+      {#each faces as m (m.key)}
+        {@const F = FACE[m.key] ?? Smile}
+        <button type="button" class="face" class:yd={ydMood === m.key} aria-pressed={mood === m.key} onclick={() => { touch(); mood = mood === m.key ? null : m.key; }} data-mood={m.key}><F size={26} aria-hidden="true" /><span>{m.label}</span>{#if ydMood === m.key}<em>{t('yesterday|hello')}</em>{/if}</button>
       {/each}
     </div>
     <p class="obs">{t('Only an observation, no judgement.')}</p>
-    <label class="lbl" for="hs-plan">{HELLO_PLAN}</label>
-    <input id="hs-plan" class="inp" type="text" maxlength="200" bind:this={field} bind:value={text} placeholder={t('In a few words')} />
+    {#if groups.length}<button type="button" class="more" aria-expanded={more} onclick={() => (more = !more)} data-hello-more>{more ? t('Fewer|hello') : t('More|hello')}{feelings.length && !more ? ` · ${feelings.length}` : ''}</button>{/if}
+    {#if more && groups.length}
+      <div class="feel" data-hello-feel>
+        <span class="lbl">{HELLO_FEEL}</span>
+        {#each groups as g (g.id)}
+          <div class="ab-opts chips" role="group" aria-label={groupName(g, t)} data-feel-group={g.id}>
+            <span class="gn">{groupName(g, t)}</span>
+            {#each g.list as f (f.key)}
+              <button type="button" class="ab-opt" class:yd={ydFeelings.includes(f.key)} aria-pressed={feelings.includes(f.key)} onclick={() => { touch(); feelings = toggle(feelings, f.key); }} data-feel={f.key}>{#if f.emoji}<span aria-hidden="true">{f.emoji}</span> {/if}{f.label}</button>
+            {/each}
+          </div>
+        {/each}
+      </div>
+    {/if}
+    <label class="lbl plan-l" for="hs-plan">{HELLO_PLAN}</label>
+    <input id="hs-plan" class="inp" type="text" maxlength="200" bind:this={field} bind:value={text} oninput={touch} placeholder={t('In a few words')} />
     <div class="ab-opts chips" role="group" aria-label={HELLO_PLAN}>
-      {#each PLANS as p (p.key)}<button type="button" class="ab-opt" aria-pressed={plans.includes(p.key)} onclick={() => togglePlan(p.key)} data-plan={p.key}>{p.label}</button>{/each}
+      {#each plansOffered as p (p.key)}<button type="button" class="ab-opt" aria-pressed={plans.includes(p.key)} onclick={() => { touch(); plans = toggle(plans, p.key); }} data-plan={p.key}>{p.label}</button>{/each}
       <!-- HG1 (selbst entschieden): «+ eigener» puts the cursor into the field, an own plan is written there -->
       <button type="button" class="ab-opt own" onclick={() => field?.focus()}><Plus size={15} aria-hidden="true" />{HELLO_OWN}</button>
     </div>
+    <button type="button" class="more adj" onclick={adjust} data-hello-adjust><Pencil size={14} aria-hidden="true" />{t('Adjust buttons')}</button>
     <div class="vd-foot">
-      <small class="where"><Clock3 size={15} aria-hidden="true" />{t('lands in the history of «Your questions»')}</small>
-      <button type="button" class="btn" onclick={() => dialog.close()} data-hello-later>{t('Not now|hello')}</button>
-      <button type="button" class="btn hi" onclick={save} data-hello-save>{t('Save')}</button>
+      <small class="where"><Clock3 size={15} aria-hidden="true" />{t('Saved as you tap, in the history of «Your questions»')}</small>
+      <button type="button" class="btn hi" onclick={done} data-hello-save data-hello-done>{t('Done|hello')}</button>
     </div>
+    {/if}
   </dialog>
 {/if}
 
@@ -156,6 +232,46 @@
     padding: 7px 3px;
     color: var(--ink);
     background: var(--paper-2);
+  }
+  .face em {
+    font: 400 var(--fs-tiny) / 1 var(--font-body);
+    font-style: normal;
+    color: var(--ink-3);
+  }
+  .face.yd {
+    border-style: dashed;
+  }
+  .more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0 0 4px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+  }
+  .adj {
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .feel {
+    margin: 0 0 12px;
+  }
+  .gn {
+    flex: 1 0 100%;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  :global(.hs .ab-opt.yd) {
+    border-style: dashed;
+  }
+  .plan-l {
+    margin-top: 8px;
   }
   .obs {
     margin: 6px 2px 14px;
