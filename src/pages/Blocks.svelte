@@ -38,6 +38,8 @@
   import { tempRange } from '../lib/wardrobe.js';
   import { OUTDOOR_BLOCKS } from '../lib/context.js';
   import { localDay } from '../lib/localday.js';
+  import { standardHint } from '../lib/packcleanup.js';
+  import { PACK_RULES_KEY } from '../lib/packrules.svelte.js';
   import { REVIEW_KEY, reviewOpen, reviewBlocks } from '../lib/blocksplit.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet, restoreSetIn } from '../lib/gear/assign.js';
@@ -68,6 +70,9 @@
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const items = $derived($itemsQ ?? []);
   const sets = $derived(allSets($setsQ?.value));
+  // UI-Test T13 (G4-03): a heavy «Standard» comes on every trip; say it once, with the way to tidy up
+  const rulesQ = liveQuery(async () => (await db.settings.get(PACK_RULES_KEY)) ?? null); // null: no rules saved yet
+  const heavyStd = $derived($itemsQ && $rulesQ !== undefined ? standardHint($itemsQ, $setsQ?.value ?? [], $rulesQ?.value ?? null) : null);
   const cards = $derived(sets.map((s) => ({ ...s, ...setView(s, items), kind: blockKind(s.key) })));
   // v0.154.0: the groups of the Gesamtliste, in their order (Standard is its own row in «Auf jeder Fahrt»)
   const cardsOf = (keys) => keys.map((k) => cards.find((c) => c.key === k)).filter(Boolean);
@@ -534,6 +539,12 @@
     </Help>
   </p>
   <div class="bshare"><ShareBar label={t('Weight by group')} parts={weightParts} /></div>
+  {#if heavyStd}
+    <p class="stdheavy" role="note" data-std-heavy>
+      <Info size={16} aria-hidden="true" />
+      <span>{t('On bikepacking trips your Standard brings {kg} (without what you wear). «Tidy up» suggests {n} instead of {m} things.', { kg: formatWeight(heavyStd.g), n: heavyStd.suggested, m: heavyStd.n })} <a href="#/blocks/aufraeumen">{t('Look at it ›')}</a></span>
+    </p>
+  {/if}
 {/snippet}
 
 {#if selBlock}
@@ -1088,5 +1099,19 @@
   }
   .emptyfold > ul {
     margin-top: var(--sp-2);
+  }
+  .stdheavy {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: var(--sp-2) 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .stdheavy a {
+    color: var(--ink);
   }
 </style>
