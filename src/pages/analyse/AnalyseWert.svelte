@@ -23,6 +23,7 @@
   import { addDays } from '../../lib/analyse.js';
   import { LOAD_WEIGHTS } from '../../lib/analyse/own.js';
   import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
+  import { tripRows } from '../../lib/analyse/tourliste.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
   import { health } from '../../lib/health/client.svelte.js';
@@ -51,6 +52,7 @@
   let prevYear = $state(mine.prevYear === true);
   let picked = $state(null);
   let allDays = $state(false);
+  let allTours = $state(false);
   $effect(() => {
     try {
       const all = JSON.parse(localStorage.getItem(LS) ?? '{}') ?? {};
@@ -103,6 +105,8 @@
           .sort((a, b) => (b.startDate > a.startDate ? 1 : -1))
           .slice(0, 3),
   );
+  // Idea A: the trips of the shown days, each with the mean of the value over its days (newest first)
+  const tours = $derived(hours || !item?.get ? [] : tripRows(data.trips, win.days, tripEnd, item.get, today));
 
   // «Gesundheitssignale» (Noah 03.11.2026): your range of the last 60 days up to the last day shown, and the runs of 3 days or more outside it
   const sig = $derived.by(() => {
@@ -377,6 +381,23 @@
           </div>
         {/if}
       </section>
+
+      {#if tours.length}
+        <section class="card tours" aria-labelledby="wv-tours" data-trip-list>
+          <div class="ch"><h2 id="wv-tours">{t('Trips in this range|analyse')}</h2><small>{item.sum ? t('mean per day on the trip|analyse') : t('mean on the trip|analyse')}</small></div>
+          <ul class="tl">
+            {#each allTours ? tours : tours.slice(0, 5) as r (r.id ?? r.from)}
+              <li>
+                <svelte:element this={r.href ? 'a' : 'div'} class="trow" href={r.href ?? undefined} data-trip-row>
+                  <span class="tn"><b>{r.name || t('Trip|analyse')}</b><small>{r.from === r.to ? dfmt(r.from, { day: 'numeric', month: 'short' }) : `${dfmt(r.from, { day: 'numeric', month: 'short' })} – ${dfmt(r.to, { day: 'numeric', month: 'short' })}`}</small></span>
+                  <span class="tv num">{r.avg == null ? t('no value|analyse') : `Ø ${v(item, r.avg)}`}</span>
+                </svelte:element>
+              </li>
+            {/each}
+          </ul>
+          {#if tours.length > 5}<button type="button" class="lk more" data-all-tours onclick={() => (allTours = !allTours)}>{allTours ? t('Show fewer|analyse') : t('Show all {n} trips|analyse', { n: tours.length })}</button>{/if}
+        </section>
+      {/if}
 
       {#if sig}
         <section class="card sig" aria-labelledby="wv-sig" data-signals>
@@ -926,6 +947,40 @@
   }
   .ex {
     margin: 8px 0 0;
+    font-weight: 600;
+  }
+  .tl {
+    display: grid;
+    gap: 2px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .trow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .tn {
+    display: grid;
+    min-width: 0;
+  }
+  .tn b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tn small {
+    color: var(--ink-3);
+  }
+  .tv {
+    flex: none;
     font-weight: 600;
   }
   .dnav {
