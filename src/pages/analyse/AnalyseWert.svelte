@@ -25,7 +25,8 @@
   import { addDays } from '../../lib/analyse.js';
   import { LOAD_WEIGHTS } from '../../lib/analyse/own.js';
   import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
-  import { tripRows } from '../../lib/analyse/tourliste.js';
+  import { tripRows, RIDES_HREF } from '../../lib/analyse/tourliste.js';
+  import { db } from '../../lib/db.js';
   import { dailyLimit } from '../../lib/analyse/wochenbalken.js';
   import { sumBand } from '../../lib/analyse/ueblich.js';
   import { doneOn, doneText } from '../../lib/analyse/tagdavor.js';
@@ -127,6 +128,13 @@
           .slice(0, 3),
   );
   // Idea A: the trips of the shown days, each with the mean of the value over its days (newest first)
+  // trips with saved rides (only the distinct trip ids are read, not the rides): their row gets a second tip «Rides ›»
+  let rideTrips = $state(new Set());
+  $effect(() => {
+    let live = true;
+    db.rides.orderBy('tripId').uniqueKeys().then((ks) => live && (rideTrips = new Set(ks.filter((k) => k != null)))).catch(() => {});
+    return () => (live = false);
+  });
   const tours = $derived(hours || !item?.get ? [] : tripRows(data.trips, win.days, tripEnd, item.get, today));
   const weekPts = $derived(picked ? pts.find((p) => p.days.includes(picked)) : null);
   const weekly = $derived(!hours && pts.length > 0 && pts.length < win.days.length);
@@ -418,11 +426,12 @@
           <div class="ch"><h2 id="wv-tours">{t('Trips in this range|analyse')}</h2><small>{item.sum ? t('mean per day on the trip|analyse') : t('mean on the trip|analyse')}</small></div>
           <ul class="tl">
             {#each allTours ? tours : tours.slice(0, 5) as r (r.id ?? r.from)}
-              <li>
+              <li class="tli">
                 <svelte:element this={r.href ? 'a' : 'div'} class="trow" href={r.href ?? undefined} data-trip-row>
                   <span class="tn"><b>{r.name || t('Trip|analyse')}</b><small>{r.from === r.to ? dfmt(r.from, { day: 'numeric', month: 'short' }) : `${dfmt(r.from, { day: 'numeric', month: 'short' })} – ${dfmt(r.to, { day: 'numeric', month: 'short' })}`}</small></span>
                   <span class="tv num">{r.avg == null ? t('no value|analyse') : `Ø ${v(item, r.avg)}`}</span>
                 </svelte:element>
+                {#if r.href && rideTrips.has(r.id)}<a class="trides" href={RIDES_HREF} data-trip-rides aria-label={t('Rides of {trip}|analyse', { trip: r.name || t('Trip|analyse') })}>{t('Rides|analyse')} ›</a>{/if}
               </li>
             {/each}
           </ul>
@@ -1008,6 +1017,28 @@
     margin: 8px 0 0;
     padding: 0;
     list-style: none;
+  }
+  .tli {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tli .trow {
+    flex: 1;
+    min-width: 0;
+    border-bottom: 0;
+  }
+  .trides {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    text-decoration: underline;
+    text-decoration-color: var(--line);
   }
   .trow {
     display: flex;
