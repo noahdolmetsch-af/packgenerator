@@ -4,7 +4,7 @@ Auftrag: Noah «Ok» (Thread «Prüfen roten Nacht-Rundgang»). Der Nacht-Rundga
 
 ## Was ist neu
 - Die Fundliste (Neuland › Fundliste, auch im Rückblick) bricht einen sehr langen Namen eines eigenen Eintrags um. Vorher schob er die Seite auf dem Handy seitlich.
-- Technisch: die Textspalte der Zeile darf schmaler werden (`minmax(0, 1fr)`), das Wort bricht überall (`overflow-wrap: anywhere`).
+- Technisch: die Textspalte der Zeile darf schmaler werden (`minmax(0, 1fr)`), das Wort bricht um (`overflow-wrap: break-word`).
 
 ## Was fällt weg oder rutscht tiefer
 - nichts
