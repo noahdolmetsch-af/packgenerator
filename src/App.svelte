@@ -5,6 +5,7 @@
   import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
   import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
+  import { noteHashMove } from './lib/nav/herkunft.svelte.js';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
@@ -119,6 +120,7 @@
       moved = null;
       const from = hash;
       hash = follow(location.hash);
+      noteHashMove(from, hash); // «Zurück zu Heute»: the value pages of Analyse remember where you came from
       clearTimeout(slideTimer);
       const dir = slideDir(from, hash);
       slide = dir ? `${dir}${slideN++ % 2}` : '';

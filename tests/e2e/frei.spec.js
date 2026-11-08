@@ -157,6 +157,21 @@ test('a collection as a page: the link opens a read-only page, and a collection 
   await expect(page.locator('[data-shared-coll]')).toContainText('Tomaten');
   await expect(page.locator('[data-print]')).toBeVisible();
   expect(await noScroll(page)).toBe(true);
+  await shot(page, info, 'frei-geteilt-uebernehmen');
+  // keep it: an own collection with the entry; Undo takes it back (the text only, as lines in the text field)
+  await page.locator('[data-keep]').click();
+  await expect(page.locator('[data-kept]')).toContainText('Übernommen als');
+  await expect(page.locator('[role="status"]').filter({ hasText: T('«{name}» is now in your collections.', { name: 'Rezepte' }) })).toBeVisible();
+  await shot(page, info, 'frei-geteilt-uebernommen');
+  await page.locator('[data-kept-open]').click();
+  await expect(page.locator('[data-entry]')).toContainText('test_data_frei_Pasta');
+  await expect(page.locator('[data-entry]')).toContainText('Tomaten');
+  await page.goBack();
+  await page.getByRole('button', { name: /Rückgängig/ }).first().click();
+  await expect(page.locator('[data-keep]')).toBeVisible();
+  await page.goto('./#/me/frei/sammlungen');
+  await ready(page);
+  await expect(page.locator('body')).not.toContainText('Übernommen als');
   expect(errors).toEqual([]);
 });
 

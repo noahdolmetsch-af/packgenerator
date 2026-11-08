@@ -11,8 +11,11 @@
   import { db } from '../lib/db.js';
   import { RACES_KEY, racesOf } from '../lib/race/race.js';
   import { raceChoices } from '../lib/training/plans.js';
-  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, untilStart, applyAuto } from '../lib/weg/weg.js';
+  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
+  import { milestones } from '../lib/weg/types/proben.js';
+  import { windowOf, sayWindow } from '../lib/weg/wetter.js';
+  import { rainLimit } from '../lib/rainlimit.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -23,7 +26,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
-  import { Flag, Plus, Check, Pencil, Trash2, ChevronRight, CalendarClock } from '@lucide/svelte';
+  import { Flag, Plus, Check, Pencil, Trash2, ChevronRight, CalendarClock, Ellipsis, Sun, CloudRain } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -81,6 +84,32 @@
   const rows = $derived(goal ? timeline(goal, today) : []);
   const prog = $derived(goal ? progress(goal, today) : null);
   const until = $derived(goal ? untilStart(goal, today) : null);
+  // the strip «Organisation: 3 of 5 settled» (Noah «1d»)
+  const orga = $derived(goal ? typeProgress(goal, 'orga', today) : null);
+  const orgaNext = $derived.by(() => {
+    const s = orga?.soon;
+    if (!s) return '';
+    const name = s.row.step.title;
+    if (s.days === 0) return t('Next deadline: {name}, today', { name });
+    if (s.days < 0) return tn(-s.days, 'Next deadline: {name}, {n} day late', 'Next deadline: {name}, {n} days late', { name });
+    return tn(s.days, 'Next deadline: {name}, in {n} day', 'Next deadline: {name}, in {n} days', { name });
+  });
+  // the strip «Practice rides» (Noah «3a»): circles for 50 / 100 / 200 km
+  const proben = $derived(goal ? milestones(goal, today, { ...ctx.proben, today }) : { best: 0, items: [] });
+  // the weather window from 7 days before the start (Noah «4a»): the forecast the tour has saved
+  const wetter = $derived(goal ? windowOf(goal, $tripsQ ?? [], today, rainLimit()) : null);
+  const wDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' });
+  const wWord = (d) => `${wDay(d)} ${Number(d.slice(8))}.`;
+  const wsay = $derived.by(() => {
+    if (!wetter) return null;
+    const s = sayWindow(wetter);
+    const vars = { ...s.vars, ...(s.vars.from ? { from: wWord(s.vars.from), to: wWord(s.vars.to) } : {}) };
+    return { title: t(s.title, vars), text: t(s.text, vars), extra: s.extra ? t(s.extra) : '' };
+  });
+  function toOrgaList() {
+    const li = document.querySelector('[data-weg-step][data-type="orga"]:not(.done)') ?? document.querySelector('[data-weg-step][data-type="orga"]');
+    li?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
   const groups = $derived.by(() => {
     const out = [];
     for (const r of rows) {
@@ -141,6 +170,14 @@
   }
   const stepGoal = (dir) => goal && save(moveGoal(w, gi, gi + dir));
 
+  // ---- the «…» menus: one open at a time, for the way or for one step (Noah 07.11. «a»: calm rows, editing behind «…»)
+  let menu = $state(null); // { kind: 'goal' } | { kind: 'step', id }
+  const isOpen = (kind, id = '') => menu?.kind === kind && (menu.id ?? '') === id;
+  const toggleMenu = (kind, id = '') => (menu = isOpen(kind, id) ? null : { kind, id });
+  // the line «Today» stands before the first step after today (or at the end of the dated ones)
+  const todayBefore = $derived(rows.find((r) => !r.due || r.due > today)?.step.id ?? '');
+  let ownOpen = $state(false);
+
   // ---- steps
   let sTitle = $state('');
   let sDue = $state('');
@@ -150,6 +187,7 @@
     const next = addOwnStep(goal, { title: sTitle, due: sDue });
     sTitle = ''; // clear at once, so what you type next is not wiped when the save ends
     sDue = '';
+    ownOpen = false;
     await putGoal(next);
   }
   async function removeThisStep(r) {
@@ -207,65 +245,140 @@
   {/if}
 
   {#if goal && !adding}
-    <section class="card pad wg-hero" aria-label={goal.title} data-weg-goal>
+    <section class="wg-hero" aria-label={goal.title} data-weg-goal>
       <div class="wg-top">
-        <div>
+        <div class="wg-head">
           <p class="wg-kicker">{kindName(goal.kind)}</p>
           <h2>{goal.title}</h2>
           <p class="wg-when">
+            {#if goal.start}{dayText(goal.start)}{' · '}{/if}
             {#if until && until.days >= 0}{tn(until.weeks, 'Start in {n} week', 'Start in {n} weeks')}
             {:else if until}{t('The start day is over.')}
             {:else}{t('The start day is still open.')}{/if}
           </p>
         </div>
-        <div class="wg-tools">
-          {#if w.goals.length > 1}<SortArrows name={goal.title} i={gi} n={w.goals.length} onstep={stepGoal} />{/if}
-          <button type="button" class="btn" onclick={() => (renaming = { kind: 'goal' })} aria-label={t('Rename {name}', { name: goal.title })}><Pencil size={16} aria-hidden="true" /></button>
-          <button type="button" class="btn" onclick={removeThisGoal} aria-label={t('Delete {name}', { name: goal.title })} data-weg-delete><Trash2 size={16} aria-hidden="true" /></button>
-        </div>
+        <button type="button" class="wg-dots" aria-expanded={isOpen('goal')} aria-label={t('Edit {name}', { name: goal.title })} onclick={() => toggleMenu('goal')} data-weg-menu><Ellipsis size={20} aria-hidden="true" /></button>
       </div>
-      <label class="wg-f wg-startf"><span><CalendarClock size={14} aria-hidden="true" /> {t('Start day')}</span><DateInput value={goal.start} onchange={(v) => putGoal(setStart({ goals: [goal] }, goal.id, v).goals[0])} data-weg-start-edit /></label>
       {#if prog?.total}
         <div class="wg-bar" role="progressbar" aria-valuemin="0" aria-valuemax={prog.total} aria-valuenow={prog.done} aria-label={t('Steps done')}><i style:width="{Math.round((prog.done / prog.total) * 100)}%"></i></div>
-        <p class="ich-help">{t('{done} of {total} steps done', { done: num(prog.done), total: num(prog.total) })}{#if prog.late}{' · '}{tn(prog.late, '{n} late', '{n} late')}{/if}</p>
+        <p class="wg-prog">{t('{done} of {total} steps done', { done: num(prog.done), total: num(prog.total) })}{#if prog.late}{' · '}{tn(prog.late, '{n} late', '{n} late')}{/if}</p>
+      {/if}
+      {#if isOpen('goal')}
+        <div class="wg-menu" data-weg-menu-panel>
+          <label class="wg-startf"><span><CalendarClock size={14} aria-hidden="true" /> {t('Start day')}</span><DateInput value={goal.start} onchange={(v) => putGoal(setStart({ goals: [goal] }, goal.id, v).goals[0])} data-weg-start-edit /></label>
+          <div class="wg-acts">
+            {#if w.goals.length > 1}<SortArrows name={goal.title} i={gi} n={w.goals.length} onstep={stepGoal} />{/if}
+            <button type="button" class="btn" onclick={() => { menu = null; renaming = { kind: 'goal' }; }} aria-label={t('Rename {name}', { name: goal.title })}><Pencil size={16} aria-hidden="true" /> {t('Rename')}</button>
+            <button type="button" class="btn" onclick={removeThisGoal} aria-label={t('Delete {name}', { name: goal.title })} data-weg-delete><Trash2 size={16} aria-hidden="true" /> {t('Delete')}</button>
+          </div>
+        </div>
       {/if}
     </section>
+
+    {#if orga?.total}
+      <section class="card pad wg-orga" class:all={orga.done === orga.total} data-weg-orga aria-label={t('Organisation')}>
+        <div class="wg-orga-text">
+          <b>{orga.done === orga.total ? t('Organisation: all {total} settled', { total: num(orga.total) }) : t('Organisation: {done} of {total} settled', { done: num(orga.done), total: num(orga.total) })}</b>
+          {#if orgaNext}<span class="wg-sub">{orgaNext}</span>{/if}
+        </div>
+        <button type="button" class="btn" onclick={toOrgaList} data-weg-orga-go>{t('To the list')} <ChevronRight size={14} aria-hidden="true" /></button>
+      </section>
+    {/if}
+
+    {#if proben.items.length}
+      <section class="card pad wg-proben" data-weg-proben aria-label={t('Practice rides')}>
+        <h3>{t('Practice rides')}</h3>
+        <div class="wg-circles">
+          {#each proben.items as m (m.id)}
+            {@const done = goal.steps.find((s) => s.id === m.id)?.done}
+            <div class="wg-circle-box">
+              <button type="button" class="wg-circle" class:on={done} class:late={!done && m.state === 'late'} aria-pressed={!!done} aria-label={done ? t('Practice ride of {km} km, done', { km: m.km }) : t('Practice ride of {km} km, open', { km: m.km })} onclick={() => putGoal(setDone(goal, m.id, !done))} data-weg-proben-circle>
+                {#if done}<Check size={28} aria-hidden="true" />{:else}{num(m.km)}{/if}
+              </button>
+              <b>{t('{km} km', { km: num(m.km) })}</b>
+              <span class="wg-sub">{dayText(m.due)}</span>
+            </div>
+          {/each}
+        </div>
+        <p class="wg-sub wg-proben-note">{proben.best ? t('Longest ride so far: {km} km', { km: num(proben.best) }) : t('No ride counted yet. Strava rides tick the circles by themselves; tap a circle to tick by hand.')}</p>
+      </section>
+    {/if}
+
+    {#if wetter && wsay}
+      <section class="card pad wg-wetter" data-weg-wetter aria-label={t('Weather window, 7 days before the start')}>
+        <h3>{t('Weather window for the start')}</h3>
+        <b class="wg-wtitle">{wsay.title}</b>
+        <p class="wg-sub">{wsay.text}{#if wsay.extra}{' '}{wsay.extra}{/if}</p>
+        {#if wetter.days.length}
+          <ul class="wg-days">
+            {#each wetter.days as d (d.date)}
+              <li class:wet={d.wet} class:start={d.isStart} aria-label={t('{pct} % rain on {day}', { pct: num(d.pct), day: wWord(d.date) })}>
+                <b>{wWord(d.date)}</b>
+                {#if d.wet}<CloudRain size={22} aria-hidden="true" />{:else}<Sun size={22} aria-hidden="true" />{/if}
+                <small>{num(d.pct)} %</small>
+              </li>
+            {/each}
+          </ul>
+          <p class="wg-sub">{t('Rain chance per day, from the forecast saved with the tour.')}</p>
+        {:else}
+          <a class="wg-go" href="#/pack">{t('Open')} <ChevronRight size={14} aria-hidden="true" /></a>
+        {/if}
+      </section>
+    {/if}
 
     {#if !rows.length}
       <Empty icon={Flag} text={t('No steps yet. Add your first step below: it stays a suggestion, you can change it any time.')} />
     {/if}
 
-    {#each groups as grp (grp.phase + grp.rows[0].step.id)}
-      <section class="card pad wg-phase" aria-label={t(PHASE_NAMES[grp.phase])}>
-        <h3>{t(PHASE_NAMES[grp.phase])}</h3>
-        <ul class="wg-steps">
-          {#each grp.rows as r (r.step.id)}
-            <li class:done={r.state === 'done'} class:late={r.state === 'late'} data-weg-step>
-              <button type="button" class="wg-check" class:on={r.step.done} aria-pressed={r.step.done} aria-label={t('Done: {name}', { name: r.step.title })} onclick={() => putGoal(setDone(goal, r.step.id, !r.step.done))}>{#if r.step.done}<Check size={16} aria-hidden="true" />{/if}</button>
+    {#if rows.length}
+      <section class="card pad wg-timeline" aria-label={t('Way to the goal')}>
+        <ol class="wg-line">
+          {#each rows as r, i (r.step.id)}
+            {#if i === 0 || rows[i - 1].phase !== r.phase}
+              <li class="wg-ph" aria-hidden="true">{t(PHASE_NAMES[r.phase])}</li>
+            {/if}
+            {#if r.step.id === todayBefore}
+              <li class="wg-today" aria-label={t('Today')}><span>{t('Today')} · {dayText(today)}</span></li>
+            {/if}
+            <li class="wg-row" class:done={r.state === 'done'} class:late={r.state === 'late'} data-weg-step data-type={r.step.type}>
+              <button type="button" class="wg-check" class:on={r.step.done} aria-pressed={r.step.done} aria-label={t('Done: {name}', { name: r.step.title })} onclick={() => putGoal(setDone(goal, r.step.id, !r.step.done))}><span class="wg-dot">{#if r.step.done}<Check size={14} aria-hidden="true" />{/if}</span></button>
               <div class="wg-body">
-                <b>{r.step.title}</b>
                 <span class="wg-sub">{dayText(r.due)}{#if r.state === 'late'}{' · '}<em>{t('Late|step')}</em>{/if}{#if r.step.by === 'auto'}{' · '}{t('ticked by the app')}{/if}</span>
+                <b>{r.step.title}</b>
+                {#if r.step.note}<span class="wg-note">{r.step.note}</span>{/if}
                 {#if linkOf(r)}<a class="wg-go" href={linkOf(r)}>{t('Open')} <ChevronRight size={14} aria-hidden="true" /></a>{/if}
               </div>
-              <div class="wg-row-tools">
-                <DateInput value={r.step.due || r.due} onchange={(v) => putGoal(setDue(goal, r.step.id, v))} aria-label={t('Day of {name}', { name: r.step.title })} />
-                <button type="button" class="btn" onclick={() => (renaming = { kind: 'step', id: r.step.id })} aria-label={t('Rename {name}', { name: r.step.title })}><Pencil size={16} aria-hidden="true" /></button>
-                <button type="button" class="btn" onclick={() => removeThisStep(r)} aria-label={t('Delete {name}', { name: r.step.title })}><Trash2 size={16} aria-hidden="true" /></button>
-              </div>
+              <button type="button" class="wg-dots" aria-expanded={isOpen('step', r.step.id)} aria-label={t('Edit {name}', { name: r.step.title })} onclick={() => toggleMenu('step', r.step.id)}><Ellipsis size={18} aria-hidden="true" /></button>
+              {#if isOpen('step', r.step.id)}
+                <div class="wg-menu">
+                  <label class="wg-startf"><span><CalendarClock size={14} aria-hidden="true" /> {t('Day (optional)')}</span><DateInput value={r.step.due || r.due} onchange={(v) => putGoal(setDue(goal, r.step.id, v))} aria-label={t('Day of {name}', { name: r.step.title })} /></label>
+                  <div class="wg-acts">
+                    <button type="button" class="btn" onclick={() => { menu = null; renaming = { kind: 'step', id: r.step.id }; }} aria-label={t('Rename {name}', { name: r.step.title })}><Pencil size={16} aria-hidden="true" /> {t('Rename')}</button>
+                    <button type="button" class="btn" onclick={() => removeThisStep(r)} aria-label={t('Delete {name}', { name: r.step.title })}><Trash2 size={16} aria-hidden="true" /> {t('Delete')}</button>
+                  </div>
+                </div>
+              {/if}
             </li>
           {/each}
-        </ul>
+          {#if todayBefore === '' && rows.length}
+            <li class="wg-today" aria-label={t('Today')}><span>{t('Today')} · {dayText(today)}</span></li>
+          {/if}
+        </ol>
       </section>
-    {/each}
+    {/if}
 
-    <form class="card pad wg-own" onsubmit={addOwn} data-weg-own>
-      <h3>{t('Add your own step')}</h3>
-      <div class="wg-own-row">
-        <input class="inp" bind:value={sTitle} maxlength="120" placeholder={t('For example: book the train')} aria-label={t('Step')} data-weg-step-title />
-        <DateInput bind:value={sDue} aria-label={t('Day (optional)')} />
-        <button type="submit" class="btn hi" disabled={!sTitle.trim()}><Plus size={16} aria-hidden="true" /> {t('Add')}</button>
-      </div>
-    </form>
+    {#if ownOpen}
+      <form class="card pad wg-own" onsubmit={addOwn} data-weg-own>
+        <h3>{t('Add your own step')}</h3>
+        <div class="wg-own-row">
+          <input class="inp" bind:value={sTitle} maxlength="120" placeholder={t('For example: book the train')} aria-label={t('Step')} data-weg-step-title />
+          <DateInput bind:value={sDue} aria-label={t('Day (optional)')} />
+          <button type="submit" class="btn hi" disabled={!sTitle.trim()}><Plus size={16} aria-hidden="true" /> {t('Add')}</button>
+        </div>
+      </form>
+    {:else}
+      <p class="wg-more"><button type="button" class="btn" onclick={() => (ownOpen = true)} data-weg-own-open><Plus size={16} aria-hidden="true" /> {t('Add your own step')}</button></p>
+    {/if}
   {/if}
 
   {#if w.goals.length && !adding}
@@ -289,30 +402,75 @@
 <style>
   .wg-intro { max-width: 65ch; margin: 0 0 var(--sp-4); }
   .wg-goals { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-3); }
-  .wg-top { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: flex-start; flex-wrap: wrap; }
-  .wg-top h2 { margin: 0; }
-  .wg-kicker { margin: 0; font-size: var(--fs-small); font-weight: 600; color: var(--ink-3); }
-  .wg-when { margin: var(--sp-1) 0 0; font-weight: 600; }
-  .wg-tools { display: flex; gap: var(--sp-2); align-items: center; }
   .wg-f { display: grid; gap: var(--sp-1); margin: var(--sp-3) 0; }
   .wg-f > span { font-size: var(--fs-small); font-weight: 600; }
   .wg-pick { display: flex; gap: var(--sp-2); align-items: center; min-height: 44px; }
-  .wg-acts { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
-  .wg-bar { height: 10px; border-radius: 6px; background: var(--paper-2); overflow: hidden; margin-top: var(--sp-3); }
-  .wg-bar i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
-  .wg-phase, .wg-hero, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
-  .wg-phase h3, .wg-own h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
-  .wg-steps { list-style: none; margin: 0; padding: 0; }
-  .wg-steps li { display: flex; gap: var(--sp-3); align-items: flex-start; padding: var(--sp-3) 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
-  .wg-steps li:first-child { border-top: 0; }
-  .wg-steps li.done .wg-body b { text-decoration: line-through; color: var(--ink-3); }
-  .wg-steps li.late .wg-sub em { color: var(--warn); font-style: normal; font-weight: 600; }
-  .wg-check { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--line); background: var(--paper); display: grid; place-items: center; cursor: pointer; }
-  .wg-check.on { background: var(--accent); border-color: var(--accent); color: var(--brand-ink); }
-  .wg-body { flex: 1; min-width: 12ch; display: grid; gap: 2px; }
+  .wg-acts { display: flex; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
   .wg-sub { font-size: var(--fs-small); color: var(--ink-3); }
+
+  /* the head of the way: dark, calm, one glance (mockup G1) */
+  .wg-hero { background: var(--ink); color: var(--paper); border-radius: 18px; padding: var(--sp-4); margin-bottom: var(--sp-4); }
+  .wg-top { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: flex-start; }
+  .wg-head { min-width: 0; }
+  .wg-hero h2 { margin: 0; color: var(--paper); overflow-wrap: break-word; }
+  .wg-kicker { margin: 0; font-size: var(--fs-small); font-weight: 600; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.04em; }
+  .wg-when { margin: var(--sp-1) 0 0; font-weight: 600; }
+  .wg-prog { margin: var(--sp-2) 0 0; font-size: var(--fs-small); opacity: 0.85; }
+  .wg-bar { height: 10px; border-radius: 6px; background: var(--ink-3); overflow: hidden; margin-top: var(--sp-3); }
+  .wg-bar i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+  .wg-hero .wg-dots { color: var(--paper); border-color: var(--ink-3); background: transparent; }
+  .wg-hero .wg-menu { border-top-color: var(--ink-3); }
+  .wg-hero .wg-startf > span { color: var(--paper); }
+
+  /* «…»: the one place for rename, move and delete */
+  .wg-dots { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--ink-3); display: grid; place-items: center; cursor: pointer; }
+  .wg-menu { flex-basis: 100%; display: grid; gap: var(--sp-3); margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--line); }
+  .wg-startf { display: grid; gap: var(--sp-1); }
+  .wg-startf > span { font-size: var(--fs-small); font-weight: 600; display: inline-flex; gap: var(--sp-1); align-items: center; }
+
+  /* the strips above the line */
+  .wg-orga { display: flex; gap: var(--sp-3); align-items: center; justify-content: space-between; flex-wrap: wrap; border-left: 4px solid var(--warn); }
+  .wg-orga.all { border-left-color: var(--ok); }
+  .wg-orga-text { display: grid; gap: var(--sp-1); min-width: 0; }
+  .wg-proben h3 { margin: 0 0 var(--sp-3); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-circles { display: flex; justify-content: center; gap: var(--sp-6); flex-wrap: wrap; }
+  .wg-circle-box { display: grid; justify-items: center; gap: 2px; text-align: center; }
+  .wg-circle { width: 64px; height: 64px; border-radius: 50%; border: 2px dashed var(--line); background: var(--paper); color: var(--ink-3); font-weight: 700; display: grid; place-items: center; cursor: pointer; margin-bottom: var(--sp-1); }
+  .wg-circle.on { border-style: solid; background: var(--accent); border-color: var(--accent); color: var(--brand-ink); }
+  .wg-circle.late { border-color: var(--warn); }
+  .wg-proben-note { margin: var(--sp-3) 0 0; text-align: center; }
+  .wg-wetter h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-wtitle { font-size: var(--fs-sub); }
+  .wg-days { list-style: none; margin: var(--sp-3) 0 var(--sp-2); padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(3.6rem, 1fr)); gap: var(--sp-2); }
+  .wg-days li { display: grid; justify-items: center; gap: 2px; padding: var(--sp-2) var(--sp-1); border-radius: 12px; border: 1px solid var(--line); background: var(--paper-2); color: var(--ink); text-align: center; }
+  .wg-days li:not(.wet) { border-color: var(--ok); }
+  .wg-days li.start { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .wg-days li.wet { color: var(--ink-3); }
+  .wg-days small { font-size: var(--fs-small); }
+  .wg-orga, .wg-proben, .wg-wetter, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+
+  /* the way: one line with dots, «Today» marked on it (mockup G1) */
+  .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }
+  .wg-line::before { content: ''; position: absolute; left: 21px; top: 8px; bottom: 8px; width: 3px; background: var(--line); border-radius: 3px; }
+  .wg-ph { position: relative; margin: var(--sp-4) 0 0 56px; padding-bottom: var(--sp-1); border-bottom: 1px solid var(--line); font-size: var(--fs-small); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-ph:first-child { margin-top: 0; }
+  .wg-today { position: relative; margin: var(--sp-3) 0; padding-left: 56px; }
+  .wg-today::before { content: ''; position: absolute; left: 12px; top: 50%; width: 21px; height: 21px; margin-top: -10px; border-radius: 50%; background: var(--warn); border: 3px solid var(--paper); box-sizing: border-box; }
+  .wg-today span { display: inline-block; font-size: var(--fs-small); font-weight: 700; color: var(--warn); }
+  .wg-row { position: relative; display: flex; gap: var(--sp-2); align-items: flex-start; padding: var(--sp-3) 0 var(--sp-3) 56px; flex-wrap: wrap; }
+  .wg-row + .wg-row { border-top: 1px solid var(--line); }
+  .wg-row .wg-check { position: absolute; left: 0; top: var(--sp-2); width: 44px; height: 44px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; }
+  .wg-dot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid var(--line); background: var(--paper); color: var(--brand-ink); display: grid; place-items: center; box-sizing: border-box; }
+  .wg-check.on .wg-dot { background: var(--ok); border-color: var(--ok); }
+  .wg-row.late .wg-dot { border-color: var(--warn); }
+  .wg-row.late .wg-sub em { color: var(--warn); font-style: normal; font-weight: 600; }
+  .wg-row.done .wg-body b { color: var(--ink-3); }
+  .wg-body { flex: 1; min-width: 12ch; display: grid; gap: 2px; }
+  .wg-body b { font-size: var(--fs-body); }
+  .wg-note { font-size: var(--fs-small); color: var(--ink-3); }
   .wg-go { display: inline-flex; align-items: center; font-weight: 600; min-height: 32px; }
-  .wg-row-tools { display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap; }
+  .wg-row .wg-menu { margin-left: 0; }
+  .wg-own h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-own-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
   .wg-own-row .inp { flex: 1; min-width: 14ch; }
   .wg-more { margin: var(--sp-3) 0 var(--sp-6); }

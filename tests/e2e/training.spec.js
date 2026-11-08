@@ -552,3 +552,131 @@ test('Training › Wochenlast: a week far above the last three offers a lighter 
   await expect(card).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Training › Bibliothek: examples, keep, plan again, groups, most used first, rename, delete with Undo', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const plan = page.locator('[data-section="week-plan"]');
+  const adds = plan.locator('[data-add]');
+  await adds.nth(2).click();
+  const form = plan.locator('[data-session-form]');
+  // it starts with the 6 examples
+  await expect(form.locator('[data-library-pick]')).toHaveCount(6);
+  await form.locator('[data-session-name]').fill('Beispiel Intervalle');
+  await form.locator('[data-session-mins]').fill('75');
+  await form.locator('[data-library-save]').click();
+  await expect(form.locator('[data-library-pick]')).toHaveCount(7);
+  await form.getByRole('button', { name: 'Abbrechen' }).click();
+  // another day: the kept session fills the form and counts as used, so it stands first
+  await adds.nth(4).click();
+  await plan.locator('[data-library-pick]', { hasText: 'Beispiel Intervalle' }).click();
+  await expect(plan.locator('[data-session-name]')).toHaveValue('Beispiel Intervalle');
+  await expect(plan.locator('[data-session-mins]')).toHaveValue('75');
+  await expect(plan.locator('[data-library-pick]').first()).toContainText('Beispiel Intervalle');
+  await expect(plan.locator('[data-library-pick]').first()).toContainText('1×');
+  // manage: a new group for the kept session, rename it, then delete it (the session stays, without a group)
+  await plan.locator('summary', { hasText: 'Bibliothek verwalten' }).click();
+  const id = await plan.locator('[data-library-pick]', { hasText: 'Beispiel Intervalle' }).getAttribute('data-library-pick');
+  await plan.locator(`[data-library-group="${id}"]`).selectOption('__new');
+  await plan.locator('[data-library-newgroup]').fill('Berg');
+  await plan.locator('[data-library-newgroup]').press('Enter');
+  await expect(plan.locator('[data-library-block="Berg"]')).toBeVisible();
+  await plan.locator('[data-library-group-delete]').click();
+  await page.locator('dialog.gds button.del').click();
+  await expect(plan.locator('[data-library-group-delete]')).toHaveCount(0);
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
+  // rename and delete one with Undo
+  const nameInput = plan.locator(`[data-library-name="${id}"]`);
+  await nameInput.fill('Umbenannt');
+  await nameInput.blur();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toContainText('Umbenannt');
+  await plan.locator(`[data-library-delete="${id}"]`).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
+  // remembered after a reload
+  await page.reload();
+  await ready(page);
+  await adds.nth(1).click();
+  await expect(plan.locator(`[data-library-pick="${id}"]`)).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Nächste Woche: the look back offers hours for next week and opens its suggestion', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  // the card shows from Friday: the clock stands on the Friday of this week
+  const wed = new Date(`${localDay()}T12:00:00Z`);
+  const friDay = new Date(wed.getTime() + 2 * 86400000).toISOString().slice(0, 10);
+  await page.clock.setFixedTime(new Date(`${friDay}T12:00:00+01:00`));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const today = friDay;
+  const dt = new Date(`${today}T12:00:00Z`);
+  const mon = new Date(dt.getTime() - ((dt.getUTCDay() + 6) % 7) * 86400000);
+  const lastWed = new Date(mon.getTime() - 5 * 86400000).toISOString().slice(0, 10);
+  const nextMon = new Date(mon.getTime() + 7 * 86400000).toISOString().slice(0, 10);
+  await page.evaluate(
+    (day) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('activities', 'readwrite');
+          tx.objectStore('activities').put({ id: 'nw1', day, kind: 'bike', type: 'Ride', name: 'test_data_gtp_ Nächste Woche', movingS: 14400, elapsedS: 14400 });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    lastWed,
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="next-week"]');
+  await expect(card).toBeVisible();
+  await expect(card.locator('[data-next-reason]')).toBeVisible();
+  // the fixture activities of last week count too: take the hours from the button
+  const hoursOnButton = ((await card.locator('[data-next-pick="more"]').innerText()).match(/· ([\d.,]+) h/) ?? [])[1];
+  expect(hoursOnButton).toBeTruthy();
+  await card.locator('[data-next-pick="more"]').click();
+  const sug = page.locator('[data-suggest]');
+  await expect(sug).toBeVisible();
+  await expect(sug.locator('[data-sug-hours] b.num')).toHaveText(hoursOnButton);
+  // the shown week is next week: its Monday is the first day of the plan
+  await expect(page.locator(`[data-add="${nextMon}"]`)).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('Training › Nächste Woche: not before Friday, «Jetzt nicht» puts it away for the week', async ({ page, context, baseURL }) => {
+  const wed = new Date(`${localDay()}T12:00:00Z`);
+  const friDay = new Date(wed.getTime() + 2 * 86400000).toISOString().slice(0, 10);
+  await page.clock.setFixedTime(new Date(`${friDay}T12:00:00+01:00`));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const dt = new Date(`${friDay}T12:00:00Z`);
+  const lastWed = new Date(dt.getTime() - 9 * 86400000).toISOString().slice(0, 10);
+  await page.evaluate(
+    (day) =>
+      new Promise((ok) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const tx = r.result.transaction('activities', 'readwrite');
+          tx.objectStore('activities').put({ id: 'nw2', day, kind: 'bike', type: 'Ride', name: 'test_data_gtp_ Nächste Woche', movingS: 14400, elapsedS: 14400 });
+          tx.oncomplete = () => (r.result.close(), ok());
+        };
+      }),
+    lastWed,
+  );
+  await page.reload();
+  await ready(page);
+  const card = page.locator('[data-section="next-week"]');
+  await expect(card).toBeVisible();
+  await card.locator('[data-next-later]').click();
+  await expect(card).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-section="next-week"]')).toHaveCount(0);
+});

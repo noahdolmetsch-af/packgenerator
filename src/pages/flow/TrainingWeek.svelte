@@ -18,7 +18,7 @@
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, TODAYKEEP_KEY, LOADKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
+  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, NEXTKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
@@ -26,6 +26,8 @@
   import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import { weekLoadHint, scaleWeek } from '../../lib/training/suggest.js';
+  import NextWeek from '../../lib/training/plans/NextWeek.svelte'; // «Training verbessern» 8: «Next week» in the look back
+  import Library from '../../lib/training/plans/Library.svelte'; // «Training verbessern» 7: «From your library»
   import WeekLoad from '../../lib/training/plans/WeekLoad.svelte'; // «Training verbessern» 6: «A lighter week would fit»
   import Missed from '../../lib/training/plans/Missed.svelte'; // «Training verbessern» 5: «Missed one? Move it»
   import TodayFits from '../../lib/training/plans/TodayFits.svelte'; // «Training verbessern» 4: «Today a lighter one fits»
@@ -105,6 +107,59 @@
       await db.settings.delete(TODAYKEEP_KEY);
       await savePlan(plan.map((x) => (x.id === before.id ? before : x)));
     });
+  }
+
+  // «Training verbessern» 8: the look back suggests next week (hours like last week, a little more, easier); a tap opens its suggestion
+  let nextPreset = $state(null);
+  const lastWeekHours = $derived(weekNumbers(acts, plan, shiftDay(mondayOf(today), -7), zones.bounds).secs / 3600);
+  // from Friday to Sunday, until next week is planned or «Not now» is tapped; it says why and shows the goals per sport
+  const nextMonday = $derived(shiftDay(mondayOf(today), 7));
+  const todayDow = $derived((new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7);
+  const nextKeepQ = liveQuery(async () => (await db.settings.get(NEXTKEEP_KEY))?.value ?? null);
+  const nextPlanned = $derived(plan.some((s) => s.day >= nextMonday && s.day < shiftDay(nextMonday, 7)));
+  const showNext = $derived(monday === mondayOf(today) && todayDow >= 4 && !nextPlanned && $nextKeepQ?.monday !== mondayOf(today));
+  const lastPlanned = $derived(plan.filter((s) => s.day >= shiftDay(mondayOf(today), -7) && s.day < mondayOf(today)));
+  const lastMissed = $derived(lastPlanned.filter((s) => !doneOf(s, acts.filter((a) => a.day === s.day))));
+  const nextReason = $derived(
+    lastMissed.length
+      ? tn(lastMissed.length, '1 planned session did not happen last week.', '{n} planned sessions did not happen last week.')
+      : lastPlanned.length
+        ? t('All planned sessions of last week were done.')
+        : t('Nothing was planned last week: the hours you trained count.'),
+  );
+  const nextGoals = $derived(
+    Object.entries(sportGoals)
+      .filter(([, n]) => n > 0)
+      .map(([id, n]) => ({ id, n, name: sportName(sportById(id)) }))
+      .filter((g) => g.name),
+  );
+  const laterNext = () => db.settings.put({ key: NEXTKEEP_KEY, value: { monday: mondayOf(today) } });
+  function pickNext(h) {
+    monday = shiftDay(mondayOf(today), 7);
+    nextPreset = { hours: h, n: Date.now() };
+    setTimeout(() => document.getElementById('plan-h')?.scrollIntoView?.({ block: 'start' }), 50);
+  }
+
+  // «Training verbessern» 7 «Einheiten-Bibliothek»: keep a session, plan it again with one tap, rename, delete (Undo)
+  const libQ = liveQuery(async () => (await db.settings.get(LIBRARY_KEY))?.value ?? null);
+  const library = $derived(libraryOf($libQ, t));
+  const saveLibrary = (v) => db.settings.put({ key: LIBRARY_KEY, value: cleanLibrary(v) });
+  function pickFromLibrary(e) {
+    form = { ...form, kind: e.kind, name: e.name, mins: e.mins, zone: e.zone ?? 0, sport: e.sport ?? '' };
+    saveLibrary(library.map((x) => (x.id === e.id ? { ...x, uses: x.uses + 1 } : x))); // «Most used first»
+  }
+  async function saveToLibrary() {
+    const name = (form.name ?? '').trim() || (form.sport ? sportName(sportById(form.sport)) : '') || t(KIND_NAMES[form.kind]);
+    const mins = Math.round(Number(form.mins));
+    if (!(mins > 0)) return;
+    await saveLibrary([...library, { id: `lib-${Date.now().toString(36)}`, name, kind: form.kind, mins, zone: form.zone || null, sport: form.kind === 'other' ? form.sport : '', group: '', uses: 0 }]);
+    offerDone(t('«{name}» kept in the library.', { name }));
+  }
+  // every change of the library (rename, move, group, delete) offers Undo
+  function changeLibrary(list, msg) {
+    const before = library;
+    saveLibrary(list);
+    if (msg) offerDone(msg, () => saveLibrary(before));
   }
 
   // «Training verbessern» 6 «Wochenlast-Wächter»: the planned week against the 3 weeks before; «Shorten» scales what is still to come (Undo)
@@ -320,6 +375,7 @@
                       </select>
                     </label>
                   </div>
+                  <Library items={library} canSave {hours} onpick={pickFromLibrary} onsave={saveToLibrary} onchange={changeLibrary} />
                   <div class="row">
                     <button type="submit" class="btn hi sm">{t('Save')}</button>
                     {#if form.id}<button type="button" class="btn sm" onclick={() => markDone(!form.done)} data-session-done><Check size={16} aria-hidden="true" />{form.done ? t('Not done yet') : t('Done|session')}</button>{/if}
@@ -333,7 +389,7 @@
         </ul>
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
         {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
-        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} />
+        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} preset={nextPreset} />
       </div>
     </Sec>
 
@@ -346,6 +402,7 @@
         <BarChart id="lookback" cols={wCols} line={wLine} lineColor="var(--ink)" readout={wRead} table={wTable} unit="h" label={t('Hours per week, last six weeks')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its hours, tap it for the zones.')} />
         <ZoneBar bar={false} legend />
         <p class="tw num" data-this-week>{goal?.hours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goal.hours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
+        {#if showNext}<NextWeek last={lastWeekHours} reason={nextReason} goals={nextGoals} hours={(h) => `${num(h)} h`} onpick={pickNext} onlater={laterNext} />{/if}
         {/if}
         <p class="fb"><span><Timer size={16} aria-hidden="true" />{t('Active zone minutes')} <i class="pill">{t('with Fitbit')}</i></span><span><Heart size={16} aria-hidden="true" />{t('Resting heart rate')} <i class="pill">{t('with Fitbit')}</i></span></p>
       </div>

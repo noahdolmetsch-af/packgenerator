@@ -22,7 +22,9 @@ function rows() {
     });
   }
   const trips = [{ id: 'e2e-wert-trip', name: 'Probefahrt Jura', domain: 'bike', status: 'done', startDate: addDays(TODAY, -23), days: 4 }];
-  return { healthDays, trips };
+  // Fitbit connected, last fetch today 05:42 UTC: the source line names it (A2)
+  const settings = [{ key: 'health', value: { connected: true, values: ['sleep', 'steps', 'azm', 'restingHr', 'hrvMs'], fetch: 'manual', lastSync: `${TODAY}T05:42:00.000Z` } }];
+  return { healthDays, trips, settings };
 }
 
 async function open(page, context) {
@@ -48,6 +50,17 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   await expect(page).toHaveURL(/#\/auswerten\/analyse\/rhr$/);
   const wv = page.locator('[data-detail="rhr"]');
   await expect(wv.getByRole('heading', { level: 1 })).toHaveText(T('Resting pulse'));
+  // the source is a way (A2): «Quelle: Fitbit ›» leads to the Fitbit page
+  const src = wv.locator('[data-source="fitbit"]');
+  await expect(src).toContainText('Fitbit');
+  await expect(src.locator('a')).toHaveAttribute('href', '#/me/fitbit');
+  await expect(src.locator('a')).toHaveCSS('min-height', '44px');
+  // one line for the source and its fetch (Noah «3a»): «Quelle Fitbit · Stand 07:42 ›»; the old second sentence is gone
+  await expect(src).toContainText(/Stand \d\d[:.]\d\d/);
+  await expect(wv.locator('.hint.src')).toHaveCount(0);
+  // a past trip inside the period is a way to its tour page
+  await expect(wv.locator('[data-trips-in] a')).toContainText('Probefahrt Jura');
+  await expect(wv.locator('[data-trips-in] a')).toHaveAttribute('href', /#\/tour\/t%3Ae2e-wert-trip$/);
   // 3 months by default: four boxes, the highest day names the trip
   for (const b of ['avg', 'lo', 'hi', 'typ']) await expect(wv.locator(`[data-box="${b}"]`), b).toBeVisible();
   await expect(wv.locator('[data-box="hi"] span')).toContainText('Probefahrt Jura');
@@ -71,6 +84,30 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   await page.reload();
   await ready(page);
   await expect(page.locator('[data-layer="sleep"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('«Zurück zu Heute»: the page of a value remembers where you came from (A2, 4a)', async ({ page, context }) => {
+  const errors = await open(page, context);
+  // from Heute onto a value
+  await page.evaluate(() => (location.hash = '#/'));
+  await ready(page);
+  await page.evaluate(() => (location.hash = '#/auswerten/analyse/rhr'));
+  const wv = page.locator('[data-detail="rhr"]');
+  await expect(wv).toBeVisible();
+  const back = wv.locator('[data-crumb-back]');
+  await expect(back).toContainText(T('Today|place'));
+  await expect(back).toHaveAttribute('href', '#/');
+  // moving on to another value inside Analyse keeps it
+  await page.evaluate(() => (location.hash = '#/auswerten/analyse/sleep'));
+  await expect(page.locator('[data-detail="sleep"] [data-crumb-back]')).toContainText(T('Today|place'));
+  // from Aktiv onto a value
+  await page.evaluate(() => (location.hash = '#/flow'));
+  await ready(page);
+  await page.evaluate(() => (location.hash = '#/auswerten/analyse/rhr'));
+  await expect(page.locator('[data-detail="rhr"] [data-crumb-back]')).toContainText(T('Active|place'));
+  await page.locator('[data-detail="rhr"] [data-crumb-back]').click();
+  await expect(page).toHaveURL(/#\/flow$/);
   expect(errors).toEqual([]);
 });
 

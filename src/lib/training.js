@@ -248,6 +248,71 @@ export function cleanSportGoals(v) {
   if (v && typeof v === 'object') for (const [k, n] of Object.entries(v)) if (k && k.length <= 80 && Number.isInteger(n) && n >= 0 && n <= 3) out[k] = n;
   return out;
 }
+// «Training verbessern» 7 «Einheiten-Bibliothek»: sessions the user keeps to plan again with one tap
+export const LIBRARY_KEY = 'training.library';
+/** The library as stored: up to 40 entries { id, name, kind, mins, zone, sport, group, uses }. */
+export function cleanLibrary(v) {
+  if (!Array.isArray(v)) return [];
+  const out = [];
+  for (const e of v) {
+    const mins = Math.round(Number(e?.mins));
+    const zone = Math.round(Number(e?.zone));
+    const name = String(e?.name ?? '').trim().slice(0, 60);
+    if (!e?.id || !name || !(mins > 0 && mins <= 24 * 60)) continue;
+    const uses = Math.round(Number(e?.uses));
+    out.push({
+      id: String(e.id).slice(0, 40),
+      name,
+      kind: KIND_KEYS.includes(e.kind) ? e.kind : 'bike',
+      mins,
+      zone: zone >= 1 && zone <= 5 ? zone : null,
+      sport: typeof e.sport === 'string' ? e.sport.slice(0, 60) : '',
+      group: String(e?.group ?? '').trim().slice(0, 30),
+      uses: uses > 0 ? Math.min(uses, 9999) : 0,
+    });
+    if (out.length >= 40) break;
+  }
+  return out;
+}
+/** The examples the library starts with (names are English sources for t()). */
+export const LIBRARY_EXAMPLES = [
+  { id: 'ex-easy', name: 'Easy ride', kind: 'bike', mins: 45, zone: 2 },
+  { id: 'ex-intervals', name: 'Intervals 4 × 6 min', kind: 'bike', mins: 60, zone: 4 },
+  { id: 'ex-long', name: 'Long day, calm', kind: 'bike', mins: 180, zone: 2 },
+  { id: 'ex-run', name: 'Easy run', kind: 'run', mins: 40, zone: 2 },
+  { id: 'ex-hike', name: 'Day hike', kind: 'hike', mins: 120, zone: 2 },
+  { id: 'ex-strength', name: 'Strength, 30 min', kind: 'other', mins: 30, zone: 3 },
+];
+/** The library to show: never stored (null) starts with the examples; names go through tr. */
+export const libraryOf = (v, tr = (x) => x) => (v == null ? cleanLibrary(LIBRARY_EXAMPLES.map((e) => ({ ...e, name: tr(e.name) }))) : cleanLibrary(v));
+/** The examples that are not in the list (by id), for «Add the examples again». */
+export const missingExamples = (list, tr = (x) => x) => cleanLibrary(LIBRARY_EXAMPLES.filter((e) => !list.some((x) => x.id === e.id)).map((e) => ({ ...e, name: tr(e.name) })));
+/** The group names in the order they first appear. */
+export const libraryGroups = (list) => [...new Set(list.map((e) => e.group).filter(Boolean))];
+/** Most used first (stable: the own order stays among equals). */
+export const byUse = (list) => list.map((e, i) => [e, i]).sort((a, b) => b[0].uses - a[0].uses || a[1] - b[1]).map((x) => x[0]);
+/** One entry one step up or down among the entries of its own group. */
+export function moveInGroup(list, id, dir) {
+  const i = list.findIndex((e) => e.id === id);
+  if (i < 0) return list;
+  const g = list[i].group;
+  let j = i + dir;
+  while (j >= 0 && j < list.length && list[j].group !== g) j += dir;
+  if (j < 0 || j >= list.length) return list;
+  const out = [...list];
+  [out[i], out[j]] = [out[j], out[i]];
+  return out;
+}
+/** A group renamed (an empty or equal name changes nothing). */
+export function renameLibraryGroup(list, from, to) {
+  const n = String(to ?? '').trim().slice(0, 30);
+  if (!n || n === from) return list;
+  return list.map((e) => (e.group === from ? { ...e, group: n } : e));
+}
+/** A group deleted: its entries go to group `to` ('' = no group); nothing is deleted. */
+export const deleteLibraryGroup = (list, from, to = '') => list.map((e) => (e.group === from ? { ...e, group: to } : e));
+// «Training verbessern» 8: the Monday of the week for which the card «Next week» was put aside with «Not now»
+export const NEXTKEEP_KEY = 'training.nextkeep';
 // «Training verbessern» 4: the day for which «Heute passt» was answered (Lighter or Keep it)
 export const TODAYKEEP_KEY = 'training.todaykeep';
 // «Training verbessern» 6: the Monday of the week for which the card «A lighter week would fit» was answered
