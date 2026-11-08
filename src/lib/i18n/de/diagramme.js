@@ -141,4 +141,5 @@ export default {
   'Entry {n}': 'Eintrag {n}',
   'Average of the bars': 'Durchschnitt der Balken',
   'Not known for this trip.': 'Für diese Tour nicht bekannt.',
+  'Dashed line: average {v}': 'Gestrichelte Linie: Durchschnitt {v}',
 };

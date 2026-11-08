@@ -325,9 +325,7 @@
   }
   .eff {
     display: grid;
-    grid-template-columns: minmax(0, 7.5em) minmax(0, 1fr);
-    align-items: end;
-    gap: 12px;
+    gap: 8px;
     margin-top: 8px;
   }
   .eff .rv-tile {

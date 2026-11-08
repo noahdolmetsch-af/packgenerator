@@ -851,7 +851,7 @@
   }
   .minis {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 8px;
     margin: 0 0 12px;
     padding: 0;

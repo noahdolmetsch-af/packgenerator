@@ -136,9 +136,9 @@
     const flat = avg(hilly.slice(0, half).map((r) => r.kmh));
     const steep = avg(hilly.slice(hilly.length - half).map((r) => r.kmh));
     return [
-      { key: 'time', name: t('Speed per ride'), value: n1(series.at(-1).kmh), unit: 'km/h', values: series.map((r) => ({ id: r.id, v: r.kmh, name: r.name })), avg: avg(speeds), foot: t('Ø {a} · fastest {b}', { a: n1(avg(speeds)), b: n1(Math.max(...speeds)) }) },
-      { key: 'climb', name: t('Speed, flat to hilly'), value: null, values: hilly.map((r) => ({ id: r.id, v: r.kmh, name: r.name })), avg: null, foot: t('flat {a} · hilly {b} km/h', { a: n1(flat), b: n1(steep) }) },
-      { key: 'hm', name: t('Climbing per km'), value: num(Math.round(series.at(-1).hmPerKm)), unit: 'Hm', values: series.map((r) => ({ id: r.id, v: r.hmPerKm, name: r.name })), avg: avg(climbs), foot: t('Ø {a} Hm per km', { a: num(Math.round(avg(climbs))) }) },
+      { key: 'time', name: t('Speed per ride'), value: n1(series.at(-1).kmh), unit: 'km/h', values: series.map((r) => ({ id: r.id, v: r.kmh, name: r.name, date: r.date })), avg: avg(speeds), foot: t('Ø {a} · fastest {b}', { a: n1(avg(speeds)), b: n1(Math.max(...speeds)) }) },
+      { key: 'climb', name: t('Speed, flat to hilly'), value: null, values: hilly.map((r) => ({ id: r.id, v: r.kmh, name: r.name, date: r.date })), avg: null, foot: t('flat {a} · hilly {b} km/h', { a: n1(flat), b: n1(steep) }) },
+      { key: 'hm', name: t('Climbing per km'), value: num(Math.round(series.at(-1).hmPerKm)), unit: 'Hm', values: series.map((r) => ({ id: r.id, v: r.hmPerKm, name: r.name, date: r.date })), avg: avg(climbs), foot: t('Ø {a} Hm per km', { a: num(Math.round(avg(climbs))) }) },
     ];
   });
 </script>
@@ -260,14 +260,14 @@
                 <span class="rtt">
                 <span class="rv-t">{r.name}{#if r.id === firstNew}<span class="rv-tag nw">{t('New|ride')}</span>{/if}</span>
                 {#if W}
-                  <select class="schip" value={sf ?? ''} aria-label={t('Surface of {name}', { name: r.name })} onchange={(ev) => setSurface(r, ev.currentTarget.value)}>
+                  <select class="schip" value={sf ?? ''} aria-label={t('Surface of {name}', { name: r.name, date: r.date })} onchange={(ev) => setSurface(r, ev.currentTarget.value)}>
                     {#if !sf}<option value="">{t('Surface?')}</option>{/if}
                     {#each SURFACES as so (so.key)}<option value={so.key}>{t(so.name)}</option>{/each}
                   </select>
                 {/if}
                 </span>
                 <span class="rend">
-                  <button type="button" class="switch" role="switch" aria-checked={r.use !== false} aria-label={t('Counts for your pace: {name}', { name: r.name })} onclick={() => toggle(r.id)}><span class="swl" aria-hidden="true">{t('counts|ride')}</span><span class="trk"><span class="knob"></span></span></button>
+                  <button type="button" class="switch" role="switch" aria-checked={r.use !== false} aria-label={t('Counts for your pace: {name}', { name: r.name, date: r.date })} onclick={() => toggle(r.id)}><span class="swl" aria-hidden="true">{t('counts|ride')}</span><span class="trk"><span class="knob"></span></span></button>
                   <MoreActions small title={r.name} label={t('More for {what}', { what: r.name })} actions={[{ name: t('Remove'), explain: t('Take the ride out of your pace'), icon: Trash2, run: () => drop(r.id) }]} />
                 </span>
               </div>
@@ -382,7 +382,7 @@
   }
   .minis {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 10px;
   }
   .mini {
