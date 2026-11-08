@@ -15,6 +15,9 @@
  * - PR 2 (Noah 07.11.2026 «Bau spruch pr2»): more sources (steps, weeks in a row, bike km of the year, a year ago, the
  *   fog clearing, your quotes of «Kissenzeit») and a second wording for each of the first 16 sentences (`alts`; the id of
  *   a second wording is «id~2»). Quotes stay High German (lang 'de'); they come every few sentences and when nothing else fits.
+ * - PR 3 (Noah 07.11.2026 «bau spruch pr3 und 4»): the window «All sayings» (SprucheSheet.svelte): the tone (mix or one
+ *   tone), a switch for each source and for each sentence, and «No more like this» on the tile (with Undo). The choices
+ *   are kept in the same settings row (`ton`, `offSrc`, `off`).
  * Pure (no database, no screen), tested in tests/spruch.test.js. Konzept: design/tagesspruch/konzept.md in the project folder.
  */
 import { normalOf, latest, azmWeek, addDays, MOVE_RULE } from '../health.js';
@@ -30,10 +33,18 @@ export const TONE_NAME = { mot: 'Encouraging|saying', ruhig: 'Calm|saying', lust
 /** English keys for t(): the name of each source (where the sentence comes from). */
 export const SOURCE_NAME = { weather: 'Weather|saying', azm: 'Zone minutes|saying', body: 'Sleep and pulse|saying', tour: 'Next trip|saying', steps: 'Steps|saying', serie: 'Weeks in a row|saying', velo: 'Bike km|saying', jahr: 'A year ago|saying', quote: 'Quote|saying' };
 
+/** Every source, in the order of the window «All sayings». */
+export const SOURCES = Object.keys(SOURCE_NAME);
+/** What the person can choose as the tone: the mix or one tone. */
+export const TONE_CHOICES = ['mix', ...TONES];
+
 /** The template of a sentence id: «w.rain-until~2» → «w.rain-until». */
 export const baseId = (id) => String(id ?? '').split('~')[0];
 
-/** The stored row { recent: [{ id, src, ton }] newest first, off: [template ids] }; anything else becomes the empty row. */
+/**
+ * The stored row { recent: [{ id, src, ton }] newest first, off: [template ids that are switched off], ton: 'mix' | a tone,
+ * offSrc: [sources that are switched off] }; anything else becomes the empty row (mix, nothing off).
+ */
 export function spruchOf(value) {
   const v = value && typeof value === 'object' ? value : {};
   const recent = (Array.isArray(v.recent) ? v.recent : [])
@@ -41,7 +52,26 @@ export function spruchOf(value) {
     .map((x) => ({ id: x.id, src: typeof x.src === 'string' ? x.src : '', ton: typeof x.ton === 'string' ? x.ton : '' }))
     .slice(0, HISTORY_MAX);
   const off = (Array.isArray(v.off) ? v.off : []).filter((x) => typeof x === 'string');
-  return { recent, off };
+  const offSrc = (Array.isArray(v.offSrc) ? v.offSrc : []).filter((x) => SOURCES.includes(x));
+  return { recent, off, ton: TONE_CHOICES.includes(v.ton) ? v.ton : 'mix', offSrc };
+}
+
+/** The row with the tone set (anything unknown is the mix). */
+export function setTon(rec, ton) {
+  return { ...spruchOf(rec), ton: TONE_CHOICES.includes(ton) ? ton : 'mix' };
+}
+
+/** The row with a source switched on or off. */
+export function setSource(rec, src, on) {
+  const r = spruchOf(rec);
+  return { ...r, offSrc: on ? r.offSrc.filter((x) => x !== src) : r.offSrc.includes(src) ? r.offSrc : [...r.offSrc, src] };
+}
+
+/** The row with a sentence (its template id, the other wordings go with it) switched on or off. */
+export function setTemplate(rec, id, on) {
+  const r = spruchOf(rec);
+  const b = baseId(id);
+  return { ...r, off: on ? r.off.filter((x) => x !== b) : r.off.includes(b) ? r.off : [...r.off, b] };
 }
 
 /** The history with one more shown sentence on top (kept to HISTORY_MAX; the same id is moved to the top). */
@@ -410,33 +440,79 @@ function quoteEntries(ctx) {
 
 /**
  * All sentences that fit today: [{ id, src, ton, text, why, lang }], in the order of TEMPLATES, then the quotes. `ton`: 'mix' or
- * one tone. A template with `alts` gives one entry per wording (ids «id», «id~2» …). Quotes (`low`) fit always, in every tone filter
- * only the tone «ruhig» and «mix».
+ * one tone. A template with `alts` gives one entry per wording (ids «id», «id~2» …). `off`: switched-off sentences, `offSrc`:
+ * switched-off sources. Quotes (`low`) fit always, in every tone filter only the tone «ruhig» and «mix».
  */
-export function fitting(ctx, { ton = 'mix', off = [] } = {}) {
+export function fitting(ctx, { ton = 'mix', off = [], offSrc = [] } = {}) {
   const calm = ctx.rec?.state === 'off'; // a day off the own normal: no challenge
   const out = [];
   for (const x of TEMPLATES) {
-    if ((ton !== 'mix' && x.ton !== ton) || off.includes(x.id) || (calm && x.chal)) continue;
+    if ((ton !== 'mix' && x.ton !== ton) || off.includes(x.id) || offSrc.includes(x.src) || (calm && x.chal)) continue;
     const m = x.make(ctx);
     if (!m) continue;
     [m.text, ...(m.alts ?? [])].forEach((text, i) => out.push({ id: i ? `${x.id}~${i + 1}` : x.id, src: x.src, ton: x.ton, text, why: m.why, lang: 'gsw' }));
   }
-  for (const q of quoteEntries(ctx)) if ((ton === 'mix' || ton === q.ton) && !off.includes(baseId(q.id))) out.push(q);
+  for (const q of quoteEntries(ctx)) if ((ton === 'mix' || ton === q.ton) && !off.includes(baseId(q.id)) && !offSrc.includes(q.src)) out.push(q);
   return out;
 }
 
+/** The English description of each sentence for the window «All sayings» (keys go through t()). */
+export const ABOUT = {
+  'w.rain-until': 'Rain in the morning, dry afterwards|saying',
+  'w.dry-mild': 'A dry, mild day|saying',
+  'w.fog-sun': 'Fog below, sun above|saying',
+  'w.fog-clears': 'The fog clears later today|saying',
+  'w.cold-morning': 'A cold morning|saying',
+  'a.close': 'Close to the weekly zone-minute goal|saying',
+  'a.more': 'Zone minutes still to go this week|saying',
+  'a.goal': 'Weekly zone-minute goal reached|saying',
+  'a.new-week': 'A new week starts|saying',
+  'b.sleep-more': 'More sleep than your normal|saying',
+  'b.sleep-less': 'Less sleep than your normal|saying',
+  'b.rhr-high': 'Resting pulse above your normal|saying',
+  'b.rhr-low': 'Resting pulse below your normal|saying',
+  's.yesterday': 'Many steps yesterday|saying',
+  's.more-than-usual': 'More steps than your normal yesterday|saying',
+  's.today': 'Many steps already today|saying',
+  't.far': 'Your next trip is still far off|saying',
+  't.near': 'Your next trip is near and not packed yet|saying',
+  't.packed': 'Everything is packed|saying',
+  't.tomorrow': 'Your trip starts tomorrow|saying',
+  'e.run': 'Weeks in a row with something active|saying',
+  'e.next': 'Close to the next series goal|saying',
+  'v.milestone': 'A bike-km mark reached this week|saying',
+  'v.close': 'Close to the next bike-km mark|saying',
+  'j.ago': 'A trip a year ago|saying',
+};
+
+/** Is the shown sentence still allowed by the row (tone, sources, switched-off sentences) and does it still fit? */
+export function stillFits(ctx, rec, shown) {
+  if (!shown) return false;
+  const r = spruchOf(rec);
+  return fitting(ctx, { ton: r.ton, off: r.off, offSrc: r.offSrc }).some((x) => x.id === shown.id);
+}
+
 /**
- * Choose one sentence: { id, src, ton, text, why, lang } or null when nothing fits.
+ * Choose one sentence: { id, src, ton, text, why, lang, fallback? } or null when nothing fits.
  * 1. not one of the last 30 shown (rec.recent); when all that fit are in it, the oldest of them is let free;
  * 2. quotes only when nothing else is left, and as every 4th sentence (when none of the last 3 shown was a quote);
  * 3. if possible not the same source as the last one and (in the mix) not the same tone;
  * 4. among the rest one by chance (`rand`, 0 ≤ x < 1; a test passes its own).
+ * The tone, the switched-off sentences and sources come from the row (rec); `ton` overrides the tone. When the chosen tone
+ * has nothing today, a sentence of the mix is given and marked `fallback: true` (the tile says so).
  * `not`: a sentence to leave out as well, with its other wordings (the one on the screen when «New» is tapped).
  */
-export function pickSpruch(ctx, rec = null, { ton = 'mix', rand = Math.random, not = '' } = {}) {
+export function pickSpruch(ctx, rec = null, { ton, rand = Math.random, not = '' } = {}) {
   const r = spruchOf(rec);
-  const all = fitting(ctx, { ton, off: r.off }).filter((x) => !not || baseId(x.id) !== baseId(not));
+  const tone = ton ?? r.ton;
+  const p = pickIn(ctx, r, tone, rand, not);
+  if (p || tone === 'mix') return p;
+  const q = pickIn(ctx, r, 'mix', rand, not);
+  return q ? { ...q, fallback: true } : null;
+}
+
+function pickIn(ctx, r, ton, rand, not) {
+  const all = fitting(ctx, { ton, off: r.off, offSrc: r.offSrc }).filter((x) => !not || baseId(x.id) !== baseId(not));
   if (!all.length) return null;
   const seen = new Map(r.recent.map((x, i) => [x.id, i]));
   let pool = all.filter((x) => !seen.has(x.id));
