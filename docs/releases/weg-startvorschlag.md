@@ -1,6 +1,6 @@
 # Weg zum Ziel: Startvorschlag bei offenem Zeitraum
 
-PR # · 08.11.2026 · Auftrag: Noah «4a» (Entwurf G3, untere Karte), Thread «Entwerfen Weg zum grossen Ziel»
+PR #1173 · 08.11.2026 · Auftrag: Noah «4a» (Entwurf G3, untere Karte), Thread «Entwerfen Weg zum grossen Ziel»
 
 ## Was ist neu
 - Ein Weg **ohne Starttag** bekommt die Karte «Solange der Starttag offen ist». Mit «Trockenen Start finden» nennt man einen Zeitraum (von, bis).
