@@ -26,5 +26,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 18 | Aktivität und Sportart | Aktivität, Sportart, Sportart der Touren | **«Aktivität»** zum Abhaken, **«Tour-Sportart»** beim Planen einer Tour |
 | 19 | Detailplan für ein Rennen | Rennen detailliert planen, Rennen-Check, Check | **«Rennen-Check»** |
 | 20 | Anrede und Englisch | «Sie» in der Gruppenfahrt, Reste wie Review und Learning | **«du»** (Mehrzahl **«ihr»**), Englisch nur, wo es kein deutsches Wort gibt |
+| 21 | Gruppen der Erinnerungen aufs Handy | Vor und nach der Tour, Wetter, Velo, Alltag | **«Rund um die Tour»**, **«Wetter und Licht»**, **«Velos und Material»**, **«Alltag»** (fest, nicht umbenennbar; Noah 08.11.2026 «alles») |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.
