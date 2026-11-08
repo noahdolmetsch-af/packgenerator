@@ -5,6 +5,7 @@ PR folgt · 08.11.2026 · Auftrag: Koordinator (roter Handy-Test blockiert u. a.
 ## Was ist neu
 - Nichts in der App. Nur Tests: Seit #1197 heissen zwei Knöpfe auf Ich › Daten und Backup gleich («Backup speichern»): der in der Statuszeile (`data-status-save`) und der im Abschnitt «Backup-Datei». Die Tests PF09 und PF16 (`pf.spec.js`) fanden darum den Knopf nicht mehr eindeutig (strict mode violation).
 - Die Tests wählen jetzt den Knopf ohne `data-status-save`. Dasselbe in `gesamttest/scenarios.spec.js` (zwei Stellen) und `integrations.spec.js`, wo der Knopf auf dieselbe Art gesucht wird.
+- `ich-design.spec.js` und `impeccable-ich.spec.js` prüfen den Knopf im Abschnitt «Backup-Datei» (`[data-section="backup-file"]`); dort fanden sie zwei bis drei gleich benannte Knöpfe.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts.
