@@ -7,11 +7,11 @@ const OFF = 7200;
 const DAY = '2026-11-04';
 const t0 = Date.parse(`${DAY}T00:00:00Z`) - OFF * 1000;
 // one day of hours; frz and snowfall_height come from (hour)
-function core({ frz = (h) => 1800 + h * 20, snowH = () => null } = {}) {
+function core({ frz = (h) => 1800 + h * 20, snowH = () => null, temp = () => 5, rainP = () => 5 } = {}) {
   const time = Array.from({ length: 24 }, (_, i) => (t0 + i * 36e5) / 1000);
   return parseCore({
     latitude: 47.37, longitude: 8.54, elevation: 410, utc_offset_seconds: OFF,
-    hourly: { time, temperature_2m: time.map(() => 5), freezing_level_height: time.map((_, h) => frz(h)), snowfall_height: time.map((_, h) => snowH(h)) },
+    hourly: { time, temperature_2m: time.map((_, h) => temp(h)), precipitation_probability: time.map((_, h) => rainP(h)), precipitation: time.map(() => 0), freezing_level_height: time.map((_, h) => frz(h)), snowfall_height: time.map((_, h) => snowH(h)) },
     daily: { time: [t0 / 1000], sunrise: [], sunset: [], uv_index_max: [] },
   });
 }
@@ -71,21 +71,43 @@ describe('the line over the day', () => {
 });
 
 describe('the hint at your height (4a)', () => {
-  const low = core({ snowH: () => 450 });
+  const snow = { snowH: () => 450, temp: () => 1, rainP: () => 80 }; // line at your height, wet and cold
+  const low = core(snow);
   it('the height of the place counts unless you set one', () => {
     expect(ownHeight(low, undefined)).toBe(410);
     expect(ownHeight(low, 900)).toBe(900);
     expect(ownHeight({}, undefined)).toBeNull();
     expect(ownHeight(low, -5)).toBe(410);
   });
-  it('a line down to your height gives the hint (one rounding step above it still counts)', () => {
-    expect(lowHint(low, at(10), 410)).toEqual({ m: 500, ownM: 410 }); // 450 rounds to 500, within 100 m of 410
-    expect(lowHint(core({ snowH: () => 700 }), at(10), 410)).toBeNull();
+  it('a line down to your height, with precipitation and cold, gives the hint (one rounding step above still counts)', () => {
+    expect(lowHint(low, at(10), 410)).toMatchObject({ m: 500, ownM: 410, hour: 9, running: true }); // 450 rounds to 500, within 100 m of 410
+    expect(lowHint(core({ ...snow, snowH: () => 700 }), at(10), 410)).toBeNull();
   });
-  it('the lowest line from now on counts, an earlier hour does not', () => {
-    const c = core({ snowH: (h) => (h < 8 ? 300 : 1500) });
+  it('a dry day gives no hint, however low the line is (08.11.2026: sunny, 10 °C, line 400 m)', () => {
+    expect(lowHint(core({ snowH: () => 400, temp: () => 10, rainP: () => 0 }), at(10), 410)).toBeNull();
+    expect(lowHint(core({ snowH: () => 400, temp: () => 1, rainP: () => 20 }), at(10), 410)).toBeNull();
+  });
+  it('a warm wet day gives no hint: it falls as rain', () => {
+    expect(lowHint(core({ snowH: () => 400, temp: () => 6, rainP: () => 90 }), at(10), 410)).toBeNull();
+    expect(lowHint(core({ snowH: () => 400, temp: () => 2, rainP: () => 90 }), at(10), 410)).not.toBeNull(); // 2 °C still counts
+  });
+  it('all three must meet in the same hour', () => {
+    // line low at night (22–24 h) but dry; wet at noon but the line is high then
+    const c = core({ snowH: (h) => (h >= 22 ? 300 : 1500), temp: () => 1, rainP: (h) => (h === 12 ? 90 : 0) });
+    expect(lowHint(c, at(10), 410)).toBeNull();
+  });
+  it('says from which hour, and the lowest line of the hours that count', () => {
+    const c = core({ snowH: (h) => (h >= 22 ? 300 : 1500), temp: () => 0, rainP: (h) => (h >= 22 ? 90 : 0) });
+    expect(lowHint(c, at(17), 410)).toMatchObject({ m: 300, hour: 22, running: false });
+    expect(lowHint(c, at(22) + 60_000, 410)).toMatchObject({ hour: 22, running: true });
+  });
+  it('the hours from now on count, an earlier hour does not', () => {
+    const c = core({ snowH: (h) => (h < 8 ? 300 : 1500), temp: () => 1, rainP: () => 80 });
     expect(lowHint(c, at(10), 410)).toBeNull(); // the cold hours are over
     expect(lowHint(c, at(6) + 1, 410)).not.toBeNull();
+  });
+  it('a missing temperature does not block', () => {
+    expect(lowHint(core({ snowH: () => 400, temp: () => null, rainP: () => 90 }), at(10), 410)).not.toBeNull();
   });
   it('no height or no data: no hint', () => {
     expect(lowHint(low, at(10), null)).toBeNull();
