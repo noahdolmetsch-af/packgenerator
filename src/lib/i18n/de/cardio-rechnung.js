@@ -11,4 +11,8 @@ export default {
   'Example, {day}: {sum}|analyse': 'Beispiel, {day}: {sum}',
   'For example: {sum}|analyse': 'Zum Beispiel: {sum}',
   'The points are only to look at, nothing is rated.|analyse': 'Die Punkte sind nur zum Anschauen, nichts wird bewertet.',
+  'What do «points», «hard» and «peak» mean?|analyse': 'Was heissen «Punkte», «hart» und «Spitze»?',
+  'points, hard and peak|analyse': 'Punkte, hart und Spitze',
+  'Points: your watch counts the minutes your pulse spent in each zone. Each minute gives points, more in a higher zone. More points means more work for your heart that day. It is not a grade.|analyse': 'Punkte: Deine Uhr zählt die Minuten, die dein Puls in jeder Zone war. Jede Minute gibt Punkte, in einer höheren Zone mehr. Mehr Punkte heisst: mehr Arbeit für dein Herz an diesem Tag. Es ist keine Note.',
+  'Zones are pulse ranges of your watch: light (easy), moderate (brisk), hard (strenuous, talking gets difficult) and peak (close to your limit, only for a short time). Light counts ×1, moderate ×2, hard ×3, peak ×4.|analyse': 'Zonen sind Pulsbereiche deiner Uhr: leicht (locker), mittel (zügig), hart (anstrengend, Reden fällt schwer) und Spitze (nahe am Limit, nur kurz). Leicht zählt ×1, mittel ×2, hart ×3, Spitze ×4.',
 };

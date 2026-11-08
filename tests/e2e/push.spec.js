@@ -21,6 +21,13 @@ const stored = (page, key) =>
     };
   }), key);
 
+// the switches sit in four folds (7b-08): open one by its key before touching its switches
+const openGroup = async (page, key) => {
+  const g = page.locator(`[data-push-group="${key}"]`);
+  if (!(await g.evaluate((el) => el.open))) await g.locator('summary').click();
+  await expect(g).toHaveJSProperty('open', true);
+};
+
 async function open(page, context) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => (route.request().url().startsWith(PUSH) ? route.fulfill({ json: { publicKey: null, ready: false } }) : route.abort()));
   await page.clock.setFixedTime(new Date('2026-10-20T10:00:00+02:00'));
@@ -48,10 +55,12 @@ test('Ich: the row leads to «Erinnerungen aufs Handy»; all off at the start; a
   expect(KIND_COUNT).toBeGreaterThan(6);
   await expect(kinds).toHaveCount(KIND_COUNT);
   for (const s of await kinds.all()) await expect(s).not.toBeChecked();
+  await openGroup(page, 'day');
   await box.getByRole('switch', { name: T('Birthdays') }).check();
   await expect.poll(() => stored(page, 'push')).toMatchObject({ kinds: { birthday: true } });
   await page.reload();
   await settle(page);
+  await openGroup(page, 'day');
   await expect(page.locator('[data-push-page]').getByRole('switch', { name: T('Birthdays') })).toBeChecked();
 });
 
@@ -144,4 +153,26 @@ test('notifications blocked by the browser: the steps and a «Try again» button
   await expect(retry).toHaveText(T('Try again'));
   await retry.click();
   await expect(box.locator('[data-push-main]')).not.toBeChecked();
+});
+
+// 7b-08 (Noah «alles»): four folds, closed at the start, each with «n von m an»; a tap opens one
+test('the switches sit in four closed folds with a count; a tap opens one', async ({ page, context }) => {
+  await context.addInitScript(() => Object.defineProperty(Notification, 'permission', { get: () => 'default' }));
+  await open(page, context);
+  await page.goto('./#/me/push');
+  await settle(page);
+  const groups = page.locator('[data-push-group]');
+  await expect(groups).toHaveCount(4);
+  await expect(groups.locator('summary .ps-gl')).toHaveText([T('Around the tour'), T('Weather and light'), T('Bikes and gear'), T('Everyday life')]);
+  for (const g of await groups.all()) {
+    expect(await g.evaluate((el) => el.open)).toBe(false);
+    await expect(g.locator('summary .ps-gs')).toHaveText(T('All off'));
+  }
+  // a switch inside a closed fold is not on screen; opening the fold shows it
+  const birthdays = page.getByRole('switch', { name: T('Birthdays') });
+  await expect(birthdays).toBeHidden();
+  await openGroup(page, 'day');
+  await birthdays.check();
+  await expect(page.locator('[data-push-group="day"] summary .ps-gs')).toHaveText(T('{n} of {m} on', { n: 1, m: 5 }));
+  await expect(page.locator('[data-push-group="weather"] summary .ps-gs')).toHaveText(T('All off'));
 });
