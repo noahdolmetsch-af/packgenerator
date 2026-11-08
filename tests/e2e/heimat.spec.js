@@ -113,6 +113,25 @@ test('every function is visible on its home page', async ({ page, context }, inf
       const again = await look();
       found = found.map((f, i) => f || again[i]);
     }
+    // since 08.11.2026 (Noah «A») the card «What you can do here» starts as one line on every page and holds functions too: what
+    // the page itself does not show, the card shows once it is open (opened only then: open, it would push the page's own parts down)
+    if (found.includes(false)) {
+      const card = page.locator('[data-seiteninhalt-line]');
+      if (await card.count()) {
+        await card.first().click();
+        await page.locator('[data-seiteninhalt]').waitFor();
+        await page.waitForTimeout(300);
+        let more = await look();
+        found = found.map((f, i) => f || more[i]);
+        const all = page.locator('[data-seiteninhalt] .si-all');
+        if (found.includes(false) && (await all.count())) {
+          await all.click();
+          await page.waitForTimeout(300);
+          more = await look();
+          found = found.map((f, i) => f || more[i]);
+        }
+      }
+    }
     list.forEach((x, i) => found[i] || missing.push(`${x.id} «${x.name}» on ${href}`));
   }
   info.annotations.push({ type: 'checked', description: `${Object.values(byPage).flat().length} functions on ${Object.keys(byPage).length} pages` });

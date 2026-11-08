@@ -175,6 +175,8 @@
   /* the folded line: a quiet bar, but with its own frame and a word, so it is not taken for a leftover */
   .si-line {
     width: 100%;
+    min-width: 0;
+    max-width: 100%;
     margin: 8px 0;
     padding: 0 12px;
     border: 1px solid var(--card-line);
@@ -184,11 +186,12 @@
   }
   .si-linet {
     flex: 1;
+    min-width: 0; /* the text may wrap on a 320 px phone: the line never makes its parent wider than the screen */
     text-align: left;
-    white-space: nowrap;
   }
   .si-open {
     color: var(--hi);
+    white-space: nowrap;
   }
   .si-new {
     padding: 1px 8px;
