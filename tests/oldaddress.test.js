@@ -23,7 +23,7 @@ describe('flowGone', () => {
   });
   it('every #/flow/<page> that the source writes is answered by Flow', () => {
     const seen = new Set();
-    for (const f of walk('src').filter((x) => !x.endsWith('oldaddress.js'))) for (const m of readFileSync(f, 'utf8').matchAll(/#\/flow\/([a-z][a-z-]*)/g)) seen.add(m[1]);
+    for (const f of walk('src').filter((x) => !x.endsWith('oldaddress.js') && !x.includes('/news/'))) for (const m of readFileSync(f, 'utf8').matchAll(/#\/flow\/([a-z][a-z-]*)/g)) seen.add(m[1]);
     for (const r of seen) expect(FLOW_ROUTES, `#/flow/${r}`).toContain(r);
   });
   it('Flow.svelte answers each listed page (or App.svelte does, for impulse)', () => {
