@@ -26,7 +26,7 @@
   const rank = $derived(ranking(acts, log, days));
   const rankTop = $derived(Math.max(1, ...rank.map((r) => r.n)));
   const weeks = $derived(perWeek(days, perDay));
-  const wsc = $derived(niceScale(weeks.flatMap((w) => [w.n, w.mean4]), { zero: true }));
+  const wsc = $derived(niceScale(weeks.flatMap((w) => [w.n, w.mean4]), { zero: true, integer: true }));
   let pickedWeek = $state(null);
   const pw = $derived(pickedWeek != null && pickedWeek < weeks.length ? pickedWeek : weeks.length - 1);
   const BAR = ['var(--l1)', 'var(--l3)', 'var(--l4)', 'var(--pz5)', 'var(--pz3)', 'var(--pz6)', 'var(--pz4)', 'var(--l2)'];
@@ -68,6 +68,11 @@
     const prev = heat.weeks[i - 1]?.cells.find(Boolean)?.day;
     return !prev || prev.slice(0, 7) !== first.slice(0, 7) ? dfmt(first, { month: 'short' }) : '';
   };
+  // a long period does not fit on a phone: start at the newest weeks, older ones are a swipe away
+  let calEl = $state();
+  $effect(() => {
+    if (heat.weeks.length && calEl) calEl.scrollLeft = calEl.scrollWidth;
+  });
   const W = 600;
   const H = 160;
   const wy = (n) => H - 2 - ((n - wsc.lo) / (wsc.hi - wsc.lo || 1)) * (H - 12);
@@ -99,7 +104,7 @@
 {#if aktiv}
   <section class="card hm" aria-labelledby="hm-h" data-heat>
     <div class="ch"><h2 id="hm-h">{t('Every day a field|overview')}</h2><small>{t('calendar · all ticks|overview')}</small></div>
-    <div class="cal" style="--weeks: {heat.weeks.length}">
+    <div class="cal" style="--weeks: {heat.weeks.length}" bind:this={calEl}>
       <div class="wd" aria-hidden="true">
         <span></span>
         {#each WD as w, i (i)}<span>{i % 2 === 0 ? w : ''}</span>{/each}
@@ -122,6 +127,7 @@
       </div>
     </div>
     <p class="hint">{t('Darker = more ticked. Tap a field to see the day.|overview')}</p>
+    <p class="hint scale" aria-hidden="true">{t('fewer|overview')} <i class="cell l1"></i><i class="cell l2"></i><i class="cell l3"></i><i class="cell l4"></i> {t('more|overview')}</p>
   </section>
 
   <div class="two">
@@ -208,6 +214,7 @@
   }
   .ch {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: baseline;
     gap: 8px;
@@ -221,50 +228,74 @@
     font-size: var(--fs-small);
     text-align: right;
   }
+  /* every field has the same size (as big as the width allows, 24 to 40 px), so nothing is stretched over the
+     card and the weekday names and month names sit exactly on their rows and columns */
   .cal {
     display: flex;
     gap: 6px;
     overflow-x: auto;
+    container-type: inline-size;
+    --cell: clamp(24px, calc((100cqw - 34px) / var(--weeks) - 2px), 40px);
   }
   .wd {
     flex: none;
     display: grid;
-    grid-template-rows: 16px repeat(7, 1fr);
-    gap: 3px;
+    grid-template-rows: 18px repeat(7, var(--cell));
+    gap: 2px;
+    position: sticky;
+    left: 0;
+    background: var(--paper);
+    box-shadow: 6px 0 0 var(--paper);
+    z-index: 1;
     color: var(--ink-3);
     font-size: var(--fs-label);
+    align-items: center;
   }
   .grid {
-    flex: 1;
-    min-width: calc(var(--weeks) * 15px);
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
   .months {
     display: grid;
-    grid-template-columns: repeat(var(--weeks), 1fr);
-    height: 16px;
+    grid-template-columns: repeat(var(--weeks), var(--cell));
+    column-gap: 2px;
+    height: 18px;
+    align-items: center;
     color: var(--ink-3);
     font-size: var(--fs-label);
     white-space: nowrap;
   }
   .cells {
     display: grid;
-    grid-template-columns: repeat(var(--weeks), 1fr);
-    gap: 3px;
+    grid-template-columns: repeat(var(--weeks), var(--cell));
+    gap: 2px;
   }
   .col {
     display: grid;
-    grid-template-rows: repeat(7, 1fr);
-    gap: 3px;
+    grid-template-rows: repeat(7, var(--cell));
+    gap: 2px;
   }
   .cell {
-    aspect-ratio: 1;
-    min-height: 12px;
-    max-height: 34px;
+    width: var(--cell);
+    height: var(--cell);
     padding: 0;
     border: 0;
     border-radius: 4px;
     background: var(--paper-2);
     cursor: pointer;
+  }
+  .scale {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .scale .cell {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    cursor: default;
   }
   .cell.none {
     background: none;

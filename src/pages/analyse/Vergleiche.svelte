@@ -103,7 +103,7 @@
   const chosen = $derived((actIds ?? busiest.slice(0, 2).map((x) => x.id)).filter((id) => acts.some((a) => a.id === id)).slice(0, MAX_ACTS));
   const actOf = (id) => acts.find((a) => a.id === id);
   const others = $derived(acts.filter((a) => !chosen.includes(a.id)));
-  const asc = $derived(niceScale(allWeeks.flatMap((w) => chosen.map((id) => w.n[id] ?? 0)), { zero: true, count: 3 }));
+  const asc = $derived(niceScale(allWeeks.flatMap((w) => chosen.map((id) => w.n[id] ?? 0)), { zero: true, count: 3, integer: true }));
   let aweek = $state(null);
   const awi = $derived(aweek ?? WEEKS - 1);
   function tapWeek(e) {
