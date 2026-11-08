@@ -74,6 +74,7 @@
   import MedMore from './flow/MedMore.svelte';
   import MedPatterns from './flow/MedPatterns.svelte';
   import MedReview from './flow/MedReview.svelte';
+  import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier» on top of Aktiv (Noah 03.11.2026 «1a»)
   import WeekGoals from '../lib/flow/WeekGoals.svelte'; // Aktiv 4b (Noah 05.11.2026): own goals for the week Monday to Sunday
   import RuhetagHint from '../lib/flow/RuhetagHint.svelte'; // Aktiv 4a (Noah 05.11.2026): after three hard days one gentle line
@@ -259,6 +260,8 @@
         </div>
       </div>
     {/if}
+    <!-- «Auswerten aufräumen» 5a (Noah 07.11.2026): a list pinned to «Aktiv» stands here, not on Auswerten -->
+    <PinnedLists place="active" />
   </div>
 {/if}
 
