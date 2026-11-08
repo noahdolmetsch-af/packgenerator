@@ -483,5 +483,48 @@
     "wxsuggest"
   ],
   "abgeloest": {},
-  "versteckt": {}
+  "versteckt": {
+    "f.ballast": {
+      "wo": "Packen › Mehr zu dieser Tour › Daraus lernen"
+    },
+    "f.border": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    },
+    "f.checkin": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    },
+    "f.daysports": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    },
+    "f.laundry": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    },
+    "f.morninglist": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    },
+    "f.packtime": {
+      "wo": "Packen › Mehr zu dieser Tour › Daraus lernen"
+    },
+    "f.packtwo": {
+      "wo": "Packen › Mehr zu dieser Tour › Mit anderen"
+    },
+    "f.planb": {
+      "wo": "Packen › Mehr zu dieser Tour › Wetter und Warnungen"
+    },
+    "f.probe": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    },
+    "f.readytomorrow": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    },
+    "f.shop": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    },
+    "f.starters": {
+      "wo": "Packen › Mehr zu dieser Tour › Packen leichter machen"
+    },
+    "f.unclear": {
+      "wo": "Packen › Mehr zu dieser Tour › Vorher und am Abend"
+    }
+  }
 }

@@ -18,6 +18,7 @@
   import { countedRidesSince } from '../kmbook.js';
   import { actName } from './ui.svelte.js';
   import { WEEK_GOALS_KEY, goalsOf, standsOf, weekRange, addGoal, setOf, typedOf, removeGoal, stepGoal, moveTo, suggestions } from './weekgoals.js';
+  import { goalHref } from './ringweg.js';
   import { t, tn, num } from '../i18n.svelte.js';
 
   let { acts = [], log = [], tripDays = [], today } = $props();
@@ -97,7 +98,12 @@
           <li data-wg={s.goal.id} class:met={s.met}>
             <div class="r">
               {#if s.goal.kind === 'km'}<span class="ib" aria-hidden="true"><Bike size={18} /></span>{:else}{@const a = acts.find((x) => x.id === s.goal.actId)}<ActIcon icon={a?.icon ?? 'heart'} ring={a?.ring ?? 'move'} />{/if}
+              {#if goalHref(s)}
+                <a class="m way" href={goalHref(s)} data-wg-way={s.goal.id}><b>{nameOf(s.goal)}</b><small class="num" data-wg-line>{line(s)}</small><span class="sr">{t('Open «{what}» in Analyse', { what: nameOf(s.goal) })}</span></a>
+                <ChevronRight size={14} class="wc" aria-hidden="true" />
+              {:else}
               <span class="m"><b>{nameOf(s.goal)}</b><small class="num" data-wg-line>{line(s)}</small></span>
+              {/if}
               {#if s.met}<span class="ok" aria-hidden="true"><Check size={18} /></span>{/if}
             </div>
             {#if !s.missing}<span class="bar" role="img" aria-label="{Math.round(s.fill * 100)} %"><i style="width:{s.fill ? Math.max(2, Math.round(s.fill * 100)) : 0}%"></i></span>{/if}
@@ -177,6 +183,21 @@
     flex: 1;
     flex-direction: column;
     min-width: 0;
+  }
+  .way {
+    position: relative;
+    justify-content: center;
+    min-height: 44px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .way:hover b {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .r :global(.wc) {
+    flex: none;
+    color: var(--ink-3);
   }
   .ib {
     display: grid;

@@ -1,46 +1,50 @@
 # Stand und Plan: was heute geplant und offen ist
 
-Schnappschuss vom **5. November 2026, abends**. Für Noah, in einfachem Deutsch. Der Schnappschuss ist dafür da, dass nichts verloren geht, wenn ein Thread endet. Was die App **heute kann**, steht in [App-Stand](app-stand.md). Wie sie gebaut ist: [Aufbau](aufbau.md) und [Technik-Handbuch](technik-handbuch.md). Was früher geschah und warum: [Verlauf und Entscheide](verlauf-und-entscheide.md). Was du selbst wissen und tun musst: [Noah-Wissen](noah-wissen.md).
+Schnappschuss vom **7. November 2026, abends**. Für Noah, in einfachem Deutsch. Der Schnappschuss ist dafür da, dass nichts verloren geht, wenn ein Thread endet. Was die App **heute kann**, steht in [App-Stand](app-stand.md). Wie sie gebaut ist: [Aufbau](aufbau.md) und [Technik-Handbuch](technik-handbuch.md). Was früher geschah und warum: [Verlauf und Entscheide](verlauf-und-entscheide.md). Was du selbst wissen und tun musst: [Noah-Wissen](noah-wissen.md).
 
 **Wie aktuell ist diese Datei?** Sie ist ein Schnappschuss und wird beim Sonntags-Brief nachgeführt (siehe unten, «So bleibt sie aktuell»). Die echte, immer frische Liste der offenen Änderungen steht auf GitHub unter [Pull requests](https://github.com/noahdolmetsch-af/packgenerator/pulls). Wo hier etwas anders steht als dort, gilt GitHub. Eine Versionsnummer steht hier absichtlich nicht (Regel 13): die aktuelle zeigt die App unter Ich › Was ist neu.
 
-**Wörter:** *PR* = eine Änderung, die auf GitHub wartet (Pull Request). *Label «ok»* = du hast freigegeben, der Merge-Bündler führt die Änderung zusammen, sobald die Tests grün sind. *online* = auf der echten Seite. *Etappe* = ein Teil des grossen Durchklickens.
+**Wörter:** *PR* = eine Änderung, die auf GitHub wartet (Pull Request). *Label «ok»* = du hast freigegeben, der Merge-Bündler führt die Änderung zusammen, sobald die Tests grün sind. *online* = auf der echten Seite (auf `main` gemergt). *Etappe* = ein Teil des grossen Durchklickens.
 
 ---
 
-## 1. Offene Änderungen (PRs) am Abend des 5.11.2026
+## 1. Offene Änderungen (PRs) am Abend des 7.11.2026
 
-### Du hast freigegeben, es wartet nur noch auf den Merge (Label «ok»)
+Stand: 7.11., 23:40 Uhr UTC (kurz vor Mitternacht in Zürich 00:40 Uhr am 8.11.), 30 offene PRs. Seit dem Schnappschuss vom 5.11. sind über 150 Änderungen gemergt worden. Alles, was am 5.11. noch offen war (Wetter-Stapel #924 bis #937, Gruss «Wi gahts?» A, «Jetzt dran», Tagescheck #895, «Aktiv heute» #875, Bild oben auf Heute #783, Kleidungs-Tipp #932, Zug hin #934, Fester Termin #936, Doku #935), ist **online**. Zwei alte PRs wurden **geschlossen, nicht gemergt**: #757 («Unterwegs und Velos» über «Deine Woche», du hast «verwerfen» gesagt) und #824 (Start-Grenze 5 MB, überholt). In der letzten Stunde dazugekommen und gemergt: #1116, #1123, #1129, #1114, #1125, #1128, #1132, #973, #1133, #1134, #1137 und #1138.
+
+### Du hast freigegeben (Label «ok»), es wartet auf grüne Tests und den Merge
 
 | PR | Was | Hinweis |
 |---|---|---|
-| #924 | Temperaturen nach Höhe auf der Wetterseite (1000, 2000, 3000 m, Orte und Gipfel wählbar) | Zuerst mergen. Baut auf der Nebelgrenze (#921, online) auf |
-| #929 | Heute: ruhige Zeile «Temperaturen nach Höhe» | Nach #924 |
-| #931 | «Skitour planen»: Temperaturen von 500 bis 4000 m | Nach #929 |
-| #933 | Nebel auf der Tour-Route: Zeile im Tourwetter und Nebelband im Höhenprofil | Unabhängig |
-| #937 | Nebelgrenze am Morgen: Push um 07:00 (Oktober bis Februar) | Ändert `api/`: nach dem Merge den Server «packgen» auf READY prüfen |
-| #912 | Gruss «Wi gahts?» A: mehr Knöpfe, sofort speichern, gestern markiert | Erster von vier Teilen des Gruss-Ausbaus |
-| #911 | Jetzt dran: Backup-Ordner-Zeile kurz, Tipp hinter «Mehr» | |
-| #908 | Keine leeren Notizen mehr («Werkstatt-Quittung:» ohne Text) | |
-| #895 | Tagescheck: ein Tippen liest weniger neu (schneller) | Ersetzt den geschlossenen #889 |
-| #875 | Heute: «Aktiv heute» zeigt nicht nochmals, was oben als Gewohnheit steht | |
-| #783 | Bild oben auf Heute: gezeichnete Landschaft mit nächster Tour und Countdown | Seit 03.11. offen; wegen Konflikten wohl neu aufzusetzen |
+| #1120, #1121, #1122, #1124 | Cardio-Belastung A, B, C, F: Touren des Zeitraums als Liste, Wochenbalken ab 3 Monaten, üblicher Bereich als graues Band, «Am Tag davor» zählt auch Fitbit-Trainings | D (#1123) ist online |
+| #1130 | Analyse: «Zurück zu Heute» merkt sich, woher man kam (4a) | |
+| #1140, #1141 | Analyse: leere Reiter erklären sich und bieten den nächsten Schritt; Aktiv: Ringe und Wochenziele führen in die Analyse | |
+| #1143 | Meine Datenquellen: woher die Zahlen kommen, wie frisch sie sind, wo Lücken sind | |
+| #1135, #1136 | Plan-Wächter (Test und Tabelle für den Plan «ganze App»); Tour-Stand: Rechnung, wo eine Tour steht (ohne Anzeige) | Nichts Sichtbares |
+| #1126 | Wetter: Karte «Für deine Tour» (Wetter, Regenzeug, Wege) | |
+| #1131 | Packen: zuerst die Liste, der Rest in fünf Gruppen unter «Mehr zu dieser Tour» | |
+| #1110 | Auswerten: Link-Karten weg, Gipfelbuch als Reiter | Am Nachmittag rot gemeldet; Stand auf GitHub prüfen |
+| #1106 | Test «Aktiv heute»: nur Kacheln mit Aktivität messen (Flake-Fix) | Nichts Sichtbares |
+| #1102 | Live-Karte: Schlafplatz finden, Schritt 1 (Dächer in der Nähe, eigene Plätze) | |
+| #1095, #1094, #1093 | Ausflugstipps ab 90 Minuten; Neuland-Sammlungen mit Bild, Farbton und Vorlagen; Untergrund der Anfahrt aus OpenStreetMap nachschlagen | |
+| #1091 | Traum der Woche: Kachel auf Heute mit Countdown und Wetter für die Tage | |
+| #1043 | Nebelmeer-Tage: Regal auf der Sammel-Wand mit Foto und leiser Winterzahl, «Heute merken» | |
+| #1038 | Heute: «Heute laut Plan» zeigt nur, was noch offen ist | |
+| #976, #938 | Merken: Doppeltipp auf «Speichern» (E4-003); Tourenvorschläge: Art-Filter, Start-Filter, Zeilen wählen | Seit dem 5.11. offen |
+| #1139 | Diese Doku-Änderung | |
 
-### Wartet auf dein «ok NNN»
+### Wartet auf dein «ok NNN» (ohne Label)
 
 | PR | Was |
 |---|---|
-| #932 | Live: Kleidungs-Tipp pro Stunde in «Nächste 3 Stunden» |
-| #934 | «Zug hin, Velo heim» (Träume und Neuland N7) |
-| #936 | Fester Termin für Stammkunden, Heute schlägt die freie Zeit vor |
-| #935 | Nur Doku: «Neuer Schwung 2», Ideen A bis G in der Vorhaben-Liste gespeichert |
+| #1144 | Wege deutlicher: Zahlen, die weiterführen, sind grün, unterstrichen, mit dunklem Hintergrund lesbar |
+| #1145 | Weg zum Ziel: «Start in Tagen», wenn der Start nah ist |
+| #1146 | Tagebuch: Stimmungskurve zum Antippen (Diagramme 12) |
+| #1147 | Training: Pläne für Skitour, Wandern, Laufen, Kraft, Mobilität; Pläne mischen |
+| #1148 | Spruch PR 3: Ton wählen, Quellen und Sätze schalten, «Nicht mehr solche» |
+| #1149 | Velo-Zahlen als Wege, Teil 2: ein Velo in der Analyse, «passt», Gewicht und Tasche |
 
-### Alt und zu klären (nur auf dein «schliessen NNN»)
-
-- **#757** (Heute: «Unterwegs und Velos» über «Deine Woche»): du hast am 03.11. «verwerfen» geschrieben; der PR ist noch offen.
-- **#824** (Start-Grenze auf 5,0 MB): wohl überholt. Der Start wurde inzwischen durch #864, #869 und #882 kleiner gemacht (etwa 3,4 MB, rund 73 % der Grenze von 5,0 MB).
-
-Was **seit dem 2.11.** neu online ging, steht im [Verlauf](verlauf-und-entscheide.md#5-seit-dem-2-november-2026).
+Was **seit dem 2.11.** neu online ging, steht im [Verlauf](verlauf-und-entscheide.md#5-seit-dem-2-november-2026) und je PR in `docs/releases/`.
 
 ---
 
@@ -48,77 +52,86 @@ Was **seit dem 2.11.** neu online ging, steht im [Verlauf](verlauf-und-entscheid
 
 Jeder Punkt hat einen Stand: **online** (auf der echten Seite), **offen** (PR wartet), **beschlossen** (du hast ja gesagt, noch nicht gebaut), **Idee** (gesammelt, nicht entschieden). Quelle der Beschlüsse sind deine Antworten («1a 2b …») in den Threads; die Ordner `notes/…` im Projektordner enthalten die Einzelheiten.
 
-### 2.1 Wetter: Nebelgrenze, Temperaturen nach Höhe
+### 2.1 Wetter: Nebelgrenze, Temperaturen nach Höhe, Nacht
 
-- **Nebelgrenze** auf Heute und Wetterseite, immer sichtbar (auch «kein Nebel»): **online** (#921). Rechnung in `src/lib/wetter/profil.js` (eine gemeinsame Abfrage der Luftschichten, 3 Stunden zwischengespeichert) und `nebelgrenze.js`.
-- **Nebel auf der Tour-Route** (#933) und **Morgen-Push mit Fahrt über dem Nebel** (#937): **offen**.
-- **Temperaturen nach Höhe** als Stapel: Wetterseite (#924), Heute (#929), Skitour planen (#931): **offen, freigegeben**, Reihenfolge wie in der Tabelle.
-- **Nach dem Merge selbst prüfen** (die Entwicklungsumgebung erreicht die Wetterquelle nicht, die Rechnung ist nur mit erfundenen Luftschichten getestet): Nullgradgrenze der Karte gegen die Wetterzeile vergleichen; an einem Nebeltag Nebelgrenze gegen eine Webcam vergleichen; Gipfel- und Ortsliste von Hand ansehen. Schwellen stehen in `nebelgrenze.js` und lassen sich dort anpassen.
-- **Wetterseite neu** (Landi-Regenradar im Fenster, Regenstreifen, SRF-Webcams, Licht für die Fahrt, Gewitter mit Uhrzeit, Reiter): **online**. Offen nur deine Prüfung, ob Landi und SRF im Fenster erscheinen (das sieht man nur auf der echten Seite).
+- **Nebelgrenze** auf Heute und Wetterseite (#921), **Nebel auf der Tour-Route** (#933), **Morgen-Push um 07:00** mit Fahrt über dem Nebel (#937, Oktober bis Februar) und **Sonnen-Ausfahrt** (Heute schlägt bei Nebel mit Sonne darüber eine Fahrt über dem Nebel vor, #1015, mit leiser Wochenzeile #1040): alle **online**.
+- **Temperaturen nach Höhe** (1000, 2000, 3000 m) auf der Wetterseite (#924), ruhige Zeile auf Heute (#929) und in «Skitour planen» (500 bis 4000 m, #931): **online**.
+- **Nachttemperatur:** Karte auf der Wetterseite (#999), ruhige Zeile auf Heute (#1013) und Push um 19:00 mit Frost-Hinweis (#1026): **online**.
+- **Wetter-Ausweichen:** Starkregen-Warnung und nächstes Dach auf der Live-Karte (#1045): **online**.
+- **Selbst prüfen** (die Entwicklungsumgebung erreicht die Wetterquelle nicht, die Rechnung ist nur mit erfundenen Luftschichten getestet): Nullgradgrenze der Karte gegen die Wetterzeile vergleichen; an einem Nebeltag Nebelgrenze gegen eine Webcam vergleichen; Gipfel- und Ortsliste von Hand ansehen; ob Landi-Regenradar und SRF-Webcams im Fenster erscheinen. Schwellen stehen in `nebelgrenze.js`.
 - **Idee, nicht gewählt:** Wind-Vorschau.
 
 ### 2.2 Routing und Navigation (Kette)
 
-Ziel: Routen zuverlässiger, einfacher und intelligenter. Gemessen gegen brouter.de, zweiter und dritter Router getestet. Deine Antworten vom 05.11.: «1b evtl c, 2a und b, 3a, 4a, 5b».
+Ziel: Routen zuverlässiger, einfacher und intelligenter. Deine Antworten vom 05.11.: «1b evtl c, 2a und b, 3a, 4a, 5b».
 
-1. **Sicherheitsnetz** (Zeitlimit 15 s, ein zweiter Versuch nur bei schnellem Fehler, 10 Minuten Zwischenspeicher, klare Meldungen, Hinweis zum Standort): **online** (#928).
-2. **Reserve-Kette:** brouter.de → Valhalla → OpenStreetMap-Router (OSRM), je einmal pro Fehler, mit Hinweis «Reserve-Router»: **beschlossen**, als nächster kleiner PR.
-3. **Profile «Wie fährst du?»** (Auswahl statt der zwei festen Profile): **beschlossen**.
-4. **Intelligenz zuerst beim Belag** (Strassenart und Untergrund aus den Weg-Angaben von BRouter, die die App heute nicht liest): **beschlossen**, danach weitere Ideen (I2, I3).
-5. **Funkloch:** Notausstiege vorberechnen, evtl. BRouter-Android-App, die offline rechnet (erst ein kleiner Test): **beschlossen als Richtung**, noch nicht gebaut.
-- **Tourenvorschläge** (eigener Thread, keine eigene Routing-Schicht): Seite mit fünf Pilot-Mountainbike-Touren aus SchweizMobil **online** (#926). Entscheide: offene Daten, Standardfilter «mittel und schwer», kein Rennrad, erst Zürich und Graubünden, Veloland nach dem Pilot, später das ganze offizielle Netz offline nach Region. Offen: Antworten zur grauen Gruppe, zur Dauer aus «Eigenes Tempo» und zum Umfang des nächsten PR.
+1. **Sicherheitsnetz** (Zeitlimit 15 s, ein zweiter Versuch bei schnellem Fehler, 10 Minuten Zwischenspeicher, klare Meldungen): **online** (#928).
+2. **Reserve-Kette** brouter.de → Valhalla → OSRM, je einmal pro Fehler, mit Hinweis «Reserve-Router»: **online** (#943).
+3. **«Wie fährst du?»** (vier Arten zu fahren beim Neu-Planen, passend zum Velo vorgeschlagen): **online** (#1005).
+4. **Belag und Schwierigkeit** (Anteil befestigt und unbefestigt, Warnung nach Art zu fahren): **online** (#1033). Weitere Ideen daraus (I2, I3) sind **beschlossen, noch nicht gebaut**.
+5. **Funkloch:** die Karte «Bereit für unterwegs?» (Karte entlang der Strecke und Sprache vor dem Start) ist **online** (#1027). Notausstiege vorberechnen und evtl. eine BRouter-Android-App, die offline rechnet: **beschlossen als Richtung**, noch nicht gebaut.
+- **Wege-Gedächtnis** (Stücke nach der Fahrt bewerten, schlechte beim Planen meiden): **online** (#1054).
+- **Tourenvorschläge:** Seite mit fünf Pilot-Mountainbike-Touren aus SchweizMobil **online** (#926). Art-Filter, Start-Filter und «Zeilen wählen» (#938) **offen, freigegeben**. Entscheide: offene Daten, Standardfilter «mittel und schwer», kein Rennrad, erst Zürich und Graubünden, Veloland nach dem Pilot, später das ganze offizielle Netz offline nach Region.
 
 ### 2.3 Live-Navigation unterwegs
 
-- **Online:** Fahrt speichern, Orte in der Nähe, Strecke folgt jeder Kurve, «Was brauchst du?», zurück auf die Strecke, Karte frei, Licht-Karte (#826), Kälte und Regen der nächsten 3 Stunden (#925), Router-Sicherheitsnetz (#928).
-- **Offen:** Kleidungs-Tipp pro Stunde (#932).
-- **Beschlossen:**
-  - «Bereit für unterwegs?» (Offline-Check); das Design hast du am 05.11. mit «ok bereit-unterwegs» freigegeben, der PR folgt.
+- **Online:** Fahrt speichern, Orte in der Nähe, Strecke folgt jeder Kurve, «Was brauchst du?», zurück auf die Strecke, Karte frei, Licht-Karte (#826), Kälte und Regen der nächsten 3 Stunden (#925), Router-Sicherheitsnetz (#928), Kleidungs-Tipp pro Stunde (#932), Sonne oder Mond pro Stunde (#971), «Bereit für unterwegs?» (#1027), Wetter-Ausweichen (#1045), Wege-Gedächtnis (#1054).
+- **Offen:** Schlafplatz finden, Schritt 1 (#1102, freigegeben). Weitere Schritte dazu: **Extra-Runde** mit dir, noch nicht geklärt.
+- **Beschlossen, noch nicht gebaut:**
   - **Pausen-Planer** (drei Vorschläge zur Auswahl, auch Läden mit Essen, nur auf Knopfdruck «Rast suchen»).
-  - **Ankunfts-Bericht** (in der Nachbereitung und in der Live-Karte nach der Ankunft: Zeiten, Stopps, Pausenlänge gegen Plan, Akku- und Licht-Verbrauch, möglichst alle Daten, die die App sonst auswertet).
+  - **Ankunfts-Bericht** (in der Nachbereitung und in der Live-Karte nach der Ankunft: Zeiten, Stopps, Pausenlänge gegen Plan, Akku- und Licht-Verbrauch).
   - Lampenstufen mit Verbrauch und Leuchtdauer; Handy-Akku mit Restlaufzeit.
-- **Gewünscht aus dem Ultra-Rennen** (Vorhaben 6, alle noch nicht gebaut): Rennen-Grundliste, Soll-Setup, Velo-Countdown, Werkzeug passend zum Velo, Strom und Licht, Schlafstrategie, laufende Auswertung der letzten 3, 6 und 9 Stunden, Wetter für 2 bis 8 Stunden entlang der Route, drei Ziel-Stufen, Nacht-Blatt, letzter offener Laden vor der Nacht, Schlafplatz unterwegs.
+- **Gewünscht aus dem Ultra-Rennen** (Vorhaben 6): Teile davon liegen jetzt als Schrittarten in «Weg zum Ziel» (Rennplanung, Nachtplan, GPS-Tracker, Velo bereit, Packen testen, Verpflegung testen, Trainingsfortschritt, alle **online**). Noch nicht gebaut: Soll-Setup, Werkzeug passend zum Velo, laufende Auswertung der letzten 3, 6 und 9 Stunden, Wetter für 2 bis 8 Stunden entlang der Route, drei Ziel-Stufen, Nacht-Blatt, letzter offener Laden vor der Nacht.
 
 ### 2.4 Heute, Tagescheck und «Jetzt dran»
 
-- **Tagescheck als ein Fragebogen:** Teile 1 bis 4 **online** (eine Frage pro Thema, Morgen- und Abend-Seite, «Deine 15 Fragen» ist aufgegangen in «Deine Fragen»). **Beschlossen, noch offen:** Gruss und Stimmungsknöpfe (Teil A #912 **offen**, dann B Anpassen, C Wetter und Wochenstreifen, D «Woran liegt's?» und Abend), Nachtträume, Wechsel-Varianten, Verbindungen (Ziele, To-dos, Freunde, Meilensteine, Aktivitäten), monatlich Visionen und Lebensträume. Frage 6 «Worauf freust du dich?» ist am Start aus («6 an» sagen).
-- **Jetzt dran:** nur Dringendes (#913 online), «Später» und «Zeilen wählen» (#915 online); Backup-Zeile kurz (#911 offen); leere Notizen (#908 offen); ausgemusterte Velos nicht mehr auf Heute (#902 online). Offen laut Thread: ob Ruhiges und Dringendes weiter getrennt wird.
-- **Bild oben auf Heute** (#783, offen) und **«pro Karte ein starker Knopf»** (nur auf Heute, nach dem Bild): **beschlossen**.
-- **Heute ausmisten:** doppelte Gewohnheiten (#875 offen).
+- **Gruss «Wi gahts?»:** alle vier Teile **online**: A mehr Knöpfe und sofort speichern (#912), B Knöpfe anpassen (#1047), C Wetter im Kopf und «Letzte 7 Tage» (#1049), D «Woran liegt's?» und «Wie war's?» am Abend (#1055). **Beschlossen, noch offen:** Nachtträume, Wechsel-Varianten, Verbindungen (Ziele, To-dos, Freunde, Meilensteine, Aktivitäten), monatlich Visionen und Lebensträume. Frage 6 «Worauf freust du dich?» ist am Start aus («6 an» sagen).
+- **Tagescheck als ein Fragebogen:** Teile 1 bis 4 **online**; Tippen liest weniger neu (#895, online).
+- **Jetzt dran:** nur Dringendes (#913), «Später» und «Zeilen wählen» (#915), Backup-Zeile kurz (#911), keine leeren Notizen (#908): alle **online**. «Heute laut Plan» zeigt nur, was noch offen ist (#1038): **offen, freigegeben**.
+- **Bild oben auf Heute** (#783) und **ein starker Knopf pro Karte** (#1090): **online**. «Aktiv heute» ohne doppelte Gewohnheiten (#875): **online**.
+- **Neu auf Heute (online):** Kachel «Spruch» (#1060, mehr Quellen und Zitate #1105), Körperwerte mit letztem Wert und «Jetzt holen» (#1061), «Schnell öffnen» schlägt eine Seite zum Anpinnen vor (#980), Letzte 12 Monate zum Antippen (#1100), Fester Termin für Stammkunden (#936).
+- **Offen:** Spruch PR 3 (#1148, wartet auf dein «ok»), Traum der Woche (#1091, freigegeben).
 
-### 2.5 Aktiv, Auswerten, Lernen
+### 2.5 Aktiv, Auswerten, Analyse, Training, Lernen
 
-- **Aktiv und Auswerten** (Entscheid 03.11. «1a bis 5a»): «Alles hier» ganz oben auf Aktiv, Auswerten in drei Fragegruppen, Heatmap, Neuland, Gelernt und Jahr unter Auswerten, «Gehört zu» wo «Alles hier» steht entfällt, Timer-Block auf jeder Sportseite plus «Zuletzt genutzt», Sonntags-Faden, «Das fällt auf»-Karte. **Stand in den Threads prüfen**: das Gedächtnis hält den Beschluss, aber nicht, welche Teile schon online sind.
-- **Analyse** (13 Schritte): Schritte 1 bis 5 online, «Was hängt zusammen?» und «Vergleichen» offen oder online je nach Merge. Prüfen mit `docs/app-stand.md` und der Seite `#/analyse`.
-- **Persönliches Lernen** (Ideen 1 bis 6): alle **online** (#849, #855, #865, #872, #885, #892) und das Folge-Paket «Experimente: einfacheres Formular, Fahrt gegen Fahrt» (#905, online).
-- **Fragen aus deinen Daten, Stufe 2** (Wetter, Zufallsfrage, Vermutungen testen): online (#879, #896, #903).
-- **Sieben Cockpit-Ideen** (03.11., «werden alle gebaut»): Signale zuerst (Idee 3, dann 5 zusammen mit Aktiv/Auswerten), Fragen (7) und Versuche (6), Ghost (4), Belastung (1, 2). Grenzen: das Wetter gibt es nur als Tageswert am Wohnort, es werden keine Rohdaten-Ströme gespeichert (also kein Live-Ghost), Ruhepuls, HRV und Schlaf sind nicht vorhersagbar.
+- **Aktiv:** eigene Wochenziele mit Balken (#977), Ruhetag-Hinweis nach drei harten Tagen (#965), Rückblick Meditation und Training zum Antippen (#1083), «Meine Sportarten» heisst «Meine Aktivitäten» (#993): **online**.
+- **Auswerten:** ein Zeitraum-Schalter für alle Gruppen (#941), «Im Fokus» ohne leere Sportarten (#1104): **online**. Link-Karten weg und Gipfelbuch als Reiter (#1110): **offen, rot**. Wochenzahlen und Kalorien führen in die Analyse (#1132): **online**; Aktiv-Ringe und Wochenziele führen dorthin (#1141, freigegeben); leere Reiter erklären sich (#1140, freigegeben). Deine Antworten «3 ja, 6 ja» zu den Analyse-Punkten sind aufgenommen.
+- **Analyse:** schneller geöffnet (#948). **Online:** Wege unter dem Titel eines Werts (#1116), Aktivzonen als Tagesschnitt (#1114), Filter-Karte nur wo sie wirkt (#1129). **Offen:** «Zurück zu Heute» (#1130, freigegeben). **Cardio-Belastung** A bis F: Wochentag-Balken, Tour-Namen und lesbare Karten (#1127) und D «Wie wird gerechnet?» (#1123) sind **online**, A, B, C und F (#1120, #1121, #1122, #1124) **offen, freigegeben**. **Meine Datenquellen** (#1143) **offen, freigegeben**.
+- **Zahlen mit Weg:** Bausteine für antippbare Zahlen und die Quelle-Zeile (#1109), Velo-Zahlen führen weiter (#1118), Rückblick-Tempo zum Antippen (#1119), Eigene Messwerte zum Antippen (#1044): **online**. Die Regel «Leere Kachel nennt die fehlende Quelle» (#1134), «Weiter von hier» (#1133) und das Regelbuch «Neun Hinweise» (#1137) sind Vorbereitungen ohne sichtbare Änderung (**online**, noch auf keiner Seite benutzt). **Offen:** Velo-Zahlen Teil 2 (#1149) und «Wege deutlicher» in Grün (#1144), beide warten auf dein «ok».
+- **Training** (Wochenpläne, 8 Schritte): Heute passt (#1088), Verpasst? Verschieben (#1096), Wochenlast-Wächter und Entlastungswoche (#1099), Einheiten-Bibliothek (#1113): **online**. Schritt 8 «Nächste Woche» (#1128): **online**. **Offen:** Pläne für Skitour, Wandern, Laufen, Kraft, Mobilität und Pläne mischen (#1147, wartet auf dein «ok»).
+- **Touren und Planen (online):** vier Wege auf der Tourkarte und «n warten auf Rückblick» (#1125), Wochen-Abschluss am Sonntag mit «Auf Montag verschieben» (#973).
+- **Persönliches Lernen:** alle sechs Ideen **online**. **Fragen aus deinen Daten:** Stufe 2 und Stufe 3 (To-Dos #956, Eigene Regeln #1011) **online**.
+- **Sieben Cockpit-Ideen** (03.11., «werden alle gebaut»): Signale zuerst (Idee 3, dann 5 zusammen mit Aktiv/Auswerten), Fragen (7) und Versuche (6), Ghost (4), Belastung (1, 2). Grenzen: das Wetter gibt es nur als Tageswert am Wohnort, es werden keine Rohdaten-Ströme gespeichert (also kein Live-Ghost), Ruhepuls, HRV und Schlaf sind nicht vorhersagbar. **Stand je Idee in den Threads prüfen.**
 
 ### 2.6 Entdecken, Sammeln, Träume, Neuland
 
-- **Träume und Neuland:** N6 «Feierabend-Biwak» online (#920), N8 «Passt jetzt: Ideen pro Monat» online (#900), **N7 «Zug hin, Velo heim»** offen (#934). Die Kette geht bis N19 (Biwak, Aussichtstürme und Wasserfälle aus OpenStreetMap, Fundliste); der genaue Stand je Schritt steht in `docs/releases/` und in der Seite «Neu seit gestern».
-- **Entdecken und Sammeln** (sechs Ideen, 04.11.): Entdeckerkarte, Sammlungen mit Charakter, verschiedene Wege zum selben Ziel, Touren als Geschichten, Challenges nach Gelegenheit, nachvollziehbare Anerkennung. Befund: Pässe werden an fünf Orten gezählt (Neuland, Pässe sammeln, Gipfelbuch, Tourenpass, Sterne). Empfohlene Reihenfolge: erst «Warum zählt das?», dann **eine** Pass-Regel, dann Wege, Sammlungen, Challenges, Geschichten, Karte. Stand: Fragerunde 1, wartet auf deine Antworten.
+- **Träume und Neuland online:** N6 Feierabend-Biwak (#920), N7 Zug hin, Velo heim (#934), N8 Passt jetzt (#900), N9 Sonnenaufgang auf dem Hügel (#994), N10 Eine Fundliste (#1048), N12 Ein Abenteuer im Monat (#1042), N18 Türme, Brücken, Wasserfälle aus OpenStreetMap (#1046), N19 Abenteuer-Würfel (#1034); dazu Reise-Wünsche mit Jahreszeit (#974), Kompass-Träume und Reise-Wünsche an einem Ort (#1080), «Wege hierher» in Neuland (#1087). **Offen:** Untergrund der Anfahrt (#1093), Sammlungen mit Bild und Farbton (#1094). Den genauen Stand je Schritt zeigt `docs/releases/` und die Seite «Neu seit gestern».
+- **Sammlungen:** als Seite teilen, drucken, mit einer Tour verknüpfen (#962) und eine geteilte Sammlung mit einem Tippen übernehmen (#1103): **online**.
+- **Entdecken und Sammeln** (sechs Ideen, 04.11.): Die **Sammel-Wand** (Stempel, Pässe, Gipfel, Neuland, Sterne auf einer Seite, #940) ist **online**; das Nebelmeer-Regal dazu ist **offen** (#1043). Übrig sind Wege zum selben Ziel, Challenges nach Gelegenheit, Touren als Geschichten und die Entdeckerkarte; die Reihenfolge war: erst «Warum zählt das?», dann **eine** Pass-Regel. Stand: **in der Fragerunde**, Antworten von dir ausstehend.
 - **Idee für später:** Pass-Sprint (kleines Spiel, H5 im Geheimmenü).
 
 ### 2.7 Bewegung, Schmunzeln, Geheimmenü (die 30 Ideen vom 03.11.)
 
-- **Paket A** Seitenwechsel (Ideen 1 bis 5, alle als «b»), **Paket B** Packen fühlt sich echt an (nur 6 Vibrieren und 11 Rollverschluss; 7 und 8 später), **Paket C** Velo lebt (22, 21, 16, 12, 17), **Paket D** Laden, leere Seiten, Wetter (10, 14, 19, 15, 20: **online** am 04.11.), **Paket E** Touren als Sammlung (23 online; 13, 24, 25, 18 gewählt), **Paket F** Schmunzel-Ideen (29 bis 28: Velo im Logo online; Jahreszeit, Nussgipfel-Rechner, Mundart-Wetter, Murmeltier gewählt bzw. online), **Paket G** Heute (Landschaftsbild #783, danach der starke Knopf). Dein Satz: «Je Paket ein Bau-Thread, je Idee ein kleiner PR.» Den Stand je Idee zeigt `docs/vorhaben-liste.md`.
+- **Paket A** Seitenwechsel, **Paket B** Packen fühlt sich echt an, **Paket C** Velo lebt, **Paket D** Laden, leere Seiten, Wetter (**online** am 04.11.), **Paket E** Touren als Sammlung und **Paket G** Heute (Landschaftsbild #783, danach der starke Knopf #1090): laut der Doku-Änderung #1107 **gebaut**; **Paket F** Schmunzel-Ideen (Velo im Logo online; Jahreszeit, Nussgipfel-Rechner, Mundart-Wetter, Murmeltier gewählt bzw. online). Dein Satz: «Je Paket ein Bau-Thread, je Idee ein kleiner PR.» Den Stand je Idee zeigt `docs/vorhaben-liste.md`.
 - **Geheimmenü hinter fünfmal «PG»:** H1 Kuhglocken (Ton nur mit Schalter), H2 Murmeltier, H6 Velo-Weisheit, H7 Alpenpanorama, H8 Platten, H9 Logo-Wetter: alle **online**. H3, H4, H10, H11 nicht gewählt. H5 Pass-Sprint nur Idee.
-- **Neuer Schwung 2** (05.11., Ideen A bis G, nicht zu verwechseln mit den Paketen A bis G oben): A Tempo-Runde, B Beschlossenes ausliefern, F Sammel-Wand und G Rückwärts-Plan zum grossen Ziel laufen in Bau-Threads (F und G zuerst als Mockup); **C** Nutzungs-Spiegel und «Zuletzt», **D** Winter-Seite, **E** Jahresrückblick zum Teilen sind **Ideen für später**. Gespeichert in #935 (wartet auf «ok 935»).
-- **Neuer Schwung 1** (26.10., Stil «Kacheln mit Tiefe», Bewegung überall sanft): Schritte 1 und 2 gebaut; die Schritte 3 bis 11 (Aufklappen am Handy, Stil auf Heute, Packen, Startklar, Touren, Velo, Aktiv, leere Seiten, übrige Bausteine) stehen in `docs/vorhaben-liste.md`.
+- **Neuer Schwung 2** (05.11., Ideen A bis G, nicht zu verwechseln mit den Paketen A bis G oben): als Liste in der Vorhaben-Liste gespeichert (#935, online). A Tempo-Runde und B Beschlossenes ausliefern laufen (Tempo-Runde 4 und 5 sind online: #961, #955, #950, #948, #1009); F Sammel-Wand ist online (siehe 2.6), G Rückwärts-Plan ist «Weg zum Ziel» (siehe 2.9). **C** Nutzungs-Spiegel und «Zuletzt» (Teil davon: «Zuletzt geöffnet» in der Suche, #975, online), **D** Winter-Seite, **E** Jahresrückblick zum Teilen sind **Ideen für später**.
+- **Neuer Schwung 1** (26.10., Stil «Kacheln mit Tiefe», Bewegung überall sanft): Schritte 1 und 2 gebaut; die Schritte 3 bis 11 stehen in `docs/vorhaben-liste.md`.
 
 ### 2.8 Tennis und Angebote (Tennislehrer-Journey)
 
-- **Online:** Anfrage, Rechnung zur Buchung, Sammelrechnung, Kundenliste, späte Absage, Barzahlung, Stundenkarte, Abo (fester Monatspreis), Warteliste mit Heute-Hinweis (#919), Gruppenstunden (#906).
-- **Offen:** Fester Termin für Stammkunden (#936).
-- **Beschlossen, in dieser Reihenfolge:** Regen-Absage mit Ersatzzeiten, Erinnerungen, Zahlarten (TWINT, Überweisung, bar), Gutscheine, Probestunde, automatische Erinnerungs-Mail (nur vorbereitet).
-- **Flyer** (05.11.): Bereich «Tennis» (A), Flyer auf Deutsch 16:9 (B), A4, Quadrat und Englisch (C), Stufen und Art, Flyer pro Stufe (D), Anmeldeseite mit QR-Code (E), Bestätigungs-Mail (F), Teilnehmerliste mit Anmeldeschluss und Warteliste (G). Das Mockup hast du freigegeben; jeder Teil bekommt sein eigenes «ok». Vorlagen und Fotos bleiben privat.
+- **Online:** Anfrage, Rechnung zur Buchung, Sammelrechnung, Kundenliste, späte Absage, Barzahlung, Regen-Absage mit Ersatzzeiten, Stundenkarte, Abo (fester Monatspreis), Warteliste mit Heute-Hinweis (#919), Gruppenstunden (#906), **Fester Termin für Stammkunden** (#936), **Gutscheine** (#1004), **ein Ort «Tennis»** mit den Tabs Angebote und Kunden (`#/me/tennis`, #1086).
+- **Beschlossen, in dieser Reihenfolge:** Erinnerungen, Probestunde, automatische Erinnerungs-Mail (nur vorbereitet). Die Zahlart Überweisung neben TWINT, Bank-QR und Bar: Stand im Thread prüfen.
+- **Flyer** (05.11.): Bereich «Tennis» (A) ist mit `#/me/tennis` **online**. Beschlossen: Flyer auf Deutsch 16:9 (B), A4, Quadrat und Englisch (C), Stufen und Art, Flyer pro Stufe (D), Anmeldeseite mit QR-Code (E), Bestätigungs-Mail (F), Teilnehmerliste mit Anmeldeschluss und Warteliste (G). Das Mockup hast du freigegeben; jeder Teil bekommt sein eigenes «ok». Vorlagen und Fotos bleiben privat.
+- **Spielerplus-Kalender:** Team-Termine aus dem Kalender-Link in Woche, Heute und auf der Sportseite (#1002, **online**). Der Link enthält einen geheimen Schlüssel und steht nie im Repo oder Chat.
 - **Hinweis:** Wenn `api/` sich ändert, den Server «packgen» von Hand neu bereitstellen und auf READY prüfen.
 
-### 2.9 Wegweiser, Alles hier, Auffindbarkeit
+### 2.9 Wegweiser, Alles hier, Auffindbarkeit, Weg zum Ziel
 
-- **Versteckte Funktionen:** alle neun Schritte **online** (Wächter für die Tipp-Zahl, «Alles hier» in Velos, Material, Touren, Planen, Ich schlank).
-- **Wegweiser statt Katalog** (26 PRs): Teil A (Absprünge), Teil B (Inhalte pro Bereich), Teil C. Den Stand zeigt `docs/vorhaben.md` Nr. 17.
+- **Versteckte Funktionen:** alle neun Schritte **online**. **Wegweiser statt Katalog** (26 PRs): Teil A (Absprünge), Teil B (Inhalte pro Bereich), Teil C. Den Stand zeigt `docs/vorhaben.md` Nr. 17.
+- **Verlust-Wächter** (#1111, **online**): ein Test auf jedem PR wird rot, wenn beim Vereinfachen eine Funktion verloren geht oder nicht mehr auffindbar ist. Geplante Folgearbeit aus dem Vereinfachen: «Weiter von hier» (#1133) und «Leere Kachel nennt die fehlende Quelle» (#1134), beides **online**, noch auf keiner Seite benutzt.
+- **Weg zum Ziel** (`#/trips/weg`, Rückwärts-Plan zum grossen Ziel): Gerüst (#1050), die Seite unter Touren (#1070), die Seite als eine Linie mit Punkten, Bearbeiten hinter «…» (#1117, Entwurf G1) und Schrittarten, die sich selbst anmelden (#1098), dazu das Wetterfenster ab 7 Tagen vor dem Start (#1138): **online**. «Start in Tagen», wenn der Start nah ist (#1145): wartet auf dein «ok». Schrittarten online: Rennplanung, Organisation, Probefahrten 50, 100, 200 km, Erholung, Velo bereit, Trainingsfortschritt, Verpflegung testen, Nachtplan, Packen testen, GPS-Tracker.
+- **Umsetzungs-Prüfung** (du hast «a» gesagt am 07.11.): eine Plan-Datei `docs/plan-ganze-app.md` mit Wächter-Test (rot, wenn ein «online»-Schritt seinen Weg verliert), nach jedem Merge eine Zeile «Plan: X von Y online» und ein Abnahme-Bericht pro Schritt. **Noch nicht auf GitHub** (kein offener PR dazu gefunden); der PR ist im Thread «Tour A–Z / Datencenter» angekündigt.
+- **Schritt 0 und danach** (du hast am 07.11. entschieden): «Tour-Stand» und «Meine Datenquellen» als zwei PRs; danach Pfad-Baustein auf der Linie von «Weg zum Ziel», «Meine Tour» auf Heute, Ort-Vorlage Velos (mit den 5 Gruppen wie in Packen, #1131) und der Datencenter-Reiter «Fragen». Je ein Bau-Thread, sobald der Vorgänger online ist. Alles **beschlossen, noch nicht gebaut**.
 
 ### 2.10 Das grosse Durchklicken (Etappen)
 
@@ -126,21 +139,21 @@ Beschlossen am 05.11. («1b 2b 3a»): sechs Etappen nacheinander plus Schlussber
 
 | Etappe | Bereich | Stand |
 |---|---|---|
-| 1 | Heute und Ich | **fertig**, Fehler behoben (#891, #897, #898, #899), Wächter «jeder Text hat Deutsch» (#907) |
-| 2 | Touren und Packen, Material | **fertig**, Bericht liegt; #904, #917, #918, #922, #927 online oder freigegeben, #930 online |
-| 3 | Unterwegs und Wetter | **wartet** auf dein «ok Bericht 2» |
-| 4 | Velos und Alltag | folgt |
-| 5 | Aktiv und Auswerten | folgt |
-| 6 | Querschnitt (320 px, hell und dunkel, Deutsch und Englisch, lange Handy-Seiten messen) | folgt |
-| 7 | Schlussbericht: verbessern, Stärken, Design-Vorschläge | folgt |
+| 1 | Heute und Ich | **fertig**, Fehler behoben, Wächter «jeder Text hat Deutsch» (#907) |
+| 2 | Touren und Packen, Material | **fertig**, Fehler behoben (zuletzt Fragen 1a bis 5a: #944, #947, #949, #953, #959, #1001) |
+| 3 | Unterwegs und Wetter | **Stand im Thread prüfen** (am 05.11. wartete sie auf dein «ok Bericht 2»; ein Fix «Unterwegs ohne Tour» ist online, #1012) |
+| 4 | Velos und Alltag | Fehler-PRs **online** (E4-001, -002, -004, -005, Doppeltipp-Schutz #1017, «Velos zuerst» #1018, Velokarte #1016); #976 (E4-003, Merken) **offen** |
+| 5 | Aktiv und Auswerten | Fehler-PRs **online** (E5-001 bis E5-005, Fragen 1a bis 3a: #1021, #1023, #1024) |
+| 6 | Querschnitt (320 px, hell und dunkel, Deutsch und Englisch, lange Wörter) | Fehler-PRs **online** (zum Beispiel E6-001 bis E6-010 und E6-012, «Zum Inhalt springen» #1010, Notizen behalten Text #1019) |
+| 7 | Schlussbericht: verbessern, Stärken, Design-Vorschläge | **Stand im Thread prüfen** |
 
-Verworfen (du am 05.11.): ein Wächter gegen doppelte Klassennamen und eine Meldung bei «1,5» im Gewichtsfeld. Offene Fragen aus Etappe 2: Hinweiskästen auf dem Handy zu, doppelte Brotkrumen, Suche im Zusammenlegen-Fenster, Vorrat-Auswahl mit Suche, Ladeplatzhalter. Befunde mit echten Daten bleiben im privaten Ordner.
+Verworfen (du am 05.11.): ein Wächter gegen doppelte Klassennamen und eine Meldung bei «1,5» im Gewichtsfeld. Befunde mit echten Daten bleiben im privaten Ordner.
 
 ### 2.11 Tempo, Start-Grösse, Tests
 
-- **Start-JavaScript:** Grenze 5,0 MB (Warnung bei 90 %), heute etwa 3,4 MB. Das «Was ist neu» und das Handbuch laden erst beim Öffnen (#882, #869). Die Kern-Grenze von 3 MB für eine einzelne Datei gilt weiter.
-- **Eingaben und Tabs flüssig:** Material-Suche online (#886), Tagescheck (#895 offen), «Meine Sportarten» (#910 online). Schwere Reiter (Träume etwa 0,8 s, Pflege etwa 1,2 s) sind vor allem Browser-Aufbau, keine eigenen PRs.
-- **Tests und CI** (Test-Tempo): Nacht-Prüfung, «Ausprobieren» nur für neue Zeilen, Handy-Tests erst nach dem Label «ok», Mittagsprüfung. Offen: die Nacht-Sammlung und die Mittagsprüfung. Ablauf im [Technik-Handbuch](technik-handbuch.md#6-tests-und-ci).
+- **Start-JavaScript:** Grenze 5,0 MB (Warnung bei 90 %); am 05.11. etwa 3,4 MB. Die Kern-Grenze von 3 MB für eine einzelne Datei gilt weiter.
+- **Tempo-Runden:** Material-Suche (#886), Tagescheck (#895), «Meine Sportarten» (#910), Analyse (#948), Neuland (#950), Meilensteine (#955), Bausteine (#961), Wächter Seitengrösse (#1009): alle **online**. Schwere Reiter (Träume etwa 0,8 s, Pflege etwa 1,2 s) sind vor allem Browser-Aufbau, keine eigenen PRs.
+- **Tests und CI:** Handy-Tests laufen erst nach dem Label «ok», nur für die Seiten, die der PR berührt (#979), Schlangen-Ampel (#992). Der Handy-Teil darf 50 statt 35 Minuten laufen (#1058). Bekannte Flakes: Analyse-Test Zeile 58 (Fix #1106 offen), PF12, mailin, minitools, Tagebuch-Erinnerung, e2e-part 3. Ein Neustart pro PR bei einem Flake ist erlaubt; neuer Push bricht einen laufenden Lauf ab; ein Lauf dauert 40 bis 60 Minuten, der Deploy 4 bis 10. Nacht-Roboter «Langes Wort» (#1031) prüft jede Nacht die Seitenbreite. Ablauf im [Technik-Handbuch](technik-handbuch.md#6-tests-und-ci).
 
 ### 2.12 Weitere Vorhaben mit Stand «beschlossen» oder «Idee»
 
@@ -154,8 +167,8 @@ Foto-KI für Material, Live-Sync über Drive, fremde Einbettungen (nur Links), P
 
 ## 3. Was auf dich wartet (höchstens die wichtigsten)
 
-1. **«ok NNN»** für #932, #934, #936, #935 (siehe oben).
-2. **«ok Bericht 2»**, damit Etappe 3 starten kann.
+1. **«ok NNN»** für #1144 bis #1149 (siehe Tabelle oben).
+2. **Antworten auf offene Fragen:** Schlafplatz «Extra-Runde» (Live-Karte), Entdecken und Sammeln (Fragerunde). Spruch PR 3 liegt als #1148 vor.
 3. Nach den Wetter-Merges: **auf der echten Seite prüfen** (Landi und SRF im Fenster, Nullgradgrenze, Nebel gegen Webcam).
 
 Alles Weitere: [Noah-Wissen](noah-wissen.md).

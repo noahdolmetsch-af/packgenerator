@@ -311,6 +311,8 @@ export function renameLibraryGroup(list, from, to) {
 }
 /** A group deleted: its entries go to group `to` ('' = no group); nothing is deleted. */
 export const deleteLibraryGroup = (list, from, to = '') => list.map((e) => (e.group === from ? { ...e, group: to } : e));
+// «Training verbessern» 8: the Monday of the week for which the card «Next week» was put aside with «Not now»
+export const NEXTKEEP_KEY = 'training.nextkeep';
 // «Training verbessern» 4: the day for which «Heute passt» was answered (Lighter or Keep it)
 export const TODAYKEEP_KEY = 'training.todaykeep';
 // «Training verbessern» 6: the Monday of the week for which the card «A lighter week would fit» was answered

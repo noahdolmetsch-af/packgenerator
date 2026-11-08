@@ -8,14 +8,15 @@
   import { phone } from '../../media.svelte.js';
   import { t } from '../../i18n.svelte.js';
 
-  let { path = [], here = '' } = $props();
+  let { path = [], here = '', back = null } = $props(); // back: { href, label } = «‹ Back to Heute», the page you came from (UI-Prüfung A2)
   const shown = $derived(phone.matches ? path.slice(-1) : path);
 </script>
 
 <nav class="crumb" aria-label={t('Where you are')}>
+  {#if back}<a class="back" href={back.href} data-crumb-back><ChevronLeft size={16} aria-hidden="true" />{t('Back to {place}', { place: back.label })}</a>{#if shown.length}<span class="sep" aria-hidden="true">·</span>{/if}{/if}
   {#each shown as p, i (p.href)}
     {#if i > 0}<ChevronRight size={14} aria-hidden="true" />{/if}
-    <a class:first={i === 0} href={p.href}>{#if i === 0}<ChevronLeft size={16} aria-hidden="true" />{/if}{p.label}</a>
+    <a class:first={i === 0 && !back} href={p.href}>{#if i === 0 && !back}<ChevronLeft size={16} aria-hidden="true" />{/if}{p.label}</a>
   {/each}
   {#if here && !phone.matches}<ChevronRight size={14} aria-hidden="true" /><span class="here" aria-current="page">{here}</span>{/if}
 </nav>
@@ -42,6 +43,13 @@
   }
   a:hover {
     color: var(--ink);
+  }
+  .back {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .sep {
+    margin: 0 4px;
   }
   .here {
     color: var(--ink);
