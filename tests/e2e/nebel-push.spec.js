@@ -29,15 +29,18 @@ test('Fog line in the morning: on once push is on, can be switched off and stays
   await settle(page);
   await page.getByRole('link', { name: new RegExp(T('Reminders on the phone')) }).click();
   const box = page.locator('[data-push-page]');
+  // the switches sit in four folds (7b-08): this one is in «Wetter und Licht»
+  await box.locator('[data-push-group="weather"] summary').click();
   const fog = box.getByRole('switch', { name: 'Nebelgrenze am Morgen' });
   await expect(fog).toBeChecked();
   await expect(box.getByRole('switch', { name: T('Ice in the morning') })).toBeChecked();
-  await expect(box.getByRole('switch', { name: T('Birthdays') })).not.toBeChecked();
+  await expect(box.locator('[data-push-kind="birthday"] input')).not.toBeChecked(); // in the closed fold «Alltag»
   await fog.scrollIntoViewIfNeeded();
   await box.locator('[data-push-kind]').filter({ hasText: 'Nebelgrenze am Morgen' }).first().screenshot({ path: info.outputPath(`nebel-push-${info.project.name}.png`) });
   await fog.uncheck();
   await expect.poll(() => stored(page, 'push')).toMatchObject({ kinds: { fog: false } });
   await page.reload();
   await settle(page);
+  await page.locator('[data-push-group="weather"] summary').click();
   await expect(page.locator('[data-push-page]').getByRole('switch', { name: 'Nebelgrenze am Morgen' })).not.toBeChecked();
 });
