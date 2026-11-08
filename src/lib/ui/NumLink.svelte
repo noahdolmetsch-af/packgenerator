@@ -16,7 +16,7 @@
 </script>
 
 {#if href}
-  <a class="numlink" {href} {...rest}>{@render children?.()}<ChevronRight class="numlink-chev" size={12} aria-hidden="true" />{#if what}<span class="numlink-sr">{to ? t('Open «{what}»', { what }) : toSource ? t('Open «{what}» at its source', { what }) : t('Open «{what}» in Analyse', { what })}</span>{/if}</a>
+  <a class="numlink" {href} {...rest}>{@render children?.()}<ChevronRight class="numlink-chev" size={16} strokeWidth={2.5} aria-hidden="true" />{#if what}<span class="numlink-sr">{to ? t('Open «{what}»', { what }) : toSource ? t('Open «{what}» at its source', { what }) : t('Open «{what}» in Analyse', { what })}</span>{/if}</a>
 {:else}
   <span class="numlink plain" {...rest}>{@render children?.()}</span>
 {/if}
@@ -28,19 +28,23 @@
     align-items: center;
     gap: 2px;
     min-height: 44px; /* a number is a small thing: the tap area is not */
-    color: inherit;
-    text-decoration: none;
+    /* a way must look like one (Noah 07.11.2026 «1a»): calm green, underlined, with a dark arrow */
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
   }
   .numlink:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
   }
   .numlink :global(.numlink-chev) {
     flex: none;
-    color: var(--ink-3);
+    color: var(--ink);
   }
   .numlink.plain {
     min-height: 0;
+    color: inherit;
+    text-decoration: none;
   }
   .numlink-sr {
     position: absolute;

@@ -5,12 +5,14 @@
    * the km book), and per bike its three most worn parts with «X km left» and the month it is due (the
    * same rules as Velos › Pflege › Verschleiss). Only to look at. days: the period; today.
    */
-  import { ChevronRight } from '@lucide/svelte';
+  import { ChevronRight, Bike } from '@lucide/svelte';
+  import Empty from '../../lib/ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
   import { withVisits } from '../../lib/workshop.js';
   import { wearRows } from '../../lib/wear.js';
   import { bikesHash } from '../../lib/bikes.js';
+  import { velosHref } from '../../lib/analyse/jump.js';
   import { bikeWeeks, bikeTotals } from '../../lib/analyse/bikes.js';
   import { SERIES_COLORS } from '../../lib/analyse/diagram.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
@@ -18,13 +20,18 @@
   import GridLines from '../../lib/charts/GridLines.svelte';
   import YTicks from '../../lib/charts/YTicks.svelte';
 
-  let { days = [], today } = $props();
+  let { days = [], today, only = null, onlonger = null } = $props();
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
   const entriesQ = liveQuery(() => db.kmBook.toArray());
-  const bikes = $derived(($bikesQ ?? []).filter((b) => b && !b.archived));
+  const allBikes = $derived(($bikesQ ?? []).filter((b) => b && !b.archived));
+  // «only»: one bike (a link from its km on Velos); an unknown or archived one shows all bikes
+  const one = $derived(only ? allBikes.find((b) => b.id === only) ?? null : null);
+  const bikes = $derived(one ? [one] : allBikes);
   const entries = $derived($entriesQ ?? []);
+  // «only» a bike with its own km but nothing counted in the km book: say where the number comes from, not just «nothing»
+  const bookEmpty = $derived(one != null && !entries.some((e) => e.bikeId === one.id && e.state === 'counted' && e.kind === 'ride'));
   const WEEKS = 12;
   const totals = $derived(bikeTotals(entries, bikes, days));
   const top = $derived(Math.max(1, ...totals.map((x) => x.km)));
@@ -59,6 +66,9 @@
 {#if bikes.length}
   <section class="card vk" aria-labelledby="vk-h" data-bike-km>
     <div class="ch"><h2 id="vk-h">{t('Bikes: km and wear|bikesan')}</h2><small>{t('km book · counted rides|bikesan')}</small></div>
+    {#if one}
+      <p class="only" data-bike-only>{t('Only {bike}', { bike: one.name })} <a href={velosHref()} data-bike-all>{t('All bikes|analyse')}</a></p>
+    {/if}
     {#if totals.length}
       <ul class="tot">
         {#each totals as r, i (r.bike.id)}
@@ -89,7 +99,12 @@
       <p class="hint">{t('km per week, {n} weeks|bikesan', { n: WEEKS })}. {t('Tap a week for its exact km.|bikesan')}</p>
       <div class="srw">{#each weeks as w, j (w.key)}<button type="button" onclick={() => (pickedWeek = j)}>{dfmt(w.key, { day: 'numeric', month: 'short' })}</button>{/each}</div>
     {:else}
-      <p class="hint">{t('No counted rides in this period.|bikesan')}</p>
+      {#if bookEmpty && one?.km != null}
+        <p class="hint" data-bike-empty="book">{t('The km book has no counted rides of {bike} yet. The {km} km come from the bike itself.', { bike: one.name, km: num(one.km) })}</p>
+      {:else}
+        <p class="hint" data-bike-empty="period">{t('No counted rides in this period.|bikesan')}</p>
+        {#if onlonger}<button type="button" class="btn sm" onclick={onlonger} data-bike-longer>{t('Show the whole year')}</button>{/if}
+      {/if}
     {/if}
 
     {#if wear.length}
@@ -110,9 +125,32 @@
       {/each}
     {/if}
   </section>
+{:else}
+  <Empty
+    icon={Bike}
+    title={t('No bike yet|analyse')}
+    text={t('Here you see how many km each bike rides and which parts wear out soon. Add your bike first.|analyse')}
+    action={{ label: t('Add a bike|analyse'), href: '#/bikes' }}
+    action2={{ label: t('Connect Strava|analyse'), href: '#/bikes?tab=care&view=strava' }}
+  />
 {/if}
 
 <style>
+  .only {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .only a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--accent);
+  }
   .vk {
     display: flex;
     flex-direction: column;

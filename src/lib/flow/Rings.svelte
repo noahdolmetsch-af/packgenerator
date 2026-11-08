@@ -6,8 +6,13 @@
    * («2 von 4 Ziele im Soll · letzte 7 Tage») instead of the big numbers.
    */
   import { ringFill } from '../flow.js';
+  import { ChevronRight, ChevronDown, ChevronUp } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  let { rings, size = 136, legend = true, compact = false, quiet = false } = $props();
+  // hrefs: { move, mind, rest } → where a tap on that row leads (Aktiv, «Zahl mit Weg»); without it the rows are plain text
+  // parts: { move, mind, rest } → the sports of that ring (ringweg.js ringParts); a row with several folds open and lists them, each a way (Noah «2a»)
+  // nameOf: a sport's name in the current language; fallback links lead to «Ticks evaluated»
+  let { rings, size = 136, legend = true, compact = false, quiet = false, hrefs = null, parts = null, nameOf = (a) => a.name, allHref = '#/flow/auswertung' } = $props();
+  let open = $state({});
 
   const ROWS = [
     { key: 'move', name: 'Move|ring', unit: 'goals on track' },
@@ -35,7 +40,21 @@
         <li>
           <span class="dot {r.key}" aria-hidden="true"></span>
           {#if quiet}
+            {#if parts?.[r.key]?.length > 1}
+              <button type="button" class="nm way fold-btn" aria-expanded={!!open[r.key]} aria-controls="ring-parts-{r.key}" data-ring-fold={r.key} onclick={() => (open[r.key] = !open[r.key])}><span class="wt"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span>{#if open[r.key]}<ChevronUp size={16} strokeWidth={2.5} class="wc" aria-hidden="true" />{:else}<ChevronDown size={16} strokeWidth={2.5} class="wc" aria-hidden="true" />{/if}</button>
+              {#if open[r.key]}
+                <ul class="parts" id="ring-parts-{r.key}" data-ring-parts={r.key}>
+                  {#each parts[r.key] as p (p.act.id)}
+                    <li><a class="part" href={p.href} data-ring-part={p.act.id}><span class="pn">{nameOf(p.act)}</span><small class="num">{p.met ? t('Reached') : p.of ? t('{n} of {m}', { n: p.n, m: p.of }) : '–'}</small><ChevronRight size={16} strokeWidth={2.5} class="wc" aria-hidden="true" /></a></li>
+                  {/each}
+                  <li><a class="part all" href={allHref} data-ring-all={r.key}><span class="pn">{t('All in «Ticks evaluated»')}</span><ChevronRight size={16} strokeWidth={2.5} class="wc" aria-hidden="true" /></a></li>
+                </ul>
+              {/if}
+            {:else if hrefs?.[r.key]}
+              <a class="nm way" href={hrefs[r.key]} data-ring-way={r.key}><span class="wt"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span><ChevronRight size={16} strokeWidth={2.5} class="wc" aria-hidden="true" /><span class="sr">{t('Open «{what}» in Analyse', { what: t(r.name) })}</span></a>
+            {:else}
             <span class="nm"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span>
+            {/if}
           {:else}
           <span class="nm"><b>{t(r.name)}</b>{#if !compact}<small>{t(r.unit)}</small>{/if}</span>
           <span class="v {r.key} num">{rings[r.key].of ? rings[r.key].n : '–'}<span class="of">/{rings[r.key].of || '–'}</span></span>
@@ -48,6 +67,7 @@
 
 <style>
   .rings {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 16px;
@@ -62,6 +82,9 @@
   @media (max-width: 359px) {
     .rings {
       gap: 10px;
+    }
+    svg {
+      max-width: 28vw; /* room for the arrow of a way row (the word «Bewegen» must not break) */
     }
     .nm small {
       display: none;
@@ -109,6 +132,7 @@
     gap: var(--sp-5);
   }
   .quiet .lg li {
+    flex-wrap: wrap;
     min-height: 0;
     padding: 6px 0;
     border-top: 0;
@@ -116,6 +140,77 @@
   .quiet .nm small {
     display: block;
     color: var(--ink-3);
+  }
+  .way {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .way:hover .wt b {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .way .wt {
+    flex: 1;
+    min-width: 0;
+  }
+  .way :global(.wc) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  .fold-btn {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .parts {
+    flex-basis: 100%;
+    margin: 0 0 6px;
+    padding: 0;
+    list-style: none;
+  }
+  .parts li {
+    display: block;
+    min-height: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .part {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: 6px;
+    padding-block: 6px;
+    min-height: 44px;
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .part .pn {
+    grid-column: 1;
+    min-width: 0;
+    font-weight: 500;
+    overflow-wrap: break-word;
+  }
+  .part small {
+    grid-column: 1;
+    color: var(--ink-3);
+    text-decoration: none;
+  }
+  .part :global(.wc) {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    color: var(--ink);
+  }
+  .part.all :global(.wc) {
+    grid-row: 1;
   }
   .compact .lg li {
     min-height: 34px;
