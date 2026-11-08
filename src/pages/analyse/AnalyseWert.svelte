@@ -27,6 +27,7 @@
   import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
   import { dailyLimit } from '../../lib/analyse/wochenbalken.js';
   import { sumBand } from '../../lib/analyse/ueblich.js';
+  import { doneOn, doneText } from '../../lib/analyse/tagdavor.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
   import { health } from '../../lib/health/client.svelte.js';
@@ -231,12 +232,14 @@
   // the rows of «Tage»: newest first, the first layer next to it, and what you did the day before
   const rows = $derived(item?.get ? [...win.days].reverse().map((d) => ({ d, v: item.get(d), l: layerItems[0]?.get(d) ?? null })).filter((r) => r.v != null) : []);
   const names = $derived(new Map(data.acts.map((a) => [a.id, actName(a)])));
-  const dayBefore = (d) => {
-    const prev = addDays(d, -1);
-    const ticked = [...new Set(data.log.filter((e) => e.day === prev).map((e) => names.get(e.actId)).filter(Boolean))];
-    const rides = (data.table.get(prev)?.acts ?? []).map((a) => a.sportName ?? a.type).filter(Boolean);
-    return [...new Set([...ticked, ...rides])].slice(0, 2).join(', ') || null;
+  // what was recorded on a day, from every source: Fitbit workouts, your ticks in Aktiv, Strava rides (Idea F)
+  const doneBy = (day, max = 2) => {
+    const ticked = [...new Set(data.log.filter((e) => e.day === day).map((e) => names.get(e.actId)).filter(Boolean))];
+    const rides = (data.table.get(day)?.acts ?? []).map((a) => a.sportName ?? a.type).filter(Boolean);
+    const workouts = data.table.get(day)?.fit?.exercises ?? [];
+    return doneOn({ ticked, rides, workouts }, max);
   };
+  const dayBefore = (d) => doneText(doneBy(addDays(d, -1))) || null;
   // every value of the picked day, grouped (D6 short)
   const dayAll = $derived(
     picked
@@ -485,7 +488,7 @@
               <thead><tr><th>{t('Day|analyse')}</th><th class="n">{item.name}</th>{#if layerItems[0]}<th class="n">{layerItems[0].name}</th>{/if}<th class="n">{t('Done the day before|analyse')}</th></tr></thead>
               <tbody>
                 {#each allDays ? rows : rows.slice(0, 7) as r (r.d)}
-                  <tr><td><button type="button" class="lk" onclick={() => (picked = r.d)}>{dayText(r.d)}</button></td><td class="n num"><b>{v(item, r.v)}</b></td>{#if layerItems[0]}<td class="n num">{v(layerItems[0], r.l)}</td>{/if}<td class="n sm">{dayBefore(r.d) ?? t('nothing ticked|analyse')}</td></tr>
+                  <tr><td><button type="button" class="lk" onclick={() => (picked = r.d)}>{dayText(r.d)}</button></td><td class="n num"><b>{v(item, r.v)}</b></td>{#if layerItems[0]}<td class="n num">{v(layerItems[0], r.l)}</td>{/if}<td class="n sm">{dayBefore(r.d) ?? t('nothing recorded|analyse')}</td></tr>
                 {/each}
               </tbody>
             </table>
