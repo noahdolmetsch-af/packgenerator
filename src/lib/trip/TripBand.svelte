@@ -192,7 +192,8 @@
   .allsteps a {
     display: inline-flex;
     align-items: center;
-    min-height: 32px;
+    min-height: 44px;
+    min-width: 44px;
     color: var(--ink-3);
     text-decoration: underline;
     text-underline-offset: 3px;
