@@ -13,6 +13,8 @@
    */
   import { ChevronLeft, ChevronRight, Trash2 } from '@lucide/svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
+  import { herkunft } from '../../lib/nav/herkunft.svelte.js';
+  import { backOf } from '../../lib/nav/herkunft.js';
   import Seg from '../../lib/ui/Seg.svelte';
   import BarChart from '../../lib/charts/BarChart.svelte';
   import LineChart from '../../lib/charts/LineChart.svelte';
@@ -39,6 +41,11 @@
   import { stravaName } from '../../lib/stravanames.js';
 
   let { id = 'bike' } = $props();
+  // «Zurück zu Heute» (Noah «4a», «5a» des Wege-Entwurfs): the page you came from; Aktiv has its own crumb already
+  const cameFrom = $derived.by(() => {
+    const b = backOf(herkunft.from);
+    return b && b.href !== '#/flow' ? { href: b.href, label: t(b.place) } : null;
+  });
   const kind = $derived(id === 'hr' || BODY[id] || isOwnBody(id) ? null : KIND_ORDER.includes(id) ? id : 'other');
   // svelte-ignore state_referenced_locally
   let bkey = $state(BODY[id] || isOwnBody(id) ? id : 'hr');
@@ -308,7 +315,7 @@
 
 <div class="gs" data-stats={id}>
   <header class="hd">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={title} />
+    <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={title} back={cameFrom} />
     <h1 class="ptitle" tabindex="-1" data-page-title>{#if kind}{@const I = SPORT_ICON[kind]}<I size={24} aria-hidden="true" />{/if}{title}</h1>
   </header>
 
