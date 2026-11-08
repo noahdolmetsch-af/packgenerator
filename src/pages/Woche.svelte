@@ -113,7 +113,7 @@
   let wrapOpen = $state(false); // asked for by hand on any day
   let wrapLater = $state(false);
   const wrapShown = $derived(!!week && !next && !wrapLater && (wrapOpen || isSunday(today)));
-  const wrap = $derived(week ? weekClose(week.days, monday, today) : null);
+  const wrap = $derived(week ? weekClose(week.days, monday, today, week.sums.trips) : null);
   async function wrapMove(ids) {
     const before = items();
     const day = wrap.next;
@@ -188,6 +188,7 @@
     </div>
 
     <p class="sum" data-week-sum>
+      {#if week.sums.trips}<span data-week-trips>{tn(week.sums.trips, '{n} trip|week', '{n} trips|week')}</span>{/if}
       <span>{tn(week.sums.sessions, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
       <span>{tn(week.sums.dates, '{n} date', '{n} dates')}</span>
       <span>{tn(week.sums.todos, '{n} to-do', '{n} to-dos')}</span>

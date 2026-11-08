@@ -79,7 +79,7 @@
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf, withActs } from '../lib/review/rueckblick.js';
-  import { factStates, factCounts, matchesState } from '../lib/review/state.js';
+  import { factStates, factCounts, matchesState, waitingCount } from '../lib/review/state.js';
   import { homeTrips, testTrips } from '../lib/home/heute.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import { loadPastActs, zonesOf, zoneValues } from '../lib/review/actdata.js';
@@ -261,7 +261,7 @@
   let st = $state('all');
   let filter = $state(emptyFilter());
   const ctx = $derived({ bikeOf: (r) => bikeOfRow(r, vals), wattsOf: (r) => !!vals[r.id]?.watts });
-  const stCounts = $derived(factCounts(inPeriod, states));
+  const stCounts = $derived({ ...factCounts(inPeriod, states), done: waitingCount(inPeriod, states) });
   const rows = $derived(filterRows(inPeriod, filter, ctx).filter((r) => matchesState(states, r.id, st)));
   const chips = $derived(activeChips(filter, bikeName));
   const filtered = $derived(chips.length > 0 || st !== 'all');

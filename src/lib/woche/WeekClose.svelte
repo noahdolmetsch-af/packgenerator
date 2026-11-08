@@ -14,13 +14,17 @@
   const chosen = $derived(close.move.filter((x) => !off.includes(x.id)));
   const parts = (c) => [c.sessions ? tn(c.sessions, '{n} session|week', '{n} sessions|week') : '', c.tasks ? tn(c.tasks, '{n} task', '{n} tasks') : ''].filter(Boolean).join(' · ');
   const toggle = (id) => (off = off.includes(id) ? off.filter((x) => x !== id) : [...off, id]);
-  const nothing = $derived(!close.done.n && !close.open.n);
+  const nothing = $derived(!close.done.n && !close.open.n && !close.trips);
+  // only the trip stood in the plan: say so, not «nothing was planned»
+  const onlyTrip = $derived(!close.done.n && !close.open.n && close.trips > 0);
 </script>
 
 <section class="card wrap" data-week-wrap aria-label={t('Week wrap-up')}>
   <h2>{t('Week wrap-up')}</h2>
   {#if nothing}
     <p class="why" data-wrap-empty>{t('Nothing was planned or done this week. Plan the next one when you like.')}</p>
+  {:else if onlyTrip}
+    <p class="why" data-wrap-trip>{tn(close.trips, 'This week only the trip stood in the plan. Plan the next week when you like.', 'This week only the trips stood in the plan. Plan the next week when you like.')}</p>
   {:else}
     <p class="ln" data-wrap-done><b>{t('Done|wrap')}</b><span>{close.done.n ? parts(close.done) : t('nothing yet')}</span></p>
     <p class="ln" data-wrap-open><b>{t('Still open')}</b><span>{close.open.n ? parts(close.open) : t('nothing, all ticked')}</span></p>

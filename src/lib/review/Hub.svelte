@@ -44,7 +44,7 @@
   import TripState from '../ui/TripState.svelte';
   import Profile from '../ui/Profile.svelte';
   import Btn from '../ui/Btn.svelte';
-  import { factStates, factCounts, PERIOD_KEY } from './state.js';
+  import { factStates, factCounts, waitingCount, PERIOD_KEY } from './state.js';
   import { quickDebrief } from '../debrief.js';
   import { stateExtraText } from '../tripstatetext.js';
   import './review.css';
@@ -113,8 +113,11 @@
   ]);
   // SN2: the state of every row (Abgeschlossen / Bewertet) and how many of each are in the period
   const states = $derived(data ? factStates(facts, { debriefs: data.debriefs, rides: data.rides, today }) : {});
-  // the head counts the trips of the period, the same as the tile «Touren» (an uploaded ride alone is no trip)
-  const counts = $derived(stats ? factCounts(stats.rows.filter((r) => r.kind === 'trip'), states) : { all: 0, done: 0, rated: 0 });
+  // Noah 08.11.2026 «1-5 a»: ONE rule for «Abgeschlossen» on Touren, Rückblick, Logbuch and Vergangene Touren: every
+  // row of the period (trips and uploaded rides) is counted. The sub line names how many of them are uploaded rides.
+  const counts = $derived(stats ? factCounts(stats.rows, states) : { all: 0, done: 0, rated: 0 });
+  const waiting = $derived(stats ? waitingCount(stats.rows, states) : 0);
+  const rideRows = $derived(stats ? stats.rows.filter((r) => r.kind !== 'trip').length : 0);
   const periodShort = $derived(mode === 'year' ? year : mode === 'all' ? t('All|period') : t('12 months'));
   const extraOf = (id) => stateExtraText(states[id]?.extra);
   // SN2 answer 2b (Noah 13.10.2026): the long table is open as before; 0.159.1 (Noah 14.10.2026 «a»): on a phone it starts closed
@@ -281,10 +284,10 @@
   <header class="head">
     <div class="ht">
       <h1 class="title">{t('Look back|page')}</h1>
-      {#if stats && (counts.done || counts.rated)}
-        <p class="pills">{#if counts.done}<TripState state="done" extra={num(counts.done)} />{/if}{#if counts.rated}<TripState state="rated" extra={num(counts.rated)} />{/if}</p>
+      {#if stats && (waiting || counts.rated)}
+        <p class="pills">{#if waiting}<TripState state="done" extra={num(waiting)} />{/if}{#if counts.rated}<TripState state="rated" extra={num(counts.rated)} />{/if}</p>
       {/if}
-      {#if stats}<p class="page-sub num">{periodShort} · {tn(stats.stats[0].value ?? 0, '{n} trip ridden', '{n} trips ridden')}</p>{/if}
+      {#if stats}<p class="page-sub num">{periodShort} · {tn(stats.stats[0].value ?? 0, '{n} trip ridden', '{n} trips ridden')}{#if rideRows}{' · '}{tn(rideRows, '{n} uploaded ride', '{n} uploaded rides')}{/if}</p>{/if}
     </div>
     <div class="hacts">
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={setMode} />

@@ -53,6 +53,13 @@ export function factCounts(rows = [], states = {}) {
   return n;
 }
 
+/**
+ * How many rows wait for their debrief: the rows that are Completed and not yet Rated (trips and uploaded rides alike).
+ * Noah 08.11.2026 «1-5 a»: this is THE number of «n warten auf deinen Rückblick» (Touren), the pill «Abgeschlossen» (Rückblick),
+ * «n Rückblicke fehlen» (Logbuch) and «n ohne Rückblick» (Vergangene Touren), so the four never differ.
+ */
+export const waitingCount = (rows = [], states = {}) => factCounts(rows, states).done;
+
 /** Does a row match the state filter ('all', 'done', 'rated')? Rows without a state (old logbook entries) only show under 'all'. */
 export const matchesState = (states, id, filter) => !filter || filter === 'all' || states?.[id]?.state === filter;
 

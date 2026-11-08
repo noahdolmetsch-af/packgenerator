@@ -1,4 +1,5 @@
 <script>
+  import { backupRows } from '../lib/home/backuprows.js';
   import { UNDO_MS } from '../lib/ui/undo.js';
   import AlertLine from '../lib/clear/AlertLine.svelte';
   import TipWeek from '../lib/clear/TipWeek.svelte';
@@ -744,7 +745,8 @@
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
     if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK.', { name: folderName }), hint: `${t('One tap, the folder stays.')} ${t('Tip: in Chrome choose «Allow on every visit» so it asks less often.')}`, act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
     rows.push(...zustand);
-    if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
+    // Noah 08.11.2026 «1-5 a»: «noch kein Backup» and «Daten aus dem Backup vom …» are two lines (backuprows.js)
+    rows.push(...backupRows({ backup, from: $metaQ?.imp?.from ? new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', backupNow }));
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
     rows.push(...careRows.filter((r) => r.tone !== 'bad'));
@@ -1097,9 +1099,9 @@
           {/if}
           <span class="kr">
             {#if cardTrips.length > 1}
-              <button type="button" class="pos num" onclick={() => go(1)} aria-label={t('Trip {i} of {n}, show the next', { i: Math.min(cardIdx, cardTrips.length - 1) + 1, n: cardTrips.length })}>{Math.min(cardIdx, cardTrips.length - 1) + 1} / {cardTrips.length} ›</button>
+              <button type="button" class="pos num" onclick={() => go(1)} aria-label={t('Trip {i} of {n}, show the next', { i: Math.min(cardIdx, cardTrips.length - 1) + 1, n: cardTrips.length })}>{t('Trip {i} of {n}', { i: Math.min(cardIdx, cardTrips.length - 1) + 1, n: cardTrips.length })} ›</button>
             {/if}
-            {#if !phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
+            {#if !phone.matches}<InProgress current={shown?.id} light label={(n) => t('Also in progress: {n}', { n })} />{/if}
           </span>
         </div>
         <div>
@@ -1143,7 +1145,7 @@
           {:else if focus && isLead}
             <a class="btn hi main" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
           {/if}
-          {#if phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
+          {#if phone.matches}<InProgress current={shown?.id} light label={(n) => t('Also in progress: {n}', { n })} />{/if}
         </div>
       </div>
       {#if prof && !half}

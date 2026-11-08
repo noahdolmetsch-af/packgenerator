@@ -822,7 +822,7 @@
           <!-- Gesamttest 20.10.2026 Design 1: the head is one line of words, so the tiles show under «All» too -->
           <dl class="vstats">
             <div><dt>{t('Items')}</dt><dd class="num">{summary.n}</dd></div>
-            <div><dt>{t('weighed|tile')}</dt><dd class="num">{formatWeight(summary.g)}</dd></div>
+            <div><dt>{t('weighed|tile')}</dt><dd class="num">{formatWeight(summary.gearG)}{#if summary.foodG > 0}<small class="food" data-food-weight>{t('+ {w} food and drink, not in it', { w: formatWeight(summary.foodG) })}</small>{/if}</dd></div>
             {#if summary.avgTaken != null}<div><dt>{t('Ø along')}</dt><dd class="num">{summary.avgTaken}×</dd></div>{/if}
             {#if summary.usedShare != null}<div><dt>{t('used')}</dt><dd class="num">{summary.usedShare} %</dd></div>{/if}
           </dl>
@@ -2544,6 +2544,12 @@
   .vstats dd {
     margin: 0;
     font: 700 var(--fs-sub) / 1.1 var(--font-brand);
+  }
+  .vstats .food {
+    display: block;
+    margin-top: 2px;
+    font: 400 var(--fs-tiny) / 1.3 var(--font-body);
+    color: var(--ink-2);
   }
   @media (min-width: 1452px) {
     .vhead {
