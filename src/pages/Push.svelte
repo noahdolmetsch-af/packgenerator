@@ -34,11 +34,12 @@
   let perm = $state(permission());
   const WHY = {
     unsupported: 'This browser cannot get reminders. On the phone it works in Chrome.',
-    denied: 'Your browser blocks notifications. Tap the lock next to the address, then «Notifications», then «Allow».',
+    denied: 'Your browser blocks notifications.',
     not_set_up: 'The server is not set up for this yet.',
     storage_not_set_up: 'The server is not set up for this yet.',
   };
-  const fail = (e) => (msg = t(WHY[e?.code] ?? 'The server could not be reached. Try again later.'));
+  // blocked: the status line says so and the steps show under it (blocked), so no second message
+  const fail = (e) => (msg = e?.code === 'denied' ? '' : t(WHY[e?.code] ?? 'The server could not be reached. Try again later.'));
 
   async function save(value) {
     await db.settings.put({ key: PUSH_KEY, value });
@@ -124,8 +125,9 @@
       <span class="ps-m"><b id="ps-main-l">{t('On the phone')}</b><small role="status">{status}</small></span>
       <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-main-l" checked={p.on} disabled={busy} onchange={(e) => setMain(e.currentTarget.checked)} data-push-main />
     </div>
+    {#if blocked}<p class="ps-steps" data-push-steps>{t('Tap the lock next to the address, then «Notifications», then «Allow».')}</p>{/if}
     {#if blocked}<p class="ps-acts ps-retry"><button type="button" class="btn" onclick={() => setMain(true)} disabled={busy} data-push-retry>{t('Try again')}</button></p>{/if}
-    {#if msg && msg !== status}<p class="ps-msg" role="alert">{msg}</p>{/if}
+    {#if msg}<p class="ps-msg" role="alert">{msg}</p>{/if}
   </section>
 
   <section class="ps-sec" class:ps-wait={!p.on} aria-labelledby="ps-morning-h" data-push-morning>
@@ -317,8 +319,13 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
+  .ps-steps {
+    margin: 4px 0 0;
+    color: var(--ink);
+    font-size: var(--fs-small);
+  }
   .ps-retry {
-    margin: 0 0 10px;
+    margin: 10px 0 10px;
   }
   .ps-sw:disabled {
     opacity: 0.6;

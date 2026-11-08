@@ -138,7 +138,8 @@ test('notifications blocked by the browser: the steps and a «Try again» button
   await page.goto('./#/me/push');
   await settle(page);
   const box = page.locator('[data-push-page]');
-  await expect(box.getByRole('status')).toHaveText(T('Your browser blocks notifications. Tap the lock next to the address, then «Notifications», then «Allow».'));
+  await expect(box.getByRole('status')).toHaveText(T('Your browser blocks notifications.'));
+  await expect(box.locator('[data-push-steps]')).toHaveText(T('Tap the lock next to the address, then «Notifications», then «Allow».'));
   const retry = box.locator('[data-push-retry]');
   await expect(retry).toHaveText(T('Try again'));
   await retry.click();

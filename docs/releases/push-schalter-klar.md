@@ -5,7 +5,7 @@ PR folgt · 08.11.2026 · Auftrag: Impeccable-UX-Test 08.11.2026, Arbeitsliste 7
 ## Was ist neu
 - Auf `#/me/push` stand «Alles ist aus» und gleichzeitig «Eine Nachricht am Morgen» auf «an». Jetzt sind die Schalter «Eine Nachricht am Morgen» und «Welche Erinnerungen» grau, solange «Aufs Handy» aus ist, mit der Zeile «Schalte zuerst «Aufs Handy» ein. Bis dahin sind deine Wahlen nur gemerkt; es wird nichts geschickt.»
 - Der Untertitel sagt dasselbe: «Es kommt nichts, bis du «Aufs Handy» einschaltest; danach wählst du, was kommen soll.»
-- Blockiert der Browser Hinweise, steht da: «Tippe oben neben der Adresse auf das Schloss, dann auf «Benachrichtigungen» und auf «Erlauben»», dazu der Knopf «Nochmals».
+- Blockiert der Browser Hinweise, steht unter «Aufs Handy» «Dein Browser blockiert Hinweise.», darunter in einem eigenen Absatz: «Tippe oben neben der Adresse auf das Schloss, dann auf «Benachrichtigungen» und auf «Erlauben»», dazu der Knopf «Nochmals».
 
 ## Was fällt weg oder rutscht tiefer
 - nichts
