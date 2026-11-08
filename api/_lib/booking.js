@@ -13,8 +13,8 @@
 
 export const KINDS = ['tennis', 'tour', 'service', 'own'];
 export const PAYS = ['site', 'online'];
-/** instant: booked at once. request: the owner answers within ANSWER_HOURS (confirm or decline); a request holds no place until it is confirmed. */
-export const MODES = ['instant', 'request'];
+/** instant: booked at once. request: the owner answers within ANSWER_HOURS (confirm or decline); a request holds no place until it is confirmed. wish: no fixed times; the parents name wish places and times, the owner answers (Noah 08.11.2026 «1c»). */
+export const MODES = ['instant', 'request', 'wish'];
 export const ANSWER_HOURS = 24;
 export const MAX_VENUES = 4;
 export const NOTE_MAX = 300;
@@ -130,6 +130,38 @@ export function cleanPerson(input) {
   const contact = TEXT(input?.contact, 80);
   if (name.length < 2 || contact.length < 3) return { error: 'bad_person' };
   return { name, contact, note: TEXT(input?.note, NOTE_MAX) };
+}
+
+/** Wish requests (Noah 08.11.2026 «1c», «1a 2a»): the parents name places and up to three times, how many children, how they found Noah. */
+export const MAX_WISHES = 3;
+export const MAX_KIDS = 4;
+export const WISH_DAYS = 15;
+export const SOURCES = ['flyer', 'google', 'friends', 'club', 'other'];
+
+/**
+ * The body of a wish request → { person, wish } or { error }. Places must be places of the offer
+ * (at least one when the offer has places), times lie between now and WISH_DAYS days ahead.
+ */
+export function cleanWish(input, offer, now = Date.now()) {
+  const person = cleanPerson(input);
+  if (person.error) return { error: person.error };
+  const places = Array.isArray(offer?.venues) ? offer.venues : [];
+  const venues = [...new Set((Array.isArray(input?.venues) ? input.venues : []).map((v) => TEXT(v, 60)).filter(Boolean))];
+  if (places.length && (!venues.length || venues.some((v) => !places.includes(v)))) return { error: 'bad_wish' };
+  const wishes = [];
+  for (const w of Array.isArray(input?.wishes) ? input.wishes.slice(0, MAX_WISHES + 1) : []) {
+    const at = typeof w === 'string' ? w : w?.at;
+    if (typeof at !== 'string' || !validAt(at) || wishes.includes(at)) return { error: 'bad_wish' };
+    const ms = zurichMs(at);
+    if (ms <= now || ms > now + WISH_DAYS * 86400_000) return { error: 'bad_wish' };
+    wishes.push(at);
+  }
+  if (!wishes.length || wishes.length > MAX_WISHES) return { error: 'bad_wish' };
+  wishes.sort();
+  const kids = INT(input?.kids, 1, MAX_KIDS);
+  if (kids == null) return { error: 'bad_wish' };
+  const source = SOURCES.includes(input?.source) ? input.source : '';
+  return { person, wish: { venues, wishes, kids, kidNames: TEXT(input?.kidNames, 120), source } };
 }
 
 /** A booking that holds a place: instant bookings (no status) and confirmed requests. */

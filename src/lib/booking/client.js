@@ -28,12 +28,14 @@ export const createOffer = (offer, doFetch) => call('?step=create', post('create
 export const saveOffer = (id, owner, offer, doFetch) => call('?step=save', post('save', { id, offer }, owner), doFetch);
 export const ownerBookings = (id, owner, doFetch) => call(`?step=bookings&id=${q(id)}`, auth(owner), doFetch);
 export const ownerCancel = (id, owner, b, doFetch) => call('?step=cancel', post('cancel', { id, b }, owner), doFetch);
-export const answerBooking = (id, owner, b, decision, doFetch) => call('?step=answer', post('answer', { id, b, decision }, owner), doFetch);
+export const answerBooking = (id, owner, b, decision, pick, doFetch) => call('?step=answer', post('answer', { id, b, decision, ...(pick == null ? {} : { pick }) }, owner), doFetch);
 export const cancelSlot = (id, owner, slot, doFetch) => call('?step=cancelSlot', post('cancelSlot', { id, slot }, owner), doFetch);
 
 /* ---------- the people who book (the booking page) ---------- */
 export const loadOffer = (id, doFetch) => call(`?step=offer&id=${q(id)}`, {}, doFetch);
 export const book = (data, doFetch) => call('?step=book', post('book', data), doFetch);
+/** A wish request (mode «wish»): { id, venues, wishes, kids, kidNames, source, name, contact, note }. */
+export const sendWish = (data, doFetch) => call('?step=wish', post('wish', data), doFetch);
 export const confirmPaid = (sessionId, doFetch) => call(`?step=confirm&session_id=${q(sessionId)}`, {}, doFetch);
 export const myBooking = (id, b, key, doFetch) => call(`?step=mine&id=${q(id)}&b=${q(b)}&key=${q(key)}`, {}, doFetch);
 export const cancelMine = (id, b, key, doFetch) => call('?step=cancel', post('cancel', { id, b, key }), doFetch);
@@ -53,6 +55,7 @@ export const ERRORS = {
   places_taken: 'More people booked this time than the new number of places.',
   already_answered: 'This request is already answered.',
   bad_offer: 'The offer is not complete yet.',
+  bad_wish: 'Please check the places, the times and the number of children.',
 };
 export const errorText = (code) => ERRORS[code] ?? 'Something went wrong. Try again later.';
 
