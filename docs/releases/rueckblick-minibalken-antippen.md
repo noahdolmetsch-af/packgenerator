@@ -1,6 +1,6 @@
 # Rückblick: die kleinen Balken zum Antippen
 
-PR 14 · 08.11.2026 · Auftrag: Noah «ja» (Thread «Diagramme antippbar und genau machen»), Rückblick, `MiniBars`
+PR 14 (#1206) · 08.11.2026 · Auftrag: Noah «ja» (Thread «Diagramme antippbar und genau machen»), Rückblick, `MiniBars`
 
 ## Was ist neu
 - `MiniBars.svelte` (die kleinen Balken) nutzt jetzt `BarChart`: Achse ab 0, Zahl auf jedem Balken, genauer Wert einer Tour oder Fahrt beim Zeigen, Tippen öffnet ein Fenster (Wert, Durchschnitt, «Der davor» / «Der danach»), «Als Tabelle» listet die Touren, neueste zuerst. Der Durchschnitt bleibt die gestrichelte Linie.
