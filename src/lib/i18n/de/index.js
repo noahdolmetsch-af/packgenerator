@@ -278,6 +278,7 @@ import assistent from './assistent.js';
 import termine from './termine.js';
 // Flyer für Tennisstunden: Tennis › Flyer
 import flyer from './flyer.js';
+import probestunde from './probestunde.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -900,6 +901,7 @@ const ORDERED = [
   assistent,
   termine,
   flyer,
+  probestunde,
   abgleich,
   verbindungenStatus,
   datenaufraeumen,
