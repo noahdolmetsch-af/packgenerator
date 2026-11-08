@@ -42,7 +42,7 @@
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { restRows } from '../lib/flow/restlist.js';
   import { flowStates, rings as ringsOf } from '../lib/flow.js';
-  import { ringHrefs } from '../lib/flow/ringweg.js';
+  import { ringHrefs, ringParts, TICKS_HREF } from '../lib/flow/ringweg.js';
   import { openTimer, actName } from '../lib/flow/ui.svelte.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
@@ -93,6 +93,7 @@
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays) : []);
   const live = $derived(states.filter((s) => !s.resting));
   const rings = $derived(ringsOf(states, data?.log ?? [], today));
+  const ringSports = $derived(ringParts(states)); // «Zahl mit Weg» (Noah «2a»): a ring with several sports folds open
   const ringLinks = $derived(ringHrefs(states)); // «Zahl mit Weg»: a tap on a ring row leads to its value in Analyse
   // WS6 (Noah 3a): what counts for «Erholung», in the fold under the rings, with «zuletzt am»
   const faden = sonntagsFaden();
@@ -235,7 +236,7 @@
           <WeekGoals acts={data.acts} log={data.log} tripDays={data.tripDays} {today} />
           <Sec id="ring-h" title={t('Rings')} sub={t('last 7 days against your goals')} more={{ href: '#/flow/form', label: t('See your form') }}>
             <div class="card ringc">
-              <Rings {rings} size={phone.matches ? 112 : 140} quiet hrefs={ringLinks} />
+              <Rings {rings} size={phone.matches ? 112 : 140} quiet hrefs={ringLinks} parts={ringSports} nameOf={actName} allHref={TICKS_HREF} />
               <!-- WS6 (Noah 3a): what counts for «Erholung», with «zuletzt am» -->
               {#if rest.length}
                 <details class="restf" data-rest>
