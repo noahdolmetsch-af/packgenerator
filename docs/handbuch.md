@@ -341,12 +341,12 @@ Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, 
 
 ### Listen und Typen
 
-Velos, Probleme, Learnings, Fahrten, Ideen, Logbuch-Einträge und die Listen (Sportarten, Plätze am Velo, Pflege-Teile): selbst hinzufügen, umbenennen und löschen. Löschen fragt zuerst und lässt sich rückgängig machen.
+Velos, Probleme, Erkenntnisse, Fahrten, Ideen, Logbuch-Einträge und die Listen (Sportarten, Plätze am Velo, Pflege-Teile): selbst hinzufügen, umbenennen und löschen. Löschen fragt zuerst und lässt sich rückgängig machen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.
-2. Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».
+2. Probleme: «…» › Umbenennen oder Löschen. Erkenntnisse: eine antippen, oder «+ Erkenntnis».
 3. Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».
 
 **Beispiel:** Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».
@@ -690,13 +690,13 @@ Touren › Rennen: ein Bikepacking-Rennen oder eine Ultra-Fahrt durchgespielt: T
 
 **Beispiel:** Steigleistung 650 → 550 Hm/h mit Gepäck → der Plan wächst von 10 auf 12 Tage, die Betten wandern mit.
 
-### Rennen detailliert planen
+### Rennen-Check
 
 Alle kommenden Rennen auf einer Seite, jedes mit seinem Rennen-Check: Packen von A bis Z, Soll-Setup pro Tasche, Grundliste, Schlaf-Varianten und eine Nacht durchgespielt.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Touren › «Rennen detailliert planen» und tippe ein Rennen an.
+1. Öffne Touren › «Rennen-Check» und tippe ein Rennen an.
 2. Füll die fünf Blätter nacheinander aus; alles speichert von selbst.
 
 **Beispiel:** Blatt 2 «Soll-Setup»: in der Rahmentasche sind Regenjacke und Stirnlampe, leer 150 g.
@@ -991,13 +991,13 @@ Akku, Leucht- und Ladezeit, halb und viertel gerechnet, Leuchtstufen und die Lad
 
 **Beispiel:** Lädt voll 3 h → halb etwa 1:12 h, viertel etwa 36 min.
 
-### Strombudget
+### Strom
 
 Reicht der Strom für die Tour? Die App zählt zusammen, was deine Geräte pro Tag brauchen, und sagt, welche Powerbank und welches Ladegerät mitkommen.
 
 **Aufschalten:** Zählt jedes Gerät der Tour aus Elektronik und Licht; Werte, die du beim Teil setzt (Akku, wie lange er hält), gehen vor die üblichen.
 
-1. Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strombudget».
+1. Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strom».
 2. Ändere die Nächte mit Steckdose oder die Stunden; «Auf die Packliste» nimmt Powerbank und Ladegerät dazu.
 
 **Beispiel:** 4 Tage im Biwak mit Handy, Licht und Velocomputer → «Nimm mit: Powerbank 20000».
@@ -2369,9 +2369,9 @@ Alles auf einer Zeitachse, eine Seite pro Monat: Touren, Fahrten, Pflege, Medita
 
 **Beispiel:** 19. Oktober: «Jurahöhen» 2025, 132 km, «Zu viel Werkzeug dabei».
 
-### Gelernt
+### Erkenntnisse
 
-Eine Monatskarte und ein Jahresbrief: neue Learnings, angepasste Vorlagen, dein Tempo, die Kleidergrenze, km und Touren.
+Eine Monatskarte und ein Jahresbrief: neue Erkenntnisse, angepasste Vorlagen, dein Tempo, die Kleidergrenze, km und Touren.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
@@ -4325,7 +4325,7 @@ Sachen an einen Gast ausleihen: die Liste als Link oder PDF schicken, am Rückga
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Material › Ausgeliehen und mach eine neue Liste für den Gast.
+1. Öffne Material › Leihliste und mach eine neue Liste für den Gast.
 2. Schick sie als Link oder PDF; tippe «Zurück» bei jeder Sache, die zurückkommt.
 
 **Beispiel:** Zelt und Matte an Sam, zurück am Sonntag → eine Erinnerung am Sonntagmorgen.
@@ -5007,13 +5007,13 @@ Freunde ergänzen ihren Teil zu einer Tour, einem Ort, einem Foto, der Schwierig
 
 ### Leihregal für Freunde
 
-Sachen ins Regal stellen zum Ausleihen, Tauschen oder Verschenken; Freunde fragen an, du sagst zu, und die Übergabe kommt in «Ausgeliehen». Gemeinsames, geliehenes oder gemietetes Material zeigt, wer es wann hat.
+Sachen ins Regal stellen zum Ausleihen, Tauschen oder Verschenken; Freunde fragen an, du sagst zu, und die Übergabe kommt in «Leihliste». Gemeinsames, geliehenes oder gemietetes Material zeigt, wer es wann hat.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Mit Freunden › Leihregal für Freunde und stell Sachen ins Regal.
 2. «Regal schicken»: Freunde wählen, was sie möchten, und schicken eine Anfrage.
-3. Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Ausgeliehen» merkt es sich.
+3. Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Leihliste» merkt es sich.
 
 **Beispiel:** Das zweite Zelt kommt «zum Ausleihen» ins Regal; ein Freund fragt fürs nächste Wochenende an.
 

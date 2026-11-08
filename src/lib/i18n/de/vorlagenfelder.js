@@ -17,7 +17,7 @@ export default {
   wind: 'Wind',
   cold: 'kalt',
   hot: 'heiss',
-  'Gear learnings': 'Material-Learnings',
+  'Gear learnings': 'Material-Erkenntnisse',
   'Proved itself': 'Hat sich bewährt',
   'Broken or to replace': 'Kaputt oder ersetzen',
   'Race note': 'Rennnotiz',

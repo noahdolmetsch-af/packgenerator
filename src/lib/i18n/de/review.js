@@ -6,7 +6,7 @@ export default {
   'All never used items in Gear': 'Alle nie gebrauchten Teile im Material',
   'Last 12 months': 'Letzte 12 Monate',
   'View →|review': 'Ansehen →',
-  'Riding, packing, learned, bikes': 'Fahren, Packen, Gelernt, Velos',
+  'Riding, packing, learned, bikes': 'Fahren, Packen, Erkenntnisse, Velos',
   'This fills up after your first trips: finished trips and uploaded rides of the last 12 months show here.':
     'Das füllt sich nach den ersten Touren: abgeschlossene Touren und hochgeladene Fahrten der letzten 12 Monate erscheinen hier.',
   'small numbers: difference to the 12 months before': 'kleine Zahlen: Unterschied zu den 12 Monaten davor',
@@ -16,7 +16,7 @@ export default {
   // sections
   'Riding|review': 'Fahren',
   'Packing|review': 'Packen',
-  'Learned|review': 'Gelernt',
+  'Learned|review': 'Erkenntnisse',
   'Bikes|review': 'Velos',
 
   // riding

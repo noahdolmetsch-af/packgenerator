@@ -24,5 +24,5 @@ export default {
 
   // Fahrten 1: the page is «Fahrten», uploading is the button
   'Rides|page': 'Fahrten',
-  'Recorded rides with pauses, planned against real and learnings. Everything stays on this device.': 'Aufgezeichnete Fahrten mit Pausen, Plan gegen echt und Learnings. Alles bleibt auf diesem Gerät.',
+  'Recorded rides with pauses, planned against real and learnings. Everything stays on this device.': 'Aufgezeichnete Fahrten mit Pausen, Plan gegen echt und Erkenntnisse. Alles bleibt auf diesem Gerät.',
 };
