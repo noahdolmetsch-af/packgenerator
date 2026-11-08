@@ -41,6 +41,16 @@ export function wegOf(value) {
   return {
     goals: Array.isArray(v.goals) ? v.goals.filter((g) => g?.id).map(goalOf) : [],
     onToday: v.onToday !== false,
+    templates: Array.isArray(v.templates) ? v.templates.filter((x) => x?.id && String(x.name ?? '').trim() && Array.isArray(x.steps)).map(cleanTemplate) : [],
+  };
+}
+
+/** One saved template made safe: { id, name, steps: [{ type, key, title, offset, note, own }] } (idea 5c «My ways»). */
+function cleanTemplate(x) {
+  return {
+    id: x.id,
+    name: String(x.name).trim(),
+    steps: x.steps.filter((s) => String(s?.title ?? '').trim()).map((s) => ({ type: typeof s.type === 'string' && s.type ? s.type : 'own', key: s.key, title: String(s.title).trim(), offset: Number.isFinite(s.offset) ? Math.round(s.offset) : null, note: s.note, own: !!s.own })),
   };
 }
 
@@ -226,3 +236,12 @@ export function todayStep(w, today) {
 export function templateOf(goal) {
   return goal.steps.map((s) => ({ type: s.type, key: s.key, title: s.title, offset: s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null), note: s.note, own: s.own }));
 }
+
+/** Save a goal as a template of its own («My ways»): its steps with their offsets, without ticks or own days. */
+export function saveTemplate(w, goal, name, { id = `wt-${Date.now().toString(36)}` } = {}) {
+  const n = String(name ?? '').trim();
+  if (!n || !goal?.steps?.length) return w;
+  return { ...w, templates: [...(w.templates ?? []), cleanTemplate({ id, name: n, steps: templateOf(goal) })] };
+}
+export const renameTemplate = (w, id, name) => (String(name ?? '').trim() ? { ...w, templates: (w.templates ?? []).map((x) => (x.id === id ? { ...x, name: String(name).trim() } : x)) } : w);
+export const removeTemplate = (w, id) => ({ ...w, templates: (w.templates ?? []).filter((x) => x.id !== id) });

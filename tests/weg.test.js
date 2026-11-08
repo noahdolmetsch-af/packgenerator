@@ -16,7 +16,7 @@ const base = () => newGoal({ title: 'Test Rennen', kind: 'race', start: '2027-05
 
 describe('store', () => {
   it('a missing or broken record gives an empty, safe store', () => {
-    expect(wegOf(null)).toEqual({ goals: [], onToday: true });
+    expect(wegOf(null)).toEqual({ goals: [], onToday: true, templates: [] });
     expect(wegOf({ goals: [null, { id: 'a', kind: 'bogus', start: 'nope', steps: [{ id: 's', offset: 'x' }, { nope: 1 }] }] }).goals[0])
       .toMatchObject({ id: 'a', kind: 'free', start: '', steps: [{ id: 's', type: 'own', offset: null, due: '', done: false }] });
   });

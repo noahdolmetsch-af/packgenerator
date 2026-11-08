@@ -201,6 +201,18 @@ test('Way to the goal › Review: after the start day the steps stand planned ag
   await expect(back.locator('[data-weg-back-row="day"]')).toContainText('Zug buchen');
   await expect(back.locator('[data-weg-back-row="day"]')).toContainText(/\(\+\d+ Tage\)/);
   await expect(back.locator('[data-weg-back-row="missed"]')).toContainText(T('Not done'));
+  // save the way as a template, then start a new way from it
+  await page.locator('[data-weg-vorlage-name]').fill('Mein Test-Weg');
+  await page.locator('[data-weg-vorlage-save]').click();
+  await expect(page.locator('[data-weg-vorlage]')).toContainText('Mein Test-Weg');
+  await page.getByRole('button', { name: T('New way') }).click();
+  await expect(page.locator('[data-weg-mine]')).toContainText(T('My ways'));
+  await page.locator('[data-weg-mine-use]').click();
+  await expect(page.locator('[data-weg-new] .wg-pick')).toHaveCount(2);
+  await expect(page.locator('[data-weg-new]')).toContainText('Packprobe');
+  await page.locator('[data-weg-mine-delete]').click();
+  await page.getByRole('button', { name: T('Delete') }).last().click();
+  await expect(page.locator('[data-weg-mine]')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
