@@ -714,10 +714,14 @@
   {#if items.length}{#key view === 'wish'}<HintCard page={view === 'wish' ? 'einkauf' : 'gear'} intro={mode ? null : view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
 
   {#if !items.length && $itemsQuery}
-    <!-- v0.127.0 A-U2: the one empty building block -->
-    <Empty icon={Package} title={t('No gear yet')} text={t('Add your first item, or bring your list along with a backup.')} action={{ label: t('Add item'), onclick: () => addItem() }}>
-      {t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.
-    </Empty>
+    <!-- v0.127.0 A-U2: the one empty building block. UX test 08.11.2026 (3-01): on Shopping it speaks of wishes, not of gear -->
+    {#if view === 'wish' && !mode}
+      <Empty icon={Package} title={t('No wishes yet')} text={t('Things you do not have yet go here. Put an item on the wishlist and you see what it costs and how much weight it saves.')} action={{ label: t('Add a wish'), onclick: () => addItem({ ownership: 'wishlist' }) }} />
+    {:else}
+      <Empty icon={Package} title={t('No gear yet')} text={t('Add your first item, or bring your list along with a backup.')} action={{ label: t('Add item'), onclick: () => addItem() }}>
+        {t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.
+      </Empty>
+    {/if}
   {/if}
 
   {#if mode}
@@ -784,7 +788,7 @@
           {#if finds}<GearFinds kind={finds} {items} onopen={(item) => (dialog = { item })} onclose={() => (finds = null)} />{/if}
         {/if}
         <div class="metaline">
-          <span class="sorted">{t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
+          <span class="sorted">{view === 'wish' && !mode ? t('Sorted: most needed first') : t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
           {@render showAs()}
           {#if !phone.matches && tab === 'inventory' && shownAs === 'list'}
             <span class="seg bagseg" role="group" aria-label={t('Show the bag')}>
@@ -933,7 +937,7 @@
                   {/if}
                 </li>
               {:else}
-                <li class="empty">{t('No wishlist items match.')}{#if filter.q.trim()}{' '}<button type="button" class="btn sm" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}</li>
+                {#if items.length}<li class="empty">{filter.q.trim() || filter.category || filter.role || filter.domain || filter.bag ? t('No wishlist items match.') : t('Nothing on your wishlist yet.')}{#if filter.q.trim()}{' '}<button type="button" class="btn sm" onclick={() => addItem({ name: filter.q.trim() })}>{t('Add "{q}" as a new item', { q: filter.q.trim() })}</button>{/if}</li>{/if}
               {/each}
             </ul>
           </section>
