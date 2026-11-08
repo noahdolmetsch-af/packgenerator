@@ -13,4 +13,4 @@ Auftrag: Noah «Ok» (Thread «Prüfen roten Nacht-Rundgang»). Der Nacht-Rundga
 - Orte, die schon gespeichert sind, behalten ihren Namen («Tokyo»). Man kann jeden Ort umbenennen.
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
-1. Ich › Werkzeugkasten › Zeitzonen mit einer frischen Liste: Zürich, London, New York, Tokio.
+1. Werkzeugkasten › Zeitzonen mit einer frischen Liste: Zürich, London, New York, Tokio.
