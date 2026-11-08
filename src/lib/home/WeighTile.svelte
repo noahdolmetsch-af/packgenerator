@@ -100,9 +100,7 @@
     font-size: var(--fs-small);
   }
   .more {
-    overflow-x: auto;
-    scrollbar-width: none;
-    white-space: nowrap;
+    overflow-wrap: break-word; /* wraps at 320 px; «Stop asking» stays in reach */
   }
   .ok {
     color: var(--ink-2);

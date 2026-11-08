@@ -30,13 +30,16 @@
   let msg = $state('');
   let planned = $state(null);
 
+  // the browser's answer, read again after every try (the person may have changed it in the lock menu)
+  let perm = $state(permission());
   const WHY = {
     unsupported: 'This browser cannot get reminders. On the phone it works in Chrome.',
-    denied: 'Notifications are blocked. Allow them in the browser settings for this page.',
+    denied: 'Your browser blocks notifications.',
     not_set_up: 'The server is not set up for this yet.',
     storage_not_set_up: 'The server is not set up for this yet.',
   };
-  const fail = (e) => (msg = t(WHY[e?.code] ?? 'The server could not be reached. Try again later.'));
+  // blocked: the status line says so and the steps show under it (blocked), so no second message
+  const fail = (e) => (msg = e?.code === 'denied' ? '' : t(WHY[e?.code] ?? 'The server could not be reached. Try again later.'));
 
   async function save(value) {
     await db.settings.put({ key: PUSH_KEY, value });
@@ -57,6 +60,7 @@
     await save({ ...p, on });
     if (on) {
       await sync();
+      perm = permission();
       if (msg) await save({ ...p, on: false });
     } else {
       planned = null;
@@ -108,11 +112,12 @@
     }
   }
 
-  const status = $derived(!can ? t(WHY.unsupported) : p.on ? (planned != null ? tn(planned, 'On. {n} reminder is planned.', 'On. {n} reminders are planned.') : t('On.')) : permission() === 'denied' ? t(WHY.denied) : t('Off. Nothing goes to the phone.'));
+  const blocked = $derived(can && !p.on && perm === 'denied');
+  const status = $derived(!can ? t(WHY.unsupported) : p.on ? (planned != null ? tn(planned, 'On. {n} reminder is planned.', 'On. {n} reminders are planned.') : t('On.')) : blocked ? t(WHY.denied) : t('Off. Nothing goes to the phone.'));
 </script>
 
 <div class="ich-page pushpage" data-push-page>
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Reminders on the phone')} sub={t('The app sends you reminders on the phone, also when it is closed. Everything is off until you switch it on.')} />
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Reminders on the phone')} sub={t('The app sends you reminders on the phone, also when it is closed. Nothing comes until you switch on «On the phone»; then you choose what should come.')} />
 
   <section class="card ps-card" aria-label={t('Reminders on the phone')}>
     <div class="ps-row ps-main">
@@ -120,11 +125,14 @@
       <span class="ps-m"><b id="ps-main-l">{t('On the phone')}</b><small role="status">{status}</small></span>
       <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-main-l" checked={p.on} disabled={busy} onchange={(e) => setMain(e.currentTarget.checked)} data-push-main />
     </div>
+    {#if blocked}<p class="ps-steps" data-push-steps>{t('Tap the lock next to the address, then «Notifications», then «Allow».')}</p>{/if}
+    {#if blocked}<p class="ps-acts ps-retry"><button type="button" class="btn" onclick={() => setMain(true)} disabled={busy} data-push-retry>{t('Try again')}</button></p>{/if}
     {#if msg}<p class="ps-msg" role="alert">{msg}</p>{/if}
   </section>
 
-  <section class="ps-sec" aria-labelledby="ps-morning-h" data-push-morning>
+  <section class="ps-sec" class:ps-wait={!p.on} aria-labelledby="ps-morning-h" data-push-morning>
     <h2 id="ps-morning-h">{t('In the morning')}</h2>
+    {#if !p.on}<p class="ps-waitnote" data-push-wait>{t('First switch on «On the phone». Until then your choices are only saved; nothing is sent.')}</p>{/if}
     <div class="card ps-card">
       <div class="ps-row">
         <span class="ps-m"><b id="ps-morning-l">{t('One message in the morning')}</b><small>{t('The reminders of 08:00 come together at 07:00 as one message, with your trip and the first appointments of the day. Warnings (weather, ice, light, rain) still come on their own.')}</small></span>
@@ -133,8 +141,9 @@
     </div>
   </section>
 
-  <section class="ps-sec" aria-labelledby="ps-kinds-h">
+  <section class="ps-sec" class:ps-wait={!p.on} aria-labelledby="ps-kinds-h">
     <h2 id="ps-kinds-h">{t('Which reminders')}</h2>
+    {#if !p.on}<p class="ps-waitnote">{t('First switch on «On the phone». Until then your choices are only saved; nothing is sent.')}</p>{/if}
     <ul class="card ps-list">
       {#each KINDS as k (k.key)}
         <li class="ps-row" data-push-kind={k.key}>
@@ -299,6 +308,24 @@
   }
   .ps-sw:checked::after {
     transform: translateX(20px);
+  }
+  /* main switch off: a chosen switch is only «saved», grey instead of green */
+  .ps-wait .ps-sw:checked::before {
+    background: var(--ink-2);
+    opacity: 0.55;
+  }
+  .ps-waitnote {
+    margin: 0 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ps-steps {
+    margin: 4px 0 0;
+    color: var(--ink);
+    font-size: var(--fs-small);
+  }
+  .ps-retry {
+    margin: 10px 0 10px;
   }
   .ps-sw:disabled {
     opacity: 0.6;

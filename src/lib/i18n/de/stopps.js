@@ -9,7 +9,7 @@ export default {
     'Brunnen, Tankstellen, Restaurants, Läden, WC, Bancomat und mehr: um dich herum oder entlang der Strecke einer Tour. Gratis-Daten von OpenStreetMap.',
   'Where to look for stops': 'Wo nach Stopps suchen',
   'Around where you are now, up to {km} km as the crow flies.': 'Um deinen Standort, bis {km} km Luftlinie.',
-  'Your position is not shared: around your home place instead.': 'Dein Standort ist nicht freigegeben: darum um deinen Wohnort.',
+  'Your position is not shared: around your home place instead.': 'Dein Standort ist nicht freigegeben. Die Suche geht darum von deinem Wohnort aus.',
   'Your position is not shared, and no home place is set. Allow the position in the browser, or set your home place under Me.':
     'Dein Standort ist nicht freigegeben, und kein Wohnort ist gesetzt. Erlaube den Standort im Browser oder setze deinen Wohnort unter Ich.',
   'From where you are on the route (km {km}), the next {ahead} km.': 'Ab deinem Ort auf der Strecke (km {km}), die nächsten {ahead} km.',

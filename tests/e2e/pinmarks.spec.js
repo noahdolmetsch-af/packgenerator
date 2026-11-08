@@ -15,7 +15,7 @@ test('pins on the cards: pin, unpin, switch off', async ({ page, context }, info
   await expect(page.locator(`[data-pinmark="${id}"]`)).toHaveAttribute('aria-pressed', 'false');
   await page.locator(`[data-pinmark="${id}"]`).click();
   await expect(page.locator(`[data-pinmark="${id}"]`)).toHaveAttribute('aria-pressed', 'true');
-  const name = await page.locator(`[data-pinmark="${id}"]`).getAttribute('title');
+  const name = await page.locator(`[data-pinmark="${id}"]`).getAttribute('data-pinname');
   await expect(page.getByText(T('«{name}» is in your Quick Links. A tap there brings you right back here.', { name }))).toBeVisible();
   await page.goto('./#/quick');
   await expect(page.locator(`[data-quick-group="s1"] [data-quick-pin="${id}"]`)).toBeVisible();
@@ -78,4 +78,39 @@ test('Quick Links: opened lately, suggest pinning, tidy up after 30 days', async
   const first = await stale.getAttribute('data-quick-stale');
   await stale.getByRole('button', { name: T('Keep|quick') }).click();
   await expect(page.locator(`[data-quick-stale="${first}"]`)).toHaveCount(0);
+});
+
+// UX test 08.11.2026, finding D1: a pin never lies on a letter or on something to tap (it lay on the last crumb of
+// the breadcrumb and on «+ Setup photo»); a page with no free place for a pin simply shows none.
+test('pins never cover text or something to tap', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  const pages = ['#/bikes?tab=care&view=import', '#/bikes?tab=shop', '#/bikes?tab=rig&view=bags', '#/bikes?tab=care&view=spick', '#/notes', '#/tagebuch', '#/trips'];
+  let seen = 0;
+  for (const p of pages) {
+    await page.goto('./' + p);
+    await expect(page.locator('main h1').first()).toBeVisible();
+    await page.waitForTimeout(1500);
+    const hits = await page.evaluate(() => {
+      const out = [];
+      for (const pin of document.querySelectorAll('[data-pinmarks] .pm-dot')) {
+        const r = pin.getBoundingClientRect();
+        const covers = (q) => Math.min(q.right, r.right) - Math.max(q.left, r.left) > 2 && Math.min(q.bottom, r.bottom) - Math.max(q.top, r.top) > 2;
+        const main = document.querySelector('main');
+        const w = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+        for (let n = w.nextNode(); n; n = w.nextNode()) {
+          if (!n.nodeValue.trim() || !n.parentElement.getClientRects().length) continue;
+          const range = document.createRange();
+          range.selectNodeContents(n);
+          for (const q of range.getClientRects()) if (q.width > 1 && covers(q)) out.push('text: ' + n.nodeValue.trim().slice(0, 30));
+        }
+        for (const e of main.querySelectorAll('button, a, input, select, textarea, summary, [role=button], [role=tab]')) {
+          if (e.getClientRects().length && covers(e.getBoundingClientRect())) out.push('tap: ' + (e.innerText || e.tagName).slice(0, 30));
+        }
+      }
+      return [document.querySelectorAll('[data-pinmarks] .pm').length, out];
+    });
+    seen += hits[0];
+    expect(hits[1], p).toEqual([]);
+  }
+  expect(seen).toBeGreaterThan(0);
 });

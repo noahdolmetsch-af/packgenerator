@@ -823,8 +823,12 @@
   }
   .edit {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
+    gap: 6px 12px;
     margin: var(--sp-2) var(--sp-3) 0;
+  }
+  .edit .btn {
+    white-space: nowrap;
   }
 </style>
