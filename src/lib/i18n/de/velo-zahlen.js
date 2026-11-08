@@ -6,4 +6,8 @@ export default {
   '{n} due by then': '{n} bis dahin fällig',
   'fits|trip': 'passt',
   'Open the shopping list': 'Einkaufsliste öffnen',
+  // Teil 3: the trip line on the bike shown, the whole year, an honest empty page
+  'next trip: {trip} on {date}': 'nächste Tour: {trip} am {date}',
+  'The km book has no counted rides of {bike} yet. The {km} km come from the bike itself.': 'Im km-Buch stehen noch keine gezählten Fahrten von {bike}. Die {km} km kommen vom Velo selbst.',
+  'Show the whole year': 'Ganzes Jahr zeigen',
 };

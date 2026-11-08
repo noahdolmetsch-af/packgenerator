@@ -59,7 +59,10 @@
   // a link from another page (velosHref: the km of a bike) opens that part
   $effect(() => {
     const x = tabOfHash(hash, TABS);
-    if (x) tab = x;
+    if (!x) return;
+    tab = x;
+    // «zeit=y» with a tab (a bike's km): the whole year, so the page is not empty for lack of a period
+    if (rangeOfHash(hash) === 'y') period = 365;
   });
   // a link from another page (dayHref) opens the sheet of that day
   $effect(() => {
@@ -239,7 +242,7 @@
   {:else if tab === 'rekorde'}
     <Muster {days} {byKey} acts={data.acts} log={data.log} {today} />
   {:else if tab === 'velos'}
-    <VeloKm {days} {today} only={askedBike} />
+    <VeloKm {days} {today} only={askedBike} onlonger={period < 365 ? () => (period = 365) : null} />
   {:else}
       {#if !on.length}
         <Empty text={t('Switch on at least one source above, then your values show here.')} />
