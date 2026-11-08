@@ -63,6 +63,7 @@ export function stepOf(s) {
     offset: Number.isFinite(s.offset) ? Math.round(s.offset) : null,
     due: isDay(s.due) ? s.due : '',
     done: !!s.done,
+    doneAt: s.done && isDay(s.doneAt) ? s.doneAt : '', // the day the step was ticked (for the review «planned against actual»)
     by: s.by === 'auto' || s.by === 'user' ? s.by : '',
   };
 }
@@ -116,7 +117,7 @@ const mapStep = (goal, id, fn) => ({ ...goal, steps: goal.steps.map((s) => (s.id
 export const renameStep = (goal, id, title) => (String(title ?? '').trim() ? mapStep(goal, id, (s) => ({ ...s, title: String(title).trim() })) : goal);
 export const removeStep = (goal, id) => ({ ...goal, steps: goal.steps.filter((s) => s.id !== id) });
 /** The user ticks or unticks. An untick by the user stops the app from ticking it again. */
-export const setDone = (goal, id, done = true) => mapStep(goal, id, (s) => ({ ...s, done: !!done, by: 'user' }));
+export const setDone = (goal, id, done = true, day = '') => mapStep(goal, id, (s) => ({ ...s, done: !!done, doneAt: done && isDay(day) ? day : '', by: 'user' }));
 /** A day of the user's own; '' gives the step back to «start − offset». */
 export const setDue = (goal, id, due) => mapStep(goal, id, (s) => ({ ...s, due: isDay(due) ? due : '' }));
 /** Steps ordered with the arrows or by drag (the order only matters between steps of the same day). */
@@ -203,7 +204,7 @@ export function applyAuto(goal, types, ctx = {}) {
     try { r = t.auto(goal, s, ctx); } catch { r = null; }
     if (r !== true) return s;
     changed = true;
-    return { ...s, done: true, by: 'auto' };
+    return { ...s, done: true, doneAt: isDay(ctx.today) ? ctx.today : '', by: 'auto' };
   });
   return changed ? { ...goal, steps } : goal;
 }

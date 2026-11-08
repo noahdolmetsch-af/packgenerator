@@ -171,3 +171,36 @@ test('Way to the goal › Start suggestion: a way without a start day names a pe
   await expect(page.locator('[data-weg-period-open]')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+test('Way to the goal › Review: after the start day the steps stand planned against actual', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+
+  await page.goto('./#/trips/weg');
+  await ready(page);
+  await page.getByRole('button', { name: T('New way') }).click();
+  await page.locator('[data-weg-title]').fill('Test Rennen im Januar');
+  await page.locator('[data-weg-start]').fill('2025-01-15');
+  const ticked = page.locator('[data-weg-new] .wg-pick input:checked');
+  while ((await ticked.count()) > 0) await ticked.first().uncheck();
+  await page.getByRole('button', { name: T('Create way') }).click();
+  await expect(page.locator('[data-weg-rueckblick]')).toHaveCount(0); // no step with a day yet
+
+  for (const [title, day] of [['Zug buchen', '2025-01-05'], ['Packprobe', '2025-01-02']]) {
+    await page.locator('[data-weg-own-open]').click();
+    await page.locator('[data-weg-step-title]').fill(title);
+    await page.locator('[data-weg-own] input[type="date"]').fill(day);
+    await page.locator('[data-weg-own] button[type="submit"]').click();
+  }
+  await page.getByRole('button', { name: T('Done: {name}').replace('{name}', 'Zug buchen') }).click();
+
+  const back = page.locator('[data-weg-rueckblick]');
+  await expect(back).toContainText(T('Planned against actual'));
+  await expect(back.locator('[data-weg-back-row="day"]')).toContainText('Zug buchen');
+  await expect(back.locator('[data-weg-back-row="day"]')).toContainText(/\(\+\d+ Tage\)/);
+  await expect(back.locator('[data-weg-back-row="missed"]')).toContainText(T('Not done'));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});

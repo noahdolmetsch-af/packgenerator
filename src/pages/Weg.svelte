@@ -15,6 +15,7 @@
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
   import { milestones } from '../lib/weg/types/proben.js';
   import { windowOf, sayWindow } from '../lib/weg/wetter.js';
+  import { lookBack, sayDiff } from '../lib/weg/rueckblick.js';
   import { goalPeriod, suggestion } from '../lib/weg/startvorschlag.js';
   import { DREAM_WX, refreshDreamWx, placeOf, placeKey } from '../lib/dreams/wetterfenster.js';
   import { rainLimit } from '../lib/rainlimit.svelte.js';
@@ -108,6 +109,12 @@
     const vars = { ...s.vars, ...(s.vars.from ? { from: wWord(s.vars.from), to: wWord(s.vars.to) } : {}) };
     return { title: t(s.title, vars), text: t(s.text, vars), extra: s.extra ? t(s.extra) : '' };
   });
+  // the review «planned against actual» (Noah «5a»): once the start day is over
+  const back = $derived(goal ? lookBack(goal, today) : null);
+  const diffText = (d) => {
+    const x = sayDiff(d);
+    return x ? (x.n === 0 ? t(x.one) : tn(x.n, x.one, x.many)) : '';
+  };
   // the start suggestion for an open period (Noah «4a», G3 lower card): dry days of the home place inside the period
   const homeQ = liveQuery(async () => (await db.settings.get('homePlace'))?.value ?? null);
   const wxQ = liveQuery(async () => (await db.meta.get(DREAM_WX)) ?? null);
@@ -338,7 +345,7 @@
           {#each proben.items as m (m.id)}
             {@const done = goal.steps.find((s) => s.id === m.id)?.done}
             <div class="wg-circle-box">
-              <button type="button" class="wg-circle" class:on={done} class:late={!done && m.state === 'late'} aria-pressed={!!done} aria-label={done ? t('Practice ride of {km} km, done', { km: m.km }) : t('Practice ride of {km} km, open', { km: m.km })} onclick={() => putGoal(setDone(goal, m.id, !done))} data-weg-proben-circle>
+              <button type="button" class="wg-circle" class:on={done} class:late={!done && m.state === 'late'} aria-pressed={!!done} aria-label={done ? t('Practice ride of {km} km, done', { km: m.km }) : t('Practice ride of {km} km, open', { km: m.km })} onclick={() => putGoal(setDone(goal, m.id, !done, today))} data-weg-proben-circle>
                 {#if done}<Check size={28} aria-hidden="true" />{:else}{num(m.km)}{/if}
               </button>
               <b>{t('{km} km', { km: num(m.km) })}</b>
@@ -347,6 +354,30 @@
           {/each}
         </div>
         <p class="wg-sub wg-proben-note">{proben.best ? t('Longest ride so far: {km} km', { km: num(proben.best) }) : t('No ride counted yet. Strava rides tick the circles by themselves; tap a circle to tick by hand.')}</p>
+      </section>
+    {/if}
+
+    {#if back}
+      <section class="card pad wg-back" data-weg-rueckblick aria-label={t('Planned against actual')}>
+        <h3>{t('Review')} · {goal.title}</h3>
+        <b class="wg-wtitle">{t('Planned against actual')}</b>
+        <table class="wg-table">
+          <thead><tr><th scope="col">{t('Step')}</th><th scope="col">{t('Planned')}</th><th scope="col">{t('Actual')}</th></tr></thead>
+          <tbody>
+            {#each back as r (r.id)}
+              <tr data-weg-back-row={r.state}>
+                <th scope="row">{r.title}</th>
+                <td>{dayText(r.planned)}</td>
+                <td>
+                  {#if r.state === 'day'}{dayText(r.actual)}{' '}<span class="wg-sub">({diffText(r.diff)})</span>
+                  {:else if r.state === 'done'}{t('Done')}
+                  {:else}{t('Not done')}{/if}
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+        <p class="wg-sub">{t('Only the two columns, no judgement. Steps ticked before this review existed show «Done» without a day.')}</p>
       </section>
     {/if}
 
@@ -417,7 +448,7 @@
               <li class="wg-today" aria-label={t('Today')}><span>{t('Today')} · {dayText(today)}</span></li>
             {/if}
             <li class="wg-row" class:done={r.state === 'done'} class:late={r.state === 'late'} data-weg-step data-type={r.step.type}>
-              <button type="button" class="wg-check" class:on={r.step.done} aria-pressed={r.step.done} aria-label={t('Done: {name}', { name: r.step.title })} onclick={() => putGoal(setDone(goal, r.step.id, !r.step.done))}><span class="wg-dot">{#if r.step.done}<Check size={14} aria-hidden="true" />{/if}</span></button>
+              <button type="button" class="wg-check" class:on={r.step.done} aria-pressed={r.step.done} aria-label={t('Done: {name}', { name: r.step.title })} onclick={() => putGoal(setDone(goal, r.step.id, !r.step.done, today))}><span class="wg-dot">{#if r.step.done}<Check size={14} aria-hidden="true" />{/if}</span></button>
               <div class="wg-body">
                 <span class="wg-sub">{dayText(r.due)}{#if r.state === 'late'}{' · '}<em>{t('Late|step')}</em>{/if}{#if r.step.by === 'auto'}{' · '}{t('ticked by the app')}{/if}</span>
                 <b>{r.step.title}</b>
@@ -522,10 +553,15 @@
   .wg-days li:not(.wet) { border-color: var(--ok); }
   .wg-days li.start { outline: 2px solid var(--ink); outline-offset: 1px; }
   .wg-days li.wet { color: var(--ink-3); }
+  .wg-back h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-table { width: 100%; border-collapse: collapse; margin: var(--sp-3) 0 var(--sp-2); font-size: var(--fs-body); }
+  .wg-table th, .wg-table td { text-align: left; padding: var(--sp-2) var(--sp-2) var(--sp-2) 0; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: break-word; }
+  .wg-table thead th { font-size: var(--fs-small); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-table tbody th { font-weight: 600; }
   .wg-prow { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-2) 0; }
   .wg-open .wg-acts { margin-top: var(--sp-3); }
   .wg-days small { font-size: var(--fs-small); }
-  .wg-orga, .wg-proben, .wg-wetter, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+  .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
 
   /* the way: one line with dots, «Today» marked on it (mockup G1) */
   .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }
