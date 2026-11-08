@@ -337,11 +337,12 @@
       display: none;
     }
   }
+  /* all parts at once, never a strip that has to be swiped (Noah 08.11.2026 «1a»): wrapped on a computer,
+     three by three on a phone */
   .tabs {
     display: flex;
+    flex-wrap: wrap;
     gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 2px;
   }
   .tab {
     flex: none;
@@ -353,6 +354,17 @@
     color: var(--ink);
     font: inherit;
     cursor: pointer;
+  }
+  @media (max-width: 640px) {
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .tab {
+      padding: 4px 6px;
+      line-height: 1.2;
+      text-align: center;
+    }
   }
   .tab.on {
     border-color: var(--hi);

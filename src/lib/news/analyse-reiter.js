@@ -1,18 +1,22 @@
-// «Analyse in Reitern» (Noah 03.11.2026 «1a»): one part of the page at a time
+// «Alle Reiter sichtbar» (Noah 08.11.2026 «1a», UI-Test der Analyse-Seite): the six parts of Analyse all on screen
 export default {
-  title: 'Analysis in tabs',
-  lead: 'The long Analyse page is now split into tabs, and «Data from» and «Period» sit at the top.',
-  points: [{ text: 'Pick a part: Overview, Own diagram, Comparisons, Records and runs, Bikes or All values', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-tab="rekorde"]' }], where: 'Auswerten › Analyse, the row of tabs under «Data from».' } }],
+  title: 'Analyse: all parts visible at once',
+  lead: 'The six parts of Analyse (Overview, Own diagram, Comparisons, Records, Bikes, All values) no longer hide behind a swipe: on a phone they sit in two rows of three.',
+  points: [
+    { text: 'All six parts of Analyse are visible at once, on a phone in two rows of three', go: { href: '#/auswerten/analyse', steps: [{ sel: '[role="tablist"]' }], where: 'Auswerten › Analyse, the row of parts under the period.' } },
+  ],
   small: [],
-  test: ['Open Auswerten › Analyse: a row of tabs sits under «Data from» and «Period».', 'Tap «Records and runs»: only records and runs show, not the whole page.', 'Tap «All values»: the tiles with Heart, Sleep and the rest show.'],
+  test: [
+    'Open Auswerten › Analyse on a phone: all six parts are there, in two rows of three, without swiping.',
+    'Tap «Records and runs»: the part opens and the page does not move sideways.',
+  ],
   since: [],
   de: {
-    'Analysis in tabs': 'Analyse in Reitern',
-    'The long Analyse page is now split into tabs, and «Data from» and «Period» sit at the top.': 'Die lange Analyse-Seite ist jetzt in Reiter geteilt, und «Daten aus» und «Zeitraum» stehen oben.',
-    'Pick a part: Overview, Own diagram, Comparisons, Records and runs, Bikes or All values': 'Wähle einen Teil: Übersicht, Eigenes Diagramm, Vergleiche, Rekorde und Serien, Velos oder Alle Werte',
-    'Auswerten › Analyse, the row of tabs under «Data from».': 'Auswerten › Analyse, die Reiter unter «Daten aus».',
-    'Open Auswerten › Analyse: a row of tabs sits under «Data from» and «Period».': 'Öffne Auswerten › Analyse: unter «Daten aus» und «Zeitraum» steht eine Reihe von Reitern.',
-    'Tap «Records and runs»: only records and runs show, not the whole page.': 'Tippe auf «Rekorde und Serien»: nur Rekorde und Serien erscheinen, nicht die ganze Seite.',
-    'Tap «All values»: the tiles with Heart, Sleep and the rest show.': 'Tippe auf «Alle Werte»: die Kacheln mit Herz, Schlaf und dem Rest erscheinen.',
+    'Analyse: all parts visible at once': 'Analyse: alle Reiter auf einen Blick',
+    'The six parts of Analyse (Overview, Own diagram, Comparisons, Records, Bikes, All values) no longer hide behind a swipe: on a phone they sit in two rows of three.': 'Die sechs Teile der Analyse (Übersicht, Eigenes Diagramm, Vergleiche, Rekorde, Velos, Alle Werte) verstecken sich nicht mehr hinter einem Wisch: Am Handy stehen sie in zwei Zeilen zu je drei.',
+    'All six parts of Analyse are visible at once, on a phone in two rows of three': 'Alle sechs Teile der Analyse sind auf einen Blick sichtbar, am Handy in zwei Zeilen zu je drei',
+    'Auswerten › Analyse, the row of parts under the period.': 'Auswerten › Analyse, die Reihe der Teile unter dem Zeitraum.',
+    'Open Auswerten › Analyse on a phone: all six parts are there, in two rows of three, without swiping.': 'Öffne am Handy Auswerten › Analyse: Alle sechs Teile sind da, in zwei Zeilen zu je drei, ohne zu wischen.',
+    'Tap «Records and runs»: the part opens and the page does not move sideways.': 'Tippe auf «Rekorde und Serien»: Der Teil öffnet sich und die Seite rutscht nicht seitlich.',
   },
 };
