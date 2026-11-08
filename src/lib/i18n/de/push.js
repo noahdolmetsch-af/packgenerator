@@ -10,7 +10,7 @@ export default {
   'The test did not arrive. Try again later.': 'Der Test kam nicht an. Versuch es später nochmals.',
   'The reminders come through our free server, on the minute. It only gets the words of the reminders you switched on and forgets them once they are sent.': 'Die Erinnerungen kommen über unseren kostenlosen Server, auf die Minute genau. Er bekommt nur die Texte der eingeschalteten Erinnerungen und löscht sie nach dem Senden.',
   'This browser cannot get reminders. On the phone it works in Chrome.': 'Dieser Browser kann keine Erinnerungen empfangen. Auf dem Handy geht es in Chrome.',
-  'Your browser blocks notifications. Tap the lock next to the address, then «Notifications», then «Allow».': 'Dein Browser blockiert Hinweise. Tippe oben neben der Adresse auf das Schloss, dann auf «Benachrichtigungen» und auf «Erlauben».',
+  'Your browser blocks notifications. Tap the lock next to the address, then «Notifications», then «Allow».': 'Dein Browser blockiert Hinweise. Tippe oben neben der Adresse auf das Schloss, dann auf «Benachrich­tigungen» und auf «Erlauben».',
   'First switch on «On the phone». Until then your choices are only saved; nothing is sent.': 'Schalte zuerst «Aufs Handy» ein. Bis dahin sind deine Wahlen nur gemerkt; es wird nichts geschickt.',
   'The server is not set up for this yet.': 'Der Server ist dafür noch nicht eingerichtet.',
   'The server could not be reached. Try again later.': 'Der Server war nicht erreichbar. Versuch es später nochmals.',
