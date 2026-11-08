@@ -860,11 +860,13 @@
   .rm {
     flex: 1;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2px;
     min-width: 0;
   }
   .rm b {
     font-weight: 500;
+    overflow-wrap: break-word;
   }
   .rm small {
     color: var(--ink-3);
