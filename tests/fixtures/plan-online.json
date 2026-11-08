@@ -1,5 +1,7 @@
 {
   "hinweis": "Schritte aus docs/plan-ganze-app.md, die einmal «online» waren. Siehe tests/plan.test.js. Auffrischen (fügt nur hinzu): PLAN_AKTUALISIEREN=1 npx vitest run tests/plan.test.js. abgeloest: Schritt -> Grund (Noah hat es im PR entschieden).",
-  "online": [],
+  "online": [
+    "0a"
+  ],
   "abgeloest": {}
 }

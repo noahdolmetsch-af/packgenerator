@@ -181,6 +181,7 @@
             </li>
           {/each}
         </ul>
+        <p class="ich-help"><a href="#/auswerten/quellen" data-conn-quellen>{t('See where your numbers come from, how fresh they are and where there are gaps')} ›</a></p>
       </section>
 
       {#if d}

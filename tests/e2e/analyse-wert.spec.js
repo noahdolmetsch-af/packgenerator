@@ -55,6 +55,9 @@ test('A tile opens the page of its value: ranges, boxes, course, layers, weekday
   await expect(src).toContainText('Fitbit');
   await expect(src.locator('a')).toHaveAttribute('href', '#/me/fitbit');
   await expect(src.locator('a')).toHaveCSS('min-height', '44px');
+  // it looks like a way (Noah «1a»): underlined, with an arrow of 16 px
+  await expect(src.locator('a')).toHaveCSS('text-decoration-line', 'underline');
+  await expect(src.locator('a svg')).toHaveCSS('width', '16px');
   // one line for the source and its fetch (Noah «3a»): «Quelle Fitbit · Stand 07:42 ›»; the old second sentence is gone
   await expect(src).toContainText(/Stand \d\d[:.]\d\d/);
   await expect(wv.locator('.hint.src')).toHaveCount(0);
@@ -108,6 +111,26 @@ test('«Zurück zu Heute»: the page of a value remembers where you came from (A
   await expect(page.locator('[data-detail="rhr"] [data-crumb-back]')).toContainText(T('Active|place'));
   await page.locator('[data-detail="rhr"] [data-crumb-back]').click();
   await expect(page).toHaveURL(/#\/flow$/);
+  expect(errors).toEqual([]);
+});
+
+test('«Zurück zu Heute» also on the old page of a value (5a)', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await page.evaluate(() => (location.hash = '#/'));
+  await ready(page);
+  await page.evaluate(() => (location.hash = '#/flow/stats/hr'));
+  const old = page.locator('[data-stats="hr"]');
+  await expect(old).toBeVisible();
+  const back = old.locator('[data-crumb-back]');
+  await expect(back).toContainText(T('Today|place'));
+  await expect(back).toHaveAttribute('href', '#/');
+  expect((await back.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  // from Aktiv the crumb «‹ Aktiv» already leads back: no second button
+  await page.evaluate(() => (location.hash = '#/flow'));
+  await ready(page);
+  await page.evaluate(() => (location.hash = '#/flow/stats/hr'));
+  await expect(old).toBeVisible();
+  await expect(old.locator('[data-crumb-back]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

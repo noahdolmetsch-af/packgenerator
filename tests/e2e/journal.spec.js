@@ -157,6 +157,32 @@ test('tags are groups: rename one, then delete it; the entries stay', async ({ p
   expect(errors).toEqual([]);
 });
 
+// «Diagramme zum Antippen»: the mood curve is the shared line chart (axis of smileys, the day when pointing, a tap, the table)
+test('mood curve: the numbers of a day, a tap opens the day, the table lists the days', async ({ page, context }) => {
+  const errors = await open(page, context);
+  for (const [day, mood] of [['2026-10-17', '2'], ['2026-10-19', '4']]) {
+    await page.locator('[data-tb-new]').click();
+    const ed = page.locator('[data-tb-editor]');
+    await ed.locator('[data-tb-text]').fill(`${P}Tag ${day}`);
+    await ed.locator(`[data-tb-mood="${mood}"]`).click();
+    await ed.locator('[data-tb-day]').fill(day);
+    await ed.locator('[data-tb-save]').click();
+    await expect(ed).toBeHidden();
+  }
+  await page.locator('.tb-bar button[data-key="look"]').click();
+  const curve = page.locator('[data-tb-mood-curve]');
+  const plot = curve.locator('[data-chart="mood"] [data-plot]');
+  await expect(plot).toHaveAttribute('data-n', '90');
+  const box = await plot.boundingBox();
+  // the day before today (19.10.) is the second column from the right: its mood is 4
+  await plot.click({ position: { x: (box.width * 88.5) / 90, y: 20 } });
+  await expect(page.locator('[data-mood-sheet]')).toContainText(/4[.,]0/);
+  await page.keyboard.press('Escape');
+  await curve.getByRole('button', { name: T('As table') }).click();
+  await expect(curve.locator('table tbody tr')).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
+
 test('mood, review with cloud and series, Gemini only with a tick, evening reminder, year book', async ({ page, context }, info) => {
   const errors = await open(page, context);
   // an entry for yesterday with a mood, written from the calendar

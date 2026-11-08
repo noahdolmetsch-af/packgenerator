@@ -130,4 +130,6 @@ export default {
   'Pace per month': 'Tempo pro Monat',
   'Point at a month for its numbers, tap it for the month.': 'Zeig auf einen Monat für die Zahlen, tippe ihn an für den Monat.',
   'No ride in this month.': 'In diesem Monat keine Fahrt.',
+  'Point at a day for its mood, tap it for the day.': 'Zeig auf einen Tag für die Stimmung, tippe ihn an für den Tag.',
+  'No mood noted on this day.': 'Für diesen Tag ist keine Stimmung notiert.',
 };

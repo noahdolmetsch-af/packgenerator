@@ -276,6 +276,8 @@ import assistent from './assistent.js';
 
 // Termine buchen (BU1–BU5): Ich › Angebote, freie Termine, Buchungsseite
 import termine from './termine.js';
+// Flyer für Tennisstunden: Tennis › Flyer
+import flyer from './flyer.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -897,6 +899,7 @@ const ORDERED = [
   agenda,
   assistent,
   termine,
+  flyer,
   abgleich,
   verbindungenStatus,
   datenaufraeumen,

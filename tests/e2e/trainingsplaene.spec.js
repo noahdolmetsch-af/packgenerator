@@ -129,3 +129,40 @@ test('coupled to a race: the plan takes its day and follows when it moves', asyn
   const sessions = await planSessions(page);
   expect(sessions.some((s) => s.day > day(80) && s.day < day(87))).toBe(true);
 });
+
+test('a second plan runs next to the first; an event plan asks for a date; each can be taken out', async ({ page, context }) => {
+  await start(page, context);
+  // first plan: multi-day race
+  await page.goto('./#/flow/plans/multi');
+  await page.getByRole('button', { name: DE['From a day'], exact: true }).click();
+  await page.locator('[data-plan-date]').fill(day(3));
+  await page.locator('[data-plan-try]').click();
+  await expect(page).toHaveURL(/#\/flow\/training$/);
+  const multi = (await planSessions(page)).filter((s) => s.src === 'tpl:multi').length;
+  expect(multi).toBeGreaterThan(10);
+
+  // second plan: ski touring (an event plan: «Termin» instead of «Renntag»), added next to the first
+  await page.goto('./#/flow/plans/skitour');
+  await expect(page.getByRole('button', { name: DE['Back from the date'], exact: true })).toBeVisible();
+  await expect(page.getByText(DE['Race day'], { exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: DE['From a day'], exact: true }).click();
+  await page.locator('[data-plan-date]').fill(day(3));
+  await expect(page.getByRole('button', { name: DE['Add it (both run)'], exact: true })).toBeVisible();
+  await page.locator('[data-plan-try]').click();
+  await expect(page).toHaveURL(/#\/flow\/training$/);
+  const both = await planSessions(page);
+  expect(both.filter((s) => s.src === 'tpl:multi')).toHaveLength(multi);
+  const ski = both.filter((s) => s.src === 'tpl:skitour');
+  expect(ski.length).toBeGreaterThan(8);
+  expect(ski.every((s) => s.kind === 'hike')).toBe(true);
+
+  // both are listed; taking the second out leaves the first
+  await page.goto('./#/flow/plans');
+  await expect(page.locator('[data-section="plan-active"]')).toContainText(DE['Multi-day race']);
+  await expect(page.locator('[data-section="plan-more"]')).toContainText(DE['Ski touring']);
+  await page.locator('[data-plan-out-more="skitour"]').click();
+  await expect(page.locator('[data-section="plan-more"]')).toHaveCount(0);
+  const after = await planSessions(page);
+  expect(after.filter((s) => s.src === 'tpl:skitour')).toHaveLength(0);
+  expect(after.filter((s) => s.src === 'tpl:multi')).toHaveLength(multi);
+});

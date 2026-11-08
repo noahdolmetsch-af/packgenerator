@@ -21,7 +21,6 @@
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
-  import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte';
   import { localDay } from '../lib/localday.js';
   import { t, tn, lang, locale } from '../lib/i18n.svelte.js';
@@ -81,11 +80,14 @@
             </div>
           {/if}
           {#if FIXED.some((f) => avg[f.key].mean != null)}<p class="avg num" data-check-avg>{week ? t('⌀ 7 days') : `⌀ ${title}`}: {FIXED.map((f) => `${t(f.short)} ${n1(avg[f.key].mean)}`).join(' · ')}</p>{/if}
-          <ul class="why" data-check-why>
-            <li><b>{t('Why|check')}</b> {t('a few seconds a day show you over weeks what does you good.')}</li>
-            <li><b>{t('Your data|check')}</b> {t('stays on your devices; nobody else sees it.')}</li>
-            <li><b>{t('Where you see it')}</b> <a href="#/me/history">{t('in the history')}</a>, <a href="#/me/insights">{t('in your insights')}</a> {t('and in the Rückblick of a trip.')}</li>
-          </ul>
+          <details class="whyf" data-check-why-fold>
+            <summary>{t('Why questions? Where do I see the answers?')}</summary>
+            <ul class="why" data-check-why>
+              <li><b>{t('Why|check')}</b> {t('a few seconds a day show you over weeks what does you good.')}</li>
+              <li><b>{t('Your data|check')}</b> {t('stays on your devices; nobody else sees it.')}</li>
+              <li><b>{t('Where you see it')}</b> <a href="#/me/history">{t('in the history')}</a>, <a href="#/me/insights">{t('in your insights')}</a> {t('and in the Rückblick of a trip.')}</li>
+            </ul>
+          </details>
         </div>
       </Sec>
       {#if cols.matches}
@@ -95,7 +97,6 @@
   </div>
   <TipLine page="aktiv" name={t('Analysis|place')} />
   <PageMore page="aktiv" name={t('Analysis|place')} />
-  <PinnedLists place="active" />
   <PageTiles page="flow" />
 </div>
 
@@ -162,12 +163,25 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  /* «Auswerten aufräumen» 3 (Noah 07.11.2026): the explanation is one folded line */
+  .whyf {
+    margin-top: var(--sp-3);
+    border-top: 1px solid var(--line);
+  }
+  .whyf summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 500;
+  }
   .why {
     display: grid;
     gap: 4px;
-    margin: var(--sp-3) 0 0;
-    padding: var(--sp-2) 0 0;
-    border-top: 1px solid var(--line);
+    margin: 0 0 var(--sp-2);
+    padding: 0;
     list-style: none;
     color: var(--ink-2);
     font-size: var(--fs-small);

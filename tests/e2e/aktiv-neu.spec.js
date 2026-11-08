@@ -97,6 +97,9 @@ test('Aktiv: small tiles, the week in numbers, the rings and «Wi gaht\'s?» exp
     await expect(wn.locator(`[data-wn-analyse="${k}"]`)).toHaveAttribute('href', /#\/auswerten\/analyse\/(tMove|hmAll)\?zeit=m3$/);
   }
 
+  // «Auswerten aufräumen» 3: the explanation is one folded line; open it first
+  await expect(page.locator('[data-check-why-fold]')).not.toHaveAttribute('open', '');
+  await page.locator('[data-check-why-fold] summary').click();
   await expect(page.locator('[data-check-why]')).toContainText(T('Where you see it'));
   await expect(page.locator('[data-check-why] a[href="#/me/history"]')).toBeVisible();
   await fits(page, '#/auswerten');

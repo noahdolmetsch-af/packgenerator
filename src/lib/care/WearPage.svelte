@@ -65,8 +65,10 @@
   // V1b: a part that is due or soon goes on the shopping list in one tap (Undo), and the list is one tap away
   async function toShop(r) {
     const before = await loadLists();
-    await changeList([r.name], t('Shopping list'));
-    offerDone(t('"{name}" is on the shopping list.', { name: r.name }), () => restoreLists(before));
+    // with several bikes the item says which bike it is for: «Chain (Gravel)»; names the user typed never go through t()
+    const name = bikes.length > 1 && bike ? `${r.name} (${bike.name})` : r.name;
+    await changeList([name], t('Shopping list'));
+    offerDone(t('"{name}" is on the shopping list.', { name }), () => restoreLists(before));
   }
 
   let editing = $state(null); // part key

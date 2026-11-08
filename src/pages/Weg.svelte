@@ -252,7 +252,10 @@
           <h2>{goal.title}</h2>
           <p class="wg-when">
             {#if goal.start}{dayText(goal.start)}{' · '}{/if}
-            {#if until && until.days >= 0}{tn(until.weeks, 'Start in {n} week', 'Start in {n} weeks')}
+            {#if until && until.days >= 14}{tn(until.weeks, 'Start in {n} week', 'Start in {n} weeks')}
+            {:else if until && until.days >= 2}{tn(until.days, 'Start in {n} day', 'Start in {n} days')}
+            {:else if until && until.days === 1}{t('Start tomorrow')}
+            {:else if until && until.days === 0}{t('Start today')}
             {:else if until}{t('The start day is over.')}
             {:else}{t('The start day is still open.')}{/if}
           </p>
