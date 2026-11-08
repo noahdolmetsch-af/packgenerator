@@ -106,6 +106,7 @@ const LISTED = {
   'f.osmsets': ['Open New ground and choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load now» the first time (later it loads by itself once a week).', 'Ride past one: it is ticked with the day.'],
   'f.monthadv': ['Open Trips › Dreams and scroll to «One adventure a month».', 'Tap «Show me» or «Not this month».', 'Under «Kinds» add your own adventure.'],
   'f.dreamsone': ['Open Trips › Dreams and scroll to «More dreams».', 'Tap «Make it a dream tour» at a dream from your compass.', 'Or follow the link to your travel wishes.'],
+  'f.dreamweek': ['Set a «Fixed date» in a dream of Trips › Dreams.', 'Tick «Rides through the night» for a ride that goes on all night.', 'Heute: «Dream of the week» counts down, shows the weather.'],
   'f.dice': ['Open Trips › Dreams and scroll to «Adventure dice».', 'Tap «Roll»: a rule for your next ride.', 'Under «Rules» add your own or hide one.'],
   'f.suntip': ['Open Trips › Dreams and scroll to «Sunrise on the hill».', 'Read the next clear morning or evening.', 'Mark a «View» point on the map: the tip names it.'],
   'f.trainthere': ['Open Trips › Dreams and scroll to «Train there, bike home».', 'Choose how far you want to ride home.', 'Tap «Trains and the way home» at a place.'],
@@ -308,7 +309,7 @@ const LISTED = {
   'f.pagetips': ['Open Aktiv › Heute: the tip of the day is under the title.', 'Tap «All tips ›» to switch single tips on or off.', 'At the page end, open «What the app can do here».'],
   // «Training» TR1–TR4 (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«Plan the week» sets the sessions and an optional goal.'],
-  'f.weekplan': ['Open Woche: the whole week in one place.', 'On Sunday «Plan the week»: take or leave out what the app suggests.', 'Holidays once under Woche › Holidays.'],
+  'f.weekplan': ['Open Woche: the whole week; on Sunday the wrap-up looks back.', 'On Sunday «Plan the week»: take or leave out what the app suggests.', 'Holidays once under Woche › Holidays.'],
   // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.sports': ['Open New tour.', 'Choose the sport: a bike sport brings its own standard bike.', 'Tap another bike and «Make standard for …» to keep it for that sport.'],
   // v0.147.0 Paket B (Fitbit)

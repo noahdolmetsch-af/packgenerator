@@ -28,4 +28,5 @@ export default {
   'f.freisamml': 'A collection grows by itself on rides: note the fountain when you drink from it, not later at home.',
   'f.skiseason': 'Practise with the transceiver at the start of the season, not on the first tour. Ten minutes in the park are enough.',
   'f.dreamsone': 'Dreams that sit in one place are easier to compare: one list for tour dreams, compass dreams and travel wishes, so nothing gets forgotten.',
+  'f.dreamweek': 'A dream with a date and a night ride needs more than dry days: a night above 5 °C and little wind. Heute checks exactly the days of the dream.',
 };

@@ -89,13 +89,19 @@ test('Auswerten: readiness on top, then the Garmin overview', async ({ page, con
   await expect(ov.locator('[data-ov="sleep"]')).toContainText(' h ');
   await expect(page.locator('[data-l7="bike"]')).toContainText('km');
   await expect(page.locator('[data-l7="run"]')).toBeVisible();
+  // 3a: tiles, sport cards and rows lead into Analyse, not to the old pages
+  await expect(ov.locator('[data-ov="hr"]')).toHaveAttribute('href', /#\/auswerten\/analyse\/rhr/);
+  await expect(ov.locator('[data-ov="kcal"]')).toHaveAttribute('href', /#\/auswerten\/analyse\/kcal/);
+  await expect(ov.locator('[data-ov="sleep"]')).toHaveAttribute('href', /#\/auswerten\/analyse\/sleep/);
+  await expect(page.locator('[data-l7="bike"]')).toHaveAttribute('href', /#\/auswerten\/analyse\/km%3Abike/);
+  await expect(focus).toHaveAttribute('href', /#\/auswerten\/analyse\/km%3Abike/);
   await expect(page.locator('[data-section="week-numbers"] [data-wn]')).toHaveCount(6);
   await fits(page, 'Aktiv');
   await page.locator('[data-section="form"]').screenshot({ path: 'qa/form-uebersicht/aktiv-form.png' });
   await page.locator('[data-overview]').screenshot({ path: 'qa/form-uebersicht/aktiv-ueberblick.png' });
 
   await focus.click();
-  await expect(page).toHaveURL(/#\/flow\/stats\/bike$/);
+  await expect(page).toHaveURL(/#\/auswerten\/analyse\/km%3Abike/);
   expect(errors).toEqual([]);
 });
 

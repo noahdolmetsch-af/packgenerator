@@ -65,10 +65,10 @@
       <article class="vcard" class:sel={c.bike.id === bikeId} data-velo-card={c.bike.id}>
         <div class="pic"><VeloDraw look={c.look.look} /></div>
         <b class="nm">{c.bike.name}</b>
-        <small class="km num">{#if c.bike.km != null}<NumLink to={velosHref()} data-card-km-link><Odometer value={c.bike.km} />{' km'}</NumLink>{:else}{t('km not set')}{/if}</small>
+        <small class="km num">{#if c.bike.km != null}<NumLink to={velosHref(c.bike.id)} data-card-km-link><Odometer value={c.bike.km} />{' km'}</NumLink>{:else}{t('km not set')}{/if}</small>
         <!-- V1: «nothing due» / «n due» leads to the care list of this bike -->
         <a class="vpill {c.status}" href={bikesHash({ tab: 'care', bike: c.bike.id, open: true })} data-card-status>{c.w.tag}</a>
-        {#if c.w.text}<p class="next">{c.w.text}</p>{/if}
+        {#if c.w.text}<p class="next"><a class="nxl" href={bikesHash({ tab: 'care', bike: c.bike.id, open: true })} data-card-text>{c.w.text}</a></p>{/if}
         {#if c.look.look === 'clean'}
           <p class="next look" data-velo-look="clean">{t('Cared for lately: the bike gleams.')}</p>
         {:else if c.look.look === 'dusty' || c.look.look === 'web'}
@@ -176,6 +176,23 @@
     font: 600 var(--fs-small) / 1.4 var(--font-body);
     background: var(--line);
     color: var(--ink-2);
+  }
+  .nxl {
+    position: relative;
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 3px;
+  }
+  /* 44 px tap area around the text link, without moving the layout */
+  .nxl::after {
+    content: '';
+    position: absolute;
+    left: -6px;
+    right: -6px;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
   }
   a.vpill {
     position: relative;

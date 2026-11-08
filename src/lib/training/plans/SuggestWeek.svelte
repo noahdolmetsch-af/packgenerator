@@ -4,12 +4,13 @@
    * week from the goal, the race, today's readiness and the sports of Aktiv, says why, and takes it over only on a tap
    * (with Undo). «Another suggestion» shows the next layout. Everything is a suggestion.
    */
+  import { untrack } from 'svelte';
   import { Sparkles, Pencil, X, Plus, Minus, CloudRain } from '@lucide/svelte';
   import { t, num, lang } from '../../i18n.svelte.js';
   import { suggestWeek, weeklySports, candidateSports, learnHabits, noHabits, VARIANTS, SRC, FOCUS } from '../suggest.js';
   import { KIND_NAMES, ZONE_NAMES, shiftDay, weekOf } from '../../training.js';
 
-  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, forecast = null, sportGoals = {}, habits = null, onlimits, onsportgoals, onhabits, onapply } = $props();
+  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, forecast = null, sportGoals = {}, habits = null, onlimits, onsportgoals, onhabits, onapply, preset = null } = $props();
 
   let open = $state(false);
   let variant = $state(0);
@@ -98,6 +99,19 @@
     form = null;
   }
   const reset = () => ((edits = null), (form = null));
+  // «Training verbessern» 8: the look back offers hours for next week; a tap opens the suggestion with those hours
+  $effect(() => {
+    const p = preset;
+    if (!p?.n) return;
+    untrack(() => {
+      open = true;
+      variant = 0;
+      push = 0;
+      focus = 'cardio';
+      hoursSet = p.hours;
+      reset();
+    });
+  });
   const OUTDOOR = ['bike', 'run', 'hike'];
   const rainy = (s) => OUTDOOR.includes(s.kind) && !s.sport && wx[s.day] === 'rain';
   const label = (s) => (s.sport ? sportName(flowActs.find((a) => a.id === s.sport) ?? { name: '' }) : s.name ? t(s.name) : t(KIND_NAMES[s.kind]));

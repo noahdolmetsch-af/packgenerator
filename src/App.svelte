@@ -5,6 +5,7 @@
   import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
   import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
+  import { noteHashMove } from './lib/nav/herkunft.svelte.js';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
@@ -119,6 +120,7 @@
       moved = null;
       const from = hash;
       hash = follow(location.hash);
+      noteHashMove(from, hash); // «Zurück zu Heute»: the value pages of Analyse remember where you came from
       clearTimeout(slideTimer);
       const dir = slideDir(from, hash);
       slide = dir ? `${dir}${slideN++ % 2}` : '';
@@ -478,6 +480,7 @@
     InvoiceNew: () => import('./pages/InvoiceNew.svelte'),
     Offers: () => import('./pages/Offers.svelte'),
     OfferCustomers: () => import('./pages/OfferCustomers.svelte'),
+    TennisFlyer: () => import('./pages/TennisFlyer.svelte'),
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
@@ -761,7 +764,7 @@
     <LazyPage load={PAGES.WebLinks} />
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
-    {#if hash.split('?')[0].split('/')[3] === 'customers'}<LazyPage load={PAGES.OfferCustomers} />{:else}{#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}{/if}
+    {#if hash.split('?')[0].split('/')[3] === 'customers'}<LazyPage load={PAGES.OfferCustomers} />{:else if hash.split('?')[0].split('/')[3] === 'flyer'}{#key hash}<LazyPage load={PAGES.TennisFlyer} offer={decodeURIComponent(new URLSearchParams(hash.split('?')[1] ?? '').get('o') ?? '')} />{/key}{:else}{#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}{/if}
   {:else if page === 'privacy'}
     <!-- Paket R: Ich › Datenschutz und Nutzung -->
     <LazyPage load={PAGES.Privacy} />

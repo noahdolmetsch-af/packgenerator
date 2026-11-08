@@ -3,18 +3,17 @@
    * «Aktiv neu» (Noah 22.10.2026, spec «Aktiv-Bereich: Beschreibung», «Aktiv ist zum Machen, Auswerten zum
    * Anschauen»): the start of the place «Auswerten» (#/auswerten). What was below «Heute abhaken» on the old
    * Aktiv start moved here: the form card on top, «Aktivitäten von heute», «Im Fokus», «Überblick» and «Letzte
-   * 7 Tage» (Overview), «Wi gaht's?» with today's values and the 7 days, then the tip of the day, the cards
-   * Ideen, Meilensteine and Trophäen, «Das kann die App hier» and the tiles. The tabs above lead to the pages
-   * (Form und Erholung, Körperwerte, Fahrten, Haken ausgewertet, …; lib/nav.js PLACE_TABS.analysis).
+   * 7 Tage» (Overview), «Wi gaht's?» with today's values and the 7 days, then the tip of the day, «Das kann die App
+   * hier» and the tiles. The tabs above lead to the pages (Form und Erholung, Körperwerte, Fahrten, Haken ausgewertet,
+   * Gipfelbuch, …; lib/nav.js PLACE_TABS.analysis). «Auswerten aufräumen» (Noah 07.11.2026 «4a»): the six link cards
+   * that doubled the tabs (Ideen, Meilensteine, Trophäen, Impulse, Gipfelbuch, Haken ausgewertet) are gone.
    */
   import { liveQuery } from 'dexie';
-  import { Lightbulb, Trophy, Star, Sparkles, Mountain, ListChecks } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { averages, averagesBetween, checkOf, FIXED } from '../lib/flowcheck.js';
   import { waitingThisMonth } from '../lib/kmbook.js';
   import { CHECK_HASH } from '../lib/strava/client.svelte.js';
   import Sec from '../lib/flow/kit/Sec.svelte';
-  import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
   import Overview from '../lib/flow/garmin/Overview.svelte';
   import FormCard from '../lib/flow/form/FormCard.svelte';
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
@@ -22,7 +21,6 @@
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
-  import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import PageTiles from '../lib/sk/PageTiles.svelte';
   import { localDay } from '../lib/localday.js';
   import { t, tn, lang, locale } from '../lib/i18n.svelte.js';
@@ -46,15 +44,6 @@
   const range = $derived({ from: win.from, to: win.to, week, title });
   const avg = $derived(week ? averages(data?.checks ?? [], today, 7) : averagesBetween(data?.checks ?? [], win.from, win.to));
   const n1 = (v) => (v == null ? '–' : v.toLocaleString(lang.v === 'de' ? 'de-DE' : 'en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
-  const pages = [
-    { key: 'ideas', href: '#/flow/ideen', icon: Lightbulb, title: t('Ideas'), sub: t('for your balance') },
-    { key: 'milestones', href: '#/flow/milestones', icon: Star, title: t('Milestones'), sub: t('every sport, step by step') },
-    { key: 'trophies', href: '#/flow/trophies', icon: Trophy, title: t('Trophies'), sub: t('what you reached') },
-    // «332 Use Cases» (Noah 24.10.2026 «2b»): the pages that were only tabs behind «Alle 11»
-    { key: 'impulse', href: '#/flow/impulse', icon: Sparkles, title: t('Impulses'), sub: t('small ideas to start') },
-    { key: 'gipfel', href: '#/flow/gipfelbuch', icon: Mountain, title: t('Summit book'), sub: t('passes and summits reached') },
-    { key: 'ticks', href: '#/flow/auswertung', icon: ListChecks, title: t('Ticks evaluated|tab'), sub: t('your ticks and answers') },
-  ];
 </script>
 
 {#snippet waiting()}
@@ -91,23 +80,23 @@
             </div>
           {/if}
           {#if FIXED.some((f) => avg[f.key].mean != null)}<p class="avg num" data-check-avg>{week ? t('⌀ 7 days') : `⌀ ${title}`}: {FIXED.map((f) => `${t(f.short)} ${n1(avg[f.key].mean)}`).join(' · ')}</p>{/if}
-          <ul class="why" data-check-why>
-            <li><b>{t('Why|check')}</b> {t('a few seconds a day show you over weeks what does you good.')}</li>
-            <li><b>{t('Your data|check')}</b> {t('stays on your devices; nobody else sees it.')}</li>
-            <li><b>{t('Where you see it')}</b> <a href="#/me/history">{t('in the history')}</a>, <a href="#/me/insights">{t('in your insights')}</a> {t('and in the Rückblick of a trip.')}</li>
-          </ul>
+          <details class="whyf" data-check-why-fold>
+            <summary>{t('Why questions? Where do I see the answers?')}</summary>
+            <ul class="why" data-check-why>
+              <li><b>{t('Why|check')}</b> {t('a few seconds a day show you over weeks what does you good.')}</li>
+              <li><b>{t('Your data|check')}</b> {t('stays on your devices; nobody else sees it.')}</li>
+              <li><b>{t('Where you see it')}</b> <a href="#/me/history">{t('in the history')}</a>, <a href="#/me/insights">{t('in your insights')}</a> {t('and in the Rückblick of a trip.')}</li>
+            </ul>
+          </details>
         </div>
       </Sec>
       {#if cols.matches}
         <Overview {today} {range} part="last7">{@render waiting()}</Overview>
-        <MoreAktiv items={pages} stack />
       {/if}
     </aside>
   </div>
   <TipLine page="aktiv" name={t('Analysis|place')} />
-  {#if !cols.matches}<MoreAktiv items={pages} />{/if}
   <PageMore page="aktiv" name={t('Analysis|place')} />
-  <PinnedLists place="active" />
   <PageTiles page="flow" />
 </div>
 
@@ -174,12 +163,25 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
+  /* «Auswerten aufräumen» 3 (Noah 07.11.2026): the explanation is one folded line */
+  .whyf {
+    margin-top: var(--sp-3);
+    border-top: 1px solid var(--line);
+  }
+  .whyf summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    cursor: pointer;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 500;
+  }
   .why {
     display: grid;
     gap: 4px;
-    margin: var(--sp-3) 0 0;
-    padding: var(--sp-2) 0 0;
-    border-top: 1px solid var(--line);
+    margin: 0 0 var(--sp-2);
+    padding: 0;
     list-style: none;
     color: var(--ink-2);
     font-size: var(--fs-small);

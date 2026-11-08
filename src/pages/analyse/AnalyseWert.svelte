@@ -11,6 +11,8 @@
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
+  import { herkunft } from '../../lib/nav/herkunft.svelte.js';
+  import { backOf } from '../../lib/nav/herkunft.js';
   import SourceLine from '../../lib/ui/SourceLine.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import { analyseData } from '../../lib/analyse/data.svelte.js';
@@ -21,6 +23,13 @@
   import YTicks from '../../lib/charts/YTicks.svelte';
   import { RANGES, DEFAULT_RANGE, windowOf, bucketsOf, statsOf, typicalOf, mean7, weekdays, weekdayExtremes, tripBands, yearBefore, firstDay } from '../../lib/analyse/detail.js';
   import { addDays } from '../../lib/analyse.js';
+  import { LOAD_WEIGHTS } from '../../lib/analyse/own.js';
+  import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
+  import { tripRows } from '../../lib/analyse/tourliste.js';
+  import { dailyLimit } from '../../lib/analyse/wochenbalken.js';
+  import { sumBand } from '../../lib/analyse/ueblich.js';
+  import { doneOn, doneText } from '../../lib/analyse/tagdavor.js';
+  import { topDays, whatText } from '../../lib/analyse/hoechste.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
   import { health } from '../../lib/health/client.svelte.js';
@@ -49,6 +58,7 @@
   let prevYear = $state(mine.prevYear === true);
   let picked = $state(null);
   let allDays = $state(false);
+  let allTours = $state(false);
   $effect(() => {
     try {
       const all = JSON.parse(localStorage.getItem(LS) ?? '{}') ?? {};
@@ -86,12 +96,27 @@
   const st = $derived(item?.get ? (hours ? statsOf(HOURS, (h) => hours[Number(h)], !!item.sum) : statsOf(win.days, item.get, !!item.sum)) : null);
   const when = (d) => (hours ? `${d.padStart(2, '0')}:00` : dfmt(d, { day: 'numeric', month: 'short' }));
   const typical = $derived(item?.get && !item.sum && !hours ? typicalOf(windowOf('m3', today).days, item.get) : null);
-  const pts = $derived(item?.get ? (hours ? hours.map((v, i) => ({ key: `${i}`, v, days: [win.to] })) : bucketsOf(win.days, item.get, !!item.sum)) : []);
+  // Idea B: values that add up (cardio load, minutes) show one bar per week from 3 months on (90 day bars are hard to read); the days stay behind a tap
+  const maxDaily = $derived(dailyLimit(!!item?.sum));
+  const pts = $derived(item?.get ? (hours ? hours.map((v, i) => ({ key: `${i}`, v, days: [win.to] })) : bucketsOf(win.days, item.get, !!item.sum, maxDaily)) : []);
+  // Idea C: values that add up have no typical range as a box, but the chart can show where your days or weeks usually lie
+  // (the middle half of the last 3 months, per week when the bars are weeks)
+  const perWeek = $derived(!hours && pts.length > 0 && pts.length < win.days.length);
+  const typBand = $derived.by(() => {
+    if (!item?.sum || !item.get || hours || isDay) return null;
+    return sumBand(windowOf('m3', today).days, item.get, perWeek);
+  });
+  const typShown = $derived(typical ?? typBand);
   const avg7 = $derived(item?.sum || hours ? [] : mean7(pts));
-  const layerPts = $derived(layerItems.map((it) => (hours ? [] : bucketsOf(win.days, it.get, !!it.sum))));
-  const prevPts = $derived(prevYear && item?.get && !hours ? bucketsOf(yearBefore(win.days), item.get, !!item.sum) : []);
+  const layerPts = $derived(layerItems.map((it) => (hours ? [] : bucketsOf(win.days, it.get, !!it.sum, maxDaily))));
+  const prevPts = $derived(prevYear && item?.get && !hours ? bucketsOf(yearBefore(win.days), item.get, !!item.sum, maxDaily) : []);
   const bands = $derived(hours ? [] : tripBands(data.trips, win.days, tripEnd).map((b) => ({ ...b, a: Math.floor(b.a / (pts.length < win.days.length ? 7 : 1)), b: Math.floor(b.b / (pts.length < win.days.length ? 7 : 1)) })));
   const bars = $derived(!!item?.sum || !!item?.bars);
+  // «Zurück zu Heute» (UI-Prüfung A2, Noah «4a»): the page you came from, when it is not Auswerten itself
+  const cameFrom = $derived.by(() => {
+    const b = backOf(herkunft.from);
+    return b ? { href: b.href, label: t(b.place) } : null;
+  });
   // «Touren in dieser Zeit» (UI-Prüfung A2): the past trips inside the shown period, each a way to its tour page (at most 3, newest first)
   const tripsIn = $derived(
     hours || !win.days.length
@@ -101,6 +126,10 @@
           .sort((a, b) => (b.startDate > a.startDate ? 1 : -1))
           .slice(0, 3),
   );
+  // Idea A: the trips of the shown days, each with the mean of the value over its days (newest first)
+  const tours = $derived(hours || !item?.get ? [] : tripRows(data.trips, win.days, tripEnd, item.get, today));
+  const weekPts = $derived(picked ? pts.find((p) => p.days.includes(picked)) : null);
+  const weekly = $derived(!hours && pts.length > 0 && pts.length < win.days.length);
 
   // «Gesundheitssignale» (Noah 03.11.2026): your range of the last 60 days up to the last day shown, and the runs of 3 days or more outside it
   const sig = $derived.by(() => {
@@ -112,7 +141,7 @@
 
   // the scales (Noah «genaue Werte»): round, labelled steps; bars from 0, lines near their values; a layer
   // has its own axis on the right
-  const axis = $derived(axisOf(item, [...pts.map((p) => p.v), ...prevPts.map((p) => p.v), ...(typical ?? [])], num, { zero: bars }));
+  const axis = $derived(axisOf(item, [...pts.map((p) => p.v), ...prevPts.map((p) => p.v), ...(typShown ?? [])], num, { zero: bars }));
   const sc = $derived(axis.sc);
   const laxes = $derived(layerPts.map((lp, i) => axisOf(layerItems[i], lp.map((p) => p.v), num, { zero: !!layerItems[i]?.sum })));
   const lsc = $derived(laxes.map((a) => a.sc));
@@ -153,6 +182,9 @@
   // texts
   const dfmt = (d, o) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const dayText = (d) => dfmt(d, { weekday: 'short', day: 'numeric', month: 'short' });
+  // a bar of a week (Idea B): «6. – 12. Okt.»
+  const weekText = (p) => `${dfmt(p.days[0], { day: 'numeric', month: 'short' })} – ${dfmt(p.days.at(-1), { day: 'numeric', month: 'short' })}`;
+  const pointText = (p, d) => (weekly && p?.days?.length > 1 ? weekText(p) : dayText(d));
   const rangeText = $derived.by(() => {
     if (isDay) return dfmt(win.to, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
     const a = new Date(`${win.from}T12:00:00Z`);
@@ -205,12 +237,16 @@
   // the rows of «Tage»: newest first, the first layer next to it, and what you did the day before
   const rows = $derived(item?.get ? [...win.days].reverse().map((d) => ({ d, v: item.get(d), l: layerItems[0]?.get(d) ?? null })).filter((r) => r.v != null) : []);
   const names = $derived(new Map(data.acts.map((a) => [a.id, actName(a)])));
-  const dayBefore = (d) => {
-    const prev = addDays(d, -1);
-    const ticked = [...new Set(data.log.filter((e) => e.day === prev).map((e) => names.get(e.actId)).filter(Boolean))];
-    const rides = (data.table.get(prev)?.acts ?? []).map((a) => a.sportName ?? a.type).filter(Boolean);
-    return [...new Set([...ticked, ...rides])].slice(0, 2).join(', ') || null;
+  // what was recorded on a day, from every source: Fitbit workouts, your ticks in Aktiv, Strava rides (Idea F)
+  const doneBy = (day, max = 2) => {
+    const ticked = [...new Set(data.log.filter((e) => e.day === day).map((e) => names.get(e.actId)).filter(Boolean))];
+    const rides = (data.table.get(day)?.acts ?? []).map((a) => a.sportName ?? a.type).filter(Boolean);
+    const workouts = data.table.get(day)?.fit?.exercises ?? [];
+    return doneOn({ ticked, rides, workouts }, max);
   };
+  // Idea E: the three highest days of the range, each with what was recorded on it (trip, workout, ride, ticks)
+  const topList = $derived(item?.get && !isDay && !hours ? topDays(win.days, item.get, 3).map((r) => ({ ...r, what: whatText(tripOn(r.day) ? (tripOn(r.day).title ?? tripOn(r.day).name) : '', doneText(doneBy(r.day))) })) : []);
+  const dayBefore = (d) => doneText(doneBy(addDays(d, -1))) || null;
   // every value of the picked day, grouped (D6 short)
   const dayAll = $derived(
     picked
@@ -237,6 +273,12 @@
   };
   const dropLayer = (k) => (layers = layers.filter((x) => x !== k));
   let pick = $state('');
+
+  // Idea D: «How is it calculated?» for the cardio load, with the newest day of the range that has zone minutes as the example
+  const ZONE_NAMES = { light: 'light|loadzone', mod: 'moderate|loadzone', vig: 'hard|loadzone', peak: 'peak|loadzone' };
+  const calcOf = (ex) => ex.parts.map((p) => t('{min} min {zone} ×{f}|analyse', { min: num(p.min), zone: t(ZONE_NAMES[p.zone]), f: p.weight })).join(' + ') + ` = ${t('{n} points|analyse', { n: num(ex.total) })}`;
+  const example = $derived(key === 'cardioLoad' ? lastExample(win.days, (d) => data.table.get(d)?.fit?.hrZones) : null);
+  const exampleText = $derived(example ? t('Example, {day}: {sum}|analyse', { day: dayText(example.day), sum: calcOf(example) }) : t('For example: {sum}|analyse', { sum: calcOf(loadExample(FIXED_EXAMPLE)) }));
 </script>
 
 {#if data.loading}
@@ -246,14 +288,14 @@
 {:else}
   <div class="wv" style="--c: {color}" data-detail={key}>
     <header>
-      <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} />
+      <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/auswerten/analyse', label: t('Analyse|page') }]} here={item.name} back={cameFrom} />
       <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
       <SourceLine src={item.src} stand={standText} data-source={item.src} />
       {#if fstand?.failed}<FitbitStand />{/if}
       {#if tripsIn.length}
         <p class="tripsin" data-trips-in>
           <span>{t('Trips in this time')}</span>
-          {#each tripsIn as tr (tr.id)}<a href={`#/tour/${encodeURIComponent(`t:${tr.id}`)}`}>{tr.title ?? tr.name ?? t('Trip')}<ChevronRight size={12} aria-hidden="true" /></a>{/each}
+          {#each tripsIn as tr (tr.id)}<a href={`#/tour/${encodeURIComponent(`t:${tr.id}`)}`}>{tr.title ?? tr.name ?? t('Trip')}<ChevronRight size={16} strokeWidth={2.5} aria-hidden="true" /></a>{/each}
         </p>
       {/if}
     </header>
@@ -286,7 +328,7 @@
       <section class="card chart" aria-labelledby="wv-course">
         <div class="ch">
           <h2 id="wv-course">{hours ? t('Over the day|analyse') : t('Course|analyse')}</h2>
-          <small>{hours ? t('per hour|analyse') : bars ? t('per day|analyse') : t('points and 7-day mean|analyse')}</small>
+          <small>{hours ? t('per hour|analyse') : bars ? (weekly ? t('per week|analyse') : t('per day|analyse')) : t('points and 7-day mean|analyse')}</small>
         </div>
         {#if !hours}
           <div class="chips" role="group" aria-label={t('Layers|analyse')}>
@@ -324,7 +366,7 @@
                 <rect class="band" x={xOf(b.a, pts.length) - 4} width={Math.max(8, xOf(b.b, pts.length) - xOf(b.a, pts.length) + 8)} y="4" height={H - 20} />
               {/each}
               <GridLines ticks={sc.ticks} y={(x) => yOf(x, sc)} x1={0} x2={W} />
-              {#if typical}<rect class="typ" x="20" width={W - 40} y={yOf(typical[1], sc)} height={Math.max(1, yOf(typical[0], sc) - yOf(typical[1], sc))} />{/if}
+              {#if typShown}<rect class="typ" x="20" width={W - 40} y={yOf(typShown[1], sc)} height={Math.max(1, yOf(typShown[0], sc) - yOf(typShown[1], sc))} data-typ-band />{/if}
               {#if prevPts.length}<path class="prev" d={path(prevPts, sc)} vector-effect="non-scaling-stroke" />{/if}
               {#if bars}
                 {#each pts as p, i (p.key)}
@@ -347,7 +389,7 @@
             {/if}
             {#if picked}
               {@const i = pts.findIndex((p) => p.days.includes(picked))}
-              {#if i >= 0 && pts[i].v != null}<span class="pv num" class:end={xOf(i, pts.length) / W > 0.7} style="left:calc(62px + (100% - 62px) * {xOf(i, pts.length) / W})" data-picked-value>{dayText(picked)}: <b>{v(item, pts[i].v)}{#if unitText(item)}&nbsp;{unitText(item)}{/if}</b></span>{/if}
+              {#if i >= 0 && pts[i].v != null}<span class="pv num" class:end={xOf(i, pts.length) / W > 0.7} style="left:calc(62px + (100% - 62px) * {xOf(i, pts.length) / W})" data-picked-value>{pointText(pts[i], picked)}: <b>{v(item, pts[i].v)}{#if unitText(item)}&nbsp;{unitText(item)}{/if}</b></span>{/if}
             {/if}
             {#if layerItems[0] && laxes[0]}<YTicks ticks={lsc[0].ticks} y={(t) => yOf(t, lsc[0])} h={H} text={laxes[0].text} unit={unitText(layerItems[0])} side="right" color={LAYER_COLORS[0]} width={56} />{/if}
             {#each bandLabels as b, bi (bi)}<span class="bn" style="left:{b.x + 4}px">{b.name}</span>{/each}
@@ -358,17 +400,35 @@
           <ul class="legend">
             <li><i class="lsw" style="background:{color}"></i>{item.name}{#if layerItems.length}&nbsp;({t('left|axis')}){/if}</li>
             {#each layerItems as l, i (l.key)}<li><i class="lsw dash" style="border-color:{LAYER_COLORS[i]}"></i>{l.name}{#if i === 0}&nbsp;({t('right|axis')}){/if}</li>{/each}
-            {#if typical}<li><i class="lsw typ"></i>{t('your typical range|analyse')}</li>{/if}
+            {#if typShown}<li><i class="lsw typ"></i>{typBand && !typical ? (perWeek ? t('your typical range per week|analyse') : t('your typical range per day|analyse')) : t('your typical range|analyse')}</li>{/if}
             {#if prevPts.length}<li><i class="lsw prev"></i>{t('year before|analyse')}</li>{/if}
             {#if bands.length}<li><i class="lsw band"></i>{t('{n} trips, names only where there is room|analyse', { n: bands.length })}</li>{/if}
           </ul>
+          {#if typBand && !typical}<p class="hint" data-typ-note>{perWeek ? t('The grey band: where the middle half of your weeks in the last 3 months lay.|analyse') : t('The grey band: where the middle half of your days in the last 3 months lay.|analyse')}</p>{/if}
           {#if !hours}<p class="hint">{t('Tap a point: the day with all its values (sleep, training, ticks, mood).')}</p>{/if}
           <!-- the points as buttons for the keyboard -->
           <div class="sr">
-            {#each pts as p, i (p.key)}{#if p.v != null}<button type="button" onkeydown={(e) => key2(e, i)} onclick={() => (picked = p.days.at(-1))}>{dayText(p.days.at(-1))}: {v(item, p.v)}</button>{/if}{/each}
+            {#each pts as p, i (p.key)}{#if p.v != null}<button type="button" onkeydown={(e) => key2(e, i)} onclick={() => (picked = p.days.at(-1))}>{pointText(p, p.days.at(-1))}: {v(item, p.v)}</button>{/if}{/each}
           </div>
         {/if}
       </section>
+
+      {#if tours.length}
+        <section class="card tours" aria-labelledby="wv-tours" data-trip-list>
+          <div class="ch"><h2 id="wv-tours">{t('Trips in this range|analyse')}</h2><small>{item.sum ? t('mean per day on the trip|analyse') : t('mean on the trip|analyse')}</small></div>
+          <ul class="tl">
+            {#each allTours ? tours : tours.slice(0, 5) as r (r.id ?? r.from)}
+              <li>
+                <svelte:element this={r.href ? 'a' : 'div'} class="trow" href={r.href ?? undefined} data-trip-row>
+                  <span class="tn"><b>{r.name || t('Trip|analyse')}</b><small>{r.from === r.to ? dfmt(r.from, { day: 'numeric', month: 'short' }) : `${dfmt(r.from, { day: 'numeric', month: 'short' })} – ${dfmt(r.to, { day: 'numeric', month: 'short' })}`}</small></span>
+                  <span class="tv num">{r.avg == null ? t('no value|analyse') : `Ø ${v(item, r.avg)}`}</span>
+                </svelte:element>
+              </li>
+            {/each}
+          </ul>
+          {#if tours.length > 5}<button type="button" class="lk more" data-all-tours onclick={() => (allTours = !allTours)}>{allTours ? t('Show fewer|analyse') : t('Show all {n} trips|analyse', { n: tours.length })}</button>{/if}
+        </section>
+      {/if}
 
       {#if sig}
         <section class="card sig" aria-labelledby="wv-sig" data-signals>
@@ -391,6 +451,20 @@
         </section>
       {/if}
 
+      {#if key === 'cardioLoad' && !hours}
+        <section class="card calc" aria-labelledby="wv-calc">
+          <details data-calc>
+            <summary id="wv-calc">{t('How is it calculated?|analyse')}</summary>
+            <p class="hint">{t('Your watch measures how many minutes your pulse spent in each zone. A minute counts more the higher the zone:|analyse')}</p>
+            <ul class="zw">
+              {#each Object.entries(LOAD_WEIGHTS) as [z, f] (z)}<li><span>{t(ZONE_NAMES[z])}</span><b class="num">×{f}</b></li>{/each}
+            </ul>
+            <p class="ex" data-calc-example>{exampleText}</p>
+            <p class="hint">{t('The points are only to look at, nothing is rated.|analyse')}</p>
+          </details>
+        </section>
+      {/if}
+
       {#if picked}
         <section class="card dayall" aria-labelledby="wv-day" data-day={picked}>
           <div class="ch">
@@ -398,6 +472,13 @@
             <button type="button" class="nav" aria-label={t('Close')} onclick={() => (picked = null)}><X size={18} aria-hidden="true" /></button>
           </div>
           {#if tripOn(picked)}<p class="trip">{t('Trip|analyse')}: {tripOn(picked).title ?? tripOn(picked).name}</p>{/if}
+          {#if weekly && weekPts}
+            <div class="wkdays" role="group" aria-label={t('Days of this week|analyse')} data-week-days>
+              {#each weekPts.days as d (d)}
+                <button type="button" class="wkd" class:on={d === picked} aria-pressed={d === picked} data-week-day={d} onclick={() => (picked = d)}><small>{dfmt(d, { weekday: 'short' })}</small><b class="num">{item.get(d) == null ? '–' : v(item, item.get(d))}</b></button>
+              {/each}
+            </div>
+          {/if}
           {#each dayAll as g (g.key)}
             <h3>{g.name}</h3>
             <ul class="vals">
@@ -410,6 +491,17 @@
             <button type="button" class="btn" onclick={() => (picked = addDays(picked, -1))}><ChevronLeft size={16} aria-hidden="true" />{t('Day before|analyse')}</button>
             <button type="button" class="btn" disabled={picked >= today} onclick={() => (picked = addDays(picked, 1))}>{t('Next day|analyse')}<ChevronRight size={16} aria-hidden="true" /></button>
           </div>
+        </section>
+      {/if}
+
+      {#if topList.length > 1}
+        <section class="card top3" aria-labelledby="wv-top" data-top-days>
+          <div class="ch"><h2 id="wv-top">{t('Highest days|analyse')}</h2><small>{t('with what was recorded|analyse')}</small></div>
+          <ol class="tp">
+            {#each topList as r (r.day)}
+              <li><button type="button" class="tprow" data-top-day={r.day} onclick={() => (picked = r.day)}><span class="tn"><b>{dayText(r.day)}</b><small>{r.what || t('nothing recorded|analyse')}</small></span><span class="tv num">{v(item, r.v)}{#if unitText(item)}<small> {unitText(item)}</small>{/if}</span></button></li>
+            {/each}
+          </ol>
         </section>
       {/if}
 
@@ -431,7 +523,7 @@
               <thead><tr><th>{t('Day|analyse')}</th><th class="n">{item.name}</th>{#if layerItems[0]}<th class="n">{layerItems[0].name}</th>{/if}<th class="n">{t('Done the day before|analyse')}</th></tr></thead>
               <tbody>
                 {#each allDays ? rows : rows.slice(0, 7) as r (r.d)}
-                  <tr><td><button type="button" class="lk" onclick={() => (picked = r.d)}>{dayText(r.d)}</button></td><td class="n num"><b>{v(item, r.v)}</b></td>{#if layerItems[0]}<td class="n num">{v(layerItems[0], r.l)}</td>{/if}<td class="n sm">{dayBefore(r.d) ?? t('nothing ticked|analyse')}</td></tr>
+                  <tr><td><button type="button" class="lk" onclick={() => (picked = r.d)}>{dayText(r.d)}</button></td><td class="n num"><b>{v(item, r.v)}</b></td>{#if layerItems[0]}<td class="n num">{v(layerItems[0], r.l)}</td>{/if}<td class="n sm">{dayBefore(r.d) ?? t('nothing recorded|analyse')}</td></tr>
                 {/each}
               </tbody>
             </table>
@@ -467,13 +559,17 @@
     align-items: center;
     gap: 2px;
     min-height: 44px;
-    color: var(--ink);
+    color: var(--accent);
     font-weight: 600;
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .tripsin a :global(svg) {
+    color: var(--ink);
   }
   .tripsin a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
   }
   .bar {
     display: flex;
@@ -878,6 +974,137 @@
   .trip {
     margin: 6px 0 0;
     color: var(--ink-2);
+  }
+  .calc summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .zw {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+    padding: 0;
+    list-style: none;
+  }
+  .zw li {
+    display: inline-flex;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+  }
+  .ex {
+    margin: 8px 0 0;
+    font-weight: 600;
+  }
+  .tl {
+    display: grid;
+    gap: 2px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .trow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .tn {
+    display: grid;
+    min-width: 0;
+  }
+  .tn b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tn small {
+    color: var(--ink-3);
+  }
+  .tv {
+    flex: none;
+    font-weight: 600;
+  }
+  .wkdays {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    margin: 4px 0 8px;
+  }
+  .wkd {
+    display: grid;
+    gap: 2px;
+    justify-items: center;
+    min-height: 44px;
+    padding: 4px 2px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: inherit;
+    font-size: var(--fs-label);
+    cursor: pointer;
+  }
+  .wkd b {
+    font-size: var(--fs-small);
+    color: var(--ink);
+  }
+  .wkd.on {
+    border-color: var(--c);
+    background: var(--paper-2);
+    font-weight: 600;
+  }
+  .tp {
+    display: grid;
+    gap: 2px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tprow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .tprow .tn {
+    display: grid;
+    min-width: 0;
+  }
+  .tprow .tn small {
+    color: var(--ink-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tprow .tv {
+    flex: none;
+    font-weight: 600;
+  }
+  .tprow .tv small {
+    font-weight: 400;
+    color: var(--ink-3);
   }
   .dnav {
     display: flex;
