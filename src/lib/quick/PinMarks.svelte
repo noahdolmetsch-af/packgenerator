@@ -79,23 +79,55 @@
     if (h1 && hash.replace(/^#\/?/, '') && !found.some((f) => f.title === h1 || f.card === h1)) found.push({ id: `view:${hash}`, view: hash, viewTitle: h1.innerText.trim(), card: h1, title: h1 });
   }
 
-  /** Is a box (page coordinates) free of things to tap and of bars on top? */
+  /** Does any text of this element (its own text nodes, not its children's) lie under a box in the viewport? */
+  function textUnder(el, x0, y0, x1, y1) {
+    for (const n of el.childNodes) {
+      if (n.nodeType !== 3 || !n.nodeValue.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(n);
+      for (const q of range.getClientRects()) {
+        if (q.width > 1 && Math.min(q.right, x1) - Math.max(q.left, x0) > 2 && Math.min(q.bottom, y1) - Math.max(q.top, y0) > 2) return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Is a box (page coordinates) free of things to tap, of text and of bars on top? (UX test 08.11.2026,
+   * finding D1: a pin lay on the last crumb of the breadcrumb and on «+ Setup photo».) The box is 44 px, the
+   * dot in its middle 30 px: first five points of the box (the bars and windows on top, things to tap), then
+   * a grid over the dot, where neither a thing to tap nor a letter may lie.
+   */
   function free(b) {
-    const pts = [
+    const view = (px, py) => [px - scrollX, py - scrollY];
+    for (const [px, py] of [
       [b.x + b.w / 2, b.y + b.h / 2],
       [b.x + 4, b.y + 4],
       [b.x + b.w - 4, b.y + 4],
       [b.x + 4, b.y + b.h - 4],
       [b.x + b.w - 4, b.y + b.h - 4],
-    ];
-    for (const [px, py] of pts) {
-      const x = px - scrollX;
-      const y = py - scrollY;
+    ]) {
+      const [x, y] = view(px, py);
       if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
       const top = document.elementsFromPoint(x, y).find((e) => !layer?.contains(e));
       if (!top) continue;
       if (!top.closest('main')) return false; // a bar or a window on top
       if (top.closest(TAP)) return false;
+    }
+    const inset = (b.w - (b.w * 30) / 44) / 2;
+    const [x0, y0] = view(b.x + inset, b.y + inset);
+    const x1 = x0 + b.w - 2 * inset;
+    const y1 = y0 + b.h - 2 * inset;
+    const seen = new Set();
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 5; j++) {
+        const x = Math.min(innerWidth - 1, Math.max(0, x0 + ((x1 - x0) * i) / 4));
+        const y = Math.min(innerHeight - 1, Math.max(0, y0 + ((y1 - y0) * j) / 4));
+        const e = document.elementsFromPoint(x, y).find((q) => !layer?.contains(q));
+        if (!e || seen.has(e) || !e.closest('main')) continue;
+        seen.add(e);
+        if (e.closest(TAP) || textUnder(e, x0, y0, x1, y1)) return false;
+      }
     }
     return true;
   }
@@ -166,6 +198,13 @@
     };
   });
 
+  /** What the pin says when the pointer rests on it: what it does, for this page or this card (UX test 08.11.2026, 2b-13). */
+  function tip(m, pinned) {
+    if (m.view) return pinned ? t('This page is in your Quick Links. A tap takes it out.') : t('Pin this page to Quick Links, with its filter');
+    const name = t(FEATURE[m.id].title);
+    return pinned ? t('«{name}» is in your Quick Links. A tap takes it out.', { name }) : t('Pin «{name}» to Quick Links', { name });
+  }
+
   const save = (v) => db.settings.put({ key: KEY, value: JSON.parse(JSON.stringify(v)) });
   async function toggle(m) {
     const before = $state.snapshot(s);
@@ -206,7 +245,8 @@
         style:top="{m.y}px"
         aria-pressed={pinned}
         aria-label={m.view ? (pinned ? t('This view is pinned in Quick Links') : t('Pin this view to Quick Links')) : pinned ? t('Pinned in Quick Links') : t('Pin to Quick Links')}
-        title={m.view ? m.viewTitle : t(FEATURE[m.id].title)}
+        title={tip(m, pinned)}
+        data-pinname={m.view ? m.viewTitle : t(FEATURE[m.id].title)}
         data-pinmark={m.view ? null : m.id}
         data-pinview={m.view ?? null}
         onclick={() => toggle(m)}

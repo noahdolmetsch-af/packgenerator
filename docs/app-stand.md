@@ -36,7 +36,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Traum der Woche | `#/trips/dreams` | Kachel auf Heute, die nur erscheint, solange ein Traum passt: ein Traum mit festem Datum zählt herunter (ab 90 Tagen vorher) und zeigt das Wetter für genau seine Tage, sobald sie in der 16-Tage-Vorhersage liegen; ein Traum ohne Datum erscheint, wenn der Monat passt und die nötigen Tage trocken sind. «Fährt durch die Nacht» verlangt zusätzlich Nacht über 5 °C und wenig Wind. Datum und Nacht stellt man im Traum ein (Touren › Träume). |
 | Bild oben auf Heute | `#/` | Gezeichnete Landschaft mit der nächsten Tour und dem Countdown; der Himmel folgt Tageszeit und Wetter. Ein Tipp öffnet die Tour; ausschaltbar unter Ich › Darstellung › Bedienung. |
 | Suche und Assistent | `#/assistent` | Fragen zu eigenen Daten stellen, Funktionen finden und eine Tour durch kurze Fragen vorbereiten. Das leere Suchfeld oben zeigt zuerst «Zuletzt geöffnet»: die letzten fünf Seiten dieses Geräts (dieselbe Liste wie in Quick Links; «Liste vergessen» mit Rückgängig), dann Befehle zum Ausprobieren und die letzten Suchwörter. |
-| Quick Links | `#/quick` | Häufig verwendete Seiten und Kacheln anpinnen und in eigenen Gruppen ordnen. |
+| Quick Links | `#/quick` | Häufig verwendete Seiten und Kacheln anpinnen und in eigenen Gruppen ordnen. Der kleine Pin auf Seiten und Karten (`src/lib/quick/PinMarks.svelte`) liegt nie auf Text oder Knöpfen (wo kein Platz frei ist, steht keiner) und sagt beim Daraufhalten, was er tut. |
 | Funktionskatalog | `#/features` | Funktionen nach Situation, Seite oder Moment entdecken und suchen. |
 | Handbuch | `#/me/handbook` | Voraussetzungen, kurze Anleitungen und Beispiele zu den Funktionen lesen; Rundgänge starten. |
 
