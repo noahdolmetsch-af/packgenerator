@@ -146,7 +146,16 @@
     return n && b ? { trip: n, bike: b } : null;
   });
   const sub = $derived(tn(bikes.length, '{n} bike', '{n} bikes'));
-  const ride = $derived(nextRide ? { id: nextRide.trip.id, text: t('next trip: {trip} on {date} with {bike}', { trip: nextRide.trip.title ?? '', date: dateOf(nextRide.trip.startDate), bike: nextRide.bike.name }) } : null);
+  // V1b: «fits» next to the next trip: the care of the bike of that trip (the same count as Care, Home and Pack), with what falls due before the trip
+  const rideCare = $derived(nextRide ? bikeCare(withVisits(nextRide.bike, visits), { tasks, visits, trip: nextRide.trip, today }) : null);
+  const rideFit = $derived.by(() => {
+    const c = rideCare;
+    if (!c || c.status === 'nodata') return null;
+    if (c.status === 'due') return { tone: 'due', text: tn(c.rows.length, '{n} due', '{n} due'), href: c.href };
+    if (c.soon?.length) return { tone: 'soon', text: tn(c.soon.length, '{n} due by then', '{n} due by then'), href: c.href };
+    return { tone: 'ok', text: t('fits|trip'), href: c.href };
+  });
+  const ride = $derived(nextRide ? { id: nextRide.trip.id, fit: rideFit, text: t('next trip: {trip} on {date} with {bike}', { trip: nextRide.trip.title ?? '', date: dateOf(nextRide.trip.startDate), bike: nextRide.bike.name }) } : null);
 
   /* ---------- Velos 2: the maker and warranty link in the bike's «…» ---------- */
   watchLinks();

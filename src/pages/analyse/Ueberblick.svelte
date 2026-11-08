@@ -10,6 +10,7 @@
   import { valueText, unitText } from '../../lib/analyse/format.js';
   import { ticksPerDay, longestRun, heatWeeks, ranking, perWeek } from '../../lib/analyse/overview.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
+  import Empty from '../../lib/ui/Empty.svelte';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { niceScale, tickText, LABEL_MAX } from '../../lib/charts/axis.js';
   import GridLines from '../../lib/charts/GridLines.svelte';
@@ -56,6 +57,8 @@
     return out;
   });
 
+  // nothing to show in this period: no value of a source that is on, and no tick (the numbers would all be 0)
+  const nothing = $derived(!boxes.some((b) => b.key !== 'ticks' && b.key !== 'run') && (!aktiv || inDays === 0));
   const dfmt = (d, o) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const WD = $derived(Array.from({ length: 7 }, (_, i) => dfmt(`2026-10-${String(5 + i).padStart(2, '0')}`, { weekday: 'short' })));
   // a month name over the first week of each month
@@ -74,7 +77,13 @@
   }
 </script>
 
-<section class="card ov" aria-labelledby="ov-h" data-overview>
+{#if nothing}
+  <Empty
+    text={t('Nothing ticked or recorded in these {n} days yet. Tick an activity in Aktiv or connect Fitbit or Strava, then the overview fills.|overview', { n: days.length })}
+    action={{ label: t('Open Aktiv'), href: '#/flow' }}
+    action2={{ label: t('Connect Fitbit|analyse'), href: '#/me/fitbit' }}
+  />
+{:else}<section class="card ov" aria-labelledby="ov-h" data-overview>
   <h2 id="ov-h" class="sr">{t('Overview|overview')}</h2>
   {#if boxes.length}
     <ul class="boxes">
@@ -153,6 +162,8 @@
       <ul class="legend"><li><i class="lsw"></i>{t('ticks per week|overview')}</li><li><i class="lsw ln"></i>{t('mean of 4 weeks|overview')}</li></ul>
     </section>
   </div>
+{/if}
+
 {/if}
 
 <style>

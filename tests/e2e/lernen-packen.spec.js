@@ -94,8 +94,9 @@ test('Planen: the spare part comes back, the sleep spot nearby, two people, the 
   await expect(hints.locator('[data-spare-add="test_data_gtp_tube"]')).toHaveCount(0);
   expect(await noSideways(page)).toBe(0);
 
-  const card = page.locator('[data-pack-extras]');
-  await expect(card).toContainText(T('Pack faster'));
+  // since «Mehr zu dieser Tour» the four folds sit in three groups: the page is the scope
+  const card = page.locator('main');
+  await expect(card.locator('[data-two]')).toContainText(T('Packing for two'));
 
   // two people
   const two = card.locator('[data-two]');

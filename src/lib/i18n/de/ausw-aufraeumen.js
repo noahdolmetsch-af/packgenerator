@@ -4,4 +4,6 @@ export default {
   'The last one: {sport}, {day}.': 'Die letzte: {sport}, {day}.',
   'See it': 'Ansehen',
   'since Monday': 'seit Montag',
+  // Teil 2: der Reiter «Gipfelbuch» in Auswerten
+  'Passes, summits and places you reached, by bike, on foot or on skis.': 'Pässe, Gipfel und Orte, die du erreicht hast: mit dem Velo, zu Fuss oder auf Ski.',
 };

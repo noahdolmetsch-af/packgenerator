@@ -671,6 +671,7 @@ import tourenb from './tourenb.js';
 import computerbreite from './computerbreite.js';
 // UI-Test 26.10.2026 (T1 and later small parts); spread last
 import uitest from './uitest.js';
+import zurtour from './zur-tour.js';
 import tourkartewege from './tourkarte-wege.js';
 // «Heute ruhiger» (Noah 26.10.2026 «1a»): the small tiles on Heute as one list; spread last
 import heuteruhiger from './heuteruhiger.js';
@@ -1076,6 +1077,7 @@ const ORDERED = [
   tourena2,
   tourenb,
   uitest,
+  zurtour,
   tourkartewege,
   heuteruhiger,
   bereicheanpassen,
