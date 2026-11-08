@@ -1,6 +1,6 @@
 // «Plan ganze App», der Plan-Wächter (Noah 07.11.2026 «a» auf «Wie stellen wir sicher, dass das umgesetzt wird?»).
 // docs/plan-ganze-app.md hält die Schritte des Entwurfs «Die ganze App aus einem Guss» mit ihrem Stand (offen, gebaut, online).
-//  P1  Die Tabelle ist vollständig: alle Schritte 0 bis 8, gültiger Stand, PR-Nummer ab «gebaut», Weg ab «online».
+//  P1  Die Tabelle ist vollständig: alle Schritte 0 bis 8, gültiger Stand (auch «gestrichen»), PR-Nummer ab «gebaut», Weg ab «online».
 //  P2  Ein Schritt, der «online» ist, hat seinen Weg in der App noch (Datei, Text oder Funktion gibt es).
 //  P3  Ein Schritt, der einmal «online» war, wird nicht still zurückgesetzt (tests/fixtures/plan-online.json).
 // Offene Schritte machen den Test nie rot: er zeigt nur, wie weit der Plan ist («Plan: X von Y online»).
@@ -40,14 +40,20 @@ describe('P1 · die Plan-Tabelle ist vollständig', () => {
   });
 
   it('verlangt ab «gebaut» eine PR-Nummer und ab «online» einen Weg', () => {
-    none(rows.filter((r) => r.stand !== 'offen' && !/^#\d+$/.test(r.pr)).map((r) => r.schritt), 'PR-Nummer fehlt (Schreibweise #123)');
+    none(rows.filter((r) => r.stand !== 'offen' && r.stand !== 'gestrichen' && !/^#\d+$/.test(r.pr)).map((r) => r.schritt), 'PR-Nummer fehlt (Schreibweise #123)');
     none(rows.filter((r) => r.stand === 'online' && wegePunkte(r.weg).length === 0).map((r) => r.schritt), 'online ohne Weg');
   });
 
   it('zählt den Stand für die Meldung nach dem Merge', () => {
     const s = planStand(md);
-    expect(s.total).toBe(rows.length);
+    expect(s.total).toBe(rows.filter((r) => r.stand !== 'gestrichen').length);
     expect(s.line).toBe(`Plan: ${s.online} von ${s.total} online`);
+  });
+});
+
+describe('P1b · ein gestrichener Schritt bleibt gestrichen sichtbar', () => {
+  it('führt nur Noahs gestrichenen Schritt 8 als «gestrichen»', () => {
+    expect(rows.filter((r) => r.stand === 'gestrichen').map((r) => r.schritt)).toEqual(['8']);
   });
 });
 

@@ -88,9 +88,11 @@ test('every function is visible on its home page', async ({ page, context }, inf
     // on a phone the cards «Belongs to …» and «All here» start as one line (Etappe 2, 1a): open them, they hold the functions
     await openCards(page);
     // parts that come with the page's data (mosaic, packing rows) can render a moment after settle: look a second time
-    const look = () => page.evaluate(
-      ({ names, screens }) => {
+    const look = (from = false) => page.evaluate(
+      ({ names, screens, from }) => {
         const vh = innerHeight;
+        // an open card counts from its own top: it sits behind the title and holds the functions as a list
+        const base = from ? (document.querySelector('[data-seiteninhalt]')?.getBoundingClientRect().top ?? 0) + scrollY : 0;
         const open = (el) => {
           for (let e = el; e; e = e.parentElement) {
             if (e.tagName === 'DETAILS' && !e.open && !e.querySelector(':scope > summary')?.contains(el)) return false;
@@ -102,10 +104,10 @@ test('every function is visible on its home page', async ({ page, context }, inf
         const els = [...document.querySelectorAll('main *, header *, [role=dialog] *, dialog[open] *')].filter((e) => e.children.length === 0 || /^(BUTTON|A|SUMMARY|H\d|LABEL)$/.test(e.tagName));
         return names.map((n) => {
           const low = n.toLowerCase();
-          return els.some((e) => (e.innerText || e.getAttribute('aria-label') || '').toLowerCase().replace(/[«»★]/g, '').replace(/\s+/g, ' ').includes(low) && open(e) && (e.getBoundingClientRect().top + scrollY) / vh <= screens);
+          return els.some((e) => (e.innerText || e.getAttribute('aria-label') || '').toLowerCase().replace(/[«»★]/g, '').replace(/\s+/g, ' ').includes(low) && open(e) && (e.getBoundingClientRect().top + scrollY - base) / vh <= screens);
         });
       },
-      { names: list.map((x) => x.name), screens: SCREENS },
+      { names: list.map((x) => x.name), screens: SCREENS, from },
     );
     // the 22 switches of «Erinnerungen aufs Handy» sit in four folds (7b-08, Noah «alles»): one tap opens a fold, so each
     // fold is looked at on its own, opened alone (the others closed), like a person who taps it
@@ -124,6 +126,25 @@ test('every function is visible on its home page', async ({ page, context }, inf
       await page.waitForTimeout(1500);
       const again = await lookAll();
       found = found.map((f, i) => f || again[i]);
+    }
+    // since 08.11.2026 (Noah «A») the card «What you can do here» starts as one line on every page and holds functions too: what
+    // the page itself does not show, the card shows once it is open (opened only then: open, it would push the page's own parts down)
+    if (found.includes(false)) {
+      const card = page.locator('[data-seiteninhalt-line]');
+      if (await card.count()) {
+        await card.first().click();
+        await page.locator('[data-seiteninhalt]').waitFor();
+        await page.waitForTimeout(300);
+        let more = await look(true);
+        found = found.map((f, i) => f || more[i]);
+        const all = page.locator('[data-seiteninhalt] .si-all');
+        if (found.includes(false) && (await all.count())) {
+          await all.click();
+          await page.waitForTimeout(300);
+          more = await look(true);
+          found = found.map((f, i) => f || more[i]);
+        }
+      }
     }
     list.forEach((x, i) => found[i] || missing.push(`${x.id} «${x.name}» on ${href}`));
   }

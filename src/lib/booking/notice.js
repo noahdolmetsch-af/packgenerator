@@ -29,7 +29,7 @@ export const bookingNotes = readable([], (set) => {
     set([
       ...all.flatMap((o) => {
         const fresh = unseen(o.bookings, seen, today);
-        return fresh.length ? [{ id: o.id, title: o.title, n: fresh.length, name: fresh[0].name, at: fresh[0].at, ask: fresh.every((b) => b.status === 'requested') }] : [];
+        return fresh.length ? [{ id: o.id, title: o.title, n: fresh.length, name: fresh[0].name, at: fresh[0].at, ask: fresh.every((b) => b.status === 'requested'), wish: fresh.every((b) => b.wish) }] : [];
       }),
       // reminders (Noah 04.11.2026 «2a»): lessons today and tomorrow, with a message Noah sends himself
       // (Noah 08.11.2026: with place and cancel rule, own text possible, switch in the offer)
@@ -58,6 +58,10 @@ export function bookingRow(n) {
   if (n.remind) return reminderRow(n);
   if (n.waitfree) return waitRow(n);
   if (n.fixed) return fixedRow(n);
+  if (n.wish) {
+    const text = n.n === 1 ? t('New wish request: {name} · {title}', { name: n.name, title: n.title }) : t('{n} new wish requests: {title}', { n: n.n, title: n.title });
+    return { key: `book:${n.id}`, tone: 'info', text, act: { label: t('Look'), href: `#/me/offers/${n.id}` } };
+  }
   const when = `${new Date(`${dayOf(n.at)}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric' })} ${timeOf(n.at)}`;
   const text = n.ask
     ? n.n === 1 ? t('New request: {name} · {title} · {when}', { name: n.name, title: n.title, when }) : t('{n} new requests: {title}', { n: n.n, title: n.title })
