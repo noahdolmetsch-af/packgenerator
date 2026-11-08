@@ -34,6 +34,7 @@ export const SECTION_OF = {
   meditation: 'now',
   moment: 'now', // «Heute als Begleiter» PR 4: the moment card sits in the first area, under the habits
   discover: 'now', // PR 5: «Discover» sits under the moment card
+  wochentraum: 'now', // «Traum der Woche» sits under it
   daycard: 'now',
   important: 'now',
   trip: 'now',
