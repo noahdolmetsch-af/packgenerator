@@ -18,7 +18,7 @@
   import { localDay } from '../lib/localday.js';
   import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
-  import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
+  import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin, FileImage } from '@lucide/svelte';
   import { rememberCustomer, listCustomers, saveCustomers, rateOf, packCover } from '../lib/booking/customers.js';
   import { applyVouchers } from '../lib/booking/vouchers.js';
   import { listOutcomes, setOutcome } from '../lib/booking/outcomes.js';
@@ -406,6 +406,7 @@
           </div>
           {#if note}<p class="hint" role="status">{note}</p>{/if}
           <p class="of-fine">{t('They see only free times, never the names of others.')}</p>
+          {#if mine.offer.kind === 'tennis'}<a class="btn" data-flyer-from-offer href={`#/me/tennis/flyer?o=${mine.id}`}><FileImage size={18} aria-hidden="true" />{t('Make a flyer')}</a>{/if}
         </section>
 
         <section class="card" aria-labelledby="of-rules-h">
