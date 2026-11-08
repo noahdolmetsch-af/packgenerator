@@ -70,6 +70,9 @@
     .rings {
       gap: 10px;
     }
+    svg {
+      max-width: 28vw; /* room for the arrow of a way row (the word «Bewegen» must not break) */
+    }
     .nm small {
       display: none;
     }
