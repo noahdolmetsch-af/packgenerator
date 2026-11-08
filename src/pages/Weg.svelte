@@ -319,6 +319,7 @@
       {#if isOpen('goal')}
         <div class="wg-menu" data-weg-menu-panel>
           <label class="wg-startf"><span><CalendarClock size={14} aria-hidden="true" /> {t('Start day')}</span><DateInput value={goal.start} onchange={(v) => putGoal(setStart({ goals: [goal] }, goal.id, v).goals[0])} data-weg-start-edit /></label>
+          <label class="wg-ck"><input type="checkbox" checked={w.onToday} onchange={(e) => save({ ...w, onToday: e.currentTarget.checked })} data-weg-on-today /><span>{t('Show the next step of the way on Today')}</span></label>
           <div class="wg-acts">
             {#if w.goals.length > 1}<SortArrows name={goal.title} i={gi} n={w.goals.length} onstep={stepGoal} />{/if}
             <button type="button" class="btn" onclick={() => { menu = null; renaming = { kind: 'goal' }; }} aria-label={t('Rename {name}', { name: goal.title })}><Pencil size={16} aria-hidden="true" /> {t('Rename')}</button>
@@ -511,6 +512,7 @@
   .wg-goals { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-3); }
   .wg-f { display: grid; gap: var(--sp-1); margin: var(--sp-3) 0; }
   .wg-f > span { font-size: var(--fs-small); font-weight: 600; }
+  .wg-ck { display: flex; gap: var(--sp-2); align-items: center; min-height: 44px; }
   .wg-pick { display: flex; gap: var(--sp-2); align-items: center; min-height: 44px; }
   .wg-acts { display: flex; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
   .wg-sub { font-size: var(--fs-small); color: var(--ink-3); }
