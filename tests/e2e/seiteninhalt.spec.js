@@ -9,9 +9,16 @@ const tap = (loc, info) => (info.project.name === 'phone' ? loc.tap() : loc.clic
 // Since 08.11.2026 (Noah «A») the card starts as one line on every page: this opens it, where the test needs the rows
 async function openCard(page, info) {
   const line = page.locator('[data-seiteninhalt-line]');
-  await expect(line.or(page.locator('[data-seiteninhalt]')).first()).toBeVisible();
-  if (await line.count()) await tap(line, info);
-  await expect(page.locator('[data-seiteninhalt]')).toBeVisible();
+  const card = page.locator('[data-seiteninhalt]');
+  await expect(line.or(card).first()).toBeVisible();
+  // after a change of page the card of the page before can still stand for a moment and then folds: look again once it stood still
+  for (let i = 0; i < 4; i++) {
+    if (await line.count()) await tap(line, info);
+    await expect(card).toBeVisible();
+    await page.waitForTimeout(400);
+    if ((await card.count()) && !(await line.count())) return;
+  }
+  await expect(card).toBeVisible();
 }
 
 test('Dreams shows what you can do here, opens how it works and folds to one line', async ({ page, context }, info) => {
