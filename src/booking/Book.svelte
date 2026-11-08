@@ -11,6 +11,7 @@
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { loadOffer, book, confirmPaid, myBooking, cancelMine, errorText } from '../lib/booking/client.js';
   import { kindOf, dayOf, timeOf, chf, icsOf, BOOK_PAGE } from '../lib/booking/model.js';
+  import Wish from './Wish.svelte';
   import { Volleyball, Tent, Wrench, CalendarDays, Lock, Check, X, CreditCard, Copy } from '@lucide/svelte';
 
   const ICONS = { tennis: Volleyball, tent: Tent, wrench: Wrench, cal: CalendarDays };
@@ -222,7 +223,9 @@
       {#if earlier.length}
         <p class="mine">{t('Your booking:')} {#each earlier as x (x.b)}<a href={`?b=${encodeURIComponent(x.b)}&k=${encodeURIComponent(x.k)}#${offerId}`} onclick={(e) => (e.preventDefault(), (location.href = `${location.pathname}?b=${encodeURIComponent(x.b)}&k=${encodeURIComponent(x.k)}#${offerId}`))}>{fmtAt(x.at)}</a>{/each}</p>
       {/if}
-      {#if !offer.slots.some((s) => s.free > 0)}
+      {#if offer.mode === 'wish'}
+        <Wish {offer} {offerId} />
+      {:else if !offer.slots.some((s) => s.free > 0)}
         <section class="card"><h2>{t('No free times right now')}</h2><p class="muted">{t('Look again later, new times are added regularly.')}</p></section>
       {:else}
         <div class="pgrid">

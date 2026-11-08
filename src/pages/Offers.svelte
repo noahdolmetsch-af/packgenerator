@@ -228,6 +228,25 @@
     if (decision === 'confirm') await rememberCustomer(b);
     await loadBookings();
   }
+  /* wish requests (Noah 08.11.2026 «1c»): no time of their own; Noah confirms one of the wish times and writes to the parents himself */
+  const wishes = $derived((bookings ?? []).filter((b) => b.wish && b.status === 'requested'));
+  const wishDone = $derived((bookings ?? []).filter((b) => b.wish && b.status === 'confirmed' && b.pick != null && dayOf(b.wish.wishes[b.pick] ?? '') >= today));
+  const SOURCE_NAMES = { flyer: 'Flyer', google: 'Google', friends: 'Recommendation', club: 'Club', other: 'Other' };
+  const sourceName = (k) => t(SOURCE_NAMES[k] ?? 'Other');
+  let wishReplied = $state(null); // { b, at }
+  async function answerWish(b, decision, pick = null) {
+    busy = true;
+    error = '';
+    const r = await answerBooking(mine.id, mine.owner, b.id, decision, pick);
+    busy = false;
+    if (!r.ok) return (error = t(errorText(r.code)));
+    if (decision === 'confirm') {
+      wishReplied = { b, at: b.wish.wishes[pick] };
+      await rememberCustomer(b);
+    }
+    await loadBookings();
+  }
+  const wishText = (r) => t('Hello {name}! The lesson is booked: {title} on {when}. See you then!', { name: r.b.name, title: mine?.offer.title ?? '', when: fmtAt(r.at) });
   /* rain or other reasons (Noah 04.11.2026 «1a»): the message offers free times Noah picks; nothing is sent here */
   const alternativesOf = (s) => (mine ? freeAlternatives(mine.offer, bookings ?? [], s.id, s.at > nowAt() ? s.at : nowAt(), 5) : []);
   let unpicked = $state([]); // ids of offered times Noah unticked (the first three start ticked)
@@ -399,6 +418,43 @@
           </section>
         {/if}
 
+        {#if wishes.length || wishDone.length || wishReplied}
+          <section class="card" aria-labelledby="of-wish-h" data-wishes>
+            <div class="of-wh"><h2 id="of-wish-h">{t('Wish requests')}</h2><small class="muted">{tn(wishes.length, '{n} open', '{n} open')}</small></div>
+            {#if error}<p class="err" role="alert">{error}</p>{/if}
+            {#if wishReplied}
+              {@const href = contactHref(wishReplied.b.contact, wishText(wishReplied))}
+              <p role="status">{t('Confirmed. Now tell {name}:', { name: wishReplied.b.name })}</p>
+              <p class="of-note">{wishText(wishReplied)}</p>
+              <div class="of-foot">{#if href}<a class="btn hi" {href}>{t('Write')}</a>{/if}<button type="button" class="btn" onclick={() => (wishReplied = null)}>{t('Done')}</button></div>
+            {/if}
+            {#if wishes.length}
+              <p class="muted">{t('Book the court first, then confirm the time that fits. You write to the parents yourself.')}</p>
+              <ul class="of-list">
+                {#each wishes as b (b.id)}
+                  <li class="of-pp of-rqrow" data-wish>
+                    <span><b>{b.name}</b><small>{b.contact}</small>
+                      <small>{tn(b.wish.kids, '{n} child', '{n} children')}{b.wish.kidNames ? `: ${b.wish.kidNames}` : ''}</small>
+                      {#if b.wish.venues.length}<small>{t('Places|venues')}: {b.wish.venues.join(' · ')}</small>{/if}
+                      {#if b.wish.source}<small>{t('Found me through')}: {sourceName(b.wish.source)}</small>{/if}
+                      {#if b.note}<small class="of-note">{b.note}</small>{/if}</span>
+                    <span class="of-two">
+                      {#each b.wish.wishes as w, i (w)}<button type="button" class="btn hi sm" disabled={busy} onclick={() => answerWish(b, 'confirm', i)} data-wish-pick={i}>{t('Confirm {when}', { when: fmtAt(w) })}</button>{/each}
+                      <button type="button" class="btn sm" disabled={busy} onclick={() => answerWish(b, 'decline')}>{t('Decline')}</button>
+                    </span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+            {#if wishDone.length}
+              <h3 class="of-rq">{t('Confirmed')}</h3>
+              <ul class="of-list">
+                {#each wishDone as b (b.id)}<li class="of-pp"><span><b>{fmtAt(b.wish.wishes[b.pick])}</b><small>{b.name} · {tn(b.wish.kids, '{n} child', '{n} children')}</small></span></li>{/each}
+              </ul>
+            {/if}
+          </section>
+        {/if}
+
         <section class="card" aria-labelledby="of-bk-h">
           <div class="of-wh"><h2 id="of-bk-h">{t('Booked')}</h2>{#if bookings}<small class="muted">{tn(upcoming.length, '{n} ahead', '{n} ahead')}</small>{/if}</div>
           {#if loadErr}<p class="err" role="alert">{loadErr}</p>
@@ -433,7 +489,7 @@
             <li><Clock size={18} aria-hidden="true" /><b>{t('Length')}</b><span>{lengthWord(o)}</span></li>
             <li><Users size={18} aria-hidden="true" /><b>{t('Places|seats')}</b><span>{o.types.map((x) => `${x.label} ${x.places}`).join(' · ')}</span></li>
             <li><CreditCard size={18} aria-hidden="true" /><b>{t('Price')}</b><span>{o.types.map((x) => `${x.label} ${chf(x.price)} CHF`).join(' · ')}</span></li>
-            <li><Bell size={18} aria-hidden="true" /><b>{t('Booking')}</b><span>{o.mode === 'request' ? t('request, you answer within 24 h') : t('booked at once')}</span></li>
+            <li><Bell size={18} aria-hidden="true" /><b>{t('Booking')}</b><span>{o.mode === 'wish' ? t('wish times, you answer within 24 h') : o.mode === 'request' ? t('request, you answer within 24 h') : t('booked at once')}</span></li>
             <li><Repeat size={18} aria-hidden="true" /><b>{t('Payment')}</b><span>{o.pay === 'online' ? t('online (test mode)') : t('on site (cash, TWINT)')}</span></li>
             <li><Bell size={18} aria-hidden="true" /><b>{t('Cancelling')}</b><span>{t('people up to {n} h before · you any time', { n: o.cancelHours })}</span></li>
             {#if o.venues?.length}<li><MapPin size={18} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place|venue')}</b><span>{o.place}</span></li>{/if}
@@ -557,7 +613,7 @@
         <label class="lbl" for="of-min">{t('Length in minutes')}</label><input id="of-min" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.minutes} />
         <label class="lbl" for="of-venues">{t('Places to choose from (separated by commas)')}</label><input id="of-venues" class="inp" bind:value={draft.venuesText} placeholder={t('e.g. Court by the lake, Indoor hall')} />
         <p class="lbl">{t('Booking')}</p>
-        <Seg options={[{ key: 'request', name: t('Request, I answer') }, { key: 'instant', name: t('Booked at once') }]} value={draft.mode} onchange={(k) => (draft.mode = k)} label={t('Booking')} />
+        <Seg options={[{ key: 'request', name: t('Request, I answer') }, ...(mine.offer.kind === 'tennis' || mine.offer.kind === 'own' ? [{ key: 'wish', name: t('Wish time, I answer') }] : []), { key: 'instant', name: t('Booked at once') }]} value={draft.mode} onchange={(k) => (draft.mode = k)} label={t('Booking')} />
         <p class="lbl">{t('Payment')}</p>
         <Seg options={[{ key: 'site', name: t('on site') }, { key: 'online', name: t('online (test)') }]} value={draft.pay} onchange={(k) => (draft.pay = k)} label={t('Payment')} />
         <label class="lbl" for="of-cancel">{t('People may cancel up to … hours before')}</label><input id="of-cancel" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.cancelHours} />
