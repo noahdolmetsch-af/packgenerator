@@ -17,7 +17,9 @@ function rows() {
   }
   const names = ['Alpenrunde Nord', 'Jura Wochenende', 'Seetal Schleife', 'Napf Tagestour', 'Rheinweg', 'Hochland Rundfahrt', 'Abendrunde'];
   const trips = names.map((name, k) => ({ id: `e2e-tl-${k}`, name, domain: 'bike', status: 'done', startDate: addDays(TODAY, -8 - k * 10), days: 2 }));
-  return { healthDays, trips };
+  // only the newest trip has a saved ride
+  const rides = [{ id: 'e2e-tl-r0', date: addDays(TODAY, -8), tripId: 'e2e-tl-0', name: 'Etappe 1' }];
+  return { healthDays, trips, rides };
 }
 
 test('Cardio load: the trips of the range are listed under the course with their mean', async ({ page, context }, info) => {
@@ -43,6 +45,13 @@ test('Cardio load: the trips of the range are listed under the course with their
   await expect(list.locator('[data-trip-row]').first()).toContainText('Alpenrunde Nord');
   await expect(list.locator('[data-trip-row]').first()).toContainText('Ø');
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/analyse-tourliste-${info.project.name}.png`, fullPage: true });
+  // a second tip «Fahrten ›» only on the trip with a saved ride; it opens the list of rides
+  await expect(list.locator('[data-trip-rides]')).toHaveCount(1);
+  await expect(list.locator('[data-trip-rides]')).toHaveText('Fahrten ›');
+  await expect(list.locator('li', { has: page.locator('[data-trip-rides]') })).toContainText('Alpenrunde Nord');
+  await list.locator('[data-trip-rides]').click();
+  await expect(page).toHaveURL(/#\/debrief\/ride$/);
+  await page.goBack();
   // a finished trip opens its page
   await list.locator('a[data-trip-row]').first().click();
   await expect(page).toHaveURL(/#\/tour\/t%3Ae2e-tl-0$/);

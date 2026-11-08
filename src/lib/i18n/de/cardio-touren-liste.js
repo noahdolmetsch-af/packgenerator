@@ -4,5 +4,7 @@ export default {
   'mean per day on the trip|analyse': 'Schnitt pro Tag auf der Tour',
   'mean on the trip|analyse': 'Schnitt auf der Tour',
   'no value|analyse': 'kein Wert',
+  'Rides|analyse': 'Fahrten',
+  'Rides of {trip}|analyse': 'Fahrten von {trip}',
   'Show all {n} trips|analyse': 'Alle {n} Touren zeigen',
 };
