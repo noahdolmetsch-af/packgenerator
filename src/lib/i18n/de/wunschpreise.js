@@ -1,0 +1,20 @@
+// «Preis nach Kinderzahl und Ort» (Noah 08.11.2026 «1a»): Staffelpreise im Wunschformular und im Angebot
+export default {
+  'Price per child': 'Preis pro Kind',
+  'Court included. The parents see the price for the number of children they enter. If a hall is among the ticked places, the hall price counts until you confirm.': 'Platz inklusive. Die Eltern sehen den Preis für die Zahl der Kinder, die sie eingeben. Ist eine Halle unter den angekreuzten Orten, gilt der Hallenpreis, bis du bestätigst.',
+  'Outdoors': 'Draussen',
+  'Hall': 'Halle',
+  '{n} children, outdoors': '{n} Kinder, draussen',
+  '{n} children, hall': '{n} Kinder, Halle',
+  'Which of your places is a hall?': 'Welcher deiner Orte ist eine Halle?',
+  'CHF {perKid} per child · CHF {total} in all · {where}': 'CHF {perKid} pro Kind · CHF {total} insgesamt · {where}',
+  'hall price': 'Hallenpreis',
+  'outdoor price': 'Preis draussen',
+  'Hello {name}! The lesson is booked: {title} on {when}. Price: CHF {perKid} per child. See you then!': 'Guten Tag {name}! Die Stunde ist gebucht: {title} am {when}. Preis: CHF {perKid} pro Kind. Bis dann!',
+  'Price per child, court included': 'Preis pro Kind, Platz inklusive',
+  'Total CHF {total} for one hour, {where}': 'Total CHF {total} für eine Stunde, {where}',
+  'in the hall': 'in der Halle',
+  'outdoors': 'draussen',
+  'A hall is among your places, so the hall price counts until I confirm.': 'Unter Ihren Orten ist eine Halle, darum gilt der Hallenpreis, bis ich bestätige.',
+  'per child': 'pro Kind',
+};

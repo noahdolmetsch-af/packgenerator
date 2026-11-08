@@ -8,7 +8,7 @@
    */
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { sendWish, errorText } from '../lib/booking/client.js';
-  import { addDays } from '../lib/booking/model.js';
+  import { addDays, chf, wishPrice } from '../lib/booking/model.js';
   import { localDay } from '../lib/localday.js';
   import { Check, Plus, Minus, X } from '@lucide/svelte';
 
@@ -47,6 +47,8 @@
     if (places.length === 1 && !chosen.length) chosen = [places[0]];
   });
 
+  // the price by number of children; a hall among the ticked places makes it the hall price (Noah 08.11.2026 «1a»)
+  const price = $derived(wishPrice(offer, chosen, kids));
   const toggle = (v) => (chosen = chosen.includes(v) ? chosen.filter((x) => x !== v) : [...chosen, v]);
   const addRow = () => {
     if (rows.length >= MAX_WISHES) return;
@@ -81,6 +83,7 @@
       <dt>{tn(sent.wish.wishes.length, 'Wish time', 'Wish times')}</dt><dd>{sent.wish.wishes.map((w) => `${fmtDay(w.slice(0, 10))} ${w.slice(11, 16)}`).join(' · ')}</dd>
       {#if sent.wish.venues.length}<dt>{t('Places|venues')}</dt><dd>{sent.wish.venues.join(' · ')}</dd>{/if}
       <dt>{t('Children')}</dt><dd>{sent.wish.kids}</dd>
+      {#if sent.wish.price}<dt>{t('Price')}</dt><dd>CHF {chf(sent.wish.price.perKid)} {t('per child')} · CHF {chf(sent.wish.price.total)}</dd>{/if}
     </dl>
     <p class="muted fine">{t('Please keep your phone or e-mail within reach. I will write to you there.')}</p>
   </section>
@@ -128,6 +131,14 @@
         <button type="button" class="wf-rnd" aria-label={t('One child more')} disabled={kids >= 4} onclick={() => (kids += 1)}><Plus size={20} aria-hidden="true" /></button>
         <span class="muted fine">{t('Children (1 to 4)')}</span>
       </div>
+      {#if price}
+        <div class="wf-price" role="status" aria-live="polite" data-wish-price>
+          <span class="muted fine">{t('Price per child, court included')}</span>
+          <b>CHF {chf(price.perKid)}</b>
+          <span class="muted fine">{t('Total CHF {total} for one hour, {where}', { total: chf(price.total), where: price.hall ? t('in the hall') : t('outdoors') })}</span>
+          {#if price.hall && chosen.length > 1}<span class="muted fine">{t('A hall is among your places, so the hall price counts until I confirm.')}</span>{/if}
+        </div>
+      {/if}
       <label class="wf-l"><span>{t('First names and ages of the children')}</span><input class="inp" bind:value={kidNames} maxlength="120" placeholder={t('e.g. Mia (8), Leo (7)')} /></label>
     </fieldset>
 
@@ -245,6 +256,18 @@
   .wf-rnd:disabled {
     opacity: 0.4;
     cursor: default;
+  }
+  .wf-price {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--hi-soft);
+  }
+  .wf-price b {
+    font-size: var(--fs-section);
+    color: var(--hi);
   }
   .ibtn {
     display: grid;
