@@ -201,6 +201,13 @@ test('Way to the goal › Review: after the start day the steps stand planned ag
   await expect(back.locator('[data-weg-back-row="day"]')).toContainText('Zug buchen');
   await expect(back.locator('[data-weg-back-row="day"]')).toContainText(/\(\+\d+ Tage\)/);
   await expect(back.locator('[data-weg-back-row="missed"]')).toContainText(T('Not done'));
+  const next = page.locator('[data-weg-next]');
+  await expect(next).toContainText('Packprobe');
+  await next.locator('[data-weg-next-later]').click();
+  await expect(next).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-weg-next]')).toHaveCount(0); // «later» rests until tomorrow
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
