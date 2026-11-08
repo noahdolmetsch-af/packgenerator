@@ -136,9 +136,9 @@
     const flat = avg(hilly.slice(0, half).map((r) => r.kmh));
     const steep = avg(hilly.slice(hilly.length - half).map((r) => r.kmh));
     return [
-      { key: 'time', name: t('Speed per ride'), value: n1(series.at(-1).kmh), unit: 'km/h', values: series.map((r) => ({ id: r.id, v: r.kmh })), avg: avg(speeds), foot: t('Ø {a} · fastest {b}', { a: n1(avg(speeds)), b: n1(Math.max(...speeds)) }) },
-      { key: 'climb', name: t('Speed, flat to hilly'), value: null, values: hilly.map((r) => ({ id: r.id, v: r.kmh })), avg: null, foot: t('flat {a} · hilly {b} km/h', { a: n1(flat), b: n1(steep) }) },
-      { key: 'hm', name: t('Climbing per km'), value: num(Math.round(series.at(-1).hmPerKm)), unit: 'Hm', values: series.map((r) => ({ id: r.id, v: r.hmPerKm })), avg: avg(climbs), foot: t('Ø {a} Hm per km', { a: num(Math.round(avg(climbs))) }) },
+      { key: 'time', name: t('Speed per ride'), value: n1(series.at(-1).kmh), unit: 'km/h', values: series.map((r) => ({ id: r.id, v: r.kmh, name: r.name })), avg: avg(speeds), foot: t('Ø {a} · fastest {b}', { a: n1(avg(speeds)), b: n1(Math.max(...speeds)) }) },
+      { key: 'climb', name: t('Speed, flat to hilly'), value: null, values: hilly.map((r) => ({ id: r.id, v: r.kmh, name: r.name })), avg: null, foot: t('flat {a} · hilly {b} km/h', { a: n1(flat), b: n1(steep) }) },
+      { key: 'hm', name: t('Climbing per km'), value: num(Math.round(series.at(-1).hmPerKm)), unit: 'Hm', values: series.map((r) => ({ id: r.id, v: r.hmPerKm, name: r.name })), avg: avg(climbs), foot: t('Ø {a} Hm per km', { a: num(Math.round(avg(climbs))) }) },
     ];
   });
 </script>
@@ -217,7 +217,7 @@
             <li class="mini">
               <span class="ml">{c.name}</span>
               {#if c.value != null}<span class="mv"><b class="num">{c.value}</b> <span class="u">{c.unit}</span></span>{/if}
-              <MiniBars values={c.values} mark={newest} avg={c.avg} label={c.name} />
+              <MiniBars id="pace-{c.key}" values={c.values} mark={newest} avg={c.avg} unit={c.unit ?? 'km/h'} label={c.name} />
               <span class="mf num">{c.foot}</span>
             </li>
           {/each}
@@ -382,7 +382,7 @@
   }
   .minis {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
     gap: 10px;
   }
   .mini {
