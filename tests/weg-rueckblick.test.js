@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { lookBack, sayDiff } from '../src/lib/weg/rueckblick.js';
-import { setDone, applyAuto, stepOf } from '../src/lib/weg/weg.js';
+import { lookBack, sayDiff, nextTime } from '../src/lib/weg/rueckblick.js';
+import { setDone, applyAuto, stepOf, setNext, templateOf } from '../src/lib/weg/weg.js';
 
 const step = (o) => ({ id: o.id, type: 'own', title: o.id, offset: null, due: '', done: false, by: '', ...o });
 const goal = (steps, start = '2026-05-15') => ({ id: 'g', title: 'Rennen im Mai', kind: 'race', start, steps });
@@ -43,5 +43,22 @@ describe('weg review planned against actual', () => {
     expect(stepOf({ id: 'a', done: true, doneAt: 'x' }).doneAt).toBe('');
     const auto = applyAuto(g, [{ type: 'own', auto: () => true }], { today: '2026-05-06' });
     expect(auto.steps[0]).toMatchObject({ done: true, by: 'auto', doneAt: '2026-05-06' });
+  });
+
+  it('next time: asks about the first missed step, answers and «later» keep it quiet, the template moves it earlier', () => {
+    const g = goal([step({ id: 'a', title: 'Packprobe', due: '2026-05-01' }), step({ id: 'b', title: 'Check', offset: 40 }), step({ id: 'ok', due: '2026-05-02', done: true, doneAt: '2026-05-02' })]);
+    expect(nextTime(g, '2026-05-10')).toBeNull(); // start not over
+    expect(nextTime(g, '2026-06-01')).toMatchObject({ id: 'b', title: 'Check', weeks: 2 }); // earliest planned day first
+    const later = setNext(g, 'b', 'later', '2026-06-01');
+    expect(nextTime(later, '2026-06-01').id).toBe('a');
+    expect(nextTime(later, '2026-06-02').id).toBe('b'); // back the day after
+    const yes = setNext(later, 'b', 'earlier');
+    expect(yes.steps[1]).toMatchObject({ next: 'earlier', later: '' });
+    const done = setNext(yes, 'a', 'keep');
+    expect(nextTime(done, '2026-06-02')).toBeNull();
+    const tpl = templateOf({ ...g, steps: done.steps });
+    expect(tpl.find((x) => x.title === 'Check').offset).toBe(54);
+    expect(tpl.find((x) => x.title === 'Packprobe').offset).toBe(14);
+    expect(stepOf({ id: 'a', next: 'x', later: 'y' })).toMatchObject({ next: '', later: '' });
   });
 });
