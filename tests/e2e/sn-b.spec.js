@@ -51,8 +51,12 @@ test('Rückblick: state pills, the missing debrief on top with Undo, the figures
   await expect(tiles).toHaveCount(4);
   const trips = int(await tiles.first().locator('b').textContent());
   const pillN = async (i) => int((await pills.nth(i).locator('.x').textContent()) ?? '');
-  expect((await pillN(0)) + (await pillN(1)), 'Abgeschlossen + Bewertet = the trips of the period').toBe(trips);
-  await expect(page.locator('.hub .head .page-sub')).toHaveText(`${T('12 months')} · ${T('{n} trips ridden', { n: trips })}`);
+  // Noah 08.11.2026 «1-5 a»: the pills count every row of the period (trips and uploaded rides), as Touren and Logbuch;
+  // the line under the title names how many of them are uploaded rides, so the sum is always visible
+  const sub = (await page.locator('.hub .head .page-sub').textContent()) ?? '';
+  const rides = Number(sub.match(/· (\d+) (?:hochgeladene|uploaded)/)?.[1] ?? 0);
+  expect((await pillN(0)) + (await pillN(1)), 'Abgeschlossen + Bewertet = the trips and uploaded rides of the period').toBe(trips + rides);
+  await expect(page.locator('.hub .head .page-sub')).toContainText(`${T('12 months')} · ${T('{n} trips ridden', { n: trips })}`);
 
   // the trip whose debrief is missing: one main button «Rückblick schreiben» (Impeccable Rückblick 2), a quiet «Nicht gefahren»
   const hero = page.locator('[data-open-debrief]');

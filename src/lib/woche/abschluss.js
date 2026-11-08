@@ -22,15 +22,16 @@ const count = (list) => {
 
 /**
  * days: the days of buildWeek ({ day, entries: [{ id, kind, title, done, own }] }); monday and today: YYYY-MM-DD.
- * → { done: { sessions, tasks, n }, open: { sessions, tasks, n }, move: [{ id, title, day, kind }], next: next Monday }
+ * trips: how many trips stand in the week (week.sums.trips; Noah 08.11.2026 «1-5 a»: a week with a trip is not «nothing planned»).
+ * → { done: { sessions, tasks, n }, open: { sessions, tasks, n }, move: [{ id, title, day, kind }], trips, next: next Monday }
  */
-export function weekClose(days = [], monday, today) {
+export function weekClose(days = [], monday, today, trips = 0) {
   const all = days.flatMap((d) => (d.entries ?? []).map((e) => ({ ...e, day: d.day })));
   const mine = all.filter((e) => e.kind === 'sport' || TASKS.includes(e.kind));
   const done = mine.filter((e) => e.done);
   const open = mine.filter((e) => !e.done && (e.kind !== 'sport' || e.day <= today));
   const move = all.filter((e) => e.own && TASKS.includes(e.kind) && !e.done).map((e) => ({ id: e.id, title: e.title, day: e.day, kind: e.kind }));
-  return { done: count(done), open: count(open), move, next: shiftDay(monday, 7) };
+  return { done: count(done), open: count(open), move, trips, next: shiftDay(monday, 7) };
 }
 
 /** The items with the chosen ids put on a day (the time stays); the others are left as they are. */
