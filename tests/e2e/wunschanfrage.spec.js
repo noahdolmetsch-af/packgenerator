@@ -82,7 +82,7 @@ test('a wish request with places and times: Heute shows it, Noah confirms one wi
   await expect(card.locator('[data-wish]')).toHaveCount(0);
 });
 
-test('an offer in mode «request» shows no wish form', async ({ page }) => {
+test('an offer in mode request shows no wish form', async ({ page }) => {
   await page.goto('./#/me/offers');
   await page.locator('.of-chips .btn').first().click();
   const id = page.url().split('/').at(-1);
