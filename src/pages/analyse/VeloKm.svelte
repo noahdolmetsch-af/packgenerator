@@ -12,6 +12,7 @@
   import { withVisits } from '../../lib/workshop.js';
   import { wearRows } from '../../lib/wear.js';
   import { bikesHash } from '../../lib/bikes.js';
+  import { velosHref } from '../../lib/analyse/jump.js';
   import { bikeWeeks, bikeTotals } from '../../lib/analyse/bikes.js';
   import { SERIES_COLORS } from '../../lib/analyse/diagram.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
@@ -19,12 +20,15 @@
   import GridLines from '../../lib/charts/GridLines.svelte';
   import YTicks from '../../lib/charts/YTicks.svelte';
 
-  let { days = [], today } = $props();
+  let { days = [], today, only = null } = $props();
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
   const entriesQ = liveQuery(() => db.kmBook.toArray());
-  const bikes = $derived(($bikesQ ?? []).filter((b) => b && !b.archived));
+  const allBikes = $derived(($bikesQ ?? []).filter((b) => b && !b.archived));
+  // «only»: one bike (a link from its km on Velos); an unknown or archived one shows all bikes
+  const one = $derived(only ? allBikes.find((b) => b.id === only) ?? null : null);
+  const bikes = $derived(one ? [one] : allBikes);
   const entries = $derived($entriesQ ?? []);
   const WEEKS = 12;
   const totals = $derived(bikeTotals(entries, bikes, days));
@@ -60,6 +64,9 @@
 {#if bikes.length}
   <section class="card vk" aria-labelledby="vk-h" data-bike-km>
     <div class="ch"><h2 id="vk-h">{t('Bikes: km and wear|bikesan')}</h2><small>{t('km book · counted rides|bikesan')}</small></div>
+    {#if one}
+      <p class="only" data-bike-only>{t('Only {bike}', { bike: one.name })} <a href={velosHref()} data-bike-all>{t('All bikes|analyse')}</a></p>
+    {/if}
     {#if totals.length}
       <ul class="tot">
         {#each totals as r, i (r.bike.id)}
@@ -122,6 +129,21 @@
 {/if}
 
 <style>
+  .only {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    margin: 0;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .only a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--accent);
+  }
   .vk {
     display: flex;
     flex-direction: column;

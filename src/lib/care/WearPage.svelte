@@ -22,6 +22,7 @@
   import { FLAG_KINDS, flagChange, wearRows, weeklyKm, lifeChange, addableParts, servicePeriods, serviceDropDay, WEEKS } from '../wear.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { offerDone } from '../ui/rename.svelte.js';
+  import { changeList, restoreLists, loadLists } from '../frei/shoplist.js'; // «Verschleiss → Einkaufsliste» (UI-Prüfung 07.11.2026, V1)
   import VeloHead from '../bikes/VeloHead.svelte';
   import QuickLinks from '../ui/QuickLinks.svelte';
   import ChainRotation from './ChainRotation.svelte';
@@ -60,6 +61,13 @@
   const srcText = (life) => (life.source === 'learned' ? tn(life.n, 'learned from {n} change', 'learned from {n} changes') : life.source ? t(SOURCE[life.source]) : '');
   const flagName = (why) => t(FLAG_KINDS.find((k) => k.key === why)?.name ?? 'Something else');
   const whyText = (r) => (r.why === 'flag' ? '' : r.why === 'measured' ? t('your last measurement says so') : r.why === 'work' ? t('work needed') : '');
+
+  // V1b: a part that is due or soon goes on the shopping list in one tap (Undo), and the list is one tap away
+  async function toShop(r) {
+    const before = await loadLists();
+    await changeList([r.name], t('Shopping list'));
+    offerDone(t('"{name}" is on the shopping list.', { name: r.name }), () => restoreLists(before));
+  }
 
   let editing = $state(null); // part key
   let lifeText = $state('');
@@ -229,6 +237,7 @@
             {:else if r.key === 'chain' && r.km != null}
               <p class="quiet" data-wear-meas="none">{t('Measure the chain with a chain checker: the forecast gets more exact.')}</p>
             {/if}
+            {#if r.state === 'soon' || r.state === 'due'}<p class="quiet shopline"><button type="button" class="btn sm" onclick={() => toShop(r)} data-wear-shop={r.key}>{t('On the shopping list')}</button> <a href="#/me/alltag/einkauf" data-wear-shop-open>{t('Open the shopping list')}</a></p>{/if}
             {#if (r.state === 'soon' || r.state === 'due') && bestFor(stats, r.key)}<p class="quiet" data-wear-best>{t('Lasted longest for you: {brand}, about {km} km', { brand: bestFor(stats, r.key).brand, km: num(bestFor(stats, r.key).km) })}</p>{/if}
             {#if r.since}<p class="quiet num">{t('Since the last service on {date}: {km} km', { date: dateOf(r.since.date), km: num(r.since.km) })}</p>{/if}
             <p class="quiet src">{r.life.km ? t('Lasts about {km} km', { km: num(r.life.km) }) : ''}{r.life.km ? ` · ${srcText(r.life)}` : ''}{#if r.cost}{' · '}{t('CHF {chf} per 1000 km', { chf: num(r.cost.chf) })}{/if}</p>
@@ -340,6 +349,18 @@
   .quiet {
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  .shopline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+  }
+  .shopline a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--accent);
   }
   .chips {
     display: flex;

@@ -25,7 +25,10 @@
   import { addDays } from '../../lib/analyse.js';
   import { LOAD_WEIGHTS } from '../../lib/analyse/own.js';
   import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
+  import { tripRows } from '../../lib/analyse/tourliste.js';
   import { dailyLimit } from '../../lib/analyse/wochenbalken.js';
+  import { sumBand } from '../../lib/analyse/ueblich.js';
+  import { doneOn, doneText } from '../../lib/analyse/tagdavor.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
   import { health } from '../../lib/health/client.svelte.js';
@@ -54,6 +57,7 @@
   let prevYear = $state(mine.prevYear === true);
   let picked = $state(null);
   let allDays = $state(false);
+  let allTours = $state(false);
   $effect(() => {
     try {
       const all = JSON.parse(localStorage.getItem(LS) ?? '{}') ?? {};
@@ -94,6 +98,14 @@
   // Idea B: values that add up (cardio load, minutes) show one bar per week from 3 months on (90 day bars are hard to read); the days stay behind a tap
   const maxDaily = $derived(dailyLimit(!!item?.sum));
   const pts = $derived(item?.get ? (hours ? hours.map((v, i) => ({ key: `${i}`, v, days: [win.to] })) : bucketsOf(win.days, item.get, !!item.sum, maxDaily)) : []);
+  // Idea C: values that add up have no typical range as a box, but the chart can show where your days or weeks usually lie
+  // (the middle half of the last 3 months, per week when the bars are weeks)
+  const perWeek = $derived(!hours && pts.length > 0 && pts.length < win.days.length);
+  const typBand = $derived.by(() => {
+    if (!item?.sum || !item.get || hours || isDay) return null;
+    return sumBand(windowOf('m3', today).days, item.get, perWeek);
+  });
+  const typShown = $derived(typical ?? typBand);
   const avg7 = $derived(item?.sum || hours ? [] : mean7(pts));
   const layerPts = $derived(layerItems.map((it) => (hours ? [] : bucketsOf(win.days, it.get, !!it.sum, maxDaily))));
   const prevPts = $derived(prevYear && item?.get && !hours ? bucketsOf(yearBefore(win.days), item.get, !!item.sum, maxDaily) : []);
@@ -113,6 +125,8 @@
           .sort((a, b) => (b.startDate > a.startDate ? 1 : -1))
           .slice(0, 3),
   );
+  // Idea A: the trips of the shown days, each with the mean of the value over its days (newest first)
+  const tours = $derived(hours || !item?.get ? [] : tripRows(data.trips, win.days, tripEnd, item.get, today));
   const weekPts = $derived(picked ? pts.find((p) => p.days.includes(picked)) : null);
   const weekly = $derived(!hours && pts.length > 0 && pts.length < win.days.length);
 
@@ -126,7 +140,7 @@
 
   // the scales (Noah «genaue Werte»): round, labelled steps; bars from 0, lines near their values; a layer
   // has its own axis on the right
-  const axis = $derived(axisOf(item, [...pts.map((p) => p.v), ...prevPts.map((p) => p.v), ...(typical ?? [])], num, { zero: bars }));
+  const axis = $derived(axisOf(item, [...pts.map((p) => p.v), ...prevPts.map((p) => p.v), ...(typShown ?? [])], num, { zero: bars }));
   const sc = $derived(axis.sc);
   const laxes = $derived(layerPts.map((lp, i) => axisOf(layerItems[i], lp.map((p) => p.v), num, { zero: !!layerItems[i]?.sum })));
   const lsc = $derived(laxes.map((a) => a.sc));
@@ -222,12 +236,14 @@
   // the rows of «Tage»: newest first, the first layer next to it, and what you did the day before
   const rows = $derived(item?.get ? [...win.days].reverse().map((d) => ({ d, v: item.get(d), l: layerItems[0]?.get(d) ?? null })).filter((r) => r.v != null) : []);
   const names = $derived(new Map(data.acts.map((a) => [a.id, actName(a)])));
-  const dayBefore = (d) => {
-    const prev = addDays(d, -1);
-    const ticked = [...new Set(data.log.filter((e) => e.day === prev).map((e) => names.get(e.actId)).filter(Boolean))];
-    const rides = (data.table.get(prev)?.acts ?? []).map((a) => a.sportName ?? a.type).filter(Boolean);
-    return [...new Set([...ticked, ...rides])].slice(0, 2).join(', ') || null;
+  // what was recorded on a day, from every source: Fitbit workouts, your ticks in Aktiv, Strava rides (Idea F)
+  const doneBy = (day, max = 2) => {
+    const ticked = [...new Set(data.log.filter((e) => e.day === day).map((e) => names.get(e.actId)).filter(Boolean))];
+    const rides = (data.table.get(day)?.acts ?? []).map((a) => a.sportName ?? a.type).filter(Boolean);
+    const workouts = data.table.get(day)?.fit?.exercises ?? [];
+    return doneOn({ ticked, rides, workouts }, max);
   };
+  const dayBefore = (d) => doneText(doneBy(addDays(d, -1))) || null;
   // every value of the picked day, grouped (D6 short)
   const dayAll = $derived(
     picked
@@ -347,7 +363,7 @@
                 <rect class="band" x={xOf(b.a, pts.length) - 4} width={Math.max(8, xOf(b.b, pts.length) - xOf(b.a, pts.length) + 8)} y="4" height={H - 20} />
               {/each}
               <GridLines ticks={sc.ticks} y={(x) => yOf(x, sc)} x1={0} x2={W} />
-              {#if typical}<rect class="typ" x="20" width={W - 40} y={yOf(typical[1], sc)} height={Math.max(1, yOf(typical[0], sc) - yOf(typical[1], sc))} />{/if}
+              {#if typShown}<rect class="typ" x="20" width={W - 40} y={yOf(typShown[1], sc)} height={Math.max(1, yOf(typShown[0], sc) - yOf(typShown[1], sc))} data-typ-band />{/if}
               {#if prevPts.length}<path class="prev" d={path(prevPts, sc)} vector-effect="non-scaling-stroke" />{/if}
               {#if bars}
                 {#each pts as p, i (p.key)}
@@ -381,10 +397,11 @@
           <ul class="legend">
             <li><i class="lsw" style="background:{color}"></i>{item.name}{#if layerItems.length}&nbsp;({t('left|axis')}){/if}</li>
             {#each layerItems as l, i (l.key)}<li><i class="lsw dash" style="border-color:{LAYER_COLORS[i]}"></i>{l.name}{#if i === 0}&nbsp;({t('right|axis')}){/if}</li>{/each}
-            {#if typical}<li><i class="lsw typ"></i>{t('your typical range|analyse')}</li>{/if}
+            {#if typShown}<li><i class="lsw typ"></i>{typBand && !typical ? (perWeek ? t('your typical range per week|analyse') : t('your typical range per day|analyse')) : t('your typical range|analyse')}</li>{/if}
             {#if prevPts.length}<li><i class="lsw prev"></i>{t('year before|analyse')}</li>{/if}
             {#if bands.length}<li><i class="lsw band"></i>{t('{n} trips, names only where there is room|analyse', { n: bands.length })}</li>{/if}
           </ul>
+          {#if typBand && !typical}<p class="hint" data-typ-note>{perWeek ? t('The grey band: where the middle half of your weeks in the last 3 months lay.|analyse') : t('The grey band: where the middle half of your days in the last 3 months lay.|analyse')}</p>{/if}
           {#if !hours}<p class="hint">{t('Tap a point: the day with all its values (sleep, training, ticks, mood).')}</p>{/if}
           <!-- the points as buttons for the keyboard -->
           <div class="sr">
@@ -392,6 +409,23 @@
           </div>
         {/if}
       </section>
+
+      {#if tours.length}
+        <section class="card tours" aria-labelledby="wv-tours" data-trip-list>
+          <div class="ch"><h2 id="wv-tours">{t('Trips in this range|analyse')}</h2><small>{item.sum ? t('mean per day on the trip|analyse') : t('mean on the trip|analyse')}</small></div>
+          <ul class="tl">
+            {#each allTours ? tours : tours.slice(0, 5) as r (r.id ?? r.from)}
+              <li>
+                <svelte:element this={r.href ? 'a' : 'div'} class="trow" href={r.href ?? undefined} data-trip-row>
+                  <span class="tn"><b>{r.name || t('Trip|analyse')}</b><small>{r.from === r.to ? dfmt(r.from, { day: 'numeric', month: 'short' }) : `${dfmt(r.from, { day: 'numeric', month: 'short' })} – ${dfmt(r.to, { day: 'numeric', month: 'short' })}`}</small></span>
+                  <span class="tv num">{r.avg == null ? t('no value|analyse') : `Ø ${v(item, r.avg)}`}</span>
+                </svelte:element>
+              </li>
+            {/each}
+          </ul>
+          {#if tours.length > 5}<button type="button" class="lk more" data-all-tours onclick={() => (allTours = !allTours)}>{allTours ? t('Show fewer|analyse') : t('Show all {n} trips|analyse', { n: tours.length })}</button>{/if}
+        </section>
+      {/if}
 
       {#if sig}
         <section class="card sig" aria-labelledby="wv-sig" data-signals>
@@ -475,7 +509,7 @@
               <thead><tr><th>{t('Day|analyse')}</th><th class="n">{item.name}</th>{#if layerItems[0]}<th class="n">{layerItems[0].name}</th>{/if}<th class="n">{t('Done the day before|analyse')}</th></tr></thead>
               <tbody>
                 {#each allDays ? rows : rows.slice(0, 7) as r (r.d)}
-                  <tr><td><button type="button" class="lk" onclick={() => (picked = r.d)}>{dayText(r.d)}</button></td><td class="n num"><b>{v(item, r.v)}</b></td>{#if layerItems[0]}<td class="n num">{v(layerItems[0], r.l)}</td>{/if}<td class="n sm">{dayBefore(r.d) ?? t('nothing ticked|analyse')}</td></tr>
+                  <tr><td><button type="button" class="lk" onclick={() => (picked = r.d)}>{dayText(r.d)}</button></td><td class="n num"><b>{v(item, r.v)}</b></td>{#if layerItems[0]}<td class="n num">{v(layerItems[0], r.l)}</td>{/if}<td class="n sm">{dayBefore(r.d) ?? t('nothing recorded|analyse')}</td></tr>
                 {/each}
               </tbody>
             </table>
@@ -948,6 +982,40 @@
   }
   .ex {
     margin: 8px 0 0;
+    font-weight: 600;
+  }
+  .tl {
+    display: grid;
+    gap: 2px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .trow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .tn {
+    display: grid;
+    min-width: 0;
+  }
+  .tn b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tn small {
+    color: var(--ink-3);
+  }
+  .tv {
+    flex: none;
     font-weight: 600;
   }
   .wkdays {

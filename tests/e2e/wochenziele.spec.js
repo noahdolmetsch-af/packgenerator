@@ -96,3 +96,25 @@ test('WG-3 all reached: the card says so and leads to the week in review', async
   await expect(card.locator('[data-wg-next] a')).toHaveAttribute('href', '#/flow/review');
   await shot(page, info, 'WG3-erreicht', card);
 });
+
+test('WG-4 ways: a week goal and a ring row lead to their value in Analyse (44 px)', async ({ page, context }, info) => {
+  await open(page, context);
+  const card = page.locator('#wg-h').locator('xpath=ancestor::section[1]');
+  await card.locator('[data-wg-add="meditation"]').click();
+  await card.locator('[data-wg-add="km"]').click();
+  const med = card.locator('[data-wg-way="act:meditation"]');
+  await expect(med).toHaveAttribute('href', '#/auswerten/analyse/act%3Ameditation?zeit=w');
+  await expect(card.locator('[data-wg-way="km"]')).toHaveAttribute('href', '#/auswerten/analyse/km%3Abike?zeit=w');
+  expect((await med.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  await expect(med.locator('[data-wg-line]')).toHaveText('1× von 2×');
+  const rings = page.locator('[data-ring-way]');
+  await expect(rings).toHaveCount(3);
+  for (const r of await rings.all()) {
+    expect((await r.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    expect(await r.getAttribute('href')).toMatch(/^#\/(auswerten\/analyse\/act%3A[^/]+\?zeit=w|flow\/auswertung)$/);
+  }
+  await shot(page, info, 'WG4-wege', page.locator('#ring-h').locator('xpath=ancestor::section[1]'));
+  await med.click();
+  await expect(page).toHaveURL(/#\/auswerten\/analyse\/act%3Ameditation\?zeit=w$/);
+  await expect(page.locator('main')).toContainText(T('Meditation'));
+});
