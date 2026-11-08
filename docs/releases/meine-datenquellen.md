@@ -23,7 +23,7 @@ PR folgt · 07.11.2026 · Auftrag: Noah «1a» (Thread «Tour A–Z / Datencente
 - keine neuen
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- Tour A–Z / Datencenter, Schritt 0 (Datenquellen-Seite): gebaut. Danach: Tour-Pfad (Schritt 1).
+- Plan «ganze App»: Schritt 0a steht auf online (#1136), 0b auf gebaut (#1143); nach dem Merge auf online. Danach: Tour-Pfad (Schritt 1).
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Ich › Verbindungen öffnen, unten an der Liste «Sieh, woher deine Zahlen kommen» antippen: «Meine Datenquellen» öffnet sich.
