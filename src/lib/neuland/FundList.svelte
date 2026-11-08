@@ -83,8 +83,9 @@
   }
   .fl-t {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     min-width: 0;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
   }
   .fl-t small {
     color: var(--ink-3);
