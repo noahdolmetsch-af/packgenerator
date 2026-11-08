@@ -53,6 +53,7 @@ export const TAB_INFO = {
   'analysis:milestones': ['star', 'Stars and trophies of every sport.'],
   'analysis:heatmap': ['map', 'All your rides on one map, stronger where you ride often.'],
   'analysis:neuland': ['compass', 'Cantons, passes, huts and more you reached for the first time.'],
+  'analysis:gipfel': ['mountain', 'Passes, summits and places you reached, by bike, on foot or on skis.'],
   'analysis:learned': ['lightbulb', 'What the app learned from your tours: month card and year letter.'],
   'analysis:year': ['book', 'Your trips of a year as a picture story.'],
   'active:today': ['sun', 'Tick off today, rings and the week'],

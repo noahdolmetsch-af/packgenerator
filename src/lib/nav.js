@@ -430,7 +430,7 @@ export const PLACE_TABS = {
     { key: 'today', label: 'Today|active', href: '#/flow', match: (h) => /^#\/flow(\/week|\/review)?\/?$/.test(h.split('?')[0]) },
     // Noah «4a» (Runde 2): «Ziele», «Aktivität» and «Sportarten» are one list; every sport has its page.
     // Meditation is a sport too (Runde 3 «1b»): its pages are under this tab.
-    { key: 'sports', label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|act|gipfelbuch|bags)(\/|\?|$)/.test(h) },
+    { key: 'sports', label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|act|bags)(\/|\?|$)/.test(h) },
     // «Training» TR2 (Noah 13.10.2026 «1-5a»); Runde 2 «1b»: it stays in Aktiv, with the training plans
     { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|plans)(\/|\?|$)/.test(h) },
     // Runde 3 «2a»: «Erholung» stays its own tab (the ring, the list to tick)
@@ -461,13 +461,15 @@ export const PLACE_TABS = {
     // in Auswerten; their addresses stay, and Touren › Rückblick still has its buttons to them
     { key: 'heatmap', label: 'Heatmap', href: '#/heatmap', match: (h) => h.startsWith('#/heatmap') },
     { key: 'neuland', label: 'New ground', href: '#/neuland', match: (h) => h.startsWith('#/neuland') },
+    // «Auswerten aufräumen» (Noah 07.11.2026 «4a»): the summit book is a tab here; the six link cards of the start are gone
+    { key: 'gipfel', label: 'Summit book', href: '#/flow/gipfelbuch', match: (h) => /^#\/flow\/gipfelbuch(\/|\?|$)/.test(h) },
     { key: 'learned', label: 'Learned|review', href: '#/gelernt', match: (h) => h.startsWith('#/gelernt') },
     { key: 'year', label: 'Year|tab', href: '#/jahr', match: (h) => /^#\/jahr(\/|\?|$)/.test(h) },
   ],
 };
 
 /** «Aktiv neu»: the addresses of #/flow that belong to Auswerten. */
-const LOOK_FLOW = /^#\/flow\/(form|stats|auswertung|milestones|trophies|ideen)(\/|\?|$)/;
+const LOOK_FLOW = /^#\/flow\/(form|stats|auswertung|milestones|trophies|ideen|gipfelbuch)(\/|\?|$)/;
 
 
 /**
@@ -484,7 +486,7 @@ export const TAB_GROUPS = {
   // «Aktiv und Auswerten» 2a (Noah 03.11.2026): the pages of Auswerten stand by the question you ask
   analysis: [
     { label: 'How am I doing?|group', keys: ['start', 'form', 'body', 'history', 'wohl', 'weight', 'insights', 'impulse'] },
-    { label: 'What did I do?|group', keys: ['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'year'] },
+    { label: 'What did I do?|group', keys: ['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year'] },
     { label: 'What did I learn?|group', keys: ['analyse', 'learned'] },
   ],
 };

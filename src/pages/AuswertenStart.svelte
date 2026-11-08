@@ -3,18 +3,17 @@
    * «Aktiv neu» (Noah 22.10.2026, spec «Aktiv-Bereich: Beschreibung», «Aktiv ist zum Machen, Auswerten zum
    * Anschauen»): the start of the place «Auswerten» (#/auswerten). What was below «Heute abhaken» on the old
    * Aktiv start moved here: the form card on top, «Aktivitäten von heute», «Im Fokus», «Überblick» and «Letzte
-   * 7 Tage» (Overview), «Wi gaht's?» with today's values and the 7 days, then the tip of the day, the cards
-   * Ideen, Meilensteine and Trophäen, «Das kann die App hier» and the tiles. The tabs above lead to the pages
-   * (Form und Erholung, Körperwerte, Fahrten, Haken ausgewertet, …; lib/nav.js PLACE_TABS.analysis).
+   * 7 Tage» (Overview), «Wi gaht's?» with today's values and the 7 days, then the tip of the day, «Das kann die App
+   * hier» and the tiles. The tabs above lead to the pages (Form und Erholung, Körperwerte, Fahrten, Haken ausgewertet,
+   * Gipfelbuch, …; lib/nav.js PLACE_TABS.analysis). «Auswerten aufräumen» (Noah 07.11.2026 «4a»): the six link cards
+   * that doubled the tabs (Ideen, Meilensteine, Trophäen, Impulse, Gipfelbuch, Haken ausgewertet) are gone.
    */
   import { liveQuery } from 'dexie';
-  import { Lightbulb, Trophy, Star, Sparkles, Mountain, ListChecks } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { averages, averagesBetween, checkOf, FIXED } from '../lib/flowcheck.js';
   import { waitingThisMonth } from '../lib/kmbook.js';
   import { CHECK_HASH } from '../lib/strava/client.svelte.js';
   import Sec from '../lib/flow/kit/Sec.svelte';
-  import MoreAktiv from '../lib/flow/kit/MoreAktiv.svelte';
   import Overview from '../lib/flow/garmin/Overview.svelte';
   import FormCard from '../lib/flow/form/FormCard.svelte';
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
@@ -46,15 +45,6 @@
   const range = $derived({ from: win.from, to: win.to, week, title });
   const avg = $derived(week ? averages(data?.checks ?? [], today, 7) : averagesBetween(data?.checks ?? [], win.from, win.to));
   const n1 = (v) => (v == null ? '–' : v.toLocaleString(lang.v === 'de' ? 'de-DE' : 'en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
-  const pages = [
-    { key: 'ideas', href: '#/flow/ideen', icon: Lightbulb, title: t('Ideas'), sub: t('for your balance') },
-    { key: 'milestones', href: '#/flow/milestones', icon: Star, title: t('Milestones'), sub: t('every sport, step by step') },
-    { key: 'trophies', href: '#/flow/trophies', icon: Trophy, title: t('Trophies'), sub: t('what you reached') },
-    // «332 Use Cases» (Noah 24.10.2026 «2b»): the pages that were only tabs behind «Alle 11»
-    { key: 'impulse', href: '#/flow/impulse', icon: Sparkles, title: t('Impulses'), sub: t('small ideas to start') },
-    { key: 'gipfel', href: '#/flow/gipfelbuch', icon: Mountain, title: t('Summit book'), sub: t('passes and summits reached') },
-    { key: 'ticks', href: '#/flow/auswertung', icon: ListChecks, title: t('Ticks evaluated|tab'), sub: t('your ticks and answers') },
-  ];
 </script>
 
 {#snippet waiting()}
@@ -100,12 +90,10 @@
       </Sec>
       {#if cols.matches}
         <Overview {today} {range} part="last7">{@render waiting()}</Overview>
-        <MoreAktiv items={pages} stack />
       {/if}
     </aside>
   </div>
   <TipLine page="aktiv" name={t('Analysis|place')} />
-  {#if !cols.matches}<MoreAktiv items={pages} />{/if}
   <PageMore page="aktiv" name={t('Analysis|place')} />
   <PinnedLists place="active" />
   <PageTiles page="flow" />

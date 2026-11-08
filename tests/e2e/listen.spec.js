@@ -65,10 +65,10 @@ test('a list from the quick field: points, tick, pinned to Material, in Merken',
   expect(errors).toEqual([]);
 });
 
-test('Meine Ideen: a card on the start of Auswerten, an idea with a date gets a reminder in Merken', async ({ page, context }) => {
-  const errors = await open(page, context, '#/auswerten'); // «Aktiv neu» (Noah 22.10.2026): Ideen moved to Auswerten
+test('Meine Ideen: a link on the page Impulse, an idea with a date gets a reminder in Merken', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/impulse'); // «Auswerten aufräumen» (Noah 07.11.2026 «4a»): the card on the start is gone, Ideen opens from Impulse
   const main = page.locator('main');
-  await main.locator('[data-more="ideas"]').first().click();
+  await main.locator('[data-ideas-link]').click();
   await expect(page).toHaveURL(/#\/flow\/ideen$/);
   await expect(main.getByRole('heading', { name: T('Ideas'), level: 1 })).toBeVisible();
   await main.getByLabel(T('New idea'), { exact: true }).fill('Sonnenaufgang auf dem Chasseral');
