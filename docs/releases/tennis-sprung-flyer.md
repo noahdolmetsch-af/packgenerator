@@ -1,15 +1,15 @@
-# Der Flyer auf Aktiv
+# Der Flyer auf Planen
 
 PR folgt · 08.11.2026 · Auftrag: Koordinator nach #1150 (Wächter «Tippzahl»: der Flyer war mehr als 3 Tipps von Heute entfernt)
 
 ## Was ist neu
-- Auf der Seite Aktiv steht unter «Alles hier» die Kachel «Tennis-Flyer» (`#/me/tennis/flyer`). Der Flyer ist damit von Heute aus in zwei Tipps erreichbar.
+- Auf der Seite Planen steht unter «Alles hier» die Kachel «Tennis-Flyer» (`#/me/tennis/flyer`). Der Flyer ist damit von Heute aus in zwei Tipps erreichbar.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Die Kachel ist zusätzlich, ganz hinten in der Reihe; sie lässt sich wie jede Kachel verschieben und ausblenden.
 
 ## Selbst entschieden
-- Aktiv statt Ich oder Planen, weil der Flyer im Katalog zur Gruppe «Aktiv» gehört (Tennis).
+- Planen statt Aktiv: auf Aktiv sind es genau zehn Kacheln (Noah 03.11.2026 «1a», `aktiv-alles-hier.spec.js`), das bleibt so. Der Flyer ist Arbeit für Kunden und passt zu Verträgen und Menschen.
 - Keine neue Funktion im Katalog, darum kein Eintrag in `since`.
 - Aufgefallen, nicht geändert: der Bereich «Tennis» (`#/me/tennis`, Angebote und Kunden) hat von keiner sichtbaren Seite einen Link. Sein Absprung steht noch aus.
 
@@ -20,5 +20,5 @@ PR folgt · 08.11.2026 · Auftrag: Koordinator nach #1150 (Wächter «Tippzahl»
 - unverändert
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
-1. Aktiv öffnen: unter «Alles hier» steht die Kachel «Tennis-Flyer».
+1. Planen öffnen: unter «Alles hier» steht die Kachel «Tennis-Flyer».
 2. Antippen: die Flyer-Seite öffnet sich.
