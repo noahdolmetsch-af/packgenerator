@@ -107,12 +107,24 @@ test('WG-4 ways: a week goal and a ring row lead to their value in Analyse (44 p
   await expect(card.locator('[data-wg-way="km"]')).toHaveAttribute('href', '#/auswerten/analyse/km%3Abike?zeit=w');
   expect((await med.boundingBox()).height).toBeGreaterThanOrEqual(44);
   await expect(med.locator('[data-wg-line]')).toHaveText('1× von 2×');
-  const rings = page.locator('[data-ring-way]');
+  // a ring with one sport is a way, a ring with several folds open (2a)
+  const rings = page.locator('[data-ring-way], [data-ring-fold]');
   await expect(rings).toHaveCount(3);
-  for (const r of await rings.all()) {
+  for (const r of await rings.all()) expect((await r.boundingBox()).height).toBeGreaterThanOrEqual(44);
+  for (const r of await page.locator('[data-ring-way]').all()) expect(await r.getAttribute('href')).toMatch(/^#\/(auswerten\/analyse\/act%3A[^/]+\?zeit=w|flow\/auswertung)$/);
+  const fold = page.locator('[data-ring-fold]').first();
+  await expect(fold).toHaveAttribute('aria-expanded', 'false');
+  await fold.click();
+  await expect(fold).toHaveAttribute('aria-expanded', 'true');
+  const sports = page.locator('[data-ring-parts] [data-ring-part]');
+  expect(await sports.count()).toBeGreaterThanOrEqual(2);
+  for (const r of await sports.all()) {
     expect((await r.boundingBox()).height).toBeGreaterThanOrEqual(44);
-    expect(await r.getAttribute('href')).toMatch(/^#\/(auswerten\/analyse\/act%3A[^/]+\?zeit=w|flow\/auswertung)$/);
+    expect(await r.getAttribute('href')).toMatch(/^#\/auswerten\/analyse\/act%3A[^/]+\?zeit=w$/);
   }
+  await expect(page.locator('[data-ring-all]').first()).toHaveAttribute('href', '#/flow/auswertung');
+  await fold.click();
+  await expect(sports).toHaveCount(0);
   await shot(page, info, 'WG4-wege', page.locator('#ring-h').locator('xpath=ancestor::section[1]'));
   await med.click();
   await expect(page).toHaveURL(/#\/auswerten\/analyse\/act%3Ameditation\?zeit=w$/);
