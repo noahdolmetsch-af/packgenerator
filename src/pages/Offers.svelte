@@ -23,6 +23,7 @@
   import { applyVouchers } from '../lib/booking/vouchers.js';
   import { listOutcomes, setOutcome } from '../lib/booking/outcomes.js';
   import { listWaiting, addWaiting, removeWaiting } from '../lib/booking/waitlist.js';
+  import { isTrial, hasTrial, canAddTrial, trialPrice, trialSlots, withoutTrial, earlierTrial, TRIAL_KEY } from '../lib/booking/trial.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
   import '../lib/ich/ich.css';
 
@@ -210,9 +211,13 @@
   const asking = $derived(here.filter(isOpenRequest));
   const everyone = $derived(here.filter((b) => b.status !== 'declined'));
   let replied = $state(null); // { b, decision }: after an answer, the message to send
-  const replyText = (s, decision) => decision === 'confirm'
+  /* trial lesson (Noah 04.11.2026 «10a»): once per person; a second request gets the offer of a normal lesson */
+  const usedTrial = (b) => (mine ? earlierTrial(mine.offer, bookings ?? [], b) : null);
+  const replyText = (s, decision, b = null) => decision === 'confirm'
     ? t('{title} on {when} is confirmed. See you there!', { title: mine?.offer.title ?? '', when: fmtAt(s.at) })
-    : t('{title} on {when} does not work for me. Please pick another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+    : b && usedTrial(b)
+      ? t('{title} on {when}: the trial lesson is once per person. I would be happy to see you for a normal lesson. Please pick a time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) })
+      : t('{title} on {when} does not work for me. Please pick another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
   async function answer(b, decision) {
     busy = true;
     error = '';
@@ -270,13 +275,26 @@
   });
   function openRules() {
     const o = mine.offer;
-    draft = { title: o.title, place: o.place, venuesText: (o.venues ?? []).join(', '), mode: o.mode ?? 'instant', minutes: o.minutes, pay: o.pay, cancelHours: o.cancelHours, types: o.types.map((x) => ({ ...x, chf: chf(x.price) })) };
+    draft = { title: o.title, place: o.place, venuesText: (o.venues ?? []).join(', '), mode: o.mode ?? 'instant', minutes: o.minutes, pay: o.pay, cancelHours: o.cancelHours, types: o.types.map((x) => ({ ...x, chf: chf(x.price) })), trial: hasTrial(o) };
     rulesOpen = true;
   }
+  /* the switch «Trial lesson»: the kind is added to the draft with half the price of the first kind, or taken out */
+  function flipTrial(on) {
+    draft.trial = on;
+    if (!on) return (draft.types = draft.types.filter((x) => !isTrial(x)));
+    if (draft.types.some(isTrial)) return;
+    const first = draft.types[0];
+    const price = trialPrice({ types: [{ key: first.key, price: Math.max(0, Math.round(Number(String(first.chf).replace(',', '.')) * 100) || 0) }] });
+    draft.types = [...draft.types, { key: TRIAL_KEY, label: t('Trial lesson'), places: 1, price, chf: chf(price) }];
+  }
+  const trialRoom = $derived(!!mine && (hasTrial(mine.offer) || canAddTrial(mine.offer)) && ['tennis', 'own'].includes(mine.offer.kind));
+  const trialMoves = $derived(mine && draft && !draft.trial && hasTrial(mine.offer) ? trialSlots(mine.offer).length : 0);
   async function saveRules(e) {
     e.preventDefault();
     const types = draft.types.map((x) => ({ key: x.key, label: x.label.trim(), places: Math.max(1, Math.min(50, Math.round(Number(x.places) || 1))), price: Math.max(0, Math.round(Number(String(x.chf).replace(',', '.')) * 100) || 0) }));
-    const next = { ...mine.offer, title: draft.title.trim() || mine.offer.title, place: draft.place.trim(), mode: draft.mode, venues: draft.venuesText.split(',').map((v) => v.trim()).filter(Boolean).slice(0, 4), minutes: Math.max(0, Math.round(Number(draft.minutes) || 0)), pay: draft.pay, cancelHours: Math.max(0, Math.round(Number(draft.cancelHours) || 0)), types };
+    // a trial kind switched off: its times become times of the first other kind, none is lost
+    const base = !draft.trial && hasTrial(mine.offer) ? withoutTrial(mine.offer) : mine.offer;
+    const next = { ...base, title: draft.title.trim() || mine.offer.title, place: draft.place.trim(), mode: draft.mode, venues: draft.venuesText.split(',').map((v) => v.trim()).filter(Boolean).slice(0, 4), minutes: Math.max(0, Math.round(Number(draft.minutes) || 0)), pay: draft.pay, cancelHours: Math.max(0, Math.round(Number(draft.cancelHours) || 0)), types };
     if (await save(next)) rulesDlg.close();
   }
 </script>
@@ -470,9 +488,9 @@
         <div class="of-foot"><button type="button" class="btn hi" onclick={() => slotDlg.close()}>{t('Done')}</button></div>
       {:else}
         {#if replied}
-          {@const href = contactHref(replied.b.contact, replyText(s, replied.decision))}
+          {@const href = contactHref(replied.b.contact, replyText(s, replied.decision, replied.b))}
           <p role="status">{replied.decision === 'confirm' ? t('Confirmed. Now tell {name}:', { name: replied.b.name }) : t('Declined. Now tell {name}:', { name: replied.b.name })}</p>
-          <p class="of-note">{replyText(s, replied.decision)}</p>
+          <p class="of-note">{replyText(s, replied.decision, replied.b)}</p>
           <div class="of-foot">{#if href}<a class="btn hi" {href}>{t('Write')}</a>{/if}<button type="button" class="btn" onclick={() => (replied = null)}>{t('Done')}</button></div>
         {/if}
         {#if asking.length}
@@ -480,7 +498,7 @@
           <ul class="of-list">
             {#each asking as b (b.id)}
               <li class="of-pp of-rqrow">
-                <span>{b.name}<small>{b.contact}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}<small>{t('Answer by {when}', { when: new Date(b.answerBy).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' }) })}</small></span>
+                <span>{b.name}<small>{b.contact}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}{#if usedTrial(b)}<small class="of-warn" data-trial-used>{t('Had a trial lesson already: {when}. Once per person.', { when: fmtAt(usedTrial(b).at) })}</small>{/if}<small>{t('Answer by {when}', { when: new Date(b.answerBy).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' }) })}</small></span>
                 <span class="of-two"><button type="button" class="btn hi sm" disabled={busy} onclick={() => answer(b, 'confirm')}>{t('Confirm')}</button><button type="button" class="btn sm" disabled={busy} onclick={() => answer(b, 'decline')}>{t('Decline')}</button></span>
               </li>
             {/each}
@@ -491,7 +509,7 @@
           {#each people as b (b.id)}
             {@const href = contactHref(b.contact, helloText(s))}
             <li class="of-pp">
-              <span>{b.name}<small>{b.contact} · {b.pay === 'online' ? (b.paid ? t('paid (test)') : t('not paid')) : t('pays on site')}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}</span>
+              <span>{b.name}<small>{b.contact} · {b.pay === 'online' ? (b.paid ? t('paid (test)') : t('not paid')) : t('pays on site')}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}{#if usedTrial(b)}<small class="of-warn" data-trial-used>{t('Had a trial lesson already: {when}. Once per person.', { when: fmtAt(usedTrial(b).at) })}</small>{/if}</span>
               {#if href}<a class="btn sm" {href}>{t('Write')}</a>{/if}
               {#if invoiceOf(b)}<a class="lkb" href={`#/me/pay/invoices/${invoiceOf(b).id}`}>{t('Invoice {no}', { no: invoiceOf(b).no })}</a>{:else if b.at < nowAt()}<button type="button" class="lkb" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button>{/if}
               <button type="button" class="lkb" onclick={() => dropOne(b)}>{t('Cancel|booking')}</button>
@@ -543,6 +561,11 @@
         <p class="lbl">{t('Payment')}</p>
         <Seg options={[{ key: 'site', name: t('on site') }, { key: 'online', name: t('online (test)') }]} value={draft.pay} onchange={(k) => (draft.pay = k)} label={t('Payment')} />
         <label class="lbl" for="of-cancel">{t('People may cancel up to … hours before')}</label><input id="of-cancel" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.cancelHours} />
+        {#if trialRoom}
+          <label class="of-check"><input type="checkbox" checked={draft.trial} onchange={(e) => flipTrial(e.currentTarget.checked)} data-trial-switch /> {t('Offer a trial lesson')}</label>
+          <p class="muted">{t('A kind «Trial lesson» next to the others: one place, half the price, and once per person. You open its times like any other time. If a person asks for a second one, the request says so and you can offer a normal lesson.')}</p>
+          {#if trialMoves}<p class="muted" data-trial-moves>{tn(trialMoves, 'Switched off: {n} time of this kind becomes a time of the first kind.', 'Switched off: {n} times of this kind become times of the first kind.')}</p>{/if}
+        {/if}
         {#each draft.types as x, i (x.key)}
           <fieldset class="of-type">
             <legend>{t('Kind {n}', { n: i + 1 })}</legend>
@@ -904,6 +927,7 @@
     }
   }
 .of-note { display: block; font-style: italic; }
+  .of-warn { display: block; color: var(--warn); font-weight: 600; }
   .of-rq { margin: 8px 0 0; }
   .of-rqrow { flex-wrap: wrap; }
   .of-ask-n { color: var(--accent, inherit); font-weight: 600; }
