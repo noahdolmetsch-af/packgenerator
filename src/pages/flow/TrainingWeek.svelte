@@ -18,7 +18,7 @@
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, NEXTKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
+  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, WEEKS_KEY, cleanWeeks, weekTemplate, insertWeek, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, NEXTKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
@@ -27,6 +27,7 @@
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import { weekLoadHint, scaleWeek } from '../../lib/training/suggest.js';
   import NextWeek from '../../lib/training/plans/NextWeek.svelte'; // «Training verbessern» 8: «Next week» in the look back
+  import WeekSaved from '../../lib/training/plans/WeekSaved.svelte'; // «Training verbessern» 11: «My weeks»
   import Library from '../../lib/training/plans/Library.svelte'; // «Training verbessern» 7: «From your library»
   import WeekLoad from '../../lib/training/plans/WeekLoad.svelte'; // «Training verbessern» 6: «A lighter week would fit»
   import Missed from '../../lib/training/plans/Missed.svelte'; // «Training verbessern» 5: «Missed one? Move it»
@@ -160,6 +161,30 @@
     const before = library;
     saveLibrary(list);
     if (msg) offerDone(msg, () => saveLibrary(before));
+  }
+
+  // «Training verbessern» 11 «Ganze Wochen merken»: keep the week as a template, put a kept week in (add or replace), Undo for every change
+  const weeksQ = liveQuery(async () => (await db.settings.get(WEEKS_KEY))?.value ?? null);
+  const keptWeeks = $derived(cleanWeeks($weeksQ));
+  const saveWeeks = (v) => db.settings.put({ key: WEEKS_KEY, value: cleanWeeks(v) });
+  async function keepWeek(name, group) {
+    const stored = cleanWeeks((await db.settings.get(WEEKS_KEY))?.value);
+    const items = weekTemplate(sessions, monday, planName);
+    if (!items.length) return;
+    await saveWeeks([...stored, { id: `wk-${Date.now().toString(36)}`, name, group, uses: 0, items }]);
+    offerDone(t('«{name}» kept as a week.', { name }));
+  }
+  function changeWeeks(list, msg) {
+    const before = keptWeeks;
+    saveWeeks(list);
+    if (msg) offerDone(msg, () => saveWeeks(before));
+  }
+  async function putWeek(w, mode) {
+    const stored = planOf(await db.settings.get(PLAN_KEY)); // the stored rows, not the derived ones (the page may have opened a moment ago)
+    const before = stored;
+    await savePlan(insertWeek(stored, w, monday, mode, (s) => !!doneOf(s, acts.filter((a) => a.day === s.day))));
+    saveWeeks(keptWeeks.map((x) => (x.id === w.id ? { ...x, uses: x.uses + 1 } : x)));
+    offerDone(mode === 'replace' ? t('«{name}» replaces the sessions of this week.', { name: w.name }) : t('«{name}» added to this week.', { name: w.name }), () => savePlan(before));
   }
 
   // «Training verbessern» 6 «Wochenlast-Wächter»: the planned week against the 3 weeks before; «Shorten» scales what is still to come (Undo)
@@ -389,6 +414,7 @@
         </ul>
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
         {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
+        <WeekSaved items={keptWeeks} canKeep hasSessions={sessions.length > 0} weekdays={days.map((d) => fmt(d, { weekday: 'short' }))} {hours} onkeep={keepWeek} onput={putWeek} onchange={changeWeeks} />
         <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} preset={nextPreset} />
       </div>
     </Sec>

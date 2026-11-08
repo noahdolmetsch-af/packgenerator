@@ -11,11 +11,13 @@
   import { db } from '../lib/db.js';
   import { RACES_KEY, racesOf } from '../lib/race/race.js';
   import { raceChoices } from '../lib/training/plans.js';
-  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
+  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, setPeriod, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
   import { milestones } from '../lib/weg/types/proben.js';
   import { windowOf, sayWindow } from '../lib/weg/wetter.js';
   import { lookBack, sayDiff } from '../lib/weg/rueckblick.js';
+  import { goalPeriod, suggestion } from '../lib/weg/startvorschlag.js';
+  import { DREAM_WX, refreshDreamWx, placeOf, placeKey } from '../lib/dreams/wetterfenster.js';
   import { rainLimit } from '../lib/rainlimit.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
@@ -113,6 +115,47 @@
     const x = sayDiff(d);
     return x ? (x.n === 0 ? t(x.one) : tn(x.n, x.one, x.many)) : '';
   };
+  // the start suggestion for an open period (Noah «4a», G3 lower card): dry days of the home place inside the period
+  const homeQ = liveQuery(async () => (await db.settings.get('homePlace'))?.value ?? null);
+  const wxQ = liveQuery(async () => (await db.meta.get(DREAM_WX)) ?? null);
+  const period = $derived(goal ? goalPeriod(goal) : null);
+  const homeAt = $derived(placeOf({}, $homeQ));
+  let skip = $state(0);
+  let askPeriod = $state(false);
+  let pFrom = $state('');
+  let pTo = $state('');
+  $effect(() => {
+    if (!period || $homeQ === undefined) return;
+    refreshDreamWx(db, [{}], $homeQ).catch(() => {});
+  });
+  const startSugg = $derived(goal && period ? suggestion(goal, homeAt ? $wxQ?.places?.[placeKey(homeAt)] : null, today, { hasPlace: !!homeAt, skip }) : null);
+  const startSay = $derived.by(() => {
+    if (!startSugg) return '';
+    const v = { from: wWord(startSugg.period.from), to: wWord(startSugg.period.to), last: startSugg.lastDay ? wWord(startSugg.lastDay) : '' };
+    if (startSugg.state === 'noplace') return t('Set your home place in Me › Settings: the forecast needs a place.');
+    if (startSugg.state === 'nodata') return t('No forecast kept yet. It loads once the app is online.');
+    if (startSugg.state === 'far') return t('The forecast reaches only until {last}. Your period starts later; look again then.', v);
+    if (startSugg.state === 'none') return t('No 3 dry days in a row from {from} to {to} so far.', v);
+    return t('Dry from {from} to {to}: {n} days in a row.', { from: wWord(startSugg.win.from), to: wWord(startSugg.win.to), n: num(startSugg.win.n) });
+  });
+  const longDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+  function takeStart() {
+    if (startSugg?.state !== 'window') return;
+    skip = 0;
+    putGoal(setStart({ goals: [goal] }, goal.id, startSugg.win.start).goals[0]);
+  }
+  function savePeriod() {
+    const next = setPeriod({ goals: [goal] }, goal.id, pFrom, pTo).goals[0];
+    if (!next.period) return;
+    skip = 0;
+    askPeriod = false;
+    putGoal(next);
+  }
+  function dropPeriod() {
+    skip = 0;
+    pFrom = pTo = '';
+    putGoal(setPeriod({ goals: [goal] }, goal.id, '', '').goals[0]);
+  }
   function toOrgaList() {
     const li = document.querySelector('[data-weg-step][data-type="orga"]:not(.done)') ?? document.querySelector('[data-weg-step][data-type="orga"]');
     li?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -338,6 +381,36 @@
       </section>
     {/if}
 
+    {#if goal && !goal.start}
+      <section class="card pad wg-wetter wg-open" data-weg-startvorschlag aria-label={t('Find a dry start')}>
+        <h3>{t('While the start day is open')}</h3>
+        {#if period && startSugg}
+          <b class="wg-wtitle">{t('Find a dry start')}</b>
+          <p class="wg-sub">{t('Your period: {from} to {to}.', { from: wWord(period.from), to: wWord(period.to) })} {startSay}</p>
+          <div class="wg-acts">
+            {#if startSugg.state === 'window'}
+              <button type="button" class="btn hi" onclick={takeStart} data-weg-start-take>{t('Set start {day}', { day: longDay(startSugg.win.start) })}</button>
+              {#if startSugg.count > 1}<button type="button" class="btn" onclick={() => (skip += 1)} data-weg-start-other>{t('Another window')}</button>{/if}
+            {/if}
+            <button type="button" class="btn" onclick={dropPeriod} data-weg-start-no>{t('No thanks')}</button>
+          </div>
+        {:else if askPeriod}
+          <p class="wg-sub">{t('Name a period, for example the next two weeks. The app looks in the forecast for 3 dry days in a row and suggests a start day. It is only a suggestion.')}</p>
+          <div class="wg-prow">
+            <label class="wg-startf"><span>{t('Period from')}</span><DateInput bind:value={pFrom} data-weg-period-from /></label>
+            <label class="wg-startf"><span>{t('Period to')}</span><DateInput bind:value={pTo} data-weg-period-to /></label>
+          </div>
+          <div class="wg-acts">
+            <button type="button" class="btn hi" onclick={savePeriod} disabled={!pFrom || !pTo || pFrom > pTo} data-weg-period-save>{t('Look for dry days')}</button>
+            <button type="button" class="btn" onclick={() => (askPeriod = false)}>{t('Cancel')}</button>
+          </div>
+        {:else}
+          <p class="wg-sub">{t('The steps have no days yet. Name a period and the app looks for dry days to suggest a start day.')}</p>
+          <div class="wg-acts"><button type="button" class="btn" onclick={() => (askPeriod = true)} data-weg-period-open>{t('Find a dry start')}</button></div>
+        {/if}
+      </section>
+    {/if}
+
     {#if wetter && wsay}
       <section class="card pad wg-wetter" data-weg-wetter aria-label={t('Weather window, 7 days before the start')}>
         <h3>{t('Weather window for the start')}</h3>
@@ -485,8 +558,10 @@
   .wg-table th, .wg-table td { text-align: left; padding: var(--sp-2) var(--sp-2) var(--sp-2) 0; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: break-word; }
   .wg-table thead th { font-size: var(--fs-small); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-table tbody th { font-weight: 600; }
+  .wg-prow { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-2) 0; }
+  .wg-open .wg-acts { margin-top: var(--sp-3); }
   .wg-days small { font-size: var(--fs-small); }
-  .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+  .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
 
   /* the way: one line with dots, «Today» marked on it (mockup G1) */
   .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }

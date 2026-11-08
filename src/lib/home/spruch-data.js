@@ -2,7 +2,7 @@
  * «Spruch zum Einstieg» PR 2 (Noah 07.11.2026 «Bau spruch pr2»): the numbers the sentences need beyond the watch days, read from
  * the database in ONE place: the weeks in a row (the same series as the tile «Series and milestones», series-data.js), the bike km
  * of this year (the same rides as the year row: ride book, counted Strava rides), the trip of a year ago (bausteine.js yearAgo)
- * and the quotes that are on (Kissenzeit, flowquotes.js). Read only.
+ * and the quotes that are on (Kissenzeit, flowquotes.js). PR 4: your own sayings (settings row OWN_KEY). Read only.
  */
 import { readSeries } from './series-data.js';
 import { yearAgo } from './bausteine.js';
@@ -10,10 +10,11 @@ import { yearSums } from '../flow/yeargoals.js';
 import { withStravaRides, bikeActs } from '../kmbook.js';
 import { addDays } from '../health.js';
 import { QUOTES_KEY, quotesOf } from '../flowquotes.js';
+import { OWN_KEY, ownOf } from './spruch.js';
 
-/** { series, km: { now, week }, ago: { title } | null, quotes: [{ id, text, author, source }] } — the parts that cannot be read stay empty. */
+/** { series, km: { now, week }, ago: { title } | null, quotes: [{ id, text, author, source }], own: [{ id, text, ton }] } — the parts that cannot be read stay empty. */
 export async function readSpruchExtra(d, today) {
-  const out = { series: null, km: null, ago: null, quotes: [] };
+  const out = { series: null, km: null, ago: null, quotes: [], own: [] };
   try {
     const ser = await readSeries(d, today);
     out.series = ser.s ?? null;
@@ -35,6 +36,11 @@ export async function readSpruchExtra(d, today) {
     out.quotes = quotesOf((await d.settings.get(QUOTES_KEY))?.value, true).shown;
   } catch {
     /* no quotes */
+  }
+  try {
+    out.own = ownOf((await d.settings.get(OWN_KEY))?.value);
+  } catch {
+    /* no own sayings */
   }
   return out;
 }

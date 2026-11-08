@@ -25,7 +25,8 @@
   import { addDays } from '../../lib/analyse.js';
   import { LOAD_WEIGHTS } from '../../lib/analyse/own.js';
   import { lastExample, FIXED_EXAMPLE, loadExample } from '../../lib/analyse/rechnung.js';
-  import { tripRows } from '../../lib/analyse/tourliste.js';
+  import { tripRows, RIDES_HREF } from '../../lib/analyse/tourliste.js';
+  import { db } from '../../lib/db.js';
   import { dailyLimit } from '../../lib/analyse/wochenbalken.js';
   import { sumBand } from '../../lib/analyse/ueblich.js';
   import { doneOn, doneText } from '../../lib/analyse/tagdavor.js';
@@ -117,16 +118,14 @@
     const b = backOf(herkunft.from);
     return b ? { href: b.href, label: t(b.place) } : null;
   });
-  // «Touren in dieser Zeit» (UI-Prüfung A2): the past trips inside the shown period, each a way to its tour page (at most 3, newest first)
-  const tripsIn = $derived(
-    hours || !win.days.length
-      ? []
-      : data.trips
-          .filter((tr) => tr.startDate && tr.startDate <= win.to && (tripEnd(tr) ?? tr.startDate) >= win.from && (tripEnd(tr) ?? tr.startDate) < today)
-          .sort((a, b) => (b.startDate > a.startDate ? 1 : -1))
-          .slice(0, 3),
-  );
   // Idea A: the trips of the shown days, each with the mean of the value over its days (newest first)
+  // trips with saved rides (only the distinct trip ids are read, not the rides): their row gets a second tip «Rides ›»
+  let rideTrips = $state(new Set());
+  $effect(() => {
+    let live = true;
+    db.rides.orderBy('tripId').uniqueKeys().then((ks) => live && (rideTrips = new Set(ks.filter((k) => k != null)))).catch(() => {});
+    return () => (live = false);
+  });
   const tours = $derived(hours || !item?.get ? [] : tripRows(data.trips, win.days, tripEnd, item.get, today));
   const weekPts = $derived(picked ? pts.find((p) => p.days.includes(picked)) : null);
   const weekly = $derived(!hours && pts.length > 0 && pts.length < win.days.length);
@@ -292,12 +291,6 @@
       <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
       <SourceLine src={item.src} stand={standText} data-source={item.src} />
       {#if fstand?.failed}<FitbitStand />{/if}
-      {#if tripsIn.length}
-        <p class="tripsin" data-trips-in>
-          <span>{t('Trips in this time')}</span>
-          {#each tripsIn as tr (tr.id)}<a href={`#/tour/${encodeURIComponent(`t:${tr.id}`)}`}>{tr.title ?? tr.name ?? t('Trip')}<ChevronRight size={16} strokeWidth={2.5} aria-hidden="true" /></a>{/each}
-        </p>
-      {/if}
     </header>
 
     {#if item.later}
@@ -418,11 +411,12 @@
           <div class="ch"><h2 id="wv-tours">{t('Trips in this range|analyse')}</h2><small>{item.sum ? t('mean per day on the trip|analyse') : t('mean on the trip|analyse')}</small></div>
           <ul class="tl">
             {#each allTours ? tours : tours.slice(0, 5) as r (r.id ?? r.from)}
-              <li>
+              <li class="tli">
                 <svelte:element this={r.href ? 'a' : 'div'} class="trow" href={r.href ?? undefined} data-trip-row>
                   <span class="tn"><b>{r.name || t('Trip|analyse')}</b><small>{r.from === r.to ? dfmt(r.from, { day: 'numeric', month: 'short' }) : `${dfmt(r.from, { day: 'numeric', month: 'short' })} – ${dfmt(r.to, { day: 'numeric', month: 'short' })}`}</small></span>
                   <span class="tv num">{r.avg == null ? t('no value|analyse') : `Ø ${v(item, r.avg)}`}</span>
                 </svelte:element>
+                {#if r.href && rideTrips.has(r.id)}<a class="trides" href={RIDES_HREF} data-trip-rides aria-label={t('Rides of {trip}|analyse', { trip: r.name || t('Trip|analyse') })}>{t('Rides|analyse')} ›</a>{/if}
               </li>
             {/each}
           </ul>
@@ -544,32 +538,6 @@
   }
   .wv section {
     min-width: 0;
-  }
-  .tripsin {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0 var(--sp-2);
-    margin: 0;
-    font-size: var(--fs-small);
-    color: var(--ink-3);
-  }
-  .tripsin a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--accent);
-    font-weight: 600;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
-  }
-  .tripsin a :global(svg) {
-    color: var(--ink);
-  }
-  .tripsin a:hover {
-    text-decoration-thickness: 2px;
   }
   .bar {
     display: flex;
@@ -1008,6 +976,28 @@
     margin: 8px 0 0;
     padding: 0;
     list-style: none;
+  }
+  .tli {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tli .trow {
+    flex: 1;
+    min-width: 0;
+    border-bottom: 0;
+  }
+  .trides {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    text-decoration: underline;
+    text-decoration-color: var(--line);
   }
   .trow {
     display: flex;
