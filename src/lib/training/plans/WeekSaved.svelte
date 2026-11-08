@@ -91,7 +91,7 @@
             <button type="button" class="btn btn-primary sm" onclick={() => (preview = preview?.id === w.id ? null : w)} aria-expanded={preview?.id === w.id} data-week-put={w.id}>{t('Put in|week')}</button>
             {#if preview?.id === w.id}
               <div class="pv" data-week-preview>
-                <ul>{#each w.items as i, k (k)}<li><b>{weekdays[i.dow]}</b> {i.name} · <span class="num">{hours(i.mins)}</span>{#if i.zone} · Z{i.zone}{/if}</li>{/each}</ul>
+                <ul>{#each w.items as i, k (k)}<li><b>{weekdays[i.dow]}</b> {i.name} · <span class="num">{hours(i.mins)}</span>{i.zone ? ` · Z${i.zone}` : ''}</li>{/each}</ul>
                 <div class="acts">
                   <button type="button" class="btn btn-primary sm" onclick={() => put(w, 'add')} data-week-add>{t('Add to my sessions')}</button>
                   <button type="button" class="btn sm" onclick={() => put(w, 'replace')} data-week-replace>{t('Replace my sessions')}</button>
@@ -184,7 +184,7 @@
   .wl > li { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between; }
   .wn { display: flex; flex-direction: column; min-width: 0; }
   .wn small { color: var(--ink-2); }
-  .pv { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--bg-2, rgba(0, 0, 0, 0.04)); border-radius: var(--r-md, 10px); }
+  .pv { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--paper-2); border-radius: var(--r-md, 10px); }
   .pv ul { gap: 2px; font-size: var(--fs-small); }
   .lm { font-size: var(--fs-small); width: 100%; }
   .gh { display: flex; justify-content: space-between; align-items: center; margin: 10px 0 2px; }
