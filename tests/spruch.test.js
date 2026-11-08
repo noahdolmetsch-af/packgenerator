@@ -1,7 +1,7 @@
-// «Spruch zum Einstieg» PR 1, 2 and 3 (Noah 07.11.2026 «Bau spruch pr1», «bau spruch pr2», «bau spruch pr3 und 4»): the sentences, the recovery rule, the history,
+// «Spruch zum Einstieg» PR 1 to 4 (Noah 07.11.2026 «Bau spruch pr1», «bau spruch pr2», «bau spruch pr3 und 4»): the sentences, the recovery rule, the history,
 // the second wordings, steps, weeks in a row, bike km, a year ago, the fog clearing and the quotes.
 import { describe, it, expect } from 'vitest';
-import { TEMPLATES, TEMPLATE, TONES, TONE_NAME, SOURCE_NAME, HISTORY_MAX, KM_MARKS, baseId, spruchOf, remember, recoveryOf, contextOf, fitting, pickSpruch, SOURCES, TONE_CHOICES, ABOUT, setTon, setSource, setTemplate, stillFits } from '../src/lib/home/spruch.js';
+import { TEMPLATES, TEMPLATE, TONES, TONE_NAME, SOURCE_NAME, HISTORY_MAX, KM_MARKS, baseId, spruchOf, remember, recoveryOf, contextOf, fitting, pickSpruch, SOURCES, TONE_CHOICES, ABOUT, setTon, setSource, setTemplate, stillFits, OWN_MAX, OWN_LEN, ownOf, addOwn, editOwn, dropOwn } from '../src/lib/home/spruch.js';
 import DE from '../src/lib/i18n/de/spruch.js';
 
 const TODAY = '2026-11-04'; // a Wednesday
@@ -31,7 +31,7 @@ const ids = (c, o) => fitting(c, o).map((x) => x.id);
 describe('the sentences', () => {
   it('every source is named, every tone is named, the ids are unique', () => {
     for (const x of TEMPLATES) expect(Object.keys(SOURCE_NAME), x.id).toContain(x.src);
-    for (const src of Object.keys(SOURCE_NAME).filter((k) => k !== 'quote')) expect(TEMPLATES.some((x) => x.src === src), src).toBe(true);
+    for (const src of Object.keys(SOURCE_NAME).filter((k) => k !== 'quote' && k !== 'own')) expect(TEMPLATES.some((x) => x.src === src), src).toBe(true);
     for (const x of TEMPLATES) expect(TONES, x.id).toContain(x.ton);
     expect(Object.keys(TONE_NAME).sort()).toEqual([...TONES].sort());
     expect(new Set(TEMPLATES.map((x) => x.id)).size).toBe(TEMPLATES.length);
@@ -432,5 +432,71 @@ describe('PR 3: tone, sources, sentences switched off', () => {
     expect(stillFits(c, setSource(null, 'tour', false), shown)).toBe(false);
     expect(stillFits(c, setTemplate(null, 't.far', false), shown)).toBe(false);
     expect(stillFits(c, null, null)).toBe(false);
+  });
+});
+
+describe('PR 4: own sayings', () => {
+  it('the list is made safe: one line, 140 characters, a known tone, no double ids, at most 40', () => {
+    const long = 'x'.repeat(300);
+    const list = ownOf({ items: [{ id: 'a', text: '  Los   geht\'s\n heute ', ton: 'lustig' }, { id: 'a', text: 'doppelt' }, { id: 'b', text: '', ton: 'mot' }, { id: 'c', text: long, ton: 'nonsense' }, { id: 'd~2', text: 'ohne Tilde' }, null, { text: 'ohne id' }] });
+    expect(list.map((x) => x.id)).toEqual(['a', 'c', 'd2']);
+    expect(list[0]).toEqual({ id: 'a', text: 'Los geht\'s heute', ton: 'lustig' });
+    expect(list[1].text).toHaveLength(OWN_LEN);
+    expect(list[1].ton).toBe('mot');
+    expect(ownOf(null)).toEqual([]);
+    expect(ownOf(Array.from({ length: 60 }, (_, i) => ({ id: `i${i}`, text: `s${i}` })))).toHaveLength(OWN_MAX);
+  });
+  it('add, change and delete give a new list and ignore empty texts', () => {
+    let l = addOwn([], 'Erster', 'vision', 'one');
+    l = addOwn(l, 'Zweiter', 'chal', 'two');
+    expect(l.map((x) => x.text)).toEqual(['Erster', 'Zweiter']);
+    expect(addOwn(l, '   ', 'mot', 'x')).toEqual(l);
+    expect(addOwn(l, 'Doppelt', 'mot', 'one')).toEqual(l); // an id is never used twice
+    expect(editOwn(l, 'one', { text: 'Neu', ton: 'ruhig' })[0]).toEqual({ id: 'one', text: 'Neu', ton: 'ruhig' });
+    expect(editOwn(l, 'one', { text: ' ', ton: 'ruhig' })).toEqual(l);
+    expect(dropOwn(l, 'one').map((x) => x.id)).toEqual(['two']);
+    let full = [];
+    for (let i = 0; i < OWN_MAX + 5; i++) full = addOwn(full, `s${i}`, 'mot', `i${i}`);
+    expect(full).toHaveLength(OWN_MAX);
+  });
+  it('an own saying fits always, even with no numbers, with its own text and no language; the tone, the switch and the source switch hold', () => {
+    const c = ctx({ own: [{ id: 'k1', text: 'Heute zählt der erste Schritt.', ton: 'vision' }, { id: 'k2', text: 'Nimm die lange Runde.', ton: 'chal' }] });
+    expect(ids(c)).toEqual(['o.k1', 'o.k2']);
+    const e = fitting(c).find((x) => x.id === 'o.k1');
+    expect(e).toMatchObject({ src: 'own', ton: 'vision', text: 'Heute zählt der erste Schritt.', lang: '' });
+    expect(ids(c, { ton: 'vision' })).toEqual(['o.k1']);
+    expect(ids(c, { off: ['o.k1'] })).toEqual(['o.k2']);
+    expect(ids(c, { offSrc: ['own'] })).toEqual([]);
+    expect(pickSpruch(c, null).src).toBe('own');
+    expect(SOURCE_NAME.own).toBe('Own|saying');
+    expect(DE['Own|saying']).toBeTruthy();
+    expect(DE['A saying you wrote yourself.']).toBeTruthy();
+  });
+  it('an own challenge only comes on a day that is not off the own normal, like every challenge', () => {
+    const own = [{ id: 'c1', text: 'Nimm die lange Runde.', ton: 'chal' }];
+    expect(ids(ctx({ rows: rows(), own }))).toContain('o.c1');
+    const off = ctx({ rows: rows({ todaySleep: 330 }), own });
+    expect(off.rec.state).toBe('off');
+    expect(ids(off)).not.toContain('o.c1');
+  });
+  it('own sayings come with the others and never twice in a row from the same source; the text is shown as written', () => {
+    const c = ctx({ rows: rows(), goal: 150, trip: { startDate: day(10), name: 'Pass' }, packed: { packed: 5, of: 10 }, own: [{ id: 'm1', text: 'Mein Satz', ton: 'mot' }, { id: 'm2', text: 'Noch einer', ton: 'lustig' }] });
+    let rec = null;
+    const shown = [];
+    for (let i = 0; i < 40; i++) {
+      const p = pickSpruch(c, rec, { rand: () => (i % 9) / 9 });
+      shown.push(p);
+      rec = remember(rec, p);
+    }
+    expect(shown.some((p) => p.src === 'own')).toBe(true);
+    expect(shown.some((p) => p.src !== 'own')).toBe(true);
+    for (const p of shown.filter((x) => x.src === 'own')) expect(['Mein Satz', 'Noch einer']).toContain(p.text);
+  });
+  it('stillFits notices a changed text of the same own saying', () => {
+    const own = [{ id: 'm1', text: 'Mein Satz', ton: 'mot' }];
+    const shown = fitting(ctx({ own })).find((x) => x.id === 'o.m1');
+    expect(stillFits(ctx({ own }), null, shown)).toBe(true);
+    expect(stillFits(ctx({ own: [{ id: 'm1', text: 'Anders', ton: 'mot' }] }), null, shown)).toBe(false);
+    expect(stillFits(ctx({ own: [] }), null, shown)).toBe(false);
   });
 });

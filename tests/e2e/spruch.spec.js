@@ -1,4 +1,4 @@
-// «Spruch zum Einstieg» PR 1, 2 and 3 (Noah 07.11.2026 «Bau spruch pr1», «bau spruch pr2», «bau spruch pr3 und 4»): the tile «Spruch» on Heute: a sentence in Bernese German
+// «Spruch zum Einstieg» PR 1 to 4 (Noah 07.11.2026 «Bau spruch pr1», «bau spruch pr2», «bau spruch pr3 und 4»): the tile «Spruch» on Heute: a sentence in Bernese German
 // from the numbers of the fictional data, «Warum?» shows the number behind it, «Neuer Spruch» gives another one;
 // without any number a quote of «Kissenzeit» comes; with every quote switched off the tile says why it is empty.
 import { test, expect } from './clock.js';
@@ -111,7 +111,7 @@ test('Spruch: Fenster Alle Sprueche, Ton waehlen, Quelle abschalten', async ({ p
   await expect(sheet).toBeVisible();
   await expect(sheet.locator('h2')).toHaveText(T('All sayings'));
   // every source has its switch, every sentence its own
-  await expect(sheet.locator('[data-spruch-source]')).toHaveCount(9);
+  await expect(sheet.locator('[data-spruch-source]')).toHaveCount(10); // nine sources and the own sayings
   await expect(sheet.locator('[data-spruch-template]')).toHaveCount(25);
   // the tone «Calm»: the sentence of the tile changes to a calm one when the window closes
   await sheet.locator('[data-spruch-tones] button', { hasText: T('Calm|saying') }).click();
@@ -128,4 +128,49 @@ test('Spruch: Fenster Alle Sprueche, Ton waehlen, Quelle abschalten', async ({ p
     await tile.locator('[data-spruch-new]').click();
     await expect(tile.locator('[data-spruch]')).not.toHaveAttribute('data-spruch', /^a\./);
   }
+});
+
+test('Spruch: eigene Sprueche schreiben, aendern und loeschen mit Rueckgaengig', async ({ page, context }, info) => {
+  const d = homeFixture();
+  d.tables.trips = [];
+  d.tables.debriefs = [];
+  d.tables.settings = d.tables.settings.filter((s) => s.key !== 'homePlace');
+  d.tables.settings.push({ key: QUOTES_KEY, value: { off: QUOTES.map((q) => q.id), add: [], own: [] } });
+  await openHome(page, context, info, { data: d });
+  const tile = page.locator('[data-section="spruch"]');
+  await expect(tile.locator('[data-empty]')).toBeVisible({ timeout: 15_000 }); // nothing to say yet
+  // write one in the window «All sayings»
+  await tile.locator('[data-spruch-all]').click();
+  const sheet = page.locator('dialog[data-spruch-sheet]');
+  await expect(sheet.locator('[data-spruch-own-empty]')).toBeVisible();
+  const add = sheet.locator('[data-spruch-own-add]');
+  await expect(add.locator('[data-spruch-own-save]')).toBeDisabled(); // an empty text is not saved
+  await add.locator('[data-spruch-own-text]').fill('Mein erster Spruch');
+  await add.locator('button', { hasText: T('Funny|saying') }).click();
+  await add.locator('[data-spruch-own-save]').click();
+  await expect(sheet.locator('[data-spruch-own] li')).toHaveCount(1);
+  await expect(sheet.locator('[data-spruch-own] li')).toContainText('Mein erster Spruch');
+  await expect(add.locator('[data-spruch-own-text]')).toHaveValue('');
+  // change it
+  await sheet.locator('[data-spruch-own-edit]').click();
+  const row = sheet.locator('[data-spruch-own] li');
+  await row.locator('[data-spruch-own-text]').fill('Mein zweiter Spruch');
+  await row.locator('[data-spruch-own-save]').click();
+  await expect(row).toContainText('Mein zweiter Spruch');
+  await sheet.locator('[data-spruch-done]').click();
+  await expect(sheet).toHaveCount(0);
+  // the tile shows it as written, with the tag «Own»
+  const text = tile.locator('[data-spruch]');
+  await expect(text).toHaveText('Mein zweiter Spruch');
+  await expect(text).toHaveAttribute('data-spruch', /^o\./);
+  await expect(tile.locator('[data-spruch-ton]')).toHaveAttribute('data-spruch-ton', 'lustig');
+  await expect(tile.getByText(T('Own|saying'), { exact: true })).toBeVisible();
+  // delete it: the question, then Undo brings it back
+  await tile.locator('[data-spruch-all]').click();
+  await sheet.locator('[data-spruch-own-delete]').click();
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(sheet.locator('[data-spruch-own] li')).toHaveCount(0);
+  await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).last().click();
+  await expect(sheet.locator('[data-spruch-own] li')).toHaveCount(1);
+  await expect(sheet.locator('[data-spruch-own] li')).toContainText('Mein zweiter Spruch');
 });
