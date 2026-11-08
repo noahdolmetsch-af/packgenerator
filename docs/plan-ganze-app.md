@@ -18,7 +18,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | --- | --- | --- | --- | --- |
 | 0a | Tour-Stand rechnen (ohne Anzeige) | #1136 | online | datei:src/lib/tourpfad/stand.js; datei:tests/tourstand.test.js |
 | 0b | Seite «Meine Datenquellen» | #1143 | online | datei:src/pages/Quellen.svelte; funktion:f.quellen |
-| 1 | Pfad-Baustein (baut auf «Weg zum Ziel» als Linie auf), Tour-Pfad mit 4 Phasen | #1181 | gebaut | - |
+| 1 | Pfad-Baustein (baut auf «Weg zum Ziel» als Linie auf), Tour-Pfad mit 4 Phasen | #1184 | gebaut | - |
 | 2a | Karte «Meine Tour» auf Heute (nur bei geplanter Tour, Hinweise als eine Zeile) | - | offen | - |
 | 2b | Heute-Hauptkarte nach Moment | - | offen | - |
 | 3a | Ort-Vorlage mit 6 Bändern: Velos | - | offen | - |

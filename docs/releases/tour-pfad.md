@@ -1,6 +1,6 @@
 # Tour-Pfad
 
-PR #1181 · 08.11.2026 · Auftrag: Noah «1 go A» (Thread «Bauen: Tour-Stand und Meine Datenquellen», Schritt 1 des Plans «ganze App»)
+PR #1184 · 08.11.2026 · Auftrag: Noah «1 go A» (Thread «Bauen: Tour-Stand und Meine Datenquellen», Schritt 1 des Plans «ganze App»)
 
 ## Was ist neu
 - Neue Seite «Tour-Pfad» (`#/trips/pfad?t=<Tour>`, `src/pages/Tourpfad.svelte`): eine Tour in vier Phasen (Planen, Vorbereiten, Unterwegs, Danach). Jede Zeile ist ein Link auf eine Seite, die es schon gibt, mit ihrem Stand (✓ erledigt, ◐ begonnen, ○ offen, ! Hinweis). Die laufende Phase ist offen, die anderen sind eingeklappt. Ein grosser Knopf führt zur ersten offenen Zeile.
