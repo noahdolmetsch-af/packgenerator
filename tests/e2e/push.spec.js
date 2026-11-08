@@ -176,3 +176,19 @@ test('the switches sit in four closed folds with a count; a tap opens one', asyn
   await expect(page.locator('[data-push-group="day"] summary .ps-gs')).toHaveText(T('{n} of {m} on', { n: 1, m: 5 }));
   await expect(page.locator('[data-push-group="weather"] summary .ps-gs')).toHaveText(T('All off'));
 });
+
+// 7b-08 (Noah «alles»): the wake-up call box says it in plain words; the steps sit in a fold, closed at the start
+test('the wake-up call box has its steps in a closed fold «Step by step»', async ({ page, context }) => {
+  await open(page, context);
+  await page.goto('./#/me/push');
+  await settle(page);
+  const box = page.locator('[data-push-cron]');
+  await expect(box).toContainText(T('The reminders only come on time if someone wakes the server every minute. The free service cron-job.org does that. You set it up once, then you have nothing more to do.'));
+  const fold = box.locator('[data-push-cron-steps]');
+  await expect(fold.locator('summary')).toHaveText(T('Step by step'));
+  expect(await fold.evaluate((el) => el.open)).toBe(false);
+  await expect(fold.locator('li')).toHaveCount(4);
+  await expect(fold.locator('li').first()).toBeHidden();
+  await fold.locator('summary').click();
+  await expect(fold.locator('li').first()).toBeVisible();
+});
