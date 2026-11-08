@@ -61,15 +61,12 @@ export const FOLD_KEY = 'seiteninhalt.folded';
 /** How many functions a page's card showed when the user last folded or opened it ({ [page key]: number }); the «new» dot compares with it. */
 export const SEEN_KEY = 'seiteninhalt.seen';
 /**
- * Pages where the card starts as one line (Noah 02.11.2026): on the way the helpers, «End trip» and the emergency button
- * must stay on the first screen; on Pack the packing list comes first. A tap opens it, and the choice is kept like ×.
+ * Every page starts with the card as ONE line (Noah 08.11.2026 «1a», UX test: the card stood in front of the page's title, on
+ * some pages 1000 px high). Until 07.11.2026 only a list of pages did (on the way, Pack, Bikes, Material, Trips, the settings);
+ * now all of ON_PAGES do. A tap on the line opens the card; the choice is kept per page like «Fold the card».
+ * Whoever opened a card before keeps it open (the stored choice wins).
  */
-// Wegweiser 18: Training and Auswerten start as one line too (heimat.spec: their functions must stay within 2.5 screens)
-// Wegweiser 26b: Touren and Ski tours are main pages with their own list first
-export const FOLDED_FIRST = ['#/ride', '#/pack', '#/bikes', '#/gear', '#/flow/training', '#/auswerten', '#/debrief/:trip', '#/trips', '#/ski',
-  // Wegweiser 26a: settings-like pages and the care tab keep their own controls on the first screen
-  '#/me/data', '#/me/look', '#/me/connections', '#/me/push', '#/bikes?tab=care', '#/timer',
-  '#/me/tools'];
+export const FOLDED_FIRST = ON_PAGES;
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {
@@ -143,12 +140,12 @@ export function isFolded(map, key, first = FOLDED_FIRST) {
   return key in m ? m[key] : first.includes(key);
 }
 
-/** The pages whose folded card is the user's own choice: stored as folded and not folded at the start anyway. */
-export const foldedCount = (map, first = FOLDED_FIRST) => Object.entries(foldMapOf(map)).filter(([k, v]) => v === true && !first.includes(k)).length;
+/** The pages whose card the user opened (stored as opened); every page starts folded. */
+export const openedCount = (map) => Object.values(foldMapOf(map)).filter((v) => v === false).length;
 
-/** The stored choices without the folds the user made («Open all cards again»); opened choices and FOLDED_FIRST pages stay. */
-export function unfoldAll(map, first = FOLDED_FIRST) {
-  return Object.fromEntries(Object.entries(foldMapOf(map)).filter(([k, v]) => v !== true || first.includes(k)));
+/** The stored choices without the cards the user opened («Fold all cards again»): every page then starts as one line again. */
+export function foldAll(map) {
+  return Object.fromEntries(Object.entries(foldMapOf(map)).filter(([, v]) => v !== false));
 }
 
 /** The stored numbers ({ [page key]: functions seen }), other values left out. */
