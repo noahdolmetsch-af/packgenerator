@@ -13,12 +13,14 @@ import { OFFERS_KEY, SEEN_KEY, allBookings } from './client.js';
 import { unseen, dayOf, timeOf, addDays, remindersOf, contactHref, waitingFree } from './model.js';
 import { WAITLIST_KEY } from './waitlist.js';
 import { CUSTOMERS_KEY, fixedSuggestions } from './customers.js';
+import { REMINDER_KEY, reminderSetting, reminderMessage, reminderSubject } from './reminder.js';
 
 export const bookingNotes = readable([], (set) => {
   let all = null;
   let seen = [];
   let waiting = [];
   let customers = [];
+  let reminder = reminderSetting();
   const show = () => {
     if (!all) return;
     const today = localDay();
@@ -30,14 +32,16 @@ export const bookingNotes = readable([], (set) => {
         return fresh.length ? [{ id: o.id, title: o.title, n: fresh.length, name: fresh[0].name, at: fresh[0].at, ask: fresh.every((b) => b.status === 'requested') }] : [];
       }),
       // reminders (Noah 04.11.2026 «2a»): lessons today and tomorrow, with a message Noah sends himself
-      ...all.flatMap((o) => remindersOf(o.bookings, now).map((b) => ({ remind: true, id: o.id, title: o.title, b, today, tomorrow: addDays(today, 1) }))),
+      // (Noah 08.11.2026: with place and cancel rule, own text possible, switch in the offer)
+      ...(reminder.on ? all.flatMap((o) => remindersOf(o.bookings, now).map((b) => ({ remind: true, id: o.id, title: o.title, b, today, tomorrow: addDays(today, 1), place: (o.slots ?? []).find((s) => s.id === b.slot)?.venue || o.place || '', hours: o.cancelHours, text: reminder.text }))) : []),
       // waiting list (Noah 04.11.2026 «7a»): a place is free again for someone who waits
       ...all.flatMap((o) => waitingFree(waiting, o, o.bookings, now).map(({ w, slot }) => ({ waitfree: true, id: o.id, title: o.title, w, at: slot.at }))),
       // fixed time (Noah 04.11.2026 «8a»): a regular customer's usual time is free again this week
       ...fixedSuggestions(customers, all, now).map(({ customer, offer, slot }) => ({ fixed: true, id: offer.id, title: offer.title, c: customer, at: slot.at })),
     ]);
   };
-  const sub = liveQuery(async () => ({ offers: (await db.settings.get(OFFERS_KEY))?.value ?? [], seen: (await db.settings.get(SEEN_KEY))?.value ?? [], waiting: (await db.settings.get(WAITLIST_KEY))?.value ?? [], customers: (await db.settings.get(CUSTOMERS_KEY))?.value ?? [] })).subscribe((q) => {
+  const sub = liveQuery(async () => ({ offers: (await db.settings.get(OFFERS_KEY))?.value ?? [], seen: (await db.settings.get(SEEN_KEY))?.value ?? [], waiting: (await db.settings.get(WAITLIST_KEY))?.value ?? [], customers: (await db.settings.get(CUSTOMERS_KEY))?.value ?? [], reminder: (await db.settings.get(REMINDER_KEY))?.value })).subscribe((q) => {
+    reminder = reminderSetting(q.reminder);
     seen = q.seen;
     waiting = q.waiting;
     customers = Array.isArray(q.customers) ? q.customers : [];
@@ -65,8 +69,8 @@ export function bookingRow(n) {
 function reminderRow(n) {
   const day = dayOf(n.b.at) === n.today ? t('today') : t('tomorrow');
   const text = t('Lesson {day} at {time}: {name} · {title}', { day, time: timeOf(n.b.at), name: n.b.name, title: n.title });
-  const msg = t('Hello {name}! A reminder: {title} {day} at {time}. See you then!', { name: n.b.name, title: n.title, day, time: timeOf(n.b.at) });
-  const href = contactHref(n.b.contact, msg) ?? `#/me/offers/${n.id}`;
+  const v = { text: n.text, name: n.b.name, title: n.title, day, time: timeOf(n.b.at), place: n.place, hours: n.hours };
+  const href = contactHref(n.b.contact, reminderMessage(v, t), reminderSubject(v, t)) ?? `#/me/offers/${n.id}`;
   return { key: `remind:${n.b.id}`, tone: 'info', text, act: { label: t('Remind'), href } };
 }
 

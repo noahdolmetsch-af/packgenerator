@@ -96,7 +96,6 @@ export default {
   'No-show': 'Nicht erschienen',
   'Cancelled late counts half, no-show counts the full price. You can change the amount in the form.': 'Spät abgesagt zählt halb, nicht erschienen zählt den vollen Preis. Den Betrag kannst du im Formular ändern.',
   'Lesson {day} at {time}: {name} · {title}': 'Stunde {day} um {time}: {name} · {title}',
-  'Hello {name}! A reminder: {title} {day} at {time}. See you then!': 'Hallo {name}! Zur Erinnerung: {title} {day} um {time}. Bis dann!',
   today: 'heute',
   tomorrow: 'morgen',
   'Which free times do you offer?': 'Welche freien Zeiten bietest du an?',

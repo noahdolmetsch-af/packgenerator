@@ -61,7 +61,7 @@ export async function allBookings(offers = [], doFetch = fetch) {
   const out = [];
   for (const o of offers) {
     const r = await ownerBookings(o.id, o.owner, doFetch);
-    if (r.ok) out.push({ id: o.id, title: o.offer?.title ?? '', slots: o.offer?.slots ?? [], types: o.offer?.types ?? [], bookings: r.bookings });
+    if (r.ok) out.push({ id: o.id, title: o.offer?.title ?? '', place: o.offer?.place ?? '', cancelHours: o.offer?.cancelHours ?? null, slots: o.offer?.slots ?? [], types: o.offer?.types ?? [], bookings: r.bookings });
   }
   return out;
 }
