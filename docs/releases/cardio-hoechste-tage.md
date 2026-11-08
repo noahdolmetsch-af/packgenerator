@@ -16,7 +16,7 @@ Auftrag: Noah «1a 2a 3a 4a 5b und alle A-F» 07.11.2026 (Thread «Cardio-Belast
 - Nur Anzeige: nichts wird bewertet.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- Ideen A–F für Cardio-Belastung: E gebaut. Baut auf F («Der Tag davor, vollständig») auf; E wird nach dessen Merge geöffnet.
+- Ideen A–F für Cardio-Belastung: E gebaut (nutzt die Namen aus F «Am Tag davor», die jetzt auf main sind).
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Analyse › Cardio-Belastung: die Karte «Höchste Tage» über «Pro Wochentag».
