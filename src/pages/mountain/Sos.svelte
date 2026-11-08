@@ -6,7 +6,7 @@
    * page opens and never leaves the device; «Copy» puts it on the clipboard.
    */
   import { onMount } from 'svelte';
-  import { ChevronLeft, Phone, Copy, LocateFixed, QrCode } from '@lucide/svelte';
+  import { ChevronLeft, Phone, Copy, LocateFixed, QrCode, RefreshCw, Map as MapIcon } from '@lucide/svelte';
   import { CALLS, telOf, toLv95, swissNum, deg, positionText } from '../../lib/mountain/sos.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
 
@@ -15,20 +15,38 @@
   let copied = $state(false);
   const ch = $derived(pos ? toLv95(pos.lat, pos.lon) : null);
 
-  onMount(() => {
+  // 08.11.2026 (UX-Test 4-02): «denied» and «none» are no dead end any more: «Try again» asks anew and «Open the map»
+  // leads to the place name. `again` is true after a try that ended the same way, so the page says it did try.
+  let watchId = null;
+  let again = $state(false);
+  function stop() {
+    if (watchId !== null) navigator.geolocation?.clearWatch(watchId);
+    watchId = null;
+  }
+  function start() {
+    stop();
     if (typeof navigator === 'undefined' || !navigator.geolocation) {
       status = 'none';
       return;
     }
-    const id = navigator.geolocation.watchPosition(
+    watchId = navigator.geolocation.watchPosition(
       (p) => {
         pos = { lat: p.coords.latitude, lon: p.coords.longitude, alt: p.coords.altitude, acc: p.coords.accuracy, at: new Date(p.timestamp) };
         status = 'ok';
+        again = false;
       },
       (e) => (status = e?.code === 1 ? 'denied' : pos ? 'ok' : 'none'),
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 },
     );
-    return () => navigator.geolocation.clearWatch(id);
+  }
+  function retry() {
+    again = true;
+    status = 'wait';
+    start();
+  }
+  onMount(() => {
+    start();
+    return stop;
   });
 
   async function copy() {
@@ -63,10 +81,19 @@
       {#if ch}<p class="coord ch num" data-lv95>{swissNum(ch.e)} / {swissNum(ch.n)}<small>{t('Swiss coordinates (LV95), Rega asks for these')}</small></p>{/if}
       <p class="sk-quiet num">{#if Number.isFinite(pos.alt)}{t('Height about {m} m', { m: num(Math.round(pos.alt)) })}{' · '}{/if}{t('accurate to {m} m', { m: num(Math.round(pos.acc ?? 0)) })} · {t('at {time}', { time: time(pos.at) })}</p>
       <button type="button" class="btn" onclick={copy} data-copy><Copy size={18} aria-hidden="true" />{copied ? t('Copied') : t('Copy position')}</button>
-    {:else if status === 'denied'}
-      <p class="sk-quiet" role="alert">{t('The position is switched off for this app. Allow «Location» in the browser settings, or read your place from the map.')}</p>
-    {:else if status === 'none'}
-      <p class="sk-quiet" role="alert">{t('No position yet. Go to an open spot and wait a moment; the phone needs the sky, not the internet.')}</p>
+    {:else if status === 'denied' || status === 'none'}
+      <p class="sk-quiet" role="alert">
+        {#if status === 'denied'}
+          {again ? t('Still switched off.') + ' ' : ''}{t('The position is switched off for this app. Tell the rescue your place name, or look it up on the map.')}
+        {:else}
+          {again ? t('Still nothing.') + ' ' : ''}{t('No position yet. Go to an open spot and wait a moment; the phone needs the sky, not the internet.')}
+        {/if}
+      </p>
+      {#if status === 'denied'}<p class="sk-quiet">{t('To allow it: browser settings, «Location».')}</p>{/if}
+      <div class="acts">
+        <button type="button" class="btn hi" onclick={retry} data-sos-retry><RefreshCw size={18} aria-hidden="true" />{t('Try the position again')}</button>
+        <a class="btn" href="#/mountain/map" data-sos-map><MapIcon size={18} aria-hidden="true" />{t('Open the map')}</a>
+      </div>
     {:else}
       <p class="sk-quiet">{t('Looking for your position…')}</p>
     {/if}
@@ -148,6 +175,15 @@
     align-items: center;
     gap: 6px;
     min-height: 44px;
+  }
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .where .acts .btn {
+    justify-content: center;
+    text-decoration: none;
   }
   .say {
     margin: 0;
