@@ -134,7 +134,10 @@
 
 <section class="band trip-band" class:compact aria-label={t('Trip')}>
   <div class="who">
-    <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}<!-- «Tour-Pfad» (Noah 08.11.2026 «1 go A»): the way into the path of the tour, on the crumb line (no extra height), on a phone too --><a class="pfad" href={`#/trips/pfad?t=${encodeURIComponent(trip.id)}`} data-pfad-link>{t('Tour path')}<ChevronRight size={14} aria-hidden="true" /></a></nav>
+    <div class="crumbline">
+      <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
+      <!-- «Tour-Pfad» (Noah 08.11.2026 «1 go A»): the way into the path of the tour, on the crumb line (no extra height), on a phone too --><a class="pfad" href={`#/trips/pfad?t=${encodeURIComponent(trip.id)}`} data-pfad-link>{t('Tour path')}<ChevronRight size={14} aria-hidden="true" /></a>
+    </div>
     <div class="kline">
       {#if stInfo?.state}<TripState state={stInfo.state} size="md" extra={stExtra && stateMore ? `${stExtra}, ${stateMore}` : stExtra} />{/if}
       {#if kicker}<p class="kick">{kicker}</p>{/if}
@@ -215,8 +218,24 @@
   .crumb a:hover {
     background: var(--paper-2);
   }
-  .crumb a.pfad {
-    margin: 0 -6px 0 auto;
+  .crumbline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    min-width: 0;
+  }
+  .crumbline .crumb {
+    flex: 1 1 auto;
+  }
+  .pfad {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    min-height: 44px;
+    margin: 0 0 2px;
+    padding: 0 6px;
+    font-size: var(--fs-small);
     color: var(--ink-3);
     font-weight: 400;
     text-decoration: underline;
@@ -405,7 +424,7 @@
       column-gap: 16px;
       margin-bottom: 10px;
     }
-    .crumb {
+    .crumbline {
       display: none;
     }
     .kick {
