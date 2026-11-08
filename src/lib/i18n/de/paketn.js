@@ -162,7 +162,7 @@ export default {
   'Make a goal': 'Ziel daraus',
   'only the name changes; the entries stay': 'nur der Name ändert sich; die Einträge bleiben',
   'only the box goes; its entries stay': 'nur die Ablage geht; ihre Einträge bleiben',
-  'Write something into «{name}»': 'Etwas in «{name}» schreiben',
+  'Write something into «{name}»': 'Neu in «{name}»',
   'New entry in {name}': 'Neuer Eintrag in {name}',
   'No box': 'Ohne Ablage',
   'From a deleted box. They stay until you delete them.': 'Aus einer gelöschten Ablage. Sie bleiben, bis du sie löschst.',

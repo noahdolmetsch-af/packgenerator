@@ -10,7 +10,7 @@
  * day; null when there is nothing to look back on (no start day, the start not over, no step with a planned day).
  * Pure, tested in tests/weg-rueckblick.test.js. Days are calendar days; nothing reads the clock.
  */
-import { dueOf, daysBetween } from './weg.js';
+import { dueOf, daysBetween, EARLIER_DAYS } from './weg.js';
 
 export function lookBack(goal, today) {
   if (!goal?.start || !today || goal.start >= today) return null;
@@ -33,4 +33,19 @@ export function sayDiff(diff) {
   return diff > 0
     ? { one: '+{n} day', many: '+{n} days', n: diff }
     : { one: '−{n} day', many: '−{n} days', n: -diff };
+}
+
+/**
+ * Idea 5e «suggestion for next time»: the first step that was not done and not answered yet, as a question
+ * «next time N weeks earlier?». Answered steps (step.next) and steps asked «later» today stay quiet. null when
+ * there is nothing to ask (or the review is not shown yet).
+ */
+export function nextTime(goal, today) {
+  const rows = lookBack(goal, today);
+  if (!rows) return null;
+  const miss = rows.find((r) => {
+    const s = goal.steps.find((x) => x.id === r.id);
+    return r.state === 'missed' && s && !s.next && s.later !== today;
+  });
+  return miss ? { id: miss.id, title: miss.title, weeks: EARLIER_DAYS / 7 } : null;
 }

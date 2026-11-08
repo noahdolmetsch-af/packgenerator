@@ -11,11 +11,11 @@
   import { db } from '../lib/db.js';
   import { RACES_KEY, racesOf } from '../lib/race/race.js';
   import { raceChoices } from '../lib/training/plans.js';
-  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, setPeriod, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, saveTemplate, renameTemplate, removeTemplate, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
+  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, setPeriod, setNext, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, saveTemplate, renameTemplate, removeTemplate, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
   import { milestones } from '../lib/weg/types/proben.js';
   import { windowOf, sayWindow } from '../lib/weg/wetter.js';
-  import { lookBack, sayDiff } from '../lib/weg/rueckblick.js';
+  import { lookBack, sayDiff, nextTime } from '../lib/weg/rueckblick.js';
   import { goalPeriod, suggestion } from '../lib/weg/startvorschlag.js';
   import { DREAM_WX, refreshDreamWx, placeOf, placeKey } from '../lib/dreams/wetterfenster.js';
   import { rainLimit } from '../lib/rainlimit.svelte.js';
@@ -111,6 +111,7 @@
   });
   // the review «planned against actual» (Noah «5a»): once the start day is over
   const back = $derived(goal ? lookBack(goal, today) : null);
+  const ask = $derived(goal ? nextTime(goal, today) : null);
   const diffText = (d) => {
     const x = sayDiff(d);
     return x ? (x.n === 0 ? t(x.one) : tn(x.n, x.one, x.many)) : '';
@@ -418,6 +419,19 @@
       </section>
     {/if}
 
+    {#if ask}
+      <section class="card pad wg-next" data-weg-next aria-label={t('Suggestion for next time')}>
+        <h3>{t('Suggestion for next time')}</h3>
+        <b class="wg-wtitle">{t('"{name}" was left out. Next time plan it {n} weeks earlier?', { name: ask.title, n: num(ask.weeks) })}</b>
+        <div class="wg-acts">
+          <button type="button" class="btn hi" onclick={() => putGoal(setNext(goal, ask.id, 'earlier'))} data-weg-next-yes>{t('Yes, earlier')}</button>
+          <button type="button" class="btn" onclick={() => putGoal(setNext(goal, ask.id, 'keep'))} data-weg-next-no>{t('No')}</button>
+          <button type="button" class="btn" onclick={() => putGoal(setNext(goal, ask.id, 'later', today))} data-weg-next-later>{t('Ask later')}</button>
+        </div>
+        <p class="wg-sub">{t('The answer is kept with the step. A way you save as a template (coming next) uses it.')}</p>
+      </section>
+    {/if}
+
     {#if back}
       <section class="card pad wg-save" data-weg-vorlage aria-label={t('Save as template')}>
         <h3>{t('Save as template')}</h3>
@@ -597,6 +611,9 @@
   .wg-proben-note { margin: var(--sp-3) 0 0; text-align: center; }
   .wg-wetter h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-wtitle { font-size: var(--fs-sub); }
+  .wg-next { border-left: 4px solid var(--accent); }
+  .wg-next h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-next .wg-acts { margin-top: var(--sp-3); }
   .wg-save h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-save .wg-acts { margin-top: var(--sp-3); }
   .wg-mine { display: grid; gap: var(--sp-2); justify-items: start; }
@@ -614,7 +631,7 @@
   .wg-prow { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-2) 0; }
   .wg-open .wg-acts { margin-top: var(--sp-3); }
   .wg-days small { font-size: var(--fs-small); }
-  .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-save, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+  .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-save, .wg-next, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
 
   /* the way: one line with dots, «Today» marked on it (mockup G1) */
   .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }

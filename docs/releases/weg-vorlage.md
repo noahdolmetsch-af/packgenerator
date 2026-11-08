@@ -11,7 +11,7 @@ Auftrag: Noah «5c» (Entwurf G7, rechte Karte), Thread «Entwerfen Weg zum gros
 - nichts
 
 ## Selbst entschieden
-- Gespeichert werden die Schritte mit ihrem Abstand zum Start (`templateOf`); Haken und eigene Tage nicht. Ist ein Schritt beim Rückblick mit «Ja, früher» beantwortet (PR «Vorschlag fürs nächste Mal»), setzt `templateOf` ihn dann 14 Tage früher; diese Kopplung kommt mit dem Merge dieses PRs (eine Zeile in `templateOf`).
+- Gespeichert werden die Schritte mit ihrem Abstand zum Start (`templateOf`); Haken und eigene Tage nicht. Ein Schritt, der beim Rückblick mit «Ja, früher» beantwortet wurde, kommt 14 Tage früher in die Vorlage.
 - Daten: ein zusätzliches Feld `templates` im Eintrag `weg` (keine neue Tabelle, keine neue Dexie-Version; ältere Einträge laufen unverändert, im Backup wie der Rest).
 - Die Karte erscheint erst nach dem Starttag (wie der Rückblick); vorher gibt es nichts, woraus man lernt.
 - Namen der Vorlage und ihrer Schritte gehen nie durch `t()`.

@@ -12,6 +12,7 @@
 | Wo stehen wir heute, was kommt als Nächstes? | [Projektstand und Plan](projektstand.md) | Verlauf und Plan bis 02.11.2026; gilt nicht mehr als Stand, siehe [Stand und Plan](stand-und-plan.md) |
 | Wie ist das Projekt gewachsen? | [Geschichte](geschichte.md) | Abschnitte von 0.1.0 bis heute, mit den Wendepunkten und dem, was wir gelernt haben |
 | Was wurde seit 0.96 besprochen, entschieden, gebaut und spezifiziert? | [Zwischenstand 14.10.2026](zwischenstand/README.md) | Datierter Schnappschuss für Aussenstehende, sechs Dokumente |
+| Wie heisst welche Sache in der App? | [Namensliste](namen.md) | Ein Wort pro Sache, verbindlich seit 08.11.2026; jeder neue Text nimmt das Wort aus der Liste |
 | Was muss Claude bei jeder Arbeit beachten? | [CLAUDE.md](../CLAUDE.md) | Kurzanleitung für jede Claude-Sitzung: Arbeitsweise, Datenschutz, Release-Checkliste, Tests |
 | Was ist geplant und warum? Sind wir auf Kurs? | [Geplante Vorhaben](vorhaben.md) | Alle Vorhaben mit Warum, Beispiel und Stand; Kurs-Check vor jedem Paket |
 | Wie arbeiten wir zusammen (Pakete, Mockups, Freigabe)? | [Arbeitsweise](arbeitsweise.md) | Oben die Regeln, die seit 18.10.2026 gelten (zuerst bauen, dann Bilder; Claude führt ein Paket nach Noahs «ok» zusammen; Fragen ohne ★; kein Trello). Darunter die Arbeitsanweisung vom 9.10.2026 als Verlauf |

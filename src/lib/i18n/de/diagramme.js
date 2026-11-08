@@ -132,4 +132,8 @@ export default {
   'No ride in this month.': 'In diesem Monat keine Fahrt.',
   'Point at a day for its mood, tap it for the day.': 'Zeig auf einen Tag für die Stimmung, tippe ihn an für den Tag.',
   'No mood noted on this day.': 'Für diesen Tag ist keine Stimmung notiert.',
+  'Point at a duration for its power, tap it for the duration.': 'Zeig auf eine Dauer für die Leistung, tippe sie an für die Dauer.',
+  'Shorter duration': 'Kürzere Dauer',
+  'Longer duration': 'Längere Dauer',
+  'Best power over {d}': 'Beste Leistung über {d}',
 };

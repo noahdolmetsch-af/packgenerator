@@ -431,12 +431,12 @@
           <div class="of-wh"><h2 id="of-rules-h">{t('How booking works')}</h2><button type="button" class="lkb" onclick={openRules}>{t('Change')}</button></div>
           <ul class="of-rules">
             <li><Clock size={18} aria-hidden="true" /><b>{t('Length')}</b><span>{lengthWord(o)}</span></li>
-            <li><Users size={18} aria-hidden="true" /><b>{t('Places')}</b><span>{o.types.map((x) => `${x.label} ${x.places}`).join(' · ')}</span></li>
+            <li><Users size={18} aria-hidden="true" /><b>{t('Places|seats')}</b><span>{o.types.map((x) => `${x.label} ${x.places}`).join(' · ')}</span></li>
             <li><CreditCard size={18} aria-hidden="true" /><b>{t('Price')}</b><span>{o.types.map((x) => `${x.label} ${chf(x.price)} CHF`).join(' · ')}</span></li>
             <li><Bell size={18} aria-hidden="true" /><b>{t('Booking')}</b><span>{o.mode === 'request' ? t('request, you answer within 24 h') : t('booked at once')}</span></li>
             <li><Repeat size={18} aria-hidden="true" /><b>{t('Payment')}</b><span>{o.pay === 'online' ? t('online (test mode)') : t('on site (cash, TWINT)')}</span></li>
             <li><Bell size={18} aria-hidden="true" /><b>{t('Cancelling')}</b><span>{t('people up to {n} h before · you any time', { n: o.cancelHours })}</span></li>
-            {#if o.venues?.length}<li><MapPin size={18} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place')}</b><span>{o.place}</span></li>{/if}
+            {#if o.venues?.length}<li><MapPin size={18} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place|venue')}</b><span>{o.place}</span></li>{/if}
           </ul>
         </section>
       </div>
@@ -553,7 +553,7 @@
       <form onsubmit={saveRules}>
         <div class="of-sh"><h2 id="of-rules-sh">{t('How booking works')}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => rulesDlg.close()}><X size={20} aria-hidden="true" /></button></div>
         <label class="lbl" for="of-title">{t('Name')}</label><input id="of-title" class="inp" bind:value={draft.title} maxlength="60" />
-        <label class="lbl" for="of-place">{t('Place')}</label><input id="of-place" class="inp" bind:value={draft.place} maxlength="60" placeholder={t('e.g. sand court')} />
+        <label class="lbl" for="of-place">{t('Place|venue')}</label><input id="of-place" class="inp" bind:value={draft.place} maxlength="60" placeholder={t('e.g. sand court')} />
         <label class="lbl" for="of-min">{t('Length in minutes')}</label><input id="of-min" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.minutes} />
         <label class="lbl" for="of-venues">{t('Places to choose from (separated by commas)')}</label><input id="of-venues" class="inp" bind:value={draft.venuesText} placeholder={t('e.g. Court by the lake, Indoor hall')} />
         <p class="lbl">{t('Booking')}</p>
@@ -571,7 +571,7 @@
             <legend>{t('Kind {n}', { n: i + 1 })}</legend>
             <label class="lbl" for={`of-tl-${i}`}>{t('Name')}</label><input id={`of-tl-${i}`} class="inp" bind:value={x.label} maxlength="30" />
             <span class="of-two">
-              <span><label class="lbl" for={`of-tp-${i}`}>{t('Places')}</label><input id={`of-tp-${i}`} class="inp" type="number" min="1" max="50" inputmode="numeric" bind:value={x.places} /></span>
+              <span><label class="lbl" for={`of-tp-${i}`}>{t('Places|seats')}</label><input id={`of-tp-${i}`} class="inp" type="number" min="1" max="50" inputmode="numeric" bind:value={x.places} /></span>
               <span><label class="lbl" for={`of-tc-${i}`}>{t('Price in CHF')}</label><input id={`of-tc-${i}`} class="inp" inputmode="decimal" bind:value={x.chf} /></span>
             </span>
           </fieldset>
