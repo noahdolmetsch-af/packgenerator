@@ -44,7 +44,7 @@ test('Daten aufräumen: status, question, folds, backup first', async ({ page, c
 
   // the file way is open on the page (no fold), «More» is folded
   const file = main.locator('[data-section="backup-file"]');
-  await expect(file.getByRole('button', { name: T('Save backup') }).first()).toBeVisible();
+  await expect(file.getByRole('button', { name: T('Save backup') })).toBeVisible();
   await expect(file.locator('[data-backup-steps]')).toBeVisible();
   const more = main.locator('[data-morefold="more"]');
   await more.locator('summary').click();

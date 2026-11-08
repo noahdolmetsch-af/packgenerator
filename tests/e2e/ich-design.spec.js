@@ -75,7 +75,7 @@ test('I2 and B20: the status lights, the backup buttons and Other data', async (
   await expect(panel.locator('li.light .dot')).toHaveCount(5);
   await expect(panel.locator('li.light').filter({ hasText: T('Kept by the browser') })).toHaveCount(1);
   await expect(panel.locator('li.light').filter({ hasText: 'Fitbit' })).toContainText(T('not connected|fitbit'));
-  await expect(panel.getByRole('button', { name: T('Save backup') }).first()).toBeVisible();
+  await expect(panel.locator('[data-section="backup-file"]').getByRole('button', { name: T('Save backup') })).toBeVisible();
   await expect(panel.getByText(T('Import backup'), { exact: true })).toBeVisible();
   await expect(panel.getByRole('heading', { name: T('Other data') })).toBeVisible();
   await panel.getByRole('link', { name: new RegExp(T('To the phone')) }).click();
