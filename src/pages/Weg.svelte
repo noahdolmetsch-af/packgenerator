@@ -14,6 +14,8 @@
   import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
   import { milestones } from '../lib/weg/types/proben.js';
+  import { windowOf, sayWindow } from '../lib/weg/wetter.js';
+  import { rainLimit } from '../lib/rainlimit.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -24,7 +26,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
-  import { Flag, Plus, Check, Pencil, Trash2, ChevronRight, CalendarClock, Ellipsis } from '@lucide/svelte';
+  import { Flag, Plus, Check, Pencil, Trash2, ChevronRight, CalendarClock, Ellipsis, Sun, CloudRain } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -94,6 +96,16 @@
   });
   // the strip «Practice rides» (Noah «3a»): circles for 50 / 100 / 200 km
   const proben = $derived(goal ? milestones(goal, today, { ...ctx.proben, today }) : { best: 0, items: [] });
+  // the weather window from 7 days before the start (Noah «4a»): the forecast the tour has saved
+  const wetter = $derived(goal ? windowOf(goal, $tripsQ ?? [], today, rainLimit()) : null);
+  const wDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' });
+  const wWord = (d) => `${wDay(d)} ${Number(d.slice(8))}.`;
+  const wsay = $derived.by(() => {
+    if (!wetter) return null;
+    const s = sayWindow(wetter);
+    const vars = { ...s.vars, ...(s.vars.from ? { from: wWord(s.vars.from), to: wWord(s.vars.to) } : {}) };
+    return { title: t(s.title, vars), text: t(s.text, vars), extra: s.extra ? t(s.extra) : '' };
+  });
   function toOrgaList() {
     const li = document.querySelector('[data-weg-step][data-type="orga"]:not(.done)') ?? document.querySelector('[data-weg-step][data-type="orga"]');
     li?.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -292,6 +304,28 @@
       </section>
     {/if}
 
+    {#if wetter && wsay}
+      <section class="card pad wg-wetter" data-weg-wetter aria-label={t('Weather window, 7 days before the start')}>
+        <h3>{t('Weather window for the start')}</h3>
+        <b class="wg-wtitle">{wsay.title}</b>
+        <p class="wg-sub">{wsay.text}{#if wsay.extra}{' '}{wsay.extra}{/if}</p>
+        {#if wetter.days.length}
+          <ul class="wg-days">
+            {#each wetter.days as d (d.date)}
+              <li class:wet={d.wet} class:start={d.isStart} aria-label={t('{pct} % rain on {day}', { pct: num(d.pct), day: wWord(d.date) })}>
+                <b>{wWord(d.date)}</b>
+                {#if d.wet}<CloudRain size={22} aria-hidden="true" />{:else}<Sun size={22} aria-hidden="true" />{/if}
+                <small>{num(d.pct)} %</small>
+              </li>
+            {/each}
+          </ul>
+          <p class="wg-sub">{t('Rain chance per day, from the forecast saved with the tour.')}</p>
+        {:else}
+          <a class="wg-go" href="#/pack">{t('Open')} <ChevronRight size={14} aria-hidden="true" /></a>
+        {/if}
+      </section>
+    {/if}
+
     {#if !rows.length}
       <Empty icon={Flag} text={t('No steps yet. Add your first step below: it stays a suggestion, you can change it any time.')} />
     {/if}
@@ -405,7 +439,15 @@
   .wg-circle.on { border-style: solid; background: var(--accent); border-color: var(--accent); color: var(--brand-ink); }
   .wg-circle.late { border-color: var(--warn); }
   .wg-proben-note { margin: var(--sp-3) 0 0; text-align: center; }
-  .wg-orga, .wg-proben, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+  .wg-wetter h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-wtitle { font-size: var(--fs-sub); }
+  .wg-days { list-style: none; margin: var(--sp-3) 0 var(--sp-2); padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(3.6rem, 1fr)); gap: var(--sp-2); }
+  .wg-days li { display: grid; justify-items: center; gap: 2px; padding: var(--sp-2) var(--sp-1); border-radius: 12px; border: 1px solid var(--line); background: var(--paper-2); color: var(--ink); text-align: center; }
+  .wg-days li:not(.wet) { border-color: var(--ok); }
+  .wg-days li.start { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .wg-days li.wet { color: var(--ink-3); }
+  .wg-days small { font-size: var(--fs-small); }
+  .wg-orga, .wg-proben, .wg-wetter, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
 
   /* the way: one line with dots, «Today» marked on it (mockup G1) */
   .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }

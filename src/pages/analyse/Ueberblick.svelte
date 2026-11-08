@@ -10,6 +10,7 @@
   import { valueText, unitText } from '../../lib/analyse/format.js';
   import { ticksPerDay, longestRun, heatWeeks, ranking, perWeek } from '../../lib/analyse/overview.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
+  import Empty from '../../lib/ui/Empty.svelte';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { niceScale, tickText, LABEL_MAX } from '../../lib/charts/axis.js';
   import GridLines from '../../lib/charts/GridLines.svelte';
@@ -31,30 +32,33 @@
   const BAR = ['var(--l1)', 'var(--l3)', 'var(--l4)', 'var(--pz5)', 'var(--pz3)', 'var(--pz6)', 'var(--pz4)', 'var(--l2)'];
 
   // the boxes: only from the sources switched on, only with a value
-  const mean = (it) => {
+  // perDay: a counted value (minutes, km) as its mean per day with a value, not its total (Noah 07.11.2026 «2a»)
+  const mean = (it, perDay = false) => {
     const vals = days.map((d) => it.get(d)).filter((v) => typeof v === 'number' && Number.isFinite(v));
     if (!vals.length) return null;
     const s = vals.reduce((a, b) => a + b, 0);
-    return it.sum ? s : s / vals.length;
+    return it.sum && !perDay ? s : s / vals.length;
   };
   const boxes = $derived.by(() => {
     const out = [];
     if (aktiv) out.push({ key: 'ticks', big: num(inDays), small: t('ticks in {n} days|overview', { n: days.length }) });
-    const one = (key, label) => {
+    const one = (key, label, perDay = false) => {
       const it = byKey.get(key);
       if (!it?.get || !on.includes(it.src)) return;
-      const v = mean(it);
+      const v = mean(it, perDay);
       if (v == null) return;
       out.push({ key, big: `${valueText(it, v, num)}${unitText(it) ? ` ${unitText(it)}` : ''}`, small: label, href: it.href });
     };
-    one('km:bike', t('Bike, Strava|overview'));
+    one('km:bike', t('Bike, Strava, in {n} days|overview', { n: days.length }));
     one('sleep', t('sleep on average|overview'));
-    one('azm', t('active zone minutes a day|overview'));
+    one('azm', t('active zone minutes a day, mean of {n} days|overview', { n: days.length }), true);
     one('rhr', t('resting pulse|overview'));
     if (aktiv) out.push({ key: 'run', big: t('{n} days|overview', { n: run }), small: t('longest run|overview') });
     return out;
   });
 
+  // nothing to show in this period: no value of a source that is on, and no tick (the numbers would all be 0)
+  const nothing = $derived(!boxes.some((b) => b.key !== 'ticks' && b.key !== 'run') && (!aktiv || inDays === 0));
   const dfmt = (d, o) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const WD = $derived(Array.from({ length: 7 }, (_, i) => dfmt(`2026-10-${String(5 + i).padStart(2, '0')}`, { weekday: 'short' })));
   // a month name over the first week of each month
@@ -73,7 +77,13 @@
   }
 </script>
 
-<section class="card ov" aria-labelledby="ov-h" data-overview>
+{#if nothing}
+  <Empty
+    text={t('Nothing ticked or recorded in these {n} days yet. Tick an activity in Aktiv or connect Fitbit or Strava, then the overview fills.|overview', { n: days.length })}
+    action={{ label: t('Open Aktiv'), href: '#/flow' }}
+    action2={{ label: t('Connect Fitbit|analyse'), href: '#/me/fitbit' }}
+  />
+{:else}<section class="card ov" aria-labelledby="ov-h" data-overview>
   <h2 id="ov-h" class="sr">{t('Overview|overview')}</h2>
   {#if boxes.length}
     <ul class="boxes">
@@ -152,6 +162,8 @@
       <ul class="legend"><li><i class="lsw"></i>{t('ticks per week|overview')}</li><li><i class="lsw ln"></i>{t('mean of 4 weeks|overview')}</li></ul>
     </section>
   </div>
+{/if}
+
 {/if}
 
 <style>
