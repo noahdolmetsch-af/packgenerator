@@ -348,7 +348,7 @@
 {/snippet}
 
 <div class="ich-page tf">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Tennis'), href: '#/me/tennis' }]} title={t('Flyer')} sub={t('A flyer for your lessons: pick the parts, add your photo, share it. Made on this device; the app sends nothing itself.')} />
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Tennis'), href: '#/me/tennis' }]} title={t('Tennis flyer')} sub={t('A flyer for your lessons: pick the parts, add your photo, share it. Made on this device; the app sends nothing itself.')} />
   <TennisTabs current="flyer" />
 
   {#if ready && !entries.length}

@@ -47,7 +47,7 @@ test('Flyer: Vorschau, Teile, Art, Stufen, Foto, Speichern, E-Mail, Vorlage', as
   // the tab, the heading and the preview with a QR code (the band is dark green)
   await page.goto('./#/me/tennis/flyer');
   await ready(page);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Flyer'));
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(T('Tennis flyer'));
   await expect(page.locator('[data-tennis-tabs]').getByRole('button', { name: T('Flyer') })).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(async () => (await canvasPixels(page)).w).toBe(1920);
   expect((await canvasPixels(page)).dark).toBeGreaterThan(50);
