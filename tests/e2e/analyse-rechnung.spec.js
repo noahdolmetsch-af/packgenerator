@@ -25,8 +25,19 @@ test('Cardio load: «Wie wird gerechnet?» shows the weights and the newest day 
   await expect(calc.locator('.zw')).toContainText('×4');
   await expect(calc.locator('[data-calc-example]')).toContainText('60 Min. leicht ×1 + 12 Min. mittel ×2 + 4 Min. hart ×3 = 96 Punkte');
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/analyse-rechnung-${info.project.name}.png`, fullPage: true });
-  // other values have no such fold
+  // the «?» under the title explains «Punkte», «hart» and «Spitze» (and closes again)
+  const words = page.locator('[data-words]');
+  await expect(words).toContainText('Was heissen «Punkte», «hart» und «Spitze»?');
+  await expect(words.locator('[data-help]')).toHaveCount(0);
+  await words.getByRole('button').click();
+  await expect(words.locator('[data-help]')).toContainText('mehr Arbeit für dein Herz');
+  await expect(words.locator('[data-help]')).toContainText('Spitze (nahe am Limit');
+  if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/analyse-woerter-${info.project.name}.png`, fullPage: false });
+  await words.getByRole('button').click();
+  await expect(words.locator('[data-help]')).toHaveCount(0);
+  // other values have no such fold or «?»
   await page.goto('./#/auswerten/analyse/rhr');
   await expect(page.locator('[data-calc]')).toHaveCount(0);
+  await expect(page.locator('[data-words]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

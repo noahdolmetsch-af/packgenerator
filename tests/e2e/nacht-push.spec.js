@@ -29,6 +29,8 @@ test('Night temperature in the evening: off at the start, can be switched on and
   await settle(page);
   await page.getByRole('link', { name: new RegExp(T('Reminders on the phone')) }).click();
   const box = page.locator('[data-push-page]');
+  // the switches sit in four folds (7b-08): this one is in «Wetter und Licht»
+  await box.locator('[data-push-group="weather"] summary').click();
   const night = box.getByRole('switch', { name: 'Nachttemperatur am Abend' });
   await expect(night).not.toBeChecked();
   await expect(box.getByRole('switch', { name: T('Ice in the morning') })).toBeChecked();
@@ -38,5 +40,6 @@ test('Night temperature in the evening: off at the start, can be switched on and
   await box.locator('[data-push-kind]').filter({ hasText: 'Nachttemperatur am Abend' }).first().screenshot({ path: info.outputPath(`nacht-push-${info.project.name}.png`) });
   await page.reload();
   await settle(page);
+  await page.locator('[data-push-group="weather"] summary').click();
   await expect(page.locator('[data-push-page]').getByRole('switch', { name: 'Nachttemperatur am Abend' })).toBeChecked();
 });
