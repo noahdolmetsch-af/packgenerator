@@ -93,7 +93,7 @@ for (const lang of ['de', 'en']) {
     // 0.176 «Eine Tour, eine Seite» (UI-Ziele #5): the fifth tab «Auswertung» is the tour page
     // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar shows the short names in both languages
     const NAMES = [BAR.plan, BAR.pack, BAR.ride, BAR.debrief, BAR.analysis];
-    if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Plan', 'Pack', 'Live', 'Review', 'Analyse']);
+    if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Planen', 'Vorbereiten', 'Unterwegs', 'Danach', 'Auswertung']);
     // The old addresses stay: #/pack, #/pack?day, #/ride, #/debrief/<id>.
     const pages = [['#/pack', 0], ['#/pack?day', 1], ['#/ride', 2], [`#/debrief/${trip.id}`, 3]];
     for (const [hash, n] of pages) {
