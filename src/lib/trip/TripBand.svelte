@@ -134,7 +134,7 @@
 
 <section class="band trip-band" class:compact aria-label={t('Trip')}>
   <div class="who">
-    <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
+    <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}<!-- «Tour-Pfad» (Noah 08.11.2026 «1 go A»): the way into the path of the tour, on the crumb line (no extra height), on a phone too --><a class="pfad" href={`#/trips/pfad?t=${encodeURIComponent(trip.id)}`} data-pfad-link>{t('Tour path')}<ChevronRight size={14} aria-hidden="true" /></a></nav>
     <div class="kline">
       {#if stInfo?.state}<TripState state={stInfo.state} size="md" extra={stExtra && stateMore ? `${stExtra}, ${stateMore}` : stExtra} />{/if}
       {#if kicker}<p class="kick">{kicker}</p>{/if}
@@ -175,8 +175,6 @@
   <!-- «Eine Tour, eine Seite» (UI-Ziele #5, 0.174): the four steps and «Auswertung» as the tabs of the one tour -->
   <div class="steps">
     <StepBar {trip} tabs={stepsOf(trip)} {status} current={tab} onpick={() => openTrip(trip.id)} />
-    <!-- «Tour-Pfad» (Noah 08.11.2026 «1 go A»): the way into the path of the tour, on a phone too (there the bottom bar has no «Schritt n von 4») -->
-    <p class="allsteps"><a href={`#/trips/pfad?t=${encodeURIComponent(trip.id)}`} data-pfad-link>{t('Tour path')} <ChevronRight size={14} aria-hidden="true" /></a></p>
   </div>
   {@render below?.()}
   {#if note && stInfo?.state}<div class="stnote"><StateNote {trip} info={stInfo} {debrief} {tab} {ontemplate} bike={byBike} /></div>{/if}
@@ -185,19 +183,6 @@
 {#if factOpen && edit}<FactSheet field={factOpen} {trip} bikes={allBikes} {edit} onclose={() => (factOpen = null)} />{/if}
 
 <style>
-  .allsteps {
-    margin: var(--sp-2) 0 0;
-    font-size: var(--fs-small);
-  }
-  .allsteps a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    min-width: 44px;
-    color: var(--ink-3);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
   /* v0.100.0 P1 (G7): light, on the page ground, no dark box */
   .band {
     display: grid;
@@ -229,6 +214,13 @@
   }
   .crumb a:hover {
     background: var(--paper-2);
+  }
+  .crumb a.pfad {
+    margin: 0 -6px 0 auto;
+    color: var(--ink-3);
+    font-weight: 400;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .crumb .here {
     display: inline-flex;

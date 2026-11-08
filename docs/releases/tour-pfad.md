@@ -6,7 +6,7 @@ PR #1184 · 08.11.2026 · Auftrag: Noah «1 go A» (Thread «Bauen: Tour-Stand u
 - Neue Seite «Tour-Pfad» (`#/trips/pfad?t=<Tour>`, `src/pages/Tourpfad.svelte`): eine Tour in vier Phasen (Planen, Vorbereiten, Unterwegs, Danach). Jede Zeile ist ein Link auf eine Seite, die es schon gibt, mit ihrem Stand (✓ erledigt, ◐ begonnen, ○ offen, ! Hinweis). Die laufende Phase ist offen, die anderen sind eingeklappt. Ein grosser Knopf führt zur ersten offenen Zeile.
 - Neuer Baustein `src/lib/ui/Pfad.svelte` (Phasen mit Zeilen). Er kennt keine Tour; die Tour liefert nur ihre Zeilen. Dieselbe Hülle können später Velo-Jahr, Material, Mein Tag und Meine Woche nutzen.
 - Die Rechnung dahinter ist `tourStand` (Schritt 0a, #1136). Die Worte stehen in `src/lib/tourpfad/saetze.js`.
-- Weg hinein: unter der Schrittleiste der Tour-Seiten (Plan, Pack, Live, Review) steht der Link «Tour-Pfad»; am Computer ist auch «Schritt 2 von 4» unten ein Link zum Pfad.
+- Weg hinein: oben auf den Tour-Seiten (Plan, Pack, Live, Review) steht in der Zeile «‹ Touren» der Link «Tour-Pfad»; am Computer ist auch «Schritt 2 von 4» unten ein Link zum Pfad.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Die Schrittleiste (Plan · Pack · Live · Review · Analyse) bleibt in diesem PR unverändert.
@@ -26,6 +26,6 @@ PR #1184 · 08.11.2026 · Auftrag: Noah «1 go A» (Thread «Bauen: Tour-Stand u
 - Plan «ganze App»: Schritt 1 gebaut. Danach 1b (Leiste durch Phasen ersetzen) und 2a (Karte «Meine Tour»).
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
-1. Eine Tour öffnen, unter den Schritten «Tour-Pfad» antippen: der Pfad der Tour öffnet sich.
+1. Eine Tour öffnen, oben «Tour-Pfad» antippen: der Pfad der Tour öffnet sich.
 2. Die laufende Phase ist offen; eine andere antippen, sie klappt auf.
 3. Den grossen Knopf antippen: du landest bei der ersten offenen Zeile, zum Beispiel Packen.
