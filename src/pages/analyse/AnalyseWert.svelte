@@ -29,6 +29,7 @@
   import { dailyLimit } from '../../lib/analyse/wochenbalken.js';
   import { sumBand } from '../../lib/analyse/ueblich.js';
   import { doneOn, doneText } from '../../lib/analyse/tagdavor.js';
+  import { topDays, whatText } from '../../lib/analyse/hoechste.js';
   import { BAND_DAYS, bandOf, runsOutside, hasSignals } from '../../lib/analyse/signals.js';
   import FitbitStand from '../../lib/health/FitbitStand.svelte';
   import { health } from '../../lib/health/client.svelte.js';
@@ -243,6 +244,8 @@
     const workouts = data.table.get(day)?.fit?.exercises ?? [];
     return doneOn({ ticked, rides, workouts }, max);
   };
+  // Idea E: the three highest days of the range, each with what was recorded on it (trip, workout, ride, ticks)
+  const topList = $derived(item?.get && !isDay && !hours ? topDays(win.days, item.get, 3).map((r) => ({ ...r, what: whatText(tripOn(r.day) ? (tripOn(r.day).title ?? tripOn(r.day).name) : '', doneText(doneBy(r.day))) })) : []);
   const dayBefore = (d) => doneText(doneBy(addDays(d, -1))) || null;
   // every value of the picked day, grouped (D6 short)
   const dayAll = $derived(
@@ -488,6 +491,17 @@
             <button type="button" class="btn" onclick={() => (picked = addDays(picked, -1))}><ChevronLeft size={16} aria-hidden="true" />{t('Day before|analyse')}</button>
             <button type="button" class="btn" disabled={picked >= today} onclick={() => (picked = addDays(picked, 1))}>{t('Next day|analyse')}<ChevronRight size={16} aria-hidden="true" /></button>
           </div>
+        </section>
+      {/if}
+
+      {#if topList.length > 1}
+        <section class="card top3" aria-labelledby="wv-top" data-top-days>
+          <div class="ch"><h2 id="wv-top">{t('Highest days|analyse')}</h2><small>{t('with what was recorded|analyse')}</small></div>
+          <ol class="tp">
+            {#each topList as r (r.day)}
+              <li><button type="button" class="tprow" data-top-day={r.day} onclick={() => (picked = r.day)}><span class="tn"><b>{dayText(r.day)}</b><small>{r.what || t('nothing recorded|analyse')}</small></span><span class="tv num">{v(item, r.v)}{#if unitText(item)}<small> {unitText(item)}</small>{/if}</span></button></li>
+            {/each}
+          </ol>
         </section>
       {/if}
 
@@ -1050,6 +1064,47 @@
     border-color: var(--c);
     background: var(--paper-2);
     font-weight: 600;
+  }
+  .tp {
+    display: grid;
+    gap: 2px;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tprow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 44px;
+    padding: 6px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .tprow .tn {
+    display: grid;
+    min-width: 0;
+  }
+  .tprow .tn small {
+    color: var(--ink-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tprow .tv {
+    flex: none;
+    font-weight: 600;
+  }
+  .tprow .tv small {
+    font-weight: 400;
+    color: var(--ink-3);
   }
   .dnav {
     display: flex;
