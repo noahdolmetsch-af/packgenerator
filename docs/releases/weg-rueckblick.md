@@ -1,6 +1,6 @@
 # Weg zum Ziel: Rückblick «geplant gegen wirklich»
 
-PR # · 08.11.2026 · Auftrag: Noah «5a» (Entwurf G7, linke Karte), Thread «Entwerfen Weg zum grossen Ziel»
+PR #1174 · 08.11.2026 · Auftrag: Noah «5a» (Entwurf G7, linke Karte), Thread «Entwerfen Weg zum grossen Ziel»
 
 ## Was ist neu
 - Ist der Starttag eines Weges vorbei, steht über der Linie die Karte «Rückblick · Name» mit «Geplant gegen wirklich»: jeder Schritt mit geplantem Tag, daneben der Tag, an dem er abgehakt wurde, mit dem Unterschied («+5 Tage», «−4 Tage», «wie geplant») oder «Nicht gemacht».
