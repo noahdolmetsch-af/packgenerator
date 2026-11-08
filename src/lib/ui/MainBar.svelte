@@ -17,11 +17,11 @@
    */
   import { ArrowRight } from '@lucide/svelte';
 
-  let { main = null, second = null, aside = null, hint = '', step = '', place = 'page', children = null } = $props();
+  let { main = null, second = null, aside = null, hint = '', step = '', stepHref = '', place = 'page', children = null } = $props();
 </script>
 
 <div class="mainbar {place}">
-  {#if step || hint}<span class="lead">{#if step}<span class="step">{step}</span>{/if}{#if hint}<small class="hint">{hint}</small>{/if}</span>{/if}
+  {#if step || hint}<span class="lead">{#if step}{#if stepHref}<a class="step" href={stepHref} data-pfad-step>{step}</a>{:else}<span class="step">{step}</span>{/if}{/if}{#if hint}<small class="hint">{hint}</small>{/if}</span>{/if}
   {#if aside}<span class="aside">{@render aside()}</span>{/if}
   {#if children}{@render children()}
   {:else if main}
@@ -77,6 +77,11 @@
     display: none;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  /* «Tour-Pfad» (Noah 08.11.2026): «Schritt 2 von 4» opens the path of the tour */
+  a.step {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   /* band, on a computer: the right column of the dark trip band */
   .band {
