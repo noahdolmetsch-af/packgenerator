@@ -11,7 +11,7 @@
   import { db } from '../lib/db.js';
   import { RACES_KEY, racesOf } from '../lib/race/race.js';
   import { raceChoices } from '../lib/training/plans.js';
-  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, setPeriod, setNext, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, saveTemplate, renameTemplate, removeTemplate, timeline, progress, typeProgress, untilStart, applyAuto } from '../lib/weg/weg.js';
+  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, setPeriod, setNext, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, saveTemplate, renameTemplate, removeTemplate, timeline, progress, typeProgress, untilStart, timeCheck, applyAuto } from '../lib/weg/weg.js';
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
   import { milestones } from '../lib/weg/types/proben.js';
   import { windowOf, sayWindow } from '../lib/weg/wetter.js';
@@ -87,6 +87,7 @@
   const rows = $derived(goal ? timeline(goal, today) : []);
   const prog = $derived(goal ? progress(goal, today) : null);
   const until = $derived(goal ? untilStart(goal, today) : null);
+  const tc = $derived(goal ? timeCheck(goal, today) : null); // «Is there enough time?»
   // the strip «Organisation: 3 of 5 settled» (Noah «1d»)
   const orga = $derived(goal ? typeProgress(goal, 'orga', today) : null);
   const orgaNext = $derived.by(() => {
@@ -140,6 +141,9 @@
     return t('Dry from {from} to {to}: {n} days in a row.', { from: wWord(startSugg.win.from), to: wWord(startSugg.win.to), n: num(startSugg.win.n) });
   });
   const longDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+  function takeLaterStart() {
+    if (tc?.laterStart) putGoal(setStart({ goals: [goal] }, goal.id, tc.laterStart).goals[0]);
+  }
   function takeStart() {
     if (startSugg?.state !== 'window') return;
     skip = 0;
@@ -365,6 +369,19 @@
         </div>
       {/if}
     </section>
+
+    {#if tc}
+      <section class="card pad wg-zeit" class:short={tc.state === 'short'} class:tight={tc.state === 'tight'} data-weg-zeit={tc.state} aria-label={t('Is there enough time?')}>
+        <h3>{t('Is there enough time?')}</h3>
+        <b class="wg-wtitle">{tc.state === 'ok' ? t('Yes, there is enough time.') : tc.state === 'tight' ? t('It is tight, but it works.') : t('The time is short.')}</b>
+        <div class="wg-zbar" role="img" aria-label={t('The plan needs {need} of {left} weeks', { need: num(tc.planWeeks), left: num(tc.weeksLeft) })}><i style:width="{Math.min(100, Math.round((tc.planWeeks / tc.weeksLeft) * 100))}%"></i></div>
+        <p class="wg-sub">{tn(tc.weeksLeft, '{n} week to the start', '{n} weeks to the start')}{' · '}{tn(tc.planWeeks, 'the plan needs {n} week', 'the plan needs {n} weeks')}{#if tc.buffer >= 0}{' · '}{tn(tc.buffer, '{n} week to spare', '{n} weeks to spare')}{/if}</p>
+        {#if tc.state === 'short'}
+          <p class="wg-sub">{tn(-tc.buffer, '{n} week is missing. Move the start day or leave out steps you do not need.', '{n} weeks are missing. Move the start day or leave out steps you do not need.')}</p>
+          <div class="wg-acts"><button type="button" class="btn hi" onclick={takeLaterStart} data-weg-zeit-later>{t('Set start {day}', { day: longDay(tc.laterStart) })}</button></div>
+        {/if}
+      </section>
+    {/if}
 
     {#if orga?.total}
       <section class="card pad wg-orga" class:all={orga.done === orga.total} data-weg-orga aria-label={t('Organisation')}>
@@ -611,6 +628,15 @@
   .wg-proben-note { margin: var(--sp-3) 0 0; text-align: center; }
   .wg-wetter h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-wtitle { font-size: var(--fs-sub); }
+  .wg-zeit { border-left: 4px solid var(--ok); }
+  .wg-zeit.tight { border-left-color: var(--warn); }
+  .wg-zeit.short { border-left-color: var(--bad, var(--warn)); }
+  .wg-zeit h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-zbar { height: 10px; border-radius: 6px; background: var(--line); overflow: hidden; margin: var(--sp-3) 0 var(--sp-2); }
+  .wg-zbar i { display: block; height: 100%; background: var(--ok); border-radius: 6px; }
+  .wg-zeit.tight .wg-zbar i { background: var(--warn); }
+  .wg-zeit.short .wg-zbar i { background: var(--bad, var(--warn)); }
+  .wg-zeit .wg-acts { margin-top: var(--sp-3); }
   .wg-next { border-left: 4px solid var(--accent); }
   .wg-next h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-next .wg-acts { margin-top: var(--sp-3); }
@@ -631,7 +657,7 @@
   .wg-prow { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-2) 0; }
   .wg-open .wg-acts { margin-top: var(--sp-3); }
   .wg-days small { font-size: var(--fs-small); }
-  .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-save, .wg-next, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+  .wg-zeit, .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-save, .wg-next, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
 
   /* the way: one line with dots, «Today» marked on it (mockup G1) */
   .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }

@@ -223,3 +223,34 @@ test('Way to the goal › Review: after the start day the steps stand planned ag
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('Way to the goal > Time: the card says if the time to the start is enough and suggests a later start', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  const inDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
+  await page.goto('./#/trips/weg');
+  await ready(page);
+  await page.getByRole('button', { name: T('New way') }).click();
+  await page.locator('[data-weg-title]').fill('Test Rennen weit weg');
+  await page.locator('[data-weg-start]').fill(inDays(400));
+  await page.getByRole('button', { name: T('Create way') }).click();
+  const card = page.locator('[data-weg-zeit]');
+  await expect(card).toHaveAttribute('data-weg-zeit', 'ok');
+  await expect(card).toContainText(T('Is there enough time?'));
+  await expect(card).toContainText(T('Yes, there is enough time.'));
+  await expect(card.locator('[data-weg-zeit-later]')).toHaveCount(0);
+
+  // the start day moves close: the plan does not fit any more, the card suggests a later start
+  await page.locator('[data-weg-menu]').click();
+  await page.locator('[data-weg-start-edit]').fill(inDays(12));
+  await expect(card).toHaveAttribute('data-weg-zeit', 'short');
+  await expect(card).toContainText(T('The time is short.'));
+  await card.locator('[data-weg-zeit-later]').click();
+  await expect(card).toHaveAttribute('data-weg-zeit', 'tight');
+  await expect(card.locator('[data-weg-zeit-later]')).toHaveCount(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});

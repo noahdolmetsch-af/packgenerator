@@ -202,6 +202,28 @@ export function timeBuffer(goal, today, planWeeks) {
   return { weeksLeft: u.weeks, planWeeks, buffer, state: buffer >= 2 ? 'ok' : buffer >= 0 ? 'tight' : 'short' };
 }
 
+/**
+ * Weeks the plan still asks for: the longest lead (rounded up) of an open step that follows the start day.
+ * A step the user pinned to a day, a done step and a step without a lead do not count. 0 when there is none.
+ */
+export function planWeeks(goal) {
+  const leads = goal.steps.filter((s) => !s.done && !s.due && s.offset != null && s.offset > 0).map((s) => s.offset);
+  return leads.length ? Math.ceil(Math.max(...leads) / 7) : 0;
+}
+
+/**
+ * «Is there enough time?» for a goal, drawn on the page: the buffer from `timeBuffer` plus, when the time is short,
+ * the start day that would give the plan its weeks (a suggestion, the user decides). null without a start day, with
+ * a start day that is over, or without a plan.
+ */
+export function timeCheck(goal, today) {
+  const u = untilStart(goal, today);
+  if (!u || u.days < 0) return null;
+  const b = timeBuffer(goal, today, planWeeks(goal));
+  if (!b) return null;
+  return { ...b, laterStart: b.state === 'short' ? shift(goal.start, -b.buffer * 7) : '' };
+}
+
 /* ---------- ticking by itself ---------- */
 
 /**
