@@ -12,7 +12,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { t, tn } from '../lib/i18n.svelte.js';
-  import { KINDS, PUSH_KEY, pushOf, watchable } from '../lib/push/schedule.js';
+  import { KINDS, PUSH_GROUPS, PUSH_KEY, pushOf, watchable } from '../lib/push/schedule.js';
   import { localDay } from '../lib/localday.js';
   import { dayShort } from '../lib/flow/words.js';
   import { supported, permission, syncNow, off, testNow, cronUrl } from '../lib/push/client.js';
@@ -144,37 +144,45 @@
   <section class="ps-sec" class:ps-wait={!p.on} aria-labelledby="ps-kinds-h">
     <h2 id="ps-kinds-h">{t('Which reminders')}</h2>
     {#if !p.on}<p class="ps-waitnote">{t('First switch on «On the phone». Until then your choices are only saved; nothing is sent.')}</p>{/if}
-    <ul class="card ps-list">
-      {#each KINDS as k (k.key)}
-        <li class="ps-row" data-push-kind={k.key}>
-          <span class="ps-m"><b id="ps-{k.key}">{t(k.label)}</b><small>{t(k.hint)}</small></span>
-          <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-{k.key}" checked={p.kinds[k.key]} disabled={busy} onchange={(e) => setKind(k.key, e.currentTarget.checked)} />
-        </li>
-        {#if k.key === 'eve'}
-          <!-- Idee A2: the name and what it does stay in sight; the offer itself comes after 3 evenings -->
-          <li class="ps-row ps-sub" data-remind-time>
-            <span class="ps-m"><b>{t('Reminder at your time')}</b><small>{t('After 3 evenings the app suggests moving the reminder to when you usually do the check.')}</small></span>
-          </li>
-        {/if}
-        {#if k.key === 'wxwatch' && p.kinds.wxwatch}
-          <li class="ps-row ps-sub" data-push-tours>
-            {#if watchTrips.length}
-              <span class="ps-m"><small>{t('Which tours it watches:')}</small></span>
-              <ul class="ps-tours">
-                {#each watchTrips as tr (tr.id)}
-                  <li data-push-tour={tr.id}>
-                    <span class="ps-m"><b id="ps-tr-{tr.id}">{tr.title || t('Your trip')}</b><small>{dayShort(tr.startDate)}</small></span>
-                    <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-tr-{tr.id}" checked={!p.wxOff.includes(tr.id)} disabled={busy} onchange={(e) => setTour(tr.id, e.currentTarget.checked)} />
-                  </li>
-                {/each}
-              </ul>
-            {:else}
-              <span class="ps-m"><small>{t('No planned tour in the next 10 days yet.')}</small></span>
+    <div class="card ps-card ps-groups">
+      {#each PUSH_GROUPS as g (g.key)}
+        {@const n = g.keys.filter((k) => p.kinds[k]).length}
+        <details class="ps-grp" data-push-group={g.key}>
+          <summary><span class="ps-gl">{t(g.label)}</span><span class="ps-gs">{n ? t('{n} of {m} on', { n, m: g.keys.length }) : t('All off')}</span></summary>
+          <ul class="ps-list">
+          {#each KINDS.filter((x) => g.keys.includes(x.key)) as k (k.key)}
+            <li class="ps-row" data-push-kind={k.key}>
+              <span class="ps-m"><b id="ps-{k.key}">{t(k.label)}</b><small>{t(k.hint)}</small></span>
+              <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-{k.key}" checked={p.kinds[k.key]} disabled={busy} onchange={(e) => setKind(k.key, e.currentTarget.checked)} />
+            </li>
+            {#if k.key === 'eve'}
+              <!-- Idee A2: the name and what it does stay in sight; the offer itself comes after 3 evenings -->
+              <li class="ps-row ps-sub" data-remind-time>
+                <span class="ps-m"><b>{t('Reminder at your time')}</b><small>{t('After 3 evenings the app suggests moving the reminder to when you usually do the check.')}</small></span>
+              </li>
             {/if}
-          </li>
-        {/if}
+            {#if k.key === 'wxwatch' && p.kinds.wxwatch}
+              <li class="ps-row ps-sub" data-push-tours>
+                {#if watchTrips.length}
+                  <span class="ps-m"><small>{t('Which tours it watches:')}</small></span>
+                  <ul class="ps-tours">
+                    {#each watchTrips as tr (tr.id)}
+                      <li data-push-tour={tr.id}>
+                        <span class="ps-m"><b id="ps-tr-{tr.id}">{tr.title || t('Your trip')}</b><small>{dayShort(tr.startDate)}</small></span>
+                        <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-tr-{tr.id}" checked={!p.wxOff.includes(tr.id)} disabled={busy} onchange={(e) => setTour(tr.id, e.currentTarget.checked)} />
+                      </li>
+                    {/each}
+                  </ul>
+                {:else}
+                  <span class="ps-m"><small>{t('No planned tour in the next 10 days yet.')}</small></span>
+                {/if}
+              </li>
+            {/if}
+          {/each}
+          </ul>
+        </details>
       {/each}
-    </ul>
+    </div>
     <!-- Idee A2: the evening reminder at your usual time -->
     {#if p.kinds.eve}<EveOffer />{/if}
   </section>
@@ -208,6 +216,59 @@
     margin: 0;
     padding: 4px 16px;
     list-style: none;
+  }
+  .ps-groups {
+    padding: 0 16px;
+  }
+  .ps-grp {
+    border-top: 1px solid var(--line);
+  }
+  .ps-grp:first-child {
+    border-top: 0;
+  }
+  .ps-grp summary {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-height: 56px;
+    padding: 8px 28px 8px 0;
+    cursor: pointer;
+  }
+  .ps-grp summary::-webkit-details-marker {
+    display: none;
+  }
+  .ps-grp summary::marker {
+    content: '';
+  }
+  /* the arrow that says «opens»: it turns up when the group is open */
+  .ps-grp summary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    margin-top: -6px;
+    border-right: 2px solid var(--ink-2);
+    border-bottom: 2px solid var(--ink-2);
+    transform: rotate(45deg);
+    transition: transform 0.15s;
+  }
+  .ps-grp[open] summary::after {
+    margin-top: -2px;
+    transform: rotate(225deg);
+  }
+  .ps-gl {
+    font-weight: 600;
+  }
+  .ps-gs {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ps-grp .ps-list {
+    padding: 0 0 8px;
   }
   .ps-sec {
     margin-top: 20px;
