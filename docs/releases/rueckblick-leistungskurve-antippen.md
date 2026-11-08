@@ -1,6 +1,6 @@
 # Rückblick: die Leistungskurve zum Antippen
 
-PR 13 · 08.11.2026 · Auftrag: Noah «ja» (Thread «Diagramme antippbar und genau machen»), Rückblick, «Puls und Leistung»
+PR 13 (#1193) · 08.11.2026 · Auftrag: Noah «ja» (Thread «Diagramme antippbar und genau machen»), Rückblick, «Puls und Leistung»
 
 ## Was ist neu
 - Die Leistungskurve in «Puls und Leistung» (`HeartPower.svelte`, nur mit Leistungsmesser) nutzt jetzt `LineChart`: genaue Watt beim Zeigen oder mit den Pfeiltasten, Tippen öffnet ein Fenster (beste Leistung über die Dauer, W/kg wenn das Gewicht bekannt ist, «Kürzere Dauer» / «Längere Dauer»), «Als Tabelle» listet die fünf Dauern.
