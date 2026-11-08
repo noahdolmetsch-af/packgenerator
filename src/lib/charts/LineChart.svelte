@@ -11,6 +11,7 @@
    * - «Als Tabelle» shows the same numbers as rows (table: { head, rows }).
    * cols: [{ key, x }] (x: the label under it or ''), series: [{ key, color, dashed, line, dots, v: [number|null] }],
    * readout(i) → { title, items }, label: what the chart shows (for screen readers), unit: of the axis.
+   * bridge: the line joins the points across the days without a value (a mood noted now and then), never a fall to 0.
    */
   import { niceScale, fracOf, tickText } from './axis.js';
   import YTicks from './YTicks.svelte';
@@ -21,7 +22,7 @@
   import { indexAt, stepKey } from './pick.js';
   import { t, num } from '../i18n.svelte.js';
 
-  let { cols = [], series = [], scale: fixed = null, tick = null, readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 12, topText = null, id = 'lc' } = $props();
+  let { cols = [], series = [], scale: fixed = null, tick = null, readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 12, topText = null, id = 'lc', bridge = false } = $props();
 
   const scale = $derived(fixed ?? niceScale(series.flatMap((s) => s.v), { count: 4 }));
   const n = $derived(cols.length);
@@ -35,7 +36,7 @@
     let on = false;
     vs.forEach((v, i) => {
       if (v == null || !Number.isFinite(v)) {
-        on = false;
+        if (!bridge) on = false;
         return;
       }
       out += `${on ? 'L' : 'M'}${px(i)},${y(v).toFixed(2)} `;

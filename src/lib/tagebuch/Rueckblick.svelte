@@ -3,9 +3,13 @@
    * «Tagebuch» › Rückblick (Noah 20.10.2026 «1a 2a 4b»): the mood curve of the last 90 days and what goes
    * together with it (observation only, never a cause), the words of a month as a cloud, calm series that
    * stay once reached, and Gemini (only with a tick, each time): sum up a month, ask your diary.
+   * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the mood curve is the shared line chart: the smileys as the
+   * axis, the mood of a day when pointing, a tap opens the day, «As table» lists the days with an entry.
    */
   import { ChevronLeft, ChevronRight, Sparkles, Flame, Award, Plus } from '@lucide/svelte';
-  import { MOODS, moodOf, moodSeries, moodPairs, topWords, cloudSize, longestStreak, milestones } from './insights.js';
+  import LineChart from '../charts/LineChart.svelte';
+  import ChartSheet from '../charts/ChartSheet.svelte';
+  import { moodOf, moodSeries, moodPairs, topWords, cloudSize, longestStreak, milestones } from './insights.js';
   import { askContext, periodContext, diaryAi } from './ai.js';
   import { geminiError } from '../assistent/gemini.js';
   import { moodContext, saveEntry } from './journaldb.js';
@@ -21,13 +25,30 @@
   let ctx = $state({ rideDays: new Set(), sleep: {} });
   moodContext().then((c) => (ctx = c));
   const pairs = $derived(moodPairs(entries, ctx).slice(0, 4));
-  const W = 600;
-  const H = 160;
-  const P = 28;
-  const dayIndex = (d) => Math.round((Date.parse(`${d}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 864e5) + DAYS - 1;
-  const x = (d) => P + (dayIndex(d) / (DAYS - 1)) * (W - P - 8);
-  const y = (m) => 8 + ((5 - m) / 4) * (H - 24);
-  const line = $derived(series.map((p, i) => `${i ? 'L' : 'M'}${x(p.day).toFixed(1)},${y(p.mood).toFixed(1)}`).join(' '));
+  const dayAt = (i) => {
+    const d = new Date(`${today}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - (DAYS - 1 - i));
+    return d.toISOString().slice(0, 10);
+  };
+  const dayName = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'long' });
+  const dayShort = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' });
+  const byDay = $derived(Object.fromEntries(series.map((p) => [p.day, p.mood])));
+  const days = $derived(Array.from({ length: DAYS }, (_, i) => dayAt(i)));
+  const cols = $derived(days.map((d, i) => ({ key: d, x: (DAYS - 1 - i) % 30 === 0 ? dayShort(d) : '' })));
+  const lc = $derived([{ key: 'mood', color: 'var(--accent)', dots: true, v: days.map((d) => byDay[d] ?? null) }]);
+  const SCALE = { lo: 1, hi: 5, step: 1, ticks: [1, 2, 3, 4, 5] };
+  const moodName = (v) => t(moodOf(Math.round(v))?.name ?? '');
+  const read = (i) => {
+    const m = byDay[days[i]];
+    return { title: dayName(days[i]), items: [{ label: t('Mood'), value: m == null ? '–' : `${face(m)} ${num(m)}`, color: 'var(--accent)' }] };
+  };
+  const table = $derived({
+    head: [t('Day'), t('Mood')],
+    rows: [...series].reverse().map((p) => ({ key: p.day, cells: [dayName(p.day), `${face(p.mood)} ${num(p.mood)}`] })),
+  });
+  let sel = $state(null);
+  const selDay = $derived(sel != null ? days[sel] : null);
+  const selEntries = $derived(selDay ? entries.filter((e) => e.day === selDay) : []);
   const avg = $derived(series.length ? Math.round((series.reduce((s, p) => s + p.mood, 0) / series.length) * 10) / 10 : null);
   const face = (v) => moodOf(Math.round(v))?.emoji ?? '';
   const num = (v) => v.toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -93,14 +114,7 @@
       <p class="rb-p">{t('Choose a smiley when you write. After a few days, your mood curve shows here.')}</p>
     {:else}
       <p class="rb-p">{t('Average {face} {n} on {d} days.', { face: face(avg), n: num(avg), d: series.length })}</p>
-      <svg class="rb-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={t('Mood curve of the last {n} days', { n: DAYS })}>
-        {#each MOODS as m (m.v)}
-          <line x1={P} x2={W - 8} y1={y(m.v)} y2={y(m.v)} class="rb-grid" />
-          <text x="2" y={y(m.v) + 5} class="rb-emo">{m.emoji}</text>
-        {/each}
-        <path d={line} class="rb-line" />
-        {#each series as p (p.day)}<circle cx={x(p.day)} cy={y(p.mood)} r="3.5" class="rb-dot" />{/each}
-      </svg>
+      <LineChart id="mood" bridge {cols} series={lc} scale={SCALE} tick={(v) => moodOf(v)?.emoji ?? ''} readout={read} {table} unit="" height={150} label={t('Mood curve of the last {n} days', { n: DAYS })} onopen={(i) => (sel = i)} hint={t('Point at a day for its mood, tap it for the day.')} />
     {/if}
     {#if pairs.length}
       <h3 class="rb-h3">{t('What goes together')}</h3>
@@ -157,7 +171,36 @@
   </section>
 </div>
 
+{#if selDay}
+  <ChartSheet kicker={t('Mood')} title={dayName(selDay)} onclose={() => (sel = null)} onprev={sel > 0 ? () => sel-- : null} onnext={sel < DAYS - 1 ? () => sel++ : null} prevLabel={t('Day before')} nextLabel={t('Next day')}>
+    <ul class="shl" data-mood-sheet>
+      <li><span>{t('Mood')}</span><b class="num">{byDay[selDay] != null ? `${face(byDay[selDay])} ${num(byDay[selDay])} · ${moodName(byDay[selDay])}` : '–'}</b></li>
+      <li><span>{t('Entries')}</span><b class="num">{selEntries.length}</b></li>
+    </ul>
+    {#if byDay[selDay] == null}<p class="rb-note">{t('No mood noted on this day.')}</p>{/if}
+  </ChartSheet>
+{/if}
+
 <style>
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .shl span {
+    color: var(--ink-2);
+  }
+  .shl b {
+    white-space: nowrap;
+  }
   .rb {
     display: flex;
     flex-direction: column;
@@ -198,26 +241,6 @@
   .rb-note {
     color: var(--ink-3);
     font-size: var(--fs-small);
-  }
-  .rb-svg {
-    width: 100%;
-    height: auto;
-  }
-  .rb-grid {
-    stroke: var(--line);
-    stroke-width: 1;
-  }
-  .rb-emo {
-    font-size: var(--fs-small);
-  }
-  .rb-line {
-    fill: none;
-    stroke: var(--accent);
-    stroke-width: 2;
-    stroke-linejoin: round;
-  }
-  .rb-dot {
-    fill: var(--accent);
   }
   .rb-pairs {
     margin: 0;
