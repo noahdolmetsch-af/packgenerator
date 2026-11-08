@@ -5305,17 +5305,17 @@ Alle ruhigen Funktionen auf einer Seite: weniger App, Herkunft der Werte, Briefe
 
 **Beispiel:** «Brief für einen Moment» öffnet sich in der ersten Nacht deiner nächsten Tour.
 
-### Sicherung prüfen
+### Backup prüfen
 
-Eine Sicherungsdatei prüfen, ohne etwas zu ändern, und eine zweite Kopie ausser Haus halten.
+Eine Backup-Datei prüfen, ohne etwas zu ändern, und eine zweite Kopie ausser Haus halten.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Daten und Backup, oben «Alles in Ordnung?».
-2. Tippe «Sicherung prüfen» und wähle eine Datei: Es steht, ob sie gut ist, oder was nicht stimmt.
-3. Schick dir eine Sicherung selbst, dann tippe «Habe ich gerade gemacht».
+2. Tippe «Backup prüfen» und wähle eine Datei: Es steht, ob sie gut ist, oder was nicht stimmt.
+3. Schick dir ein Backup selbst, dann tippe «Habe ich gerade gemacht».
 
-**Beispiel:** Datei vom letzten Monat → «Diese Sicherung ist gut. 5 Touren, 2 Velos».
+**Beispiel:** Datei vom letzten Monat → «Dieses Backup ist gut. 5 Touren, 2 Velos».
 
 ### Was die App noch wissen sollte
 

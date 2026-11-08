@@ -194,7 +194,7 @@
 <div class="an">
   <header>
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Analyse|page')} />
-    <PageHead title={t('Analyse|page')} sub={t('All your values from Fitbit, Strava, your body, «Wi gaht\'s?» and Aktiv. Tap a value to see its course. Only to look at, nothing is rated.')} />
+    <PageHead title={t('Analyse|page')} sub={t('Only to look at, nothing is rated.|analyse')} />
   </header>
 
   {#if filters.length}

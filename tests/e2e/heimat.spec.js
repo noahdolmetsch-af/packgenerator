@@ -107,10 +107,22 @@ test('every function is visible on its home page', async ({ page, context }, inf
       },
       { names: list.map((x) => x.name), screens: SCREENS },
     );
-    let found = await look();
+    // the 22 switches of «Erinnerungen aufs Handy» sit in four folds (7b-08, Noah «alles»): one tap opens a fold, so each
+    // fold is looked at on its own, opened alone (the others closed), like a person who taps it
+    const lookAll = async () => {
+      let all = await look();
+      const folds = await page.locator('details[data-push-group]').count();
+      for (let g = 0; g < folds; g++) {
+        await page.evaluate((i) => document.querySelectorAll('details[data-push-group]').forEach((d, j) => (d.open = i === j)), g);
+        const part = await look();
+        all = all.map((f, k) => f || part[k]);
+      }
+      return all;
+    };
+    let found = await lookAll();
     if (found.includes(false)) {
       await page.waitForTimeout(1500);
-      const again = await look();
+      const again = await lookAll();
       found = found.map((f, i) => f || again[i]);
     }
     list.forEach((x, i) => found[i] || missing.push(`${x.id} «${x.name}» on ${href}`));
