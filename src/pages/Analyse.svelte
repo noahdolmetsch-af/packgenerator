@@ -164,6 +164,13 @@
   );
 
   const valueText = (x) => fmtValue(x, x.value, num);
+  // a closed group says what is in it: up to three values with their latest state (Noah 08.11.2026 «3a»)
+  const preview = (g) =>
+    g.tiles
+      .filter((x) => !x.empty)
+      .slice(0, 3)
+      .map((x) => `${x.name} ${valueText(x)}${unitText(x) ? ' ' + unitText(x) : ''}`)
+      .join(' · ');
   const howText = (x) => (x.own && !x.empty ? `${t('own calculation|own')} · ${baseHow(x)}` : baseHow(x));
   const baseHow = (x) =>
     x.later === 'garmin'
@@ -257,6 +264,7 @@
             <summary class="gh">
               <h2 id="an-g-{g.key}">{g.name}</h2>
               <small>{t('{n} values|analyse', { n: g.tiles.length })}</small>
+              {#if preview(g)}<span class="pre" data-group-preview>{preview(g)}</span>{/if}
             </summary>
             <ul class="tiles">
               {#each g.tiles as x (x.key)}
@@ -449,6 +457,7 @@
   }
   .gh {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: baseline;
     gap: 8px;
@@ -469,6 +478,17 @@
   }
   .gh h2 {
     flex: 1;
+  }
+  .pre {
+    flex: 1 0 100%;
+    padding-left: 1.3em;
+    margin-top: -4px;
+    color: var(--ink-2, var(--ink-3));
+    font-size: var(--fs-small);
+    line-height: 1.4;
+  }
+  .grp[open] > .gh .pre {
+    display: none;
   }
   .grp[open] > .gh {
     margin-bottom: 8px;
