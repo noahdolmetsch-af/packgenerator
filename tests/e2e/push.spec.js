@@ -114,3 +114,33 @@ test('without a device key or helper code the copy button says what to do first'
   await box.getByRole('button', { name: T('Copy the address for cron-job.org') }).click();
   await expect(box.getByRole('alert')).toHaveText(T('First connect Strava or enter the helper code on this device.'));
 });
+
+// Arbeitsliste 7b-07 (Impeccable-Test 08.11.2026): with the main switch off, the page no longer says «on» and
+// «Nothing is sent» at once. The switches below are only «saved» (grey) and a line says so.
+test('main switch off: the morning switch is marked as saved only, the wait line shows, and goes with the main switch', async ({ page, context }) => {
+  await context.addInitScript(() => Object.defineProperty(Notification, 'permission', { get: () => 'default' }));
+  await open(page, context);
+  await page.goto('./#/me/push');
+  await settle(page);
+  const box = page.locator('[data-push-page]');
+  await expect(box.locator('[data-push-main]')).not.toBeChecked();
+  await expect(box.locator('[data-push-wait]')).toHaveText(T('First switch on «On the phone». Until then your choices are only saved; nothing is sent.'));
+  await expect(box.locator('[data-push-morning]')).toHaveClass(/ps-wait/);
+  await expect(box.locator('[data-push-retry]')).toHaveCount(0);
+  // the choice still works while the main switch is off (nothing is blocked)
+  await box.getByRole('switch', { name: T('One message in the morning') }).uncheck();
+  await expect.poll(() => stored(page, 'push')).toMatchObject({ morning: false });
+});
+
+test('notifications blocked by the browser: the steps and a «Try again» button show', async ({ page, context }) => {
+  await context.addInitScript(() => Object.defineProperty(Notification, 'permission', { get: () => 'denied' }));
+  await open(page, context);
+  await page.goto('./#/me/push');
+  await settle(page);
+  const box = page.locator('[data-push-page]');
+  await expect(box.getByRole('status')).toHaveText(T('Your browser blocks notifications. Tap the lock next to the address, then «Notifications», then «Allow».'));
+  const retry = box.locator('[data-push-retry]');
+  await expect(retry).toHaveText(T('Try again'));
+  await retry.click();
+  await expect(box.locator('[data-push-main]')).not.toBeChecked();
+});
