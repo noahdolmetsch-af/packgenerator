@@ -1,23 +1,28 @@
-# Analyse: alle Reiter auf einen Blick
+# Analyse in Reitern
 
-PR #<Nummer> · 08.11.2026 · Auftrag: Noah «1a» (Thread «UI-Test Analyse-Seite: Design und Verständlichkeit»)
+PR #<offen> · 03.11.2026 · Auftrag: Noah «1a 2b 3a 4a 5a» (Thread «Verbessern: Analyse-Seite übersichtlicher»)
 
 ## Was ist neu
-- Die sechs Reiter der Analyse (Übersicht, Eigenes Diagramm, Vergleiche, Rekorde und Serien, Velos, Alle Werte) sind am Handy alle sichtbar, in zwei Zeilen zu je drei. Vorher schob sich die Zeile seitlich, vier Reiter waren versteckt und nichts zeigte, dass es mehr gibt.
-- Am Computer stehen sie wie bisher in einer Zeile (umbrechen nur, wenn der Platz fehlt).
+- Die Analyse-Seite zeigt einen Teil auf einmal: Übersicht, Eigenes Diagramm, Vergleiche, Rekorde und Serien, Velos, Alle Werte. Der gewählte Reiter wird gemerkt.
+- «Daten aus», «Zeitraum» und «Alle Werte anzeigen» stehen ganz oben (Noah 3a).
 
 ## Was fällt weg oder rutscht tiefer
-- nichts (die Reiter-Zeile ist am Handy eine Zeile höher, dafür wischt man nicht mehr)
+- Alles lag untereinander auf einer Seite. Neu: ein Tipp auf den Reiter. Nichts wird gelöscht.
+- Die Kacheln (Herz, Schlaf …) stehen hinter «Alle Werte».
 
 ## Selbst entschieden
-- Drei Reiter pro Zeile, lange Namen («Eigenes Diagramm», «Rekorde und Serien») brechen in zwei Zeilen um.
+- Standard-Reiter ist «Übersicht».
+- «Daten aus» und «Zeitraum» gelten für Übersicht und Alle Werte; das Eigene Diagramm hat weiter seinen eigenen Zeitraum.
+- Reihenfolge der Reiter ist fest; Umsortieren folgt, falls Noah es will.
+- «Das fällt auf» baut er nicht (Noah 2b).
 
 ## Entscheide (für decisions.md)
-- keine
+- 03.11.2026: Analyse in Reitern, kein «Das fällt auf» (Noah «1a 2b 3a»).
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- keine Änderung
+- Analyse übersichtlicher: Schritt 1 (Reiter) gebaut; Kacheln zugeklappt (4a) und langer Text eingeklappt (5a) folgen als eigene PRs.
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
-1. Auswerten › Analyse am Handy: alle sechs Reiter sind da, in zwei Zeilen, ohne zu wischen.
-2. «Rekorde und Serien» antippen: der Teil öffnet sich, die Seite rutscht nicht seitlich.
+1. Auswerten › Analyse öffnen: unter «Daten aus» und «Zeitraum» stehen Reiter.
+2. «Rekorde und Serien» antippen: nur diese Teile erscheinen.
+3. «Alle Werte» antippen: die Kacheln erscheinen.
