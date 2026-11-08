@@ -6,7 +6,7 @@ import { createDb } from '../src/lib/db.js';
 import { buildBackup, restoreBackup } from '../src/lib/backup.js';
 import {
   WEG_KEY, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue,
-  moveStep, dueOf, timeline, progress, typeProgress, untilStart, timeBuffer, applyAuto, todayStep, templateOf, shift,
+  moveStep, dueOf, timeline, progress, typeProgress, untilStart, timeBuffer, planWeeks, timeCheck, applyAuto, todayStep, templateOf, shift,
 } from '../src/lib/weg/weg.js';
 import { TYPES, typeOf, suggestions } from '../src/lib/weg/types/index.js';
 
@@ -70,6 +70,24 @@ describe('timeline and progress', () => {
     expect(timeBuffer(g, today, 26).state).toBe('tight');
     expect(timeBuffer(g, today, 30).state).toBe('short');
     expect(timeBuffer(g, today, 0)).toBeNull();
+  });
+  it('planWeeks takes the longest lead of the open steps that follow the start day', () => {
+    const o = addSteps(base(), [{ title: 'A', offset: 70 }, { title: 'B', offset: 30 }, { title: 'C', offset: 8 }], { ids: ids('pw') });
+    expect(planWeeks(o)).toBe(10);
+    expect(planWeeks(setDone(o, 'pw1', true))).toBe(5);
+    expect(planWeeks(setDue(o, 'pw1', '2027-01-01'))).toBe(5);
+    expect(planWeeks({ steps: [] })).toBe(0);
+  });
+  it('timeCheck says ok, tight or short and suggests a later start only when short', () => {
+    const at = (n) => ({ start: shift(today, n * 7 + 3), steps: [{ id: 'a', offset: 70, due: '', done: false }] });
+    expect(timeCheck(at(14), today)).toMatchObject({ planWeeks: 10, weeksLeft: 14, buffer: 4, state: 'ok', laterStart: '' });
+    expect(timeCheck(at(11), today)).toMatchObject({ buffer: 1, state: 'tight', laterStart: '' });
+    const s = timeCheck(at(8), today);
+    expect(s).toMatchObject({ buffer: -2, state: 'short' });
+    expect(s.laterStart).toBe(shift(shift(today, 8 * 7 + 3), 14));
+    expect(timeCheck({ start: '', steps: at(8).steps }, today)).toBeNull();
+    expect(timeCheck({ start: shift(today, -3), steps: at(8).steps }, today)).toBeNull();
+    expect(timeCheck({ start: shift(today, 40), steps: [] }, today)).toBeNull();
   });
   it('typeProgress counts one kind of step (the strip «3 of 5 sorted»)', () => {
     const o = addSteps(base(), [{ title: 'A', offset: 70, type: 'org' }, { title: 'B', offset: 30, type: 'org' }, { title: 'C', offset: 3 }], { ids: ids('p') });
