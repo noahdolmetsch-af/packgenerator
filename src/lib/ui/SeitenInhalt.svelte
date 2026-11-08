@@ -1,9 +1,11 @@
 <script>
   /**
-   * «Wegweiser statt Katalog» PR 11 (Noah 01.11.2026 «1-5a», «einverstanden»): «What you can do here» on top of a page: each
+   * «Wegweiser statt Katalog» PR 11 (Noah 01.11.2026 «1-5a», «einverstanden»): «What you can do here» on a page: each
    * function of the page with what it is for, and «How it works» (steps and example) to open. «Fold» folds the card to one
-   * line for this page (kept in settings, so in the backup); the line opens it again («Open»). Nothing is deleted. All
-   * folds can be undone at once under Appearance (SeitenInhaltReset.svelte). Data: src/lib/seiteninhalt.js.
+   * line for this page (kept in settings, so in the backup); the line opens it again («Open»). Nothing is deleted.
+   * Since 08.11.2026 (Noah «A») the card starts as one line on every page and sits behind the page's title (nachtitel.js);
+   * a card the user opened stays open. All opened cards can be folded at once under Appearance (SeitenInhaltReset.svelte).
+   * Data: src/lib/seiteninhalt.js.
    */
   import { liveQuery } from 'dexie';
   import { ChevronDown, ChevronRight, ChevronUp, Lightbulb } from '@lucide/svelte';
@@ -12,6 +14,7 @@
   import { pageContent, pagePattern, SHOWN, FOLD_KEY, SEEN_KEY, foldMapOf, isFolded, seenMapOf, newSince } from '../seiteninhalt.js';
   import { loadWissen } from '../wissen/load.js';
   import { loadHandbook } from '../handbook/load.js';
+  import { afterTitle } from './nachtitel.js';
 
   let { hash = '' } = $props();
   // the tips load with the first card, not at the start (scripts/size-guard.mjs); rows show without them until then
@@ -50,6 +53,7 @@
   }
 </script>
 
+<div class="si-host" data-seiteninhalt-host use:afterTitle>
 {#if rows.length && $foldQ}
   {#if folded}
     <button type="button" class="si-line" onclick={() => setFold(false)} data-seiteninhalt-line>
@@ -85,10 +89,22 @@
     </section>
   {/if}
 {/if}
+</div>
 
 <style>
+  /* the host only carries the place: it has no box of its own, and is hidden until nachtitel.js has put it behind the title */
+  .si-host {
+    display: contents;
+  }
+  .si-host:not([data-placed]) {
+    display: none;
+  }
+  .si,
+  .si-line {
+    grid-column: 1 / -1; /* in a page laid out as a grid the card spans the row */
+  }
   .si {
-    margin: 0 0 12px;
+    margin: 12px 0;
     padding: 12px 14px;
     border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
@@ -159,7 +175,9 @@
   /* the folded line: a quiet bar, but with its own frame and a word, so it is not taken for a leftover */
   .si-line {
     width: 100%;
-    margin: 0 0 8px;
+    min-width: 0;
+    max-width: 100%;
+    margin: 8px 0;
     padding: 0 12px;
     border: 1px solid var(--card-line);
     border-radius: var(--radius-card);
@@ -168,11 +186,12 @@
   }
   .si-linet {
     flex: 1;
+    min-width: 0; /* the text may wrap on a 320 px phone: the line never makes its parent wider than the screen */
     text-align: left;
-    white-space: nowrap;
   }
   .si-open {
     color: var(--hi);
+    white-space: nowrap;
   }
   .si-new {
     padding: 1px 8px;

@@ -73,7 +73,8 @@ const stored = (page, id) =>
   }), id);
 
 async function noSideScroll(page, info, what) {
-  const check = async (w) => expect(await page.evaluate(() => document.documentElement.scrollWidth), `no sideways scroll: ${what} at ${w}`).toBeLessThanOrEqual(w);
+  // after a window resize the page needs a moment to lay out again: look until the width is right (it stays wrong if the page is too wide)
+  const check = async (w) => expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth), { message: `no sideways scroll: ${what} at ${w}`, timeout: 3000 }).toBeLessThanOrEqual(w);
   await check(page.viewportSize().width);
   if (info.project.name !== 'phone') return;
   const vp = page.viewportSize();

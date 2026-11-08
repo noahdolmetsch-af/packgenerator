@@ -21,7 +21,7 @@ Persönliches Aktivitäts-, Touren- und Alltags-Cockpit: Tourenplanung, Packlist
 | Velos und Material | Velos, Pflege, Werkstatt, Material, Kleider | `Bikes.svelte`, `Gear.svelte` |
 | Ich | Daten, Verbindungen, Einstellungen, Alltag | `Me.svelte` |
 
-Seiten laden erst bei Bedarf (`PAGES` in `src/App.svelte`). Alle Funktionen sind zusätzlich nach Ort in «Karte der App» (`#/me/karte`) zu finden; sie wird aus `features.js` gebaut und ist nie veraltet.
+Seiten laden erst bei Bedarf (`PAGES` in `src/App.svelte`). Alle Funktionen sind zusätzlich nach Ort in «Karte der App» (`#/me/karte`) zu finden; sie wird aus `features.js` gebaut und ist nie veraltet. Auf den Seiten mit der Karte «Was du hier tun kannst» (`ON_PAGES` in `src/lib/seiteninhalt.js`) steht die Karte hinter dem Seitentitel und startet als eine Zeile; wer sie öffnet, behält sie offen (`src/lib/ui/nachtitel.js`).
 
 ## 3. Funktionsübersicht (11 Bereiche)
 
@@ -259,7 +259,7 @@ Diese Funktionen gibt es in der App (`features.js`), sie fehlten im Dokument. De
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
 | Ich (Einstieg) | `#/me` | Einstieg zu Daten, Verbindungen, Einstellungen, Aufräumen von Testdaten und Tastenkürzeln. |
-| Aussehen und Bedienung | `#/me/look` | Farbwelt, Grösse und Licht, Handschuh-Modus, eine Seite anpassen, Vorschläge an oder aus, eingeklappte Karten «Was du hier tun kannst» wieder aufklappen, KI auf diesem Gerät. |
+| Aussehen und Bedienung | `#/me/look` | Farbwelt, Grösse und Licht, Handschuh-Modus, eine Seite anpassen, Vorschläge an oder aus, geöffnete Karten «Was du hier tun kannst» wieder einklappen, KI auf diesem Gerät. |
 | Werkzeugkasten | `#/me/tools` | Kleine Werkzeuge: Karte messen, Barcode, Packliste per Foto, Währungen, Lupe und Licht, Zeitzonen, Kompass, Redewendungen, Reisekosten, Übersetzungen der Gänge, Wasserwaage, Sitzposition, PDF, Fotos, Bildformat, Video verkleinern, QR-Code, Etiketten, Rechner, Einheiten, Werkzeugketten. |
 | Freie Zeit | `#/me/frei` | Impulse (Ideen zum Antippen; eigene ergänzen, «Heute nicht» lässt eine Idee 30 Tage ruhen), Erste Nacht (nach der Nacht drei Fragen und Übernahme in die Packliste), Für nächstes Mal (Notizen mit einem Tippen auf die Packliste der nächsten Tour setzen), Mein Abend (mit Zeit ohne Handy: Timer 10 bis 45 Min. und «Hat gut getan»), Was mir wichtig ist (alle drei Monate eine Erinnerung auf Heute, «Damals und heute» vergleicht neue und frühere Einträge), Reisewünsche (ein Wunsch wird mit einem Tippen zur Traumtour, die passende Jahreszeit steht dabei), Wonach ist mir? (berücksichtigt Wetter der nächsten Stunden und freie Zeit bis zum nächsten Termin; «Noch eine» würfelt eine weitere Idee), Meine Sammlungen (eine Sammlung als Seite teilen: Link `#/share/sammlung/…`, nur Text; wer den Link öffnet, kann sie mit «In meine Sammlungen übernehmen» als eigene Sammlung behalten; drucken; mit einer Tour verknüpfen). |
 | Gewicht | `#/me/weight` | Freiwillig und nur auf diesem Gerät: das eigene Gewicht mit Kurve, für Watt pro Kilo. |
