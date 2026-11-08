@@ -1,6 +1,6 @@
 // «Plan ganze App» (Noah 07.11.2026 «a»): liest docs/plan-ganze-app.md und sagt, wie weit der Plan ist.
 //   node scripts/plan-stand.mjs   ->   «Plan: 2 von 14 online»
-// Die Tabelle hat die Spalten: Schritt | Titel | PR | Stand | Weg. Stand ist «offen», «gebaut» oder «online».
+// Die Tabelle hat die Spalten: Schritt | Titel | PR | Stand | Weg. Stand ist «offen», «gebaut», «online» oder «gestrichen» (gestrichen zählt nicht mit).
 // Weg sagt, woran man den Schritt in der App erkennt (mehrere mit «;» getrennt):
 //   datei:<Pfad>              die Datei gibt es im Repo
 //   text:<Pfad>|<Wort>        die Datei enthält das Wort
@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const PLAN_FILE = path.join(ROOT, 'docs/plan-ganze-app.md');
-export const STANDS = ['offen', 'gebaut', 'online'];
+export const STANDS = ['offen', 'gebaut', 'online', 'gestrichen'];
 
 /** Liest die Zeilen der Plan-Tabelle. */
 export function parsePlan(md) {
@@ -42,8 +42,9 @@ export function wegePunkte(weg) {
 
 export function planStand(md) {
   const rows = parsePlan(md);
-  const online = rows.filter((r) => r.stand === 'online').length;
-  return { online, total: rows.length, line: `Plan: ${online} von ${rows.length} online` };
+  const gilt = rows.filter((r) => r.stand !== 'gestrichen');
+  const online = gilt.filter((r) => r.stand === 'online').length;
+  return { online, total: gilt.length, line: `Plan: ${online} von ${gilt.length} online` };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
