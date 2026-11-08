@@ -23,8 +23,9 @@ const param = (hash, name) => {
   return q ? new URLSearchParams(q).get(name) : null;
 };
 
-/** The part «Velos» of Analyse (km per bike), opened from a bike's number (UI-Prüfung 07.11.2026, V1); with a bike id only that bike. */
-export const velosHref = (bikeId = null) => `${BASE}?tab=velos${bikeId ? `&bike=${encodeURIComponent(bikeId)}` : ''}`;
+/** The part «Velos» of Analyse (km per bike), opened from a bike's number (UI-Prüfung 07.11.2026, V1); with a bike id only that bike,
+ *  and then for the whole year (a bike's km is a lifetime number; 30 days would show an empty page). */
+export const velosHref = (bikeId = null) => `${BASE}?tab=velos${bikeId ? `&bike=${encodeURIComponent(bikeId)}&zeit=y` : ''}`;
 
 /** The bike asked for in the hash (velosHref), or null. */
 export const bikeOfHash = (hash) => param(hash, 'bike') || null;

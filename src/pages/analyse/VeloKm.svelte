@@ -20,7 +20,7 @@
   import GridLines from '../../lib/charts/GridLines.svelte';
   import YTicks from '../../lib/charts/YTicks.svelte';
 
-  let { days = [], today, only = null } = $props();
+  let { days = [], today, only = null, onlonger = null } = $props();
 
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
@@ -30,6 +30,8 @@
   const one = $derived(only ? allBikes.find((b) => b.id === only) ?? null : null);
   const bikes = $derived(one ? [one] : allBikes);
   const entries = $derived($entriesQ ?? []);
+  // «only» a bike with its own km but nothing counted in the km book: say where the number comes from, not just «nothing»
+  const bookEmpty = $derived(one != null && !entries.some((e) => e.bikeId === one.id && e.state === 'counted' && e.kind === 'ride'));
   const WEEKS = 12;
   const totals = $derived(bikeTotals(entries, bikes, days));
   const top = $derived(Math.max(1, ...totals.map((x) => x.km)));
@@ -97,7 +99,12 @@
       <p class="hint">{t('km per week, {n} weeks|bikesan', { n: WEEKS })}. {t('Tap a week for its exact km.|bikesan')}</p>
       <div class="srw">{#each weeks as w, j (w.key)}<button type="button" onclick={() => (pickedWeek = j)}>{dfmt(w.key, { day: 'numeric', month: 'short' })}</button>{/each}</div>
     {:else}
-      <p class="hint">{t('No counted rides in this period.|bikesan')}</p>
+      {#if bookEmpty && one?.km != null}
+        <p class="hint" data-bike-empty="book">{t('The km book has no counted rides of {bike} yet. The {km} km come from the bike itself.', { bike: one.name, km: num(one.km) })}</p>
+      {:else}
+        <p class="hint" data-bike-empty="period">{t('No counted rides in this period.|bikesan')}</p>
+        {#if onlonger}<button type="button" class="btn sm" onclick={onlonger} data-bike-longer>{t('Show the whole year')}</button>{/if}
+      {/if}
     {/if}
 
     {#if wear.length}
