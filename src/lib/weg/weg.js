@@ -87,7 +87,16 @@ export function moveGoal(w, from, to) {
 const mapGoal = (w, id, fn) => ({ ...w, goals: w.goals.map((g) => (g.id === id ? fn(g) : g)) });
 
 /** A new start day (or none): steps with a day of their own keep it, the others move with the start. */
-export const setStart = (w, id, start) => mapGoal(w, id, (g) => ({ ...g, start: isDay(start) ? start : '' }));
+export const setStart = (w, id, start) => mapGoal(w, id, (g) => {
+  if (!isDay(start)) return { ...g, start: '' };
+  const { period, ...rest } = g; // a start day ends the open period
+  return { ...rest, start };
+});
+/** The open period of a goal without a start day { from, to }, for the start suggestion; without both days it goes. */
+export const setPeriod = (w, id, from, to) => mapGoal(w, id, (g) => {
+  const { period, ...rest } = g;
+  return isDay(from) && isDay(to) && from <= to ? { ...rest, period: { from, to } } : rest;
+});
 
 /* ---------- steps ---------- */
 

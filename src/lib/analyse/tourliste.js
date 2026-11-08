@@ -7,6 +7,9 @@ const fin = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 /** The page of a finished trip (only once it is over; before that the list shows the name only). */
 export const tripPageHref = (id) => `#/tour/${encodeURIComponent(`t:${id}`)}`;
 
+/** The list of the saved rides (the page has no filter by trip). */
+export const RIDES_HREF = '#/debrief/ride';
+
 /**
  * One row per trip that touches `days`, newest first:
  * { id, name, from, to, n (days with a value), avg (mean of those days, or null), href (or null) }.

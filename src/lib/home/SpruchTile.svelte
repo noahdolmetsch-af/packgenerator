@@ -9,7 +9,7 @@
    * numbers (weather, zone minutes, sleep and resting pulse, the next trip; PR 2: steps, weeks in a row, bike km, a year ago, the
    * fog, your quotes of «Cushion time» in High German). A new one at each fresh start of the app, «New» gives the next. «Why?»
    * shows the number behind it. PR 3: «No more like this» (with Undo) and «All sayings» (tone, sources, sentences; the window
-   * SprucheSheet.svelte). Observation only. The rules and the sentences are in spruch.js, the numbers in spruch-data.js.
+   * SprucheSheet.svelte); PR 4: your own sayings (written in that window). Observation only. The rules and the sentences are in spruch.js, the numbers in spruch-data.js.
    * Move or hide the tile under «Customise the start page».
    */
   import { liveQuery } from 'dexie';
@@ -71,6 +71,7 @@
       km: $extraQ?.km ?? null,
       ago: $extraQ?.ago ?? null,
       quotes: $extraQ?.quotes ?? [],
+      own: $extraQ?.own ?? [],
     }),
   );
 

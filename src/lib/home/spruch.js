@@ -18,6 +18,10 @@
  * - PR 3 (Noah 07.11.2026 «bau spruch pr3 und 4»): the window «All sayings» (SprucheSheet.svelte): the tone (mix or one
  *   tone), a switch for each source and for each sentence, and «No more like this» on the tile (with Undo). The choices
  *   are kept in the same settings row (`ton`, `offSrc`, `off`).
+ * - PR 4 (Noah 07.11.2026 «bau spruch pr3 und 4»): your own sayings, written in the window «All sayings» (settings row
+ *   OWN_KEY, in the backup): text, one tone each, add / change / delete with Undo. They come with the others like any sentence
+ *   (source «own»), in the language you wrote them (they do NOT go through t()), and follow the same rules: tone, switches,
+ *   history, and a saying of the tone «chal» only on a day that is not off the own normal.
  * Pure (no database, no screen), tested in tests/spruch.test.js. Konzept: design/tagesspruch/konzept.md in the project folder.
  */
 import { normalOf, latest, azmWeek, addDays, MOVE_RULE } from '../health.js';
@@ -31,7 +35,7 @@ export const TONES = ['mot', 'ruhig', 'lustig', 'vision', 'chal'];
 /** English keys for t(): the name of each tone (the small tag on the tile). */
 export const TONE_NAME = { mot: 'Encouraging|saying', ruhig: 'Calm|saying', lustig: 'Funny|saying', vision: 'Vision|saying', chal: 'Challenge|saying' };
 /** English keys for t(): the name of each source (where the sentence comes from). */
-export const SOURCE_NAME = { weather: 'Weather|saying', azm: 'Zone minutes|saying', body: 'Sleep and pulse|saying', tour: 'Next trip|saying', steps: 'Steps|saying', serie: 'Weeks in a row|saying', velo: 'Bike km|saying', jahr: 'A year ago|saying', quote: 'Quote|saying' };
+export const SOURCE_NAME = { weather: 'Weather|saying', azm: 'Zone minutes|saying', body: 'Sleep and pulse|saying', tour: 'Next trip|saying', steps: 'Steps|saying', serie: 'Weeks in a row|saying', velo: 'Bike km|saying', jahr: 'A year ago|saying', quote: 'Quote|saying', own: 'Own|saying' };
 
 /** Every source, in the order of the window «All sayings». */
 export const SOURCES = Object.keys(SOURCE_NAME);
@@ -81,6 +85,44 @@ export function remember(rec, pick) {
   return { ...r, recent };
 }
 
+/* ---------- your own sayings (PR 4) ---------- */
+
+/** The settings row of your own sayings: { items: [{ id, text, ton }] }. */
+export const OWN_KEY = 'home.spruch.own';
+export const OWN_MAX = 40;
+export const OWN_LEN = 140;
+
+/** The stored row made safe: [{ id, text (1–140 characters, one line), ton }] (at most 40); anything else is the empty list. */
+export function ownOf(value) {
+  const list = Array.isArray(value) ? value : Array.isArray(value?.items) ? value.items : [];
+  const seen = new Set();
+  const out = [];
+  for (const x of list) {
+    const text = String(x?.text ?? '').replace(/\s+/g, ' ').trim().slice(0, OWN_LEN);
+    const id = typeof x?.id === 'string' ? x.id.replace(/[~\s]/g, '') : '';
+    if (!text || !id || seen.has(id) || out.length >= OWN_MAX) continue;
+    seen.add(id);
+    out.push({ id, text, ton: TONES.includes(x?.ton) ? x.ton : 'mot' });
+  }
+  return out;
+}
+/** A new id for an own saying. */
+export const newOwnId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+/** The list with one more saying at the end; the same list when the text is empty or the list is full. */
+export function addOwn(items, text, ton = 'mot', id = newOwnId()) {
+  const list = ownOf(items);
+  const add = ownOf([{ id, text, ton }])[0];
+  return add && list.length < OWN_MAX && !list.some((x) => x.id === add.id) ? [...list, add] : list;
+}
+/** The list with one saying changed (text and tone); an empty text changes nothing. */
+export function editOwn(items, id, { text, ton }) {
+  const list = ownOf(items);
+  const re = ownOf([{ id, text, ton }])[0];
+  return re ? list.map((x) => (x.id === id ? re : x)) : list;
+}
+/** The list without one saying. */
+export const dropOwn = (items, id) => ownOf(items).filter((x) => x.id !== id);
+
 /* ---------- recovery: sleep and resting pulse against the person's own normal ---------- */
 
 /** Sleep at least this many minutes under the own normal, or resting pulse at least this many beats over it, is «off». */
@@ -129,8 +171,9 @@ const wetHours = (day) => (day?.hourly?.p?.length === 24 ? day.hourly.p.map((p) 
  * trip: the next trip { startDate, name } or null; packed: { packed, of } or null; fog: summary() of nebelgrenze.js or null.
  * PR 2: series: the weeks in a row (series.js seriesOf) or null; km: { now, week } the bike km of this year now and a week ago;
  * ago: { title } the trip of a year ago or null; quotes: [{ id, text, author, source }] the quotes that are on.
+ * PR 4: own: [{ id, text, ton }] your own sayings (ownOf).
  */
-export function contextOf({ today, hour = 12, weekday = 1, forecast = null, rows = [], goal = 150, trip = null, packed = null, fog = null, series = null, km = null, ago = null, quotes = [] } = {}) {
+export function contextOf({ today, hour = 12, weekday = 1, forecast = null, rows = [], goal = 150, trip = null, packed = null, fog = null, series = null, km = null, ago = null, quotes = [], own = [] } = {}) {
   const week = azmWeek(rows, today);
   const stepsOf = (d) => (rows ?? []).find((r) => r.date === d && Number.isFinite(r.steps))?.steps ?? null;
   const yS = stepsOf(addDays(today, -1));
@@ -150,6 +193,7 @@ export function contextOf({ today, hour = 12, weekday = 1, forecast = null, rows
     km,
     ago,
     quotes: Array.isArray(quotes) ? quotes : [],
+    own: ownOf(own),
   };
 }
 
@@ -438,6 +482,11 @@ function quoteEntries(ctx) {
     });
 }
 
+/** Your own sayings as sentences: written by you, so in no fixed language and never through t(). */
+function ownEntries(ctx) {
+  return (ctx.own ?? []).map((o) => ({ id: `o.${o.id}`, src: 'own', ton: o.ton, text: o.text, lang: '', why: { key: 'A saying you wrote yourself.', vars: {} } }));
+}
+
 /**
  * All sentences that fit today: [{ id, src, ton, text, why, lang }], in the order of TEMPLATES, then the quotes. `ton`: 'mix' or
  * one tone. A template with `alts` gives one entry per wording (ids «id», «id~2» …). `off`: switched-off sentences, `offSrc`:
@@ -453,6 +502,7 @@ export function fitting(ctx, { ton = 'mix', off = [], offSrc = [] } = {}) {
     [m.text, ...(m.alts ?? [])].forEach((text, i) => out.push({ id: i ? `${x.id}~${i + 1}` : x.id, src: x.src, ton: x.ton, text, why: m.why, lang: 'gsw' }));
   }
   for (const q of quoteEntries(ctx)) if ((ton === 'mix' || ton === q.ton) && !off.includes(baseId(q.id)) && !offSrc.includes(q.src)) out.push(q);
+  for (const o of ownEntries(ctx)) if ((ton === 'mix' || ton === o.ton) && !off.includes(o.id) && !offSrc.includes(o.src) && !(calm && o.ton === 'chal')) out.push(o);
   return out;
 }
 
@@ -489,7 +539,7 @@ export const ABOUT = {
 export function stillFits(ctx, rec, shown) {
   if (!shown) return false;
   const r = spruchOf(rec);
-  return fitting(ctx, { ton: r.ton, off: r.off, offSrc: r.offSrc }).some((x) => x.id === shown.id);
+  return fitting(ctx, { ton: r.ton, off: r.off, offSrc: r.offSrc }).some((x) => x.id === shown.id && x.text === shown.text);
 }
 
 /**

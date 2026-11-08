@@ -45,6 +45,7 @@ export const GROUP_PLACES = [
   { name: 'Own views of Material', file: 'src/lib/ruhig/KindsEdit.svelte' }, // Einzelidee 22 (einzeln/OwnViews.svelte)
   { name: 'Areas of Today', file: 'src/lib/home/AreasEdit.svelte' },
   { name: 'Groups of the session library', file: 'src/lib/training/plans/Library.svelte' }, // «Training verbessern» 7 (Noah «1-5 a»)
+  { name: 'Groups of the kept weeks', file: 'src/lib/training/plans/WeekSaved.svelte' }, // «Training verbessern» 11 (Noah «1a 2a 3a 4a»)
   { name: 'Groups of the Quick Links', file: 'src/pages/Quick.svelte' }, // «Quick Links» (Noah 28.10.2026 «5a») // «Bereiche anpassen» (Noah 27.10.2026 «2a»): hidden, not deleted
 ];
 
