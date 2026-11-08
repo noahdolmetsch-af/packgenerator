@@ -69,6 +69,7 @@ export const ALL_HERE = {
     'f.compass',
     'f.ruhig',
     'f.plantpass',
+    'f.tennisflyer',
   ],
 };
 
