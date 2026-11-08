@@ -11,7 +11,7 @@ PR #1174 · 08.11.2026 · Auftrag: Noah «5a» (Entwurf G7, linke Karte), Thread
 - nichts
 
 ## Selbst entschieden
-- Daten: ein zusätzliches Feld `doneAt` am Schritt im Eintrag `weg` (keine neue Tabelle, keine neue Dexie-Version, ältere Einträge laufen unverändert). Schritte, die vor dieser Version abgehakt wurden, haben keinen Tag und zeigen «Erledigt» ohne Zahl. Wieder abhaken löscht den Tag.
+- Daten: ein zusätzliches Feld `doneAt` am Schritt im Eintrag `weg` (keine neue Tabelle, keine neue Dexie-Version, ältere Einträge laufen unverändert). Schritte, die vor dieser Version abgehakt wurden, haben keinen Tag und zeigen «Fertig» ohne Zahl. Wieder abhaken löscht den Tag.
 - Schritte ohne geplanten Tag stehen nicht im Rückblick (es gibt nichts zu vergleichen).
 - Die Karte erscheint ab dem Tag nach dem Start.
 - Der Vorschlag fürs nächste Mal (5e) und «Weg als Vorlage speichern» (5c) sind eigene, nächste kleine PRs.
