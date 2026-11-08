@@ -196,4 +196,8 @@ export default {
   'Pause|activity': 'Pausieren',
   'Delete with its history?': 'Mit Verlauf löschen?',
   'This activity no longer exists.': 'Diese Aktivität gibt es nicht mehr.',
+  'This page is not there any more': 'Diese Seite gibt es nicht mehr',
+  'The address is old or wrong. From here you find your way back.': 'Die Adresse ist alt oder falsch. Von hier findest du zurück.',
+  'To Tennis': 'Zu Tennis',
+  'To Active': 'Zu Aktiv',
 };

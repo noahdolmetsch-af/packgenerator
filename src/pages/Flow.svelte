@@ -37,7 +37,7 @@
    */
   import Ideas from './flow/Ideas.svelte';
   import LiveStart from '../lib/live/LiveStart.svelte';
-  import { Plus, Snowflake, ChevronRight } from '@lucide/svelte';
+  import { Plus, Snowflake, ChevronRight, Compass } from '@lucide/svelte';
   import { inSeason } from '../lib/ski.js';
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { restRows } from '../lib/flow/restlist.js';
@@ -79,6 +79,7 @@
   import WeekGoals from '../lib/flow/WeekGoals.svelte'; // Aktiv 4b (Noah 05.11.2026): own goals for the week Monday to Sunday
   import RuhetagHint from '../lib/flow/RuhetagHint.svelte'; // Aktiv 4a (Noah 05.11.2026): after three hard days one gentle line
   import { sportHref } from '../lib/flow/mysports.js';
+  import { flowGone } from '../lib/flow/oldaddress.js'; // an address that is gone says so (UX-Test D-3, 08.11.2026)
   import { localDay } from '../lib/localday.js';
   import { sonntagsFaden } from '../lib/sonntag.js';
   import { phone } from '../lib/media.svelte.js';
@@ -113,6 +114,7 @@
   // hobby pages 1: the sub address may carry a query (#/flow/milestones?act=meditation)
   const route = $derived(sub.split('?')[0].split('/'));
   const params = $derived(new URLSearchParams(sub.split('?')[1] ?? ''));
+  const gone = $derived(flowGone(sub));
   const editId = $derived(route[0] === 'edit' ? decodeURIComponent(route[1] ?? '') : route[0] === 'new' ? 'new' : null);
   // «Aktiv neu»: the editor leads back to the sport's page when it was opened there
   const editBack = $derived(params.get('from') === 'sport' && editId && editId !== 'new' ? sportHref({ id: editId }) : params.get('from') === 'activity' ? '#/flow/activity' : '');
@@ -123,7 +125,20 @@
   const hasMed = $derived(live.some((s) => isMedAct(s.act)));
 </script>
 
-{#if route[0] === 'training' && route[1] === 'a'}
+{#if gone}
+  <!-- UX-Test D-3 (08.11.2026): an old Tennis bookmark no longer shows the start of Aktiv without a word -->
+  <div class="gone" data-flow-gone>
+    <Empty
+      icon={Compass}
+      level={1}
+      headId="flow-gone"
+      title={t('This page is not there any more')}
+      text={t('The address is old or wrong. From here you find your way back.')}
+      action={gone.target ? { href: gone.target.href, label: t(gone.target.label) } : { href: '#/flow', label: t('To Active') }}
+      action2={gone.target ? { href: '#/flow', label: t('To Active') } : null}
+    />
+  </div>
+{:else if route[0] === 'training' && route[1] === 'a'}
   {#key sub}<TrainingAct id={decodeURIComponent(route[2] ?? '')} />{/key}
 {:else if route[0] === 'training'}
   <Training {params} />
@@ -269,6 +284,10 @@
 {#if medSt}<MedStartSheet st={medSt} {today} onclose={() => (medFor = null)} />{/if}
 
 <style>
+  .gone {
+    max-width: 520px;
+    margin: var(--sp-4) auto;
+  }
   /* v0.105.0 Design-Refresh P8 «Aktiv» (A1, A5): the page head, two columns (the main column and the
      side column), white cards; one column on a phone */
   .flow {

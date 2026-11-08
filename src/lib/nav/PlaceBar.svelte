@@ -167,11 +167,17 @@
   /* A very narrow phone (320 px): five slots of about 63 px; the small type keeps «Auswerten» whole */
   @media (max-width: 359px) {
     .bottom {
-      padding-inline: 2px;
+      padding-inline: 0;
     }
     a {
       font-size: var(--fs-tiny);
       letter-spacing: -0.01em;
+    }
+    /* UX-Test D-5 (08.11.2026): six slots of 53 px; «Velos und» and «Quick» need a hair less than 12 px, else
+       «Velos und Material» breaks into three lines and the third one is cut off («Velos und…») */
+    .pn.two {
+      font-size: 11px;
+      letter-spacing: -0.02em;
     }
   }
   /* A phone turned sideways: one 44 px row, icon next to the label. */

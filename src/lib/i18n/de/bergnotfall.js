@@ -85,8 +85,13 @@ export default {
   'accurate to {m} m': 'genau auf {m} m',
   'at {time}': 'um {time}',
   'Copy position': 'Standort kopieren',
-  'The position is switched off for this app. Allow «Location» in the browser settings, or read your place from the map.':
-    'Der Standort ist für diese App ausgeschaltet. Erlaube «Standort» in den Browser-Einstellungen oder lies deinen Ort auf der Karte ab.',
+  'The position is switched off for this app. Tell the rescue your place name, or look it up on the map.':
+    'Der Standort ist für diese App aus. Sag der Rettung deinen Ortsnamen oder schau ihn auf der Karte nach.',
+  'To allow it: browser settings, «Location».': 'Erlauben kannst du ihn in den Browser-Einstellungen unter «Standort».',
+  'Still switched off.': 'Noch immer aus.',
+  'Still nothing.': 'Noch immer nichts.',
+  'Try the position again': 'Nochmal versuchen',
+  'Open the map': 'Karte öffnen',
   'No position yet. Go to an open spot and wait a moment; the phone needs the sky, not the internet.':
     'Noch kein Standort. Geh an eine offene Stelle und warte kurz; das Handy braucht den Himmel, nicht das Internet.',
   'Looking for your position…': 'Dein Standort wird gesucht …',
