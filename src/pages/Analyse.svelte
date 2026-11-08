@@ -229,7 +229,7 @@
   {#if loading}
     <p class="hint" role="status">{t('Loading …')}</p>
   {:else if tab === 'ueberblick'}
-    {#if on.length}<Ueberblick {days} {byKey} acts={data.acts} log={data.log} {on} onday={(d) => (dayOpen = d)} />{/if}
+    {#if on.length}<Ueberblick {days} {byKey} acts={data.acts} log={data.log} {on} onday={(d) => (dayOpen = d)} />{:else}<Empty text={t('Switch on at least one source above, then your values show here.')} />{/if}
   {:else if tab === 'diagramm'}
     <section class="card vw" aria-label={t('Views|views')}><Ansichten {views} now={nowShown} onapply={applyView} /></section>
     {#key dgRun}<Diagramm {groups} {byKey} rowOf={(d) => data.table.get(d)} trips={data.trips} acts={data.acts} log={data.log} {today} start={dgStart} onstate={(st) => (dgState = st)} />{/key}
@@ -243,7 +243,9 @@
       {#if !on.length}
         <Empty text={t('Switch on at least one source above, then your values show here.')} />
       {:else if !shownGroups.length}
-        <Empty text={t('No values in this period yet. Connect Fitbit or Strava, or tick an activity in Aktiv.')} action={{ label: t('Open Aktiv'), href: '#/flow' }} />
+        <Empty text={t('No values in this period yet. Connect Fitbit or Strava, or tick an activity in Aktiv.')} action={{ label: t('Connect Fitbit|analyse'), href: '#/me/fitbit' }} action2={{ label: t('Connect Strava|analyse'), href: '#/bikes?tab=care&view=strava' }}>
+          {#snippet children()}<a href="#/flow">{t('Open Aktiv')}</a>{/snippet}
+        </Empty>
       {:else}
         <p class="gall"><button type="button" class="chip" data-groups-toggle onclick={() => (openG = allOpen ? [] : shownGroups.map((g) => g.key))}>{allOpen ? t('Close all groups|analyse') : t('Open all groups|analyse')}</button></p>
         {#each shownGroups as g (g.key)}

@@ -30,6 +30,7 @@
   import ProbeRow from '../probe/ProbeRow.svelte'; // Paket B: «Generalprobe» from 7 days before the start
   import PlanHints from '../tourlernen/PlanHints.svelte'; // Paket Z: spare parts after a breakdown, sleep spots nearby
   import PackExtras from '../schnellpacken/PackExtras.svelte'; // Paket SP «Schneller packen»
+  import PackMore from './PackMore.svelte'; // «Vereinfachen ohne Verlust» step 2: five closed groups under «More about this trip»
   import EventStart from './EventStart.svelte';
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
@@ -73,7 +74,7 @@
   import { SETS_KEY } from '../sets.js';
   import { db } from '../db.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -325,6 +326,28 @@
 {#snippet checkBtn()}<button type="button" class="tp-icon-btn kh-go-check" onclick={openCheck}><Sparkles size={18} aria-hidden="true" /><span class="kh-lbl">{t('Check the list')}</span></button>{/snippet}
 {#snippet plus()}{#if checkHere && phone.matches}{@render checkBtn()}{/if}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')} data-add-mat><Plus size={22} aria-hidden="true" /></button>{/snippet}
 
+<!-- «Vereinfachen ohne Verlust» step 2 (Noah 07.11.2026): the planning cards that used to stand beside and under the list, sorted into five groups -->
+{#snippet gWeather()}<DoorCard {trip} only={['planb']} />{/snippet}
+{#snippet gBefore()}
+  {@render preparation?.()}
+  <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
+  <DocChecks {trip} />
+  <ProbeRow {trip} {items} card />
+  <!-- Touren-Ideen 45, 47, 49 (Noah 26.10.2026 «2b 3a 4b 5b»): sport per day, unclear spots, border -->
+  <TourPrep {trip} />
+  <PackExtras {trip} {trips} {itemsById} only={['wash', 'morning']} />
+  <DoorCard {trip} only={['checkin', 'arrived']} />
+  {@render shop?.()}
+{/snippet}
+{#snippet gOthers()}<PackExtras {trip} {trips} {itemsById} only={['two']} />{/snippet}
+{#snippet gEasier()}{@render starters?.()}{/snippet}
+{#snippet gLearn()}
+  {#if planTop}<LessonsCard {lessons} {reminders} />{/if}
+  <PlanHints {trip} {trips} {items} />
+  {@render ballastContent?.()}
+  <PackExtras {trip} {trips} {itemsById} only={['time']} />
+{/snippet}
+
 <div class="calm-pack trip-page" class:review-mode={review} bind:this={rootEl}>
   {#if review}
     <TripBand {trip} tab="plan" {kicker} action={null} />
@@ -361,27 +384,13 @@
           {#if ev}<TripWeather {trip} kind="event" />{/if}
           {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
           {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
-          <LessonsCard {lessons} {reminders} />
-          <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
-          <DocChecks {trip} />
-          <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
-          <PlanHints {trip} {trips} {items} />
-          <DoorCard {trip} />
-          <!-- Touren-Ideen 45, 47, 49 (Noah 26.10.2026 «2b 3a 4b 5b»): sport per day, unclear spots, border -->
-          <TourPrep {trip} />
-          <ProbeRow {trip} {items} card />
-          <PackExtras {trip} {trips} {itemsById} />
+          <!-- the rest of the planning cards sit in the groups of «More about this trip» below the packing list (PackMore) -->
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
           <PlanNotesCard {trip} {bike} {fixed} />
         </div>
       </div>
     {:else}
       <PlanNotesCard {trip} {bike} {fixed} />
-      <PlanHints {trip} {trips} {items} />
-      <DoorCard {trip} />
-      <TourPrep {trip} />
-      <ProbeRow {trip} {items} card />
-      <PackExtras {trip} {trips} {itemsById} />
     {/if}
     <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
     <TipLine page="pack" name={t('Pack')} />
@@ -550,10 +559,10 @@
           <details class="tp-fold weight-details"><summary><Weight size={20} aria-hidden="true" /><span>{t('Weight')}</span><span class="r num">{t('Base')} {stats.baseMissing ? '~' : ''}{kg(stats.baseG)}{#if stats.unweighed}<i class="tp-badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
             <div class="in"><div class="weight-grid"><div><span>{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div><div><span>{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div><div><span>{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}{#if bikeTrip && stats.zones.some((z) => z.worn)}<p class="tp-muted tp-small">{t('Back and Hip count to On you, not to the bike or the wheels.')}</p>{/if}<p class="tp-muted tp-small">{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p></div>
           </details>
-          {@render preparation?.()}{@render ballastContent?.()}
         </div>
       </div>
     </div>
+    <PackMore {trip} {jumpBefore} weather={gWeather} before={gBefore} others={gOthers} easier={gEasier} learn={gLearn} />
   {/if}
   {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
 </div>

@@ -71,7 +71,7 @@ test('Cardio-Belastung: names, weekday bars, cards, day before and «+ Wert» ar
   await expect(wv.locator('.card.days th').last()).toHaveText(T('Done the day before|analyse'));
   await wv.locator('[data-all-days]').click();
   const cells = await wv.locator('.card.days td.sm').allTextContents();
-  expect(cells).toContain(T('nothing ticked|analyse'));
+  expect(cells).toContain(T('nothing recorded|analyse'));
   expect(cells).not.toContain('–');
 
   // 5 «+ Wert» is a chip, not a full line

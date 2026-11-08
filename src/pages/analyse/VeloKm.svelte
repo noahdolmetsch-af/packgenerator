@@ -5,7 +5,8 @@
    * the km book), and per bike its three most worn parts with «X km left» and the month it is due (the
    * same rules as Velos › Pflege › Verschleiss). Only to look at. days: the period; today.
    */
-  import { ChevronRight } from '@lucide/svelte';
+  import { ChevronRight, Bike } from '@lucide/svelte';
+  import Empty from '../../lib/ui/Empty.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
   import { withVisits } from '../../lib/workshop.js';
@@ -110,6 +111,14 @@
       {/each}
     {/if}
   </section>
+{:else}
+  <Empty
+    icon={Bike}
+    title={t('No bike yet|analyse')}
+    text={t('Here you see how many km each bike rides and which parts wear out soon. Add your bike first.|analyse')}
+    action={{ label: t('Add a bike|analyse'), href: '#/bikes' }}
+    action2={{ label: t('Connect Strava|analyse'), href: '#/bikes?tab=care&view=strava' }}
+  />
 {/if}
 
 <style>
