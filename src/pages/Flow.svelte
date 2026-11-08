@@ -42,6 +42,7 @@
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { restRows } from '../lib/flow/restlist.js';
   import { flowStates, rings as ringsOf } from '../lib/flow.js';
+  import { weekGoals } from '../lib/flowweek.js';
   import { ringHrefs, ringParts, TICKS_HREF } from '../lib/flow/ringweg.js';
   import { openTimer, actName } from '../lib/flow/ui.svelte.js';
   import Rings from '../lib/flow/Rings.svelte';
@@ -102,9 +103,10 @@
   const lastLine = (r) => (r.last ? [t('last {date}', { date: fmt(r.last.day, { weekday: 'short', day: 'numeric', month: 'short' }) }), r.last.min ? t('{n} min', { n: r.last.min }) : ''].filter(Boolean).join(' · ') : t('not yet'));
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const season = $derived(data ? seasonNow(data.acts, today) : null);
-  // «Aktiv neu» (spec «Eine Zählweise»): the head and «Heute abhaken» name the same number as the ring «Bewegen»
-  // (rolling 7 days), so «0 von 8» against «1 von 11» is gone
-  const moveLine = $derived(rings.move.of ? tn(rings.move.of, 'this week {k} of {n} move goal on track', 'this week {k} of {n} move goals on track', { k: rings.move.n }) : '');
+  // Noah 08.11.2026 «1-5 a»: ONE number for the goals of the week: all goals. The head, «Heute abhaken», the week card
+  // («12 goals open») and the week review («1 of 13») all count the same 13; only the ring «Bewegen» says it counts its part.
+  const goalsAll = $derived(weekGoals(states));
+  const moveLine = $derived(goalsAll.length ? tn(goalsAll.length, 'this week {k} of {n} goal on track', 'this week {k} of {n} goals on track', { k: goalsAll.filter((g) => g.met).length }) : '');
   const todayLine = $derived(
     [fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }), moveLine, season ? (season.half === 'summer' ? t('Summer') : t('Winter')) : ''].filter(Boolean).join(' · '),
   );

@@ -63,7 +63,10 @@ export function stepOf(s) {
     offset: Number.isFinite(s.offset) ? Math.round(s.offset) : null,
     due: isDay(s.due) ? s.due : '',
     done: !!s.done,
+    doneAt: s.done && isDay(s.doneAt) ? s.doneAt : '', // the day the step was ticked (for the review «planned against actual»)
     by: s.by === 'auto' || s.by === 'user' ? s.by : '',
+    next: s.next === 'earlier' || s.next === 'keep' ? s.next : '', // the answer to «next time earlier?» (review, idea 5e)
+    later: isDay(s.later) ? s.later : '', // «ask later»: the question rests until the day after this one
   };
 }
 
@@ -87,7 +90,16 @@ export function moveGoal(w, from, to) {
 const mapGoal = (w, id, fn) => ({ ...w, goals: w.goals.map((g) => (g.id === id ? fn(g) : g)) });
 
 /** A new start day (or none): steps with a day of their own keep it, the others move with the start. */
-export const setStart = (w, id, start) => mapGoal(w, id, (g) => ({ ...g, start: isDay(start) ? start : '' }));
+export const setStart = (w, id, start) => mapGoal(w, id, (g) => {
+  if (!isDay(start)) return { ...g, start: '' };
+  const { period, ...rest } = g; // a start day ends the open period
+  return { ...rest, start };
+});
+/** The open period of a goal without a start day { from, to }, for the start suggestion; without both days it goes. */
+export const setPeriod = (w, id, from, to) => mapGoal(w, id, (g) => {
+  const { period, ...rest } = g;
+  return isDay(from) && isDay(to) && from <= to ? { ...rest, period: { from, to } } : rest;
+});
 
 /* ---------- steps ---------- */
 
@@ -107,8 +119,11 @@ const mapStep = (goal, id, fn) => ({ ...goal, steps: goal.steps.map((s) => (s.id
 export const renameStep = (goal, id, title) => (String(title ?? '').trim() ? mapStep(goal, id, (s) => ({ ...s, title: String(title).trim() })) : goal);
 export const removeStep = (goal, id) => ({ ...goal, steps: goal.steps.filter((s) => s.id !== id) });
 /** The user ticks or unticks. An untick by the user stops the app from ticking it again. */
-export const setDone = (goal, id, done = true) => mapStep(goal, id, (s) => ({ ...s, done: !!done, by: 'user' }));
+export const setDone = (goal, id, done = true, day = '') => mapStep(goal, id, (s) => ({ ...s, done: !!done, doneAt: done && isDay(day) ? day : '', by: 'user' }));
 /** A day of the user's own; '' gives the step back to «start − offset». */
+/** The answer to «next time earlier?» on a step: 'earlier' | 'keep' stays, 'later' only hides the question for today. */
+export const setNext = (goal, id, answer, today = '') => mapStep(goal, id, (s) => (answer === 'later' ? { ...s, later: isDay(today) ? today : '' } : { ...s, next: answer === 'earlier' ? 'earlier' : 'keep', later: '' }));
+
 export const setDue = (goal, id, due) => mapStep(goal, id, (s) => ({ ...s, due: isDay(due) ? due : '' }));
 /** Steps ordered with the arrows or by drag (the order only matters between steps of the same day). */
 export function moveStep(goal, from, to) {
@@ -194,7 +209,7 @@ export function applyAuto(goal, types, ctx = {}) {
     try { r = t.auto(goal, s, ctx); } catch { r = null; }
     if (r !== true) return s;
     changed = true;
-    return { ...s, done: true, by: 'auto' };
+    return { ...s, done: true, doneAt: isDay(ctx.today) ? ctx.today : '', by: 'auto' };
   });
   return changed ? { ...goal, steps } : goal;
 }
@@ -213,6 +228,10 @@ export function todayStep(w, today) {
 /* ---------- a way as a template (idea 5c, later) ---------- */
 
 /** The steps of a goal as templates for a new one: offsets kept, ticks and own days dropped. */
+export const EARLIER_DAYS = 14;
 export function templateOf(goal) {
-  return goal.steps.map((s) => ({ type: s.type, key: s.key, title: s.title, offset: s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null), note: s.note, own: s.own }));
+  return goal.steps.map((s) => {
+    const offset = s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null);
+    return { type: s.type, key: s.key, title: s.title, offset: offset != null && s.next === 'earlier' ? offset + EARLIER_DAYS : offset, note: s.note, own: s.own };
+  });
 }

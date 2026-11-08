@@ -98,7 +98,11 @@ export const isOpenRequest = (b) => b.status === 'requested';
 export const OUTCOMES = ['held', 'late', 'noshow'];
 /** The share of the price that goes on the invoice: late cancel half, no-show all. Noah changes the amount in the form. */
 export const outcomeShare = (outcome) => (outcome === 'late' ? 0.5 : 1);
-const priceOf = (offer, slot, rate, outcome) => Math.round((rate ?? ((offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0])?.price ?? 0) * outcomeShare(outcome));
+// a trial lesson (key «trial», lib/booking/trial.js) always costs the price of its kind: an own price of the customer is for normal lessons
+const priceOf = (offer, slot, rate, outcome) => {
+  const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];
+  return Math.round((slot?.type === 'trial' && ty ? ty.price : rate ?? ty?.price ?? 0) * outcomeShare(outcome));
+};
 
 export function invoiceDraft(offer, slot, booking, when, rate = null, outcome = 'held', tag = '') {
   const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];

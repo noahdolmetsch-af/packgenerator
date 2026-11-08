@@ -12,7 +12,7 @@
   import { BAD_WEATHER, nightRows, newId } from '../race.js';
   import { laundryPlan } from '../more.js';
   import { showStd, keepStd, PAPER_ROWS, paperDue, whenOf } from '../prep-lib.js';
-  import { t, num, locale } from '../../i18n.svelte.js';
+  import { t, tn, num, locale } from '../../i18n.svelte.js';
 
   let { ctx } = $props();
   // two fields in a row must not overwrite each other: the newest texts are kept here until the save is through
@@ -73,7 +73,7 @@
     {#snippet sub(r)}
       <small>
         {paperDue(r, start) ? t('due {date}', { date: day(paperDue(r, start)) }) : t('no date')}
-        {#if r.id === 'pp-hotels' && hotelNights}{' '}· {t('{n} nights in a hotel in the plan', { n: hotelNights })}{/if}
+        {#if r.id === 'pp-hotels' && hotelNights}{' '}· {tn(hotelNights, '{n} night in a hotel in the plan', '{n} nights in a hotel in the plan')}{/if}
       </small>
     {/snippet}
     {#snippet row(r)}

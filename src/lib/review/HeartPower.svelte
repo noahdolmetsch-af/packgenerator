@@ -23,6 +23,8 @@
   import { n1 } from './fmt.js';
   import { RefreshCw, Info, Activity, Smartphone, Trophy, ChevronDown } from '@lucide/svelte';
   import MiniBars from './MiniBars.svelte';
+  import LineChart from '../charts/LineChart.svelte';
+  import ChartSheet from '../charts/ChartSheet.svelte';
   import { CURVE_S } from './power.js';
   import './zones.css';
   import Help from '../ui/Help.svelte'; // FE14
@@ -41,15 +43,20 @@
   );
   const any = $derived(!!values || !!p || !!(tempo && (tempo.kmh != null || tempo.pauses)) || effort != null);
   const CURVE_L = { 5: '5 s', 60: '1 min', 300: '5 min', 1200: '20 min', 3600: '60 min' };
-  // the power curve as a small line: x by the order of the durations, y from 0 to the highest
+  // the power curve as a line chart (the durations in the order of CURVE_S), exact watts on pointing, a tap opens the duration, «Als Tabelle»
   const curve = $derived.by(() => {
     const c = p?.measured ? p.curve : null;
     if (!c) return null;
-    const top = Math.max(...c.map((x) => x.w)) || 1;
-    const X = (s) => 20 + (CURVE_S.indexOf(s) / (CURVE_S.length - 1)) * 300;
-    const Y = (w) => 92 - (w / top) * 74;
-    return { pts: c.map((x) => ({ ...x, x: X(x.s), y: Y(x.w) })), top };
+    const pts = [...c].sort((x, y) => CURVE_S.indexOf(x.s) - CURVE_S.indexOf(y.s));
+    return {
+      pts,
+      cols: pts.map((x) => ({ key: String(x.s), x: CURVE_L[x.s] })),
+      series: [{ key: 'w', color: 'var(--ink-2)', dots: true, v: pts.map((x) => x.w) }],
+      read: (i) => ({ title: CURVE_L[pts[i].s], items: [{ label: t('Power'), value: `${num(pts[i].w)} W`, color: 'var(--ink-2)' }] }),
+      table: { head: [t('Duration'), t('Power')], rows: pts.map((x) => ({ key: String(x.s), cells: [CURVE_L[x.s], `${num(x.w)} W`] })) },
+    };
   });
+  let sel = $state(null);
   const secs = (s) => {
     const m = Math.floor(s / 60);
     return `${m}:${String(Math.round(s - m * 60)).padStart(2, '0')}`;
@@ -116,11 +123,7 @@
             {/if}
             {#if curve}
               <div class="zh sub"><h4>{t('Power curve')}</h4><span>{t('best power over …')}</span></div>
-              <svg class="pc" viewBox="0 0 340 112" role="img" aria-label={t('Power curve: {list}', { list: curve.pts.map((x) => `${CURVE_L[x.s]} ${num(x.w)} W`).join(', ') })}>
-                <path class="pca" d="M{curve.pts[0].x},92 {curve.pts.map((x) => `L${x.x},${x.y}`).join(' ')} L{curve.pts.at(-1).x},92 Z" />
-                <path class="pcl" d="M{curve.pts.map((x) => `${x.x},${x.y}`).join(' L')}" />
-                {#each curve.pts as x (x.s)}<circle cx={x.x} cy={x.y} r="3" /><text x={x.x} y={x.y - 7} class="pv">{num(x.w)} W</text><text x={x.x} y="106" class="pl">{CURVE_L[x.s]}</text>{/each}
-              </svg>
+              <LineChart id="power-curve" cols={curve.cols} series={curve.series} readout={curve.read} table={curve.table} topText={(v) => num(v)} unit="W" height={120} label={t('Power curve: {list}', { list: curve.pts.map((x) => `${CURVE_L[x.s]} ${num(x.w)} W`).join(', ') })} onopen={(i) => (sel = i)} hint={t('Point at a duration for its power, tap it for the duration.')} />
             {/if}
             {#if p.ftp}
               <dl class="rv-tiles hpt one"><div class="rv-tile"><dd><b class="num">{num(p.ftp)}</b> <span class="u">W</span></dd><dt><small>{t('estimated FTP')}<span class="est">{t('best 20 min × 0.95')}</span></small><Help label={t('estimated FTP')} text={t(FIELD_HELP.ftp)} /></dt></div></dl>
@@ -172,6 +175,16 @@
   </section>
 {:else}
   <p class="hp-none" data-heart-power="none"><Activity size={16} aria-hidden="true" />{t('Heart rate and power · with Strava')}</p>
+{/if}
+
+{#if curve && sel != null && curve.pts[sel]}
+  {@const x = curve.pts[sel]}
+  <ChartSheet kicker={t('Power curve')} title={CURVE_L[x.s]} onclose={() => (sel = null)} onprev={sel > 0 ? () => sel-- : null} onnext={sel < curve.pts.length - 1 ? () => sel++ : null} prevLabel={t('Shorter duration')} nextLabel={t('Longer duration')}>
+    <ul class="shl" data-power-sheet>
+      <li><span>{t('Best power over {d}', { d: CURVE_L[x.s] })}</span><b class="num">{num(x.w)} W</b></li>
+      {#if p?.kg}<li><span>W/kg</span><b class="num">{n1(x.w / p.kg)}</b></li>{/if}
+    </ul>
+  </ChartSheet>
 {/if}
 
 <style>
@@ -298,29 +311,17 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  .pc {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin-top: 6px;
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
   }
-  .pca {
-    fill: color-mix(in srgb, var(--ink-3) 22%, var(--paper));
-  }
-  .pcl {
-    fill: none;
-    stroke: var(--ink-2);
-    stroke-width: 1.6;
-  }
-  .pc circle {
-    fill: var(--paper);
-    stroke: var(--ink-2);
-  }
-  .pv,
-  .pl {
-    font: var(--fs-tiny) var(--font-body);
-    fill: var(--ink-3);
-    text-anchor: middle;
+  .shl li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
   }
   .eff {
     display: grid;

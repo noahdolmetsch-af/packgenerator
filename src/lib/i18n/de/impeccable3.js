@@ -83,6 +83,6 @@ export default {
   "A ride without a tour.": "Eine Fahrt ohne Tour.",
   "This tour has no route. With a route (GPX) you also get km, arrival and climbs.": "Diese Tour hat keine Route. Mit einer Route (GPX) bekommst du auch km, Ankunft und Steigungen.",
 
-  // Daten: the light row says «Jetzt speichern», the big button «Backup speichern»
-  "Save now|backup": "Jetzt speichern",
+  // Daten: the light row and the big button both say «Backup speichern»
+  "Save now|backup": "Backup speichern",
 };

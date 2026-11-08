@@ -189,7 +189,7 @@ export default {
   "Read more|alert": "Mehr lesen",
   "Weather warning for your trip: {event} ({area})": "Wetterwarnung für deine Tour: {event} ({area})",
   "Avalanche danger up to level {n}: read the bulletin before your tour": "Lawinengefahr bis Stufe {n}: lies das Bulletin vor deiner Tour",
-  "Alerts and news come through the app's server, which does not answer here yet. In a test preview this is normal: they load once the update is live. Everything else on this page works.": "Hinweise und News kommen über den Server der App, der hier noch nicht antwortet. In einer Test-Vorschau ist das normal: Sie laden, sobald das Update online ist. Alles andere auf dieser Seite funktioniert.",
+  "Alerts and news could not be loaded: the server does not answer right now. Tap «Refresh» to try again. Your settings below still apply.": "Hinweise und News konnten nicht geladen werden: Der Server antwortet gerade nicht. Tippe auf «Aktualisieren», um es nochmals zu versuchen. Deine Einstellungen unten gelten trotzdem.",
   "Clean, oil, what is due": "Putzen, ölen, was fällig ist",
   "So the trip is safe on your other device too": "Damit die Tour auch auf deinem anderen Gerät sicher ist",
   "All your trips in one list": "Alle deine Touren in einer Liste",

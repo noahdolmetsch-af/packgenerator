@@ -94,7 +94,7 @@
           <!-- WG: from the evening round time the entry offers the evening round of «Wi gaht's?» -->
           <div class="crow" class:done={sat != null} data-check-entry="evening">
             <Moon size={20} aria-hidden="true" />
-            <span class="ct"><b>{t('Evening round')}</b><small>{sat != null ? t('Satisfaction {n} of 10', { n: sat }) : t('How was your day? · about 30 seconds')}</small></span>
+            <span class="ct"><b>{t('Evening round')}</b><small>{sat != null ? t('Satisfaction {n} of 10', { n: sat }) : t('How was your day? · a few minutes')}</small></span>
             <a class="btn start" href="#/check/evening">{sat != null ? t('Change') : t('Start|check')}</a>
           </div>
         {:else if known}

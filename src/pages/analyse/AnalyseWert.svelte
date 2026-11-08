@@ -15,6 +15,7 @@
   import { backOf } from '../../lib/nav/herkunft.js';
   import SourceLine from '../../lib/ui/SourceLine.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
+  import Help from '../../lib/ui/Help.svelte';
   import { analyseData } from '../../lib/analyse/data.svelte.js';
   import { analyseGroups, itemsByKey, detailHref } from '../../lib/analyse/catalog.js';
   import { valueText, unitText, axisOf } from '../../lib/analyse/format.js';
@@ -118,15 +119,6 @@
     const b = backOf(herkunft.from);
     return b ? { href: b.href, label: t(b.place) } : null;
   });
-  // «Touren in dieser Zeit» (UI-Prüfung A2): the past trips inside the shown period, each a way to its tour page (at most 3, newest first)
-  const tripsIn = $derived(
-    hours || !win.days.length
-      ? []
-      : data.trips
-          .filter((tr) => tr.startDate && tr.startDate <= win.to && (tripEnd(tr) ?? tr.startDate) >= win.from && (tripEnd(tr) ?? tr.startDate) < today)
-          .sort((a, b) => (b.startDate > a.startDate ? 1 : -1))
-          .slice(0, 3),
-  );
   // Idea A: the trips of the shown days, each with the mean of the value over its days (newest first)
   // trips with saved rides (only the distinct trip ids are read, not the rides): their row gets a second tip «Rides ›»
   let rideTrips = $state(new Set());
@@ -300,11 +292,15 @@
       <PageHead title={item.name} sub={`${item.how ?? t(SRC_TEXT[item.src] ?? SRC_TEXT.body)} ${t('Only to look at.|analyse')}`} />
       <SourceLine src={item.src} stand={standText} data-source={item.src} />
       {#if fstand?.failed}<FitbitStand />{/if}
-      {#if tripsIn.length}
-        <p class="tripsin" data-trips-in>
-          <span>{t('Trips in this time')}</span>
-          {#each tripsIn as tr (tr.id)}<a href={`#/tour/${encodeURIComponent(`t:${tr.id}`)}`}>{tr.title ?? tr.name ?? t('Trip')}<ChevronRight size={16} strokeWidth={2.5} aria-hidden="true" /></a>{/each}
-        </p>
+      {#if key === 'cardioLoad'}
+        <!-- the technical words of this page, explained behind a «?» (Noah 08.11.2026 «1-3 ok», suggestion 3) -->
+        <div class="words" data-words>
+          <span>{t('What do «points», «hard» and «peak» mean?|analyse')}</span>
+          <Help label={t('points, hard and peak|analyse')}>
+            <p>{t('Points: your watch counts the minutes your pulse spent in each zone. Each minute gives points, more in a higher zone. More points means more work for your heart that day. It is not a grade.|analyse')}</p>
+            <p>{t('Zones are pulse ranges of your watch: light (easy), moderate (brisk), hard (strenuous, talking gets difficult) and peak (close to your limit, only for a short time). Light counts ×1, moderate ×2, hard ×3, peak ×4.|analyse')}</p>
+          </Help>
+        </div>
       {/if}
     </header>
 
@@ -554,31 +550,14 @@
   .wv section {
     min-width: 0;
   }
-  .tripsin {
+  .words {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0 var(--sp-2);
+    gap: 4px 8px;
     margin: 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
-  }
-  .tripsin a {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    color: var(--accent);
-    font-weight: 600;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
-  }
-  .tripsin a :global(svg) {
-    color: var(--ink);
-  }
-  .tripsin a:hover {
-    text-decoration-thickness: 2px;
   }
   .bar {
     display: flex;

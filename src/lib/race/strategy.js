@@ -334,14 +334,14 @@ export function simulate({ km, profile = [], pois = [], start, way = 'hotel', as
 function risksOf(way, days, kit) {
   const out = [];
   const late = days.filter((d) => d.late).length;
-  if (late) out.push(['{n} nights the hotel is reached after the check-in time: call ahead.', { n: late }]);
+  if (late) out.push([late === 1 ? '{n} night the hotel is reached after the check-in time: call ahead.' : '{n} nights the hotel is reached after the check-in time: call ahead.', { n: late }]);
   const bivy = days.filter((d) => d.bed === 'bivy').length;
-  if (way === 'mixed' && bivy) out.push(['{n} nights without a hotel in reach: the bivy kit comes along all the way.', { n: bivy }]);
+  if (way === 'mixed' && bivy) out.push([bivy === 1 ? '{n} night without a hotel in reach: the bivy kit comes along all the way.' : '{n} nights without a hotel in reach: the bivy kit comes along all the way.', { n: bivy }]);
   const wild = days.filter((d) => d.bed === 'tent' && !d.placeId).length;
-  if (wild) out.push(['{n} nights without a campground in reach: wild camping is not allowed everywhere.', { n: wild }]);
-  if (way === 'tent') out.push(['The tent is {kg} kg more to carry up every climb.', { kg: Math.round((kit.tent - kit.hotel) * 10) / 10 }]);
+  if (wild) out.push([wild === 1 ? '{n} night without a campground in reach: wild camping is not allowed everywhere.' : '{n} nights without a campground in reach: wild camping is not allowed everywhere.', { n: wild }]);
+  if (way === 'tent') out.push(['The tent weighs {kg} kg more and has to go up every climb.', { kg: Math.round((kit.tent - kit.hotel) * 10) / 10 }]);
   const long = days.filter((d) => d.dayH > 18).length;
-  if (long) out.push(['{n} days longer than 18 hours: tiredness and crashes come at night.', { n: long }]);
+  if (long) out.push([long === 1 ? '{n} day longer than 18 hours: tiredness and crashes come at night.' : '{n} days longer than 18 hours: tiredness and crashes come at night.', { n: long }]);
   return out;
 }
 const dayOfLocal = (ms) => localOf(ms - 4 * 36e5).slice(0, 10); // a «day» runs until 04:00 the next morning

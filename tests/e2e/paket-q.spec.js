@@ -109,7 +109,7 @@ test('«Stimmt das noch?» opens from Ich › Daten', async ({ page }) => {
 test('Hinweise without the server (as in a test preview) says why it is empty', async ({ page }) => {
   await page.goto('./#/me/hinweise');
   await settle(page, { sameTrips: false });
-  await expect(page.locator('[data-news-down]')).toHaveText(T("Alerts and news come through the app's server, which does not answer here yet. In a test preview this is normal: they load once the update is live. Everything else on this page works."));
+  await expect(page.locator('[data-news-down]')).toHaveText(T("Alerts and news could not be loaded: the server does not answer right now. Tap «Refresh» to try again. Your settings below still apply."));
 });
 
 // ---------- Zusatz (Noah 19.10.2026 «1-3 alle a»): warning for the trip, help search, save for the way ----------

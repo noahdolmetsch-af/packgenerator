@@ -680,3 +680,54 @@ test('Training › Nächste Woche: not before Friday, «Jetzt nicht» puts it aw
   await ready(page);
   await expect(page.locator('[data-section="next-week"]')).toHaveCount(0);
 });
+
+test('Training › Ganze Wochen merken: keep a week, put it in another week (Undo), group, remove', async ({ page, context, baseURL }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context, { log: [], app: baseURL });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  const plan = page.locator('[data-section="week-plan"]');
+  await expect(plan.locator('[data-weeks-empty]')).toBeVisible(); // empty state says what to do
+  await expect(plan.locator('[data-week-keep]')).toHaveCount(0); // nothing planned yet
+  // plan two sessions in this week
+  const adds = plan.locator('[data-add]');
+  for (const [i, name] of [[1, 'Woche Eins'], [3, 'Woche Zwei']]) {
+    await adds.nth(i).click();
+    await plan.locator('[data-session-name]').fill(name);
+    await plan.locator('[data-session-mins]').fill('60');
+    await plan.locator('[data-session-form] button[type="submit"]').click();
+  }
+  await expect(plan.locator('[data-planned]')).toHaveCount(2);
+  await plan.locator('[data-week-keep]').click();
+  await plan.locator('[data-week-keep-name]').fill('Gute Aufbauwoche');
+  await plan.locator('[data-week-keep-save]').click();
+  await plan.locator('[data-weeks-open]').click();
+  const saved = plan.locator('[data-week-saved]');
+  await expect(saved).toHaveCount(1);
+  await expect(saved).toContainText('2 Sitzungen');
+  // next week: look at it, add it, Undo
+  await page.getByRole('button', { name: 'Woche danach' }).click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(0);
+  await saved.locator('[data-week-put]').click();
+  await expect(plan.locator('[data-week-preview]')).toContainText('Woche Eins');
+  await plan.locator('[data-week-add]').click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(plan.locator('[data-planned]')).toHaveCount(0);
+  // manage: a new group, then delete it (the week stays), then remove the week with Undo
+  await plan.locator('summary', { hasText: 'Meine Wochen verwalten' }).click();
+  const id = await saved.getAttribute('data-week-saved');
+  await plan.locator(`[data-weeks-group="${id}"]`).selectOption('__new');
+  await page.locator('#rn-in').fill('Aufbau');
+  await page.locator('dialog.rename button[type="submit"]').click();
+  await expect(plan.locator('[data-weeks-block="Aufbau"]')).toBeVisible();
+  await plan.locator('[data-weeks-group-delete]').click();
+  await page.locator('dialog.gds button.del').click();
+  await expect(plan.locator('[data-weeks-group-delete]')).toHaveCount(0);
+  await plan.locator(`[data-weeks-delete="${id}"]`).click();
+  await expect(plan.locator('[data-week-saved]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Rückgängig' }).click();
+  await expect(plan.locator('[data-week-saved]')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});

@@ -1,6 +1,12 @@
 // Termine buchen (mockups BU1–BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote, die
 // freien Termine, der Hinweis auf Heute und die Buchungsseite für die Leute, die buchen.
 export default {
+  /* Wegweiser: Tennis von Ich und von der Tennis-Aktivität erreichen (Noah 08.11.2026 «a») */
+  'Offers and requests': 'Angebote und Anfragen',
+  'Free times, link for parents, requests, customers': 'Freie Zeiten, Link für Eltern, Anfragen, Kunden',
+  'Place|venue': 'Ort',
+  'Offer lessons': 'Stunden anbieten',
+  'Free times, the link for parents and their requests are in one place.': 'Freie Zeiten, der Link für Eltern und ihre Anfragen sind an einem Ort.',
   /* Ich › Angebote (BU5) */
   Offers: 'Angebote',
   'Test|offers': 'Test',

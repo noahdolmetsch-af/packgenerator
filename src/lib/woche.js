@@ -172,7 +172,7 @@ export function freeDay(days, from, away = []) {
  *   google { events, tasks, prefs } (Paket B, see googleWeek)
  *   spielerplus { cals } (lib/spielerplus.js prefsOf): the team dates, read only
  * → { days: [{ day, today, past, away, entries: [{ id, kind, title, sub, time, done, own }] }],
- *     sums: { sessions, mins, goalMins, dates, todos, away, bike }, suggestions: [...], paused: [...] }
+ *     sums: { sessions, mins, goalMins, trips, dates, todos, away, bike }, suggestions: [...], paused: [...] }
  * suggestions: { ref, kind, title, sub, day (proposed), act 'take'|'drop' }
  */
 export function buildWeek(src) {
@@ -303,6 +303,8 @@ export function buildWeek(src) {
     sessions: all.filter((e) => e.kind === 'sport').length,
     mins: all.filter((e) => e.id.startsWith('tr:') || e.id.startsWith('log:')).reduce((n, e) => n + (e.sub?.mins ?? 0), 0),
     goalMins: goalHours ? Math.round(goalHours * 60) : null,
+    // Noah 08.11.2026 «1-5 a»: a trip in the week counts (one trip is several days, so count each trip once)
+    trips: new Set(all.filter((e) => e.id.startsWith('trip:')).map((e) => e.id.split(':')[1])).size,
     dates: all.filter((e) => e.kind === 'date').length,
     todos: all.filter((e) => e.kind === 'todo' && !e.done).length,
     away: days.filter((d) => d.entries.some((e) => e.kind === 'away')).map((d) => d.day),
