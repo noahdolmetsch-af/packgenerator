@@ -1,34 +1,42 @@
-// «Wegweiser statt Katalog» PR 11 (Noah 01.11.2026 «1-5a», «einverstanden»): on the pages of Lust the card «What you can do
-// here» lists the functions of the page with what they are for; «How it works» opens steps and example; × folds it to one line
-// that stays folded after a reload. Fictional data (test_data_gtp_).
+// «Wegweiser statt Katalog» PR 11 (Noah 01.11.2026 «1-5a», «einverstanden»), changed 09.11.2026 (Noah «ja, 1-3»): on the pages of
+// Lust and many more one line «What you can do here» stands behind the title; a tap opens the «?» window, which lists the functions
+// of the page with what they are for; «How it works» opens steps and example. Fictional data (test_data_gtp_).
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr, trip, day } from './home0460-fixture.js';
 
 const T = tr('de');
 const tap = (loc, info) => (info.project.name === 'phone' ? loc.tap() : loc.click());
-// Since 08.11.2026 (Noah «A») the card starts as one line on every page: this opens it, where the test needs the rows
+// Since 09.11.2026 (Noah «ja, 1-3») the line opens the «?» window, which holds the list: this opens it, where the test needs the rows.
+// A window that is still open from before is closed first (the page under it is not reachable while it is open).
 async function openCard(page, info) {
-  const line = page.locator('[data-seiteninhalt-line]');
-  const card = page.locator('[data-seiteninhalt]');
-  await expect(line.or(card).first()).toBeVisible();
-  // after a change of page the card of the page before can still stand for a moment and then folds: look again once it stood still
-  for (let i = 0; i < 4; i++) {
-    if (await line.count()) await tap(line, info);
-    await expect(card).toBeVisible();
-    await page.waitForTimeout(400);
-    if ((await card.count()) && !(await line.count())) return;
+  if (await page.locator('dialog[data-help][open]').count()) {
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dialog[data-help][open]')).toHaveCount(0);
+    await page.waitForFunction(() => !history.state?.pgDialog); // the window's history entry goes away a moment later
   }
-  await expect(card).toBeVisible();
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toBeVisible();
+  await tap(line, info);
+  await expect(page.locator('[data-seiteninhalt]')).toBeVisible();
+}
+async function closeHelp(page) {
+  if (await page.locator('dialog[data-help][open]').count()) {
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dialog[data-help][open]')).toHaveCount(0);
+    await page.waitForFunction(() => !history.state?.pgDialog); // the window's history entry goes away a moment later
+  }
 }
 
-test('Dreams shows what you can do here, opens how it works and folds to one line', async ({ page, context }, info) => {
+test('Dreams shows one line, the «?» window lists what you can do here and opens how it works; Today has a help text', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
   await page.goto('./#/trips/dreams');
+  await expect(page.locator('[data-seiteninhalt-line]')).toContainText(T('Open the help'));
+  await expect(page.locator('[data-seiteninhalt]')).toHaveCount(0);
   await openCard(page, info);
   const card = page.locator('[data-seiteninhalt]');
-  await expect(card).toContainText(T('What you can do here'));
+  await expect(page.locator('dialog[data-help][open]')).toContainText(T('What you can do here'));
   const first = card.locator('[data-seiteninhalt-item]').first();
   await expect(first.locator('.si-what')).not.toBeEmpty();
   // PR 12: each function brings «Good to know»
@@ -36,14 +44,15 @@ test('Dreams shows what you can do here, opens how it works and folds to one lin
   await tap(first.getByRole('button', { name: T('How it works') }), info);
   await expect(card.locator('[data-seiteninhalt-how]').first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
-  await tap(card.locator('[data-seiteninhalt-fold]'), info);
-  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await closeHelp(page);
+  // the line stays after a reload; Today has no line, but its «?» has a text and its functions
   await page.reload();
   await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
-  await expect(page.locator('[data-seiteninhalt]')).toHaveCount(0);
-  // never on Today
   await page.goto('./#/');
   await expect(page.locator('[data-seiteninhalt], [data-seiteninhalt-line]')).toHaveCount(0);
+  await tap(page.locator('[data-help-open]:visible'), info);
+  await expect(page.locator('[data-help-home]')).toBeVisible();
+  await expect(page.locator('dialog[data-help][open] [data-seiteninhalt-item]').first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -81,6 +90,7 @@ test('Customise this page does not list the card as a page part', async ({ page,
   await openHome(page, context, info);
   await page.goto('./#/trips/dreams');
   await openCard(page, info);
+  await closeHelp(page);
   await tap(page.locator('[data-anp-open]'), info);
   const rows = page.locator('dialog[data-anp-sheet] li[data-anp-row]');
   await expect(rows.first()).toBeVisible();
@@ -99,9 +109,8 @@ test('On the way shows good to know in the card during a trip', async ({ page, c
   await openHome(page, context, info, { data: d });
   await page.goto('./#/ride');
   // on the way the card starts as one line, so the helpers and the emergency button stay on top; a tap opens it
-  const line = page.locator('[data-seiteninhalt-line]');
-  await expect(line).toContainText(T('What you can do here'));
-  await (info.project.name === 'phone' ? line.tap() : line.click());
+  await expect(page.locator('[data-seiteninhalt-line]')).toContainText(T('What you can do here'));
+  await openCard(page, info);
   const card = page.locator('[data-seiteninhalt]');
   await expect(card).toContainText(T('What you can do here'));
   await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
@@ -137,9 +146,8 @@ test('Pack shows what you can do here with good to know, starting as one line', 
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
   await page.goto('./#/pack');
-  const line = page.locator('[data-seiteninhalt-line]');
-  await expect(line).toContainText(T('What you can do here'));
-  await (info.project.name === 'phone' ? line.tap() : line.click());
+  await expect(page.locator('[data-seiteninhalt-line]')).toContainText(T('What you can do here'));
+  await openCard(page, info);
   const card = page.locator('[data-seiteninhalt]');
   await expect(card).toContainText(T('What you can do here'));
   await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
@@ -178,9 +186,8 @@ test('Bikes wear and Gear show good to know in the card', async ({ page, context
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   await page.goto('./#/gear');
   // Velos and Material start as one line, so the main buttons stay on the first screen; a tap opens the card
-  const line = page.locator('[data-seiteninhalt-line]');
-  await expect(line).toContainText(T('What you can do here'));
-  await (info.project.name === 'phone' ? line.tap() : line.click());
+  await expect(page.locator('[data-seiteninhalt-line]')).toContainText(T('What you can do here'));
+  await openCard(page, info);
   await expect(page.locator('[data-seiteninhalt-know="weigh"]')).toContainText(T('Good to know'));
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
   expect(errors).toEqual([]);
@@ -205,23 +212,22 @@ test('Aktiv and Training show good to know in the card', async ({ page, context 
 
 // PR 21: pages of one thing (a placeholder ':trip', ':race' in ON_PAGES) show the card too; the fold choice holds for the pattern,
 // so folding it on one trip's debrief folds it on every trip's debrief. Fictional trips and notes (test_data_gtp_).
-test('One trip debrief shows the card, the fold holds for every trip, a race shows it too', async ({ page, context }, info) => {
+test('One trip debrief shows the line and the list in the «?» window, the same for every trip; a race shows it too', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
   await page.goto('./#/debrief/test_data_gtp_Napf');
-  const card = page.locator('[data-seiteninhalt]');
-  // starts as one line on a trip's debrief (FOLDED_FIRST), a tap opens it
   await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
-  await tap(page.locator('[data-seiteninhalt-line]'), info);
-  await expect(card).toContainText(T('What you can do here'));
+  await openCard(page, info);
+  await expect(page.locator('[data-seiteninhalt]')).toContainText(T('Good to know'));
   await expect(page.locator('[data-seiteninhalt-know="f.breakdown"]')).toContainText(T('Good to know'));
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
-  await tap(card.locator('[data-seiteninhalt-fold]'), info);
-  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await closeHelp(page);
   await page.goto('./#/debrief/test_data_gtp_Jura');
   await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
-  await expect(page.locator('[data-seiteninhalt]')).toHaveCount(0);
+  await openCard(page, info);
+  await expect(page.locator('[data-seiteninhalt-know="f.breakdown"]')).toBeVisible();
+  await closeHelp(page);
   // a fixed page under the same path is not «one trip»
   await page.goto('./#/debrief/logbook');
   await expect(page.locator('[data-seiteninhalt-item="f.breakdown"]')).toHaveCount(0);
@@ -247,6 +253,7 @@ test('Lists and types and Privacy show good to know in the card', async ({ page,
   await expect(card).toContainText(T('What you can do here'));
   await expect(card.locator('[data-seiteninhalt-know]').first()).toContainText(T('Good to know'));
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+  await closeHelp(page);
   // «Diese Seite anpassen» lists the page's own parts, not the card (it folds with its own ×)
   await page.locator('[data-anp-open]').click();
   const rows = page.locator('dialog[data-anp-sheet] li[data-anp-row]');
@@ -266,9 +273,8 @@ test('Touren, Ski and Ruhiger pages show the card with good to know', async ({ p
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
   await page.goto('./#/trips');
-  const line = page.locator('[data-seiteninhalt-line]');
-  await expect(line).toBeVisible();
-  await (info.project.name === 'phone' ? line.tap() : line.click());
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await openCard(page, info);
   await expect(page.locator('[data-seiteninhalt-know="f.plan"]')).toContainText(T('Good to know'));
   for (const hash of ['#/me/ruhig/zahlen', '#/neuland', '#/me/frei/sammlungen']) {
     await page.goto('./' + hash);
@@ -306,9 +312,8 @@ test('Settings pages and the care tab show the card as one line with good to kno
   await openHome(page, context, info);
   for (const [hash, id] of [['#/me/data', 'f.backupcheck'], ['#/me/push', 'f.push'], ['#/me/look', null], ['#/me/connections', null], ['#/bikes?tab=care', null], ['#/timer', null]]) {
     await page.goto('./' + hash);
-    const line = page.locator('[data-seiteninhalt-line]');
-    await expect(line, hash).toBeVisible();
-    await (info.project.name === 'phone' ? line.tap() : line.click());
+    await expect(page.locator('[data-seiteninhalt-line]'), hash).toBeVisible();
+    await openCard(page, info);
     const card = page.locator('[data-seiteninhalt]');
     if (id) {
       // both pages have more than SHOWN functions, so «Show all» is always there
@@ -330,9 +335,8 @@ test('Tools shows the card as one line with good to know for the mini tools', as
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
   await page.goto('./#/me/tools');
-  const line = page.locator('[data-seiteninhalt-line]');
-  await expect(line).toBeVisible();
-  await (info.project.name === 'phone' ? line.tap() : line.click());
+  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
+  await openCard(page, info);
   const card = page.locator('[data-seiteninhalt]');
   const all = card.locator('.si-all');
   await expect(all).toBeVisible();
@@ -343,30 +347,8 @@ test('Tools shows the card as one line with good to know for the mini tools', as
   expect(errors).toEqual([]);
 });
 
-// 08.11.2026 (Noah «A»): every card starts as one line; Appearance counts the cards the user opened and folds them all again, with Undo
-test('Appearance folds all opened cards again, with Undo', async ({ page, context }, info) => {
-  const errors = [];
-  page.on('pageerror', (e) => errors.push(e.message));
-  await openHome(page, context, info);
-  await page.goto('./#/trips/dreams');
-  await expect(page.locator('[data-seiteninhalt-line]')).toContainText(T('Open the card'));
-  await expect(page.locator('[data-seiteninhalt]')).toHaveCount(0);
-  await openCard(page, info);
-  await page.goto('./#/me/look');
-  const set = page.locator('[data-seiteninhalt-set]');
-  await expect(set.locator('[data-seiteninhalt-count]')).toContainText('1');
-  await tap(set.locator('[data-seiteninhalt-open-all]'), info);
-  await expect(set.locator('[data-seiteninhalt-none]')).toBeVisible();
-  await tap(page.locator('.rtoast').getByRole('button', { name: T('Undo') }), info);
-  await expect(set.locator('[data-seiteninhalt-count]')).toContainText('1');
-  await tap(set.locator('[data-seiteninhalt-open-all]'), info);
-  await page.goto('./#/trips/dreams');
-  await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
-  expect(errors).toEqual([]);
-});
-
-// 08.11.2026 (Noah «A»): the card stands behind the title of the page, not before it
-test('The card stands behind the page title, on a phone and on a computer', async ({ page, context }, info) => {
+// 08.11.2026 (Noah «A»): the line stands behind the title of the page, not before it
+test('The line stands behind the page title, on a phone and on a computer', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
@@ -381,28 +363,27 @@ test('The card stands behind the page title, on a phone and on a computer', asyn
     });
     expect(top, hash).not.toBeNull();
     expect(top.l, hash).toBeGreaterThan(top.h);
-    // opened, the card also stays behind the title and the page does not scroll sideways
-    await tap(line, info);
-    await expect(page.locator('[data-seiteninhalt]')).toBeVisible();
+    // a tap opens the «?» window with the list, and the page does not scroll sideways
+    await openCard(page, info);
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), hash).toBe(0);
+    await closeHelp(page);
   }
   expect(errors).toEqual([]);
 });
 
-// 05.11.2026 (Noah «c», part 2): a folded card shows «n neu» when the page got functions since it was folded or opened
-test('A folded card shows how many functions are new on the page', async ({ page, context }, info) => {
+// 05.11.2026 (Noah «c», part 2), 09.11.2026: the line shows «n neu» when the page got functions since the «?» window was last opened from it
+test('The line shows how many functions are new on the page', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const d = homeFixture();
-  d.tables.settings.push({ key: 'seiteninhalt.folded', value: { '#/trips/dreams': true, '#/inspiration': true } });
   d.tables.settings.push({ key: 'seiteninhalt.seen', value: { '#/trips/dreams': 1, '#/inspiration': 99 } });
   await openHome(page, context, info, { data: d });
   await page.goto('./#/trips/dreams');
   const line = page.locator('[data-seiteninhalt-line]');
   await expect(line.locator('[data-seiteninhalt-new]')).toContainText(/neu|new/);
-  // opening counts everything as seen: fold again, no dot
-  await tap(line, info);
-  await tap(page.locator('[data-seiteninhalt-fold]'), info);
+  // opening the window counts everything as seen: no dot afterwards
+  await openCard(page, info);
+  await closeHelp(page);
   await expect(page.locator('[data-seiteninhalt-line]')).toBeVisible();
   await expect(page.locator('[data-seiteninhalt-new]')).toHaveCount(0);
   // a page whose seen number is as high as its rows shows no dot
