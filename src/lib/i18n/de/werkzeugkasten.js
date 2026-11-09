@@ -139,7 +139,7 @@ export default {
   'Important links and small files': 'Wichtige Links und kleine Dateien',
   'This is not a web address. Example: sbb.ch': 'Das ist keine Webadresse. Beispiel: sbb.ch',
   '«{name}» is bigger than 5 MB. Small files only.': '«{name}» ist grösser als 5 MB. Nur kleine Dateien.',
-  'Links|ablage': 'Links',
+  'Links|ablage': 'Wichtige Webadressen',
   'Important web addresses in one place: timetables, bookings, your bank.': 'Wichtige Webadressen an einem Ort: Fahrpläne, Buchungen, deine Bank.',
   'Small files': 'Kleine Dateien',
   'Small files up to 5 MB, e.g. a ticket or a list. They go into the backup.': 'Kleine Dateien bis 5 MB, zum Beispiel ein Ticket oder eine Liste. Sie kommen ins Backup.',

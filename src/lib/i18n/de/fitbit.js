@@ -23,7 +23,7 @@ export default {
   'Fitbit days': 'Fitbit-Tage',
   'The Google login was cancelled. Nothing changed.': 'Die Anmeldung bei Google wurde abgebrochen. Nichts hat sich geändert.',
   'Google gave no access to the values. Try again and tick the values.': 'Google hat keinen Zugriff auf die Werte gegeben. Versuch es nochmals und hake die Werte an.',
-  'This device has no key yet: connect Strava on this device first.': 'Dieses Gerät hat noch keinen Schlüssel: verbinde zuerst Strava auf diesem Gerät.',
+  'This device has no key yet: connect Strava on this device first.': 'Dieses Gerät ist noch nicht freigeschaltet: verbinde zuerst Strava auf diesem Gerät.',
   'Google is not set up on the server yet.': 'Google ist auf dem Server noch nicht eingerichtet.',
   'No connection. Try again later.': 'Keine Verbindung. Versuch es später nochmals.',
   'Google answered with an error. Try again later.': 'Google hat mit einem Fehler geantwortet. Versuch es später nochmals.',
@@ -34,7 +34,7 @@ export default {
   'three steps, you tap only once': 'drei Schritte, du tippst nur einmal',
   'Connect with Google': 'Mit Google verbinden',
   'First connect Strava on this device: Strava gives this device the key the Fitbit connection uses too.':
-    'Verbinde zuerst Strava auf diesem Gerät: Strava gibt dem Gerät den Schlüssel, den auch die Fitbit-Verbindung braucht.',
+    'Verbinde zuerst Strava auf diesem Gerät: Strava schaltet das Gerät frei, das braucht auch die Fitbit-Verbindung.',
   'Connect Strava first': 'Zuerst Strava verbinden',
   'Only these 5 values, read only. Disconnect at any time.': 'Nur diese 5 Werte, nur lesen. Trennen jederzeit.',
   'The server stores no values. The first time Google says «unverified app»: that is normal and free.':

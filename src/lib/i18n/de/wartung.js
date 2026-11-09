@@ -45,7 +45,7 @@ export default {
   'ran out': 'abgelaufen',
   'Add key': 'Schlüssel hinzufügen',
   'New key': 'Neuer Schlüssel',
-  'AI helper key': 'KI-Helfer-Schlüssel',
+  'AI helper key': 'Helfer-Code',
   'Monthly check': 'Monatlicher Check',
   'Last check: {date}': 'Letzter Check: {date}',
   'Not checked yet': 'Noch nicht geprüft',

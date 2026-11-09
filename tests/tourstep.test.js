@@ -128,6 +128,6 @@ import { STEP_BAR } from '../src/lib/stepbar.js';
 describe('STEP_BAR', () => {
   it('names every step of the bar, in German the same short words', () => {
     expect(Object.keys(STEP_BAR)).toEqual(stepsOf({ bikeId: 'b' }));
-    expect(Object.values(STEP_BAR).map((k) => DE[k])).toEqual(['Plan', 'Pack', 'Live', 'Review', 'Analyse']);
+    expect(Object.values(STEP_BAR).map((k) => DE[k])).toEqual(['Planen', 'Packen', 'Live', 'Rückblick', 'Auswertung']);
   });
 });
