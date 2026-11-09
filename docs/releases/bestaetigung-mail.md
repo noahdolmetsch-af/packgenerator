@@ -18,6 +18,7 @@ PR folgt · 09.11.2026 · Auftrag: Noah 05.11.2026 «5c» (Bestätigungs-Mail vo
 - Ort kommt wie bei der Erinnerung aus der Zeit (bei mehreren Orten) oder aus dem Angebot; bei einer Wunschzeit nur, wenn die Eltern genau einen Ort angekreuzt haben.
 - Der Knopf «Bestätigung» sitzt neben «Schreiben» in der Stundenliste; er heisst nicht «Ändern…», damit er nicht mit «Ändern» (bei «So wird gebucht») verwechselt wird.
 - Fertig-Regel: wie bei Erinnerung, Probestunde und Warteliste keine eigene Funktion im Katalog und keine Karte «Gut zu wissen» (Teil der Seite «Tennis › Angebote»); die Zeile in `docs/app-stand.md` wurde ergänzt.
+- Hat eine Wunschzeit-Anfrage einen Preis (Preistabelle aus #1218), steht er mit «Preis: CHF … pro Kind.» gleich nach der Stunde; so bleibt der Preis in der Nachricht, den main vorher dort eingebaut hatte.
 - Kein echter Versand: ein Mail-Dienst kommt später.
 
 ## Entscheide (für decisions.md)
