@@ -161,7 +161,7 @@ test('b) «In Zahlen»: 4 groups, closed ones with a line, the blocks follow a f
   await expect(group('bikes').locator('[data-summary]')).toContainText('Gravel Grau');
   await expect(group('dist').locator('[data-block]')).toHaveCount(3);
   // V1 bars, V7 the map from the saved routes, V10 weekdays and times of day
-  await expect(group('dist').locator('[data-block="V1"] .bars li[data-month]')).toHaveCount(12);
+  await expect(group('dist').locator('[data-block="V1"] [data-chart="iz-V1-km"] [data-plot]')).toHaveAttribute('data-n', '12');
   await expect(group('dist').locator('[data-block="V7"] svg line').first()).toBeAttached();
   await expect(group('dist').locator('[data-block="V7"] svg line.lv3').first()).toBeAttached(); // a stretch ridden 4× and more
   await expect(group('dist').locator('[data-block="V10"] [data-part="evening"] b')).not.toHaveText('0');
@@ -175,11 +175,13 @@ test('b) «In Zahlen»: 4 groups, closed ones with a line, the blocks follow a f
   await shot(page, info, 'SN4f-a-touren-gruppen-offen');
   // V8 has no zones without the Strava details: a quiet line, never an empty chart
   await expect(group('body').locator('[data-block="V8"] .quiet')).toHaveText(T('No time in zones yet. It comes with the heart rate details from Strava.'));
-  await expect(group('body').locator('[data-block="V8"] .zcol')).toHaveCount(0);
+  await expect(group('body').locator('[data-block="V8"] [data-chart]')).toHaveCount(0);
   const v6 = async () => group('records').locator('[data-block="V6"] tbody').innerText();
   const v6Before = await v6();
   const co2Before = int(await group('records').locator('[data-co2]').innerText());
-  const v1km = () => group('dist').locator('[data-block="V1"] .bars').first().evaluate((el) => [...el.querySelectorAll('li[data-km]')].reduce((s, li) => s + Number(li.dataset.km), 0));
+  // the km of the months from the chart's table («Als Tabelle»)
+  await group('dist').locator('[data-block="V1"] [data-chart="iz-V1-km"]').getByRole('button', { name: T('As table') }).click();
+  const v1km = () => group('dist').locator('[data-block="V1"] [data-chart="iz-V1-km"] tbody tr').evaluateAll((rows) => rows.reduce((s, tr) => s + Number(tr.cells[1].textContent.replace(/\D/g, '')), 0));
   const kmBefore = await v1km();
   expect(co2Before).toBeGreaterThan(0);
   // V6 (4a): this year against last year up to the same date, the trip count read from the fixture
