@@ -209,10 +209,13 @@ export function icsOf({ title, place = '', at, minutes = 60, uid }) {
   return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Pack Generator//Termine//DE', 'BEGIN:VEVENT', `UID:${uid}@packgenerator`, `DTSTART;TZID=Europe/Zurich:${d}T${t}00`, `DTEND;TZID=Europe/Zurich:${end}`, `SUMMARY:${esc(title)}`, ...(place ? [`LOCATION:${esc(place)}`] : []), 'END:VEVENT', 'END:VCALENDAR', ''].join('\r\n');
 }
 
-/** A phone number or an e-mail → the link to write to it (sms: / mailto:), or null. */
-export function contactHref(contact, text = '') {
+/** A phone number or an e-mail → the link to write to it (sms: / mailto:), or null. subject: only for an e-mail. */
+export function contactHref(contact, text = '', subject = '') {
   const c = String(contact ?? '').trim();
-  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) return `mailto:${c}${text ? `?body=${encodeURIComponent(text)}` : ''}`;
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) {
+    const q = [subject && `subject=${encodeURIComponent(subject)}`, text && `body=${encodeURIComponent(text)}`].filter(Boolean).join('&');
+    return `mailto:${c}${q ? `?${q}` : ''}`;
+  }
   const digits = c.replace(/[^\d+]/g, '');
   if (digits.replace(/\D/g, '').length >= 6) return `sms:${digits}${text ? `?body=${encodeURIComponent(text)}` : ''}`;
   return null;

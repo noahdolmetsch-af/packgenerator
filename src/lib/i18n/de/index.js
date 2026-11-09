@@ -279,6 +279,7 @@ import termine from './termine.js';
 // Flyer für Tennisstunden: Tennis › Flyer
 import flyer from './flyer.js';
 import probestunde from './probestunde.js';
+import erinnerung from './erinnerung.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -902,6 +903,7 @@ const ORDERED = [
   termine,
   flyer,
   probestunde,
+  erinnerung,
   abgleich,
   verbindungenStatus,
   datenaufraeumen,
