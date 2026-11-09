@@ -490,7 +490,7 @@
                       <li class="mini">
                         <span class="ml">{t(CMP[m.key])}</span>
                         <span class="mv"><b class="num">{cmpValue(m.key, m.latest)}</b>{#if CMPUNIT[m.key] && m.latest != null}{' '}<span class="u">{CMPUNIT[m.key]}</span>{/if}</span>
-                        <MiniBars values={m.values} mark={cmp.latest?.id} avg={m.avg} label={t(CMP[m.key])} />
+                        <MiniBars id="cmp-{m.key}" values={m.values} mark={cmp.latest?.id} avg={m.avg} unit={CMPUNIT[m.key] ?? ''} label={t(CMP[m.key])} />
                         <span class="mf num">{cmpFoot(m)}</span>
                       </li>
                     {/each}
@@ -851,7 +851,7 @@
   }
   .minis {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 8px;
     margin: 0 0 12px;
     padding: 0;

@@ -207,6 +207,17 @@ test('c) Dein Tempo: per bike and surface from 5 rides, planned and ridden, the 
   await expect(page.locator('[data-months] table tbody tr').first()).toBeVisible();
   await page.locator('[data-months]').getByRole('button', { name: T('Chart|table') }).click();
 
+  // «Diagramme zum Antippen»: the small bars of «Geschwindigkeit pro Fahrt» show the exact value of a ride, a tap opens it, the table lists them
+  const mini = page.locator('[data-chart="pace-time"]');
+  await expect(mini.locator('[data-plot]')).toHaveAttribute('data-n', /^\d+$/);
+  const mbox = await mini.locator('[data-plot]').boundingBox();
+  await mini.locator('[data-plot]').click({ position: { x: mbox.width - 4, y: 20 } });
+  await expect(page.locator('[data-mini-sheet]')).toContainText('km/h');
+  await page.keyboard.press('Escape');
+  await mini.getByRole('button', { name: T('As table') }).click();
+  await expect(mini.locator('table tbody tr').first()).toBeVisible();
+  await mini.getByRole('button', { name: T('Chart|table') }).click();
+
   // the zones: the standard from the highest heart rate of the ledger, then your own
   const zones = page.locator('[data-zones]');
   const max = Math.max(...DATA.tables.kmBook.map((e) => e.hrMax));

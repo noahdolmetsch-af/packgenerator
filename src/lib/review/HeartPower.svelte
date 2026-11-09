@@ -151,11 +151,11 @@
           <div class="zh"><h3>{load != null ? t('Relative Effort and load') : t('Relative Effort')}</h3><span>{t('only to look at')}</span></div>
           {#if effort != null}
             <div class="eff"><div class="rv-tile"><b class="num">{num(effort)}</b><small>{t('Relative Effort')}</small><span class="est">{t('from heart rate')}</span></div>
-              <div class="bars"><MiniBars values={efforts} {mark} label={t('Relative Effort of your last {n} trips', { n: efforts.length })} /><small>{t('your last {n} trips, this one on the right', { n: efforts.length })}</small></div></div>
+              <div class="bars"><MiniBars id="effort" values={efforts} {mark} label={t('Relative Effort of your last {n} trips', { n: efforts.length })} /><small>{t('your last {n} trips, this one on the right', { n: efforts.length })}</small></div></div>
           {/if}
           {#if load != null}
             <div class="eff"><div class="rv-tile"><b class="num">{num(load)}</b><small>{t('Load|power')}</small><span class="est">TSS</span><Help label={t('Load|power')} text={t(FIELD_HELP.load)} /></div>
-              <div class="bars"><MiniBars values={loads} {mark} label={t('Load of your last {n} trips with watts', { n: loads.length })} /><small>{t('trips with watts, this one on the right')}</small></div></div>
+              <div class="bars"><MiniBars id="load" values={loads} {mark} unit="TSS" label={t('Load of your last {n} trips with watts', { n: loads.length })} /><small>{t('trips with watts, this one on the right')}</small></div></div>
           {/if}
         </div>
       {/if}
@@ -325,9 +325,7 @@
   }
   .eff {
     display: grid;
-    grid-template-columns: minmax(0, 7.5em) minmax(0, 1fr);
-    align-items: end;
-    gap: 12px;
+    gap: 8px;
     margin-top: 8px;
   }
   .eff .rv-tile {

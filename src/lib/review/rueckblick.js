@@ -377,7 +377,7 @@ export function compareSet(facts = [], base = 'last10', today = localDay()) {
   const rows = pool.slice(0, COMPARE_N);
   const oldestFirst = [...rows].reverse();
   const metrics = COMPARE_KEYS.map(({ key, f, low }) => {
-    const values = oldestFirst.map((r) => ({ id: r.id, v: f(r) }));
+    const values = oldestFirst.map((r) => ({ id: r.id, v: f(r), name: r.title, date: r.start }));
     const known = values.map((x) => x.v).filter((v) => v != null);
     const avg = known.length ? known.reduce((s, v) => s + v, 0) / known.length : null;
     const best = known.length ? (low ? Math.min(...known) : Math.max(...known)) : null;

@@ -136,4 +136,10 @@ export default {
   'Shorter duration': 'Kürzere Dauer',
   'Longer duration': 'Längere Dauer',
   'Best power over {d}': 'Beste Leistung über {d}',
+  'Earlier one': 'Der davor',
+  'Later one': 'Der danach',
+  'Entry {n}': 'Eintrag {n}',
+  'Average of the bars': 'Durchschnitt der Balken',
+  'Not known for this trip.': 'Für diese Tour nicht bekannt.',
+  'Dashed line: average {v}': 'Gestrichelte Linie: Durchschnitt {v}',
 };
