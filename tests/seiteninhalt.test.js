@@ -1,6 +1,6 @@
 // «Wegweiser statt Katalog» PR 11: the card «What you can do here».
 import { describe, it, expect } from 'vitest';
-import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO, foldedCount, unfoldAll, seenMapOf, newSince } from '../src/lib/seiteninhalt.js';
+import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, foldedOf, isFolded, FOLDED_FIRST, SHOWS_TOO, openedCount, foldAll, seenMapOf, newSince } from '../src/lib/seiteninhalt.js';
 import { HOME } from '../src/lib/know/heimat.js';
 import { HANDBOOK } from '../src/lib/handbook.js'; // the card gets it from loadHandbook(); the tests hand it in
 
@@ -30,13 +30,13 @@ describe('What you can do here', () => {
     expect(foldedOf({ '#/a': true, '#/b': false, '#/c': 1 })).toEqual({ '#/a': true });
     expect(foldedOf(null)).toEqual({});
   });
-  it('«Open all cards again» removes the folds the user made, not the opened choices or pages that start folded (05.11.2026)', () => {
-    const m = { '#/trips/dreams': true, '#/inspiration': true, '#/ride': true, '#/pack': false, '#/x': 1 };
-    expect(foldedCount(m)).toBe(2);
-    expect(unfoldAll(m)).toEqual({ '#/ride': true, '#/pack': false });
-    expect(foldedCount(unfoldAll(m))).toBe(0);
-    expect(foldedCount(null)).toBe(0);
-    expect(unfoldAll(undefined)).toEqual({});
+  it('«Fold all cards again» removes the cards the user opened, not the folds (08.11.2026)', () => {
+    const m = { '#/trips/dreams': true, '#/inspiration': false, '#/ride': false, '#/pack': true, '#/x': 1 };
+    expect(openedCount(m)).toBe(2);
+    expect(foldAll(m)).toEqual({ '#/trips/dreams': true, '#/pack': true });
+    expect(openedCount(foldAll(m))).toBe(0);
+    expect(openedCount(null)).toBe(0);
+    expect(foldAll(undefined)).toEqual({});
   });
   it('the «new» dot counts functions that came after the card was last folded or opened; unknown pages show none (05.11.2026)', () => {
     expect(newSince({ '#/trips/dreams': 3 }, '#/trips/dreams', 5)).toBe(2);
@@ -46,11 +46,11 @@ describe('What you can do here', () => {
     expect(newSince(null, '#/x', 5)).toBe(0);
     expect(seenMapOf({ '#/a': 2, '#/b': 'x', '#/c': -1, '#/d': 1.5 })).toEqual({ '#/a': 2 });
   });
-  it('starts folded on Unterwegs, keeps the choice everywhere', () => {
-    expect(FOLDED_FIRST).toEqual(expect.arrayContaining(['#/ride', '#/bikes', '#/gear', '#/debrief/:trip']));
-    expect(isFolded({}, '#/ride')).toBe(true);
+  it('every page starts folded, an opened card stays open, a folded one stays folded (08.11.2026)', () => {
+    expect(FOLDED_FIRST).toEqual(expect.arrayContaining(['#/ride', '#/bikes', '#/gear', '#/debrief/:trip', '#/trips/dreams', '#/notes', '#/week']));
+    for (const p of ON_PAGES) expect(isFolded({}, p), p).toBe(true);
     expect(isFolded({ '#/ride': false }, '#/ride')).toBe(false);
-    expect(isFolded({}, '#/trips/dreams')).toBe(false);
+    expect(isFolded({ '#/trips/dreams': false, '#/x': 1 }, '#/trips/dreams')).toBe(false);
     expect(isFolded({ '#/trips/dreams': true, '#/x': 1 }, '#/trips/dreams')).toBe(true);
   });
   it('a page of one thing finds its pattern; fixed sub-pages and other depths do not (PR 21)', () => {
