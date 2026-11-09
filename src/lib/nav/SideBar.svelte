@@ -15,7 +15,7 @@
   import HelpButton from './HelpButton.svelte';
   import MeButton from './MeButton.svelte';
   import PlaceIcon from './PlaceIcon.svelte';
-  import { Plus, Compass, MessageCircle } from '@lucide/svelte';
+  import { Plus, Compass, MessageCircle, ChevronDown } from '@lucide/svelte';
   import { localDay } from '../localday.js';
   import { countClick, readHint, writeHint, keysOf } from './keyhint.js'; // Einzelidee 31: one shortcut at a time
 
@@ -97,9 +97,12 @@
       <Search short />
     </div>
     <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button, under the search -->
-    <a class="asst" href="#/assistent" aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={18} aria-hidden="true" /><span>{t('Assistant')}</span></a>
-    <!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page, under the assistant -->
-    <HelpButton wide />
+    <!-- Durchklick 08.11.2026 (Fund 2): «Assistant» and «Help» share one row, so the places keep one more row on a laptop -->
+    <div class="pair">
+      <a class="asst" href="#/assistent" aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={18} aria-hidden="true" /><span>{t('Assistant')}</span></a>
+      <!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page, next to the assistant -->
+      <HelpButton wide />
+    </div>
     <nav class="places" class:more-up={more.up} class:more-down={more.down} aria-label={t('Sections')} bind:this={placesEl} onscroll={edges}>
       <ul>
         {#each sidePlaces as p (p.key)}
@@ -132,6 +135,12 @@
           </a>
         </li>
       </ul>
+      <!-- Durchklick 08.11.2026 (Fund 2): the soft edge alone was easy to miss; a visible «More places» says the list goes on -->
+      {#if more.down}
+        <button type="button" class="moredn" onclick={() => placesEl?.scrollBy({ top: Math.max(120, placesEl.clientHeight * 0.7), behavior: 'smooth' })} data-menu-more>
+          <ChevronDown size={16} aria-hidden="true" /><span>{t('Show more places')}</span>
+        </button>
+      {/if}
     </nav>
     {#if hint}
       <div class="khint" role="status" data-key-hint={hint.key}>
@@ -233,11 +242,22 @@
     flex-wrap: wrap;
     gap: 6px;
   }
+  .pair {
+    display: flex;
+    gap: var(--sp-1);
+    margin-top: var(--sp-1);
+  }
+  .pair :global(.hrow) {
+    width: auto;
+    flex: 1 1 0;
+    min-width: 0;
+  }
   .asst {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: var(--sp-2);
-    margin-top: var(--sp-1);
     padding: 8px 12px;
     border-radius: 10px;
     color: var(--ink-2);
@@ -265,6 +285,25 @@
   }
   .places.more-up.more-down {
     mask-image: linear-gradient(to bottom, transparent, var(--ink) 28px, var(--ink) calc(100% - 28px), transparent);
+  }
+  .moredn {
+    position: sticky;
+    bottom: 34px; /* above the soft edge */
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 4px auto 0;
+    padding: 4px 12px 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 600 var(--fs-small, 13px) var(--font-body);
+    cursor: pointer;
+  }
+  .moredn:hover {
+    background: var(--paper-2);
+    color: var(--ink);
   }
   ul {
     list-style: none;
