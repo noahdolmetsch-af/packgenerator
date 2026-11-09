@@ -27,7 +27,7 @@ export const TRICKS = [
       { id: 'g.livepages', title: 'Data pages on the live map', text: 'On the way on the live map: swipe sideways over the strip to change the data pages.', go: '#/live' },
       { id: 'g.tripname', title: 'Overwrite the trip name', text: 'Tapping the trip name marks the whole automatic name; typing replaces it.', go: '#/pack' },
       { id: 'g.appicon', title: 'Press the app icon for a long time', text: 'On the phone: press the app icon for a long time to offer «New note» and «Start a ride».', go: '#/inbox/new' },
-      { id: 'g.share', title: 'Share to Pack Generator', text: 'Share from another app: text goes to the inbox, a link to Inspiration, a GPX file to «Upload a ride», a picture to Documents, a backup (.json) to «Check backup».', go: '#/inbox' },
+      { id: 'g.share', title: 'Share to Pack Generator', text: 'Share from another app: text goes to the inbox, a link to Inspiration, a GPX file to «Upload a ride», a picture to Documents, a backup (.json) to «Check import».', go: '#/inbox' },
       { id: 'g.bookmark', title: 'Bookmark «Into the inbox»', text: 'A browser bookmark puts the open web page straight into the inbox as an entry.', go: '#/inbox' },
     ],
   },
