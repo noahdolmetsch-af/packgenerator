@@ -45,6 +45,7 @@
   import { equipmentRows, dueCare } from '../lib/maingear.js';
   import { todayNotes } from '../lib/notebook.js';
   import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
+  import { WEG_KEY, wegOf, todayStep as wegTodayStep, setDone as wegSetDone } from '../lib/weg/weg.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -221,7 +222,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY];
+  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -770,6 +771,14 @@
       const text = t('Goal «{goal}»: {step}', { goal: goal.title, step: step.text }) + (late ? ` · ${t('since {day}', { day: shortDay(step.date) })}` : due ? '' : ` · ${shortDay(step.date)}`);
       rows.push({ key: `compass:${step.id}`, tone: due ? 'warn' : 'quiet', text, act: due ? { label: t('Done ✓'), run: () => stepDone(goal.id, step.id) } : { label: t('My compass'), href: '#/me/compass' } });
     }
+    // «Weg zum Ziel» (Noah 05.11.2026, Entwurf G4): the next open step of the way that starts first, one line; due → tick it here
+    if (wegStep) {
+      const { goal, row } = wegStep;
+      const late = row.state === 'late';
+      const due = row.due <= today;
+      const text = t('Way «{goal}»: {step}', { goal: goal.title, step: row.step.title }) + (late ? ` · ${t('since {day}', { day: shortDay(row.due) })}` : due ? '' : ` · ${shortDay(row.due)}`);
+      rows.push({ key: `weg:${row.step.id}`, tone: due ? 'warn' : 'quiet', text, act: due ? { label: t('Done ✓'), run: () => wegStepDone(goal, row.step.id) } : { label: t('Way to the goal'), href: `#/trips/weg?g=${encodeURIComponent(goal.id)}` } });
+    }
     if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
     rows.push(...knowRows);
     // v0.70.0 «Velo-Blätter Teil 2» (W3 a, W6 a): a due step of a Break-in plan, a warranty that ends soon; «later» waits a week
@@ -794,6 +803,13 @@
   const cheers = $derived(allImportant.filter((r) => r.tone === 'party').slice(0, 1));
   const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
+  const wegStep = $derived(wegTodayStep(wegOf(S[WEG_KEY]), today));
+  async function wegStepDone(goal, stepId) {
+    const before = wegOf(S[WEG_KEY]);
+    const next = { ...$state.snapshot(before), goals: before.goals.map((g) => (g.id === goal.id ? wegSetDone($state.snapshot(g), stepId, true, today) : $state.snapshot(g))) };
+    await db.settings.put({ key: WEG_KEY, value: next });
+    say(t('Step done.'), () => db.settings.put({ key: WEG_KEY, value: $state.snapshot(before) }));
+  }
   async function stepDone(goalId, stepId) {
     const before = compassOf(S[COMPASS_KEY]);
     await db.settings.put({ key: COMPASS_KEY, value: setStepDone($state.snapshot(before), goalId, stepId, true) });
