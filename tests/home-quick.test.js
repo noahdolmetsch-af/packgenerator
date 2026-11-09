@@ -21,7 +21,7 @@ describe('Heute ruhiger: the small tiles as one list (1a)', () => {
     expect(ids(inShownOrder([{ id: 'a', size: 's' }, { id: 'b', size: 'l' }, { id: 'c', size: 's' }]))).toEqual(['a', 'c', 'b']);
     expect(runsOf()).toEqual([]);
   });
-  it('the heading is German', () => {
-    expect(DE['Open quickly']).toBe('Schnell öffnen');
+  it('the heading is Quick Links', () => {
+    expect(DE['Open quickly']).toBe('Quick Links');
   });
 });

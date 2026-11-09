@@ -1,7 +1,7 @@
 /** German texts: v0.36.0 "Import prüfen" (the safe gear import). Keys are the English texts. */
 export default {
   // The page (pages/GearImport.svelte)
-  'Check import': 'Import prüfen',
+  'Check import': 'Material-Liste importieren',
   'More for Gear': 'Mehr zu Material',
   'No import is waiting. Choose a gear list (a JSON file of the kind "gear-import"); nothing goes into your gear before you check it here.':
     'Es wartet kein Import. Wähle eine Materialliste (eine JSON-Datei der Art «gear-import»); nichts kommt in dein Material, bevor du es hier geprüft hast.',
@@ -72,7 +72,7 @@ export default {
   'a gear list with {items} items and {learnings} learnings. Nothing is changed yet: check it first.':
     'eine Materialliste mit {items} Teilen und {learnings} Erkenntnisse. Noch ist nichts geändert: prüfe sie zuerst.',
   Later: 'Später',
-  'The list waits under Gear → ••• → Check import.': 'Die Liste wartet unter Material → ••• → Import prüfen.',
+  'The list waits under Gear → ••• → Check import.': 'Die Liste wartet unter Material → ••• → Material-Liste importieren.',
 
   // The new areas (domains.js)
   Cycling: 'Velo',
@@ -84,7 +84,7 @@ export default {
 
   // What is new (whatsnew.js, 0.36.0)
   '"Check import": your reviewed gear list waits on its own page; nothing goes into Gear before you check it.':
-    '«Import prüfen»: deine geprüfte Materialliste wartet auf einer eigenen Seite; nichts kommt ins Material, bevor du sie prüfst.',
+    '«Material-Liste importieren»: deine geprüfte Materialliste wartet auf einer eigenen Seite; nichts kommt ins Material, bevor du sie prüfst.',
   'One button takes the safe ones; unsure items are decided with one tap. A backup comes first, "Undo" puts it back.':
     'Ein Knopf übernimmt die sicheren Teile; unsichere entscheidest du mit einem Tipp. Vorher wird gesichert, «Rückgängig» stellt alles wieder her.',
   'Items the list does not name can be archived: they move to Gone, past trips stay complete.':

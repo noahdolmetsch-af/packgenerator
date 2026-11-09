@@ -139,7 +139,7 @@ test('I8: the Helper with its path, the code first while it is not set up', asyn
   await onePage(page, T('AI helper'));
   await expect(path(page).getByRole('link', { name: T('Me|place') })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Setup|helper') })).toBeVisible();
-  await expect(page.getByLabel(T('Helper code'))).toBeVisible();
+  await expect(page.getByLabel(T('Helper code'), { exact: true })).toBeVisible();
   await expect(page.getByText(T('What goes to Claude?')).first()).toBeVisible();
   expect(errors).toEqual([]);
 });

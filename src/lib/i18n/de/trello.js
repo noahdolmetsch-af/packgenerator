@@ -16,7 +16,7 @@ export default {
     'Deine To-dos und Listen, die du wählst, auch in Trello, auf deinem eigenen Board «Packgenerator». Ein Häkchen in Trello ist auch hier ein Häkchen, und umgekehrt. Deine anderen Boards bleiben unberührt.',
   'Connect Trello': 'Trello verbinden',
   'Needed once: a workspace «Packgenerator» in Trello. The app makes the board itself.': 'Einmal nötig: ein Arbeitsbereich «Packgenerator» in Trello. Das Board legt die App selbst an.',
-  'First connect Strava on this device: it gives this device the key the Trello connection uses too.': 'Verbinde zuerst Strava auf diesem Gerät: Das gibt dem Gerät den Schlüssel, den auch die Trello-Verbindung braucht.',
+  'First connect Strava on this device: it gives this device the key the Trello connection uses too.': 'Verbinde zuerst Strava auf diesem Gerät: Das schaltet das Gerät frei, das braucht auch die Trello-Verbindung.',
   'Connected with the board «{name}».': 'Verbunden mit dem Board «{name}».',
   'Open in Trello': 'In Trello öffnen',
   'To-dos also in Trello': 'To-dos auch in Trello',

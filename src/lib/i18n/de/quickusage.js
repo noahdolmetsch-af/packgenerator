@@ -5,7 +5,7 @@ export default {
   'Unpin|quick': 'Lösen',
   'Keep|quick': 'Behalten',
   'Opened lately': 'Zuletzt geöffnet',
-  'On this device. A pin keeps one for good.': 'Auf diesem Gerät. Ein Pin behält eine Seite für immer.',
+  'On this device. A pin keeps one for good.': 'Auf diesem Gerät. Angepinnt bleibt eine Seite für immer.',
   'Page|quick': 'Seite',
   // 05.11.2026 «7a»: dieselbe Liste in der Suche
   'Forget this list': 'Liste vergessen',

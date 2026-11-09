@@ -623,7 +623,7 @@
           </div>
         {:else if pending}
           <div class="confirm" role="dialog" aria-label={t('Import backup')}>
-            <h3 class="ch">{t('Check import')}</h3>
+            <h3 class="ch">{t('Import backup')}</h3>
             <p>
               <strong>{pending.name}</strong> {t('contains {items}, {trips} and {learnings}.', { items: tn(pending.counts.items, '{n} gear item', '{n} gear items'), trips: tn(pending.counts.trips, '{n} trip', '{n} trips'), learnings: tn(pending.counts.learnings, '{n} learning', '{n} learnings') })}
             </p>
