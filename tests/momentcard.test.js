@@ -47,13 +47,13 @@ describe('the tile on the wall', () => {
   it('is in the catalog, in the first area, right under the habits on the ready wall and in the head', () => {
     expect(TILE.moment.sizes).toContain(TILE.moment.size);
     expect(SECTION_OF.moment).toBe('now');
-    expect(ids(READY).slice(0, 2)).toEqual(['meditation', 'moment']);
+    expect(ids(READY).slice(0, 3)).toEqual(['meinetour', 'meditation', 'moment']); // «Meine Tour» (Plan 2a) stands on top
     expect(HEAD_N2).toContain('moment');
     expect(DE[TILE.moment.label]).toBeTruthy();
     expect(DE[TILE.moment.pitch]).toBeTruthy();
   });
   it('a wall of before (v 14) gets it once under the habits (else on top); taken away it stays away', () => {
-    expect(ids(wallOf({ v: 14, tiles: [{ id: 'meditation', size: 'long' }, { id: 'week', size: 'l' }] }))).toEqual(['meditation', 'moment', 'spruch', 'discover', 'wochentraum', 'week', 'heutecheck']); // + «Heute-Check» (v < 17) at the end without body and Aktiv; + «Spruch» (v < 19) under the moment card; // + PR 5
+    expect(ids(wallOf({ v: 14, tiles: [{ id: 'meditation', size: 'long' }, { id: 'week', size: 'l' }] }))).toEqual(['meinetour', 'meditation', 'moment', 'spruch', 'discover', 'wochentraum', 'week', 'heutecheck']); // + «Meine Tour» (v < 21) on top; // + «Heute-Check» (v < 17) at the end without body and Aktiv; + «Spruch» (v < 19) under the moment card; // + PR 5
     expect(ids(withMoment([{ id: 'week', size: 'l' }]))).toEqual(['moment', 'week']);
     expect(ids(wallOf(wallRecord([{ id: 'week', size: 'l' }])))).toEqual(['week']);
   });

@@ -21,7 +21,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 1 | Pfad-Baustein (baut auf «Weg zum Ziel» als Linie auf), Tour-Pfad mit 4 Phasen | #1184 | online | datei:src/pages/Tourpfad.svelte; datei:src/lib/ui/Pfad.svelte; funktion:f.tourpfad |
 | 1b | Vier Phasen statt Schrittleiste (die Leiste der Tour zeigt Planen, Vorbereiten, Unterwegs, Danach und Auswertung) | #1205 | gebaut | - |
 | 4a | Datencenter-Einstieg: erster Reiter «Fragen» in Auswerten (die Suche zeigt auch Fragen) | #1226 | gebaut | - |
-| 2a | Karte «Meine Tour» auf Heute, ersetzt die Karte «Vorab» (nur bei geplanter Tour) | - | offen | - |
+| 2a | Karte «Meine Tour» auf Heute, ersetzt die Karte «Vorab» (nur bei geplanter Tour) | #1231 | gebaut | - |
 | 2b | Heute-Hauptkarte wählt den Pfad des Moments, mit «Anderes zeigen» | - | offen | - |
 | - | **Pause:** Noah macht eine echte Tour und sagt danach, wie es weitergeht | - | - | - |
 | 3a | Ort-Vorlage mit 6 Bändern: Velos (zuerst) | - | offen | - |
