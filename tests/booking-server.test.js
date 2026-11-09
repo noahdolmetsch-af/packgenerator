@@ -2,7 +2,7 @@
 // contacts and keys only.
 import { describe, it, expect, vi } from 'vitest';
 import { makeHandler, STRIPE } from '../api/booking.js';
-import { cleanOffer, zurichMs, publicOffer, canCancel, validAt } from '../api/_lib/booking.js';
+import { cleanOffer, zurichMs, publicOffer, canCancel, validAt, cleanPrices, wishPrice } from '../api/_lib/booking.js';
 import { fakeRedis } from './booking-fake.js';
 
 const REDIS = 'https://redis.example.test';
@@ -281,5 +281,33 @@ describe('/api/booking', () => {
     ]) expect((await h(post('wish', bad))).status).toBe(400);
     // an offer with fixed times takes no wishes
     expect((await h(post('wish', { ...ok, id: fixed.id }))).status).toBe(400);
+  });
+
+  it('prices a wish request by number of children and place (hall price when a hall is ticked)', async () => {
+    const PRICES = { out: [10000, 7000, 6000, 5500], hall: [14000, 9000, 7500, 6500] };
+    const venues = ['Mythenquai', 'Lengg Halle'];
+    const w = world();
+    const { id } = await made(w, { ...OFFER, mode: 'wish', venues, prices: PRICES, hallVenues: ['Lengg Halle', 'Irgendwo'], slots: [] });
+    const h = w.handler();
+    const pub = await (await h(get(`step=offer&id=${id}`))).json();
+    expect(pub.offer).toMatchObject({ prices: PRICES, hallVenues: ['Lengg Halle'] });
+    const form = { id, wishes: ['2026-10-15T16:00'], name: 'Anna Beispiel', contact: 'anna@example.test' };
+    const out = await (await h(post('wish', { ...form, venues: ['Mythenquai'], kids: 2 }))).json();
+    expect(out.booking.wish.price).toEqual({ hall: false, perKid: 7000, total: 14000 });
+    const both = await (await h(post('wish', { ...form, venues: venues, kids: 3 }))).json();
+    expect(both.booking.wish.price).toEqual({ hall: true, perKid: 7500, total: 22500 });
+    // the client cannot name the price
+    const cheat = await (await h(post('wish', { ...form, venues: venues, kids: 1, price: { perKid: 1, total: 1 } }))).json();
+    expect(cheat.booking.wish.price).toEqual({ hall: true, perKid: 14000, total: 14000 });
+  });
+
+  it('keeps a clean price table only', () => {
+    const ok = { out: [1, 2, 3, 4], hall: [5, 6, 7, 8] };
+    expect(cleanPrices(ok)).toEqual(ok);
+    for (const bad of [null, {}, { out: [1, 2, 3], hall: [1, 2, 3, 4] }, { out: [1, 2, 3, 4], hall: [1, 2, 3, -1] }, { out: [1, 2, 3, 4], hall: [1, 2, 3, 1.5] }, { out: [1, 2, 3, 4], hall: [1, 2, 3, 2_000_000] }]) expect(cleanPrices(bad)).toBeNull();
+    expect(wishPrice({ prices: ok, hallVenues: ['H'] }, ['A'], 1)).toEqual({ hall: false, perKid: 1, total: 1 });
+    expect(wishPrice({ prices: ok, hallVenues: ['H'] }, ['A', 'H'], 4)).toEqual({ hall: true, perKid: 8, total: 32 });
+    expect(wishPrice({}, ['A'], 1)).toBeNull();
+    expect(wishPrice({ prices: ok }, ['A'], 5)).toBeNull();
   });
 });
