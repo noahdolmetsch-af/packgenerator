@@ -62,7 +62,11 @@ export default {
   'Switch on one reminder and tap «Send a test».': 'Schalte eine Erinnerung ein und tippe «Test senden».',
   // Paket B «Server» (anleitung.md Teil 7): the address for cron-job.org, made by the server itself
   'Wake-up call for the server': 'Weckruf für den Server',
-  'Set up once: cron-job.org calls our free server every minute, so the reminders come on time. Copy the address and paste it there as the URL.': 'Einmal einrichten: cron-job.org ruft unseren kostenlosen Server jede Minute auf, damit die Erinnerungen pünktlich kommen. Kopiere die Adresse und füge sie dort als URL ein.',
+  'The reminders only come on time if someone wakes the server every minute. The free service cron-job.org does that. You set it up once, then you have nothing more to do.': 'Die Erinnerungen kommen nur pünktlich, wenn jemand den Server jede Minute weckt. Das macht der kostenlose Dienst cron-job.org. Du richtest es einmal ein, danach musst du nichts mehr tun.',
+  'Copy the address with the button above.': 'Kopiere die Adresse mit dem Knopf oben.',
+  'Open cron-job.org and sign in. The account is free.': 'Öffne cron-job.org und melde dich an. Das Konto ist gratis.',
+  'Create a new cron job and paste the address as the URL.': 'Lege einen neuen Cronjob an und füge die Adresse als URL ein.',
+  'Set it to run every minute, then save.': 'Stelle ein, dass er jede Minute läuft, und speichere.',
   'Copy the address for cron-job.org': 'Adresse für cron-job.org kopieren',
   'Address copied. In cron-job.org, paste it as the URL.': 'Adresse kopiert. Füge sie in cron-job.org als URL ein.',
   'Copying did not work. Select the address and copy it:': 'Kopieren ging nicht. Markiere die Adresse und kopiere sie:',

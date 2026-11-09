@@ -123,11 +123,11 @@ describe('Lernschleife (#18)', () => {
   });
 });
 
-// Schrittleiste (Noah 26.10.2026 «1b nur die schrittleiste»): the bar has a short name for every step
+// Schrittleiste (Tour-Pfad 1b, Noah 08.11.2026 «A», «b»): the four phases and «Auswertung» as the fifth point
 import { STEP_BAR } from '../src/lib/stepbar.js';
 describe('STEP_BAR', () => {
-  it('names every step of the bar, in German the same short words', () => {
+  it('names every point of the bar, in German the phases of the Tour-Pfad and «Auswertung»', () => {
     expect(Object.keys(STEP_BAR)).toEqual(stepsOf({ bikeId: 'b' }));
-    expect(Object.values(STEP_BAR).map((k) => DE[k])).toEqual(['Planen', 'Packen', 'Live', 'Rückblick', 'Auswertung']);
+    expect(Object.values(STEP_BAR).map((k) => DE[k])).toEqual(['Planen', 'Vorbereiten', 'Unterwegs', 'Danach', 'Auswertung']);
   });
 });

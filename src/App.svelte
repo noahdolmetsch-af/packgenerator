@@ -42,6 +42,7 @@
   import MeButton from './lib/nav/MeButton.svelte';
   import SkipLink from './lib/nav/SkipLink.svelte';
   import HelpButton from './lib/nav/HelpButton.svelte';
+  import { helpHere } from './lib/pageinfo/here.svelte.js';
   import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
@@ -94,6 +95,10 @@
   const mini = miniAppOf(location.pathname);
   if (mini && miniStart(mini, location.hash) !== location.hash) history.replaceState(null, '', `${location.pathname}${location.search}${miniStart(mini, location.hash)}`);
   let hash = $state(follow(location.hash));
+  // the «?» window lists the help of the page the app shows (not the raw address: some addresses lead on to another page)
+  $effect(() => {
+    helpHere.route = hash;
+  });
   // v0.127.0 A-U2 (mockup «Fehlerseite»): a page that throws shows the error page, never a white page.
   // failReset: the boundary's reset while the error page shows; failName: the page's name in the text.
   let failReset = null;
@@ -417,6 +422,7 @@
     Freunde: () => import('./pages/Freunde.svelte'), // Paket D «Mit Freunden»: Ich › Mit Freunden
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
     Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
+    Fragen: () => import('./pages/Fragen.svelte'), // «Fragen» (Plan 4a, Noah 08.11.2026): Auswerten › Fragen
     Quellen: () => import('./pages/Quellen.svelte'), // «Meine Datenquellen» (Noah 07.11.2026 «1a»): Auswerten › Datenquellen
     Tourpfad: () => import('./pages/Tourpfad.svelte'), // «Tour-Pfad» (Noah 08.11.2026 «1 go A»): Touren › Tour-Pfad
     Weg: () => import('./pages/Weg.svelte'), // «Weg zum Ziel» (Noah 05.11.2026): Touren › Weg zum Ziel
@@ -719,6 +725,8 @@
     <LazyPage load={PAGES.Dreams} />
   {:else if page === 'vorschlaege'}
     <LazyPage load={PAGES.Vorschlaege} />
+  {:else if page === 'fragen'}
+    <LazyPage load={PAGES.Fragen} />
   {:else if page === 'quellen'}
     <LazyPage load={PAGES.Quellen} />
   {:else if page === 'tourpfad'}

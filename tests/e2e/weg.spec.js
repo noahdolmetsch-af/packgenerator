@@ -254,3 +254,33 @@ test('Way to the goal > Time: the card says if the time to the start is enough a
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('Way to the goal > Today: the next due step stands in Up now and ticks there', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+
+  await page.goto('./#/trips/weg');
+  await ready(page);
+  await page.getByRole('button', { name: T('New way') }).click();
+  await page.locator('[data-weg-title]').fill('Test Rennen weit weg');
+  await page.locator('[data-weg-start]').fill('2099-12-31');
+  const ticked = page.locator('[data-weg-new] .wg-pick input:checked');
+  while ((await ticked.count()) > 0) await ticked.first().uncheck();
+  await page.getByRole('button', { name: T('Create way') }).click();
+  const today = await page.evaluate(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; });
+  await page.locator('[data-weg-own-open]').click();
+  await page.locator('[data-weg-step-title]').fill('Velo prüfen');
+  await page.locator('[data-weg-own] input[type="date"]').fill(today);
+  await page.locator('[data-weg-own] button[type="submit"]').click();
+
+  await page.goto('./#/');
+  const row = page.locator('[data-row="weg"]');
+  await expect(row).toContainText('Velo prüfen');
+  await expect(row).toContainText('Test Rennen weit weg');
+  await row.getByRole('button', { name: T('Done ✓') }).click();
+  await expect(page.locator('[data-row="weg"]')).toHaveCount(0);
+
+  expect(errors).toEqual([]);
+});

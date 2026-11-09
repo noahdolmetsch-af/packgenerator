@@ -191,7 +191,7 @@
   <section class="ps-sec" aria-labelledby="ps-cron-h" data-push-cron>
     <h2 id="ps-cron-h">{t('Wake-up call for the server')}</h2>
     <div class="card ps-card">
-      <p class="ps-txt">{t('Set up once: cron-job.org calls our free server every minute, so the reminders come on time. Copy the address and paste it there as the URL.')}</p>
+      <p class="ps-txt">{t('The reminders only come on time if someone wakes the server every minute. The free service cron-job.org does that. You set it up once, then you have nothing more to do.')}</p>
       <p class="ps-acts ps-cron-acts">
         <button type="button" class="btn" onclick={copyCron} disabled={cron.busy} data-push-cron-copy><Copy size={16} aria-hidden="true" />{t('Copy the address for cron-job.org')}</button>
       </p>
@@ -201,6 +201,15 @@
         <input id="ps-cron-url" class="inp ps-url" type="text" readonly value={cron.shown} onfocus={(e) => e.currentTarget.select()} />
       {/if}
       {#if cron.msg}<p class="ps-msg" role="alert">{cron.msg}</p>{/if}
+      <details class="ps-fold" data-push-cron-steps>
+        <summary><span class="ps-gl">{t('Step by step')}</span></summary>
+        <ol class="ps-stepl">
+          <li>{t('Copy the address with the button above.')}</li>
+          <li>{t('Open cron-job.org and sign in. The account is free.')}</li>
+          <li>{t('Create a new cron job and paste the address as the URL.')}</li>
+          <li>{t('Set it to run every minute, then save.')}</li>
+        </ol>
+      </details>
       <p class="ps-txt ps-small">{t('Keep the address to yourself: with it, anyone can wake the server.')}</p>
     </div>
   </section>
@@ -226,7 +235,8 @@
   .ps-grp:first-child {
     border-top: 0;
   }
-  .ps-grp summary {
+  .ps-grp summary,
+  .ps-fold summary {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -236,14 +246,17 @@
     padding: 8px 28px 8px 0;
     cursor: pointer;
   }
-  .ps-grp summary::-webkit-details-marker {
+  .ps-grp summary::-webkit-details-marker,
+  .ps-fold summary::-webkit-details-marker {
     display: none;
   }
-  .ps-grp summary::marker {
+  .ps-grp summary::marker,
+  .ps-fold summary::marker {
     content: '';
   }
   /* the arrow that says «opens»: it turns up when the group is open */
-  .ps-grp summary::after {
+  .ps-grp summary::after,
+  .ps-fold summary::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -256,12 +269,23 @@
     transform: rotate(45deg);
     transition: transform 0.15s;
   }
-  .ps-grp[open] summary::after {
+  .ps-grp[open] summary::after,
+  .ps-fold[open] summary::after {
     margin-top: -2px;
     transform: rotate(225deg);
   }
   .ps-gl {
     font-weight: 600;
+  }
+  .ps-fold {
+    margin-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .ps-stepl {
+    margin: 0 0 12px;
+    padding-left: 22px;
+    display: grid;
+    gap: 6px;
   }
   .ps-gs {
     color: var(--ink-2);

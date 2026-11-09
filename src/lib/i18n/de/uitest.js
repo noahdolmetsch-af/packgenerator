@@ -10,12 +10,6 @@ export default {
   // T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren»
   'A recording of this trip is running since {time}. The blocks and the arrival count from then.': 'Eine Aufzeichnung dieser Tour läuft seit {time}. Die Blöcke und die Ankunft zählen ab dann.',
   'Ends the trip without riding on': 'Beendet die Tour, ohne weiterzufahren',
-  // Schrittleiste (Noah 26.10.2026 «1b»): the short names of the step bar, the same words in German
-  'Plan|bar': 'Planen',
-  'Pack|bar': 'Packen',
-  'Live|bar': 'Live',
-  'Review|bar': 'Rückblick',
-  'Analyse|bar': 'Auswertung',
   // T3 «Form: eine Rechnung, ein Wort»
   'Form {form} = fitness {fit} − fatigue {fat}': 'Form {form} = Fitness {fit} − Müdigkeit {fat}',
   'Form effect on today': 'Form-Einfluss auf heute',
@@ -44,12 +38,12 @@ export default {
   // T8 «Wetter und Tipps aus einer Vorhersage»
   'weather not loaded right now': 'Wetter gerade nicht geladen',
   // T9 «Verbindungen zeigen überall denselben Zustand»
-  'This device needs the app key once. It comes with the Strava login; after that Google and Trello work here too.': 'Dieses Gerät muss einmal freigeschaltet werden. Das geht mit der Strava-Anmeldung; danach gehen hier auch Google und Trello.',
+  'This device needs the app key once. It comes with the Strava login; after that Google and Trello work here too.': 'Dieses Gerät braucht einmal den App-Schlüssel. Er kommt mit der Strava-Anmeldung; danach gehen hier auch Google und Trello.',
   'Unlock this device (once)': 'Gerät freischalten (einmal)',
-  'To fetch, this device needs the app key once (the same server key as Strava).': 'Zum Holen muss dieses Gerät einmal freigeschaltet werden (mit demselben Helfer-Code wie bei Strava).',
+  'To fetch, this device needs the app key once (the same server key as Strava).': 'Zum Holen braucht dieses Gerät einmal den App-Schlüssel (derselbe Server-Schlüssel wie bei Strava).',
   'Unlock this device ›': 'Gerät freischalten ›',
   'not connected on this device · last fetch {when}': 'auf diesem Gerät nicht verbunden · zuletzt geholt {when}',
-  'fetching needs the app key on this device': 'zum Holen ist dieses Gerät noch nicht freigeschaltet',
+  'fetching needs the app key on this device': 'zum Holen fehlt auf diesem Gerät der App-Schlüssel',
   'Applies once Strava is connected on this device.': 'Gilt, sobald Strava auf diesem Gerät verbunden ist.',
   'Connect Google ›': 'Google verbinden ›',
   'From your Google Calendar: {n} date this week.': 'Aus deinem Google Kalender: {n} Termin diese Woche.',

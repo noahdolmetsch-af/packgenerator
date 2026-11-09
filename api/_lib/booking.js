@@ -69,7 +69,37 @@ export function cleanOffer(input) {
   }
   if (slots.length > MAX_SLOTS) return { error: 'too_many_slots' };
   slots.sort((a, b) => a.at.localeCompare(b.at));
-  return { offer: { kind, title, place: TEXT(o.place, 60), minutes, pay, mode, venues, cancelHours, types, slots } };
+  const out = { kind, title, place: TEXT(o.place, 60), minutes, pay, mode, venues, cancelHours, types, slots };
+  // wish offers (Noah 08.11.2026 «1a»): a price per child by number of children, outdoors and in the hall, and which places are halls
+  const prices = cleanPrices(o.prices);
+  if (prices) out.prices = prices;
+  if (Array.isArray(o.hallVenues)) out.hallVenues = [...new Set(o.hallVenues.map((v) => TEXT(v, 60)).filter((v) => venues.includes(v)))];
+  return { offer: out };
+}
+
+/** The price per child (Rappen) for 1 to 4 children: { out: [4 numbers], hall: [4 numbers] }, or null. */
+export function cleanPrices(input) {
+  if (!input || typeof input !== 'object') return null;
+  const row = (r) => {
+    if (!Array.isArray(r) || r.length !== 4) return null;
+    const v = r.map((x) => INT(x, 0, 1_000_000));
+    return v.includes(null) ? null : v;
+  };
+  const out = row(input.out);
+  const hall = row(input.hall);
+  return out && hall ? { out, hall } : null;
+}
+
+/**
+ * The price of a wish request (Noah 08.11.2026 «1a»): per child and in all, by number of children. When
+ * one of the ticked places is a hall, the hall price counts until Noah confirms. null without a price table.
+ */
+export function wishPrice(offer, venues = [], kids = 1) {
+  const p = offer?.prices;
+  if (!p || !Number.isInteger(kids) || kids < 1 || kids > MAX_KIDS) return null;
+  const hall = venues.some((v) => (offer.hallVenues ?? []).includes(v));
+  const perKid = (hall ? p.hall : p.out)[kids - 1];
+  return { hall, perKid, total: perKid * kids };
 }
 
 export function validAt(at) {
@@ -113,6 +143,7 @@ export function publicOffer(offer, booked = {}, now = Date.now()) {
     pay: offer.pay,
     mode: offer.mode ?? 'instant',
     venues: offer.venues ?? [],
+    ...(offer.prices ? { prices: offer.prices, hallVenues: offer.hallVenues ?? [] } : {}),
     cancelHours: offer.cancelHours,
     types: offer.types.map((t) => ({ key: t.key, label: t.label, places: t.places, price: t.price })),
     slots: offer.slots
@@ -161,7 +192,8 @@ export function cleanWish(input, offer, now = Date.now()) {
   const kids = INT(input?.kids, 1, MAX_KIDS);
   if (kids == null) return { error: 'bad_wish' };
   const source = SOURCES.includes(input?.source) ? input.source : '';
-  return { person, wish: { venues, wishes, kids, kidNames: TEXT(input?.kidNames, 120), source } };
+  const price = wishPrice(offer, venues, kids);
+  return { person, wish: { venues, wishes, kids, kidNames: TEXT(input?.kidNames, 120), source, ...(price ? { price } : {}) } };
 }
 
 /** A booking that holds a place: instant bookings (no status) and confirmed requests. */
