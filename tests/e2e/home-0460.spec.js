@@ -68,7 +68,8 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   // 0.180.0 P6 (Noah 21.10.2026 «2b»): the meditation card is first on the wall, the weekly weight under it.
   // «Heute ruhiger» (Noah 26.10.2026 «3a», mockup H3, changed on purpose): the tiles stand in areas with a heading;
   // «Jetzt» (meditation, the trip, the weekly weight, «Up now») comes first, then «Dein Körper» with the body and Aktiv
-  await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meditation');
+  // «Meine Tour» (Plan 2a, Noah 09.11.2026 «ok 1232»): with a planned tour the card is first, the meditation card right under it
+  await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meinetour');
   const areas = await page.locator('.wall [data-home-sec]').evaluateAll((els) => els.map((e) => e.dataset.homeSec));
   expect(areas.slice(0, 2)).toEqual(['now', 'body']);
   await expect(page.locator('[data-home-sec="now"] h2')).toHaveText(T('Now|home'));
