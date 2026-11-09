@@ -1,6 +1,6 @@
 # Fragen: erster Reiter in Auswerten
 
-PR #1221 · 09.11.2026 · Auftrag: Noah «D b» und «ok» (Plan «ganze App», Schritt 4a; Thread «Tour A–Z / Datencenter»)
+PR #1226 · 09.11.2026 · Auftrag: Noah «D b» und «ok» (Plan «ganze App», Schritt 4a; Thread «Tour A–Z / Datencenter»)
 
 ## Was ist neu
 - Neuer Reiter «Fragen» (`#/auswerten/fragen`, `src/pages/Fragen.svelte`) als **erster** Reiter in Auswerten, vor «Übersicht». Sechs Fragen, je eine pro Gruppe aus dem Entwurf: Liegt mein Ruhepuls in meinem Üblichen? Werde ich schneller? Wie ging es mir vor und nach meiner letzten Tour? Schlafe ich nach einem Tag mit Fahrt kürzer? Was ist bei meinen Velos fällig? Wie ist dieses Jahr gegen das letzte?
@@ -26,7 +26,7 @@ PR #1221 · 09.11.2026 · Auftrag: Noah «D b» und «ok» (Plan «ganze App», 
 - keine neuen
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- Plan «ganze App»: Schritt 4a steht auf gebaut (#1221). Danach 2a, dann 2b, dann Pause für die echte Tour.
+- Plan «ganze App»: Schritt 4a steht auf gebaut (#1226). Danach 2a, dann 2b, dann Pause für die echte Tour.
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Aktiv › Auswerten öffnen: ganz links steht der Reiter «Fragen». Tippen: sechs Karten.
