@@ -24,7 +24,7 @@ export default {
   'Last backup {n} day ago.': 'Letztes Backup vor {n} Tag.',
   'Last backup {n} days ago.': 'Letztes Backup vor {n} Tagen.',
   'Help|me': 'Hilfe',
-  'Handbook, keyboard shortcuts, show the intro again': 'Handbuch, Tastenkürzel, Einführung nochmals zeigen',
+  'Handbook, keyboard shortcuts, show the intro again': 'Handbuch, Tastenkürzel, Rundgang nochmals zeigen',
   'Try it out, clean up test data': 'Ausprobieren, Testdaten aufräumen',
   'all in order': 'alles in Ordnung',
 

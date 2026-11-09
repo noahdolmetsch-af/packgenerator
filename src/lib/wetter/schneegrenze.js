@@ -7,16 +7,20 @@
  *   level minus 300 m (the rule of thumb of the map and the ski tours, «wenn nicht verfügbar wird a angezeigt»).
  *   Rounded to 100 m: it is a forecast, not a measurement.
  * - lineNow, lineRange, lineSlots: the line now, its low and high over the day (6–21 h) and at six times.
- * - lowHint (4a): the line is down to your own height (the height of the place, or the one you set).
+ * - lowHint (4a): the line is down to your own height (the height of the place, or the one you set) AND in the
+ *   same hour precipitation is expected AND it is cold enough at the place (08.11.2026: the line alone says only
+ *   «where snow would fall if it fell», not that it falls).
  *
  * Everything is a suggestion and switchable: settings 'snowOwnM' (own height, empty = the place) and
  * 'snowHome' (false = no line on Heute). Pure functions, tested in tests/schneegrenze.test.js.
  */
-import { hoursBetween, localDate, localHour, atLocal } from './kern.js';
+import { hoursBetween, localDate, localHour, atLocal, wet } from './kern.js';
 
 /** How far below the freezing level snow still falls (the same rule as map/wx.js and kern.js snowOnRoute). */
 export const BELOW_FREEZING_M = 300;
 export const STEP_M = 100;
+/** At or below this temperature at the place (2 m) precipitation can still come as snow (08.11.2026). */
+export const SNOW_TEMP_C = 2;
 export const SLOTS = [6, 9, 12, 15, 18, 21];
 export const OWN_KEY = 'snowOwnM';
 export const HOME_KEY = 'snowHome';
@@ -68,14 +72,19 @@ export const allApprox = (items) => items.length > 0 && items.every((x) => x.own
 export const ownHeight = (core, set) => (fin(set) && set >= 0 ? Math.round(set) : fin(core?.elev) ? Math.round(core.elev) : null);
 
 /**
- * 4a: the line (the lowest one from now to the end of the day) is down to your height (one step of 100 m
- * above it still counts: the line is rounded). → { m, ownM } or null. A hint, never a warning of danger.
+ * 4a: snow is possible at your height: in ONE hour from now to the end of the day the line is down to your height
+ * (one step of 100 m above it still counts: the line is rounded), precipitation is expected there (`wet`: a chance
+ * of 50 % or more, or 0.3 mm) and the temperature at the place is at most SNOW_TEMP_C (a missing temperature does
+ * not block). → { m (the lowest line of those hours), ownM, from (ms of the first such hour), hour (its local hour),
+ * running (that hour is already on) } or null. A hint, never a warning of danger. A dry or mild day gives none.
  */
 export function lowHint(core, now = Date.now(), ownM = null) {
   if (!fin(ownM)) return null;
   const off = core?.offset ?? 0;
-  const ls = hoursBetween(core, now - 36e5 + 1, atLocal(localDate(now, off), 24, off)).map(lineOf).filter(Boolean);
-  if (!ls.length) return null;
-  const m = Math.min(...ls.map((l) => l.m));
-  return m <= ownM + STEP_M ? { m, ownM } : null;
+  const hit = hoursBetween(core, now - 36e5 + 1, atLocal(localDate(now, off), 24, off))
+    .map((h) => ({ h, line: lineOf(h) }))
+    .filter(({ h, line }) => line && line.m <= ownM + STEP_M && wet(h) && !(fin(h.temp) && h.temp > SNOW_TEMP_C));
+  if (!hit.length) return null;
+  const first = hit[0].h;
+  return { m: Math.min(...hit.map((x) => x.line.m)), ownM, from: first.ms, hour: localHour(first.ms, off), running: first.ms <= now };
 }

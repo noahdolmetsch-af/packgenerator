@@ -6,7 +6,7 @@ export default {
   'from {n} °C': 'ab {n} °C',
   'My question: {q}': 'Meine Frage: {q}',
   'From my Pack Generator app (only the entries that fit):': 'Aus meiner Pack-Generator-App (nur die passenden Einträge):',
-  'Learnings|claude': 'Lernpunkte',
+  'Learnings|claude': 'Erkenntnisse',
   '(nothing in the app fits this question)': '(in der App passt nichts zu dieser Frage)',
   'Please answer briefly.': 'Bitte antworte kurz.',
   'Chrome could not answer. Try again later.': 'Chrome konnte nicht antworten. Versuch es später nochmals.',

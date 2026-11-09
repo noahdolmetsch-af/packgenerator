@@ -11,7 +11,7 @@
   import { db } from '../lib/db.js';
   import { RACES_KEY, racesOf } from '../lib/race/race.js';
   import { raceChoices } from '../lib/training/plans.js';
-  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, setPeriod, setNext, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, timeline, progress, typeProgress, untilStart, timeCheck, applyAuto } from '../lib/weg/weg.js';
+  import { WEG_KEY, KINDS, PHASE_NAMES, wegOf, newGoal, addGoal, renameGoal, removeGoal, moveGoal, setStart, setPeriod, setNext, addSteps, addOwnStep, renameStep, removeStep, setDone, setDue, saveTemplate, renameTemplate, removeTemplate, timeline, progress, typeProgress, untilStart, timeCheck, applyAuto } from '../lib/weg/weg.js';
   import { TYPES, typeOf, suggestions } from '../lib/weg/types/index.js';
   import { milestones } from '../lib/weg/types/proben.js';
   import { windowOf, sayWindow } from '../lib/weg/wetter.js';
@@ -51,7 +51,7 @@
   const gi = $derived(goal ? w.goals.findIndex((g) => g.id === goal.id) : -1);
 
   async function save(next) {
-    await db.settings.put({ key: WEG_KEY, value: { goals: next.goals, onToday: next.onToday } });
+    await db.settings.put({ key: WEG_KEY, value: { goals: next.goals, onToday: next.onToday, templates: next.templates ?? [] } });
   }
   const putGoal = (g) => save({ ...w, goals: w.goals.map((x) => (x.id === g.id ? g : x)) });
   const pick = (id) => (location.hash = `#/trips/weg?g=${encodeURIComponent(id)}`);
@@ -195,7 +195,10 @@
     }
   }
   const nGoal = $derived(newGoal({ title: nTitle || ' ', kind: nKind, start: nStart, tripId: nKind === 'race' ? nRace : ''}, { id: 'draft', now: '' }));
-  const sugg = $derived(suggestions(nGoal));
+  let nTpl = $state(''); // a saved way to start from («My ways»), '' = the app's suggestions
+  const tpl = $derived(w.templates.find((x) => x.id === nTpl) ?? null);
+  const sugg = $derived(tpl ? tpl.steps : suggestions(nGoal));
+  const stepText = (x) => (tpl ? x.title : t(x.title)); // names you typed never go through t()
   const suggKey = (s, i) => `${s.type}:${s.key ?? i}`;
   function openAdd() {
     adding = true;
@@ -204,15 +207,35 @@
     nStart = '';
     nPick = {};
     nRace = '';
+    nTpl = '';
   }
   async function create(e) {
     e.preventDefault();
     if (!nTitle.trim()) return;
     let g = newGoal({ title: nTitle, kind: nKind, start: nStart, tripId: nKind === 'race' ? nRace : '' });
-    g = addSteps(g, sugg.filter((s, i) => nPick[suggKey(s, i)] !== false).map((s) => ({ ...s, title: t(s.title), note: s.note ? t(s.note) : s.note }))); // the titles are English keys: stored in your language, then yours to change
+    g = addSteps(g, sugg.filter((s, i) => nPick[suggKey(s, i)] !== false).map((s) => ({ ...s, title: stepText(s), note: s.note && !tpl ? t(s.note) : s.note }))); // the titles are English keys: stored in your language, then yours to change
     await save(addGoal(w, g));
     adding = false;
     pick(g.id);
+  }
+
+  // ---- «My ways»: a way saved as a template (idea 5c): save, rename, delete with Undo
+  let tplName = $state('');
+  let tplSaved = $state('');
+  async function saveAsTemplate(e) {
+    e.preventDefault();
+    const name = (tplName.trim() || goal?.title || '').trim();
+    const next = saveTemplate(w, goal, name);
+    if (next === w) return;
+    await save(next);
+    tplSaved = name;
+    tplName = '';
+  }
+  async function removeThisTemplate(x) {
+    if ((await askDelete({ title: t('Delete the saved way "{name}"?', { name: x.name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    const before = $state.snapshot(w);
+    if (nTpl === x.id) nTpl = '';
+    await deleteWithUndo({ run: async () => (await save(removeTemplate(w, x.id)), before), undo: (snap) => save(snap), text: t('"{name}" deleted.', { name: x.name }), name: x.name });
   }
 
   // ---- goal: rename, delete, order
@@ -258,7 +281,7 @@
       return '';
     }
   };
-  const renameValue = $derived(renaming?.kind === 'goal' ? goal?.title : goal?.steps.find((s) => s.id === renaming?.id)?.title);
+  const renameValue = $derived(renaming?.kind === 'template' ? w.templates.find((x) => x.id === renaming.id)?.name : renaming?.kind === 'goal' ? goal?.title : goal?.steps.find((s) => s.id === renaming?.id)?.title);
 </script>
 
 <div class="ich-page weg" data-page="weg">
@@ -286,10 +309,24 @@
         <label class="wg-f"><span>{t('One of your races (optional)')}</span><select class="inp" value={nRace} onchange={(e) => pickRace(e.currentTarget.value)}><option value="">{t('No race chosen')}</option>{#each openRaces as r (r.id)}<option value={r.id}>{r.title}</option>{/each}</select></label>
       {/if}
       <div class="wg-f"><span>{t('Start day')}</span><DateInput bind:value={nStart} data-weg-start /><small class="ich-help">{t('Leave it empty if the day is still open. You can set it later.')}</small></div>
+      {#if w.templates.length}
+        <div class="wg-f" data-weg-mine><span>{t('My ways')}</span>
+          <div class="wg-mine">
+            <button type="button" class="btn" class:hi={!nTpl} aria-pressed={!nTpl} onclick={() => { nTpl = ''; nPick = {}; }}>{t('Suggestions of the app')}</button>
+            {#each w.templates as x (x.id)}
+              <span class="wg-mine-row">
+                <button type="button" class="btn" class:hi={nTpl === x.id} aria-pressed={nTpl === x.id} onclick={() => { nTpl = x.id; nPick = {}; }} data-weg-mine-use>{x.name}</button>
+                <button type="button" class="btn" onclick={() => (renaming = { kind: 'template', id: x.id })} aria-label={t('Rename {name}', { name: x.name })}><Pencil size={16} aria-hidden="true" /></button>
+                <button type="button" class="btn" onclick={() => removeThisTemplate(x)} aria-label={t('Delete {name}', { name: x.name })} data-weg-mine-delete><Trash2 size={16} aria-hidden="true" /></button>
+              </span>
+            {/each}
+          </div>
+        </div>
+      {/if}
       {#if sugg.length}
         <div class="wg-f"><span>{t('Steps to suggest (untick what you do not want)')}</span>
           {#each sugg as s, i (suggKey(s, i))}
-            <label class="wg-pick"><input type="checkbox" checked={nPick[suggKey(s, i)] !== false} onchange={(e) => (nPick = { ...nPick, [suggKey(s, i)]: e.currentTarget.checked })} /> {t(s.title)}</label>
+            <label class="wg-pick"><input type="checkbox" checked={nPick[suggKey(s, i)] !== false} onchange={(e) => (nPick = { ...nPick, [suggKey(s, i)]: e.currentTarget.checked })} /> {stepText(s)}</label>
           {/each}
         </div>
       {:else}
@@ -413,6 +450,17 @@
       </section>
     {/if}
 
+    {#if back}
+      <section class="card pad wg-save" data-weg-vorlage aria-label={t('Save as template')}>
+        <h3>{t('Save as template')}</h3>
+        <form onsubmit={saveAsTemplate}>
+          <input class="inp" bind:value={tplName} maxlength="80" placeholder={goal.title} aria-label={t('Name of the saved way')} data-weg-vorlage-name />
+          <div class="wg-acts"><button type="submit" class="btn hi" data-weg-vorlage-save>{t('Save template')}</button></div>
+        </form>
+        <p class="wg-sub">{tplSaved ? t('Saved as "{name}". It stands in «New way» under «My ways».', { name: tplSaved }) : t('Next time it stands in «New way» under «My ways». Ticks and your own days are not kept, the steps and their distance to the start are.')}</p>
+      </section>
+    {/if}
+
     {#if goal && !goal.start}
       <section class="card pad wg-wetter wg-open" data-weg-startvorschlag aria-label={t('Find a dry start')}>
         <h3>{t('While the start day is open')}</h3>
@@ -525,13 +573,14 @@
   {/if}
 </div>
 
-{#if renaming && goal}
+{#if renaming && (goal || renaming.kind === 'template')}
   <RenameSheet
-    kicker={renaming.kind === 'goal' ? t('Way|kicker') : t('Step')}
-    title={renaming.kind === 'goal' ? t('Rename way') : t('Rename step')}
+    kicker={renaming.kind === 'goal' ? t('Way|kicker') : renaming.kind === 'template' ? t('Saved way') : t('Step')}
+    title={renaming.kind === 'goal' ? t('Rename way') : renaming.kind === 'template' ? t('Rename saved way') : t('Rename step')}
     value={renameValue}
     onsave={async (name) => {
-      await putGoal(renaming.kind === 'goal' ? renameGoal({ goals: [goal] }, goal.id, name).goals[0] : renameStep(goal, renaming.id, name));
+      if (renaming.kind === 'template') await save(renameTemplate(w, renaming.id, name));
+      else await putGoal(renaming.kind === 'goal' ? renameGoal({ goals: [goal] }, goal.id, name).goals[0] : renameStep(goal, renaming.id, name));
       offerDone(t('Renamed to "{name}".', { name }));
     }}
     onclose={() => (renaming = null)}
@@ -593,6 +642,10 @@
   .wg-next { border-left: 4px solid var(--accent); }
   .wg-next h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
   .wg-next .wg-acts { margin-top: var(--sp-3); }
+  .wg-save h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-save .wg-acts { margin-top: var(--sp-3); }
+  .wg-mine { display: grid; gap: var(--sp-2); justify-items: start; }
+  .wg-mine-row { display: flex; gap: var(--sp-2); flex-wrap: wrap; align-items: center; }
   .wg-days { list-style: none; margin: var(--sp-3) 0 var(--sp-2); padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(3.6rem, 1fr)); gap: var(--sp-2); }
   .wg-days li { display: grid; justify-items: center; gap: 2px; padding: var(--sp-2) var(--sp-1); border-radius: 12px; border: 1px solid var(--line); background: var(--paper-2); color: var(--ink); text-align: center; }
   .wg-days li:not(.wet) { border-color: var(--ok); }
@@ -606,7 +659,7 @@
   .wg-prow { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-2) 0; }
   .wg-open .wg-acts { margin-top: var(--sp-3); }
   .wg-days small { font-size: var(--fs-small); }
-  .wg-zeit, .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-next, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+  .wg-zeit, .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-save, .wg-next, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
 
   /* the way: one line with dots, «Today» marked on it (mockup G1) */
   .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }

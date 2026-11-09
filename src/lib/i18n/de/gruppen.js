@@ -49,5 +49,5 @@ export default {
   'Delete topic {name}': 'Thema {name} löschen',
   'Rename topic': 'Thema umbenennen',
   'Changes {n} learning.': 'Ändert {n} Learning.',
-  'Changes {n} learnings.': 'Ändert {n} Learnings.',
+  'Changes {n} learnings.': 'Ändert {n} Erkenntnisse.',
 };

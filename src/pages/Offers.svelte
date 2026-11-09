@@ -25,6 +25,7 @@
   import { listWaiting, addWaiting, removeWaiting } from '../lib/booking/waitlist.js';
   import { isTrial, hasTrial, canAddTrial, trialPrice, trialSlots, withoutTrial, earlierTrial, TRIAL_KEY } from '../lib/booking/trial.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
+  import { REMINDER_KEY, REMINDER_WORDS, REMINDER_WORDS_DE, reminderSetting, reminderMessage, saveReminder } from '../lib/booking/reminder.js';
   import '../lib/ich/ich.css';
 
   let { id = '' } = $props();
@@ -285,6 +286,27 @@
     await loadBookings();
   }
 
+  /* reminder to the customers (Noah 04.11.2026 «2a»/«2b», 08.11.2026): the switch for Heute and the text of the message */
+  const reminderQ = liveQuery(async () => (await db.settings.get(REMINDER_KEY))?.value);
+  const reminder = $derived(reminderSetting($reminderQ));
+  const sampleOf = (text) => reminderMessage({ text, name: 'Mia', title: mine?.offer.title ?? '', day: t('tomorrow'), time: '17:00', place: mine?.offer.venues?.[0] || mine?.offer.place || '', hours: mine?.offer.cancelHours ?? null }, t);
+  let remOpen = $state(false);
+  let remDlg = $state();
+  let remText = $state('');
+  $effect(() => {
+    if (remOpen && remDlg && !remDlg.open) remDlg.showModal();
+  });
+  function openReminder() {
+    remText = reminder.text;
+    remOpen = true;
+  }
+  const flipReminder = (on) => saveReminder({ ...reminder, on });
+  async function saveReminderText(e) {
+    e.preventDefault();
+    await saveReminder({ ...reminder, text: remText.trim() });
+    remDlg.close();
+  }
+
   /* the rules (BU1 «So wird gebucht», Ändern) */
   let rulesOpen = $state(false);
   let rulesDlg = $state();
@@ -495,6 +517,13 @@
             {#if o.venues?.length}<li><MapPin size={18} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place|venue')}</b><span>{o.place}</span></li>{/if}
           </ul>
         </section>
+
+        <section class="card" aria-labelledby="of-rem-h" data-reminder-card>
+          <div class="of-wh"><h2 id="of-rem-h">{t('Reminder to the customers')}</h2><button type="button" class="lkb" onclick={openReminder}>{t('Own text')}</button></div>
+          <label class="of-check"><input type="checkbox" checked={reminder.on} onchange={(e) => flipReminder(e.currentTarget.checked)} data-reminder-switch /> {t('Remind me the day before and on the day')}</label>
+          <p class="of-note" data-reminder-sample>{sampleOf(reminder.text)}</p>
+          <p class="of-fine">{t('On the Today page a button opens your message app with this text ready. You send it yourself; the app sends nothing. It is the same text for all your offers.')}</p>
+        </section>
       </div>
     </div>
   </div>
@@ -601,6 +630,20 @@
           <div class="of-foot"><button type="button" class="lkb of-red" onclick={() => (askCancel = true)}><X size={16} aria-hidden="true" />{everyone.length ? t('Cancel the time') : t('Remove the time')}</button></div>
         {/if}
       {/if}
+    </dialog>
+  {/if}
+
+  {#if remOpen}
+    <dialog class="sheet from-below of-sheet" bind:this={remDlg} use:backClose={() => remDlg.close()} onclose={() => (remOpen = false)} aria-labelledby="of-rem-sh">
+      <form onsubmit={saveReminderText}>
+        <div class="of-sh"><h2 id="of-rem-sh">{t('Reminder text')}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => remDlg.close()}><X size={20} aria-hidden="true" /></button></div>
+        <label class="lbl" for="of-rem-text">{t('Your own text (empty: the ready text)')}</label>
+        <textarea id="of-rem-text" class="inp" rows="4" bind:value={remText} placeholder={sampleOf('')}></textarea>
+        <p class="muted">{t('These words are filled in: {words}.', { words: (locale().startsWith('de') ? REMINDER_WORDS_DE : REMINDER_WORDS).map((w) => `{${w}}`).join(' ') })}</p>
+        <p class="lbl">{t('Looks like this')}</p>
+        <p class="of-note" data-reminder-preview>{sampleOf(remText)}</p>
+        <div class="of-foot"><button type="submit" class="btn hi">{t('Save')}</button>{#if remText}<button type="button" class="btn" data-reminder-reset onclick={() => (remText = '')}>{t('Use the ready text')}</button>{/if}<button type="button" class="btn" onclick={() => remDlg.close()}>{t('Cancel')}</button></div>
+      </form>
     </dialog>
   {/if}
 
