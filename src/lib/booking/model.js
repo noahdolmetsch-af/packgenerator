@@ -113,7 +113,9 @@ export const OUTCOMES = ['held', 'late', 'noshow'];
 /** The share of the price that goes on the invoice: late cancel half, no-show all. Noah changes the amount in the form. */
 export const outcomeShare = (outcome) => (outcome === 'late' ? 0.5 : 1);
 // a trial lesson (key «trial», lib/booking/trial.js) always costs the price of its kind: an own price of the customer is for normal lessons
-const priceOf = (offer, slot, rate, outcome) => {
+const priceOf = (offer, slot, rate, outcome, booking = null) => {
+  // a confirmed wish request (Noah 08.11.2026 «1a»): the price the parents saw (per child times the children) counts, not a customer rate
+  if (booking?.wish?.price) return Math.round(booking.wish.price.total * outcomeShare(outcome));
   const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];
   return Math.round((slot?.type === 'trial' && ty ? ty.price : rate ?? ty?.price ?? 0) * outcomeShare(outcome));
 };
@@ -124,8 +126,8 @@ export function invoiceDraft(offer, slot, booking, when, rate = null, outcome = 
   return {
     name: booking.name,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : '',
-    amount: rate != null || ty ? chf(priceOf(offer, slot, rate, outcome)) : '',
-    purpose: [offer.title, ty?.label, when, outcome !== 'held' && tag].filter(Boolean).join(', '),
+    amount: rate != null || ty || booking.wish?.price ? chf(priceOf(offer, slot, rate, outcome, booking)) : '',
+    purpose: [offer.title, booking.wish ? '' : ty?.label, when, outcome !== 'held' && tag].filter(Boolean).join(', '),
     bookings: [{ offer: offer.id, b: booking.id }],
   };
 }
@@ -136,7 +138,7 @@ export function invoiceDraft(offer, slot, booking, when, rate = null, outcome = 
  */
 export function invoiceDraftMany(offer, items, when, rateOf = () => null) {
   const drafts = items.map((x) => invoiceDraft(offer, x.slot, x.booking, when(x.booking), rateOf(x.booking.name), x.outcome, x.tag));
-  const rappen = items.reduce((n, x) => n + priceOf(offer, x.slot, rateOf(x.booking.name), x.outcome), 0);
+  const rappen = items.reduce((n, x) => n + priceOf(offer, x.slot, rateOf(x.booking.name), x.outcome, x.booking), 0);
   const names = [...new Set(drafts.map((d) => d.name))];
   return {
     name: names.join(', '),
@@ -146,6 +148,13 @@ export function invoiceDraftMany(offer, items, when, rateOf = () => null) {
     bookings: drafts.flatMap((d) => d.bookings),
   };
 }
+
+/**
+ * A confirmed wish request has no slot: its time is the wish time Noah confirmed (`pick`). Giving it that `at` lets every place that
+ * works with times (the invoice list, the draft, reminders) treat it like a booked lesson (Noah 08.11.2026 «1a», part 3).
+ */
+export const withWishAt = (bookings = []) =>
+  bookings.map((b) => (b.wish && b.status === 'confirmed' && !b.at && b.pick != null && b.wish.wishes?.[b.pick] ? { ...b, at: b.wish.wishes[b.pick] } : b));
 
 /** Held bookings whose time is over and that have no invoice yet. `now` is «YYYY-MM-DDTHH:MM» (local). */
 export function toInvoice(bookings = [], invoices = [], now = '') {
