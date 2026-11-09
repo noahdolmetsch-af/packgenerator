@@ -174,7 +174,7 @@
 
 <div class="fr" data-page="fragen" data-fragen>
   <header class="ph">
-    <h1 class="title">{t('Questions')}</h1>
+    <h1 class="title">{t('Questions about my data')}</h1>
     <p class="sub">{t('Six questions about your own data. Each answer is one sentence with the number and its limit. An answer never says «because» and never gives advice on health.')}</p>
   </header>
 

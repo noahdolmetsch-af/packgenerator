@@ -69,7 +69,7 @@ test('Fragen: six cards, the first tab, a sentence and a limit each, and the way
 
   await page.goto('./#/auswerten/fragen');
   const root = page.locator('[data-fragen]');
-  await expect(root.locator('h1')).toHaveText(T('Questions'));
+  await expect(root.locator('h1')).toHaveText(T('Questions about my data'));
   await expect(root.locator('[data-frage]')).toHaveCount(6);
   for (const k of ['koerper', 'tempo', 'tour', 'zusammen', 'velo', 'jahr']) await expect(root.locator(`[data-frage="${k}"] [data-frage-antwort]`)).not.toBeEmpty();
 
