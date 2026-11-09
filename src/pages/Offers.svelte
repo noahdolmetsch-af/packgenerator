@@ -26,6 +26,7 @@
   import { isTrial, hasTrial, canAddTrial, trialPrice, trialSlots, withoutTrial, earlierTrial, TRIAL_KEY } from '../lib/booking/trial.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
   import { CONFIRM_KEY, CONFIRM_MAX, confirmSetting, confirmMessage, confirmSubject, saveConfirm } from '../lib/booking/confirm.js';
+  import { loadDeadlines, saveDeadline, deadlineState, deadlineWord, rosterOf, rosterText } from '../lib/booking/roster.js';
   import { REMINDER_KEY, REMINDER_WORDS, REMINDER_WORDS_DE, reminderSetting, reminderMessage, saveReminder } from '../lib/booking/reminder.js';
   import '../lib/ich/ich.css';
 
@@ -294,6 +295,26 @@
     await loadBookings();
   }
 
+  /* participant list (Noah 05.11.2026 «5c», 09.11.2026): per coming time who comes, free places, who waits, and the deadline */
+  let deadlines = $state({});
+  loadDeadlines().then((d) => (deadlines = d));
+  const deadline = $derived(deadlines[id] ?? '');
+  const deadlineInfo = $derived(deadlineState(deadline, today));
+  async function setDeadline(day) {
+    deadlines = await saveDeadline(id, day);
+  }
+  const roster = $derived(mine ? rosterOf({ ...mine.offer, id: mine.id }, bookings ?? [], waiting, nowAt()) : []);
+  const rosterPeople = $derived(roster.reduce((n, r) => n + r.names.length, 0));
+  async function copyRoster() {
+    const text = rosterText({ title: mine.offer.title, deadline, rows: roster }, t, fmtAt, (d) => fmtDay(d));
+    try {
+      await navigator.clipboard.writeText(text);
+      note = t('List copied.');
+    } catch {
+      note = text;
+    }
+  }
+
   /* reminder to the customers (Noah 04.11.2026 «2a»/«2b», 08.11.2026): the switch for Heute and the text of the message */
   const reminderQ = liveQuery(async () => (await db.settings.get(REMINDER_KEY))?.value);
   const reminder = $derived(reminderSetting($reminderQ));
@@ -530,6 +551,34 @@
               {/each}
             </ul>
           {/if}
+        </section>
+
+        <section class="card" aria-labelledby="of-ro-h" data-roster-card>
+          <div class="of-wh"><h2 id="of-ro-h">{t('Participant list')}</h2>{#if roster.length}<button type="button" class="lkb" data-roster-copy onclick={copyRoster}><Copy size={16} aria-hidden="true" style="margin-right: 4px; vertical-align: -3px" />{t('Copy the list')}</button>{/if}</div>
+          <div class="of-dl">
+            <label class="lbl" for="of-dl">{t('Register by')}</label>
+            <span class="of-two"><input id="of-dl" class="inp" type="date" value={deadline} onchange={(e) => setDeadline(e.currentTarget.value)} data-deadline />{#if deadline}<button type="button" class="lkb" onclick={() => setDeadline('')}>{t('Remove')}</button>{/if}</span>
+            {#if deadlineInfo}<p class={deadlineInfo.state === 'over' ? 'of-warn' : 'muted'} data-deadline-state>{deadlineWord(deadlineInfo, t, tn)}</p>{/if}
+            <p class="of-fine">{t('The deadline is your note: it shows here and in the copied list. The booking page does not close by itself.')}</p>
+          </div>
+          {#if loadErr}<p class="err" role="alert">{loadErr}</p>
+          {:else if !bookings}<p class="muted">{t('Loading…')}</p>
+          {:else if !roster.length}
+            <p class="muted" data-roster-empty>{t('No participants yet. As soon as someone books, this list shows the names, the free places and the waiting list of every time.')}</p>
+            <button type="button" class="btn sm" onclick={copy}><Copy size={16} aria-hidden="true" />{t('Copy link')}</button>
+          {:else}
+            <p class="muted" data-roster-sum>{tn(rosterPeople, '{n} person', '{n} people')} · {tn(roster.length, '{n} time|slot', '{n} times|slot')}</p>
+            <ul class="of-list of-ro">
+              {#each roster as r (r.slot.id)}
+                <li data-roster-row={r.slot.id}>
+                  <button type="button" class="of-row" onclick={() => (slotOpen = r.slot)}><span><b>{fmtAt(r.slot.at)}</b><small>{r.label} · {t('{n} of {m}', { n: r.names.length, m: r.places })}{r.free ? ` · ${tn(r.free, '{n} place free', '{n} places free')}` : ` · ${t('Full|roster')}`}{r.asking ? ` · ${tn(r.asking, '{n} request', '{n} requests')}` : ''}</small></span><ChevronRight size={16} aria-hidden="true" /></button>
+                  <ol class="of-names">{#each r.names as name}<li>{name}</li>{/each}</ol>
+                  {#if r.waiting.length}<p class="muted of-fine" data-roster-wait>{t('Waiting list')}: {r.waiting.join(', ')}</p>{/if}
+                </li>
+              {/each}
+            </ul>
+          {/if}
+          {#if note}<p class="hint" role="status">{note}</p>{/if}
         </section>
       </div>
       <div class="ich-side">
@@ -1128,6 +1177,10 @@
   .of-warn { display: block; color: var(--warn); font-weight: 600; }
   .of-rq { margin: 8px 0 0; }
   .of-rqrow { flex-wrap: wrap; }
+  .of-dl { display: grid; gap: 4px; margin-bottom: 8px; }
+  .of-ro { gap: 12px; }
+  .of-ro > li { padding-bottom: 10px; }
+  .of-names { margin: 4px 0 0; padding-left: 1.6em; display: grid; gap: 2px; }
   .of-ask-n { color: var(--accent, inherit); font-weight: 600; }
 .of-pick { display: flex; gap: 10px; align-items: center; min-width: 0; }
   .of-pick input { width: 22px; height: 22px; flex: none; }
