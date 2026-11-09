@@ -6,7 +6,7 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 
 | Nr | Sache | Früher | Gilt |
 | --- | --- | --- | --- |
-| 1 | Etappe nach der Tour | Review, Rückblick, Debrief | **«Rückblick»**. Schrittleiste: «Planen · Packen · Live · Rückblick · Auswertung» (Noah «b», ersetzt die kurze Leiste vom 26.10.) |
+| 1 | Etappe nach der Tour | Review, Rückblick, Debrief | **«Rückblick»**. Schrittleiste der Tour: die vier Phasen und die Auswertung, **«Planen · Vorbereiten · Unterwegs · Danach · Auswertung»** (Noah «A» und «b», ersetzt die Leisten «Plan · Pack · Live · Review · Analyse» und «Planen · Packen · Live · Rückblick · Auswertung») |
 | 2 | Eigene Erkenntnisse | Gelernt, Erkenntnisse, Learnings | **«Erkenntnisse»**. Der Monatsbrief heisst **«Was die App gelernt hat»** |
 | 3 | Was ich mir wünsche | Einkauf, Wunschliste, Einkaufsliste | **«Wunschliste»** für Reiter und Seite. **«Einkaufsliste»** nur für Vorrat, der knapp wird |
 | 4 | Was ich verliehen habe | Ausgeliehen, Leihliste | **«Leihliste»** |

@@ -18,6 +18,20 @@ export const KINDS = [
 ];
 export const kindOf = (k) => KINDS.find((x) => x.kind === k) ?? KINDS[3];
 
+/**
+ * Prices per child for a wish offer (Noah 07.11.2026 «plus», 08.11.2026 «1a»): by number of children (1 to 4), outdoors and in
+ * the hall, court included, in Rappen. The suggestion; Noah changes every number. Same rule as api/_lib/booking.js wishPrice.
+ */
+export const WISH_PRICES = { out: [10000, 7000, 6000, 5500], hall: [14000, 9000, 7500, 6500] };
+/** { hall, perKid, total } for the ticked places and the number of children; a hall among the places makes it the hall price. null without a price table. */
+export function wishPrice(offer, venues = [], kids = 1) {
+  const p = offer?.prices;
+  if (!p || !Number.isInteger(kids) || kids < 1 || kids > 4) return null;
+  const hall = venues.some((v) => (offer.hallVenues ?? []).includes(v));
+  const perKid = (hall ? p.hall : p.out)[kids - 1];
+  return { hall, perKid, total: perKid * kids };
+}
+
 /** A new offer of this kind; tr translates the suggested names (t in the app). */
 export function newOffer(kind, tr = (s) => s) {
   const k = kindOf(kind);
@@ -99,7 +113,9 @@ export const OUTCOMES = ['held', 'late', 'noshow'];
 /** The share of the price that goes on the invoice: late cancel half, no-show all. Noah changes the amount in the form. */
 export const outcomeShare = (outcome) => (outcome === 'late' ? 0.5 : 1);
 // a trial lesson (key «trial», lib/booking/trial.js) always costs the price of its kind: an own price of the customer is for normal lessons
-const priceOf = (offer, slot, rate, outcome) => {
+const priceOf = (offer, slot, rate, outcome, booking = null) => {
+  // a confirmed wish request (Noah 08.11.2026 «1a»): the price the parents saw (per child times the children) counts, not a customer rate
+  if (booking?.wish?.price) return Math.round(booking.wish.price.total * outcomeShare(outcome));
   const ty = (offer.types ?? []).find((x) => x.key === slot?.type) ?? offer.types?.[0];
   return Math.round((slot?.type === 'trial' && ty ? ty.price : rate ?? ty?.price ?? 0) * outcomeShare(outcome));
 };
@@ -110,8 +126,8 @@ export function invoiceDraft(offer, slot, booking, when, rate = null, outcome = 
   return {
     name: booking.name,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact) ? contact : '',
-    amount: rate != null || ty ? chf(priceOf(offer, slot, rate, outcome)) : '',
-    purpose: [offer.title, ty?.label, when, outcome !== 'held' && tag].filter(Boolean).join(', '),
+    amount: rate != null || ty || booking.wish?.price ? chf(priceOf(offer, slot, rate, outcome, booking)) : '',
+    purpose: [offer.title, booking.wish ? '' : ty?.label, when, outcome !== 'held' && tag].filter(Boolean).join(', '),
     bookings: [{ offer: offer.id, b: booking.id }],
   };
 }
@@ -122,7 +138,7 @@ export function invoiceDraft(offer, slot, booking, when, rate = null, outcome = 
  */
 export function invoiceDraftMany(offer, items, when, rateOf = () => null) {
   const drafts = items.map((x) => invoiceDraft(offer, x.slot, x.booking, when(x.booking), rateOf(x.booking.name), x.outcome, x.tag));
-  const rappen = items.reduce((n, x) => n + priceOf(offer, x.slot, rateOf(x.booking.name), x.outcome), 0);
+  const rappen = items.reduce((n, x) => n + priceOf(offer, x.slot, rateOf(x.booking.name), x.outcome, x.booking), 0);
   const names = [...new Set(drafts.map((d) => d.name))];
   return {
     name: names.join(', '),
@@ -132,6 +148,13 @@ export function invoiceDraftMany(offer, items, when, rateOf = () => null) {
     bookings: drafts.flatMap((d) => d.bookings),
   };
 }
+
+/**
+ * A confirmed wish request has no slot: its time is the wish time Noah confirmed (`pick`). Giving it that `at` lets every place that
+ * works with times (the invoice list, the draft, reminders) treat it like a booked lesson (Noah 08.11.2026 «1a», part 3).
+ */
+export const withWishAt = (bookings = []) =>
+  bookings.map((b) => (b.wish && b.status === 'confirmed' && !b.at && b.pick != null && b.wish.wishes?.[b.pick] ? { ...b, at: b.wish.wishes[b.pick] } : b));
 
 /** Held bookings whose time is over and that have no invoice yet. `now` is «YYYY-MM-DDTHH:MM» (local). */
 export function toInvoice(bookings = [], invoices = [], now = '') {

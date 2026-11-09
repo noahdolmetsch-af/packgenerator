@@ -197,7 +197,6 @@ export default {
   'Booked at once': 'Sofort gebucht',
   'Confirmed. Now tell {name}:': 'Bestätigt. Sag es jetzt {name}:',
   'Declined. Now tell {name}:': 'Abgesagt. Sag es jetzt {name}:',
-  '{title} on {when} is confirmed. See you there!': '{title} am {when} ist bestätigt. Bis dann!',
   '{title} on {when} does not work for me. Please pick another time with the same link.': '{title} am {when} passt bei mir leider nicht. Bitte such dir mit demselben Link eine andere Zeit aus.',
   Confirm: 'Bestätigen',
   Decline: 'Ablehnen',

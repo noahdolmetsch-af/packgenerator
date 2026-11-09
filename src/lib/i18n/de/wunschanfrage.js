@@ -8,7 +8,6 @@ export default {
   '{n} open': '{n} offen',
   'Found me through': 'Gefunden über',
   'Confirm {when}': '{when} bestätigen',
-  'Hello {name}! The lesson is booked: {title} on {when}. See you then!': 'Guten Tag {name}! Die Stunde ist gebucht: {title} am {when}. Bis dann!',
   'Flyer': 'Flyer',
   'Google': 'Google',
   'Recommendation': 'Empfehlung',
