@@ -20,11 +20,12 @@ export const saveConfirm = (value, db = appDb) => db.settings.put({ key: CONFIRM
 
 /**
  * The message for one confirmed lesson. tr: the translator (t). Greeting and lesson first; then, only where there is
- * something to say: the place, the meeting point, the pick-up, the rain rule and the cancel rule of the offer.
+ * something to say: the price per child (wish requests with a price table), the place, the meeting point, the pick-up, the rain rule and the cancel rule of the offer.
  */
-export function confirmMessage({ name, title, when, place = '', hours = null, meet = '', pickup = '', rain = '' }, tr = (s) => s) {
-  const v = { name, title, when, place, hours: hours ?? '', meet, pickup, rain };
+export function confirmMessage({ name, title, when, place = '', hours = null, perKid = '', meet = '', pickup = '', rain = '' }, tr = (s) => s) {
+  const v = { name, title, when, place, hours: hours ?? '', perKid, meet, pickup, rain };
   const parts = [tr('Hello {name}! The lesson is booked: {title} on {when}.', v)];
+  if (perKid) parts.push(tr('Price: CHF {perKid} per child.', v));
   if (place) parts.push(tr('Place: {place}.', v));
   if (meet) parts.push(tr('Meeting point: {meet}.', v));
   if (pickup) parts.push(tr('Pick-up: {pickup}.', v));

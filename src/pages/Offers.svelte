@@ -16,7 +16,7 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
+  import { KINDS, WISH_PRICES, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin, FileImage } from '@lucide/svelte';
   import { rememberCustomer, listCustomers, saveCustomers, rateOf, packCover } from '../lib/booking/customers.js';
@@ -219,7 +219,7 @@
   const confirmQ = liveQuery(async () => (await db.settings.get(CONFIRM_KEY))?.value);
   const confirmCfg = $derived(confirmSetting($confirmQ));
   const placeOf = (s) => s?.venue || mine?.offer.place || '';
-  const confirmText = (name, at, place, cfg = confirmCfg) => confirmMessage({ name, title: mine?.offer.title ?? '', when: fmtAt(at), place, hours: mine?.offer.cancelHours ?? null, ...cfg }, t);
+  const confirmText = (name, at, place, cfg = confirmCfg, perKid = '') => confirmMessage({ name, title: mine?.offer.title ?? '', when: fmtAt(at), place, hours: mine?.offer.cancelHours ?? null, perKid, ...cfg }, t);
   const confirmSubj = (at) => confirmSubject({ title: mine?.offer.title ?? '', when: fmtAt(at) }, t);
   const replyText = (s, decision, b = null) => decision === 'confirm'
     ? confirmText(b?.name ?? '', s.at, placeOf(s))
@@ -254,7 +254,8 @@
     }
     await loadBookings();
   }
-  const wishText = (r) => confirmText(r.b.name, r.at, r.b.wish?.venues?.length === 1 ? r.b.wish.venues[0] : '');
+  const priceLine = (p) => t('CHF {perKid} per child · CHF {total} in all · {where}', { perKid: chf(p.perKid), total: chf(p.total), where: p.hall ? t('hall price') : t('outdoor price') });
+  const wishText = (r) => confirmText(r.b.name, r.at, r.b.wish?.venues?.length === 1 ? r.b.wish.venues[0] : '', confirmCfg, r.b.wish?.price ? chf(r.b.wish.price.perKid) : '');
   /* rain or other reasons (Noah 04.11.2026 «1a»): the message offers free times Noah picks; nothing is sent here */
   const alternativesOf = (s) => (mine ? freeAlternatives(mine.offer, bookings ?? [], s.id, s.at > nowAt() ? s.at : nowAt(), 5) : []);
   let unpicked = $state([]); // ids of offered times Noah unticked (the first three start ticked)
@@ -341,9 +342,14 @@
   });
   function openRules() {
     const o = mine.offer;
-    draft = { title: o.title, place: o.place, venuesText: (o.venues ?? []).join(', '), mode: o.mode ?? 'instant', minutes: o.minutes, pay: o.pay, cancelHours: o.cancelHours, types: o.types.map((x) => ({ ...x, chf: chf(x.price) })), trial: hasTrial(o) };
+    draft = { title: o.title, place: o.place, venuesText: (o.venues ?? []).join(', '), mode: o.mode ?? 'instant', minutes: o.minutes, pay: o.pay, cancelHours: o.cancelHours, types: o.types.map((x) => ({ ...x, chf: chf(x.price) })), trial: hasTrial(o), prices: priceTexts(o.prices ?? WISH_PRICES), hall: [...(o.hallVenues ?? [])] };
     rulesOpen = true;
   }
+  /* wish offers (Noah 08.11.2026 «1a»): the price per child by number of children, outdoors and in the hall, and which places are halls */
+  const priceTexts = (p) => ({ out: p.out.map((x) => chf(x)), hall: p.hall.map((x) => chf(x)) });
+  const priceRappen = (texts) => texts.map((x) => Math.max(0, Math.min(1_000_000, Math.round(Number(String(x).replace(',', '.')) * 100) || 0)));
+  const draftVenues = $derived(draft ? draft.venuesText.split(',').map((v) => v.trim()).filter(Boolean).slice(0, 4) : []);
+  const toggleHall = (v) => (draft.hall = draft.hall.includes(v) ? draft.hall.filter((x) => x !== v) : [...draft.hall, v]);
   /* the switch «Trial lesson»: the kind is added to the draft with half the price of the first kind, or taken out */
   function flipTrial(on) {
     draft.trial = on;
@@ -361,6 +367,13 @@
     // a trial kind switched off: its times become times of the first other kind, none is lost
     const base = !draft.trial && hasTrial(mine.offer) ? withoutTrial(mine.offer) : mine.offer;
     const next = { ...base, title: draft.title.trim() || mine.offer.title, place: draft.place.trim(), mode: draft.mode, venues: draft.venuesText.split(',').map((v) => v.trim()).filter(Boolean).slice(0, 4), minutes: Math.max(0, Math.round(Number(draft.minutes) || 0)), pay: draft.pay, cancelHours: Math.max(0, Math.round(Number(draft.cancelHours) || 0)), types };
+    if (draft.mode === 'wish') {
+      next.prices = { out: priceRappen(draft.prices.out), hall: priceRappen(draft.prices.hall) };
+      next.hallVenues = draft.hall.filter((v) => next.venues.includes(v));
+    } else {
+      delete next.prices;
+      delete next.hallVenues;
+    }
     if (await save(next)) rulesDlg.close();
   }
 </script>
@@ -483,6 +496,7 @@
                     <span><b>{b.name}</b><small>{b.contact}</small>
                       <small>{tn(b.wish.kids, '{n} child', '{n} children')}{b.wish.kidNames ? `: ${b.wish.kidNames}` : ''}</small>
                       {#if b.wish.venues.length}<small>{t('Places|venues')}: {b.wish.venues.join(' · ')}</small>{/if}
+                      {#if b.wish.price}<small data-wish-price><b>{priceLine(b.wish.price)}</b></small>{/if}
                       {#if b.wish.source}<small>{t('Found me through')}: {sourceName(b.wish.source)}</small>{/if}
                       {#if b.note}<small class="of-note">{b.note}</small>{/if}</span>
                     <span class="of-two">
@@ -708,6 +722,24 @@
         <label class="lbl" for="of-venues">{t('Places to choose from (separated by commas)')}</label><input id="of-venues" class="inp" bind:value={draft.venuesText} placeholder={t('e.g. Court by the lake, Indoor hall')} />
         <p class="lbl">{t('Booking')}</p>
         <Seg options={[{ key: 'request', name: t('Request, I answer') }, ...(mine.offer.kind === 'tennis' || mine.offer.kind === 'own' ? [{ key: 'wish', name: t('Wish time, I answer') }] : []), { key: 'instant', name: t('Booked at once') }]} value={draft.mode} onchange={(k) => (draft.mode = k)} label={t('Booking')} />
+        {#if draft.mode === 'wish'}
+          <fieldset class="of-type" data-wish-prices>
+            <legend>{t('Price per child')}</legend>
+            <p class="muted">{t('Court included. The parents see the price for the number of children they enter. If a hall is among the ticked places, the hall price counts until you confirm.')}</p>
+            <span class="of-two of-ph"><span></span><span><b>{t('Outdoors')}</b></span><span><b>{t('Hall')}</b></span></span>
+            {#each [0, 1, 2, 3] as i (i)}
+              <span class="of-two of-pr">
+                <label class="lbl" for={`of-po-${i}`}>{tn(i + 1, '{n} child', '{n} children')}</label>
+                <input id={`of-po-${i}`} class="inp" inputmode="decimal" bind:value={draft.prices.out[i]} aria-label={t('{n} children, outdoors', { n: i + 1 })} />
+                <input id={`of-ph-${i}`} class="inp" inputmode="decimal" bind:value={draft.prices.hall[i]} aria-label={t('{n} children, hall', { n: i + 1 })} />
+              </span>
+            {/each}
+            {#if draftVenues.length}
+              <p class="lbl">{t('Which of your places is a hall?')}</p>
+              {#each draftVenues as v (v)}<label class="of-check"><input type="checkbox" checked={draft.hall.includes(v)} onchange={() => toggleHall(v)} data-hall-place /> {v}</label>{/each}
+            {/if}
+          </fieldset>
+        {/if}
         <p class="lbl">{t('Payment')}</p>
         <Seg options={[{ key: 'site', name: t('on site') }, { key: 'online', name: t('online (test)') }]} value={draft.pay} onchange={(k) => (draft.pay = k)} label={t('Payment')} />
         <label class="lbl" for="of-cancel">{t('People may cancel up to … hours before')}</label><input id="of-cancel" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.cancelHours} />
@@ -1078,8 +1110,16 @@
     background: var(--bad);
     color: var(--paper);
   }
+  .of-two.of-pr,
+  .of-two.of-ph {
+    grid-template-columns: minmax(70px, 1fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
+    align-items: center;
+  }
+  .of-pr .lbl {
+    margin: 0;
+  }
   @media (max-width: 640px) {
-    .of-two {
+    .of-two:not(.of-pr):not(.of-ph) {
       grid-template-columns: 1fr;
     }
   }

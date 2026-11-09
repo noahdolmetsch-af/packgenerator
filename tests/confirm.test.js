@@ -27,6 +27,11 @@ describe('Bestätigung: Einstellung und Text', () => {
     expect(confirmMessage({ ...v, meet: '', pickup: '' }, tr)).toContain('If it rains');
     expect(confirmMessage({ ...v, meet: '', pickup: '' }, tr)).not.toContain('Meeting point');
   });
+  it('a wish request with a price table names the price per child right after the lesson', () => {
+    const m = confirmMessage({ ...v, perKid: '72.-' }, tr);
+    expect(m).toContain('on Mon 12 Nov · 17:00. Price: CHF 72.- per child. Place: Mythenquai.');
+    expect(confirmMessage({ ...v, perKid: '' }, tr)).not.toContain('Price');
+  });
   it('the e-mail has a subject, an SMS none', () => {
     expect(confirmSubject(v, tr)).toBe('Confirmed: Tennis lesson, Mon 12 Nov · 17:00');
     expect(contactHref('mia@example.test', 'Hi', confirmSubject({ title: 'T', when: 'W' }, tr))).toBe('mailto:mia@example.test?subject=Confirmed%3A%20T%2C%20W&body=Hi');

@@ -1,6 +1,7 @@
 // Bestätigung an die Kunden (Noah 05.11.2026 «5c», 09.11.2026): fertiger Text mit Ort, Besammlung, Abholung, Regen
 export default {
   'Hello {name}! The lesson is booked: {title} on {when}.': 'Hallo {name}! Die Stunde ist gebucht: {title} am {when}.',
+  'Price: CHF {perKid} per child.': 'Preis: CHF {perKid} pro Kind.',
   'Meeting point: {meet}.': 'Besammlung: {meet}.',
   'Pick-up: {pickup}.': 'Abholung: {pickup}.',
   'If it rains: {rain}.': 'Bei Regen: {rain}.',

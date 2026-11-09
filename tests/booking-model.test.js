@@ -1,7 +1,7 @@
 // Termine buchen (BU1–BU5): the shared rules of the app pages and the booking page.
 import { describe, it, expect } from 'vitest';
-import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf, outcomeShare } from '../src/lib/booking/model.js';
-import { cleanOffer } from '../api/_lib/booking.js';
+import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf, outcomeShare, WISH_PRICES, wishPrice } from '../src/lib/booking/model.js';
+import { cleanOffer, cleanPrices, wishPrice as serverWishPrice } from '../api/_lib/booking.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
 describe('the offers', () => {
@@ -119,5 +119,21 @@ describe('the invoice of a booking', () => {
     const many = invoiceDraftMany(offer, [{ slot: { type: 'one' }, booking: b, outcome: 'late', tag: 'spät' }, { slot: { type: 'one' }, booking: { ...b, id: 'b2' }, outcome: 'held', tag: '' }], (x) => `am ${x.id}`);
     expect(many.amount).toBe('90');
     expect(many.purpose).toBe('Tennis-Lektion, am b1 (spät); am b2');
+  });
+});
+
+describe('the price of a wish request (Noah 08.11.2026 «1a»)', () => {
+  const offer = { prices: WISH_PRICES, hallVenues: ['Lengg Halle'] };
+  it('suggests the prices Noah decided on and the server keeps them', () => {
+    expect(WISH_PRICES).toEqual({ out: [10000, 7000, 6000, 5500], hall: [14000, 9000, 7500, 6500] });
+    expect(cleanPrices(WISH_PRICES)).toEqual(WISH_PRICES);
+  });
+  it('counts per child and in all, and a hall among the places makes it the hall price', () => {
+    expect(wishPrice(offer, ['Mythenquai'], 3)).toEqual({ hall: false, perKid: 6000, total: 18000 });
+    expect(wishPrice(offer, ['Mythenquai', 'Lengg Halle'], 2)).toEqual({ hall: true, perKid: 9000, total: 18000 });
+    expect(wishPrice({}, ['Mythenquai'], 1)).toBeNull();
+  });
+  it('is the same on the page and on the server', () => {
+    for (const venues of [['Mythenquai'], ['Lengg Halle'], ['Mythenquai', 'Lengg Halle']]) for (const kids of [1, 2, 3, 4, 5]) expect(wishPrice(offer, venues, kids)).toEqual(serverWishPrice(offer, venues, kids));
   });
 });

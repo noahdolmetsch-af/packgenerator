@@ -89,3 +89,49 @@ test('an offer in mode request shows no wish form', async ({ page }) => {
   await page.goto(`./buchen/#${id}`);
   await expect(page.locator('[data-wish-form]')).toHaveCount(0);
 });
+
+test('the price follows the number of children and the hall (Noah 1a)', async ({ page }) => {
+  await page.goto('./#/me/offers');
+  await page.locator('.of-chips .btn').first().click();
+  await expect(page).toHaveURL(/#\/me\/offers\/tennis-[a-z0-9]+$/);
+  const id = page.url().split('/').at(-1);
+
+  // wish mode shows the suggested table; Lengg Halle is a hall
+  await page.getByRole('button', { name: T('Change') }).click();
+  const rules = page.getByRole('dialog', { name: T('How booking works') });
+  await rules.getByLabel(T('Places to choose from (separated by commas)')).fill('Mythenquai, Lengg Halle');
+  await rules.getByRole('button', { name: T('Wish time, I answer') }).click();
+  const table = rules.locator('[data-wish-prices]');
+  await expect(table.locator('#of-po-0')).toHaveValue('100');
+  await expect(table.locator('#of-ph-1')).toHaveValue('90');
+  await table.locator('#of-po-1').fill('72');
+  await table.locator('[data-hall-place]').nth(1).check();
+  await rules.getByRole('button', { name: T('Save') }).click();
+  await expect(rules).toBeHidden();
+  await expect(page.locator('.of-rules')).toContainText(T('wish times, you answer within 24 h'));
+
+  // the parents: outdoors 2 children = 72 per child; with the hall ticked the hall price counts
+  await page.goto(`./buchen/#${id}`);
+  const form = page.locator('[data-wish-form]');
+  await expect(form).toBeVisible();
+  await form.getByRole('button', { name: 'Mythenquai' }).click();
+  await expect(form.locator('[data-wish-price]')).toContainText('CHF 100');
+  await form.locator('[data-wish-kids]').locator('xpath=following-sibling::button').click();
+  await expect(form.locator('[data-wish-price]')).toContainText('CHF 72');
+  await expect(form.locator('[data-wish-price]')).toContainText('CHF 144');
+  await form.getByRole('button', { name: 'Lengg Halle' }).click();
+  await expect(form.locator('[data-wish-price]')).toContainText('CHF 90');
+  await expect(form.locator('[data-wish-price]')).toContainText('CHF 180');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  await form.getByLabel(T('Your name|formal')).fill('Anna Beispiel');
+  await form.getByLabel(T('Phone or e-mail')).fill('079 000 00 00');
+  await form.getByRole('button', { name: T('Send request') }).click();
+  await expect(page.locator('[data-wish-sent]')).toContainText('CHF 90');
+
+  // Noah sees the price on the request and in the message
+  await page.goto(`./#/me/offers/${id}`);
+  const card = page.locator('[data-wishes]');
+  await expect(card.locator('[data-wish-price]')).toContainText('CHF 90');
+  await card.locator('[data-wish-pick]').first().click();
+  await expect(card.getByRole('link', { name: T('Write') })).toHaveAttribute('href', /body=.*90/);
+});
