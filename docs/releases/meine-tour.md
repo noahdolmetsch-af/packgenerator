@@ -1,6 +1,6 @@
 # Meine Tour auf Heute
 
-PR #1231 · 09.11.2026 · Auftrag: Noah «2 a» und «ok» (Plan «ganze App», Schritt 2a; Thread «Bauen: Karte «Meine Tour» auf Heute»)
+PR #1232 · 09.11.2026 · Auftrag: Noah «2 a» und «ok» (Plan «ganze App», Schritt 2a; Thread «Bauen: Karte «Meine Tour» auf Heute»)
 
 ## Was ist neu
 - Auf Heute steht ganz oben (gleich unter dem Gruss) die Karte «Meine Tour», **nur bei einer geplanten Tour** (nicht beendet, nicht ausgefallen). Sie zeigt den Namen der Tour mit dem Zähler («In 6 Tagen»), eine Zeile «3 Tage · Velo · Sa 14. Nov», die vier Phasen (Planen, Vorbereiten, Unterwegs, Danach) mit ihrem Stand, «Als Nächstes: …» mit der ersten offenen Zeile der laufenden Phase als **einem** Hauptknopf («Weiter mit Packen»), die Hinweise als **eine** Zeile und «Alle Schritte ›» zum Tour-Pfad.
@@ -27,7 +27,7 @@ PR #1231 · 09.11.2026 · Auftrag: Noah «2 a» und «ok» (Plan «ganze App», 
 - keine neuen
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- Plan «ganze App»: Schritt 2a steht auf gebaut (#1231). Danach 2b (auf Anweisung), dann Pause für die echte Tour.
+- Plan «ganze App»: Schritt 2a steht auf gebaut (#1232). Danach 2b (auf Anweisung), dann Pause für die echte Tour.
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Heute öffnen (mit einer geplanten Tour): gleich unter dem Gruss steht «Meine Tour» mit dem Namen der Tour und den vier Phasen.
