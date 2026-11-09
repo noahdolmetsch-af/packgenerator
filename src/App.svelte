@@ -42,6 +42,7 @@
   import MeButton from './lib/nav/MeButton.svelte';
   import SkipLink from './lib/nav/SkipLink.svelte';
   import HelpButton from './lib/nav/HelpButton.svelte';
+  import { helpHere } from './lib/pageinfo/here.svelte.js';
   import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
@@ -94,6 +95,10 @@
   const mini = miniAppOf(location.pathname);
   if (mini && miniStart(mini, location.hash) !== location.hash) history.replaceState(null, '', `${location.pathname}${location.search}${miniStart(mini, location.hash)}`);
   let hash = $state(follow(location.hash));
+  // the «?» window lists the help of the page the app shows (not the raw address: some addresses lead on to another page)
+  $effect(() => {
+    helpHere.route = hash;
+  });
   // v0.127.0 A-U2 (mockup «Fehlerseite»): a page that throws shows the error page, never a white page.
   // failReset: the boundary's reset while the error page shows; failName: the page's name in the text.
   let failReset = null;

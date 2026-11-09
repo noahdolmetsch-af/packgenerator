@@ -3,7 +3,7 @@
  * page itself instead of only in the handbook behind «?». For each function whose home page (know/heimat.js) is this page: its
  * name, «what for» (the catalogue text) and, opened, «how it works» (the handbook steps) with the example.
  * The texts exist for every function already; pages are switched on area by area (ON_PAGES), thinnest first (PR 12–20 add
- * knowledge per area). A page shows all its functions, whatever their moment. Heute ('#/') never shows the card. Pure; the card is src/lib/ui/SeitenInhalt.svelte, tested in tests/seiteninhalt.test.js.
+ * knowledge per area). A page shows all its functions, whatever their moment. Heute ('#/') has no line on the page, but its «?» lists its functions (helpRows). Since 09.11.2026 the content is shown in the «?» window (list: src/lib/ui/SeitenInhaltListe.svelte); on the page one line (SeitenInhalt.svelte) leads there. Pure; tested in tests/seiteninhalt.test.js.
  */
 import { FEATURES } from './features.js';
 import { HOME } from './know/heimat.js';
@@ -45,7 +45,7 @@ export const ON_PAGES = [
   // entry. Not the race mode (#/race/:race/ride): while racing the first screen belongs to the ride, like Unterwegs. Not one
   // note (#/notes?open=:note): the note opens as a window over Notes, so the card would only sit hidden behind it.
   '#/debrief/:trip', '#/race/:race', '#/race/:race/route', '#/race/:race/map', '#/tagebuch/:entry',
-  // Wegweiser 26b: pages without any content in the check of 02.11.2026 (Touren and Ski start as one line, FOLDED_FIRST)
+  // Wegweiser 26b: pages without any content in the check of 02.11.2026 
   '#/trips', '#/trips/fuel', '#/neuland', '#/me/frei', '#/me/frei/sammlungen', '#/me/ruhig/herkunft', '#/me/ruhig/zahlen',
   '#/ski', '#/racecheck',
   // Wegweiser 26a: pages with many functions that were left out for the 2.5-screen rule; the card starts as one line there
@@ -57,16 +57,8 @@ export const ON_PAGES = [
 export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung', 'play', 'ride', 'brief', 'new', 'shared'];
 /** Rows shown before «Show all n». */
 export const SHOWN = 4;
-export const FOLD_KEY = 'seiteninhalt.folded';
-/** How many functions a page's card showed when the user last folded or opened it ({ [page key]: number }); the «new» dot compares with it. */
+/** How many functions a page's help showed when the user last opened it from the line ({ [page key]: number }); the «new» dot compares with it. */
 export const SEEN_KEY = 'seiteninhalt.seen';
-/**
- * Pages where the card starts as one line. Since 08.11.2026 (Noah «A», UX-Test 1-01 / 2b-01) that is every page of ON_PAGES: the
- * card sits behind the page's title (src/lib/ui/nachtitel.js) and takes one line until the user opens it. A tap opens it, and the
- * choice is kept like ×. (02.11.2026: on the way, Pack, Velos, Material, Training, Auswerten, Touren and Ski started like this
- * already, so that their own controls stay on the first screen.)
- */
-export const FOLDED_FIRST = ON_PAGES;
 
 /** The page of a hash, as HOME writes it: path plus «tab=…» or «view=…» when they choose the page. */
 export function pageKey(hash = '') {
@@ -120,7 +112,11 @@ export function pageContent(hash, on = ON_PAGES, know = {}, handbook = {}) {
   const here = pagePattern(hash, on);
   if (!here) return [];
   // the page's own functions first, then those of the windows it opens (SHOWS_TOO)
-  const homes = [here, ...(SHOWS_TOO[here] ?? [])];
+  return rowsOf([here, ...(SHOWS_TOO[here] ?? [])], know, handbook);
+}
+
+/** The rows of the functions whose home is one of these pages (the first page first). */
+function rowsOf(homes, know, handbook) {
   const rank = (f) => homes.indexOf(pageKey(HOME[f.id]));
   return FEATURES.filter((f) => HOME[f.id] && rank(f) >= 0).sort((a, b) => rank(a) - rank(b)).map((f) => {
     const h = handbook[f.id] ?? {};
@@ -128,30 +124,19 @@ export function pageContent(hash, on = ON_PAGES, know = {}, handbook = {}) {
   });
 }
 
-/** The folded pages ({ [page key]: true }) from the stored setting. */
-export const foldedOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => x === true)) : {});
-
-/** The stored choices ({ [page key]: true folded | false opened }), other values left out. */
-export const foldMapOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => typeof x === 'boolean')) : {});
-
-/** Whether the card of a page shows as one line: the stored choice, else folded on FOLDED_FIRST pages. */
-export function isFolded(map, key, first = FOLDED_FIRST) {
-  const m = foldMapOf(map);
-  return key in m ? m[key] : first.includes(key);
+/**
+ * What the «?» window of a page lists as «What you can do here»: the rows of the page's card, and on Heute the functions that live
+ * there (Heute shows no line on the page, but its «?» has a help text now).
+ */
+export function helpRows(hash, know = {}, handbook = {}) {
+  const here = pageKey(hash);
+  return here === '#/' || here === '' ? rowsOf(['#/'], know, handbook) : pageContent(hash, undefined, know, handbook);
 }
 
-/** The pages whose card the user opened: stored as opened (false), while every page starts folded. */
-export const openedCount = (map) => Object.values(foldMapOf(map)).filter((v) => v === false).length;
-
-/** The stored choices without the opened cards («Fold all cards again»): every page is folded as at the start; folds the user made stay. */
-export function foldAll(map) {
-  return Object.fromEntries(Object.entries(foldMapOf(map)).filter(([, v]) => v === true));
-}
-
-/** The stored numbers ({ [page key]: functions seen }), other values left out. */
+/** The stored counts ({ [page key]: functions seen }), other values left out. */
 export const seenMapOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => Number.isInteger(x) && x >= 0)) : {});
 
-/** How many functions came to a page since the user last folded or opened its card; 0 when nothing is known (older folds) or nothing is new. */
+/** How many functions came to a page since the user last opened its help from the line; 0 when nothing is known (older folds) or nothing is new. */
 export function newSince(seen, key, n) {
   const m = seenMapOf(seen);
   return key in m && n > m[key] ? n - m[key] : 0;

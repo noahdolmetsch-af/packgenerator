@@ -280,6 +280,7 @@ import termine from './termine.js';
 import flyer from './flyer.js';
 import probestunde from './probestunde.js';
 import erinnerung from './erinnerung.js';
+import bestaetigung from './bestaetigung.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -904,6 +905,7 @@ const ORDERED = [
   flyer,
   probestunde,
   erinnerung,
+  bestaetigung,
   abgleich,
   verbindungenStatus,
   datenaufraeumen,

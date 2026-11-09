@@ -396,15 +396,35 @@
     max-width: 100%;
     width: auto;
   }
+  /* Durchklick 08.11.2026 (Fund 3): «Save» stays at the bottom edge of the window while you scroll, so it is never
+     below the screen and «Add» (a step) is not the only button in sight. Same idea as the bar of «New trip». */
   .acts {
     display: flex;
     gap: 10px;
-    margin-top: 18px;
+    margin: 18px -18px 0;
+    padding: 12px 18px;
     flex-wrap: wrap;
+    position: sticky;
+    bottom: -18px; /* the window has 18 px padding; the bar must reach the edge */
+    z-index: 2;
+    background: var(--paper);
+    border-top: 1px solid var(--line);
   }
   @media (max-width: 560px) {
+    .acts {
+      flex-wrap: nowrap;
+      bottom: calc(-18px - env(safe-area-inset-bottom));
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    }
     .acts .btn {
-      flex: 1 1 100%;
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .acts .btn.hi {
+      flex: 2 1 0;
+    }
+    .acts .btn.del {
+      flex: 0 0 auto;
     }
   }
 </style>
