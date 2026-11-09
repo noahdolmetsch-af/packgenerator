@@ -25,6 +25,7 @@
   import { listWaiting, addWaiting, removeWaiting } from '../lib/booking/waitlist.js';
   import { isTrial, hasTrial, canAddTrial, trialPrice, trialSlots, withoutTrial, earlierTrial, TRIAL_KEY } from '../lib/booking/trial.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
+  import { CONFIRM_KEY, CONFIRM_MAX, confirmSetting, confirmMessage, confirmSubject, saveConfirm } from '../lib/booking/confirm.js';
   import { REMINDER_KEY, REMINDER_WORDS, REMINDER_WORDS_DE, reminderSetting, reminderMessage, saveReminder } from '../lib/booking/reminder.js';
   import '../lib/ich/ich.css';
 
@@ -214,8 +215,14 @@
   let replied = $state(null); // { b, decision }: after an answer, the message to send
   /* trial lesson (Noah 04.11.2026 «10a»): once per person; a second request gets the offer of a normal lesson */
   const usedTrial = (b) => (mine ? earlierTrial(mine.offer, bookings ?? [], b) : null);
+  /* confirmation to the customers (Noah 05.11.2026 «5c», 09.11.2026): the lesson, the place, three lines Noah wrote once and the cancel rule; nothing is sent here */
+  const confirmQ = liveQuery(async () => (await db.settings.get(CONFIRM_KEY))?.value);
+  const confirmCfg = $derived(confirmSetting($confirmQ));
+  const placeOf = (s) => s?.venue || mine?.offer.place || '';
+  const confirmText = (name, at, place, cfg = confirmCfg) => confirmMessage({ name, title: mine?.offer.title ?? '', when: fmtAt(at), place, hours: mine?.offer.cancelHours ?? null, ...cfg }, t);
+  const confirmSubj = (at) => confirmSubject({ title: mine?.offer.title ?? '', when: fmtAt(at) }, t);
   const replyText = (s, decision, b = null) => decision === 'confirm'
-    ? t('{title} on {when} is confirmed. See you there!', { title: mine?.offer.title ?? '', when: fmtAt(s.at) })
+    ? confirmText(b?.name ?? '', s.at, placeOf(s))
     : b && usedTrial(b)
       ? t('{title} on {when}: the trial lesson is once per person. I would be happy to see you for a normal lesson. Please pick a time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) })
       : t('{title} on {when} does not work for me. Please pick another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
@@ -247,7 +254,7 @@
     }
     await loadBookings();
   }
-  const wishText = (r) => t('Hello {name}! The lesson is booked: {title} on {when}. See you then!', { name: r.b.name, title: mine?.offer.title ?? '', when: fmtAt(r.at) });
+  const wishText = (r) => confirmText(r.b.name, r.at, r.b.wish?.venues?.length === 1 ? r.b.wish.venues[0] : '');
   /* rain or other reasons (Noah 04.11.2026 «1a»): the message offers free times Noah picks; nothing is sent here */
   const alternativesOf = (s) => (mine ? freeAlternatives(mine.offer, bookings ?? [], s.id, s.at > nowAt() ? s.at : nowAt(), 5) : []);
   let unpicked = $state([]); // ids of offered times Noah unticked (the first three start ticked)
@@ -305,6 +312,24 @@
     e.preventDefault();
     await saveReminder({ ...reminder, text: remText.trim() });
     remDlg.close();
+  }
+
+  /* confirmation to the customers: the three lines (meeting point, pick-up, rain) */
+  const sampleConfirm = (cfg) => confirmText('Mia', `${addDays(today, 1)}T17:00`, mine?.offer.venues?.[0] || mine?.offer.place || '', cfg);
+  let cfOpen = $state(false);
+  let cfDlg = $state();
+  let cfDraft = $state({ meet: '', pickup: '', rain: '' });
+  $effect(() => {
+    if (cfOpen && cfDlg && !cfDlg.open) cfDlg.showModal();
+  });
+  function openConfirm() {
+    cfDraft = { ...confirmCfg };
+    cfOpen = true;
+  }
+  async function saveConfirmLines(e) {
+    e.preventDefault();
+    await saveConfirm(cfDraft);
+    cfDlg.close();
   }
 
   /* the rules (BU1 «So wird gebucht», Ändern) */
@@ -445,7 +470,7 @@
             <div class="of-wh"><h2 id="of-wish-h">{t('Wish requests')}</h2><small class="muted">{tn(wishes.length, '{n} open', '{n} open')}</small></div>
             {#if error}<p class="err" role="alert">{error}</p>{/if}
             {#if wishReplied}
-              {@const href = contactHref(wishReplied.b.contact, wishText(wishReplied))}
+              {@const href = contactHref(wishReplied.b.contact, wishText(wishReplied), confirmSubj(wishReplied.at))}
               <p role="status">{t('Confirmed. Now tell {name}:', { name: wishReplied.b.name })}</p>
               <p class="of-note">{wishText(wishReplied)}</p>
               <div class="of-foot">{#if href}<a class="btn hi" {href}>{t('Write')}</a>{/if}<button type="button" class="btn" onclick={() => (wishReplied = null)}>{t('Done')}</button></div>
@@ -524,6 +549,12 @@
           <p class="of-note" data-reminder-sample>{sampleOf(reminder.text)}</p>
           <p class="of-fine">{t('On the Today page a button opens your message app with this text ready. You send it yourself; the app sends nothing. It is the same text for all your offers.')}</p>
         </section>
+
+        <section class="card" aria-labelledby="of-cf-h" data-confirm-card>
+          <div class="of-wh"><h2 id="of-cf-h">{t('Confirmation to the customers')}</h2><button type="button" class="lkb" onclick={openConfirm}>{t('Add details')}</button></div>
+          <p class="of-note" data-confirm-sample>{sampleConfirm(confirmCfg)}</p>
+          <p class="of-fine">{t('After you confirm a booking, this text is ready for your message app. Later, «Confirmation» in the list of a lesson opens it again. You send it yourself; the app sends nothing. The meeting point, pick-up and rain lines are the same for all your offers.')}</p>
+        </section>
       </div>
     </div>
   </div>
@@ -573,7 +604,7 @@
         <div class="of-foot"><button type="button" class="btn hi" onclick={() => slotDlg.close()}>{t('Done')}</button></div>
       {:else}
         {#if replied}
-          {@const href = contactHref(replied.b.contact, replyText(s, replied.decision, replied.b))}
+          {@const href = contactHref(replied.b.contact, replyText(s, replied.decision, replied.b), replied.decision === 'confirm' ? confirmSubj(s.at) : '')}
           <p role="status">{replied.decision === 'confirm' ? t('Confirmed. Now tell {name}:', { name: replied.b.name }) : t('Declined. Now tell {name}:', { name: replied.b.name })}</p>
           <p class="of-note">{replyText(s, replied.decision, replied.b)}</p>
           <div class="of-foot">{#if href}<a class="btn hi" {href}>{t('Write')}</a>{/if}<button type="button" class="btn" onclick={() => (replied = null)}>{t('Done')}</button></div>
@@ -593,9 +624,11 @@
         <ul class="of-list">
           {#each people as b (b.id)}
             {@const href = contactHref(b.contact, helloText(s))}
-            <li class="of-pp">
+            {@const chref = contactHref(b.contact, confirmText(b.name, s.at, placeOf(s)), confirmSubj(s.at))}
+            <li class="of-pp of-ppw">
               <span>{b.name}<small>{b.contact} · {b.pay === 'online' ? (b.paid ? t('paid (test)') : t('not paid')) : t('pays on site')}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}{#if usedTrial(b)}<small class="of-warn" data-trial-used>{t('Had a trial lesson already: {when}. Once per person.', { when: fmtAt(usedTrial(b).at) })}</small>{/if}</span>
               {#if href}<a class="btn sm" {href}>{t('Write')}</a>{/if}
+              {#if chref}<a class="btn sm" data-confirm-link href={chref}>{t('Confirmation')}</a>{/if}
               {#if invoiceOf(b)}<a class="lkb" href={`#/me/pay/invoices/${invoiceOf(b).id}`}>{t('Invoice {no}', { no: invoiceOf(b).no })}</a>{:else if b.at < nowAt()}<button type="button" class="lkb" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button>{/if}
               <button type="button" class="lkb" onclick={() => dropOne(b)}>{t('Cancel|booking')}</button>
             </li>
@@ -643,6 +676,24 @@
         <p class="lbl">{t('Looks like this')}</p>
         <p class="of-note" data-reminder-preview>{sampleOf(remText)}</p>
         <div class="of-foot"><button type="submit" class="btn hi">{t('Save')}</button>{#if remText}<button type="button" class="btn" data-reminder-reset onclick={() => (remText = '')}>{t('Use the ready text')}</button>{/if}<button type="button" class="btn" onclick={() => remDlg.close()}>{t('Cancel')}</button></div>
+      </form>
+    </dialog>
+  {/if}
+
+  {#if cfOpen}
+    <dialog class="sheet from-below of-sheet" bind:this={cfDlg} use:backClose={() => cfDlg.close()} onclose={() => (cfOpen = false)} aria-labelledby="of-cf-sh">
+      <form onsubmit={saveConfirmLines}>
+        <div class="of-sh"><h2 id="of-cf-sh">{t('Details for the confirmation')}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => cfDlg.close()}><X size={20} aria-hidden="true" /></button></div>
+        <p class="muted">{t('Every line is optional. An empty line is left out of the message.')}</p>
+        <label class="lbl" for="of-cf-meet">{t('Meeting point|lesson')}</label>
+        <input id="of-cf-meet" class="inp" bind:value={cfDraft.meet} maxlength={CONFIRM_MAX} autocomplete="off" placeholder={t('for example: at the club house entrance, 10 minutes before')} />
+        <label class="lbl" for="of-cf-pick">{t('Pick-up|lesson')}</label>
+        <input id="of-cf-pick" class="inp" bind:value={cfDraft.pickup} maxlength={CONFIRM_MAX} autocomplete="off" placeholder={t('for example: parents pick up at the court')} />
+        <label class="lbl" for="of-cf-rain">{t('If it rains')}</label>
+        <input id="of-cf-rain" class="inp" bind:value={cfDraft.rain} maxlength={CONFIRM_MAX} autocomplete="off" placeholder={t('for example: I write you by 14:00 whether we play')} />
+        <p class="lbl">{t('Looks like this')}</p>
+        <p class="of-note" data-confirm-preview>{sampleConfirm(cfDraft)}</p>
+        <div class="of-foot"><button type="submit" class="btn hi">{t('Save')}</button><button type="button" class="btn" onclick={() => cfDlg.close()}>{t('Cancel')}</button></div>
       </form>
     </dialog>
   {/if}
@@ -906,6 +957,13 @@
     flex: 1;
     min-width: 0;
     overflow-wrap: break-word;
+  }
+  /* the booked people: name, Write, Confirmation, Cancel; on a narrow phone the buttons go below the name */
+  .of-ppw {
+    flex-wrap: wrap;
+  }
+  .of-ppw > span:first-child {
+    flex: 1 1 9rem;
   }
   .of-link {
     display: flex;

@@ -1,0 +1,20 @@
+// Bestätigung an die Kunden (Noah 05.11.2026 «5c», 09.11.2026): fertiger Text mit Ort, Besammlung, Abholung, Regen
+export default {
+  'Hello {name}! The lesson is booked: {title} on {when}.': 'Hallo {name}! Die Stunde ist gebucht: {title} am {when}.',
+  'Meeting point: {meet}.': 'Besammlung: {meet}.',
+  'Pick-up: {pickup}.': 'Abholung: {pickup}.',
+  'If it rains: {rain}.': 'Bei Regen: {rain}.',
+  'Confirmed: {title}, {when}': 'Bestätigt: {title}, {when}',
+  'Confirmation to the customers': 'Bestätigung an die Kunden',
+  'Add details': 'Angaben ergänzen',
+  'Confirmation': 'Bestätigung',
+  'After you confirm a booking, this text is ready for your message app. Later, «Confirmation» in the list of a lesson opens it again. You send it yourself; the app sends nothing. The meeting point, pick-up and rain lines are the same for all your offers.': 'Wenn du eine Buchung bestätigst, steht dieser Text für deine Nachrichten-App bereit. Später öffnet «Bestätigung» in der Liste einer Stunde ihn wieder. Du sendest ihn selbst; die App sendet nichts. Besammlung, Abholung und Regen gelten für alle deine Angebote.',
+  'Details for the confirmation': 'Angaben für die Bestätigung',
+  'Every line is optional. An empty line is left out of the message.': 'Jede Zeile ist freiwillig. Eine leere Zeile steht nicht in der Nachricht.',
+  'Meeting point|lesson': 'Besammlung',
+  'Pick-up|lesson': 'Abholung',
+  'If it rains': 'Bei Regen',
+  'for example: at the club house entrance, 10 minutes before': 'zum Beispiel: beim Eingang zum Clubhaus, 10 Minuten vorher',
+  'for example: parents pick up at the court': 'zum Beispiel: Eltern holen am Platz ab',
+  'for example: I write you by 14:00 whether we play': 'zum Beispiel: Ich schreibe dir bis 14:00, ob wir spielen',
+};
