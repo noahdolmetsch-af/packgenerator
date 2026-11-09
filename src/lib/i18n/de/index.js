@@ -281,6 +281,7 @@ import flyer from './flyer.js';
 import probestunde from './probestunde.js';
 import erinnerung from './erinnerung.js';
 import bestaetigung from './bestaetigung.js';
+import teilnehmerliste from './teilnehmerliste.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -906,6 +907,7 @@ const ORDERED = [
   probestunde,
   erinnerung,
   bestaetigung,
+  teilnehmerliste,
   abgleich,
   verbindungenStatus,
   datenaufraeumen,
