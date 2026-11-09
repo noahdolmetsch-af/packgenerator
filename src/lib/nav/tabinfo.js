@@ -39,6 +39,7 @@ export const TAB_INFO = {
   // Aktiv-Umbau (thread «Aktiv neu», branch 2zl9ay): its new tabs, ready for when its nav.js lands
   'active:sports': ['trophy', 'Every sport with its goal, history and page.'],
   'active:rest': ['heart', 'The recovery ring and what does you good after effort.'],
+  'analysis:fragen': ['compass', 'Six questions about your data, each answered in one sentence.'],
   'analysis:start': ['chart', 'Form, overview and how you are, at a glance.'],
   'analysis:form': ['target', 'Readiness today, 12 weeks and tour readiness.'],
   'analysis:body': ['heart', 'Heart rate, sleep and steps over time.'],

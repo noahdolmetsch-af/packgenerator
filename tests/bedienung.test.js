@@ -126,7 +126,9 @@ describe('FE17 search can act', () => {
     expect(kinds('quick note')).toEqual(['quicknote']);
     expect(kinds('neue tour')).toEqual(['trip']);
     expect(kinds('new tour')).toEqual(['trip']);
-    expect(COMMAND_HREF).toEqual({ backup: '#/me/data', settings: '#/me/look' });
+    expect(COMMAND_HREF).toEqual({ backup: '#/me/data', settings: '#/me/look', fragen: '#/auswerten/fragen' });
+    expect(kinds('frag deine daten')).toEqual(['fragen']); // Plan 4a: the search leads to the questions
+    expect(kinds('werde ich schneller')).toEqual(['fragen']);
   });
   it('a bike by its name opens that bike', () => {
     const c = commandActions('alpha', { bikes });
