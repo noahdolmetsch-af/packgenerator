@@ -16,7 +16,7 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, WISH_PRICES, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
+  import { KINDS, WISH_PRICES, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, withWishAt, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
   import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin, FileImage } from '@lucide/svelte';
   import { rememberCustomer, listCustomers, saveCustomers, rateOf, packCover } from '../lib/booking/customers.js';
@@ -73,7 +73,7 @@
       return;
     }
     loadErr = '';
-    bookings = r.bookings;
+    bookings = withWishAt(r.bookings);
     // Seen here: the note on Heute goes away (3 a und b).
     const seen = (await db.settings.get(SEEN_KEY))?.value ?? [];
     const ids = [...new Set([...seen, ...r.bookings.map((b) => b.id)])].slice(-500);
@@ -87,7 +87,7 @@
     }
   });
   const booked = $derived(bookedBySlot(bookings ?? []));
-  const upcoming = $derived((bookings ?? []).filter((b) => b.at && dayOf(b.at) >= today));
+  const upcoming = $derived((bookings ?? []).filter((b) => b.at && !b.wish && dayOf(b.at) >= today));
 
   /* lessons that are over: the invoice is prepared from the booking (Noah 03.11.2026 «3b»; nothing is sent here) */
   const invoicesQ = liveQuery(() => listInvoices());
@@ -510,8 +510,9 @@
             {#if wishDone.length}
               <h3 class="of-rq">{t('Confirmed')}</h3>
               <ul class="of-list">
-                {#each wishDone as b (b.id)}<li class="of-pp"><span><b>{fmtAt(b.wish.wishes[b.pick])}</b><small>{b.name} · {tn(b.wish.kids, '{n} child', '{n} children')}</small></span></li>{/each}
+                {#each wishDone as b (b.id)}<li class="of-pp"><span><b>{fmtAt(b.wish.wishes[b.pick])}</b><small>{b.name} · {tn(b.wish.kids, '{n} child', '{n} children')}{b.wish.price ? ` · CHF ${chf(b.wish.price.total)}` : ''}</small></span></li>{/each}
               </ul>
+              <p class="muted" data-wish-next>{t('After the lesson the invoice is prepared for you under «Lesson done? Write the invoice», with the price the parents saw.')}</p>
             {/if}
           </section>
         {/if}

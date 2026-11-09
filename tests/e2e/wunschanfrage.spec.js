@@ -135,3 +135,48 @@ test('the price follows the number of children and the hall (Noah 1a)', async ({
   await card.locator('[data-wish-pick]').first().click();
   await expect(card.getByRole('link', { name: T('Write') })).toHaveAttribute('href', /body=.*90/);
 });
+
+test('a confirmed wish request goes to the invoice with the price the parents saw (part 3)', async ({ page }) => {
+  await page.goto('./#/me/offers');
+  await page.locator('.of-chips .btn').first().click();
+  await expect(page).toHaveURL(/#\/me\/offers\/tennis-[a-z0-9]+$/);
+  const id = page.url().split('/').at(-1);
+  await page.getByRole('button', { name: T('Change') }).click();
+  const rules = page.getByRole('dialog', { name: T('How booking works') });
+  await rules.getByLabel(T('Places to choose from (separated by commas)')).fill('Mythenquai, Lengg Halle');
+  await rules.getByRole('button', { name: T('Wish time, I answer') }).click();
+  await rules.locator('[data-wish-prices] [data-hall-place]').nth(1).check();
+  await rules.getByRole('button', { name: T('Save') }).click();
+  await expect(rules).toBeHidden();
+
+  // the parents: two children, outdoors = 2 x 70
+  await page.goto(`./buchen/#${id}`);
+  const form = page.locator('[data-wish-form]');
+  await form.getByRole('button', { name: 'Mythenquai' }).click();
+  await form.locator('[data-wish-kids]').locator('xpath=following-sibling::button').click();
+  await form.getByLabel(T('Your name|formal')).fill('Anna Beispiel');
+  await form.getByLabel(T('Phone or e-mail')).fill('anna@example.test');
+  await form.getByRole('button', { name: T('Send request') }).click();
+  await expect(page.locator('[data-wish-sent]')).toContainText('CHF 140');
+
+  // Noah confirms; the confirmed list names the total and says where the invoice comes
+  await page.goto(`./#/me/offers/${id}`);
+  const card = page.locator('[data-wishes]');
+  await card.locator('[data-wish-pick]').first().click();
+  await expect(card).toContainText('CHF 140');
+  await expect(card.locator('[data-wish-next]')).toBeVisible();
+  await expect(page.locator('[data-lessons-over]')).toHaveCount(0);
+
+  // the lesson is over: the draft carries the price the parents saw
+  await page.goto('./#/me');
+  await page.evaluate(() => {
+    globalThis.__pgShift = (globalThis.__pgShift || 0) + 20 * 24 * 3600_000;
+    localStorage.setItem('pg.pay.account', JSON.stringify({ iban: 'CH44 3199 9123 0008 8901 2', name: 'Beispiel Tennis', street: '', house: '', zip: '8000', town: 'Zürich', twint: '079 000 00 00' }));
+  });
+  await page.goto(`./#/me/offers/${id}`);
+  const over = page.locator('[data-lessons-over]');
+  await expect(over).toContainText('Anna Beispiel');
+  await over.getByRole('button', { name: T('Prepare invoice') }).click();
+  await expect(page.getByLabel(T('Amount|money'))).toHaveValue('140');
+  await expect(page.getByLabel(T('What for?'))).toHaveValue(new RegExp(T('Tennis lesson')));
+});
