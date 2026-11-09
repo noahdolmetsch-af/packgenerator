@@ -10,7 +10,6 @@ export default {
   'CHF {perKid} per child · CHF {total} in all · {where}': 'CHF {perKid} pro Kind · CHF {total} insgesamt · {where}',
   'hall price': 'Hallenpreis',
   'outdoor price': 'Preis draussen',
-  'Hello {name}! The lesson is booked: {title} on {when}. Price: CHF {perKid} per child. See you then!': 'Guten Tag {name}! Die Stunde ist gebucht: {title} am {when}. Preis: CHF {perKid} pro Kind. Bis dann!',
   'Price per child, court included': 'Preis pro Kind, Platz inklusive',
   'Total CHF {total} for one hour, {where}': 'Total CHF {total} für eine Stunde, {where}',
   'in the hall': 'in der Halle',
