@@ -8,7 +8,7 @@ export default {
   'From Strava: {n} activities to count?': 'Von Strava: {n} Aktivitäten zählen?',
   'last fetch {when}': 'zuletzt geholt {when}',
   'Rides and activities, ticks Aktiv': 'Fahrten und Aktivitäten, hakt Aktiv ab',
-  'Fitbit via Google': 'Fitbit über Google',
+  'Fitbit via Google': 'Fitbit',
   'values up to {day}': 'Werte bis {day}',
   connected: 'verbunden',
   'Sleep, steps, heart rate as observation': 'Schlaf, Schritte, Puls als Beobachtung',

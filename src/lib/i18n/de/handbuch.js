@@ -424,7 +424,7 @@ export default {
   '«Your day to listen to» plays all voice notes of the day; arrows or drag change the order.': '«Dein Tag zum Hören» spielt alle Sprachnotizen des Tages ab; Pfeile oder Ziehen ändern die Reihenfolge.',
   '«As text» turns them into words on this device.': '«Als Text» macht auf diesem Gerät Wörter daraus.',
   // «Rennen detailliert planen» (Noah 27.10.2026 «1b 2b»)
-  'Open Trips › «Plan races in detail» and tap a race.': 'Öffne Touren › «Rennen detailliert planen» und tippe ein Rennen an.',
+  'Open Trips › «Plan races in detail» and tap a race.': 'Öffne Touren › «Rennen-Check» und tippe ein Rennen an.',
   // «Träume und Neuland» N1
   'Needs your home place.': 'Braucht deinen Wohnort.',
   'Warnings (weather, ice, light, rain on the way, eating) still come on their own and on time.':

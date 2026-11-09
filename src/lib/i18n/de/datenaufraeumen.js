@@ -23,7 +23,7 @@ export default {
   'Back up with a file': 'Mit einer Backup-Datei sichern',
   'Save, send to the other device, open': 'Speichern, ans andere Gerät schicken, öffnen',
   'Password, folder, copies before updates, other data, start fresh': 'Passwort, Ordner, Kopien vor Updates, andere Daten, neu beginnen',
-  'Fitbit and health': 'Fitbit und Gesundheit',
+  'Fitbit and health': 'Fitbit',
   'Moved to its own page: Me › Fitbit': 'Eigene Seite: Ich › Fitbit',
   'Backup saved. Now you can delete.': 'Backup gespeichert. Jetzt kannst du löschen.',
   'First save a backup, then delete.': 'Speichere zuerst ein Backup, dann lösche.',

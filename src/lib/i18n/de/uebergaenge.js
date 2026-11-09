@@ -84,7 +84,7 @@ export default {
   'Debrief finished|title': 'Rückblick fertig',
   'Thank you. The next packing list knows more now.': 'Danke. Die nächste Packliste weiss jetzt mehr.',
   'base {kg} kg': 'Basis {kg} kg',
-  Learned: 'Gelernt',
+  Learned: 'Erkenntnisse',
   '{name} was missing': '{name} hat gefehlt',
   '{name} not used': '{name} nicht gebraucht',
   '{name} broke': '{name} ist kaputt gegangen',

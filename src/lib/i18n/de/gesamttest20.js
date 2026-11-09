@@ -21,7 +21,7 @@ export default {
   'Trips has its own tab «Rides» for Strava activities; the button on Plan and Pack names the next step': 'Touren hat einen eigenen Reiter «Fahrten» für Strava-Aktivitäten; der Knopf auf Planen und Packen nennt den nächsten Schritt',
   'Help boxes shrink to one line «How it works» after the first visit; praise gets its own quiet line «Well done» on Today': 'Hilfe-Felder werden nach dem ersten Besuch zu einer Zeile «So geht\'s»; Lob bekommt auf Heute eine eigene ruhige Zeile «Gut gemacht»',
   '«Due now» shows everything due; a problem there is not repeated under «Open»': '«Jetzt fällig» zeigt alles Fällige; ein Problem dort steht nicht nochmals unter «Offen»',
-  'History and Learned show 5 rows per day or topic, then «Show more»': 'Verlauf und Gelernt zeigen 5 Zeilen pro Tag oder Thema, dann «Mehr zeigen»',
+  'History and Learned show 5 rows per day or topic, then «Show more»': 'Verlauf und Erkenntnisse zeigen 5 Zeilen pro Tag oder Thema, dann «Mehr zeigen»',
   '«new» only on the first new item of a list': '«neu» nur beim ersten neuen Eintrag einer Liste',
   'Open Trips › Rides: your Strava activities on their own tab.': 'Öffne Touren › Fahrten: deine Strava-Aktivitäten im eigenen Reiter.',
   'Open a page a second time: its help is one line «How it works».': 'Öffne eine Seite ein zweites Mal: ihre Hilfe ist eine Zeile «So geht\'s».',

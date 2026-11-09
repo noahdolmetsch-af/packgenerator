@@ -114,7 +114,7 @@ export default {
   "As a link or a PDF. The link carries only the names of the things.": "Als Link oder PDF. Der Link enthält nur die Namen der Sachen.",
   "Back|guide": "Zurück",
   "Tick what came back. Until then each thing shows here.": "Hak ab, was zurück ist. Bis dahin steht jede Sache hier.",
-  "Lent out|guide": "Ausgeliehen",
+  "Lent out|guide": "Leihliste",
   "Lend gear and get it back": "Material ausleihen und zurückbekommen",
   "On the return day a reminder comes, if you switch it on. Your bivy bag finds its way home.": "Am Rückgabetag kommt eine Erinnerung, wenn du sie einschaltest. Dein Biwaksack findet heim.",
   "Lend the sleeping bag dry and note it. A sleeping bag that comes back wet is a story for the debrief.": "Leih den Schlafsack trocken aus und notier es. Ein Schlafsack, der nass zurückkommt, ist eine Geschichte für den Rückblick.",

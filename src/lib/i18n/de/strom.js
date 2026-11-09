@@ -1,8 +1,8 @@
 // Strombudget pro Tour und Powerbank-Rechner (Noah 19.10.2026 16:53 «2a»): Material › Strom, Packen, Teil-Fenster.
 export default {
   'Power|electric': 'Strom',
-  'Power budget': 'Strombudget',
-  'Power budget and power bank': 'Strombudget und Powerbank',
+  'Power budget': 'Strom',
+  'Power budget and power bank': 'Strom und Powerbank',
   '{n} Wh': '{n} Wh',
   'Back to the values from the trip.': 'Wieder die Werte der Tour.',
   'Do your devices last the trip? The app adds up what phone, lights and bike computer use per day and says which power bank and which charger to take. All values are suggestions: change them here or in the device.': 'Reicht der Strom für die Tour? Die App zählt zusammen, was Handy, Lichter und Velocomputer pro Tag brauchen, und sagt, welche Powerbank und welches Ladegerät mitkommen. Alle Werte sind Vorschläge: Ändere sie hier oder beim Gerät.',
@@ -55,11 +55,11 @@ export default {
   'Power: no power bank needed.': 'Strom: Keine Powerbank nötig.',
   'Power: take {names}.': 'Strom: Nimm {names} mit.',
   'Power: your power banks are not enough.': 'Strom: Deine Powerbanks reichen nicht.',
-  'Power budget ›': 'Strombudget ›',
+  'Power budget ›': 'Strom ›',
   // Teil-Fenster
   'Battery (mAh)': 'Akku (mAh)',
   Sockets: 'Anschlüsse',
-  'Does the power last? Power budget ›': 'Reicht der Strom? Strombudget ›',
+  'Does the power last? Power budget ›': 'Reicht der Strom? Strom ›',
   // Funktionen, Anleitung
   'Do your devices last the trip? The app adds up what they use per day and says which power bank and which charger to take.': 'Reicht der Strom für die Tour? Die App zählt zusammen, was deine Geräte pro Tag brauchen, und sagt, welche Powerbank und welches Ladegerät mitkommen.',
   'Open Gear › Power and choose the trip.': 'Öffne Material › Strom und wähle die Tour.',

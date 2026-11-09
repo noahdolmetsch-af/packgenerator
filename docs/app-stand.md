@@ -75,7 +75,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Wiegen und Wunschliste | `#/gear?tab=wishlist` | Tatsächliche Gewichte erfassen, leichtere eigene Alternativen vergleichen und Anschaffungen nach Nutzen, Preis und Gewichtsersparnis beurteilen. |
 | Einkaufs- und Ladeliste | `#/pack?shop` | Vor der Abfahrt Einkäufe und zu ladende Geräte abhaken; letzte Gegenstände für den Abfahrtsmorgen merken. |
 | Vorrat | `#/gear/supplies` | Lebensmittel und Verbrauchsmaterial mit Bestand und Ablaufdatum verwalten; Nachkäufe vorbereiten. |
-| Strombudget | `#/gear/power` | Geräteverbrauch, Akkulaufzeit, Powerbank und Ladegerät gegen die Tourdauer rechnen. |
+| Strom | `#/gear/power` | Geräteverbrauch, Akkulaufzeit, Powerbank und Ladegerät gegen die Tourdauer rechnen. |
 | Leihliste | `#/gear/lend` | Festhalten, wer welches Material hat; Rückgabe erinnern und Leihlisten teilen. |
 | Hauptausrüstung | `#/equipment` | Grössere Sportausrüstung wie Ski, Felle oder LVS mit Einsätzen und Pflegebedarf verwalten. |
 
@@ -180,7 +180,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. Eine Regel wie in Neuland: bis 600 m von der Passhöhe sicher, bis 1,2 km «bitte bestätigen». |
 | Sammel-Wand | `#/debrief/sammlung` | Stempel, Pässe, Gipfelbuch-Orte, Neuland und Sterne auf einer Seite zum Anschauen: oben die Zahlen, «Zuletzt dazugekommen» und je ein Regal mit «Alle» zur ganzen Liste. Ohne Ziel und ohne Zahl für Fehlendes; geändert wird dort, wo die Dinge zu Hause sind. Touren › Rückblick führt hin. |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
-| Gelernt | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
+| Eigene Erkenntnisse | `#/gelernt` | Monatskarte und Jahresbrief mit Erkenntnissen und Entwicklungen ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Jahr als Bildgeschichte | `#/jahr` | Touren und Erinnerungen eines Jahres als Bildgeschichte ansehen. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Heatmap | `#/heatmap` | Gefahrene Strecken auf einer Karte betrachten und nach Jahr, Sport, Velo oder Tour filtern. Steht im Ort Auswerten; Touren › Rückblick führt hin. |
 | Neuland | `#/neuland` | Neu besuchte Gemeinden, Länder, Pässe, Seen und weitere Orte entdecken; neue Kilometer und Sammlungen verfolgen. Zu jedem gefundenen Ort zeigt «Warum zählt das?» die Linie, den Abstand und eine kleine Karte. «Wege hierher» sagt, von welcher Seite du kamst und mit welcher Sportart. Steht im Ort Auswerten; Touren › Rückblick führt hin. «Aussichtstürme», «Hängebrücken» und «Wasserfälle» sind drei Sammlungen aus OpenStreetMap: die App lädt die Orte einmal pro Woche von selbst (oder auf Tipp «Neu laden»), speichert sie nur auf dem Gerät und hakt sie auf Fahrten ab. Oben steht die «Fundliste»: alles, was du zum ersten Mal erreicht hast (dieses Jahr oder alle Jahre) in einer Liste, aus Neuland, dem Gipfelbuch und deinen eigenen Einträgen; dieselbe Liste ist das «Neuland des Jahres» im Jahresheft und unter Ich › Was mir gut tut. Ein Ort im Gipfelbuch mit Koordinaten hakt Neuland mit ab und steht nur einmal in der Liste. |
@@ -250,7 +250,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Eigene Werte | `#/me/werte` | Grenzwerte, Standardannahmen und Erinnerungsabstände anpassen. |
 | Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen (auch die Velo-Sportarten der Touren: Name und Ausblenden); auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
 | Entscheidungsregeln | `#/me/regeln` | Nachvollziehen, weshalb die App etwas vorschlägt und wo sich die zugrunde liegenden Werte ändern lassen. |
-| Neuigkeiten | `#/me/news` | Änderungen und neue Funktionen nach Version nachlesen. |
+| Update | `#/me/news` | Änderungen und neue Funktionen nach Version nachlesen. |
 | Neueste Version laden | `#/me` | In Ich zeigt die Zeile «Version … auf diesem Gerät» auch die Version, die online ist, und «Neueste laden» holt sie frisch aus dem Internet (Daten bleiben). Ist die Version online schon länger als zwei Minuten neuer, erscheint oben ein dunkler Balken mit «Jetzt laden». Klappt das Laden nicht (die Seite ist nach acht Sekunden noch da, oder nach dem Laden ist die alte Version noch da), sagt der Balken es ehrlich und nennt den Weg: App ganz schliessen und neu öffnen; «Nochmal versuchen» probiert es erneut. |
 
 ### 12. Beim Abgleich ergänzt: in Noahs Dokument nicht einzeln genannt

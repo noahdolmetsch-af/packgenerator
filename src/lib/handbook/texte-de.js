@@ -508,7 +508,7 @@ export default {
   'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.': 'Geht mit einer GPX-Route an der Tour oder einer hochgeladenen Fahrt; ohne sie hakst du von Hand ab.',
   // «Alles selbst bearbeiten» (19.10.2026)
   'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
-  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
+  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Erkenntnisse: eine antippen, oder «+ Erkenntnis».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
   // Routine «Das tut mir gut» (D1 + D2)
@@ -593,7 +593,7 @@ export default {
   'Open a trip in Pack and tap «Read aloud».': 'Öffne eine Tour in Packen und tippe «Vorlesen».',
   'Choose «Say «ok»» or «Button only»; the app reads one item after the other.': 'Wähle «‹ok› sagen» oder «Nur Knopf»; die App liest ein Teil nach dem anderen vor.',
   'Example: «Into frame bag: tyre levers» → «ok» → next item.': 'Beispiel: «In die Rahmentasche: Reifenheber» → «ok» → nächstes Teil.',
-  'Open Gear › Lent out and make a new list for the guest.': 'Öffne Material › Ausgeliehen und mach eine neue Liste für den Gast.',
+  'Open Gear › Lent out and make a new list for the guest.': 'Öffne Material › Leihliste und mach eine neue Liste für den Gast.',
   'Example: tent and sleeping mat to Sam, back on Sunday → a reminder on Sunday morning.': 'Beispiel: Zelt und Matte an Sam, zurück am Sonntag → eine Erinnerung am Sonntagmorgen.',
   'Open the block and tap «Add a rule».': 'Öffne den Baustein und tippe «Regel festlegen».',
   'Choose the value, e.g. «Travel there by train», and save.': 'Wähle den Wert, z. B. «Anreise mit dem Zug», und speichere.',
@@ -622,7 +622,7 @@ export default {
   'Example: 120 km with shops at km 55 and 110 → three sections, each with the grams and litres to carry.': 'Beispiel: 120 km mit Läden bei km 55 und 110 → drei Abschnitte, jeder mit den Gramm und Litern zum Mitnehmen.',
   // Strombudget (Noah 19.10.2026 «2a»)
   'Counts every device on the trip from Electronics and Lights; values you set in the item (battery, how long it lasts) beat typical ones.': 'Zählt jedes Gerät der Tour aus Elektronik und Licht; Werte, die du beim Teil setzt (Akku, wie lange er hält), gehen vor die üblichen.',
-  'Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».': 'Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strombudget».',
+  'Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».': 'Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strom».',
   'Change the nights with a socket or the hours; «Put on the packing list» adds the power bank and the charger.': 'Ändere die Nächte mit Steckdose oder die Stunden; «Auf die Packliste» nimmt Powerbank und Ladegerät dazu.',
   'Example: 4 days in a bivouac with phone, light and bike computer → «Take: Power bank 20000».': 'Beispiel: 4 Tage im Biwak mit Handy, Licht und Velocomputer → «Nimm mit: Powerbank 20000».',
   "Under «Your sources» add, change or delete news sites with a feed.": "Unter «Deine Quellen» fügst du News-Seiten mit Feed hinzu, änderst oder löschst sie.",
@@ -819,7 +819,7 @@ export default {
   'Example: country France → 112 and 15, your insurance with its phone, «Convert EUR».': 'Beispiel: Land Frankreich → 112 und 15, deine Versicherung mit ihrer Nummer, «EUR umrechnen».',
   // «Alles selbst bearbeiten» (19.10.2026)
   'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
-  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
+  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Erkenntnisse: eine antippen, oder «+ Erkenntnis».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
   // Routine «Das tut mir gut» (D1 + D2)
@@ -1111,7 +1111,7 @@ export default {
   'Your friend answers in the app and sends a link back; open it and tap «Keep it».': 'Dein Freund antwortet in der App und schickt einen Link zurück; öffne ihn und tippe «Behalten».',
   'Example: after the Lake tour a friend adds their view and a voice note; your own entry stays as it is.': 'Beispiel: Nach der Seerunde ergänzt ein Freund seine Sicht und eine Sprachnotiz; dein eigener Eintrag bleibt, wie er ist.',
   '«Send the shelf»: friends choose what they would like and send a request.': '«Regal schicken»: Freunde wählen, was sie möchten, und schicken eine Anfrage.',
-  'Open the request: «Keep the request», «Say yes», «Handed over»; Lent out remembers it.': 'Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Ausgeliehen» merkt es sich.',
+  'Open the request: «Keep the request», «Say yes», «Handed over»; Lent out remembers it.': 'Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Leihliste» merkt es sich.',
   'Example: the second tent goes on the shelf «to borrow»; a friend asks for next weekend.': 'Beispiel: Das zweite Zelt kommt «zum Ausleihen» ins Regal; ein Freund fragt fürs nächste Wochenende an.',
   'Your friend sees what it changes, maps the lines to their own things and takes it over.': 'Dein Freund sieht, was sich ändert, ordnet die Zeilen den eigenen Sachen zu und übernimmt sie.',
   'Example: your block «Rain» goes to a friend, who maps it to their own jacket and gloves.': 'Beispiel: Dein Baustein «Regen» geht an einen Freund, der ihn seiner eigenen Jacke und den Handschuhen zuordnet.',

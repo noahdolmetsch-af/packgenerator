@@ -54,7 +54,7 @@ export default {
   'plus {n} ride of your own': 'dazu {n} eigene Fahrt',
   'plus {n} rides of your own': 'dazu {n} eigene Fahrten',
   '{n} new learning': '{n} neues Learning',
-  '{n} new learnings': '{n} neue Learnings',
+  '{n} new learnings': '{n} neue Erkenntnisse',
   '{n} template updated from your debriefs': '{n} Vorlage nach deinen Rückblicken angepasst',
   '{n} templates updated from your debriefs': '{n} Vorlagen nach deinen Rückblicken angepasst',
   '{n} thing stays at home now': '{n} Sache bleibt jetzt zu Hause',
@@ -110,7 +110,7 @@ export default {
   'Your year as pictures is ready': 'Dein Jahr als Bildgeschichte ist bereit',
   // features.js, howto.js, handbook.js (snippets for the central files)
   'Everything on one time line, one page per month: trips, rides, bike care, meditation, notes; «Earlier at this time» shows this day in earlier years.': 'Alles auf einer Zeitachse, eine Seite pro Monat: Touren, Fahrten, Pflege, Meditation, Notizen; «Früher um diese Zeit» zeigt diesen Tag in früheren Jahren.',
-  'A month card and a letter for the year: new learnings, changed templates, your pace, the clothing border, km and trips.': 'Eine Monatskarte und ein Jahresbrief: neue Learnings, angepasste Vorlagen, dein Tempo, die Kleidergrenze, km und Touren.',
+  'A month card and a letter for the year: new learnings, changed templates, your pace, the clothing border, km and trips.': 'Eine Monatskarte und ein Jahresbrief: neue Erkenntnisse, angepasste Vorlagen, dein Tempo, die Kleidergrenze, km und Touren.',
   'Your year of trips as slides: photos or routes, numbers and a thank-you; for every year.': 'Dein Tourenjahr als Bildfolge: Fotos oder Strecken, Zahlen und ein Dank; für jedes Jahr.',
   'Open Trips › Look back › Chronicle.': 'Öffne Touren › Rückblick › Chronik.',
   'Choose a filter, then a month.': 'Wähle einen Filter, dann einen Monat.',

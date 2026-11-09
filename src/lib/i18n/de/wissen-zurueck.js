@@ -27,7 +27,7 @@ export default {
   "Search before you pack: «rain» or «cold» brings back what you learned the hard way last time.":
     "Such vor dem Packen: «Regen» oder «kalt» bringt zurück, was du letztes Mal auf die harte Tour gelernt hast.",
   "Sort by rain or km to find a trip like the next one; its learning is often the best packing list.":
-    "Sortier nach Regen oder km, um eine Tour wie die nächste zu finden; ihr Gelerntes ist oft die beste Packliste.",
+    "Sortier nach Regen oder km, um eine Tour wie die nächste zu finden; ihre Erkenntnisse sind oft die beste Packliste.",
   "Rate it the same evening; the next morning every day looks better. A 4 is fine and helps more than a polite 7.":
     "Bewerte noch am selben Abend; am nächsten Morgen sieht jeder Tag besser aus. Eine 4 ist in Ordnung und hilft mehr als eine höfliche 7.",
   "Short letters work best: one sentence on what you hope, one on what you fear. Open it on the first night out.":

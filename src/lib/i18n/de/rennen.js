@@ -146,9 +146,9 @@ export default {
   'Your speed on the flat and your climbing rate, fitted on your rides of 40 km or more.': 'Dein Tempo im Flachen und deine Steigleistung, berechnet aus deinen Fahrten ab 40 km.',
   'Loaded is slower than light: rides on a trip of two days or more count as loaded, and you can mark others.': 'Beladen ist langsamer als leer: Fahrten auf einer Tour ab zwei Tagen zählen als beladen, andere kannst du markieren.',
   'Strava (Aktiv › Training) and your recorded rides.': 'Strava (Aktiv › Training) und deine erfassten Fahrten.',
-  'Your other years of the same race and the learnings that fit.': 'Deine anderen Jahre desselben Rennens und die passenden Learnings.',
+  'Your other years of the same race and the learnings that fit.': 'Deine anderen Jahre desselben Rennens und die passenden Erkenntnisse.',
   'What you learned last time goes into this plan (for example: the tent was never used).': 'Was du letztes Mal gelernt hast, fliesst in diesen Plan (zum Beispiel: das Zelt nie gebraucht).',
-  'Your trips with the same name and your learnings (Rückblick).': 'Deine Touren mit demselben Namen und deine Learnings (Rückblick).',
+  'Your trips with the same name and your learnings (Rückblick).': 'Deine Touren mit demselben Namen und deine Erkenntnisse (Rückblick).',
 
   // risks and the recommendation
   '{kg} kg less to carry than the heaviest way.': '{kg} kg weniger zu tragen als die schwerste Variante.',
@@ -206,8 +206,8 @@ export default {
   'The 40 cases': 'Die 40 Fälle',
   '{n} of 40 with a result.': '{n} von 40 mit Ergebnis.',
   'Go there': 'Hingehen',
-  'Learnings to tick off': 'Learnings zum Abhaken',
-  'My learnings for this race': 'Meine Learnings für dieses Rennen',
+  'Learnings to tick off': 'Erkenntnisse zum Abhaken',
+  'My learnings for this race': 'Meine Erkenntnisse für dieses Rennen',
   'Add a learning': 'Learning hinzufügen',
   'e.g. Book the hotels early': 'z. B. Hotels früh buchen',
   'Done: {name}': 'Erledigt: {name}',
@@ -233,9 +233,9 @@ export default {
   'Every idea of the race page with its result for this race, or what is still missing.': 'Jede Idee der Rennseite mit ihrem Ergebnis für dieses Rennen, oder was noch fehlt.',
   'You see at a glance what is done and where to fill something in.': 'Du siehst auf einen Blick, was steht und wo du noch etwas eintragen kannst.',
   'Your race data in all parts of this page.': 'Deine Renndaten in allen Teilen dieser Seite.',
-  'Your learnings that fit this race, and your own for it, each with a tick when the plan takes care of it.': 'Deine Learnings, die zu diesem Rennen passen, und eigene dafür, je mit Häkchen, wenn der Plan sie berücksichtigt.',
+  'Your learnings that fit this race, and your own for it, each with a tick when the plan takes care of it.': 'Deine Erkenntnisse, die zu diesem Rennen passen, und eigene dafür, je mit Häkchen, wenn der Plan sie berücksichtigt.',
   'What went wrong last time does not happen again.': 'Was letztes Mal schiefging, passiert nicht noch einmal.',
-  'Your learnings (Rückblick) with the race name or about sleeping, hotels and tents, and the ones you add here.': 'Deine Learnings (Rückblick) mit dem Namen des Rennens oder über Schlafen, Hotels und Zelt, und die, die du hier hinzufügst.',
+  'Your learnings (Rückblick) with the race name or about sleeping, hotels and tents, and the ones you add here.': 'Deine Erkenntnisse (Rückblick) mit dem Namen des Rennens oder über Schlafen, Hotels und Zelt, und die, die du hier hinzufügst.',
 
   // the 40 cases
   'Race schedule': 'Renn-Zeitplan',

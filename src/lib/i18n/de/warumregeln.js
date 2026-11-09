@@ -26,7 +26,7 @@ export default {
   'Your own block rules': 'Deine eigenen Baustein-Regeln',
   'Rules you gave your own blocks.': 'Regeln, die du deinen eigenen Bausteinen gegeben hast.',
   'What comes along by itself and why.': 'Was von selbst mitkommt und warum.',
-  'How the power budget counts.': 'So rechnet das Strombudget.',
+  'How the power budget counts.': 'So rechnet die App den Strom.',
   'What the ski tour plan works out.': 'Was der Skitouren-Plan ausrechnet.',
   'Change on Blocks': 'Bei Bausteine ändern',
   'Change in Gear': 'Im Material ändern',
