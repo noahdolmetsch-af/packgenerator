@@ -34,7 +34,7 @@ export const ON_PAGES = [
   '#/bikes?tab=compare&view=all', '#/bikes?tab=compare&view=enter', '#/bikes?tab=rig', '#/bikes?tab=rig&view=bags',
   '#/bikes?tab=rig&view=log', '#/bikes?tab=setup', '#/bikes?tab=shop', '#/equipment', '#/gear', '#/me/pros', '#/ski/care', '#/wardrobe',
   // PR 18, area Körper (Aktiv, sports, training, meditation, body values; the Ruhiger pages go with Alltag)
-  '#/flow', '#/flow/sports', '#/flow/sport/act%3Agym', '#/flow/sport/act%3Atennis', '#/flow/training', '#/flow/form', '#/flow/review',
+  '#/flow', '#/flow/sports', '#/flow/sport/act%3Agym', '#/flow/sport/act%3Atennis', '#/flow/training', '#/flow/wochenplan', '#/flow/form', '#/flow/review',
   '#/flow/stats/hr', '#/flow/act/meditation', '#/flow/act/meditation/log', '#/flow/act/meditation/mehr', '#/auswerten',
   '#/auswerten/analyse', '#/me/abfragen', '#/me/insights', '#/me/weight', '#/me/wohl', '#/me/fitbit', '#/trips/rides',
   // PR 20, area «App»: the app itself (lists, privacy, rules, own values, search, assistant, helper, mini apps).
