@@ -7,6 +7,8 @@
  *   { v: 1, weeks: { 'YYYY-MM-DD' (the Monday): { done: { [unitId]: 'YYYY-MM-DD' (the day it was ticked) },
  *                    no: [Strava activity ids that were said «not this unit»],
  *                    pins: { [unitId]: { d, t } } (part 4: the units moved by hand in this week),
+ *                    mode: { light?, ski?, rain? } (part 5: this week is lighter, a ski tour week, a rainy week),
+ *                    released: [unitId] (part 5: units let go on purpose; they do not count for the week's star),
  *                    snap: { saved, hours, units: [{ id, type, d, t, mins }] } } } }
  * - A tick belongs to the stable id of a unit (`tennis@1`, `bikeOut#2`, never «Tennis 2»), so a change of the plan
  *   moves nothing: a unit that is gone keeps its tick, and it shows again when the unit comes back.
@@ -15,7 +17,7 @@
  * - Strava only suggests (Noah «2a»): a matching activity of the same day is offered, a tick is always by hand.
  */
 import { shiftDay, mondayOf } from '../training.js';
-import { planOf, isSummer, planWeek } from './wochenplan.js';
+import { planOf, isSummer, planWeek, lightOf } from './wochenplan.js';
 
 export const WEEKLOG_KEY = 'training.weeklog';
 /** How many weeks the log keeps (older ones go on write). */
@@ -45,7 +47,8 @@ export function logOf(raw) {
     const units = (Array.isArray(w.snap?.units) ? w.snap.units : []).map(unitOf).filter(Boolean);
     const snap = units.length ? { saved: DAY.test(w.snap.saved ?? '') ? w.snap.saved : monday, hours: Number.isFinite(w.snap.hours) ? w.snap.hours : 0, units } : null;
     const no = (Array.isArray(w.no) ? w.no : []).map((x) => str(x, 40)).filter(Boolean).slice(0, 40);
-    weeks[monday] = { done, no, pins: pinsOf(w.pins), snap };
+    const released = [...new Set((Array.isArray(w.released) ? w.released : []).map((x) => str(x, 40)).filter(Boolean))].slice(0, 60);
+    weeks[monday] = { done, no, pins: pinsOf(w.pins), mode: modeOf(w.mode), released, snap };
   }
   return { v: 1, weeks };
 }
@@ -60,8 +63,15 @@ export function pinsOf(raw) {
   return out;
 }
 
+/** The modes of a week, cleaned: only the ones that are on stay. */
+export function modeOf(raw) {
+  const out = {};
+  for (const k of ['light', 'ski', 'rain']) if (raw?.[k] === true) out[k] = true;
+  return out;
+}
+
 /** One week of the log (empty when there is none). */
-export const weekLog = (log, monday) => log.weeks[monday] ?? { done: {}, no: [], pins: {}, snap: null };
+export const weekLog = (log, monday) => log.weeks[monday] ?? { done: {}, no: [], pins: {}, mode: {}, released: [], snap: null };
 
 /** Is the week over (Sunday is past)? A past week is frozen. */
 export const isPast = (monday, today) => shiftDay(monday, 7) <= today;
@@ -109,6 +119,25 @@ export function setPins(log, monday, pins, today) {
   return trim({ ...log, weeks: { ...log.weeks, [monday]: { ...w, pins: next } } });
 }
 
+/** The log with the modes of a week replaced (this week and next week; a past week is frozen). */
+export function setMode(log, monday, mode, today) {
+  if (isPast(monday, today)) return log;
+  const w = weekLog(log, monday);
+  const next = modeOf(mode);
+  if (same(w.mode, next)) return log;
+  return trim({ ...log, weeks: { ...log.weeks, [monday]: { ...w, mode: next } } });
+}
+
+/** A unit let go for this week (it no longer counts for the star), or counted again. */
+export function setReleased(log, monday, id, on, today) {
+  if (isPast(monday, today)) return log;
+  const w = weekLog(log, monday);
+  const list = w.released.filter((x) => x !== id);
+  if (on) list.push(id);
+  if (same(list, w.released)) return log;
+  return trim({ ...log, weeks: { ...log.weeks, [monday]: { ...w, released: list } } });
+}
+
 /** One unit moved to a day and a time. */
 export const movePin = (log, monday, id, d, t, today) => setPins(log, monday, { ...weekLog(log, monday).pins, [id]: { d, t } }, today);
 
@@ -128,8 +157,8 @@ export function dismiss(log, monday, actId, today) {
 }
 
 /** Progress of a week: units ticked, the small daily habits apart, minutes ticked (without the rest block). */
-export function progress(units, done) {
-  const main = units.filter((u) => !QUIET.includes(u.type));
+export function progress(units, done, released = []) {
+  const main = units.filter((u) => !QUIET.includes(u.type) && !released.includes(u.id));
   const quiet = units.filter((u) => QUIET.includes(u.type));
   const tick = (u) => !!done[u.id];
   return {
@@ -141,11 +170,13 @@ export function progress(units, done) {
   };
 }
 
-/** The plan of a week from the stored goals of its season. */
-export function weekFor(stored, monday, pins = {}) {
+/** The plan of a week from the stored goals of its season; mode: a lighter week, a ski tour week, a rainy week. */
+export function weekFor(stored, monday, pins = {}, mode = {}) {
   const p = planOf(stored);
-  const cfg = isSummer(monday) ? p.summer : p.winter;
-  return { cfg, week: planWeek(cfg, { monday, pins }) };
+  const summer = isSummer(monday);
+  const base = summer ? p.summer : p.winter;
+  const cfg = mode.light ? lightOf(base, summer) : base;
+  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain }) };
 }
 
 /**
@@ -157,9 +188,10 @@ export function dueToday(stored, rawLog, today) {
   const monday = mondayOf(today);
   const d = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;
   const log = logOf(rawLog);
-  const { cfg, week } = weekFor(stored, monday, weekLog(log, monday).pins);
-  const done = weekLog(log, monday).done;
-  const open = week.units.filter((u) => u.d === d && !QUIET.includes(u.type) && !done[u.id]);
+  const w = weekLog(log, monday);
+  const { cfg, week } = weekFor(stored, monday, w.pins, w.mode);
+  const done = w.done;
+  const open = week.units.filter((u) => u.d === d && !QUIET.includes(u.type) && !done[u.id] && !w.released.includes(u.id));
   if (!open.length) return null;
   return { monday, hours: cfg.hours, units: week.units, open, next: open[0], more: open.length - 1 };
 }
@@ -199,6 +231,39 @@ export function suggest(units, acts, monday, done, no = []) {
   return out;
 }
 
+/**
+ * A week's star (part 5): every unit of its snapshot is ticked, not counting the small daily habits and the units
+ * let go on purpose. Returns the day the last unit was ticked, or null (no snapshot, nothing planned, something open).
+ */
+export function completedOn(w) {
+  if (!w?.snap) return null;
+  const main = w.snap.units.filter((u) => !QUIET.includes(u.type) && !w.released.includes(u.id));
+  if (!main.length || !main.every((u) => w.done[u.id])) return null;
+  return main.map((u) => w.done[u.id]).sort().at(-1);
+}
+
+/** The weeks with a star, oldest first: { monday, day, run }; run = weeks in a row up to and with this one. */
+export function starWeeks(log) {
+  const out = [];
+  let prev = null;
+  let run = 0;
+  for (const monday of Object.keys(log.weeks).sort()) {
+    const day = completedOn(log.weeks[monday]);
+    if (!day) continue;
+    run = prev && shiftDay(prev, 7) === monday ? run + 1 : 1;
+    prev = monday;
+    out.push({ monday, day, run });
+  }
+  return out;
+}
+
+/** Weeks in a row with a star that end this week or last week (this week may still come). */
+export function streakNow(log, today) {
+  const last = starWeeks(log).at(-1);
+  const mon = mondayOf(today);
+  return last && (last.monday === mon || last.monday === shiftDay(mon, -7)) ? last.run : 0;
+}
+
 /** The frozen weeks, newest first: { monday, units, hours, done, ticked, total }. Only weeks with a snapshot. */
 export function pastWeeks(log, today, limit = 12) {
   return Object.keys(log.weeks)
@@ -208,7 +273,7 @@ export function pastWeeks(log, today, limit = 12) {
     .slice(0, limit)
     .map((monday) => {
       const w = log.weeks[monday];
-      const p = progress(w.snap.units, w.done);
-      return { monday, units: w.snap.units, hours: w.snap.hours, done: w.done, ticked: p.done, total: p.total };
+      const p = progress(w.snap.units, w.done, w.released);
+      return { monday, units: w.snap.units, hours: w.snap.hours, done: w.done, released: w.released, ticked: p.done, total: p.total, star: completedOn(w) != null };
     });
 }

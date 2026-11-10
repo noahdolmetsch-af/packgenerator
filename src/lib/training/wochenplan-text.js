@@ -38,6 +38,8 @@ export const NOTE_TEXT = {
   'sauna-no-room': 'No room for the sauna after the gym on {day}.',
   'med-skipped': 'No room for meditation on {day}.',
   'bike-hours': 'Cycling outdoors adds up to {h} h this week.',
+  'ski-drops': 'In a ski tour week the tour replaces «{type}».',
+  'ski-day-taken': 'The ski tour takes {day}: «{type}» on that day does not take place.',
 };
 
 /** Warnings of the planner: what does not fit. `w` is one warning of planWeek().warnings. */

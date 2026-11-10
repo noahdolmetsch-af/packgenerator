@@ -8,12 +8,14 @@
    * line «Up today» on Heute, past weeks frozen after Sunday, and a Strava suggestion that only suggests
    * (lib/training/wochenlog.js, setting training.weeklog). Part 4 (Noah 09.11.2026): fixed days and their wish time per
    * goal, moving a unit to another day or time (kept in training.weeklog for that week only), «Why here?» from the
-   * planner's reason codes, and a conflict that offers two ways: the fix, or leave it.
+   * planner's reason codes, and a conflict that offers two ways: the fix, or leave it. Part 5 (Noah 09.11.2026): the
+   * week star when every unit is ticked (it counts in Meilensteine), «Let go» for a unit left out on purpose, and three
+   * switches for one week: a lighter week (60 % of the hours), a ski tour week, a rainy week.
    * Everything is a suggestion: each unit count can be changed, the whole plan can go back to the basic plan, and the last
    * change can be taken back.
    */
   import { liveQuery } from 'dexie';
-  import { CalendarRange, Minus, Plus, Undo2, ChevronRight } from '@lucide/svelte';
+  import { CalendarRange, Minus, Plus, Undo2, ChevronRight, Star } from '@lucide/svelte';
   import { untrack } from 'svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
@@ -21,8 +23,8 @@
   import Empty from '../../lib/ui/Empty.svelte';
   import { db } from '../../lib/db.js';
   import { mondayOf, shiftDay } from '../../lib/training.js';
-  import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
-  import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, setDone, dismiss, setPins, movePin, clearPin, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
+  import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, lightOf, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
+  import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, setDone, dismiss, setPins, movePin, clearPin, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME, UNIT_HINT, LOAD_WORD, NOTE_TEXT, WARN_TEXT, whyOf, timeChoices, lengthOf, hoursOf, reachedPct, EXAMPLE_MONDAY } from '../../lib/training/wochenplan-text.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
   import { localDay } from '../../lib/localday.js';
@@ -52,10 +54,14 @@
   const isNow = $derived(isSummer(realMonday) === summer);
   const monday = $derived(isNow ? shiftDay(realMonday, 7 * weekPick) : EXAMPLE_MONDAY[seasonPick]);
   // the units moved by hand in the week shown (this week and next week; the example week has none)
-  const pinsShown = $derived(isNow ? weekLog(log ?? logOf(null), monday).pins : {});
-  const week = $derived(planWeek(cfg, { monday, pins: pinsShown }));
+  const shownLog = $derived(isNow ? weekLog(log ?? logOf(null), monday) : null);
+  const pinsShown = $derived(shownLog?.pins ?? {});
+  const modeShown = $derived(shownLog?.mode ?? {});
+  // a lighter week shows 60 % of the hours for this one week; the goals themselves stay as they are
+  const cfgW = $derived(modeShown.light ? lightOf(cfg, summer) : cfg);
+  const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain }));
   const mins = $derived(plannedMins(week.units));
-  const pct = $derived(reachedPct(mins, cfg.hours));
+  const pct = $derived(reachedPct(mins, cfgW.hours));
   const byHand = $derived(!followsHours(cfg, summer));
   const nothing = $derived(GOAL_TYPES.every((k) => !cfg.counts[k]));
   const seasonOptions = $derived([
@@ -78,11 +84,15 @@
 
   // ---- part 3: ticks, progress, frozen weeks, Strava ----
   const live = $derived(isNow && weekPick === 0); // only this week can be ticked; next week and the example can not
-  const nowCfg = $derived(isSummer(realMonday) ? plan.summer : plan.winter);
-  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: weekLog(log ?? logOf(null), realMonday).pins }));
-  const done = $derived(weekLog(log ?? logOf(null), realMonday).done);
-  const prog = $derived(progress(nowWeek.units, done));
+  const nowSummer = $derived(isSummer(realMonday));
+  const nowLog = $derived(weekLog(log ?? logOf(null), realMonday));
+  const nowCfg = $derived(nowLog.mode.light ? lightOf(nowSummer ? plan.summer : plan.winter, nowSummer) : nowSummer ? plan.summer : plan.winter);
+  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowLog.pins, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain }));
+  const done = $derived(nowLog.done);
+  const released = $derived(nowLog.released);
+  const prog = $derived(progress(nowWeek.units, done, released));
   const star = $derived(prog.total > 0 && prog.done === prog.total);
+  const inARow = $derived(log ? streakNow(log, today) : 0);
   const sugg = $derived(live && log ? suggest(nowWeek.units, $actsQ ?? [], realMonday, done, weekLog(log, realMonday).no) : {});
   const past = $derived(log ? pastWeeks(log, today) : []);
   // the week is stored as it was last seen; after Sunday it stays as it is (freezing)
@@ -137,7 +147,8 @@
     if (!history.length) return;
     const last = history[history.length - 1];
     history = history.slice(0, -1);
-    if (last.pins) await writeLog((cur) => setPins(cur, last.monday, last.pins, today));
+    if ('pins' in last) await writeLog((cur) => setPins(cur, last.monday, last.pins, today));
+    else if ('mode' in last) await writeLog((cur) => setMode(cur, last.monday, last.mode, today));
     else if (last.plan === null) await db.settings.delete(WEEKPLAN_KEY);
     else await db.settings.put({ key: WEEKPLAN_KEY, value: last.plan });
     msg = t('Taken back.');
@@ -178,6 +189,27 @@
     const w = whyOf(u.why);
     return t(w.text, { day: dayName(u.d), a: w.a ? t(w.a) : '', b: w.b ? t(w.b) : '' });
   };
+  // the switches of one week: lighter, ski tour, rainy; Undo takes the last one back
+  const MODES = [
+    { key: 'light', name: 'Lighter week', hint: 'Shows {share} percent of your hours for this week only.' },
+    { key: 'ski', name: 'Ski tour week', hint: 'The ski tour takes the weekend and replaces cycling, running and the mini workout.' },
+    { key: 'rain', name: 'Rainy week', hint: 'Cycling outdoors moves indoors.' },
+  ];
+  async function toggleMode(key) {
+    const at = monday;
+    const cur = logOf((await db.settings.get(WEEKLOG_KEY))?.value);
+    const before = weekLog(cur, at).mode;
+    const next = setMode(cur, at, { ...before, [key]: !before[key] }, today);
+    if (next === cur) return;
+    history = [...history.slice(-19), { mode: before, monday: at }];
+    await db.settings.put({ key: WEEKLOG_KEY, value: next });
+    const m = MODES.find((x) => x.key === key);
+    msg = !before[key] ? t('{what} is on for this week.', { what: t(m.name) }) : t('{what} is off again.', { what: t(m.name) });
+  }
+  async function letGo(u, on) {
+    await writeLog((cur) => setReleased(cur, realMonday, u.id, on, today));
+    msg = on ? t('{what} is let go for this week. It does not count for the week star.', { what: nameOf(u.type) }) : t('{what} counts again.', { what: nameOf(u.type) });
+  }
   const warnKey = (w) => `${monday}|${w.key}|${w.d ?? ''}|${w.a ?? ''}|${w.b ?? ''}|${w.type ?? ''}`;
   // the way out a conflict offers: one less of a goal, or a moved unit back on the suggestion
   function wayOut(w) {
@@ -199,7 +231,7 @@
     if (fixed) bits.push(t('{fixed} fixed, {free} free', { fixed, free: Math.max(0, (cfg.counts[type] || 0) - fixed) }));
     return bits.join(' · ');
   }
-  const noteText = (n) => (NOTE_TEXT[n.key] ? t(NOTE_TEXT[n.key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0) }) : '');
+  const noteText = (n) => (NOTE_TEXT[n.key] ? t(NOTE_TEXT[n.key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0), type: n.type ? nameOf(n.type) : '' }) : '');
   const warnText = (w) =>
     t(WARN_TEXT[w.key] ?? WARN_TEXT['no-room'], {
       day: w.d == null ? '' : dayName(w.d),
@@ -210,7 +242,9 @@
     });
   const notes = $derived(week.notes.map(noteText).filter(Boolean));
   const hoursLine = $derived(
-    cfg.hours >= 21
+    modeShown.light
+      ? t('A lighter week: {n} h instead of {m} h. Plus and minus change your normal plan.', { n: cfgW.hours, m: cfg.hours })
+      : cfg.hours >= 21
       ? t('Above about 20 hours it only fits with overload, so only what still fits is suggested.')
       : byHand
         ? t('You changed units by hand. The plan now has {h} hours.', { h: hoursText(mins) })
@@ -252,11 +286,24 @@
             <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={18} aria-hidden="true" /></button>
           </div>
           <p class="sub">{t('with meditation and stretching, without the rest block')}</p>
-          <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(mins), b: cfg.hours })}</b></p>
+          <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(mins), b: cfgW.hours })}</b></p>
           <span class="bar" role="img" aria-label={t('{n} percent of the goal', { n: pct })}><i style="width:{pct}%"></i></span>
           <p class="hint" data-wp-hint>{hoursLine}</p>
           {#if byHand}<button type="button" class="btn sm" onclick={suggestAgain} data-wp-again>{t('Suggest the units from the hours again')}</button>{/if}
         </section>
+
+        {#if isNow}
+          <section class="card pc modes" aria-labelledby="wp-modes" data-wp-modes>
+            <h2 id="wp-modes">{weekPick === 0 ? t('This week') : t('Next week')}</h2>
+            <div class="mrow" role="group" aria-label={t('Kind of week')}>
+              {#each MODES as m (m.key)}
+                <button type="button" class="chip" aria-pressed={!!modeShown[m.key]} onclick={() => toggleMode(m.key)} data-wp-mode={m.key}>{t(m.name)}</button>
+              {/each}
+            </div>
+            {#each MODES.filter((m) => modeShown[m.key]) as m (m.key)}<p class="hint" data-wp-mode-hint={m.key}>{t(m.hint, { share: Math.round(LIGHT_SHARE * 100) })}</p>{/each}
+            {#if !Object.keys(modeShown).length}<p class="hint">{t('Switch the week to lighter, a ski tour or rain. It changes this week only, your goals stay.')}</p>{/if}
+          </section>
+        {/if}
 
         {#if live && prog.total > 0}
           <section class="card pc prog" aria-labelledby="wp-prog" data-wp-progress>
@@ -264,7 +311,14 @@
             <p class="big2 num"><b data-wp-done>{t('{a} of {b} units', { a: prog.done, b: prog.total })}</b></p>
             <span class="bar" role="img" aria-label={t('{a} of {b} units', { a: prog.done, b: prog.total })}><i style="width:{Math.round((prog.done / prog.total) * 100)}%"></i></span>
             <p class="sub" data-wp-quiet>{t('Meditation and stretching: {a} of {b}.', { a: prog.quietDone, b: prog.quietTotal })}</p>
-            <p class="hint">{star ? t('Every unit of this week is ticked off.') : t('Tick a unit when you did it. Only you tick: Strava only suggests.')}</p>
+            {#if star}
+              <p class="starline" data-wp-star><Star size={18} aria-hidden="true" /> <b>{t('Week star reached.')}</b> {t('Every unit of this week is ticked off.')}</p>
+              <p class="hint">{t('It counts under Milestones › Stars.')} <a class="link" href="#/flow/milestones" data-wp-to-milestones>{t('Open the milestones')}</a></p>
+            {:else}
+              <p class="hint" data-wp-left>{tn(prog.total - prog.done, 'Still {n} unit until the week star.', 'Still {n} units until the week star.', {})} {t('Tick a unit when you did it. Only you tick: Strava only suggests.')}</p>
+            {/if}
+            {#if inARow >= 2}<p class="hint" data-wp-row>{t('{n} weeks in a row with a star.', { n: inARow })}</p>{/if}
+            <p class="hint">{t('Letting a unit go on purpose costs nothing: «Let go» takes it out of the week star.')}</p>
           </section>
         {/if}
 
@@ -348,15 +402,16 @@
                 </div>
                 <div class="evs">
                   {#each list as u (u.id)}
-                    <div class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} class:withtick={live} class:ticked={live && done[u.id]} data-unit={u.id}>
-                      {#if live}<label class="tk"><input type="checkbox" class="tick" checked={!!done[u.id]} onchange={(e) => tick(u, e.currentTarget.checked)} aria-label={t('Done: {what} on {day}', { what: nameOf(u.type), day: dayName(d) })} data-wp-tick={u.id} /></label>{/if}
+                    <div class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} class:withtick={live} class:ticked={live && done[u.id]} class:let-go={live && released.includes(u.id)} data-unit={u.id}>
+                      {#if live}<label class="tk"><input type="checkbox" class="tick" checked={!!done[u.id]} disabled={released.includes(u.id)} onchange={(e) => tick(u, e.currentTarget.checked)} aria-label={t('Done: {what} on {day}', { what: nameOf(u.type), day: dayName(d) })} data-wp-tick={u.id} /></label>{/if}
                       <time>{u.t}</time>
                       <span class="t">{nameOf(u.type)}</span>
-                      <span class="m num">{lengthText(u.mins)}{#if u.pinned}<span class="tag">{t('moved')}</span>{:else if u.fixed}<span class="tag">{t('fixed')}</span>{/if}{#if u.variant === 'intervals'}<span class="tag">{t('intervals')}</span>{/if}</span>
+                      <span class="m num">{lengthText(u.mins)}{#if live && released.includes(u.id)}<span class="tag">{t('let go')}</span>{/if}{#if u.pinned}<span class="tag">{t('moved')}</span>{:else if u.fixed}<span class="tag">{t('fixed')}</span>{/if}{#if u.variant === 'intervals'}<span class="tag">{t('intervals')}</span>{/if}</span>
                       {#if !quiet(u)}
                         <div class="ux">
                           <span class="sb">
                             <button type="button" class="ab" aria-expanded={openWhy === u.id} onclick={() => { openWhy = openWhy === u.id ? null : u.id; openMove = null; }} data-wp-why-btn={u.id}>{t('Why here?')}</button>
+                            {#if live}<button type="button" class="ab" onclick={() => letGo(u, !released.includes(u.id))} data-wp-letgo={u.id}>{released.includes(u.id) ? t('Count it again') : t('Let go|plan')}</button>{/if}
                             {#if isNow}<button type="button" class="ab" aria-expanded={openMove === u.id} onclick={() => { openMove = openMove === u.id ? null : u.id; openWhy = null; }} data-wp-move-btn={u.id}>{t('Move')}</button>{/if}
                           </span>
                           {#if openWhy === u.id}
@@ -403,10 +458,10 @@
           <h2 id="wp-past">{t('Past weeks')}</h2>
           {#each past as w (w.monday)}
             <details class="pw" data-past-week={w.monday}>
-              <summary><span>{rangeText(w.monday)}</span><b class="num">{t('{a} of {b} units', { a: w.ticked, b: w.total })}</b></summary>
+              <summary><span>{rangeText(w.monday)}</span><b class="num">{#if w.star}<Star size={14} aria-hidden="true" />{' '}{/if}{t('{a} of {b} units', { a: w.ticked, b: w.total })}</b></summary>
               <ul>
                 {#each w.units.filter((x) => !QUIET.includes(x.type)) as x (x.id)}
-                  <li class:miss={!w.done[x.id]}><span aria-hidden="true">{w.done[x.id] ? '✓' : '○'}</span> {pastDay(w.monday, x.d)} {x.t} · {nameOf(x.type)}<span class="vh">, {w.done[x.id] ? t('done') : t('not ticked')}</span></li>
+                  <li class:miss={!w.done[x.id]}><span aria-hidden="true">{w.released.includes(x.id) ? '–' : w.done[x.id] ? '✓' : '○'}</span> {pastDay(w.monday, x.d)} {x.t} · {nameOf(x.type)}<span class="vh">, {w.released.includes(x.id) ? t('let go') : w.done[x.id] ? t('done') : t('not ticked')}</span></li>
                 {/each}
               </ul>
             </details>
@@ -761,6 +816,21 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--sp-2);
+  }
+  .mrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .starline {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0;
+  }
+  .u.let-go .t {
+    text-decoration: line-through;
+    opacity: 0.6;
   }
   .big2 {
     margin: 0 0 var(--sp-2);
