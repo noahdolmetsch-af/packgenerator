@@ -48,6 +48,7 @@
   import { openTimer, actName } from '../lib/flow/ui.svelte.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
+  import SyncLine from '../lib/flow/SyncLine.svelte'; // «Abgeglichen vor 12 s» (Noah 10.11.2026)
   import WeekGlance from '../lib/flow/WeekGlance.svelte';
   import Sec from '../lib/flow/kit/Sec.svelte';
   import Empty from '../lib/ui/Empty.svelte';
@@ -225,6 +226,7 @@
             <!-- the help line (spec «Heute abhaken»), the same as on Heute -->
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help onmed={(s) => (medFor = s.act.id)} />
             {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
+            <SyncLine />
             <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
             <TickSuggest />
           </Sec>

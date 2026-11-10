@@ -13,11 +13,12 @@
   import { fetchNow, readKey } from '../strava/client.svelte.js';
   import { health, fetchNow as fetchFitbit } from '../health/client.svelte.js';
   import { THRESHOLD, BUSY_PULL, REFRESHED, MIN_SHOW, pullOf, arms, isHeute, refreshToday } from './refresh.js';
+  import { sync as autoSync, runSync, wake } from '../sync/auto.svelte.js';
   import { t } from '../i18n.svelte.js';
 
   let pull = $state(0); // px the wheel hangs down while the finger pulls
   let phase = $state('idle'); // idle · pulling · busy · done
-  let what = $state({ weather: false, strava: false, fitbit: false });
+  let what = $state({ weather: false, strava: false, fitbit: false, sync: false });
   let mark = $state(null); // the empty marker span: its parent is the page that moves down with the finger
   let y0 = null;
   let x0 = 0;
@@ -56,7 +57,7 @@
     phase = 'busy';
     pull = BUSY_PULL;
     const began = Date.now();
-    what = await refreshToday({ db, loadCore, fetchNow, hasStrava: !!readKey(), fetchFitbit, hasFitbit: !!health.prefs?.connected && !!readKey() });
+    what = await refreshToday({ db, loadCore, fetchNow, hasStrava: !!readKey(), fetchFitbit, hasFitbit: !!health.prefs?.connected && !!readKey(), syncNow: () => (wake(), runSync()), hasSync: autoSync.on });
     globalThis.dispatchEvent(new Event(REFRESHED));
     const wait = MIN_SHOW - (Date.now() - began);
     if (wait > 0) await new Promise((r) => setTimeout(r, wait));
@@ -91,7 +92,7 @@
     phase === 'pulling' && arms(pull)
       ? t('Let go to refresh')
       : phase === 'busy'
-        ? what.fitbit ? t('Refreshing weather, Strava and Fitbit …') : what.strava ? t('Refreshing weather and Strava …') : what.weather ? t('Refreshing the weather …') : t('Refreshing …')
+        ? what.fitbit ? t('Refreshing weather, Strava and Fitbit …') : what.strava ? t('Refreshing weather and Strava …') : what.weather ? t('Refreshing the weather …') : what.sync ? t('Syncing …') : t('Refreshing …')
         : phase === 'done'
           ? t('Up to date')
           : ''
