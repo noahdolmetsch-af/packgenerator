@@ -305,6 +305,27 @@ function flowIds(m) {
  * ({ fx, fy, zoom }), qr ({ n, rows } from qrMatrix or null) }.
  */
 export function drawFlyer(canvas, fmt, m, { img = null, photo = null, qr = null } = {}) {
+  // a format with bleed: the flyer is drawn at the trimmed size and its edge pixels are repeated outwards
+  if (fmt.bleed) {
+    const b = fmt.bleed;
+    const inner = document.createElement('canvas');
+    drawFlyer(inner, { w: fmt.w - 2 * b, h: fmt.h - 2 * b }, m, { img, photo, qr });
+    canvas.width = fmt.w;
+    canvas.height = fmt.h;
+    const g = canvas.getContext('2d');
+    const iw = inner.width;
+    const ih = inner.height;
+    g.drawImage(inner, 0, 0, iw, 1, b, 0, iw, b);
+    g.drawImage(inner, 0, ih - 1, iw, 1, b, b + ih, iw, b);
+    g.drawImage(inner, 0, 0, 1, ih, 0, b, b, ih);
+    g.drawImage(inner, iw - 1, 0, 1, ih, b + iw, b, b, ih);
+    g.drawImage(inner, 0, 0, 1, 1, 0, 0, b, b);
+    g.drawImage(inner, iw - 1, 0, 1, 1, b + iw, 0, b, b);
+    g.drawImage(inner, 0, ih - 1, 1, 1, 0, b + ih, b, b);
+    g.drawImage(inner, iw - 1, ih - 1, 1, 1, b + iw, b + ih, b, b);
+    g.drawImage(inner, b, b);
+    return;
+  }
   const W = fmt.w;
   const H = fmt.h;
   canvas.width = W;
