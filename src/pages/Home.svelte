@@ -78,6 +78,8 @@
   import { todayFocus, openDebrief, endedOn } from '../lib/today.js';
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
+  import MeineTour from '../lib/home/MeineTour.svelte';
+  import { meineTour } from '../lib/tourpfad/karte.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, pointCount, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
   import { tileDaysLeft, unpinNews } from '../lib/know/wasneu.js';
@@ -637,7 +639,12 @@
   }
   const shortDay = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : '');
   const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && onTripDay(x, today)));
+  // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): the card for the tour that is planned next. The preparation tasks of the
+  // Excel list («Event preparation») are its hint line now; only while the card is off the wall they stay a row of «Up now»
+  const tourPrep = $derived(bildTrip && hasBike(bildTrip) ? eventPrep(bildTrip, tasks, today) : null);
+  const meineCard = $derived(bildTrip ? meineTour(bildTrip, { today, debriefDone: debriefs.some((d) => d.tripId === bildTrip.id && d.status === 'done') }, { prep: tourPrep }) : null);
   const prep = $derived.by(() => {
+    if (on('meinetour') && meineCard && meineCard.tripId === next?.id) return null; // the card says it in its hint line
     const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
     return p?.total && p.status === 'open' ? p : null;
   });
@@ -971,7 +978,7 @@
     const ds = candidates(S[DREAMS_KEY], today);
     if (ds.length) refreshDreamWx(db, ds, place).catch(() => {});
   });
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum'])]);
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour'])]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1267,7 +1274,8 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'trip'}
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} />{/if}
+  {:else if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS(x.size === 'long')}

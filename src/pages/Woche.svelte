@@ -334,6 +334,8 @@
             </div>
           {/if}
           <p class="why">{t(TRAIN_NOTE)}</p>
+          <!-- «Wochenplan» (Noah 09.11.2026): the plan of your training hours; the way to it starts where the week is planned -->
+          <a class="btn btn-link sm" href="#/flow/wochenplan" data-to-wochenplan>{t('Weekly plan for your training')}<ChevronRight size={16} aria-hidden="true" /></a>
         </section>
       </aside>
     </div>
