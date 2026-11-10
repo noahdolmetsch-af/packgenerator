@@ -37,7 +37,16 @@
     return ahead.find((x) => x.startDate >= today) ?? [...ahead].reverse()[0] ?? null;
   });
   const debrief = $derived(trip ? ($q?.debriefs ?? []).find((x) => x.tripId === trip.id) : null);
-  const stand = $derived(trip ? tourStand(trip, { today, debriefDone: debrief?.status === 'done' }) : null);
+  // form, bike care, fuel plan and ride of this tour (the same facts Heute gives «Meine Tour»), read once per tour
+  let extra = $state({});
+  $effect(() => {
+    const tr = trip;
+    if (!tr) return;
+    let live = true;
+    import('../lib/tourpfad/kontext.js').then((m) => m.loadTourExtra($state.snapshot(tr), today)).then((x) => live && (extra = x));
+    return () => (live = false);
+  });
+  const stand = $derived(trip ? tourStand(trip, { today, debriefDone: debrief?.status === 'done', ...extra }) : null);
   const titles = $derived(PHASE_TITLE());
   const phases = $derived(
     (stand?.phases ?? []).map((p) => ({ key: p.key, title: titles[p.key], count: phaseCount(p), state: p.state, rows: p.rows.map((r) => ({ key: r.key, state: r.state, href: r.href, hint: r.hint, ...rowWords(r) })) })),
