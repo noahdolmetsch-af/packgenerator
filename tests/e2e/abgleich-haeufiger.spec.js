@@ -68,12 +68,16 @@ test('Ein Haken auf dem einen Geraet steht kurz danach auf dem anderen, und die 
   const line = a.page.locator('[data-sync-line]');
   await expect(line).toBeVisible();
   await expect(line).toContainText(T('Synced {ago} ago').split('{ago}')[0].trim());
+  await line.scrollIntoViewIfNeeded();
+  await a.page.evaluate(() => window.scrollBy(0, 200));
   await shot(a.page, `S1-zeile-${size}`);
 
   // a tick on A: B shows it without any tap, within the poll rhythm (20 s) and the 2 s before sending
   await tileA.click();
   await expect(tileA).toHaveAttribute('aria-pressed', 'true');
   await expect(tileB).toHaveAttribute('aria-pressed', 'true', { timeout: 60_000 });
+  await tileB.scrollIntoViewIfNeeded();
+  await b.page.evaluate(() => window.scrollBy(0, 120));
   await shot(b.page, `S2-angekommen-${size}`);
 
   // and the other way round: taking it back on B reaches A
