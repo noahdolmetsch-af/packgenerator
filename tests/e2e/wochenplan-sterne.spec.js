@@ -51,6 +51,7 @@ test('Wochenplan: the week star comes when every unit is ticked, and counts in M
   await expect(page).toHaveURL(/#\/flow\/milestones/);
   await ready(page);
   await expect(page.getByText(T('Weeks with a star')).first()).toBeVisible();
+  await shot(page, info, 'meilensteine');
   expect(errors).toEqual([]);
 });
 
