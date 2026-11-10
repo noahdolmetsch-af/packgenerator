@@ -6,6 +6,7 @@
  * Setting training.weeklog (db.settings, goes into the backup, no schema change):
  *   { v: 1, weeks: { 'YYYY-MM-DD' (the Monday): { done: { [unitId]: 'YYYY-MM-DD' (the day it was ticked) },
  *                    no: [Strava activity ids that were said «not this unit»],
+ *                    pins: { [unitId]: { d, t } } (part 4: the units moved by hand in this week),
  *                    snap: { saved, hours, units: [{ id, type, d, t, mins }] } } } }
  * - A tick belongs to the stable id of a unit (`tennis@1`, `bikeOut#2`, never «Tennis 2»), so a change of the plan
  *   moves nothing: a unit that is gone keeps its tick, and it shows again when the unit comes back.
@@ -44,13 +45,23 @@ export function logOf(raw) {
     const units = (Array.isArray(w.snap?.units) ? w.snap.units : []).map(unitOf).filter(Boolean);
     const snap = units.length ? { saved: DAY.test(w.snap.saved ?? '') ? w.snap.saved : monday, hours: Number.isFinite(w.snap.hours) ? w.snap.hours : 0, units } : null;
     const no = (Array.isArray(w.no) ? w.no : []).map((x) => str(x, 40)).filter(Boolean).slice(0, 40);
-    weeks[monday] = { done, no, snap };
+    weeks[monday] = { done, no, pins: pinsOf(w.pins), snap };
   }
   return { v: 1, weeks };
 }
 
+/** Moved units, cleaned: { [unitId]: { d: 0..6, t: 'HH:MM' } }. */
+export function pinsOf(raw) {
+  const out = {};
+  for (const [id, p] of Object.entries(raw && typeof raw === 'object' ? raw : {})) {
+    const d = Number(p?.d);
+    if (d >= 0 && d <= 6 && Number.isInteger(d) && /^([01]\d|2[0-3]):[0-5]\d$/.test(p?.t ?? '')) out[str(id, 40)] = { d, t: p.t };
+  }
+  return out;
+}
+
 /** One week of the log (empty when there is none). */
-export const weekLog = (log, monday) => log.weeks[monday] ?? { done: {}, no: [], snap: null };
+export const weekLog = (log, monday) => log.weeks[monday] ?? { done: {}, no: [], pins: {}, snap: null };
 
 /** Is the week over (Sunday is past)? A past week is frozen. */
 export const isPast = (monday, today) => shiftDay(monday, 7) <= today;
@@ -89,6 +100,25 @@ export function setDone(log, monday, id, on, today, units = [], hours = 0) {
   return trim({ ...base, weeks: { ...base.weeks, [monday]: { ...w, done } } });
 }
 
+/** The log with the moved units of a week replaced (a past week can not be changed). Used by move, take back and undo. */
+export function setPins(log, monday, pins, today) {
+  if (isPast(monday, today)) return log;
+  const w = weekLog(log, monday);
+  const next = pinsOf(pins);
+  if (same(w.pins, next)) return log;
+  return trim({ ...log, weeks: { ...log.weeks, [monday]: { ...w, pins: next } } });
+}
+
+/** One unit moved to a day and a time. */
+export const movePin = (log, monday, id, d, t, today) => setPins(log, monday, { ...weekLog(log, monday).pins, [id]: { d, t } }, today);
+
+/** One unit back on the suggestion. */
+export function clearPin(log, monday, id, today) {
+  const pins = { ...weekLog(log, monday).pins };
+  delete pins[id];
+  return setPins(log, monday, pins, today);
+}
+
 /** The log with an activity marked «not this unit». */
 export function dismiss(log, monday, actId, today) {
   if (isPast(monday, today)) return log;
@@ -112,10 +142,10 @@ export function progress(units, done) {
 }
 
 /** The plan of a week from the stored goals of its season. */
-export function weekFor(stored, monday) {
+export function weekFor(stored, monday, pins = {}) {
   const p = planOf(stored);
   const cfg = isSummer(monday) ? p.summer : p.winter;
-  return { cfg, week: planWeek(cfg, { monday }) };
+  return { cfg, week: planWeek(cfg, { monday, pins }) };
 }
 
 /**
@@ -126,8 +156,8 @@ export function dueToday(stored, rawLog, today) {
   if (stored == null) return null;
   const monday = mondayOf(today);
   const d = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;
-  const { cfg, week } = weekFor(stored, monday);
   const log = logOf(rawLog);
+  const { cfg, week } = weekFor(stored, monday, weekLog(log, monday).pins);
   const done = weekLog(log, monday).done;
   const open = week.units.filter((u) => u.d === d && !QUIET.includes(u.type) && !done[u.id]);
   if (!open.length) return null;
