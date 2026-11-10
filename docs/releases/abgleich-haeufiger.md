@@ -9,7 +9,7 @@ Anlass: Ein Haken (zum Beispiel Tennis) auf dem Handy sollte sofort auf dem Comp
 ## Was ist neu
 - Eine Änderung geht 2 Sekunden später raus (vorher 20 Sekunden).
 - Solange die App offen und vorne ist, fragt sie alle 20 Sekunden nach Neuem. Passiert zehn Runden lang nichts, alle 60 Sekunden. Eine Änderung, das Zurückkommen in die App, Netz zurück oder Ziehen macht sie wieder schnell. Ist die App verborgen, läuft kein Zeitgeber.
-- Ziehen zum Aktualisieren auf Heute startet auch einen Abgleich (höchstens 15 Sekunden gewartet, danach läuft er im Hintergrund weiter).
+- Ziehen zum Aktualisieren auf Heute startet auch einen Abgleich (höchstens 15 Sekunden gewartet, danach läuft er im Hintergrund weiter). Neu auch auf dem Start von Aktiv (Noah «ja»): dort gleicht Ziehen nur ab, ohne Wetter, Strava und Fitbit.
 - Eine ruhige graue Zeile unter den Kacheln von «Heute abhaken» auf Aktiv: «Abgeglichen vor 12 s», «Gleicht ab …» oder «Abgleich hängt · tippen, um es neu zu versuchen» (ein Tipp startet eine Runde). Sie erscheint nur bei eingeschaltetem Abgleich (`src/lib/flow/SyncLine.svelte`).
 - Kleiner Startfehler behoben: Die erste Änderung nach dem Öffnen konnte keinen Abgleich auslösen, wenn der Zustand des Abgleichs noch nicht gelesen war.
 

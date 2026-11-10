@@ -48,6 +48,7 @@
   import { openTimer, actName } from '../lib/flow/ui.svelte.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
+  import PullRefresh from '../lib/home/PullRefresh.svelte'; // pull down: sync phone and computer (Noah 10.11.2026 «ja»)
   import SyncLine from '../lib/flow/SyncLine.svelte'; // «Abgeglichen vor 12 s» (Noah 10.11.2026)
   import WeekGlance from '../lib/flow/WeekGlance.svelte';
   import Sec from '../lib/flow/kit/Sec.svelte';
@@ -196,6 +197,7 @@
   {#if data}<ActEditor id={editId} acts={data.acts} log={data.log} {today} tripDays={data.tripDays} back={editBack} group={params.get('group') ?? ''} />{/if}
 {:else}
   <div class="flow">
+    <PullRefresh />
     <header class="ph">
       <h1 class="title">{t('Active|place')}</h1>
       <p class="sub" data-today-line>{todayLine}</p>

@@ -4,7 +4,8 @@
    * pulls the page down and a small drawn bike wheel comes down with it, turning with the finger. Let go far
    * enough and the weather and the Strava rides load fresh while the wheel spins; then «Up to date».
    * A touch screen only (a computer has the «Fetch now» buttons of the pages). Does not start with a window open, in
-   * the middle of the page or on another page. Still wheel (no spinning) with «Bewegung reduzieren».
+   * the middle of the page or on another page. Since 10.11.2026 (Noah «ja») also on the start of Aktiv, where it only
+   * syncs phone and computer. Still wheel (no spinning) with «Bewegung reduzieren».
    */
   import { onMount } from 'svelte';
   import { Check } from '@lucide/svelte';
@@ -12,7 +13,7 @@
   import { loadCore } from '../wetter/kern.js';
   import { fetchNow, readKey } from '../strava/client.svelte.js';
   import { health, fetchNow as fetchFitbit } from '../health/client.svelte.js';
-  import { THRESHOLD, BUSY_PULL, REFRESHED, MIN_SHOW, pullOf, arms, isHeute, refreshToday } from './refresh.js';
+  import { THRESHOLD, BUSY_PULL, REFRESHED, MIN_SHOW, pullOf, arms, isPullPage, isAktiv, refreshToday } from './refresh.js';
   import { sync as autoSync, runSync, wake } from '../sync/auto.svelte.js';
   import { t } from '../i18n.svelte.js';
 
@@ -24,7 +25,7 @@
   let x0 = 0;
   let drag = $state(false);
 
-  const startOk = () => isHeute(globalThis.location?.hash) && (document.scrollingElement?.scrollTop ?? 0) <= 0 && !document.querySelector('dialog[open]') && phase === 'idle';
+  const startOk = () => isPullPage(globalThis.location?.hash) && (document.scrollingElement?.scrollTop ?? 0) <= 0 && !document.querySelector('dialog[open]') && phase === 'idle';
 
   function start(e) {
     if (e.touches.length !== 1 || !startOk()) return (y0 = null);
@@ -57,7 +58,7 @@
     phase = 'busy';
     pull = BUSY_PULL;
     const began = Date.now();
-    what = await refreshToday({ db, loadCore, fetchNow, hasStrava: !!readKey(), fetchFitbit, hasFitbit: !!health.prefs?.connected && !!readKey(), syncNow: () => (wake(), runSync()), hasSync: autoSync.on });
+    what = await refreshToday({ db, loadCore, fetchNow, hasStrava: !!readKey(), fetchFitbit, hasFitbit: !!health.prefs?.connected && !!readKey(), syncNow: () => (wake(), runSync()), hasSync: autoSync.on, onlySync: isAktiv(globalThis.location?.hash) });
     globalThis.dispatchEvent(new Event(REFRESHED));
     const wait = MIN_SHOW - (Date.now() - began);
     if (wait > 0) await new Promise((r) => setTimeout(r, wait));
@@ -80,7 +81,7 @@
       document.removeEventListener('touchcancel', end);
     };
   });
-  // Today moves down with the finger, the wheel sits in the gap under the top bar
+  // The page moves down with the finger, the wheel sits in the gap under the top bar
   $effect(() => {
     const host = mark?.parentElement;
     if (!host) return;

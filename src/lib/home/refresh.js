@@ -26,6 +26,11 @@ export const arms = (pull) => pull >= THRESHOLD;
 /** Only the top of Heute, with no window open, counts as a start. hash like '#/' or ''. */
 export const isHeute = (hash = '') => /^#?\/?$/.test(String(hash));
 
+/** Aktiv's start (Noah 10.11.2026 «ja»): there the pull only brings the changes of the other device. */
+export const isAktiv = (hash = '') => /^#\/flow\/?(\?.*)?$/.test(String(hash));
+/** The pages where the pull-down works. */
+export const isPullPage = (hash = '') => isHeute(hash) || isAktiv(hash);
+
 const safe = async (f) => {
   try {
     await f();
@@ -40,9 +45,16 @@ const safe = async (f) => {
  * → { weather: boolean, strava: boolean, fitbit?: true, sync?: true } = what was asked for.
  * Everything is injected (db, loadCore, fetchNow, hasStrava, fetchFitbit, hasFitbit) so it is testable without a network.
  */
-export async function refreshToday({ db, loadCore, fetchNow, hasStrava = false, fetchFitbit = null, hasFitbit = false, fitbitMax = FITBIT_MAX, syncNow = null, hasSync = false, syncMax = SYNC_MAX }) {
+export async function refreshToday({ db, loadCore, fetchNow, hasStrava = false, fetchFitbit = null, hasFitbit = false, fitbitMax = FITBIT_MAX, syncNow = null, hasSync = false, syncMax = SYNC_MAX, onlySync = false }) {
   const done = { weather: false, strava: false };
   const jobs = [];
+  if (onlySync) {
+    if (hasSync && syncNow) {
+      done.sync = true;
+      await safe(() => Promise.race([syncNow(), new Promise((ok) => setTimeout(ok, syncMax))]));
+    }
+    return done;
+  }
   const home = (await db.settings.get(HOME_PLACE).catch(() => null))?.value;
   if (home && Number.isFinite(Number(home.lat)) && Number.isFinite(Number(home.lon))) {
     done.weather = true;
