@@ -11,7 +11,7 @@
  * to change, one small PR per page (docs/releases/diagramme-tippen.md has the order). A new chart goes into
  * DONE; moving one from OPEN to DONE is how the work goes on.
  */
-export const DONE = ['src/lib/flow/auswertung/TkWeeks.svelte', 'src/lib/flow/auswertung/TkSpread.svelte', 'src/lib/flow/auswertung/TkLine.svelte', 'src/lib/flow/form/FormVerlauf.svelte', 'src/lib/touren/tour/TourAnalysis.svelte', 'src/lib/flow/form/FormTeile.svelte', 'src/lib/flow/form/FormTour.svelte', 'src/lib/training/week/AnaEff.svelte', 'src/lib/training/week/AnaForm.svelte', 'src/lib/training/week/AnaPCurve.svelte', 'src/lib/training/week/AnaWLoad.svelte', 'src/pages/flow/Stats.svelte', 'src/lib/training/act/LoadCurve.svelte', 'src/lib/training/act/AnaCadence.svelte', 'src/lib/training/act/AnaPzBars.svelte', 'src/lib/training/act/AnaSimilar.svelte', 'src/lib/training/inhalt/AnaDecouple.svelte', 'src/lib/training/inhalt/AnaHomeloop.svelte', 'src/lib/sportpage/MeasureCard.svelte', 'src/pages/flow/MedPatterns.svelte', 'src/pages/flow/MedReview.svelte', 'src/pages/flow/TrainingWeek.svelte', 'src/lib/home/YearRow.svelte', 'src/lib/debrief/PaceMonths.svelte', 'src/lib/tagebuch/Rueckblick.svelte', 'src/lib/review/HeartPower.svelte', 'src/lib/review/MiniBars.svelte', 'src/lib/review/MonthBars.svelte'];
+export const DONE = ['src/lib/flow/auswertung/TkWeeks.svelte', 'src/lib/flow/auswertung/TkSpread.svelte', 'src/lib/flow/auswertung/TkLine.svelte', 'src/lib/flow/form/FormVerlauf.svelte', 'src/lib/touren/tour/TourAnalysis.svelte', 'src/lib/flow/form/FormTeile.svelte', 'src/lib/flow/form/FormTour.svelte', 'src/lib/training/week/AnaEff.svelte', 'src/lib/training/week/AnaForm.svelte', 'src/lib/training/week/AnaPCurve.svelte', 'src/lib/training/week/AnaWLoad.svelte', 'src/pages/flow/Stats.svelte', 'src/lib/training/act/LoadCurve.svelte', 'src/lib/training/act/AnaCadence.svelte', 'src/lib/training/act/AnaPzBars.svelte', 'src/lib/training/act/AnaSimilar.svelte', 'src/lib/training/inhalt/AnaDecouple.svelte', 'src/lib/training/inhalt/AnaHomeloop.svelte', 'src/lib/sportpage/MeasureCard.svelte', 'src/pages/flow/MedPatterns.svelte', 'src/pages/flow/MedReview.svelte', 'src/pages/flow/TrainingWeek.svelte', 'src/lib/home/YearRow.svelte', 'src/lib/debrief/PaceMonths.svelte', 'src/lib/tagebuch/Rueckblick.svelte', 'src/lib/review/HeartPower.svelte', 'src/lib/review/MiniBars.svelte', 'src/lib/review/MonthBars.svelte', 'src/lib/race/prep/Load.svelte'];
 
 export const OPEN = [
   // Haken und Antworten ausgewertet
@@ -33,6 +33,5 @@ export const OPEN = [
   'src/lib/live/DpChart.svelte',
   'src/lib/live/SensorCurve.svelte',
   'src/lib/map/WxTimeline.svelte',
-  'src/lib/race/prep/Load.svelte',
   'src/pages/ski/SkiSeason.svelte',
 ];

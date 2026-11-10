@@ -142,4 +142,9 @@ export default {
   'Average of the bars': 'Durchschnitt der Balken',
   'Not known for this trip.': 'Für diese Tour nicht bekannt.',
   'Dashed line: average {v}': 'Gestrichelte Linie: Durchschnitt {v}',
+  'Point at a stretch for the weight, tap it for the km.': 'Zeig auf eine Stelle für das Gewicht, tippe sie an für den Kilometer.',
+  'Earlier stretch': 'Weiter vorn',
+  'Later stretch': 'Weiter hinten',
+  'Heaviest point': 'Schwerste Stelle',
+  'Lightest point': 'Leichteste Stelle',
 };
