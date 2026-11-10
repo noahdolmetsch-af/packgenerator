@@ -169,9 +169,9 @@
     {#if twinW != null}<div><dt>{t('Ø power')}</dt><dd class="num" data-after-power data-after-from-twin>{num(twinW)} W</dd></div>{/if}
   </dl>
   {#if twinHm != null || twinHr != null || twinW != null}<p class="tp-small tp-muted" data-after-twin>{t('Filled in from your Strava or Garmin ride at the same time: {name}.', { name: twin.name || t('Ride|twin') })}</p>{/if}
-  {#if height.length > 1}<SensorCurve samples={height} label={t('Elevation profile')} unit="m" />{/if}
-  {#if cur.sensors?.hr?.length > 1}<SensorCurve samples={cur.sensors.hr} label={t('Heart rate')} unit="bpm" avg={sum.sensors.hr?.avg} max={sum.sensors.hr?.max} />{/if}
-  {#if cur.sensors?.power?.length > 1}<SensorCurve samples={cur.sensors.power} label={t('Power')} unit="W" avg={sum.sensors.power?.avg} max={sum.sensors.power?.max} />{/if}
+  {#if height.length > 1}<SensorCurve id="after-height" samples={height} label={t('Elevation profile')} unit="m" />{/if}
+  {#if cur.sensors?.hr?.length > 1}<SensorCurve id="after-hr" samples={cur.sensors.hr} label={t('Heart rate')} unit="bpm" avg={sum.sensors.hr?.avg} max={sum.sensors.hr?.max} />{/if}
+  {#if cur.sensors?.power?.length > 1}<SensorCurve id="after-power" samples={cur.sensors.power} label={t('Power')} unit="W" avg={sum.sensors.power?.avg} max={sum.sensors.power?.max} />{/if}
   {#if sum.sensors.hr || sum.sensors.power}<p class="tp-small tp-muted">{t('Measured by your sensors during the ride, kept on this device.')}</p>{/if}
   {#if laps?.length > 1}
     <div class="bk" data-after-laps>

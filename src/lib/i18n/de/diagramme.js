@@ -147,4 +147,5 @@ export default {
   'Later stretch': 'Weiter hinten',
   'Heaviest point': 'Schwerste Stelle',
   'Lightest point': 'Leichteste Stelle',
+  'Highest': 'Höchster Wert',
 };
