@@ -109,6 +109,28 @@ test('Flyer: Vorschau, Teile, Art, Stufen, Foto, Speichern, E-Mail, Vorlage', as
   expect(errors).toEqual([]);
 });
 
+test('Flyer: der QR-Code kann auf eine eigene Seite führen', async ({ page }) => {
+  await seed(page);
+  await page.goto('./#/me/tennis/flyer');
+  await ready(page);
+  const qr = page.locator('[data-flyer-qr]');
+  await expect(qr).toHaveValue('');
+  await expect(page.locator('[data-block="cta"]')).toContainText(T('The QR code and the address lead to the sign-up page of your offer. The request arrives like every request.'));
+  // not an address: a hint, the sign-up page stays
+  await qr.fill('kein link');
+  await expect(page.locator('[data-flyer-qr-bad]')).toBeVisible();
+  // an address without https:// is fine; the text says it is the own page
+  await qr.fill('tennisnoah.pages.dev/f');
+  await expect(page.locator('[data-flyer-qr-bad]')).toHaveCount(0);
+  await expect(page.locator('[data-block="cta"]')).toContainText(T('The QR code and the address lead to your own page. It is the same address on every flyer.'));
+  // the preview still draws (QR code in the dark band) and the address stays after a reload
+  await expect.poll(async () => (await canvasPixels(page)).dark).toBeGreaterThan(50);
+  await page.waitForTimeout(700);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-flyer-qr]')).toHaveValue('tennisnoah.pages.dev/f');
+});
+
 test('Flyer: ohne Angebot ein leerer Zustand, vom Angebot ein Absprung', async ({ page }) => {
   await page.goto('./#/me/tennis/flyer');
   await ready(page);

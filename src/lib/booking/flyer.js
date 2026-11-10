@@ -120,7 +120,25 @@ export function newConfig(art = 'group') {
     deadline: '',
     spots: '',
     contact: '',
+    qrUrl: '', // where the QR code leads; empty = the sign-up page of the offer
   };
+}
+
+/**
+ * The address the QR code leads to when the user typed one (Noah 10.11.2026: the flyer leads to his own page, where prices and
+ * trust are and where he sees how many come from the flyer). «example.ch/f» works too (https:// is added). Empty or not an
+ * address → '' (then the sign-up page of the offer counts).
+ */
+export function cleanQrUrl(input) {
+  const s = String(input ?? '').trim();
+  if (!s || s.length > 300 || /\s/.test(s)) return '';
+  const full = /^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : `https://${s}`;
+  try {
+    const u = new URL(full);
+    return (u.protocol === 'https:' || u.protocol === 'http:') && u.hostname.includes('.') ? u.href : '';
+  } catch {
+    return '';
+  }
 }
 
 /** A saved configuration, filled up with what a newer app version added. */
@@ -144,6 +162,7 @@ export function normalizeConfig(c) {
     custom: (c.custom ?? []).map((x) => ({ id: x.id ?? rid(), title: x.title ?? '', text: x.text ?? '', on: x.on !== false })),
     ownCards: (c.ownCards ?? []).map((x) => ({ id: x.id ?? rid(), label: x.label ?? '', text: x.text ?? '', on: x.on !== false })),
     levels: (c.levels ?? []).map(normalizeLevel),
+    qrUrl: String(c.qrUrl ?? ''),
   };
 }
 
@@ -303,7 +322,7 @@ export function buildModel(cfg, entries, lang, { variant = null, today = '' } = 
     return true;
   });
   const extra = c.custom.filter((x) => x.on && (x.title || x.text));
-  const url = mainId ? shareUrl(mainId) : '';
+  const url = cleanQrUrl(c.qrUrl) || (mainId ? shareUrl(mainId) : '');
   return {
     lang,
     words: w,

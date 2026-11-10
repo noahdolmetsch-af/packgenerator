@@ -26,7 +26,7 @@
   import { OFFERS_KEY } from '../lib/booking/client.js';
   import { listCustomers } from '../lib/booking/customers.js';
   import {
-    FLYERS_KEY, PHOTO_KEY, ARTS, FORMATS, LANGS, BLOCKS, TABLE_ROWS, CARDS, WORDS, newConfig, normalizeConfig, stepBlock, dragBlock, step, moveTo, levelFromOffer, normalizeLevel, buildModel, variantsOf, countImages, fileNameOf,
+    FLYERS_KEY, PHOTO_KEY, ARTS, FORMATS, LANGS, BLOCKS, TABLE_ROWS, CARDS, WORDS, newConfig, normalizeConfig, cleanQrUrl, stepBlock, dragBlock, step, moveTo, levelFromOffer, normalizeLevel, buildModel, variantsOf, countImages, fileNameOf,
     mailText, mailtoHref, emailsOf, emptyPhotos, addPhoto, removePhoto, currentPhoto, photoRect, templateFrom, applyTemplate,
   } from '../lib/booking/flyer.js';
   import { drawFlyer, loadImage } from '../lib/booking/flyerdraw.js';
@@ -480,7 +480,9 @@
                 <label class="lbl" for="tf-btn">{t('Button')}</label><input id="tf-btn" class="inp" value={txt('button')} oninput={(e) => setTxt('button', e.currentTarget.value)} placeholder={auto('button')} />
                 <label class="lbl" for="tf-note">{t('Line under the button')}</label><input id="tf-note" class="inp" value={txt('note')} oninput={(e) => setTxt('note', e.currentTarget.value)} placeholder={auto('note')} />
                 <label class="lbl" for="tf-contact">{t('Contact (e-mail or phone)')}</label><input id="tf-contact" class="inp" value={cfg.contact} oninput={(e) => edit((c) => (c.contact = e.currentTarget.value))} />
-                <p class="muted">{t('The QR code and the address lead to the sign-up page of your offer. The request arrives like every request.')}</p>
+                <label class="lbl" for="tf-qr">{t('Where the QR code leads')}</label><input id="tf-qr" class="inp" data-flyer-qr inputmode="url" autocapitalize="off" autocomplete="off" spellcheck="false" value={cfg.qrUrl} oninput={(e) => edit((c) => (c.qrUrl = e.currentTarget.value))} placeholder={t('Empty: the sign-up page of your offer')} />
+                {#if cfg.qrUrl.trim() && !cleanQrUrl(cfg.qrUrl)}<p class="err" role="alert" data-flyer-qr-bad>{t('This is not a web address. The QR code leads to the sign-up page of your offer.')}</p>{/if}
+                <p class="muted">{cleanQrUrl(cfg.qrUrl) ? t('The QR code and the address lead to your own page. It is the same address on every flyer.') : t('The QR code and the address lead to the sign-up page of your offer. The request arrives like every request.')}</p>
               {/if}
             </li>
           </ul>
