@@ -4,12 +4,15 @@
    *   #/flow/wochenplan   the hours per week, the units with plus and minus, the week with times, what does not fit.
    * The planner is pure (lib/training/wochenplan.js, part 1); the goals live in the setting training.weekplan (backup
    * included, no api/). Rules, not AI: the same goals always give the same week. The «Meine Wochenziele» on Aktiv stay
-   * separate: this plan neither fills nor replaces them. Fixed days, moving, ticks and «Warum hier?» follow in parts 3 and 4.
+   * separate: this plan neither fills nor replaces them. Part 3 (Noah 09.11.2026): ticking off by hand, progress, the
+   * line «Up today» on Heute, past weeks frozen after Sunday, and a Strava suggestion that only suggests
+   * (lib/training/wochenlog.js, setting training.weeklog). Fixed days, moving and «Warum hier?» follow in part 4.
    * Everything is a suggestion: each unit count can be changed, the whole plan can go back to the basic plan, and the last
    * change can be taken back.
    */
   import { liveQuery } from 'dexie';
   import { CalendarRange, Minus, Plus, Undo2, ChevronRight } from '@lucide/svelte';
+  import { untrack } from 'svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
@@ -17,6 +20,7 @@
   import { db } from '../../lib/db.js';
   import { mondayOf, shiftDay } from '../../lib/training.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, MAX_COUNT, MIN_HOURS, MAX_HOURS, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
+  import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, setDone, dismiss, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME, UNIT_HINT, LOAD_WORD, NOTE_TEXT, WARN_TEXT, lengthOf, hoursOf, reachedPct, EXAMPLE_MONDAY } from '../../lib/training/wochenplan-text.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
   import { localDay } from '../../lib/localday.js';
@@ -28,6 +32,10 @@
   const stored = $derived($setQ);
   const loaded = $derived(stored !== undefined);
   const plan = $derived(planOf(stored));
+  // part 3: the ticks and the frozen weeks (undefined while read), and this week's Strava activities
+  const logQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
+  const log = $derived($logQ === undefined ? null : logOf($logQ));
+  const actsQ = liveQuery(() => db.activities.where('day').between(realMonday, shiftDay(realMonday, 6), true, true).toArray().catch(() => []));
 
   let seasonPick = $state(isSummer(today) ? 'summer' : 'winter');
   let weekPick = $state(0); // 0 this week, 1 next week (only in the season of today)
@@ -60,6 +68,44 @@
   };
   const hoursText = (m) => num(hoursOf(m));
   const unitById = (id) => week.units.find((u) => u.id === id);
+
+  // ---- part 3: ticks, progress, frozen weeks, Strava ----
+  const live = $derived(isNow && weekPick === 0); // only this week can be ticked; next week and the example can not
+  const nowCfg = $derived(isSummer(realMonday) ? plan.summer : plan.winter);
+  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday }));
+  const done = $derived(weekLog(log ?? logOf(null), realMonday).done);
+  const prog = $derived(progress(nowWeek.units, done));
+  const star = $derived(prog.total > 0 && prog.done === prog.total);
+  const sugg = $derived(live && log ? suggest(nowWeek.units, $actsQ ?? [], realMonday, done, weekLog(log, realMonday).no) : {});
+  const past = $derived(log ? pastWeeks(log, today) : []);
+  // the week is stored as it was last seen; after Sunday it stays as it is (freezing)
+  $effect(() => {
+    if (!loaded || stored === null || !log) return;
+    const next = withSnapshot(log, realMonday, nowWeek.units, nowCfg.hours, today);
+    if (next !== log) untrack(() => db.settings.put({ key: WEEKLOG_KEY, value: next }));
+  });
+  async function writeLog(change) {
+    const cur = logOf((await db.settings.get(WEEKLOG_KEY))?.value);
+    const next = change(cur);
+    if (next !== cur) await db.settings.put({ key: WEEKLOG_KEY, value: next });
+  }
+  async function tick(u, on) {
+    await writeLog((cur) => setDone(cur, realMonday, u.id, on, today, nowWeek.units, nowCfg.hours));
+    msg = on ? t('Ticked off: {what}.', { what: nameOf(u.type) }) : t('Tick removed: {what}.', { what: nameOf(u.type) });
+  }
+  async function stravaYes(u) {
+    await tick(u, true);
+  }
+  async function stravaNo(a) {
+    await writeLog((cur) => dismiss(cur, realMonday, a.id, today));
+    msg = t('All right, nothing ticked.');
+  }
+  const stravaLine = (a) => t('Strava: {what}, {len}. Does this fit the unit?', { what: a.name || t('Activity'), len: lengthText(Math.round((a.movingS || 0) / 60)) });
+  const rangeText = (m) => {
+    const f = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' });
+    return t('{from} to {to}', { from: f(m), to: f(shiftDay(m, 6)) });
+  };
+  const pastDay = (m, d) => new Date(`${shiftDay(m, d)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short' });
 
   async function write(value, text) {
     history = [...history.slice(-19), stored ?? null];
@@ -157,6 +203,16 @@
           {#if byHand}<button type="button" class="btn sm" onclick={suggestAgain} data-wp-again>{t('Suggest the units from the hours again')}</button>{/if}
         </section>
 
+        {#if live && prog.total > 0}
+          <section class="card pc prog" aria-labelledby="wp-prog" data-wp-progress>
+            <h2 id="wp-prog">{t('This week so far')}</h2>
+            <p class="big2 num"><b data-wp-done>{t('{a} of {b} units', { a: prog.done, b: prog.total })}</b></p>
+            <span class="bar" role="img" aria-label={t('{a} of {b} units', { a: prog.done, b: prog.total })}><i style="width:{Math.round((prog.done / prog.total) * 100)}%"></i></span>
+            <p class="sub" data-wp-quiet>{t('Meditation and stretching: {a} of {b}.', { a: prog.quietDone, b: prog.quietTotal })}</p>
+            <p class="hint">{star ? t('Every unit of this week is ticked off.') : t('Tick a unit when you did it. Only you tick: Strava only suggests.')}</p>
+          </section>
+        {/if}
+
         <section class="card pc goals" aria-labelledby="wp-goals" data-wp-goals>
           <h2 id="wp-goals">{t('Units per week')}</h2>
           <ul class="glist">
@@ -209,11 +265,21 @@
                 </div>
                 <div class="evs">
                   {#each list as u (u.id)}
-                    <p class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} data-unit={u.id}>
+                    <div class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} class:withtick={live} class:ticked={live && done[u.id]} data-unit={u.id}>
+                      {#if live}<label class="tk"><input type="checkbox" class="tick" checked={!!done[u.id]} onchange={(e) => tick(u, e.currentTarget.checked)} aria-label={t('Done: {what} on {day}', { what: nameOf(u.type), day: dayName(d) })} data-wp-tick={u.id} /></label>{/if}
                       <time>{u.t}</time>
                       <span class="t">{nameOf(u.type)}</span>
                       <span class="m num">{lengthText(u.mins)}{#if u.fixed}<span class="tag">{t('fixed')}</span>{/if}{#if u.variant === 'intervals'}<span class="tag">{t('intervals')}</span>{/if}</span>
-                    </p>
+                      {#if sugg[u.id]}
+                        <div class="strava" data-wp-strava={u.id}>
+                          <span>{stravaLine(sugg[u.id])}</span>
+                          <span class="sb">
+                            <button type="button" class="btn sm" onclick={() => stravaYes(u)} data-wp-strava-yes={u.id}>{t('Yes, tick it')}</button>
+                            <button type="button" class="btn sm" onclick={() => stravaNo(sugg[u.id])} data-wp-strava-no={u.id}>{t('No')}</button>
+                          </span>
+                        </div>
+                      {/if}
+                    </div>
                   {:else}
                     <p class="free">{t('Free.')}</p>
                   {/each}
@@ -222,6 +288,23 @@
             {/each}
           </section>
         {/if}
+
+        <section class="card pc pastw" aria-labelledby="wp-past" data-wp-past>
+          <h2 id="wp-past">{t('Past weeks')}</h2>
+          {#each past as w (w.monday)}
+            <details class="pw" data-past-week={w.monday}>
+              <summary><span>{rangeText(w.monday)}</span><b class="num">{t('{a} of {b} units', { a: w.ticked, b: w.total })}</b></summary>
+              <ul>
+                {#each w.units.filter((x) => !QUIET.includes(x.type)) as x (x.id)}
+                  <li class:miss={!w.done[x.id]}><span aria-hidden="true">{w.done[x.id] ? '✓' : '○'}</span> {pastDay(w.monday, x.d)} {x.t} · {nameOf(x.type)}<span class="vh">, {w.done[x.id] ? t('done') : t('not ticked')}</span></li>
+                {/each}
+              </ul>
+            </details>
+          {:else}
+            <p class="hint" data-wp-past-empty>{t('A week shows up here when it is over.')}</p>
+          {/each}
+          <p class="hint">{t('A week is frozen after Sunday: later changes to the plan do not touch it.')}</p>
+        </section>
       </div>
     </div>
 
@@ -424,6 +507,81 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
+  .u.withtick {
+    grid-template-columns: 44px 3.4em minmax(0, 1fr) auto;
+    column-gap: 0;
+    align-items: center;
+  }
+  .u.withtick time,
+  .u.withtick .t {
+    padding-left: var(--sp-1);
+  }
+  .tk {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: -8px 0;
+    cursor: pointer;
+  }
+  .tick {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    accent-color: var(--accent, var(--ink));
+    cursor: pointer;
+  }
+  .u.ticked .t {
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+  .strava {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 4px 0 4px 44px;
+    padding: 8px 10px;
+    font-size: var(--fs-small);
+    border: 1px dashed var(--accent, var(--ink-2));
+    border-radius: 8px;
+  }
+  .sb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .big2 {
+    margin: 0 0 var(--sp-2);
+    font: 700 var(--fs-num) var(--font-body);
+  }
+  .pw {
+    border-top: 1px solid var(--line);
+  }
+  .pw:first-of-type {
+    border-top: 0;
+  }
+  .pw summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+  }
+  .pw ul {
+    margin: 0 0 var(--sp-2);
+    padding: 0;
+    list-style: none;
+  }
+  .pw li {
+    padding: 2px 0;
+    font-size: var(--fs-small);
+  }
+  .pw li.miss {
+    color: var(--ink-2);
+  }
   @media (max-width: 640px) {
     .u {
       grid-template-columns: 3.4em minmax(0, 1fr);
@@ -431,6 +589,12 @@
     .u .m {
       grid-column: 2;
       white-space: normal;
+    }
+    .u.withtick {
+      grid-template-columns: 44px 3.4em minmax(0, 1fr);
+    }
+    .u.withtick .m {
+      grid-column: 3;
     }
   }
   .u .m {

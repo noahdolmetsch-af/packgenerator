@@ -45,6 +45,9 @@
   import { equipmentRows, dueCare } from '../lib/maingear.js';
   import { todayNotes } from '../lib/notebook.js';
   import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
+  import { WEEKPLAN_KEY } from '../lib/training/wochenplan.js';
+  import { WEEKLOG_KEY, logOf as planLogOf, setDone as planSetDone, dueToday as planDueToday } from '../lib/training/wochenlog.js';
+  import { UNIT_NAME } from '../lib/training/wochenplan-text.js';
   import { WEG_KEY, wegOf, todayStep as wegTodayStep, setDone as wegSetDone } from '../lib/weg/weg.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
@@ -222,7 +225,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY];
+  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY, WEEKPLAN_KEY, WEEKLOG_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -779,6 +782,13 @@
       const text = t('Way «{goal}»: {step}', { goal: goal.title, step: row.step.title }) + (late ? ` · ${t('since {day}', { day: shortDay(row.due) })}` : due ? '' : ` · ${shortDay(row.due)}`);
       rows.push({ key: `weg:${row.step.id}`, tone: due ? 'warn' : 'quiet', text, act: due ? { label: t('Done ✓'), run: () => wegStepDone(goal, row.step.id) } : { label: t('Way to the goal'), href: `#/trips/weg?g=${encodeURIComponent(goal.id)}` } });
     }
+    // «Wochenplan» part 3 (Noah 09.11.2026, «4a»): today's next open unit of the weekly plan, one line; tick it here
+    if (planToday) {
+      const { next, more } = planToday;
+      const what = t(UNIT_NAME[next.type]);
+      const text = more ? t('Up today: {what} at {time} · {n} more', { what, time: next.t, n: more }) : t('Up today: {what} at {time}', { what, time: next.t });
+      rows.push({ key: `plan:${next.id}`, tone: 'info', text, act: { label: t('Done ✓'), run: () => planTick(next) } });
+    }
     if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
     rows.push(...knowRows);
     // v0.70.0 «Velo-Blätter Teil 2» (W3 a, W6 a): a due step of a Break-in plan, a warranty that ends soon; «later» waits a week
@@ -804,6 +814,14 @@
   const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
   const wegStep = $derived(wegTodayStep(wegOf(S[WEG_KEY]), today));
+  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today));
+  async function planTick(u) {
+    const due = planToday;
+    if (!due) return;
+    const before = (await db.settings.get(WEEKLOG_KEY))?.value ?? null;
+    await db.settings.put({ key: WEEKLOG_KEY, value: planSetDone(planLogOf(before), due.monday, u.id, true, today, due.units, due.hours) });
+    say(t('Ticked off: {what}.', { what: t(UNIT_NAME[u.type]) }), () => (before === null ? db.settings.delete(WEEKLOG_KEY) : db.settings.put({ key: WEEKLOG_KEY, value: before })));
+  }
   async function wegStepDone(goal, stepId) {
     const before = wegOf(S[WEG_KEY]);
     const next = { ...$state.snapshot(before), goals: before.goals.map((g) => (g.id === goal.id ? wegSetDone($state.snapshot(g), stepId, true, today) : $state.snapshot(g))) };
