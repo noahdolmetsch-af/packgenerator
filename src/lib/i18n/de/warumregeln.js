@@ -93,7 +93,7 @@ export default {
   'From your debriefs of this trip type': 'Aus deinen Rückblicken dieser Reiseart',
   'on the list': 'auf der Liste',
   'in the evening-before check': 'im Vorabend-Check',
-  'Pin {name}': '{name} anheften',
+  'Pin {name}': '{name} anpinnen',
   'Unpin {name}': '{name} lösen',
   'Take {name} out of this list': '{name} aus dieser Liste nehmen',
   '«{name}» is no longer shown.': '«{name}» wird nicht mehr gezeigt.',

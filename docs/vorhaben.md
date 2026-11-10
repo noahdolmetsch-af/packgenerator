@@ -590,3 +590,10 @@ Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Z
   - B Inhalte: 11 Baustein «Wozu und So geht's» für alle Seiten (Texte aus Katalog und Handbuch, «Beispiel übernehmen» im leeren Zustand) · 12–20 Inhalte pro Bereich mit Wissen, dünnste zuerst: Lust, Planen, Zurück, Unterwegs, Packen, Alltag, Körper, Velo, App · 21 Inhalts-Prüfung der 29 Funktionen in offener Tour, Rennen, Notiz.
   - C Sichern: 22 gleiche Namen überall (17) · 23 «Erscheint, wenn …» (17) · 24 Test «Inhalt» (Roboter, Lückenliste nur kürzer) · 25 «Fertig»-Regel für neue Funktionen in den Arbeitsregeln · 26 leere Stellen und Schlussmessung.
 - **Stand:** 1 offen (#560), 2 gebaut.
+
+### 18. Variabler Wochenplan (Aktiv, Noah 09.11.2026 «1a 2a 3a», «bau los»)
+
+- **Warum:** Noah will jede Woche einen Trainingsplan, der sich anpasst: Wochenstunden einstellen, daraus Einheiten vorschlagen lassen, jede Einheit mit Plus und Minus ändern, Fixtage setzen (z. B. 3× Tennis), verschieben, abhaken. Ziel 1 «Eine App, die mich im Alltag unterstützt», dazu «Aus jeder Tour lernen» (Fortschritt sehen).
+- **Was:** Regeln statt KI, jede Platzwahl mit «Warum hier?», bei Konflikten zwei Wege zur Wahl, ehrliche Meldung ab etwa 20 Std. Wochenziele («Meine Wochenziele») bleiben getrennt und unverändert. Umsetzungsauftrag mit Entwurf: https://claude.ai/artifact/MUMT5xgrJukUncnRLmvgtc (Tab «Variabler Plan»).
+- **Plan:** fünf kleine PRs: 1 Planer und Stunden (nichts sichtbar) · 2 Seite «Wochenplan» · 3 Abhaken, «Heute dran», Einfrieren vergangener Wochen, Strava-Vorschlag · 4 Fixtage, Wunschzeit, Verschieben, Rückgängig, «Warum hier?» · 5 Meilensteine und leichtere Woche.
+- **Stand:** PR 1 (Planer in `src/lib/training/wochenplan.js`, Einstellung `training.weekplan`, nichts sichtbar).

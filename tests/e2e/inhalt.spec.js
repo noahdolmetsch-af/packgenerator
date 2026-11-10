@@ -19,10 +19,10 @@ test(`every page with the card shows its functions with good to know (${PAGES.le
   for (const p of PAGES) {
     await page.goto(`./${p}`);
     const card = page.locator(`[data-seiteninhalt="${p}"]`);
-    // some pages start with the card folded to one line (FOLDED_FIRST): open it
+    // the page shows one line (since 09.11.2026 a tap opens the «?» window, which holds the list)
     const line = page.locator('[data-seiteninhalt-line]');
-    await expect(card.or(line).first(), p).toBeVisible();
-    if (await line.count()) await line.click();
+    await expect(line, p).toBeVisible();
+    await line.click();
     await expect(card, p).toContainText(T('What you can do here'));
     const rows = card.locator('[data-seiteninhalt-item]');
     await expect(rows.first(), p).toBeVisible();
@@ -30,6 +30,9 @@ test(`every page with the card shows its functions with good to know (${PAGES.le
       await expect(card.locator(`[data-seiteninhalt-know="${id}"]`), `${p} ${id}`).toContainText(T('Good to know'));
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), p).toBe(0);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('dialog[data-help][open]'), p).toHaveCount(0);
+    await page.waitForFunction(() => !history.state?.pgDialog); // the window's history entry goes away a moment later
   }
   expect(errors).toEqual([]);
 });

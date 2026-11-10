@@ -121,7 +121,7 @@ async function start(page, context, info) {
 async function setUp(page) {
   await page.goto('./#/helper');
   await expect(page.getByRole('heading', { level: 1, name: T('AI helper') })).toBeVisible();
-  await page.getByLabel(T('Helper code')).fill(CODE);
+  await page.getByLabel(T('Helper code'), { exact: true }).fill(CODE);
   // Impeccable Runde 2: the card «Set up in 2 steps» on top saves with «Save code»
   await page.getByRole('button', { name: T('Save code'), exact: true }).click();
   await expect(page.getByText(T('Saved on this device.'), { exact: true })).toBeVisible();
@@ -166,7 +166,7 @@ test('8a: before the setup, a calm notice only in the settings (v0.114.0: no lon
   // code field; «What goes to Claude?» once, in the setup
   const steps = page.locator('[data-setup-steps]');
   await expect(steps.getByRole('heading', { name: T('Set up in 2 steps') })).toBeVisible();
-  await expect(steps.getByLabel(T('Helper code'))).toBeVisible();
+  await expect(steps.getByLabel(T('Helper code'), { exact: true })).toBeVisible();
   await expect(page.getByText(T('What goes to Claude?'))).toHaveCount(1);
   await page.getByText(T('What goes to Claude?')).click();
   await expect(page.getByText(T('Only your question and the names it needs from the list and your gear, plus your notes. Never photos, receipts or health data.')).first()).toBeVisible();

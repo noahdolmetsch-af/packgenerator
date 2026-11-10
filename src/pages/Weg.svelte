@@ -100,6 +100,8 @@
   });
   // the strip «Practice rides» (Noah «3a»): circles for 50 / 100 / 200 km
   const proben = $derived(goal ? milestones(goal, today, { ...ctx.proben, today }) : { best: 0, items: [] });
+  // the card «Last week · Recovery» (Noah «b» 09.11., draft G6, lower card): the recovery steps to tick in one place
+  const rest = $derived(rows.filter((r) => r.step.type === 'erholung'));
   // the weather window from 7 days before the start (Noah «4a»): the forecast the tour has saved
   const wetter = $derived(goal ? windowOf(goal, $tripsQ ?? [], today, rainLimit()) : null);
   const wDay = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' });
@@ -413,6 +415,25 @@
       </section>
     {/if}
 
+    {#if rest.length}
+      <section class="card pad wg-rest" data-weg-rest aria-label={t('Last week · Recovery')}>
+        <h3>{t('Last week · Recovery')}</h3>
+        <p class="wg-sub">{t('Your routines from Active › Recovery, as steps. Only a suggestion.')}</p>
+        <ul class="wg-restlist">
+          {#each rest as r (r.step.id)}
+            <li class="wg-restrow" class:done={r.state === 'done'} data-weg-rest-row>
+              <button type="button" class="wg-check" class:on={r.step.done} aria-pressed={r.step.done} aria-label={t('Done: {name}', { name: r.step.title })} onclick={() => putGoal(setDone(goal, r.step.id, !r.step.done, today))} data-weg-rest-check><span class="wg-dot">{#if r.step.done}<Check size={14} aria-hidden="true" />{/if}</span></button>
+              <div class="wg-body">
+                <b>{r.step.title}</b>
+                <span class="wg-sub">{dayText(r.due)}{#if r.state === 'late'}{' · '}<em>{t('Late|step')}</em>{/if}</span>
+              </div>
+              {#if linkOf(r)}<a class="wg-go" href={linkOf(r)}>{t('Open')} <ChevronRight size={14} aria-hidden="true" /></a>{/if}
+            </li>
+          {/each}
+        </ul>
+      </section>
+    {/if}
+
     {#if back}
       <section class="card pad wg-back" data-weg-rueckblick aria-label={t('Planned against actual')}>
         <h3>{t('Review')} · {goal.title}</h3>
@@ -629,6 +650,13 @@
   .wg-circle.late { border-color: var(--warn); }
   .wg-proben-note { margin: var(--sp-3) 0 0; text-align: center; }
   .wg-wetter h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-rest h3 { margin: 0 0 var(--sp-2); font-size: var(--fs-small); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-3); }
+  .wg-restlist { list-style: none; margin: var(--sp-2) 0 0; padding: 0; }
+  .wg-restrow { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-1) 0; }
+  .wg-restrow + .wg-restrow { border-top: 1px solid var(--line); }
+  .wg-restrow .wg-check { flex: none; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; }
+  .wg-restrow .wg-body { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .wg-restrow.done b { text-decoration: line-through; color: var(--ink-3); }
   .wg-wtitle { font-size: var(--fs-sub); }
   .wg-zeit { border-left: 4px solid var(--ok); }
   .wg-zeit.tight { border-left-color: var(--warn); }
@@ -659,7 +687,7 @@
   .wg-prow { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-2) 0; }
   .wg-open .wg-acts { margin-top: var(--sp-3); }
   .wg-days small { font-size: var(--fs-small); }
-  .wg-zeit, .wg-orga, .wg-proben, .wg-wetter, .wg-back, .wg-save, .wg-next, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
+  .wg-zeit, .wg-orga, .wg-proben, .wg-rest, .wg-wetter, .wg-back, .wg-save, .wg-next, .wg-open, .wg-timeline, .wg-own, .wg-new { margin-bottom: var(--sp-4); }
 
   /* the way: one line with dots, «Today» marked on it (mockup G1) */
   .wg-line { list-style: none; margin: 0; padding: 0; position: relative; }

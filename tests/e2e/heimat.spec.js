@@ -127,8 +127,8 @@ test('every function is visible on its home page', async ({ page, context }, inf
       const again = await lookAll();
       found = found.map((f, i) => f || again[i]);
     }
-    // since 08.11.2026 (Noah «A») the card «What you can do here» starts as one line on every page and holds functions too: what
-    // the page itself does not show, the card shows once it is open (opened only then: open, it would push the page's own parts down)
+    // since 09.11.2026 (Noah «ja, 1-3») the line «What you can do here» opens the «?» window, which holds the functions of the page too:
+    // what the page itself does not show, the window shows once it is open
     if (found.includes(false)) {
       const card = page.locator('[data-seiteninhalt-line]');
       if (await card.count()) {
@@ -145,6 +145,10 @@ test('every function is visible on its home page', async ({ page, context }, inf
           found = found.map((f, i) => f || more[i]);
         }
       }
+      // the «?» window is modal: close it, the next page must be reachable
+      await page.keyboard.press('Escape');
+      await page.locator('dialog[data-help][open]').waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+      await page.waitForFunction(() => !history.state?.pgDialog, null, { timeout: 3000 }).catch(() => {}); // its history entry goes away a moment later
     }
     list.forEach((x, i) => found[i] || missing.push(`${x.id} «${x.name}» on ${href}`));
   }

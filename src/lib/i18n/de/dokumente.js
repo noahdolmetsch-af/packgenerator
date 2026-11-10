@@ -134,7 +134,7 @@ export default {
   'Upload now': 'Jetzt hochladen',
   'Connect Google Drive': 'Google Drive verbinden',
   'The same Google login as Fitbit. The app sees only the folders and files it makes itself.': 'Dieselbe Google-Anmeldung wie bei Fitbit. Die App sieht nur die Ordner und Dateien, die sie selbst anlegt.',
-  'First connect Strava on this device: it gives this device the key the Google connection uses too.': 'Verbinde zuerst Strava auf diesem Gerät: Strava gibt dem Gerät den Schlüssel, den auch die Google-Verbindung braucht.',
+  'First connect Strava on this device: it gives this device the key the Google connection uses too.': 'Verbinde zuerst Strava auf diesem Gerät: Strava schaltet das Gerät frei, das braucht auch die Google-Verbindung.',
   'Photos from the gallery': 'Fotos aus der Galerie',
   'Gallery › Share › Pack Generator': 'Galerie › Teilen › Pack Generator',
   'when the app is on the home screen of your phone; or here «Photograph document» › «Gallery»': 'wenn die App auf dem Startbildschirm deines Handys liegt; oder hier «Dokument fotografieren» › «Galerie»',
@@ -203,7 +203,7 @@ export default {
   'Passport, insurance, emergency and travel in one place. Also in your Google Drive.': 'Pass, Versicherung, Notfall und Reisen an einem Ort. Auch in deinem Google Drive.',
   'Photograph the pages: the app makes a PDF and reads the text. Or add a PDF or a photo of the paper. Then choose the group, «valid until» and whether it goes into the packing list.': 'Fotografiere die Seiten: Die App macht ein PDF daraus und liest den Text. Oder füge ein PDF oder ein Foto vom Papier hinzu. Dann wähle die Gruppe, «gültig bis» und ob es in die Packliste kommt.',
   'A suggestion, never a must. The same Google login as Fitbit; the app sees only the folders and files it makes itself.': 'Ein Vorschlag, nie ein Muss. Die gleiche Google-Anmeldung wie bei Fitbit; die App sieht nur die Ordner und Dateien, die sie selbst macht.',
-  'For Google Drive, first connect Strava on this device: it gives this device the key the Google connection uses too.': 'Für Google Drive verbinde zuerst Strava auf diesem Gerät: Das gibt dem Gerät den Schlüssel, den auch die Google-Verbindung braucht.',
+  'For Google Drive, first connect Strava on this device: it gives this device the key the Google connection uses too.': 'Für Google Drive verbinde zuerst Strava auf diesem Gerät: Das schaltet das Gerät frei, das braucht auch die Google-Verbindung.',
   'For Google Drive: «Connect Google Drive» once under Me › Documents (needs Strava connected on this device).': 'Für Google Drive: einmal «Google Drive verbinden» unter Ich › Dokumente (braucht Strava auf diesem Gerät).',
   'Open the new document: set the group, «valid until» and «In the packing list».': 'Das neue Dokument öffnet sich: Wähle Gruppe, «gültig bis» und «In die Packliste».',
   // Paket A (Noah 18.10.2026 «1a»): rename and delete a group (ui/GroupActions.svelte, Dokumente)

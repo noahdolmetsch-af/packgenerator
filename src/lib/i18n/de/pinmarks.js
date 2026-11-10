@@ -20,7 +20,7 @@ export default {
   'Everything you pinned, in groups. A tap goes straight to the spot in the app.':
     'Alles, was du angepinnt hast, in Gruppen. Ein Tipp bringt dich direkt an die Stelle in der App.',
   '«Edit» renames, adds a note, moves and unpins. Phone and computer keep their own pins.':
-    '«Bearbeiten» benennt um, fügt eine Notiz hinzu, verschiebt und löst. Handy und Computer haben je eigene Pins.',
+    '«Bearbeiten» benennt um, fügt eine Notiz hinzu, verschiebt und löst. Handy und Computer haben je eigene Abkürzungen.',
   // «Quick Links» Schritt 2 (Noah 28.10.2026)
   'On by itself; switch it off in Quick Links.': 'Von selbst an; ausschalten in Quick Links.',
   'Open a page, for example Today or Trips.': 'Öffne eine Seite, zum Beispiel Heute oder Touren.',

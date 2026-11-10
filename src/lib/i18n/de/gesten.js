@@ -45,7 +45,7 @@ export default {
   'Press the app icon for a long time': 'App-Symbol lange drücken',
   'On the phone: press the app icon for a long time to offer «New note» and «Start a ride».': 'Auf dem Handy: lange auf das App-Symbol drücken bietet «Neue Notiz» und «Ausfahrt starten».',
   'Share to Pack Generator': 'Teilen an Packgenerator',
-  'Share from another app: text goes to the inbox, a link to Inspiration, a GPX file to «Upload a ride», a picture to Documents, a backup (.json) to «Check import».': 'Aus einer anderen App teilen: Text kommt in den Eingang, ein Link in Inspiration, eine GPX-Datei in «Fahrt hochladen», ein Bild in Dokumente, ein Backup (.json) in «Import prüfen».',
+  'Share from another app: text goes to the inbox, a link to Inspiration, a GPX file to «Upload a ride», a picture to Documents, a backup (.json) to «Check import».': 'Aus einer anderen App teilen: Text kommt in den Eingang, ein Link in Inspiration, eine GPX-Datei in «Fahrt hochladen», ein Bild in Dokumente, ein Backup (.json) in «Backup prüfen».',
   'Bookmark «Into the inbox»': 'Lesezeichen «In den Eingang»',
   'A browser bookmark puts the open web page straight into the inbox as an entry.': 'Ein Browser-Lesezeichen legt die offene Webseite direkt als Eintrag in den Eingang.',
   'Keyboard shortcuts on the computer': 'Tastenkürzel am Computer',
