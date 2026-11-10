@@ -144,6 +144,16 @@
   .act {
     margin: 4px 0 0;
   }
+  .hint a,
+  .all a {
+    position: relative;
+  }
+  .hint a::after,
+  .all a::after {
+    content: '';
+    position: absolute;
+    inset: -14px -8px;
+  }
   .hint a {
     color: var(--ink);
     text-decoration: underline;
