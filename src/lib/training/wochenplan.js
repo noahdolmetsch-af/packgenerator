@@ -199,6 +199,13 @@ export function toggleFix(cfg, type, d, summer) {
   return { ...cfg, counts, fixes: { ...cfg.fixes, [type]: list.slice(0, counts[type]) }, custom: { ...cfg.custom, [type]: true } };
 }
 
+/** Changes the start time of a fixed day (the wish time). Only an existing fixed day with a valid time changes. */
+export function setFixTime(cfg, type, d, t) {
+  const list = cfg.fixes[type];
+  if (!FIXABLE.includes(type) || !list || !timeOk(t) || !list.some((f) => f.d === d)) return cfg;
+  return { ...cfg, fixes: { ...cfg.fixes, [type]: list.map((f) => (f.d === d ? { d: f.d, t } : f)) }, custom: { ...cfg.custom, [type]: true } };
+}
+
 // ---- the week ------------------------------------------------------------------------------------------------------
 
 /** Meditation every second day, continuing across weeks: the days of the week (0 = Monday) that carry it. */

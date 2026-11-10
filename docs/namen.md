@@ -27,5 +27,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 19 | Detailplan für ein Rennen | Rennen detailliert planen, Rennen-Check, Check | **«Rennen-Check»** |
 | 20 | Anrede und Englisch | «Sie» in der Gruppenfahrt, Reste wie Review und Learning | **«du»** (Mehrzahl **«ihr»**), Englisch nur, wo es kein deutsches Wort gibt |
 | 21 | Gruppen der Erinnerungen aufs Handy | Vor und nach der Tour, Wetter, Velo, Alltag | **«Rund um die Tour»**, **«Wetter und Licht»**, **«Velos und Material»**, **«Alltag»** (fest, nicht umbenennbar; Noah 08.11.2026 «alles») |
+| 22 | Trainingsplan mit Stunden pro Woche (Aktiv) | Wochenplan | **«Wochenplan»** für die Seite unter Aktiv (Noahs Wort). Die Einheiten aus «Trainingspläne › Ausprobieren» heissen in älteren Texten auch «Wochenplan»; ob sie «Trainingswoche» heissen sollen, ist als a/b-Frage offen |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

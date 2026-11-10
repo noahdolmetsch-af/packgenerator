@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { buildBackup, restoreBackup } from '../src/lib/backup.js';
-import { WEEKLOG_KEY, logOf, weekLog, isPast, withSnapshot, setDone, dismiss, progress, weekFor, dueToday, suggest, pastWeeks } from '../src/lib/training/wochenlog.js';
+import { WEEKLOG_KEY, logOf, weekLog, isPast, withSnapshot, setDone, dismiss, pinsOf, setPins, movePin, clearPin, progress, weekFor, dueToday, suggest, pastWeeks } from '../src/lib/training/wochenlog.js';
 import { planOf } from '../src/lib/training/wochenplan.js';
 
 // Mon 09.11.2026 is in winter; Sunday is 15.11.
@@ -172,5 +172,52 @@ describe('wochenlog: backup', () => {
     const db = createDb('wochenlog-c');
     await restoreBackup(db, { app: 'pack-generator', schemaVersion: 1, tables: { settings: [{ key: 'riderWeightG', value: 64000 }] } }, 'replace');
     expect(logOf((await db.settings.get(WEEKLOG_KEY))?.value)).toEqual({ v: 1, weeks: {} });
+  });
+});
+
+describe('wochenlog: moved units (part 4)', () => {
+  const tennis = unit('tennis');
+  it('a pin is cleaned: day 0..6 and a real time, nothing else', () => {
+    expect(pinsOf({ a: { d: 2, t: '15:00' }, b: { d: 7, t: '15:00' }, c: { d: 1, t: '25:00' }, d: { d: 1.5, t: '10:00' }, e: null })).toEqual({ a: { d: 2, t: '15:00' } });
+    expect(pinsOf('x')).toEqual({});
+  });
+  it('moves one unit, takes it back, and a week without pins is the plain plan', () => {
+    const moved = movePin(logOf(null), MON, tennis.id, 4, '18:00', MON);
+    expect(weekLog(moved, MON).pins[tennis.id]).toEqual({ d: 4, t: '18:00' });
+    const { week: w } = weekFor(stored, MON, weekLog(moved, MON).pins);
+    const u = w.units.find((x) => x.id === tennis.id);
+    expect([u.d, u.t, u.pinned]).toEqual([4, '18:00', true]);
+    expect(u.why).toEqual({ key: 'pinned' });
+    const back = clearPin(moved, MON, tennis.id, MON);
+    expect(weekLog(back, MON).pins).toEqual({});
+    expect(weekFor(stored, MON, weekLog(back, MON).pins).week.units.find((x) => x.id === tennis.id).pinned).toBe(false);
+  });
+  it('is the same log when nothing changes, and a past week can not be moved', () => {
+    const log = movePin(logOf(null), MON, tennis.id, 4, '18:00', MON);
+    expect(movePin(log, MON, tennis.id, 4, '18:00', MON)).toBe(log);
+    expect(setPins(log, MON, {}, '2026-11-16')).toBe(log);
+    expect(movePin(logOf(null), MON, tennis.id, 4, '18:00', '2026-11-16').weeks[MON]).toBeUndefined();
+  });
+  it('undo puts the earlier pins back and leaves the ticks alone', () => {
+    let log = setDone(logOf(null), MON, 'x', true, MON);
+    const before = weekLog(log, MON).pins;
+    log = movePin(log, MON, tennis.id, 4, '18:00', MON);
+    log = setPins(log, MON, before, MON);
+    expect(weekLog(log, MON).pins).toEqual({});
+    expect(weekLog(log, MON).done.x).toBe(MON);
+  });
+  it('a moved unit stays moved through a backup round trip and keeps its tick', () => {
+    let log = movePin(logOf(null), MON, tennis.id, 4, '18:00', MON);
+    log = setDone(log, MON, tennis.id, true, MON, weekFor(stored, MON, weekLog(log, MON).pins).week.units, cfg.hours);
+    expect(logOf(JSON.parse(JSON.stringify(log)))).toEqual(log);
+    expect(weekLog(log, MON).snap.units.find((x) => x.id === tennis.id).d).toBe(4);
+  });
+  it('Heute dran follows the moved unit', () => {
+    const log = movePin(logOf(null), MON, tennis.id, 4, '18:00', MON);
+    const friday = '2026-11-13';
+    const due = dueToday(stored, log, friday);
+    expect(due.open.some((u) => u.id === tennis.id && u.t === '18:00')).toBe(true);
+    const tuesday = '2026-11-10';
+    expect((dueToday(stored, log, tuesday)?.open ?? []).some((u) => u.id === tennis.id)).toBe(false);
   });
 });
