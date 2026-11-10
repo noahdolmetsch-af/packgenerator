@@ -30,6 +30,7 @@
     mailText, mailtoHref, emailsOf, emptyPhotos, addPhoto, removePhoto, currentPhoto, photoRect, templateFrom, applyTemplate,
   } from '../lib/booking/flyer.js';
   import { drawFlyer, loadImage } from '../lib/booking/flyerdraw.js';
+  import { pdfFromJpeg } from '../lib/booking/flyerpdf.js';
   import { qrMatrix } from '../lib/pay/qrmatrix.js';
   import { Plus, Trash2, Download, Send, Mail, Link2, Image as ImageIcon, FileImage } from '@lucide/svelte';
   import '../lib/ich/ich.css';
@@ -278,6 +279,12 @@
       for (const key of snap.formats) {
         const c = document.createElement('canvas');
         const m = await paint(c, FORMATS.find((f) => f.key === key), snap, ents, v.lang, v.variant, photos);
+        const fmt = FORMATS.find((f) => f.key === key);
+        if (fmt.pdf) {
+          const jpg = await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.95));
+          if (jpg) out.push({ blob: new Blob([pdfFromJpeg(new Uint8Array(await jpg.arrayBuffer()), c.width, c.height, fmt.bleed)], { type: 'application/pdf' }), name: fileNameOf(m, key, v.name, 'pdf') });
+          continue;
+        }
         const blob = await new Promise((ok) => c.toBlob(ok, 'image/png'));
         if (blob) out.push({ blob, name: fileNameOf(m, key, v.name) });
       }
@@ -306,7 +313,7 @@
     busy = true;
     note = '';
     try {
-      const files = (await makeAll()).map((f) => new File([f.blob], f.name, { type: 'image/png' }));
+      const files = (await makeAll()).map((f) => new File([f.blob], f.name, { type: f.blob.type || 'image/png' }));
       if (navigator.canShare?.({ files })) await navigator.share({ files, title: em?.title ?? '' });
       else note = t('Sharing a picture does not work here. Use «Save» and send it yourself.');
     } catch (e) {
@@ -543,7 +550,7 @@
           <div class="tf-chips" role="group" aria-label={t('Language')}>{#each LANGS as l (l.key)}<button type="button" class="tf-chip" class:on={cfg.langs.includes(l.key)} aria-pressed={cfg.langs.includes(l.key)} data-lang={l.key} onclick={() => edit((c) => (c.langs = toggleIn(c.langs, l.key)))}>{l.label}</button>{/each}</div>
           <p class="lbl">{t('Format|flyer')}</p>
           <div class="tf-chips" role="group" aria-label={t('Format|flyer')}>{#each FORMATS as f (f.key)}<button type="button" class="tf-chip" class:on={cfg.formats.includes(f.key)} aria-pressed={cfg.formats.includes(f.key)} data-format={f.key} onclick={() => edit((c) => (c.formats = toggleIn(c.formats, f.key)))}>{f.key === '169' ? '16:9' : t(f.label)}</button>{/each}</div>
-          <p class="muted">{t('16:9 for screens, A4 portrait for printing, square for WhatsApp and social media.')}</p>
+          <p class="muted">{t('16:9 for screens, A4 portrait for printing at home, square for WhatsApp and social media, A5 for the print shop (a PDF with 3 mm bleed).')}</p>
         </section>
 
         <!-- 5. photo -->

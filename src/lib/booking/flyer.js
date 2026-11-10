@@ -22,11 +22,15 @@ export const ARTS = [
   { key: 'single', label: 'Single lessons' },
 ];
 
-/** The three picture formats: 16:9 for screens, A4 portrait for printing, square for WhatsApp and social media. */
+/**
+ * The picture formats: 16:9 for screens, A4 portrait for printing at home, square for WhatsApp and social media, and A5 for the
+ * print shop (300 dpi, 3 mm bleed on each side: 1818 × 2550 px, saved as a PDF).
+ */
 export const FORMATS = [
   { key: '169', label: '16:9', w: 1920, h: 1080 },
   { key: 'a4', label: 'A4 portrait', w: 1240, h: 1754 },
   { key: 'sq', label: 'Square', w: 1080, h: 1080 },
+  { key: 'a5', label: 'A5 for printing', w: 1818, h: 2550, bleed: 35, pdf: true },
 ];
 export const LANGS = [
   { key: 'de', label: 'Deutsch' },
@@ -358,9 +362,9 @@ export function variantsOf(cfg) {
 /** The number of pictures «Save all» makes. */
 export const countImages = (cfg) => variantsOf(cfg).length * normalizeConfig(cfg).formats.length;
 /** A file name for a picture: «tennis-unterricht-unterstufe-a4-de.png». */
-export function fileNameOf(model, format, name = '') {
+export function fileNameOf(model, format, name = '', ext = 'png') {
   const slug = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return `${[slug(model.title) || 'flyer', slug(name), format, model.lang].filter(Boolean).join('-')}.png`;
+  return `${[slug(model.title) || 'flyer', slug(name), format, model.lang].filter(Boolean).join('-')}.${ext}`;
 }
 
 /* ---------- the prepared mail ---------- */

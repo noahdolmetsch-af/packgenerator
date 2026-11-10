@@ -131,6 +131,26 @@ test('Flyer: der QR-Code kann auf eine eigene Seite führen', async ({ page }) =
   await expect(page.locator('[data-flyer-qr]')).toHaveValue('tennisnoah.pages.dev/f');
 });
 
+test('Flyer: A5 für den Druck kommt als PDF mit Beschnitt', async ({ page }) => {
+  await seed(page);
+  await page.goto('./#/me/tennis/flyer');
+  await ready(page);
+  // only A5 on: the preview is the print size (1748 × 2480 plus 3 mm bleed on each side), the file is a PDF
+  await page.locator('[data-format="a5"]').click();
+  for (const k of ['169', 'a4', 'sq']) await page.locator(`[data-format="${k}"]`).click();
+  await expect.poll(async () => (await canvasPixels(page)).w).toBe(1818);
+  expect((await canvasPixels(page)).h).toBe(2550);
+  const dl = page.waitForEvent('download');
+  await page.locator('[data-flyer-save]').click();
+  const d = await dl;
+  expect(d.suggestedFilename()).toMatch(/^[a-z0-9-]+-a5-de\.pdf$/);
+  const file = await d.createReadStream();
+  const chunks = [];
+  for await (const c of file) chunks.push(c);
+  const head = Buffer.concat(chunks).subarray(0, 8).toString('latin1');
+  expect(head).toBe('%PDF-1.4');
+});
+
 test('Flyer: ohne Angebot ein leerer Zustand, vom Angebot ein Absprung', async ({ page }) => {
   await page.goto('./#/me/tennis/flyer');
   await ready(page);

@@ -18,9 +18,13 @@ const offer = (o = {}) => ({
 const TODAY = '2026-08-01';
 
 describe('flyer config', () => {
-  it('has the four kinds and three formats', () => {
+  it('has the four kinds and four formats', () => {
     expect(ARTS.map((a) => a.key)).toEqual(['group', 'trial', 'holiday', 'single']);
-    expect(FORMATS.map((f) => f.key)).toEqual(['169', 'a4', 'sq']);
+    expect(FORMATS.map((f) => f.key)).toEqual(['169', 'a4', 'sq', 'a5']);
+    const a5 = FORMATS.find((f) => f.key === 'a5');
+    // A5 at 300 dpi is 1748 × 2480 px; 3 mm bleed (35 px) on each side makes 1818 × 2550
+    expect([a5.w - 2 * a5.bleed, a5.h - 2 * a5.bleed, a5.pdf]).toEqual([1748, 2480, true]);
+    expect(newConfig('group').formats).not.toContain('a5');
   });
   it('a new config has all blocks, only the first ones on', () => {
     const c = newConfig('single');
@@ -167,6 +171,7 @@ describe('the content of one picture', () => {
     const m = buildModel(cfg(), entries, 'de', { today: TODAY });
     expect(fileNameOf(m, 'a4', 'Unterstufe')).toBe('tennis-unterricht-unterstufe-a4-de.png');
     expect(fileNameOf(m, 'sq')).toBe('tennis-unterricht-sq-de.png');
+    expect(fileNameOf(m, 'a5', '', 'pdf')).toBe('tennis-unterricht-a5-de.pdf');
   });
 });
 
