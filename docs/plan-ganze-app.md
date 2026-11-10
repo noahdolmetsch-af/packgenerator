@@ -24,15 +24,18 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 2a | Karte «Meine Tour» auf Heute, ersetzt die Karte «Vorab» (nur bei geplanter Tour) | #1232 | online | datei:src/lib/home/MeineTour.svelte; datei:src/lib/tourpfad/karte.js; datei:tests/meinetour.test.js |
 | 2b | Heute-Hauptkarte wählt den Pfad des Moments, mit «Anderes zeigen» | - | offen | - |
 | - | **Pause:** Noah macht eine echte Tour und sagt danach, wie es weitergeht | - | - | - |
-| 3a | Ort-Vorlage mit 6 Bändern: Velos (zuerst) | - | offen | - |
+| 3s | Streifen-Baustein: kleiner Streifen «Jetzt: nächster Schritt» mit Phasenpunkten, den jeder Ort oben einsteckt (Weg B, Noah 10.11.2026) | - | offen | - |
+| 3a | Streifen einstecken: Velos (zuerst); Aussehen und Reiter bleiben | - | offen | - |
 | 6 | Ich (vier Gruppen mit Satz zum Stand) und Suche, läuft mit 3a | - | offen | - |
-| 3b | Ort-Vorlage: Material (fünf Packen-Gruppen als Bänder) | - | offen | - |
-| 5a | Ort-Vorlage: Aktiv (Tagesablauf als sanfter Vorschlag), läuft mit 3b | - | offen | - |
-| 5b | Ort-Vorlage: Planen | - | offen | - |
+| 3b | Streifen einstecken: Material (Packen-Gruppen bleiben) | - | offen | - |
+| 5a | Streifen einstecken: Aktiv (Tagesablauf als sanfter Vorschlag), läuft mit 3b | - | offen | - |
+| 5b | Streifen einstecken: Planen | - | offen | - |
 | 4b | Tourprofil: eigene Seite pro Tour | - | offen | - |
 | 7a | Unterwegs-Modus: Noah schaltet ihn selbst ein (Knopf auf «Meine Tour», kein Autostart) | - | offen | - |
 | 7b | Danach, «Das fällt auf» nur nach der Tour, Antwort in Worten | - | offen | - |
 | 8 | Tour-Budget | - | gestrichen | - |
+
+**Weg B (Noah 10.11.2026 «B», «Weg B · meine Empfehlung ★»):** Die Orte Velos, Material, Aktiv, Planen und Ich werden nicht neu gebaut. Jeder behält Aussehen und Reiter und bekommt oben einen kleinen «Streifen» («Jetzt: nächster Schritt» mit den Phasenpunkten). Darum heissen 3a, 3b, 5a und 5b jetzt «Streifen einstecken», und 3s baut den Streifen einmal als Baustein. 1b, 4a, 2b, 7a, 7b (mit 4b danach) und 6 bleiben wie geplant. Das sind etwa 9 kleine Schritte. Skizzen: https://claude.ai/artifact/Ln8vsVUyzvxLNr2t8Gwgc5. Gebaut ist davon noch nichts.
 
 Stand `gestrichen`: Noah hat den Schritt am 08.11.2026 gestrichen («E b», in Frage 11 mit «a» bestätigt). Er zählt nicht in «Plan: X von Y».
 
@@ -41,5 +44,5 @@ Stand `gestrichen`: Noah hat den Schritt am 08.11.2026 gestrichen («E b», in F
 - Zahlen mit Weg (`NumLink`, `SourceLine`) sind online; Seiten bekommen ihre Zahlen vor dem Umbau (Velos V1, Aktiv/Auswerten A1/A2, Touren T2/T3).
 - Schritt 1 und 2 fassen `Tour.svelte` und `Home.svelte` erst an, wenn die Heute-PRs gemergt sind.
 - Schritt 4a erst nach den Analyse-PRs (#1116, #1132).
-- Ab Schritt 3a baut man erst nach der Pause für Noahs echte Tour; Orts-Umbauten laufen dann parallel (3a mit 6, danach 3b mit 5a), sonst nacheinander.
+- Ab Schritt 3a baut man erst nach der Pause für Noahs echte Tour; das Einstecken des Streifens läuft dann parallel (3s zuerst, dann 3a mit 6, danach 3b mit 5a), sonst nacheinander.
 - Jede Änderung an Daten (Speicherstruktur, Backup) braucht eine Einzelfreigabe von Noah.
