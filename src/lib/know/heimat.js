@@ -555,6 +555,7 @@ const LISTED_GAPS = {
   'f.tipweek': 'when',
   'f.comeback': 'when',
   'f.helpsearch': 'name',
+  'f.weighin': 'low', // Plan 2a, Noah 10.11.2026 «Test für diese Zeile lockern»: with a planned tour the card «Meine Tour» sits above; takes this line away again when 2b folds the double trip cards
 };
 
 export const GAPS = { ...LISTED_GAPS, ...FEATREG.gaps };
