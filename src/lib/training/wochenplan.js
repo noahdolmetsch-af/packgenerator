@@ -173,6 +173,10 @@ export function setHours(cfg, hours, summer) {
   return { ...cfg, hours: h, counts: r.counts, bikeHours: r.bikeHours, fixes };
 }
 
+/** A lighter week (part 5): this share of the hours goal, for one week; fixed days the person set stay. */
+export const LIGHT_SHARE = 0.6;
+export const lightOf = (cfg, summer) => setHours(cfg, Math.max(MIN_HOURS, Math.round(cfg.hours * LIGHT_SHARE)), summer);
+
 /** True when the units are exactly what the hours goal suggests (no change by hand since). */
 export const followsHours = (cfg, summer) => same(suggestFromHours(cfg.hours, summer).counts, cfg.counts);
 

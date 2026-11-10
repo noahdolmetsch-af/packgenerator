@@ -20,6 +20,7 @@ import { HOME_PLACE, HOME_FORECAST, usable } from '../know.js';
 import { toWx } from '../weather.js';
 import { withStravaRides, notIgnored } from '../kmbook.js';
 import { msExtra } from './msdata.js';
+import { WEEKLOG_KEY } from '../training/wochenlog.js';
 import { BAGS_KEY, PACK_KEY, bagsOf, packsOf, packedDays } from '../flowbag.js';
 import { FIXED_KEY } from '../flowweek.js';
 
@@ -78,7 +79,7 @@ export function hobbyQuery(today) {
       db.flowSessions.toArray(),
       db.flowStars.toArray(),
       db.trips.toArray(),
-      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava', CHALLENGES_KEY]).toArray(),
+      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava', CHALLENGES_KEY, WEEKLOG_KEY]).toArray(),
       db.items.where('ownership').equals('wishlist').toArray(),
       db.rides.toArray(),
       db.settings.get(HOME_PLACE),
@@ -93,7 +94,7 @@ export function hobbyQuery(today) {
       db.bikes.toArray(),
     ]);
     const set = Object.fromEntries(sets.map((s) => [s.key, s.value]));
-    const extra = msExtra({ book, acts: stravaActs, ignore: set.strava?.ignore, health, checks, answers, trips, debriefs, bikes });
+    const extra = msExtra({ book, acts: stravaActs, ignore: set.strava?.ignore, health, checks, answers, trips, debriefs, bikes, weeklog: set[WEEKLOG_KEY] });
     const day = usable(place?.value, forecast) ? forecast.days?.find((d) => d.date === today) : null;
     const wx = day ? toWx([day]) : null;
     return {

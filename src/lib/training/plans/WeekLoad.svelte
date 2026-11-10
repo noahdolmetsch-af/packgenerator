@@ -25,6 +25,7 @@
       <div class="row">
         <button type="button" class="btn hi sm" onclick={() => onshorten(hint)} data-load-shorten>{t('Shorten the week')}</button>
         <button type="button" class="btn sm" onclick={keep} data-load-keep>{t('Keep it')}</button>
+        <a class="btn sm" href="#/flow/wochenplan" data-load-plan>{t('Lighter week in the weekly plan')}</a>
       </div>
     </div>
   </section>

@@ -30,6 +30,9 @@ describe('Wochenplan: the words', () => {
         }
       }
     }
+    // a ski tour week and a rainy week give the notes of the tour (part 5)
+    for (const ctx of [{ ski: true }, { rain: true }])
+      for (const monday of ['2027-01-04', '2027-05-03']) for (const n of planWeek(defaultsFor(isSummer(monday)), { monday, ...ctx }).notes) keys.add(`note:${n.key}`);
     // a unit count of zero everywhere and many gym units without the sauna give the notes that are rare
     const cfg = stepCount(stepCount(defaultsFor(false), 'gym', -2, false), 'sauna', 1, false);
     for (const n of planWeek(cfg, { monday: '2027-01-04' }).notes) keys.add(`note:${n.key}`);

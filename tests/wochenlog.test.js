@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { buildBackup, restoreBackup } from '../src/lib/backup.js';
-import { WEEKLOG_KEY, logOf, weekLog, isPast, withSnapshot, setDone, dismiss, pinsOf, setPins, movePin, clearPin, progress, weekFor, dueToday, suggest, pastWeeks } from '../src/lib/training/wochenlog.js';
+import { WEEKLOG_KEY, logOf, weekLog, isPast, withSnapshot, setDone, dismiss, pinsOf, setPins, movePin, clearPin, modeOf, setMode, setReleased, completedOn, starWeeks, streakNow, progress, weekFor, dueToday, suggest, pastWeeks } from '../src/lib/training/wochenlog.js';
 import { planOf } from '../src/lib/training/wochenplan.js';
 
 // Mon 09.11.2026 is in winter; Sunday is 15.11.
@@ -219,5 +219,85 @@ describe('wochenlog: moved units (part 4)', () => {
     expect(due.open.some((u) => u.id === tennis.id && u.t === '18:00')).toBe(true);
     const tuesday = '2026-11-10';
     expect((dueToday(stored, log, tuesday)?.open ?? []).some((u) => u.id === tennis.id)).toBe(false);
+  });
+});
+
+describe('wochenlog: modes, let go and the week star (part 5)', () => {
+  const main = week.units.filter((u) => u.type !== 'med' && u.type !== 'stretch');
+  const tickAll = (log, monday, today, ids = main.map((u) => u.id), units = week.units) => ids.reduce((l, id) => setDone(l, monday, id, true, today, units, cfg.hours), log);
+  it('modes are cleaned, changed for one week, and a past week keeps its own', () => {
+    expect(modeOf({ light: true, ski: 'yes', rain: false, x: true })).toEqual({ light: true });
+    const log = setMode(logOf(null), MON, { light: true, rain: true }, MON);
+    expect(weekLog(log, MON).mode).toEqual({ light: true, rain: true });
+    expect(setMode(log, MON, { light: true, rain: true }, MON)).toBe(log);
+    expect(setMode(log, MON, {}, '2026-11-16')).toBe(log);
+    expect(weekLog(logOf(null), MON).mode).toEqual({});
+  });
+  it('a lighter week plans 60 percent of the hours and keeps the fixed days', () => {
+    const light = weekFor(stored, MON, {}, { light: true });
+    expect(light.cfg.hours).toBe(9);
+    expect(light.base.hours).toBe(15);
+    expect(light.week.units.filter((u) => u.type !== 'med' && u.type !== 'stretch').length).toBeLessThan(main.length);
+    expect(light.week.units.some((u) => u.id === 'gym@2')).toBe(true);
+  });
+  it('a ski tour week has the tour and drops cycling, running and the mini workout; a rainy week rides indoors', () => {
+    const ski = weekFor(stored, MON, {}, { ski: true }).week;
+    expect(ski.units.some((u) => u.type === 'ski')).toBe(true);
+    for (const t of ['bikeOut', 'bikeIn', 'runOut', 'runIn', 'mini']) expect(ski.units.some((u) => u.type === t), t).toBe(false);
+    expect(ski.notes.some((n) => n.key === 'ski-drops')).toBe(true);
+    const summer = weekFor(stored, '2027-05-03', {}, { rain: true }).week;
+    expect(summer.units.some((u) => u.type === 'bikeOut')).toBe(false);
+    expect(summer.units.some((u) => u.variant === 'rain')).toBe(true);
+  });
+  it('a unit let go does not count, can be counted again, and a past week can not be changed', () => {
+    const id = main[0].id;
+    let log = tickAll(logOf(null), MON, MON, main.slice(1).map((u) => u.id));
+    expect(completedOn(weekLog(log, MON))).toBeNull();
+    log = setReleased(log, MON, id, true, MON);
+    expect(weekLog(log, MON).released).toEqual([id]);
+    expect(completedOn(weekLog(log, MON))).toBe(MON);
+    expect(progress(week.units, weekLog(log, MON).done, [id]).total).toBe(main.length - 1);
+    expect(setReleased(log, MON, id, true, MON)).toBe(log);
+    log = setReleased(log, MON, id, false, MON);
+    expect(completedOn(weekLog(log, MON))).toBeNull();
+    expect(setReleased(log, MON, id, true, '2026-11-16')).toBe(log);
+  });
+  it('a let go unit is not «Heute dran»', () => {
+    const day = main[0].d;
+    const today = new Date(Date.UTC(2026, 10, 9 + day, 12)).toISOString().slice(0, 10);
+    const due = dueToday(stored, null, today);
+    const log = setReleased(logOf(null), MON, due.next.id, true, MON);
+    const after = dueToday(stored, log, today);
+    expect((after?.open ?? []).some((u) => u.id === due.next.id)).toBe(false);
+  });
+  it('a week has a star when every unit is ticked; the star day is the last tick', () => {
+    let log = tickAll(logOf(null), MON, '2026-11-10', main.slice(1).map((u) => u.id));
+    expect(completedOn(weekLog(log, MON))).toBeNull();
+    log = setDone(log, MON, main[0].id, true, '2026-11-12', week.units, cfg.hours);
+    expect(completedOn(weekLog(log, MON))).toBe('2026-11-12');
+    expect(starWeeks(log)).toEqual([{ monday: MON, day: '2026-11-12', run: 1 }]);
+  });
+  it('without a snapshot or without units there is no star', () => {
+    expect(completedOn(undefined)).toBeNull();
+    expect(completedOn(weekLog(logOf(null), MON))).toBeNull();
+  });
+  it('weeks in a row count, a gap starts again, and the running streak ends this or last week', () => {
+    let log = logOf(null);
+    for (const m of ['2026-10-12', '2026-10-19', '2026-10-26', '2026-11-09']) log = tickAll(log, m, m, undefined, week.units);
+    const runs = starWeeks(log).map((s) => [s.monday, s.run]);
+    expect(runs).toEqual([['2026-10-12', 1], ['2026-10-19', 2], ['2026-10-26', 3], ['2026-11-09', 1]]);
+    expect(streakNow(log, '2026-11-10')).toBe(1); // this week has a star, the one before does not
+    log = tickAll(log, '2026-11-02', '2026-11-02', undefined, week.units);
+    expect(streakNow(log, '2026-11-10')).toBe(5);
+    expect(streakNow(log, '2026-12-14')).toBe(0); // long ago
+  });
+  it('a past week with a star says so', () => {
+    const log = tickAll(logOf(null), '2026-11-02', '2026-11-03', undefined, week.units);
+    expect(pastWeeks(log, '2026-11-10')[0].star).toBe(true);
+    expect(pastWeeks(setReleased(tickAll(logOf(null), '2026-11-02', '2026-11-03', main.slice(1).map((u) => u.id), week.units), '2026-11-02', main[0].id, true, '2026-11-03'), '2026-11-10')[0].star).toBe(true);
+  });
+  it('modes and let go go through a backup', () => {
+    const log = setReleased(setMode(logOf(null), MON, { light: true, ski: true }, MON), MON, 'x', true, MON);
+    expect(logOf(JSON.parse(JSON.stringify(log)))).toEqual(log);
   });
 });
