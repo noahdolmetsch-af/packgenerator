@@ -283,7 +283,7 @@ Bausteine, die überall gelten: Diagramme zum Antippen (Achse mit runden Stufen,
 
 ## 4. Wo die Daten liegen
 
-Nur im Browser des Geräts (IndexedDB über Dexie, `src/lib/db.js`; die Tabellenliste der Sicherung steht in `DATA_TABLES`). Sichern per Backup-Datei oder Ordner-Sicherung (`src/lib/backup.js`), optional verschlüsselt, plus Geräteabgleich (Ich › Daten und Backup). Das Repo ist öffentlich: nichts Persönliches darin (siehe `CLAUDE.md`, «Privacy»).
+Nur im Browser des Geräts (IndexedDB über Dexie, `src/lib/db.js`; die Tabellenliste der Sicherung steht in `DATA_TABLES`). Sichern per Backup-Datei oder Ordner-Sicherung (`src/lib/backup.js`), optional verschlüsselt, plus Geräteabgleich (Ich › Daten und Backup; eine Runde sendet zuerst die eigenen Änderungen und holt dann in Paketen mit einer Minute Zeitlimit, `src/lib/sync/engine.js`). Das Repo ist öffentlich: nichts Persönliches darin (siehe `CLAUDE.md`, «Privacy»).
 
 ## 5. Verbindungen nach aussen
 
