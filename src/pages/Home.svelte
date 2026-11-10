@@ -645,7 +645,17 @@
   // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): the card for the tour that is planned next. The preparation tasks of the
   // Excel list («Event preparation») are its hint line now; only while the card is off the wall they stay a row of «Up now»
   const tourPrep = $derived(bildTrip && hasBike(bildTrip) ? eventPrep(bildTrip, tasks, today) : null);
-  const meineCard = $derived(bildTrip ? meineTour(bildTrip, { today, debriefDone: debriefs.some((d) => d.tripId === bildTrip.id && d.status === 'done') }, { prep: tourPrep }) : null);
+  // form, bike care, fuel plan and ride of the tour (the same facts the Tour-Pfad uses), read once, not live; lazy, only for a planned tour
+  let tourExtra = $state({});
+  $effect(() => {
+    const tr = bildTrip;
+    if (!tr) return;
+    const day = today;
+    let live = true;
+    import('../lib/tourpfad/kontext.js').then((m) => m.loadTourExtra($state.snapshot(tr), day)).then((x) => live && (tourExtra = x));
+    return () => (live = false);
+  });
+  const meineCard = $derived(bildTrip ? meineTour(bildTrip, { today, debriefDone: debriefs.some((d) => d.tripId === bildTrip.id && d.status === 'done'), ...tourExtra }, { prep: tourPrep }) : null);
   const prep = $derived.by(() => {
     if (on('meinetour') && meineCard && meineCard.tripId === next?.id) return null; // the card says it in its hint line
     const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
