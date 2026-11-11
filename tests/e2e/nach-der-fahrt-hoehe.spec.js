@@ -47,6 +47,19 @@ test('After a ride without a route: climbing and the elevation profile from the 
   await expect(hm).toHaveAttribute('data-after-hm-from', 'gps');
   await expect(hm).toContainText(/\d+ m/);
   await expect(after.locator('[data-after-curve]').first()).toBeVisible();
+  // «Diagramme zum Antippen» (PR 17): the curve is a chart: axis, exact value on pointing, a window behind a tap, «Als Tabelle»
+  const chart = after.locator('[data-chart="after-height"]');
+  await chart.scrollIntoViewIfNeeded();
+  const plot = chart.locator('[data-plot]');
+  await expect(plot).toHaveAttribute('data-n', /^\d+$/);
+  const box = await plot.boundingBox();
+  const at = { position: { x: box.width * 0.5, y: box.height / 2 } };
+  await (phone(info) ? plot.tap(at) : plot.click(at));
+  await expect(page.locator('[data-sensor-sheet]')).toContainText('m');
+  await page.keyboard.press('Escape');
+  await chart.getByRole('button', { name: /Als Tabelle|As table/ }).click();
+  await expect(chart.locator('table tbody tr').first()).toBeVisible();
+  await chart.getByRole('button', { name: /Diagramm|Chart/ }).first().click();
   await after.scrollIntoViewIfNeeded();
   await page.screenshot({ path: info.outputPath('nach-der-fahrt-hoehe.png') });
 });
