@@ -2,7 +2,7 @@
 export default {
   title: 'Sync: calmer when nothing is new',
   lead: 'A sync round without news now does less work, so the app stays calmer in the background.',
-  points: [{ text: 'When the other device sent nothing, the round reads your change list once instead of twice', go: null }],
+  points: [{ text: 'When the other device sent nothing, the round reads your change list once instead of twice', go: 'f.sync' }],
   small: [{ box: 'new', text: 'Reminders are only checked after a round that took or sent something' }],
   test: ['Leave the app open on Heute for a minute: it stays calm.', 'Change a trip on the phone: it shows up on the computer, and ticked-off reminders still go away.'],
   since: [],
