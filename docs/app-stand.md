@@ -293,7 +293,7 @@ Routenberechnung (brouter.de; fällt der Dienst aus, einmal Valhalla und dann OS
 
 ## 6. Regeln, Pläne, offene Baustellen: nur Verweise
 
-Aufbau, Wege durch die App, Zusammenhänge, Daten, Regeln und Designregeln in einfachen Worten, mit Wörterbuch: `docs/aufbau.md`. Regeln: `CLAUDE.md` (gelten über allem). Pläne und Ziele: `docs/vorhaben.md`, `docs/roadmap.md`. Entscheide: `docs/decisions.md`. Offene PRs und Prüfungen: GitHub. Aktueller Stand und Plan: `docs/stand-und-plan.md`. Technik: `docs/technik-handbuch.md`. Verlauf und Entscheide mit Grund: `docs/verlauf-und-entscheide.md`. Was Noah wissen und tun muss: `docs/noah-wissen.md`. Älterer Verlauf: `docs/projektstand.md`, `docs/status.md`, `docs/releases/`. Hier steht keine Kopie davon, damit nichts doppelt veraltet.
+Aufbau, Wege durch die App, Zusammenhänge, Daten, Regeln und Designregeln in einfachen Worten, mit Wörterbuch: `docs/aufbau.md`. Regeln: `CLAUDE.md` (gelten über allem). Pläne und Ziele: `docs/vorhaben.md`, `docs/roadmap.md`. Entscheide: `docs/decisions.md`. Offene PRs und Prüfungen: GitHub. Aktueller Stand und Plan: `docs/stand-und-plan.md`. Plan «ganze App» mit Weg B (Orte behalten ihr Aussehen und bekommen oben einen Streifen «Jetzt: nächster Schritt», Noah 10.11.2026; noch nichts gebaut): `docs/plan-ganze-app.md`. Technik: `docs/technik-handbuch.md`. Verlauf und Entscheide mit Grund: `docs/verlauf-und-entscheide.md`. Was Noah wissen und tun muss: `docs/noah-wissen.md`. Älterer Verlauf: `docs/projektstand.md`, `docs/status.md`, `docs/releases/`. Hier steht keine Kopie davon, damit nichts doppelt veraltet.
 
 ## 7. Offene Abweichungen beim Abgleich
 
