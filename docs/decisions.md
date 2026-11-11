@@ -2065,3 +2065,8 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 05.11.2026 Handy-Tests nur für den betroffenen Bereich
 - Noah «3a ja» (Thread «Handy-Tests nur für betroffenen Bereich»): Die Handy-Tests eines PR (Label `ok`) laufen nur noch für die Seiten, die der PR berührt. `scripts/ci-map.mjs` liest aus den Importen der App, in welchen Seiten eine geänderte Datei landet, und nimmt die Tests, die diese Seiten öffnen. Der Kern (`flow.spec.js`, `guard.spec.js`) läuft immer. Deutsche Textdateien (`src/lib/i18n/de/`), Doku und News allein lösen keinen Handy-Test aus. Alles läuft wie bisher, wenn eine Datei geändert wird, die jede Seite lädt (zum Beispiel `App.svelte`, `features.js`, Heute), wenn die Zuordnung unklar ist, bei Build- und Workflow-Dateien und bei mehr als 250 gefundenen Tests. Die Nacht-Prüfung läuft weiter mit allen Tests; ein Fehler, den die Auswahl übersieht, zeigt sich dort.
+
+## 10.11.2026 Plan «ganze App»: Weg B, Streifen statt neuer Orte
+- Noah «B» und «Weg B · meine Empfehlung ★» (Thread «Bauen: Karte «Meine Tour» auf Heute», nach den drei Wegen: https://claude.ai/artifact/Ln8vsVUyzvxLNr2t8Gwgc5): Velos, Material, Aktiv, Planen und Ich behalten ihr Aussehen und ihre Reiter. Oben bekommt jeder Ort einen kleinen Streifen «Jetzt: nächster Schritt» mit Phasenpunkten. Das ersetzt für 3a, 3b, 5a und 5b den früheren Entscheid «Ort neu bauen, Ort-Vorlage mit Bändern» (08.11.2026, Fragen 3 a und 5 a). Grund: weniger Umbau, kleinere PRs, nichts Gewohntes wandert.
+- Neu im Plan: 3s «Streifen-Baustein». Unverändert: 1b, 4a, 2b, 7a, 7b (4b danach), 6, die Pause für Noahs echte Tour nach 2b und Frage 9 b (Unterwegs-Modus per Knopf).
+
