@@ -17,6 +17,7 @@ Auftrag: Noah «ja» (Thread «Messen: warum die App langsam ist»), Bericht `no
 ## Selbst entschieden
 - Nur diese eine Einstellung (Punkt 1 der Messung). Die weiteren Punkte (Fahrten schlank halten, `ensureTrips` schreibt bei jedem Start 10 Touren, Abgleich-Runden) sind eigene kleine PRs.
 - Keine Bilder: nichts Sichtbares ändert sich, nur die Geschwindigkeit.
+- Der Test DK7a (lange Namen ohne Leerzeichen) wurde schneller als der Aufräum-Lauf für Dateinamen und scheiterte: Die Testtouren bekommen jetzt `titleOwn` (ein selbst getippter Name wird nie ersetzt), der Test prüft damit dasselbe, aber ohne Wettlauf.
 - `cache: 'disabled'` ist das Verhalten von Dexie 3: Ergebnisse sind frische Kopien aus der Datenbank, eine Seite, die ein Ergebnis ändert, verändert nichts anderes.
 
 ## Stand im Plan
