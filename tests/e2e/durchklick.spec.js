@@ -11,7 +11,9 @@ const LONG = 'Probetour_ohne_Leerzeichen_2610132015_v124_nichts_selektiert_abcde
 
 test('DK7a: a long name without spaces wraps on Touren and Vorlagen, no sideways scroll', async ({ page, context }, info) => {
   const data = structuredClone(fixture().data);
-  for (const trip of data.tables.trips) trip.title = `${LONG}_${trip.id}`;
+  // titleOwn: a name the user typed is never replaced by the tidy-up of file-like names (touren/titel.js); without it the
+  // sweep that runs when Touren opens races with the check below (faster saving made it win, 11.11.2026)
+  for (const trip of data.tables.trips) { trip.title = `${LONG}_${trip.id}`; trip.titleOwn = true; }
   for (const tpl of data.tables.templates ?? []) tpl.name = `${LONG}_${tpl.id}`;
   await start(page, context, info, { data });
   for (const hash of ['#/trips', '#/pack/templates']) {

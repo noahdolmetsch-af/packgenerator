@@ -134,7 +134,10 @@ export const syncLocal = (table, key) => table === 'settings' && (DEVICE_SETTING
  * @param {string} [name] database name; tests use their own name
  */
 export function createDb(name = 'pack-generator') {
-  const db = new Dexie(name);
+  // Tempo (Noah 11.11.2026 «ja», Messung 10.11.): Dexie 4 deep-copies every liveQuery result by default
+  // (cache: 'cloned'). With the real data (1'440 rides, 27 MB) every save made a dozen places read and copy all rides:
+  // start 30 s instead of 12 s, saving a trip 14 s instead of 1.5 s (4x slower CPU). 'disabled' is the behaviour of Dexie 3.
+  const db = new Dexie(name, { cache: 'disabled' });
   db.version(1).stores({
     items: 'id, category, ownership, weightStatus, *domains',
     kits: 'id, domain',
