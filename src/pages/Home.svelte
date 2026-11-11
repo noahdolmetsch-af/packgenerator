@@ -652,7 +652,7 @@
     if (!tr) return;
     const day = today;
     let live = true;
-    import('../lib/tourpfad/kontext.js').then((m) => m.loadTourExtra($state.snapshot(tr), day)).then((x) => live && (tourExtra = x));
+    import('../lib/tourpfad/kontext.js').then((m) => m.loadTourExtra($state.snapshot(tr), day)).then((x) => live && (tourExtra = x)).catch(() => {}); // offline and the part not loaded yet: the card simply stays without the extras
     return () => (live = false);
   });
   const meineCard = $derived(bildTrip ? meineTour(bildTrip, { today, debriefDone: debriefs.some((d) => d.tripId === bildTrip.id && d.status === 'done'), ...tourExtra }, { prep: tourPrep }) : null);
