@@ -94,6 +94,7 @@ test('choose a model, load it on a tap, check the speed, ask in the search witho
   // Without internet: the AI on this device answers in the search, with the entries that fit
   await page.goto('./');
   await expect(page.locator('#app > *').first()).toBeAttached(); // the app starts a moment after the load event (German texts first)
+  await page.waitForLoadState('networkidle'); // the parts the start loads later (Meine Tour, Pins) must be here before the net goes away
   await context.setOffline(true);
   if (info.project.name === 'phone') await page.getByRole('button', { name: /Search everything|Alles durchsuchen/ }).click();
   await f.fill('Was nehme ich bei Regen mit?');
