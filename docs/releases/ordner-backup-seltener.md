@@ -21,3 +21,7 @@ Auftrag: Noah «ich möchte 1-4 umsetzen, nachdem 1251 durch ist» (Thread «Mes
 ## Prüfschritte (nach dem Merge auf der echten Seite, Mac mit gewähltem Backup-Ordner)
 1. Eine Tour ändern und mehrmals speichern: die Seite bleibt ruhig.
 2. Ich › Daten: «Backup im Ordner» zeigt die Zeit des letzten Schreibens; nach spätestens 30 Sekunden ist sie neu.
+
+## Nachtrag (nach dem ersten CI-Lauf)
+- Der Handy-Test «Neu in den letzten Updates» (`ap29.spec.js:220`) verlangt, dass eine der drei neuesten Versionen einen «Ausprobieren»-Link hat. Die drei letzten Neuigkeiten (#1251, #1253, #1255) hatten `go: null`; weil ihre PRs nur ihre eigenen Seiten testeten, fiel das erst hier auf. Diese Neuigkeit führt jetzt zu `f.autobackup` (Ich › Daten), damit der Test wieder grün ist.
+- Der Funktionstext «Auto backup into a folder» sagt jetzt «kurz nach einer Änderung, höchstens alle 30 Sekunden» (mit deutscher Zeile).

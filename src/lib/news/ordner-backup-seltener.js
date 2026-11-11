@@ -2,7 +2,7 @@
 export default {
   title: 'Folder backup: calmer',
   lead: 'The backup into your folder (Mac) now writes at most every 30 seconds instead of after every save.',
-  points: [{ text: 'Saving no longer starts a full backup each time; changes in between go into the next one', go: null }],
+  points: [{ text: 'Saving no longer starts a full backup each time; changes in between go into the next one', go: 'f.autobackup' }],
   small: [{ box: 'new', text: 'Folder backup waits 30 seconds between two writes, and writes at once when you leave the tab' }],
   test: ['Change a trip and save it a few times in a row: the page stays calm.', 'Open Ich › Daten: the folder backup still shows the time of its last write.'],
   since: [],
