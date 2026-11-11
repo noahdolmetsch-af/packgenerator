@@ -2,8 +2,8 @@
 export default {
   title: 'The title stays on top',
   lead: 'Scroll down a page and its name stays at the top as one small line.',
-  points: [{ text: 'Open Tours and scroll down: the name «Tours» stays at the top as a small line, and goes when you scroll back up', href: '#/trips', go: { href: '#/trips', where: 'Shows on every page with a big title when you scroll down.' } }],
-  small: [{ box: 'new', text: 'A page that keeps its own bar at the top (like the search row of the material list) keeps it: there the small line stays away', go: { href: '#/gear', where: 'Shows in Material, where the search row stays on top.' } }],
+  points: [{ text: 'Open Tours and scroll down: the name «Tours» stays at the top as a small line, and goes when you scroll back up', href: '#/trips', go: null }],
+  small: [{ box: 'new', text: 'A page that keeps its own bar at the top (like the search row of the material list) keeps it: there the small line stays away', go: null }],
   test: ['Open Tours and scroll down a little: the name «Tours» stays at the top as a small line.', 'Scroll back to the top: the line goes and the big title is back.'],
   since: [],
   de: {

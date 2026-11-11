@@ -2070,3 +2070,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 - Noah «B» und «Weg B · meine Empfehlung ★» (Thread «Bauen: Karte «Meine Tour» auf Heute», nach den drei Wegen: https://claude.ai/artifact/Ln8vsVUyzvxLNr2t8Gwgc5): Velos, Material, Aktiv, Planen und Ich behalten ihr Aussehen und ihre Reiter. Oben bekommt jeder Ort einen kleinen Streifen «Jetzt: nächster Schritt» mit Phasenpunkten. Das ersetzt für 3a, 3b, 5a und 5b den früheren Entscheid «Ort neu bauen, Ort-Vorlage mit Bändern» (08.11.2026, Fragen 3 a und 5 a). Grund: weniger Umbau, kleinere PRs, nichts Gewohntes wandert.
 - Neu im Plan: 3s «Streifen-Baustein». Unverändert: 1b, 4a, 2b, 7a, 7b (4b danach), 6, die Pause für Noahs echte Tour nach 2b und Frage 9 b (Unterwegs-Modus per Knopf).
 
+
+## 11.11.2026 Ruckeln: zwei Bewegungs-Effekte raus
+- Noah «c» (Thread «Ruckelfunktion finden und entfernen»): Die kleine Titelzeile oben beim Scrollen (Paket A Idee 5) und das Mitfliegen des Tour-Namens beim Öffnen (Paket A Idee 2) sind entfernt. Grund: Ruckeln beim Scrollen und Seitenwechsel. Die Ideen 1, 3 und 4 (Richtung zeigen, Markierung gleitet, Ruhiges Einblenden) bleiben. Der Hauptgrund des Ruckelns (Kopieren der Fahrten, PR #1251) ist ein eigener Schritt.
