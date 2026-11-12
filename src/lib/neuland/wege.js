@@ -30,27 +30,34 @@ export function bearing(a, b) {
 export const sideOfBearing = (deg) => SIDES[Math.floor(((deg + 45) % 360) / 90)];
 
 /**
- * The side you came from: follow the line back from its closest point to the place until it is
- * APPROACH_KM along, and look where that point lies. place [lat, lon]; pts the line; near = nearestOnLine().
- * → 'N' | 'E' | 'S' | 'W' | null (a line without a run-up, a loop, a start or end place only).
+ * The run-up: follow the line back from its closest point to the place until it is APPROACH_KM along.
+ * place [lat, lon]; pts the line; near = nearestOnLine().
+ * → { side: 'N' | 'E' | 'S' | 'W', run: [[lat, lon], …] (the run-up in riding order, ending at the closest point) },
+ *   or null (a line without a run-up, a loop, a start or end place only).
  */
-export function approachSide(place, pts, near) {
+export function approachOf(place, pts, near) {
   if (!near || !pts || pts.length < 3) return null;
   let at = Math.min(near.index, pts.length - 1);
   let acc = km(near.at, pts[at]);
-  let from = pts[at];
+  const run = [near.at, pts[at]];
   while (at > 0 && acc < APPROACH_KM) {
     acc += km(pts[at], pts[at - 1]);
     at--;
-    from = pts[at];
+    run.push(pts[at]);
   }
+  const from = run[run.length - 1];
   if (acc < MIN_APPROACH_KM || km(place, from) < LOOP_KM) return null;
-  return sideOfBearing(bearing(place, from));
+  return { side: sideOfBearing(bearing(place, from)), run: run.reverse() };
 }
+
+/** The side you came from: 'N' | 'E' | 'S' | 'W' | null (see approachOf). */
+export const approachSide = (place, pts, near) => approachOf(place, pts, near)?.side ?? null;
+
+const sideRun = (a) => ({ side: a?.side ?? null, run: a?.run ?? null });
 
 /**
  * Every day a line passed within reachKm of the place. place { lat, lon }; tracks tracksOf().
- * → [{ day, tripId, rideId, src, type, distM, side }], the newest day first; one entry per day
+ * → [{ day, tripId, rideId, src, type, distM, side, run }] (run: the run-up as a line, for the ground lookup), the newest day first; one entry per day
  * (a trip route and the Strava ride of the same day count once, the one that knows its sport wins).
  */
 export function waysOf(place, reachKm, tracks = []) {
@@ -65,13 +72,13 @@ export function waysOf(place, reachKm, tracks = []) {
     if (place.lat < b[0] - padLat || place.lat > b[2] + padLat || place.lon < b[1] - padLon || place.lon > b[3] + padLon) continue;
     const n = nearestOnLine(spot, tr.pts);
     if (!n || n.km > reachKm) continue;
-    const way = { day: tr.day, tripId: tr.tripId ?? null, rideId: tr.rideId ?? null, src: tr.src, type: tr.type || null, distM: Math.round(n.km * 1000), side: approachSide(spot, tr.pts, n) };
+    const way = { day: tr.day, tripId: tr.tripId ?? null, rideId: tr.rideId ?? null, src: tr.src, type: tr.type || null, distM: Math.round(n.km * 1000), ...sideRun(approachOf(spot, tr.pts, n)) };
     const cur = byDay.get(tr.day);
     if (!cur) byDay.set(tr.day, way);
     else {
       const best = cur.type || !way.type ? cur : way;
       const other = best === cur ? way : cur;
-      byDay.set(tr.day, { ...best, side: best.side ?? other.side });
+      byDay.set(tr.day, { ...best, side: best.side ?? other.side, run: best.run ?? other.run });
     }
   }
   return [...byDay.values()].sort((a, b) => (a.day < b.day ? 1 : a.day > b.day ? -1 : 0));
