@@ -349,6 +349,7 @@ export async function syncNow(
   if (await demo()) return { skipped: 'demo' };
   const keys = await keysOf(cfg.code);
   const out = { taken: 0, sent: 0, asks: 0, big: 0 };
+  let got = 0; // records the server sent in this round (also those not taken)
   try {
     let since = cfg.since ?? 0;
     /** Reads the server's log. Returns true when it was read to its end, false when the time was up. */
@@ -359,6 +360,7 @@ export async function syncNow(
         if (round > 0 && timeUp()) return false;
         const res = await api.call('pull', { token: keys.token, since });
         const items = res.items ?? [];
+        got += items.length;
         const opened = await Promise.all(items.map(async (it) => ({ s: it.s, p: await unseal(keys, it.e) }))); // p null: sealed with another code, not ours to read
         for (let i = 0; i < opened.length; i += APPLY_CHUNK) {
           if (i > 0 && timeUp()) return false;
@@ -429,7 +431,11 @@ export async function syncNow(
     // 3. push again: what the pull settled in favour of this device, and a change made meanwhile.
     //    The other device wrote in between: its version comes now (and may become a question)
     //    (not while the first pull of a new pairing is unfinished: then everything counts as changed)
-    const raced = finished || cfg.pulled !== false ? await pushDirty() : false;
+    //    Tempo (Noah 11.11.2026 «1-4 umsetzen», Messung 10.11.): when the server sent nothing and no question was settled, the pull changed
+    //    nothing here, so the first push has sent everything; a change made meanwhile wakes the next round by itself. The second
+    //    read of all notes is left out then.
+    const brought = got > 0 || out.settled > 0;
+    const raced = (finished || cfg.pulled !== false) && (brought || cfg.pulled === false) ? await pushDirty() : false;
     if (raced && !shouldStop()) await pull();
     out.asks = await db.meta.where('key').startsWith(ASK).count();
     await pruneLost(db);
