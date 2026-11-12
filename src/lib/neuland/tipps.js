@@ -15,7 +15,7 @@ import { km } from './geo.js';
 import { bearing, sectorOf, ROAD_FACTOR, LEVELS } from '../ueberraschung.js';
 
 export const TIP_KINDS = ['passes', 'lakes', 'municipalities'];
-export const TIP_HOURS = [2, 3, 4, 6];
+export const TIP_HOURS = [1.5, 2, 3, 4, 6]; // 1.5 h = «Du hast 90 Minuten» (Entdecken und Sammeln, Idee 5)
 export const TIP_HOURS_STD = 3;
 export const TIP_KMH = LEVELS.find((l) => l.key === 'curious')?.kmh ?? 19;
 /** Places closer than this are no outing. */
