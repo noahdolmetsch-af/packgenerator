@@ -130,3 +130,28 @@ test('WG-4 ways: a week goal and a ring row lead to their value in Analyse (44 p
   await expect(page).toHaveURL(/#\/auswerten\/analyse\/act%3Ameditation\?zeit=w$/);
   await expect(page.locator('main')).toContainText(T('Meditation'));
 });
+
+test('WG-5 form: the number is filled in, follows the pick until typed, a hint when empty', async ({ page, context }, info) => {
+  await open(page, context);
+  const card = page.locator('#wg-h').locator('xpath=ancestor::section[1]');
+  await card.locator('[data-wg-empty] button').first().click();
+  const amount = card.locator('[data-wg-amount]');
+  await expect(amount).toHaveValue('150');
+  await expect(card.locator('[data-wg-hint]')).toHaveCount(0);
+  await expect(card.locator('[data-wg-save]')).toBeEnabled();
+  // another pick, number not typed yet: the suggestion follows
+  await card.locator('[data-wg-pick]').selectOption('act:yoga');
+  await expect(amount).toHaveValue('2');
+  // typed: it stays when the pick changes
+  await amount.fill('40');
+  await card.locator('[data-wg-pick]').selectOption('km');
+  await expect(amount).toHaveValue('40');
+  // emptied: a hint and no save
+  await amount.fill('');
+  await expect(card.locator('[data-wg-hint]')).toHaveText(T('Type a number above 0.'));
+  await expect(card.locator('[data-wg-save]')).toBeDisabled();
+  await shot(page, info, 'WG5-hinweis', card);
+  await amount.fill('120');
+  await card.locator('[data-wg-save]').click();
+  await expect(card.locator('[data-wg="km"] [data-wg-line]')).toContainText('von 120 km');
+});
