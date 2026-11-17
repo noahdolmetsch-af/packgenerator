@@ -13,12 +13,9 @@
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
-  import MoreAktiv from '../../lib/flow/kit/MoreAktiv.svelte';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
-  import { morePages } from '../../lib/flow/morepages.js';
   import { flowQuery, seedIfNeeded } from '../../lib/flow/data.svelte.js';
   import { flowStates, rings as ringsOf, ringFill } from '../../lib/flow.js';
-  import { weekGoals } from '../../lib/flowweek.js';
   import { HINT_NO_KEY, restHint, restActs, restIdeas, restStrip } from '../../lib/flowrest.js';
   import { actFromTemplate } from '../../lib/flowsugg.js';
   import { putSetting, putActs, deleteAct } from '../../lib/flowdb.js';
@@ -51,7 +48,6 @@
   const log = $derived(data?.log ?? []);
   const states = $derived(data ? flowStates(acts, log, today, data.tripDays) : []);
   const rings = $derived(ringsOf(states, log, today));
-  const pages = $derived(morePages({ openGoals: weekGoals(states).filter((g) => !g.met).length }));
   const hint = $derived(data ? restHint({ acts, log, today, hiddenOn: $noQ?.value ?? null }) : null);
   const list = $derived(restActs(acts, log, today));
   // at most 4 ideas at a time, so the list stays calm (the next ones come when one is added)
@@ -86,7 +82,6 @@
 <div class="hob">
   <header class="ph">
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Recovery|page')} />
-    <MoreAktiv items={pages} on="rest" />
     <PageHead title={t('Recovery|page')} text={t('So that after the bike, tennis and gym the pause has its place too')} />
   </header>
   <AreaIntro place="rest" />

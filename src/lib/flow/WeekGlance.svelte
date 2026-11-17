@@ -27,6 +27,13 @@
     const a = byId.get(id);
     return a ? tileName(a) || actName(a) : '';
   };
+  // «Ein Kopf für Aktiv» (Noah 17.11.2026 «a»): a tap on a day opens the week page at that day; elsewhere on the card it opens the week
+  function openDay(e) {
+    const li = e.target instanceof Element ? e.target.closest('[data-week-day]') : null;
+    if (!li) return;
+    e.preventDefault();
+    location.hash = `#/flow/week?day=${li.getAttribute('data-week-day')}`;
+  }
   const done = (d) => d.items.filter((x) => x.kind === 'done');
   const ahead = (d) => d.items.filter((x) => x.kind === 'fix' || x.kind === 'plan');
   const dayLabel = (d) =>
@@ -39,7 +46,7 @@
       .join(', ');
 </script>
 
-<a class="card wg" href="#/flow/week" data-week-glance>
+<a class="card wg" href="#/flow/week" data-week-glance onclick={openDay}>
   <span class="top">
     <span class="wgl">{open ? tn(open, '{n} goal open', '{n} goals open') : t('All goals on track this week')}</span>
     <span class="go">{t('Plan the week')}<ChevronRight size={16} aria-hidden="true" /></span>
