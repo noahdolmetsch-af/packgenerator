@@ -592,7 +592,7 @@
     align-items: center;
     gap: 6px;
     min-height: 40px;
-    padding: 0 12px;
+    padding: 6px 12px;
     border: 1px dashed var(--line-strong);
     border-radius: var(--radius);
     background: var(--paper);
@@ -610,11 +610,11 @@
   .zt {
     flex: none;
   }
+  /* a long session name wraps onto a second line instead of ending in «…» (UI-Test Training, Fund 7) */
   .cn {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    text-align: left;
   }
   .ch.done,
   .ch.plan.ok {
