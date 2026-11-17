@@ -135,13 +135,14 @@
           </a>
         </li>
       </ul>
-      <!-- Durchklick 08.11.2026 (Fund 2): the soft edge alone was easy to miss; a visible «More places» says the list goes on -->
-      {#if more.down}
-        <button type="button" class="moredn" onclick={() => placesEl?.scrollBy({ top: Math.max(120, placesEl.clientHeight * 0.7), behavior: 'smooth' })} data-menu-more>
-          <ChevronDown size={16} aria-hidden="true" /><span>{t('Show more places')}</span>
-        </button>
-      {/if}
     </nav>
+    <!-- Durchklick 08.11.2026 (Fund 2): the soft edge alone was easy to miss; a visible «More places» says the list goes on.
+         UI-Test Training 17.11.2026 (Fund 10): its own row under the list, so it no longer covers the last place on a laptop -->
+    {#if more.down}
+      <button type="button" class="moredn" onclick={() => placesEl?.scrollBy({ top: Math.max(120, placesEl.clientHeight * 0.7), behavior: 'smooth' })} data-menu-more>
+        <ChevronDown size={16} aria-hidden="true" /><span>{t('Show more places')}</span>
+      </button>
+    {/if}
     {#if hint}
       <div class="khint" role="status" data-key-hint={hint.key}>
         <p>{t('Faster with the keyboard:')} {#each keysOf(hint.key) as k, i (i)}{#if i}{' '}{t('then|keys')}{' '}{/if}<kbd>{k}</kbd>{/each} {t('opens {name}.', { name: hint.name })} {t('«?» shows all shortcuts.')}</p>
@@ -287,12 +288,11 @@
     mask-image: linear-gradient(to bottom, transparent, var(--ink) 28px, var(--ink) calc(100% - 28px), transparent);
   }
   .moredn {
-    position: sticky;
-    bottom: 34px; /* above the soft edge */
+    flex: none;
     display: flex;
     align-items: center;
     gap: 4px;
-    margin: 4px auto 0;
+    margin: -4px auto 0;
     padding: 4px 12px 4px 8px;
     border: 1px solid var(--line);
     border-radius: 999px;
