@@ -26,7 +26,7 @@ export default {
   '{a} of {b} as planned': '{a} von {b} wie geplant',
   '{a} of {b} as planned, {n} nearly': '{a} von {b} wie geplant, {n} fast',
   'No plan yet.': 'Noch kein Plan.',
-  'Plan one above under «Plan the week».': 'Oben unter «Woche planen» planen.',
+  'Plan one above under «My week».': 'Oben unter «Meine Woche» planen.',
   'Nothing planned this week.': 'Diese Woche ist nichts geplant.',
   'one zone off': 'eine Zone daneben',
   'other zone': 'andere Zone',

@@ -175,8 +175,8 @@ test('Training › Woche: plan kept, endurance check and FTP say quietly why not
   const more = page.locator('[data-section="week-analyses"] [data-more-analyses]');
   await expect(page.locator('[data-section="week-analyses"]')).toBeVisible();
   if (await more.count()) await more.click();
-  await expect(card('plan').locator('[data-plan-none]')).toHaveText('Noch kein Plan. Oben unter «Woche planen» planen.');
-  await expect(card('plan').getByRole('link', { name: 'Oben unter «Woche planen» planen.' })).toHaveAttribute('href', '#/flow/training');
+  await expect(card('plan').locator('[data-plan-none]')).toHaveText('Noch kein Plan. Oben unter «Meine Woche» planen.');
+  await expect(card('plan').getByRole('link', { name: 'Oben unter «Meine Woche» planen.' })).toHaveAttribute('href', '#/flow/training');
   await expect(card('decouple').locator('[data-decouple-none]')).toContainText('Noch keine lange ruhige Fahrt in den letzten 6 Monaten');
   await expect(card('ftp').locator('[data-ftp-none]')).toContainText('Noch keine Fahrt mit Leistungsmesser');
   // the link goes to the plan just above on this page

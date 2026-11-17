@@ -48,7 +48,7 @@
 {#if data}
   <AnaCard key="plan" sub={t('Planned zone against ridden zone')}>
     {#if !data.any}
-      <p class="cap" data-plan-none>{t('No plan yet.')} <a href="#/flow/training" onclick={toPlan}>{t('Plan one above under «Plan the week».')}</a></p>
+      <p class="cap" data-plan-none>{t('No plan yet.')} <a href="#/flow/training" onclick={toPlan}>{t('Plan one above under «My week».')}</a></p>
     {:else}
       {#if now.rows.length}
         <ul class="pk-rows" aria-label={t('This week')}>
