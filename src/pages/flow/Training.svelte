@@ -18,6 +18,8 @@
   import Empty from '../../lib/ui/Empty.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
   import TrainingWeek from './TrainingWeek.svelte';
+  import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
+  import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
   import FtpCard from '../../lib/strava/FtpCard.svelte';
   import { localDay } from '../../lib/localday.js';
@@ -34,8 +36,11 @@
   let { params = new URLSearchParams() } = $props();
 
   const PAGE = 40;
-  const view = $derived(params.get('view') === 'list' ? 'list' : 'week');
-  const setView = (v) => (location.hash = v === 'list' ? '#/flow/training?view=list' : '#/flow/training');
+  const today = localDay();
+  // UI-Test Training 17.11.2026 (Fund 4): three views. «Woche» plans and looks back, «Aktivitäten» is the list, «Analysen» holds
+  // the analyses over the weeks, the heart rate zones and the FTP (they stood under the week before). ?zones=1 shows the zones.
+  const view = $derived(params.get('zones') === '1' || params.get('view') === 'ana' ? 'ana' : params.get('view') === 'list' ? 'list' : 'week');
+  const setView = (v) => (location.hash = v === 'list' ? '#/flow/training?view=list' : v === 'ana' ? '#/flow/training?view=ana' : '#/flow/training');
   const actsQ = liveQuery(async () => (await db.activities.toArray()).sort(byNewest));
   const acts = $derived($actsQ ?? []);
   let kind = $state('all');
@@ -90,10 +95,13 @@
   </header>
   <AreaIntro place="training" />
 
-  <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }]} /></div>
+  <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }, { key: 'ana', name: t('Analyses|training') }]} /></div>
 
   {#if view === 'week'}
     <TrainingWeek {acts} />
+  {:else if view === 'ana'}
+    <WeekAnalyses {acts} {today} />
+    <AnaSheet />
   {:else if !acts.length}
     <Empty icon={RefreshCw} title={t('No activities yet')} text={strava.key ? t('The next fetch from Strava brings them, with their heart rate.') : t('Connect Strava once: then every activity comes by itself.')} action={{ label: strava.key ? t('To Strava') : t('Connect Strava'), href: STRAVA_HASH }} />
   {:else}
@@ -139,6 +147,7 @@
     </section>
   {/if}
 
+  {#if view === 'ana'}
   <Sec id="zones-h" title={t('Heart rate zones')} sub={source} more={editing ? null : { label: t('change'), onclick: startEdit }}>
     <div class="card zs" data-section="zones">
       {#if editing}
@@ -165,6 +174,7 @@
   </Sec>
   <!-- Strava check 21.10.2026: the own FTP or Strava's instead of the estimate -->
   <FtpCard est={ftpGuess(acts, localDay())} />
+  {/if}
 </div>
 
 <style>
