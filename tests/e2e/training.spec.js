@@ -330,7 +330,7 @@ test('Training › Woche: free days and time per day in the suggestion are remem
   await plan.locator('[data-suggest-open]').click();
   const sug = plan.locator('[data-suggest]');
   const day = (i) => sug.locator(`[data-sug-day-btn="${i}"]`);
-  await expect(day(6)).toContainText('offen');
+  await expect(day(6)).toContainText('beliebig');
   await day(6).click();
   await expect(day(6)).toContainText('≤1h');
   await day(6).click();
@@ -346,7 +346,7 @@ test('Training › Woche: free days and time per day in the suggestion are remem
   await plan.locator('[data-suggest-open]').click();
   await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('frei');
   await sug.locator('[data-sug-day-btn="6"]').click();
-  await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('offen');
+  await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('beliebig');
   expect(errors).toEqual([]);
 });
 

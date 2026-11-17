@@ -84,10 +84,10 @@
   const stepHours = (d) => ((hoursSet = Math.min(40, Math.max(1, (hoursSet ?? sug.hours) + d))), (edits = null), (form = null));
   const setPush = (n) => ((push = n), (edits = null), (form = null));
   const setFocus = (f) => ((focus = f), (edits = null), (form = null));
-  // «Tage sperren / Zeit pro Tag»: tap a weekday to cycle open → 1 h → 30 min → free; it is remembered
+  // «Tage sperren / Zeit pro Tag»: tap a weekday to cycle any → 1 h → 30 min → free; it is remembered
   const CYCLE = [null, 60, 30, 0];
   const allDays = $derived(weekOf(monday));
-  const limitName = (n) => (n === 0 ? t('free') : n === 30 ? t('≤30 min') : n === 60 ? t('≤1 h') : t('open'));
+  const limitName = (n) => (n === 0 ? t('free') : n === 30 ? t('≤30 min') : n === 60 ? t('≤1 h') : t('any'));
   function cycleDay(i) {
     const cur = dayLimits[i] ?? null;
     const nxt = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
@@ -168,7 +168,7 @@
         </button>
       {/each}
     </div>
-    <p class="sugw-note">{t('Tap a day: 1 h at most, 30 min at most, or free. Free days get no session.')}</p>
+    <p class="sugw-note">{t('Tap a day to limit it: any → 1 h at most → 30 min at most → free (no session). Another tap goes on.')}</p>
     {#if cands.length}
       <div class="sugw-sports" data-sug-sports>
         <span class="sugw-sports-h">{t('Times per week')}</span>
