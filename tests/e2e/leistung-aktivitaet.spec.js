@@ -45,14 +45,14 @@ test('TR5/TR5b: power, load, power curve and the analyses on one activity', asyn
   const values = page.locator('[data-section="values"]');
   await expect(values.locator('[data-val="moving"]')).toContainText('1:36');
   await expect(values.locator('[data-val="moving"]')).toContainText('Dauer in Bewegung');
-  await expect(values.locator('[data-val="elapsed"]')).toContainText('1:42');
+  await expect(values.locator('[data-val="elapsed"] b')).toHaveText('1:42:00'); // under a day: h:mm:ss, no leading days (Fund 9)
   await expect(values.locator('[data-val="elapsed"]')).toContainText('Zeit verstrichen');
   await expect(values.locator('[data-val="speed"]')).toContainText('26.4 / 58.1');
   await expect(values.locator('[data-val="hr"]')).toContainText('138 / 171');
   await expect(values.locator('[data-val="cad"]')).toContainText('84');
   await expect(values.locator('[data-val="kcal"]')).toContainText('890');
   await expect(values.locator('[data-val="temp"]')).toContainText('14 °C');
-  await expect(values.locator('[data-val="pauses"]')).toContainText('2 · 00:00:06:00'); // pauses as dd:hh:mm:ss (Noah 21.10.2026)
+  await expect(values.locator('[data-val="pauses"]')).toContainText('2 · 0:06:00'); // pauses as h:mm:ss under a day, dd:hh:mm:ss from a day on (Fund 9)
   await expect(values.locator('[data-power]')).toHaveCount(0);
 
   // «Leistung» from the power meter, with W/kg from the weight on this device
