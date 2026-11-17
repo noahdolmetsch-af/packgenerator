@@ -2,6 +2,7 @@
 // tap on «Meditation»: the number of goals stays the same when the sheet opens. Fictional data only.
 import { test, expect } from '@playwright/test';
 import { flowSeeded } from './wall-fixture.js';
+import { D0 } from './aktiv-fixture.js';
 
 const acts = (page) =>
   page.evaluate(
@@ -21,6 +22,7 @@ const acts = (page) =>
 test('SF-1 the walk is there after the first start of Aktiv; tapping Meditation adds nothing', async ({ page, context }) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.clock.install({ time: new Date(D0) });
   await page.goto('./#/flow');
   await flowSeeded(page);
   await expect.poll(() => acts(page).then((l) => l.includes('walk'))).toBe(true);
