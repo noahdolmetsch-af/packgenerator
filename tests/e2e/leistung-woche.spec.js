@@ -108,7 +108,7 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   await expect(card('plan').locator('[data-plan-week]').last()).toContainText('Diese Woche');
   await expect(card('plan')).toContainText(/\d von \d wie geplant/);
   await expect(card('plan').locator(`[data-plan-week]`).filter({ hasText: /, 1 fast$/ })).toHaveCount(1);
-  for (const l of ['wie geplant', 'eine Zone daneben', 'andere Zone', 'nicht gemacht']) await expect(card('plan').locator('.pk-leg')).toContainText(l);
+  for (const l of ['wie geplant', 'eine Zone daneben', 'andere Zone', 'nicht erledigt']) await expect(card('plan').locator('.pk-leg')).toContainText(l);
   // T3 endurance check: a dot per long calm ride, a trend, one neutral sentence
   expect(await card('decouple').locator('[data-point]').count()).toBeGreaterThanOrEqual(3);
   await expect(card('decouple').locator('[data-decouple-sentence]')).toHaveText(/^Auf langen ruhigen Fahrten (steigt dein Puls im Schnitt um \d+\.\d %|bleibt dein Puls im Schnitt gleich bei gleicher Leistung \(-?\d+\.\d %\)).* Unter 5 % gilt als gute Ausdauer\.$/);
