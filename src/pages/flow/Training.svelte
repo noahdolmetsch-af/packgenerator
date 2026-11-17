@@ -88,7 +88,7 @@
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Training|tab')} />
     <PageHead title={t('Training|tab')} text={t('Plan your training week and see how much time you spent in which heart rate zone. Strava brings the activities by itself.')} />
   </header>
-  <AreaIntro place="training" />
+  <AreaIntro place="training" quiet />
 
   <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }]} /></div>
 
