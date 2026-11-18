@@ -35,6 +35,8 @@ test('every function is at most 3 taps from Heute', async ({ page, context }, in
     await page.goto('./' + next);
     await page.locator('main').first().waitFor();
     await settle(page);
+    // a page that still shows its loading card has not drawn its links yet (Rückblick: «Mehr» comes with the data)
+    await page.locator('[data-skeleton]').first().waitFor({ state: 'detached', timeout: 15_000 }).catch(() => {});
     // the tile «New» shows the newest merge, so its «Try it» link changes with every PR: it never counts as a way
     const scan = () => page.evaluate(() => [...document.querySelectorAll('a[href^="#/"]')].filter((a) => !a.closest('[data-news]')).map((a) => {
       if (a.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return [a.getAttribute('href'), 1];

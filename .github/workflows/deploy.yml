@@ -76,7 +76,7 @@ jobs:
     # Noah 26.10.2026 «1a»: the official Playwright image already has Chromium and its system
     # packages. The tag must match @playwright/test in package.json (tests/ci-image.test.js).
     container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
       options: --ipc=host
     strategy:
       fail-fast: false
@@ -146,7 +146,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
       options: --ipc=host
     steps:
       - uses: actions/checkout@v7
