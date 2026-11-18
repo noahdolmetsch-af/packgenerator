@@ -19,6 +19,12 @@
     { key: 'mind', name: 'Mindful|ring', unit: 'days' },
     { key: 'rest', name: 'Recovery|ring', unit: 'units' },
   ];
+  // UI-Test Flow, Fund 3 (Noah «b»): the ring «Move» counts only its part of the goals, and its line says so (the head says «Wochenziele» for all)
+  const amount = (r) => {
+    const x = rings[r.key];
+    if (!x.of) return '–';
+    return r.key === 'move' ? t('{n} of {m} movement goals on track', { n: x.n, m: x.of }) : `${t('{n} of {m}', { n: x.n, m: x.of })} ${t(r.unit)}`;
+  };
   const W = 14;
   const radius = (i) => 68 - W / 2 - i * (W + 5);
   const label = $derived(ROWS.map((r) => `${t(r.name)} ${rings[r.key].n} / ${rings[r.key].of}`).join(', '));
@@ -41,7 +47,7 @@
           <span class="dot {r.key}" aria-hidden="true"></span>
           {#if quiet}
             {#if parts?.[r.key]?.length > 1}
-              <button type="button" class="nm way fold-btn" aria-expanded={!!open[r.key]} aria-controls="ring-parts-{r.key}" data-ring-fold={r.key} onclick={() => (open[r.key] = !open[r.key])}><span class="wt"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span>{#if open[r.key]}<ChevronUp size={16} strokeWidth={2.5} class="wc" aria-hidden="true" />{:else}<ChevronDown size={16} strokeWidth={2.5} class="wc" aria-hidden="true" />{/if}</button>
+              <button type="button" class="nm way fold-btn" aria-expanded={!!open[r.key]} aria-controls="ring-parts-{r.key}" data-ring-fold={r.key} onclick={() => (open[r.key] = !open[r.key])}><span class="wt"><b>{t(r.name)}</b><small class="num">{amount(r)} · {t('last 7 days')}</small></span>{#if open[r.key]}<ChevronUp size={16} strokeWidth={2.5} class="wc" aria-hidden="true" />{:else}<ChevronDown size={16} strokeWidth={2.5} class="wc" aria-hidden="true" />{/if}</button>
               {#if open[r.key]}
                 <ul class="parts" id="ring-parts-{r.key}" data-ring-parts={r.key}>
                   {#each parts[r.key] as p (p.act.id)}
@@ -51,9 +57,9 @@
                 </ul>
               {/if}
             {:else if hrefs?.[r.key]}
-              <a class="nm way" href={hrefs[r.key]} data-ring-way={r.key}><span class="wt"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span><ChevronRight size={16} strokeWidth={2.5} class="wc" aria-hidden="true" /><span class="sr">{t('Open «{what}» in Analyse', { what: t(r.name) })}</span></a>
+              <a class="nm way" href={hrefs[r.key]} data-ring-way={r.key}><span class="wt"><b>{t(r.name)}</b><small class="num">{amount(r)} · {t('last 7 days')}</small></span><ChevronRight size={16} strokeWidth={2.5} class="wc" aria-hidden="true" /><span class="sr">{t('Open «{what}» in Analyse', { what: t(r.name) })}</span></a>
             {:else}
-            <span class="nm"><b>{t(r.name)}</b><small class="num">{rings[r.key].of ? `${t('{n} of {m}', { n: rings[r.key].n, m: rings[r.key].of })} ${t(r.unit)}` : '–'} · {t('last 7 days')}</small></span>
+            <span class="nm"><b>{t(r.name)}</b><small class="num">{amount(r)} · {t('last 7 days')}</small></span>
             {/if}
           {:else}
           <span class="nm"><b>{t(r.name)}</b>{#if !compact}<small>{t(r.unit)}</small>{/if}</span>
