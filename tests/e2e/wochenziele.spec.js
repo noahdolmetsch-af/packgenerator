@@ -137,6 +137,7 @@ test('WG-5 form: the number is filled in, follows the pick until typed, a hint w
   await card.locator('[data-wg-empty] button').first().click();
   const amount = card.locator('[data-wg-amount]');
   await expect(amount).toHaveValue('150');
+  await shot(page, info, 'WG5-vorausgefuellt', card);
   await expect(card.locator('[data-wg-hint]')).toHaveCount(0);
   await expect(card.locator('[data-wg-save]')).toBeEnabled();
   // another pick, number not typed yet: the suggestion follows
