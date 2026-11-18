@@ -6,6 +6,7 @@ export default {
   'Overview|tab': 'Übersicht',
   'All|gear': 'Alles',
   'Clothes|tab': 'Kleider',
+  'Sets|tab': 'Sets', // Schritt 10 «Ganze App neu denken»: die Seite «Ausrüstung» ist der Reiter «Sets» in Material
   'Care|tab': 'Pflege',
   'Today|active': 'Heute',
   'Goals|tab': 'Ziele',

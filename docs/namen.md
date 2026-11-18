@@ -28,5 +28,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 20 | Anrede und Englisch | «Sie» in der Gruppenfahrt, Reste wie Review und Learning | **«du»** (Mehrzahl **«ihr»**), Englisch nur, wo es kein deutsches Wort gibt |
 | 21 | Gruppen der Erinnerungen aufs Handy | Vor und nach der Tour, Wetter, Velo, Alltag | **«Rund um die Tour»**, **«Wetter und Licht»**, **«Velos und Material»**, **«Alltag»** (fest, nicht umbenennbar; Noah 08.11.2026 «alles») |
 | 22 | Trainingsplan mit Stunden pro Woche (Aktiv) | Wochenplan | **«Wochenplan»** für die Seite unter Aktiv (Noahs Wort). Die Einheiten aus «Trainingspläne › Ausprobieren» heissen «Trainingswoche» (Noah 10.11.2026 «a»); die älteren Texte sind umbenannt |
+| 23 | Hauptausrüstung pro Sportart (früher Ort «Ausrüstung») | Ausrüstung | **«Sets»** als Reiter in Material (Noah 18.11.2026 «2a», neue Ordnung). Die Seite selbst heisst weiter «Ausrüstung» |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

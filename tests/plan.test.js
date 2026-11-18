@@ -52,8 +52,8 @@ describe('P1 · die Plan-Tabelle ist vollständig', () => {
 });
 
 describe('P1b · ein gestrichener Schritt bleibt gestrichen sichtbar', () => {
-  it('führt nur Noahs gestrichene Schritte als «gestrichen» (8; die Streifen-Schritte seit 18.11.2026)', () => {
-    expect(rows.filter((r) => r.stand === 'gestrichen').map((r) => r.schritt)).toEqual(['3s', '3a', '3b', '5a', '5b', '8']);
+  it('führt nur Noahs gestrichene Schritte als «gestrichen» (8; die Streifen-Schritte und die Adress-Tabelle seit 18.11.2026)', () => {
+    expect(rows.filter((r) => r.stand === 'gestrichen').map((r) => r.schritt)).toEqual(['3s', '3a', '3b', '5a', '5b', '8', '9']);
   });
 });
 

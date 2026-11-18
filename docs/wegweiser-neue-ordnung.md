@@ -2,7 +2,7 @@
 
 Entscheid: Noah 18.11.2026 «1a 2a 3b 4b 5b» (Thread «Ganze App neu denken: klickbarer Prototyp»). Der Plan steht in `docs/plan-ganze-app.md` (Schritte 9 bis 15, 2b, 4b, 6, 7a, 7b). Prototyp mit erfundenen Daten: https://claude.ai/artifact/8pjQB9ZWbsKxDaneViBekf (Computer zuerst, oben rechts «Handy»).
 
-**Regel:** Keine Funktion fällt weg, nur weil ihr Ort wechselt. Jede alte Adresse (`#/care`, `#/review` …) führt weiter zum neuen Ort, mit einem kleinen Hinweis «Verschoben» (Schritt 9). Gestrichen wird nur, was in der Streichliste unten steht und was Noah dort entschieden hat. Dieses Blatt ist die Vorlage für jeden Bau-PR: er setzt seine Zeilen um und nennt sie in «Was fällt weg oder rutscht tiefer».
+**Regel:** Keine Funktion fällt weg, nur weil ihr Ort wechselt. Jede alte Adresse (`#/care`, `#/review` …) führt weiter zum neuen Ort, still und ohne Hinweis (Durchklick DK6, `redirectOf` in `src/lib/nav.js`); jeder Schritt, der eine Adresse ändert, bringt seine Weiterleitung selbst mit (einen eigenen Adress-Schritt gibt es nicht mehr). Gestrichen wird nur, was in der Streichliste unten steht und was Noah dort entschieden hat. Dieses Blatt ist die Vorlage für jeden Bau-PR: er setzt seine Zeilen um und nennt sie in «Was fällt weg oder rutscht tiefer».
 
 ## Die acht Orte und ihre Frage
 
