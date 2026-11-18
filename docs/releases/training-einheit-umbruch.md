@@ -9,7 +9,7 @@ PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-
 - nichts
 
 ## Selbst entschieden
-- Der Knopf behält seine Mindesthöhe (40 px), nur das Abschneiden fällt weg. Sehr lange Wörter ohne Lücke brechen irgendwo (`overflow-wrap: anywhere`), damit nichts über den Rand läuft.
+- Der Knopf behält seine Mindesthöhe (40 px), nur das Abschneiden fällt weg. Sehr lange Wörter ohne Lücke brechen (`overflow-wrap: break-word`), damit nichts über den Rand läuft.
 
 ## Entscheide (für decisions.md)
 - keine

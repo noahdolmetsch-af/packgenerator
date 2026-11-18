@@ -613,7 +613,7 @@
   /* a long session name wraps onto a second line instead of ending in «…» (UI-Test Training, Fund 7) */
   .cn {
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     text-align: left;
   }
   .ch.done,
