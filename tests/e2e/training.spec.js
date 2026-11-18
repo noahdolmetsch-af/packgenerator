@@ -331,6 +331,11 @@ test('Training › Woche: free days and time per day in the suggestion are remem
   const sug = plan.locator('[data-suggest]');
   const day = (i) => sug.locator(`[data-sug-day-btn="${i}"]`);
   await expect(day(6)).toContainText('beliebig');
+  // the word fits inside every day button (on a phone seven in a row cut «beliebig» off)
+  for (let i = 0; i < 7; i++) {
+    const fits = await day(i).evaluate((b) => b.querySelector('small').getBoundingClientRect().right <= b.getBoundingClientRect().right + 1);
+    expect(fits, `day ${i}`).toBe(true);
+  }
   await day(6).click();
   await expect(day(6)).toContainText('≤1h');
   await day(6).click();

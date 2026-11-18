@@ -311,6 +311,12 @@
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 0.25rem;
   }
+  /* on a phone seven buttons are too narrow for «beliebig»: four and three, wider and easier to tap */
+  @media (max-width: 480px) {
+    .sugw-days {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
   .sugw-day {
     display: grid;
     padding: 0.2rem 0;
