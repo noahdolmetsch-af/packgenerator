@@ -23,7 +23,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 4a | Datencenter-Einstieg: erster Reiter «Fragen» in Auswerten (die Suche zeigt auch Fragen) | #1226 | gebaut | - |
 | 2a | Karte «Meine Tour» auf Heute, ersetzt die Karte «Vorab» (nur bei geplanter Tour) | #1232 | online | datei:src/lib/home/MeineTour.svelte; datei:src/lib/tourpfad/karte.js; datei:tests/meinetour.test.js |
 | 9 | Adress-Tabelle: entfällt als eigener Schritt. Die Seitenleiste (10) ändert keine Adresse; jeder Schritt, der eine Adresse ändert, bringt seine Weiterleitung in `redirectOf` selbst mit, ohne Hinweis (Durchklick DK6) | - | gestrichen | - |
-| 10 | Seitenleiste 11 → 8 Orte: Quick Links, Inspiration und Ausrüstung sind keine eigenen Orte mehr | - | offen | - |
+| 10 | Seitenleiste 11 → 8 Orte: Quick Links, Inspiration und Ausrüstung sind keine eigenen Orte mehr | #1284 | gebaut | - |
 | 2b | Heute: Hauptkarte nach Lage und «Mehr für heute»; erst nach den Entscheiden des Threads «Startseite ruhiger» | - | offen | - |
 | 4b | Tourseite mit vier Phasen (Plan, Packen, Unterwegs, Danach), Packliste zuerst; ersetzt die drei Schrittlisten | - | offen | - |
 | 7a | Unterwegs-Modus: Noah schaltet ihn selbst ein (Knopf auf «Meine Tour», kein Autostart) | - | offen | - |

@@ -1,6 +1,6 @@
 # Seitenleiste: sieben Orte und «Ich»
 
-PR folgt · 18.11.2026 · Auftrag: Noah «1a 2a» (Thread «Ganze App neu denken: klickbarer Prototyp»), Schritt 10 des Plans `docs/plan-ganze-app.md`
+PR #1284 · 18.11.2026 · Auftrag: Noah «1a 2a» (Thread «Ganze App neu denken: klickbarer Prototyp»), Schritt 10 des Plans `docs/plan-ganze-app.md`
 
 ## Was ist neu
 - Die Seitenleiste am Computer hat sieben Orte (Heute, Planen, Touren, Aktiv, Auswerten, Velos, Material) und «Ich» als Karte unten, vorher elf Zeilen.
