@@ -153,7 +153,7 @@
     color: var(--ink-3);
     font-size: var(--fs-label);
     line-height: 1.2;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     hyphens: auto;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
