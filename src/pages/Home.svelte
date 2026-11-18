@@ -658,6 +658,8 @@
   });
   const meineCard = $derived(bildTrip ? meineTour(bildTrip, { today, debriefDone: debriefs.some((d) => d.tripId === bildTrip.id && d.status === 'done'), ...tourExtra }, { prep: tourPrep }) : null);
   // «Tour nur einmal» (Noah 17.11.2026 «1-5a»): while «My tour» is on Today, the sentence, the chip and «Your moment» do not say the same about the same tour
+  // the picture sits in the card «My tour» while that card names the tour (Noah 17.11.2026 «1-5a», step 3)
+  const bildInCard = $derived(!!ops.heutebild && !editing && !!bild && on('meinetour') && !!meineCard);
   const tourOnce = $derived(!editing && on('meinetour') && !!meineCard && !!bildTrip);
   const momentHere = $derived(momentOf({ today, hour: now.getHours(), weekday: now.getDay(), trips, debriefDone: (tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done'), careDue: due.points, inbox: notes.length }));
   const momentOnce = $derived(tourOnce && !!momentHere.trip); // «Your moment» is about the tour: «My tour» says it
@@ -1307,7 +1309,7 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} />{/if}
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{/if}
   {:else if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
@@ -1369,7 +1371,7 @@
 <div class="home">
   <PullRefresh />
   <!-- «Paket G» (Noah 03.11.2026 «a»): the drawn landscape with the next trip and its countdown, on top; a switch in Ich › Darstellung › Bedienung takes it away -->
-  {#if ops.heutebild && !editing && bild}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
+  {#if ops.heutebild && !editing && bild && !bildInCard}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
   <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}

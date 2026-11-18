@@ -14,11 +14,13 @@
   import { switchTrip, openPrep } from '../nav.js';
   import { locale } from '../i18n.svelte.js';
   import TileHead from './TileHead.svelte';
+  import HeuteBild from './HeuteBild.svelte';
   import SeasonNow from '../care/SeasonNow.svelte'; // «Fits now», which «Your moment» showed beside the tour
 
   // card: meineTour(...) of Heute (null: no planned tour, the tile is away then); trip: the tour it is about
   // season: «Your moment» is away because it is about this tour (Noah 17.11.2026 «1-5a»): its line «Fits now» comes here
-  let { trip, card, now = new Date(), today = '', season = false } = $props();
+  // bild: the picture of Heute ({ line, mood, weather, href, onopen }) at the top of the card, or null (Noah 17.11.2026 «1-5a»: «My tour» holds picture and tour)
+  let { trip, card, now = new Date(), today = '', season = false, bild = null } = $props();
   const cd = $derived(countdown(trip, now));
   const day = $derived(trip.startDate ? new Date(`${trip.startDate}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' }) : '');
   const sub = $derived([tn(stageDays(trip), '{n} day', '{n} days'), hasBike(trip) ? trip.bike : t(domainName(domainOf(trip))), day].filter(Boolean).join(' · '));
@@ -36,6 +38,7 @@
 
 {#if card && trip}
   <section class="mt surf" aria-labelledby="mt-h" data-section="meinetour" data-meinetour={card.phase}>
+    {#if bild}<HeuteBild {trip} line={bild.line} mood={bild.mood} weather={bild.weather} href={bild.href} onopen={bild.onopen} inCard />{/if}
     <TileHead icon={Route} id="mt-h" title={t('My tour')} />
     <p class="t1"><b class="tt">{card.title}</b><span class="cdn num" class:near={cd.near} data-meinetour-countdown>{cd.text}</span></p>
     {#if sub}<p class="sub num">{sub}</p>{/if}
