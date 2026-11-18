@@ -161,7 +161,7 @@
 {:else if route[0] === 'gipfelbuch'}
   <Gipfelbuch {params} />
 {:else if route[0] === 'week'}
-  <Week />
+  <Week {params} />
 {:else if route[0] === 'review' && route[1] === 'obs'}
   <!-- «Alle Zahlen dahinter» (Noah 01.11.2026 «2a»): one observation of a week; loaded only when opened -->
   {#await import('../lib/lernen/ObsDetail.svelte') then m}{#key sub}<m.default {params} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}

@@ -72,11 +72,11 @@ test('Woche: from Aktiv › Heute to the week, a fixed date, plan and hide a sug
 
   // the 7 days: yesterday has its tick
   await expect(main.locator(`[data-week-day="${addDays(TODAY, -1)}"] .ticks`)).toBeVisible();
-  await main.locator('[data-week-glance]').click();
+  await main.locator('[data-week-glance] .go').click();
   await expect(page).toHaveURL(/#\/flow\/week$/);
   await expect(page.locator(TABS).getByRole('link', { name: T('Today|active'), exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(main.getByRole('heading', { level: 1, name: T('Week') })).toBeVisible();
-  await expect(main.locator('[data-more="week"]')).toHaveAttribute('aria-current', 'page');
+  await expect(main.locator('[data-more]')).toHaveCount(0); // «Ein Kopf für Aktiv»: Titel zuerst, keine Kachelreihe darüber
 
   // Monday to Sunday; Monday shows the ride as done
   const days = main.locator('[data-day]');
@@ -122,5 +122,17 @@ test('Woche: from Aktiv › Heute to the week, a fixed date, plan and hide a sug
     path: `qa/woche-${test.info().project.name}.png`,
     fullPage: true,
   });
+  expect(errors).toEqual([]);
+});
+
+// «Ein Kopf für Aktiv» (Noah 17.11.2026 «a»): a tap on a day of the week card opens the week at that day (it was the whole week)
+test('Woche: a tap on a day of the week card opens the week page at that day', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow');
+  const main = page.locator('main');
+  const day = addDays(TODAY, 2);
+  await main.locator(`[data-week-glance] [data-week-day="${day}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`#/flow/week\\?day=${day}$`));
+  await expect(main.locator(`[data-day="${day}"]`)).toHaveAttribute('aria-current', 'date');
+  await expect(main.locator('[data-day][aria-current="date"]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
