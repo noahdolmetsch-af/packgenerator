@@ -108,7 +108,7 @@ test('Wochenrückblick: five numbers, strip, sentences, highlights, next week an
   const main = page.locator('main');
 
   // from Aktiv › Woche, one quiet link («Aktiv neu»: the card «Diese Woche» opens the week)
-  await main.locator('[data-week-glance]').click();
+  await main.locator('[data-week-glance] .go').click();
   await expect(page).toHaveURL(/#\/flow\/week$/);
   await main.locator('[data-to-review]').click();
   await expect(page).toHaveURL(/#\/flow\/review$/);
