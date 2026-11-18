@@ -183,7 +183,7 @@
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
-  import { stampOf } from '../lib/abfragen.js';
+  import { stampOf, afterMorning } from '../lib/abfragen.js';
   import DataWidget from '../lib/wohl/DataWidget.svelte'; // Paket P «Daten-Widget» (Noah «2 beides»)
   import PhotoGreeting from '../lib/wohl/PhotoGreeting.svelte'; // Paket P «Fotoalbum» (Noah «3a»): own photo on top
   import HomeWindow from '../lib/home/HomeWindow.svelte'; // Noah 19.10.2026: the evening before a trip, the Wochenrückblick
@@ -885,7 +885,7 @@
     if (!ready) return [];
     const rows = [];
     // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
-    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
+    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : afterMorning(stampOf()) ? 'Open from this morning · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : afterMorning(stampOf()) ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
     if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
     if (suggestion && !night && !isHidden({ key: 'idea' }, S[ROWS_KEY], today)) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
