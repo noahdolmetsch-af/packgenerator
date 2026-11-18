@@ -6,7 +6,7 @@ export default {
     { text: 'Equipment is now the tab «Sets» under Gear; Inspiration is a tab of Trips', go: { href: '#/equipment', where: 'On a computer: the sidebar on the left, the tabs under «Gear» and «Trips». On a phone nothing moves yet.' } },
   ],
   small: [
-    { box: 'moved', text: 'Quick Links is one line under «Today» in the sidebar, no row of its own', go: { href: '#/quick', where: 'On a computer: the sidebar on the left, under «Today».' } },
+    { box: 'nicer', text: 'Quick Links is one line under «Today» in the sidebar, no row of its own', go: { href: '#/quick', where: 'On a computer: the sidebar on the left, under «Today».' } },
   ],
   test: [
     'On a computer look at the sidebar: Today, Plan, Trips, Active, Analysis, Bikes, Gear, and «Me» below.',
