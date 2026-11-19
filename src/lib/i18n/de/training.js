@@ -108,6 +108,7 @@ export default {
   '{n} % in Z1–Z2': '{n} % in Z1–Z2',
   '{n} weeks to go': 'noch {n} Wochen',
   'Plan the week': 'Woche planen',
+  'Analyses|training': 'Analysen',
   '{range} · planned {a} h': '{range} · geplant {a} Std.',
   '{range} · planned {a} of {b} h': '{range} · geplant {a} von {b} Std.',
   'Week before': 'Woche davor',

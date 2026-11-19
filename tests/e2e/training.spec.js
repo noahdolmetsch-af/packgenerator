@@ -152,7 +152,8 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   await shot(page, info, 'TR2');
 
-  // 3a: the zones from Strava, changeable; the minutes follow without a new call
+  // 3a: the zones from Strava, changeable; the minutes follow without a new call (tab «Analysen»)
+  await page.goto('./#/flow/training?view=ana');
   const zs = page.locator('[data-section="zones"]');
   await expect(page.getByText('deine Zonen aus Strava')).toBeVisible();
   // the heart rate zones (the FTP below has its own «ändern» since the Strava check 21.10.2026)
@@ -161,6 +162,7 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   await zs.getByRole('button', { name: 'Speichern' }).click();
   await expect(page.getByText('deine eigenen Zonen')).toBeVisible();
   const details = server.log.filter((x) => x.step === 'detail').length;
+  await page.goto('./#/flow/training?view=list');
   await page.locator('a[data-activity="2001"]').click();
   await expect(page.locator('[data-section="zone-time"] li[data-zone="1"]')).toContainText('40 Min');
   await expect(page.locator('[data-note]')).toHaveValue('Beine gut, Wind am Pass');

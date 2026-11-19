@@ -29,7 +29,7 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   const run = activities().find((a) => a.id === '3900');
   const acts = [...activities(), { ...run, id: '3901', start: `${day(0)}T06:00:00Z`, startLocal: `${day(0)}T07:00:00Z` }];
   await seedActivities(page, { acts, plan: planSessions(), weight: { entries: [{ day: day(-200), kg: 72.4 }, { day: day(-20), kg: 71.2 }] } });
-  await page.goto('./#/flow/training');
+  await page.goto('./#/flow/training?view=ana');
   await page.reload();
   await ready(page);
 
@@ -167,7 +167,7 @@ test('Training › Woche: plan kept, endurance check and FTP say quietly why not
   await ready(page);
   // only the run: no plan, no ride with a power meter
   await seedActivities(page, { acts: activities().filter((a) => a.type === 'Run') });
-  await page.goto('./#/flow/training');
+  await page.goto('./#/flow/training?view=ana');
   await page.reload();
   await ready(page);
   const card = (k) => page.locator(`[data-section="week-analyses"] [data-ana="${k}"]`);
@@ -175,12 +175,12 @@ test('Training › Woche: plan kept, endurance check and FTP say quietly why not
   const more = page.locator('[data-section="week-analyses"] [data-more-analyses]');
   await expect(page.locator('[data-section="week-analyses"]')).toBeVisible();
   if (await more.count()) await more.click();
-  await expect(card('plan').locator('[data-plan-none]')).toHaveText('Noch kein Plan. Oben unter «Woche planen» planen.');
-  await expect(card('plan').getByRole('link', { name: 'Oben unter «Woche planen» planen.' })).toHaveAttribute('href', '#/flow/training');
+  await expect(card('plan').locator('[data-plan-none]')).toHaveText('Noch kein Plan. Plane im Reiter «Woche» eine.');
+  await expect(card('plan').getByRole('link', { name: 'Plane im Reiter «Woche» eine.' })).toHaveAttribute('href', '#/flow/training');
   await expect(card('decouple').locator('[data-decouple-none]')).toContainText('Noch keine lange ruhige Fahrt in den letzten 6 Monaten');
   await expect(card('ftp').locator('[data-ftp-none]')).toContainText('Noch keine Fahrt mit Leistungsmesser');
-  // the link goes to the plan just above on this page
+  // the link opens the tab «Woche», where the plan is
   await card('plan').getByRole('link').click();
-  await expect(page.locator('[data-section="week-plan"]')).toBeInViewport();
+  await expect(page.locator('[data-section="week-plan"]')).toBeVisible();
   expect(errors).toEqual([]);
 });

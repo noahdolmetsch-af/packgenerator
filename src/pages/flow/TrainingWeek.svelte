@@ -23,8 +23,6 @@
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
-  import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
-  import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import { weekLoadHint, scaleWeek } from '../../lib/training/suggest.js';
   import NextWeek from '../../lib/training/plans/NextWeek.svelte'; // «Training verbessern» 8: «Next week» in the look back
   import WeekSaved from '../../lib/training/plans/WeekSaved.svelte'; // «Training verbessern» 11: «My weeks»
@@ -301,7 +299,7 @@
 <div class="wk">
   <!-- «Aktiv sichtbar» (332 Use Cases, Noah 25.10.2026 «fange mit dem bereich aktiv an»): the week plan, the week in
        review and the training plans stand 2 screens down; one chip row on top -->
-  <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('Plan the week') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', jump: '#wka-h', label: t('Power and analyses') }]} />
+  <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('Plan the week') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', href: '#/flow/training?view=ana', label: t('Power and analyses') }]} />
   <FeelAsk {acts} {today} />
   <WeekLoad hint={loadHint} {monday} planned={nums.planned} {hours} onshorten={shortenWeek} />
   <Missed {missed} {targets} name={planName} {hours} dayLabel={(d) => fmt(d, { weekday: 'long' })} onmove={moveMissed} onskip={skipMissed} />
@@ -435,7 +433,6 @@
     </Sec>
   </div>
 
-  <WeekAnalyses {acts} {today} />
 </div>
 {#if wSel != null && weeks[wSel]}
   {@const w = weeks[wSel]}
@@ -448,7 +445,6 @@
   </ChartSheet>
 {/if}
 
-<AnaSheet />
 
 <style>
   .race-row {
