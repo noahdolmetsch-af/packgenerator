@@ -53,6 +53,9 @@ test('Quick Links: place, suggestions, go there, add, edit, groups', async ({ pa
   await expect(page.locator('[data-quick-pin="f.race"] [data-quick-note]')).toHaveText('test_data_gtp_ im Mai');
   await page.getByRole('button', { name: T('Unpin «{name}»', { name }) }).click();
   await expect(page.locator('[data-quick-pin="f.race"]')).toHaveCount(0);
+  // the note «unpinned» comes a moment after the pin is gone (the save first); until then «Pin saved» is the newest note and its
+  // «Undo» would take the note text back instead. So wait for the right note first.
+  await expect(page.locator('.rtoast')).toContainText(T('«{name}» unpinned.', { name }));
   await page.getByRole('button', { name: T('Undo') }).first().click();
   await expect(page.locator('[data-quick-pin="f.race"]')).toHaveCount(1);
 
