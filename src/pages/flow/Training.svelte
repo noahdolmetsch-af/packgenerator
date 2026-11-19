@@ -8,7 +8,7 @@
    * (?view=list) is the list.
    * Observation only: no value is rated.
    */
-  import { untrack } from 'svelte';
+  import { untrack, tick } from 'svelte';
   import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import { ChevronRight, RefreshCw } from '@lucide/svelte';
@@ -59,8 +59,21 @@
   };
   // «Zonen ändern» on one activity opens #/flow/training?zones=1
   const wantZones = $derived(params.get('zones') === '1');
+  // UI-Test Training 17.11.2026 (Fund 1): the zones form stands at the bottom of the page; the tap from an activity
+  // brings you to it, so it does not look as if nothing happened. Once now, once after the charts above have drawn.
+  async function toZones() {
+    await tick();
+    const go = () => {
+      const sec = document.querySelector('[data-section="zones"]')?.closest('section');
+      if (!sec) return;
+      sec.style.scrollMarginTop = '88px';
+      sec.scrollIntoView({ block: 'start' });
+    };
+    go();
+    setTimeout(go, 600);
+  }
   $effect(() => {
-    if (wantZones && zones.loaded) untrack(startEdit);
+    if (wantZones && zones.loaded) untrack(() => (startEdit(), toZones()));
   });
   async function keep(e) {
     e.preventDefault();
