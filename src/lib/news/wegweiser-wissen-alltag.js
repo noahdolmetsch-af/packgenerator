@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: '«What you can do here» with «Good to know» on 19 everyday pages, e.g. Documents, Reminders, Calm and personal',
-      go: { href: '#/me/docs', steps: [{ sel: '[data-seiteninhalt]' }] },
+      go: { href: '#/me/docs', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],

@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: 'The pages of Planen show «What you can do here»: every function with what it is for, how it works and «Good to know»',
-      go: { href: '#/notes', steps: [{ sel: '[data-seiteninhalt]' }] },
+      go: { href: '#/notes', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],

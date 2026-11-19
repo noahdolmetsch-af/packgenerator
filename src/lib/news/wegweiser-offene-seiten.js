@@ -6,7 +6,7 @@ export default {
   points: [
     {
       text: 'Debrief of one tour: «What you can do here» with breakdown, travel book, tour picture and more',
-      go: { href: '#/debrief', steps: [{ sel: '[data-seiteninhalt]' }] },
+      go: { href: '#/debrief', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
     {
       text: 'A race and a diary entry show the card too; a race in race mode stays free for riding',
@@ -14,7 +14,7 @@ export default {
     },
     {
       text: 'Folded once, folded for every tour: × holds for all pages of the same kind',
-      go: { href: '#/debrief', steps: [{ sel: '[data-seiteninhalt]' }] },
+      go: { href: '#/debrief', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],

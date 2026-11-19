@@ -6,7 +6,7 @@ export default {
   points: [
     {
       text: 'Touren, Ski tours and seven more pages show «What you can do here» with a tip «Good to know» per function; on Touren and Ski tours it starts as one line',
-      go: { href: '#/me/ruhig/zahlen', steps: [{ sel: '[data-seiteninhalt]' }] },
+      go: { href: '#/me/ruhig/zahlen', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],
