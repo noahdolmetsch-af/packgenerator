@@ -1,7 +1,7 @@
 // E3 server package: api/strava.js and api/_lib/google.js with a fake environment, a fake Redis,
 // a fake Strava and a fake Google. Fictional values only (no real id, key, token or secret).
 import { describe, it, expect, vi } from 'vitest';
-import { makeHandler as stravaHandler, trimActivity, AUTHORIZE_URL, TOKEN_URL, API, DEAUTH_URL, SCOPE } from '../api/strava.js';
+import { makeHandler as stravaHandler, trimActivity, idOf, AUTHORIZE_URL, TOKEN_URL, API, DEAUTH_URL, SCOPE } from '../api/strava.js';
 import { makeHandler as googleHandler, TOKEN_URL as G_TOKEN, API as G_API, SCOPES, TYPES, DRIVE_SCOPE, DRIVE_API, DRIVE_UPLOAD, DRIVE_MAX_BYTES, cleanName } from '../api/_lib/google.js';
 import { safeReturn, hash, KEYS, APP_RETURN } from '../api/_lib/oauth.js';
 import { CALENDAR_SCOPES, TASKS_SCOPE, CALENDAR_API, TASKS_API, OWN_CAL_SCOPE } from '../api/_lib/googleplan.js';
@@ -380,6 +380,37 @@ describe('Strava data', () => {
 
   it('trimActivity rounds km to one decimal and falls back to type', () => {
     expect(trimActivity({ id: 1, type: 'Ride', distance: 999 })).toMatchObject({ id: '1', type: 'Ride', km: 1, gearId: null });
+  });
+
+  // From 1 June 2027 Strava's ids can be 64-bit: JSON.parse rounds them past 2^53, id_str keeps them exact.
+  // Fictional ids; the raw text goes through the real JSON.parse like a Strava answer would.
+  const BIG = '1234567890123456789';
+  const raw = (text) => () => new Response(text, { headers: { 'Content-Type': 'application/json' } });
+
+  it('idOf takes id_str first, then id, and ignores an id_str that is no number', () => {
+    expect(idOf({ id: 1234567890123456800, id_str: BIG })).toBe(BIG);
+    expect(idOf({ id: 111 })).toBe('111');
+    expect(idOf({ id: 111, id_str: 'abc' })).toBe('111');
+    expect(idOf({ id: 111, id_str: 222 })).toBe('111');
+    expect(idOf(undefined)).toBe('');
+  });
+
+  it('a 64-bit activity id stays exact in the list (id_str), and an old answer without id_str still works', async () => {
+    const list = `[{"id":${BIG},"id_str":"${BIG}","name":"Big","distance":1000},{"id":333,"name":"Old","distance":1000}]`;
+    expect(Number(BIG) > Number.MAX_SAFE_INTEGER).toBe(true);
+    expect(String(JSON.parse(list)[0].id)).not.toBe(BIG);
+    const w = world({ [TOKEN_URL]: stravaToken(), [`${API}/athlete/activities`]: raw(list) });
+    const h = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    const key = fragment(await connect(h, w)).get('key');
+    const body = await (await h(get('/api/strava?step=activities', { key }))).json();
+    expect(body.activities.map((a) => a.id)).toEqual([BIG, '333']);
+  });
+
+  it('a 64-bit athlete id stays exact when connecting (owner lock)', async () => {
+    const w = world({ [TOKEN_URL]: raw(`{"access_token":"acc-1","refresh_token":"ref-1","expires_at":${NOW / 1000 + 6 * 3600},"athlete":{"id":${BIG},"id_str":"${BIG}"}}`) });
+    const h = stravaHandler({ env: sEnv(), doFetch: w.doFetch, now: () => NOW });
+    await connect(h, w);
+    expect(w.kv['strava:athlete']).toBe(BIG);
   });
 
   it('answers 503 when Strava is not set up', async () => {
