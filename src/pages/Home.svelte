@@ -1013,7 +1013,9 @@
     const ds = candidates(S[DREAMS_KEY], today);
     if (ds.length) refreshDreamWx(db, ds, place).catch(() => {});
   });
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
+  // «Tour nur einmal», step 3b (Noah 17.11.2026 «1-5a»): the big trip card is away while «My tour» says the same tour (one trip, no debrief question, no route profile)
+  const tripMerged = $derived(tourOnce && cardTrips.length === 1 && !!shown && shown.id === bildTrip?.id && !ask && !prof);
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(tripMerged ? ['trip'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1309,7 +1311,7 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{/if}
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{/if}
   {:else if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
