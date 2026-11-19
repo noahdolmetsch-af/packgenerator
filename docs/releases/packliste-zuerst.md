@@ -1,6 +1,6 @@
 # Packliste zuerst auf der Seite «Planen» einer Tour
 
-Schritt 4b des Plans `docs/plan-ganze-app.md` · 19.11.2026 · Auftrag: Noah «1a» (Thread «Ganze App neu denken: klickbarer Prototyp»)
+PR #1293 · Schritt 4b des Plans `docs/plan-ganze-app.md` · 19.11.2026 · Auftrag: Noah «1a» (Thread «Ganze App neu denken: klickbarer Prototyp»)
 
 ## Was ist neu
 - Auf der Seite «Planen» einer Tour (Touren, die Tour, Reiter 1) steht die Packliste jetzt direkt nach dem Kopf, dem Strom-Hinweis, der Ampel «Bereit zur Abfahrt», den Tipps und den Bedingungen. Vorher kamen erst Strecke, Velo und Taschen, Gewicht, Etappen und Planungs-Notizen.
