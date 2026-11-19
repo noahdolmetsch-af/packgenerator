@@ -25,7 +25,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 9 | Adress-Tabelle: entfällt als eigener Schritt. Die Seitenleiste (10) ändert keine Adresse; jeder Schritt, der eine Adresse ändert, bringt seine Weiterleitung in `redirectOf` selbst mit, ohne Hinweis (Durchklick DK6) | - | gestrichen | - |
 | 10 | Seitenleiste 11 → 8 Orte: Quick Links, Inspiration und Ausrüstung sind keine eigenen Orte mehr | #1284 | gebaut | - |
 | 2b | Heute: Hauptkarte nach Lage und «Mehr für heute»; erst nach den Entscheiden des Threads «Startseite ruhiger» | - | offen | - |
-| 4b | Tourseite mit vier Phasen (Plan, Packen, Unterwegs, Danach), Packliste zuerst; ersetzt die drei Schrittlisten | - | offen | - |
+| 4b | Tourseite mit vier Phasen (Plan, Packen, Unterwegs, Danach), Packliste zuerst; ersetzt die drei Schrittlisten | #1293 | gebaut | - |
 | 7a | Unterwegs-Modus: Noah schaltet ihn selbst ein (Knopf auf «Meine Tour», kein Autostart) | - | offen | - |
 | 7b | Danach, «Das fällt auf» nur nach der Tour, Antwort in Worten | - | offen | - |
 | 11 | Planen: 12 → 3 Reiter (Woche, Notizen, Alltag) | - | offen | - |

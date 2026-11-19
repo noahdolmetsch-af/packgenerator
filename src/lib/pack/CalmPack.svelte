@@ -372,26 +372,6 @@
     {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
     <!-- Persönliches Lernen Idee 5 (Noah 04.11.2026 «5a»): a recipe that worked, next to this tour -->
     {#if bikeTrip}<RecipePick {trip} {fixed} />{/if}
-    {#if planTop}
-      <div class="plan-top">
-        <div class="pcol">
-          {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} onopen={onprep} />{/if}
-          {#if showRoute}<RouteCard {trip} onchange={edit ? onroute : null} />{/if}
-          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} {trips} {items} readonly={!!over} onbag={openBag} onphoto={actions.photo} onbags={fixed ? null : () => show('bags')} />{/if}
-          {#if camps && !ev}<TripWeather {trip} kind="camps" />{/if}
-        </div>
-        <div class="pcol">
-          {#if ev}<TripWeather {trip} kind="event" />{/if}
-          {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
-          {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
-          <!-- the rest of the planning cards sit in the groups of «More about this trip» below the packing list (PackMore) -->
-          <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
-          <PlanNotesCard {trip} {bike} {fixed} />
-        </div>
-      </div>
-    {:else}
-      <PlanNotesCard {trip} {bike} {fixed} />
-    {/if}
     <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
     <TipLine page="pack" name={t('Pack')} />
     <div class="tp-grid2">
@@ -562,6 +542,27 @@
         </div>
       </div>
     </div>
+    <!-- Ganze App neu denken, Schritt 4b (Noah 18.11.2026): the packing list comes first; route, bike, weight, stages and notes of the plan follow below it -->
+    {#if planTop}
+      <div class="plan-top">
+        <div class="pcol">
+          {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} onopen={onprep} />{/if}
+          {#if showRoute}<RouteCard {trip} onchange={edit ? onroute : null} />{/if}
+          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} {trips} {items} readonly={!!over} onbag={openBag} onphoto={actions.photo} onbags={fixed ? null : () => show('bags')} />{/if}
+          {#if camps && !ev}<TripWeather {trip} kind="camps" />{/if}
+        </div>
+        <div class="pcol">
+          {#if ev}<TripWeather {trip} kind="event" />{/if}
+          {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
+          {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
+          <!-- the rest of the planning cards sit in the groups of «More about this trip» below the packing list (PackMore) -->
+          <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
+          <PlanNotesCard {trip} {bike} {fixed} />
+        </div>
+      </div>
+    {:else}
+      <PlanNotesCard {trip} {bike} {fixed} />
+    {/if}
     <PackMore {trip} {jumpBefore} weather={gWeather} before={gBefore} others={gOthers} easier={gEasier} learn={gLearn} />
   {/if}
   {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
