@@ -1,6 +1,6 @@
 # Stand und Plan: was heute geplant und offen ist
 
-Schnappschuss vom **15. November 2026**. Für Noah, in einfachem Deutsch. Der Schnappschuss ist dafür da, dass nichts verloren geht, wenn ein Thread endet. Was die App **heute kann**, steht in [App-Stand](app-stand.md). Wie sie gebaut ist: [Aufbau](aufbau.md) und [Technik-Handbuch](technik-handbuch.md). Was früher geschah und warum: [Verlauf und Entscheide](verlauf-und-entscheide.md). Was du selbst wissen und tun musst: [Noah-Wissen](noah-wissen.md).
+Schnappschuss vom **19. November 2026**. Für Noah, in einfachem Deutsch. Der Schnappschuss ist dafür da, dass nichts verloren geht, wenn ein Thread endet. Was die App **heute kann**, steht in [App-Stand](app-stand.md). Wie sie gebaut ist: [Aufbau](aufbau.md) und [Technik-Handbuch](technik-handbuch.md). Was früher geschah und warum: [Verlauf und Entscheide](verlauf-und-entscheide.md). Was du selbst wissen und tun musst: [Noah-Wissen](noah-wissen.md).
 
 **Wie aktuell ist diese Datei?** Sie ist ein Schnappschuss und wird beim Sonntags-Brief nachgeführt (siehe unten, «So bleibt sie aktuell»). Die echte, immer frische Liste der offenen Änderungen steht auf GitHub unter [Pull requests](https://github.com/noahdolmetsch-af/packgenerator/pulls). Wo hier etwas anders steht als dort, gilt GitHub. Eine Versionsnummer steht hier absichtlich nicht (Regel 13): die aktuelle zeigt die App unter Ich › Was ist neu.
 
@@ -8,13 +8,13 @@ Schnappschuss vom **15. November 2026**. Für Noah, in einfachem Deutsch. Der Sc
 
 ---
 
-## 1. Offene Änderungen (PRs) am Sonntag, 15.11.2026
+## 1. Offene Änderungen (PRs) am 19.11.2026
 
-Stand: 15.11., 17:00 Uhr (Zürich), 13 offene PRs auf GitHub. Seit dem Schnappschuss vom 7.11. sind fast 100 PRs gemergt worden, darunter alles, was damals mit «ok» oder auf dein «ok» wartete (#1120 bis #1124, #1126, #1130, #1131, #1135 bis #1149, #1038, #1091, #1110). Einzelheiten je PR stehen in `docs/releases/`.
+Stand: 19.11., abends (Zürich), 14 offene PRs auf GitHub. Seit dem Schnappschuss vom 7.11. sind fast 100 PRs gemergt worden, darunter alles, was damals mit «ok» oder auf dein «ok» wartete (#1120 bis #1124, #1126, #1130, #1131, #1135 bis #1149, #1038, #1091, #1110). Einzelheiten je PR stehen in `docs/releases/`.
 
 ### Mit Label «ok», aber noch nicht zusammengeführt
 
-Seit dem 5. bis 8.11. offen. Bei #1102 waren alle Tests am 7.11. grün. Warum der Merge fehlt, ist noch nicht geklärt; der Merge-Thread «Mein Überblick» prüft es.
+Seit dem 5. bis 8.11. offen (ausser #1257 und #1296). Bei #1102 waren alle Tests am 7.11. grün. Warum der Merge fehlt, ist noch nicht geklärt; der Merge-Thread «Mein Überblick» prüft es.
 
 | PR | Was |
 |---|---|
@@ -24,20 +24,21 @@ Seit dem 5. bis 8.11. offen. Bei #1102 waren alle Tests am 7.11. grün. Warum de
 | #1102 | Live-Karte: Schlafplatz finden, Schritt 1 |
 | #1106 | Test «Aktiv heute» (Flake-Fix, nichts Sichtbares) |
 | #1185 | Notfall ohne Standort, alte Adresse unter Aktiv, Leiste bei 320 px |
+| #1257 | Abgleich ruhiger: weniger Arbeit, wenn nichts Neues da ist (dein «ok» vom 17.11.) |
+| #1296 | TrainingPeaks-Link: der Server kann den Kalenderlink lesen (neu, mit «ok») |
 
 ### Wartet auf dein «ok NNN» (ohne Label)
 
 | PR | Was |
 |---|---|
-| #1257 | Abgleich ruhiger: weniger Arbeit, wenn nichts Neues da ist |
 | #1233 | Tennis: Teilnehmerliste mit freien Plätzen, Warteliste und Anmeldeschluss |
 
 ### Bewusst offen oder Abhängigkeit
 
 - **#1179** Hilfe-Karte als eine Zeile auf jeder Seite: von dir bewusst nicht zusammengeführt.
-- **#1261** Abhängigkeiten (vite 8.3.7): Dependabot, geht den üblichen Weg mit Prüfung.
+- **#1262** diese Doku.
 
-Zwei PRs wurden **geschlossen, nicht gemergt**: #1217 und #1249.
+Zwei PRs wurden **geschlossen, nicht gemergt**: #1217 und #1249. `main` war vom 12. bis 18.11. rot (Playwright-Image, behoben mit #1266).
 
 ---
 
@@ -123,7 +124,7 @@ Ziel: Routen zuverlässiger, einfacher und intelligenter. Deine Antworten vom 05
 - **Versteckte Funktionen:** alle neun Schritte **online**. **Wegweiser statt Katalog** (26 PRs): Teil A (Absprünge), Teil B (Inhalte pro Bereich), Teil C. Den Stand zeigt `docs/vorhaben.md` Nr. 17.
 - **Verlust-Wächter** (#1111, **online**): ein Test auf jedem PR wird rot, wenn beim Vereinfachen eine Funktion verloren geht oder nicht mehr auffindbar ist. Geplante Folgearbeit aus dem Vereinfachen: «Weiter von hier» (#1133) und «Leere Kachel nennt die fehlende Quelle» (#1134), beides **online**, noch auf keiner Seite benutzt.
 - **Weg zum Ziel** (`#/trips/weg`, Rückwärts-Plan zum grossen Ziel): Gerüst (#1050), die Seite unter Touren (#1070), die Seite als eine Linie mit Punkten, Bearbeiten hinter «…» (#1117, Entwurf G1) und Schrittarten, die sich selbst anmelden (#1098), dazu das Wetterfenster ab 7 Tagen vor dem Start (#1138): **online**. «Start in Tagen», wenn der Start nah ist (#1145), und die Erholungskarte «Letzte Woche» (#1223): **online**. Schrittarten online: Rennplanung, Organisation, Probefahrten 50, 100, 200 km, Erholung, Velo bereit, Trainingsfortschritt, Verpflegung testen, Nachtplan, Packen testen, GPS-Tracker.
-- **Umsetzungs-Prüfung** (du hast «a» gesagt am 07.11.): eine Plan-Datei `docs/plan-ganze-app.md` mit Wächter-Test (rot, wenn ein «online»-Schritt seinen Weg verliert), nach jedem Merge eine Zeile «Plan: X von Y online» und ein Abnahme-Bericht pro Schritt. Plan-Datei und Wächter sind **online** (#1135, #1210); den Stand zeigt `node scripts/plan-stand.mjs`: 4 von 16 Schritten online, 1b und 4a gebaut und gemergt (warten auf deine Prüfung auf der echten Seite), 2a «Meine Tour» online (#1232), 2b offen, danach die Pause für deine echte Tour.
+- **Umsetzungs-Prüfung** (du hast «a» gesagt am 07.11.): eine Plan-Datei `docs/plan-ganze-app.md` mit Wächter-Test (rot, wenn ein «online»-Schritt seinen Weg verliert), nach jedem Merge eine Zeile «Plan: X von Y online» und ein Abnahme-Bericht pro Schritt. Plan-Datei und Wächter sind **online** (#1135, #1210); den Stand zeigt `node scripts/plan-stand.mjs` («Plan: X von Y online»; am 19.11.: 4 von 17). Die Reihenfolge der Schritte steht in der Plan-Datei.
 - **Schritt 0 und danach** (du hast am 07.11. entschieden): «Tour-Stand» und «Meine Datenquellen» als zwei PRs; danach Pfad-Baustein auf der Linie von «Weg zum Ziel», «Meine Tour» auf Heute, Ort-Vorlage Velos (mit den 5 Gruppen wie in Packen, #1131) und der Datencenter-Reiter «Fragen». Je ein Bau-Thread, sobald der Vorgänger online ist. Alles **beschlossen, noch nicht gebaut**.
 
 ### 2.10 Das grosse Durchklicken (Etappen)
@@ -160,9 +161,9 @@ Foto-KI für Material, Live-Sync über Drive, fremde Einbettungen (nur Links), P
 
 ## 3. Was auf dich wartet (höchstens die wichtigsten)
 
-1. **«ok NNN»** für #1257 (Abgleich ruhiger) und #1233 (Tennis: Teilnehmerliste).
+1. **«ok 1233»** (Tennis: Teilnehmerliste). #1257 hat dein «ok», wartet auf den Merge.
 2. **Kurs-Check** im Wochenbrief: eine a/b-Frage.
-3. **Auf der echten Seite prüfen:** «Meine Tour» auf Heute (#1232), vier Phasen in der Tour (#1205) und der Reiter «Fragen» in Auswerten (#1226). Nach den Wetter-Merges ausserdem Landi und SRF im Fenster, Nullgradgrenze, Nebel gegen Webcam.
+3. **Auf der echten Seite prüfen:** «Meine Tour» auf Heute, die vier Phasen in der Tour und der Reiter «Fragen» in Auswerten. Nach den Wetter-Merges ausserdem Landi und SRF im Fenster, Nullgradgrenze, Nebel gegen Webcam.
 
 Alles Weitere: [Noah-Wissen](noah-wissen.md).
 
