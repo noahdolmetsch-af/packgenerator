@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: 'Aktiv, sports, training, meditation and body values show «What you can do here» with «Good to know»; observation only',
-      go: { href: '#/flow', steps: [{ sel: '[data-seiteninhalt-know]' }] },
+      go: { href: '#/flow', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],

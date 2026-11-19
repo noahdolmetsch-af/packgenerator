@@ -57,6 +57,7 @@
   }
   .words {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--sp-1);
     margin: 0;

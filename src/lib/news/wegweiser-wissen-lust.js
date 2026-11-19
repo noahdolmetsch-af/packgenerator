@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: '«What you can do here» shows «Good to know» under each function: a tip from experience, not a repeat of the name',
-      go: { href: '#/trips/dreams', steps: [{ sel: '[data-seiteninhalt-know]' }] },
+      go: { href: '#/trips/dreams', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],

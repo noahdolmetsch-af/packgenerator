@@ -7,7 +7,10 @@ test('Today shows the picture with the days to go and the switch takes it away',
   await openHome(page, context, info);
   const bild = page.locator('[data-heutebild]');
   await expect(bild).toBeVisible();
-  await expect(bild.locator('[data-heutebild-line]')).toContainText(/Herbstrunde/);
+  // Noah 17.11.2026 «1-5a»: the picture is the top of the card «My tour», which says the tour; the picture itself names it for screen readers
+  await expect(page.locator('[data-section="meinetour"] [data-heutebild]')).toHaveCount(1);
+  await expect(bild).toHaveAttribute('aria-label', /Herbstrunde/);
+  await expect(bild.locator('[data-heutebild-line]')).toHaveCount(0);
   await page.evaluate(() => localStorage.setItem('ops.heutebild', '0'));
   await page.reload();
   await expect(page.locator('[data-weather]')).toBeVisible(); // Today is drawn again

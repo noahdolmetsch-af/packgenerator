@@ -5,11 +5,11 @@ export default {
   points: [
     {
       text: '«Fold the card» instead of ×; the folded line says «Open the card»',
-      go: { href: '#/trips/dreams', steps: [{ sel: '[data-seiteninhalt-fold]' }] },
+      go: null,
     },
     {
       text: 'Appearance › Page cards › «Open all cards again», with Undo',
-      go: { href: '#/me/look', steps: [{ sel: '[data-seiteninhalt-set]' }] },
+      go: null,
     },
   ],
   small: [],

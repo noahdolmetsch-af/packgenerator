@@ -17,7 +17,8 @@ import { inAreas } from '../../src/lib/home/sections.js';
 // Paket Q #74 (Noah 19.10.2026 «4a»): at the fixture's 09:00 the morning tiles move up (byTime, changed on purpose)
 // «Heute ruhiger» (Noah 26.10.2026 «1a», changed on purpose): the small tiles are one list «Schnell öffnen» where the first stands
 // «Heute ruhiger» 3a (changed on purpose): Heute shows the tiles in areas, inside an area in wall order
-const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id) && !VALUE_TILES.includes(x.id)), true), 9));
+// 17.11.2026 (changed on purpose, «Tour nur einmal»): «Your moment» about the trip is away while «My tour» stands (the fixture's trip is tomorrow)
+const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id) && !VALUE_TILES.includes(x.id) && x.id !== 'moment'), true), 9));
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;

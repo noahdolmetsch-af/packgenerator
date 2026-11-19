@@ -69,6 +69,7 @@ export default {
   'Heart rate over {n} minutes, Ø {a}, max {b}': 'Puls über {n} Minuten, Ø {a}, max {b}',
   'Same route': 'Gleiche Strecke',
   '{n}× done': '{n}× gemacht',
+  'Done|week': 'Erledigt',
   fastest: 'schnellste',
   'Note on this activity': 'Notiz zu dieser Aktivität',
   'How did it feel? (only here, not in Strava)': 'Wie war es? (nur hier, nicht in Strava)',
@@ -108,6 +109,7 @@ export default {
   '{n} % in Z1–Z2': '{n} % in Z1–Z2',
   '{n} weeks to go': 'noch {n} Wochen',
   'Plan the week': 'Woche planen',
+  'Analyses|training': 'Analysen',
   '{range} · planned {a} h': '{range} · geplant {a} Std.',
   '{range} · planned {a} of {b} h': '{range} · geplant {a} von {b} Std.',
   'Week before': 'Woche davor',
@@ -119,7 +121,7 @@ export default {
   'no zone': 'ohne Zone',
   'Like last week (1 session)': 'Wie letzte Woche (1 Einheit)',
   'Like last week ({n} sessions)': 'Wie letzte Woche ({n} Einheiten)',
-  'Dashed = planned, green = done (comes by itself from Strava). Tap a planned one to change it.': 'Gestrichelt = geplant, grün = gemacht (kommt von selbst aus Strava). Eine geplante antippen zum Ändern.',
+  'Dashed = planned, green = done (comes by itself from Strava). Tap a planned one to change it.': 'Gestrichelt = geplant, grün = erledigt (kommt von selbst aus Strava). Eine geplante antippen zum Ändern.',
   'Hours per week by zone · line = plan': 'Stunden pro Woche nach Zone · Strich = Plan',
   'Hours per week, last six weeks': 'Stunden pro Woche, letzte sechs Wochen',
   'Week {kw}: {a} h done, {b} h planned': 'KW {kw}: {a} Std. gemacht, {b} Std. geplant',
@@ -133,5 +135,6 @@ export default {
   // Paket 2: «So geht's» steps for f.training (src/lib/know/howto.js)
   'Open Aktiv › Training: every activity from Strava.': 'Öffne Aktiv › Training: jede Aktivität aus Strava.',
   'Tap an activity: the minutes in each heart rate zone.': 'Tippe auf eine Aktivität: die Minuten in jeder Pulszone.',
-  '«Plan the week» sets the sessions and an optional goal.': '«Woche planen» legt die Einheiten und ein freiwilliges Ziel fest.',
+  '«My week» sets the sessions and an optional goal.': '«Meine Woche» legt die Einheiten und ein freiwilliges Ziel fest.',
+  'My week|plan': 'Meine Woche',
 };

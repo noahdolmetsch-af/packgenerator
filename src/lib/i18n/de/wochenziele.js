@@ -19,6 +19,7 @@ export default {
   'What': 'Was',
   'Kilometres per week': 'Kilometer pro Woche',
   'Times per week': 'Mal pro Woche',
+  'Type a number above 0.': 'Tippe eine Zahl über 0.',
   'Every sport and the kilometres already have a week goal.': 'Jede Sportart und die Kilometer haben schon ein Wochenziel.',
   // Funktionskatalog, Handbuch, «So geht's»
   'Open Aktiv; «My week goals» sits next to «This week».': 'Öffne Aktiv; «Meine Wochenziele» steht neben «Diese Woche».',

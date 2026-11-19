@@ -12,7 +12,7 @@ export default {
   'Hours per week, the share in Z1–Z2 and a day. Unlike under «Goals», the time counts here, not how often. All optional.':
     'Stunden pro Woche, Anteil in Z1–Z2 und ein Datum. Anders als unter «Ziele» zählt hier die Zeit, nicht wie oft. Alles freiwillig.',
   'Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).':
-    'Tippe + bei einem Tag, um eine Einheit zu planen. Gestrichelt = geplant, grün = gemacht (von Strava).',
+    'Tippe + bei einem Tag, um eine Einheit zu planen. Gestrichelt = geplant, grün = erledigt (von Strava).',
   'Tap a planned one to change it.': 'Eine geplante antippen zum Ändern.',
   'No training time in the last 6 weeks yet. As soon as Strava brings an activity with heart rate, a bar per week stands here.':
     'Noch keine Trainingszeit in den letzten 6 Wochen. Sobald Strava eine Aktivität mit Puls bringt, steht hier pro Woche ein Balken.',

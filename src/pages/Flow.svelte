@@ -161,7 +161,7 @@
 {:else if route[0] === 'gipfelbuch'}
   <Gipfelbuch {params} />
 {:else if route[0] === 'week'}
-  <Week />
+  <Week {params} />
 {:else if route[0] === 'review' && route[1] === 'obs'}
   <!-- «Alle Zahlen dahinter» (Noah 01.11.2026 «2a»): one observation of a week; loaded only when opened -->
   {#await import('../lib/lernen/ObsDetail.svelte') then m}{#key sub}<m.default {params} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
@@ -226,8 +226,7 @@
           <!-- the stopwatch sits in the head of this part (was Aktiv › Mehr › Stoppuhr) -->
           <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} edit={{ href: '#/flow/sports', label: t('Edit|acts') }} more={{ label: t('Stopwatch'), onclick: () => openTimer() }}>
             <!-- the help line (spec «Heute abhaken»), the same as on Heute -->
-            <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help onmed={(s) => (medFor = s.act.id)} />
-            {#if hasMed}<p class="hint">{t('Tap Meditation: start or tick off.')}</p>{/if}
+            <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help medHelp={hasMed} onmed={(s) => (medFor = s.act.id)} />
             <SyncLine />
             <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
             <TickSuggest />

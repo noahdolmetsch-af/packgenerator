@@ -5,10 +5,10 @@ export default {
   points: [
     {
       text: 'On top of the page: each function with one sentence on what it is for, «How it works» opens steps and an example',
-      go: { href: '#/trips/dreams', steps: [{ sel: '[data-seiteninhalt]' }] },
+      go: { href: '#/trips/dreams', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
-  small: [{ box: 'new', text: '× folds the card to one line on this page; a tap opens it again', go: { href: '#/trips/dreams', steps: [{ sel: '[data-seiteninhalt-fold]' }] } }],
+  small: [{ box: 'new', text: '× folds the card to one line on this page; a tap opens it again', go: null }],
   test: [
     'Open Trips › Dreams: on top is «What you can do here» with the functions of the page.',
     'Tap «How it works» under one: steps and an example open.',
