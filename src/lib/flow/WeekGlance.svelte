@@ -27,6 +27,13 @@
     const a = byId.get(id);
     return a ? tileName(a) || actName(a) : '';
   };
+  // «Ein Kopf für Aktiv» (Noah 17.11.2026 «a»): a tap on a day opens the week page at that day; elsewhere on the card it opens the week
+  function openDay(e) {
+    const li = e.target instanceof Element ? e.target.closest('[data-week-day]') : null;
+    if (!li) return;
+    e.preventDefault();
+    location.hash = `#/flow/week?day=${li.getAttribute('data-week-day')}`;
+  }
   const done = (d) => d.items.filter((x) => x.kind === 'done');
   const ahead = (d) => d.items.filter((x) => x.kind === 'fix' || x.kind === 'plan');
   const dayLabel = (d) =>
@@ -39,7 +46,7 @@
       .join(', ');
 </script>
 
-<a class="card wg" href="#/flow/week" data-week-glance>
+<a class="card wg" href="#/flow/week" data-week-glance onclick={openDay}>
   <span class="top">
     <span class="wgl">{open ? tn(open, '{n} goal open', '{n} goals open') : t('All goals on track this week')}</span>
     <span class="go">{t('Plan the week')}<ChevronRight size={16} aria-hidden="true" /></span>
@@ -71,6 +78,7 @@
     padding: var(--sp-3) var(--sp-4) var(--sp-4);
     color: var(--ink);
     text-decoration: none;
+    container-type: inline-size;
   }
   .top {
     display: flex;
@@ -137,12 +145,42 @@
     border-radius: 50%;
     background: var(--paper-2);
   }
+  /* UI-Test Flow, Fund 8 (Noah «c»): a name wraps over up to two lines instead of «Medi…» */
   .nm {
+    display: -webkit-box;
     max-width: 100%;
     overflow: hidden;
     color: var(--ink-3);
     font-size: var(--fs-label);
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.2;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  /* on a narrow card (phone) seven columns are too thin for a name: one row per day, day · tick · name */
+  @container (max-width: 520px) {
+    .days {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
+    li {
+      grid-template-columns: 2.5rem 2.5rem minmax(0, 1fr);
+      justify-items: start;
+      align-items: center;
+      align-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 4px 12px;
+      text-align: left;
+    }
+    .none {
+      margin: 0 0 0 4px;
+    }
+    .nm {
+      color: var(--ink-2);
+      font-size: var(--fs-small);
+    }
   }
 </style>

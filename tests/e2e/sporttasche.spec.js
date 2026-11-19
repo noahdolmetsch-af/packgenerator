@@ -70,7 +70,8 @@ test('Sporttasche: the reminder on Heute, pack the bag, often forgotten, switch 
   await rem.click();
   await expect(page).toHaveURL(/#\/flow\/bags\?b=bag-yoga$/);
   await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page'); // «Aktiv neu»: the sport bag belongs to «Meine Sportarten»
-  await expect(main.locator('[data-more="bags"]')).toHaveAttribute('aria-current', 'page');
+  await expect(main.getByRole('heading', { level: 1, name: T('Sport bag') })).toBeVisible(); // «Ein Kopf für Aktiv»: Titel zuerst, keine Kachelreihe darüber
+  await expect(main.locator('[data-more]')).toHaveCount(0);
   const bag = main.locator('[data-open-bag="bag-yoga"]');
   await expect(bag.getByRole('heading', { level: 2 })).toContainText('07:00');
   await expect(main.locator('[data-bag="bag-yoga"]')).toContainText(T('tomorrow {when}', { when: '' }).trim());

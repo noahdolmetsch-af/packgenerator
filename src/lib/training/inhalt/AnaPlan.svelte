@@ -36,19 +36,12 @@
     if (!w.due) return t('nothing due yet');
     return w.near ? t('{a} of {b} as planned, {n} nearly', { a: w.kept, b: w.due, n: w.near }) : t('{a} of {b} as planned', { a: w.kept, b: w.due });
   };
-  // on this page the plan is just above: scroll there instead of opening the page again
-  function toPlan(e) {
-    const el = document.querySelector('[data-section="week-plan"]');
-    if (!el) return;
-    e.preventDefault();
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
 </script>
 
 {#if data}
   <AnaCard key="plan" sub={t('Planned zone against ridden zone')}>
     {#if !data.any}
-      <p class="cap" data-plan-none>{t('No plan yet.')} <a href="#/flow/training" onclick={toPlan}>{t('Plan one above under «My week».')}</a></p>
+      <p class="cap" data-plan-none>{t('No plan yet.')} <a href="#/flow/training">{t('Plan one in the tab «Week».')}</a></p>
     {:else}
       {#if now.rows.length}
         <ul class="pk-rows" aria-label={t('This week')}>
