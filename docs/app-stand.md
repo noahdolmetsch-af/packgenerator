@@ -293,7 +293,7 @@ Nur im Browser des Geräts (IndexedDB über Dexie, `src/lib/db.js`; die Tabellen
 
 ## 5. Verbindungen nach aussen
 
-Routenberechnung (brouter.de; fällt der Dienst aus, einmal Valhalla und dann OSRM als Reserve, beide freie OpenStreetMap-Dienste), Strava (nur lesen), Fitbit/Gesundheit, Google (Termine, Aufgaben, Mail), Spielerplus-Kalender (privater Link, nur lesen, Server `api/linkcheck.js` erlaubt nur spielerplus.de), KI-Helfer (Schlüssel nur in Vercel), Push, Abgleich, Buchung und Bezahlen (Testmodus). Server-Code: `api/*.js` und `api/_lib/`. Alles nur über Ich › Verbindungen aufschaltbar und abwählbar.
+Routenberechnung (brouter.de; fällt der Dienst aus, einmal Valhalla und dann OSRM als Reserve, beide freie OpenStreetMap-Dienste), Strava (nur lesen), Fitbit/Gesundheit, Google (Termine, Aufgaben, Mail), Spielerplus-Kalender (privater Link, nur lesen, Server `api/linkcheck.js` erlaubt nur spielerplus.de; dort liest er auch den privaten TrainingPeaks-Kalenderlink, nur `trainingpeaks.com/ical/<Schlüssel>.ics`, die Karte in der App folgt), KI-Helfer (Schlüssel nur in Vercel), Push, Abgleich, Buchung und Bezahlen (Testmodus). Server-Code: `api/*.js` und `api/_lib/`. Alles nur über Ich › Verbindungen aufschaltbar und abwählbar.
 
 ## 6. Regeln, Pläne, offene Baustellen: nur Verweise
 
