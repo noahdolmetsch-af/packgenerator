@@ -13,6 +13,7 @@ PR #<Nummer> · 17.11.2026 · Auftrag: Noah «alle umsetzen 1-10» (Thread «UI-
 ## Selbst entschieden
 - Das bestehende Wort «Wochenplan» aus der Namensliste für den Link (statt «Wochenplan (automatisch)» wie im Entwurf), damit es ein Wort pro Sache bleibt. Neue Zeile 23 in `docs/namen.md`.
 - Ob sich die Einheiten von «Meine Woche» und vom «Wochenplan» gegenseitig sehen, ist nicht Teil dieses PRs.
+- Reparatur des Tests «Ausprobieren» (er scheiterte auch auf `main`, nicht wegen dieses PRs): Fünfzehn alte «Was ist neu»-Dateien zeigten auf Knöpfe und Teile der Karte «Was du hier tun kannst», die es seit dem Umbau der Hilfe (#1228) auf der Seite nicht mehr gibt (nur noch im Fenster des «?»). Sie zeigen jetzt auf die Hilfe-Zeile, die es noch gibt. Die Zeilen über «Alle Karten wieder einklappen/aufklappen» und das «×» der Karte haben kein Ziel mehr (`go: null`), weil diese Funktionen weg sind. Es ändert nur die Antipp-Ziele alter Neuigkeiten, nichts in der App.
 
 ## Entscheide (für decisions.md)
 - keine

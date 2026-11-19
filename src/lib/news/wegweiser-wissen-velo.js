@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: 'Bikes › Wear: «What you can do here» with «Good to know», for example when a chain is due',
-      go: { href: '#/bikes?tab=care&view=wear', steps: [{ sel: '[data-seiteninhalt-know]' }] },
+      go: { href: '#/bikes?tab=care&view=wear', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
     {
       text: 'Gear: the card lists weighing, wishlist, supplies and more, each with a tip',
