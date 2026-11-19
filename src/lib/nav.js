@@ -407,10 +407,11 @@ export const PLACE_TABS = {
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours.
     // «Träume und Neuland» (Noah 27.10.2026 «1-5 a»): Träume stands second, right after the overview
     { key: 'dreams', label: 'Dreams|tab', href: '#/trips/dreams', match: (h) => h.startsWith('#/trips/dreams') || h.startsWith('#/trips/vorschlaege') },
-    // «Ganze App neu denken» Schritt 10 (Z3, Noah 18.11.2026): Inspiration is no place of its own, it stands next to the dreams
-    { key: 'inspiration', label: 'Inspiration', href: '#/inspiration', match: (h) => h.startsWith('#/inspiration') },
     { key: 'templates', label: 'Templates', href: '#/pack/templates', match: (h) => h.startsWith('#/pack/templates') },
     { key: 'lookback', label: 'Look back|page', href: '#/debrief', match: (h) => h.startsWith('#/debrief') || h.startsWith('#/pack/past') },
+    // «Ganze App neu denken» Schritt 10 (Z3, Noah 18.11.2026): Inspiration is no place of its own, it is a tab of Touren after «Rückblick»
+    // (the first four tabs stay as they were: one more tap to the Rückblick pages breaks tests/e2e/tippzahl.spec.js)
+    { key: 'inspiration', label: 'Inspiration', href: '#/inspiration', match: (h) => h.startsWith('#/inspiration') },
     // v0.97.0 «Skitouren» (Noah 11.10.2026, 1: Touren › Skitouren): next tour, backpack check, start check, care
     { key: 'ski', label: 'Ski tours', href: '#/ski', match: (h) => h === '#/ski' || h.startsWith('#/ski/') || h.startsWith('#/ski?') || h === '#/mountain' || h.startsWith('#/mountain/') },
     // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): the travel links had no button, the toolbox left Ich

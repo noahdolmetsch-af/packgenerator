@@ -11,7 +11,7 @@ export default {
   test: [
     'On a computer look at the sidebar: Today, Plan, Trips, Active, Analysis, Bikes, Gear, and «Me» below.',
     'Tap «Gear»: the tab «Sets» is the page «Equipment» with your main equipment per sport.',
-    'Tap «Trips»: next to «Dreams» there is the tab «Inspiration» with your own links.',
+    'Tap «Trips»: the tab «Inspiration» is among the tabs with your own links.',
   ],
   since: [],
   de: {
@@ -23,6 +23,6 @@ export default {
     'On a computer: the sidebar on the left, under «Today».': 'Am Computer: die Seitenleiste links, unter «Heute».',
     'On a computer look at the sidebar: Today, Plan, Trips, Active, Analysis, Bikes, Gear, and «Me» below.': 'Schau am Computer die Seitenleiste an: Heute, Planen, Touren, Aktiv, Auswerten, Velos, Material und unten «Ich».',
     'Tap «Gear»: the tab «Sets» is the page «Equipment» with your main equipment per sport.': 'Tippe auf «Material»: der Reiter «Sets» ist die Seite «Ausrüstung» mit deiner Hauptausrüstung pro Sportart.',
-    'Tap «Trips»: next to «Dreams» there is the tab «Inspiration» with your own links.': 'Tippe auf «Touren»: neben «Träume» steht der Reiter «Inspiration» mit deinen eigenen Links.',
+    'Tap «Trips»: the tab «Inspiration» is among the tabs with your own links.': 'Tippe auf «Touren»: steht unter den Reitern «Inspiration» mit deinen eigenen Links.',
   },
 };

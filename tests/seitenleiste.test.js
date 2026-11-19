@@ -19,12 +19,13 @@ describe('the sidebar of the new order', () => {
     expect(tabOf('gear', '#/equipment')).toBe('sets');
     expect(tabOf('gear', '#/gear')).toBe('all');
   });
-  it('moves Inspiration to Touren, next to the dreams', () => {
+  it('moves Inspiration to Touren, after the first four tabs (one more tap to the Rückblick pages breaks tippzahl.spec)', () => {
     expect(placeOf('inspiration')).toBe('trips');
     expect(tabOf('trips', '#/inspiration')).toBe('inspiration');
     expect(PLACE_TABS.week.map((x) => x.key)).not.toContain('inspiration');
     const keys = PLACE_TABS.trips.map((x) => x.key);
-    expect(keys.indexOf('inspiration')).toBe(keys.indexOf('dreams') + 1);
+    expect(keys.slice(0, 4)).toEqual(['overview', 'dreams', 'templates', 'lookback']);
+    expect(keys.indexOf('inspiration')).toBe(4);
   });
   it('leaves the bottom bar of a phone as it was (step 15 changes it)', () => {
     expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'quick']);

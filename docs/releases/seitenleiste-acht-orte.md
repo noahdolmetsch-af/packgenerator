@@ -5,7 +5,7 @@ PR #1284 · 18.11.2026 · Auftrag: Noah «1a 2a» (Thread «Ganze App neu denken
 ## Was ist neu
 - Die Seitenleiste am Computer hat sieben Orte (Heute, Planen, Touren, Aktiv, Auswerten, Velos, Material) und «Ich» als Karte unten, vorher elf Zeilen.
 - Ausrüstung ist kein eigener Ort mehr: die Seite (`#/equipment`) ist der Reiter «Sets» in Material (Streichliste Z2).
-- Inspiration ist kein eigener Ort mehr: die Seite (`#/inspiration`) ist ein Reiter in Touren, neben «Träume» (Z3). Sie war vorher auch ein Reiter in Planen; dort ist sie weg.
+- Inspiration ist kein eigener Ort mehr: die Seite (`#/inspiration`) ist ein Reiter in Touren, nach «Rückblick» (Z3). Sie war vorher auch ein Reiter in Planen; dort ist sie weg.
 - Quick Links ist keine eigene Zeile mehr: unter «Heute» steht eine Zeile «Quick Links», solange du auf Heute oder in Quick Links bist (Z1). Heute bleibt dabei markiert.
 - Keine Adresse ändert sich.
 
@@ -31,5 +31,5 @@ PR #1284 · 18.11.2026 · Auftrag: Noah «1a 2a» (Thread «Ganze App neu denken
 ## Prüfschritte (nach dem Merge)
 1. Am Computer: die Seitenleiste zeigt sieben Orte und unten «Ich».
 2. Tippe «Material»: Reiter «Sets» öffnet die Seite «Ausrüstung».
-3. Tippe «Touren»: neben «Träume» steht «Inspiration».
+3. Tippe «Touren»: bei den Reitern steht «Inspiration».
 4. Tippe «Heute»: darunter steht «Quick Links»; ein Tipp öffnet die Seite, Heute bleibt markiert.
