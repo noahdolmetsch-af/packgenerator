@@ -9,9 +9,11 @@
   import { ListChecks, ChevronRight } from '@lucide/svelte';
   import TileHead from './TileHead.svelte';
   import { abQuery } from '../abdb.js';
+  import { afterMorning, stampOf } from '../abfragen.js';
   import { t, tn } from '../i18n.svelte.js';
 
   let { today, due = 0, evening = false, isnew = false } = $props();
+  const late = afterMorning(stampOf()); // from 11:00: «Open from this morning» (17.11.2026)
   const query = $derived(abQuery(today));
   const data = $derived($query);
   const n = $derived((data?.answers ?? []).filter((a) => a.day === today).length);
@@ -24,7 +26,7 @@
   </div>
   <p class="st" data-hc-state>
     {#if due}
-      {tn(due, evening ? 'Evening check · {n} question open' : 'Morning check · {n} question open', evening ? 'Evening check · {n} questions open' : 'Morning check · {n} questions open')}
+      {tn(due, evening ? 'Evening check · {n} question open' : late ? 'Open from this morning · {n} question' : 'Morning check · {n} question open', evening ? 'Evening check · {n} questions open' : late ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions open')}
     {:else}
       {evening ? t('Evening check: nothing open') : t('Morning check: nothing open')}
     {/if}

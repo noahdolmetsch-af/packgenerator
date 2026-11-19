@@ -11,8 +11,6 @@
    */
   import { liveQuery } from 'dexie';
   import { Plus, X, ChevronDown, ChevronRight, Lightbulb, Info, Bell, BellRing, SlidersHorizontal } from '@lucide/svelte';
-  import MoreAktiv from '../../lib/flow/kit/MoreAktiv.svelte';
-  import { morePages } from '../../lib/flow/morepages.js';
   import { MERKEN_KEY, addTodo, removeTodo } from '../../lib/merkendb.js';
   import { db } from '../../lib/db.js';
   import PageHead from '../../lib/ui/PageHead.svelte';
@@ -97,7 +95,6 @@
 <div class="ideas">
   <header class="ph">
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Ideas')} />
-    <MoreAktiv items={morePages({ ideas: open.length })} on="ideas" />
     <PageHead title={t('Ideas')} text={t('Tips for your balance and your own ideas. Also in Calendar › Remember.')} />
   </header>
 

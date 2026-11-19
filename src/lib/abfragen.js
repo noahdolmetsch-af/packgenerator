@@ -698,16 +698,31 @@ export function roundQuestions(cfg, part, today) {
 }
 
 /**
- * Klick-Rundgang 22.10.2026 H15: the window fits its questions to the time of day. A missed evening question
- * stays (Noah 2a) and says from when it is (AbCard: «Frage von …»), after today's questions. In the evening it
- * asks about today (its latest time), not about a day missed before. due: dueList rows; → the rows to show now.
+ * Klick-Rundgang 22.10.2026 H15, changed 17.11.2026 (Noah «1-5a», Startseite ruhiger, question 2a): the window asks
+ * about TODAY only. A question missed on an earlier day does not come back as «question from Thu 20:30»: if it has
+ * had its time today, it asks about today (its latest time); if its time today has not come yet, it waits for it.
+ * So at 18:32 the window shows what is still open from this morning, never yesterday's questions.
+ * due: dueList rows; → the rows to show now.
  */
-export function fitNow(due = [], now, rounds) {
-  const eve = isEveningRound(now, rounds);
-  return due.map((d) => {
-    const late = partOf({ slot: d.last ?? d.slot }, rounds) === 'evening';
-    return eve && late && d.last && dayOf(d.slot) < dayOf(now) ? { ...d, slot: d.last } : d;
+export function fitNow(due = [], now) {
+  const today = dayOf(now);
+  return due.flatMap((d) => {
+    if (dayOf(d.slot) >= today) return [d];
+    return dayOf(d.last ?? d.slot) >= today ? [{ ...d, slot: d.last }] : [];
   });
+}
+
+/** From 11:00 the morning is over (the day clock): what is still open then is «open from this morning». */
+export const afterMorning = (now) => hmOf(now) >= DAY_FROM;
+
+/**
+ * The window's part of the day (17.11.2026, question 2a): 'morning' before 11:00, 'evening' from the evening round,
+ * in between 'rest' (what is still open from this morning). The title follows it, so the window never says
+ * «Morning check» at 18:32.
+ */
+export function windowPart(now, rounds) {
+  if (isEveningRound(now, rounds)) return 'evening';
+  return afterMorning(now) ? 'rest' : 'morning';
 }
 
 /* ---------------------------------------------------------------- Fitbit fills in */

@@ -39,13 +39,14 @@ test.describe('AB Deine Abfragen', () => {
     // Noah 19.10.2026 (changed on purpose): Heute no longer starts with the questions; they come as a window
     await expect(card.getByRole('heading', { name: T('Morning check') })).toBeVisible();
     await expect(card).toHaveJSProperty('open', true);
-    await expect(card.getByText(T('{n} questions', { n: 3 }))).toBeVisible();
+    await expect(card.getByText(T('{n} questions', { n: 2 }))).toBeVisible();
     // the battery 1–10 and the weight with the last value
     const akku = card.locator('[data-q="erholung.akku"]');
     await expect(akku.getByText(T('How full is your battery right now?'))).toBeVisible();
-    // Noah 2a: missed yesterday evening, it stays and says when (WG: its 20:00 is asked in the evening round at 20:30)
-    // Klick-Rundgang H15 (changed on purpose): a question of an earlier day says «Frage von …»
-    await expect(akku.getByText(/Erholung · Frage von Do\., 8\. Okt\. 20:30/)).toBeVisible();
+    // 17.11.2026 (changed on purpose, Noah «1-5a», question 2a): the window asks only about today. The battery question,
+    // missed yesterday evening, does not come back as «Frage von Do., 8. Okt. 20:30»: it asks about today, at its time today.
+    await expect(card.getByText(/Frage von/)).toHaveCount(0);
+    await expect(akku.getByText(/Erholung · 07:00|Erholung · 7:00/)).toBeVisible();
     const w = card.locator('[data-q="koerper.waage"]');
     await expect(w.getByText(/zuletzt 72.4 kg am/)).toBeVisible();
     await expect(w.getByText(T('not checked yet · by hand until then'))).toBeVisible();
@@ -58,11 +59,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(akku.locator('[data-step="6"]')).toHaveAttribute('aria-pressed', 'true');
     await w.getByRole('textbox').fill('72.0');
     await save.click();
-    await expect(card.locator('[data-q="erholung.akku"]')).toHaveCount(0);
-    await expect(card.locator('[data-q="koerper.waage"]')).toHaveCount(0);
-    await expect(card.getByText(T('{n} question', { n: 1 }))).toBeVisible();
-    // «Heute nicht» (Noah 21.10.2026, changed on purpose): the window stays away for the rest of the day
-    await card.locator('[data-ab-today]').click();
+    // both answered (17.11.2026: no third question from yesterday is left): the window is done; «Heute nicht» has its own test below
     await expect(card).toHaveCount(0);
     await page.reload();
     await expect(page.locator('[data-section="greeting"]')).toBeVisible();

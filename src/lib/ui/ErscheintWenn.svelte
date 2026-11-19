@@ -51,7 +51,7 @@
 
 {#if items.length}
   <details class="ew" data-erscheint-wenn-fold>
-    <summary>{t('Only in the right situation · {n}', { n: items.length })}</summary>
+    <summary>{t('Shows up later, when it fits · {n}', { n: items.length })}</summary>
     <ul>
       {#each items as e (e.id)}
         <li data-erscheint-wenn={e.id}>

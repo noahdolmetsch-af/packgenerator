@@ -51,6 +51,8 @@ Die geplanten Vorhaben verfolgen sechs Ziele (das fünfte seit 19.10.2026, Noah 
 
 **Träume und Neuland (Noah 27.10.2026 «1-5 a», Ziele 3 und 4):** Träume rückt unter Touren an die zweite Stelle und bekommt «Entdecken»: Ausflugstipps nach Wetter und freier Zeit, weisse Flecken in der Nähe, Herausforderungen mit Ende, kleine Abenteuer (Feierabend-Biwak, Zug hin und Velo heim), Ideen pro Monat; dazu Link wird Traum, Karte aller Träume, Wetterfenster, «Bereit?», erfüllte Träume, neue Sammlungen (Aussichtstürme, Hängebrücken, Wasserfälle) und ein Abenteuer-Würfel. Die Träume aus dem Kompass und die Reisewünsche aus Freie Zeit kommen in Träume; Neuland, Gipfelbuch und «Neuland des Jahres» werden eine Fundliste. Die Neuland-Seite bleibt unter Rückblick. Jede Idee ist ein eigener kleiner PR. Keine neue Kachel auf Heute (nur die Zeilen «Neu heute» und «Abenteuer im Monat»).
 
+**Neue Ordnung der App (Noah 18.11.2026 «1a 2a 3b 4b 5b», Ziele 3 «Von der Haustür bis zurück» und 5 «Alltag»):** Acht Orte statt elf, 23 statt 52 Reiter, jede Tour eine Seite mit vier Phasen, eine Hauptkarte auf Heute. Warum: von 486 Funktionen nutzt Noah heute 31; die App soll sie nur dort zeigen, wo man sie braucht. Plan: `plan-ganze-app.md`, Wegweiser und Streichliste: `wegweiser-neue-ordnung.md`.
+
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
 ## Stand heute (19.10.2026, live 0.152.0)

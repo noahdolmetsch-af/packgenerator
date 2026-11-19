@@ -20,7 +20,7 @@
   import { tileSub } from './words.js';
   import { isMedAct } from './hobby/medstart.js';
   import { t } from '../i18n.svelte.js';
-  let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false } = $props();
+  let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false, medHelp = false } = $props();
   const tap = (s) => (onmed && isMedAct(s.act) ? onmed(s) : tapAct(s, today));
 </script>
 
@@ -47,7 +47,7 @@
 </ul>
 {#if help && states.length}
   <!-- KT (2a): one quiet line what a tap and a long press do -->
-  <p class="tghelp" data-tick-help><Hand size={16} aria-hidden="true" /><span><b>{t('Tap|tick help')}</b> {t('ticks|tick help')} · <b>{t('long press|tick help')}</b> {t('or •••: duration, place, stopwatch')}</span></p>
+  <p class="tghelp" data-tick-help><Hand size={16} aria-hidden="true" /><span><b>{t('Tap|tick help')}</b> {t('ticks|tick help')} · <b>{t('long press|tick help')}</b> {t('or •••: duration, place, stopwatch')}{#if medHelp}{' '}·{' '}{t('Tap Meditation: start or tick off.')}{/if}</span></p>
 {/if}
 
 <style>

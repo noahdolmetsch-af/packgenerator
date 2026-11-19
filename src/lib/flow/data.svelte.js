@@ -52,12 +52,17 @@ export function flowQuery(today) {
 }
 
 let seeding = false;
-/** Seed once when the data says so (a fresh start, or a restored backup without flow data). */
+/**
+ * Seed once when the data says so (a fresh start, or a restored backup without flow data). Seed 2 (the names, the
+ * favourites and the walk) comes with it: Noah 17.11.2026 «c» (UI-Test Flow, Fund 4): it no longer waits for a first tap on
+ * «Meditation» or a visit of «Aktivität», where the number of goals suddenly went from 10 to 11.
+ */
 export async function seedIfNeeded(data) {
-  if (!data || data.seeded || seeding) return;
+  if (!data || seeding || (data.seeded && data.seeded2 !== false)) return; // seeded2 is false only where the query reads it (flowQuery)
   seeding = true;
   try {
-    await ensureSeed(db);
+    if (!data.seeded) await ensureSeed(db);
+    await ensureSeed2(db);
   } finally {
     seeding = false;
   }

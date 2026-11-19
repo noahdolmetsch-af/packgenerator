@@ -98,10 +98,21 @@ export function spotOf(ll) {
   return `${(Math.round(lat * 10) / 10).toFixed(1)},${(Math.round(lon * 10) / 10).toFixed(1)}`;
 }
 
+/**
+ * A Strava id (activity or athlete) as text. From 1 June 2027 Strava's `id` can be a 64-bit number, which
+ * JSON.parse rounds past 2^53; `id_str` carries the same value as text, so it comes first. Older answers
+ * without `id_str` keep working through `id`.
+ */
+export function idOf(o) {
+  const s = o?.id_str;
+  if (typeof s === 'string' && /^\d{1,20}$/.test(s)) return s;
+  return String(o?.id ?? '');
+}
+
 /** A Strava activity as the app's ride needs it (nothing else leaves the server). */
 export function trimActivity(a) {
   return {
-    id: String(a.id),
+    id: idOf(a),
     name: a.name ?? '',
     type: a.sport_type || a.type || '',
     start: a.start_date ?? null,
@@ -828,7 +839,7 @@ export function makeHandler({ env = () => stravaEnv(), doFetch = (...a) => fetch
           const granted = (url.searchParams.get('scope') ?? '').split(',');
           if (!granted.includes('activity:read_all') && !granted.includes('activity:read')) return backToApp(st.returnTo, { strava: 'error', error: 'scope' });
           const tok = await tokenCall(cfg, { grant_type: 'authorization_code', code: url.searchParams.get('code') });
-          const athlete = String(tok.athlete?.id ?? '');
+          const athlete = idOf(tok.athlete);
           const owner = cfg.allowedAthlete || (await store.get('strava:athlete'));
           const saved = JSON.stringify({ access_token: tok.access_token, refresh_token: tok.refresh_token, expires_at: tok.expires_at, scope: granted.join(',') });
           const listed = (cfg.athletes ?? []).includes(athlete) || Number(await store.cmd('SISMEMBER', FRIENDS, athlete)) === 1;

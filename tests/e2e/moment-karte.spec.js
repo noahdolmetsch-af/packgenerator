@@ -2,13 +2,17 @@
 // the trip, the five steps of the trip loop and one next step. German, phone and computer, fictional data
 // (home0460-fixture: a trip that starts tomorrow, the clock on Friday 9 October 2026), no sideways scroll.
 import { test, expect } from './clock.js';
-import { openHome } from './home0460-fixture.js';
+import { openHome, homeFixture } from './home0460-fixture.js';
+import { READY, wallRecord } from '../../src/lib/home/tiles.js';
 import { mkdirSync } from 'node:fs';
 
 test('Your moment: packing the day before a trip, the steps, the button opens the packing list', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  const T = await openHome(page, context, info, { hour: 9 });
+  // 17.11.2026 (changed on purpose, «Tour nur einmal»): while «My tour» stands, «Your moment» about the trip is away; here the tour card is off the wall
+  const d = homeFixture();
+  d.tables.settings.push({ key: 'homeWall', value: wallRecord(READY.filter((x) => x.id !== 'meinetour')) });
+  const T = await openHome(page, context, info, { data: d, hour: 9 });
   const card = page.locator('[data-section="moment"]');
   await card.scrollIntoViewIfNeeded();
   await expect(card).toHaveAttribute('data-moment', 'packen');

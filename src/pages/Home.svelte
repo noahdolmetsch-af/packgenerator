@@ -82,6 +82,7 @@
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
   import MeineTour from '../lib/home/MeineTour.svelte';
+  import { momentOf } from '../lib/moment.js';
   import { meineTour } from '../lib/tourpfad/karte.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, pointCount, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
@@ -183,7 +184,7 @@
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
-  import { stampOf } from '../lib/abfragen.js';
+  import { stampOf, afterMorning } from '../lib/abfragen.js';
   import DataWidget from '../lib/wohl/DataWidget.svelte'; // Paket P «Daten-Widget» (Noah «2 beides»)
   import PhotoGreeting from '../lib/wohl/PhotoGreeting.svelte'; // Paket P «Fotoalbum» (Noah «3a»): own photo on top
   import HomeWindow from '../lib/home/HomeWindow.svelte'; // Noah 19.10.2026: the evening before a trip, the Wochenrückblick
@@ -656,6 +657,12 @@
     return () => (live = false);
   });
   const meineCard = $derived(bildTrip ? meineTour(bildTrip, { today, debriefDone: debriefs.some((d) => d.tripId === bildTrip.id && d.status === 'done'), ...tourExtra }, { prep: tourPrep }) : null);
+  // «Tour nur einmal» (Noah 17.11.2026 «1-5a»): while «My tour» is on Today, the sentence, the chip and «Your moment» do not say the same about the same tour
+  // the picture sits in the card «My tour» while that card names the tour (Noah 17.11.2026 «1-5a», step 3)
+  const bildInCard = $derived(!!ops.heutebild && !editing && !!bild && on('meinetour') && !!meineCard);
+  const tourOnce = $derived(!editing && on('meinetour') && !!meineCard && !!bildTrip);
+  const momentHere = $derived(momentOf({ today, hour: now.getHours(), weekday: now.getDay(), trips, debriefDone: (tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done'), careDue: due.points, inbox: notes.length }));
+  const momentOnce = $derived(tourOnce && !!momentHere.trip); // «Your moment» is about the tour: «My tour» says it
   const prep = $derived.by(() => {
     if (on('meinetour') && meineCard && meineCard.tripId === next?.id) return null; // the card says it in its hint line
     const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
@@ -885,7 +892,7 @@
     if (!ready) return [];
     const rows = [];
     // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
-    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
+    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : afterMorning(stampOf()) ? 'Open from this morning · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : afterMorning(stampOf()) ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
     if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
     if (suggestion && !night && !isHidden({ key: 'idea' }, S[ROWS_KEY], today)) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
@@ -908,7 +915,7 @@
     if (!ready || night) return null;
     const parts = [];
     const d = next?.startDate ? daysTo(next.startDate) : null;
-    if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
+    if (tourOnce) { /* the card «My tour» names the tour and its countdown */ } else if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
     else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: bare(next.title) }) });
     parts.push({ hi: false, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
     return parts;
@@ -1006,7 +1013,7 @@
     const ds = candidates(S[DREAMS_KEY], today);
     if (ds.length) refreshDreamWx(db, ds, place).catch(() => {});
   });
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour'])]);
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1115,7 +1122,7 @@
         {#if loaded}<RaceLine {today} />{/if}
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
         <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->
-        {#if ready}<GoalChips {editing} {next} {now} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
+        {#if ready}<GoalChips {editing} {next} {now} hideTrip={tourOnce} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -1302,7 +1309,7 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} />{/if}
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{/if}
   {:else if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
@@ -1364,7 +1371,7 @@
 <div class="home">
   <PullRefresh />
   <!-- «Paket G» (Noah 03.11.2026 «a»): the drawn landscape with the next trip and its countdown, on top; a switch in Ich › Darstellung › Bedienung takes it away -->
-  {#if ops.heutebild && !editing && bild}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
+  {#if ops.heutebild && !editing && bild && !bildInCard}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
   <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}

@@ -143,6 +143,8 @@
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page, hash));
+  // Schritt 10: Ausrüstung is a tab of Material now (place «gear»), but on a phone the switch Velos · Ausrüstung · Material still lights it
+  const switchPlace = $derived(page === 'equipment' ? 'equipment' : place);
   // «Anpassen»: the page's name when it has no big title (the place › the tab)
   const anpTitle = $derived.by(() => {
     const p = ALL_PLACES.find((x) => x.key === place);
@@ -535,7 +537,7 @@
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
-  {#if (place === 'equipment' || place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch {place} {hash} />{/if}
+  {#if (place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch place={switchPlace} {hash} />{/if}
   {#if ops.path && place && page !== 'home' && !calm && !guest && !mini}<PathLine {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}

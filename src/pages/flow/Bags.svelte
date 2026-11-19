@@ -12,12 +12,10 @@
   import { db } from '../../lib/db.js';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
-  import MoreAktiv from '../../lib/flow/kit/MoreAktiv.svelte';
   import ActIcon from '../../lib/flow/ActIcon.svelte';
-  import { morePages } from '../../lib/flow/morepages.js';
   import { flowQuery, seedIfNeeded } from '../../lib/flow/data.svelte.js';
   import { flowStates } from '../../lib/flow.js';
-  import { weekGoals, FIXED_KEY, fixedList } from '../../lib/flowweek.js';
+  import { FIXED_KEY, fixedList } from '../../lib/flowweek.js';
   import { BAGS_KEY, PACK_KEY, REMIND_KEY, bagsOf, packsOf, nextDate, packDay, packedIds, togglePacked, packAll, settle, often, addThing, removeThing, addBag, removeBag } from '../../lib/flowbag.js';
   import { bagName, thingName, thingNote } from '../../lib/flow/bagwords.js';
   import { putSetting } from '../../lib/flowdb.js';
@@ -48,7 +46,6 @@
   });
 
   const states = $derived(data ? flowStates(data.acts, data.log, today, data.tripDays) : []);
-  const pages = $derived(morePages({ openGoals: weekGoals(states).filter((g) => !g.met).length }));
   const bags = $derived(sets?.bags ?? []);
   const next = $derived(new Map(bags.map((b) => [b.id, sets ? nextDate(b, sets.fixed, today, now) : null])));
   const nearest = $derived([...bags].filter((b) => next.get(b.id)).sort((a, b) => (next.get(a.id).day + next.get(a.id).time).localeCompare(next.get(b.id).day + next.get(b.id).time))[0] ?? bags[0] ?? null);
@@ -102,7 +99,6 @@
 <div class="hob">
   <header class="ph">
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Sport bag')} />
-    <MoreAktiv items={pages} on="bags" />
     <PageHead title={t('Sport bag')} text={t('A short packing list for each sport, so nothing is missing in everyday life')} />
   </header>
   <AreaIntro place="bags" />

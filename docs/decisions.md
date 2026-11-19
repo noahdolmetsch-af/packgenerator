@@ -2073,3 +2073,9 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 11.11.2026 Ruckeln: zwei Bewegungs-Effekte raus
 - Noah «c» (Thread «Ruckelfunktion finden und entfernen»): Die kleine Titelzeile oben beim Scrollen (Paket A Idee 5) und das Mitfliegen des Tour-Namens beim Öffnen (Paket A Idee 2) sind entfernt. Grund: Ruckeln beim Scrollen und Seitenwechsel. Die Ideen 1, 3 und 4 (Richtung zeigen, Markierung gleitet, Ruhiges Einblenden) bleiben. Der Hauptgrund des Ruckelns (Kopieren der Fahrten, PR #1251) ist ein eigener Schritt.
+
+## 18.11.2026 Ganze App neu denken: neue Ordnung statt Weg B
+- Noah «1a 2a 3b 4b 5b» (Thread «Ganze App neu denken: klickbarer Prototyp»; Prototyp https://claude.ai/artifact/8pjQB9ZWbsKxDaneViBekf, Fragen 17.11.2026 «1a 2a 3 Computer 4b 5b»): (1a) Der Entwurf gilt und ersetzt Weg B vom 10.11.2026; jeder PR braucht trotzdem Noahs «ok». (2a) Die Empfehlungen der Streichliste gelten (4 ganz weg, 8 hinter «Mehr», 8 zusammenlegen). (3b) Keine Pause für Noahs echte Tour, es wird durchgebaut. (4b) Der Heute-Schritt wartet auf die Entscheide des Threads «Startseite ruhiger». (5b) Claude baut alles im selben Thread, ein PR nach dem anderen.
+- Inhalt: acht Orte (Heute, Planen, Touren, Aktiv, Auswerten, Velos, Material, Ich), 23 statt 52 Reiter, jede Tour eine Seite mit vier Phasen, «Quick Links», «Inspiration» und «Ausrüstung» sind keine eigenen Orte mehr, Orte antworten auf eine Frage. Wegweiser und Streichliste: `docs/wegweiser-neue-ordnung.md`; Plan: `docs/plan-ganze-app.md` (Schritte 9 bis 15, 2b, 4b, 6, 7a, 7b; 3s, 3a, 3b, 5a, 5b gestrichen).
+- Vorher (Noah 17.11.2026 «4b», früher «Vereinfachen ohne Verlust» 07.11.2026 «1-5a»): Unbenutztes darf ganz weg, aber nur über die Streichliste, nichts stillschweigend. Alte Adressen führen weiter (Schritt 9).
+

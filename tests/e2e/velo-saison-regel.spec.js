@@ -34,7 +34,8 @@ test('November: the card on Care and the line on Today offer to put the bike awa
   await card.locator('[data-season-rule="bike-winter"]').click();
   await expect(page).toHaveURL(/view=season/);
   await page.goto('./#/');
-  await expect(page.locator('[data-section="moment"] [data-season-now]')).toContainText('Passt jetzt: Velo einwintern');
+  // 17.11.2026 (changed on purpose, «Tour nur einmal»): the line sits in «My tour» when «Your moment» is about the tour, else in «Your moment»
+  await expect(page.locator('[data-section="moment"] [data-season-now], [data-section="meinetour"] [data-season-now]').first()).toContainText('Passt jetzt: Velo einwintern');
 });
 
 test('July: nothing about the season', async ({ page, context }, info) => {

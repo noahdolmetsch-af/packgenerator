@@ -7,7 +7,7 @@ export default {
   'Form {n} (fitness – fatigue)': 'Form {n} (Fitness – Müdigkeit)',
   'Fitness {f}, fatigue {a}, form {s} today; {n} weeks': 'Heute Fitness {f}, Müdigkeit {a}, Form {s}; {n} Wochen',
   'Form above zero = rather rested, below zero = rather tired. Just to look at. Rides without a power meter count with Relative Effort from the heart rate.':
-    'Form über null = eher ausgeruht, unter null = eher müde. Nur zum Anschauen. Fahrten ohne Leistungsmesser zählen mit Relative Effort aus dem Puls.',
+    'Form über null = eher ausgeruht, unter null = eher müde. Nur zum Anschauen. Fahrten ohne Leistungsmesser zählen mit der Anstrengung aus dem Puls (bei Strava: Relative Effort).',
   // TR7d Belastung pro Woche
   'Wk|unit': 'KW',
   'Load per week (power, else Relative Effort). Light = this week until today.': 'Belastung pro Woche (Leistung, sonst Relative Effort). Hell = diese Woche bis heute.',

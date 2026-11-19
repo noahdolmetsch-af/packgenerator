@@ -14,7 +14,7 @@ test('Appears when: Touren lists Arrive well with its moment, Packen starts the 
   await page.goto('./#/trips');
   const fold = page.locator('[data-erscheint-wenn-fold]');
   await fold.scrollIntoViewIfNeeded();
-  await expect(fold.locator('summary')).toContainText(T('Only in the right situation · {n}', { n: '' }).replace(/\s*$/, ''));
+  await expect(fold.locator('summary')).toContainText(T('Shows up later, when it fits · {n}', { n: '' }).replace(/\s*$/, ''));
   await tap(fold.locator('summary'), info);
   const line = fold.locator('[data-erscheint-wenn="f.homecoming"]');
   await expect(line).toContainText(T('Arrive well'));

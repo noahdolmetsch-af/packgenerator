@@ -23,8 +23,6 @@
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
-  import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
-  import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import { weekLoadHint, scaleWeek } from '../../lib/training/suggest.js';
   import NextWeek from '../../lib/training/plans/NextWeek.svelte'; // «Training verbessern» 8: «Next week» in the look back
   import WeekSaved from '../../lib/training/plans/WeekSaved.svelte'; // «Training verbessern» 11: «My weeks»
@@ -289,8 +287,8 @@
     })),
   );
   const wLine = $derived(weeks.some((w) => w.planned) ? weeks.map((w) => (w.planned ? Math.round((w.planned / 60) * 100) / 100 : null)) : null);
-  const wRead = (i) => ({ title: weekName(weeks[i]), items: [{ label: t('Done'), value: `${hmm(weeks[i].secs)} h`, color: 'var(--z2)' }, ...(weeks[i].planned ? [{ label: t('Planned'), value: `${hours(weeks[i].planned)} h` }] : [])] });
-  const wTable = $derived({ head: [t('Week'), t('Done'), t('Planned')], rows: [...weeks].reverse().map((w) => ({ key: w.m, cells: [weekName(w), `${hmm(w.secs)} h`, w.planned ? `${hours(w.planned)} h` : '–'] })) });
+  const wRead = (i) => ({ title: weekName(weeks[i]), items: [{ label: t('Done|week'), value: `${hmm(weeks[i].secs)} h`, color: 'var(--z2)' }, ...(weeks[i].planned ? [{ label: t('Planned'), value: `${hours(weeks[i].planned)} h` }] : [])] });
+  const wTable = $derived({ head: [t('Week'), t('Done|week'), t('Planned')], rows: [...weeks].reverse().map((w) => ({ key: w.m, cells: [weekName(w), `${hmm(w.secs)} h`, w.planned ? `${hours(w.planned)} h` : '–'] })) });
   let wSel = $state(null);
   const baseShare = $derived.by(() => {
     const z = nums.zones.reduce((s, x) => s + x, 0);
@@ -301,7 +299,7 @@
 <div class="wk">
   <!-- «Aktiv sichtbar» (332 Use Cases, Noah 25.10.2026 «fange mit dem bereich aktiv an»): the week plan, the week in
        review and the training plans stand 2 screens down; one chip row on top -->
-  <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('Plan the week') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', jump: '#wka-h', label: t('Power and analyses') }]} />
+  <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('My week|plan') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', href: '#/flow/training?view=ana', label: t('Power and analyses') }]} />
   <FeelAsk {acts} {today} />
   <WeekLoad hint={loadHint} {monday} planned={nums.planned} {hours} onshorten={shortenWeek} />
   <Missed {missed} {targets} name={planName} {hours} dayLabel={(d) => fmt(d, { weekday: 'long' })} onmove={moveMissed} onskip={skipMissed} />
@@ -345,7 +343,9 @@
 
   <div class="lay">
     <!-- Impeccable runde 2 (clarify): the explanation stands above the days; the week and its hours sit by the week arrows -->
-    <Sec id="plan-h" title={t('Plan the week')} sub={t('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).')} more={{ href: '#/flow/plans', label: t('Training plans') }}>
+    <!-- UI-Test Training 17.11.2026 (Fund 3): this card is the week by hand, so it is not called «Woche planen» (that is the
+         place Planen › Woche); the way to the automatic «Wochenplan» stands beside the training plans -->
+    <Sec id="plan-h" title={t('My week|plan')} sub={t('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).')} edit={{ href: '#/flow/wochenplan', label: t('Weekly plan') }} more={{ href: '#/flow/plans', label: t('Training plans') }}>
       <div class="card plan" data-section="week-plan">
         <div class="nav">
           <span class="rg num" data-week-range>{goal?.hours ? t('{range} · planned {a} of {b} h', { range, a: hours(nums.planned), b: hours(goal.hours * 60) }) : t('{range} · planned {a} h', { range, a: hours(nums.planned) })}</span>
@@ -435,20 +435,18 @@
     </Sec>
   </div>
 
-  <WeekAnalyses {acts} {today} />
 </div>
 {#if wSel != null && weeks[wSel]}
   {@const w = weeks[wSel]}
   <ChartSheet kicker={t('Hours per week by zone')} title={weekName(w)} onclose={() => (wSel = null)} onprev={wSel > 0 ? () => wSel-- : null} onnext={wSel < weeks.length - 1 ? () => wSel++ : null} prevLabel={t('Week before')} nextLabel={t('Next week')}>
     <ul class="shl" data-lookback-sheet>
-      <li><span>{t('Done')}</span><b class="num">{hmm(w.secs)} h</b></li>
+      <li><span>{t('Done|week')}</span><b class="num">{hmm(w.secs)} h</b></li>
       {#if w.planned}<li><span>{t('Planned')}</span><b class="num">{hours(w.planned)} h</b></li>{/if}
       {#each w.zones as s, k (k)}{#if s}<li><span>Z{k + 1}</span><b class="num">{hmm(s)} h</b></li>{/if}{/each}
     </ul>
   </ChartSheet>
 {/if}
 
-<AnaSheet />
 
 <style>
   .race-row {
@@ -592,7 +590,7 @@
     align-items: center;
     gap: 6px;
     min-height: 40px;
-    padding: 0 12px;
+    padding: 6px 12px;
     border: 1px dashed var(--line-strong);
     border-radius: var(--radius);
     background: var(--paper);
@@ -610,11 +608,11 @@
   .zt {
     flex: none;
   }
+  /* a long session name wraps onto a second line instead of ending in «…» (UI-Test Training, Fund 7) */
   .cn {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: break-word;
+    text-align: left;
   }
   .ch.done,
   .ch.plan.ok {
