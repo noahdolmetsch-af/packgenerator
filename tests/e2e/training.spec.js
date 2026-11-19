@@ -152,7 +152,8 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   await shot(page, info, 'TR2');
 
-  // 3a: the zones from Strava, changeable; the minutes follow without a new call
+  // 3a: the zones from Strava, changeable; the minutes follow without a new call (tab «Analysen»)
+  await page.goto('./#/flow/training?view=ana');
   const zs = page.locator('[data-section="zones"]');
   await expect(page.getByText('deine Zonen aus Strava')).toBeVisible();
   // the heart rate zones (the FTP below has its own «ändern» since the Strava check 21.10.2026)
@@ -161,6 +162,7 @@ test('Training: the tile «Letzte Aktivität», every activity with its zones, o
   await zs.getByRole('button', { name: 'Speichern' }).click();
   await expect(page.getByText('deine eigenen Zonen')).toBeVisible();
   const details = server.log.filter((x) => x.step === 'detail').length;
+  await page.goto('./#/flow/training?view=list');
   await page.locator('a[data-activity="2001"]').click();
   await expect(page.locator('[data-section="zone-time"] li[data-zone="1"]')).toContainText('40 Min');
   await expect(page.locator('[data-note]')).toHaveValue('Beine gut, Wind am Pass');
@@ -330,7 +332,12 @@ test('Training › Woche: free days and time per day in the suggestion are remem
   await plan.locator('[data-suggest-open]').click();
   const sug = plan.locator('[data-suggest]');
   const day = (i) => sug.locator(`[data-sug-day-btn="${i}"]`);
-  await expect(day(6)).toContainText('offen');
+  await expect(day(6)).toContainText('beliebig');
+  // the word fits inside every day button (on a phone seven in a row cut «beliebig» off)
+  for (let i = 0; i < 7; i++) {
+    const fits = await day(i).evaluate((b) => b.querySelector('small').getBoundingClientRect().right <= b.getBoundingClientRect().right + 1);
+    expect(fits, `day ${i}`).toBe(true);
+  }
   await day(6).click();
   await expect(day(6)).toContainText('≤1h');
   await day(6).click();
@@ -346,7 +353,7 @@ test('Training › Woche: free days and time per day in the suggestion are remem
   await plan.locator('[data-suggest-open]').click();
   await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('frei');
   await sug.locator('[data-sug-day-btn="6"]').click();
-  await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('offen');
+  await expect(sug.locator('[data-sug-day-btn="6"]')).toContainText('beliebig');
   expect(errors).toEqual([]);
 });
 

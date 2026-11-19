@@ -34,6 +34,14 @@
   let adding = $state(false);
   let pick = $state('km');
   let amount = $state('');
+  let touched = $state(false);
+  const suggested = (v) => (v === 'km' ? '150' : '2');
+  function openForm() {
+    adding = true;
+    touched = false;
+    pick = addable[0]?.value ?? '';
+    amount = suggested(pick);
+  }
   const nameOf = (g) => (g.kind === 'km' ? t('Bike km') : actName(acts.find((a) => a.id === g.actId)) || t('Activity'));
   const addable = $derived([{ value: 'km', label: t('Bike km'), off: goals.some((g) => g.kind === 'km') }, ...live.map((a) => ({ value: `act:${a.id}`, label: actName(a), off: goals.some((g) => g.actId === a.id) }))].filter((o) => !o.off));
   const unit = (g, n) => (g.kind === 'km' ? `${num(n)} km` : `${num(n)}×`);
@@ -50,6 +58,7 @@
     add(o.value === 'km' ? { kind: 'km', of } : { kind: 'act', actId: o.value.slice(4), of });
     amount = '';
     pick = '';
+    touched = false;
     adding = false;
   }
   async function drop(s) {
@@ -75,7 +84,7 @@
 <Sec id="wg-h" title={t('My week goals')} sub={t('Monday to Sunday, your own, change them any time')} more={goals.length ? { label: editing ? t('Done') : t('Change'), onclick: () => (editing = !editing), expanded: editing } : null}>
   {#if !goals.length && !adding}
     <div data-wg-empty>
-      <Empty icon={Bike} text={t('No week goals yet. A small goal for the week, like 2× meditation or 150 km, shows how far you are.')} action={{ label: t('Add a week goal'), onclick: () => (adding = true) }} />
+      <Empty icon={Bike} text={t('No week goals yet. A small goal for the week, like 2× meditation or 150 km, shows how far you are.')} action={{ label: t('Add a week goal'), onclick: openForm }} />
       {@render chips()}
     </div>
   {:else if goals.length}
@@ -118,20 +127,21 @@
     {/if}
     {#if !adding}
       {#if !editing}{@render chips()}{/if}
-      <button type="button" class="btn sm add" data-wg-new onclick={() => { adding = true; pick = addable[0]?.value ?? ''; }} disabled={!addable.length}><Plus size={16} aria-hidden="true" />{t('Add a week goal')}</button>
+      <button type="button" class="btn sm add" data-wg-new onclick={openForm} disabled={!addable.length}><Plus size={16} aria-hidden="true" />{t('Add a week goal')}</button>
     {/if}
   {/if}
 
   {#if adding}
     <form class="card form" data-wg-form onsubmit={addOwn}>
       <label class="fl"><span>{t('What')}</span>
-        <select class="inp" bind:value={pick} data-wg-pick>
+        <select class="inp" bind:value={pick} data-wg-pick onchange={() => { if (!touched) amount = suggested(pick); }}>
           {#each addable as o (o.value)}<option value={o.value}>{o.label}</option>{/each}
         </select>
       </label>
       <label class="fl"><span>{pick === 'km' ? t('Kilometres per week') : t('Times per week')}</span>
-        <input class="inp sm num" type="text" inputmode="numeric" bind:value={amount} data-wg-amount placeholder={pick === 'km' ? '150' : '2'} />
+        <input class="inp sm num" type="text" inputmode="numeric" bind:value={amount} oninput={() => (touched = true)} data-wg-amount placeholder={pick === 'km' ? '150' : '2'} />
       </label>
+      {#if addable.length && !typedOf(amount)}<small data-wg-hint>{t('Type a number above 0.')}</small>{/if}
       <span class="fa">
         <button type="submit" class="btn hi sm" data-wg-save disabled={!typedOf(amount) || !addable.length}>{t('Add')}</button>
         <button type="button" class="btn sm" onclick={() => (adding = false)}>{t('Cancel')}</button>

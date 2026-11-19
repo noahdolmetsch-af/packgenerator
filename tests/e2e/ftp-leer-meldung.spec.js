@@ -10,7 +10,7 @@ const T = (en) => DE[en] ?? en;
 async function open(page, context) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
-  await page.goto('./#/flow/training');
+  await page.goto('./#/flow/training?view=ana');
   await ready(page);
   await put(page, { settings: [{ key: 'training.ftp', value: { own: 250 } }] });
   await page.reload();

@@ -8,7 +8,7 @@
    * (?view=list) is the list.
    * Observation only: no value is rated.
    */
-  import { untrack } from 'svelte';
+  import { untrack, tick } from 'svelte';
   import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import { ChevronRight, RefreshCw } from '@lucide/svelte';
@@ -18,6 +18,8 @@
   import Empty from '../../lib/ui/Empty.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
   import TrainingWeek from './TrainingWeek.svelte';
+  import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
+  import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
   import FtpCard from '../../lib/strava/FtpCard.svelte';
   import { localDay } from '../../lib/localday.js';
@@ -34,8 +36,11 @@
   let { params = new URLSearchParams() } = $props();
 
   const PAGE = 40;
-  const view = $derived(params.get('view') === 'list' ? 'list' : 'week');
-  const setView = (v) => (location.hash = v === 'list' ? '#/flow/training?view=list' : '#/flow/training');
+  const today = localDay();
+  // UI-Test Training 17.11.2026 (Fund 4): three views. «Woche» plans and looks back, «Aktivitäten» is the list, «Analysen» holds
+  // the analyses over the weeks, the heart rate zones and the FTP (they stood under the week before). ?zones=1 shows the zones.
+  const view = $derived(params.get('zones') === '1' || params.get('view') === 'ana' ? 'ana' : params.get('view') === 'list' ? 'list' : 'week');
+  const setView = (v) => (location.hash = v === 'list' ? '#/flow/training?view=list' : v === 'ana' ? '#/flow/training?view=ana' : '#/flow/training');
   const actsQ = liveQuery(async () => (await db.activities.toArray()).sort(byNewest));
   const acts = $derived($actsQ ?? []);
   let kind = $state('all');
@@ -59,8 +64,21 @@
   };
   // «Zonen ändern» on one activity opens #/flow/training?zones=1
   const wantZones = $derived(params.get('zones') === '1');
+  // UI-Test Training 17.11.2026 (Fund 1): the zones form stands at the bottom of the page; the tap from an activity
+  // brings you to it, so it does not look as if nothing happened. Once now, once after the charts above have drawn.
+  async function toZones() {
+    await tick();
+    const go = () => {
+      const sec = document.querySelector('[data-section="zones"]')?.closest('section');
+      if (!sec) return;
+      sec.style.scrollMarginTop = '88px';
+      sec.scrollIntoView({ block: 'start' });
+    };
+    go();
+    setTimeout(go, 600);
+  }
   $effect(() => {
-    if (wantZones && zones.loaded) untrack(startEdit);
+    if (wantZones && zones.loaded) untrack(() => (startEdit(), toZones()));
   });
   async function keep(e) {
     e.preventDefault();
@@ -88,12 +106,15 @@
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Training|tab')} />
     <PageHead title={t('Training|tab')} text={t('Plan your training week and see how much time you spent in which heart rate zone. Strava brings the activities by itself.')} />
   </header>
-  <AreaIntro place="training" />
+  <AreaIntro place="training" quiet />
 
-  <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }]} /></div>
+  <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }, { key: 'ana', name: t('Analyses|training') }]} /></div>
 
   {#if view === 'week'}
     <TrainingWeek {acts} />
+  {:else if view === 'ana'}
+    <WeekAnalyses {acts} {today} />
+    <AnaSheet />
   {:else if !acts.length}
     <Empty icon={RefreshCw} title={t('No activities yet')} text={strava.key ? t('The next fetch from Strava brings them, with their heart rate.') : t('Connect Strava once: then every activity comes by itself.')} action={{ label: strava.key ? t('To Strava') : t('Connect Strava'), href: STRAVA_HASH }} />
   {:else}
@@ -139,6 +160,7 @@
     </section>
   {/if}
 
+  {#if view === 'ana'}
   <Sec id="zones-h" title={t('Heart rate zones')} sub={source} more={editing ? null : { label: t('change'), onclick: startEdit }}>
     <div class="card zs" data-section="zones">
       {#if editing}
@@ -165,6 +187,7 @@
   </Sec>
   <!-- Strava check 21.10.2026: the own FTP or Strava's instead of the estimate -->
   <FtpCard est={ftpGuess(acts, localDay())} />
+  {/if}
 </div>
 
 <style>
