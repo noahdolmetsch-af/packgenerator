@@ -31,7 +31,7 @@ test('after a tick a line says how close the next star is', async ({ page, conte
   await page.locator('section[aria-labelledby="tick-h"]').locator('[data-act="run"]').click();
   const hint = page.locator('[data-toast-hint]');
   await expect(hint).toBeVisible();
-  await expect(hint).toContainText(T('Only {n}× to star {k} · {name}', { n: '1', k: '1', name: '' }).split('·')[0].trim());
+  await expect(hint).toContainText(T('Only {n}× to star {k} · {name}', { n: '1', k: '1', name: '' }).split('«')[0].trim());
   await expect(page.locator('dialog[data-star-window]')).toBeHidden();
   await shot(page, info, 'fast-geschafft');
   expect(errors).toEqual([]);
