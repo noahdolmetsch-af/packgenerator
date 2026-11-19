@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
-import { dhms, clock } from '../src/lib/touren/strava/fmt.js';
+import { dhms, clock, hmsOrDays } from '../src/lib/touren/strava/fmt.js';
 import { rideWxOf, rideWxUrl, dirOf, skyOf, needsRideWx, DIRS, RIDE_WX_V } from '../src/lib/touren/ridewx.js';
 import { withActs } from '../src/lib/review/rueckblick.js';
 import { rideTime, rideTimeS, elapsed, elapsedS } from '../src/lib/review/fmt.js';
@@ -14,6 +14,22 @@ describe('elapsed time and pauses as dd:hh:mm:ss', () => {
     expect(dhms(94500)).toBe('01:02:15:00');
     expect(dhms(null)).toBe('–');
     expect(clock(1179)).toBe('19:39');
+  });
+});
+
+describe('the activity page of Training: h:mm:ss under a day, dd:hh:mm:ss from a day on', () => {
+  it('writes hours without a day', () => {
+    expect(hmsOrDays(6500)).toBe('1:48:20');
+    expect(hmsOrDays(360)).toBe('0:06:00');
+    expect(hmsOrDays(86399)).toBe('23:59:59');
+  });
+  it('keeps dd:hh:mm:ss for long tours', () => {
+    expect(hmsOrDays(86400)).toBe('01:00:00:00');
+    expect(hmsOrDays(94500)).toBe('01:02:15:00');
+  });
+  it('shows a dash without a time', () => {
+    expect(hmsOrDays(null)).toBe('–');
+    expect(hmsOrDays(-1)).toBe('–');
   });
 });
 
