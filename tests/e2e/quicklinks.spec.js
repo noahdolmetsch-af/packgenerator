@@ -15,12 +15,17 @@ test('Quick Links: place, suggestions, go there, add, edit, groups', async ({ pa
   const T = await openHome(page, context, info);
   const phone = info.project.name === 'phone';
 
-  // the place: in the bar (phone) or the sidebar (computer)
-  const nav = phone ? page.locator('nav.bottom') : page.locator('aside.side nav.places');
-  await nav.locator('a[href="#/quick"]').click();
+  // the place: in the bar (phone); on a computer (Schritt 10 «Ganze App neu denken», Noah 18.11.2026) it is no row of the
+  // sidebar any more: its way in is one line under Heute, and Heute stays lit while you are there
+  const entry = phone ? page.locator('nav.bottom a[href="#/quick"]') : page.locator('.side li.pl[data-place="today"] .tabs a[href="#/quick"]');
+  await entry.click();
   await expect(page).toHaveURL(/#\/quick$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Quick Links|place') })).toBeVisible();
   await expect(page.locator('[data-quick]')).toHaveAttribute('data-quick', phone ? 'phone' : 'computer');
+  if (!phone) {
+    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(T('Today|place'));
+    await expect(page.locator('.side li.pl .tabs a[aria-current="page"]')).toHaveText(T('Quick Links|place'));
+  }
 
   // the suggestions in five groups
   await expect(page.locator('[data-quick-pin]')).toHaveCount(PINS.length);
