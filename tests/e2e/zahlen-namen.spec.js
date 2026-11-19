@@ -1,5 +1,5 @@
 // UI-Test Flow, Fund 3 (Noah «b»): the numbers on Aktiv say what they count. «Diese Woche» says «Wochenziele offen»,
-// the ring «Bewegen» says «Bewegungszielen im Soll». Fictional data only; the clock stands on Friday 9 October 2026.
+// the ring «Bewegen» says «Sportzielen im Soll». Fictional data only; the clock stands on Friday 9 October 2026.
 // SHOTS=<folder> saves pictures.
 import { test, expect } from '@playwright/test';
 import { D0, aktivRows, put } from './aktiv-fixture.js';
@@ -20,7 +20,7 @@ test('the week card and the ring name what they count', async ({ page, context }
   const top = page.locator('main [data-week-glance] .wgl');
   await expect(top).toContainText(/Wochenziel/);
   const ring = page.locator('main [data-ring-way="move"], main [data-ring-fold="move"]').first();
-  await expect(ring).toContainText(/von \d+ Bewegungszielen im Soll/);
+  await expect(ring).toContainText(/von \d+ Sportzielen im Soll/);
   if (process.env.SHOTS) {
     await page.waitForTimeout(1200);
     const w = info.project.name === 'phone' ? 390 : 1440;

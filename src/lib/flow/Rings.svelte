@@ -23,7 +23,7 @@
   const amount = (r) => {
     const x = rings[r.key];
     if (!x.of) return '–';
-    return r.key === 'move' ? t('{n} of {m} movement goals on track', { n: x.n, m: x.of }) : `${t('{n} of {m}', { n: x.n, m: x.of })} ${t(r.unit)}`;
+    return r.key === 'move' ? t('{n} of {m} sport goals on track', { n: x.n, m: x.of }) : `${t('{n} of {m}', { n: x.n, m: x.of })} ${t(r.unit)}`;
   };
   const W = 14;
   const radius = (i) => 68 - W / 2 - i * (W + 5);

@@ -4,7 +4,7 @@ PR folgt · 18.11.2026 · Auftrag: Noah «b» (Thread «UI-Test der Seite Flow»
 
 ## Was ist neu
 - «Diese Woche» sagt «10 Wochenziele offen» (vorher «10 Ziele offen») und «Diese Woche alle Wochenziele im Soll».
-- Im Ring «Bewegen» steht «0 von 8 Bewegungszielen im Soll» (vorher «0 von 8 Ziele im Soll»). So sieht man, dass der Ring nur seinen Teil der Ziele zählt und die Kopfzeile alle Wochenziele.
+- Im Ring «Bewegen» steht «0 von 8 Sportzielen im Soll» (vorher «0 von 8 Ziele im Soll»). So sieht man, dass der Ring nur seinen Teil der Ziele zählt und die Kopfzeile alle Wochenziele.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Nur drei Texte ändern sich.
@@ -16,4 +16,4 @@ PR folgt · 18.11.2026 · Auftrag: Noah «b» (Thread «UI-Test der Seite Flow»
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Aktiv › Heute › «Diese Woche»: «… Wochenziele offen».
-2. «Ringe»: die Zeile «Bewegen» sagt «… Bewegungszielen im Soll».
+2. «Ringe»: die Zeile «Bewegen» sagt «… Sportzielen im Soll».
