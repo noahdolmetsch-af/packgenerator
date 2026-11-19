@@ -48,7 +48,7 @@
 
 <a class="card wg" href="#/flow/week" data-week-glance onclick={openDay}>
   <span class="top">
-    <span class="wgl">{open ? tn(open, '{n} goal open', '{n} goals open') : t('All goals on track this week')}</span>
+    <span class="wgl">{open ? tn(open, '{n} weekly goal open', '{n} weekly goals open') : t('All weekly goals on track')}</span>
     <span class="go">{t('Plan the week')}<ChevronRight size={16} aria-hidden="true" /></span>
   </span>
   <ol class="days">
