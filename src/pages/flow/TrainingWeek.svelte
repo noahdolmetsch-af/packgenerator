@@ -287,8 +287,8 @@
     })),
   );
   const wLine = $derived(weeks.some((w) => w.planned) ? weeks.map((w) => (w.planned ? Math.round((w.planned / 60) * 100) / 100 : null)) : null);
-  const wRead = (i) => ({ title: weekName(weeks[i]), items: [{ label: t('Done'), value: `${hmm(weeks[i].secs)} h`, color: 'var(--z2)' }, ...(weeks[i].planned ? [{ label: t('Planned'), value: `${hours(weeks[i].planned)} h` }] : [])] });
-  const wTable = $derived({ head: [t('Week'), t('Done'), t('Planned')], rows: [...weeks].reverse().map((w) => ({ key: w.m, cells: [weekName(w), `${hmm(w.secs)} h`, w.planned ? `${hours(w.planned)} h` : '–'] })) });
+  const wRead = (i) => ({ title: weekName(weeks[i]), items: [{ label: t('Done|week'), value: `${hmm(weeks[i].secs)} h`, color: 'var(--z2)' }, ...(weeks[i].planned ? [{ label: t('Planned'), value: `${hours(weeks[i].planned)} h` }] : [])] });
+  const wTable = $derived({ head: [t('Week'), t('Done|week'), t('Planned')], rows: [...weeks].reverse().map((w) => ({ key: w.m, cells: [weekName(w), `${hmm(w.secs)} h`, w.planned ? `${hours(w.planned)} h` : '–'] })) });
   let wSel = $state(null);
   const baseShare = $derived.by(() => {
     const z = nums.zones.reduce((s, x) => s + x, 0);
@@ -440,7 +440,7 @@
   {@const w = weeks[wSel]}
   <ChartSheet kicker={t('Hours per week by zone')} title={weekName(w)} onclose={() => (wSel = null)} onprev={wSel > 0 ? () => wSel-- : null} onnext={wSel < weeks.length - 1 ? () => wSel++ : null} prevLabel={t('Week before')} nextLabel={t('Next week')}>
     <ul class="shl" data-lookback-sheet>
-      <li><span>{t('Done')}</span><b class="num">{hmm(w.secs)} h</b></li>
+      <li><span>{t('Done|week')}</span><b class="num">{hmm(w.secs)} h</b></li>
       {#if w.planned}<li><span>{t('Planned')}</span><b class="num">{hours(w.planned)} h</b></li>{/if}
       {#each w.zones as s, k (k)}{#if s}<li><span>Z{k + 1}</span><b class="num">{hmm(s)} h</b></li>{/if}{/each}
     </ul>
@@ -590,7 +590,7 @@
     align-items: center;
     gap: 6px;
     min-height: 40px;
-    padding: 0 12px;
+    padding: 6px 12px;
     border: 1px dashed var(--line-strong);
     border-radius: var(--radius);
     background: var(--paper);
@@ -608,11 +608,11 @@
   .zt {
     flex: none;
   }
+  /* a long session name wraps onto a second line instead of ending in «…» (UI-Test Training, Fund 7) */
   .cn {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: break-word;
+    text-align: left;
   }
   .ch.done,
   .ch.plan.ok {

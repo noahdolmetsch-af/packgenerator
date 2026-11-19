@@ -32,7 +32,7 @@
   import ActAnalyses from '../../lib/training/act/ActAnalyses.svelte';
   import GhostStrip from '../../lib/training/act/GhostStrip.svelte';
   import AnaSheet from '../../lib/training/AnaSheet.svelte';
-  import { dhms } from '../../lib/touren/strava/fmt.js';
+  import { hmsOrDays } from '../../lib/touren/strava/fmt.js';
 
   let { id = '' } = $props();
   const today = localDay();
@@ -99,7 +99,7 @@
       <div class="col">
         <div class="card vals num" data-section="values">
           {#if act.movingS}<span data-val="moving"><b>{rideTimeS(act.movingS)}</b><small>{t('Moving time|act')}</small></span>{/if}
-          {#if act.elapsedS}<span data-val="elapsed"><b>{dhms(act.elapsedS)}</b><small>{t('Elapsed time|act')}</small></span>{/if}
+          {#if act.elapsedS}<span data-val="elapsed"><b>{hmsOrDays(act.elapsedS)}</b><small>{t('Elapsed time|act')}</small></span>{/if}
           {#if act.km}<span data-val="km"><b>{num(act.km)} km</b><small>{t('Distance')}</small></span>{/if}
           {#if act.hm != null}<span data-val="hm"><b>{num(act.hm)} {t('Hm|short')}</b><small>{t('Metres climbed')}</small></span>{/if}
           {#if spdAvg != null}<span data-val="speed"><b>{num(spdAvg)}{act.spdMax ? ` / ${num(act.spdMax)}` : ''}</b><small>{act.spdMax ? t('Ø / max km/h') : t('Ø km/h')}</small></span>{/if}
@@ -107,7 +107,7 @@
           {#if act.cad}<span data-val="cad"><b>{act.cad}</b><small>{t('Ø cadence')}</small></span>{/if}
           {#if act.kcal}<span data-val="kcal"><b>{num(act.kcal)}</b><small>kcal</small></span>{/if}
           {#if act.tempAvg != null}<span data-val="temp"><b>{num(act.tempAvg)} °C</b><small>{t('Temperature (bike computer)')}</small></span>{/if}
-          {#if act.pauses?.n > 0}<span data-val="pauses"><b>{act.pauses.n} · {dhms(pauseSecs(act) ?? 0)}</b><small>{t('Breaks|act')}</small></span>{/if}
+          {#if act.pauses?.n > 0}<span data-val="pauses"><b>{act.pauses.n} · {hmsOrDays(pauseSecs(act) ?? 0)}</b><small>{t('Breaks|act')}</small></span>{/if}
           {#if !meter && act.wAvg != null}<span data-power="avg"><b>{act.wAvg} W</b><small>{t('Ø power (Strava estimate)')}</small></span>{/if}
         </div>
 

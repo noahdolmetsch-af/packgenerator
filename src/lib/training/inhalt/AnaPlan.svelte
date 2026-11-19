@@ -22,7 +22,7 @@
 
   const planned = (s) => (s.zone ? t('{n} min Z{z}', { n: s.mins, z: s.zone }) : t('{n} min', { n: s.mins }));
   function done(r) {
-    if (r.state === 'missed') return t('not done');
+    if (r.state === 'missed') return t('not done|plan');
     if (r.state === 'open') return t('still open');
     const time = hmm(r.act.movingS);
     if (r.state === 'kept') return r.zone ? `${time} Z${r.zone} ✓` : `${time} ✓`;
@@ -79,7 +79,7 @@
         <li><i class="bk-kept"></i>{t('as planned')}</li>
         <li><i class="bk-near"></i>{t('one zone off')}</li>
         <li><i class="bk-other"></i>{t('other zone')}</li>
-        <li><i class="bk-missed"></i>{t('not done')}</li>
+        <li><i class="bk-missed"></i>{t('not done|plan')}</li>
       </ul>
       <p class="cap">{t('Done = an activity of that kind on that day; its zone is the one with the most time. Just to look at.')}</p>
     {/if}

@@ -42,12 +42,14 @@ test('Ausrüstung: from Material to the page, care due with Erledigt, the row on
   const main = page.locator('main');
   const phone = page.viewportSize().width < 720;
 
-  // the place: own row in the sidebar (computer), one slot with Velos and a switch on top (phone)
+  // the place: the tab «Sets» under Material in the sidebar (computer), one slot with Velos and a switch on top (phone)
   if (phone) {
     await expect(page.locator('nav.bottom a[aria-current="page"]')).toHaveText(T('Bikes and gear|place'));
     await expect(page.locator('[data-place-switch] a[aria-current="page"]')).toHaveText(T('Equipment|place'));
   } else {
-    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(T('Equipment|place'));
+    // «Ganze App neu denken» Schritt 10 (Noah 18.11.2026): no row of its own, Material is lit and «Sets» is its tab
+    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(T('Gear|place'));
+    await expect(page.locator('.side li.pl .tabs a[aria-current="page"]')).toHaveText(T('Sets|tab'));
     await expect(page.locator('[data-place-switch]')).toBeHidden();
   }
   await expect(main.getByRole('heading', { level: 1 })).toHaveText(T('Equipment|place'));
