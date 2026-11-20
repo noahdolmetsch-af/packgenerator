@@ -1,6 +1,6 @@
 # Tür «Haken zuerst»: abhaken, danach Dauer und Gefühl
 
-PR folgt · 20.11.2026 · Auftrag: Noah «1-5a» (Thread «Training erfassen und auswerten vereinfachen», Umsetzungsauftrag T2). **Datenänderung: neues Feld `feel` am Eintrag des Hakens, Einzelfreigabe von Noah nötig.**
+PR #1308 · 20.11.2026 · Auftrag: Noah «1-5a» (Thread «Training erfassen und auswerten vereinfachen», Umsetzungsauftrag T2). **Datenänderung: neues Feld `feel` am Eintrag des Hakens, Einzelfreigabe von Noah nötig.**
 
 ## Was ist neu
 - Auf Aktiv hakt ein Tipp auf eine Kachel in «Heute abhaken» wie bisher sofort ab und öffnet danach die Seite «Geschafft» für diesen Haken. Die Meldung unten wird dabei geschlossen (die Seite hat ihr eigenes «Rückgängig»).
