@@ -17,7 +17,6 @@ import { saveSession } from '../flowdb.js';
 import { offerActivity, offerActivityById } from '../remind/ask.svelte.js';
 import { starsAfterTick } from './starcheck.js';
 import { almostOf } from './almost.js';
-import { sportHref } from './mysports.js';
 
 // sessionOpen: hobby pages 2, the running session in full (B7)
 // star: «Meilensteine als Belohnung» (Noah 22.10.2026 «4a»): the new star of the last tick, shown in its own small window
@@ -82,6 +81,20 @@ export async function untickCommute(a, today = localDay()) {
   await removeEntries(db, mine);
   toast(t('{name} · taken back', { name: actName(a) }), () => putEntries(db, mine));
 }
+/** The «Rückgängig» of the ticks of this visit, by entry id: the page «Geschafft» uses the same one as the toast (it also takes back a star won with the tick). */
+const undone = new Map();
+/** «Rückgängig» on «Geschafft»: the same as in the toast; after a reload only the tick goes (stars stay, they never get lost). → true when something was taken back. */
+export async function undoTick(entryId) {
+  const u = undone.get(entryId);
+  if (u) {
+    await u();
+    if (ui.toast?.id && ui.toast.undo === u) closeToast();
+    return true;
+  }
+  if (!(await db.flowLog.get(entryId))) return false;
+  await removeEntry(db, entryId);
+  return true;
+}
 /** Tick with choices (the sheet): amount, place, minutes, a commute. */
 export async function tickWith(a, opts) {
   const today = localDay();
@@ -97,11 +110,15 @@ export async function tickWith(a, opts) {
   } catch {
     won = []; // a star is a bonus: the tick itself is saved
   }
-  toast(what, async () => {
+  const undo = async () => {
     await removeEntry(db, e.id);
     if (won.length) await db.flowStars.bulkDelete(won.map((s) => s.id));
     if (ui.star?.entryId === e.id) ui.star = null;
-  }, null, near ? { m: near.r.m, k: near.k, left: near.left } : null, [{ href: sportHref(a), text: t('Your history|next') }, { href: '#/flow/milestones', text: t('Milestones') }]);
+    undone.delete(e.id);
+  };
+  undone.set(e.id, undo);
+  // «Geschafft» (Noah 19.11.2026 «1-5a», T1): the page after a tick holds what the two links «Dein Verlauf» and «Meilensteine» held; nothing jumps by itself
+  toast(what, undo, null, near ? { m: near.r.m, k: near.k, left: near.left } : null, [{ href: `#/flow/geschafft?e=${encodeURIComponent(e.id)}`, text: t('What you did|next') }]);
   if (won.length) ui.star = { entryId: e.id, actId: a.id, act: actName(a), icon: a.icon, stars: won.map((s) => ({ id: s.id, msId: s.msId, star: s.star, m: s.r?.m ?? null, value: s.r?.value ?? null, target: s.r?.steps?.[s.star - 1] ?? null, next: s.r?.next ?? null, nextTarget: s.r?.next ? (s.r.steps?.[s.r.next - 1] ?? null) : null, left: s.r?.next && s.r.steps?.[s.r.next - 1] != null ? Math.max(0, Math.round((s.r.steps[s.r.next - 1] - s.r.value) * 10) / 10) : null })) };
   // ER1 (Noah 14.10.2026 «er1-er3 freigabe»): once per activity «Soll ich dich in Zukunft erinnern?»
   if (opts.via !== 'commute') offerActivity(a, actName(a));

@@ -30,5 +30,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 22 | Trainingsplan mit Stunden pro Woche (Aktiv) | Wochenplan | **«Wochenplan»** für die Seite unter Aktiv (Noahs Wort). Die Einheiten aus «Trainingspläne › Ausprobieren» heissen «Trainingswoche» (Noah 10.11.2026 «a»); die älteren Texte sind umbenannt |
 | 23 | Hauptausrüstung pro Sportart (früher Ort «Ausrüstung») | Ausrüstung | **«Sets»** als Reiter in Material (Noah 18.11.2026 «2a», neue Ordnung). Die Seite selbst heisst weiter «Ausrüstung» |
 | 24 | Die Woche von Hand planen (Training, Plus bei jedem Tag) | Woche planen | **«Meine Woche»**. **«Woche planen»** bleibt der Ort Planen › Woche (`#/week`), **«Wochenplan»** die Seite mit den Stunden pro Woche (Noah 17.11.2026 «alle umsetzen 1-10») |
+| 25 | Die Seite nach dem Abhaken (Aktiv) | Meldung nach dem Haken, «Dein Verlauf» | **«Geschafft»**; «Alle Zahlen» führt zur Sportseite, die weiter «Dein Verlauf» heisst (Noah 19.11.2026 «1-5a») |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

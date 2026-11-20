@@ -12,6 +12,7 @@
    *   #/flow/training    «Training» TR2: every Strava activity with its heart rate zones (pages/flow/Training.svelte);
    *                      …/a/<id> one activity (TR3, TrainingAct.svelte)
    *   #/flow/plans       «Trainingspläne»: sample plans for ultracycling, …/<id> one plan (pages/flow/TrainingPlans.svelte, lazy)
+   *   #/flow/geschafft   «Geschafft» (Noah 19.11.2026 «1-5a»): the page after a tick, ?e=<entry id> (pages/flow/Geschafft.svelte, lazy)
    *   #/flow/wochenplan  «Wochenplan» (Noah 09.11.2026): hours per week → units with times, +/− per unit (pages/flow/Wochenplan.svelte, lazy)
    *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
@@ -135,6 +136,9 @@
 {:else if route[0] === 'plans'}
   <!-- «Trainingspläne» (Noah 19.10.2026): loaded only when opened -->
   {#await import('./flow/TrainingPlans.svelte') then m}{#key route[1]}<m.default id={decodeURIComponent(route[1] ?? '')} {params} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+{:else if route[0] === 'geschafft'}
+  <!-- «Geschafft» (Noah 19.11.2026 «1-5a», T1): the page after a tick; loaded only when opened -->
+  {#await import('./flow/Geschafft.svelte') then m}<m.default {params} />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'wochenplan'}
   <!-- «Wochenplan» (Noah 09.11.2026): loaded only when opened -->
   {#await import('./flow/Wochenplan.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
