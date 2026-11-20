@@ -154,18 +154,18 @@ test('T2: a tap on a tile ticks and opens the page; duration and feeling are opt
   await expect(page.locator('[data-geschafft-head]')).toContainText('45 Min');
   await press(how.locator('[data-feel="good"]'), info);
   await expect(how.locator('[data-feel="good"]')).toHaveAttribute('aria-pressed', 'true');
-  const saved = (await readLog(page)).filter((e) => e.actId === 'pushups' && e.day === TODAY);
-  expect(saved).toHaveLength(1);
-  expect(saved[0]).toMatchObject({ min: 45, feel: 'good' });
+  const savedRows = async () => (await readLog(page)).filter((e) => e.actId === 'pushups' && e.day === TODAY);
+  await expect.poll(async () => (await savedRows()).length).toBe(1); // the chips write on their own: wait for the database, not a fixed time
+  await expect.poll(async () => (await savedRows())[0]).toMatchObject({ min: 45, feel: 'good' });
+  const saved = await savedRows();
   await shot(page, info, 'geschafft-chips');
   // the same chip again takes it back; another one replaces it
   await press(how.locator('[data-feel="good"]'), info);
   await press(how.locator('[data-min="60"]'), info);
   await expect(how.locator('[data-feel][aria-pressed="true"]')).toHaveCount(0);
   await expect(how.locator('[data-min="60"]')).toHaveAttribute('aria-pressed', 'true');
-  const again = (await readLog(page)).find((e) => e.id === saved[0].id);
-  expect(again.feel).toBeUndefined();
-  expect(again.min).toBe(60);
+  await expect.poll(async () => (await readLog(page)).find((e) => e.id === saved[0].id)).toMatchObject({ min: 60 });
+  expect((await readLog(page)).find((e) => e.id === saved[0].id).feel).toBeUndefined();
   expect(errors).toEqual([]);
 });
 
