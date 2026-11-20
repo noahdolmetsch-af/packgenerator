@@ -1311,9 +1311,9 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{/if}
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<div class="stack"><MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{#if tripMerged && ready}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'trip'}
-    <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
+    <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it (with one tour: with «Meine Tour») -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS(x.size === 'long')}
   {:else if x.id === 'flow'}
