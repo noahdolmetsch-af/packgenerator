@@ -1,6 +1,6 @@
 # Planen mit drei Reitern: Woche, Notizen, Alltag
 
-Schritt 11 des Plans `docs/plan-ganze-app.md` · 19.11.2026 · Auftrag: Noah «1a 2a 3b 4b 5b» (18.11.2026, Thread «Ganze App neu denken: klickbarer Prototyp»)
+PR #1303 · Schritt 11 des Plans `docs/plan-ganze-app.md` · 19.11.2026 · Auftrag: Noah «1a 2a 3b 4b 5b» (18.11.2026, Thread «Ganze App neu denken: klickbarer Prototyp»)
 
 ## Was ist neu
 - Der Ort «Planen» hat drei Reiter statt elf: **Woche**, **Notizen** und **Alltag**. Die Seiten, die vorher eigene Reiter waren, stehen als kleine Chips direkt unter den Reitern (am Handy und am Computer).
