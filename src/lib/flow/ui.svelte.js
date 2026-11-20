@@ -56,20 +56,21 @@ export async function runUndo() {
  * Fix 14.10.: the shown state lags a moment behind the database, so a quick second tap ticked a second
  * time; the next tap took only one back and the tile stayed ticked (and «Rückgängig» seemed to do
  * nothing). Now a tap waits for the one before, decides from the saved ticks and takes all of today's back.
+ * → the new entry of a tick, null when the tap took ticks back (or waited): «Haken zuerst» (T2) opens «Geschafft» with it.
  */
 const tapping = new Set();
 export async function tapAct(state, today = localDay()) {
   const a = state.act;
-  if (tapping.has(a.id)) return;
+  if (tapping.has(a.id)) return null;
   tapping.add(a.id);
   try {
     const mine = await dayEntries(db, a.id, today);
     if (mine.length) {
       await removeEntries(db, mine);
       toast(t('{name} · taken back', { name: actName(a) }), () => putEntries(db, mine));
-      return;
+      return null;
     }
-    await tickWith(a, { day: today, sub: tapSub(state) });
+    return await tickWith(a, { day: today, sub: tapSub(state) });
   } finally {
     tapping.delete(a.id);
   }
