@@ -57,7 +57,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
+  import { pageOf, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import Explorer from './lib/nav/Explorer.svelte';
@@ -903,7 +903,7 @@
   <!-- «Anpassen» (Noah 20.10.2026 «1a»): «Diese Seite anpassen» at the end of every page; not on Heute, where
        «Startseite anpassen» does it (Neuer Schwung, Noah 26.10.2026 «warum haben wir startseite anpassen und diese seite anpassen?») -->
   {#if !guest && !mini && page !== 'home'}<ErscheintWenn {hash} />{/if}
-  {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? tabOf(place, hash) : null)} {place} fallback={anpTitle} />{/if}
+  {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? (subOf(place, hash)?.key ?? tabOf(place, hash)) : null)} {place} fallback={anpTitle} />{/if}
 </main>
 
 {#if !guest}
