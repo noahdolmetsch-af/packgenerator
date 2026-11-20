@@ -1,6 +1,6 @@
 # Auswerten mit fünf Reitern nach Frage geordnet
 
-PR #PR12A · Schritt 12a des Plans `docs/plan-ganze-app.md` · 20.11.2026 · Auftrag: Noah «1a 2a 3b 4b 5b» (18.11.2026, Thread «Ganze App neu denken: klickbarer Prototyp»)
+PR #1305 · Schritt 12a des Plans `docs/plan-ganze-app.md` · 20.11.2026 · Auftrag: Noah «1a 2a 3b 4b 5b» (18.11.2026, Thread «Ganze App neu denken: klickbarer Prototyp»)
 
 ## Was ist neu
 - Der Ort «Auswerten» hat fünf Reiter statt achtzehn, geordnet nach der Frage, die du stellst. Die Seiten, die vorher eigene Reiter waren, stehen als kleine Chips unter dem Reiter (Handy und Computer), so wie in «Planen» seit Schritt 11.
