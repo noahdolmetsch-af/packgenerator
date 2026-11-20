@@ -91,6 +91,7 @@
   {#if !data}
     <p class="muted" role="status">{t('Loading…')}</p>
   {:else if !entry || !act}
+    <h1 tabindex="-1" data-page-title>{t('Done page')}</h1>
     <Empty text={wanted ? t('This tick is gone, perhaps it was taken back.') : t('Nothing ticked yet. Tick something on Active and this page shows what it brought.')} action={{ label: t('Back to Active'), href: '#/flow' }} />
   {:else}
     <section class="head" data-geschafft-head>
