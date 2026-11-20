@@ -48,8 +48,9 @@ async function writeEntry(page, { title, text, tag }, info = null) {
 test('Notizen leads to the diary, a tab of Planen; write, read, change, search, calendar and photos', async ({ page, context }, info) => {
   const errors = await open(page, context, './#/notes');
   await page.locator('[data-notes-diary]').click();
-  // «Tagebuch» under Planen (Noah 20.10.2026): its tab is on, on the phone in the tab row, on a computer in the sidebar
-  await expect(page.locator('nav.ptabs a[href="#/tagebuch"], .side .tabs a[href="#/tagebuch"]').filter({ visible: true }).first()).toHaveAttribute('aria-current', 'page');
+  // «Tagebuch» under Planen (Noah 20.10.2026): its chip is on (Schritt 11: a chip under the tab «Notizen»), and the tab «Notizen» with it
+  await expect(page.locator('nav.psubs a[data-sub="tagebuch"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.ptabs a[href="#/notes"], .side .tabs a[href="#/notes"]').filter({ visible: true }).first()).toHaveAttribute('aria-current', /page|true/);
   await expect(page.getByRole('heading', { level: 1, name: T('Diary') })).toBeVisible();
   await expect(page.locator('[data-tb-empty]')).toBeVisible();
   // the question of the day is the one of today

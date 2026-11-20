@@ -1,7 +1,7 @@
 // v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): the pages under each place (sidebar) and the
 // keyboard shortcuts. Pure functions, no data.
 import { describe, it, expect } from 'vitest';
-import { PLACES, ALL_PLACES, PLACE_TABS, tabOf, pageOf, placeOf } from '../src/lib/nav.js';
+import { PLACES, ALL_PLACES, PLACE_TABS, tabOf, subOf, pageOf, placeOf } from '../src/lib/nav.js';
 import { shortcutOf } from '../src/lib/nav/keys.js';
 
 describe('the pages under each place', () => {
@@ -28,13 +28,18 @@ describe('the pages under each place', () => {
     expect(tabOf('trips', '#/trips/rides')).toBe(null); // N1: Fahrten is Auswerten › Fahrten now
     expect(tabOf('analysis', '#/trips/rides')).toBe('rides');
     expect(tabOf('analysis', '#/me/insights')).toBe('insights');
-    expect(tabOf('week', '#/me/agenda')).toBe('agenda');
+    // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): Planen has three tabs (Woche, Notizen, Alltag); the old pages are chips under them
+    expect(tabOf('week', '#/me/agenda')).toBe('week');
+    expect(subOf('week', '#/me/agenda').key).toBe('agenda');
     expect(tabOf('week', '#/notes')).toBe('notes');
-    // «Tagebuch» (Noah 20.10.2026): a tab of Planen, also for one entry
-    expect(tabOf('week', '#/tagebuch')).toBe('tagebuch');
-    expect(tabOf('week', '#/tagebuch/e1')).toBe('tagebuch');
+    // «Tagebuch» (Noah 20.10.2026): a page of Planen, also for one entry
+    expect(tabOf('week', '#/tagebuch')).toBe('notes');
+    expect(subOf('week', '#/tagebuch/e1').key).toBe('tagebuch');
     expect(placeOf(pageOf('#/tagebuch'))).toBe('week');
-    for (const [h, k] of [['#/week/plan', 'week'], ['#/week/away', 'week'], ['#/calendar', 'remember'], ['#/inbox', 'inbox'], ['#/me/mail', 'mail'], ['#/me/compass', 'compass'], ['#/me/alltag', 'alltag'], ['#/me/frei', 'frei']]) expect(tabOf('week', h), h).toBe(k);
+    for (const [h, tab, sub] of [['#/week', 'week', 'week'], ['#/week/plan', 'week', 'week'], ['#/week/away', 'week', 'week'], ['#/me/agenda', 'week', 'agenda'], ['#/notes', 'notes', 'notes'], ['#/calendar', 'notes', 'remember'], ['#/inbox', 'notes', 'inbox'], ['#/tagebuch', 'notes', 'tagebuch'], ['#/me/mail', 'notes', 'mail'], ['#/me/alltag', 'alltag', 'alltag'], ['#/me/frei', 'alltag', 'frei'], ['#/me/compass', 'alltag', 'compass'], ['#/me/links', 'alltag', 'links']]) {
+      expect(tabOf('week', h), h).toBe(tab);
+      expect(subOf('week', h)?.key, h).toBe(sub);
+    }
     for (const [h, k] of [['#/me/history', 'history'], ['#/me/abfragen', 'history'], ['#/me/analysis', 'history'], ['#/me/wohl', 'wohl'], ['#/me/weight', 'weight']]) expect(tabOf('analysis', h), h).toBe(k);
     for (const h of ['#/me', '#/me/data', '#/me/look', '#/me/connections', '#/features']) expect(placeOf(pageOf(h)), h).toBe('me');
     expect(placeOf(pageOf('#/trips/rides'))).toBe('analysis');
