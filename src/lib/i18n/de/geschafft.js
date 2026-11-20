@@ -39,7 +39,7 @@ export default {
   'Optional: how long and how was it': 'Freiwillig: wie lange und wie war es',
   'How was it': 'Wie war es',
   'How long? (optional)': 'Wie lange? (freiwillig)',
-  'How was it? (optional)': 'Wie war’s? (freiwillig)',
+  'How was it? (optional)': "Wie war's? (freiwillig)",
   'light|feel': 'leicht',
   'good|feel': 'gut',
   'hard|feel': 'hart',

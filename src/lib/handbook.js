@@ -1156,8 +1156,8 @@ const LISTED = {
   },
   'f.feel': {
     on: null,
-    steps: ['After each ride Active › Training asks «How hard was your ride?» (1 to 10).', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
-    example: 'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.',
+    steps: ['On Active a card asks «How was it?» after a new Strava activity: light, good or hard.', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
+    example: 'Example: a run without heart rate strap felt «good» → it counts like 5 of 10, zone 3.',
   },
   'f.frei': {
     on: null,

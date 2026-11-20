@@ -19,6 +19,7 @@
   import { actName, undoTick, toast } from '../../lib/flow/ui.svelte.js';
   import { putEntry } from '../../lib/flowdb.js';
   import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, withFeel } from '../../lib/flow/feel.js';
+  import { FEEL_KEY } from '../../lib/flow/feelword.js';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { GOAL_KEY } from '../../lib/training.js';
   import { WEEKPLAN_KEY } from '../../lib/training/wochenplan.js';
@@ -76,7 +77,7 @@
   const unitText = $derived(next ? `${fmt(next.day, { weekday: 'short' }).replace('.', '')} ${next.t} · ${t(UNIT_NAME[next.type] ?? next.type)}` : '');
   const pct = $derived(goalH && week ? Math.min(100, Math.round((week.mins / 60 / goalH) * 100)) : 0);
 
-  const FEEL_TEXT = { light: 'light|feel', good: 'good|feel', hard: 'hard|feel' };
+  const FEEL_TEXT = FEEL_KEY;
   // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
   const chooseMin = (m) => entry && db.flowLog.put(withMinutes(entry, m));
   const chooseFeel = (f) => entry && db.flowLog.put(withFeel(entry, f));

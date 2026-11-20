@@ -62,6 +62,7 @@
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
   import MySports from './flow/MySports.svelte';
+  import FeelAsk from '../lib/training/plans/FeelAsk.svelte'; // «Von selbst» (T3): «How was it?» about the newest Strava activity
   import Training from './flow/Training.svelte';
   import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
@@ -215,6 +216,9 @@
       <LiveStart />
       {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
+
+    <!-- «Von selbst» (T3): a new Strava activity asks «How was it?» in three words, for every sport -->
+    <FeelAsk />
 
     <!-- «Aktiv und Auswerten» 1a (Noah 03.11.2026): every function of Aktiv as a tile, right under the head -->
     <AllHere area="aktiv" />
