@@ -92,6 +92,8 @@ export function stateOf(v) {
     extra: Object.fromEntries(Object.entries(obj(s.extra)).map(([k, l]) => [k, arr(l).filter((i) => i && i.id).map(cleanItem)])),
     fixes: Object.fromEntries(Object.entries(obj(s.fixes)).map(([k, f]) => [k, { ...obj(f) }])),
     home: typeof s.home === 'string' && CANTON_IDS.includes(s.home) ? s.home : null,
+    // «Sammlungen mit Charakter»: { [collectionId]: { icon, tint } }, cleaned in look.js (cleanLook)
+    look: Object.fromEntries(Object.entries(obj(s.look)).map(([k, v]) => [k, { ...obj(v) }]).filter(([, v]) => typeof v.icon === 'string' || typeof v.tint === 'string')),
   };
 }
 
@@ -181,7 +183,7 @@ export function deleteCustom(state, cid, to = null, looseName = 'Without collect
     delete next[cid];
     return next;
   };
-  return { ...s, custom, ticks: move(s.ticks), nope: move(s.nope), off: s.off.filter((x) => x !== cid), order: s.order.filter((x) => x !== cid) };
+  return { ...s, custom, ticks: move(s.ticks), nope: move(s.nope), look: Object.fromEntries(Object.entries(s.look).filter(([k]) => k !== cid)), off: s.off.filter((x) => x !== cid), order: s.order.filter((x) => x !== cid) };
 }
 
 /* ---------------------------------------------------------------- items ---------------- */
