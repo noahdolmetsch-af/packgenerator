@@ -1,6 +1,6 @@
 # Eigenes Diagramm: das Diagramm steht zuerst
 
-Schritt 12b des Plans `docs/plan-ganze-app.md` · 21.11.2026 · Auftrag: Noah «1a 2a 3b 4b 5b» (18.11.2026, Thread «Ganze App neu denken: klickbarer Prototyp»), Entwurf «Auswerten · Diagramm» («Diagramm zuerst, drei Auswahlen darunter»)
+PR #1344 · Schritt 12b des Plans `docs/plan-ganze-app.md` · 21.11.2026 · Auftrag: Noah «1a 2a 3b 4b 5b» (18.11.2026, Thread «Ganze App neu denken: klickbarer Prototyp»), Entwurf «Auswerten · Diagramm» («Diagramm zuerst, drei Auswahlen darunter»)
 
 ## Was ist neu
 - Im Reiter «Eigenes Diagramm» (Seite Analyse) steht das Diagramm oben, gleich nach dem Titel. Die Auswahl steht darunter in drei Kästchen:
@@ -24,7 +24,7 @@ Schritt 12b des Plans `docs/plan-ganze-app.md` · 21.11.2026 · Auftrag: Noah «
 - keine neuen.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
-- Plan «ganze App»: Schritt 12a online, 12b gebaut. Als Nächstes 13, 6, 14, 15.
+- Plan «ganze App»: Schritt 12a online (Reiter von Auswerten), 12b gebaut. Als Nächstes 13, 6, 14, 15.
 
 ## Prüfschritte (nach dem Merge, auf der echten Seite)
 1. Tippe «Auswerten», dann den Reiter «Eigenes Diagramm»: das Diagramm steht ganz oben.
