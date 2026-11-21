@@ -11,12 +11,12 @@
    * v0.105.0 Design-Refresh P8 «Aktiv» (A8): two columns; main «Bald erreichbar» as rows, «Pro Aktivität»
    * as rows, the cards; side the trophy shelf, the reward and the record wall; the numbers folded below.
    */
-  import { Lightbulb, Star } from '@lucide/svelte';
+  import { Lightbulb } from '@lucide/svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
-  import Rows from '../../lib/flow/kit/Rows.svelte';
+  import StarPath from '../../lib/flow/hobby/StarPath.svelte';
   import MsRows from '../../lib/flow/kit/MsRows.svelte';
   import TrophyShelf from '../../lib/flow/kit/TrophyShelf.svelte';
   import RewardRow from '../../lib/flow/hobby/RewardRow.svelte';
@@ -86,7 +86,8 @@
   // «Dein nächster Stern» (Noah 21.11.2026 «1a»): the card on top; «Soon within reach» below does not repeat its star
   const hero = $derived(ctx && data ? heroOf({ list: scoped, ctx, acts: data.acts, plan: data.plan, weeklog: data.weeklog, today }) : null);
   const soon = $derived(soonList(hero ? scoped.filter((r) => r.id !== hero.r.id) : scoped, 5));
-  const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, icon: Star, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, value: r.next ? `${Math.round(r.progress * 100)} %` : '', href: `#/flow/milestones?act=${encodeURIComponent(a.id)}` })));
+  // «Der Sternen-Weg» (Noah 21.11.2026 «2a»): per sport the path of its stars instead of a percent row
+  const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, href: `#/flow/milestones?act=${encodeURIComponent(a.id)}`, r })));
   const nextUp = $derived(soonList(scoped, 1)[0] ?? scoped.filter((r) => r.next).sort((x, y) => y.progress - x.progress)[0] ?? null);
   const shelf = $derived([
     ...recentStars(scoped, 3).map((x) => ({ id: x.star.id, name: msName(x.r.m), when: dayWord(x.star.day, today), done: true })),
@@ -159,8 +160,8 @@
         </Sec>
 
         {#if perAct.length}
-          <Sec id="per-h" title={t('Per activity · next star')}>
-            <Rows rows={perActRows} />
+          <Sec id="per-h" title={t('Per activity · your path')} sub={t('Gold: reached. The next star fills as you get closer.')}>
+            <StarPath rows={perActRows} />
           </Sec>
         {/if}
 
