@@ -3,21 +3,21 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { USUAL_KEY, DEFAULT_MIN, cleanMin, usualMap, usualFor, withUsual, readUsual, saveUsual, restoreUsual } from '../src/lib/flow/usualmin.js';
+import { USUAL_KEY, DEFAULT_MIN, STANDARD_RULES, standardFor, cleanMin, usualMap, usualFor, withUsual, readUsual, saveUsual, restoreUsual } from '../src/lib/flow/usualmin.js';
 import { normAct } from '../src/lib/flow.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 describe('the usual duration of a sport', () => {
   it('without a setting a session counts one hour', () => {
     expect(DEFAULT_MIN).toBe(60);
-    expect(usualFor({}, 'run')).toEqual({ min: 60, own: false });
-    expect(usualFor(undefined, 'run')).toEqual({ min: 60, own: false });
+    expect(usualFor({}, 'run')).toEqual({ min: 60, own: false, std: 60 });
+    expect(usualFor(undefined, 'run')).toEqual({ min: 60, own: false, std: 60 });
   });
   it('a set value is used for that sport only', () => {
     const map = { run: 45, yoga: 75 };
-    expect(usualFor(map, 'run')).toEqual({ min: 45, own: true });
+    expect(usualFor(map, 'run')).toEqual({ min: 45, own: true, std: 60 });
     expect(usualFor(map, 'yoga').min).toBe(75);
-    expect(usualFor(map, 'tennis')).toEqual({ min: 60, own: false });
+    expect(usualFor(map, 'tennis')).toEqual({ min: 60, own: false, std: 60 });
   });
   it('rubbish in the setting is ignored', () => {
     expect(usualMap({ a: 30, b: 0, c: -5, d: 'x', e: 99999, f: 12.6 })).toEqual({ a: 30, e: 1440, f: 13 });
@@ -37,6 +37,36 @@ describe('the usual duration of a sport', () => {
     const act = normAct({ id: 'yoga', name: 'Yoga', minMin: 30 });
     expect(usualFor({}, act.id).min).toBe(60);
     expect(act.minMin).toBe(30);
+  });
+});
+
+describe('Noah\'s usual durations (21.11.2026 «Standartwert beim abhaken»)', () => {
+  const std = (name, id = 'x', nameDe) => standardFor({ id, name, nameDe });
+  it('ice hockey 2 h, tennis 1 h, yoga 1 h, sauna 12 min, gym 20 min', () => {
+    expect(std('Ice hockey', 'hockey', 'Eishockey')).toBe(120);
+    expect(std('Tennis', 'tennis', 'Tennis spielen')).toBe(60);
+    expect(std('Yoga', 'yoga')).toBe(60);
+    expect(std('Sauna', 'sauna')).toBe(12);
+    expect(std('Gym', 'gym')).toBe(20);
+    expect(std('eGym')).toBe(20);
+  });
+  it('treadmill, running indoors and «rennen indoor» are one activity: 20 min (two blocks of 10), found by the name in German or English', () => {
+    expect(std('Laufband rennen')).toBe(20);
+    expect(std('Treadmill at the gym')).toBe(20); // the treadmill wins over «gym»
+    expect(std('Laufen indoor')).toBe(20);
+    expect(std('Rennen indoor')).toBe(20);
+    expect(std('Indoor running')).toBe(20);
+    expect(std('Running', 'run', 'Laufen')).toBe(0); // outdoors: no rule, the general 60 counts
+  });
+  it('a sport without a rule counts 60, an own setting always wins', () => {
+    expect(standardFor({ id: 'climb', name: 'Climbing' })).toBe(0);
+    expect(usualFor({}, 'climb', { id: 'climb', name: 'Climbing' })).toEqual({ min: 60, own: false, std: 60 });
+    expect(usualFor({}, 'sauna', { id: 'sauna', name: 'Sauna' })).toEqual({ min: 12, own: false, std: 12 });
+    expect(usualFor({ sauna: 24 }, 'sauna', { id: 'sauna', name: 'Sauna' })).toEqual({ min: 24, own: true, std: 12 });
+    expect(usualFor({}, 'hockey').min).toBe(120); // by the id alone, for the seeded sports
+  });
+  it('the rules are a short list, the most specific first', () => {
+    expect(STANDARD_RULES.length).toBeLessThan(10);
   });
 });
 
