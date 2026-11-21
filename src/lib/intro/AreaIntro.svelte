@@ -366,7 +366,7 @@
     align-items: center;
     justify-content: center;
     border: 1px solid var(--line);
-    border-radius: 22px;
+    border-radius: var(--radius-card);
     background: var(--paper);
     color: var(--ink-2);
     cursor: pointer;

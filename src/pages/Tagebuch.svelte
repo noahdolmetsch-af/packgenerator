@@ -517,7 +517,7 @@
     flex-direction: column;
     gap: 10px;
     padding: 18px 20px;
-    border-radius: 20px;
+    border-radius: var(--radius-card);
     background: var(--accent-soft);
   }
   .tb-q-top {
@@ -606,7 +606,7 @@
     display: flex;
     flex-direction: column;
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: var(--radius-card);
     background: var(--paper);
     overflow: hidden;
   }
@@ -705,7 +705,7 @@
     gap: 10px;
     padding: 32px 16px;
     border: 1px dashed var(--line);
-    border-radius: 20px;
+    border-radius: var(--radius-card);
     text-align: center;
     color: var(--ink-2);
   }
