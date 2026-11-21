@@ -1,6 +1,6 @@
 # Ein kaputter Eintrag stoppt den Abgleich nicht mehr
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5a» (Punkt 5, Thread «Fix Abhaken-Sync zwischen Computer und Handy»)
+PR #1364 · 21.11.2026 · Auftrag: Noah «1-5a» (Punkt 5, Thread «Fix Abhaken-Sync zwischen Computer und Handy»)
 
 ## Was ist neu
 - Konnte ein Gerät einen einzelnen Eintrag vom anderen Gerät nicht speichern (nicht wegen Platzmangel), brach die ganze Runde ab. Der Zeiger rückte nicht weiter, jede neue Runde stolperte über denselben Eintrag, und alles dahinter kam nie an (`src/lib/sync/engine.js`, `applyPackage`). Jetzt wird dieser Eintrag übersprungen und unter `syncskip|…` vermerkt; die Runde läuft weiter, alles danach kommt an.
