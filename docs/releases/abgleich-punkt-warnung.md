@@ -1,6 +1,6 @@
 # Ein Punkt zeigt, wie es um den Abgleich steht
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5a» (Punkte 1 und 2, Thread «Fix Abhaken-Sync zwischen Computer und Handy»)
+PR #1339 · 21.11.2026 · Auftrag: Noah «1-5a» (Punkte 1 und 2, Thread «Fix Abhaken-Sync zwischen Computer und Handy»)
 
 ## Was ist neu
 - **Punkt am «Ich»-Knopf** (`src/lib/nav/MeButton.svelte`, Zustand in `src/lib/sync/health.js`): grün, wenn der Abgleich eingeschaltet ist und die letzte Runde weniger als 10 Minuten her ist und gut ging; orange, wenn er aus ist (Gerät mit Daten, ohne «Nur ein Gerät») oder hinterherhinkt (Fehler oder älter als 10 Minuten). Kein Punkt in der Demo, ohne Daten oder nach «Nein, nur hier».
