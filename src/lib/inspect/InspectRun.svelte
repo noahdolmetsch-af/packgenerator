@@ -5,7 +5,7 @@
    * OK / Watch / Fix myself / Bike shop, a value where it is measured (with the limit as a colour), a note,
    * photos (4a), and «So geht's» (2a). Every change is saved at once as a draft: «Später weitermachen»
    * just leaves; «Fertig» writes the part history and the problems (inspectdb.js) and offers Undo.
-   * bike: as stored; level; list: the person's checklist; onfinished(): back to the overview.
+   * bike: as stored; level; list: the person's checklist; onfinished({ n, w }): back to the overview, with the number of problems and wishes the check made; onundone(): Undo of the finish was tapped.
    */
   import { Check, BookOpen, Camera, X, ChevronDown, Store, Wrench, Eye } from '@lucide/svelte';
   import { db } from '../db.js';
@@ -26,7 +26,7 @@
   import { pointName, areaName, levelName } from './names.js';
   import HowTo from './HowTo.svelte';
 
-  let { bike, level, list, onfinished } = $props();
+  let { bike, level, list, onfinished, onundone } = $props();
 
   const today = localDay();
   const kind = $derived(kindOf(bike));
@@ -92,8 +92,11 @@
       const n = snap.tasks.length;
       const w = snap.wishes?.length ?? 0;
       const said = n ? tn(n, '{level} saved. {n} point is now in the problems.', '{level} saved. {n} points are now in the problems.', { level: levelName(level) }) : t('{level} saved. Everything noted.', { level: levelName(level) });
-      offerDone(w ? `${said} ${tn(w, '{n} part is on the wishlist.', '{n} parts are on the wishlist.')}` : said, () => undoFinish(db, snap));
-      onfinished?.();
+      offerDone(w ? `${said} ${tn(w, '{n} part is on the wishlist.', '{n} parts are on the wishlist.')}` : said, async () => {
+        await undoFinish(db, snap);
+        onundone?.();
+      });
+      onfinished?.({ n, w });
     } catch (e) {
       console.error(e);
       err = t('Could not save. Try again.');

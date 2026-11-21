@@ -14,7 +14,10 @@ import { refreshRain, wetOf } from './rain.js';
 import { kindOf } from '../bikekind.js';
 import { localDay } from '../localday.js';
 
-export const insp = $state({ list: normList(null), byBike: {}, rain: null, beforeTrip: true });
+export const insp = $state({ list: normList(null), byBike: {}, rain: null, beforeTrip: true, made: null });
+
+// insp.made: { bikeId, n, w } of the check just finished (n problems, w wishes), for the card «Where it went» on the
+// overview; it lives here because the page starts again when the run ends (Bikes.svelte keys it by level)
 
 /** For tests: set the states directly. */
 export const useInspect = (byBike) => (insp.byBike = byBike ?? {});
