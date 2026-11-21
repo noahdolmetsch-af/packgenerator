@@ -61,6 +61,10 @@ test('Verbessern: button, tap a block, write, save, the entry is in the log with
   await expect(sheet.locator('[data-lb-block-chip]')).toContainText(name);
   await expect(sheet.locator('[data-lb-context]')).toContainText('#/me');
   await expect(sheet.locator('[data-lb-page]')).toHaveCount(0);
+  // step 3: the photo of the page is made with the tap and shown in the window
+  const small = sheet.locator('[data-lb-photo]');
+  await expect(small).toBeVisible();
+  expect(await small.getAttribute('src')).toMatch(/^data:image\/jpeg;base64,/);
   await shot(page, info, 'verbessern-fenster');
 
   await press(sheet.locator('[data-art="text"]'), info);
@@ -78,6 +82,33 @@ test('Verbessern: button, tap a block, write, save, the entry is in the log with
   await expect(row).toContainText(name);
   await expect(row).toContainText('#/me');
   await expect(row.locator('[data-lb-now]')).toBeVisible();
+  // the photo is kept on the entry: a small JPEG, shown as a thumbnail
+  const thumb = row.locator('[data-lb-photo] img');
+  await expect(thumb).toBeVisible();
+  const bytes = await thumb.evaluate((img) => Math.round(((img.src.length - img.src.indexOf(',') - 1) * 3) / 4));
+  expect(bytes).toBeGreaterThan(3000); // not a blank pixel
+  expect(bytes).toBeLessThan(700 * 1024);
+  // the whole page, also the part below the fold: the picture is taller than the screen (the page «Ich» is long)
+  const dims = await thumb.evaluate((img) => ({ h: img.naturalHeight, w: img.naturalWidth, screen: innerHeight }));
+  expect(dims.h).toBeGreaterThan(dims.screen);
+  expect(dims.h).toBeLessThanOrEqual(6000);
+  await shot(page, info, 'verbessern-liste');
+  // a tap shows the long picture as wide as the window, and it scrolls
+  await press(row.locator('[data-lb-photo]'), info);
+  const scr = page.locator('[data-lightbox-scroll]');
+  await expect(scr).toBeVisible();
+  expect(await scr.evaluate((d) => d.scrollHeight > d.clientHeight)).toBe(true);
+  await shot(page, info, 'verbessern-foto-gross');
+  await page.keyboard.press('Escape');
+  await expect(scr).toBeHidden();
+  if (SHOTS) {
+    const b64 = await thumb.evaluate((img) => img.src.split(',')[1]);
+    (await import('node:fs')).writeFileSync(`${SHOTS}/verbessern-foto-${info.project.name === 'phone' ? 390 : 1440}.jpg`, Buffer.from(b64, 'base64'));
+  }
+  // «Bilder speichern»: one file per photo, named with its number
+  const download = page.waitForEvent('download');
+  await press(page.locator('[data-lb-images]'), info);
+  expect((await download).suggestedFilename()).toMatch(/^logbuch-01-me\.jpg$/);
   expect(errors).toEqual([]);
 });
 
