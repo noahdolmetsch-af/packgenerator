@@ -12,7 +12,7 @@
 - nichts. Es kommt nur ein Eintrag im Menü «⋯», ein Knopf im Bearbeiten-Fenster und ein Knopf am Hinweis dazu. «Löschen» und «Pause» bleiben, wie sie waren.
 
 ## Selbst entschieden
-- **Wort «Zusammenlegen»** (wie bei Material «Zusammenlegen mit …»); «Zusammenführen» bleibt beim Backup einspielen (`docs/namen.md`, Zeile 30).
+- **Wort «Zusammenlegen»** (wie bei Material «Zusammenlegen mit …»); «Zusammenführen» bleibt beim Backup einspielen (`docs/namen.md`, Zeile 31).
 - **Ziele der ersten Sportart gehen nicht über:** die bleibende behält ihre eigenen Ziele; sonst würden Wochenziele sich verdoppeln. Beim Rückgängig sind die Ziele der ersten wieder da, weil die ganze Sportart zurückkommt.
 - **Haken am selben Tag:** hatten beide Sportarten am selben Tag einen Haken, bleiben beide Haken erhalten (nichts wird gelöscht); wer will, löscht einen.
 - **Nur ein Weg, kein neuer Eintrag im Katalog:** Zusammenlegen ist Teil von «Meine Aktivitäten» (Fertig-Regel Teil 1 bis 3 und 6: bestehende Funktion, app-stand-Zeile ergänzt, Absprung ist der Hinweis «kommt zweimal vor»).
