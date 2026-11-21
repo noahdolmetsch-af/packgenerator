@@ -77,7 +77,7 @@
     min-width: 0;
     font-weight: 600;
     font-size: var(--fs-small);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .nn {
     font: 700 var(--fs-sub) / 1.2 var(--font-body);
