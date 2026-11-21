@@ -32,7 +32,7 @@
     <p class="hint">{t('Where Strava, the timer or you gave no minutes, the evaluation counts the usual duration of the sport and marks it «ca.». Without a setting it counts {n} min. A measured time always counts first.', { n: DEFAULT_MIN })}</p>
     <ul class="ul">
       {#each list as a (a.id)}
-        {@const u = usualFor(map, a.id)}
+        {@const u = usualFor(map, a.id, a)}
         <li data-usual={a.id}>
           <ActIcon icon={a.icon} ring={a.ring} />
           <span class="nm">{actName(a)}</span>
