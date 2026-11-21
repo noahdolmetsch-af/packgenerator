@@ -36,9 +36,10 @@ export function usualMap(value) {
  * Gym: eGym (20 min), Laufband rennen indoor 20 min, laufen indoor 10 min blöcke; «rennen indoor» und «laufen indoor» sind das gleiche»): what counts without a setting, found by the
  * words in the id and the name of the activity (first rule that fits). A sport that fits none counts DEFAULT_MIN.
  */
+export const INDOOR_RUN = /laufband|treadmill|(indoor|innen|drinnen)\W.*(lauf|renn|run)|(lauf|renn|run).*\W(indoor|innen|drinnen)/i;
 export const STANDARD_RULES = [
   // «Rennen indoor» and «Laufen indoor» are one activity (Noah 21.11.2026): 2 blocks of 10 minutes
-  [/laufband|treadmill|(indoor|innen|drinnen)\W.*(lauf|renn|run)|(lauf|renn|run).*\W(indoor|innen|drinnen)/i, 20],
+  [INDOOR_RUN, 20],
   [/gym/i, 20],
   [/sauna/i, 12],
   [/hockey/i, 120],
