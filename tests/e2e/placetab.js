@@ -42,6 +42,6 @@ export async function tapTab(page, name) {
 
 /** «Aktiv neu» (Noah 22.10.2026): from Aktiv to Auswerten, the way a person does (the switch on a phone, the sidebar row on a computer). */
 export async function toAnalysis(page) {
-  await page.locator('[data-to-analysis], .side li[data-place="analysis"] > a.pa').filter({ visible: true }).first().click();
+  await page.locator('nav.bottom a[data-place="analysis"], .side li[data-place="analysis"] > a.pa').filter({ visible: true }).first().click();
   await expect(page).toHaveURL(/#\/auswerten$/);
 }

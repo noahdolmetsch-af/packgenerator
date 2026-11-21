@@ -17,7 +17,7 @@ test('RE-1 Erholung shows the daily list with today\'s count, and the list opens
   await link.click();
   await expect(page).toHaveURL(/#\/routine$/);
   await expect(page.locator('main[data-s2-place="active"]')).toHaveCount(1);
-  await expect(page.locator('.crumb')).toContainText(info.project.name === 'phone' ? T('Recovery|page') : `${T('Active|place')}`);
+  await expect(page.locator('.crumb')).toContainText(info.project.name === 'phone' ? T('Recovery|page') : `${T('Plan|place')}`);
   await page.screenshot({ path: info.outputPath('re-liste.png') });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 });

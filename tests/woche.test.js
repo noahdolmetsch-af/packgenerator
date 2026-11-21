@@ -136,14 +136,14 @@ describe('buildWeek', () => {
 describe('the place «Woche» (Noah 1a)', () => {
   it('is a place next to Heute; the phone bar keeps five, without Material', () => {
     // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos; Material shares the slot of Velos
-    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'gear', 'quick']); // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
-    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'quick']);
+    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'gear', 'analysis', 'quick']); // V4a (Noah 21.11.2026): Aktiv is part of Woche, Auswerten is a place of its own // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
+    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'analysis']);
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');
     expect(placeOf('week')).toBe('week');
     // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): eleven tabs became three, every old page is a chip (`subs`) under one of them
-    expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'notes', 'alltag']);
-    expect(PLACE_TABS.week.flatMap((x) => x.subs.map((s) => s.key)).sort()).toEqual(['agenda', 'alltag', 'compass', 'frei', 'inbox', 'links', 'mail', 'notes', 'remember', 'tagebuch', 'week']); // Woche covers plan and away
+    expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'training', 'notes', 'alltag']);
+    expect(PLACE_TABS.week.flatMap((x) => x.subs.map((s) => s.key)).sort()).toEqual(['agenda', 'alltag', 'compass', 'flowhome', 'frei', 'inbox', 'links', 'mail', 'notes', 'remember', 'rest', 'sports', 'tagebuch', 'training', 'week', 'wochenplan']); // Woche covers plan and away
     expect(tabOf('week', '#/week')).toBe('week');
     expect(tabOf('week', '#/week/plan')).toBe('week'); // UI-Ziele #6: one tap from the week
     expect(tabOf('week', '#/week/away')).toBe('week');
