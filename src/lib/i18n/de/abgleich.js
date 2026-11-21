@@ -173,6 +173,8 @@ export default {
   'Changes not sent yet': 'Änderungen noch nicht gesendet',
   '{n} change is not sent to your other device yet. The app tries again by itself.': '{n} Änderung ist noch nicht aufs andere Gerät gesendet. Die App versucht es von selbst wieder.',
   '{n} changes are not sent to your other device yet. The app tries again by itself.': '{n} Änderungen sind noch nicht aufs andere Gerät gesendet. Die App versucht es von selbst wieder.',
+  '{n} entry from the other device could not be saved here and was skipped. The rest keeps syncing; «Compare with the server» lists what is missing.': '{n} Eintrag vom anderen Gerät konnte hier nicht gespeichert werden und wurde übersprungen. Der Rest wird weiter abgeglichen; «Mit dem Server vergleichen» zeigt, was fehlt.',
+  '{n} entries from the other device could not be saved here and were skipped. The rest keeps syncing; «Compare with the server» lists what is missing.': '{n} Einträge vom anderen Gerät konnten hier nicht gespeichert werden und wurden übersprungen. Der Rest wird weiter abgeglichen; «Mit dem Server vergleichen» zeigt, was fehlt.',
   'Filled in: {got} taken here, {sent} sent.': 'Ergänzt: {got} hier übernommen, {sent} geschickt.',
   'On the server: {a} entries. On this device: {b}.': 'Auf dem Server: {a} Einträge. Auf diesem Gerät: {b}.',
   'Missing here ({n}): {names}': 'Hier fehlen ({n}): {names}',
