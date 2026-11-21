@@ -20,7 +20,6 @@
   import StartFresh from './maintenance/StartFresh.svelte';
   import NamesDe from './clear/NamesDe.svelte';
   import TempoMesser from './tempo/TempoMesser.svelte';
-  import FehlerZeile from './fehler/FehlerZeile.svelte'; // UEBERGANG-FEHLERZEILE (until the Logbuch shows the errors)
   import SyncPanel from './sync/SyncPanel.svelte';
   import { SYNC_WISH } from './sync/nudge.js';
   import { take } from './nav.js';
@@ -764,7 +763,6 @@
       {/if}
     </section>
     <TempoMesser />
-    <FehlerZeile /> <!-- UEBERGANG-FEHLERZEILE -->
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
   </div>
 </div>

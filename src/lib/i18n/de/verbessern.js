@@ -20,4 +20,7 @@ export default {
   'Photo of the page, the block in orange': 'Foto der Seite, der Block orange umrandet',
   'Photo not possible': 'Foto nicht möglich',
   'Show the photo big': 'Foto gross zeigen',
+  // L1b: die Fehler, die sich die App merkt
+  'Noted by the app': 'Von der App gemerkt',
+  'The noted errors show in the improvement log as «Error».': 'Die gemerkten Fehler stehen im Verbesserungs-Logbuch als «Fehler».',
 };
