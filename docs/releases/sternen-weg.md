@@ -1,6 +1,6 @@
 # Der Sternen-Weg
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 2)
+PR #1369 · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 2)
 
 ## Was ist neu
 - Auf Auswerten › Meilensteine zeigt «Pro Aktivität · dein Weg» pro Sportart alle Sterne als Weg: erreichte gold, der nächste füllt sich mit dem Fortschritt, die übrigen leer. Die Prozentzahl steht weiter daneben, ein Tipp öffnet die Meilensteine der Sportart.
