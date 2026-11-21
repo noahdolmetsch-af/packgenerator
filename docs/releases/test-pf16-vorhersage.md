@@ -1,6 +1,6 @@
 # Test PF16: die Vorhersage kommt von selbst, der Test wartet nicht auf den Knopf
 
-PR #? · 21.11.2026 · Auftrag: Noah «a» (Thread «Prüfungen so einrichten, dass main grün bleibt»)
+PR #1337 · 21.11.2026 · Auftrag: Noah «a» (Thread «Prüfungen so einrichten, dass main grün bleibt»)
 
 Kein sichtbarer Unterschied in der App, nur ein Test.
 
