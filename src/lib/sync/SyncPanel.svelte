@@ -379,6 +379,7 @@
         {#if lost.length > 50}<p class="small">{t('{n} more, the newest are shown.', { n: lost.length - 50 })}</p>{/if}
       </details>
     {/if}
+    {#if $cfgQ.skipped}<p class="small" data-sync-skipped>{tn($cfgQ.skipped, '{n} entry from the other device could not be saved here and was skipped. The rest keeps syncing; «Compare with the server» lists what is missing.', '{n} entries from the other device could not be saved here and were skipped. The rest keeps syncing; «Compare with the server» lists what is missing.')}</p>{/if}
     {#if $cfgQ.big}<p class="small">{tn($cfgQ.big, '{n} very large entry stays only on this device.', '{n} very large entries stay only on this device.')}</p>{/if}
 
     {#if view === 'pair'}

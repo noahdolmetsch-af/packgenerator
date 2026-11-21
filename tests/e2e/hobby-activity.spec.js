@@ -178,7 +178,9 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   await expect(page).toHaveURL(/act=meditation/);
   const daily = main.locator('.grid [data-ms="meditation.daily"]').first();
   await expect(daily).toContainText(T('Star {k} · {stage}', { k: 3, stage: T('Devotion|stage') }));
-  await expect(main.locator('.msr li.soon[data-ms="meditation.daily"]')).toBeVisible(); // Design-Refresh P8: «Bald erreichbar» as rows
+  // «Dein nächster Stern» (Noah 21.11.2026 «1a»): the closest star is the big card on top; «Bald erreichbar» below does not repeat it
+  await expect(main.locator('[data-hero][data-hero-ms="meditation.daily"]')).toBeVisible();
+  await expect(main.locator('.msr li[data-ms="meditation.daily"]')).toHaveCount(0);
   await fits(page, 'Meilensteine');
 
   // own numbers: 3, 7, 12 → all stars, «Weg»; back to the suggestion
