@@ -938,6 +938,8 @@
 {#if !guest}<TourStart /><TourHost />{/if}
 <!-- «Quick Links» step 2 (Noah 28.10.2026 «1a 2a»): the small pin on every card of a function; loads later -->
 {#if !guest && !mini}{#await import('./lib/quick/PinMarks.svelte') then M}<M.default {hash} />{/await}{/if}
+<!-- «Verbesserungs-Logbuch» step 2 (Noah 21.11.2026): the button «Verbessern» on every page; loads later, can be switched off in Ich › Darstellung -->
+{#if !guest && !mini && ops.improve}{#await import('./lib/logbuch/Improve.svelte') then M}<M.default {hash} />{/await}{/if}
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->
