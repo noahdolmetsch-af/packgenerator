@@ -1258,7 +1258,8 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   // The fold renders its rows after the click, so wait for them instead of reading the text once.
   await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(care).toContainText(`${P} Velo shop`, { timeout: 3000 }));
   // v0.38.0: a tap on the part opens its row, "Record …" the dialog.
-  await rec.click(each.getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
+  // 21.11.2026 «Auf einen Blick» (changed on purpose): its button «Kette erfassen» starts with the same word, so the part row is looked up in the list of parts.
+  await rec.click(each.locator('li.pt').getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
   // v0.117.0 «Knöpfe neu» (N2, changed on purpose): a due row has one main button, «Record …» is behind «…»
   await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('More for {title}', { title: T('Chain') }) }));
   await rec.click(page.getByRole('menuitem', { name: new RegExp(`^${esc(T('Record …|care'))}`) }));
