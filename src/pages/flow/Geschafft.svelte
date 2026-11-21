@@ -10,6 +10,7 @@
    * save `min` and `feel` on the entry of the tick (lib/flow/feel.js); the same chip again takes it back.
    * Draft: https://claude.ai/artifact/2gziTtHYQWcPa7wPDsWwah
    */
+  import { liveQuery } from 'dexie';
   import { Check, ChevronRight, Star, Undo2 } from '@lucide/svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
@@ -19,6 +20,8 @@
   import { actName, undoTick, toast } from '../../lib/flow/ui.svelte.js';
   import { putEntry } from '../../lib/flowdb.js';
   import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, withFeel } from '../../lib/flow/feel.js';
+  import { BLOCKS_KEY, blocksMap, blockFor, standardBlock, blockChips, saveBlockSize, rememberBlocks, restoreBlocks } from '../../lib/flow/bloecke.js';
+  import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { GOAL_KEY, PLAN_KEY } from '../../lib/training.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
@@ -83,6 +86,28 @@
   const FEEL_TEXT = { light: 'light|feel', good: 'good|feel', hard: 'hard|feel' };
   // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
   const chooseMin = (m) => entry && db.flowLog.put(withMinutes(entry, m));
+  // «Block-Knöpfe» (Noah 21.11.2026 «a»): blocks of the sport (sauna 12 min, running indoors 10 min, any sport you set); the last choice is marked
+  const blocksQ = liveQuery(() => db.settings.get(BLOCKS_KEY));
+  const bl = $derived(entry ? blockFor(blocksMap($blocksQ?.value), entry.actId, act) : { size: 0, count: 0, own: false });
+  let sizing = $state(false);
+  let sizeText = $state('');
+  const chooseBlock = async (c) => {
+    if (!entry) return;
+    const taken = entry.min === c.min;
+    await chooseMin(c.min);
+    if (!taken) await rememberBlocks(db, entry.actId, c.n);
+  };
+  function openSize() {
+    sizeText = bl.size ? String(bl.size) : '';
+    sizing = true;
+  }
+  async function saveSize(v) {
+    if (!entry) return;
+    const before = await saveBlockSize(db, entry.actId, v);
+    sizing = false;
+    const name = actName(act);
+    offerDone(Number(v) > 0 ? t('«{name}»: blocks of {n} min.', { name, n: Math.round(Number(v)) }) : t('«{name}»: no own blocks.', { name }), () => restoreBlocks(db, before));
+  }
   const chooseFeel = (f) => entry && db.flowLog.put(withFeel(entry, f));
 
   async function back() {
@@ -116,12 +141,32 @@
 
     <section class="card gs how" data-geschafft-how aria-label={t('Optional: how long and how was it')}>
       {#if canSetMinutes(entry)}
-        <div class="chips" role="group" aria-label={t('How long')} data-geschafft-mins>
-          <span class="cl">{t('How long? (optional)')}</span>
-          {#each MIN_CHIPS as m (m)}
-            <button type="button" class="chip" class:on={entry.min === m} aria-pressed={entry.min === m} data-min={m} onclick={() => chooseMin(m)}>{t('{n} min', { n: m })}</button>
-          {/each}
-        </div>
+        {#if bl.size}
+          <div class="chips" role="group" aria-label={t('How long')} data-geschafft-mins data-geschafft-blocks>
+            <span class="cl">{t('How long? (optional)')}</span>
+            {#each blockChips(bl.size) as c (c.n)}
+              <button type="button" class="chip" class:on={entry.min === c.min} class:usual={bl.count === c.n && entry.min !== c.min} aria-pressed={entry.min === c.min} aria-label={t('{n} × {size} min = {min} min', { n: c.n, size: bl.size, min: c.min })} data-block={c.n} data-min={c.min} onclick={() => chooseBlock(c)}>{t('{n} × {size} min', { n: c.n, size: bl.size })}</button>
+            {/each}
+            <button type="button" class="btn btn-link" data-geschafft-size onclick={openSize}>{t('Change block')}</button>
+          </div>
+        {:else}
+          <div class="chips" role="group" aria-label={t('How long')} data-geschafft-mins>
+            <span class="cl">{t('How long? (optional)')}</span>
+            {#each MIN_CHIPS as m (m)}
+              <button type="button" class="chip" class:on={entry.min === m} aria-pressed={entry.min === m} data-min={m} onclick={() => chooseMin(m)}>{t('{n} min', { n: m })}</button>
+            {/each}
+            <button type="button" class="btn btn-link" data-geschafft-size onclick={openSize}>{t('In blocks')}</button>
+          </div>
+        {/if}
+        {#if sizing}
+          <div class="blocksize" data-geschafft-sizing>
+            <label class="inl">{t('One block lasts')} <input class="inp n" type="number" min="1" max="1440" inputmode="numeric" bind:value={sizeText} aria-label={t('One block lasts')} data-block-size /> {t('min|unit')}</label>
+            <button type="button" class="btn" data-block-save disabled={!(Number(sizeText) >= 1)} onclick={() => saveSize(sizeText)}>{t('Save')}</button>
+            {#if bl.own}<button type="button" class="btn btn-link" data-block-reset onclick={() => saveSize(0)}>{standardBlock(act) ? t('Standard') : t('No blocks')}</button>{/if}
+            <button type="button" class="btn btn-link" onclick={() => (sizing = false)}>{t('Cancel')}</button>
+          </div>
+          <small>{t('The buttons then count blocks of this length, for this sport only. The button of your last choice is marked.')}</small>
+        {/if}
       {/if}
       <div class="chips" role="group" aria-label={t('How was it')} data-geschafft-feel>
         <span class="cl">{t('How was it? (optional)')}</span>
@@ -300,6 +345,24 @@
     color: var(--ink);
     font: 600 var(--fs-small) var(--font-body);
     cursor: pointer;
+  }
+  .chip.usual:not(.on) {
+    border-color: var(--ink-2);
+    border-style: dashed;
+  }
+  .blocksize {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+  }
+  .blocksize .inl {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .blocksize .inp {
+    width: 5.5em;
   }
   .chip.on {
     border-color: var(--ink);
