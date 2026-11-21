@@ -1,6 +1,6 @@
 # Verlauf der Wochenbriefe
 
-PR #? · 21.11.2026 · Auftrag: Noah «3a» (Thread «Bauen: Wochenbrief am Sonntag»)
+PR #1350 · 21.11.2026 · Auftrag: Noah «3a» (Thread «Bauen: Wochenbrief am Sonntag»)
 
 ## Was ist neu
 - Neue Datei `docs/wochenbriefe.md`: eine Zeile pro Woche (online, Plan X von Y, Kurs-Check-Antwort). Der Sonntagsbrief trägt sie jede Woche nach.
