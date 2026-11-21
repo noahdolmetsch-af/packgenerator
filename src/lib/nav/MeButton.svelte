@@ -10,12 +10,16 @@
    */
   import { UserRound } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
+  import { sync } from '../sync/auto.svelte.js';
 
   let { inbox = 0, current = false, card = false } = $props();
+  // Noah 21.11.2026 «1-5a»: a small dot says how the sync stands (health.js): green = in step, orange = off or behind
+  const health = $derived(sync.health.state);
+  const dotLabel = $derived(health === 'ok' ? t('Sync is up to date') : health === 'late' ? t('Sync is behind') : health === 'off' ? t('Sync is off') : health === 'alone' ? t('Sync has no second device yet') : '');
 </script>
 
-<a class="me" class:mecard={card} href="#/me" aria-current={current ? 'page' : undefined} aria-keyshortcuts="i" aria-label={inbox ? t('Me, Inbox: {n} to sort', { n: inbox }) : t('Me|place')}>
-  <span class="face"><UserRound size={20} strokeWidth={2.2} aria-hidden="true" />{#if inbox}<span class="dot num" data-inbox-count aria-hidden="true">{inbox > 99 ? '99+' : inbox}</span>{/if}</span>
+<a class="me" class:mecard={card} href="#/me" aria-current={current ? 'page' : undefined} aria-keyshortcuts="i" aria-label={(inbox ? t('Me, Inbox: {n} to sort', { n: inbox }) : t('Me|place')) + (dotLabel ? `. ${dotLabel}` : '')}>
+  <span class="face"><UserRound size={20} strokeWidth={2.2} aria-hidden="true" />{#if inbox}<span class="dot num" data-inbox-count aria-hidden="true">{inbox > 99 ? '99+' : inbox}</span>{/if}{#if health !== 'none'}<span class="sdot {health}" data-sync-dot={health} aria-hidden="true"></span>{/if}</span>
   {#if card}<span class="tx" aria-hidden="true"><b>{t('Me|place')}</b><small>{t('Data, Inbox, Help')}</small></span>{/if}
 </a>
 
@@ -64,6 +68,23 @@
     line-height: 18px;
     text-align: center;
     box-shadow: 0 0 0 2px var(--paper);
+  }
+  .sdot {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--paper);
+  }
+  .sdot.ok {
+    background: var(--ok);
+  }
+  .sdot.late,
+  .sdot.alone,
+  .sdot.off {
+    background: var(--warn);
   }
   /* the sidebar: a card at the bottom */
   .mecard {
