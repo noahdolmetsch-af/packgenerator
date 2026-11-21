@@ -6,7 +6,7 @@ PR #<Nummer> · 21.11.2026 · Auftrag: Noah «1a» (Thread «App-Landkarte»)
 - Zwei Seiten hiessen «Erkenntnisse»: «Gelernt» (deine eigenen Erkenntnisse nach Touren, `#/gelernt`) und die Seite mit den Zusammenhängen in deinen Daten (Ruhepuls, Schlaf, Fahrten, `#/me/insights`).
 - Die zweite heisst jetzt überall «Zusammenhänge»: Reiter in Auswerten, Titel der Seite, Hinweise, Handbuch. Adressen bleiben gleich.
 - Der Wächter `tests/links.test.js` hat keine bekannte Doppelung mehr; ein neuer gleicher Name zweier Reiter lässt ihn fehlschlagen.
-- `docs/namen.md` hat die neue Zeile 30.
+- `docs/namen.md` hat die neue Zeile 31.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Nur der Name ändert sich; «Erkenntnisse» gehört nur noch den eigenen (Nr. 2).

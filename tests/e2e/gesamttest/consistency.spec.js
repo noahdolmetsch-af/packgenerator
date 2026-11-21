@@ -114,7 +114,8 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   await flowSeeded(page);
   await putWall(page);
   // "Me, Inbox: n to sort" (v0.76.0: «Ich» took the place of «More»)
-  await expect(page.locator('a.me')).toHaveAttribute('aria-label', T('Me, Inbox: {n} to sort', { n: open }));
+  // (since 21.11.2026 the label may end with the state of the sync: «. Sync is off»)
+  await expect(page.locator('a.me')).toHaveAttribute('aria-label', new RegExp(`^${T('Me, Inbox: {n} to sort', { n: open }).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\. .+)?$`));
   // Today, "Important today": n notes to sort (v0.46.0: a row, maybe below "Show all")
   // The rows of "Important today" arrive one source after the other, so "Show all" can appear after the
   // first look: open it whenever it is there and closed, until the inbox row shows.

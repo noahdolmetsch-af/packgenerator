@@ -2081,3 +2081,5 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 21.11.2026 Seitenregeln für die ganze App
 - Noah «1-5a» (Thread «Einheitliches Erscheinungsbild, Tagebuch zuerst»; Bericht https://claude.ai/artifact/7vM8VacJjgKav8pEz2484z): (1a) Die acht Seitenregeln gelten für alle Seiten (`docs/design-audit.md`), in drei Stufen; (2a) Hilfe nur über das «?», die Zeile «Was du hier tun kannst» unter dem Titel fällt weg; (3a) Frage des Tages im Tagebuch als eigene Karte unter der Schreib-Karte; (4a) gewählter Umschalter = weisse Fläche mit Rand, auch bei Aktiv und Auswerten; (5a) Reihenfolge: Werte-PR (Titel, Ecken), dann Tagebuch, dann Ort für Ort der Kopf-Baustein.
+
+- 21.11.2026 (Noah «1-5a», Thread «Fix Abhaken-Sync zwischen Computer und Handy»): Der Zustand des Abgleichs darf sichtbar sein: ein kleiner Punkt am «Ich»-Knopf (grün in Ordnung, orange aus oder hinterher) und eine Zeile in «Wichtig heute», wenn der Abgleich aus ist oder Änderungen nicht rausgegangen sind. Grund: der Abgleich war auf einem Gerät aus und nichts hat es gesagt. Gilt neben dem Gebot vom 24.10.2026 (keine Fragen bei Änderungen auf beiden Geräten).
