@@ -428,6 +428,7 @@
     Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
     Fragen: () => import('./pages/Fragen.svelte'), // «Fragen» (Plan 4a, Noah 08.11.2026): Auswerten › Fragen
     SportRueckblick: () => import('./pages/SportRueckblick.svelte'), // «Rückblick pro Sportart» (Noah 21.11.2026, S4): Auswerten › Sportjahr › one sport
+    Logbuch: () => import('./pages/Logbuch.svelte'), // «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): Ich › Logbuch
     Sportjahr: () => import('./pages/Sportjahr.svelte'), // «Sportjahr» (Noah 21.11.2026 «1a dann b»): Auswerten › Sportjahr
     Quellen: () => import('./pages/Quellen.svelte'), // «Meine Datenquellen» (Noah 07.11.2026 «1a»): Auswerten › Datenquellen
     Tourpfad: () => import('./pages/Tourpfad.svelte'), // «Tour-Pfad» (Noah 08.11.2026 «1 go A»): Touren › Tour-Pfad
@@ -708,6 +709,8 @@
   {:else if page === 'data'}
     <!-- Design-Refresh P9 (I2): Ich › Daten und Backup, its own page -->
     <LazyPage load={PAGES.Data} />
+  {:else if page === 'logbuch'}
+    <LazyPage load={PAGES.Logbuch} />
   {:else if page === 'docs'}
     <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
     {#key hash.split('?')[0]}<LazyPage load={PAGES.Docs} />{/key}

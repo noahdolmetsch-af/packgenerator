@@ -24,6 +24,7 @@
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
+  import { hoursMin } from '../lib/charts/exact.js';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -76,8 +77,8 @@
     return b.key;
   };
   const cols = $derived(bars.map((b, i) => ({ key: b.key, x: bucketX(b, i), top: b.mins >= 30 ? hrs(b.mins) : '', parts: b.mins > 0 ? [{ v: b.mins / 60, color: 'var(--l1)' }] : [] })));
-  const readout = (i) => ({ title: bucketTitle(bars[i]), items: [{ label: t('Hours'), value: hrs(bars[i].mins) }, { label: t('Units'), value: num(bars[i].n) }] });
-  const table = $derived({ head: [t('Period|sj'), t('Hours'), t('Units')], rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), hrs(b.mins), num(b.n)] })) });
+  const readout = (i) => ({ title: bucketTitle(bars[i]), items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, { label: t('Units'), value: num(bars[i].n) }] });
+  const table = $derived({ head: [t('Period|sj'), t('Hours'), t('Units')], rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), hoursMin(b.mins), num(b.n)] })) });
   const chartLine = $derived(line ? line.map((m) => m / 60) : null);
   const aria = $derived(bars.map((b) => `${bucketTitle(b)}: ${hrs(b.mins)} h`).join(', '));
   /* a tap on a bar opens its hours and units (ChartSheet) */
@@ -142,7 +143,7 @@
 {#if bar}
   <ChartSheet kicker={name} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
     <ul class="rows" data-sr-sheet>
-      <li><span>{t('Hours')}</span><b class="num">{hrs(bar.mins)} h</b></li>
+      <li><span>{t('Hours')}</span><b class="num">{hoursMin(bar.mins)}</b></li>
       <li><span>{t('Units')}</span><b class="num">{num(bar.n)}</b></li>
     </ul>
   </ChartSheet>
