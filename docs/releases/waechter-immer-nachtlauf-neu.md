@@ -1,6 +1,6 @@
 # Prüfungen: Wächter bei jedem PR, Nachtlauf meldet nur Neues, mehr Teile, Backup-Test repariert
 
-PR #? · 21.11.2026 · Auftrag: Noah «d plus b» und «1a 2a 3a 4a» (Thread «Prüfungen so einrichten, dass main grün bleibt»)
+PR #1329 · 21.11.2026 · Auftrag: Noah «d plus b» und «1a 2a 3a 4a» (Thread «Prüfungen so einrichten, dass main grün bleibt»)
 
 Kein sichtbarer Unterschied in der App. Es ändern sich nur die Prüfungen auf GitHub.
 
