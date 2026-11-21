@@ -303,6 +303,7 @@
     border: 1px dashed var(--line-strong);
     border-radius: var(--radius-card);
     color: var(--ink-2);
+    background: var(--paper);
   }
   .none p {
     flex: 1 1 16rem;
