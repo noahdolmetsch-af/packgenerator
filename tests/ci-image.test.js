@@ -72,6 +72,20 @@ describe('Schnellspur (Weg zu online)', () => {
   });
 });
 
+describe('the night run says what is NEW red (Noah 21.11.2026 «d plus b»)', () => {
+  const v = files['volle-pruefung.yml'];
+  it('every job leaves the names of its failed tests and the report job compares them with the night before', () => {
+    expect(v).toContain('rot-e2e-');
+    expect(v).toContain('rot-gesamttest-');
+    expect(v).toContain('scripts/nacht-vergleich.mjs');
+    expect(v).toContain('name: rot-liste');
+  });
+  it('an issue that is already open gets a comment (a mail) only for something new', () => {
+    expect(v).toContain('NEU');
+    expect(v).toContain('Nothing new red since the night before');
+  });
+});
+
 describe('Probe specs stay out of the CI runs', () => {
   // tests/e2e/tmp-durchklick came onto main with #990 by mistake: 9 probes with 30 to 60 minute timeouts that
   // slowed every phone part. They run only by hand (TMP_DURCHKLICK=1).
