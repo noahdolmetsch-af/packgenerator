@@ -204,7 +204,7 @@
           </li>
         {/each}
       </ul>
-      <p class="hint">{t('Year of one sport: tap a sport.')} {t('«km» shows only sports with a distance.')}{prevW ? ` ${t('The year before counts up to the same day.')}` : ''}</p>
+      <p class="hint">{t('Tap a sport for its year.')} {t('«km» shows only sports with a distance.')}{prevW ? ` ${t('The year before counts up to the same day.')}` : ''}</p>
     </section>
 
     {#if years.length >= 2}
