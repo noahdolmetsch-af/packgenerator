@@ -62,8 +62,8 @@
   const pace = $derived(paceFor(paceOf($paceQ?.value), $werteQ?.grid ?? [], trip.bikeId ?? null, tripBike ? usualSurface(tripBike, $werteQ?.rides ?? []) : null));
   // S1 «Lange Tage»: from a long day on, your long rides say how much slower you get (only a guess; not with the standard rule)
   const tired = $derived(pace.standard ? null : tiredness($werteQ?.rides ?? []));
-  const longDay = $derived(isLongDay(tired, (trip.route?.km ?? 0) / Math.max(1, stages)));
-  const hours = $derived(ridingHours(trip.route, stages, longDay ? { ...pace, tired } : pace));
+  const tiredDay = $derived(isLongDay(tired, (trip.route?.km ?? 0) / Math.max(1, stages)));
+  const hours = $derived(ridingHours(trip.route, stages, tiredDay ? { ...pace, tired } : pace));
   async function pickGpx(event) {
     const file = event.currentTarget.files[0];
     event.currentTarget.value = '';
@@ -180,7 +180,7 @@
       </p>
       <RwgpsLink onload={fromLink} label={t('Other route from Ride with GPS')} />
       {#if hours != null}<p class="hint">{#if pace.cell}{t('Your pace on {bike}, {surface}, from {n} rides: {kmh} km/h plus 1 h per {m} m climbing.', { bike: tripBike?.name ?? '', surface: t(surfaceName(pace.cell.surface)), n: pace.cell.n, kmh: pace.kmh, m: pace.climbMh })} <a href="#/debrief/pace">{t('Change')}</a>{:else if pace.mine}{t('Your pace from {n} rides: {kmh} km/h plus 1 h per {m} m climbing.', { n: pace.n, kmh: pace.kmh, m: pace.climbMh })} <a href="#/debrief/pace">{t('Change')}</a>{:else}{t('Guess with luggage: {kmh} km/h plus 1 h per {m} m climbing.', { kmh: SPEED_KMH, m: CLIMB_MH })} <a href="#/debrief/pace">{pace.standard && !pace.need ? t('Your pace') : t('Learn your pace')}</a>{/if}</p>{/if}
-      {#if longDay}<p class="hint" data-tired>{t('A long day: your rides from {km} km took about {pct} % longer than your shorter ones ({n} long rides). It is in the hours above.', { km: tired.fromKm, pct: tired.pct, n: tired.nLong })}</p>{/if}
+      {#if tiredDay}<p class="hint" data-tired>{t('A long day: your rides from {km} km took about {pct} % longer than your shorter ones ({n} long rides). It is in the hours above.', { km: tired.fromKm, pct: tired.pct, n: tired.nLong })}</p>{/if}
     {:else}
       <label class="btn sm">{t('Add GPX route')}<input type="file" accept=".gpx,application/gpx+xml" onchange={pickGpx} hidden /></label>
       <RwgpsLink onload={fromLink} />
