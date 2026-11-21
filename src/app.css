@@ -25,6 +25,9 @@
   --hi-ink: #ffffff;
   --hi-bright: #ff5b14;
   --hi-soft: #ffe9dc;
+  --improve: #b83e08; /* «Verbesserungs-Logbuch»: the orange of «Verbessern», the same in every palette */
+  --improve-ink: #ffffff;
+  --improve-soft: #ffe9dc;
   /* Status colours, always together with a word or a symbol. */
   --ok: #276a43;
   --ok-soft: #d9eedf;
@@ -146,6 +149,9 @@
   --hi-ink: #10201b;
   --hi-bright: #ff7a3d;
   --hi-soft: #3a2416;
+  --improve: #ff7a3d;
+  --improve-ink: #14232d;
+  --improve-soft: #3a2416;
   --hi-hover: #ff9363;
   --ok: #6fcf97;
   --ok-soft: #183526;
@@ -257,6 +263,9 @@
   --hi-ink: #14232d;
   --hi-bright: #ff8a5c;
   --hi-soft: #3a2419;
+  --improve: #ff7a3d;
+  --improve-ink: #14232d;
+  --improve-soft: #3a2416;
   --hi-hover: #ff936d;
   --ok: #4fc3bd;
   --ok-soft: #173533;

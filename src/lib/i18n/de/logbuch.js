@@ -68,9 +68,9 @@ export default {
   'First a picture of how it could look, then the change.': 'Zuerst ein Bild, wie es aussehen könnte, dann die Änderung.',
   'Only a note. Nothing changes.': 'Nur eine Notiz. Es ändert sich nichts.',
   // Funktionskatalog
-  'Write down what bothers you or is missing in the app, with the kind, how urgent it is and the page: a wrong text, a missing hint, a block in the wrong place. Stays on this device and goes into your backup.': 'Halte fest, was dich in der App stört oder fehlt, mit Art, Dringlichkeit und Seite: ein falscher Text, ein fehlender Hinweis, ein Block am falschen Platz. Bleibt auf diesem Gerät und kommt in dein Backup.',
-  'Open Me and tap «Improvement log».': 'Öffne Ich und tippe auf «Verbesserungs-Logbuch».',
-  'Tap «New entry», pick a kind and write one sentence.': 'Tippe auf «Neuer Eintrag», wähle eine Art und schreib einen Satz.',
-  'Filter by group, tap «Done» when it is changed, or «Change» to edit it.': 'Filtere nach Gruppe, tippe auf «Erledigt», wenn es geändert ist, oder auf «Ändern», um es zu bearbeiten.',
-  'Example: kind «Change text», page #/flow/training, block «Week 47»: «Instead of 4 blocks of 12 min it should say 4 × 12 min.»': 'Beispiel: Art «Text ändern», Seite #/flow/training, Block «Woche 47»: «Statt 4 Blöcke à 12 min soll 4 × 12 min stehen.»',
+  'Write down what bothers you or is missing in the app, right where you see it: tap «Improve» on any page, tap the block, pick the kind and say or write one sentence. Page, block, time and device are kept with it. Stays on this device and goes into your backup.': 'Halte fest, was dich in der App stört oder fehlt, genau dort, wo du es siehst: tippe auf einer Seite auf «Verbessern», dann auf den Block, wähle die Art und sprich oder schreib einen Satz. Seite, Block, Uhrzeit und Gerät werden mitgespeichert. Bleibt auf diesem Gerät und kommt in dein Backup.',
+  'Tap «Improve» on a page, then the block you mean, and write one sentence.': 'Tippe auf einer Seite auf «Verbessern», dann auf den Block, und schreib einen Satz.',
+  'Open Me and tap «Improvement log» to see all entries.': 'Öffne Ich und tippe auf «Verbesserungs-Logbuch», um alle Einträge zu sehen.',
+    'Filter by group, tap «Done» when it is changed, or «Change» to edit it.': 'Filtere nach Gruppe, tippe auf «Erledigt», wenn es geändert ist, oder auf «Ändern», um es zu bearbeiten.',
+  'Example: «Improve» on the training page, block «Week 47», kind «Change text».': 'Beispiel: «Verbessern» auf der Trainingsseite, Block «Woche 47», Art «Text ändern».',
 };
