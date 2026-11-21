@@ -118,11 +118,6 @@ const LISTED = {
     steps: ['Ask the app: type a question or tap an example; the answer comes from your data, with a link.', 'Help me plan: answer four short questions, check the plan, «Create the trip».'],
     example: 'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».',
   },
-  'f.ask': {
-    on: 'Needs the helper code: Me › AI helper, switch on and save the code.',
-    steps: ['Open the helper and type a few words.', 'Check the suggestion and take only what fits.'],
-    example: 'Example: «2 days gravel, one night camping, rain likely» → a packing list suggestion.',
-  },
   'f.wardrobe': {
     on: null,
     steps: ['Open Gear › Clothes.', 'Add clothes by layer and body zone; gaps go to the wishlist.'],

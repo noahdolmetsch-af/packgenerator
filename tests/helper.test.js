@@ -5,8 +5,8 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { buildBackup, restoreBackup, DEVICE_SETTINGS } from '../src/lib/backup.js';
-import { FIELDS, keysOf, tripPayload, searchPayload, debriefPayload, checklistPayload, maintenancePayload, bikeRides } from '../src/lib/helper/payload.js';
-import { endsAsQuestion, looksLikeQuestion, conditionChips, addHelperItems, helperLearning, careHash, careRefresh, careRows, careTask, hashOf } from '../src/lib/helper/logic.js';
+import { FIELDS, keysOf, debriefPayload, checklistPayload, maintenancePayload, bikeRides } from '../src/lib/helper/payload.js';
+import { looksLikeQuestion, helperLearning, careHash, careRefresh, careRows, careTask, hashOf } from '../src/lib/helper/logic.js';
 import { settingsOf, pausedBy, nextMonthStart, MODELS, ask, helper, isOn, isShown, noCredit, creditTold, errorText, CREDIT_KEY, HELPER_KEY } from '../src/lib/helper/client.svelte.js';
 import { db as appDb } from '../src/lib/db.js';
 import { MODEL_CHOICES } from '../api/_lib/helper.js';
@@ -45,18 +45,6 @@ function allowed(payload) {
 }
 
 describe('what goes to Claude (answer 8a: only what each task needs)', () => {
-  it('trip: question, areas, bikes, blocks, own gear (no wishlist, no gone items), learnings', () => {
-    const p = tripPayload('3 Tage Jura, 5 °C, Biwak', { items, bikes: [bike], sets: [{ key: 'warm', label: 'Kälte' }], areas: [{ key: 'bikepacking', name: 'Bikepacking' }], learnings, today: '2026-10-10', lang: 'de' });
-    allowed(p);
-    expect(p.items.map((i) => i.id)).toEqual(['IT1', 'IT2']);
-    expect(p.items[0]).toEqual({ id: 'IT1', name: 'Daunenjacke grau DE', category: 'clothing', weightG: 120, tempMin: 0, tempMax: 10, blocks: ['warm'] });
-    expect(p.bikes).toEqual([{ id: 'bike-demo', name: 'Demo Gravel' }]);
-  });
-  it('search: the question and the own gear (name, category, weight)', () => {
-    const p = searchPayload('Was nehme ich für 2 Tage Regen mit?', { items, lang: 'en' });
-    allowed(p);
-    expect(p.items[0]).toEqual({ id: 'IT1', name: 'Daunenjacke grau', category: 'clothing', weightG: 120, tempMin: 0, tempMax: 10 });
-  });
   it('debrief: the trip, the notes on the way, unused / broken / missing names, learnings', () => {
     const p = debriefPayload(trips[0], { notes: [{ key: 'ride:7', day: 0, at: '2026-09-25T21:40:00', text: 'Finger kalt beim Kochen', photo: PHOTO }], debrief: { items: { IT1: 'unused', IT2: 'broken' }, missing: [{ id: 'm1', name: 'Winterhandschuhe' }] }, items, learnings, lang: 'de' });
     allowed(p);
@@ -135,32 +123,12 @@ describe('settings and the monthly limit (answer 7a)', () => {
   });
 });
 
-describe('2 Suche: only a question gets an answer', () => {
-  it('a text ending with «?» (not every keystroke: a word alone is no question)', () => {
-    expect(endsAsQuestion('Was nehme ich für 2 Tage Regen mit?')).toBe(true);
-    expect(endsAsQuestion('Was nehme ich')).toBe(false);
-    expect(endsAsQuestion('Kette?')).toBe(false);
-  });
+describe('Search: when a text counts as a question', () => {
   it('on Enter: a text that starts like a question', () => {
     expect(looksLikeQuestion('Was nehme ich für Regen mit')).toBe(true);
     expect(looksLikeQuestion('what should I take for rain')).toBe(true);
     expect(looksLikeQuestion('Regenjacke gelb')).toBe(false);
     expect(looksLikeQuestion('wiegen')).toBe(false);
-  });
-});
-
-describe('1 Neue Tour: chips and extra items', () => {
-  const c = { area: 'bikepacking', bikeId: 'bike-demo', days: 3, overnight: 'outdoor', cook: true, tempMin: 5, tempMax: null, rain: '' };
-  it('one chip per understood condition, dropped ones stay out', () => {
-    expect(conditionChips(c).map((x) => x.key)).toEqual(['area', 'days', 'overnight', 'temp', 'bike']);
-    expect(conditionChips(c).find((x) => x.key === 'temp').value).toEqual([5, 5]);
-    expect(conditionChips(c, { dropped: new Set(['bike', 'days']) }).map((x) => x.key)).toEqual(['area', 'overnight', 'temp']);
-  });
-  it('extra items go into their place once, only owned ones, marked as from the helper', () => {
-    const trip = { entries: [{ itemId: 'IT1', slot: 'seat', qty: 1 }] };
-    const out = addHelperItems(trip, items, ['IT1', 'IT2', 'IT3', 'IT4', 'NOPE', 'IT2'], () => 'frame');
-    expect(out.entries.slice(1)).toEqual([{ itemId: 'IT2', slot: 'frame', qty: 1, packed: false, src: 'helper' }]);
-    expect(addHelperItems(trip, items, [], () => 'x')).toBe(trip);
   });
 });
 
