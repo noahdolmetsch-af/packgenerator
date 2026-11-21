@@ -86,4 +86,6 @@ export default {
     'Schreib in eigenen Worten, was 1 und 10 bedeuten; in einem Jahr sagt deine alte 7 noch dasselbe.',
   'Bring your questions, not your conclusions: the page is for the talk, the app makes no diagnosis.':
     'Bring deine Fragen mit, nicht deine Schlüsse: die Seite ist fürs Gespräch, die App stellt keine Diagnose.',
+  "A new sport made from Strava has no goal on purpose: tick it for a few weeks first, then decide whether you want one.":
+    "Eine aus Strava angelegte Sportart hat absichtlich kein Ziel: hak sie ein paar Wochen ab und entscheide dann, ob du eines willst.",
 };
