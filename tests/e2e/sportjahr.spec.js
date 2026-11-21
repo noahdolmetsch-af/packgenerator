@@ -149,3 +149,19 @@ test('Sportjahr: the hours goal shows as a line, in a year you pick it against t
   await shot(page, info, 'sportjahr-ziel-vorbei');
   expect(errors).toEqual([]);
 });
+
+test('Sportjahr: Everything puts the years side by side and the sports of summer and winter', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const pg = page.locator('[data-sportjahr]');
+  await press(pg.locator('[data-period-bar] [data-key="all"]'), info);
+  await expect(pg.locator('[data-sj-years] [data-sj-year]')).toHaveCount(2);
+  await expect(pg.locator('[data-sj-year="2026"]')).toContainText(T('best week {w} h · best month {m} h').split('{w}')[0].trim());
+  await expect(pg.locator('[data-sj-year="2026"]')).toContainText(/\d+ h/);
+  await expect(pg.locator('[data-sj-season-of="summer"] li').first()).toContainText(/\d+ h/);
+  await expect(pg.locator('[data-sj-season-of="winter"]')).toBeVisible();
+  await shot(page, info, 'sportjahr-jahre');
+  // a single year has no side by side
+  await press(pg.locator('[data-period-bar] [data-key="year"]'), info);
+  await expect(pg.locator('[data-sj-years]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

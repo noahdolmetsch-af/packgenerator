@@ -208,3 +208,47 @@ export function perWeek(totalMins, w, today) {
   const days = daysIn({ from: w.from, to });
   return Math.round((totalMins / days) * 7);
 }
+
+/* ---------- S9 «Jahre vergleichen» (Noah 21.11.2026 «ich möchte alle entwürfe 1-3 umsetzen»): every year side by side ---------- */
+
+/** Summer is April to October, as in the weekly plan; the rest is winter. */
+export const isSummerDay = (day) => {
+  const m = Number(day.slice(5, 7));
+  return m >= 4 && m <= 10;
+};
+
+/**
+ * One row per year with units, newest first: { year, mins, n, days, bestWeek: { mon, mins } | null, bestMonth: { key, mins } | null,
+ * summer, winter } (minutes). A year without a unit has no row.
+ */
+export function yearsOf(units = []) {
+  const by = new Map();
+  for (const u of units) {
+    const year = u.day.slice(0, 4);
+    const y = by.get(year) ?? { year, mins: 0, n: 0, days: new Set(), week: new Map(), month: new Map(), summer: 0, winter: 0 };
+    const m = mins(u);
+    y.mins += m;
+    y.n += 1;
+    y.days.add(u.day);
+    const mon = mondayOf(u.day);
+    y.week.set(mon, (y.week.get(mon) ?? 0) + m);
+    const key = u.day.slice(0, 7);
+    y.month.set(key, (y.month.get(key) ?? 0) + m);
+    if (isSummerDay(u.day)) y.summer += m;
+    else y.winter += m;
+    by.set(year, y);
+  }
+  const best = (map, name) => {
+    let b = null;
+    for (const [k, v] of map) if (!b || v > b.mins) b = { [name]: k, mins: v };
+    return b;
+  };
+  return [...by.values()]
+    .map((y) => ({ year: y.year, mins: y.mins, n: y.n, days: y.days.size, bestWeek: best(y.week, 'mon'), bestMonth: best(y.month, 'key'), summer: y.summer, winter: y.winter }))
+    .sort((a, b) => b.year.localeCompare(a.year));
+}
+
+/** The sports of the two seasons over all given units: { summer: [bySport rows], winter: [bySport rows] }, biggest first. */
+export function seasons(units = []) {
+  return { summer: bySport(units.filter((u) => isSummerDay(u.day))), winter: bySport(units.filter((u) => !isSummerDay(u.day))) };
+}
