@@ -35,12 +35,21 @@ export default {
   'That is it for now.': 'Für jetzt ist es das.',
   'All numbers of this training': 'Alle Zahlen zu diesem Training',
   'What you did|next': 'Was du geschafft hast',
+  // «Haken zuerst» (T2): Dauer und Gefühl, beides freiwillig
+  'Optional: how long and how was it': 'Freiwillig: wie lange und wie war es',
+  'How was it': 'Wie war es',
+  'How long? (optional)': 'Wie lange? (freiwillig)',
+  'How was it? (optional)': 'Wie war’s? (freiwillig)',
+  'light|feel': 'leicht',
+  'good|feel': 'gut',
+  'hard|feel': 'hart',
+  'Both are optional. Tap a chosen one again to take it back.': 'Beides ist freiwillig. Tippe auf eine gewählte Antwort noch einmal, dann ist sie wieder weg.',
 
   // der Funktionskatalog (features.js), «So geht's» und das Handbuch
   'Done page': 'Geschafft',
-  'After you tick something, this page shows what you did, how often this week, the week in hours and days, the weekly goals still open and, with Strava numbers, the last time next to it. It only counts and looks; one tap takes the tick back.': 'Nach dem Abhaken zeigt diese Seite, was du gemacht hast, das wievielte Mal diese Woche, die Woche in Stunden und Tagen, die offenen Wochenziele und mit Strava-Zahlen das letzte Mal daneben. Sie zählt und schaut nur; ein Tipp nimmt das Abhaken zurück.',
-  'Tick an activity on Active; in the message tap «What you did».': 'Hak auf Aktiv eine Aktivität ab; tippe in der Meldung auf «Was du geschafft hast».',
-  'Read how often this week, the hours and days of the week and the goals still open.': 'Lies, das wievielte Mal diese Woche, die Stunden und Tage der Woche und die offenen Ziele.',
+  'After you tick something, this page shows what you did, how often this week, the week in hours and days, the weekly goals still open and, with Strava numbers, the last time next to it. On Active a tap on a tile ticks and opens it; duration and feeling are optional chips. It only counts and looks; one tap takes the tick back.': 'Nach dem Abhaken zeigt diese Seite, was du gemacht hast, das wievielte Mal diese Woche, die Woche in Stunden und Tagen, die offenen Wochenziele und mit Strava-Zahlen das letzte Mal daneben. Auf Aktiv hakt ein Tipp auf eine Kachel ab und öffnet sie; Dauer und Gefühl sind freiwillige Chips. Sie zählt und schaut nur; ein Tipp nimmt das Abhaken zurück.',
+  'Tap a tile on Active: it ticks and this page opens.': 'Tippe auf Aktiv auf eine Kachel: sie hakt ab und diese Seite öffnet sich.',
+  'Choose the duration and how it was, if you like; both are optional.': 'Wähle die Dauer und wie es war, wenn du magst; beides ist freiwillig.',
   'Tap «Back to Active», «All numbers of this training» or «Undo».': 'Tippe auf «Zurück zu Aktiv», «Alle Zahlen zu diesem Training» oder «Rückgängig».',
-  'Example: after a run it says «Time 2 this week», 2:12 h on 3 days and one weekly goal still open.': 'Beispiel: Nach einem Lauf steht «Das 2. Mal diese Woche», 2:12 h an 3 Tagen und ein Wochenziel noch offen.',
+  'Example: tap «Run», pick 45 min and «good»: «Time 2 this week», 2:12 h on 3 days.': 'Beispiel: «Laufen» tippen, 45 Min und «gut» wählen: «Das 2. Mal diese Woche», 2:12 h an 3 Tagen.',
 };

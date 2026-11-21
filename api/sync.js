@@ -3,7 +3,7 @@
  * «1b … 2b 3b»: a free store on Vercel, with the server package, the app asks when both changed).
  * What the server keeps and why it cannot read it: api/_lib/sync.js.
  *
- *   POST ?step=status { token }                     → { seq }
+ *   POST ?step=status { token, count? }             → { seq } (+ count: how many records the space holds, when asked: the self-check of engine.js)
  *   POST ?step=pull   { token, since }              → { seq, items: [{ k, s, e }], next, more }
  *   POST ?step=push   { token, items: [{ k, base, e }] } → { done: [{ k, s }], conflicts: [{ k, s }] }
  *   POST ?step=forget { token }                     → { ok } (everything of this space is removed)
@@ -32,7 +32,12 @@ export function makeHandler({ env = () => redisEnv(), doFetch = (...a) => fetch(
         const keys = keysOf(spaceOf(body.token));
         const seqNow = async () => Number((await store.get(keys.seq)) ?? 0) || 0;
 
-        if (step === 'status') return json(request, 200, { seq: await seqNow() });
+        if (step === 'status') {
+          const seq = await seqNow();
+          // Noah 21.11.2026: the devices check that they hold as many records as the server (engine.js integrity); one extra command, only when asked
+          if (body.count === true) return json(request, 200, { seq, count: Number(await store.cmd('HLEN', keys.data)) || 0 });
+          return json(request, 200, { seq });
+        }
 
         if (step === 'pull') {
           const since = Number(body.since ?? 0);

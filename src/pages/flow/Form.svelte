@@ -133,7 +133,7 @@
   }
   .ptitle {
     margin: 0;
-    font: 600 var(--fs-page) / var(--lh-title) var(--font-title);
+    font: 700 var(--fs-page) / var(--lh-title) var(--font-title);
   }
   .sub {
     margin: 0;

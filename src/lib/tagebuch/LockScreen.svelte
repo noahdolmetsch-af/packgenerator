@@ -67,7 +67,7 @@
     max-width: 420px;
     margin: 48px auto;
     padding: 32px 20px;
-    border-radius: 20px;
+    border-radius: var(--radius-card);
     background: var(--paper);
     border: 1px solid var(--line);
     text-align: center;
