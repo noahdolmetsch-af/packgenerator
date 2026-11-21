@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { existsSync } from 'node:fs';
 import { scope, newsScope, partsFor, CORE_SPECS, MAX_SPECS } from '../scripts/ci-scope.mjs';
 
 describe('ci-scope: which phone tests a PR needs', () => {
@@ -72,5 +73,17 @@ describe('ci-scope: which news lines «Ausprobieren» taps in a PR', () => {
   });
   it('no files known: all lines', () => {
     expect(newsScope([], has)).toBe('all');
+  });
+});
+
+describe('ci-scope: the app-wide Wächter run with every PR that changes app code (Noah 21.11.2026 «d plus b»)', () => {
+  it('the Kern holds the guards that check the whole app, and each file exists', () => {
+    for (const f of ['guard', 'flow', 'tippzahl', 'functions', 'heimat', 'tote-knoepfe']) expect(CORE_SPECS).toContain(`tests/e2e/${f}.spec.js`);
+    for (const f of CORE_SPECS) expect(existsSync(new URL(`../${f}`, import.meta.url)), f).toBe(true);
+  });
+  it('a PR that touches one small page still runs them', () => {
+    const r = scope(['src/pages/Lend.svelte'], () => ['tests/e2e/paket-h.spec.js']);
+    expect(r.mode).toBe('specs');
+    for (const f of CORE_SPECS) expect(r.specs).toContain(f);
   });
 });

@@ -72,6 +72,31 @@ describe('Schnellspur (Weg zu online)', () => {
   });
 });
 
+describe('the night run says what is NEW red (Noah 21.11.2026 «d plus b»)', () => {
+  const v = files['volle-pruefung.yml'];
+  it('every job leaves the names of its failed tests and the report job compares them with the night before', () => {
+    expect(v).toContain('rot-e2e-');
+    expect(v).toContain('rot-gesamttest-');
+    expect(v).toContain('scripts/nacht-vergleich.mjs');
+    expect(v).toContain('name: rot-liste');
+  });
+  it('an issue that is already open gets a comment (a mail) only for something new', () => {
+    expect(v).toContain('NEU');
+    expect(v).toContain('Nothing new red since the night before');
+  });
+});
+
+describe('the night run has as many browser parts as it divides the specs into (Noah 21.11.2026 «1a»)', () => {
+  const v = files['volle-pruefung.yml'];
+  it('the matrix, the --shard=n/N and the number of lists the report expects agree', () => {
+    const n = (/shard: \[([\d, ]+)\]\n    steps:/.exec(v)?.[1] ?? '').split(',').length;
+    expect(n).toBe(7);
+    expect(v).toContain(`--shard=\${{ matrix.shard }}/${n}`);
+    const gesamt = (/shard: \[1, 2\]/.test(v) ? 2 : 0) * 2; // the Gesamttest: phone and computer
+    expect(v).toContain(`rot-liste.txt ${n * 2 + gesamt} >`);
+  });
+});
+
 describe('Probe specs stay out of the CI runs', () => {
   // tests/e2e/tmp-durchklick came onto main with #990 by mistake: 9 probes with 30 to 60 minute timeouts that
   // slowed every phone part. They run only by hand (TMP_DURCHKLICK=1).

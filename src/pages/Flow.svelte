@@ -247,6 +247,7 @@
                  from Friday evening to Monday the Sunday thread says the week is nearly over -->
             {#if faden}<a class="faden" href="#/flow/review" data-week-faden>{t(faden.text)}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
             <div class="wklinks">
+              <a class="btn btn-link sm" href="#/flow/geschafft" data-to-geschafft>{t('Done|page')}<ChevronRight size={16} aria-hidden="true" /></a>
               <a class="btn btn-link sm" href="#/flow/review" data-to-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
               <a class="btn btn-link sm" href="#/flow/plans" data-to-plans>{t('Training plans')}<ChevronRight size={16} aria-hidden="true" /></a>
               <a class="btn btn-link sm" href="#/flow/wochenplan" data-to-wochenplan>{t('Weekly plan')}<ChevronRight size={16} aria-hidden="true" /></a>

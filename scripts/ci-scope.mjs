@@ -17,8 +17,24 @@ const SAFE = [
 ];
 const APP_CODE = [/^src\/(?:[\w.-]+\/)*[\w.-]+\.(?:js|svelte)$/, /^tests\/e2e\/(?:[\w-]+\/)*[\w.-]+\.js$/];
 
-/** Always part of a scoped run: the Wächter and the whole trip loop. */
-export const CORE_SPECS = ['tests/e2e/guard.spec.js', 'tests/e2e/flow.spec.js'];
+/**
+ * Always part of a scoped run: the Wächter and the whole trip loop.
+ * 21.11.2026 (Noah «d plus b»): the app-wide Wächter run with EVERY PR that changes app code, not only when its pages
+ * are touched. tippzahl.spec.js went red on main after #1302 and nobody saw it for days, because a PR ran only the
+ * specs of its own pages. These check the whole app: every function at most 3 taps from Heute (tippzahl), every
+ * function reachable and its page open without an error (functions), every function visible on its home page
+ * (heimat), no dead button (tote-knoepfe). seitengroesse.spec.js is the same kind but runs on the computer; it joins
+ * the «e2e (desktop)» job of deploy.yml as soon as main is green on it again (21.11.2026: #/me/abfragen is over its
+ * budget). A new Wächter of this kind goes into this list.
+ */
+export const CORE_SPECS = [
+  'tests/e2e/guard.spec.js',
+  'tests/e2e/flow.spec.js',
+  'tests/e2e/tippzahl.spec.js',
+  'tests/e2e/functions.spec.js',
+  'tests/e2e/heimat.spec.js',
+  'tests/e2e/tote-knoepfe.spec.js',
+];
 /** More mapped specs than this: just run everything (it shards the same, and the map is not a gain). */
 export const MAX_SPECS = 250;
 /** One phone part per this many specs (at most 5 parts): a PR with a few specs does not take 5 computers. */
