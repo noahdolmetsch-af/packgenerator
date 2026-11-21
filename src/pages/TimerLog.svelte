@@ -165,7 +165,7 @@
     gap: 8px;
   }
   .sh small,
-  .sm {
+  p.sm {
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
