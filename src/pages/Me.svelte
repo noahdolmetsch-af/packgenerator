@@ -268,6 +268,14 @@
             </a>
           </li>
           <li>
+            <!-- «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): write down what bothers you in the app -->
+            <a class="ich-row" href="#/me/logbuch" data-row="logbuch">
+              <span class="ich-ib"><NotebookPen size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Improvement log')}</b><small>{t('Write down what bothers you or is missing in the app')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
             <!-- v0.134.0 «Listen und Typen» (LI1) and v0.111.0 the checks per trip type: Impeccable Runde 2, one row
                  until more lists come (the page holds both: categories and the checks) -->
             <a class="ich-row" href="#/me/lists">
