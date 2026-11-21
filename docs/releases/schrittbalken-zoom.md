@@ -1,6 +1,6 @@
 # Schrittbalken: bei grosser Schrift brechen die Wörter nicht mehr
 
-PR #? · 21.11.2026 · Auftrag: Noah «a» (Thread «Prüfungen so einrichten, dass main grün bleibt»)
+PR #1335 · 21.11.2026 · Auftrag: Noah «a» (Thread «Prüfungen so einrichten, dass main grün bleibt»)
 
 ## Was ist neu
 - Bei 200 % Zoom auf einem Computer (oder einem Fenster von 720 bis 1099 px Breite) standen die fünf Schritte einer Tour mit Zahlenkreis in einer Karte. Für den Namen blieb zu wenig Platz: «Vorbereiten», «Unterwegs» und «Auswertung» brachen mitten im Wort. Jetzt entfällt in diesem Bereich der Zahlenkreis (wie am Handy) und der Name bekommt den Platz. Ab 1100 px bleibt alles wie bisher. Gefunden hat es der Nachtlauf (`zoom-tourkopf.spec.js`).
