@@ -23,6 +23,8 @@
  * Pure functions (no database, no screen), tested in tests/neuland.test.js.
  */
 import { t, tn } from '../i18n.svelte.js';
+import { decodePolyline } from '../spur/polyline.js';
+import { recParts } from '../spur/spur.js';
 import { densify, lineBox, gridOf, areaAt, lineKm, ringsKm, inRings, inBox } from './geo.js';
 
 export const NEULAND_KEY = 'neuland';
@@ -336,7 +338,7 @@ const lineOf = (line) => arr(line).map(asPair).filter(okPoint);
  * Trips count from their start day once it is reached (not skipped, no test trip); rides and
  * activities on their day. A trip without a line counts with its start place.
  */
-export function tracksOf({ trips = [], rides = [], activities = [], lines = [], today }) {
+export function tracksOf({ trips = [], rides = [], activities = [], recordings = [], lines = [], today }) {
   const out = linesToTracks(lines, today);
   for (const tr of trips) {
     if (!tr?.startDate || tr.skipped || tr.testTrip === true || (today && tr.startDate > today)) continue;
@@ -353,9 +355,18 @@ export function tracksOf({ trips = [], rides = [], activities = [], lines = [], 
   }
   for (const a of activities) {
     if (!a?.day || (today && a.day > today)) continue;
-    const line = lineOf(a.line);
+    // Strava keeps the line as one encoded text (summary_polyline); a list of pairs works too
+    const line = lineOf(typeof a.line === 'string' ? decodePolyline(a.line) : a.line);
     const pts = line.length ? line : [asPair(a.startLatLng), asPair(a.endLatLng)].filter(Boolean).filter(okPoint);
     if (pts.length) out.push({ day: a.day, tripId: a.tripId ?? null, rideId: null, actId: a.id, src: 'activity', type: a.type ?? '', pts });
+  }
+  // the app's own recordings (db.tracks kind «rec»), the same lines the Heatmap draws
+  for (const x of recordings) {
+    if (x?.kind !== 'rec' || !x.day || (today && x.day > today)) continue;
+    recParts(x).forEach((p) => {
+      const pts = p.filter(okPoint);
+      if (pts.length >= 2) out.push({ day: x.day, tripId: x.tripId ?? null, rideId: null, src: 'rec', type: 'Ride', pts });
+    });
   }
   return out.sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : 0));
 }

@@ -16,7 +16,7 @@ export function dayBefore(day) {
 }
 
 /** Was anything ridden since `since` (a trip, a ride or an activity with a line or a place)? Cheap: no map data. */
-export const rodeSince = (raw, since, today) => tracksOf({ trips: raw?.trips ?? [], rides: raw?.rides ?? [], activities: raw?.activities ?? [], today }).some((x) => x.day >= since);
+export const rodeSince = (raw, since, today) => tracksOf({ trips: raw?.trips ?? [], rides: raw?.rides ?? [], activities: raw?.activities ?? [], recordings: raw?.recordings ?? [], today }).some((x) => x.day >= since);
 
 /**
  * What was reached for the first time since `since` (switched-on collections). result: computeFrom() of store.js.
