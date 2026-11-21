@@ -143,7 +143,7 @@
       {#each st.days as g (g.day)}<i class={g.state} title={g.state === 'todo' ? dayWord(g.day) : `${dayWord(g.day)} · ${t('{n} min', { n: g.min ?? 0 })}`}></i>{/each}
     </span>
     <small class="sum">
-      {tn(st.doneN, '{n} day reached', '{n} days reached')} · {t('{n} missed', { n: st.missed })}{#if st.streak > 1} · {tn(st.streak, '{n} day in a row', '{n} days in a row')}{/if} · {t('until {day}', { day: new Date(`${live.until}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) })}
+      {tn(st.doneN, '{n} day reached', '{n} days reached')} · {t('{n} missed', { n: st.missed })}{#if st.streak > 1}{' · '}{tn(st.streak, '{n} day in a row', '{n} days in a row')}{/if} · {t('until {day}', { day: new Date(`${live.until}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) })}
     </small>
     {#if over}
       <span class="adds"><button type="button" class="btn sm" onclick={close} data-outdoor-close>{t('Close')}</button><button type="button" class="btn sm" onclick={openSheet}>{t('Start a new one')}</button></span>
