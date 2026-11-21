@@ -40,7 +40,7 @@ function countNoteReads(db) {
 }
 
 describe('a quiet round', () => {
-  it('reads the notes once when the server sends nothing, twice when it does', async () => {
+  it('reads the notes once when the server sends nothing, more when it does', async () => {
     const api = server();
     const code = newCode();
     const computer = fresh();
@@ -57,12 +57,12 @@ describe('a quiet round', () => {
     expect(quiet).toMatchObject({ taken: 0, sent: 0 });
     expect(reads.n).toBe(1);
 
-    // the phone changes something: the computer's next round gets it and reads twice (it may have to settle something)
+    // the phone changes something: the computer's next round gets it and reads again (it may have to settle something, and the count check of the same day reads the notes once more)
     await phone.flowLog.put(tickRow(1));
     await syncNow(phone, { api, dev: 'phone' });
     reads.n = 0;
     expect(await syncNow(computer, { api, dev: 'computer' })).toMatchObject({ taken: 1 });
-    expect(reads.n).toBe(2);
+    expect(reads.n).toBe(3);
     expect((await computer.flowLog.get('fl-test-1')).actId).toBe('tennis');
   });
 
