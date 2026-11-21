@@ -10,7 +10,7 @@ const SHOTS = process.env.SHOTS_DIR ?? null;
 const shot = async (page, info, name) => {
   if (!SHOTS) return;
   mkdirSync(SHOTS, { recursive: true });
-  await page.locator('.rw').first().screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? '390' : '1440'}.png` });
+  await page.locator('.part:has([data-tired])').first().screenshot({ path: `${SHOTS}/${name}-${info.project.name === 'phone' ? '390' : '1440'}.png` });
 };
 
 const line = Array.from({ length: 31 }, (_, i) => [47.36 + i * 0.0019, 7.15 + i * 0.0039]);
