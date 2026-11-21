@@ -74,7 +74,8 @@ export function runSync(db = dbRef) {
       const r = await syncNow(db, { dev: device(), shouldStop: () => me.stop, onProgress: (p) => { sync.phase = p.phase; sync.n = p.n; } });
       quiet = r && (r.taken || r.sent || r.more) ? 0 : quiet + 1;
       // Einzelidee 34: a reminder ticked off on the other device no longer comes to this phone
-      import('../push/client.js').then((p) => p.afterSync()).catch(() => {});
+      // Tempo (Noah 11.11.2026): only when this round took or sent something; a quiet round asks the server nothing
+      if (r && (r.taken || r.sent)) import('../push/client.js').then((p) => p.afterSync()).catch(() => {});
       // the pull stopped early: go on where it stopped (Noah 10.11.2026), the sent changes are already away
       if (r?.more && !me.stop) setTimeout(() => runSync(db), CONTINUE_MS);
       return r;
