@@ -8,6 +8,8 @@ PR #<Nummer> · 21.11.2026 · Auftrag: Hinweis aus dem Thread «Training erfasse
 - **Fix:** Vor jedem Tippen entfernt der Test eine stehengebliebene «Neu hier»-Zeile. Jede Zeile muss ihre eigene Zeile oder ihren eigenen Glanz zeigen, wie es der Test immer sagen wollte. Nichts wird gelockert.
 - **Zweite Ursache (der Fehler, der in CI immer dieselbe Zeile traf):** Seit #1305 («Auswerten: fünf Reiter nach Frage») stehen auf dem Handy alle fünf Reiter von Auswerten nebeneinander, den Knopf «Alle n» (`nav.ptabs .pmore`) gibt es dort nicht mehr. Die alte News-Zeile 0.582.0 zielte genau darauf: «nothing lit on /auswerten». Das war kein Wackler, sondern eine Folge von #1305. Ein anderer PR hat der Zeile inzwischen einen «Wo»-Satz gegeben (auf main); dieser PR ändert die News-Datei nicht.
 
+- **Dritter Punkt (Teil 26, einmal «lit but not on screen», auf dem zweiten Versuch grün):** Der Test las die Lage des leuchtenden Ortes nach genau 1 s. Läuft das Scrollen auf einem langsamen Rechner noch, stand der Ort kurz ausserhalb. Jetzt wartet der Test bis zu 1,2 s länger (immer noch innerhalb der 3 s Glanz) und liest dann. Ein Ort, der nie auf den Bildschirm kommt, bleibt ein Fund.
+
 ## Was fällt weg oder rutscht tiefer
 - nichts.
 

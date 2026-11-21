@@ -88,7 +88,14 @@ test(`every line of What is new goes to its exact place, part ${part + 1}`, asyn
       else await expect(lit.or(said).first()).toBeVisible({ timeout: 10_000 });
       if (wantLit) {
         await page.waitForTimeout(1000); // a window or edit mode that just opened settles first (spot.js looks again)
-        const b = await lit.boundingBox();
+        // The scroll to the spot may still be running on a slow machine (0.334.0 «By moment»: once «lit but not on screen»,
+        // green on the retry): give it up to 1.2 s more, still inside the 3 s glow. A spot that never gets on screen stays a finding.
+        const viewH = page.viewportSize().height;
+        let b = await lit.boundingBox();
+        for (let i = 0; i < 6 && (!b || b.y + b.height < 0 || b.y > viewH); i++) {
+          await page.waitForTimeout(200);
+          b = await lit.boundingBox();
+        }
         if (!b || b.y + b.height < 0 || b.y > page.viewportSize().height) missing.push(`${version} «${text}»: lit but not on screen`);
         // the line «New here» never covers a small lit spot
         const n = await said.boundingBox();
