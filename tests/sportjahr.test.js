@@ -1,6 +1,6 @@
 // «Sportjahr» (Noah 21.11.2026, S3): the rules behind the page. Fictional data; calendar-day arithmetic only.
 import { describe, it, expect } from 'vitest';
-import { training, yearBack, windowOf, prevWindow, totals, bySport, colourOf, grainOf, buckets, lastYearLine, records, weeksWith } from '../src/lib/flow/sportjahr.js';
+import { training, yearBack, windowOf, prevWindow, totals, bySport, colourOf, grainOf, buckets, lastYearLine, records, weeksWith, yearsOf, seasons, isSummerDay } from '../src/lib/flow/sportjahr.js';
 
 const TODAY = '2026-11-21';
 const u = (id, day, sport, min, extra = {}) => ({ id, day, at: `${day}T07:00:00.000Z`, sport, actId: sport, ring: 'move', min, minQuelle: min ? 'gemessen' : null, quelle: 'hand', ...extra });
@@ -91,5 +91,29 @@ describe('records and series', () => {
     expect(w.find((x) => x.mon === '2026-11-09')).toMatchObject({ n: 1, ok: false });
     expect(w.find((x) => x.mon === '2026-11-23').future).toBe(true);
     expect(w[0].mon.slice(0, 4)).toBe('2025'); // the week with 1 January starts in December
+  });
+});
+
+describe('years side by side (S9)', () => {
+  const list = [
+    u('1', '2025-01-06', 'ski', 300), u('2', '2025-01-07', 'ski', 200), u('3', '2025-06-02', 'bike', 120), u('4', '2025-06-03', 'bike', 60),
+    u('5', '2026-07-01', 'bike', 90), u('6', '2026-12-30', 'ski', 45),
+  ];
+  it('one row per year, newest first, with best week and best month', () => {
+    const y = yearsOf(list);
+    expect(y.map((r) => r.year)).toEqual(['2026', '2025']);
+    expect(y[1]).toMatchObject({ mins: 680, n: 4, days: 4, summer: 180, winter: 500 });
+    expect(y[1].bestWeek).toEqual({ mon: '2025-01-06', mins: 500 });
+    expect(y[1].bestMonth).toEqual({ key: '2025-01', mins: 500 });
+    expect(y[0]).toMatchObject({ mins: 135, summer: 90, winter: 45 });
+    expect(yearsOf([])).toEqual([]);
+  });
+  it('summer is April to October', () => {
+    expect([isSummerDay('2026-03-31'), isSummerDay('2026-04-01'), isSummerDay('2026-10-31'), isSummerDay('2026-11-01')]).toEqual([false, true, true, false]);
+  });
+  it('the biggest sports of each season', () => {
+    const s = seasons(list);
+    expect(s.summer.map((r) => r.sport)).toEqual(['bike']);
+    expect(s.winter.map((r) => [r.sport, r.mins])).toEqual([['ski', 545]]);
   });
 });
