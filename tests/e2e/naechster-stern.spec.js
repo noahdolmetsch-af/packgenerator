@@ -75,9 +75,9 @@ test('per sport the stars stand as a path: gold for the reached ones', async ({ 
   await expect(row).toBeVisible();
   const label = await row.locator('[role="img"]').getAttribute('aria-label');
   const [, n, m] = label.match(/^(\d+) von (\d+) Sternen erreicht/);
-  await expect(row.locator('svg')).toHaveCount(Number(m));
-  await expect(row.locator('svg.full')).toHaveCount(Number(n));
-  await expect(row.locator('svg.part')).toHaveCount(1);
+  await expect(row.locator('.stars svg')).toHaveCount(Number(m));
+  await expect(row.locator('.stars svg.full')).toHaveCount(Number(n));
+  await expect(row.locator('.stars svg.part')).toHaveCount(1);
   await expect(row.locator('a')).toHaveAttribute('href', '#/flow/milestones?act=tennis');
   await fits(page, 'milestones with path');
   expect(errors).toEqual([]);
