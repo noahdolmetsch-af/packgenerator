@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { FAV_SEED } from '../../src/lib/flowtiles.js';
 import { FUN_IDEAS } from '../../src/lib/flowsugg.js';
-import { TABS, tapTab } from './placetab.js';
+import { tapTab } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -71,7 +71,7 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
   // «Aktiv neu» (Noah 22.10.2026 «4a»): «Aktivität» is a page of «Meine Sportarten» (its button «Vorschläge und Ideen»)
-  const tabs = page.locator(TABS);
+  const tabs = page.locator('nav.psubs:visible'); // V4a: «Meine Sportarten» is a chip under «Training»
   await tapTab(page, T('My sports|tab'));
   await main.locator('[data-to-activity]').click();
   await expect(page).toHaveURL(/#\/flow\/activity$/);
