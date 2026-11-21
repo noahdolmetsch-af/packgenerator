@@ -49,7 +49,7 @@ test('morning: meditation, day card Morgen, Important today in one line, the HN4
 
   // the wall in the order of HN4 (the helper is hidden while the AI helper is off)
   // Paket Q #74: at 08:00 the morning tiles move up right under the head (byTime, changed on purpose)
-  // 17.11.2026 (changed on purpose, «Tour nur einmal»): «Your moment» about the trip is away while «My tour» stands
+  // 17.11.2026 (changed on purpose, «Tour nur einmal»): «Your moment» about the trip is away while «My tour» stands, and so is the big trip card of the same tour (step 3b)
   await expect.poll(() => order(page)).toEqual(areaOrder(atHour(HN4().filter((x) => x.id !== 'helper'), 8)).map((x) => x.id));
   expect((await order(page)).slice(0, 3)).toEqual(HEAD_0155);
   for (const id of REMOVED_0155) await expect(page.locator(`.wall [data-tile="${id}"]`), id).toHaveCount(0);
@@ -169,7 +169,7 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   await openHome(page, context, info, { data, hour: 13 });
   // Tages-Check back: «Deine 15 Fragen» after the balance; Routine «Das tut mir gut»: the routine once, under the tiles on top
   // «Heute neu» A (homeWall v 9, changed on purpose): every wall stored before becomes the new ready wall once
-  await expect.poll(() => order(page)).toEqual(areaOrder(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id) && !VALUE_TILES.includes(x.id) && x.id !== 'moment'), false), 13)).map((x) => x.id));
+  await expect.poll(() => order(page)).toEqual(areaOrder(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id) && !VALUE_TILES.includes(x.id) && x.id !== 'moment' && x.id !== 'trip'), false), 13)).map((x) => x.id));
   // put «New» wide on a wall of the user (as it was) and check its button stays inside the tile at 390 px too
   const v5 = { v: 11, tiles: HN4().map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {

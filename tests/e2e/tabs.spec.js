@@ -117,6 +117,8 @@ for (const lang of ['de', 'en']) {
     await page.goto('./#/pack/day');
     await expect(steps(page, T).locator('a[aria-current="page"]')).toContainText(T(BAR.pack));
     // Today's button for this trip (it starts tomorrow) says "Pack", like the tab, and opens the same address.
+    // «Eine Karte für deine Tour»: with exactly one tour «Meine Tour» replaces the big trip card, so a second, far tour keeps the card this check is about
+    await newTrip(page, T, `test_data_gtp_ Spaeter ${lang}`, { date: day(40), weather: 'Warm' });
     await page.goto('./#/');
     const band = page.getByRole('region', { name: title });
     await expect(band.getByRole('link', { name: T('Pack|stage'), exact: true })).toHaveAttribute('href', '#/pack?day');

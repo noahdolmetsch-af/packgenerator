@@ -163,7 +163,8 @@ test('L6: a trip within 14 days leads; an old open debrief waits in Important to
   await start(page, context, info, { lang: 'de', data });
 
   // the hero is the trip in 10 days, not "How was …?"
-  await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Bald');
+  // «Tour nur einmal»: with one planned tour «Meine Tour» is the hero (the big trip card is away)
+  await expect(page.locator('[data-meinetour] .tt')).toHaveText('test_data_gtp_ Bald');
   await expect(page.getByRole('region', { name: T('How was {trip}?', { trip: 'test_data_gtp_ Alt' }) })).toHaveCount(0);
   const also = await imp(page, T);
   // TZ-2 (mockup TZ2 Heute): «… (date): Rückblick ausfüllen · 2 Min.», «Alles gut» beside it
@@ -179,7 +180,8 @@ test('L6: a trip within 14 days leads; an old open debrief waits in Important to
   await expect(saved).toBeVisible();
   await expect(row).toHaveCount(0);
   expect(await stored(page, 'debriefs', 'test_data_gtp_Alt')).toMatchObject({ status: 'done', amount: 'right' });
-  await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Bald');
+  // «Tour nur einmal»: with one planned tour «Meine Tour» is the hero (the big trip card is away)
+  await expect(page.locator('[data-meinetour] .tt')).toHaveText('test_data_gtp_ Bald');
   await saved.getByRole('button', { name: T('Undo') }).click();
   await expect(row).toBeVisible();
   expect(await stored(page, 'debriefs', 'test_data_gtp_Alt')).toBe(null);
@@ -255,10 +257,10 @@ test.describe('L9: first start on a German browser', () => {
     const all = structuredClone(base);
     all.tables.trips = [trip('Erste', day(30))];
     await importData(page, info, all, 'de');
-    await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Erste');
+    await expect(page.locator('[data-meinetour] .tt')).toHaveText('test_data_gtp_ Erste');
     await expect(first).toHaveCount(0);
     await page.reload();
-    await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Erste');
+    await expect(page.locator('[data-meinetour] .tt')).toHaveText('test_data_gtp_ Erste');
     await expect(first).toHaveCount(0);
     expect(errors).toEqual([]);
   });
