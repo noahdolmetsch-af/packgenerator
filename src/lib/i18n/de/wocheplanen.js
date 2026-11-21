@@ -33,6 +33,8 @@ export default {
   'Show in the week': 'In der Woche zeigen',
   '{n} session|week': '{n} Einheit',
   '{n} sessions|week': '{n} Einheiten',
+  '{done} of {n} session done|week': '{done} von {n} Einheit erledigt',
+  '{done} of {n} sessions done|week': '{done} von {n} Einheiten erledigt',
   '(plan: {h})': '(Plan: {h})',
   '{n} date': '{n} Termin',
   '{n} dates': '{n} Termine',

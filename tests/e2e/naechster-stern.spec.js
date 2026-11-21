@@ -87,3 +87,24 @@ test('a milestone with all its stars stands on the shelf, not in the list', asyn
   await fits(page, 'milestones with shelf');
   expect(errors).toEqual([]);
 });
+
+// «Meilensteine motivierender» PR 4 (Idee 5): the reward sits under the card, wishes hang on the next star with a tap
+test('the reward is under the card; a wish hangs on the next star with one tap', async ({ page, context }) => {
+  const item = { id: 'test_wish_1', name: 'Fictional gloves', nameDe: 'Erfundene Handschuhe', category: 'clothing', ownership: 'wishlist', qty: 1, weightG: null, domains: [], sets: [], kits: [] };
+  const errors = await open(page, context, { tennis: 22, rows: { items: [item] } });
+  const hero = page.locator('[data-hero]');
+  const reward = page.locator('section[aria-labelledby="reward-h"]');
+  await expect(reward).toBeVisible();
+  const yHero = (await hero.boundingBox()).y;
+  const yReward = (await reward.boundingBox()).y;
+  expect(yReward, 'the reward comes after the card and before the rest').toBeGreaterThan(yHero);
+  expect(yReward - yHero).toBeLessThan(500);
+  const chip = reward.locator('[data-reward-quick] .chip', { hasText: 'Erfundene Handschuhe' });
+  await expect(chip).toBeVisible();
+  await chip.click();
+  await expect(reward.locator('.rw.set')).toContainText('Erfundene Handschuhe');
+  await expect(reward.locator('[data-reward-quick]')).toHaveCount(0);
+  await expect(reward.getByRole('button', { name: DE['Change'] })).toBeVisible();
+  await fits(page, 'milestones with reward');
+  expect(errors).toEqual([]);
+});

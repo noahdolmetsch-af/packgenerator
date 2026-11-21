@@ -26,6 +26,7 @@
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
+  import { hoursMin } from '../lib/charts/exact.js';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -101,11 +102,11 @@
   );
   const readout = (i) => ({
     title: bucketTitle(bars[i]),
-    items: [{ label: t('Hours'), value: hrs(bars[i].mins) }, ...rows.filter((r) => bars[i].parts[r.sport] > 0).slice(0, 4).map((r) => ({ label: names.get(r.sport), value: hrs(bars[i].parts[r.sport]), color: colour(r.sport) }))],
+    items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, ...rows.filter((r) => bars[i].parts[r.sport] > 0).slice(0, 4).map((r) => ({ label: names.get(r.sport), value: hoursMin(bars[i].parts[r.sport]), color: colour(r.sport) }))],
   });
   const table = $derived({
     head: [t('Period|sj'), t('Hours'), t('Units')],
-    rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), hrs(b.mins), num(b.n)] })),
+    rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), hoursMin(b.mins), num(b.n)] })),
   });
   const chartLine = $derived(line ? line.map((m) => m / 60) : null);
   const aria = $derived(bars.map((b) => `${bucketTitle(b)}: ${hrs(b.mins)} h`).join(', '));
@@ -272,7 +273,7 @@
     {#if barRows.length}
       <ul class="sheetrows" data-sj-sheet>
         {#each barRows as r (r.sport)}
-          <li data-sj-sheet-sport={r.sport}><span class="nm"><i style:background={colour(r.sport)}></i>{names.get(r.sport) ?? nameOf(r)}</span><b class="num">{hrs(r.mins)} h</b><small class="num">{r.n}×{#if r.ca > 0}{' · '}{t('{n} of it «ca.»', { n: `${hrs(r.ca)} h` })}{/if}</small></li>
+          <li data-sj-sheet-sport={r.sport}><span class="nm"><i style:background={colour(r.sport)}></i>{names.get(r.sport) ?? nameOf(r)}</span><b class="num">{hoursMin(r.mins)}</b><small class="num">{r.n}×{#if r.ca > 0}{' · '}{t('{n} of it «ca.»', { n: hoursMin(r.ca) })}{/if}</small></li>
         {/each}
       </ul>
     {:else}

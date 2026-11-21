@@ -7,14 +7,16 @@
    * A new activity is the same form, empty. Pause keeps the history. Delete (Noah 20.10.2026 «2a 3a») asks in
    * the app's window: «Keep the history» (flowdb removeAct keep) or «Delete with history», then «Undo».
    */
-  import { ChevronDown, Minus, Plus, Check, Sun, Snowflake, Trash2, X, Pencil } from '@lucide/svelte';
+  import { ChevronDown, Minus, Plus, Check, Sun, Snowflake, Trash2, X, Pencil, Merge } from '@lucide/svelte';
   import Crumb from './kit/Crumb.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
-  import { offerRename } from '../ui/rename.svelte.js';
+  import { offerRename, offerDone } from '../ui/rename.svelte.js';
   import Seg from '../ui/Seg.svelte';
   import ActIcon, { ACT_ICONS, ACT_ICON_NAMES } from './ActIcon.svelte';
   import { db } from '../db.js';
   import { saveAct, removeAct, undoAct } from '../flowdb.js';
+  import { mergeActs, undoMerge, mergeCounts } from './zusammen.js';
+  import MergeSheet from './MergeSheet.svelte';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { normAct, blankAct, actState, toggleMonth, halfOf, WINDOWS, SUMMER } from '../flow.js';
   import { actName, goalName } from './ui.svelte.js';
@@ -187,6 +189,20 @@
     await saveAct(db, { ...$state.snapshot(a), name: orig.name, paused: !orig.paused });
     location.hash = '#/flow/sports';
   }
+  /* «Zusammenlegen» (Noah 21.11.2026, S8): this sport goes into another one, with Undo */
+  let merging = $state(null); // { counts } while the window is open
+  async function openMerge() {
+    merging = { counts: await mergeCounts(db, a.id) };
+  }
+  async function doMerge(intoId) {
+    const from = orig;
+    const into = acts.find((x) => x.id === intoId);
+    merging = null;
+    const saved = await mergeActs(db, from.id, intoId);
+    if (!saved) return;
+    location.hash = '#/flow/sports';
+    offerDone(t('«{name}» merged into «{into}».', { name: actName(from), into: into ? actName(into) : '' }), () => undoMerge(db, saved));
+  }
   async function remove() {
     const nm = actName(orig);
     const answer = await askDelete({
@@ -307,6 +323,7 @@
         <summary><b>{t('Pause or delete')}</b><small>{t('Pause: rests without a goal · delete asks first')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
         <div class="more">
           <button type="button" class="btn" onclick={pause}>{orig.paused ? t('Resume') : t('Pause|activity')}</button>
+          {#if acts.length > 1}<button type="button" class="btn" onclick={openMerge} data-act-merge><Merge size={16} aria-hidden="true" />{t('Merge with another sport')}</button>{/if}
           <button type="button" class="btn" onclick={remove} data-act-delete><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         </div>
       </details>
@@ -318,6 +335,10 @@
   </div>
 {:else if !isNew}
   <p>{t('This activity no longer exists.')} <a href="#/flow/sports">{t('My sports|tab')}</a></p>
+{/if}
+
+{#if merging && orig}
+  <MergeSheet fromName={actName(orig)} targets={acts.filter((x) => x.id !== orig.id).map((x) => ({ id: x.id, name: actName(x) }))} counts={merging.counts} onconfirm={doMerge} onclose={() => (merging = null)} />
 {/if}
 
 {#if renaming && a}
