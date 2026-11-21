@@ -54,6 +54,8 @@
   <header class="ph">
     <h1 class="title">{t('Analysis|place')}</h1>
     <p class="sub">{t('Here you look at how you are: form, body values, rides and what you ticked. To tick off, go to Active.')}</p>
+    <!-- «Sportjahr» (Noah 21.11.2026 «1 a dann b»): one quiet line, not a tab (the tabs of Auswerten may not grow) -->
+    <p class="sjl"><a href="#/auswerten/sportjahr" data-sportjahr-link>{t('Sports year: everything you did, in hours, by sport')} ›</a></p>
   </header>
   <PeriodBar {today} />
   <!-- «Form und Erholung» (Noah 20.10.2026 «2b 3a»): the readiness of today, on top -->
@@ -108,6 +110,15 @@
     max-width: 1240px;
     margin: 0 auto;
     min-width: 0;
+  }
+  .sjl {
+    margin: var(--sp-1) 0 0;
+    font-size: var(--fs-small);
+  }
+  .sjl a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
   .ph .sub {
     margin: var(--sp-1) 0 0;
