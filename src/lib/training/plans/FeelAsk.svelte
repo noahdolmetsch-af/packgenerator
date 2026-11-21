@@ -6,6 +6,9 @@
    * Before (Noah 19.10.2026, 1–10 after every ride): the card stood on Active › Training and asked only about rides.
    * «Later» asks no more for that activity (it is only asked within 3 days anyway); the page of the activity has all
    * the ways to answer later (words and 1–10). Draft: https://claude.ai/artifact/2gziTtHYQWcPa7wPDsWwah
+   * Noah 21.11.2026: the same for a workout the watch recorded (Fitbit via Google Health), asked like Strava; the newer of the two
+   * is asked first, a workout that Strava has as well is asked once (healthfeel.js). The card shows more facts: pace or speed, climb,
+   * heart rate, kcal, zone minutes (actfacts.js), only what is there.
    */
   import { liveQuery } from 'dexie';
   import { Gauge } from '@lucide/svelte';
@@ -17,29 +20,37 @@
   import { localDay } from '../../localday.js';
   import { t, num } from '../../i18n.svelte.js';
   import { stravaName } from '../../stravanames.js';
+  import { HEALTH_FEEL_KEY, healthToAsk, withAnswer } from '../../flow/healthfeel.js';
+  import { stravaFacts, healthFacts } from '../../flow/actfacts.js';
 
   const today = localDay();
   const q = liveQuery(() => db.activities.where('day').aboveOrEqual(shiftDay(today, -3)).toArray());
-  const act = $derived(feelToAsk($q ?? [], today));
-  const facts = $derived(
-    act
-      ? [
-          act.km > 0 ? `${num(Math.round(act.km * 10) / 10)} km` : '',
-          act.movingS > 0 ? t('{n} min', { n: Math.round(act.movingS / 60) }) : '',
-          Number.isFinite(act.hrAvg) && act.hrAvg > 0 ? t('Heart rate avg {n}', { n: Math.round(act.hrAvg) }) : '',
-        ].filter(Boolean)
-      : [],
-  );
-  const later = () => db.activities.update(act.id, { feelSkip: true });
-  const pick = (w) => db.activities.update(act.id, feelPatch(act, w));
+  const hq = liveQuery(() => db.healthDays.where('date').aboveOrEqual(shiftDay(today, -3)).toArray());
+  const sq = liveQuery(() => db.settings.get(HEALTH_FEEL_KEY));
+  const strava = $derived(feelToAsk($q ?? [], today));
+  const watch = $derived(healthToAsk($hq ?? [], $q ?? [], $sq?.value ?? null, today, shiftDay));
+  // the newer of the two is asked first
+  const useWatch = $derived(!!watch && (!strava || `${watch.date} ${watch.start ?? ''}` > `${strava.day} ${strava.time ?? ''}`));
+  const act = $derived(useWatch ? watch : strava);
+  const facts = $derived(useWatch ? healthFacts(watch, t, num) : stravaFacts(strava, t, num));
+  const title = $derived(useWatch ? watch.name || t('Workout|feel') : stravaName(strava?.name) || t('Activity'));
+  const when = $derived(useWatch ? dayWhen(watch.date, watch.start) : dayWhen(strava?.day, strava?.time));
+  const later = async () => {
+    if (!useWatch) return db.activities.update(act.id, { feelSkip: true });
+    await db.settings.put({ key: HEALTH_FEEL_KEY, value: withAnswer($sq?.value ?? null, act.key, 'later') });
+  };
+  const pick = async (w) => {
+    if (!useWatch) return db.activities.update(act.id, feelPatch(act, w));
+    await db.settings.put({ key: HEALTH_FEEL_KEY, value: withAnswer($sq?.value ?? null, act.key, w) });
+  };
 </script>
 
 {#if act}
   <section class="card fa" aria-labelledby="feel-h" data-section="feel-ask">
     <span class="fi" aria-hidden="true"><Gauge size={20} /></span>
     <div class="fc">
-      <p class="fn">{t('New from Strava|feel')} · {dayWhen(act.day, act.time)}</p>
-      <p class="fs"><b>{stravaName(act.name) || t('Activity')}</b>{#if facts.length}{' '}· {facts.join(' · ')}{/if}</p>
+      <p class="fn">{useWatch ? t('New from Fitbit|feel') : t('New from Strava|feel')} · {when}</p>
+      <p class="fs"><b>{title}</b>{#if facts.length}{' '}· {facts.join(' · ')}{/if}</p>
       <h2 id="feel-h" class="fh">{t('How was it?')}</h2>
       <div class="fw" role="group" aria-label={t('How was it?')}>
         {#each FEEL_WORDS as w (w)}

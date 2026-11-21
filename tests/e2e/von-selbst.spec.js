@@ -116,3 +116,79 @@ test('old answers stay: an activity with 1–10 or Strava’s own answer is not 
   await box.locator('[data-feel-word="light"]').click();
   expect((await read(page, '8003')).feelWord ?? null).toBeNull();
 });
+
+// Noah 21.11.2026: the same for a workout the watch recorded (Fitbit via Google Health, healthDays.exercises)
+const putTable = (page, table, rec) =>
+  page.evaluate(
+    ([tb, r]) =>
+      new Promise((ok, bad) => {
+        const o = indexedDB.open('pack-generator');
+        o.onsuccess = () => {
+          const tx = o.result.transaction(tb, 'readwrite');
+          tx.objectStore(tb).put(r);
+          tx.oncomplete = () => (o.result.close(), ok());
+          tx.onerror = () => bad(tx.error);
+        };
+        o.onerror = () => bad(o.error);
+      }),
+    [table, rec],
+  );
+const readSetting = (page, key) =>
+  page.evaluate(
+    (k) =>
+      new Promise((ok, bad) => {
+        const o = indexedDB.open('pack-generator');
+        o.onsuccess = () => {
+          const q = o.result.transaction('settings').objectStore('settings').get(k);
+          q.onsuccess = () => (o.result.close(), ok(q.result?.value ?? null));
+          q.onerror = () => bad(q.error);
+        };
+      }),
+    key,
+  );
+const fitRun = { type: 'RUNNING', name: 'Beispiel-Lauf', start: '06:40', end: '07:28', min: 48, km: 8.4, hr: 150, kcal: 520, azm: 41, hm: 55 };
+
+test('a workout of the watch asks «Wie war’s?» like Strava, with more facts; the word is kept and the card is gone', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await start(page, context);
+  await putTable(page, 'healthDays', { date: day(0), exercises: [fitRun] });
+  await openAktiv(page);
+  const ask = page.locator('[data-section="feel-ask"]');
+  await expect(ask).toBeVisible();
+  await expect(ask).toContainText(DE['New from Fitbit|feel']);
+  await expect(ask).toContainText('Beispiel-Lauf');
+  await expect(ask).toContainText('8.4 km');
+  await expect(ask).toContainText('48 Min');
+  await expect(ask).toContainText('Tempo 5:43 min/km');
+  await expect(ask).toContainText('55 m hoch');
+  await expect(ask).toContainText('Ø Puls 150');
+  await expect(ask).toContainText('41 Zonenminuten');
+  await expect(ask).toContainText('520 kcal');
+  await shot(page, info, 'von-selbst-fitbit');
+  await ask.locator('[data-feel-word="hard"]').click();
+  await expect(ask).toHaveCount(0);
+  const kept = await readSetting(page, 'training.healthfeel');
+  expect(kept).toEqual({ v: 1, map: { [`${day(0)}|06:40|RUNNING`]: { w: 'hard' } } });
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-section="feel-ask"]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('a workout that Strava has as well is asked once (by Strava); «Später» on a watch workout asks no more', async ({ page, context }) => {
+  await start(page, context);
+  await putTable(page, 'healthDays', { date: day(0), exercises: [fitRun, { ...fitRun, type: 'WEIGHTS', name: 'Beispiel-Gym', start: '18:00', end: '18:45', min: 45, km: undefined }] });
+  await put(page, run({ id: '8010', name: 'Beispiel-Strava-Lauf', time: '06:45', movingS: 2850 }));
+  await openAktiv(page);
+  const ask = page.locator('[data-section="feel-ask"]');
+  // the evening gym workout is newest and only on the watch: asked first
+  await expect(ask).toContainText('Beispiel-Gym');
+  await ask.locator('[data-feel-skip]').click();
+  // next: Strava's own run (the watch copy of it is not asked)
+  await expect(ask).toContainText(DE['New from Strava|feel']);
+  await expect(ask).toContainText('Beispiel-Strava-Lauf');
+  await ask.locator('[data-feel-word="good"]').click();
+  await expect(ask).toHaveCount(0);
+  expect((await readSetting(page, 'training.healthfeel')).map[`${day(0)}|18:00|WEIGHTS`]).toEqual({ skip: true });
+});
