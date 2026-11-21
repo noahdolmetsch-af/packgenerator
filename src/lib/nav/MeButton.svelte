@@ -79,12 +79,12 @@
     box-shadow: 0 0 0 2px var(--paper);
   }
   .sdot.ok {
-    background: var(--ok, #2f7d55);
+    background: var(--ok);
   }
   .sdot.late,
   .sdot.alone,
   .sdot.off {
-    background: var(--warn, #d9822b);
+    background: var(--warn);
   }
   /* the sidebar: a card at the bottom */
   .mecard {
