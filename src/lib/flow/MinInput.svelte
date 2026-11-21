@@ -47,9 +47,9 @@
   .own { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   label { flex: none; min-width: 5.5em; color: var(--ink-2); font-size: var(--fs-small); font-weight: 600; }
   input { width: 6em; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font: 600 var(--fs-small) var(--font-body); }
-  input[aria-invalid='true'] { border-color: var(--danger, #b3261e); }
+  input[aria-invalid='true'] { border-color: var(--bad); }
   .u { color: var(--ink-2); font-size: var(--fs-small); }
   .set { min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 99px; background: var(--paper); color: var(--ink); font: 600 var(--fs-small) var(--font-body); cursor: pointer; }
   small { flex-basis: 100%; min-height: 1em; color: var(--ink-2); font-size: var(--fs-small); }
-  small.bad { color: var(--danger, #b3261e); }
+  small.bad { color: var(--bad); }
 </style>
