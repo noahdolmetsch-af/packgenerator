@@ -115,7 +115,7 @@ Je Datei eine Aufgabe, Hilfsteile in `api/_lib/`:
 | `deploy.yml` | jeder PR und jeder Merge auf `main` | PR: Bauen + Unit-Tests + Wächter auf dem Computer (`guard.spec.js`); **Handy-Tests (5 Teile) erst mit dem Label `ok`**. `main`: Bauen, Tests, **sofort online** (Pages) und Eintrag in «Releases» |
 | `online-rot.yml` | nach jedem Lauf von `deploy.yml` auf `main` | ist das Online-Gehen **rot**: sofort ein Issue «Online-Gehen von main ist rot» (Label `online-rot`) mit Mail; grün schliesst es wieder. Abgebrochene Läufe melden nichts |
 | `waechter.yml` | alle 3 Stunden | fragt den Server (`api/health.js`); bei Fehler ein Issue mit Mail |
-| `live.yml` | morgens und nach Merges | prüft die echte App im Browser |
+| `live.yml` | morgens und nach Merges | prüft die echte App im Browser: Seiten öffnen, Update, offline, und seit 21.11.2026 der **Live-Rundgang** (`tests/e2e/live/rundgang.spec.js`): Haken setzen, Sportjahr ansehen, Backup sichern, Haken zurücknehmen, Backup einspielen; Rot öffnet ein Issue mit Mail |
 | `nacht.yml` | nachts | Rundgang über alle Seiten (nur Links öffnen) |
 | `volle-pruefung.yml` | nachts | volle Browser-Tests auf dem Computer + Gesamttest; Rot öffnet ein Issue. Seit 21.11.2026 vergleicht der Lauf mit der Nacht davor (`scripts/nacht-vergleich.mjs`): ein Kommentar (Mail) kommt nur, wenn etwas **neu** rot ist |
 | `dependabot-automerge.yml` | Dependabot-PRs | grün → von selbst zusammenführen (Noah 26.10.2026, ohne Freigabe) |

@@ -1,6 +1,6 @@
 // «Wochenrückblick» card on Heute (Noah 10.11.2026 «1b»): Sunday 17:00 to Monday 12:00. Fictional data only; no clock.
 import { describe, it, expect } from 'vitest';
-import { cardWeek, cardShown, cardAway, cardDone, cardNumbers, cardOpen, CARD_FROM, CARD_UNTIL } from '../src/lib/home/wochenkarte.js';
+import { cardWeek, cardShown, cardAway, cardDone, cardNumbers, cardOpen, cardNews, CARD_FROM, CARD_UNTIL } from '../src/lib/home/wochenkarte.js';
 
 // 2026-11-15 is a Sunday, 2026-11-16 a Monday
 describe('the week card on Heute', () => {
@@ -44,5 +44,13 @@ describe('the week card on Heute', () => {
     expect(cardOpen({ move })).toEqual({ n: 4, titles: ['A', 'B', 'C'] });
     expect(cardOpen({ move: [] })).toEqual({ n: 0, titles: [] });
     expect(cardOpen(null)).toEqual({ n: 0, titles: [] });
+  });
+
+  it('counts the versions that went online within the week, Monday to Sunday', () => {
+    const index = ['2026-11-08', '2026-11-09', '2026-11-12', '2026-11-15', '2026-11-16'].map((date, i) => ({ version: `0.${i}.0`, date }));
+    const week = { monday: '2026-11-09', sunday: '2026-11-15' };
+    expect(cardNews(index, week)).toBe(3);
+    expect(cardNews([], week)).toBe(0);
+    expect(cardNews(index, null)).toBe(0);
   });
 });
