@@ -67,3 +67,23 @@ test('without a plan the card guesses a date from the pace; with little history 
   await fits(page, 'milestones with pace');
   expect(errors).toEqual([]);
 });
+
+// «Meilensteine motivierender» PR 2 (Idee 3): the shelf «Ganz geschafft»
+test('a milestone with all its stars stands on the shelf, not in the list', async ({ page, context }) => {
+  // own thresholds (flow.msTune) make «Mal gemacht» of tennis finish with 22 ticks: stars 1 and 2 are reached
+  const errors = await open(page, context, { tennis: 22, rows: { settings: [{ key: 'flow.msTune', value: { 'tennis.sessions': { steps: [5, 10] } } }] } });
+  const shelf = page.locator('[data-done-shelf]');
+  await expect(shelf).toBeVisible();
+  await expect(shelf).toContainText(T('Fully done'));
+  await expect(shelf.locator('[data-done-ms="tennis.sessions"]')).toContainText('Letzter Stern am');
+  await expect(page.locator('[data-ms-fold="all"] [data-ms="tennis.sessions"], .grid [data-ms="tennis.sessions"]')).toHaveCount(0);
+  // the sport's own page of the list: finished ones on the shelf, open ones in the list
+  await page.goto('./#/flow/milestones?act=tennis');
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-done-shelf] [data-done-ms="tennis.sessions"]')).toBeVisible();
+  await expect(page.locator('.grid [data-ms="tennis.sessions"]')).toHaveCount(0);
+  await expect(page.locator('.grid [data-ms]').first()).toBeVisible();
+  await fits(page, 'milestones with shelf');
+  expect(errors).toEqual([]);
+});

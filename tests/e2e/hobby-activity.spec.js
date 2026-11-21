@@ -189,7 +189,9 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   await row.locator('input.inp').fill('3, 7, 12');
   await row.locator('input.inp').press('Enter');
   await row.locator('input.inp').blur();
-  await expect(daily).toContainText(T('All stars · {stage}', { stage: T('Path|stage') }));
+  // «Ganz geschafft» (Noah 21.11.2026 «3a»): with all stars the milestone stands on the shelf and leaves the list
+  await expect(main.locator('[data-done-shelf] [data-done-ms="meditation.daily"]')).toBeVisible();
+  await expect(main.locator('.grid [data-ms="meditation.daily"]')).toHaveCount(0);
   await row.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: {list}', { list: '' }))}`) }).click();
   // star 3 was reached with the own numbers and stays (stars never get lost): next is star 4 at 30
   await expect(daily).toContainText(T('Star {k} · {stage}', { k: 4, stage: T('Depth|stage') }));
