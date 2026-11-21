@@ -165,6 +165,7 @@
       <div class="row links">
         <a class="lk" href={sportHref(act)} data-geschafft-all>{t('All numbers of this training')}<ChevronRight size={16} aria-hidden="true" /></a>
         <a class="lk" href="#/flow/milestones?act={encodeURIComponent(entry.actId)}" data-geschafft-ms>{t('Milestones')}<ChevronRight size={16} aria-hidden="true" /></a>
+        <a class="lk" href="#/flow/review" data-geschafft-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
         <button type="button" class="lk" onclick={back} data-geschafft-undo><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
       </div>
     </section>

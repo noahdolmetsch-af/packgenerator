@@ -58,6 +58,7 @@ flowchart LR
   c -->|"(3)"| d["Geschafft<br/>#/flow/geschafft"]
   d -->|"Alle Zahlen zu diesem Training"| e["Seite der Sportart"]
   d -->|"Meilensteine"| f["Meilensteine"]
+  d -->|"Wochenrückblick"| g
   b -->|"Woche im Rückblick"| g["Wochenrückblick<br/>#/flow/review"]
   b -->|"Form ansehen"| h["Auswerten › Form<br/>#/flow/form"]
 ```
