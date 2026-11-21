@@ -183,7 +183,7 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
   // Impeccable runde 2: an hour goal, said apart from «Ziele»; «Woche planen» explains the + above the days
   await expect(goal).toContainText('Ein Stundenziel für dein Training?');
   await expect(goal).toContainText('Anders als unter «Ziele» zählt hier die Zeit');
-  await expect(page.locator('#plan-h').locator('..')).toContainText('Tippe + bei einem Tag, um eine Einheit zu planen.');
+  await expect(page.locator('#plan-h').locator('..')).toContainText('Tippe den freien Slot eines Tages, um eine Einheit zu planen.');
   await goal.getByRole('button', { name: 'Ziel setzen' }).click();
   await goal.locator('[data-goal-name]').fill(`${P}Jura im Juni`);
   await goal.locator('[data-goal-hours]').fill('8');
@@ -238,7 +238,7 @@ test('Training › Woche: plan a sport of Aktiv, add a new one, tick it', async 
   await form.locator('[data-sport-new]').click();
   await form.locator('[data-sport-name]').fill(`${P}Rudern`);
   await form.locator('[data-sport-save]').click();
-  await expect(form.locator('[data-session-sport] option:checked')).toHaveText(`${P}Rudern`);
+  await expect(form.locator('[data-sport-chip][aria-pressed="true"]')).toHaveText(`${P}Rudern`);
   await form.locator('[data-session-mins]').fill('45');
   await form.getByRole('button', { name: 'Speichern' }).click();
   const chip = plan.locator('[data-planned]').filter({ hasText: `${P}Rudern` });
@@ -400,7 +400,7 @@ test('Training › Woche: a goal per sport («Mal pro Woche») in the suggestion
   await form.locator('[data-sport-new]').click();
   await form.locator('[data-sport-name]').fill(`${P}Rudern`);
   await form.locator('[data-sport-save]').click();
-  await expect(form.locator('[data-session-sport] option:checked')).toHaveText(`${P}Rudern`);
+  await expect(form.locator('[data-sport-chip][aria-pressed="true"]')).toHaveText(`${P}Rudern`);
   await plan.locator('[data-suggest-open]').click();
   const sug = plan.locator('[data-suggest]');
   const row = sug.locator('[data-sug-sport]').filter({ hasText: `${P}Rudern` });
