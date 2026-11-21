@@ -69,3 +69,20 @@ test('the editor of a sport shows the same value and saves it', async ({ page, c
   await expect(page.locator('[aria-labelledby="ed-usual"] [aria-pressed="true"]')).toHaveText(T('{n} min').replace('{n}', '90'));
   expect(errors).toEqual([]);
 });
+
+test('Noah\'s standard values: ice hockey 2 h, sauna 12 min, gym 20 min, tennis 1 h, shown as standard', async ({ page, context }, info) => {
+  const errors = await open(page, context, './#/flow/sports');
+  const fold = page.locator('[data-usual-list]');
+  await fold.locator('summary').click();
+  for (const [id, min] of [['hockey', '120'], ['sauna', '12'], ['gym', '20'], ['tennis', '60']]) {
+    const row = fold.locator(`[data-usual="${id}"]`);
+    await expect(row.locator('[data-usual-min]')).toHaveAttribute('data-usual-min', min);
+    await expect(row).toContainText(T('{n} min (standard)').replace('{n}', min));
+  }
+  await shot(page, info, 'dauer-standard');
+  // the editor offers the standard of the sport as its first choice and it is chosen
+  await page.goto('./#/flow/edit/hockey');
+  await ready(page);
+  await expect(page.locator('[aria-labelledby="ed-usual"] [aria-pressed="true"]')).toHaveText(T('Standard {n} min').replace('{n}', '120'));
+  expect(errors).toEqual([]);
+});

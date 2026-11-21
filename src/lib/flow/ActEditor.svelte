@@ -23,7 +23,7 @@
   import { SPORT_TEMPLATES, applyTemplate } from './sporttemplates.js';
   import { goalHint } from './goalhint.js';
   import { actGoalText, goalsText, oneGoal } from './words.js';
-  import { DEFAULT_MIN, CHOICES, usualFor, readUsual, saveUsual } from './usualmin.js';
+  import { DEFAULT_MIN, CHOICES, usualFor, standardFor, readUsual, saveUsual } from './usualmin.js';
   import { t, locale, lang } from '../i18n.svelte.js';
 
   // back: where «Save» and the back link lead («Aktiv neu»: the sport's page when opened there, else «Meine Sportarten»)
@@ -48,13 +48,15 @@
   let usualKey = $state('std');
   let usualOwn = $state('');
   async function loadUsual(actId) {
-    const u = usualFor(await readUsual(db), actId);
+    const u = usualFor(await readUsual(db), actId, a);
     if (loadedFor !== actId) return;
-    usualKey = !u.own || u.min === DEFAULT_MIN ? 'std' : CHOICES.includes(u.min) ? u.min : 'own';
+    usualKey = !u.own || u.min === u.std ? 'std' : CHOICES.includes(u.min) ? u.min : 'own';
     usualOwn = usualKey === 'own' ? String(u.min) : '';
   }
   const usualMin = $derived(usualKey === 'std' ? 0 : usualKey === 'own' ? Math.max(0, Math.round(Number(usualOwn) || 0)) : usualKey);
-  const USUAL_OPTS = $derived([{ key: 'std', name: t('Standard {n} min', { n: DEFAULT_MIN }) }, ...CHOICES.filter((m) => m !== DEFAULT_MIN).map((m) => ({ key: m, name: t('{n} min', { n: m }) })), { key: 'own', name: t('own|duration') }]);
+  /* the standard of this sport: Noah's list by its name (Eishockey 120, Sauna 12 …), else 60 */
+  const stdMin = $derived(standardFor({ id: a?.id, name: name || a?.name, nameDe: a?.nameDe }) || DEFAULT_MIN);
+  const USUAL_OPTS = $derived([{ key: 'std', name: t('Standard {n} min', { n: stdMin }) }, ...CHOICES.filter((m) => m !== stdMin).map((m) => ({ key: m, name: t('{n} min', { n: m }) })), { key: 'own', name: t('own|duration') }]);
   /* «Meine Sportarten» 4b: the group of the sport (own groups of the page «Meine Sportarten»), chosen here too */
   const grpQ = liveQuery(() => db.settings.get(GROUPS_KEY));
   const groups = $derived($grpQ?.value ?? []);
