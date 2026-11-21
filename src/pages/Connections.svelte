@@ -16,6 +16,7 @@
   import TickSuggest from '../lib/strava/TickSuggest.svelte';
   import LakeCard from '../lib/lake/LakeCard.svelte';
   import SpielerplusCard from '../lib/spielerplus/SpielerplusCard.svelte';
+  import TrainingpeaksCard from '../lib/trainingpeaks/TrainingpeaksCard.svelte';
   import FitbitImport from '../lib/fitbit/FitbitImport.svelte';
   import AppleImport from '../lib/applehealth/AppleImport.svelte';
   import { db } from '../lib/db.js';
@@ -255,6 +256,9 @@
 
         <!-- Spielerplus-Kalender (Noah 06.11.2026): the calendar links of the teams, read only -->
         <SpielerplusCard />
+
+        <!-- TrainingPeaks-Plan (Noah 19.11.2026 «2b»): the calendar link of TrainingPeaks, read only -->
+        <TrainingpeaksCard />
 
         <section class="ich-sec" aria-labelledby="cn-ics-h" data-section="ics">
           <div class="ich-h"><div><h2 id="cn-ics-h">{t('Calendar file (.ics)')}</h2><p class="ich-hs">{t('for any calendar, also without Google')}</p></div></div>

@@ -1782,6 +1782,11 @@ const LISTED = {
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
     example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
   },
+  'f.trainingpeaks': {
+    on: 'Paste your TrainingPeaks calendar link once under Me › Connections › TrainingPeaks plan (needs Premium).',
+    steps: ['In TrainingPeaks on a computer: Settings › Account › Calendar, copy the address of the calendar subscription.', 'Paste it under Me › Connections › TrainingPeaks plan and tap «Test and add».', 'Aktiv › Training › My week shows the planned workouts, marked «TP». Ticking done stays with Strava or by hand.'],
+    example: 'Example: «Bike - Endurance Z2» planned for Saturday, 90 min → stands in My week on Saturday; the ride from Strava ticks it.',
+  },
   'f.spielerplus': {
     on: 'Paste the calendar link of your team once under Me › Connections › Spielerplus calendar.',
     steps: ['Copy the calendar link of your team in Spielerplus, paste it under Me › Connections and tap «Test and add».', 'The dates show in Plan › Week, on Today and on the sport page; «Sign up in Spielerplus ›» opens Spielerplus.', 'Another team: paste its link the same way. Switch a team off or remove it any time (with Undo).'],
