@@ -18,6 +18,7 @@ Stufe 2 der Seitenregeln, das Tagebuch als erster Fall (Noah 5a: erst die Werte,
 - Eigener Brotkrumen-Pfad der Listen-Ansicht ist weg (die Orte-Leiste zeigt ihn schon).
 
 ## Selbst entschieden
+- `anleitungen.spec.js` erwartet die kleine «So geht's»-Zeile jetzt nicht mehr auf Seiten aus `LINE_OFF` (mit Absicht, nichts gelockert: auf dem Tagebuch zählt die Zeile 0, sonst bleibt der Test wie er war). Die Anleitung bleibt im Handbuch.
 - Die Zeile wird mit der Liste `LINE_OFF` ausgeschaltet, nicht mit Stil: die Seite behält ihre Funktionen im «?». Die Tests `inhalt.spec.js` (öffnet das «?» auf dieser Seite) und `seiteninhalt.spec.js` (Zeile steht hinter dem Titel; Tagebuch nicht mehr in der Liste) sind mit Absicht angepasst, nichts gelockert; neu `tests/seiteninhalt.test.js`: jede Seite in `LINE_OFF` hat noch Inhalt.
 - Der Umschalter am Handy bricht nicht mehr um, weil `Seg` die ganze Zeile nutzt (`full`) statt `full={false}`.
 - Die Ecke der Heute-Begrüssung, der Orte-Leiste und der Umschalter Aktiv/Auswerten bleiben beim anderen Thread.
