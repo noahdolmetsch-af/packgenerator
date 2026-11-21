@@ -352,7 +352,8 @@ test('The line stands behind the page title, on a phone and on a computer', asyn
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info);
-  for (const hash of ['#/assistent', '#/neuland', '#/notes', '#/week', '#/tagebuch', '#/inbox', '#/trips/dreams', '#/pack/templates']) {
+  // '#/tagebuch' is not here any more: it has no line since 21.11.2026 (LINE_OFF, Noah «2a»), its help is behind the «?»
+  for (const hash of ['#/assistent', '#/neuland', '#/notes', '#/week', '#/inbox', '#/trips/dreams', '#/pack/templates']) {
     await page.goto('./' + hash);
     const line = page.locator('[data-seiteninhalt-line]');
     await expect(line, hash).toBeVisible();

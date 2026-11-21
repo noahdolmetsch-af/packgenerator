@@ -43,7 +43,7 @@ export default {
   'light|feel': 'leicht',
   'good|feel': 'gut',
   'hard|feel': 'hart',
-  'Both are optional. Tap a chosen one again to take it back.': 'Beides ist freiwillig. Tippe auf eine gewählte Antwort noch einmal, dann ist sie wieder weg.',
+  'Both are optional. Tap a chosen one again to take it back. Your own length goes in the field.': 'Beides ist freiwillig. Tippe auf eine gewählte Antwort noch einmal, dann ist sie wieder weg. Eine eigene Dauer schreibst du ins Feld.',
 
   // der Funktionskatalog (features.js), «So geht's» und das Handbuch
   'Done page': 'Geschafft',
@@ -52,4 +52,9 @@ export default {
   'Choose the duration and how it was, if you like; both are optional.': 'Wähle die Dauer und wie es war, wenn du magst; beides ist freiwillig.',
   'Tap «Back to Active», «All numbers of this training» or «Undo».': 'Tippe auf «Zurück zu Aktiv», «Alle Zahlen zu diesem Training» oder «Rückgängig».',
   'Example: tap «Run», pick 45 min and «good»: «Time 2 this week», 2:12 h on 3 days.': 'Beispiel: «Laufen» tippen, 45 Min und «gut» wählen: «Das 2. Mal diese Woche», 2:12 h an 3 Tagen.',
+  // «Eigene Dauer» (Noah 21.11.2026): a field for own minutes next to every row of duration buttons
+  'Own length': 'Eigene Dauer',
+  'e.g. 75': 'z. B. 75',
+  'Set|min': 'Setzen',
+  'Whole minutes from 1 to {max}.': 'Ganze Minuten von 1 bis {max}.',
 };

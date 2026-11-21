@@ -113,6 +113,7 @@ Je Datei eine Aufgabe, Hilfsteile in `api/_lib/`:
 | Datei | Wann | Was |
 |---|---|---|
 | `deploy.yml` | jeder PR und jeder Merge auf `main` | PR: Bauen + Unit-Tests + Wächter auf dem Computer (`guard.spec.js`); **Handy-Tests (5 Teile) erst mit dem Label `ok`**. `main`: Bauen, Tests, **sofort online** (Pages) und Eintrag in «Releases» |
+| `online-rot.yml` | nach jedem Lauf von `deploy.yml` auf `main` | ist das Online-Gehen **rot**: sofort ein Issue «Online-Gehen von main ist rot» (Label `online-rot`) mit Mail; grün schliesst es wieder. Abgebrochene Läufe melden nichts |
 | `waechter.yml` | alle 3 Stunden | fragt den Server (`api/health.js`); bei Fehler ein Issue mit Mail |
 | `live.yml` | morgens und nach Merges | prüft die echte App im Browser |
 | `nacht.yml` | nachts | Rundgang über alle Seiten (nur Links öffnen) |

@@ -34,3 +34,24 @@ export function withFeel(e, feel) {
   if (!f) return { ...e };
   return had === f ? rest : { ...rest, feel: f };
 }
+
+/** The longest duration that can be typed, in minutes (a whole day). */
+export const MAX_MIN = 1440;
+
+/**
+ * The minutes typed by hand (Noah 21.11.2026: next to every row of duration buttons there is a field for an own length): whole minutes,
+ * 1 to 1440, «75» or «75 min»; anything else (empty, decimals, text, 0) is null.
+ */
+export function parseMinutes(text) {
+  const m = /^\s*(\d{1,4})\s*(?:min|m)?\s*$/i.exec(String(text ?? ''));
+  if (!m) return null;
+  const n = Number(m[1]);
+  return n >= 1 && n <= MAX_MIN ? n : null;
+}
+
+/** The entry with exactly these minutes (typed by hand: the same value again keeps it, it does not take it back like a chip). */
+export function setMinutes(e, min) {
+  const n = parseMinutes(min);
+  if (n == null) return { ...e };
+  return { ...e, min: n };
+}

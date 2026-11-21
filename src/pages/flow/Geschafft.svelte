@@ -18,14 +18,16 @@
   import { flowStates } from '../../lib/flow.js';
   import { actName, undoTick, toast } from '../../lib/flow/ui.svelte.js';
   import { putEntry } from '../../lib/flowdb.js';
-  import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, withFeel } from '../../lib/flow/feel.js';
+  import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, setMinutes, withFeel } from '../../lib/flow/feel.js';
+  import MinInput from '../../lib/flow/MinInput.svelte';
   import { FEEL_KEY } from '../../lib/flow/feelword.js';
   import { sportHref } from '../../lib/flow/mysports.js';
-  import { GOAL_KEY } from '../../lib/training.js';
+  import { GOAL_KEY, PLAN_KEY } from '../../lib/training.js';
+  import { zones } from '../../lib/strava/zones.svelte.js';
   import { WEEKPLAN_KEY } from '../../lib/training/wochenplan.js';
   import { WEEKLOG_KEY } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../../lib/training/wochenplan-text.js';
-  import { entryToShow, sourceKey, nthThisWeek, weekNumbers, hhmm, hoursGoal, openGoals, compareLast, nextUnit } from '../../lib/flow/geschafft.js';
+  import { entryToShow, sourceKey, nthThisWeek, weekNumbers, hhmm, hoursGoal, openGoals, compareLast, nextUnit, plannedFor, plannedWeek, zoneVsPlan } from '../../lib/flow/geschafft.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
@@ -49,10 +51,10 @@
     if (!e) return (more = null);
     let stale = false;
     (async () => {
-      const [goal, weekplan, weeklog] = await Promise.all([db.settings.get(GOAL_KEY), db.settings.get(WEEKPLAN_KEY), db.settings.get(WEEKLOG_KEY)]);
-      const activities = e.stravaId ? await db.activities.toArray().catch(() => []) : [];
+      const [goal, weekplan, weeklog, plan] = await Promise.all([db.settings.get(GOAL_KEY), db.settings.get(WEEKPLAN_KEY), db.settings.get(WEEKLOG_KEY), db.settings.get(PLAN_KEY)]);
+            const activities = e.stravaId ? await db.activities.toArray().catch(() => []) : [];
       const stars = await db.flowStars.toArray().catch(() => []);
-      if (!stale) more = { goal: goal?.value ?? null, weekplan: weekplan?.value ?? null, weeklog: weeklog?.value ?? null, activities, stars };
+      if (!stale) more = { goal: goal?.value ?? null, weekplan: weekplan?.value ?? null, weeklog: weeklog?.value ?? null, plan: plan?.value ?? null, activities, stars };
     })();
     return () => (stale = true);
   });
@@ -63,6 +65,9 @@
   const goalH = $derived(more && entry ? hoursGoal(more, entry.day) : null);
   const goals = $derived(entry ? openGoals(states, entry.actId) : { list: [], open: 0, all: 0 });
   const compare = $derived(more && entry?.stravaId ? compareLast(more.activities, entry.stravaId) : null);
+  const planned = $derived(more && entry ? plannedFor(more.plan, entry, more.activities) : null);
+  const zoneCmp = $derived(planned && more && entry?.stravaId ? zoneVsPlan(planned, more.activities.find((a) => String(a.id) === String(entry.stravaId)), zones.bounds) : null);
+  const weekPlan = $derived(more && entry && week ? plannedWeek(more.plan, entry.day, week.mins) : null);
   const nowTime = new Date().toLocaleTimeString('sv-SE', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit' });
   const next = $derived(more ? nextUnit(more.weekplan, more.weeklog, { day: today, time: nowTime }) : null);
   // «Meilensteine» (stars are kept per milestone id «<activity>.…»): a star reached on the day of this tick
@@ -80,6 +85,8 @@
   const FEEL_TEXT = FEEL_KEY;
   // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
   const chooseMin = (m) => entry && db.flowLog.put(withMinutes(entry, m));
+  // an own length typed by hand (Noah 21.11.2026): next to every row of duration buttons; the same value again keeps it
+  const ownMin = (m) => entry && db.flowLog.put(setMinutes(entry, m));
   const chooseFeel = (f) => entry && db.flowLog.put(withFeel(entry, f));
 
   async function back() {
@@ -119,6 +126,7 @@
             <button type="button" class="chip" class:on={entry.min === m} aria-pressed={entry.min === m} data-min={m} onclick={() => chooseMin(m)}>{t('{n} min', { n: m })}</button>
           {/each}
         </div>
+        <MinInput value={entry.min ?? null} chips={MIN_CHIPS} onset={ownMin} id="geschafft-own-min" />
       {/if}
       <div class="chips" role="group" aria-label={t('How was it')} data-geschafft-feel>
         <span class="cl">{t('How was it? (optional)')}</span>
@@ -126,7 +134,7 @@
           <button type="button" class="chip" class:on={entry.feel === f} aria-pressed={entry.feel === f} data-feel={f} onclick={() => chooseFeel(f)}>{t(FEEL_TEXT[f])}</button>
         {/each}
       </div>
-      <small>{t('Both are optional. Tap a chosen one again to take it back.')}</small>
+      <small>{t('Both are optional. Tap a chosen one again to take it back. Your own length goes in the field.')}</small>
     </section>
 
     <div class="lay">
@@ -134,6 +142,12 @@
         <section class="card gs obs" data-geschafft-obs aria-label={t('This time')}>
           <b data-geschafft-nth>{nthText}</b>
           {#if star}<p class="gstar" data-geschafft-star><Star size={16} aria-hidden="true" />{t('A new star today: {sport}', { sport: actName(act) })} <a href="#/flow/milestones?act={encodeURIComponent(entry.actId)}">{t('Milestones')}<ChevronRight size={14} aria-hidden="true" /></a></p>{/if}
+          {#if planned}
+            <p class="plan" data-geschafft-plan>
+              {#if planned.did != null}{t('Planned {planned} min, done {did} min', { planned: planned.planned, did: planned.did })}{:else}{t('Planned {planned} min', { planned: planned.planned })}{/if}{#if planned.zone}{' · '}{t('Zone {z}', { z: planned.zone })}{/if}{#if planned.tp}{' · '}{t('from TrainingPeaks')}{/if}
+            </p>
+            {#if zoneCmp}<p class="plan" data-geschafft-zone>{t('Planned zone {plan}, most of the time in zone {ride}', zoneCmp)}</p>{/if}
+          {/if}
           {#if compare?.rows.length}
             <ul class="cmp" data-geschafft-compare>
               <li class="cl">{t('Compared with the last time ({date})', { date: fmt(compare.before.day, { day: 'numeric', month: 'short' }) })}</li>
@@ -165,6 +179,7 @@
             {/each}
           </div>
           <small>{tn(week.daysDone, '{n} day with training this week', '{n} days with training this week')}</small>
+          {#if weekPlan}<small data-geschafft-weekplan>{t('Planned {planned} h, done {done} h', { planned: hhmm(weekPlan.planned), done: hhmm(weekPlan.done) })}</small>{/if}
         </section>
 
         <section class="card gs gl" data-geschafft-goals aria-labelledby="gs-goals">
@@ -304,6 +319,11 @@
     margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .plan {
+    margin: 0;
+    overflow-wrap: break-word;
+    font-size: var(--fs-body);
   }
   .gstar {
     display: flex;
