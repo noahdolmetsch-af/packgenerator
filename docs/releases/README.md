@@ -23,8 +23,8 @@ PR #<Nummer> · <Datum> · Auftrag: Noah «<Antwort>» (Thread «<Name>»)
 ## Selbst entschieden
 - …
 
-## Entscheide (für decisions.md)
-- <Datum>: <Entscheid> (Grund)
+## Entscheide (eigene Datei `docs/decisions/<name>.md`)
+- <Datum>: <Entscheid> (Grund) – hier nur ein Verweis; der Text steht in der eigenen Datei, nicht in `docs/decisions.md`
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
 - <Vorhaben>: <neuer Stand>
@@ -33,4 +33,4 @@ PR #<Nummer> · <Datum> · Auftrag: Noah «<Antwort>» (Thread «<Name>»)
 1. …
 ```
 
-Ältere Releases (bis 0.232.0) stehen in `projektstand.md`, `status.md` und `decisions.md`.
+Ältere Releases (bis 0.232.0) stehen in `projektstand.md`, `status.md` und `decisions.md` (Entscheide ab 21.11.2026: `docs/decisions/`).

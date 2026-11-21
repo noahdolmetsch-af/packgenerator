@@ -10,6 +10,7 @@ import { importAndSettle } from './settle.js';
 import { actRecord } from '../../src/lib/training.js';
 import { openShort } from './kurz-open.js';
 import { openOverview } from './ov-fold.js';
+import { openCareMore } from './pflege-mehr.js';
 
 const FIX = fileURLToPath(new URL('../fixtures/gesamttest/test_data_gtp_daten.json', import.meta.url));
 const P = 'test_data_gtp_';
@@ -70,6 +71,7 @@ test('Puls pro Fahrt: ledger, Rückblick, Touren, Aktiv, one ride, Today', async
 
   // P1 the ride ledger of the road bike: every Strava ride with its heart rate
   await page.goto(`./#/bikes?tab=care&bike=${ROAD}&open=1`);
+  await openCareMore(page);
   await expect(page.getByText(line(136, 171)).first()).toBeVisible();
   await shot(page, info, 'P1-fahrtenbuch');
 

@@ -68,6 +68,21 @@ test('without a plan the card guesses a date from the pace; with little history 
   expect(errors).toEqual([]);
 });
 
+// «Meilensteine motivierender» PR 3 (Idee 2): the star path under «Pro Aktivität»
+test('per sport the stars stand as a path: gold for the reached ones', async ({ page, context }) => {
+  const errors = await open(page, context, { tennis: 22 });
+  const row = page.locator('[data-path="tennis"]');
+  await expect(row).toBeVisible();
+  const label = await row.locator('[role="img"]').getAttribute('aria-label');
+  const [, n, m] = label.match(/^(\d+) von (\d+) Sternen erreicht/);
+  await expect(row.locator('.stars svg')).toHaveCount(Number(m));
+  await expect(row.locator('.stars svg.full')).toHaveCount(Number(n));
+  await expect(row.locator('.stars svg.part')).toHaveCount(1);
+  await expect(row.locator('a')).toHaveAttribute('href', '#/flow/milestones?act=tennis');
+  await fits(page, 'milestones with path');
+  expect(errors).toEqual([]);
+});
+
 // «Meilensteine motivierender» PR 4 (Idee 5): the reward sits under the card, wishes hang on the next star with a tap
 test('the reward is under the card; a wish hangs on the next star with one tap', async ({ page, context }) => {
   const item = { id: 'test_wish_1', name: 'Fictional gloves', nameDe: 'Erfundene Handschuhe', category: 'clothing', ownership: 'wishlist', qty: 1, weightG: null, domains: [], sets: [], kits: [] };
