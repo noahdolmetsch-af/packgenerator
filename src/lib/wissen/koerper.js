@@ -4,6 +4,7 @@ export default {
   'f.check': "Rings over 7 days forgive a lazy day. Look at the trend of the week, not at one empty ring.",
   'f.stopwatch': "The stopwatch keeps running when you switch pages, so you can check the map mid-plank without losing time.",
   'f.sportpage': "Switch off the blocks you never use; a short sport page gets opened more often than a complete one.",
+  'f.sportrueckblick': "Look at one sport over the whole year, not week by week: a quiet month often has a reason you can name.",
   'f.mosaic': "Gaps in the mosaic are information, not failure: a week of rain or work shows up here first.",
   'f.sportextras': "Add a block only when you miss it twice. The commute counter is the one most people keep.",
   'f.goals': "A 10-day window is kinder than a weekly goal: one rainy weekend does not break it.",

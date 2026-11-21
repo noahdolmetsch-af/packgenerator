@@ -104,6 +104,26 @@ test('a Strava tick compares with the last time of the same sport, only to look 
   expect(errors).toEqual([]);
 });
 
+test('a planned session of the day (TrainingPeaks) stands next to what was done, only to look at', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const rows = aktivRows();
+  rows.flowLog.push({ id: 'fl-strava-b2', actId: 'bike', day: TODAY, at: `${TODAY}T06:10:00+02:00`, n: 1, min: 62, via: 'strava', stravaId: 'b2' });
+  rows.activities = [{ id: 'b2', day: TODAY, start: `${TODAY}T04:10:00Z`, type: 'Ride', kind: 'bike', name: 'Fictional morning ride', km: 31, movingS: 3720, hrAvg: 138, hist: { 150: 3000, 110: 720 } }];
+  rows.settings = [{ key: 'training.zones', value: { own: [120, 140, 160, 175] } }, { key: 'training.plan', value: { sessions: [{ id: 'tp-demo', day: TODAY, kind: 'bike', name: 'Endurance Z2', mins: 60, zone: 2, src: 'tp' }, { id: 'tp-run', day: TODAY, kind: 'run', name: 'Easy run', mins: 30, zone: null, src: 'tp' }, { id: 'tp-other', day: addDays(TODAY, 8), kind: 'bike', name: 'Next week', mins: 45, zone: null, src: 'tp' }] } }];
+  await put(page, rows);
+  await page.goto('./#/flow/geschafft?e=fl-strava-b2');
+  await page.reload();
+  await ready(page);
+  const pg = page.locator('[data-geschafft]');
+  await expect(pg.locator('[data-geschafft-plan]')).toHaveText(`${T('Planned {planned} min, done {did} min').replace('{planned}', '60').replace('{did}', '62')} · ${T('Zone {z}').replace('{z}', '2')} · ${T('from TrainingPeaks')}`);
+  await expect(pg.locator('[data-geschafft-zone]')).toHaveText(T('Planned zone {plan}, most of the time in zone {ride}').replace('{plan}', '2').replace('{ride}', '3')); // plan zone next to the pulse zone of the ride
+  await expect(pg.locator('[data-geschafft-weekplan]')).toContainText(T('Planned {planned} h, done {done} h').split('{done}')[0].replace('{planned}', '1:30')); // 60 + 30 min of this week, not next week's
+  await expect(pg.locator('[data-geschafft-quiet]')).toContainText(T('There is no earlier one to compare with yet.')); // nothing is rated, the other lines stay as they were
+  await expect(pg.locator('[data-geschafft-plan]')).not.toContainText(/zu kurz|zu lang|Ziel/); // only both numbers
+  await shot(page, info, 'geschafft-plan');
+  expect(errors).toEqual([]);
+});
+
 test('Undo on the page takes the tick back and leads to Aktiv; an empty page says why', async ({ page, context }, info) => {
   const errors = await open(page, context, './#/flow/geschafft');
   const pg = page.locator('[data-geschafft]');
