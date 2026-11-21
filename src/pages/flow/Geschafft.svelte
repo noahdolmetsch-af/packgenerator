@@ -6,6 +6,8 @@
    * It only counts and looks (never «good» or «too little»), saves nothing and has no new data; «Rückgängig» takes the tick
    * back as the message after the tick does. It replaces the two links «Dein Verlauf» and «Meilensteine» of that message;
    * «Alle Zahlen» leads to the sport's page. The rules are pure and tested (lib/flow/geschafft.js).
+   * T2 «Haken zuerst»: a tap on a tile of Aktiv ticks and opens this page; two optional chip rows (duration 30/45/60/90, feeling light/good/hard)
+   * save `min` and `feel` on the entry of the tick (lib/flow/feel.js); the same chip again takes it back.
    * Draft: https://claude.ai/artifact/2gziTtHYQWcPa7wPDsWwah
    */
   import { Check, ChevronRight, Star, Undo2 } from '@lucide/svelte';
@@ -16,6 +18,7 @@
   import { flowStates } from '../../lib/flow.js';
   import { actName, undoTick, toast } from '../../lib/flow/ui.svelte.js';
   import { putEntry } from '../../lib/flowdb.js';
+  import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, withFeel } from '../../lib/flow/feel.js';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { GOAL_KEY } from '../../lib/training.js';
   import { WEEKPLAN_KEY } from '../../lib/training/wochenplan.js';
@@ -73,6 +76,11 @@
   const unitText = $derived(next ? `${fmt(next.day, { weekday: 'short' }).replace('.', '')} ${next.t} · ${t(UNIT_NAME[next.type] ?? next.type)}` : '');
   const pct = $derived(goalH && week ? Math.min(100, Math.round((week.mins / 60 / goalH) * 100)) : 0);
 
+  const FEEL_TEXT = { light: 'light|feel', good: 'good|feel', hard: 'hard|feel' };
+  // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
+  const chooseMin = (m) => entry && db.flowLog.put(withMinutes(entry, m));
+  const chooseFeel = (f) => entry && db.flowLog.put(withFeel(entry, f));
+
   async function back() {
     const e = entry;
     if (!e) return;
@@ -97,9 +105,27 @@
     <section class="head" data-geschafft-head>
       <span class="check" aria-hidden="true"><Check size={22} strokeWidth={2.5} /></span>
       <div class="ht">
-        <h1 tabindex="-1" data-page-title>{t('Done page: {name}', { name: actName(act) })}{#if amount}{' '}<span class="amt">· {amount}</span>{/if}</h1>
+        <h1 tabindex="-1" data-page-title>{t('Done page: {name}', { name: actName(act) })}{#if amount || entry.feel}{' '}<span class="amt">· {[amount, entry.feel ? t(FEEL_TEXT[entry.feel]) : ''].filter(Boolean).join(' · ')}</span>{/if}</h1>
         <p class="src" data-geschafft-source>{when} · {t(SOURCE[sourceKey(entry)])}</p>
       </div>
+    </section>
+
+    <section class="card gs how" data-geschafft-how aria-label={t('Optional: how long and how was it')}>
+      {#if canSetMinutes(entry)}
+        <div class="chips" role="group" aria-label={t('How long')} data-geschafft-mins>
+          <span class="cl">{t('How long? (optional)')}</span>
+          {#each MIN_CHIPS as m (m)}
+            <button type="button" class="chip" class:on={entry.min === m} aria-pressed={entry.min === m} data-min={m} onclick={() => chooseMin(m)}>{t('{n} min', { n: m })}</button>
+          {/each}
+        </div>
+      {/if}
+      <div class="chips" role="group" aria-label={t('How was it')} data-geschafft-feel>
+        <span class="cl">{t('How was it? (optional)')}</span>
+        {#each FEELS as f (f)}
+          <button type="button" class="chip" class:on={entry.feel === f} aria-pressed={entry.feel === f} data-feel={f} onclick={() => chooseFeel(f)}>{t(FEEL_TEXT[f])}</button>
+        {/each}
+      </div>
+      <small>{t('Both are optional. Tap a chosen one again to take it back.')}</small>
     </section>
 
     <div class="lay">
@@ -165,6 +191,7 @@
       <div class="row links">
         <a class="lk" href={sportHref(act)} data-geschafft-all>{t('All numbers of this training')}<ChevronRight size={16} aria-hidden="true" /></a>
         <a class="lk" href="#/flow/milestones?act={encodeURIComponent(entry.actId)}" data-geschafft-ms>{t('Milestones')}<ChevronRight size={16} aria-hidden="true" /></a>
+        <a class="lk" href="#/flow/review" data-geschafft-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
         <button type="button" class="lk" onclick={back} data-geschafft-undo><Undo2 size={16} aria-hidden="true" />{t('Undo')}</button>
       </div>
     </section>
@@ -239,6 +266,34 @@
     flex-direction: column;
     gap: 10px;
     padding: 14px 16px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .chips .cl {
+    flex: none;
+    min-width: 5.5em;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .chip {
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .chip.on {
+    border-color: var(--ink);
+    background: var(--ink);
+    color: var(--paper);
   }
   .gs b {
     font-size: var(--fs-body);
