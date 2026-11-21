@@ -32,6 +32,7 @@
   import GoneActs from '../../lib/flow/GoneActs.svelte';
   import YearGoals from '../../lib/flow/YearGoals.svelte';
   import UsualMinList from '../../lib/flow/UsualMinList.svelte';
+  import DauerNachtragen from '../../lib/flow/DauerNachtragen.svelte';
   import StravaNeu from '../../lib/flow/StravaNeu.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
@@ -462,6 +463,7 @@
         <GoneActs />
         <!-- «Übliche Dauer» (Noah 21.11.2026 «2b»): the estimate for ticks without a measured time -->
         <UsualMinList acts={data?.acts ?? []} />
+        <DauerNachtragen />
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
       </aside>
