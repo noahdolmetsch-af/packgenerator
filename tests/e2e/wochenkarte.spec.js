@@ -5,6 +5,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
+import { WHATS_NEW } from '../../src/lib/whatsnew-full.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const SUNDAY = '2026-11-15T18:30:00+01:00';
@@ -44,6 +45,12 @@ test('on Sunday evening Heute shows the week in three numbers and what slides to
   await expect(card.locator('[data-wk-num="km"]')).toContainText('142');
   await expect(card.locator('[data-wk-num="hours"]')).toContainText('5:30');
   await expect(card.locator('[data-wk-open]')).toContainText('2');
+  // «New in the app» (Noah 21.11.2026 «4a»): the changes of 9.–15. November, with the way to «What is new»
+  const changes = WHATS_NEW.filter((e) => e.date >= '2026-11-09' && e.date <= '2026-11-15').length;
+  if (changes > 0) {
+    await expect(card.locator('[data-wk-news]')).toContainText(String(changes));
+    await expect(card.locator('[data-wk-news] a')).toHaveAttribute('href', '#/me/news');
+  } else await expect(card.locator('[data-wk-news]')).toHaveCount(0);
   for (const sel of ['[data-wk-go]', '[data-wk-plan]', '[data-wk-today]']) {
     const box = await card.locator(sel).boundingBox();
     expect(box.height).toBeGreaterThanOrEqual(44);

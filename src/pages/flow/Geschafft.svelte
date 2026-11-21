@@ -18,7 +18,8 @@
   import { flowStates } from '../../lib/flow.js';
   import { actName, undoTick, toast } from '../../lib/flow/ui.svelte.js';
   import { putEntry } from '../../lib/flowdb.js';
-  import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, withFeel } from '../../lib/flow/feel.js';
+  import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, setMinutes, withFeel } from '../../lib/flow/feel.js';
+  import MinInput from '../../lib/flow/MinInput.svelte';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { GOAL_KEY, PLAN_KEY } from '../../lib/training.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
@@ -83,6 +84,8 @@
   const FEEL_TEXT = { light: 'light|feel', good: 'good|feel', hard: 'hard|feel' };
   // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
   const chooseMin = (m) => entry && db.flowLog.put(withMinutes(entry, m));
+  // an own length typed by hand (Noah 21.11.2026): next to every row of duration buttons; the same value again keeps it
+  const ownMin = (m) => entry && db.flowLog.put(setMinutes(entry, m));
   const chooseFeel = (f) => entry && db.flowLog.put(withFeel(entry, f));
 
   async function back() {
@@ -122,6 +125,7 @@
             <button type="button" class="chip" class:on={entry.min === m} aria-pressed={entry.min === m} data-min={m} onclick={() => chooseMin(m)}>{t('{n} min', { n: m })}</button>
           {/each}
         </div>
+        <MinInput value={entry.min ?? null} chips={MIN_CHIPS} onset={ownMin} id="geschafft-own-min" />
       {/if}
       <div class="chips" role="group" aria-label={t('How was it')} data-geschafft-feel>
         <span class="cl">{t('How was it? (optional)')}</span>
@@ -129,7 +133,7 @@
           <button type="button" class="chip" class:on={entry.feel === f} aria-pressed={entry.feel === f} data-feel={f} onclick={() => chooseFeel(f)}>{t(FEEL_TEXT[f])}</button>
         {/each}
       </div>
-      <small>{t('Both are optional. Tap a chosen one again to take it back.')}</small>
+      <small>{t('Both are optional. Tap a chosen one again to take it back. Your own length goes in the field.')}</small>
     </section>
 
     <div class="lay">

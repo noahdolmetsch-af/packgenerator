@@ -8,4 +8,7 @@ export default {
   'Slides to Monday:': 'Rutscht auf Montag:',
   '1 open task': '1 offene Aufgabe',
   '{n} open tasks': '{n} offene Aufgaben',
+  'New in the app:': 'Neu in der App:',
+  '1 change this week': '1 Änderung diese Woche',
+  '{n} changes this week': '{n} Änderungen diese Woche',
 };
