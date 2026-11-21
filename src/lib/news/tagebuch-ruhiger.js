@@ -3,7 +3,7 @@ export default {
   title: 'A calmer diary',
   lead: 'Writing sits in one card, the question of the day in its own card below it, and the help line under the title is gone.',
   points: [
-    { text: 'New entry, Dictate and Voice note and the templates are one card at the top of the diary', go: '#/tagebuch' },
+    { text: 'New entry, Dictate and Voice note and the templates are one card at the top of the diary', go: null },
     { text: 'The help is only behind the «?» now', go: null },
   ],
   small: [{ box: 'new', text: 'The four views of the diary fill the whole row' }],
