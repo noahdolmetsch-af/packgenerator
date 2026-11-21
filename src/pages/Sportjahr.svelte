@@ -21,7 +21,8 @@
   import { einheiten, looseLabel } from '../lib/flow/einheiten.js';
   import { USUAL_KEY, usualMap } from '../lib/flow/usualmin.js';
   import { TICKS_KEY, prefsOf } from '../lib/stravaticks.js';
-  import { training, yearsOf, seasons, windowOf, prevWindow, totals, bySport, colourOf, grainOf, buckets, lastYearLine, records, weeksWith } from '../lib/flow/sportjahr.js';
+  import { GOAL_KEY, goalOf } from '../lib/training.js';
+  import { training, yearsOf, seasons, goalOfYear, goalLine, perWeek, windowOf, prevWindow, totals, bySport, colourOf, grainOf, buckets, lastYearLine, records, weeksWith } from '../lib/flow/sportjahr.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
@@ -29,8 +30,8 @@
 
   const today = localDay();
   const q = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
-    return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map };
+    const [log, activities, acts, usual, ticks, goal] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.settings.get(GOAL_KEY)]);
+    return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, goal: goalOf(goal?.value) };
   });
   const d = $derived($q);
   const units = $derived(d ? training(einheiten({ log: d.log, activities: d.activities, acts: d.acts, usual: d.usual, map: d.map })) : []);
@@ -45,7 +46,15 @@
   const colours = $derived(colourOf(rows));
   const bars = $derived(buckets(units, mode, win));
   const grain = $derived(grainOf(mode, win));
-  const line = $derived(mode === 'year' ? lastYearLine(units, win) : null);
+  const yearLine = $derived(mode === 'year' ? lastYearLine(units, win) : null);
+  /* «Ziele sichtbar» (S10): the hours goal as a line where one is set; in a year the line is the year before or the goal, you pick */
+  const goal = $derived(d ? goalOfYear(d.goal, today) : null);
+  const goalMins = $derived(goal && !goal.passed ? goalLine(bars, goal.hours) : null);
+  let linePick = $state('last');
+  const both = $derived(!!yearLine && !!goalMins);
+  const line = $derived(both ? (linePick === 'goal' ? goalMins : yearLine) : (goalMins ?? yearLine));
+  const lineIsGoal = $derived(!!line && line === goalMins);
+  const avgWeek = $derived(goal?.hours ? perWeek(tot.mins, win, today) : null);
   const rec = $derived(records(inWin));
   const weeks = $derived(mode === 'year' ? weeksWith(units, Number(win.from.slice(0, 4)), today) : []);
   /* «Jahre vergleichen» (S9): only in «Everything», and only with two years or more */
@@ -155,15 +164,28 @@
           <a href="#/flow/sports">{t('Change the usual duration')}</a>
         </p>
       {/if}
+      {#if goal}
+        <p class="note" data-sj-goal>
+          {#if goal.passed}
+            {goal.name ? t('The goal day of «{name}» has passed.', { name: goal.name }) : t('Your goal day has passed.')}
+            <a href="#/flow/training" data-sj-goal-new>{t('Set a new goal')}</a> {t('or leave it out.')}
+          {:else}
+            {t('Your goal: {h} h per week.', { h: num(goal.hours) })}
+            {#if avgWeek != null}{t('In this period you had {h} h per week.', { h: hrs(avgWeek) })}{/if}
+            <a href="#/flow/training" data-sj-goal-edit>{t('Change the goal')}</a>
+          {/if}
+        </p>
+      {/if}
     </section>
 
     <section class="card sj-sec" aria-labelledby="sj-chart-h" data-sj-chart>
       <h2 id="sj-chart-h">{grain === 'month' && mode === 'year' ? t('Hours per month') : grain === 'year' ? t('Hours per year') : t('Hours per day')}</h2>
-      <p class="hs">{title ? `${title} · ` : ''}{t('by sport')}{line ? ` · ${t('dashed: the year before')}` : ''}</p>
+      <p class="hs">{title ? `${title} · ` : ''}{t('by sport')}{line ? ` · ${lineIsGoal ? t('line: your goal of {h} h per week', { h: num(goal.hours) }) : t('dashed: the year before')}` : ''}</p>
+      {#if both}<Seg full={false} small label={t('Line')} value={linePick} onchange={(k) => (linePick = k)} options={[{ key: 'last', name: t('Year before') }, { key: 'goal', name: t('Goal|sj') }]} />{/if}
       <BarChart id="sportjahr" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours by sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for its sports.')} />
       <ul class="lg" data-sj-legend>
         {#each legend as l (l.key)}<li><i style:background={l.color}></i>{l.name}</li>{/each}
-        {#if line}<li><i class="dash"></i>{t('Year before')}</li>{/if}
+        {#if line}<li><i class="dash"></i>{lineIsGoal ? t('Goal|sj') : t('Year before')}</li>{/if}
       </ul>
     </section>
 

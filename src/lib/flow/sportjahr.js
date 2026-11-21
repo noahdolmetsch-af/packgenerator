@@ -182,6 +182,33 @@ export function weeksWith(units, year, today, need = 2) {
   return out;
 }
 
+/* ---------- S10 «Ziele sichtbar» (Noah 21.11.2026 «alle entwürfe 1-3 umsetzen»): the hours goal as a line ---------- */
+
+const daysIn = (b) => Math.round((Date.parse(`${b.to}T00:00:00Z`) - Date.parse(`${b.from}T00:00:00Z`)) / 864e5) + 1;
+
+/**
+ * The goal of the app (training.goal: name, hours per week, day) as the sports year needs it, or null where none with hours
+ * is set. passed: the goal day is over; then the page says so quietly and draws no line.
+ */
+export function goalOfYear(goal, today) {
+  const hours = Number(goal?.hours);
+  if (!(hours > 0)) return goal?.until && goal.until < today ? { name: goal.name ?? '', hours: null, until: goal.until, passed: true } : null;
+  return { name: goal.name ?? '', hours, until: goal.until ?? null, passed: !!goal.until && goal.until < today };
+}
+
+/** The goal as a line over the bars, in minutes: hours per week × the days of the bar ÷ 7. null without hours. */
+export function goalLine(bars, hours) {
+  return hours > 0 ? bars.map((b) => Math.round((daysIn(b) / 7) * hours * 60)) : null;
+}
+
+/** Hours per week the window really had, up to today (minutes); null for a window that has not begun. */
+export function perWeek(totalMins, w, today) {
+  const to = w.to < today ? w.to : today;
+  if (to < w.from) return null;
+  const days = daysIn({ from: w.from, to });
+  return Math.round((totalMins / days) * 7);
+}
+
 /* ---------- S9 «Jahre vergleichen» (Noah 21.11.2026 «ich möchte alle entwürfe 1-3 umsetzen»): every year side by side ---------- */
 
 /** Summer is April to October, as in the weekly plan; the rest is winter. */
