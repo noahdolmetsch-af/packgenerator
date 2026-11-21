@@ -225,6 +225,13 @@ export function kindCounts(acts) {
   return [{ key: 'all', n: acts.length }, ...Object.entries(n).filter(([, c]) => c).map(([key, c]) => ({ key, n: c }))];
 }
 
+/**
+ * «Zwift und Indoor sichtbar» (Noah 19.11.2026 «3a»): a ride on the trainer or in a game. Strava's «trainer» flag, the
+ * type VirtualRide or «Zwift» in the name (Zwift rides reach Strava with that name). Only rides; a run on the treadmill
+ * keeps its own words. The watts, NP, TSS and zones need nothing new: they come with the ride.
+ */
+export const isIndoorBike = (a) => a?.kind === 'bike' && (!!a.trainer || a.type === 'VirtualRide' || /\bzwift\b/i.test(String(a.name ?? '')));
+
 /** The months with activities, newest first ('2026-10'). */
 export const monthsOf = (acts) => [...new Set(acts.map((a) => a.day.slice(0, 7)).filter(Boolean))].sort().reverse();
 
