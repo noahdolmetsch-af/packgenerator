@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 import { PHONE_ROWS } from '../../src/lib/touren/kurz.js';
+import { openCareMore } from './pflege-mehr.js';
 
 // the lists come from the app source (they need Svelte, so they are read as text)
 const src = (f) => readFileSync(fileURLToPath(new URL(`../../src/lib/${f}`, import.meta.url)), 'utf8');
@@ -171,6 +172,7 @@ test('RE2: the debrief starts with nothing ticked; the button counts what is tak
 
 test('RE3: Care for the bike: switch off, own interval in km and days, a note, reset', async ({ page, context }, info) => {
   const errors = await start(page, context, info, `./#/bikes?tab=care&bike=${GRAVEL}&open=1`);
+  await openCareMore(page, page.locator(`#care-${GRAVEL}`));
   const card = page.locator(`#care-${GRAVEL} [data-care-plan]`);
   await expect(card).toBeVisible();
   await expect(card.getByRole('heading')).toHaveText(T('Care for {bike}', { bike: 'test_data_gtp_ Gravel Grinder' }));
