@@ -6,6 +6,9 @@ PR folgt · 21.11.2026 · Auftrag: Noah «1-5a» (Punkt 4, Thread «Fix Abhaken-
 - Haken in **derselben Packliste** (eine Tour: «gepackt» und die Bereit-Liste) und in **derselben Woche des Wochenplans** (`training.weeklog`) gehen nicht mehr verloren, wenn zwei Geräte gleichzeitig ändern. Bisher gewann die neuere Fassung als Ganzes; die ältere lag 30 Tage unter «Von selbst abgeglichen» und die Haken sahen verloren aus. Jetzt bleiben die Haken beider Geräte (`src/lib/sync/merge.js`, eingehängt in `settle()` von `src/lib/sync/engine.js`). Namen, Daten und Reihenfolge kommen weiter von der neueren Fassung.
 - Das Ergebnis ist auf beiden Geräten gleich, egal welches rechnet, und ein zweites Zusammenführen ändert nichts: die Geräte beruhigen sich, kein Hin und Her.
 
+## Bilder
+- Nichts Sichtbares ändert sich: kein neuer Text, kein neuer Knopf. Gezeigt wird es durch den Test mit zwei Geräten (`tests/sync-zusammenfuehren.test.js`).
+
 ## Was fällt weg oder rutscht tiefer
 - nichts
 
