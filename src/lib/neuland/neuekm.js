@@ -100,3 +100,46 @@ export function newKmSummary(lines = [], byId = newKmOf(lines), { n = 5 } = {}) 
   rides.sort((a, b) => (a.day < b.day ? 1 : a.day > b.day ? -1 : 0));
   return { years: ys, rides: rides.slice(0, n) };
 }
+
+/**
+ * «Route kennt deine Erfahrung» (S3, Noah 21.11.2026): how much of a planned route is new for you.
+ * Same rule as newKmOf (steps of STEP_M, known = an earlier ride within NEAR_M), but the route is not a ride:
+ * every bike line counts as earlier. pts: the route as [[lat, lon], …]; lines: heatLines() output.
+ * → { km, newKm } (km rounded to 0.1), or null for a route without a line.
+ */
+export function newKmOfRoute(pts = [], lines = [], { near = NEAR_M, step = STEP_M } = {}) {
+  const mine = steps(pts, step);
+  if (!mine.length) return null;
+  const grid = new Map();
+  for (const l of lines) {
+    if (l?.kind !== 'bike' || !(l.pts?.length > 1)) continue;
+    for (const p of steps(l.pts, step)) {
+      const m = merc(p);
+      const key = `${Math.floor(m.x * N)}/${Math.floor(m.y * N)}`;
+      const cell = grid.get(key);
+      if (cell) cell.push(p);
+      else grid.set(key, [p]);
+    }
+  }
+  let all = 0;
+  let fresh = 0;
+  for (const p of mine) {
+    const m = merc(p);
+    const gx = Math.floor(m.x * N);
+    const gy = Math.floor(m.y * N);
+    let known = false;
+    for (let dx = -1; dx <= 1 && !known; dx++) {
+      for (let dy = -1; dy <= 1 && !known; dy++) {
+        for (const q of grid.get(`${gx + dx}/${gy + dy}`) ?? []) {
+          if (meters(p, q) <= near) {
+            known = true;
+            break;
+          }
+        }
+      }
+    }
+    all += p[2];
+    if (!known) fresh += p[2];
+  }
+  return { km: Math.round(all / 100) / 10, newKm: Math.round(fresh / 100) / 10 };
+}
