@@ -4,7 +4,6 @@
 // German. No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -72,7 +71,8 @@ test('Trophäen-Vitrine: from the shelf to all stars by area and year', async ({
   await link.click();
   await expect(page).toHaveURL(/#\/flow\/trophies$/);
   // «Aktiv neu» (Noah 22.10.2026): milestones and trophies are Auswerten › Meilensteine
-  await expect(page.locator(TABS).getByRole('link', { name: T('Milestones'), exact: true })).toHaveAttribute('aria-current', 'page');
+  // «Auswerten in fünf Reiter» (Schritt 12a): Meilensteine is a chip under the tab «Fahrten»
+  await expect(page.locator('nav.psubs').getByRole('link', { name: T('Milestones'), exact: true })).toHaveAttribute('aria-current', 'page');
 
   // TV1: over all first, then Meditation; per milestone one badge, the next one dashed
   await expect(main.getByRole('heading', { level: 1, name: T('Trophy showcase') })).toBeVisible();

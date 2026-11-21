@@ -8,6 +8,7 @@
    */
   import { Trophy, Briefcase, House, Cpu, Gauge, Mountain, Thermometer, TrendingUp, Flag, MessageSquareText } from '@lucide/svelte';
   import { t, num } from '../../i18n.svelte.js';
+  import { isIndoorBike } from '../../training.js';
 
   let { act = null } = $props();
   const WORKOUT = { race: 'Race|kind', workout: 'Workout|kind', long: 'Long ride|kind' };
@@ -16,7 +17,8 @@
     const out = [];
     if (act.workout && WORKOUT[act.workout]) out.push({ key: 'workout', icon: Flag, text: t(WORKOUT[act.workout]) });
     if (act.commute) out.push({ key: 'commute', icon: Briefcase, text: t('Commute|act') });
-    if (act.trainer) out.push({ key: 'trainer', icon: House, text: t('Indoor|act') });
+    if (isIndoorBike(act)) out.push({ key: 'trainer', icon: House, text: t('Indoor / Zwift') });
+    else if (act.trainer) out.push({ key: 'trainer', icon: House, text: t('Indoor|act') });
     if (act.device) out.push({ key: 'device', icon: Cpu, text: act.device });
     return out;
   });

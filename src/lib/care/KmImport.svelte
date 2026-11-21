@@ -237,6 +237,7 @@
     <div class="main">
       {#if !plan}
         <Empty icon={Upload} text={t('Choose the Strava export activities.csv (Strava › Settings › Download your data) and/or FIT files from your Garmin. The file stays on this device.')} action={{ label: t('Choose files'), onclick: () => input?.click() }} />
+        <p class="quiet" data-zwift-hint>{t('Rides from Zwift: open the ride on my.zwift.com and choose «Download FIT file». An indoor ride has no position, and that is fine: the km and the day are read all the same.')}</p>
       {:else}
         {#if checkRows.length}
           <section class="check surf" aria-labelledby="chk-h">

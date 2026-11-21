@@ -7,7 +7,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { ANALYSES } from '../../src/lib/training/analyses.js';
 import { D0, TODAY, addDays, aktivRows, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
-import { tapTab } from './placetab.js';
+import { viaTab } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -28,7 +28,7 @@ test('Auswerten › Haken ausgewertet: tiles, the tick analyses, hide and undo, 
   await page.goto('./#/auswerten');
   await page.reload();
   await ready(page);
-  await tapTab(page, T('Ticks evaluated|tab'));
+  await viaTab(page, 'analysis', '#/flow/auswertung'); // «Auswerten in fünf Reiter»: «Haken ausgewertet» is a chip under «Fahrten»
   await expect(page).toHaveURL(/#\/flow\/auswertung$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Your ticks evaluated') })).toBeVisible();
 
