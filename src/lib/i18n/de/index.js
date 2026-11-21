@@ -323,6 +323,9 @@ import eigenewerte from './eigenewerte.js';
 // «Ausrüstung» (AU1): main equipment per sport, its counter and care
 import ausruestung from './ausruestung.js';
 
+// «Gestern nachtragen»: ein Tag im Abhak-Fenster
+import gesternnachtragen from './gestern-nachtragen.js';
+
 // Gipfelbuch für alle (Aktiv › Gipfelbuch)
 import gipfelbuch from './gipfelbuch.js';
 
@@ -875,6 +878,7 @@ const ORDERED = [
   geburtstage,
   eigenewerte,
   ausruestung,
+  gesternnachtragen,
   gipfelbuch,
   saisonstart,
   sportarten,
