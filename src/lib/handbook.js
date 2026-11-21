@@ -1029,6 +1029,11 @@ const LISTED = {
     steps: ['On the live map tap «⋯» › «Plan a new way to …», or press long on the map.', 'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.'],
     example: 'Example: at km 52 to the bakery 1.2 km off the route → 2.6 km detour, back on the route at km 54.',
   },
+  'f.findsleep': {
+    on: null,
+    steps: ['On the live map tap «⋯» › «Find a place to sleep» and «Search around me».', 'Tap «Go there» to plan the way, or «Save as place to sleep» where you stand.'],
+    example: 'Example: a bus stop with a roof 1.4 km ahead → «Go there» plans the way.',
+  },
   'f.live': {
     on: null,
     steps: ['Tap «Start a ride» on Active, On the way or a trip.', 'Allow the location; keep the page open with the phone on the handlebar.'],

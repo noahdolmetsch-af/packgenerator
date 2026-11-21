@@ -274,6 +274,7 @@ const LISTED = {
   'f.icepush': ['Set your home place on the weather page.', 'Open Me › Reminders on the phone.', 'Switch on «Ice in the morning».'],
   'f.webcams': ['Open the weather page › «My webcams».', 'Paste the address and tap «Add webcam».', 'Tap «Make home cam» to show it on Today.'],
   'f.reroute': ['Start a ride on the live map.', 'Tap «⋯» › «Plan a new way to …» or press long on the map.', 'Choose a place and tap «Plan»; × removes the detour.'],
+  'f.findsleep': ['Start a ride on the live map.', 'Tap «⋯» › «Find a place to sleep» and «Search around me».', 'Tap «Go there» for the way, or save where you stand as your own place.'],
   'f.live': ['Tap «Start a ride» on Active.', 'Allow the location.', 'Keep the page open while you ride.'],
   'f.livepause': ['Start a ride on the live map.', 'Tap the pause button, or switch on the auto-pause in the settings.', 'Type below which speed it pauses, e.g. 4 km/h.'],
   'f.sensors': ['Start a ride on the live map.', 'Open the sheet › «Sensors» and tap «Connect».', 'Choose your sensor; the values show live.'],
