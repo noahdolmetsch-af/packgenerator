@@ -1895,8 +1895,8 @@ const LISTED = {
   },
   'f.hintquiet': {
     on: null,
-    steps: ['Tap «Not today» under a hint (the rest-day line on Active, the ride above the fog on Today) on three different days.', 'The app asks «Make this hint quieter?»: «Yes, quieter» switches the kind off, «Keep it» leaves it.'],
-    example: 'Example: three «Not today» on the rest-day line in two weeks → one question, then it stays quiet until you switch it on again in Me › Look › Suggestions.',
+    steps: ['Tap «Not today» under a hint on three different days (rest-day line, ride above the fog).', 'The app asks «Make this hint quieter?»: «Yes, quieter» switches the kind off, «Keep it» leaves it.'],
+    example: 'Example: three «Not today» on the rest-day line in two weeks → one question, then quiet.',
   },
   'f.suggestoff': {
     on: null,
