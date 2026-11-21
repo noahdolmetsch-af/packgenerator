@@ -30,11 +30,15 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 7b | Danach, «Das fällt auf» nur nach der Tour, Antwort in Worten | - | offen | - |
 | 11 | Planen: 11 → 3 Reiter (Woche, Notizen, Alltag) | #1303 | online | datei:tests/e2e/planen-drei-reiter.spec.js |
 | 12a | Auswerten: 18 → 5 Reiter nach Frage geordnet (Überblick, Körper, Fahrten, Wi gaht's?, Eigenes Diagramm); die alten Seiten als Chips | #1305 | online | datei:tests/e2e/auswerten-gruppen.spec.js |
-| 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | gebaut | - |
-| 13 | Velos und Material: Reiter und Kacheln, «Sets» statt Ausrüstung | - | offen | - |
+| 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | online | datei:tests/e2e/analyse-diagramm.spec.js |
+| 13 | Velos und Material: ein Bereich mit Reitern und Kacheln, «Sets» statt Ausrüstung (= V5 des Auftrags «App vereinfachen») | - | offen | - |
 | 6 | Ich (vier Gruppen mit Satz zum Stand, «Wartet auf dich» zuerst) und Suche | - | offen | - |
+| V1 | Woche: «n von m Einheiten erledigt» und die Ziele der Woche auf der Woche-Seite | #1349 | gebaut | - |
+| V3 | Woche: Aktiv › Woche, Training › Woche, Wochenplan und Mein Trainingsplan führen auf die eine Woche, eine Ziel-Zahl «n von m Einheiten» | - | offen | - |
+| V4 | Bereich «Woche» (Planen und Aktiv zusammen: Woche, Training, Notizen, Alltag) und Menü mit fünf Bereichen (Seitenleiste und Handy-Leiste, alte Adressen per `redirectOf`) | - | offen | - |
+| V7 | «Alles hier» fällt weg, am Seitenende «Alle Funktionen ›» | - | offen | - |
 | 14 | Streichliste umsetzen (W1–W4 ganz weg, M1–M8 hinter «Mehr», Z1–Z8 zusammenlegen), je Punkt ein PR | - | offen | - |
-| 15 | Handy: Leiste unten mit fünf Orten und «Mehr» | - | offen | - |
+| 15 | Handy: Leiste unten mit den fünf Bereichen (Heute, Woche, Touren, Velos und Material, Auswerten); wird zusammen mit V4 gebaut | - | offen | - |
 | 3s | Streifen-Baustein (Weg B), ersetzt durch die neue Ordnung | - | gestrichen | - |
 | 3a | Streifen einstecken: Velos (Weg B), ersetzt durch Schritt 13 | - | gestrichen | - |
 | 3b | Streifen einstecken: Material (Weg B), ersetzt durch Schritt 13 | - | gestrichen | - |
