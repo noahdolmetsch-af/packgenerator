@@ -20,6 +20,7 @@
   import { meinPlan, LOW_PCT } from '../../lib/training/meinplan.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
+  import { hoursMin } from '../../lib/charts/exact.js';
   import '../../lib/ich/ich.css';
 
   const today = localDay();
@@ -68,7 +69,7 @@
   const line = $derived(m ? m.weeks.map((w) => (w.plannedMins > 0 ? w.plannedMins / 60 : null)) : null);
   const readout = (i) => {
     const w = m.weeks[i];
-    return { title: t('Calendar week {n}', { n: w.kw }), items: [{ label: t('Done|mp'), value: hrs(w.doneMins) }, { label: t('Plan|mp'), value: w.plannedMins > 0 ? hrs(w.plannedMins) : '–' }] };
+    return { title: t('Calendar week {n}', { n: w.kw }), items: [{ label: t('Done|mp'), value: hoursMin(w.doneMins) }, { label: t('Plan|mp'), value: w.plannedMins > 0 ? hoursMin(w.plannedMins) : '–' }] };
   };
   const table = $derived(
     m

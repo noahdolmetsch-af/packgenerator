@@ -209,3 +209,32 @@ test('Pairing: «Syncing …» while it runs, no question after the first round,
   expect(a.errors).toEqual([]);
   await a.context.close();
 });
+
+// Noah 21.11.2026 «1-5a» (Punkt 5): an entry this device cannot save is skipped and reported, the rest arrives.
+test('One entry that cannot be saved is skipped and named in the panel; the other entries arrive', async ({ browser }, info) => {
+  const server = syncServer();
+  const code = '3H7P-K2QM-9WXA-F4TR-6DNB-C8EJ-Y5VS-2GKZ';
+  const keys = await keysOf(code);
+  const size = info.project.name === 'phone' ? 390 : 1440;
+  const sealed = async (v, id, at) => ({ k: await recName(keys, 'items', id), base: 0, e: await seal(keys, { t: 'items', id, v, del: false, at, dev: 'phone' }) });
+  const good = { ...item, id: 'it-gut', name: 'Testjacke' };
+  await server.call('push', {
+    token: keys.token,
+    items: [await sealed({ name: 'ohne Kennung' }, 'x', '2026-11-21T04:00:00.000Z'), await sealed(good, good.id, '2026-11-21T04:01:00.000Z')],
+  });
+  const a = await device(browser, info, server);
+  await a.page.goto('./');
+  await importAndSettle(a.page, fixture);
+  await a.page.goto(`./#/me/data?koppeln=${code}`);
+  await syncBox(a.page).getByRole('group', { name: T('Pair with this code?') }).getByRole('button', { name: T('Pair') }).click();
+  await expect(syncBox(a.page).locator('.msg')).toContainText(T('Paired. From now on both devices keep the same data.'));
+  const line = syncBox(a.page).locator('[data-sync-skipped]');
+  await expect(line).toBeVisible();
+  await expect(line).toContainText(T('{n} entry from the other device could not be saved here and was skipped. The rest keeps syncing; «Compare with the server» lists what is missing.').replace('{n}', '1'));
+  expect((await storedItem(a.page, 'it-gut'))?.name).toBe('Testjacke'); // the entry after the bad one arrived
+  await line.scrollIntoViewIfNeeded();
+  await a.page.waitForTimeout(500);
+  await shot(a.page, `S1-uebersprungen-${size}`);
+  expect(a.errors).toEqual([]);
+  await a.context.close();
+});

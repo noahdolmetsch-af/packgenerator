@@ -38,6 +38,7 @@ import './app.css';
 import './lib/ui/touch.css';
 import App from './App.svelte';
 import { watchWhitePage } from './lib/ui/whitepage.js';
+import { watchErrors } from './lib/fehler/felog.js';
 import { lang, loadDe } from './lib/i18n.svelte.js';
 // Tempo-Messer (Noah 02.11.2026): only when the person switched it on (Ich › Daten); loads on demand, never at the start otherwise
 try {
@@ -147,6 +148,7 @@ noteAppOpen();
 if (lang.v !== 'de') loadDe().catch(() => {});
 mount(App, { target: document.getElementById('app') });
 watchWhitePage();
+watchErrors(); // «Fehler-Melder»: errors nobody caught are noted on this device (nothing is sent)
 
 // P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): while it is switched on, rounds run by
 // themselves (sync/auto.svelte.js); when both devices changed the same entry, the newer change wins quietly (Noah 24.10.2026).

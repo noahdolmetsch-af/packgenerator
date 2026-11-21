@@ -186,7 +186,7 @@ export async function fetchFeed(url, { doFetch = (...a) => fetch(...a), today } 
     return { ok: false, code: 'network' };
   }
   const body = await res.json().catch(() => ({}));
-  if (!res.ok || typeof body.ics !== 'string') return { ok: false, code: body?.code || 'server_error' };
+  if (!res.ok || typeof body.ics !== 'string') return { ok: false, code: body?.code || 'server_error', status: Number.isInteger(body?.status) ? body.status : null };
   return { ok: true, feed: sessionsFrom(body.ics, today) };
 }
 
@@ -203,13 +203,30 @@ export async function refresh(db, { doFetch, now = Date.now(), force = false, to
   const cur = prefsOf((await db.settings.get(TP_KEY))?.value);
   if (!r.ok) {
     if (cur.url) await db.settings.put({ key: TP_KEY, value: JSON.parse(JSON.stringify({ ...cur, error: r.code })) });
-    return { ok: false, code: r.code };
+    return { ok: false, code: r.code, status: r.status ?? null };
   }
+  return applyFeed(db, r.feed, { cur, link, now, today });
+}
+
+/** The feed written into the plan and the record (the old sessions stay as they are changed by hand). */
+async function applyFeed(db, feed, { cur, link, now, today }) {
   const plan = (await db.settings.get(PLAN_KEY))?.value?.sessions ?? [];
-  const m = mergeFeed(plan.map(cleanSession).filter(Boolean), r.feed, cur.seen);
+  const m = mergeFeed(plan.map(cleanSession).filter(Boolean), feed, cur.seen);
   await db.settings.put({ key: PLAN_KEY, value: { sessions: prunePlan(m.plan, today) } });
-  await db.settings.put({ key: TP_KEY, value: JSON.parse(JSON.stringify({ ...cur, url: link, on: cur.on, fetchedAt: new Date(now).toISOString(), error: '', found: r.feed.sessions.length, skipped: r.feed.skipped, seen: m.seen })) });
-  return { ok: true, added: m.added, changed: m.changed, removed: m.removed, skipped: r.feed.skipped, found: r.feed.sessions.length };
+  await db.settings.put({ key: TP_KEY, value: JSON.parse(JSON.stringify({ ...cur, url: link, on: cur.on, fetchedAt: new Date(now).toISOString(), error: '', found: feed.sessions.length, skipped: feed.skipped, seen: m.seen })) });
+  return { ok: true, added: m.added, changed: m.changed, removed: m.removed, skipped: feed.skipped, found: feed.sessions.length };
+}
+
+/**
+ * The way out when the server cannot read the link (Noah 21.11.2026): the calendar file (.ics) loaded by hand in
+ * TrainingPeaks and read here. The same rules as the link, once; nothing is fetched again. → like refresh(), or
+ * { ok: false, code: 'not_calendar' } when the text is no calendar.
+ */
+export async function importIcs(db, ics, { now = Date.now(), today } = {}) {
+  const text = String(ics ?? '');
+  if (!/BEGIN:VCALENDAR/i.test(text)) return { ok: false, code: 'not_calendar' };
+  const cur = prefsOf((await db.settings.get(TP_KEY))?.value);
+  return applyFeed(db, sessionsFrom(text, today), { cur, link: cur.url, now, today });
 }
 
 /** The link taken out: its not yet done sessions from today on go too. → { plan }. */

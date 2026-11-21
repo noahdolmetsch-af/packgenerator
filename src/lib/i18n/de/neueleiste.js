@@ -4,7 +4,7 @@ export default {
   'Analysis|place': 'Auswerten',
   'Appointments|tab': 'Termine',
   'Notes|tab': 'Notizen',
-  'Insights|tab': 'Erkenntnisse',
+  'Insights|tab': 'Zusammenhänge',
   // UI-Ziele #6 (Noah 20.10.2026 «freigabe»): Ich keeps data, settings and help; the rest moved to Planen and Auswerten
   'Week|tab': 'Woche',
   'Inbox|tab': 'Eingang',
@@ -16,7 +16,7 @@ export default {
   'Good for me|tab': 'Was mir gut tut',
   'Weight|tab': 'Gewicht',
   'Looking for appointments, notes or the Inbox? They are under': 'Suchst du Termine, Notizen oder den Eingang? Sie stehen unter',
-  '; your questions, insights and weight under': '; Wi gaht\'s?, Erkenntnisse und Gewicht unter',
+  '; your questions, insights and weight under': '; Wi gaht\'s?, Zusammenhänge und Gewicht unter',
   ', the gear under': ', das Material unter',
   'Bikes, equipment or gear': 'Velos, Ausrüstung oder Material',
   // «Handy kürzer» (Noah 20.10.2026 «4b»): Woche › Noch einplanen, Velopflege › Jetzt fällig, Werkstatt › Besuche
