@@ -73,6 +73,11 @@ test(`every line of What is new goes to its exact place, part ${part + 1}`, asyn
       await page.locator(`[data-row="${version}"]`).first().click();
       box = page.locator('.wn-vopen');
     }
+    // The line «New here» of the row before lives 8 s and survives page.goto (only the hash changes, the page is the same).
+    // Left standing it would count as this row's own line, the row would pass at once, and the row before could still be
+    // working (a ride line looks up the rides first, then opens Training): it then took the next row to Training right
+    // after its goto («nothing lit on …», or the search box never came). Every row waits for its own line.
+    await page.evaluate(() => document.querySelector('.spot-note')?.remove());
     await box.getByRole('link', { name: T(text), exact: false }).first().click();
     // a spot that lights up, or (a thing without a fixed place, or a function without a spot) the line at the bottom
     const lit = page.locator('[data-spot-on]').first();
