@@ -356,6 +356,7 @@ const LISTED_HOME = {
   'f.lake': '#/me/connections',
   'f.datastars': '#/flow/sports',
   'f.training': '#/flow/training',
+  'f.trainingpeaks': '#/me/connections',
   'f.form': '#/flow/form',
   'f.overview': '#/auswerten',
   'f.trainplans': '#/flow/training',

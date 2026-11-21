@@ -366,7 +366,7 @@
                 {/each}
                 {#each planned as s (s.id)}
                   {@const by = doneOf(s, done)}
-                  <button type="button" class="ch plan" class:ok={by} onclick={() => edit(s)} data-planned={s.id}><KindIcon kind={s.kind} size={14} /><span class="cn">{planName(s)}</span><span class="num">· {hours(s.mins)}</span>{#if s.zone}<i class="zt z{s.zone}">Z{s.zone}</i>{/if}{#if by}<span class="sr">{t('done')}</span><Check size={14} aria-hidden="true" />{/if}</button>
+                  <button type="button" class="ch plan" class:ok={by} onclick={() => edit(s)} data-planned={s.id}><KindIcon kind={s.kind} size={14} /><span class="cn">{planName(s)}</span>{#if s.src === 'tp'}<i class="tpm" title={t('From TrainingPeaks')} aria-label={t('From TrainingPeaks')}>TP</i>{/if}<span class="num">· {hours(s.mins)}</span>{#if s.zone}<i class="zt z{s.zone}">Z{s.zone}</i>{/if}{#if by}<span class="sr">{t('done')}</span><Check size={14} aria-hidden="true" />{/if}</button>
                 {/each}
                 <button type="button" class="ch add" aria-label={t('Plan a session on {day}', { day: fmt(d, { weekday: 'long' }) })} onclick={() => add(d)} data-add={d}><Plus size={14} aria-hidden="true" /></button>
               </span>
@@ -412,6 +412,7 @@
             </li>
           {/each}
         </ul>
+        {#if !plan.some((s) => s.src === 'tp')}<p class="tplink"><a href="#/me/connections" data-tp-jump>{t('Plan in TrainingPeaks? Read it in')} ›</a></p>{/if}
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
         {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
         <WeekSaved items={keptWeeks} canKeep hasSessions={sessions.length > 0} weekdays={days.map((d) => fmt(d, { weekday: 'short' }))} {hours} onkeep={keepWeek} onput={putWeek} onchange={changeWeeks} />
@@ -605,6 +606,18 @@
   }
   .ch > :global(svg),
   .ch .num,
+  .tplink {
+    margin: var(--sp-2) 0 0;
+    font-size: var(--fs-small);
+  }
+  .tpm {
+    font: 600 var(--fs-small)/1 var(--font-body);
+    font-style: normal;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+  }
   .zt {
     flex: none;
   }
