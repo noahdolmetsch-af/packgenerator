@@ -9,6 +9,7 @@ Auftrag: Noah «1a 2b 3a 4a 5b» (Thread «Bauen: TrainingPeaks-Plan und Zwift»
 - Einträge ohne Dauer werden nicht geraten, sondern weggelassen; die Karte sagt, wie viele.
 - Die App ruft beim Öffnen höchstens alle 60 Minuten ab. Der Feed zeigt etwa 5 Tage zurück und 14 voraus und ändert sich bis zu 24 Std verzögert; das steht auf der Karte.
 - In Meine Woche ohne TrainingPeaks-Einheiten steht ein kleiner Link «Plan in TrainingPeaks? Hier einlesen».
+- Aktiv › «Alles hier»: eine Kachel «TrainingPeaks-Plan» führt zur Karte (jetzt sechzehn Kacheln statt fünfzehn; `aktiv-alles-hier.spec.js` zählt neu).
 
 ## Was fällt weg oder rutscht tiefer
 - nichts
