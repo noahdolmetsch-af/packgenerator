@@ -5,7 +5,7 @@
  * («das 2. Mal diese Woche», never «gut» or «zu wenig»). Pure functions; the page is src/pages/flow/Geschafft.svelte.
  * No new data: it reads flowLog, flowActs, db.activities and the settings training.goal / training.weekplan / training.weeklog.
  */
-import { mondayOf, shiftDay, goalOf, planOf } from '../training.js';
+import { mondayOf, shiftDay, goalOf, planOf, zoneSecs, mainZone } from '../training.js';
 import { planOf as weekplanOf, isSummer } from '../training/wochenplan.js';
 import { weekFor, logOf, weekLog, QUIET } from '../training/wochenlog.js';
 import { weekGoals } from '../flowweek.js';
@@ -112,6 +112,27 @@ export function plannedFor(stored, e, activities = []) {
   if (!mine.length) return null;
   const s = [...mine].sort((a, b) => Math.abs(a.mins - (did ?? a.mins)) - Math.abs(b.mins - (did ?? b.mins)) || a.id.localeCompare(b.id))[0];
   return { name: s.name, tp: s.src === 'tp', zone: s.zone, planned: s.mins, did };
+}
+
+/**
+ * «Diese Woche» planned against done (Noah 21.11.2026 «alles»): the minutes of the sessions planned this week (Training › Meine
+ * Woche, also from TrainingPeaks) next to the minutes ticked. null when nothing is planned this week. Only to look at.
+ */
+export function plannedWeek(stored, day, doneMins = 0) {
+  const days = weekDays(day);
+  const mine = planOf(stored).filter((x) => days.includes(x.day) && fin(x.mins));
+  if (!mine.length) return null;
+  return { planned: mine.reduce((s, x) => s + x.mins, 0), done: Math.round(doneMins), n: mine.length };
+}
+
+/**
+ * The zone of the plan (1–5) next to the zone with the most time in the ride (1–5), from the pulse histogram and the zones
+ * in use (bounds). Only when both are known; no verdict. → { plan, ride } or null.
+ */
+export function zoneVsPlan(planned, activity, bounds) {
+  if (!planned?.zone || !activity?.hist || !Array.isArray(bounds)) return null;
+  const z = mainZone(zoneSecs(activity.hist, bounds));
+  return z == null ? null : { plan: planned.zone, ride: z + 1 };
 }
 
 /**

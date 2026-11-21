@@ -1,6 +1,6 @@
 // «Geschafft» (Noah 19.11.2026 «1-5a», T1): the rules behind the page after a tick. Fictional data; calendar-day arithmetic only.
 import { describe, it, expect } from 'vitest';
-import { weekDays, sourceKey, entryToShow, nthThisWeek, weekNumbers, hhmm, hoursGoal, openGoals, compareLast, nextUnit, plannedFor } from '../src/lib/flow/geschafft.js';
+import { weekDays, sourceKey, entryToShow, nthThisWeek, weekNumbers, hhmm, hoursGoal, openGoals, compareLast, nextUnit, plannedFor, plannedWeek, zoneVsPlan } from '../src/lib/flow/geschafft.js';
 
 // Thursday 19 November 2026; the week runs Monday 16 to Sunday 22
 const TODAY = '2026-11-19';
@@ -138,5 +138,30 @@ describe('planned and done', () => {
   it('takes the nearest in minutes when two sessions fit', () => {
     const two = { sessions: [session('x', TODAY, 'bike', 30), session('y', TODAY, 'bike', 90)] };
     expect(plannedFor(two, e('7', 'bike', TODAY, { stravaId: 77 }), [ride]).planned).toBe(90);
+  });
+});
+
+describe('planned week and zones', () => {
+  const session = (id, day, mins, zone = null) => ({ id, day, kind: 'bike', name: `Session ${id}`, mins, zone });
+  const plan = { sessions: [session('a', '2026-11-16', 60, 2), session('b', '2026-11-19', 90), session('c', '2026-11-22', 30), session('d', '2026-11-23', 45)] };
+  it('adds the minutes planned for the week of the day, and only that week', () => {
+    expect(plannedWeek(plan, TODAY, 100)).toEqual({ planned: 180, done: 100, n: 3 });
+    expect(plannedWeek(plan, '2026-11-24', 0)).toEqual({ planned: 45, done: 0, n: 1 });
+  });
+  it('is null when nothing is planned that week or there is no plan', () => {
+    expect(plannedWeek(plan, '2026-11-02', 50)).toBeNull();
+    expect(plannedWeek(null, TODAY, 50)).toBeNull();
+  });
+  const bounds = [114, 133, 152, 171];
+  it('puts the zone of the plan next to the zone with the most time in the ride', () => {
+    expect(zoneVsPlan({ zone: 2 }, { hist: { 120: 600, 160: 2400, 100: 300 } }, bounds)).toEqual({ plan: 2, ride: 4 });
+    expect(zoneVsPlan({ zone: 4 }, { hist: { 140: 3000 } }, bounds)).toEqual({ plan: 4, ride: 3 });
+  });
+  it('shows nothing without a zone in the plan, a pulse histogram or zones', () => {
+    expect(zoneVsPlan({ zone: null }, { hist: { 140: 10 } }, bounds)).toBeNull();
+    expect(zoneVsPlan({ zone: 2 }, {}, bounds)).toBeNull();
+    expect(zoneVsPlan({ zone: 2 }, { hist: { 0: 50 } }, bounds)).toBeNull();
+    expect(zoneVsPlan({ zone: 2 }, { hist: { 140: 10 } }, null)).toBeNull();
+    expect(zoneVsPlan(null, { hist: { 140: 10 } }, bounds)).toBeNull();
   });
 });
