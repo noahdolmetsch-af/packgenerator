@@ -3,7 +3,7 @@ export default {
   '{n} unit|sr': '{n} Einheit',
   '{n} units|sr': '{n} Einheiten',
   'Point at a bar for its numbers, tap it for the details.': 'Zeig auf einen Balken für seine Zahlen, tippe ihn an für die Einzelheiten.',
-  'Tap a sport for its year.': 'Tippe auf eine Sportart für ihr Jahr.',
+  'Year of one sport: tap a sport.': 'Jahr einer Sportart: tippe auf eine Sportart.',
   'Your year in this sport. Only to look at, nothing is graded.': 'Dein Jahr in dieser Sportart. Nur zum Anschauen, nichts wird bewertet.',
   'No unit of this sport in this period. Pick a longer period or look at all sports.': 'In diesem Zeitraum gibt es keine Einheit dieser Sportart. Wähle einen längeren Zeitraum oder schau dir alle Sportarten an.',
   'To the sports year': 'Zum Sportjahr',
