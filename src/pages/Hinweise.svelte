@@ -13,6 +13,7 @@
   import { RefreshCw, Plus, Pencil, Trash2, ExternalLink, TriangleAlert, Mountain, Route } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, locale } from '../lib/i18n.svelte.js';
+  import '../lib/ich/ich.css'; // the rows and cards of this page; without it a direct visit (reload, pinned link) shows them unstyled
   import Crumbs from '../lib/ui/Crumbs.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';

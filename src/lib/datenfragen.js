@@ -36,7 +36,7 @@ export const MOOD_DAYS = 3;
 export const MOOD_BELOW = 1;
 /** A long day: moving time of yesterday's Strava activities together, in hours (Noah 03.11.2026, step 2). */
 export const LONG_DAY_H = 3;
-/** A pause: this many days without any training logged (Strava or tennis). The activities are read this many days back. */
+/** A pause: this many days without any training logged (Strava, tennis or your ticks). The activities are read this many days back. */
 export const PAUSE_DAYS = 4;
 export const ACT_DAYS = 40;
 /** Tennis: a game of at least this many minutes is asked about the day after; a missed court time counts this many days back. */
@@ -265,7 +265,7 @@ export const RULES = [
     id: 'pause',
     qid: 'daten.pause',
     title: 'A pause from training',
-    about: 'Asks when you have logged no training for {n} days (Strava or tennis).',
+    about: 'Asks when you have logged no training for {n} days (Strava, tennis or ticked off).',
     vars: { n: PAUSE_DAYS },
     param: { key: 'n', min: 2, max: 14, step: 1, def: PAUSE_DAYS, label: 'Days without training' },
   },
@@ -509,16 +509,47 @@ export function trainingHit(acts = [], today, hours = LONG_DAY_H) {
   return { h: Math.floor(min / 60), m: min % 60 };
 }
 
-/** The days with any training logged: Strava activities and tennis played or taught (sport items). */
-export function trainingDays(acts = [], sport = []) {
+/** Plan units that are not training: meditation, the sauna after the gym, a rest block (Noah 21.11.2026: every other tick counts). */
+export const NOT_TRAINING = ['med', 'sauna', 'rest'];
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+/**
+ * The days you ticked off a training (Noah 21.11.2026: «Letztes Training vor 5 Tagen» although he had ticked sports every
+ * day): the ticks of Aktiv (flowLog) of every sport of the ring «move» (never the ride to work; meditation and sauna
+ * are other rings, a sport you deleted since still counts), and the ticks of the weekly plan (training.weeklog, every
+ * unit but meditation, sauna and rest block). Only the last ACT_DAYS days up to today. → sorted days, once each.
+ * log: flowLog rows { actId, day, via }; flowActs: { id, ring }; weeklog: the setting value { weeks: { monday: { done: { unitId: day } } } }.
+ */
+export function tickDays({ log = [], flowActs = [], weeklog = null, today } = {}) {
+  if (!today) return [];
+  const from = addDays(today, -ACT_DAYS);
+  const ring = new Map(flowActs.map((a) => [a?.id, a?.ring]));
+  const days = new Set();
+  for (const e of log) {
+    if (!e?.day || e.via === 'commute') continue;
+    const r = ring.get(e.actId);
+    if (r === 'mind' || r === 'rest') continue;
+    days.add(e.day);
+  }
+  for (const w of Object.values(weeklog?.weeks ?? {})) {
+    for (const [id, day] of Object.entries(w?.done ?? {})) {
+      if (!DAY_RE.test(day ?? '') || NOT_TRAINING.includes(String(id).split(/[@#]/)[0])) continue;
+      days.add(day);
+    }
+  }
+  return [...days].filter((d) => DAY_RE.test(d) && d >= from && d <= today).sort();
+}
+
+/** The days with any training logged: Strava activities, tennis played or taught (sport items) and your ticks (see tickDays; `ticks` = its days). */
+export function trainingDays(acts = [], sport = [], ticks = []) {
   const days = new Set();
   for (const a of acts) if (a?.day) days.add(a.day);
   for (const x of sport) if (x?.day && x.sport === 'act:tennis' && (x.kind === 'played' || x.kind === 'taught')) days.add(x.day);
+  for (const d of ticks) if (d) days.add(d);
   return days;
 }
 /** No training for `days` days or more: { n } (days since the last one). Without any training in the days read there is nothing to count from: null. */
-export function pauseHit(acts = [], sport = [], today, days = PAUSE_DAYS) {
-  const last = [...trainingDays(acts, sport)].filter((d) => d <= today).sort().at(-1);
+export function pauseHit(acts = [], sport = [], today, days = PAUSE_DAYS, ticks = []) {
+  const last = [...trainingDays(acts, sport, ticks)].filter((d) => d <= today).sort().at(-1);
   if (!last) return null;
   let n = 0;
   while (addDays(last, n) < today) n++;
@@ -671,7 +702,7 @@ export const MAX_CONDS = 2;
 const r1 = (x) => Math.round(x * 10) / 10;
 
 /** The value as it is today, a number, or null when the data for it is missing. */
-export function valueNow(id, { health = [], acts = [], sport = [], wx = null, tasks = null, answers = [], checks = [], today } = {}) {
+export function valueNow(id, { health = [], acts = [], sport = [], ticks = [], wx = null, tasks = null, answers = [], checks = [], today } = {}) {
   if (!today) return null;
   switch (id) {
     case 'sleep': {
@@ -692,7 +723,7 @@ export function valueNow(id, { health = [], acts = [], sport = [], wx = null, ta
       return acts.filter((a) => a?.day === y).reduce((n, a) => n + (fin(a.movingS) > 0 ? a.movingS : 0), 0) / 3600;
     }
     case 'pause': {
-      const last = [...trainingDays(acts, sport)].filter((d) => d <= today).sort().at(-1);
+      const last = [...trainingDays(acts, sport, ticks)].filter((d) => d <= today).sort().at(-1);
       if (!last) return null;
       let n = 0;
       while (addDays(last, n) < today) n++;
@@ -802,7 +833,7 @@ const HITS = {
   todo: ({ tasks, today, val }) => todoHit(tasks, today, val),
   grau: ({ wx, answers, checks, today, val }) => grauHit(wx, answers, checks, today, val),
   draussen: ({ wx, cal, today, val }) => draussenHit(wx, cal, today, val),
-  pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
+  pause: ({ acts, sport, ticks, today, val }) => pauseHit(acts, sport, today, val, ticks),
   spiel: ({ sport, today, val }) => spielHit(sport, today, val),
   platz: ({ sport, today, val }) => platzHit(sport, today, val),
   training: ({ acts, today, val }) => trainingHit(acts, today, val),
@@ -813,11 +844,11 @@ const HITS = {
 
 /**
  * The questions from data that are due today: [{ q, slot, last, why: { text, vars }, data: true }].
- * health: healthDays rows; acts: Strava activities { day, movingS }; sport: sport items { sport, kind, day }; answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
+ * health: healthDays rows; acts: Strava activities { day, movingS }; sport: sport items { sport, kind, day }; ticks: the days of your ticks (tickDays); answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, tasks = null, hint = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, custom = [], today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], ticks = [], wx = null, cal = null, tasks = null, hint = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, custom = [], today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const pick = randomOn(cfg) ? randomPick(pool, answers, cfg, today) : null;
@@ -833,7 +864,7 @@ export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = n
   // a question put away today (skipped, «Not today») keeps its group used as well
   for (const q of [...Object.values(DATA_QUESTIONS), ...mine.values()]) if (snooze?.[q.id] && dayOf(snooze[q.id]) >= today) usedAreas.add(q.area);
   const out = [];
-  const ctx = { health, acts, sport, wx, cal, tasks, hint, answers, checks, today };
+  const ctx = { health, acts, sport, ticks, wx, cal, tasks, hint, answers, checks, today };
   for (const { id, rule, q: own } of ruleList(cfg, custom)) {
     if (out.length >= room) break;
     if (off.has(id)) continue;

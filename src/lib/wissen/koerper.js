@@ -13,6 +13,7 @@ export default {
   'f.progress': "Write the value right after the set; the quick entry fills in the last one, so you only change what moved.",
   'f.abfragen': "Fewer questions get answered longer. Three good ones beat twelve you skip after a week.",
   'f.datenfragen': "Answer «Nothing special» when nothing comes to mind: that is an answer too, and it shows which days really are different.",
+  'f.trainingpeaks': "A session you change here stays as you made it: TrainingPeaks does not overwrite it with the next fetch.",
   'f.training': "Most of the time in the easy zones is normal for long rides; the hard minutes are the spice, not the meal.",
   'f.wochenplan': "A plan with fewer units that you keep beats a full one you drop after two weeks; start with the hours you really have.",
   'f.trainplans': "A plan is a suggestion: move a session when life gets in the way, the week still counts.",
@@ -46,5 +47,6 @@ export default {
   'f.counterdays': 'The days against an insight are the honest part. Three of them are a hint that it is less clear than it looks.',
   'f.tworoles': 'A ride to work can be training too. Give it both roles and count it once in the total.',
   'f.scalemeaning': 'Write what a 1 and a 10 mean in your own words; in a year your old 7 still says the same.',
+  'f.stravaneu': "A new sport made from Strava has no goal on purpose: tick it for a few weeks first, then decide whether you want one.",
   'f.bodytalk': 'Bring your questions, not your conclusions: the page is for the talk, the app makes no diagnosis.',
 };

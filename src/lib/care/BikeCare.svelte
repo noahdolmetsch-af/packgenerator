@@ -33,6 +33,7 @@
   import PartsTable from './PartsTable.svelte';
   import KmBook from './KmBook.svelte';
   import Q1Status from './Q1Status.svelte';
+  import GlanceCard from './GlanceCard.svelte'; // «Auf einen Blick» (Noah 21.11.2026): chain, service, check, costs on top
   import StravaChanges from '../strava/StravaChanges.svelte';
   import SheetFolder from '../bikes/SheetFolder.svelte';
   import { partAreas } from './overview.js';
@@ -300,6 +301,7 @@
 
   {#if open}
     <div class="in" id="care-in-{bike.id}">
+      <GlanceCard {bike} {visits} entries={kmEntries.filter((e) => e.bikeId === bike.id)} onrecord={() => onpart(bike.parts.some((p) => p.key === 'chain') ? 'chain' : bike.parts[0]?.key)} />
       {#if kmOpen || bike.km == null}
         <form class="km" onsubmit={(e) => (e.preventDefault(), km(e.currentTarget.elements.km))}>
           <label>

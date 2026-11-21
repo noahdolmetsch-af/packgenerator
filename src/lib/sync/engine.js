@@ -80,17 +80,34 @@ const writeCfg = async (db, patch) => {
 export async function startSync(db, code, now = new Date().toISOString()) {
   // the notes made here get no time (see above); now is when the sync was switched on
   await db.transaction('rw', db.meta, ...DATA_TABLES.map((t) => db.table(t)), async () => {
-    const notes = await db.meta.where('key').startsWith(NOTE).toArray();
-    const have = new Set(notes.map((n) => n.key));
-    await db.meta.bulkPut(notes.map((n) => ({ ...n, dirty: 1, base: 0 })));
-    for (const t of DATA_TABLES) {
-      const ids = await db.table(t).toCollection().primaryKeys();
-      const fresh = ids.filter((id) => !deviceOnly(t, id) && !have.has(noteKey(t, id))).map((id) => ({ key: noteKey(t, id), t, id, at: '', del: false, dirty: 1, base: 0 }));
-      if (fresh.length) await db.meta.bulkPut(fresh);
-    }
-    await db.meta.where('key').startsWith(ASK).delete();
+    await markAllChanged(db);
     // pulled: false until the first pull has been read to its end (then this device's own changes go first)
     await db.meta.put({ key: CFG, code, since: 0, on: true, startedAt: now, lastAt: null, error: null, big: 0, pulled: false });
+  });
+}
+
+/**
+ * Every record of this device counts as changed (dirty, base 0), so the next round compares everything with the
+ * server. For pairing, and when the server's space has been lost (Noah 21.11.2026: a space that starts again at
+ * number 1 left the other device blind, see pullStatus). Inside a transaction over meta and the data tables.
+ */
+async function markAllChanged(db) {
+  const notes = await db.meta.where('key').startsWith(NOTE).toArray();
+  const have = new Set(notes.map((n) => n.key));
+  await db.meta.bulkPut(notes.map((n) => ({ ...n, dirty: 1, base: 0 })));
+  for (const t of DATA_TABLES) {
+    const ids = await db.table(t).toCollection().primaryKeys();
+    const fresh = ids.filter((id) => !deviceOnly(t, id) && !have.has(noteKey(t, id))).map((id) => ({ key: noteKey(t, id), t, id, at: '', del: false, dirty: 1, base: 0 }));
+    if (fresh.length) await db.meta.bulkPut(fresh);
+  }
+  await db.meta.where('key').startsWith(ASK).delete();
+}
+
+/** The server's space is gone or younger than what this device has seen (its numbers start again): compare everything anew. */
+export async function resyncAll(db) {
+  await db.transaction('rw', db.meta, ...DATA_TABLES.map((t) => db.table(t)), async () => {
+    await markAllChanged(db);
+    await writeCfg(db, { since: 0, pulled: false });
   });
 }
 
@@ -332,6 +349,52 @@ export async function applyPackage(db, chunk) {
   }
 }
 
+/** How often the devices check that they hold as many entries as the server (when nothing happened in between). */
+export const CHECK_EVERY_MS = 30 * 60_000;
+/** After a check that found a difference and could not fix it, the next attempt waits this long (unless the numbers change). */
+export const HEAL_EVERY_MS = 6 * 3600_000;
+
+/**
+ * Noah 21.11.2026 («dass keine Daten verloren gehen»): after a round that read the server to its end and sent
+ * everything, this device counts its entries and asks the server how many it holds. The same number on both sides is
+ * the proof that nothing is missing; a difference (an entry the server lost, one this device never received, a
+ * cursor gone wrong) is looked for and filled in at once, only adding (compare.js), then sent / taken in this round.
+ * Written to the settings of the sync (check: { at, ok, here, server, healed }), shown in Ich › Daten und Backup.
+ * Asked only when something moved in this round or the last check is CHECK_EVERY_MS old, so a quiet poll costs nothing more.
+ */
+async function integrity(db, { api, keys, out, now, pushDirty, pull }) {
+  const cfg = await readCfg(db);
+  const last = cfg?.check ?? null;
+  const moved = out.taken || out.sent;
+  const due = !last || moved || Date.parse(now()) - Date.parse(last.at ?? 0) > CHECK_EVERY_MS;
+  if (!due) return;
+  const notes = await db.meta.where('key').startsWith(NOTE).toArray();
+  const mine = notes.filter((n) => known.has(n.t) && !deviceOnly(n.t, n.id));
+  if (mine.some((n) => n.dirty)) return; // something is still on its way (or too big): not comparable now
+  let ans;
+  try {
+    ans = await api.call('status', { token: keys.token, count: true });
+  } catch {
+    return; // an older server without the count, or no network: the next round tries again
+  }
+  if (typeof ans.count !== 'number') return;
+  const here = mine.length;
+  if (here === ans.count) {
+    await writeCfg(db, { check: { at: now(), ok: true, here, server: ans.count, healed: last?.healed ?? null } });
+    return;
+  }
+  // a difference: look at it (once per state, or every HEAL_EVERY_MS), and fill the gaps in
+  const sig = `${here}/${ans.count}`;
+  if (last && !last.ok && last.sig === sig && Date.parse(now()) - Date.parse(last.triedAt ?? 0) < HEAL_EVERY_MS) return;
+  const { compareSync, fixMissing } = await import('./compare.js');
+  const found = await compareSync(db, { api });
+  const fixed = await fixMissing(db, found, now());
+  if (fixed.sent) await pushDirty();
+  if (fixed.got || fixed.sent) await pull();
+  await writeCfg(db, { check: { at: now(), ok: false, here, server: ans.count, sig, triedAt: now(), healed: fixed.got || fixed.sent ? { at: now(), got: fixed.got, sent: fixed.sent } : (last?.healed ?? null) } });
+  out.healed = fixed;
+}
+
 /**
  * One full round. dev: 'phone' or 'computer' (shown to the other device in a question).
  * Order (Noah 10.11.2026, a phone pull ran 7 minutes and the ticks never left): what this device changed goes
@@ -359,6 +422,10 @@ export async function syncNow(
       for (let round = 0; round < 1000; round++) {
         if (round > 0 && timeUp()) return false;
         const res = await api.call('pull', { token: keys.token, since });
+        // Noah 21.11.2026: this device has seen number `since`, but the server has given out fewer: its space was lost or
+        // emptied and starts again. Then everything the other device writes now carries numbers below `since` and this
+        // device would never ask for it (silent, «Fertig» every time). Compare everything anew, like at pairing.
+        if (Number.isFinite(Number(res.seq)) && Number(res.seq) < since) return 'reset';
         const items = res.items ?? [];
         got += items.length;
         const opened = await Promise.all(items.map(async (it) => ({ s: it.s, p: await unseal(keys, it.e) }))); // p null: sealed with another code, not ours to read
@@ -423,7 +490,14 @@ export async function syncNow(
     //    been read to its end every record is marked as changed (pairing): there the pull comes first, as before.
     if (cfg.pulled !== false) await pushDirty();
     // 2. the pull, in packages, with a time limit; the next round goes on where it stopped
-    const finished = await pull();
+    let finished = await pull();
+    if (finished === 'reset') {
+      await resyncAll(db);
+      out.reset = true;
+      out.more = true; // the next round pulls the new space first and then sends everything
+      await writeCfg(db, { lastAt: now(), error: null, big: out.big });
+      return out;
+    }
     if (!finished) out.more = true;
     else if (cfg.pulled === false) await writeCfg(db, { pulled: true });
     // questions asked before a rule could answer them (e.g. Strava activities until 20.10.2026): answer them now
@@ -438,6 +512,7 @@ export async function syncNow(
     const raced = (finished || cfg.pulled !== false) && (brought || cfg.pulled === false) ? await pushDirty() : false;
     if (raced && !shouldStop()) await pull();
     out.asks = await db.meta.where('key').startsWith(ASK).count();
+    if (finished && !out.more && !shouldStop()) await integrity(db, { api, keys, out, now, pushDirty, pull, clock });
     await pruneLost(db);
     await writeCfg(db, { lastAt: now(), error: null, big: out.big });
     return out;

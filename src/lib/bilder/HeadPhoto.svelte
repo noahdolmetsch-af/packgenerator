@@ -35,7 +35,7 @@
     width: min(46%, 420px);
     height: calc(100% + 8px);
     object-fit: cover;
-    border-radius: 18px;
+    border-radius: var(--radius-card);
     opacity: 0.22;
     pointer-events: none;
     -webkit-mask-image: linear-gradient(to left, var(--ink) 35%, transparent);

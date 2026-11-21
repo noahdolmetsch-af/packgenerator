@@ -619,7 +619,7 @@
   .wg-sub { font-size: var(--fs-small); color: var(--ink-3); }
 
   /* the head of the way: dark, calm, one glance (mockup G1) */
-  .wg-hero { background: var(--ink); color: var(--paper); border-radius: 18px; padding: var(--sp-4); margin-bottom: var(--sp-4); }
+  .wg-hero { background: var(--ink); color: var(--paper); border-radius: var(--radius-card); padding: var(--sp-4); margin-bottom: var(--sp-4); }
   .wg-top { display: flex; justify-content: space-between; gap: var(--sp-3); align-items: flex-start; }
   .wg-head { min-width: 0; }
   .wg-hero h2 { margin: 0; color: var(--paper); overflow-wrap: break-word; }

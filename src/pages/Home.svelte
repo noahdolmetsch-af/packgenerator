@@ -179,6 +179,7 @@
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
+  import WochenKarte from '../lib/home/WochenKarte.svelte'; // «Wochenrückblick» card, Sunday 17:00 to Monday 12:00 (Noah «1b»)
   import NeuHeute from '../lib/neuland/NeuHeute.svelte'; // Träume und Neuland N11 «Neu heute»: one line after a ride, no tile
   import MonthAdventureRow from '../lib/dreams/MonthAdventureRow.svelte'; // Träume und Neuland N12 «Ein Abenteuer im Monat»: one line, no tile
   import WearToday from '../lib/home/WearToday.svelte';
@@ -1013,7 +1014,9 @@
     const ds = candidates(S[DREAMS_KEY], today);
     if (ds.length) refreshDreamWx(db, ds, place).catch(() => {});
   });
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
+  // «Tour nur einmal», step 3b (Noah 17.11.2026 «1-5a»): the big trip card is away while «My tour» says the same tour (one trip, no debrief question, no route profile)
+  const tripMerged = $derived(tourOnce && cardTrips.length === 1 && !!shown && shown.id === bildTrip?.id && !ask && !prof);
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(tripMerged ? ['trip'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1309,9 +1312,9 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{/if}
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<div class="stack"><MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{#if tripMerged && ready}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'trip'}
-    <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
+    <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it (with one tour: with «Meine Tour») -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS(x.size === 'long')}
   {:else if x.id === 'flow'}
@@ -1385,6 +1388,7 @@
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
   {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
+  {#if loaded && !editing}<WochenKarte now={stampOf(now)} />{/if}
   {#if loaded && !editing}<NeuHeute {today} />{/if}
   {#if loaded && !editing}<MonthAdventureRow {today} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->

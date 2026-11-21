@@ -57,13 +57,14 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
+  import { pageOf, isUnknown, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import Explorer from './lib/nav/Explorer.svelte';
   import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
   import { ops } from './lib/bedienung.svelte.js';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
+  import NotFound from './lib/ui/NotFound.svelte';
   import OfflineLine from './lib/clear/OfflineLine.svelte';
   import DbWaitLine from './lib/clear/DbWaitLine.svelte';
   import ComebackWindow from './lib/clear/ComebackWindow.svelte';
@@ -142,6 +143,8 @@
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
+  // Gesamttest 19.11.2026 (Noah «a»): an address no page knows shows «Page not found» instead of Today
+  const lost = $derived(isUnknown(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page, hash));
   // Schritt 10: Ausrüstung is a tab of Material now (place «gear»), but on a phone the switch Velos · Ausrüstung · Material still lights it
   const switchPlace = $derived(page === 'equipment' ? 'equipment' : place);
@@ -424,6 +427,7 @@
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
     Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
     Fragen: () => import('./pages/Fragen.svelte'), // «Fragen» (Plan 4a, Noah 08.11.2026): Auswerten › Fragen
+    Sportjahr: () => import('./pages/Sportjahr.svelte'), // «Sportjahr» (Noah 21.11.2026 «1a dann b»): Auswerten › Sportjahr
     Quellen: () => import('./pages/Quellen.svelte'), // «Meine Datenquellen» (Noah 07.11.2026 «1a»): Auswerten › Datenquellen
     Tourpfad: () => import('./pages/Tourpfad.svelte'), // «Tour-Pfad» (Noah 08.11.2026 «1 go A»): Touren › Tour-Pfad
     Weg: () => import('./pages/Weg.svelte'), // «Weg zum Ziel» (Noah 05.11.2026): Touren › Weg zum Ziel
@@ -547,7 +551,9 @@
   {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
-  {#if page === 'gear'}
+  {#if lost}
+    <NotFound />
+  {:else if page === 'gear'}
     <LazyPage load={PAGES.Gear} />
   {:else if page === 'gearimport'}
     <!-- v0.36.0 (Noah 1a): the reviewed gear list waits here before it goes into Gear -->
@@ -727,6 +733,8 @@
     <LazyPage load={PAGES.Vorschlaege} />
   {:else if page === 'fragen'}
     <LazyPage load={PAGES.Fragen} />
+  {:else if page === 'sportjahr'}
+    <LazyPage load={PAGES.Sportjahr} />
   {:else if page === 'quellen'}
     <LazyPage load={PAGES.Quellen} />
   {:else if page === 'tourpfad'}
@@ -903,7 +911,7 @@
   <!-- «Anpassen» (Noah 20.10.2026 «1a»): «Diese Seite anpassen» at the end of every page; not on Heute, where
        «Startseite anpassen» does it (Neuer Schwung, Noah 26.10.2026 «warum haben wir startseite anpassen und diese seite anpassen?») -->
   {#if !guest && !mini && page !== 'home'}<ErscheintWenn {hash} />{/if}
-  {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? tabOf(place, hash) : null)} {place} fallback={anpTitle} />{/if}
+  {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? (subOf(place, hash)?.key ?? tabOf(place, hash)) : null)} {place} fallback={anpTitle} />{/if}
 </main>
 
 {#if !guest}

@@ -23,7 +23,9 @@ const BAR = { id: 'FD902', name: 'test_data_gtp_ Riegel', category: 'food', owne
 function fixture(path, trip) {
   const data = structuredClone(base);
   data.tables.items = [...data.tables.items, GEL, BAR];
-  data.tables.trips = [trip];
+  // A second tour far away keeps the big trip card (with one tour only «Meine Tour» shows, tour-einmal.spec.js):
+  // this spec is about the schedule of that card, so it must have the card.
+  data.tables.trips = [trip, { id: 'test_data_gtp_Spaeter', title: 'test_data_gtp_ Spaeter', domain: 'bikepacking', startDate: '2026-12-20', days: 2, bikeId: 'bike-test', bike: 'Test gravel bike', entries: [], status: 'planned' }];
   writeFileSync(path, JSON.stringify(data));
 }
 const trip = (extra = {}) => ({

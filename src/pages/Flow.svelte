@@ -12,6 +12,8 @@
    *   #/flow/training    «Training» TR2: every Strava activity with its heart rate zones (pages/flow/Training.svelte);
    *                      …/a/<id> one activity (TR3, TrainingAct.svelte)
    *   #/flow/plans       «Trainingspläne»: sample plans for ultracycling, …/<id> one plan (pages/flow/TrainingPlans.svelte, lazy)
+   *   #/flow/geschafft   «Geschafft» (Noah 19.11.2026 «1-5a»): the page after a tick, ?e=<entry id> (pages/flow/Geschafft.svelte, lazy)
+   *   #/flow/trainingsplan  «Mein Trainingsplan» (Noah 21.11.2026 «ich möchte alle entwürfe 1-3 umsetzen», S6): plan and what you did on one page, only to look at (pages/flow/Meinplan.svelte, lazy)
    *   #/flow/wochenplan  «Wochenplan» (Noah 09.11.2026): hours per week → units with times, +/− per unit (pages/flow/Wochenplan.svelte, lazy)
    *   #/flow/rest        «Erholung» (mockup AK2): the recovery ring, a pause hint, ticks (pages/flow/Rest.svelte)
    *   #/flow/week        v0.130.0 «Woche» (mockup AK1): the week with fixed dates and suggestions (pages/flow/Week.svelte)
@@ -135,6 +137,12 @@
 {:else if route[0] === 'plans'}
   <!-- «Trainingspläne» (Noah 19.10.2026): loaded only when opened -->
   {#await import('./flow/TrainingPlans.svelte') then m}{#key route[1]}<m.default id={decodeURIComponent(route[1] ?? '')} {params} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+{:else if route[0] === 'geschafft'}
+  <!-- «Geschafft» (Noah 19.11.2026 «1-5a», T1): the page after a tick; loaded only when opened -->
+  {#await import('./flow/Geschafft.svelte') then m}<m.default {params} />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
+{:else if route[0] === 'trainingsplan'}
+  <!-- «Mein Trainingsplan» (Noah 21.11.2026, S6): loaded only when opened -->
+  {#await import('./flow/Meinplan.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'wochenplan'}
   <!-- «Wochenplan» (Noah 09.11.2026): loaded only when opened -->
   {#await import('./flow/Wochenplan.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
@@ -226,7 +234,7 @@
           <!-- the stopwatch sits in the head of this part (was Aktiv › Mehr › Stoppuhr) -->
           <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} edit={{ href: '#/flow/sports', label: t('Edit|acts') }} more={{ label: t('Stopwatch'), onclick: () => openTimer() }}>
             <!-- the help line (spec «Heute abhaken»), the same as on Heute -->
-            <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help medHelp={hasMed} onmed={(s) => (medFor = s.act.id)} />
+            <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help medHelp={hasMed} jump onmed={(s) => (medFor = s.act.id)} />
             <SyncLine />
             <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
             <TickSuggest />
@@ -239,9 +247,11 @@
                  from Friday evening to Monday the Sunday thread says the week is nearly over -->
             {#if faden}<a class="faden" href="#/flow/review" data-week-faden>{t(faden.text)}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
             <div class="wklinks">
+              <a class="btn btn-link sm" href="#/flow/geschafft" data-to-geschafft>{t('Done|page')}<ChevronRight size={16} aria-hidden="true" /></a>
               <a class="btn btn-link sm" href="#/flow/review" data-to-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
               <a class="btn btn-link sm" href="#/flow/plans" data-to-plans>{t('Training plans')}<ChevronRight size={16} aria-hidden="true" /></a>
               <a class="btn btn-link sm" href="#/flow/wochenplan" data-to-wochenplan>{t('Weekly plan')}<ChevronRight size={16} aria-hidden="true" /></a>
+              <a class="btn btn-link sm" href="#/flow/trainingsplan" data-to-trainingsplan>{t('My training plan')}<ChevronRight size={16} aria-hidden="true" /></a>
             </div>
           </Sec>
           <WeekGoals acts={data.acts} log={data.log} tripDays={data.tripDays} {today} />
