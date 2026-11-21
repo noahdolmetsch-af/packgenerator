@@ -23,6 +23,8 @@
   import RecordWall from '../../lib/flow/hobby/RecordWall.svelte';
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
+  import YearStars from '../../lib/flow/hobby/YearStars.svelte';
+  import { yearOfStars } from '../../lib/flow/sternjahr.js';
   import DoneShelf from '../../lib/flow/hobby/DoneShelf.svelte';
   import HeroNext from '../../lib/flow/hobby/HeroNext.svelte';
   import { heroOf } from '../../lib/flow/naechster.js';
@@ -71,6 +73,8 @@
   const inFilter = (r) => (filter === 'all' ? true : filter === 'cross' ? !r.m.actId : r.m.actId === filter);
   const scoped = $derived(shown.filter(inFilter));
   // «Ganz geschafft» (Noah 21.11.2026 «3a»): milestones with all stars stand on the shelf, not in the list
+  // «Dein Jahr in Sternen» (Noah 21.11.2026 «4a»): a look back at the stars of this year, in the scope of the filter
+  const yearStars = $derived(yearOfStars(scoped, today));
   const doneList = $derived(scoped.filter((r) => r.done));
   const cards = $derived((filter === 'all' || filter === 'cross' ? shown.filter((r) => !r.m.actId) : scoped).filter((r) => !r.done));
   const perAct = $derived.by(() => {
@@ -150,6 +154,8 @@
     </Sec>
 
     {#if doneList.length}<DoneShelf list={doneList} {label} />{/if}
+
+    {#if yearStars.all}<YearStars y={yearStars} {today} />{/if}
 
     <MsHow />
 
