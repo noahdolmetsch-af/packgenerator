@@ -71,7 +71,7 @@
   .nm {
     flex: 1 1 8rem;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .st {
     display: inline-flex;
