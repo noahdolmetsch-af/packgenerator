@@ -234,7 +234,7 @@
           <!-- the stopwatch sits in the head of this part (was Aktiv › Mehr › Stoppuhr) -->
           <Sec id="tick-h" title={t('Tick off today')} sub={tickSub} edit={{ href: '#/flow/sports', label: t('Edit|acts') }} more={{ label: t('Stopwatch'), onclick: () => openTimer() }}>
             <!-- the help line (spec «Heute abhaken»), the same as on Heute -->
-            <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help medHelp={hasMed} onmed={(s) => (medFor = s.act.id)} />
+            <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help medHelp={hasMed} jump onmed={(s) => (medFor = s.act.id)} />
             <SyncLine />
             <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
             <TickSuggest />

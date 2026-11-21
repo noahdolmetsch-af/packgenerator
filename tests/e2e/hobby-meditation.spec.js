@@ -360,8 +360,10 @@ test('Meditation einfach: the start sheet changes the minutes, «Nur abhaken» t
 
   // other activities still tick with one tap
   await page.locator('[data-act="pushups"]').click();
-  await expect(toast).toContainText(T('{name} · {n} ticked', { name: 'Liegestütze', n: 10 }));
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/); // T2 «Haken zuerst»: the tap ticks and opens «Geschafft»
   await expect(page.locator('dialog[data-med-sheet][open]')).toHaveCount(0);
+  await page.locator('[data-geschafft-back]').click();
+  await expect(page).toHaveURL(/#\/flow$/);
 
   await med.click();
   await sheet.locator('[data-to="meditation"]').click();
