@@ -32,5 +32,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 24 | Die Woche von Hand planen (Training, Plus bei jedem Tag) | Woche planen | **«Meine Woche»**. **«Woche planen»** bleibt der Ort Planen › Woche (`#/week`), **«Wochenplan»** die Seite mit den Stunden pro Woche (Noah 17.11.2026 «alle umsetzen 1-10») |
 | 25 | Die Seite nach dem Abhaken (Aktiv) | Meldung nach dem Haken, «Dein Verlauf» | **«Geschafft»**; «Alle Zahlen» führt zur Sportseite, die weiter «Dein Verlauf» heisst (Noah 19.11.2026 «1-5a») |
 | 26 | Wie lange eine Einheit einer Sportart üblicherweise dauert (Schätzung ohne gemessene Zeit) | Standarddauer, Normdauer | **«Übliche Dauer»**; die Mindestdauer des Timers heisst weiter «Mindestdauer» (Noah 21.11.2026 «2b»; Arbeitsname, Noah kann umbenennen) |
+| 27 | Die Auswertung über alle Sportarten in Stunden (Auswerten) | Sportauswertung, Jahresübersicht | **«Sportjahr»** (Arbeitsname, Noah kann umbenennen; Noah 21.11.2026 «1 a dann b») |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.
