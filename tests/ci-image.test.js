@@ -108,3 +108,28 @@ describe('Probe specs stay out of the CI runs', () => {
     for (const s of Object.values(files)) expect(s).not.toContain('TMP_DURCHKLICK');
   });
 });
+
+describe('Online-Rot melden (online-rot.yml)', () => {
+  // Noah 21.11.2026 «ja»: a red going-online run of main sends a mail at once, a green one closes the issue again.
+  const w = read('online-rot.yml');
+  it('watches only the finished run of «Build and deploy» on main, never a cancelled one', () => {
+    expect(w).toMatch(/workflow_run:\s*\n\s*workflows: \['Build and deploy'\]\s*\n\s*types: \[completed\]\s*\n\s*branches: \[main\]/);
+    expect(w).toContain("github.event.workflow_run.event == 'push'");
+    expect(w).toContain("conclusion != 'cancelled'");
+    expect(readFileSync(new URL('../.github/workflows/deploy.yml', import.meta.url), 'utf8')).toMatch(/^name: Build and deploy$/m);
+  });
+  it('opens or comments on a labelled issue when red, closes it when green, with GITHUB_TOKEN only', () => {
+    expect(w).toContain('gh issue create');
+    expect(w).toContain('gh issue comment');
+    expect(w).toContain('gh issue close');
+    expect(w).toMatch(/if: env\.CONCLUSION != 'success'/);
+    expect(w).toMatch(/if: env\.CONCLUSION == 'success'/);
+    expect(w).toMatch(/issues: write/);
+    expect(w).not.toMatch(/secrets\./);
+  });
+  it('never puts the commit text into the script (it goes through the environment)', () => {
+    const scripts = w.split('\n').filter((l) => !/^\s*(#|COMMIT_MESSAGE:)/.test(l)).join('\n');
+    expect(scripts).not.toContain('head_commit.message');
+    expect(w).toMatch(/COMMIT_MESSAGE: \$\{\{ github\.event\.workflow_run\.head_commit\.message \}\}/);
+  });
+});

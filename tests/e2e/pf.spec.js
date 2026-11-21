@@ -960,8 +960,14 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
     await expect.poll(async () => (await tripNamed(page, title)).route?.km ?? 0, { timeout: 3000 }).toBeGreaterThan(0);
     expect((await tripNamed(page, title)).place).toBeTruthy();
   });
+  // 21.11.2026: when the trip is within reach (today), the app fetches the forecast by itself as soon as the route gives
+  // the start place (TripRoute.svelte), and the «Get forecast» button is replaced by «Update». With the test clock shifted
+  // by a few days the trip was not in reach and the button stayed; since #1319 the test runs on the real day. So: the
+  // button only when the forecast has not come by itself; what counts is the stored forecast, checked right below.
   const get = sheet.getByRole('button', { name: T('Get forecast') });
-  if (await get.count()) await get.click();
+  const forecastDays = async () => (await tripNamed(page, title)).forecast?.days?.length ?? 0;
+  await expect.poll(async () => (await forecastDays()) > 0 || (await get.isEnabled().catch(() => false)), { timeout: 10_000 }).toBe(true);
+  if (!(await forecastDays())) await get.click({ timeout: 5000 }).catch(() => { /* the forecast came by itself meanwhile: checked below */ });
   await rec.check('weather: the forecast (mocked Open-Meteo) is stored on this trip', async () => expect.poll(async () => (await tripNamed(page, title)).forecast?.days?.length ?? 0, { timeout: 3000 }).toBeGreaterThan(0));
   await sheet.getByRole('button', { name: T('Done') }).click();
   // Print / PDF.

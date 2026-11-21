@@ -95,6 +95,14 @@ test('Eigenes Diagramm: the D1 values under each other, a tapped day with all va
   for (const k of DEFAULT_KEYS) await expect(dg.locator(`[data-dg-row="${k}"]`), k).toBeVisible();
   await expect(dg.locator('[data-dg-row="rhr"] rect.band')).toHaveCount(1);
   await expect(dg.locator('[data-dg-row="km:bike"] rect.bar').first()).toBeVisible();
+  // «Auswerten in fünf Reiter» (Schritt 12b): the chart comes first, the three choices (what, how long, filter) sit below it
+  const firstRow = await dg.locator('[data-dg-row]').first().boundingBox();
+  const change = dg.locator('[data-dg-change]');
+  await expect(change.locator('.cg')).toHaveCount(3);
+  await expect(change.locator('[data-dg-what] [data-dg-add]')).toBeVisible();
+  await expect(change.locator('[data-dg-howlong] [data-dg-range]')).toBeVisible();
+  await expect(change.locator('[data-dg-look] [data-dg-filter]')).toBeVisible();
+  expect(firstRow.y).toBeLessThan((await change.boundingBox()).y);
   await shot(page, 'diagramm', info);
   // tap a day in the resting pulse row: a line through all rows and the day with every value
   const svg = dg.locator('[data-dg-row="rhr"] svg[role="img"]');

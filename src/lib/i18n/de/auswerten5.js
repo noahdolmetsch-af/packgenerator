@@ -5,4 +5,8 @@ export default {
   'Form, heart rate, sleep, weight and insights.': 'Form, Puls, Schlaf, Gewicht und Erkenntnisse.',
   'Your rides with heatmap, new ground, summit book and year.': 'Deine Fahrten mit Heatmap, Neuland, Gipfelbuch und Jahr.',
   'Your daily questions, what does you good and impulses.': 'Deine täglichen Fragen, was dir gut tut und Impulse.',
+  // Schritt 12b: Eigenes Diagramm, the chart first and the three choices below it
+  'What|diagram': 'Was',
+  'How long|diagram': 'Wie lange',
+  'Filter and look|diagram': 'Filter und Ansicht',
 };
