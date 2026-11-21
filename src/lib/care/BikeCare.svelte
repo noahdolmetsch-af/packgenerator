@@ -11,7 +11,7 @@
    * - folded rows: parts without data, the 1000 km check, the log, "Bike shop & 2026".
    */
   import AskClaude from '../assistent/AskClaude.svelte';
-  import { Check, ChevronDown, ChevronRight, ChevronUp, Store, Info, ListChecks, BookOpen, Eye, PenLine, Heart } from '@lucide/svelte';
+  import { Check, ChevronDown, ChevronRight, ChevronUp, Store, Info, ListChecks, BookOpen, Eye, PenLine, Heart, MoreHorizontal } from '@lucide/svelte';
   import Btn from '../ui/Btn.svelte';
   import MoreActions from '../ui/MoreActions.svelte';
   import { explain } from '../ui/explain.js';
@@ -22,6 +22,7 @@
   import { bikesHash } from '../bikes.js';
   import { bikeCareWords } from '../readiness.js';
   import { wearRows } from '../wear.js';
+  import { ledgerCounts } from '../kmbook.js';
 
   let {
     c, tasks = [], visits = [], wished = {}, kmMsg = null, open = false, filter = 'all', today,
@@ -163,6 +164,12 @@
 
   /* ---------- folds ---------- */
   let kmOpen = $state(false);
+  // «Seite umbauen» (Noah 21.11.2026, Schritt B): «More» is shut; it opens by itself while a ride of this bike is unclear.
+  let moreOpen = $state(false);
+  const ledgerOpen = $derived(open ? ledgerCounts(kmEntries, bike.id).open.length : 0);
+  $effect(() => {
+    if (ledgerOpen) moreOpen = true;
+  });
   let blindOpen = $state(false);
   let checkOpen = $state(false);
   let logOpen = $state(false);
@@ -316,17 +323,6 @@
       {#if words.text && c.care.status !== 'due'}<p class="quiet">{words.text}</p>{/if}
       <!-- v0.116.0 «Strava-Verbindung» (4b): a ride of this bike got another bike in Strava: the question stays until you choose -->
       <StravaChanges bikeId={bike.id} />
-      {#if q1On}
-        <Q1Status {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} parts={mainParts} {bikes} {today} onstart={(key) => onstartpoint?.(key, mainParts)} onhide={() => onq1?.(false)} />
-      {/if}
-      <!-- v0.68.0 (Q1.1 a): the ride ledger as its own block at the top of the bike -->
-      <KmBook {bike} {bikes} />
-      <!-- «Verschleiss» (Noah 20.10.2026, 2b + «Verschleiss immer im Griff»): at a glance, the chain first, the way to the page «Wear» -->
-      {#await import('./WearCard.svelte') then m}<m.default {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} />{:catch}{/await}
-      {#if !q1On && onq1}<p class="q1on"><button type="button" class="lnk" onclick={() => onq1(true)}>{t('Check Q1 «Gapless km» for this bike')}</button></p>{/if}
-      <!-- v0.69.0 «Velo-Blätter» (V1 a): the bike's folder, one line of links -->
-      <SheetFolder bike={c.bike} compact from="care" />
-
       <!-- v0.47.0 (Noah 10a): "Due now" as cards above the wear list -->
       {#if due.length || hcards.length}
         <p class="zlabel nowh">{t('Due now')} <span class="pill act num">{due.length + hcards.length}</span></p>
@@ -402,13 +398,11 @@
           <button type="button" class="btn hi" onclick={onstart}>{t('Enter start values')}</button>
         </div>
       {/if}
+      <!-- «Auf einen Blick»-Umbau (Noah 21.11.2026 «1a 2a 3a 4a 5a», Schritt B): first what is due, then the inspection as three cards, then the wear; the rest is under «More» -->
+      {#if filter === 'all' && stored}{#await import('../inspect/InspectCard.svelte') then m}<m.default bike={stored} />{/await}{/if}
+      <!-- «Verschleiss» (Noah 20.10.2026, 2b + «Verschleiss immer im Griff»): at a glance, the chain first, the way to the page «Wear» -->
+      {#await import('./WearCard.svelte') then m}<m.default {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} />{:catch}{/await}
       {#if filter === 'all'}
-        <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
-        <!-- «Velo im Griff» (Noah 19.10.2026): kind, riding hours, the whole-bike service, links to the template and the cheat sheet -->
-        {#if stored && oncare}{#await import('./VeloCard.svelte') then m}<m.default bike={stored} km={bike.km ?? null} {oncare} />{/await}{/if}
-        <!-- «Velo-Inspektion» (Noah 19.10.2026): the checks point by point, with guides; loaded with the bike -->
-        {#if stored}{#await import('../inspect/InspectCard.svelte') then m}<m.default bike={stored} />{/await}{/if}
-        {#if stored && oncare}<CarePlanCard bike={stored} onsave={oncare} />{/if}
         <div class="ptcard"><PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} /></div>
       {:else}
       {#if soon.length || ok.length}
@@ -443,6 +437,27 @@
 
       {/if}
       <div class="folds">
+        <details class="fold" id="more-{bike.id}" bind:open={moreOpen} data-care-more>
+          <summary><MoreHorizontal size={18} aria-hidden="true" /><span class="fl">{t('More')}</span><span class="r">{#if ledgerOpen}<span class="badge warn">{tn(ledgerOpen, '{n} unclear ride', '{n} unclear rides')}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+          {#if moreOpen}
+            <p class="hint">{t('The ride ledger, the bike sheets and the care rules. Nothing is gone, it is just one tap down.')}</p>
+          {#if q1On}
+            <Q1Status {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} parts={mainParts} {bikes} {today} onstart={(key) => onstartpoint?.(key, mainParts)} onhide={() => onq1?.(false)} />
+          {/if}
+          <!-- v0.68.0 (Q1.1 a): the ride ledger as its own block at the top of the bike -->
+          <KmBook {bike} {bikes} />
+          {#if !q1On && onq1}<p class="q1on"><button type="button" class="lnk" onclick={() => onq1(true)}>{t('Check Q1 «Gapless km» for this bike')}</button></p>{/if}
+          <!-- v0.69.0 «Velo-Blätter» (V1 a): the bike's folder, one line of links -->
+          <SheetFolder bike={c.bike} compact from="care" />
+
+            {#if filter === 'all'}
+            <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
+            <!-- «Velo im Griff» (Noah 19.10.2026): kind, riding hours, the whole-bike service, links to the template and the cheat sheet -->
+            {#if stored && oncare}{#await import('./VeloCard.svelte') then m}<m.default bike={stored} km={bike.km ?? null} {oncare} />{/await}{/if}
+            {#if stored && oncare}<CarePlanCard bike={stored} onsave={oncare} />{/if}
+            {/if}
+          {/if}
+        </details>
         <details class="fold" id="check-{bike.id}" bind:open={checkOpen}>
           <summary><ListChecks size={18} aria-hidden="true" /><span class="fl">{t('{km} km check', { km: num(c.check.every ?? CHECK_KM) })}</span><span class="r">{#if c.check.due}<span class="badge warn">{t('{n} open', { n: c.check.due })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
           {#if checkOpen}

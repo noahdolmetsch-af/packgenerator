@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { openData, settle } from './settle.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { PHONE_ROWS } from '../../src/lib/touren/kurz.js';
+import { openCareMore } from './pflege-mehr.js';
 
 const P = 'test_data_gtp_';
 const SPARK = `${P}spark`;
@@ -88,6 +89,7 @@ test('Velopflege kurz: computer keeps every row', async ({ page, context }, info
   test.skip(info.project.name !== 'desktop', 'the computer view');
   const errors = await start(page, context, info);
   await open(page, `#/bikes?tab=care&bike=${SPARK}&open=1`);
+  await openCareMore(page);
   expect(await page.locator('[data-care-plan] li[data-care]').count()).toBeGreaterThan(PHONE_ROWS);
   await expect(page.locator('[data-care-plan-more]')).toHaveCount(0);
   await open(page, `#/bikes?tab=care&view=inspect&bike=${SPARK}`);
