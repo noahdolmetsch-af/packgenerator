@@ -56,6 +56,7 @@ test('Velopflege kurz: phone shows five rows per list, then more', async ({ page
 
   // the care page of one bike: «Pflege für …» shows five cares, then «n weitere zeigen»
   await open(page, `#/bikes?tab=care&bike=${SPARK}&open=1`);
+  await openCareMore(page);
   const plan = page.locator('[data-care-plan]');
   await expect(plan.locator('li[data-care]')).toHaveCount(PHONE_ROWS);
   const more = plan.locator('[data-care-plan-more]');
