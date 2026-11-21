@@ -404,6 +404,8 @@
       {#await import('./WearCard.svelte') then m}<m.default {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} />{:catch}{/await}
       {#if filter === 'all'}
         <div class="ptcard"><PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} /></div>
+        <!-- Schritt B: the part template used to sit in the bike card; «More» is shut, so the way to it stays here (every function within 3 taps of Heute) -->
+        <a class="shoplink" href={bikesHash({ tab: 'care', view: 'templates', bike: bike.id })} data-link-templates-top>{t('Part template')}<ChevronRight size={16} aria-hidden="true" /></a>
       {:else}
       {#if soon.length || ok.length}
           <p class="zlabel">{t('Wear|list')}</p>
