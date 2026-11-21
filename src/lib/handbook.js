@@ -1066,8 +1066,8 @@ const LISTED = {
   },
   'f.routeknown': {
     on: null,
-    steps: ['Open a trip › «Route» with a GPX route: the stretches you marked as bad or good after a ride show under the map.', 'Tap «How new is this route for me?» to see how much of it you have never ridden.'],
-    example: 'Example: «2 stretches you marked as bad are on this route, first at km 12» and «38 % of this route is new for you (21 km)».',
+    steps: ['Open a trip › «Route» with a GPX route: stretches you marked after a ride show under the map.', 'Tap «How new is this route for me?» to see how much of it you have never ridden.'],
+    example: 'Example: «2 stretches you marked as bad are on this route» and «38 % is new for you (21 km)».',
   },
   'f.rwgps': {
     on: null,

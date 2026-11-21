@@ -13,9 +13,9 @@ export default {
   // Funktionsliste, Handbuch, Gut zu wissen
   'Your experience on the route': 'Deine Erfahrung auf der Route',
   'Under the route of a trip: the stretches you marked as bad or good after a ride, and how much of the route is new for you.': 'Unter der Route einer Tour: die Stücke, die du nach einer Fahrt als schlecht oder gut markiert hast, und wie viel der Route neu für dich ist.',
-  'Open a trip › «Route» with a GPX route: the stretches you marked as bad or good after a ride show under the map.': 'Öffne eine Tour › «Route» mit einer GPX-Route: Die Stücke, die du nach einer Fahrt als schlecht oder gut markiert hast, stehen unter der Karte.',
+  'Open a trip › «Route» with a GPX route: stretches you marked after a ride show under the map.': 'Öffne eine Tour › «Route» mit einer GPX-Route: Markierte Stücke stehen unter der Karte.',
   'Tap «How new is this route for me?» to see how much of it you have never ridden.': 'Tippe auf «Wie neu ist diese Route für mich?», dann siehst du, wie viel davon du noch nie gefahren bist.',
-  'Example: «2 stretches you marked as bad are on this route, first at km 12» and «38 % of this route is new for you (21 km)».': 'Beispiel: «2 Stücke, die du als schlecht markiert hast, liegen auf dieser Route, zuerst bei km 12» und «38 % dieser Route sind neu für dich (21 km)».',
+  'Example: «2 stretches you marked as bad are on this route» and «38 % is new for you (21 km)».': 'Beispiel: «2 Stücke, die du als schlecht markiert hast, liegen auf der Route» und «38 % sind neu für dich».',
   'A stretch you marked as bad is easy to ride again by accident on a route from someone else. Look at the hint before the start, not on the road.': 'Ein Stück, das du als schlecht markiert hast, fährst du auf einer fremden Route leicht aus Versehen wieder. Schau den Hinweis vor dem Start an, nicht auf der Strasse.',
   'Open a trip at «Route» with a GPX route.': 'Öffne eine Tour bei «Route» mit einer GPX-Route.',
   'Look under the map for stretches you marked.': 'Schau unter der Karte nach Stücken, die du markiert hast.',
