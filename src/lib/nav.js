@@ -281,6 +281,16 @@ export function pageOf(hash = '', careTab = false) {
 }
 
 /**
+ * Gesamttest 19.11.2026 (Noah «a»): an address no page knows («#/does-not-exist») shows «Page not found» with
+ * «To Today», no longer Today silently. Today's own addresses are '', '#' and '#/' (with or without a query).
+ */
+export function isUnknown(hash = '', careTab = false) {
+  const path = String(hash || '').split('?')[0];
+  if (path === '' || path === '#' || path === '#/') return false;
+  return pageOf(hash, careTab) === 'home' && !redirectOf(hash);
+}
+
+/**
  * v0.49.0 R1 «Rückblick ruhig» (Noah 4a): the old pages «Letzte 12 Monate» (#/review) and «Touren
  * vergleichen» (#/debrief/compare) are parts of the one Rückblick page now. Their addresses lead there
  * (no dead links): → { hash, spot } (spot: the section to scroll to), or null for every other address.
