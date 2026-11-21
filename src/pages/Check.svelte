@@ -351,7 +351,7 @@
   }
   .h1 {
     margin: 0;
-    font: 800 var(--fs-page) / 1.1 var(--font-brand);
+    font: 700 var(--fs-page)/var(--lh-title) var(--font-title);
   }
   .ph p {
     margin: 0;

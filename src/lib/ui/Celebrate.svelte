@@ -80,7 +80,7 @@
   }
   h1 {
     margin: 4px 0 0;
-    font: 800 var(--fs-page)/1.05 var(--font-brand);
+    font: 700 var(--fs-page)/var(--lh-title) var(--font-title);
     color: var(--ink);
     overflow-wrap: break-word;
   }

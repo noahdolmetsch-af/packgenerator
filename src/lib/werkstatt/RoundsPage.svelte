@@ -423,7 +423,7 @@
   .rcard {
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     padding: 14px 16px;
     margin: 0 0 14px;
   }

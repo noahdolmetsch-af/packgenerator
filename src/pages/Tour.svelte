@@ -999,7 +999,7 @@
     min-height: 180px;
     padding: 16px 18px;
     border: 1px solid transparent;
-    border-radius: 18px;
+    border-radius: var(--radius-card);
     background: color-mix(in srgb, var(--accent-soft) 35%, var(--paper));
     font: 400 var(--fs-sub) / 1.55 var(--font-body);
   }
