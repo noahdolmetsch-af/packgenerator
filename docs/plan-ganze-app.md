@@ -33,7 +33,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | gebaut | - |
 | 13 | Velos und Material: ein Bereich mit Reitern und Kacheln, «Sets» statt Ausrüstung (= V5 des Auftrags «App vereinfachen») | - | offen | - |
 | 6 | Ich (vier Gruppen mit Satz zum Stand, «Wartet auf dich» zuerst) und Suche | - | offen | - |
-| V1 | Woche: «n von m Einheiten erledigt» und die Ziele der Woche auf der Woche-Seite | #PRNR | gebaut | - |
+| V1 | Woche: «n von m Einheiten erledigt» und die Ziele der Woche auf der Woche-Seite | #1349 | gebaut | - |
 | V3 | Woche: Aktiv › Woche, Training › Woche, Wochenplan und Mein Trainingsplan führen auf die eine Woche, eine Ziel-Zahl «n von m Einheiten» | - | offen | - |
 | V4 | Bereich «Woche» (Planen und Aktiv zusammen: Woche, Training, Notizen, Alltag) und Menü mit fünf Bereichen (Seitenleiste und Handy-Leiste, alte Adressen per `redirectOf`) | - | offen | - |
 | V7 | «Alles hier» fällt weg, am Seitenende «Alle Funktionen ›» | - | offen | - |

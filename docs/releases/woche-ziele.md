@@ -1,6 +1,6 @@
 # Woche: «n von m Einheiten erledigt» und die Ziele der Woche auf einer Seite
 
-Schritt V1 des Auftrags «App vereinfachen» (`/mnt/project-files/notes/vereinfachen-durchgang-2026-11-21/umsetzungsauftrag-vereinfachen.md`) · 21.11.2026 · Entscheid Noah «1a 2a 3a 4a 5a» (21.11.2026 17:50 UTC), Entwurf «Woche» auf der Bilder-Seite https://claude.ai/artifact/MLJqa4PpNZAoHFLB51vWie
+PR #1349 · Schritt V1 des Auftrags «App vereinfachen» (`/mnt/project-files/notes/vereinfachen-durchgang-2026-11-21/umsetzungsauftrag-vereinfachen.md`) · 21.11.2026 · Entscheid Noah «1a 2a 3a 4a 5a» (21.11.2026 17:50 UTC), Entwurf «Woche» auf der Bilder-Seite https://claude.ai/artifact/MLJqa4PpNZAoHFLB51vWie
 
 ## Was ist neu
 - Die Seite «Woche» (`#/week`) zählt oben «2 von 5 Einheiten erledigt» (statt nur «5 Einheiten»), zusammen mit Terminen, Aufgaben und Touren.
