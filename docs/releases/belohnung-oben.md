@@ -1,6 +1,6 @@
 # Belohnung nach oben
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 5)
+PR #1370 · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 5)
 
 ## Was ist neu
 - Auf Auswerten › Meilensteine steht «Belohnung» gleich unter der Karte «Dein nächster Stern», nicht mehr rechts am Rand (am Handy ganz unten).
