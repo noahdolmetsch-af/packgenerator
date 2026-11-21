@@ -519,8 +519,9 @@
           <label class="wl-switch"><input type="checkbox" checked={cfg.drains} onchange={(e) => save(WOHL_KEY, { ...cfg, drains: e.currentTarget.checked })} /><span>{t('Show energy drains')}</span></label>
           {#if cfg.drains}
             {#each drain as d (d.key)}
-              <p class="wl-line"><BatteryLow size={18} aria-hidden="true" /><span><b>{t('Days with {fact}: {a} instead of {b}', { fact: fact(d.key), a: f1(d.with), b: f1(d.without) })}</b>
-                <details class="wl-how"><summary>{t('How does the app know?')}</summary><span>{t('{a} days with it, {b} without. Sources: {src}.', { a: d.nWith, b: d.nWithout, src: srcOf([d.key]) })}</span></details></span></p>
+              <!-- 21.11.2026: a div, not a p: a <details> inside a <p> makes the browser close the <p> early, the page's own structure then no longer fits and the page crashed («Illegal invocation») for everyone who switched «Show energy drains» on -->
+              <div class="wl-line"><BatteryLow size={18} aria-hidden="true" /><span><b>{t('Days with {fact}: {a} instead of {b}', { fact: fact(d.key), a: f1(d.with), b: f1(d.without) })}</b>
+                <details class="wl-how"><summary>{t('How does the app know?')}</summary><span>{t('{a} days with it, {b} without. Sources: {src}.', { a: d.nWith, b: d.nWithout, src: srcOf([d.key]) })}</span></details></span></div>
             {:else}
               <p class="muted">{t('No clear energy drain in your days. That is fine too.')}</p>
             {/each}
