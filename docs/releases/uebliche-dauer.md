@@ -1,6 +1,6 @@
 # Übliche Dauer je Sportart
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1 a dann b, 2b, 3a, 4a, 5a» (Thread «Jede Sportart durchgehen», Umsetzungsauftrag S1)
+PR #1310 · 21.11.2026 · Auftrag: Noah «1 a dann b, 2b, 3a, 4a, 5a» (Thread «Jede Sportart durchgehen», Umsetzungsauftrag S1)
 
 ## Was ist neu
 - Jede Sportart hat eine «Übliche Dauer»: wie lange eine Einheit üblicherweise dauert. Ohne Einstellung gelten 60 Minuten.
@@ -30,3 +30,6 @@ PR folgt · 21.11.2026 · Auftrag: Noah «1 a dann b, 2b, 3a, 4a, 5a» (Thread �
 1. Aktiv › Meine Sportarten: die Zeile «Übliche Dauer» öffnen und bei einer Sportart einmal auf «+» tippen: dort steht «75 Min» (ohne «Standard»).
 2. Dieselbe Sportart antippen, «Bearbeiten»: «Übliche Dauer» zeigt «eigene» mit 75; auf «Standard» tippen und speichern.
 3. Zurück in der Liste steht wieder «60 Min (Standard)».
+
+## Prüfung mit einer Backup-Kopie
+`tests/usualdauer.test.js` baut aus einer Datenbank mit der Einstellung ein Backup, liest es in eine leere Datenbank zurück (Einstellung ist da) und liest dieselbe Datei ohne die Einstellung zurück (überall 60 Minuten, nichts bricht).

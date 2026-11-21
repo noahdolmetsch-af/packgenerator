@@ -67,3 +67,24 @@ describe('the German texts', () => {
     expect(DE['Usual duration']).toBe('Übliche Dauer');
   });
 });
+
+describe('the backup (check with a copy, Noah rule 3)', () => {
+  it('the setting travels in the backup and an older copy without it gives 60 minutes everywhere', async () => {
+    const { buildBackup, restoreBackup, validateBackup } = await import('../src/lib/backup.js');
+    const a = createDb('usual-backup-a');
+    await saveUsual(a, 'run', 45);
+    const copy = JSON.parse(JSON.stringify(await buildBackup(a)));
+    expect(validateBackup(copy)).toEqual([]);
+    expect(copy.tables.settings.some((r) => r.key === USUAL_KEY && r.value.run === 45)).toBe(true);
+    const b = createDb('usual-backup-b');
+    await restoreBackup(b, copy, 'replace');
+    expect(await readUsual(b)).toEqual({ run: 45 });
+    // an older copy: the same file without the setting
+    const old = JSON.parse(JSON.stringify(copy));
+    old.tables.settings = old.tables.settings.filter((r) => r.key !== USUAL_KEY);
+    const c = createDb('usual-backup-c');
+    await restoreBackup(c, old, 'replace');
+    expect(await readUsual(c)).toEqual({});
+    expect(usualFor(await readUsual(c), 'run').min).toBe(60);
+  });
+});
