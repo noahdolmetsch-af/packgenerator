@@ -1,6 +1,6 @@
 # Test «Neue Vorlage in 3 Schritten»: der Knopf «Weiter» ist eindeutig
 
-PR #? · 21.11.2026 · Auftrag: Noah «3a» (Thread «Prüfungen so einrichten, dass main grün bleibt»)
+PR #1332 · 21.11.2026 · Auftrag: Noah «3a» (Thread «Prüfungen so einrichten, dass main grün bleibt»)
 
 Kein sichtbarer Unterschied in der App, nur ein Test.
 
