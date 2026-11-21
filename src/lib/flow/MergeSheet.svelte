@@ -20,6 +20,8 @@
   });
   let to = $state(into || targets[0]?.id || '');
   const target = $derived(targets.find((x) => x.id === to));
+  // the sport suggested comes first, so it is in view without scrolling the list
+  const ordered = $derived([...targets.filter((x) => x.id === into), ...targets.filter((x) => x.id !== into)]);
 
   function confirm() {
     if (!to) return;
@@ -37,7 +39,7 @@
   {#if targets.length}
     <fieldset class="where">
       <legend class="lbl">{t('Which sport stays?')}</legend>
-      {#each targets as g (g.id)}
+      {#each ordered as g (g.id)}
         <label class="opt">
           <input type="radio" name="mrg-to" value={g.id} bind:group={to} data-merge-to={g.id} />
           <span><b>{g.name}</b></span>
