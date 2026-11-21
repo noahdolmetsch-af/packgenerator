@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
-import { MIN_CHIPS, FEELS, feelId, canSetMinutes, withMinutes, withFeel } from '../src/lib/flow/feel.js';
+import { MIN_CHIPS, FEELS, feelId, canSetMinutes, withMinutes, withFeel, parseMinutes, setMinutes, MAX_MIN } from '../src/lib/flow/feel.js';
 import { createDb } from '../src/lib/db.js';
 import { buildBackup, restoreBackup, validateBackup } from '../src/lib/backup.js';
 
@@ -24,6 +24,21 @@ describe('«Haken zuerst»: Dauer und Gefühl auf dem Haken', () => {
   it('nonsense minutes change nothing but take the old ones away', () => {
     expect(withMinutes({ ...e, min: 30 }, 0)).toEqual(e);
     expect(withMinutes(e, 'x')).toEqual(e);
+  });
+  it('own minutes typed by hand: whole minutes from 1 to 1440, «75» or «75 min»; anything else is nothing', () => {
+    expect(MAX_MIN).toBe(1440);
+    expect(parseMinutes('75')).toBe(75);
+    expect(parseMinutes(' 75 min ')).toBe(75);
+    expect(parseMinutes('1440')).toBe(1440);
+    for (const bad of ['', '0', '1441', '7.5', '7,5', 'abc', '-5', null, undefined, '12345']) expect(parseMinutes(bad)).toBeNull();
+  });
+  it('typed minutes set exactly that value; the same value again keeps it (no taking back like a chip); nonsense changes nothing', () => {
+    const a = setMinutes(e, '75');
+    expect(a).toEqual({ ...e, min: 75 });
+    expect(setMinutes(a, 75)).toEqual(a);
+    expect(setMinutes(a, 'x')).toEqual(a);
+    expect(setMinutes({ ...e, min: 30 }, 40)).toEqual({ ...e, min: 40 });
+    expect(e.min).toBeUndefined();
   });
   it('a feeling chip sets the word, the same one again takes it back, an unknown word changes nothing', () => {
     const a = withFeel(e, 'hard');
