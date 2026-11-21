@@ -2,6 +2,9 @@
 # real app on GitHub Pages (tests/e2e/live/live.spec.js): Today opens, Ich shows the version that
 # went online, the app starts without network. It also plays an update on a phone that has the old
 # app stored (tests/e2e/live/update.spec.js: an «older» build, then today's, at the same address).
+# Noah 21.11.2026 «2»: the same run also WALKS the real app like Noah does (tests/e2e/live/rundgang.spec.js): tick off
+# an activity, look at the Sportjahr, save a backup, take the tick back, put the backup in. A broken tick or
+# backup shows up the minute it is online. The browser is fresh: it touches nothing of Noah's.
 # Only on a failure it opens an issue (or adds to the open one), so Noah gets a mail and Claude repairs it.
 # Only GITHUB_TOKEN, no secret. Free on a public repository.
 name: Live-Check
@@ -49,7 +52,7 @@ jobs:
         run: |
           APP_VERSION_OVERRIDE=0.0.1 npx vite build --outDir dist-old --emptyOutDir
           npm run build
-      - name: Check the live app and the update
+      - name: Check the live app, the update and the walk
         id: test
         shell: bash # with pipefail: a red test stays red through the tee
         run: npx playwright test tests/e2e/live/ --project=phone --workers=1 --retries=1 2>&1 | tee live.log
