@@ -67,3 +67,18 @@ test('without a plan the card guesses a date from the pace; with little history 
   await fits(page, 'milestones with pace');
   expect(errors).toEqual([]);
 });
+
+// «Meilensteine motivierender» PR 3 (Idee 2): the star path under «Pro Aktivität»
+test('per sport the stars stand as a path: gold for the reached ones', async ({ page, context }) => {
+  const errors = await open(page, context, { tennis: 22 });
+  const row = page.locator('[data-path="tennis"]');
+  await expect(row).toBeVisible();
+  const label = await row.locator('[role="img"]').getAttribute('aria-label');
+  const [, n, m] = label.match(/^(\d+) von (\d+) Sternen erreicht/);
+  await expect(row.locator('svg')).toHaveCount(Number(m));
+  await expect(row.locator('svg.full')).toHaveCount(Number(n));
+  await expect(row.locator('svg.part')).toHaveCount(1);
+  await expect(row.locator('a')).toHaveAttribute('href', '#/flow/milestones?act=tennis');
+  await fits(page, 'milestones with path');
+  expect(errors).toEqual([]);
+});
