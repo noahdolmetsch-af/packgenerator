@@ -9,6 +9,7 @@
   import { Pause, Play, Check, Bell, X, ChevronRight } from '@lucide/svelte';
   import TickSheet from './TickSheet.svelte';
   import TimerSheet from './TimerSheet.svelte';
+  import UnitDoneSheet from './UnitDoneSheet.svelte';
   import SessionView from './hobby/SessionView.svelte';
   import StarWindow from './hobby/StarWindow.svelte';
   import { flowQuery } from './data.svelte.js';
@@ -42,6 +43,7 @@
   <TickSheet st={tickState} />
   <TimerSheet {states} bowl={data.bowl} />
 {/if}
+<UnitDoneSheet st={ui.unit} />
 <SessionView acts={data?.acts ?? []} />
 <StarWindow />
 
