@@ -33,6 +33,7 @@ test('every function is at most 3 taps from Heute', async ({ page, context }, in
     if (!next) break;
     done.add(next);
     await page.goto('./' + next);
+    const start0 = Date.now();
     await page.locator('main').first().waitFor();
     await settle(page);
     // a page that still shows its loading card has not drawn its links yet (Rückblick: «Mehr» comes with the data)
@@ -42,6 +43,15 @@ test('every function is at most 3 taps from Heute', async ({ page, context }, in
       if (a.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return [a.getAttribute('href'), 1];
       return a.closest('details:not([open]), dialog:not([open])') ? [a.getAttribute('href'), 2] : null;
     }).filter(Boolean));
+    // 21.11.2026: a page keeps drawing after «settle» and the loading card are gone (Aktiv went 28 → 40 → 49 links within
+    // half a second, Meditation 27 → 35, Ski 32 → 43). One early look made whole areas «further than 3 taps», a different set
+    // on every run. So wait until the list of links stays the same for three looks, 250 ms apart.
+    for (let same = 0, prev = ''; same < 3 && Date.now() < start0 + 15_000;) {
+      const now = JSON.stringify(await scan());
+      same = now === prev ? same + 1 : 0;
+      prev = now;
+      await page.waitForTimeout(250);
+    }
     const links = await scan();
     // a card that starts as one line on the phone (Etappe 2, 1a) is a closed fold: its links cost 2 (the line, then the link)
     const lines = page.locator('[data-card-line]');
