@@ -633,6 +633,8 @@ export function shownTabs(place, hash = '') {
 const ORDER_KEY = 'nav.order';
 /** How many tabs a phone shows side by side; the others wait in the «Mehr» window. */
 export const PHONE_TABS = 4;
+/** Places whose tabs all stand side by side on a phone, up to this many (Noah 21.11.2026 «alle fünf sichtbar»: Auswerten has five). */
+const PHONE_ALL = { analysis: 5 };
 
 /** The tabs of a place in the order you chose (arrows and drag in «Mehr»); new tabs come after, in their own order. */
 export function orderedTabs(place) {
@@ -680,7 +682,7 @@ export function setTabOrder(place, keys) {
  */
 export function phoneTabs(place, hash = '') {
   const all = shownTabs(place, hash);
-  if (all.length <= PHONE_TABS) return { shown: all, more: [] };
+  if (all.length <= (PHONE_ALL[place] ?? PHONE_TABS)) return { shown: all, more: [] };
   const cur = tabOf(place, hash);
   let shown = all.slice(0, PHONE_TABS);
   if (cur && !shown.some((x) => x.key === cur)) shown = [...all.slice(0, PHONE_TABS - 1), all.find((x) => x.key === cur)];

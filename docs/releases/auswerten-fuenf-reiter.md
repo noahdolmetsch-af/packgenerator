@@ -22,7 +22,7 @@ PR #1305 · Schritt 12a des Plans `docs/plan-ganze-app.md` · 20.11.2026 · Auft
 ## Selbst entschieden
 - Die Reiter heissen «Übersicht», «Körper», «Fahrten», «Wi gaht's?» und «Eigenes Diagramm»; die Ordnung folgt den drei Gruppen, die es schon gab (Wie geht es mir? / Was habe ich gemacht? / Was habe ich gelernt?), nur gröber.
 - «Impulse» liegt unter «Wi gaht's?» (Idee und Stimmung), die Erkenntnisse des Rückblicks (Monatsbrief, Jahresbrief) unter «Fahrten», wie bisher in den Gruppen.
-- Am Handy stehen vier Reiter oben und der fünfte («Eigenes Diagramm») hinter «Alle 5», wie es die Handy-Leiste für alle Orte macht (`PHONE_TABS` = 4). Ändert sich erst mit Schritt 15 oder auf Wunsch.
+- Am Handy stehen alle fünf Reiter nebeneinander (Noah 21.11.2026 «alle fünf sichtbar»); dafür ist die Schrift der Leiste bei fünf Reitern etwas kleiner. Für andere Orte gilt weiter: vier Reiter, der Rest hinter «Alle n».
 - Das Wischen am Handy bleibt zwischen den fünf Reitern.
 - Die Fussleiste «Diese Seite anpassen» behält ihre Schlüssel, damit gespeicherte Einstellungen weiter gelten.
 - Das Diagramm zuerst auf der Seite Analyse ist ein eigener Schritt (12b).
