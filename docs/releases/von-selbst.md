@@ -1,6 +1,6 @@
 # Tür «Von selbst»: «Wie war's?» nach einer Strava- oder Fitbit-Aktivität
 
-PR folgt · 20.11.2026 · Auftrag: Noah «1-5a» (Thread «Training erfassen und auswerten vereinfachen», Umsetzungsauftrag T3). Erweitert am 21.11.2026 nach Noahs Antwort («auch auf Aktivitäten von Health anwenden», «mehr Daten»). **Datenänderung: neues Feld `feelWord` an den Strava-Aktivitäten (Sync-Feld) und die Einstellung `training.healthfeel` für Fitbit-Trainings, Einzelfreigabe von Noah nötig.**
+PR #1345 · 20.11.2026 · Auftrag: Noah «1-5a» (Thread «Training erfassen und auswerten vereinfachen», Umsetzungsauftrag T3). Erweitert am 21.11.2026 nach Noahs Antwort («auch auf Aktivitäten von Health anwenden», «mehr Daten»). **Datenänderung: neues Feld `feelWord` an den Strava-Aktivitäten (Sync-Feld) und die Einstellung `training.healthfeel` für Fitbit-Trainings, Einzelfreigabe von Noah nötig.**
 
 ## Was ist neu
 - Ganz oben auf Aktiv steht eine Karte «Neu von Strava · Heute 07:10 / Morgenrunde · 8.2 km · 46 Min · Ø Puls 148 / Wie war's?» mit **leicht, gut, hart** und «Später». Sie fragt nach der neusten Aktivität der letzten 3 Tage ohne Antwort, **für jede Sportart** (vorher nur Velofahrten).
