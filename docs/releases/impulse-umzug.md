@@ -16,8 +16,8 @@ PR #<Nummer> · 21.11.2026 · Auftrag: Noah «2a» (Thread «App-Landkarte»)
 - Der tägliche «Impuls für heute» auf Heute folgt als eigener PR (Noahs Zusatzidee).
 - Eigene Ideen, Bereiche und ausgeblendete Impulse bleiben unverändert (keine Datenänderung).
 
-## Entscheide (für decisions.md)
-- 21.11.2026: Impulse gehören zu Freie Zeit, nicht zu Auswerten (Noah «2a»). Ersetzt Runde 3 «3b».
+## Entscheide
+Siehe `docs/decisions/impulse-umzug.md`.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
 - App-Landkarte, Befund «Impulse mit zwei Zuhause»: behoben.
