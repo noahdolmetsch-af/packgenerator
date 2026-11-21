@@ -55,7 +55,7 @@ test('Three days «Not today»: the question appears, «Yes, quieter» switches 
   expect(errors).toEqual([]);
 });
 
-test('«Keep it»: the question goes away and is not asked again for a while', async ({ page, context }, info) => {
+test('Keep it: the question goes away and is not asked again for a while', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { data: data(), hour: 9 });
