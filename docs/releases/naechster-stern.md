@@ -1,6 +1,6 @@
 # Dein nächster Stern
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 1)
+PR #1352 · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 1)
 
 ## Was ist neu
 - Auf Auswerten › Meilensteine steht ganz oben eine grosse Karte «Dein nächster Stern»: Ring mit Prozent, der Stern mit seiner Stufe, «noch 3» und «22 von 25».
