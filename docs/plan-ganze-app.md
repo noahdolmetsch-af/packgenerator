@@ -29,8 +29,8 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 7a | Unterwegs-Modus: Noah schaltet ihn selbst ein (Knopf auf «Meine Tour», kein Autostart) | - | offen | - |
 | 7b | Danach, «Das fällt auf» nur nach der Tour, Antwort in Worten | - | offen | - |
 | 11 | Planen: 11 → 3 Reiter (Woche, Notizen, Alltag) | #1303 | online | datei:tests/e2e/planen-drei-reiter.spec.js |
-| 12a | Auswerten: 18 → 5 Reiter nach Frage geordnet (Überblick, Körper, Fahrten, Wi gaht's?, Eigenes Diagramm); die alten Seiten als Chips | #1305 | gebaut | - |
-| 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | - | offen | - |
+| 12a | Auswerten: 18 → 5 Reiter nach Frage geordnet (Überblick, Körper, Fahrten, Wi gaht's?, Eigenes Diagramm); die alten Seiten als Chips | #1305 | online | datei:tests/e2e/auswerten-gruppen.spec.js |
+| 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | gebaut | - |
 | 13 | Velos und Material: Reiter und Kacheln, «Sets» statt Ausrüstung | - | offen | - |
 | 6 | Ich (vier Gruppen mit Satz zum Stand, «Wartet auf dich» zuerst) und Suche | - | offen | - |
 | 14 | Streichliste umsetzen (W1–W4 ganz weg, M1–M8 hinter «Mehr», Z1–Z8 zusammenlegen), je Punkt ein PR | - | offen | - |
