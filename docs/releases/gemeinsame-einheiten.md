@@ -1,6 +1,6 @@
 # Gemeinsame Einheiten lesen
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1 a dann b, 2b, 3a, 4a, 5a» (Thread «Jede Sportart durchgehen», Umsetzungsauftrag S2)
+PR #1311 · 21.11.2026 · Auftrag: Noah «1 a dann b, 2b, 3a, 4a, 5a» (Thread «Jede Sportart durchgehen», Umsetzungsauftrag S2)
 
 ## Was ist neu
 - Nichts Sichtbares. Eine reine Lese-Funktion (`src/lib/flow/einheiten.js`, mit Tests) bringt die Haken von Aktiv (`flowLog`) und die Strava-Aktivitäten (`db.activities`) in **eine** Liste mit denselben Feldern: Tag, Sportart, Minuten, Quelle, optional Strecke, Höhe, Puls.
