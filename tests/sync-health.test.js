@@ -1,6 +1,6 @@
 // Noah 21.11.2026 «1-5a»: the dot at «Ich» and the line on Heute say how the sync stands. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { syncHealth, LATE_MS } from '../src/lib/sync/health.js';
+import { syncHealth, LATE_MS, ALONE_MS } from '../src/lib/sync/health.js';
 import { zustandRows } from '../src/lib/home/zustand.js';
 
 const now = Date.parse('2026-11-21T13:00:00Z');
@@ -22,6 +22,30 @@ describe('syncHealth', () => {
     expect(syncHealth({ on: true, hasData: true, last: ago(60_000), error: 'offline', dirty: 3, now })).toMatchObject({ state: 'late', dirty: 3 });
     expect(syncHealth({ on: true, hasData: true, last: ago(LATE_MS + 1000), now }).state).toBe('late');
     expect(syncHealth({ on: true, hasData: true, last: null, now }).state).toBe('late');
+  });
+});
+
+describe('«alone»: the sync runs but no other device ever wrote into it', () => {
+  const base = { on: true, hasData: true, last: ago(60_000), peerWatch: true, peerSeen: false, startedAt: ago(ALONE_MS + 1000), now };
+  it('alone after ALONE_MS without a second device; not before; not for a sync started before the check existed', () => {
+    expect(syncHealth(base).state).toBe('alone');
+    expect(syncHealth({ ...base, startedAt: ago(60_000) }).state).toBe('ok');
+    expect(syncHealth({ ...base, peerWatch: false }).state).toBe('ok');
+  });
+  it('a second device seen, or «only one device»: ok / quiet', () => {
+    expect(syncHealth({ ...base, peerSeen: true }).state).toBe('ok');
+    expect(syncHealth({ ...base, hide: true }).state).toBe('ok');
+  });
+  it('a failing round counts first: late', () => {
+    expect(syncHealth({ ...base, error: 'offline' }).state).toBe('late');
+  });
+  it('Heute: one line with «Pair» and a quiet «Only one device»', () => {
+    const calls = [];
+    const r = zustandRows({ health: { state: 'alone', dirty: 0 }, hasData: true }, { onlyOne: () => calls.push(1) });
+    expect(r.map((x) => x.key)).toEqual(['z:alone']);
+    expect(r[0].act.href).toBe('#/me/data');
+    r[0].act2.run();
+    expect(calls).toHaveLength(1);
   });
 });
 

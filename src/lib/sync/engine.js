@@ -66,6 +66,9 @@ export function httpApi(url = SYNC_URL, doFetch = (...a) => fetch(...a), { timeo
 }
 
 export const readCfg = (db) => db.meta.get(CFG);
+const newDevId = () => (globalThis.crypto?.randomUUID?.() ?? `d${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`);
+/** Is this record from another device than the one that reads it? Old records name only the kind of device (dev). */
+export const isOther = (p, { devId = null, dev = '' } = {}) => !!p && (p.from && devId ? p.from !== devId : !!p.dev && p.dev !== dev);
 const writeCfg = async (db, patch) => {
   const cur = (await readCfg(db)) ?? { key: CFG };
   await db.meta.put({ ...cur, ...patch, key: CFG });
@@ -82,7 +85,9 @@ export async function startSync(db, code, now = new Date().toISOString()) {
   await db.transaction('rw', db.meta, ...DATA_TABLES.map((t) => db.table(t)), async () => {
     await markAllChanged(db);
     // pulled: false until the first pull has been read to its end (then this device's own changes go first)
-    await db.meta.put({ key: CFG, code, since: 0, on: true, startedAt: now, lastAt: null, error: null, big: 0, pulled: false });
+    // devId, peerWatch, peerSeen: «has another device ever written into this sync?» (Noah 21.11.2026: two devices with two different
+    // codes each looked fine on their own). Every record carries who wrote it; peerSeen turns true with the first record of another device.
+    await db.meta.put({ key: CFG, code, since: 0, on: true, startedAt: now, lastAt: null, error: null, big: 0, pulled: false, devId: newDevId(), peerWatch: true, peerSeen: false, peerAt: null });
   });
 }
 
@@ -411,6 +416,10 @@ export async function syncNow(
   if (!cfg?.on || !cfg.code) return { skipped: 'off' };
   if (await demo()) return { skipped: 'demo' };
   const keys = await keysOf(cfg.code);
+  if (!cfg.devId) {
+    cfg.devId = newDevId(); // a sync that was switched on before this knew: it names its writer from now on (peerWatch stays off for it)
+    await writeCfg(db, { devId: cfg.devId });
+  }
   const out = { taken: 0, sent: 0, asks: 0, big: 0 };
   try {
     let since = cfg.since ?? 0;
@@ -427,6 +436,11 @@ export async function syncNow(
         if (Number.isFinite(Number(res.seq)) && Number(res.seq) < since) return 'reset';
         const items = res.items ?? [];
         const opened = await Promise.all(items.map(async (it) => ({ s: it.s, p: await unseal(keys, it.e) }))); // p null: sealed with another code, not ours to read
+        const others = opened.filter((o) => isOther(o.p, { devId: cfg.devId, dev }));
+        if (others.length) {
+          const peerAt = others.map((o) => String(o.p.at ?? '')).sort().at(-1);
+          await writeCfg(db, { peerSeen: true, peerAt });
+        }
         for (let i = 0; i < opened.length; i += APPLY_CHUNK) {
           if (i > 0 && timeUp()) return false;
           const chunk = opened.slice(i, i + APPLY_CHUNK);
@@ -470,7 +484,7 @@ export async function syncNow(
       };
       for (const n of dirty) {
         const v = n.del ? null : ((await db.table(n.t).get(n.id)) ?? null);
-        const e = await seal(keys, { t: n.t, id: n.id, v, del: v === null, at: n.at, dev });
+        const e = await seal(keys, { t: n.t, id: n.id, v, del: v === null, at: n.at, dev, from: cfg.devId });
         if (e.length > RECORD_MAX) {
           big++;
           continue;

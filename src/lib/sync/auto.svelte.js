@@ -27,10 +27,10 @@ export const FREE_AFTER_MS = 30_000;
 /** A round that stopped early (its pull ran out of time) is followed by the next one after this. */
 export const CONTINUE_MS = 1_000;
 
-export const sync = $state({ running: false, last: null, error: null, on: false, big: 0, since: 0, phase: '', n: 0, dirty: 0, hasData: false, demo: false, hide: false, health: { state: 'none', dirty: 0 } });
+export const sync = $state({ running: false, last: null, error: null, on: false, big: 0, since: 0, phase: '', n: 0, dirty: 0, hasData: false, demo: false, hide: false, peerWatch: false, peerSeen: false, startedAt: null, health: { state: 'none', dirty: 0 } });
 /** The one word for the dot at «Ich» and the line on Heute (health.js); looks again with every change and every 30 s. */
 export const refreshHealth = (now = Date.now()) => {
-  sync.health = syncHealth({ on: sync.on, error: sync.error, last: sync.last, dirty: sync.dirty, hasData: sync.hasData, demo: sync.demo, hide: sync.hide, now });
+  sync.health = syncHealth({ on: sync.on, error: sync.error, last: sync.last, dirty: sync.dirty, hasData: sync.hasData, demo: sync.demo, hide: sync.hide, peerWatch: sync.peerWatch, peerSeen: sync.peerSeen, startedAt: sync.startedAt, now });
 };
 const answeredNo = () => {
   try {
@@ -122,6 +122,9 @@ export function watchSync(db, win = globalThis) {
       sync.last = cfg?.lastAt ?? null;
       sync.error = cfg?.error ?? null;
       sync.big = cfg?.big ?? 0;
+      sync.peerWatch = !!cfg?.peerWatch;
+      sync.peerSeen = !!cfg?.peerSeen;
+      sync.startedAt = cfg?.startedAt ?? null;
       refreshHealth();
     },
     error: () => {},

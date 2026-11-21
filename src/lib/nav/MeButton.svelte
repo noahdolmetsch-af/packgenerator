@@ -15,7 +15,7 @@
   let { inbox = 0, current = false, card = false } = $props();
   // Noah 21.11.2026 «1-5a»: a small dot says how the sync stands (health.js): green = in step, orange = off or behind
   const health = $derived(sync.health.state);
-  const dotLabel = $derived(health === 'ok' ? t('Sync is up to date') : health === 'late' ? t('Sync is behind') : health === 'off' ? t('Sync is off') : '');
+  const dotLabel = $derived(health === 'ok' ? t('Sync is up to date') : health === 'late' ? t('Sync is behind') : health === 'off' ? t('Sync is off') : health === 'alone' ? t('Sync has no second device yet') : '');
 </script>
 
 <a class="me" class:mecard={card} href="#/me" aria-current={current ? 'page' : undefined} aria-keyshortcuts="i" aria-label={(inbox ? t('Me, Inbox: {n} to sort', { n: inbox }) : t('Me|place')) + (dotLabel ? `. ${dotLabel}` : '')}>
@@ -82,6 +82,7 @@
     background: var(--ok, #2f7d55);
   }
   .sdot.late,
+  .sdot.alone,
   .sdot.off {
     background: var(--warn, #d9822b);
   }
