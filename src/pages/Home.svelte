@@ -623,7 +623,7 @@
     navigator.storage?.estimate?.().then((e) => (space = e?.quota ? { used: e.usage ?? 0, quota: e.quota } : null), () => {});
     keepState().then((k) => (keep = k));
   });
-  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: async () => (keep = await askKeep()), syncNow: () => runSync() }));
+  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, health: autoSync.health, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: async () => (keep = await askKeep()), syncNow: () => runSync() }));
   async function allowFolder() {
     folderNeedsOk = !(await allowAgain(db));
   }
