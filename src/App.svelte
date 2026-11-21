@@ -57,6 +57,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
+  import { recordError } from './lib/fehler/felog.js';
   import { pageOf, isUnknown, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
@@ -105,6 +106,7 @@
   const onfail = (e, reset) => {
     failReset = reset;
     console.error(e);
+    recordError(e); // «Fehler-Melder»: noted on this device only (the page is the address now)
   };
   const failName = $derived.by(() => {
     if (place === 'me') return t('Me|place');
