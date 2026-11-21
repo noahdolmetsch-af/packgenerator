@@ -1,6 +1,6 @@
 // «Sportjahr» (Noah 21.11.2026, S3): the rules behind the page. Fictional data; calendar-day arithmetic only.
 import { describe, it, expect } from 'vitest';
-import { training, yearBack, windowOf, prevWindow, totals, bySport, colourOf, grainOf, buckets, lastYearLine, records, weeksWith } from '../src/lib/flow/sportjahr.js';
+import { training, yearBack, windowOf, prevWindow, totals, bySport, colourOf, grainOf, buckets, lastYearLine, records, weeksWith, goalOfYear, goalLine, perWeek } from '../src/lib/flow/sportjahr.js';
 
 const TODAY = '2026-11-21';
 const u = (id, day, sport, min, extra = {}) => ({ id, day, at: `${day}T07:00:00.000Z`, sport, actId: sport, ring: 'move', min, minQuelle: min ? 'gemessen' : null, quelle: 'hand', ...extra });
@@ -91,5 +91,26 @@ describe('records and series', () => {
     expect(w.find((x) => x.mon === '2026-11-09')).toMatchObject({ n: 1, ok: false });
     expect(w.find((x) => x.mon === '2026-11-23').future).toBe(true);
     expect(w[0].mon.slice(0, 4)).toBe('2025'); // the week with 1 January starts in December
+  });
+});
+
+describe('the goal as a line (S10)', () => {
+  it('uses the goal only with hours; a passed goal day draws no line and says so', () => {
+    expect(goalOfYear(null, TODAY)).toBeNull();
+    expect(goalOfYear({ name: 'Alps', hours: 6, until: '2027-01-04' }, TODAY)).toEqual({ name: 'Alps', hours: 6, until: '2027-01-04', passed: false });
+    expect(goalOfYear({ name: 'Old', hours: 6, until: '2026-10-24' }, TODAY).passed).toBe(true);
+    expect(goalOfYear({ name: 'Old', hours: null, until: '2026-10-24' }, TODAY)).toMatchObject({ hours: null, passed: true });
+    expect(goalOfYear({ name: 'No hours', hours: null, until: '2027-01-04' }, TODAY)).toBeNull();
+  });
+  it('the line is hours per week times the days of the bar divided by 7', () => {
+    const bars = [{ from: '2026-11-01', to: '2026-11-30' }, { from: '2026-11-02', to: '2026-11-02' }, { from: '2026-01-01', to: '2026-12-31' }];
+    expect(goalLine(bars, 7)).toEqual([1800, 60, 21900]);
+    expect(goalLine(bars, 0)).toBeNull();
+    expect(goalLine(bars, null)).toBeNull();
+  });
+  it('hours per week of a window, counted up to today', () => {
+    expect(perWeek(600, { from: '2026-11-02', to: '2026-11-08' }, TODAY)).toBe(600);
+    expect(perWeek(600, { from: '2026-11-01', to: '2026-11-30' }, '2026-11-14')).toBe(Math.round((600 / 14) * 7));
+    expect(perWeek(0, { from: '2026-12-01', to: '2026-12-31' }, TODAY)).toBeNull();
   });
 });
