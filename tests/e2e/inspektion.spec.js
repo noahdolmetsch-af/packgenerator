@@ -82,8 +82,14 @@ test('Kurzcheck: states, value, Rest OK, finish makes a problem, Undo takes it b
   expect(task?.fix).toBe('shop');
   await expect(page.locator('[data-inspect-page]')).toBeVisible();
   await expect(page.locator('[data-inspection]')).toHaveCount(1);
+  // «Kontrolle zur Werkstatt»: the overview says where the point went and links to it; no wish here, so no wishlist link
+  const made = page.locator('[data-inspect-made]');
+  await expect(made.locator('[data-inspect-made-problems]')).toHaveText(T('See {n} point', { n: 1 }));
+  await expect(made.locator('[data-inspect-made-problems]')).toHaveAttribute('href', new RegExp(`tab=care&bike=${BIKE.id}&open=1`));
+  await expect(made.locator('[data-inspect-made-wish]')).toHaveCount(0);
 
   await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
+  await expect(made).toHaveCount(0);
   // Undo turns the finished check back into the draft it was
   await expect.poll(async () => (await table(page, 'inspections'))[0]?.done ?? false).toBe(false);
   await expect.poll(async () => (await table(page, 'maintenance')).filter((m) => m.inspectionId).length).toBe(0);
@@ -138,6 +144,7 @@ test('a soon worn chain goes on the wishlist with the km left; Undo takes it off
   await expect.poll(async () => (await table(page, 'items')).length).toBe(before + 1);
   const wish = (await table(page, 'items')).find((i) => i.ownership === 'wishlist' && i.note?.startsWith(T('From the inspection: soon worn.')));
   expect(wish?.category).toBe('bike');
+  await expect(page.locator('[data-inspect-made-wish]')).toHaveAttribute('href', '#/gear?view=wish');
   await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
   await expect.poll(async () => (await table(page, 'items')).length).toBe(before);
 });
