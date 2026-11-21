@@ -1,6 +1,6 @@
 # Menü mit fünf Bereichen: Woche und Auswerten
 
-PR #<Nummer> · 21.11.2026 · Schritt V4a der neuen Ordnung · Entscheid Noah «1a 2a 3a 4a 5a» (21.11.2026 17:50 UTC) und «V4 ok» (20:07 UTC); Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
+PR #1368 · 21.11.2026 · Schritt V4a der neuen Ordnung · Entscheid Noah «1a 2a 3a 4a 5a» (21.11.2026 17:50 UTC) und «V4 ok» (20:07 UTC); Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
 
 ## Was ist neu
 - Die untere Leiste am Handy hat fünf Plätze: Heute, **Woche**, Touren, Velos und Material, **Auswerten**. Die Seitenleiste am Computer hat dieselben Bereiche (Material bleibt dort vorerst eine eigene Zeile, bis V5).
