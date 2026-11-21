@@ -188,7 +188,7 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   // wait until the dialog took its history entry away, else its step back undoes the next address
   await closeDialog(page);
 
-  // one switch: every place is back at once
+  // one switch: every place that is left is back at once
   await page.goto('./#/helper');
   await sw.check();
   await expect(sw).toBeChecked();
@@ -197,7 +197,8 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   await expect(page.locator('[data-helper-place] .hp-pill')).toHaveText(PLACES.map(() => T('on|helper')));
   await page.goto('./#/pack');
   await expect(page.locator('.list-head').first()).toBeVisible();
-  await expect(page.locator('.kh-menu-check')).toBeAttached();
+  // KI entfernen, Schritt 2 (changed on purpose, Noah 20.11.2026 «a»): «Check the list» is gone for good
+  await expect(page.locator('.kh-menu-check, .kh-go-check')).toHaveCount(0);
   await page.goto('./#/');
   await expect(tile).toBeVisible();
 
