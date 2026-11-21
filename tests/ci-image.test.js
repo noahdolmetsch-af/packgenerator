@@ -133,3 +133,25 @@ describe('Online-Rot melden (online-rot.yml)', () => {
     expect(w).toMatch(/COMMIT_MESSAGE: \$\{\{ github\.event\.workflow_run\.head_commit\.message \}\}/);
   });
 });
+
+describe('the night run keeps a wobbly list (Noah 21.11.2026 «4»)', () => {
+  const v = files['volle-pruefung.yml'];
+  it('every job leaves the names of its flaky tests next to the red ones, in the same artifact', () => {
+    for (const kind of ['e2e', 'gesamttest']) {
+      expect(v).toMatch(new RegExp(`test-summary\\.mjs pw-report\\.json [^\\n]*rot-${kind}-[^\\n]* wackel-${kind}-`));
+      expect(v).toMatch(new RegExp(`path: \\|\\n\\s+rot-${kind}-[^\\n]*\\n\\s+wackel-${kind}-`));
+    }
+  });
+  it('the report job counts the nights per test, keeps the list between runs, and opens an issue only for a repeated wobbler', () => {
+    expect(v).toContain('scripts/wackel-liste.mjs');
+    expect(v).toContain('name: wackel-liste');
+    expect(v).toContain('gh run download "$id" -n wackel-liste');
+    expect(v).toContain('gh issue create --title \'Wackel-Tests');
+    expect(v).toContain('[ "${NEU2:-0}" != "0" ] && gh issue comment'); // a mail only when a test reaches its second night
+    expect(v).toContain('gh issue close');
+  });
+  it('the list does not disturb the comparison of the red ones (it counts only rot-*.txt files)', () => {
+    expect(v).toContain('rot-liste.txt 18 >');
+    expect(readFileSync(new URL('../scripts/nacht-vergleich.mjs', import.meta.url), 'utf8')).toContain("/^rot-.*\\.txt$/");
+  });
+});
