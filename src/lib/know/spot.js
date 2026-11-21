@@ -78,11 +78,21 @@ export function light(el, id = '') {
     if (tall) scrollBy(0, -96);
   };
   show();
-  // a window or edit mode that just opened may still move the page: look once more when it has settled
-  setTimeout(() => {
-    const r = el.isConnected && el.getBoundingClientRect();
-    if (r && (r.bottom < 0 || r.top > innerHeight)) show();
-  }, 400);
+  // a window or edit mode that just opened may still move the page, and a page that is still drawing (cards that come in above
+  // the spot on a slow phone) pushes it away again: look again a few times while it settles. It stops as soon as the user
+  // scrolls, taps or types himself (his hand wins over the jump). Wackel-Test spot.spec f.starters, 21.11.2026.
+  let mine = true;
+  const own = () => (mine = false);
+  const own_events = ['touchstart', 'wheel', 'keydown', 'pointerdown'];
+  const listen = typeof addEventListener === 'function';
+  if (listen) for (const ev of own_events) addEventListener(ev, own, { passive: true, once: true });
+  for (const ms of [400, 1000, 2000]) {
+    setTimeout(() => {
+      if (ms === 2000 && listen) for (const ev of own_events) removeEventListener(ev, own);
+      const r = mine && el.isConnected && el.getBoundingClientRect();
+      if (r && (r.bottom < 0 || r.top > innerHeight)) show();
+    }, ms);
+  }
   el.dataset.spotOn = id || '1';
   const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const ring = '0 0 0 4px color-mix(in srgb, var(--accent, #276a43) 55%, transparent)';
