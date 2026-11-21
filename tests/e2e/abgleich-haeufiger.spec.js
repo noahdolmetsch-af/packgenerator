@@ -74,6 +74,9 @@ test('Ein Haken auf dem einen Geraet steht kurz danach auf dem anderen, und die 
 
   // a tick on A: B shows it without any tap, within the poll rhythm (20 s) and the 2 s before sending
   await tileA.click();
+  // «Haken zuerst» (T2): a tap on a tile on Aktiv ticks and opens «Geschafft»; back to Aktiv the tick stands
+  await expect.poll(() => a.page.evaluate(() => location.hash)).toContain('#/flow/geschafft');
+  await a.page.goto('./#/flow');
   await expect(tileA).toHaveAttribute('aria-pressed', 'true');
   await expect(tileB).toHaveAttribute('aria-pressed', 'true', { timeout: 60_000 });
   await tileB.scrollIntoViewIfNeeded();
