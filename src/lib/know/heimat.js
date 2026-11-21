@@ -472,6 +472,7 @@ const LISTED_HOME = {
   'f.alerts': '#/me/hinweise',
   'f.backuplock': '#/me/data?mehr',
   'f.yearcheck': '#/me/data',
+  'f.hintquiet': '#/me/look',
   'f.suggestoff': '#/me/look',
   'f.tipweek': '#/',
   'f.comeback': '#/',
