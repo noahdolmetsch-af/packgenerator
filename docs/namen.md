@@ -37,5 +37,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 29 | Plan und Gemachtes der Woche auf einer Seite (Aktiv › Training) | Planübersicht, Plan gegen Ist | **«Mein Trainingsplan»** (Name aus dem Entwurf, Noah kann umbenennen; Noah 21.11.2026 «alle entwürfe 1-3»); «Trainingspläne» bleibt der Ort mit den Beispielplänen |
 | 30 | Der Ort in der App, wo man festhält, was stört oder fehlt (Ich) | Merker, Feedback, Wunschliste, Verbesserungen | **«Verbesserungs-Logbuch»**, kurz **«Logbuch»**; die Einträge heissen **«Einträge»**; der Knopf auf jeder Seite (folgt) **«Verbessern»** (Noah 21.11.2026 «freigabe»; Arbeitsname, Noah kann umbenennen); «Wunschliste» bleibt das Material, das man kaufen will |
 | 31 | Zwei Sportarten werden eine (Meine Sportarten, Bearbeiten) | Zusammenführen, Verschmelzen | **«Zusammenlegen»** (wie bei Material «Zusammenlegen mit …»; «Zusammenführen» bleibt beim Backup einspielen; Noah 21.11.2026 «Ja, bauen») |
+| 32 | Tage oder Zeiträume festhalten, an denen man krank, verletzt, gestresst oder in den Ferien war (Form und Erholung) | Tag-Etikett, Phase, Zeitraum-Notiz | **«Marker»** («Marker setzen»; Arten: Krank, Verletzt, Stress, Ferien; Noah 21.11.2026 «ja» zu Marker) |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.
