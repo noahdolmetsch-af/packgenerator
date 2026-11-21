@@ -35,6 +35,7 @@
   import KmBook from './KmBook.svelte';
   import Q1Status from './Q1Status.svelte';
   import GlanceCard from './GlanceCard.svelte'; // «Auf einen Blick» (Noah 21.11.2026): chain, service, check, costs on top
+  import VerlaufCard from './VerlaufCard.svelte'; // «Verlauf» (Schritt D): service, checks and parts with their costs in one list
   import StravaChanges from '../strava/StravaChanges.svelte';
   import SheetFolder from '../bikes/SheetFolder.svelte';
   import { partAreas } from './overview.js';
@@ -113,6 +114,12 @@
   let kmOpen = $state(false);
   // «Seite umbauen» (Noah 21.11.2026, Schritt B): «More» is shut; it opens by itself while a ride of this bike is unclear.
   let moreOpen = $state(false);
+  // «Verlauf» (Schritt D): the glance card's costs tile opens it
+  let verlaufOpen = $state(false);
+  function showVerlauf() {
+    verlaufOpen = true;
+    requestAnimationFrame(() => document.getElementById(`verlauf-${bike.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
   const ledgerOpen = $derived(open ? ledgerCounts(kmEntries, bike.id).open.length : 0);
   $effect(() => {
     if (ledgerOpen) moreOpen = true;
@@ -251,7 +258,7 @@
 
   {#if open}
     <div class="in" id="care-in-{bike.id}">
-      <GlanceCard {bike} {visits} entries={kmEntries.filter((e) => e.bikeId === bike.id)} onrecord={() => onpart(bike.parts.some((p) => p.key === 'chain') ? 'chain' : bike.parts[0]?.key)} />
+      <GlanceCard {bike} {visits} entries={kmEntries.filter((e) => e.bikeId === bike.id)} onverlauf={showVerlauf} onrecord={() => onpart(bike.parts.some((p) => p.key === 'chain') ? 'chain' : bike.parts[0]?.key)} />
       {#if kmOpen || bike.km == null}
         <form class="km" onsubmit={(e) => (e.preventDefault(), km(e.currentTarget.elements.km))}>
           <label>
@@ -363,6 +370,7 @@
         </ul>
 
       {/if}
+      {#if filter === 'all'}<VerlaufCard {bike} {visits} bind:open={verlaufOpen} />{/if}
       <div class="folds">
         <details class="fold" id="more-{bike.id}" bind:open={moreOpen} data-care-more>
           <summary><MoreHorizontal size={18} aria-hidden="true" /><span class="fl">{t('More')}</span><span class="r">{#if ledgerOpen}<span class="badge warn">{tn(ledgerOpen, '{n} unclear ride', '{n} unclear rides')}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
