@@ -29,7 +29,8 @@
   import { zones, saveZones } from '../../lib/strava/zones.svelte.js';
   import { dayWhen } from '../../lib/strava/when.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { ftpGuess, byNewest, zoneSecs, kindCounts, monthsOf, typeKey, KIND_NAMES, ZONE_NAMES, zoneRange, validBounds } from '../../lib/training.js';
+  import PasstHier from '../../lib/ui/PasstHier.svelte'; // Zwift und Indoor (Noah 19.11.2026): older rides, the plan from TrainingPeaks
+  import { isIndoorBike, ftpGuess, byNewest, zoneSecs, kindCounts, monthsOf, typeKey, KIND_NAMES, ZONE_NAMES, zoneRange, validBounds } from '../../lib/training.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
 
@@ -48,9 +49,11 @@
   let shown = $state(PAGE);
   const chips = $derived(kindCounts(acts));
   const months = $derived(monthsOf(acts));
-  const list = $derived(acts.filter((a) => (kind === 'all' || a.kind === kind) && (!month || a.day.startsWith(month))));
+  let indoor = $state(false); // «Indoor / Zwift» (Noah 19.11.2026): only the rides on the trainer or in Zwift
+  const indoorN = $derived(acts.filter(isIndoorBike).length);
+  const list = $derived(acts.filter((a) => (kind === 'all' || a.kind === kind) && (!indoor || isIndoorBike(a)) && (!month || a.day.startsWith(month))));
   const gearName = (a) => strava.prefs.gear.find((g) => g.id === a.gearId)?.name ?? '';
-  const second = (a) => (a.kind === 'bike' && gearName(a) ? gearName(a) : t(typeKey(a.type)));
+  const second = (a) => (isIndoorBike(a) ? [t('Indoor / Zwift'), gearName(a)].filter(Boolean).join(' · ') : a.kind === 'bike' && gearName(a) ? gearName(a) : t(typeKey(a.type)));
   const monthName = (m) => new Date(`${m}-15T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', month: 'long', year: 'numeric' });
 
   // the zones (3a): from Strava, changeable; «Wie Strava» goes back
@@ -121,6 +124,7 @@
     <div class="tools">
       <div class="chips" role="group" aria-label={t('Filter by kind')}>
         {#each chips as c (c.key)}<button type="button" class="chip" aria-pressed={kind === c.key} onclick={() => ((kind = c.key), (shown = PAGE))}>{c.key === 'all' ? t('All|activities') : t(KIND_NAMES[c.key])} <span class="num">{c.n}</span></button>{/each}
+        {#if indoorN}<button type="button" class="chip" aria-pressed={indoor} onclick={() => ((indoor = !indoor), (shown = PAGE))} data-indoor-filter>{t('Indoor / Zwift')} <span class="num">{indoorN}</span></button>{/if}
       </div>
       <label class="mo"><span class="sr">{t('Month')}</span>
         <select class="sel" bind:value={month} onchange={() => (shown = PAGE)}>
@@ -157,6 +161,7 @@
       {#if !list.length}<p class="none">{t('No activity for this choice.')}</p>{/if}
       <div class="lg"><ZoneBar bar={false} legend /></div>
       <p class="hint">{t('The bar fills in once the heart rate of the activity is fetched (the newest by themselves, any other when you open it).')}</p>
+      <PasstHier place="training" />
     </section>
   {/if}
 

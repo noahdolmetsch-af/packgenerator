@@ -18,13 +18,12 @@ const PAGES = [
   { key: 'gelernt', href: '#/gelernt' },
 ];
 
-test('OA-1 «Alle n» of Auswerten lists the four pages, and Heatmap opens inside Auswerten', async ({ page, context }, info) => {
-  test.skip(info.project.name !== 'phone', 'a computer lists the tabs in the sidebar');
-  await open(page, context, '#/auswerten');
-  await page.locator('nav.ptabs .pmore').click();
-  const dlg = page.locator('dialog.ptsheet');
-  for (const href of ['#/heatmap', '#/neuland', '#/gelernt', '#/jahr']) await expect(dlg.locator(`[data-all-pages] a[href="${href}"]`)).toHaveCount(1);
-  await dlg.locator('[data-all-pages] a[href="#/heatmap"]').click();
+test('OA-1 the tab «Fahrten» of Auswerten has the four pages as chips, and Heatmap opens inside Auswerten', async ({ page, context }) => {
+  // «Ganze App neu denken» Schritt 12 (Noah 18.11.2026): the pages of Auswerten are chips under five tabs (before: «Alle n»)
+  await open(page, context, '#/trips/rides');
+  const chips = page.locator('nav.psubs');
+  for (const href of ['#/heatmap', '#/neuland', '#/gelernt', '#/jahr']) await expect(chips.locator(`a[href="${href}"]`)).toHaveCount(1);
+  await chips.locator('a[href="#/heatmap"]').click();
   await expect(page).toHaveURL(/#\/heatmap$/);
   await expect(page.locator('main[data-s2-place="analysis"]')).toHaveCount(1);
   await expect(page.locator('.pcrumbs')).toContainText(T('Analysis|place'));
