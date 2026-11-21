@@ -32,6 +32,7 @@
   import GoneActs from '../../lib/flow/GoneActs.svelte';
   import YearGoals from '../../lib/flow/YearGoals.svelte';
   import UsualMinList from '../../lib/flow/UsualMinList.svelte';
+  import StravaNeu from '../../lib/flow/StravaNeu.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import SortArrows from '../../lib/ui/SortArrows.svelte';
@@ -440,6 +441,8 @@
       </div>
 
       <aside class="col">
+        <!-- «Aktivität anlegen?» (Noah 21.11.2026 «4a», S7): Strava sports without an activity of Aktiv -->
+        <StravaNeu />
         {#if tripSports.length}
           <Sec id="ts-h" title={t('Sports of your trips')} sub={t('What you pack for. Each has its page with gear, packing list and care.')}>
             <ul class="card tsl" use:sortable={{ onmove: tripDragged }} data-trip-sports>
