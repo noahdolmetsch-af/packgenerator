@@ -5,7 +5,7 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect, vi } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { newCode } from '../src/lib/sync/code.js';
-import { startSync, syncNow, readCfg, applyPackage, APPLY_CHUNK } from '../src/lib/sync/engine.js';
+import { startSync, syncNow, readCfg, applyPackage, skippedCount, APPLY_CHUNK } from '../src/lib/sync/engine.js';
 import { noteKey } from '../src/lib/sync/track.js';
 import { makeHandler } from '../api/sync.js';
 import { fakeRedis } from './fakeredis.js';
@@ -142,14 +142,51 @@ describe('Holen in Paketen mit Zeitlimit', () => {
     expect(await phone.flowLog.count()).toBe(APPLY_CHUNK);
   });
 
-  it('one record that cannot be stored stops the round as before, but the ones before it are stored', async () => {
+  it('one record that cannot be stored is skipped and reported; the ones before and after it are stored (Noah 21.11.2026)', async () => {
     const db = fresh();
     const code = newCode();
     await startSync(db, code);
     const good = (i) => ({ p: { t: 'flowLog', id: `fl-ok-${i}`, v: tickRow(i), at: '2026-11-10T13:00:00.000Z' }, s: i + 1 });
     const bad = { p: { t: 'items', id: 'x', v: { name: 'ohne id' }, at: '2026-11-10T13:00:00.000Z' }, s: 3 }; // items need an id: the save fails
-    await expect(applyPackage(db, [good(0), good(1), bad, good(3)])).rejects.toBeTruthy();
-    expect(await db.flowLog.count()).toBe(2);
+    const skipped = [];
+    expect(await applyPackage(db, [good(0), good(1), bad, good(3)], skipped)).toBe(3);
+    expect(await db.flowLog.count()).toBe(3);
+    expect(skipped).toMatchObject([{ t: 'items', id: 'x', s: 3 }]);
+    expect(await skippedCount(db)).toBe(1);
+    // a package of one bad record does not throw either
+    expect(await applyPackage(db, [bad], [])).toBe(0);
+  });
+
+  it('a bad record in the middle no longer blocks the pull: everything after it arrives, the round says «done»', async () => {
+    const api = server();
+    const code = newCode();
+    const computer = fresh();
+    await startSync(computer, code);
+    await computer.flowLog.bulkPut(Array.from({ length: 5 }, (_, i) => tickRow(i)));
+    await syncNow(computer, { api, dev: 'computer' });
+    const phone = fresh();
+    await startSync(phone, code);
+    // this phone cannot store one kind of row (a hook refuses it)
+    phone.flowLog.hook('creating', (key, obj) => {
+      if (obj.id === tickRow(2).id) throw new Error('refused');
+    });
+    const r = await syncNow(phone, { api, dev: 'phone' });
+    expect(r.skipped).toBe(1);
+    expect(await phone.flowLog.count()).toBe(4);
+    expect((await readCfg(phone)).error).toBeNull();
+    expect((await readCfg(phone)).skipped).toBe(1);
+    // the cursor went past it: the next round does not ask again for the same ones
+    expect((await syncNow(phone, { api, dev: 'phone' })).taken).toBe(0);
+  });
+
+  it('no space left still stops the round with its own message', async () => {
+    const db = fresh();
+    await startSync(db, newCode());
+    db.flowLog.hook('creating', () => {
+      throw Object.assign(new Error('full'), { name: 'QuotaExceededError' });
+    });
+    const one = { p: { t: 'flowLog', id: 'fl-q', v: tickRow(1), at: '2026-11-10T13:00:00.000Z' }, s: 1 };
+    await expect(applyPackage(db, [one, { ...one, p: { ...one.p, id: 'fl-q2' } }], [])).rejects.toMatchObject({ name: 'QuotaExceededError' });
   });
 });
 

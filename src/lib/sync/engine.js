@@ -29,6 +29,9 @@ export const SYNC_URL = 'https://packgen-three.vercel.app/api/sync';
 export const CFG = 'syncCfg';
 export const ASK = 'synccf|';
 export const askKey = (table, id) => `${ASK}${table}|${JSON.stringify(id)}`;
+/** A record from the server that this device could not store (not for lack of space): skipped, so it never blocks the rest. */
+export const SKIP = 'syncskip|';
+export const skipKey = (table, id) => `${SKIP}${table}|${JSON.stringify(id)}`;
 /** The quiet history: the version a newer change on the other device replaced (or the other way round). */
 export const LOST = 'synclost|';
 export const lostKey = (table, id) => `${LOST}${table}|${JSON.stringify(id)}`;
@@ -135,6 +138,7 @@ export async function takeTheirs(db, t, id, { s, v, del, at }) {
   // the middleware has just noted a change of our own: it is the server's version, so it is clean
   await db.meta.put({ key: noteKey(t, id), t, id, at: at ?? new Date().toISOString(), del: !!del, dirty: 0, base: s });
   await db.meta.delete(askKey(t, id));
+  await db.meta.delete(skipKey(t, id)); // it could be stored after all
 }
 
 /** Answer a question: 'mine' (this device wins, it goes to the server) or 'theirs' (the other one wins). */
@@ -335,21 +339,32 @@ const applyRemote = (db, p, s) =>
 
 /**
  * Noah 10.11.2026: every stored record makes every open page (and the sync's own watcher) look again, so on a
- * phone 200 single steps took minutes. A package of records is ONE step. When a package fails (one record that
- * cannot be stored), the records go one by one as before, so the error shows on that record only and the ones
- * before it are stored. Returns how many were taken.
+ * phone 200 single steps took minutes. A package of records is ONE step. When a package fails, the records go one
+ * by one, so the ones before and after a bad one are stored.
+ * Noah 21.11.2026 («1-5a», point 5): a record that cannot be stored (not for lack of space) no longer stops the
+ * whole round for good, which left everything behind it unread and silent. It is skipped, noted under
+ * `syncskip|…` (the panel says how many) and listed in `skipped`; the count check (integrity) looks for it again.
+ * No space left (QuotaExceededError) still stops the round with its own message: then nothing more fits anyway.
+ * Returns how many were taken.
  */
-export async function applyPackage(db, chunk) {
+export async function applyPackage(db, chunk, skipped = []) {
   const results = [];
   try {
     await db.transaction('rw', ...DATA_TABLES.map((x) => db.table(x)), db.meta, async () => {
       for (const { p, s } of chunk) results.push(await applyRemoteIn(db, p, s));
     });
     return results.filter((r) => r === 'taken').length;
-  } catch (err) {
-    if (chunk.length < 2) throw err;
+  } catch {
     let n = 0;
-    for (const { p, s } of chunk) if ((await applyRemote(db, p, s)) === 'taken') n++;
+    for (const { p, s } of chunk) {
+      try {
+        if ((await applyRemote(db, p, s)) === 'taken') n++;
+      } catch (err) {
+        if (errCode(err) === 'storage_full') throw err;
+        skipped.push({ t: p.t, id: p.id, s, code: errCode(err) });
+        await db.meta.put({ key: skipKey(p.t, p.id), t: p.t, id: p.id, s, code: errCode(err), at: new Date().toISOString() }).catch(() => {});
+      }
+    }
     return n;
   }
 }
@@ -400,6 +415,9 @@ async function integrity(db, { api, keys, out, now, pushDirty, pull }) {
   out.healed = fixed;
 }
 
+/** How many records this device skipped because it could not store them (shown in the panel). */
+export const skippedCount = (db) => db.meta.where('key').startsWith(SKIP).count();
+
 /**
  * One full round. dev: 'phone' or 'computer' (shown to the other device in a question).
  * Order (Noah 10.11.2026, a phone pull ran 7 minutes and the ticks never left): what this device changed goes
@@ -422,6 +440,7 @@ export async function syncNow(
   }
   const out = { taken: 0, sent: 0, asks: 0, big: 0 };
   let got = 0; // records the server sent in this round (also those not taken)
+  const skipped = [];
   try {
     let since = cfg.since ?? 0;
     /** Reads the server's log. Returns true when it was read to its end, false when the time was up. */
@@ -446,7 +465,7 @@ export async function syncNow(
         for (let i = 0; i < opened.length; i += APPLY_CHUNK) {
           if (i > 0 && timeUp()) return false;
           const chunk = opened.slice(i, i + APPLY_CHUNK);
-          out.taken += await applyPackage(db, chunk.filter((c) => c.p));
+          out.taken += await applyPackage(db, chunk.filter((c) => c.p), skipped);
           since = Math.max(since, chunk.at(-1).s);
           await writeCfg(db, { since });
           onProgress({ phase: 'pull', n: out.taken });
@@ -528,7 +547,8 @@ export async function syncNow(
     out.asks = await db.meta.where('key').startsWith(ASK).count();
     if (finished && !out.more && !shouldStop()) await integrity(db, { api, keys, out, now, pushDirty, pull, clock });
     await pruneLost(db);
-    await writeCfg(db, { lastAt: now(), error: null, big: out.big });
+    out.skipped = skipped.length;
+    await writeCfg(db, { lastAt: now(), error: null, big: out.big, skipped: await skippedCount(db) });
     return out;
   } catch (err) {
     await writeCfg(db, { error: errCode(err), errorAt: now(), errorName: err?.name ?? null });
