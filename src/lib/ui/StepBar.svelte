@@ -213,6 +213,22 @@
       margin: 0;
     }
   }
+  /* 21.11.2026 (zoom 200 % on a 1440 px screen = 720 px): five steps with a number circle (28 px + gap + padding)
+     leave about 60 px for the name, and «Vorbereiten», «Unterwegs», «Auswertung» broke letter by letter.
+     Up to 1099 px the number goes, as on a phone: the order is clear from the row, the name keeps the room. */
+  @media (min-width: 720px) and (max-width: 1099px) {
+    .steps a {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 10px 10px;
+      overflow-wrap: normal;
+    }
+    .steps .no {
+      display: none;
+    }
+    .steps small {
+      grid-column: 1;
+    }
+  }
   /* a phone turned sideways: the steps in one low row */
   @media (max-height: 500px) {
     .steps a {

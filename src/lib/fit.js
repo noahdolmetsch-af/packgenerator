@@ -213,7 +213,7 @@ export function analyseFit(buffer, file = '') {
   const msgs = fitMessages(buffer);
   const pts = fitPoints(msgs);
   if (pts.length < 2) {
-    const any = msgs.some((m) => m.num === 20);
+    const any = msgs.some((m) => m.num === 20 || m.num === 18); // a record, or a session of a ride that was recorded without positions (Zwift)
     throw new Error(any ? t('This FIT file has no positions (an indoor ride?). Upload a ride recorded outside.') : t('This file has no times. Upload a recorded ride, not a planned route.'));
   }
   const name = file.replace(/\.fit$/i, '') || t('Ride|dayride');
