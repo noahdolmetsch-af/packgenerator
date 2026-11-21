@@ -12,6 +12,8 @@ export default {
   'closed with × · with the next update it comes again': 'mit × geschlossen · beim nächsten Update kommt es wieder',
   // A-U2: the error page and the empty building block
   'Something went wrong here': 'Hier ist etwas schiefgelaufen',
+  'Page not found': 'Seite nicht gefunden',
+  'This address does not lead to a page. Maybe the link is old or has a typo. Your data is safe.': 'Diese Adresse führt zu keiner Seite. Vielleicht ist der Link alt oder hat einen Tippfehler. Deine Daten sind sicher.',
   'Your data is safe. The page «{page}» could not be loaded.': 'Deine Daten sind sicher. Die Seite «{page}» konnte nicht geladen werden.',
   'Your data is safe. This page could not be loaded.': 'Deine Daten sind sicher. Diese Seite konnte nicht geladen werden.',
   Reload: 'Neu laden',
