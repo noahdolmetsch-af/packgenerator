@@ -6,13 +6,15 @@
    * Everything stays on this device and goes into the backup; nothing is sent, nothing is synced.
    */
   import { liveQuery } from 'dexie';
-  import { NotebookPen, Plus, Check, Pencil } from '@lucide/svelte';
+  import { NotebookPen, Plus, Check, Pencil, ClipboardCopy, Images } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import LogEntrySheet from '../lib/logbuch/LogEntrySheet.svelte';
   import { db } from '../lib/db.js';
   import { GROUPS, filterEntries, counts, isOpen, groupOf } from '../lib/logbuch/logbuch.js';
   import { addEntry, updateEntry, removeEntry, restoreEntry } from '../lib/logbuch/logbuchdb.js';
+  import { buildOrder, orderSize, images } from '../lib/logbuch/auftrag.js';
+  import { copyText, savePictures } from '../lib/logbuch/export.js';
   import { artLabel, groupLabel, stateLabel } from '../lib/logbuch/words.js';
   import { deleteWithUndo, askDelete, saveFailed } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
@@ -41,6 +43,18 @@
     const answer = await askDelete({ title: t('Delete this entry?'), text: t('Only the entry goes. The app itself stays as it is.') });
     if (answer !== 'delete') return;
     await deleteWithUndo({ run: () => removeEntry(e.id), undo: (saved) => restoreEntry(saved), text: t('Entry deleted.'), name: artLabel(e.art) });
+  }
+  const size = $derived(orderSize(all));
+  const pics = $derived(images(all));
+  async function copyOrder() {
+    const day = new Date().toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' });
+    const ok = size.items + size.notes > 0 && (await copyText(buildOrder(all, day)));
+    offerDone(size.items + size.notes === 0 ? t('Nothing open to copy.') : ok ? t('Order copied: {n} entries.', { n: size.items + size.notes }) : t('The order could not be copied. Select the text and copy it by hand.'));
+  }
+  async function savePics() {
+    if (!pics.length) return offerDone(t('No pictures to save yet.'));
+    const n = await savePictures(pics);
+    if (n) offerDone(t('Pictures saved: {n}. Attach them in the chat.', { n }));
   }
   const done = (e) => updateEntry(e.id, { state: e.state === 'done' ? 'open' : 'done' });
 </script>
@@ -82,6 +96,14 @@
           <li class="lb-none">{t('No entry in this group.')}</li>
         {/each}
       </ul>
+    </section>
+
+    <section class="ich-sec" aria-labelledby="lb-order-h">
+      <div class="ich-h"><div><h2 id="lb-order-h">{t('Order for the chat')}</h2><p class="ich-hs">{t('Copy the open entries as one text, sorted by page, and save their pictures. You paste it in the chat. Nothing is sent from here.')}</p></div></div>
+      <div class="lb-acts">
+        <button type="button" class="btn hi" data-lb-copy onclick={copyOrder}><ClipboardCopy size={16} aria-hidden="true" />{t('Copy the order')}</button>
+        {#if pics.length}<button type="button" class="btn" data-lb-images onclick={savePics}><Images size={16} aria-hidden="true" />{t('Save the pictures')} {pics.length}</button>{/if}
+      </div>
     </section>
 
     <section class="ich-sec" aria-labelledby="lb-next-h">
