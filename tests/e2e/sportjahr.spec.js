@@ -125,3 +125,27 @@ test('Auswerten leads to Sportjahr with one quiet line', async ({ page, context 
   await expect(page.locator('[data-sportjahr] h1')).toHaveText(T('Sports year'));
   expect(errors).toEqual([]);
 });
+
+test('Sportjahr: the hours goal shows as a line, in a year you pick it against the year before; a passed goal day says so quietly', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const pg = page.locator('[data-sportjahr]');
+  await put(page, { settings: [{ key: 'training.goal', value: { name: 'Fictional alps crossing', hours: 6, until: '2027-01-04' } }] });
+  await page.reload();
+  await ready(page);
+  await press(pg.locator('[data-period-bar] [data-key="year"]'), info);
+  await expect(pg.locator('[data-sj-goal]')).toContainText('6');
+  await expect(pg.locator('[data-sj-goal]')).toContainText(T('Change the goal'));
+  await press(pg.locator('[data-sj-chart] .seg [data-key="goal"]'), info);
+  await expect(pg.locator('[data-sj-chart]')).toContainText('6');
+  await expect(pg.locator('[data-sj-legend]')).toContainText(T('Goal|sj'));
+  await shot(page, info, 'sportjahr-ziel');
+  // the goal day is over: a quiet sentence, no line
+  await put(page, { settings: [{ key: 'training.goal', value: { name: 'Fictional alps crossing', hours: 6, until: '2026-10-01' } }] });
+  await page.reload();
+  await ready(page);
+  await press(pg.locator('[data-period-bar] [data-key="year"]'), info);
+  await expect(pg.locator('[data-sj-goal]')).toContainText(T('Set a new goal'));
+  await expect(pg.locator('[data-sj-legend]')).not.toContainText(T('Goal|sj'));
+  await shot(page, info, 'sportjahr-ziel-vorbei');
+  expect(errors).toEqual([]);
+});
