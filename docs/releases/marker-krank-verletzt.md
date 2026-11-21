@@ -8,7 +8,7 @@
 - Neue Dateien `src/lib/flow/marker.js` (reine Funktionen: bereinigen, Liste, setzen, entfernen, markierte Tage), `MarkerSheet.svelte`, `MarkerCard.svelte`, `markerwords.js`; Tests `tests/marker.test.js` (mit Backup-Kopie) und `tests/e2e/marker.spec.js`.
 
 ## Was fällt weg oder rutscht tiefer
-- nichts. Die Karte steht unten auf «Form und Erholung», vor «So wird gerechnet».
+- nichts. Die Karte steht unten auf «Form und Erholung», vor «So rechnet die App».
 
 ## Selbst entschieden
 - **Speicherort `training.marker` in `db.settings`:** kein Schema-Wechsel; die Marker sind im Backup, ein altes Backup ohne sie liest sich als «keine Marker».

@@ -73,6 +73,22 @@
     flex-wrap: wrap;
     gap: 8px;
   }
+  .chip {
+    min-width: 50px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 600 var(--fs-body)/1 var(--font-body);
+    cursor: pointer;
+  }
+  .chip.on {
+    border-color: var(--accent);
+    background: var(--ok-soft);
+    color: var(--accent);
+  }
   .days {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
