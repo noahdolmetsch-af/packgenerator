@@ -169,6 +169,37 @@ test('T2: a tap on a tile ticks and opens the page; duration and feeling are opt
   expect(errors).toEqual([]);
 });
 
+test('own length: a field next to the duration chips takes whole minutes; the value shows in the heading and stays when typed again', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await put(page, aktivRows());
+  await page.reload();
+  await ready(page);
+  await press(page.locator('main [data-act="pushups"]').first(), info);
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
+  const how = page.locator('[data-geschafft-how]');
+  const field = how.locator('[data-own-min-input]');
+  await expect(field).toBeVisible();
+  await expect(how.locator('[data-own-min] label')).toHaveText(T('Own length'));
+  await press(how.locator('[data-min="45"]'), info);
+  await expect(field).toHaveValue(''); // a chip value is not copied into the field
+  const savedRows = async () => (await readLog(page)).filter((e) => e.actId === 'pushups' && e.day === TODAY);
+  await field.fill('75');
+  await press(how.locator('[data-own-min-set]'), info);
+  await expect(page.locator('[data-geschafft-head]')).toContainText('75 Min');
+  await expect(how.locator('[data-min][aria-pressed="true"]')).toHaveCount(0); // 75 is none of the chips
+  await expect.poll(async () => (await savedRows())[0]).toMatchObject({ min: 75 });
+  // Enter saves too; a wrong value says so and changes nothing
+  await field.fill('7,5');
+  await field.press('Enter');
+  await expect(how.locator('[data-own-min-hint]')).toContainText(T('Whole minutes from 1 to {max}.').replace('{max}', '1440'));
+  await expect.poll(async () => (await savedRows())[0]).toMatchObject({ min: 75 });
+  await field.fill('50');
+  await field.press('Enter');
+  await expect.poll(async () => (await savedRows())[0]).toMatchObject({ min: 50 });
+  await shot(page, info, 'geschafft-eigene-dauer');
+  expect(errors).toEqual([]);
+});
+
 test('T2: a Strava tick offers the feeling but no duration; the ride to work offers the feeling too', async ({ page, context }, info) => {
   const errors = await open(page, context);
   const rows = aktivRows();
