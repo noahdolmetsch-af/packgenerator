@@ -281,6 +281,16 @@ export function pageOf(hash = '', careTab = false) {
 }
 
 /**
+ * Gesamttest 19.11.2026 (Noah «a»): an address no page knows («#/does-not-exist») shows «Page not found» with
+ * «To Today», no longer Today silently. Today's own addresses are '', '#' and '#/' (with or without a query).
+ */
+export function isUnknown(hash = '', careTab = false) {
+  const path = String(hash || '').split('?')[0];
+  if (path === '' || path === '#' || path === '#/') return false;
+  return pageOf(hash, careTab) === 'home' && !redirectOf(hash);
+}
+
+/**
  * v0.49.0 R1 «Rückblick ruhig» (Noah 4a): the old pages «Letzte 12 Monate» (#/review) and «Touren
  * vergleichen» (#/debrief/compare) are parts of the one Rückblick page now. Their addresses lead there
  * (no dead links): → { hash, spot } (spot: the section to scroll to), or null for every other address.
@@ -471,7 +481,7 @@ export const PLACE_TABS = {
     // Meditation is a sport too (Runde 3 «1b»): its pages are under this tab.
     { key: 'sports', label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|act|bags)(\/|\?|$)/.test(h) },
     // «Training» TR2 (Noah 13.10.2026 «1-5a»); Runde 2 «1b»: it stays in Aktiv, with the training plans
-    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|plans)(\/|\?|$)/.test(h) },
+    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|trainingsplan|plans)(\/|\?|$)/.test(h) },
     // Runde 3 «2a»: «Erholung» stays its own tab (the ring, the list to tick)
     { key: 'rest', label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
   ],

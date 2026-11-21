@@ -33,12 +33,20 @@ export function shiftDate(offset) {
   if (!offset || globalThis.__realDate) return;
   const Real = globalThis.Date;
   const shift = () => globalThis.__pgShift || 0;
+  // (inside this function: it is also sent into the page as text, so it can use nothing from outside; in the page the stack is never looked at, only in Node)
+  const calledByPlaywright = () => /[\\/]node_modules[\\/](playwright|playwright-core|@playwright)[\\/]/.test((new Error().stack || '').split('\n')[3] || ''); // 0: «Error», 1: this function, 2: Shifted.now, 3: the caller of Date.now()
   function Shifted(...a) {
     if (!new.target) return new Real(Real.now() + shift()).toString();
     return a.length ? new Real(...a) : new Real(Real.now() + shift());
   }
   Shifted.prototype = Real.prototype;
-  Shifted.now = () => Real.now() + shift();
+  // 21.11.2026: Playwright's own code runs in this same process and writes «Date.now()» into the page when a spec sets a
+  // clock (page.clock.install logs «installed at <now>»; the page then adds the real time that passed since). That
+  // «now» must be the real one: the page counts real time. A spec that imports `test` straight from '@playwright/test'
+  // (150 do, they set their own clock) and runs in a worker after a spec that imported this file, still had the shift
+  // switched on here, so its page clock ran OFFSET (2 to 3 days) ahead of the day the spec set: ruhetag, timer,
+  // sporttasche, suche-sprache, tages-check-seiten, erholung … went red in a full run and green alone.
+  Shifted.now = () => (shift() && !(typeof process === 'object' && calledByPlaywright()) ? Real.now() + shift() : Real.now());
   Shifted.parse = Real.parse;
   Shifted.UTC = Real.UTC;
   globalThis.__realDate = Real;
