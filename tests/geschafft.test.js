@@ -1,6 +1,6 @@
 // «Geschafft» (Noah 19.11.2026 «1-5a», T1): the rules behind the page after a tick. Fictional data; calendar-day arithmetic only.
 import { describe, it, expect } from 'vitest';
-import { weekDays, sourceKey, entryToShow, nthThisWeek, weekNumbers, hhmm, hoursGoal, openGoals, compareLast, nextUnit } from '../src/lib/flow/geschafft.js';
+import { weekDays, sourceKey, entryToShow, nthThisWeek, weekNumbers, hhmm, hoursGoal, openGoals, compareLast, nextUnit, plannedFor } from '../src/lib/flow/geschafft.js';
 
 // Thursday 19 November 2026; the week runs Monday 16 to Sunday 22
 const TODAY = '2026-11-19';
@@ -115,5 +115,28 @@ describe('the next unit of the weekly plan', () => {
     if (a.day === TODAY) expect(a.t > '07:00').toBe(true);
     const b = nextUnit(plan, null, { day: '2026-11-22', time: '23:59' });
     expect(b).toBe(null);
+  });
+});
+
+describe('planned and done', () => {
+  const session = (id, day, kind, mins, extra = {}) => ({ id, day, kind, name: `Session ${id}`, mins, zone: null, ...extra });
+  const plan = { sessions: [session('a', '2026-11-19', 'bike', 60, { zone: 2, src: 'tp' }), session('b', '2026-11-19', 'run', 40), session('c', '2026-11-18', 'bike', 90), session('d', '2026-11-19', 'other', 30, { sport: 'yoga' })] };
+  const ride = { id: 77, kind: 'bike', movingS: 3720 };
+  it('puts the Strava activity next to the session of the same day and sport', () => {
+    expect(plannedFor(plan, e('1', 'bike', TODAY, { stravaId: 77 }), [ride])).toEqual({ name: 'Session a', tp: true, zone: 2, planned: 60, did: 62 });
+  });
+  it('matches an own sport by the session\'s sport and takes the minutes of the tick', () => {
+    expect(plannedFor(plan, e('2', 'yoga', TODAY, { min: 25 }), [])).toEqual({ name: 'Session d', tp: false, zone: null, planned: 30, did: 25 });
+  });
+  it('shows the plan without minutes when the tick has none, and nothing without a session of that day and sport', () => {
+    expect(plannedFor(plan, e('3', 'yoga', TODAY), [])?.did).toBeNull();
+    expect(plannedFor(plan, e('4', 'run', '2026-11-17', { stravaId: 5 }), [{ id: 5, kind: 'run', movingS: 100 }])).toBeNull();
+    expect(plannedFor(plan, e('5', 'bike', TODAY), [])).toBeNull();
+    expect(plannedFor(null, e('6', 'yoga', TODAY, { min: 25 }), [])).toBeNull();
+    expect(plannedFor(plan, null, [])).toBeNull();
+  });
+  it('takes the nearest in minutes when two sessions fit', () => {
+    const two = { sessions: [session('x', TODAY, 'bike', 30), session('y', TODAY, 'bike', 90)] };
+    expect(plannedFor(two, e('7', 'bike', TODAY, { stravaId: 77 }), [ride]).planned).toBe(90);
   });
 });
