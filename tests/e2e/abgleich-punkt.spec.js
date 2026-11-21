@@ -51,7 +51,9 @@ test('The dot at Me and the line on Today: off first, green after switching on',
   await settle(a.page);
   await expect(a.page.locator('[data-sync-dot="off"]').first()).toBeVisible();
   await expect(a.page.getByText(T('The sync is off. What you change here does not reach your other device.'))).toBeVisible();
-  await a.page.getByText(T('The sync is off. What you change here does not reach your other device.')).scrollIntoViewIfNeeded();
+  const line = a.page.getByText(T('The sync is off. What you change here does not reach your other device.'));
+  await line.evaluate((el) => el.closest('section').scrollIntoView({ block: 'center' }));
+  await a.page.waitForTimeout(800);
   await shot(a.page, `P1-aus-${size}`);
   await a.page.goto('./#/me/data');
   await openFolds(a.page);
