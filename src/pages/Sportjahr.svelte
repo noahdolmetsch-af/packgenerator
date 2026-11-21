@@ -21,7 +21,7 @@
   import { einheiten, looseLabel } from '../lib/flow/einheiten.js';
   import { USUAL_KEY, usualMap } from '../lib/flow/usualmin.js';
   import { TICKS_KEY, prefsOf } from '../lib/stravaticks.js';
-  import { training, windowOf, prevWindow, totals, bySport, colourOf, grainOf, buckets, lastYearLine, records, weeksWith } from '../lib/flow/sportjahr.js';
+  import { training, yearsOf, seasons, windowOf, prevWindow, totals, bySport, colourOf, grainOf, buckets, lastYearLine, records, weeksWith } from '../lib/flow/sportjahr.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
@@ -48,6 +48,10 @@
   const line = $derived(mode === 'year' ? lastYearLine(units, win) : null);
   const rec = $derived(records(inWin));
   const weeks = $derived(mode === 'year' ? weeksWith(units, Number(win.from.slice(0, 4)), today) : []);
+  /* «Jahre vergleichen» (S9): only in «Everything», and only with two years or more */
+  const years = $derived(mode === 'all' ? yearsOf(inWin) : []);
+  const yearTop = $derived(years.reduce((m, y) => Math.max(m, y.mins), 1));
+  const season = $derived(mode === 'all' && years.length >= 2 ? seasons(inWin) : null);
   const weeksOk = $derived(weeks.filter((w) => w.ok).length);
   const weeksPast = $derived(weeks.filter((w) => !w.future).length);
 
@@ -180,6 +184,43 @@
       </ul>
       <p class="hint">{t('Tap a sport for its year.')} {t('«km» shows only sports with a distance.')}{prevW ? ` ${t('The year before counts up to the same day.')}` : ''}</p>
     </section>
+
+    {#if years.length >= 2}
+      <section class="card sj-sec" aria-labelledby="sj-years-h" data-sj-years>
+        <h2 id="sj-years-h">{t('Years side by side')}</h2>
+        <p class="hs">{t('Hours per year, with the best week and the best month of each.')}</p>
+        <ul class="yrs">
+          {#each years as y (y.year)}
+            <li data-sj-year={y.year}>
+              <b class="yr num">{y.year}</b>
+              <span class="bar" aria-hidden="true"><b style:width="{Math.max(3, Math.round((y.mins / yearTop) * 100))}%"></b></span>
+              <span class="v num">{hrs(y.mins)} h</span>
+              <small class="num">{tn(y.n, '{n} unit|sy', '{n} units|sy')} · {t('best week {w} h · best month {m} h', { w: hrs(y.bestWeek.mins), m: hrs(y.bestMonth.mins) })}</small>
+            </li>
+          {/each}
+        </ul>
+      </section>
+    {/if}
+    {#if season}
+      <section class="card sj-sec" aria-labelledby="sj-season-h" data-sj-season>
+        <h2 id="sj-season-h">{t('Summer and winter')}</h2>
+        <p class="hs">{t('Summer is April to October, winter the rest. The biggest sports of each season over all years.')}</p>
+        <div class="two">
+          {#each [['summer', t('Summer|sj')], ['winter', t('Winter|sj')]] as [k, label] (k)}
+            <div data-sj-season-of={k}>
+              <h3>{label}</h3>
+              <ul class="recs">
+                {#each season[k].slice(0, 3) as r (r.sport)}
+                  <li><span class="nm"><i style:background={colour(r.sport)}></i>{names.get(r.sport)}</span><b class="num">{hrs(r.mins)} h</b></li>
+                {:else}
+                  <li><span>{t('Nothing in this season')}</span></li>
+                {/each}
+              </ul>
+            </div>
+          {/each}
+        </div>
+      </section>
+    {/if}
 
     <div class="two">
       <section class="card sj-sec" aria-labelledby="sj-rec-h" data-sj-records>
@@ -372,6 +413,53 @@
       display: block;
       grid-area: ag;
     }
+  }
+  .yrs {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .yrs li {
+    display: grid;
+    grid-template-columns: 3.2rem minmax(0, 1fr) auto;
+    grid-template-areas: 'yr bar v' '. s s';
+    align-items: center;
+    gap: 2px 10px;
+    min-height: 44px;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+  }
+  .yrs .yr {
+    grid-area: yr;
+  }
+  .yrs .bar {
+    grid-area: bar;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .yrs .bar b {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--l1);
+  }
+  .yrs .v {
+    grid-area: v;
+    font-weight: 700;
+    text-align: right;
+  }
+  .yrs small {
+    grid-area: s;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
+  .sj-sec h3 {
+    margin: 0 0 4px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
   }
   .two {
     display: grid;
