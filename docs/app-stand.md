@@ -187,7 +187,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Logbuch | `#/debrief/logbook` | Auch ältere Touren nachtragen und nach Jahr oder Art filtern. |
 | Tourenpass | `#/debrief/tourenpass` | Nach dem Rückblick einen Stempel auf den Tourenpass setzen; Stempel selbst hinzufügen, ändern, entfernen und ablehnen. |
 | Gesammelte Erkenntnisse | `#/debrief/learnings` | Erfahrungen thematisch sammeln und für spätere Touren wiederfinden. |
-| Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten; das Tempo über die Monate lässt sich antippen. |
+| Eigenes Tempo | `#/debrief/pace` | Aus gefahrenen Touren eine persönliche Fahrzeitschätzung ableiten; das Tempo über die Monate lässt sich antippen. Bei langen Tagen (ab 80 km) rechnet die Fahrzeit-Schätzung ein, wie viel länger deine langen Fahrten dauerten. |
 | Pässe sammeln | `#/debrief/paesse` | Alpenpässe, über die eine gespeicherte Tour führt, als Pass-Schild sammeln; vom Standort der Route erkannt, jederzeit änderbar. Eine Regel wie in Neuland: bis 600 m von der Passhöhe sicher, bis 1,2 km «bitte bestätigen». |
 | Sammel-Wand | `#/debrief/sammlung` | Stempel, Pässe, Gipfelbuch-Orte, Neuland und Sterne auf einer Seite zum Anschauen: oben die Zahlen, «Zuletzt dazugekommen» und je ein Regal mit «Alle» zur ganzen Liste. Ohne Ziel und ohne Zahl für Fehlendes; geändert wird dort, wo die Dinge zu Hause sind. Touren › Rückblick führt hin. |
 | Reise-Spur und Reisebuch | `#/debrief` | † Tourtage mit Route, Orten, Fotos und Notizen betrachten; Familienlink oder Reisebuch daraus erstellen. |
