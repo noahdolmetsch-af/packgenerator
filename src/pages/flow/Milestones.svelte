@@ -23,6 +23,8 @@
   import RecordWall from '../../lib/flow/hobby/RecordWall.svelte';
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
+  import HeroNext from '../../lib/flow/hobby/HeroNext.svelte';
+  import { heroOf } from '../../lib/flow/naechster.js';
   import MsHome from '../../lib/home/MsHome.svelte';
   import MsHow from '../../lib/flow/hobby/MsHow.svelte';
   import { db } from '../../lib/db.js';
@@ -78,7 +80,9 @@
   const saveReward = (v) => putSetting(db, REWARD_KEY, v);
 
   /* A8: the rows «Bald erreichbar» and «Pro Aktivität», the trophy shelf (the newest stars, the next open) */
-  const soon = $derived(soonList(scoped, 5));
+  // «Dein nächster Stern» (Noah 21.11.2026 «1a»): the card on top; «Soon within reach» below does not repeat its star
+  const hero = $derived(ctx && data ? heroOf({ list: scoped, ctx, acts: data.acts, plan: data.plan, weeklog: data.weeklog, today }) : null);
+  const soon = $derived(soonList(hero ? scoped.filter((r) => r.id !== hero.r.id) : scoped, 5));
   const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, icon: Star, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, value: r.next ? `${Math.round(r.progress * 100)} %` : '', href: `#/flow/milestones?act=${encodeURIComponent(a.id)}` })));
   const nextUp = $derived(soonList(scoped, 1)[0] ?? scoped.filter((r) => r.next).sort((x, y) => y.progress - x.progress)[0] ?? null);
   const shelf = $derived([
@@ -133,6 +137,8 @@
       </nav>
       <a class="btn" href="#/flow/milestones?{filter === 'all' ? '' : `act=${encodeURIComponent(filter)}&`}tune=1">{t('Change stages')}</a>
     </div>
+
+    {#if hero}<HeroNext {hero} label={label(hero.r)} />{/if}
 
     <MsHow />
 
