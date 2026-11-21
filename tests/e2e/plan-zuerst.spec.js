@@ -71,7 +71,7 @@ test('the sheet: duration from the plan, feeling, Save ticks the unit in the pla
   expect(errors).toEqual([]);
 });
 
-test('the sport is asked once and kept: the next time it shows as a line, «Ändern» opens the choice', async ({ page, context }) => {
+test('the sheet only opens the first time: after that one tap ticks the unit with the minutes from the plan, «Rückgängig» takes both back', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await start(page);
   await page.locator('[data-wochenplan] [data-wp-tick="tennis@1"]').click();
@@ -82,11 +82,31 @@ test('the sport is asked once and kept: the next time it shows as a line, «Änd
   await expect.poll(async () => ((await read(page, 'flowLog')).length === 0 && Object.keys(await weeklog(page)).length === 0)).toBe(true);
   await page.goto('./#/flow/wochenplan');
   await ready(page);
+  const tick = page.locator('[data-wochenplan] [data-wp-tick="tennis@1"]');
+  await tick.click();
+  await expect(page.locator('[data-unit-sheet]')).toBeHidden(); // the sport is known: no sheet
+  await expect(tick).toBeChecked();
+  const log = await read(page, 'flowLog');
+  expect(log).toHaveLength(1);
+  expect(log[0]).toMatchObject({ via: 'plan', unit: 'tennis@1', min: 60 });
+  await shot(page, info, 'plan-zuerst-ein-tipp');
+  await page.locator('.ftoast .undo').first().click();
+  await expect.poll(async () => ((await read(page, 'flowLog')).length === 0 && Object.keys(await weeklog(page)).length === 0)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('the sheet has «Eigene Dauer»: a typed length replaces the one from the plan', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await start(page);
   await page.locator('[data-wochenplan] [data-wp-tick="tennis@1"]').click();
   const sheet = page.locator('[data-unit-sheet]');
-  await expect(sheet.locator('[data-unit-act]')).toContainText(T('Counts for: {sport}').replace('{sport}', ''));
-  await sheet.locator('[data-unit-change]').click();
-  await expect(sheet.getByRole('button', { name: T('Only in the plan') })).toBeVisible();
+  await sheet.locator('[data-own-min-input]').fill('75');
+  await sheet.locator('[data-own-min-set]').click();
+  await expect(sheet.getByRole('button', { name: T('{n} min planned').replace('{n}', '60') })).toHaveAttribute('aria-pressed', 'false');
+  await shot(page, info, 'plan-zuerst-eigene-dauer');
+  await sheet.locator('[data-unit-save]').click();
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
+  expect((await read(page, 'flowLog'))[0]).toMatchObject({ unit: 'tennis@1', min: 75 });
   expect(errors).toEqual([]);
 });
 
@@ -123,11 +143,8 @@ test('taking the tick of a unit back on the plan also takes it out of the histor
   // again, and now taken back on the plan page
   await page.goto('./#/flow/wochenplan');
   await ready(page);
-  await page.locator('[data-wochenplan] [data-wp-tick="tennis@1"]').click();
-  await page.locator('[data-unit-sheet] [data-unit-save]').click();
-  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
-  await page.goto('./#/flow/wochenplan');
-  await ready(page);
+  await page.locator('[data-wochenplan] [data-wp-tick="tennis@1"]').click(); // the sport is known now: ticks at once
+  await expect.poll(async () => (await read(page, 'flowLog')).length).toBe(1);
   await page.locator('[data-wochenplan] [data-wp-tick="tennis@1"]').uncheck();
   await expect.poll(async () => (await read(page, 'flowLog')).length).toBe(0);
   expect(errors).toEqual([]);
