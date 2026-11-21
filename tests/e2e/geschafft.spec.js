@@ -1,5 +1,6 @@
-// «Geschafft» (Noah 19.11.2026 «1-5a», Thread «Training erfassen vereinfachen», T1): after a tick the message leads to the page
-// «Geschafft»: what you did, the time this week, the week in hours and days, the weekly goals still open, one next step, Undo.
+// «Geschafft» (Noah 19.11.2026 «1-5a», Thread «Training erfassen vereinfachen», T1 and T2): after a tick on Aktiv the page opens at once
+// (T2 «Haken zuerst», with optional chips for duration and feeling); on Heute the message after the tick still leads to
+// the page «Geschafft»: what you did, the time this week, the week in hours and days, the weekly goals still open, one next step, Undo.
 // Fictional data only; the clock stands on Friday 9 October 2026, 07:52 in Europe/Zurich; German UI, phone + desktop.
 // SHOTS=<folder> saves pictures (Handy 390 / Computer 1440).
 import { test, expect } from '@playwright/test';
@@ -44,11 +45,8 @@ test('a tick leads to «Geschafft» with the number of the week, the week and on
   const push = page.locator('main [data-act="pushups"]').first(); // not ticked on 9 October in the fixture
   await expect(push).toBeVisible();
   await press(push, info);
-  const link = page.locator('.ftoast [data-next-to^="#/flow/geschafft"]');
-  await expect(link).toHaveText(T('What you did|next'));
-  await expect(page.locator('.ftoast [data-toast-next] a')).toHaveCount(1); // the two old links are gone
-  await press(link, info);
-  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/); // T2: one tap ticks and opens the page
+  await expect(page.locator('.ftoast')).toHaveCount(0); // the page has its own Undo
   const pg = page.locator('[data-geschafft]');
   await expect(pg.locator('[data-geschafft-head]')).toContainText(T('Done page: {name}').replace('{name}', ''));
   await expect(pg.locator('[data-geschafft-source]')).toContainText(T('ticked by you'));
@@ -115,11 +113,86 @@ test('Undo on the page takes the tick back and leads to Aktiv; an empty page say
   const yoga = page.locator('main [data-act="yoga"]').first();
   await expect(yoga).toBeVisible();
   await press(yoga, info);
-  await expect(yoga).toHaveAttribute('aria-pressed', 'true');
-  await press(page.locator('.ftoast [data-next-to^="#/flow/geschafft"]'), info);
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
   await press(pg.locator('[data-geschafft-undo]'), info);
   await expect(page).toHaveURL(/#\/flow$/);
   await expect(page.locator('main [data-act="yoga"]').first()).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('.ftoast')).toContainText(T('{name} · taken back').replace('{name}', ''));
+  expect(errors).toEqual([]);
+});
+
+const readLog = (page) =>
+  page.evaluate(
+    () =>
+      new Promise((res, rej) => {
+        const r = indexedDB.open('pack-generator');
+        r.onerror = () => rej(r.error);
+        r.onsuccess = () => {
+          const q = r.result.transaction('flowLog').objectStore('flowLog').getAll();
+          q.onsuccess = () => {
+            r.result.close();
+            res(q.result);
+          };
+        };
+      }),
+  );
+
+test('T2: a tap on a tile ticks and opens the page; duration and feeling are optional chips and can be taken back', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await put(page, aktivRows());
+  await page.reload();
+  await ready(page);
+  await press(page.locator('main [data-act="pushups"]').first(), info);
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
+  const how = page.locator('[data-geschafft-how]');
+  await expect(how).toBeVisible();
+  await expect(how.locator('[data-min]')).toHaveCount(4);
+  await expect(how.locator('[data-feel]')).toHaveText([T('light|feel'), T('good|feel'), T('hard|feel')]);
+  await expect(how.locator('[aria-pressed="true"]')).toHaveCount(0); // nothing is chosen for you
+  await press(how.locator('[data-min="45"]'), info);
+  await expect(how.locator('[data-min="45"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-geschafft-head]')).toContainText('45 Min');
+  await press(how.locator('[data-feel="good"]'), info);
+  await expect(how.locator('[data-feel="good"]')).toHaveAttribute('aria-pressed', 'true');
+  const savedRows = async () => (await readLog(page)).filter((e) => e.actId === 'pushups' && e.day === TODAY);
+  await expect.poll(async () => (await savedRows()).length).toBe(1); // the chips write on their own: wait for the database, not a fixed time
+  await expect.poll(async () => (await savedRows())[0]).toMatchObject({ min: 45, feel: 'good' });
+  const saved = await savedRows();
+  await shot(page, info, 'geschafft-chips');
+  // the same chip again takes it back; another one replaces it
+  await press(how.locator('[data-feel="good"]'), info);
+  await press(how.locator('[data-min="60"]'), info);
+  await expect(how.locator('[data-feel][aria-pressed="true"]')).toHaveCount(0);
+  await expect(how.locator('[data-min="60"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(async () => (await readLog(page)).find((e) => e.id === saved[0].id)).toMatchObject({ min: 60 });
+  expect((await readLog(page)).find((e) => e.id === saved[0].id).feel).toBeUndefined();
+  expect(errors).toEqual([]);
+});
+
+test('T2: a Strava tick offers the feeling but no duration; the ride to work offers the feeling too', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const rows = aktivRows();
+  rows.flowLog.push({ id: 'fl-strava-x', actId: 'run', day: TODAY, at: `${TODAY}T06:10:00+02:00`, n: 1, min: 46, via: 'strava', stravaId: 'x1' });
+  await put(page, rows);
+  await page.goto('./#/flow/geschafft?e=fl-strava-x');
+  await page.reload();
+  await ready(page);
+  const how = page.locator('[data-geschafft-how]');
+  await expect(how.locator('[data-min]')).toHaveCount(0);
+  await press(how.locator('[data-feel="hard"]'), info);
+  await expect(how.locator('[data-feel="hard"]')).toHaveAttribute('aria-pressed', 'true');
+  expect((await readLog(page)).find((e) => e.id === 'fl-strava-x')).toMatchObject({ min: 46, feel: 'hard', via: 'strava' });
+  expect(errors).toEqual([]);
+});
+
+test('T2: an old tick without «feel» opens as before, nothing chosen', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await put(page, { flowLog: [{ id: 'old-1', actId: 'yoga', day: TODAY, at: `${TODAY}T07:30:00+02:00`, n: 1, min: 30 }] });
+  await page.goto('./#/flow/geschafft?e=old-1');
+  await page.reload();
+  await ready(page);
+  const how = page.locator('[data-geschafft-how]');
+  await expect(how.locator('[data-min="30"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(how.locator('[data-feel][aria-pressed="true"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

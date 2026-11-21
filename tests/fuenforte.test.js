@@ -3,6 +3,8 @@
 import { describe, it, expect } from 'vitest';
 import { PLACES, ALL_PLACES, PLACE_TABS, tabOf, subOf, pageOf, placeOf } from '../src/lib/nav.js';
 import { shortcutOf } from '../src/lib/nav/keys.js';
+// «Ganze App neu denken» Schritt 12: the pages of Auswerten are chips (`subs`) under five tabs; `leaf` is the page an address belongs to
+const leaf = (place, h) => subOf(place, h)?.key ?? tabOf(place, h);
 
 describe('the pages under each place', () => {
   it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built; UC3 14.10.2026 «2a»: Velos gets «Setup» as a fifth; Paket 2: Aktiv gets «Meditation» (ME2, Noah 15.10.2026 «1a») and «Training» (TR2, Noah 13.10.2026 «1-5a» 1a) as its own tabs; Paket N: Touren gets «Träume» (Noah 19.10.2026 «1a») next to «Skitouren»)', () => {
@@ -23,11 +25,11 @@ describe('the pages under each place', () => {
     expect(tabOf('trips', '#/debrief/learnings')).toBe('lookback');
     expect(tabOf('trips', '#/pack/past')).toBe('lookback');
     expect(tabOf('trips', '#/heatmap')).toBe(null); // «Aktiv und Auswerten» 3a: Heatmap, Neuland, Gelernt and Jahr are Auswerten now
-    for (const [h, k] of [['#/heatmap', 'heatmap'], ['#/neuland?c=cantons', 'neuland'], ['#/gelernt/2026-10', 'learned'], ['#/jahr/2026', 'year']]) expect(tabOf('analysis', h), h).toBe(k);
+    for (const [h, k] of [['#/heatmap', 'heatmap'], ['#/neuland?c=cantons', 'neuland'], ['#/gelernt/2026-10', 'learned'], ['#/jahr/2026', 'year']]) expect(leaf('analysis', h), h).toBe(k);
     expect(tabOf('trips', '#/pack')).toBe(null); // a trip: no entry lit
     expect(tabOf('trips', '#/trips/rides')).toBe(null); // N1: Fahrten is Auswerten › Fahrten now
-    expect(tabOf('analysis', '#/trips/rides')).toBe('rides');
-    expect(tabOf('analysis', '#/me/insights')).toBe('insights');
+    expect(leaf('analysis', '#/trips/rides')).toBe('rides');
+    expect(leaf('analysis', '#/me/insights')).toBe('insights');
     // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): Planen has three tabs (Woche, Notizen, Alltag); the old pages are chips under them
     expect(tabOf('week', '#/me/agenda')).toBe('week');
     expect(subOf('week', '#/me/agenda').key).toBe('agenda');
@@ -40,7 +42,7 @@ describe('the pages under each place', () => {
       expect(tabOf('week', h), h).toBe(tab);
       expect(subOf('week', h)?.key, h).toBe(sub);
     }
-    for (const [h, k] of [['#/me/history', 'history'], ['#/me/abfragen', 'history'], ['#/me/analysis', 'history'], ['#/me/wohl', 'wohl'], ['#/me/weight', 'weight']]) expect(tabOf('analysis', h), h).toBe(k);
+    for (const [h, k] of [['#/me/history', 'history'], ['#/me/abfragen', 'history'], ['#/me/analysis', 'history'], ['#/me/wohl', 'wohl'], ['#/me/weight', 'weight']]) expect(leaf('analysis', h), h).toBe(k);
     for (const h of ['#/me', '#/me/data', '#/me/look', '#/me/connections', '#/features']) expect(placeOf(pageOf(h)), h).toBe('me');
     expect(placeOf(pageOf('#/trips/rides'))).toBe('analysis');
     expect(placeOf(pageOf('#/trips'))).toBe('trips');
@@ -61,7 +63,7 @@ describe('the pages under each place', () => {
     // «Aktiv neu» (Noah 22.10.2026): Aktiv is for doing, «Auswerten» for looking
     for (const [h, k] of [['#/flow/sports', 'sports'], ['#/flow/sport/act:yoga', 'sports'], ['#/flow/act/meditation', 'sports'], ['#/flow/bags', 'sports'], ['#/flow/training', 'training'], ['#/flow/rest', 'rest'], ['#/flow/week', 'today']]) expect(tabOf('active', h), h).toBe(k);
     for (const [h, k] of [['#/auswerten', 'start'], ['#/flow/form', 'form'], ['#/flow/stats/hr', 'body'], ['#/flow/auswertung', 'ticks'], ['#/flow/milestones?act=yoga', 'milestones'], ['#/flow/trophies', 'milestones'], ['#/flow/ideen', 'impulse']]) {
-      expect(tabOf('analysis', h), h).toBe(k);
+      expect(leaf('analysis', h), h).toBe(k);
       expect(placeOf(pageOf(h), h), h).toBe('analysis');
     }
     expect(placeOf(pageOf('#/flow/sports'), '#/flow/sports')).toBe('active');

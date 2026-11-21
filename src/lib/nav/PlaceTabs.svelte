@@ -141,7 +141,7 @@
 
 <div class="ptwrap" bind:this={wrap} style={fit}>
 {#if tabs.length > 1 && cur && !wide.matches}
-  <nav class="ptabs noswipe" class:many={split.shown.length > 3} aria-label={t('Pages of {place}', { place: placeName })}>
+  <nav class="ptabs noswipe" class:many={split.shown.length > 3} class:five={split.shown.length > 4} aria-label={t('Pages of {place}', { place: placeName })}>
     {#each split.shown as x (x.key)}
       <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined}>{tabLabel(place, x)}</a>
     {/each}
@@ -283,6 +283,12 @@
     .ptabs.many a {
       padding: 0 var(--sp-1);
       font-size: var(--fs-label);
+    }
+  }
+  /* Auswerten (Schritt 12, Noah 21.11.2026 «alle fünf sichtbar»): five tabs side by side, the longest label «Eigenes Diagramm» still fits at 390 px */
+  @media (max-width: 719px) {
+    .ptabs.five a {
+      font-size: var(--fs-tiny);
     }
   }
   /* 320 px: four tabs («Overview · Care · Workshop · Measures») still fit side by side */
