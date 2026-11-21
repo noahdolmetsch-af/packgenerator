@@ -38,7 +38,9 @@
   const up = $derived(states.filter((s) => upIds.has(s.act.id)));
   const rest = $derived(states.filter((s) => !upIds.has(s.act.id)));
   const sorted = $derived([...rest.filter((s) => !s.resting), ...rest.filter((s) => s.resting)]);
-  const shown = $derived(sorted.slice(0, N));
+  // the habits load a moment after the activities: wait for them, or a tile shows for a blink and then moves up to the habit cards
+  const ready = $derived(!top || !!$rq);
+  const shown = $derived(ready ? sorted.slice(0, N) : []);
   const done = $derived(states.filter((s) => s.todayDone).length);
   let medFor = $state(null);
   const medSt = $derived(medFor ? (states.find((s) => s.act.id === medFor) ?? null) : null);
@@ -50,7 +52,7 @@
   </div>
   {#if shown.length}
     <TickGrid states={shown} {today} cols={phone.matches ? 2 : 4} onmed={(s) => (medFor = s.act.id)} />
-  {:else if data && !up.length}
+  {:else if data && ready && !up.length}
     <p class="empty">{t('Add your activities in Aktiv, then you tick them off here in one tap.')}</p>
   {/if}
   {#if up.length}<p class="up" data-acts-up>{t('{list}: up with your habits', { list: up.map((s) => actName(s.act)).join(', ') })}</p>{/if}

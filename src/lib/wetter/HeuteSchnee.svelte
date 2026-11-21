@@ -1,7 +1,8 @@
 <script>
   /**
    * «Schneefallgrenze» on Today (Noah 04.11.2026 «2a 5a»): one calm line for the home place, every day, with
-   * the snow line now and its low of the day; «Snow possible at your place» when it goes down to your height.
+   * the snow line now and its low of the day; «Snow possible at your place» only when, in the same hour, the line is down to your height, precipitation
+   * is expected and it is cold enough there (08.11.2026), with the hour it starts.
    * A tap opens the weather page. Offline the kept answer shows with its time («As of …»). It hides itself
    * without a home place, without a value, or when switched off on the weather page (setting 'snowHome').
    * HeuteWetter mounts it with one line.
@@ -54,7 +55,7 @@
     <span>
       <b>{t('Snow line {m} m above sea level', { m: num(cur.m) })}</b>
       {#if range && range.min < cur.m}<span class="hs-sub"> · {t('lowest today {m} m', { m: num(range.min) })}</span>{/if}
-      {#if hint}<span class="hs-hint"> · {t('Snow possible at your place')}</span>{/if}
+      {#if hint}<span class="hs-hint"> · {hint.running ? t('Snow possible at your place') : t('Snow possible at your place from {h} h', { h: hint.hour })}</span>{/if}
       {#if at}<span class="hs-sub"> · {t('As of {at}', { at })}</span>{/if}
     </span>
   </a>

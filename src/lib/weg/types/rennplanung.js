@@ -44,6 +44,7 @@ export function checkDone(key, check) {
 }
 
 export default {
+  order: 10,
   type: 'rennplanung',
   label: 'Race planning',
   icon: 'flag',

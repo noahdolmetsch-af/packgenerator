@@ -8,7 +8,7 @@
    * (?view=list) is the list.
    * Observation only: no value is rated.
    */
-  import { untrack } from 'svelte';
+  import { untrack, tick } from 'svelte';
   import AreaIntro from '../../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
   import { liveQuery } from 'dexie';
   import { ChevronRight, RefreshCw } from '@lucide/svelte';
@@ -18,6 +18,8 @@
   import Empty from '../../lib/ui/Empty.svelte';
   import Seg from '../../lib/ui/Seg.svelte';
   import TrainingWeek from './TrainingWeek.svelte';
+  import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
+  import AnaSheet from '../../lib/training/AnaSheet.svelte';
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
   import FtpCard from '../../lib/strava/FtpCard.svelte';
   import { localDay } from '../../lib/localday.js';
@@ -27,15 +29,19 @@
   import { zones, saveZones } from '../../lib/strava/zones.svelte.js';
   import { dayWhen } from '../../lib/strava/when.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { ftpGuess, byNewest, zoneSecs, kindCounts, monthsOf, typeKey, KIND_NAMES, ZONE_NAMES, zoneRange, validBounds } from '../../lib/training.js';
+  import PasstHier from '../../lib/ui/PasstHier.svelte'; // Zwift und Indoor (Noah 19.11.2026): older rides, the plan from TrainingPeaks
+  import { isIndoorBike, ftpGuess, byNewest, zoneSecs, kindCounts, monthsOf, typeKey, KIND_NAMES, ZONE_NAMES, zoneRange, validBounds } from '../../lib/training.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
 
   let { params = new URLSearchParams() } = $props();
 
   const PAGE = 40;
-  const view = $derived(params.get('view') === 'list' ? 'list' : 'week');
-  const setView = (v) => (location.hash = v === 'list' ? '#/flow/training?view=list' : '#/flow/training');
+  const today = localDay();
+  // UI-Test Training 17.11.2026 (Fund 4): three views. «Woche» plans and looks back, «Aktivitäten» is the list, «Analysen» holds
+  // the analyses over the weeks, the heart rate zones and the FTP (they stood under the week before). ?zones=1 shows the zones.
+  const view = $derived(params.get('zones') === '1' || params.get('view') === 'ana' ? 'ana' : params.get('view') === 'list' ? 'list' : 'week');
+  const setView = (v) => (location.hash = v === 'list' ? '#/flow/training?view=list' : v === 'ana' ? '#/flow/training?view=ana' : '#/flow/training');
   const actsQ = liveQuery(async () => (await db.activities.toArray()).sort(byNewest));
   const acts = $derived($actsQ ?? []);
   let kind = $state('all');
@@ -43,9 +49,11 @@
   let shown = $state(PAGE);
   const chips = $derived(kindCounts(acts));
   const months = $derived(monthsOf(acts));
-  const list = $derived(acts.filter((a) => (kind === 'all' || a.kind === kind) && (!month || a.day.startsWith(month))));
+  let indoor = $state(false); // «Indoor / Zwift» (Noah 19.11.2026): only the rides on the trainer or in Zwift
+  const indoorN = $derived(acts.filter(isIndoorBike).length);
+  const list = $derived(acts.filter((a) => (kind === 'all' || a.kind === kind) && (!indoor || isIndoorBike(a)) && (!month || a.day.startsWith(month))));
   const gearName = (a) => strava.prefs.gear.find((g) => g.id === a.gearId)?.name ?? '';
-  const second = (a) => (a.kind === 'bike' && gearName(a) ? gearName(a) : t(typeKey(a.type)));
+  const second = (a) => (isIndoorBike(a) ? [t('Indoor / Zwift'), gearName(a)].filter(Boolean).join(' · ') : a.kind === 'bike' && gearName(a) ? gearName(a) : t(typeKey(a.type)));
   const monthName = (m) => new Date(`${m}-15T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', month: 'long', year: 'numeric' });
 
   // the zones (3a): from Strava, changeable; «Wie Strava» goes back
@@ -59,8 +67,21 @@
   };
   // «Zonen ändern» on one activity opens #/flow/training?zones=1
   const wantZones = $derived(params.get('zones') === '1');
+  // UI-Test Training 17.11.2026 (Fund 1): the zones form stands at the bottom of the page; the tap from an activity
+  // brings you to it, so it does not look as if nothing happened. Once now, once after the charts above have drawn.
+  async function toZones() {
+    await tick();
+    const go = () => {
+      const sec = document.querySelector('[data-section="zones"]')?.closest('section');
+      if (!sec) return;
+      sec.style.scrollMarginTop = '88px';
+      sec.scrollIntoView({ block: 'start' });
+    };
+    go();
+    setTimeout(go, 600);
+  }
   $effect(() => {
-    if (wantZones && zones.loaded) untrack(startEdit);
+    if (wantZones && zones.loaded) untrack(() => (startEdit(), toZones()));
   });
   async function keep(e) {
     e.preventDefault();
@@ -88,18 +109,22 @@
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Training|tab')} />
     <PageHead title={t('Training|tab')} text={t('Plan your training week and see how much time you spent in which heart rate zone. Strava brings the activities by itself.')} />
   </header>
-  <AreaIntro place="training" />
+  <AreaIntro place="training" quiet />
 
-  <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }]} /></div>
+  <div class="vw"><Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'week', name: t('Week|training') }, { key: 'list', name: t('Activities') }, { key: 'ana', name: t('Analyses|training') }]} /></div>
 
   {#if view === 'week'}
     <TrainingWeek {acts} />
+  {:else if view === 'ana'}
+    <WeekAnalyses {acts} {today} />
+    <AnaSheet />
   {:else if !acts.length}
     <Empty icon={RefreshCw} title={t('No activities yet')} text={strava.key ? t('The next fetch from Strava brings them, with their heart rate.') : t('Connect Strava once: then every activity comes by itself.')} action={{ label: strava.key ? t('To Strava') : t('Connect Strava'), href: STRAVA_HASH }} />
   {:else}
     <div class="tools">
       <div class="chips" role="group" aria-label={t('Filter by kind')}>
         {#each chips as c (c.key)}<button type="button" class="chip" aria-pressed={kind === c.key} onclick={() => ((kind = c.key), (shown = PAGE))}>{c.key === 'all' ? t('All|activities') : t(KIND_NAMES[c.key])} <span class="num">{c.n}</span></button>{/each}
+        {#if indoorN}<button type="button" class="chip" aria-pressed={indoor} onclick={() => ((indoor = !indoor), (shown = PAGE))} data-indoor-filter>{t('Indoor / Zwift')} <span class="num">{indoorN}</span></button>{/if}
       </div>
       <label class="mo"><span class="sr">{t('Month')}</span>
         <select class="sel" bind:value={month} onchange={() => (shown = PAGE)}>
@@ -136,9 +161,11 @@
       {#if !list.length}<p class="none">{t('No activity for this choice.')}</p>{/if}
       <div class="lg"><ZoneBar bar={false} legend /></div>
       <p class="hint">{t('The bar fills in once the heart rate of the activity is fetched (the newest by themselves, any other when you open it).')}</p>
+      <PasstHier place="training" />
     </section>
   {/if}
 
+  {#if view === 'ana'}
   <Sec id="zones-h" title={t('Heart rate zones')} sub={source} more={editing ? null : { label: t('change'), onclick: startEdit }}>
     <div class="card zs" data-section="zones">
       {#if editing}
@@ -165,6 +192,7 @@
   </Sec>
   <!-- Strava check 21.10.2026: the own FTP or Strava's instead of the estimate -->
   <FtpCard est={ftpGuess(acts, localDay())} />
+  {/if}
 </div>
 
 <style>

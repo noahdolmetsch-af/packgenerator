@@ -23,6 +23,15 @@ export default {
   'saves it at once; Undo takes it back': 'speichert sofort; Rückgängig nimmt es zurück',
   'From the search: «{name}». Check the answers below.': 'Aus der Suche: «{name}». Prüfe die Antworten unten.',
   'From the search. Check the answers below.': 'Aus der Suche. Prüfe die Antworten unten.',
+  // «Mit der App sprechen», Etappe 2: Gemini versteht Sätze (07.11.2026)
+  'Let Gemini understand it': 'Gemini verstehen lassen',
+  'Sends your sentence and the names of your bikes and trips to Gemini. You see first what it would do.': 'Schickt deinen Satz und die Namen deiner Velos und Touren an Gemini. Du siehst zuerst, was die App tun würde.',
+  'I would do this': 'Ich würde das tun',
+  'Gemini is thinking …': 'Gemini denkt nach …',
+  'Gemini found nothing to do in this sentence.': 'Gemini hat in diesem Satz nichts zum Ausführen gefunden.',
+  'To-do: {text}': 'Aufgabe: {text}',
+  'Gemini understands sentences': 'Gemini versteht Sätze',
+  'A sentence the app does not know («create a list …», «remind me …») goes to Gemini, which turns it into actions. You see what it understood first and tap «OK». Only the sentence and the names of your bikes and trips are sent. Google may use them to learn.': 'Ein Satz, den die App nicht kennt («Erstelle eine Liste …», «Erinnere mich …»), geht an Gemini, das daraus Aktionen macht. Du siehst zuerst, was es verstanden hat, und tippst auf «OK». Gesendet werden nur der Satz und die Namen deiner Velos und Touren. Google darf sie zum Lernen nutzen.',
   // Ich › Suche
   'Search|page': 'Suche',
   'Speaking, and who answers in the search': 'Sprechen und wer in der Suche antwortet',

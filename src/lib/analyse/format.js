@@ -28,6 +28,7 @@ export const unitText = (x) => (x.key === 'sleep' || x.key === 'bed' ? '' : (x.u
 export function axisOf(x, values, num, { zero = false, count = 4 } = {}) {
   if (x?.key === 'sleep') return { sc: niceScale(values, { zero, count, steps: MINUTE_STEPS }), text: minuteText };
   if (x?.key === 'bed') return { sc: niceScale(values, { zero: false, count, steps: [15, 30, 60, 120] }), text: (v) => bedText(v) };
-  const sc = niceScale(values, { zero, count });
+  // counts (ticks, sessions) only ever step in whole numbers
+  const sc = niceScale(values, { zero, count, integer: x?.unit === '×' || x?.tick === true });
   return { sc, text: (v) => tickText(v, sc.step, num) };
 }

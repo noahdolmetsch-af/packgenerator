@@ -424,7 +424,7 @@ export default {
   '«Your day to listen to» plays all voice notes of the day; arrows or drag change the order.': '«Dein Tag zum Hören» spielt alle Sprachnotizen des Tages ab; Pfeile oder Ziehen ändern die Reihenfolge.',
   '«As text» turns them into words on this device.': '«Als Text» macht auf diesem Gerät Wörter daraus.',
   // «Rennen detailliert planen» (Noah 27.10.2026 «1b 2b»)
-  'Open Trips › «Plan races in detail» and tap a race.': 'Öffne Touren › «Rennen detailliert planen» und tippe ein Rennen an.',
+  'Open Trips › «Plan races in detail» and tap a race.': 'Öffne Touren › «Rennen-Check» und tippe ein Rennen an.',
   // «Träume und Neuland» N1
   'Needs your home place.': 'Braucht deinen Wohnort.',
   'Warnings (weather, ice, light, rain on the way, eating) still come on their own and on time.':
@@ -434,7 +434,7 @@ export default {
   // «Quick Links» (Noah 28.10.2026)
   'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
   'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
-  'Tap «Add a pin» and pin a function.': 'Tippe auf «Pin hinzufügen» und pinne eine Funktion an.',
+  'Tap «Add a pin» and pin a function.': 'Tippe auf «Abkürzung hinzufügen» und pinne eine Funktion an.',
   'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
   // «Träume und Neuland» N5
   'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',
@@ -539,6 +539,12 @@ export default {
   'Tap «Make it a dream tour» at a compass dream.': 'Tippe bei einem Kompass-Traum auf «Als Traumtour».',
   'The link leads to your travel wishes in Free time.': 'Der Link führt zu deinen Reise-Wünschen in Freie Zeit.',
   'Example: «Once around Lake Constance» from the compass → a dream tour with months.': 'Beispiel: «Einmal um den Bodensee» aus dem Kompass → eine Traumtour mit Monaten.',
+  // «Traum der Woche»
+  'The tile stays away while no dream fits. You can hide it like every tile.': 'Die Kachel bleibt weg, solange kein Traum passt. Du kannst sie wie jede Kachel ausblenden.',
+  'Set a «Fixed date» in a dream of Trips › Dreams.': 'Trage in einem Traum unter Touren › Träume ein «Festes Datum» ein.',
+  'Tick «Rides through the night» for a ride that goes on all night.': 'Setz den Haken bei «Fährt durch die Nacht» für eine Fahrt, die die ganze Nacht dauert.',
+  'Heute: «Dream of the week» counts down, shows the weather.': 'Heute: «Traum der Woche» zählt herunter, zeigt das Wetter.',
+  'Example: «Night race example» on 12 Nov, 2 days → in 5 days, dry, night 9 °C, wind 12 km/h.': 'Beispiel: «Nachtrennen Beispiel» am 12. Nov., 2 Tage → in 5 Tagen, trocken, Nacht 9 °C, Wind 12 km/h.',
   // «Träume und Neuland» N19
   'Works offline; the rules are on the device.': 'Geht offline; die Regeln sind auf dem Gerät.',
   'Open Trips › Dreams: «Adventure dice».': 'Öffne Touren › Träume: «Abenteuer-Würfel».',

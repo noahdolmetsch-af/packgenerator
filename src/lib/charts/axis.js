@@ -10,6 +10,9 @@ const NICE = [1, 2, 2.5, 5, 10];
 /** Steps for minutes (sleep, duration): 5 min up to 12 h, so the axis says «7 h», not «417 min». */
 export const MINUTE_STEPS = [5, 10, 15, 30, 60, 120, 180, 240, 360, 480, 720];
 
+/** Steps for counts (ticks, sessions): whole numbers only, so an axis never says «2.5 ×». */
+export const INTEGER_STEPS = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
+
 const finite = (v) => typeof v === 'number' && Number.isFinite(v);
 const round = (v) => Math.round(v * 1e6) / 1e6;
 
@@ -28,10 +31,11 @@ export function niceStep(raw, steps = null) {
 
 /**
  * The scale of a chart from its values. zero: the axis starts at 0 (bars, sums). count: about how many steps.
- * steps: allowed steps (MINUTE_STEPS for minutes). → { lo, hi, step, ticks } with lo and hi on a step, so the
+ * steps: allowed steps (MINUTE_STEPS for minutes). integer: counts, whole-number steps only (INTEGER_STEPS). → { lo, hi, step, ticks } with lo and hi on a step, so the
  * top and bottom grid line carry a round number too.
  */
-export function niceScale(values = [], { zero = false, count = 4, steps = null } = {}) {
+export function niceScale(values = [], { zero = false, count = 4, steps = null, integer = false } = {}) {
+  if (integer && !steps) steps = INTEGER_STEPS;
   const vals = values.filter(finite);
   if (!vals.length) return { lo: 0, hi: 1, step: 1, ticks: [0, 1] };
   let min = Math.min(...vals);

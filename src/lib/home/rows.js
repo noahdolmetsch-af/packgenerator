@@ -23,6 +23,7 @@ export const ROW_KINDS = [
   { kind: 'upgrade', name: 'Lighter gear tip', eg: '… g lighter for CHF …' },
   { kind: 'templates', name: 'Suggestions for your templates', eg: '2 suggestions for your templates' },
   { kind: 'compass', name: 'Next step of a goal', eg: 'Goal «…»: next step' },
+  { kind: 'plan', name: 'Unit of the weekly plan', eg: 'Up today: Tennis at 15:00' },
   { kind: 'inbox', name: 'Notes to sort', eg: '2 notes to sort' },
   { kind: 'folderok', name: 'Backup folder needs OK', eg: 'The backup folder waits for your OK.' },
   { kind: 'tests', name: 'Tidy up test trips', eg: 'Clean up 1 test trip' },

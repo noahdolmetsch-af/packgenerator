@@ -12,7 +12,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { t, tn } from '../lib/i18n.svelte.js';
-  import { KINDS, PUSH_KEY, pushOf, watchable } from '../lib/push/schedule.js';
+  import { KINDS, PUSH_GROUPS, PUSH_KEY, pushOf, watchable } from '../lib/push/schedule.js';
   import { localDay } from '../lib/localday.js';
   import { dayShort } from '../lib/flow/words.js';
   import { supported, permission, syncNow, off, testNow, cronUrl } from '../lib/push/client.js';
@@ -30,13 +30,16 @@
   let msg = $state('');
   let planned = $state(null);
 
+  // the browser's answer, read again after every try (the person may have changed it in the lock menu)
+  let perm = $state(permission());
   const WHY = {
     unsupported: 'This browser cannot get reminders. On the phone it works in Chrome.',
-    denied: 'Notifications are blocked. Allow them in the browser settings for this page.',
+    denied: 'Your browser blocks notifications.',
     not_set_up: 'The server is not set up for this yet.',
     storage_not_set_up: 'The server is not set up for this yet.',
   };
-  const fail = (e) => (msg = t(WHY[e?.code] ?? 'The server could not be reached. Try again later.'));
+  // blocked: the status line says so and the steps show under it (blocked), so no second message
+  const fail = (e) => (msg = e?.code === 'denied' ? '' : t(WHY[e?.code] ?? 'The server could not be reached. Try again later.'));
 
   async function save(value) {
     await db.settings.put({ key: PUSH_KEY, value });
@@ -57,6 +60,7 @@
     await save({ ...p, on });
     if (on) {
       await sync();
+      perm = permission();
       if (msg) await save({ ...p, on: false });
     } else {
       planned = null;
@@ -108,11 +112,12 @@
     }
   }
 
-  const status = $derived(!can ? t(WHY.unsupported) : p.on ? (planned != null ? tn(planned, 'On. {n} reminder is planned.', 'On. {n} reminders are planned.') : t('On.')) : permission() === 'denied' ? t(WHY.denied) : t('Off. Nothing goes to the phone.'));
+  const blocked = $derived(can && !p.on && perm === 'denied');
+  const status = $derived(!can ? t(WHY.unsupported) : p.on ? (planned != null ? tn(planned, 'On. {n} reminder is planned.', 'On. {n} reminders are planned.') : t('On.')) : blocked ? t(WHY.denied) : t('Off. Nothing goes to the phone.'));
 </script>
 
 <div class="ich-page pushpage" data-push-page>
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Reminders on the phone')} sub={t('The app sends you reminders on the phone, also when it is closed. Everything is off until you switch it on.')} />
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Reminders on the phone')} sub={t('The app sends you reminders on the phone, also when it is closed. Nothing comes until you switch on «On the phone»; then you choose what should come.')} />
 
   <section class="card ps-card" aria-label={t('Reminders on the phone')}>
     <div class="ps-row ps-main">
@@ -120,11 +125,14 @@
       <span class="ps-m"><b id="ps-main-l">{t('On the phone')}</b><small role="status">{status}</small></span>
       <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-main-l" checked={p.on} disabled={busy} onchange={(e) => setMain(e.currentTarget.checked)} data-push-main />
     </div>
+    {#if blocked}<p class="ps-steps" data-push-steps>{t('Tap the lock next to the address, then «Notifications», then «Allow».')}</p>{/if}
+    {#if blocked}<p class="ps-acts ps-retry"><button type="button" class="btn" onclick={() => setMain(true)} disabled={busy} data-push-retry>{t('Try again')}</button></p>{/if}
     {#if msg}<p class="ps-msg" role="alert">{msg}</p>{/if}
   </section>
 
-  <section class="ps-sec" aria-labelledby="ps-morning-h" data-push-morning>
+  <section class="ps-sec" class:ps-wait={!p.on} aria-labelledby="ps-morning-h" data-push-morning>
     <h2 id="ps-morning-h">{t('In the morning')}</h2>
+    {#if !p.on}<p class="ps-waitnote" data-push-wait>{t('First switch on «On the phone». Until then your choices are only saved; nothing is sent.')}</p>{/if}
     <div class="card ps-card">
       <div class="ps-row">
         <span class="ps-m"><b id="ps-morning-l">{t('One message in the morning')}</b><small>{t('The reminders of 08:00 come together at 07:00 as one message, with your trip and the first appointments of the day. Warnings (weather, ice, light, rain) still come on their own.')}</small></span>
@@ -133,39 +141,48 @@
     </div>
   </section>
 
-  <section class="ps-sec" aria-labelledby="ps-kinds-h">
+  <section class="ps-sec" class:ps-wait={!p.on} aria-labelledby="ps-kinds-h">
     <h2 id="ps-kinds-h">{t('Which reminders')}</h2>
-    <ul class="card ps-list">
-      {#each KINDS as k (k.key)}
-        <li class="ps-row" data-push-kind={k.key}>
-          <span class="ps-m"><b id="ps-{k.key}">{t(k.label)}</b><small>{t(k.hint)}</small></span>
-          <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-{k.key}" checked={p.kinds[k.key]} disabled={busy} onchange={(e) => setKind(k.key, e.currentTarget.checked)} />
-        </li>
-        {#if k.key === 'eve'}
-          <!-- Idee A2: the name and what it does stay in sight; the offer itself comes after 3 evenings -->
-          <li class="ps-row ps-sub" data-remind-time>
-            <span class="ps-m"><b>{t('Reminder at your time')}</b><small>{t('After 3 evenings the app suggests moving the reminder to when you usually do the check.')}</small></span>
-          </li>
-        {/if}
-        {#if k.key === 'wxwatch' && p.kinds.wxwatch}
-          <li class="ps-row ps-sub" data-push-tours>
-            {#if watchTrips.length}
-              <span class="ps-m"><small>{t('Which tours it watches:')}</small></span>
-              <ul class="ps-tours">
-                {#each watchTrips as tr (tr.id)}
-                  <li data-push-tour={tr.id}>
-                    <span class="ps-m"><b id="ps-tr-{tr.id}">{tr.title || t('Your trip')}</b><small>{dayShort(tr.startDate)}</small></span>
-                    <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-tr-{tr.id}" checked={!p.wxOff.includes(tr.id)} disabled={busy} onchange={(e) => setTour(tr.id, e.currentTarget.checked)} />
-                  </li>
-                {/each}
-              </ul>
-            {:else}
-              <span class="ps-m"><small>{t('No planned tour in the next 10 days yet.')}</small></span>
+    {#if !p.on}<p class="ps-waitnote">{t('First switch on «On the phone». Until then your choices are only saved; nothing is sent.')}</p>{/if}
+    <div class="card ps-card ps-groups">
+      {#each PUSH_GROUPS as g (g.key)}
+        {@const n = g.keys.filter((k) => p.kinds[k]).length}
+        <details class="ps-grp" data-push-group={g.key}>
+          <summary><span class="ps-gl">{t(g.label)}</span><span class="ps-gs">{n ? t('{n} of {m} on', { n, m: g.keys.length }) : t('All off')}</span></summary>
+          <ul class="ps-list">
+          {#each KINDS.filter((x) => g.keys.includes(x.key)) as k (k.key)}
+            <li class="ps-row" data-push-kind={k.key}>
+              <span class="ps-m"><b id="ps-{k.key}">{t(k.label)}</b><small>{t(k.hint)}</small></span>
+              <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-{k.key}" checked={p.kinds[k.key]} disabled={busy} onchange={(e) => setKind(k.key, e.currentTarget.checked)} />
+            </li>
+            {#if k.key === 'eve'}
+              <!-- Idee A2: the name and what it does stay in sight; the offer itself comes after 3 evenings -->
+              <li class="ps-row ps-sub" data-remind-time>
+                <span class="ps-m"><b>{t('Reminder at your time')}</b><small>{t('After 3 evenings the app suggests moving the reminder to when you usually do the check.')}</small></span>
+              </li>
             {/if}
-          </li>
-        {/if}
+            {#if k.key === 'wxwatch' && p.kinds.wxwatch}
+              <li class="ps-row ps-sub" data-push-tours>
+                {#if watchTrips.length}
+                  <span class="ps-m"><small>{t('Which tours it watches:')}</small></span>
+                  <ul class="ps-tours">
+                    {#each watchTrips as tr (tr.id)}
+                      <li data-push-tour={tr.id}>
+                        <span class="ps-m"><b id="ps-tr-{tr.id}">{tr.title || t('Your trip')}</b><small>{dayShort(tr.startDate)}</small></span>
+                        <input class="ps-sw" type="checkbox" role="switch" aria-labelledby="ps-tr-{tr.id}" checked={!p.wxOff.includes(tr.id)} disabled={busy} onchange={(e) => setTour(tr.id, e.currentTarget.checked)} />
+                      </li>
+                    {/each}
+                  </ul>
+                {:else}
+                  <span class="ps-m"><small>{t('No planned tour in the next 10 days yet.')}</small></span>
+                {/if}
+              </li>
+            {/if}
+          {/each}
+          </ul>
+        </details>
       {/each}
-    </ul>
+    </div>
     <!-- Idee A2: the evening reminder at your usual time -->
     {#if p.kinds.eve}<EveOffer />{/if}
   </section>
@@ -174,7 +191,7 @@
   <section class="ps-sec" aria-labelledby="ps-cron-h" data-push-cron>
     <h2 id="ps-cron-h">{t('Wake-up call for the server')}</h2>
     <div class="card ps-card">
-      <p class="ps-txt">{t('Set up once: cron-job.org calls our free server every minute, so the reminders come on time. Copy the address and paste it there as the URL.')}</p>
+      <p class="ps-txt">{t('The reminders only come on time if someone wakes the server every minute. The free service cron-job.org does that. You set it up once, then you have nothing more to do.')}</p>
       <p class="ps-acts ps-cron-acts">
         <button type="button" class="btn" onclick={copyCron} disabled={cron.busy} data-push-cron-copy><Copy size={16} aria-hidden="true" />{t('Copy the address for cron-job.org')}</button>
       </p>
@@ -184,6 +201,15 @@
         <input id="ps-cron-url" class="inp ps-url" type="text" readonly value={cron.shown} onfocus={(e) => e.currentTarget.select()} />
       {/if}
       {#if cron.msg}<p class="ps-msg" role="alert">{cron.msg}</p>{/if}
+      <details class="ps-fold" data-push-cron-steps>
+        <summary><span class="ps-gl">{t('Step by step')}</span></summary>
+        <ol class="ps-stepl">
+          <li>{t('Copy the address with the button above.')}</li>
+          <li>{t('Open cron-job.org and sign in. The account is free.')}</li>
+          <li>{t('Create a new cron job and paste the address as the URL.')}</li>
+          <li>{t('Set it to run every minute, then save.')}</li>
+        </ol>
+      </details>
       <p class="ps-txt ps-small">{t('Keep the address to yourself: with it, anyone can wake the server.')}</p>
     </div>
   </section>
@@ -199,6 +225,74 @@
     margin: 0;
     padding: 4px 16px;
     list-style: none;
+  }
+  .ps-groups {
+    padding: 0 16px;
+  }
+  .ps-grp {
+    border-top: 1px solid var(--line);
+  }
+  .ps-grp:first-child {
+    border-top: 0;
+  }
+  .ps-grp summary,
+  .ps-fold summary {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-height: 56px;
+    padding: 8px 28px 8px 0;
+    cursor: pointer;
+  }
+  .ps-grp summary::-webkit-details-marker,
+  .ps-fold summary::-webkit-details-marker {
+    display: none;
+  }
+  .ps-grp summary::marker,
+  .ps-fold summary::marker {
+    content: '';
+  }
+  /* the arrow that says «opens»: it turns up when the group is open */
+  .ps-grp summary::after,
+  .ps-fold summary::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    margin-top: -6px;
+    border-right: 2px solid var(--ink-2);
+    border-bottom: 2px solid var(--ink-2);
+    transform: rotate(45deg);
+    transition: transform 0.15s;
+  }
+  .ps-grp[open] summary::after,
+  .ps-fold[open] summary::after {
+    margin-top: -2px;
+    transform: rotate(225deg);
+  }
+  .ps-gl {
+    font-weight: 600;
+  }
+  .ps-fold {
+    margin-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .ps-stepl {
+    margin: 0 0 12px;
+    padding-left: 22px;
+    display: grid;
+    gap: 6px;
+  }
+  .ps-gs {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ps-grp .ps-list {
+    padding: 0 0 8px;
   }
   .ps-sec {
     margin-top: 20px;
@@ -299,6 +393,24 @@
   }
   .ps-sw:checked::after {
     transform: translateX(20px);
+  }
+  /* main switch off: a chosen switch is only «saved», grey instead of green */
+  .ps-wait .ps-sw:checked::before {
+    background: var(--ink-2);
+    opacity: 0.55;
+  }
+  .ps-waitnote {
+    margin: 0 0 8px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ps-steps {
+    margin: 4px 0 0;
+    color: var(--ink);
+    font-size: var(--fs-small);
+  }
+  .ps-retry {
+    margin: 10px 0 10px;
   }
   .ps-sw:disabled {
     opacity: 0.6;

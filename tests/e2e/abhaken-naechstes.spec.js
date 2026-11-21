@@ -1,5 +1,7 @@
-// «Aktiv und Auswerten» 7 (Noah 03.11.2026 Zusatz 5): after a tick the message says «Als Nächstes» with two taps:
-// the history of that sport and the milestones. Fictional wall (wall-fixture.js), German UI, phone + desktop.
+// «Aktiv und Auswerten» 7 (Noah 03.11.2026 Zusatz 5): after a tick the message says «Als Nächstes» with a tap.
+// Noah 19.11.2026 «1-5a» (T1): the two taps «Dein Verlauf» and «Meilensteine» became one, «Was du geschafft hast», which opens
+// the page «Geschafft»; the history of the sport and the milestones are on that page (tests/e2e/geschafft.spec.js).
+// Fictional wall (wall-fixture.js), German UI, phone + desktop.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { flowSeeded, putWall } from './wall-fixture.js';
@@ -18,18 +20,20 @@ async function open(page, context) {
   await expect(page.locator('[data-section="flow"] [data-act="pushups"]')).toBeVisible();
 }
 
-test('AN-1 after a tick the message offers the history of the sport and the milestones', async ({ page, context }, info) => {
+test('AN-1 after a tick the message offers the page «Geschafft» with the history of the sport and the milestones', async ({ page, context }, info) => {
   await open(page, context);
   await press(page.locator('[data-section="flow"] [data-act="pushups"]'), info);
   const next = page.locator('.ftoast [data-toast-next]');
   await expect(next).toBeVisible();
   await expect(next).toContainText(T('As next'));
-  await expect(next.locator('a')).toHaveCount(2);
-  await expect(next.locator('[data-next-to="#/flow/milestones"]')).toHaveText(T('Milestones'));
+  await expect(next.locator('a')).toHaveCount(1);
+  await expect(next.locator('[data-next-to^="#/flow/geschafft"]')).toHaveText(T('What you did|next'));
   await page.screenshot({ path: info.outputPath('an-abhaken.png') });
   await press(next.locator('a').first(), info);
-  await expect(page).toHaveURL(/#\/flow\/sport\/act%3Apushups$/);
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
   await expect(page.locator('.ftoast')).toHaveCount(0); // a tap on a link closes the message
+  await expect(page.locator('[data-geschafft-all]')).toHaveAttribute('href', /#\/flow\/sport\/act%3Apushups$/);
+  await expect(page.locator('[data-geschafft-ms]')).toHaveAttribute('href', /#\/flow\/milestones\?act=pushups$/);
 });
 
 test('AN-2 «Rückgängig» still works with the new line', async ({ page, context }, info) => {

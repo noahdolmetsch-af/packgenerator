@@ -1,7 +1,7 @@
 // Termine buchen (BU1–BU5): the shared rules of the app pages and the booking page.
 import { describe, it, expect } from 'vitest';
-import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf, outcomeShare } from '../src/lib/booking/model.js';
-import { cleanOffer } from '../api/_lib/booking.js';
+import { KINDS, newOffer, newSlots, mondayOf, weekDays, weekNo, slotsOn, bookedBySlot, slotState, chf, unseen, icsOf, contactHref, shareUrl, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll, remindersOf, outcomeShare, WISH_PRICES, wishPrice, withWishAt } from '../src/lib/booking/model.js';
+import { cleanOffer, cleanPrices, wishPrice as serverWishPrice } from '../api/_lib/booking.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 
 describe('the offers', () => {
@@ -119,5 +119,45 @@ describe('the invoice of a booking', () => {
     const many = invoiceDraftMany(offer, [{ slot: { type: 'one' }, booking: b, outcome: 'late', tag: 'spät' }, { slot: { type: 'one' }, booking: { ...b, id: 'b2' }, outcome: 'held', tag: '' }], (x) => `am ${x.id}`);
     expect(many.amount).toBe('90');
     expect(many.purpose).toBe('Tennis-Lektion, am b1 (spät); am b2');
+  });
+});
+
+describe('the price of a wish request (Noah 08.11.2026 «1a»)', () => {
+  const offer = { prices: WISH_PRICES, hallVenues: ['Lengg Halle'] };
+  it('suggests the prices Noah decided on and the server keeps them', () => {
+    expect(WISH_PRICES).toEqual({ out: [10000, 7000, 6000, 5500], hall: [14000, 9000, 7500, 6500] });
+    expect(cleanPrices(WISH_PRICES)).toEqual(WISH_PRICES);
+  });
+  it('counts per child and in all, and a hall among the places makes it the hall price', () => {
+    expect(wishPrice(offer, ['Mythenquai'], 3)).toEqual({ hall: false, perKid: 6000, total: 18000 });
+    expect(wishPrice(offer, ['Mythenquai', 'Lengg Halle'], 2)).toEqual({ hall: true, perKid: 9000, total: 18000 });
+    expect(wishPrice({}, ['Mythenquai'], 1)).toBeNull();
+  });
+  it('is the same on the page and on the server', () => {
+    for (const venues of [['Mythenquai'], ['Lengg Halle'], ['Mythenquai', 'Lengg Halle']]) for (const kids of [1, 2, 3, 4, 5]) expect(wishPrice(offer, venues, kids)).toEqual(serverWishPrice(offer, venues, kids));
+  });
+});
+
+describe('a confirmed wish request goes to the invoice (Noah 08.11.2026 «1a», part 3)', () => {
+  const offer = { id: 'tennis-abc123', title: 'Tennis-Lektion', types: [{ key: 'one', label: 'Einzel', price: 6000 }] };
+  const wish = { venues: ['Mythenquai'], wishes: ['2026-11-12T16:00', '2026-11-13T16:00'], kids: 2, price: { hall: false, perKid: 7000, total: 14000 } };
+  const b = { id: 'w1', slot: '', name: 'Anna Beispiel', contact: 'anna@example.test', status: 'confirmed', at: null, wish, pick: 1 };
+  it('gives only a confirmed wish with a pick the time of that wish', () => {
+    expect(withWishAt([b])[0].at).toBe('2026-11-13T16:00');
+    expect(withWishAt([{ ...b, status: 'requested' }])[0].at).toBeNull();
+    expect(withWishAt([{ ...b, pick: null }])[0].at).toBeNull();
+    expect(withWishAt([{ id: 'x', at: '2026-11-01T10:00', status: 'confirmed' }])[0].at).toBe('2026-11-01T10:00');
+  });
+  it('lists it for the invoice once the time is over, and never before', () => {
+    const [w] = withWishAt([b]);
+    expect(toInvoice([w], [], '2026-11-13T15:00')).toEqual([]);
+    expect(toInvoice([w], [], '2026-11-13T17:00').map((x) => x.id)).toEqual(['w1']);
+  });
+  it('writes the price the parents saw, not the price of a type, and keeps the late-cancel half', () => {
+    const [w] = withWishAt([b]);
+    expect(invoiceDraft(offer, undefined, w, 'Fr, 13.11.')).toMatchObject({ name: 'Anna Beispiel', email: 'anna@example.test', amount: '140', purpose: 'Tennis-Lektion, Fr, 13.11.', bookings: [{ offer: 'tennis-abc123', b: 'w1' }] });
+    expect(invoiceDraft(offer, undefined, w, 'Fr, 13.11.', 5000, 'late', 'spät abgesagt').amount).toBe('70');
+    const many = invoiceDraftMany(offer, [{ slot: undefined, booking: w }, { slot: { type: 'one' }, booking: { id: 'b2', name: 'Ben', contact: '', at: '2026-11-10T10:00' } }], (x) => x.id);
+    expect(many.amount).toBe('200');
   });
 });

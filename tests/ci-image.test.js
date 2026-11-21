@@ -72,6 +72,31 @@ describe('Schnellspur (Weg zu online)', () => {
   });
 });
 
+describe('the night run says what is NEW red (Noah 21.11.2026 «d plus b»)', () => {
+  const v = files['volle-pruefung.yml'];
+  it('every job leaves the names of its failed tests and the report job compares them with the night before', () => {
+    expect(v).toContain('rot-e2e-');
+    expect(v).toContain('rot-gesamttest-');
+    expect(v).toContain('scripts/nacht-vergleich.mjs');
+    expect(v).toContain('name: rot-liste');
+  });
+  it('an issue that is already open gets a comment (a mail) only for something new', () => {
+    expect(v).toContain('NEU');
+    expect(v).toContain('Nothing new red since the night before');
+  });
+});
+
+describe('the night run has as many browser parts as it divides the specs into (Noah 21.11.2026 «1a»)', () => {
+  const v = files['volle-pruefung.yml'];
+  it('the matrix, the --shard=n/N and the number of lists the report expects agree', () => {
+    const n = (/shard: \[([\d, ]+)\]\n    steps:/.exec(v)?.[1] ?? '').split(',').length;
+    expect(n).toBe(7);
+    expect(v).toContain(`--shard=\${{ matrix.shard }}/${n}`);
+    const gesamt = (/shard: \[1, 2\]/.test(v) ? 2 : 0) * 2; // the Gesamttest: phone and computer
+    expect(v).toContain(`rot-liste.txt ${n * 2 + gesamt} >`);
+  });
+});
+
 describe('Probe specs stay out of the CI runs', () => {
   // tests/e2e/tmp-durchklick came onto main with #990 by mistake: 9 probes with 30 to 60 minute timeouts that
   // slowed every phone part. They run only by hand (TMP_DURCHKLICK=1).
@@ -81,5 +106,30 @@ describe('Probe specs stay out of the CI runs', () => {
   });
   it('no workflow sets TMP_DURCHKLICK', () => {
     for (const s of Object.values(files)) expect(s).not.toContain('TMP_DURCHKLICK');
+  });
+});
+
+describe('Online-Rot melden (online-rot.yml)', () => {
+  // Noah 21.11.2026 «ja»: a red going-online run of main sends a mail at once, a green one closes the issue again.
+  const w = read('online-rot.yml');
+  it('watches only the finished run of «Build and deploy» on main, never a cancelled one', () => {
+    expect(w).toMatch(/workflow_run:\s*\n\s*workflows: \['Build and deploy'\]\s*\n\s*types: \[completed\]\s*\n\s*branches: \[main\]/);
+    expect(w).toContain("github.event.workflow_run.event == 'push'");
+    expect(w).toContain("conclusion != 'cancelled'");
+    expect(readFileSync(new URL('../.github/workflows/deploy.yml', import.meta.url), 'utf8')).toMatch(/^name: Build and deploy$/m);
+  });
+  it('opens or comments on a labelled issue when red, closes it when green, with GITHUB_TOKEN only', () => {
+    expect(w).toContain('gh issue create');
+    expect(w).toContain('gh issue comment');
+    expect(w).toContain('gh issue close');
+    expect(w).toMatch(/if: env\.CONCLUSION != 'success'/);
+    expect(w).toMatch(/if: env\.CONCLUSION == 'success'/);
+    expect(w).toMatch(/issues: write/);
+    expect(w).not.toMatch(/secrets\./);
+  });
+  it('never puts the commit text into the script (it goes through the environment)', () => {
+    const scripts = w.split('\n').filter((l) => !/^\s*(#|COMMIT_MESSAGE:)/.test(l)).join('\n');
+    expect(scripts).not.toContain('head_commit.message');
+    expect(w).toMatch(/COMMIT_MESSAGE: \$\{\{ github\.event\.workflow_run\.head_commit\.message \}\}/);
   });
 });

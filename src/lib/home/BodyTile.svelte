@@ -9,6 +9,7 @@
   import { Activity, ArrowUp, ArrowDown, ArrowRight, ClipboardList, Check, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { addDays } from '../health.js';
+  import { afterMorning, stampOf } from '../abfragen.js';
   import { bodyToday, bodyWeek } from './body.js';
   import FitbitStand from '../health/FitbitStand.svelte';
   import TileHead from './TileHead.svelte';
@@ -19,6 +20,7 @@
   import { t, tn, locale } from '../i18n.svelte.js';
 
   let { today, due = 0, areas = [], evening = false, open = false, onstart = () => {} } = $props();
+  const late = afterMorning(stampOf()); // from 11:00: «Open from this morning» instead of «Morning check» (17.11.2026)
 
   const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -7)).toArray() : [])));
   const body = $derived(bodyToday($hq ?? [], today));
@@ -97,7 +99,7 @@
   <div class="ck" class:done={!due} data-body-check={evening ? 'evening' : 'morning'}>
     <span class="ci" aria-hidden="true">{#if due}<ClipboardList size={18} />{:else}<Check size={18} strokeWidth={2.6} />{/if}</span>
     {#if due}
-      <span class="ct">{tn(due, evening ? 'Evening check · {n} question' : 'Morning check · {n} question', evening ? 'Evening check · {n} questions' : 'Morning check · {n} questions')}{#if areas.length}<small class="ar" data-body-areas>{areas.join(' · ')}</small>{/if}</span>
+      <span class="ct">{tn(due, evening ? 'Evening check · {n} question' : late ? 'Open from this morning · {n} question' : 'Morning check · {n} question', evening ? 'Evening check · {n} questions' : late ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions')}{#if areas.length}<small class="ar" data-body-areas>{areas.join(' · ')}</small>{/if}</span>
       {#if !open}<button type="button" class="btn sm" onclick={onstart}>{t('Start|round')}</button>{/if}
     {:else}
       <span class="ct">{evening ? t('Evening check: nothing open') : t('Morning check: nothing open')}</span>

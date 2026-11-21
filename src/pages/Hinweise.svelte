@@ -13,6 +13,7 @@
   import { RefreshCw, Plus, Pencil, Trash2, ExternalLink, TriangleAlert, Mountain, Route } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, locale } from '../lib/i18n.svelte.js';
+  import '../lib/ich/ich.css'; // the rows and cards of this page; without it a direct visit (reload, pinned link) shows them unstyled
   import Crumbs from '../lib/ui/Crumbs.svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
@@ -98,8 +99,8 @@
   </div>
   {#if offline}<p class="msg" role="status" data-news-offline>{t('You are offline right now. What was loaded before stays; tap «Refresh» again once you are online.')}</p>{/if}
   {#if news.alerts?.error && news.alerts.error !== 'offline' && !news.alerts.at}
-    <!-- never loaded and online: the server does not answer (in a test preview it cannot, it runs only with the live app) -->
-    <p class="msg" role="status" data-news-down>{t('Alerts and news come through the app\'s server, which does not answer here yet. In a test preview this is normal: they load once the update is live. Everything else on this page works.')}</p>
+    <!-- never loaded and online: the server does not answer -->
+    <p class="msg" role="status" data-news-down>{t('Alerts and news could not be loaded: the server does not answer right now. Tap «Refresh» to try again. Your settings below still apply.')}</p>
   {/if}
 
   <section class="ich-sec" aria-labelledby="hw-for">

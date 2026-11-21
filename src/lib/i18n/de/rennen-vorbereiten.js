@@ -176,6 +176,7 @@ export default {
   'What to do': 'Was zu tun ist',
   'e.g. Book the train to the start': 'z. B. Zug zum Start buchen',
   'no date': 'kein Datum',
+  '{n} night in a hotel in the plan': '{n} Nacht im Hotel im Plan',
   '{n} nights in a hotel in the plan': '{n} Nächte im Hotel im Plan',
   'To my reminders': 'Zu meinen Erinnerungen',
   'To my reminders: {name}': 'Zu meinen Erinnerungen: {name}',

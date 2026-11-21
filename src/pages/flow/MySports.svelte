@@ -31,6 +31,8 @@
   import { recentActs } from '../../lib/flow/recent.js';
   import GoneActs from '../../lib/flow/GoneActs.svelte';
   import YearGoals from '../../lib/flow/YearGoals.svelte';
+  import UsualMinList from '../../lib/flow/UsualMinList.svelte';
+  import StravaNeu from '../../lib/flow/StravaNeu.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import SortArrows from '../../lib/ui/SortArrows.svelte';
@@ -439,6 +441,8 @@
       </div>
 
       <aside class="col">
+        <!-- «Aktivität anlegen?» (Noah 21.11.2026 «4a», S7): Strava sports without an activity of Aktiv -->
+        <StravaNeu />
         {#if tripSports.length}
           <Sec id="ts-h" title={t('Sports of your trips')} sub={t('What you pack for. Each has its page with gear, packing list and care.')}>
             <ul class="card tsl" use:sortable={{ onmove: tripDragged }} data-trip-sports>
@@ -456,6 +460,8 @@
         {/if}
         <!-- Noah 20.10.2026 «3a»: activities deleted with «Keep the history», to restore -->
         <GoneActs />
+        <!-- «Übliche Dauer» (Noah 21.11.2026 «2b»): the estimate for ticks without a measured time -->
+        <UsualMinList acts={data?.acts ?? []} />
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
       </aside>
@@ -823,8 +829,12 @@
   }
   .edit {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
+    gap: 6px 12px;
     margin: var(--sp-2) var(--sp-3) 0;
+  }
+  .edit .btn {
+    white-space: nowrap;
   }
 </style>

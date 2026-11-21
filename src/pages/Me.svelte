@@ -234,6 +234,20 @@
         </ul>
       </section>
 
+      <!-- Wegweiser (Noah 08.11.2026 «a»): «Angebote» left this page on 22.10. (Q05); Tennis is one place again -->
+      <section class="ich-sec" aria-labelledby="me-tennis-h">
+        <div class="ich-h"><div><h2 id="me-tennis-h">{t('Tennis')}</h2></div></div>
+        <ul class="card ich-list">
+          <li>
+            <a class="ich-row" href="#/me/tennis" data-me-row="tennis">
+              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Offers and requests')}</b><small>{t('Free times, link for parents, requests, customers')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+        </ul>
+      </section>
+
       <section class="ich-sec" aria-labelledby="me-set-h">
         <div class="ich-h"><div><h2 id="me-set-h">{t('Settings')}</h2></div></div>
         <ul class="card ich-list">
@@ -250,6 +264,14 @@
             <a class="ich-row" href="#/me/ruhig" data-row="ruhig">
               <span class="ich-ib"><Leaf size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Calm and personal')}</b><small>{t('Less app, letters to yourself, what you can do')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): write down what bothers you in the app -->
+            <a class="ich-row" href="#/me/logbuch" data-row="logbuch">
+              <span class="ich-ib"><NotebookPen size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Improvement log')}</b><small>{t('Write down what bothers you or is missing in the app')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

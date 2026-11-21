@@ -24,7 +24,9 @@
   import { PLANB_KINDS, planBOf, staysOf, setStay, checkinOf, nightsOf, toggleArrived, badWeather, badText, hoursOfDay, TRIGGER_MM, TRIGGER_GUST, triggerOf } from './haustuer.js';
   import { DoorOpen, CloudRain, BedDouble, HeartHandshake, ChevronRight, Upload, Trash2, Check, TriangleAlert } from '@lucide/svelte';
 
-  let { trip } = $props();
+  /** only: show just these folds ('planb', 'checkin', 'arrived'), without the card title: «Mehr zu dieser Tour» on Packen sorts them into its groups. */
+  let { trip, only = null } = $props();
+  const on = (k) => !only || only.includes(k);
   const contactsQ = liveQuery(() => db.settings.get(CONTACTS_KEY));
   const contacts = $derived(contactsOf($contactsQ?.value));
   const chosen = $derived(new Set(Array.isArray(trip.arrivedTo) ? trip.arrivedTo : []));
@@ -90,10 +92,13 @@
 </script>
 
 {#if trip && !trip.finished}
-  <section class="card door" aria-labelledby="door-h" data-door>
+  <section class="card door" class:grouped={!!only} aria-labelledby={only ? undefined : 'door-h'} aria-label={only ? t('From the door and back') : undefined} data-door>
+    {#if !only}
     <h3 id="door-h"><DoorOpen size={16} aria-hidden="true" />{t('From the door and back')}</h3>
     <p class="tp-small tp-muted sub">{t('Plan B, check-in and «Arrived safely»: all optional, for when the day goes differently.')}</p>
+    {/if}
 
+    {#if on('planb')}
     <details class="fold" data-door-planb open={isOpen('planb', !!bad)} ontoggle={toggle('planb')}>
       <summary><CloudRain size={18} aria-hidden="true" /><span class="lab">{t('Plan B for bad weather')}</span><span class="r tp-small tp-muted">{trip.planB?.on ? t('Plan B is the route now') : pb ? (pb.kind === 'train' ? t('Train home') : pb.route ? t('{km} km variant', { km: num(Math.round(pb.route.km)) }) : t('Note')) : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       <div class="body">
@@ -121,8 +126,9 @@
         {/if}
       </div>
     </details>
+    {/if}
 
-    {#if nights > 0}
+    {#if nights > 0 && on('checkin')}
       <details class="fold" data-door-checkin open={isOpen('checkin', lateN > 0)} ontoggle={toggle('checkin')}>
         <summary><BedDouble size={18} aria-hidden="true" /><span class="lab">{t('Check-in of the accommodation')}</span><span class="r tp-small" class:late={lateN > 0}>{lateN ? tn(lateN, '{n} arrival too late', '{n} arrivals too late') : setCount ? tn(setCount, '{n} night set', '{n} nights set') : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
         <div class="body">
@@ -149,6 +155,7 @@
       </details>
     {/if}
 
+    {#if on('arrived')}
     <details class="fold" data-door-arrived open={isOpen('arrived', false)} ontoggle={toggle('arrived')}>
       <summary><HeartHandshake size={18} aria-hidden="true" /><span class="lab">{t('Arrived safely')}</span><span class="r tp-small tp-muted">{chosen.size ? tn(contacts.filter((c) => chosen.has(c.id)).length, '{n} person', '{n} people') : t('not set')}</span><ChevronRight class="chev" size={16} aria-hidden="true" /></summary>
       <div class="body">
@@ -164,6 +171,7 @@
         {/if}
       </div>
     </details>
+    {/if}
   </section>
 {/if}
 
@@ -184,6 +192,14 @@
   .door {
     padding: 12px 16px;
     margin: 12px 0;
+  }
+  /* inside a group of «Mehr zu dieser Tour»: the group is the card */
+  .door.grouped {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
   }
   h3 {
     display: flex;

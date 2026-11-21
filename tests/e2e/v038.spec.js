@@ -65,7 +65,7 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   const errors = await v038Start(page, context, info, expect);
   await page.goto('./#/');
   const me = page.locator('a.me');
-  await expect(me).toHaveAttribute('aria-label', 'Ich, Eingang: 2 zum Ablegen');
+  await expect(me).toHaveAttribute('aria-label', 'Ich, Eingang: 2 zum Ablegen. Abgleich ist aus'); // since 21.11.2026 the label also names the sync state (abgleich-punkt.spec.js)
   // P3b Ü3a (Noah 15.10.2026 «3a»): the number shows on the button, like at «Velos» (it was only a dot)
   await expect(me.locator('.dot')).toBeVisible();
   await expect(me.locator('.dot')).toHaveText('2');
@@ -89,7 +89,7 @@ test('Ich: top right with the Inbox count, settings and the app; the search find
   // Language in «Ich».
   await page.goto('./#/me');
   await main.getByRole('group', { name: 'Sprache' }).getByRole('button', { name: 'English', exact: true }).click();
-  await expect(me).toHaveAttribute('aria-label', 'Me, Inbox: 2 to sort');
+  await expect(me).toHaveAttribute('aria-label', /^Me, Inbox: 2 to sort(\. Sync is off)?$/); // the label also names the sync state since 21.11.2026
 
   // The search finds pages and actions ("vorl" → Templates).
   // v0.49.0: Past trips has its own search; this is the app search.

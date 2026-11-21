@@ -589,7 +589,7 @@ test('PF09: category of an item linked to a trip, a template, a block and a lear
   await page.goto('./#/');
   const data = await openData(page);
   const wait = page.waitForEvent('download');
-  await rec.click(data.getByRole('button', { name: T('Save backup') }));
+  await rec.click(data.getByRole('button', { name: T('Save backup') }).and(page.locator(':not([data-status-save])')));
   const file = info.outputPath('pf09-export.json');
   await (await wait).saveAs(file);
   const exported = JSON.parse(readFileSync(file, 'utf8'));
@@ -960,8 +960,14 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
     await expect.poll(async () => (await tripNamed(page, title)).route?.km ?? 0, { timeout: 3000 }).toBeGreaterThan(0);
     expect((await tripNamed(page, title)).place).toBeTruthy();
   });
+  // 21.11.2026: when the trip is within reach (today), the app fetches the forecast by itself as soon as the route gives
+  // the start place (TripRoute.svelte), and the «Get forecast» button is replaced by «Update». With the test clock shifted
+  // by a few days the trip was not in reach and the button stayed; since #1319 the test runs on the real day. So: the
+  // button only when the forecast has not come by itself; what counts is the stored forecast, checked right below.
   const get = sheet.getByRole('button', { name: T('Get forecast') });
-  if (await get.count()) await get.click();
+  const forecastDays = async () => (await tripNamed(page, title)).forecast?.days?.length ?? 0;
+  await expect.poll(async () => (await forecastDays()) > 0 || (await get.isEnabled().catch(() => false)), { timeout: 10_000 }).toBe(true);
+  if (!(await forecastDays())) await get.click({ timeout: 5000 }).catch(() => { /* the forecast came by itself meanwhile: checked below */ });
   await rec.check('weather: the forecast (mocked Open-Meteo) is stored on this trip', async () => expect.poll(async () => (await tripNamed(page, title)).forecast?.days?.length ?? 0, { timeout: 3000 }).toBeGreaterThan(0));
   await sheet.getByRole('button', { name: T('Done') }).click();
   // Print / PDF.
@@ -1017,7 +1023,7 @@ test('PF16: ride and debrief note, GPX and weather, print/PDF, photo, share link
   for (const name of ['items', 'trips', 'debriefs', 'notes', 'photos', 'bikes', 'containers', 'learnings', 'settings']) snapshot[name] = await table(page, name);
   const data = await openData(page);
   const wait = page.waitForEvent('download');
-  await data.getByRole('button', { name: T('Save backup') }).click();
+  await data.getByRole('button', { name: T('Save backup') }).and(page.locator(':not([data-status-save])')).click();
   const file = info.outputPath('pf16-export.json');
   await (await wait).saveAs(file);
   await data.getByLabel(T('Import backup')).setInputFiles(file);
@@ -1258,7 +1264,8 @@ test('Scenario 4: gear care: log km, the due chain on Today and in Bike care, a 
   // The fold renders its rows after the click, so wait for them instead of reading the text once.
   await rec.check('Bike care: the workshop visit is listed for the Spark', () => expect(care).toContainText(`${P} Velo shop`, { timeout: 3000 }));
   // v0.38.0: a tap on the part opens its row, "Record …" the dialog.
-  await rec.click(each.getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
+  // 21.11.2026 «Auf einen Blick» (changed on purpose): its button «Kette erfassen» starts with the same word, so the part row is looked up in the list of parts.
+  await rec.click(each.locator('li.pt').getByRole('button', { name: new RegExp(`^${esc(T('Chain'))}`) }).first());
   // v0.117.0 «Knöpfe neu» (N2, changed on purpose): a due row has one main button, «Record …» is behind «…»
   await rec.click(each.locator('li.pt.x').getByRole('button', { name: T('More for {title}', { title: T('Chain') }) }));
   await rec.click(page.getByRole('menuitem', { name: new RegExp(`^${esc(T('Record …|care'))}`) }));

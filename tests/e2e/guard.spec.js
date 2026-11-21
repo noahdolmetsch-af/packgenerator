@@ -26,13 +26,13 @@ const ROUTES = [
   ['#/debrief', 'Rückblick'],
   ['#/debrief/ride', 'Fahrten'],
   // v0.49.0 R1: #/review is part of the Rückblick now; its pages one level below are checked instead
-  ['#/debrief/learnings', 'Gelernt'],
+  ['#/debrief/learnings', 'Erkenntnisse'],
   ['#/debrief/pace', 'Tempo'],
   ['#/debrief/logbook', 'Logbuch'], // v0.61.0 R2
   ['#/gear', 'Material'],
   ['#/gear?tab=weigh', 'Material wiegen'],
   ['#/gear?tab=wishlist', 'Wunschliste'],
-  ['#/gear/import', 'Import prüfen'],
+  ['#/gear/import', 'Material-Liste importieren'],
   ['#/gear/supplies', 'Vorrat'], // Paket H
   ['#/gear/lend', 'Ausgeliehen'], // Paket H
   ['#/gear/power', 'Strom'], // Strombudget

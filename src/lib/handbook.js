@@ -1305,6 +1305,11 @@ const LISTED = {
     steps: ['Open Trips › Dreams and scroll to «More dreams».', 'Tap «Make it a dream tour» at a compass dream.', 'The link leads to your travel wishes in Free time.'],
     example: 'Example: «Once around Lake Constance» from the compass → a dream tour with months.',
   },
+  'f.dreamweek': {
+    on: 'The tile stays away while no dream fits. You can hide it like every tile.',
+    steps: ['Set a «Fixed date» in a dream of Trips › Dreams.', 'Tick «Rides through the night» for a ride that goes on all night.', 'Heute: «Dream of the week» counts down, shows the weather.'],
+    example: 'Example: «Night race example» on 12 Nov, 2 days → in 5 days, dry, night 9 °C, wind 12 km/h.',
+  },
   'f.findlist': {
     on: 'Nothing to set up: it reads what Neuland, the summit book and Ich › Was mir gut tut already hold.',
     steps: ['Open Trips › Look back › New ground: the card «List of finds» is at the top.', 'Switch between «This year» and «All years»; «Show more» opens the whole list.', 'Add your own find under Ich › Was mir gut tut › «Add Neuland»; it shows in the list too.'],
@@ -1781,6 +1786,11 @@ const LISTED = {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
     example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
+  },
+  'f.trainingpeaks': {
+    on: 'Paste your TrainingPeaks calendar link once under Me › Connections › TrainingPeaks plan (needs Premium).',
+    steps: ['In TrainingPeaks on a computer: Settings › Account › Calendar, copy the address of the calendar subscription.', 'Paste it under Me › Connections › TrainingPeaks plan and tap «Test and add».', 'Aktiv › Training › My week shows the planned workouts, marked «TP». Ticking done stays with Strava or by hand.'],
+    example: 'Example: «Bike - Endurance Z2» planned for Saturday, 90 min → stands in My week on Saturday; the ride from Strava ticks it.',
   },
   'f.spielerplus': {
     on: 'Paste the calendar link of your team once under Me › Connections › Spielerplus calendar.',

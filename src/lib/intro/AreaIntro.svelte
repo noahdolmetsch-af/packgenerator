@@ -31,7 +31,9 @@
   import { t } from '../i18n.svelte.js';
   import { Check, Target, Moon, Map as MapIcon, Backpack, History, Scale, Boxes, ShoppingCart, Info, ChevronUp, X, Lightbulb, ChevronRight, Bike, Wrench, ListChecks, Timer, ChartLine, CalendarDays, Heart, Star, ShoppingBag, Sun, Copy, Shirt, Thermometer } from '@lucide/svelte';
 
-  let { place, hidden: hiddenSnippet = null, mini = false } = $props();
+  // quiet (UI-Test Training 17.11.2026, Fund 2): folded, nothing stays behind. For a page that has its own help line
+  // «Was du hier tun kannst»: it would otherwise stand twice, one under the other.
+  let { place, hidden: hiddenSnippet = null, mini = false, quiet = false } = $props();
   const ICON = { check: Check, goal: Target, moon: Moon, map: MapIcon, pack: Backpack, back: History, scale: Scale, blocks: Boxes, cart: ShoppingCart, bike: Bike, wrench: Wrench, list: ListChecks, timer: Timer, chart: ChartLine, calendar: CalendarDays, heart: Heart, star: Star, bag: ShoppingBag, sun: Sun, copy: Copy, shirt: Shirt, thermo: Thermometer };
   // svelte-ignore state_referenced_locally
   const intro = INTROS[place];
@@ -87,6 +89,8 @@
 {#if intro && loaded && before !== null}
   {#if gone}
     {@render hiddenSnippet?.()}
+  {:else if !open && quiet}
+    <!-- folded and quiet: the page's own help line is enough -->
   {:else if !open && mini}
     <!-- a short page (Meditation): folded, only a round «i» in the corner of the head, no extra row -->
     <button type="button" class="ai-mini" data-intro={place} data-open="false" aria-expanded="false" aria-label={t('How to use {place}', { place: name })} onclick={() => save((v) => setFold(v, place, false))}><Info size={20} aria-hidden="true" /></button>
@@ -362,7 +366,7 @@
     align-items: center;
     justify-content: center;
     border: 1px solid var(--line);
-    border-radius: 22px;
+    border-radius: var(--radius-card);
     background: var(--paper);
     color: var(--ink-2);
     cursor: pointer;

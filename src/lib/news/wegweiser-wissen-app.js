@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: 'Lists and types, Privacy and terms and 8 more pages of the app show «What you can do here» with «Good to know»',
-      go: { href: '#/me/lists', steps: [{ sel: '[data-seiteninhalt-know]' }] },
+      go: { href: '#/me/lists', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],

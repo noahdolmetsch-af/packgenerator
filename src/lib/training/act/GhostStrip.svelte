@@ -47,7 +47,7 @@
     min-height: 48px;
     padding: 10px 14px;
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     background: var(--paper);
     color: var(--ink);
     font: inherit;

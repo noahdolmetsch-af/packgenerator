@@ -51,6 +51,7 @@ const inspected = (v, bikeId, minLevel, from, today) =>
   list(v.inspections).some((x) => x?.bikeId === bikeId && x.done && (RANK[x.level] ?? -1) >= RANK[minLevel] && isDay(x.date) && x.date >= from && x.date <= today);
 
 export default {
+  order: 40,
   type: 'velo',
   label: 'Bike ready',
   icon: 'wrench',

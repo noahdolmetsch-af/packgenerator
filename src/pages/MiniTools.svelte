@@ -18,6 +18,7 @@
   import { t, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import '../lib/ich/ich.css'; // the rows and cards of this page; without it a direct visit (reload, pinned link) shows an unstyled list
   import Empty from '../lib/ui/Empty.svelte';
   import QrCode from '../lib/ich/QrCode.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';

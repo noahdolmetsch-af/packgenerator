@@ -64,24 +64,19 @@ test('Inspiration: add links, kind recognised, filter, a note becomes a packing 
   const errors = await start(page, context, info);
   const phone = info.project.name === 'phone';
 
-  // Computer: the entry under the five places (with «neu»); phone: Ich › Inspiration, not in the bottom bar.
+  // «Ganze App neu denken» Schritt 10 (Z3, Noah 18.11.2026): Inspiration is no row of the sidebar any more, it is a tab
+  // of Touren next to the dreams (computer: under Touren in the sidebar; phone: «Alle n» of the Touren tabs).
   await page.goto('./#/');
-  if (phone) {
-    await expect(page.locator('nav').getByRole('link', { name: 'Inspiration' })).toHaveCount(0);
-    // «Alles finden» (0.186.0, on purpose): Inspiration is a tab of Planen, no longer an Ich row
-    // (on a phone it waits under «Mehr» of the Planen tabs; the tab strip has its own tests)
-    await page.goto('./#/inspiration');
-  } else {
-    // «Alles finden» (0.186.0): Inspiration is also a tab of Planen; the entry under the places is the one with «neu»
-    const entry = page.locator('aside.side ul.extra').getByRole('link', { name: /Inspiration/ });
-    await expect(entry).toContainText('neu');
-    await entry.click();
-    await expect(entry).toHaveAttribute('aria-current', 'page');
-    await expect(entry).not.toContainText('neu');
+  await expect(page.locator('aside.side ul.extra')).toHaveCount(0);
+  if (phone) await expect(page.locator('nav').getByRole('link', { name: 'Inspiration' })).toHaveCount(0);
+  await page.goto('./#/inspiration');
+  if (!phone) {
+    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText('Touren');
+    await expect(page.locator('.side li.pl .tabs').getByRole('link', { name: 'Inspiration' })).toHaveAttribute('aria-current', 'page');
   }
   await expect(page.getByRole('heading', { level: 1, name: 'Inspiration' })).toBeVisible();
-  // Impeccable Runde 2: the path above the title; since «Alles finden» (0.186.0) «Planen › Inspiration», phone and computer
-  await expect(page.locator('main .vhead .crumbs').getByRole('link', { name: 'Planen' })).toBeVisible();
+  // Impeccable Runde 2: the path above the title; since Schritt 10 «Ganze App neu denken» «Touren › Inspiration», phone and computer
+  await expect(page.locator('main .vhead .crumbs').getByRole('link', { name: 'Touren' })).toBeVisible();
 
   // The rig of Velos › Setup is already here (one list, never twice).
   await expect(page.locator('article.ic-card', { hasText: `${P} Rigs of Doom 2025` })).toContainText('Rig');

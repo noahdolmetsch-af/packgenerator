@@ -200,10 +200,10 @@
     <div class="ch"><h2 id="rec-h">{t('Records|patterns')}</h2><small>{t('your best values · 2 years|patterns')}</small></div>
     {#if records.length}
       <div class="tw"><table>
-        <thead><tr><th scope="col">{t('Value|compare')}</th><th scope="col">{t('Best|patterns')}</th><th scope="col">{t('When|patterns')}</th></tr></thead>
+        <thead><tr><th scope="col">{t('Value|compare')}</th><th scope="col">{t('Best|patterns')}, {t('When|patterns')}</th></tr></thead>
         <tbody>
           {#each records as r (r.key)}
-            <tr data-record={r.key}><th scope="row">{r.name}{#if isNew(r.day, today)}&nbsp;<span class="new">{t('new|patterns')}</span>{/if}</th><td class="num"><b>{r.best}</b></td><td>{r.when}</td></tr>
+            <tr data-record={r.key}><th scope="row">{r.name}{#if isNew(r.day, today)}&nbsp;<span class="new">{t('new|patterns')}</span>{/if}</th><td class="rec"><b class="num">{r.best}</b><small class="when">{r.when}</small></td></tr>
           {/each}
         </tbody>
       </table></div>
@@ -432,6 +432,15 @@
   table:not(.wp) thead th {
     color: var(--ink-3);
     font-weight: 500;
+  }
+  /* the date stands under the best value, so the table fits a phone and «When» is never cut off (Noah 08.11.2026 «2a») */
+  table:not(.wp) td.rec {
+    white-space: normal;
+  }
+  .when {
+    display: block;
+    color: var(--ink-3);
+    font-size: var(--fs-label);
   }
   .new {
     display: inline-block;

@@ -28,7 +28,7 @@
   import { db } from '../lib/db.js';
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf, periodStats, searchFacts, matchesArt, ARTS } from '../lib/review/rueckblick.js';
-  import { factStates, factCounts, matchesState, keepPeriod } from '../lib/review/state.js';
+  import { factStates, factCounts, matchesState, keepPeriod, waitingCount } from '../lib/review/state.js';
   import { stateExtraText } from '../lib/tripstatetext.js';
   import TripState from '../lib/ui/TripState.svelte';
   import StateChips from '../lib/ui/StateChips.svelte';
@@ -76,7 +76,7 @@
   const found = $derived(searchFacts(inPeriod.filter((r) => matchesArt(r, art)), q));
   const counts = $derived(factCounts(found, states));
   const rows = $derived(found.filter((r) => matchesState(states, r.id, st)));
-  const notRated = $derived(inPeriod.filter((r) => states[r.id]?.state === 'done').length);
+  const notRated = $derived(waitingCount(inPeriod, states));
   const yearStats = $derived($dataQ && facts.length ? periodStats(facts, $dataQ.learnings, 'year', today) : null);
   const yearNum = (key) => yearStats?.stats.find((x) => x.key === key)?.value ?? null;
   const ARTNAME = Object.fromEntries(ARTS.map((a) => [a.key, a.name]));

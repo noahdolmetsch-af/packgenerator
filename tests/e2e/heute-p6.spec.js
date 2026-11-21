@@ -21,7 +21,8 @@ test.describe('P6 Heute erganzen', () => {
     const o = await order(page);
     // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): «Jetzt» first (meditation, the trip of tomorrow, the
     // weekly weight right under the trip, so the phone shows it without long scrolling), then «Dein Körper»
-    expect(o[0]).toBe('meditation');
+    // «Meine Tour» (Plan 2a): with a planned tour its card is first, the meditation card right under it
+    expect(o.slice(0, 2)).toEqual(['meinetour', 'meditation']);
     expect(o.filter((id) => ['weighin', 'body', 'acts'].includes(id))).toEqual(['weighin', 'body', 'acts']);
     const wall = await page.locator('.wall > *').evaluateAll((els) => els.map((e) => e.dataset.homeSec ?? e.dataset.tile));
     expect(wall.indexOf('weighin')).toBeGreaterThan(wall.indexOf('now'));

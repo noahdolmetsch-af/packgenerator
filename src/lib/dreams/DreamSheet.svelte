@@ -33,6 +33,9 @@
   async function closeIt() {
     const v = $state.snapshot(d);
     if (!v.title?.trim()) v.title = dream.title;
+    // «Traum der Woche»: an empty date or an unticked night leaves no field behind
+    if (!v.raceDate) delete v.raceDate;
+    if (!v.night) delete v.night;
     if (JSON.stringify(v) !== JSON.stringify(dream)) await onchange?.(v);
     dialog.close();
   }
@@ -117,6 +120,11 @@
     <label class="fld"><span class="lbl">{t('Days')}</span><input class="inp num" type="number" min="1" max="60" bind:value={d.days} /></label>
     <label class="fld"><span class="lbl">{t('Link')} <small class="q">· {t('optional')}</small></span><input class="inp" type="url" bind:value={d.url} placeholder="https://…" /></label>
   </div>
+  <div class="two">
+    <label class="fld"><span class="lbl">{t('Fixed date')} <small class="q">· {t('optional')}</small></span><input class="inp" type="date" bind:value={d.raceDate} data-dream-date /></label>
+    <label class="chk" data-dream-night><input type="checkbox" bind:checked={d.night} /><span>{t('Rides through the night')}</span></label>
+  </div>
+  <p class="q">{t('With a date the dream counts down on Heute and shows the weather for its days. A night ride also needs a night above 5 °C and little wind.')}</p>
   {#if d.url && linkKind(d.url)}
     <p class="lnk">
       <a href={d.url} target="_blank" rel="noopener noreferrer"><ExternalLink size={14} aria-hidden="true" />{t('Open in {where}', { where: linkKind(d.url) })}</a>
@@ -176,6 +184,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10em, 1fr));
     gap: 0 12px;
+  }
+  .chk {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0 0 12px;
   }
   .fld {
     display: grid;

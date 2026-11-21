@@ -36,7 +36,7 @@ export default {
   // P3 Training: two analyses open on a phone, the words explained
   "What the words mean": "Was die Wörter heissen",
   "FTP: the power you can hold for about an hour. The app estimates it from your rides.": "FTP: die Leistung, die du etwa eine Stunde halten kannst. Die App schätzt sie aus deinen Fahrten.",
-  "Load: how hard a ride was, from its time and its intensity (TSS).": "Belastung: wie hart eine Fahrt war, aus Dauer und Intensität (TSS).",
+  "Load: how hard a ride was, from its time and its intensity (TSS).": "Belastung: wie hart eine Fahrt war, aus Dauer und Stärke.",
   "Z1 to Z5: the five heart rate or power zones, from very easy (Z1) to very hard (Z5).": "Z1 bis Z5: die fünf Puls- oder Leistungszonen, von sehr locker (Z1) bis sehr hart (Z5).",
   "{n} more analyses": "Noch {n} Auswertungen",
 
@@ -83,6 +83,6 @@ export default {
   "A ride without a tour.": "Eine Fahrt ohne Tour.",
   "This tour has no route. With a route (GPX) you also get km, arrival and climbs.": "Diese Tour hat keine Route. Mit einer Route (GPX) bekommst du auch km, Ankunft und Steigungen.",
 
-  // Daten: the light row says «Jetzt speichern», the big button «Backup speichern»
-  "Save now|backup": "Jetzt speichern",
+  // Daten: the light row and the big button both say «Backup speichern»
+  "Save now|backup": "Backup speichern",
 };

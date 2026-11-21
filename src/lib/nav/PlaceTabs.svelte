@@ -42,7 +42,10 @@
   const ICON = { calendar: Calendar, clock: Clock, note: NotebookPen, book: BookOpen, inbox: Inbox, mail: Mail, compass: Compass, basket: ShoppingBasket, sun: Sun, lightbulb: Lightbulb, link: Link2, map: MapIcon, copy: Copy, history: History, star: Star, mountain: Mountain, wrench: Wrench, backpack: Backpack, shirt: Shirt, blocks: Boxes, cart: ShoppingCart, box: Package, hand: Hand, bike: Bike, shop: Store, ruler: Ruler, layers: Layers, flower: Flower2, dumbbell: Dumbbell, route: Route, target: Target, trophy: Trophy, sparkles: Sparkles, chart: ChartLine, smile: Smile, heart: Heart, scale: Scale };
   // new proposal «Eingang mit Zahl»: Planen's «Alle n» shows how many notes wait in the Inbox while it is not a tab in view
   const inboxQ = liveQuery(() => db.notes.where('status').equals('open').count());
-  const waiting = $derived(place === 'week' && split.more.some((x) => x.key === 'inbox') ? ($inboxQ ?? 0) : 0);
+  const waiting = $derived(place === 'week' ? ($inboxQ ?? 0) : 0);
+  // «Ganze App neu denken» Schritt 11: a tab that holds several pages (Planen: Woche, Notizen, Alltag) shows them as chips under the tabs
+  const subs = $derived((void order, tabs.find((x) => x.key === cur)?.subs ?? []));
+  const curSub = $derived(subs.find((x) => x.match(hash || '#/'))?.key ?? null);
   function move(from, to) {
     if (to < 0 || to >= all.length || from === to) return;
     const keys = all.map((x) => x.key);
@@ -138,7 +141,7 @@
 
 <div class="ptwrap" bind:this={wrap} style={fit}>
 {#if tabs.length > 1 && cur && !wide.matches}
-  <nav class="ptabs noswipe" class:many={split.shown.length > 3} aria-label={t('Pages of {place}', { place: placeName })}>
+  <nav class="ptabs noswipe" class:many={split.shown.length > 3} class:five={split.shown.length > 4} aria-label={t('Pages of {place}', { place: placeName })}>
     {#each split.shown as x (x.key)}
       <a href={hrefOf(x)} aria-current={cur === x.key ? 'page' : undefined}>{tabLabel(place, x)}</a>
     {/each}
@@ -193,6 +196,13 @@
   {/if}
 {/if}
 <!-- v0.137.0 (Durchklick DK6): no note about an old address; the old address still leads here -->
+{#if subs.length > 1}
+  <nav class="psubs noswipe" aria-label={t('Pages of {place}', { place: curName })} data-subtabs={cur}>
+    {#each subs as x (x.key)}
+      <a href={x.href} aria-current={curSub === x.key ? 'page' : undefined} data-sub={x.key}>{tabLabel(place, x)}{#if x.key === 'inbox' && waiting}<span class="pdot num" aria-label={t('{n} to sort', { n: waiting })}>{waiting}</span>{/if}</a>
+    {/each}
+  </nav>
+{/if}
 </div>
 
 <style>
@@ -217,6 +227,33 @@
     font: 500 var(--fs-body) / 1.2 var(--font-body);
     text-decoration: none;
     white-space: nowrap;
+  }
+  /* Schritt 11: the pages of a tab as small chips under the tabs */
+  .psubs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: var(--sp-2) 0 var(--sp-3);
+  }
+  .psubs a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-1);
+    min-height: 44px;
+    padding: 0 var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink-2);
+    font: 500 var(--fs-body) / 1.2 var(--font-body);
+    text-decoration: none;
+  }
+  .psubs a:visited {
+    color: var(--ink-2);
+  }
+  .psubs a[aria-current='page'] {
+    border-color: var(--pc);
+    color: var(--ink);
+    font-weight: 700;
   }
   .ptabs a:visited {
     color: var(--ink-2);
@@ -246,6 +283,12 @@
     .ptabs.many a {
       padding: 0 var(--sp-1);
       font-size: var(--fs-label);
+    }
+  }
+  /* Auswerten (Schritt 12, Noah 21.11.2026 «alle fünf sichtbar»): five tabs side by side, the longest label «Eigenes Diagramm» still fits at 390 px */
+  @media (max-width: 719px) {
+    .ptabs.five a {
+      font-size: var(--fs-tiny);
     }
   }
   /* 320 px: four tabs («Overview · Care · Workshop · Measures») still fit side by side */

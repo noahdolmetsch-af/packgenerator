@@ -94,13 +94,13 @@ test('a new template in 3 steps: building blocks, single items, bike', async ({ 
   // Step 1: name and building blocks (Standard always in it).
   await page.getByLabel(T('Name')).fill('test_data_gtp_ Herbst-Overnighter');
   await page.getByRole('checkbox', { name: /Regen/ }).check();
-  await page.getByRole('button', { name: T('Next|step') }).click();
+  await page.getByRole('button', { name: T('Next|step'), exact: true }).click();
   // Step 2: single items.
   await page.getByLabel(T('Search an item')).fill('Riegel');
   await page.getByRole('button', { name: T('Add {name}', { name: 'test_data_gtp_ Riegel' }) }).click();
   await expect(page.getByRole('button', { name: T('More: {name}', { name: 'test_data_gtp_ Riegel' }) })).toBeVisible();
   await page.getByRole('button', { name: T('More: {name}', { name: 'test_data_gtp_ Riegel' }) }).click();
-  await page.getByRole('button', { name: T('Next|step') }).click();
+  await page.getByRole('button', { name: T('Next|step'), exact: true }).click();
   // Step 3: the bike is optional; with a bike the items go into its bags.
   await page.getByRole('radio', { name: /Test gravel bike/ }).click();
   await expect(page.getByText(T('Spread over the bags'))).toBeVisible();

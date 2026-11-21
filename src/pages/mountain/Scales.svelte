@@ -17,7 +17,7 @@
     <h2 class="sk-kicker" id="sc-signs">{t('Signposts in Switzerland')}</h2>
     <ul class="sk-list">
       {#each SIGNS as s (s.key)}
-        <li class="row" data-sign={s.key}>
+        <li class="row" data-flag={s.key}>
           <span class="flag" aria-hidden="true">{#each s.colors as c, i (i)}<i style:background={c}></i>{/each}</span>
           <span class="sk-tt"><b>{t(s.name)} · {s.grade}</b><small>{t(s.text)}</small></span>
         </li>

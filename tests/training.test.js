@@ -265,3 +265,60 @@ describe('cleanHabits', () => {
     expect(cleanHabits(null)).toEqual({ drop: {}, mins: {} });
   });
 });
+
+import { cleanLibrary, libraryGroups, byUse, moveInGroup, renameLibraryGroup, deleteLibraryGroup, libraryOf, missingExamples } from '../src/lib/training.js';
+describe('cleanLibrary', () => {
+  it('keeps valid entries, drops the rest, at most 30', () => {
+    const ok = { id: 'a', name: ' Intervalle ', kind: 'bike', mins: 60.4, zone: 4, sport: '' };
+    expect(cleanLibrary([ok, { id: 'b', name: '', mins: 30 }, { id: 'c', name: 'x', mins: 0 }, { name: 'y', mins: 30 }, null])).toEqual([{ id: 'a', name: 'Intervalle', kind: 'bike', mins: 60, zone: 4, sport: '', group: '', uses: 0 }]);
+    expect(cleanLibrary('x')).toEqual([]);
+    expect(cleanLibrary(Array.from({ length: 40 }, (_, i) => ({ id: `i${i}`, name: `n${i}`, mins: 30 })))).toHaveLength(40);
+  });
+  it('keeps group and uses, starts with examples, orders and groups', () => {
+    const l = cleanLibrary([{ id: 'a', name: 'A', mins: 30, group: ' Berg ', uses: 3.4 }, { id: 'b', name: 'B', mins: 30, uses: 9 }, { id: 'c', name: 'C', mins: 30, group: 'Berg' }]);
+    expect(l.map((e) => [e.group, e.uses])).toEqual([['Berg', 3], ['', 9], ['Berg', 0]]);
+    expect(libraryGroups(l)).toEqual(['Berg']);
+    expect(byUse(l).map((e) => e.id)).toEqual(['b', 'a', 'c']);
+    expect(moveInGroup(l, 'a', 1).map((e) => e.id)).toEqual(['c', 'b', 'a']);
+    expect(moveInGroup(l, 'a', -1)).toBe(l);
+    expect(renameLibraryGroup(l, 'Berg', 'Hoch').map((e) => e.group)).toEqual(['Hoch', '', 'Hoch']);
+    expect(renameLibraryGroup(l, 'Berg', ' ')).toBe(l);
+    expect(deleteLibraryGroup(l, 'Berg').map((e) => e.group)).toEqual(['', '', '']);
+    expect(deleteLibraryGroup(l, 'Berg', 'X').map((e) => e.group)).toEqual(['X', '', 'X']);
+    expect(libraryOf(null)).toHaveLength(6);
+    expect(libraryOf([])).toEqual([]);
+    expect(missingExamples(libraryOf(null).slice(1))).toHaveLength(1);
+  });
+});
+
+import { cleanWeeks, weekTemplate, insertWeek, weekTplStats } from '../src/lib/training.js';
+describe('Ganze Wochen merken', () => {
+  const mon = '2026-11-02';
+  const s = (id, day, o = {}) => ({ id, day, kind: 'bike', name: 'x', mins: 60, zone: 2, ...o });
+  it('turns a week into a template and back into another week', () => {
+    const plan = [s('a', '2026-11-02'), s('b', '2026-11-04', { name: 'Kraft', kind: 'other', mins: 30, zone: 3, sport: 'act-1', done: true }), s('c', '2026-11-09')];
+    const items = weekTemplate(plan, mon);
+    expect(items.map((i) => [i.dow, i.name, i.mins])).toEqual([[0, 'x', 60], [2, 'Kraft', 30]]); // the next week is not in it, no «done», no date
+    const w = cleanWeeks([{ id: 'w1', name: ' Aufbau ', group: ' G ', uses: 2, items }])[0];
+    expect(w).toMatchObject({ name: 'Aufbau', group: 'G', uses: 2 });
+    expect(weekTplStats(w)).toEqual({ n: 2, mins: 90 });
+    const next = '2026-11-16';
+    const added = insertWeek([s('o', '2026-11-17')], w, next, 'add');
+    expect(added.map((x) => x.day).sort()).toEqual(['2026-11-16', '2026-11-17', '2026-11-18']);
+    expect(added.some((x) => x.done)).toBe(false);
+    // replace removes the sessions of that week that are not done, keeps the done ones and other weeks
+    const base = [s('o1', '2026-11-17'), s('o2', '2026-11-19', { done: true }), s('o3', '2026-11-23')];
+    const rep = insertWeek(base, w, next, 'replace', (x) => !!x.done);
+    expect(rep.map((x) => x.id)).toContain('o2');
+    expect(rep.map((x) => x.id)).toContain('o3');
+    expect(rep.map((x) => x.id)).not.toContain('o1');
+    expect(rep).toHaveLength(4);
+  });
+  it('cleans the stored weeks: empty or wrong ones go, at most 20', () => {
+    const it1 = [{ dow: 1, name: '', kind: 'run', mins: 40, zone: 9, sport: '' }];
+    expect(cleanWeeks('x')).toEqual([]);
+    expect(cleanWeeks([{ id: 'a', name: '', items: it1 }, { id: 'b', name: 'B', items: [] }, { id: 'c', name: 'C', items: [{ dow: 8, mins: 30 }] }])).toEqual([]);
+    expect(cleanWeeks([{ id: 'a', name: 'A', items: it1 }])[0].items[0].zone).toBeNull();
+    expect(cleanWeeks(Array.from({ length: 30 }, (_, i) => ({ id: `w${i}`, name: `n${i}`, items: it1 })))).toHaveLength(20);
+  });
+});

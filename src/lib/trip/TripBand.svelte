@@ -134,7 +134,10 @@
 
 <section class="band trip-band" class:compact aria-label={t('Trip')}>
   <div class="who">
-    <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
+    <div class="crumbline">
+      <nav class="crumb" aria-label={t('Where you are')}><a href="#/trips"><ChevronLeft size={18} aria-hidden="true" />{t('Trips|place')}</a>{#if !phone.matches}<span class="here" aria-hidden="true"><ChevronRight size={14} />{trip.title}</span>{/if}</nav>
+      <!-- «Tour-Pfad» (Noah 08.11.2026 «1 go A»): the way into the path of the tour, on the crumb line (no extra height), on a phone too --><a class="pfad" href={`#/trips/pfad?t=${encodeURIComponent(trip.id)}`} data-pfad-link>{t('Tour path')}<ChevronRight size={14} aria-hidden="true" /></a>
+    </div>
     <div class="kline">
       {#if stInfo?.state}<TripState state={stInfo.state} size="md" extra={stExtra && stateMore ? `${stExtra}, ${stateMore}` : stExtra} />{/if}
       {#if kicker}<p class="kick">{kicker}</p>{/if}
@@ -169,11 +172,13 @@
   <!-- L7: no button (the debrief before the last day): no empty bar at the bottom of a phone.
        v0.67.0 (kit): the one main button sits in the MainBar of the kit (bottom of a phone). -->
   {#if action || aside || hint}
-    <MainBar place="band" {aside} {hint} step={stepText || stepLine} second={{ label: t('Back to Trips'), href: '#/trips' }}>{@render action?.()}</MainBar>
+    <MainBar place="band" {aside} {hint} step={stepText || stepLine} stepHref={`#/trips/pfad?t=${encodeURIComponent(trip.id)}`} second={{ label: t('Back to Trips'), href: '#/trips' }}>{@render action?.()}</MainBar>
   {/if}
   <!-- v0.67.0 (kit, Ü1 a): the steps are the kit's StepBar, the same as on the interstitials. -->
   <!-- «Eine Tour, eine Seite» (UI-Ziele #5, 0.174): the four steps and «Auswertung» as the tabs of the one tour -->
-  <div class="steps"><StepBar {trip} tabs={stepsOf(trip)} {status} current={tab} onpick={() => openTrip(trip.id)} /></div>
+  <div class="steps">
+    <StepBar {trip} tabs={stepsOf(trip)} {status} current={tab} onpick={() => openTrip(trip.id)} />
+  </div>
   {@render below?.()}
   {#if note && stInfo?.state}<div class="stnote"><StateNote {trip} info={stInfo} {debrief} {tab} {ontemplate} bike={byBike} /></div>{/if}
 </section>
@@ -212,6 +217,29 @@
   }
   .crumb a:hover {
     background: var(--paper-2);
+  }
+  .crumbline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-2);
+    min-width: 0;
+  }
+  .crumbline .crumb {
+    flex: 1 1 auto;
+  }
+  .pfad {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    min-height: 44px;
+    margin: 0 0 2px;
+    padding: 0 6px;
+    font-size: var(--fs-small);
+    color: var(--ink-3);
+    font-weight: 400;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .crumb .here {
     display: inline-flex;
@@ -396,7 +424,7 @@
       column-gap: 16px;
       margin-bottom: 10px;
     }
-    .crumb {
+    .crumbline {
       display: none;
     }
     .kick {

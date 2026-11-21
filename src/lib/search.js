@@ -121,13 +121,15 @@ export const COMMANDS = [
   // FE17 «Suche kann handeln» (Noah 13.10.2026 23:56): go somewhere from the search (more: true)
   { kind: 'backup', say: ['daten und backup', 'datensicherung', 'sicherung', 'backup'], bike: 'none', more: true },
   { kind: 'settings', say: ['einstellungen', 'settings', 'darstellung', 'bedienung', 'appearance'], bike: 'none', more: true },
+  // «Fragen» (Plan 4a, Noah 08.11.2026): the search leads to the six questions about your data
+  { kind: 'fragen', say: ['frag deine daten', 'fragen an meine daten', 'fragen an die daten', 'ask my data', 'fragen', 'questions', 'werde ich schneller', 'schlafe ich kuerzer', 'ruhepuls ueblich'], bike: 'none', more: true },
   { kind: 'quicknote', say: ['schnelle notiz', 'quick note', 'schnellnotiz'], bike: 'none', more: true },
   // «Gut zu wissen» (Noah 28.10.2026 «b»): the tip line on top of the pages off or on again, with Undo
   { kind: 'tipsoff', say: ['gut zu wissen ausblenden', 'gut zu wissen aus', 'tipps ausblenden', 'tipps aus', 'gut zu wissen', 'hide good to know', 'hide tips', 'tips off', 'good to know'], bike: 'none' },
   { kind: 'tipson', say: ['gut zu wissen einblenden', 'gut zu wissen an', 'tipps einblenden', 'tipps an', 'gut zu wissen', 'show good to know', 'show tips', 'tips on', 'good to know'], bike: 'none' },
 ];
 /** FE17: where the go-to commands lead (Search.svelte opens the address). */
-export const COMMAND_HREF = { backup: '#/me/data', settings: '#/me/look' };
+export const COMMAND_HREF = { backup: '#/me/data', settings: '#/me/look', fragen: '#/auswerten/fragen' };
 
 /** Do the words say the phrase? Each word in full; a one-word phrase may be said by its start (3+ letters). */
 function says(words, phrase) {
@@ -159,12 +161,13 @@ const CMD_TITLE = {
   backup: () => t('Data and backup'),
   settings: () => t('Settings: appearance and handling'),
   quicknote: () => t('Write a note'),
+  fragen: () => t('Questions about my data'),
   tipsoff: () => t('Hide «Good to know» on all pages'),
   tipson: () => t('Show «Good to know» on the pages again'),
   bike: (b) => t('Open the {bike}', { bike: b.name }),
 };
 const SAVED = 'Saved with today’s date, with Undo';
-const CMD_SUB = { chain: SAVED, sealant: SAVED, wash: SAVED, note: 'Into the Inbox', quicknote: 'Into the Inbox', dayride: 'today, 2.5 h, the bike ridden last', backup: 'Me|place', settings: 'Me|place', bike: 'Bikes|place', tipsoff: 'The tip line under the page title, with Undo', tipson: 'One tip a day under the page title' };
+const CMD_SUB = { chain: SAVED, sealant: SAVED, wash: SAVED, note: 'Into the Inbox', quicknote: 'Into the Inbox', dayride: 'today, 2.5 h, the bike ridden last', backup: 'Me|place', settings: 'Me|place', fragen: 'Six questions with an answer in one sentence', bike: 'Bikes|place', tipsoff: 'The tip line under the page title, with Undo', tipson: 'One tip a day under the page title' };
 
 /**
  * The commands a search says: [{ id, kind, title, sub, cmd: { kind, bikeId?, text? } }], at most 4.

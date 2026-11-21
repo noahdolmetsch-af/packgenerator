@@ -111,7 +111,7 @@ async function doRefresh(db, dreams, home, { fetcher = fetch, now = Date.now(), 
   for (const [k, p] of todo) {
     try {
       const f = await fetchForecast({ name: k, ...p }, fetcher, new Date(now));
-      kept.places[k] = { fetchedAt: f.fetchedAt, days: f.days.map(({ date, rainMm, rainPct, max }) => ({ date, rainMm, rainPct, max })) };
+      kept.places[k] = { fetchedAt: f.fetchedAt, days: f.days.map(({ date, rainMm, rainPct, max, min, wind }) => ({ date, rainMm, rainPct, max, ...(min != null ? { min } : {}), ...(wind != null ? { wind } : {}) })) };
     } catch {
       /* offline or the service failed: what was kept stays */
     }

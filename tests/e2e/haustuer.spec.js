@@ -39,8 +39,9 @@ test('Planen: plan B, check-in per night with the late warning, the people for G
   page.on('pageerror', (e) => errors.push(e.message));
   await open(page, context, info, PLAN);
   await page.goto('./#/pack');
-  const card = page.locator('[data-door]');
-  await expect(card).toContainText(T('From the door and back'));
+  // since «Mehr zu dieser Tour» the folds sit in three groups (plan B, check-in and «Gut angekommen»): the page is the scope
+  const card = page.locator('main');
+  await expect(card.locator('[data-door-planb]')).toContainText(T('Plan B for bad weather'));
   expect(await noSideways(page)).toBe(0);
 
   // plan B: the train home, with a note

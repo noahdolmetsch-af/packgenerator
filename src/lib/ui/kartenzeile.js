@@ -1,7 +1,7 @@
 /**
  * Durchklick Etappe 2, Frage 1a (Noah 05.11.2026): on a phone the two cards «Belongs to …» and «All here» start as ONE line
  * on the pages where the page itself should come first (Packing, Trips, Material, Bikes), like «What you can do here» already
- * does (FOLDED_FIRST in seiteninhalt.js). A tap on the line opens the card; «Fold the card» closes it again. The choice is
+ * does (like the line «What you can do here» did until 09.11.2026). A tap on the line opens the card; «Fold the card» closes it again. The choice is
  * kept per card in the settings (so in the backup). Computer and tablets keep the open cards. Pure; CardFold.svelte uses it.
  */
 

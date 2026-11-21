@@ -236,11 +236,12 @@ test('Meditation einfach: the short page, a new template, a session from «Mehr 
   // die App hier» come on every page; the two screens are for Meditation's own content, measured without them
   // Wegweiser 18 (on purpose): the card «What you can do here» on the Meditation pages is a help card, not Meditation's own content
   // «Aktiv neu» (0.187.0, on purpose): the switch Aktiv | Auswerten on top of every Aktiv page is navigation, not Meditation's content; the path line (28.10.2026) too
-  const info0 = await page.addStyleTag({ content: 'main section.hint, main [data-hint-line], main .tipl, main details.can, [data-place-switch], [data-pathline], [data-pathrow], [data-seiteninhalt] { display: none !important; }' });
+  const info0 = await page.addStyleTag({ content: 'main section.hint, main [data-hint-line], main .tipl, main details.can, [data-place-switch], [data-pathline], [data-pathrow], [data-seiteninhalt-host] { display: none !important; }' });
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
   await info0.evaluate((el) => el.remove());
   info.annotations.push({ type: 'height', description: `Meditation page ${page.viewportSize().width} px: ${height} px high` });
-  if (phone) expect(height, 'the phone page is about two screens at most').toBeLessThanOrEqual(1800);
+  // Seitenregeln Stufe 1 (21.11.2026, on purpose): the page title is --fs-page (32 px, was 23 px), so the page is a few px higher; Noah 26.10.2026 «keine Anforderung an eine Länge der Seite»: the limit moves from 1800 to 1840, it is no screen budget
+  if (phone) expect(height, 'the phone page is about two screens at most').toBeLessThanOrEqual(1840);
   await fits(page, 'B Meditation kurz');
 
   // «+ neue»: «Neue Sitzung»; a mark set on the ring (5:00 of 20 min) and taken away (on a phone the ring
@@ -360,8 +361,10 @@ test('Meditation einfach: the start sheet changes the minutes, «Nur abhaken» t
 
   // other activities still tick with one tap
   await page.locator('[data-act="pushups"]').click();
-  await expect(toast).toContainText(T('{name} · {n} ticked', { name: 'Liegestütze', n: 10 }));
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/); // T2 «Haken zuerst»: the tap ticks and opens «Geschafft»
   await expect(page.locator('dialog[data-med-sheet][open]')).toHaveCount(0);
+  await page.locator('[data-geschafft-back]').click();
+  await expect(page).toHaveURL(/#\/flow$/);
 
   await med.click();
   await sheet.locator('[data-to="meditation"]').click();

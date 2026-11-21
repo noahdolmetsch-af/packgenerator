@@ -1,0 +1,22 @@
+// «Training verbessern» 11: ganze Wochen merken
+export default {
+  'Keep this week': 'Woche merken',
+  'My weeks ({n})': 'Meine Wochen ({n})',
+  'No week kept yet. Plan a good week and tap «Keep this week».': 'Noch keine Woche gemerkt. Plane eine gute Woche und tippe auf «Woche merken».',
+  'e.g. Good build week': 'z. B. Gute Aufbauwoche',
+  'Kept are weekday, name, kind, sport, minutes and zone. Not kept: dates, «done» and notes.': 'Gemerkt werden Wochentag, Name, Art, Sportart, Minuten und Zone. Nicht gemerkt: Datum, «erledigt» und Notizen.',
+  'Keep|week': 'Merken',
+  'Put in|week': 'Einsetzen',
+  'Add to my sessions': 'Zu meinen Einheiten hinzufügen',
+  'Replace my sessions': 'Meine Einheiten ersetzen',
+  'Adding keeps everything. Replacing removes only the sessions of this week that are not done. You can undo both.': 'Hinzufügen behält alles. Ersetzen entfernt nur die Einheiten dieser Woche, die nicht erledigt sind. Beides kannst du rückgängig machen.',
+  'Manage my weeks': 'Meine Wochen verwalten',
+  'You can keep up to {n} weeks. Remove one to keep another.': 'Du kannst bis zu {n} Wochen merken. Entferne eine, um eine andere zu merken.',
+  '«{name}» kept as a week.': '«{name}» als Woche gemerkt.',
+  '«{name}» removed from your weeks.': '«{name}» aus deinen Wochen entfernt.',
+  '«{name}» replaces the sessions of this week.': '«{name}» ersetzt die Einheiten dieser Woche.',
+  '«{name}» added to this week.': '«{name}» zu dieser Woche hinzugefügt.',
+  'The weeks stay and show under «No group». No week is deleted.': 'Die Wochen bleiben und stehen unter «Ohne Gruppe». Keine Woche wird gelöscht.',
+  '{n} kept week': '{n} gemerkte Woche',
+  '{n} kept weeks': '{n} gemerkte Wochen',
+};

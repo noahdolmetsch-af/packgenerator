@@ -30,6 +30,8 @@ const D = (day) => Date.parse(`${day}T12:00:00Z`);
 const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
 export const isDay = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 const days = (a, b) => Math.round((D(b) - D(a)) / 864e5);
+/** Whole days from a to b (b later = positive). */
+export const daysBetween = days;
 /** A calendar day ± n days (no clock involved). */
 export const shift = (day, n) => iso(D(day) + n * 864e5);
 
@@ -39,6 +41,16 @@ export function wegOf(value) {
   return {
     goals: Array.isArray(v.goals) ? v.goals.filter((g) => g?.id).map(goalOf) : [],
     onToday: v.onToday !== false,
+    templates: Array.isArray(v.templates) ? v.templates.filter((x) => x?.id && String(x.name ?? '').trim() && Array.isArray(x.steps)).map(cleanTemplate) : [],
+  };
+}
+
+/** One saved template made safe: { id, name, steps: [{ type, key, title, offset, note, own }] } (idea 5c «My ways»). */
+function cleanTemplate(x) {
+  return {
+    id: x.id,
+    name: String(x.name).trim(),
+    steps: x.steps.filter((s) => String(s?.title ?? '').trim()).map((s) => ({ type: typeof s.type === 'string' && s.type ? s.type : 'own', key: s.key, title: String(s.title).trim(), offset: Number.isFinite(s.offset) ? Math.round(s.offset) : null, note: s.note, own: !!s.own })),
   };
 }
 
@@ -61,7 +73,10 @@ export function stepOf(s) {
     offset: Number.isFinite(s.offset) ? Math.round(s.offset) : null,
     due: isDay(s.due) ? s.due : '',
     done: !!s.done,
+    doneAt: s.done && isDay(s.doneAt) ? s.doneAt : '', // the day the step was ticked (for the review «planned against actual»)
     by: s.by === 'auto' || s.by === 'user' ? s.by : '',
+    next: s.next === 'earlier' || s.next === 'keep' ? s.next : '', // the answer to «next time earlier?» (review, idea 5e)
+    later: isDay(s.later) ? s.later : '', // «ask later»: the question rests until the day after this one
   };
 }
 
@@ -85,7 +100,16 @@ export function moveGoal(w, from, to) {
 const mapGoal = (w, id, fn) => ({ ...w, goals: w.goals.map((g) => (g.id === id ? fn(g) : g)) });
 
 /** A new start day (or none): steps with a day of their own keep it, the others move with the start. */
-export const setStart = (w, id, start) => mapGoal(w, id, (g) => ({ ...g, start: isDay(start) ? start : '' }));
+export const setStart = (w, id, start) => mapGoal(w, id, (g) => {
+  if (!isDay(start)) return { ...g, start: '' };
+  const { period, ...rest } = g; // a start day ends the open period
+  return { ...rest, start };
+});
+/** The open period of a goal without a start day { from, to }, for the start suggestion; without both days it goes. */
+export const setPeriod = (w, id, from, to) => mapGoal(w, id, (g) => {
+  const { period, ...rest } = g;
+  return isDay(from) && isDay(to) && from <= to ? { ...rest, period: { from, to } } : rest;
+});
 
 /* ---------- steps ---------- */
 
@@ -105,8 +129,11 @@ const mapStep = (goal, id, fn) => ({ ...goal, steps: goal.steps.map((s) => (s.id
 export const renameStep = (goal, id, title) => (String(title ?? '').trim() ? mapStep(goal, id, (s) => ({ ...s, title: String(title).trim() })) : goal);
 export const removeStep = (goal, id) => ({ ...goal, steps: goal.steps.filter((s) => s.id !== id) });
 /** The user ticks or unticks. An untick by the user stops the app from ticking it again. */
-export const setDone = (goal, id, done = true) => mapStep(goal, id, (s) => ({ ...s, done: !!done, by: 'user' }));
+export const setDone = (goal, id, done = true, day = '') => mapStep(goal, id, (s) => ({ ...s, done: !!done, doneAt: done && isDay(day) ? day : '', by: 'user' }));
 /** A day of the user's own; '' gives the step back to «start − offset». */
+/** The answer to «next time earlier?» on a step: 'earlier' | 'keep' stays, 'later' only hides the question for today. */
+export const setNext = (goal, id, answer, today = '') => mapStep(goal, id, (s) => (answer === 'later' ? { ...s, later: isDay(today) ? today : '' } : { ...s, next: answer === 'earlier' ? 'earlier' : 'keep', later: '' }));
+
 export const setDue = (goal, id, due) => mapStep(goal, id, (s) => ({ ...s, due: isDay(due) ? due : '' }));
 /** Steps ordered with the arrows or by drag (the order only matters between steps of the same day). */
 export function moveStep(goal, from, to) {
@@ -152,11 +179,12 @@ export function progress(goal, today) {
   return { done: rows.length - open.length, total: rows.length, next: open[0] ?? null, late: open.filter((r) => r.state === 'late').length };
 }
 
-/** The same for one kind of step (the strip «3 of 5 sorted» above the timeline). */
+/** The same for one kind of step (the strip «3 of 5 sorted» above the timeline). next = the open step with the soonest day. */
 export function typeProgress(goal, type, today) {
   const rows = timeline(goal, today).filter((r) => r.step.type === type);
   const open = rows.filter((r) => r.state !== 'done');
-  return { done: rows.length - open.length, total: rows.length, next: open[0] ?? null };
+  const dated = open.find((r) => r.due) ?? null;
+  return { done: rows.length - open.length, total: rows.length, next: open[0] ?? null, soon: dated ? { row: dated, days: days(today, dated.due) } : null };
 }
 
 /** Whole weeks and days from today to the start; null without a start day, negative once it is past. */
@@ -172,6 +200,28 @@ export function timeBuffer(goal, today, planWeeks) {
   if (!u || !(planWeeks > 0)) return null;
   const buffer = u.weeks - planWeeks;
   return { weeksLeft: u.weeks, planWeeks, buffer, state: buffer >= 2 ? 'ok' : buffer >= 0 ? 'tight' : 'short' };
+}
+
+/**
+ * Weeks the plan still asks for: the longest lead (rounded up) of an open step that follows the start day.
+ * A step the user pinned to a day, a done step and a step without a lead do not count. 0 when there is none.
+ */
+export function planWeeks(goal) {
+  const leads = goal.steps.filter((s) => !s.done && !s.due && s.offset != null && s.offset > 0).map((s) => s.offset);
+  return leads.length ? Math.ceil(Math.max(...leads) / 7) : 0;
+}
+
+/**
+ * «Is there enough time?» for a goal, drawn on the page: the buffer from `timeBuffer` plus, when the time is short,
+ * the start day that would give the plan its weeks (a suggestion, the user decides). null without a start day, with
+ * a start day that is over, or without a plan.
+ */
+export function timeCheck(goal, today) {
+  const u = untilStart(goal, today);
+  if (!u || u.days < 0) return null;
+  const b = timeBuffer(goal, today, planWeeks(goal));
+  if (!b) return null;
+  return { ...b, laterStart: b.state === 'short' ? shift(goal.start, -b.buffer * 7) : '' };
 }
 
 /* ---------- ticking by itself ---------- */
@@ -191,7 +241,7 @@ export function applyAuto(goal, types, ctx = {}) {
     try { r = t.auto(goal, s, ctx); } catch { r = null; }
     if (r !== true) return s;
     changed = true;
-    return { ...s, done: true, by: 'auto' };
+    return { ...s, done: true, doneAt: isDay(ctx.today) ? ctx.today : '', by: 'auto' };
   });
   return changed ? { ...goal, steps } : goal;
 }
@@ -210,6 +260,19 @@ export function todayStep(w, today) {
 /* ---------- a way as a template (idea 5c, later) ---------- */
 
 /** The steps of a goal as templates for a new one: offsets kept, ticks and own days dropped. */
+export const EARLIER_DAYS = 14;
 export function templateOf(goal) {
-  return goal.steps.map((s) => ({ type: s.type, key: s.key, title: s.title, offset: s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null), note: s.note, own: s.own }));
+  return goal.steps.map((s) => {
+    const offset = s.offset ?? (goal.start && s.due ? days(s.due, goal.start) : null);
+    return { type: s.type, key: s.key, title: s.title, offset: offset != null && s.next === 'earlier' ? offset + EARLIER_DAYS : offset, note: s.note, own: s.own };
+  });
 }
+
+/** Save a goal as a template of its own («My ways»): its steps with their offsets, without ticks or own days. */
+export function saveTemplate(w, goal, name, { id = `wt-${Date.now().toString(36)}` } = {}) {
+  const n = String(name ?? '').trim();
+  if (!n || !goal?.steps?.length) return w;
+  return { ...w, templates: [...(w.templates ?? []), cleanTemplate({ id, name: n, steps: templateOf(goal) })] };
+}
+export const renameTemplate = (w, id, name) => (String(name ?? '').trim() ? { ...w, templates: (w.templates ?? []).map((x) => (x.id === id ? { ...x, name: String(name).trim() } : x)) } : w);
+export const removeTemplate = (w, id) => ({ ...w, templates: (w.templates ?? []).filter((x) => x.id !== id) });

@@ -12,6 +12,7 @@
   import { db } from '../db.js';
   import { azmWeek, addDays, AZM_WEEK_KEY, azmWeekOf } from '../health.js';
   import { health, FITBIT_HASH } from './client.svelte.js';
+  import { rangeText } from '../flow/garmin/words.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { today, tile = false } = $props();
@@ -46,6 +47,7 @@
     {:else}
       <button type="button" class="ofb num" data-azm-goal onclick={() => (editing = true)} aria-label={t('Change the weekly goal for the active zone minutes')}><Pencil size={12} aria-hidden="true" />{num(of)}</button>
     {/if}
+    <small class="wkr" data-azm-range>{t('since Monday')} · {rangeText(week.monday, today)}</small>
     <ul class="dl" aria-label={t('Active zone minutes per day')}>
       {#each week.days as d (d.date)}
         <li class:fut={d.future} class:now={d.today} data-day={d.date}><span class="num">{d.min ?? ''}</span><small>{wd(d.date).slice(0, 2)}</small></li>
@@ -95,6 +97,11 @@
     gap: 6px;
     height: 100%;
     padding: 12px;
+  }
+  .wkr {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    text-align: center;
   }
   .th {
     display: flex;

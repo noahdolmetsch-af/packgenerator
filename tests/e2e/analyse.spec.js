@@ -99,17 +99,23 @@ test('Analyse: every value as a tile, sources and period, a tap opens its course
   expect(sw, 'no sideways scroll').toBeLessThanOrEqual(w);
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/analyse-${info.project.name}.png`, fullPage: true });
 
-  // Strava off: the sport tiles go, Fitbit stays
+  // Strava off: the sport tiles go, Fitbit stays (on a phone the card is one line that opens the choices)
+  const openFilter = async () => {
+    const b = page.locator('[data-filter-toggle]');
+    if ((await b.isVisible()) && (await b.getAttribute('aria-expanded')) === 'false') await b.click();
+  };
+  await openFilter();
   await page.locator('[data-src="strava"]').click();
   await expect(page.locator('[data-src="strava"]')).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('[data-value="km:bike"]')).toHaveCount(0);
   await expect(page.locator('[data-value="rhr"]')).toBeVisible();
   // the choice stays after a reload
-  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90') }).click();
+  await page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90'), exact: true }).click();
   await page.reload();
   await ready(page);
+  await openFilter();
   await expect(page.locator('[data-src="strava"]')).toHaveAttribute('aria-pressed', 'false');
-  await expect(page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90') })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: T('{n} days|analyse').replace('{n}', '90'), exact: true })).toHaveAttribute('aria-pressed', 'true');
 
   // a tap opens the value's own page (M6); the older views stay one link away
   await page.locator('[data-value="act:sauna"]').click();

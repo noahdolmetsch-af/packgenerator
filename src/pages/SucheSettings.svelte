@@ -31,6 +31,7 @@
     { key: 'app', name: 'The app, from your data', text: 'Free, on this device. Answers questions like «How many km this week?» or «When is the next service?».' },
     { key: 'gemini', name: 'Gemini (free)', text: 'A free AI from Google answers right in the search when the app knows nothing. Needs the helper code (Me › AI helper); Google may use the questions to learn.' },
     { key: 'geminiAuto', name: 'Gemini answers a spoken question by itself', text: 'Only when the app has no answer. Typed questions get a button «Ask Gemini here».', sub: true },
+    { key: 'understand', name: 'Gemini understands sentences', text: 'A sentence the app does not know («create a list …», «remind me …») goes to Gemini, which turns it into actions. You see what it understood first and tap «OK». Only the sentence and the names of your bikes and trips are sent. Google may use them to learn.', sub: true },
     { key: 'links', name: 'Ask further at …', text: 'Buttons that open Claude, ChatGPT and others in a new tab with your question. Free with your normal account.' },
     { key: 'chrome', name: 'Chrome AI', text: 'The AI built into Chrome on a computer answers on the device. Only where Chrome offers it.' },
     { key: 'local', name: 'AI on this device', text: 'The AI you loaded onto this device answers without internet.' },

@@ -83,7 +83,7 @@ export default {
   'Weight (g)': 'Gewicht (g)',
 
   // Ausgeliehen (answer 5a+b)
-  'Lent out': 'Ausgeliehen',
+  'Lent out': 'Leihliste',
   '{n} list open': '{n} Liste offen',
   '{n} lists open': '{n} Listen offen',
   'New lending list': 'Neue Leihliste',
@@ -255,7 +255,7 @@ export default {
   'Open a trip in Pack.': 'Öffne eine Tour in Packen.',
   'Tap «Read aloud».': 'Tippe «Vorlesen».',
   'Say «ok» when an item is in the bag, or tap the big button.': 'Sag «ok», wenn ein Teil in der Tasche ist, oder tippe den grossen Knopf.',
-  'Open Gear › Lent out.': 'Öffne Material › Ausgeliehen.',
+  'Open Gear › Lent out.': 'Öffne Material › Leihliste.',
   'Tap «New lending list», type the name and tick the things.': 'Tippe «Neue Leihliste», schreib den Namen und kreuze die Sachen an.',
   'Send it as a link or PDF; on the return day the app reminds you.': 'Schick sie als Link oder PDF; am Rückgabetag erinnert dich die App.',
   // #348 suggested values for a new item; «lent to» in Material

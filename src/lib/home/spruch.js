@@ -12,9 +12,19 @@
  * - Never the same twice: the last 30 sentences shown are kept (settings row SPRUCH_KEY) and are not chosen again; the
  *   same source (weather, zone minutes …) does not come twice in a row and in the mix the tone changes. When
  *   nothing else is left, the oldest of the last 30 is let free; when nothing fits at all, the tile says why it is empty.
+ * - PR 2 (Noah 07.11.2026 «Bau spruch pr2»): more sources (steps, weeks in a row, bike km of the year, a year ago, the
+ *   fog clearing, your quotes of «Kissenzeit») and a second wording for each of the first 16 sentences (`alts`; the id of
+ *   a second wording is «id~2»). Quotes stay High German (lang 'de'); they come every few sentences and when nothing else fits.
+ * - PR 3 (Noah 07.11.2026 «bau spruch pr3 und 4»): the window «All sayings» (SprucheSheet.svelte): the tone (mix or one
+ *   tone), a switch for each source and for each sentence, and «No more like this» on the tile (with Undo). The choices
+ *   are kept in the same settings row (`ton`, `offSrc`, `off`).
+ * - PR 4 (Noah 07.11.2026 «bau spruch pr3 und 4»): your own sayings, written in the window «All sayings» (settings row
+ *   OWN_KEY, in the backup): text, one tone each, add / change / delete with Undo. They come with the others like any sentence
+ *   (source «own»), in the language you wrote them (they do NOT go through t()), and follow the same rules: tone, switches,
+ *   history, and a saying of the tone «chal» only on a day that is not off the own normal.
  * Pure (no database, no screen), tested in tests/spruch.test.js. Konzept: design/tagesspruch/konzept.md in the project folder.
  */
-import { normalOf, latest, azmWeek, addDays } from '../health.js';
+import { normalOf, latest, azmWeek, addDays, MOVE_RULE } from '../health.js';
 import { daysFrom } from '../phase.js';
 import { wetPct } from '../rainlimit.svelte.js';
 
@@ -25,9 +35,20 @@ export const TONES = ['mot', 'ruhig', 'lustig', 'vision', 'chal'];
 /** English keys for t(): the name of each tone (the small tag on the tile). */
 export const TONE_NAME = { mot: 'Encouraging|saying', ruhig: 'Calm|saying', lustig: 'Funny|saying', vision: 'Vision|saying', chal: 'Challenge|saying' };
 /** English keys for t(): the name of each source (where the sentence comes from). */
-export const SOURCE_NAME = { weather: 'Weather|saying', azm: 'Zone minutes|saying', body: 'Sleep and pulse|saying', tour: 'Next trip|saying' };
+export const SOURCE_NAME = { weather: 'Weather|saying', azm: 'Zone minutes|saying', body: 'Sleep and pulse|saying', tour: 'Next trip|saying', steps: 'Steps|saying', serie: 'Weeks in a row|saying', velo: 'Bike km|saying', jahr: 'A year ago|saying', quote: 'Quote|saying', own: 'Own|saying' };
 
-/** The stored row { recent: [{ id, src, ton }] newest first, off: [template ids] }; anything else becomes the empty row. */
+/** Every source, in the order of the window «All sayings». */
+export const SOURCES = Object.keys(SOURCE_NAME);
+/** What the person can choose as the tone: the mix or one tone. */
+export const TONE_CHOICES = ['mix', ...TONES];
+
+/** The template of a sentence id: «w.rain-until~2» → «w.rain-until». */
+export const baseId = (id) => String(id ?? '').split('~')[0];
+
+/**
+ * The stored row { recent: [{ id, src, ton }] newest first, off: [template ids that are switched off], ton: 'mix' | a tone,
+ * offSrc: [sources that are switched off] }; anything else becomes the empty row (mix, nothing off).
+ */
 export function spruchOf(value) {
   const v = value && typeof value === 'object' ? value : {};
   const recent = (Array.isArray(v.recent) ? v.recent : [])
@@ -35,7 +56,26 @@ export function spruchOf(value) {
     .map((x) => ({ id: x.id, src: typeof x.src === 'string' ? x.src : '', ton: typeof x.ton === 'string' ? x.ton : '' }))
     .slice(0, HISTORY_MAX);
   const off = (Array.isArray(v.off) ? v.off : []).filter((x) => typeof x === 'string');
-  return { recent, off };
+  const offSrc = (Array.isArray(v.offSrc) ? v.offSrc : []).filter((x) => SOURCES.includes(x));
+  return { recent, off, ton: TONE_CHOICES.includes(v.ton) ? v.ton : 'mix', offSrc };
+}
+
+/** The row with the tone set (anything unknown is the mix). */
+export function setTon(rec, ton) {
+  return { ...spruchOf(rec), ton: TONE_CHOICES.includes(ton) ? ton : 'mix' };
+}
+
+/** The row with a source switched on or off. */
+export function setSource(rec, src, on) {
+  const r = spruchOf(rec);
+  return { ...r, offSrc: on ? r.offSrc.filter((x) => x !== src) : r.offSrc.includes(src) ? r.offSrc : [...r.offSrc, src] };
+}
+
+/** The row with a sentence (its template id, the other wordings go with it) switched on or off. */
+export function setTemplate(rec, id, on) {
+  const r = spruchOf(rec);
+  const b = baseId(id);
+  return { ...r, off: on ? r.off.filter((x) => x !== b) : r.off.includes(b) ? r.off : [...r.off, b] };
 }
 
 /** The history with one more shown sentence on top (kept to HISTORY_MAX; the same id is moved to the top). */
@@ -44,6 +84,44 @@ export function remember(rec, pick) {
   const recent = [{ id: pick.id, src: pick.src, ton: pick.ton }, ...r.recent.filter((x) => x.id !== pick.id)].slice(0, HISTORY_MAX);
   return { ...r, recent };
 }
+
+/* ---------- your own sayings (PR 4) ---------- */
+
+/** The settings row of your own sayings: { items: [{ id, text, ton }] }. */
+export const OWN_KEY = 'home.spruch.own';
+export const OWN_MAX = 40;
+export const OWN_LEN = 140;
+
+/** The stored row made safe: [{ id, text (1–140 characters, one line), ton }] (at most 40); anything else is the empty list. */
+export function ownOf(value) {
+  const list = Array.isArray(value) ? value : Array.isArray(value?.items) ? value.items : [];
+  const seen = new Set();
+  const out = [];
+  for (const x of list) {
+    const text = String(x?.text ?? '').replace(/\s+/g, ' ').trim().slice(0, OWN_LEN);
+    const id = typeof x?.id === 'string' ? x.id.replace(/[~\s]/g, '') : '';
+    if (!text || !id || seen.has(id) || out.length >= OWN_MAX) continue;
+    seen.add(id);
+    out.push({ id, text, ton: TONES.includes(x?.ton) ? x.ton : 'mot' });
+  }
+  return out;
+}
+/** A new id for an own saying. */
+export const newOwnId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+/** The list with one more saying at the end; the same list when the text is empty or the list is full. */
+export function addOwn(items, text, ton = 'mot', id = newOwnId()) {
+  const list = ownOf(items);
+  const add = ownOf([{ id, text, ton }])[0];
+  return add && list.length < OWN_MAX && !list.some((x) => x.id === add.id) ? [...list, add] : list;
+}
+/** The list with one saying changed (text and tone); an empty text changes nothing. */
+export function editOwn(items, id, { text, ton }) {
+  const list = ownOf(items);
+  const re = ownOf([{ id, text, ton }])[0];
+  return re ? list.map((x) => (x.id === id ? re : x)) : list;
+}
+/** The list without one saying. */
+export const dropOwn = (items, id) => ownOf(items).filter((x) => x.id !== id);
 
 /* ---------- recovery: sleep and resting pulse against the person's own normal ---------- */
 
@@ -91,9 +169,15 @@ const wetHours = (day) => (day?.hourly?.p?.length === 24 ? day.hourly.p.map((p) 
  * What the sentences need, from what Today already knows:
  * { today, hour, weekday (1 = Monday … 7), forecast, rows (healthDays), goal (zone minutes per week), trip, packed, fog }
  * trip: the next trip { startDate, name } or null; packed: { packed, of } or null; fog: summary() of nebelgrenze.js or null.
+ * PR 2: series: the weeks in a row (series.js seriesOf) or null; km: { now, week } the bike km of this year now and a week ago;
+ * ago: { title } the trip of a year ago or null; quotes: [{ id, text, author, source }] the quotes that are on.
+ * PR 4: own: [{ id, text, ton }] your own sayings (ownOf).
  */
-export function contextOf({ today, hour = 12, weekday = 1, forecast = null, rows = [], goal = 150, trip = null, packed = null, fog = null } = {}) {
+export function contextOf({ today, hour = 12, weekday = 1, forecast = null, rows = [], goal = 150, trip = null, packed = null, fog = null, series = null, km = null, ago = null, quotes = [], own = [] } = {}) {
   const week = azmWeek(rows, today);
+  const stepsOf = (d) => (rows ?? []).find((r) => r.date === d && Number.isFinite(r.steps))?.steps ?? null;
+  const yS = stepsOf(addDays(today, -1));
+  const nS = normalOf(rows ?? [], 'steps', today);
   const recent = (rows ?? []).filter((r) => r.date >= addDays(today, -14) && Number.isFinite(r.azm));
   return {
     today,
@@ -104,10 +188,19 @@ export function contextOf({ today, hour = 12, weekday = 1, forecast = null, rows
     rec: recoveryOf(rows, today),
     trip: trip?.startDate ? { name: String(trip.name ?? '').trim(), days: daysFrom(today, trip.startDate), packed: packed?.of ? Math.round((packed.packed / packed.of) * 100) : null } : null,
     fog,
+    steps: { y: yS, today: stepsOf(today), normal: nS != null ? Math.round(nS) : null },
+    series,
+    km,
+    ago,
+    quotes: Array.isArray(quotes) ? quotes : [],
+    own: ownOf(own),
   };
 }
 
-/* ---------- the 16 sentences ---------- */
+/** Bike km of the year that are worth a sentence (reached in the last 7 days, or close). */
+export const KM_MARKS = [250, 500, 750, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 8000, 10000];
+
+/* ---------- the sentences ---------- */
 
 /**
  * Every template: { id, src, ton, make(ctx) } where make returns null (does not fit today) or
@@ -124,7 +217,11 @@ export const TEMPLATES = [
       let h = c.hour;
       while (h < 23 && wet[h]) h++; // first dry hour after the wet stretch
       if (h <= c.hour || h > 17 || wet.slice(h, 21).some(Boolean)) return null;
-      return { text: `Bis am ${clock(h)} rägnets, när isch’s troche. D’Wolke und dr Kaländer si sech hüt usnahmswys einig: zersch Kafi, när Velo.`, why: { key: 'Rain at your home place until {h}:00, dry after that.', vars: { h } } };
+      return {
+        text: `Bis am ${clock(h)} rägnets, när isch’s troche. D’Wolke und dr Kaländer si sech hüt usnahmswys einig: zersch Kafi, när Velo.`,
+        alts: [`Bis am ${clock(h)} nässelet’s no. Hüt isch’s e Tag für dr zwöit Kafi und när für d’Rundi.`],
+        why: { key: 'Rain at your home place until {h}:00, dry after that.', vars: { h } },
+      };
     },
   },
   {
@@ -134,7 +231,8 @@ export const TEMPLATES = [
       if (!c.day || c.hour >= 17 || !Number.isFinite(max) || max < 10) return null;
       const wet = wetHours(c.day);
       const dry = wet ? !wet.slice(Math.max(9, c.hour), 19).some(Boolean) : (c.day.rain ?? 'none') === 'none';
-      return dry ? { text: `Troche und ${Math.round(max)} Grad. Dr Wätterbricht het hüt nüt gäge ne Rundi.`, why: { key: 'Dry at your home place today, up to {t}°.', vars: { t: Math.round(max) } } } : null;
+      const t = Math.round(max);
+      return dry ? { text: `Troche und ${t} Grad. Dr Wätterbricht het hüt nüt gäge ne Rundi.`, alts: [`${t} Grad und troche. Gueti Usrede git’s hüt kener.`], why: { key: 'Dry at your home place today, up to {t}°.', vars: { t } } } : null;
     },
   },
   {
@@ -143,7 +241,23 @@ export const TEMPLATES = [
       const top = c.fog?.now?.top;
       if (c.hour >= 11 || !Number.isFinite(top) || c.fog?.above !== 'sun') return null;
       const m = Math.round(top / 10) * 10;
-      return { text: `Unger em Näbel, ab ${m} m Sunne. Wär früech startet, luegt vo obe uf d’Wolkedecki.`, why: { key: 'Fog line about {m} m above sea level, sun above (estimate).', vars: { m } } };
+      return {
+        text: `Unger em Näbel, ab ${m} m Sunne. Wär früech startet, luegt vo obe uf d’Wolkedecki.`,
+        alts: [`Dr Näbel höret bi ${m} m uf. Wär ufe geit, het d’Sunne für sech.`],
+        why: { key: 'Fog line about {m} m above sea level, sun above (estimate).', vars: { m } },
+      };
+    },
+  },
+  {
+    id: 'w.fog-clears', src: 'weather', ton: 'ruhig',
+    make: (c) => {
+      const k = c.fog?.clearing;
+      if (!k || k.kind !== 'clears' || !Number.isFinite(k.hour) || k.hour <= c.hour || c.hour >= 18) return null;
+      return {
+        text: `Dr Näbel verzieht sech am ${clock(k.hour)}. Bis dänne bsorgt dr Kafi ds Programm.`,
+        alts: [`Um ${k.hour} Uhr isch dr Näbel wäg. Wär wartet, gseht meh.`],
+        why: { key: 'The fog at your home place is expected to clear at {h}:00 (estimate).', vars: { h: k.hour } },
+      };
     },
   },
   {
@@ -153,7 +267,11 @@ export const TEMPLATES = [
       if (c.hour >= 11 || !Number.isFinite(min) || min >= 4) return null;
       const t = Math.round(min);
       const deg = t < 0 ? `Minus ${-t}` : `Nume ${t}`;
-      return { text: `${deg} Grad am Morge. Warm aalege, när isch d’Rundi nume haub so schlimm.`, why: { key: 'Lowest temperature today at your home place: {t}°.', vars: { t } } };
+      return {
+        text: `${deg} Grad am Morge. Warm aalege, när isch d’Rundi nume haub so schlimm.`,
+        alts: [`${deg} Grad am Morge. E zwöiti Schicht und d’Händsche, när geit’s.`],
+        why: { key: 'Lowest temperature today at your home place: {t}°.', vars: { t } },
+      };
     },
   },
   // --- zone minutes of the week (goal: Aktiv › Aktivzonenminuten) ---
@@ -164,7 +282,11 @@ export const TEMPLATES = [
       const rest = goal - sum;
       if (!connected || sum <= 0 || rest <= 0 || rest >= 100) return null;
       const until = c.weekday === 7 ? 'Hüt bis zum Abe' : 'Bis Sunntig';
-      return { text: `${sum} vo ${goal} Zonenminute hesch scho. ${until} fähle no ${rest}, das isch e Firaaberundi und e Spaziergang.`, why: { key: 'Active zone minutes this week: {n} of {goal}.', vars: { n: sum, goal } } };
+      return {
+        text: `${sum} vo ${goal} Zonenminute hesch scho. ${until} fähle no ${rest}, das isch e Firaaberundi und e Spaziergang.`,
+        alts: [`Nume no ${rest} Zonenminute bis zum Wuchezil (${sum} vo ${goal}). D’Ziellinie isch scho z gseh.`],
+        why: { key: 'Active zone minutes this week: {n} of {goal}.', vars: { n: sum, goal } },
+      };
     },
   },
   {
@@ -173,21 +295,29 @@ export const TEMPLATES = [
       const { sum, goal, connected } = c.azm;
       const rest = goal - sum;
       if (!connected || rest <= 0 || c.hour >= 20) return null;
-      return { text: `Für ds Wuchezil fähle no ${rest} Zonenminute. Hüt scho es Stückli meh aus gester?`, why: { key: 'Active zone minutes this week: {n} of {goal}.', vars: { n: sum, goal } } };
+      return {
+        text: `Für ds Wuchezil fähle no ${rest} Zonenminute. Hüt scho es Stückli meh aus gester?`,
+        alts: [`${sum} vo ${goal}: ${rest} Zonenminute ligge no parat. Wär nimmt sie hüt?`],
+        why: { key: 'Active zone minutes this week: {n} of {goal}.', vars: { n: sum, goal } },
+      };
     },
   },
   {
     id: 'a.goal', src: 'azm', ton: 'lustig',
     make: (c) => {
       const { sum, goal, connected } = c.azm;
-      return connected && sum >= goal ? { text: `Wuchezil gschafft: ${sum} vo ${goal}. Ds Sofa het das persönlech gno.`, why: { key: 'Active zone minutes this week: {n} of {goal}.', vars: { n: sum, goal } } } : null;
+      return connected && sum >= goal
+        ? { text: `Wuchezil gschafft: ${sum} vo ${goal}. Ds Sofa het das persönlech gno.`, alts: [`${sum} vo ${goal} Zonenminute: ds Wuchezil isch dinne. Jitz isch alles Bonus.`], why: { key: 'Active zone minutes this week: {n} of {goal}.', vars: { n: sum, goal } } }
+        : null;
     },
   },
   {
     id: 'a.new-week', src: 'azm', ton: 'ruhig',
     make: (c) => {
       const { sum, goal, connected } = c.azm;
-      return connected && c.weekday <= 2 && sum < goal ? { text: `E neui Wuche fat a: ${sum} vo ${goal} Zonenminute. Es geit Schritt für Schritt.`, why: { key: 'Active zone minutes since Monday: {n} of {goal}.', vars: { n: sum, goal } } } : null;
+      return connected && c.weekday <= 2 && sum < goal
+        ? { text: `E neui Wuche fat a: ${sum} vo ${goal} Zonenminute. Es geit Schritt für Schritt.`, alts: [`Dr Zähler steit uf ${sum} vo ${goal} Zonenminute. D’Wuche het no aui Charte.`], why: { key: 'Active zone minutes since Monday: {n} of {goal}.', vars: { n: sum, goal } } }
+        : null;
     },
   },
   // --- sleep and resting pulse, against the own normal of 30 days; observation only ---
@@ -195,28 +325,64 @@ export const TEMPLATES = [
     id: 'b.sleep-more', src: 'body', ton: 'ruhig',
     make: (c) => {
       const s = c.rec.sleep;
-      return s && s.diff >= SLEEP_HIGH_MIN ? { text: `${hm(s.min)} gschlafe, ${s.diff} Minute meh aus dys Normal. Das merkt me ofte erscht ungerwägs.`, why: { key: 'Sleep last night {min} min, your normal {normal} min.', vars: { min: s.min, normal: s.normal } } } : null;
+      return s && s.diff >= SLEEP_HIGH_MIN
+        ? { text: `${hm(s.min)} gschlafe, ${s.diff} Minute meh aus dys Normal. Das merkt me ofte erscht ungerwägs.`, alts: [`${hm(s.min)} gschlafe, ${s.diff} Minute über dym Normal. Das isch e ruigi Usgangslag.`], why: { key: 'Sleep last night {min} min, your normal {normal} min.', vars: { min: s.min, normal: s.normal } } }
+        : null;
     },
   },
   {
     id: 'b.sleep-less', src: 'body', ton: 'ruhig',
     make: (c) => {
       const s = c.rec.sleep;
-      return s && s.diff <= -SLEEP_LOW_MIN ? { text: `${hm(s.min)} gschlafe, ${-s.diff} Minute weniger aus dys Normal. S’Tempo bestimmsch hüt du.`, why: { key: 'Sleep last night {min} min, your normal {normal} min.', vars: { min: s.min, normal: s.normal } } } : null;
+      return s && s.diff <= -SLEEP_LOW_MIN
+        ? { text: `${hm(s.min)} gschlafe, ${-s.diff} Minute weniger aus dys Normal. S’Tempo bestimmsch hüt du.`, alts: [`${hm(s.min)} gschlafe, ${-s.diff} Minute under dym Normal. Hüt dörfsch ds Tempo säuber wähle.`], why: { key: 'Sleep last night {min} min, your normal {normal} min.', vars: { min: s.min, normal: s.normal } } }
+        : null;
     },
   },
   {
     id: 'b.rhr-high', src: 'body', ton: 'ruhig',
     make: (c) => {
       const r = c.rec.rhr;
-      return r && r.diff >= RHR_HIGH ? { text: `Dr Rueipuls isch ${r.diff} Schläg höcher aus dys Normal. Dr Körper redt liislig.`, why: { key: 'Resting pulse {v}, your normal {normal}.', vars: { v: r.v, normal: r.normal } } } : null;
+      return r && r.diff >= RHR_HIGH
+        ? { text: `Dr Rueipuls isch ${r.diff} Schläg höcher aus dys Normal. Dr Körper redt liislig.`, alts: [`Rueipuls ${r.v}: ${r.diff} Schläg über dym Normal vo ${r.normal}. Das isch nume e Zahl, kes Urteil.`], why: { key: 'Resting pulse {v}, your normal {normal}.', vars: { v: r.v, normal: r.normal } } }
+        : null;
     },
   },
   {
     id: 'b.rhr-low', src: 'body', ton: 'mot',
     make: (c) => {
       const r = c.rec.rhr;
-      return r && r.diff <= -RHR_HIGH ? { text: `Dr Rueipuls isch ${-r.diff} Schläg tiefer aus dys Normal. Ruig im Motor.`, why: { key: 'Resting pulse {v}, your normal {normal}.', vars: { v: r.v, normal: r.normal } } } : null;
+      return r && r.diff <= -RHR_HIGH
+        ? { text: `Dr Rueipuls isch ${-r.diff} Schläg tiefer aus dys Normal. Ruig im Motor.`, alts: [`Rueipuls ${r.v}: ${-r.diff} Schläg under dym Normal vo ${r.normal}. Schön ruig.`], why: { key: 'Resting pulse {v}, your normal {normal}.', vars: { v: r.v, normal: r.normal } } }
+        : null;
+    },
+  },
+  // --- steps of the watch (PR 2): yesterday and today so far ---
+  {
+    id: 's.yesterday', src: 'steps', ton: 'lustig',
+    make: (c) => {
+      const y = c.steps?.y;
+      return Number.isFinite(y) && y >= MOVE_RULE.goatSteps
+        ? { text: `Geschter ${y} Schritt. Dr Schrittzähler het gmeint, är müess ufpasse.`, alts: [`${y} Schritt geschter: dr Wäg vom Sofa zum Chüelschrank isch das nid gsi.`], why: { key: 'Steps yesterday: {n}.', vars: { n: y } } }
+        : null;
+    },
+  },
+  {
+    id: 's.more-than-usual', src: 'steps', ton: 'ruhig',
+    make: (c) => {
+      const { y, normal } = c.steps ?? {};
+      return Number.isFinite(y) && normal != null && y - normal >= 2000 && y < MOVE_RULE.goatSteps
+        ? { text: `Geschter ${y} Schritt, ${y - normal} meh aus dys Normal. E guete Rhythmus.`, alts: [`${y} Schritt geschter. Dys Normal isch ${normal}: es guets Stück Wäg meh.`], why: { key: 'Steps yesterday: {n}, your normal {normal}.', vars: { n: y, normal } } }
+        : null;
+    },
+  },
+  {
+    id: 's.today', src: 'steps', ton: 'mot',
+    make: (c) => {
+      const n = c.steps?.today;
+      return Number.isFinite(n) && n >= 6000 && c.hour < 15
+        ? { text: `Scho ${n} Schritt hüt, und dr Tag isch no jung.`, alts: [`${n} Schritt sit am Morge. Dr Räscht vom Tag het nüt z’tüe.`], why: { key: 'Steps today so far: {n}.', vars: { n } } }
+        : null;
     },
   },
   // --- the next trip ---
@@ -224,51 +390,179 @@ export const TEMPLATES = [
     id: 't.far', src: 'tour', ton: 'vision',
     make: (c) => {
       const t = c.trip;
-      return t && t.days >= 7 && t.packed != null ? { text: `I ${t.days} Täg geit’s los. S’Gepäck isch zu ${t.packed} % packet, dr Räscht isch Vorfreud.`, why: { key: 'Your next trip starts in {n} days, packed {p} %.', vars: { n: t.days, p: t.packed } } } : null;
+      return t && t.days >= 7 && t.packed != null
+        ? { text: `I ${t.days} Täg geit’s los. S’Gepäck isch zu ${t.packed} % packet, dr Räscht isch Vorfreud.`, alts: [`Nonig ${t.days} Täg, när geit’s los. ${t.packed} % packet: dr Räscht isch Vorfreud.`], why: { key: 'Your next trip starts in {n} days, packed {p} %.', vars: { n: t.days, p: t.packed } } }
+        : null;
     },
   },
   {
     id: 't.near', src: 'tour', ton: 'chal', chal: true,
     make: (c) => {
       const t = c.trip;
-      return t && t.days >= 2 && t.days <= 6 && t.packed != null && t.packed < 100 ? { text: `No ${t.days} Täg bis ${t.name || 'zum Start'}. ${t.packed} % packet: schaffsch dr Räscht hüt no?`, why: { key: 'Your next trip starts in {n} days, packed {p} %.', vars: { n: t.days, p: t.packed } } } : null;
+      return t && t.days >= 2 && t.days <= 6 && t.packed != null && t.packed < 100
+        ? { text: `No ${t.days} Täg bis ${t.name || 'zum Start'}. ${t.packed} % packet: schaffsch dr Räscht hüt no?`, alts: [`${t.days} Täg bis ${t.name || 'zum Start'}, ${t.packed} % packet. E chline Schritt hüt, und dr Räscht wird liechter.`], why: { key: 'Your next trip starts in {n} days, packed {p} %.', vars: { n: t.days, p: t.packed } } }
+        : null;
     },
   },
   {
     id: 't.packed', src: 'tour', ton: 'mot',
     make: (c) => {
       const t = c.trip;
-      return t && t.days >= 1 && t.days <= 14 && t.packed === 100 ? { text: `Alles packet für ${t.name || 'dr Start'}. Jitz fählt nume no ds Wätter, u das chunnt ou no.`, why: { key: 'Your next trip starts in {n} days, packed {p} %.', vars: { n: t.days, p: t.packed } } } : null;
+      return t && t.days >= 1 && t.days <= 14 && t.packed === 100
+        ? { text: `Alles packet für ${t.name || 'dr Start'}. Jitz fählt nume no ds Wätter, u das chunnt ou no.`, alts: [`${t.name || 'Dr Start'} isch packet. Jitz darf dr Chopf scho mal vorfahre.`], why: { key: 'Your next trip starts in {n} days, packed {p} %.', vars: { n: t.days, p: t.packed } } }
+        : null;
     },
   },
   {
     id: 't.tomorrow', src: 'tour', ton: 'lustig',
-    make: (c) => (c.trip && c.trip.days === 1 ? { text: 'Morn geit’s los. D’Velo wüsse’s scho, dr Kafi no nid.', why: { key: 'Your next trip starts tomorrow.', vars: {} } } : null),
+    make: (c) => (c.trip && c.trip.days === 1 ? { text: 'Morn geit’s los. D’Velo wüsse’s scho, dr Kafi no nid.', alts: ['Morn isch’s so wyt. Hüt no e ruige Abe, morn d’Wält.'], why: { key: 'Your next trip starts tomorrow.', vars: {} } } : null),
+  },
+  // --- weeks in a row (the series of Today, PR 2) ---
+  {
+    id: 'e.run', src: 'serie', ton: 'mot',
+    make: (c) => {
+      const n = c.series?.n;
+      return Number.isFinite(n) && n >= 2
+        ? { text: `${n} Wuche hinterenang aktiv. Settigi Serie baut me nid i eim Tag.`, alts: [`Wuche Nummer ${n} i dr Reihe. Dr Rhythmus treit di.`], why: { key: 'Weeks in a row with something active: {n}.', vars: { n } } }
+        : null;
+    },
+  },
+  {
+    id: 'e.next', src: 'serie', ton: 'chal', chal: true,
+    make: (c) => {
+      const { n, next, left } = c.series ?? {};
+      return Number.isFinite(n) && n >= 1 && Number.isFinite(next) && Number.isFinite(left) && left >= 1 && left <= 2
+        ? { text: `No ${left} Wuche bis zur ${next}-Wuche-Serie. Di aktuell Wuche zöut scho.`, alts: [`${n} Wuche hinterenang, bis ${next} fähle no ${left}. Dr nächst Schritt isch chlyner aus är tönt.`], why: { key: 'Weeks in a row: {n}, next goal {next}.', vars: { n, next } } }
+        : null;
+    },
+  },
+  // --- bike kilometres of this year (rides, Strava, ride book) ---
+  {
+    id: 'v.milestone', src: 'velo', ton: 'mot',
+    make: (c) => {
+      const k = c.km;
+      if (!k || !(k.now > 0)) return null;
+      const m = [...KM_MARKS].reverse().find((x) => k.now >= x && k.week < x);
+      return m
+        ? { text: `D’${m} km-Marke isch gschafft: ${k.now} km uf em Velo i däm Jahr.`, alts: [`${k.now} Velo-Kilometer i däm Jahr. D’${m} hesch hinger dir.`], why: { key: 'Bike km this year: {n}.', vars: { n: k.now } } }
+        : null;
+    },
+  },
+  {
+    id: 'v.close', src: 'velo', ton: 'chal', chal: true,
+    make: (c) => {
+      const k = c.km;
+      if (!k || !(k.now > 0)) return null;
+      const m = KM_MARKS.find((x) => x > k.now);
+      return m && m - k.now <= 60
+        ? { text: `No ${m - k.now} km bis ${m} Velo-Kilometer i däm Jahr. E Rundi, und dr Zähler chnackt d’Marke.`, alts: [`${k.now} km uf em Velo i däm Jahr, bis ${m} fähle no ${m - k.now}. Das isch e Usfahrt.`], why: { key: 'Bike km this year: {n}.', vars: { n: k.now } } }
+        : null;
+    },
+  },
+  // --- a year ago: the trip around this day ---
+  {
+    id: 'j.ago', src: 'jahr', ton: 'ruhig',
+    make: (c) => {
+      const a = c.ago;
+      return a && a.title
+        ? { text: `Vor emene Jahr isch ${a.title} dra gsi. Es Jahr geit schnäu verbi.`, alts: [`${a.title}: das isch vor emene Jahr gsi. Was chunnt als nächschts?`], why: { key: 'A year ago around this day: {name}.', vars: { name: a.title } } }
+        : null;
+    },
   },
 ];
 export const TEMPLATE = Object.fromEntries(TEMPLATES.map((x) => [x.id, x]));
 
-/** All sentences that fit today: [{ id, src, ton, text, why }], in the order of TEMPLATES. `ton`: 'mix' or one tone. */
-export function fitting(ctx, { ton = 'mix', off = [] } = {}) {
-  const calm = ctx.rec?.state === 'off'; // a day off the own normal: no challenge
-  return TEMPLATES.filter((x) => (ton === 'mix' || x.ton === ton) && !off.includes(x.id) && !(calm && x.chal))
-    .map((x) => {
-      const m = x.make(ctx);
-      return m ? { id: x.id, src: x.src, ton: x.ton, text: m.text, why: m.why } : null;
-    })
-    .filter(Boolean);
+/** The quote sentences of the quotes that are on (High German, as written; the author or source after it). */
+function quoteEntries(ctx) {
+  return (ctx.quotes ?? [])
+    .filter((q) => q && typeof q.id === 'string' && typeof q.text === 'string' && q.text.trim())
+    .map((q) => {
+      const by = String(q.author || q.source || '').trim();
+      return { id: `z.${q.id}`, src: 'quote', ton: 'ruhig', lang: 'de', low: true, text: `«${q.text.trim()}»${by ? ` – ${by}` : ''}`, why: { key: 'A quote from your list under «Cushion time».', vars: {} } };
+    });
+}
+
+/** Your own sayings as sentences: written by you, so in no fixed language and never through t(). */
+function ownEntries(ctx) {
+  return (ctx.own ?? []).map((o) => ({ id: `o.${o.id}`, src: 'own', ton: o.ton, text: o.text, lang: '', why: { key: 'A saying you wrote yourself.', vars: {} } }));
 }
 
 /**
- * Choose one sentence: { id, src, ton, text, why } or null when nothing fits.
- * 1. not one of the last 30 shown (rec.recent); when all that fit are in it, the oldest of them is let free;
- * 2. if possible not the same source as the last one and (in the mix) not the same tone;
- * 3. among the rest one by chance (`rand`, 0 ≤ x < 1; a test passes its own).
- * `not`: an id to leave out as well (the one on the screen when «New» is tapped).
+ * All sentences that fit today: [{ id, src, ton, text, why, lang }], in the order of TEMPLATES, then the quotes. `ton`: 'mix' or
+ * one tone. A template with `alts` gives one entry per wording (ids «id», «id~2» …). `off`: switched-off sentences, `offSrc`:
+ * switched-off sources. Quotes (`low`) fit always, in every tone filter only the tone «ruhig» and «mix».
  */
-export function pickSpruch(ctx, rec = null, { ton = 'mix', rand = Math.random, not = '' } = {}) {
+export function fitting(ctx, { ton = 'mix', off = [], offSrc = [] } = {}) {
+  const calm = ctx.rec?.state === 'off'; // a day off the own normal: no challenge
+  const out = [];
+  for (const x of TEMPLATES) {
+    if ((ton !== 'mix' && x.ton !== ton) || off.includes(x.id) || offSrc.includes(x.src) || (calm && x.chal)) continue;
+    const m = x.make(ctx);
+    if (!m) continue;
+    [m.text, ...(m.alts ?? [])].forEach((text, i) => out.push({ id: i ? `${x.id}~${i + 1}` : x.id, src: x.src, ton: x.ton, text, why: m.why, lang: 'gsw' }));
+  }
+  for (const q of quoteEntries(ctx)) if ((ton === 'mix' || ton === q.ton) && !off.includes(baseId(q.id)) && !offSrc.includes(q.src)) out.push(q);
+  for (const o of ownEntries(ctx)) if ((ton === 'mix' || ton === o.ton) && !off.includes(o.id) && !offSrc.includes(o.src) && !(calm && o.ton === 'chal')) out.push(o);
+  return out;
+}
+
+/** The English description of each sentence for the window «All sayings» (keys go through t()). */
+export const ABOUT = {
+  'w.rain-until': 'Rain in the morning, dry afterwards|saying',
+  'w.dry-mild': 'A dry, mild day|saying',
+  'w.fog-sun': 'Fog below, sun above|saying',
+  'w.fog-clears': 'The fog clears later today|saying',
+  'w.cold-morning': 'A cold morning|saying',
+  'a.close': 'Close to the weekly zone-minute goal|saying',
+  'a.more': 'Zone minutes still to go this week|saying',
+  'a.goal': 'Weekly zone-minute goal reached|saying',
+  'a.new-week': 'A new week starts|saying',
+  'b.sleep-more': 'More sleep than your normal|saying',
+  'b.sleep-less': 'Less sleep than your normal|saying',
+  'b.rhr-high': 'Resting pulse above your normal|saying',
+  'b.rhr-low': 'Resting pulse below your normal|saying',
+  's.yesterday': 'Many steps yesterday|saying',
+  's.more-than-usual': 'More steps than your normal yesterday|saying',
+  's.today': 'Many steps already today|saying',
+  't.far': 'Your next trip is still far off|saying',
+  't.near': 'Your next trip is near and not packed yet|saying',
+  't.packed': 'Everything is packed|saying',
+  't.tomorrow': 'Your trip starts tomorrow|saying',
+  'e.run': 'Weeks in a row with something active|saying',
+  'e.next': 'Close to the next series goal|saying',
+  'v.milestone': 'A bike-km mark reached this week|saying',
+  'v.close': 'Close to the next bike-km mark|saying',
+  'j.ago': 'A trip a year ago|saying',
+};
+
+/** Is the shown sentence still allowed by the row (tone, sources, switched-off sentences) and does it still fit? */
+export function stillFits(ctx, rec, shown) {
+  if (!shown) return false;
   const r = spruchOf(rec);
-  const all = fitting(ctx, { ton, off: r.off }).filter((x) => x.id !== not);
+  return fitting(ctx, { ton: r.ton, off: r.off, offSrc: r.offSrc }).some((x) => x.id === shown.id && x.text === shown.text);
+}
+
+/**
+ * Choose one sentence: { id, src, ton, text, why, lang, fallback? } or null when nothing fits.
+ * 1. not one of the last 30 shown (rec.recent); when all that fit are in it, the oldest of them is let free;
+ * 2. quotes only when nothing else is left, and as every 4th sentence (when none of the last 3 shown was a quote);
+ * 3. if possible not the same source as the last one and (in the mix) not the same tone;
+ * 4. among the rest one by chance (`rand`, 0 ≤ x < 1; a test passes its own).
+ * The tone, the switched-off sentences and sources come from the row (rec); `ton` overrides the tone. When the chosen tone
+ * has nothing today, a sentence of the mix is given and marked `fallback: true` (the tile says so).
+ * `not`: a sentence to leave out as well, with its other wordings (the one on the screen when «New» is tapped).
+ */
+export function pickSpruch(ctx, rec = null, { ton, rand = Math.random, not = '' } = {}) {
+  const r = spruchOf(rec);
+  const tone = ton ?? r.ton;
+  const p = pickIn(ctx, r, tone, rand, not);
+  if (p || tone === 'mix') return p;
+  const q = pickIn(ctx, r, 'mix', rand, not);
+  return q ? { ...q, fallback: true } : null;
+}
+
+function pickIn(ctx, r, ton, rand, not) {
+  const all = fitting(ctx, { ton, off: r.off, offSrc: r.offSrc }).filter((x) => !not || baseId(x.id) !== baseId(not));
   if (!all.length) return null;
   const seen = new Map(r.recent.map((x, i) => [x.id, i]));
   let pool = all.filter((x) => !seen.has(x.id));
@@ -277,6 +571,12 @@ export function pickSpruch(ctx, rec = null, { ton = 'mix', rand = Math.random, n
     const oldest = Math.max(...all.map((x) => seen.get(x.id)));
     pool = all.filter((x) => seen.get(x.id) === oldest);
   }
+  // quotes: every 4th sentence, or when nothing else is left
+  const quotes = pool.filter((x) => x.src === 'quote');
+  const data = pool.filter((x) => x.src !== 'quote');
+  const wantQuote = r.recent.length >= 3 && !r.recent.slice(0, 3).some((x) => x.src === 'quote');
+  if (quotes.length && (wantQuote || !data.length)) pool = quotes;
+  else if (data.length) pool = data;
   const last = r.recent[0];
   const other = pool.filter((x) => !last || x.src !== last.src);
   const step1 = other.length ? other : pool;

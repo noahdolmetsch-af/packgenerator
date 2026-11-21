@@ -90,7 +90,7 @@ export function loopOf(key) {
 const LISTED_MOMENTS = {
   // Lust und Ideen
   lust: [
-    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamsone', 'f.dreamlink', 'f.dreamsdone', 'f.triptips', 'f.dreamready', 'f.dreamwx', 'f.dreamsmap', 'f.monthideas', 'f.biwak', 'f.trainthere', 'f.suntip', 'f.dice', 'f.monthadv', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
+    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamsone', 'f.dreamweek', 'f.dreamlink', 'f.dreamsdone', 'f.triptips', 'f.dreamready', 'f.dreamwx', 'f.dreamsmap', 'f.monthideas', 'f.biwak', 'f.trainthere', 'f.suntip', 'f.dice', 'f.monthadv', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
     'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot', 'f.freiwesentlich', 'f.freireise', 'f.freinacht', 'f.freilust', 'f.freisamml',
   ],
   // Tour planen
@@ -144,7 +144,7 @@ const LISTED_MOMENTS = {
   // Körper und Training
   koerper: [
     'f.tick', 'f.check', 'f.stopwatch', 'f.sportpage', 'f.progress', 'f.mosaic', 'f.sportextras', 'f.goals',
-    'f.yeargoals', 'f.abfragen', 'f.datenfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.form',
+    'f.yeargoals', 'f.abfragen', 'f.datenfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.trainingpeaks', 'f.form',
     'f.overview', 'f.trainplans', 'f.feel', 'f.analyses', 'f.analyse', 'f.weekreview', 'f.weekgoals', 'f.milestones', 'f.meditation',
     'f.medlog', 'f.medreview', 'f.gipfelbuch', 'f.routine', 'f.insights', 'f.timer', 'f.medmore',
     'f.parkdays', 'f.tennistop', 'f.yogaclasses', 'f.ownbody', 'f.observations', 'f.ridepage', 'f.tickreview',

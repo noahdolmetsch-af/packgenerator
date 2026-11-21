@@ -94,6 +94,17 @@ export const KINDS = [
   // «Nachttemperatur am Abend» sits after it for the same reason
   { key: 'night', label: 'Night temperature in the evening', hint: 'Every evening at 19:00: how low it gets tonight, with a word on frost or a change against last night. Needs your home place.' },
 ];
+
+/**
+ * The page lists the switches in four folds (Impeccable-Test 08.11.2026, 7b-08). Each key of KINDS is in exactly one group
+ * (tests/push-groups.test.js); a fold lists its switches in the order of KINDS.
+ */
+export const PUSH_GROUPS = [
+  { key: 'tour', label: 'Around the tour', keys: ['eve', 'shop', 'race', 'eat'] },
+  { key: 'weather', label: 'Weather and light', keys: ['weather', 'ice', 'wxwatch', 'dark', 'rainsoon', 'air', 'fog', 'night'] },
+  { key: 'bike', label: 'Bikes and gear', keys: ['wetchain', 'wear', 'workshop', 'supply', 'lend'] },
+  { key: 'day', label: 'Everyday life', keys: ['birthday', 'plant', 'own', 'note', 'backup'] },
+];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
 

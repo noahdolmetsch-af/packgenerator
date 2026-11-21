@@ -50,7 +50,7 @@ export default {
   'Plan a trip: name, date and bike, the packing list follows.': 'Tour planen: Name, Datum und Velo, die Packliste kommt dazu.',
   'What do I wear? Your clothes for the coldest hour of the ride.': 'Was ziehe ich an? Deine Kleider für die kälteste Stunde der Fahrt.',
   'Bike care says when the chain, pads and tyres are due.': 'Die Velopflege sagt, wann Kette, Beläge und Reifen fällig sind.',
-  'Upload a ride (GPX): pauses, planned against real, learnings.': 'Fahrt hochladen (GPX): Pausen, geplant gegen echt, Gelerntes.',
+  'Upload a ride (GPX): pauses, planned against real, learnings.': 'Fahrt hochladen (GPX): Pausen, geplant gegen echt, Erkenntnisse.',
   'All your gear with weight, bag and where it was used.': 'Dein ganzes Material mit Gewicht, Tasche und wo es dabei war.',
   'The wardrobe sorts your clothes from warm to cold, layer by layer.': 'Der Kleiderschrank ordnet deine Kleider von warm bis kalt, Schicht für Schicht.',
   'Your last 12 months: trips, km, nights out and what you learned.': 'Deine letzten 12 Monate: Touren, km, Nächte draussen und was du gelernt hast.',

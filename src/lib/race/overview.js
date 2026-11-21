@@ -133,7 +133,7 @@ export function casesOf(c, t = (k) => k) {
     6: () => c.fromRides?.pausePct != null && t('Your stops so far: {p} % on top of the riding time.', { p: c.fromRides.pausePct }),
     7: () => cd && cd.days > 0 && t('{w} weeks to the start. Dress rehearsal by {date}.', { w: cd.weeks, date: cd.probeBy }),
     8: () => has('station') && t('{n} stations near the route.', { n: exitStations(pois).length }),
-    9: () => days.length > 1 && (() => { const out = days.slice(0, -1).filter((d) => d.bed !== 'hotel'); return out.length ? t('{n} nights outside; the first at km {km}.', { n: out.length, km: out[0].toKm }) : t('Every night in a bed.'); })(),
+    9: () => days.length > 1 && (() => { const out = days.slice(0, -1).filter((d) => d.bed !== 'hotel'); return out.length ? t(out.length === 1 ? '{n} night outside; the first at km {km}.' : '{n} nights outside; the first at km {km}.', { n: out.length, km: out[0].toKm }) : t('Every night in a bed.'); })(),
     // Paket X: the one energy rule (energie.js) instead of 400 kcal per hour
     10: () => rideH > 0 && (() => { const e = energyFor({ hours: rideH, km, gainM: c.route?.gainM ?? 0, kg: c.kg ?? null, fuel: c.fuel ?? null }); return t('About {h} riding: you use about {burn} kcal and eat about {eat} kcal (estimate, from your weight, the climbing and your values under Verpflegung).', { h: Math.round(rideH), burn: roundBig(e.burn).toLocaleString('de-CH'), eat: roundBig(e.eat).toLocaleString('de-CH') }); })(),
     11: () => (c.sims ?? []).length && t('Sleeping kit: {list}.', { list: c.sims.map((s) => `${t(WAY_NAME[s.way])} ${r1(s.kg)} kg`).join(', ') }),
@@ -167,7 +167,7 @@ export function casesOf(c, t = (k) => k) {
     22: () => km > 0 && t('After {km} km: {list}.', { km: Math.round(km), list: careAfter({ km }).slice(0, 2).map((x) => t(x)).join(', ') }),
     23: () => race.why?.length && t('{n} sentences ready for a hard moment.', { n: race.why.length }),
     24: () => t('Made after the race from the plan, what happened and the food log.'),
-    25: () => days.length && (sim.lateNights ? t('{n} nights reach the hotel after the check-in time.', { n: sim.lateNights }) : t('Every hotel before the check-in time.')),
+    25: () => days.length && (sim.lateNights ? t(sim.lateNights === 1 ? '{n} night reaches the hotel after the check-in time.' : '{n} nights reach the hotel after the check-in time.', { n: sim.lateNights }) : t('Every hotel before the check-in time.')),
     26: () => race.stomach?.length && t('{n} foods tried, {g} went well.', { n: race.stomach.length, g: stomachList(race.stomach).filter((x) => x.verdict === 'good').length }),
     27: () => days.length && has('sleep') && (() => {
       const none = days.slice(0, -1).filter((d) => !pois.some((p) => p.kind === 'sleep' && p.km >= d.fromKm && p.km <= d.toKm + 5));

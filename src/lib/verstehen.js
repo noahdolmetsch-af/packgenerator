@@ -47,7 +47,7 @@ export const LESSONS = [
       'The app reminds you when the last backup is older than the days set under Me › Own values.',
       'On a computer the app can also write a backup into a folder after every change.',
     ],
-    steps: ['Me › Data and backup › Export backup.', 'Save the file in two places.', 'To bring it back: Me › Data and backup › choose the file › Check import.'],
+    steps: ['Me › Data and backup › Export backup.', 'Save the file in two places.', 'To bring it back: Me › Data and backup › choose the file › Check backup.'],
     exercise: 'Export a backup. Then open the test link of a pull request (its own storage, nothing can break there) and import the file.',
     links: [
       { label: 'Data and backup', href: '#/me/data' },

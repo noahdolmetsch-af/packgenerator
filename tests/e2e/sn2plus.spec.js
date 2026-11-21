@@ -195,8 +195,28 @@ test('c) Dein Tempo: per bike and surface from 5 rides, planned and ridden, the 
   // the months since the first ride (answer 5b), no toggle
   const first = DATA.tables.rides.map((r) => r.date).sort()[0];
   const months = (Number(D0.slice(0, 4)) - Number(first.slice(0, 4))) * 12 + Number(D0.slice(5, 7)) - Number(first.slice(5, 7)) + 1;
-  await expect(page.locator('[data-months] .bars li')).toHaveCount(months);
+  await expect(page.locator('[data-months] [data-chart="pace"] [data-plot]')).toHaveAttribute('data-n', String(months));
   await expect(page.locator('[data-months-values] [data-row="hrAvg"]')).toBeVisible();
+  // «Diagramme zum Antippen»: a tap on the last month opens it, the table lists the months
+  const plot = page.locator('[data-months] [data-chart="pace"] [data-plot]');
+  const box = await plot.boundingBox();
+  await plot.click({ position: { x: box.width - 4, y: 20 } });
+  await expect(page.locator('[data-months-sheet]')).toContainText('km/h');
+  await page.keyboard.press('Escape');
+  await page.locator('[data-months]').getByRole('button', { name: T('As table') }).click();
+  await expect(page.locator('[data-months] table tbody tr').first()).toBeVisible();
+  await page.locator('[data-months]').getByRole('button', { name: T('Chart|table') }).click();
+
+  // «Diagramme zum Antippen»: the small bars of «Geschwindigkeit pro Fahrt» show the exact value of a ride, a tap opens it, the table lists them
+  const mini = page.locator('[data-chart="pace-time"]');
+  await expect(mini.locator('[data-plot]')).toHaveAttribute('data-n', /^\d+$/);
+  const mbox = await mini.locator('[data-plot]').boundingBox();
+  await mini.locator('[data-plot]').click({ position: { x: mbox.width - 4, y: 20 } });
+  await expect(page.locator('[data-mini-sheet]')).toContainText('km/h');
+  await page.keyboard.press('Escape');
+  await mini.getByRole('button', { name: T('As table') }).click();
+  await expect(mini.locator('table tbody tr').first()).toBeVisible();
+  await mini.getByRole('button', { name: T('Chart|table') }).click();
 
   // the zones: the standard from the highest heart rate of the ledger, then your own
   const zones = page.locator('[data-zones]');

@@ -236,63 +236,6 @@
     </div>
   </div>
 
-  <div class="ctl">
-    <div class="pr">
-      <span class="pl" id="dg-p">{t('Period|tk')}</span>
-      <Seg options={periodOpts} value={period} onchange={(p) => ((period = p), (back = 0), (picked = null))} labelledby="dg-p" full={false} />
-      {#if period === 'own'}
-        <div class="own">
-          <label>{t('From|diagram')} <input class="inp" type="date" max={today} bind:value={own.from} data-own-from /></label>
-          <label>{t('To|diagram')} <input class="inp" type="date" max={today} bind:value={own.to} data-own-to /></label>
-        </div>
-      {:else}
-        <div class="row">
-          <button type="button" class="nav" aria-label={t('Earlier|analyse')} data-dg-back onclick={() => ((back += 1), (picked = null))}><ChevronLeft size={18} aria-hidden="true" /></button>
-          <b class="rt" data-dg-range>{rangeText}</b>
-          <button type="button" class="nav" aria-label={t('Later|analyse')} data-dg-fwd disabled={back === 0} onclick={() => ((back = Math.max(0, back - 1)), (picked = null))}><ChevronRight size={18} aria-hidden="true" /></button>
-        </div>
-      {/if}
-    </div>
-    <div class="pr">
-      <span class="pl" id="dg-s">{t('One point per|diagram')}</span>
-      <Seg options={stepOpts} value={step} onchange={(s) => ((step = s), (picked = null))} labelledby="dg-s" full={false} />
-    </div>
-    <div class="pr">
-      <span class="pl" id="dg-m">{t('Show|analyse')}</span>
-      <Seg options={modeOpts} value={mode} onchange={(m) => (mode = m)} labelledby="dg-m" full={false} />
-    </div>
-  </div>
-
-  <div class="chips" role="group" aria-label={t('Filter|filter')}>
-    <button type="button" class="chip fbtn" class:set={filterCount(filter)} data-dg-filter onclick={() => (filtering = 'all')}><Filter size={14} aria-hidden="true" />{t('Filter|filter')}{#if filterCount(filter)}&nbsp;· {filterCount(filter)}{/if}</button>
-    {#each partsOf(filter) as part (part.key)}
-      <span class="chip on" data-dg-part={part.key}>{part.text}<button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: part.text })} onclick={() => (filter = { ...filter, ...part.off })}><X size={14} aria-hidden="true" /></button></span>
-    {/each}
-    {#if trips.length}<button type="button" class="chip" class:on={band} aria-pressed={band} data-dg-band onclick={() => (band = !band)}>{t('Trips as a band|filter')}{#if band}<Check size={14} aria-hidden="true" />{/if}</button>{/if}
-    {#if mark}<span class="chip on" data-dg-mark>{t('{name} days marked|filter', { name: actList.find((a) => a.id === mark)?.name ?? '' })}<button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: t('Mark days|filter') })} onclick={() => (mark = null)}><X size={14} aria-hidden="true" /></button></span>{/if}
-  </div>
-  {#if filterCount(filter)}<p class="hint" data-dg-kept>{t('{n} of {all} days fit the filter. Days left out stay a gap, so the time stays true.|filter', { n: keptDays, all: win.days.length })}</p>{/if}
-
-  <div class="chips" role="group" aria-label={t('Values in the diagram|diagram')}>
-    {#each rows as r (r.it.key)}
-      <span class="chip on" data-dg-value={r.it.key}><i class="dot" style="background:{r.color}"></i>{r.it.name}<small>{t(SRC[r.it.src] ?? SRC.body)}</small><button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: r.it.name })} onclick={() => drop(r.it.key)}><X size={14} aria-hidden="true" /></button></span>
-    {/each}
-    {#if shownKeys.length < MAX_VALUES}<button type="button" class="chip add" data-dg-add onclick={() => (picking = true)}><Plus size={14} aria-hidden="true" />{t('Value|analyse')}</button>{/if}
-    {#if shownKeys.length > 1}<button type="button" class="chip" class:on={sorting} aria-pressed={sorting} data-dg-sort onclick={() => (sorting = !sorting)}><ArrowUpDown size={14} aria-hidden="true" />{t('Order|diagram')}</button>{/if}
-  </div>
-
-  {#if sorting && shownKeys.length > 1}
-    <ul class="sortlist" use:sortable={{ onmove: move }} data-dg-order>
-      {#each rows as r, i (r.it.key)}
-        <li data-sort-id={r.it.key}>
-          <SortGrip name={r.it.name} onstep={(d) => move(i, i + d)} />
-          <i class="dot" style="background:{r.color}"></i><span class="nm">{r.it.name}</span>
-          <SortArrows name={r.it.name} {i} n={rows.length} onstep={(d) => move(i, i + d)} />
-        </li>
-      {/each}
-    </ul>
-  {/if}
-
   {#if !rows.length}
     <p class="hint" role="status">{t('No value in the diagram yet. Add one with «+ Value».|diagram')}</p>
   {:else}
@@ -355,6 +298,72 @@
       {#each buckets as b, i (b.key)}{#if rows.some((r) => r.vals[i] != null)}<button type="button" onclick={() => open(b.days.at(-1))}>{short(b.days.at(-1))}</button>{/if}{/each}
     </div>
   {/if}
+
+  <div class="chg" data-dg-change>
+    <div class="cg" data-dg-what>
+      <h3 class="ch">{t('What|diagram')}</h3>
+    <div class="chips" role="group" aria-label={t('Values in the diagram|diagram')}>
+      {#each rows as r (r.it.key)}
+        <span class="chip on" data-dg-value={r.it.key}><i class="dot" style="background:{r.color}"></i>{r.it.name}<small>{t(SRC[r.it.src] ?? SRC.body)}</small><button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: r.it.name })} onclick={() => drop(r.it.key)}><X size={14} aria-hidden="true" /></button></span>
+      {/each}
+      {#if shownKeys.length < MAX_VALUES}<button type="button" class="chip add" data-dg-add onclick={() => (picking = true)}><Plus size={14} aria-hidden="true" />{t('Value|analyse')}</button>{/if}
+      {#if shownKeys.length > 1}<button type="button" class="chip" class:on={sorting} aria-pressed={sorting} data-dg-sort onclick={() => (sorting = !sorting)}><ArrowUpDown size={14} aria-hidden="true" />{t('Order|diagram')}</button>{/if}
+    </div>
+
+    {#if sorting && shownKeys.length > 1}
+      <ul class="sortlist" use:sortable={{ onmove: move }} data-dg-order>
+        {#each rows as r, i (r.it.key)}
+          <li data-sort-id={r.it.key}>
+            <SortGrip name={r.it.name} onstep={(d) => move(i, i + d)} />
+            <i class="dot" style="background:{r.color}"></i><span class="nm">{r.it.name}</span>
+            <SortArrows name={r.it.name} {i} n={rows.length} onstep={(d) => move(i, i + d)} />
+          </li>
+        {/each}
+      </ul>
+    {/if}
+    </div>
+    <div class="cg" data-dg-howlong>
+      <h3 class="ch">{t('How long|diagram')}</h3>
+    <div class="ctl">
+      <div class="pr">
+        <span class="pl" id="dg-p">{t('Period|tk')}</span>
+        <Seg options={periodOpts} value={period} onchange={(p) => ((period = p), (back = 0), (picked = null))} labelledby="dg-p" full={false} />
+        {#if period === 'own'}
+          <div class="own">
+            <label>{t('From|diagram')} <input class="inp" type="date" max={today} bind:value={own.from} data-own-from /></label>
+            <label>{t('To|diagram')} <input class="inp" type="date" max={today} bind:value={own.to} data-own-to /></label>
+          </div>
+        {:else}
+          <div class="row">
+            <button type="button" class="nav" aria-label={t('Earlier|analyse')} data-dg-back onclick={() => ((back += 1), (picked = null))}><ChevronLeft size={18} aria-hidden="true" /></button>
+            <b class="rt" data-dg-range>{rangeText}</b>
+            <button type="button" class="nav" aria-label={t('Later|analyse')} data-dg-fwd disabled={back === 0} onclick={() => ((back = Math.max(0, back - 1)), (picked = null))}><ChevronRight size={18} aria-hidden="true" /></button>
+          </div>
+        {/if}
+      </div>
+      <div class="pr">
+        <span class="pl" id="dg-s">{t('One point per|diagram')}</span>
+        <Seg options={stepOpts} value={step} onchange={(s) => ((step = s), (picked = null))} labelledby="dg-s" full={false} />
+      </div>
+      <div class="pr">
+        <span class="pl" id="dg-m">{t('Show|analyse')}</span>
+        <Seg options={modeOpts} value={mode} onchange={(m) => (mode = m)} labelledby="dg-m" full={false} />
+      </div>
+    </div>
+    </div>
+    <div class="cg" data-dg-look>
+      <h3 class="ch">{t('Filter and look|diagram')}</h3>
+    <div class="chips" role="group" aria-label={t('Filter|filter')}>
+      <button type="button" class="chip fbtn" class:set={filterCount(filter)} data-dg-filter onclick={() => (filtering = 'all')}><Filter size={14} aria-hidden="true" />{t('Filter|filter')}{#if filterCount(filter)}&nbsp;· {filterCount(filter)}{/if}</button>
+      {#each partsOf(filter) as part (part.key)}
+        <span class="chip on" data-dg-part={part.key}>{part.text}<button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: part.text })} onclick={() => (filter = { ...filter, ...part.off })}><X size={14} aria-hidden="true" /></button></span>
+      {/each}
+      {#if trips.length}<button type="button" class="chip" class:on={band} aria-pressed={band} data-dg-band onclick={() => (band = !band)}>{t('Trips as a band|filter')}{#if band}<Check size={14} aria-hidden="true" />{/if}</button>{/if}
+      {#if mark}<span class="chip on" data-dg-mark>{t('{name} days marked|filter', { name: actList.find((a) => a.id === mark)?.name ?? '' })}<button type="button" class="x" aria-label={t('Remove {name}|analyse', { name: t('Mark days|filter') })} onclick={() => (mark = null)}><X size={14} aria-hidden="true" /></button></span>{/if}
+    </div>
+    {#if filterCount(filter)}<p class="hint" data-dg-kept>{t('{n} of {all} days fit the filter. Days left out stay a gap, so the time stays true.|filter', { n: keptDays, all: win.days.length })}</p>{/if}
+    </div>
+  </div>
 </section>
 
 <Zusammenhang {groups} {byKey} days={win.days} keep={keepAll} {ticks} acts={actList} onday={open} />
@@ -400,6 +409,34 @@
     margin: 2px 0 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
+  }
+  /* «Auswerten in fünf Reiter» (Schritt 12b): the chart first, the three choices below it */
+  .chg {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: start;
+  }
+  .cg {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  .ch {
+    margin: 0;
+    font-size: var(--fs-label);
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  @media (max-width: 900px) {
+    .chg {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
   .ctl {
     display: flex;

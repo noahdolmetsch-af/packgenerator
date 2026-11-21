@@ -156,7 +156,7 @@
     <h1 class="h1" tabindex="-1" data-page-title>{evening ? t('How was your day?') : t('Good morning')}</h1>
     <p class="sub num" data-check-when>{dateShort} · {clock}</p>
     {#if evening}
-      <p class="sub">{phone.matches ? t('from 20:30 · about 30 seconds') : t('Evening review · from 20:30 · about 30 seconds · what the app already knows, it does not ask.')}</p>
+      <p class="sub">{phone.matches ? t('from 20:30 · a few minutes · every question skippable') : t('Evening review · from 20:30 · a few minutes · every question skippable · what the app already knows, it does not ask.')}</p>
     {:else}
       <p class="sub">{phone.matches ? t('about 40 seconds · everything skippable') : t('Morning check · {date} · about 40 seconds · every question skippable. The line under a number shows yesterday.', { date: dateLong })}</p>
     {/if}
@@ -351,7 +351,7 @@
   }
   .h1 {
     margin: 0;
-    font: 800 var(--fs-page) / 1.1 var(--font-brand);
+    font: 700 var(--fs-page)/var(--lh-title) var(--font-title);
   }
   .ph p {
     margin: 0;

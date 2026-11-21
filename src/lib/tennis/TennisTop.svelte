@@ -10,7 +10,7 @@
    * the milestones on this page (they stay under Aktiv › Meilensteine).
    */
   import { liveQuery } from 'dexie';
-  import { Camera, Check, Plus, CalendarPlus, ExternalLink, Pencil, Trash2, GraduationCap, RotateCcw, ImagePlus, Link } from '@lucide/svelte';
+  import { Camera, Check, Plus, CalendarPlus, ExternalLink, Pencil, Trash2, GraduationCap, RotateCcw, ImagePlus, Link, Users } from '@lucide/svelte';
   import { db } from '../db.js';
   import { tick, removeEntry, putEntry } from '../flowdb.js';
   import { putItem, patchItem, dropItems, restoreItems } from '../sportsdb.js';
@@ -194,6 +194,15 @@
     <button type="button" class="btn" onclick={() => openSlot()} data-tennis-slot><CalendarPlus size={16} aria-hidden="true" />{t('Enter a time')}</button>
   </div>
   <p class="small">{t('On the day the app asks «Played?».')}{#if cfg.bookUrl}{' '}<button type="button" class="lnk" onclick={openBook}>{t('Change the booking link')}</button>{/if}</p>
+</section>
+
+<!-- Wegweiser (Noah 08.11.2026 «a»): the offers page had no way in from the app; this is the jump-off from Tennis -->
+<section class="card" aria-labelledby="tn-offers-h" data-tennis-offers-card>
+  <div class="hl"><h2 id="tn-offers-h">{t('Offer lessons')}</h2></div>
+  <p class="small">{t('Free times, the link for parents and their requests are in one place.')}</p>
+  <div class="tn-acts">
+    <a class="btn" href="#/me/tennis" data-tennis-offers><Users size={16} aria-hidden="true" />{t('Offers and requests')}</a>
+  </div>
 </section>
 
 <section class="card" aria-labelledby="tn-log-h" data-tennis-log>

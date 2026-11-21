@@ -276,6 +276,11 @@ import assistent from './assistent.js';
 
 // Termine buchen (BU1–BU5): Ich › Angebote, freie Termine, Buchungsseite
 import termine from './termine.js';
+// Flyer für Tennisstunden: Tennis › Flyer
+import flyer from './flyer.js';
+import probestunde from './probestunde.js';
+import erinnerung from './erinnerung.js';
+import bestaetigung from './bestaetigung.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -669,6 +674,8 @@ import tourenb from './tourenb.js';
 import computerbreite from './computerbreite.js';
 // UI-Test 26.10.2026 (T1 and later small parts); spread last
 import uitest from './uitest.js';
+import zurtour from './zur-tour.js';
+import tourkartewege from './tourkarte-wege.js';
 // «Heute ruhiger» (Noah 26.10.2026 «1a»): the small tiles on Heute as one list; spread last
 import heuteruhiger from './heuteruhiger.js';
 import bereicheanpassen from './bereicheanpassen.js';
@@ -895,6 +902,10 @@ const ORDERED = [
   agenda,
   assistent,
   termine,
+  flyer,
+  probestunde,
+  erinnerung,
+  bestaetigung,
   abgleich,
   verbindungenStatus,
   datenaufraeumen,
@@ -1072,6 +1083,8 @@ const ORDERED = [
   tourena2,
   tourenb,
   uitest,
+  zurtour,
+  tourkartewege,
   heuteruhiger,
   bereicheanpassen,
   velo2610,

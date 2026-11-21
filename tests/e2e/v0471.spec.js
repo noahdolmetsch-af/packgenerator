@@ -250,7 +250,7 @@ test('extras: «Ich» shows a dot, the Inbox is newest first and a sorted note o
   await page.goto('./#/');
   // v0.76.0 «Fünf Orte»: «Ich» took the place of «Mehr»
   const more = page.locator('a.me');
-  await expect(more).toHaveAttribute('aria-label', 'Ich, Eingang: 2 zum Ablegen');
+  await expect(more).toHaveAttribute('aria-label', 'Ich, Eingang: 2 zum Ablegen. Abgleich ist aus'); // since 21.11.2026 the label also names the sync state (abgleich-punkt.spec.js)
   // P3c Ü3a (Noah 15.10.2026 «3a», changed on purpose): the number of notes to sort instead of a dot
   await expect(more.locator('.dot[data-inbox-count]')).toBeVisible();
   await expect(more.locator('[data-inbox-count]')).toHaveText('2');

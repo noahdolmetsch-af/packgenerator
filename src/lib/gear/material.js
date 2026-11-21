@@ -13,7 +13,7 @@
  *   day a wish was bought) and the cost per use (only with a price).
  */
 import { debriefedTrips } from '../insights.js';
-import { isInventory, isWish } from '../gear.js';
+import { isInventory, isWish, isConsumable } from '../gear.js';
 import { isClothing } from '../wardrobe.js';
 import { t, tn } from '../i18n.svelte.js';
 import { NEVER_USED_MIN } from '../neverused.js';
@@ -273,14 +273,17 @@ export function weightOf(list = []) {
 
 /**
  * The numbers above a view: items, known weight, average times along and share used (both only
- * with debriefs). { n, g, missing, avgTaken, usedShare }.
+ * with debriefs). { n, g, missing, foodG, gearG, avgTaken, usedShare }: g is everything weighed, gearG without
+ * food and water (what «gewogen» shows), foodG the food and water alone.
  */
 export function viewSummary(list = [], stats) {
   const { g, missing } = weightOf(list);
+  // Noah 08.11.2026 «1-5 a»: the tile says «gewogen» for the gear; food and water (consumables) are named apart, as in the category rows
+  const food = weightOf(list.filter(isConsumable));
   const along = list.map((i) => usageOf(stats, i.id)).filter((u) => u.taken > 0);
   const taken = along.reduce((s, u) => s + u.taken, 0);
   const used = along.reduce((s, u) => s + u.used, 0);
-  return { n: list.length, g, missing, avgTaken: along.length ? Math.round(taken / along.length) : null, usedShare: taken ? Math.round((used / taken) * 100) : null };
+  return { n: list.length, g, missing, foodG: food.g, gearG: g - food.g, avgTaken: along.length ? Math.round(taken / along.length) : null, usedShare: taken ? Math.round((used / taken) * 100) : null };
 }
 
 /**

@@ -89,6 +89,7 @@ const SHEET = { key: 'sheet', title: 'Play one night through', offset: 10, note:
 const isRaceGoal = (goal) => goal?.kind === 'race' && !!goal.tripId;
 
 export default {
+  order: 30,
   type: TYPE,
   label: 'Night plan',
   icon: 'moon',

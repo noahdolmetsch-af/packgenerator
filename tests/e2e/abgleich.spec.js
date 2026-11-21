@@ -62,6 +62,8 @@ test('Switch on on one device, pair the other with the link: both have the same 
   const code = (await box.locator('[data-sync-code]').textContent()).trim();
   expect(code).toMatch(/^([0-9A-Z]{4}-){7}[0-9A-Z]{4}$/);
   await expect(box.locator('[data-sync-state="ok"]')).toContainText(T('On · last synced {when}.').split('{when}')[0].trim());
+  // Noah 21.11.2026: the proof that nothing is missing (the count of the device equals the count of the server)
+  await expect(box.locator('[data-sync-check="ok"]')).toContainText(T('Checked {when}: this device and the server hold the same {n} entries.').split('{when}')[0].trim());
   await shot(a.page, `A2-koppeln-${size}`);
 
   // the other device opens the link

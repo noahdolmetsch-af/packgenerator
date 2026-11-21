@@ -39,6 +39,7 @@ test('Rückblick: Tagebuch-Entwurf, 2 Zusatzfragen, Als To-do, Nachricht an dich
   await expect(text).toHaveValue(/test_data_gtp_ Running tour 3 days: 3 Tage/);
   await expect(text).toHaveValue(/Notiz: «test_data_gtp_ note 1: brake squeaks»/);
   await text.fill('Mein eigener Text');
+  await page.waitForTimeout(600); // the debrief saves a moment after the input: a reload right away can come first (slow CI)
   await page.reload();
   await expect(page.locator('[data-tagebuch] textarea')).toHaveValue('Mein eigener Text');
   await expect(page.locator('[data-tagebuch] .rv-sub')).toHaveText(T('your text'));

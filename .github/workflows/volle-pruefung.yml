@@ -3,7 +3,7 @@
 # Noah 03.11.2026 «2a» (thread «Prüfen: Warum die Tests langsam sind»): since then only once a night
 # (02:07 UTC) or by hand («Run workflow»). After every merge it took 9 of the 20 GitHub computers on top of
 # the pull request checks, and the queue was 40 minutes long. It runs the phone and computer browser tests
-# (5 parts each) and the Gesamttest (phone and computer, 2 parts each) on main as it is then.
+# (7 parts each since 21.11.2026) and the Gesamttest (phone and computer, 2 parts each) on main as it is then.
 # Only on a failure it opens an issue (or adds to the open one), so Noah gets a mail and Claude repairs
 # it (or Noah says «zurück»). When all is fine again, it closes the issue. Only GITHUB_TOKEN, no secret.
 name: Volle Prüfung
@@ -29,13 +29,15 @@ jobs:
     timeout-minutes: 45
     # The tag must match @playwright/test in package.json (tests/ci-image.test.js).
     container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
       options: --ipc=host
     strategy:
       fail-fast: false
       matrix:
         project: [phone, desktop]
-        shard: [1, 2, 3, 4, 5]
+        # 7 parts since 21.11.2026 (Noah «1a»): with 5 two parts hit the 45 minute limit in the night run of 21.11.
+        # and their tests were never checked (the report said «red» without naming them)
+        shard: [1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -45,12 +47,20 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run e2e -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/5
+      - run: npm run e2e -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/7
         env:
           E2E_SKIP_GESAMTTEST: '1' # its own job below
       # Failed and flaky (passed only on the retry) tests by name, in the summary of the run
       - if: always()
-        run: node scripts/test-summary.mjs pw-report.json "${{ matrix.project }} part ${{ matrix.shard }}"
+        run: node scripts/test-summary.mjs pw-report.json "${{ matrix.project }} part ${{ matrix.shard }}" rot-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt
+      # The names of the failed tests: the report job compares them with the night before (scripts/nacht-vergleich.mjs)
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: rot-e2e-${{ matrix.project }}-${{ matrix.shard }}
+          path: rot-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt
+          retention-days: 2
+          if-no-files-found: ignore
       - if: failure()
         run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
       - uses: actions/upload-artifact@v7
@@ -65,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
       options: --ipc=host
     strategy:
       fail-fast: false
@@ -83,7 +93,14 @@ jobs:
       - run: npm ci
       - run: npx playwright test tests/e2e/gesamttest --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2
       - if: always()
-        run: node scripts/test-summary.mjs pw-report.json "gesamttest ${{ matrix.project }} ${{ matrix.shard }}"
+        run: node scripts/test-summary.mjs pw-report.json "gesamttest ${{ matrix.project }} ${{ matrix.shard }}" rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}
+          path: rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt
+          retention-days: 2
+          if-no-files-found: ignore
       - if: failure()
         run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
       - uses: actions/upload-artifact@v7
@@ -105,6 +122,7 @@ jobs:
       SHA: ${{ github.sha }}
       RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
+      - uses: actions/checkout@v7 # scripts/nacht-vergleich.mjs
       - name: Write the report
         run: |
           {
@@ -118,26 +136,63 @@ jobs:
             echo "Ganzer Lauf: $RUN"
           } > report.md
           cat report.md >> "$GITHUB_STEP_SUMMARY"
+      # 21.11.2026 (Noah «d plus b»): the night run was red every night from 3 to 21 November. One old issue got a comment
+      # per night, and a new red test hid between the old ones. Now every job leaves the names of its failed tests; this
+      # step compares them with the night before. The issue gets a comment (a mail) only when something is NEW red.
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          pattern: rot-*
+          merge-multiple: true
+          path: rot
+      - name: Compare with the night before
+        id: vergleich
+        run: |
+          mkdir -p vorher
+          prev=''
+          for id in $(gh run list --workflow volle-pruefung.yml --status completed --limit 6 --json databaseId --jq '.[].databaseId'); do
+            [ "$id" = "$GITHUB_RUN_ID" ] && continue
+            if gh run download "$id" -n rot-liste -D vorher 2>/dev/null; then prev="$id"; break; fi
+          done
+          prev_sha=''
+          [ -n "$prev" ] && prev_sha=$(gh run view "$prev" --json headSha --jq .headSha || true)
+          echo "prev_sha=$prev_sha" >> "$GITHUB_OUTPUT"
+          # 18 jobs leave a list: 14 browser parts + 4 Gesamttest parts
+          node scripts/nacht-vergleich.mjs rot "${prev:+vorher/rot-liste.txt}" rot-liste.txt 18 > vergleich.md
+          cat vergleich.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: rot-liste
+          path: rot-liste.txt
+          retention-days: 7
+          if-no-files-found: ignore
       # Noah 04.11.2026 «Test-Plan 4»: a red night run says in one line what is red and which merged PRs came
-      # since the last green run, so the morning starts with the suspects and not with a search.
+      # since the last run, so the morning starts with the suspects and not with a search.
+      # 21.11.2026: since the night before (not since the last GREEN run: that was 18 days back, «232 weitere»).
       - name: Name the suspects
         if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success'
+        env:
+          PREV_SHA: ${{ steps.vergleich.outputs.prev_sha }}
         run: |
-          failed=$(gh api "repos/$GH_REPO/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" --jq '[.jobs[] | select(.conclusion == "failure" and .name != "report") | .name] | join(", ")' || true)
+          failed=$(gh api "repos/$GH_REPO/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" --jq '[.jobs[] | select((.conclusion == "failure" or .conclusion == "cancelled") and .name != "report") | .name + (if .conclusion == "cancelled" then " (Zeitlimit)" else "" end)] | join(", ")' || true)
           good=$(gh run list --workflow volle-pruefung.yml --status success --limit 1 --json headSha --jq '.[0].headSha // empty' || true)
+          from="${PREV_SHA:-$good}"
           suspects=''
-          if [ -n "$good" ] && [ "$good" != "$SHA" ]; then
-            suspects=$(gh api "repos/$GH_REPO/compare/$good...$SHA" --jq '[.commits[].commit.message | split("\n")[0] | select(test("\\(#[0-9]+\\)$"))] | if length > 12 then (.[0:12] | join("; ")) + "; und \(length - 12) weitere" else join("; ") end' || true)
+          if [ -n "$from" ] && [ "$from" != "$SHA" ]; then
+            suspects=$(gh api "repos/$GH_REPO/compare/$from...$SHA" --jq '[.commits[].commit.message | split("\n")[0] | select(test("\\(#[0-9]+\\)$"))] | if length > 12 then (.[0:12] | join("; ")) + "; und \(length - 12) weitere" else join("; ") end' || true)
           fi
           {
-            echo "**Rot: ${failed:-(Lauf ansehen)}.**"
+            cat vergleich.md
+            echo
+            echo "Rot: ${failed:-(Lauf ansehen)}."
             echo
             if [ -n "$suspects" ]; then
-              echo "Verdächtig, seit dem letzten grünen Lauf auf main gemerged: $suspects"
-            elif [ -z "$good" ]; then
-              echo "Verdächtig: nicht bekannt (es gibt noch keinen grünen Lauf zum Vergleichen)."
+              echo "Verdächtig, seit der letzten Nacht auf main gemerged: $suspects"
+            elif [ -z "$from" ]; then
+              echo "Verdächtig: nicht bekannt (es gibt noch keinen früheren Lauf zum Vergleichen)."
             else
-              echo "Seit dem letzten grünen Lauf (\`${good:0:8}\`) ist nichts Neues auf main: vermutlich ein Wackler."
+              echo "Seit dem letzten Lauf (\`${from:0:8}\`) ist nichts Neues auf main: vermutlich ein Wackler."
             fi
             echo
             cat report.md
@@ -146,11 +201,20 @@ jobs:
           cat report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Open or update the issue
         if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success'
+        env:
+          NEU: ${{ steps.vergleich.outputs.neu }}
+          ERSTER: ${{ steps.vergleich.outputs.erster }}
+          UNVOLLSTAENDIG: ${{ steps.vergleich.outputs.unvollstaendig }}
         run: |
           gh label create "$LABEL" --color D93F0B --description 'Die volle Prüfung nach dem Online-Gehen hat einen Fehler gefunden' 2>/dev/null || true
           num=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
           if [ -n "$num" ]; then
-            gh issue comment "$num" --body-file report.md
+            # a comment sends a mail: only when something is new red, at the first comparison, or when a job left no list
+            if [ "${NEU:-0}" != "0" ] || [ "$ERSTER" = "yes" ] || [ "$UNVOLLSTAENDIG" = "yes" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              gh issue comment "$num" --body-file report.md
+            else
+              echo "Nothing new red since the night before: no new mail."
+            fi
           else
             {
               echo 'Die volle Prüfung hat an der Version, die online ist, einen Fehler gefunden. Claude repariert ihn mit einem kleinen PR. Ist es dringend, sag «zurück».'

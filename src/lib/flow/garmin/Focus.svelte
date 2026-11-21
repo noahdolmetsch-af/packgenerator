@@ -2,10 +2,11 @@
   /**
    * Garmin-Übersicht «Im Fokus» (screenshot 1): per sport one card to swipe: the sport and the 7 days,
    * the distance and the total time, one bar per day (today on the right), the 28 days as dots
-   * («Letzte 4 Wochen»). A tap opens the sport's page (#/flow/stats/<sport>).
+   * («Letzte 4 Wochen»). A tap opens the sport's value in Analyse (km:<sport>, one month; the old page stays one link away there).
    */
   import { focus } from '../../uebersicht.js';
   import { SPORT_ICON, sportName, hms, km2, wdLetter, rangeText } from './words.js';
+  import { numHref } from '../../analyse/zahlweg.js';
   import { t } from '../../i18n.svelte.js';
 
   let { table, today, kinds = [] } = $props();
@@ -27,7 +28,7 @@
     {#each cards as c (c.kind)}
       {@const I = SPORT_ICON[c.kind]}
       {@const top = Math.max(0.001, ...c.bars.map(val))}
-      <a class="card fc" href="#/flow/stats/{c.kind}" data-focus-card={c.kind}>
+      <a class="card fc" href={numHref({ key: `km:${c.kind}`, range: 'm' })} data-focus-card={c.kind}>
         <span class="hd"><I size={20} aria-hidden="true" /><span>{sportName(c.kind)} · {rangeText(c.from, c.to)}</span></span>
         <span class="tot">
           {#if c.km}<b class="num">{km2(c.km)} <small>km</small></b>{/if}

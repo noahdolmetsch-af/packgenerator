@@ -10,12 +10,13 @@
  *   GET  ?step=confirm&session_id=…               → { booking } after the online payment (booked once)
  *   GET  ?step=mine&id=…&b=…&key=…                → { booking, offer } (the person's own booking)
  *   POST ?step=cancel { id, b, key }              → { ok } up to cancelHours before
+ *   POST ?step=wish { id, venues, wishes, kids, kidNames, source, name, contact, note } → { booking } (offers in mode «wish»: no fixed times)
  * The owner (Authorization: Bearer <owner key>):
  *   POST ?step=create { offer }                   → { id, owner } (the key is shown only once)
  *   POST ?step=save { id, offer }                 → { offer }
  *   GET  ?step=bookings&id=…                      → { bookings } with names and contacts
  *   POST ?step=cancel { id, b }                   → { ok } any time
- *   POST ?step=answer { id, b, decision }         → { booking } decision «confirm» or «decline» (requests only)
+ *   POST ?step=answer { id, b, decision, pick? }  → { booking } decision «confirm» or «decline» (requests only; a wish request confirms with pick = the number of the wish time)
  *   POST ?step=cancelSlot { id, slot }            → { bookings } (the ones that were cancelled)
  *
  * Storage keys: bk:o:<id> the offer (with the owner key's hash), bk:n:<id>:<slot> booked places,
@@ -27,10 +28,11 @@
 import { route, json, redisEnv, needStore, ApiError } from './_lib/core.js';
 import { jsonBody, safeReturn, hash, randomKey, bearer } from './_lib/oauth.js';
 import { payEnv, isTestKey, CURRENCY } from './_lib/pay.js';
-import { cleanOffer, publicOffer, holdsPlace, ANSWER_HOURS, cleanPerson, slotOf, typeOf, canCancel, bookable, stale, bookingForm, zurichMs, ID, MAX_BOOKINGS } from './_lib/booking.js';
+import { cleanOffer, publicOffer, holdsPlace, ANSWER_HOURS, cleanPerson, cleanWish, slotOf, typeOf, canCancel, bookable, stale, bookingForm, zurichMs, ID, MAX_BOOKINGS } from './_lib/booking.js';
 
 export const STRIPE = 'https://api.stripe.com/v1';
 const CREATE_PER_DAY = 30;
+const WISH_PER_DAY = 40;
 const PEND_TTL = 60 * 60;
 
 export function makeHandler({ env = () => ({ ...payEnv(), ...redisEnv() }), doFetch = (...a) => fetch(...a), now = () => Date.now(), newKey = randomKey } = {}) {
@@ -80,10 +82,10 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...redisEnv() }), doFe
     return { b, key };
   }
   const own = (offer, slot, b, key) => ({ id: b.id, key, offer: offer.id, slot: slot.id, at: slot.at, type: typeOf(offer, slot)?.label ?? '', price: typeOf(offer, slot)?.price ?? 0, name: b.name, note: b.note ?? '', venue: slot.venue ?? '', status: b.status ?? 'confirmed', answerBy: b.made + ANSWER_HOURS * 3600_000, pay: b.pay, paid: b.paid });
-  const forOwner = (offer, b) => ({ id: b.id, slot: b.slot, at: slotOf(offer, b.slot)?.at ?? null, name: b.name, contact: b.contact, note: b.note ?? '', venue: slotOf(offer, b.slot)?.venue ?? '', status: b.status ?? 'confirmed', answerBy: b.made + ANSWER_HOURS * 3600_000, pay: b.pay, paid: !!b.paid, made: b.made });
+  const forOwner = (offer, b) => ({ id: b.id, slot: b.slot, ...(b.wish ? { wish: b.wish, pick: b.pick ?? null } : {}), at: slotOf(offer, b.slot)?.at ?? null, name: b.name, contact: b.contact, note: b.note ?? '', venue: slotOf(offer, b.slot)?.venue ?? '', status: b.status ?? 'confirmed', answerBy: b.made + ANSWER_HOURS * 3600_000, pay: b.pay, paid: !!b.paid, made: b.made });
   async function drop(s, offer, b) {
     await s.cmd('HDEL', `bk:b:${offer.id}`, b.id);
-    if (!holdsPlace(b)) return;
+    if (!holdsPlace(b) || !b.slot) return;
     const left = Number(await s.cmd('DECRBY', `bk:n:${offer.id}:${b.slot}`, 1));
     if (left < 0) await s.cmd('SET', `bk:n:${offer.id}:${b.slot}`, 0);
   }
@@ -230,6 +232,23 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...redisEnv() }), doFe
           return json(request, 200, { booking: own(offer, slot, b, key) });
         }
 
+        if (step === 'wish') {
+          // A wish request: no fixed time. Places, up to three times, children and the source (Noah 08.11.2026 «1c»). It holds nothing; the owner answers.
+          const offer = await load(s, body.id);
+          if (offer.mode !== 'wish') throw new ApiError(400, 'bad_request', 'This offer takes no wishes.');
+          const c = cleanWish(body, offer, now());
+          if (c.error) throw new ApiError(400, c.error, c.error === 'bad_person' ? 'Please enter your name and a phone number or e-mail.' : 'Please check the places, the times and the number of children.');
+          if (Number(await s.cmd('HLEN', `bk:b:${offer.id}`)) >= MAX_BOOKINGS) throw new ApiError(409, 'too_many', 'This offer has too many bookings.');
+          const day = new Date(now()).toISOString().slice(0, 10);
+          const n = Number(await s.cmd('INCR', `bk:w:${offer.id}:${day}`));
+          if (n === 1) await s.expire(`bk:w:${offer.id}:${day}`, 86400 * 2);
+          if (n > WISH_PER_DAY) throw new ApiError(429, 'too_many', 'Too many requests today. Try again tomorrow.');
+          const last = c.wish.wishes[c.wish.wishes.length - 1];
+          const b = { id: newKey(9).replace(/[^A-Za-z0-9]/g, 'x'), slot: '', slotMs: zurichMs(last), name: c.person.name, contact: c.person.contact, note: c.person.note ?? '', status: 'requested', pay: offer.pay, paid: false, made: now(), keyHash: hash(newKey(18)), wish: c.wish };
+          await s.cmd('HSET', `bk:b:${offer.id}`, b.id, JSON.stringify(b));
+          return json(request, 200, { booking: { id: b.id, offer: offer.id, name: b.name, wish: b.wish, status: 'requested', answerBy: b.made + ANSWER_HOURS * 3600_000 } });
+        }
+
         if (step === 'cancel') {
           const offer = await load(s, body.id);
           const raw = await s.cmd('HGET', `bk:b:${offer.id}`, String(body.b ?? ''));
@@ -251,6 +270,19 @@ export function makeHandler({ env = () => ({ ...payEnv(), ...redisEnv() }), doFe
           const b = raw ? JSON.parse(raw) : null;
           if (!b) throw new ApiError(404, 'not_found', 'This booking does not exist (any more).');
           if (b.status !== 'requested') throw new ApiError(409, 'already_answered', 'This request is already answered.');
+          if (b.wish) {
+            // A wish request has no time of its own: «confirm» names the wish time that fits (pick = its number).
+            if (body.decision === 'confirm') {
+              const pick = Number(body.pick);
+              if (!Number.isInteger(pick) || pick < 0 || pick >= b.wish.wishes.length) throw new ApiError(400, 'bad_request', 'Unknown answer.');
+              b.status = 'confirmed';
+              b.pick = pick;
+            } else if (body.decision === 'decline') b.status = 'declined';
+            else throw new ApiError(400, 'bad_request', 'Unknown answer.');
+            b.answered = now();
+            await s.cmd('HSET', `bk:b:${offer.id}`, b.id, JSON.stringify(b));
+            return json(request, 200, { booking: forOwner(offer, b) });
+          }
           const slot = slotOf(offer, b.slot);
           if (!slot) throw new ApiError(404, 'not_found', 'This time does not exist (any more).');
           if (body.decision === 'confirm') {

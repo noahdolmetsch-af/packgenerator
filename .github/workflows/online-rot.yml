@@ -1,0 +1,77 @@
+# Online-Rot melden (Noah 21.11.2026 «ja», thread «Prüfungen so einrichten, dass main grün bleibt»):
+# when the going-online run of main («Build and deploy», job «online») is red, Noah gets a mail at once and not
+# only the next morning. It opens an issue (or adds a comment to the open one) with the run, the commit and the
+# failed step. When a later run on main is green again, it closes the issue. A cancelled run (a newer merge
+# replaced it) says nothing. Only GITHUB_TOKEN, no secret. Free on a public repository.
+name: Online-Rot melden
+
+on:
+  workflow_run:
+    workflows: ['Build and deploy']
+    types: [completed]
+    branches: [main]
+
+permissions:
+  issues: write
+  contents: read
+  actions: read # reads the jobs of the finished run
+
+# one at a time, in the order the runs finish
+concurrency:
+  group: online-rot
+  cancel-in-progress: false
+
+jobs:
+  melden:
+    # only the run of a merge on main (pull request runs never get here, the branch filter above keeps them out)
+    if: github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion != 'cancelled' && github.event.workflow_run.conclusion != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      LABEL: online-rot
+      CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+      RUN_ID: ${{ github.event.workflow_run.id }}
+      RUN_URL: ${{ github.event.workflow_run.html_url }}
+      SHA: ${{ github.event.workflow_run.head_sha }}
+      # the commit text is typed by a person: it goes through the environment, never into the script text
+      COMMIT_MESSAGE: ${{ github.event.workflow_run.head_commit.message }}
+    steps:
+      - name: Write the report
+        run: |
+          title=$(printf '%s' "$COMMIT_MESSAGE" | head -n 1)
+          failed=$(gh api "repos/$GH_REPO/actions/runs/$RUN_ID/jobs" --paginate \
+            --jq '.jobs[] | select(.conclusion == "failure") | "- Teil «\(.name)», Schritt «\([.steps[] | select(.conclusion == "failure") | .name] | join(", "))»"' || true)
+          {
+            echo "Merge: ${title:-unbekannt} (${SHA:0:7})"
+            echo "Lauf: $RUN_URL"
+            if [ "$CONCLUSION" != "success" ] && [ -n "$failed" ]; then
+              echo
+              echo "Was rot ist:"
+              echo "$failed"
+            fi
+          } > report.md
+          cat report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Red - open the issue or add to it
+        if: env.CONCLUSION != 'success'
+        run: |
+          gh label create "$LABEL" --color B60205 --description 'Das Online-Gehen von main ist rot: die neue Version ist nicht online' 2>/dev/null || true
+          num=$(gh issue list --label "$LABEL" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            { echo 'Wieder rot:'; echo; cat report.md; } > comment.md
+            gh issue comment "$num" --body-file comment.md
+          else
+            {
+              echo 'Das Online-Gehen von main ist rot: die letzte Änderung ist **nicht** online (die Seite zeigt noch die Version davor). Claude sucht die Ursache und repariert sie mit einem kleinen PR. Ist es dringend, sag «zurück» mit der PR-Nummer.'
+              echo
+              cat report.md
+            } > body.md
+            gh issue create --title 'Online-Gehen von main ist rot' --label "$LABEL" --body-file body.md
+          fi
+      - name: Green again - close the issue
+        if: env.CONCLUSION == 'success'
+        run: |
+          for num in $(gh issue list --label "$LABEL" --state open --json number --jq '.[].number'); do
+            gh issue close "$num" --comment "Wieder online.$(printf '\n\n')$(cat report.md)"
+          done

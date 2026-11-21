@@ -1,4 +1,5 @@
 <script>
+  import { backupRows } from '../lib/home/backuprows.js';
   import { UNDO_MS } from '../lib/ui/undo.js';
   import AlertLine from '../lib/clear/AlertLine.svelte';
   import TipWeek from '../lib/clear/TipWeek.svelte';
@@ -44,6 +45,10 @@
   import { equipmentRows, dueCare } from '../lib/maingear.js';
   import { todayNotes } from '../lib/notebook.js';
   import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
+  import { WEEKPLAN_KEY } from '../lib/training/wochenplan.js';
+  import { WEEKLOG_KEY, logOf as planLogOf, setDone as planSetDone, dueToday as planDueToday } from '../lib/training/wochenlog.js';
+  import { UNIT_NAME } from '../lib/training/wochenplan-text.js';
+  import { WEG_KEY, wegOf, todayStep as wegTodayStep, setDone as wegSetDone } from '../lib/weg/weg.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
@@ -76,6 +81,9 @@
   import { todayFocus, openDebrief, endedOn } from '../lib/today.js';
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
   import { hasBike, domainOf, domainName } from '../lib/domains.js';
+  import MeineTour from '../lib/home/MeineTour.svelte';
+  import { momentOf } from '../lib/moment.js';
+  import { meineTour } from '../lib/tourpfad/karte.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, pointCount, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
   import { tileDaysLeft, unpinNews } from '../lib/know/wasneu.js';
@@ -104,7 +112,7 @@
   import { isEveningOn } from '../lib/dayclock.js';
   import { cfgQuery, rowsQuery as freiRows } from '../lib/freidb.js';
   import { todayImpulse } from '../lib/frei.js';
-  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, VALUE_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
@@ -116,6 +124,10 @@
   import BodyTile from '../lib/home/BodyTile.svelte';
   import VitalsTile from '../lib/home/VitalsTile.svelte';
   import Vo2Tile from '../lib/home/Vo2Tile.svelte';
+  import WochenTraumTile from '../lib/home/WochenTraumTile.svelte'; // «Traum der Woche» (Noah 07.11.2026)
+  import { wochentraum, candidates } from '../lib/dreams/wochentraum.js';
+  import { DREAMS_KEY } from '../lib/dreams.js';
+  import { DREAM_WX, refreshDreamWx } from '../lib/dreams/wetterfenster.js';
   import HeuteCheckTile from '../lib/home/HeuteCheckTile.svelte';
   import MomentTile from '../lib/home/MomentTile.svelte'; // «Heute als Begleiter» PR 4
   import DiscoverTile from '../lib/home/DiscoverTile.svelte'; // PR 5
@@ -167,12 +179,13 @@
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
+  import WochenKarte from '../lib/home/WochenKarte.svelte'; // «Wochenrückblick» card, Sunday 17:00 to Monday 12:00 (Noah «1b»)
   import NeuHeute from '../lib/neuland/NeuHeute.svelte'; // Träume und Neuland N11 «Neu heute»: one line after a ride, no tile
   import MonthAdventureRow from '../lib/dreams/MonthAdventureRow.svelte'; // Träume und Neuland N12 «Ein Abenteuer im Monat»: one line, no tile
   import WearToday from '../lib/home/WearToday.svelte';
   import FlowCard from '../lib/home/FlowCard.svelte';
   import AbCard from '../lib/abfragen/AbCard.svelte';
-  import { stampOf } from '../lib/abfragen.js';
+  import { stampOf, afterMorning } from '../lib/abfragen.js';
   import DataWidget from '../lib/wohl/DataWidget.svelte'; // Paket P «Daten-Widget» (Noah «2 beides»)
   import PhotoGreeting from '../lib/wohl/PhotoGreeting.svelte'; // Paket P «Fotoalbum» (Noah «3a»): own photo on top
   import HomeWindow from '../lib/home/HomeWindow.svelte'; // Noah 19.10.2026: the evening before a trip, the Wochenrückblick
@@ -216,7 +229,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY];
+  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY, WEEKPLAN_KEY, WEEKLOG_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -610,7 +623,7 @@
     navigator.storage?.estimate?.().then((e) => (space = e?.quota ? { used: e.usage ?? 0, quota: e.quota } : null), () => {});
     keepState().then((k) => (keep = k));
   });
-  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: async () => (keep = await askKeep()), syncNow: () => runSync() }));
+  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, health: autoSync.health, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: async () => (keep = await askKeep()), syncNow: () => runSync(), onlyOne: () => db.meta.put({ key: 'syncNudge', off: true, at: new Date().toISOString() }) }));
   async function allowFolder() {
     folderNeedsOk = !(await allowAgain(db));
   }
@@ -631,7 +644,28 @@
   }
   const shortDay = (iso) => (iso ? new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : '');
   const alsoToday = $derived(trips.filter((x) => x !== lead && !x.skipped && !x.finished && onTripDay(x, today)));
+  // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): the card for the tour that is planned next. The preparation tasks of the
+  // Excel list («Event preparation») are its hint line now; only while the card is off the wall they stay a row of «Up now»
+  const tourPrep = $derived(bildTrip && hasBike(bildTrip) ? eventPrep(bildTrip, tasks, today) : null);
+  // form, bike care, fuel plan and ride of the tour (the same facts the Tour-Pfad uses), read once, not live; lazy, only for a planned tour
+  let tourExtra = $state({});
+  $effect(() => {
+    const tr = bildTrip;
+    if (!tr) return;
+    const day = today;
+    let live = true;
+    import('../lib/tourpfad/kontext.js').then((m) => m.loadTourExtra($state.snapshot(tr), day)).then((x) => live && (tourExtra = x)).catch(() => {}); // offline and the part not loaded yet: the card simply stays without the extras
+    return () => (live = false);
+  });
+  const meineCard = $derived(bildTrip ? meineTour(bildTrip, { today, debriefDone: debriefs.some((d) => d.tripId === bildTrip.id && d.status === 'done'), ...tourExtra }, { prep: tourPrep }) : null);
+  // «Tour nur einmal» (Noah 17.11.2026 «1-5a»): while «My tour» is on Today, the sentence, the chip and «Your moment» do not say the same about the same tour
+  // the picture sits in the card «My tour» while that card names the tour (Noah 17.11.2026 «1-5a», step 3)
+  const bildInCard = $derived(!!ops.heutebild && !editing && !!bild && on('meinetour') && !!meineCard);
+  const tourOnce = $derived(!editing && on('meinetour') && !!meineCard && !!bildTrip);
+  const momentHere = $derived(momentOf({ today, hour: now.getHours(), weekday: now.getDay(), trips, debriefDone: (tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done'), careDue: due.points, inbox: notes.length }));
+  const momentOnce = $derived(tourOnce && !!momentHere.trip); // «Your moment» is about the tour: «My tour» says it
   const prep = $derived.by(() => {
+    if (on('meinetour') && meineCard && meineCard.tripId === next?.id) return null; // the card says it in its hint line
     const p = next && hasBike(next) ? eventPrep(next, tasks, today) : null;
     return p?.total && p.status === 'open' ? p : null;
   });
@@ -740,7 +774,8 @@
     if (askT) rows.push({ key: 'ride', tone: 'warn', st: 'done', text: hasBike(askT) ? t('{title} ({date}): date passed. Did you ride?', { title: askT.title, date: shortDay(askT.startDate) }) : t('{title} ({date}): date passed. Did you go?', { title: askT.title, date: shortDay(askT.startDate) }), act: { label: t('Yes|rode'), run: () => rideAnswer(askT, true) }, act2: { label: hasBike(askT) ? t('Not ridden|answer') : t('Did not happen'), run: () => rideAnswer(askT, false) } });
     if (folderNeedsOk && !$demoQ) rows.push({ key: 'folderok', tone: 'warn', text: t('The backup folder «{name}» waits for your OK.', { name: folderName }), hint: `${t('One tap, the folder stays.')} ${t('Tip: in Chrome choose «Allow on every visit» so it asks less often.')}`, act: { label: t('Allow backup'), run: allowFolder }, short: t('Backup folder needs OK') });
     rows.push(...zustand);
-    if (backup.due) rows.push({ key: 'backup', tone: 'bad', text: `${t('Time for a backup')}: ${backup.days == null ? t('You have not saved a backup file yet.') : t('Your last backup is {n} days old.', { n: backup.days })}${$metaQ?.imp?.from ? ` ${t('Data from the backup of {date}. Newer state on the phone? Load its backup here.', { date: new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) })}` : backup.afterTrip ? ` ${t('New debrief since the last backup: save one, then load it on the desktop.')}` : ''}`, act: { label: t('Download backup'), run: backupNow, busy: true }, short: t('Backup due') });
+    // Noah 08.11.2026 «1-5 a»: «noch kein Backup» and «Daten aus dem Backup vom …» are two lines (backuprows.js)
+    rows.push(...backupRows({ backup, from: $metaQ?.imp?.from ? new Date($metaQ.imp.from).toLocaleDateString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '', backupNow }));
     rows.push(...careRows.filter((r) => r.tone === 'bad'));
     if (prep) rows.push({ key: 'prep', tone: prep.overdue ? 'bad' : 'warn', text: eventPrepLine(prep), act: { label: t('Tick off in the trip'), href: '#/pack', prep: next.id } });
     rows.push(...careRows.filter((r) => r.tone !== 'bad'));
@@ -763,6 +798,21 @@
       const { goal, step, due, late } = compassStep;
       const text = t('Goal «{goal}»: {step}', { goal: goal.title, step: step.text }) + (late ? ` · ${t('since {day}', { day: shortDay(step.date) })}` : due ? '' : ` · ${shortDay(step.date)}`);
       rows.push({ key: `compass:${step.id}`, tone: due ? 'warn' : 'quiet', text, act: due ? { label: t('Done ✓'), run: () => stepDone(goal.id, step.id) } : { label: t('My compass'), href: '#/me/compass' } });
+    }
+    // «Weg zum Ziel» (Noah 05.11.2026, Entwurf G4): the next open step of the way that starts first, one line; due → tick it here
+    if (wegStep) {
+      const { goal, row } = wegStep;
+      const late = row.state === 'late';
+      const due = row.due <= today;
+      const text = t('Way «{goal}»: {step}', { goal: goal.title, step: row.step.title }) + (late ? ` · ${t('since {day}', { day: shortDay(row.due) })}` : due ? '' : ` · ${shortDay(row.due)}`);
+      rows.push({ key: `weg:${row.step.id}`, tone: due ? 'warn' : 'quiet', text, act: due ? { label: t('Done ✓'), run: () => wegStepDone(goal, row.step.id) } : { label: t('Way to the goal'), href: `#/trips/weg?g=${encodeURIComponent(goal.id)}` } });
+    }
+    // «Wochenplan» part 3 (Noah 09.11.2026, «4a»): today's next open unit of the weekly plan, one line; tick it here
+    if (planToday) {
+      const { next, more } = planToday;
+      const what = t(UNIT_NAME[next.type]);
+      const text = more ? t('Up today: {what} at {time} · {n} more', { what, time: next.t, n: more }) : t('Up today: {what} at {time}', { what, time: next.t });
+      rows.push({ key: `plan:${next.id}`, tone: 'info', text, act: { label: t('Done ✓'), run: () => planTick(next) } });
     }
     if (!bikes.length && !showFirst) rows.push({ key: 'nobike', tone: 'info', text: t('No bikes yet.'), act: { label: t('Add a bike'), href: '#/bikes', run: wantBike } });
     rows.push(...knowRows);
@@ -788,6 +838,21 @@
   const cheers = $derived(allImportant.filter((r) => r.tone === 'party').slice(0, 1));
   const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
+  const wegStep = $derived(wegTodayStep(wegOf(S[WEG_KEY]), today));
+  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today));
+  async function planTick(u) {
+    const due = planToday;
+    if (!due) return;
+    const before = (await db.settings.get(WEEKLOG_KEY))?.value ?? null;
+    await db.settings.put({ key: WEEKLOG_KEY, value: planSetDone(planLogOf(before), due.monday, u.id, true, today, due.units, due.hours) });
+    say(t('Ticked off: {what}.', { what: t(UNIT_NAME[u.type]) }), () => (before === null ? db.settings.delete(WEEKLOG_KEY) : db.settings.put({ key: WEEKLOG_KEY, value: before })));
+  }
+  async function wegStepDone(goal, stepId) {
+    const before = wegOf(S[WEG_KEY]);
+    const next = { ...$state.snapshot(before), goals: before.goals.map((g) => (g.id === goal.id ? wegSetDone($state.snapshot(g), stepId, true, today) : $state.snapshot(g))) };
+    await db.settings.put({ key: WEG_KEY, value: next });
+    say(t('Step done.'), () => db.settings.put({ key: WEG_KEY, value: $state.snapshot(before) }));
+  }
   async function stepDone(goalId, stepId) {
     const before = compassOf(S[COMPASS_KEY]);
     await db.settings.put({ key: COMPASS_KEY, value: setStepDone($state.snapshot(before), goalId, stepId, true) });
@@ -828,7 +893,7 @@
     if (!ready) return [];
     const rows = [];
     // «Heute neu» N2: with «Your body today» on the wall the check lives there, with the Aktiv tiles meditation too
-    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
+    if (abDue && !roundOpen && !on('body')) rows.push({ key: 'check', tone: 'now', ic: ClipboardList, text: tn(abDue, abEvening ? 'Evening check · {n} question' : afterMorning(stampOf()) ? 'Open from this morning · {n} question' : 'Morning check · {n} question', abEvening ? 'Evening check · {n} questions' : afterMorning(stampOf()) ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions'), act: { label: t('Start|round'), run: () => (abAsk = true) } });
     if (medSt && !medSt.todayDone && !night && !on('acts')) rows.push({ key: 'med', tone: 'now', ic: Flower2, text: t('Meditation, like last time'), act: { label: t('Start|meditation'), run: () => (medOpen = true) } });
     if (suggestion && !night && !isHidden({ key: 'idea' }, S[ROWS_KEY], today)) rows.push({ key: 'idea', tone: 'now', ic: BikeIcon, text: t('Idea: ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }), act: { label: t('Quick start'), run: startQuick }, ...(bikes.length > 1 ? { act2: { label: t('Other bike'), run: nextBike, quiet: true } } : {}) });
     return rows;
@@ -851,7 +916,7 @@
     if (!ready || night) return null;
     const parts = [];
     const d = next?.startDate ? daysTo(next.startDate) : null;
-    if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
+    if (tourOnce) { /* the card «My tour» names the tour and its countdown */ } else if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
     else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: bare(next.title) }) });
     parts.push({ hi: false, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
     return parts;
@@ -940,7 +1005,18 @@
   // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»): the tile only while there is a value of the last 90 days
   const vo2Q = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addHealthDays(today, -VO2_DAYS)).toArray() : [])));
   const vo2On = $derived(!!vo2Of($vo2Q ?? [], today));
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : VALUE_TILES)]);
+  // «Traum der Woche» (Noah 07.11.2026 «1a … 3a»): the dream that fits now; the tile stays away while none does
+  const dreamWxQ = liveQuery(async () => (await db.meta.get(DREAM_WX)) ?? null);
+  const wochen = $derived(ready ? wochentraum(S[DREAMS_KEY], place, $dreamWxQ ?? null, today) : null);
+  $effect(() => {
+    // the forecast for the place of the dream: kept for 3 hours, only when the tile can show
+    if (!ready || !onWall.has('wochentraum')) return;
+    const ds = candidates(S[DREAMS_KEY], today);
+    if (ds.length) refreshDreamWx(db, ds, place).catch(() => {});
+  });
+  // «Tour nur einmal», step 3b (Noah 17.11.2026 «1-5a»): the big trip card is away while «My tour» says the same tour (one trip, no debrief question, no route profile)
+  const tripMerged = $derived(tourOnce && cardTrips.length === 1 && !!shown && shown.id === bildTrip?.id && !ask && !prof);
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(tripMerged ? ['trip'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1049,7 +1125,7 @@
         {#if loaded}<RaceLine {today} />{/if}
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
         <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->
-        {#if ready}<GoalChips {editing} {next} {now} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
+        {#if ready}<GoalChips {editing} {next} {now} hideTrip={tourOnce} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
         {#if !wx && ready}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
@@ -1084,9 +1160,9 @@
           {/if}
           <span class="kr">
             {#if cardTrips.length > 1}
-              <button type="button" class="pos num" onclick={() => go(1)} aria-label={t('Trip {i} of {n}, show the next', { i: Math.min(cardIdx, cardTrips.length - 1) + 1, n: cardTrips.length })}>{Math.min(cardIdx, cardTrips.length - 1) + 1} / {cardTrips.length} ›</button>
+              <button type="button" class="pos num" onclick={() => go(1)} aria-label={t('Trip {i} of {n}, show the next', { i: Math.min(cardIdx, cardTrips.length - 1) + 1, n: cardTrips.length })}>{t('Trip {i} of {n}', { i: Math.min(cardIdx, cardTrips.length - 1) + 1, n: cardTrips.length })} ›</button>
             {/if}
-            {#if !phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
+            {#if !phone.matches}<InProgress current={shown?.id} light label={(n) => t('Also in progress: {n}', { n })} />{/if}
           </span>
         </div>
         <div>
@@ -1130,7 +1206,7 @@
           {:else if focus && isLead}
             <a class="btn hi main" href={focus.href} onclick={() => openTrip(shown.id)}>{t(focus.label)}</a>
           {/if}
-          {#if phone.matches}<InProgress current={shown?.id} light label={(n) => tn(n, '+{n} more trip', '+{n} more trips')} />{/if}
+          {#if phone.matches}<InProgress current={shown?.id} light label={(n) => t('Also in progress: {n}', { n })} />{/if}
         </div>
       </div>
       {#if prof && !half}
@@ -1236,8 +1312,9 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'trip'}
-    <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it -->
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<div class="stack"><MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{#if tripMerged && ready}<KmCard {today} />{/if}</div>{/if}
+  {:else if x.id === 'trip'}
+    <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it (with one tour: with «Meine Tour») -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'important'}{@render todayS(x.size === 'long')}
   {:else if x.id === 'flow'}
@@ -1276,6 +1353,7 @@
   {:else if x.id === 'moment'}<MomentTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('moment')} />
   {:else if x.id === 'spruch'}<SpruchTile {today} {now} forecast={fc} trip={bildTrip} packed={bildTrip ? packedOf(bildTrip, itemsById, nameOf) : null} place={place?.lat != null ? { lat: Number(place.lat), lon: Number(place.lon) } : null} isnew={newTile('spruch')} />
   {:else if x.id === 'discover'}<DiscoverTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('discover')} />
+  {:else if x.id === 'wochentraum'}<WochenTraumTile pick={wochen} isnew={newTile('wochentraum')} />
   {:else if x.id === 'vo2max'}<Vo2Tile {today} isnew={newTile('vo2max')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
   {:else if x.id === 'week'}<WeekTile {today} rides={$ridesQ ?? []} isnew={newTile('week')} />
@@ -1296,7 +1374,7 @@
 <div class="home">
   <PullRefresh />
   <!-- «Paket G» (Noah 03.11.2026 «a»): the drawn landscape with the next trip and its countdown, on top; a switch in Ich › Darstellung › Bedienung takes it away -->
-  {#if ops.heutebild && !editing && bild}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
+  {#if ops.heutebild && !editing && bild && !bildInCard}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
   <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
@@ -1310,6 +1388,7 @@
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
   {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
+  {#if loaded && !editing}<WochenKarte now={stampOf(now)} />{/if}
   {#if loaded && !editing}<NeuHeute {today} />{/if}
   {#if loaded && !editing}<MonthAdventureRow {today} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->

@@ -1,6 +1,6 @@
 // «Rennen detailliert planen» und «Rennen-Check» (Ziel 6, Noah 27.10.2026 «1b 2b»)
 export default {
-  'Plan races in detail': 'Rennen detailliert planen',
+  'Plan races in detail': 'Rennen-Check',
   'Race check': 'Rennen-Check',
   'Route, strategy and race mode': 'Strecke, Strategie und Rennmodus',
   'All your coming races, each with its race check: packing from A to Z, target setup, basic list, sleep and one night.': 'Alle deine kommenden Rennen, jedes mit seinem Rennen-Check: Packen von A bis Z, Soll-Setup, Grundliste, Schlaf und eine Nacht.',
@@ -138,7 +138,7 @@ export default {
   'Load answers': 'Antworten laden',
   'Empty this sheet': 'Dieses Blatt leeren',
   'All coming races on one page, each with its race check: packing from A to Z, target setup per bag, basic list, sleep variants and one night played through.': 'Alle kommenden Rennen auf einer Seite, jedes mit seinem Rennen-Check: Packen von A bis Z, Soll-Setup pro Tasche, Grundliste, Schlaf-Varianten und eine Nacht durchgespielt.',
-  'Open Trips › «Plan races in detail».': 'Öffne Touren › «Rennen detailliert planen».',
+  'Open Trips › «Plan races in detail».': 'Öffne Touren › «Rennen-Check».',
   'Tap a race.': 'Tippe ein Rennen an.',
   'Fill in the sheets 1 to 6; «Load answers» takes a file from the fillable sheets page.': 'Füll die Blätter 1 bis 6 aus; «Antworten laden» nimmt eine Datei von der Seite zum Ausfüllen.',
   // «Links pro Rennen»
@@ -172,8 +172,8 @@ export default {
   'Race to take over from': 'Rennen, aus dem du übernimmst',
   'Takes the answers of another race into the fields that are still empty here. Name, date and test ride stay yours.': 'Übernimmt die Antworten eines anderen Rennens in die Felder, die hier noch leer sind. Name, Datum und Probefahrt bleiben deine.',
   // «Learnings aus vergangenen Rennen»
-  'Learned in earlier races': 'Gelernt in früheren Rennen',
-  'No learnings from earlier races yet. They come from «After the race» and from your reviews.': 'Noch keine Learnings aus früheren Rennen. Sie entstehen unter «Nach dem Rennen» und in deinen Rückblicken.',
+  'Learned in earlier races': 'Erkenntnisse aus früheren Rennen',
+  'No learnings from earlier races yet. They come from «After the race» and from your reviews.': 'Noch keine Erkenntnisse aus früheren Rennen. Sie entstehen unter «Nach dem Rennen» und in deinen Rückblicken.',
   // «Gewichtsrechner»
   'Weight of the setup': 'Gewicht des Setups',
   'Packed (full)': 'Gepackt (voll)',

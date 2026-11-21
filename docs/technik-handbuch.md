@@ -77,6 +77,11 @@ Verwandt: [Aufbau](aufbau.md) (Seiten, Wege, Zusammenhänge, Wörterbuch), [App-
 ### Texte und Sprache
 - Jeder neue UI-Text geht durch `t('English')` und braucht einen deutschen Eintrag in `src/lib/i18n/de/<name>.js`; die Dateien werden automatisch geladen (kein Eintrag in `de/index.js` nötig). `tests/de-luecken.test.js` und der Gesamttest scheitern bei fehlendem Deutsch oder englischen Wörtern in der deutschen Oberfläche. Vom Nutzer getippte Namen gehen nie durch `t()`.
 
+### Weg zum Ziel: Schrittarten (`src/lib/weg/types/`)
+- **Neue Art = neue Datei, sonst nichts.** Jede Schrittart (Rennplanung, Packen testen, Nachtplan, Bike ready, Training, Tracker, Organisation …) hat ihre eigene Datei in `src/lib/weg/types/<name>.js` mit `export default { type, label, icon, defaults, auto, link, … }`. `types/index.js` sammelt alle Dateien des Ordners selbst (`import.meta.glob`); dort steht keine Zeile pro Art mehr, darum kollidieren parallele PRs nicht. Nicht eintragen, nicht anhängen.
+- **Reihenfolge** im Blatt «Neuer Weg»: zuerst nach der Zahl `order` in der Art (Eigener Schritt 0, Rennplanung 10, Packen testen 20, Nachtplan 30, Bike ready 40), danach alle ohne `order` nach ihrem `type` (A–Z). Eine neue Art braucht `order` nur, wenn sie woanders stehen muss.
+- Der Ordner enthält nur Arten (eine Datei ohne `type` wird übersehen). Hilfscode gehört nach `src/lib/weg/`, nicht dorthin. Deutsche Texte der Art: eigene Datei `src/lib/i18n/de/weg-<name>.js` (wird ebenfalls selbst geladen). `tests/weg-arten.test.js` prüft, dass jede Datei eine Art ist und keine handgeschriebene Liste zurückkommt.
+
 ### Server (`api/`)
 Je Datei eine Aufgabe, Hilfsteile in `api/_lib/`:
 
@@ -108,13 +113,14 @@ Je Datei eine Aufgabe, Hilfsteile in `api/_lib/`:
 | Datei | Wann | Was |
 |---|---|---|
 | `deploy.yml` | jeder PR und jeder Merge auf `main` | PR: Bauen + Unit-Tests + Wächter auf dem Computer (`guard.spec.js`); **Handy-Tests (5 Teile) erst mit dem Label `ok`**. `main`: Bauen, Tests, **sofort online** (Pages) und Eintrag in «Releases» |
+| `online-rot.yml` | nach jedem Lauf von `deploy.yml` auf `main` | ist das Online-Gehen **rot**: sofort ein Issue «Online-Gehen von main ist rot» (Label `online-rot`) mit Mail; grün schliesst es wieder. Abgebrochene Läufe melden nichts |
 | `waechter.yml` | alle 3 Stunden | fragt den Server (`api/health.js`); bei Fehler ein Issue mit Mail |
-| `live.yml` | morgens und nach Merges | prüft die echte App im Browser |
+| `live.yml` | morgens und nach Merges | prüft die echte App im Browser: Seiten öffnen, Update, offline, und seit 21.11.2026 der **Live-Rundgang** (`tests/e2e/live/rundgang.spec.js`): Haken setzen, Sportjahr ansehen, Backup sichern, Haken zurücknehmen, Backup einspielen; Rot öffnet ein Issue mit Mail |
 | `nacht.yml` | nachts | Rundgang über alle Seiten (nur Links öffnen) |
-| `volle-pruefung.yml` | nachts | volle Browser-Tests auf dem Computer + Gesamttest; Rot öffnet ein Issue |
+| `volle-pruefung.yml` | nachts | volle Browser-Tests auf dem Computer + Gesamttest; Rot öffnet ein Issue. Seit 21.11.2026 vergleicht der Lauf mit der Nacht davor (`scripts/nacht-vergleich.mjs`): ein Kommentar (Mail) kommt nur, wenn etwas **neu** rot ist |
 | `dependabot-automerge.yml` | Dependabot-PRs | grün → von selbst zusammenführen (Noah 26.10.2026, ohne Freigabe) |
 
-`scripts/ci-scope.mjs`: ein PR, der nur Doku, News-Dateien oder ganze Specs ändert, führt nur die eigenen Specs aus. «Ausprobieren» tippt in einem PR nur die Zeilen der eigenen News-Dateien; nachts alle.
+`scripts/ci-scope.mjs`: ein PR, der nur Doku, News-Dateien oder ganze Specs ändert, führt nur die eigenen Specs aus. Ein PR mit App-Code führt ausser den Specs seiner Seiten immer den «Kern» (`CORE_SPECS`) aus: die Wächter, die die ganze App prüfen (`guard`, `flow`, `tippzahl`, `functions`, `heimat`, `tote-knoepfe`). Ein neuer Wächter dieser Art kommt in diese Liste. «Ausprobieren» tippt in einem PR nur die Zeilen der eigenen News-Dateien; nachts alle.
 
 **Wächter in den Tests** (die häufigsten Gründe für ein rotes Häkchen):
 - `appstand.test.js`: toter Link in `docs/app-stand.md`, Funktion ohne Zeile, Versionsnummer in der Datei.

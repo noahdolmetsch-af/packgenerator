@@ -75,7 +75,7 @@ test('I2 and B20: the status lights, the backup buttons and Other data', async (
   await expect(panel.locator('li.light .dot')).toHaveCount(5);
   await expect(panel.locator('li.light').filter({ hasText: T('Kept by the browser') })).toHaveCount(1);
   await expect(panel.locator('li.light').filter({ hasText: 'Fitbit' })).toContainText(T('not connected|fitbit'));
-  await expect(panel.getByRole('button', { name: T('Save backup') })).toBeVisible();
+  await expect(panel.locator('[data-section="backup-file"]').getByRole('button', { name: T('Save backup') })).toBeVisible();
   await expect(panel.getByText(T('Import backup'), { exact: true })).toBeVisible();
   await expect(panel.getByRole('heading', { name: T('Other data') })).toBeVisible();
   await panel.getByRole('link', { name: new RegExp(T('To the phone')) }).click();
@@ -139,7 +139,7 @@ test('I8: the Helper with its path, the code first while it is not set up', asyn
   await onePage(page, T('AI helper'));
   await expect(path(page).getByRole('link', { name: T('Me|place') })).toBeVisible();
   await expect(page.getByRole('heading', { name: T('Setup|helper') })).toBeVisible();
-  await expect(page.getByLabel(T('Helper code'))).toBeVisible();
+  await expect(page.getByLabel(T('Helper code'), { exact: true })).toBeVisible();
   await expect(page.getByText(T('What goes to Claude?')).first()).toBeVisible();
   expect(errors).toEqual([]);
 });

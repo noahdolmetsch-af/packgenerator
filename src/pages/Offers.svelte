@@ -16,14 +16,17 @@
   import { backClose } from '../lib/ui/backclose.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
-  import { KINDS, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
+  import { KINDS, WISH_PRICES, kindOf, newOffer, shareUrl, mondayOf, weekDays, weekNo, addDays, slotsOn, newSlots, bookedBySlot, slotState, chf, dayOf, withWishAt, timeOf, contactHref, holdsPlace, isOpenRequest, waitingFree, invoiceDraft, invoiceDraftMany, toInvoice, freeAlternatives, mailToAll } from '../lib/booking/model.js';
   import { OFFERS_KEY, SEEN_KEY, createOffer, saveOffer, ownerBookings, ownerCancel, answerBooking, cancelSlot, errorText } from '../lib/booking/client.js';
-  import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin } from '@lucide/svelte';
+  import { Volleyball, Tent, Wrench, CalendarDays, Link2, Copy, MessageCircle, ChevronLeft, ChevronRight, Clock, Users, Repeat, CreditCard, Bell, X, Plus, MapPin, FileImage } from '@lucide/svelte';
   import { rememberCustomer, listCustomers, saveCustomers, rateOf, packCover } from '../lib/booking/customers.js';
   import { applyVouchers } from '../lib/booking/vouchers.js';
   import { listOutcomes, setOutcome } from '../lib/booking/outcomes.js';
   import { listWaiting, addWaiting, removeWaiting } from '../lib/booking/waitlist.js';
+  import { isTrial, hasTrial, canAddTrial, trialPrice, trialSlots, withoutTrial, earlierTrial, TRIAL_KEY } from '../lib/booking/trial.js';
   import { listInvoices, setPrefill, bookingIdsOf } from '../lib/pay/invoices.js';
+  import { CONFIRM_KEY, CONFIRM_MAX, confirmSetting, confirmMessage, confirmSubject, saveConfirm } from '../lib/booking/confirm.js';
+  import { REMINDER_KEY, REMINDER_WORDS, REMINDER_WORDS_DE, reminderSetting, reminderMessage, saveReminder } from '../lib/booking/reminder.js';
   import '../lib/ich/ich.css';
 
   let { id = '' } = $props();
@@ -70,7 +73,7 @@
       return;
     }
     loadErr = '';
-    bookings = r.bookings;
+    bookings = withWishAt(r.bookings);
     // Seen here: the note on Heute goes away (3 a und b).
     const seen = (await db.settings.get(SEEN_KEY))?.value ?? [];
     const ids = [...new Set([...seen, ...r.bookings.map((b) => b.id)])].slice(-500);
@@ -84,7 +87,7 @@
     }
   });
   const booked = $derived(bookedBySlot(bookings ?? []));
-  const upcoming = $derived((bookings ?? []).filter((b) => b.at && dayOf(b.at) >= today));
+  const upcoming = $derived((bookings ?? []).filter((b) => b.at && !b.wish && dayOf(b.at) >= today));
 
   /* lessons that are over: the invoice is prepared from the booking (Noah 03.11.2026 «3b»; nothing is sent here) */
   const invoicesQ = liveQuery(() => listInvoices());
@@ -210,9 +213,19 @@
   const asking = $derived(here.filter(isOpenRequest));
   const everyone = $derived(here.filter((b) => b.status !== 'declined'));
   let replied = $state(null); // { b, decision }: after an answer, the message to send
-  const replyText = (s, decision) => decision === 'confirm'
-    ? t('{title} on {when} is confirmed. See you there!', { title: mine?.offer.title ?? '', when: fmtAt(s.at) })
-    : t('{title} on {when} does not work for me. Please pick another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
+  /* trial lesson (Noah 04.11.2026 «10a»): once per person; a second request gets the offer of a normal lesson */
+  const usedTrial = (b) => (mine ? earlierTrial(mine.offer, bookings ?? [], b) : null);
+  /* confirmation to the customers (Noah 05.11.2026 «5c», 09.11.2026): the lesson, the place, three lines Noah wrote once and the cancel rule; nothing is sent here */
+  const confirmQ = liveQuery(async () => (await db.settings.get(CONFIRM_KEY))?.value);
+  const confirmCfg = $derived(confirmSetting($confirmQ));
+  const placeOf = (s) => s?.venue || mine?.offer.place || '';
+  const confirmText = (name, at, place, cfg = confirmCfg, perKid = '') => confirmMessage({ name, title: mine?.offer.title ?? '', when: fmtAt(at), place, hours: mine?.offer.cancelHours ?? null, perKid, ...cfg }, t);
+  const confirmSubj = (at) => confirmSubject({ title: mine?.offer.title ?? '', when: fmtAt(at) }, t);
+  const replyText = (s, decision, b = null) => decision === 'confirm'
+    ? confirmText(b?.name ?? '', s.at, placeOf(s))
+    : b && usedTrial(b)
+      ? t('{title} on {when}: the trial lesson is once per person. I would be happy to see you for a normal lesson. Please pick a time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) })
+      : t('{title} on {when} does not work for me. Please pick another time with the same link.', { title: mine?.offer.title ?? '', when: fmtAt(s.at) });
   async function answer(b, decision) {
     busy = true;
     error = '';
@@ -223,6 +236,26 @@
     if (decision === 'confirm') await rememberCustomer(b);
     await loadBookings();
   }
+  /* wish requests (Noah 08.11.2026 «1c»): no time of their own; Noah confirms one of the wish times and writes to the parents himself */
+  const wishes = $derived((bookings ?? []).filter((b) => b.wish && b.status === 'requested'));
+  const wishDone = $derived((bookings ?? []).filter((b) => b.wish && b.status === 'confirmed' && b.pick != null && dayOf(b.wish.wishes[b.pick] ?? '') >= today));
+  const SOURCE_NAMES = { flyer: 'Flyer', google: 'Google', friends: 'Recommendation', club: 'Club', other: 'Other' };
+  const sourceName = (k) => t(SOURCE_NAMES[k] ?? 'Other');
+  let wishReplied = $state(null); // { b, at }
+  async function answerWish(b, decision, pick = null) {
+    busy = true;
+    error = '';
+    const r = await answerBooking(mine.id, mine.owner, b.id, decision, pick);
+    busy = false;
+    if (!r.ok) return (error = t(errorText(r.code)));
+    if (decision === 'confirm') {
+      wishReplied = { b, at: b.wish.wishes[pick] };
+      await rememberCustomer(b);
+    }
+    await loadBookings();
+  }
+  const priceLine = (p) => t('CHF {perKid} per child · CHF {total} in all · {where}', { perKid: chf(p.perKid), total: chf(p.total), where: p.hall ? t('hall price') : t('outdoor price') });
+  const wishText = (r) => confirmText(r.b.name, r.at, r.b.wish?.venues?.length === 1 ? r.b.wish.venues[0] : '', confirmCfg, r.b.wish?.price ? chf(r.b.wish.price.perKid) : '');
   /* rain or other reasons (Noah 04.11.2026 «1a»): the message offers free times Noah picks; nothing is sent here */
   const alternativesOf = (s) => (mine ? freeAlternatives(mine.offer, bookings ?? [], s.id, s.at > nowAt() ? s.at : nowAt(), 5) : []);
   let unpicked = $state([]); // ids of offered times Noah unticked (the first three start ticked)
@@ -261,6 +294,45 @@
     await loadBookings();
   }
 
+  /* reminder to the customers (Noah 04.11.2026 «2a»/«2b», 08.11.2026): the switch for Heute and the text of the message */
+  const reminderQ = liveQuery(async () => (await db.settings.get(REMINDER_KEY))?.value);
+  const reminder = $derived(reminderSetting($reminderQ));
+  const sampleOf = (text) => reminderMessage({ text, name: 'Mia', title: mine?.offer.title ?? '', day: t('tomorrow'), time: '17:00', place: mine?.offer.venues?.[0] || mine?.offer.place || '', hours: mine?.offer.cancelHours ?? null }, t);
+  let remOpen = $state(false);
+  let remDlg = $state();
+  let remText = $state('');
+  $effect(() => {
+    if (remOpen && remDlg && !remDlg.open) remDlg.showModal();
+  });
+  function openReminder() {
+    remText = reminder.text;
+    remOpen = true;
+  }
+  const flipReminder = (on) => saveReminder({ ...reminder, on });
+  async function saveReminderText(e) {
+    e.preventDefault();
+    await saveReminder({ ...reminder, text: remText.trim() });
+    remDlg.close();
+  }
+
+  /* confirmation to the customers: the three lines (meeting point, pick-up, rain) */
+  const sampleConfirm = (cfg) => confirmText('Mia', `${addDays(today, 1)}T17:00`, mine?.offer.venues?.[0] || mine?.offer.place || '', cfg);
+  let cfOpen = $state(false);
+  let cfDlg = $state();
+  let cfDraft = $state({ meet: '', pickup: '', rain: '' });
+  $effect(() => {
+    if (cfOpen && cfDlg && !cfDlg.open) cfDlg.showModal();
+  });
+  function openConfirm() {
+    cfDraft = { ...confirmCfg };
+    cfOpen = true;
+  }
+  async function saveConfirmLines(e) {
+    e.preventDefault();
+    await saveConfirm(cfDraft);
+    cfDlg.close();
+  }
+
   /* the rules (BU1 «So wird gebucht», Ändern) */
   let rulesOpen = $state(false);
   let rulesDlg = $state();
@@ -270,13 +342,38 @@
   });
   function openRules() {
     const o = mine.offer;
-    draft = { title: o.title, place: o.place, venuesText: (o.venues ?? []).join(', '), mode: o.mode ?? 'instant', minutes: o.minutes, pay: o.pay, cancelHours: o.cancelHours, types: o.types.map((x) => ({ ...x, chf: chf(x.price) })) };
+    draft = { title: o.title, place: o.place, venuesText: (o.venues ?? []).join(', '), mode: o.mode ?? 'instant', minutes: o.minutes, pay: o.pay, cancelHours: o.cancelHours, types: o.types.map((x) => ({ ...x, chf: chf(x.price) })), trial: hasTrial(o), prices: priceTexts(o.prices ?? WISH_PRICES), hall: [...(o.hallVenues ?? [])] };
     rulesOpen = true;
   }
+  /* wish offers (Noah 08.11.2026 «1a»): the price per child by number of children, outdoors and in the hall, and which places are halls */
+  const priceTexts = (p) => ({ out: p.out.map((x) => chf(x)), hall: p.hall.map((x) => chf(x)) });
+  const priceRappen = (texts) => texts.map((x) => Math.max(0, Math.min(1_000_000, Math.round(Number(String(x).replace(',', '.')) * 100) || 0)));
+  const draftVenues = $derived(draft ? draft.venuesText.split(',').map((v) => v.trim()).filter(Boolean).slice(0, 4) : []);
+  const toggleHall = (v) => (draft.hall = draft.hall.includes(v) ? draft.hall.filter((x) => x !== v) : [...draft.hall, v]);
+  /* the switch «Trial lesson»: the kind is added to the draft with half the price of the first kind, or taken out */
+  function flipTrial(on) {
+    draft.trial = on;
+    if (!on) return (draft.types = draft.types.filter((x) => !isTrial(x)));
+    if (draft.types.some(isTrial)) return;
+    const first = draft.types[0];
+    const price = trialPrice({ types: [{ key: first.key, price: Math.max(0, Math.round(Number(String(first.chf).replace(',', '.')) * 100) || 0) }] });
+    draft.types = [...draft.types, { key: TRIAL_KEY, label: t('Trial lesson'), places: 1, price, chf: chf(price) }];
+  }
+  const trialRoom = $derived(!!mine && (hasTrial(mine.offer) || canAddTrial(mine.offer)) && ['tennis', 'own'].includes(mine.offer.kind));
+  const trialMoves = $derived(mine && draft && !draft.trial && hasTrial(mine.offer) ? trialSlots(mine.offer).length : 0);
   async function saveRules(e) {
     e.preventDefault();
     const types = draft.types.map((x) => ({ key: x.key, label: x.label.trim(), places: Math.max(1, Math.min(50, Math.round(Number(x.places) || 1))), price: Math.max(0, Math.round(Number(String(x.chf).replace(',', '.')) * 100) || 0) }));
-    const next = { ...mine.offer, title: draft.title.trim() || mine.offer.title, place: draft.place.trim(), mode: draft.mode, venues: draft.venuesText.split(',').map((v) => v.trim()).filter(Boolean).slice(0, 4), minutes: Math.max(0, Math.round(Number(draft.minutes) || 0)), pay: draft.pay, cancelHours: Math.max(0, Math.round(Number(draft.cancelHours) || 0)), types };
+    // a trial kind switched off: its times become times of the first other kind, none is lost
+    const base = !draft.trial && hasTrial(mine.offer) ? withoutTrial(mine.offer) : mine.offer;
+    const next = { ...base, title: draft.title.trim() || mine.offer.title, place: draft.place.trim(), mode: draft.mode, venues: draft.venuesText.split(',').map((v) => v.trim()).filter(Boolean).slice(0, 4), minutes: Math.max(0, Math.round(Number(draft.minutes) || 0)), pay: draft.pay, cancelHours: Math.max(0, Math.round(Number(draft.cancelHours) || 0)), types };
+    if (draft.mode === 'wish') {
+      next.prices = { out: priceRappen(draft.prices.out), hall: priceRappen(draft.prices.hall) };
+      next.hallVenues = draft.hall.filter((v) => next.venues.includes(v));
+    } else {
+      delete next.prices;
+      delete next.hallVenues;
+    }
     if (await save(next)) rulesDlg.close();
   }
 </script>
@@ -381,6 +478,45 @@
           </section>
         {/if}
 
+        {#if wishes.length || wishDone.length || wishReplied}
+          <section class="card" aria-labelledby="of-wish-h" data-wishes>
+            <div class="of-wh"><h2 id="of-wish-h">{t('Wish requests')}</h2><small class="muted">{tn(wishes.length, '{n} open', '{n} open')}</small></div>
+            {#if error}<p class="err" role="alert">{error}</p>{/if}
+            {#if wishReplied}
+              {@const href = contactHref(wishReplied.b.contact, wishText(wishReplied), confirmSubj(wishReplied.at))}
+              <p role="status">{t('Confirmed. Now tell {name}:', { name: wishReplied.b.name })}</p>
+              <p class="of-note">{wishText(wishReplied)}</p>
+              <div class="of-foot">{#if href}<a class="btn hi" {href}>{t('Write')}</a>{/if}<button type="button" class="btn" onclick={() => (wishReplied = null)}>{t('Done')}</button></div>
+            {/if}
+            {#if wishes.length}
+              <p class="muted">{t('Book the court first, then confirm the time that fits. You write to the parents yourself.')}</p>
+              <ul class="of-list">
+                {#each wishes as b (b.id)}
+                  <li class="of-pp of-rqrow" data-wish>
+                    <span><b>{b.name}</b><small>{b.contact}</small>
+                      <small>{tn(b.wish.kids, '{n} child', '{n} children')}{b.wish.kidNames ? `: ${b.wish.kidNames}` : ''}</small>
+                      {#if b.wish.venues.length}<small>{t('Places|venues')}: {b.wish.venues.join(' · ')}</small>{/if}
+                      {#if b.wish.price}<small data-wish-price><b>{priceLine(b.wish.price)}</b></small>{/if}
+                      {#if b.wish.source}<small>{t('Found me through')}: {sourceName(b.wish.source)}</small>{/if}
+                      {#if b.note}<small class="of-note">{b.note}</small>{/if}</span>
+                    <span class="of-two">
+                      {#each b.wish.wishes as w, i (w)}<button type="button" class="btn hi sm" disabled={busy} onclick={() => answerWish(b, 'confirm', i)} data-wish-pick={i}>{t('Confirm {when}', { when: fmtAt(w) })}</button>{/each}
+                      <button type="button" class="btn sm" disabled={busy} onclick={() => answerWish(b, 'decline')}>{t('Decline')}</button>
+                    </span>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+            {#if wishDone.length}
+              <h3 class="of-rq">{t('Confirmed')}</h3>
+              <ul class="of-list">
+                {#each wishDone as b (b.id)}<li class="of-pp"><span><b>{fmtAt(b.wish.wishes[b.pick])}</b><small>{b.name} · {tn(b.wish.kids, '{n} child', '{n} children')}{b.wish.price ? ` · CHF ${chf(b.wish.price.total)}` : ''}</small></span></li>{/each}
+              </ul>
+              <p class="muted" data-wish-next>{t('After the lesson the invoice is prepared for you under «Lesson done? Write the invoice», with the price the parents saw.')}</p>
+            {/if}
+          </section>
+        {/if}
+
         <section class="card" aria-labelledby="of-bk-h">
           <div class="of-wh"><h2 id="of-bk-h">{t('Booked')}</h2>{#if bookings}<small class="muted">{tn(upcoming.length, '{n} ahead', '{n} ahead')}</small>{/if}</div>
           {#if loadErr}<p class="err" role="alert">{loadErr}</p>
@@ -406,19 +542,33 @@
           </div>
           {#if note}<p class="hint" role="status">{note}</p>{/if}
           <p class="of-fine">{t('They see only free times, never the names of others.')}</p>
+          {#if mine.offer.kind === 'tennis'}<a class="btn" data-flyer-from-offer href={`#/me/tennis/flyer?o=${mine.id}`}><FileImage size={18} aria-hidden="true" />{t('Make a flyer')}</a>{/if}
         </section>
 
         <section class="card" aria-labelledby="of-rules-h">
           <div class="of-wh"><h2 id="of-rules-h">{t('How booking works')}</h2><button type="button" class="lkb" onclick={openRules}>{t('Change')}</button></div>
           <ul class="of-rules">
             <li><Clock size={18} aria-hidden="true" /><b>{t('Length')}</b><span>{lengthWord(o)}</span></li>
-            <li><Users size={18} aria-hidden="true" /><b>{t('Places')}</b><span>{o.types.map((x) => `${x.label} ${x.places}`).join(' · ')}</span></li>
+            <li><Users size={18} aria-hidden="true" /><b>{t('Places|seats')}</b><span>{o.types.map((x) => `${x.label} ${x.places}`).join(' · ')}</span></li>
             <li><CreditCard size={18} aria-hidden="true" /><b>{t('Price')}</b><span>{o.types.map((x) => `${x.label} ${chf(x.price)} CHF`).join(' · ')}</span></li>
-            <li><Bell size={18} aria-hidden="true" /><b>{t('Booking')}</b><span>{o.mode === 'request' ? t('request, you answer within 24 h') : t('booked at once')}</span></li>
+            <li><Bell size={18} aria-hidden="true" /><b>{t('Booking')}</b><span>{o.mode === 'wish' ? t('wish times, you answer within 24 h') : o.mode === 'request' ? t('request, you answer within 24 h') : t('booked at once')}</span></li>
             <li><Repeat size={18} aria-hidden="true" /><b>{t('Payment')}</b><span>{o.pay === 'online' ? t('online (test mode)') : t('on site (cash, TWINT)')}</span></li>
             <li><Bell size={18} aria-hidden="true" /><b>{t('Cancelling')}</b><span>{t('people up to {n} h before · you any time', { n: o.cancelHours })}</span></li>
-            {#if o.venues?.length}<li><MapPin size={18} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place')}</b><span>{o.place}</span></li>{/if}
+            {#if o.venues?.length}<li><MapPin size={18} aria-hidden="true" /><b>{t('Places|venues')}</b><span>{o.venues.join(' · ')}</span></li>{:else if o.place}<li><MapPin size={18} aria-hidden="true" /><b>{t('Place|venue')}</b><span>{o.place}</span></li>{/if}
           </ul>
+        </section>
+
+        <section class="card" aria-labelledby="of-rem-h" data-reminder-card>
+          <div class="of-wh"><h2 id="of-rem-h">{t('Reminder to the customers')}</h2><button type="button" class="lkb" onclick={openReminder}>{t('Own text')}</button></div>
+          <label class="of-check"><input type="checkbox" checked={reminder.on} onchange={(e) => flipReminder(e.currentTarget.checked)} data-reminder-switch /> {t('Remind me the day before and on the day')}</label>
+          <p class="of-note" data-reminder-sample>{sampleOf(reminder.text)}</p>
+          <p class="of-fine">{t('On the Today page a button opens your message app with this text ready. You send it yourself; the app sends nothing. It is the same text for all your offers.')}</p>
+        </section>
+
+        <section class="card" aria-labelledby="of-cf-h" data-confirm-card>
+          <div class="of-wh"><h2 id="of-cf-h">{t('Confirmation to the customers')}</h2><button type="button" class="lkb" onclick={openConfirm}>{t('Add details')}</button></div>
+          <p class="of-note" data-confirm-sample>{sampleConfirm(confirmCfg)}</p>
+          <p class="of-fine">{t('After you confirm a booking, this text is ready for your message app. Later, «Confirmation» in the list of a lesson opens it again. You send it yourself; the app sends nothing. The meeting point, pick-up and rain lines are the same for all your offers.')}</p>
         </section>
       </div>
     </div>
@@ -469,9 +619,9 @@
         <div class="of-foot"><button type="button" class="btn hi" onclick={() => slotDlg.close()}>{t('Done')}</button></div>
       {:else}
         {#if replied}
-          {@const href = contactHref(replied.b.contact, replyText(s, replied.decision))}
+          {@const href = contactHref(replied.b.contact, replyText(s, replied.decision, replied.b), replied.decision === 'confirm' ? confirmSubj(s.at) : '')}
           <p role="status">{replied.decision === 'confirm' ? t('Confirmed. Now tell {name}:', { name: replied.b.name }) : t('Declined. Now tell {name}:', { name: replied.b.name })}</p>
-          <p class="of-note">{replyText(s, replied.decision)}</p>
+          <p class="of-note">{replyText(s, replied.decision, replied.b)}</p>
           <div class="of-foot">{#if href}<a class="btn hi" {href}>{t('Write')}</a>{/if}<button type="button" class="btn" onclick={() => (replied = null)}>{t('Done')}</button></div>
         {/if}
         {#if asking.length}
@@ -479,7 +629,7 @@
           <ul class="of-list">
             {#each asking as b (b.id)}
               <li class="of-pp of-rqrow">
-                <span>{b.name}<small>{b.contact}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}<small>{t('Answer by {when}', { when: new Date(b.answerBy).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' }) })}</small></span>
+                <span>{b.name}<small>{b.contact}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}{#if usedTrial(b)}<small class="of-warn" data-trial-used>{t('Had a trial lesson already: {when}. Once per person.', { when: fmtAt(usedTrial(b).at) })}</small>{/if}<small>{t('Answer by {when}', { when: new Date(b.answerBy).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' }) })}</small></span>
                 <span class="of-two"><button type="button" class="btn hi sm" disabled={busy} onclick={() => answer(b, 'confirm')}>{t('Confirm')}</button><button type="button" class="btn sm" disabled={busy} onclick={() => answer(b, 'decline')}>{t('Decline')}</button></span>
               </li>
             {/each}
@@ -489,9 +639,11 @@
         <ul class="of-list">
           {#each people as b (b.id)}
             {@const href = contactHref(b.contact, helloText(s))}
-            <li class="of-pp">
-              <span>{b.name}<small>{b.contact} · {b.pay === 'online' ? (b.paid ? t('paid (test)') : t('not paid')) : t('pays on site')}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}</span>
+            {@const chref = contactHref(b.contact, confirmText(b.name, s.at, placeOf(s)), confirmSubj(s.at))}
+            <li class="of-pp of-ppw">
+              <span>{b.name}<small>{b.contact} · {b.pay === 'online' ? (b.paid ? t('paid (test)') : t('not paid')) : t('pays on site')}</small>{#if b.note}<small class="of-note">{b.note}</small>{/if}{#if usedTrial(b)}<small class="of-warn" data-trial-used>{t('Had a trial lesson already: {when}. Once per person.', { when: fmtAt(usedTrial(b).at) })}</small>{/if}</span>
               {#if href}<a class="btn sm" {href}>{t('Write')}</a>{/if}
+              {#if chref}<a class="btn sm" data-confirm-link href={chref}>{t('Confirmation')}</a>{/if}
               {#if invoiceOf(b)}<a class="lkb" href={`#/me/pay/invoices/${invoiceOf(b).id}`}>{t('Invoice {no}', { no: invoiceOf(b).no })}</a>{:else if b.at < nowAt()}<button type="button" class="lkb" onclick={() => writeInvoice(b)}>{t('Prepare invoice')}</button>{/if}
               <button type="button" class="lkb" onclick={() => dropOne(b)}>{t('Cancel|booking')}</button>
             </li>
@@ -529,25 +681,80 @@
     </dialog>
   {/if}
 
+  {#if remOpen}
+    <dialog class="sheet from-below of-sheet" bind:this={remDlg} use:backClose={() => remDlg.close()} onclose={() => (remOpen = false)} aria-labelledby="of-rem-sh">
+      <form onsubmit={saveReminderText}>
+        <div class="of-sh"><h2 id="of-rem-sh">{t('Reminder text')}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => remDlg.close()}><X size={20} aria-hidden="true" /></button></div>
+        <label class="lbl" for="of-rem-text">{t('Your own text (empty: the ready text)')}</label>
+        <textarea id="of-rem-text" class="inp" rows="4" bind:value={remText} placeholder={sampleOf('')}></textarea>
+        <p class="muted">{t('These words are filled in: {words}.', { words: (locale().startsWith('de') ? REMINDER_WORDS_DE : REMINDER_WORDS).map((w) => `{${w}}`).join(' ') })}</p>
+        <p class="lbl">{t('Looks like this')}</p>
+        <p class="of-note" data-reminder-preview>{sampleOf(remText)}</p>
+        <div class="of-foot"><button type="submit" class="btn hi">{t('Save')}</button>{#if remText}<button type="button" class="btn" data-reminder-reset onclick={() => (remText = '')}>{t('Use the ready text')}</button>{/if}<button type="button" class="btn" onclick={() => remDlg.close()}>{t('Cancel')}</button></div>
+      </form>
+    </dialog>
+  {/if}
+
+  {#if cfOpen}
+    <dialog class="sheet from-below of-sheet" bind:this={cfDlg} use:backClose={() => cfDlg.close()} onclose={() => (cfOpen = false)} aria-labelledby="of-cf-sh">
+      <form onsubmit={saveConfirmLines}>
+        <div class="of-sh"><h2 id="of-cf-sh">{t('Details for the confirmation')}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => cfDlg.close()}><X size={20} aria-hidden="true" /></button></div>
+        <p class="muted">{t('Every line is optional. An empty line is left out of the message.')}</p>
+        <label class="lbl" for="of-cf-meet">{t('Meeting point|lesson')}</label>
+        <input id="of-cf-meet" class="inp" bind:value={cfDraft.meet} maxlength={CONFIRM_MAX} autocomplete="off" placeholder={t('for example: at the club house entrance, 10 minutes before')} />
+        <label class="lbl" for="of-cf-pick">{t('Pick-up|lesson')}</label>
+        <input id="of-cf-pick" class="inp" bind:value={cfDraft.pickup} maxlength={CONFIRM_MAX} autocomplete="off" placeholder={t('for example: parents pick up at the court')} />
+        <label class="lbl" for="of-cf-rain">{t('If it rains')}</label>
+        <input id="of-cf-rain" class="inp" bind:value={cfDraft.rain} maxlength={CONFIRM_MAX} autocomplete="off" placeholder={t('for example: I write you by 14:00 whether we play')} />
+        <p class="lbl">{t('Looks like this')}</p>
+        <p class="of-note" data-confirm-preview>{sampleConfirm(cfDraft)}</p>
+        <div class="of-foot"><button type="submit" class="btn hi">{t('Save')}</button><button type="button" class="btn" onclick={() => cfDlg.close()}>{t('Cancel')}</button></div>
+      </form>
+    </dialog>
+  {/if}
+
   {#if rulesOpen && draft}
     <dialog class="sheet from-below of-sheet" bind:this={rulesDlg} use:backClose={() => rulesDlg.close()} onclose={() => (rulesOpen = false)} aria-labelledby="of-rules-sh">
       <form onsubmit={saveRules}>
         <div class="of-sh"><h2 id="of-rules-sh">{t('How booking works')}</h2><button type="button" class="ibtn" aria-label={t('Close')} onclick={() => rulesDlg.close()}><X size={20} aria-hidden="true" /></button></div>
         <label class="lbl" for="of-title">{t('Name')}</label><input id="of-title" class="inp" bind:value={draft.title} maxlength="60" />
-        <label class="lbl" for="of-place">{t('Place')}</label><input id="of-place" class="inp" bind:value={draft.place} maxlength="60" placeholder={t('e.g. sand court')} />
+        <label class="lbl" for="of-place">{t('Place|venue')}</label><input id="of-place" class="inp" bind:value={draft.place} maxlength="60" placeholder={t('e.g. sand court')} />
         <label class="lbl" for="of-min">{t('Length in minutes')}</label><input id="of-min" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.minutes} />
         <label class="lbl" for="of-venues">{t('Places to choose from (separated by commas)')}</label><input id="of-venues" class="inp" bind:value={draft.venuesText} placeholder={t('e.g. Court by the lake, Indoor hall')} />
         <p class="lbl">{t('Booking')}</p>
-        <Seg options={[{ key: 'request', name: t('Request, I answer') }, { key: 'instant', name: t('Booked at once') }]} value={draft.mode} onchange={(k) => (draft.mode = k)} label={t('Booking')} />
+        <Seg options={[{ key: 'request', name: t('Request, I answer') }, ...(mine.offer.kind === 'tennis' || mine.offer.kind === 'own' ? [{ key: 'wish', name: t('Wish time, I answer') }] : []), { key: 'instant', name: t('Booked at once') }]} value={draft.mode} onchange={(k) => (draft.mode = k)} label={t('Booking')} />
+        {#if draft.mode === 'wish'}
+          <fieldset class="of-type" data-wish-prices>
+            <legend>{t('Price per child')}</legend>
+            <p class="muted">{t('Court included. The parents see the price for the number of children they enter. If a hall is among the ticked places, the hall price counts until you confirm.')}</p>
+            <span class="of-two of-ph"><span></span><span><b>{t('Outdoors')}</b></span><span><b>{t('Hall')}</b></span></span>
+            {#each [0, 1, 2, 3] as i (i)}
+              <span class="of-two of-pr">
+                <label class="lbl" for={`of-po-${i}`}>{tn(i + 1, '{n} child', '{n} children')}</label>
+                <input id={`of-po-${i}`} class="inp" inputmode="decimal" bind:value={draft.prices.out[i]} aria-label={t('{n} children, outdoors', { n: i + 1 })} />
+                <input id={`of-ph-${i}`} class="inp" inputmode="decimal" bind:value={draft.prices.hall[i]} aria-label={t('{n} children, hall', { n: i + 1 })} />
+              </span>
+            {/each}
+            {#if draftVenues.length}
+              <p class="lbl">{t('Which of your places is a hall?')}</p>
+              {#each draftVenues as v (v)}<label class="of-check"><input type="checkbox" checked={draft.hall.includes(v)} onchange={() => toggleHall(v)} data-hall-place /> {v}</label>{/each}
+            {/if}
+          </fieldset>
+        {/if}
         <p class="lbl">{t('Payment')}</p>
         <Seg options={[{ key: 'site', name: t('on site') }, { key: 'online', name: t('online (test)') }]} value={draft.pay} onchange={(k) => (draft.pay = k)} label={t('Payment')} />
         <label class="lbl" for="of-cancel">{t('People may cancel up to … hours before')}</label><input id="of-cancel" class="inp" type="number" min="0" inputmode="numeric" bind:value={draft.cancelHours} />
+        {#if trialRoom}
+          <label class="of-check"><input type="checkbox" checked={draft.trial} onchange={(e) => flipTrial(e.currentTarget.checked)} data-trial-switch /> {t('Offer a trial lesson')}</label>
+          <p class="muted">{t('A kind «Trial lesson» next to the others: one place, half the price, and once per person. You open its times like any other time. If a person asks for a second one, the request says so and you can offer a normal lesson.')}</p>
+          {#if trialMoves}<p class="muted" data-trial-moves>{tn(trialMoves, 'Switched off: {n} time of this kind becomes a time of the first kind.', 'Switched off: {n} times of this kind become times of the first kind.')}</p>{/if}
+        {/if}
         {#each draft.types as x, i (x.key)}
           <fieldset class="of-type">
             <legend>{t('Kind {n}', { n: i + 1 })}</legend>
             <label class="lbl" for={`of-tl-${i}`}>{t('Name')}</label><input id={`of-tl-${i}`} class="inp" bind:value={x.label} maxlength="30" />
             <span class="of-two">
-              <span><label class="lbl" for={`of-tp-${i}`}>{t('Places')}</label><input id={`of-tp-${i}`} class="inp" type="number" min="1" max="50" inputmode="numeric" bind:value={x.places} /></span>
+              <span><label class="lbl" for={`of-tp-${i}`}>{t('Places|seats')}</label><input id={`of-tp-${i}`} class="inp" type="number" min="1" max="50" inputmode="numeric" bind:value={x.places} /></span>
               <span><label class="lbl" for={`of-tc-${i}`}>{t('Price in CHF')}</label><input id={`of-tc-${i}`} class="inp" inputmode="decimal" bind:value={x.chf} /></span>
             </span>
           </fieldset>
@@ -784,6 +991,13 @@
     min-width: 0;
     overflow-wrap: break-word;
   }
+  /* the booked people: name, Write, Confirmation, Cancel; on a narrow phone the buttons go below the name */
+  .of-ppw {
+    flex-wrap: wrap;
+  }
+  .of-ppw > span:first-child {
+    flex: 1 1 9rem;
+  }
   .of-link {
     display: flex;
     align-items: center;
@@ -897,12 +1111,21 @@
     background: var(--bad);
     color: var(--paper);
   }
+  .of-two.of-pr,
+  .of-two.of-ph {
+    grid-template-columns: minmax(70px, 1fr) minmax(0, 1.2fr) minmax(0, 1.2fr);
+    align-items: center;
+  }
+  .of-pr .lbl {
+    margin: 0;
+  }
   @media (max-width: 640px) {
-    .of-two {
+    .of-two:not(.of-pr):not(.of-ph) {
       grid-template-columns: 1fr;
     }
   }
 .of-note { display: block; font-style: italic; }
+  .of-warn { display: block; color: var(--warn); font-weight: 600; }
   .of-rq { margin: 8px 0 0; }
   .of-rqrow { flex-wrap: wrap; }
   .of-ask-n { color: var(--accent, inherit); font-weight: 600; }

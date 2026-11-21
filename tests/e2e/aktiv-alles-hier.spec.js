@@ -17,13 +17,20 @@ async function open(page, context) {
   await page.goto('./#/flow');
 }
 
-test('AAH-1 Aktiv starts with ten tiles; a tile opens its page; no «Gehört zu»', async ({ page, context }) => {
+test('AAH-1 Aktiv starts with sixteen tiles; a tile opens its page; no «Gehört zu»', async ({ page, context }) => {
   await open(page, context);
   const box = page.locator('[data-all-here="aktiv"]');
   await expect(box).toBeVisible();
   await expect(box.getByRole('heading', { name: T('All here') })).toBeVisible();
   const tiles = box.locator('[data-all-here-tile]');
-  await expect(tiles).toHaveCount(10);
+  await expect(tiles).toHaveCount(16);
+  // «Ein Kopf für Aktiv» (Noah 17.11.2026 «a»): the sport bag and the ideas are tiles here, no row of cards on the pages themselves
+  await expect(box.locator('[data-all-here-tile="sportbag"]')).toHaveAttribute('href', '#/flow/bags');
+  await expect(box.locator('[data-all-here-tile="ideas"]')).toHaveAttribute('href', '#/flow/ideen');
+  // «Tippzahl» (Noah 21.11.2026): «Done», the meditation log and «More about meditation» are two taps from Heute
+  for (const [id, to] of [['f.geschafft', '#/flow/geschafft'], ['f.medlog', '#/flow/act/meditation/log'], ['f.medmore', '#/flow/act/meditation/mehr']]) await expect(box.locator(`[data-all-here-tile="${id}"]`)).toHaveAttribute('href', to);
+  // «TrainingPeaks-Plan»: the card for the plan link is one tap from Aktiv, it leads to Ich › Connections
+  await expect(box.locator('[data-all-here-tile="f.trainingpeaks"]')).toHaveCount(1);
   await expect(page.locator('[data-gehoert]')).toHaveCount(0);
   // the field stands above the ticking
   const top = await box.evaluate((el) => el.getBoundingClientRect().top);

@@ -48,8 +48,9 @@ async function writeEntry(page, { title, text, tag }, info = null) {
 test('Notizen leads to the diary, a tab of Planen; write, read, change, search, calendar and photos', async ({ page, context }, info) => {
   const errors = await open(page, context, './#/notes');
   await page.locator('[data-notes-diary]').click();
-  // «Tagebuch» under Planen (Noah 20.10.2026): its tab is on, on the phone in the tab row, on a computer in the sidebar
-  await expect(page.locator('nav.ptabs a[href="#/tagebuch"], .side .tabs a[href="#/tagebuch"]').filter({ visible: true }).first()).toHaveAttribute('aria-current', 'page');
+  // «Tagebuch» under Planen (Noah 20.10.2026): its chip is on (Schritt 11: a chip under the tab «Notizen»), and the tab «Notizen» with it
+  await expect(page.locator('nav.psubs a[data-sub="tagebuch"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.ptabs a[href="#/notes"], .side .tabs a[href="#/notes"]').filter({ visible: true }).first()).toHaveAttribute('aria-current', /page|true/);
   await expect(page.getByRole('heading', { level: 1, name: T('Diary') })).toBeVisible();
   await expect(page.locator('[data-tb-empty]')).toBeVisible();
   // the question of the day is the one of today
@@ -154,6 +155,32 @@ test('tags are groups: rename one, then delete it; the entries stay', async ({ p
   await s.getByRole('button', { name: T('Close') }).click();
   await expect(page.locator('[data-tb-entry]')).toHaveCount(1);
   await expect(page.locator('[data-tb-entry]')).not.toContainText('#Rad');
+  expect(errors).toEqual([]);
+});
+
+// «Diagramme zum Antippen»: the mood curve is the shared line chart (axis of smileys, the day when pointing, a tap, the table)
+test('mood curve: the numbers of a day, a tap opens the day, the table lists the days', async ({ page, context }) => {
+  const errors = await open(page, context);
+  for (const [day, mood] of [['2026-10-17', '2'], ['2026-10-19', '4']]) {
+    await page.locator('[data-tb-new]').click();
+    const ed = page.locator('[data-tb-editor]');
+    await ed.locator('[data-tb-text]').fill(`${P}Tag ${day}`);
+    await ed.locator(`[data-tb-mood="${mood}"]`).click();
+    await ed.locator('[data-tb-day]').fill(day);
+    await ed.locator('[data-tb-save]').click();
+    await expect(ed).toBeHidden();
+  }
+  await page.locator('.tb-bar button[data-key="look"]').click();
+  const curve = page.locator('[data-tb-mood-curve]');
+  const plot = curve.locator('[data-chart="mood"] [data-plot]');
+  await expect(plot).toHaveAttribute('data-n', '90');
+  const box = await plot.boundingBox();
+  // the day before today (19.10.) is the second column from the right: its mood is 4
+  await plot.click({ position: { x: (box.width * 88.5) / 90, y: 20 } });
+  await expect(page.locator('[data-mood-sheet]')).toContainText(/4[.,]0/);
+  await page.keyboard.press('Escape');
+  await curve.getByRole('button', { name: T('As table') }).click();
+  await expect(curve.locator('table tbody tr')).toHaveCount(2);
   expect(errors).toEqual([]);
 });
 

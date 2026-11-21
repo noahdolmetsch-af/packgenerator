@@ -17,6 +17,7 @@
   import { chf, dayOf, timeOf, holdsPlace } from '../lib/booking/model.js';
   import { listCustomers, saveCustomers, keyOf, parseRate, lessonsOf, invoicesOf, packOf, packState, parsePack, aboOf, parseAbo, fixedOf, parseFixed } from '../lib/booking/customers.js';
   import { listInvoices, setPrefill } from '../lib/pay/invoices.js';
+  import { isTrialBooking } from '../lib/booking/trial.js';
   import { localDay } from '../lib/localday.js';
   import { vouchersOf, openVouchers, parseVoucher, voucherText } from '../lib/booking/vouchers.js';
   import { Users, X, Plus } from '@lucide/svelte';
@@ -31,7 +32,7 @@
   $effect(() => {
     db.settings.get(OFFERS_KEY).then(async (row) => {
       const all = await allBookings(row?.value ?? []);
-      bookings = all.flatMap((o) => o.bookings.filter(holdsPlace).map((b) => ({ ...b, title: o.title })));
+      bookings = all.flatMap((o) => o.bookings.filter(holdsPlace).map((b) => ({ ...b, title: o.title, trial: isTrialBooking({ slots: o.slots }, b) })));
     });
   });
 
@@ -172,7 +173,7 @@
         <h3 class="cu-h3">{t('Lessons with this customer')}</h3>
         {#if !bookings}<p class="muted">{t('Loading…')}</p>
         {:else if !lessons.length}<p class="muted">{t('No lessons yet.')}</p>
-        {:else}<ul class="cu-mini">{#each lessons as b (b.id)}<li>{fmtAt(b.at)} · {b.title}</li>{/each}</ul>{/if}
+        {:else}<ul class="cu-mini">{#each lessons as b (b.id)}<li>{fmtAt(b.at)} · {b.title}{b.trial ? ` · ${t('Trial lesson')}` : ''}</li>{/each}</ul>{/if}
         <h3 class="cu-h3">{t('Open invoices of this customer')}</h3>
         {#if !openInvoices.length}<p class="muted">{t('No open invoices.')}</p>
         {:else}<ul class="cu-mini">{#each openInvoices as x (x.id)}<li><a href={`#/me/pay/invoices/${x.id}`}>{x.no}</a> · {chf(x.amount)} CHF</li>{/each}</ul>{/if}

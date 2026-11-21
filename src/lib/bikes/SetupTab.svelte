@@ -145,7 +145,29 @@
     const b = n ? bikes.find((x) => x.id === n.bikeId) ?? null : null;
     return n && b ? { trip: n, bike: b } : null;
   });
-  const sub = $derived([tn(bikes.length, '{n} bike', '{n} bikes'), nextRide ? t('next trip: {trip} on {date} with {bike}', { trip: nextRide.trip.title ?? '', date: dateOf(nextRide.trip.startDate), bike: nextRide.bike.name }) : ''].filter(Boolean).join(' · '));
+  const sub = $derived(tn(bikes.length, '{n} bike', '{n} bikes'));
+  // V1b: «fits» next to the next trip: the care of the bike of that trip (the same count as Care, Home and Pack), with what falls due before the trip
+  const rideCare = $derived(nextRide ? bikeCare(withVisits(nextRide.bike, visits), { tasks, visits, trip: nextRide.trip, today }) : null);
+  // the trip is on the bike shown: no bike name in the line, and «n due» is not said twice (the pill «Up now» below says it)
+  const rideHere = $derived(!!(nextRide && bike && nextRide.bike.id === bike.id));
+  const rideFit = $derived.by(() => {
+    const c = rideCare;
+    if (!c || c.status === 'nodata') return null;
+    if (c.status === 'due') return rideHere && c.rows.length === (care?.rows.length ?? 0) ? null : { tone: 'due', text: tn(c.rows.length, '{n} due', '{n} due'), href: c.href };
+    if (c.soon?.length) return { tone: 'soon', text: tn(c.soon.length, '{n} due by then', '{n} due by then'), href: c.href };
+    return { tone: 'ok', text: t('fits|trip'), href: c.href };
+  });
+  const ride = $derived(
+    nextRide
+      ? {
+          id: nextRide.trip.id,
+          fit: rideFit,
+          text: rideHere
+            ? t('next trip: {trip} on {date}', { trip: nextRide.trip.title ?? '', date: dateOf(nextRide.trip.startDate) })
+            : t('next trip: {trip} on {date} with {bike}', { trip: nextRide.trip.title ?? '', date: dateOf(nextRide.trip.startDate), bike: nextRide.bike.name }),
+        }
+      : null,
+  );
 
   /* ---------- Velos 2: the maker and warranty link in the bike's «…» ---------- */
   watchLinks();
@@ -432,7 +454,7 @@
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} {sub} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
+    <SetupBand {bikes} {bike} {setup} {sub} {ride} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
 
     <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a 2b», use cases 177–181, 198): the bike's folder and photos one tap
          away, under the names of «What the app can do» (were only in the fold «More» at the bottom) -->

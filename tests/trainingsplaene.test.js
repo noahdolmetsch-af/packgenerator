@@ -1,14 +1,14 @@
 // «Trainingspläne» (Noah 19.10.2026): the sample plans, the start, the weeks, writing into the week plan,
 // missed sessions and the felt effort 1–10. Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { PLAN_TEMPLATES, allPlans, cleanOwn, ownOf, midHours, weekFactor, firstMonday, buildPlan, applyPlan, removePlan, weeksGone, zoneWays, moveSuggestions, feelToAsk } from '../src/lib/training/plans.js';
+import { PLAN_TEMPLATES, allPlans, cleanOwn, ownOf, midHours, weekFactor, firstMonday, buildPlan, applyPlan, removePlan, cleanMore, weeksGone, zoneWays, moveSuggestions, feelToAsk } from '../src/lib/training/plans.js';
 import { cleanSession, feelOf, feelZone, zoneFeel, DEFAULT_BOUNDS } from '../src/lib/training.js';
 import { sessionState } from '../src/lib/training/inhalt/inhalt-woche.js';
 import de from '../src/lib/i18n/de/index.js';
 
 describe('sample plans', () => {
-  it('has the four plans of Noah «4 1-4», each with German texts', () => {
-    expect(PLAN_TEMPLATES.map((p) => p.id)).toEqual(['first', 'multi', 'ultra', 'short']);
+  it('has the four plans of Noah «4 1-4» and three for other sports, each with German texts', () => {
+    expect(PLAN_TEMPLATES.map((p) => p.id)).toEqual(['first', 'multi', 'ultra', 'short', 'skitour', 'hike', 'strength', 'run10', 'mobility']);
     for (const p of PLAN_TEMPLATES) {
       expect(de[p.name]).toBeTruthy();
       expect(de[p.who]).toBeTruthy();
@@ -22,10 +22,45 @@ describe('sample plans', () => {
     const own = ownOf([{ id: 'own-1', name: ' Mein Plan ', base: 'multi', weeks: 30, lo: 9, hi: 3 }, { name: 'x', base: 'nope' }]);
     expect(own).toEqual([{ id: 'own-1', name: 'Mein Plan', base: 'multi', weeks: 24, lo: 9, hi: 9, order: 0 }]);
     const all = allPlans(own, ['first']);
-    expect(all.map((p) => p.id)).toEqual(['multi', 'ultra', 'short', 'own-1']);
+    expect(all.map((p) => p.id)).toEqual(['multi', 'ultra', 'short', 'skitour', 'hike', 'strength', 'run10', 'mobility', 'own-1']);
     expect(all.at(-1)).toMatchObject({ own: true, days: PLAN_TEMPLATES[1].days, name: 'Mein Plan' });
     expect(cleanOwn({ base: 'multi', name: '' })).toBe(null);
     expect(midHours(PLAN_TEMPLATES[1])).toBe(8.5);
+  });
+});
+
+describe('plans for other sports', () => {
+  it('write sessions of their own sport; the bike plans stay bike', () => {
+    const kinds = Object.fromEntries(PLAN_TEMPLATES.map((p) => [p.id, new Set(buildPlan(p, { first: '2027-01-04' }).flatMap((w) => w.sessions.map((s) => s.kind)))]));
+    expect([...kinds.multi]).toEqual(['bike']);
+    expect([...kinds.skitour]).toEqual(['hike']);
+    expect([...kinds.hike]).toEqual(['hike']);
+    expect([...kinds.strength]).toEqual(['other']);
+    expect([...kinds.run10]).toEqual(['run']);
+    // a plan with short sessions may go below 30 minutes
+    expect(Math.min(...buildPlan(PLAN_TEMPLATES.find((p) => p.id === 'mobility'), { first: '2027-01-04' }).flatMap((w) => w.sessions.map((x) => x.mins)))).toBeLessThan(30);
+    expect(PLAN_TEMPLATES.filter((p) => p.event).map((p) => p.id)).toEqual(['skitour', 'hike', 'run10']);
+  });
+});
+
+describe('plans next to each other', () => {
+  it('writes and takes out only its own sessions when scoped', () => {
+    const a = PLAN_TEMPLATES.find((p) => p.id === 'multi');
+    const k = PLAN_TEMPLATES.find((p) => p.id === 'strength');
+    let ss = applyPlan([{ id: 'own1', day: '2027-03-23', kind: 'bike', mins: 30, zone: 2, name: 'Mein' }], buildPlan(a, { first: '2027-03-22', hours: 8 }), 'multi', '2027-03-22');
+    const bike = ss.filter((x) => x.src === 'tpl:multi').length;
+    ss = applyPlan(ss, buildPlan(k, { first: '2027-03-22', hours: 3 }), 'strength', '2027-03-22', (x) => x, true);
+    expect(ss.filter((x) => x.src === 'tpl:multi')).toHaveLength(bike);
+    expect(ss.filter((x) => x.src === 'tpl:strength').length).toBeGreaterThan(8);
+    expect(ss.some((x) => x.id === 'own1')).toBe(true);
+    expect(removePlan(ss, '2027-03-22', 'strength').some((x) => x.src === 'tpl:strength')).toBe(false);
+    expect(removePlan(ss, '2027-03-22', 'strength').filter((x) => x.src === 'tpl:multi')).toHaveLength(bike);
+    expect(removePlan(ss, '2027-03-22').some((x) => String(x.src ?? '').startsWith('tpl:'))).toBe(false);
+  });
+  it('cleans the list of other plans in use', () => {
+    const v = [{ id: 'strength', mode: 'start', date: '2027-03-22', hours: 3, first: '2027-03-22' }, { id: 'strength', first: '2027-03-22' }, { id: 'multi', first: '2027-03-22' }, { id: 'x', first: 'nope' }, null];
+    expect(cleanMore(v, 'multi')).toEqual([{ id: 'strength', mode: 'start', date: '2027-03-22', hours: 3, first: '2027-03-22' }]);
+    expect(cleanMore('x')).toEqual([]);
   });
 });
 

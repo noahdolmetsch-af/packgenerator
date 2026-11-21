@@ -113,7 +113,7 @@ describe('compareSet: Touren im Vergleich', () => {
     const c = compareSet(facts, 'last10', D0);
     expect(c.rows).toHaveLength(10);
     expect(c.metrics.map((m) => m.key)).toEqual(['km', 'gainM', 'movingH', 'kmh', 'baseG', 'rainDays', 'learnings']);
-    expect(c.metrics[0].values.at(-1)).toEqual({ id: `${P}abend`, v: 42 });
+    expect(c.metrics[0].values.at(-1)).toMatchObject({ id: `${P}abend`, v: 42 });
     expect(c.sentence).toMatchObject({ title: 'Abendrunde Hügel', shorter: true, hmPerKm: 19 });
     expect(c.metrics.find((m) => m.key === 'baseG').low).toBe(true);
   });

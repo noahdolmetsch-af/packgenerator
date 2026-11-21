@@ -3,8 +3,6 @@ export default {
   'More|acts tile': 'Mehr',
   'All your values and activities in charts': 'Alle deine Werte und Aktivitäten in Diagrammen',
   'Analyse|page': 'Analyse',
-  'All your values from Fitbit, Strava, your body, «Wi gaht\'s?» and Aktiv. Tap a value to see its course. Only to look at, nothing is rated.':
-    'Alle deine Werte aus Fitbit, Strava, deinem Körper, «Wi gaht\'s?» und Aktiv. Tippe einen Wert an, dann siehst du seinen Verlauf. Nur zum Anschauen, nichts wird bewertet.',
   'Every value as a tile with its course.': 'Jeder Wert als Kachel mit seinem Verlauf.',
   'Choose what you see': 'Wähle, was du siehst',
   'Data from|analyse': 'Daten aus',

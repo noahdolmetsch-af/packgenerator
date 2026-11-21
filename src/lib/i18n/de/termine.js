@@ -1,6 +1,12 @@
 // Termine buchen (mockups BU1–BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote, die
 // freien Termine, der Hinweis auf Heute und die Buchungsseite für die Leute, die buchen.
 export default {
+  /* Wegweiser: Tennis von Ich und von der Tennis-Aktivität erreichen (Noah 08.11.2026 «a») */
+  'Offers and requests': 'Angebote und Anfragen',
+  'Free times, link for parents, requests, customers': 'Freie Zeiten, Link für Eltern, Anfragen, Kunden',
+  'Place|venue': 'Ort',
+  'Offer lessons': 'Stunden anbieten',
+  'Free times, the link for parents and their requests are in one place.': 'Freie Zeiten, der Link für Eltern und ihre Anfragen sind an einem Ort.',
   /* Ich › Angebote (BU5) */
   Offers: 'Angebote',
   'Test|offers': 'Test',
@@ -96,7 +102,6 @@ export default {
   'No-show': 'Nicht erschienen',
   'Cancelled late counts half, no-show counts the full price. You can change the amount in the form.': 'Spät abgesagt zählt halb, nicht erschienen zählt den vollen Preis. Den Betrag kannst du im Formular ändern.',
   'Lesson {day} at {time}: {name} · {title}': 'Stunde {day} um {time}: {name} · {title}',
-  'Hello {name}! A reminder: {title} {day} at {time}. See you then!': 'Hallo {name}! Zur Erinnerung: {title} {day} um {time}. Bis dann!',
   today: 'heute',
   tomorrow: 'morgen',
   'Which free times do you offer?': 'Welche freien Zeiten bietest du an?',
@@ -192,7 +197,6 @@ export default {
   'Booked at once': 'Sofort gebucht',
   'Confirmed. Now tell {name}:': 'Bestätigt. Sag es jetzt {name}:',
   'Declined. Now tell {name}:': 'Abgesagt. Sag es jetzt {name}:',
-  '{title} on {when} is confirmed. See you there!': '{title} am {when} ist bestätigt. Bis dann!',
   '{title} on {when} does not work for me. Please pick another time with the same link.': '{title} am {when} passt bei mir leider nicht. Bitte such dir mit demselben Link eine andere Zeit aus.',
   Confirm: 'Bestätigen',
   Decline: 'Ablehnen',

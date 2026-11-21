@@ -283,6 +283,7 @@
   {/if}
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Impulses')}</h1>
   <p class="fz-intro">{t('Small ideas for free time, in ten areas. Tap one, try it, or hide what is not for you.')}</p>
+  {#if fromActive}<p class="fz-intro"><a href="#/flow/ideen" data-ideas-link>{t('Ideas')} · {t('for your balance')} ›</a></p>{/if}
 
   {#if top}
     <section aria-labelledby="fzi-top-h">

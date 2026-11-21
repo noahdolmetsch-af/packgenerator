@@ -5,7 +5,12 @@
    * «Puls und Leistung pro Monat»: Ø and highest heart rate, Ø and max power, best 20 min (power meter
    * only) and the time in the zones as small bars per month, the newest value on the right. Estimated
    * power is lighter and dashed. months: werte.js monthly().
+   * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the pace per month is the shared bar chart: an axis in km/h,
+   * the numbers of a month when pointing (pace, rides, Ø heart rate), a tap opens the month with every value,
+   * «As table» lists all months. The small bars of the second card stay: they show the newest value, the table has all.
    */
+  import BarChart from '../charts/BarChart.svelte';
+  import ChartSheet from '../charts/ChartSheet.svelte';
   import { t, num, locale } from '../i18n.svelte.js';
   import { n1, monthLong } from '../review/fmt.js';
   import { hm } from '../gpx.js';
@@ -15,10 +20,6 @@
   let { months = [] } = $props();
   const letter = (ym) => new Date(`${ym}-15T12:00:00`).toLocaleDateString(locale(), { month: 'narrow' });
   const top = (key) => Math.max(0, ...months.map((m) => m[key] ?? 0)) || 1;
-  const kmhTop = $derived(top('kmh'));
-  const hrs = $derived(months.map((m) => m.hrAvg).filter((v) => v != null));
-  const hrLo = $derived(hrs.length ? Math.min(...hrs) - 5 : 0);
-  const hrHi = $derived(hrs.length ? Math.max(...hrs) + 5 : 1);
   const newest = $derived(months.at(-1)?.ym ?? null);
   const empty = $derived(months.filter((m) => !m.n && m.hrAvg == null).length);
 
@@ -31,37 +32,39 @@
   ];
   const any = (key) => months.some((m) => m[key] != null && m[key] !== 0);
   const zoneTop = $derived(top('zoneS'));
-  // many months scroll sideways inside the card: start at the newest, on the right
-  const toEnd = (el) => {
-    el.scrollLeft = el.scrollWidth;
+  const cols = $derived(months.map((m) => ({ key: m.ym, x: letter(m.ym), top: m.kmh != null ? n1(m.kmh) : '', parts: [{ v: m.kmh ?? 0, color: m.ym === newest ? 'var(--hi)' : 'var(--line-strong)' }] })));
+  const read = (i) => {
+    const m = months[i];
+    const items = [{ label: 'km/h', value: m.kmh != null ? n1(m.kmh) : '–', color: m.ym === newest ? 'var(--hi)' : 'var(--line-strong)' }, { label: t('Rides'), value: String(m.n ?? 0) }];
+    if (m.hrAvg != null) items.push({ label: t('Ø heart rate, bpm'), value: String(m.hrAvg) });
+    return { title: monthLong(m.ym), items };
   };
+  const monthShort = (ym) => new Date(`${ym}-15T12:00:00`).toLocaleDateString(locale(), { month: 'short', year: '2-digit' });
+  const dash = (v, f = (x) => String(x)) => (v != null && v !== 0 ? f(v) : '–');
+  // only the columns that have a value somewhere (a phone has little room)
+  const COLS = [
+    { key: 'hrAvg', head: 'Ø bpm' },
+    { key: 'hrMax', head: 'max. bpm' },
+    { key: 'wAvg', head: 'Ø W' },
+    { key: 'wMax', head: 'max. W' },
+    { key: 'w20', head: 'Best 20 min W' },
+  ];
+  const table = $derived.by(() => {
+    const cs = COLS.filter((c) => months.some((m) => m[c.key]));
+    return {
+      head: [t('Month'), 'km/h', t('Rides'), ...cs.map((c) => (c.head.startsWith('Ø') ? c.head : t(c.head)))],
+      rows: [...months].reverse().map((m) => ({ key: m.ym, cells: [monthShort(m.ym), m.kmh != null ? n1(m.kmh) : '–', String(m.n ?? 0), ...cs.map((c) => dash(m[c.key]))] })),
+    };
+  });
+  let sel = $state(null);
+  const cur = $derived(sel != null ? months[sel] : null);
 </script>
 
 {#if months.length}
   <section class="rv-sec pm" aria-labelledby="pm-h" data-months>
     <div class="rv-h"><div><h2 id="pm-h">{t('Pace over the months')}</h2><p class="rv-sub">{t('Average while moving per month, with Ø heart rate · only to look at')}</p></div></div>
     <div class="rv-box pad">
-      <div class="scroll" use:toEnd>
-        <div class="mc" style:--n={months.length}>
-          <span class="ax">km/h</span>
-          <ol class="bars">
-            {#each months as m (m.ym)}
-              <li data-month={m.ym} title={monthLong(m.ym)}>
-                {#if m.kmh != null}<span class="bv num">{n1(m.kmh)}</span><i class="bar" class:last={m.ym === newest} style:height="{(m.kmh / kmhTop) * 100}%"></i>{/if}
-              </li>
-            {/each}
-          </ol>
-          {#if hrs.length}
-            <span class="ax">{t('Ø heart rate, bpm')}</span>
-            <ol class="dots">
-              {#each months as m (m.ym)}
-                <li>{#if m.hrAvg != null}<span class="dot" style:bottom="{((m.hrAvg - hrLo) / (hrHi - hrLo)) * 100}%"><span class="dv num">{m.hrAvg}</span></span>{/if}</li>
-              {/each}
-            </ol>
-          {/if}
-          <ol class="ml" aria-hidden="true">{#each months as m (m.ym)}<li>{letter(m.ym)}</li>{/each}</ol>
-        </div>
-      </div>
+      <BarChart id="pace" {cols} readout={read} {table} unit="km/h" height={150} maxTop={12} label={t('Pace per month')} onopen={(i) => (sel = i)} hint={t('Point at a month for its numbers, tap it for the month.')} />
       {#if empty}<p class="foot">{t('{n} of {all} months without rides.', { n: empty, all: months.length })}</p>{/if}
     </div>
   </section>
@@ -95,89 +98,39 @@
       </ul>
     </section>
   {/if}
+
+  {#if cur}
+    <ChartSheet kicker={t('Pace over the months')} title={monthLong(cur.ym)} onclose={() => (sel = null)} onprev={sel > 0 ? () => sel-- : null} onnext={sel < months.length - 1 ? () => sel++ : null} prevLabel={t('Month before')} nextLabel={t('Next month')}>
+      <ul class="shl" data-months-sheet>
+        <li><span>km/h</span><b class="num">{cur.kmh != null ? n1(cur.kmh) : '–'}</b></li>
+        <li><span>{t('Rides')}</span><b class="num">{cur.n ?? 0}</b></li>
+        {#each ROWS.filter((r) => cur[r.key]) as r (r.key)}<li><span>{t(r.name)}</span><b class="num">{num(cur[r.key])} {t(r.unit)}</b></li>{/each}
+        {#if cur.zoneS}<li><span>{t('Time in heart rate zones')}</span><b class="num">{hm(cur.zoneS / 3600)} h</b></li>{/if}
+      </ul>
+      {#if !cur.n}<p class="foot">{t('No ride in this month.')}</p>{/if}
+    </ChartSheet>
+  {/if}
 {/if}
 
 <style>
-  .scroll {
-    overflow-x: auto;
-  }
-  .mc {
-    min-width: calc(var(--n) * 22px);
-  }
-  .ax {
-    display: block;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-  }
-  .bars,
-  .dots,
-  .ml {
+  .shl {
     display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
     gap: 6px;
-    list-style: none;
-    margin: 0;
+    margin: 0 0 10px;
     padding: 0;
+    list-style: none;
   }
-  .bars {
-    height: 140px;
-    align-items: end;
-    margin: 18px 0 10px;
-    border-bottom: 1px solid var(--line-strong);
-  }
-  .bars li {
-    position: relative;
-    height: 100%;
+  .shl li {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
-  .bar {
-    display: block;
-    width: 100%;
-    max-width: 28px;
-    border-radius: 3px 3px 0 0;
-    background: var(--line-strong);
-  }
-  .bar.last {
-    background: var(--hi);
-  }
-  .bv {
-    font-size: var(--fs-tiny);
-    color: var(--ink-2);
-    margin-bottom: 2px;
-  }
-  .dots {
-    height: 54px;
-    margin: 14px 0 8px;
-  }
-  .dots li {
-    position: relative;
-  }
-  .dot {
-    position: absolute;
-    left: 50%;
-    width: 9px;
-    height: 9px;
-    margin: 0 0 -4px -5px;
-    border: 2px solid var(--ink-2);
-    border-radius: 50%;
-    background: var(--paper);
-    box-sizing: border-box;
-  }
-  .dv {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: var(--fs-tiny);
+  .shl span {
     color: var(--ink-2);
   }
-  .ml li {
-    text-align: center;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
+  .shl b {
+    white-space: nowrap;
   }
   .foot {
     margin: 10px 0 0;

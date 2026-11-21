@@ -172,7 +172,7 @@
     justify-content: center;
     min-width: 0;
     padding: 8px 14px;
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     background: var(--paper-2);
   }
   .lab {

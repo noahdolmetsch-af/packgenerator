@@ -1,6 +1,7 @@
-// «Spruch zum Einstieg» PR 1 (Noah 07.11.2026 «Bau spruch pr1»): the sentences, the recovery rule, the history.
+// «Spruch zum Einstieg» PR 1 to 4 (Noah 07.11.2026 «Bau spruch pr1», «bau spruch pr2», «bau spruch pr3 und 4»): the sentences, the recovery rule, the history,
+// the second wordings, steps, weeks in a row, bike km, a year ago, the fog clearing and the quotes.
 import { describe, it, expect } from 'vitest';
-import { TEMPLATES, TEMPLATE, TONES, TONE_NAME, SOURCE_NAME, HISTORY_MAX, spruchOf, remember, recoveryOf, contextOf, fitting, pickSpruch } from '../src/lib/home/spruch.js';
+import { TEMPLATES, TEMPLATE, TONES, TONE_NAME, SOURCE_NAME, HISTORY_MAX, KM_MARKS, baseId, spruchOf, remember, recoveryOf, contextOf, fitting, pickSpruch, SOURCES, TONE_CHOICES, ABOUT, setTon, setSource, setTemplate, stillFits, OWN_MAX, OWN_LEN, ownOf, addOwn, editOwn, dropOwn } from '../src/lib/home/spruch.js';
 import DE from '../src/lib/i18n/de/spruch.js';
 
 const TODAY = '2026-11-04'; // a Wednesday
@@ -19,16 +20,22 @@ const hours = (fn) => Array.from({ length: 24 }, (_, h) => fn(h));
 const forecast = ({ wet = null, min = 6, max = 14 } = {}) => ({
   days: [{ date: TODAY, min, max, rain: 'none', hourly: { t: hours(() => 10), p: hours((h) => (wet && wet(h) ? 90 : 0)) } }],
 });
+const QUOTES3 = [
+  { id: 'q1', text: 'Eine Reise von tausend Meilen beginnt unter deinen Füssen.', author: 'Laozi', source: 'Daodejing 64' },
+  { id: 'q2', text: 'Nicht die Dinge beunruhigen die Menschen.', author: 'Epiktet', source: 'Handbüchlein 5' },
+  { id: 'own1', text: 'Heute zählt der erste Schritt.', source: '' },
+];
 const ctx = (o = {}) => contextOf({ today: TODAY, hour: 9, weekday: 3, ...o });
 const ids = (c, o) => fitting(c, o).map((x) => x.id);
 
-describe('the 16 sentences', () => {
-  it('four sources with four sentences each, every tone is named', () => {
-    expect(TEMPLATES).toHaveLength(16);
-    for (const src of Object.keys(SOURCE_NAME)) expect(TEMPLATES.filter((x) => x.src === src), src).toHaveLength(4);
+describe('the sentences', () => {
+  it('every source is named, every tone is named, the ids are unique', () => {
+    for (const x of TEMPLATES) expect(Object.keys(SOURCE_NAME), x.id).toContain(x.src);
+    for (const src of Object.keys(SOURCE_NAME).filter((k) => k !== 'quote' && k !== 'own')) expect(TEMPLATES.some((x) => x.src === src), src).toBe(true);
     for (const x of TEMPLATES) expect(TONES, x.id).toContain(x.ton);
     expect(Object.keys(TONE_NAME).sort()).toEqual([...TONES].sort());
-    expect(new Set(TEMPLATES.map((x) => x.id)).size).toBe(16);
+    expect(new Set(TEMPLATES.map((x) => x.id)).size).toBe(TEMPLATES.length);
+    expect(TEMPLATES.length).toBeGreaterThanOrEqual(25);
   });
   it('every name and every «Warum?» text has a German entry', () => {
     for (const k of [...Object.values(TONE_NAME), ...Object.values(SOURCE_NAME)]) expect(DE[k], k).toBeTruthy();
@@ -151,7 +158,7 @@ describe('the next trip', () => {
     expect(fitting(t(4, 7)).find((y) => y.id === 't.near').text).toBe('No 4 Täg bis Alpenpässe. 70 % packet: schaffsch dr Räscht hüt no?');
     expect(ids(t(4, 10))).toContain('t.packed');
     expect(ids(t(4, 10))).not.toContain('t.near');
-    expect(ids(t(1, 3))).toEqual(['t.tomorrow']);
+    expect(ids(t(1, 3))).toEqual(['t.tomorrow', 't.tomorrow~2']); // two wordings
     expect(ids(ctx({ trip: { startDate: day(21), name: 'x' }, packed: null })).filter((i) => i.startsWith('t.'))).toEqual([]);
     expect(ids(ctx({ trip: { startDate: day(-1), name: 'x' }, packed: { packed: 1, of: 2 } })).filter((i) => i.startsWith('t.'))).toEqual([]);
   });
@@ -160,10 +167,14 @@ describe('the next trip', () => {
 describe('never the same twice', () => {
   const rich = ctx({
     forecast: forecast({ wet: (h) => h >= 6 && h < 14, min: 2 }),
-    rows: rows({ azm: 15 }),
+    rows: rows({ azm: 15 }).map((r) => ({ ...r, steps: 9000 })),
     trip: { startDate: day(21), name: 'Alpen' },
     packed: { packed: 4, of: 10 },
-    fog: { now: { top: 900 }, above: 'sun' },
+    fog: { now: { top: 900 }, above: 'sun', clearing: { kind: 'clears', hour: 13 } },
+    series: { n: 4, next: 6, left: 2 },
+    km: { now: 1010, week: 960 },
+    ago: { title: 'Alpenpässe' },
+    quotes: QUOTES3,
   });
   it('the history keeps 30, the newest first, one entry per sentence', () => {
     let rec = null;
@@ -171,8 +182,8 @@ describe('never the same twice', () => {
     expect(rec.recent).toHaveLength(HISTORY_MAX);
     expect(rec.recent[0].id).toBe('x39');
     expect(remember(rec, { id: 'x39', src: 'weather', ton: 'mot' }).recent).toHaveLength(HISTORY_MAX);
-    expect(spruchOf(null)).toEqual({ recent: [], off: [] });
-    expect(spruchOf({ recent: [null, { id: 3 }, { id: 'a' }], off: ['b', 4] })).toEqual({ recent: [{ id: 'a', src: '', ton: '' }], off: ['b'] });
+    expect(spruchOf(null)).toEqual({ recent: [], off: [], ton: 'mix', offSrc: [] });
+    expect(spruchOf({ recent: [null, { id: 3 }, { id: 'a' }], off: ['b', 4], ton: 'unknown', offSrc: ['weather', 'nope', 3] })).toEqual({ recent: [{ id: 'a', src: '', ton: '' }], off: ['b'], ton: 'mix', offSrc: ['weather'] });
   });
   it('one after the other: never the one just shown, never the same source twice while another one not shown lately fits', () => {
     let rec = null;
@@ -185,7 +196,7 @@ describe('never the same twice', () => {
       if (last) {
         expect(p.id).not.toBe(last.id);
         const recent = new Set(rec.recent.map((x) => x.id));
-        const others = fitting(rich).filter((x) => x.src !== last.src && !recent.has(x.id)); // not shown lately
+        const others = fitting(rich).filter((x) => x.src !== last.src && x.src !== 'quote' && !recent.has(x.id)); // not shown lately (quotes have their own rhythm)
         if (others.length) expect(p.src, `day ${i}`).not.toBe(last.src);
       }
       rec = remember(rec, p);
@@ -210,10 +221,13 @@ describe('never the same twice', () => {
   });
   it('«New» leaves out the one on the screen; a sentence switched off does not come; one tone only', () => {
     const p = pickSpruch(rich, null, { rand: () => 0 });
-    for (let i = 0; i < 20; i++) expect(pickSpruch(rich, null, { rand: () => i / 20, not: p.id }).id).not.toBe(p.id);
+    for (let i = 0; i < 20; i++) expect(baseId(pickSpruch(rich, null, { rand: () => i / 20, not: p.id }).id)).not.toBe(baseId(p.id)); // not even the other wording
     const only = fitting(rich, { ton: 'vision' }).map((x) => x.id);
     expect(only.length).toBeGreaterThan(0);
-    expect(pickSpruch(rich, { off: only }, { ton: 'vision' })).toBeNull();
+    // the chosen tone has nothing left: a sentence of the mix comes, marked as such
+    const fb = pickSpruch(rich, { off: only }, { ton: 'vision' });
+    expect(fb.fallback).toBe(true);
+    expect(fb.ton).not.toBe('vision');
     expect(pickSpruch(rich, null, { ton: 'vision', rand: () => 0.99 }).ton).toBe('vision');
   });
   it('nothing fits: null (the tile says why it is empty)', () => {
@@ -224,5 +238,265 @@ describe('never the same twice', () => {
 describe('the pieces are listed', () => {
   it('TEMPLATE finds every id', () => {
     for (const x of TEMPLATES) expect(TEMPLATE[x.id]).toBe(x);
+  });
+});
+
+describe('PR 2: second wordings', () => {
+  it('every template that fits gives a second wording «id~2», with the same source, tone and Warum-text', () => {
+    const rich = ctx({
+      forecast: forecast({ wet: (h) => h >= 6 && h < 14, min: -2 }),
+      rows: rows({ azm: 60, todaySleep: 520, todayRhr: 50 }).map((r) => ({ ...r, steps: 13000 })),
+      trip: { startDate: day(21), name: 'Alpen' },
+      packed: { packed: 4, of: 10 },
+      fog: { now: { top: 900 }, above: 'sun', clearing: { kind: 'clears', hour: 13 } },
+      series: { n: 4, next: 6, left: 2 },
+      km: { now: 1010, week: 960 },
+      ago: { title: 'Alpenpässe' },
+    });
+    // a second context for the sentences that exclude the first one (little sleep, a trip near and not packed, a trip tomorrow, ...)
+    const rich2 = ctx({
+      forecast: forecast({ max: 14 }),
+      rows: rows({ azm: 125, todaySleep: 390, todayRhr: 60 }).map((r) => ({ ...r, steps: 9000 })),
+      trip: { startDate: day(1), name: 'Alpen' },
+      packed: { packed: 10, of: 10 },
+      weekday: 7,
+    });
+    const rich3 = ctx({ forecast: forecast({ min: 6, max: 14 }), rows: rows({ azm: 30, todaySleep: 450, todayRhr: 55 }), trip: { startDate: day(4), name: 'Alpen' }, packed: { packed: 5, of: 10 }, weekday: 1, hour: 9 });
+    const all = [...fitting(rich), ...fitting(rich2), ...fitting(rich3)];
+    const base = all.filter((x) => !x.id.includes('~'));
+    expect(new Set(base.map((x) => x.id)).size).toBeGreaterThan(20);
+    for (const x of base) {
+      const alt = all.find((y) => y.id === `${x.id}~2`);
+      expect(alt, x.id).toBeTruthy();
+      expect(alt.text, x.id).not.toBe(x.text);
+      expect([alt.src, alt.ton, alt.why.key], x.id).toEqual([x.src, x.ton, x.why.key]);
+      expect(alt.text.length).toBeGreaterThan(20);
+      expect(alt.text).not.toMatch(/\{[a-z]+\}|undefined|NaN/);
+    }
+  });
+  it('the sentences have no cause and no advice about health either in the second wording', () => {
+    const c = ctx({ rows: rows({ todaySleep: 380, todayRhr: 60 }).map((r) => ({ ...r, steps: 13000 })), series: { n: 3, next: 4, left: 1 } });
+    for (const x of fitting(c, { ton: 'ruhig' })) expect(x.text, x.id).not.toMatch(/krank|Infekt|Stress|solltsch|muesch|Arzt|Rueh dich|usruese/i);
+  });
+});
+
+describe('PR 2: steps, weeks in a row, bike km, a year ago, the fog clearing', () => {
+  const withSteps = (y, t, normal = 8000) =>
+    rows({ days: 20 }).map((r) => ({ ...r, steps: r.date === day(-1) ? y : r.date === TODAY ? t : normal }));
+  it('steps: yesterday 12000 or more, more than the normal, today so far (before 15:00)', () => {
+    const y = fitting(ctx({ rows: withSteps(13200, null) })).find((x) => x.id === 's.yesterday');
+    expect(y.text).toBe('Geschter 13200 Schritt. Dr Schrittzähler het gmeint, är müess ufpasse.');
+    expect(ids(ctx({ rows: withSteps(11000, null) }))).toContain('s.more-than-usual');
+    expect(fitting(ctx({ rows: withSteps(11000, null) })).find((x) => x.id === 's.more-than-usual').text).toContain('3000 meh aus dys Normal');
+    expect(ids(ctx({ rows: withSteps(9000, null) })).filter((i) => i.startsWith('s.'))).toEqual([]); // only 1000 over the normal: nothing to say
+    expect(ids(ctx({ rows: withSteps(13200, null) }))).not.toContain('s.more-than-usual'); // the sentence for yesterday goes first
+    expect(fitting(ctx({ rows: withSteps(null, 6500) })).find((x) => x.id === 's.today').text).toContain('Scho 6500 Schritt hüt');
+    expect(ids(ctx({ hour: 16, rows: withSteps(null, 6500) }))).not.toContain('s.today');
+    expect(ids(ctx({ rows: rows({}) })).filter((i) => i.startsWith('s.'))).toEqual([]); // no steps in the days
+  });
+  it('weeks in a row: from 2 weeks; the next goal within 2 weeks is a challenge', () => {
+    expect(fitting(ctx({ series: { n: 3, next: 8, left: 5 } })).find((x) => x.id === 'e.run').text).toContain('3 Wuche hinterenang');
+    expect(ids(ctx({ series: { n: 1, next: 4, left: 3 } })).filter((i) => i.startsWith('e.'))).toEqual([]);
+    expect(ids(ctx({ series: { n: 3, next: 4, left: 1 } }))).toContain('e.next');
+    expect(ids(ctx({ series: { n: 3, next: 8, left: 5 } }))).not.toContain('e.next');
+    expect(ids(ctx({ series: null })).filter((i) => i.startsWith('e.'))).toEqual([]);
+    // a week off the own normal: no challenge
+    expect(ids(ctx({ series: { n: 3, next: 4, left: 1 }, rows: rows({ todaySleep: 380 }) }))).not.toContain('e.next');
+  });
+  it('bike km: a mark reached in the last 7 days, or a mark within 60 km', () => {
+    expect(KM_MARKS).toEqual([...KM_MARKS].sort((a, b) => a - b));
+    expect(fitting(ctx({ km: { now: 1010, week: 960 } })).find((x) => x.id === 'v.milestone').text).toContain('D’1000 km-Marke isch gschafft: 1010 km');
+    expect(ids(ctx({ km: { now: 1010, week: 1005 } }))).not.toContain('v.milestone'); // reached before the last 7 days
+    expect(fitting(ctx({ km: { now: 940, week: 900 } })).find((x) => x.id === 'v.close').text).toContain('No 60 km bis 1000 Velo-Kilometer');
+    expect(ids(ctx({ km: { now: 900, week: 850 } }))).not.toContain('v.close'); // 100 km away
+    expect(ids(ctx({ km: { now: 0, week: 0 } })).filter((i) => i.startsWith('v.'))).toEqual([]);
+    expect(ids(ctx({ km: null })).filter((i) => i.startsWith('v.'))).toEqual([]);
+  });
+  it('a year ago: the trip around this day; the fog clearing today', () => {
+    expect(fitting(ctx({ ago: { title: 'Alpenpässe' } })).find((x) => x.id === 'j.ago').text).toContain('Vor emene Jahr isch Alpenpässe dra gsi');
+    expect(ids(ctx({ ago: null })).filter((i) => i.startsWith('j.'))).toEqual([]);
+    const f = (clearing, hour = 9) => ctx({ hour, fog: { now: { top: 900 }, above: 'cloud', clearing } });
+    expect(fitting(f({ kind: 'clears', hour: 13 })).find((x) => x.id === 'w.fog-clears').text).toContain('am eis');
+    expect(ids(f({ kind: 'stays' }))).not.toContain('w.fog-clears');
+    expect(ids(f({ kind: 'clears', hour: 8 }))).not.toContain('w.fog-clears'); // already past
+    expect(ids(f({ kind: 'clears', hour: 20 }, 19))).not.toContain('w.fog-clears');
+  });
+});
+
+describe('PR 2: the quotes of «Kissenzeit»', () => {
+  const q = ctx({ quotes: QUOTES3 });
+  it('a quote is High German as written, with the author, and has the language «de»', () => {
+    const z = fitting(q).filter((x) => x.src === 'quote');
+    expect(z.map((x) => x.id)).toEqual(['z.q1', 'z.q2', 'z.own1']);
+    expect(z[0].text).toBe('«Eine Reise von tausend Meilen beginnt unter deinen Füssen.» – Laozi');
+    expect(z[2].text).toBe('«Heute zählt der erste Schritt.»'); // an own quote without an author
+    for (const x of z) expect([x.lang, x.ton, DE[x.why.key]].map(Boolean)).toEqual([true, true, true]);
+    expect(fitting(q).find((x) => x.id === 'z.q1').lang).toBe('de');
+    expect(fitting(ctx({ rows: rows({}) })).every((x) => x.lang === 'gsw')).toBe(true);
+  });
+  it('without any number the quotes come, so the tile is not empty; with no quote on it is empty again', () => {
+    expect(pickSpruch(q, null).src).toBe('quote');
+    expect(pickSpruch(ctx(), null)).toBeNull();
+  });
+  it('with numbers: no quote at first, then one as every 4th sentence, never twice in a row', () => {
+    const c = ctx({ rows: rows({ azm: 15 }).map((r) => ({ ...r, steps: 9000 })), forecast: forecast({ wet: (h) => h >= 6 && h < 14, min: 2 }), trip: { startDate: day(21), name: 'Alpen' }, packed: { packed: 4, of: 10 }, quotes: QUOTES3 });
+    let rec = null;
+    let seed = 11;
+    const rand = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+    const srcs = [];
+    for (let i = 0; i < 24; i++) {
+      const p = pickSpruch(c, rec, { rand });
+      srcs.push(p.src);
+      rec = remember(rec, p);
+    }
+    expect(srcs.slice(0, 3)).not.toContain('quote');
+    expect(srcs.filter((x) => x === 'quote').length).toBeGreaterThanOrEqual(4);
+    for (let i = 1; i < srcs.length; i++) expect(srcs[i] === 'quote' && srcs[i - 1] === 'quote', `pick ${i}`).toBe(false);
+    for (let i = 0; i + 3 < srcs.length; i++) expect(srcs.slice(i, i + 4).filter((x) => x === 'quote').length, `window ${i}`).toBeLessThanOrEqual(1);
+  });
+  it('a quote switched off (off list) does not come, and «New» does not give the other wording of the same sentence', () => {
+    expect(pickSpruch(q, { off: ['z.q1', 'z.q2', 'z.own1'] })).toBeNull();
+    const c = ctx({ forecast: forecast({ max: 14 }) });
+    expect(ids(c)).toEqual(['w.dry-mild', 'w.dry-mild~2']);
+    expect(pickSpruch(c, null, { not: 'w.dry-mild', rand: () => 0 })).toBeNull();
+    expect(baseId('w.dry-mild~2')).toBe('w.dry-mild');
+  });
+});
+
+describe('PR 3: tone, sources, sentences switched off', () => {
+  it('the row keeps the tone and the switched-off sources; the helpers return a new row and never lose the history', () => {
+    let rec = remember(null, { id: 'a.goal', src: 'azm', ton: 'lustig' });
+    rec = setTon(rec, 'lustig');
+    rec = setSource(rec, 'steps', false);
+    rec = setTemplate(rec, 'w.dry-mild~2', false); // the other wording counts as the same sentence
+    expect(spruchOf(rec)).toMatchObject({ ton: 'lustig', offSrc: ['steps'], off: ['w.dry-mild'] });
+    expect(spruchOf(rec).recent).toHaveLength(1);
+    expect(setSource(setSource(rec, 'steps', false), 'steps', false).offSrc).toEqual(['steps']); // no double entry
+    expect(setSource(rec, 'steps', true).offSrc).toEqual([]);
+    expect(setTemplate(rec, 'w.dry-mild', true).off).toEqual([]);
+    expect(setTon(rec, 'nonsense').ton).toBe('mix');
+    expect(remember(rec, { id: 'x', src: 'azm', ton: 'mot' })).toMatchObject({ ton: 'lustig', offSrc: ['steps'] }); // a new sentence keeps the choices
+  });
+  it('every source and every tone of the window has a name, every sentence a description with German', () => {
+    expect(TONE_CHOICES).toEqual(['mix', ...TONES]);
+    for (const s of SOURCES) expect(SOURCE_NAME[s], s).toBeTruthy();
+    for (const x of TEMPLATES) {
+      expect(ABOUT[x.id], x.id).toBeTruthy();
+      expect(DE[ABOUT[x.id]], `${x.id}: ${ABOUT[x.id]}`).toBeTruthy();
+    }
+    expect(Object.keys(ABOUT).sort()).toEqual(TEMPLATES.map((x) => x.id).sort());
+    for (const k of ['Tone|saying', 'Mix|saying', 'All sayings', 'No more like this']) expect(DE[k], k).toBeTruthy();
+  });
+  it('one tone: only that tone comes, from the row as well', () => {
+    const c = ctx({ rows: rows(), goal: 150, trip: { startDate: day(10), name: 'Pass' }, packed: { packed: 5, of: 10 } });
+    const tones = new Set(fitting(c, { ton: 'vision' }).map((x) => x.ton));
+    expect([...tones]).toEqual(['vision']);
+    for (let i = 0; i < 10; i++) expect(pickSpruch(c, { ton: 'vision' }, { rand: () => i / 10 }).ton).toBe('vision');
+  });
+  it('a source switched off does not come, a sentence switched off does not come, with both wordings', () => {
+    const c = ctx({ rows: rows(), goal: 150, trip: { startDate: day(10), name: 'Pass' }, packed: { packed: 5, of: 10 }, quotes: QUOTES3 });
+    expect(ids(c, { offSrc: ['tour'] }).some((i) => i.startsWith('t.'))).toBe(false);
+    expect(ids(c, { offSrc: ['quote'] }).some((i) => i.startsWith('z.'))).toBe(false);
+    expect(ids(c, {}).filter((i) => i.startsWith('t.far'))).toHaveLength(2);
+    expect(ids(c, { off: ['t.far'] }).some((i) => i.startsWith('t.far'))).toBe(false);
+    // from the row: every pick respects it for a whole year
+    let rec = setSource(setSource(null, 'tour', false), 'quote', false);
+    for (let i = 0; i < 60; i++) {
+      const p = pickSpruch(c, rec, { rand: () => (i % 7) / 7 });
+      expect(['tour', 'quote'], p.id).not.toContain(p.src);
+      rec = remember(rec, p);
+    }
+  });
+  it('the tone has nothing today: a sentence of the mix with fallback; with everything off: null', () => {
+    const c = ctx({ rows: rows(), goal: 150 });
+    const p = pickSpruch(c, setTon(null, 'vision'));
+    expect(p.fallback).toBe(true);
+    expect(pickSpruch(c, setTon(null, 'mix')).fallback).toBeUndefined();
+    let rec = null;
+    for (const s of SOURCES) rec = setSource(rec, s, false);
+    expect(pickSpruch(c, rec)).toBeNull();
+  });
+  it('on a day off the own normal «challenge» finds nothing and the mix comes instead; calm stays calm', () => {
+    const c = ctx({ rows: rows({ todaySleep: 330 }), goal: 150, trip: { startDate: day(3), name: 'Pass' }, packed: { packed: 3, of: 10 } });
+    expect(c.rec.state).toBe('off');
+    expect(fitting(c, { ton: 'chal' })).toEqual([]);
+    const p = pickSpruch(c, setTon(null, 'chal'));
+    expect(p.fallback).toBe(true);
+    expect(p.ton).not.toBe('chal');
+  });
+  it('stillFits: the shown sentence is checked against the row (tone, source, sentence)', () => {
+    const c = ctx({ rows: rows(), goal: 150, trip: { startDate: day(10), name: 'Pass' }, packed: { packed: 5, of: 10 } });
+    const shown = fitting(c).find((x) => x.id === 't.far');
+    expect(stillFits(c, null, shown)).toBe(true);
+    expect(stillFits(c, setTon(null, 'lustig'), shown)).toBe(false);
+    expect(stillFits(c, setSource(null, 'tour', false), shown)).toBe(false);
+    expect(stillFits(c, setTemplate(null, 't.far', false), shown)).toBe(false);
+    expect(stillFits(c, null, null)).toBe(false);
+  });
+});
+
+describe('PR 4: own sayings', () => {
+  it('the list is made safe: one line, 140 characters, a known tone, no double ids, at most 40', () => {
+    const long = 'x'.repeat(300);
+    const list = ownOf({ items: [{ id: 'a', text: '  Los   geht\'s\n heute ', ton: 'lustig' }, { id: 'a', text: 'doppelt' }, { id: 'b', text: '', ton: 'mot' }, { id: 'c', text: long, ton: 'nonsense' }, { id: 'd~2', text: 'ohne Tilde' }, null, { text: 'ohne id' }] });
+    expect(list.map((x) => x.id)).toEqual(['a', 'c', 'd2']);
+    expect(list[0]).toEqual({ id: 'a', text: 'Los geht\'s heute', ton: 'lustig' });
+    expect(list[1].text).toHaveLength(OWN_LEN);
+    expect(list[1].ton).toBe('mot');
+    expect(ownOf(null)).toEqual([]);
+    expect(ownOf(Array.from({ length: 60 }, (_, i) => ({ id: `i${i}`, text: `s${i}` })))).toHaveLength(OWN_MAX);
+  });
+  it('add, change and delete give a new list and ignore empty texts', () => {
+    let l = addOwn([], 'Erster', 'vision', 'one');
+    l = addOwn(l, 'Zweiter', 'chal', 'two');
+    expect(l.map((x) => x.text)).toEqual(['Erster', 'Zweiter']);
+    expect(addOwn(l, '   ', 'mot', 'x')).toEqual(l);
+    expect(addOwn(l, 'Doppelt', 'mot', 'one')).toEqual(l); // an id is never used twice
+    expect(editOwn(l, 'one', { text: 'Neu', ton: 'ruhig' })[0]).toEqual({ id: 'one', text: 'Neu', ton: 'ruhig' });
+    expect(editOwn(l, 'one', { text: ' ', ton: 'ruhig' })).toEqual(l);
+    expect(dropOwn(l, 'one').map((x) => x.id)).toEqual(['two']);
+    let full = [];
+    for (let i = 0; i < OWN_MAX + 5; i++) full = addOwn(full, `s${i}`, 'mot', `i${i}`);
+    expect(full).toHaveLength(OWN_MAX);
+  });
+  it('an own saying fits always, even with no numbers, with its own text and no language; the tone, the switch and the source switch hold', () => {
+    const c = ctx({ own: [{ id: 'k1', text: 'Heute zählt der erste Schritt.', ton: 'vision' }, { id: 'k2', text: 'Nimm die lange Runde.', ton: 'chal' }] });
+    expect(ids(c)).toEqual(['o.k1', 'o.k2']);
+    const e = fitting(c).find((x) => x.id === 'o.k1');
+    expect(e).toMatchObject({ src: 'own', ton: 'vision', text: 'Heute zählt der erste Schritt.', lang: '' });
+    expect(ids(c, { ton: 'vision' })).toEqual(['o.k1']);
+    expect(ids(c, { off: ['o.k1'] })).toEqual(['o.k2']);
+    expect(ids(c, { offSrc: ['own'] })).toEqual([]);
+    expect(pickSpruch(c, null).src).toBe('own');
+    expect(SOURCE_NAME.own).toBe('Own|saying');
+    expect(DE['Own|saying']).toBeTruthy();
+    expect(DE['A saying you wrote yourself.']).toBeTruthy();
+  });
+  it('an own challenge only comes on a day that is not off the own normal, like every challenge', () => {
+    const own = [{ id: 'c1', text: 'Nimm die lange Runde.', ton: 'chal' }];
+    expect(ids(ctx({ rows: rows(), own }))).toContain('o.c1');
+    const off = ctx({ rows: rows({ todaySleep: 330 }), own });
+    expect(off.rec.state).toBe('off');
+    expect(ids(off)).not.toContain('o.c1');
+  });
+  it('own sayings come with the others and never twice in a row from the same source; the text is shown as written', () => {
+    const c = ctx({ rows: rows(), goal: 150, trip: { startDate: day(10), name: 'Pass' }, packed: { packed: 5, of: 10 }, own: [{ id: 'm1', text: 'Mein Satz', ton: 'mot' }, { id: 'm2', text: 'Noch einer', ton: 'lustig' }] });
+    let rec = null;
+    const shown = [];
+    for (let i = 0; i < 40; i++) {
+      const p = pickSpruch(c, rec, { rand: () => (i % 9) / 9 });
+      shown.push(p);
+      rec = remember(rec, p);
+    }
+    expect(shown.some((p) => p.src === 'own')).toBe(true);
+    expect(shown.some((p) => p.src !== 'own')).toBe(true);
+    for (const p of shown.filter((x) => x.src === 'own')) expect(['Mein Satz', 'Noch einer']).toContain(p.text);
+  });
+  it('stillFits notices a changed text of the same own saying', () => {
+    const own = [{ id: 'm1', text: 'Mein Satz', ton: 'mot' }];
+    const shown = fitting(ctx({ own })).find((x) => x.id === 'o.m1');
+    expect(stillFits(ctx({ own }), null, shown)).toBe(true);
+    expect(stillFits(ctx({ own: [{ id: 'm1', text: 'Anders', ton: 'mot' }] }), null, shown)).toBe(false);
+    expect(stillFits(ctx({ own: [] }), null, shown)).toBe(false);
   });
 });

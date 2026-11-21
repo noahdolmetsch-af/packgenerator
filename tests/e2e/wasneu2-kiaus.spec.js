@@ -161,7 +161,7 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   await expect(page.locator('[data-helper-place] .hp-pill')).toHaveText(PLACES.map(() => T('off|helper')));
 
   // the key is saved, the helper stays off: nothing shows, the tile stays away
-  await page.getByLabel(T('Helper code')).fill(CODE);
+  await page.getByLabel(T('Helper code'), { exact: true }).fill(CODE);
   await page.getByRole('button', { name: T('Save code'), exact: true }).click(); // Impeccable Runde 2: the 2-step card
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE });
   await expect(page.getByRole('heading', { name: T('Setup|helper') })).toBeVisible();
@@ -170,7 +170,7 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   await noSideways(page);
   await page.reload(); // with the key saved the setup shows as three closed rows
   await expect(page.getByText(T('Key saved'))).toBeVisible();
-  await expect(page.getByLabel(T('Helper code'))).toBeHidden();
+  await expect(page.getByLabel(T('Helper code'), { exact: true })).toBeHidden();
   await page.evaluate(() => window.scrollTo(0, 0));
   await shot(page, info, 'K4-ich-ki-helfer');
   await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), 'test_data_gtp_Herbstrunde');

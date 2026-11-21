@@ -68,7 +68,7 @@ describe('places and windows', () => {
     const kept = await refreshDreamWx(db, [plain], HOME, { fetcher, now: Date.parse('2026-10-27T12:00:00Z'), online: true });
     expect(asked).toHaveLength(1);
     expect(Object.keys(kept.places).sort()).toEqual(['41.0,8.0', '47.4,8.5']);
-    expect(kept.places['47.4,8.5'].days[1]).toEqual({ date: '2026-10-28', rainMm: 0, rainPct: 5, max: 16 });
+    expect(kept.places['47.4,8.5'].days[1]).toEqual({ date: '2026-10-28', rainMm: 0, rainPct: 5, max: 16, min: 6 });
     expect((await db.meta.get(DREAM_WX)).places['47.4,8.5']).toBeTruthy();
     // offline: nothing is asked, what was kept stays
     const off = await refreshDreamWx(db, [plain], HOME, { fetcher, online: false });

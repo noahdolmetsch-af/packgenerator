@@ -12,7 +12,7 @@
   import { rangeOf, step, canStep, withMode, labelOf, STEPPED } from './zeitraum.js';
   import { t, locale } from '../i18n.svelte.js';
 
-  let { today } = $props();
+  let { today, hint = true } = $props();
   const range = $derived(rangeOf(period, today));
   const label = $derived(labelOf(period, today, locale()));
   const options = $derived([
@@ -59,7 +59,7 @@
     <p class="lab all" data-period-label>{t('Everything you have recorded')}</p>
   {/if}
   <!-- 4a: the cards without a period say so -->
-  <p class="hint" data-period-hint>{t('The period counts for the list below and the averages of «Your questions». «Today», «In focus» and «Overview» always show the latest days.')}</p>
+  {#if hint}<p class="hint" data-period-hint>{t('The period counts for the list below and the averages of «Your questions». «Today», «In focus» and «Overview» always show the latest days.')}</p>{/if}
 </section>
 
 <style>

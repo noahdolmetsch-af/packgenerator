@@ -141,7 +141,9 @@ describe('the place «Woche» (Noah 1a)', () => {
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');
     expect(placeOf('week')).toBe('week');
-    expect(PLACE_TABS.week).toHaveLength(12); // Alltag sichtbar: + Merken; «Alles finden 2»: + Inspiration, Links; // N1: + Termine, Notizen; Tagebuch 20.10.2026: + Tagebuch; UI-Ziele #6: + Eingang, Mail, Kompass, Alltag, Freie Zeit; Woche covers plan and away
+    // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): eleven tabs became three, every old page is a chip (`subs`) under one of them
+    expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'notes', 'alltag']);
+    expect(PLACE_TABS.week.flatMap((x) => x.subs.map((s) => s.key)).sort()).toEqual(['agenda', 'alltag', 'compass', 'frei', 'inbox', 'links', 'mail', 'notes', 'remember', 'tagebuch', 'week']); // Woche covers plan and away
     expect(tabOf('week', '#/week')).toBe('week');
     expect(tabOf('week', '#/week/plan')).toBe('week'); // UI-Ziele #6: one tap from the week
     expect(tabOf('week', '#/week/away')).toBe('week');

@@ -14,7 +14,7 @@ const bikes = [
 
 describe('search settings', () => {
   it('defaults follow Noah: mic always, commands at once, read aloud at once, every source on', () => {
-    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, gemini: true, geminiAuto: true, links: true, chrome: true, local: true });
+    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, gemini: true, geminiAuto: true, understand: true, links: true, chrome: true, local: true });
     expect(READ_MODES.map((m) => m.key)).toEqual(['auto', 'tap']);
   });
   it('a stored value wins, unknown values fall back', () => {
@@ -60,7 +60,7 @@ describe('where it lives', () => {
     const s = src('src/lib/nav/Search.svelte');
     expect(s).toContain('<SearchMic onsaid={said}');
     expect(s).toMatch(/\{#if asking && \(suche\.gemini \|\| suche\.links\)\}<AskElsewhere/);
-    expect(s).toContain('{#if suche.app && !listSay}<AskAnswer'); // behind its setting; a list sentence shows no answer beside it
+    expect(s).toContain('{#if suche.app && !quiet}<AskAnswer'); // behind its setting; a command sentence shows no answer beside it
     expect(s).toContain('chrome={suche.chrome} links={suche.links}');
   });
 });
