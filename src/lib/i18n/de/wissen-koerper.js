@@ -8,6 +8,8 @@ export default {
     "Die Stoppuhr läuft weiter, wenn du die Seite wechselst. So kannst du mitten im Training die Karte anschauen, ohne Zeit zu verlieren.",
   "Switch off the blocks you never use; a short sport page gets opened more often than a complete one.":
     "Schalte die Bausteine aus, die du nie brauchst. Eine kurze Sportseite öffnest du öfter als eine vollständige.",
+  "Look at one sport over the whole year, not week by week: a quiet month often has a reason you can name.":
+    "Schau eine Sportart über das ganze Jahr an, nicht Woche für Woche: ein ruhiger Monat hat oft einen Grund, den du benennen kannst.",
   "Gaps in the mosaic are information, not failure: a week of rain or work shows up here first.":
     "Lücken im Mosaik sind Information, kein Versagen: eine Woche Regen oder viel Arbeit siehst du hier zuerst.",
   "Add a block only when you miss it twice. The commute counter is the one most people keep.":

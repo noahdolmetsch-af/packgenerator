@@ -195,7 +195,7 @@
       <ul class="rows">
         {#each shown as r (r.sport)}
           <li data-sj-sport={r.sport}>
-            <span class="nm"><i style:background={colour(r.sport)}></i>{names.get(r.sport)}</span>
+            <a class="nm" href="#/auswerten/sportjahr/{encodeURIComponent(r.sport)}" data-sj-open={r.sport}><i style:background={colour(r.sport)}></i>{names.get(r.sport)}</a>
             <span class="bar" aria-hidden="true"><b style:width="{Math.max(3, Math.round((val(r) / top) * 100))}%" style:background={colour(r.sport)}></b></span>
             <span class="v num">{show(r)}</span>
             <span class="vs num">{#if metric !== 'units'}{num(r.n)}×{/if}</span>
@@ -204,7 +204,7 @@
           </li>
         {/each}
       </ul>
-      <p class="hint">{t('«km» shows only sports with a distance.')}{prevW ? ` ${t('The year before counts up to the same day.')}` : ''}</p>
+      <p class="hint">{t('Tap a sport for its year.')} {t('«km» shows only sports with a distance.')}{prevW ? ` ${t('The year before counts up to the same day.')}` : ''}</p>
     </section>
 
     {#if years.length >= 2}
@@ -386,6 +386,11 @@
     grid-area: nm;
     min-width: 0;
     overflow-wrap: break-word;
+    color: inherit;
+    text-decoration: none;
+  }
+  .rows a.nm:hover {
+    text-decoration: underline;
   }
   .rows .bar {
     grid-area: bar;
