@@ -442,7 +442,7 @@
     height: auto;
   }
   .editing .ti {
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     outline: 2px dashed var(--line-strong);
     outline-offset: 2px;
     animation: wob 0.35s ease-in-out 1;

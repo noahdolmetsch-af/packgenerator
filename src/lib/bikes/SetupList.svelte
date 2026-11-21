@@ -164,7 +164,7 @@
     min-width: 0;
     padding: 14px;
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     background: var(--paper);
   }
   .sc.last {

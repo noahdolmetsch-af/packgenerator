@@ -216,7 +216,7 @@
     display: grid;
     gap: 12px;
     padding: 14px;
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     background: var(--paper-2);
   }
   .td-side h3 {
