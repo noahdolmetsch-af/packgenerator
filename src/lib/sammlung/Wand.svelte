@@ -38,7 +38,7 @@
     const raw = $rawQ;
     if (!raw) return;
     const today = localDay();
-    if (!tracksOf({ trips: raw.trips, rides: raw.rides, activities: raw.activities, today }).length) return void (ground = { n: 0, parts: [] });
+    if (!tracksOf({ trips: raw.trips, rides: raw.rides, activities: raw.activities, recordings: raw.recordings, today }).length) return void (ground = { n: 0, parts: [] });
     let live = true;
     computeFrom(raw, { today })
       .then((r) => live && (ground = neulandSummary(r, null)))
