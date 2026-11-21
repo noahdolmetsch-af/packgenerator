@@ -86,7 +86,7 @@
   }
   .nm {
     display: grid;
-    flex: 1 1 8rem;
+    flex: 1 1 calc(100% - 3rem);
     min-width: 0;
     overflow-wrap: break-word;
   }
