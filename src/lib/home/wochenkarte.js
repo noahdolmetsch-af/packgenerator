@@ -53,3 +53,6 @@ export const cardNumbers = (five = []) => CARD_KEYS.map((k) => five.find((f) => 
 
 /** The own tasks that would slide to Monday: how many, and the first titles (at most `show`). */
 export const cardOpen = (close, show = 3) => ({ n: close?.move?.length ?? 0, titles: (close?.move ?? []).slice(0, show).map((m) => m.title).filter(Boolean) });
+
+/** «New in the app» line (Noah 21.11.2026 «4a»): how many versions of the list went online within the card's week (monday..sunday). */
+export const cardNews = (index = [], week) => (week ? index.filter((e) => e.date >= week.monday && e.date <= week.sunday).length : 0);

@@ -3,7 +3,7 @@
    * «Wochenrückblick» as a card on Heute (Noah 10.11.2026 «1b»; Noah 19.11.2026 «3a»: the window «Your week in review» stays).
    * From Sunday 17:00 until Monday 12:00: the finished week in three numbers, on Sundays the own tasks that slide to Monday,
    * and the way on to the review and to «Woche planen». «Not today» puts it away until tomorrow; the main button until
-   * next Sunday. Nothing is loaded outside its time. The rules are in home/wochenkarte.js, the numbers in weekreview.js.
+   * next Sunday. A line «New in the app» counts the changes of the week and links to «What is new» (Noah 21.11.2026 «4a»). Nothing is loaded outside its time. The rules are in home/wochenkarte.js, the numbers in weekreview.js.
    */
   import { liveQuery } from 'dexie';
   import { ChevronRight, CalendarCheck } from '@lucide/svelte';
@@ -16,7 +16,9 @@
   import { PLAN_KEY, planOf, hmm } from '../training.js';
   import { homeTrips } from './heute.js';
   import { dayOfStamp as dayOf } from './windows.js';
-  import { CARD_KEY, cardShown, cardAway, cardDone, cardNumbers, cardOpen } from './wochenkarte.js';
+  import { CARD_KEY, cardShown, cardAway, cardDone, cardNumbers, cardOpen, cardNews } from './wochenkarte.js';
+  import { NEWS_INDEX_ALL } from '../whatsnew.js';
+  import { NEWS_HREF } from '../know/wasneu.js';
   import { t, num } from '../i18n.svelte.js';
 
   let { now } = $props();
@@ -48,6 +50,7 @@
 
   const nums = $derived(data && week ? cardNumbers(weekFive(data, week.monday, today)) : []);
   const open = $derived(src && week?.isSunday ? cardOpen(weekClose(buildWeek({ ...src, forecast: null, monday: week.monday, today }).days, week.monday, today)) : { n: 0, titles: [] });
+  const news = $derived(week ? cardNews(NEWS_INDEX_ALL, week) : 0);
   const any = $derived(!!data && !!week && hasAnything(data, week.monday));
   const show = $derived(!!week && !!data && (any || open.n > 0));
 
@@ -76,6 +79,9 @@
     {/if}
     {#if open.n > 0}
       <p class="ln" data-wk-open><b>{t('Slides to Monday:')}</b> {open.n === 1 ? t('1 open task') : t('{n} open tasks', { n: open.n })}{#if open.titles.length}{' '}({open.titles.join(', ')}){/if}</p>
+    {/if}
+    {#if news > 0}
+      <p class="ln" data-wk-news><b>{t('New in the app:')}</b> {news === 1 ? t('1 change this week') : t('{n} changes this week', { n: news })} · <a href={NEWS_HREF}>{t('What is new')}</a></p>
     {/if}
     <div class="acts">
       {#if any}<a class="btn hi" href="#/flow/review" onclick={opened} data-wk-go>{t('Open the review')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
