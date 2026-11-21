@@ -355,6 +355,10 @@
         {#if $cfgQ.check.healed}{t('Filled in by itself {when}: {got} taken here, {sent} sent.', { when: when($cfgQ.check.healed.at), got: $cfgQ.check.healed.got, sent: $cfgQ.check.healed.sent })}{/if}
       </p>
     {/if}
+    {#if sync.health.state === 'alone' && !sync.running && !$cfgQ.error}
+      <!-- Noah 21.11.2026: two devices with two different codes each looked fine on their own -->
+      <p class="small" data-sync-alone>{t('The sync is on, but no other device has sent anything into it yet. Is your other device paired with the same code?')}</p>
+    {/if}
     {#if lost.length}
       <!-- Noah 24.10.2026: changes on both devices settle by themselves; the replaced versions wait here quietly -->
       <details class="lost" data-sync-history>

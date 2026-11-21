@@ -11,6 +11,8 @@
  */
 import { liveQuery } from 'dexie';
 import { syncNow, readCfg, settleAsks } from './engine.js';
+import { syncHealth } from './health.js';
+import { NUDGE_KEY } from './nudge.js';
 
 export const AFTER_CHANGE_MS = 2_000;
 /** While the app is open and in front it asks the server for news this often; after QUIET_AFTER rounds without news every QUIET_MS. */
@@ -25,7 +27,18 @@ export const FREE_AFTER_MS = 30_000;
 /** A round that stopped early (its pull ran out of time) is followed by the next one after this. */
 export const CONTINUE_MS = 1_000;
 
-export const sync = $state({ running: false, last: null, error: null, on: false, big: 0, since: 0, phase: '', n: 0 });
+export const sync = $state({ running: false, last: null, error: null, on: false, big: 0, since: 0, phase: '', n: 0, dirty: 0, hasData: false, demo: false, hide: false, peerWatch: false, peerSeen: false, startedAt: null, health: { state: 'none', dirty: 0 } });
+/** The one word for the dot at «Ich» and the line on Heute (health.js); looks again with every change and every 30 s. */
+export const refreshHealth = (now = Date.now()) => {
+  sync.health = syncHealth({ on: sync.on, error: sync.error, last: sync.last, dirty: sync.dirty, hasData: sync.hasData, demo: sync.demo, hide: sync.hide, peerWatch: sync.peerWatch, peerSeen: sync.peerSeen, startedAt: sync.startedAt, now });
+};
+const answeredNo = () => {
+  try {
+    return globalThis.localStorage?.getItem('pg.twoDevices') === 'no';
+  } catch {
+    return false;
+  }
+};
 
 const device = () => (globalThis.matchMedia?.('(pointer: coarse)').matches ? 'phone' : 'computer');
 
@@ -110,9 +123,24 @@ export function watchSync(db, win = globalThis) {
       sync.last = cfg?.lastAt ?? null;
       sync.error = cfg?.error ?? null;
       sync.big = cfg?.big ?? 0;
+      sync.peerWatch = !!cfg?.peerWatch;
+      sync.peerSeen = !!cfg?.peerSeen;
+      sync.startedAt = cfg?.startedAt ?? null;
+      refreshHealth();
     },
     error: () => {},
   });
+  // what the dot at «Ich» needs: data here, the demo, «only one device»
+  liveQuery(async () => ({ n: await db.items.count(), demo: !!(await db.meta.get('demo')), off: !!(await db.meta.get(NUDGE_KEY))?.off })).subscribe({
+    next: (v) => {
+      sync.hasData = v.n > 0;
+      sync.demo = v.demo;
+      sync.hide = v.off || answeredNo();
+      refreshHealth();
+    },
+    error: () => {},
+  });
+  setInterval(() => refreshHealth(), 30_000);
   // a change of a data record: its note in the meta table. (The query is 0 while the sync is off, so n > 0 means on.)
   let lastDirty = -1;
   liveQuery(async () => ((await readCfg(db))?.on ? db.meta.where('key').startsWith('sync|').filter((x) => x.dirty === 1).count() : 0)).subscribe({
@@ -123,6 +151,8 @@ export function watchSync(db, win = globalThis) {
         changeTimer = setTimeout(() => runSync(db), AFTER_CHANGE_MS);
       }
       lastDirty = n;
+      sync.dirty = n;
+      refreshHealth();
     },
     error: () => {},
   });
