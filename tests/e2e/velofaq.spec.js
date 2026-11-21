@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { FAQ } from '../../src/lib/velofaq.js';
 import { openData, settle } from './settle.js';
+import { openCareMore } from './pflege-mehr.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -39,6 +40,7 @@ test.beforeEach(async ({ page, context }) => {
 
 test('Velo-FAQ: from the bike card, question of the day, search, a question with its link', async ({ page }) => {
   await page.goto(`./#/bikes?tab=care&bike=${BIKE.id}&open=1`);
+  await openCareMore(page);
   await page.locator('[data-velo-card] [data-link-faq]').click();
   await expect(page.getByRole('heading', { level: 1, name: T('Bike FAQ') })).toBeVisible();
 
