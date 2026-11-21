@@ -29,18 +29,19 @@ test('AF2-1 the help button opens the help of this page, with the way to all hel
   expect(errors).toEqual([]);
 });
 
-test('AF2-2 All n shows every page of Planen as a tile with one sentence', async ({ page, context }, info) => {
+test('AF2-2 All n shows every page of Auswerten as a tile with one sentence', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'phone', 'a computer lists the tabs in the sidebar');
   const T = await openHome(page, context, info);
-  await page.goto('./#/week');
+  // Schritt 11 (Noah 18.11.2026): Planen has three tabs and no «Alle n»; Auswerten is the place with the long list now
+  await page.goto('./#/auswerten');
   const more = page.locator('nav.ptabs .pmore');
   await expect(more).toBeVisible();
-  await expect(more).toContainText(T('All {n}|tabs', { n: PLACE_TABS.week.length }));
+  await expect(more).toContainText(T('All {n}|tabs', { n: PLACE_TABS.analysis.length }));
   await more.click();
   const tiles = page.locator('dialog.ptsheet [data-all-pages] a[data-page-tile]');
-  await expect(tiles).toHaveCount(PLACE_TABS.week.length);
-  // «Planen als verbindende Mitte» 2a: the twelve pages stand in four groups
-  await expect(page.locator('dialog.ptsheet [data-pt-group]')).toHaveCount(4);
+  await expect(tiles).toHaveCount(PLACE_TABS.analysis.length);
+  // «Aktiv und Auswerten» 2a: the pages of Auswerten stand in three groups, by the question you ask
+  await expect(page.locator('dialog.ptsheet [data-pt-group]')).toHaveCount(3);
   await page.screenshot({ path: info.outputPath('af2-alle.png') });
   // sorting is one step away, with arrows
   await page.locator('dialog.ptsheet [data-sort-pages]').click();
