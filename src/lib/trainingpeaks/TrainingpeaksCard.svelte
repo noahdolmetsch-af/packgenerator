@@ -6,9 +6,9 @@
    * The link stays on this device (a DEVICE_SETTING: no backup, no sync) and is shown hidden. Rules: lib/trainingpeaks.js.
    */
   import { liveQuery } from 'dexie';
-  import { Plus, RefreshCw, Trash2, CalendarRange, ArrowRight } from '@lucide/svelte';
+  import { Plus, RefreshCw, Trash2, CalendarRange, ArrowRight, Upload } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { TP_KEY, prefsOf, cleanLink, maskLink, refresh, withoutFeed } from '../trainingpeaks.js';
+  import { TP_KEY, prefsOf, cleanLink, maskLink, refresh, importIcs, withoutFeed } from '../trainingpeaks.js';
   import { PLAN_KEY, planOf } from '../training.js';
   import { askDelete, deleteWithUndo, saveFailed } from '../ui/ask.js';
   import { localDay } from '../localday.js';
@@ -23,17 +23,25 @@
   let msg = $state('');
   let added = $state(false);
   let good = $state(false);
+  let fileEl = $state();
 
   const when = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
-  const errorText = (code) =>
+  const errorText = (code, status = null) =>
     ({
       no_link: t('This is not a TrainingPeaks calendar link. It looks like https://www.trainingpeaks.com/ical/….ics (or webcal://… with the same ending).'),
       link_invalid: t('TrainingPeaks does not give a calendar for this link (any more). Copy the calendar link again in TrainingPeaks.'),
+      refused: t('TrainingPeaks does not let the app server read this calendar. Read the calendar file below instead.'),
+      redirect_other: t('TrainingPeaks sent the app somewhere else. Read the calendar file below instead.'),
+      redirect_loop: t('TrainingPeaks sent the app around in circles. Read the calendar file below instead.'),
+      page_error: t('TrainingPeaks has a problem right now. Try again later, or read the calendar file below.'),
+      too_big: t('The calendar file is too big (more than 1.5 MB).'),
+      file_not_calendar: t('This file is not a calendar. Choose the file ending in .ics.'),
       unreachable: t('TrainingPeaks does not answer right now. Try again later.'),
       not_calendar: t('The answer from TrainingPeaks is not a calendar. Check the link.'),
       network: t('No connection. Try again later.'),
       daily_cap: t('The server has done enough for today. Tomorrow it works again.'),
     })[code] ?? t('Something went wrong while reading the calendar. Try again later.');
+  const withStatus = (code, status) => (status ? `${errorText(code)} (${t('answer {n}', { n: status })})` : errorText(code));
 
   const resultLine = (r) => {
     const parts = [tn(r.found, '{n} planned session', '{n} planned sessions')];
@@ -55,7 +63,7 @@
     try {
       const r = await refresh(db, { today, url });
       if (!r.ok) {
-        msg = errorText(r.code);
+        msg = withStatus(r.code, r.status);
         return;
       }
       msg = `${t('Done.')} ${resultLine(r)}`;
@@ -77,7 +85,36 @@
     try {
       const r = await refresh(db, { today, force: true });
       good = r.ok;
-      msg = r.ok ? `${t('Up to date.')} ${resultLine(prefsOf((await db.settings.get(TP_KEY))?.value))}` : errorText(r.code);
+      msg = r.ok ? `${t('Up to date.')} ${resultLine(prefsOf((await db.settings.get(TP_KEY))?.value))}` : withStatus(r.code, r.status);
+    } finally {
+      busy = '';
+    }
+  }
+
+  /** The way out: the calendar file chosen by hand, read once (lib/trainingpeaks.js importIcs). */
+  async function pickFile(e) {
+    const file = e.currentTarget.files?.[0];
+    e.currentTarget.value = '';
+    if (!file) return;
+    msg = '';
+    added = false;
+    good = false;
+    busy = 'file';
+    try {
+      if (file.size > 1_500_000) {
+        msg = errorText('too_big');
+        return;
+      }
+      const r = await importIcs(db, await file.text(), { today });
+      if (!r.ok) {
+        msg = errorText(r.code === 'not_calendar' ? 'file_not_calendar' : r.code);
+        return;
+      }
+      msg = `${t('Done.')} ${resultLine(r)}`;
+      added = true;
+      good = true;
+    } catch (err) {
+      saveFailed(err);
     } finally {
       busy = '';
     }
@@ -146,6 +183,12 @@
         <div class="btns"><button type="submit" class="btn hi" disabled={busy === 'add' || !link.trim()}><Plus size={16} aria-hidden="true" />{busy === 'add' ? t('Reading the calendar …') : t('Test and add')}</button></div>
       </form>
     {/if}
+    <div class="file" data-tp-file>
+      <h3>{t('Does the link not work? Read the calendar file')}</h3>
+      <p class="ich-help">{t('Open the calendar link in the browser on a computer: it usually loads a file ending in .ics. Choose that file here. It is read once and not fetched again; the key stays out of the app.')}</p>
+      <input bind:this={fileEl} class="sr" type="file" accept=".ics,text/calendar" aria-label={t('Choose the calendar file')} onchange={pickFile} data-tp-file-input />
+      <div class="btns"><button type="button" class="btn" disabled={busy === 'file'} onclick={() => fileEl?.click()}><Upload size={16} aria-hidden="true" />{busy === 'file' ? t('Reading the calendar …') : t('Choose the calendar file')}</button></div>
+    </div>
     {#if msg}<p class="msg" class:ok={good} role="status">{msg}</p>{/if}
     {#if rec.url || added}
       <p class="next"><a href="#/flow/training">{t('Next: look at your week')}<ArrowRight size={14} aria-hidden="true" /></a></p>
@@ -229,6 +272,13 @@
     min-height: 44px;
     width: 100%;
     min-width: 0;
+  }
+  .file {
+    margin: var(--sp-3) 0 0;
+  }
+  .file h3 {
+    margin: 0 0 var(--sp-2);
+    font-size: var(--fs-sub);
   }
   .msg {
     margin: var(--sp-2) 0 0;

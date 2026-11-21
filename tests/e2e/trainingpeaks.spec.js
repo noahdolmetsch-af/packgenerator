@@ -76,3 +76,42 @@ test('TrainingPeaks: link in, workouts in My week with TP, link hidden, remove w
   await expect(page.locator('[data-planned]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('TrainingPeaks: the server is refused (403) and says so; the calendar file read by hand is the way out', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
+  await context.route(/packgen-three\.vercel\.app\/api\/linkcheck\?a=trainingpeaks/, (route) => {
+    if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
+    return route.fulfill({ status: 502, headers: { ...cors, 'content-type': 'application/json' }, body: JSON.stringify({ error: 'refused', code: 'refused', message: 'TrainingPeaks does not let the server read this calendar (answer 403).', status: 403 }) });
+  });
+  await context.addInitScript(() => {
+    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+  });
+  await page.goto('./#/flow');
+  await ready(page);
+  await page.goto('./#/me/connections');
+  const card = page.locator('[data-section="trainingpeaks"]');
+  await card.locator('[data-tp-link]').fill(LINK);
+  await card.getByRole('button', { name: 'Testen und hinzufügen' }).click();
+  await expect(card.getByRole('status')).toContainText('lässt den Server der App diesen Kalender nicht lesen');
+  await expect(card.getByRole('status')).toContainText('Antwort 403');
+  await expect(card.locator('[data-tp-file]')).toContainText('Geht der Link nicht?');
+  await card.locator('[data-tp-file]').scrollIntoViewIfNeeded();
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/tp-403-${info.project.name}.png`, fullPage: false });
+  await card.locator('[data-tp-file-input]').setInputFiles({ name: 'plan.ics', mimeType: 'text/calendar', buffer: Buffer.from(ics()) });
+  await expect(card.getByRole('status')).toContainText('2 geplante Einheiten');
+  await expect(page.locator('body')).not.toContainText('TESTaaaa11');
+  await card.locator('[data-tp-file-input]').setInputFiles({ name: 'notes.ics', mimeType: 'text/calendar', buffer: Buffer.from('not a calendar') });
+  await expect(card.getByRole('status')).toContainText('Diese Datei ist kein Kalender');
+  await card.scrollIntoViewIfNeeded();
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/tp-datei-${info.project.name}.png`, fullPage: false });
+  await page.goto('./#/flow/training');
+  await ready(page);
+  await expect(page.locator('[data-planned]')).toHaveCount(2);
+  await expect(page.locator('[data-planned]', { hasText: 'Bike - Endurance Z2' })).toContainText('TP');
+  expect(errors).toEqual([]);
+});
+
