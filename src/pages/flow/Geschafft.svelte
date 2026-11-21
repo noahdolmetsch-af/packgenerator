@@ -19,7 +19,8 @@
   import { flowStates } from '../../lib/flow.js';
   import { actName, undoTick, toast } from '../../lib/flow/ui.svelte.js';
   import { putEntry } from '../../lib/flowdb.js';
-  import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, withFeel } from '../../lib/flow/feel.js';
+  import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, setMinutes, withFeel } from '../../lib/flow/feel.js';
+  import MinInput from '../../lib/flow/MinInput.svelte';
   import { BLOCKS_KEY, blocksMap, blockFor, standardBlock, blockChips, saveBlockSize, rememberBlocks, restoreBlocks } from '../../lib/flow/bloecke.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { sportHref } from '../../lib/flow/mysports.js';
@@ -86,6 +87,8 @@
   const FEEL_TEXT = { light: 'light|feel', good: 'good|feel', hard: 'hard|feel' };
   // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
   const chooseMin = (m) => entry && db.flowLog.put(withMinutes(entry, m));
+  // an own length typed by hand (Noah 21.11.2026): next to every row of duration buttons; the same value again keeps it
+  const ownMin = (m) => entry && db.flowLog.put(setMinutes(entry, m));
   // «Block-Knöpfe» (Noah 21.11.2026 «a»): blocks of the sport (sauna 12 min, running indoors 10 min, any sport you set); the last choice is marked
   const blocksQ = liveQuery(() => db.settings.get(BLOCKS_KEY));
   const bl = $derived(entry ? blockFor(blocksMap($blocksQ?.value), entry.actId, act) : { size: 0, count: 0, own: false });
@@ -167,6 +170,7 @@
           </div>
           <small>{t('The buttons then count blocks of this length, for this sport only. The button of your last choice is marked.')}</small>
         {/if}
+        <MinInput value={entry.min ?? null} chips={bl.size ? blockChips(bl.size).map((c) => c.min) : MIN_CHIPS} onset={ownMin} id="geschafft-own-min" />
       {/if}
       <div class="chips" role="group" aria-label={t('How was it')} data-geschafft-feel>
         <span class="cl">{t('How was it? (optional)')}</span>
@@ -174,7 +178,7 @@
           <button type="button" class="chip" class:on={entry.feel === f} aria-pressed={entry.feel === f} data-feel={f} onclick={() => chooseFeel(f)}>{t(FEEL_TEXT[f])}</button>
         {/each}
       </div>
-      <small>{t('Both are optional. Tap a chosen one again to take it back.')}</small>
+      <small>{t('Both are optional. Tap a chosen one again to take it back. Your own length goes in the field.')}</small>
     </section>
 
     <div class="lay">
