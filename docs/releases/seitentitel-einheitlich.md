@@ -18,6 +18,7 @@ Stufe 1 von 3 der Seitenregeln (Stufe 2: Seiten-Baustein für den Kopf, Tagebuch
 - Nur Ecken von 16 bis 22 px sind auf `--radius-card` umgestellt. 12 und 14 px (innere Kacheln, Symbole) bleiben, ebenso Knöpfe, Schalter, Logos und Hervorhebungen der Rundgänge: eine kleine Kachel mit der Ecke einer Karte würde rund wie ein Kreis.
 - Abstände (43 verschiedene Werte im Code) ändere ich nicht mechanisch: ein Wert wie 10 px steht in 1300 Stellen mit anderer Bedeutung. Sie kommen mit dem Seiten-Baustein (Stufe 2) und dem Wächter (Stufe 3).
 - Keine Prüf-Regeln in diesem PR (Stufe 3).
+- Meditation (Handy): die Seite ist mit dem grösseren Titel 1 px höher als 1800 px. Der Höhenrahmen im Test `hobby-meditation.spec.js` steigt von 1800 auf 1840, mit Begründung im Test; es ist kein Bildschirm-Budget (Noah 26.10.2026 «keine Anforderung an eine Länge der Seite»).
 
 ## Entscheide (für decisions.md)
 - 21.11.2026: Seitenregeln gelten für die ganze App, in drei Stufen (Noah «1-5a»); Hilfe nur über das «?», die Zeile «Was du hier tun kannst» unter dem Titel fällt in Stufe 2 weg; gewählter Umschalter = weisse Fläche mit Rand; Reihenfolge: Werte, Tagebuch, Ort für Ort.
