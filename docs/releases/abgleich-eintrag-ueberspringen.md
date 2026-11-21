@@ -5,6 +5,7 @@ PR folgt · 21.11.2026 · Auftrag: Noah «1-5a» (Punkt 5, Thread «Fix Abhaken-
 ## Was ist neu
 - Konnte ein Gerät einen einzelnen Eintrag vom anderen Gerät nicht speichern (nicht wegen Platzmangel), brach die ganze Runde ab. Der Zeiger rückte nicht weiter, jede neue Runde stolperte über denselben Eintrag, und alles dahinter kam nie an (`src/lib/sync/engine.js`, `applyPackage`). Jetzt wird dieser Eintrag übersprungen und unter `syncskip|…` vermerkt; die Runde läuft weiter, alles danach kommt an.
 - Ich › Daten und Backup zeigt eine Zeile «N Einträge vom anderen Gerät konnten hier nicht gespeichert werden und wurden übersprungen» (nur wenn es welche gibt). Die Zähl-Probe (PR «Abgleich prüft sich selbst») sucht übersprungene Einträge wieder; «Mit dem Server vergleichen» listet sie.
+- Auch «Mit dem Server vergleichen» und die Zähl-Probe nehmen die Einträge einzeln auf: ein Eintrag, den das Gerät nicht speichern kann, hält die anderen nicht mehr auf (`compare.js`, `fixMissing`).
 - Kein Platz mehr auf dem Gerät hält die Runde weiter an, mit der eigenen Meldung: dann passt ohnehin nichts mehr.
 
 ## Was fällt weg oder rutscht tiefer
