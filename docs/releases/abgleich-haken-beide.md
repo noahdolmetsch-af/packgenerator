@@ -1,6 +1,6 @@
 # Haken von zwei Geräten bleiben beide
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5a» (Punkt 4, Thread «Fix Abhaken-Sync zwischen Computer und Handy»)
+PR #1374 · 21.11.2026 · Auftrag: Noah «1-5a» (Punkt 4, Thread «Fix Abhaken-Sync zwischen Computer und Handy»)
 
 ## Was ist neu
 - Haken in **derselben Packliste** (eine Tour: «gepackt» und die Bereit-Liste) und in **derselben Woche des Wochenplans** (`training.weeklog`) gehen nicht mehr verloren, wenn zwei Geräte gleichzeitig ändern. Bisher gewann die neuere Fassung als Ganzes; die ältere lag 30 Tage unter «Von selbst abgeglichen» und die Haken sahen verloren aus. Jetzt bleiben die Haken beider Geräte (`src/lib/sync/merge.js`, eingehängt in `settle()` von `src/lib/sync/engine.js`). Namen, Daten und Reihenfolge kommen weiter von der neueren Fassung.
