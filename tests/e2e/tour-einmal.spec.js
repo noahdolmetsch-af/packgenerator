@@ -29,3 +29,38 @@ test('without My tour on the wall the chip, the sentence and Your moment are bac
   await expect(page.locator('[data-section="moment"]')).toHaveCount(1);
   void T;
 });
+
+// Step 3b (Noah 17.11.2026 «1-5a»): with ONE planned tour the big trip card is away; «My tour» holds how far the packing is,
+// the base weight and the way to the packing list. With several tours the big card (with «Trip 1 of 2») stays.
+const oneTour = () => {
+  const d = homeFixture();
+  d.tables.trips = d.tables.trips.filter((x) => !/Seetal|TEST-Runde/.test(x.id));
+  return d;
+};
+
+test('one tour: the big trip card is away, My tour holds packed, base weight and the packing list', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const T = await openHome(page, context, info, { data: oneTour(), hour: 9 });
+  const card = page.locator('[data-section="meinetour"]');
+  await expect(card).toBeVisible();
+  await expect(page.locator('[data-section="trip"]')).toHaveCount(0);
+  await expect(card.locator('[data-meinetour-packed]')).toBeVisible();
+  await expect(card.locator('[data-meinetour-packed]')).toContainText(/von \d+ gepackt/);
+  await expect(card.locator('[data-meinetour-weight]')).toContainText(T('Base weight|box'));
+  await expect(card.locator('[data-meinetour-packlist]')).toHaveAttribute('href', '#/pack');
+  if (process.env.SHOTS) {
+    const w = info.project.name === 'phone' ? 390 : 1440;
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.screenshot({ path: `${process.env.SHOTS}/eine-tour-erster-blick-${w}.png` });
+    await card.screenshot({ path: `${process.env.SHOTS}/eine-tour-karte-${w}.png` });
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  expect(errors).toEqual([]);
+});
+
+test('several tours: the big trip card with Trip 1 of 2 stays and My tour does not repeat the packing', async ({ page, context }, info) => {
+  await openHome(page, context, info, { hour: 9 });
+  await expect(page.locator('[data-section="trip"]')).toHaveCount(1);
+  await expect(page.locator('[data-section="meinetour"] [data-meinetour-packed]')).toHaveCount(0);
+});
