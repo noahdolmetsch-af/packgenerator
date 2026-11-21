@@ -31,10 +31,36 @@ export function usualMap(value) {
   return out;
 }
 
-/** The usual minutes of an activity: { min, own } — own is false when the standard counts. */
-export function usualFor(map, actId) {
+/**
+ * Noah's usual durations (21.11.2026 «Standartwert beim abhaken: eishockey 2h, tennis 1h, yoga 1h, sauna blöcke von 12 min,
+ * Gym: eGym (20 min), Laufband rennen indoor 20 min, laufen indoor 10 min blöcke; «rennen indoor» und «laufen indoor» sind das gleiche»): what counts without a setting, found by the
+ * words in the id and the name of the activity (first rule that fits). A sport that fits none counts DEFAULT_MIN.
+ */
+export const STANDARD_RULES = [
+  // «Rennen indoor» and «Laufen indoor» are one activity (Noah 21.11.2026): 2 blocks of 10 minutes
+  [/laufband|treadmill|(indoor|innen|drinnen)\W.*(lauf|renn|run)|(lauf|renn|run).*\W(indoor|innen|drinnen)/i, 20],
+  [/gym/i, 20],
+  [/sauna/i, 12],
+  [/hockey/i, 120],
+  [/tennis/i, 60],
+  [/yoga/i, 60],
+];
+
+/** The standard minutes of an activity ({ id, name, nameDe }) by Noah's list, or 0 when none fits. */
+export function standardFor(act) {
+  const text = [act?.id, act?.name, act?.nameDe].filter(Boolean).join(' ');
+  const rule = STANDARD_RULES.find(([re]) => re.test(text));
+  return rule ? rule[1] : 0;
+}
+
+/**
+ * The usual minutes of an activity: { min, own, std } — own is false when the standard counts; std is the standard minutes
+ * (Noah's list, else DEFAULT_MIN). Pass the activity as third argument to find its standard by name.
+ */
+export function usualFor(map, actId, act = null) {
+  const std = standardFor(act ?? { id: actId }) || DEFAULT_MIN;
   const n = cleanMin(usualMap(map)[actId]);
-  return n ? { min: n, own: true } : { min: DEFAULT_MIN, own: false };
+  return n ? { min: n, own: true, std } : { min: std, own: false, std };
 }
 
 /** The map with one activity set (min > 0) or back to the standard (min empty or 0). Never changes the input. */
