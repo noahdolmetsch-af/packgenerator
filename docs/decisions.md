@@ -4,6 +4,8 @@
 
 Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten. Ältere Zeilen dokumentieren den damaligen Stand und bleiben erhalten.
 
+> **Seit 21.11.2026 (Noah «2a») wird diese Datei nicht mehr ergänzt.** Neue Entscheide stehen je PR in einer eigenen Datei unter [`decisions/`](decisions/README.md), damit zwei PRs nie dieselbe Stelle ändern.
+
 ## Aktuelle Geltung (Abgleich 07.10.2026, ergänzt 08.10.2026)
 
 Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0 auf jeder Seite, die Sprache steht im Profilmenü. Die Eventvorbereitung ist seit 0.22.1 live an das Häkchen „Event“ gebunden. Die beiden entsprechenden Punkte unten sind damit Historie. Neue Entscheide stehen unten im Abschnitt „Seit 7.10.2026“.
