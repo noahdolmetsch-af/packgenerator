@@ -10,12 +10,13 @@
   import { ChevronRight, Lightbulb } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { db } from '../db.js';
-  import { pageContent, pagePattern, SEEN_KEY, seenMapOf, newSince } from '../seiteninhalt.js';
+  import { pageContent, pagePattern, SEEN_KEY, seenMapOf, newSince, LINE_OFF } from '../seiteninhalt.js';
   import { afterTitle } from './nachtitel.js';
 
   let { hash = '' } = $props();
   const rows = $derived(pageContent(hash));
   const key = $derived(pagePattern(hash)); // one place for all trips (#/debrief/:trip), not one per trip
+  const off = $derived(LINE_OFF.includes(key)); // Seitenregeln 21.11.2026: no line on this page, the help is behind the «?»
   const seenQ = liveQuery(async () => seenMapOf((await db.settings.get(SEEN_KEY))?.value));
   // new functions on this page since the «?» window was last opened from this line: a dot on the line
   const fresh = $derived(newSince($seenQ, key, rows.length));
@@ -30,7 +31,7 @@
 </script>
 
 <div class="si-host" data-seiteninhalt-host use:afterTitle>
-{#if rows.length && $seenQ}
+{#if rows.length && $seenQ && !off}
   <button type="button" class="si-line" onclick={openHelp} aria-haspopup="dialog" data-seiteninhalt-line>
     <Lightbulb size={16} aria-hidden="true" /><span class="si-linet">{t('What you can do here')} <span class="num">{rows.length}</span></span>{#if fresh}<span class="si-new" data-seiteninhalt-new title={t('{n} new on this page', { n: fresh })}>{t('{n} new', { n: fresh })}</span>{/if}<span class="si-open">{t('Open the help')}</span><ChevronRight size={16} aria-hidden="true" />
   </button>
