@@ -15,6 +15,6 @@ export default {
     'Me › Look › Suggestions': 'Ich › Darstellung › Vorschläge',
     'Nothing is switched off without your tap, and Undo brings it back': 'Ohne deinen Tipp wird nichts ausgeschaltet, und «Rückgängig» holt es zurück',
     'On Active, send the rest-day line away with «Not today» on three different days.': 'Schicke in Aktiv die Ruhetag-Zeile an drei verschiedenen Tagen mit «Nicht heute» weg.',
-    'On the third day a question «Make this hint quieter?» appears: «Yes, quieter» switches the kind off, «Keep it» leaves it.': 'Am dritten Tag erscheint die Frage «Diesen Hinweis leiser stellen?»: «Ja, leiser» schaltet die Art aus, «So lassen» belässt sie.',
+    'On the third day a question «Make this hint quieter?» appears: «Yes, quieter» switches the kind off, «Keep it» leaves it.': 'Am dritten Tag erscheint die Frage «Diesen Hinweis leiser stellen?»: «Ja, leiser» schaltet die Art aus, «Behalten» belässt sie.',
   },
 };
