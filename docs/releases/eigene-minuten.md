@@ -1,6 +1,6 @@
 # Eigene Dauer: neben den Dauer-Knöpfen ein Feld für Minuten
 
-PR folgt · 21.11.2026 · Auftrag: Noah 21.11.2026 («für alle aktivitäten möchte ich neben den vorgeschlagenen buttons immer zusätzlich die option, eine eigene dauer in min einzugeben»), Thread «Training erfassen vereinfachen».
+PR 1347 · 21.11.2026 · Auftrag: Noah 21.11.2026 («für alle aktivitäten möchte ich neben den vorgeschlagenen buttons immer zusätzlich die option, eine eigene dauer in min einzugeben»), Thread «Training erfassen vereinfachen».
 
 ## Was ist neu
 - Auf «Geschafft» steht unter den Dauer-Knöpfen (30, 45, 60, 90 Min) ein Feld «Eigene Dauer» mit «Min» und «Setzen». Ganze Minuten von 1 bis 1440; Enter oder «Setzen» speichert. Die Dauer steht danach oben und zählt in «Diese Woche».
