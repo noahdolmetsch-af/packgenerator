@@ -14,7 +14,7 @@
 export const TYPE = 'erholung';
 
 /** Where each step leads ('' = nowhere). */
-const LINKS = { sleep: '#/routine', stretch: '#/flow/rest', food: '', check: '#/velos' };
+const LINKS = { sleep: '#/routine', stretch: '#/flow/rest', food: '', check: '#/bikes' };
 
 export const REST_STEPS = [
   { key: 'sleep', title: 'Sleep: three early nights', offset: 6, note: 'Go to bed early for three nights in the last week. Your routines in Active › Recovery can remind you.' },
