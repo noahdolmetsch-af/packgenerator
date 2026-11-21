@@ -281,6 +281,16 @@ export function pageOf(hash = '', careTab = false) {
 }
 
 /**
+ * Gesamttest 19.11.2026 (Noah «a»): an address no page knows («#/does-not-exist») shows «Page not found» with
+ * «To Today», no longer Today silently. Today's own addresses are '', '#' and '#/' (with or without a query).
+ */
+export function isUnknown(hash = '', careTab = false) {
+  const path = String(hash || '').split('?')[0];
+  if (path === '' || path === '#' || path === '#/') return false;
+  return pageOf(hash, careTab) === 'home' && !redirectOf(hash);
+}
+
+/**
  * v0.49.0 R1 «Rückblick ruhig» (Noah 4a): the old pages «Letzte 12 Monate» (#/review) and «Touren
  * vergleichen» (#/debrief/compare) are parts of the one Rückblick page now. Their addresses lead there
  * (no dead links): → { hash, spot } (spot: the section to scroll to), or null for every other address.
@@ -380,28 +390,53 @@ export function isRidesHash(h = '') {
  * shows (Noah O2.1a: Neuland, Heft and the rest come with their package). v0.78.0: they are the tabs
  * on top of each place too (nav/PlaceTabs), at most four. match: the addresses that count as this entry.
  */
+/**
+ * The pages of Planen (the old eleven tabs). Since «Ganze App neu denken» Schritt 11 they are the chips under the three tabs of Planen
+ * (PLACE_TABS.week); every address and every `match` is unchanged.
+ */
+const WEEK_PAGES = {
+  // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): «Ich» keeps data, settings and help; what you plan moved here.
+  // Woche planen and Ferien are one tap from the week (its buttons), so «Woche» covers all of #/week.
+  week: { label: 'Week|tab', href: '#/week', match: (h) => /^#\/week(\/|\?|$)/.test(h) },
+  // «Alltag sichtbar» (Noah 24.10.2026 «1a 2b 3a 4 nein 5b»): Merken with birthdays and plants
+  remember: { label: 'Remember|tab', href: '#/calendar', match: (h) => h.startsWith('#/calendar') },
+  agenda: { label: 'Appointments|tab', href: '#/me/agenda', match: (h) => h.startsWith('#/me/agenda') },
+  notes: { label: 'Notes|tab', href: '#/notes', match: (h) => h.startsWith('#/notes') },
+  // «Tagebuch» (Noah 20.10.2026): what you write about your day sits next to the notes
+  tagebuch: { label: 'Diary|tab', href: '#/tagebuch', match: (h) => h.startsWith('#/tagebuch') },
+  inbox: { label: 'Inbox|tab', href: '#/inbox', match: (h) => h.startsWith('#/inbox') },
+  mail: { label: 'Mail|tab', href: '#/me/mail', match: (h) => h.startsWith('#/me/mail') },
+  compass: { label: 'Compass|tab', href: '#/me/compass', match: (h) => h.startsWith('#/me/compass') },
+  alltag: { label: 'Everyday|tab', href: '#/me/alltag', match: (h) => h.startsWith('#/me/alltag') },
+  frei: { label: 'Free time|tab', href: '#/me/frei', match: (h) => h.startsWith('#/me/frei') },
+  // «Alles finden 2» (Noah 22.10.2026 «4a»): your links and ideas left Ich; they are things you plan with
+  links: { label: 'Tools and links', href: '#/me/links', match: (h) => h.startsWith('#/me/links') },
+};
+
+/** A tab that holds several pages: its address is the first page's, it matches every page's address, and `subs` are the pages as chips. */
+function tabWithSubs({ key, label, subs }) {
+  const list = subs.map((k) => ({ key: k, ...WEEK_PAGES[k] }));
+  return { key, label, href: list[0].href, match: (h) => list.some((x) => x.match(h)), subs: list };
+}
+
+/** The chip of a tab that holds several pages (its `subs`) an address belongs to: { key, … } or null. */
+export function subOf(place, hash = '') {
+  const h = hash || '#/';
+  const tab = (PLACE_TABS[place] ?? []).find((x) => x.match(h));
+  return tab?.subs?.find((x) => x.match(h)) ?? null;
+}
+
 export const PLACE_TABS = {
   today: [],
   quick: [],
   // «Woche planen» WP1–WP3: the week, the Sunday planning and the holidays
+  // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): Planen has three tabs, Woche, Notizen and Alltag. Every page of the old
+  // eleven is still there at its address: it is a chip under its tab (`subs`, PlaceTabs.svelte), no longer a tab of its own.
   week: [
-    // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): «Ich» keeps data, settings and help; what you plan moved here.
-    // Woche planen and Ferien are one tap from the week (its buttons), so «Woche» covers all of #/week.
-    { key: 'week', label: 'Week|tab', href: '#/week', match: (h) => /^#\/week(\/|\?|$)/.test(h) },
-    // «Alltag sichtbar» (Noah 24.10.2026 «1a 2b 3a 4 nein 5b»): Merken with birthdays and plants is its own tab, one tap away
-    { key: 'remember', label: 'Remember|tab', href: '#/calendar', match: (h) => h.startsWith('#/calendar') },
-    { key: 'agenda', label: 'Appointments|tab', href: '#/me/agenda', match: (h) => h.startsWith('#/me/agenda') },
-    { key: 'notes', label: 'Notes|tab', href: '#/notes', match: (h) => h.startsWith('#/notes') },
-    // «Tagebuch» (Noah 20.10.2026): what you write about your day sits next to the notes
-    { key: 'tagebuch', label: 'Diary|tab', href: '#/tagebuch', match: (h) => h.startsWith('#/tagebuch') },
-    { key: 'inbox', label: 'Inbox|tab', href: '#/inbox', match: (h) => h.startsWith('#/inbox') },
-    { key: 'mail', label: 'Mail|tab', href: '#/me/mail', match: (h) => h.startsWith('#/me/mail') },
-    { key: 'compass', label: 'Compass|tab', href: '#/me/compass', match: (h) => h.startsWith('#/me/compass') },
-    { key: 'alltag', label: 'Everyday|tab', href: '#/me/alltag', match: (h) => h.startsWith('#/me/alltag') },
-    { key: 'frei', label: 'Free time|tab', href: '#/me/frei', match: (h) => h.startsWith('#/me/frei') },
-    // «Alles finden 2» (Noah 22.10.2026 «4a»): your links and ideas left Ich; they are things you plan with
-    { key: 'links', label: 'Tools and links', href: '#/me/links', match: (h) => h.startsWith('#/me/links') },
-  ],
+    { key: 'week', label: 'Week|tab', subs: ['week', 'agenda'] },
+    { key: 'notes', label: 'Notes|tab', subs: ['notes', 'inbox', 'remember', 'tagebuch', 'mail'] },
+    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'frei', 'compass', 'links'] },
+  ].map(tabWithSubs),
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !h.startsWith('#/trips/vorschlaege') && !h.startsWith('#/trips/weg') && !h.startsWith('#/trips/pfad') && !h.startsWith('#/trips/fuel') && !h.startsWith('#/trips/compare') && !isRidesHash(h) }, // Impeccable 20.10.2026: Verpflegung is a page of a tour, not the overview
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours.
@@ -446,7 +481,7 @@ export const PLACE_TABS = {
     // Meditation is a sport too (Runde 3 «1b»): its pages are under this tab.
     { key: 'sports', label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|act|bags)(\/|\?|$)/.test(h) },
     // «Training» TR2 (Noah 13.10.2026 «1-5a»); Runde 2 «1b»: it stays in Aktiv, with the training plans
-    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|plans)(\/|\?|$)/.test(h) },
+    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|trainingsplan|plans)(\/|\?|$)/.test(h) },
     // Runde 3 «2a»: «Erholung» stays its own tab (the ring, the list to tick)
     { key: 'rest', label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
   ],
@@ -489,16 +524,11 @@ const LOOK_FLOW = /^#\/flow\/(form|stats|auswertung|milestones|trophies|ideen|gi
 
 
 /**
- * «Planen als verbindende Mitte» 2a (Noah 1.11.2026): the twelve pages of Planen in «Alle n» stand in groups.
+ * «Planen als verbindende Mitte» 2a (Noah 1.11.2026): the pages of a place with many tabs stand in groups in «Alle n».
  * A page that is in no group (a new one) lands in the last group. Places without groups show one plain list.
+ * (Planen has three tabs since Schritt 11 and needs no groups.)
  */
 export const TAB_GROUPS = {
-  week: [
-    { label: 'Often used|group', keys: ['week', 'remember', 'agenda', 'notes'] },
-    { label: 'Write down|group', keys: ['tagebuch', 'inbox', 'mail'] },
-    { label: 'Find your way|group', keys: ['compass', 'alltag', 'frei'] },
-    { label: 'Ideas and tools|group', keys: ['links'] },
-  ],
   // «Aktiv und Auswerten» 2a (Noah 03.11.2026): the pages of Auswerten stand by the question you ask
   analysis: [
     { label: 'How am I doing?|group', keys: ['fragen', 'start', 'form', 'body', 'history', 'wohl', 'weight', 'insights', 'impulse'] },

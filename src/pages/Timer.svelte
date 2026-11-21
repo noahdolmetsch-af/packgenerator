@@ -556,7 +556,7 @@
     border: 0;
     padding-left: 0;
   }
-  .typed :global(svg) {
+  .typed > :global(svg) {
     flex: none;
     color: var(--ink-2);
   }
@@ -604,7 +604,7 @@
     font-size: var(--fs-small);
     font-weight: 500;
   }
-  .sm {
+  p.sm {
     margin: 2px 0 6px;
     color: var(--ink-2);
     font-size: var(--fs-small);

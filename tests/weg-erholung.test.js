@@ -32,6 +32,6 @@ describe('Recovery steps', () => {
   });
   it('leads the first two steps to Aktiv, the last one to the bikes, the food one nowhere', () => {
     const l = (key) => erholung.link(goal(), { key });
-    expect([l('sleep'), l('stretch'), l('food'), l('check')]).toEqual(['#/routine', '#/flow/rest', '', '#/velos']);
+    expect([l('sleep'), l('stretch'), l('food'), l('check')]).toEqual(['#/routine', '#/flow/rest', '', '#/bikes']);
   });
 });

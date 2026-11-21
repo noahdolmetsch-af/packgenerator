@@ -179,6 +179,7 @@
   import MonthTile from '../lib/home/MonthTile.svelte';
   import NextMsTile from '../lib/home/NextMsTile.svelte';
   import ChronikKarte from '../lib/lernen/ChronikKarte.svelte'; // Paket M #1027: replaces YearAgoTile (Noah «1b»)
+  import WochenKarte from '../lib/home/WochenKarte.svelte'; // «Wochenrückblick» card, Sunday 17:00 to Monday 12:00 (Noah «1b»)
   import NeuHeute from '../lib/neuland/NeuHeute.svelte'; // Träume und Neuland N11 «Neu heute»: one line after a ride, no tile
   import MonthAdventureRow from '../lib/dreams/MonthAdventureRow.svelte'; // Träume und Neuland N12 «Ein Abenteuer im Monat»: one line, no tile
   import WearToday from '../lib/home/WearToday.svelte';
@@ -1387,6 +1388,7 @@
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
   {#if ready && !editing && !on('body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}
   {#if loaded}<BagReminder {today} now={now.getTime()} />{/if}
+  {#if loaded && !editing}<WochenKarte now={stampOf(now)} />{/if}
   {#if loaded && !editing}<NeuHeute {today} />{/if}
   {#if loaded && !editing}<MonthAdventureRow {today} />{/if}
   <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->

@@ -1429,7 +1429,7 @@ export default {
   'A new trip starts with the standard set, and «Day trip» packs it on the bike of your last trip.': 'Eine neue Tour startet mit dem Standard-Set, und «Tagestour» packt es aufs Velo deiner letzten Tour.',
   'A new trip starts with the standard set': 'Eine neue Tour startet mit dem Standard-Set',
   '«Day trip» packs standard plus weather': '«Tagestour» packt Standard plus Wetter',
-  'A green card shows the new trip, with change and undo': 'Eine grüne Karte zeigt die neue Tour, mit Ändern und Undo',
+  'A green card shows the new trip, with change and undo': 'Eine grüne Karte zeigt die neue Tour, mit Ändern und Rückgängig',
   // 0.29.1
   'Packing you can trust': 'Packen, auf das du zählen kannst',
   'A quick second tap no longer takes the item out again. Phew.': 'Ein schneller zweiter Tipp nimmt das Teil nicht mehr heraus. Puh.',
@@ -1440,7 +1440,7 @@ export default {
   'Plan, pack, ride and debrief share a dark band with tabs and one button to the next step.': 'Planen, Packen, Unterwegs und Rückblick teilen ein dunkles Band mit Tabs und einem Knopf zum nächsten Schritt.',
   'A dark band with tabs and the next step': 'Ein dunkles Band mit Tabs und dem nächsten Schritt',
   'On the way starts with «Now», notes in one tap': 'Unterwegs beginnt mit «Jetzt», Notizen mit einem Tipp',
-  'Weather changes with a reason and undo per row': 'Wetteränderungen mit Grund und Undo pro Zeile',
+  'Weather changes with a reason and undo per row': 'Wetteränderungen mit Grund und Rückgängig pro Zeile',
   'Debrief prefilled: one tap if all went to plan': 'Rückblick vorausgefüllt: ein Tipp, wenn alles nach Plan lief',
   // 0.28.0
   'Suggestions with a source': 'Vorschläge mit Quelle',
@@ -1479,7 +1479,7 @@ export default {
   'A new trip asks first': 'Eine neue Tour fragt zuerst',
   'Days, riding hours, night, weather and event, with a preview of what lands on the list.': 'Tage, Fahrstunden, Übernachtung, Wetter und Event, mit Vorschau, was auf die Liste kommt.',
   'New trip asks days, hours, night, weather and event': 'Neue Tour fragt Tage, Stunden, Nacht, Wetter und Event',
-  'Later changes work at once, with undo': 'Spätere Änderungen wirken sofort, mit Undo',
+  'Later changes work at once, with undo': 'Spätere Änderungen wirken sofort, mit Rückgängig',
   'Short rides without an event skip bike care before the start': 'Kurze Fahrten ohne Event zeigen vor dem Start keine Velopflege',
   // 0.24.1
   'From 65 clicks to 8': 'Von 65 Klicks auf 8',
@@ -1638,7 +1638,7 @@ export default {
   'Bags on the bike': 'Taschen am Velo',
   'Bags show their contents right on the bike, and items move between them.': 'Taschen zeigen ihren Inhalt direkt am Velo, und Teile wandern zwischen ihnen.',
   'Bags show their contents on the bike': 'Taschen zeigen ihren Inhalt am Velo',
-  'Move items between bags, with undo': 'Teile zwischen Taschen verschieben, mit Undo',
+  'Move items between bags, with undo': 'Teile zwischen Taschen verschieben, mit Rückgängig',
   'Calmer colours and a calmer header': 'Ruhigere Farben und ein ruhigerer Kopf',
   // 0.11.0
   'Drag and drop': 'Ziehen und ablegen',
