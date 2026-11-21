@@ -281,6 +281,7 @@ const LISTED = {
   'f.turns': ['Open a trip with a route.', 'Start the ride on the live map.', 'The arrow and the voice come before each turn.'],
   'f.laps': ['Start a ride on the live map.', 'Tap the flag button for a new lap.', 'On a route you rode before, look at «Against your last ride» in the sheet.'],
   'f.moreplaces': ['Open the place search on the live map.', 'Type your radius or change the kinds.', 'Add own places by hand, by a tap or from a file.'],
+  'f.routeknown': ['Open a trip at «Route» with a GPX route.', 'Look under the map for stretches you marked.', 'Tap «How new is this route for me?».'],
   'f.rwgps': ['Open a trip at «Route».', 'Tap «Link from Ride with GPS» and paste the link.', 'Tap «Load».'],
   'f.ovnear': ['Start a ride on the live map.', 'Open the sheet › «Public transport nearby».', 'Tap «Find stops», then a stop.'],
   'f.groupmap': ['Open the live map › «Group ride» and tap «Invite the group».', 'Send the link by WhatsApp or SMS.', 'Friends tap «Share my location»; everyone sees the others on the map.',],

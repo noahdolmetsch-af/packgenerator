@@ -141,6 +141,11 @@
 
     {#if hero}<HeroNext {hero} label={label(hero.r)} />{/if}
 
+    <!-- «Belohnung nach oben» (Noah 21.11.2026 «5a»): the reward sits right under the next star, not at the side -->
+    <Sec id="reward-h" title={t('Reward')}>
+      <RewardRow list={scoped.filter((r) => r.next)} reward={data.reward} wishlist={data.wishlist} onsave={saveReward} quick={hero?.r ?? null} />
+    </Sec>
+
     <MsHow />
 
     <div class="lay">
@@ -184,9 +189,6 @@
       <aside class="col">
         <Sec id="shelf-h" title={t('Trophy shelf')} sub={t('reached lately')}>
           <div class="card shelf"><TrophyShelf items={shelf} next={shelfNext} more="#/flow/trophies" /></div>
-        </Sec>
-        <Sec id="reward-h" title={t('Reward')}>
-          <RewardRow list={scoped.filter((r) => r.next)} reward={data.reward} wishlist={data.wishlist} onsave={saveReward} />
         </Sec>
         {#if (filter === 'all' || filter === 'cross') && recs.length}
           <Sec id="rec-h" title={t('Record wall')}>

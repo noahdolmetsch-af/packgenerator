@@ -13,6 +13,7 @@
   import { ridingHours, SPEED_KMH, CLIMB_MH } from '../route.js';
   import { readRouteFile, routeFromGpx, splitRoute } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
   import RouteCheck from '../route/RouteCheck.svelte';
+  import RouteKnown from '../route/RouteKnown.svelte'; // S3 «Route kennt deine Erfahrung»
   import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { withRainPct, pctOf } from '../wardrobe.js';
   import { searchPlace, fetchForecast, forecastForTrip, toWx, forecastFrom, ageText, tripDays } from '../weather.js';
@@ -164,6 +165,7 @@
     {#if trip.route}
       <p class="facts"><b>{trip.route.name || t('Route')}</b> <span class="num">{num(trip.route.km)} km · ↑ {num(trip.route.gainM)} m</span></p>
       {#if trip.route.profile?.length > 1}<Profile points={trip.route.profile} />{/if}
+      <RouteKnown route={trip.route} />
       <p class="acts">
         {#if hours != null}
           {#if trip.hours === hours}<span class="ok">{stages > 1 ? t('Riding hours: about {h} h a day', { h: hours }) : t('Riding hours: about {h} h', { h: hours })}</span>

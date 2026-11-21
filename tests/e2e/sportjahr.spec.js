@@ -99,6 +99,7 @@ test('Sportjahr: the year in hours, the chart with the year before, where the ti
   // a tap on a bar opens the sports of that month
   await pg.locator('[data-chart="sportjahr"] [data-plot]').click({ position: { x: 5, y: 60 } });
   await expect(page.locator('[data-sj-sheet]')).toBeVisible();
+  await expect(page.locator('[data-sj-sheet]')).toContainText(/\d h( \d+ min)?|\d+ min/); // exact time, not a rounded hour
   await page.keyboard.press('Escape');
   await shot(page, info, 'sportjahr-jahr');
   expect(errors).toEqual([]);
