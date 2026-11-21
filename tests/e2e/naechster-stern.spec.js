@@ -80,6 +80,9 @@ test('per sport the stars stand as a path: gold for the reached ones', async ({ 
   await expect(row.locator('.stars svg.part')).toHaveCount(1);
   await expect(row.locator('a')).toHaveAttribute('href', '#/flow/milestones?act=tennis');
   await fits(page, 'milestones with path');
+  expect(errors).toEqual([]);
+});
+
 // «Meilensteine motivierender» PR 4 (Idee 5): the reward sits under the card, wishes hang on the next star with a tap
 test('the reward is under the card; a wish hangs on the next star with one tap', async ({ page, context }) => {
   const item = { id: 'test_wish_1', name: 'Fictional gloves', nameDe: 'Erfundene Handschuhe', category: 'clothing', ownership: 'wishlist', qty: 1, weightG: null, domains: [], sets: [], kits: [] };
