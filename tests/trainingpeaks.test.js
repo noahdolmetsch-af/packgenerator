@@ -1,7 +1,7 @@
 // TrainingPeaks-Plan (Noah 19.11.2026 «1a 2b 3a 4a 5b»), step P2: the link rule, the entries → planned sessions,
 // the merge into the plan (what stays as the user has it), the fetch with its failures. Links and entries are made up.
 import { describe, it, expect, vi } from 'vitest';
-import { cleanLink, maskLink, prefsOf, kindOf, zoneOf, minutesOf, sessionsFrom, mergeFeed, isStale, fetchFeed, refresh, withoutFeed, TP_KEY, TP_SRC, TP_API } from '../src/lib/trainingpeaks.js';
+import { cleanLink, maskLink, prefsOf, kindOf, zoneOf, minutesOf, sessionsFrom, mergeFeed, isStale, fetchFeed, refresh, importIcs, withoutFeed, TP_KEY, TP_SRC, TP_API } from '../src/lib/trainingpeaks.js';
 import { PLAN_KEY } from '../src/lib/training.js';
 import { syncLocal } from '../src/lib/db.js';
 import { trainingpeaksUrl } from '../api/_lib/trainingpeaks.js';
@@ -160,12 +160,38 @@ describe('fetching', () => {
   it('keeps the plan and the reason when it fails; a failed first try saves nothing', async () => {
     const bad = vi.fn(async () => new Response(JSON.stringify({ code: 'link_invalid' }), { status: 502 }));
     const empty = memDb();
-    expect(await refresh(empty, { doFetch: bad, today: TODAY, url: LINK })).toEqual({ ok: false, code: 'link_invalid' });
+    expect(await refresh(empty, { doFetch: bad, today: TODAY, url: LINK })).toEqual({ ok: false, code: 'link_invalid', status: null });
     expect(empty.peek(TP_KEY)).toBeUndefined();
     const db = memDb({ [TP_KEY]: { url: LINK, on: true, fetchedAt: '2026-11-01T00:00:00.000Z' }, [PLAN_KEY]: { sessions: [{ id: 'x', day: '2026-11-20', kind: 'bike', name: 'x', mins: 30, zone: null, src: TP_SRC }] } });
     expect((await refresh(db, { doFetch: bad, today: TODAY, force: true })).ok).toBe(false);
     expect(db.peek(TP_KEY).error).toBe('link_invalid');
     expect(db.peek(PLAN_KEY).sessions).toHaveLength(1);
+  });
+  it('passes on the status the server names, a number only', async () => {
+    const refused = vi.fn(async () => new Response(JSON.stringify({ code: 'refused', status: 403, message: 'x' }), { status: 502 }));
+    expect(await fetchFeed(LINK, { doFetch: refused, today: TODAY })).toEqual({ ok: false, code: 'refused', status: 403 });
+    const odd = vi.fn(async () => new Response(JSON.stringify({ code: 'refused', status: 'TEST_aaaa-1' }), { status: 502 }));
+    expect((await fetchFeed(LINK, { doFetch: odd, today: TODAY })).status).toBeNull();
+    expect(await refresh(memDb(), { doFetch: refused, today: TODAY, url: LINK })).toEqual({ ok: false, code: 'refused', status: 403 });
+  });
+  it('reads a calendar file by hand: the same plan rules, once, no link needed', async () => {
+    const db = memDb({ [PLAN_KEY]: { sessions: [{ id: 'mine', day: '2026-11-20', kind: 'run', name: 'Own', mins: 30, zone: 2 }] } });
+    const now = Date.parse('2026-11-19T08:00:00.000Z');
+    const r = await importIcs(db, FEED, { now, today: TODAY });
+    expect(r).toMatchObject({ ok: true, added: 3, skipped: 1, found: 3 });
+    expect(db.peek(PLAN_KEY).sessions).toHaveLength(4);
+    expect(db.peek(TP_KEY)).toMatchObject({ url: '', error: '', found: 3 });
+    expect(prefsOf(db.peek(TP_KEY)).url).toBe('');
+    const again = await importIcs(db, FEED, { now, today: TODAY });
+    expect(again).toMatchObject({ ok: true, added: 0, changed: 0, removed: 0 });
+    expect(db.peek(PLAN_KEY).sessions).toHaveLength(4);
+  });
+  it('a file that is no calendar changes nothing; a saved link stays', async () => {
+    const db = memDb({ [TP_KEY]: { url: LINK, on: true } });
+    expect(await importIcs(db, '<html>login</html>', { today: TODAY })).toEqual({ ok: false, code: 'not_calendar' });
+    expect(db.peek(PLAN_KEY)).toBeUndefined();
+    await importIcs(db, FEED, { today: TODAY });
+    expect(db.peek(TP_KEY).url).toBe(LINK);
   });
   it('a link that is off is not fetched', () => {
     expect(isStale({ on: false, url: LINK, fetchedAt: null })).toBe(false);
