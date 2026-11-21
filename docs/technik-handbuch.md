@@ -116,10 +116,10 @@ Je Datei eine Aufgabe, Hilfsteile in `api/_lib/`:
 | `waechter.yml` | alle 3 Stunden | fragt den Server (`api/health.js`); bei Fehler ein Issue mit Mail |
 | `live.yml` | morgens und nach Merges | prüft die echte App im Browser |
 | `nacht.yml` | nachts | Rundgang über alle Seiten (nur Links öffnen) |
-| `volle-pruefung.yml` | nachts | volle Browser-Tests auf dem Computer + Gesamttest; Rot öffnet ein Issue |
+| `volle-pruefung.yml` | nachts | volle Browser-Tests auf dem Computer + Gesamttest; Rot öffnet ein Issue. Seit 21.11.2026 vergleicht der Lauf mit der Nacht davor (`scripts/nacht-vergleich.mjs`): ein Kommentar (Mail) kommt nur, wenn etwas **neu** rot ist |
 | `dependabot-automerge.yml` | Dependabot-PRs | grün → von selbst zusammenführen (Noah 26.10.2026, ohne Freigabe) |
 
-`scripts/ci-scope.mjs`: ein PR, der nur Doku, News-Dateien oder ganze Specs ändert, führt nur die eigenen Specs aus. «Ausprobieren» tippt in einem PR nur die Zeilen der eigenen News-Dateien; nachts alle.
+`scripts/ci-scope.mjs`: ein PR, der nur Doku, News-Dateien oder ganze Specs ändert, führt nur die eigenen Specs aus. Ein PR mit App-Code führt ausser den Specs seiner Seiten immer den «Kern» (`CORE_SPECS`) aus: die Wächter, die die ganze App prüfen (`guard`, `flow`, `tippzahl`, `functions`, `heimat`, `tote-knoepfe`). Ein neuer Wächter dieser Art kommt in diese Liste. «Ausprobieren» tippt in einem PR nur die Zeilen der eigenen News-Dateien; nachts alle.
 
 **Wächter in den Tests** (die häufigsten Gründe für ein rotes Häkchen):
 - `appstand.test.js`: toter Link in `docs/app-stand.md`, Funktion ohne Zeile, Versionsnummer in der Datei.
