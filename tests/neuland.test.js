@@ -11,6 +11,7 @@ import {
 import { loadBase } from '../src/lib/neuland/load.js';
 import { computeNeuland, saveState, readState, cantonAt } from '../src/lib/neuland/store.js';
 import { decodeRing, inRings, lineKm, densify } from '../src/lib/neuland/geo.js';
+import { encodePolyline } from '../src/lib/spur/polyline.js';
 import DE from '../src/lib/i18n/de/neuland.js';
 
 afterEach(() => (lang.v = 'en'));
@@ -101,6 +102,25 @@ describe('finding what was new', () => {
   it('a trip without a line counts with its start place; activities without a place count for nothing', () => {
     const tracks = tracksOf({ trips: [{ id: 't1', startDate: '2026-02-01', place: { name: 'x', lat: 46.0, lon: 8.95 } }], activities: [{ id: 'a1', day: '2026-02-02', km: 20 }], today: '2026-10-19' });
     expect(tracks).toEqual([{ day: '2026-02-01', tripId: 't1', rideId: null, src: 'trip', pts: [[46.0, 8.95]] }]);
+  });
+});
+
+describe('Neuland and Heatmap read the same lines', () => {
+  it('a Strava ride with its line as encoded text counts, like on the Heatmap', async () => {
+    const tracks = tracksOf({ activities: [{ id: 'a1', day: '2026-07-04', type: 'Ride', line: encodePolyline(KLAUSEN) }], today: '2026-10-19' });
+    expect(tracks).toHaveLength(1);
+    expect(tracks[0]).toMatchObject({ day: '2026-07-04', src: 'activity', actId: 'a1' });
+    expect(tracks[0].pts.length).toBe(KLAUSEN.length);
+    const found = detect(await defsOf(['cantons', 'passes']), tracks);
+    expect(found.cantons.UR.day).toBe('2026-07-04');
+    expect(found.passes['p-klausenpass'].day).toBe('2026-07-04');
+  });
+  it('a recording of the app counts too; a day in the future does not', () => {
+    const rec = { id: 'x1', kind: 'rec', day: '2026-07-05', pts: KLAUSEN.map(([la, lo], i) => [la, lo, i * 60]) };
+    const later = { ...rec, id: 'x2', day: '2099-01-01' };
+    const tracks = tracksOf({ recordings: [rec, later, { kind: 'place', day: '2026-07-05', pts: KLAUSEN }], today: '2026-10-19' });
+    expect(tracks.map((x) => x.src)).toEqual(['rec']);
+    expect(tracks[0].pts).toHaveLength(KLAUSEN.length);
   });
 });
 

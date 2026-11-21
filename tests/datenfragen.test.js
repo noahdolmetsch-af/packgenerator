@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, todoHit, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES, VALUES, valueNow, customRule, customHit, condOf, ruleList, moveRule, setRuleName, ruleName, dropRule, restoreRule, goneRules } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, tickDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, todoHit, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES, VALUES, valueNow, customRule, customHit, condOf, ruleList, moveRule, setRuleName, ruleName, dropRule, restoreRule, goneRules } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow, newOwn, putOwn, allQuestions, settingOf, dueList, counts, configOf, deleteQuestion } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -164,6 +164,38 @@ describe('Fragen aus deinen Daten', () => {
       expect(pauseHit([act(-8)], [played(-2)], TODAY)).toBeNull();
       expect(pauseHit([act(-8)], [{ sport: 'act:tennis', kind: 'slot', day: add(TODAY, -1) }, { sport: 'act:run', kind: 'played', day: add(TODAY, -1) }], TODAY)).toEqual({ n: 8 });
       expect([...trainingDays([act(-1)], [played(-2)])].sort()).toEqual([add(TODAY, -2), add(TODAY, -1)]);
+    });
+    describe('your ticks count as training (Noah 21.11.2026)', () => {
+      const flowActs = [{ id: 'run', ring: 'move' }, { id: 'meditation', ring: 'mind' }, { id: 'sauna', ring: 'rest' }, { id: 'bike', ring: 'move' }];
+      const tick = (actId, n, extra = {}) => ({ id: `${actId}${n}`, actId, day: add(TODAY, n), ...extra });
+      it('a tick of any sport of the ring move is a training day, meditation, sauna and the ride to work are not', () => {
+        const log = [tick('run', -1), tick('meditation', -2), tick('sauna', -3), tick('bike', -4, { via: 'commute' })];
+        expect(tickDays({ log, flowActs, today: TODAY })).toEqual([add(TODAY, -1)]);
+      });
+      it('a sport you deleted since and a tick from Strava or the timer still count', () => {
+        const log = [tick('gone', -2), tick('run', -3, { via: 'strava', stravaId: '9' }), tick('run', -5, { via: 'timer' })];
+        expect(tickDays({ log, flowActs, today: TODAY })).toEqual([add(TODAY, -5), add(TODAY, -3), add(TODAY, -2)]);
+      });
+      it('ticks of the weekly plan count, but not meditation, sauna and rest block', () => {
+        const weeklog = { weeks: { '2026-11-02': { done: { 'tennis@1': add(TODAY, -1), 'med@0': add(TODAY, -2), 'sauna#1': add(TODAY, -3), 'rest#1': add(TODAY, -4), 'bikeOut#1': 'kaputt' } } } };
+        expect(tickDays({ weeklog, today: TODAY })).toEqual([add(TODAY, -1)]);
+      });
+      it('reads only the last 40 days up to today and gives nothing without a day', () => {
+        const log = [tick('run', -41), tick('run', -40), tick('run', 2)];
+        expect(tickDays({ log, flowActs, today: TODAY })).toEqual([add(TODAY, -40)]);
+        expect(tickDays({ log, flowActs })).toEqual([]);
+      });
+      it('the pause is counted from the last tick as well, so ticking sports each day brings no question', () => {
+        const ticks = tickDays({ log: [tick('run', -1)], flowActs, today: TODAY });
+        expect(pauseHit([act(-8)], [], TODAY, 4, ticks)).toBeNull();
+        expect(pauseHit([act(-8)], [], TODAY, 4, [])).toEqual({ n: 8 }); // Noah's case: only Strava seen, 5 days ago
+        expect(pauseHit([], [], TODAY, 4, tickDays({ log: [tick('run', -5)], flowActs, today: TODAY }))).toEqual({ n: 5 }); // ticks alone give something to count from
+        expect(dataDue({ acts: [act(-8)], ticks, today: TODAY })).toEqual([]);
+        expect(dataDue({ acts: [act(-8)], today: TODAY })[0].q.id).toBe('daten.pause');
+      });
+      it('a rule of your own «days without training» reads the ticks too', () => {
+        expect(valueNow('pause', { acts: [act(-8)], ticks: [add(TODAY, -2)], today: TODAY })).toBe(2);
+      });
     });
     it('gives the question with its reason and respects the switch', () => {
       const [d] = dataDue({ acts: [act(-6)], today: TODAY });

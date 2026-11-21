@@ -2,7 +2,7 @@
 export default {
   title: 'Agenda says when it is fetched',
   lead: 'After «Fetch now» a line says the appointments and tasks are up to date.',
-  points: [{ text: 'Agenda: «Fetch now» ends with «Done»', go: { href: '#/agenda', where: 'Shows at the top of the agenda after «Fetch now», once Google is connected.' } }],
+  points: [{ text: 'Agenda: «Fetch now» ends with «Done»', go: { href: '#/me/agenda', where: 'Shows at the top of the agenda after «Fetch now», once Google is connected.' } }],
   small: [],
   test: ['Open the agenda and tap «Fetch now».', 'A line says «Done: appointments and tasks are up to date from Google.»'],
   since: [],
