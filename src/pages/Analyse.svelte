@@ -242,8 +242,8 @@
   {:else if tab === 'ueberblick'}
     {#if on.length}<Ueberblick {days} {byKey} acts={data.acts} log={data.log} {on} onday={(d) => (dayOpen = d)} />{:else}<Empty text={t('Switch on at least one source above, then your values show here.')} />{/if}
   {:else if tab === 'diagramm'}
-    <section class="card vw" aria-label={t('Views|views')}><Ansichten {views} now={nowShown} onapply={applyView} /></section>
     {#key dgRun}<Diagramm {groups} {byKey} rowOf={(d) => data.table.get(d)} trips={data.trips} acts={data.acts} log={data.log} {today} start={dgStart} onstate={(st) => (dgState = st)} />{/key}
+    <section class="card vw" aria-label={t('Views|views')}><Ansichten {views} now={nowShown} onapply={applyView} /></section>
   {:else if tab === 'vergleiche'}
     <Vergleiche {byKey} acts={data.acts} log={data.log} trips={data.trips} {today} />
   {:else if tab === 'rekorde'}
