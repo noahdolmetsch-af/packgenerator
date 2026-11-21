@@ -38,3 +38,23 @@ export function momentOf(day, time, today, now = new Date()) {
   if (Number.isNaN(d.getTime())) return undefined;
   return (d > now ? now : d).toISOString();
 }
+
+/* ---------- «Gestern nichts abgehakt? Nachtragen» (the quiet hint in the morning on Aktiv) ---------- */
+/** The hint is hidden for the day on this device (a convenience of the device, no data). */
+export const HINT_NO_KEY = 'nachtragNo';
+/** The hint stands until noon. */
+export const HINT_UNTIL_HOUR = 12;
+/** Somebody who ticked something in the last two weeks gets it; a new user does not. */
+export const HINT_LOOKBACK = 14;
+
+/**
+ * Show the hint? In the morning, when yesterday has no tick and the last two weeks had at least one
+ * (so someone who just started is not told off). `log` is the flowLog, `hour` the hour of the device.
+ */
+export function showNachtragHint(log = [], today, hour) {
+  if (hour >= HINT_UNTIL_HOUR) return false;
+  const yesterday = addDays(today, -1);
+  if (log.some((e) => e.day === yesterday)) return false;
+  const from = addDays(today, -HINT_LOOKBACK);
+  return log.some((e) => e.day >= from && e.day < yesterday);
+}
