@@ -515,8 +515,19 @@ test('S6 backup round trip: export, replace, export again, merge', async ({ page
   await page.goto('./#/');
   await page.reload();
   await expect.poll(async () => (await table(page, 'settings')).some((s) => s.key === 'homeMilestones'), { timeout: 20_000 }).toBe(true);
-  const db1 = await snapshot(page);
+  // 21.11.2026: the app seeds some of its own rows late (the meditation templates, the sayings memory of Today) and
+  // writes more when a page opens. A snapshot taken before «Ich › Daten» opened lacked them, the export held them, and
+  // this test went red in every night run although nothing was lost (the export is the newer, fuller state).
+  // So: open the window first, then wait until the stored data stops changing, and only then compare.
   const panel = await openData(page);
+  let db1 = await snapshot(page);
+  for (let i = 0; i < 8; i++) {
+    await page.waitForTimeout(600);
+    const again = await snapshot(page);
+    const same = JSON.stringify(comparable(again)) === JSON.stringify(comparable(db1));
+    db1 = again;
+    if (same) break;
+  }
   const [dl] = await Promise.all([page.waitForEvent('download'), panel.getByRole('button', { name: T('Save backup') }).and(page.locator(':not([data-status-save])')).click()]);
   const path = info.outputPath('export1.json');
   await dl.saveAs(path);
@@ -541,7 +552,10 @@ test('S6 backup round trip: export, replace, export again, merge', async ({ page
   const path2 = info.outputPath('export2.json');
   await dl2.saveAs(path2);
   const exp2 = JSON.parse(readFileSync(path2, 'utf8'));
-  expect(comparable(exp2.tables), 'G015a: two backups without a change are the same').toEqual(comparable(exp1.tables));
+  // Today picks a new saying every time it is shown and keeps the last 30 in the settings row home.spruch («recent», PR #1246):
+  // the app's own memory, like the tips. The rest of that row (tone, switched-off sayings) is the user's and is compared.
+  const noSaid = (tables) => ({ ...tables, settings: tables.settings.map((r) => (r.key === 'home.spruch' ? { ...r, value: { ...r.value, recent: [] } } : r)) });
+  expect(comparable(noSaid(exp2.tables)), 'G015a: two backups without a change are the same').toEqual(comparable(noSaid(exp1.tables)));
 
   // merge the same file again: nothing doubles, nothing changes
   await importBackup(page, info, exp1, { lang: LANG, name: 'export1.json', mode: 'merge' });
