@@ -1,6 +1,6 @@
 # Ganz geschafft
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 3)
+PR #1367 · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 3)
 
 ## Was ist neu
 - Auf Auswerten › Meilensteine steht unter der Karte «Dein nächster Stern» ein goldenes Regal «Ganz geschafft»: jeder Meilenstein mit allen Sternen als Kachel mit bestem Wert und «Letzter Stern am …».
