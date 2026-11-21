@@ -2091,3 +2091,4 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 21.11.2026 Klügere App: S1, S3, S4, S5, S6 ja, S2 gestrichen
 - Noah «1a 2b 3a 4a 5a» (Thread «Ideen für bessere App und Inhalte sammeln», Analyse unter `notes/app-intelligenz-2026-11-21`): (1a) Tempo genauer pro Velo, Belag und Ermüdung; (2b) «Route kennt deine Erfahrung» ja, «Gegenwind zuerst» nein; (3a) Erkenntnisse mit Sicherheitsangabe nach K3; (4a) Hinweise lernen aus dem Wegtippen; (5a) «Frag die App» merkt sich Fragen ohne Antwort (nur auf dem Gerät). Keine externe KI, nur Regeln und Statistik. Reihenfolge: S3, S5, S1, S6, S4; S1 und S5 brauchen eine Einzelfreigabe wegen Daten.
+- 21.11.2026 (Noah, Karte «a»): S1 «Tempo genauer» wird verkleinert: Tempo je Velo und Untergrund gibt es schon (`paceFor`), neu ist nur die Ermüdung bei langen Tagen (ab 80 km, aus den eigenen Fahrten, keine Datenänderung).
