@@ -184,6 +184,20 @@ test.describe('Fragen aus deinen Daten', () => {
     await expect(card.locator('[data-q="daten.pause"]')).toHaveCount(0);
   });
 
+  test('sports ticked off count as training: no pause question although Strava is six days back', async ({ page, context }, info) => {
+    const d = data(52);
+    d.tables.activities = [{ id: 'fad-p2', day: day(-6), kind: 'run', name: 'Run', km: 8, movingS: 3000 }];
+    // Noah 21.11.2026: ticks of Aktiv on the last days (a run yesterday, yoga two days ago) and a tick of the weekly plan
+    d.tables.flowLog = [
+      { id: 'fad-t1', actId: 'run', day: day(-1), at: `${day(-1)}T07:30:00.000Z`, n: 1, min: 40 },
+      { id: 'fad-t2', actId: 'yoga', day: day(-2), at: `${day(-2)}T18:00:00.000Z`, n: 1 },
+    ];
+    const T = await openHome(page, context, info, { data: d });
+    await expect(page.locator('[data-section="abfragen"]')).toBeVisible();
+    await expect(page.locator('[data-q="daten.pause"]')).toHaveCount(0);
+    await expect(page.getByText(T('What kept you from training lately?'))).toHaveCount(0);
+  });
+
   test('a game yesterday asks what worked, with the minutes as the reason', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data(52, { sport: [['played', -1, { type: 'training', min: 90, court: 'clay', result: 'none', worked: '' }]] }) });
     const card = page.locator('[data-section="abfragen"]');
