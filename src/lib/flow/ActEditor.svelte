@@ -23,6 +23,7 @@
   import { SPORT_TEMPLATES, applyTemplate } from './sporttemplates.js';
   import { goalHint } from './goalhint.js';
   import { actGoalText, goalsText, oneGoal } from './words.js';
+  import { DEFAULT_MIN, CHOICES, usualFor, readUsual, saveUsual } from './usualmin.js';
   import { t, locale, lang } from '../i18n.svelte.js';
 
   // back: where «Save» and the back link lead («Aktiv neu»: the sport's page when opened there, else «Meine Sportarten»)
@@ -39,7 +40,21 @@
     name = isNew ? '' : actName(orig);
     half = a.season ? (halfOf(a, today) ?? 'summer') : 'summer';
     minOwn = [0, 15, 30].includes(a.minMin) ? '' : String(a.minMin);
+    usualKey = 'std';
+    usualOwn = '';
+    if (!isNew) loadUsual(id);
   });
+  /* «Übliche Dauer» (Noah 21.11.2026 «2b»): what one session of this sport usually takes; the setting sport.usualMin (backup) */
+  let usualKey = $state('std');
+  let usualOwn = $state('');
+  async function loadUsual(actId) {
+    const u = usualFor(await readUsual(db), actId);
+    if (loadedFor !== actId) return;
+    usualKey = !u.own || u.min === DEFAULT_MIN ? 'std' : CHOICES.includes(u.min) ? u.min : 'own';
+    usualOwn = usualKey === 'own' ? String(u.min) : '';
+  }
+  const usualMin = $derived(usualKey === 'std' ? 0 : usualKey === 'own' ? Math.max(0, Math.round(Number(usualOwn) || 0)) : usualKey);
+  const USUAL_OPTS = $derived([{ key: 'std', name: t('Standard {n} min', { n: DEFAULT_MIN }) }, ...CHOICES.filter((m) => m !== DEFAULT_MIN).map((m) => ({ key: m, name: t('{n} min', { n: m }) })), { key: 'own', name: t('own|duration') }]);
   /* «Meine Sportarten» 4b: the group of the sport (own groups of the page «Meine Sportarten»), chosen here too */
   const grpQ = liveQuery(() => db.settings.get(GROUPS_KEY));
   const groups = $derived($grpQ?.value ?? []);
@@ -137,6 +152,7 @@
     }
     if (minKey === 'own') out.minMin = Math.max(0, Math.round(Number(minOwn) || 0));
     await saveAct(db, out);
+    await saveUsual(db, out.id, usualMin);
     location.hash = back || '#/flow/sports';
   }
   /*
@@ -244,6 +260,10 @@
       <p class="lbl" id="ed-min">{t('Minimum duration')}</p>
       <Seg chips full={false} labelledby="ed-min" value={minKey} onchange={(k) => (k === 'own' ? (minOwn = String(a.minMin || 20)) : ((minOwn = ''), (a.minMin = k)))} options={[{ key: 0, name: t('none|duration') }, { key: 15, name: t('{n} min', { n: 15 }) }, { key: 30, name: t('{n} min', { n: 30 }) }, { key: 'own', name: t('own|duration') }]} />
       {#if minKey === 'own'}<label class="inl"><input class="inp n" type="number" min="1" inputmode="numeric" bind:value={minOwn} aria-label={t('Minimum duration')} /> min</label>{/if}
+      <p class="lbl" id="ed-usual">{t('Usual duration')}</p>
+      <Seg chips full={false} labelledby="ed-usual" value={usualKey} onchange={(k) => (k === 'own' ? ((usualKey = 'own'), (usualOwn = usualOwn || '75')) : ((usualKey = k), (usualOwn = '')))} options={USUAL_OPTS} />
+      {#if usualKey === 'own'}<label class="inl"><input class="inp n" type="number" min="1" max="1440" inputmode="numeric" bind:value={usualOwn} aria-label={t('Usual duration')} data-usual-own /> min</label>{/if}
+      <p class="hint" data-usual-hint>{t('Used for ticks without a measured time, shown as «ca.». Never written into a tick. Measured time always counts first.')}</p>
       <label class="inl tap"><span>{t('One tap counts')}</span><input class="inp n" type="number" min="1" inputmode="numeric" value={a.perTap} oninput={(e) => (a.perTap = Math.max(1, Math.round(Number(e.currentTarget.value) || 1)))} /></label>
     </section>
 
