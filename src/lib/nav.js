@@ -412,6 +412,8 @@ const WEEK_PAGES = {
   compass: { label: 'Compass|tab', href: '#/me/compass', match: (h) => h.startsWith('#/me/compass') },
   alltag: { label: 'Everyday|tab', href: '#/me/alltag', match: (h) => h.startsWith('#/me/alltag') },
   frei: { label: 'Free time|tab', href: '#/me/frei', match: (h) => h.startsWith('#/me/frei') },
+  // «Impulse» (Noah 21.11.2026 «2a»): the page is one of the eight of Freie Zeit; its old address #/flow/impulse stays
+  impulse: { label: 'Impulses', href: '#/flow/impulse', match: (h) => /^#\/flow\/impulse(\/|\?|$)/.test(h) },
   // «Alles finden 2» (Noah 22.10.2026 «4a»): your links and ideas left Ich; they are things you plan with
   links: { label: 'Tools and links', href: '#/me/links', match: (h) => h.startsWith('#/me/links') },
 };
@@ -436,8 +438,8 @@ const ANALYSIS_PAGES = {
   // UI-Ziele #6: the answers of «Wi gaht's?» with the history, what does you good and the weight
   history: { label: 'How you are|tab', href: '#/me/abfragen', match: (h) => h.startsWith('#/me/history') || h.startsWith('#/me/abfragen') || h.startsWith('#/me/analysis') },
   wohl: { label: 'Good for me|tab', href: '#/me/wohl', match: (h) => h.startsWith('#/me/wohl') },
-  // Runde 3 «3b»: Impulse moves here, with the ideas (Paket T «Freie Zeit», also under Ich › Freie Zeit)
-  impulse: { label: 'Impulses', href: '#/flow/impulse', match: (h) => /^#\/flow\/(impulse|ideen)(\/|\?|$)/.test(h) },
+  // Runde 3 «3b»: the ideas for your balance stand here; the page Impulse moved to Planen › Alltag (Noah 21.11.2026 «2a»)
+  ideen: { label: 'Ideas', href: '#/flow/ideen', match: (h) => /^#\/flow\/ideen(\/|\?|$)/.test(h) },
   // N1: Erkenntnisse (resting pulse, sleep and rides together)
   insights: { label: 'Insights|tab', href: '#/me/insights', match: (h) => h.startsWith('#/me/insights') },
   weight: { label: 'Weight|tab', href: '#/me/weight', match: (h) => h.startsWith('#/me/weight') },
@@ -475,7 +477,7 @@ export const PLACE_TABS = {
   week: [
     { key: 'week', label: 'Week|tab', subs: ['week', 'agenda'] },
     { key: 'notes', label: 'Notes|tab', subs: ['notes', 'inbox', 'remember', 'tagebuch', 'mail'] },
-    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'frei', 'compass', 'links'] },
+    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'frei', 'impulse', 'compass', 'links'] },
   ].map((x) => tabWithSubs(x, WEEK_PAGES)),
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !h.startsWith('#/trips/vorschlaege') && !h.startsWith('#/trips/weg') && !h.startsWith('#/trips/pfad') && !h.startsWith('#/trips/fuel') && !h.startsWith('#/trips/compare') && !isRidesHash(h) }, // Impeccable 20.10.2026: Verpflegung is a page of a tour, not the overview
@@ -530,7 +532,7 @@ export const PLACE_TABS = {
     { key: 'start', label: 'Overview|tab', subs: ['fragen', 'start'] },
     { key: 'body', label: 'Body|tab', subs: ['form', 'body', 'insights', 'weight'] },
     { key: 'rides', label: 'Rides|tab', subs: ['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned'] },
-    { key: 'history', label: "How you are|tab", subs: ['history', 'wohl', 'impulse'] },
+    { key: 'history', label: "How you are|tab", subs: ['history', 'wohl', 'ideen'] },
     { key: 'analyse', label: 'Own diagram|tab', subs: ['analyse'] },
   ].map((x) => tabWithSubs(x, ANALYSIS_PAGES)),
 };
@@ -575,9 +577,9 @@ export function placeOf(page, hash = '') {
   if (page === 'routine') return 'active'; // Routine «Das tut mir gut» (D2): the tile on Heute leads here; «Aktiv und Auswerten» 5 (Noah 03.11.2026): the list stands under Aktiv › Erholung
   // «Aktiv neu» (Noah 22.10.2026): the pages to look at are under Auswerten, the same addresses
   if (page === 'flow') return LOOK_FLOW.test(hash || '') ? 'analysis' : 'active';
-  if (page === 'impulse' || page === 'auswerten') return 'analysis'; // Runde 3 «3b»: Impulse is in Auswerten
+  if (page === 'auswerten') return 'analysis';
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
-  if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'weblinks'].includes(page)) return 'week';
+  if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'impulse', 'weblinks'].includes(page)) return 'week';
   if (page === 'inspiration') return 'trips'; // Schritt 10 (Z3): a tab of Touren, next to the dreams
   if (page === 'tools') return 'trips'; // «Alles finden 2» (Noah 22.10.2026 «4a»): the toolbox is a tab of Touren
   if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'quellen', 'sportjahr', 'sportrueckblick', 'fragen', 'wohl', 'weight', 'heatmap', 'neuland', 'gelernt', 'jahr'].includes(page)) return 'analysis'; // «Aktiv und Auswerten» 3a: the four pages of looking back

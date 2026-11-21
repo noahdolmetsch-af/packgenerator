@@ -2,7 +2,7 @@
   /**
    * Paket T «Freie Zeit» (Noah 19.10.2026 «2a»): on a day without a ride idea, the spot «Idea for
    * today» on Heute shows an impulse instead (one quiet row). Off with the switch on the page Impulse;
-   * «More» opens the tab Impulse of Aktiv.
+   * «More» opens the page Impulse of Freie Zeit.
    */
   import { Sparkles } from '@lucide/svelte';
   import { cfgQuery } from '../freidb.js';

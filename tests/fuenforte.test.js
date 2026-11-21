@@ -62,10 +62,13 @@ describe('the pages under each place', () => {
     expect(tabOf('active', '#/flow/goals')).toBe('sports');
     // «Aktiv neu» (Noah 22.10.2026): Aktiv is for doing, «Auswerten» for looking
     for (const [h, k] of [['#/flow/sports', 'sports'], ['#/flow/sport/act:yoga', 'sports'], ['#/flow/act/meditation', 'sports'], ['#/flow/bags', 'sports'], ['#/flow/training', 'training'], ['#/flow/rest', 'rest'], ['#/flow/week', 'today']]) expect(tabOf('active', h), h).toBe(k);
-    for (const [h, k] of [['#/auswerten', 'start'], ['#/flow/form', 'form'], ['#/flow/stats/hr', 'body'], ['#/flow/auswertung', 'ticks'], ['#/flow/milestones?act=yoga', 'milestones'], ['#/flow/trophies', 'milestones'], ['#/flow/ideen', 'impulse']]) {
+    for (const [h, k] of [['#/auswerten', 'start'], ['#/flow/form', 'form'], ['#/flow/stats/hr', 'body'], ['#/flow/auswertung', 'ticks'], ['#/flow/milestones?act=yoga', 'milestones'], ['#/flow/trophies', 'milestones'], ['#/flow/ideen', 'ideen']]) {
       expect(leaf('analysis', h), h).toBe(k);
       expect(placeOf(pageOf(h), h), h).toBe('analysis');
     }
+    // «Impulse» moved from Auswerten to Planen › Freie Zeit (Noah 21.11.2026 «2a»); its address stays
+    expect(leaf('week', '#/flow/impulse')).toBe('impulse');
+    expect(placeOf(pageOf('#/flow/impulse'), '#/flow/impulse')).toBe('week');
     expect(placeOf(pageOf('#/flow/sports'), '#/flow/sports')).toBe('active');
     expect(tabOf('today', '#/')).toBe(null);
   });
