@@ -30,7 +30,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 7b | Danach, «Das fällt auf» nur nach der Tour, Antwort in Worten | - | offen | - |
 | 11 | Planen: 11 → 3 Reiter (Woche, Notizen, Alltag) | #1303 | online | datei:tests/e2e/planen-drei-reiter.spec.js |
 | 12a | Auswerten: 18 → 5 Reiter nach Frage geordnet (Überblick, Körper, Fahrten, Wi gaht's?, Eigenes Diagramm); die alten Seiten als Chips | #1305 | online | datei:tests/e2e/auswerten-gruppen.spec.js |
-| 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | gebaut | - |
+| 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | online | datei:tests/e2e/analyse-diagramm.spec.js |
 | 13 | Velos und Material: ein Bereich mit Reitern und Kacheln, «Sets» statt Ausrüstung (= V5 des Auftrags «App vereinfachen») | - | offen | - |
 | 6 | Ich (vier Gruppen mit Satz zum Stand, «Wartet auf dich» zuerst) und Suche | - | offen | - |
 | V1 | Woche: «n von m Einheiten erledigt» und die Ziele der Woche auf der Woche-Seite | #1349 | gebaut | - |
