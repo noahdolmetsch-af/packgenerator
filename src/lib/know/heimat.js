@@ -144,6 +144,7 @@ const LISTED_HOME = {
   'f.racemap': '#/race/:race',
   'f.climbs': '#/race/:race',
   'f.mapoffline': '#/race/:race/map',
+  'f.routeknown': '#/pack',
   'f.rwgps': '#/pack',
   'f.sleeplists': '#/race/:race/route',
   'f.nightswx': '#/race/:race/route',

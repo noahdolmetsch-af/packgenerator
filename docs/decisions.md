@@ -2081,3 +2081,6 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 21.11.2026 Seitenregeln für die ganze App
 - Noah «1-5a» (Thread «Einheitliches Erscheinungsbild, Tagebuch zuerst»; Bericht https://claude.ai/artifact/7vM8VacJjgKav8pEz2484z): (1a) Die acht Seitenregeln gelten für alle Seiten (`docs/design-audit.md`), in drei Stufen; (2a) Hilfe nur über das «?», die Zeile «Was du hier tun kannst» unter dem Titel fällt weg; (3a) Frage des Tages im Tagebuch als eigene Karte unter der Schreib-Karte; (4a) gewählter Umschalter = weisse Fläche mit Rand, auch bei Aktiv und Auswerten; (5a) Reihenfolge: Werte-PR (Titel, Ecken), dann Tagebuch, dann Ort für Ort der Kopf-Baustein.
+
+## 21.11.2026 Klügere App: S1, S3, S4, S5, S6 ja, S2 gestrichen
+- Noah «1a 2b 3a 4a 5a» (Thread «Ideen für bessere App und Inhalte sammeln», Analyse unter `notes/app-intelligenz-2026-11-21`): (1a) Tempo genauer pro Velo, Belag und Ermüdung; (2b) «Route kennt deine Erfahrung» ja, «Gegenwind zuerst» nein; (3a) Erkenntnisse mit Sicherheitsangabe nach K3; (4a) Hinweise lernen aus dem Wegtippen; (5a) «Frag die App» merkt sich Fragen ohne Antwort (nur auf dem Gerät). Keine externe KI, nur Regeln und Statistik. Reihenfolge: S3, S5, S1, S6, S4; S1 und S5 brauchen eine Einzelfreigabe wegen Daten.

@@ -21,6 +21,7 @@ export default {
   "f.laundry": "Merino dries overnight in a hotel room, cycling shorts rarely. Wash the shorts first.",
   "f.morninglist": "The morning list stays short on purpose: phone, keys, glasses, wallet. Everything else belongs in the bag the evening before.",
   "f.packtime": "Packing gets faster with the same bags in the same order. The third trip usually takes half the time of the first.",
+  "f.routeknown": "A stretch you marked as bad is easy to ride again by accident on a route from someone else. Look at the hint before the start, not on the road.",
   "f.rwgps": "Waypoints from Ride with GPS come along with the route, so water and coffee stops you marked there show up here too.",
   "f.starters": "Start from your last trip of the same sport, then take out instead of adding: removing is faster than remembering.",
   "f.packside": "Heavy things low and near the frame, light things high. The bike steers calmer and the bags rattle less.",
