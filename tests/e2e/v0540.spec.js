@@ -7,6 +7,7 @@
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, base } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';
+import { closeDialog } from './settle.js';
 
 const table = (page, name) =>
   page.evaluate((n) => new Promise((ok) => {
@@ -57,8 +58,7 @@ test('the top: name and one summary line; the rest folded, Gewicht first, one ro
   await expect(fold(dlg, 'blocks')).toHaveJSProperty('open', true);
   await expect(dlg.getByRole('group', { name: 'Kommt mit · Bausteine' }).getByRole('button', { name: /^Standard/ })).toHaveAttribute('aria-pressed', 'true');
   // the last row opened stays open for the session
-  await page.keyboard.press('Escape');
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await closeDialog(page); // waits until backclose.js has taken the window's history entry away; a next address before that is undone
   await page.goto('./#/gear?item=RA01');
   const d2 = page.locator('dialog[open]');
   await expect(fold(d2, 'blocks')).toHaveJSProperty('open', true);

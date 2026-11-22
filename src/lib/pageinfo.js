@@ -284,6 +284,9 @@ export function infoOf(v) {
   const obj = (x) => (x && typeof x === 'object' && !Array.isArray(x) ? x : {});
   return {
     tipsOn: o.tipsOn !== false,
+    // Hilfen 3b (Noah 22.11.2026 «1a»): the tip line under the page titles is off until the user switches it on
+    // (tests set globalThis.__pgTipLines, like __pgCardsOpen, so the older specs keep looking at the line)
+    lineOn: typeof o.lineOn === 'boolean' ? o.lineOn : globalThis.__pgTipLines === true,
     knowOn: o.knowOn !== false,
     off: Array.isArray(o.off) ? o.off.filter((x) => typeof x === 'string') : [],
     own: obj(o.own),
@@ -411,6 +414,8 @@ export const canRows = (page, base = '') => list(PAGES[page]?.can).map((r) => ({
 
 /* ---------- changes (each returns the new stored value) ---------- */
 export const setTipsOn = (info, on) => ({ ...infoOf(info), tipsOn: !!on });
+/** Hilfen 3b: the tip line under the page titles (default off; the tips stay in «Tips for this page» and the «?» window). */
+export const setLineOn = (info, on) => ({ ...infoOf(info), lineOn: !!on });
 /** WD1: «Only useful tips» (false) or «Also knowledge and fun» (true), for all pages. */
 export const setKnowOn = (info, on) => ({ ...infoOf(info), knowOn: !!on });
 export function setTip(info, id, on) {
