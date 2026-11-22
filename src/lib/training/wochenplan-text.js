@@ -43,6 +43,7 @@ export const NOTE_TEXT = {
   'ski-day-taken': 'The ski tour takes {day}: «{type}» on that day does not take place.',
   'tp-in': 'TrainingPeaks brings {h} h this week. They count towards your hours; the plan only adds the rest.',
   'tp-replaces': 'Replaced by TrainingPeaks: {n} × «{type}».',
+  'tp-rest': 'TrainingPeaks has a free day on {day}: the plan puts nothing else there.',
   'tp-over': 'TrainingPeaks alone is above your {h} h. Nothing else in the plan is taken away.',
 };
 
