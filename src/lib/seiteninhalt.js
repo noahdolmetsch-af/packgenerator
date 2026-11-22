@@ -55,11 +55,6 @@ export const ON_PAGES = [
   // Verbesserungs-Logbuch (Noah 22.11.2026 «so lassen, immer zugeklappt»): the line «What you can do here», closed
   '#/me/logbuch',
 ];
-/**
- * Pages without the line «What you can do here» (Seitenregeln 21.11.2026, Noah «2a»): the help sits only behind the «?», the
- * content stays in its window. Page by page, with the page head building block (stage 2). Page keys as in ON_PAGES.
- */
-export const LINE_OFF = ['#/tagebuch'];
 /** Words that are fixed sub-pages, never the id of a placeholder (#/debrief/logbook is not a trip). */
 export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung', 'play', 'ride', 'brief', 'new', 'shared'];
 /** Rows shown before «Show all n». */
