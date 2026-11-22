@@ -84,7 +84,7 @@
 
   /* A8: the rows «Bald erreichbar» and «Pro Aktivität», the trophy shelf (the newest stars, the next open) */
   // «Dein nächster Stern» (Noah 21.11.2026 «1a»): the card on top; «Soon within reach» below does not repeat its star
-  const hero = $derived(ctx && data ? heroOf({ list: scoped, ctx, acts: data.acts, plan: data.plan, weeklog: data.weeklog, today }) : null);
+  const hero = $derived(ctx && data ? heroOf({ list: scoped, ctx, acts: data.acts, plan: data.plan, weeklog: data.weeklog, sessions: data.plannedSessions ?? [], today }) : null);
   const soon = $derived(soonList(hero ? scoped.filter((r) => r.id !== hero.r.id) : scoped, 5));
   // «Der Sternen-Weg» (Noah 21.11.2026 «2a»): per sport the path of its stars instead of a percent row
   const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, href: `#/flow/milestones?act=${encodeURIComponent(a.id)}`, r })));

@@ -46,6 +46,7 @@
   import { todayNotes } from '../lib/notebook.js';
   import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
   import { WEEKPLAN_KEY } from '../lib/training/wochenplan.js';
+  import { PLAN_KEY as TRAINING_PLAN_KEY, planOf as trainingSessionsOf } from '../lib/training.js';
   import { WEEKLOG_KEY, logOf as planLogOf, setDone as planSetDone, dueToday as planDueToday } from '../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../lib/training/wochenplan-text.js';
   import { startUnitDone } from '../lib/flow/ui.svelte.js';
@@ -232,7 +233,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY, WEEKPLAN_KEY, WEEKLOG_KEY];
+  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY, WEEKPLAN_KEY, WEEKLOG_KEY, TRAINING_PLAN_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -842,7 +843,7 @@
   const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
   const wegStep = $derived(wegTodayStep(wegOf(S[WEG_KEY]), today));
-  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today));
+  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today, trainingSessionsOf(S[TRAINING_PLAN_KEY])));
   async function planTick(u) {
     const due = planToday;
     if (!due) return;
