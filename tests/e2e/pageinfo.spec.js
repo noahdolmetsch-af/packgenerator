@@ -17,6 +17,7 @@ const D0 = `${TODAY}T09:00:00+02:00`;
 async function open(page, context, hash) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await context.addInitScript(() => (globalThis.__pgTipLines = true)); // Hilfen 3b: the tip line is off in the app
   await page.clock.install({ time: new Date(D0) });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));

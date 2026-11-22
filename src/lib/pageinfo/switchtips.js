@@ -4,14 +4,14 @@
  * «Tipps einblenden» on again. → { text, undo }: undo puts back exactly what was stored before.
  */
 import { db } from '../db.js';
-import { PAGEINFO_KEY, setTipsOn } from '../pageinfo.js';
+import { PAGEINFO_KEY, setTipsOn, setLineOn } from '../pageinfo.js';
 import { t } from '../i18n.svelte.js';
 
 const plain = (x) => (x == null ? x : JSON.parse(JSON.stringify(x)));
 
 export async function switchTips(on) {
   const before = plain((await db.settings.get(PAGEINFO_KEY))?.value);
-  await db.settings.put({ key: PAGEINFO_KEY, value: setTipsOn(before, on) });
+  await db.settings.put({ key: PAGEINFO_KEY, value: setLineOn(setTipsOn(before, on), on) }); // Hilfen 3b: «show tips» also puts the tip line (off by default) back
   return {
     text: on ? t('«Good to know» is back on the pages.') : t('«Good to know» hidden on all pages. Back: search «show tips».'),
     undo: () => (before === undefined ? db.settings.delete(PAGEINFO_KEY) : db.settings.put({ key: PAGEINFO_KEY, value: before })),
