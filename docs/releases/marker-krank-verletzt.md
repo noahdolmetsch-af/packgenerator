@@ -15,7 +15,7 @@
 - **Höchstens 366 Tage pro Marker** (ein Jahr), damit ein Tippfehler im Jahr nicht alles abdeckt; längere Zeiträume lassen sich als zwei Marker setzen.
 - **Neuer Marker beginnt heute**, ohne vorgewählte Art (Speichern geht erst nach der Wahl). Alles änderbar.
 - **Keine eigene Seite, kein neuer Eintrag im Katalog:** Teil von «Form und Erholung» (Fertig-Regel Teil 1 bis 3 und 6: bestehende Seite, app-stand-Zeile ergänzt; Absprung folgt mit K3 («Marker setzen?» auf der Karte «Was auffällt»)).
-- **Wort «Marker»** (`docs/namen.md`, Zeile 32).
+- **Wort «Marker»** (`docs/namen.md`, Zeile 34).
 
 ## Entscheide (eigene Datei `docs/decisions/marker-krank-verletzt.md`)
 - 21.11.2026: Marker krank/verletzt/Stress/Ferien, ruhig, änderbar, mit Rückgängig; Auswertungen blenden markierte Tage aus.
