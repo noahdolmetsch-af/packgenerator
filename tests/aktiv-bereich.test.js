@@ -19,7 +19,7 @@ describe('the places', () => {
     expect(PLACE_TABS.week.find((x) => x.key === 'training').subs.map((x) => x.key)).toEqual(['training', 'wochenplan', 'flowhome', 'sports', 'rest']);
     // Schritt 12: five tabs by question, every old page is a chip under one of them
     expect(PLACE_TABS.analysis.map((x) => x.key)).toEqual(['start', 'body', 'rides', 'history', 'analyse']);
-    expect(PLACE_TABS.analysis.flatMap((x) => x.subs.map((s) => s.key))).toEqual(expect.arrayContaining(['fragen', 'start', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'impulse', 'insights', 'weight', 'milestones']));
+    expect(PLACE_TABS.analysis.flatMap((x) => x.subs.map((s) => s.key))).toEqual(expect.arrayContaining(['fragen', 'start', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones']));
   });
   it('the start of Auswerten is its own page', () => {
     expect(pageOf('#/auswerten')).toBe('auswerten');
@@ -109,13 +109,13 @@ describe('Auswerten in five tabs by question', () => {
     expect(subs.start).toEqual(['fragen', 'start']);
     expect(subs.body).toEqual(expect.arrayContaining(['form', 'body', 'weight', 'insights']));
     expect(subs.rides).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned']));
-    expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'impulse']));
+    expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'ideen']));
     expect(subs.analyse).toEqual(['analyse']);
   });
   it('no page of the old eighteen tabs is lost or stands twice', () => {
     const shown = all.flatMap((x) => x.subs.map((s) => s.key));
     expect(new Set(shown).size).toBe(shown.length);
-    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'impulse', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start'].sort());
+    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start'].sort());
   });
 });
 

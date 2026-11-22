@@ -37,10 +37,10 @@ Nicht gezeichnet: «Ich» (Daten, Verbindungen, Einstellungen, Hilfe) wird von f
 Aus `PLACE_TABS` in `src/lib/nav.js`. Am Handy zeigt ein Ort höchstens vier Reiter, der Rest steht unter «Mehr».
 
 - **Heute** `#/`: kein Reiter. Unterseiten: Quick Links `#/quick`, Timer `#/timer`, Morgen- und Abend-Check `#/check/morning`.
-- **Planen** `#/week`: Reiter Woche (Woche, Termine), Notizen (Notizen, Eingang, Merken, Tagebuch, Mail), Alltag (Alltag, Freie Zeit, Kompass, Werkzeuge und Links). Die Seiten darunter sind kleine Knöpfe unter dem Reiter.
+- **Planen** `#/week`: Reiter Woche (Woche, Termine), Notizen (Notizen, Eingang, Merken, Tagebuch, Mail), Alltag (Alltag, Freie Zeit mit Impulsen, Kompass, Werkzeuge und Links). Die Seiten darunter sind kleine Knöpfe unter dem Reiter.
 - **Touren** `#/trips`: Übersicht, Träume, Vorlagen, Rückblick, Inspiration, Skitouren, Reise-Links, Werkzeugkasten. Die Seiten einer einzelnen Tour (`#/pack`, `#/pack?day`, `#/ride`, `#/live`, `#/tour/…`, `#/trips/pfad`, `#/trips/weg`, `#/race`, `#/trips/fuel`) haben keinen Reiter und sind über die Übersicht und über Links erreichbar.
 - **Aktiv** `#/flow`: Heute, Meine Aktivitäten, Training, Erholung. Ohne Reiter: Geschafft `#/flow/geschafft`, Wochenrückblick `#/flow/review`, Wochenplan `#/flow/wochenplan`, Trainingspläne `#/flow/plans`.
-- **Auswerten** `#/auswerten`: Fragen, Übersicht, Analyse, Form und Erholung, Körperwerte, Fahrten, Haken ausgewertet, Wi gaht's?, Was mir gut tut, Impulse, Zusammenhänge, Gewicht, Meilensteine, Heatmap, Neuland, Gipfelbuch, Jahr. Ohne Reiter: Meine Datenquellen `#/auswerten/quellen`.
+- **Auswerten** `#/auswerten`: Fragen, Übersicht, Analyse, Form und Erholung, Körperwerte, Fahrten, Haken ausgewertet, Wi gaht's?, Was mir gut tut, Ideen, Zusammenhänge, Gewicht, Meilensteine, Heatmap, Neuland, Gipfelbuch, Jahr. Ohne Reiter: Meine Datenquellen `#/auswerten/quellen`.
 - **Velos** `#/bikes`: Übersicht, Pflege, Werkstatt, Teile, Mein Setup. Die Ansichten der Pflege (`view=inspect`, `wear`, `season`, `year`, …) sind Unterseiten.
 - **Material** `#/gear`: Alles, Kleider, Bausteine, Einkauf, Vorrat, Leihliste, Sets. Ohne Reiter: Material importieren, Strom, Bausteine prüfen, Packliste aufräumen.
 - **Ich** `#/me`: eine Liste von Zeilen statt Reitern (Daten und Backup, Verbindungen, Darstellung, Listen und Typen, Erinnerungen, Hilfe …).
