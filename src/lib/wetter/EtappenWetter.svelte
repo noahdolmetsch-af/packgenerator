@@ -61,6 +61,6 @@
   .ew-where, .ew-none, .ew-src { color: var(--ink-2); }
   .ew-r, .ew-w { display: inline-flex; align-items: center; gap: 3px; }
   .ew-r.wet { font-weight: 600; }
-  .ew-src { margin: 0; font-size: 0.85rem; }
+  .ew-src { margin: 0; font-size: var(--fs-small); }
   .ew-none { margin: 0; }
 </style>

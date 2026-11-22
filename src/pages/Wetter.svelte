@@ -420,7 +420,7 @@
 {#if homeSheet}<HomePlaceSheet current={$homeQ?.value ?? null} onclose={() => (homeSheet = false)} />{/if}
 
 <style>
-  .wx-next { margin: 14px 0 6px; font-size: 0.9rem; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+  .wx-next { margin: 14px 0 6px; font-size: var(--fs-small); color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
   .wx-next a, .wx-nextlink { display: inline-flex; align-items: center; gap: 2px; color: var(--ink); text-decoration: underline; font: inherit; background: none; border: 0; padding: 4px 0; min-height: 32px; cursor: pointer; }
   .wx {
     display: grid;
