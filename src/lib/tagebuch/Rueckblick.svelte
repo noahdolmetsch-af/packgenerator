@@ -2,20 +2,17 @@
   /**
    * «Tagebuch» › Rückblick (Noah 20.10.2026 «1a 2a 4b»): the mood curve of the last 90 days and what goes
    * together with it (observation only, never a cause), the words of a month as a cloud, calm series that
-   * stay once reached, and Gemini (only with a tick, each time): sum up a month, ask your diary.
+   * stay once reached.
    * «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the mood curve is the shared line chart: the smileys as the
    * axis, the mood of a day when pointing, a tap opens the day, «As table» lists the days with an entry.
    */
-  import { ChevronLeft, ChevronRight, Sparkles, Flame, Award, Plus } from '@lucide/svelte';
+  import { ChevronLeft, ChevronRight, Flame, Award } from '@lucide/svelte';
   import LineChart from '../charts/LineChart.svelte';
   import ChartSheet from '../charts/ChartSheet.svelte';
   import { moodOf, moodSeries, moodPairs, topWords, cloudSize, longestStreak, milestones } from './insights.js';
-  import { askContext, periodContext, diaryAi } from './ai.js';
-  import { geminiError } from '../assistent/gemini.js';
-  import { moodContext, saveEntry } from './journaldb.js';
+  import { moodContext } from './journaldb.js';
   import { shiftMonth, stats } from './journal.js';
-  import { offerDone } from '../ui/rename.svelte.js';
-  import { t, tn, lang, locale } from '../i18n.svelte.js';
+  import { t, tn, locale } from '../i18n.svelte.js';
 
   let { entries = [], today } = $props();
 
@@ -66,45 +63,6 @@
   const marks = $derived(milestones(entries));
   const done = $derived(marks.filter((m) => m.done));
   const next = $derived(marks.find((m) => !m.done && m.key.startsWith('entries')) ?? marks.find((m) => !m.done));
-
-  /* ---------- Gemini ---------- */
-  let aiOk = $state(false);
-  let busy = $state('');
-  let msg = $state('');
-  let answer = $state(null); // { kind, text, month? }
-  let question = $state('');
-  const L = () => (lang.v === 'en' ? 'en' : 'de');
-  async function summary() {
-    if (!aiOk || busy) return;
-    const context = periodContext(entries, `${month}-01`, `${month}-31`);
-    if (!context) return (msg = t('No entries in this month yet.'));
-    busy = 'summary';
-    msg = '';
-    answer = null;
-    const r = await diaryAi('summary', { context, lang: L() });
-    busy = '';
-    aiOk = false;
-    if (r.ok) answer = { kind: 'summary', text: r.text.trim(), month };
-    else msg = geminiError(r.error);
-  }
-  async function ask(ev) {
-    ev?.preventDefault();
-    if (!aiOk || busy || !question.trim()) return;
-    busy = 'ask';
-    msg = '';
-    answer = null;
-    const r = await diaryAi('ask', { question: question.trim(), context: askContext(entries, question), lang: L() });
-    busy = '';
-    aiOk = false;
-    if (r.ok) answer = { kind: 'ask', text: r.text.trim() };
-    else msg = geminiError(r.error);
-  }
-  async function keep() {
-    const m = answer.month;
-    await saveEntry({ day: today, title: t('Review of {month}', { month: monthName(m) }), text: answer.text, tags: [t('Review')] });
-    answer = null;
-    offerDone(t('Saved in your diary.'));
-  }
 </script>
 
 <div class="rb" data-tb-review>
@@ -152,23 +110,6 @@
     {#if next}<p class="rb-note">{t('Next: {what}', { what: t(next.label, next.vars) })}</p>{/if}
   </section>
 
-  <section class="rb-card" aria-labelledby="rb-ai-h" data-tb-ai-review>
-    <h2 id="rb-ai-h" class="rb-h"><Sparkles size={18} aria-hidden="true" />{t('With Gemini')}</h2>
-    <label class="rb-ok"><input type="checkbox" bind:checked={aiOk} data-tb-ai-ok /><span>{t('Send diary text to Gemini (Google) for one step. Free; photos and places stay here. The tick goes off after each step.')}</span></label>
-    <button type="button" class="btn sm" disabled={!aiOk || !!busy} onclick={summary} data-tb-ai-summary>{busy === 'summary' ? t('Gemini is thinking …') : t('Sum up {month}', { month: monthName(month) })}</button>
-    <form class="rb-ask" onsubmit={ask}>
-      <input class="inp" bind:value={question} maxlength="300" placeholder={t('Ask your diary, e.g. When was I last in the mountains?')} aria-label={t('Ask your diary')} data-tb-ai-q />
-      <button type="submit" class="btn sm" disabled={!aiOk || !!busy || !question.trim()} data-tb-ai-ask>{busy === 'ask' ? t('Gemini is thinking …') : t('Ask')}</button>
-    </form>
-    {#if msg}<p class="rb-note" role="status" data-tb-ai-msg>{msg}</p>{/if}
-    {#if answer}
-      <div class="rb-answer" data-tb-ai-answer>
-        <p>{answer.text}</p>
-        <small class="rb-note">{t('Written by Gemini from your entries. It can be wrong.')}</small>
-        {#if answer.kind === 'summary'}<button type="button" class="btn sm" onclick={keep} data-tb-ai-keep><Plus size={16} aria-hidden="true" />{t('Keep it as an entry')}</button>{/if}
-      </div>
-    {/if}
-  </section>
 </div>
 
 {#if selDay}
@@ -330,42 +271,5 @@
     background: var(--accent-soft);
     color: var(--ink);
     font-size: var(--fs-small);
-  }
-  .rb-ok {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    cursor: pointer;
-  }
-  .rb-ok input {
-    width: 20px;
-    height: 20px;
-    margin-top: 1px;
-    flex: none;
-  }
-  .rb-ask {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .rb-ask .inp {
-    flex: 1;
-    min-width: 180px;
-  }
-  .rb-answer {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 12px;
-    border-radius: 14px;
-    background: var(--paper-2);
-  }
-  .rb-answer p {
-    margin: 0;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
   }
 </style>
