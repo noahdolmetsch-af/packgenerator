@@ -1,14 +1,18 @@
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): the pure rules of Ich › Freie Zeit and its pages.
 import { describe, it, expect } from 'vitest';
-import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, IMPULSE_OUT, IMPULSE_SHORT, IMPULSE_LITTLE, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf, collSharePayload, isCollShare, tourOfColl, tourHref, collImport } from '../src/lib/frei.js';
+import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, PAGE_GROUPS, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, IMPULSE_OUT, IMPULSE_SHORT, IMPULSE_LITTLE, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf, collSharePayload, isCollShare, tourOfColl, tourHref, collImport } from '../src/lib/frei.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
+import { readFileSync } from 'node:fs';
 
 const P = 'test_data_frei_';
 
 describe('addresses', () => {
   it('the eight pages, the collection and the tab of Aktiv', () => {
     expect(PAGES).toHaveLength(8);
+    // «1a» (Noah 22.11.2026): the hub shows the pages in groups; each page sits in exactly one, none is lost
+    expect(PAGE_GROUPS.flatMap((g) => g.pages).sort()).toEqual(PAGES.map((p) => p.key).sort());
+    for (const g of PAGE_GROUPS) expect(DE[g.title], g.title).toBeTruthy();
     expect(freiPart('#/me/frei')).toBe('');
     expect(freiPart('#/me/frei/lust')).toBe('lust');
     expect(freiPart('#/me/frei/sammlung/recipes')).toBe('sammlung');
@@ -272,5 +276,17 @@ describe('a collection as a page and linked with a tour', () => {
     expect(tourOfColl({ collTour: { c1: 't9' } }, 'c1')).toBe('t9');
     expect(tourOfColl({}, 'c1')).toBe('');
     expect(tourHref('t9')).toBe('#/tour/t%3At9');
+  });
+});
+
+describe('Impulse and «What am I up for?» point at each other', () => {
+  // «2b» (Noah 22.11.2026): the two pages stay apart; each has a link to the other, so nobody has to know both exist
+  it('each page links to the other', () => {
+    const impulse = readFileSync(new URL('../src/lib/frei/Impulse.svelte', import.meta.url), 'utf8');
+    const lust = readFileSync(new URL('../src/lib/frei/Lust.svelte', import.meta.url), 'utf8');
+    expect(impulse).toContain('href="#/me/frei/lust" data-lust-link');
+    expect(lust).toContain('href="#/flow/impulse" data-impulse-link');
+    expect(freiPart('#/flow/impulse')).toBe('impulse');
+    expect(freiPart('#/me/frei/lust')).toBe('lust');
   });
 });

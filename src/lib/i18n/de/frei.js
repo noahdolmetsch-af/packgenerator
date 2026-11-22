@@ -6,6 +6,9 @@ export default {
   /* ---------- Freie Zeit (Übersicht) ---------- */
   'Free time': 'Freie Zeit',
   'Ideas for the hours between trips: small adventures, good evenings, things worth keeping. Everything is a suggestion; change it, hide it or add your own.': 'Ideen für die Stunden zwischen den Touren: kleine Abenteuer, gute Abende, Dinge zum Aufheben. Alles ist ein Vorschlag; ändere es, blende es aus oder füge Eigenes dazu.',
+  'For the moment': 'Für den Moment',
+  'For me': 'Für mich',
+  'Around packing': 'Rund ums Packen',
   'Impulses, collections, evenings, first night and more': 'Impulse, Sammlungen, Abende, erste Nacht und mehr',
   'Ideas to tap, in ten areas': 'Ideen zum Antippen, in zehn Bereichen',
   'Places, moments, photo series, recipes, songs …': 'Orte, Momente, Fotoserien, Rezepte, Songs …',

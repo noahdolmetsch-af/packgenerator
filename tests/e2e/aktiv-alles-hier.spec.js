@@ -17,13 +17,13 @@ async function open(page, context) {
   await page.goto('./#/flow');
 }
 
-test('AAH-1 Aktiv starts with sixteen tiles; a tile opens its page; no «Gehört zu»', async ({ page, context }) => {
+test('AAH-1 Aktiv starts with seventeen tiles; a tile opens its page; no «Gehört zu»', async ({ page, context }) => {
   await open(page, context);
   const box = page.locator('[data-all-here="aktiv"]');
   await expect(box).toBeVisible();
   await expect(box.getByRole('heading', { name: T('All here') })).toBeVisible();
   const tiles = box.locator('[data-all-here-tile]');
-  await expect(tiles).toHaveCount(16);
+  await expect(tiles).toHaveCount(17);
   // «Ein Kopf für Aktiv» (Noah 17.11.2026 «a»): the sport bag and the ideas are tiles here, no row of cards on the pages themselves
   await expect(box.locator('[data-all-here-tile="sportbag"]')).toHaveAttribute('href', '#/flow/bags');
   await expect(box.locator('[data-all-here-tile="ideas"]')).toHaveAttribute('href', '#/flow/ideen');

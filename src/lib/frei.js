@@ -27,6 +27,12 @@ export const PAGES = [
   { key: 'naechstes', title: 'For next time', sub: 'Proven, unused, missing: across all trips', icon: 'repeat' },
 ];
 export const PAGE_KEYS = PAGES.map((p) => p.key);
+/** The hub shows the eight pages in three groups (Noah 22.11.2026 «1a»); every page sits in exactly one. */
+export const PAGE_GROUPS = [
+  { key: 'moment', title: 'For the moment', pages: ['impulse', 'lust', 'abend'] },
+  { key: 'me', title: 'For me', pages: ['wesentlich', 'sammlungen', 'reise'] },
+  { key: 'packing', title: 'Around packing', pages: ['nacht', 'naechstes'] },
+];
 
 /** «#/me/frei/lust?x» → 'lust'; «#/flow/impulse» → 'impulse'; the hub → ''. */
 export function freiPart(hash = '') {

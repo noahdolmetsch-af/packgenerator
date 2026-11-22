@@ -7,7 +7,7 @@
   import { ChevronRight, Sparkles, Library, Dices, Moon, Heart, Plane, Tent, Repeat } from '@lucide/svelte';
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import LazyPage from '../lib/nav/LazyPage.svelte';
-  import { PAGES as FREI_PAGES, freiPart, pageHref } from '../lib/frei.js';
+  import { PAGES as FREI_PAGES, PAGE_GROUPS, freiPart, pageHref } from '../lib/frei.js';
   import { t } from '../lib/i18n.svelte.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import '../lib/frei/frei.css';
@@ -36,18 +36,22 @@
     <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Free time')}</h1>
     <p class="fz-intro">{t('Ideas for the hours between trips: small adventures, good evenings, things worth keeping. Everything is a suggestion; change it, hide it or add your own.')}</p>
     <AreaIntro place="frei" />
-    <ul class="fz-box fz-list" aria-label={t('Free time')}>
-      {#each FREI_PAGES as p (p.key)}
-        {@const Icon = ICONS[p.icon]}
-        <li>
-          <a class="fz-row" href={pageHref(p.key)} data-frei-page={p.key}>
-            <span class="fz-icon" aria-hidden="true"><Icon size={20} /></span>
-            <span class="fz-row-main"><b>{t(p.title)}</b><small>{t(p.sub)}</small></span>
-            <ChevronRight size={18} aria-hidden="true" />
-          </a>
-        </li>
-      {/each}
-    </ul>
+    {#each PAGE_GROUPS as g (g.key)}
+      <h2 class="fz-gh" data-frei-group={g.key}>{t(g.title)}</h2>
+      <ul class="fz-box fz-list" aria-label={t(g.title)}>
+        {#each g.pages as key (key)}
+          {@const p = FREI_PAGES.find((x) => x.key === key)}
+          {@const Icon = ICONS[p.icon]}
+          <li>
+            <a class="fz-row" href={pageHref(p.key)} data-frei-page={p.key}>
+              <span class="fz-icon" aria-hidden="true"><Icon size={20} /></span>
+              <span class="fz-row-main"><b>{t(p.title)}</b><small>{t(p.sub)}</small></span>
+              <ChevronRight size={18} aria-hidden="true" />
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {/each}
   </div>
 {/if}
 
@@ -55,5 +59,12 @@
   a.fz-row {
     color: var(--ink);
     text-decoration: none;
+  }
+  .fz-gh {
+    margin: 18px 0 6px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    letter-spacing: 0.02em;
   }
 </style>

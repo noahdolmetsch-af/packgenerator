@@ -61,7 +61,7 @@
     event.preventDefault();
     if (!art) return (msg = t('Pick a kind first.'));
     if (!text.trim()) return (msg = t('Write one sentence about it.'));
-    onsave?.(context ? { art, urgent, text, page: context.page, pageTitle: context.pageTitle, block: keepBlock ? context.block : '', state } : { art, urgent, text, page, block, state });
+    onsave?.(context ? { art, urgent, text, page: context.page, pageTitle: context.pageTitle, block: keepBlock ? context.block : '', state, photo: context.photo ?? null, photoNote: context.photoNote ?? null } : { art, urgent, text, page, block, state });
     dialog.close();
   }
   function remove() {
@@ -115,6 +115,9 @@
     {/if}
 
     {#if context && !entry}
+      <div class="lbs-photo" data-lb-photo-box>
+        {#if context.photo}<img src={context.photo} alt={t('Photo of the page')} data-lb-photo /><span>{t('Photo of the page, the block in orange')}</span>{:else}<span data-lb-nophoto>{t('Photo not possible')}</span>{/if}
+      </div>
       <p class="lbs-ctx" data-lb-context>
         <b>{t('Saved with it:')}</b>
         {ctxLine}
@@ -237,6 +240,22 @@
     background: none;
     color: inherit;
     cursor: pointer;
+  }
+  .lbs-photo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .lbs-photo img {
+    width: 88px;
+    max-height: 120px;
+    object-fit: cover;
+    object-position: top;
+    border: 2px solid var(--improve);
+    border-radius: 8px;
   }
   .lbs-ctx {
     margin: 12px 0 0;
