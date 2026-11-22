@@ -5,7 +5,7 @@
 ## Was ist neu
 - **Tourtage ohne Zeit** stehen jetzt auch in «Dauer nachtragen»: «Tour «Name» am 6. Okt.: wie lange?». Gemeint ist ein vergangener Tag einer Tour mit Sportart (Velo, Skitour, Wandern) ohne Strava-Aktivität an dem Tag und ohne Haken mit Minuten.
 - **Keine Schätzung.** Bis du antwortest, zählt so ein Tag 0 Stunden (Noahs Entscheid). Ein Tipp auf 60, 120, 180 oder 240 Min oder eine eigene Zahl schreibt einen Haken der Sportart für diesen Tag mit den Minuten (Quelle «Tour») und zählt als gemessen; «Rückgängig» nimmt ihn wieder weg.
-- Neue Dateien `src/lib/flow/tourtage.js` (rein, Tests `tests/tourtage.test.js`); `DauerNachtragen.svelte` und `tests/e2e/nachtragen.spec.js` erweitert.
+- Neue Dateien `src/lib/flow/tourtage.js` (rein, Tests `tests/tourtage.test.js`); `DauerNachtragen.svelte` und `tests/e2e/dauer-nachtragen.spec.js` erweitert.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Der Block «Dauer nachtragen» zeigt zusätzlich die Tourtage; die Haken-Zeilen bleiben, wie sie waren. Der Text im Block sagt jetzt «Einträge» statt «Haken».
