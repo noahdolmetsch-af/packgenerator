@@ -89,14 +89,13 @@ Je Datei eine Aufgabe, Hilfsteile in `api/_lib/`:
 |---|---|
 | `strava.js` | Strava-Verbindung (nur lesen) |
 | `google/` und `_lib/google*.js` | Fitbit/Gesundheit, Termine, Aufgaben, Mail, Drive |
-| `helper.js`, `_lib/helper.js` | KI-Helfer (Anthropic, Gemini); Monats-Deckel |
 | `push.js`, `_lib/push.js`, `webpush.js` | Erinnerungen aufs Handy; Zeitplan |
 | `sync.js` | Abgleich Handy–Computer |
 | `booking.js`, `pay.js` | Termine buchen, Bezahlen (Testmodus) |
 | `lake.js`, `news.js`, `linkcheck.js` | Seetemperatur, News-Feeds, Link-Prüfung |
 | `health.js` | Wächter-Abfrage: eine Zeile je Prüfung, nie ein Wert |
 
-**Regeln für `api/`:** kein neues File unter `api/` ohne Grund (Vercel zählt Funktionen); Gemini nur über `api/_lib/helper.js`; Schlüssel nur in Vercel (Namen in [Konten-Liste](konten.md)); nach jeder Änderung in `api/` den Server «packgen» auf **READY** prüfen und notfalls von Hand neu bereitstellen. Die Tests erreichen den echten Server nie (`NO_REAL_SERVER` in `playwright.config.js`), sonst ist die Tageskapazität schnell weg.
+**Regeln für `api/`:** kein neues File unter `api/` ohne Grund (Vercel zählt Funktionen); Schlüssel nur in Vercel (Namen in [Konten-Liste](konten.md)); nach jeder Änderung in `api/` den Server «packgen» auf **READY** prüfen und notfalls von Hand neu bereitstellen. Die Tests erreichen den echten Server nie (`NO_REAL_SERVER` in `playwright.config.js`), sonst ist die Tageskapazität schnell weg.
 
 ## 6. Tests und CI
 

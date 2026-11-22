@@ -6,11 +6,14 @@
  *   training.goal                          (name, day)
  * Tested in tests/meinplan.test.js. The page is pages/flow/Meinplan.svelte.
  *
- * A row is one planned unit: { id, src: 'plan' | 'session', type, name, d (0 = Monday), t, mins, done, doneMins, released }.
+ * A row is one planned unit: { id, src: 'plan' | 'session', type, name, d (0 = Monday), t, mins, done, doneMins, released, tp? }.
+ * A session from TrainingPeaks (tp: true) is part of the week's hours: the Wochenplan plans only the rest (planWeek, W1), so plan + TrainingPeaks
+ * is the week, and `tpMins` of the sums says how much of it TrainingPeaks brings.
  * Counted for the hours are the units that move you (not the small habits, not the rest block, not the ones let go).
  */
 import { shiftDay, mondayOf, isoWeek, goalOf, weeksTo, planOf as sessionsOf, doneBy } from '../training.js';
 import { QUIET, logOf, weekLog, isPast, weekFor } from './wochenlog.js';
+import { TP_SRC } from './wochenplan.js';
 
 /** Weeks before this one and after it that the chart shows. */
 export const WEEKS_BACK = 4;
@@ -26,14 +29,14 @@ export function weekRows({ stored, log, sessions, acts }, monday, today) {
   const w = weekLog(log, monday);
   const rows = [];
   const past = isPast(monday, today);
-  const units = past ? (w.snap?.units ?? []) : stored != null ? weekFor(stored, monday, w.pins, w.mode, sessions).week.units : [];
+  const units = past ? (w.snap?.units ?? []).filter((u) => u.type !== 'tp') : stored != null ? weekFor(stored, monday, w.pins, w.mode, sessions).week.units : [];
   for (const u of units) rows.push({ id: u.id, src: 'plan', type: u.type, name: null, d: u.d, t: u.t, mins: u.mins, done: !!w.done[u.id], doneMins: w.done[u.id] ? u.mins : 0, doneDay: w.done[u.id] ?? null, released: w.released.includes(u.id) });
   const end = shiftDay(monday, 6);
   for (const s of sessions) {
     if (s.day < monday || s.day > end) continue;
     const a = doneBy(s, acts);
     const m = a && !a.byHand && a.movingS > 0 ? Math.round(a.movingS / 60) : s.mins;
-    rows.push({ id: `s:${s.id}`, src: 'session', type: 'session', kind: s.kind, name: s.name || null, d: dayIndex(monday, s.day), t: '', mins: s.mins, done: !!a, doneMins: a ? m : 0, doneDay: a ? s.day : null, released: false, byHand: !!a?.byHand });
+    rows.push({ id: `s:${s.id}`, src: 'session', type: 'session', kind: s.kind, name: s.name || null, d: dayIndex(monday, s.day), t: '', mins: s.mins, done: !!a, doneMins: a ? m : 0, doneDay: a ? s.day : null, released: false, byHand: !!a?.byHand, tp: s.src === TP_SRC });
   }
   return rows.sort((a, b) => a.d - b.d || a.t.localeCompare(b.t));
 }
@@ -43,7 +46,8 @@ export function sumOf(rows) {
   const main = rows.filter(counts);
   const plannedMins = main.reduce((a, r) => a + r.mins, 0);
   const doneMins = main.reduce((a, r) => a + r.doneMins, 0);
-  return { plannedMins, doneMins, units: main.length, doneUnits: main.filter((r) => r.done).length, pct: plannedMins > 0 ? Math.round((doneMins / plannedMins) * 100) : null };
+  const tpMins = main.filter((r) => r.tp).reduce((a, r) => a + r.mins, 0); // only there when TrainingPeaks is in the week
+  return { plannedMins, doneMins, ...(tpMins > 0 ? { tpMins } : {}), units: main.length, doneUnits: main.filter((r) => r.done).length, pct: plannedMins > 0 ? Math.round((doneMins / plannedMins) * 100) : null };
 }
 
 /**

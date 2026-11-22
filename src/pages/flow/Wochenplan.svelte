@@ -26,7 +26,7 @@
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, lightOf, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
-  import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, setDone, dismiss, setPins, movePin, clearPin, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
+  import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, syncTpDone, tpTicks, tpSnapUnits, setDone, dismiss, setPins, movePin, clearPin, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME, UNIT_HINT, LOAD_WORD, NOTE_TEXT, WARN_TEXT, whyOf, timeChoices, lengthOf, hoursOf, reachedPct, EXAMPLE_MONDAY } from '../../lib/training/wochenplan-text.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
   import { localDay } from '../../lib/localday.js';
@@ -41,6 +41,7 @@
   // the sessions of the week suggestion: the ones from TrainingPeaks take their share of the hours (only real weeks, not the example)
   const sessQ = liveQuery(async () => (await db.settings.get(PLAN_KEY))?.value ?? null);
   const sessions = $derived(sessionsOf($sessQ));
+  const sessLoaded = $derived($sessQ !== undefined);
   // part 3: the ticks and the frozen weeks (undefined while read), and this week's Strava activities
   const logQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
   const log = $derived($logQ === undefined ? null : logOf($logQ));
@@ -96,15 +97,17 @@
   const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowLog.pins, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain, sessions }));
   const done = $derived(nowLog.done);
   const released = $derived(nowLog.released);
-  const prog = $derived(progress(nowWeek.units, done, released));
+  const prog = $derived(progress([...nowWeek.units, ...tpSnapUnits(nowWeek.tp)], done, released));
   const star = $derived(prog.total > 0 && prog.done === prog.total);
   const inARow = $derived(log ? streakNow(log, today) : 0);
   const sugg = $derived(live && log ? suggest(nowWeek.units, $actsQ ?? [], realMonday, done, weekLog(log, realMonday).no) : {});
   const past = $derived(log ? pastWeeks(log, today) : []);
   // the week is stored as it was last seen; after Sunday it stays as it is (freezing)
   $effect(() => {
-    if (!loaded || stored === null || !log) return;
-    const next = withSnapshot(log, realMonday, nowWeek.units, nowCfg.hours, today);
+    if (!loaded || stored === null || !log || !sessLoaded) return;
+    // TrainingPeaks counts for the star (Noah «4a»): its sessions are part of the snapshot and tick when they are done
+    let next = withSnapshot(log, realMonday, nowWeek.units, nowCfg.hours, today, tpSnapUnits(nowWeek.tp));
+    if ($actsQ) next = syncTpDone(next, realMonday, tpTicks(sessions, $actsQ, nowWeek.tp), today);
     if (next !== log) untrack(() => db.settings.put({ key: WEEKLOG_KEY, value: next }));
   });
   async function writeLog(change) {
@@ -120,7 +123,7 @@
       startUnitDone({ id: u.id, type: u.type, mins: u.mins, monday: realMonday, units: nowWeek.units, hours: nowCfg.hours, today, done: () => (msg = t('Ticked off: {what}.', { what: nameOf(u.type) })) });
       return;
     }
-    await writeLog((cur) => setDone(cur, realMonday, u.id, on, today, nowWeek.units, nowCfg.hours));
+    await writeLog((cur) => setDone(cur, realMonday, u.id, on, today, nowWeek.units, nowCfg.hours, tpSnapUnits(nowWeek.tp)));
     if (!on) await removeUnitEntries(db, realMonday, u.id);
     msg = on ? t('Ticked off: {what}.', { what: nameOf(u.type) }) : t('Tick removed: {what}.', { what: nameOf(u.type) });
   }
@@ -258,7 +261,8 @@
     });
   const notes = $derived(week.notes.filter((n) => !n.key.startsWith('tp-')).map(noteText).filter(Boolean));
   // what TrainingPeaks does to the week is said where the hours are (never silent): how much it brings, what it replaced
-  const tpLines = $derived(week.notes.filter((n) => n.key.startsWith('tp-')).map(noteText).filter(Boolean));
+  const tpOver = $derived(week.tp.length > 0 && mins > cfgW.hours * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over')); // Noah «a»: stays as it is, with a hint
+  const tpLines = $derived([...week.notes.filter((n) => n.key.startsWith('tp-')).map(noteText).filter(Boolean), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
   const hoursLine = $derived(
     modeShown.light
       ? t('A lighter week: {n} h instead of {m} h. Plus and minus change your normal plan.', { n: cfgW.hours, m: cfg.hours })
