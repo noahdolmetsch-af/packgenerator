@@ -54,8 +54,8 @@ export function images(list = []) {
 
 const place = (g) => (g.page ? t('Page «{title}» ({address})', { title: g.title || g.page, address: g.page }) : t('Without a page'));
 
-function line(i, e, nums) {
-  const head = [e.urgent === 'now' ? t('Bothers me now') : null, artLabel(e.art)].filter(Boolean).join(', ');
+function line(i, e, nums, cfg) {
+  const head = [e.urgent === 'now' ? t('Bothers me now') : null, artLabel(e.art, cfg)].filter(Boolean).join(', ');
   const block = e.block ? ` · ${t('Block «{name}»', { name: e.block })}` : '';
   const how = e.route === 'draft' ? t('picture first') : t('small change');
   const pic = nums.has(e.id) ? `, ${t('picture {n}', { n: nums.get(e.id) })}` : '';
@@ -63,7 +63,7 @@ function line(i, e, nums) {
 }
 
 /** The text of the order. day: the date line (already formatted). */
-export function buildOrder(list = [], day = '') {
+export function buildOrder(list = [], day = '', cfg = undefined) {
   const o = ordered(list);
   const nums = pictureNumbers(o);
   const n = o.groups.reduce((s, g) => s + g.items.length, 0);
@@ -71,7 +71,7 @@ export function buildOrder(list = [], day = '') {
   let i = 0;
   for (const g of o.groups) {
     out.push(place(g));
-    for (const e of g.items) out.push(line(++i, e, nums));
+    for (const e of g.items) out.push(line(++i, e, nums, cfg));
     out.push('');
   }
   if (o.notes.length) {
