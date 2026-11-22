@@ -22,7 +22,6 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { SEED_TEMPLATES, MED_DURATIONS, CLOCK_VIEWS } from '../../src/lib/flowmed.js';
 import { SOUNDS } from '../../src/lib/flowsounds.js';
 import { ready } from './settle.js';
-import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -146,7 +145,7 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
 
   // B: «Wie letztes Mal · 1 Min», the other templates, the rows
   await expect(main.getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
-  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page'); // «Aktiv neu» (22.10.2026): Meditation is a sport of «Meine Sportarten»
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page'); // «Aktiv neu» (22.10.2026): Meditation is a sport of «Meine Sportarten»
   await expect(main.locator('[data-start="last"]')).toContainText(T('Like last time · {n} min', { n: 1 }));
   await expect(main.locator('[data-tpl]')).toHaveCount(SEED_TEMPLATES.length - 1);
   await expect(main.locator('[data-row="week"]')).toContainText(T('{n} of 7 days', { n: 1 }));
@@ -156,7 +155,7 @@ test('Meditation einfach: start sheet → calm clock → gong → a sentence and
   // C: «Mehr»: every section folded; the sound opens with «anhören»; the milestone counts up
   await main.locator('[data-to="more"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/mehr$/);
-  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page'); // «Aktiv neu» (22.10.2026): Meditation is a sport of «Meine Sportarten»
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page'); // «Aktiv neu» (22.10.2026): Meditation is a sport of «Meine Sportarten»
   await expect(main.locator('details[data-fold]')).toHaveCount(7);
   await expect(main.locator('details[data-fold][open]')).toHaveCount(0);
   await main.locator('[data-fold="sound"] summary').click();
@@ -235,8 +234,8 @@ test('Meditation einfach: the short page, a new template, a session from «Mehr 
   // Paket A (HT1–HT2 and «Mehr Inhalt», changed on purpose): the card «Was hier steht», the tip and «Das kann
   // die App hier» come on every page; the two screens are for Meditation's own content, measured without them
   // Wegweiser 18 (on purpose): the card «What you can do here» on the Meditation pages is a help card, not Meditation's own content
-  // «Aktiv neu» (0.187.0, on purpose): the switch Aktiv | Auswerten on top of every Aktiv page is navigation, not Meditation's content; the path line (28.10.2026) too
-  const info0 = await page.addStyleTag({ content: 'main section.hint, main [data-hint-line], main .tipl, main details.can, [data-place-switch], [data-pathline], [data-pathrow], [data-seiteninhalt-host] { display: none !important; }' });
+  // «Aktiv neu» (0.187.0, on purpose): the switch Aktiv | Auswerten on top of every Aktiv page is navigation, not Meditation's content; the path line (28.10.2026) too, and since V4a (21.11.2026) the row of chips under the tab «Training»
+  const info0 = await page.addStyleTag({ content: 'main section.hint, main [data-hint-line], main .tipl, main details.can, [data-place-switch], [data-pathline], [data-pathrow], [data-seiteninhalt-host], nav.psubs { display: none !important; }' });
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
   await info0.evaluate((el) => el.remove());
   info.annotations.push({ type: 'height', description: `Meditation page ${page.viewportSize().width} px: ${height} px high` });

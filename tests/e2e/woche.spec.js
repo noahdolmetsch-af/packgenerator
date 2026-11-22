@@ -4,7 +4,6 @@
 // file, on a phone and a computer, in German. No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -74,7 +73,8 @@ test('Woche: from Aktiv › Heute to the week, a fixed date, plan and hide a sug
   await expect(main.locator(`[data-week-day="${addDays(TODAY, -1)}"] .ticks`)).toBeVisible();
   await main.locator('[data-week-glance] .go').click();
   await expect(page).toHaveURL(/#\/flow\/week$/);
-  await expect(page.locator(TABS).getByRole('link', { name: T('Today|active'), exact: true })).toHaveAttribute('aria-current', 'page');
+  // V4a (21.11.2026, on purpose): the pages of Aktiv are chips under the tab «Training»; «Heute abhaken» is the lit one
+  await expect(page.locator('nav.psubs a[data-sub="flowhome"]:visible')).toHaveAttribute('aria-current', 'page');
   await expect(main.getByRole('heading', { level: 1, name: T('Week') })).toBeVisible();
   await expect(main.locator('[data-more]')).toHaveCount(0); // «Ein Kopf für Aktiv»: Titel zuerst, keine Kachelreihe darüber
 

@@ -9,7 +9,7 @@
  * and zone bounds (the upper heart rate of Z1–Z4). Pure functions, tested in tests/sn2plus.test.js.
  */
 import { learnPace } from '../pace.js';
-import { heartOf } from '../kmbook.js';
+import { heartOf, counts, inStartKm } from '../kmbook.js';
 import { planVsReal } from './rueckblick.js';
 import { tripEnd } from '../tripstate.js';
 import { kindOf } from '../training.js';
@@ -133,6 +133,13 @@ export function tripActs(acts = [], trip, end) {
 /* ---------- the rides behind the pace (SN2h) ---------- */
 
 /** One ride and one ledger entry: the same day and about the same km. */
+/**
+ * The bike of a ledger entry for the pace (Noah 22.11.2026: Canyon Lux «236 Fahrten»): only a ride that counts for
+ * its bike (or sits in its start value) belongs to it. A ride waiting in «Zum Prüfen» (open) carries only the
+ * bike that was suggested, a removed one is not ridden on it: neither counts for a bike's pace.
+ */
+const bikeOfEntry = (e) => (e && (counts(e) || inStartKm(e)) ? e.bikeId ?? null : null);
+
 const sameRide = (e, r) => e.kind === 'ride' && e.state !== 'removed' && e.date === r.date && Math.abs((Number(e.km) || 0) - (Number(r.km) || 0)) <= Math.max(2, (Number(r.km) || 0) * 0.1);
 
 /**
@@ -151,14 +158,14 @@ export function tempoRides({ acts = [], entries = [], paceRides = [], trips = []
     // 19.10.2026: «Dein Tempo» is about the bike; runs, hikes and other sports stay out
     if ((a.kind ?? kindOf(a.type)) !== 'bike') continue;
     const e = byStrava.get(String(a.id)) ?? null;
-    out.push({ id: `act:${a.id}`, from: 'act', date: dayOf(a), name: a.name ?? e?.name ?? '', km: a.km, gainM: a.hm ?? null, movingH: h, bikeId: e?.bikeId ?? null, type: a.type ?? e?.type ?? '', surface: e?.surface ?? null, entryId: e?.id ?? null, paceId: null, hrAvg: a.hrAvg ?? e?.hrAvg ?? null, hrMax: a.hrMax ?? e?.hrMax ?? null, hist: a.hist ?? null, wAvg: a.wAvg ?? null, wMax: a.wMax ?? null, wDevice: a.wDevice ?? null, w20: a.w20 ?? null, use: true });
+    out.push({ id: `act:${a.id}`, from: 'act', date: dayOf(a), name: a.name ?? e?.name ?? '', km: a.km, gainM: a.hm ?? null, movingH: h, bikeId: bikeOfEntry(e), type: a.type ?? e?.type ?? '', surface: e?.surface ?? null, entryId: e?.id ?? null, paceId: null, hrAvg: a.hrAvg ?? e?.hrAvg ?? null, hrMax: a.hrMax ?? e?.hrMax ?? null, hist: a.hist ?? null, wAvg: a.wAvg ?? null, wMax: a.wMax ?? null, wDevice: a.wDevice ?? null, w20: a.w20 ?? null, use: true });
   }
   for (const r of paceRides) {
     if (!r?.date || !pos(r.movingH) || !pos(r.km)) continue;
     if (out.some((x) => x.from === 'act' && x.date === r.date && Math.abs(x.km - r.km) <= Math.max(2, r.km * 0.1))) continue;
     const e = entries.find((x) => sameRide(x, r)) ?? null;
     const trip = trips.find((t) => t.bikeId && t.startDate && t.startDate <= r.date && r.date <= tripEnd(t));
-    out.push({ id: `pace:${r.id}`, from: 'pace', date: r.date, name: r.name ?? '', km: r.km, gainM: r.gainM ?? null, movingH: r.movingH, bikeId: e?.bikeId ?? r.bikeId ?? trip?.bikeId ?? null, type: e?.type ?? '', surface: e?.surface ?? r.surface ?? null, entryId: e?.id ?? null, paceId: r.id, hrAvg: e?.hrAvg ?? r.sensors?.hrAvg ?? null, hrMax: e?.hrMax ?? r.sensors?.hrMax ?? null, hist: r.sensors?.hist ?? null, wAvg: r.sensors?.wAvg ?? null, wMax: r.sensors?.wMax ?? null, wDevice: r.sensors?.wAvg != null ? true : null, w20: null, use: r.use !== false });
+    out.push({ id: `pace:${r.id}`, from: 'pace', date: r.date, name: r.name ?? '', km: r.km, gainM: r.gainM ?? null, movingH: r.movingH, bikeId: bikeOfEntry(e) ?? r.bikeId ?? trip?.bikeId ?? null, type: e?.type ?? '', surface: e?.surface ?? r.surface ?? null, entryId: e?.id ?? null, paceId: r.id, hrAvg: e?.hrAvg ?? r.sensors?.hrAvg ?? null, hrMax: e?.hrMax ?? r.sensors?.hrMax ?? null, hist: r.sensors?.hist ?? null, wAvg: r.sensors?.wAvg ?? null, wMax: r.sensors?.wMax ?? null, wDevice: r.sensors?.wAvg != null ? true : null, w20: null, use: r.use !== false });
   }
   return out.sort((a, b) => b.date.localeCompare(a.date));
 }

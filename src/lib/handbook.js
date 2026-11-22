@@ -1171,7 +1171,7 @@ const LISTED = {
   },
   'f.impulse': {
     on: null,
-    steps: ['Open Active › Impulses, or Me › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
+    steps: ['Open Plan › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
     example: 'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.',
   },
   'f.shopping': {

@@ -24,7 +24,7 @@ export default {
   'Open Me › Free time.': 'Öffne Planen › Freie Zeit.',
   'Choose a page, for example «What am I up for?».': 'Wähl eine Seite, zum Beispiel «Worauf hab ich Lust?».',
   'Tap what fits; your own entries stay on this device and in the backup.': 'Tipp an, was passt; deine Einträge bleiben auf diesem Gerät und im Backup.',
-  'Open Active › Impulses.': 'Öffne Aktiv › Impulse.',
+  'Open Free time › Impulses.': 'Öffne Freie Zeit › Impulse.',
   'Tap an area, then «Try it».': 'Tipp einen Bereich an, dann «Ausprobieren».',
   'Your own impulse: «Your own impulse» at the end of the list.': 'Eigener Impuls: «Dein eigener Impuls» am Ende der Liste.',
 
