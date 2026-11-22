@@ -24,8 +24,6 @@ export default {
     'Frag nach deinen eigenen Daten, etwa «Wie viele km bin ich im Mai gefahren?». Allgemeine Fragen zur Welt sind in einer Suchmaschine besser aufgehoben.',
   'Different AIs give different answers; for a pass or a ferry time, trust the official page in the end, not the most confident answer.':
     'Verschiedene KIs geben verschiedene Antworten; bei einem Pass oder einer Fährzeit zählt am Ende die offizielle Seite, nicht die selbstsicherste Antwort.',
-  'Give the helper the facts that change the list: nights, cold or not, train or not. «3 nights, Jura, maybe rain» beats «a trip».':
-    'Gib dem Helfer die Fakten, die die Liste ändern: Nächte, kalt oder nicht, Zug oder nicht. «3 Nächte, Jura, vielleicht Regen» schlägt «eine Tour».',
   'The monthly limit protects your costs. If it is used up, everything else in the app still works; only the extra help waits for next month.':
     'Die Monatsgrenze schützt deine Kosten. Ist sie aufgebraucht, läuft alles andere in der App weiter; nur die Zusatzhilfe wartet auf den nächsten Monat.',
   'One small app for what you open daily, like the packing list or the weather, saves the detour through the menu, especially with gloves.':

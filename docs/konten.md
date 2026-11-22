@@ -32,6 +32,8 @@ Die Werte stehen nur in Vercel › packgen › Settings › Environment Variable
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash (setzt Vercel selbst) | Abgleich und Logins aus |
 | `TRELLO_API_KEY` | Trello | Trello aus |
 
+**Alte KI-Schlüssel (Noah 22.11.2026):** `ANTHROPIC_API_KEY`, `HELPER_TOKEN`, `GEMINI_API_KEY` und `HELPER_MONTHLY_CHF` bleiben in Vercel liegen, falls die KI später wiederkommt. Der Server liest sie nicht mehr, der Wächter verlangt sie nicht.
+
 Der Wächter prüft jeden Morgen, ob diese Schlüssel da sind und funktionieren, und schickt bei einem Fehler eine Mail.
 
 ## Logins, die ablaufen können

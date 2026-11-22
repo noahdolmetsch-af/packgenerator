@@ -4,7 +4,6 @@
  */
 export default {
   'AI helper': 'KI-Helfer',
-  'Suggestions from Claude, only if you want them. Without it everything works as before.': 'Vorschläge von Claude, nur wenn du willst. Ohne ihn geht alles wie bisher.',
   'Show the AI helper in the app': 'KI-Helfer in der App zeigen',
   'Off: it shows nowhere. Your key and your settings stay stored.': 'Aus: er erscheint nirgends. Dein Helfer-Code und deine Einstellungen bleiben gespeichert.',
   'On: it shows in the places below.': 'An: er erscheint an den Stellen unten.',
@@ -18,12 +17,9 @@ export default {
   'Debrief|helper': 'Rückblick',
   'Search|helper': 'Suche',
   'Today|helper': 'Heute',
-  '«Ask the helper», with a question from the search': '«Frag den Helfer», mit einer Frage aus der Suche',
   'Button «Check the list»': 'Knopf «Liste prüfen»',
-  '«With the helper»: a draft from your notes': '«Mit dem Helfer»: ein Entwurf aus deinen Notizen',
   'Suggestions in «Due now»': 'Vorschläge in «Jetzt fällig»',
   'Answer to questions': 'Antwort auf Fragen',
-  'Tile «Helper», if it is on your wall': 'Kachel «Helfer», falls auf deiner Wand',
   'Setup|helper': 'Einrichtung',
   'stays, even when it is off': 'bleibt, auch wenn er aus ist',
   'Key saved': 'Helfer-Code gespeichert',
@@ -31,6 +27,5 @@ export default {
   '{chf} used this month': 'diesen Monat {chf} verbraucht',
   'as set · nothing used this month': 'wie eingestellt · diesen Monat nichts verbraucht',
   'only your question and the names it needs': 'nur deine Frage und die nötigen Namen',
-  'off · switch on under Me › AI helper': 'aus · einschalten unter Ich › KI-Helfer',
   'on · not set up': 'an · nicht eingerichtet',
 };

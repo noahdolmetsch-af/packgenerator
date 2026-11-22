@@ -145,10 +145,9 @@ flowchart TD
   Dev -->|exportieren| B1["Backup-Datei (JSON, optional mit Passwort)"]
   Dev -->|automatisch, nur Computer| B2["Ordner-Sicherung"]
   Dev -->|gleicht ab| B3["Abgleich Handy und Computer"]
-  B3 -->|verschlüsselt| SV["Server «packgen» (Vercel)<br/>Abgleich, Strava, Fitbit, Google, KI-Helfer, Push"]
+  B3 -->|verschlüsselt| SV["Server «packgen» (Vercel)<br/>Abgleich, Strava, Fitbit, Google, Push"]
   SV -->|lesen| ST["Strava"]
   SV -->|lesen| FB["Fitbit, Google"]
-  SV -->|fragt| KI["KI-Helfer (freiwillig)"]
 ```
 
 | Was | Wo | Beispiel (erfunden) |
@@ -158,7 +157,7 @@ flowchart TD
 | Reine Bildschirm-Dinge | `localStorage` des Geräts | Sprache, Farbwelt, offene Reiter |
 | Feste Listen | im Code, je Liste ein Ort | Sportarten in `src/lib/domains.js`, Checklisten in `checks.js`, Kategorien in `gear.js`. Änderbar in «Listen und Typen», der Standard bleibt unberührt |
 | Eingelesene Dateien | werden auf dem Gerät gelesen, nicht hochgeladen | GPX, FIT, TCX, Strava-CSV, Fitbit-Export, Apple-Health-Export |
-| Verbindungen | Server «packgen», nur über Ich › Verbindungen | Strava (nur lesen), Fitbit/Google, KI-Helfer, Push, Abgleich |
+| Verbindungen | Server «packgen», nur über Ich › Verbindungen | Strava (nur lesen), Fitbit/Google, Push, Abgleich |
 
 **Tabellen und ihre Besitzer.** Jede Funktion schreibt nur in die Tabellen ihres Bereichs und liest fremde nur. Die vollständige Liste steht in `DATA_TABLES` (`src/lib/db.js`).
 
@@ -272,7 +271,7 @@ Noah (9.10.2026): Ein schönes Design ist so wichtig wie die Funktionen, für je
 | Backup | Kopie aller Daten als Datei. |
 | Abgleich (Sync) | Zwei Geräte halten dieselben Daten (Handy und Computer). |
 | GitHub / GitHub Pages | GitHub: wo der Code liegt (öffentlich). Pages: der Dienst, der die App im Netz anbietet. |
-| Vercel / Server «packgen» | Kleiner Server nur für Verbindungen nach aussen (Strava, Fitbit, Google, KI-Helfer, Abgleich). |
+| Vercel / Server «packgen» | Kleiner Server nur für Verbindungen nach aussen (Strava, Fitbit, Google, Abgleich). |
 | API | Schnittstelle: ein Weg, wie die App mit einem anderen Dienst redet. |
 | OAuth / Verbindung | Man erlaubt der App den Zugriff bei Strava, Fitbit oder Google, ohne das Passwort zu geben. Jederzeit widerrufbar. |
 | GPX, FIT, TCX | Dateiformate für Strecken und Fahrten. |
