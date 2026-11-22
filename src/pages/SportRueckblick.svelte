@@ -26,6 +26,7 @@
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { hoursMin } from '../lib/charts/exact.js';
   import { sportColour } from '../lib/charts/sportcolors.js';
+  import { noDataText, firstDayOf } from '../lib/charts/nodata.js';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -77,9 +78,11 @@
     if (grain === 'month') return dayTxt(b.from, { month: 'narrow' });
     return b.key;
   };
-  const cols = $derived(bars.map((b, i) => ({ key: b.key, x: bucketX(b, i), top: b.mins >= 30 ? hrs(b.mins) : '', parts: b.mins > 0 ? [{ v: b.mins / 60, color: sportColour(sport) }] : [] })));
+  const firstDay = $derived(firstDayOf(mine));
+  const noneOf = (b) => noDataText(b.from, b.to, today, firstDay);
+  const cols = $derived(bars.map((b, i) => ({ key: b.key, none: noneOf(b), x: bucketX(b, i), top: b.mins >= 30 ? hrs(b.mins) : '', parts: b.mins > 0 ? [{ v: b.mins / 60, color: sportColour(sport) }] : [] })));
   const readout = (i) => ({ title: bucketTitle(bars[i]), items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, { label: t('Units'), value: num(bars[i].n) }] });
-  const table = $derived({ head: [t('Period|sj'), t('Hours'), t('Units')], rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), hoursMin(b.mins), num(b.n)] })) });
+  const table = $derived({ head: [t('Period|sj'), t('Hours'), t('Units')], rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), noneOf(b) ? '–' : hoursMin(b.mins), noneOf(b) ? '–' : num(b.n)] })) });
   const chartLine = $derived(line ? line.map((m) => m / 60) : null);
   const aria = $derived(bars.map((b) => `${bucketTitle(b)}: ${hrs(b.mins)} h`).join(', '));
   /* a tap on a bar opens its hours and units (ChartSheet) */

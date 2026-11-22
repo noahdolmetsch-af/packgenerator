@@ -104,6 +104,11 @@ test('Sportjahr: the year in hours, the chart with the year before, where the ti
   await expect(page.locator('[data-sj-sheet]')).toBeVisible();
   await expect(page.locator('[data-sj-sheet]')).toContainText(/\d h( \d+ min)?|\d+ min/); // exact time, not a rounded hour
   await page.keyboard.press('Escape');
+  // «no data instead of 0»: the chart starts on a month with data, a month to come says so
+  await expect(pg.locator('[data-chart="sportjahr"] [data-readout]')).not.toContainText('2026 Stunden 0');
+  await pg.locator('[data-chart="sportjahr"] [data-plot]').focus();
+  await page.keyboard.press('End');
+  await expect(pg.locator('[data-chart="sportjahr"] [data-readout-note]')).toHaveText(T('Not yet'));
   await shot(page, info, 'sportjahr-jahr');
   expect(errors).toEqual([]);
 });
