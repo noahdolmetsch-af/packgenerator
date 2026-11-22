@@ -379,7 +379,7 @@
             <a class="cell" href="#/pack/templates"><Layers size={18} aria-hidden="true" /><span><small>{t('Start with')}</small>{startText}</span><span class="sr"> · {t('Templates')}</span></a>
           </div>
           <!-- v0.42.0 (Noah 2): the onion check, one quiet line under the weather -->
-          {@render onion?.()}
+          {@render onion?.((item) => (swapping = { entry: null, item }))}
         </section>
         <!-- L2: the open suggestions on top, marked as open work (below the whole list they got lost). -->
         <!-- v0.40.0 (design check): the weather in ONE place: the open suggestions are the first row
