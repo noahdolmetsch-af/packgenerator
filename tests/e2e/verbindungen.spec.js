@@ -106,3 +106,18 @@ test('#226 Heute im Blick: the fixed date of Aktiv › Woche and a Google appoin
   await expect(rows.nth(1)).toContainText('fester Termin');
   expect(errors).toEqual([]);
 });
+
+test('Verbindungen: the row «Mail» shows «aus» until Gmail has been allowed, then «an» (Warteliste F6)', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await page.goto('./#/me/connections');
+  await ready(page);
+  const row = page.locator('[data-conn="mail"]');
+  await expect(row.locator('.pill')).toHaveText(/^(aus|off)$/i);
+  await idb(page, 'put', ['settings', 'readwrite', { key: 'mail', value: { allowed: true } }]);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-conn="mail"] .pill')).toHaveText(/^(an|on)$/i);
+  expect(errors).toEqual([]);
+});
