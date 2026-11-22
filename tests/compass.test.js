@@ -1,7 +1,7 @@
 // Paket N: Ich › Mein Kompass — boxes as groups, ordered entries, goals with steps spread to the day (5a),
 // AI steps taken over (5b) and the weekly «Wie läuft's?». Fictional data.
 import { describe, it, expect } from 'vitest';
-import { STD_BOXES, compassOf, boxName, addBox, renameBox, deleteBox, entriesOf, addEntry, moveEntry, removeEntry, spreadDates, newGoal, addSteps, takeSuggested, goalProgress, checkDue, answerCheck, mondayOf, entryToGoal, stepsPayload, goalsToCheck } from '../src/lib/compass.js';
+import { STD_BOXES, compassOf, boxName, addBox, renameBox, deleteBox, entriesOf, addEntry, moveEntry, removeEntry, spreadDates, newGoal, addSteps, goalProgress, checkDue, answerCheck, mondayOf, entryToGoal, goalsToCheck } from '../src/lib/compass.js';
 
 const P = 'test_data_gtp_';
 const today = '2026-10-19';
@@ -47,12 +47,6 @@ describe('goals and steps', () => {
     const p = goalProgress({ ...g2, steps: [{ ...g2.steps[0], done: true }, ...g2.steps.slice(1)] }, '2026-11-05');
     expect(p).toMatchObject({ done: 1, total: 3, late: 1 });
     expect(p.next.text).toBe('Training planen');
-  });
-  it('takes over AI steps the person kept', () => {
-    const g = newGoal({ title: `${P} Ziel`, due: '2026-11-09' }, { id: 'g' });
-    const out = takeSuggested(g, [{ text: 'A', date: '2026-10-20' }, { text: 'B', date: '2020-01-01' }, { text: 'C', take: false }], today, { ids: (i) => `a${i}` });
-    expect(out.steps.map((s) => [s.text, s.date, s.ai])).toEqual([['A', '2026-10-20', true], ['B', '2026-11-09', true]]);
-    expect(stepsPayload(out, today)).toEqual({ goal: `${P} Ziel`, due: '2026-11-09', today, have: ['A', 'B'], lang: 'de' });
   });
   it('asks «Wie läuft\'s?» once a week', () => {
     expect(mondayOf('2026-10-25')).toBe('2026-10-19');

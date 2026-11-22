@@ -6,6 +6,8 @@
  * tab of PLACE_TABS has its entry.
  */
 export const TAB_INFO = {
+  // V4a (Noah 21.11.2026): the old Aktiv is the tab «Training» of Woche
+  'week:training': ['dumbbell', 'Your training: plans, sports and recovery'],
   'week:week': ['calendar', 'Your week: appointments, rides and weather day by day'],
   'week:remember': ['flower', 'To-dos, birthdays and plants, with their reminders'],
   'week:agenda': ['clock', 'Appointments and tasks from your calendar'],
@@ -16,6 +18,7 @@ export const TAB_INFO = {
   'week:compass': ['compass', 'What is important to you, and where you stand'],
   'week:alltag': ['basket', 'Shopping, contracts and people you have not seen for long'],
   'week:frei': ['sun', 'Ideas for free time, evenings and journeys'],
+  'week:impulse': ['sparkles', 'Ideas and impulses for free time.'],
   'week:links': ['link', 'SBB, Maps, komoot and your own links'],
   'trips:overview': ['map', 'All tours, planned and ridden'],
   'trips:templates': ['copy', 'Packing lists to start a new tour from'],
@@ -46,9 +49,9 @@ export const TAB_INFO = {
   'analysis:body': ['heart', 'Form, heart rate, sleep, weight and insights.'],
   'analysis:rides': ['route', 'Your rides with heatmap, new ground, summit book and year.'],
   'analysis:ticks': ['sun', 'What you ticked, evaluated like a ride.'],
-  'analysis:history': ['smile', 'Your daily questions, what does you good and impulses.'],
+  'analysis:history': ['smile', 'Your daily questions, what does you good and ideas for your balance.'],
   'analysis:wohl': ['heart', 'What does you good, from your own answers.'],
-  'analysis:impulse': ['sparkles', 'Ideas and impulses for free time.'],
+  'analysis:ideen': ['sparkles', 'Ideas for your balance.'],
   'analysis:analyse': ['chart', 'Every value as a tile with its course.'],
   'analysis:insights': ['chart', 'The strongest patterns in your data.'],
   'analysis:weight': ['scale', 'Your weight and its curve.'],

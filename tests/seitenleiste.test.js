@@ -4,8 +4,8 @@ import { describe, it, expect } from 'vitest';
 import { SIDE_PLACES, BAR_PLACES, PLACE_TABS, sidePlaceOf, placeOf, tabOf, EQUIPMENT } from '../src/lib/nav.js';
 
 describe('the sidebar of the new order', () => {
-  it('has seven rows: Heute, Planen, Touren, Aktiv, Auswerten, Velos, Material (Ich is the card below)', () => {
-    expect(SIDE_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'analysis', 'bikes', 'gear']);
+  it('V4a (Noah 21.11.2026): has six rows: Heute, Woche, Touren, Velos, Material (until V5), Auswerten (Ich is the card below)', () => {
+    expect(SIDE_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'gear', 'analysis']);
   });
   it('lights Material for Ausrüstung and Heute for Quick Links', () => {
     expect(sidePlaceOf(placeOf('equipment'))).toBe('gear');
@@ -27,7 +27,7 @@ describe('the sidebar of the new order', () => {
     expect(keys.slice(0, 4)).toEqual(['overview', 'dreams', 'templates', 'lookback']);
     expect(keys.indexOf('inspiration')).toBe(4);
   });
-  it('leaves the bottom bar of a phone as it was (step 15 changes it)', () => {
-    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'quick']);
+  it('V4a: the bottom bar of a phone has the five places Heute, Woche, Touren, Velos und Material, Auswerten', () => {
+    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'analysis']);
   });
 });

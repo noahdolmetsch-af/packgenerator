@@ -123,9 +123,8 @@ test('Packliste per Foto: tick off, ask what it is, remember, Undo', async ({ pa
   await expect(page.locator('[data-pp-ask]')).toHaveCount(0);
   await expect(page.locator('.pp-known summary')).toContainText(T('{n} thing remembered on this device', { n: 1 }));
 
-  // the KI-Helfer is a choice, but off: the device keeps recognising and nothing is sent
-  await page.getByRole('button', { name: T('KI-Helfer (online)') }).click();
-  await expect(page.getByText(T('The KI-Helfer is not switched on. Set it up under Me › KI-Helfer; until then the device recognises.'))).toBeVisible();
+  // KI entfernen, Schritt 3: recognition is on the device only, there is no switch to an online helper
+  await expect(page.getByRole('button', { name: T('KI-Helfer (online)') })).toHaveCount(0);
   await expect(page.locator('[data-pp-send]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

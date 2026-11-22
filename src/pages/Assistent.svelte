@@ -3,7 +3,7 @@
    * «Assistent» (Noah 15.10.2026 «1 beides 2a und b 3 a und b», thread «Claude in der App»): #/assistent.
    * Two parts: «Frag die App» (a question, the app answers from your data) and «Hilf mir planen»
    * (#/assistent/plan: four short questions, then a plan). Free first: the app's own rules, Chrome-KI on
-   * a computer; Claude only with the AI helper switched on (monthly limit). Reached from its own button
+   * a computer. Reached from its own button
    * (sidebar, phone top bar) and from the search.
    */
   import { liveQuery } from 'dexie';
@@ -16,8 +16,6 @@
   import PlanHelp from '../lib/assistent/PlanHelp.svelte';
   import { planFromHash } from '../lib/suche/say.js'; // «Plane mir 3 Tage Jura» from the search
   import SearchFree from '../lib/kisuche/SearchFree.svelte';
-  import SearchAnswer from '../lib/helper/SearchAnswer.svelte';
-  import { isOn } from '../lib/helper/client.svelte.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import AskElsewhere from '../lib/assistent/AskElsewhere.svelte';
   import SpeakButton from '../lib/ui/SpeakButton.svelte';
@@ -25,9 +23,8 @@
 
   let { hash = '' } = $props();
   // Noah 15.10.2026 «spezifisch sollen diese beispiele in der app als beispiele angezeigt werden»: examples
-  // per way. Claude: only what is built (packing list, Check the list, bike care, look back draft).
+  // per way.
   const CHROME_EG = ['What do I take for 2 days of rain?', 'Which jacket for 5 °C?'];
-  const CLAUDE_EG = ['New trip: a packing list from a few words, e.g. «3 days Jura, 5 °C, bivouac», with reasons', 'Packing: «Check the list» finds what is missing, double or heavy', 'Bike care: what is due next on chain, cassette, brake pads and tyres, with a concrete check', 'Look back: a draft and learnings from your notes on the way'];
   const plan = $derived(hash.startsWith('#/assistent/plan'));
   let q = $state('');
   let asked = $state('');
@@ -43,7 +40,6 @@
     q = appendSpoken(q, w);
     asked = q.trim();
   }
-  let kh = $state();
   const all = liveQuery(async () => {
     const [items, trips, bikes, notes, tpl, events] = await Promise.all([db.items.toArray(), db.trips.toArray(), db.bikes.toArray(), db.notes.toArray(), db.settings.get(TEMPLATES_KEY), db.events.toArray()]);
     return { items, trips, bikes, notes, templates: tpl?.value ?? [], events };
@@ -54,7 +50,6 @@
     e.preventDefault();
     asked = q.trim();
     empty = !asked;
-    if (asked) kh?.onEnter(asked);
   }
   function example(s) {
     empty = false;
@@ -87,7 +82,6 @@
       {#if asked}
         <div class="as-res" aria-live="polite">
           <AskAnswer q={asked} fallback here onresult={(has) => (appHas = has)} />
-          {#if isOn()}<SearchAnswer bind:this={kh} q={asked} items={$all?.items ?? []} />{/if}
           <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»); Gemini asks by itself when the app has no answer («1a») -->
           <AskElsewhere q={asked} auto={!appHas}>
             {#snippet children()}<SearchFree q={asked} data={$all} inside />{/snippet}
@@ -105,15 +99,12 @@
         <dd>{t('It knows set questions and works out the answer from your data: km of a period, what is due on your bikes, what is still to pack, your next and last trip, the weight of an item, your learnings. Each answer has a link to the right place. Nothing leaves your device.')}</dd>
         <dd><ul class="as-eg" aria-label={t('Examples')}>{#each [...EXAMPLES, 'What did I learn about rain?'] as e (e)}<li><button type="button" class="as-egb" onclick={() => example(t(e))}>«{t(e)}»</button></li>{/each}</ul></dd>
         <dt>{t('2 · Chrome AI')} <span class="as-tag">{t('free, only on a computer in Chrome')}</span></dt>
-        <dd>{t('A small AI built into Chrome. It also answers free questions, with the entries from the app that fit. It runs on your computer, nothing goes to the internet. Its answers are simpler than Claude\'s.')}</dd>
+        <dd>{t('A small AI built into Chrome. It also answers free questions, with the entries from the app that fit. It runs on your computer, nothing goes to the internet.')}</dd>
         <dd><ul class="as-eg" aria-label={t('Examples')}>{#each CHROME_EG as e (e)}<li>«{t(e)}»</li>{/each}</ul></dd>
-        <dt>{t('3 · Claude')} <span class="as-tag">{t('a few centimes per question')}</span></dt>
-        <dd>{t('The best AI: concrete suggestions, e.g. a whole packing list from your gear with reasons. Only when the AI helper is on, and at most up to your monthly limit.')} <a href="#/helper">{t('Me › AI helper')}</a></dd>
-        <dd><ul class="as-eg" aria-label={t('Examples')}>{#each CLAUDE_EG as e (e)}<li>{t(e)}</li>{/each}</ul></dd>
       </dl>
       <p class="as-hint">{t('«Help me plan» asks four things (when and how long, kind of trip, the night, the bike) and then suggests a plan: weather, packing list, what is due on the bike, your learnings.')}</p>
     </details>
-    <p class="as-fine">{isOn() ? t('The app answers first, free. Claude answers too, because the AI helper is on (monthly limit).') : t('The app answers free and on this device. Claude answers only when the AI helper is on (Me › AI helper).')}</p>
+    <p class="as-fine">{t('The app answers free and on this device.')}</p>
   {/if}
 </div>
 

@@ -1,4 +1,4 @@
-// «Ganze App neu denken» Schritt 11 (Noah 18.11.2026 «1a 2a 3b 4b 5b»): Planen has three tabs, Woche, Notizen and Alltag; the old pages
+// «Ganze App neu denken» Schritt 11 (Noah 18.11.2026 «1a 2a 3b 4b 5b»): Planen has three tabs, Woche, Notizen and Alltag (V4a, 21.11.2026: «Woche» has Training as its second tab, so four); the old pages
 // are chips under them and keep their addresses. Fictional data (home0460-fixture.js), German UI, nothing leaves the preview.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
@@ -12,8 +12,8 @@ test('Planen: three tabs, the other pages as chips, every address still opens it
   const T = await openHome(page, context, info);
   await page.goto('./#/week');
   const tabs = page.locator(TABS).first();
-  await expect(tabs.locator('a')).toHaveCount(3);
-  for (const href of ['#/week', '#/notes', '#/me/alltag']) await expect(tabs.locator(`a[href="${href}"]`)).toHaveCount(1);
+  await expect(tabs.locator('a')).toHaveCount(4); // V4a: Woche, Training, Notizen, Alltag
+  for (const href of ['#/week', '#/flow/training', '#/notes', '#/me/alltag']) await expect(tabs.locator(`a[href="${href}"]`)).toHaveCount(1);
   // no «Alle n» window any more: nothing is hidden behind it
   await expect(page.locator('nav.ptabs .pmore')).toHaveCount(0);
   const chips = page.locator('nav.psubs');

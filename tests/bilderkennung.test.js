@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { GEAR_LABELS, labelInfo, itemForLabel, packEmb, likeness, nearestKnown, teach, KNOWN_MAX, resolveRegion, matchTick, matchNew, regionsOf } from '../src/lib/vision/recognize.js';
 import { angleAt, backAngle, sideOf, anglesOf, videoSummary, fitHints, KNEE_RANGE, addSitPos, removeSitPos, sitPosOf } from '../src/lib/vision/fit.js';
-import { helperGroups, namesOut } from '../src/lib/vision/online.js';
 import { prefsOf } from '../src/lib/vision/store.js';
 import { MODEL_URLS, MP_URL, MP_WASM } from '../src/lib/vision/engine.js';
 import { TASKS, TASK_NAMES, buildRequest, validate, forbiddenKey, pictureOf, PICTURE_MAX } from '../api/_lib/helper.js';
@@ -116,22 +115,6 @@ describe('one photo against the list', () => {
     expect(r[0]).toMatchObject({ label: 'cup', ask: true });
     expect(r.slice(1).every((x) => x.grid && x.ask === false)).toBe(true);
     expect(r[1].box).toEqual({ x: 0, y: 0, w: 150, h: 150 });
-  });
-});
-
-describe('the KI-Helfer answer as the same groups', () => {
-  it('tick and new', () => {
-    const entries = [{ itemId: 'A1', packed: false }, { itemId: 'A2', packed: true }];
-    const t = helperGroups('tick', [{ itemId: 'A1', name: 'x' }, { itemId: 'A2', name: 'x' }, { itemId: '', name: 'Velohelm' }, { itemId: 'A1', name: 'x' }], { entries, items });
-    expect(t.tick.map((x) => x.itemId)).toEqual(['A1']);
-    expect(t.packed).toEqual(['Schlafsack Sommer']);
-    expect(t.other).toEqual(['Velohelm']);
-    const n = helperGroups('new', [{ itemId: 'A3', name: '' }, { itemId: '', name: 'Velohelm' }], { items });
-    expect(n.have).toEqual([{ itemId: 'A3', name: 'Stirnlampe' }]);
-    expect(n.add).toEqual([{ name: 'Velohelm', nameKey: '', region: null }]);
-  });
-  it('names only, cut', () => {
-    expect(namesOut([{ id: 1, name: 'x'.repeat(100), weightG: 5 }])).toEqual([{ id: '1', name: 'x'.repeat(80) }]);
   });
 });
 

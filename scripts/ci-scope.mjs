@@ -1,11 +1,13 @@
-// Which phone tests does a PR need? (Noah 1.11.2026 «4a», Noah 05.11.2026 «3a ja»)
+// Which phone tests does a PR need? (Noah 1.11.2026 «4a», Noah 05.11.2026 «3a ja», Noah 22.11.2026 «a»)
 // - docs, news files, German text files, unit tests: no phone tests of their own (Noah: «Texte lösen nichts aus»).
 // - whole spec files in the PR: these specs.
-// - app code: the specs of the pages the changed files end in (scripts/ci-map.mjs, from the app's own imports).
-//   A file that every page loads (the core), a file that ends nowhere we understand, or a shared test helper:
-//   everything runs, as before.
+// - app code and styles: the specs of the pages the changed files end in (scripts/ci-map.mjs, from the app's own
+//   imports) plus the Kern. A file that every page loads or that ends nowhere we understand now runs the Kern
+//   alone (the quick check, about 10 minutes), no longer everything.
+// - «Schwer» (HEAVY): data, backup, sync, storage, import/export, api/, build and workflow files, and anything we
+//   do not understand: everything runs, as before.
 // The «Kern» (CORE_SPECS) runs with every scoped PR, so a broken start or trip loop never slips through.
-// The night run (volle-pruefung.yml) runs everything.
+// The night run (volle-pruefung.yml) runs everything: a mistake the quick check misses shows there the next morning.
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 
@@ -15,6 +17,18 @@ const SAFE = [
   // the German texts (one file per area); index.js and the merged auto.gen.js stay out, they wire the files
   /^src\/lib\/i18n\/de\/(?!index\.js$|auto\.gen\.js$)[\w.-]+\.js$/,
 ];
+// Noah 22.11.2026 «a»: a small PR (text, view, tests, docs) gets the quick check; a PR that touches data, backup, sync,
+// the storage structure or api/ is still checked in full on every PR. Decided by the changed paths, not by hand.
+// A name that only looks like data (a word with «async» in it) just runs the full check: the safe side.
+export const HEAVY = [
+  /^api\//, /^src\/lib\/(?:sync|maintenance|booking)\//,
+  /(?:^|\/)db[\w.-]*\.(?:js|svelte)$/, /db\.(?:js|svelte)$/,
+  /backup|sync|migrat|snapshot|dexie|persist|storage|import|export/i,
+  /^(?:package(?:-lock)?\.json|vite\.config\.js|playwright\.config\.js|svelte\.config\.js|vercel\.json|index\.html)$/,
+  /^\.github\//, /^scripts\//, /^public\//,
+];
+// styles are a view: no page of their own to map, the Kern looks at every page
+const VIEW = [/^src\/(?:[\w.-]+\/)*[\w.-]+\.css$/];
 const APP_CODE = [/^src\/(?:[\w.-]+\/)*[\w.-]+\.(?:js|svelte)$/, /^tests\/e2e\/(?:[\w-]+\/)*[\w.-]+\.js$/];
 
 /**
@@ -40,18 +54,24 @@ export const MAX_SPECS = 250;
 /** One phone part per this many specs (at most 5 parts): a PR with a few specs does not take 5 computers. */
 export const SPECS_PER_PART = 20;
 
-/** `map(changedAppFiles)` → the specs they touch, or null (= unknown). Without it app code runs everything. */
+/** `map(changedAppFiles)` → the specs they touch, or null (= unknown). Without it app code is not decided yet ('all'). */
 export function scope(files, map = null) {
   const list = files.map((f) => f.trim()).filter(Boolean);
   if (!list.length) return { mode: 'all', specs: [], parts: 5 };
+  // data, backup, sync, storage, api, build: the full check on every PR (Noah 22.11.2026 «a»); docs, news, German texts
+  // and specs are judged by their own rules, whatever their names say
   const specs = list.filter((f) => SPEC.test(f));
   const rest = list.filter((f) => !SPEC.test(f) && !SAFE.some((re) => re.test(f)));
+  if (rest.some((f) => HEAVY.some((re) => re.test(f)))) return { mode: 'all', specs: [], parts: 5 };
   if (!rest.length) return { mode: specs.length ? 'specs' : 'none', specs, parts: partsFor(specs) };
-  if (!map || !rest.every((f) => APP_CODE.some((re) => re.test(f)))) return { mode: 'all', specs: [], parts: 5 };
-  const mapped = map(rest);
-  if (!mapped) return { mode: 'all', specs: [], parts: 5 };
+  const code = rest.filter((f) => APP_CODE.some((re) => re.test(f)));
+  // something that is neither app code, a style, docs nor a spec: not understood, run everything
+  if (rest.some((f) => !APP_CODE.some((re) => re.test(f)) && !VIEW.some((re) => re.test(f)))) return { mode: 'all', specs: [], parts: 5 };
+  if (!map) return { mode: 'all', specs: [], parts: 5 }; // the caller builds the map and asks again
+  // a start file, a file that ends nowhere or a file that reaches (nearly) every spec: the Kern alone is the quick check
+  let mapped = code.length ? map(code) : [];
+  if (!mapped || mapped.length > MAX_SPECS) mapped = [];
   const all = [...new Set([...CORE_SPECS, ...specs, ...mapped])].sort();
-  if (all.length > MAX_SPECS) return { mode: 'all', specs: [], parts: 5 };
   return { mode: 'specs', specs: all, parts: partsFor(all) };
 }
 

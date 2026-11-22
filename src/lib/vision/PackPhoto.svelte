@@ -5,31 +5,25 @@
    *   - «Abhaken»: ticks what it recognises on the packing list of a trip (the person confirms), or
    *   - «Neu erfassen»: suggests new items for the gear.
    * A thing it does not know: «Was ist das?»; the answer is remembered on this device.
-   * Recognition on the device by default (offline after the first download, the photo stays here);
-   * optionally the KI-Helfer, and the photo only leaves the device after a tap on «Foto senden».
+   * Recognition happens on the device (offline after the first download, the photo stays here).
    * Everything is a suggestion: each row can be deselected, and Undo takes it back.
    */
-  import { Camera, ImagePlus, Undo2, Send, Brain } from '@lucide/svelte';
+  import { Camera, ImagePlus, Undo2, Brain } from '@lucide/svelte';
   import Seg from '../ui/Seg.svelte';
   import { db } from '../db.js';
   import { newItem } from '../gearimport.js';
   import { nextTrip } from '../debrief.js';
   import { localDay } from '../localday.js';
   import { saveFailed } from '../ui/ask.js';
-  import { isOn } from '../helper/client.svelte.js';
-  import { errorText } from '../helper/client.svelte.js';
   import * as engine from './engine.js';
   import { photoCanvas, lookAt } from './picture.js';
   import { matchTick, matchNew } from './recognize.js';
-  import { askVision, helperGroups } from './online.js';
   import { loadPrefs, savePrefs, loadKnown, remember, forget } from './store.js';
   import { t, tn } from '../i18n.svelte.js';
   import '../tools/tools.css';
 
-  let prefs = $state({ engine: 'device', mode: 'tick' });
+  let prefs = $state({ mode: 'tick' });
   loadPrefs().then((p) => (prefs = p));
-  const helperOk = $derived(isOn());
-  const useHelper = $derived(prefs.engine === 'helper' && helperOk);
 
   let trips = $state([]);
   let items = $state([]);
@@ -52,7 +46,7 @@
   let shown = $state(); // the <canvas> on the page
   let regions = $state(null);
   let result = $state(null); // { tick, packed, other, ask } | { have, add, ask }
-  let step = $state(''); // '' | 'loading' | 'looking' | 'send' | 'sending'
+  let step = $state(''); // '' | 'loading' | 'looking'
   let error = $state('');
   let picked = $state({}); // key → true/false (rows to apply)
   let names = $state({}); // new mode: key → name
@@ -65,12 +59,6 @@
     savePrefs({ mode: m });
     redo();
   };
-  const setEngine = (e) => {
-    prefs.engine = e;
-    savePrefs({ engine: e });
-    if (canvas) (result = null), (step = e === 'helper' && helperOk ? 'send' : ''), e !== 'helper' && run();
-  };
-
   async function pick(e) {
     const file = e.currentTarget.files?.[0];
     e.currentTarget.value = '';
@@ -85,8 +73,7 @@
       error = t('This picture could not be opened. Try a JPG or PNG photo.');
       return;
     }
-    if (useHelper) step = 'send';
-    else run();
+    run();
   }
 
   // the photo on the page, with a numbered frame around each thing found
@@ -123,9 +110,9 @@
       group();
     } catch (err) {
       console.warn(err);
-      error = navigator.onLine === false ? t('The recognition must be downloaded once. Connect to the internet and try again.') : t('The recognition did not start on this device. Try again, or use the KI-Helfer.');
+      error = navigator.onLine === false ? t('The recognition must be downloaded once. Connect to the internet and try again.') : t('The recognition did not start on this device. Try again.');
     } finally {
-      if (step !== 'send') step = '';
+      step = '';
     }
   }
 
@@ -137,7 +124,6 @@
   function redo() {
     done = null;
     if (regions) group();
-    else if (canvas && useHelper) (result = null), (step = 'send');
   }
   function preselect() {
     const p = {};
@@ -146,22 +132,6 @@
     if (result?.add) result.add.forEach((r, i) => ((p[`n${i}`] = true), (n[`n${i}`] = r.name || t(r.nameKey))));
     picked = p;
     names = n;
-  }
-
-  async function send() {
-    step = 'sending';
-    error = '';
-    const pool = prefs.mode === 'tick' ? items.filter((it) => (trip?.entries ?? []).some((e) => e.itemId === it.id)) : items;
-    const r = await askVision(prefs.mode, pool, canvas);
-    step = '';
-    if (!r.ok) {
-      error = errorText(r.error);
-      step = 'send';
-      return;
-    }
-    regions = null;
-    result = helperGroups(prefs.mode, r.found, { entries: trip?.entries ?? [], items });
-    preselect();
   }
 
   /* ---------- «Was ist das?» ---------- */
@@ -273,38 +243,20 @@
     {/if}
   {/if}
 
-  <div class="tool-field">
-    <span id="pp-eng">{t('Recognition')}</span>
-    <Seg labelledby="pp-eng" value={useHelper ? 'helper' : 'device'} onchange={setEngine} options={[{ key: 'device', name: t('On this device') }, { key: 'helper', name: t('KI-Helfer (online)') }]} />
-    {#if prefs.engine === 'helper' && !helperOk}
-      <p class="tool-status">{t('The KI-Helfer is not switched on. Set it up under Me › KI-Helfer; until then the device recognises.')} <a href="#/helper">{t('KI-Helfer')}</a></p>
-    {:else if useHelper}
-      <p class="tool-muted">{t('More exact, needs internet. The photo leaves your device only when you tap «Send photo».')}</p>
-    {:else}
-      <p class="tool-muted">{t('Private and offline. The first time the app downloads the recognition once (about 30 MB, best on Wi-Fi).')}</p>
-    {/if}
-  </div>
+  <p class="tool-muted">{t('Private and offline. The first time the app downloads the recognition once (about 30 MB, best on Wi-Fi).')}</p>
 
   <div class="tool-row">
-    <button type="button" class="btn hi" onclick={() => camIn.click()} disabled={step === 'loading' || step === 'looking' || step === 'sending'}><Camera size={16} aria-hidden="true" />{t('Take photo')}</button>
-    <button type="button" class="btn" onclick={() => galIn.click()} disabled={step === 'loading' || step === 'looking' || step === 'sending'}><ImagePlus size={16} aria-hidden="true" />{t('From gallery')}</button>
+    <button type="button" class="btn hi" onclick={() => camIn.click()} disabled={step === 'loading' || step === 'looking'}><Camera size={16} aria-hidden="true" />{t('Take photo')}</button>
+    <button type="button" class="btn" onclick={() => galIn.click()} disabled={step === 'loading' || step === 'looking'}><ImagePlus size={16} aria-hidden="true" />{t('From gallery')}</button>
     <input bind:this={camIn} type="file" accept="image/*" capture="environment" hidden onchange={pick} data-pp-camera />
     <input bind:this={galIn} type="file" accept="image/*" hidden onchange={pick} data-pp-file />
   </div>
 
   {#if step === 'loading'}<p class="tool-status" role="status">{t('Loading the recognition … (the first time takes a moment)')}</p>{/if}
   {#if step === 'looking'}<p class="tool-status" role="status">{t('Looking at the photo …')}</p>{/if}
-  {#if step === 'sending'}<p class="tool-status" role="status">{t('The KI-Helfer looks at the photo …')}</p>{/if}
   {#if error}<p class="tool-status err" role="alert">{error}</p>{/if}
 
   {#if canvas}<canvas class="pp-photo" bind:this={shown} aria-label={t('Your photo with the things found')}></canvas>{/if}
-
-  {#if step === 'send'}
-    <div class="pp-send">
-      <p class="tool-help">{t('The photo goes once to the KI-Helfer (Claude by Anthropic), with the names of your list. It is not stored in the app.')}</p>
-      <div><button type="button" class="btn hi" onclick={send} data-pp-send><Send size={16} aria-hidden="true" />{t('Send photo')}</button></div>
-    </div>
-  {/if}
 
   {#if done}
     <p class="tool-status pp-done" role="status">{done.text}
@@ -323,7 +275,7 @@
               <label class="pp-pick"><input type="checkbox" bind:checked={picked[r.itemId]} />
                 {#if r.region?.thumb}<img src={r.region.thumb} alt="" />{/if}
                 {#if markOf(r)}<span class="pp-n">{markOf(r)}</span>{/if}
-                <span class="pp-name">{r.name}<small>{r.by === 'learned' ? t('remembered') : r.by === 'helper' ? t('KI-Helfer') : t('from the photo')}</small></span>
+                <span class="pp-name">{r.name}<small>{r.by === 'learned' ? t('remembered') : t('from the photo')}</small></span>
               </label>
             </li>
           {/each}
@@ -454,10 +406,6 @@
     gap: var(--sp-2);
     flex: 1;
     min-width: 0;
-  }
-  .pp-send {
-    display: grid;
-    gap: var(--sp-2);
   }
   .pp-done {
     display: flex;

@@ -63,14 +63,3 @@ export async function lookAt(canvas, eng = engine) {
   }
   return regions;
 }
-
-/** The photo made small for the KI-Helfer: JPEG, at most 1024 px → { type, data (base64) }. */
-export async function forHelper(canvas, max = 1024) {
-  const k = Math.min(1, max / Math.max(canvas.width, canvas.height));
-  const c = document.createElement('canvas');
-  c.width = Math.round(canvas.width * k);
-  c.height = Math.round(canvas.height * k);
-  c.getContext('2d').drawImage(canvas, 0, 0, c.width, c.height);
-  const url = c.toDataURL('image/jpeg', 0.75);
-  return { type: 'image/jpeg', data: url.slice(url.indexOf(',') + 1) };
-}

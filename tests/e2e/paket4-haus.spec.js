@@ -62,6 +62,6 @@ test('Ready for tomorrow: on the evening before, hints from weather and charging
   await expect(m.locator('[data-hint="cold"]')).toContainText(T('Cold morning, {n} °C: gloves and a warm layer on top.', { n: 2 }));
   await expect(m.locator('[data-hint="rain"]')).toBeVisible();
   await expect(m.locator('[data-hint="charge"]')).toBeVisible();
-  // without the AI helper set up there is no button for it
+  // KI entfernen, Schritt 3: no AI button any more
   await expect(m.locator('[data-morgen-ask]')).toHaveCount(0);
 });
