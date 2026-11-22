@@ -14,8 +14,8 @@
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { db } from '../lib/db.js';
   import { filterEntries, counts, isOpen, routeOf } from '../lib/logbuch/logbuch.js';
-  import { KINDS_KEY, normalizeKinds, artList } from '../lib/logbuch/kinds.js';
-  import { addEntry, updateEntry, removeEntry, restoreEntry, saveKinds } from '../lib/logbuch/logbuchdb.js';
+  import { DEFAULT_KINDS, artList } from '../lib/logbuch/kinds.js';
+  import { addEntry, updateEntry, removeEntry, restoreEntry, saveKinds, loadKinds, deleteKind, deleteGroup, restoreKinds } from '../lib/logbuch/logbuchdb.js';
   import { buildOrder, orderSize, images } from '../lib/logbuch/auftrag.js';
   import { copyText, savePictures } from '../lib/logbuch/export.js';
   import { takeIntoLog } from '../lib/logbuch/fehler.js';
@@ -28,8 +28,8 @@
   takeIntoLog(); // the errors the app noted quietly (Fehler-Melder) become entries of the kind «Error»
   const q = liveQuery(() => db.logbuch.toArray());
   const all = $derived($q ?? []);
-  const kq = liveQuery(() => db.settings.get(KINDS_KEY));
-  const cfg = $derived(normalizeKinds($kq?.value)); // the kinds and groups the user set (L5), the first version when none
+  const kq = liveQuery(() => loadKinds()); // the kinds and groups the user set (L5), the first version when none; the page waits for them so the old names never flash
+  const cfg = $derived($kq ?? DEFAULT_KINDS);
   let group = $state('all');
   const shown = $derived(filterEntries(all, group, cfg));
   const n = $derived(counts(all, cfg));
@@ -37,6 +37,10 @@
   // a way's kinds in words: «Error, Number wrong, …» (the first version or what the user named)
   const kindsOf = (route) => artList(cfg).filter((a) => routeOf(a, cfg) === route).map((a) => artLabel(a, cfg)).join(', ');
   // the link «Change kinds» in the window «Improve» comes here with ?arten=1
+  // a filter on a group that was deleted goes back to «All»
+  $effect(() => {
+    if (group !== 'all' && !cfg.groups.some((g) => g.key === group)) group = 'all';
+  });
   let kindsOpen = $state(/[?&]arten=1/.test(globalThis.location?.hash ?? ''));
   let look = $state(null); // { list, start } while a photo is shown big
   let sheet = $state(null); // { entry } while the window is open (entry null = new)
@@ -79,9 +83,9 @@
     <button type="button" class="btn hi" data-lb-new onclick={() => (sheet = { entry: null })}><Plus size={16} aria-hidden="true" />{t('New entry')}</button>
   </VeloHead>
 
-  {#if $q && !all.length}
+  {#if $q && $kq && !all.length}
     <Empty icon={NotebookPen} title={t('Nothing written down yet')} text={t('The log collects what you notice in the app: a wrong text, a missing hint, a block in the wrong place. One sentence is enough. Small things get changed in one small step, bigger ones get a picture first.')} action={{ label: t('Write the first entry'), onclick: () => (sheet = { entry: null }) }} />
-  {:else if $q}
+  {:else if $q && $kq}
     <section class="ich-sec" aria-labelledby="lb-h">
       <div class="ich-h"><div><h2 id="lb-h">{tn(n.open, '{n} entry open', '{n} entries open')}</h2><p class="ich-hs">{n.now ? tn(n.now, '{n} bothers you now', '{n} bother you now') : t('None bothers you right now')}</p></div></div>
       <div class="lb-chips" role="group" aria-label={t('Group|logbuch')}>
@@ -94,7 +98,7 @@
         {#each shown as e (e.id)}
           <li class="lb-item" data-lb-entry={e.id} data-art={e.art} class:finished={!isOpen(e)}>
             <div class="lb-top">
-              <span class="pill">{artLabel(e.art, cfg)}</span>
+              <span class="pill">{artLabel(e.art, cfg) || t('No kind')}</span>
               {#if e.urgent === 'now' && isOpen(e)}<span class="pill lb-now" data-lb-now>{t('Bothers me now')}</span>{/if}
               <span class="pill lb-st" data-lb-state={e.state}>{stateLabel(e.state)}</span>
               {#if e.source === 'auto'}<span class="pill" data-lb-auto>{t('Noted by the app')}{e.count > 1 ? ` · ${e.count}×` : ''}</span>{/if}
@@ -143,7 +147,7 @@
   </section>
 </div>
 
-{#if kindsOpen}<KindsSheet {cfg} counts={perArt} onsave={keepKinds} onclose={() => (kindsOpen = false)} />{/if}
+{#if kindsOpen}<KindsSheet {cfg} counts={perArt} onsave={keepKinds} ondeletekind={(key, to) => deleteKind(key, to ?? '')} ondeletegroup={(key, to) => deleteGroup(key, to)} onrestore={restoreKinds} onclose={() => (kindsOpen = false)} />{/if}
 {#if look}<Lightbox list={look.list} start={look.start} onclose={() => (look = null)} />{/if}
 {#if sheet}
   <LogEntrySheet {cfg} onkinds={() => (kindsOpen = true)} entry={sheet.entry} onsave={save} onremove={sheet.entry ? () => remove(sheet.entry) : null} onclose={() => (sheet = null)} />

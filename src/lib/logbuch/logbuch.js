@@ -35,10 +35,10 @@ const clean = (s, max) => String(s ?? '').trim().slice(0, max);
  * `now` is a Date (the day is the local calendar day of the device, never a UTC cut).
  */
 export function makeEntry({ art, urgent, text, page, pageTitle = '', block, device, width, now = new Date(), id, photo = null, photoNote = null, source = 'user', cfg = DEFAULT_KINDS }) {
-  if (!artList(cfg).includes(art)) return null;
+  if (!artList(cfg).includes(art) && !(source === 'auto' && art === '')) return null; // '' = without a kind: only what the app notes itself, when «Error» is gone
   const body = clean(text, 1000);
   if (!body) return null;
-  const route = routeOf(art, cfg);
+  const route = art === '' ? 'direct' : routeOf(art, cfg);
   const pad = (n) => String(n).padStart(2, '0');
   const day = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   return {
@@ -65,7 +65,7 @@ export function makeEntry({ art, urgent, text, page, pageTitle = '', block, devi
 /** A change of an entry (kind, text, urgency, place, state): keeps what must stay (id, time, photo) and the rules. */
 export function changeEntry(entry, patch = {}, cfg = DEFAULT_KINDS) {
   const art = patch.art && artList(cfg).includes(patch.art) ? patch.art : entry.art;
-  const route = routeOf(art, cfg);
+  const route = art === '' ? entry.route ?? 'draft' : routeOf(art, cfg); // without a kind (its kind was deleted): the way it had stays
   const text = patch.text === undefined ? entry.text : clean(patch.text, 1000);
   const out = {
     ...entry,
@@ -105,3 +105,11 @@ export function counts(list, cfg = DEFAULT_KINDS) {
 
 /** The device of this browser: a narrow screen is a phone (the same border the app uses for its phone layout). */
 export const deviceOf = (width) => (Number(width) >= 900 ? 'computer' : 'phone');
+
+/**
+ * The entries of a kind that is deleted (L5, Noah 22.11.2026 «3a»): they go to another kind (`to`) or stay without a kind (''), never deleted.
+ * cfg: the list AFTER the delete (the new kind must be in it). Returns only the entries that change.
+ */
+export function reassignEntries(list, from, to, cfg) {
+  return list.filter((e) => e.art === from).map((e) => (to ? changeEntry(e, { art: to }, cfg) : { ...e, art: '' }));
+}
