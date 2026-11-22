@@ -65,6 +65,14 @@ test('Switch on on one device, pair the other with the link: both have the same 
   // Noah 21.11.2026: the proof that nothing is missing (the count of the device equals the count of the server)
   await expect(box.locator('[data-sync-check="ok"]')).toContainText(T('Checked {when}: this device and the server hold the same {n} entries.').split('{when}')[0].trim());
   await shot(a.page, `A2-koppeln-${size}`);
+  // Noah 22.11.2026 «4a»: the code can be kept on the computer as a small text file
+  const saved = a.page.waitForEvent('download');
+  await box.locator('[data-sync-savecode]').click();
+  const file = await saved;
+  expect(file.suggestedFilename()).toBe('pack-generator-code.txt');
+  const text = readFileSync(await file.path(), 'utf8');
+  expect(text).toContain(code);
+  await expect(box).toContainText(T('Code saved as a file. Keep it somewhere safe.'));
 
   // the other device opens the link
   const b = await device(browser, info, server);

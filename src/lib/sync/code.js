@@ -46,6 +46,20 @@ export function readCode(text) {
   return formatCode(s);
 }
 
+/** The code inside a longer text (the saved code file, a message): the first thing that looks like one, or null. */
+export function findCode(text) {
+  const whole = readCode(text);
+  if (whole) return whole;
+  const m = String(text ?? '').match(/(?:[0-9A-Za-z]{4}-){7}[0-9A-Za-z]{4}/);
+  return m ? readCode(m[0]) : null;
+}
+
+/** Noah 22.11.2026 «4a»: the text of the file «pack-generator-code.txt» that keeps the code on the computer. */
+export const CODE_FILE_NAME = 'pack-generator-code.txt';
+export function codeFileText(code, tr = (x) => x) {
+  return `${tr('Pack Generator: code for the sync of your devices')}\n\n${code}\n\n${tr('On a new or emptied device: open the app and choose «Phone and computer» › «I have a code». Type or paste this code there.')}\n${tr('Keep this file to yourself: whoever has the code can read your data.')}\n`;
+}
+
 function decode(code) {
   const s = code.replace(/-/g, '');
   const out = [];
