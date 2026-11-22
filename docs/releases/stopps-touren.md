@@ -1,6 +1,6 @@
 # «Stopps in der Nähe» gehört in der Leiste zu Touren
 
-PR #<Nummer> · 22.11.2026 · Auftrag: Noah «1-3» (Thread «App-Landkarte», Lücke aus der App-Landkarte)
+PR #1437 · 22.11.2026 · Auftrag: Noah «1-3» (Thread «App-Landkarte», Lücke aus der App-Landkarte)
 
 ## Was ist neu
 - Auf der Seite «Stopps in der Nähe» (`#/stopps`) ist in der Leiste «Touren» markiert. Vorher war dort kein Ort markiert.
