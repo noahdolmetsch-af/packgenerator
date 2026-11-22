@@ -3,8 +3,8 @@ export default {
   title: 'Tick off on the card Outdoors',
   lead: 'The card Outdoors has the green button «Tick off», like your habits: the goal of today is reached in one tap.',
   points: [
-    { text: 'The button «Tick off» adds the minutes that are still missing to your 90 minutes (Strava counted); a second tap takes them back', go: { href: '#/', steps: [{ sel: '[data-outdoor-tick], [data-outdoor-card]' }] } },
-    { text: 'A smaller amount still works as before with +15, +30, +60 or your own minutes', go: { href: '#/', steps: [{ sel: '[data-outdoor-add], [data-outdoor-card]' }] } },
+    { text: 'The button «Tick off» adds the minutes that are still missing to your 90 minutes (Strava counted); a second tap takes them back', go: { href: '#/', steps: [{ sel: '[data-outdoor-tick], [data-outdoor-card], [data-outdoor-start]' }] } },
+    { text: 'A smaller amount still works as before with +15, +30, +60 or your own minutes', go: { href: '#/', steps: [{ sel: '[data-outdoor-add], [data-outdoor-card], [data-outdoor-start]' }] } },
   ],
   small: [{ box: 'new', text: 'Nothing on Heute moves: the card Outdoors only gets one button' }],
   test: ['On Today, on the card «Outdoors», tap «Tick off»: the line says «Done today» and the button says «Ticked · take back».', 'Tap «Ticked · take back» or «Undo» in the message: the minutes that were missing are gone again.'],
