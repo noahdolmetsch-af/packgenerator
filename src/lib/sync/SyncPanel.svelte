@@ -74,6 +74,7 @@
     if (/[?&]verbinden=1/.test(location.hash)) {
       history.replaceState(null, '', location.hash.replace(/[?&]verbinden=1/, '').replace(/^(#[^?]*)&/, '$1?'));
       view = 'enter';
+      requestAnimationFrame(() => setTimeout(() => document.getElementById('sync-code')?.scrollIntoView({ block: 'center' }), 50));
     }
     const m = location.hash.match(/[?&]koppeln=([0-9A-Za-z-]+)/);
     if (!m) return;
