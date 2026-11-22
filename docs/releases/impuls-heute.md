@@ -1,6 +1,6 @@
 # Impuls für heute jeden Tag, passend zu Wetter und freier Zeit
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Noah «mit dieser» (Thread «App-Landkarte»)
+PR #1391 · 21.11.2026 · Auftrag: Noah «mit dieser» (Thread «App-Landkarte»)
 
 ## Was ist neu
 - Auf Heute steht jeden Tag die Zeile «Impuls für heute», nicht mehr nur an Tagen ohne Fahrt-Vorschlag.
