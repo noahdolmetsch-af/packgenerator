@@ -10,16 +10,19 @@
   import { NotebookPen, X } from '@lucide/svelte';
   import LogEntrySheet from './LogEntrySheet.svelte';
   import { blockAt, frameOf, pageTitleOf } from './block.js';
-  import { addEntry, removeEntry } from './logbuchdb.js';
+  import { addEntry, removeEntry, loadKinds } from './logbuchdb.js';
   import { takePhoto } from './photo.js';
   import { db } from '../db.js';
   import { takeIntoLog } from './fehler.js';
   import { deviceOf } from './logbuch.js';
+  import { DEFAULT_KINDS } from './kinds.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { saveFailed } from '../ui/ask.js';
   import { t } from '../i18n.svelte.js';
 
   let { hash = '' } = $props();
+
+  let cfg = $state(DEFAULT_KINDS); // the kinds and groups the user set (L5), read when the window opens
 
   let on = $state(false); // the mode: a tap picks a block
   let frame = $state(null); // { x, y, w, h, title } the orange frame
@@ -77,6 +80,7 @@
       /* the entry is kept without it */
     }
     busy = false;
+    cfg = await loadKinds().catch(() => DEFAULT_KINDS);
     ctx = { page: hash || location.hash || '#/', pageTitle: pageTitleOf(), block, at, device: deviceOf(width()), width: width(), photo: shot.photo, photoNote: shot.note };
   }
   async function save(v) {
@@ -124,7 +128,7 @@
   {/if}
 {/if}
 {#if ctx}
-  <LogEntrySheet context={ctx} onsave={save} onclose={stop} />
+  <LogEntrySheet {cfg} context={ctx} onsave={save} onclose={stop} />
 {/if}
 
 <style>

@@ -5,10 +5,25 @@
  */
 import { db } from '../db.js';
 import { makeEntry, changeEntry } from './logbuch.js';
+import { KINDS_KEY, DEFAULT_KINDS, normalizeKinds, isStandard } from './kinds.js';
+
+/** The user's kinds and groups (L5): the first version when nothing is stored. */
+export async function loadKinds(database = db) {
+  const row = await database.settings.get(KINDS_KEY);
+  return row ? normalizeKinds(row.value) : DEFAULT_KINDS;
+}
+
+/** Keep the user's kinds; the first version is kept as «nothing stored», so «Back to standard» leaves no trace. */
+export async function saveKinds(cfg, database = db) {
+  const value = normalizeKinds(cfg);
+  if (isStandard(value)) await database.settings.delete(KINDS_KEY);
+  else await database.settings.put({ key: KINDS_KEY, value });
+  return value;
+}
 
 /** Make and keep an entry. Returns the entry, or null when kind or text are missing (nothing is stored). */
 export async function addEntry(input, database = db) {
-  const entry = makeEntry(input);
+  const entry = makeEntry({ ...input, cfg: await loadKinds(database) });
   if (!entry) return null;
   await database.logbuch.put(entry);
   return entry;
@@ -18,7 +33,7 @@ export async function addEntry(input, database = db) {
 export async function updateEntry(id, patch, database = db) {
   const old = await database.logbuch.get(id);
   if (!old) return null;
-  const next = changeEntry(old, patch);
+  const next = changeEntry(old, patch, await loadKinds(database));
   await database.logbuch.put(next);
   return next;
 }
