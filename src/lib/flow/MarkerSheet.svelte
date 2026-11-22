@@ -3,7 +3,7 @@
    * «Marker setzen» (Noah 21.11.2026, K1): the window to mark a day or a stretch as sick, injured, stress or holiday, or to change such a marker.
    * One tap on a kind, a first day, an optional last day; «Save» saves. Nothing is mandatory and everything can be changed later.
    *
-   * marker: the marker to change, or null for a new one; today: the day to start from; onsave({ id?, kind, from, to }).
+   * marker: the marker to change, or null for a new one; prefill: { from, to } for a new one (K3 «Set a marker?»); today: the day to start from; onsave({ id?, kind, from, to }).
    */
   import { backClose } from '../ui/backclose.js';
   import { t } from '../i18n.svelte.js';
@@ -12,15 +12,15 @@
   import { kindText } from './markerwords.js';
   import '../bikes/velo-dlg.css';
 
-  let { marker = null, today, onsave, onclose } = $props();
+  let { marker = null, prefill = null, today, onsave, onclose } = $props();
 
   let dialog;
   $effect(() => {
     if (dialog && !dialog.open) dialog.showModal();
   });
   let kind = $state(marker?.kind ?? '');
-  let from = $state(marker?.from ?? today);
-  let to = $state(marker && marker.to !== marker.from ? marker.to : '');
+  let from = $state(marker?.from ?? prefill?.from ?? today);
+  let to = $state(marker ? (marker.to !== marker.from ? marker.to : '') : prefill && prefill.to !== prefill.from ? prefill.to : '');
   const bad = $derived(!cleanDay(from) || (!!to && !cleanDay(to)) || (!!to && cleanDay(to) < cleanDay(from)));
   const ok = $derived(!!kind && !bad);
 
