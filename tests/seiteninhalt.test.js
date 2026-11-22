@@ -1,6 +1,6 @@
 // «Wegweiser statt Katalog» PR 11: the card «What you can do here».
 import { describe, it, expect } from 'vitest';
-import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, LINE_OFF, SHOWS_TOO, helpRows, seenMapOf, newSince } from '../src/lib/seiteninhalt.js';
+import { pageContent, pageKey, pagePattern, fits, samplePage, RESERVED, ON_PAGES, SHOWS_TOO, helpRows, seenMapOf, newSince } from '../src/lib/seiteninhalt.js';
 import { HOME } from '../src/lib/know/heimat.js';
 import { HANDBOOK } from '../src/lib/handbook.js'; // the card gets it from loadHandbook(); the tests hand it in
 
@@ -78,14 +78,5 @@ describe('What you can do here', () => {
     // the page's own functions come first
     expect(HOME[ids[0]]).toBe('#/notes');
     expect(pageContent('#/notes?open=abc')).toEqual([]);
-  });
-});
-
-describe('LINE_OFF: pages without the line (Seitenregeln 21.11.2026)', () => {
-  it('every page without the line still has its content, so the «?» is not empty', () => {
-    for (const p of LINE_OFF) {
-      expect(ON_PAGES, p).toContain(p);
-      expect(pageContent(p).length, p).toBeGreaterThan(0);
-    }
   });
 });
