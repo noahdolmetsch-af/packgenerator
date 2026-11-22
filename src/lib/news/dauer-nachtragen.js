@@ -3,12 +3,13 @@ export default {
   title: 'Add the duration',
   lead: 'Ticks without minutes count with the usual duration («ca.»). Now you can add the real length with one tap.',
   points: [
-    { text: 'New list «Add the duration» in My activities: tap 15, 30, 45, 60 or type your own length, and the time counts as measured', go: { href: '#/flow/sports', steps: [{ sel: '[data-nachtragen]' }] } },
+    { text: 'New list «Add the duration» in My activities: tap 15, 30, 45, 60 or type your own length, and the time counts as measured', go: { href: '#/flow/sports', steps: [{ sel: '[data-nachtragen]' }], where: 'Training › My activities › the list «Add the duration» (shows once ticks without minutes exist)' } },
   ],
   small: [{ box: 'new', text: 'Undo takes the minutes back' }],
   test: ['Open Active › My activities, open «Add the duration»: the ticks without a measured time are listed, newest first.', 'Tap «30 min» at one tick: it leaves the list. Tap «Undo» within a few seconds: it is back.'],
   since: [],
   de: {
+    'Training › My activities › the list «Add the duration» (shows once ticks without minutes exist)': 'Training › Meine Aktivitäten › die Liste «Dauer nachtragen» (erscheint, sobald es Haken ohne Minuten gibt)',
     'Add the duration': 'Dauer nachtragen',
     'Ticks without minutes count with the usual duration («ca.»). Now you can add the real length with one tap.': 'Haken ohne Minuten zählen mit der üblichen Dauer («ca.»). Jetzt trägst du die echte Länge mit einem Tipp nach.',
     'New list «Add the duration» in My activities: tap 15, 30, 45, 60 or type your own length, and the time counts as measured': 'Neue Liste «Dauer nachtragen» in Meine Aktivitäten: tippe 15, 30, 45, 60 oder tippe deine eigene Länge, dann zählt die Zeit als gemessen',

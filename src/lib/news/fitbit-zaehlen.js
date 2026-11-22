@@ -3,12 +3,13 @@ export default {
   title: 'Fitbit workouts as a suggestion',
   lead: 'Your watch knows workouts that have no tick, like tennis or ice hockey. The app asks once: count it, or not.',
   points: [
-    { text: 'New card «Count?» in «My activities»: one tap makes the tick with the minutes of the workout, with Undo', go: { href: '#/flow/sports', steps: [{ sel: '[data-fitbit-zaehlen]' }] } },
+    { text: 'New card «Count?» in «My activities»: one tap makes the tick with the minutes of the workout, with Undo', go: { href: '#/flow/sports', steps: [{ sel: '[data-fitbit-zaehlen]' }], where: 'Training › My activities › the card «Count?» (shows when a Fitbit workout waits)' } },
   ],
   small: [{ box: 'new', text: '«Count all» does a whole sport at once; «Do not count» leaves a workout out for good' }],
   test: ['Open Active › My activities: if your watch knows workouts without a tick, the card «Count?» lists them by sport, newest first.', 'Tap «Count» on one: it is ticked with its minutes. Tap «Undo» within a few seconds: it is gone again.'],
   since: [],
   de: {
+    'Training › My activities › the card «Count?» (shows when a Fitbit workout waits)': 'Training › Meine Aktivitäten › die Karte «Zählen?» (erscheint, wenn ein Fitbit-Training wartet)',
     'Fitbit workouts as a suggestion': 'Fitbit-Trainings als Vorschlag',
     'Your watch knows workouts that have no tick, like tennis or ice hockey. The app asks once: count it, or not.': 'Deine Uhr kennt Trainings ohne Haken, etwa Tennis oder Eishockey. Die App fragt einmal: zählen oder nicht.',
     'New card «Count?» in «My activities»: one tap makes the tick with the minutes of the workout, with Undo': 'Neue Karte «Zählen?» in «Meine Aktivitäten»: Ein Tipp legt den Haken mit den Minuten des Trainings an, mit Rückgängig',
