@@ -19,8 +19,8 @@ PR folgt · 21.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Velopflege 
 - «Eintrag nachtragen» aus dem Entwurf ist nicht in diesem Schritt: Nachtragen geht schon über die Teile-Tabelle («Ersetzt oder erledigt») und «Werkstatt und Belege». Der Knopf «Werkstatt & Belege» steht unter dem Verlauf. Falls du einen eigenen Knopf willst, ist es ein kleiner Folge-PR.
 - Keine neue Datenhaltung, kein Backup-Format, kein `api/`. Fertig-Regel: Seite (besteht), Absprung (Kosten-Kachel), Leerzustand (ja), nächster Schritt (Link zu den Inspektionen), App-Stand (Zeile erweitert).
 
-## Entscheide (für decisions.md)
-- 21.11.2026: Service, Checks und Teile mit Kosten stehen in einem Verlauf pro Velo, mit Filter und Summe pro Jahr (Noah «1a 2a 3a 4a 5a», Frage 3a).
+## Entscheide
+- Siehe `docs/decisions/velopflege-verlauf.md`.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
 - Velopflege-Begleiter: Schritte A bis D gebaut, E offen.
