@@ -1,6 +1,6 @@
 # Wochenbrief 22.11.2026: Stand und Plan nachgeführt
 
-PR #? · 22.11.2026 · Auftrag: Sonntags-Brief (Thread «Bauen: Wochenbrief am Sonntag»)
+PR #1440 · 22.11.2026 · Auftrag: Sonntags-Brief (Thread «Bauen: Wochenbrief am Sonntag»)
 
 ## Was ist neu
 - `docs/stand-und-plan.md`: Schnappschuss vom 22.11. (offene PRs, «Seit dem 19.11. dazugekommen», «Was auf dich wartet»).
