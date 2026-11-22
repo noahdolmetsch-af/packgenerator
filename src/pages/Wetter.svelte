@@ -33,6 +33,7 @@
   import FensterBox from '../lib/wetter/FensterBox.svelte'; // Fenster für Landi-Radar und SRF-Webcams (Noah 04.11.2026 «1a», «3a»)
   import { thunderSpans } from '../lib/wetter/gewitter.js'; // «Gewitter-Hinweis mit Uhrzeit» (Noah 04.11.2026 «5 alle»)
   import Licht from '../lib/wetter/Licht.svelte'; // «Licht für die Fahrt» (Noah 04.11.2026 «5 alle»)
+  import Regen3h from '../lib/wetter/Regen3h.svelte'; // Wetter-Ausbau B (Noah 22.11.2026): rain in 15-minute steps
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
   import NebelBlock from '../lib/wetter/NebelBlock.svelte'; // «Nebelgrenze» (Noah 05.11.2026)
@@ -274,6 +275,8 @@
         <a class="btn sm" href="#/me/hinweise">{t('Warnings, avalanches, passes')}</a>
       </div>
     </section>
+
+    <Regen3h {place} {now} onradar={() => pick('radar')} />
 
     <NachtBlock {core} {now} />
 

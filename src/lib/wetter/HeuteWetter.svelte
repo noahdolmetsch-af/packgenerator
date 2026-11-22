@@ -16,6 +16,7 @@
   import { onTripDay } from '../ride.js';
   import { compass, intoWind } from '../toursky.js';
   import { loadCore, hoursBetween, dayLine, warningsOf, rainWithin, localDate, atLocal, WARN_TEXT, LANDI_RADAR } from './kern.js';
+  import { loadRain15, rain15Strip } from './regen15.js'; // Wetter-Ausbau B: «Rain in about 30 minutes» on a ride day
   import { WEBCAMS_KEY, camsOf, homeCam, isImage, freshSrc, camLabel } from './webcams.js';
   import LakeChip from '../lake/LakeChip.svelte';
   import HeuteSchnee from './HeuteSchnee.svelte'; // «Schneefallgrenze» (Noah 04.11.2026): one calm line for the home place
@@ -57,6 +58,18 @@
     return () => globalThis.removeEventListener(REFRESHED, again);
   });
   let now = $state(Date.now());
+  // Wetter-Ausbau B (Noah 22.11.2026): only on a ride day, and only when rain starts within the next hour
+  let quarters = $state(null);
+  $effect(() => {
+    const pl = place;
+    now; // asked again with the clock (every 5 minutes)
+    if (!pl) return void (quarters = null);
+    loadRain15(db, pl).then((r) => (quarters = r?.rows ?? null)).catch(() => {});
+  });
+  const soonMin = $derived.by(() => {
+    const m = quarters ? rain15Strip(quarters, now)?.minutesToRain : null;
+    return m != null && m <= 60 ? m : null;
+  });
   $effect(() => {
     const id = setInterval(() => (now = Date.now()), 5 * 60_000);
     return () => clearInterval(id);
@@ -91,6 +104,7 @@
         {#if loopTip}<span class="hw-tip" data-heute-wetter-wind>{loopTip === 'keep' ? t('Ride the loop as planned: tailwind home.') : t('Ride the loop the other way: tailwind home.')}</span>{/if}
         {#if warn}<span class="hw-warn"><TriangleAlert size={16} aria-hidden="true" />{t(WARN_TEXT[warn.kind], { at: hm(warn.at), v: num(warn.value) })}</span>{/if}
       </a>
+      {#if soonMin != null}<a class="hw-soon" {href} data-heute-rain15><CloudRain size={16} aria-hidden="true" />{soonMin < 5 ? t('Rain starts now.') : t('Rain in about {min} minutes.', { min: num(soonMin) })}</a>{/if}
       {#if rainSoon}<a class="btn sm hw-radar" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-heute-radar><CloudRain size={16} aria-hidden="true" />{t('Radar')}</a>{/if}
     {/if}
     {#if cam}
@@ -135,6 +149,15 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
+  }
+  .hw-soon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
   }
   .hw-tip {
     color: var(--ink-2);
