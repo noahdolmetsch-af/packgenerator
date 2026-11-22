@@ -17,8 +17,8 @@ PR folgt · 21.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5a» (Thread «Velopflege 
 - Die Schätzung steht nur im Begleiter (Punkt und Zusammenfassung). Bei «Auf einen Blick» steht der Preis der Kette schon (seit Schritt A).
 - Keine neue Datenhaltung, kein Backup-Format, kein `api/`. Fertig-Regel: keine neue Seite, deshalb kein neuer Eintrag in `features.js`; Ordnung und Zeilen der bestehenden Begleiter-Seite.
 
-## Entscheide (für decisions.md)
-- 21.11.2026: Kosten einer Erneuerung werden aus dem letzten bezahlten Preis des Teils geschätzt, nie aus einer Preisliste (Noah «1a 2a 3a 4a 5a»).
+## Entscheide
+- Siehe `docs/decisions/velopflege-kosten.md`.
 
 ## Stand im Plan (roadmap.md / vorhaben.md)
 - Velopflege-Begleiter: Schritte A bis E gebaut.
