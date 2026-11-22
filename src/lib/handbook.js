@@ -1155,8 +1155,8 @@ const LISTED = {
   },
   'f.feel': {
     on: null,
-    steps: ['After each ride Active › Training asks «How hard was your ride?» (1 to 10).', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
-    example: 'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.',
+    steps: ['On Active a card asks «How was it?» after a new Strava activity: light, good or hard.', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
+    example: 'Example: a run without heart rate strap felt «good» → it counts like 5 of 10, zone 3.',
   },
   'f.frei': {
     on: null,
@@ -1897,6 +1897,11 @@ const LISTED = {
     steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Moved or a new sport? «Something changed?» lists only what it touches. Any time: Me › Data and backup."],
     example: "Example: weight 72 kg from last year → «Change» → Bikes › Setup.",
   },
+  'f.hintquiet': {
+    on: null,
+    steps: ['Tap «Not today» under a hint on three different days (rest-day line, ride above the fog).', 'The app asks «Make this hint quieter?»: «Yes, quieter» switches the kind off, «Keep it» leaves it.'],
+    example: 'Example: three «Not today» on the rest-day line in two weeks → one question, then quiet.',
+  },
   'f.suggestoff': {
     on: null,
     steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools): Me › Calm and personal › Hidden and switched off."],
@@ -2243,18 +2248,13 @@ const LISTED = {
   },
   'f.sources': {
     on: null,
-    steps: ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it; «Ask Gemini» cites them as [1].'],
+    steps: ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it.'],
     example: 'Example: «What did I learn about the Jura?» → 3 entries as sources.',
   },
   'f.devil': {
     on: null,
-    steps: ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', '«Collect the strongest counter-arguments» asks Gemini.'],
+    steps: ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', 'Check what is only assumed and fix it before you leave.'],
     example: 'Example: no plan B yet, tent not weighed.',
-  },
-  'f.aicheck': {
-    on: null,
-    steps: ['Ask Gemini on the page «Assistant with sources».', 'The answer waits under «Check AI suggestions first».', '«Take» makes a to-do, «Drop» puts it away.'],
-    example: 'Example: Gemini suggests a lighter stove → «Take» → a to-do to check it.',
   },
   'f.nogos': {
     on: null,

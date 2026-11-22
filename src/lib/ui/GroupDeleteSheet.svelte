@@ -82,6 +82,7 @@
     padding: 0;
   }
   .opt {
+    flex: none; /* many choices (L5: 12 kinds): the rows scroll, they are not squeezed */
     display: flex;
     align-items: center;
     gap: 12px;

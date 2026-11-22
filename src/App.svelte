@@ -407,6 +407,7 @@
     GearImport: () => import('./pages/GearImport.svelte'),
     Rides: () => import('./pages/Rides.svelte'),
     Wardrobe: () => import('./pages/Wardrobe.svelte'),
+    WardrobeSetup: () => import('./pages/WardrobeSetup.svelte'), // «Kleiderschrank einrichten» (Noah 21.11.2026 «1-5a 4b»): Kleider › Einrichten
     Flow: () => import('./pages/Flow.svelte'),
     Auswerten: () => import('./pages/AuswertenStart.svelte'),
     // Analyse PR 1 (Noah 27.10.2026 «1a»): Auswerten › Analyse, every value as a tile
@@ -658,7 +659,7 @@
     <LazyPage load={PAGES.Favorites} />
   {:else if page === 'wardrobe'}
     <!-- v0.42.0 (Noah 1): the wardrobe, by layer and body zone -->
-    <LazyPage load={PAGES.Wardrobe} />
+    {#if hash.startsWith('#/wardrobe/setup')}<LazyPage load={PAGES.WardrobeSetup} />{:else}<LazyPage load={PAGES.Wardrobe} />{/if}
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />

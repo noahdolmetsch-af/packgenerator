@@ -11,7 +11,7 @@ import { newSkill, addExample, setLevel, skillMap } from '../src/lib/ruhig/koenn
 import { flipDay, specialDaysOf, recentDays, dropDayKind, counterDays, originOf, sleepByOrigin, weightSure } from '../src/lib/ruhig/herkunft.js';
 import { rolesOf, rolesOfAct, flipRole, roleSums, dropRole, scalesOf, setScale, meaningOn } from '../src/lib/ruhig/zahlen.js';
 import { scoped, scopeLines, arriveOf, addPerson, regionOf } from '../src/lib/ruhig/teilen.js';
-import { bansOf, newBan, banHits, citedIn, openAssumptions, nextTrip, questionWords } from '../src/lib/ruhig/belege.js';
+import { bansOf, newBan, banHits, openAssumptions, nextTrip, questionWords } from '../src/lib/ruhig/belege.js';
 import { SUBS, subKeyOf, subHash } from '../src/lib/ruhig/subs.js';
 import { FEATURES } from '../src/lib/features.js';
 import { HOME } from '../src/lib/know/heimat.js';
@@ -213,12 +213,11 @@ describe('Share with a preview', () => {
 });
 
 describe('Assistant with sources', () => {
-  it('no-gos show up on a list; citations are found', () => {
+  it('no-gos show up on a list; question words are found', () => {
     const bans = bansOf([newBan('single-use batteries', 'buy', 'b1'), newBan('Gas', 'take', 'b2')]);
     const items = [{ id: 'i1', name: 'Single-use batteries AA', ownership: 'wishlist' }, { id: 'i2', name: 'Gas cartridge' }];
     const hits = banHits(bans, { trip: { entries: [{ itemId: 'i2' }] }, items });
     expect(hits.map((h) => [h.ban.id, h.where])).toEqual([['b1', 'wish'], ['b2', 'trip']]);
-    expect(citedIn('As [1] and [3] say', 3)).toEqual([1, 3]);
     expect(questionWords('What did I learn about the Jura?')).toContain('jura');
   });
   it('questions the next trip kindly', () => {
@@ -237,7 +236,7 @@ describe('the page and its catalogue', () => {
   });
   it('every function of the package lives on its sub-page and speaks German', () => {
     const mine = FEATURES.filter((f) => String(f.href ?? '').startsWith('#/me/ruhig/'));
-    expect(mine.length).toBe(29); // + f.hiddenall (Einzelidee 33)
+    expect(mine.length).toBe(28); // + f.hiddenall (Einzelidee 33)
     for (const f of mine) {
       expect(HOME[f.id], f.id).toBe(f.href.split('?')[0]);
       expect(SUBS.some((s) => subHash(s.key) === HOME[f.id]), f.id).toBe(true);

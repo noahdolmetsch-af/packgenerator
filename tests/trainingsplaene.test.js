@@ -134,16 +134,18 @@ describe('felt effort', () => {
     expect([1, 2, 3, 6, 9, 10].map(feelZone)).toEqual([1, 1, 2, 3, 5, 5]);
     expect(zoneFeel(2)).toEqual([3, 4]);
   });
-  it('asks for the newest ride of the last 3 days without an answer', () => {
+  it('asks for the newest activity of the last 3 days without an answer, for every sport', () => {
     const acts = [
       { id: '1', kind: 'bike', day: '2026-10-20', time: '08:00' },
       { id: '2', kind: 'bike', day: '2026-10-21', time: '07:00', feel: 5 },
-      { id: '3', kind: 'run', day: '2026-10-21', time: '09:00' },
+      { id: '3', kind: 'run', day: '2026-10-21', time: '09:00', feelWord: 'good' },
       { id: '4', kind: 'bike', day: '2026-10-21', time: '06:00', feelSkip: true },
       { id: '5', kind: 'bike', day: '2026-10-15', time: '06:00' },
+      { id: '6', kind: 'other', day: '2026-10-21', time: '05:00', type: 'Yoga' },
     ];
-    expect(feelToAsk(acts, '2026-10-21')?.id).toBe('1');
-    expect(feelToAsk(acts.slice(1), '2026-10-21')).toBe(null);
+    expect(feelToAsk(acts, '2026-10-21')?.id).toBe('6'); // not only rides: Yoga of today, the newest without an answer
+    expect(feelToAsk(acts.filter((a) => a.id !== '6'), '2026-10-21')?.id).toBe('1');
+    expect(feelToAsk(acts.slice(1, 5), '2026-10-21')).toBe(null);
   });
   it('stands in for the zone of «Plan kept?» without heart rate, and counts nothing without an answer', () => {
     const s = cleanSession({ id: 's', day: '2026-10-20', mins: 60, zone: 2 });

@@ -17,7 +17,7 @@ const ART = {
   idee: () => t('Missing / idea'),
   gutso: () => t('Good as it is'),
 };
-const GROUP = { wrong: () => t('Wrong'), clear: () => t('Understandable'), build: () => t('Structure'), new: () => t('New|logbuch') };
+const GROUP = { wrong: () => t('Wrong'), clear: () => t('Understandable'), build: () => t('Structure'), new: () => t('New|logbuch'), ohne: () => t('No group') };
 const STATE = { open: () => t('Open|logbuch'), draft: () => t('Draft made'), done: () => t('Done|logbuch'), noted: () => t('Noted|logbuch') };
 
 /** What the user typed (L5, kinds.js) wins and never goes through t(); else the built-in word. cfg: the user's list, none = the first version. */
