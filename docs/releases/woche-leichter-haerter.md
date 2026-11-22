@@ -16,6 +16,11 @@ PR #<Nummer> · 22.11.2026 · Schritt V4b2 (Teil 2) der neuen Ordnung · Entsche
 - Für vergangene Wochen steht nur «Woche vorschlagen» (vergangene Wochen sind eingefroren).
 - «Karte «Dein Stand»» folgt als eigener PR (Teil 3).
 
+## Daten und Backup
+- Geändert wird nur ein Feld: `hard` in `mode` einer Woche der Einstellung `training.weeklog` (kein Dexie-Schema, kein neues Backup-Format).
+- Test mit einer Backup-Kopie im alten Format (erfundene Daten, `tests/wochenart-backup.test.js`): ein altes Backup ohne `hard` wird gelesen wie vorher; «Härter» geht an und aus, das neue Backup trägt es und lässt sich zurückspielen; vergangene Wochen bleiben unverändert; «leichter» und «härter» zugleich gibt es nie. Ein altes Programm, das `hard` nicht kennt, liest die Woche ohne dieses Feld und verliert sonst nichts.
+- Vor dem Online-Gehen: frisches Backup von Noah (Regel 3).
+
 ## Entscheide (eigene Datei `docs/decisions/woche-leichter-haerter.md`)
 - 22.11.2026: Leichter und Härter oben auf Training (Noah «1a»).
 
