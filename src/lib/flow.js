@@ -268,11 +268,13 @@ export function gridRow(state, log = [], days = [], today, tripDayList = []) {
 export const tapSub = (state) => (state.goals.length > 1 ? state.openSub : undefined);
 
 /** A new log entry. */
-export function newEntry(act, { day, at = new Date().toISOString(), n = null, sub, min, via } = {}) {
+export function newEntry(act, { day, at = new Date().toISOString(), n = null, sub, min, via, unit, feel } = {}) {
   const e = { id: `fl-${Date.parse(at).toString(36)}-${Math.random().toString(36).slice(2, 7)}`, actId: act.id, day, at, n: Math.max(1, Math.round(Number(n ?? act.perTap) || 1)) };
   if (sub) e.sub = sub;
   if (min) e.min = Math.max(1, Math.round(Number(min)));
   if (via) e.via = via;
+  if (unit) e.unit = unit; // «Plan zuerst»: the unit of the weekly plan this tick belongs to (written with the entry, not after it)
+  if (feel) e.feel = feel;
   return e;
 }
 
