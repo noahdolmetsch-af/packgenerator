@@ -9,6 +9,9 @@ const label = process.argv[3] ?? 'tests';
 // Optional 4th argument (night run, 21.11.2026): a file that gets one line per FAILED test (flaky ones left out), so the
 // morning report can say which tests are new red and which were red the night before (scripts/nacht-vergleich.mjs).
 const namesOut = process.argv[4];
+// Optional 5th argument (21.11.2026, Noah «4»): a file with one line per FLAKY test (red once, green on the retry), for the wobbly list
+// (scripts/wackel-liste.mjs): every test that wobbles is repaired within a day instead of being started again.
+const flakyOut = process.argv[5];
 
 /** [{ title, status, project, retries }] for every test that is not a plain pass. */
 export function troubled(report) {
@@ -38,10 +41,16 @@ export function failedKeys(list) {
   return [...new Set(list.filter((t) => t.status !== 'flaky').map((t) => `${t.project} · ${t.specFile} · ${t.title}`))].sort();
 }
 
+/** One stable line per flaky test (passed only on the retry), same form as failedKeys. */
+export function flakyKeys(list) {
+  return [...new Set(list.filter((t) => t.status === 'flaky').map((t) => `${t.project} · ${t.specFile} · ${t.title}`))].sort();
+}
+
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
   if (existsSync(file)) {
     const list = troubled(JSON.parse(readFileSync(file, 'utf8')));
     if (namesOut) writeFileSync(namesOut, failedKeys(list).map((k) => `${k}\n`).join(''));
+    if (flakyOut) writeFileSync(flakyOut, flakyKeys(list).map((k) => `${k}\n`).join(''));
     const text = render(list, label);
     if (text) {
       console.log(text);

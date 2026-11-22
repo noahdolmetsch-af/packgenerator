@@ -8,9 +8,10 @@
   import { ClipboardCheck, CloudRain, ChevronRight, Play } from '@lucide/svelte';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikesHash } from '../bikes.js';
-  import { LEVELS } from './items.js';
+  import { LEVELS, LEVEL } from './items.js';
   import { insp } from './live.svelte.js';
   import { levelName } from './names.js';
+  import { levelInfo } from './levelinfo.js';
 
   let { bike, page = false } = $props();
 
@@ -36,7 +37,10 @@
     if (s.load.gravel) bits.push(tn(s.load.gravel, '{n} gravel ride', '{n} gravel rides'));
     return t('Sooner because of {what}: +{km} km', { what: bits.join(', '), km: fmtKm(s.extra) });
   }
-  const rows = $derived(st ? [{ key: 'monthly', s: st.monthly }, { key: 'full', s: st.full }] : []);
+  // Schritt B: three cards, the monthly check in the middle (what usually comes next), each with its points and its tools
+  const cards = $derived(['quick', 'monthly', 'full'].map((key) => ({ key, s: key === 'quick' ? null : st?.[key] ?? null, info: levelInfo(bike, key, insp.list) })));
+  /** «You need: a, b and 2 more» (the first two tools). */
+  const need = (tools) => (tools.length <= 2 ? tools.map((x) => t(x)).join(', ') : `${tools.slice(0, 2).map((x) => t(x)).join(', ')} ${tn(tools.length - 2, 'and {n} more', 'and {n} more')}`);
 </script>
 
 <section class="ic" aria-labelledby="ic-h-{bike.id}" data-inspect-card>
@@ -47,20 +51,18 @@
     <p class="rain" data-inspect-rain><CloudRain size={16} aria-hidden="true" /><span>{t('Rain on {date}: dry and lube the chain, wipe the stanchions.', { date: dateOf(st.rain.day) })} <a href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: 'quick' })}>{t('Quick check')}</a></span></p>
   {/if}
 
-  {#each rows as r (r.key)}
-    {@const l = line(r.s)}
-    <div class="lv {l.tone}" data-inspect-level={r.key}>
-      <div class="st">
+  <div class="cards">
+    {#each cards as r (r.key)}
+      {@const l = r.key === 'quick' ? { text: t(LEVELS[0].text), tone: '' } : line(r.s)}
+      <div class="lv {l.tone}" class:hi={r.s?.due} data-inspect-level={r.key}>
         <b>{levelName(r.key)}</b>
-        <small>{l.text}</small>
+        <small class="mins">{tn(LEVEL[r.key].mins, '{n} minute', '{n} minutes')} · {tn(r.info.points, '{n} point', '{n} points')}</small>
+        <small class="state">{l.text}</small>
         {#if why(r.s)}<small class="why" data-inspect-why>{why(r.s)}</small>{/if}
+        <small class="need" data-inspect-need={r.key}>{r.info.tools.length ? `${t('You need')}: ${need(r.info.tools)}` : t('No special tools needed.')}</small>
+        <a class="btn ibtn {r.s?.due ? 'hi' : ''}" href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: r.key })} data-inspect-start={r.key}><Play size={16} aria-hidden="true" />{st?.draft?.level === r.key ? t('Continue') : t('Start')}</a>
       </div>
-      <a class="btn ibtn {r.s?.due ? 'hi' : ''}" href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: r.key })} data-inspect-start={r.key}><Play size={16} aria-hidden="true" />{st?.draft?.level === r.key ? t('Continue') : t('Start')}</a>
-    </div>
-  {/each}
-  <div class="lv" data-inspect-level="quick">
-    <div class="st"><b>{levelName('quick')}</b><small>{t(LEVELS[0].text)}</small></div>
-    <a class="btn ibtn" href={bikesHash({ tab: 'care', view: 'inspect', bike: bike.id, level: 'quick' })} data-inspect-start="quick"><Play size={16} aria-hidden="true" />{st?.draft?.level === 'quick' ? t('Continue') : t('Start')}</a>
+    {/each}
   </div>
   {#if !insp.rain}<p class="hint">{t('Rain counts once your home place is set (Me › Home place). Strava rides count the rain where they started, other rides the rain at home: an estimate.')} <a href="#/me">{t('Set home place')}</a></p>{/if}
 
@@ -102,29 +104,43 @@
     background: var(--warn-soft);
     overflow-wrap: break-word;
   }
+  .cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    margin: 0 0 8px;
+  }
+  @media (min-width: 760px) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
   .lv {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px 12px;
-    padding: 10px 0;
-    border-top: 1px solid var(--line);
-  }
-  .st {
-    display: grid;
-    flex: 1 1 14rem;
+    flex-direction: column;
+    gap: 4px;
     min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper-2);
   }
-  .st b {
-    font-weight: 500;
+  .lv.hi {
+    border-color: var(--warn);
   }
-  .lv.due .st small:first-of-type {
+  .lv b {
+    font-size: var(--fs-body);
+  }
+  .lv.due .state {
     color: var(--warn);
     font-weight: 500;
   }
-  .lv.off .st small {
+  .lv.off .state {
     color: var(--ink-2);
+  }
+  .lv .ibtn {
+    margin-top: auto;
+    align-self: flex-start;
   }
   small {
     color: var(--ink-2);
