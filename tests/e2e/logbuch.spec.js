@@ -118,3 +118,13 @@ test('Logbuch: a row on Ich leads to it and the page sits under Ich', async ({ p
   await expect(page.locator('[data-logbuch]')).toBeVisible();
   await expect(page).toHaveURL(/#\/me\/logbuch/);
 });
+
+test('Logbuch: the closed line «What you can do here» opens the help', async ({ page, context }, info) => {
+  await open(page, context);
+  await page.goto('./#/me/logbuch');
+  await ready(page);
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toBeVisible();
+  await press(line, info);
+  await expect(page.locator('[data-logbuch-help], dialog[open]').first()).toBeVisible();
+});

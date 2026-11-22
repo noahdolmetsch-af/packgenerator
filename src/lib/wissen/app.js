@@ -53,4 +53,5 @@ export default {
   'f.wearpush': 'Order the part when the reminder comes, not when it breaks: chains and pads are always out of stock the week before a tour.',
   'f.push': 'Switch on only what you would act on. A reminder you swipe away three times is better off; turn it off and the others get read again.',
   'f.backupcheck': 'Check one backup a season by really opening it. A backup nobody ever opened is a hope, not a backup.',
+  'f.logbuch': 'One sentence right where it bothers you beats a long list later. Say what you saw, not how to fix it; the photo shows the rest.',
 };

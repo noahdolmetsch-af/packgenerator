@@ -52,6 +52,8 @@ export const ON_PAGES = [
   '#/me/data', '#/me/look', '#/me/connections', '#/me/push', '#/bikes?tab=care', '#/timer',
   // Wegweiser Werkzeuge (Noah 03.11.2026 «a» after the final measurement): the mini tools, as one line
   '#/me/tools',
+  // Verbesserungs-Logbuch (Noah 22.11.2026 «so lassen, immer zugeklappt»): the line «What you can do here», closed
+  '#/me/logbuch',
 ];
 /**
  * Pages without the line «What you can do here» (Seitenregeln 21.11.2026, Noah «2a»): the help sits only behind the «?», the

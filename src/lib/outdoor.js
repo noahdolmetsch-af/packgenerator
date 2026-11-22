@@ -90,6 +90,15 @@ export function undoMin(rec, day) {
   return { ...rec, hand };
 }
 
+/** «Tick off» (Noah 22.11.2026 «a»): the minutes that are missing to the goal today, counting Strava (0 when it is reached). */
+export const missingMin = (rec, activities, day) => Math.max(0, (rec?.goalMin ?? 0) - dayOf(rec, activities, day).total);
+/** Take a ticked day back: the minutes added by hand go, last first, until the day is under the goal again (Strava stays). */
+export function untickMin(rec, activities, day) {
+  let next = rec;
+  while (next && (next.hand[day] ?? []).length && dayOf(next, activities, day).done) next = undoMin(next, day);
+  return next;
+}
+
 /**
  * Where the challenge stands today.
  * → null without a challenge; else { phase: 'soon'|'running'|'over'|'stopped', dayNo, total, today, doneN, missed, streak, left, days }
