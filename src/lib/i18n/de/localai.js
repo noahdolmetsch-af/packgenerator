@@ -4,8 +4,8 @@
  */
 export default {
   'AI on this device': 'KI im Gerät',
-  'A small AI that runs inside the app, also without internet. Free, and your questions never leave the device. With internet the AI helper answers (if it is set up); without internet this one.':
-    'Eine kleine KI, die in der App läuft, auch ohne Internet. Gratis, und deine Fragen verlassen das Gerät nie. Mit Internet antwortet der KI-Helfer (falls eingerichtet), ohne Internet diese hier.',
+  'A small AI that runs inside the app, also without internet. Free, and your questions never leave the device.':
+    'Eine kleine KI, die in der App läuft, auch ohne Internet. Gratis, und deine Fragen verlassen das Gerät nie.',
   'This browser cannot run it.': 'Dieser Browser kann sie nicht ausführen.',
   Model: 'Modell',
   'small and fast': 'klein und schnell',

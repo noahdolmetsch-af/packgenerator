@@ -1,7 +1,7 @@
 // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b»)
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { SUCHE_DEFAULTS, READ_MODES, sucheOf, spokenCommand, searchText } from '../src/lib/suche/logic.js';
+import { SUCHE_DEFAULTS, READ_MODES, sucheOf, spokenCommand, searchText, looksLikeQuestion } from '../src/lib/suche/logic.js';
 import { commandActions } from '../src/lib/search.js';
 import { FEATURE } from '../src/lib/features.js';
 import { pageOf } from '../src/lib/nav.js';
@@ -186,5 +186,14 @@ describe('a list from a sentence (07.11.2026)', async () => {
   it('goes into the actions, as something that writes', () => {
     const a = actionOf('Erstelle eine To-Do-Liste: A, B', { today: '2026-11-07' });
     expect(a).toMatchObject({ kind: 'list', writes: true, name: 'To-do', points: ['A', 'B'] });
+  });
+});
+
+describe('Search: when a text counts as a question', () => {
+  it('on Enter: a text that starts like a question', () => {
+    expect(looksLikeQuestion('Was nehme ich für Regen mit')).toBe(true);
+    expect(looksLikeQuestion('what should I take for rain')).toBe(true);
+    expect(looksLikeQuestion('Regenjacke gelb')).toBe(false);
+    expect(looksLikeQuestion('wiegen')).toBe(false);
   });
 });

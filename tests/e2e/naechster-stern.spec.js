@@ -123,3 +123,21 @@ test('the reward is under the card; a wish hangs on the next star with one tap',
   await fits(page, 'milestones with reward');
   expect(errors).toEqual([]);
 });
+
+// «Meilensteine motivierender» PR 5 (Idee 4): «Dein Jahr in Sternen»
+test('the year in stars: twelve bars, totals, filter by sport', async ({ page, context }) => {
+  const errors = await open(page, context, { tennis: 22 });
+  const card = page.locator('[data-year-stars]');
+  await expect(card).toBeVisible();
+  await expect(card).toContainText(T('Your year in stars'));
+  await expect(card.locator('.bars > div')).toHaveCount(12);
+  const total = Number(await card.locator('[data-year-total]').textContent());
+  expect(total).toBeGreaterThan(0);
+  await page.goto('./#/flow/milestones?act=tennis');
+  await page.reload();
+  await ready(page);
+  const tennisTotal = Number(await page.locator('[data-year-stars] [data-year-total]').textContent());
+  expect(tennisTotal).toBeLessThanOrEqual(total);
+  await fits(page, 'milestones with year');
+  expect(errors).toEqual([]);
+});

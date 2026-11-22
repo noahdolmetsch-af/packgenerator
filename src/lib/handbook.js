@@ -326,7 +326,7 @@ const LISTED = {
   },
   'f.weekreview': {
     on: null,
-    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
+    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'Only a suggestion: you decide.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
   },
   'f.weekgoals': {
@@ -1626,7 +1626,7 @@ const LISTED = {
     example: 'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.',
   },
   'f.localai': {
-    on: 'Load a model once: Me › Appearance › Handling › «AI on this device». With internet the AI helper answers if it is set up.',
+    on: 'Load a model once: Me › Appearance › Handling › «AI on this device».',
     steps: ['Choose a model (small and fast, or a bit cleverer) and tap «Load to this device».', 'Tap «Check the speed» to see how quick this device is.', 'Ask a question in the search or tap «Ask the AI on this device» on the packing list, bike care or look back.'],
     example: 'Example: no signal on the pass, «What is missing for rain?» → the AI on the phone answers from your list.',
   },
@@ -1830,11 +1830,6 @@ const LISTED = {
     on: 'Needs Chrome on the phone. Once: «Copy the address for cron-job.org» on this page and paste it in cron-job.org.',
     steps: ['Open Me › Reminders on the phone.', 'Switch on «On the phone» and allow notifications.', 'Switch on the reminders you want; what you tick off on another device no longer comes.'],
     example: 'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»',
-  },
-  'f.helper': {
-    on: 'Me › AI helper: switch on «Show the AI helper in the app» and save the code.',
-    steps: ['Paste the helper code; it stays on this device.', 'Before each request you see what goes to Claude; a monthly limit applies.', 'Pick the model: Sonnet 5.5 (default) or the cheaper Haiku 5.5. «Usage and costs» says what it costs.'],
-    example: 'Example: switched off again → it shows nowhere, the code stays stored.',
   },
   'f.shortcuts': {
     on: 'Computer with a keyboard.',

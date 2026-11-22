@@ -1903,7 +1903,7 @@ export const WHATS_NEW_ALT = [
     points: [
       { text: 'Every version with its own title, one sentence and its main points', href: '#/me/news' },
       { text: 'Small things sorted into New, Nicer, Fixed and Faster', href: '#/me/news' },
-      { text: 'AI helper off by default: one switch under Me brings it back everywhere', href: '#/helper' },
+      { text: 'AI helper off by default: one switch under Me brings it back everywhere' },
     ],
     small: [
       { box: 'nicer', text: 'All versions open, grouped by month', href: '#/me/news' },
@@ -2428,7 +2428,7 @@ export const WHATS_NEW_ALT = [
       { text: 'Suggestions in «Due now», all just suggestions', href: '#/bikes?tab=care' },
     ],
     small: [
-      { box: 'new', text: 'Me › Helper: code only on this device, monthly limit CHF 5', href: '#/helper' },
+      { box: 'new', text: 'Me › Helper: code only on this device, monthly limit CHF 5' },
     ],
   },
   {

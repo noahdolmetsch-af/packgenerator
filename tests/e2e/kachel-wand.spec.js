@@ -9,16 +9,16 @@ import { test, expect } from './clock.js';
 import { D0, openHome, atHour, homeFixture } from './home0460-fixture.js';
 import { HN4, withWall } from './wall-fixture.js';
 import { openFolds } from './settle.js';
-import { READY, TILE, TILES, HELPER_TILES, VALUE_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
+import { READY, TILE, TILES, VALUE_TILES, isNew, tripUp } from '../../src/lib/home/tiles.js';
 import { inAreas } from '../../src/lib/home/sections.js';
 
 // v0.155.0 «Heute neu geordnet» (4b, changed on purpose): the fixture's trip starts tomorrow, so its card stands
-// right under the day card; the helper's tile rests while the AI helper is off (v0.118.0)
+// right under the day card
 // Paket Q #74 (Noah 19.10.2026 «4a»): at the fixture's 09:00 the morning tiles move up (byTime, changed on purpose)
 // «Heute ruhiger» (Noah 26.10.2026 «1a», changed on purpose): the small tiles are one list «Schnell öffnen» where the first stands
 // «Heute ruhiger» 3a (changed on purpose): Heute shows the tiles in areas, inside an area in wall order
 // 17.11.2026 (changed on purpose, «Tour nur einmal»): «Your moment» about the trip is away while «My tour» stands (the fixture's trip is tomorrow)
-const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !HELPER_TILES.includes(x.id) && !VALUE_TILES.includes(x.id) && x.id !== 'moment'), true), 9));
+const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment'), true), 9));
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
@@ -107,7 +107,7 @@ test('customise: take away, resize, move, kept after a reload; Reset brings the 
   await page.getByRole('button', { name: T('Customise the start page') }).click();
   await page.getByRole('button', { name: T('Reset') }).click();
   // while customising the stored order shows (the trip card moves up again after «Done», 4b)
-  await expect.poll(() => ids(page)).toEqual(READY.filter((x) => !HELPER_TILES.includes(x.id)).map((x) => x.id));
+  await expect.poll(() => ids(page)).toEqual(READY.map((x) => x.id));
   await page.getByRole('button', { name: T('Done|customise') }).click();
   await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
   expect(errors).toEqual([]);
@@ -156,8 +156,7 @@ test('plus adds any tile from the catalog by area, with a search; the tick takes
   const sheet = page.getByRole('dialog', { name: T('Add a tile') });
   await expect(sheet).toBeVisible();
   // every tile of the app is in the catalog
-  // v0.118.0 «KI-Helfer ausblenden» (changed on purpose): the helper's tile only while the AI helper is shown
-  await expect(sheet.locator('[data-add]')).toHaveCount(TILES.length - HELPER_TILES.length);
+    await expect(sheet.locator('[data-add]')).toHaveCount(TILES.length);
   await shot(page, info, 'C-Kachel-hinzufuegen');
   // v0.155.0 (changed on purpose): «Milestones» is on the ready wall now; «Next milestone» left it (HN4) and comes back here
   await sheet.getByRole('searchbox', { name: T('Search tiles') }).fill(T(TILE.nextms.label).slice(0, 6));
