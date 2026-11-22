@@ -34,6 +34,9 @@
     if (r.items.length) return t('{names}: too light for {c} °C', { names: r.items.map(nameOf).join(' · '), c: check.c });
     return r.below ? t('{zone} below {n} °C: nothing packed', { zone: t(r.name), n: r.below }) : t('nothing packed');
   };
+  // Zwiebel einlegen (Noah 21.11.2026 «4b»): one tap puts the best owned piece into every gap; it stays a suggestion
+  // (one Undo, every piece can be taken out again).
+  const fixes = $derived([...new Map(check.rows.filter((r) => !r.ok && r.fix).map((r) => [r.fix.id, r.fix])).values()]);
   watchSuggest();
 </script>
 
@@ -44,6 +47,9 @@
     <Layers size={18} aria-hidden="true" /><span class="s">{summary}</span>
     {#if open}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
   </button>
+  {#if fixes.length && onadd}
+    <button type="button" class="btn sm fill" data-onion-fill onclick={() => onadd(fixes.map((f) => f.id), fixes.map((f) => nameOf(f)).join(', '))}><Plus size={16} aria-hidden="true" />{tn(fixes.length, 'Fill the gap: {n} piece in', 'Fill the gaps: {n} pieces in')}</button>
+  {/if}
   {#if open}
     <div id="onion-rows">
       <ul class="orows">
@@ -102,6 +108,9 @@
 {/if}
 
 <style>
+  .fill {
+    margin: 6px 0 0;
+  }
   .twice {
     margin: 4px 0 0;
     padding: 0;
