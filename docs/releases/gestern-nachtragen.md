@@ -1,6 +1,6 @@
 # Gestern nachtragen: ein Tag und eine Uhrzeit im Abhak-Fenster
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Noah 21.11.2026 («bitte hiermit fortfahren»; Vereinfachen-Runde «1a 2a 3a 4a 5a», Punkt 4a), Thread «Training erfassen vereinfachen»
+PR #1384 · 21.11.2026 · Auftrag: Noah 21.11.2026 («bitte hiermit fortfahren»; Vereinfachen-Runde «1a 2a 3a 4a 5a», Punkt 4a), Thread «Training erfassen vereinfachen»
 
 ## Was ist neu
 - Im Abhak-Fenster einer Kachel (Aktiv › «•••» an der Kachel) steht ganz oben «Wann»: Heute, Gestern, der Tag davor und «Anderer Tag» (ein Datumsfeld, bis ein Jahr zurück). Darunter eine freiwillige Uhrzeit.
