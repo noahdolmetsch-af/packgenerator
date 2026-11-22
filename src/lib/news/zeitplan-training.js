@@ -3,8 +3,8 @@ export default {
   title: 'Training week as a schedule',
   lead: 'Your training week now shows every day with times, and the free slot of a day opens a new session.',
   points: [
-    { text: 'Every day lists your sessions, TrainingPeaks, suggestions of the weekly plan and your dates in order of time', go: { href: '#/flow/training', steps: [], where: 'Week › Training, the card «My week».' } },
-    { text: 'The free slot of a day («free 11:00–13:00») opens «New session» with a start time, all your sports and your remembered tours', go: { href: '#/flow/training', steps: [], where: 'Week › Training › My week › a free slot.' } },
+    { text: 'Every day lists your sessions, TrainingPeaks, suggestions of the weekly plan and your dates in order of time', go: { href: '#/flow/training', steps: [{ sel: '[data-section="week-plan"]' }], where: 'Week › Training, the card «My week».' } },
+    { text: 'The free slot of a day («free 11:00–13:00») opens «New session» with a start time, all your sports and your remembered tours', go: { href: '#/flow/training', steps: [{ sel: '[data-add]' }], where: 'Week › Training › My week › a free slot.' } },
   ],
   small: [],
   test: [
