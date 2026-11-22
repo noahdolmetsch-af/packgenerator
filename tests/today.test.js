@@ -129,7 +129,6 @@ describe('main places', () => {
       '#/inbox/new': 'week',
       '#/notes': 'week', // N1: Planen › Notizen
       '#/features': 'me',
-      '#/helper': 'me', // v0.77.0 KI-Helfer (K1a): Ich › Helfer
     };
     for (const [hash, place] of Object.entries(cases)) expect([hash, placeOf(pageOf(hash))]).toEqual([hash, place]);
     expect(pageOf('#/care', true)).toBe('care');

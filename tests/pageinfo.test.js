@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PAGES, TODAY_TIPS, contextOf, tripWxOn, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink, examplesOf, exampleNote } from '../src/lib/pageinfo.js';
+import { PAGES, TODAY_TIPS, contextOf, tripWxOn, farOf, setKnowOn, infoOf, allTips, tipOfDay, tipPlace, canRows, setTipsOn, setLineOn, setTip, hideToday, addTip, removeTip, setCan, canShown, tipLink, examplesOf, exampleNote } from '../src/lib/pageinfo.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 // «Inhalte Flow» IF1–IF3 (Noah 14.10.2026, mockups approved 04:32): tip of the day and fold; the tiles «Next» are SK (sk tests).
@@ -43,8 +43,15 @@ describe('the tip of the day', () => {
     expect(allTips(removeTip(i, 'aktiv', own.id), 'aktiv').some((x) => x.own)).toBe(false);
   });
   it('a broken stored value falls back to the defaults', () => {
-    expect(infoOf('x')).toEqual({ tipsOn: true, knowOn: true, off: [], own: {}, gone: {}, canOff: {}, hintOff: {}, hintSeen: {} });
+    expect(infoOf('x')).toEqual({ tipsOn: true, lineOn: false, knowOn: true, off: [], own: {}, gone: {}, canOff: {}, hintOff: {}, hintSeen: {} });
     expect(tipOfDay({ off: 'no', own: [] }, 'aktiv', '2026-10-14')).toBeTruthy();
+  });
+  // Hilfen 3b (Noah 22.11.2026 «1a»): the tip line under the page titles is off until it is switched on
+  it('the tip line under the page titles is off by default and can be switched on and off', () => {
+    expect(infoOf(undefined).lineOn).toBe(false);
+    expect(infoOf(setLineOn(undefined, true)).lineOn).toBe(true);
+    expect(infoOf(setLineOn({ lineOn: true }, false)).lineOn).toBe(false);
+    expect(infoOf({ lineOn: 'x' }).lineOn).toBe(false);
   });
 });
 

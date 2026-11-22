@@ -89,6 +89,8 @@ export async function shiftContext(context) {
 /** Etappe 2, 1a: on a phone the cards «Belongs to …» / «All here» start as one line; a spec that does not look at them finds them open. */
 function cardsOpen() {
   globalThis.__pgCardsOpen = true;
+  // Hilfen 3b: the tip line under the page titles is off in the app; a spec that looks at it finds it on (test.use({ cardsOpen: false }) shows the app as it is)
+  globalThis.__pgTipLines = true;
 }
 
 /** Puts the real Date back (before Playwright's clock goes in, so its clock is the only one). */

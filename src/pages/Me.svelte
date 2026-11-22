@@ -40,7 +40,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Leaf, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Sparkles, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, GraduationCap, ShoppingCart, MessageCircle, FileText, Search as SearchIcon } from '@lucide/svelte';
+  import { Leaf, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, ShoppingCart, MessageCircle, FileText, Search as SearchIcon } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import { WHATS_NEW, shortVersion, newerThan, BEFORE } from '../lib/whatsnew.js';
@@ -48,7 +48,6 @@
   import StravaConnect from '../lib/strava/StravaConnect.svelte';
   import { messageOn } from '../lib/know/wasneu.js';
   import { readUpdate, readMute } from '../lib/know/wasneuStore.js';
-  import { helper, isSetUp, isPaused, noCredit } from '../lib/helper/client.svelte.js';
   import { testDataState } from '../lib/testdatadb.js';
   import { PLAY_WISH, DAYS } from '../lib/play.js';
   import { take } from '../lib/nav.js';
@@ -131,8 +130,6 @@
     await db.settings.put({ key: INTRO_KEY, value: false });
     location.hash = '#/';
   }
-  // v0.118.0 «KI-Helfer ausblenden» (K4): off by default; the row says where to switch it on
-  const helperState = $derived(!helper.loaded ? '' : !helper.show ? t('off · suggestions from Claude, only if you want') : !isSetUp() ? t('on · not set up') : noCredit() ? t('credit used up · hidden|helper') : isPaused() ? t('paused until next month') : t('on|helper'));
   const version = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '';
   const sub = $derived([t('Settings and the app, only on this device'), version ? t('Version {v}', { v: version }) : ''].filter(Boolean).join(' · '));
   // Impeccable: «Waiting for you»: at most one line per kind, each with the button that does it
@@ -329,13 +326,6 @@
             <Seg labelledby="me-lang" full={false} value={lang.v} options={[{ key: 'de', name: 'Deutsch' }, { key: 'en', name: 'English' }]} onchange={setLang} />
           </li>
           <li>
-            <a class="ich-row" href="#/helper">
-              <span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('AI helper')}</b><small>{helperState || t('Suggestions from Claude, only on request')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
             <a class="ich-row" href="#/me/suche" data-me-row="suche">
               <span class="ich-ib"><SearchIcon size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Search|page')}</b><small>{t('Speaking, and who answers in the search')}</small></span>
@@ -369,14 +359,6 @@
             <a class="ich-row" href="#/me/karte" data-me-row="karte">
               <span class="ich-ib"><ListTree size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Map of the app')}</b><small>{t('Every place and what lives there')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- «App verstehen» (Noah 26.10.2026 «unter ich - app verstehen»): seven lessons with links and exercises -->
-            <a class="ich-row" href="#/me/verstehen" data-me-row="verstehen">
-              <span class="ich-ib"><GraduationCap size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Understand the app')}</b><small>{t('Seven lessons: keep the app going yourself')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

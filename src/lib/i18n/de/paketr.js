@@ -34,7 +34,7 @@ export default {
   'Only when you switch it on': 'Nur wenn du es einschaltest',
   'Sync with a code or an invite link: your data goes to the server sealed with a code only your devices know. The server cannot read it.': 'Abgleich mit Code oder Einladungs-Link: Deine Daten gehen versiegelt mit einem Code zum Server, den nur deine Geräte kennen. Der Server kann sie nicht lesen.',
   'Sync with Google: the server keeps a number for your Google account and your code, sealed with a server key. It keeps no e-mail and no name.': 'Abgleich mit Google: Der Server behält eine Nummer für dein Google-Konto und deinen Code, versiegelt mit einem Server-Schlüssel. Er behält keine Mail-Adresse und keinen Namen.',
-  'Strava, Fitbit, calendar, mail and the AI helper are connections of the owner of the server; others cannot switch them on yet.': 'Strava, Fitbit, Kalender, Mail und der KI-Helfer sind Verbindungen des Server-Besitzers; andere können sie noch nicht einschalten.',
+  'Strava, Fitbit, calendar and mail are connections of the owner of the server; others cannot switch them on yet.': 'Strava, Fitbit, Kalender und Mail sind Verbindungen des Server-Besitzers; andere können sie noch nicht einschalten.',
   'Switch off sync with «Switch off and empty the server», or «Remove the Google sign-in»: the server forgets it. Untouched data is removed by itself after 400 days.': 'Abgleich aus mit «Ausschalten und Server leeren» oder «Google-Anmeldung entfernen»: Der Server vergisst es. Unberührte Daten verschwinden nach 400 Tagen von selbst.',
   Costs: 'Kosten',
   'The app is free. There is no advertising and nothing is sold about you.': 'Die App ist gratis. Es gibt keine Werbung und nichts über dich wird verkauft.',

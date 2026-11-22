@@ -19,6 +19,7 @@
 import { DATA_TABLES, syncLocal } from '../db.js';
 import { keysOf, recName, seal, unseal } from './code.js';
 import { NOTE, noteKey, stable, same } from './track.js';
+import { mergeBoth } from './merge.js';
 import { callWithTimeout } from '../ui/connstatus.js';
 
 export { stable, same };
@@ -172,6 +173,7 @@ export async function settleAsks(db) {
     const theirs = a.del ? null : a.v;
     const pick = settle(a.t, a.id, local, theirs, { mineAt: note?.at, theirsAt: a.at });
     if (pick.keep) await keepLost(db, a.t, a.id, pick.keep === 'theirs' ? { v: theirs, at: a.at, dev: a.dev } : { v: local, at: note?.at, dev: 'here' });
+    if (pick.win === 'merged') await db.table(a.t).put(pick.value); // the ticks of both (merge.js); it then goes out as this device's change
     await resolve(db, a.key, pick.win === 'theirs' ? 'theirs' : 'mine');
   }
   return n;
@@ -227,7 +229,7 @@ export const FETCHED = {
   // Strava activities (Noah 20.10.2026: the question came after every update): both devices fetch the
   // details from Strava by themselves, so only the time of the fetch differs. What the person added
   // (note, feeling, own values, hidden) must be the same on both; then the newer fetch wins without asking.
-  activities: { own: ['note', 'feel', 'feelSkip', 'own', 'hidden'], when: (r) => `${String(Number(r?.dv) || 0).padStart(4, '0')}|${[r?.detail ?? '', r?.noDetail ?? ''].sort().at(-1)}` },
+  activities: { own: ['note', 'feel', 'feelWord', 'feelSkip', 'own', 'hidden'], when: (r) => `${String(Number(r?.dv) || 0).padStart(4, '0')}|${[r?.detail ?? '', r?.noDetail ?? ''].sort().at(-1)}` },
 };
 /*
  * Settings the app writes by itself (Noah 21.10.2026, a question about «strava.last» on the phone): the
@@ -292,12 +294,19 @@ export function autoPick(t, id, mine, theirs, { mineAt = '', theirsAt = '' } = {
  * their rules (autoPick); everything else: the newer change wins (a delete is a change too), and the other
  * version is kept (keep: which side lost, for the quiet history). Two changes with the same time: the one
  * with the larger content wins, the same on both devices, so both end with the same version.
- * Returns { win: 'same' | 'mine' | 'theirs', keep: null | 'mine' | 'theirs' }.
+ * Returns { win: 'same' | 'mine' | 'theirs' | 'merged' (+ value), keep: null | 'mine' | 'theirs' }.
  */
 export function settle(t, id, mine, theirs, { mineAt = '', theirsAt = '' } = {}) {
   if (same(mine, theirs)) return { win: 'same', keep: null };
   const auto = autoPick(t, id, mine, theirs, { mineAt, theirsAt });
   if (auto) return { win: auto, keep: null };
+  // Noah 21.11.2026 («1-5a», point 4): a packing list or a week of the weekly plan ticked on both devices keeps the ticks of both
+  const merged = mergeBoth(t, id, mine, theirs, { mineAt, theirsAt });
+  if (merged) {
+    if (same(merged, theirs)) return { win: 'theirs', keep: null };
+    if (same(merged, mine)) return { win: 'mine', keep: null };
+    return { win: 'merged', keep: null, value: merged };
+  }
   const a = String(mineAt ?? '');
   const b = String(theirsAt ?? '');
   const theirsWins = b !== a ? b > a : stable(theirs) > stable(mine);
@@ -316,7 +325,7 @@ async function applyRemoteIn(db, p, s) {
     await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
     return 'taken';
   }
-  const { win, keep } = settle(t, id, local, theirs, { mineAt: note.at, theirsAt: p.at });
+  const { win, keep, value } = settle(t, id, local, theirs, { mineAt: note.at, theirsAt: p.at });
   if (keep === 'mine') await keepLost(db, t, id, { v: local, at: note.at, dev: 'here' });
   if (keep === 'theirs') await keepLost(db, t, id, { v: theirs, at: p.at, dev: p.dev });
   await db.meta.delete(askKey(t, id));
@@ -326,6 +335,12 @@ async function applyRemoteIn(db, p, s) {
   }
   if (win === 'theirs') {
     await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
+    return 'taken';
+  }
+  if (win === 'merged') {
+    // the ticks of both devices: written here as a change of this device, it goes to the server in this round
+    await db.table(t).put(value);
+    await db.meta.put({ key: noteKey(t, id), t, id, at: new Date().toISOString(), del: false, dirty: 1, base: s });
     return 'taken';
   }
   // this device changed it later: it stays and goes to the server on the push of this round

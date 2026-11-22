@@ -122,8 +122,8 @@ test('Analyse: every value as a tile, sources and period, a tap opens its course
   await page.locator('[data-value="act:sauna"]').click();
   await expect(page).toHaveURL(/#\/auswerten\/analyse\/act%3Asauna$/);
   await expect(page.locator('[data-detail="act:sauna"]')).toBeVisible();
-  await page.getByRole('link', { name: T('Also in «Ticks evaluated»|analyse') }).click();
-  await expect(page).toHaveURL(/#\/flow\/auswertung\?act=sauna&p=/);
+  await page.getByRole('link', { name: T('Also in «Sports year»|analyse') }).click();
+  await expect(page).toHaveURL(/#\/auswerten\/sportjahr\?act=sauna/);
   await page.goBack();
   await page.goBack();
   await page.locator('[data-value="rhr"]').click();

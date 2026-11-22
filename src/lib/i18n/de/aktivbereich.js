@@ -8,7 +8,6 @@ export default {
   'My sports|tab': 'Meine Aktivitäten',
   'Recovery|tab': 'Erholung',
   'Form|tab': 'Form und Erholung',
-  'Ticks evaluated|tab': 'Haken ausgewertet',
   'New sport': 'Neue Aktivität',
   'All goals on track this week': 'Diese Woche alle Ziele im Soll',
   'your ticks and fixed dates · a tap plans the week': 'deine Haken und festen Termine · Antippen plant die Woche',

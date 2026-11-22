@@ -138,13 +138,13 @@ export function zoneVsPlan(planned, activity, bounds) {
 /**
  * The next open unit of the weekly plan (this week), after the moment given: { id, type, d (0 Monday), t 'HH:MM', day }.
  * null without a saved weekly plan or when nothing is left. The small daily habits do not count.
- * now: { day, time 'HH:MM' }.
+ * now: { day, time 'HH:MM' }. sessions: the sessions of `training.plan` (what TrainingPeaks replaced is not open).
  */
-export function nextUnit(stored, rawLog, now) {
+export function nextUnit(stored, rawLog, now, sessions = []) {
   if (stored == null) return null;
   const monday = mondayOf(now.day);
   const w = weekLog(logOf(rawLog), monday);
-  const { week } = weekFor(stored, monday, w.pins, w.mode);
+  const { week } = weekFor(stored, monday, w.pins, w.mode, sessions);
   const todayIdx = (new Date(`${now.day}T12:00:00Z`).getUTCDay() + 6) % 7;
   const open = week.units.filter((u) => !QUIET.includes(u.type) && !w.done[u.id] && !w.released.includes(u.id) && (u.d > todayIdx || (u.d === todayIdx && u.t > now.time)));
   const u = open.sort((a, b) => a.d - b.d || a.t.localeCompare(b.t))[0];
