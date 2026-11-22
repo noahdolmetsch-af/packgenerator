@@ -1,6 +1,6 @@
 # Kursblick: Gold und SMI jeden Tag
 
-PR #<Nummer> · 22.11.2026 · Auftrag: Noah «1-4a» und «ja» (Thread «Mockup für Kurse von Gold, SMI und Aktien»)
+PR #1477 · 22.11.2026 · Auftrag: Noah «1-4a» und «ja» (Thread «Mockup für Kurse von Gold, SMI und Aktien»)
 
 ## Was ist neu
 - Neue kleine App «Kursblick» (`#/kurse`, eigenes Symbol, `apps/kursblick/`, Reiter Heute, Gold, Quellen).
