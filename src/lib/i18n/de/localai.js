@@ -38,7 +38,6 @@ export default {
   fast: 'schnell',
   usable: 'brauchbar',
   slow: 'langsam',
-  'Ask the AI (Gemini, online)': 'KI fragen (Gemini, online)',
   'Ask the AI on this device': 'KI im Gerät fragen',
   'Without internet the AI on this device answers.': 'Ohne Internet antwortet die KI im Gerät.',
   '{model}, works without internet; nothing leaves the device.': '{model}, geht ohne Internet; nichts verlässt das Gerät.',

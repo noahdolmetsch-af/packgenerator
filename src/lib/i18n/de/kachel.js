@@ -24,7 +24,6 @@ export default {
   'One function you have not used yet, with one button.': 'Eine Funktion, die du noch nicht genutzt hast, mit einem Knopf.',
   'Your bikes with their km and what is due.': 'Deine Velos mit ihren km und was fällig ist.',
   'Km, trips and nights of the last 12 months in one row.': 'Km, Touren und Nächte der letzten 12 Monate in einer Zeile.',
-  'Ask the helper about a list or a trip.': 'Den Helfer zu einer Liste oder Tour fragen.',
   'Everything the app can do, and what is new.': 'Alles, was die App kann, und was neu ist.',
   'Notes from on the way, to sort.': 'Notizen von unterwegs, zum Sortieren.',
   'Backup, restore and import (lives under Me).': 'Backup, Wiederherstellen und Import (unter Ich).',

@@ -48,7 +48,6 @@ export default {
   'Every function in short steps': 'Jede Funktion in kurzen Schritten',
   'Tools, helper, small apps, links': 'Werkzeuge, Helfer, kleine Apps, Links',
   'PDF, photos, calculator and more': 'PDF, Fotos, Rechner und mehr',
-  'The AI helper of the app': 'Der KI-Helfer der App',
   'Small helpers in one place': 'Kleine Helfer an einem Ort',
   'Your important links': 'Deine wichtigen Links',
   // Absprünge
