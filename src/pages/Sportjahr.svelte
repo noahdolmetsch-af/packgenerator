@@ -15,6 +15,8 @@
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import ChartSheet from '../lib/charts/ChartSheet.svelte';
+  import TickAnalyses from '../lib/flow/auswertung/TickAnalyses.svelte';
+  import AnaSheet from '../lib/training/AnaSheet.svelte';
   import { period } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import { db } from '../lib/db.js';
@@ -64,6 +66,18 @@
   const season = $derived(mode === 'all' && years.length >= 2 ? seasons(inWin) : null);
   const weeksOk = $derived(weeks.filter((w) => w.ok).length);
   const weeksPast = $derived(weeks.filter((w) => !w.future).length);
+
+  /* «Rhythmus» (S5): the analyses of the old ticks page (weekdays, hours of the day, weeks, grid, best values, months)
+     now read all units, ticks and Strava together; an adapter gives them the entries they know */
+  const tickD = $derived({
+    list: inWin.map((u) => ({ id: u.id, day: u.day, at: u.at, actId: u.sport, min: u.minQuelle === 'gemessen' ? u.min : 0 })),
+    from: win.from,
+    to: win.to < today ? win.to : today,
+    today,
+    ids: rows.map((r) => r.sport),
+    ringOf: (id) => units.find((u) => u.sport === id)?.ring ?? 'move',
+    nameOf: (id) => names.get(id) ?? id,
+  });
 
   /* names and colours */
   const PALETTE = ['var(--l1)', 'var(--hi)', 'var(--l2)', 'var(--l3)', 'var(--l4)', 'var(--z3)', 'var(--z4)'];
@@ -265,8 +279,11 @@
         </section>
       {/if}
     </div>
+
+    <TickAnalyses d={tickD} />
   {/if}
 </div>
+<AnaSheet />
 
 {#if bar}
   <ChartSheet kicker={t('Sports year')} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
