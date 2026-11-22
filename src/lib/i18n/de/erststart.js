@@ -18,6 +18,8 @@ export default {
   'Start empty|first': 'Leer starten',
   'Empty lists, you add your own. Best if you bring a backup or connect a second device.': 'Leere Listen, du trägst Eigenes ein. Am besten, wenn du ein Backup mitbringst oder ein zweites Gerät verbindest.',
   'Just looking? Me › Try it out › Playground shows an example trip any time, without changing your data.': 'Nur schauen? Ich › Ausprobieren › Spielwiese zeigt jederzeit eine Beispiel-Tour, ohne deine Daten zu ändern.',
+  'I already use the app on another device': 'Ich nutze die App schon auf einem anderen Gerät',
+  'Connect with the code of the other device. Your data comes from there, nothing here is written over it.': 'Mit dem Code vom anderen Gerät verbinden. Deine Daten kommen von dort, hier wird nichts überschrieben.',
   'Decide later': 'Später entscheiden',
   'The examples are in: two trips, a bike and some gear. Me › Data and backup › «Remove the examples» takes them away again.': 'Die Beispiele sind da: zwei Touren, ein Velo und Ausrüstung. Ich › Daten und Backup › «Beispiele entfernen» nimmt sie wieder weg.',
   'The examples are in: two trips, a bike and some gear.': 'Die Beispiele sind da: zwei Touren, ein Velo und Ausrüstung.',

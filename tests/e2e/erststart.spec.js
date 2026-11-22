@@ -110,3 +110,17 @@ test('browser tests without the switch never see the window', async ({ page, con
   await page.waitForTimeout(500);
   await expect(win(page)).toHaveCount(0);
 });
+
+test('«Ich nutze die App schon auf einem anderen Gerät» (2a): the window closes and the field for the code opens, nothing is chosen', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await expect(win(page)).toBeVisible();
+  await win(page).locator('[data-choice="connect"]').click();
+  await expect(win(page)).toBeHidden();
+  await expect(page).toHaveURL(/#\/me\/data/);
+  await expect(page.locator('#sync-code')).toBeVisible();
+  await expect(page).not.toHaveURL(/verbinden/);
+  // nothing was chosen: no example data was put in
+  await page.goto('./#/trips');
+  await expect(page.locator('main').getByText(T('Jura loop (example)'))).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

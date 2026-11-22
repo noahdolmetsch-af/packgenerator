@@ -8,7 +8,7 @@
    * and after the choice a second step offers the short tour of the app (tour/run.js), never by itself.
    */
   import { onMount } from 'svelte';
-  import { Sparkles, Square } from '@lucide/svelte';
+  import { Sparkles, Square, Smartphone } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, lang, setLang } from '../i18n.svelte.js';
   import { startTour, askTour } from '../tour/run.js';
@@ -53,6 +53,12 @@
       offerDone(t("That didn't work. Nothing was changed. Try again."));
     }
   }
+  // «Ich habe die App schon auf einem anderen Gerät» (Noah 22.11.2026 «2a», a phone that started empty): the window closes and the
+  // pairing window of Me › Data and backup opens on «I have a code»; nothing is chosen here, so the data comes from the other device
+  function connect() {
+    dialog?.close();
+    location.hash = '#/me/data?verbinden=1';
+  }
   function closeWith(note = true) {
     dialog?.close();
     if (note) offerDone(chosen === 'examples' ? (interests.length < ALL_INTERESTS.length ? t('The examples you chose are in. Me › Data and backup › «Remove the examples» takes them away again.') : t('The examples are in: two trips, a bike and some gear. Me › Data and backup › «Remove the examples» takes them away again.')) : t('Empty start: everything you add is your own.'), null, 8000);
@@ -92,6 +98,13 @@
         <span class="tx">
           <b>{t('Start empty|first')}</b>
           <small>{t('Empty lists, you add your own. Best if you bring a backup or connect a second device.')}</small>
+        </span>
+      </button>
+      <button type="button" class="opt" disabled={busy} onclick={connect} data-choice="connect">
+        <span class="ic" aria-hidden="true"><Smartphone size={20} /></span>
+        <span class="tx">
+          <b>{t('I already use the app on another device')}</b>
+          <small>{t('Connect with the code of the other device. Your data comes from there, nothing here is written over it.')}</small>
         </span>
       </button>
     </div>
