@@ -1,6 +1,6 @@
 # Plan nach dem Baustopp
 
-Stand 22.11.2026, 22:35 (Zürich). **Der Baustopp ist seit 22.11., 22:25 aufgehoben (Noah).** Runde 1 läuft, die Wellen steuert der Bündler nach diesem Plan. Die Abschnitte «Baustopp» und «Vor dem Aufheben» unten sind Verlauf, nicht mehr in Kraft. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
+Stand 22.11.2026, 22:35 (Zürich). **Der Baustopp ist seit 22.11., 22:25 aufgehoben (Noah).** **Seit 22:48 gibt es keine Freigabe pro PR und keine Einzelfreigaben mehr (Noah «b»):** PRs gehen nach grüner Prüfung von selbst online, auch mit Daten; vorher Test mit Backup-Kopie und ein frisches Backup von Noah (siehe `docs/decisions/keine-einzelfreigaben.md`). Wo unten «ok», «Einzelfreigabe» oder «dein ok» steht, ist das überholt. Runde 1 läuft, die Wellen steuert der Bündler nach diesem Plan. Die Abschnitte «Baustopp» und «Vor dem Aufheben» unten sind Verlauf, nicht mehr in Kraft. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
 
 ## Baustopp 22.11., 19:15 bis 22:25 (Noah, aufgehoben)
 
@@ -41,7 +41,7 @@ Gruppen von «ok» höchstens 3 Nummern; höchstens 3 gebaute PRs warten gleichz
 
 | Welle | Inhalt | Art |
 |---|---|---|
-| Runde 1 (Halt) | Sportjahr S5, Kleiderschrank, Diagramme; zuerst das Fertige ohne Daten | Ansicht |
+| Runde 1 (läuft) | Sportjahr S5, Kleiderschrank, Diagramme; zuerst das Fertige ohne Daten | Ansicht |
 | 0 Aufräumen | Merge von 1436, Nachtlauf lesen, lokale Zweige auf neuen `main` umstellen und testen, Entwurf 1451 fertig machen | kein neuer Bau |
 | 1 Daten sicher | Strava-Fix, «Aufräumen?», Logbuch zurücklesen, Sync-Nachttest; eigene Mini-Welle: KI Schritt 8 (`api/`) | Daten, Einzelfreigabe |
 | 2 Eine Rechnung | Wochenrückblick in **drei mittleren PRs**: (1) B, D, E; (2) C, G, H; (3) J, K, L. Einzeln mit Einzelfreigabe: A, I, Gym 1 h, Gruss-Gesichter. F bekommt einen eigenen PR. Sportjahr S5 zuerst (überschneidet D), S13 «Sportseiten schlanker» ganz am Schluss, die Liste geht vorher an Noah | Rechnung; I und Gym Daten |
