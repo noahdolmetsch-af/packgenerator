@@ -1,6 +1,6 @@
 // «Gestern nachtragen» (Noah 21.11.2026): the day and the moment of an entry ticked for an earlier day
 import { describe, it, expect } from 'vitest';
-import { quickDays, pickedDay, pickedTime, momentOf, BACK_MAX } from '../src/lib/flow/nachtragen.js';
+import { quickDays, pickedDay, pickedTime, momentOf, showNachtragHint, BACK_MAX } from '../src/lib/flow/nachtragen.js';
 import { newEntry } from '../src/lib/flow.js';
 
 const TODAY = '2026-11-10';
@@ -66,5 +66,26 @@ describe('the entry', () => {
     expect(e.day).toBe('2026-11-09');
     expect(e.min).toBe(60);
     expect(Object.keys(e).sort()).toEqual(['actId', 'at', 'day', 'id', 'min', 'n']);
+  });
+});
+
+describe('showNachtragHint', () => {
+  const e = (day) => ({ id: day, actId: 'yoga', day, at: `${day}T12:00:00.000Z`, n: 1 });
+  it('shows in the morning when yesterday has no tick but the last two weeks had one', () => {
+    expect(showNachtragHint([e('2026-11-05')], TODAY, 9)).toBe(true);
+  });
+  it('stays away at noon and in the afternoon', () => {
+    expect(showNachtragHint([e('2026-11-05')], TODAY, 12)).toBe(false);
+    expect(showNachtragHint([e('2026-11-05')], TODAY, 18)).toBe(false);
+  });
+  it('stays away when yesterday has a tick', () => {
+    expect(showNachtragHint([e('2026-11-05'), e('2026-11-09')], TODAY, 9)).toBe(false);
+  });
+  it('stays away for someone with no tick in the last two weeks (a new user, a long break)', () => {
+    expect(showNachtragHint([], TODAY, 9)).toBe(false);
+    expect(showNachtragHint([e('2026-10-01')], TODAY, 9)).toBe(false);
+  });
+  it('does not count ticks of today', () => {
+    expect(showNachtragHint([e('2026-11-10')], TODAY, 9)).toBe(false);
   });
 });
