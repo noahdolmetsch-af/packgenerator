@@ -55,7 +55,6 @@ export default {
   'Day|analyse': 'Tag',
   'Show fewer|analyse': 'Weniger zeigen',
   'Show all {n} days|analyse': 'Alle {n} Tage zeigen',
-  'Also in «Ticks evaluated»|analyse': 'Auch in «Haken ausgewertet»',
   'Also in the older view|analyse': 'Auch in der bisherigen Ansicht',
   // «Gesundheitssignale» (Noah 03.11.2026): your range and what stands out
   'What stands out|signals': 'Was auffällt',

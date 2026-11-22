@@ -921,12 +921,6 @@ const LISTED = {
     steps: ['Open Me › Map of the app.', 'Open a place to see its functions with their path.', 'Type a word in the search, then tap a line to go there.'],
     example: 'Example: you search «backup» and see on which page it lives and how you get there.',
   },
-  // «App verstehen» (Noah 26.10.2026)
-  'f.verstehen': {
-    on: null,
-    steps: ['Open Me › Understand the app.', 'Open a lesson, read it and do the exercise.', 'Tick «Done» if you like.'],
-    example: 'Example: lesson 2 «Make a backup and bring it back» → export a backup and import it in a test link.',
-  },
   // Paket P3 «Warum? und Regeln»
   'f.decides': {
     on: null,

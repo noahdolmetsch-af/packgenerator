@@ -5,7 +5,6 @@ Stand 26.10.2026. Für Noah, in einfachem Deutsch. Dieses Handbuch liegt auf Git
 Weitere Seiten:
 - [Konten-Liste](konten.md): alle Konten, die die App braucht, ohne Passwörter.
 - [Wann du etwas tun musst](wann-du-etwas-tun-musst.md): neues Gerät, Login abgelaufen, KI-Guthaben leer.
-- In der App: **Ich** › **App verstehen**, der Mini-Kurs in 7 Lektionen mit Übungen.
 
 ---
 

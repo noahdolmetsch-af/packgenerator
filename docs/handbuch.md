@@ -4558,17 +4558,6 @@ Ich › Karte der App: jeder Bereich der App mit seinen Funktionen, jede mit ihr
 
 **Beispiel:** Du suchst «Backup» und siehst, auf welcher Seite es wohnt und wie du hinkommst.
 
-### App verstehen
-
-Ich › App verstehen: sieben kurze Lektionen mit Links und je einer Übung, damit du die App ohne Helfer am Leben hältst: die vier Teile, Backups, Haken, mergen und zurücknehmen, ein Wort ändern, die Konten, einen anderen Helfer einweisen.
-
-**Aufschalten:** Immer da, nichts zu tun.
-
-1. Öffne Ich › App verstehen.
-2. Öffne eine Lektion, lies sie und mach die Übung.
-3. Hake «Erledigt» ab, wenn du magst.
-
-**Beispiel:** Lektion 2 «Backup machen und zurückspielen» → ein Backup exportieren und in einem Test-Link einlesen.
 
 ### Datenschutz und Nutzung
 

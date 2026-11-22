@@ -7,7 +7,7 @@
  */
 import { numHref } from '../analyse/zahlweg.js';
 
-export const TICKS_HREF = '#/flow/auswertung';
+export const TICKS_HREF = '#/auswerten/sportjahr'; // S5: «Haken ausgewertet» is «Haken und Rhythmus» in the Sports year
 
 const RINGS = ['move', 'mind', 'rest'];
 // the sports a ring counts: Mindful counts every sport of the ring, Move and Recovery only those that do not rest

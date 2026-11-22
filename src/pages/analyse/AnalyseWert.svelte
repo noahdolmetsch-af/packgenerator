@@ -536,7 +536,7 @@
           </section>
         </div>
       {/if}
-      {#if item.old}<p class="hint"><a href={item.old}>{item.tick ? t('Also in «Ticks evaluated»|analyse') : t('Also in the older view|analyse')}</a></p>{/if}
+      {#if item.old}<p class="hint"><a href={item.old}>{item.tick ? t('Also in «Sports year»|analyse') : t('Also in the older view|analyse')}</a></p>{/if}
     {/if}
   </div>
 {/if}
