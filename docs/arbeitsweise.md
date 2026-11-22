@@ -22,6 +22,8 @@ Diese Regeln ersetzen alle Abschnitte weiter unten (sie sind nur noch Geschichte
 
 13. **Fertig-Regel** (Wegweiser Schritt 25, Noah 01.11.2026 «freigabe»): eine neue Funktion ist erst fertig, wenn sie alle fünf Teile hat: eine **Seite** (Katalog mit Anleitung und Beispiel), einen **Absprung** dort, wo man sie braucht (nicht nur aus Suche oder Katalog; Test `absprung`), **Inhalt** auf der Seite («Gut zu wissen» in der Karte «Was du hier tun kannst»; Test `wissen`), einen **leeren Zustand**, der erklärt und weiterführt, und einen **nächsten Schritt** nach der Haupthandlung. Fehlt ein Teil, steht im PR unter «Selbst entschieden», warum.
 
+14. **Inhalt zuerst** (Noah 21.11.2026 «5a»): Hilfe steht nie vor dem Inhalt einer Seite. Eine Seite beginnt mit dem, wofür man gekommen ist. Hilfe ist eine zugeklappte Zeile («Was du hier tun kannst» öffnet das «?»-Fenster; Noah 22.11.2026 «so lassen – immer zugeklappt», sie bleibt) und am Seitenende «Alle Funktionen von …». Keine neue Karte, kein Kachelfeld und keine neue Hinweiszeile über dem Inhalt; Hinweiszeilen im Inhalt nur auf Heute. Absprung und «Gut zu wissen» einer neuen Funktion kommen an diese Stellen (Zeile «Passt hier», «?»-Fenster, Zeile am Seitenende), nie als neuer Block oben. Das lockert Punkt 2 und 3 der Fertig-Regel.
+
 Die Regeln stehen nur noch an einem Ort (CLAUDE.md). Die Projektanweisung in Claude verweist nur darauf, das Projekt-Gedächtnis hält den Stand fest, nicht die Regeln.
 
 ## Stand 26.10.2026 (morgens, Geschichte): was sich seit dem 18.10.2026 geändert hat

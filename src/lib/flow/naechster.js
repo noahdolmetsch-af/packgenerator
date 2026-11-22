@@ -44,14 +44,14 @@ function perUnit(r, unit) {
  * star would be there when all of them up to it are ticked off on Aktiv (null when it does not get there or the
  * milestone cannot be counted this way). plan = the stored `training.weekplan`, rawLog = `training.weeklog`.
  */
-export function planFor(r, act, plan, rawLog, today) {
+export function planFor(r, act, plan, rawLog, today, sessions = []) {
   if (plan == null || !act) return null;
   const types = UNITS_OF_ICON[act.icon];
   if (!types) return null;
   const monday = mondayOf(today);
   const dNow = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;
   const w = weekLog(logOf(rawLog), monday);
-  const { week } = weekFor(plan, monday, w.pins, w.mode);
+  const { week } = weekFor(plan, monday, w.pins, w.mode, sessions);
   const open = week.units.filter((u) => types.includes(u.type) && u.d >= dNow && !w.done[u.id] && !w.released.includes(u.id)).sort((a, b) => a.d - b.d || a.t.localeCompare(b.t));
   if (!open.length) return null;
   const left = leftOf(r);
@@ -94,10 +94,10 @@ export function paceOf(r, ctx, today) {
  * The whole card: { r, left, pct, plan, pace }. plan wins over pace (the plan is what you decided; the pace only
  * says what usually happens). Returns null when no star is open.
  */
-export function heroOf({ list, ctx, acts = [], plan = null, weeklog = null, today }) {
+export function heroOf({ list, ctx, acts = [], plan = null, weeklog = null, sessions = [], today }) {
   const r = nextStar(list);
   if (!r) return null;
   const act = r.m.actId ? acts.find((a) => a.id === r.m.actId) : null;
-  const p = planFor(r, act, plan, weeklog, today);
+  const p = planFor(r, act, plan, weeklog, today, sessions);
   return { r, left: leftOf(r), pct: Math.round(r.progress * 100), plan: p, pace: p ? null : paceOf(r, ctx, today) };
 }

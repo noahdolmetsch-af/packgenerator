@@ -23,7 +23,7 @@
       lines: [
         'Sync with a code or an invite link: your data goes to the server sealed with a code only your devices know. The server cannot read it.',
         'Sync with Google: the server keeps a number for your Google account and your code, sealed with a server key. It keeps no e-mail and no name.',
-        'Strava, Fitbit, calendar, mail and the AI helper are connections of the owner of the server; others cannot switch them on yet.',
+        'Strava, Fitbit, calendar and mail are connections of the owner of the server; others cannot switch them on yet.',
         'Switch off sync with «Switch off and empty the server», or «Remove the Google sign-in»: the server forgets it. Untouched data is removed by itself after 400 days.',
       ],
     },

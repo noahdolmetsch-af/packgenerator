@@ -83,3 +83,53 @@ const shift = (list, from, to) => {
 export const moveArt = (cfg, groupKey, from, to) => ({ groups: cfg.groups.map((g) => (g.key === groupKey ? { ...g, arts: shift(g.arts, from, to) } : g)) });
 /** Move a group (indices as shown). */
 export const moveGroup = (cfg, from, to) => ({ groups: shift(cfg.groups, from, to) });
+
+/** The group that takes the kinds of a deleted group when nothing else is chosen («No group»). */
+export const NO_GROUP = 'ohne';
+
+/** Delete a kind from the list (its entries are moved by logbuch.js reassignEntries, never deleted). */
+export const removeArt = (cfg, key) => ({ groups: cfg.groups.map((g) => ({ ...g, arts: g.arts.filter((a) => a.key !== key) })) });
+
+/**
+ * Delete a group; its kinds go to the group `toKey`, or (null) to the group «No group» that is made at the end when it is missing.
+ * Nothing is lost: every kind stays in the list. A group that does not exist, or the target equal to the group itself, changes nothing.
+ */
+export function removeGroup(cfg, key, toKey = null) {
+  const g = cfg.groups.find((x) => x.key === key);
+  if (!g || toKey === key) return cfg;
+  const rest = cfg.groups.filter((x) => x.key !== key);
+  if (!g.arts.length) return { groups: rest };
+  if (toKey && rest.some((x) => x.key === toKey)) return { groups: rest.map((x) => (x.key === toKey ? { ...x, arts: [...x.arts, ...g.arts] } : x)) };
+  if (key === NO_GROUP) return cfg; // the «No group» group cannot send its kinds to itself
+  const none = rest.find((x) => x.key === NO_GROUP);
+  return none ? { groups: rest.map((x) => (x === none ? { ...x, arts: [...x.arts, ...g.arts] } : x)) } : { groups: [...rest, { key: NO_GROUP, name: null, arts: g.arts }] };
+}
+
+const slug = (s) => String(s ?? '').normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
+/** A new key that no kind and no group uses yet: «my-idea», «my-idea-2», … (the key never changes, the name may). */
+function freshKey(cfg, name, prefix) {
+  const used = new Set([...cfg.groups.map((g) => g.key), ...cfg.groups.flatMap((g) => g.arts.map((a) => a.key))]);
+  const base = `${prefix}-${slug(name) || 'neu'}`;
+  let key = base;
+  for (let i = 2; used.has(key); i++) key = `${base}-${i}`.slice(0, 40);
+  return key;
+}
+
+/** A new kind of the user at the end of a group; the way is chosen now (L5 4a), the standard is «draft» (first a picture). Returns { cfg, key } or null without a name or a group. */
+export function addArt(cfg, groupKey, name, route = 'draft') {
+  const n = cleanName(name);
+  if (!n || !hasGroup(cfg, groupKey)) return null;
+  const key = freshKey(cfg, n, 'k');
+  const way = ROUTES.includes(route) && route !== 'draft' ? route : null;
+  return { cfg: { groups: cfg.groups.map((g) => (g.key === groupKey ? { ...g, arts: [...g.arts, { key, name: n, route: way }] } : g)) }, key };
+}
+/** A new, empty group at the end. Returns { cfg, key } or null without a name. */
+export function addGroup(cfg, name) {
+  const n = cleanName(name);
+  if (!n) return null;
+  const key = freshKey(cfg, n, 'g');
+  return { cfg: { groups: [...cfg.groups, { key, name: n, arts: [] }] }, key };
+}
+/** The way of a kind: what the kind had as standard is stored as «nothing», so the first version stays «nothing stored». */
+export const setRoute = (cfg, key, route) =>
+  !ROUTES.includes(route) ? cfg : { groups: cfg.groups.map((g) => ({ ...g, arts: g.arts.map((a) => (a.key === key ? { ...a, route: route === standardRoute(key) ? null : route } : a)) })) };

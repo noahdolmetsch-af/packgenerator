@@ -8,7 +8,6 @@
  *   W3 weekNotes     two or three calm sentences from fixed rules (observation only, never a rating)
  *   W4 weekHighs     longest ride, best 20 minutes, most climbing, new best values
  *   W5 weekAhead     one suggestion for next week from the load of the last weeks
- *   W6 summaryText   the week as plain text, to copy for Claude (only when the KI-Helfer is on)
  *
  * Health data (sleep, mood, heart rate) is observation only: the sentences say what was, never what is good.
  */
@@ -319,35 +318,4 @@ export function weekAhead(acts = [], sessions = [], monday, today = null) {
   if (a > 0 && b > a && c > b) key = 'calmer';
   else if (usual > 0 && c < usual * 0.5) key = 'back';
   return { key, secs: bySecs.at(-1), usualSecs: Math.round(mean(bySecs.slice(0, -1)) ?? 0), plan, next, kw: isoWeek(next) };
-}
-
-/* ---------------------------------------------------------------- W6 the text for Claude */
-
-/**
- * W6: the week as plain text, to copy for Claude. Only what the page shows, no names of places or people.
- * t, num and day (a day as words) come from the page, so this stays pure and the text is in the app's language.
- */
-export function summaryText({ monday, five = [], strip = [], notes = [], highs = null, ahead = null }, { t = (s, v) => s.replace(/\{(\w+)\}/g, (m, k) => v?.[k] ?? m), num = String, day = (d) => d, noteText = (n) => n.key } = {}) {
-  const lines = [t('My week from {from} to {to} (week {kw}):', { from: day(monday), to: day(shiftDay(monday, 6)), kw: isoWeek(monday) })];
-  for (const f of five) {
-    if (f.key === 'hours') lines.push(t('- Moving time {a} h ({d} against the week before)', { a: hmm(f.value), d: diffText(f.diff, { seconds: true }) }));
-    if (f.key === 'km') lines.push(t('- {a} km ({d} km)', { a: num(f.value), d: diffText(f.diff, { fmt: num }) }));
-    if (f.key === 'hm') lines.push(t('- {a} m climbed ({d} m)', { a: num(f.value), d: diffText(f.diff, { fmt: num }) }));
-    if (f.key === 'n') lines.push(t('- {a} sessions ({d})', { a: f.value, d: diffText(f.diff) }));
-    if (f.key === 'goals') lines.push(t('- {a} of {b} Aktiv goals reached', { a: f.value, b: f.of }));
-  }
-  const days = strip.filter((d) => !d.future);
-  if (days.length) {
-    lines.push(t('- Days with training: {n}, with recovery: {r}, with meditation: {m}', { n: days.filter((d) => d.kinds.includes('train')).length, r: days.filter((d) => d.kinds.includes('rest')).length, m: days.filter((d) => d.kinds.includes('mind')).length }));
-    const s = days.map((d) => d.sleep).filter((x) => x != null);
-    const m = days.map((d) => d.mood).filter((x) => x != null);
-    if (s.length) lines.push(t('- Sleep (1–10): mean {n} on {d} days', { n: num(round1(mean(s))), d: s.length }));
-    if (m.length) lines.push(t('- Mood (1–10): mean {n} on {d} days', { n: num(round1(mean(m))), d: m.length }));
-  }
-  for (const n of notes) lines.push(`- ${noteText(n)}`);
-  if (highs?.longest) lines.push(t('- Longest activity: {a} h, {km} km', { a: hmm(highs.longest.movingS), km: num(highs.longest.km) }));
-  if (highs?.w20) lines.push(t('- Best 20 minutes: {w} W', { w: highs.w20.w20 }));
-  if (ahead) lines.push(t('- Planned for next week: {n} sessions', { n: ahead.plan.n }));
-  lines.push('', t('How was my week? Please answer in three short sentences: what went well, what was missing, one idea for next week. No medical advice.'));
-  return lines.join('\n');
 }

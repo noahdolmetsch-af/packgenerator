@@ -63,6 +63,7 @@
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
   import MySports from './flow/MySports.svelte';
+  import FeelAsk from '../lib/training/plans/FeelAsk.svelte'; // «Von selbst» (T3): «How was it?» about the newest Strava activity
   import Training from './flow/Training.svelte';
   import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
@@ -221,8 +222,8 @@
       {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
 
-    <!-- «Aktiv und Auswerten» 1a (Noah 03.11.2026): every function of Aktiv as a tile, right under the head -->
-    <AllHere area="aktiv" />
+    <!-- «Von selbst» (T3): a new Strava activity asks «How was it?» in three words, for every sport -->
+    <FeelAsk />
 
     <!-- Noah 19.10 «2a»: the Einstieg of Aktiv in the card «Was hier steht» (after the first visit one quiet line) -->
     <HintCard page="aktiv" intro="aktiv" />
@@ -289,6 +290,8 @@
     {/if}
     <!-- «Auswerten aufräumen» 5a (Noah 07.11.2026): a list pinned to «Aktiv» stands here, not on Auswerten -->
     <PinnedLists place="active" />
+    <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+    <AllHere area="aktiv" />
   </div>
 {/if}
 

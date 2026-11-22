@@ -40,5 +40,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 32 | Zusammenhänge in den eigenen Daten (Reiter in Auswerten, Seite `#/me/insights`: Ruhepuls, Schlaf, Fahrten zusammen) | Erkenntnisse (gleicher Name wie Nr. 2) | **«Zusammenhänge»** (Noah 21.11.2026 «1a»); «Erkenntnisse» bleibt nur Nr. 2 |
 | 33 | Die Auswertung der Haken (früher eigene Seite «Haken ausgewertet», jetzt ganz unten im Sportjahr) | Haken ausgewertet, Rhythmus, Tick-Auswertung | **«Haken und Rhythmus»**; die Antworten der Check-Fragen heissen **«Antworten ausgewertet»** (Noah 22.11.2026 «a») |
 | 34 | Tage oder Zeiträume festhalten, an denen man krank, verletzt, gestresst oder in den Ferien war (Form und Erholung) | Tag-Etikett, Phase, Zeitraum-Notiz | **«Marker»** («Marker setzen»; Arten: Krank, Verletzt, Stress, Ferien; Noah 21.11.2026 «ja» zu Marker) |
+| 35 | Die geführte Runde, in der jedes Kleidungsstück seine Temperatur bekommt | Kleider-Wizard, Kleiderschrank-Assistent | **«Kleiderschrank einrichten»**; die Kältestufen heissen **Warm, Mild, Kühl, Kalt, Frost** (Noah 21.11.2026 «1-5a 4b», Namen aus dem Entwurf) |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

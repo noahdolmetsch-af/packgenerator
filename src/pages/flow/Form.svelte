@@ -17,6 +17,8 @@
   import FormWasWaere from '../../lib/flow/form/FormWasWaere.svelte';
   import FormTeile from '../../lib/flow/form/FormTeile.svelte';
   import FormTour from '../../lib/flow/form/FormTour.svelte';
+  import FormVergleich from '../../lib/flow/form/FormVergleich.svelte';
+  import FormAuffaellt from '../../lib/flow/form/FormAuffaellt.svelte';
   import MarkerCard from '../../lib/flow/MarkerCard.svelte';
   import { formQuery } from '../../lib/form-data.js';
   import { RAMP_MAX, FIT_DAYS, FAT_DAYS, shownForm } from '../../lib/form.js';
@@ -110,6 +112,16 @@
         {/if}
         <p class="hint">{t('A resting pulse rising day after day on a tour often means: more sleep, more food, an easier stage.')}</p>
       </div>
+    </Sec>
+
+    <!-- «Was auffällt» (Noah 21.11.2026, K3): the resting pulse of the last days against your normal, as an observation and a question -->
+    <Sec id="auffaellt-h" title={t('What stands out')} sub={t('your resting pulse of the last days against your normal')}>
+      <FormAuffaellt {f} {today} />
+    </Sec>
+
+    <!-- «Form im Vergleich zu früher» (Noah 21.11.2026, K2): the same months of each year, with how sure the statement is -->
+    <Sec id="vergleich-h" title={t('Form compared with earlier')} sub={t('watt per heartbeat, resting pulse and hours · the same months of each year')}>
+      <FormVergleich {f} {today} />
     </Sec>
 
     <!-- «Marker» (Noah 21.11.2026, K1): sick, injured, stress, holiday: the evaluations leave these days out and can explain what stands out -->

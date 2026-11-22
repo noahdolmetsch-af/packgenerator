@@ -27,6 +27,7 @@ export const GROUP_PLACES = [
   { name: 'Compass boxes', file: 'src/pages/Compass.svelte' },
   { name: 'Groups of the links', file: 'src/pages/WebLinks.svelte' }, // Paket L «Werkzeuge und Links»
   { name: 'Neuland collections', file: 'src/pages/Neuland.svelte' }, // «Neuland»: own collections (built-in ones: rename, switch off)
+  { name: 'Kinds and groups of the improvement log', file: 'src/lib/logbuch/KindsSheet.svelte' }, // «Verbesserungs-Logbuch» L5: rename, delete (kinds go to another group or «No group»)
   { name: 'Groups of sports', file: 'src/pages/flow/MySports.svelte' }, // «Meine Sportarten»: own groups
   { name: 'Inspection areas', file: 'src/lib/inspect/EditList.svelte' }, // «Velo-Inspektion»: the areas of the checklist
   { name: 'Impulse areas', file: 'src/lib/frei/Impulse.svelte' }, // Paket T «Freie Zeit»

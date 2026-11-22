@@ -33,7 +33,6 @@
   import { INSPO_WISH } from './lib/inspiration.js';
   import { listsReady } from './lib/listsready.svelte.js';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
-  import CreditNotice from './lib/helper/CreditNotice.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
   import CalmHome from './lib/ruhig/CalmHome.svelte'; // Paket C: on Today the calm view shows only its one thing
   import RuhigLine from './lib/ruhig/RuhigLine.svelte'; // Paket C: workspace, calm view or a due letter
@@ -402,11 +401,11 @@
     WocheFerien: () => import('./pages/WocheFerien.svelte'),
     Erkenntnisse: () => import('./pages/Erkenntnisse.svelte'),
     Features: () => import('./pages/Features.svelte'),
-    Helper: () => import('./pages/Helper.svelte'),
     Assistent: () => import('./pages/Assistent.svelte'),
     GearImport: () => import('./pages/GearImport.svelte'),
     Rides: () => import('./pages/Rides.svelte'),
     Wardrobe: () => import('./pages/Wardrobe.svelte'),
+    WardrobeSetup: () => import('./pages/WardrobeSetup.svelte'), // «Kleiderschrank einrichten» (Noah 21.11.2026 «1-5a 4b»): Kleider › Einrichten
     Flow: () => import('./pages/Flow.svelte'),
     Auswerten: () => import('./pages/AuswertenStart.svelte'),
     // Analyse PR 1 (Noah 27.10.2026 «1a»): Auswerten › Analyse, every value as a tile
@@ -534,6 +533,10 @@
   </header>
 {/if}
 <div class="col">
+{#if wide.matches && !mini}
+<!-- 4a (Noah 21.11.2026 «4a»): one place for help; on a computer the «?» and the assistant sit at the top right of the page, like in the phone's top bar -->
+<div class="dtools"><a class="asst-ic" href="#/assistent" aria-label={t('Assistant')} aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={22} aria-hidden="true" /></a><HelpButton /></div>
+{/if}
 <DemoBar />
 <LogoRide />
 <OfflineLine />
@@ -659,7 +662,7 @@
     <LazyPage load={PAGES.Favorites} />
   {:else if page === 'wardrobe'}
     <!-- v0.42.0 (Noah 1): the wardrobe, by layer and body zone -->
-    <LazyPage load={PAGES.Wardrobe} />
+    {#if hash.startsWith('#/wardrobe/setup')}<LazyPage load={PAGES.WardrobeSetup} />{:else}<LazyPage load={PAGES.Wardrobe} />{/if}
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
@@ -876,9 +879,6 @@
   {:else if page === 'assistent'}
     <!-- «Assistent» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): Frag die App + Hilf mir planen -->
     <LazyPage load={PAGES.Assistent} {hash} />
-  {:else if page === 'helper'}
-    <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
-    <LazyPage load={PAGES.Helper} />
   {:else if page === 'inbox'}
     <LazyPage load={PAGES.Inbox} onnew={() => (noteOpen = true)} />
   {:else if page === 'vorgaenge'}
@@ -932,7 +932,6 @@
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if !guest && page !== 'timer'}<TimerFloat />{/if}
 <!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
-{#if !guest}<CreditNotice />{/if}
 <Keys bind:open={keysOpen} />
 <!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
 {#if !guest}<TourStart /><TourHost />{/if}
@@ -1019,6 +1018,14 @@
   }
   .plus:hover {
     background: var(--hi-hover);
+  }
+  .dtools {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--sp-1);
+    padding: 4px var(--gut) 0;
+    min-height: 48px;
   }
   .asst-ic {
     display: inline-flex;

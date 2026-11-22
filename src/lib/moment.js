@@ -167,11 +167,11 @@ const LISTED_MOMENTS = {
     'f.lists', 'f.editall', 'f.decides', 'f.pagetips', 'backup', 'install', 'lang', 'demo', 'f.namesde',
     'f.search', 'f.quicklinks', 'f.pinmarks', 'f.localai', 'f.askfurther', 'f.searchvoice', 'f.startfresh', 'f.sync', 'f.autosync',
     'f.account', 'f.appmap', 'f.verstehen', 'f.privacy', 'f.camera', 'f.autobackup', 'f.tidy', 'f.tour', 'f.firststart',
-    'f.playground', 'f.helper', 'f.shortcuts', 'f.ownvalues', 'f.ownreminders', 'f.listsmore', 'f.push',
+    'f.playground', 'f.shortcuts', 'f.ownvalues', 'f.ownreminders', 'f.listsmore', 'f.push',
     'f.theme', 'f.uisize', 'f.custompage', 'f.explain', 'f.connections', 'f.owncal', 'f.notestasks',
-    'f.fitbitold', 'f.alerts', 'f.backuplock', 'f.yearcheck', 'f.suggestoff', 'f.tipweek', 'f.comeback',
+    'f.fitbitold', 'f.alerts', 'f.backuplock', 'f.yearcheck', 'f.suggestoff', 'f.hintquiet', 'f.tipweek', 'f.comeback',
     'f.helpsearch', 'f.news', 'f.workspace', 'f.calmview', 'f.pushbudget', 'f.notforme', 'f.sources',
-    'f.aicheck', 'f.hiddenall', 'f.miniapps', 'f.ruhig',
+    'f.hiddenall', 'f.miniapps', 'f.ruhig',
   ],
 };
 

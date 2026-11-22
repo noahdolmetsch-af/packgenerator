@@ -10,6 +10,7 @@
   import MedCard from './MedCard.svelte';
   import HabitCard from './HabitCard.svelte';
   import OutdoorCard from './OutdoorCard.svelte';
+  import ZielCards from '../challenges/ZielCards.svelte';
   import { flowQuery } from '../flow/data.svelte.js';
   import { flowStates } from '../flow.js';
   import { isMedAct } from '../flow/hobby/medstart.js';
@@ -32,6 +33,7 @@
 
 <div class="hw">
 <OutdoorCard {today} />
+<ZielCards {today} />
 {#if refs.length}
   <div class="hcs" data-habits>
     {#each refs as r (refKey(r))}
