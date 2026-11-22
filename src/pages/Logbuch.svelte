@@ -16,12 +16,14 @@
   import { addEntry, updateEntry, removeEntry, restoreEntry } from '../lib/logbuch/logbuchdb.js';
   import { buildOrder, orderSize, images } from '../lib/logbuch/auftrag.js';
   import { copyText, savePictures } from '../lib/logbuch/export.js';
+  import { takeIntoLog } from '../lib/logbuch/fehler.js';
   import { artLabel, groupLabel, stateLabel } from '../lib/logbuch/words.js';
   import { deleteWithUndo, askDelete, saveFailed } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
 
+  takeIntoLog(); // the errors the app noted quietly (Fehler-Melder) become entries of the kind «Error»
   const q = liveQuery(() => db.logbuch.toArray());
   const all = $derived($q ?? []);
   let group = $state('all');
@@ -85,6 +87,7 @@
               <span class="pill">{artLabel(e.art)}</span>
               {#if e.urgent === 'now' && isOpen(e)}<span class="pill lb-now" data-lb-now>{t('Bothers me now')}</span>{/if}
               <span class="pill lb-st" data-lb-state={e.state}>{stateLabel(e.state)}</span>
+              {#if e.source === 'auto'}<span class="pill" data-lb-auto>{t('Noted by the app')}{e.count > 1 ? ` · ${e.count}×` : ''}</span>{/if}
             </div>
             <p class="lb-text">{#if e.block}<b>{e.block}:</b> {/if}{e.text}</p>
             {#if e.photo}
