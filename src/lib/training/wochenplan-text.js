@@ -18,6 +18,7 @@ export const UNIT_NAME = {
   runIn: 'Treadmill at the gym',
   mini: 'Mini workout',
   ski: 'Ski tour',
+  tp: 'TrainingPeaks',
   med: 'Meditation',
   stretch: 'Stretching',
 };
