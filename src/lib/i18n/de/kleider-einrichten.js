@@ -41,8 +41,6 @@ export default {
   'Every piece has its temperature, layer and body zone. The onion can think along now.': 'Jedes Teil hat Temperatur, Schicht und Körperstelle. Die Zwiebel kann jetzt mitdenken.',
   'Show the skipped ones': 'Übersprungene zeigen',
   'Next: Today now suggests what to wear.': 'Als Nächstes: Heute schlägt dir jetzt Kleider vor.',
-  '{n} piece still without temperature or place': '{n} Teil noch ohne Temperatur oder Platz',
-  '{n} pieces still without temperature or place': '{n} Teile noch ohne Temperatur oder Platz',
   // Katalog (features.js)
   'Give every piece of clothing its temperature, layer and body zone, one piece after the other with one tap each, so that Today and the packing list can suggest the right clothes.': 'Gib jedem Kleidungsstück Temperatur, Schicht und Körperstelle, ein Teil nach dem anderen mit je einem Tipp, damit Heute und die Packliste die richtigen Kleider vorschlagen können.',
   'Open the wardrobe and tap «Set up wardrobe».': 'Öffne den Kleiderschrank und tippe auf «Kleiderschrank einrichten».',
