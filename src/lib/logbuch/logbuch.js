@@ -35,7 +35,7 @@ const clean = (s, max) => String(s ?? '').trim().slice(0, max);
  * A new entry from what the window collected. Returns null without a valid kind or without a text.
  * `now` is a Date (the day is the local calendar day of the device, never a UTC cut).
  */
-export function makeEntry({ art, urgent, text, page, pageTitle = '', block, device, width, now = new Date(), id, photo = null, source = 'user' }) {
+export function makeEntry({ art, urgent, text, page, pageTitle = '', block, device, width, now = new Date(), id, photo = null, photoNote = null, source = 'user' }) {
   if (!ARTS.includes(art)) return null;
   const body = clean(text, 1000);
   if (!body) return null;
@@ -57,6 +57,7 @@ export function makeEntry({ art, urgent, text, page, pageTitle = '', block, devi
     day,
     state: route === 'note' ? 'noted' : 'open',
     photo,
+    photoNote: photo ? null : photoNote === 'cap' || photoNote === 'failed' ? photoNote : null, // why there is no photo: 'failed' or 'cap' (the memory for photos is full)
     source: source === 'auto' ? 'auto' : 'user',
     count: 1,
   };

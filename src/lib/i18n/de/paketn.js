@@ -166,7 +166,7 @@ export default {
   'New entry in {name}': 'Neuer Eintrag in {name}',
   'No box': 'Ohne Ablage',
   'From a deleted box. They stay until you delete them.': 'Aus einer gelöschten Ablage. Sie bleiben, bis du sie löschst.',
-  'Boxes and AI': 'Ablagen und KI',
+  'Boxes': 'Ablagen',
   'Own box': 'Eigene Ablage',
   'Add box': 'Ablage anlegen',
   'AI suggests steps for a goal': 'KI schlägt Schritte für ein Ziel vor',

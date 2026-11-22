@@ -15,7 +15,10 @@
 # merges when it is green. Before the ok a PR runs only build + unit tests and the Wächter on the computer, so PRs that are still changing leave the test
 # computers free. A push after the label runs everything again.
 # Noah 05.11.2026 «3a ja»: «e2e (phone)» runs only the specs of the pages the PR touches (scripts/ci-scope.mjs,
-# scripts/ci-map.mjs); anything unclear, or a file every page loads, still runs all five parts.
+# scripts/ci-map.mjs).
+# Noah 22.11.2026 «a»: a small PR (text, view, tests, docs) runs only the quick check: the Wächter and the Kern plus its pages
+# (one part, about 10 minutes). A PR that touches data, backup, sync, the storage structure, api/, build or workflow
+# files, or anything not understood, still runs all five parts. The night run (volle-pruefung.yml) runs everything.
 name: Build and deploy
 
 on:
@@ -95,7 +98,8 @@ jobs:
           cache: npm
       # Noah 1.11.2026 «4a» and 05.11.2026 «3a ja»: a PR runs only the phone specs of the areas it changed
       # (scripts/ci-scope.mjs, ci-map.mjs: the app's own imports, the Kern always). Docs, news and German
-      # texts alone run none. A file every page loads, or anything not understood, runs everything.
+      # texts alone run none. Data, backup, sync, storage, api/, build files or anything not understood run everything
+      # (HEAVY in ci-scope.mjs); a file every page loads is only the quick check now (the Kern guards those ways).
       # The scope needs only Node, so it runs before «npm ci»: a part that has nothing to do skips the install.
       - id: scope
         run: |

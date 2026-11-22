@@ -11,7 +11,7 @@ import DE from '../src/lib/i18n/de/index.js';
 const ROOT = new URL('../src', import.meta.url).pathname;
 
 // stay English on purpose: the placeholder of the function itself, a sign (Ø, max) and a name used in German too
-const KNOWN = new Set(['English text', 'Ø {v} {unit}', 'max {v} {unit}', 'KI-Helfer']);
+const KNOWN = new Set(['English text', 'Ø {v} {unit}', 'max {v} {unit}']);
 
 const walk = (dir, out = []) => {
   for (const f of readdirSync(dir)) {

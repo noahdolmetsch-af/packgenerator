@@ -26,7 +26,7 @@ export default {
   'Looking at the photo …': 'Foto wird angeschaut …',
   'The KI-Helfer looks at the photo …': 'Der KI-Helfer schaut das Foto an …',
   'The recognition must be downloaded once. Connect to the internet and try again.': 'Die Erkennung muss einmal heruntergeladen werden. Verbinde dich mit dem Internet und versuch es nochmals.',
-  'The recognition did not start on this device. Try again, or use the KI-Helfer.': 'Die Erkennung startet auf diesem Gerät nicht. Versuch es nochmals oder nimm den KI-Helfer.',
+  'The recognition did not start on this device. Try again.': 'Die Erkennung startet auf diesem Gerät nicht. Versuch es nochmals.',
   'This picture could not be opened. Try a JPG or PNG photo.': 'Dieses Bild lässt sich nicht öffnen. Versuch ein JPG- oder PNG-Foto.',
   'Your photo with the things found': 'Dein Foto mit den gefundenen Sachen',
   'The photo goes once to the KI-Helfer (Claude by Anthropic), with the names of your list. It is not stored in the app.': 'Das Foto geht einmal an den KI-Helfer (Claude von Anthropic), mit den Namen deiner Liste. Die App speichert es nicht.',
