@@ -370,6 +370,7 @@ const LISTED_HOME = {
   'f.medlog': '#/flow/act/meditation/log',
   'f.medreview': '#/flow/act/meditation',
   'f.gipfelbuch': '#/flow/gipfelbuch',
+  'f.challenges': '#/flow/challenges',
   'f.routine': '#/me',
   'f.insights': '#/me/insights',
   'f.frei': '#/me/frei',

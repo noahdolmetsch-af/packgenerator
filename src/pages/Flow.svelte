@@ -21,6 +21,7 @@
    *   #/flow/review/tile «Verlauf und alle Zahlen» of one tile or sentence (?k=&w=)
    *   #/flow/review      «Wochenrückblick» (W1–W6, Noah 15.10.2026 «1-5 a»), ?w=<Monday> (pages/flow/WeekReview.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
+   *   #/flow/challenges  «Challenges» (Noah 21.11.2026 «4a»): Draussen and own daily goals with «Tick off» (pages/flow/Challenges.svelte, lazy)
    *   #/flow/gipfelbuch  v0.165.0 «Gipfelbuch für alle»: passes, summits, trails and places of every sport (pages/flow/Gipfelbuch.svelte)
    *   #/flow/act/<id>    hobby pages 2: Meditation's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
@@ -164,6 +165,9 @@
   <Activity />
 {:else if route[0] === 'milestones'}
   <Milestones {params} />
+{:else if route[0] === 'challenges'}
+  <!-- «Challenges» (Noah 21.11.2026 «4a»): the page of every challenge with a daily goal; loaded only when opened -->
+  {#await import('./flow/Challenges.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
 {:else if route[0] === 'gipfelbuch'}
