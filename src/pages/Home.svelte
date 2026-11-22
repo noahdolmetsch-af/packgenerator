@@ -48,6 +48,8 @@
   import { WEEKPLAN_KEY } from '../lib/training/wochenplan.js';
   import { WEEKLOG_KEY, logOf as planLogOf, setDone as planSetDone, dueToday as planDueToday } from '../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../lib/training/wochenplan-text.js';
+  import { startUnitDone } from '../lib/flow/ui.svelte.js';
+  import { needsSheet as needsUnitSheet } from '../lib/flow/unitdone.js';
   import { WEG_KEY, wegOf, todayStep as wegTodayStep, setDone as wegSetDone } from '../lib/weg/weg.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
@@ -844,8 +846,11 @@
     const due = planToday;
     if (!due) return;
     const before = (await db.settings.get(WEEKLOG_KEY))?.value ?? null;
+    const ticked = () => say(t('Ticked off: {what}.', { what: t(UNIT_NAME[u.type]) }), () => (before === null ? db.settings.delete(WEEKLOG_KEY) : db.settings.put({ key: WEEKLOG_KEY, value: before })));
+    // «Plan zuerst» (T4): a unit opens the short sheet (duration from the plan, feeling) and then «Geschafft»; the daily habits tick at once
+    if (needsUnitSheet(u.type)) return startUnitDone({ id: u.id, type: u.type, mins: u.mins, monday: due.monday, units: due.units, hours: due.hours, today, done: ticked });
     await db.settings.put({ key: WEEKLOG_KEY, value: planSetDone(planLogOf(before), due.monday, u.id, true, today, due.units, due.hours) });
-    say(t('Ticked off: {what}.', { what: t(UNIT_NAME[u.type]) }), () => (before === null ? db.settings.delete(WEEKLOG_KEY) : db.settings.put({ key: WEEKLOG_KEY, value: before })));
+    ticked();
   }
   async function wegStepDone(goal, stepId) {
     const before = wegOf(S[WEG_KEY]);
@@ -991,9 +996,9 @@
     return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
   };
   // «Heute neu» N2 (Noah «5a»): «Up now» shows only when something is up (the check and meditation live on top now)
-  // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
+  // the impulse of the day (ImpulseHint, every day since 21.11.2026) also counts: without it a day with nothing due showed no idea at all
   const impQ = cfgQuery();
-  const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
+  const impulseUp = $derived(!night && !!$impQ && !!todayImpulse($impQ, today));
   const essQ = freiRows('essential');
   const essUp = $derived(!night && !!$impQ && !!$essQ && !!essentialDue({ entries: $essQ, cfg: $impQ, today }));
   const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp && !essUp);
@@ -1305,7 +1310,7 @@
       {/if}
       {#if ready}<button type="button" class="lkb rowsbtn" onclick={() => (rowsOpen = true)} data-rows-open>{t('Choose rows')}</button>{/if}
       {#if ready && !night}<div class="impl"><WesentlichHint {today} /></div>{/if}
-      {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
+      {#if ready && !line && !night}<div class="impl"><ImpulseHint {today} {now} dry={wx?.dry ?? null} /></div>{/if}
     </section>
   </div>
 {/snippet}

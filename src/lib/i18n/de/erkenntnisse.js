@@ -1,10 +1,10 @@
 /** «Erkenntnisse» (Noah 19.10.2026 «4b» + «zusätzlich eine eigene Seite»). */
 export default {
   // Paket C 0.150.0: the function f.insights (features, handbook, howto)
-  'Open Me › Insights.': 'Öffne Auswerten › Erkenntnisse.',
+  'Open Me › Insights.': 'Öffne Auswerten › Zusammenhänge.',
   'Read the sentences: what goes together in your last 90 days.': 'Lies die Sätze: was in deinen letzten 90 Tagen zusammenhängt.',
   'Pairs with fewer than 14 days say «still collecting days».': 'Paare mit weniger als 14 Tagen sagen «Sammelt noch Tage».',
-  Insights: 'Erkenntnisse',
+  Insights: 'Zusammenhänge',
   'what goes together in your data, the last {n} days': 'was in deinen Daten zusammenhängt, die letzten {n} Tage',
   'more than {v} h of sleep': 'mehr als {v} h Schlaf',
   'sleep felt above {v}': 'Schlafgefühl über {v}',
@@ -30,12 +30,12 @@ export default {
   'goes together clearly': 'hängt deutlich zusammen',
   'goes together a little': 'hängt etwas zusammen',
   'Your resting pulse has been above your normal ({n}) for {d} days: {list}. Maybe keep an eye on recovery.': 'Dein Ruhepuls liegt seit {d} Tagen über deinem Normal ({n}): {list}. Vielleicht die Erholung im Blick behalten.',
-  'Nothing clear yet. Insights show from {n} days with both values.': 'Noch nichts Deutliches. Erkenntnisse zeigen sich ab {n} Tagen mit beiden Werten.',
+  'Nothing clear yet. Insights show from {n} days with both values.': 'Noch nichts Deutliches. Zusammenhänge zeigen sich ab {n} Tagen mit beiden Werten.',
   'Still collecting days': 'Sammelt noch Tage',
   'the day after': 'am Tag danach',
   '{n} of {m} days': '{n} von {m} Tagen',
   'Going together is not a cause. Only to look at, never a diagnosis. Everything stays on the device.': 'Zusammenhang ist keine Ursache. Nur zum Anschauen, nie eine Diagnose. Alles bleibt auf dem Gerät.',
-  'All insights': 'Alle Erkenntnisse',
+  'All insights': 'Alle Zusammenhänge',
   'Your answers, Fitbit, Strava, meditation, weather and calendar side by side: what goes together, in one sentence each.': 'Deine Antworten, Fitbit, Strava, Meditation, Wetter und Kalender nebeneinander: was zusammenhängt, je in einem Satz.',
   'What goes together: sleep, battery, rides, weather, appointments': 'Was zusammenhängt: Schlaf, Akku, Fahrten, Wetter, Termine',
   // Noah 19.10.2026 «2a 3a 4a und b möglich»: weather, daylight, appointments, own questions

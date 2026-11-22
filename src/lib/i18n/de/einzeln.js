@@ -78,8 +78,8 @@ export default {
 
   // 37 Sprachfrage als Text weiterführen
   'What you said so far is in the field; type on.': 'Was du bisher gesagt hast, steht im Feld; tippe weiter.',
-  "Tap the microphone in the search and say it: a command runs at once with Undo, a question gets the app's answer, Gemini or «Ask further at». Me › Search sets who answers. When the microphone fails, what you said so far stays as text.":
-    'Tippe auf das Mikrofon in der Suche und sag es: Ein Befehl läuft sofort mit Rückgängig, eine Frage bekommt die Antwort der App, von Gemini oder «Weiter fragen bei». Unter Ich › Suche stellst du ein, wer antwortet. Fällt das Mikrofon aus, bleibt das bisher Gesagte als Text.',
+  "Tap the microphone in the search and say it: a command runs at once with Undo, a question gets the app's answer or «Ask further at». When the microphone fails, what you said so far stays as text.":
+    'Tippe auf das Mikrofon in der Suche und sag es: Ein Befehl läuft sofort mit Rückgängig, eine Frage bekommt die Antwort der App oder «Weiter fragen bei». Fällt das Mikrofon aus, bleibt das bisher Gesagte als Text.',
   'Say a command or a question; if the microphone fails, type on.': 'Sag einen Befehl oder eine Frage; fällt das Mikrofon aus, tippe weiter.',
 
   // 38 Bild umwandeln ohne Überschreiben

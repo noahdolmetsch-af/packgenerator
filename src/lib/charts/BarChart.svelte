@@ -78,7 +78,7 @@
   }
 </script>
 
-<div class="bc" data-chart={id}>
+<div class="bc" class:few={n <= 12} data-chart={id}>
   {#if table}
     <div class="vw"><Seg small full={false} label={t('Show as')} value={view} onchange={(v) => (view = v)} options={[{ key: 'chart', name: t('Chart|table') }, { key: 'table', name: t('As table') }]} /></div>
   {/if}
@@ -125,7 +125,7 @@
   .g {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: var(--h) auto;
+    grid-template-rows: max(var(--h), 140px) auto;
   }
   .g > :global([data-yticks]) {
     grid-row: 1;
@@ -174,6 +174,9 @@
     border-radius: 50%;
     transform: translate(-50%, 50%);
     pointer-events: none;
+  }
+  .few .xs {
+    font-size: var(--fs-small);
   }
   .xs {
     position: relative;

@@ -4,6 +4,7 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
+import { flowSeeded } from './wall-fixture.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
 const fill = (en, vars) => Object.entries(vars).reduce((s, [k, v]) => s.replace(`{${k}}`, v), T(en));
@@ -61,14 +62,22 @@ test('Wochenplan: tick a unit, progress follows, the tick stays after a reload a
   const errors = await open(page, context);
   const root = page.locator('[data-wochenplan]');
   await start(page);
+  await flowSeeded(page); // the twelve sports (the sheet counts the unit on one of them)
   const { total, quiet } = await counts(page);
   await expect(root.locator('[data-wp-done]')).toHaveText(fill('{a} of {b} units', { a: 0, b: total }));
   await expect(root.locator('[data-wp-quiet]')).toHaveText(fill('Meditation and stretching: {a} of {b}.', { a: 0, b: quiet }));
   const tennis = root.locator('[data-wp-tick="tennis@1"]');
-  await tennis.check();
+  // «Plan zuerst» (T4): the tick opens the short sheet, nothing is ticked before «Speichern»; then «Geschafft» opens
+  await tennis.click();
+  const sheet = page.locator('[data-unit-sheet]');
+  await expect(sheet).toBeVisible();
+  await expect(tennis).not.toBeChecked();
+  await sheet.locator('[data-unit-save]').click();
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
+  await page.goto('./#/flow/wochenplan');
+  await ready(page);
   await expect(root.locator('[data-wp-done]')).toHaveText(fill('{a} of {b} units', { a: 1, b: total }));
   await expect(root.locator('[data-unit="tennis@1"]')).toHaveClass(/ticked/);
-  await expect(root.locator('[data-wp-msg]')).toContainText('Abgehakt');
   await shot(page, info, 'wochenplan-abhaken');
   // a plan change does not move the tick: one yoga unit less, tennis stays ticked
   await root.locator('[data-wp-dec="yoga"]').click(); // one unit less in total
@@ -91,6 +100,7 @@ test('Wochenplan: tick a unit, progress follows, the tick stays after a reload a
 test('Wochenplan: «Heute dran» on Heute ticks the unit, and Undo takes it back', async ({ page, context }, info) => {
   const errors = await open(page, context);
   await start(page);
+  await flowSeeded(page);
   await page.goto('./#/');
   await ready(page);
   const row = page.locator('[data-row="plan"]');
@@ -99,6 +109,9 @@ test('Wochenplan: «Heute dran» on Heute ticks the unit, and Undo takes it back
   await expect(row).toContainText(T('Tennis'));
   await shot(page, info, 'heute-dran');
   await row.getByRole('button', { name: T('Done ✓') }).click();
+  // «Plan zuerst» (T4): the short sheet, then «Geschafft»
+  await page.locator('[data-unit-sheet] [data-unit-save]').click();
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
   await page.goto('./#/flow/wochenplan');
   await ready(page);
   await expect(page.locator('[data-wochenplan] [data-wp-tick="tennis@1"]')).toBeChecked();

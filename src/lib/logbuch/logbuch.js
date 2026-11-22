@@ -12,19 +12,18 @@
  *   state   'open' | 'draft' (a draft was made) | 'done' | 'noted'
  */
 
-/** The kinds in their groups, the order of the window. */
-export const GROUPS = [
-  { key: 'wrong', arts: ['fehler', 'zahl', 'langsam'] },
-  { key: 'clear', arts: ['text', 'erklaerung', 'hinweis', 'finde'] },
-  { key: 'build', arts: ['anordnung', 'layout', 'bedienung', 'wegdamit'] },
-  { key: 'new', arts: ['idee', 'gutso'] },
-];
-export const ARTS = GROUPS.flatMap((g) => g.arts);
+import { DEFAULT_KINDS, groupList, artList, routeOfArt, groupOfArt } from './kinds.js';
 
-/** Noah's rule (21.11.2026 «3a»): small things go straight into one small change; the rest gets a picture first. */
-const DIRECT = ['fehler', 'zahl', 'langsam', 'text', 'erklaerung', 'hinweis'];
-export const routeOf = (art) => (art === 'gutso' ? 'note' : DIRECT.includes(art) ? 'direct' : 'draft');
-export const groupOf = (art) => GROUPS.find((g) => g.arts.includes(art))?.key ?? null;
+/**
+ * The kinds in their groups, the order of the window. L5 (Noah 22.11.2026): the user can rename and order them (kinds.js), so
+ * every function below takes the user's list as `cfg` and uses the first version when none is given.
+ */
+export const GROUPS = groupList(DEFAULT_KINDS);
+export const ARTS = artList(DEFAULT_KINDS);
+
+/** Noah's rule (21.11.2026 «3a»): small things go straight into one small change; the rest gets a picture first (kinds.js standardRoute). */
+export const routeOf = (art, cfg = DEFAULT_KINDS) => routeOfArt(art, cfg);
+export const groupOf = (art, cfg = DEFAULT_KINDS) => groupOfArt(art, cfg);
 
 export const STATES = ['open', 'draft', 'done', 'noted'];
 export const URGENT = ['now', 'later'];
@@ -35,19 +34,20 @@ const clean = (s, max) => String(s ?? '').trim().slice(0, max);
  * A new entry from what the window collected. Returns null without a valid kind or without a text.
  * `now` is a Date (the day is the local calendar day of the device, never a UTC cut).
  */
-export function makeEntry({ art, urgent, text, page, block, device, width, now = new Date(), id, photo = null, source = 'user' }) {
-  if (!ARTS.includes(art)) return null;
+export function makeEntry({ art, urgent, text, page, pageTitle = '', block, device, width, now = new Date(), id, photo = null, photoNote = null, source = 'user', cfg = DEFAULT_KINDS }) {
+  if (!artList(cfg).includes(art) && !(source === 'auto' && art === '')) return null; // '' = without a kind: only what the app notes itself, when «Error» is gone
   const body = clean(text, 1000);
   if (!body) return null;
-  const route = routeOf(art);
+  const route = art === '' ? 'direct' : routeOf(art, cfg);
   const pad = (n) => String(n).padStart(2, '0');
   const day = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
   return {
     id: id ?? `lb-${now.getTime().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
     art,
-    urgent: art === 'gutso' ? null : URGENT.includes(urgent) ? urgent : 'later',
+    urgent: route === 'note' ? null : URGENT.includes(urgent) ? urgent : 'later',
     text: body,
     page: clean(page, 200),
+    pageTitle: clean(pageTitle, 80), // the shown title of the page («Training»), set by the button «Verbessern»
     block: clean(block, 80),
     route,
     device: device === 'computer' ? 'computer' : 'phone',
@@ -56,22 +56,23 @@ export function makeEntry({ art, urgent, text, page, block, device, width, now =
     day,
     state: route === 'note' ? 'noted' : 'open',
     photo,
+    photoNote: photo ? null : photoNote === 'cap' || photoNote === 'failed' ? photoNote : null, // why there is no photo: 'failed' or 'cap' (the memory for photos is full)
     source: source === 'auto' ? 'auto' : 'user',
     count: 1,
   };
 }
 
 /** A change of an entry (kind, text, urgency, place, state): keeps what must stay (id, time, photo) and the rules. */
-export function changeEntry(entry, patch = {}) {
-  const art = patch.art && ARTS.includes(patch.art) ? patch.art : entry.art;
-  const route = routeOf(art);
+export function changeEntry(entry, patch = {}, cfg = DEFAULT_KINDS) {
+  const art = patch.art && artList(cfg).includes(patch.art) ? patch.art : entry.art;
+  const route = art === '' ? entry.route ?? 'draft' : routeOf(art, cfg); // without a kind (its kind was deleted): the way it had stays
   const text = patch.text === undefined ? entry.text : clean(patch.text, 1000);
   const out = {
     ...entry,
     art,
     route,
     text: text || entry.text,
-    urgent: art === 'gutso' ? null : URGENT.includes(patch.urgent) ? patch.urgent : entry.urgent ?? 'later',
+    urgent: route === 'note' ? null : URGENT.includes(patch.urgent) ? patch.urgent : entry.urgent ?? 'later',
     page: patch.page === undefined ? entry.page : clean(patch.page, 200),
     block: patch.block === undefined ? entry.block : clean(patch.block, 80),
   };
@@ -91,16 +92,24 @@ export function sortEntries(list) {
 }
 
 /** The entries of a group ('' or 'all' = every entry), sorted. */
-export function filterEntries(list, group = 'all') {
-  return sortEntries(group && group !== 'all' ? list.filter((e) => groupOf(e.art) === group) : list);
+export function filterEntries(list, group = 'all', cfg = DEFAULT_KINDS) {
+  return sortEntries(group && group !== 'all' ? list.filter((e) => groupOf(e.art, cfg) === group) : list);
 }
 
 /** The numbers of the chips and the headline: { all, open, now, wrong, clear, build, new }. */
-export function counts(list) {
+export function counts(list, cfg = DEFAULT_KINDS) {
   const out = { all: list.length, open: list.filter(isOpen).length, now: list.filter((e) => isOpen(e) && e.urgent === 'now').length };
-  for (const g of GROUPS) out[g.key] = list.filter((e) => groupOf(e.art) === g.key).length;
+  for (const g of cfg.groups) out[g.key] = list.filter((e) => groupOf(e.art, cfg) === g.key).length;
   return out;
 }
 
 /** The device of this browser: a narrow screen is a phone (the same border the app uses for its phone layout). */
 export const deviceOf = (width) => (Number(width) >= 900 ? 'computer' : 'phone');
+
+/**
+ * The entries of a kind that is deleted (L5, Noah 22.11.2026 «3a»): they go to another kind (`to`) or stay without a kind (''), never deleted.
+ * cfg: the list AFTER the delete (the new kind must be in it). Returns only the entries that change.
+ */
+export function reassignEntries(list, from, to, cfg) {
+  return list.filter((e) => e.art === from).map((e) => (to ? changeEntry(e, { art: to }, cfg) : { ...e, art: '' }));
+}

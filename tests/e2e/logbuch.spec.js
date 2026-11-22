@@ -118,3 +118,140 @@ test('Logbuch: a row on Ich leads to it and the page sits under Ich', async ({ p
   await expect(page.locator('[data-logbuch]')).toBeVisible();
   await expect(page).toHaveURL(/#\/me\/logbuch/);
 });
+
+test('Logbuch: the closed line «What you can do here» opens the help', async ({ page, context }, info) => {
+  await open(page, context);
+  await page.goto('./#/me/logbuch');
+  await ready(page);
+  const line = page.locator('[data-seiteninhalt-line]');
+  await expect(line).toBeVisible();
+  await press(line, info);
+  await expect(page.locator('[data-logbuch-help], dialog[open]').first()).toBeVisible();
+});
+
+test('Logbuch: rename and order the kinds, Undo, back to standard, the entries follow (L5 step 1)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const pg = page.locator('[data-logbuch]');
+  await press(pg.locator('[data-empty] .btn.hi'), info);
+  await write(page, info, { art: 'fehler', text: 'Die Zahl im Kopf springt beim Laden.', pageText: '#/flow/training' });
+
+  // the window from the card at the bottom
+  await press(pg.locator('[data-lb-kinds]'), info);
+  const win = page.locator('[data-kinds-sheet]');
+  await expect(win).toBeVisible();
+  await expect(win.locator('[data-kd-group]')).toHaveCount(4);
+  await expect(win.locator('[data-kd-art]')).toHaveCount(13);
+  await expect(win.locator('[data-kinds-reset]')).toBeDisabled();
+  await expect(win.locator('[data-kd-art="fehler"]')).toContainText('1');
+  if (SHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${SHOTS}/arten-fenster-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+
+  // rename a kind in the «⋯» menu
+  await press(win.locator('[data-kd-art="fehler"] [data-row-menu]'), info);
+  await press(page.locator('[data-menu="rename"]'), info);
+  const field = page.locator('dialog[open] input').last();
+  await field.fill('Kaputt');
+  await field.press('Enter');
+  await expect(win.locator('[data-kd-art="fehler"]')).toContainText('Kaputt');
+  await expect(win.locator('[data-kinds-reset]')).toBeEnabled();
+  // Undo inside the window
+  await press(win.locator('[data-kinds-undo] button'), info);
+  await expect(win.locator('[data-kd-art="fehler"]')).not.toContainText('Kaputt');
+
+  // rename a group and move a kind one place down with the arrow
+  await press(win.locator('[data-kd-group="wrong"] .kd-head [data-row-menu]'), info);
+  await press(page.locator('[data-menu="rename"]'), info);
+  const f2 = page.locator('dialog[open] input').last();
+  await f2.fill('Schlecht');
+  await f2.press('Enter');
+  await expect(win.locator('[data-kd-group="wrong"] .kd-head')).toContainText('Schlecht');
+  const first = win.locator('[data-kd-group="wrong"] [data-kd-art]').first();
+  await expect(first).toHaveAttribute('data-kd-art', 'fehler');
+  await press(first.locator('.sort-ar').nth(1), info);
+  await expect(win.locator('[data-kd-group="wrong"] [data-kd-art]').first()).toHaveAttribute('data-kd-art', 'zahl');
+  if (SHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${SHOTS}/arten-umbenannt-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await press(win.locator('.vd-x'), info);
+  await expect(win).toBeHidden();
+
+  // the list, the filter and the entry follow; it stays after a reload
+  await expect(pg.locator('[data-lb-group="wrong"]')).toContainText('Schlecht');
+  await expect(pg.locator('[data-lb-entry][data-art="fehler"] .pill').first()).toContainText(T('Error|logbuch'));
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-lb-group="wrong"]')).toContainText('Schlecht');
+
+  // back to standard
+  await press(page.locator('[data-lb-kinds]'), info);
+  await press(page.locator('[data-kinds-reset]'), info);
+  await expect(page.locator('[data-kinds-reset]')).toBeDisabled();
+  await press(page.locator('[data-kinds-sheet] .vd-x'), info);
+  await expect(page.locator('[data-lb-group="wrong"]')).toContainText(T('Wrong'));
+  expect(errors).toEqual([]);
+});
+
+test('Logbuch: delete a kind and a group, the question comes first, entries and kinds stay, Undo (L5 step 2)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const pg = page.locator('[data-logbuch]');
+  await press(pg.locator('[data-empty] .btn.hi'), info);
+  await write(page, info, { art: 'zahl', text: 'In der Wochensumme steht 9 statt 8.', pageText: '#/week' });
+  await press(pg.locator('[data-lb-kinds]'), info);
+  const win = page.locator('[data-kinds-sheet]');
+  await expect(win).toBeVisible();
+
+  // delete a kind: the window asks where its entry goes, «Ohne Art» is chosen
+  await press(win.locator('[data-kd-art="zahl"] [data-row-menu]'), info);
+  await press(page.locator('[data-menu="delete"]').last(), info);
+  const ask = page.locator('dialog.gds[open]');
+  await expect(ask).toBeVisible();
+  await expect(ask).toContainText(T('No kind'));
+  await expect(ask.locator('input[type="radio"]').first()).toBeChecked();
+  if (SHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${SHOTS}/arten-loeschen-frage-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await press(ask.locator('.btn.del'), info);
+  await expect(win.locator('[data-kd-art="zahl"]')).toHaveCount(0);
+  await expect(win.locator('[data-kd-art]')).toHaveCount(12);
+  await expect(win.locator('[data-kinds-undo]')).toContainText('«Zahl falsch»');
+  // Undo brings the kind back
+  await press(win.locator('[data-kinds-undo] button'), info);
+  await expect(win.locator('[data-kd-art="zahl"]')).toHaveCount(1);
+
+  // delete the kind again, then the group «Falsch» with all its kinds: they go to «Ohne Gruppe»
+  await press(win.locator('[data-kd-art="zahl"] [data-row-menu]'), info);
+  await press(page.locator('[data-menu="delete"]').last(), info);
+  await press(page.locator('dialog.gds[open] .btn.del'), info);
+  await press(win.locator('[data-kd-group="wrong"] .kd-head [data-row-menu]'), info);
+  await press(page.locator('[data-menu="delete"]').last(), info);
+  const gask = page.locator('dialog.gds[open]');
+  await expect(gask).toContainText(T('No group'));
+  await press(gask.locator('.btn.del'), info);
+  await expect(win.locator('[data-kd-group="wrong"]')).toHaveCount(0);
+  await expect(win.locator('[data-kd-group="ohne"] [data-kd-art]')).toHaveCount(2); // Fehler, Zu langsam (Zahl falsch is gone)
+  await expect(win.locator('[data-kd-group="ohne"] .kd-head [data-row-menu]')).toBeVisible();
+  if (SHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${SHOTS}/arten-geloescht-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await press(win.locator('.vd-x'), info);
+
+  // the entry has no kind any more and can still be changed; the filter has the new group
+  const entry = pg.locator('[data-lb-entry]').first();
+  await expect(entry.locator('.pill').first()).toContainText(T('No kind'));
+  await expect(pg.locator('[data-lb-group="ohne"]')).toContainText(T('No group'));
+  await press(entry.locator('[data-lb-edit]'), info);
+  const sheet = page.locator('[data-logbuch-sheet]');
+  await sheet.locator('[data-lb-text]').fill('In der Wochensumme steht 9 statt 8 (geprüft).');
+  await press(sheet.locator('[data-lb-save]'), info);
+  await expect(sheet).toBeHidden();
+  await expect(entry).toContainText('geprüft');
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-lb-entry]').first().locator('.pill').first()).toContainText(T('No kind'));
+  expect(errors).toEqual([]);
+});

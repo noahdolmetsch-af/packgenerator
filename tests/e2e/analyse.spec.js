@@ -63,10 +63,11 @@ test('Aktiv heute: the dots never cover a name, More opens Analyse', async ({ pa
   await card.scrollIntoViewIfNeeded();
   await expect(card.locator('[data-act]').first()).toBeVisible();
   // every name ends left of its «•••», on every tile
-  const tiles = card.locator('li');
+  const tiles = card.locator('li:has([data-act])'); // only the activity tiles: the week stars below are list items too
   const n = await tiles.count();
   expect(n).toBeGreaterThan(0);
   for (let i = 0; i < n; i++) {
+    await expect(tiles.nth(i).locator('.more')).toBeVisible(); // measure only a tile that is drawn
     const name = await tiles.nth(i).locator('.tx b').boundingBox();
     const dots = await tiles.nth(i).locator('.more').boundingBox();
     expect(name.x + name.width, `tile ${i}`).toBeLessThanOrEqual(dots.x + 0.5);

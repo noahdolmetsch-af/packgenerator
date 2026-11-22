@@ -1,7 +1,7 @@
 <script>
   /**
    * «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»): Ich › Suche (#/me/suche). What the top
-   * search does with the microphone and which ones answer there: the app from your data, Gemini (free),
+   * search does with the microphone and which ones answer there: the app from your data,
    * «Ask further at» (Claude, ChatGPT … in a new tab), Chrome's AI, the AI on this device. Every source
    * can be switched off; everything is kept only on this device. The speech model is the one of the
    * dictation (Ich › Darstellung › Bedienung), shown here too.
@@ -14,7 +14,6 @@
   import { dict, setDict } from '../lib/dictation.svelte.js';
   import { ENGINES, speechApi, voiceApi } from '../lib/speak.js';
   import { SERVICES, SERVICE_KEYS, shownServices } from '../lib/assistent/elsewhere.js';
-  import { helper, isOn } from '../lib/helper/client.svelte.js';
   import { aiStatus } from '../lib/kisuche/chromeAi.js';
 
   const hasBrowser = !!speechApi();
@@ -29,9 +28,6 @@
   }
   const SOURCES = [
     { key: 'app', name: 'The app, from your data', text: 'Free, on this device. Answers questions like «How many km this week?» or «When is the next service?».' },
-    { key: 'gemini', name: 'Gemini (free)', text: 'A free AI from Google answers right in the search when the app knows nothing. Needs the helper code (Me › AI helper); Google may use the questions to learn.' },
-    { key: 'geminiAuto', name: 'Gemini answers a spoken question by itself', text: 'Only when the app has no answer. Typed questions get a button «Ask Gemini here».', sub: true },
-    { key: 'understand', name: 'Gemini understands sentences', text: 'A sentence the app does not know («create a list …», «remind me …») goes to Gemini, which turns it into actions. You see what it understood first and tap «OK». Only the sentence and the names of your bikes and trips are sent. Google may use them to learn.', sub: true },
     { key: 'links', name: 'Ask further at …', text: 'Buttons that open Claude, ChatGPT and others in a new tab with your question. Free with your normal account.' },
     { key: 'chrome', name: 'Chrome AI', text: 'The AI built into Chrome on a computer answers on the device. Only where Chrome offers it.' },
     { key: 'local', name: 'AI on this device', text: 'The AI you loaded onto this device answers without internet.' },
@@ -64,15 +60,12 @@
     <p class="note">{t('Switch off what you do not want. The order in the search: first what the app does, then its answer, then the AIs.')}</p>
     <ul class="su-sw">
       {#each SOURCES as s (s.key)}
-        {#if !s.sub || suche.gemini}
-          <li class:sub={s.sub}>
+          <li>
             <label><span><b>{t(s.name)}</b><small>{t(s.text)}</small>
-              {#if s.key === 'gemini' && !helper.code}<small class="warn">{t('Not ready yet: the helper code is missing.')} <a href="#/helper">{t('Me › AI helper')}</a></small>{/if}
               {#if s.key === 'local'}<small><a href="#/me/look">{t('AI without internet: load it once (Me › Appearance › Handling)')}</a></small>{/if}
               {#if s.key === 'chrome' && chromeAi === 'none'}<small>{t('Not on this device.')}</small>{/if}
             </span><input type="checkbox" role="switch" checked={suche[s.key]} onchange={(e) => setSuche(s.key, e.currentTarget.checked)} data-suche={s.key} /></label>
           </li>
-        {/if}
       {/each}
     </ul>
     {#if suche.links}
@@ -83,7 +76,6 @@
         {/each}
       </ul>
     {/if}
-    <p class="note"><b>{t('AI helper (Claude)')}</b> · {isOn() ? t('on: answers questions in the search on Enter, within your monthly cap.') : t('off. It costs money and has its own switch.')} <a href="#/helper">{t('Me › AI helper')}</a></p>
   </section>
 </div>
 
@@ -128,16 +120,9 @@
     display: grid;
     gap: 2px;
   }
-  .su-sw li.sub {
-    padding-left: 16px;
-    border-left: 2px solid var(--line);
-  }
   small {
     color: var(--ink-3);
     font-size: var(--fs-small);
-  }
-  small.warn {
-    color: var(--warn);
   }
   .sv label {
     display: flex;

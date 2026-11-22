@@ -159,10 +159,11 @@
     <!-- Noah 06.11.2026 «2a» (Durchklick Etappe 4): the bikes first, «Alles hier» (the functions) under them -->
     <BikeCards bikeId={shownBike} onbike={pickBike} />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />
-    <AllHere area="bikes" vars={{ bike: tileBike }} />
     <PinnedLists place="bikes" />
     {#if shownBike}<LinkedTodos kind="bike" ref={shownBike} />{/if}
     <PageTiles page="bikes" extrasHint />
+    <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+    <AllHere area="bikes" vars={{ bike: tileBike }} />
   {/if}
 </div>
 

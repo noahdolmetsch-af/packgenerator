@@ -38,7 +38,7 @@ const ROUTES = [
   ['#/debrief', 'Trips|place'],
   ['#/debrief/test_data_gtp_none', 'Trips|place'],
   // v0.76.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox lives in «Ich» (no place lit)
-  ['#/flow', 'Active|place'], // «Aktiv neu» (Noah 22.10.2026): Aktiv again
+  ['#/flow', 'Plan|place'], // V4a (Noah 21.11.2026): Aktiv is part of Woche
   ['#/auswerten', 'Analysis|place'], // «Aktiv neu»: Auswerten shares Aktiv's slot on a phone
   ['#/flow/form', 'Analysis|place'],
   ['#/inbox', 'Plan|place'], // UI-Ziele #6: Planen › Eingang
@@ -72,7 +72,6 @@ for (const lang of ['en', 'de']) {
       await expect(places, hash).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => T((!side && p.bar) || p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
       if (['Gear|place', 'Bikes|place', 'Equipment|place'].includes(place) && !side) await expect(lit, hash).toHaveText(T('Bikes and gear|place')); // N1: on a phone Material shares the slot of Velos
-      else if (place === 'Analysis|place' && !side) await expect(lit, hash).toHaveText(T('Active|place')); // «Aktiv neu»: Auswerten shares the slot of Aktiv
       else if (place) await expect(lit, hash).toHaveText(T(place));
       else await expect(lit, hash).toHaveCount(0);
       await expect(page.locator('main'), hash).not.toBeEmpty();

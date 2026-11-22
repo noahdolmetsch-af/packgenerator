@@ -71,7 +71,7 @@ export default {
   'on: answers questions in the search on Enter, within your monthly cap.': 'an: beantwortet Fragen in der Suche mit Enter, innerhalb deines Monatsdeckels.',
   'off. It costs money and has its own switch.': 'aus. Er kostet Geld und hat einen eigenen Schalter.',
   // catalogue
-  "Tap the microphone in the search and say it: a command runs at once with Undo, a question gets the app's answer, Gemini or «Ask further at». Me › Search sets who answers.": 'Tippe auf das Mikrofon in der Suche und sag es: Ein Befehl läuft sofort mit Rückgängig, eine Frage bekommt die Antwort der App, von Gemini oder «Weiter fragen bei». Unter Ich › Suche stellst du ein, wer antwortet.',
+  "Tap the microphone in the search and say it: a command runs at once with Undo, a question gets the app's answer or «Ask further at».": 'Tippe auf das Mikrofon in der Suche und sag es: Ein Befehl läuft sofort mit Rückgängig, eine Frage bekommt die Antwort der App oder «Weiter fragen bei».',
   'Tap the microphone in the search.': 'Tippe auf das Mikrofon in der Suche.',
   'Say a command or a question.': 'Sag einen Befehl oder eine Frage.',
   'Me › Search sets who answers.': 'Unter Ich › Suche stellst du ein, wer antwortet.',

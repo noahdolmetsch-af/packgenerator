@@ -2,25 +2,19 @@
   /**
    * Paket N #1047 (Noah 19.10.2026 «5 a und nutzer kann b ausschalten und ausblenden»): one goal with its
    * steps. You type steps (one per line) and the app spreads their dates up to the goal's day (5a). When
-   * the AI helper is on and AI suggestions are not switched off on this page, «Suggest steps» asks it (5b);
-   * you tick which suggestions to take. Each step: tick done, change its date, remove it.
+   * Each step: tick done, change its date, remove it.
    * onchange(goal) saves; onremove(id) deletes (the page asks first and offers Undo).
    */
   import DateInput from '../ui/DateInput.svelte';
-  import { addSteps, takeSuggested, goalProgress, stepsPayload, spreadOpen } from '../compass.js';
-  import { ask, isOn, errorText, helper } from '../helper/client.svelte.js';
+  import { addSteps, goalProgress, spreadOpen } from '../compass.js';
   import { localDay } from '../localday.js';
-  import { t, tn, locale, isDe } from '../i18n.svelte.js';
-  import { Sparkles, Trash2, Plus, Check, Target } from '@lucide/svelte';
+  import { t, tn, locale } from '../i18n.svelte.js';
+  import { Trash2, Plus, Target } from '@lucide/svelte';
 
-  let { goal, ai = { off: false, hidden: false }, onchange, onremove } = $props();
+  let { goal, onchange, onremove } = $props();
   const today = localDay();
   const p = $derived(goalProgress(goal, today));
   let lines = $state('');
-  let asking = $state(false);
-  let sugg = $state(null); // [{ text, date, take }]
-  let msg = $state('');
-  const aiShown = $derived(!ai.hidden && !ai.off && isOn());
 
   const dayText = (d) => (d ? new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) : '');
   const put = (g) => onchange?.(g);
@@ -29,19 +23,6 @@
     if (!lines.trim()) return;
     put(addSteps(goal, lines, today));
     lines = '';
-  }
-  async function suggest() {
-    msg = '';
-    asking = true;
-    const r = await ask('steps', stepsPayload(goal, today, isDe() ? 'de' : 'en'));
-    asking = false;
-    if (!r.ok) return (msg = errorText(r.error, { capChf: helper.capChf, loc: locale() }));
-    sugg = (r.result?.steps ?? []).map((s) => ({ ...s, take: true }));
-    if (!sugg.length) ((sugg = null), (msg = t('The helper had no steps to suggest.')));
-  }
-  function takeIt() {
-    put(takeSuggested(goal, sugg, today));
-    sugg = null;
   }
   const setStep = (id, patch) => put({ ...goal, steps: goal.steps.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
   const dropStep = (id) => put({ ...goal, steps: goal.steps.filter((s) => s.id !== id) });
@@ -76,17 +57,8 @@
     <p class="hint">{t('The app spreads the dates up to the goal day; you can change each one.')}</p>
     <div class="row">
       <button type="submit" class="btn"><Plus size={16} aria-hidden="true" />{t('Add steps')}</button>
-      {#if aiShown}<button type="button" class="btn" disabled={asking} onclick={suggest} data-ai-steps><Sparkles size={16} aria-hidden="true" />{asking ? t('Asking …') : t('Suggest steps')}</button>{/if}
     </div>
   </form>
-  {#if sugg}
-    <div class="sugg" data-suggestions>
-      <p class="lbl">{t('Suggestions of the AI helper: tick what you take')}</p>
-      {#each sugg as s, i (i)}<label class="ck"><input type="checkbox" bind:checked={s.take} /><span>{s.text}{s.date ? ` · ${dayText(s.date)}` : ''}</span></label>{/each}
-      <div class="row"><button type="button" class="btn hi" onclick={takeIt}><Check size={16} aria-hidden="true" />{t('Take the ticked steps')}</button><button type="button" class="btn" onclick={() => (sugg = null)}>{t('Discard')}</button></div>
-    </div>
-  {/if}
-  {#if msg}<p class="err" role="alert">{msg}</p>{/if}
   <div class="foot">
     <button type="button" class="btn" onclick={() => onremove?.(goal.id)}>{t('Delete')}</button>
     <GoalEnd {goal} {put} /><!-- Paket A part 1: reached, changed or let go -->
@@ -196,12 +168,5 @@
     justify-content: flex-end;
     border-top: 1px solid var(--line);
     padding-top: 8px;
-  }
-  .sugg {
-    display: grid;
-    gap: 4px;
-    padding: 8px;
-    border-radius: var(--r-ctl);
-    background: var(--paper-2);
   }
 </style>

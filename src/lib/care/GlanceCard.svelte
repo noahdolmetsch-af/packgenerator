@@ -17,7 +17,7 @@
   import { levelName } from '../inspect/names.js';
   import { chainGlance, serviceGlance, checkGlance, costGlance } from './glance.js';
 
-  let { bike, visits = [], entries = [], onrecord = null } = $props();
+  let { bike, visits = [], entries = [], onrecord = null, onverlauf = null } = $props();
 
   const today = localDay();
   const inspQ = liveQuery(() => db.inspections.toArray());
@@ -107,7 +107,7 @@
       {:else}
         <p class="empty">{t('No costs recorded in {year}. Prices of visits and parts add up here.', { year: cost.year })}</p>
       {/if}
-      <div class="acts"><a class="btn sm" href={bikesHash({ tab: 'care', view: 'year', bike: bike.id })}>{t('Year summary')}</a></div>
+      <div class="acts"><a class="btn sm" href={bikesHash({ tab: 'care', view: 'year', bike: bike.id })}>{t('Year summary')}</a>{#if onverlauf}<button type="button" class="btn sm" onclick={onverlauf} data-glance-verlauf>{t('See history')}</button>{/if}</div>
     </div>
   </div>
 </section>

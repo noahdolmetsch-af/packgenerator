@@ -708,7 +708,6 @@
   <!-- «Einstieg» (Noah 15.10.2026 «1a 2a 3a 4a»); the wishlist has its own «Einkauf» (Noah «4a»).
     Noah 19.10 «2a»: one card per page; the Einstieg lives in the card «Was hier steht» (its own card only while the page is empty) -->
   {#if !mode && !items.length && $itemsQuery}{#key view === 'wish'}<AreaIntro place={view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
-  {#if !mode && !selecting && view !== 'wish'}<AllHere area="gear" />{/if}
 
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
   {#if items.length}{#key view === 'wish'}<HintCard page={view === 'wish' ? 'einkauf' : 'gear'} intro={mode ? null : view === 'wish' ? 'einkauf' : 'material'} />{/key}{/if}
@@ -1021,6 +1020,8 @@
     <!-- SK: the tile row at the page end (SK4) -->
     {#if !selecting}<PinnedLists place="gear" />{/if}
     {#if !selecting && view !== 'wish'}<PageTiles page="gear" />{/if}
+    <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+    {#if !mode && !selecting && view !== 'wish'}<AllHere area="gear" />{/if}
   {/if}
 </div>
 
