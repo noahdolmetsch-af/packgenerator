@@ -14,7 +14,7 @@ export default {
   'f.progress': "Write the value right after the set; the quick entry fills in the last one, so you only change what moved.",
   'f.abfragen': "Fewer questions get answered longer. Three good ones beat twelve you skip after a week.",
   'f.datenfragen': "Answer «Nothing special» when nothing comes to mind: that is an answer too, and it shows which days really are different.",
-  'f.trainingpeaks': "A session you change here stays as you made it: TrainingPeaks does not overwrite it with the next fetch.",
+  'f.trainingpeaks': "A session you change here stays as you made it: TrainingPeaks does not overwrite it with the next fetch. In the weekly plan it counts towards your hours of the week; the plan only adds the rest.",
   'f.training': "Most of the time in the easy zones is normal for long rides; the hard minutes are the spice, not the meal.",
   'f.wochenplan': "A plan with fewer units that you keep beats a full one you drop after two weeks; start with the hours you really have.",
   'f.trainplans': "A plan is a suggestion: move a session when life gets in the way, the week still counts.",
