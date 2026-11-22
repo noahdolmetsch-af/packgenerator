@@ -39,7 +39,7 @@ export const ON_PAGES = [
   '#/auswerten/analyse', '#/me/abfragen', '#/me/insights', '#/me/weight', '#/me/wohl', '#/me/fitbit', '#/trips/rides',
   // PR 20, area «App»: the app itself (lists, privacy, rules, own values, search, assistant, mini apps).
   // Not Data and backup, Appearance, Connections: with many functions the card pushes them below 2.5 phone screens (heimat.spec.js).
-  '#/me/lists', '#/me/privacy', '#/me/regeln', '#/me/verstehen', '#/me/werte', '#/me/hinweise',
+  '#/me/lists', '#/me/privacy', '#/me/regeln', '#/me/werte', '#/me/hinweise',
   '#/me/suche', '#/assistent', '#/me/apps',
   // PR 21, pages of one thing (a placeholder ':name' stands for one id): one trip's debrief, a race and its parts, one diary
   // entry. Not the race mode (#/race/:race/ride): while racing the first screen belongs to the ride, like Unterwegs. Not one

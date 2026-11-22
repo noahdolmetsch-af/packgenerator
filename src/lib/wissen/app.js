@@ -6,7 +6,6 @@ export default {
   'f.listsmore': 'Name things the way you say them on the trail. «Pennplatz» finds itself faster than «Unterkunftstyp 3».',
   'f.privacy': 'Your trips, gear and notes stay on your devices. Only what you send to a helper or a sync leaves, and the app says so before it does.',
   'f.decides': 'If a suggestion surprises you, look up its rule here before you fight it: often one number, like «cold below 8 °C», is all you need to change.',
-  'f.verstehen': 'One lesson per evening is enough. The backup lesson is the one to do first; the rest can wait for a rainy day.',
   'f.ownvalues': 'Start with the values you know from experience, like how long your chain lasts. The app learns better from your numbers than from averages.',
   'f.alerts': 'Few sources you trust beat many you skim. A warning for your region the evening before is worth more than ten news in the morning.',
   'f.searchvoice': 'Short commands work best: «Regenjacke einpacken» beats a whole sentence. With wind on the mic, cup your hand around the phone.',

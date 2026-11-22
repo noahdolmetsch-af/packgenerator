@@ -441,7 +441,6 @@ const LISTED_HOME = {
   'f.autosync': '#/me/data',
   'f.account': '#/me/data',
   'f.appmap': '#/me/karte',
-  'f.verstehen': '#/me/verstehen',
   'f.privacy': '#/me/privacy',
   'f.camera': '#/bikes?tab=shop',
   'f.docscan': '#/me/docs',
