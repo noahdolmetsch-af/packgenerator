@@ -23,7 +23,7 @@
   import Empty from '../../lib/ui/Empty.svelte';
   import { db } from '../../lib/db.js';
   import { mondayOf, shiftDay, PLAN_KEY, planOf as sessionsOf } from '../../lib/training.js';
-  import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, lightOf, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
+  import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
   import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, syncTpDone, tpTicks, tpSnapUnits, setDone, dismiss, setPins, movePin, clearPin, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
@@ -64,7 +64,7 @@
   const pinsShown = $derived(shownLog?.pins ?? {});
   const modeShown = $derived(shownLog?.mode ?? {});
   // a lighter week shows 60 % of the hours for this one week; the goals themselves stay as they are
-  const cfgW = $derived(modeShown.light ? lightOf(cfg, summer) : cfg);
+  const cfgW = $derived(modeCfg(cfg, summer, modeShown));
   const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain, sessions: isNow ? sessions : [] }));
   // TrainingPeaks counts on the hours (Noah «1a»): the plan plus what TrainingPeaks brings this week
   const mins = $derived(plannedMins(week.units) + week.tp.reduce((a, x) => a + x.mins, 0));
@@ -93,7 +93,7 @@
   const live = $derived(isNow && weekPick === 0); // only this week can be ticked; next week and the example can not
   const nowSummer = $derived(isSummer(realMonday));
   const nowLog = $derived(weekLog(log ?? logOf(null), realMonday));
-  const nowCfg = $derived(nowLog.mode.light ? lightOf(nowSummer ? plan.summer : plan.winter, nowSummer) : nowSummer ? plan.summer : plan.winter);
+  const nowCfg = $derived(modeCfg(nowSummer ? plan.summer : plan.winter, nowSummer, nowLog.mode));
   const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowLog.pins, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain, sessions }));
   const done = $derived(nowLog.done);
   const released = $derived(nowLog.released);
@@ -209,6 +209,7 @@
   // the switches of one week: lighter, ski tour, rainy; Undo takes the last one back
   const MODES = [
     { key: 'light', name: 'Lighter week', hint: 'Shows {share} percent of your hours for this week only.' },
+    { key: 'hard', name: 'Harder week', hint: 'Shows {share} percent of your hours for this week only.' },
     { key: 'ski', name: 'Ski tour week', hint: 'The ski tour takes the weekend and replaces cycling, running and the mini workout.' },
     { key: 'rain', name: 'Rainy week', hint: 'Cycling outdoors moves indoors.' },
   ];
@@ -216,7 +217,10 @@
     const at = monday;
     const cur = logOf((await db.settings.get(WEEKLOG_KEY))?.value);
     const before = weekLog(cur, at).mode;
-    const next = setMode(cur, at, { ...before, [key]: !before[key] }, today);
+    const turn = { ...before, [key]: !before[key] };
+    if (turn[key] && key === 'hard') delete turn.light; // a week is lighter or harder, never both
+    if (turn[key] && key === 'light') delete turn.hard;
+    const next = setMode(cur, at, turn, today);
     if (next === cur) return;
     history = [...history.slice(-19), { mode: before, monday: at }];
     await db.settings.put({ key: WEEKLOG_KEY, value: next });
@@ -264,7 +268,9 @@
   const tpOver = $derived(week.tp.length > 0 && mins > cfgW.hours * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over')); // Noah «a»: stays as it is, with a hint
   const tpLines = $derived([...week.notes.filter((n) => n.key.startsWith('tp-')).map(noteText).filter(Boolean), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
   const hoursLine = $derived(
-    modeShown.light
+    modeShown.hard
+      ? t('A harder week: {n} h instead of {m} h. Plus and minus change your normal plan.', { n: cfgW.hours, m: cfg.hours })
+      : modeShown.light
       ? t('A lighter week: {n} h instead of {m} h. Plus and minus change your normal plan.', { n: cfgW.hours, m: cfg.hours })
       : cfg.hours >= 21
       ? t('Above about 20 hours it only fits with overload, so only what still fits is suggested.')
@@ -325,7 +331,7 @@
                 <button type="button" class="chip" aria-pressed={!!modeShown[m.key]} onclick={() => toggleMode(m.key)} data-wp-mode={m.key}>{t(m.name)}</button>
               {/each}
             </div>
-            {#each MODES.filter((m) => modeShown[m.key]) as m (m.key)}<p class="hint" data-wp-mode-hint={m.key}>{t(m.hint, { share: Math.round(LIGHT_SHARE * 100) })}</p>{/each}
+            {#each MODES.filter((m) => modeShown[m.key]) as m (m.key)}<p class="hint" data-wp-mode-hint={m.key}>{t(m.hint, { share: Math.round((m.key === 'hard' ? HARD_SHARE : LIGHT_SHARE) * 100) })}</p>{/each}
             {#if !Object.keys(modeShown).length}<p class="hint">{t('Switch the week to lighter, a ski tour or rain. It changes this week only, your goals stay.')}</p>{/if}
           </section>
         {/if}

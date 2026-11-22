@@ -240,6 +240,13 @@ describe('wochenlog: modes, let go and the week star (part 5)', () => {
     expect(light.week.units.filter((u) => u.type !== 'med' && u.type !== 'stretch').length).toBeLessThan(main.length);
     expect(light.week.units.some((u) => u.id === 'gym@2')).toBe(true);
   });
+  it('a harder week plans 120 percent of the hours (at most 24), never together with a lighter one', () => {
+    expect(modeOf({ light: true, hard: true })).toEqual({ hard: true });
+    const hard = weekFor(stored, MON, {}, { hard: true });
+    expect(hard.cfg.hours).toBe(18);
+    expect(hard.base.hours).toBe(15);
+    expect(weekFor({ ...stored }, MON, {}, { light: true, hard: true }).cfg.hours).toBe(18); // hard wins if both are stored
+  });
   it('a ski tour week has the tour and drops cycling, running and the mini workout; a rainy week rides indoors', () => {
     const ski = weekFor(stored, MON, {}, { ski: true }).week;
     expect(ski.units.some((u) => u.type === 'ski')).toBe(true);
