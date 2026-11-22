@@ -260,14 +260,15 @@ export function moveSuggestions(states, sessions, today) {
 }
 
 /**
- * The ride to ask «How hard was it?» about: the newest bike activity of the last 3 days without an own
- * answer, without Strava's and not skipped. Null when there is none.
+ * The activity to ask «How was it?» about («Von selbst», Noah 19.11.2026 «1-5a», T3: every sport, not only rides): the newest
+ * activity of the last 3 days without an own answer (a number or a word), without Strava's and not set aside with «Later».
+ * Null when there is none.
  */
 export function feelToAsk(acts, today) {
   const from = shiftDay(today, -3);
   return (
     [...acts]
-      .filter((a) => a.kind === 'bike' && a.day >= from && a.day <= today && feelOf(a) == null && !a.feelSkip)
+      .filter((a) => a.day >= from && a.day <= today && feelOf(a) == null && !a.feelSkip)
       .sort((a, b) => `${b.day} ${b.time ?? ''}`.localeCompare(`${a.day} ${a.time ?? ''}`))[0] ?? null
   );
 }

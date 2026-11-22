@@ -30,7 +30,6 @@
   import WeekLoad from '../../lib/training/plans/WeekLoad.svelte'; // «Training verbessern» 6: «A lighter week would fit»
   import Missed from '../../lib/training/plans/Missed.svelte'; // «Training verbessern» 5: «Missed one? Move it»
   import TodayFits from '../../lib/training/plans/TodayFits.svelte'; // «Training verbessern» 4: «Today a lighter one fits»
-  import FeelAsk from '../../lib/training/plans/FeelAsk.svelte'; // «Trainingspläne»: «How hard was it?» after each ride
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
   import { saveAct } from '../../lib/flowdb.js';
   import { blankAct } from '../../lib/flow.js';
@@ -350,7 +349,6 @@
   <!-- «Aktiv sichtbar» (332 Use Cases, Noah 25.10.2026 «fange mit dem bereich aktiv an»): the week plan, the week in
        review and the training plans stand 2 screens down; one chip row on top -->
   <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('My week|plan') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', href: '#/flow/training?view=ana', label: t('Power and analyses') }]} />
-  <FeelAsk {acts} {today} />
   <WeekLoad hint={loadHint} {monday} planned={nums.planned} {hours} onshorten={shortenWeek} />
   <Missed {missed} {targets} name={planName} {hours} dayLabel={(d) => fmt(d, { weekday: 'long' })} onmove={moveMissed} onskip={skipMissed} />
   <TodayFits {plan} {today} level={$formQ?.ready?.level ?? null} name={planName} onlighter={lighterToday} />

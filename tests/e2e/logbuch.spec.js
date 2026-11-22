@@ -193,3 +193,134 @@ test('Logbuch: rename and order the kinds, Undo, back to standard, the entries f
   await expect(page.locator('[data-lb-group="wrong"]')).toContainText(T('Wrong'));
   expect(errors).toEqual([]);
 });
+
+test('Logbuch: delete a kind and a group, the question comes first, entries and kinds stay, Undo (L5 step 2)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const pg = page.locator('[data-logbuch]');
+  await press(pg.locator('[data-empty] .btn.hi'), info);
+  await write(page, info, { art: 'zahl', text: 'In der Wochensumme steht 9 statt 8.', pageText: '#/week' });
+  await press(pg.locator('[data-lb-kinds]'), info);
+  const win = page.locator('[data-kinds-sheet]');
+  await expect(win).toBeVisible();
+
+  // delete a kind: the window asks where its entry goes, «Ohne Art» is chosen
+  await press(win.locator('[data-kd-art="zahl"] [data-row-menu]'), info);
+  await press(page.locator('[data-menu="delete"]').last(), info);
+  const ask = page.locator('dialog.gds[open]');
+  await expect(ask).toBeVisible();
+  await expect(ask).toContainText(T('No kind'));
+  await expect(ask.locator('input[type="radio"]').first()).toBeChecked();
+  if (SHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${SHOTS}/arten-loeschen-frage-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await press(ask.locator('.btn.del'), info);
+  await expect(win.locator('[data-kd-art="zahl"]')).toHaveCount(0);
+  await expect(win.locator('[data-kd-art]')).toHaveCount(12);
+  await expect(win.locator('[data-kinds-undo]')).toContainText('«Zahl falsch»');
+  // Undo brings the kind back
+  await press(win.locator('[data-kinds-undo] button'), info);
+  await expect(win.locator('[data-kd-art="zahl"]')).toHaveCount(1);
+
+  // delete the kind again, then the group «Falsch» with all its kinds: they go to «Ohne Gruppe»
+  await press(win.locator('[data-kd-art="zahl"] [data-row-menu]'), info);
+  await press(page.locator('[data-menu="delete"]').last(), info);
+  await press(page.locator('dialog.gds[open] .btn.del'), info);
+  await press(win.locator('[data-kd-group="wrong"] .kd-head [data-row-menu]'), info);
+  await press(page.locator('[data-menu="delete"]').last(), info);
+  const gask = page.locator('dialog.gds[open]');
+  await expect(gask).toContainText(T('No group'));
+  await press(gask.locator('.btn.del'), info);
+  await expect(win.locator('[data-kd-group="wrong"]')).toHaveCount(0);
+  await expect(win.locator('[data-kd-group="ohne"] [data-kd-art]')).toHaveCount(2); // Fehler, Zu langsam (Zahl falsch is gone)
+  await expect(win.locator('[data-kd-group="ohne"] .kd-head [data-row-menu]')).toBeVisible();
+  if (SHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${SHOTS}/arten-geloescht-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await press(win.locator('.vd-x'), info);
+
+  // the entry has no kind any more and can still be changed; the filter has the new group
+  const entry = pg.locator('[data-lb-entry]').first();
+  await expect(entry.locator('.pill').first()).toContainText(T('No kind'));
+  await expect(pg.locator('[data-lb-group="ohne"]')).toContainText(T('No group'));
+  await press(entry.locator('[data-lb-edit]'), info);
+  const sheet = page.locator('[data-logbuch-sheet]');
+  await sheet.locator('[data-lb-text]').fill('In der Wochensumme steht 9 statt 8 (geprüft).');
+  await press(sheet.locator('[data-lb-save]'), info);
+  await expect(sheet).toBeHidden();
+  await expect(entry).toContainText('geprüft');
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-lb-entry]').first().locator('.pill').first()).toContainText(T('No kind'));
+  expect(errors).toEqual([]);
+});
+
+test('Logbuch: make a new kind and a new group, change the way, back to standard keeps the entries (L5 step 3)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const pg = page.locator('[data-logbuch]');
+  await press(pg.locator('[data-empty] .btn.hi'), info);
+  await write(page, info, { art: 'idee', text: 'Platzhalter, damit die Liste nicht leer ist.', pageText: '#/week' });
+  await press(pg.locator('[data-lb-kinds]'), info);
+  const win = page.locator('[data-kinds-sheet]');
+
+  // a new group, then a new kind in it, the way is chosen (standard: first a picture)
+  await press(win.locator('[data-kd-add-group]'), info);
+  const ng = page.locator('[data-new-kind-sheet="group"]');
+  await ng.locator('[data-new-kind-name]').fill('Privat');
+  await press(ng.locator('[data-new-kind-save]'), info);
+  const grp = win.locator('[data-kd-group^="g-privat"]');
+  await expect(grp).toContainText('Privat');
+  await expect(grp).toContainText(T('No kind in this group yet.'));
+  await press(grp.locator('[data-kd-add]'), info);
+  const nk = page.locator('[data-new-kind-sheet="kind"]');
+  await expect(nk.locator('[data-way="draft"]')).toBeChecked();
+  await nk.locator('[data-new-kind-name]').fill('Zu laut');
+  await press(nk.locator('[data-way="direct"]'), info);
+  if (SHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${SHOTS}/neue-art-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await press(nk.locator('[data-new-kind-save]'), info);
+  await expect(grp.locator('[data-kd-art]')).toHaveCount(1);
+  await expect(grp.locator('[data-kd-art]')).toContainText('Zu laut');
+  if (SHOTS) {
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${SHOTS}/arten-neu-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await press(win.locator('.vd-x'), info);
+
+  // the kind is in the window «New entry» and the entry has its name
+  await press(pg.locator('[data-lb-new]'), info);
+  const key = await page.locator('[data-logbuch-sheet] [data-art^="k-zu-laut"]').getAttribute('data-art');
+  await write(page, info, { art: key, text: 'Der Lüfter ist zu laut.', pageText: '#/gear' });
+  const mine = pg.locator('[data-lb-entry][data-art^="k-zu-laut"]');
+  await expect(mine.locator('.pill').first()).toContainText('Zu laut');
+  await expect(mine.locator('[data-lb-state]')).toHaveText(T('Open|logbuch'));
+  await expect(pg.locator('[data-lb-group^="g-privat"]')).toContainText('Privat');
+
+  // change the way to «only a note»: the entry follows
+  await press(pg.locator('[data-lb-kinds]'), info);
+  await press(win.locator('[data-kd-art^="k-zu-laut"] [data-row-menu]'), info);
+  await press(page.locator('[data-menu="way"]'), info);
+  const way = page.locator('[data-new-kind-sheet="way"]');
+  await expect(way.locator('[data-way="direct"]')).toBeChecked();
+  await press(way.locator('[data-way="note"]'), info);
+  await press(way.locator('[data-new-kind-save]'), info);
+  await expect(win.locator('[data-kinds-undo]')).toContainText('Zu laut');
+  await press(win.locator('.vd-x'), info);
+  await expect(mine.locator('[data-lb-state]')).toHaveText(T('Noted|logbuch'));
+
+  // back to standard: the new kind and group go, the entry stays without a kind; Undo brings it all back
+  await press(pg.locator('[data-lb-kinds]'), info);
+  await press(win.locator('[data-kinds-reset]'), info);
+  await expect(win.locator('[data-kd-group^="g-privat"]')).toHaveCount(0);
+  await expect(win.locator('[data-kd-art]')).toHaveCount(13);
+  await press(win.locator('[data-kinds-undo] button'), info); // Undo brings the new group, the kind and the entry back
+  await expect(win.locator('[data-kd-art^="k-zu-laut"]')).toHaveCount(1);
+  await press(win.locator('[data-kinds-reset]'), info);
+  await press(win.locator('.vd-x'), info);
+  await expect(pg.locator('[data-lb-entry]', { hasText: 'Lüfter' }).locator('.pill').first()).toContainText(T('No kind'));
+  await expect(pg.locator('[data-lb-group^="g-privat"]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

@@ -227,7 +227,7 @@ export const FETCHED = {
   // Strava activities (Noah 20.10.2026: the question came after every update): both devices fetch the
   // details from Strava by themselves, so only the time of the fetch differs. What the person added
   // (note, feeling, own values, hidden) must be the same on both; then the newer fetch wins without asking.
-  activities: { own: ['note', 'feel', 'feelSkip', 'own', 'hidden'], when: (r) => `${String(Number(r?.dv) || 0).padStart(4, '0')}|${[r?.detail ?? '', r?.noDetail ?? ''].sort().at(-1)}` },
+  activities: { own: ['note', 'feel', 'feelWord', 'feelSkip', 'own', 'hidden'], when: (r) => `${String(Number(r?.dv) || 0).padStart(4, '0')}|${[r?.detail ?? '', r?.noDetail ?? ''].sort().at(-1)}` },
 };
 /*
  * Settings the app writes by itself (Noah 21.10.2026, a question about «strava.last» on the phone): the

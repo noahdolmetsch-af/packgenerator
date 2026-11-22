@@ -29,7 +29,7 @@
   let open = $state(false);
 </script>
 
-{#if tip}
+{#if tip && pi.info.lineOn}
   <div class="card tipl {tip.kind}" data-tip={tip.id} role="note">
     {#if ops.murmeltier}<span class="mmt"><Murmeltier size={30} /></span>{:else}<Leaf size={18} aria-hidden="true" />{/if}
     <p>
