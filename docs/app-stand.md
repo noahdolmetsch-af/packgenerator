@@ -15,7 +15,7 @@ Persönliches Aktivitäts-, Touren- und Alltags-Cockpit: Tourenplanung, Packlist
 | Ort | Wofür | Code |
 |---|---|---|
 | Heute | Was jetzt wichtig ist; «Dein Moment», Entdecken | `src/pages/Home.svelte`, `src/lib/home` |
-| Woche | Vier Reiter: Woche (Termine, Aufgaben), Training (die Seiten des früheren Aktiv: abhaken, Sportarten, Wochenplan, Trainingspläne, Erholung), Notizen, Alltag | Seiten `Woche*`, `Calendar`, `Flow`, `Aktiv` |
+| Woche | Vier Reiter: Woche (Termine, Aufgaben), Training (die Seiten des früheren Aktiv: abhaken, Sportarten, Wochenplan, Trainingspläne, Erholung), Notizen, Alltag (mit Meditation als Chip) | Seiten `Woche*`, `Calendar`, `Flow`, `Aktiv` |
 | Touren | Tour planen, packen, unterwegs, Rückblick | `Pack.svelte`, `Tour.svelte`, `Live.svelte`, `Debrief.svelte` |
 | Auswerten | Zurückschauen: Form, Körper, Fahrten, Wi gaht's, eigenes Diagramm; eigener Platz in der Leiste unten und in der Seitenleiste | `Auswerten*`, `Analyse` |
 | Velos und Material | Velos, Pflege, Werkstatt, Material, Kleider | `Bikes.svelte`, `Gear.svelte` |

@@ -87,7 +87,7 @@ test('Aktiv: Meditation in «Meine Sportarten», timer and Rückblick on one pag
   await main.locator('[data-sport-row="meditation"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
   await expect(main.getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
-  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('Meditation'), exact: true })).toHaveAttribute('aria-current', 'page'); // V4b2 (22.11.2026, on purpose): Meditation is a chip of «Alltag»
   await expect(main.locator('.sub')).toContainText(T('done today'));
 
   // the timer: «Wie letztes Mal · 20 Min»; a duration changes the start
@@ -114,7 +114,7 @@ test('Aktiv: Meditation in «Meine Sportarten», timer and Rückblick on one pag
   await page.goBack();
   await main.locator('[data-to="review"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/rueckblick$/);
-  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('Meditation'), exact: true })).toHaveAttribute('aria-current', 'page'); // V4b2 (22.11.2026, on purpose): Meditation is a chip of «Alltag»
   expect(errors).toEqual([]);
 });
 
