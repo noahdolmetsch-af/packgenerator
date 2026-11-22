@@ -517,7 +517,6 @@
   </header>
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
   <!-- «Alles hier» (Noah 03.11.2026 «1a»): every Touren function as a tile on top; the row «More for your tours» keeps only komoot (an outside page), its other links are tiles now -->
-  {#if !onRides}<AllHere area="trips" />{/if}
   {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
   {#if !onRides}<NextRaceRow />{/if}
   {#if !onRides}<DreamNowRow />{/if}
@@ -749,6 +748,8 @@
     <Skeleton rows={4} />
   {/if}
   {/if}
+  <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+  {#if !onRides}<AllHere area="trips" />{/if}
 </div>
 {#if shownRows}
   <OldTripsSports rows={shownRows} bikes={$bikesQ ?? []} onclose={(later) => ((shownRows = null), later && ((oldLater = true), (oldTripsLater.v = true)))} />
