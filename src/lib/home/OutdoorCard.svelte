@@ -26,7 +26,8 @@
   import { addDays } from '../flow.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
-  let { today } = $props();
+  /** `offerLine` false (Aktiv): only a running challenge is shown there, the offer stays on Heute */
+  let { today, offerLine = true } = $props();
 
   const q = $derived(
     liveQuery(async () => {
@@ -198,7 +199,7 @@
       <span class="adds"><button type="button" class="btn sm" onclick={close} data-outdoor-close>{t('Close')}</button><button type="button" class="btn sm" onclick={openSheet}>{t('Start a new one')}</button></span>
     {/if}
   </section>
-{:else if offer}
+{:else if offer && offerLine}
   <section class="none" data-outdoor-offer>
     <p>{t('Start a challenge with a daily goal? For example 90 minutes outdoors every day, counted by Strava and by you.')}</p>
     <span class="adds">
