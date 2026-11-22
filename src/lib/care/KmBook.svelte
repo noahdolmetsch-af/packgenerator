@@ -350,6 +350,9 @@
   .dbl p {
     margin: 0;
   }
+  .dbl > .btn {
+    justify-self: start;
+  }
   .dbl-list {
     margin: 0;
     padding-left: 18px;
