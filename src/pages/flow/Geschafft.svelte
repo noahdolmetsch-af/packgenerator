@@ -23,6 +23,7 @@
   import MinInput from '../../lib/flow/MinInput.svelte';
   import { BLOCKS_KEY, blocksMap, blockFor, standardBlock, blockChips, saveBlockSize, rememberBlocks, restoreBlocks } from '../../lib/flow/bloecke.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
+  import { isUnitEntry, weekOfEntry, setUnitTick } from '../../lib/flow/unitdone.js';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { GOAL_KEY, PLAN_KEY } from '../../lib/training.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
@@ -118,7 +119,13 @@
     if (!e) return;
     const name = actName(act);
     if (!(await undoTick(e.id))) return;
-    toast(t('{name} · taken back', { name }), () => putEntry(db, e));
+    // «Plan zuerst» (T4): a tick that came from a unit of the weekly plan also takes the tick in the plan back, and puts it back with «Undo»
+    const unit = isUnitEntry(e) ? { monday: weekOfEntry(e), id: e.unit } : null;
+    if (unit) await setUnitTick(db, { ...unit, on: false, today });
+    toast(t('{name} · taken back', { name }), async () => {
+      await putEntry(db, e);
+      if (unit) await setUnitTick(db, { ...unit, on: true, today: e.day });
+    });
     location.hash = '#/flow';
   }
 </script>
