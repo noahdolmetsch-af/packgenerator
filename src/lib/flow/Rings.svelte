@@ -10,8 +10,8 @@
   import { t } from '../i18n.svelte.js';
   // hrefs: { move, mind, rest } → where a tap on that row leads (Aktiv, «Zahl mit Weg»); without it the rows are plain text
   // parts: { move, mind, rest } → the sports of that ring (ringweg.js ringParts); a row with several folds open and lists them, each a way (Noah «2a»)
-  // nameOf: a sport's name in the current language; fallback links lead to «Ticks evaluated»
-  let { rings, size = 136, legend = true, compact = false, quiet = false, hrefs = null, parts = null, nameOf = (a) => a.name, allHref = '#/flow/auswertung' } = $props();
+  // nameOf: a sport's name in the current language; fallback links lead to the Sports year
+  let { rings, size = 136, legend = true, compact = false, quiet = false, hrefs = null, parts = null, nameOf = (a) => a.name, allHref = '#/auswerten/sportjahr' } = $props();
   let open = $state({});
 
   const ROWS = [
@@ -53,7 +53,7 @@
                   {#each parts[r.key] as p (p.act.id)}
                     <li><a class="part" href={p.href} data-ring-part={p.act.id}><span class="pn">{nameOf(p.act)}</span><small class="num">{p.met ? t('Reached') : p.of ? t('{n} of {m}', { n: p.n, m: p.of }) : '–'}</small><ChevronRight size={16} strokeWidth={2.5} class="wc" aria-hidden="true" /></a></li>
                   {/each}
-                  <li><a class="part all" href={allHref} data-ring-all={r.key}><span class="pn">{t('All in «Ticks evaluated»')}</span><ChevronRight size={16} strokeWidth={2.5} class="wc" aria-hidden="true" /></a></li>
+                  <li><a class="part all" href={allHref} data-ring-all={r.key}><span class="pn">{t('All in «Sports year»')}</span><ChevronRight size={16} strokeWidth={2.5} class="wc" aria-hidden="true" /></a></li>
                 </ul>
               {/if}
             {:else if hrefs?.[r.key]}
