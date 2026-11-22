@@ -535,6 +535,10 @@
   </header>
 {/if}
 <div class="col">
+{#if wide.matches && !mini}
+<!-- 4a (Noah 21.11.2026 «4a»): one place for help; on a computer the «?» and the assistant sit at the top right of the page, like in the phone's top bar -->
+<div class="dtools"><a class="asst-ic" href="#/assistent" aria-label={t('Assistant')} aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={22} aria-hidden="true" /></a><HelpButton /></div>
+{/if}
 <DemoBar />
 <LogoRide />
 <OfflineLine />
@@ -1020,6 +1024,14 @@
   }
   .plus:hover {
     background: var(--hi-hover);
+  }
+  .dtools {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--sp-1);
+    padding: 4px var(--gut) 0;
+    min-height: 48px;
   }
   .asst-ic {
     display: inline-flex;

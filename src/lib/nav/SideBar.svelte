@@ -13,10 +13,9 @@
   import { t } from '../i18n.svelte.js';
   import LogoMark from '../logo/LogoMark.svelte'; // «Jahreszeit» (Idee 30)
   import Search from './Search.svelte';
-  import HelpButton from './HelpButton.svelte';
   import MeButton from './MeButton.svelte';
   import PlaceIcon from './PlaceIcon.svelte';
-  import { Plus, MessageCircle, ChevronDown } from '@lucide/svelte';
+  import { Plus, ChevronDown } from '@lucide/svelte';
   import { countClick, readHint, writeHint, keysOf } from './keyhint.js'; // Einzelidee 31: one shortcut at a time
 
   let { place = null, hash = '#/', due = 0, inbox = 0, onnew, shownew = true } = $props();
@@ -70,13 +69,6 @@
     {/if}
     <div class="srow">
       <Search short />
-    </div>
-    <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button, under the search -->
-    <!-- Durchklick 08.11.2026 (Fund 2): «Assistant» and «Help» share one row, so the places keep one more row on a laptop -->
-    <div class="pair">
-      <a class="asst" href="#/assistent" aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={18} aria-hidden="true" /><span>{t('Assistant')}</span></a>
-      <!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page, next to the assistant -->
-      <HelpButton wide />
     </div>
     <nav class="places" class:more-up={more.up} class:more-down={more.down} aria-label={t('Sections')} bind:this={placesEl} onscroll={edges}>
       <ul>
@@ -209,33 +201,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-  }
-  .pair {
-    display: flex;
-    gap: var(--sp-1);
-    margin-top: var(--sp-1);
-  }
-  .pair :global(.hrow) {
-    width: auto;
-    flex: 1 1 0;
-    min-width: 0;
-  }
-  .asst {
-    flex: 1 1 0;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    padding: 8px 12px;
-    border-radius: 10px;
-    color: var(--ink-2);
-    font: 500 var(--fs-body) var(--font-body);
-    text-decoration: none;
-  }
-  .asst:hover,
-  .asst[aria-current='page'] {
-    background: var(--paper-2);
-    color: var(--ink);
   }
   .places {
     flex: 1;
