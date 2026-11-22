@@ -1,6 +1,6 @@
 # Regel «Inhalt zuerst»
 
-PR #<Nummer> · 22.11.2026 · «Hilfen neu» Punkt 5a · Entscheid Noah «5a» (21.11.2026), Ergänzung «so lassen – immer zugeklappt» (22.11.2026)
+PR #1429 · 22.11.2026 · «Hilfen neu» Punkt 5a · Entscheid Noah «5a» (21.11.2026), Ergänzung «so lassen – immer zugeklappt» (22.11.2026)
 
 ## Was ist neu
 - Neue feste Regel «Inhalt zuerst» in `CLAUDE.md` (Abschnitt «How we work») und in `docs/arbeitsweise.md` (Punkt 14): Hilfe steht nie vor dem Inhalt einer Seite. Eine Seite beginnt mit dem, wofür man gekommen ist.
