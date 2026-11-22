@@ -356,7 +356,7 @@
   }
   .dbl-note {
     color: var(--muted, inherit);
-    font-size: 0.9em;
+    font-size: var(--fs-small);
   }
   .banner {
     display: flex;
