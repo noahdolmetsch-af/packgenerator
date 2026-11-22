@@ -9,9 +9,6 @@ import { fileURLToPath } from 'node:url';
 const SRC = readFileSync(fileURLToPath(new URL('../../src/lib/seiteninhalt.js', import.meta.url)), 'utf8');
 const PAGES = SRC.match(/export const ON_PAGES = \[([\s\S]*?)\];/)[1].replace(/\/\/.*$/gm, '').match(/'#\/[^']*'/g).map((s) => s.slice(1, -1)).filter((p) => !/\/:[a-z]/i.test(p)); // patterns like #/debrief/:trip (Wegweiser 21) need a real id: not opened here
 
-// the pages without the line (LINE_OFF in seiteninhalt.js, read as text like ON_PAGES)
-const LINE_OFF = SRC.match(/export const LINE_OFF = \[([^\]]*)\]/)[1].match(/'#\/[^']*'/g).map((x) => x.slice(1, -1));
-
 const T = tr('de');
 
 test(`every page with the card shows its functions with good to know (${PAGES.length} pages)`, async ({ page, context }, info) => {
@@ -24,14 +21,8 @@ test(`every page with the card shows its functions with good to know (${PAGES.le
     const card = page.locator(`[data-seiteninhalt="${p}"]`);
     // the page shows one line (since 09.11.2026 a tap opens the «?» window, which holds the list)
     const line = page.locator('[data-seiteninhalt-line]');
-    if (LINE_OFF.includes(p)) {
-      // Seitenregeln 21.11.2026 (Noah «2a»): no line on this page, the «?» opens the same window
-      await expect(line, p).toHaveCount(0);
-      await page.locator('[data-help-open]:visible').first().click();
-    } else {
-      await expect(line, p).toBeVisible();
-      await line.click();
-    }
+    await expect(line, p).toBeVisible();
+    await line.click();
     await expect(card, p).toContainText(T('What you can do here'));
     const rows = card.locator('[data-seiteninhalt-item]');
     await expect(rows.first(), p).toBeVisible();

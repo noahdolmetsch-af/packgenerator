@@ -4,6 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { STOP_KINDS, kindsOn, flipKind, tripsWithRoute, placeOnRoute, ptsOfTrip, stopsHref } from '../src/lib/stops/nearby.js';
 import { kindOf, poiQuery, POI_KIND } from '../src/lib/race/outside.js';
 import { aroundQuery } from '../src/lib/live/live-lib.js';
+import { placeOf, pageOf } from '../src/lib/nav.js';
 
 const line = Array.from({ length: 21 }, (_, i) => [47 + i * 0.009, 8.5]); // about 20 km north
 const trip = (id, startDate, endDate, withLine = true) => ({ id, title: `test_data_gtp_ ${id}`, startDate, endDate, route: withLine ? { line, km: 20 } : null });
@@ -50,5 +51,8 @@ describe('the trips and where you are', () => {
   it('links to the page', () => {
     expect(stopsHref()).toBe('#/stopps');
     expect(stopsHref({ id: 't 1' })).toBe('#/stopps?trip=t%201');
+  });
+  it('sits under Touren in the bar (App-Landkarte, Noah 22.11.2026 «1-3»)', () => {
+    for (const h of ['#/stopps', stopsHref({ id: 't1' })]) expect(placeOf(pageOf(h), h), h).toBe('trips');
   });
 });
