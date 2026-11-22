@@ -61,8 +61,7 @@
     try {
       await setUnitTick(db, { monday: s.monday, id: s.id, on: true, today: s.today, units: s.units, hours: s.hours });
       if (chosen) {
-        const e = await tickWith(chosen, { day: s.today, via: 'plan', min: min ?? undefined });
-        await db.flowLog.update(e.id, { unit: s.id, ...(feel ? { feel } : {}) });
+        const e = await tickWith(chosen, { day: s.today, via: 'plan', unit: s.id, feel: feel ?? undefined, min: min ?? undefined });
         if (!remembered || change) await db.settings.put({ key: UNITACTS_KEY, value: withUnitAct(unitActsOf(raw), s.type, chosen.id) });
         close();
         // the toast of the tick is replaced by the page (it has its own «Undo»); a star keeps its window

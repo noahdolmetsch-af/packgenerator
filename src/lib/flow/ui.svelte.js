@@ -37,8 +37,7 @@ export async function startUnitDone(st) {
   if (!f.remembered || !f.act) return openUnitDone(st);
   await setUnitTick(db, { monday: st.monday, id: st.id, on: true, today: st.today, units: st.units, hours: st.hours });
   const mins = Math.round(Number(st.mins));
-  const e = await tickWith(f.act, { day: st.today, via: 'plan', min: mins >= 1 && mins <= 1440 ? mins : undefined });
-  await db.flowLog.update(e.id, { unit: st.id });
+  const e = await tickWith(f.act, { day: st.today, via: 'plan', unit: st.id, min: mins >= 1 && mins <= 1440 ? mins : undefined });
   const tk = ui.toast;
   const first = tk?.undo;
   if (tk && first) tk.undo = async () => {

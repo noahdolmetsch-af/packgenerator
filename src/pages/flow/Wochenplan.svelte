@@ -878,6 +878,9 @@
     }
     .u .m {
       grid-column: 2;
+    }
+    /* the base rule «nowrap» below comes later in the file and won: with the tags «let go» and «fixed» the row ran out of the page (390 px wide phone: 417 px) */
+    .evs .u .m {
       white-space: normal;
     }
     .u.withtick {
