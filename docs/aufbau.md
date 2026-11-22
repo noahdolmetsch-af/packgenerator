@@ -51,7 +51,7 @@ Eine Auswahl der Reiter. Alle Funktionen jedes Orts zeigt «Karte der App» (`#/
 | Ausrüstung | Grosses Sportmaterial (Ski, Felle). Hängt unter Velos | Hauptausrüstung |
 | Material | Alle Gegenstände. Am Handy im Platz von «Velos» | Alle, Kleider, Bausteine, Einkauf, Vorrat, Verliehen |
 | Quick Links | Eigene angepinnte Seiten in Gruppen | Pins |
-| Ich | Oben rechts, kein Ort in der Leiste | Daten und Backup, Verbindungen, Aussehen, Eigene Werte, Listen und Typen, Handbuch, Neuigkeiten, App verstehen |
+| Ich | Oben rechts, kein Ort in der Leiste | Daten und Backup, Verbindungen, Aussehen, Eigene Werte, Listen und Typen, Handbuch, Neuigkeiten |
 
 Quelle der Orte und Reiter: `PLACES`, `PLACE_TABS` in `src/lib/nav.js`; die Suchzeilen in `src/lib/nav/menu.js`.
 

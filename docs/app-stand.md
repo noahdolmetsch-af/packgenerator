@@ -287,7 +287,6 @@ Diese Funktionen gibt es in der App (`features.js`), sie fehlten im Dokument. De
 | Fachleute | `#/me/pros` | Eigene Liste von Velowerkstätten und Guides; Anfrage per Mail mit Velo und Wunschtagen oder deren Buchungsseite. |
 | Projektregal | `#/me/next` | Alles zur App auf einer Seite: wie viele Ideen live sind, was wartet, der Weg der Releases und die Ideentafel. |
 | Karte der App | `#/me/karte` | Jeden Ort der App mit seinen Funktionen und dem Pfad dorthin finden; wird aus `features.js` gebaut. |
-| App verstehen | `#/me/verstehen` | Sieben kurze Lektionen mit Übung, um die App ohne Helfer weiterzuführen. |
 | Datenschutz und Bedingungen | `#/me/privacy` | Was auf dem Gerät bleibt, was der Server behält, was es kostet (nichts) und das Tageslimit. |
 
 Nicht einzeln aufgeführt, aber vorhanden: die kleinen Teilfunktionen (Katalog und Handbuch führen sie einzeln), Schnellaktionen ohne eigene Seite (Notiz, Beleg, Kilometer, Problem melden, Backup, Sprache, Demo) und Verknüpfungen: eine Panne unterwegs wird im Rückblick festgehalten und erzeugt eine Pflegeaufgabe samt Ersatzteil für die nächste Tour; eine abgeschlossene Tour zeigt Ungenutztes und Fehlendes und verbessert die nächste Packliste und Vorlage; eine Strava-Fahrt aktualisiert Aktivität, Training, Velokilometer und Verschleiss; ein freies Zeitfenster lässt sich mit Wetter und Ziel zu einer Ausfahrt verbinden.
