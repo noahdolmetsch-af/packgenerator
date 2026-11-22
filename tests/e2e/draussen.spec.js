@@ -78,3 +78,41 @@ test('the challenge can be changed and ended', async ({ page, context }, info) =
   await sheet.getByRole('button', { name: T('End the challenge') }).click();
   await expect(card).toHaveCount(0);
 });
+
+const pushOn = { key: 'push', value: { on: true, kinds: { outdoor: true } } };
+
+test('the phone reminder: on shows its time and switches off, off offers the button and takes it back when the phone cannot be reached', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info, { hour: 17, data: fixture({ settings: [rec(), pushOn] }) });
+  const card = page.locator('[data-outdoor-card]');
+  const row = card.locator('[data-outdoor-remind]');
+  await expect(row).toContainText(T('Reminder on the phone every day at {time}', { time: '16:00' }));
+  if (process.env.SHOTS) {
+    await row.evaluate((el) => (el.style.outline = '3px solid #f08a24')); // the new part, framed for the pictures
+    await card.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${process.env.SHOTS}/draussen-erinnerung-an-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await row.locator('[data-outdoor-remind-off]').click();
+  const on = row.locator('[data-outdoor-remind-on]');
+  await expect(on).toContainText(T('Remind me on the phone every day at {time}', { time: '16:00' }));
+  if (process.env.SHOTS) {
+    await row.evaluate((el) => (el.style.outline = '3px solid #f08a24'));
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${process.env.SHOTS}/draussen-erinnerung-aus-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  // the push server cannot be reached: the switch is taken back and the reason shows
+  await page.route('**/api/push*', (r) => r.abort());
+  await on.click();
+  await expect(row.locator('[role="alert"]')).toBeVisible();
+  await expect(on).toBeVisible();
+});
+
+test('the time of the reminder is set behind the pencil and saved with the challenge', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info, { hour: 17, data: fixture({ settings: [rec(), pushOn] }) });
+  const card = page.locator('[data-outdoor-card]');
+  await card.locator('[data-outdoor-change]').click();
+  const sheet = page.locator('dialog.oc-sheet');
+  await sheet.locator('[data-outdoor-at]').fill('17:30');
+  await sheet.getByRole('button', { name: T('Save'), exact: true }).click();
+  await expect(card.locator('[data-outdoor-remind]')).toContainText('17:30');
+});

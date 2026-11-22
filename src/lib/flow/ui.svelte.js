@@ -20,7 +20,7 @@ import { almostOf } from './almost.js';
 
 // sessionOpen: hobby pages 2, the running session in full (B7)
 // star: «Meilensteine als Belohnung» (Noah 22.10.2026 «4a»): the new star of the last tick, shown in its own small window
-export const ui = $state({ tick: null, timerOpen: false, toast: null, sessionOpen: false, star: null });
+export const ui = $state({ tick: null, tickDay: null, timerOpen: false, toast: null, sessionOpen: false, star: null });
 
 /* ---------- names in the current language ---------- */
 export const actName = (a) => (a ? (lang.v === 'de' && a.nameDe ? a.nameDe : a.name) || t('Activity') : '');

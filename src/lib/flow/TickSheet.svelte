@@ -9,6 +9,7 @@
    * «Gestern nachtragen» (Noah 21.11.2026 «bitte hiermit fortfahren»): «When» above the rest: today, yesterday, the day before
    * or any earlier day (date field, up to a year back), and an optional time. The entry counts on that day.
    */
+  import { untrack } from 'svelte';
   import Seg from '../ui/Seg.svelte';
   import MinInput from './MinInput.svelte';
   import { Timer, Bike, X, Check, EyeOff } from '@lucide/svelte';
@@ -42,7 +43,10 @@
       own = '';
       min = null;
       today = localDay();
-      whenKey = today;
+      // «Gestern nichts abgehakt? Nachtragen» opens the window with the day already chosen
+      const pre = untrack(() => ui.tickDay);
+      ui.tickDay = null;
+      whenKey = pre && quickDays(today).includes(pre) ? pre : today;
       otherDay = '';
       time = '';
       multi = false;

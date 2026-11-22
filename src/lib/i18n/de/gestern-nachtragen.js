@@ -8,4 +8,8 @@ export default {
   'Only one day': 'Nur ein Tag',
   'You tick off for {n} days. Each counts on its own day in the weekly goals and in Analysis.': 'Du hakst für {n} Tage ab. Jeder zählt an seinem Tag in den Wochenzielen und in Auswerten.',
   '{name} · for {n} days ticked': '{name} · für {n} Tage abgehakt',
+  'Yesterday nothing ticked off? Add it.': 'Gestern nichts abgehakt? Nachtragen.',
+  'Only a hint. You can also add a day from «•••» on any tile.': 'Nur ein Hinweis. Einen Tag nachtragen geht auch über «•••» an jeder Kachel.',
+  'Add it|day': 'Nachtragen',
+  'What did you do yesterday?': 'Was hast du gestern gemacht?',
 };
