@@ -1903,6 +1903,11 @@ const LISTED = {
     steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Moved or a new sport? «Something changed?» lists only what it touches. Any time: Me › Data and backup."],
     example: "Example: weight 72 kg from last year → «Change» → Bikes › Setup.",
   },
+  'f.hintquiet': {
+    on: null,
+    steps: ['Tap «Not today» under a hint on three different days (rest-day line, ride above the fog).', 'The app asks «Make this hint quieter?»: «Yes, quieter» switches the kind off, «Keep it» leaves it.'],
+    example: 'Example: three «Not today» on the rest-day line in two weeks → one question, then quiet.',
+  },
   'f.suggestoff': {
     on: null,
     steps: ["Open Me › Appearance › Suggestions.", "Switch off an area you do not want.", "A kind (ideas to buy, performance tips, ideas for free time, fitting tools): Me › Calm and personal › Hidden and switched off."],
