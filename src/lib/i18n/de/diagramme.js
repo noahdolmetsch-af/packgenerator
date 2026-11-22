@@ -159,4 +159,7 @@ export default {
   'The last three bars are rising': 'Die letzten drei Balken steigen',
   'The last three bars are falling': 'Die letzten drei Balken sinken',
   'Longest break: {n} bars in a row without anything': 'Längste Pause: {n} Balken hintereinander ohne etwas',
+  'See the {n} unit': 'Die {n} Einheit ansehen',
+  'See the {n} units': 'Die {n} Einheiten ansehen',
+  'Hide the units': 'Einheiten verbergen',
 };

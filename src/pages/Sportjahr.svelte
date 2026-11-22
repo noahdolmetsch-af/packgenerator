@@ -141,6 +141,9 @@
   /* a tap on a bar opens the sports of that day, month or year (ChartSheet) */
   let open = $state(null);
   const bar = $derived(open == null ? null : bars[open]);
+  /* «Die N Einheiten ansehen»: the units of the tapped bar, newest first */
+  const barUnits = $derived(bar ? inWin.filter((u) => u.day >= bar.from && u.day <= bar.to).sort((a, b) => b.day.localeCompare(a.day)) : []);
+  const unitList = $derived(barUnits.map((u, i) => ({ key: `${u.day}-${i}`, a: dayTxt(u.day, { day: 'numeric', month: 'short' }), b: names.get(u.sport) ?? u.sport, c: u.min > 0 ? `${u.minQuelle === 'ca.' ? 'ca. ' : ''}${hoursMin(Number(u.min))}` : '–' })));
   const barRows = $derived(bar ? bySport(inWin.filter((u) => u.day >= bar.from && u.day <= bar.to)) : []);
 
   /* «Where did the time go?» */
@@ -299,7 +302,7 @@
 <AnaSheet />
 
 {#if bar}
-  <ChartSheet kicker={t('Sports year')} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
+  <ChartSheet list={unitList} kicker={t('Sports year')} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
     {#if barRows.length}
       <ul class="sheetrows" data-sj-sheet>
         {#each barRows as r (r.sport)}

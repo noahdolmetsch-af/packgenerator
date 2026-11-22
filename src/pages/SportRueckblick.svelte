@@ -90,6 +90,7 @@
   /* a tap on a bar opens its hours and units (ChartSheet) */
   let open = $state(null);
   const bar = $derived(open == null ? null : bars[open]);
+  const unitList = $derived(bar ? mine.filter((u) => u.day >= bar.from && u.day <= bar.to).sort((a, b) => b.day.localeCompare(a.day)).map((u, i) => ({ key: `${u.day}-${i}`, a: dayTxt(u.day, { day: 'numeric', month: 'short' }), b: Number(u.km) > 0 ? km(Number(u.km)) : '', c: u.min > 0 ? `${u.minQuelle === 'ca.' ? 'ca. ' : ''}${hoursMin(Number(u.min))}` : '–' })) : []);
   const showKm = $derived(rb.now.km > 0 || (rb.prev?.km ?? 0) > 0);
 </script>
 
@@ -147,7 +148,7 @@
 </div>
 
 {#if bar}
-  <ChartSheet kicker={name} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
+  <ChartSheet list={unitList} kicker={name} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
     <ul class="rows" data-sr-sheet>
       <li><span>{t('Hours')}</span><b class="num">{hoursMin(bar.mins)}</b></li>
       <li><span>{t('Units')}</span><b class="num">{num(bar.n)}</b></li>

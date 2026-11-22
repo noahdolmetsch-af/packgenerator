@@ -7,10 +7,16 @@
    */
   import { X, ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
 
-  let { kicker = '', title = '', onclose, onprev = null, onnext = null, prevLabel = '', nextLabel = '', children } = $props();
+  let { kicker = '', title = '', onclose, onprev = null, onnext = null, prevLabel = '', nextLabel = '', list = [], children } = $props();
   let dialog;
+  let showList = $state(false);
+  // a new bar starts with the list closed
+  $effect(() => {
+    title;
+    showList = false;
+  });
 
   $effect(() => {
     dialog.showModal();
@@ -25,7 +31,17 @@
     </div>
     <button type="button" class="ib" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
-  <div class="body">{@render children()}</div>
+  <div class="body">
+    {@render children()}
+    {#if list.length}
+      <button type="button" class="btn lbtn" aria-expanded={showList} onclick={() => (showList = !showList)} data-sheet-more>{showList ? t('Hide the units') : tn(list.length, 'See the {n} unit', 'See the {n} units')}</button>
+      {#if showList}
+        <ul class="ulist" data-sheet-list>
+          {#each list as r (r.key)}<li><span class="num">{r.a}</span><span class="nm">{r.b}</span><b class="num">{r.c}</b></li>{/each}
+        </ul>
+      {/if}
+    {/if}
+  </div>
   {#if onprev || onnext}
     <div class="nav">
       <button type="button" class="btn" disabled={!onprev} onclick={() => onprev?.()} data-sheet-prev><ChevronLeft size={18} aria-hidden="true" />{prevLabel}</button>
@@ -72,6 +88,28 @@
     flex-direction: column;
     gap: 12px;
     min-width: 0;
+  }
+  .lbtn {
+    min-height: 44px;
+  }
+  .ulist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .ulist li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 7px 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-small);
+  }
+  .ulist .nm {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
   .nav {
     display: flex;
