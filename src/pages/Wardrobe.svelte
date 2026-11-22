@@ -38,6 +38,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import ShareBar from '../lib/ui/ShareBar.svelte';
   import { addItem } from '../lib/nav.js';
+  import { setupCount } from '../lib/wardrobe-setup.js';
 
   const itemsQ = liveQuery(() => db.items.toArray());
   const offsetQ = liveQuery(() => db.settings.get(CLOTHING_OFFSET));
@@ -126,6 +127,8 @@
   const layerParts = $derived(w.layers.map((l) => ({ key: l.key, label: t(LAYERS.find((x) => x.key === l.key).name), g: l.g || 0, color: LAYER_COLOR[l.key] })));
   // v0.45.0 (decision 8): the learned offset in words, with "Reset".
   const offLine = $derived(offsetLine(offset));
+  // «Kleiderschrank einrichten» (Noah 21.11.2026 «1-5a 4b»): how many pieces still lack a temperature or a place
+  const setupInfo = $derived(setupCount(items));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { maximumFractionDigits: 1 })} kg`;
   const tr = (s, v) => t(s, v);
   // The class of the import is stored in German (warm, mittel, kalt).
@@ -327,6 +330,9 @@
       <!-- 0.159.0 «UI-Regeln» Teil 1 (UI1 + UI8): the weight per layer as one thin bar -->
       <div class="wshare"><ShareBar label={t('Weight by layer')} parts={layerParts} fmt={kg} /></div>
       <!-- v0.45.0 (Noah, decision 8): what the debriefs taught, in words; hidden at 0. v0.47.0: a quiet chip. -->
+      {#if setupInfo.open && use !== 'everyday'}
+        <p class="setupline" data-setup-hint><span class="num">{tn(setupInfo.open, '{n} piece still without temperature or place', '{n} pieces still without temperature or place')}</span><a class="btn sm" href="#/wardrobe/setup">{t('Set up wardrobe')}</a></p>
+      {/if}
       {#if offLine}
         <p class="offset"><Thermometer size={15} aria-hidden="true" /><span class="num">{t(offLine.text, { n: offLine.n })}</span><button type="button" class="linkbtn" onclick={resetOff}>{t('Reset|offset')}</button></p>
       {/if}
@@ -700,6 +706,19 @@
     margin: 6px 0 8px;
   }
   .offset {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 0;
+    padding: 2px 6px 2px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .setupline {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
