@@ -1,6 +1,6 @@
 # Strava-Fahrten werden nicht mehr doppelt geholt
 
-Entwurf, noch nicht hochgeladen (Baustopp, Noah 22.11.2026 «Warteliste Strava-Doppel»)
+PR # · 22.11.2026 · Auftrag: Noah «Warteliste Strava-Doppel», «a» (Zeile «Aufräumen?») und «freigabe» (Einzelfreigabe zum Aufräumen) (Thread «Sync»)
 
 ## Was ist neu
 - Ein Strava-Eintrag im Fahrten-Buch bekommt als Schlüssel die Strava-Nummer der Fahrt. Holen zwei Geräte dieselbe Fahrt, bevor sie sich abgleichen, entsteht ein Eintrag, nicht zwei.
@@ -11,7 +11,8 @@ Entwurf, noch nicht hochgeladen (Baustopp, Noah 22.11.2026 «Warteliste Strava-D
 
 ## Selbst entschieden
 - Der Eintrag mit den meisten Daten (Puls, Höhenmeter, Startzelle) bleibt, bei Gleichstand der mit dem kleineren Schlüssel.
-- Das Aufräumen ist noch ohne Knopf: Es fasst Noahs Daten an und braucht Einzelfreigabe und vorher eine Kopie des Backups. Knopf und Text kommen erst nach seinem ok.
+- Das Aufräumen fasst Noahs Daten an: Einzelfreigabe von Noah am 22.11.2026 («freigabe»), vor dem Aufräumen macht die App eine Kopie der Daten (Kopien vor Updates), und es gibt Rückgängig.
+- Die Zeile steht im Fahrten-Buch unter «Mehr» (Inhalt zuerst: nichts oben auf der Seite), dazu eine Marke «n Fahrten doppelt» auf «Mehr».
 
 ## Stand im Plan
 - Warteliste: Punkt «Strava-Doppel».
