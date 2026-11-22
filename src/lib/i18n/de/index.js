@@ -244,6 +244,7 @@ import dokumente from './dokumente.js';
 import bedienregeln from './bedienregeln.js';
 // P8 «Automatischer Abgleich»
 import abgleich from './abgleich.js';
+import stravadoppel from './stravadoppel.js';
 import verbindungenStatus from './verbindungen-status.js';
 import datenaufraeumen from './datenaufraeumen.js';
 
@@ -915,6 +916,7 @@ const ORDERED = [
   bestaetigung,
   teilnehmerliste,
   abgleich,
+  stravadoppel,
   verbindungenStatus,
   datenaufraeumen,
   push,
