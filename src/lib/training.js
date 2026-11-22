@@ -369,6 +369,16 @@ export function cleanSession(s) {
 }
 export const planOf = (v) => (Array.isArray(v?.sessions) ? v.sessions.map(cleanSession).filter(Boolean) : []);
 
+/**
+ * Days TrainingPeaks keeps free («Recovery Day», no duration; Noah 22.11.2026 «Recovery Day ja»): `rest` in the plan record,
+ * a list of days. Not sessions: they have no hours and show in no list; only the weekly plan reads them and plans no free unit on them.
+ */
+export const restOf = (v) => (Array.isArray(v?.rest) ? [...new Set(v.rest.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(String(d))))].sort().slice(0, 60) : []);
+/** The sessions as the weekly plan reads them: the sessions plus one entry `{ rest: true, day }` per free day. For the planner only, never for a list. */
+export const plannerSessions = (v) => [...planOf(v), ...restOf(v).map((day) => ({ id: `rest-${day}`, day, src: 'tp', rest: true, kind: 'other', mins: 0, name: '' }))];
+/** The plan record with the new sessions, the free days kept (a writer of the sessions must not lose them). */
+export const planValue = (v, sessions) => ({ sessions, ...(restOf(v).length ? { rest: restOf(v) } : {}) });
+
 /** The goal, cleaned: hours per week (0.5–40), base share in % (0–100), a name and an end day; all optional. */
 export function goalOf(v) {
   if (!v || typeof v !== 'object') return null;

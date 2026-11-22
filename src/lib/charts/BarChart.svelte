@@ -10,8 +10,8 @@
    * cols: [{ key, x, top, parts: [{ v, color }], none }] (x: the label under it or ''; none: a text such as «Not yet»
    * or «No data in this period» for a bar that is no real zero: the line above the chart shows it instead of the numbers,
    * and the chart starts on the newest bar without it), line: [number] or null,
-   * readout(i) → { title, items }, label: what the chart shows (for screen readers), unit: of the axis,
-   * steps: the allowed axis steps (counts: [1, 2, 5, 10 …] so the axis never says 0.5 sessions).
+   * readout(i) → { title, items, extra } (extra: one line under the numbers, e.g. the comparison with the year before), label: what the chart shows (for screen readers), unit: of the axis,
+   * sentences: up to three short sentences over the chart (sentence.js), steps: the allowed axis steps (counts: [1, 2, 5, 10 …] so the axis never says 0.5 sessions).
    */
   import { niceScale, fracOf, tickText } from './axis.js';
   import YTicks from './YTicks.svelte';
@@ -22,7 +22,7 @@
   import { indexAt, stepKey } from './pick.js';
   import { t, num } from '../i18n.svelte.js';
 
-  let { cols = [], line = null, lineColor = 'var(--ch-w)', readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 26, id = 'bc', steps = null } = $props();
+  let { cols = [], line = null, lineColor = 'var(--ch-w)', readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 26, id = 'bc', steps = null, sentences = [] } = $props();
 
   const totals = $derived(cols.map((c) => c.parts.reduce((s, p) => s + (p.v || 0), 0)));
   const scale = $derived(niceScale([...totals, ...(line ?? [])], { zero: true, count: 4, steps }));
@@ -95,7 +95,8 @@
   {#if view === 'table' && table}
     <DataTable head={table.head} rows={table.rows} />
   {:else}
-    {#if ro}<Readout title={ro.title} items={ro.items} note={ro.note} />{/if}
+    {#if sentences.length}<ul class="sn" data-chart-sentences>{#each sentences as x (x)}<li>{x}</li>{/each}</ul>{/if}
+    {#if ro}<Readout title={ro.title} items={ro.items} note={ro.note} extra={ro.extra} />{/if}
     <div class="g" style:--h="{height}px">
       <YTicks ticks={scale.ticks} {y} h={100} text={(v) => tickText(v, scale.step, num)} {unit} />
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -122,6 +123,16 @@
 </div>
 
 <style>
+  .sn {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .bc {
     display: flex;
     flex-direction: column;

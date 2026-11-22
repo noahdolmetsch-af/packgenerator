@@ -4,7 +4,7 @@
    * the mouse points at, in one line over the chart, so the finger covers nothing (phone and computer the
    * same). Without a choice it shows the newest column. title: the day or week; items: [{ label, value, color }].
    */
-  let { title = '', items = [], note = '' } = $props();
+  let { title = '', items = [], note = '', extra = '' } = $props();
 </script>
 
 <div class="ro" aria-live="polite" data-readout>
@@ -15,6 +15,7 @@
       <span class="v"><small>{#if it.color}<i style:background={it.color}></i>{/if}{it.label}</small><b class="num">{it.value}</b></span>
     {/each}
   </span>
+  {#if extra && !note}<span class="ex" data-readout-compare>{extra}</span>{/if}
 </div>
 
 <style>
@@ -35,6 +36,11 @@
     display: flex;
     flex-wrap: wrap;
     gap: 2px 14px;
+  }
+  .ex {
+    flex-basis: 100%;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .nt {
     color: var(--ink-2);

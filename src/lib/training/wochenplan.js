@@ -259,6 +259,18 @@ export function tpWeek(sessions, monday) {
   return out.sort((a, b) => a.d - b.d || a.t.localeCompare(b.t) || a.id.localeCompare(b.id));
 }
 
+/** The weekdays (0 = Monday) of a week that TrainingPeaks keeps free («Recovery Day»): entries `{ rest: true, day }` of the sessions list. */
+export function restWeek(sessions, monday) {
+  const m0 = Date.parse(`${monday}T12:00:00Z`);
+  const out = new Set();
+  for (const s of Array.isArray(sessions) ? sessions : []) {
+    if (s?.rest !== true || !DAY_RE.test(s.day ?? '')) continue;
+    const d = Math.round((Date.parse(`${s.day}T12:00:00Z`) - m0) / 864e5);
+    if (d >= 0 && d <= 6) out.add(d);
+  }
+  return [...out].sort((a, b) => a - b);
+}
+
 /**
  * The goal counts after TrainingPeaks took its share (Noah «1a»: the hours stay, the plan plans the rest). A unit falls
  * away when the minutes TrainingPeaks has left cover at least half of it; the minutes of a sport first cover its own
@@ -300,7 +312,7 @@ function replaceByTp(cfg, counts, tp) {
 
 /**
  * Plans one week.
- *   cfg: a season config (configOf); ctx: { monday, ski, rain, pins: { [unitId]: { d, t } }, sessions }. sessions (optional): the sessions of `training.plan`;
+ *   cfg: a season config (configOf); ctx: { monday, ski, rain, pins: { [unitId]: { d, t } }, sessions }. sessions (optional): the sessions of `training.plan` (and `{ rest: true, day }` for a Recovery Day, see plannerSessions);
  *   the ones from TrainingPeaks stand fixed on their day, take their share of the hours (replaceByTp) and are checked like every unit.
  * Returns { units, dayLoad, notes, warnings, freeHalves, perDay }:
  *   units: [{ id, type, d, t, start, end, mins, load, fixed, pinned, variant, why }] sorted by day and time
@@ -316,6 +328,8 @@ export function planWeek(cfg, ctx) {
   const U = [];
   const notes = [];
   const tp = tpWeek(ctx.sessions, ctx.monday);
+  const restDays = restWeek(ctx.sessions, ctx.monday); // Recovery Day: no free unit on it (what stands fixed stays)
+  for (const d of restDays) notes.push({ key: 'tp-rest', d });
   if (tp.length) {
     const r = replaceByTp(cfg, counts, tp);
     counts = r.counts;
@@ -383,7 +397,7 @@ export function planWeek(cfg, ctx) {
     if (out.includes(type) && U.some((x) => x.d === d && out.includes(x.type) && x.type !== type)) sc += 6;
     return sc;
   }
-  const banned = (d) => d === skiDay || (ski && d === skiDay - 1); // no unit on the tour day and the day before
+  const banned = (d) => d === skiDay || (ski && d === skiDay - 1) || restDays.includes(d); // no unit on the tour day and the day before, none on a free day of TrainingPeaks
   const noRoom = (type) => notes.push({ key: 'no-room', type });
 
   // 1 the tour
