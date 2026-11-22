@@ -1,6 +1,6 @@
 # «Erste Nacht» beim Packen einer Tour mit Nacht draussen
 
-PR #<NUM> · 22.11.2026 · Auftrag: Noah «Freie Zeit 3b» (Thread «App-Landkarte», Durchsicht Freie Zeit)
+PR #1451 · 22.11.2026 · Auftrag: Noah «Freie Zeit 3b» (Thread «App-Landkarte», Durchsicht Freie Zeit)
 
 ## Was ist neu
 - Bei einer Tour mit einer Nacht draussen (Biwak oder Biwak + Zelt) zeigt die Gruppe «Vorher und am Abend» unter «Mehr zu dieser Tour» eine Zeile «Passt hier» mit «Erste Nacht» und «Gute Nacht». «Erste Nacht» öffnet die geführte erste Nacht, «Gute Nacht» die Seite, auf der du mehrtägigen Touren Bescheid gibst, wo du schläfst.
