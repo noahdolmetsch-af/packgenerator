@@ -32,4 +32,9 @@ export default {
   'f.webcams': 'Note what you look at a cam for, e.g. «snow on the pass». In a year you will still know why you kept it.',
   'f.air': 'Ozone is highest on hot afternoons. On such days, ride the hard part in the morning.',
   'f.skistart': 'Do the transceiver check with the whole group at the car park, not at the first slope. Set the turn-around time before you start.',
+  // Wetter ausbauen (Noah 22.11.2026 «a»)
+  'f.wxrain15': 'Showers pass in about 20 minutes. If the bars end soon, waiting under a roof often costs less than riding in it.',
+  'f.wxroute': 'A pass is often 10 degrees colder than the start. Pack for the coldest point, not for the car park.',
+  'f.wxroad': 'A wet road needs a longer braking distance for hours after the rain, and the first rain after a dry spell is the slipperiest.',
+  'f.wxshare': 'Send a window with the time you leave, not only the day. «Saturday» is vague; «Saturday 09:00 at the station» is a plan.',
 };

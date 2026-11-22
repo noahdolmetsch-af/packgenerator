@@ -1,6 +1,8 @@
 // «Wetter entlang der Route» (Wetter-Ausbau A und G, Noah 22.11.2026 «a»): headwind share, coldest point, extra pack hints, webcams on the route.
 import { describe, it, expect } from 'vitest';
-import { headShare, coldest, routeHints, camsAlong, dayRows, tripPace, rowBefore } from '../src/lib/wetter/routewx.js';
+import { headShare, coldest, routeHints, camsAlong, dayRows, tripPace, rowBefore, stageWeather } from '../src/lib/wetter/routewx.js';
+import { linePoints } from '../src/lib/map/wxline.js';
+import { lineKm } from '../src/lib/race/race.js';
 
 const row = (km, temp, kind, extra = {}) => ({ km, temp, kind, w: true, rainP: 10, rainMm: 0, wind: 10, gust: 15, eta: 1000 + km, ...extra });
 const rows = [row(0, 4, 'tail'), row(28, 3, 'head'), row(55, -1, 'head'), row(80, 6, 'tail', { rainP: 70, rainMm: 0.8 }), row(104, 7, 'tail')];
@@ -67,5 +69,58 @@ describe('rowBefore', () => {
     expect(rowBefore(rows, 60).km).toBe(55);
     expect(rowBefore(rows, 28).km).toBe(28);
     expect(rowBefore(rows, -5)).toBeNull();
+  });
+});
+
+// C «Wetter pro Etappe»: three days along the equator, the second day wet and cold
+describe('stageWeather', () => {
+  const east = { km: 0, line: Array.from({ length: 31 }, (_, i) => [0, 20 + i * 0.1]) };
+  const pts = lineKm(east);
+  const route = { line: east.line, km: pts.at(-1).km, profile: [] };
+  const T0 = Date.UTC(2026, 5, 1, 0, 0);
+  const H = 36e5;
+  const hourly = () => {
+    const time = Array.from({ length: 24 * 4 }, (_, i) => (T0 + i * H) / 1000);
+    const day = (i) => Math.floor(i / 24);
+    return {
+      hourly: {
+        time,
+        temperature_2m: time.map((_, i) => (day(i) === 1 ? 4 : 14)),
+        precipitation_probability: time.map((_, i) => (day(i) === 1 ? 80 : 5)),
+        precipitation: time.map((_, i) => (day(i) === 1 ? 1.2 : 0)),
+        wind_speed_10m: time.map(() => 12),
+        wind_gusts_10m: time.map(() => 20),
+        wind_direction_10m: time.map(() => 90),
+      },
+    };
+  };
+  const points = linePoints(pts);
+  const cache = { points, series: points.map(() => hourly()) };
+  const trip = { startDate: '2026-06-01', days: 3, route };
+
+  it('gives one row per day with its own date and km range', () => {
+    const r = stageWeather(cache, trip, { kmh: 20, startHour: 8 });
+    expect(r.map((d) => d.date)).toEqual(['2026-06-01', '2026-06-02', '2026-06-03']);
+    expect(r[0].fromKm).toBe(0);
+    expect(r[2].toKm).toBeCloseTo(route.km, 0);
+  });
+  it('finds the wet and cold day', () => {
+    const r = stageWeather(cache, trip, { kmh: 20, startHour: 8 });
+    expect(r[0].rainShare).toBe(0);
+    expect(r[1].rainShare).toBe(100);
+    expect(r[1].tmax).toBe(4);
+    expect(r[1].rainAt).toBeGreaterThan(0);
+    expect(r[2].tmin).toBe(14);
+    expect(r[0].windMax).toBe(12);
+  });
+  it('says nothing for a one-day trip, without a date, a pace or a kept strip', () => {
+    expect(stageWeather(cache, { ...trip, days: 1 }, { kmh: 20 })).toEqual([]);
+    expect(stageWeather(cache, { ...trip, startDate: '' }, { kmh: 20 })).toEqual([]);
+    expect(stageWeather(cache, trip, { kmh: null })).toEqual([]);
+    expect(stageWeather(null, trip, { kmh: 20 })).toEqual([]);
+  });
+  it('marks a day outside the forecast', () => {
+    const r = stageWeather(cache, { ...trip, startDate: '2026-06-20' }, { kmh: 20 });
+    expect(r.every((d) => d.ok === false && d.tmin === null)).toBe(true);
   });
 });

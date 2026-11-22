@@ -18,6 +18,7 @@
   import TourNebel from './TourNebel.svelte'; // «Nebel auf der Tour-Route» (Noah 05.11.2026)
   import WxTimeline from '../map/WxTimeline.svelte'; // Wetter-Ausbau A and G (Noah 22.11.2026): the weather along the route
   import { tripPace } from './routewx.js';
+  import EtappenWetter from './EtappenWetter.svelte'; // Wetter-Ausbau C: the weather of each riding day
   import { BERGFEX, WEBCAMS_KEY, camsOf } from './webcams.js';
   import { FEEL_KEY, FEEL_TEXT, PART_TEXT, feelsOf, feelHints } from './gefuehl.js';
   import { FUEL_KEY, fuelForTrip } from '../fuel.js';
@@ -95,6 +96,7 @@
       {#if week}<p class="tw-best" data-tour-wetter-week><Target size={16} aria-hidden="true" />{t('Best day in the next week: {day}, from {from}', { day: wd(week.date), from: hm(week.start) })}</p>{/if}
       {#if inForecast}<TourNebel {trip} startMs={day?.start ?? null} />{/if}
       {#if way}{#key trip.id}<WxTimeline route={trip.route} pace={way.kmh} startAt={day?.start ?? atLocal(trip.startDate, 8, off)} tripId={trip.id} auto advice dayKm={way.dayKm} startHints={wear.map((w) => w.key)} {camList} />{/key}{/if}
+      {#if way}{#key trip.id}<EtappenWetter {trip} kmh={way.kmh} {off} />{/key}{/if}
       {#if wear.length}<p class="tw-note" data-tour-wetter-pack><Shirt size={16} aria-hidden="true" />{t('Pack: {list}', { list: wear.map((w) => t(PACK_TEXT[w.key])).join(', ') })}</p>{/if}
       {#if energy}<p class="tw-note" data-tour-energy><Flame size={16} aria-hidden="true" />{t('Per riding day about {kcal} kcal used: eat about {g} g carbohydrates, drink about {l} L.', { kcal: num(energy.burn), g: num(energy.carbsG), l: num(energy.waterL) })} <Nussgipfel kcal={energy.burn} /> <a href="#/trips/fuel">{t('Food and water|fuel')}</a></p>{/if}
       {#each learned.off as x (x.id)}<p class="tw-note" data-tour-wetter-feel>{x.parts.length ? t('Last time at {c} °C: {feel} ({parts}).', { c: num(x.tmin), feel: t(FEEL_TEXT[x.feel]), parts: x.parts.map((p) => t(PART_TEXT[p])).join(', ') }) : t('Last time at {c} °C: {feel}.', { c: num(x.tmin), feel: t(FEEL_TEXT[x.feel]) })}{x.wore ? ` · ${x.wore}` : ''}</p>{/each}

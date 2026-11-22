@@ -11,7 +11,7 @@
    * - Meine Webcams (extra 7): add, rename, order with arrows and drag, delete with Undo; on this device only.
    */
   import { liveQuery } from 'dexie';
-  import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target, Moon, Waves, Copy } from '@lucide/svelte';
+  import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target, Moon, Waves, Copy, ChevronRight } from '@lucide/svelte';
   import WindVane from '../lib/wetter/WindVane.svelte'; // «Windfahne beim Wetter» (Paket D, Idee 15)
   import PageHead from '../lib/ui/PageHead.svelte';
   import { db } from '../lib/db.js';
@@ -406,12 +406,22 @@
   {/if}
   {/if}
 
+  <!-- «Wetter ausbauen» (Noah 22.11.2026 «a»): what usually comes next, one quiet line at the end of every part (never above the content) -->
+  <p class="wx-next" data-wx-next={tab}>{t('Next:')}
+    {#if tab === 'jetzt'}<button type="button" class="wx-nextlink" onclick={() => pick('planen')} data-wx-next-planen>{t('Plan a ride')}<ChevronRight size={14} aria-hidden="true" /></button> · <button type="button" class="wx-nextlink" onclick={() => pick('radar')} data-wx-next-radar>{t('Radar and cameras')}<ChevronRight size={14} aria-hidden="true" /></button>
+    {:else if tab === 'radar'}<button type="button" class="wx-nextlink" onclick={() => pick('planen')} data-wx-next-planen>{t('Plan a ride')}<ChevronRight size={14} aria-hidden="true" /></button> · <a href="#/ride">{t('On the way')}<ChevronRight size={14} aria-hidden="true" /></a>
+    {:else if tab === 'planen'}<a href="#/neuland" data-wx-next-neuland>{t('New ground to ride into')}<ChevronRight size={14} aria-hidden="true" /></a> · <a href="#/pack">{t('Pack for the day')}<ChevronRight size={14} aria-hidden="true" /></a>
+    {:else}<a href="#/heatmap" data-wx-next-heatmap>{t('Heatmap')}<ChevronRight size={14} aria-hidden="true" /></a> · <a href="#/flow/review">{t('Week in review')}<ChevronRight size={14} aria-hidden="true" /></a>{/if}
+  </p>
+
   <p class="rc-src"><Mountain size={14} aria-hidden="true" /> {t('Weather from Open-Meteo (free, open data). Avalanches: the SLF bulletin, shown as it is; the app never rates the danger itself.')}</p>
 </section>
 
 {#if homeSheet}<HomePlaceSheet current={$homeQ?.value ?? null} onclose={() => (homeSheet = false)} />{/if}
 
 <style>
+  .wx-next { margin: 14px 0 6px; font-size: 0.9rem; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+  .wx-next a, .wx-nextlink { display: inline-flex; align-items: center; gap: 2px; color: var(--ink); text-decoration: underline; font: inherit; background: none; border: 0; padding: 4px 0; min-height: 32px; cursor: pointer; }
   .wx {
     display: grid;
     gap: 12px;
