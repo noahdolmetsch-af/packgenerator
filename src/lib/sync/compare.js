@@ -9,7 +9,7 @@
 import { DATA_TABLES, syncLocal } from '../db.js';
 import { keysOf, unseal } from './code.js';
 import { NOTE, noteKey } from './track.js';
-import { readCfg, httpApi, takeTheirs } from './engine.js';
+import { readCfg, httpApi, takeTheirs, errCode } from './engine.js';
 
 const known = new Set(DATA_TABLES);
 
@@ -70,15 +70,22 @@ export async function compareSync(db, { api = httpApi() } = {}) {
 export async function fixMissing(db, found, now = new Date().toISOString()) {
   let got = 0;
   let sent = 0;
-  await db.transaction('rw', db.meta, ...DATA_TABLES.map((t) => db.table(t)), async () => {
-    for (const r of found.missingHere ?? []) {
-      await takeTheirs(db, r.t, r.id, { s: r.s, v: r.v, del: false, at: now });
+  let failed = 0;
+  // one record at a time: one this device cannot store (a refused row) is counted, the others still come in
+  for (const r of found.missingHere ?? []) {
+    try {
+      await db.transaction('rw', db.meta, ...DATA_TABLES.map((t) => db.table(t)), () => takeTheirs(db, r.t, r.id, { s: r.s, v: r.v, del: false, at: now }));
       got++;
+    } catch (err) {
+      if (errCode(err) === 'storage_full') throw err;
+      failed++;
     }
+  }
+  await db.transaction('rw', db.meta, async () => {
     for (const r of found.missingThere ?? []) {
       await db.meta.put({ key: noteKey(r.t, r.id), t: r.t, id: r.id, at: now, del: false, dirty: 1, base: 0 });
       sent++;
     }
   });
-  return { got, sent };
+  return failed ? { got, sent, failed } : { got, sent };
 }

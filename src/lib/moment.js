@@ -95,7 +95,7 @@ const LISTED_MOMENTS = {
   ],
   // Tour planen
   planen: [
-    'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.ask', 'f.sports', 'f.travel',
+    'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.sports', 'f.travel',
     'f.komoot', 'f.tripcompare', 'f.snow', 'f.skiplan', 'f.swissmap', 'f.sosqr', 'f.scales', 'f.race',
     'f.racesample', 'f.racemap', 'f.climbs', 'f.mapoffline', 'f.sleeplists', 'f.nightswx', 'f.abroad',
     'f.mapmeasure', 'f.wxwatch', 'f.fuel', 'f.sleeporigin', 'f.devil', 'f.nogos', 'f.energy', 'f.gpxstops',
@@ -106,7 +106,7 @@ const LISTED_MOMENTS = {
     'f.remindtime', 'blocks', 'templates', 'gpx', 'wxsuggest', 'f.packblocks', 'f.onion', 'f.shop',
     'f.ballast', 'f.tripbike', 'f.switch', 'f.blockcheck', 'f.packcleanup', 'f.planb', 'f.daysports',
     'f.unclear', 'f.border', 'f.ruleuntil', 'f.itemstories', 'f.intent', 'f.checkin', 'f.packtwo',
-    'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.starters', 'f.packside', 'f.ownrules',
+    'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.routeknown', 'f.starters', 'f.packside', 'f.ownrules',
     'f.forgotten', 'f.newpack', 'f.power', 'f.packphoto', 'f.tourhints', 'f.routepois', 'f.tripalert',
     'f.quiz', 'f.probe', 'f.blockeffect', 'f.needs', 'f.weightsure', 'f.sharepreview', 'bags', 'share',
     'f.tripcheck', 'f.readytomorrow', 'f.readaloud', 'f.offlinesave', 'f.labels', 'f.lightpush', 'f.skicheck',

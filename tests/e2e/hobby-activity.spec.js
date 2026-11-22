@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { FAV_SEED } from '../../src/lib/flowtiles.js';
 import { FUN_IDEAS } from '../../src/lib/flowsugg.js';
-import { TABS, tapTab } from './placetab.js';
+import { tapTab } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -71,7 +71,7 @@ test('Aktivität: the link, six tiles, rename, the editor, a suggestion, an idea
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
   // «Aktiv neu» (Noah 22.10.2026 «4a»): «Aktivität» is a page of «Meine Sportarten» (its button «Vorschläge und Ideen»)
-  const tabs = page.locator(TABS);
+  const tabs = page.locator('nav.psubs:visible'); // V4a: «Meine Sportarten» is a chip under «Training»
   await tapTab(page, T('My sports|tab'));
   await main.locator('[data-to-activity]').click();
   await expect(page).toHaveURL(/#\/flow\/activity$/);
@@ -189,7 +189,9 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   await row.locator('input.inp').fill('3, 7, 12');
   await row.locator('input.inp').press('Enter');
   await row.locator('input.inp').blur();
-  await expect(daily).toContainText(T('All stars · {stage}', { stage: T('Path|stage') }));
+  // «Ganz geschafft» (Noah 21.11.2026 «3a»): with all stars the milestone stands on the shelf and leaves the list
+  await expect(main.locator('[data-done-shelf] [data-done-ms="meditation.daily"]')).toBeVisible();
+  await expect(main.locator('.grid [data-ms="meditation.daily"]')).toHaveCount(0);
   await row.getByRole('button', { name: new RegExp(`^${esc(T('Suggestion: {list}', { list: '' }))}`) }).click();
   // star 3 was reached with the own numbers and stays (stars never get lost): next is star 4 at 30
   await expect(daily).toContainText(T('Star {k} · {stage}', { k: 4, stage: T('Depth|stage') }));

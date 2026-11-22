@@ -4,6 +4,7 @@
 import { test, expect } from './clock.js';
 import { q1File, q1Data, q1ImportFiles, NEU, GRAVEL, day } from './q1km-fixture.js';
 import { openData, settle } from './settle.js';
+import { openCareMore } from './pflege-mehr.js';
 
 const SHOTS = process.env.Q1_SHOTS;
 const shot = async (page, info, name) => {
@@ -53,6 +54,7 @@ const book = (page, id = NEU) => bike(page, id).locator('section.kmbook');
 test('the ride ledger: the km are the sum of the rides; an unclear ride counts only after you confirm it', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${NEU}&open=1`);
+  await openCareMore(page);
   const kb = book(page);
   await expect(kb.getByRole('heading', { name: 'Fahrten-Buch · km-Verlauf' })).toBeVisible();
   await expect(kb.locator('.tot .bignum').first()).toHaveText(`${num(appKm)} km`);
@@ -101,6 +103,7 @@ test('the ride ledger: the km are the sum of the rides; an unclear ride counts o
   await expect(kb.locator('.tot .bignum').first()).toHaveText(`${num(appKm + 10)} km`);
   // the old counter of another bike became its opening entry (migration), nothing lost
   await page.goto(`./#/bikes?tab=care&bike=${GRAVEL}&open=1`);
+  await openCareMore(page);
   await expect(book(page, GRAVEL).locator('li.row')).toHaveCount(1);
   await expect(book(page, GRAVEL).locator('li.row')).toContainText('Startwert: der bisherige Zähler');
   await expect(book(page, GRAVEL).locator('li.row')).toContainText('12’800 km');
@@ -112,6 +115,7 @@ test('the ride ledger: the km are the sum of the rides; an unclear ride counts o
 test('import rides: Check first, then per bike; duplicates merged; Take over and Undo', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${NEU}&open=1`);
+  await openCareMore(page);
   await book(page).getByRole('link', { name: 'Fahrten importieren' }).click();
   await expect(page).toHaveURL(/view=import/);
   await expect(page.getByRole('heading', { name: 'Fahrten importieren' })).toBeVisible();
@@ -189,6 +193,7 @@ test('Today: the weekly card compares with Strava; taking the value confirms the
 test('start points: Q1 status on top, a part without one shows without start point, set', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${NEU}&open=1`);
+  await openCareMore(page);
   const q1 = bike(page).locator('section.q1');
   await expect(q1).toContainText('Lückenlose km');
   await expect(q1).toContainText('fast erfüllt');

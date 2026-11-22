@@ -7,25 +7,24 @@ import { sportHref, actSport } from '../src/lib/flow/mysports.js';
 import { BIKE_ACT } from '../src/lib/sportsbase.js';
 
 describe('the places', () => {
-  it('the bar: Heute, Planen, Touren, Aktiv, Velos (and Material); Auswerten shares Aktiv', () => {
-    expect(PLACES.map((p) => p.key)).toContain('active');
-    expect(PLACES.map((p) => p.key)).not.toContain('analysis');
-    expect(PLACES.find((p) => p.key === 'active').href).toBe('#/flow');
-    expect(ANALYSIS.shares).toBe('active');
-    expect(barPlace('analysis')).toBe('active');
-    const side = SIDE_PLACES.map((p) => p.key);
-    expect(side.indexOf('analysis')).toBe(side.indexOf('active') + 1);
+  it('V4a (Noah 21.11.2026 «1a 2a»): Aktiv is part of Woche, Auswerten has its own place', () => {
+    expect(PLACES.map((p) => p.key)).not.toContain('active');
+    expect(PLACES.map((p) => p.key)).toContain('analysis');
+    expect(ANALYSIS.shares).toBeUndefined();
+    expect(barPlace('analysis')).toBe('analysis');
+    expect(PLACE_TABS.active).toBeUndefined();
   });
-  it('Aktiv has the four tabs of the spec, Auswerten the looking pages', () => {
-    expect(PLACE_TABS.active.map((x) => x.key)).toEqual(['today', 'sports', 'training', 'rest']);
+  it('Woche has the four tabs of the new order (the pages of Aktiv are chips under Training), Auswerten the looking pages', () => {
+    expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'training', 'notes', 'alltag']);
+    expect(PLACE_TABS.week.find((x) => x.key === 'training').subs.map((x) => x.key)).toEqual(['training', 'wochenplan', 'flowhome', 'sports', 'rest']);
     // Schritt 12: five tabs by question, every old page is a chip under one of them
     expect(PLACE_TABS.analysis.map((x) => x.key)).toEqual(['start', 'body', 'rides', 'history', 'analyse']);
-    expect(PLACE_TABS.analysis.flatMap((x) => x.subs.map((s) => s.key))).toEqual(expect.arrayContaining(['fragen', 'start', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'impulse', 'insights', 'weight', 'milestones']));
+    expect(PLACE_TABS.analysis.flatMap((x) => x.subs.map((s) => s.key))).toEqual(expect.arrayContaining(['fragen', 'start', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones']));
   });
   it('the start of Auswerten is its own page', () => {
     expect(pageOf('#/auswerten')).toBe('auswerten');
     expect(placeOf('auswerten')).toBe('analysis');
-    expect(placeOf('flow', '#/flow')).toBe('active');
+    expect(placeOf('flow', '#/flow')).toBe('week');
     expect(placeOf('flow', '#/flow/form')).toBe('analysis');
   });
 });
@@ -66,12 +65,12 @@ describe('Gipfelbuch on the page of a sport (Noah 22.10.2026 «1a»)', () => {
   });
 });
 
-describe('A06 (Klick-Rundgang 22.10.2026): the tabs of Aktiv on a phone never change', () => {
-  it('Heute, Meine Sportarten, Training, Erholung on every page of Aktiv, nothing under «Mehr»', async () => {
+describe('A06 (Klick-Rundgang 22.10.2026): the tabs on a phone never change', () => {
+  it('V4a: Woche, Training, Notizen, Alltag on every page of the old Aktiv, nothing under «Mehr»', async () => {
     const { phoneTabs } = await import('../src/lib/nav.js');
     for (const h of ['#/flow', '#/flow/sports', '#/flow/sport/act%3Ax', '#/flow/training', '#/flow/rest', '#/flow/gipfelbuch', '#/flow/week']) {
-      const { shown, more } = phoneTabs('active', h);
-      expect(shown.map((x) => x.key), h).toEqual(['today', 'sports', 'training', 'rest']);
+      const { shown, more } = phoneTabs('week', h);
+      expect(shown.map((x) => x.key), h).toEqual(['week', 'training', 'notes', 'alltag']);
       expect(more, h).toEqual([]);
     }
   });
@@ -110,13 +109,13 @@ describe('Auswerten in five tabs by question', () => {
     expect(subs.start).toEqual(['fragen', 'start']);
     expect(subs.body).toEqual(expect.arrayContaining(['form', 'body', 'weight', 'insights']));
     expect(subs.rides).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned']));
-    expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'impulse']));
+    expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'ideen']));
     expect(subs.analyse).toEqual(['analyse']);
   });
   it('no page of the old eighteen tabs is lost or stands twice', () => {
     const shown = all.flatMap((x) => x.subs.map((s) => s.key));
     expect(new Set(shown).size).toBe(shown.length);
-    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'impulse', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start'].sort());
+    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start'].sort());
   });
 });
 

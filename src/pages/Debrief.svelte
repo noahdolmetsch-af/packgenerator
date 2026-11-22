@@ -75,14 +75,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
   import { SETS_KEY } from '../lib/sets.js';
-  import { Sparkles } from '@lucide/svelte';
-  import DebriefDraft from '../lib/helper/DebriefDraft.svelte';
-  import { ask, errorText, helper, isOn, isPaused } from '../lib/helper/client.svelte.js';
-  import { debriefPayload } from '../lib/helper/payload.js';
-  import { helperLearning } from '../lib/helper/logic.js';
-  import { isDe } from '../lib/i18n.svelte.js';
-  import { tick, onDestroy } from 'svelte';
-  import '../lib/helper/helper.css';
+  import { onDestroy } from 'svelte';
 
   let { param = '', spot = '' } = $props();
 
@@ -265,45 +258,6 @@
     d.missing.push({ id: `m${Date.now().toString(36)}`, name: match?.name ?? name, itemId: match?.id ?? null });
     missName = '';
     persist();
-  }
-  /* ---------- v0.77.0 (answer 3a): «Entwurf holen» → «Entwurf vom Helfer» ---------- */
-  let draft = $state(null);
-  let draftBusy = $state(false);
-  let draftMsg = $state('');
-  async function getDraft() {
-    if (draftBusy) return;
-    if (isPaused()) return (draftMsg = errorText('paused', { capChf: helper.capChf }));
-    draftBusy = true;
-    draftMsg = '';
-    const r = await ask('debrief', debriefPayload(trip, { notes: $state.snapshot(freeNotes), debrief: $state.snapshot(d), items, learnings, lang: isDe() ? 'de' : 'en' }));
-    draftBusy = false;
-    if (!r.ok) return (draftMsg = errorText(r.error, { capChf: helper.capChf }));
-    if (!r.result.learnings.length && !r.result.summary) return (draftMsg = t('The helper found nothing to suggest this time.'));
-    draft = r.result;
-  }
-  /** «Übernehmen» on a learning: saved like the app's own; its note on the way counts as answered. */
-  async function learnFromDraft(s) {
-    const now = new Date().toISOString();
-    const note = wayNotes.find((n) => n.key === s.noteKey);
-    await db.transaction('rw', [db.learnings, db.debriefs, db.notes], async () => {
-      const rec = helperLearning(s, trip, await db.learnings.toArray(), now);
-      await db.learnings.put(rec);
-      if (note?.noteId) await db.notes.update(note.noteId, { status: 'sorted', to: { kind: 'learning', label: 'Learning', ref: rec.id }, sortedAt: now });
-      if (note && !d.applied.includes(note.key)) d.applied = [...d.applied, note.key];
-      d.updatedAt = now;
-      await db.debriefs.put($state.snapshot(d));
-    });
-  }
-  /** «Übernehmen» / «Bearbeiten» on the summary: it becomes the sentence for next time (the field opens for «Bearbeiten»). */
-  async function summaryFromDraft(text, edit) {
-    d.note = text;
-    await persist();
-    if (edit) {
-      await tick();
-      const area = document.querySelector('.sentence textarea');
-      area?.scrollIntoView({ block: 'center' });
-      area?.focus();
-    }
   }
   const noteWhen = (iso) => new Date(iso).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' });
   function dropMissing(id) {
@@ -736,16 +690,10 @@
                   {/each}
                 </div>
               </details>
-              {#if isOn() && freeNotes.length && !draft}
-                <!-- v0.77.0 (answer 3a): the helper's draft only on request -->
-                <button type="button" class="rv-row kh-getdraft" disabled={draftBusy} onclick={getDraft}><span class="rv-ic" aria-hidden="true"><Sparkles size={18} /></span><span class="rv-m"><span class="rv-t">{draftBusy ? t('The helper is thinking …') : t('With the helper')}</span><span class="rv-s">{t('Get a draft, optional')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></button>
-              {/if}
             </div>
-            {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}
           </section>
           <!-- «Mit Claude besprechen» (Noah 19.10.2026 «1a»): the notes of the way, only with the tick -->
           <div class="tall"><AskClaude name="debrief" ask={t('These are my notes from the trip «{trip}». Help me with a short look back and learnings for next time.', { trip: trip.title })} lines={[d?.note ?? '', ...freeNotes.map((n) => n.text)].filter(Boolean).slice(0, 40)} /></div>
-          {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
         </div>
       </div>
       <!-- The tip of the day changes length every day; below the form, the chips stay on the first phone screen every day -->
@@ -1187,9 +1135,6 @@
     display: block;
     color: var(--ink-3);
     font-size: var(--fs-small);
-  }
-  .kh-msg {
-    margin: 8px 2px 0;
   }
   .over .title {
     margin: 0 0 14px;

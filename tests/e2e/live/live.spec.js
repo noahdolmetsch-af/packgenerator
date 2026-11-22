@@ -7,6 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { appVersion } from '../../../scripts/news.mjs';
 import { readFileSync } from 'node:fs';
+import { isNewerOrSame, shownVersion } from './version.js';
 
 const URL_LIVE = process.env.LIVE_URL || 'https://noahdolmetsch-af.github.io/packgenerator/';
 const WANT = process.env.EXPECT_VERSION || appVersion(); // scripts/news.mjs (version at merge time)
@@ -35,11 +36,12 @@ test('Live: Today opens, Ich shows the new version, and the app starts without n
   for (let i = 0; i < 20; i++) {
     await opens(page, '#/me');
     shown = await page.locator('main').innerText();
-    if (shown.includes(WANT)) break;
+    if (shown.includes(WANT) || (shownVersion(shown) && isNewerOrSame(shownVersion(shown), WANT))) break;
     await page.waitForTimeout(30_000);
     await context.clearCookies();
   }
-  expect(shown, `Ich zeigt die Version ${WANT}`).toContain(WANT);
+  const live = shownVersion(shown);
+  expect(shown.includes(WANT) || (live !== '' && isNewerOrSame(live, WANT)), `Ich zeigt die Version ${WANT} oder eine neuere (gezeigt: ${live || 'keine'})`).toBe(true);
   await opens(page);
 
   // the service worker has taken over this page: the app is kept for offline use

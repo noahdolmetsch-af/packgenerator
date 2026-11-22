@@ -11,18 +11,19 @@
    * v0.105.0 Design-Refresh P8 «Aktiv» (A8): two columns; main «Bald erreichbar» as rows, «Pro Aktivität»
    * as rows, the cards; side the trophy shelf, the reward and the record wall; the numbers folded below.
    */
-  import { Lightbulb, Star } from '@lucide/svelte';
+  import { Lightbulb } from '@lucide/svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
-  import Rows from '../../lib/flow/kit/Rows.svelte';
+  import StarPath from '../../lib/flow/hobby/StarPath.svelte';
   import MsRows from '../../lib/flow/kit/MsRows.svelte';
   import TrophyShelf from '../../lib/flow/kit/TrophyShelf.svelte';
   import RewardRow from '../../lib/flow/hobby/RewardRow.svelte';
   import RecordWall from '../../lib/flow/hobby/RecordWall.svelte';
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
+  import DoneShelf from '../../lib/flow/hobby/DoneShelf.svelte';
   import HeroNext from '../../lib/flow/hobby/HeroNext.svelte';
   import { heroOf } from '../../lib/flow/naechster.js';
   import MsHome from '../../lib/home/MsHome.svelte';
@@ -69,7 +70,9 @@
   const actOf = $derived(data?.acts.find((a) => a.id === filter) ?? null);
   const inFilter = (r) => (filter === 'all' ? true : filter === 'cross' ? !r.m.actId : r.m.actId === filter);
   const scoped = $derived(shown.filter(inFilter));
-  const cards = $derived(filter === 'all' || filter === 'cross' ? shown.filter((r) => !r.m.actId) : scoped);
+  // «Ganz geschafft» (Noah 21.11.2026 «3a»): milestones with all stars stand on the shelf, not in the list
+  const doneList = $derived(scoped.filter((r) => r.done));
+  const cards = $derived((filter === 'all' || filter === 'cross' ? shown.filter((r) => !r.m.actId) : scoped).filter((r) => !r.done));
   const perAct = $derived.by(() => {
     if (filter !== 'all' || !data) return [];
     const by = nextPerAct(shown);
@@ -83,7 +86,8 @@
   // «Dein nächster Stern» (Noah 21.11.2026 «1a»): the card on top; «Soon within reach» below does not repeat its star
   const hero = $derived(ctx && data ? heroOf({ list: scoped, ctx, acts: data.acts, plan: data.plan, weeklog: data.weeklog, today }) : null);
   const soon = $derived(soonList(hero ? scoped.filter((r) => r.id !== hero.r.id) : scoped, 5));
-  const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, icon: Star, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, value: r.next ? `${Math.round(r.progress * 100)} %` : '', href: `#/flow/milestones?act=${encodeURIComponent(a.id)}` })));
+  // «Der Sternen-Weg» (Noah 21.11.2026 «2a»): per sport the path of its stars instead of a percent row
+  const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, href: `#/flow/milestones?act=${encodeURIComponent(a.id)}`, r })));
   const nextUp = $derived(soonList(scoped, 1)[0] ?? scoped.filter((r) => r.next).sort((x, y) => y.progress - x.progress)[0] ?? null);
   const shelf = $derived([
     ...recentStars(scoped, 3).map((x) => ({ id: x.star.id, name: msName(x.r.m), when: dayWord(x.star.day, today), done: true })),
@@ -140,6 +144,13 @@
 
     {#if hero}<HeroNext {hero} label={label(hero.r)} />{/if}
 
+    <!-- «Belohnung nach oben» (Noah 21.11.2026 «5a»): the reward sits right under the next star, not at the side -->
+    <Sec id="reward-h" title={t('Reward')}>
+      <RewardRow list={scoped.filter((r) => r.next)} reward={data.reward} wishlist={data.wishlist} onsave={saveReward} quick={hero?.r ?? null} />
+    </Sec>
+
+    {#if doneList.length}<DoneShelf list={doneList} {label} />{/if}
+
     <MsHow />
 
     <div class="lay">
@@ -149,13 +160,13 @@
         </Sec>
 
         {#if perAct.length}
-          <Sec id="per-h" title={t('Per activity · next star')}>
-            <Rows rows={perActRows} />
+          <Sec id="per-h" title={t('Per activity · your path')} sub={t('Gold: reached. The next star fills as you get closer.')}>
+            <StarPath rows={perActRows} />
           </Sec>
         {/if}
 
         <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
-          {#if cards.length || scoped.length}
+          {#if cards.length}
             <!-- phone: the first six, the rest after «Alle n zeigen» -->
             {#if fold && cards.length}
               <!-- Noah 27.10.2026 «2a»: on a phone only the next star per sport stays open (above); all cards wait folded -->
@@ -167,6 +178,8 @@
               <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
               {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
             {/if}
+          {:else if doneList.length}
+            <Empty text={t('Every milestone here has all its stars. They stand on the shelf «Fully done» above.')} />
           {:else}
             <Empty text={t('This activity has no milestones yet.')} />
           {/if}
@@ -183,9 +196,6 @@
       <aside class="col">
         <Sec id="shelf-h" title={t('Trophy shelf')} sub={t('reached lately')}>
           <div class="card shelf"><TrophyShelf items={shelf} next={shelfNext} more="#/flow/trophies" /></div>
-        </Sec>
-        <Sec id="reward-h" title={t('Reward')}>
-          <RewardRow list={scoped.filter((r) => r.next)} reward={data.reward} wishlist={data.wishlist} onsave={saveReward} />
         </Sec>
         {#if (filter === 'all' || filter === 'cross') && recs.length}
           <Sec id="rec-h" title={t('Record wall')}>

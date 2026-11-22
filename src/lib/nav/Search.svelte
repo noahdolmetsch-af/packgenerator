@@ -17,7 +17,6 @@
   import { countUse } from '../home/usage.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
-  import SearchAnswer from '../helper/SearchAnswer.svelte';
   import SearchFree from '../kisuche/SearchFree.svelte';
   import AskAnswer from '../assistent/AskAnswer.svelte';
   import { smartSearch } from '../kisuche/smart.js';
@@ -55,7 +54,6 @@
   let open = $state(false); // phone: the field is shown
   let input = $state();
   let btn = $state(); // phone: the magnifier that opened the field
-  let kh = $state(); // v0.77.0 KI-Helfer (answer 2a): «Frag den Helfer» above the hits
   let spoken = $state(false); // the text in the field was spoken (not typed)
   let heardNow = $state(''); // the words while the microphone listens
   let micMsg = $state('');
@@ -361,7 +359,6 @@
       // v0.44.1 (AP21): on a phone the field closes, so the focus goes back to the magnifier (not to the page top).
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
-    if (e.key === 'Enter' && kh?.onEnter(q)) return e.preventDefault();
     if (e.key === 'Enter' && ai?.steps?.length) okAi();
     else if (e.key === 'Enter' && says) doSays();
     else if (e.key === 'Enter' && aiOffer) understand();
@@ -468,7 +465,6 @@
       {/if}
       <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
       {#if suche.app && !quiet}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
-      <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
       {#if cmds.length || says}
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">

@@ -83,6 +83,7 @@
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier» on top of Aktiv (Noah 03.11.2026 «1a»)
   import WeekGoals from '../lib/flow/WeekGoals.svelte'; // Aktiv 4b (Noah 05.11.2026): own goals for the week Monday to Sunday
+  import NachtragHint from '../lib/flow/NachtragHint.svelte'; // Gestern nachtragen (Noah 21.11.2026): the morning hint «Gestern nichts abgehakt?»
   import RuhetagHint from '../lib/flow/RuhetagHint.svelte'; // Aktiv 4a (Noah 05.11.2026): after three hard days one gentle line
   import { sportHref } from '../lib/flow/mysports.js';
   import { localDay } from '../lib/localday.js';
@@ -229,6 +230,7 @@
            Soll?», in three parts: tick off today, this week, the rings. The form card, Strava, «Wi gaht's?» and the
            tiles moved to Auswerten; the lake and the air to the weather page. -->
       <RuhetagHint {today} />
+      <NachtragHint {today} log={data.log} acts={live.map((s) => s.act)} />
       <div class="lay">
         <div class="col">
           <!-- the stopwatch sits in the head of this part (was Aktiv › Mehr › Stoppuhr) -->
