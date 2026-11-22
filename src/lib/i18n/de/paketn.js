@@ -48,7 +48,7 @@ export default {
   'Gear, bikes and reminders': 'Material, Velos und Merken',
   'Enter data, building blocks, Garmin, bags, birthdays and plants, ski tours.': 'Daten eingeben, Bausteine, Garmin, Taschen, Geburtstage und Pflanzen, Skitouren.',
   'Today and Active': 'Heute und Aktiv',
-  'The new Today, daily check as its own window, balance ring, routine, insights.': 'Das neue Heute, Tages-Check als eigenes Fenster, Balance-Ring, Routine, Erkenntnisse.',
+  'The new Today, daily check as its own window, balance ring, routine, insights.': 'Das neue Heute, Tages-Check als eigenes Fenster, Balance-Ring, Routine, Zusammenhänge.',
   'Plan the week': 'Woche planen',
   'The week with your Google calendar, weather and load; a walk-through.': 'Die Woche mit deinem Google Kalender, Wetter und Belastung; ein Rundgang.',
   'Data comes by itself': 'Daten kommen von selbst',

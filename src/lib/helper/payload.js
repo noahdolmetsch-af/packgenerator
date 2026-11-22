@@ -60,25 +60,6 @@ export const tripOut = (trip) =>
     km: n(trip?.route?.km) == null ? null : Math.round(trip.route.km),
   });
 
-/** 1 «Neue Tour»: the question, the areas, bikes, blocks, the own gear and the learnings. */
-export function tripPayload(question, { items = [], bikes = [], sets = [], areas = [], learnings = [], today = '', lang = 'de' } = {}) {
-  return {
-    lang,
-    today,
-    question: clip(question, 400),
-    areas: areas.map((a) => ({ key: String(a.key), name: clip(a.name, 40) })),
-    bikes: bikes.map((b) => ({ id: String(b.id), name: clip(b.name, 60) })),
-    blocks: sets.map((s) => ({ key: String(s.key), name: clip(s.label ?? s.name, 60) })),
-    items: items.filter(isInventory).map((i) => itemOut(i, lang)),
-    learnings: learningTexts(learnings),
-  };
-}
-
-/** 2 Suche: the question and the own gear (name, category, weight). */
-export function searchPayload(question, { items = [], learnings = [], lang = 'de' } = {}) {
-  return { lang, question: clip(question, 400), items: items.filter(isInventory).map((i) => itemOut(i, lang, { sets: false })), learnings: learningTexts(learnings, 20) };
-}
-
 /**
  * 3 Rückblick: the trip's conditions, its notes on the way (key, day, time, text), what was not used,
  * broke or was missing (names), and the learnings there are already.

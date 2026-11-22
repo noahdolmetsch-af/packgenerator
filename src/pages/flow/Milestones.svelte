@@ -23,6 +23,7 @@
   import RecordWall from '../../lib/flow/hobby/RecordWall.svelte';
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
+  import DoneShelf from '../../lib/flow/hobby/DoneShelf.svelte';
   import HeroNext from '../../lib/flow/hobby/HeroNext.svelte';
   import { heroOf } from '../../lib/flow/naechster.js';
   import MsHome from '../../lib/home/MsHome.svelte';
@@ -69,7 +70,9 @@
   const actOf = $derived(data?.acts.find((a) => a.id === filter) ?? null);
   const inFilter = (r) => (filter === 'all' ? true : filter === 'cross' ? !r.m.actId : r.m.actId === filter);
   const scoped = $derived(shown.filter(inFilter));
-  const cards = $derived(filter === 'all' || filter === 'cross' ? shown.filter((r) => !r.m.actId) : scoped);
+  // «Ganz geschafft» (Noah 21.11.2026 «3a»): milestones with all stars stand on the shelf, not in the list
+  const doneList = $derived(scoped.filter((r) => r.done));
+  const cards = $derived((filter === 'all' || filter === 'cross' ? shown.filter((r) => !r.m.actId) : scoped).filter((r) => !r.done));
   const perAct = $derived.by(() => {
     if (filter !== 'all' || !data) return [];
     const by = nextPerAct(shown);
@@ -146,6 +149,8 @@
       <RewardRow list={scoped.filter((r) => r.next)} reward={data.reward} wishlist={data.wishlist} onsave={saveReward} quick={hero?.r ?? null} />
     </Sec>
 
+    {#if doneList.length}<DoneShelf list={doneList} {label} />{/if}
+
     <MsHow />
 
     <div class="lay">
@@ -161,7 +166,7 @@
         {/if}
 
         <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
-          {#if cards.length || scoped.length}
+          {#if cards.length}
             <!-- phone: the first six, the rest after «Alle n zeigen» -->
             {#if fold && cards.length}
               <!-- Noah 27.10.2026 «2a»: on a phone only the next star per sport stays open (above); all cards wait folded -->
@@ -173,6 +178,8 @@
               <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
               {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
             {/if}
+          {:else if doneList.length}
+            <Empty text={t('Every milestone here has all its stars. They stand on the shelf «Fully done» above.')} />
           {:else}
             <Empty text={t('This activity has no milestones yet.')} />
           {/if}
