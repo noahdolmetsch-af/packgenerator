@@ -14,6 +14,7 @@ PR folgt · 21.11.2026 · Auftrag: Noah «1a 2b 3a 4a 5a» (Thread «Ideen für 
 - Der zweite Teil des Vorschlags («oft angetippte Hinweise stehen weiter oben») ist **nicht** gebaut: Er würde die Reihenfolge der Seite je nach Verhalten ändern. Das wäre eine eigene Frage an dich.
 - Die App schaltet nie von selbst etwas aus, auch nicht nach dem Fragen ohne deinen Tipp.
 - Speicherung: eine neue Einstellung `hintSkips` (nur die letzten 10 Tage je Art). Kein Schema-Wechsel; sie kommt ins Backup wie jede Einstellung.
+- Test `nebelgrenze.spec.js` (nicht von dieser Änderung): Er legte die Nebel-Antworten erst nach dem Laden von Heute fest; die erste Antwort blieb dann 3 Stunden im Speicher und die Nebelzeile fehlte (rot in der Prüfung, lokal grün). Jetzt stehen sie vor dem ersten Laden (`weather` von `openHome`). Die Prüfungen selbst sind gleich geblieben.
 
 ## Entscheide (für decisions.md)
 - 21.11.2026: «4a» Hinweise lernen aus dem Wegtippen (siehe route-erfahrung.md).
