@@ -1,6 +1,6 @@
 # Wächter: jede Seite hat einen Ort, eine Seite hat ein Zuhause
 
-PR #<Nummer> · 22.11.2026 · Auftrag: Noah «1-3» (Thread «App-Landkarte», Wächter W3 und W4)
+PR #1450 · 22.11.2026 · Auftrag: Noah «1-3» (Thread «App-Landkarte», Wächter W3 und W4)
 
 ## Was ist neu
 - Nichts in der App. Zwei neue Prüfungen in `tests/orte.test.js`:
