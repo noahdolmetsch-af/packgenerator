@@ -77,7 +77,7 @@
   }
 </script>
 
-<dialog use:backClose class="sheet from-below aksheet" bind:this={dlg} onclose={close} onclick={(e) => e.target === dlg && close()} aria-labelledby="ud-h" data-backdrop="own" data-unit-sheet>
+<dialog use:backClose class="sheet from-below udsheet" bind:this={dlg} onclose={close} onclick={(e) => e.target === dlg && close()} aria-labelledby="ud-h" data-backdrop="own" data-unit-sheet>
   {#if st}
     <div class="hd">
       <div class="ht"><h2 id="ud-h">{t('Done: {what}', { what })}</h2><p class="muted">{t('Everything here is optional.')}</p></div>
@@ -107,7 +107,7 @@
 </dialog>
 
 <style>
-  dialog.aksheet {
+  dialog.udsheet {
     width: min(640px, calc(100vw - 24px));
     max-height: calc(100dvh - 24px);
     overflow-y: auto; /* many sports and a short phone: the sheet scrolls, «Save» stays reachable */
