@@ -1,6 +1,6 @@
 # Plan nach dem Baustopp
 
-Stand 22.11.2026, 22:35 (Zürich). **Der Baustopp ist seit 22.11., 22:25 aufgehoben (Noah).** Runde 1 läuft, die Wellen steuert der Bündler nach diesem Plan. Die Abschnitte «Baustopp» und «Vor dem Aufheben» unten sind Verlauf, nicht mehr in Kraft. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
+Stand 22.11.2026, 22:35 (Zürich). **Der Baustopp ist seit 22.11., 22:25 aufgehoben (Noah).** **Seit 22:48 gehen PRs ohne Daten nach grüner Prüfung von selbst online (Noah «a»):** Bilder und «Online»-Meldung bekommst du trotzdem. PRs mit Daten, Backup, Sync oder `api/` brauchen weiter dein «ok» als Einzelfreigabe, dazu den Test mit Backup-Kopie (siehe `docs/decisions/keine-freigabe-ohne-daten.md`). Wo unten bei einem PR ohne Daten «ok» oder «dein ok» steht, ist das überholt. Runde 1 läuft, die Wellen steuert der Bündler nach diesem Plan. Die Abschnitte «Baustopp» und «Vor dem Aufheben» unten sind Verlauf, nicht mehr in Kraft. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
 
 ## Baustopp 22.11., 19:15 bis 22:25 (Noah, aufgehoben)
 
@@ -36,17 +36,17 @@ Gruppen von «ok» höchstens 3 Nummern; höchstens 3 gebaute PRs warten gleichz
 
 ## Wellen
 
-**Weniger PRs (Noah «ja», 22.11., 22:34): etwa 8 statt rund 15.** (1) Test-PR und die drei Fixes als ein PR. (2) Die übrigen fertigen Stücke ohne Daten als ein bis zwei PRs statt je drei. (3) Wochenrückblick in zwei PRs statt drei, mit A, I, Gym 1 h und Gruss-Skala darin; F bleibt allein. (4) Wetter als ein PR. (5) Kursblick als ein PR. Daten sollen einzeln mit Backup-Kopie bleiben; Empfehlung dazu: Strava-Aufräumen (A) allein lassen, die Einstellungen (I, Gym, Gruss-Skala) dürfen mit, jeder PR mit Daten braucht Einzelfreigabe und Backup-Kopie. Preis: grössere PRs brauchen länger in der Prüfung, und ein roter Test hält alles darin auf. Die Zeile «2 Eine Rechnung» in der Tabelle (drei mittlere PRs) ist damit überholt.
+**Weniger PRs (Noah «ja», 22.11., 22:34): etwa 8 statt rund 15.** (1) Test-PR und die drei Fixes als ein PR. (2) Die übrigen fertigen Stücke ohne Daten als ein bis zwei PRs statt je drei. (3) Wochenrückblick in zwei PRs statt drei, mit A, I, Gym 1 h und Gruss-Skala darin; F bleibt allein. (4) Wetter als ein PR. (5) Kursblick als ein PR. Daten sollen einzeln mit Backup-Kopie bleiben; Empfehlung dazu: Strava-Aufräumen (A) allein lassen, die Einstellungen (I, Gym, Gruss-Skala) dürfen mit, jeder PR mit Daten braucht Einzelfreigabe und Backup-Kopie. Preis: grössere PRs brauchen länger in der Prüfung, und ein roter Test hält alles darin auf. Die Zeile «2 Eine Rechnung» in der Tabelle (drei mittlere PRs) ist damit überholt. **Reihenfolge (Noah 22.11., 22:55 «warteliste nach allem anderen»): die Warteliste (Welle 4) kommt ganz zum Schluss, also nach Wetter und Kursblick.**
 
 
 | Welle | Inhalt | Art |
 |---|---|---|
-| Runde 1 (Halt) | Sportjahr S5, Kleiderschrank, Diagramme; zuerst das Fertige ohne Daten | Ansicht |
+| Runde 1 (läuft) | Sportjahr S5, Kleiderschrank, Diagramme; zuerst das Fertige ohne Daten | Ansicht |
 | 0 Aufräumen | Merge von 1436, Nachtlauf lesen, lokale Zweige auf neuen `main` umstellen und testen, Entwurf 1451 fertig machen | kein neuer Bau |
 | 1 Daten sicher | Strava-Fix, «Aufräumen?», Logbuch zurücklesen, Sync-Nachttest; eigene Mini-Welle: KI Schritt 8 (`api/`) | Daten, Einzelfreigabe |
 | 2 Eine Rechnung | Wochenrückblick in **drei mittleren PRs**: (1) B, D, E; (2) C, G, H; (3) J, K, L. Einzeln mit Einzelfreigabe: A, I, Gym 1 h, Gruss-Gesichter. F bekommt einen eigenen PR. Sportjahr S5 zuerst (überschneidet D), S13 «Sportseiten schlanker» ganz am Schluss, die Liste geht vorher an Noah | Rechnung; I und Gym Daten |
 | 3 Fertiges von vorher | TrainingPeaks W2 und W3, Kleiderschrank, Prototyp V4b2 (drei PRs, der zweite schreibt `hard` in `training.weeklog`, also Daten), Challenges, Diagramme Schritt 2, Ideen S6 | Ansicht |
-| 4 Warteliste | Suche, Durchklick 1 bis 4, «Was ist neu» mit Bildern, Packen nach vorn, Logbuch L5, Tippfehler N4, Wertliste N5, Nebelmeer, Testfunde F3, F4, F6, Training «Ein Haken für alles», KI Schritt 9; danach «schliessen 1043» | meist Ansicht |
+| 4 Warteliste (ganz zum Schluss, nach Wetter und Kursblick) | Suche, Durchklick 1 bis 4, «Was ist neu» mit Bildern, Packen nach vorn, Logbuch L5, Tippfehler N4, Wertliste N5, Nebelmeer, Testfunde F3, F4, F6, Training «Ein Haken für alles», KI Schritt 9; danach «schliessen 1043» | meist Ansicht |
 
 Wochenrückblick, Schritte nach F: **J** Erholung und Rituale, **K** Aktivzonen gegen das eigene Normal, **L** Zusammenhänge ab 20 Mal. Gym zählt neu im Normalfall 1 h statt 20 min (Einstellung, Einzelfreigabe vor dem Bau). Der Wochenrückblick-Thread steht auf «warte»: gebaut wird erst nach Noahs «weiter».
 

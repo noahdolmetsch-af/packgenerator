@@ -50,7 +50,7 @@
   };
   const dayTxt = (day, o) => new Date(`${day}T12:00:00Z`).toLocaleDateString(loc, { ...o, timeZone: 'UTC' });
   const nameOf = (r) => (r.src === 'session' ? r.name || t(KIND_NAMES[r.kind] ?? 'Other|kind') : t(UNIT_NAME[r.type] ?? r.type));
-  const srcOf = (r) => (r.src === 'session' ? t('My week|plan') : t('Weekly plan'));
+  const srcOf = (r) => (r.tp ? t('TrainingPeaks') : r.src === 'session' ? t('My week|plan') : t('Weekly plan'));
   const status = (r, monday) => (r.released ? 'let' : r.done ? 'done' : shiftDay(monday, r.d) < today ? 'open' : 'planned');
   const STATUS = { done: 'done|mp', planned: 'planned|mp', open: 'open|mp', let: 'let go|mp' };
   const sources = $derived(m ? [m.sources.weekplan ? t('Weekly plan') : null, m.sources.sessions ? t('My week|plan') : null].filter(Boolean).join(' + ') : '');
@@ -122,7 +122,7 @@
       </div>
       <ul class="kpis" data-mp-kpis>
         <li><b class="num" data-mp-kw>{t('Week {n}|mp', { n: m.kw })}</b><small>{t('Calendar week')}</small></li>
-        <li><b class="num" data-mp-hours>{hm(m.week.doneMins)} h</b><small>{m.week.plannedMins > 0 ? t('of {h} h planned', { h: hm(m.week.plannedMins) }) : t('Nothing planned')}</small></li>
+        <li><b class="num" data-mp-hours>{hm(m.week.doneMins)} h</b><small>{m.week.plannedMins > 0 ? t('of {h} h planned', { h: hm(m.week.plannedMins) }) : t('Nothing planned')}{#if m.week.tpMins > 0}<span data-mp-tp>{' · '}{t('of which TrainingPeaks {h} h', { h: hm(m.week.tpMins) })}</span>{/if}</small></li>
         <li><b class="num" data-mp-units>{t('{a} of {b}|mp', { a: m.week.doneUnits, b: m.week.units })}</b><small>{t('Units done')}</small></li>
         <li><b class="num" data-mp-pct>{m.soFar == null ? '–' : `${m.soFar} %`}</b><small>{t('of the plan hours so far')}</small></li>
       </ul>
