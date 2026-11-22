@@ -25,6 +25,9 @@
   --hi-ink: #ffffff;
   --hi-bright: #ff5b14;
   --hi-soft: #ffe9dc;
+  --improve: #b83e08; /* «Verbesserungs-Logbuch»: the orange of «Verbessern», the same in every palette */
+  --improve-ink: #ffffff;
+  --improve-soft: #ffe9dc;
   /* Status colours, always together with a word or a symbol. */
   --ok: #276a43;
   --ok-soft: #d9eedf;
@@ -146,6 +149,9 @@
   --hi-ink: #10201b;
   --hi-bright: #ff7a3d;
   --hi-soft: #3a2416;
+  --improve: #ff7a3d;
+  --improve-ink: #14232d;
+  --improve-soft: #3a2416;
   --hi-hover: #ff9363;
   --ok: #6fcf97;
   --ok-soft: #183526;
@@ -257,6 +263,9 @@
   --hi-ink: #14232d;
   --hi-bright: #ff8a5c;
   --hi-soft: #3a2419;
+  --improve: #ff7a3d;
+  --improve-ink: #14232d;
+  --improve-soft: #3a2416;
   --hi-hover: #ff936d;
   --ok: #4fc3bd;
   --ok-soft: #173533;
@@ -915,6 +924,7 @@ html {
   --wk-todo: var(--l2);
   --wk-away: var(--l4);
   --wk-bike: var(--warn);
+  --wk-sp: var(--hi); /* Spielerplus dates (Noah 06.11.2026 «4a»): an own colour and the word «Spielerplus» */
 }
 :root,
 :root[data-place] {
@@ -953,6 +963,8 @@ body {
   font-family: var(--font-body);
   font-size: var(--fs-body);
   line-height: var(--lh);
+  /* Durchklick Etappe 3 (Noah «2a»): one very long word (a name, a note) is broken at the edge on every page, not only where a page asked for it. The property is inherited. */
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 720px) {
@@ -1087,6 +1099,19 @@ main[data-s2-place='active'] {
 }
 .btn.btn-link:hover {
   background: var(--paper-2);
+}
+/* Etappe 6 (4a): the quiet line «Your text from before is back.» (keeptyped.js) had no style at all */
+.kept-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 0 0 10px;
+  padding: 4px 4px 4px 12px;
+  border-radius: 10px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-size: var(--fs-small);
 }
 .btn:disabled {
   opacity: 0.5;
@@ -1722,22 +1747,6 @@ html:root[data-contrast='high'][data-theme='dark'] {
   details[open] > :not(summary) {
     animation: mv-fade 120ms ease-out;
   }
-}
-
-/* «Der Titel fliegt mit» (Noah 03.11.2026 «b», Paket A Seitenwechsel 2): a tour's name travels from the list to the heading of its page
-   (src/lib/nav/vtitle.js starts a View Transition when the name is tapped and sets <html data-vt> meanwhile). Only the name moves:
-   the rest of the page appears at once, as before (the new picture simply covers the old one). Not started with less motion. */
-html[data-vt] [data-tour-page] h1 {
-  view-transition-name: pg-title;
-}
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-::view-transition-group(pg-title) {
-  animation-duration: 260ms;
-  animation-timing-function: var(--ease-out);
 }
 
 /* «Richtung zeigen» (Noah 03.11.2026 «b», Paket A Seitenwechsel 1): a page that goes deeper glides in from the right,

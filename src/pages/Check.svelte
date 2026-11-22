@@ -18,7 +18,7 @@
   import RoundQuestions from '../lib/abfragen/RoundQuestions.svelte'; // Noah 04.11.2026 «ein Fragebogen»: the same questions as the window
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
-  import { checkQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
+  import { checkQuery, checksQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { saveCheck } from '../lib/flowdb.js';
   import { checkOf, patchCheck, BEST, GOALS, LAST_EVENING, toggleId, outsideFromRides, mindfulFound, weekHighlights, suggestion } from '../lib/flowcheck.js';
   import { flowStates } from '../lib/flow.js';
@@ -36,6 +36,9 @@
   const today = localDay();
   const q = checkQuery(today);
   const data = $derived($q);
+  const checksQ = checksQuery(today);
+  const checks = $derived($checksQ ?? []);
+  const checksIn = $derived($checksQ != null);
   $effect(() => {
     seedIfNeeded(data);
   });
@@ -43,7 +46,7 @@
   /* the day's answers: read once, then kept here and saved on every tap (no tap waits for the database) */
   let cur = $state(null);
   $effect(() => {
-    if (data && !cur) cur = checkOf(data.checks.find((c) => c.day === today), today);
+    if (data && checksIn && !cur) cur = checkOf(checks.find((c) => c.day === today), today);
   });
   function set(fields) {
     // the time the morning was first answered (the «Morgen-Check» tile on Heute shows it)
@@ -81,7 +84,7 @@
   // sleep, battery and mood answered on the page or in the window land in the day's check too (saveAnswers): take them over here,
   // so the next tap on this page does not write the old value back
   $effect(() => {
-    const row = data?.checks.find((c) => c.day === today);
+    const row = checks.find((c) => c.day === today);
     if (!row || !cur) return;
     const diff = ['sleep', 'energy', 'mood'].filter((f) => row[f] !== cur[f] && row[f] != null);
     if (diff.length) cur = { ...cur, ...Object.fromEntries(diff.map((f) => [f, row[f]])) };
@@ -135,7 +138,7 @@
   const week = $derived.by(() => {
     if (!data) return [];
     const byDay = new Map();
-    for (const c of [...data.checks.filter((x) => x.day !== today), ...(cur ? [cur] : [])]) byDay.set(c.day, new Set(c.best ?? []));
+    for (const c of [...checks.filter((x) => x.day !== today), ...(cur ? [cur] : [])]) byDay.set(c.day, new Set(c.best ?? []));
     for (const r of abWeek) if (r.qid === 'spass.coolstes' && Array.isArray(r.value)) byDay.set(r.day, new Set([...(byDay.get(r.day) ?? []), ...r.value]));
     return weekHighlights([...byDay].map(([day, best]) => ({ day, best: [...best] })), today);
   });
@@ -153,7 +156,7 @@
     <h1 class="h1" tabindex="-1" data-page-title>{evening ? t('How was your day?') : t('Good morning')}</h1>
     <p class="sub num" data-check-when>{dateShort} · {clock}</p>
     {#if evening}
-      <p class="sub">{phone.matches ? t('from 20:30 · about 30 seconds') : t('Evening review · from 20:30 · about 30 seconds · what the app already knows, it does not ask.')}</p>
+      <p class="sub">{phone.matches ? t('from 20:30 · a few minutes · every question skippable') : t('Evening review · from 20:30 · a few minutes · every question skippable · what the app already knows, it does not ask.')}</p>
     {:else}
       <p class="sub">{phone.matches ? t('about 40 seconds · everything skippable') : t('Morning check · {date} · about 40 seconds · every question skippable. The line under a number shows yesterday.', { date: dateLong })}</p>
     {/if}
@@ -348,7 +351,7 @@
   }
   .h1 {
     margin: 0;
-    font: 800 var(--fs-page) / 1.1 var(--font-brand);
+    font: 700 var(--fs-page)/var(--lh-title) var(--font-title);
   }
   .ph p {
     margin: 0;

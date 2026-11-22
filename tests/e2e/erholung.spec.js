@@ -4,7 +4,7 @@
 // computer, in German. No sideways scroll, no page errors. Fictional data only.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { TABS, tapTab } from './placetab.js';
+import { tapTab } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -54,7 +54,7 @@ test('Erholung: the ring, the pause hint, tick and untick, add an idea', async (
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
   // «Aktiv neu» (Noah 22.10.2026): «Erholung» is a tab of Aktiv
-  await expect(page.locator(TABS).getByRole('link', { name: T('Recovery|tab'), exact: true })).toBeVisible();
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('Recovery|tab'), exact: true })).toBeVisible();
   // three active days in a row up to today, fictional
   const log = [2, 1, 0].map((k) => {
     const day = addDays(TODAY, -k);
@@ -65,7 +65,7 @@ test('Erholung: the ring, the pause hint, tick and untick, add an idea', async (
 
   await tapTab(page, T('Recovery|tab'));
   await expect(page).toHaveURL(/#\/flow\/rest$/);
-  await expect(page.locator(TABS).getByRole('link', { name: T('Recovery|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('Recovery|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(main.getByRole('heading', { level: 1, name: T('Recovery|page') })).toBeVisible();
   await expect(main.locator('[data-rest-ring]')).toContainText('0/');
 

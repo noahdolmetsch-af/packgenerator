@@ -65,6 +65,20 @@ export function kindsOf(table, today, days = 28) {
 }
 
 /**
+ * The latest day up to today with an activity, and its sport (the one with most activities that day).
+ * Used where «Im Fokus» has nothing for the last 7 days, to say when the last one was. → { day, kind } or null.
+ */
+export function lastActivity(table, today) {
+  let best = null;
+  for (const [day, row] of table) {
+    if (day > today || (best && day <= best.day)) continue;
+    const k = KIND_ORDER.map((kind) => ({ kind, n: kindDay(row, kind).n })).filter((x) => x.n).sort((a, b) => b.n - a.n)[0];
+    if (k) best = { day, kind: k.kind };
+  }
+  return best;
+}
+
+/**
  * «Im Fokus»: one sport over the last 7 days (today on the right) and the 28 days as dots.
  * → { kind, from, to, km, time, bars: [{ day, km }], dots: [{ day, size 0–3 }] }
  */
@@ -80,9 +94,20 @@ export function focus(table, today, kind) {
   return { kind, from, to: today, km: Math.round(sum(bars.map((b) => b.km)) * 100) / 100, time: sum(bars.map((b) => b.time)), bars, dots };
 }
 
-/** «Letzte 7 Tage»: per sport the count and km, the mean resting pulse and the mean calories of the days. */
-export function lastWeek(table, today) {
-  const days = daysOf(addDays(today, -6), today);
+/** The first day of the table that has a row, or null. */
+export function firstDayOf(table) {
+  let first = null;
+  for (const d of table.keys()) if (first === null || d < first) first = d;
+  return first;
+}
+
+/**
+ * The list of a range (Auswerten «Zeitraum»): per sport the count and km, the mean resting pulse and the mean
+ * calories of the days. A range that starts before the first day of the table starts there.
+ */
+export function rangeSummary(table, from, to) {
+  const first = firstDayOf(table);
+  const days = first === null || to < first ? [] : daysOf(from < first ? first : from, to);
   const kinds = KIND_ORDER.map((kind) => {
     const v = days.map((d) => kindDay(table.get(d), kind));
     return { kind, n: sum(v.map((x) => x.n)), km: Math.round(sum(v.map((x) => x.km)) * 10) / 10, time: sum(v.map((x) => x.time)) };
@@ -90,6 +115,11 @@ export function lastWeek(table, today) {
   const rhr = mean(days.map((d) => table.get(d)?.rhr));
   const kcal = mean(days.map((d) => caloriesOf(table.get(d)).total));
   return { kinds, rhr: rhr == null ? null : Math.round(rhr), kcal: kcal == null ? null : Math.round(kcal) };
+}
+
+/** «Letzte 7 Tage»: per sport the count and km, the mean resting pulse and the mean calories of the days. */
+export function lastWeek(table, today) {
+  return rangeSummary(table, addDays(today, -6), today);
 }
 
 /**

@@ -61,6 +61,8 @@ async function wait(step) {
   for (let n = 0; n < WAIT / STEP; n++) {
     const el = find(step);
     if (el) return el;
+    // Etappe 2, 1a: on a phone the cards «Belongs to …» and «All here» start as one line: the spot may sit inside, so open them once
+    if (n === 4) for (const line of document.querySelectorAll('[data-card-line]')) line.click();
     await new Promise((ok) => setTimeout(ok, STEP));
   }
   return null;

@@ -276,6 +276,11 @@ import assistent from './assistent.js';
 
 // Termine buchen (BU1–BU5): Ich › Angebote, freie Termine, Buchungsseite
 import termine from './termine.js';
+// Flyer für Tennisstunden: Tennis › Flyer
+import flyer from './flyer.js';
+import probestunde from './probestunde.js';
+import erinnerung from './erinnerung.js';
+import bestaetigung from './bestaetigung.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -307,6 +312,8 @@ import deinefahrten from './deinefahrten.js';
 
 // Merken (Kal1, PL1–PL3) and Erinnerungen (ER1–ER3): own to-dos and reminders
 import merken from './merken.js';
+// To-dos und Notizen verbessern (Noah 05.11.2026)
+import todoneu from './todo-neu.js';
 // Merken: Geburtstage und Pflanzen (Noah 15.10.2026)
 import geburtstage from './geburtstage.js';
 
@@ -315,6 +322,9 @@ import eigenewerte from './eigenewerte.js';
 
 // «Ausrüstung» (AU1): main equipment per sport, its counter and care
 import ausruestung from './ausruestung.js';
+
+// «Gestern nachtragen»: ein Tag im Abhak-Fenster
+import gesternnachtragen from './gestern-nachtragen.js';
 
 // Gipfelbuch für alle (Aktiv › Gipfelbuch)
 import gipfelbuch from './gipfelbuch.js';
@@ -482,6 +492,10 @@ import liveRoute from './live-route.js';
 import livestart from './livestart.js';
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): Ich › Freie Zeit, Impulse, the line on Heute
 import frei from './frei.js';
+import freiReiseTraum from './frei-reise-traum.js';
+import freiUebernahme from './frei-uebernahme.js';
+import freiWesentlich from './frei-wesentlich.js';
+import freiNachtFragen from './frei-nacht-fragen.js';
 import tagebuch from './tagebuch.js';
 // Paket V «Alltag» (Noah 19.10.2026 «3a oder b 4a 5a», «1a»): Ich › Alltag, contracts, people, abroad, flight
 import alltag from './alltag.js';
@@ -546,6 +560,12 @@ import energie from './energie.js';
 // «Schneefallgrenze» (Noah 04.11.2026 «1b 2a 3a 4a 5a»)
 import schneegrenze from './schneegrenze.js';
 import nebelgrenze from './nebelgrenze.js';
+import hoehe from './hoehe.js';
+import nachttemperatur from './nachttemperatur.js';
+import nebelroute from './nebelroute.js';
+import nebelpush from './nebelpush.js';
+import sonnenfahrt from './sonnenfahrt.js'; // «Sonnen-Ausfahrt» (Noah 06.11.2026 «1-5a»)
+import nachtpush from './nachtpush.js';
 // Paket W «Von der Haustür bis zurück» (Noah 20.10.2026 «1a 2a 3a 4a»)
 import haustuer from './haustuer.js';
 // Paket Z «Aus jeder Tour lernen» and Paket SP «Schneller packen» (Noah 20.10.2026)
@@ -621,6 +641,7 @@ import sterntexte from './sterntexte.js';
 import belohnungalle from './belohnungalle.js';
 import wochensterne from './wochensterne.js';
 import fastgeschafft from './fastgeschafft.js';
+import draussen from './draussen.js';
 // «Alles fertig» (Noah 24.10.2026): leftovers of the older threads; spread last
 import allesfertig from './allesfertig.js';
 // Paket B «Touren ohne Überraschung» (996 Ideen): Generalprobe, Gut ankommen, Kisten-Etiketten; spread last
@@ -657,6 +678,8 @@ import tourenb from './tourenb.js';
 import computerbreite from './computerbreite.js';
 // UI-Test 26.10.2026 (T1 and later small parts); spread last
 import uitest from './uitest.js';
+import zurtour from './zur-tour.js';
+import tourkartewege from './tourkarte-wege.js';
 // «Heute ruhiger» (Noah 26.10.2026 «1a»): the small tiles on Heute as one list; spread last
 import heuteruhiger from './heuteruhiger.js';
 import bereicheanpassen from './bereicheanpassen.js';
@@ -852,9 +875,11 @@ const ORDERED = [
   garmin,
   taschensetups,
   merken,
+  todoneu,
   geburtstage,
   eigenewerte,
   ausruestung,
+  gesternnachtragen,
   gipfelbuch,
   saisonstart,
   sportarten,
@@ -882,6 +907,10 @@ const ORDERED = [
   agenda,
   assistent,
   termine,
+  flyer,
+  probestunde,
+  erinnerung,
+  bestaetigung,
   abgleich,
   verbindungenStatus,
   datenaufraeumen,
@@ -933,6 +962,10 @@ const ORDERED = [
   trello,
   stravafahrt,
   frei,
+  freiReiseTraum,
+  freiUebernahme,
+  freiWesentlich,
+  freiNachtFragen,
   alltag,
   strom,
   anleitungen,
@@ -984,6 +1017,12 @@ const ORDERED = [
   wetterkern,
   schneegrenze,
   nebelgrenze,
+  hoehe,
+  nachttemperatur,
+  nebelroute,
+  nebelpush,
+  sonnenfahrt,
+  nachtpush,
   wetterfenster,
   energie,
   tourlernen,
@@ -1027,6 +1066,7 @@ const ORDERED = [
   belohnungalle,
   wochensterne,
   fastgeschafft,
+  draussen,
   allesfertig,
   generalprobe,
   alltagsichtbar,
@@ -1049,6 +1089,8 @@ const ORDERED = [
   tourena2,
   tourenb,
   uitest,
+  zurtour,
+  tourkartewege,
   heuteruhiger,
   bereicheanpassen,
   velo2610,

@@ -68,3 +68,19 @@ describe('FIT-Dateien ganz lesen', () => {
     expect(deviceValues(msgs)).toBeNull();
   });
 });
+
+describe('Indoor und Zwift: eine Fahrt ohne Position (Noah 19.11.2026 «3a»)', () => {
+  // a ride written by Zwift: no records with a position, only the session (day, km, virtual cycling)
+  const zwift = () => fitRide({ start: '2026-11-18T18:30:00Z', km: 32.4, product: 0, profile: 'Zwift', sport: 2, subSport: 58, maker: 260 });
+  it('the km ledger reads it: day, km, a virtual ride, the maker as the unit', () => {
+    const r = parseFit(zwift(), 'zwift-ride.fit');
+    expect(r.date).toBe('2026-11-18');
+    expect(r.km).toBe(32.4);
+    expect(r.type).toBe('Virtual Ride');
+    expect(r.cycling).toBe(true);
+    expect(r.device).toBe('Zwift');
+  });
+  it('the route analysis says plainly that there is no position, and does not guess', () => {
+    expect(() => analyseFit(zwift(), 'zwift-ride.fit')).toThrow(/no positions|keine Positionen/i);
+  });
+});

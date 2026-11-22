@@ -27,7 +27,7 @@ export default {
   "Search before you pack: «rain» or «cold» brings back what you learned the hard way last time.":
     "Such vor dem Packen: «Regen» oder «kalt» bringt zurück, was du letztes Mal auf die harte Tour gelernt hast.",
   "Sort by rain or km to find a trip like the next one; its learning is often the best packing list.":
-    "Sortier nach Regen oder km, um eine Tour wie die nächste zu finden; ihr Gelerntes ist oft die beste Packliste.",
+    "Sortier nach Regen oder km, um eine Tour wie die nächste zu finden; ihre Erkenntnisse sind oft die beste Packliste.",
   "Rate it the same evening; the next morning every day looks better. A 4 is fine and helps more than a polite 7.":
     "Bewerte noch am selben Abend; am nächsten Morgen sieht jeder Tag besser aus. Eine 4 ist in Ordnung und hilft mehr als eine höfliche 7.",
   "Short letters work best: one sentence on what you hope, one on what you fear. Open it on the first night out.":
@@ -64,6 +64,9 @@ export default {
     'Leer die Taschen am ersten Abend, auch wenn du müde bist: nasses Zelt und feuchte Hose werden bis Samstag nicht besser.',
   'A small detour is often enough for something new: one unknown road home turns a routine ride into a little discovery.':
     'Oft reicht ein kleiner Umweg für etwas Neues: eine unbekannte Strasse heim macht aus der Routine eine kleine Entdeckung.',
+  'A tower, a bridge or a waterfall in the next valley is a good reason for a detour. Check the weather and whether the way is open before you go; after heavy rain a waterfall is at its best.': 'Ein Turm, eine Brücke oder ein Wasserfall im nächsten Tal ist ein guter Grund für einen Umweg. Prüfe vor der Abfahrt das Wetter und ob der Weg offen ist; nach starkem Regen ist ein Wasserfall am schönsten.',
   'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.':
     'Neue Kilometer liegen selten weit weg: das Nachbartal ist oft unbekannter als ein Land am anderen Ende Europas.',
+  "A list of finds is a small diary of curiosity: a look at it before a free day shows where you have not been for a long time.":
+    "Eine Fundliste ist ein kleines Tagebuch der Neugier: ein Blick darauf vor einem freien Tag zeigt, wo du lange nicht warst.",
 };

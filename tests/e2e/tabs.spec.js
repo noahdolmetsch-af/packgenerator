@@ -93,7 +93,7 @@ for (const lang of ['de', 'en']) {
     // 0.176 «Eine Tour, eine Seite» (UI-Ziele #5): the fifth tab «Auswertung» is the tour page
     // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar shows the short names in both languages
     const NAMES = [BAR.plan, BAR.pack, BAR.ride, BAR.debrief, BAR.analysis];
-    if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Plan', 'Pack', 'Live', 'Review', 'Analyse']);
+    if (lang === 'de') expect(NAMES.map((k) => T(k))).toEqual(['Planen', 'Vorbereiten', 'Unterwegs', 'Danach', 'Auswertung']);
     // The old addresses stay: #/pack, #/pack?day, #/ride, #/debrief/<id>.
     const pages = [['#/pack', 0], ['#/pack?day', 1], ['#/ride', 2], [`#/debrief/${trip.id}`, 3]];
     for (const [hash, n] of pages) {
@@ -117,6 +117,8 @@ for (const lang of ['de', 'en']) {
     await page.goto('./#/pack/day');
     await expect(steps(page, T).locator('a[aria-current="page"]')).toContainText(T(BAR.pack));
     // Today's button for this trip (it starts tomorrow) says "Pack", like the tab, and opens the same address.
+    // «Eine Karte für deine Tour»: with exactly one tour «Meine Tour» replaces the big trip card, so a second, far tour keeps the card this check is about
+    await newTrip(page, T, `test_data_gtp_ Spaeter ${lang}`, { date: day(40), weather: 'Warm' });
     await page.goto('./#/');
     const band = page.getByRole('region', { name: title });
     await expect(band.getByRole('link', { name: T('Pack|stage'), exact: true })).toHaveAttribute('href', '#/pack?day');

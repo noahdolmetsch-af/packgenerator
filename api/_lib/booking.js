@@ -13,8 +13,8 @@
 
 export const KINDS = ['tennis', 'tour', 'service', 'own'];
 export const PAYS = ['site', 'online'];
-/** instant: booked at once. request: the owner answers within ANSWER_HOURS (confirm or decline); a request holds no place until it is confirmed. */
-export const MODES = ['instant', 'request'];
+/** instant: booked at once. request: the owner answers within ANSWER_HOURS (confirm or decline); a request holds no place until it is confirmed. wish: no fixed times; the parents name wish places and times, the owner answers (Noah 08.11.2026 «1c»). */
+export const MODES = ['instant', 'request', 'wish'];
 export const ANSWER_HOURS = 24;
 export const MAX_VENUES = 4;
 export const NOTE_MAX = 300;
@@ -69,7 +69,37 @@ export function cleanOffer(input) {
   }
   if (slots.length > MAX_SLOTS) return { error: 'too_many_slots' };
   slots.sort((a, b) => a.at.localeCompare(b.at));
-  return { offer: { kind, title, place: TEXT(o.place, 60), minutes, pay, mode, venues, cancelHours, types, slots } };
+  const out = { kind, title, place: TEXT(o.place, 60), minutes, pay, mode, venues, cancelHours, types, slots };
+  // wish offers (Noah 08.11.2026 «1a»): a price per child by number of children, outdoors and in the hall, and which places are halls
+  const prices = cleanPrices(o.prices);
+  if (prices) out.prices = prices;
+  if (Array.isArray(o.hallVenues)) out.hallVenues = [...new Set(o.hallVenues.map((v) => TEXT(v, 60)).filter((v) => venues.includes(v)))];
+  return { offer: out };
+}
+
+/** The price per child (Rappen) for 1 to 4 children: { out: [4 numbers], hall: [4 numbers] }, or null. */
+export function cleanPrices(input) {
+  if (!input || typeof input !== 'object') return null;
+  const row = (r) => {
+    if (!Array.isArray(r) || r.length !== 4) return null;
+    const v = r.map((x) => INT(x, 0, 1_000_000));
+    return v.includes(null) ? null : v;
+  };
+  const out = row(input.out);
+  const hall = row(input.hall);
+  return out && hall ? { out, hall } : null;
+}
+
+/**
+ * The price of a wish request (Noah 08.11.2026 «1a»): per child and in all, by number of children. When
+ * one of the ticked places is a hall, the hall price counts until Noah confirms. null without a price table.
+ */
+export function wishPrice(offer, venues = [], kids = 1) {
+  const p = offer?.prices;
+  if (!p || !Number.isInteger(kids) || kids < 1 || kids > MAX_KIDS) return null;
+  const hall = venues.some((v) => (offer.hallVenues ?? []).includes(v));
+  const perKid = (hall ? p.hall : p.out)[kids - 1];
+  return { hall, perKid, total: perKid * kids };
 }
 
 export function validAt(at) {
@@ -113,6 +143,7 @@ export function publicOffer(offer, booked = {}, now = Date.now()) {
     pay: offer.pay,
     mode: offer.mode ?? 'instant',
     venues: offer.venues ?? [],
+    ...(offer.prices ? { prices: offer.prices, hallVenues: offer.hallVenues ?? [] } : {}),
     cancelHours: offer.cancelHours,
     types: offer.types.map((t) => ({ key: t.key, label: t.label, places: t.places, price: t.price })),
     slots: offer.slots
@@ -130,6 +161,39 @@ export function cleanPerson(input) {
   const contact = TEXT(input?.contact, 80);
   if (name.length < 2 || contact.length < 3) return { error: 'bad_person' };
   return { name, contact, note: TEXT(input?.note, NOTE_MAX) };
+}
+
+/** Wish requests (Noah 08.11.2026 «1c», «1a 2a»): the parents name places and up to three times, how many children, how they found Noah. */
+export const MAX_WISHES = 3;
+export const MAX_KIDS = 4;
+export const WISH_DAYS = 15;
+export const SOURCES = ['flyer', 'google', 'friends', 'club', 'other'];
+
+/**
+ * The body of a wish request → { person, wish } or { error }. Places must be places of the offer
+ * (at least one when the offer has places), times lie between now and WISH_DAYS days ahead.
+ */
+export function cleanWish(input, offer, now = Date.now()) {
+  const person = cleanPerson(input);
+  if (person.error) return { error: person.error };
+  const places = Array.isArray(offer?.venues) ? offer.venues : [];
+  const venues = [...new Set((Array.isArray(input?.venues) ? input.venues : []).map((v) => TEXT(v, 60)).filter(Boolean))];
+  if (places.length && (!venues.length || venues.some((v) => !places.includes(v)))) return { error: 'bad_wish' };
+  const wishes = [];
+  for (const w of Array.isArray(input?.wishes) ? input.wishes.slice(0, MAX_WISHES + 1) : []) {
+    const at = typeof w === 'string' ? w : w?.at;
+    if (typeof at !== 'string' || !validAt(at) || wishes.includes(at)) return { error: 'bad_wish' };
+    const ms = zurichMs(at);
+    if (ms <= now || ms > now + WISH_DAYS * 86400_000) return { error: 'bad_wish' };
+    wishes.push(at);
+  }
+  if (!wishes.length || wishes.length > MAX_WISHES) return { error: 'bad_wish' };
+  wishes.sort();
+  const kids = INT(input?.kids, 1, MAX_KIDS);
+  if (kids == null) return { error: 'bad_wish' };
+  const source = SOURCES.includes(input?.source) ? input.source : '';
+  const price = wishPrice(offer, venues, kids);
+  return { person, wish: { venues, wishes, kids, kidNames: TEXT(input?.kidNames, 120), source, ...(price ? { price } : {}) } };
 }
 
 /** A booking that holds a place: instant bookings (no status) and confirmed requests. */

@@ -33,6 +33,8 @@ export const DAY_CAPS = {
   // the ticks got 429, and cron-job.org switched the job off after many failures (no reminders).
   tick: 1600,
   linkcheck: 300,
+  spielerplus: 300, // Spielerplus-Kalender 06.11.2026: the private calendar link read for the app (api/linkcheck.js POST ?a=spielerplus)
+  trainingpeaks: 300, // TrainingPeaks-Plan 19.11.2026: the private calendar link read for the app (api/linkcheck.js POST ?a=trainingpeaks)
   account: 300,
   rwgps: 200, // «Neue Quellen» 20.10.2026: Ride with GPS links (api/lake.js ?action=rwgps)
   group: 1500, // Gruppen-Live-Karte 25.10.2026: the group map of a ride (api/sync.js ?action=group)

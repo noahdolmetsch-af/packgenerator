@@ -44,13 +44,13 @@
   import TripState from '../ui/TripState.svelte';
   import Profile from '../ui/Profile.svelte';
   import Btn from '../ui/Btn.svelte';
-  import { factStates, factCounts, PERIOD_KEY } from './state.js';
+  import { factStates, factCounts, waitingCount, PERIOD_KEY } from './state.js';
   import { quickDebrief } from '../debrief.js';
   import { stateExtraText } from '../tripstatetext.js';
   import './review.css';
   import ChronikKarte from '../lernen/ChronikKarte.svelte'; // Paket M #1027
   import { storyReady } from '../lernen/jahrstory.js'; // Paket M #208
-  import { Compass, History, GraduationCap, Images, CircleHelp, Flame, Stamp, Smile } from '@lucide/svelte';
+  import { Compass, History, GraduationCap, Images, CircleHelp, Flame, Stamp, Smile, LayoutGrid } from '@lucide/svelte';
   import ListGroup from '../list/ListGroup.svelte';
   import { phone } from '../media.svelte.js';
   import { dhms } from '../touren/strava/fmt.js';
@@ -113,8 +113,11 @@
   ]);
   // SN2: the state of every row (Abgeschlossen / Bewertet) and how many of each are in the period
   const states = $derived(data ? factStates(facts, { debriefs: data.debriefs, rides: data.rides, today }) : {});
-  // the head counts the trips of the period, the same as the tile «Touren» (an uploaded ride alone is no trip)
-  const counts = $derived(stats ? factCounts(stats.rows.filter((r) => r.kind === 'trip'), states) : { all: 0, done: 0, rated: 0 });
+  // Noah 08.11.2026 «1-5 a»: ONE rule for «Abgeschlossen» on Touren, Rückblick, Logbuch and Vergangene Touren: every
+  // row of the period (trips and uploaded rides) is counted. The sub line names how many of them are uploaded rides.
+  const counts = $derived(stats ? factCounts(stats.rows, states) : { all: 0, done: 0, rated: 0 });
+  const waiting = $derived(stats ? waitingCount(stats.rows, states) : 0);
+  const rideRows = $derived(stats ? stats.rows.filter((r) => r.kind !== 'trip').length : 0);
   const periodShort = $derived(mode === 'year' ? year : mode === 'all' ? t('All|period') : t('12 months'));
   const extraOf = (id) => stateExtraText(states[id]?.extra);
   // SN2 answer 2b (Noah 13.10.2026): the long table is open as before; 0.159.1 (Noah 14.10.2026 «a»): on a phone it starts closed
@@ -281,10 +284,10 @@
   <header class="head">
     <div class="ht">
       <h1 class="title">{t('Look back|page')}</h1>
-      {#if stats && (counts.done || counts.rated)}
-        <p class="pills">{#if counts.done}<TripState state="done" extra={num(counts.done)} />{/if}{#if counts.rated}<TripState state="rated" extra={num(counts.rated)} />{/if}</p>
+      {#if stats && (waiting || counts.rated)}
+        <p class="pills">{#if waiting}<TripState state="done" extra={num(waiting)} />{/if}{#if counts.rated}<TripState state="rated" extra={num(counts.rated)} />{/if}</p>
       {/if}
-      {#if stats}<p class="page-sub num">{periodShort} · {tn(stats.stats[0].value ?? 0, '{n} trip ridden', '{n} trips ridden')}</p>{/if}
+      {#if stats}<p class="page-sub num">{periodShort} · {tn(stats.stats[0].value ?? 0, '{n} trip ridden', '{n} trips ridden')}{#if rideRows}{' · '}{tn(rideRows, '{n} uploaded ride', '{n} uploaded rides')}{/if}</p>{/if}
     </div>
     <div class="hacts">
       <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={setMode} />
@@ -437,6 +440,7 @@
             <li><a class="rv-row" href="#/gelernt" data-m-row="gelernt"><span class="rv-ic" aria-hidden="true"><GraduationCap size={18} /></span><span class="rv-m"><span class="rv-t">{t('What the app learned')}</span><span class="rv-s">{t('Month card and year letter')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/jahr" data-m-row="jahr"><span class="rv-ic" aria-hidden="true"><Images size={18} /></span><span class="rv-m"><span class="rv-t">{t('Your year as pictures')}</span><span class="rv-s">{t('Your trips of a year as a picture story')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/quiz" data-m-row="quiz"><span class="rv-ic" aria-hidden="true"><CircleHelp size={18} /></span><span class="rv-m"><span class="rv-t">{t('Quiz the evening before')}</span><span class="rv-s">{t('3 questions on gear and route, your own ones too')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
+            <li><a class="rv-row" href="#/debrief/sammlung" data-m-row="sammlung"><span class="rv-ic" aria-hidden="true"><LayoutGrid size={18} /></span><span class="rv-m"><span class="rv-t">{t('Collection wall')}</span><span class="rv-s">{t('Stamps, passes, summits and new ground on one page')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/paesse" data-m-row="paesse"><span class="rv-ic" aria-hidden="true"><Mountain size={18} /></span><span class="rv-m"><span class="rv-t">{t('Passes')}</span><span class="rv-s">{t('Passes you rode over as yellow signs')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/freude" data-m-row="freude"><span class="rv-ic" aria-hidden="true"><Smile size={18} /></span><span class="rv-m"><span class="rv-t">{t('What made it good?')}</span><span class="rv-s">{t('Fun, nature, flow and company of your tours')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
             <li><a class="rv-row" href="#/debrief/technik" data-m-row="technik"><span class="rv-ic" aria-hidden="true"><Bike size={18} /></span><span class="rv-m"><span class="rv-t">{t('Riding technique diary')}</span><span class="rv-s">{t('What you practised and want to practise')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a></li>
@@ -486,7 +490,7 @@
                       <li class="mini">
                         <span class="ml">{t(CMP[m.key])}</span>
                         <span class="mv"><b class="num">{cmpValue(m.key, m.latest)}</b>{#if CMPUNIT[m.key] && m.latest != null}{' '}<span class="u">{CMPUNIT[m.key]}</span>{/if}</span>
-                        <MiniBars values={m.values} mark={cmp.latest?.id} avg={m.avg} label={t(CMP[m.key])} />
+                        <MiniBars id="cmp-{m.key}" values={m.values} mark={cmp.latest?.id} avg={m.avg} unit={CMPUNIT[m.key] ?? ''} label={t(CMP[m.key])} />
                         <span class="mf num">{cmpFoot(m)}</span>
                       </li>
                     {/each}
@@ -847,7 +851,7 @@
   }
   .minis {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 8px;
     margin: 0 0 12px;
     padding: 0;

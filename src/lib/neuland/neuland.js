@@ -23,6 +23,8 @@
  * Pure functions (no database, no screen), tested in tests/neuland.test.js.
  */
 import { t, tn } from '../i18n.svelte.js';
+import { decodePolyline } from '../spur/polyline.js';
+import { recParts } from '../spur/spur.js';
 import { densify, lineBox, gridOf, areaAt, lineKm, ringsKm, inRings, inBox } from './geo.js';
 
 export const NEULAND_KEY = 'neuland';
@@ -39,6 +41,10 @@ export const COLLECTIONS = [
   { id: 'peaks', kind: 'point', title: 'Peaks over 3000 m', one: 'Peak', radius: 0.25, map: 'ch' },
   { id: 'lakes', kind: 'lake', title: 'Lakes', one: 'Lake', radius: 0.3, map: 'ch' },
   { id: 'municipalities', kind: 'area', title: 'Municipalities', one: 'Municipality', map: 'ch' },
+  // N18: from OpenStreetMap, loaded on the device (osm.js)
+  { id: 'towers', kind: 'point', title: 'Lookout towers', one: 'Tower', radius: 0.25, map: 'ch', osm: true },
+  { id: 'bridges', kind: 'point', title: 'Suspension bridges', one: 'Bridge', radius: 0.25, map: 'ch', osm: true },
+  { id: 'waterfalls', kind: 'point', title: 'Waterfalls', one: 'Waterfall', radius: 0.3, map: 'ch', osm: true },
 ];
 const BUILT = new Map(COLLECTIONS.map((c) => [c.id, c]));
 export const isBuiltIn = (cid) => BUILT.has(cid);
@@ -332,7 +338,7 @@ const lineOf = (line) => arr(line).map(asPair).filter(okPoint);
  * Trips count from their start day once it is reached (not skipped, no test trip); rides and
  * activities on their day. A trip without a line counts with its start place.
  */
-export function tracksOf({ trips = [], rides = [], activities = [], lines = [], today }) {
+export function tracksOf({ trips = [], rides = [], activities = [], recordings = [], lines = [], today }) {
   const out = linesToTracks(lines, today);
   for (const tr of trips) {
     if (!tr?.startDate || tr.skipped || tr.testTrip === true || (today && tr.startDate > today)) continue;
@@ -345,13 +351,22 @@ export function tracksOf({ trips = [], rides = [], activities = [], lines = [], 
     if (!r?.date || (today && r.date > today)) continue;
     const line = lineOf(r.line);
     const pts = line.length ? line : [asPair(r.start), asPair(r.end)].filter(Boolean).filter(okPoint);
-    if (pts.length) out.push({ day: r.date, tripId: r.tripId ?? null, rideId: r.id, src: 'ride', pts });
+    if (pts.length) out.push({ day: r.date, tripId: r.tripId ?? null, rideId: r.id, src: 'ride', type: 'Ride', pts });
   }
   for (const a of activities) {
     if (!a?.day || (today && a.day > today)) continue;
-    const line = lineOf(a.line);
+    // Strava keeps the line as one encoded text (summary_polyline); a list of pairs works too
+    const line = lineOf(typeof a.line === 'string' ? decodePolyline(a.line) : a.line);
     const pts = line.length ? line : [asPair(a.startLatLng), asPair(a.endLatLng)].filter(Boolean).filter(okPoint);
-    if (pts.length) out.push({ day: a.day, tripId: a.tripId ?? null, rideId: null, actId: a.id, src: 'activity', pts });
+    if (pts.length) out.push({ day: a.day, tripId: a.tripId ?? null, rideId: null, actId: a.id, src: 'activity', type: a.type ?? '', pts });
+  }
+  // the app's own recordings (db.tracks kind «rec»), the same lines the Heatmap draws
+  for (const x of recordings) {
+    if (x?.kind !== 'rec' || !x.day || (today && x.day > today)) continue;
+    recParts(x).forEach((p) => {
+      const pts = p.filter(okPoint);
+      if (pts.length >= 2) out.push({ day: x.day, tripId: x.tripId ?? null, rideId: null, src: 'rec', type: 'Ride', pts });
+    });
   }
   return out.sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : 0));
 }
@@ -378,6 +393,50 @@ export const visitedFromLines = (lines, defs, today = null) => detect(defs, line
  * → { [collectionId]: { [itemId]: { day, tripId, rideId, years: { YYYY: day } } } }
  */
 export function detect(defs, tracks) {
+  // Heute, the Neuland page, Träume and the trip tips all ask the same question after each other; the polygon work is
+  // the heavy part, so the answers stay per collection: the same places and the same tracks give the same finds.
+  const tk = tracksKey(tracks);
+  const keys = defs.map((d) => `${defKey(d)}#${tk}`);
+  const todo = defs.filter((_, i) => !DETECT_MEMO.has(keys[i]));
+  if (todo.length) {
+    const fresh = detectNow(todo, tracks);
+    defs.forEach((d, i) => {
+      if (!DETECT_MEMO.has(keys[i])) DETECT_MEMO.set(keys[i], fresh[d.id]);
+    });
+    while (DETECT_MEMO.size > 40) DETECT_MEMO.delete(DETECT_MEMO.keys().next().value);
+  }
+  const found = {};
+  defs.forEach((d, i) => {
+    const f = DETECT_MEMO.get(keys[i]);
+    if (f) found[d.id] = f;
+  });
+  return found;
+}
+
+const DETECT_MEMO = new Map();
+const strHash = (s) => {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return h;
+};
+/** A short text that changes when a collection's places change. */
+function defKey(x) {
+  let c = 0;
+  for (const i of x.items) c += (Number.isFinite(i.lat) ? i.lat * 31 : 0) + (Number.isFinite(i.lon) ? i.lon * 17 : 0) + (i.rings?.length ?? 0) + (i.r ?? 0);
+  return `${x.id}:${x.kind}:${x.radius ?? ''}:${x.items.length}:${strHash(x.items.map((i) => i.id).join(','))}:${c}`;
+}
+/** A short text that changes when a track or one of its points changes. */
+function tracksKey(tracks) {
+  return tracks
+    .map((x) => {
+      let c = 0;
+      for (const [lat, lon] of x.pts) c += lat * 31 + lon * 17;
+      return `${x.day}:${x.tripId ?? ''}:${x.rideId ?? ''}:${x.src ?? ''}:${x.pts.length}:${c}`;
+    })
+    .join('|');
+}
+
+function detectNow(defs, tracks) {
   const found = {};
   const rec = (cid, id, tr) => {
     const m = (found[cid] ??= {});
@@ -511,7 +570,7 @@ export function cantonsInYear(visited, year) {
 
 /* ---------------------------------------------------------------- words ---------------- */
 
-const WHAT = { cantons: 'Canton', municipalities: 'Municipality', countries: 'Country', passes: 'Pass', huts: 'Hut', peaks: 'Peak', lakes: 'Lake' };
+const WHAT = { cantons: 'Canton', municipalities: 'Municipality', countries: 'Country', passes: 'Pass', huts: 'Hut', peaks: 'Peak', lakes: 'Lake', towers: 'Tower', bridges: 'Bridge', waterfalls: 'Waterfall' };
 
 /** A short line for one item, ready for German: «Kanton Uri», «Altdorf (UR)», «Klausenpass · 1948 m». */
 export function itemLabel(cid, item) {
@@ -550,6 +609,9 @@ export const COUNT_WORDS = {
   huts: ['{n} hut', '{n} huts'],
   peaks: ['{n} peak', '{n} peaks'],
   lakes: ['{n} lake', '{n} lakes'],
+  towers: ['{n} lookout tower', '{n} lookout towers'],
+  bridges: ['{n} suspension bridge', '{n} suspension bridges'],
+  waterfalls: ['{n} waterfall', '{n} waterfalls'],
 };
 
 /**

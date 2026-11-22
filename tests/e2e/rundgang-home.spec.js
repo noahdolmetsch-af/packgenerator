@@ -103,15 +103,19 @@ for (const lang of ['en', 'de']) {
     const also = await imp(page, T);
     await expect(also).toContainText(T('Time for a backup'));
     await expect(also).toContainText(T('{n} note to sort', { n: 1 }));
-    await expect(also).toContainText(T('Event preparation: {n} open', { n: 1 }));
-    const prep = also.getByRole('link', { name: T('Tick off in the trip') });
+    // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): the event preparation is the hint line of the card «My tour» now, not a row of «Up now»
+    await expect(also).not.toContainText(T('Event preparation: {n} open', { n: 1 }));
+    const card = page.locator('[data-meinetour]');
+    const prep = card.locator('[data-meinetour-hint] a');
+    await expect(prep).toContainText(T('Event preparation: {n} open', { n: 1 }));
     await expect(prep).toHaveAttribute('href', '#/pack');
     await expect(also.getByRole('link', { name: T('Tick off in Bike care') })).toHaveCount(0);
 
     // each thing once
     await expect(also.locator('[data-row="backup"]')).toHaveCount(1);
     await expect(also.locator('[data-row="inbox"]')).toHaveCount(1);
-    await expect(also.locator('[data-row="prep"]')).toHaveCount(1);
+    await expect(also.locator('[data-row="prep"]')).toHaveCount(0);
+    await expect(page.locator('[data-meinetour-hint]')).toHaveCount(1);
     await narrow(page, info, 'Today');
 
     // The link opens the trip's Plan with "Before the trip" open; the task is ticked off right there.
@@ -144,6 +148,7 @@ for (const lang of ['en', 'de']) {
     await expect(note).toBeVisible();
     await page.goto('./#/');
     await expect(await imp(page, T)).not.toContainText(T('Event preparation: {n} open', { n: 1 }));
+    await expect(page.locator('[data-meinetour-hint]')).toHaveCount(0);
     expect(errors).toEqual([]);
   });
 }
@@ -158,7 +163,8 @@ test('L6: a trip within 14 days leads; an old open debrief waits in Important to
   await start(page, context, info, { lang: 'de', data });
 
   // the hero is the trip in 10 days, not "How was …?"
-  await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Bald');
+  // «Tour nur einmal»: with one planned tour «Meine Tour» is the hero (the big trip card is away)
+  await expect(page.locator('[data-meinetour] .tt')).toHaveText('test_data_gtp_ Bald');
   await expect(page.getByRole('region', { name: T('How was {trip}?', { trip: 'test_data_gtp_ Alt' }) })).toHaveCount(0);
   const also = await imp(page, T);
   // TZ-2 (mockup TZ2 Heute): «… (date): Rückblick ausfüllen · 2 Min.», «Alles gut» beside it
@@ -174,7 +180,8 @@ test('L6: a trip within 14 days leads; an old open debrief waits in Important to
   await expect(saved).toBeVisible();
   await expect(row).toHaveCount(0);
   expect(await stored(page, 'debriefs', 'test_data_gtp_Alt')).toMatchObject({ status: 'done', amount: 'right' });
-  await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Bald');
+  // «Tour nur einmal»: with one planned tour «Meine Tour» is the hero (the big trip card is away)
+  await expect(page.locator('[data-meinetour] .tt')).toHaveText('test_data_gtp_ Bald');
   await saved.getByRole('button', { name: T('Undo') }).click();
   await expect(row).toBeVisible();
   expect(await stored(page, 'debriefs', 'test_data_gtp_Alt')).toBe(null);
@@ -250,10 +257,10 @@ test.describe('L9: first start on a German browser', () => {
     const all = structuredClone(base);
     all.tables.trips = [trip('Erste', day(30))];
     await importData(page, info, all, 'de');
-    await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Erste');
+    await expect(page.locator('[data-meinetour] .tt')).toHaveText('test_data_gtp_ Erste');
     await expect(first).toHaveCount(0);
     await page.reload();
-    await expect(page.locator('#next-h')).toHaveText('test_data_gtp_ Erste');
+    await expect(page.locator('[data-meinetour] .tt')).toHaveText('test_data_gtp_ Erste');
     await expect(first).toHaveCount(0);
     expect(errors).toEqual([]);
   });

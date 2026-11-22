@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: 'Pack and templates: «What you can do here» lists its functions, each with «Good to know» (on Pack it starts as one line)',
-      go: { href: '#/pack/templates', steps: [{ sel: '[data-seiteninhalt-know]' }] },
+      go: { href: '#/pack/templates', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [{ box: 'new', text: 'Also on templates, building blocks, box labels, checks per trip type and the ski backpack check', go: 'f.blockcheck' }],

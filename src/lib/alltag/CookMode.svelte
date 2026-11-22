@@ -197,7 +197,7 @@
   }
   .cm-of {
     margin: 0;
-    color: var(--brand);
+    color: var(--head);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;

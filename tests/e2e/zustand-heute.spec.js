@@ -22,7 +22,8 @@ const open = async (page, context, full) => {
   }, full);
   await page.goto('./#/');
   await ready(page);
-  await put(page, { items: [{ id: 'test_i1', name: 'test_data_gtp_ Cap', nameDe: 'test_data_gtp_ Kappe', ownership: 'owned' }] });
+  // «Only one device» is answered (since 21.11.2026 a device with data and the sync off says so on Today; abgleich-punkt.spec.js)
+  await put(page, { items: [{ id: 'test_i1', name: 'test_data_gtp_ Cap', nameDe: 'test_data_gtp_ Kappe', ownership: 'owned' }], meta: [{ key: 'syncNudge', off: true, at: '2026-10-09T07:00:00.000Z' }] });
   await page.reload();
   await ready(page);
 };

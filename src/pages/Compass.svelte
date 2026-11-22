@@ -135,6 +135,7 @@
         deleteAsk="" onrename={(v) => save(renameBox(c, b.key, v))} ondelete={() => (deleting = b)}>
         <h2>{boxName(c.boxes, b.key, t)} <small class="n num">{rows.length}</small></h2>
       </GroupActions>
+      {#if b.key === 'dreams'}<p class="ich-hs" data-compass-dreams-link><a href="#/trips/dreams">{t('Dream tours live under Trips › Dreams; move one there in a tap.')}</a></p>{/if}
       {#if rows.length}{@render boxList(b.key, rows)}{/if}
       <form class="addrow" onsubmit={(e) => add(b.key, e)}>
         <input class="inp" type="text" bind:value={typed[b.key]} maxlength="200" placeholder={t('Write something into «{name}»', { name: boxName(c.boxes, b.key, t) })} aria-label={t('New entry in {name}', { name: boxName(c.boxes, b.key, t) })} />

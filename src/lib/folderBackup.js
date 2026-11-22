@@ -19,6 +19,12 @@ import { DATA_TABLES } from './db.js';
 const HANDLE_KEY = 'backupFolder';
 const LATEST = 'pack-generator-latest.json';
 const DELAY_MS = 2000; // wait until a burst of changes is over, then write once
+// Tempo (Noah 11.11.2026 «1-4 umsetzen», Messung 10.11.): one write reads and stringifies every table (1.7 s with the real data) and
+// it ran after every burst of saves. Now at least 30 s lie between two writes; what changed in between goes into the next one.
+const MIN_GAP_MS = 30_000;
+
+/** How long to wait before the next write: the quiet time of a burst, but not sooner than the gap after the last write. */
+export const waitFor = (now, lastEnd, delay = DELAY_MS, gap = MIN_GAP_MS) => Math.max(delay, lastEnd ? lastEnd + gap - now : 0);
 
 export const folderBackupSupported = typeof window !== 'undefined' && 'showDirectoryPicker' in window;
 
@@ -154,16 +160,32 @@ export function watchForChanges(db, onWritten = () => {}) {
   if (watching) return;
   watching = true;
   let timer = null;
-  const schedule = () => {
-    clearTimeout(timer);
-    timer = setTimeout(async () => {
-      try {
-        if (await writeNow(db)) for (const fn of listeners) fn();
-      } catch (err) {
-        console.warn('Folder backup failed', err);
-      }
-    }, DELAY_MS);
+  let lastEnd = 0;
+  let pending = false;
+  const run = async () => {
+    pending = false;
+    try {
+      if (await writeNow(db)) for (const fn of listeners) fn();
+    } catch (err) {
+      console.warn('Folder backup failed', err);
+    } finally {
+      lastEnd = Date.now();
+    }
   };
+  const schedule = () => {
+    pending = true;
+    clearTimeout(timer);
+    timer = setTimeout(run, waitFor(Date.now(), lastEnd));
+  };
+  // Leaving the tab with a change not yet written: write it now (nobody waits for it, and the 30 s must not lose a change).
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden' && pending) {
+        clearTimeout(timer);
+        run();
+      }
+    });
+  }
   for (const name of DATA_TABLES) {
     const table = db.table(name);
     // v0.45.1 (G015a): the tips shown on Today are not in the backup, so they write none

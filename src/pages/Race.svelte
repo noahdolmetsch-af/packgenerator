@@ -103,7 +103,7 @@
           <p class="rc-text">{t('Create a race, or make one of your trips a race. Then load the route files and the stops of the organiser.')}</p>
         </section>
       {/if}
-      {#each [{ key: 'coming', name: 'Coming', rows: list.coming }, { key: 'past', name: 'Done', rows: list.past }] as g (g.key)}
+      {#each [{ key: 'coming', name: 'Coming|races', rows: list.coming }, { key: 'past', name: 'Done', rows: list.past }] as g (g.key)}
         {#if g.rows.length}
           <section class="rc-box" aria-labelledby="rc-{g.key}-h">
             <h2 id="rc-{g.key}-h" class="rc-h2">{t(g.name)}</h2>

@@ -30,7 +30,7 @@
   import Seg from '../ui/Seg.svelte';
   import TripState from '../ui/TripState.svelte';
   import StateChips from '../ui/StateChips.svelte';
-  import { factStates, factCounts, matchesState } from './state.js';
+  import { factStates, factCounts, matchesState, waitingCount } from './state.js';
   import { stateExtraText } from '../tripstatetext.js';
   import { paceOf } from '../pace.js';
   import { chipCounts, logBikeOf } from './werte.js';
@@ -51,7 +51,8 @@
   const entries = $derived(data ? logEntries({ facts, events: data.events, debriefs: data.debriefs, notes: data.notes }) : []);
   // SN2: the state of every trip row, the chips per state and the missing debriefs
   const states = $derived(data ? factStates(facts, { debriefs: data.debriefs, rides: data.rides, today }) : {});
-  const missing = $derived(Object.values(states).filter((s) => s.open).length);
+  // Noah 08.11.2026 «1-5 a»: the same number as the chip «Completed» (state.js: a completed row waits for its debrief until it is rated)
+  const missing = $derived(waitingCount(facts, states));
   let st = $state('all');
   const pace = $derived(paceOf(data?.pace ?? null));
   const years = $derived(logYears(entries));

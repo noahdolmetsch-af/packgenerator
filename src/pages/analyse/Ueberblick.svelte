@@ -10,6 +10,7 @@
   import { valueText, unitText } from '../../lib/analyse/format.js';
   import { ticksPerDay, longestRun, heatWeeks, ranking, perWeek } from '../../lib/analyse/overview.js';
   import { actName } from '../../lib/flow/ui.svelte.js';
+  import Empty from '../../lib/ui/Empty.svelte';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { niceScale, tickText, LABEL_MAX } from '../../lib/charts/axis.js';
   import GridLines from '../../lib/charts/GridLines.svelte';
@@ -25,36 +26,39 @@
   const rank = $derived(ranking(acts, log, days));
   const rankTop = $derived(Math.max(1, ...rank.map((r) => r.n)));
   const weeks = $derived(perWeek(days, perDay));
-  const wsc = $derived(niceScale(weeks.flatMap((w) => [w.n, w.mean4]), { zero: true }));
+  const wsc = $derived(niceScale(weeks.flatMap((w) => [w.n, w.mean4]), { zero: true, integer: true }));
   let pickedWeek = $state(null);
   const pw = $derived(pickedWeek != null && pickedWeek < weeks.length ? pickedWeek : weeks.length - 1);
   const BAR = ['var(--l1)', 'var(--l3)', 'var(--l4)', 'var(--pz5)', 'var(--pz3)', 'var(--pz6)', 'var(--pz4)', 'var(--l2)'];
 
   // the boxes: only from the sources switched on, only with a value
-  const mean = (it) => {
+  // perDay: a counted value (minutes, km) as its mean per day with a value, not its total (Noah 07.11.2026 «2a»)
+  const mean = (it, perDay = false) => {
     const vals = days.map((d) => it.get(d)).filter((v) => typeof v === 'number' && Number.isFinite(v));
     if (!vals.length) return null;
     const s = vals.reduce((a, b) => a + b, 0);
-    return it.sum ? s : s / vals.length;
+    return it.sum && !perDay ? s : s / vals.length;
   };
   const boxes = $derived.by(() => {
     const out = [];
     if (aktiv) out.push({ key: 'ticks', big: num(inDays), small: t('ticks in {n} days|overview', { n: days.length }) });
-    const one = (key, label) => {
+    const one = (key, label, perDay = false) => {
       const it = byKey.get(key);
       if (!it?.get || !on.includes(it.src)) return;
-      const v = mean(it);
+      const v = mean(it, perDay);
       if (v == null) return;
       out.push({ key, big: `${valueText(it, v, num)}${unitText(it) ? ` ${unitText(it)}` : ''}`, small: label, href: it.href });
     };
-    one('km:bike', t('Bike, Strava|overview'));
+    one('km:bike', t('Bike, Strava, in {n} days|overview', { n: days.length }));
     one('sleep', t('sleep on average|overview'));
-    one('azm', t('active zone minutes a day|overview'));
+    one('azm', t('active zone minutes a day, mean of {n} days|overview', { n: days.length }), true);
     one('rhr', t('resting pulse|overview'));
     if (aktiv) out.push({ key: 'run', big: t('{n} days|overview', { n: run }), small: t('longest run|overview') });
     return out;
   });
 
+  // nothing to show in this period: no value of a source that is on, and no tick (the numbers would all be 0)
+  const nothing = $derived(!boxes.some((b) => b.key !== 'ticks' && b.key !== 'run') && (!aktiv || inDays === 0));
   const dfmt = (d, o) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const WD = $derived(Array.from({ length: 7 }, (_, i) => dfmt(`2026-10-${String(5 + i).padStart(2, '0')}`, { weekday: 'short' })));
   // a month name over the first week of each month
@@ -64,6 +68,11 @@
     const prev = heat.weeks[i - 1]?.cells.find(Boolean)?.day;
     return !prev || prev.slice(0, 7) !== first.slice(0, 7) ? dfmt(first, { month: 'short' }) : '';
   };
+  // a long period does not fit on a phone: start at the newest weeks, older ones are a swipe away
+  let calEl = $state();
+  $effect(() => {
+    if (heat.weeks.length && calEl) calEl.scrollLeft = calEl.scrollWidth;
+  });
   const W = 600;
   const H = 160;
   const wy = (n) => H - 2 - ((n - wsc.lo) / (wsc.hi - wsc.lo || 1)) * (H - 12);
@@ -73,7 +82,13 @@
   }
 </script>
 
-<section class="card ov" aria-labelledby="ov-h" data-overview>
+{#if nothing}
+  <Empty
+    text={t('Nothing ticked or recorded in these {n} days yet. Tick an activity in Aktiv or connect Fitbit or Strava, then the overview fills.|overview', { n: days.length })}
+    action={{ label: t('Open Aktiv'), href: '#/flow' }}
+    action2={{ label: t('Connect Fitbit|analyse'), href: '#/me/fitbit' }}
+  />
+{:else}<section class="card ov" aria-labelledby="ov-h" data-overview>
   <h2 id="ov-h" class="sr">{t('Overview|overview')}</h2>
   {#if boxes.length}
     <ul class="boxes">
@@ -89,7 +104,7 @@
 {#if aktiv}
   <section class="card hm" aria-labelledby="hm-h" data-heat>
     <div class="ch"><h2 id="hm-h">{t('Every day a field|overview')}</h2><small>{t('calendar · all ticks|overview')}</small></div>
-    <div class="cal" style="--weeks: {heat.weeks.length}">
+    <div class="cal" style="--weeks: {heat.weeks.length}" bind:this={calEl}>
       <div class="wd" aria-hidden="true">
         <span></span>
         {#each WD as w, i (i)}<span>{i % 2 === 0 ? w : ''}</span>{/each}
@@ -112,6 +127,7 @@
       </div>
     </div>
     <p class="hint">{t('Darker = more ticked. Tap a field to see the day.|overview')}</p>
+    <p class="hint scale" aria-hidden="true">{t('fewer|overview')} <i class="cell l1"></i><i class="cell l2"></i><i class="cell l3"></i><i class="cell l4"></i> {t('more|overview')}</p>
   </section>
 
   <div class="two">
@@ -152,6 +168,8 @@
       <ul class="legend"><li><i class="lsw"></i>{t('ticks per week|overview')}</li><li><i class="lsw ln"></i>{t('mean of 4 weeks|overview')}</li></ul>
     </section>
   </div>
+{/if}
+
 {/if}
 
 <style>
@@ -196,6 +214,7 @@
   }
   .ch {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: baseline;
     gap: 8px;
@@ -209,50 +228,74 @@
     font-size: var(--fs-small);
     text-align: right;
   }
+  /* every field has the same size (as big as the width allows, 24 to 40 px), so nothing is stretched over the
+     card and the weekday names and month names sit exactly on their rows and columns */
   .cal {
     display: flex;
     gap: 6px;
     overflow-x: auto;
+    container-type: inline-size;
+    --cell: clamp(24px, calc((100cqw - 34px) / var(--weeks) - 2px), 40px);
   }
   .wd {
     flex: none;
     display: grid;
-    grid-template-rows: 16px repeat(7, 1fr);
-    gap: 3px;
+    grid-template-rows: 18px repeat(7, var(--cell));
+    gap: 2px;
+    position: sticky;
+    left: 0;
+    background: var(--paper);
+    box-shadow: 6px 0 0 var(--paper);
+    z-index: 1;
     color: var(--ink-3);
     font-size: var(--fs-label);
+    align-items: center;
   }
   .grid {
-    flex: 1;
-    min-width: calc(var(--weeks) * 15px);
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
   .months {
     display: grid;
-    grid-template-columns: repeat(var(--weeks), 1fr);
-    height: 16px;
+    grid-template-columns: repeat(var(--weeks), var(--cell));
+    column-gap: 2px;
+    height: 18px;
+    align-items: center;
     color: var(--ink-3);
     font-size: var(--fs-label);
     white-space: nowrap;
   }
   .cells {
     display: grid;
-    grid-template-columns: repeat(var(--weeks), 1fr);
-    gap: 3px;
+    grid-template-columns: repeat(var(--weeks), var(--cell));
+    gap: 2px;
   }
   .col {
     display: grid;
-    grid-template-rows: repeat(7, 1fr);
-    gap: 3px;
+    grid-template-rows: repeat(7, var(--cell));
+    gap: 2px;
   }
   .cell {
-    aspect-ratio: 1;
-    min-height: 12px;
-    max-height: 34px;
+    width: var(--cell);
+    height: var(--cell);
     padding: 0;
     border: 0;
     border-radius: 4px;
     background: var(--paper-2);
     cursor: pointer;
+  }
+  .scale {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .scale .cell {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+    cursor: default;
   }
   .cell.none {
     background: none;

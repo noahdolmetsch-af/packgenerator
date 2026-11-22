@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 import { openMore } from './bike-more.js';
+import { openCareMore } from './pflege-mehr.js';
 
 // the sheets in the folder's order, read from the app source (sheets.js imports the Svelte i18n, so it is read as text)
 const SRC = readFileSync(new URL('../../src/lib/sheets.js', import.meta.url), 'utf8');
@@ -181,6 +182,7 @@ test('Pick-up check from Care: ticks stay saved; the ticked work goes into care 
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=care&bike=${TRAIL}&open=1`);
   const care = page.locator(`#care-${TRAIL}`);
+  await openCareMore(page, care);
   await care.locator('nav.fline').getByRole('link', { name: 'Abhol-Check' }).click();
   const paper = page.locator('article.paper[data-sheet="pickup"]');
   await expect(paper.getByRole('heading', { name: 'Abhol-Check' })).toBeVisible();

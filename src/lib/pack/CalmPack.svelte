@@ -30,6 +30,7 @@
   import ProbeRow from '../probe/ProbeRow.svelte'; // Paket B: «Generalprobe» from 7 days before the start
   import PlanHints from '../tourlernen/PlanHints.svelte'; // Paket Z: spare parts after a breakdown, sleep spots nearby
   import PackExtras from '../schnellpacken/PackExtras.svelte'; // Paket SP «Schneller packen»
+  import PackMore from './PackMore.svelte'; // «Vereinfachen ohne Verlust» step 2: five closed groups under «More about this trip»
   import EventStart from './EventStart.svelte';
   import TripWeather from './TripWeather.svelte';
   import LessonsCard from './LessonsCard.svelte';
@@ -43,6 +44,7 @@
   import { isEvent } from '../care.js';
   import TripBand from '../trip/TripBand.svelte';
   import PowerLine from './PowerLine.svelte';
+  import TourAmpel from '../trip/TourAmpel.svelte';
   import Sum from '../ui/Sum.svelte';
   import { planningGroups } from '../preparation.js';
   import { t, tn, nameOf, num, locale, bagName } from '../i18n.svelte.js';
@@ -61,18 +63,16 @@
   import { localDay } from '../localday.js';
   import { mainStep, packedAll } from '../phase.js';
   import '../trip/trip.css';
-  import { Sparkles, ArrowDown } from '@lucide/svelte';
+  import { ArrowDown } from '@lucide/svelte';
   import { packSteps } from '../trips.js';
   import { missingOf, missingText } from '../touren/tourstep.js';
-  import ListCheck from '../helper/ListCheck.svelte';
-  import { isOn } from '../helper/client.svelte.js';
   // Klick-Rundgang H33 (parked until Noah's OK): an empty list offers a template's list in one tap
   import { tripFromTemplate, tplDomain } from '../templates.js';
   import { domainOf } from '../domains.js';
   import { SETS_KEY } from '../sets.js';
   import { db } from '../db.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null } = $props();
   let grouping = $state('bags');
   let opened = $state({});
   let itemMenu = $state(null);
@@ -193,14 +193,6 @@
     history.replaceState(null, '', '#/pack');
     if (!fixed) show('add');
   });
-  // v0.77.0 KI-Helfer (answer 4a, K3a): «Liste prüfen» from the ••• menu and next to «Weiter: Packen»
-  // (on a phone the sparkle on the left of the bar); a second tap asks again.
-  let checking = $state(0);
-  function openCheck() {
-    checking++;
-    setTimeout(() => document.querySelector('.kh-check')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
-  }
-  const checkHere = $derived(isOn() && main.href === '#/pack?day');
   // v0.102.0 Design-Refresh P4 «Touren» (T3–T5, approved 12.10.2026): the top of Plan in two columns:
   // the route with map and height profile, the bike with its bags, the weather at the campsites (left);
   // the weight, the stages, the learnings (right). An event starts with «Bis zum Start» and its weather.
@@ -318,11 +310,32 @@
 {#snippet go()}
   {#if main.kind === 'add'}<button class="btn hi go" onclick={() => show('add')}>{t(main.label)}<Plus size={20} aria-hidden="true" /></button>
   {:else if main.kind === 'packgo'}<button class="btn hi go" onclick={actions.packAndGo}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
-  {:else if main.href === '#/pack?day'}{#if checkHere && !phone.matches}<span class="kh-gorow">{@render checkBtn()}<button class="btn hi go" onclick={toPack}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button></span>{:else}<button class="btn hi go" onclick={toPack}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{/if}
+  {:else if main.href === '#/pack?day'}<button class="btn hi go" onclick={toPack}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
   {:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => actions.choose(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}
 {/snippet}
-{#snippet checkBtn()}<button type="button" class="tp-icon-btn kh-go-check" onclick={openCheck}><Sparkles size={18} aria-hidden="true" /><span class="kh-lbl">{t('Check the list')}</span></button>{/snippet}
-{#snippet plus()}{#if checkHere && phone.matches}{@render checkBtn()}{/if}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')} data-add-mat><Plus size={22} aria-hidden="true" /></button>{/snippet}
+{#snippet plus()}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')} data-add-mat><Plus size={22} aria-hidden="true" /></button>{/snippet}
+
+<!-- «Vereinfachen ohne Verlust» step 2 (Noah 07.11.2026): the planning cards that used to stand beside and under the list, sorted into five groups -->
+{#snippet gWeather()}<DoorCard {trip} only={['planb']} />{/snippet}
+{#snippet gBefore()}
+  {@render preparation?.()}
+  <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
+  <DocChecks {trip} />
+  <ProbeRow {trip} {items} card />
+  <!-- Touren-Ideen 45, 47, 49 (Noah 26.10.2026 «2b 3a 4b 5b»): sport per day, unclear spots, border -->
+  <TourPrep {trip} />
+  <PackExtras {trip} {trips} {itemsById} only={['wash', 'morning']} />
+  <DoorCard {trip} only={['checkin', 'arrived']} />
+  {@render shop?.()}
+{/snippet}
+{#snippet gOthers()}<PackExtras {trip} {trips} {itemsById} only={['two']} />{/snippet}
+{#snippet gEasier()}{@render starters?.()}{/snippet}
+{#snippet gLearn()}
+  {#if planTop}<LessonsCard {lessons} {reminders} />{/if}
+  <PlanHints {trip} {trips} {items} />
+  {@render ballastContent?.()}
+  <PackExtras {trip} {trips} {itemsById} only={['time']} />
+{/snippet}
 
 <div class="calm-pack trip-page" class:review-mode={review} bind:this={rootEl}>
   {#if review}
@@ -336,6 +349,8 @@
     {@render notice?.()}
     <!-- Alles fertig (Versteckte Funktionen, Noah 22.10.2026 «1a»): «Strom: reicht / reicht nicht ›» open at the top -->
     {#if power}<PowerLine {trip} {items} />{/if}
+    <!-- Tour-Ampel (Noah 05.11.2026, Touren 3a): packed, weather, bike, devices in four lines, before the trip -->
+    {#if ampel.length && !fixed && !over}<TourAmpel rows={ampel} onact={onampel} />{/if}
     <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, a fitting «Passt zu heute» first -->
     <HintCard page="pack" />
     {#if trip.skipped}<p class="tp-status">{bikeTrip ? t('Not riding') : t('Not going')}</p>{/if}
@@ -346,40 +361,6 @@
     {#if bikeTrip}<ExpectPick {trip} {fixed} />{/if}
     <!-- Persönliches Lernen Idee 5 (Noah 04.11.2026 «5a»): a recipe that worked, next to this tour -->
     {#if bikeTrip}<RecipePick {trip} {fixed} />{/if}
-    {#if planTop}
-      <div class="plan-top">
-        <div class="pcol">
-          {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} onopen={onprep} />{/if}
-          {#if showRoute}<RouteCard {trip} onchange={edit ? onroute : null} />{/if}
-          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} {trips} {items} readonly={!!over} onbag={openBag} onphoto={actions.photo} onbags={fixed ? null : () => show('bags')} />{/if}
-          {#if camps && !ev}<TripWeather {trip} kind="camps" />{/if}
-        </div>
-        <div class="pcol">
-          {#if ev}<TripWeather {trip} kind="event" />{/if}
-          {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
-          {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
-          <LessonsCard {lessons} {reminders} />
-          <!-- P3b «Daten sicher» (D3/D4): «ID and cash with you?» and the other papers marked for the packing list -->
-          <DocChecks {trip} />
-          <!-- Paket W «Von der Haustür bis zurück» (Noah 20.10.2026): plan B, check-in, «Gut angekommen» -->
-          <PlanHints {trip} {trips} {items} />
-          <DoorCard {trip} />
-          <!-- Touren-Ideen 45, 47, 49 (Noah 26.10.2026 «2b 3a 4b 5b»): sport per day, unclear spots, border -->
-          <TourPrep {trip} />
-          <ProbeRow {trip} {items} card />
-          <PackExtras {trip} {trips} {itemsById} />
-          <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
-          <PlanNotesCard {trip} {bike} {fixed} />
-        </div>
-      </div>
-    {:else}
-      <PlanNotesCard {trip} {bike} {fixed} />
-      <PlanHints {trip} {trips} {items} />
-      <DoorCard {trip} />
-      <TourPrep {trip} />
-      <ProbeRow {trip} {items} card />
-      <PackExtras {trip} {trips} {itemsById} />
-    {/if}
     <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day after the first content part -->
     <TipLine page="pack" name={t('Pack')} />
     <div class="tp-grid2">
@@ -446,7 +427,6 @@
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <details class="list-menu" bind:this={menuEl} use:away onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
               <div class="list-menu-content" use:inView>
-                {#if isOn() && !fixed}<button class="kh-menu-check" onclick={menu(openCheck)}><Sparkles size={16} aria-hidden="true" />{t('Check the list')}</button>{/if}
                 <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>
                 <!-- v0.30.1 (Noah N9): the past trips, easy to find next to the trip chooser. -->
                 {#if pastN}<a href="#/pack/past">{t('Past trips ({n})', { n: pastN })}</a>{/if}
@@ -471,7 +451,6 @@
             </details>
           </div>
         </section>
-        {#if checking}{#key checking}<ListCheck {trip} {items} onadd={actions.helperAdd} onremove={actions.remove} onsearch={(name) => { q = name; show('add'); }} onclose={() => (checking = 0)} />{/key}{/if}
         <!-- L9: a trip made without any gear lands here: say so kindly and lead to adding the first item. -->
         {#if !trip.entries.length}
           <!-- v0.127.0 A-U2: the one empty building block -->
@@ -547,10 +526,31 @@
           <details class="tp-fold weight-details"><summary><Weight size={20} aria-hidden="true" /><span>{t('Weight')}</span><span class="r num">{t('Base')} {stats.baseMissing ? '~' : ''}{kg(stats.baseG)}{#if stats.unweighed}<i class="tp-badge">{t('{n} not weighed', { n: stats.unweighed })}</i>{/if}<ChevronRight class="chev" size={18} aria-hidden="true" /></span></summary>
             <div class="in"><div class="weight-grid"><div><span>{t('Base')}</span><Sum g={stats.baseG} missing={stats.baseMissing} /></div><div><span>{t('On you')}</span><Sum g={stats.wornG} missing={stats.wornMissing} /></div><div><span>{t('Food and water')}</span><Sum g={stats.consumablesG} missing={stats.consumablesMissing} /></div><div><span>{t('Items')}</span><b>{stats.count}</b></div></div>{@render moreWeights?.()}{#if bikeTrip && stats.zones.some((z) => z.worn)}<p class="tp-muted tp-small">{t('Back and Hip count to On you, not to the bike or the wheels.')}</p>{/if}<p class="tp-muted tp-small">{stats.unweighed ? t('{n} weights missing · displayed weights are known values.', { n: stats.unweighed }) : t('All material weights are recorded.')}</p></div>
           </details>
-          {@render preparation?.()}{@render ballastContent?.()}
         </div>
       </div>
     </div>
+    <!-- Ganze App neu denken, Schritt 4b (Noah 18.11.2026): the packing list comes first; route, bike, weight, stages and notes of the plan follow below it -->
+    {#if planTop}
+      <div class="plan-top">
+        <div class="pcol">
+          {#if ev}<EventStart {trip} prep={prep?.prep} open={prep?.open ?? []} onopen={onprep} />{/if}
+          {#if showRoute}<RouteCard {trip} onchange={edit ? onroute : null} />{/if}
+          {#if bikeTrip && bike}<TripBike {trip} {stats} {bike} {photo} {trips} {items} readonly={!!over} onbag={openBag} onphoto={actions.photo} onbags={fixed ? null : () => show('bags')} />{/if}
+          {#if camps && !ev}<TripWeather {trip} kind="camps" />{/if}
+        </div>
+        <div class="pcol">
+          {#if ev}<TripWeather {trip} kind="event" />{/if}
+          {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
+          {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
+          <!-- the rest of the planning cards sit in the groups of «More about this trip» below the packing list (PackMore) -->
+          <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
+          <PlanNotesCard {trip} {bike} {fixed} />
+        </div>
+      </div>
+    {:else}
+      <PlanNotesCard {trip} {bike} {fixed} />
+    {/if}
+    <PackMore {trip} {jumpBefore} weather={gWeather} before={gBefore} others={gOthers} easier={gEasier} learn={gLearn} />
   {/if}
   {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
 </div>

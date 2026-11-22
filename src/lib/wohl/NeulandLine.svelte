@@ -1,7 +1,7 @@
 <script>
   /**
    * Paket P #253 «Neuland im Jahresheft» (Noah 19.10.2026): one line in the year review, how many new
-   * places and things the year brought (your own entries and the «New» evenings with a note), with the
+   * places and things the year brought (your own entries, the «New» evenings with a note and the finds of Neuland and the summit book), with the
    * newest names; a tap opens Ich › Was mir gut tut. Without any Neuland nothing shows.
    */
   import { liveQuery } from 'dexie';
@@ -15,7 +15,17 @@
     const [own, rows] = await Promise.all([db.settings.get(NEULAND_KEY), db.abAnswers.where('qid').equals('spass.coolstes').toArray()]);
     return { own: own?.value ?? [], rows };
   });
-  const list = $derived($q ? neulandYear($q.own, $q.rows, year) : []);
+  // N10 «Eine Fundliste»: the finds of Neuland and the summit book join the line (loaded on first use)
+  let funde = $state.raw([]);
+  $effect(() => {
+    let live = true;
+    import('../neuland/fundeload.js')
+      .then((m) => m.readFunde(db, year))
+      .then((f) => live && (funde = f))
+      .catch((err) => console.error(err));
+    return () => (live = false);
+  });
+  const list = $derived($q ? neulandYear($q.own, $q.rows, year, funde) : []);
 </script>
 
 {#if list.length}

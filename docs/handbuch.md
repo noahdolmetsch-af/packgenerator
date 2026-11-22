@@ -341,12 +341,12 @@ Ich › Listen und Typen: Kategorien umbenennen, eigene dazunehmen, ausblenden, 
 
 ### Listen und Typen
 
-Velos, Probleme, Learnings, Fahrten, Ideen, Logbuch-Einträge und die Listen (Sportarten, Plätze am Velo, Pflege-Teile): selbst hinzufügen, umbenennen und löschen. Löschen fragt zuerst und lässt sich rückgängig machen.
+Velos, Probleme, Erkenntnisse, Fahrten, Ideen, Logbuch-Einträge und die Listen (Sportarten, Plätze am Velo, Pflege-Teile): selbst hinzufügen, umbenennen und löschen. Löschen fragt zuerst und lässt sich rückgängig machen.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.
-2. Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».
+2. Probleme: «…» › Umbenennen oder Löschen. Erkenntnisse: eine antippen, oder «+ Erkenntnis».
 3. Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».
 
 **Beispiel:** Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».
@@ -690,13 +690,13 @@ Touren › Rennen: ein Bikepacking-Rennen oder eine Ultra-Fahrt durchgespielt: T
 
 **Beispiel:** Steigleistung 650 → 550 Hm/h mit Gepäck → der Plan wächst von 10 auf 12 Tage, die Betten wandern mit.
 
-### Rennen detailliert planen
+### Rennen-Check
 
 Alle kommenden Rennen auf einer Seite, jedes mit seinem Rennen-Check: Packen von A bis Z, Soll-Setup pro Tasche, Grundliste, Schlaf-Varianten und eine Nacht durchgespielt.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Touren › «Rennen detailliert planen» und tippe ein Rennen an.
+1. Öffne Touren › «Rennen-Check» und tippe ein Rennen an.
 2. Füll die fünf Blätter nacheinander aus; alles speichert von selbst.
 
 **Beispiel:** Blatt 2 «Soll-Setup»: in der Rahmentasche sind Regenjacke und Stirnlampe, leer 150 g.
@@ -991,13 +991,13 @@ Akku, Leucht- und Ladezeit, halb und viertel gerechnet, Leuchtstufen und die Lad
 
 **Beispiel:** Lädt voll 3 h → halb etwa 1:12 h, viertel etwa 36 min.
 
-### Strombudget
+### Strom
 
 Reicht der Strom für die Tour? Die App zählt zusammen, was deine Geräte pro Tag brauchen, und sagt, welche Powerbank und welches Ladegerät mitkommen.
 
 **Aufschalten:** Zählt jedes Gerät der Tour aus Elektronik und Licht; Werte, die du beim Teil setzt (Akku, wie lange er hält), gehen vor die üblichen.
 
-1. Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strombudget».
+1. Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strom».
 2. Ändere die Nächte mit Steckdose oder die Stunden; «Auf die Packliste» nimmt Powerbank und Ladegerät dazu.
 
 **Beispiel:** 4 Tage im Biwak mit Handy, Licht und Velocomputer → «Nimm mit: Powerbank 20000».
@@ -2361,7 +2361,7 @@ Schreib im Rückblick einen Satz; unterwegs auf deiner nächsten Tour wartet ein
 
 Alles auf einer Zeitachse, eine Seite pro Monat: Touren, Fahrten, Pflege, Meditation, Notizen; «Früher um diese Zeit» zeigt diesen Tag in früheren Jahren.
 
-**Aufschalten:** Wächst mit jedem Rückblick, jeder Fahrt und jedem Learning.
+**Aufschalten:** Wächst mit jedem Rückblick, jeder Fahrt und jeder Erkenntnis.
 
 1. Öffne Touren › Rückblick › Chronik oder die Kachel «Früher um diese Zeit» auf Heute.
 2. Wähle «Alle», «Velo», «Touren», «Pflege», «Meditation» oder «Notizen»; die Pfeile und die Monatsknöpfe wechseln den Monat.
@@ -2369,9 +2369,9 @@ Alles auf einer Zeitachse, eine Seite pro Monat: Touren, Fahrten, Pflege, Medita
 
 **Beispiel:** 19. Oktober: «Jurahöhen» 2025, 132 km, «Zu viel Werkzeug dabei».
 
-### Gelernt
+### Erkenntnisse
 
-Eine Monatskarte und ein Jahresbrief: neue Learnings, angepasste Vorlagen, dein Tempo, die Kleidergrenze, km und Touren.
+Eine Monatskarte und ein Jahresbrief: neue Erkenntnisse, angepasste Vorlagen, dein Tempo, die Kleidergrenze, km und Touren.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
@@ -2379,7 +2379,7 @@ Eine Monatskarte und ein Jahresbrief: neue Learnings, angepasste Vorlagen, dein 
 2. «Monat»: bis zu 6 Zeilen mit Zahlen; die Pfeile wechseln den Monat.
 3. «Jahr»: der Brief «Dein Jahr»; «Drucken» sichert ihn auch als PDF.
 
-**Beispiel:** Oktober: 2 Touren, 121 km · 1 neues Learning · 1 Sache bleibt jetzt zu Hause.
+**Beispiel:** Oktober: 2 Touren, 121 km · 1 neue Erkenntnis · 1 Sache bleibt jetzt zu Hause.
 
 ### Dein Jahr als Bildgeschichte
 
@@ -4325,7 +4325,7 @@ Sachen an einen Gast ausleihen: die Liste als Link oder PDF schicken, am Rückga
 
 **Aufschalten:** Immer da, nichts zu tun.
 
-1. Öffne Material › Ausgeliehen und mach eine neue Liste für den Gast.
+1. Öffne Material › Leihliste und mach eine neue Liste für den Gast.
 2. Schick sie als Link oder PDF; tippe «Zurück» bei jeder Sache, die zurückkommt.
 
 **Beispiel:** Zelt und Matte an Sam, zurück am Sonntag → eine Erinnerung am Sonntagmorgen.
@@ -5007,13 +5007,13 @@ Freunde ergänzen ihren Teil zu einer Tour, einem Ort, einem Foto, der Schwierig
 
 ### Leihregal für Freunde
 
-Sachen ins Regal stellen zum Ausleihen, Tauschen oder Verschenken; Freunde fragen an, du sagst zu, und die Übergabe kommt in «Ausgeliehen». Gemeinsames, geliehenes oder gemietetes Material zeigt, wer es wann hat.
+Sachen ins Regal stellen zum Ausleihen, Tauschen oder Verschenken; Freunde fragen an, du sagst zu, und die Übergabe kommt in «Leihliste». Gemeinsames, geliehenes oder gemietetes Material zeigt, wer es wann hat.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Mit Freunden › Leihregal für Freunde und stell Sachen ins Regal.
 2. «Regal schicken»: Freunde wählen, was sie möchten, und schicken eine Anfrage.
-3. Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Ausgeliehen» merkt es sich.
+3. Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Leihliste» merkt es sich.
 
 **Beispiel:** Das zweite Zelt kommt «zum Ausleihen» ins Regal; ein Freund fragt fürs nächste Wochenende an.
 
@@ -5228,7 +5228,7 @@ Deine Abkürzungen an einem eigenen Ort: Pinne die Funktionen, die du am meisten
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).
-2. Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».
+2. Tippe auf «Abkürzung hinzufügen», suche eine Funktion und tippe auf «Anpinnen».
 3. Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.
 
 **Beispiel:** «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».
@@ -5305,17 +5305,17 @@ Alle ruhigen Funktionen auf einer Seite: weniger App, Herkunft der Werte, Briefe
 
 **Beispiel:** «Brief für einen Moment» öffnet sich in der ersten Nacht deiner nächsten Tour.
 
-### Sicherung prüfen
+### Backup prüfen
 
-Eine Sicherungsdatei prüfen, ohne etwas zu ändern, und eine zweite Kopie ausser Haus halten.
+Eine Backup-Datei prüfen, ohne etwas zu ändern, und eine zweite Kopie ausser Haus halten.
 
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Ich › Daten und Backup, oben «Alles in Ordnung?».
-2. Tippe «Sicherung prüfen» und wähle eine Datei: Es steht, ob sie gut ist, oder was nicht stimmt.
-3. Schick dir eine Sicherung selbst, dann tippe «Habe ich gerade gemacht».
+2. Tippe «Backup prüfen» und wähle eine Datei: Es steht, ob sie gut ist, oder was nicht stimmt.
+3. Schick dir ein Backup selbst, dann tippe «Habe ich gerade gemacht».
 
-**Beispiel:** Datei vom letzten Monat → «Diese Sicherung ist gut. 5 Touren, 2 Velos».
+**Beispiel:** Datei vom letzten Monat → «Dieses Backup ist gut. 5 Touren, 2 Velos».
 
 ### Was die App noch wissen sollte
 

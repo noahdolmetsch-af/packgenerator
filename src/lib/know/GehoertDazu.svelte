@@ -11,6 +11,7 @@
   import { momentName } from '../home/momentcard.js';
   import { NOT_KEY, notForMeOf } from '../ruhig/weniger.js';
   import { PAGE_MOMENT, HUB_ONLY, gehoertDazu, allHref } from './gehoert.js';
+  import CardFold from '../ui/CardFold.svelte';
 
   let { page = '', hash = '' } = $props();
   const moment = $derived(PAGE_MOMENT[page] ?? null);
@@ -20,6 +21,7 @@
 </script>
 
 {#if row && row.items.length}
+  <CardFold id="gd:{page}" label={t('Belongs to {moment}', { moment: t(momentName(moment)) })}>
   <nav class="gd" aria-labelledby="gd-h" data-gehoert={moment}>
     <h2 id="gd-h">{t('Belongs to {moment}', { moment: t(momentName(moment)) })}</h2>
     <ul>
@@ -29,6 +31,7 @@
       {#if row.total > row.items.length}<li><a class="chip more" href={allHref(moment)} data-gehoert-all>{t('all {n} ›', { n: row.total })}</a></li>{/if}
     </ul>
   </nav>
+  </CardFold>
 {/if}
 
 <style>

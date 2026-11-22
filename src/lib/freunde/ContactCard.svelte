@@ -9,6 +9,7 @@
   import { liveQuery } from 'dexie';
   import { Pencil, Trash2, Plus, Camera, Phone, AtSign, Mail, Maximize, X, Smartphone, Sticker } from '@lucide/svelte';
   import { db } from '../db.js';
+  import { backClose } from '../ui/backclose.js';
   import { t, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
@@ -33,10 +34,17 @@
 
   let card = $state({ name: '', ...Object.fromEntries(SHOWN.map((f) => [f, ''])), show: { ...SHOW_DEFAULT }, days: 7, mode: 'link', payOn: false });
   let seen = false;
+  const blank = JSON.stringify($state.snapshot(card));
   $effect(() => {
     if (seen || $cardQ === undefined) return;
     seen = true;
-    card = { ...card, ...($cardQ ?? {}), name: $cardQ?.name || me || '', show: { ...card.show, ...($cardQ?.show ?? {}) } };
+    // The stored card fills the fields once. A field the person has already typed (the answer of the live query can come
+    // after the first keys) stays as typed; before, the late answer wiped the name and the code stayed empty.
+    const start = JSON.parse(blank);
+    const typed = Object.keys(card).filter((k) => k !== 'show' && JSON.stringify($state.snapshot(card)[k]) !== JSON.stringify(start[k]));
+    const merged = { ...card, ...($cardQ ?? {}), name: $cardQ?.name || me || '', show: { ...card.show, ...($cardQ?.show ?? {}) } };
+    for (const k of typed) merged[k] = card[k];
+    card = merged;
   });
   const saveCard = () => db.settings.put({ key: CARD_KEY, value: $state.snapshot(card) });
   const shown = $derived(cardShown(card));
@@ -256,7 +264,7 @@
   </div>
 </section>
 
-<dialog class="cc-big" bind:this={big} onclose={onBigClose} aria-label={t('Your contact card')} data-card-bigview>
+<dialog class="cc-big" bind:this={big} use:backClose onclose={onBigClose} aria-label={t('Your contact card')} data-card-bigview>
   <button type="button" class="btn sm cc-big-x" onclick={closeBig} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
   <p class="cc-big-name">{shown.name}</p>
   {#if qrText}<div class="cc-big-qr"><QrCode text={qrText} label={t('Your contact card')} /></div>{/if}

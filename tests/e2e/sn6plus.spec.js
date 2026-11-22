@@ -107,7 +107,9 @@ test('SN6+ Funktionen: order, progress, Passt gerade, Top 5, Neu seit deinem let
   await expect(news.locator('[data-new="gpx"]')).toHaveCount(0);
 
   if (info.project.name === 'phone') {
-    for (const b of await page.locator('main [data-fit] .btn, main .ftopb, main [data-new] button').all()) expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    // one round trip for all ~380 buttons (one boundingBox() call each ran into the 90 s limit on slow runners)
+    const heights = await page.locator('main [data-fit] .btn, main .ftopb, main [data-new] button').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
+    expect(Math.min(...heights, Infinity)).toBeGreaterThanOrEqual(44);
   }
   await shot(page, info, 'SN6p-funktionen');
   await fits(page, info);

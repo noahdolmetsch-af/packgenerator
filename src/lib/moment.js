@@ -90,12 +90,12 @@ export function loopOf(key) {
 const LISTED_MOMENTS = {
   // Lust und Ideen
   lust: [
-    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamlink', 'f.dreamsdone', 'f.triptips', 'f.dreamready', 'f.dreamwx', 'f.dreamsmap', 'f.monthideas', 'f.biwak', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
+    'dayride', 'f.quickstart', 'f.inspiration', 'f.skiseason', 'f.dreams', 'f.dreamsone', 'f.dreamweek', 'f.dreamlink', 'f.dreamsdone', 'f.triptips', 'f.dreamready', 'f.dreamwx', 'f.dreamsmap', 'f.monthideas', 'f.biwak', 'f.trainthere', 'f.suntip', 'f.dice', 'f.monthadv', 'f.whitespots', 'f.nlgoals', 'f.nlround', 'f.races',
     'f.ownbingo', 'f.impulse', 'f.compass', 'f.freeslot', 'f.freiwesentlich', 'f.freireise', 'f.freinacht', 'f.freilust', 'f.freisamml',
   ],
   // Tour planen
   planen: [
-    'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.ask', 'f.sports', 'f.travel',
+    'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.sports', 'f.travel',
     'f.komoot', 'f.tripcompare', 'f.snow', 'f.skiplan', 'f.swissmap', 'f.sosqr', 'f.scales', 'f.race',
     'f.racesample', 'f.racemap', 'f.climbs', 'f.mapoffline', 'f.sleeplists', 'f.nightswx', 'f.abroad',
     'f.mapmeasure', 'f.wxwatch', 'f.fuel', 'f.sleeporigin', 'f.devil', 'f.nogos', 'f.energy', 'f.gpxstops',
@@ -106,7 +106,7 @@ const LISTED_MOMENTS = {
     'f.remindtime', 'blocks', 'templates', 'gpx', 'wxsuggest', 'f.packblocks', 'f.onion', 'f.shop',
     'f.ballast', 'f.tripbike', 'f.switch', 'f.blockcheck', 'f.packcleanup', 'f.planb', 'f.daysports',
     'f.unclear', 'f.border', 'f.ruleuntil', 'f.itemstories', 'f.intent', 'f.checkin', 'f.packtwo',
-    'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.starters', 'f.packside', 'f.ownrules',
+    'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.routeknown', 'f.starters', 'f.packside', 'f.ownrules',
     'f.forgotten', 'f.newpack', 'f.power', 'f.packphoto', 'f.tourhints', 'f.routepois', 'f.tripalert',
     'f.quiz', 'f.probe', 'f.blockeffect', 'f.needs', 'f.weightsure', 'f.sharepreview', 'bags', 'share',
     'f.tripcheck', 'f.readytomorrow', 'f.readaloud', 'f.offlinesave', 'f.labels', 'f.lightpush', 'f.skicheck',
@@ -126,7 +126,7 @@ const LISTED_MOMENTS = {
     'debrief', 'learn', 'pace', 'trend', 'f.breakdown', 'f.daylisten', 'f.usedbook', 'f.sleepspots',
     'f.postcard', 'f.unneeded', 'f.missing', 'f.upload', 'f.past', 'f.logbook', 'f.learnings', 'f.best',
     'f.spurmap', 'f.spurlink', 'f.travelbook', 'f.tripcosts', 'f.tourpage', 'f.diary', 'f.extraq',
-    'f.notetodo', 'f.future', 'f.chronik', 'f.gelernt', 'f.jahr', 'f.neuland', 'f.newkm', 'f.newtoday', 'f.heatmap', 'f.eveningtour',
+    'f.notetodo', 'f.future', 'f.chronik', 'f.gelernt', 'f.jahr', 'f.neuland', 'f.newkm', 'f.osmsets', 'f.findlist', 'f.newtoday', 'f.heatmap', 'f.eveningtour',
     'f.homecoming', 'f.letters', 'f.letterreply', 'f.meaning', 'f.gooddecisions', 'f.knowhow', 'f.skillmap', 'f.freinaechstes', 'f.skiafter',
   ],
   // Velo und Material
@@ -144,8 +144,8 @@ const LISTED_MOMENTS = {
   // Körper und Training
   koerper: [
     'f.tick', 'f.check', 'f.stopwatch', 'f.sportpage', 'f.progress', 'f.mosaic', 'f.sportextras', 'f.goals',
-    'f.yeargoals', 'f.abfragen', 'f.datenfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.form',
-    'f.overview', 'f.trainplans', 'f.feel', 'f.analyses', 'f.analyse', 'f.weekreview', 'f.milestones', 'f.meditation',
+    'f.yeargoals', 'f.abfragen', 'f.datenfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.trainingpeaks', 'f.form',
+    'f.overview', 'f.trainplans', 'f.feel', 'f.analyses', 'f.analyse', 'f.weekreview', 'f.weekgoals', 'f.milestones', 'f.meditation',
     'f.medlog', 'f.medreview', 'f.gipfelbuch', 'f.routine', 'f.insights', 'f.timer', 'f.medmore',
     'f.parkdays', 'f.tennistop', 'f.yogaclasses', 'f.ownbody', 'f.observations', 'f.ridepage', 'f.tickreview',
     'f.experiment', 'f.specialdays', 'f.counterdays', 'f.laterview', 'f.freerewards', 'f.tworoles',
@@ -154,12 +154,12 @@ const LISTED_MOMENTS = {
   // Alltag und Woche
   alltag: [
     'f.wear', 'f.morningpush', 'note', 'f.icepush', 'f.weekplan', 'f.frei', 'f.journal', 'f.voiceletters',
-    'f.remember', 'f.reminders', 'f.birthdays', 'f.shopping', 'f.cook', 'f.contracts', 'f.people', 'f.inbox',
+    'f.remember', 'f.todoquick', 'f.todosteps', 'f.todosort', 'f.reminders', 'f.birthdays', 'f.shopping', 'f.cook', 'f.contracts', 'f.people', 'f.inbox',
     'f.notelinks', 'f.drawphoto', 'f.richtext', 'f.noteattach', 'f.noteocr', 'f.noteremind', 'f.notetrash',
     'f.plantpass', 'f.doubleinbox', 'f.mailcase', 'f.memorycard', 'f.noteformats', 'f.next', 'f.notes',
     'f.dictate', 'f.aiprojects', 'f.photoalbum', 'f.sortround', 'f.docs', 'f.tools', 'f.pdftools', 'f.markup',
     'f.phototools', 'f.ablage', 'f.weblinks', 'f.chains', 'f.convert', 'f.video', 'f.qr', 'f.docscan',
-    'f.mailin', 'f.mail', 'f.agenda', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate', 'f.minipoll', 'f.minilist', 'f.miniinvite', 'f.minifood', 'f.minilos', 'f.miniabfahrt',
+    'f.mailin', 'f.mail', 'f.agenda', 'f.spielerplus', 'f.trello', 'f.friendask', 'f.friendshelf', 'f.friendtemplate', 'f.minidate', 'f.minipoll', 'f.minilist', 'f.miniinvite', 'f.minifood', 'f.minilos', 'f.miniabfahrt',
     'f.inputbar', 'f.inputtemplates', 'f.noteforms', 'f.picturecard', 'f.calc', 'f.units', 'f.freiabend',
   ],
   // App, Daten und Hilfe

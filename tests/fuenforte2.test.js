@@ -55,11 +55,11 @@ describe('old addresses (O2.6a)', () => {
 
 describe('hobby pages 1: the tab «Meine Sportarten» in Aktiv', () => {
   it('«Aktiv neu» (Noah 22.10.2026 «4a»): the sports, their pages, the editor and the hobby pages light «Meine Sportarten»', async () => {
-    const { tabOf } = await import('../src/lib/nav.js');
-    for (const h of ['#/flow/activity', '#/flow/act/yoga', '#/flow/edit/yoga?from=activity', '#/flow/act/meditation', '#/flow/act/meditation/rueckblick', '#/flow/act/meditation/log?view=list', '#/flow/goals', '#/flow/edit/yoga', '#/flow/new', '#/flow/sports', '#/flow/sport/act:yoga']) expect(tabOf('active', h), h).toBe('sports');
+    const { tabOf, subOf } = await import('../src/lib/nav.js');
+    for (const h of ['#/flow/activity', '#/flow/act/yoga', '#/flow/edit/yoga?from=activity', '#/flow/act/meditation', '#/flow/act/meditation/rueckblick', '#/flow/act/meditation/log?view=list', '#/flow/goals', '#/flow/edit/yoga', '#/flow/new', '#/flow/sports', '#/flow/sport/act:yoga']) expect(subOf('week', h)?.key, h).toBe('sports');
     // the milestones are looking: Auswerten › Meilensteine
-    expect(tabOf('analysis', '#/flow/milestones?act=meditation')).toBe('milestones');
-    expect(tabOf('active', '#/flow')).toBe('today');
+    expect(subOf('analysis', '#/flow/milestones?act=meditation').key).toBe('milestones');
+    expect(subOf('week', '#/flow').key).toBe('flowhome');
   });
 });
 

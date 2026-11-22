@@ -1,0 +1,20 @@
+/** Weg zum Ziel › Schrittart «Organisation» (src/lib/weg/types/orga.js) und der Streifen darüber. */
+export default {
+  Organisation: 'Organisation',
+  'Sign up for the race': 'Zum Rennen anmelden',
+  'Many races fill up months ahead.': 'Viele Rennen sind Monate vorher voll.',
+  'Put the days off in your calendar': 'Urlaub im Kalender eintragen',
+  'Book the stay at start and finish': 'Unterkunft bei Start und Ziel buchen',
+  'Book the train to the start': 'Zug zum Start buchen',
+  'Bikes often need their own ticket.': 'Velos brauchen oft ein eigenes Ticket.',
+  'Tell an emergency contact your plan': 'Einer Notfallperson den Plan sagen',
+  'Where you ride, when you should arrive, when to worry.': 'Wo du fährst, wann du ankommen solltest, wann sie sich Sorgen machen soll.',
+  'Organisation: {done} of {total} settled': 'Organisation: {done} von {total} geregelt',
+  'Organisation: all {total} settled': 'Organisation: alle {total} geregelt',
+  'Next deadline: {name}, in {n} day': 'Nächste Frist: {name}, noch {n} Tag',
+  'Next deadline: {name}, in {n} days': 'Nächste Frist: {name}, noch {n} Tage',
+  'Next deadline: {name}, today': 'Nächste Frist: {name}, heute',
+  'Next deadline: {name}, {n} day late': 'Nächste Frist: {name}, {n} Tag überfällig',
+  'Next deadline: {name}, {n} days late': 'Nächste Frist: {name}, {n} Tage überfällig',
+  'To the list': 'Zur Liste',
+};

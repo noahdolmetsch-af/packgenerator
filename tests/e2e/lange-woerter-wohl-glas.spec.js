@@ -1,0 +1,82 @@
+// «Lange Wörter: Glas der guten Momente» (Nacht-Roboter «Langes Wort», Noah 06.11.2026 «4a»): ein sehr langes Wort
+// ohne Umbruchstelle in einer Dank- oder Stolz-Notiz machte Ich › Wohlbefinden breiter als den Bildschirm
+// (2060 px statt 1440 px). Dasselbe bei einem langen Namen einer eigenen Phase auf dem Handy (520 px statt 390 px) und bei einem Punkt
+// der Saisonwechsel-Liste (704 px).
+// Erfundene Texte.
+import { test, expect, noonToday } from './clock.js';
+import DE from '../../src/lib/i18n/de/index.js';
+import { ready } from './settle.js';
+import { put, addDays } from './aktiv-fixture.js';
+
+const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
+const LONG = 'Wunderlangeswort'.repeat(18); // a note is cut at 300 characters
+const TODAY = noonToday().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' }); // the day of the fixed clock
+
+test('Wohlbefinden: eine Dank-Notiz mit langem Wort bleibt im Glas auf dem Bildschirm', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./#/me/wohl');
+  await ready(page);
+  await put(page, {
+    abAnswers: [
+      { id: 'test_dank_lang', qid: 'achtsamkeit.dank', day: addDays(TODAY, -1), at: new Date().toISOString(), note: LONG },
+      { id: 'test_stolz_lang', qid: 'erreicht.stolz', day: addDays(TODAY, -2), at: new Date().toISOString(), value: LONG },
+    ],
+  });
+  await page.reload();
+  await ready(page);
+  const jar = page.locator('[data-wohl-jar]');
+  await expect(jar.locator('.wl-jar').first()).toBeVisible();
+  await expect(jar).toContainText('Wunderlangeswort');
+  const vw = page.viewportSize().width;
+  const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(sw, 'the page is not wider than the screen').toBeLessThanOrEqual(vw);
+  for (const el of await jar.locator('.wl-jar').all()) {
+    const right = await el.evaluate((e) => e.getBoundingClientRect().right);
+    expect(right, T('Jar of good moments')).toBeLessThanOrEqual(vw);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('Wohlbefinden: eine Phase mit langem Namen bleibt auf dem Bildschirm', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./#/me/wohl');
+  await ready(page);
+  await page.locator('[data-phase-add]').click();
+  const sheet = page.locator('dialog[open][data-phase-sheet]');
+  await sheet.locator('input[type="text"]').first().fill('Wunderlangeswort'.repeat(3)); // a name is cut at 60
+  await sheet.locator('button[type="submit"]').click();
+  const row = page.locator('[data-phase] ', { hasText: 'Wunderlangeswort' }).first();
+  await expect(row).toBeVisible();
+  const vw = page.viewportSize().width;
+  const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(sw, 'the page is not wider than the screen').toBeLessThanOrEqual(vw);
+  expect(await row.evaluate((e) => e.getBoundingClientRect().right), 'the row ends on the screen').toBeLessThanOrEqual(vw);
+  expect(errors).toEqual([]);
+});
+
+test('Wohlbefinden: ein Punkt der Saisonwechsel-Liste mit langem Namen bleibt auf dem Bildschirm', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./#/me/wohl');
+  await ready(page);
+  await page.locator('[data-season-add]').click();
+  const sheet = page.getByRole('dialog').filter({ has: page.locator('input') }).last();
+  const input = sheet.locator('input').first();
+  await input.fill('Wunderlangeswort'.repeat(5)); // a point is cut at 80
+  await input.press('Enter');
+  const item = page.locator('[data-wohl-season] .wl-season li', { hasText: 'Wunderlangeswort' }).first();
+  await expect(item).toBeVisible();
+  const vw = page.viewportSize().width;
+  const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(sw, 'the page is not wider than the screen').toBeLessThanOrEqual(vw);
+  expect(await item.evaluate((e) => e.getBoundingClientRect().right), 'the row ends on the screen').toBeLessThanOrEqual(vw);
+  expect(errors).toEqual([]);
+});

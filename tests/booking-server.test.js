@@ -2,7 +2,7 @@
 // contacts and keys only.
 import { describe, it, expect, vi } from 'vitest';
 import { makeHandler, STRIPE } from '../api/booking.js';
-import { cleanOffer, zurichMs, publicOffer, canCancel, validAt } from '../api/_lib/booking.js';
+import { cleanOffer, zurichMs, publicOffer, canCancel, validAt, cleanPrices, wishPrice } from '../api/_lib/booking.js';
 import { fakeRedis } from './booking-fake.js';
 
 const REDIS = 'https://redis.example.test';
@@ -233,5 +233,81 @@ describe('/api/booking', () => {
     expect((await (await h(get(`step=offer&id=${id}`))).json()).offer.slots[0].free).toBe(1);
     expect((await h(post('cancel', { id, b: sent.booking.id, key: sent.booking.key }))).status).toBe(200);
     expect((await (await h(get(`step=offer&id=${id}`))).json()).offer.slots[0].free).toBe(1);
+  });
+
+  it('takes a wish request with places, times, children and source, and the owner answers with a wish time (mode wish)', async () => {
+    const w = world();
+    const { id, owner } = await made(w, { ...OFFER, mode: 'wish', venues: ['Mythenquai (draussen)', 'Lengg (Halle)'], slots: [] });
+    const h = w.handler();
+    const pub = await (await h(get(`step=offer&id=${id}`))).json();
+    expect(pub.offer).toMatchObject({ mode: 'wish', venues: ['Mythenquai (draussen)', 'Lengg (Halle)'] });
+    const form = { id, venues: ['Mythenquai (draussen)', 'Lengg (Halle)'], wishes: ['2026-10-16T17:00', '2026-10-15T16:00'], kids: 2, kidNames: 'Mia (8), Leo (7)', source: 'flyer', name: 'Anna Beispiel', contact: 'anna@example.test', note: 'Anfänger' };
+    const sent = await (await h(post('wish', form))).json();
+    expect(sent.booking).toMatchObject({ status: 'requested', wish: { kids: 2, source: 'flyer', wishes: ['2026-10-15T16:00', '2026-10-16T17:00'], venues: ['Mythenquai (draussen)', 'Lengg (Halle)'] } });
+    // the owner sees it with the contact, no time of its own
+    expect((await h(get(`step=bookings&id=${id}`))).status).toBe(401);
+    const list = await (await h(get(`step=bookings&id=${id}`, owner))).json();
+    expect(list.bookings).toHaveLength(1);
+    expect(list.bookings[0]).toMatchObject({ name: 'Anna Beispiel', contact: 'anna@example.test', slot: '', at: null, status: 'requested', wish: { kidNames: 'Mia (8), Leo (7)' } });
+    // answering needs the owner and one of the wish times
+    expect((await h(post('answer', { id, b: sent.booking.id, decision: 'confirm', pick: 0 }))).status).toBe(401);
+    expect((await h(post('answer', { id, b: sent.booking.id, decision: 'confirm', pick: 5 }, owner))).status).toBe(400);
+    const ok = await (await h(post('answer', { id, b: sent.booking.id, decision: 'confirm', pick: 1 }, owner))).json();
+    expect(ok.booking).toMatchObject({ status: 'confirmed', pick: 1 });
+    expect((await h(post('answer', { id, b: sent.booking.id, decision: 'decline' }, owner))).status).toBe(409);
+    // cancelling a slotless request takes no place away
+    expect((await h(post('cancel', { id, b: sent.booking.id }, owner))).status).toBe(200);
+    expect((await (await h(get(`step=bookings&id=${id}`, owner))).json()).bookings).toHaveLength(0);
+  });
+
+  it('refuses wish requests that are not clean', async () => {
+    const w = world();
+    const wish = await made(w, { ...OFFER, mode: 'wish', venues: ['Mythenquai (draussen)', 'Lengg (Halle)'], slots: [] });
+    const fixed = await made(w, OFFER);
+    const h = w.handler();
+    const ok = { id: wish.id, venues: ['Mythenquai (draussen)'], wishes: ['2026-10-15T16:00'], kids: 1, name: 'Anna Beispiel', contact: 'anna@example.test' };
+    expect((await h(post('wish', ok))).status).toBe(200);
+    for (const bad of [
+      { ...ok, venues: [] },
+      { ...ok, venues: ['Irgendwo'] },
+      { ...ok, wishes: [] },
+      { ...ok, wishes: ['2026-10-13T16:00'] }, // past
+      { ...ok, wishes: ['2026-11-20T16:00'] }, // more than 15 days ahead
+      { ...ok, wishes: ['2026-10-15T16:00', '2026-10-15T16:00'] },
+      { ...ok, wishes: ['2026-10-15T16:00', '2026-10-15T17:00', '2026-10-16T17:00', '2026-10-17T17:00'] },
+      { ...ok, kids: 0 },
+      { ...ok, kids: 5 },
+      { ...ok, name: 'A' },
+    ]) expect((await h(post('wish', bad))).status).toBe(400);
+    // an offer with fixed times takes no wishes
+    expect((await h(post('wish', { ...ok, id: fixed.id }))).status).toBe(400);
+  });
+
+  it('prices a wish request by number of children and place (hall price when a hall is ticked)', async () => {
+    const PRICES = { out: [10000, 7000, 6000, 5500], hall: [14000, 9000, 7500, 6500] };
+    const venues = ['Mythenquai', 'Lengg Halle'];
+    const w = world();
+    const { id } = await made(w, { ...OFFER, mode: 'wish', venues, prices: PRICES, hallVenues: ['Lengg Halle', 'Irgendwo'], slots: [] });
+    const h = w.handler();
+    const pub = await (await h(get(`step=offer&id=${id}`))).json();
+    expect(pub.offer).toMatchObject({ prices: PRICES, hallVenues: ['Lengg Halle'] });
+    const form = { id, wishes: ['2026-10-15T16:00'], name: 'Anna Beispiel', contact: 'anna@example.test' };
+    const out = await (await h(post('wish', { ...form, venues: ['Mythenquai'], kids: 2 }))).json();
+    expect(out.booking.wish.price).toEqual({ hall: false, perKid: 7000, total: 14000 });
+    const both = await (await h(post('wish', { ...form, venues: venues, kids: 3 }))).json();
+    expect(both.booking.wish.price).toEqual({ hall: true, perKid: 7500, total: 22500 });
+    // the client cannot name the price
+    const cheat = await (await h(post('wish', { ...form, venues: venues, kids: 1, price: { perKid: 1, total: 1 } }))).json();
+    expect(cheat.booking.wish.price).toEqual({ hall: true, perKid: 14000, total: 14000 });
+  });
+
+  it('keeps a clean price table only', () => {
+    const ok = { out: [1, 2, 3, 4], hall: [5, 6, 7, 8] };
+    expect(cleanPrices(ok)).toEqual(ok);
+    for (const bad of [null, {}, { out: [1, 2, 3], hall: [1, 2, 3, 4] }, { out: [1, 2, 3, 4], hall: [1, 2, 3, -1] }, { out: [1, 2, 3, 4], hall: [1, 2, 3, 1.5] }, { out: [1, 2, 3, 4], hall: [1, 2, 3, 2_000_000] }]) expect(cleanPrices(bad)).toBeNull();
+    expect(wishPrice({ prices: ok, hallVenues: ['H'] }, ['A'], 1)).toEqual({ hall: false, perKid: 1, total: 1 });
+    expect(wishPrice({ prices: ok, hallVenues: ['H'] }, ['A', 'H'], 4)).toEqual({ hall: true, perKid: 8, total: 32 });
+    expect(wishPrice({}, ['A'], 1)).toBeNull();
+    expect(wishPrice({ prices: ok }, ['A'], 5)).toBeNull();
   });
 });

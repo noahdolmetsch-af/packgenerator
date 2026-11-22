@@ -6,7 +6,7 @@ export default {
   points: [
     {
       text: 'Notes lists the functions of an open note in «What you can do here», each with «Good to know»',
-      go: { href: '#/notes', steps: [{ sel: '[data-seiteninhalt]' }] },
+      go: { href: '#/notes', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],

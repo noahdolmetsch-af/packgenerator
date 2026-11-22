@@ -7,7 +7,7 @@
    * and «Checkliste bearbeiten» (EditList). Loaded only when opened (Bikes.svelte).
    */
   import { liveQuery } from 'dexie';
-  import { Trash2, ChevronDown, Play } from '@lucide/svelte';
+  import { Trash2, ChevronDown, ChevronRight, Play } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   import { bikesHash, sortBikes } from '../bikes.js';
@@ -36,6 +36,17 @@
   const pointById = $derived(Object.fromEntries(allPoints(insp.list).map((p) => [p.id, p])));
   const set = $derived(bike ? bikeSettings(bike) : null);
   let openId = $state(null);
+  // «Kontrolle zur Werkstatt» (Noah 21.11.2026): after «Done» the overview says where the points went
+  const made = $derived(insp.made?.bikeId === bike?.id ? insp.made : null);
+  // it goes when the overview is left (another page, or the next check starts)
+  $effect(() => {
+    if (level) return;
+    return () => (insp.made = null);
+  });
+  const finished = (r) => {
+    insp.made = r && (r.n || r.w) ? { bikeId: bike.id, n: r.n, w: r.w } : null;
+    location.hash = bikesHash({ tab: 'care', view: 'inspect', bike: bike.id });
+  };
   // Gesamttest 21.10.2026 C7: on a phone the newest PHONE_ROWS inspections, then «Show n more»; one not finished always shows.
   let histAll = $state(false);
   const histShown = $derived(phone.matches && !histAll ? capKeep(history, PHONE_ROWS, (x) => !x.done) : history);
@@ -71,7 +82,7 @@
 {#if !bike}
   <p class="quiet">{t('No bike yet. Add a bike first.')}</p>
 {:else if level}
-  <InspectRun {bike} {level} list={insp.list} onfinished={() => (location.hash = bikesHash({ tab: 'care', view: 'inspect', bike: bike.id }))} />
+  <InspectRun {bike} {level} list={insp.list} onfinished={finished} onundone={() => (insp.made = null)} />
 {:else}
   <div class="ip" data-inspect-page>
     <VeloHead
@@ -83,6 +94,17 @@
       <nav class="chips" aria-label={t('Bike')}>
         {#each bikes as b (b.id)}<a class="chip" aria-current={b.id === bike.id ? 'page' : undefined} href={bikesHash({ tab: 'care', view: 'inspect', bike: b.id })}>{b.name}</a>{/each}
       </nav>
+    {/if}
+
+    {#if made}
+      <section class="box made" aria-labelledby="im-h" data-inspect-made>
+        <h2 id="im-h">{t('Where it went')}</h2>
+        <p class="hint">{t('The check is saved. Here you see what it made.')}</p>
+        <div class="mlinks">
+          {#if made.n}<a class="btn sm" href={bikesHash({ tab: 'care', bike: bike.id, open: true })} data-inspect-made-problems>{tn(made.n, 'See {n} point', 'See {n} points')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
+          {#if made.w}<a class="btn sm" href="#/gear?view=wish" data-inspect-made-wish>{t('See wishlist')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
+        </div>
+      </section>
     {/if}
 
     <InspectCard {bike} page />
@@ -184,6 +206,12 @@
   .chip[aria-current='page'] {
     background: var(--ink);
     color: var(--paper);
+  }
+  .mlinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 6px;
   }
   .box {
     margin: 0 0 14px;

@@ -12,4 +12,5 @@
   {round
     ? t('To plan a round, the app sends your home place and the points of the round to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.')
     : t('To plan a way, the app sends your position and the goal to brouter.de (free, no account). The service keeps such requests for two weeks. Nothing else leaves the device.')}
+  {t('If brouter.de does not answer, the app asks once at a reserve router (valhalla1.openstreetmap.de, then routing.openstreetmap.de), which gets the same points.')}
 </p>

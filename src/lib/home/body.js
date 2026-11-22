@@ -40,11 +40,29 @@ export function bodyToday(health = [], today) {
   const rows = BODY_KEYS.map((key) => {
     const now = valueOf(a, key);
     const before = valueOf(b, key);
-    const row = { key, now, before, dir: dirOf(now, before) };
+    const row = { key, now, before, dir: dirOf(now, before), last: now == null ? lastOf(by, key, today) : null };
     if (key === 'score') row.kind = num(a?.sleep?.score) != null || (now == null && num(b?.sleep?.score) != null) ? 'score' : 'efficiency';
+    // the efficiency is shown with a %, Fitbit's own score without: the kind follows the day that is shown
+    if (key === 'score' && row.last) row.kind = num(by.get(row.last.day)?.sleep?.score) != null ? 'score' : 'efficiency';
     return row;
   });
   return { rows, any: rows.some((r) => r.now != null || r.before != null) };
+}
+
+/** How far back a value still stands in for today's (Noah 7.11.2026 «1a»). */
+export const LAST_DAYS = 7;
+
+/**
+ * Noah 7.11.2026 «1a»: a value without a reading today shows the last one of the last 7 days, with its day,
+ * never an empty dash. → { value, day } or null (nothing in 7 days)
+ */
+function lastOf(by, key, today) {
+  for (let i = 1; i <= LAST_DAYS; i++) {
+    const day = addDays(today, -i);
+    const value = valueOf(by.get(day), key);
+    if (value != null) return { value, day };
+  }
+  return null;
 }
 
 const mean = (xs) => (xs.length ? Math.round((xs.reduce((a, b) => a + b, 0) / xs.length) * 10) / 10 : null);

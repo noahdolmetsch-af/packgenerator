@@ -145,7 +145,7 @@ export default {
   'Add a sentence or a photo, then «Save place».': 'Einen Satz oder ein Foto dazu, dann «Ort speichern».',
   'Needs the internet once to make the link.': 'Braucht einmal Internet, um den Link zu erstellen.',
   'Open a sport › History and progress.': 'Öffne eine Sportart › Verlauf und Fortschritt.',
-  'Open Active › Sports.': 'Öffne Aktiv › Sportarten.',
+  'Open Active › Sports.': 'Öffne Aktiv › Meine Aktivitäten.',
   '«Service done» after the service; it is due again by whichever comes first.': '«Service gemacht» nach dem Service; fällig wird er wieder nach dem, was zuerst kommt.',
   'Bikes › Care › a bike › «Part template».': 'Velos › Pflege › ein Velo › «Teilevorlage».',
   'After a ride in the rain a hint on the page «Wear» and a phone reminder to dry and oil the chain; done counts as care.': 'Nach einer Fahrt im Regen ein Hinweis auf der Seite «Verschleiss» und eine Handy-Erinnerung, die Kette zu trocknen und zu ölen; erledigt zählt als Pflege.',
@@ -342,7 +342,7 @@ export default {
   'Open «Ideas» under «Look up» and tap a goal.': 'Öffne «Ideen» unter «Nachschlagen» und tippe auf ein Ziel.',
   'Tap «Start the sorting round».': 'Tippe auf «Ablegen-Runde starten».',
   'For each note tap «File», a chip, «Keep», «Delete» or «Skip».': 'Tippe bei jeder Notiz auf «Ablegen», einen Chip, «Behalten», «Löschen» oder «Überspringen».',
-  'Open Aktiv › Sports › Tennis.': 'Öffne Aktiv › Sportarten › Tennis.',
+  'Open Aktiv › Sports › Tennis.': 'Öffne Aktiv › Meine Aktivitäten › Tennis.',
   'Tap «Played» or «Like last time».': 'Tippe auf «Gespielt» oder «Wie letztes Mal».',
   'Booked a court? «Enter a time»: afterwards the app asks «Played?».': 'Einen Platz gebucht? «Zeit eintragen»: danach fragt die App «Gespielt?».',
   'In the card Yoga tap «Add a class».': 'Tippe in der Karte Yoga auf «Stunde hinzufügen».',
@@ -424,7 +424,7 @@ export default {
   '«Your day to listen to» plays all voice notes of the day; arrows or drag change the order.': '«Dein Tag zum Hören» spielt alle Sprachnotizen des Tages ab; Pfeile oder Ziehen ändern die Reihenfolge.',
   '«As text» turns them into words on this device.': '«Als Text» macht auf diesem Gerät Wörter daraus.',
   // «Rennen detailliert planen» (Noah 27.10.2026 «1b 2b»)
-  'Open Trips › «Plan races in detail» and tap a race.': 'Öffne Touren › «Rennen detailliert planen» und tippe ein Rennen an.',
+  'Open Trips › «Plan races in detail» and tap a race.': 'Öffne Touren › «Rennen-Check» und tippe ein Rennen an.',
   // «Träume und Neuland» N1
   'Needs your home place.': 'Braucht deinen Wohnort.',
   'Warnings (weather, ice, light, rain on the way, eating) still come on their own and on time.':
@@ -434,7 +434,7 @@ export default {
   // «Quick Links» (Noah 28.10.2026)
   'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
   'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
-  'Tap «Add a pin» and pin a function.': 'Tippe auf «Pin hinzufügen» und pinne eine Funktion an.',
+  'Tap «Add a pin» and pin a function.': 'Tippe auf «Abkürzung hinzufügen» und pinne eine Funktion an.',
   'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
   // «Träume und Neuland» N5
   'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',
@@ -533,6 +533,36 @@ export default {
   'Needs a dream planned as a trip, and the debrief of that trip.': 'Braucht einen als Tour geplanten Traum und den Rückblick dieser Tour.',
   'Plan a dream as a trip (Trips › Dreams › the dream › «Plan the tour»).': 'Plane einen Traum als Tour (Touren › Träume › der Traum › «Tour planen»).',
   'After the trip, finish its debrief.': 'Schliess nach der Tour ihren Rückblick ab.',
+  // «Träume und Neuland»: Träume an einem Ort
+  'Nothing moves by itself: you choose which compass dream becomes a dream tour.': 'Nichts wandert von selbst: du wählst, welcher Kompass-Traum eine Traumtour wird.',
+  'Open Trips › Dreams and scroll to «More dreams».': 'Öffne Touren › Träume und scrolle zu «Weitere Träume».',
+  'Tap «Make it a dream tour» at a compass dream.': 'Tippe bei einem Kompass-Traum auf «Als Traumtour».',
+  'The link leads to your travel wishes in Free time.': 'Der Link führt zu deinen Reise-Wünschen in Freie Zeit.',
+  'Example: «Once around Lake Constance» from the compass → a dream tour with months.': 'Beispiel: «Einmal um den Bodensee» aus dem Kompass → eine Traumtour mit Monaten.',
+  // «Traum der Woche»
+  'The tile stays away while no dream fits. You can hide it like every tile.': 'Die Kachel bleibt weg, solange kein Traum passt. Du kannst sie wie jede Kachel ausblenden.',
+  'Set a «Fixed date» in a dream of Trips › Dreams.': 'Trage in einem Traum unter Touren › Träume ein «Festes Datum» ein.',
+  'Tick «Rides through the night» for a ride that goes on all night.': 'Setz den Haken bei «Fährt durch die Nacht» für eine Fahrt, die die ganze Nacht dauert.',
+  'Heute: «Dream of the week» counts down, shows the weather.': 'Heute: «Traum der Woche» zählt herunter, zeigt das Wetter.',
+  'Example: «Night race example» on 12 Nov, 2 days → in 5 days, dry, night 9 °C, wind 12 km/h.': 'Beispiel: «Nachtrennen Beispiel» am 12. Nov., 2 Tage → in 5 Tagen, trocken, Nacht 9 °C, Wind 12 km/h.',
+  // «Träume und Neuland» N19
+  'Works offline; the rules are on the device.': 'Geht offline; die Regeln sind auf dem Gerät.',
+  'Open Trips › Dreams: «Adventure dice».': 'Öffne Touren › Träume: «Abenteuer-Würfel».',
+  'Tap «Roll»; the rule stays until you roll again.': 'Tippe «Würfeln»; die Regel bleibt, bis du nochmals würfelst.',
+  'Under «Rules»: add, rename, delete or hide rules.': 'Unter «Regeln»: Regeln hinzufügen, umbenennen, löschen oder ausblenden.',
+  'Example: «A coffee in a village you have never been to».': 'Beispiel: «Ein Kaffee in einem Dorf, wo du nie warst».',
+  // «Träume und Neuland» N9
+  'Needs your home place and the forecast (online now and then).': 'Braucht deinen Wohnort und die Prognose (ab und zu online).',
+  'Open Trips › Dreams: «Sunrise on the hill» names the next clear morning and evening.': 'Öffne Touren › Träume: «Sonnenaufgang auf dem Hügel» nennt den nächsten klaren Morgen und Abend.',
+  'Mark a «View» point on the map near home.': 'Setze auf der Karte nahe bei zu Hause einen Punkt «Aussicht».',
+  'The tip then says when to leave for it.': 'Der Tipp sagt dann, wann du dorthin losfährst.',
+  'Example: Clear morning Thursday: sunrise 7:21 · leave 6:41 for the view point (4 km).': 'Beispiel: Klarer Morgen Donnerstag: Sonnenaufgang 7:21 · los um 6:41 zum Aussichtspunkt (4 km).',
+  // «Träume und Neuland» N7
+  'Needs your home place and the internet when you tap (timetable and bike router).': 'Braucht deinen Wohnort und beim Antippen Internet (Fahrplan und Velo-Router).',
+  'Open Trips › Dreams: «Train there, bike home» shows three places.': 'Öffne Touren › Träume: «Zug hin, Velo heim» zeigt drei Orte.',
+  'Choose the km of the ride home.': 'Wähle die km der Heimfahrt.',
+  'Tap «Trains and the way home», then «Plan as a trip».': 'Tippe «Züge und Heimweg», dann «Als Tour planen».',
+  'Example: 60 km → train to a village in the Jura, 14 new municipalities around, home in about 3 h 40.': 'Beispiel: 60 km → Zug in ein Dorf im Jura, 14 neue Gemeinden rundum, in etwa 3 h 40 zu Hause.',
   // «Träume und Neuland» N6
   'Needs your home place and places to sleep (rated after a trip or marked on the map).': 'Braucht deinen Wohnort und Schlafplätze (nach einer Tour bewertet oder auf der Karte gesetzt).',
   'Open Trips › Dreams: «After-work bivouac» names the next evening.': 'Öffne Touren › Träume: «Feierabend-Biwak» nennt den nächsten Abend.',

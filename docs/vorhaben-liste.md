@@ -260,10 +260,19 @@ Aus den 30 Ideen (`notes/ideen-bewegung-2026-11-03/README.md`). Jede Idee ein ei
 | # | Idee | Stand |
 |---|---|---|
 | 23 | Strecke als Bild: Streckenform als kleines Zeichen in der Tourenliste | gebaut |
-| 13 | Höhenprofil wird abgefahren | gewählt |
-| 25 | Schweizer Berge statt Everest | gewählt |
-| 24 | Pässe sammeln | gewählt |
-| 18 | Tourenpass mit Stempel | gewählt |
+| 13 | Höhenprofil wird abgefahren | gebaut |
+| 25 | Schweizer Berge statt Everest | gebaut |
+| 24 | Pässe sammeln | gebaut |
+| 18 | Tourenpass mit Stempel | gebaut |
+
+### Ideen Bewegung, Paket G «Heute persönlicher und ruhiger» (Noah 03.11.2026 «G beides», 07.11.2026 «paket g»)
+
+Ziel 5 Alltag. Zwei Teile, je ein eigener kleiner PR mit Bildern.
+
+| Teil | Idee | Stand |
+|---|---|---|
+| 1 | Bild oben auf Heute: gezeichnete Landschaft mit nächster Tour und Countdown | gebaut |
+| 2 | Pro Karte ein starker Knopf, der Rest leise (zuerst Entdecken und Gewicht; weitere Karten nur, wenn sie noch einen zweiten starken Knopf haben) | gebaut |
 
 ### Schmunzel-Ideen, Paket F (Noah 03.11.2026 «E und F», aus den 30 Ideen in `notes/ideen-bewegung-2026-11-03/`)
 
@@ -290,6 +299,20 @@ Ziel 5 Alltag. Fünf Tipps, eine Überraschung nach Zufall, nie dieselbe zweimal
 | H7 | Alpenpanorama zieht durchs Bild | online |
 | H1 | Kuhglocken (Ton nur, wenn eingeschaltet) | gebaut (PR) |
 | H5 | Pass-Sprint, ein Mini-Spiel | Idee für später |
+
+## Neuer Schwung 2: sieben Ideen A–G (Noah 05.11.2026 «alle Vorschläge A-G speichern, jetzt umsetzen A, B, F und G»)
+
+Ziel 5 Alltag. Einschätzung und Begründung: `notes/neuer-schwung-2026-11-05/README.md` im Projektordner. Jeder Schritt ein eigener kleiner PR mit Bildern; Grosses (F, G) zuerst als Mockup. Die Buchstaben A–G gehören nur zu dieser Liste, nicht zu den Bewegungs-Paketen oben.
+
+| # | Idee | Stand |
+|---|---|---|
+| A | Tempo-Runde: schwere Abfragen pro Tabwechsel verkleinern, danach Messwert im Wächter | gewünscht (jetzt) |
+| B | Beschlossenes ausliefern: Bewegungs-Pakete A, C, D, G, Landschaftsbild, Cockpit-Signale | gewünscht (jetzt) |
+| C | Nutzungs-Spiegel und «Zuletzt geöffnet» in der Suche (nur lokal) | Idee (später) |
+| D | Winter-Seite «Dein Winter» auf Heute (einwintern, Jahresrückblick, Frühlingstouren) | Idee (später) |
+| E | Jahresrückblick als Bild zum Teilen | Idee (später) |
+| F | Sammel-Wand: Pässe, Stempel, Gipfel, Neuland, Meilensteine auf einer Seite, ohne Druck | gewünscht (jetzt, erst Mockup) |
+| G | Rückwärts-Plan zu einem grossen Ziel (Training, Packprobe, Wetterfenster) | gewünscht (jetzt, erst Mockup) |
 
 ## Bewusst nicht
 

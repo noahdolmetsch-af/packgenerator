@@ -91,6 +91,10 @@ export function analyseGroups({ table = new Map(), weights = new Map(), ctx = {}
       name: t('Sports and bike|analyse'),
       items: [
         ...KIND_ORDER.map((k) => at({ key: `km:${k}`, name: sportName(k), unit: 'km', src: 'strava', sum: true, old: `#/flow/stats/${k}`, get: (d) => kindDay(table.get(d), k).km || null })),
+        // «Zahlen mit Weg» (UI-Prüfung A1, Noah «1a»): the three totals of «Deine Woche in Zahlen» as values of their own: all sports together
+        at({ key: 'tMove', name: t('Time in motion'), unit: 'h', src: 'strava', sum: true, dec: 1, get: (d) => (table.get(d)?.time ? Math.round((table.get(d).time / 3600) * 100) / 100 : null) }),
+        at({ key: 'kmAll', name: t('Distance'), unit: 'km', src: 'strava', sum: true, dec: 1, get: (d) => table.get(d)?.km || null }),
+        at({ key: 'hmAll', name: t('Climbing'), unit: 'm', src: 'strava', sum: true, get: (d) => table.get(d)?.hm || null }),
         body('wkg'),
         body('cad'),
         body('spd'),

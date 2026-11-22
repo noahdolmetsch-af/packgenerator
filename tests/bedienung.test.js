@@ -60,12 +60,20 @@ describe('FE10 speak instead of type', () => {
 
 describe('the switches', () => {
   it('everything on except high contrast; a stored 1 or 0 wins', () => {
-    expect(OPS.filter((o) => o.on).map((o) => o.key)).toEqual(['speak', 'keys', 'buzz', 'quiet', 'search', 'path', 'nussgipfel', 'murmeltier', 'mundart']);
+    expect(OPS.filter((o) => o.on).map((o) => o.key)).toEqual(['speak', 'keys', 'buzz', 'quiet', 'search', 'path', 'nussgipfel', 'murmeltier', 'mundart', 'heutebild', 'improve']);
     expect(opOf('contrast', null)).toBe(false);
     expect(opOf('contrast', '1')).toBe(true);
     expect(opOf('keys', null)).toBe(true);
     expect(opOf('keys', '0')).toBe(false);
     expect(opOf('nope', null)).toBe(false);
+  });
+
+  it('the button «Verbessern» is on by default, but off in a browser test unless the test switches it on', () => {
+    expect(opOf('improve', null, { webdriver: false })).toBe(true);
+    expect(opOf('improve', null, { webdriver: true })).toBe(false);
+    expect(opOf('improve', '1', { webdriver: true })).toBe(true);
+    expect(opOf('improve', '0', { webdriver: false })).toBe(false);
+    expect(opOf('speak', null, { webdriver: true })).toBe(true);
   });
   it('FE7: vibrates only where the device can, never throws', () => {
     const calls = [];
@@ -126,7 +134,9 @@ describe('FE17 search can act', () => {
     expect(kinds('quick note')).toEqual(['quicknote']);
     expect(kinds('neue tour')).toEqual(['trip']);
     expect(kinds('new tour')).toEqual(['trip']);
-    expect(COMMAND_HREF).toEqual({ backup: '#/me/data', settings: '#/me/look' });
+    expect(COMMAND_HREF).toEqual({ backup: '#/me/data', settings: '#/me/look', fragen: '#/auswerten/fragen' });
+    expect(kinds('frag deine daten')).toEqual(['fragen']); // Plan 4a: the search leads to the questions
+    expect(kinds('werde ich schneller')).toEqual(['fragen']);
   });
   it('a bike by its name opens that bike', () => {
     const c = commandActions('alpha', { bikes });

@@ -135,7 +135,7 @@ test('Import pruefen (Check import): choose the file, check, apply, see it in Ge
   // The open menu fits the screen (no horizontal scroll).
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   if (shots) await page.screenshot({ path: `${shots}/gear-menu-${info.project.name}.png` });
-  await page.getByRole('link', { name: T('Check import') }).click();
+  await page.getByRole('link', { name: T('Check import'), exact: true }).click();
   await expect(page).toHaveURL(/#\/gear\/import$/);
 
   // 5. "Rückgängig": everything as before, the list waits again.

@@ -123,6 +123,24 @@ export function averages(checks = [], today, n = 7) {
   return out;
 }
 
+/**
+ * The same means for any range (Auswerten «Zeitraum», Noah 05.11.2026): the days from..to, a range that starts
+ * before the first check starts there. series has one entry per day.
+ */
+export function averagesBetween(checks = [], from, to) {
+  const first = checks.reduce((m, c) => (c.day && (m === null || c.day < m) ? c.day : m), null);
+  const start = first !== null && from < first ? first : from;
+  const days = first === null || to < start ? [] : lastDays(to, daysBetween(start, to) + 1);
+  const byDay = Object.fromEntries(checks.map((c) => [c.day, checkOf(c)]));
+  const out = {};
+  for (const k of ['sleep', 'energy', 'mood']) {
+    const series = days.map((d) => byDay[d]?.[k] ?? null);
+    const vals = series.filter((x) => x != null);
+    out[k] = { mean: vals.length ? Math.round((vals.reduce((s, x) => s + x, 0) / vals.length) * 10) / 10 : null, series };
+  }
+  return out;
+}
+
 /* ---------- v0.127.0 «Tages-Check» step 1: morning check (T1) and evening review (T2) ---------- */
 /**
  * Noah 13.10.2026 «ich gebe hiermit alle mockups frei»: questions 1–14 of the 15 (the Sunday one comes

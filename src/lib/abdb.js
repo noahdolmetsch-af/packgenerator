@@ -6,7 +6,8 @@
  */
 import { liveQuery } from 'dexie';
 import { db } from './db.js';
-import { DATA_KEY, ACT_DAYS } from './datenfragen.js';
+import { DATA_KEY, ACT_DAYS, tickDays } from './datenfragen.js';
+import { WEEKLOG_KEY } from './training/wochenlog.js';
 import { HOME_PLACE, HOME_FORECAST, usable } from './know.js';
 import { AB_KEY, AB_SNOOZE_KEY, MIRROR, configOf, mergeHistory, stampOf } from './abfragen.js';
 import { QUESTIONS_KEY, poolOf, checkOf } from './flowcheck.js';
@@ -29,7 +30,7 @@ export function abQuery(today) {
     calFrom.setUTCDate(calFrom.getUTCDate() - 7);
     const calTo = new Date(`${today}T00:00:00Z`);
     calTo.setUTCDate(calTo.getUTCDate() + 1);
-    const [cfg, snooze, answers, weight, checks, health, dataCfg, acts, sport, place, saved, gEvents] = await Promise.all([
+    const [cfg, snooze, answers, weight, checks, health, dataCfg, acts, sport, place, saved, gEvents, gTasks, tickLog, flowActs, weeklog] = await Promise.all([
       db.settings.get(AB_KEY),
       db.settings.get(AB_SNOOZE_KEY),
       db.abAnswers.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray(),
@@ -45,9 +46,15 @@ export function abQuery(today) {
       db.settings.get(HOME_PLACE),
       db.meta ? db.meta.get(HOME_FORECAST).catch(() => null) : null,
       db.gEvents ? db.gEvents.where('day').between(calFrom.toISOString().slice(0, 10), calTo.toISOString().slice(0, 10), true, true).toArray().catch(() => []) : [],
+      // step 3: the copy of the Google tasks on this device (rule «A to-do that is stuck»); nothing is fetched here
+      db.gTasks ? db.gTasks.toArray().catch(() => []) : [],
+      // 21.11.2026: your ticks count as training for the rule «A pause from training» (the ticks of Aktiv and of the weekly plan)
+      db.flowLog ? db.flowLog.where('day').aboveOrEqual(actFrom.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+      db.flowActs ? db.flowActs.toArray().catch(() => []) : [],
+      db.settings.get(WEEKLOG_KEY),
     ]);
     const wx = usable(place?.value ?? null, saved, Date.now()) ? (saved.days ?? []).find((d) => d.date === today) ?? null : null;
-    return { wx, cal: { used: gEvents.length > 0, events: gEvents }, cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, acts, sport, dataCfg: dataCfg?.value ?? null };
+    return { wx, cal: { used: gEvents.length > 0, events: gEvents }, tasks: { used: gTasks.length > 0, open: gTasks.filter((x) => !x.done && !x.parent && x.due) }, cfg: cfg?.value ?? null, stored: !!cfg, snooze: snooze?.value ?? {}, answers, weightG: weight?.value ?? null, checks, health, acts, sport, ticks: tickDays({ log: tickLog, flowActs, weeklog: weeklog?.value ?? null, today }), dataCfg: dataCfg?.value ?? null };
   });
 }
 

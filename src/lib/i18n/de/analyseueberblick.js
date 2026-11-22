@@ -2,9 +2,9 @@
 export default {
   'Overview|overview': 'Überblick',
   'ticks in {n} days|overview': 'Haken in {n} Tagen',
-  'Bike, Strava|overview': 'Velo, Strava',
+  'Bike, Strava, in {n} days|overview': 'Velo, Strava, in {n} Tagen',
   'sleep on average|overview': 'Schlaf im Schnitt',
-  'active zone minutes a day|overview': 'Aktivzonen pro Tag',
+  'active zone minutes a day, mean of {n} days|overview': 'Aktivzonen pro Tag, Schnitt von {n} Tagen',
   'resting pulse|overview': 'Ruhepuls',
   '{n} days|overview': '{n} Tage',
   'longest run|overview': 'längste Serie',

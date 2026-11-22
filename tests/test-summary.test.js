@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { troubled, render } from '../scripts/test-summary.mjs';
+import { troubled, render, failedKeys } from '../scripts/test-summary.mjs';
 
 const report = { suites: [{ title: 'a.spec.js', file: 'a.spec.js', suites: [{ title: 'group', suites: [], specs: [{ title: 'inner', file: 'a.spec.js', line: 5, tests: [{ status: 'unexpected', projectName: 'phone', results: [{}, {}] }] }] }], specs: [
   { title: 'fine', file: 'a.spec.js', line: 1, tests: [{ status: 'expected', projectName: 'phone', results: [{}] }] },
@@ -17,5 +17,8 @@ describe('test summary of a CI run', () => {
     expect(text).toContain('phone part 2: 2 unreliable or failed');
     expect(text).toContain('flaky (passed on retry) · desktop · `a.spec.js:9` wobbly');
     expect(render([], 'x')).toBe('');
+  });
+  it('names only failed tests for the night comparison: stable, sorted, no line number, no flaky ones', () => {
+    expect(failedKeys(troubled(report))).toEqual(['phone · a.spec.js · group › inner']);
   });
 });

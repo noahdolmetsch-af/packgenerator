@@ -7,12 +7,19 @@
  *       HTML of a public web page (at most 2 MB), so the app can keep it as readable text. Only http(s), no
  *       local or private addresses, no cookies; nothing is stored.
  *   GET ?img=<address>  → the picture (at most 3 MB, image/* only), for the pictures of such a page.
+ *   POST ?a=spielerplus { url } → { ics }  Spielerplus-Kalender (Noah 06.11.2026): the private calendar link of a team, read for
+ *       the app; only spielerplus.de/events/ics, key in the body, nothing stored or logged (_lib/spielerplus.js). It lives
+ *       here because the free Vercel plan allows only 12 functions.
+ *   POST ?a=trainingpeaks { url } → { ics }  TrainingPeaks-Plan (Noah 19.11.2026): the same for the private calendar link of
+ *       TrainingPeaks; only trainingpeaks.com/ical/<key>.ics (_lib/trainingpeaks.js).
  *
  * HEAD first, GET when HEAD is refused (some servers answer 403/405 to HEAD); 5 seconds at most.
  * No key, no storage: it only says whether the address answers. A redirect that ends well counts as ok.
  */
 import { route, json, ApiError, corsHeaders } from './_lib/core.js';
 import { LINK_CHECKS } from './_lib/links.js';
+import { readCalendar } from './_lib/spielerplus.js';
+import { readPlan } from './_lib/trainingpeaks.js';
 
 export const TIMEOUT_MS = 5000;
 export const PAGE_MAX = 2_000_000;
@@ -103,11 +110,19 @@ export function makeHandler({ doFetch = (...a) => fetch(...a), timeout = TIMEOUT
         }
         return json(request, 200, { ok: status >= 200 && status < 400, status });
       },
+      POST: async (request) => {
+        const what = new URL(request.url).searchParams.get('a');
+        if (what === 'trainingpeaks') return readPlan(request, { doFetch, timeout: timeout * 2 });
+        if (what !== 'spielerplus') throw new ApiError(400, 'not_allowed', 'Nothing to do here.');
+        return readCalendar(request, { doFetch, timeout: timeout * 2 });
+      },
     },
     'linkcheck',
+    { capName: (request) => (request.method !== 'POST' ? 'linkcheck' : new URL(request.url).searchParams.get('a') === 'trainingpeaks' ? 'trainingpeaks' : 'spielerplus') },
   );
 }
 
 const handler = makeHandler();
 export const GET = handler;
+export const POST = handler;
 export const OPTIONS = handler;

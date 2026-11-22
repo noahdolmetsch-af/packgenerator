@@ -25,7 +25,8 @@
 .rh-chip[aria-pressed='true'] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); font-weight: 600; }
 .rh-x { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border: 0; background: none; color: var(--ink-2); cursor: pointer; border-radius: 50%; }
 .rh-x:hover { background: var(--paper-2); }
-.rh-note { margin: 0; padding: 10px 12px; border-radius: var(--r-ctl); background: var(--paper-2); font-size: var(--fs-small); color: var(--ink-2); }
+.rh-note { margin: 0; padding: 10px 12px; border-radius: var(--r-ctl); background: var(--paper-2); font-size: var(--fs-small); color: var(--ink-2); overflow-wrap: break-word;
+  min-width: 0; }
 .rh-tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--paper-2); color: var(--ink-2); font-size: var(--fs-tiny); font-weight: 600; vertical-align: middle; }
 .rh-tag.warn { background: var(--warn-soft); color: var(--ink); }
 .rh-tag.ok { background: var(--ok-soft); color: var(--ink); }

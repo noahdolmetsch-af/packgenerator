@@ -1,12 +1,15 @@
 // v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): the pages under each place (sidebar) and the
 // keyboard shortcuts. Pure functions, no data.
 import { describe, it, expect } from 'vitest';
-import { PLACES, ALL_PLACES, PLACE_TABS, tabOf, pageOf, placeOf } from '../src/lib/nav.js';
+import { PLACES, ALL_PLACES, PLACE_TABS, tabOf, subOf, pageOf, placeOf } from '../src/lib/nav.js';
 import { shortcutOf } from '../src/lib/nav/keys.js';
+// «Ganze App neu denken» Schritt 12: the pages of Auswerten are chips (`subs`) under five tabs; `leaf` is the page an address belongs to
+const leaf = (place, h) => subOf(place, h)?.key ?? tabOf(place, h);
 
 describe('the pages under each place', () => {
   it('each place has at most 4, and only built pages (O2.1a: Neuland and Heft come later; v0.78.0 O2.5a: Einkauf shows the wishlist; v0.79.0: Aktivität is built; UC3 14.10.2026 «2a»: Velos gets «Setup» as a fifth; Paket 2: Aktiv gets «Meditation» (ME2, Noah 15.10.2026 «1a») and «Training» (TR2, Noah 13.10.2026 «1-5a» 1a) as its own tabs; Paket N: Touren gets «Träume» (Noah 19.10.2026 «1a») next to «Skitouren»)', () => {
-    const max = { bikes: 5, active: 4, analysis: 16, trips: 7, week: 12, gear: 6 }; // «Aktiv und Auswerten» 3a (Noah 03.11.2026): Auswerten gets Heatmap, Neuland, Gelernt and Jahr // Analyse (Noah 27.10.2026 «1a»): Auswerten gets «Analyse» as a tab // Alltag sichtbar (Noah 24.10.2026 «1a»): Planen + Merken // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): Touren, Planen and Material got tabs; // «Aktiv neu» (Noah 22.10.2026): Aktiv has 4 tabs, «Auswerten» the looking pages // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
+    // «Auswerten aufräumen» (Noah 07.11.2026 «4a»): Auswerten gets «Gipfelbuch» as a tab (17), the link cards of the start are gone; «Fragen» (Plan 4a, Noah 08.11.2026 «D b») is the first tab (18)
+    const max = { bikes: 5, active: 4, analysis: 18, trips: 8, week: 12, gear: 7 }; // Schritt 10 «Ganze App neu denken» (Noah 18.11.2026): Touren + Inspiration (8), Material + Sets (7); the next steps 4b, 11, 13 bring them down to 3 and 4, then these limits go down with them // «Aktiv und Auswerten» 3a (Noah 03.11.2026): Auswerten gets Heatmap, Neuland, Gelernt and Jahr // Analyse (Noah 27.10.2026 «1a»): Auswerten gets «Analyse» as a tab // Alltag sichtbar (Noah 24.10.2026 «1a»): Planen + Merken // «Alles finden 2» (Noah 22.10.2026 «4a 5a»): Touren, Planen and Material got tabs; // «Aktiv neu» (Noah 22.10.2026): Aktiv has 4 tabs, «Auswerten» the looking pages // «Tagebuch» (Noah 20.10.2026): a tab of Planen next to Notizen // UI-Ziele #6 (Noah 20.10.2026 «freigabe» 4a): Ich keeps data, settings, help; the rest are tabs of Planen and Auswerten // N1 «Neue Leiste» (Noah 20.10.2026): Fahrten and Erkenntnisse go to Auswerten; Planen gets Termine and Notizen // Gesamttest 20.10.2026 B3 (Noah «3a»): Touren gets «Fahrten», the Strava activities // Paket T (Noah 19.10.2026 «1a und b»): Aktiv gets «Impulse» as a sixth tab
     for (const p of ALL_PLACES) expect((PLACE_TABS[p.key] ?? []).length, p.key).toBeLessThanOrEqual(max[p.key] ?? 4);
     const keys = Object.values(PLACE_TABS).flat().map((x) => x.key);
     for (const later of ['heft']) expect(keys).not.toContain(later);
@@ -22,19 +25,24 @@ describe('the pages under each place', () => {
     expect(tabOf('trips', '#/debrief/learnings')).toBe('lookback');
     expect(tabOf('trips', '#/pack/past')).toBe('lookback');
     expect(tabOf('trips', '#/heatmap')).toBe(null); // «Aktiv und Auswerten» 3a: Heatmap, Neuland, Gelernt and Jahr are Auswerten now
-    for (const [h, k] of [['#/heatmap', 'heatmap'], ['#/neuland?c=cantons', 'neuland'], ['#/gelernt/2026-10', 'learned'], ['#/jahr/2026', 'year']]) expect(tabOf('analysis', h), h).toBe(k);
+    for (const [h, k] of [['#/heatmap', 'heatmap'], ['#/neuland?c=cantons', 'neuland'], ['#/gelernt/2026-10', 'learned'], ['#/jahr/2026', 'year']]) expect(leaf('analysis', h), h).toBe(k);
     expect(tabOf('trips', '#/pack')).toBe(null); // a trip: no entry lit
     expect(tabOf('trips', '#/trips/rides')).toBe(null); // N1: Fahrten is Auswerten › Fahrten now
-    expect(tabOf('analysis', '#/trips/rides')).toBe('rides');
-    expect(tabOf('analysis', '#/me/insights')).toBe('insights');
-    expect(tabOf('week', '#/me/agenda')).toBe('agenda');
+    expect(leaf('analysis', '#/trips/rides')).toBe('rides');
+    expect(leaf('analysis', '#/me/insights')).toBe('insights');
+    // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): Planen has three tabs (Woche, Notizen, Alltag); the old pages are chips under them
+    expect(tabOf('week', '#/me/agenda')).toBe('week');
+    expect(subOf('week', '#/me/agenda').key).toBe('agenda');
     expect(tabOf('week', '#/notes')).toBe('notes');
-    // «Tagebuch» (Noah 20.10.2026): a tab of Planen, also for one entry
-    expect(tabOf('week', '#/tagebuch')).toBe('tagebuch');
-    expect(tabOf('week', '#/tagebuch/e1')).toBe('tagebuch');
+    // «Tagebuch» (Noah 20.10.2026): a page of Planen, also for one entry
+    expect(tabOf('week', '#/tagebuch')).toBe('notes');
+    expect(subOf('week', '#/tagebuch/e1').key).toBe('tagebuch');
     expect(placeOf(pageOf('#/tagebuch'))).toBe('week');
-    for (const [h, k] of [['#/week/plan', 'week'], ['#/week/away', 'week'], ['#/calendar', 'remember'], ['#/inbox', 'inbox'], ['#/me/mail', 'mail'], ['#/me/compass', 'compass'], ['#/me/alltag', 'alltag'], ['#/me/frei', 'frei']]) expect(tabOf('week', h), h).toBe(k);
-    for (const [h, k] of [['#/me/history', 'history'], ['#/me/abfragen', 'history'], ['#/me/analysis', 'history'], ['#/me/wohl', 'wohl'], ['#/me/weight', 'weight']]) expect(tabOf('analysis', h), h).toBe(k);
+    for (const [h, tab, sub] of [['#/week', 'week', 'week'], ['#/week/plan', 'week', 'week'], ['#/week/away', 'week', 'week'], ['#/me/agenda', 'week', 'agenda'], ['#/notes', 'notes', 'notes'], ['#/calendar', 'notes', 'remember'], ['#/inbox', 'notes', 'inbox'], ['#/tagebuch', 'notes', 'tagebuch'], ['#/me/mail', 'notes', 'mail'], ['#/me/alltag', 'alltag', 'alltag'], ['#/me/frei', 'alltag', 'frei'], ['#/me/compass', 'alltag', 'compass'], ['#/me/links', 'alltag', 'links']]) {
+      expect(tabOf('week', h), h).toBe(tab);
+      expect(subOf('week', h)?.key, h).toBe(sub);
+    }
+    for (const [h, k] of [['#/me/history', 'history'], ['#/me/abfragen', 'history'], ['#/me/analysis', 'history'], ['#/me/wohl', 'wohl'], ['#/me/weight', 'weight']]) expect(leaf('analysis', h), h).toBe(k);
     for (const h of ['#/me', '#/me/data', '#/me/look', '#/me/connections', '#/features']) expect(placeOf(pageOf(h)), h).toBe('me');
     expect(placeOf(pageOf('#/trips/rides'))).toBe('analysis');
     expect(placeOf(pageOf('#/trips'))).toBe('trips');
@@ -50,15 +58,19 @@ describe('the pages under each place', () => {
     expect(tabOf('bikes', '#/care')).toBe('care');
     expect(tabOf('bikes', '#/bikes?tab=shop')).toBe('shop');
     expect(tabOf('bikes', '#/bikes?tab=compare')).toBe('fit');
-    expect(tabOf('active', '#/flow')).toBe('today');
-    expect(tabOf('active', '#/flow/goals')).toBe('sports');
+    expect(tabOf('week', '#/flow')).toBe('training'); // V4a: the pages of Aktiv are chips under the tab «Training» of Woche
+    expect(subOf('week', '#/flow').key).toBe('flowhome');
+    expect(subOf('week', '#/flow/goals').key).toBe('sports');
     // «Aktiv neu» (Noah 22.10.2026): Aktiv is for doing, «Auswerten» for looking
-    for (const [h, k] of [['#/flow/sports', 'sports'], ['#/flow/sport/act:yoga', 'sports'], ['#/flow/act/meditation', 'sports'], ['#/flow/bags', 'sports'], ['#/flow/training', 'training'], ['#/flow/rest', 'rest'], ['#/flow/week', 'today']]) expect(tabOf('active', h), h).toBe(k);
-    for (const [h, k] of [['#/auswerten', 'start'], ['#/flow/form', 'form'], ['#/flow/stats/hr', 'body'], ['#/flow/auswertung', 'ticks'], ['#/flow/milestones?act=yoga', 'milestones'], ['#/flow/trophies', 'milestones'], ['#/flow/ideen', 'impulse']]) {
-      expect(tabOf('analysis', h), h).toBe(k);
+    for (const [h, k] of [['#/flow/sports', 'sports'], ['#/flow/sport/act:yoga', 'sports'], ['#/flow/act/meditation', 'sports'], ['#/flow/bags', 'sports'], ['#/flow/training', 'training'], ['#/flow/rest', 'rest'], ['#/flow/week', 'flowhome']]) expect(subOf('week', h)?.key, h).toBe(k);
+    for (const [h, k] of [['#/auswerten', 'start'], ['#/flow/form', 'form'], ['#/flow/stats/hr', 'body'], ['#/flow/auswertung', 'ticks'], ['#/flow/milestones?act=yoga', 'milestones'], ['#/flow/trophies', 'milestones'], ['#/flow/ideen', 'ideen']]) {
+      expect(leaf('analysis', h), h).toBe(k);
       expect(placeOf(pageOf(h), h), h).toBe('analysis');
     }
-    expect(placeOf(pageOf('#/flow/sports'), '#/flow/sports')).toBe('active');
+    // «Impulse» moved from Auswerten to Planen › Freie Zeit (Noah 21.11.2026 «2a»); its address stays
+    expect(leaf('week', '#/flow/impulse')).toBe('impulse');
+    expect(placeOf(pageOf('#/flow/impulse'), '#/flow/impulse')).toBe('week');
+    expect(placeOf(pageOf('#/flow/sports'), '#/flow/sports')).toBe('week');
     expect(tabOf('today', '#/')).toBe(null);
   });
 });
@@ -67,7 +79,7 @@ describe('keyboard shortcuts', () => {
   it('g and a letter open a place', () => {
     expect(shortcutOf('g')).toEqual({ wait: true });
     expect(PLACES.map((p) => shortcutOf(p.letter, true))).toEqual(PLACES.map((p) => ({ go: p.href })));
-    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'a', 'v', 'm', 'q']); // «Quick Links» (Noah 28.10.2026): g q // «Woche planen» (Noah 15.10.2026 «1a»): g w; N1: the order of the new bar, letters unchanged
+    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'v', 'm', 'a', 'q']); // «Quick Links» (Noah 28.10.2026): g q // «Woche planen» (Noah 15.10.2026 «1a»): g w; N1: the order of the new bar, letters unchanged
   });
 
   it('a letter without g does nothing, except n, i, / and ?', () => {

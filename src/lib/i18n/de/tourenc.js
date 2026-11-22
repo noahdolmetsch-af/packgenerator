@@ -65,7 +65,7 @@ export default {
   '{n} part saved.': '{n} Teil gespeichert.',
   '{n} parts saved.': '{n} Teile gespeichert.',
   // 68 Rückblick als Sprachnachricht
-  'Learning|voice': 'Gelernt',
+  'Learning|voice': 'Erkenntnisse',
   'Not needed|voice': 'Nicht gebraucht',
   'Was missing|voice': 'Fehlte',
   'Bike|voice': 'Velo',
@@ -92,5 +92,5 @@ export default {
   '{n} points taken over.': '{n} Aussagen übernommen.',
   'Back to the text': 'Zurück zum Text',
   'Taken over, a point lands where you would tap it: not needed, was missing, Learned, a note of the trip, or a bike note in the Inbox.':
-    'Übernommen landet eine Aussage dort, wo du sie sonst antippst: nicht gebraucht, fehlte, Gelernt, Notiz der Tour oder Velo-Notiz im Eingang.',
+    'Übernommen landet eine Aussage dort, wo du sie sonst antippst: nicht gebraucht, fehlte, Erkenntnisse, Notiz der Tour oder Velo-Notiz im Eingang.',
 };

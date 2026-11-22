@@ -43,7 +43,7 @@ export default {
   'On a computer the app can also write a backup into a folder after every change.': 'Am Computer kann die App ausserdem nach jeder Änderung ein Backup in einen Ordner schreiben.',
   'Me › Data and backup › Export backup.': 'Ich › Daten und Backup › Backup exportieren.',
   'Save the file in two places.': 'Die Datei an zwei Orten speichern.',
-  'To bring it back: Me › Data and backup › choose the file › Check import.': 'Zum Zurückspielen: Ich › Daten und Backup › Datei wählen › Import prüfen.',
+  'To bring it back: Me › Data and backup › choose the file › Check backup.': 'Zum Zurückspielen: Ich › Daten und Backup › Datei wählen › Backup prüfen.',
   'Export a backup. Then open the test link of a pull request (its own storage, nothing can break there) and import the file.': 'Exportiere ein Backup. Öffne dann den Test-Link eines Pull Requests (eigener Speicher, dort kann nichts kaputtgehen) und lies die Datei ein.',
 
   // Lektion 3

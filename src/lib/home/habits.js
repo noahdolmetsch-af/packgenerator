@@ -43,6 +43,12 @@ export function habitsOf(v, acts = [], items = [], isMed = () => false) {
   return list.filter((r) => (r.kind === 'act' ? actIds.has(r.id) : itemIds.has(r.id)));
 }
 
+/**
+ * The ids of the activities that stand on top of Heute as habit cards (the same list habitsOf gives HabitCards), so «Aktiv heute»
+ * leaves them out and shows only the rest (Noah 04.11.2026 «1a»: nothing stands twice). → string[]
+ */
+export const habitActIds = (v, acts = [], items = [], isMed = () => false) => habitsOf(v, acts, items, isMed).filter((r) => r.kind === 'act').map((r) => r.id);
+
 /** Add one at the end (not when three are chosen already or it is in). → a new list */
 export function addHabit(list, ref) {
   const l = normHabits(list) ?? [];

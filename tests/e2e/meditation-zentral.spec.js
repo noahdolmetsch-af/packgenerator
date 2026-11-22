@@ -9,7 +9,6 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { PLACE_TABS } from '../../src/lib/nav.js';
-import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -78,16 +77,17 @@ test('Aktiv: Meditation in «Meine Sportarten», timer and Rückblick on one pag
   const errors = await open(page, context, '#/flow');
   const main = page.locator('main');
   // «Aktiv neu» (Noah 22.10.2026 «1b»): Meditation is a sport with its timer; the tab «Meditation» is gone, «Meine Sportarten» is second
-  const tabs = page.locator(TABS).locator('a');
-  await expect(tabs.nth(1)).toHaveText(T('My sports|tab'));
-  expect(PLACE_TABS.active.map((x) => x.key).slice(0, 2)).toEqual(['today', 'sports']);
+  // V4a (21.11.2026, on purpose): Aktiv is a part of «Woche»; «Meine Sportarten» is a chip under the tab «Training»
+  const sportsChip = page.locator('nav.psubs:visible').getByRole('link', { name: T('My sports|tab'), exact: true });
+  await expect(sportsChip).toBeVisible();
+  expect(PLACE_TABS.week.find((x) => x.key === 'training').subs.map((s) => s.key)).toContain('sports');
   await put(page, history());
   await page.reload(); // the app reads the rows written straight into IndexedDB
-  await tabs.nth(1).click();
+  await sportsChip.click();
   await main.locator('[data-sport-row="meditation"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation$/);
   await expect(main.getByRole('heading', { level: 1, name: 'Meditation' })).toBeVisible();
-  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(main.locator('.sub')).toContainText(T('done today'));
 
   // the timer: «Wie letztes Mal · 20 Min»; a duration changes the start
@@ -114,7 +114,7 @@ test('Aktiv: Meditation in «Meine Sportarten», timer and Rückblick on one pag
   await page.goBack();
   await main.locator('[data-to="review"]').click();
   await expect(page).toHaveURL(/#\/flow\/act\/meditation\/rueckblick$/);
-  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
   expect(errors).toEqual([]);
 });
 
@@ -137,7 +137,18 @@ test('Rückblick: week, month and year, the calendar, the goal line, what helps,
   await expect(main.locator('[data-cal] i[data-day]')).toHaveCount(31);
   await expect(main.locator(`[data-cal] i[data-day="${TODAY}"]`)).toHaveClass(/l2/);
   // the goal line: daily × 20 min = 140 min a week
-  await expect(main.locator('.goal')).toContainText(T('Goal {n} min', { n: 140 }));
+  const wk = main.locator('[data-chart="weeks"]');
+  await expect(wk.locator('[data-plot]')).toHaveAttribute('data-n', '8');
+  await wk.locator('[data-plot]').focus();
+  await page.keyboard.press('End');
+  await expect(wk.locator('[data-readout]')).toContainText(T('Goal'));
+  await expect(wk.locator('[data-readout]')).toContainText(T('{n} min', { n: 140 }));
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-weeks-sheet]')).toContainText(T('{n} min', { n: 140 }));
+  await page.keyboard.press('Escape');
+  await wk.getByRole('button', { name: T('As table') }).click();
+  await expect(wk.locator('[data-chart-table] tbody tr')).toHaveCount(8);
+  await wk.getByRole('button', { name: T('Chart|table') }).click();
   // what helps, observation only: deeper in the morning, longer with the bowl
   await expect(main.locator('[data-help="morning"]')).toContainText(T('Deeper in the morning'));
   await expect(main.locator('[data-help="gong"]')).toContainText(T('Longer with the singing bowl'));
@@ -151,12 +162,23 @@ test('Rückblick: week, month and year, the calendar, the goal line, what helps,
   await expect(main.locator('[data-period]')).toHaveAttribute('data-period', addDays(TODAY, -8));
   await expect(stats).toContainText('3/7');
   await main.locator('[data-range="year"]').click();
-  await expect(main.locator('.mb .mcol')).toHaveCount(12);
+  await expect(main.locator('[data-chart="months"] [data-plot]')).toHaveAttribute('data-n', '12');
   await fits(page, 'ME3 Jahr');
 
   // a filter that nothing has: all numbers go to 0
   await main.locator('[data-range="month"]').click();
   await main.locator('[data-filter="art"]').selectOption({ index: 1 });
   await expect(stats).toContainText('0/13');
+
+  // «Muster»: when it goes deepest is the shared bar chart, an hour opens with its sessions
+  await page.goto('./#/flow/act/meditation/muster');
+  const hr = page.locator('[data-chart="hours"]');
+  await expect(hr.locator('[data-plot]')).toBeVisible();
+  await hr.locator('[data-plot]').focus();
+  await page.keyboard.press('Home');
+  await expect(hr.locator('[data-readout]')).toContainText(T('Sessions'));
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-hours-sheet]')).toContainText(T('Sessions'));
+  await page.keyboard.press('Escape');
   expect(errors).toEqual([]);
 });

@@ -41,12 +41,15 @@
   import { TEMPLATES_KEY, saveTemplates } from '../lib/templates.js';
   import { choices, toDebrief, tripEnd, newDebrief, debriefCounts, suggestions, applyDebrief, unusedTimes, kmUpdate, similarItems, templateOffer, templateName } from '../lib/debrief.js';
   import Pace from '../lib/debrief/Pace.svelte';
+  import Kurz from '../lib/debrief/Kurz.svelte'; // Touren 3b «Rückblick in 30 Sekunden»
+  import { joyChange } from '../lib/freude.js';
   import Hub from '../lib/review/Hub.svelte';
   import Logbook from '../lib/review/Logbook.svelte';
   import Learned from '../lib/review/Learned.svelte';
   import Freude from '../lib/freude/Freude.svelte';
   import Technik from '../lib/technik/Technik.svelte';
   import Paesse from '../lib/paesse/Paesse.svelte'; // Paket E 24: «Pässe sammeln»
+  import Wand from '../lib/sammlung/Wand.svelte'; // Neuer Schwung F: «Sammel-Wand»
   import Tourenpass from '../lib/tourenpass/Tourenpass.svelte'; // Paket E 18: «Tourenpass mit Stempel»
   import TripSaved from '../lib/review/TripSaved.svelte';
   import UndoToast from '../lib/review/UndoToast.svelte';
@@ -72,14 +75,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import { CLOTHING, CLOTHING_OFFSET, offsetRecord, chooseKit, tempKits, coldest, tempRange } from '../lib/wardrobe.js';
   import { SETS_KEY } from '../lib/sets.js';
-  import { Sparkles } from '@lucide/svelte';
-  import DebriefDraft from '../lib/helper/DebriefDraft.svelte';
-  import { ask, errorText, helper, isOn, isPaused } from '../lib/helper/client.svelte.js';
-  import { debriefPayload } from '../lib/helper/payload.js';
-  import { helperLearning } from '../lib/helper/logic.js';
-  import { isDe } from '../lib/i18n.svelte.js';
-  import { tick, onDestroy } from 'svelte';
-  import '../lib/helper/helper.css';
+  import { onDestroy } from 'svelte';
 
   let { param = '', spot = '' } = $props();
 
@@ -107,8 +103,8 @@
 
   // v0.25.1 (Noah 3a): 'compare' scrolls to "Your trips compared".
   // v0.49.0 R1: pace, learnings and logbook are pages one level below the Rückblick; compare is its section.
-  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik'];
-  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik'];
+  const SPOTS = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung'];
+  const SUBS = ['pace', 'learnings', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung'];
   const tripId = $derived(param && !SPOTS.includes(param) ? decodeURIComponent(param) : null);
   const trip = $derived(tripId ? trips.find((t) => t.id === tripId) : null);
   const open = $derived(toDebrief(trips, debriefs));
@@ -262,45 +258,6 @@
     d.missing.push({ id: `m${Date.now().toString(36)}`, name: match?.name ?? name, itemId: match?.id ?? null });
     missName = '';
     persist();
-  }
-  /* ---------- v0.77.0 (answer 3a): «Entwurf holen» → «Entwurf vom Helfer» ---------- */
-  let draft = $state(null);
-  let draftBusy = $state(false);
-  let draftMsg = $state('');
-  async function getDraft() {
-    if (draftBusy) return;
-    if (isPaused()) return (draftMsg = errorText('paused', { capChf: helper.capChf }));
-    draftBusy = true;
-    draftMsg = '';
-    const r = await ask('debrief', debriefPayload(trip, { notes: $state.snapshot(freeNotes), debrief: $state.snapshot(d), items, learnings, lang: isDe() ? 'de' : 'en' }));
-    draftBusy = false;
-    if (!r.ok) return (draftMsg = errorText(r.error, { capChf: helper.capChf }));
-    if (!r.result.learnings.length && !r.result.summary) return (draftMsg = t('The helper found nothing to suggest this time.'));
-    draft = r.result;
-  }
-  /** «Übernehmen» on a learning: saved like the app's own; its note on the way counts as answered. */
-  async function learnFromDraft(s) {
-    const now = new Date().toISOString();
-    const note = wayNotes.find((n) => n.key === s.noteKey);
-    await db.transaction('rw', [db.learnings, db.debriefs, db.notes], async () => {
-      const rec = helperLearning(s, trip, await db.learnings.toArray(), now);
-      await db.learnings.put(rec);
-      if (note?.noteId) await db.notes.update(note.noteId, { status: 'sorted', to: { kind: 'learning', label: 'Learning', ref: rec.id }, sortedAt: now });
-      if (note && !d.applied.includes(note.key)) d.applied = [...d.applied, note.key];
-      d.updatedAt = now;
-      await db.debriefs.put($state.snapshot(d));
-    });
-  }
-  /** «Übernehmen» / «Bearbeiten» on the summary: it becomes the sentence for next time (the field opens for «Bearbeiten»). */
-  async function summaryFromDraft(text, edit) {
-    d.note = text;
-    await persist();
-    if (edit) {
-      await tick();
-      const area = document.querySelector('.sentence textarea');
-      area?.scrollIntoView({ block: 'center' });
-      area?.focus();
-    }
   }
   const noteWhen = (iso) => new Date(iso).toLocaleString(locale(), { weekday: 'short', hour: '2-digit', minute: '2-digit' });
   function dropMissing(id) {
@@ -561,6 +518,8 @@
            mockup. Left: what stayed in the bag (chips by bag, «Alle ✓ · Alle –»), what was missing with the
            suggestion for next time and the one sentence. Right: the notes on the way, upload a ride, «Mehr»
            (how it was, all items by bag). Everything the page could do stays; nothing is new. -->
+      <!-- «Rückblick in 30 Sekunden» (Noah 05.11.2026, Touren 3b): three questions with faces; the long form stays below -->
+      <Kurz {d} items={notOnTrip} onfun={(n) => set('joy', joyChange(d, 'fun', n))} onamount={(k) => set('amount', k)} onmissing={(list) => set('missing', list)} ondone={finish} {busy} />
       <div class="rv-lay dbf">
         <div class="rv-col">
           <section class="rv-sec unneeded" aria-labelledby="unneeded-h">
@@ -731,16 +690,10 @@
                   {/each}
                 </div>
               </details>
-              {#if isOn() && freeNotes.length && !draft}
-                <!-- v0.77.0 (answer 3a): the helper's draft only on request -->
-                <button type="button" class="rv-row kh-getdraft" disabled={draftBusy} onclick={getDraft}><span class="rv-ic" aria-hidden="true"><Sparkles size={18} /></span><span class="rv-m"><span class="rv-t">{draftBusy ? t('The helper is thinking …') : t('With the helper')}</span><span class="rv-s">{t('Get a draft, optional')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></button>
-              {/if}
             </div>
-            {#if draftMsg}<p class="kh-msg" role="status">{draftMsg}</p>{/if}
           </section>
           <!-- «Mit Claude besprechen» (Noah 19.10.2026 «1a»): the notes of the way, only with the tick -->
           <div class="tall"><AskClaude name="debrief" ask={t('These are my notes from the trip «{trip}». Help me with a short look back and learnings for next time.', { trip: trip.title })} lines={[d?.note ?? '', ...freeNotes.map((n) => n.text)].filter(Boolean).slice(0, 40)} /></div>
-          {#if draft}<DebriefDraft {draft} notes={freeNotes} days={trip.days ?? 1} onlearn={learnFromDraft} onsummary={summaryFromDraft} onclose={() => (draft = null)} />{/if}
         </div>
       </div>
       <!-- The tip of the day changes length every day; below the form, the chips stay on the first phone screen every day -->
@@ -758,7 +711,7 @@
   <!-- v0.49.0 R1 (Noah 4a): Dein Tempo, Logbuch and Gelernt are one level below the Rückblick, each
        its own page; v0.61.0 R2 rebuilt all three. -->
   <!-- v0.109.0 Design-Refresh P6 (T18–T20): the quiet path «‹ Touren › Rückblick › Gelernt» and the title -->
-  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : param === 'freude' ? t('What made it good?') : param === 'technik' ? t('Riding technique diary') : t('Learned|review')}
+  {@const here = param === 'pace' ? t('Your pace') : param === 'logbook' ? t('Logbook') : param === 'paesse' ? t('Passes') : param === 'tourenpass' ? t('Tour pass') : param === 'freude' ? t('What made it good?') : param === 'technik' ? t('Riding technique diary') : param === 'sammlung' ? t('Collection wall') : t('Learned|review')}
   <div class="over rv-page">
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{here}</span></nav>
     <h1 class="title">{here}</h1>
@@ -776,6 +729,9 @@
     {:else if param === 'technik'}
       <!-- Persönliches Lernen Idee 3 (Noah 04.11.2026 «4a»): the riding techniques you worked on -->
       <Technik />
+    {:else if param === 'sammlung'}
+      <!-- Neuer Schwung F (Noah 05.11.2026): stamps, passes, places, new ground and stars on one page -->
+      <Wand />
     {:else if param === 'tourenpass'}
       <!-- Paket E 18 (Noah 03.11.2026 «E und F»): the tour pass with the stamps of the trips -->
       <Tourenpass />
@@ -1179,9 +1135,6 @@
     display: block;
     color: var(--ink-3);
     font-size: var(--fs-small);
-  }
-  .kh-msg {
-    margin: 8px 2px 0;
   }
   .over .title {
     margin: 0 0 14px;

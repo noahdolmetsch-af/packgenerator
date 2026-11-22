@@ -20,6 +20,10 @@ describe('news sources', () => {
     expect(checkFeed({ name: 'X', url: 'http://example.org/feed' }).error).toBeTruthy();
     expect(checkFeed({ name: 'X', url: 'example.org/feed' }).feed.url).toBe('https://example.org/feed');
     expect(checkFeed({ name: 'X', url: DEFAULT_FEEDS[0].url }, DEFAULT_FEEDS).error).toBeTruthy();
+    // Durchklick Etappe 3 (E3-003): words and addresses with a space are no sources (Chrome accepts «https://hallo» and «https://kein url»)
+    for (const bad of ['hallo', 'kein url', 'https://hallo/feed', 'https://exa mple.org/feed', 'https://example./feed']) expect(checkFeed({ name: 'X', url: bad }).error, bad).toBe('This is not a web address.');
+    expect(checkFeed({ name: 'X', url: 'https://www.ride.ch/feed/?a=1 b' }).error).toBe('This is not a web address.');
+    expect(checkFeed({ name: 'X', url: 'https://news.example.org/a/feed.xml' }).feed.url).toBe('https://news.example.org/a/feed.xml');
     expect(checkFeed({ name: 'Neu', url: DEFAULT_FEEDS[0].url }, DEFAULT_FEEDS, DEFAULT_FEEDS[0].id).feed.name).toBe('Neu');
   });
 });

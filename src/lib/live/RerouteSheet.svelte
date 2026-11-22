@@ -7,22 +7,37 @@
    * detour to the live map (onplan). Nothing is planned without a tap.
    */
   import { Route, Search, X, Navigation, MapPin, ChevronLeft } from '@lucide/svelte';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
   import { backClose } from '../ui/backclose.js';
+  import { bikeFor, LIVE_BIKE_KEY } from './saveride.js';
+  import { suggestProfile } from './wiefaehrst.js';
   import KindIcon from '../map/KindIcon.svelte';
   import { POI_KIND } from '../race/outside.js';
   import { searchPlace } from '../weather.js';
   import { targetsOf, planAlternatives, routerMsg, PROFILES, PROFILE_STD } from '../reroute.js';
   import { navLinks } from './live-lib.js';
   import RouterNote from './RouterNote.svelte';
-  import { t, num } from '../i18n.svelte.js';
+  import SurfaceNote from './SurfaceNote.svelte';
+  import { WAYS_KEY, cleanMemory } from './wegegedaechtnis.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
-  let { here = null, pts = [], km = null, pois = [], own = [], picked = null, onplan, onclose } = $props();
+  let { here = null, pts = [], km = null, pois = [], own = [], picked = null, tripBikeId = null, onplan, onclose } = $props();
   let dialog = $state();
   $effect(() => {
     if (dialog && !dialog.open) dialog.showModal();
   });
 
-  let profile = $state(PROFILE_STD);
+  // «Wie fährst du?» (Noah 05.11.2026 «3a»): the way of riding starts with the one that fits your bike; a tap changes it
+  const bikesQ = liveQuery(() => db.bikes.toArray());
+  const lastBikeQ = liveQuery(() => db.settings.get(LIVE_BIKE_KEY));
+  const bike = $derived(bikeFor(tripBikeId ? { bikeId: tripBikeId } : null, $bikesQ ?? [], $lastBikeQ?.value ?? null));
+  const suggested = $derived(suggestProfile(bike));
+  // «Wege-Gedächtnis» (Noah 07.11.2026 «5a»): stretches you marked as bad are kept out of the new way
+  const memQ = liveQuery(() => db.settings.get(WAYS_KEY));
+  const avoid = $derived(cleanMemory($memQ?.value).ways.filter((w) => w.rating === 'down'));
+  let chosen = $state(null);
+  const profile = $derived(chosen ?? suggested ?? PROFILE_STD);
   // «Nur hin» first (Noah 27.10.2026 «2a»): only the way there, the app asks at the place how you go back
   let oneWay = $state(true);
   const withRoute = $derived(pts.length > 1);
@@ -43,7 +58,7 @@
     err = '';
     failed = null;
     try {
-      const ways = await planAlternatives({ here, target, pts, fromKm: pts.length > 1 ? km : null, profile, oneWay: withRoute && oneWay });
+      const ways = await planAlternatives({ here, target, pts, fromKm: pts.length > 1 ? km : null, profile, oneWay: withRoute && oneWay, avoid });
       if (ways.length > 1) {
         choices = { target, ways };
         return;
@@ -121,12 +136,17 @@
   {/if}
   {#if !here}<p class="rc-warn" role="status">{t('Waiting for the GPS …')}</p>{/if}
   <RouterNote />
+  {#if avoid.length}<p class="rc-note" data-reroute-avoid>{tn(avoid.length, '{n} stretch you marked as bad is avoided on the way.', '{n} stretches you marked as bad are avoided on the way.')}</p>{/if}
 
-  <div class="rr-chips" role="group" aria-label={t('Kind of way')}>
+  <p class="rr-q" id="rr-q">{t('How do you ride?')}</p>
+  <div class="rr-chips" role="group" aria-labelledby="rr-q">
     {#each PROFILES as p (p.key)}
-      <button type="button" class="rr-chip" aria-pressed={profile === p.key} onclick={() => (profile = p.key)} data-reroute-profile={p.key}>{t(p.name)}</button>
+      <button type="button" class="rr-chip" aria-pressed={profile === p.key} onclick={() => (chosen = p.key)} data-reroute-profile={p.key}>{t(p.name)}</button>
     {/each}
   </div>
+  {#if bike && suggested && profile === suggested && chosen == null}
+    <p class="rc-note" data-reroute-suggest>{t('Suggested for {bike}. Tap another way if you ride differently today.', { bike: bike.name })}</p>
+  {/if}
 
   {#if err}
     <p class="rc-warn" role="alert" data-reroute-error>{err}</p>
@@ -150,6 +170,7 @@
             <span class="rc-row-main">
               <b>{t('Way {n}', { n: i + 1 })}</b>
               <small>{fmtKm(w.km)} km{w.min != null ? ` · ${hm(w.min)}` : ''}{w.gainM != null ? ` · ${num(w.gainM)} m ↑` : ''}</small>
+              <SurfaceNote surface={w.surface} profile={w.profile} cls="rr-surface" />
               {#if w.tags?.length}<span class="rr-tags">{#each w.tags as g (g)}<em>{t(TAGS[g])}</em>{/each}</span>{/if}
             </span>
             <button type="button" class="btn sm" onclick={() => take(w)} data-reroute-take={i}><Navigation size={16} aria-hidden="true" />{t('Take this way')}</button>
@@ -201,6 +222,10 @@
     margin: 14px 0 6px;
     font-size: var(--fs-sub);
   }
+  .rr-q {
+    margin: 8px 0 2px;
+    font-weight: 600;
+  }
   .rr-chips {
     display: flex;
     flex-wrap: wrap;
@@ -241,6 +266,10 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--paper);
+  }
+  .rr-way :global(.rr-surface) {
+    font-size: var(--fs-small);
+    margin-top: 2px;
   }
   .rr-tags {
     display: flex;

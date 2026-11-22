@@ -63,8 +63,12 @@ export async function checkBehind(w = globalThis, { now = Date.now(), running = 
   return now - seen.at >= WAIT ? live : null;
 }
 
-/** The small bar at the top: «Version X ist da …» with «Jetzt laden» and «Später». */
-export function showBehind(w, live) {
+/**
+ * The small bar at the top: «Version X ist da …» with «Jetzt laden» and «Später».
+ * `failed`: this device already loaded fresh and the newest version still did not arrive (07.11.2026): the bar
+ * then says so honestly and tells what to do, instead of offering the same button again as if nothing happened.
+ */
+export function showBehind(w, live, { failed = false } = {}) {
   const d = w.document;
   if (!d?.body || d.querySelector(`[${BAR}]`)) return;
   const bar = d.createElement('div');
@@ -73,16 +77,35 @@ export function showBehind(w, live) {
   bar.style.cssText = 'position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top,0px));z-index:9998;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:#1f3a33;color:#fff;font:500 14px/1.4 Inter,system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.2)';
   const text = d.createElement('span');
   text.style.cssText = 'flex:1 1 200px';
-  text.textContent = `${t('Version {v} is online, but this device still runs an older one.', { v: live })} ${t('Your data stays on this device.')}`;
   const go = d.createElement('button');
   go.type = 'button';
-  go.textContent = t('Load now|update');
   go.style.cssText = 'min-height:44px;padding:0 16px;border:0;border-radius:10px;background:#fff;color:#1f3a33;font:600 14px Inter,system-ui,sans-serif';
+  // what to do when loading does not work: the normal way out of a stuck app, no data is touched
+  const say = (key, vars) => {
+    text.textContent = t(key, vars);
+  };
+  const tell = {
+    ask: () => {
+      text.textContent = `${t('Version {v} is online, but this device still runs an older one.', { v: live })} ${t('Your data stays on this device.')}`;
+      go.textContent = t('Load now|update');
+    },
+    failed: () => {
+      say('Version {v} could not be loaded on this device. Close the app completely (swipe it away in the app overview) and open it again. Your data stays on this device.', { v: live });
+      go.textContent = t('Try again|update');
+    },
+  };
+  (failed ? tell.failed : tell.ask)();
   go.onclick = () => {
     // the tap must always show something (Noah 30.10.2026: «Jetzt laden» seemed to do nothing)
     go.disabled = true;
     go.textContent = t('Loading…');
-    freshReload(w);
+    freshReload(w, {
+      // 07.11.2026: when this page is still here after a few seconds, the loading did not happen: say so and what to do
+      onStuck: () => {
+        go.disabled = false;
+        tell.failed();
+      },
+    });
   };
   const later = d.createElement('button');
   later.type = 'button';
@@ -91,6 +114,18 @@ export function showBehind(w, live) {
   later.onclick = () => bar.remove();
   bar.append(text, go, later);
   d.body.appendChild(bar);
+}
+
+/**
+ * After a start that came from «load fresh»: did the newest version really arrive? If the online version is still
+ * newer than the one running, the bar says it did not work and what to do. Returns that version, else null.
+ */
+export async function verifyFresh(w = globalThis, opts = {}) {
+  const live = await onlineVersion(w, opts);
+  const running = opts.running ?? __APP_VERSION__;
+  if (!live || !newer(live, running)) return null;
+  showBehind(w, live, { failed: true });
+  return live;
 }
 
 /** Check and, when stuck, show the bar. */

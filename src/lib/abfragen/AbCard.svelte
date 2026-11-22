@@ -14,7 +14,7 @@
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
   import { abQuery, hintQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
-  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, QUIET_ROUND, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, LATER_KEY, laterStamp, fitNow, allQuestions } from '../abfragen.js';
+  import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, QUIET_ROUND, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, windowPart, LATER_KEY, laterStamp, fitNow, allQuestions } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
   import { dataDue, ruleOn, DATA_QUESTIONS, noteSkip, clearSkips, setGap, neverAgain, FEWER_GAP } from '../datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { t, tn, num as fmt } from '../i18n.svelte.js';
@@ -75,12 +75,12 @@
   });
   // the sample questions that are switched off: the pool of the random question
   const pool = $derived(data?.stored ? allQuestions(data.cfg).filter((x) => x.sample && !x.own && !settingOf(data.cfg, x).on) : []);
-  const fromData = $derived(data?.stored ? dataDue({ health: data.health, acts: data.acts, sport: data.sport, wx: data.wx, cal: data.cal, hint, pool, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
+  const fromData = $derived(data?.stored ? dataDue({ health: data.health, acts: data.acts, sport: data.sport, ticks: data.ticks, wx: data.wx, cal: data.cal, tasks: data.tasks, hint, pool, answers: data.answers, checks: data.checks, snooze: data.snooze, cfg: data.dataCfg, custom: allQuestions(data.cfg).filter((x) => x.rule), today, slot: `${today}T${configOf(data.cfg).rounds.morning}` }) : []);
   // the random question never opens the window on its own: it joins when something else is due, and comes last
   const shown = $derived.by(() => {
     if (!data?.stored) return [];
     const rules = fromData.filter((d) => !d.random);
-    const due = fitNow(dueList(data.cfg, answered, now, data.snooze), now, configOf(data.cfg).rounds);
+    const due = fitNow(dueList(data.cfg, answered, now, data.snooze), now);
     const base = [...rules, ...due];
     return base.length ? [...base, ...fromData.filter((d) => d.random)] : [];
   });
@@ -123,7 +123,7 @@
       const folded = ordered.slice(visible.length);
       await saveAnswers(rows);
       // an answer ends the count of skips of a rule from data (Noah 04.11.2026 «2a»)
-      const ruled = rows.map((r) => DATA_QUESTIONS[r.qid]?.rule).filter(Boolean);
+      const ruled = rows.map((r) => DATA_QUESTIONS[r.qid]?.rule ?? fromData.find((d) => d.custom && d.q.id === r.qid)?.rule).filter(Boolean);
       if (ruled.length) await saveDataCfg(ruled.reduce((c, id) => clearSkips(c, id), data?.dataCfg ?? null));
       if (folded.length) await saveSnooze(snoozeAll(data?.snooze, folded));
       more = false;
@@ -159,6 +159,7 @@
   const later = () => saveSnooze({ ...(data?.snooze ?? {}), [LATER_KEY]: laterStamp(now) });
   const waiting = $derived(!!data?.snooze?.[LATER_KEY] && now < data.snooze[LATER_KEY]);
   const evening = $derived(isEveningRound(now, configOf(data?.cfg).rounds));
+  const part = $derived(windowPart(now, configOf(data?.cfg).rounds)); // 'morning' | 'rest' | 'evening': the title of the window
   const quiet = $derived(isQuiet(data?.snooze, now, configOf(data?.cfg).rounds));
   const open = $derived(shown.length > 0 && !waiting && !quiet);
   $effect(() => {
@@ -211,7 +212,7 @@
     <div class="vd-head">
       <span class="ib"><ClipboardList size={18} aria-hidden="true" /></span>
       <div class="vd-t">
-        <h2 id="abc-h">{evening ? t('Evening check') : t('Morning check')}</h2>
+        <h2 id="abc-h">{evening ? t('Evening check') : part === 'rest' ? t('Still open from this morning') : t('Morning check')}</h2>
         <!-- Noah 21.10.2026 «immer das datum und die uhrzeit der befragung, damit wir testen können» -->
         <p class="vd-sub num" data-ab-when>{dayShort(today)} · {timeText(now)}</p>
         <p class="vd-sub">{tn(visible.length, '{n} question', '{n} questions')} · {t('one tap each, all can be skipped')}</p>
@@ -225,13 +226,13 @@
         <div class="dqh">
           <b id={qid}>{qText(d.q)}</b>
           <span class="meta">
-            {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · {#if d.random}<span data-random>{t('a random question')}</span>{:else if d.why}<span data-from-data>{t('from your data')}</span>{:else}<span class="num">{dayOf(d.slot) === today ? timeText(d.slot) : t('question from {when}', { when: `${dayShort(dayOf(d.slot))} ${timeText(d.slot)}` })}</span>{/if}
+            {#if d.q.own && !d.q.rule}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if} · {#if d.random}<span data-random>{t('a random question')}</span>{:else if d.why}<span data-from-data>{t('from your data')}</span>{:else}<span class="num">{dayOf(d.slot) === today ? timeText(d.slot) : t('question from {when}', { when: `${dayShort(dayOf(d.slot))} ${timeText(d.slot)}` })}</span>{/if}
             {#each (d.q.src ?? []).filter((s) => s !== 'hand' && s !== 'fitbit') as s (s)}<span class="ab-src {s}">{srcText(s)}</span>{/each}
             {#if d.random}<button type="button" class="skip" onclick={() => never(d)} data-never>{t('Never again|question')}</button>{/if}
             <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
-        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{d.random ? t('Change this') : t('Change this rule')}</a></small>{/if}
+        {#if d.why}<small class="last why" data-why><b>{t('Why am I asking this?')}</b> {t(d.why.text, d.why.vars)}{#each d.why.facts ?? [] as f}{' '}{t(f.text, f.vars)}{/each} <a class="ab-lnk" href="#/me/abfragen" data-why-adjust>{d.random ? t('Change this') : t('Change this rule')}</a></small>{/if}
         {#if d.fewer}
           <div class="fewer" data-fewer>
             <small>{t('You skipped this question three times. Ask less often?')}</small>

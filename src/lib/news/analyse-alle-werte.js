@@ -5,7 +5,7 @@ export default {
   lead: 'The app now also fetches VO₂max, distance, floors, pulse over the day, Fitbit workouts and more.',
   points: [
     { text: 'New tiles on Analyse: VO₂max, distance and climb of the watch, floors, hourly activity, pulse over the day, active and sitting minutes, Fitbit workouts, weight and body fat', go: 'f.analyse' },
-    { text: '«Also values without data» shows every value, also the ones without a day yet', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-all]' }] } },
+    { text: '«Also values without data» shows every value, also the ones without a day yet', go: { href: '#/auswerten/analyse', steps: [{ sel: '[data-tab="werte"]' }, { sel: '[data-filter-toggle]', unless: '[data-all]' }, { sel: '[data-all]' }] } },
   ],
   small: [{ box: 'new', text: 'The next Fitbit fetch takes the last 90 days again, once, so the new values fill in', go: { href: '#/me', where: 'At the next fetch in Ich › Fitbit.' } }],
   test: [

@@ -11,7 +11,7 @@
    * - folded rows: parts without data, the 1000 km check, the log, "Bike shop & 2026".
    */
   import AskClaude from '../assistent/AskClaude.svelte';
-  import { Check, ChevronDown, ChevronRight, ChevronUp, Store, Info, ListChecks, BookOpen, Eye, PenLine, Heart } from '@lucide/svelte';
+  import { Check, ChevronDown, ChevronRight, ChevronUp, Store, Info, ListChecks, BookOpen, Eye, PenLine, Heart, MoreHorizontal } from '@lucide/svelte';
   import Btn from '../ui/Btn.svelte';
   import MoreActions from '../ui/MoreActions.svelte';
   import { explain } from '../ui/explain.js';
@@ -22,6 +22,7 @@
   import { bikesHash } from '../bikes.js';
   import { bikeCareWords } from '../readiness.js';
   import { wearRows } from '../wear.js';
+  import { ledgerCounts } from '../kmbook.js';
 
   let {
     c, tasks = [], visits = [], wished = {}, kmMsg = null, open = false, filter = 'all', today,
@@ -33,17 +34,11 @@
   import PartsTable from './PartsTable.svelte';
   import KmBook from './KmBook.svelte';
   import Q1Status from './Q1Status.svelte';
+  import GlanceCard from './GlanceCard.svelte'; // «Auf einen Blick» (Noah 21.11.2026): chain, service, check, costs on top
   import StravaChanges from '../strava/StravaChanges.svelte';
   import SheetFolder from '../bikes/SheetFolder.svelte';
   import { partAreas } from './overview.js';
   import { isMore } from '../care.js';
-  import { Sparkles, X as XIcon } from '@lucide/svelte';
-  import { untrack } from 'svelte';
-  import { db } from '../db.js';
-  import { isOn, isPaused, errorText, helper } from '../helper/client.svelte.js';
-  import { careSuggestions, careMark } from '../helper/care.js';
-  import { careRows, careTask } from '../helper/logic.js';
-  import '../helper/helper.css';
   import { signFor } from '../daumen.js'; // FE13: a sign next to the colour
   import '../ui/fe-seiten.css';
   import Odometer from '../ui/Odometer.svelte';
@@ -101,52 +96,6 @@
   });
   const dueParts = $derived(new Set(due.map((x) => x.r?.part.key).filter(Boolean)));
 
-  /*
-   * v0.77.0 (answers 5a, 6a): the helper's maintenance suggestions go INTO «Jetzt fällig», marked with
-   * the sparkle, a one-line reason and a status (bald fällig / prüfen; «ok» never here). A part that is
-   * due anyway gets the helper's line in its own card. «Als Aufgabe merken», «Erledigt», ×.
-   * They refresh by themselves after new km or a new ride, at most once a day per bike (care.js).
-   */
-  let hres = $state(null);
-  let hhash = $state('');
-  let hstate = $state({ done: [], dismissed: [] });
-  let hmsg = $state('');
-  let hnote = $state('');
-  const hdata = $derived(open && isOn() ? JSON.stringify([bike.km, bike.parts, tasks.length]) : '');
-  // A moment after the bike's data settles (the page fills in steps), never once per step.
-  $effect(() => {
-    if (!hdata) return;
-    const wait = setTimeout(() => untrack(() => loadHelper()), 700);
-    return () => clearTimeout(wait);
-  });
-  async function loadHelper() {
-    if (isPaused() && !hres) hmsg = errorText('paused', { capChf: helper.capChf });
-    const r = await careSuggestions($state.snapshot(bike));
-    hres = r.result;
-    hhash = r.hash;
-    hstate = r.state;
-    if (r.error && r.error !== 'off') hmsg = errorText(r.error, { capChf: helper.capChf });
-    else if (!r.error) hmsg = '';
-  }
-  const hrows = $derived(isOn() && hres ? careRows(hres, { bikeId: bike.id, hash: hhash, done: hstate.done, dismissed: hstate.dismissed }) : []);
-  const hmap = $derived(new Map(hrows.map((h) => [h.key, h])));
-  const hcards = $derived(hrows.filter((h) => !dueParts.has(h.key) && filter !== 'shop'));
-  const HSTATUS = { soon: 'due soon|helper', check: 'check|helper' };
-  const hname = (key) => t(PART[key]?.name ?? (bike.parts.find((p) => p.key === key)?.name || key));
-  async function hmark(kind, h) {
-    hstate = await careMark(kind, { bikeId: bike.id, key: h.key, hash: hhash, km: bike.km ?? null, status: h.status });
-  }
-  async function htask(h) {
-    try {
-      await db.transaction('rw', db.maintenance, async () => {
-        await db.maintenance.put(careTask(h, bike, hname(h.key), await db.maintenance.toArray(), today));
-      });
-      await hmark('done', h);
-      hnote = t('Remembered as a task: {part}', { part: hname(h.key) });
-    } catch {
-      hnote = t('Could not save. Please try again.');
-    }
-  }
   const fits = (r) => (filter === 'due' ? false : filter === 'self' ? r.last?.by === 'self' : filter === 'shop' ? r.last?.by === 'shop' : true);
   // v0.47.1 (Noah): the newest action first, also in the groups (the group with the newest action on top).
   const rest = $derived(known.filter((r) => !dueParts.has(r.part.key) && !c.care.rows.some((d) => d.part === r.part.key) && fits(r)).sort(newestFirst));
@@ -162,6 +111,12 @@
 
   /* ---------- folds ---------- */
   let kmOpen = $state(false);
+  // «Seite umbauen» (Noah 21.11.2026, Schritt B): «More» is shut; it opens by itself while a ride of this bike is unclear.
+  let moreOpen = $state(false);
+  const ledgerOpen = $derived(open ? ledgerCounts(kmEntries, bike.id).open.length : 0);
+  $effect(() => {
+    if (ledgerOpen) moreOpen = true;
+  });
   let blindOpen = $state(false);
   let checkOpen = $state(false);
   let logOpen = $state(false);
@@ -253,10 +208,6 @@
         </span>
       {/if}
     </span>
-    {#if x && hmap.get(key)}
-      {@const h = hmap.get(key)}
-      <span class="kh-why"><span class="kh-ic"><Sparkles size={14} aria-hidden="true" /><span class="sr">{t('Suggestion from the helper')}: </span></span><span><b>{t(HSTATUS[h.status])}</b> · {h.reason}{#if h.check}{' '}→ {h.check}{/if}</span><button type="button" class="kh-x" aria-label={t('Drop the suggestion for {part}', { part: hname(key) })} onclick={() => hmark('dismissed', h)}><XIcon size={16} aria-hidden="true" /></button></span>
-    {/if}
     {#if isOpen}
       <div class="extra" id="px-{bike.id}-{key}">
         {#if key === 'tyres'}{@render tyres()}{/if}
@@ -300,6 +251,7 @@
 
   {#if open}
     <div class="in" id="care-in-{bike.id}">
+      <GlanceCard {bike} {visits} entries={kmEntries.filter((e) => e.bikeId === bike.id)} onrecord={() => onpart(bike.parts.some((p) => p.key === 'chain') ? 'chain' : bike.parts[0]?.key)} />
       {#if kmOpen || bike.km == null}
         <form class="km" onsubmit={(e) => (e.preventDefault(), km(e.currentTarget.elements.km))}>
           <label>
@@ -314,20 +266,9 @@
       {#if words.text && c.care.status !== 'due'}<p class="quiet">{words.text}</p>{/if}
       <!-- v0.116.0 «Strava-Verbindung» (4b): a ride of this bike got another bike in Strava: the question stays until you choose -->
       <StravaChanges bikeId={bike.id} />
-      {#if q1On}
-        <Q1Status {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} parts={mainParts} {bikes} {today} onstart={(key) => onstartpoint?.(key, mainParts)} onhide={() => onq1?.(false)} />
-      {/if}
-      <!-- v0.68.0 (Q1.1 a): the ride ledger as its own block at the top of the bike -->
-      <KmBook {bike} {bikes} />
-      <!-- «Verschleiss» (Noah 20.10.2026, 2b + «Verschleiss immer im Griff»): at a glance, the chain first, the way to the page «Wear» -->
-      {#await import('./WearCard.svelte') then m}<m.default {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} />{:catch}{/await}
-      {#if !q1On && onq1}<p class="q1on"><button type="button" class="lnk" onclick={() => onq1(true)}>{t('Check Q1 «Gapless km» for this bike')}</button></p>{/if}
-      <!-- v0.69.0 «Velo-Blätter» (V1 a): the bike's folder, one line of links -->
-      <SheetFolder bike={c.bike} compact from="care" />
-
       <!-- v0.47.0 (Noah 10a): "Due now" as cards above the wear list -->
-      {#if due.length || hcards.length}
-        <p class="zlabel nowh">{t('Due now')} <span class="pill act num">{due.length + hcards.length}</span></p>
+      {#if due.length}
+        <p class="zlabel nowh">{t('Due now')} <span class="pill act num">{due.length}</span></p>
       {/if}
       <ul class="parts duecards">
         {#each due as x (x.d?.key ?? x.r.part.key)}
@@ -374,25 +315,7 @@
             </li>
           {/if}
         {/each}
-        {#each hcards as h (h.key)}
-          <li class="pt due kh-pt">
-            <span class="pn"><span class="kh-ic"><Sparkles size={16} aria-hidden="true" /><span class="sr">{t('Suggestion from the helper')}: </span></span><span class="kh-pn">{hname(h.key)}</span></span>
-            <span class="st"><span class="badge {h.status === 'soon' ? 'warn' : 'n'}">{t(HSTATUS[h.status])}</span></span>
-            <span class="last"><span class="lt">{h.reason}{#if h.check}{' '}→ {h.check}{/if}</span></span>
-            <span class="act kh-care-acts"><span class="rowacts">
-              <Btn icon={Check} label={t('Done|task')} explain={explain('Done|task')} sub={hname(h.key)} onclick={() => hmark('done', h)} />
-              <MoreActions title={[hname(h.key), bike.name].join(' · ')} label={t('More for {title}', { title: hname(h.key) })} actions={[
-                { name: t('Done|task'), explain: explain('Done|task'), icon: Check, run: () => hmark('done', h), current: true },
-                { name: t('Remember|task'), explain: explain('Remember|task'), icon: ListChecks, run: () => htask(h) },
-                { name: t('Drop it|suggestion'), explain: t('Drop the suggestion for {part}', { part: hname(h.key) }), icon: XIcon, run: () => hmark('dismissed', h) },
-              ]} />
-            </span></span>
-          </li>
-        {/each}
       </ul>
-      {#if hrows.length}<p class="kh-quiet kh-care-note">{t('A suggestion from your km and notes, not a workshop diagnosis.')}</p>{/if}
-      {#if hnote}<p class="kh-msg" role="status">{hnote}</p>{/if}
-      {#if hmsg && isOn()}<p class="kh-msg" role="status">{hmsg}</p>{/if}
       {#if nothingYet && onstart}
         <!-- v0.48.0 (Noah 9a): a bike without part data gets its start values in three steps. -->
         <div class="startcta surf">
@@ -400,14 +323,14 @@
           <button type="button" class="btn hi" onclick={onstart}>{t('Enter start values')}</button>
         </div>
       {/if}
+      <!-- «Auf einen Blick»-Umbau (Noah 21.11.2026 «1a 2a 3a 4a 5a», Schritt B): first what is due, then the inspection as three cards, then the wear; the rest is under «More» -->
+      {#if filter === 'all' && stored}{#await import('../inspect/InspectCard.svelte') then m}<m.default bike={stored} />{/await}{/if}
+      <!-- «Verschleiss» (Noah 20.10.2026, 2b + «Verschleiss immer im Griff»): at a glance, the chain first, the way to the page «Wear» -->
+      {#await import('./WearCard.svelte') then m}<m.default {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} />{:catch}{/await}
       {#if filter === 'all'}
-        <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
-        <!-- «Velo im Griff» (Noah 19.10.2026): kind, riding hours, the whole-bike service, links to the template and the cheat sheet -->
-        {#if stored && oncare}{#await import('./VeloCard.svelte') then m}<m.default bike={stored} km={bike.km ?? null} {oncare} />{/await}{/if}
-        <!-- «Velo-Inspektion» (Noah 19.10.2026): the checks point by point, with guides; loaded with the bike -->
-        {#if stored}{#await import('../inspect/InspectCard.svelte') then m}<m.default bike={stored} />{/await}{/if}
-        {#if stored && oncare}<CarePlanCard bike={stored} onsave={oncare} />{/if}
         <div class="ptcard"><PartsTable {bike} time={c.time} {today} onpart={onpart} q1={q1On} {bikes} onstartpoint={(key) => onstartpoint?.(key, mainParts)} /></div>
+        <!-- Schritt B: the part template used to sit in the bike card; «More» is shut, so the way to it stays here (every function within 3 taps of Heute) -->
+        <a class="shoplink" href={bikesHash({ tab: 'care', view: 'templates', bike: bike.id })} data-link-templates-top>{t('Part template')}<ChevronRight size={16} aria-hidden="true" /></a>
       {:else}
       {#if soon.length || ok.length}
           <p class="zlabel">{t('Wear|list')}</p>
@@ -441,6 +364,27 @@
 
       {/if}
       <div class="folds">
+        <details class="fold" id="more-{bike.id}" bind:open={moreOpen} data-care-more>
+          <summary><MoreHorizontal size={18} aria-hidden="true" /><span class="fl">{t('More')}</span><span class="r">{#if ledgerOpen}<span class="badge warn">{tn(ledgerOpen, '{n} unclear ride', '{n} unclear rides')}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+          {#if moreOpen}
+            <p class="hint">{t('The ride ledger, the bike sheets and the care rules. Nothing is gone, it is just one tap down.')}</p>
+          {#if q1On}
+            <Q1Status {bike} entries={kmEntries.filter((e) => e.bikeId === bike.id)} parts={mainParts} {bikes} {today} onstart={(key) => onstartpoint?.(key, mainParts)} onhide={() => onq1?.(false)} />
+          {/if}
+          <!-- v0.68.0 (Q1.1 a): the ride ledger as its own block at the top of the bike -->
+          <KmBook {bike} {bikes} />
+          {#if !q1On && onq1}<p class="q1on"><button type="button" class="lnk" onclick={() => onq1(true)}>{t('Check Q1 «Gapless km» for this bike')}</button></p>{/if}
+          <!-- v0.69.0 «Velo-Blätter» (V1 a): the bike's folder, one line of links -->
+          <SheetFolder bike={c.bike} compact from="care" />
+
+            {#if filter === 'all'}
+            <!-- v0.48.0 «Teile pro Velo»: all parts of the one list by area, the rest under «More». -->
+            <!-- «Velo im Griff» (Noah 19.10.2026): kind, riding hours, the whole-bike service, links to the template and the cheat sheet -->
+            {#if stored && oncare}{#await import('./VeloCard.svelte') then m}<m.default bike={stored} km={bike.km ?? null} {oncare} />{/await}{/if}
+            {#if stored && oncare}<CarePlanCard bike={stored} onsave={oncare} />{/if}
+            {/if}
+          {/if}
+        </details>
         <details class="fold" id="check-{bike.id}" bind:open={checkOpen}>
           <summary><ListChecks size={18} aria-hidden="true" /><span class="fl">{t('{km} km check', { km: num(c.check.every ?? CHECK_KM) })}</span><span class="r">{#if c.check.due}<span class="badge warn">{t('{n} open', { n: c.check.due })}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
           {#if checkOpen}
@@ -1295,52 +1239,6 @@
   .duecards .extra {
     grid-column: 1 / -1;
   }
-  /* v0.77.0 (answer 5a): the helper's cards and lines in «Due now» */
-  .duecards .kh-pt {
-    grid-template-areas:
-      'pn st'
-      'last last'
-      'act act';
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-  .kh-pt .pn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .kh-pn {
-    font-weight: 500;
-  }
-  .kh-care-acts {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    justify-self: start;
-    margin-top: 6px;
-  }
-  .kh-why {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px solid var(--line);
-    font-size: var(--fs-small);
-    color: var(--ink-2);
-  }
-  .kh-why > span:not(.kh-ic) {
-    flex: 1;
-    min-width: 0;
-  }
-  .kh-why .kh-ic {
-    margin-top: 2px;
-  }
-  .kh-care-note {
-    margin: -2px 4px 8px;
-  }
-
   /* ---------- v0.47.0 (Noah 9.10.: "Velopflege: Schriftlayout vereinheitlichen") ----------
      One type scale for the whole care tab (style sheet «Gletscher»): the bike head 18 px medium with
      one quiet sub line; part names 16 px medium, never underlined; quiet text links in the accent

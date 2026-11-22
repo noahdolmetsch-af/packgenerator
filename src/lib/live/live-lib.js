@@ -318,9 +318,9 @@ export function stormPoints({ pts = [], km = null, here = null, kmh = 18, hours 
   return here ? [{ lat: Math.round(here.lat * 1000) / 1000, lon: Math.round(here.lon * 1000) / 1000, km: null }] : [];
 }
 
-/** The Open-Meteo request for the storm check (free, no key): weather code and CAPE per hour, today and tomorrow. */
+/** The Open-Meteo request for the storm and heavy-rain check (free, no key): weather code, CAPE and rain per hour, today and tomorrow. */
 export function stormUrl(points) {
-  const q = new URLSearchParams({ latitude: points.map((p) => p.lat).join(','), longitude: points.map((p) => p.lon).join(','), hourly: 'weather_code,cape', forecast_days: '2', timezone: 'UTC', timeformat: 'unixtime' });
+  const q = new URLSearchParams({ latitude: points.map((p) => p.lat).join(','), longitude: points.map((p) => p.lon).join(','), hourly: 'weather_code,cape,precipitation', forecast_days: '2', timezone: 'UTC', timeformat: 'unixtime' });
   return `https://api.open-meteo.com/v1/forecast?${q}`;
 }
 
@@ -349,6 +349,42 @@ export function stormAhead(series, points = [], now = Date.now(), hours = 2) {
     }
   });
   return first;
+}
+
+/** Heavy rain: from this many mm in one hour (or the weather code «heavy rain»: 65, 67, 82). An assumption, changeable here. */
+export const HEAVY_RAIN_MM = 5;
+const HEAVY_CODES = [65, 67, 82];
+
+/**
+ * Heavy rain in the next `hours` at the points ahead (Noah 07.11.2026 «1b»). Same answer as stormAhead:
+ * { km, at, sure } (the first) or null; `sure` = the forecast names heavy rain, else only the amount says so.
+ */
+export function rainAhead(series, points = [], now = Date.now(), hours = 2) {
+  const list = Array.isArray(series) ? series : series ? [series] : [];
+  let first = null;
+  list.forEach((s, i) => {
+    const time = s?.hourly?.time ?? [];
+    const code = s?.hourly?.weather_code ?? [];
+    const mm = s?.hourly?.precipitation ?? [];
+    for (let j = 0; j < time.length; j++) {
+      const at = time[j] * 1000;
+      if (at + 36e5 <= now || at > now + hours * 36e5) continue;
+      const sure = HEAVY_CODES.includes(code[j]);
+      if (sure || mm[j] >= HEAVY_RAIN_MM) {
+        if (!first || at < first.at || (at === first.at && sure && !first.sure)) first = { km: points[i]?.km ?? null, at: Math.max(at, now), sure };
+        break;
+      }
+    }
+  });
+  return first;
+}
+
+/** What comes first-worth-a-warning: a thunderstorm before heavy rain. → { kind: 'storm' | 'rain', km, at, sure } or null. */
+export function skyAhead(series, points = [], now = Date.now(), hours = 2) {
+  const storm = stormAhead(series, points, now, hours);
+  if (storm) return { kind: 'storm', ...storm };
+  const rain = rainAhead(series, points, now, hours);
+  return rain ? { kind: 'rain', ...rain } : null;
 }
 
 /** The Overpass query for the stops around you (a ride without a route): shops, food, water, beds, stations, bike shops. */

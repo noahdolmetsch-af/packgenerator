@@ -118,11 +118,6 @@ const LISTED = {
     steps: ['Ask the app: type a question or tap an example; the answer comes from your data, with a link.', 'Help me plan: answer four short questions, check the plan, «Create the trip».'],
     example: 'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».',
   },
-  'f.ask': {
-    on: 'Needs the helper code: Me › AI helper, switch on and save the code.',
-    steps: ['Open the helper and type a few words.', 'Check the suggestion and take only what fits.'],
-    example: 'Example: «2 days gravel, one night camping, rain likely» → a packing list suggestion.',
-  },
   'f.wardrobe': {
     on: null,
     steps: ['Open Gear › Clothes.', 'Add clothes by layer and body zone; gaps go to the wishlist.'],
@@ -333,6 +328,11 @@ const LISTED = {
     on: null,
     steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
+  },
+  'f.weekgoals': {
+    on: null,
+    steps: ['Open Aktiv; «My week goals» sits next to «This week».', 'Tap «Add a week goal» (or one of the suggestions like 2× meditation), pick what and how much.', 'Tap «Change» to set another number, put the goals in another order or delete one; Undo brings it back.'],
+    example: 'Example: «150 km» for the week; on Wednesday the bar says «103 km of 150 km, 5 days left».',
   },
   'f.wohl': {
     on: 'Nothing to switch on; results show after about 10 days with a day score.',
@@ -834,6 +834,21 @@ const LISTED = {
     steps: ['Open Calendar › Remember and type a to-do; «New list» makes an own list such as «My ideas».', 'Tick a to-do off; «Undo» brings it back.'],
     example: 'Example: «Order new brake pads» → ticked off after the shop visit.',
   },
+  'f.todoquick': {
+    on: null,
+    steps: ['Open Remember and type in the top line, e.g. «Oil the chain tomorrow 6 pm».', 'Tap a found part to leave it out, or Today, Tomorrow, Weekend; Enter saves.', '«More …» opens the full window, already filled in.'],
+    example: 'Example: «Wash the bike every Sunday» → to-do on the next Sunday, repeating every week.',
+  },
+  'f.todosteps': {
+    on: null,
+    steps: ['Open a to-do and add steps under «Steps»; arrows and handle sort them.', 'Under «Belongs to» pick a trip, a bike or a note.', 'Tick steps in the list; trip, bike and note show the open to-dos.'],
+    example: 'Example: «Prepare the Alps tour» with 6 steps, belonging to the trip «Alps».',
+  },
+  'f.todosort': {
+    on: null,
+    steps: ['On a phone swipe a to-do right for done, left for tomorrow.', 'Tap «Sort»: arrows and a handle move to-dos within their group.', 'Search finds to-dos and notes together; on a wide screen a note opens beside.'],
+    example: 'Example: search «chain» → the to-do «Oil the chain» and the note «Replace the chain?».',
+  },
   'f.reminders': {
     on: null,
     steps: ['After a ride, before a trip or after bike care the app asks once whether it should remind you; «Never ask» stops it there.', 'Open Me › Reminders to switch one off or change when it comes.'],
@@ -1044,6 +1059,11 @@ const LISTED = {
     steps: ['Open the place search on the live map or a race map and type your radius.', 'Under «My own places» add a place here, by a tap on the map or from a file.'],
     example: 'Example: a CSV of the race checkpoints → all as your own places on the map.',
   },
+  'f.routeknown': {
+    on: null,
+    steps: ['Open a trip › «Route» with a GPX route: stretches you marked after a ride show under the map.', 'Tap «How new is this route for me?» to see how much of it you have never ridden.'],
+    example: 'Example: «2 stretches you marked as bad are on this route» and «38 % is new for you (21 km)».',
+  },
   'f.rwgps': {
     on: null,
     steps: ['Open a trip › «Route», tap «Link from Ride with GPS» and paste the link.', 'Tap «Load»: the route and its waypoints come in.'],
@@ -1151,7 +1171,7 @@ const LISTED = {
   },
   'f.impulse': {
     on: null,
-    steps: ['Open Active › Impulses, or Me › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
+    steps: ['Open Plan › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
     example: 'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.',
   },
   'f.shopping': {
@@ -1274,6 +1294,46 @@ const LISTED = {
     on: 'Needs rides with a line: Strava, a GPX file or your own recording.',
     steps: ['Open Trips › Look back › New ground.', 'Scroll to «New kilometres»: each year with its new km and share.', 'Below: your latest rides that brought new km.'],
     example: 'Example: 3210 km this year, of which 412 km new (13 %).',
+  },
+  'f.dreamsone': {
+    on: 'Nothing moves by itself: you choose which compass dream becomes a dream tour.',
+    steps: ['Open Trips › Dreams and scroll to «More dreams».', 'Tap «Make it a dream tour» at a compass dream.', 'The link leads to your travel wishes in Free time.'],
+    example: 'Example: «Once around Lake Constance» from the compass → a dream tour with months.',
+  },
+  'f.dreamweek': {
+    on: 'The tile stays away while no dream fits. You can hide it like every tile.',
+    steps: ['Set a «Fixed date» in a dream of Trips › Dreams.', 'Tick «Rides through the night» for a ride that goes on all night.', 'Heute: «Dream of the week» counts down, shows the weather.'],
+    example: 'Example: «Night race example» on 12 Nov, 2 days → in 5 days, dry, night 9 °C, wind 12 km/h.',
+  },
+  'f.findlist': {
+    on: 'Nothing to set up: it reads what Neuland, the summit book and Ich › Was mir gut tut already hold.',
+    steps: ['Open Trips › Look back › New ground: the card «List of finds» is at the top.', 'Switch between «This year» and «All years»; «Show more» opens the whole list.', 'Add your own find under Ich › Was mir gut tut › «Add Neuland»; it shows in the list too.'],
+    example: 'Example: a pass ticked in the summit book is ticked in New ground too and appears once in the list.',
+  },
+  'f.osmsets': {
+    on: 'Needs the internet now and then to load the places (once a week by itself); then it works offline.',
+    steps: ['Open Trips › Look back › New ground.', 'Choose «Lookout towers», «Suspension bridges» or «Waterfalls».', 'Tap «Load again» to bring the places up to date; the list shows what you reached.'],
+    example: 'Example: a waterfall on a ride is ticked by itself, with the day.',
+  },
+  'f.monthadv': {
+    on: 'Works offline; the kinds that start from home need your home place.',
+    steps: ['Open Trips › Dreams: «One adventure a month» names this month\'s adventure.', 'Tap «Show me»: you land at the card for it.', 'Under «Kinds» hide one, add your own, or switch the line on Today off.'],
+    example: 'Example: «Adventure of the month: Train there, bike home» on Today.',
+  },
+  'f.dice': {
+    on: 'Works offline; the rules are on the device.',
+    steps: ['Open Trips › Dreams: «Adventure dice».', 'Tap «Roll»; the rule stays until you roll again.', 'Under «Rules»: add, rename, delete or hide rules.'],
+    example: 'Example: «A coffee in a village you have never been to».',
+  },
+  'f.suntip': {
+    on: 'Needs your home place and the forecast (online now and then).',
+    steps: ['Open Trips › Dreams: «Sunrise on the hill» names the next clear morning and evening.', 'Mark a «View» point on the map near home.', 'The tip then says when to leave for it.'],
+    example: 'Example: Clear morning Thursday: sunrise 7:21 · leave 6:41 for the view point (4 km).',
+  },
+  'f.trainthere': {
+    on: 'Needs your home place and the internet when you tap (timetable and bike router).',
+    steps: ['Open Trips › Dreams: «Train there, bike home» shows three places.', 'Choose the km of the ride home.', 'Tap «Trains and the way home», then «Plan as a trip».'],
+    example: 'Example: 60 km → train to a village in the Jura, 14 new municipalities around, home in about 3 h 40.',
   },
   'f.biwak': {
     on: 'Needs your home place and places to sleep (rated after a trip or marked on the map).',
@@ -1721,6 +1781,16 @@ const LISTED = {
     on: 'Connect once under Me › Appointments and tasks (needs Strava connected on this device).',
     steps: ['Open Me › Appointments and tasks, tick calendar and tasks and tap «Connect with Google».', 'The next 14 days and your open tasks appear; tick a task or add one, it changes in Google too.', '«New appointment» enters it in your Google calendar.'],
     example: 'Example: «Kette messen» due on Thursday → stands under «Next 7 days»; ticked in the app, it is done in Google Tasks too.',
+  },
+  'f.trainingpeaks': {
+    on: 'Paste your TrainingPeaks calendar link once under Me › Connections › TrainingPeaks plan (needs Premium).',
+    steps: ['In TrainingPeaks on a computer: Settings › Account › Calendar, copy the address of the calendar subscription.', 'Paste it under Me › Connections › TrainingPeaks plan and tap «Test and add».', 'Aktiv › Training › My week shows the planned workouts, marked «TP». Ticking done stays with Strava or by hand.'],
+    example: 'Example: «Bike - Endurance Z2» planned for Saturday, 90 min → stands in My week on Saturday; the ride from Strava ticks it.',
+  },
+  'f.spielerplus': {
+    on: 'Paste the calendar link of your team once under Me › Connections › Spielerplus calendar.',
+    steps: ['Copy the calendar link of your team in Spielerplus, paste it under Me › Connections and tap «Test and add».', 'The dates show in Plan › Week, on Today and on the sport page; «Sign up in Spielerplus ›» opens Spielerplus.', 'Another team: paste its link the same way. Switch a team off or remove it any time (with Undo).'],
+    example: 'Example: «Training» on Wednesday at 19:00 → stands in the week with the word «Spielerplus»; on Wednesday it is also on Today.',
   },
   'f.fitbit': {
     on: 'Connect Fitbit once under Me › Data and backup › Fitbit (needs Strava connected on this device).',

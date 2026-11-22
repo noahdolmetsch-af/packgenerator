@@ -31,6 +31,7 @@
     { key: 'app', name: 'The app, from your data', text: 'Free, on this device. Answers questions like «How many km this week?» or «When is the next service?».' },
     { key: 'gemini', name: 'Gemini (free)', text: 'A free AI from Google answers right in the search when the app knows nothing. Needs the helper code (Me › AI helper); Google may use the questions to learn.' },
     { key: 'geminiAuto', name: 'Gemini answers a spoken question by itself', text: 'Only when the app has no answer. Typed questions get a button «Ask Gemini here».', sub: true },
+    { key: 'understand', name: 'Gemini understands sentences', text: 'A sentence the app does not know («create a list …», «remind me …») goes to Gemini, which turns it into actions. You see what it understood first and tap «OK». Only the sentence and the names of your bikes and trips are sent. Google may use them to learn.', sub: true },
     { key: 'links', name: 'Ask further at …', text: 'Buttons that open Claude, ChatGPT and others in a new tab with your question. Free with your normal account.' },
     { key: 'chrome', name: 'Chrome AI', text: 'The AI built into Chrome on a computer answers on the device. Only where Chrome offers it.' },
     { key: 'local', name: 'AI on this device', text: 'The AI you loaded onto this device answers without internet.' },
@@ -43,7 +44,7 @@
   <section class="card su-card" aria-labelledby="su-mic">
     <h2 id="su-mic">{t('Speaking')}</h2>
     <p class="note">{t('Tap the microphone in the search and say what you want: «chain lubed Gravel», «note brake squeaks», «How many km this week?». The search writes it into the field and answers.')}</p>
-    <p class="note" data-suche-more>{t('It also understands: «weight 72 and pulse 48», «slept badly», «remind me Friday to pump the tyres», «plan me 3 days Jura», «open diary».')}</p>
+    <p class="note" data-suche-more>{t('It also understands: «weight 72 and pulse 48», «slept badly», «remind me Friday to pump the tyres», «plan me 3 days Jura», «open diary», «create a to-do list: tidy up, wax the chain, sign up for the race».')}</p>
     <ul class="su-sw">
       <li><label><span><b>{t('Microphone in the search')}</b><small>{hasBrowser ? t('Always next to the magnifier.') : t('This browser cannot listen by itself: choose «On this device» below.')}</small></span><input type="checkbox" role="switch" checked={suche.mic} onchange={(e) => setSuche('mic', e.currentTarget.checked)} data-suche="mic" /></label></li>
       <li><label><span><b>{t('Run spoken commands at once')}</b><small>{t('When exactly one command fits, it runs right away; «Undo» takes it back. A spoken note goes straight into the Inbox.')}</small></span><input type="checkbox" role="switch" checked={suche.run} onchange={(e) => setSuche('run', e.currentTarget.checked)} data-suche="run" /></label></li>

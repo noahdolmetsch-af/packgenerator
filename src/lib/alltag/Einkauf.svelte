@@ -167,7 +167,12 @@
   </form>
 
   {#if !(list.items ?? []).length}
-    <p class="fz-empty">{t('The list is empty. Type what you need, or add the ingredients of a recipe in Free time › My collections.')}</p>
+    <!-- UI-Test T12 (G1-14): not «empty» when the trip's things stand right below -->
+    {#if tripShop?.rows?.length}
+      <p class="fz-empty" data-shop-empty="trip">{tn(tripShop.rows.length, 'Your own list is empty. For the trip «{title}» {n} thing is ready below.', 'Your own list is empty. For the trip «{title}» {n} things are ready below.', { title: tripShop.trip.title })}</p>
+    {:else}
+      <p class="fz-empty" data-shop-empty>{t('The list is empty. Type what you need, or add the ingredients of a recipe in Free time › My collections.')}</p>
+    {/if}
   {/if}
 
   {#each sections as sec (sec.id || '-')}
@@ -227,7 +232,7 @@
   <section class="fz-box" data-shop-together>
     <label class="al-switch">
       <input type="checkbox" checked={d.prefs.together} onchange={(e) => setTogether(e.currentTarget.checked)} data-shop-together-switch />
-      <span><b>{t('Together with the trip shopping')}</b><small class="fz-note">{t('On: the food of your next trip shows here too. Off: it stays only at the trip, under Plan › Shopping and charging.')}</small></span>
+      <span><b>{t('Together with the trip shopping')}</b><small class="fz-note">{t('On: the food of your next trip shows here too. Off: it stays only at the trip, in Pack › Shopping and charging list.')}</small></span>
     </label>
     {#if tripShop}
       {#if tripShop.rows.length}

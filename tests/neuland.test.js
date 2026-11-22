@@ -11,6 +11,7 @@ import {
 import { loadBase } from '../src/lib/neuland/load.js';
 import { computeNeuland, saveState, readState, cantonAt } from '../src/lib/neuland/store.js';
 import { decodeRing, inRings, lineKm, densify } from '../src/lib/neuland/geo.js';
+import { encodePolyline } from '../src/lib/spur/polyline.js';
 import DE from '../src/lib/i18n/de/neuland.js';
 
 afterEach(() => (lang.v = 'en'));
@@ -104,6 +105,25 @@ describe('finding what was new', () => {
   });
 });
 
+describe('Neuland and Heatmap read the same lines', () => {
+  it('a Strava ride with its line as encoded text counts, like on the Heatmap', async () => {
+    const tracks = tracksOf({ activities: [{ id: 'a1', day: '2026-07-04', type: 'Ride', line: encodePolyline(KLAUSEN) }], today: '2026-10-19' });
+    expect(tracks).toHaveLength(1);
+    expect(tracks[0]).toMatchObject({ day: '2026-07-04', src: 'activity', actId: 'a1' });
+    expect(tracks[0].pts.length).toBe(KLAUSEN.length);
+    const found = detect(await defsOf(['cantons', 'passes']), tracks);
+    expect(found.cantons.UR.day).toBe('2026-07-04');
+    expect(found.passes['p-klausenpass'].day).toBe('2026-07-04');
+  });
+  it('a recording of the app counts too; a day in the future does not', () => {
+    const rec = { id: 'x1', kind: 'rec', day: '2026-07-05', pts: KLAUSEN.map(([la, lo], i) => [la, lo, i * 60]) };
+    const later = { ...rec, id: 'x2', day: '2099-01-01' };
+    const tracks = tracksOf({ recordings: [rec, later, { kind: 'place', day: '2026-07-05', pts: KLAUSEN }], today: '2026-10-19' });
+    expect(tracks.map((x) => x.src)).toEqual(['rec']);
+    expect(tracks[0].pts).toHaveLength(KLAUSEN.length);
+  });
+});
+
 describe('the person always wins', () => {
   const items = [{ id: 'UR' }, { id: 'GL' }, { id: 'TI' }];
   const found = { cantons: { UR: { day: '2026-07-04', tripId: 't1', rideId: 'r1', years: { 2026: '2026-07-04' } }, GL: { day: '2026-07-04', tripId: 't1', rideId: 'r1', years: { 2026: '2026-07-04' } } } };
@@ -142,7 +162,7 @@ describe('collections: on and off, order, own ones', () => {
     expect(collectionsOf(s).every((c) => c.on)).toBe(true);
     s = moveCollection(s, 'lakes', -1);
     expect(collectionsOf(s).map((c) => c.id).slice(4, 6)).toEqual(['lakes', 'peaks']);
-    s = moveCollectionTo(s, 0, 6);
+    s = moveCollectionTo(s, 0, COLLECTIONS.length - 1);
     expect(collectionsOf(s).at(-1).id).toBe('cantons');
   });
   it('own collection: add, rename, items, delete moves the items to «Ohne Sammlung» or another one', () => {

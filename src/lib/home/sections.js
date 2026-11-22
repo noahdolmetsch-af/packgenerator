@@ -31,9 +31,11 @@ export const SECTIONS = [
 
 /** The area of each tile that is not small; a tile not named here goes by its catalog area (AREA_OF). */
 export const SECTION_OF = {
+  meinetour: 'now', // «Meine Tour» (Plan 2a): the planned tour stands on top of the first area
   meditation: 'now',
   moment: 'now', // «Heute als Begleiter» PR 4: the moment card sits in the first area, under the habits
   discover: 'now', // PR 5: «Discover» sits under the moment card
+  wochentraum: 'now', // «Traum der Woche» sits under it
   daycard: 'now',
   important: 'now',
   trip: 'now',
@@ -44,6 +46,7 @@ export const SECTION_OF = {
   vitals: 'body',
   vo2max: 'body',
   heutecheck: 'now',
+  spruch: 'now', // «Spruch zum Einstieg»: under the moment card in the first area
   values: 'body',
   du: 'body',
   aktiv: 'body',

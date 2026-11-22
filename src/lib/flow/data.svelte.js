@@ -20,6 +20,8 @@ import { HOME_PLACE, HOME_FORECAST, usable } from '../know.js';
 import { toWx } from '../weather.js';
 import { withStravaRides, notIgnored } from '../kmbook.js';
 import { msExtra } from './msdata.js';
+import { WEEKLOG_KEY } from '../training/wochenlog.js';
+import { WEEKPLAN_KEY } from '../training/wochenplan.js';
 import { BAGS_KEY, PACK_KEY, bagsOf, packsOf, packedDays } from '../flowbag.js';
 import { FIXED_KEY } from '../flowweek.js';
 
@@ -51,12 +53,17 @@ export function flowQuery(today) {
 }
 
 let seeding = false;
-/** Seed once when the data says so (a fresh start, or a restored backup without flow data). */
+/**
+ * Seed once when the data says so (a fresh start, or a restored backup without flow data). Seed 2 (the names, the
+ * favourites and the walk) comes with it: Noah 17.11.2026 «c» (UI-Test Flow, Fund 4): it no longer waits for a first tap on
+ * «Meditation» or a visit of «Aktivität», where the number of goals suddenly went from 10 to 11.
+ */
 export async function seedIfNeeded(data) {
-  if (!data || data.seeded || seeding) return;
+  if (!data || seeding || (data.seeded && data.seeded2 !== false)) return; // seeded2 is false only where the query reads it (flowQuery)
   seeding = true;
   try {
-    await ensureSeed(db);
+    if (!data.seeded) await ensureSeed(db);
+    await ensureSeed2(db);
   } finally {
     seeding = false;
   }
@@ -78,7 +85,7 @@ export function hobbyQuery(today) {
       db.flowSessions.toArray(),
       db.flowStars.toArray(),
       db.trips.toArray(),
-      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava', CHALLENGES_KEY]).toArray(),
+      db.settings.where('key').anyOf([TUNE_KEY, REWARD_KEY, HIDDEN_KEY, SEED2_KEY, 'flowSeeded', 'strava', CHALLENGES_KEY, WEEKLOG_KEY, WEEKPLAN_KEY]).toArray(),
       db.items.where('ownership').equals('wishlist').toArray(),
       db.rides.toArray(),
       db.settings.get(HOME_PLACE),
@@ -93,7 +100,7 @@ export function hobbyQuery(today) {
       db.bikes.toArray(),
     ]);
     const set = Object.fromEntries(sets.map((s) => [s.key, s.value]));
-    const extra = msExtra({ book, acts: stravaActs, ignore: set.strava?.ignore, health, checks, answers, trips, debriefs, bikes });
+    const extra = msExtra({ book, acts: stravaActs, ignore: set.strava?.ignore, health, checks, answers, trips, debriefs, bikes, weeklog: set[WEEKLOG_KEY] });
     const day = usable(place?.value, forecast) ? forecast.days?.find((d) => d.date === today) : null;
     const wx = day ? toWx([day]) : null;
     return {
@@ -111,6 +118,8 @@ export function hobbyQuery(today) {
       seeded: !!set.flowSeeded || acts.length > 0,
       seeded2: !!set[SEED2_KEY],
       extra, // package G: msContext({ extra }) on Aktiv, Meilensteine and the Vitrine (never on Heute)
+      plan: set[WEEKPLAN_KEY] ?? null, // «Dein nächster Stern»: the weekly plan and its ticks, only read (Meilensteine)
+      weeklog: set[WEEKLOG_KEY] ?? null,
       challenges: challengesOf(set[CHALLENGES_KEY]), // «Meilensteine als Belohnung»: the challenges of each sport (msContext({ challenges }))
     };
   });
@@ -187,16 +196,23 @@ export async function seedMed(data, actId) {
 
 /* ---------- v0.127.0 «Tages-Check» 1 (back with Noah 18.10.2026 «1 a und b»): the morning check and the evening review ---------- */
 /**
- * What the two check pages read: the flow records (activities, the log of 70 days, the checks of 30
- * days, the question pool), today's rides (files and counted Strava rides), the trips to come and
+ * The checks of the last 30 days, on their own. Tempo (Noah 05.11.2026 «a», «Verzögerung bei Eingaben»): every tap on
+ * the check page saves the day's row; if the big query below read the checks too, each tap read 12 tables anew
+ * (23–27 database calls). The checks are their own query, so a tap only reads these few rows.
+ */
+export function checksQuery(today) {
+  return liveQuery(() => db.flowChecks.where('day').aboveOrEqual(addDays(today, -30)).toArray());
+}
+
+/**
+ * What the two check pages read: the flow records (activities, the log of 70 days, the question pool), today's rides (files and counted Strava rides), the trips to come and
  * today's home weather from the saved forecast (never fetched here).
  */
 export function checkQuery(today) {
   return liveQuery(async () => {
-    const [acts, log, checks, pool, trips, rides, book, place, forecast, fixed, events, health] = await Promise.all([
+    const [acts, log, pool, trips, rides, book, place, forecast, fixed, events, health] = await Promise.all([
       db.flowActs.toArray(),
       db.flowLog.where('day').aboveOrEqual(addDays(today, -70)).toArray(),
-      db.flowChecks.where('day').aboveOrEqual(addDays(today, -30)).toArray(),
       db.settings.get(QUESTIONS_KEY),
       db.trips.toArray(),
       db.rides.where('date').equals(today).toArray(),
@@ -214,7 +230,6 @@ export function checkQuery(today) {
     return {
       acts: acts.map(normAct).sort((a, b) => a.order - b.order),
       log,
-      checks,
       pool: poolOf(pool?.value),
       trips: homeTrips(trips),
       tripDays: tripDays(homeTrips(trips), today, { rodeToday: await rodeOn(today) }),

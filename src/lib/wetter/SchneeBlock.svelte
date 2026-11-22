@@ -2,7 +2,7 @@
   /**
    * «Schneefallgrenze» on the weather page (Noah 04.11.2026 «3a 4a 5a»): in the card «Today» one line with the
    * snow line now (m above sea level) and its low and high over the day, six times from 6 to 21 h, a hint when
-   * the line is down to your own height, and two settings (your height, the line on Today). Nothing shows
+   * snow is possible at your own height (line down to it, precipitation expected, cold enough), and two settings (your height, the line on Today). Nothing shows
    * without a value. Kept answers are shown as they are (the page says «As of …»).
    * wetter-seite mounts it with one line.
    */
@@ -50,7 +50,7 @@
       <span><b data-snowline-now>{t('Snow line {m} m above sea level', { m: num(cur.m) })}</b>{#if range && range.min !== range.max}<small> · {t('today between {a} and {b} m', { a: num(range.min), b: num(range.max) })}</small>{/if}</span>
     </p>
     {#if hint}
-      <p class="sg-hint" role="status" data-snowline-hint><TriangleAlert size={16} aria-hidden="true" />{t('Snow possible down to your height when it rains: the line goes down to {m} m, your place is at {own} m.', { m: num(hint.m), own: num(hint.ownM) })}</p>
+      <p class="sg-hint" role="status" data-snowline-hint><TriangleAlert size={16} aria-hidden="true" />{hint.running ? t('Snow possible at your place: precipitation is expected, it is cold enough and the line goes down to {m} m. Your place is at {own} m.', { m: num(hint.m), own: num(hint.ownM) }) : t('Snow possible at your place from {h} h: precipitation is expected, it is cold enough and the line goes down to {m} m. Your place is at {own} m.', { h: hint.hour, m: num(hint.m), own: num(hint.ownM) })}</p>
     {/if}
     {#if slots.length}
       <ul class="sg-slots" aria-label={t('Snow line through the day')} data-snowline-slots>

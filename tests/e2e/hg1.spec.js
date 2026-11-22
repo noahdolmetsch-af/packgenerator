@@ -5,7 +5,7 @@
 // «Lena»); the clock stands on Friday 9 October 2026. The greeting words come from the app source.
 // (test titles stay plain ASCII: the upload of the fixture fails from an output folder with «» in its name)
 import { test, expect } from './clock.js';
-import { homeFixture, openHome } from './home0460-fixture.js';
+import { day, homeFixture, openHome } from './home0460-fixture.js';
 import { greetFor, helloTitle, HELLO_NIGHT, HELLO_TAP, HELLO_MOOD, HELLO_PLAN } from '../../src/lib/home/hallo.js';
 
 const NAME = 'Lena';
@@ -104,11 +104,11 @@ test('HG1d (2b): the tap opens the two questions; the answer lands in the histor
   const T = await openHome(page, context, info, { data: withName(), hour: 9 });
   const phone = info.project.name === 'phone';
 
-  // «Nicht jetzt» closes it and saves nothing
+  // «Fertig» without a tap saves nothing
   await page.locator('[data-hello-tap]').click();
   const sheet = page.locator('dialog[data-hello-sheet]');
   await expect(sheet).toBeVisible();
-  await sheet.getByRole('button', { name: T('Not now|hello') }).click();
+  await sheet.getByRole('button', { name: T('Done|hello') }).click();
   await expect(sheet).toHaveCount(0);
   await expect(page.locator('[data-hello-saved]')).toHaveCount(0);
 
@@ -122,6 +122,24 @@ test('HG1d (2b): the tap opens the two questions; the answer lands in the histor
   expect(colours).toHaveLength(1);
   await moods.getByRole('button', { name: 'Guet' }).click();
   await expect(moods.getByRole('button', { name: 'Guet' })).toHaveAttribute('aria-pressed', 'true');
+  // Gruss A: «Mehr» opens more buttons in groups; several at once; each tap is saved at once
+  await expect(sheet.locator('[data-hello-feel]')).toHaveCount(0);
+  await sheet.locator('[data-hello-more]').click();
+  await expect(sheet.locator('[data-feel-group="energy"]')).toBeVisible();
+  await expect(sheet.locator('[data-feel-group="feeling"]')).toBeVisible();
+  await sheet.locator('[data-feel="ruehig"]').click();
+  await sheet.locator('[data-feel="dankbar"]').click();
+  await expect(sheet.locator('[data-feel="ruehig"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(sheet.locator('[data-feel="dankbar"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect
+    .poll(() => page.evaluate(() => new Promise((res) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const g = r.result.transaction('abAnswers').objectStore('abAnswers').getAll();
+        g.onsuccess = () => (res(g.result.filter((x) => x.qid === 'hallo.gefuehl').map((x) => x.value)), r.result.close());
+      };
+    })))
+    .toEqual([['ruehig', 'dankbar']]);
   await sheet.getByRole('textbox', { name: HELLO_PLAN }).fill('Kurze Runde, dann ins Büro');
   const plans = sheet.getByRole('group', { name: HELLO_PLAN });
   await plans.getByRole('button', { name: 'Training' }).click();
@@ -132,7 +150,7 @@ test('HG1d (2b): the tap opens the two questions; the answer lands in the histor
   if (phone) expect(Math.abs(box.y + box.height - vp.height)).toBeLessThan(2);
   else expect(Math.abs(box.x + box.width / 2 - vp.width / 2)).toBeLessThan(2);
   await shot(page, info, 'hg1d-antippen');
-  await sheet.getByRole('button', { name: T('Save') }).click();
+  await sheet.getByRole('button', { name: T('Done|hello') }).click();
   await expect(sheet).toHaveCount(0);
   await expect(page.locator('[data-hello-saved]')).toHaveText(T('Saved in the history of «Your questions».'));
 
@@ -144,7 +162,209 @@ test('HG1d (2b): the tap opens the two questions; the answer lands in the histor
   await expect(vor).toContainText(HELLO_PLAN);
   await expect(vor).toContainText('Training · Arbeit');
   await expect(vor).toContainText('Kurze Runde, dann ins Büro');
+  await expect(page.locator('[data-row="hallo.gefuehl"]')).toContainText('Ruhig · Dankbar');
   await shot(page, info, 'hg1d-verlauf');
+  expect(errors).toEqual([]);
+});
+
+test('Gruss A: yesterday is marked quietly, a tap on the chosen button takes it back and the row goes', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const data = withName();
+  const y = day(-1);
+  data.tables.abAnswers = [
+    { id: 'test_hg_y1', qid: 'hallo.gaht', area: 'spass', day: y, at: `${y}T08:10`, slot: null, kind: 'chips', value: 'guet', note: null, unit: null, src: 'hand' },
+    { id: 'test_hg_y2', qid: 'hallo.gefuehl', area: 'spass', day: y, at: `${y}T08:10`, slot: null, kind: 'chips', value: ['stolz'], note: null, unit: null, src: 'hand' },
+  ];
+  const T = await openHome(page, context, info, { data, hour: 9 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  await expect(sheet.locator('[data-mood="guet"]')).toHaveClass(/yd/);
+  await expect(sheet.locator('[data-mood="guet"]')).toContainText(T('yesterday|hello'));
+  await expect(sheet.locator('[data-mood="okay"]')).not.toHaveClass(/yd/);
+  await sheet.locator('[data-hello-more]').click();
+  await expect(sheet.locator('[data-feel="stolz"]')).toHaveClass(/yd/);
+  await sheet.locator('[data-mood="super"]').click();
+  await sheet.locator('[data-feel="wach"]').click();
+  await sheet.locator('[data-feel="dankbar"]').click();
+  await sheet.locator('[data-plan="tour"]').click();
+  await shot(page, info, 'gruss-a-mehr');
+  await sheet.locator('[data-plan="tour"]').click();
+  await sheet.locator('[data-feel="wach"]').click();
+  await sheet.locator('[data-feel="dankbar"]').click();
+  await sheet.locator('[data-mood="super"]').click();
+  const count = () =>
+    page.evaluate(() => new Promise((res) => {
+      const r = indexedDB.open('pack-generator');
+      r.onsuccess = () => {
+        const g = r.result.transaction('abAnswers').objectStore('abAnswers').getAll();
+        g.onsuccess = () => (res(g.result.filter((x) => x.qid === 'hallo.gaht' && !x.id.startsWith('test_')).length), r.result.close());
+      };
+    }));
+  await sheet.locator('[data-mood="super"]').click();
+  await expect.poll(count).toBe(1);
+  await sheet.locator('[data-mood="super"]').click(); // second tap takes it back
+  await expect.poll(count).toBe(0);
+  expect(errors).toEqual([]);
+});
+
+test('Gruss C: the last 7 days as dots, today fills at the first tap; the weather in the head behind Mehr', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const data = withName();
+  const row = (id, n, key) => ({ id, qid: 'hallo.gaht', area: 'spass', day: day(n), at: `${day(n)}T08:10`, slot: null, kind: 'chips', value: key, note: null, unit: null, src: 'hand' });
+  data.tables.abAnswers = [row('test_hw1', -1, 'guet'), row('test_hw2', -2, 'muede'), row('test_hw3', -4, 'super')];
+  const T = await openHome(page, context, info, { data, hour: 9 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  const week = sheet.locator('[data-hello-week]');
+  await expect(week).toBeVisible();
+  await expect(week.locator('li')).toHaveCount(7);
+  await expect(week.locator(`li[data-day="${day(-1)}"]`)).toHaveAttribute('data-key', 'guet');
+  await expect(week.locator(`li[data-day="${day(-2)}"]`)).toHaveAttribute('data-key', 'muede');
+  await expect(week.locator(`li[data-day="${day(-3)}"]`)).toHaveAttribute('data-key', '');
+  await expect(week.locator(`li[data-day="${day(0)}"]`)).toHaveAttribute('data-key', '');
+  await expect(sheet.locator('[data-hello-week-count]')).toContainText(T('{n} of 7 days answered', { n: 3 }));
+  await sheet.locator('[data-mood="okay"]').click();
+  await expect(week.locator(`li[data-day="${day(0)}"]`)).toHaveAttribute('data-key', 'okay');
+  await expect(sheet.locator('[data-hello-week-count]')).toContainText(T('{n} of 7 days answered', { n: 4 }));
+  await shot(page, info, 'gruss-c-woche');
+  await sheet.locator('[data-hello-more]').click();
+  const weather = sheet.locator('[data-feel-group="weather"]');
+  await expect(weather).toContainText(T('Weather in my head|hello'));
+  await weather.locator('[data-feel="naebel"]').click();
+  await weather.locator('[data-feel="raegeboge"]').click();
+  await expect(weather.locator('[aria-pressed="true"]')).toHaveCount(2);
+  await shot(page, info, 'gruss-c-woche-wetter');
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
+const rowsOf = (page, qid) =>
+  page.evaluate(
+    (q) =>
+      new Promise((res) => {
+        const r = indexedDB.open('pack-generator');
+        r.onsuccess = () => {
+          const g = r.result.transaction('abAnswers').objectStore('abAnswers').getAll();
+          g.onsuccess = () => (res(g.result.filter((x) => x.qid === q && !x.id.startsWith('test_'))), r.result.close());
+        };
+      }),
+    qid,
+  );
+
+test('Gruss D: Woran liegts, counted only; in the morning the plan, in the evening the day', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const data = withName();
+  const grund = (id, n, value) => ({ id, qid: 'hallo.grund', area: 'spass', day: day(n), at: `${day(n)}T08:10`, slot: null, kind: 'chips', value, note: null, unit: null, src: 'hand' });
+  data.tables.abAnswers = [grund('test_hd1', -1, ['r-schlaf', 'r-arbeit']), grund('test_hd2', -3, ['r-schlaf'])];
+  const T = await openHome(page, context, info, { data, hour: 9 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  await expect(sheet.locator('[data-hello-ask]')).toHaveAttribute('data-hello-ask', 'plan');
+  await expect(sheet.locator('[data-dayword]')).toHaveCount(0);
+  await expect(sheet.locator('[data-hello-why-box]')).toHaveCount(0);
+  await sheet.locator('[data-hello-why]').click();
+  await expect(sheet.locator('[data-why]')).toHaveCount(5);
+  await expect(sheet.locator('[data-hello-named]')).toContainText(T('Named in the last 30 days: {list}', { list: 'Schlaf 2×, Arbeit 1×' }));
+  await sheet.locator('[data-why="r-wetter"]').click();
+  await sheet.locator('[data-why="r-koerper"]').click();
+  await sheet.locator('[data-plan="tour"]').click();
+  await expect.poll(async () => (await rowsOf(page, 'hallo.grund'))[0]?.value).toEqual(['r-wetter', 'r-koerper']);
+  expect((await rowsOf(page, 'hallo.vor'))[0]?.value).toEqual(['tour']);
+  await shot(page, info, 'gruss-d-woran');
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
+test('Gruss D: in the evening the greeting asks Wie wars instead of the plan', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { data: withName(), hour: 19 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  await expect(sheet.locator('[data-hello-ask]')).toHaveAttribute('data-hello-ask', 'day');
+  await expect(sheet.locator('[data-plan]')).toHaveCount(0);
+  await expect(sheet.locator('[data-dayword]')).toHaveCount(6);
+  await sheet.locator('[data-dayword="streng"]').click();
+  await sheet.locator('[data-dayword="schoen"]').click();
+  await sheet.locator('#hs-plan').fill('Lange Sitzung');
+  await expect.poll(async () => (await rowsOf(page, 'hallo.tag'))[0]?.value).toEqual(['streng', 'schoen']);
+  expect((await rowsOf(page, 'hallo.tag'))[0]?.note).toBe('Lange Sitzung');
+  expect(await rowsOf(page, 'hallo.vor')).toEqual([]);
+  await shot(page, info, 'gruss-d-abend');
+  await noSideways(page);
+  expect(errors).toEqual([]);
+});
+
+test('Gruss B: adjust the buttons: add with an emoji, rename, hide, delete with Undo, groups; the window and the history follow', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const T = await openHome(page, context, info, { data: withName(), hour: 9 });
+  await page.locator('[data-hello-tap]').click();
+  const sheet = page.locator('dialog[data-hello-sheet]');
+  await sheet.locator('[data-hello-adjust]').click();
+  const edit = sheet.locator('[data-hello-edit]');
+  await expect(edit).toBeVisible();
+  // add an own feeling with an emoji
+  const feeling = edit.locator('[data-hb-group="feeling"]');
+  await feeling.locator('[data-hb-emoji]').fill('🎨');
+  await feeling.locator('[data-hb-new="feeling"]').fill('Kreativ');
+  await feeling.getByRole('button', { name: T('Add'), exact: true }).click();
+  await expect(feeling.locator('[data-hb-list="feeling"] li').last()).toContainText('Kreativ');
+  // rename a built-in one
+  await feeling.locator('[data-hb="ruehig"] [data-hb-edit]').click();
+  const bs = page.locator('dialog[data-button-sheet]');
+  await bs.locator('[data-button-name]').fill('Gelassen');
+  await bs.locator('[data-button-save]').click();
+  await expect(feeling.locator('[data-hb="ruehig"]')).toContainText('Gelassen');
+  // hide one in the energy group, delete another
+  const energy = edit.locator('[data-hb-group="energy"]');
+  await energy.locator('[data-hb="platt"] [data-hb-hide]').click();
+  await expect(energy.locator('[data-hb="platt"]')).toContainText(T('hidden'));
+  await energy.locator('[data-hb="wach"] [data-hb-del]').click();
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(energy.locator('[data-hb="wach"]')).toHaveCount(0);
+  // a plan of your own, a face renamed and hidden
+  await edit.locator('[data-hb-new="plans"]').fill('Familie');
+  await edit.locator('form:has([data-hb-new="plans"])').getByRole('button', { name: T('Add'), exact: true }).click();
+  await expect(edit.locator('[data-hb-list="plans"] li').last()).toContainText('Familie');
+  await edit.locator('[data-hb="gahtso"] [data-hb-edit]').click();
+  await bs.locator('[data-button-name]').fill('Geht so');
+  await bs.locator('[data-button-save]').click();
+  await edit.locator('[data-hb="muede"] [data-hb-hide]').click();
+  // the whole energy group goes: its buttons go to «Ohne Gruppe»
+  await energy.locator('[data-hb-gdel]').click();
+  await page.getByRole('dialog', { name: T('Delete «{name}»?', { name: T('Energy|hello') }) }).getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(edit.locator('[data-hb-group="none"]')).toContainText('Platt');
+  await expect(edit.locator('[data-hb-group="energy"]')).toHaveCount(0);
+  await shot(page, info, 'gruss-b-anpassen');
+  // back to the window: it offers what is left
+  await sheet.locator('[data-hello-back]').click();
+  await expect(sheet.locator('[data-mood="muede"]')).toHaveCount(0);
+  await expect(sheet.locator('[data-mood="gahtso"]')).toContainText('Geht so');
+  await sheet.locator('[data-hello-more]').click();
+  await expect(sheet.locator('[data-feel-group="energy"]')).toHaveCount(0);
+  await expect(sheet.locator('[data-feel="wach"]')).toHaveCount(0);
+  await expect(sheet.locator('[data-feel="platt"]')).toHaveCount(0); // hidden
+  await expect(sheet.locator('[data-feel="ruehig"]')).toContainText('Gelassen');
+  await sheet.locator('[data-feel-group="feeling"] [data-feel]').last().click(); // the own «Kreativ»
+  await expect(sheet.locator('[data-feel-group="feeling"] [data-feel]').last()).toContainText('🎨');
+  await expect(sheet.locator('[data-plan]').last()).toContainText('Familie');
+  await sheet.locator('[data-feel="ruehig"]').click();
+  await sheet.getByRole('button', { name: T('Done|hello'), exact: true }).click();
+  // the history reads the own and renamed words; the same buttons stay after a reload
+  await page.goto('./#/me/history');
+  await expect(page.locator('[data-row="hallo.gefuehl"]')).toContainText('Gelassen');
+  await expect(page.locator('[data-row="hallo.gefuehl"]')).toContainText('Kreativ');
+  await page.reload();
+  await page.goto('./#/me/abfragen');
+  const section = page.locator('[data-hello-buttons]');
+  await section.locator('summary').click();
+  await expect(section.locator('[data-hb="own-nothing"]')).toHaveCount(0);
+  await expect(section.locator('[data-hb-list="feeling"] li').last()).toContainText('Kreativ');
+  await expect(section.locator('[data-hb="ruehig"]')).toContainText('Gelassen');
   expect(errors).toEqual([]);
 });
 

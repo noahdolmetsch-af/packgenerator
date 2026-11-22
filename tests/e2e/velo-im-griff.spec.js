@@ -9,6 +9,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openCareMore } from './pflege-mehr.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -55,6 +56,7 @@ test.beforeEach(async ({ page, context }, info) => {
 
 test('bike service: due by km, Service done with Undo, the sheet and the switch, the kind', async ({ page }) => {
   await page.goto(`./#/bikes?tab=care&bike=${BIKE.id}&open=1`);
+  await openCareMore(page);
   const card = page.locator('[data-velo-card]');
   await expect(card).toBeVisible();
   await expect(card.locator('[data-velo-service]')).toContainText(T('Service due'));
@@ -91,6 +93,7 @@ test('bike service: due by km, Service done with Undo, the sheet and the switch,
 
 test('part template: switch a part off, own parts added, moved, renamed, deleted and back', async ({ page }) => {
   await page.goto(`./#/bikes?tab=care&bike=${BIKE.id}&open=1`);
+  await openCareMore(page);
   await page.locator('[data-link-templates]').click();
   await expect(page.getByRole('heading', { level: 1, name: T('Part template') })).toBeVisible();
   await expect(page.locator('[data-tpl-bikes]')).toContainText(BIKE.name);
@@ -128,6 +131,7 @@ test('part template: switch a part off, own parts added, moved, renamed, deleted
 
 test('workshop cheat sheet: the torque note, own rows, a breakdown', async ({ page }) => {
   await page.goto(`./#/bikes?tab=care&bike=${BIKE.id}&open=1`);
+  await openCareMore(page);
   await page.locator('[data-link-spick]').click();
   await expect(page.getByRole('heading', { level: 1, name: T('Workshop cheat sheet') })).toBeVisible();
   await expect(page.locator('[data-spick-note]')).toContainText(T('Typical values only. The value printed on the part always wins.'));
@@ -158,6 +162,7 @@ test('workshop cheat sheet: the torque note, own rows, a breakdown', async ({ pa
 // Noah 19.10.2026 «1a und teile können eingeblendet werden oder ausgeblendet»: per bike, over the template
 test('parts of one bike: hide a part of its template, show one it does not have', async ({ page }) => {
   await page.goto(`./#/bikes?tab=care&bike=${BIKE.id}&open=1`);
+  await openCareMore(page);
   const card = page.locator('[data-velo-card]');
   await card.locator('[data-parts-fold]').click();
   const fork = card.locator('[data-bike-part="fork"] button');

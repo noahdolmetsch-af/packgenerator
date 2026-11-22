@@ -75,7 +75,10 @@ export function typicalOf(item) {
 
 /** The mAh in a name like «Powerbank 20000», «20'000 mAh» or «NB10000», «20k»; null if none. */
 export function mahFromName(item) {
-  const w = words(item).replace(/['’]/g, '');
+  // UI-Test T12 (G4-02): «20 000 mAh» (a space between the digit groups, also a thin or no-break space) is 20'000
+  const w = words(item)
+    .replace(/['’]/g, '')
+    .replace(/(\d{1,2})[\s\u00a0\u202f](\d{3})\b/g, '$1$2');
   const k = w.match(/\b(5|10|13|15|20|25|26|30)\s?k\b/);
   if (k) return Number(k[1]) * 1000;
   const m = w.match(/(\d{4,5})\s?(mah)?\b/);

@@ -14,7 +14,7 @@ export default {
   'stays on your devices; nobody else sees it.': 'bleiben auf deinen Geräten; niemand sonst sieht sie.',
   'Where you see it': 'Wo du es siehst:',
   'in the history': 'im Verlauf',
-  'in your insights': 'in deinen Erkenntnissen',
+  'in your insights': 'in deinen Zusammenhängen',
   'and in the Rückblick of a trip.': 'und im Rückblick einer Tour.',
   'comes with Fitbit': 'kommt mit Fitbit',
   'no comparison yet': 'noch kein Vergleich',

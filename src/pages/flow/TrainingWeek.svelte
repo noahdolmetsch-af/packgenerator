@@ -13,16 +13,23 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import KindIcon from '../../lib/strava/KindIcon.svelte';
   import ZoneBar from '../../lib/strava/ZoneBar.svelte';
+  import BarChart from '../../lib/charts/BarChart.svelte';
+  import ChartSheet from '../../lib/charts/ChartSheet.svelte';
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
+  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, WEEKS_KEY, cleanWeeks, weekTemplate, insertWeek, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, NEXTKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
-  import WeekAnalyses from '../../lib/training/week/WeekAnalyses.svelte';
-  import AnaSheet from '../../lib/training/AnaSheet.svelte';
+  import { weekLoadHint, scaleWeek } from '../../lib/training/suggest.js';
+  import NextWeek from '../../lib/training/plans/NextWeek.svelte'; // «Training verbessern» 8: «Next week» in the look back
+  import WeekSaved from '../../lib/training/plans/WeekSaved.svelte'; // «Training verbessern» 11: «My weeks»
+  import Library from '../../lib/training/plans/Library.svelte'; // «Training verbessern» 7: «From your library»
+  import WeekLoad from '../../lib/training/plans/WeekLoad.svelte'; // «Training verbessern» 6: «A lighter week would fit»
+  import Missed from '../../lib/training/plans/Missed.svelte'; // «Training verbessern» 5: «Missed one? Move it»
+  import TodayFits from '../../lib/training/plans/TodayFits.svelte'; // «Training verbessern» 4: «Today a lighter one fits»
   import FeelAsk from '../../lib/training/plans/FeelAsk.svelte'; // «Trainingspläne»: «How hard was it?» after each ride
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
   import { saveAct } from '../../lib/flowdb.js';
@@ -91,6 +98,119 @@
     offerDone(t('Suggestion for the week taken over.'), () => savePlan(before));
   }
 
+  // «Training verbessern» 4 «Heute passt»: the session of today becomes the lighter one; Undo puts it back
+  async function lighterToday(before, lighter) {
+    await db.settings.put({ key: TODAYKEEP_KEY, value: { day: today } }); // answered: the card does not offer it twice
+    await savePlan(plan.map((x) => (x.id === before.id ? lighter : x)));
+    offerDone(t('«{name}» made lighter.', { name: planName(before) }), async () => {
+      await db.settings.delete(TODAYKEEP_KEY);
+      await savePlan(plan.map((x) => (x.id === before.id ? before : x)));
+    });
+  }
+
+  // «Training verbessern» 8: the look back suggests next week (hours like last week, a little more, easier); a tap opens its suggestion
+  let nextPreset = $state(null);
+  const lastWeekHours = $derived(weekNumbers(acts, plan, shiftDay(mondayOf(today), -7), zones.bounds).secs / 3600);
+  // from Friday to Sunday, until next week is planned or «Not now» is tapped; it says why and shows the goals per sport
+  const nextMonday = $derived(shiftDay(mondayOf(today), 7));
+  const todayDow = $derived((new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7);
+  const nextKeepQ = liveQuery(async () => (await db.settings.get(NEXTKEEP_KEY))?.value ?? null);
+  const nextPlanned = $derived(plan.some((s) => s.day >= nextMonday && s.day < shiftDay(nextMonday, 7)));
+  const showNext = $derived(monday === mondayOf(today) && todayDow >= 4 && !nextPlanned && $nextKeepQ?.monday !== mondayOf(today));
+  const lastPlanned = $derived(plan.filter((s) => s.day >= shiftDay(mondayOf(today), -7) && s.day < mondayOf(today)));
+  const lastMissed = $derived(lastPlanned.filter((s) => !doneOf(s, acts.filter((a) => a.day === s.day))));
+  const nextReason = $derived(
+    lastMissed.length
+      ? tn(lastMissed.length, '1 planned session did not happen last week.', '{n} planned sessions did not happen last week.')
+      : lastPlanned.length
+        ? t('All planned sessions of last week were done.')
+        : t('Nothing was planned last week: the hours you trained count.'),
+  );
+  const nextGoals = $derived(
+    Object.entries(sportGoals)
+      .filter(([, n]) => n > 0)
+      .map(([id, n]) => ({ id, n, name: sportName(sportById(id)) }))
+      .filter((g) => g.name),
+  );
+  const laterNext = () => db.settings.put({ key: NEXTKEEP_KEY, value: { monday: mondayOf(today) } });
+  function pickNext(h) {
+    monday = shiftDay(mondayOf(today), 7);
+    nextPreset = { hours: h, n: Date.now() };
+    setTimeout(() => document.getElementById('plan-h')?.scrollIntoView?.({ block: 'start' }), 50);
+  }
+
+  // «Training verbessern» 7 «Einheiten-Bibliothek»: keep a session, plan it again with one tap, rename, delete (Undo)
+  const libQ = liveQuery(async () => (await db.settings.get(LIBRARY_KEY))?.value ?? null);
+  const library = $derived(libraryOf($libQ, t));
+  const saveLibrary = (v) => db.settings.put({ key: LIBRARY_KEY, value: cleanLibrary(v) });
+  function pickFromLibrary(e) {
+    form = { ...form, kind: e.kind, name: e.name, mins: e.mins, zone: e.zone ?? 0, sport: e.sport ?? '' };
+    saveLibrary(library.map((x) => (x.id === e.id ? { ...x, uses: x.uses + 1 } : x))); // «Most used first»
+  }
+  async function saveToLibrary() {
+    const name = (form.name ?? '').trim() || (form.sport ? sportName(sportById(form.sport)) : '') || t(KIND_NAMES[form.kind]);
+    const mins = Math.round(Number(form.mins));
+    if (!(mins > 0)) return;
+    await saveLibrary([...library, { id: `lib-${Date.now().toString(36)}`, name, kind: form.kind, mins, zone: form.zone || null, sport: form.kind === 'other' ? form.sport : '', group: '', uses: 0 }]);
+    offerDone(t('«{name}» kept in the library.', { name }));
+  }
+  // every change of the library (rename, move, group, delete) offers Undo
+  function changeLibrary(list, msg) {
+    const before = library;
+    saveLibrary(list);
+    if (msg) offerDone(msg, () => saveLibrary(before));
+  }
+
+  // «Training verbessern» 11 «Ganze Wochen merken»: keep the week as a template, put a kept week in (add or replace), Undo for every change
+  const weeksQ = liveQuery(async () => (await db.settings.get(WEEKS_KEY))?.value ?? null);
+  const keptWeeks = $derived(cleanWeeks($weeksQ));
+  const saveWeeks = (v) => db.settings.put({ key: WEEKS_KEY, value: cleanWeeks(v) });
+  async function keepWeek(name, group) {
+    const stored = cleanWeeks((await db.settings.get(WEEKS_KEY))?.value);
+    const items = weekTemplate(sessions, monday, planName);
+    if (!items.length) return;
+    await saveWeeks([...stored, { id: `wk-${Date.now().toString(36)}`, name, group, uses: 0, items }]);
+    offerDone(t('«{name}» kept as a week.', { name }));
+  }
+  function changeWeeks(list, msg) {
+    const before = keptWeeks;
+    saveWeeks(list);
+    if (msg) offerDone(msg, () => saveWeeks(before));
+  }
+  async function putWeek(w, mode) {
+    const stored = planOf(await db.settings.get(PLAN_KEY)); // the stored rows, not the derived ones (the page may have opened a moment ago)
+    const before = stored;
+    await savePlan(insertWeek(stored, w, monday, mode, (s) => !!doneOf(s, acts.filter((a) => a.day === s.day))));
+    saveWeeks(keptWeeks.map((x) => (x.id === w.id ? { ...x, uses: x.uses + 1 } : x)));
+    offerDone(mode === 'replace' ? t('«{name}» replaces the sessions of this week.', { name: w.name }) : t('«{name}» added to this week.', { name: w.name }), () => savePlan(before));
+  }
+
+  // «Training verbessern» 6 «Wochenlast-Wächter»: the planned week against the 3 weeks before; «Shorten» scales what is still to come (Undo)
+  const loadHint = $derived(monday >= mondayOf(today) ? weekLoadHint([3, 2, 1].map((n) => Math.round(weekNumbers(acts, plan, shiftDay(monday, -7 * n), zones.bounds).secs / 60)), nums.planned) : null);
+  async function shortenWeek(h) {
+    const before = plan;
+    await db.settings.put({ key: LOADKEEP_KEY, value: { monday } }); // answered: the card does not offer it twice
+    await savePlan(scaleWeek(plan, { monday, today, target: h.target }));
+    offerDone(t('Week shortened.'), async () => {
+      await db.settings.delete(LOADKEEP_KEY);
+      await savePlan(before);
+    });
+  }
+
+  // «Training verbessern» 5 «Verpasst? Verschieben»: planned earlier this week, not done: move to a day that is left, or let go (Undo)
+  const missed = $derived(plan.filter((s) => s.day >= mondayOf(today) && s.day < today && !doneOf(s, acts.filter((a) => a.day === s.day))));
+  const targets = $derived(Array.from({ length: 7 }, (_, i) => shiftDay(today, i)).filter((d) => d < shiftDay(mondayOf(today), 7)).map((d, i) => ({ day: d, label: i === 0 ? t('Today|missed') : fmt(d, { weekday: 'short' }) })));
+  async function moveMissed(s, day) {
+    const before = plan;
+    await savePlan(plan.map((x) => (x.id === s.id ? { ...x, day } : x)));
+    offerDone(t('«{name}» moved.', { name: planName(s) }), () => savePlan(before));
+  }
+  async function skipMissed(s) {
+    const before = plan;
+    await savePlan(plan.filter((x) => x.id !== s.id));
+    offerDone(t('«{name}» let go.', { name: planName(s) }), () => savePlan(before));
+  }
+
   let monday = $state(mondayOf(today));
   const days = $derived(weekOf(monday));
   const sessions = $derived(plan.filter((s) => s.day >= monday && s.day < shiftDay(monday, 7)));
@@ -153,7 +273,23 @@
   );
   // Impeccable runde 2 (onboard): six empty weeks get one sentence and the way to Strava instead of an empty chart
   const backEmpty = $derived(weeks.every((w) => !w.secs && !w.planned));
-  const top = $derived(Math.max(1, ...weeks.map((w) => Math.max(w.secs / 3600, w.planned / 60, goal?.hours ?? 0))));
+  // «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the look back is the shared bar chart, hours per week stacked by
+  // zone, the plan as the line; a tap opens the week with the hours of every zone, «As table» lists the weeks.
+  const ZONE_COLOR = ['var(--z1)', 'var(--z2)', 'var(--z3)', 'var(--z4)', 'var(--z5)'];
+  const h2 = (secs) => Math.round((secs / 3600) * 100) / 100;
+  const weekName = (w) => t('Week {kw}', { kw: w.kw });
+  const wCols = $derived(
+    weeks.map((w) => ({
+      key: w.m,
+      x: t('Wk {n}', { n: w.kw }),
+      top: w.secs ? hmm(w.secs) : '',
+      parts: [...w.zones.map((s, k) => ({ v: h2(s), color: ZONE_COLOR[k] })), { v: h2(w.unknown ?? 0), color: 'var(--bar)' }],
+    })),
+  );
+  const wLine = $derived(weeks.some((w) => w.planned) ? weeks.map((w) => (w.planned ? Math.round((w.planned / 60) * 100) / 100 : null)) : null);
+  const wRead = (i) => ({ title: weekName(weeks[i]), items: [{ label: t('Done|week'), value: `${hmm(weeks[i].secs)} h`, color: 'var(--z2)' }, ...(weeks[i].planned ? [{ label: t('Planned'), value: `${hours(weeks[i].planned)} h` }] : [])] });
+  const wTable = $derived({ head: [t('Week'), t('Done|week'), t('Planned')], rows: [...weeks].reverse().map((w) => ({ key: w.m, cells: [weekName(w), `${hmm(w.secs)} h`, w.planned ? `${hours(w.planned)} h` : '–'] })) });
+  let wSel = $state(null);
   const baseShare = $derived.by(() => {
     const z = nums.zones.reduce((s, x) => s + x, 0);
     return z ? Math.round(((nums.zones[0] + nums.zones[1]) / z) * 100) : null;
@@ -163,8 +299,11 @@
 <div class="wk">
   <!-- «Aktiv sichtbar» (332 Use Cases, Noah 25.10.2026 «fange mit dem bereich aktiv an»): the week plan, the week in
        review and the training plans stand 2 screens down; one chip row on top -->
-  <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('Plan the week') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', jump: '#wka-h', label: t('Power and analyses') }]} />
+  <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('My week|plan') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', href: '#/flow/training?view=ana', label: t('Power and analyses') }]} />
   <FeelAsk {acts} {today} />
+  <WeekLoad hint={loadHint} {monday} planned={nums.planned} {hours} onshorten={shortenWeek} />
+  <Missed {missed} {targets} name={planName} {hours} dayLabel={(d) => fmt(d, { weekday: 'long' })} onmove={moveMissed} onskip={skipMissed} />
+  <TodayFits {plan} {today} level={$formQ?.ready?.level ?? null} name={planName} onlighter={lighterToday} />
   <section class="card goal" aria-labelledby="goal-h" data-section="goal">
     <span class="gi" aria-hidden="true"><Target size={22} /></span>
     {#if goalForm}
@@ -204,7 +343,9 @@
 
   <div class="lay">
     <!-- Impeccable runde 2 (clarify): the explanation stands above the days; the week and its hours sit by the week arrows -->
-    <Sec id="plan-h" title={t('Plan the week')} sub={t('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).')} more={{ href: '#/flow/plans', label: t('Training plans') }}>
+    <!-- UI-Test Training 17.11.2026 (Fund 3): this card is the week by hand, so it is not called «Woche planen» (that is the
+         place Planen › Woche); the way to the automatic «Wochenplan» stands beside the training plans -->
+    <Sec id="plan-h" title={t('My week|plan')} sub={t('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).')} edit={{ href: '#/flow/wochenplan', label: t('Weekly plan') }} more={{ href: '#/flow/plans', label: t('Training plans') }}>
       <div class="card plan" data-section="week-plan">
         <div class="nav">
           <span class="rg num" data-week-range>{goal?.hours ? t('{range} · planned {a} of {b} h', { range, a: hours(nums.planned), b: hours(goal.hours * 60) }) : t('{range} · planned {a} h', { range, a: hours(nums.planned) })}</span>
@@ -225,7 +366,7 @@
                 {/each}
                 {#each planned as s (s.id)}
                   {@const by = doneOf(s, done)}
-                  <button type="button" class="ch plan" class:ok={by} onclick={() => edit(s)} data-planned={s.id}><KindIcon kind={s.kind} size={14} /><span class="cn">{planName(s)}</span><span class="num">· {hours(s.mins)}</span>{#if s.zone}<i class="zt z{s.zone}">Z{s.zone}</i>{/if}{#if by}<span class="sr">{t('done')}</span><Check size={14} aria-hidden="true" />{/if}</button>
+                  <button type="button" class="ch plan" class:ok={by} onclick={() => edit(s)} data-planned={s.id}><KindIcon kind={s.kind} size={14} /><span class="cn">{planName(s)}</span>{#if s.src === 'tp'}<i class="tpm" title={t('From TrainingPeaks')} aria-label={t('From TrainingPeaks')}>TP</i>{/if}<span class="num">· {hours(s.mins)}</span>{#if s.zone}<i class="zt z{s.zone}">Z{s.zone}</i>{/if}{#if by}<span class="sr">{t('done')}</span><Check size={14} aria-hidden="true" />{/if}</button>
                 {/each}
                 <button type="button" class="ch add" aria-label={t('Plan a session on {day}', { day: fmt(d, { weekday: 'long' }) })} onclick={() => add(d)} data-add={d}><Plus size={14} aria-hidden="true" /></button>
               </span>
@@ -247,7 +388,7 @@
                         <span class="row"><button type="button" class="btn sm" onclick={addSport} data-sport-save>{t('Add')}</button><button type="button" class="btn btn-link sm" onclick={() => (newSport = null)}>{t('Cancel')}</button></span>
                       {/if}
                     </div>
-                    <p class="hint">{t('Your sports are the ones from «Meine Sportarten». Done is ticked as soon as you tick the sport in Aktiv.')}</p>
+                    <p class="hint">{t('Your sports are the ones from «Meine Aktivitäten». Done is ticked as soon as you tick the sport in Aktiv.')}</p>
                   {/if}
                   <div class="sfl">
                     <label>{t('Name (optional)')}<input class="inp" bind:value={form.name} placeholder={t('e.g. Intervals 4 × 6 min')} data-session-name /></label>
@@ -259,6 +400,7 @@
                       </select>
                     </label>
                   </div>
+                  <Library items={library} canSave {hours} onpick={pickFromLibrary} onsave={saveToLibrary} onchange={changeLibrary} />
                   <div class="row">
                     <button type="submit" class="btn hi sm">{t('Save')}</button>
                     {#if form.id}<button type="button" class="btn sm" onclick={() => markDone(!form.done)} data-session-done><Check size={16} aria-hidden="true" />{form.done ? t('Not done yet') : t('Done|session')}</button>{/if}
@@ -270,9 +412,11 @@
             </li>
           {/each}
         </ul>
+        {#if !plan.some((s) => s.src === 'tp')}<p class="tplink"><a href="#/me/connections" data-tp-jump>{t('Plan in TrainingPeaks? Read it in')} ›</a></p>{/if}
         {#if !sessions.length && lastHad}<button type="button" class="btn sm like" onclick={likeLast}><Copy size={16} aria-hidden="true" />{tn(lastHad, 'Like last week (1 session)', 'Like last week ({n} sessions)')}</button>{/if}
         {#if sessions.length}<p class="hint">{t('Tap a planned one to change it.')}</p>{/if}
-        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} />
+        <WeekSaved items={keptWeeks} canKeep hasSessions={sessions.length > 0} weekdays={days.map((d) => fmt(d, { weekday: 'short' }))} {hours} onkeep={keepWeek} onput={putWeek} onchange={changeWeeks} />
+        <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} preset={nextPreset} />
       </div>
     </Sec>
 
@@ -282,31 +426,28 @@
           <p class="none" data-back-empty>{t('No training time in the last 6 weeks yet. As soon as Strava brings an activity with heart rate, a bar per week stands here.')}</p>
           <a class="btn sm" href={STRAVA_HASH} data-back-strava>{strava.key ? t('To Strava') : t('Connect Strava')}</a>
         {:else}
-        <ol class="bars" aria-label={t('Hours per week, last six weeks')}>
-          {#each weeks as w (w.m)}
-            <li data-week={w.kw} aria-label={t('Week {kw}: {a} h done, {b} h planned', { kw: w.kw, a: hmm(w.secs), b: hours(w.planned) })}>
-              <span class="col" aria-hidden="true">
-                {#if w.planned}<i class="pl" style:bottom="{(w.planned / 60 / top) * 100}%"></i>{/if}
-                <span class="stack" style:height="{(w.secs / 3600 / top) * 100}%">
-                  {#if w.unknown}<i class="un" style:flex-grow={w.unknown}></i>{/if}
-                  {#each [...w.zones].reverse() as s, k (k)}{#if s}<i class="z{5 - k}" style:flex-grow={s}></i>{/if}{/each}
-                </span>
-              </span>
-              <small class="num">{t('Wk {n}', { n: w.kw })}</small>
-            </li>
-          {/each}
-        </ol>
+        <BarChart id="lookback" cols={wCols} line={wLine} lineColor="var(--ink)" readout={wRead} table={wTable} unit="h" label={t('Hours per week, last six weeks')} onopen={(i) => (wSel = i)} hint={t('Point at a week for its hours, tap it for the zones.')} />
         <ZoneBar bar={false} legend />
         <p class="tw num" data-this-week>{goal?.hours ? t('This week {a} of {b} h', { a: hmm(nums.secs), b: hours(goal.hours * 60) }) : t('This week {a} h', { a: hmm(nums.secs) })}{#if baseShare != null}{' · '}{goal?.base != null ? t('Z1–Z2 {n} % (goal {g} %)', { n: baseShare, g: goal.base }) : t('Z1–Z2 {n} %', { n: baseShare })}{/if}</p>
+        {#if showNext}<NextWeek last={lastWeekHours} reason={nextReason} goals={nextGoals} hours={(h) => `${num(h)} h`} onpick={pickNext} onlater={laterNext} />{/if}
         {/if}
         <p class="fb"><span><Timer size={16} aria-hidden="true" />{t('Active zone minutes')} <i class="pill">{t('with Fitbit')}</i></span><span><Heart size={16} aria-hidden="true" />{t('Resting heart rate')} <i class="pill">{t('with Fitbit')}</i></span></p>
       </div>
     </Sec>
   </div>
 
-  <WeekAnalyses {acts} {today} />
 </div>
-<AnaSheet />
+{#if wSel != null && weeks[wSel]}
+  {@const w = weeks[wSel]}
+  <ChartSheet kicker={t('Hours per week by zone')} title={weekName(w)} onclose={() => (wSel = null)} onprev={wSel > 0 ? () => wSel-- : null} onnext={wSel < weeks.length - 1 ? () => wSel++ : null} prevLabel={t('Week before')} nextLabel={t('Next week')}>
+    <ul class="shl" data-lookback-sheet>
+      <li><span>{t('Done|week')}</span><b class="num">{hmm(w.secs)} h</b></li>
+      {#if w.planned}<li><span>{t('Planned')}</span><b class="num">{hours(w.planned)} h</b></li>{/if}
+      {#each w.zones as s, k (k)}{#if s}<li><span>Z{k + 1}</span><b class="num">{hmm(s)} h</b></li>{/if}{/each}
+    </ul>
+  </ChartSheet>
+{/if}
+
 
 <style>
   .race-row {
@@ -450,7 +591,7 @@
     align-items: center;
     gap: 6px;
     min-height: 40px;
-    padding: 0 12px;
+    padding: 6px 12px;
     border: 1px dashed var(--line-strong);
     border-radius: var(--radius);
     background: var(--paper);
@@ -465,14 +606,26 @@
   }
   .ch > :global(svg),
   .ch .num,
+  .tplink {
+    margin: var(--sp-2) 0 0;
+    font-size: var(--fs-small);
+  }
+  .tpm {
+    font: 600 var(--fs-small)/1 var(--font-body);
+    font-style: normal;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+  }
   .zt {
     flex: none;
   }
+  /* a long session name wraps onto a second line instead of ending in «…» (UI-Test Training, Fund 7) */
   .cn {
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: break-word;
+    text-align: left;
   }
   .ch.done,
   .ch.plan.ok {
@@ -510,51 +663,21 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .bars {
+  .shl {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 12px;
-    margin: 8px 0 10px;
+    gap: 6px;
+    margin: 0 0 10px;
     padding: 0;
     list-style: none;
   }
-  .bars li {
+  .shl li {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
-  .col {
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-    width: 100%;
-    height: 120px;
-  }
-  .stack {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-height: 0;
-    border-radius: 4px 4px 0 0;
-    overflow: hidden;
-  }
-  .stack i {
-    flex: 1 1 0;
-  }
-  .pl {
-    position: absolute;
-    left: -2px;
-    right: -2px;
-    height: 2px;
-    background: var(--ink);
-  }
-  .bars small {
+  .shl span {
     color: var(--ink-2);
-    font-size: var(--fs-tiny);
-  }
-  .un {
-    background: var(--bar);
   }
   .z1 {
     background: var(--z1);

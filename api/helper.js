@@ -158,10 +158,121 @@ const DIARY_SYSTEM = {
   },
 };
 
+/**
+ * «Mit der App sprechen» (Noah 07.11.2026 «1b 2a 3a 4a 5a», Etappe 2): input.mode 'command' turns ONE sentence into
+ * actions from a fixed list. Gemini only translates; it never runs anything. `context` holds today's date and the
+ * names of the bikes and trips (nothing else). The answer is JSON { actions: [...] }; commandText() keeps only the
+ * kinds and fields listed here, bounded, and the app checks everything once more before it writes anything.
+ */
+export const COMMAND_MODE = 'command';
+export const COMMAND_KINDS = ['list', 'todo', 'note', 'value', 'care', 'plan', 'weather'];
+const COMMAND_SYSTEM = {
+  de: `Du übersetzt EINEN Satz der Person in Aktionen der App «Pack Generator». Antworte nur mit JSON: {"actions":[...]}.
+Erlaubte Aktionen (kind): 
+- list: eine Liste mit Punkten. Felder: name (kurz), points (Liste von Texten, in der Reihenfolge des Satzes, ohne «erstens»).
+- todo: eine einzelne Aufgabe oder Erinnerung. Felder: text, due (YYYY-MM-DD, nur wenn ein Tag genannt ist; «today» steht im Kontext).
+- note: eine Notiz. Feld: text.
+- value: ein Messwert. Felder: valueKind («weight» in kg, «pulse» Ruhepuls, «sleep» Schlaf 1 bis 10), value (Zahl).
+- care: Velopflege gemacht. Felder: careKind («chain» Kette gepflegt oder gewachst, «sealant» Dichtmilch, «wash» Velo gewaschen), bike (Name aus «bikes», sonst leer).
+- plan: eine Tour planen. Felder: title, days (1 bis 30), start (YYYY-MM-DD).
+- weather: Wetter ansehen. Feld: place.
+Mehrere Dinge in einem Satz geben mehrere Aktionen, höchstens 8. Erfinde nichts, nimm nur, was im Satz steht. Ist der Satz keine Anweisung (eine Frage, Smalltalk) oder passt keine Aktion, gib {"actions":[]}. Texte auf Schweizer Hochdeutsch («ss», nie «ß»), Wörter der Person unverändert.`,
+  en: `You translate ONE sentence of the person into actions of the app "Pack Generator". Answer only with JSON: {"actions":[...]}.
+Allowed actions (kind):
+- list: a list with points. Fields: name (short), points (texts in the order of the sentence, without «firstly»).
+- todo: one task or reminder. Fields: text, due (YYYY-MM-DD, only when a day is named; "today" is in the context).
+- note: a note. Field: text.
+- value: a measurement. Fields: valueKind ("weight" in kg, "pulse" resting pulse, "sleep" 1 to 10), value (number).
+- care: bike care done. Fields: careKind ("chain" chain cared for or waxed, "sealant", "wash" bike washed), bike (a name from "bikes", else empty).
+- plan: plan a trip. Fields: title, days (1 to 30), start (YYYY-MM-DD).
+- weather: look at the weather. Field: place.
+Several things in one sentence give several actions, at most 8. Invent nothing, take only what the sentence says. If the sentence is no instruction (a question, small talk) or no action fits, answer {"actions":[]}. Keep the person's words unchanged.`,
+};
+const COMMAND_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    actions: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          kind: { type: 'STRING', enum: COMMAND_KINDS },
+          name: { type: 'STRING' },
+          points: { type: 'ARRAY', items: { type: 'STRING' } },
+          text: { type: 'STRING' },
+          due: { type: 'STRING' },
+          valueKind: { type: 'STRING', enum: ['weight', 'pulse', 'sleep'] },
+          value: { type: 'NUMBER' },
+          careKind: { type: 'STRING', enum: ['chain', 'sealant', 'wash'] },
+          bike: { type: 'STRING' },
+          title: { type: 'STRING' },
+          days: { type: 'NUMBER' },
+          start: { type: 'STRING' },
+          place: { type: 'STRING' },
+        },
+        required: ['kind'],
+      },
+    },
+  },
+  required: ['actions'],
+};
+const str = (x, max) => (typeof x === 'string' ? x.replace(/\s+/g, ' ').trim().slice(0, max) : '');
+const day = (x) => (/^\d{4}-\d{2}-\d{2}$/.test(String(x ?? '')) ? x : '');
+const num = (x) => (typeof x === 'number' && Number.isFinite(x) ? x : null);
+
+/**
+ * The answer text of a 'command' job, cleaned: JSON { actions } with only the allowed kinds and fields, bounded.
+ * Anything that is not that JSON gives '' (→ 502 no_answer). The app still checks every value itself.
+ */
+export function commandText(text) {
+  let data;
+  try {
+    data = JSON.parse(String(text ?? '').replace(/^```(?:json)?\s*|\s*```$/g, ''));
+  } catch {
+    return '';
+  }
+  if (!Array.isArray(data?.actions)) return '';
+  const actions = [];
+  for (const a of data.actions.slice(0, 8)) {
+    if (!COMMAND_KINDS.includes(a?.kind)) continue;
+    const o = { kind: a.kind };
+    if (a.kind === 'list') {
+      o.name = str(a.name, 60);
+      o.points = (Array.isArray(a.points) ? a.points : []).map((x) => str(x, 80)).filter(Boolean).slice(0, 40);
+      if (!o.name && !o.points.length) continue;
+    } else if (a.kind === 'todo' || a.kind === 'note') {
+      o.text = str(a.text, a.kind === 'note' ? 300 : 120);
+      if (!o.text) continue;
+      if (a.kind === 'todo' && day(a.due)) o.due = a.due;
+    } else if (a.kind === 'value') {
+      if (!['weight', 'pulse', 'sleep'].includes(a.valueKind) || num(a.value) == null) continue;
+      o.valueKind = a.valueKind;
+      o.value = a.value;
+    } else if (a.kind === 'care') {
+      if (!['chain', 'sealant', 'wash'].includes(a.careKind)) continue;
+      o.careKind = a.careKind;
+      o.bike = str(a.bike, 60);
+    } else if (a.kind === 'plan') {
+      o.title = str(a.title, 80);
+      if (num(a.days) != null) o.days = Math.min(30, Math.max(1, Math.round(a.days)));
+      if (day(a.start)) o.start = a.start;
+    } else if (a.kind === 'weather') o.place = str(a.place, 60);
+    actions.push(o);
+  }
+  return JSON.stringify({ actions });
+}
+
 /** The Gemini request: a short system line, the question and (when ticked) the person's own context. */
 export function geminiRequest({ question = '', context = '', lang = 'de', mode = '' } = {}) {
   const de = lang !== 'en';
   const diary = DIARY_MODES.includes(mode);
+  if (mode === COMMAND_MODE) {
+    return {
+      systemInstruction: { parts: [{ text: COMMAND_SYSTEM[de ? 'de' : 'en'] }] },
+      contents: [{ role: 'user', parts: [{ text: context ? `${question}\n\n${context}` : question }] }],
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.1, responseMimeType: 'application/json', responseSchema: COMMAND_SCHEMA },
+    };
+  }
   const system = diary
     ? DIARY_SYSTEM[de ? 'de' : 'en'][mode]
     : de
@@ -186,13 +297,14 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
   async function gemini(request, cfg, input) {
     const question = typeof input?.question === 'string' ? input.question.trim().slice(0, 600) : '';
     const diary = DIARY_MODES.includes(input?.mode);
+    const command = input?.mode === COMMAND_MODE;
     if (question.length < 3) throw new ApiError(400, 'bad_request', 'gemini needs a question.');
     if (!cfg.geminiKey) throw new ApiError(503, 'not_set_up', 'Gemini is not set up on the server (GEMINI_API_KEY is missing).');
     const store = needStore(cfg, doFetch);
     const key = geminiKey(dayKey(now()));
     const used = Number(await store.get(key)) || 0;
     if (used >= cfg.geminiDaily) throw new ApiError(429, 'daily_limit', 'Gemini has answered enough for today.');
-    const body = JSON.stringify(geminiRequest({ question, context: typeof input.context === 'string' ? input.context.slice(0, diary ? DIARY_CONTEXT : 2000) : '', lang: input.lang === 'en' ? 'en' : 'de', mode: diary ? input.mode : '' }));
+    const body = JSON.stringify(geminiRequest({ question, context: typeof input.context === 'string' ? input.context.slice(0, diary ? DIARY_CONTEXT : 2000) : '', lang: input.lang === 'en' ? 'en' : 'de', mode: diary ? input.mode : command ? COMMAND_MODE : '' }));
     const got = await askGeminiModels({ doFetch, key: cfg.geminiKey, models: [cfg.geminiModel, ...(cfg.geminiFallbacks ?? GEMINI_DEFAULT_FALLBACKS)], body, wait });
     if (got.calls) {
       await store.incrbyfloat(key, got.calls);
@@ -205,7 +317,7 @@ export function makeHandler({ env = () => helperEnv(), doFetch = (...a) => fetch
     if (got.failure === 'unreachable') throw new ApiError(502, 'upstream_unreachable', 'Gemini could not be reached.');
     if (got.failure) throw new ApiError(502, 'upstream_error', 'Gemini answered with an error.');
     const { msg } = got;
-    const text = geminiText(msg, diary ? DIARY_CONTEXT : 3000);
+    const text = command ? commandText(geminiText(msg, 6000)) : geminiText(msg, diary ? DIARY_CONTEXT : 3000);
     if (!text) throw new ApiError(502, 'no_answer', 'Gemini gave no usable answer.');
     return json(request, 200, { ok: true, task: 'gemini', result: { text } });
   }

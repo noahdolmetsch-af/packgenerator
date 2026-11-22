@@ -334,6 +334,9 @@ export function absorbBags(trip, containers, fixtures = []) {
 // v0.37.0 (Noah 4a): except a bag that is also an item (a vest with pockets): it stays in the lists.
 export const bagItemIds = (containers) => new Set(containers.filter((c) => !c.alsoItem).map((c) => c.itemId).filter(Boolean));
 
+/** JSON with sorted keys: two trips with the same content give the same text, whatever the order of their fields. */
+const stable = (v) => JSON.stringify(v, (_, x) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.keys(x).sort().map((k) => [k, x[k]])) : x));
+
 /**
  * Start-up step: trips from the Excel import get a bike, a bag setup and a ready check,
  * their entries use `slot` instead of `container`, and bags packed as items move to the setup.
@@ -351,6 +354,7 @@ export async function ensureTrips(db, today = localDay()) {
       // v0.21.0: trips without a bike (own bags in trip.packs) need none of this.
       (t) => !Array.isArray(t.packs) && (!t.bikeId || !t.setup || !t.ready || t.entries?.some((e) => !e.slot || (!isOver(t, today) && (bagItems.has(e.itemId) || fixturesOf(t.bikeId).includes(e.itemId))))),
     );
+    let written = 0;
     for (const t of todo) {
       const bike = bikes.find((b) => b.id === t.bikeId) ?? bikes.find((b) => b.name === t.bike) ?? null;
       const trip = {
@@ -360,9 +364,14 @@ export async function ensureTrips(db, today = localDay()) {
         ready: t.ready ?? freshReady(),
         entries: (t.entries ?? []).map(({ container: c, ...e }) => ({ ...e, slot: e.slot ?? c ?? 'seat', packed: !!e.packed })),
       };
-      await db.trips.put(isOver(trip, today) ? trip : absorbBags(trip, containers, fixturesOf(trip.bikeId)));
+      const next = isOver(trip, today) ? trip : absorbBags(trip, containers, fixturesOf(trip.bikeId));
+      // Tempo (Noah 11.11.2026 «1-4 umsetzen», Messung 10.11.): a trip the step cannot improve (e.g. no bike found, so the
+      // «no bike» condition stays true) was put again at every start. Now only a trip that really changes is written.
+      if (stable(next) === stable(t)) continue;
+      await db.trips.put(next);
+      written++;
     }
-    return todo.length;
+    return written;
   });
 }
 

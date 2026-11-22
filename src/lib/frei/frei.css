@@ -9,7 +9,7 @@
 }
 .fz-h1 {
   margin: 0;
-  font: 800 var(--fs-page)/1.1 var(--font-brand);
+  font: 700 var(--fs-page)/var(--lh-title) var(--font-title);
 }
 .fz-intro {
   margin: -6px 0 2px;
@@ -201,4 +201,14 @@
 }
 .fz-done {
   color: var(--ok);
+}
+
+/* «Meine Sammlungen» print view (Noah 05.11.2026 «Touren 2a und b»): only the entries, no buttons */
+@media print {
+  .fz .no-print,
+  .fz .fz-icon,
+  .fz .fz-chips,
+  .fz article .fz-acts {
+    display: none !important;
+  }
 }

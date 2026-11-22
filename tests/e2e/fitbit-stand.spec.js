@@ -29,3 +29,25 @@ test('FS2: three days without values: the last ones show, marked with their day'
   await expect(last).not.toContainText('von gestern');
   if (process.env.SHOTS) await last.locator('xpath=ancestor::section').screenshot({ path: `${process.env.SHOTS}/alt-${info.project.name}.png` });
 });
+
+test('FS3: only the active zone minutes are of today: the other values show the last one with its day, never a dash (Noah 7.11.2026 1a 2a)', async ({ page, context }, info) => {
+  const d = homeFixture();
+  d.tables.healthDays = [
+    { date: day(-1), restingHr: 54, sleep: { asleepMin: 180, efficiency: 94 } },
+    { date: day(0), azm: 10 },
+  ];
+  d.tables.settings.push({ key: 'health', value: { connected: true, values: ['sleep', 'steps', 'azm', 'restingHr', 'hrvMs'], fetch: 'manual', lastSync: `${day(0)}T05:42:00.000Z` } });
+  await openHome(page, context, info, { data: d });
+  const ab = page.locator('[data-section="abfragen"]');
+  if (await ab.isVisible().catch(() => false)) await ab.locator('[data-ab-later]').click();
+  const body = page.locator('[data-section="body"]');
+  await expect(body.locator('[data-body="pulse"] b')).toHaveText('54');
+  await expect(body.locator('[data-body="pulse"]')).toContainText('von gestern');
+  await expect(body.locator('[data-body="sleep"] b')).toHaveText(/3 h/);
+  await expect(body.locator('[data-body="azm"] b')).toHaveText('10');
+  await expect(body.locator('[data-body="azm"]')).toContainText('heute');
+  await expect(body.locator('[data-body-hint]')).toContainText('Fitbit hat noch nicht alle Werte von heute geliefert');
+  await expect(body.locator('[data-body-fetch]')).toHaveText('Jetzt holen');
+  await expect(body.locator('dl b', { hasText: /^–$/ })).toHaveCount(0);
+  if (process.env.SHOTS) await body.scrollIntoViewIfNeeded(), await body.screenshot({ path: `${process.env.SHOTS}/gemischt-${info.project.name}.png` });
+});

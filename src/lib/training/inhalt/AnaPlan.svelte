@@ -22,7 +22,7 @@
 
   const planned = (s) => (s.zone ? t('{n} min Z{z}', { n: s.mins, z: s.zone }) : t('{n} min', { n: s.mins }));
   function done(r) {
-    if (r.state === 'missed') return t('not done');
+    if (r.state === 'missed') return t('not done|plan');
     if (r.state === 'open') return t('still open');
     const time = hmm(r.act.movingS);
     if (r.state === 'kept') return r.zone ? `${time} Z${r.zone} ✓` : `${time} ✓`;
@@ -36,19 +36,12 @@
     if (!w.due) return t('nothing due yet');
     return w.near ? t('{a} of {b} as planned, {n} nearly', { a: w.kept, b: w.due, n: w.near }) : t('{a} of {b} as planned', { a: w.kept, b: w.due });
   };
-  // on this page the plan is just above: scroll there instead of opening the page again
-  function toPlan(e) {
-    const el = document.querySelector('[data-section="week-plan"]');
-    if (!el) return;
-    e.preventDefault();
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
 </script>
 
 {#if data}
   <AnaCard key="plan" sub={t('Planned zone against ridden zone')}>
     {#if !data.any}
-      <p class="cap" data-plan-none>{t('No plan yet.')} <a href="#/flow/training" onclick={toPlan}>{t('Plan one above under «Plan the week».')}</a></p>
+      <p class="cap" data-plan-none>{t('No plan yet.')} <a href="#/flow/training">{t('Plan one in the tab «Week».')}</a></p>
     {:else}
       {#if now.rows.length}
         <ul class="pk-rows" aria-label={t('This week')}>
@@ -86,7 +79,7 @@
         <li><i class="bk-kept"></i>{t('as planned')}</li>
         <li><i class="bk-near"></i>{t('one zone off')}</li>
         <li><i class="bk-other"></i>{t('other zone')}</li>
-        <li><i class="bk-missed"></i>{t('not done')}</li>
+        <li><i class="bk-missed"></i>{t('not done|plan')}</li>
       </ul>
       <p class="cap">{t('Done = an activity of that kind on that day; its zone is the one with the most time. Just to look at.')}</p>
     {/if}

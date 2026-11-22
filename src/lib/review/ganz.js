@@ -461,5 +461,5 @@ export function remindersFor(trip, { debriefs = [], trips = [], sets = null, pla
 /** The last values of a series of trips (oldest first), this trip last: [{ id, v }] (at most n). */
 export function lastSeries(rows = [], row, valueOf, n = 8) {
   const older = rows.filter((r) => r.kind === 'trip' && r.id !== row.id && r.start <= row.start).sort((a, b) => b.start.localeCompare(a.start)).slice(0, n - 1).reverse();
-  return [...older, row].map((r) => ({ id: r.id, v: valueOf(r) }));
+  return [...older, row].map((r) => ({ id: r.id, v: valueOf(r), name: r.title, date: r.start }));
 }

@@ -62,7 +62,7 @@ test('Fitbit: connect with Google, first fetch, the card on «Daten und Backup»
 
   // «Daten und Backup»: not connected, grey, the way to the page «Fitbit»
   await page.goto('./#/me/data');
-  await page.getByRole('link', { name: 'Fitbit und Gesundheit' }).click(); // «Daten und Backup aufräumen»: Fitbit has its own page
+  await page.locator('.datapanel a[href="#/me/fitbit"]').click(); // «Daten und Backup aufräumen»: Fitbit has its own page
 
   // G1
   await expect(page.getByRole('heading', { level: 1, name: 'Fitbit verbinden' })).toBeVisible();

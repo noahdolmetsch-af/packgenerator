@@ -7,6 +7,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { readRaw, computeFrom } from './store.js';
+  import { refreshOsmIfDue } from './osm.js';
   import { SEEN_KEY, dayBefore, rodeSince, newSince } from './neuheute.js';
   import { t } from '../i18n.svelte.js';
   import { Compass, X } from '@lucide/svelte';
@@ -21,7 +22,10 @@
     const from = since;
     if (!raw || !rodeSince(raw, from, today)) return void (news = null);
     let live = true;
-    computeFrom(raw, { today })
+    // N18: after a ride the places from OpenStreetMap are brought up to date first (once a week), so a new tower counts at once
+    refreshOsmIfDue(db)
+      .catch(() => null)
+      .then(() => computeFrom(raw, { today }))
       .then((r) => live && (news = newSince(r, from)))
       .catch((err) => console.error(err));
     return () => (live = false);

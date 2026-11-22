@@ -36,7 +36,11 @@
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
   import NebelBlock from '../lib/wetter/NebelBlock.svelte'; // «Nebelgrenze» (Noah 05.11.2026)
+  import HoeheBlock from '../lib/wetter/HoeheBlock.svelte'; // «Temperaturen nach Höhe» (Noah 05.11.2026)
+  import NachtBlock from '../lib/wetter/NachtBlock.svelte'; // «Nachttemperatur» (Noah 06.11.2026)
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
+  import ZurTour from '../lib/wetter/ZurTour.svelte'; // UI-Prüfung T3 «Für deine Tour»
+  import { upcomingTrip, comingUp } from '../lib/wetter/zurtour.js';
   import { t, num, locale } from '../lib/i18n.svelte.js';
 
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -56,6 +60,9 @@
       .filter((x) => !x.skipped && !x.finished && x.status !== 'done' && (x.startDate ?? '') >= today0 && Number.isFinite(Number(tripPlace(x)?.lat)))
       .sort((a, b) => a.startDate.localeCompare(b.startDate))[0] ?? null,
   );
+  // UI-Prüfung T3 (Noah 07.11.2026 «5b»): the card «Für deine Tour»: the trip of the address (#/wetter?trip=…) while it is still to
+  // come, else the next planned trip (it does not need a place: without one the weather of the home place is shown)
+  const forTrip = $derived(trip && comingUp(trip, today0) ? trip : upcomingTrip($tripsQ ?? [], today0));
   let picked = $state(null); // a searched place
   let homeSheet = $state(false);
   const place = $derived.by(() => {
@@ -208,6 +215,7 @@
   </div>
 
   {#if tab === 'jetzt'}
+  <ZurTour trip={forTrip} fallback={$homeQ?.value ?? null} onplan={() => pick('planen')} />
   <div class="card wx-place">
     {#if $homeQ?.value || nextTrip}
       <div class="wx-chips" role="group" aria-label={t('Weather for')} data-wx-pick>
@@ -259,12 +267,15 @@
       {#if train}<p class="wx-note" data-wx-train><Train size={16} aria-hidden="true" />{t('Today rather the train? On the way to and from work: {why}.', { why: train.why.map((k) => t(k === 'rain' ? 'heavy rain' : k === 'thunder' ? 'thunderstorms' : k === 'storm' ? 'storm gusts' : 'ice')).join(', ') })} <a href="https://www.sbb.ch/" target="_blank" rel="noopener noreferrer">SBB</a></p>{/if}
       {#if outside}<p class="wx-note" data-wx-outside><Sun size={16} aria-hidden="true" />{outside.now ? t('Good for outside now ({temp} °C).', { temp: num(outside.temp) }) : t('Good for outside from {at} ({temp} °C).', { at: hm(outside.at), temp: num(outside.temp) })}</p>{/if}
       <LakeChip />
+      <HoeheBlock {place} {now} />
       <div class="rc-acts">
         <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}<ExternalLink size={14} aria-hidden="true" /></a>
         <a class="btn sm" href={METEOSWISS} target="_blank" rel="noopener noreferrer">{t('MeteoSwiss')}<ExternalLink size={14} aria-hidden="true" /></a>
         <a class="btn sm" href="#/me/hinweise">{t('Warnings, avalanches, passes')}</a>
       </div>
     </section>
+
+    <NachtBlock {core} {now} />
 
     <NextHours {place} />
   {/if}

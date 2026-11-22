@@ -225,6 +225,13 @@ export function kindCounts(acts) {
   return [{ key: 'all', n: acts.length }, ...Object.entries(n).filter(([, c]) => c).map(([key, c]) => ({ key, n: c }))];
 }
 
+/**
+ * «Zwift und Indoor sichtbar» (Noah 19.11.2026 «3a»): a ride on the trainer or in a game. Strava's «trainer» flag, the
+ * type VirtualRide or «Zwift» in the name (Zwift rides reach Strava with that name). Only rides; a run on the treadmill
+ * keeps its own words. The watts, NP, TSS and zones need nothing new: they come with the ride.
+ */
+export const isIndoorBike = (a) => a?.kind === 'bike' && (!!a.trainer || a.type === 'VirtualRide' || /\bzwift\b/i.test(String(a.name ?? '')));
+
 /** The months with activities, newest first ('2026-10'). */
 export const monthsOf = (acts) => [...new Set(acts.map((a) => a.day.slice(0, 7)).filter(Boolean))].sort().reverse();
 
@@ -248,6 +255,75 @@ export function cleanSportGoals(v) {
   if (v && typeof v === 'object') for (const [k, n] of Object.entries(v)) if (k && k.length <= 80 && Number.isInteger(n) && n >= 0 && n <= 3) out[k] = n;
   return out;
 }
+// «Training verbessern» 7 «Einheiten-Bibliothek»: sessions the user keeps to plan again with one tap
+export const LIBRARY_KEY = 'training.library';
+/** The library as stored: up to 40 entries { id, name, kind, mins, zone, sport, group, uses }. */
+export function cleanLibrary(v) {
+  if (!Array.isArray(v)) return [];
+  const out = [];
+  for (const e of v) {
+    const mins = Math.round(Number(e?.mins));
+    const zone = Math.round(Number(e?.zone));
+    const name = String(e?.name ?? '').trim().slice(0, 60);
+    if (!e?.id || !name || !(mins > 0 && mins <= 24 * 60)) continue;
+    const uses = Math.round(Number(e?.uses));
+    out.push({
+      id: String(e.id).slice(0, 40),
+      name,
+      kind: KIND_KEYS.includes(e.kind) ? e.kind : 'bike',
+      mins,
+      zone: zone >= 1 && zone <= 5 ? zone : null,
+      sport: typeof e.sport === 'string' ? e.sport.slice(0, 60) : '',
+      group: String(e?.group ?? '').trim().slice(0, 30),
+      uses: uses > 0 ? Math.min(uses, 9999) : 0,
+    });
+    if (out.length >= 40) break;
+  }
+  return out;
+}
+/** The examples the library starts with (names are English sources for t()). */
+export const LIBRARY_EXAMPLES = [
+  { id: 'ex-easy', name: 'Easy ride', kind: 'bike', mins: 45, zone: 2 },
+  { id: 'ex-intervals', name: 'Intervals 4 × 6 min', kind: 'bike', mins: 60, zone: 4 },
+  { id: 'ex-long', name: 'Long day, calm', kind: 'bike', mins: 180, zone: 2 },
+  { id: 'ex-run', name: 'Easy run', kind: 'run', mins: 40, zone: 2 },
+  { id: 'ex-hike', name: 'Day hike', kind: 'hike', mins: 120, zone: 2 },
+  { id: 'ex-strength', name: 'Strength, 30 min', kind: 'other', mins: 30, zone: 3 },
+];
+/** The library to show: never stored (null) starts with the examples; names go through tr. */
+export const libraryOf = (v, tr = (x) => x) => (v == null ? cleanLibrary(LIBRARY_EXAMPLES.map((e) => ({ ...e, name: tr(e.name) }))) : cleanLibrary(v));
+/** The examples that are not in the list (by id), for «Add the examples again». */
+export const missingExamples = (list, tr = (x) => x) => cleanLibrary(LIBRARY_EXAMPLES.filter((e) => !list.some((x) => x.id === e.id)).map((e) => ({ ...e, name: tr(e.name) })));
+/** The group names in the order they first appear. */
+export const libraryGroups = (list) => [...new Set(list.map((e) => e.group).filter(Boolean))];
+/** Most used first (stable: the own order stays among equals). */
+export const byUse = (list) => list.map((e, i) => [e, i]).sort((a, b) => b[0].uses - a[0].uses || a[1] - b[1]).map((x) => x[0]);
+/** One entry one step up or down among the entries of its own group. */
+export function moveInGroup(list, id, dir) {
+  const i = list.findIndex((e) => e.id === id);
+  if (i < 0) return list;
+  const g = list[i].group;
+  let j = i + dir;
+  while (j >= 0 && j < list.length && list[j].group !== g) j += dir;
+  if (j < 0 || j >= list.length) return list;
+  const out = [...list];
+  [out[i], out[j]] = [out[j], out[i]];
+  return out;
+}
+/** A group renamed (an empty or equal name changes nothing). */
+export function renameLibraryGroup(list, from, to) {
+  const n = String(to ?? '').trim().slice(0, 30);
+  if (!n || n === from) return list;
+  return list.map((e) => (e.group === from ? { ...e, group: n } : e));
+}
+/** A group deleted: its entries go to group `to` ('' = no group); nothing is deleted. */
+export const deleteLibraryGroup = (list, from, to = '') => list.map((e) => (e.group === from ? { ...e, group: to } : e));
+// «Training verbessern» 8: the Monday of the week for which the card «Next week» was put aside with «Not now»
+export const NEXTKEEP_KEY = 'training.nextkeep';
+// «Training verbessern» 4: the day for which «Heute passt» was answered (Lighter or Keep it)
+export const TODAYKEEP_KEY = 'training.todaykeep';
+// «Training verbessern» 6: the Monday of the week for which the card «A lighter week would fit» was answered
+export const LOADKEEP_KEY = 'training.loadkeep';
 export const HABITS_KEY = 'training.habits'; // { drop: { [session name]: times removed }, mins: { [session name]: { n, ratio } } }
 /** Habits as stored: counts 1–5 per name, ratios 0.5–2. */
 export function cleanHabits(v) {
@@ -412,3 +488,45 @@ export function powerLoad(a, ftp) {
 
 /** Watts per kg with one decimal; the weight stays on the device. */
 export const wkg = (w, kg) => (w > 0 && kg > 0 ? Math.round((w / kg) * 10) / 10 : null);
+
+// «Training verbessern» 11 «Ganze Wochen merken» (Noah 07.11.2026 «1a 2a 3a 4a»): a whole week kept as a template
+export const WEEKS_KEY = 'training.weeks';
+export const WEEKS_MAX = 20;
+/** The kept weeks as stored: up to 20 { id, name, group, uses, items: [{ dow 0–6, name, kind, mins, zone, sport }] }, 1–40 items each. */
+export function cleanWeeks(v) {
+  if (!Array.isArray(v)) return [];
+  const out = [];
+  for (const w of v) {
+    const name = String(w?.name ?? '').trim().slice(0, 60);
+    const items = (Array.isArray(w?.items) ? w.items : [])
+      .map((s) => {
+        const mins = Math.round(Number(s?.mins));
+        const zone = Math.round(Number(s?.zone));
+        const dow = Math.round(Number(s?.dow));
+        if (!(mins > 0 && mins <= 24 * 60) || !(dow >= 0 && dow <= 6)) return null;
+        return { dow, name: String(s?.name ?? '').trim().slice(0, 60), kind: KIND_KEYS.includes(s?.kind) ? s.kind : 'bike', mins, zone: zone >= 1 && zone <= 5 ? zone : null, sport: typeof s?.sport === 'string' ? s.sport.slice(0, 60) : '' };
+      })
+      .filter(Boolean)
+      .slice(0, 40);
+    if (!w?.id || !name || !items.length) continue;
+    const uses = Math.round(Number(w.uses));
+    out.push({ id: String(w.id).slice(0, 40), name, group: String(w?.group ?? '').trim().slice(0, 30), uses: uses > 0 ? Math.min(uses, 9999) : 0, items });
+    if (out.length >= WEEKS_MAX) break;
+  }
+  return out;
+}
+/** The sessions of the week at `monday` as a template (day → weekday; no date, no «done», no plan id). `nameOf(s)` gives the shown name. */
+export const weekTemplate = (sessions, monday, nameOf = (s) => s.name) =>
+  sessions
+    .filter((s) => s.day >= monday && s.day < shiftDay(monday, 7))
+    .map((s) => ({ dow: Math.round((new Date(`${s.day}T12:00:00Z`) - new Date(`${monday}T12:00:00Z`)) / 864e5), name: nameOf(s), kind: s.kind, mins: s.mins, zone: s.zone, sport: s.sport ?? '' }))
+    .sort((a, b) => a.dow - b.dow);
+/** The plan with a kept week put into the week at `monday`: mode 'add' keeps everything, 'replace' first removes the sessions of that week that are not done (`isDone(s)`). */
+export function insertWeek(sessions, tpl, monday, mode = 'add', isDone = (s) => !!s.done) {
+  const end = shiftDay(monday, 7);
+  const kept = mode === 'replace' ? sessions.filter((s) => !(s.day >= monday && s.day < end && !isDone(s))) : sessions;
+  const added = tpl.items.map((i) => cleanSession({ id: '', day: shiftDay(monday, i.dow), kind: i.kind, name: i.name, mins: i.mins, zone: i.zone, ...(i.sport ? { sport: i.sport } : {}) })).filter(Boolean);
+  return [...kept, ...added];
+}
+/** { n, mins } of a kept week. */
+export const weekTplStats = (w) => ({ n: w.items.length, mins: w.items.reduce((a, i) => a + i.mins, 0) });

@@ -166,7 +166,7 @@ test('c) Gelernt: every learning flat by topic', async ({ page, context }, info)
   const errors = await start(page, context, info);
   await page.goto('./#/debrief/learnings');
   const main = page.locator('main');
-  await expect(main.getByRole('heading', { level: 1, name: 'Gelernt' })).toBeVisible();
+  await expect(main.getByRole('heading', { level: 1, name: 'Erkenntnisse' })).toBeVisible();
   const box = main.locator('#learnings');
   await expect(box.locator('details')).toHaveCount(0);
   await expect(box.getByRole('heading', { level: 3 })).toHaveCount(4);

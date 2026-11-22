@@ -13,7 +13,7 @@ export default {
   ],
   since: ['f.backupcheck'],
   de: {
-    'Check your backup': 'Sicherung prüfen',
+    'Check your backup': 'Backup prüfen',
     'Look into a backup file before you need it, and keep a second copy outside this device.': 'Schau in eine Sicherungsdatei, bevor du sie brauchst, und halte eine zweite Kopie ausser Haus.',
     'Under Backup tap «Check backup» and choose a file': 'Unter Sicherung «Sicherung prüfen» antippen und eine Datei wählen',
     'Under the buttons it says if a second copy outside the device exists': 'Unter den Knöpfen steht, ob es eine zweite Kopie ausser Haus gibt',

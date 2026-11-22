@@ -1,4 +1,4 @@
-// «Meine Sportarten» Vorlagen für «Neue Sportart» und Zielvorschlag (Noah 02.11.2026 «5a»)
+// «Meine Aktivitäten» Vorlagen für «Neue Aktivität» und Zielvorschlag (Noah 02.11.2026 «5a»)
 export default {
   'Strength training|template': 'Krafttraining',
   'Running|template': 'Laufen',

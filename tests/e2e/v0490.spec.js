@@ -198,7 +198,7 @@ test("d) a trip's saved Rückblick tells what the trip was", async ({ page, cont
   await expect(next).toContainText('Wirkt auf die nächste Tour');
   await expect(next).toContainText('Wochenende Hochland');
   await expect(next).toContainText('Buff');
-  const learned = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: /Gelernt/ }) });
+  const learned = main.locator('section:not([data-group])', { has: page.getByRole('heading', { name: /Erkenntnisse/ }) });
   await expect(learned).toContainText('Licht-Akku reicht bei Kälte nur 2 h');
   await noSideways(page);
   await shot(page, info, 'tour-rueckblick');

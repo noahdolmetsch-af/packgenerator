@@ -30,6 +30,7 @@ import { activeBikes } from '../bikeretire.js';
 import { wetRides, prefsOf, wetSince, wetPushToday } from '../griff.js';
 import { wetOf } from '../inspect/rain.js';
 import { bundleMorning, morningOn } from './morning.js';
+import { outdoorOf, remindDays } from '../outdoor.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -37,6 +38,15 @@ export const WEATHER_AT = '06:30';
 /** The ice warning at home: the next 7 mornings, only in the cold months. */
 export const ICE_DAYS = 7;
 export const ICE_MONTHS = [10, 11, 12, 1, 2, 3, 4];
+/** «Nebelgrenze am Morgen» (Noah 05.11.2026 «1a 2b 3a»): the next 7 mornings from October to February at 07:00, rides within 60 km of home as suggestions. */
+export const FOG_DAYS = 7;
+export const FOG_MONTHS = [10, 11, 12, 1, 2];
+export const FOG_AT = '07:00';
+export const FOG_NEAR_KM = 60;
+export const FOG_SPOTS = 8;
+/** «Nachttemperatur am Abend» (Noah 06.11.2026 «5a», «push ja»): the next 7 evenings at 19:00, all year, for the home place; off until switched on. */
+export const NIGHT_DAYS = 7;
+export const NIGHT_AT = '19:00';
 export const DAY_AT = '08:00';
 export const BACKUP_AT = '19:00';
 export const EVE_STD = 19 * 60;
@@ -71,6 +81,8 @@ export const KINDS = [
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   // Paket N idea 2 (Noah 19.10.2026 «1-5 a»): a race trip's registration deadline (Touren › Träume)
   { key: 'race', label: 'Race registration', hint: '3 days and 1 day before the registration deadline, at 08:00.' },
+  // «Draussen» PR 2 (Noah 21.11.2026 «2b»): every day at the time of the challenge (16:00) while it runs
+  { key: 'outdoor', label: 'Outdoors challenge', hint: 'Every day at 16:00 (or the time you set) while your challenge runs, until the day is reached.' },
   { key: 'own', label: 'Own reminders', hint: 'Your to-dos in Merken with a reminder, at their time.' },
   // Paket H «Packen leichter» (Noah 19.10.2026 «2b», «5 a und b»; #90)
   { key: 'supply', label: 'Supplies expire', hint: '2 weeks before the best-before date, at 08:00.' },
@@ -80,6 +92,21 @@ export const KINDS = [
   { key: 'eat', label: 'Eat on the ride', hint: 'While the eat reminder runs on On the way, every 30 to 60 minutes.' },
   // Paket NE 1150 (Noah 20.10.2026 «9a»): a note with a reminder date
   { key: 'note', label: 'Note reminders', hint: 'At the time you set in a note.' },
+  // «Nebelgrenze am Morgen» sits last: the switches above keep their place on the page (heimat.spec measures how far down they are)
+  { key: 'fog', label: 'Fog line in the morning', hint: 'From October to February at 07:00: how high the low fog reaches and where the sun is, or «no fog». Needs your home place.' },
+  // «Nachttemperatur am Abend» sits after it for the same reason
+  { key: 'night', label: 'Night temperature in the evening', hint: 'Every evening at 19:00: how low it gets tonight, with a word on frost or a change against last night. Needs your home place.' },
+];
+
+/**
+ * The page lists the switches in four folds (Impeccable-Test 08.11.2026, 7b-08). Each key of KINDS is in exactly one group
+ * (tests/push-groups.test.js); a fold lists its switches in the order of KINDS.
+ */
+export const PUSH_GROUPS = [
+  { key: 'tour', label: 'Around the tour', keys: ['eve', 'shop', 'race', 'eat'] },
+  { key: 'weather', label: 'Weather and light', keys: ['weather', 'ice', 'wxwatch', 'dark', 'rainsoon', 'air', 'fog', 'night'] },
+  { key: 'bike', label: 'Bikes and gear', keys: ['wetchain', 'wear', 'workshop', 'supply', 'lend'] },
+  { key: 'day', label: 'Everyday life', keys: ['birthday', 'plant', 'outdoor', 'own', 'note', 'backup'] },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
@@ -94,6 +121,8 @@ export function noteRemind(n) {
 /** The stored switches, made safe: everything off unless switched on. */
 export function pushOf(value) {
   const kinds = Object.fromEntries(KINDS.map((k) => [k.key, value?.kinds?.[k.key] === true]));
+  // «Nebelgrenze am Morgen»: once push is on, this one is on unless switched off (Noah «3a»); it also needs a home place
+  kinds.fog = value?.on === true && value?.kinds?.fog !== false;
   // Wetter-Wecker: single tours switched off (trip ids), everything is a suggestion
   const wxOff = (Array.isArray(value?.wxOff) ? value.wxOff : []).filter((x) => typeof x === 'string').slice(0, 200);
   // Idee A1: the morning message is on unless switched off (Noah «3a»)
@@ -128,6 +157,21 @@ function birthdayIn(md, year) {
 function plantNext(p) {
   const winter = [11, 12, 1, 2].includes(+p.last.slice(5, 7)) && p.winter !== false;
   return addDays(p.last, winter ? Math.round(p.every * 1.5) : p.every);
+}
+
+/** Rides with a route near home (within FOG_NEAR_KM of the start), nearest first, each with its highest point → [{ name, m }]. */
+export function fogSpots(trips, home) {
+  const rad = (d) => (d * Math.PI) / 180;
+  const dist = (a, b) => 6371 * 2 * Math.asin(Math.sqrt(Math.sin(rad(b.lat - a.lat) / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lon - a.lon) / 2) ** 2));
+  const seen = new Set();
+  return trips
+    .filter((tr) => !tr.skipped && tr.title && tr.route?.start && Number.isFinite(tr.route.start.lat) && Number.isFinite(tr.route.start.lon) && (tr.route.profile ?? []).length > 1)
+    .map((tr) => ({ name: String(tr.title).slice(0, 40), m: Math.round(Math.max(...tr.route.profile.map((p) => Number(Array.isArray(p) ? p[1] : p?.m) || 0))), km: dist(home, tr.route.start) }))
+    .filter((o) => o.km <= FOG_NEAR_KM && o.m > 0)
+    .sort((a, b) => a.km - b.km)
+    .filter((o) => !seen.has(o.name) && seen.add(o.name))
+    .slice(0, FOG_SPOTS)
+    .map(({ name, m }) => ({ name, m }));
 }
 
 /**
@@ -207,6 +251,27 @@ export function buildList(data) {
         const at = atMs(day, WEATHER_AT);
         if (at <= ms || tourDay.has(day) || !ICE_MONTHS.includes(+day.slice(5, 7))) continue;
         weather.push({ key: `ice:${day}`, at, date: day, lat: home.lat, lon: home.lon, title: t('Ice warning'), url: '#/wetter', only: ['ice'] });
+      }
+  }
+  if (on('fog')) {
+    const home = data.settings?.homePlace;
+    if (home && Number.isFinite(home.lat) && Number.isFinite(home.lon)) {
+      const spots = fogSpots(data.trips ?? [], home);
+      for (let d = 0; d < FOG_DAYS; d++) {
+        const day = addDays(today, d);
+        const at = atMs(day, FOG_AT);
+        if (at <= ms || !FOG_MONTHS.includes(+day.slice(5, 7))) continue;
+        weather.push({ key: `fog:${day}`, at, date: day, lat: home.lat, lon: home.lon, title: t('Fog line'), url: '#/wetter', only: ['fog'], ...(spots.length ? { spots } : {}) });
+      }
+    }
+  }
+  if (on('night')) {
+    const home = data.settings?.homePlace;
+    if (home && Number.isFinite(home.lat) && Number.isFinite(home.lon))
+      for (let d = 0; d < NIGHT_DAYS; d++) {
+        const day = addDays(today, d);
+        const at = atMs(day, NIGHT_AT);
+        if (at > ms) weather.push({ key: `night:${day}`, at, date: day, lat: home.lat, lon: home.lon, title: t('Night temperature'), url: '#/wetter', only: ['night'] });
       }
   }
   const watch = [];
@@ -323,6 +388,13 @@ export function buildList(data) {
       const first = String(n.text ?? '').split('\n').find((l) => l.trim()) ?? '';
       add({ key: `note:${n.id}:${r.day}T${r.hm}`, at: atMs(r.day, r.hm), title: t('Note reminder'), body: String(n.title || first.replace(/^[#\-*\s[\]x]+/, '') || t('Note')).slice(0, 200), url: `#/notes?open=${n.id}` });
     }
+  // «Draussen» PR 2: the daily reminder of the challenge (today left out when its minutes are reached)
+  if (on('outdoor')) {
+    const rec = outdoorOf(data.settings?.outdoor);
+    if (rec?.from)
+      for (const { day, left } of remindDays(rec, data.todayActs ?? [], today, AHEAD_DAYS))
+        add({ key: `outdoor:${day}`, at: atMs(day, rec.remindAt), title: t('Outdoors'), body: t('{min} min outdoors still to go today. Even a short walk counts.', { min: left }), url: '#/' });
+  }
   items.sort((a, b) => a.at - b.at);
   // Idee A1 (Noah 27.10.2026 «3a»): the 08:00 reminders of a day come together at 07:00, safety stays single
   const out = p.on && morningOn(data.settings?.push)
@@ -337,6 +409,18 @@ export function buildList(data) {
     heat: wxOn ? t('Up to {temp} °C today. Take enough to drink.', { temp: '{temp}' }) : '',
     ice: wxOn || on('ice') ? t('Roads can be icy this morning (down to {temp} °C with rain or snow). Ride carefully or take the train.', { temp: '{temp}' }) : '',
     ititle: t('Ice warning'),
+    // «Nebelgrenze am Morgen»: only with the switch on, else the server has no words for it
+    fogtitle: t('Fog line'),
+    fog: on('fog') ? t('Low fog up to about {top} m, sun from {above} m.', { top: '{top}', above: '{above}' }) : '',
+    fogcloud: on('fog') ? t('Low fog up to about {top} m, clouds above.', { top: '{top}' }) : '',
+    fogclear: on('fog') ? t('Today no low fog: time to shine.') : '',
+    fogspot: on('fog') ? t('Ride above the fog: {name} (up to {m} m).', { name: '{name}', m: '{m}' }) : '',
+    // «Nachttemperatur am Abend»: only with the switch on
+    ntitle: t('Night temperature'),
+    night: on('night') ? t('Tonight down to {temp} °C.', { temp: '{temp}' }) : '',
+    nightfrost: on('night') ? t('Frost is possible (under 0 °C).') : '',
+    nightwarm: on('night') ? t('{d}° warmer than last night.', { d: '{d}' }) : '',
+    nightcold: on('night') ? t('{d}° colder than last night.', { d: '{d}' }) : '',
     rtitle: t('Rain on the way'),
     rain: t('Rain in about {min} minutes on {trip}. Keep the rain jacket at hand.', { min: '{min}', trip: '{trip}' }),
     ozone: t('Much ozone today (up to {n} µg/m³): take it easier at midday.', { n: '{n}' }),

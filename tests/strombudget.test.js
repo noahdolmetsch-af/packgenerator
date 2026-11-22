@@ -26,6 +26,10 @@ describe('power roles and values', () => {
     expect(mahFromName(bank10)).toBe(10000);
     expect(mahFromName(bank20)).toBe(20000);
     expect(mahFromName({ name: "Akku 20'000 mAh" })).toBe(20000);
+    // UI-Test T12 (G4-02): a space between the digit groups
+    expect(mahFromName({ name: 'Powerbank 20 000 mAh' })).toBe(20000);
+    expect(mahFromName({ name: 'Powerbank 10\u202f000 mAh' })).toBe(10000);
+    expect(batteryOf({ name: 'Powerbank 20 000 mAh', category: 'electronics' }).guessed).toBe(false);
     expect(portsOf(plug)).toBe(3);
     expect(portsOf(mini)).toBe(1);
     expect(portsOf({ ...mini, ports: 2 })).toBe(2);

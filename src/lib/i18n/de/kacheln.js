@@ -8,7 +8,7 @@ export default {
   'ticks|tick help': 'hakt ab',
   'long press|tick help': 'lange drücken',
   'or •••: duration, place, stopwatch': 'oder •••: Dauer, Ort, Stoppuhr',
-  'Start page intro': 'Einführung Startseite',
+  'Start page intro': 'Rundgang Startseite',
   'Open tiles': 'Kacheln öffnen',
   'Tap a tile to open its page.': 'Tippe eine Kachel an, dann öffnet sich ihre Seite.',
   'Long press:': 'Lange drücken:',
@@ -20,5 +20,5 @@ export default {
   'Next {i}/{n}|intro': 'Weiter {i}/{n}',
   'Done|intro': 'Fertig',
   'Skip|intro': 'Überspringen',
-  'Show the start page intro again': 'Einführung der Startseite nochmals zeigen',
+  'Show the start page intro again': 'Rundgang der Startseite nochmals zeigen',
 };

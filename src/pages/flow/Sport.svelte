@@ -31,6 +31,7 @@
   import TimerBlock from '../../lib/sportpage/TimerBlock.svelte';
   import TennisTop from '../../lib/tennis/TennisTop.svelte';
   import SportCover from '../../lib/sportpage/SportCover.svelte';
+  import SportDates from '../../lib/spielerplus/SportDates.svelte';
   import { TENNIS_ID } from '../../lib/tennisday.js';
   import ActHistory from '../../lib/sportpage/ActHistory.svelte';
   import MilestoneSlot from '../../lib/sportpage/MilestoneSlot.svelte';
@@ -127,6 +128,8 @@
     {#if sport.id === TENNIS_ID}<TennisTop {sport} items={mine} log={data.log} act={sport.act} {today} />
     <!-- «Bild pro Sportart» (Noah 27.10.2026 «1a»): every other sport gets the cover too -->
     {:else}<SportCover {sport} {color} line={coverLine} />{/if}
+    <!-- Spielerplus-Kalender (Noah 06.11.2026 «2a»): the next team dates of a sport, e.g. Eishockey -->
+    {#if sport.act}<SportDates actId={sport.act.id} {today} />{/if}
 
     {#if isAct}
       {#if onKey.has('goals')}
@@ -142,6 +145,11 @@
           <LogBlock {sport} {dayMap} items={mine} activities={strava} {today} {color} />
         </section>
       {/if}
+      <!-- «Rückblick pro Sportart» (Noah 21.11.2026, S4): the year of this sport, on its own page of Auswerten -->
+      <section class="card blk" aria-labelledby="bl-year" data-sport-year>
+        <div class="hl"><h2 id="bl-year">{t('Your year')}</h2><a class="lnk" href="#/auswerten/sportjahr/{encodeURIComponent(sport.act.id)}">{t('Your year in this sport')} ›</a></div>
+        <p class="hint">{t('Hours, units and best values of this sport, by month and against the year before.')}</p>
+      </section>
       <section class="card blk" aria-labelledby="bl-ms" data-block="milestones">
         <div class="hl"><h2 id="bl-ms">{t('Milestones')}</h2></div>
         <MilestoneSlot act={sport.act} {today} />

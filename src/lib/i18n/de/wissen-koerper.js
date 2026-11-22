@@ -8,6 +8,8 @@ export default {
     "Die Stoppuhr läuft weiter, wenn du die Seite wechselst. So kannst du mitten im Training die Karte anschauen, ohne Zeit zu verlieren.",
   "Switch off the blocks you never use; a short sport page gets opened more often than a complete one.":
     "Schalte die Bausteine aus, die du nie brauchst. Eine kurze Sportseite öffnest du öfter als eine vollständige.",
+  "Look at one sport over the whole year, not week by week: a quiet month often has a reason you can name.":
+    "Schau eine Sportart über das ganze Jahr an, nicht Woche für Woche: ein ruhiger Monat hat oft einen Grund, den du benennen kannst.",
   "Gaps in the mosaic are information, not failure: a week of rain or work shows up here first.":
     "Lücken im Mosaik sind Information, kein Versagen: eine Woche Regen oder viel Arbeit siehst du hier zuerst.",
   "Add a block only when you miss it twice. The commute counter is the one most people keep.":
@@ -86,4 +88,6 @@ export default {
     'Schreib in eigenen Worten, was 1 und 10 bedeuten; in einem Jahr sagt deine alte 7 noch dasselbe.',
   'Bring your questions, not your conclusions: the page is for the talk, the app makes no diagnosis.':
     'Bring deine Fragen mit, nicht deine Schlüsse: die Seite ist fürs Gespräch, die App stellt keine Diagnose.',
+  "A new sport made from Strava has no goal on purpose: tick it for a few weeks first, then decide whether you want one.":
+    "Eine aus Strava angelegte Sportart hat absichtlich kein Ziel: hak sie ein paar Wochen ab und entscheide dann, ob du eines willst.",
 };

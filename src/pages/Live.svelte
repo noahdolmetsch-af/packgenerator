@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind, Sun } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -40,6 +40,7 @@
   import { rideLog, rideLogText, GAP_S } from '../lib/live/ridelog.js';
   import { liveRouteQuery, liveRouteFor, clearLiveRoute } from '../lib/live/liveroute.js';
   import OfflineBox from '../lib/map/OfflineBox.svelte';
+  import ReadyCard from '../lib/live/ReadyCard.svelte';
   import { reserveOf } from '../lib/map/offline.js';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
@@ -61,6 +62,8 @@
   import NightSheet from '../lib/live/NightSheet.svelte';
   import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
+  import ReserveNote from '../lib/live/ReserveNote.svelte';
+  import SurfaceNote from '../lib/live/SurfaceNote.svelte';
   import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour, routerMsg } from '../lib/reroute.js';
   import { saveGpx } from '../lib/gpxout.js';
   import { LANDI_RADAR } from '../lib/wetter/kern.js';
@@ -101,7 +104,7 @@
   import { lastShopBeforeNight } from '../lib/live/lastshop.js';
   import { nearestExit } from '../lib/live/exit.js';
   import { lampPlan, LAMP_H, LAMP_FRAC } from '../lib/live/lamp.js';
-  import { nextHours, cellFlags } from '../lib/live/next3h.js';
+  import { nextHours, cellFlags, wearTip } from '../lib/live/next3h.js';
   import { nextWater, drinkPerH, BOTTLE_ML, DRINK_ML_H } from '../lib/live/water.js';
   import { withSampleFine } from '../lib/race/sample.js';
   import { paceFromRides, loadedBy, assumptionsOf, compareWays, simPlan } from '../lib/race/strategy.js';
@@ -111,9 +114,13 @@
   import { EAT_KEY, eatOf, eaten } from '../lib/unterwegs/essen.js';
   import {
     onRoute, stopsAhead, nextClimb, arrival, lightLeft, darkMinutes, pauses, eatDue, batteryEnough, drainOf, planDelta, offRouteStep, nextSay, navLinks,
-    fixesOf, paceOf, planRunning, bedTonight, stormPoints, stormUrl, stormAhead, gainBetween,
+    fixesOf, paceOf, planRunning, bedTonight, stormPoints, stormUrl, skyAhead, gainBetween,
   } from '../lib/live/live-lib.js';
-  import { AROUND_CACHE, ALONG_AHEAD_KM, loadAround, loadAlong } from '../lib/live/stops.js';
+  import { AROUND_CACHE, ALONG_AHEAD_KM, loadAround, loadAlong, askServers } from '../lib/live/stops.js';
+  import { queued } from '../lib/route/oneatatime.js';
+  import { shelterQuery, sheltersFrom, nearestShelter } from '../lib/live/unterstand.js';
+  import WayMemory from '../lib/live/WayMemory.svelte';
+  import { WAYS_KEY, cleanMemory, goodSigns, nameOf as wayName } from '../lib/live/wegegedaechtnis.js';
   import { beep, buzz, say } from '../lib/live/alert.js';
   import { DICTATION } from '../lib/live/dictation.js';
   import { refreshFamilyLink, LIVE_EVERY_MS } from '../lib/live/familylive.js';
@@ -434,7 +441,7 @@
   const bed = $derived(km != null && (isRace || pois.some((p) => p.kind === 'sleep')) ? bedTonight({ plan: running ? plan : null, pois, km, now, pace, profile, light }) : null);
   // U4 «Wo schlafe ich heute?»: the next places to sleep ahead on the route (on by default in a race)
   const wxQ = cacheQuery(WX_CACHE + (tid || '-'));
-  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null }) : null);
+  const next3 = $derived(hasRoute && km != null ? nextHours({ wx: $wxQ?.data ?? null, km, now, pace, totalKm: pts.length ? pts.at(-1).km : null, pos: me ? { lat: me.lat, lon: me.lon } : null }) : null);
   const showSleep = $derived(hasRoute && km != null && (cfg.sleepSpots ?? isRace));
 
   /* ---------- formatting ---------- */
@@ -452,10 +459,14 @@
 
   /* ---------- the map ---------- */
   const camsQ = camsQuery();
+  const wayMemQ = liveQuery(() => db.settings.get(WAYS_KEY));
+  const wayMem = $derived(cleanMemory($wayMemQ?.value));
   let camPicked = $state(null);
   const mapPoints = $derived([
     ...(shown.stops ? pois.map((p) => ({ id: p.id, lat: Number(p.lat), lon: Number(p.lon), kind: p.kind, name: p.name || kindName(p.kind), km: p.km })) : []),
     ...(shown.own ? ownOnMap(own, t) : []),
+    // Wege-Gedächtnis: a sign at the middle of each stretch you marked as good
+    ...(shown.own ? goodSigns(wayMem.ways, (w) => `${t('Good stretch')}: ${wayName(w, { km: (a, b) => t('km {a}–{b}', { a, b }) })}`) : []),
     ...(shown.own ? camsOnMap($camsQ) : []), // Paket Wetter: your webcams with a place
     // «Neue Quellen»: the waypoints of the tour's GPX file (Ride with GPS, Komoot …)
     ...(shown.own ? wptsOnMap(trip?.route).map((w) => ({ ...w, name: w.name || kindName(w.kind) })) : []),
@@ -563,7 +574,10 @@
   let offWarn = $state(false);
   let eatFromKm = $state(null);
   let eatRang = false;
-  let storm = $state(null); // { km, at, sure }
+  let storm = $state(null); // { kind: 'storm' | 'rain', km, at, sure }
+  let shelter = $state(null); // Wetter-Ausweichen: the nearest roof while a storm or heavy rain is ahead { kind, name, lat, lon, distKm }
+  let shelterSkip = $state(false); // «Not now» for this weather
+  let shelterFrom = null; // where the roofs were looked up
   let stormAt = 0;
   let bat = $state(null); // { level, at }
   let batFirst = null;
@@ -768,13 +782,41 @@
     try {
       const res = await fetch(stormUrl(points));
       if (!res.ok) return;
-      const s = stormAhead(await res.json(), points, Date.now(), 2);
+      const s = skyAhead(await res.json(), points, Date.now(), 2);
       if (s && !storm) buzz([500, 200, 500, 200, 500]);
       storm = s;
+      if (s) findShelter();
+      else {
+        shelter = null;
+        shelterSkip = false;
+        shelterFrom = null;
+      }
     } catch {
       /* no answer: try again in 15 min */
     }
   }
+  // Wetter-Ausweichen (Noah 07.11.2026 «1b 2a 3a»): the nearest roof, from the stops the map has and a fresh look around you;
+  // offered as «Plan there», never planned by itself. Offline only the known stops count.
+  async function findShelter() {
+    const here = me;
+    if (!here) return;
+    if (shelterFrom && distKmPts([shelterFrom.lat, shelterFrom.lon], [here.lat, here.lon]) < 1.5) return;
+    shelterFrom = { lat: here.lat, lon: here.lon };
+    let found = [];
+    if (navigator.onLine !== false) {
+      try {
+        found = sheltersFrom(await queued(() => askServers(fetch, shelterQuery(here), [here])));
+      } catch {
+        /* no answer: the known stops are enough */
+      }
+    }
+    shelter = nearestShelter({ here, found, pois });
+  }
+  const planShelter = () => {
+    if (!shelter) return;
+    picked = { lat: shelter.lat, lon: shelter.lon, name: shelter.name || t(POI_KIND.shelter.name) };
+    reroute = true;
+  };
   $effect(() => {
     if (cfg.storm && rec.on && me) untrack(() => stormAt === 0 && ((stormAt = Date.now()), checkStorm()));
   });
@@ -913,7 +955,7 @@
     goalBusy = true;
     goalAt = now;
     try {
-      const d = await planDetour({ here: me, target: old.target, pts: hasRoute ? pts : [], fromKm: old.fromKm, profile: old.profile, oneWay: !!old.oneWay });
+      const d = await planDetour({ here: me, target: old.target, pts: hasRoute ? pts : [], fromKm: old.fromKm, profile: old.profile, oneWay: !!old.oneWay, avoid: wayMem.ways });
       if (detour === old) {
         setDetour({ ...d, ...(old.small ? { small: true } : {}) }, false);
         goalOffSince = null;
@@ -1292,6 +1334,7 @@
     {#if resumed && rec.on}<p class="rc-note" role="status" data-live-resumed>{t('The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.')}</p>{/if}
     {#if err || rec.error}<p class="rc-warn" role="alert">{err || t(rec.error)}</p>{/if}
     <p class="rc-note">{t('Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.')}</p>
+    {#if !rec.on && hasRoute}<ReadyCard line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} voice={cfg.voice} onvoice={(v) => setOpt('voice', v)} />{/if}
     {#if !rec.on}
       <details class="lv-tip" data-live-flight-tip>
         <summary>{t('Save battery: ride in flight mode')}</summary>
@@ -1420,7 +1463,14 @@
         {#if goalTapping}<p class="lvf-alert" role="status" data-live-goal-hint><Flag size={18} aria-hidden="true" /><span>{t('Tap the map where you want to go.')}</span> <button type="button" class="btn sm" onclick={() => (goalTapping = false)}>{t('Cancel')}</button></p>{/if}
         {#if resumed}<p class="lvf-alert" role="status" data-live-resumed-full><RefreshCw size={18} aria-hidden="true" /><span>{t('The app had loaded anew: your ride goes on.')}</span> <button type="button" class="btn sm" onclick={() => (resumed = false)}>{t('OK')}</button></p>{/if}
         {#if offWarn}<p class="lvf-alert lvf-bad" role="alert" data-live-offroute><TriangleAlert size={18} aria-hidden="true" /><span>{at?.offM >= 1000 ? t('Off the route: {d} km away.', { d: fmtKm(at.offM / 1000) }) : t('Off the route: {m} m away.', { m: at?.offM })}</span></p>{/if}
-        {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm><CloudLightning size={18} aria-hidden="true" /><span>{storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>{/if}
+        {#if storm}<p class="lvf-alert lvf-bad" role="alert" data-live-storm={storm.kind}>{#if storm.kind === 'rain'}<CloudRain size={18} aria-hidden="true" />{:else}<CloudLightning size={18} aria-hidden="true" />{/if}<span>{storm.kind === 'rain' ? (storm.km != null ? t('Heavy rain possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Heavy rain possible here from {at}.', { at: hhmm(storm.at) })) : storm.km != null ? t('Thunderstorm possible around km {km} from {at}.', { km: storm.km, at: hhmm(storm.at) }) : t('Thunderstorm possible here from {at}.', { at: hhmm(storm.at) })}</span></p>
+          {#if shelter && !shelterSkip}
+            <p class="lvf-alert" role="status" data-live-shelter>
+              <span>{t('Nearest roof: {name}, {d} km away.', { name: shelter.name || t(POI_KIND[shelter.kind]?.name ?? 'Shelter'), d: fmtKm(shelter.distKm) })}</span>
+              <button type="button" class="btn sm" onclick={planShelter} data-live-shelter-plan>{t('Plan there')}</button>
+              <button type="button" class="btn sm" onclick={() => (shelterSkip = true)} data-live-shelter-skip>{t('Not now')}</button>
+            </p>
+          {/if}{/if}
         {#if cfg.eatHm && eatGain >= 300}<p class="lvf-alert" role="alert"><Utensils size={18} aria-hidden="true" /><span>{t('{m} m up since you last ate: time to eat.', { m: eatGain })}</span> <button type="button" class="btn sm" onclick={ateNow}>{t('Eaten')}</button></p>{/if}
         {#if msg}<p class="lvf-alert lvf-bad" role="alert">{msg}</p>{/if}
         <LiveWetter {me} />
@@ -1439,6 +1489,8 @@
             <span class="lv-detour-main">
               <b>{detourTitle}</b>
               <small>{[goalOn ? t('{d} km to go', { d: fmtKm(goalLeft) }) : t('{d} km', { d: fmtKm(detour.km) }), detour.gainM ? `${num(detour.gainM)} m ↑` : '', detour.min ? t('about {min} min', { min: num(detour.min) }) : '', detour.oneWay && detour.min && !detour.reached ? t('there about {at}', { at: hhmm(goalEta ?? detour.at + detour.min * 60000) }) : '', detour.rejoin ? t('back on the route at km {km}', { km: num(Math.round(detour.rejoin.km)) }) : '', detour.extraKm != null && detour.extraKm > 0 ? t('{d} km more', { d: fmtKm(detour.extraKm) }) : '', detour.skippedKm > 0 ? t('{d} km of the route left out', { d: fmtKm(detour.skippedKm) }) : ''].filter(Boolean).join(' · ')}</small>
+              {#if detour.via}<ReserveNote cls="lv-reserve" />{/if}
+              <SurfaceNote surface={detour.surface} profile={detour.profile} cls="lv-surface" />
               {#if goalOn}<span class="lv-goalbar" aria-hidden="true" data-live-goal-bar><i style:width="{Math.round(goalFrac * 100)}%"></i></span>{/if}
               {#if goalOn && detourTurns.length}
                 <details class="lv-steps" data-live-steps>
@@ -1686,11 +1738,13 @@
                     <div class="lv-n3" data-live-next3-rows>
                       {#each next3.rows as r (r.h)}
                         {@const f = cellFlags(r)}
-                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''}>
-                          <small>{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
+                        {@const wear = wearTip(f)}
+                        <span class="lv-n3-c" class:n3-rain={f.rain === 'high'} class:n3-some={f.rain === 'some'} class:n3-cold={f.cold === 'cold'} data-n3-rain={f.rain ?? ''} data-n3-cold={f.cold ?? ''} data-n3-wind={f.wind ? 'yes' : ''} data-n3-dark={r.dark == null ? '' : r.dark ? 'night' : 'day'}>
+                          <small>{#if r.dark != null}{#if r.dark}<Moon size={14} aria-hidden="true" />{:else}<Sun size={14} aria-hidden="true" />{/if}{/if}{r.h === 0 ? t('Now|hours') : t('+{h} h', { h: r.h })}</small>
                           <b>{#if f.cold === 'cold'}<Snowflake size={14} aria-hidden="true" />{/if}{r.feels != null ? Math.round(r.feels) + '°' : '–'}</b>
                           <small>{#if f.rain}<CloudRain size={14} aria-hidden="true" />{/if}{r.rain != null ? r.rain + ' %' : ''}</small>
                           {#if f.wind}<small class="n3-wind"><Wind size={14} aria-hidden="true" />{Math.round(r.wind)} km/h</small>{/if}
+                          {#if wear}<small class="n3-tip" data-n3-wear={wear}>{wear === 'rain' ? t('Rain jacket') : wear === 'warm' ? t('Warm layer, gloves') : wear === 'arm' ? t('Arm warmers') : t('Wind vest')}</small>{/if}
                         </span>
                       {/each}
                     </div>
@@ -1956,7 +2010,10 @@
         <label class="lv-opt"><input type="checkbox" checked={cfg.sleepSpots ?? isRace} onchange={(e) => setOpt('sleepSpots', e.currentTarget.checked)} disabled={!hasRoute} data-live-opt="sleepSpots" /><span><b>{t('Places to sleep ahead')}</b><small>{hasRoute ? t('The next three places to sleep on the route in the panel: hotels, roofs, places open at night and your own spots. On by default in a race.') : t('Needs a route.')}</small></span></label>
       </li>
       <li class="rc-row">
-        <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration.')}</small></span></label>
+        <WayMemory />
+      </li>
+      <li class="rc-row">
+        <label class="lv-opt"><input type="checkbox" checked={cfg.storm} onchange={(e) => setOpt('storm', e.currentTarget.checked)} data-live-opt="storm" /><span><b>{t('Thunderstorm and heavy rain alert')}</b><small>{t('Every 15 min the forecast for the next 2 hours where you ride (Open-Meteo, free): a line and a vibration. With the nearest roof, if you want it.')}</small></span></label>
       </li>
     </ul>
   </details>
@@ -1973,7 +2030,7 @@
   {/if}
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
-{#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
+{#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} tripBikeId={trip?.bikeId ?? null} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} exitNear={exitNear} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
 {#if place}<PlaceSheet {trip} onclose={() => (place = false)} />{/if}
@@ -2464,6 +2521,16 @@
   .lv-detour .lv-back-err {
     color: var(--bad);
   }
+  .lv-detour :global(.lv-surface) {
+    margin: 0;
+    font-size: var(--fs-small);
+    opacity: 0.85;
+  }
+  .lv-detour :global(.lv-reserve) {
+    margin: 0;
+    font-size: var(--fs-small);
+    opacity: 0.85;
+  }
   .lv-detour-small {
     align-items: center;
     gap: var(--sp-1);
@@ -2788,6 +2855,10 @@
     display: inline-flex;
     align-items: center;
     gap: 3px;
+  }
+  .lv-n3-c .n3-tip {
+    font-weight: 600;
+    color: var(--ink);
   }
   .lv-n3-c .n3-wind {
     white-space: nowrap;

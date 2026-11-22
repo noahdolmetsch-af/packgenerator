@@ -7,13 +7,17 @@
    * the button «Plan the week» and a small form to add a date or a to-do. On a phone the days fold to
    * one line each (Noah «2a»), today open. Rules: lib/woche.js; data: lib/woche/load.js.
    */
-  import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
+  import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Bike, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import FreeSlotCard from '../lib/freiezeit/FreeSlotCard.svelte'; // Idee A3: free time plus good weather
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
   import WeekPeople from '../lib/alltag/WeekPeople.svelte'; // «Alles finden»: people to see again this week
+  import WeekGoals from '../lib/flow/WeekGoals.svelte'; // «Woche» (Schritt V1): the goals of the week stand here, not only on Aktiv
+  import { flowQuery } from '../lib/flow/data.svelte.js';
+  import WeekClose from '../lib/woche/WeekClose.svelte'; // «Planen 2b»: the Sunday wrap-up
+  import { weekClose, moveItems, isSunday } from '../lib/woche/abschluss.js';
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { titleOf, subOf, dayName, shortDate, hours, holidayName, wxWords, reviewLine, hintText } from '../lib/woche/words.js';
@@ -27,9 +31,12 @@
   import { PHONE_ROWS } from '../lib/touren/kurz.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
+  import { deleteWithUndo } from '../lib/ui/ask.js';
 
   const today = localDay();
   const q = weekQuery(today);
+  const fq = flowQuery(today); // the activities and ticks for the goals of the week
+  const fdata = $derived($fq);
   const src = $derived($q);
   let next = $state(false);
   const monday = $derived(shiftDay(mondayOf(today), next ? 7 : 0));
@@ -45,6 +52,9 @@
   // «Planen als verbindende Mitte» 5a: «For 2.–8. Nov.» instead of a bare number range
   const rangeLong = $derived(`${new Date(`${monday}T12:00:00Z`).getUTCDate()}.–${new Date(`${shiftDay(monday, 6)}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', day: 'numeric', month: 'short' })}`);
   const range = $derived(`${shortDate(monday)}–${shortDate(shiftDay(monday, 6))}`);
+  // «Planen 2a»: the best free and dry window of the shown week; its day carries a small mark
+  let win = $state(null);
+  const winMins = (w) => `${new Date(w.start).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' })}–${new Date(w.end).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' })}`;
   const due = $derived(src && src.planned !== planMonday(today));
 
   async function saveItems(list) {
@@ -52,7 +62,11 @@
   }
   const items = () => src?.rawItems ?? [];
   const toggleDone = (e) => saveItems(items().map((x) => (x.id === e.id ? { ...x, done: !x.done } : x)));
-  const remove = (e) => saveItems(items().filter((x) => x.id !== e.id));
+  // Delete rule: «Remove» on a date or to-do offers Undo (it was gone for good before)
+  const remove = (e) => {
+    const gone = items().find((x) => x.id === e.id);
+    return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e) });
+  };
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
 
   // Impeccable P5: every suggestion button says what it did and offers Undo
@@ -98,6 +112,17 @@
     await saveItems(list);
     const msg = how === 'drop' ? t('«{name}» dropped.', { name: x.title }) : how === 'move' ? t('«{name}» moved to today.', { name: x.title }) : t('«{name}» kept without a day.', { name: x.title });
     offerDone(msg, () => saveItems(before));
+  }
+  // «Planen 2b» (Noah 05.11.2026): Sunday wrap-up of the shown week: done, still open, slides to next Monday
+  let wrapOpen = $state(false); // asked for by hand on any day
+  let wrapLater = $state(false);
+  const wrapShown = $derived(!!week && !next && !wrapLater && (wrapOpen || isSunday(today)));
+  const wrap = $derived(week ? weekClose(week.days, monday, today, week.sums.trips) : null);
+  async function wrapMove(ids) {
+    const before = items();
+    const day = wrap.next;
+    await saveItems(moveItems(before, ids, day));
+    offerDone(tn(ids.length, '{n} task moved to Monday.', '{n} tasks moved to Monday.'), () => saveItems(before));
   }
   const emptyWeek = $derived(!!week && week.days.every((d) => !d.entries.length));
   async function add(ev) {
@@ -150,7 +175,7 @@
   <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
   <AreaIntro place="weekplan" />
   <AllHere area="plan" />
-  <FreeSlotCard />
+  <FreeSlotCard {monday} onfound={(w) => (win = w)} />
 
   {#if week}
     <div class="top">
@@ -167,11 +192,13 @@
     </div>
 
     <p class="sum" data-week-sum>
-      <span>{tn(week.sums.sessions, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
+      {#if week.sums.trips}<span data-week-trips>{tn(week.sums.trips, '{n} trip|week', '{n} trips|week')}</span>{/if}
+      <span data-week-units>{week.sums.sessions ? tn(week.sums.sessions, '{done} of {n} session done|week', '{done} of {n} sessions done|week', { done: week.sums.sessionsDone }) : tn(0, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
       <span>{tn(week.sums.dates, '{n} date', '{n} dates')}</span>
       <span>{tn(week.sums.todos, '{n} to-do', '{n} to-dos')}</span>
       {#if week.sums.away.length}<span><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
       {#if week.sums.bike}<span>{tn(week.sums.bike, '{n} bike job open', '{n} bike jobs open')}</span>{/if}
+      {#if !next && !wrapShown}<button type="button" class="btn sm" data-wrap-open-btn onclick={() => { wrapLater = false; wrapOpen = true; }}>{t('Show the week wrap-up')}</button>{/if}
     </p>
     {#if reviewLine(week.review) || week.hints.length}
       <div class="notes">
@@ -180,7 +207,8 @@
       </div>
     {/if}
 
-    {#if openOld.length}
+    {#if wrapShown}<WeekClose close={wrap} onmove={wrapMove} onnext={() => (next = true)} onlater={() => { wrapOpen = false; wrapLater = true; }} />{/if}
+    {#if openOld.length && !wrapShown}
       <section class="wclose" data-week-close aria-label={t('Close the week')}>
         <h2>{t('Close the week')}</h2>
         <p class="why">{t('Still open from earlier days ({n}). You decide on each one.', { n: openOld.length })}</p>
@@ -206,6 +234,7 @@
               <summary>
                 <b>{dayName(d.day)}</b>
                 {#if d.wx}{@render wxMark(d.wx)}{/if}
+                {#if win?.date === d.day}{@render winMark(win)}{/if}
                 <span class="dots" aria-hidden="true">{#each dotsOf(d) as k (k)}<i class="k-{k}"></i>{/each}</span>
                 <span class="cnt">{d.holiday ? holidayName(d.holiday) : d.today ? t('today') : tn(d.entries.length, '{n} entry', '{n} entries')}</span>
                 <ChevronRight size={18} aria-hidden="true" />
@@ -218,7 +247,7 @@
           {:else}
             <div class="dc" class:today={d.today} class:past={d.past} data-day={d.day}>
               <h3><span>{dayName(d.day).split(' ')[0]}</span> <b class="num">{dayName(d.day).split(' ').slice(1).join(' ')}</b></h3>
-              {#if d.wx || d.holiday}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
+              {#if d.wx || d.holiday || win?.date === d.day}<p class="dm">{#if d.wx}{@render wxMark(d.wx)}{/if}{#if win?.date === d.day}{@render winMark(win)}{/if}{#if d.holiday}<span class="hol" data-holiday={d.holiday}>{holidayName(d.holiday)}</span>{/if}</p>{/if}
               {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{/each}
               {#if !d.past}<button type="button" class="dayadd" onclick={() => planDay(d.day)} data-day-add={d.day}><Plus size={16} aria-hidden="true" />{t('Add to plan')}</button>{/if}
             </div>
@@ -227,6 +256,7 @@
       </section>
 
       <aside class="side">
+        {#if !next && fdata}<div data-week-goals><WeekGoals acts={fdata.acts} log={fdata.log} tripDays={fdata.tripDays} {today} /></div>{/if}
         <section class="card wc sg" aria-labelledby="wk-sg">
           <h2 id="wk-sg"><button type="button" class="sgh" aria-expanded={sgOpen} aria-controls="wk-sg-body" data-sg-toggle onclick={toggleSg}>
             <span>{t('Still to plan')}<small>{tn(week.suggestions.length, '{n} suggestion', '{n} suggestions')}</small></span>
@@ -309,6 +339,8 @@
             </div>
           {/if}
           <p class="why">{t(TRAIN_NOTE)}</p>
+          <!-- «Wochenplan» (Noah 09.11.2026): the plan of your training hours; the way to it starts where the week is planned -->
+          <a class="btn btn-link sm" href="#/flow/wochenplan" data-to-wochenplan>{t('Weekly plan for your training')}<ChevronRight size={16} aria-hidden="true" /></a>
         </section>
       </aside>
     </div>
@@ -316,6 +348,10 @@
   <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
   <PasstHier place="woche" />
 </div>
+
+{#snippet winMark(w)}
+  <span class="win" data-win-day title={t('Here a {n}-hour round fits: about {km} km.', { n: w.hours, km: w.km })}><Bike size={14} aria-hidden="true" />{winMins(w)}</span>
+{/snippet}
 
 {#snippet wxMark(wx)}
   <span class="wx" class:wet={wx.wet} data-wx={wx.wet ? 'wet' : wx.dry ? 'dry' : 'showers'}>
@@ -447,6 +483,16 @@
   }
   .wx.wet {
     color: var(--wk-date);
+  }
+  .win {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--hi-soft);
+    color: var(--hi);
+    font-size: var(--fs-tiny);
   }
   .hol {
     padding: 1px 6px;

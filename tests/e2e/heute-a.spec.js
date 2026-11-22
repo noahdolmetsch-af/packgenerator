@@ -43,10 +43,10 @@ test.describe('HA Heute neu A', () => {
     await expect(page.locator('[data-section="vitals"]')).toHaveCount(0);
     // «Neuer Schwung» Blatt von unten (Noah 27.10.2026 «a», changed on purpose): on a phone «Details» opens a sheet
     await expect(body.getByRole(info.project.name === 'phone' ? 'button' : 'link', { name: new RegExp(T('Details|body')) })).toBeVisible();
-    // the countdown chip to the next trip (tomorrow), with the trip's own name
-    const chip = page.locator('[data-goals] [data-goal-countdown]');
-    await expect(chip).toContainText('Herbstrunde');
-    await expect(chip).toContainText(T('Tomorrow · {h} h to go', { h: 23 }).split('·')[0].trim());
+    // 17.11.2026 (changed on purpose, Noah «1-5a», «Tour nur einmal»): «My tour» is on the wall and names the trip with its
+    // countdown, so the chip under the greeting is away (it comes back without the card: tests/e2e/tour-einmal.spec.js)
+    await expect(page.locator('[data-goals] [data-goal-countdown]')).toHaveCount(0);
+    await expect(page.locator('[data-section="meinetour"] [data-meinetour-countdown]')).toContainText(T('Tomorrow · {h} h to go', { h: 23 }).split('·')[0].trim());
     const acts = page.locator('[data-section="acts"]');
     await expect(acts.getByRole('heading', { name: T('Active today') })).toBeVisible();
     await expect(acts.locator('[data-act]').first()).toBeVisible();
@@ -55,7 +55,8 @@ test.describe('HA Heute neu A', () => {
     const order = await page.evaluate(() => [...document.querySelectorAll('.wall [data-tile]')].map((x) => x.dataset.tile));
     // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): areas with a heading; «Jetzt» (meditation, «Up now») first,
     // then «Dein Körper» with the weight, the body and Aktiv («Körperwerte» left the ready wall, 2a)
-    expect(order[0]).toBe('meditation');
+    // «Meine Tour» (Plan 2a): with a planned tour its card is first, the meditation card right under it
+    expect(order.slice(0, 2)).toEqual(['meinetour', 'meditation']);
     const bodyArea = order.filter((id) => ['weighin', 'body', 'acts'].includes(id));
     expect(bodyArea).toEqual(HEAD_N2.filter((id) => ['weighin', 'body', 'acts'].includes(id) && order.includes(id)));
     for (const id of ['week', 'balance', 'bikes']) expect(order, id).toContain(id);

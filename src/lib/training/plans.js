@@ -13,6 +13,7 @@ import { powerRange } from './act/power.js';
 export const TPL_KEY = 'training.tpl'; // the plan in use: { id, mode: 'race'|'start', date, hours, first }
 export const OWN_KEY = 'training.tplOwn'; // own plans: [{ id, name, base, weeks, lo, hi, order }]
 export const HIDE_KEY = 'training.tplHidden'; // ids of hidden sample plans
+export const MORE_KEY = 'training.tplMore'; // the other plans in use next to the main one (Noah «1-3 a» 07.11.2026): [{ id, mode, date, hours, first, tripId? }]
 export const SRC = 'tpl'; // src of a session written by a plan
 
 /**
@@ -22,7 +23,7 @@ export const SRC = 'tpl'; // src of a session written by a plan
  */
 const D = (dow, share, zone, name, more = {}) => ({ dow, share, zone, name, ...more });
 
-/** The four sample plans; names and texts are English sources for t(). */
+/** The sample plans (kind: the sport of the sessions, bike when missing); names and texts are English sources for t(). */
 export const PLAN_TEMPLATES = [
   {
     id: 'first',
@@ -59,6 +60,60 @@ export const PLAN_TEMPLATES = [
     lo: 4,
     hi: 6,
     days: [D(1, 0.15, 4, 'Short and hard: 4 × 8 min'), D(3, 0.15, 3, 'Tempo: 2 × 12 min'), D(5, 0.55, 2, 'Long ride, calm', { long: true }), D(6, 0.15, 1, 'Easy spin')],
+  },
+  {
+    id: 'skitour',
+    name: 'Ski touring',
+    kind: 'hike',
+    event: true,
+    who: 'For a winter of ski tours: legs and stamina first, long days in the mountains at the end.',
+    weeks: 10,
+    lo: 4,
+    hi: 7,
+    days: [D(1, 0.18, 2, 'Easy uphill walk'), D(3, 0.17, 3, 'Steady climb: 3 × 15 min'), D(5, 0.5, 2, 'Long mountain day, calm', { long: true }), D(6, 0.15, 1, 'Easy walk')],
+  },
+  {
+    id: 'hike',
+    name: 'Hiking',
+    kind: 'hike',
+    event: true,
+    who: 'For a multi-day hike: more time on your feet, one long day a week.',
+    weeks: 8,
+    lo: 4,
+    hi: 8,
+    days: [D(2, 0.2, 2, 'Easy walk'), D(4, 0.2, 2, 'Walk with some climbing'), D(5, 0.45, 2, 'Long hike, calm', { long: true }), D(6, 0.15, 1, 'Easy walk')],
+  },
+  {
+    id: 'strength',
+    name: 'Strength',
+    kind: 'other',
+    who: 'For two or three strength sessions a week next to your sport.',
+    weeks: 8,
+    lo: 2,
+    hi: 4,
+    days: [D(0, 0.35, 3, 'Strength: legs and core'), D(2, 0.3, 3, 'Strength: back and arms'), D(4, 0.35, 3, 'Strength: full body')],
+  },
+  {
+    id: 'run10',
+    name: 'Run 10 km',
+    kind: 'run',
+    event: true,
+    who: 'For a first 10 km run: three runs a week, one a little longer.',
+    weeks: 8,
+    lo: 2,
+    hi: 4,
+    days: [D(1, 0.25, 2, 'Easy run'), D(3, 0.25, 3, 'Run with short fast parts: 6 × 2 min'), D(5, 0.5, 2, 'Long run, calm', { long: true })],
+  },
+  {
+    id: 'mobility',
+    name: 'Mobility and core',
+    kind: 'other',
+    minMins: 15,
+    who: 'For short sessions every day: stretching, mobility and the core, 15 to 30 minutes.',
+    weeks: 6,
+    lo: 1,
+    hi: 2,
+    days: [D(0, 0.25, 1, 'Mobility: hips and back'), D(2, 0.25, 1, 'Core: plank and side plank'), D(4, 0.25, 1, 'Mobility: shoulders and neck'), D(6, 0.25, 1, 'Stretching: whole body')],
   },
 ];
 
@@ -107,7 +162,7 @@ export function weekFactor(i, n) {
 }
 
 /** Minutes rounded to 15, at least 30, at most 10 hours. */
-const mins15 = (m) => Math.min(600, Math.max(30, Math.round(m / 15) * 15));
+const mins15 = (m, min = 30) => Math.min(600, Math.max(min, Math.round(m / 15) * 15));
 
 /**
  * The first Monday of a plan. mode 'race': the race day is in the last week; mode 'start': the week of
@@ -137,7 +192,7 @@ export function buildPlan(plan, { first, hours, race = null }) {
       const day = shiftDay(monday, d.dow);
       if (race && day >= race) continue;
       const second = d.b2b && !b2bOn;
-      sessions.push({ day, kind: 'bike', name: second ? 'Endurance ride' : d.name, mins: mins15(week * d.share * (second ? 0.6 : 1)), zone: d.zone, long: !!d.long || (d.b2b && b2bOn) });
+      sessions.push({ day, kind: plan.kind ?? 'bike', name: second ? 'Endurance ride' : d.name, mins: mins15(week * d.share * (second ? 0.6 : 1), plan.minMins ?? 30), zone: d.zone, long: !!d.long || (d.b2b && b2bOn) });
     }
     out.push({ i, monday, kind, mins: sessions.reduce((s, x) => s + x.mins, 0), sessions });
   }
@@ -152,14 +207,28 @@ export const longestOf = (week) => Math.max(0, ...week.sessions.map((s) => s.min
  * plan's sessions from today on are added (names through tr, the translate function). Sessions the user
  * planned by hand stay. → sessions
  */
-export function applyPlan(sessions, weeks, planId, today, tr = (x) => x) {
-  const keep = sessions.filter((s) => !(String(s.src ?? '').startsWith(`${SRC}:`) && s.day >= today));
+export function applyPlan(sessions, weeks, planId, today, tr = (x) => x, only = false) {
+  const mine = (s) => (only ? s.src === `${SRC}:${planId}` : String(s.src ?? '').startsWith(`${SRC}:`));
+  const keep = sessions.filter((s) => !(mine(s) && s.day >= today));
   const add = weeks.flatMap((w) => w.sessions).filter((s) => s.day >= today).map((s) => cleanSession({ ...s, id: '', name: tr(s.name), src: `${SRC}:${planId}` }));
   return [...keep, ...add.filter(Boolean)];
 }
 
 /** The week plan without a plan's sessions from today on (the past stays as it was). */
-export const removePlan = (sessions, today) => sessions.filter((s) => !(String(s.src ?? '').startsWith(`${SRC}:`) && s.day >= today));
+export const removePlan = (sessions, today, planId = null) => sessions.filter((s) => !((planId ? s.src === `${SRC}:${planId}` : String(s.src ?? '').startsWith(`${SRC}:`)) && s.day >= today));
+
+/** The other plans in use as stored: a list of { id, mode, date, hours, first, tripId? } of known plans, once each. */
+export function cleanMore(v, mainId = null) {
+  if (!Array.isArray(v)) return [];
+  const seen = new Set(mainId ? [mainId] : []);
+  const out = [];
+  for (const e of v) {
+    if (!e?.id || seen.has(e.id) || !/^\d{4}-\d{2}-\d{2}$/.test(String(e.first ?? ''))) continue;
+    seen.add(e.id);
+    out.push({ id: String(e.id), mode: e.mode === 'race' ? 'race' : 'start', date: String(e.date ?? ''), hours: Number(e.hours) > 0 ? Number(e.hours) : 0, first: e.first, ...(e.tripId ? { tripId: String(e.tripId) } : {}) });
+  }
+  return out;
+}
 
 /** How many weeks of a plan lie before this week (they fall away when the race is close). */
 export const weeksGone = (first, today) => (first ? Math.max(0, Math.round((Date.parse(`${mondayOf(today)}T12:00:00Z`) - Date.parse(`${first}T12:00:00Z`)) / (7 * 864e5))) : 0);

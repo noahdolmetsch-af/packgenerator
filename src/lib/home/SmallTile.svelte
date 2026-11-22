@@ -1,12 +1,12 @@
 <script module>
-  import { Zap, Backpack, Shirt, Scale, Wrench, Route, FileText, Layers, Heart, ChartColumn, StickyNote, Gauge, Blocks, Star, BookOpen, TriangleAlert, Activity, Flame, Sparkles, Flower2, FlaskConical, Sun, Lightbulb, Bike, MessageCircle, Info, Inbox, Database, Plus, List, ChevronRight, Navigation } from '@lucide/svelte';
+  import { Zap, Backpack, Shirt, Scale, Wrench, Route, FileText, Layers, Heart, ChartColumn, StickyNote, Gauge, Blocks, Star, BookOpen, TriangleAlert, Activity, Flame, Sparkles, Flower2, FlaskConical, Sun, Lightbulb, Bike, MessageCircle, Info, Inbox, Database, Plus, List, ChevronRight, Navigation, Quote } from '@lucide/svelte';
   /** The icons of the tiles (tiles.js icon keys). */
   // a long word may break on a small phone tile: only where German breaks it (a soft hyphen after the
   // first part, «Kleider-schrank»). → the label in pieces, each piece its own span.
   // Gesamttest 26.10.2026: also «Werkzeug-kasten» and «Schweiz-Mobil» (they broke mid-word in a tile)
   const PARTS = /^(Kleider|Wunsch|Velo|Rück|Meilen|Spiel|Lieblings|Erinnerungs|Baustein|Ausrüstungs|Werkzeug|Schweiz)(\p{L}{4,})$/u;
   export const soft = (text) => text.replace(/\p{L}{11,}/gu, (w) => w.replace(PARTS, '$1\u00ad\n$2')).split('\n');
-  export const ICON = { zap: Zap, bag: Backpack, shirt: Shirt, scale: Scale, wrench: Wrench, route: Route, file: FileText, wardrobe: Shirt, layers: Layers, heart: Heart, chart: ChartColumn, note: StickyNote, counter: Gauge, blocks: Blocks, star: Star, book: BookOpen, alert: TriangleAlert, flow: Activity, flame: Flame, sparkles: Sparkles, lotus: Flower2, flask: FlaskConical, sun: Sun, bulb: Lightbulb, bike: Bike, chat: MessageCircle, info: Info, inbox: Inbox, data: Database, plus: Plus, list: List, ride: Navigation };
+  export const ICON = { quote: Quote, zap: Zap, bag: Backpack, shirt: Shirt, scale: Scale, wrench: Wrench, route: Route, file: FileText, wardrobe: Shirt, layers: Layers, heart: Heart, chart: ChartColumn, note: StickyNote, counter: Gauge, blocks: Blocks, star: Star, book: BookOpen, alert: TriangleAlert, flow: Activity, flame: Flame, sparkles: Sparkles, lotus: Flower2, flask: FlaskConical, sun: Sun, bulb: Lightbulb, bike: Bike, chat: MessageCircle, info: Info, inbox: Inbox, data: Database, plus: Plus, list: List, ride: Navigation };
 </script>
 
 <script>

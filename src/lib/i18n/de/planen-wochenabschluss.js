@@ -1,0 +1,23 @@
+// «Planen 2b: Wochen-Abschluss am Sonntag» (Noah 05.11.2026): src/lib/woche/WeekClose.svelte, abschluss.js, pages/Woche.svelte
+export default {
+  'Week wrap-up': 'Wochen-Abschluss',
+  'Open Woche: the whole week; on Sunday the wrap-up looks back.': 'Öffne Woche: die ganze Woche; am Sonntag schaut der Abschluss zurück.',
+  'Show the week wrap-up': 'Wochen-Abschluss zeigen',
+  'Nothing was planned or done this week. Plan the next one when you like.': 'Diese Woche war nichts geplant oder erledigt. Plane die nächste, wenn du magst.',
+  'Done|wrap': 'Erledigt',
+  'nothing yet': 'noch nichts',
+  'Still open': 'Noch offen',
+  'nothing, all ticked': 'nichts, alles abgehakt',
+  'Slides to next week': 'Rutscht in die nächste Woche',
+  'nothing: no open to-do or bike job': 'nichts: keine offene Aufgabe oder Velo-Arbeit',
+  'Your own open to-dos and bike jobs. Untick what should stay as it is.': 'Deine eigenen offenen To-dos und Velo-Arbeiten. Nimm den Haken weg, was so bleiben soll.',
+  '{n} task': '{n} Aufgabe',
+  '{n} tasks': '{n} Aufgaben',
+  'Move {n} task to Monday': '{n} Aufgabe auf Montag verschieben',
+  'Move {n} tasks to Monday': '{n} Aufgaben auf Montag verschieben',
+  '{n} task moved to Monday.': '{n} Aufgabe auf Montag verschoben.',
+  '{n} tasks moved to Monday.': '{n} Aufgaben auf Montag verschoben.',
+  'Plan next week': 'Nächste Woche planen',
+  'Show next week': 'Nächste Woche ansehen',
+  'Sport, dates, to-dos, holidays and bike service in one week; on Sunday the app suggests, you decide. Time before and after a date becomes its own entry. On Sunday, or with «Show the week wrap-up»: done, still open, and what slides to next Monday.': 'Sport, Termine, To-dos, Ferien und Velo-Service in einer Woche; am Sonntag schlägt die App vor, du entscheidest. Zeit vor und nach einem Termin wird ein eigener Eintrag. Am Sonntag, oder mit «Wochen-Abschluss zeigen»: erledigt, noch offen und was auf Montag rutscht.',
+};

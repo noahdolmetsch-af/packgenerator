@@ -8,7 +8,8 @@
    * - A tap, a click or Enter opens what is behind the column (onopen(i)): the sheet of the week or day.
    * - «Als Tabelle» shows the same numbers as rows (table: { head, rows }).
    * cols: [{ key, x, top, parts: [{ v, color }] }] (x: the label under it or ''), line: [number] or null,
-   * readout(i) → { title, items }, label: what the chart shows (for screen readers), unit: of the axis.
+   * readout(i) → { title, items }, label: what the chart shows (for screen readers), unit: of the axis,
+   * steps: the allowed axis steps (counts: [1, 2, 5, 10 …] so the axis never says 0.5 sessions).
    */
   import { niceScale, fracOf, tickText } from './axis.js';
   import YTicks from './YTicks.svelte';
@@ -19,10 +20,10 @@
   import { indexAt, stepKey } from './pick.js';
   import { t, num } from '../i18n.svelte.js';
 
-  let { cols = [], line = null, lineColor = 'var(--ch-w)', readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 26, id = 'bc' } = $props();
+  let { cols = [], line = null, lineColor = 'var(--ch-w)', readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 26, id = 'bc', steps = null } = $props();
 
   const totals = $derived(cols.map((c) => c.parts.reduce((s, p) => s + (p.v || 0), 0)));
-  const scale = $derived(niceScale([...totals, ...(line ?? [])], { zero: true, count: 4 }));
+  const scale = $derived(niceScale([...totals, ...(line ?? [])], { zero: true, count: 4, steps }));
   const n = $derived(cols.length);
   // each bar as pieces from a to b, stacked from the bottom
   const stacks = $derived(
@@ -35,7 +36,15 @@
   const y = (v) => 100 - fracOf(v, scale) * 86;
   const W = $derived(Math.max(1, n) * 10);
   const bw = $derived(n > 26 ? 8.4 : 7.2);
-  const linePath = $derived(line ? line.map((v, i) => `${i ? 'L' : 'M'}${i * 10 + 5},${y(v)}`).join(' ') : '');
+  // a gap (null) in the line starts a new piece, never a fall to 0
+  const linePath = $derived(
+    line
+      ? line
+          .map((v, i, a) => (v == null || !Number.isFinite(v) ? '' : `${i > 0 && a[i - 1] != null && Number.isFinite(a[i - 1]) ? 'L' : 'M'}${i * 10 + 5},${y(v)}`))
+          .filter(Boolean)
+          .join(' ')
+      : '',
+  );
 
   let sel = $state(null);
   let view = $state('chart');
@@ -92,7 +101,7 @@
         {#if n <= maxTop}
           {#each cols as c, i (c.key)}{#if c.top}<b class="top num" style:left="{((i + 0.5) / n) * 100}%" style:bottom="{fracOf(totals[i], scale) * 86}%">{c.top}</b>{/if}{/each}
         {/if}
-        {#if line && sel != null}<i class="dot" style:left="{((sel + 0.5) / n) * 100}%" style:bottom="{fracOf(line[sel], scale) * 86}%" style:background={lineColor}></i>{/if}
+        {#if line && sel != null && line[sel] != null}<i class="dot" style:left="{((sel + 0.5) / n) * 100}%" style:bottom="{fracOf(line[sel], scale) * 86}%" style:background={lineColor}></i>{/if}
       </div>
       <div class="xs num" aria-hidden="true">
         {#each cols as c, i (c.key)}{#if c.x}<span style:left="{((i + 0.5) / n) * 100}%" class:first={i === 0} class:last={i === n - 1}>{c.x}</span>{/if}{/each}

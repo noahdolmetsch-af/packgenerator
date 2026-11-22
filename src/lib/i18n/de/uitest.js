@@ -10,12 +10,6 @@ export default {
   // T2 «Unterwegs: eine Startzeit, vor dem Start nur Losfahren»
   'A recording of this trip is running since {time}. The blocks and the arrival count from then.': 'Eine Aufzeichnung dieser Tour läuft seit {time}. Die Blöcke und die Ankunft zählen ab dann.',
   'Ends the trip without riding on': 'Beendet die Tour, ohne weiterzufahren',
-  // Schrittleiste (Noah 26.10.2026 «1b»): the short names of the step bar, the same words in German
-  'Plan|bar': 'Plan',
-  'Pack|bar': 'Pack',
-  'Live|bar': 'Live',
-  'Review|bar': 'Review',
-  'Analyse|bar': 'Analyse',
   // T3 «Form: eine Rechnung, ein Wort»
   'Form {form} = fitness {fit} − fatigue {fat}': 'Form {form} = Fitness {fit} − Müdigkeit {fat}',
   'Form effect on today': 'Form-Einfluss auf heute',
@@ -59,4 +53,17 @@ export default {
   'This device is still empty (at most the examples of the first start). Take the file over with «Replace all data».': 'Dieses Gerät ist noch leer (höchstens die Beispiele vom ersten Start). Übernimm die Datei mit «Alle Daten ersetzen».',
   'The examples of the first start are still here: «Remove the examples» below takes them away, your own data stays.': 'Die Beispiele vom ersten Start sind noch da: «Beispiele entfernen» weiter unten nimmt sie weg, deine eigenen Daten bleiben.',
   'This device has nothing of your own yet (at most the examples of the first start), so nothing is lost.': 'Auf diesem Gerät ist noch nichts von dir (höchstens die Beispiele vom ersten Start), es geht also nichts verloren.',
+  // T12 «Kleine Rechenfehler»
+  'Ticked off, without minutes.': 'Abgehakt, ohne Minuten.',
+  'ticked|med': 'abgehakt',
+  'Your own list is empty. For the trip «{title}» {n} thing is ready below.': 'Deine eigene Liste ist leer. Für die Tour «{title}» steht unten {n} Ding bereit.',
+  'Your own list is empty. For the trip «{title}» {n} things are ready below.': 'Deine eigene Liste ist leer. Für die Tour «{title}» stehen unten {n} Dinge bereit.',
+  'On: the food of your next trip shows here too. Off: it stays only at the trip, in Pack › Shopping and charging list.': 'An: Das Essen deiner nächsten Tour steht auch hier. Aus: Es bleibt nur bei der Tour, in Packen › Einkaufs- und Ladeliste.',
+  'One block after the other: keep, take out or move.': 'Ein Baustein nach dem anderen: behalten, rausnehmen oder verschieben.',
+  '{n} block with suggestions': '{n} Baustein mit Vorschlägen',
+  '{n} blocks with suggestions': '{n} Bausteine mit Vorschlägen',
+  '{n} with suggestions. One building block after the other: keep, out or elsewhere': '{n} mit Vorschlägen. Ein Baustein nach dem anderen: behalten, raus oder anderswohin',
+  // T13 «Hinweis zum schweren Standard»
+  'On bikepacking trips your Standard brings {kg} (without what you wear). «Tidy up» suggests {n} instead of {m} things.': 'Auf Bikepacking-Touren bringt dein Standard {kg} mit (ohne Getragenes). «Aufräumen» schlägt {n} statt {m} Teile vor.',
+  'Look at it ›': 'Ansehen ›',
 };

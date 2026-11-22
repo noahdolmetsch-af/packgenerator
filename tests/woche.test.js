@@ -24,7 +24,10 @@ describe('items and holidays', () => {
     expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: '30' }).mins).toBe(30);
     expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: 2 }).mins).toBeUndefined();
     expect(cleanItem({ kind: 'todo', title: 'Sort receipts', mins: 9999 }).mins).toBeUndefined();
-    expect(cleanItem({ kind: 'date', title: 'Dentist', day: '2026-10-20', mins: 30 }).mins).toBeUndefined();
+    // «Planen 2a»: a date may have a length too (a planned ride), the same limits; a bike job has none
+    expect(cleanItem({ kind: 'date', title: 'Dentist', day: '2026-10-20', mins: 30 }).mins).toBe(30);
+    expect(cleanItem({ kind: 'date', title: 'Dentist', day: '2026-10-20', mins: 2 }).mins).toBeUndefined();
+    expect(cleanItem({ kind: 'bike', title: 'Oil the chain', mins: 30 }).mins).toBeUndefined();
     expect(itemsOf([{ kind: 'date', title: 'Dentist' }, { kind: 'date', title: 'Tennis', day: MON, time: '18:00' }])).toHaveLength(1);
   });
   it('a holiday defaults its follow-ups by type (Noah 4a: all suggested, all deselectable)', () => {
@@ -133,12 +136,14 @@ describe('buildWeek', () => {
 describe('the place «Woche» (Noah 1a)', () => {
   it('is a place next to Heute; the phone bar keeps five, without Material', () => {
     // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos; Material shares the slot of Velos
-    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'gear', 'quick']); // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
-    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'active', 'bikes', 'quick']);
+    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'gear', 'analysis', 'quick']); // V4a (Noah 21.11.2026): Aktiv is part of Woche, Auswerten is a place of its own // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
+    expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'analysis']);
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');
     expect(placeOf('week')).toBe('week');
-    expect(PLACE_TABS.week).toHaveLength(12); // Alltag sichtbar: + Merken; «Alles finden 2»: + Inspiration, Links; // N1: + Termine, Notizen; Tagebuch 20.10.2026: + Tagebuch; UI-Ziele #6: + Eingang, Mail, Kompass, Alltag, Freie Zeit; Woche covers plan and away
+    // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): eleven tabs became three, every old page is a chip (`subs`) under one of them
+    expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'training', 'notes', 'alltag']);
+    expect(PLACE_TABS.week.flatMap((x) => x.subs.map((s) => s.key)).sort()).toEqual(['agenda', 'alltag', 'compass', 'flowhome', 'frei', 'impulse', 'inbox', 'links', 'mail', 'notes', 'remember', 'rest', 'sports', 'tagebuch', 'training', 'week', 'wochenplan']); // Woche covers plan and away
     expect(tabOf('week', '#/week')).toBe('week');
     expect(tabOf('week', '#/week/plan')).toBe('week'); // UI-Ziele #6: one tap from the week
     expect(tabOf('week', '#/week/away')).toBe('week');

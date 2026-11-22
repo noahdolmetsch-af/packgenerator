@@ -86,3 +86,34 @@ test('Update on an app left open: coming back to the screen brings the new versi
   await expect.poll(() => page.locator('main').innerText(), { timeout: 60_000, message: 'die offene App lädt die neue Version von selbst' }).toContain(`Version ${NEW}`);
   expect(errors).toEqual([]);
 });
+
+// 07.11.2026 (Noah: «Jetzt laden» in the dark bar does nothing on his phone): the real tap on the bar, with a
+// touch screen and the service worker on, brings the new version (and not the old one from the offline copy).
+test('The bar «Load now»: a tap on a touch screen loads the new version, data stays', async ({ browser }) => {
+  const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 800 }, serviceWorkers: 'allow' });
+  const page = await context.newPage();
+  folder = 'dist-old';
+  expect(await version(page)).toContain(`Version ${OLD}`);
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker?.controller), { timeout: 60_000 }).toBe(true);
+  await page.evaluate(() => localStorage.setItem('pg-keep', 'still here'));
+  folder = 'dist';
+  // the device has known for a long time that a newer version is online (the bar waits two minutes)
+  await page.evaluate((v) => localStorage.setItem('pg-behind', JSON.stringify({ v, at: 1 })), NEW);
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  const bar = page.locator('[data-behind-bar]');
+  await expect(bar).toBeVisible({ timeout: 30_000 });
+  const btn = bar.locator('button').first();
+  const box = await btn.boundingBox();
+  await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(page.locator('[data-behind-bar]')).toHaveCount(0, { timeout: 30_000 });
+  await page.locator('main').waitFor({ timeout: 30_000 });
+  await expect.poll(() => page.evaluate(() => document.body.innerText), { timeout: 30_000 }).not.toContain(`Version ${OLD}`);
+  expect(await page.evaluate(() => localStorage.getItem('pg-keep'))).toBe('still here');
+  await page.goto(`${base}#/me`);
+  await expect(page.locator('[data-version-row]')).toContainText(`Version ${NEW}`, { timeout: 30_000 });
+  await context.close();
+});
+

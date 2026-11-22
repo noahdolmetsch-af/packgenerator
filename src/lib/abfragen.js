@@ -18,7 +18,7 @@
 import { addDays } from './flow.js';
 import { HELLO_QUESTIONS } from './home/hallo.js'; // HG1 2b: the two questions behind the greeting on Today
 import { clockOf } from './dayclock.js';
-import { DATA_QUESTIONS } from './datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
+import { DATA_QUESTIONS, customRule } from './datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
 /** v0.144.0 RE: the day starts at 11:00, the evening at 18:00 (the one day clock). */
 const DAY_FROM = clockOf('day');
 const EVENING_FROM = clockOf('evening');
@@ -475,7 +475,9 @@ export function ownOf(x) {
   const form = kind === 'number' ? { kind, unit: String(x.form?.unit ?? '').trim().slice(0, 20) } : kind === 'yesno' ? { kind, options: [{ key: 'yes', label: 'yes', v: 1 }, { key: 'no', label: 'no', v: 0 }] } : { kind };
   // a group of the list or an own group (its key starts with «area-»); anything else: «Eigene»
   const area = AREA[x?.area] || /^area-/.test(String(x?.area ?? '')) ? x.area : OWN_AREA;
-  return { id: x.id, area, text: name, form, every: everyOf(x.every), src: ['only'], own: true, show: x.show !== false };
+  // a rule of your own («Fragen aus deinen Daten»): the question is asked by the rule, never by the clock
+  const rule = customRule(x.rule);
+  return { id: x.id, area, text: name, form, every: rule ? { kind: 'off' } : everyOf(x.every), src: ['only'], own: true, show: x.show !== false, ...(rule ? { rule } : {}) };
 }
 /** A new own question with a fresh id (the time it was made). */
 export const newOwn = (fields = {}, now = new Date()) => ownOf({ ...fields, id: `own-${now.getTime().toString(36)}` });
@@ -587,8 +589,8 @@ export function putOwn(cfg, question, now) {
   const q = { ...next.q };
   const was = q[own.id] ?? {};
   const off = own.every.kind === 'off';
-  // «Aus» in the sheet switches it off; a new one or one switched on again asks from its next time
-  q[own.id] = { on: !off, since: !has || (!off && was.on === false) ? now : was.since ?? now };
+  // «Aus» in the sheet switches it off; a new one or one switched on again asks from its next time; a rule of your own never asks by the clock
+  q[own.id] = own.rule ? { on: false, since: was.since ?? now } : { on: !off, since: !has || (!off && was.on === false) ? now : was.since ?? now };
   return { ...next, q };
 }
 /** Remove an own question (its answers stay in the history). */
@@ -603,7 +605,7 @@ export function dropOwn(cfg, id) {
 export function counts(cfg) {
   const per = {};
   let on = 0;
-  const list = allQuestions(configOf(cfg));
+  const list = allQuestions(configOf(cfg)).filter((x) => !x.rule); // a rule of your own is asked by its rule, not counted here
   for (const x of list) {
     const a = x.area;
     per[a] ??= { all: 0, on: 0 };
@@ -696,16 +698,31 @@ export function roundQuestions(cfg, part, today) {
 }
 
 /**
- * Klick-Rundgang 22.10.2026 H15: the window fits its questions to the time of day. A missed evening question
- * stays (Noah 2a) and says from when it is (AbCard: «Frage von …»), after today's questions. In the evening it
- * asks about today (its latest time), not about a day missed before. due: dueList rows; → the rows to show now.
+ * Klick-Rundgang 22.10.2026 H15, changed 17.11.2026 (Noah «1-5a», Startseite ruhiger, question 2a): the window asks
+ * about TODAY only. A question missed on an earlier day does not come back as «question from Thu 20:30»: if it has
+ * had its time today, it asks about today (its latest time); if its time today has not come yet, it waits for it.
+ * So at 18:32 the window shows what is still open from this morning, never yesterday's questions.
+ * due: dueList rows; → the rows to show now.
  */
-export function fitNow(due = [], now, rounds) {
-  const eve = isEveningRound(now, rounds);
-  return due.map((d) => {
-    const late = partOf({ slot: d.last ?? d.slot }, rounds) === 'evening';
-    return eve && late && d.last && dayOf(d.slot) < dayOf(now) ? { ...d, slot: d.last } : d;
+export function fitNow(due = [], now) {
+  const today = dayOf(now);
+  return due.flatMap((d) => {
+    if (dayOf(d.slot) >= today) return [d];
+    return dayOf(d.last ?? d.slot) >= today ? [{ ...d, slot: d.last }] : [];
   });
+}
+
+/** From 11:00 the morning is over (the day clock): what is still open then is «open from this morning». */
+export const afterMorning = (now) => hmOf(now) >= DAY_FROM;
+
+/**
+ * The window's part of the day (17.11.2026, question 2a): 'morning' before 11:00, 'evening' from the evening round,
+ * in between 'rest' (what is still open from this morning). The title follows it, so the window never says
+ * «Morning check» at 18:32.
+ */
+export function windowPart(now, rounds) {
+  if (isEveningRound(now, rounds)) return 'evening';
+  return afterMorning(now) ? 'rest' : 'morning';
 }
 
 /* ---------------------------------------------------------------- Fitbit fills in */

@@ -102,7 +102,7 @@
 
 <div class="hob gb">
   <header class="ph">
-    <Crumb path={[{ href: '#/flow', label: t('Active|place') }, { href: '#/flow/sports', label: t('My sports|tab') }]} here={t('Summit book')} />
+    <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Summit book')} />
     <PageHead title={t('Summit book')} text={t('Passes, summits and trails of every sport. New places become milestones.')} />
     {#if data && rows.length}<CoreLine parts={[{ v: core.places, label: tn(core.places, 'place', 'places') }, { v: core.fresh, label: t('new in {year}', { year }) }, core.top ? { v: m(core.top.ele), label: t('highest point {year}', { year }) } : null, core.hm ? { v: `${num(core.hm)} Hm`, label: t('climbed for them in {year}', { year }) } : null]} />{/if}
   </header>
@@ -233,6 +233,7 @@
   h2 {
     margin: 0;
     font: 600 var(--fs-sub) / 1.3 var(--font-body);
+    overflow-wrap: break-word;
   }
   h3 {
     margin: var(--sp-3) 0 var(--sp-1);
@@ -242,6 +243,7 @@
     margin: 2px 0 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+    overflow-wrap: break-word;
   }
   .chips {
     display: flex;
@@ -316,6 +318,7 @@
   }
   .undo {
     margin: 0;
+    overflow-wrap: break-word;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
@@ -368,6 +371,7 @@
     display: block;
     color: var(--ink-3);
     font-size: var(--fs-small);
+    overflow-wrap: break-word;
   }
   .acts {
     display: flex;
@@ -526,6 +530,7 @@
   .note {
     margin: var(--sp-2) 0 0;
     color: var(--ink-2);
+    overflow-wrap: break-word;
   }
   .det .acts {
     margin-top: var(--sp-3);

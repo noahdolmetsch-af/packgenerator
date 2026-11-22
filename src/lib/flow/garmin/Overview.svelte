@@ -15,23 +15,29 @@
   import AzmWeek from '../../health/AzmWeek.svelte';
   import WeekNumbers from '../WeekNumbers.svelte';
   import { tableQuery } from '../../messwerte-data.js';
-  import { kindsOf, lastWeek, caloriesOf, rhrLine, latestOf } from '../../uebersicht.js';
+  import { kindsOf, lastActivity, rangeSummary, caloriesOf, rhrLine, latestOf } from '../../uebersicht.js';
   import { shown } from '../../messwerte.js';
   import { addDays } from '../../health.js';
+  import { numHref } from '../../analyse/zahlweg.js';
   import { health, FITBIT_HASH } from '../../health/client.svelte.js';
-  import { SPORT_ICON, sportName, km2 } from './words.js';
+  import { SPORT_ICON, sportName, km2, dayLabel } from './words.js';
   import { t, tn, num, locale } from '../../i18n.svelte.js';
 
   // «Computer-Breite» (Noah 26.10.2026 «2a»): part 'main' leaves out «Letzte 7 Tage», part 'last7' is only
   // «Letzte 7 Tage»; Auswerten shows them in its two columns on a computer. A phone always shows everything.
-  let { today, children, part = 'all' } = $props();
+  // «Zeitraum» (Noah 05.11.2026 «1a 2b 3a 4a»): `range` = { from, to, now, title } of the switch on Auswerten; the list of
+  // the sports follows it, «Im Fokus» and the tiles of «Überblick» keep showing the latest days. Without it: 7 days.
+  let { today, children, part = 'all', range = null } = $props();
   const top = $derived(phone.matches || part !== 'last7');
   const tail = $derived(phone.matches || part !== 'main');
   const q = tableQuery();
   const table = $derived($q ?? new Map());
   const todays = $derived(table.get(today)?.acts ?? []);
-  const kinds = $derived(kindsOf(table, today));
-  const week = $derived(lastWeek(table, today));
+  // «Aufräumen» (Noah 07.11.2026 «3a»): «Im Fokus» shows the sports of the 7 days it draws; the older ones say when the last was
+  const kinds = $derived(kindsOf(table, today, 7));
+  const last = $derived(lastActivity(table, today));
+  const asWeek = $derived(!range || range.week);
+  const week = $derived(rangeSummary(table, range?.from ?? addDays(today, -6), range?.to ?? today));
   // the calories of today, else of the latest day of the week that has some (Noah 21.10.2026: at night today has none yet)
   const kcalDay = $derived(Array.from({ length: 7 }, (_, i) => addDays(today, -i)).find((d) => { const c = caloriesOf(table.get(d)); return c.total != null || c.active != null; }) ?? today);
   const kcal = $derived(caloriesOf(table.get(kcalDay)));
@@ -75,24 +81,28 @@
   <Sec id="focus-h" title={t('In focus')} sub={t('per sport, the last 7 days · swipe for the next sport')}>
     <Focus {table} {today} {kinds} />
   </Sec>
+{:else if top && last}
+  <Sec id="focus-h" title={t('In focus')} sub={t('per sport, the last 7 days · swipe for the next sport')}>
+    <p class="card nofocus" data-focus-none>{t('No activity in the last 7 days.')} {t('The last one: {sport}, {day}.', { sport: sportName(last.kind), day: dayLabel(last.day) })} <a href={numHref({ key: `km:${last.kind}`, range: 'm' })}>{t('See it')} ›</a></p>
+  </Sec>
 {/if}
 
 {#snippet body()}
 {#if top}
 <Sec id="overview-h" title={t('Overview|garmin')} sub={t('from Fitbit and Strava · tap a tile for more')}>
   <div class="ov" data-overview>
-    <a class="card tile" href="#/flow/stats/hr" data-ov="hr">
+    <a class="card tile" href={numHref({ key: 'rhr', range: 'w' })} data-ov="hr">
       <span class="th"><span class="ico hrt" aria-hidden="true"><Heart size={18} /></span><span>{t('Heart rate')}</span></span>
       {#if high}<b class="num big">{num(high.v)} <small>bpm</small></b><small class="q">{high.day === today ? t('highest today') : t('highest on the latest day')}</small>{/if}
       {#if spark}<svg class="spark" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path d={spark} /></svg><small class="q">{t('resting pulse, 14 days')}</small>{/if}
-      {#if rhr}<b class="num">{num(rhr.v)} <small>bpm</small></b><small class="q">{t('at rest')}</small>{:else}<small class="q">{fitbitOff ? t('comes with Fitbit') : t('no value yet')}</small>{/if}
+      {#if rhr}<b class="num">{num(rhr.v)} <small>bpm</small></b><small class="q">{rhr.day === today ? t('at rest') : `${t('at rest')} · ${dayWord(rhr.day)}`}</small>{:else}<small class="q">{fitbitOff ? t('comes with Fitbit') : t('no value yet')}</small>{/if}
       <ChevronRight class="go" size={16} aria-hidden="true" />
     </a>
     <AzmWeek {today} tile />
-    <a class="card tile" href="#/flow/stats/kcal" data-ov="kcal">
+    <a class="card tile" href={numHref({ key: 'kcal', range: 'w' })} data-ov="kcal">
       <span class="th"><span class="ico fl" aria-hidden="true"><Flame size={18} /></span><span>{t('Calories burned')}</span></span>
       {#if kcal.total != null}
-        <b class="num big">{num(kcal.total)}</b>{#if kcalDay !== today}<small class="q" data-kcal-day>{dayWord(kcalDay)}</small>{/if}
+        <b class="num big">{num(kcal.total)}</b><small class="q" data-kcal-day>{dayWord(kcalDay)}</small>
         {#if kcalPct != null}<span class="kb" aria-hidden="true"><i class="a" style="width:{kcalPct}%"></i><i class="r"></i></span>{/if}
         <span class="two">
           {#if kcal.active != null}<span><b class="num">{num(kcal.active)}</b><small>{t('Active|kcal')}</small></span>{/if}
@@ -106,7 +116,7 @@
       {/if}
       <ChevronRight class="go" size={16} aria-hidden="true" />
     </a>
-    <a class="card tile" href="#/flow/stats/sleep" data-ov="sleep">
+    <a class="card tile" href={numHref({ key: 'sleep', range: 'w' })} data-ov="sleep">
       <span class="th"><span class="ico mo" aria-hidden="true"><Moon size={18} /></span><span>{t('Sleep|metric')}</span></span>
       {#if sleep}
         <b class="num big">{shown('sleep', sleep.v, num)}</b><small class="q">{sleep.day === today ? t('last night') : t('latest night')}</small>
@@ -123,16 +133,19 @@
 {/if}
 
 {#if tail}
-<Sec id="km-h" title={t('Last 7 days')} sub={t('compared with your usual week')}>
+<Sec id="km-h" title={asWeek ? t('Last 7 days') : range.title} sub={asWeek ? t('compared with your usual week') : ''}>
+  {#if asWeek || week.kinds.length || week.rhr != null || week.kcal != null}
   <ul class="card l7" data-last7>
     {#each week.kinds as k (k.kind)}
       {@const I = SPORT_ICON[k.kind]}
-      <li><a href="#/flow/stats/{k.kind}" data-l7={k.kind}><span class="ico si" aria-hidden="true"><I size={20} /></span><span>{tn(k.n, '{n}× {sport}', '{n}× {sport}', { sport: sportName(k.kind) })}</span><b class="num">{k.km ? `${km2(k.km)} km` : ''}</b></a></li>
+      <li><a href={numHref({ key: `km:${k.kind}`, range: asWeek ? 'w' : 'm' })} data-l7={k.kind}><span class="ico si" aria-hidden="true"><I size={20} /></span><span>{tn(k.n, '{n}× {sport}', '{n}× {sport}', { sport: sportName(k.kind) })}</span><b class="num">{k.km ? `${km2(k.km)} km` : ''}</b></a></li>
     {/each}
-    {#if week.rhr != null}<li><a href="#/flow/stats/hr" data-l7="hr"><span class="ico hrt" aria-hidden="true"><Heart size={20} /></span><span>{t('Heart rate')}</span><b class="num">{t('{n} avg at rest', { n: num(week.rhr) })}</b></a></li>{/if}
-    {#if week.kcal != null}<li data-l7="kcal"><span class="ico fl" aria-hidden="true"><Flame size={20} /></span><span>{t('Calories burned')}</span><b class="num">{t('avg {n}', { n: num(week.kcal) })}</b></li>{/if}
+    {#if week.rhr != null}<li><a href={numHref({ key: 'rhr', range: asWeek ? 'w' : 'm' })} data-l7="hr"><span class="ico hrt" aria-hidden="true"><Heart size={20} /></span><span>{t('Heart rate')}</span><b class="num">{t('{n} avg at rest', { n: num(week.rhr) })}</b></a></li>{/if}
+    {#if week.kcal != null}<li data-l7="kcal"><a href={numHref({ key: 'kcal', range: asWeek ? 'w' : 'm' })} data-l7-way="kcal"><span class="ico fl" aria-hidden="true"><Flame size={20} /></span><span>{t('Calories burned')}</span><b class="num">{t('avg {n}', { n: num(week.kcal) })}</b></a></li>{/if}
   </ul>
-  <WeekNumbers {today} />
+  {/if}
+  {#if !asWeek && !week.kinds.length && week.rhr == null && week.kcal == null}<p class="l7none" data-l7-none>{t('Nothing recorded in this period.')}</p>{/if}
+  {#if asWeek}<WeekNumbers {today} />{/if}
   {#if !phone.matches}{@render children?.()}{/if}
 </Sec>
 {/if}
@@ -140,7 +153,7 @@
 
 {#if phone.matches}
   <div class="card ovfold" data-ov-fold>
-    <FoldRow icon={LayoutGrid} label={t('Overview and last 7 days')} summary={foldSum} bind:open={more}>{@render body()}</FoldRow>
+    <FoldRow icon={LayoutGrid} label={asWeek ? t('Overview and last 7 days') : t('Overview and period')} summary={foldSum} bind:open={more}>{@render body()}</FoldRow>
   </div>
   {@render children?.()}
 {:else}
@@ -150,6 +163,16 @@
 <style>
   .ovfold {
     padding: 0 14px;
+  }
+  .nofocus {
+    margin: 0;
+    padding: 14px 16px;
+    color: var(--ink-2);
+    line-height: 1.45;
+  }
+  .nofocus a {
+    color: var(--ink);
+    white-space: nowrap;
   }
   .ovfold :global(.foldrow) {
     border-top: 0;
@@ -284,6 +307,11 @@
     color: var(--ink);
     font-size: var(--fs-small);
     font-weight: 600;
+  }
+  .l7none {
+    margin: var(--sp-2) 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .l7 {
     margin: 0 0 10px;

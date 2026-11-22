@@ -13,10 +13,11 @@ import { sortBikes } from '../bikes.js';
 import { withVisits } from '../workshop.js';
 import { bikeCare } from '../readiness.js';
 import { AGENDA_KEY } from '../agenda.js';
+import { SP_KEY, prefsOf as spOf } from '../spielerplus.js';
 
 const shiftBack = (day, n) => new Date(Date.parse(`${day}T00:00:00Z`) - n * 864e5).toISOString().slice(0, 10);
 
-const KEYS = [AGENDA_KEY, ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, FIXED_KEY, FLOW_PLAN_KEY];
+const KEYS = [AGENDA_KEY, ITEMS_KEY, AWAY_KEY, HIDE_KEY, NO_KEY, SG_OPEN_KEY, SG_OFF_KEY, SG_NEVER_KEY, SEASON_KEY, PLANNED_KEY, CAL_KEY, TRAIN_KEY, GOAL_KEY, FIXED_KEY, FLOW_PLAN_KEY, SP_KEY];
 
 /** The raw sources of the week (a liveQuery); today: YYYY-MM-DD for the bike care. */
 export function weekQuery(today) {
@@ -65,6 +66,7 @@ export function weekQuery(today) {
       book,
       care,
       google: { events: gEvents, tasks: gTasks, prefs: s[AGENDA_KEY] },
+      spielerplus: spOf(s[SP_KEY]),
     };
   });
 }

@@ -17,13 +17,20 @@ async function open(page, context) {
   await page.goto('./#/flow');
 }
 
-test('AAH-1 Aktiv starts with ten tiles; a tile opens its page; no «Gehört zu»', async ({ page, context }) => {
+test('AAH-1 Aktiv starts with sixteen tiles; a tile opens its page; no «Gehört zu»', async ({ page, context }) => {
   await open(page, context);
   const box = page.locator('[data-all-here="aktiv"]');
   await expect(box).toBeVisible();
   await expect(box.getByRole('heading', { name: T('All here') })).toBeVisible();
   const tiles = box.locator('[data-all-here-tile]');
-  await expect(tiles).toHaveCount(10);
+  await expect(tiles).toHaveCount(16);
+  // «Ein Kopf für Aktiv» (Noah 17.11.2026 «a»): the sport bag and the ideas are tiles here, no row of cards on the pages themselves
+  await expect(box.locator('[data-all-here-tile="sportbag"]')).toHaveAttribute('href', '#/flow/bags');
+  await expect(box.locator('[data-all-here-tile="ideas"]')).toHaveAttribute('href', '#/flow/ideen');
+  // «Tippzahl» (Noah 21.11.2026): «Done», the meditation log and «More about meditation» are two taps from Heute
+  for (const [id, to] of [['f.geschafft', '#/flow/geschafft'], ['f.medlog', '#/flow/act/meditation/log'], ['f.medmore', '#/flow/act/meditation/mehr']]) await expect(box.locator(`[data-all-here-tile="${id}"]`)).toHaveAttribute('href', to);
+  // «TrainingPeaks-Plan»: the card for the plan link is one tap from Aktiv, it leads to Ich › Connections
+  await expect(box.locator('[data-all-here-tile="f.trainingpeaks"]')).toHaveCount(1);
   await expect(page.locator('[data-gehoert]')).toHaveCount(0);
   // the field stands above the ticking
   const top = await box.evaluate((el) => el.getBoundingClientRect().top);
@@ -46,4 +53,20 @@ test('AAH-2 a tile can be hidden with Undo and shown again', async ({ page, cont
   await expect(row).toHaveCount(0);
   await page.getByRole('button', { name: T('Undo') }).last().click();
   await expect(box.locator('li[data-sort-id="f.gipfelbuch"]')).toHaveCount(1);
+});
+
+test('AAH-5 the list of «Change» fits a 390 px phone (E5-001)', async ({ page, context }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open(page, context);
+  const box = page.locator('[data-all-here="aktiv"]');
+  await box.locator('[data-all-here-edit]').click();
+  await expect(box.locator('li[data-sort-id="f.gipfelbuch"]')).toBeVisible();
+  // before: the column grew to the widest row and the page was 446 px wide
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  for (const li of await box.locator('li[data-sort-id]').all()) {
+    const r = await li.evaluate((el) => el.getBoundingClientRect().right);
+    expect(r).toBeLessThanOrEqual(390);
+    const hide = await li.locator('button.btn').evaluate((el) => el.getBoundingClientRect().right);
+    expect(hide).toBeLessThanOrEqual(390);
+  }
 });

@@ -46,9 +46,9 @@ export default {
   'You are offline right now. What was loaded before stays; tap «Refresh» again once you are online.': 'Du bist gerade offline. Was schon geladen war, bleibt; tippe nochmals auf «Aktualisieren», sobald du online bist.',
   'You are offline right now: the weather loads once you are online.': 'Du bist gerade offline: das Wetter lädt, sobald du online bist.',
   // «Aktiv fertig bauen» (Klick-Rundgang A01–A08, H29)
-  'Done|session': 'Gemacht',
-  'Not done yet': 'Noch nicht gemacht',
-  '«{name}» marked as done.': '«{name}» als gemacht markiert.',
+  'Done|session': 'Erledigt',
+  'Not done yet': 'Noch nicht erledigt',
+  '«{name}» marked as done.': '«{name}» als erledigt markiert.',
   '«{name}» open again.': '«{name}» wieder offen.',
   '{n} week lies in the past and is left out.': '{n} Woche liegt in der Vergangenheit und fällt weg.',
   '{n} weeks lie in the past and are left out.': '{n} Wochen liegen in der Vergangenheit und fallen weg.',

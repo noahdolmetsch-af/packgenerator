@@ -7,6 +7,7 @@
  * HG1 4b: Morge 05–11, Tag 11–18, Abig 18–22; 3: Nacht 22–05 only «Guät Nacht, Nachtülä» (no name,
  * no question, no tap line).
  * No imports on purpose: abfragen.js reads HELLO_QUESTIONS from here (the one history knows them).
+ * Gruss B: the options of the three questions are COPIES, hallobuttons.js puts the user's own buttons (names, own, deleted) into them.
  * v0.144.0 RE «Eine Tagesuhr» (4a): the hours come from dayclock.js (no imports itself); the morning now
  * starts at 06:00 like everywhere (was 05:00), the night is 22:00–05:59.
  */
@@ -47,6 +48,57 @@ export const MOODS = [
   { key: 'guet', label: 'Guet', v: 0.75 },
   { key: 'super', label: 'Super', v: 1 },
 ];
+/**
+ * Gruss A (Noah 05.11.2026 «alle umsetzen»): behind the five faces «Mehr» opens more buttons, in groups, as many as you like at once.
+ * Plain Swiss German words like the faces (HG1 1a), one emoji each; the group names go through t(). The key is what history stores.
+ */
+export const FEELING_GROUPS = [
+  {
+    key: 'energy',
+    name: 'Energy|hello',
+    items: [
+      { key: 'wach', label: 'Wach', emoji: '☀️' },
+      { key: 'glade', label: 'Glade', emoji: '⚡' },
+      { key: 'schlaefrig', label: 'Schläfrig', emoji: '😴' },
+      { key: 'platt', label: 'Platt', emoji: '🪫' },
+      { key: 'ueberdreht', label: 'Überdreht', emoji: '🌀' },
+    ],
+  },
+  {
+    key: 'feeling',
+    name: 'Feelings|hello',
+    items: [
+      { key: 'ruehig', label: 'Ruhig', emoji: '😌' },
+      { key: 'glueckli', label: 'Glücklich', emoji: '😊' },
+      { key: 'dankbar', label: 'Dankbar', emoji: '🙏' },
+      { key: 'stolz', label: 'Stolz', emoji: '💪' },
+      { key: 'gwundrig', label: 'Gwundrig', emoji: '🔍' },
+      { key: 'motiviert', label: 'Motiviert', emoji: '🚀' },
+      { key: 'verliebt', label: 'Verliebt', emoji: '💛' },
+      { key: 'gstresst', label: 'Gstresst', emoji: '😰' },
+      { key: 'gnervt', label: 'Gnervt', emoji: '😤' },
+      { key: 'truurig', label: 'Truurig', emoji: '😢' },
+      { key: 'aengstlich', label: 'Ängstlich', emoji: '😟' },
+      { key: 'eisam', label: 'Eisam', emoji: '🫥' },
+    ],
+  },
+  /** Gruss C (Noah 05.11.2026 «4a»): the weather in the head, as many as fit. */
+  {
+    key: 'weather',
+    name: 'Weather in my head|hello',
+    items: [
+      { key: 'sunnig', label: 'Sunnig', emoji: '🌞' },
+      { key: 'wolkig', label: 'Wolkig', emoji: '⛅' },
+      { key: 'naebel', label: 'Näbel', emoji: '🌫️' },
+      { key: 'gwitter', label: 'Gwitter', emoji: '⛈️' },
+      { key: 'raegeboge', label: 'Rägeboge', emoji: '🌈' },
+    ],
+  },
+];
+export const FEELINGS = FEELING_GROUPS.flatMap((g) => g.items.map((i) => ({ ...i, group: g.key })));
+/** The title of the group behind «Mehr». */
+export const HELLO_FEEL = 'Und süsch?';
+
 /** HG1d: the plans as chips (several at once). */
 export const PLANS = [
   { key: 'tour', label: 'Tour' },
@@ -55,14 +107,37 @@ export const PLANS = [
   { key: 'arbeit', label: 'Arbeit' },
 ];
 
+/** Gruss D (Noah 05.11.2026 «alle umsetzen»): «Woran liegt's?», optional, a few things that may play a part (observation only, never a verdict). */
+export const HELLO_WHY = "Woran liegt's?";
+export const REASONS = [
+  { key: 'r-schlaf', label: 'Schlaf' },
+  { key: 'r-wetter', label: 'Wetter' },
+  { key: 'r-arbeit', label: 'Arbeit' },
+  { key: 'r-mensche', label: 'Mensche' },
+  { key: 'r-koerper', label: 'Körper' },
+];
+/** Gruss D: in the evening the greeting asks about the day instead of the plan. */
+export const HELLO_DAY = "Wie war's?";
+export const DAY_WORDS = [
+  { key: 'gschafft', label: 'Gschafft' },
+  { key: 'schoen', label: 'Schön' },
+  { key: 'streng', label: 'Streng' },
+  { key: 'gmuetlech', label: 'Gmüetlech' },
+  { key: 'muehsam', label: 'Mühsam' },
+  { key: 'spannend', label: 'Spannend' },
+];
+
 /**
  * HG1 2b: the two questions in the shape of «Deine Abfragen» (abfragen.js), so the answers land in its
  * ONE history and show there like any answer. They are not in the list of 50 and never asked on their own
  * (every: off); only the tap on the greeting asks them.
  */
 export const HELLO_QUESTIONS = [
-  { id: 'hallo.gaht', area: 'spass', key: 'gaht', text: HELLO_MOOD, form: { kind: 'chips', options: MOODS }, every: { kind: 'off' }, src: ['hand'], hello: true },
-  { id: 'hallo.vor', area: 'ziele', key: 'vor', text: HELLO_PLAN, form: { kind: 'chips', options: PLANS, multi: true, note: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.gaht', area: 'spass', key: 'gaht', text: HELLO_MOOD, form: { kind: 'chips', options: MOODS.map((m) => ({ ...m })) }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.gefuehl', area: 'spass', key: 'gefuehl', text: HELLO_FEEL, form: { kind: 'chips', options: FEELINGS.map((f) => ({ ...f })), multi: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.grund', area: 'spass', key: 'grund', text: HELLO_WHY, form: { kind: 'chips', options: REASONS.map((x) => ({ ...x })), multi: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.tag', area: 'spass', key: 'tag', text: HELLO_DAY, form: { kind: 'chips', options: DAY_WORDS.map((x) => ({ ...x })), multi: true, note: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
+  { id: 'hallo.vor', area: 'ziele', key: 'vor', text: HELLO_PLAN, form: { kind: 'chips', options: PLANS.map((x) => ({ ...x })), multi: true, note: true }, every: { kind: 'off' }, src: ['hand'], hello: true },
 ];
 
 /** HG1b: the settings record that says the name was asked once («Nicht jetzt» or «Speichern»). */

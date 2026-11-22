@@ -7,6 +7,9 @@ import { loadBase } from './load.js';
 import { areaAt, gridOf } from './geo.js';
 import { localDay } from '../localday.js';
 import { splitNeuland } from './split.js';
+import { GB_KEY, bookOf } from '../gipfelbuch.js';
+import { visitLines } from './funde.js'; // N10: the summit book's visits count as lines too
+import { OSM_KEY } from './osm.js';
 
 export async function readState(db) {
   return stateOf((await db.settings.get(NEULAND_KEY))?.value);
@@ -27,14 +30,18 @@ export async function cantonAt(place) {
 
 /** The person's data Neuland reads (only Dexie reads, so a liveQuery can watch it). */
 export async function readRaw(db) {
-  const [rec, trips, rides, activities, homeRec] = await Promise.all([
+  const [rec, trips, rides, activities, recordings, homeRec, gbRec, osmRec] = await Promise.all([
     db.settings.get(NEULAND_KEY),
     db.trips.toArray(),
     db.rides.toArray(),
     db.activities ? db.activities.toArray() : [],
+    db.tracks ? db.tracks.where('kind').equals('rec').toArray() : [], // the app's own recordings, like the Heatmap
     db.settings.get('homePlace'),
+    db.settings.get(GB_KEY),
+    db.meta.get(OSM_KEY), // N18: when the OpenStreetMap places were loaded (so a liveQuery recomputes after a refresh)
   ]);
-  return { value: rec?.value ?? null, trips, rides, activities, homePlace: homeRec?.value ?? null };
+  const book = bookOf(gbRec?.value);
+  return { value: rec?.value ?? null, trips, rides, activities, recordings, homePlace: homeRec?.value ?? null, book, lines: visitLines(book), osmAt: osmRec?.value?.at ?? 0 };
 }
 
 /**
@@ -46,7 +53,7 @@ export async function computeFrom(raw, { today = localDay(), only = null } = {})
   const all = collectionsOf(state);
   const want = all.filter((c) => (only ? only.includes(c.id) : c.on));
   const bases = await Promise.all(want.map((c) => loadBase(c.id)));
-  const tracks = tracksOf({ trips: raw.trips, rides: raw.rides, activities: raw.activities, lines: raw.lines ?? [], today }); // raw.lines: more lines from elsewhere (package S «Reise-Spur» allLines)
+  const tracks = tracksOf({ trips: raw.trips, rides: raw.rides, activities: raw.activities, recordings: raw.recordings ?? [], lines: raw.lines ?? [], today }); // raw.lines: more lines from elsewhere (package S «Reise-Spur» allLines)
   const parts = want.map((c, i) => {
     const def = defOf(c.id);
     const { items, hidden } = itemsOf(state, c.id, bases[i]);

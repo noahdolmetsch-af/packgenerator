@@ -36,7 +36,7 @@ export const MOOD_DAYS = 3;
 export const MOOD_BELOW = 1;
 /** A long day: moving time of yesterday's Strava activities together, in hours (Noah 03.11.2026, step 2). */
 export const LONG_DAY_H = 3;
-/** A pause: this many days without any training logged (Strava or tennis). The activities are read this many days back. */
+/** A pause: this many days without any training logged (Strava, tennis or your ticks). The activities are read this many days back. */
 export const PAUSE_DAYS = 4;
 export const ACT_DAYS = 40;
 /** Tennis: a game of at least this many minutes is asked about the day after; a missed court time counts this many days back. */
@@ -47,6 +47,7 @@ export const RAIN_PCT = 60;
 export const RAIN_DRY = 30;
 /** Warm enough for an evening outside (degrees, the day's high). */
 export const WARM_C = 15;
+export const TODO_DAYS = 5; // an open to-do this many days past its date counts as «stuck»
 /** The evening for «nothing planned»: from 17:00 to 22:00. */
 export const EVENING = [17, 22];
 /** A random question is not repeated within this many days after an answer. */
@@ -194,6 +195,21 @@ export const DATA_QUESTIONS = {
     data: true,
     rule: 'draussen',
   },
+  'daten.todo': {
+    id: 'daten.todo',
+    area: 'erholung',
+    text: 'What is in the way of this to-do?',
+    form: {
+      kind: 'chips',
+      multi: true,
+      note: true,
+      options: [chip('time', 'No time'), chip('unclear', 'Not clear what to do'), chip('big', 'Too big'), chip('wait', 'Waiting for someone'), chip('gone', 'Not important any more'), chip('nothing', 'Nothing special')],
+    },
+    every: { kind: 'daily', time: '07:00' },
+    src: ['hand'],
+    data: true,
+    rule: 'todo',
+  },
   'daten.vermutung': {
     id: 'daten.vermutung',
     area: 'achtsamkeit',
@@ -249,7 +265,7 @@ export const RULES = [
     id: 'pause',
     qid: 'daten.pause',
     title: 'A pause from training',
-    about: 'Asks when you have logged no training for {n} days (Strava or tennis).',
+    about: 'Asks when you have logged no training for {n} days (Strava, tennis or ticked off).',
     vars: { n: PAUSE_DAYS },
     param: { key: 'n', min: 2, max: 14, step: 1, def: PAUSE_DAYS, label: 'Days without training' },
   },
@@ -286,6 +302,14 @@ export const RULES = [
     param: { key: 'n', min: 8, max: 28, step: 1, def: WARM_C, label: 'Warm from (degrees)' },
   },
   {
+    id: 'todo',
+    qid: 'daten.todo',
+    title: 'A to-do that is stuck',
+    about: 'Asks when an open to-do in your Google tasks is {n} days or more past its date.',
+    vars: { n: TODO_DAYS },
+    param: { key: 'n', min: 2, max: 30, step: 1, def: TODO_DAYS, label: 'Days past its date' },
+  },
+  {
     id: 'vermutung',
     qid: 'daten.vermutung',
     title: 'A guess to test',
@@ -310,31 +334,56 @@ const dayOf = (stamp) => String(stamp ?? '').slice(0, 10);
 
 /** The ids of the rules. */
 const RULE = Object.fromEntries(RULES.map((r) => [r.id, r]));
+/** The id of a rule the person made (the id of its own question, «own-…»). */
+const OWN_ID = /^own-[a-z0-9]+$/;
+const known = (id) => typeof id === 'string' && (!!RULE[id] || OWN_ID.test(id));
 
 /**
  * The stored settings made safe: { off: [rule ids], vals: { [id]: number within its limits }, texts: { [id]: own question text } }.
  * A threshold outside its limits or a text that is empty or the default is left out (the default counts).
  */
 export function dataOf(value) {
-  const off = Array.isArray(value?.off) ? value.off.filter((id) => RULE[id]) : [];
+  const off = Array.isArray(value?.off) ? value.off.filter(known) : [];
   const vals = {};
   const texts = {};
   const gaps = {};
   const skips = {};
+  const day = (x) => /^\d{4}-\d{2}-\d{2}$/.test(x ?? '');
+  const gapOf = (id) => {
+    const g = Number(value?.gaps?.[id]);
+    if (value?.gaps?.[id] != null && Number.isFinite(g) && g > GAP_DAYS && g <= 30) gaps[id] = Math.round(g);
+  };
+  const skipOf = (id) => {
+    const k = value?.skips?.[id];
+    const n = Number(k?.n);
+    if (Number.isFinite(n) && n >= 1 && day(k?.day)) skips[id] = { n: Math.min(99, Math.round(n)), day: k.day };
+  };
   for (const r of RULES) {
     const v = Number(value?.vals?.[r.id]);
     if (value?.vals?.[r.id] != null && Number.isFinite(v) && v >= r.param.min && v <= r.param.max && v !== r.param.def) vals[r.id] = v;
     const t = typeof value?.texts?.[r.id] === 'string' ? value.texts[r.id].trim().slice(0, 140) : '';
     if (t && t !== DATA_QUESTIONS[r.qid].text) texts[r.id] = t;
-    const g = Number(value?.gaps?.[r.id]);
-    if (value?.gaps?.[r.id] != null && Number.isFinite(g) && g > GAP_DAYS && g <= 30) gaps[r.id] = Math.round(g);
-    const k = value?.skips?.[r.id];
-    const n = Number(k?.n);
-    if (Number.isFinite(n) && n >= 1 && /^\d{4}-\d{2}-\d{2}$/.test(k?.day ?? '')) skips[r.id] = { n: Math.min(99, Math.round(n)), day: k.day };
+    gapOf(r.id);
+    skipOf(r.id);
   }
+  // the rules the person made themselves (their ids are the ids of their questions) keep a gap and a skip count too
+  for (const id of new Set([...Object.keys(value?.gaps ?? {}), ...Object.keys(value?.skips ?? {})])) {
+    if (!RULE[id] && OWN_ID.test(id)) {
+      gapOf(id);
+      skipOf(id);
+    }
+  }
+  // names the person gave the rules of the app, rules taken away (the rule list, «Deleted rules»), their own order
+  const names = {};
+  for (const id of Object.keys(value?.names ?? {})) {
+    const n = typeof value.names[id] === 'string' ? value.names[id].trim().slice(0, 60) : '';
+    if (RULE[id] && n) names[id] = n;
+  }
+  const gone = Array.isArray(value?.gone) ? [...new Set(value.gone.filter((id) => RULE[id]))] : [];
+  const order = Array.isArray(value?.order) ? [...new Set(value.order.filter(known))].slice(0, 100) : [];
   const ids = Array.isArray(value?.zufall?.never) ? value.zufall.never.filter((x) => typeof x === 'string' && x).slice(0, 200) : [];
-  const zufall = { off: value?.zufall?.off === true, never: [...new Set(ids)], day: /^\d{4}-\d{2}-\d{2}$/.test(value?.zufall?.day ?? '') ? value.zufall.day : '' };
-  return { off: [...new Set(off)], vals, texts, gaps, skips, zufall };
+  const zufall = { off: value?.zufall?.off === true, never: [...new Set(ids)], day: day(value?.zufall?.day) ? value.zufall.day : '' };
+  return { off: [...new Set(off)], vals, texts, gaps, skips, names, gone, order, zufall };
 }
 /** Is a rule on? */
 export const ruleOn = (value, id) => !dataOf(value).off.includes(id);
@@ -366,10 +415,11 @@ export function resetRule(value, id) {
   const { [id]: _t, ...texts } = cur.texts;
   const { [id]: _g, ...gaps } = cur.gaps;
   const { [id]: _s, ...skips } = cur.skips;
-  return { ...cur, vals, texts, gaps, skips };
+  const { [id]: _n, ...names } = cur.names;
+  return { ...cur, vals, texts, gaps, skips, names };
 }
-/** Is a rule changed from the standard (threshold or text)? */
-export const ruleChanged = (value, id) => ruleVal(value, id) !== RULE[id].param.def || ruleText(value, id) != null || ruleGap(value, id) !== GAP_DAYS;
+/** Is a rule changed from the standard (threshold, text, name or gap)? */
+export const ruleChanged = (value, id) => ruleVal(value, id) !== RULE[id].param.def || ruleText(value, id) != null || ruleGap(value, id) !== GAP_DAYS || ruleName(value, id) != null;
 
 /** Days between two asks of a rule: GAP_DAYS, or longer after «Ask less often». */
 export const ruleGap = (value, id) => dataOf(value).gaps[id] ?? GAP_DAYS;
@@ -395,8 +445,8 @@ export function clearSkips(value, id) {
 /** Skipped often enough that the window offers to ask less often (and the rule is not yet asking less often)? */
 export const fewerOffer = (value, id) => (dataOf(value).skips[id]?.n ?? 0) >= SKIP_OFFER && ruleGap(value, id) === GAP_DAYS;
 
-/** The resting pulse today against the median of the days before: { v, normal } when it stands out, else null. */
-export function ruhepulsHit(health = [], today, above = RHR_ABOVE) {
+/** The resting pulse today and the median of the days before: { v, normal } or null (no value today or fewer than MIN_BASE days before). */
+function rhrNow(health = [], today) {
   const by = {};
   for (const r of health) if (r?.date && fin(r.restingHr) != null) by[r.date] = r.restingHr;
   const v = by[today];
@@ -406,9 +456,12 @@ export function ruhepulsHit(health = [], today, above = RHR_ABOVE) {
     const x = by[addDays(today, -i)];
     if (x != null) base.push(x);
   }
-  if (base.length < MIN_BASE) return null;
-  const normal = median(base);
-  return v >= normal + above ? { v: Math.round(v), normal: Math.round(normal) } : null;
+  return base.length < MIN_BASE ? null : { v, normal: median(base) };
+}
+/** The resting pulse today against the median of the days before: { v, normal } when it stands out, else null. */
+export function ruhepulsHit(health = [], today, above = RHR_ABOVE) {
+  const r = rhrNow(health, today);
+  return r && r.v >= r.normal + above ? { v: Math.round(r.v), normal: Math.round(r.normal) } : null;
 }
 
 /** The night ending today: { h, m } when it was shorter than SHORT_SLEEP_MIN, else null (no value: null). */
@@ -456,16 +509,47 @@ export function trainingHit(acts = [], today, hours = LONG_DAY_H) {
   return { h: Math.floor(min / 60), m: min % 60 };
 }
 
-/** The days with any training logged: Strava activities and tennis played or taught (sport items). */
-export function trainingDays(acts = [], sport = []) {
+/** Plan units that are not training: meditation, the sauna after the gym, a rest block (Noah 21.11.2026: every other tick counts). */
+export const NOT_TRAINING = ['med', 'sauna', 'rest'];
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+/**
+ * The days you ticked off a training (Noah 21.11.2026: «Letztes Training vor 5 Tagen» although he had ticked sports every
+ * day): the ticks of Aktiv (flowLog) of every sport of the ring «move» (never the ride to work; meditation and sauna
+ * are other rings, a sport you deleted since still counts), and the ticks of the weekly plan (training.weeklog, every
+ * unit but meditation, sauna and rest block). Only the last ACT_DAYS days up to today. → sorted days, once each.
+ * log: flowLog rows { actId, day, via }; flowActs: { id, ring }; weeklog: the setting value { weeks: { monday: { done: { unitId: day } } } }.
+ */
+export function tickDays({ log = [], flowActs = [], weeklog = null, today } = {}) {
+  if (!today) return [];
+  const from = addDays(today, -ACT_DAYS);
+  const ring = new Map(flowActs.map((a) => [a?.id, a?.ring]));
+  const days = new Set();
+  for (const e of log) {
+    if (!e?.day || e.via === 'commute') continue;
+    const r = ring.get(e.actId);
+    if (r === 'mind' || r === 'rest') continue;
+    days.add(e.day);
+  }
+  for (const w of Object.values(weeklog?.weeks ?? {})) {
+    for (const [id, day] of Object.entries(w?.done ?? {})) {
+      if (!DAY_RE.test(day ?? '') || NOT_TRAINING.includes(String(id).split(/[@#]/)[0])) continue;
+      days.add(day);
+    }
+  }
+  return [...days].filter((d) => DAY_RE.test(d) && d >= from && d <= today).sort();
+}
+
+/** The days with any training logged: Strava activities, tennis played or taught (sport items) and your ticks (see tickDays; `ticks` = its days). */
+export function trainingDays(acts = [], sport = [], ticks = []) {
   const days = new Set();
   for (const a of acts) if (a?.day) days.add(a.day);
   for (const x of sport) if (x?.day && x.sport === 'act:tennis' && (x.kind === 'played' || x.kind === 'taught')) days.add(x.day);
+  for (const d of ticks) if (d) days.add(d);
   return days;
 }
 /** No training for `days` days or more: { n } (days since the last one). Without any training in the days read there is nothing to count from: null. */
-export function pauseHit(acts = [], sport = [], today, days = PAUSE_DAYS) {
-  const last = [...trainingDays(acts, sport)].filter((d) => d <= today).sort().at(-1);
+export function pauseHit(acts = [], sport = [], today, days = PAUSE_DAYS, ticks = []) {
+  const last = [...trainingDays(acts, sport, ticks)].filter((d) => d <= today).sort().at(-1);
   if (!last) return null;
   let n = 0;
   while (addDays(last, n) < today) n++;
@@ -540,6 +624,147 @@ export function draussenHit(wx, cal, today, warm = WARM_C) {
   return { max: Math.round(max) };
 }
 
+/**
+ * The open to-do that is the longest past its date, at least `days` days: { title, days } or null.
+ * tasks: { used, open } with open: gTasks rows { title, due: 'YYYY-MM-DD', done }; sub-tasks do not count.
+ */
+export function todoHit(tasks, today, days = TODO_DAYS) {
+  if (!tasks?.used) return null;
+  let best = null;
+  for (const x of tasks.open ?? []) {
+    if (!x || x.done || x.parent || !/^\d{4}-\d{2}-\d{2}$/.test(x.due ?? '') || x.due >= today) continue;
+    let n = 0;
+    while (addDays(x.due, n) < today) n++;
+    if (n < days) continue;
+    if (!best || n > best.days) best = { title: String(x.title ?? '').trim().slice(0, 40), days: n };
+  }
+  return best;
+}
+
+/* ---------- the rule list: names, rules taken away, order (Noah 05.11.2026 «regeln im front end eingeben, ändern, löschen, neue erstellen») ---------- */
+/** The name the person gave a rule of the app (null: the app's name). */
+export const ruleName = (value, id) => dataOf(value).names[id] ?? null;
+/** Rename a rule of the app (empty: back to the app's name) → the new settings value. */
+export function setRuleName(value, id, name) {
+  const cur = dataOf(value);
+  const { [id]: _, ...rest } = cur.names;
+  return dataOf({ ...cur, names: { ...rest, [id]: name } });
+}
+/** Take a rule of the app out of the list (it no longer asks; «Deleted rules» brings it back) → the new settings value. */
+export function dropRule(value, id) {
+  const cur = dataOf(value);
+  return RULE[id] ? { ...cur, gone: [...new Set([...cur.gone, id])], order: cur.order.filter((x) => x !== id) } : cur;
+}
+/** Bring a rule of the app back → the new settings value. */
+export function restoreRule(value, id) {
+  const cur = dataOf(value);
+  return { ...cur, gone: cur.gone.filter((x) => x !== id) };
+}
+/** The rules of the app that were taken away. */
+export const goneRules = (value) => RULES.filter((r) => dataOf(value).gone.includes(r.id));
+/**
+ * The rules as the person has them, in their order: [{ id, rule, q }] — `rule` the entry of RULES (a rule of the app), `q` the own
+ * question of a rule the person made (custom: own questions with a `rule`). The order is the priority: the first that fits asks first.
+ */
+export function ruleList(value, custom = []) {
+  const cur = dataOf(value);
+  const all = [...RULES.filter((r) => !cur.gone.includes(r.id)).map((r) => ({ id: r.id, rule: r, q: null })), ...custom.filter((q) => q?.rule && OWN_ID.test(q.id)).map((q) => ({ id: q.id, rule: null, q }))];
+  const rank = (x) => {
+    const i = cur.order.indexOf(x.id);
+    return i < 0 ? 1e6 : i;
+  };
+  return all.map((x, i) => [x, i]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map(([x]) => x);
+}
+/** Move a rule inside the list (arrows and drag) → the new settings value. */
+export function moveRule(value, custom, from, to) {
+  const cur = dataOf(value);
+  const ids = ruleList(cur, custom).map((x) => x.id);
+  if (from < 0 || from >= ids.length || to < 0 || to >= ids.length || from === to) return cur;
+  const [x] = ids.splice(from, 1);
+  ids.splice(to, 0, x);
+  return { ...cur, order: ids };
+}
+
+/* ---------- the rules the person makes: «if [value] is over / under [number] (and …), ask [my text]» ---------- */
+/** The values a rule of your own can look at. fact: what the card says about it. */
+export const VALUES = [
+  { id: 'sleep', label: 'Hours asleep last night', fact: 'You slept {v} hours last night.', min: 3, max: 12, step: 0.5, def: 6 },
+  { id: 'rhr', label: 'Resting pulse above your usual (beats)', fact: 'Your resting pulse today differs from your usual by {v} beats.', min: -20, max: 30, step: 1, def: 5 },
+  { id: 'mood', label: 'Your latest mood (1 to 10)', fact: 'Your latest mood is {v} of 10.', min: 1, max: 10, step: 0.5, def: 5 },
+  { id: 'hours', label: 'Hours on the move yesterday', fact: 'Yesterday you were on the move for {v} hours.', min: 0, max: 12, step: 0.5, def: 3 },
+  { id: 'pause', label: 'Days without training', fact: 'Your last logged training was {v} days ago.', min: 0, max: 60, step: 1, def: 4 },
+  { id: 'rain', label: 'Rain chance today (percent)', fact: 'The rain chance today is {v} percent.', min: 0, max: 100, step: 10, def: 60 },
+  { id: 'temp', label: 'Warmest point today (degrees)', fact: 'Today gets up to {v} degrees.', min: -20, max: 40, step: 1, def: 15 },
+  { id: 'todo', label: 'Days a to-do is past its date', fact: 'Your longest overdue to-do is {v} days past its date.', min: 0, max: 60, step: 1, def: 5 },
+];
+const VALUE = Object.fromEntries(VALUES.map((x) => [x.id, x]));
+export const MAX_CONDS = 2;
+const r1 = (x) => Math.round(x * 10) / 10;
+
+/** The value as it is today, a number, or null when the data for it is missing. */
+export function valueNow(id, { health = [], acts = [], sport = [], ticks = [], wx = null, tasks = null, answers = [], checks = [], today } = {}) {
+  if (!today) return null;
+  switch (id) {
+    case 'sleep': {
+      const min = fin(health.find((r) => r?.date === today)?.sleep?.asleepMin);
+      return min != null && min > 0 ? min / 60 : null;
+    }
+    case 'rhr': {
+      const r = rhrNow(health, today);
+      return r ? r.v - r.normal : null;
+    }
+    case 'mood': {
+      const by = moodByDay(answers, checks);
+      return by[today] ?? by[addDays(today, -1)] ?? null;
+    }
+    case 'hours': {
+      if (!acts.length) return null;
+      const y = addDays(today, -1);
+      return acts.filter((a) => a?.day === y).reduce((n, a) => n + (fin(a.movingS) > 0 ? a.movingS : 0), 0) / 3600;
+    }
+    case 'pause': {
+      const last = [...trainingDays(acts, sport, ticks)].filter((d) => d <= today).sort().at(-1);
+      if (!last) return null;
+      let n = 0;
+      while (addDays(last, n) < today) n++;
+      return n;
+    }
+    case 'rain':
+      return fin(wxOf(wx, today)?.rainPct);
+    case 'temp':
+      return fin(wxOf(wx, today)?.max);
+    case 'todo':
+      return tasks?.used ? (todoHit(tasks, today, 1)?.days ?? 0) : null;
+    default:
+      return null;
+  }
+}
+/** One condition made safe: { v, op: 'over' | 'under', n } (n within the limits of the value), null when the value is unknown. */
+export function condOf(c) {
+  const spec = VALUE[c?.v];
+  if (!spec) return null;
+  const n = Number(c.n);
+  return { v: spec.id, op: c.op === 'under' ? 'under' : 'over', n: Number.isFinite(n) ? Math.min(spec.max, Math.max(spec.min, n)) : spec.def };
+}
+/** The rule of an own question made safe: { title, conds: [1 or 2 conditions] } or null without a valid condition. */
+export function customRule(x) {
+  const conds = (Array.isArray(x?.conds) ? x.conds : []).map(condOf).filter(Boolean).slice(0, MAX_CONDS);
+  if (!conds.length) return null;
+  return { title: typeof x?.title === 'string' ? x.title.trim().slice(0, 60) : '', conds };
+}
+/** Does a rule of your own fit today? → { facts: [{ text, vars }] } (what the card says) or null; every condition needs its value. */
+export function customHit(rule, ctx) {
+  const r = customRule(rule);
+  if (!r) return null;
+  const facts = [];
+  for (const c of r.conds) {
+    const v = valueNow(c.v, ctx);
+    if (v == null || !(c.op === 'over' ? v > c.n : v < c.n)) return null;
+    facts.push({ text: VALUE[c.v].fact, vars: { v: c.v === 'rhr' && v > 0 ? `+${r1(v)}` : r1(v) } });
+  }
+  return { facts };
+}
+
 /* ---------- the random question (Noah 04.11.2026 «3a»: one a day from the switched-off sample questions) ---------- */
 /** Is the random question on? */
 export const randomOn = (value) => !dataOf(value).zufall.off;
@@ -587,8 +812,11 @@ export function vermutungHit(hint, strength = 30) {
 }
 
 const WHY = {
+  custom: 'Your rule «{title}» fits today.',
   vermutung: 'Your data hints: {sentence} Today looks like such a day, so it is worth checking.',
   zufall: 'A random question from your sample questions that are switched off, at most one a day. It counts toward the three questions from your data.',
+  todo: 'Your to-do «{title}» is {days} days past its date.',
+  todoNoTitle: 'One of your to-dos is {days} days past its date.',
   grau: 'Rain is likely today and your latest mood was {mood}, your usual is {usual}.',
   draussen: 'Dry and {max} degrees today, and nothing in your calendar this evening.',
   spiel: 'You noted a game of {min} minutes yesterday.',
@@ -602,9 +830,10 @@ const WHY = {
 };
 const HITS = {
   vermutung: ({ hint, val }) => vermutungHit(hint, val),
+  todo: ({ tasks, today, val }) => todoHit(tasks, today, val),
   grau: ({ wx, answers, checks, today, val }) => grauHit(wx, answers, checks, today, val),
   draussen: ({ wx, cal, today, val }) => draussenHit(wx, cal, today, val),
-  pause: ({ acts, sport, today, val }) => pauseHit(acts, sport, today, val),
+  pause: ({ acts, sport, ticks, today, val }) => pauseHit(acts, sport, today, val, ticks),
   spiel: ({ sport, today, val }) => spielHit(sport, today, val),
   platz: ({ sport, today, val }) => platzHit(sport, today, val),
   training: ({ acts, today, val }) => trainingHit(acts, today, val),
@@ -615,35 +844,47 @@ const HITS = {
 
 /**
  * The questions from data that are due today: [{ q, slot, last, why: { text, vars }, data: true }].
- * health: healthDays rows; acts: Strava activities { day, movingS }; sport: sport items { sport, kind, day }; answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
+ * health: healthDays rows; acts: Strava activities { day, movingS }; sport: sport items { sport, kind, day }; ticks: the days of your ticks (tickDays); answers: rows { qid, day, value }; checks: the old daily checks { day, mood }; snooze: { [qid]: stamp }; cfg: the DATA_KEY value;
  * slot: the stamp they show under (the morning round). A question put away today (skip, «Heute nicht», folded
  * under «Show more») stays away until tomorrow.
  */
-export function dataDue({ health = [], acts = [], sport = [], wx = null, cal = null, hint = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, today, slot = `${today}T07:00` } = {}) {
+export function dataDue({ health = [], acts = [], sport = [], ticks = [], wx = null, cal = null, tasks = null, hint = null, pool = [], answers = [], checks = [], snooze = {}, cfg = null, custom = [], today, slot = `${today}T07:00` } = {}) {
   if (!today) return [];
   const off = new Set(dataOf(cfg).off);
   const pick = randomOn(cfg) ? randomPick(pool, answers, cfg, today) : null;
-  const doneToday = new Set(answers.filter((a) => (String(a?.qid ?? '').startsWith('daten.') || a?.qid === pick?.id) && a.day === today).map((a) => a.qid)).size;
+  // the rules the person made: own questions with a `rule`; their answers count like the others
+  const mine = new Map(custom.filter((q) => q?.rule && OWN_ID.test(q.id)).map((q) => [q.id, q]));
+  const areaOf = (qid) => DATA_QUESTIONS[qid]?.area ?? mine.get(qid)?.area;
+  const fromRules = (a) => String(a?.qid ?? '').startsWith('daten.') || mine.has(a?.qid);
+  const doneToday = new Set(answers.filter((a) => (fromRules(a) || a?.qid === pick?.id) && a.day === today).map((a) => a.qid)).size;
   const room = Math.max(0, MAX_PER_DAY - doneToday);
   // not two questions from data of the same group on a day (Noah 04.11.2026 «2a»): answered ones count
-  const usedAreas = new Set(answers.filter((a) => String(a?.qid ?? '').startsWith('daten.') && a.day === today).map((a) => DATA_QUESTIONS[a.qid]?.area).filter(Boolean));
+  const usedAreas = new Set(answers.filter((a) => fromRules(a) && a.day === today).map((a) => areaOf(a.qid)).filter(Boolean));
   if (pick && answers.some((a) => a?.qid === pick.id && a.day === today)) usedAreas.add(pick.area);
   // a question put away today (skipped, «Not today») keeps its group used as well
-  for (const q of Object.values(DATA_QUESTIONS)) if (snooze?.[q.id] && dayOf(snooze[q.id]) >= today) usedAreas.add(q.area);
+  for (const q of [...Object.values(DATA_QUESTIONS), ...mine.values()]) if (snooze?.[q.id] && dayOf(snooze[q.id]) >= today) usedAreas.add(q.area);
   const out = [];
-  for (const rule of RULES) {
+  const ctx = { health, acts, sport, ticks, wx, cal, tasks, hint, answers, checks, today };
+  for (const { id, rule, q: own } of ruleList(cfg, custom)) {
     if (out.length >= room) break;
-    if (off.has(rule.id)) continue;
-    const q = DATA_QUESTIONS[rule.qid];
+    if (off.has(id)) continue;
+    const q = rule ? DATA_QUESTIONS[rule.qid] : own;
     if (usedAreas.has(q.area)) continue;
-    const since = addDays(today, -(ruleGap(cfg, rule.id) - 1));
+    const since = addDays(today, -(ruleGap(cfg, id) - 1));
     if (answers.some((a) => a?.qid === q.id && a.day >= since)) continue;
     const put = snooze?.[q.id];
     if (put && dayOf(put) >= today) continue;
-    const hit = HITS[rule.id]({ health, acts, sport, wx, cal, hint, answers, checks, today, val: ruleVal(cfg, rule.id) });
+    if (own) {
+      const hit = customHit(own.rule, ctx);
+      if (!hit) continue;
+      out.push({ q: own, slot, last: slot, why: { text: WHY.custom, vars: { title: own.rule.title || own.text }, facts: hit.facts }, data: true, rule: id, custom: true, fewer: fewerOffer(cfg, id) });
+      usedAreas.add(q.area);
+      continue;
+    }
+    const hit = HITS[id]({ ...ctx, val: ruleVal(cfg, id) });
     if (!hit) continue;
-    const own = ruleText(cfg, rule.id);
-    out.push({ q: own ? { ...q, text: own, edited: true } : q, slot, last: slot, why: { text: rule.id === 'stimmung' && hit.days ? WHY.stimmungN : WHY[rule.id], vars: hit }, data: true, rule: rule.id, fewer: fewerOffer(cfg, rule.id) });
+    const text = ruleText(cfg, id);
+    out.push({ q: text ? { ...q, text, edited: true } : q, slot, last: slot, why: { text: id === 'stimmung' && hit.days ? WHY.stimmungN : id === 'todo' && !hit.title ? WHY.todoNoTitle : WHY[id], vars: hit }, data: true, rule: id, fewer: fewerOffer(cfg, id) });
     usedAreas.add(q.area);
   }
   // the random question comes last, once a day, when there is room and its group is free; after «never again» not before tomorrow

@@ -3,6 +3,7 @@ export default {
   'f.joy': 'Answer only what you felt, and skip the rest. Three tours say little: look at the line as a hint about what you like, not as a mark.',
   'f.passes': 'A pass found by your ride is only a suggestion: it is judged by the line of the ride. Check it and collect what you really rode.',
   'f.tourpass': 'A stamp says «I was there». Give it the place name you would use when you tell the story, not the name of the file.',
+  'f.collectwall': 'Look at it when you feel like it, not to reach a number. It shows what is there; a thin shelf is no failure, only a place still free.',
   'f.quiz': 'Three right answers the evening before beat a long list in the morning. Wrong ones show what to pack again.',
   debrief: 'Do it the evening you get home, before the laundry: in a week you remember the weather, not the spare tube you never used.',
   trend: 'Compare similar trips only: a summer weekend and a winter tour never weigh the same, however hard you try.',
@@ -35,5 +36,7 @@ export default {
   'f.best': 'Records are nice, but the longest day says little alone. Look at how you felt the day after.',
   'f.homecoming': 'Empty the bags on the first evening, even when tired: wet tent and damp shorts do not get better until Saturday.',
   'f.newtoday': 'A small detour is often enough for something new: one unknown road home turns a routine ride into a little discovery.',
+  'f.findlist': 'A list of finds is a small diary of curiosity: a look at it before a free day shows where you have not been for a long time.',
+  'f.osmsets': 'A tower, a bridge or a waterfall in the next valley is a good reason for a detour. Check the weather and whether the way is open before you go; after heavy rain a waterfall is at its best.',
   'f.newkm': 'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.',
 };

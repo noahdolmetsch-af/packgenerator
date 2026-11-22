@@ -125,7 +125,7 @@ describe('material views (v0.47.2)', () => {
   it('sums a view: weight, missing weights, times along and share used', () => {
     expect(weightOf(items.slice(7, 9))).toEqual({ g: 240, missing: 1 });
     const s = viewSummary(items.slice(0, 2), stats);
-    expect(s).toEqual({ n: 2, g: 280, missing: 0, avgTaken: 8, usedShare: 94 });
+    expect(s).toEqual({ n: 2, g: 280, missing: 0, foodG: 0, gearG: 280, avgTaken: 8, usedShare: 94 });
     expect(viewSummary([items[8]], stats)).toMatchObject({ avgTaken: null, usedShare: null });
   });
 });

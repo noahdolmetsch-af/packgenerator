@@ -412,7 +412,6 @@ export default {
   'Still have it, gone or replaced?': 'Noch da, weg oder ersetzt?',
   'Your data → Import backup → Apply favourites.': 'Deine Daten → Backup importieren → Favoriten anwenden.',
   'Pack, ride day, end trip and debrief: only then can the app learn.': 'Packen, Fahrtag, Tour beenden und Rückblick: erst dann kann die App lernen.',
-  'Data from the backup of {date}. Newer state on the phone? Load its backup here.': "Daten aus dem Backup vom {date}. Ist das Handy neuer? Speichere dort ein Backup und lade es hier unter Ich › Daten.",
   'New debrief since the last backup: save one, then load it on the desktop.': 'Neuer Rückblick seit dem letzten Backup: eins speichern und am Desktop laden.',
   'Load a backup': 'Backup laden',
   // v0.22.0 (AP05): the favourites on the start page, same basis as Gear
@@ -543,4 +542,6 @@ export default {
   'Saved as 1 problem:': 'Wird als 1 Problem gespeichert:',
   'Saved as {n} problems:': 'Wird als {n} Probleme gespeichert:',
   'Each problem becomes its own open repair in Bike care.': 'Jedes Problem wird eine eigene offene Reparatur in der Velopflege.',
+  // Etappe 6 «3a»: the first stop for the keyboard
+  'Skip to content': 'Zum Inhalt springen',
 };

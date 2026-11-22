@@ -1658,6 +1658,11 @@
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
+  /* Etappe 6 (E6-006): in the dark theme the band is the light card of the page; the orange kicker was 1.9 : 1 on it */
+  :global(:root[data-theme='dark']) .tband .tk {
+    color: var(--paper);
+    opacity: 0.8;
+  }
   .tband .tt {
     margin: 2px 0;
     font-size: var(--fs-section);

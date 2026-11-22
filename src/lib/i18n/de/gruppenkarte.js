@@ -17,7 +17,7 @@ export default {
   'Nobody shares a location yet.': 'Noch niemand teilt einen Standort.',
   'Only while this page is open and the screen is on. Every few minutes the others see where you are.': 'Nur solange diese Seite offen und der Bildschirm an ist. Alle paar Minuten sehen die anderen, wo du bist.',
   'Ride with friends: they open a link in the browser, without the app, and everyone who shares is on this map with name, km and when last seen. It ends by itself after the ride, at the latest after 24 hours, and all places are deleted.':
-    'Mit Freunden fahren: Sie öffnen einen Link im Browser, ohne App, und alle, die teilen, sind auf dieser Karte mit Name, km und wann zuletzt gesehen. Es endet von selbst nach der Fahrt, spätestens nach 24 Stunden, und alle Standorte werden gelöscht.',
+    'Mit Freunden fahren: Du schickst einen Link, deine Freunde öffnen ihn im Browser, ohne App. Alle, die teilen, siehst du auf dieser Karte mit Name, km und wann zuletzt gesehen. Die Gruppe endet von selbst nach der Fahrt, spätestens nach 24 Stunden, und alle Standorte werden gelöscht.',
   'Ride with me: see where everyone of the group is. Open it in the browser, no app needed: {link}': 'Fahr mit: Hier siehst du, wo alle aus der Gruppe sind. Im Browser öffnen, keine App nötig: {link}',
   'Send the link to your friends. Ends by itself {when}, or when you stop the ride.': 'Schick den Link deinen Freunden. Endet von selbst {when} oder wenn du die Fahrt beendest.',
   'Share my location': 'Meinen Standort teilen',

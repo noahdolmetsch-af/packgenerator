@@ -28,4 +28,9 @@
     gap: 6px;
     margin: 0 0 14px;
   }
+  /* a long bike name breaks inside its chip instead of making the page wider than the screen */
+  .gchips .chip {
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
 </style>

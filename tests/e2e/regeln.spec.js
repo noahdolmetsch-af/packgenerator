@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 import { PHONE_ROWS } from '../../src/lib/touren/kurz.js';
+import { openCareMore } from './pflege-mehr.js';
 
 // the lists come from the app source (they need Svelte, so they are read as text)
 const src = (f) => readFileSync(fileURLToPath(new URL(`../../src/lib/${f}`, import.meta.url)), 'utf8');
@@ -115,9 +116,11 @@ test('RE1: one rain limit, Pack names it and the rain jacket, a new limit counts
   await page.goto('./#/blocks');
   const rainRow = main.locator('button.sitrow', { has: page.locator('#blk-rain') });
   // Impeccable 0.174: empty blocks wait in a fold «n leere Bausteine»; open it when Regen is in there
-  const fold = main.locator('details', { has: page.locator('#blk-rain') });
-  await expect(page.locator('#blk-rain')).toHaveCount(1);
+  // the fold builds its cards only when opened (Tempo-Runde 4), so open it first
+  const fold = main.locator('details[data-empty-blocks]');
+  await expect(main.locator('#blk-rain, details[data-empty-blocks]').first()).toBeAttached(); // the page loads late
   if (await fold.count()) await tap(fold.locator('summary').first(), info);
+  await expect(page.locator('#blk-rain')).toHaveCount(1);
   await tap(rainRow, info);
   const sheet = page.locator('dialog.rsheet[open]');
   const box = sheet.locator('[data-rain-everywhere]');
@@ -169,6 +172,7 @@ test('RE2: the debrief starts with nothing ticked; the button counts what is tak
 
 test('RE3: Care for the bike: switch off, own interval in km and days, a note, reset', async ({ page, context }, info) => {
   const errors = await start(page, context, info, `./#/bikes?tab=care&bike=${GRAVEL}&open=1`);
+  await openCareMore(page, page.locator(`#care-${GRAVEL}`));
   const card = page.locator(`#care-${GRAVEL} [data-care-plan]`);
   await expect(card).toBeVisible();
   await expect(card.getByRole('heading')).toHaveText(T('Care for {bike}', { bike: 'test_data_gtp_ Gravel Grinder' }));

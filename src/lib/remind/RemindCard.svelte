@@ -137,7 +137,7 @@
     margin: 0 0 16px;
     padding: 14px 16px;
     border: 1.5px solid var(--accent);
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     background: var(--paper);
     color: var(--ink);
   }

@@ -83,7 +83,7 @@
 </script>
 
 <div class="fz" data-page="abos">
-  <Crumb path={[{ href: '#/me', label: t('Me|place') }, { href: '#/me/docs', label: t('Documents') }]} here={t('Contracts and subscriptions')} />
+  <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/alltag', label: t('Everyday life') }]} here={t('Contracts and subscriptions')} />
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Contracts and subscriptions')}</h1>
   <p class="fz-intro">{t('What runs, what it costs and the last day to cancel. The app reminds you in Calendar › Remember before that day; nothing shows on Today.')}</p>
 

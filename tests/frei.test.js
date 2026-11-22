@@ -1,6 +1,6 @@
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): the pure rules of Ich › Freie Zeit and its pages.
 import { describe, it, expect } from 'vitest';
-import { freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText } from '../src/lib/frei.js';
+import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf, collSharePayload, isCollShare, tourOfColl, tourHref, collImport } from '../src/lib/frei.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -19,7 +19,7 @@ describe('addresses', () => {
     expect(pageOf('#/me/frei/abend')).toBe('frei');
     expect(placeOf(pageOf('#/me/frei'))).toBe('week'); // UI-Ziele #6 (Noah 20.10.2026): Freie Zeit is Planen › Freie Zeit
     expect(pageOf('#/flow/impulse')).toBe('impulse');
-    expect(placeOf('impulse')).toBe('analysis'); // «Aktiv neu» (Noah 22.10.2026): Impulse moved to Auswerten
+    expect(placeOf('impulse')).toBe('week'); // Noah 21.11.2026 «2a»: Impulse moved from Auswerten to Planen › Freie Zeit
   });
 });
 
@@ -45,6 +45,20 @@ describe('impulses', () => {
     expect(a.hidden).toBe(false);
     expect(impulseOfDay(list, '2026-10-19')).toBe(a);
     expect(nextOf(list.filter((i) => !i.hidden), a.id).id).not.toBe(a.id);
+  });
+  it('«Not today»: a resting impulse stays in the list, but the suggestions skip it until the saved day', () => {
+    const day = '2026-10-19';
+    const first = impulseOfDay(impulsesOf({}, day), day);
+    expect(laterUntil(day)).toBe('2026-11-18'); // calendar days, 30
+    expect(LATER_DAYS).toBe(30);
+    const cfg = { later: { [first.id]: laterUntil(day) } };
+    const list = impulsesOf(cfg, day);
+    expect(list).toHaveLength(30);
+    expect(list.find((i) => i.id === first.id)).toMatchObject({ later: true, laterUntil: '2026-11-18', hidden: false });
+    expect(impulseOfDay(list, day).id).not.toBe(first.id);
+    expect(todayImpulse(cfg, day).id).not.toBe(first.id);
+    expect(impulsesOf(cfg, '2026-11-18').find((i) => i.id === first.id).later).toBe(false); // back on the saved day
+    expect(impulsesOf(cfg).find((i) => i.id === first.id).later).toBe(false); // no day given: no rest
   });
   it('a deleted area: its impulses show under «Without an area»', () => {
     const cfg = { areas: [{ id: 'joy', hidden: true }] };
@@ -150,5 +164,92 @@ describe('«For next time»', () => {
     expect(p.missing).toHaveLength(1);
     expect(p.missing[0].n).toBe(2);
     expect(markLine('missing')).toBe('Take {name} next time');
+  });
+});
+
+describe('the evening timer and «did you good»', () => {
+  const T0 = Date.parse('2026-11-05T20:00:00Z');
+  it('idle, running, done', () => {
+    expect(eveTimerState(null, T0).state).toBe('idle');
+    expect(eveTimerState({ end: T0 + 20 * 6e4, min: 20 }, T0)).toEqual({ state: 'run', left: 20 * 6e4, min: 20 });
+    expect(eveTimerState({ end: T0 + 20 * 6e4, min: 20 }, T0 + 20 * 6e4)).toMatchObject({ state: 'done', min: 20 });
+    expect(eveTimerState({ end: 'x' }, T0).state).toBe('idle');
+    expect(EVE_MINUTES).toContain(20);
+  });
+  it('the clock text', () => {
+    expect(mmss(20 * 6e4)).toBe('20:00');
+    expect(mmss(61_500)).toBe('1:02');
+    expect(mmss(-5)).toBe('0:00');
+  });
+  it('evenings that did you good: one per day, last 30 days, «not really» does not count', () => {
+    const rows = [
+      { day: '2026-11-05', good: true },
+      { day: '2026-11-05', good: true },
+      { day: '2026-11-04', good: false },
+      { day: '2026-10-07', good: true }, // 29 days back: still in
+      { day: '2026-10-06', good: true }, // 30 days back: out
+    ];
+    expect(goodEvenings(rows, '2026-11-05')).toBe(2);
+    expect(goodEvenings([], '2026-11-05')).toBe(0);
+  });
+});
+
+describe('«Worauf hab ich Lust?» with your week', () => {
+  const ideas = lustIdeasOf({});
+  it('dry weather lifts the open air; rain sinks it and lifts ideas for inside', () => {
+    const base = lustPick(ideas, { energy: 'mid' }, [], 999);
+    const dry = lustPick(ideas, { energy: 'mid', wx: 'good' }, [], 999);
+    const wet = lustPick(ideas, { energy: 'mid', wx: 'bad' }, [], 999);
+    const sc = (list, id) => list.find((p) => p.idea.id === id).score;
+    expect(sc(dry, 'walk')).toBe(sc(base, 'walk') + 1);
+    expect(sc(wet, 'walk')).toBe(sc(base, 'walk') - 3);
+    expect(sc(wet, 'yoga')).toBe(sc(base, 'yoga') + 1);
+    expect(wet.find((p) => p.idea.id === 'yoga').why).toContain('weather');
+    expect(sc(lustPick(ideas, { energy: 'mid', wx: null }, [], 999), 'walk')).toBe(sc(base, 'walk')); // no week data: as before
+  });
+  it('an own idea says itself where it is; the built-in ones are known', () => {
+    expect(outdoorOf({ id: 'walk' })).toBe(true);
+    expect(outdoorOf({ id: 'yoga' })).toBe(false);
+    expect(outdoorOf({ id: 'own1' })).toBeNull();
+    expect(outdoorOf({ id: 'walk', out: false })).toBe(false);
+  });
+  it('«Another one» is a new idea of the best five, never one that is shown', () => {
+    const shown = lustPick(ideas, { mood: 'play' }, []).map((p) => p.idea.id);
+    const p = lustMore(ideas, { mood: 'play' }, [], shown, () => 0);
+    expect(shown).not.toContain(p.idea.id);
+    expect(lustMore(ideas, { mood: 'play' }, [], ideas.map((i) => i.id))).toBeNull();
+  });
+});
+
+describe('a collection as a page and linked with a tour', () => {
+  const recipes = collsOf({}).find((c) => c.type === 'recipes');
+  const entry = newEntry(recipes.id, { title: `${P}Pasta`, data: { ingredients: ['Pasta', 'Tomaten'], link: 'https://example.org/r' }, photos: [{ src: 'data:image/jpeg;base64,AAAA', day: '2026-10-19' }], place: { lat: 46.1, lon: 7.1 } });
+  it('the link carries the name and the text, never photos or positions', () => {
+    const p = collSharePayload(recipes, [entry]);
+    expect(isCollShare(p)).toBe(true);
+    expect(p.e).toHaveLength(1);
+    expect(p.e[0].t).toBe(`${P}Pasta`);
+    expect(JSON.stringify(p)).not.toMatch(/data:image|46\.1|lat/);
+    expect(p.e[0].f.some(([, v]) => v.includes('Pasta\nTomaten'))).toBe(true);
+    expect(collSharePayload(recipes, Array.from({ length: 80 }, () => entry)).e).toHaveLength(60);
+    expect(isCollShare({ v: 1, g: [] })).toBe(false); // a packing-list link is not a collection
+  });
+  it('taking a shared collection over: an own collection, the text as lines, no photos', () => {
+    const share = collSharePayload(recipes, [entry]);
+    const { coll, entries } = collImport(share, { id: 'coll-x', now: '2026-11-07T10:00:00.000Z' });
+    expect(coll).toEqual({ id: 'coll-x', type: 'free', name: share.n, own: true, hidden: false });
+    expect(collsOf({ colls: [coll] }).some((c) => c.id === 'coll-x' && c.own && c.type === 'free')).toBe(true);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ kind: 'entry', coll: 'coll-x', title: `${P}Pasta`, photos: [], place: null });
+    expect(entries[0].data.text).toContain('Pasta\nTomaten');
+    expect(JSON.stringify(entries)).not.toMatch(/data:image|46\.1/);
+    expect(collImport(share, { id: 'a' }).entries[0].id).toBe('a-e0');
+    expect(collImport({ n: ' ', e: Array.from({ length: 80 }, () => ({ t: 'x' })) }).entries).toHaveLength(60);
+    expect(collImport({ n: 'Leer', e: [{ t: '', f: [] }] }).entries[0].title).toBe('Leer');
+  });
+  it('the tour of a collection', () => {
+    expect(tourOfColl({ collTour: { c1: 't9' } }, 'c1')).toBe('t9');
+    expect(tourOfColl({}, 'c1')).toBe('');
+    expect(tourHref('t9')).toBe('#/tour/t%3At9');
   });
 });

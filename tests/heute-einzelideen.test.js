@@ -47,6 +47,7 @@ describe('2 Überraschungsrunde', () => {
   it('planSurprise asks the router once and reads busy and no route', async () => {
     clearRouterCache();
     ROUTER_TUNING.retryMs = 0;
+    ROUTER_TUNING.reserve = false;
     const plan = surprisePlan(HOME, { rnd: 0.5, turn: 0 });
     const json = { features: [{ properties: { 'track-length': '34200', 'filtered ascend': '320' }, geometry: { coordinates: [[8, 47, 400], [8.1, 47.1, 450], [8, 47, 400]] } }] };
     let urls = 0;

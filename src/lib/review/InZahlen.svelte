@@ -22,6 +22,7 @@
   import { BLOCKS as PAST_BLOCKS, GROUPS as PAST_GROUPS, toggled, monthsOf, monthSums, bestValues, lastYear, whenBuckets, PARTS, routeMap, perBike, packStats, zoneMonths, weatherSum, footprint, heartAll } from './inzahlen.js';
   import { bikeTypeName } from '../bikes.js';
   import RouteMap from './RouteMap.svelte';
+  import MonthBars from './MonthBars.svelte';
   import { backClose } from '../ui/backclose.js';
   import './zones.css';
   import { LayoutGrid, Route, Bike, HeartPulse, Trophy, ChevronDown, ChevronUp, ChartColumn, Map as MapIcon, Clock, Backpack, Medal, CalendarRange, CloudRain, Leaf, X, Undo2 } from '@lucide/svelte';
@@ -88,6 +89,44 @@
   const label = (m, key) => (sums.length <= 6 || m.ym === newest || m[key] === Math.max(...sums.map((x) => x[key])) ? n0(m[key]) : '');
   const letter = (ym) => new Date(`${ym}-15T12:00:00`).toLocaleDateString(locale(), { month: 'narrow' });
   const wday = (i) => new Date(Date.UTC(2026, 0, 5 + i, 12)).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace(/\.$/, '');
+  // «Diagramme zum Antippen»: the columns of the month charts. Up to 12 months every month has its letter, then every
+  // third month its short name; with many months only the newest and the highest carry their number.
+  const mx = (ym, i, n) => (n <= 12 ? letter(ym) : i % 3 === 0 ? new Date(`${ym}-15T12:00:00`).toLocaleDateString(locale(), { month: 'short' }).replace(/\.$/, '') : '');
+  const topOf = (list, v, ym, newestYm, text) => (v && (list.length <= 6 || ym === newestYm || v === Math.max(...list)) ? text : '');
+  const kmCols = $derived(sums.map((m, i) => ({ key: m.ym, title: monthLong(m.ym), x: mx(m.ym, i, sums.length), top: label(m, 'km'), parts: m.km ? [{ v: m.km }] : [], items: [{ label: t('km'), value: `${n0(m.km)} km` }] })));
+  const gainCols = $derived(sums.map((m, i) => ({ key: m.ym, title: monthLong(m.ym), x: mx(m.ym, i, sums.length), top: label(m, 'gainM'), parts: m.gainM ? [{ v: m.gainM }] : [], items: [{ label: t('Climbing|hm'), value: `${n0(m.gainM)} ${t('Hm|col')}` }] })));
+  const dayLongName = (i) => new Date(Date.UTC(2026, 0, 5 + i, 12)).toLocaleDateString(locale(), { weekday: 'long', timeZone: 'UTC' });
+  const dayCols = $derived(when.days.map((n, i) => ({ key: String(i), title: dayLongName(i), x: wday(i), top: n ? String(n) : '', parts: n ? [{ v: n }] : [], items: [{ label: t('Trips|place'), value: tn(n, '{n} trip', '{n} trips') }] })));
+  const zoneCols = $derived(
+    zm.map((m, i) => ({
+      key: m.ym,
+      title: monthLong(m.ym),
+      x: mx(m.ym, i, zm.length),
+      top: topOf(zm.map((x) => x.zoneS), m.zoneS, m.ym, zm.findLast((x) => x.zoneS)?.ym, hm(m.zoneS / 3600)),
+      parts: m.zones ? m.zones.map((z, k) => ({ v: z / 3600, color: `var(--z${k + 1})` })) : [],
+      items: [{ label: t('Total time'), value: `${hm(m.zoneS / 3600)} h` }, ...[0, 1, 2, 3, 4].map((k) => ({ label: `Z${k + 1}`, value: `${hm((m.zones?.[k] ?? 0) / 3600)} h`, color: `var(--z${k + 1})` }))],
+    })),
+  );
+  // «Puls und Leistung pro Monat»: one chart per row (Ø and highest heart rate, Ø and highest power)
+  const rowCols = (r) =>
+    vm.map((m, i) => ({
+      key: m.ym,
+      title: monthLong(m.ym),
+      x: mx(m.ym, i, vm.length),
+      top: m[r.key] != null && (vm.length <= 6 || m.ym === newestOf(vm, r.key)?.ym) ? num(m[r.key]) : '',
+      parts: m[r.key] ? [{ v: m[r.key] }] : [],
+      items: [{ label: t(r.name), value: m[r.key] != null ? `${num(m[r.key])} ${t(r.unit)}` : DASH }],
+    }));
+  const paceCols = $derived(
+    vm.map((m, i) => ({
+      key: m.ym,
+      title: monthLong(m.ym),
+      x: mx(m.ym, i, vm.length),
+      top: m.kmh != null ? (vm.length <= 6 || m.ym === newestOf(vm, 'kmh')?.ym ? n1(m.kmh) : '') : '',
+      parts: m.kmh != null ? [{ v: m.kmh }] : [],
+      items: [{ label: 'km/h', value: m.kmh != null ? n1(m.kmh) : DASH }, ...(vmAny('hrAvg') ? [{ label: t('Ø heart rate, bpm'), value: m.hrAvg != null ? num(m.hrAvg) : DASH }] : [])],
+    })),
+  );
   const PART = { morning: ['Morning', 'before 12'], afternoon: ['Afternoon', '12–17'], evening: ['Evening', 'from 17'] };
   const typeName = (type) => (type ? t(bikeTypeName(type)) : '');
   const LYNAME = { trips: 'Trips|place', km: 'km', gainM: 'Climbing|hm', movingH: 'Hours in motion' };
@@ -152,15 +191,10 @@
       {@render head(b, newest ? t('km and climbing · {month} last', { month: monthLong(newest) }) : t('km and climbing'))}
       {#if !view.shut.includes(b.key)}
         {#if !kmAll && !gainAll}{@render quiet(t('No rides in this period.'))}{:else}
-          <div class="mscroll">
-            <div class="mc" style:--n={sums.length}>
-              <span class="ax">km</span>
-              <ol class="bars">{#each sums as m (m.ym)}<li data-month={m.ym} data-km={m.km} title="{monthLong(m.ym)}: {n0(m.km)} km">{#if m.km}<span class="bv num">{label(m, 'km')}</span><i class="bar" class:last={m.ym === newest} style:height="{(m.km / kmTop) * 100}%"></i>{/if}</li>{/each}</ol>
-              <span class="ax">{t('Climbing|hm')}</span>
-              <ol class="bars">{#each sums as m (m.ym)}<li title="{monthLong(m.ym)}: {n0(m.gainM)} {t('Hm|col')}">{#if m.gainM}<span class="bv num">{label(m, 'gainM')}</span><i class="bar" class:last={m.ym === newest} style:height="{(m.gainM / gainTop) * 100}%"></i>{/if}</li>{/each}</ol>
-              <ol class="ml" aria-hidden="true">{#each sums as m (m.ym)}<li>{letter(m.ym)}</li>{/each}</ol>
-            </div>
-          </div>
+          <p class="ax">km</p>
+          <MonthBars id="iz-V1-km" cols={kmCols} mark={newest} first={t('Month')} label={t('km')} unit="km" />
+          <p class="ax">{t('Climbing|hm')}</p>
+          <MonthBars id="iz-V1-gain" cols={gainCols} mark={newest} first={t('Month')} label={t('Climbing|hm')} unit={t('Hm|col')} />
         {/if}
       {/if}
     {:else if b.key === 'V7'}
@@ -173,9 +207,7 @@
       {#if !view.shut.includes(b.key)}
         {#if !rows.length}{@render quiet(t('No rides in this period.'))}{:else}
           <div class="when">
-            <ol class="wd" aria-label={t('Trips per weekday')}>
-              {#each when.days as n, i (i)}<li data-day={i}><span class="bv num">{n || ''}</span><i class="bar" class:none={!n} style:height="{n ? Math.max(6, (n / dayTop) * 100) : 0}%"></i><small>{wday(i)}</small></li>{/each}
-            </ol>
+            <MonthBars id="iz-V10" cols={dayCols} first={t('Weekday')} label={t('Trips per weekday')} unit={t('Trips|place')} steps={[1, 2, 5, 10, 20, 50, 100]} />
             <ul class="parts">
               {#each PARTS as p (p)}
                 <li data-part={p}><span class="pn">{t(PART[p][0])}<small>{t(PART[p][1])}</small></span><span class="track"><i style:width="{(when.parts[p] / partTop) * 100}%"></i></span><b class="num">{num(when.parts[p])}</b></li>
@@ -223,12 +255,7 @@
           {@render quiet(t('No time in zones yet. It comes with the heart rate details from Strava.'))}
           {#if heart}<p class="foot">{t('Ø heart rate {avg} bpm · max. {max} bpm, from {n} rides.', { avg: num(heart.avg), max: heart.max ? num(heart.max) : DASH, n: num(heart.n) })}</p>{/if}
         {:else}
-          <div class="mscroll">
-            <div class="mc" style:--n={zm.length}>
-              <span class="zs">{#each zm as m (m.ym)}<span class="zcol" title={monthLong(m.ym)} style:height="{m.zoneS ? Math.max(4, (m.zoneS / zTop) * 100) : 4}%">{#if m.zones}{#each [4, 3, 2, 1, 0] as i (i)}{#if m.zones[i]}<i class="zc-{i + 1}" style:flex-grow={m.zones[i]}></i>{/if}{/each}{/if}</span>{/each}</span>
-              <ol class="ml" aria-hidden="true">{#each zm as m (m.ym)}<li>{letter(m.ym)}</li>{/each}</ol>
-            </div>
-          </div>
+          <MonthBars id="iz-V8" cols={zoneCols} mark={null} first={t('Month')} label={t('Total time')} unit="h" />
           <p class="foot">{t('Hours per month, Z1 below up to Z5 on top')}</p>
         {/if}
       {/if}
@@ -273,17 +300,7 @@
       {@render head(b, t('Ø km/h in motion per month, with Ø heart rate · only to look at'))}
       {#if !view.shut.includes(b.key)}
         {#if !vmAny('kmh')}{@render quiet(t('No moving time in this period.'))}{:else}
-          <div class="mscroll">
-            <div class="mc" style:--n={vm.length}>
-              <span class="ax">km/h</span>
-              <ol class="bars">{#each vm as m (m.ym)}<li data-month={m.ym} title="{monthLong(m.ym)}: {n1(m.kmh)} km/h">{#if m.kmh != null}<span class="bv num">{n1(m.kmh)}</span><i class="bar" class:last={m.ym === l?.ym} style:height="{(m.kmh / vmTop('kmh')) * 100}%"></i>{/if}</li>{/each}</ol>
-              {#if vmAny('hrAvg')}
-                <span class="ax">{t('Ø heart rate, bpm')}</span>
-                <ol class="ml hrl">{#each vm as m (m.ym)}<li>{m.hrAvg != null ? num(m.hrAvg) : ''}</li>{/each}</ol>
-              {/if}
-              <ol class="ml" aria-hidden="true">{#each vm as m (m.ym)}<li>{letter(m.ym)}</li>{/each}</ol>
-            </div>
-          </div>
+          <MonthBars id="iz-T1" cols={paceCols} mark={l?.ym} first={t('Month')} label="km/h" unit="km/h" />
           <p class="foot">{t('Months without a trip stay empty.')}</p>
         {/if}
       {/if}
@@ -338,12 +355,12 @@
       {@render head(b, t('the newest month on the right · only to look at'))}
       {#if !view.shut.includes(b.key)}
         {#if !P1_ROWS.some((r) => vmAny(r.key))}{@render quiet(t('No heart rate or power in this period.'))}{:else}
-          <ul class="pm">
-            {#each P1_ROWS.filter((r) => vmAny(r.key)) as r (r.key)}
-              {@const l = newestOf(vm, r.key)}
-              <li data-p1={r.key}><span>{t(r.name)}</span><span class="pmb" style:--n={vm.length}>{#each vm as m (m.ym)}<i class:last={m.ym === l?.ym} class:none={m[r.key] == null} style:height="{m[r.key] ? Math.max(8, (m[r.key] / vmTop(r.key)) * 100) : 8}%"></i>{/each}</span><b class="num">{l ? num(l.v) : DASH} <small>{t(r.unit)}</small></b></li>
-            {/each}
-          </ul>
+          {#each P1_ROWS.filter((r) => vmAny(r.key)) as r (r.key)}
+            <div class="p1" data-p1={r.key}>
+              <p class="ax">{t(r.name)}</p>
+              <MonthBars id="iz-P1-{r.key}" cols={rowCols(r)} mark={newestOf(vm, r.key)?.ym} first={t('Month')} label={t(r.name)} unit={t(r.unit)} />
+            </div>
+          {/each}
           <p class="foot">{t('Power only from trips with a power meter. Zones, power curve and FTP are in the trip’s Rückblick.')}</p>
         {/if}
       {/if}
@@ -595,83 +612,11 @@
     overflow-wrap: break-word;
   }
   /* V1, V8: the months, the newest on the right (many months scroll inside the block) */
-  .mscroll {
-    overflow-x: auto;
-  }
-  .mc {
-    min-width: calc(var(--n) * 22px);
-  }
   .ax {
     display: block;
-    margin-top: 10px;
+    margin: 10px 0 4px;
     color: var(--ink-3);
     font-size: var(--fs-tiny);
-  }
-  .bars,
-  .ml {
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    gap: 6px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .bars {
-    height: 96px;
-    align-items: end;
-    margin: 16px 0 4px;
-    border-bottom: 1px solid var(--line-strong);
-  }
-  .bars li {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    height: 100%;
-  }
-  .bar {
-    display: block;
-    width: 100%;
-    max-width: 28px;
-    min-height: 2px;
-    border-radius: 3px 3px 0 0;
-    background: var(--line-strong);
-  }
-  .bar.last {
-    background: var(--hi);
-  }
-  .bv {
-    margin-bottom: 2px;
-    color: var(--ink-2);
-    font-size: var(--fs-tiny);
-    white-space: nowrap;
-  }
-  .ml li {
-    text-align: center;
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-  }
-  .zs {
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    align-items: end;
-    gap: 6px;
-    height: 96px;
-    margin: 14px 0 6px;
-  }
-  .zcol {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    min-height: 2px;
-    border-radius: 2px;
-    overflow: hidden;
-    background: var(--line);
-  }
-  .zcol i {
-    display: block;
-    flex: 1 1 0;
-    min-height: 1px;
   }
   /* V10 */
   .when {
@@ -684,36 +629,6 @@
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       align-items: end;
     }
-  }
-  .wd {
-    display: grid;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 8px;
-    height: 120px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .wd li {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    min-width: 0;
-  }
-  .wd .bar {
-    max-width: 48px;
-    border-radius: 3px;
-    background: var(--bar);
-  }
-  .wd .bar.none {
-    min-height: 2px;
-    background: var(--line);
-  }
-  .wd small {
-    margin-top: 4px;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
   }
   .parts {
     margin: 0;
@@ -965,9 +880,6 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  .hrl li {
-    color: var(--ink-2);
-  }
   .pg small,
   .wn {
     color: var(--ink-3);
@@ -1013,48 +925,6 @@
   .wear small {
     color: var(--ink-3);
     font-size: var(--fs-tiny);
-  }
-  .pm {
-    margin: 10px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-  .pm li {
-    display: grid;
-    grid-template-columns: minmax(0, 7em) minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 12px;
-    min-height: 44px;
-  }
-  .pm li + li {
-    border-top: 1px solid var(--line);
-  }
-  .pm li > span:first-child {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-    overflow-wrap: break-word;
-  }
-  .pmb {
-    display: grid;
-    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    align-items: end;
-    gap: 2px;
-    height: 28px;
-  }
-  .pmb i {
-    display: block;
-    border-radius: 2px 2px 0 0;
-    background: var(--line-strong);
-  }
-  .pmb i.none {
-    background: var(--line);
-  }
-  .pmb i.last {
-    background: var(--hi);
-  }
-  .pm b small {
-    color: var(--ink-3);
-    font-weight: 400;
   }
   /* «Blöcke» */
   .bsheet {

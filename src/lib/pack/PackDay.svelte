@@ -391,8 +391,8 @@
      «Packen abschliessen» (asks when something is missing, then the interstitial «Gepackt»), packed and
      waiting «Fertig gepackt · zurück zu Touren» (Gesamttest 20.10.2026 B5), under way «Weiter zu Unterwegs», after the trip «Weiter zum Rückblick». -->
 {#snippet go()}{#if packFirst && nextBag}<button type="button" class="btn hi go" onclick={packNext} data-pack-next title={t('Pack {bag}|next', { bag: nextBag.title })} aria-label={`${t('Pack {bag}|next', { bag: nextBag.title })} ${t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}`}><span class="golbl">{t('Pack {bag}|next', { bag: nextBag.title })}</span><span class="gocnt">{' '}{t('({done} of {n})|next', { done: nextBag.done, n: nextBag.entries.length })}</span><span class="gophone" aria-hidden="true">{t('Continue packing')}<small>{nextBag.title}</small></span><ArrowRight size={20} aria-hidden="true" /></button>
-{:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}><span class="golbl">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
-{:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}><span class="golbl">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
+{:else if main.kind === 'finish'}<button type="button" class="btn hi go" onclick={next}><span class="golbl wrap">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
+{:else if main.kind === 'end'}<button type="button" class="btn hi go" onclick={onend}><span class="golbl wrap">{t(main.label)}</span><ArrowRight size={20} aria-hidden="true" /></button>
 {:else if main.kind === 'go'}<a class="btn hi go" href={main.href}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}{/snippet}
 <!-- Paket H «4a und b»: «Read aloud» next to the ring, at the thumb on a phone; the window explains the rest -->
 {#snippet aside()}{@render ring(52)}{#if onread}<button type="button" class="tp-icon-btn pd-read" aria-label={t('Read aloud')} title={t('Read aloud')} onclick={onread}><Volume2 size={22} aria-hidden="true" /></button>{/if}{/snippet}
@@ -784,6 +784,8 @@
     .gocnt { display: none; }
     .go { min-width: 0; }
     .golbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* Durchklick Etappe 6 (E6-002): a fixed label («Fertig gepackt») wraps onto a second line instead of ending in «Fertig ge…» at 320 px */
+    .golbl.wrap { overflow: visible; text-overflow: clip; white-space: normal; line-height: 1.15; text-align: left; }
     /* Klick-Rundgang 22.10.2026 H05: a long bag name no longer ends in «…» in the main button: on a phone it says
        «Weiter packen» and the bag goes on a small second line (the full name stays the button's title and name) */
     .go:has(.gophone) .golbl { display: none; }

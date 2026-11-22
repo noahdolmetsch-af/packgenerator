@@ -18,7 +18,7 @@ describe('Fits here', () => {
   it('Alltag and Ruhig: inbox, documents, week and phone reminders (PR 8)', () => {
     expect(passtHier('inbox').map((f) => f.id)).toEqual(['f.markup', 'f.convert', 'f.video', 'f.chains']);
     expect(passtHier('docs').map((f) => f.id)).toEqual(['f.ablage', 'f.qr']);
-    expect(passtHier('woche').map((f) => f.id)).toEqual(['f.workspace', 'f.calmview', 'f.freiabend']);
+    expect(passtHier('woche').map((f) => f.id)).toEqual(['f.workspace', 'f.calmview', 'f.freiabend', 'f.spielerplus']);
     expect(passtHier('push').map((f) => f.id)).toEqual(['f.pushbudget', 'f.notforme']);
   });
   it('leaves out what is marked «Not for me» and unknown places', () => {

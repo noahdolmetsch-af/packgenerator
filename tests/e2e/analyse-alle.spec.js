@@ -57,6 +57,12 @@ test('Analyse shows the new Fitbit values and, on wish, every value without data
   // the place holders only with «Also values without data»
   await expect(tile('gTrain')).toHaveCount(0);
   if (process.env.ANALYSE_SHOTS) await page.screenshot({ path: `qa/analyse/alle-${info.project.name}.png`, fullPage: true });
+  // on a phone the card «Data from / Period / Show» is one line that opens the choices (Noah 07.11.2026 «3a»)
+  const openFilter = async () => {
+    const b = page.locator('[data-filter-toggle]');
+    if ((await b.isVisible()) && (await b.getAttribute('aria-expanded')) === 'false') await b.click();
+  };
+  await openFilter();
   await page.locator('[data-all]').click();
   await expect(page.locator('[data-all]')).toHaveAttribute('aria-pressed', 'true');
   await expect(tile('gTrain')).toHaveClass(/empty/);

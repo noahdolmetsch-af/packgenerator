@@ -4,12 +4,13 @@
    * week from the goal, the race, today's readiness and the sports of Aktiv, says why, and takes it over only on a tap
    * (with Undo). «Another suggestion» shows the next layout. Everything is a suggestion.
    */
+  import { untrack } from 'svelte';
   import { Sparkles, Pencil, X, Plus, Minus, CloudRain } from '@lucide/svelte';
   import { t, num, lang } from '../../i18n.svelte.js';
   import { suggestWeek, weeklySports, candidateSports, learnHabits, noHabits, VARIANTS, SRC, FOCUS } from '../suggest.js';
   import { KIND_NAMES, ZONE_NAMES, shiftDay, weekOf } from '../../training.js';
 
-  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, forecast = null, sportGoals = {}, habits = null, onlimits, onsportgoals, onhabits, onapply } = $props();
+  let { acts = [], flowActs = [], plan = [], goal = null, monday, today, level = null, daysToRace = null, dayLimits = {}, forecast = null, sportGoals = {}, habits = null, onlimits, onsportgoals, onhabits, onapply, preset = null } = $props();
 
   let open = $state(false);
   let variant = $state(0);
@@ -83,10 +84,10 @@
   const stepHours = (d) => ((hoursSet = Math.min(40, Math.max(1, (hoursSet ?? sug.hours) + d))), (edits = null), (form = null));
   const setPush = (n) => ((push = n), (edits = null), (form = null));
   const setFocus = (f) => ((focus = f), (edits = null), (form = null));
-  // «Tage sperren / Zeit pro Tag»: tap a weekday to cycle open → 1 h → 30 min → free; it is remembered
+  // «Tage sperren / Zeit pro Tag»: tap a weekday to cycle any → 1 h → 30 min → free; it is remembered
   const CYCLE = [null, 60, 30, 0];
   const allDays = $derived(weekOf(monday));
-  const limitName = (n) => (n === 0 ? t('free') : n === 30 ? t('≤30 min') : n === 60 ? t('≤1 h') : t('open'));
+  const limitName = (n) => (n === 0 ? t('free') : n === 30 ? t('≤30 min') : n === 60 ? t('≤1 h') : t('any'));
   function cycleDay(i) {
     const cur = dayLimits[i] ?? null;
     const nxt = CYCLE[(CYCLE.indexOf(cur) + 1) % CYCLE.length];
@@ -98,6 +99,19 @@
     form = null;
   }
   const reset = () => ((edits = null), (form = null));
+  // «Training verbessern» 8: the look back offers hours for next week; a tap opens the suggestion with those hours
+  $effect(() => {
+    const p = preset;
+    if (!p?.n) return;
+    untrack(() => {
+      open = true;
+      variant = 0;
+      push = 0;
+      focus = 'cardio';
+      hoursSet = p.hours;
+      reset();
+    });
+  });
   const OUTDOOR = ['bike', 'run', 'hike'];
   const rainy = (s) => OUTDOOR.includes(s.kind) && !s.sport && wx[s.day] === 'rain';
   const label = (s) => (s.sport ? sportName(flowActs.find((a) => a.id === s.sport) ?? { name: '' }) : s.name ? t(s.name) : t(KIND_NAMES[s.kind]));
@@ -154,7 +168,7 @@
         </button>
       {/each}
     </div>
-    <p class="sugw-note">{t('Tap a day: 1 h at most, 30 min at most, or free. Free days get no session.')}</p>
+    <p class="sugw-note">{t('Tap a day to limit it: any → 1 h at most → 30 min at most → free (no session). Another tap goes on.')}</p>
     {#if cands.length}
       <div class="sugw-sports" data-sug-sports>
         <span class="sugw-sports-h">{t('Times per week')}</span>
@@ -296,6 +310,12 @@
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
     gap: 0.25rem;
+  }
+  /* on a phone seven buttons are too narrow for «beliebig»: four and three, wider and easier to tap */
+  @media (max-width: 480px) {
+    .sugw-days {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
   .sugw-day {
     display: grid;

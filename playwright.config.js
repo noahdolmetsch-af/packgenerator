@@ -19,6 +19,10 @@ const ignore = [
   ...(skipGesamttest ? ['**/gesamttest/**'] : []),
   ...(process.env.RUNDGANG ? [] : ['**/nachtrundgang/**']),
   ...(process.env.LIVE ? [] : ['**/live/**']),
+  // 06.11.2026: tests/e2e/tmp-durchklick are the Etappe-5 probes (click-through, fuzz, repro, shots; 30 to 60 minute
+  // timeouts, they write to /tmp, nothing asserts). They came onto main with #990 by mistake and slowed every phone
+  // part (part 4 hit the 35 minute limit). They run only by hand: TMP_DURCHKLICK=1 npx playwright test tests/e2e/tmp-durchklick
+  ...(process.env.TMP_DURCHKLICK ? [] : ['**/tmp-durchklick/**']),
 ];
 
 // 27.10.2026 (thread «Weg von gebaut zu online»): the tests never reach the real server packgen. On GitHub
@@ -28,7 +32,8 @@ const ignore = [
 // Only the check of the live app (LIVE=1) talks to the real server.
 // 28.10.2026: the same for GitHub's public API (Ich asks it which merges are not online yet, versionline.js);
 // without an account it answers 60 questions an hour, and that belongs to the real app too.
-export const NO_REAL_SERVER = '--host-resolver-rules=MAP packgen-three.vercel.app ~NOTFOUND, MAP api.github.com ~NOTFOUND';
+// 07.11.2026: the same for the Overpass servers (New ground asks them once a week for towers, bridges and waterfalls, osm.js).
+export const NO_REAL_SERVER = '--host-resolver-rules=MAP packgen-three.vercel.app ~NOTFOUND, MAP api.github.com ~NOTFOUND, MAP overpass-api.de ~NOTFOUND, MAP overpass.osm.ch ~NOTFOUND, MAP overpass.kumi.systems ~NOTFOUND, MAP overpass.private.coffee ~NOTFOUND';
 const browserArgs = process.env.LIVE ? [] : [NO_REAL_SERVER];
 
 export default defineConfig({
@@ -46,8 +51,10 @@ export default defineConfig({
     timezoneId: 'Europe/Zurich',
     // Heute's windows open by the clock (Wochenrückblick Sunday from 18:00, the evening before a trip from 17:00,
     // src/lib/home/HomeWindow.svelte): a test that does not test them must not depend on the hour it runs at.
+    // 'pg.packmore' = 'open': the five groups of «More about this trip» on Packen (PackMore.svelte) are closed for a real user; the
+    // specs that look into a fold of a group find it open. tests/e2e/packen-mehr.spec.js tests the closed default without it.
     // The window specs switch them on again with test.use({ storageState: WINDOWS_ON }) from ./tests/e2e/settle.js.
-    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: 'pg.windows', value: 'quiet' }] }] },
+    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: 'pg.windows', value: 'quiet' }, { name: 'pg.packmore', value: 'open' }] }] },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Locally a preinstalled Chromium can be used (PW_CHROMIUM=/path/to/chrome); CI installs its own.

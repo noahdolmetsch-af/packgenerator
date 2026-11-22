@@ -32,8 +32,10 @@ export const PASST_HIER = {
   inbox: ['f.markup', 'f.convert', 'f.video', 'f.chains'],
   // Dokumente: links, small files and QR codes next to the documents
   docs: ['f.ablage', 'f.qr'],
+  // Training › Aktivitäten: older rides from Zwift or a Garmin as files, the plan you keep in TrainingPeaks (Noah 19.11.2026)
+  training: ['f.kmimport', 'f.trainingpeaks'],
   // Woche planen: fewer things at once, and the evening
-  woche: ['f.workspace', 'f.calmview', 'f.freiabend'],
+  woche: ['f.workspace', 'f.calmview', 'f.freiabend', 'f.spielerplus'],
   // Erinnerungen aufs Handy: how many a day, and what the app no longer suggests
   push: ['f.pushbudget', 'f.notforme'],
   // Ich › Erkenntnisse: what belongs to an insight, the days that do not fit, a test with an end (PR 7)

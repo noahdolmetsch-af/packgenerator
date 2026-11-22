@@ -9,7 +9,7 @@ export const DEFAULT_ZONES = [
   { id: 'z1', name: 'Zürich', tz: 'Europe/Zurich' },
   { id: 'z2', name: 'London', tz: 'Europe/London' },
   { id: 'z3', name: 'New York', tz: 'America/New_York' },
-  { id: 'z4', name: 'Tokyo', tz: 'Asia/Tokyo' },
+  { id: 'z4', name: 'Tokio', tz: 'Asia/Tokyo' },
 ];
 
 /** All zones the browser knows (a short fallback list where it cannot list them). */

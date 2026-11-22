@@ -51,8 +51,20 @@
       bottom: calc(86px + env(safe-area-inset-bottom));
     }
   }
+  /* Noah 06.11.2026 «2a» (Etappe 5): on a computer the pills sit at the top right, so they never cover a button at the bottom */
+  @media (min-width: 720px) {
+    .tfl {
+      top: 12px;
+      bottom: auto;
+    }
+  }
   .tfl.up {
     transform: translateY(-64px);
+  }
+  @media (min-width: 720px) {
+    .tfl.up {
+      transform: translateY(64px);
+    }
   }
   .tfl :focus-visible,
   .tfl.done:focus-visible {

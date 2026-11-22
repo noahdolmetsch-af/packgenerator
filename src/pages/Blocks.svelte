@@ -38,6 +38,8 @@
   import { tempRange } from '../lib/wardrobe.js';
   import { OUTDOOR_BLOCKS } from '../lib/context.js';
   import { localDay } from '../lib/localday.js';
+  import { standardHint } from '../lib/packcleanup.js';
+  import { PACK_RULES_KEY } from '../lib/packrules.svelte.js';
   import { REVIEW_KEY, reviewOpen, reviewBlocks } from '../lib/blocksplit.js';
   import { blockKind, comesOf } from '../lib/gear/comes.js';
   import { assignSet, editSets, renameSetIn, setQtyIn, deleteSet, restoreSetIn } from '../lib/gear/assign.js';
@@ -68,6 +70,9 @@
   const tplQ = liveQuery(() => db.settings.get(TEMPLATES_KEY));
   const items = $derived($itemsQ ?? []);
   const sets = $derived(allSets($setsQ?.value));
+  // UI-Test T13 (G4-03): a heavy «Standard» comes on every trip; say it once, with the way to tidy up
+  const rulesQ = liveQuery(async () => (await db.settings.get(PACK_RULES_KEY)) ?? null); // null: no rules saved yet
+  const heavyStd = $derived($itemsQ && $rulesQ !== undefined ? standardHint($itemsQ, $setsQ?.value ?? [], $rulesQ?.value ?? null) : null);
   const cards = $derived(sets.map((s) => ({ ...s, ...setView(s, items), kind: blockKind(s.key) })));
   // v0.154.0: the groups of the Gesamtliste, in their order (Standard is its own row in «Auf jeder Fahrt»)
   const cardsOf = (keys) => keys.map((k) => cards.find((c) => c.key === k)).filter(Boolean);
@@ -101,6 +106,8 @@
   const firstNew = $derived([...nightCards, ...sitCards, ...bathCards].find((s) => isNewBlock(s.key))?.key ?? null);
   // Impeccable (18.10.2026): how many «Depending on the situation» blocks are still empty (they suggest nothing)
   const sitEmpty = $derived(sitCards.filter((s) => !s.inventory.length).length);
+  // Tempo (Noah 05.11.2026): the empty blocks (twelve cards, ~320 elements) are built when the fold is opened, not with the page
+  let emptySeen = $state(false);
   // Impeccable 20.10.2026 P3 (Noah «alles umsetzen»): the empty blocks wait in one folded row, the filled ones stay in view
   const sitFull = $derived(sitCards.filter((s) => s.inventory.length));
   const sitEmptyCards = $derived(sitCards.filter((s) => !s.inventory.length));
@@ -394,7 +401,7 @@
     <!-- v0.66.0 (Noah 4a): one block after the other, every item keep / out / elsewhere; SN3: a normal button -->
     <!-- Impeccable runde 2 (Bausteine 2): the button says what it checks; how many wait is the chip under the title -->
     <!-- Impeccable 20.10.2026: one way to the check; the button carries how many wait (the chip under the title is gone) -->
-    <Btn icon={ListChecks} label={toCheck ? t('Check building blocks · {n}', { n: checkN }) : t('Check building blocks')} explain={t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
+    <Btn icon={ListChecks} label={toCheck ? t('Check building blocks · {n}', { n: checkN }) : t('Check building blocks')} explain={toCheck ? t('{n} with suggestions. One building block after the other: keep, out or elsewhere', { n: checkN }) : t('One building block after the other: keep, out or elsewhere')} href="#/blocks/check" />
     <!-- «Packliste aufräumen» (Noah 21.10.2026 «5a»): fewer things that come by themselves, on one page -->
     <Btn icon={Eraser} label={t('Tidy up')} explain={t('Tidy up the packing list: what comes along by itself')} href="#/blocks/aufraeumen" />
     <Btn kind="hi" icon={Plus} label={t('New building block')} aria-expanded={adding} onclick={startNew} />
@@ -457,11 +464,13 @@
           </ul>
         {/if}
         {#if sitEmpty}
-          <details class="emptyfold" data-empty-blocks>
+          <details class="emptyfold" data-empty-blocks ontoggle={(e) => e.currentTarget.open && (emptySeen = true)}>
             <summary class="srow"><span class="sm"><b>{tn(sitEmpty, '{n} empty building block', '{n} empty building blocks')}</b><small>{t('Put in the items that should come along, for example in cold, heat or rain.')}</small></span><ChevronRight class="schev chev" size={18} aria-hidden="true" /></summary>
-            <ul class="card slist">
-              {#each sitEmptyCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
-            </ul>
+            {#if emptySeen}
+              <ul class="card slist">
+                {#each sitEmptyCards as s (s.key)}{#if hasRule(s.key)}{@render sitRow(s)}{:else}{@render blockCard(s)}{/if}{/each}
+              </ul>
+            {/if}
           </details>
         {/if}
         {#if ownRain.length}<p class="shint"><CloudRain size={15} aria-hidden="true" /><span>{t('Your own block {names} follows the rule of {rain} too.', { names: ownRain.map((c) => `«${c.name}»`).join(', '), rain: blockLabel(sitCards.find((c) => c.key === 'rain') ?? { name: t('Rain|block') }) })}</span></p>{/if}
@@ -530,6 +539,12 @@
     </Help>
   </p>
   <div class="bshare"><ShareBar label={t('Weight by group')} parts={weightParts} /></div>
+  {#if heavyStd}
+    <p class="stdheavy" role="note" data-std-heavy>
+      <Info size={16} aria-hidden="true" />
+      <span>{t('On bikepacking trips your Standard brings {kg} (without what you wear). «Tidy up» suggests {n} instead of {m} things.', { kg: formatWeight(heavyStd.g), n: heavyStd.suggested, m: heavyStd.n })} <a href="#/blocks/aufraeumen">{t('Look at it ›')}</a></span>
+    </p>
+  {/if}
 {/snippet}
 
 {#if selBlock}
@@ -1084,5 +1099,19 @@
   }
   .emptyfold > ul {
     margin-top: var(--sp-2);
+  }
+  .stdheavy {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: var(--sp-2) 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .stdheavy a {
+    color: var(--ink);
   }
 </style>

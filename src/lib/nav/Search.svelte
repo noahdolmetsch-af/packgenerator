@@ -17,7 +17,6 @@
   import { countUse } from '../home/usage.js';
   import { phone } from '../media.svelte.js';
   import { t } from '../i18n.svelte.js';
-  import SearchAnswer from '../helper/SearchAnswer.svelte';
   import SearchFree from '../kisuche/SearchFree.svelte';
   import AskAnswer from '../assistent/AskAnswer.svelte';
   import { smartSearch } from '../kisuche/smart.js';
@@ -34,9 +33,16 @@
   import { spokenCommand } from '../suche/logic.js';
   import { looksLikeQuestion } from '../helper/logic.js';
   import { localDay } from '../localday.js';
+  // «Zuletzt geöffnet» in der Suche (Noah 05.11.2026 «7a»): the last pages this device opened, from Quick Links' count
+  import { deviceKind } from '../quick/quicklinks.js';
+  import { USAGE_KEYS, cleanUsage, recentPlaces, forgetVisits } from '../quick/usage.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   // «Suche als Alleskönner» (Noah 21.10.2026 «1-8 alle»): values, reminders, several things at once, plan, jump
   import { actionOf, actionsOf, actionLabel, runActions } from '../suche/act.js';
   import { partsOf, jumpOf, planHref, weatherHref } from '../suche/say.js';
+  import { looksLikeCommand, askCommand, stepLabel } from '../suche/befehl.js';
+  import { geminiError } from '../assistent/gemini.js';
+  import { helper } from '../helper/client.svelte.js';
   // «Eingaben überall» (Noah 26.10.2026 «5a aber b möglich»): the diary in the search, switchable in its settings
   import { onDestroy } from 'svelte';
   import { gate } from '../tagebuch/lock.svelte.js';
@@ -48,7 +54,6 @@
   let open = $state(false); // phone: the field is shown
   let input = $state();
   let btn = $state(); // phone: the magnifier that opened the field
-  let kh = $state(); // v0.77.0 KI-Helfer (answer 2a): «Frag den Helfer» above the hits
   let spoken = $state(false); // the text in the field was spoken (not typed)
   let heardNow = $state(''); // the words while the microphone listens
   let micMsg = $state('');
@@ -79,6 +84,27 @@
   // Paket Q Zusatz 2 (Noah «1-3 alle a»): a whole question («Wo stelle ich das Backup-Passwort ein?») that no
   // function fits word for word finds the functions that answer it, with their first step (instead of «Functions»).
   const help = $derived(isQuestion(q) ? helpAnswers(q, t) : []);
+  const USED = USAGE_KEYS[deviceKind()];
+  let used = $state(cleanUsage(null));
+  $effect(() => {
+    const sub = liveQuery(() => db.settings.get(USED)).subscribe({ next: (rec) => (used = cleanUsage(rec?.value)), error: () => {} });
+    return () => sub.unsubscribe();
+  });
+  // the page you are on is left out; the list is read when the search opens
+  const places = $derived(recentPlaces(used, open || focused ? location.hash : '', 5));
+  const saveUsed = (next) => db.settings.put({ key: USED, value: JSON.parse(JSON.stringify(next)) });
+  /** Forget the list; the note offers Undo. */
+  function forgetPlaces() {
+    const before = $state.snapshot(used);
+    saveUsed(forgetVisits(before));
+    offerDone(t('Forgot the pages opened lately.'), () => saveUsed(before));
+  }
+  /** A page of the list opens; the search closes. */
+  function leave() {
+    q = '';
+    open = false;
+    focused = false;
+  }
   let focused = $state(false); // the field has the focus: an empty field shows the commands to try
   // v0.96.0 (mockup B): an empty search shows 3 commands to try, the last searches and all functions.
   const firstBike = $derived($all ? (sortBikes($all.bikes)[0] ?? null) : null);
@@ -146,12 +172,15 @@
   const says = $derived.by(() => {
     if (!$all || q.trim().length < 4) return null;
     const c = ctx();
+    const whole = actionOf(q, c);
+    if (whole?.kind === 'list') return [whole]; // «Erstelle eine Liste: A, B, C» has commas but is one thing
     const many = actionsOf(q, partsOf(q), c);
     if (many) return many;
     const one = actionOf(q, c);
     // a single command of the search list shows there already
     return one && one.kind !== 'cmd' ? [one] : null;
   });
+  const listSay = $derived(says?.[0]?.kind === 'list'); // a list sentence is a command: no «answer», no «add as new item» beside it
   const saysTitle = $derived(says ? (says.length > 1 ? t('Enter all {n}: {list}', { n: says.length, list: says.map((a) => actionLabel(a, localDay())).join(' · ') }) : actionLabel(says[0], localDay())) : '');
   /** Does it: a plan opens «Help me plan» with what was said; everything else is written with one Undo. */
   async function doSays(acts = says) {
@@ -169,8 +198,38 @@
     q = '';
     spoken = false;
     clearTimeout(doneTimer);
-    done = { text: r.lines.length > 1 ? t('Entered: {list}', { list: r.lines.join(' · ') }) : r.lines[0], undoFn: r.undo };
+    done = { text: r.lines.length > 1 ? t('Entered: {list}', { list: r.lines.join(' · ') }) : r.lines[0], undoFn: r.undo, href: r.listId ? `#/calendar/list/${r.listId}` : null };
     doneTimer = setTimeout(() => (done = null), UNDO_MS);
+  }
+  /**
+   * «Mit der App sprechen» (Etappe 2, Noah 07.11.2026 «1b 2a 3a 4a 5a»): a sentence the rules do not know goes to
+   * Gemini, which translates it into actions. Always shown first («I would do this»), written only after «Ok».
+   */
+  let ai = $state(null); // { sentence, busy, error, none, steps: [{ act, choices, on }] }
+  const aiOn = $derived(!!ai && (ai.busy || !!ai.steps?.length));
+  const quiet = $derived(listSay || aiOn); // a command sentence: no «answer», no «add as new item» beside it
+  const aiReady = $derived(suche.understand && suche.gemini && !!helper.code); // Gemini works through the helper code (Me › AI helper)
+  const aiOffer = $derived(aiReady && !ai && !says && !cmds.length && looksLikeCommand(q));
+  $effect(() => {
+    if (ai && q.trim() !== ai.sentence) ai = null; // another sentence: the old proposal is gone
+  });
+  async function understand(sentence = q.trim()) {
+    ai = { sentence, busy: true, steps: [] };
+    const r = await askCommand(sentence, ctx());
+    if (!ai || ai.sentence !== sentence) return; // the sentence changed meanwhile
+    if (!r.ok) ai = { sentence, error: geminiError(r.error), steps: [] };
+    else if (!r.steps.length) ai = { sentence, none: true, steps: [] };
+    else ai = { sentence, steps: r.steps.map((s) => ({ ...s, on: true })) };
+  }
+  function pickBike(i, act) {
+    ai.steps[i].act = act;
+  }
+  async function okAi() {
+    const acts = $state.snapshot(ai?.steps ?? []).filter((s) => s.on).map((s) => s.act);
+    ai = null;
+    if (!acts.length) return;
+    if (acts.length === 1 && !acts[0].writes) return doSays(acts); // a plan or the weather opens its page
+    await doSays(acts.filter((a) => a.writes));
   }
   /**
    * The microphone heard a sentence: it goes into the field. With «Run spoken commands at once» (2a):
@@ -191,7 +250,8 @@
     const c = spokenCommand(cmds, { run: true });
     if (c) return run(c, { direct: true });
     const row = jumpOf(text, groups);
-    if (row && !asking) go(row);
+    if (row && !asking) return go(row);
+    if (aiReady && suche.geminiAuto && looksLikeCommand(text)) understand(text.trim());
   }
   async function run(c, { direct = false } = {}) {
     const cmd = c.cmd;
@@ -299,8 +359,9 @@
       // v0.44.1 (AP21): on a phone the field closes, so the focus goes back to the magnifier (not to the page top).
       if (open) (open = false), queueMicrotask(() => btn?.focus());
     }
-    if (e.key === 'Enter' && kh?.onEnter(q)) return e.preventDefault();
-    if (e.key === 'Enter' && says) doSays();
+    if (e.key === 'Enter' && ai?.steps?.length) okAi();
+    else if (e.key === 'Enter' && says) doSays();
+    else if (e.key === 'Enter' && aiOffer) understand();
     else if (e.key === 'Enter' && cmds.length) run(cmds[0]);
     else if (e.key === 'Enter' && count) go(groups[0].rows[0]);
   };
@@ -334,6 +395,15 @@
 
 {#snippet empty()}
   <div class="try" role="region" aria-label={t('Try a command')}>
+    {#if places.length}
+      <p class="gh">{t('Opened lately')}</p>
+      <ul class="cmds places" data-search-places>
+        {#each places as r (r.href)}
+          <li><a href={r.href} onclick={leave}><span class="m"><b>{r.title}</b></span><span class="go" aria-hidden="true">›</span></a></li>
+        {/each}
+      </ul>
+      <button type="button" class="btn btn-link forget" data-search-forget onclick={forgetPlaces}>{t('Forget this list')}</button>
+    {/if}
     <p class="gh">{t('Try a command')}</p>
     <ul class="cmds">
       {#each tries as x (x.say)}
@@ -364,14 +434,37 @@
 {#snippet results()}
   {#if done && !q.trim()}
     <div class="res" role="region" aria-label={t('Search results')}>
-      <p class="done" role="status"><span>{done.text}</span><button type="button" class="btn sm" onclick={undoDone}>{t('Undo')}</button></p>
+      <p class="done" role="status"><span>{done.text}</span>{#if done.href}<a class="btn sm" href={done.href} onclick={() => ((done = null), (open = false))}>{t('Open')}</a>{/if}<button type="button" class="btn sm" onclick={undoDone}>{t('Undo')}</button></p>
     </div>
   {/if}
   {#if q.trim().length >= 2}
     <div class="res" role="region" aria-label={t('Search results')} aria-live="polite">
+      {#if aiOffer}
+        <ul class="cmds">
+          <li><button type="button" data-ai-offer onclick={() => understand()}><span class="m"><b>{t('Let Gemini understand it')}</b><small>{t('Sends your sentence and the names of your bikes and trips to Gemini. You see first what it would do.')}</small></span><span class="go" aria-hidden="true">↵</span></button></li>
+        </ul>
+      {/if}
+      {#if ai}
+        <div class="ai" data-ai-plan role="group" aria-label={t('I would do this')}>
+          {#if ai.busy}<p class="aiq">{t('Gemini is thinking …')}</p>
+          {:else if ai.error}<p class="aiq warn" role="alert">{ai.error}</p>
+          {:else if ai.none}<p class="aiq">{t('Gemini found nothing to do in this sentence.')}</p>
+          {:else}
+            <p class="gh">{t('I would do this')}</p>
+            {#each ai.steps as s, i (i)}
+              <label class="airow"><input type="checkbox" bind:checked={s.on} /><span>{stepLabel(s, localDay())}</span></label>
+              {#if s.choices}
+                <div class="aichoice"><span>{t('Which bike?')}</span>
+                  {#each s.choices as c (c.cmd.bikeId)}<button type="button" class="btn sm" aria-pressed={s.act === c} onclick={() => pickBike(i, c)}>{c.title}</button>{/each}
+                </div>
+              {/if}
+            {/each}
+            <div class="aibtns"><button type="button" class="btn" data-ai-ok onclick={okAi}>{t('OK')}</button><button type="button" class="btn" onclick={() => (ai = null)}>{t('Discard')}</button></div>
+          {/if}
+        </div>
+      {/if}
       <!-- «Frag die App» (Noah 15.10.2026 «3 a und b»): the free answer from your own data, on top -->
-      {#if suche.app}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
-      <SearchAnswer bind:this={kh} {q} items={$all?.items ?? []} onpropose={() => { q = ''; open = false; }} />
+      {#if suche.app && !quiet}<AskAnswer {q} autoread={spoken && suche.read === 'auto'} onresult={(has) => (appHas = has)} onlink={() => { q = ''; open = false; }} />{/if}
       {#if cmds.length || says}
         <p class="gh">{t('Do it now')}</p>
         <ul class="cmds">
@@ -386,7 +479,7 @@
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
       <!-- «Suche mit Sprache» (3a + b): Gemini answers here, «Ask further at» opens Claude, ChatGPT … -->
       <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»): the Chrome AI and the AI on this device inside it -->
-      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas)} autoread={spoken && suche.read === 'auto'}>
+      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas) && !aiOn && !ai?.busy} autoread={spoken && suche.read === 'auto'}>
           {#snippet children()}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
         </AskElsewhere>
       {:else}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}
@@ -403,7 +496,7 @@
           {/each}
         </ul>
       {:else}
-        {#if !cmds.length && !feats.length && !help.length}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
+        {#if !cmds.length && !feats.length && !help.length && !quiet}<p class="none">{t('Nothing found for "{q}".', { q: q.trim() })}</p>{/if}
       {/each}
       {#if help.length}
         <p class="gh">{t('Fits your question')}</p>
@@ -421,7 +514,7 @@
           {/each}
         </ul>
       {/if}
-      {#if !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
+      {#if !quiet && !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
         <button type="button" class="add" onclick={addNew}>+ {t('Add "{q}" as a new item', { q: q.trim() })}</button>
       {/if}
     </div>
@@ -617,6 +710,25 @@
   .cmds li button {
     background: var(--hi-soft);
   }
+  /* the pages opened lately: quiet rows, links */
+  .places li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 6px 10px;
+    border-radius: var(--r-ctl);
+    color: var(--ink);
+    font: 500 var(--fs-body) var(--font-body);
+    text-decoration: none;
+  }
+  .places li a:hover,
+  .places li a:focus-visible {
+    background: var(--paper-2);
+  }
+  .forget {
+    margin: 2px 6px 0;
+  }
   .cmds li button:hover,
   .cmds li button:focus-visible {
     background: var(--hi-soft);
@@ -638,6 +750,48 @@
   .done span {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+  .ai {
+    margin: 4px 6px 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .aiq {
+    margin: 0;
+  }
+  .aiq.warn {
+    color: var(--warn);
+  }
+  .airow {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-weight: 600;
+  }
+  .airow input {
+    margin-top: 4px;
+  }
+  .aichoice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-left: 26px;
+  }
+  .aichoice .btn[aria-pressed='true'] {
+    background: var(--accent-soft);
+  }
+  .aibtns {
+    display: flex;
+    gap: 8px;
+  }
+  .aibtns .btn:first-child {
+    background: var(--accent);
+    color: var(--paper);
   }
   .none {
     margin: 6px;

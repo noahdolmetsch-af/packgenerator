@@ -11,6 +11,8 @@
  * so they show in Kalender › Merken (5b) and Ich › Erinnerungen lists and switches them (off).
  */
 
+import { resetSteps } from './merken/steps.js';
+
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Calendar-day arithmetic on YYYY-MM-DD (UTC noon, so no time zone shifts the day). */
@@ -29,13 +31,15 @@ export function addMonth(day, n = 1) {
 }
 
 /** A new to-do; empty text gives null. */
-export function newTodo({ text, due = null, remind = null, repeat = null, list = null, area = null, src = null, wait = null } = {}, { id, now = new Date().toISOString() } = {}) {
+export function newTodo({ text, due = null, remind = null, repeat = null, list = null, area = null, src = null, wait = null, steps = null, links = null } = {}, { id, now = new Date().toISOString() } = {}) {
   const tx = String(text ?? '').trim();
   if (!tx) return null;
   const td = { id, text: tx, due: DAY.test(due ?? '') ? due : null, remind: due ? remind : null, repeat, list, created: now, doneAt: null };
   if (area) td.area = area;
   if (src) td.src = src;
   if (wait) td.wait = wait; // Paket A part 1 (stand/stand.js): what the to-do waits on
+  if (steps?.length) td.steps = steps; // N2 (merken/steps.js)
+  if (links?.length) td.links = links; // N3 (merken/links.js)
   return td;
 }
 
@@ -50,10 +54,10 @@ export function tick(todo, { today, now = new Date().toISOString(), bikeKm = nul
     const step = r.every === 'day' ? (d) => addDays(d, 1) : r.every === 'week' ? (d) => addDays(d, 7) : (d) => addMonth(d, r.n ?? 1);
     let next = step(todo.due ?? today);
     while (next <= today) next = step(next);
-    return { ...todo, due: next, lastDone: now };
+    return resetSteps({ ...todo, due: next, lastDone: now });
   }
-  if (r?.every === 'km' && r.km > 0) return { ...todo, repeat: { ...r, fromKm: bikeKm ?? r.fromKm ?? 0 }, lastDone: now };
-  if (r?.every === 'rain') return { ...todo, lastDone: now };
+  if (r?.every === 'km' && r.km > 0) return resetSteps({ ...todo, repeat: { ...r, fromKm: bikeKm ?? r.fromKm ?? 0 }, lastDone: now });
+  if (r?.every === 'rain') return resetSteps({ ...todo, lastDone: now });
   return { ...todo, doneAt: now };
 }
 
@@ -96,7 +100,8 @@ export function groupTodos(todos, today, kmOf = () => null, rainSince = () => fa
     else if (td.due <= week) out.week.push(td);
     else out.later.push(td);
   }
-  const by = (a, b) => (a.due ?? '9999').localeCompare(b.due ?? '9999') || String(a.created).localeCompare(String(b.created));
+  // a place set by hand (todo.pos, merken/order.js) comes first; the rest by date, then written
+  const by = (a, b) => (a.pos ?? 1e9) - (b.pos ?? 1e9) || (a.due ?? '9999').localeCompare(b.due ?? '9999') || String(a.created).localeCompare(String(b.created));
   for (const g of GROUPS) out[g].sort(by);
   return out;
 }

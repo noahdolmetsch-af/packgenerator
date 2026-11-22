@@ -508,7 +508,7 @@ export default {
   'Works with a GPX route on the trip or an uploaded ride; without one, tick by hand.': 'Geht mit einer GPX-Route an der Tour oder einer hochgeladenen Fahrt; ohne sie hakst du von Hand ab.',
   // «Alles selbst bearbeiten» (19.10.2026)
   'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
-  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
+  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Erkenntnisse: eine antippen, oder «+ Erkenntnis».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
   // Routine «Das tut mir gut» (D1 + D2)
@@ -516,7 +516,7 @@ export default {
   '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
   'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
   // Paket C 0.150.0: f.insights «Erkenntnisse»
-  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Auswerten › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
+  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Auswerten › Zusammenhänge: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
   // Paket G «Daten kommen von selbst»
@@ -593,7 +593,7 @@ export default {
   'Open a trip in Pack and tap «Read aloud».': 'Öffne eine Tour in Packen und tippe «Vorlesen».',
   'Choose «Say «ok»» or «Button only»; the app reads one item after the other.': 'Wähle «‹ok› sagen» oder «Nur Knopf»; die App liest ein Teil nach dem anderen vor.',
   'Example: «Into frame bag: tyre levers» → «ok» → next item.': 'Beispiel: «In die Rahmentasche: Reifenheber» → «ok» → nächstes Teil.',
-  'Open Gear › Lent out and make a new list for the guest.': 'Öffne Material › Ausgeliehen und mach eine neue Liste für den Gast.',
+  'Open Gear › Lent out and make a new list for the guest.': 'Öffne Material › Leihliste und mach eine neue Liste für den Gast.',
   'Example: tent and sleeping mat to Sam, back on Sunday → a reminder on Sunday morning.': 'Beispiel: Zelt und Matte an Sam, zurück am Sonntag → eine Erinnerung am Sonntagmorgen.',
   'Open the block and tap «Add a rule».': 'Öffne den Baustein und tippe «Regel festlegen».',
   'Choose the value, e.g. «Travel there by train», and save.': 'Wähle den Wert, z. B. «Anreise mit dem Zug», und speichere.',
@@ -622,7 +622,7 @@ export default {
   'Example: 120 km with shops at km 55 and 110 → three sections, each with the grams and litres to carry.': 'Beispiel: 120 km mit Läden bei km 55 und 110 → drei Abschnitte, jeder mit den Gramm und Litern zum Mitnehmen.',
   // Strombudget (Noah 19.10.2026 «2a»)
   'Counts every device on the trip from Electronics and Lights; values you set in the item (battery, how long it lasts) beat typical ones.': 'Zählt jedes Gerät der Tour aus Elektronik und Licht; Werte, die du beim Teil setzt (Akku, wie lange er hält), gehen vor die üblichen.',
-  'Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».': 'Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strombudget».',
+  'Open Gear › Power, or in Pack «Charge the evening before» › «Power budget».': 'Öffne Material › Strom, oder in Packen «Am Vorabend laden» › «Strom».',
   'Change the nights with a socket or the hours; «Put on the packing list» adds the power bank and the charger.': 'Ändere die Nächte mit Steckdose oder die Stunden; «Auf die Packliste» nimmt Powerbank und Ladegerät dazu.',
   'Example: 4 days in a bivouac with phone, light and bike computer → «Take: Power bank 20000».': 'Beispiel: 4 Tage im Biwak mit Handy, Licht und Velocomputer → «Nimm mit: Powerbank 20000».',
   "Under «Your sources» add, change or delete news sites with a feed.": "Unter «Deine Quellen» fügst du News-Seiten mit Feed hinzu, änderst oder löschst sie.",
@@ -706,7 +706,7 @@ export default {
   '«Travel track» › «Travel book as PDF».': '«Reise-Spur» › «Reisebuch als PDF».',
   'Save or print the PDF.': 'PDF speichern oder drucken.',
   'Example: a cover with the whole line, then one page per day with its photos.': 'Beispiel: ein Titelblatt mit der ganzen Linie, dann eine Seite pro Tag mit ihren Fotos.',
-  'Open Active › Sports and tap a sport.': 'Öffne Aktiv › Sportarten und tippe auf eine Sportart.',
+  'Open Active › Sports and tap a sport.': 'Öffne Aktiv › Meine Aktivitäten und tippe auf eine Aktivität.',
   '«Adjust blocks»: switch blocks off, rename them, move them or add your own.': '«Bausteine anpassen»: Bausteine ausschalten, umbenennen, verschieben oder eigene dazunehmen.',
   'Choose a colour for the sport there too.': 'Dort wählst du auch eine Farbe für die Sportart.',
   'Example: Tennis without «Weather», with «Lessons» and «Matches» on top.': 'Beispiel: Tennis ohne «Wetter», mit «Lektionen» und «Spiele» zuoberst.',
@@ -803,7 +803,7 @@ export default {
   'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.': 'Ohne Puls steht die Antwort für die Zone in «Plan erfüllt?»; ohne Antwort zählt nichts.',
   'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.': 'Beispiel: Eine Fahrt ohne Pulsgurt fühlte sich wie 4 an → sie zählt als Zone 2.',
   'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.': 'Beispiel: ein Rezept in «Meine Sammlungen» → «Zutaten auf die Einkaufsliste» setzt die fehlenden auf deine Liste.',
-  'Open Active › Impulses, or Me › Free time › Impulses.': 'Öffne Aktiv › Impulse oder Planen › Freie Zeit › Impulse.',
+  'Open Plan › Free time › Impulses.': 'Öffne Planen › Freie Zeit › Impulse.',
   'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.': 'Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.',
   'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.': 'Beispiel: «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.',
   // Noah 19.10.2026 «2a 3a 4a und b möglich»
@@ -819,7 +819,7 @@ export default {
   'Example: country France → 112 and 15, your insurance with its phone, «Convert EUR».': 'Beispiel: Land Frankreich → 112 und 15, deine Versicherung mit ihrer Nummer, «EUR umrechnen».',
   // «Alles selbst bearbeiten» (19.10.2026)
   'A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.': 'Ein Velo: der Stift «Bearbeiten» neben dem Namen; «Velo löschen» fragt, welches Velo seine Touren bekommen.',
-  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Learnings: eines antippen, oder «+ Learning».',
+  'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».': 'Probleme: «…» › Umbenennen oder Löschen. Erkenntnisse: eine antippen, oder «+ Erkenntnis».',
   'Sports, places on the bike, care parts: Me › «Lists and types».': 'Sportarten, Plätze am Velo, Pflege-Teile: Ich › «Listen und Typen».',
   'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.': 'Beispiel: Du hast ein Velo verkauft → «Velo löschen», seine Touren gehen an dein neues Velo; 4 Sekunden lang «Rückgängig».',
   // Routine «Das tut mir gut» (D1 + D2)
@@ -827,7 +827,7 @@ export default {
   '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
   'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
   // Paket C 0.150.0: f.insights «Erkenntnisse»
-  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Auswerten › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
+  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Auswerten › Zusammenhänge: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
   // Paket 4: Haus-Check, Wohnungs-Hüter-Liste, Bereit für morgen
@@ -1111,7 +1111,7 @@ export default {
   'Your friend answers in the app and sends a link back; open it and tap «Keep it».': 'Dein Freund antwortet in der App und schickt einen Link zurück; öffne ihn und tippe «Behalten».',
   'Example: after the Lake tour a friend adds their view and a voice note; your own entry stays as it is.': 'Beispiel: Nach der Seerunde ergänzt ein Freund seine Sicht und eine Sprachnotiz; dein eigener Eintrag bleibt, wie er ist.',
   '«Send the shelf»: friends choose what they would like and send a request.': '«Regal schicken»: Freunde wählen, was sie möchten, und schicken eine Anfrage.',
-  'Open the request: «Keep the request», «Say yes», «Handed over»; Lent out remembers it.': 'Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Ausgeliehen» merkt es sich.',
+  'Open the request: «Keep the request», «Say yes», «Handed over»; Lent out remembers it.': 'Öffne die Anfrage: «Anfrage behalten», «Zusagen», «Übergeben»; «Leihliste» merkt es sich.',
   'Example: the second tent goes on the shelf «to borrow»; a friend asks for next weekend.': 'Beispiel: Das zweite Zelt kommt «zum Ausleihen» ins Regal; ein Freund fragt fürs nächste Wochenende an.',
   'Your friend sees what it changes, maps the lines to their own things and takes it over.': 'Dein Freund sieht, was sich ändert, ordnet die Zeilen den eigenen Sachen zu und übernimmt sie.',
   'Example: your block «Rain» goes to a friend, who maps it to their own jacket and gloves.': 'Beispiel: Dein Baustein «Regen» geht an einen Freund, der ihn seiner eigenen Jacke und den Handschuhen zuordnet.',
@@ -1215,7 +1215,7 @@ export default {
   'Tap «Choose pictures»; per page turn, cut or draw (pen, highlighter, text, arrow).': 'Tippe «Bilder auswählen»; pro Seite drehen, zuschneiden oder zeichnen (Stift, Markierstift, Text, Pfeil).',
   'Choose «One PDF» or «Single pictures», then «Save or share».': 'Wähle «Ein PDF» oder «Einzelne Bilder», dann «Speichern oder teilen».',
   'Example: three screenshots of a booking → cut, the price highlighted → one PDF of 3 pages.': 'Beispiel: drei Screenshots einer Buchung → zugeschnitten, der Preis markiert → ein PDF mit 3 Seiten.',
-  'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».',
+  'Tap «Add a pin», search a function and tap «Pin».': 'Tippe auf «Abkürzung hinzufügen», suche eine Funktion und tippe auf «Anpinnen».',
   'Tap «Edit»: rename, add a note, move with the arrows or drag, unpin.': 'Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.',
   'Example: pin «Wear» into the group «Bike» with the note «after rain».': 'Beispiel: «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».',
   // Vorlagen mit Feldern (Noah 27.10.2026)

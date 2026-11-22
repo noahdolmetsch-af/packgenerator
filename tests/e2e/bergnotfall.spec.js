@@ -138,7 +138,7 @@ test('Berg und Notfall: hide a Swiss source and show it again; emergency page wi
   await expect(page.locator('[data-lv95]')).toContainText(/2’6\d\d’\d{3} \/ 1’\d{3}’\d{3}/);
   await shot(page, info, 'notfall');
   await page.goto('./#/mountain/scales');
-  await expect(page.locator('[data-sign]')).toHaveCount(3);
+  await expect(page.locator('[data-flag]')).toHaveCount(3);
   await shot(page, info, 'skalen');
   expect(await noSideScroll(page)).toBe(true);
 });

@@ -19,7 +19,7 @@ export default {
   'Only to look at, no rating': 'Nur zum Anschauen, keine Wertung',
   'Your week|home': 'Deine Woche',
   'On the road and bikes': 'Unterwegs und Velos',
-  'Open quickly': 'Schnell öffnen',
+  'Open quickly': 'Quick Links',
   'Discover|home': 'Entdecken',
   'New in the app and a tip each week': 'Neues in der App und ein Tipp pro Woche',
   'Today shows the tiles in areas with a heading. Here you set their order inside an area.': 'Heute zeigt die Kacheln in Bereichen mit Überschrift. Hier ordnest du sie innerhalb eines Bereichs.',

@@ -29,6 +29,9 @@ export const SYNC_URL = 'https://packgen-three.vercel.app/api/sync';
 export const CFG = 'syncCfg';
 export const ASK = 'synccf|';
 export const askKey = (table, id) => `${ASK}${table}|${JSON.stringify(id)}`;
+/** A record from the server that this device could not store (not for lack of space): skipped, so it never blocks the rest. */
+export const SKIP = 'syncskip|';
+export const skipKey = (table, id) => `${SKIP}${table}|${JSON.stringify(id)}`;
 /** The quiet history: the version a newer change on the other device replaced (or the other way round). */
 export const LOST = 'synclost|';
 export const lostKey = (table, id) => `${LOST}${table}|${JSON.stringify(id)}`;
@@ -40,6 +43,11 @@ export const BATCH_CHARS = 2_500_000;
 /** A single record bigger than this stays on this device (a very big document); the panel says so. */
 export const RECORD_MAX = 3_900_000;
 const BATCH_MAX = 200;
+/** Noah 10.11.2026: a round on the phone ran 7 minutes and sent nothing. The pull stops after this long (ms)
+ *  and the next round goes on where it stopped; what this device changed is sent first. */
+export const PULL_BUDGET_MS = 60_000;
+/** The records of one pull page are stored in packages of this size, one database step each (not one each). */
+export const APPLY_CHUNK = 25;
 
 /** The code of an error from this device: a full phone says so instead of «server». */
 export const errCode = (err) => err?.code || (err?.name === 'QuotaExceededError' ? 'storage_full' : 'local_error');
@@ -61,6 +69,9 @@ export function httpApi(url = SYNC_URL, doFetch = (...a) => fetch(...a), { timeo
 }
 
 export const readCfg = (db) => db.meta.get(CFG);
+const newDevId = () => (globalThis.crypto?.randomUUID?.() ?? `d${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`);
+/** Is this record from another device than the one that reads it? Old records name only the kind of device (dev). */
+export const isOther = (p, { devId = null, dev = '' } = {}) => !!p && (p.from && devId ? p.from !== devId : !!p.dev && p.dev !== dev);
 const writeCfg = async (db, patch) => {
   const cur = (await readCfg(db)) ?? { key: CFG };
   await db.meta.put({ ...cur, ...patch, key: CFG });
@@ -75,16 +86,36 @@ const writeCfg = async (db, patch) => {
 export async function startSync(db, code, now = new Date().toISOString()) {
   // the notes made here get no time (see above); now is when the sync was switched on
   await db.transaction('rw', db.meta, ...DATA_TABLES.map((t) => db.table(t)), async () => {
-    const notes = await db.meta.where('key').startsWith(NOTE).toArray();
-    const have = new Set(notes.map((n) => n.key));
-    await db.meta.bulkPut(notes.map((n) => ({ ...n, dirty: 1, base: 0 })));
-    for (const t of DATA_TABLES) {
-      const ids = await db.table(t).toCollection().primaryKeys();
-      const fresh = ids.filter((id) => !deviceOnly(t, id) && !have.has(noteKey(t, id))).map((id) => ({ key: noteKey(t, id), t, id, at: '', del: false, dirty: 1, base: 0 }));
-      if (fresh.length) await db.meta.bulkPut(fresh);
-    }
-    await db.meta.where('key').startsWith(ASK).delete();
-    await db.meta.put({ key: CFG, code, since: 0, on: true, startedAt: now, lastAt: null, error: null, big: 0 });
+    await markAllChanged(db);
+    // pulled: false until the first pull has been read to its end (then this device's own changes go first)
+    // devId, peerWatch, peerSeen: «has another device ever written into this sync?» (Noah 21.11.2026: two devices with two different
+    // codes each looked fine on their own). Every record carries who wrote it; peerSeen turns true with the first record of another device.
+    await db.meta.put({ key: CFG, code, since: 0, on: true, startedAt: now, lastAt: null, error: null, big: 0, pulled: false, devId: newDevId(), peerWatch: true, peerSeen: false, peerAt: null });
+  });
+}
+
+/**
+ * Every record of this device counts as changed (dirty, base 0), so the next round compares everything with the
+ * server. For pairing, and when the server's space has been lost (Noah 21.11.2026: a space that starts again at
+ * number 1 left the other device blind, see pullStatus). Inside a transaction over meta and the data tables.
+ */
+async function markAllChanged(db) {
+  const notes = await db.meta.where('key').startsWith(NOTE).toArray();
+  const have = new Set(notes.map((n) => n.key));
+  await db.meta.bulkPut(notes.map((n) => ({ ...n, dirty: 1, base: 0 })));
+  for (const t of DATA_TABLES) {
+    const ids = await db.table(t).toCollection().primaryKeys();
+    const fresh = ids.filter((id) => !deviceOnly(t, id) && !have.has(noteKey(t, id))).map((id) => ({ key: noteKey(t, id), t, id, at: '', del: false, dirty: 1, base: 0 }));
+    if (fresh.length) await db.meta.bulkPut(fresh);
+  }
+  await db.meta.where('key').startsWith(ASK).delete();
+}
+
+/** The server's space is gone or younger than what this device has seen (its numbers start again): compare everything anew. */
+export async function resyncAll(db) {
+  await db.transaction('rw', db.meta, ...DATA_TABLES.map((t) => db.table(t)), async () => {
+    await markAllChanged(db);
+    await writeCfg(db, { since: 0, pulled: false });
   });
 }
 
@@ -107,6 +138,7 @@ export async function takeTheirs(db, t, id, { s, v, del, at }) {
   // the middleware has just noted a change of our own: it is the server's version, so it is clean
   await db.meta.put({ key: noteKey(t, id), t, id, at: at ?? new Date().toISOString(), del: !!del, dirty: 0, base: s });
   await db.meta.delete(askKey(t, id));
+  await db.meta.delete(skipKey(t, id)); // it could be stored after all
 }
 
 /** Answer a question: 'mine' (this device wins, it goes to the server) or 'theirs' (the other one wins). */
@@ -272,110 +304,251 @@ export function settle(t, id, mine, theirs, { mineAt = '', theirsAt = '' } = {})
   return theirsWins ? { win: 'theirs', keep: 'mine' } : { win: 'mine', keep: 'theirs' };
 }
 
-/** One remote record: take it, note it as the same, or settle a change on both devices. */
-async function applyRemote(db, p, s) {
+/** One remote record, inside a transaction over its table and meta: take it, note it as the same, or settle a change on both devices. */
+async function applyRemoteIn(db, p, s) {
   const { t, id } = p;
   if (!known.has(t) || id == null || deviceOnly(t, id)) return 'skip';
-  return db.transaction('rw', db.table(t), db.meta, async () => {
-    const note = await db.meta.get(noteKey(t, id));
-    if (note && note.base >= s) return 'skip'; // our own write coming back, or older than what we have
-    const local = (await db.table(t).get(id)) ?? null;
-    const theirs = p.del ? null : p.v;
-    if (!note?.dirty) {
-      await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
-      return 'taken';
-    }
-    const { win, keep } = settle(t, id, local, theirs, { mineAt: note.at, theirsAt: p.at });
-    if (keep === 'mine') await keepLost(db, t, id, { v: local, at: note.at, dev: 'here' });
-    if (keep === 'theirs') await keepLost(db, t, id, { v: theirs, at: p.at, dev: p.dev });
-    await db.meta.delete(askKey(t, id));
-    if (win === 'same') {
-      await db.meta.put({ ...note, dirty: 0, base: s, del: !!p.del });
-      return 'same';
-    }
-    if (win === 'theirs') {
-      await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
-      return 'taken';
-    }
-    // this device changed it later: it stays and goes to the server on the push of this round
-    await db.meta.put({ ...note, dirty: 1, base: s });
+  const note = await db.meta.get(noteKey(t, id));
+  if (note && note.base >= s) return 'skip'; // our own write coming back, or older than what we have
+  const local = (await db.table(t).get(id)) ?? null;
+  const theirs = p.del ? null : p.v;
+  if (!note?.dirty) {
+    await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
+    return 'taken';
+  }
+  const { win, keep } = settle(t, id, local, theirs, { mineAt: note.at, theirsAt: p.at });
+  if (keep === 'mine') await keepLost(db, t, id, { v: local, at: note.at, dev: 'here' });
+  if (keep === 'theirs') await keepLost(db, t, id, { v: theirs, at: p.at, dev: p.dev });
+  await db.meta.delete(askKey(t, id));
+  if (win === 'same') {
+    await db.meta.put({ ...note, dirty: 0, base: s, del: !!p.del });
     return 'same';
-  });
+  }
+  if (win === 'theirs') {
+    await takeTheirs(db, t, id, { s, v: p.v, del: p.del, at: p.at });
+    return 'taken';
+  }
+  // this device changed it later: it stays and goes to the server on the push of this round
+  await db.meta.put({ ...note, dirty: 1, base: s });
+  return 'same';
 }
+
+/** One remote record in its own database step. */
+const applyRemote = (db, p, s) =>
+  !known.has(p.t) || p.id == null || deviceOnly(p.t, p.id) ? 'skip' : db.transaction('rw', db.table(p.t), db.meta, () => applyRemoteIn(db, p, s));
+
+/**
+ * Noah 10.11.2026: every stored record makes every open page (and the sync's own watcher) look again, so on a
+ * phone 200 single steps took minutes. A package of records is ONE step. When a package fails, the records go one
+ * by one, so the ones before and after a bad one are stored.
+ * Noah 21.11.2026 («1-5a», point 5): a record that cannot be stored (not for lack of space) no longer stops the
+ * whole round for good, which left everything behind it unread and silent. It is skipped, noted under
+ * `syncskip|…` (the panel says how many) and listed in `skipped`; the count check (integrity) looks for it again.
+ * No space left (QuotaExceededError) still stops the round with its own message: then nothing more fits anyway.
+ * Returns how many were taken.
+ */
+export async function applyPackage(db, chunk, skipped = []) {
+  const results = [];
+  try {
+    await db.transaction('rw', ...DATA_TABLES.map((x) => db.table(x)), db.meta, async () => {
+      for (const { p, s } of chunk) results.push(await applyRemoteIn(db, p, s));
+    });
+    return results.filter((r) => r === 'taken').length;
+  } catch {
+    let n = 0;
+    for (const { p, s } of chunk) {
+      try {
+        if ((await applyRemote(db, p, s)) === 'taken') n++;
+      } catch (err) {
+        if (errCode(err) === 'storage_full') throw err;
+        skipped.push({ t: p.t, id: p.id, s, code: errCode(err) });
+        await db.meta.put({ key: skipKey(p.t, p.id), t: p.t, id: p.id, s, code: errCode(err), at: new Date().toISOString() }).catch(() => {});
+      }
+    }
+    return n;
+  }
+}
+
+/** How often the devices check that they hold as many entries as the server (when nothing happened in between). */
+export const CHECK_EVERY_MS = 30 * 60_000;
+/** After a check that found a difference and could not fix it, the next attempt waits this long (unless the numbers change). */
+export const HEAL_EVERY_MS = 6 * 3600_000;
+
+/**
+ * Noah 21.11.2026 («dass keine Daten verloren gehen»): after a round that read the server to its end and sent
+ * everything, this device counts its entries and asks the server how many it holds. The same number on both sides is
+ * the proof that nothing is missing; a difference (an entry the server lost, one this device never received, a
+ * cursor gone wrong) is looked for and filled in at once, only adding (compare.js), then sent / taken in this round.
+ * Written to the settings of the sync (check: { at, ok, here, server, healed }), shown in Ich › Daten und Backup.
+ * Asked only when something moved in this round or the last check is CHECK_EVERY_MS old, so a quiet poll costs nothing more.
+ */
+async function integrity(db, { api, keys, out, now, pushDirty, pull }) {
+  const cfg = await readCfg(db);
+  const last = cfg?.check ?? null;
+  const moved = out.taken || out.sent;
+  const due = !last || moved || Date.parse(now()) - Date.parse(last.at ?? 0) > CHECK_EVERY_MS;
+  if (!due) return;
+  const notes = await db.meta.where('key').startsWith(NOTE).toArray();
+  const mine = notes.filter((n) => known.has(n.t) && !deviceOnly(n.t, n.id));
+  if (mine.some((n) => n.dirty)) return; // something is still on its way (or too big): not comparable now
+  let ans;
+  try {
+    ans = await api.call('status', { token: keys.token, count: true });
+  } catch {
+    return; // an older server without the count, or no network: the next round tries again
+  }
+  if (typeof ans.count !== 'number') return;
+  const here = mine.length;
+  if (here === ans.count) {
+    await writeCfg(db, { check: { at: now(), ok: true, here, server: ans.count, healed: last?.healed ?? null } });
+    return;
+  }
+  // a difference: look at it (once per state, or every HEAL_EVERY_MS), and fill the gaps in
+  const sig = `${here}/${ans.count}`;
+  if (last && !last.ok && last.sig === sig && Date.parse(now()) - Date.parse(last.triedAt ?? 0) < HEAL_EVERY_MS) return;
+  const { compareSync, fixMissing } = await import('./compare.js');
+  const found = await compareSync(db, { api });
+  const fixed = await fixMissing(db, found, now());
+  if (fixed.sent) await pushDirty();
+  if (fixed.got || fixed.sent) await pull();
+  await writeCfg(db, { check: { at: now(), ok: false, here, server: ans.count, sig, triedAt: now(), healed: fixed.got || fixed.sent ? { at: now(), got: fixed.got, sent: fixed.sent } : (last?.healed ?? null) } });
+  out.healed = fixed;
+}
+
+/** How many records this device skipped because it could not store them (shown in the panel). */
+export const skippedCount = (db) => db.meta.where('key').startsWith(SKIP).count();
 
 /**
  * One full round. dev: 'phone' or 'computer' (shown to the other device in a question).
- * Returns { taken, sent, asks, big } or { skipped } when the sync is off or a demo runs.
+ * Order (Noah 10.11.2026, a phone pull ran 7 minutes and the ticks never left): what this device changed goes
+ * to the server FIRST (once the first pull has been read to its end), then the pull, which stops after
+ * budgetMs (or when shouldStop says so) and goes on at the next round, then the push again for what the pull
+ * turned up. Returns { taken, sent, asks, big } (+ more: true when the pull stopped early) or { skipped }
+ * when the sync is off or a demo runs.
  */
-export async function syncNow(db, { api = httpApi(), dev = 'computer', demo = async () => !!(await db.meta.get('demo')), now = () => new Date().toISOString(), onProgress = () => {} } = {}) {
+export async function syncNow(
+  db,
+  { api = httpApi(), dev = 'computer', demo = async () => !!(await db.meta.get('demo')), now = () => new Date().toISOString(), onProgress = () => {}, budgetMs = PULL_BUDGET_MS, shouldStop = () => false, clock = () => Date.now() } = {},
+) {
   const cfg = await readCfg(db);
   if (!cfg?.on || !cfg.code) return { skipped: 'off' };
   if (await demo()) return { skipped: 'demo' };
   const keys = await keysOf(cfg.code);
+  if (!cfg.devId) {
+    cfg.devId = newDevId(); // a sync that was switched on before this knew: it names its writer from now on (peerWatch stays off for it)
+    await writeCfg(db, { devId: cfg.devId });
+  }
   const out = { taken: 0, sent: 0, asks: 0, big: 0 };
+  let got = 0; // records the server sent in this round (also those not taken)
+  const skipped = [];
   try {
     let since = cfg.since ?? 0;
+    /** Reads the server's log. Returns true when it was read to its end, false when the time was up. */
     const pull = async () => {
+      const t0 = clock();
+      const timeUp = () => shouldStop() || clock() - t0 > budgetMs;
       for (let round = 0; round < 1000; round++) {
+        if (round > 0 && timeUp()) return false;
         const res = await api.call('pull', { token: keys.token, since });
-        for (const it of res.items ?? []) {
-          const p = await unseal(keys, it.e);
-          if (!p) continue; // sealed with another code: not ours to read
-          const r = await applyRemote(db, p, it.s);
-          if (r === 'taken') out.taken++;
+        // Noah 21.11.2026: this device has seen number `since`, but the server has given out fewer: its space was lost or
+        // emptied and starts again. Then everything the other device writes now carries numbers below `since` and this
+        // device would never ask for it (silent, «Fertig» every time). Compare everything anew, like at pairing.
+        if (Number.isFinite(Number(res.seq)) && Number(res.seq) < since) return 'reset';
+        const items = res.items ?? [];
+        got += items.length;
+        const opened = await Promise.all(items.map(async (it) => ({ s: it.s, p: await unseal(keys, it.e) }))); // p null: sealed with another code, not ours to read
+        const others = opened.filter((o) => isOther(o.p, { devId: cfg.devId, dev }));
+        if (others.length) {
+          const peerAt = others.map((o) => String(o.p.at ?? '')).sort().at(-1);
+          await writeCfg(db, { peerSeen: true, peerAt });
+        }
+        for (let i = 0; i < opened.length; i += APPLY_CHUNK) {
+          if (i > 0 && timeUp()) return false;
+          const chunk = opened.slice(i, i + APPLY_CHUNK);
+          out.taken += await applyPackage(db, chunk.filter((c) => c.p), skipped);
+          since = Math.max(since, chunk.at(-1).s);
+          await writeCfg(db, { since });
           onProgress({ phase: 'pull', n: out.taken });
         }
         since = Math.max(since, Number(res.next ?? since));
         await writeCfg(db, { since });
-        if (!res.more) break;
+        if (!res.more) return true;
       }
+      return false;
     };
-    await pull();
+    /** Sends what changed here (not the records waiting for an answer). Returns true when the server had a newer one. */
+    const pushDirty = async () => {
+      const asks = new Set((await db.meta.where('key').startsWith(ASK).primaryKeys()).map((k) => k.slice(ASK.length)));
+      const dirty = (await db.meta.where('key').startsWith(NOTE).toArray()).filter((n) => n.dirty && !asks.has(`${n.t}|${JSON.stringify(n.id)}`) && known.has(n.t) && !deviceOnly(n.t, n.id));
+      let batch = [];
+      let chars = 0;
+      let raced = false;
+      let big = 0;
+      const send = async () => {
+        if (!batch.length) return;
+        const res = await api.call('push', { token: keys.token, items: batch.map(({ k, base, e }) => ({ k, base, e })) });
+        const byK = new Map(batch.map((b) => [b.k, b]));
+        await db.transaction('rw', db.meta, async () => {
+          for (const d of res.done ?? []) {
+            const b = byK.get(d.k);
+            if (!b) continue;
+            const note = await db.meta.get(b.nk);
+            // changed again while it travelled: stays dirty, with the new base
+            await db.meta.put({ ...(note ?? b.note), base: d.s, dirty: note && note.at !== b.note.at ? 1 : 0 });
+            out.sent++;
+            onProgress({ phase: 'push', n: out.sent });
+          }
+        });
+        if (res.conflicts?.length) raced = true;
+        batch = [];
+        chars = 0;
+      };
+      for (const n of dirty) {
+        const v = n.del ? null : ((await db.table(n.t).get(n.id)) ?? null);
+        const e = await seal(keys, { t: n.t, id: n.id, v, del: v === null, at: n.at, dev, from: cfg.devId });
+        if (e.length > RECORD_MAX) {
+          big++;
+          continue;
+        }
+        if (batch.length >= BATCH_MAX || (batch.length && chars + e.length > BATCH_CHARS)) await send();
+        batch.push({ k: await recName(keys, n.t, n.id), base: n.base ?? 0, e, nk: n.key, note: n });
+        chars += e.length;
+      }
+      await send();
+      out.big = big;
+      return raced;
+    };
+
+    // 1. what this device changed goes first, so a slow pull never holds a tick back. Before the first pull has
+    //    been read to its end every record is marked as changed (pairing): there the pull comes first, as before.
+    if (cfg.pulled !== false) await pushDirty();
+    // 2. the pull, in packages, with a time limit; the next round goes on where it stopped
+    let finished = await pull();
+    if (finished === 'reset') {
+      await resyncAll(db);
+      out.reset = true;
+      out.more = true; // the next round pulls the new space first and then sends everything
+      await writeCfg(db, { lastAt: now(), error: null, big: out.big });
+      return out;
+    }
+    if (!finished) out.more = true;
+    else if (cfg.pulled === false) await writeCfg(db, { pulled: true });
     // questions asked before a rule could answer them (e.g. Strava activities until 20.10.2026): answer them now
     out.settled = await settleAsks(db);
-
-    // push what changed here (not the records waiting for an answer)
-    const asks = new Set((await db.meta.where('key').startsWith(ASK).primaryKeys()).map((k) => k.slice(ASK.length)));
-    const dirty = (await db.meta.where('key').startsWith(NOTE).toArray()).filter((n) => n.dirty && !asks.has(`${n.t}|${JSON.stringify(n.id)}`) && known.has(n.t) && !deviceOnly(n.t, n.id));
-    let batch = [];
-    let chars = 0;
-    let raced = false;
-    const send = async () => {
-      if (!batch.length) return;
-      const res = await api.call('push', { token: keys.token, items: batch.map(({ k, base, e }) => ({ k, base, e })) });
-      const byK = new Map(batch.map((b) => [b.k, b]));
-      await db.transaction('rw', db.meta, async () => {
-        for (const d of res.done ?? []) {
-          const b = byK.get(d.k);
-          if (!b) continue;
-          const note = await db.meta.get(b.nk);
-          // changed again while it travelled: stays dirty, with the new base
-          await db.meta.put({ ...(note ?? b.note), base: d.s, dirty: note && note.at !== b.note.at ? 1 : 0 });
-          out.sent++;
-          onProgress({ phase: 'push', n: out.sent });
-        }
-      });
-      if (res.conflicts?.length) raced = true;
-      batch = [];
-      chars = 0;
-    };
-    for (const n of dirty) {
-      const v = n.del ? null : ((await db.table(n.t).get(n.id)) ?? null);
-      const e = await seal(keys, { t: n.t, id: n.id, v, del: v === null, at: n.at, dev });
-      if (e.length > RECORD_MAX) {
-        out.big++;
-        continue;
-      }
-      if (batch.length >= BATCH_MAX || (batch.length && chars + e.length > BATCH_CHARS)) await send();
-      batch.push({ k: await recName(keys, n.t, n.id), base: n.base ?? 0, e, nk: n.key, note: n });
-      chars += e.length;
-    }
-    await send();
-    // the other device wrote in between: its version comes now (and may become a question)
-    if (raced) await pull();
+    // 3. push again: what the pull settled in favour of this device, and a change made meanwhile.
+    //    The other device wrote in between: its version comes now (and may become a question)
+    //    (not while the first pull of a new pairing is unfinished: then everything counts as changed)
+    //    Tempo (Noah 11.11.2026 «1-4 umsetzen», Messung 10.11.): when the server sent nothing and no question was settled, the pull changed
+    //    nothing here, so the first push has sent everything; a change made meanwhile wakes the next round by itself. The second
+    //    read of all notes is left out then.
+    const brought = got > 0 || out.settled > 0;
+    const raced = (finished || cfg.pulled !== false) && (brought || cfg.pulled === false) ? await pushDirty() : false;
+    if (raced && !shouldStop()) await pull();
     out.asks = await db.meta.where('key').startsWith(ASK).count();
+    if (finished && !out.more && !shouldStop()) await integrity(db, { api, keys, out, now, pushDirty, pull, clock });
     await pruneLost(db);
-    await writeCfg(db, { lastAt: now(), error: null, big: out.big });
+    out.skipped = skipped.length;
+    await writeCfg(db, { lastAt: now(), error: null, big: out.big, skipped: await skippedCount(db) });
     return out;
   } catch (err) {
     await writeCfg(db, { error: errCode(err), errorAt: now(), errorName: err?.name ?? null });

@@ -5,6 +5,7 @@
   import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
   import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
+  import { noteHashMove } from './lib/nav/herkunft.svelte.js';
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
@@ -39,7 +40,9 @@
   import SideBar from './lib/nav/SideBar.svelte';
   import PlaceBar from './lib/nav/PlaceBar.svelte';
   import MeButton from './lib/nav/MeButton.svelte';
+  import SkipLink from './lib/nav/SkipLink.svelte';
   import HelpButton from './lib/nav/HelpButton.svelte';
+  import { helpHere } from './lib/pageinfo/here.svelte.js';
   import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
@@ -54,20 +57,21 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
-  import { pageOf, placeOf, redirectOf, tabOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
+  import { recordError } from './lib/fehler/felog.js';
+  import { pageOf, isUnknown, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import Explorer from './lib/nav/Explorer.svelte';
   import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
   import { ops } from './lib/bedienung.svelte.js';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
+  import NotFound from './lib/ui/NotFound.svelte';
   import OfflineLine from './lib/clear/OfflineLine.svelte';
   import DbWaitLine from './lib/clear/DbWaitLine.svelte';
   import ComebackWindow from './lib/clear/ComebackWindow.svelte';
   import YearCheckWindow from './lib/clear/YearCheckWindow.svelte';
   import DiaryReminder from './lib/tagebuch/Reminder.svelte';
   import MiniBar from './lib/nav/MiniBar.svelte';
-  import MiniTitle from './lib/nav/MiniTitle.svelte';
   import { miniAppOf, miniStart } from './lib/miniapps.js';
   import { toolKeyOf } from './lib/tools/tools.js';
   import { t, lang } from './lib/i18n.svelte.js';
@@ -92,12 +96,17 @@
   const mini = miniAppOf(location.pathname);
   if (mini && miniStart(mini, location.hash) !== location.hash) history.replaceState(null, '', `${location.pathname}${location.search}${miniStart(mini, location.hash)}`);
   let hash = $state(follow(location.hash));
+  // the «?» window lists the help of the page the app shows (not the raw address: some addresses lead on to another page)
+  $effect(() => {
+    helpHere.route = hash;
+  });
   // v0.127.0 A-U2 (mockup «Fehlerseite»): a page that throws shows the error page, never a white page.
   // failReset: the boundary's reset while the error page shows; failName: the page's name in the text.
   let failReset = null;
   const onfail = (e, reset) => {
     failReset = reset;
     console.error(e);
+    recordError(e); // «Fehler-Melder»: noted on this device only (the page is the address now)
   };
   const failName = $derived.by(() => {
     if (place === 'me') return t('Me|place');
@@ -118,6 +127,7 @@
       moved = null;
       const from = hash;
       hash = follow(location.hash);
+      noteHashMove(from, hash); // «Zurück zu Heute»: the value pages of Analyse remember where you came from
       clearTimeout(slideTimer);
       const dir = slideDir(from, hash);
       slide = dir ? `${dir}${slideN++ % 2}` : '';
@@ -135,7 +145,11 @@
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));
+  // Gesamttest 19.11.2026 (Noah «a»): an address no page knows shows «Page not found» instead of Today
+  const lost = $derived(isUnknown(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page, hash));
+  // Schritt 10: Ausrüstung is a tab of Material now (place «gear»), but on a phone the switch Velos · Ausrüstung · Material still lights it
+  const switchPlace = $derived(page === 'equipment' ? 'equipment' : place);
   // «Anpassen»: the page's name when it has no big title (the place › the tab)
   const anpTitle = $derived.by(() => {
     const p = ALL_PLACES.find((x) => x.key === place);
@@ -364,6 +378,7 @@
     Ride: () => import('./pages/Ride.svelte'),
     Abfahrt: () => import('./pages/Abfahrt.svelte'),
     Hueter: () => import('./pages/Hueter.svelte'),
+    FreiGeteilt: () => import('./lib/frei/Geteilt.svelte'), // «Meine Sammlungen» as a page: #/share/sammlung/<code>
     Inbox: () => import('./pages/Inbox.svelte'),
     Notes: () => import('./pages/Notes.svelte'),
     Vorgaenge: () => import('./pages/Vorgaenge.svelte'),
@@ -413,6 +428,13 @@
     Freunde: () => import('./pages/Freunde.svelte'), // Paket D «Mit Freunden»: Ich › Mit Freunden
     Dreams: () => import('./pages/Dreams.svelte'), // Paket N: Touren › Träume
     Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
+    Fragen: () => import('./pages/Fragen.svelte'), // «Fragen» (Plan 4a, Noah 08.11.2026): Auswerten › Fragen
+    SportRueckblick: () => import('./pages/SportRueckblick.svelte'), // «Rückblick pro Sportart» (Noah 21.11.2026, S4): Auswerten › Sportjahr › one sport
+    Logbuch: () => import('./pages/Logbuch.svelte'), // «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): Ich › Logbuch
+    Sportjahr: () => import('./pages/Sportjahr.svelte'), // «Sportjahr» (Noah 21.11.2026 «1a dann b»): Auswerten › Sportjahr
+    Quellen: () => import('./pages/Quellen.svelte'), // «Meine Datenquellen» (Noah 07.11.2026 «1a»): Auswerten › Datenquellen
+    Tourpfad: () => import('./pages/Tourpfad.svelte'), // «Tour-Pfad» (Noah 08.11.2026 «1 go A»): Touren › Tour-Pfad
+    Weg: () => import('./pages/Weg.svelte'), // «Weg zum Ziel» (Noah 05.11.2026): Touren › Weg zum Ziel
     Compass: () => import('./pages/Compass.svelte'), // Paket N: Ich › Mein Kompass
     Phone: () => import('./pages/Phone.svelte'),
     Checks: () => import('./pages/Checks.svelte'),
@@ -475,6 +497,7 @@
     InvoiceNew: () => import('./pages/InvoiceNew.svelte'),
     Offers: () => import('./pages/Offers.svelte'),
     OfferCustomers: () => import('./pages/OfferCustomers.svelte'),
+    TennisFlyer: () => import('./pages/TennisFlyer.svelte'),
     Privacy: () => import('./pages/Privacy.svelte'),
     Pros: () => import('./pages/Pros.svelte'),
     Frei: () => import('./pages/Frei.svelte'),
@@ -494,6 +517,7 @@
      v0.98.0 Design-Refresh R2 (G4/G5 A★): the top bar and the sidebar are light; on a phone the + sits
      in the top bar next to the search (never over the page), the round + above the bottom bar is gone. -->
 <div class="shell" class:wide={wide.matches && !mini} class:mini={!!mini}>
+  <SkipLink />
 {#if wide.matches && !mini}
   <SideBar {place} {hash} due={$dueQ ?? 0} inbox={$inboxQ ?? 0} shownew={!guest} onnew={() => (newMode = 'all')} />
 {:else}
@@ -515,14 +539,13 @@
 <OfflineLine />
 {#if ops.explore && ops.path && !guest && !mini}<Explorer />{/if}
 <DbWaitLine />
-<MiniTitle />
 {#if !mini && !guest}<ComebackWindow care={$dueQ ?? 0} inbox={$inboxQ ?? 0} /><YearCheckWindow {hash} /><DiaryReminder {hash} />{/if}
 
 <main data-s2-page={page} data-s2-place={place} data-slide={slide || undefined} class:calm class:wide={page === 'pack' || page === 'ride' || page === 'debrief' || page === 'rides' || page === 'stravarides' || page === 'past' || page === 'templates' || page === 'gear' || page === 'supplies' || page === 'power' || page === 'fuel' || page === 'compare' || page === 'tour' || page === 'lend' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'home' || page === 'features' || page === 'wardrobe' || page === 'flow' || page === 'auswerten' || page === 'timer' || page === 'check' || page === 'routine' || page === 'week' || page === 'neuland' || page === 'heatmap' || page === 'dreams' || page === 'vorschlaege'} class:hub={HUB_PAGES.includes(page)} class:bar={!wide.matches || !!mini}>
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
-  {#if (place === 'equipment' || place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch {place} {hash} />{/if}
+  {#if place === 'gear' && !mini}<PlaceSwitch place={switchPlace} />{/if}
   {#if ops.path && place && page !== 'home' && !calm && !guest && !mini}<PathLine {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
@@ -532,7 +555,9 @@
   {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash} />{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
-  {#if page === 'gear'}
+  {#if lost}
+    <NotFound />
+  {:else if page === 'gear'}
     <LazyPage load={PAGES.Gear} />
   {:else if page === 'gearimport'}
     <!-- v0.36.0 (Noah 1a): the reviewed gear list waits here before it goes into Gear -->
@@ -579,6 +604,7 @@
   {:else if page === 'share'}
     <!-- Paket 4 «Wohnungs-Hüter-Liste»: #/share/hueter/<code>, the list travels in the link -->
     {#if param === 'hueter'}{#key hash}<LazyPage load={PAGES.Hueter} code={hash.split('/')[3] ?? ''} />{/key}
+    {:else if param === 'sammlung'}{#key hash}<LazyPage load={PAGES.FreiGeteilt} code={hash.split('/')[3] ?? ''} />{/key}
     {:else}{#key param}<LazyPage load={PAGES.Share} code={param} />{/key}{/if}
   {:else if page === 'live'}
     <!-- Paket U3 «Live-Karte»: the map with your position on a ride (#/live, #/live/<tripId>) -->
@@ -653,7 +679,7 @@
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     {#key hash}{#if checkPart(hash) === 'history'}<LazyPage load={PAGES.CheckHistory} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'frei' || page === 'impulse'}
-    <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
+    <!-- Paket T «Freie Zeit»: Planen › Freie Zeit (#/me/frei/…) and its Impulse (#/flow/impulse, old address); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
   {:else if page === 'tagebuch'}
     <!-- «Tagebuch» (Noah 20.10.2026, like Day One): #/tagebuch, one entry at #/tagebuch/<id> -->
@@ -685,6 +711,8 @@
   {:else if page === 'data'}
     <!-- Design-Refresh P9 (I2): Ich › Daten und Backup, its own page -->
     <LazyPage load={PAGES.Data} />
+  {:else if page === 'logbuch'}
+    <LazyPage load={PAGES.Logbuch} />
   {:else if page === 'docs'}
     <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
     {#key hash.split('?')[0]}<LazyPage load={PAGES.Docs} />{/key}
@@ -709,6 +737,18 @@
     <LazyPage load={PAGES.Dreams} />
   {:else if page === 'vorschlaege'}
     <LazyPage load={PAGES.Vorschlaege} />
+  {:else if page === 'fragen'}
+    <LazyPage load={PAGES.Fragen} />
+  {:else if page === 'sportrueckblick'}
+    <LazyPage load={PAGES.SportRueckblick} />
+  {:else if page === 'sportjahr'}
+    <LazyPage load={PAGES.Sportjahr} />
+  {:else if page === 'quellen'}
+    <LazyPage load={PAGES.Quellen} />
+  {:else if page === 'tourpfad'}
+    <LazyPage load={PAGES.Tourpfad} />
+  {:else if page === 'weg'}
+    <LazyPage load={PAGES.Weg} />
   {:else if page === 'next'}
     <LazyPage load={PAGES.WasKommt} />
   {:else if page === 'album'}
@@ -754,7 +794,7 @@
     <LazyPage load={PAGES.WebLinks} />
   {:else if page === 'offers'}
     <!-- Termine buchen (mockups BU1, BU4, BU5, Noah 14.10.2026 «BU1–BU5 freigegeben»): Ich › Angebote -->
-    {#if hash.split('?')[0].split('/')[3] === 'customers'}<LazyPage load={PAGES.OfferCustomers} />{:else}{#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}{/if}
+    {#if hash.split('?')[0].split('/')[3] === 'customers'}<LazyPage load={PAGES.OfferCustomers} />{:else if hash.split('?')[0].split('/')[3] === 'flyer'}{#key hash}<LazyPage load={PAGES.TennisFlyer} offer={decodeURIComponent(new URLSearchParams(hash.split('?')[1] ?? '').get('o') ?? '')} />{/key}{:else}{#key hash}<LazyPage load={PAGES.Offers} id={decodeURIComponent(hash.split('?')[0].split('/')[3] ?? '')} />{/key}{/if}
   {:else if page === 'privacy'}
     <!-- Paket R: Ich › Datenschutz und Nutzung -->
     <LazyPage load={PAGES.Privacy} />
@@ -879,7 +919,7 @@
   <!-- «Anpassen» (Noah 20.10.2026 «1a»): «Diese Seite anpassen» at the end of every page; not on Heute, where
        «Startseite anpassen» does it (Neuer Schwung, Noah 26.10.2026 «warum haben wir startseite anpassen und diese seite anpassen?») -->
   {#if !guest && !mini && page !== 'home'}<ErscheintWenn {hash} />{/if}
-  {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? tabOf(place, hash) : null)} {place} fallback={anpTitle} />{/if}
+  {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? (subOf(place, hash)?.key ?? tabOf(place, hash)) : null)} {place} fallback={anpTitle} />{/if}
 </main>
 
 {#if !guest}
@@ -898,6 +938,8 @@
 {#if !guest}<TourStart /><TourHost />{/if}
 <!-- «Quick Links» step 2 (Noah 28.10.2026 «1a 2a»): the small pin on every card of a function; loads later -->
 {#if !guest && !mini}{#await import('./lib/quick/PinMarks.svelte') then M}<M.default {hash} />{/await}{/if}
+<!-- «Verbesserungs-Logbuch» step 2 (Noah 21.11.2026): the button «Verbessern» on every page; loads later, can be switched off in Ich › Darstellung -->
+{#if !guest && !mini && ops.improve}{#await import('./lib/logbuch/Improve.svelte') then M}<M.default {hash} />{/await}{/if}
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->

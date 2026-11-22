@@ -43,12 +43,12 @@ export async function encodeShare(obj) {
   return toB64(await pipe(bytes, new CompressionStream('deflate-raw')));
 }
 
-/** Text from the address → object, or null when the link is broken. */
-export async function decodeShare(text) {
+/** Text from the address → object, or null when the link is broken. `ok` checks the shape (a packing list by default). */
+export async function decodeShare(text, ok = (o) => Array.isArray(o.g)) {
   try {
     const bytes = await pipe(fromB64(text), new DecompressionStream('deflate-raw'));
     const obj = JSON.parse(new TextDecoder().decode(bytes));
-    return obj?.v === 1 && Array.isArray(obj.g) ? obj : null;
+    return obj?.v === 1 && ok(obj) ? obj : null;
   } catch {
     return null;
   }

@@ -12,13 +12,24 @@
    */
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift, ListChecks, Pin, Users } from '@lucide/svelte';
+  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift, ListChecks, Pin, Users, Check, Sunrise, ArrowUpDown, Search, Link2, NotebookPen } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
   import { switchTrip } from '../lib/nav.js';
-  import { MERKEN_KEY, tickTodo, waterPlant } from '../lib/merkendb.js';
-  import { groupTodos, doneTodos, GROUPS } from '../lib/merken.js';
+  import { MERKEN_KEY, tickTodo, waterPlant, addTodo, updateTodo, changeTodo, reorderTodos } from '../lib/merkendb.js';
+  import { groupTodos, doneTodos, GROUPS, addDays } from '../lib/merken.js';
+  // 05.11.2026 (Noah «F1–F3, N1–N3 alle»): quick line (F1) with words for the date (N1), swipe and sort (F2),
+  // steps (N2), «belongs to» (N3), one search for to-dos and notes (F3)
+  import { parseWhen, nextWeekday } from '../lib/merken/parse.js';
+  import { stepsOf, stepProgress, toggleStep } from '../lib/merken/steps.js';
+  import { linksOf, linkName } from '../lib/merken/links.js';
+  import { postponeChanges } from '../lib/merken/order.js';
+  import { noteTitle } from '../lib/notebook.js';
+  import SwipeRow from '../lib/ui/SwipeRow.svelte';
+  import SortGrip from '../lib/ui/SortGrip.svelte';
+  import SortArrows from '../lib/ui/SortArrows.svelte';
+  import { sortable } from '../lib/ui/sortable.js';
   import { appDates, SOURCES, SOURCES_KEY } from '../lib/merken/appdates.js';
   import { dayLabel } from '../lib/merken/when.js';
   import { birthdayRows, birthdaySections, plantRows, everyOn, SOON_DAYS } from '../lib/merken/kinds.js';
@@ -39,10 +50,10 @@
 
   const today = localDay();
   const q = liveQuery(async () => {
-    const [m, s, trips, bikes, visits, tasks, l] = await Promise.all([db.settings.get(MERKEN_KEY), db.settings.get(SOURCES_KEY), db.trips.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.settings.get(LISTS_KEY)]);
-    return { todos: m?.value ?? [], off: s?.value ?? [], trips, bikes, visits, tasks, lists: l?.value ?? [] };
+    const [m, s, trips, bikes, visits, tasks, l, notes] = await Promise.all([db.settings.get(MERKEN_KEY), db.settings.get(SOURCES_KEY), db.trips.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.settings.get(LISTS_KEY), db.notes.toArray()]);
+    return { todos: m?.value ?? [], off: s?.value ?? [], trips, bikes, visits, tasks, lists: l?.value ?? [], notes };
   });
-  const d = $derived($q ?? { todos: [], off: [], trips: [], bikes: [], visits: [], tasks: [], lists: [] });
+  const d = $derived($q ?? { todos: [], off: [], trips: [], bikes: [], visits: [], tasks: [], lists: [], notes: [] });
   let newList = $state(false);
   function listMade(r) {
     if (!r?.list) return;
@@ -53,7 +64,14 @@
   const kmOf = (id) => d.bikes.find((b) => b.id === id)?.km ?? null;
   // «after rain»: a trip on that bike with rain in its weather, ended after the last tick
   const rainSince = (bikeId, since) => d.trips.some((tr) => tr.bikeId === bikeId && tr.wx?.rain && tr.startDate && tr.startDate <= today && tr.startDate >= String(since).slice(0, 10));
-  const groups = $derived(groupTodos(notWaiting(d.todos), today, kmOf, rainSince));
+  const groupsAll = $derived(groupTodos(notWaiting(d.todos), today, kmOf, rainSince));
+  // F3: one search over to-dos (with their steps) and notes
+  let search = $state('');
+  const needle = $derived(search.trim().toLowerCase());
+  const hit = (x) => !needle || x.text.toLowerCase().includes(needle) || stepsOf(x).some((s) => s.text.toLowerCase().includes(needle)) || linksOf(x).some((l) => linkText(l).toLowerCase().includes(needle));
+  const groups = $derived(Object.fromEntries(GROUPS.map((g) => [g, groupsAll[g].filter(hit)])));
+  const noteHits = $derived(needle ? d.notes.filter((n) => n.status !== 'open' && `${noteTitle(n)} ${n.text ?? ''}`.toLowerCase().includes(needle)).slice(0, 6) : []);
+  const linkText = (l) => linkName(l, { trips: d.trips, bikes: d.bikes, notes: d.notes }, noteTitle) || t('Note');
   const done = $derived(doneTodos(d.todos));
   const bdays = $derived(birthdayRows(d.todos, today));
   const bdaySecs = $derived(birthdaySections(bdays));
@@ -63,7 +81,7 @@
     return new Date(`${key}-15T12:00:00Z`).toLocaleDateString(locale(), opts);
   }
   const plants = $derived(plantRows(d.todos, today));
-  const open = $derived(GROUPS.reduce((n, g) => n + groups[g].length, 0) + bdays.length + plants.length + waitingRows(d.todos, today).length);
+  const open = $derived(GROUPS.reduce((n, g) => n + groupsAll[g].length, 0) + bdays.length + plants.length + waitingRows(d.todos, today).length);
   const inDays = (n) => (n === 0 ? t('Today') : n === 1 ? t('Tomorrow') : tn(n, 'in {n} day', 'in {n} days'));
   const plantDue = (n) => (n < 0 ? tn(-n, 'due for {n} day', 'due for {n} days') : n === 0 ? t('due today') : inDays(n));
   const dateOf = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
@@ -108,6 +126,68 @@
     const undo = await tickTodo(db, x.id, { today, bikeKm: x.repeat?.bikeId ? kmOf(x.repeat.bikeId) : null });
     say(x.repeat ? t('{name} · done, comes again', { name: x.text }) : t('{name} · done', { name: x.text }), undo);
   }
+  // F1 (Noah 05.11.2026): the quick line. Type, Enter, done; Today · Tomorrow · Weekend are one tap; words in the text
+  // («morgen 18 Uhr, jeden Sonntag», N1) show as chips that can be switched off. «More …» opens the full window.
+  let qtext = $state('');
+  let qdue = $state(''); // '' | 'today' | 'tomorrow' | 'weekend'
+  let qskip = $state({ due: false, time: false, repeat: false });
+  const qparsed = $derived(qtext.trim() ? parseWhen(qtext, today) : null);
+  const QDAYS = $derived({ today, tomorrow: addDays(today, 1), weekend: nextWeekday(addDays(today, -1), 6) });
+  const QCHIPS = [
+    ['today', 'Today'],
+    ['tomorrow', 'Tomorrow'],
+    ['weekend', 'Weekend'],
+  ];
+  const REPEAT_WORD = { day: 'Every day', week: 'Every week', month: 'Every month' };
+  // what the quick line would save, with the parts the person switched off left out
+  const qplan = $derived.by(() => {
+    const p = qparsed;
+    const found = p?.found ?? [];
+    const skipped = found.some((f) => qskip[f.kind]);
+    const due = (qskip.due ? null : p?.due) ?? (qdue ? QDAYS[qdue] : null);
+    const time = qskip.time ? null : p?.remind;
+    return {
+      text: skipped ? qtext.trim() : (p?.text ?? qtext.trim()),
+      due: due ?? (time && !qskip.due ? today : null),
+      remind: time ?? null,
+      repeat: qskip.repeat ? null : (p?.repeat ?? null),
+    };
+  });
+  const qnote = (f) => (f.kind === 'due' ? dayLabel(f.value, today) : f.kind === 'time' ? f.value : t(REPEAT_WORD[f.value]));
+  function qreset() {
+    qtext = '';
+    qdue = '';
+    qskip = { due: false, time: false, repeat: false };
+  }
+  async function quickAdd(e) {
+    e?.preventDefault();
+    if (!qplan.text) return;
+    const r = await addTodo(db, qplan);
+    if (r) done4(r);
+    qreset();
+  }
+  let moreFrom = $state(null); // the quick line handed over to the window
+  function quickMore() {
+    moreFrom = { text: qplan.text, preset: { due: qplan.due ?? '', remind: qplan.remind, repeat: qplan.repeat } };
+    qreset();
+  }
+
+  // F2: swipe right = done, left = tomorrow; «Sort» shows arrows and the handle for dragging
+  let sorting = $state(false);
+  async function postpone(x) {
+    const undo = await updateTodo(db, x.id, postponeChanges(x, today));
+    say(t('{name} · moved to tomorrow', { name: x.text }), undo);
+  }
+  async function reorder(ids, from, to) {
+    if (from === to) return;
+    const undo = await reorderTodos(db, ids, from, to);
+    say(t('Moved.'), undo);
+  }
+  // N2: a step is ticked right in the list
+  async function tickStep(x, st) {
+    const undo = await changeTodo(db, x.id, (td) => toggleStep(td, st.id));
+    say(st.done ? t('Saved.') : t('{name} · done', { name: st.text }), undo);
+  }
   async function runUndo() {
     const u = notice?.undo;
     notice = null;
@@ -131,6 +211,38 @@
   }
 </script>
 
+{#snippet todoRow(x, g, i)}
+  {@const pr = stepProgress(x)}
+  <li class="tdw" data-sort-id={x.id} data-todo-id={x.id}>
+    <SwipeRow id="todo-{x.id}" right={[{ key: 'done', label: t('Done'), icon: Check, run: () => tickIt(x) }]} left={[{ key: 'tomorrow', label: t('Tomorrow'), icon: Sunrise, tone: 'move', run: () => postpone(x) }]}>
+      <div class="td in">
+        {#if sorting}<SortGrip name={x.text} onstep={(dir) => reorder(groups[g].map((y) => y.id), i, i + dir)} />{/if}
+        <button type="button" class="bx" onclick={() => tickIt(x)} aria-label={t('Done: {name}', { name: x.text })}></button>
+        <button type="button" class="tx" onclick={() => (sheet = { todo: x })}>
+          <b>{x.text}</b>
+          {#if meta(x).length || pr.total || linksOf(x).length}
+            <small>{#if x.repeat}<Repeat2 size={13} aria-hidden="true" />{:else if x.remind}<Bell size={13} aria-hidden="true" />{/if}{[...meta(x), pr.total ? t('{done} of {total} done', pr) : '', ...linksOf(x).map(linkText)].filter(Boolean).join(' · ')}</small>
+          {/if}
+          {#if pr.total}<span class="pbar" aria-hidden="true"><i style:width="{(100 * pr.done) / pr.total}%"></i></span>{/if}
+        </button>
+        {#if sorting}
+          <SortArrows name={x.text} {i} n={groups[g].length} onstep={(dir) => reorder(groups[g].map((y) => y.id), i, i + dir)} />
+        {:else if x.due}<span class="due" class:late={g === 'late'}>{g === 'today' && x.remind?.at ? x.remind.at : dayLabel(x.due, today)}</span>{/if}
+      </div>
+    </SwipeRow>
+    {#if stepsOf(x).length}
+      <ul class="steps" data-steps>
+        {#each stepsOf(x) as st (st.id)}
+          <li>
+            <button type="button" class="sbx" class:done={st.done} onclick={() => tickStep(x, st)} aria-label={t('Step done: {name}', { name: st.text })} aria-pressed={!!st.done}>{#if st.done}<Check size={14} aria-hidden="true" />{/if}</button>
+            <span class:struck={st.done}>{st.text}</span>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  </li>
+{/snippet}
+
 <div class="mk">
   <PageHead title={t('Remember')} text={t('Your to-dos first, the dates of the app smaller below.')} />
   <AreaIntro place="merken" />
@@ -141,7 +253,31 @@
     <a href="#/me/alltag/menschen" data-merken-people><Users size={16} aria-hidden="true" />{t('Not seen for a while')}</a></p>
 
   <div class="card list">
+    <!-- F1: the quick line; the full window stays behind «Add a to-do» and «More …» -->
+    <form class="qline" onsubmit={quickAdd} data-quick-line>
+      <div class="qrow">
+        <input class="inp" bind:value={qtext} maxlength="160" enterkeyhint="done" placeholder={t('New to-do … e.g. «oil the chain tomorrow 6 pm»')} aria-label={t('New to-do')} data-quick-input />
+        <button type="submit" class="btn hi sm" disabled={!qplan.text} data-quick-save>{t('Add')}</button>
+      </div>
+      <div class="chips qchips" role="group" aria-label={t('When?')}>
+        {#each QCHIPS as [k, label] (k)}<button type="button" class="chip" aria-pressed={qdue === k} onclick={() => (qdue = qdue === k ? '' : k)}>{t(label)}</button>{/each}
+        <button type="button" class="chip" onclick={quickMore} data-quick-more>{t('More …')}</button>
+      </div>
+      {#if qparsed?.found.length}
+        <p class="qfound" data-quick-found>{t('Found in the words, tap to leave out:')}
+          {#each qparsed.found as f (f.kind)}<button type="button" class="chip fnd" aria-pressed={!qskip[f.kind]} onclick={() => (qskip[f.kind] = !qskip[f.kind])}>{qnote(f)}</button>{/each}
+        </p>
+      {/if}
+    </form>
     <button type="button" class="add" onclick={() => (sheet = {})}><Plus size={18} aria-hidden="true" />{t('Add a to-do')}</button>
+    {#if d.todos.length || d.notes.length}
+      <!-- F3: one search for to-dos and notes; F2: «Sort» shows arrows and the handle -->
+      <div class="tools tl2">
+        <label class="srch"><Search size={16} aria-hidden="true" /><span class="sr">{t('Search to-dos and notes')}</span>
+          <input type="search" class="inp" bind:value={search} placeholder={t('Search to-dos and notes')} data-merken-search /></label>
+        {#if open}<button type="button" class="chip" aria-pressed={sorting} onclick={() => (sorting = !sorting)} data-merken-sort><ArrowUpDown size={16} aria-hidden="true" />{t('Sort')}</button>{/if}
+      </div>
+    {/if}
     {#if trello.prefs?.on && trello.prefs?.todos?.sync}<p class="intr">{t('Also in Trello: list «To-dos»')}</p>{/if}
     <div class="kinds">
       <button type="button" class="chip" onclick={() => (kindSheet = { kind: 'birthday' })}><Cake size={16} aria-hidden="true" />{t('Birthday')}</button>
@@ -152,20 +288,23 @@
     {#each GROUPS as g (g)}
       {#if groups[g].length}
         <h2 class="gh" class:late={g === 'late'}>{t(HEAD[g])}</h2>
-        <ul>
-          {#each groups[g] as x (x.id)}
-            <li class="td">
-              <button type="button" class="bx" onclick={() => tickIt(x)} aria-label={t('Done: {name}', { name: x.text })}></button>
-              <button type="button" class="tx" onclick={() => (sheet = { todo: x })}>
-                <b>{x.text}</b>
-                {#if meta(x).length}<small>{#if x.repeat}<Repeat2 size={13} aria-hidden="true" />{:else if x.remind}<Bell size={13} aria-hidden="true" />{/if}{meta(x).join(' · ')}</small>{/if}
-              </button>
-              {#if x.due}<span class="due" class:late={g === 'late'}>{g === 'today' && x.remind?.at ? x.remind.at : dayLabel(x.due, today)}</span>{/if}
-            </li>
+        <ul use:sortable={{ onmove: (from, to) => reorder(groups[g].map((y) => y.id), from, to) }} data-todo-group={g}>
+          {#each groups[g] as x, i (x.id)}
+            {@render todoRow(x, g, i)}
           {/each}
         </ul>
       {/if}
     {/each}
+
+    {#if needle && !noteHits.length && GROUPS.every((g) => !groups[g].length)}<p class="empty">{t('Nothing found for «{q}».', { q: search.trim() })}</p>{/if}
+    {#if noteHits.length}
+      <h2 class="gh">{t('Notes')}</h2>
+      <ul data-note-hits>
+        {#each noteHits as n (n.id)}
+          <li class="tdw"><div class="td in"><span class="ki" aria-hidden="true"><NotebookPen size={16} /></span><a class="tx" href={`#/notes?open=${encodeURIComponent(n.id)}`}><b>{noteTitle(n) || t('Note')}</b><small>{t('Note')}</small></a></div></li>
+        {/each}
+      </ul>
+    {/if}
 
     <WaitingGroup todos={d.todos} {today} ontick={tickIt} onopen={(x) => (sheet = { todo: x })} {say} />
     {#if bdays.length}
@@ -278,6 +417,9 @@
 {#if sheet}
   <TodoSheet todo={sheet.todo ?? null} onclose={() => (sheet = null)} ondone={done4} />
 {/if}
+{#if moreFrom}
+  <TodoSheet text={moreFrom.text} preset={moreFrom.preset} onclose={() => (moreFrom = null)} ondone={done4} />
+{/if}
 {#if kindSheet}
   <KindSheet kind={kindSheet.kind ?? 'birthday'} todo={kindSheet.todo ?? null} onclose={() => (kindSheet = null)} ondone={done4} />
 {/if}
@@ -347,6 +489,137 @@
     color: var(--ink-2);
     font: inherit;
     cursor: pointer;
+  }
+  .tools {
+    display: flex;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .srch {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+  .srch :global(svg) {
+    position: absolute;
+    left: 12px;
+    color: var(--ink-3);
+    pointer-events: none;
+  }
+  .srch .inp {
+    width: 100%;
+    padding-left: 36px;
+  }
+  .tools .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .qline {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .qrow {
+    display: flex;
+    gap: 8px;
+  }
+  .qrow .inp {
+    flex: 1;
+    min-width: 0;
+  }
+  .qchips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .qfound {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .chip.fnd {
+    background: var(--ok-soft, var(--paper-2));
+    border-color: var(--ok, var(--line));
+    color: var(--ink);
+  }
+  .chip.fnd[aria-pressed='false'] {
+    background: var(--paper);
+    border-color: var(--line);
+    color: var(--ink-3);
+    text-decoration: line-through;
+  }
+  .tdw {
+    border-top: 1px solid var(--line);
+    list-style: none;
+  }
+  .td.in {
+    border-top: 0;
+    background: var(--paper);
+  }
+  .pbar {
+    display: block;
+    height: 6px;
+    margin-top: 6px;
+    border-radius: 3px;
+    background: var(--paper-2);
+    overflow: hidden;
+  }
+  .pbar i {
+    display: block;
+    height: 100%;
+    background: var(--accent, var(--ok));
+  }
+  .steps {
+    list-style: none;
+    margin: 0 0 8px 38px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .steps li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    color: var(--ink-2);
+  }
+  .sbx {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1.5px solid var(--line-strong, var(--ink-2));
+    border-radius: 6px;
+    background: var(--paper);
+    color: var(--paper);
+    cursor: pointer;
+  }
+  .sbx::before {
+    content: '';
+    position: absolute;
+    inset: -11px;
+  }
+  .sbx.done {
+    background: var(--accent, var(--ok));
+    border-color: var(--accent, var(--ok));
+  }
+  .struck {
+    text-decoration: line-through;
+    color: var(--ink-3);
   }
   .gh {
     margin: 16px 0 2px;
@@ -457,6 +730,7 @@
   .tx b {
     display: block;
     font-weight: 500;
+    overflow-wrap: break-word;
   }
   .tx small {
     display: flex;

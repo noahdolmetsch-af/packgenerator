@@ -1,7 +1,7 @@
 /**
  * «Wegweiser statt Katalog» PR 23 (plan Noah 01.11.2026 «freigabe», step 23): functions that show only in the right
  * situation (heimat.js GAPS 'when', the sentence in know/wann.js) say so on their own page. At the end of the page a quiet
- * fold «Only in the right situation» lists them, each with «Appears when …» and, where the example trip of the playground
+ * fold «Shows up later, when it fits» lists them, each with «Appears when …» and, where the example trip of the playground
  * shows it, «Show it in the example». A function whose part is on screen right now (its `shown` selector) is left out.
  *
  * ERSCHEINT: id → { play: day of the playground (play.js DAYS) or null, shown: CSS selector of its part or null }.

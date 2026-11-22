@@ -1,5 +1,6 @@
 // Idee A3 «Freie Zeit plus gutes Wetter» (Noah 27.10.2026): Planen › Woche shows the next free and dry window
 // from the Google calendar (the copy on this device) and the weather at home. Fictional data; Open-Meteo is mocked.
+// «Planen 2a» (Noah 05.11.2026): the best window of the week, 3 hours, a mark on its day, «Plan the ride».
 import { test, expect } from './clock.js';
 import { base, tr } from './home0460-fixture.js';
 import { importAndSettle, settle } from './settle.js';
@@ -45,13 +46,20 @@ test('the week shows the next free and dry window; «Not now» shows the next on
   await page.goto('./#/week');
   await settle(page);
   const card = page.locator('[data-free-slot]');
-  await expect(card).toContainText('12:00–14:00');
+  await expect(card).toContainText('12:00–15:00');
+  await expect(card.locator('[data-fz-round]')).toContainText(T('Here a {n}-hour round fits: about {km} km.').split('{n}')[0]);
+  // «Planen 2a»: the day of the window carries a mark
+  await expect(page.locator(`[data-day="${DAY0}"] [data-win-day]`)).toContainText('12:00–15:00');
   await expect(card).toContainText(T('{day} {from}–{to} free and dry').replace('{day} {from}–{to} ', '').trim());
   await expect(card.locator('[data-fz-basis]')).toBeVisible();
-  // the to-do fits into the window (2 h minus the 30 min buffer): one tap puts it on that day, at the window's start
+  // the to-do fits into the window (3 h minus the 30 min buffer): one tap puts it on that day, at the window's start
   await card.locator('[data-fz-put]').click();
   await expect(card.locator('[data-fz-put]')).toHaveCount(0);
   await expect(page.locator(`[data-day="${DAY0}"] [data-entry="test_data_gtp_fz1"]`)).toContainText('12:00');
+  // «Plan the ride» puts a date «Ride» on that day, 3 hours long, and the next window moves behind it
+  await card.locator('[data-fz-plan]').click();
+  await expect(page.locator(`[data-day="${DAY0}"]`)).toContainText(T('Ride|week'));
+  await expect(card).not.toContainText('12:00–15:00');
   await card.getByRole('button', { name: T('Not now') }).click();
-  await expect(card).not.toContainText('12:00–14:00');
+  await expect(card).not.toContainText('12:00–15:00');
 });

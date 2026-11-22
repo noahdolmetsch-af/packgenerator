@@ -12,10 +12,13 @@
   import { Check } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
   import { tabHref } from '../tabs.js';
-  // Noah 26.10.2026 «1b»: the bar shows the short names Plan · Pack · Live · Review · Analyse
+  // Tour-Pfad 1b (Noah 08.11.2026 «A», «b»): the bar shows the four phases Planen · Vorbereiten · Unterwegs · Danach
+  // and «Auswertung» as the fifth point at the end
   import { STEP_BAR } from '../stepbar.js';
 
   let { trip, tabs, status, current = null, tone = 'steps', onpick = () => {} } = $props();
+  const bars = $derived(tabs);
+  const here = $derived(current);
   // 0.174: on a narrow phone the bar may scroll sideways; the current step is always in view
   let bar = $state();
   $effect(() => {
@@ -30,16 +33,15 @@
   });
 </script>
 
-<nav bind:this={bar} class="stepbar {tone}" aria-label={t('Steps of this trip')} style:--n={tabs.length}>
-  {#each tabs as key (key)}
+<nav bind:this={bar} class="stepbar {tone}" aria-label={t('Steps of this trip')} style:--n={bars.length}>
+  {#each bars as key (key)}
     {@const s = status[key] ?? { text: '', done: false }}
-    <a href={tabHref(key, trip)} class:done={s.done} class:past={s.past} aria-current={key === current ? 'page' : undefined} onclick={() => onpick(key)}>
-      {#if tone === 'steps'}<span class="no" class:tick={s.done && key !== current} aria-hidden="true">{#if s.done && key !== current}<Check size={14} strokeWidth={2.6} />{/if}</span>{/if}<span class="tn">{t(STEP_BAR[key])}</span>
+    <a href={tabHref(key, trip)} class:done={s.done} class:past={s.past} aria-current={key === here ? 'page' : undefined} onclick={() => onpick(key)}>
+      {#if tone === 'steps'}<span class="no" class:tick={s.done && key !== here} aria-hidden="true">{#if s.done && key !== here}<Check size={14} strokeWidth={2.6} />{/if}</span>{/if}<span class="tn">{t(STEP_BAR[key])}</span>
       {#if s.text || s.done}<small>{#if s.done}<Check size={13} aria-hidden="true" />{/if}{#if s.text}{s.text}{:else}<span class="sr">{t('done|step')}</span>{/if}</small>{/if}
     </a>
   {/each}
 </nav>
-
 <style>
   .stepbar {
     position: relative;
@@ -209,6 +211,22 @@
     .steps small {
       grid-column: 2;
       margin: 0;
+    }
+  }
+  /* 21.11.2026 (zoom 200 % on a 1440 px screen = 720 px): five steps with a number circle (28 px + gap + padding)
+     leave about 60 px for the name, and «Vorbereiten», «Unterwegs», «Auswertung» broke letter by letter.
+     Up to 1099 px the number goes, as on a phone: the order is clear from the row, the name keeps the room. */
+  @media (min-width: 720px) and (max-width: 1099px) {
+    .steps a {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 10px 10px;
+      overflow-wrap: normal;
+    }
+    .steps .no {
+      display: none;
+    }
+    .steps small {
+      grid-column: 1;
     }
   }
   /* a phone turned sideways: the steps in one low row */

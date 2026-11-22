@@ -51,7 +51,7 @@
 {#if rows.length}
   <ul class="rc-list" use:sortable={{ onmove: (from, to) => move(from, to) }} data-race-list={testid}>
     {#each rows as r, i (r.id)}
-      <li class="rc-row" data-sort-id={r.id}>
+      <li class="rc-row rc-edit" data-sort-id={r.id}>
         <SortGrip name={shown(r)} onstep={(dir) => move(i, i + dir)} />
         <button type="button" class="rc-row-main" onclick={() => (edit = { ...r })}>
           <b>{shown(r)}</b>
