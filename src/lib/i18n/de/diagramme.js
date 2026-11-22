@@ -148,4 +148,5 @@ export default {
   'Heaviest point': 'Schwerste Stelle',
   'Lightest point': 'Leichteste Stelle',
   'Highest': 'Höchster Wert',
+  'No data in this period': 'Keine Daten in diesem Zeitraum',
 };

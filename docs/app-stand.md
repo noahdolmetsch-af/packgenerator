@@ -15,7 +15,7 @@ Persönliches Aktivitäts-, Touren- und Alltags-Cockpit: Tourenplanung, Packlist
 | Ort | Wofür | Code |
 |---|---|---|
 | Heute | Was jetzt wichtig ist; «Dein Moment», Entdecken | `src/pages/Home.svelte`, `src/lib/home` |
-| Woche | Vier Reiter: Woche (Termine, Aufgaben), Training (die Seiten des früheren Aktiv: abhaken, Sportarten, Wochenplan, Trainingspläne, Erholung), Notizen, Alltag | Seiten `Woche*`, `Calendar`, `Flow`, `Aktiv` |
+| Woche | Vier Reiter: Woche (Termine, Aufgaben), Training (die Seiten des früheren Aktiv: abhaken, Sportarten, Wochenplan, Trainingspläne, Erholung), Notizen, Alltag (mit Meditation als Chip) | Seiten `Woche*`, `Calendar`, `Flow`, `Aktiv` |
 | Touren | Tour planen, packen, unterwegs, Rückblick | `Pack.svelte`, `Tour.svelte`, `Live.svelte`, `Debrief.svelte` |
 | Auswerten | Zurückschauen: Form, Körper, Fahrten, Wi gaht's, eigenes Diagramm; eigener Platz in der Leiste unten und in der Seitenleiste | `Auswerten*`, `Analyse` |
 | Velos und Material | Velos, Pflege, Werkstatt, Material, Kleider | `Bikes.svelte`, `Gear.svelte` |
@@ -72,7 +72,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Bausteine prüfen | `#/blocks/check` | Gegenstände einzeln überprüfen: behalten, entfernen oder einem anderen Baustein zuordnen. |
 | Packliste aufräumen | `#/blocks/aufraeumen` | Automatisch mitkommende Gegenstände reduzieren und die Grundausstattung übersichtlicher machen. |
 | Kleider und Kits | `#/wardrobe` | † Kleidung nach Körperschicht und Körperzone erfassen, Outfits als Kit speichern; Lücken landen auf der Wunschliste. |
-| Kleiderschrank einrichten | `#/wardrobe/setup` | Seite unter Kleider: jedes Kleidungsstück bekommt in einem Tipp seine Temperatur (Warm, Mild, Kühl, Kalt, Frost; ein oder zwei Stufen), Schicht und Körperstelle; der Vorschlag aus Namen oder Import ist vorgewählt, «Überspringen» und «Hab ich nicht mehr» gehen, jede Speicherung hat «Rückgängig». Ohne Temperatur kann die Zwiebel nicht mitdenken. Absprung: die Kachel «Kleiderschrank einrichten» in «Alles hier» unter Material. |
+| Kleiderschrank einrichten | `#/wardrobe/setup` | Seite unter Kleider: jedes Kleidungsstück bekommt in einem Tipp seine Temperatur (Warm, Mild, Kühl, Kalt, Frost; ein oder zwei Stufen), Schicht und Körperstelle; der Vorschlag aus Namen oder Import ist vorgewählt, «Überspringen» und «Hab ich nicht mehr» gehen, jede Speicherung hat «Rückgängig». Ohne Temperatur kann die Zwiebel nicht mitdenken. Absprung: «Passt hier» am Ende des Kleiderschranks (nicht als Zeile über dem Inhalt) und die Kachel «Kleiderschrank einrichten» in «Alles hier» unter Material. |
 | Favoriten | `#/favorites` | Bewährte Gegenstände markieren und festhalten, weshalb sie sich bewährt haben. |
 | Wiegen und Wunschliste | `#/gear?tab=wishlist` | Tatsächliche Gewichte erfassen, leichtere eigene Alternativen vergleichen und Anschaffungen nach Nutzen, Preis und Gewichtsersparnis beurteilen. |
 | Einkaufs- und Ladeliste | `#/pack?shop` | Vor der Abfahrt Einkäufe und zu ladende Geräte abhaken; letzte Gegenstände für den Abfahrtsmorgen merken. |
