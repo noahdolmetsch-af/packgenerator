@@ -206,6 +206,7 @@
   import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
+  import NachtragHint from '../lib/flow/NachtragHint.svelte'; // «Heute · Gestern» (Noah 22.11.2026 «b»): the morning hint of Aktiv also on top of Heute
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { flowStates } from '../lib/flow.js';
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
@@ -888,6 +889,7 @@
   let abEvening = $state(false);
   let abAsk = $state(false); // set → AbCard opens its window again
   const medQ = $derived(flowQuery(today));
+  const nachtragActs = $derived($medQ ? flowStates($medQ.acts, $medQ.log, today, $medQ.tripDays).filter((x) => !x.resting).map((x) => x.act) : []);
   const medSt = $derived($medQ ? (flowStates($medQ.acts, $medQ.log, today, $medQ.tripDays).find((x) => isMedAct(x.act) && !x.act.paused) ?? null) : null);
   let medOpen = $state(false);
   // the ready activities (meditation …) are written on the first start, as the tile «Im Flow» did before
@@ -1276,6 +1278,7 @@
 <!-- 4. Important today and Tried it yet? -->
 {#snippet todayS(line = false)}
   <div class="impw" class:line data-section="today">
+    {#if ready && !editing && $medQ}<div class="nhw"><NachtragHint {today} log={$medQ.log} acts={nachtragActs} /></div>{/if}
     {#if cheers.length}
       <section class="cheers" aria-label={t('Well done')} data-cheers>
         <ul>
@@ -2633,6 +2636,9 @@
   }
   .row.now .tx {
     font-weight: 600;
+  }
+  .nhw:not(:empty) {
+    margin-bottom: 10px;
   }
   .impl {
     margin-top: auto;
