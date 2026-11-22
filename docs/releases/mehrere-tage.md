@@ -1,6 +1,6 @@
 # Mehrere Tage in einem Rutsch
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Noah 21.11.2026 («bitte hiermit fortfahren», Gestern nachtragen; Punkt «mehrere Tage in einem Rutsch»), Thread «Training erfassen vereinfachen». Baut auf «Gestern nachtragen» auf.
+PR #1385 · 21.11.2026 · Auftrag: Noah 21.11.2026 («bitte hiermit fortfahren», Gestern nachtragen; Punkt «mehrere Tage in einem Rutsch»), Thread «Training erfassen vereinfachen». Baut auf «Gestern nachtragen» auf.
 
 ## Was ist neu
 - Im Abhak-Fenster einer Kachel steht unter «Wann» der Knopf «Mehrere Tage in einem Rutsch». Dann sind die Tage-Knöpfe (Heute, Gestern, Vorgestern, «Anderer Tag») Schalter: Man schaltet ein, für welche Tage abgehakt wird.
