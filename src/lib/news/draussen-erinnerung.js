@@ -3,7 +3,7 @@ export default {
   title: 'Outdoors reminder on the phone',
   lead: 'The outdoors challenge can remind you on the phone every day at 16:00, while the day is not reached yet.',
   points: [
-    { text: 'On the card «Outdoors» the button «Remind me on the phone every day at 16:00» switches the reminder on; the time can be changed behind the pencil', go: { href: '#/', steps: [{ sel: '[data-outdoor-remind]' }] } },
+    { text: 'On the card «Outdoors» the button «Remind me on the phone every day at 16:00» switches the reminder on; the time can be changed behind the pencil', go: { href: '#/', steps: [{ sel: '[data-outdoor-remind], [data-outdoor-start], [data-outdoor-card]' }] } },
     { text: 'The reminder says how many minutes are still missing; a day that is already reached sends none', go: { href: '#/me/push' } },
   ],
   small: [{ box: 'new', text: 'In Reminders on the phone there is a new switch «Outdoors challenge» under «Everyday life»' }],
