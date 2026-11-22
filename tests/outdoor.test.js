@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { offsetFor } from '../src/lib/blockplan.js';
-import { outdoorOf, startOutdoor, isOutdoor, stravaMin, dayOf, addMin, undoMin, standing, allMin, lightLine, offerOpen } from '../src/lib/outdoor.js';
+import { outdoorOf, startOutdoor, isOutdoor, stravaMin, dayOf, addMin, undoMin, standing, allMin, lightLine, offerOpen, remindDays, missingMin, untickMin, REMIND_AT } from '../src/lib/outdoor.js';
 
 const walk = (day, min, extra = {}) => ({ id: `${day}-${min}`, day, type: 'Walk', movingS: min * 60, ...extra });
 const rec0 = () => startOutdoor({ today: '2026-11-22', until: '2026-12-31' });
@@ -78,5 +78,51 @@ describe('outdoor challenge', () => {
     expect(offerOpen({ no: '2026-11-22' }, '2026-12-22')).toBe(true);
     expect(offerOpen(rec0(), '2026-11-23')).toBe(false);
     expect(offerOpen({ ...rec0(), closed: true, no: '2026-11-23' }, '2026-11-24')).toBe(false);
+  });
+});
+
+describe('outdoor phone reminder', () => {
+  it('has 16:00 as the time unless a valid one is stored', () => {
+    expect(rec0().remindAt).toBe(REMIND_AT);
+    expect(REMIND_AT).toBe('16:00');
+    expect(outdoorOf({ ...rec0(), remindAt: '17:30' }).remindAt).toBe('17:30');
+    expect(outdoorOf({ ...rec0(), remindAt: '25:00' }).remindAt).toBe('16:00');
+  });
+  it('lists the days from today up to the horizon, with the minutes left', () => {
+    const l = remindDays(rec0(), [], '2026-11-22', 3);
+    expect(l.map((x) => x.day)).toEqual(['2026-11-22', '2026-11-23', '2026-11-24', '2026-11-25']);
+    expect(l[0].left).toBe(90);
+  });
+  it('leaves today out when it is reached and shows what is left otherwise', () => {
+    const r = addMin(rec0(), '2026-11-22', 30);
+    expect(remindDays(r, [walk('2026-11-22', 30)], '2026-11-22', 1)[0]).toEqual({ day: '2026-11-22', left: 30 });
+    expect(remindDays(r, [walk('2026-11-22', 60)], '2026-11-22', 1).map((x) => x.day)).toEqual(['2026-11-23']);
+  });
+  it('stops at the last day, before the first day nothing, and when ended or closed', () => {
+    expect(remindDays(rec0(), [], '2026-12-30', 14).map((x) => x.day)).toEqual(['2026-12-30', '2026-12-31']);
+    expect(remindDays(rec0(), [], '2026-11-20', 3).map((x) => x.day)).toEqual(['2026-11-22', '2026-11-23']);
+    expect(remindDays({ ...rec0(), stopped: true }, [], '2026-11-22')).toEqual([]);
+    expect(remindDays({ ...rec0(), closed: true }, [], '2026-11-22')).toEqual([]);
+    expect(remindDays(null, [], '2026-11-22')).toEqual([]);
+  });
+});
+
+
+describe('tick off', () => {
+  const rec = { name: 'Outdoors', goalMin: 90, from: '2026-11-22', until: '2026-12-31', hand: {}, stopped: false, closed: false, no: null };
+  const strava = (min) => [{ day: '2026-11-22', type: 'Walk', movingS: min * 60 }];
+  it('adds the minutes that are missing, Strava counted', () => {
+    expect(missingMin(rec, [], '2026-11-22')).toBe(90);
+    expect(missingMin(rec, strava(30), '2026-11-22')).toBe(60);
+    const next = addMin(rec, '2026-11-22', missingMin(rec, strava(30), '2026-11-22'));
+    expect(dayOf(next, strava(30), '2026-11-22').done).toBe(true);
+    expect(missingMin(next, strava(30), '2026-11-22')).toBe(0);
+  });
+  it('takes a tick back: the hand minutes go, Strava stays', () => {
+    const next = addMin(addMin(rec, '2026-11-22', 20), '2026-11-22', 40);
+    const back = untickMin(next, strava(30), '2026-11-22');
+    expect(dayOf(back, strava(30), '2026-11-22').done).toBe(false);
+    expect(back.hand['2026-11-22']).toEqual([20]);
+    expect(untickMin(rec, strava(120), '2026-11-22')).toBe(rec);
   });
 });

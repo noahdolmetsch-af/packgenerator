@@ -82,7 +82,7 @@
         <button type="button" class="btn sm" onclick={askChrome} disabled={busy || !rel}><Cpu size={16} aria-hidden="true" />{ai === 'available' ? t('Ask Chrome AI') : t('Ask Chrome AI (loads once)')}</button>
       {/if}
     </div>
-    {#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly /></div>{/if}
+    {#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" /></div>{/if}
     {#if copied === question && !manual}<p class="ks-ok" role="status">{inside ? t('Copied. Now paste it where you ask.') : t('Copied. Now paste it in the Claude app.')}</p>{/if}
     {#if manual}
       <p class="ks-sub">{t('Copying did not work here. Select the text and copy it:')}</p>

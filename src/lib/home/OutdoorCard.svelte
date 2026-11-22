@@ -9,7 +9,7 @@
    * The record is the setting `outdoor` (src/lib/outdoor.js).
    */
   import { liveQuery } from 'dexie';
-  import { TreePine, Pencil, Check } from '@lucide/svelte';
+  import { TreePine, Pencil, Check, Bell, BellOff } from '@lucide/svelte';
   import { db } from '../db.js';
   import { HOME_PLACE } from '../know.js';
   import { putSetting } from '../flowdb.js';
@@ -19,7 +19,10 @@
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
-  import { OUTDOOR_KEY, CHIPS, DEFAULT_GOAL_MIN, MAX_GOAL_MIN, outdoorOf, startOutdoor, standing, addMin, undoMin, allMin, lightLine, offerOpen, hm } from '../outdoor.js';
+  import { PUSH_KEY } from '../push/schedule.js';
+  import { setOutdoorRemind, outdoorRemindOn } from '../outdoorpush.js';
+  import { resyncPhone } from '../ruhig/store.js';
+  import { OUTDOOR_KEY, REMIND_AT, okHm, CHIPS, DEFAULT_GOAL_MIN, MAX_GOAL_MIN, outdoorOf, startOutdoor, standing, addMin, undoMin, missingMin, untickMin, allMin, lightLine, offerOpen, hm } from '../outdoor.js';
   import { addDays } from '../flow.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
@@ -27,11 +30,11 @@
 
   const q = $derived(
     liveQuery(async () => {
-      const [set, place] = await Promise.all([db.settings.get(OUTDOOR_KEY), db.settings.get(HOME_PLACE)]);
+      const [set, place, push] = await Promise.all([db.settings.get(OUTDOOR_KEY), db.settings.get(HOME_PLACE), db.settings.get(PUSH_KEY)]);
       const rec = outdoorOf(set?.value);
       const from = rec?.from ?? today;
       const acts = rec?.from ? await db.activities.where('day').between(from, rec.until, true, true).toArray() : [];
-      return { rec, acts, place: place?.value ?? null };
+      return { rec, acts, place: place?.value ?? null, remind: outdoorRemindOn(push?.value) };
     }),
   );
   const d = $derived($q);
@@ -45,7 +48,25 @@
   const light = $derived(st?.phase === 'running' && d.place ? lightLine(d.place, today, st.today.left) : null);
   const totalMin = $derived(live && over ? allMin(live, d.acts, today) : 0);
 
-  const save = (v) => putSetting(db, OUTDOOR_KEY, v);
+  const remindOn = $derived(!!d?.remind);
+  // with the phone reminder on, the phone gets its new list (the day that is reached sends no reminder)
+  const save = async (v) => {
+    await putSetting(db, OUTDOOR_KEY, v);
+    if (remindOn) resyncPhone();
+  };
+  let remindMsg = $state('');
+  const WHY = {
+    unsupported: 'This browser cannot get reminders. On the phone it works in Chrome.',
+    denied: 'Your browser blocks notifications.',
+    not_set_up: 'The server is not set up for this yet.',
+    storage_not_set_up: 'The server is not set up for this yet.',
+  };
+  async function remind(on) {
+    remindMsg = '';
+    const r = await setOutdoorRemind(on);
+    if (!r.ok) remindMsg = t(WHY[r.code] ?? 'The server could not be reached. Try again later.');
+    else if (on) toast(t('The reminder comes every day at {time}.', { time: live?.remindAt ?? REMIND_AT }));
+  }
   let kick = $state(0);
   async function add(n) {
     kick++;
@@ -53,6 +74,17 @@
     if (next === live) return;
     await save(next);
     toast(t('+{n} min added for today.', { n }), () => save(undoMin(next, today)));
+  }
+  // «Tick off» (Noah 22.11.2026 «a», like the habit cards): the goal of today is reached in one tap; a second tap takes it back
+  const ticked = $derived(!!st?.today.done);
+  const canTick = $derived(st?.phase === 'running' && (!ticked || st.today.hand > 0));
+  async function tick() {
+    const before = live;
+    const next = ticked ? untickMin(live, d.acts, today) : addMin(live, today, missingMin(live, d.acts, today));
+    if (next === live) return;
+    kick++;
+    await save(next);
+    toast(ticked ? t('Taken back.') : t('Done for today: {name}.', { name }), () => save(before));
   }
   const notNow = () => save({ ...(rec ?? {}), no: today });
   const close = () => save({ ...live, closed: true, no: today });
@@ -64,12 +96,14 @@
   let from = $state('');
   let until = $state('');
   let nm = $state('');
+  let at = $state(REMIND_AT);
   let bad = $state('');
   function openSheet() {
     goal = live?.goalMin ?? DEFAULT_GOAL_MIN;
     from = live?.from ?? today;
     until = live?.until ?? `${today.slice(0, 4)}-12-31`;
     nm = live ? (live.name === 'Outdoors' ? '' : live.name) : '';
+    at = live?.remindAt ?? REMIND_AT;
     bad = '';
     open = true;
   }
@@ -82,8 +116,9 @@
     const g = Math.round(Number(goal));
     if (!(g >= 1 && g <= MAX_GOAL_MIN)) return (bad = t('Whole minutes from 1 to {n}.', { n: MAX_GOAL_MIN }));
     if (!from || !until || until < from) return (bad = t('The last day comes after the first day.'));
+    if (!okHm(at)) return (bad = t('Enter the time like 16:00.'));
     const base = live ? { ...live } : startOutdoor({ today, from, until, goalMin: g });
-    await save(outdoorOf({ ...base, name: nm.trim() || 'Outdoors', goalMin: g, from, until, stopped: false, closed: false }));
+    await save(outdoorOf({ ...base, name: nm.trim() || 'Outdoors', goalMin: g, from, until, remindAt: at, stopped: false, closed: false }));
     open = false;
   }
   async function stop() {
@@ -130,6 +165,9 @@
 
     {#if st.phase === 'running'}
       <span class="bar" role="img" aria-label={t('{min} of {goal} min today', { min: st.today.total, goal: live.goalMin })}><i style:width="{Math.min(100, Math.round((st.today.total / live.goalMin) * 100))}%"></i></span>
+      {#if canTick}
+        <button type="button" class="btn tick" class:hi={!ticked} aria-pressed={ticked} onclick={tick} data-outdoor-tick><Check size={16} aria-hidden="true" />{ticked ? t('Ticked · take back') : t('Tick off|habit')}</button>
+      {/if}
       <span class="adds">
         {#each CHIPS as n (n)}<button type="button" class="btn sm" onclick={() => add(n)} data-outdoor-add={n}>{t('+{n} min', { n })}</button>{/each}
       </span>
@@ -145,6 +183,17 @@
     <small class="sum">
       {tn(st.doneN, '{n} day reached', '{n} days reached')} · {t('{n} missed', { n: st.missed })}{#if st.streak > 1}{' · '}{tn(st.streak, '{n} day in a row', '{n} days in a row')}{/if} · {t('until {day}', { day: new Date(`${live.until}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) })}
     </small>
+    {#if st.phase === 'running' || st.phase === 'soon'}
+      <span class="rem" data-outdoor-remind>
+        {#if remindOn}
+          <small><Bell size={14} aria-hidden="true" /> {t('Reminder on the phone every day at {time}', { time: live.remindAt })}</small>
+          <button type="button" class="btn btn-link sm" onclick={() => remind(false)} data-outdoor-remind-off><BellOff size={14} aria-hidden="true" />{t('Switch off')}</button>
+        {:else}
+          <button type="button" class="btn sm" onclick={() => remind(true)} data-outdoor-remind-on><Bell size={16} aria-hidden="true" />{t('Remind me on the phone every day at {time}', { time: live.remindAt })}</button>
+        {/if}
+        {#if remindMsg}<small class="bad" role="alert">{remindMsg}</small>{/if}
+      </span>
+    {/if}
     {#if over}
       <span class="adds"><button type="button" class="btn sm" onclick={close} data-outdoor-close>{t('Close')}</button><button type="button" class="btn sm" onclick={openSheet}>{t('Start a new one')}</button></span>
     {/if}
@@ -169,6 +218,7 @@
       <label><span class="lbl">{t('First day')}</span><DateInput bind:value={from} /></label>
       <label><span class="lbl">{t('Last day')}</span><DateInput bind:value={until} min={from} /></label>
     </div>
+    {#if live}<label><span class="lbl">{t('Reminder time on the phone')}</span><input class="inp" type="time" bind:value={at} data-outdoor-at /></label>{/if}
     <p class="how">{t('Counts by itself: walking, hiking, running, a ride that is not on the trainer, skiing from Strava. Everything else you add with +15, +30, +60 or your own minutes.')}</p>
     {#if bad}<p class="bad" role="alert">{bad}</p>{/if}
     <div class="acts">
@@ -268,6 +318,24 @@
   .lt,
   .sum {
     flex: 1 1 100%;
+  }
+  .rem {
+    flex: 1 1 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+  }
+  .rem small {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .rem .bad {
+    flex: 1 1 100%;
+    color: var(--bad);
   }
   .dots {
     flex: 1 1 100%;

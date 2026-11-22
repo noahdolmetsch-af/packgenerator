@@ -39,5 +39,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 31 | Zwei Sportarten werden eine (Meine Sportarten, Bearbeiten) | Zusammenführen, Verschmelzen | **«Zusammenlegen»** (wie bei Material «Zusammenlegen mit …»; «Zusammenführen» bleibt beim Backup einspielen; Noah 21.11.2026 «Ja, bauen») |
 | 32 | Zusammenhänge in den eigenen Daten (Reiter in Auswerten, Seite `#/me/insights`: Ruhepuls, Schlaf, Fahrten zusammen) | Erkenntnisse (gleicher Name wie Nr. 2) | **«Zusammenhänge»** (Noah 21.11.2026 «1a»); «Erkenntnisse» bleibt nur Nr. 2 |
 | 33 | Die Auswertung der Haken (früher eigene Seite «Haken ausgewertet», jetzt ganz unten im Sportjahr) | Haken ausgewertet, Rhythmus, Tick-Auswertung | **«Haken und Rhythmus»**; die Antworten der Check-Fragen heissen **«Antworten ausgewertet»** (Noah 22.11.2026 «a») |
+| 34 | Tage oder Zeiträume festhalten, an denen man krank, verletzt, gestresst oder in den Ferien war (Form und Erholung) | Tag-Etikett, Phase, Zeitraum-Notiz | **«Marker»** («Marker setzen»; Arten: Krank, Verletzt, Stress, Ferien; Noah 21.11.2026 «ja» zu Marker) |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

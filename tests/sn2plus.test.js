@@ -99,6 +99,15 @@ describe('the pace per bike and surface (SN2h, answer 4b: from 5 rides)', () => 
     expect(r).toMatchObject({ from: 'pace', bikeId: 'road', type: 'Ride', entryId: 'e1', hrAvg: 140 });
     expect(surfaceOf(r, bikes[0])).toBe('road');
   });
+  it('a ride waiting in «Zum Prüfen» or removed does not count for the bike that was only suggested', () => {
+    const act = (id) => ({ ...A_METER, id, day: `2026-05-0${id}` });
+    const entry = (id, state, extra = {}) => ({ id: `e${id}`, kind: 'ride', state, date: `2026-05-0${id}`, km: 62, bikeId: 'road', stravaId: String(id), ...extra });
+    const entries = [entry(1, 'counted'), entry(2, 'open'), entry(3, 'removed'), entry(4, 'removed', { reason: { code: 'start' } })];
+    const rides = tempoRides({ acts: [1, 2, 3, 4].map(act), entries });
+    const bikeOf = Object.fromEntries(rides.map((r) => [r.id, r.bikeId]));
+    expect(bikeOf).toEqual({ 'act:1': 'road', 'act:2': null, 'act:3': null, 'act:4': 'road' });
+    expect(paceGrid(rides, bikes)[0].cells.road.n).toBe(2);
+  });
   it('an activity counts once, even when the same ride was also uploaded as GPX', () => {
     const entries = [{ id: 'e2', kind: 'ride', state: 'counted', date: A_METER.day, km: 62, bikeId: 'road', stravaId: '11', surface: 'gravel' }];
     const rides = tempoRides({ acts: [A_METER], entries, paceRides: [{ id: 'g', date: A_METER.day, km: 62.4, gainM: 1100, movingH: 3, use: true }] });

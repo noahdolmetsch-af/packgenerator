@@ -5,23 +5,30 @@
    * name, a tap on it opens the window (kind, urgency, one sentence or dictation). Page, block, time, device and width are written
    * with it. The page itself is not prepared: the block is the smallest card with a title (block.js). A layer over the page catches
    * the tap, so nothing underneath is pressed. Nothing leaves the device. Switch: Ich › Darstellung › Bedienung («Improve button»).
-   * Step 3 adds the photo, step 4 «Auftrag kopieren».
+   * Step 3: with the tap on the block the photo of the page is made (photo.js), the block framed in orange; step 4 «Auftrag kopieren».
    */
   import { NotebookPen, X } from '@lucide/svelte';
   import LogEntrySheet from './LogEntrySheet.svelte';
   import { blockAt, frameOf, pageTitleOf } from './block.js';
-  import { addEntry, removeEntry } from './logbuchdb.js';
+  import { addEntry, removeEntry, loadKinds } from './logbuchdb.js';
+  import { takePhoto } from './photo.js';
+  import { db } from '../db.js';
+  import { takeIntoLog } from './fehler.js';
   import { deviceOf } from './logbuch.js';
+  import { DEFAULT_KINDS } from './kinds.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { saveFailed } from '../ui/ask.js';
   import { t } from '../i18n.svelte.js';
 
   let { hash = '' } = $props();
 
+  let cfg = $state(DEFAULT_KINDS); // the kinds and groups the user set (L5), read when the window opens
+
   let on = $state(false); // the mode: a tap picks a block
   let frame = $state(null); // { x, y, w, h, title } the orange frame
   let ctx = $state(null); // { page, pageTitle, block, at, device, width } while the window is open
   let hint = $state('');
+  let busy = $state(false); // the photo is being made
   let catcher = $state(null);
 
   const width = () => globalThis.innerWidth ?? 390;
@@ -58,12 +65,23 @@
       hint = t('No block here. Tap a box with a title, or take the whole page.');
       return;
     }
-    // the block comes into view as a whole, then the frame is drawn
     frame = shape(b);
-    open(b.title);
+    open(b.title, b.el);
   }
-  function open(block = '') {
-    ctx = { page: hash || location.hash || '#/', pageTitle: pageTitleOf(), block, at: new Date().toISOString(), device: deviceOf(width()), width: width() };
+  /** Photo first (the layer, the band and this window stay out of it), then the window opens. */
+  async function open(block = '', el = null) {
+    if (busy) return;
+    busy = true;
+    const at = new Date().toISOString();
+    let shot = { photo: null, note: 'failed' };
+    try {
+      shot = await takePhoto(el, { existing: await db.logbuch.toArray() });
+    } catch {
+      /* the entry is kept without it */
+    }
+    busy = false;
+    cfg = await loadKinds().catch(() => DEFAULT_KINDS);
+    ctx = { page: hash || location.hash || '#/', pageTitle: pageTitleOf(), block, at, device: deviceOf(width()), width: width(), photo: shot.photo, photoNote: shot.note };
   }
   async function save(v) {
     try {
@@ -77,6 +95,10 @@
   function keys(e) {
     if (on && e.key === 'Escape' && !ctx) stop();
   }
+  // the errors the app noted quietly become entries of the log (once, when this loads; the log page does it too)
+  $effect(() => {
+    takeIntoLog();
+  });
   // a page change ends the mode
   $effect(() => {
     void hash;
@@ -92,9 +114,9 @@
   </button>
 {:else}
   <div class="imp-bar" data-no-improve data-improve-bar role="status">
-    <p>{hint || t('Improve: tap the block you mean.')}</p>
+    <p>{busy ? t('Taking the photo of the page …') : hint || t('Improve: tap the block you mean.')}</p>
     <div class="imp-acts">
-      <button type="button" class="imp-whole" onclick={() => open('')} data-improve-whole>{t('Whole page')}</button>
+      <button type="button" class="imp-whole" onclick={() => open('')} data-improve-whole disabled={busy}>{t('Whole page')}</button>
       <button type="button" class="imp-cancel" onclick={stop} data-improve-cancel><X size={16} aria-hidden="true" />{t('Cancel|logbuch')}</button>
     </div>
   </div>
@@ -106,7 +128,7 @@
   {/if}
 {/if}
 {#if ctx}
-  <LogEntrySheet context={ctx} onsave={save} onclose={stop} />
+  <LogEntrySheet {cfg} context={ctx} onsave={save} onclose={stop} />
 {/if}
 
 <style>

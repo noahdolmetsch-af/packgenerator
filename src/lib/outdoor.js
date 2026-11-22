@@ -6,7 +6,8 @@
  * adds by hand (+15, +30, +60 or their own). Everything else (tennis, swimming …) is added by hand.
  *
  * The record (settings key `outdoor`, travels in every backup and in the device sync):
- *   { name, goalMin, from, until, hand: { 'YYYY-MM-DD': [minutes, …] }, stopped: bool, closed: bool, no: day | null }
+ *   { name, goalMin, from, until, hand: { 'YYYY-MM-DD': [minutes, …] }, stopped: bool, closed: bool, no: day | null, remindAt: 'HH:MM' }
+ * remindAt: the time of the phone reminder (the switch «Outdoors» in the push settings turns it on, default 16:00).
  * no: «Not now» on the start offer (asked again after OFFER_AGAIN_DAYS). Pure functions, tested in tests/outdoor.test.js.
  */
 import { addDays, daysBetween } from './flow.js';
@@ -17,6 +18,9 @@ export const DEFAULT_GOAL_MIN = 90;
 export const MAX_GOAL_MIN = 1440;
 export const CHIPS = [15, 30, 60];
 export const OFFER_AGAIN_DAYS = 30;
+/** The phone reminder (Noah 21.11.2026 «2b»): every day at this time while the challenge runs. */
+export const REMIND_AT = '16:00';
+export const okHm = (s) => typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
 /** Strava kinds that count as outdoors (a ride on the trainer never does). */
 export const OUTDOOR_TYPES = ['Walk', 'Hike', 'Run', 'TrailRun', 'Ride', 'GravelRide', 'MountainBikeRide', 'EBikeRide', 'EMountainBikeRide', 'BackcountrySki', 'AlpineSki', 'NordicSki', 'Snowboard', 'Snowshoe', 'Kayaking', 'Canoeing', 'StandUpPaddling'];
 
@@ -43,12 +47,13 @@ export function outdoorOf(v) {
     stopped: !!v.stopped,
     closed: !!v.closed,
     no: isDay(v.no) ? v.no : null,
+    remindAt: okHm(v.remindAt) ? v.remindAt : REMIND_AT,
   };
 }
 
 /** The challenge of 90 minutes: from a day (default today) until a day (default the end of the year). */
 export const startOutdoor = ({ today, from = today, until, goalMin = DEFAULT_GOAL_MIN, name = 'Outdoors' } = {}) =>
-  outdoorOf({ name, goalMin, from, until: until && until >= from ? until : `${from.slice(0, 4)}-12-31`, hand: {}, stopped: false, closed: false, no: null });
+  outdoorOf({ name, goalMin, from, until: until && until >= from ? until : `${from.slice(0, 4)}-12-31`, hand: {}, stopped: false, closed: false, no: null, remindAt: REMIND_AT });
 
 /** Whether a Strava activity counts as time outdoors. */
 export const isOutdoor = (a) => !!a && OUTDOOR_TYPES.includes(a.type) && !a.trainer;
@@ -83,6 +88,15 @@ export function undoMin(rec, day) {
   if (cur.length > 1) hand[day] = cur.slice(0, -1);
   else delete hand[day];
   return { ...rec, hand };
+}
+
+/** «Tick off» (Noah 22.11.2026 «a»): the minutes that are missing to the goal today, counting Strava (0 when it is reached). */
+export const missingMin = (rec, activities, day) => Math.max(0, (rec?.goalMin ?? 0) - dayOf(rec, activities, day).total);
+/** Take a ticked day back: the minutes added by hand go, last first, until the day is under the goal again (Strava stays). */
+export function untickMin(rec, activities, day) {
+  let next = rec;
+  while (next && (next.hand[day] ?? []).length && dayOf(next, activities, day).done) next = undoMin(next, day);
+  return next;
 }
 
 /**
@@ -164,3 +178,22 @@ export function lightLine(place, day, left, now = new Date()) {
 
 /** «Not now» on the start offer: asked again after OFFER_AGAIN_DAYS. */
 export const offerOpen = (rec, today) => !rec || (!rec.from && (!rec.no || daysBetween(rec.no, today) >= OFFER_AGAIN_DAYS));
+
+/**
+ * The days of the phone reminder: from today (or the first day) up to `ahead` days, while the challenge runs.
+ * Today is left out when its minutes (Strava and by hand) already reach the goal. → [{ day, left }]
+ * left: the minutes still to go on that day (the whole goal for a day in the future).
+ */
+export function remindDays(rec, activities, today, ahead = 14) {
+  if (!rec?.from || rec.stopped || rec.closed) return [];
+  const out = [];
+  for (let i = 0; i <= ahead; i++) {
+    const d = addDays(today, i);
+    if (d < rec.from) continue;
+    if (d > rec.until) break;
+    const x = dayOf(rec, activities, d);
+    if (x.done) continue;
+    out.push({ day: d, left: Math.max(1, rec.goalMin - x.total) });
+  }
+  return out;
+}

@@ -44,12 +44,14 @@ test('Live: Today opens, Ich shows the new version, and the app starts without n
   expect(shown.includes(WANT) || (live !== '' && isNewerOrSame(live, WANT)), `Ich zeigt die Version ${WANT} oder eine neuere (gezeigt: ${live || 'keine'})`).toBe(true);
   await opens(page);
 
-  // the service worker has taken over this page: the app is kept for offline use
+  // the service worker has taken over this page: the app is kept for offline use. The first start stores the whole app
+  // (about 1440 files, 27 MB) and took 27 to 48 s on the GitHub computer, so the old 60 s limit cut it off in 4 runs in a row
+  // on 22.11.2026 (49dd8d4 to bcd274a, a false alarm: the app was fine). 3 minutes leave room.
   await expect
-    .poll(() => page.evaluate(async () => !!(await navigator.serviceWorker?.ready)?.active), { timeout: 60_000 })
+    .poll(() => page.evaluate(async () => !!(await navigator.serviceWorker?.ready)?.active), { timeout: 180_000 })
     .toBe(true);
   await page.reload();
-  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker?.controller), { timeout: 30_000 }).toBe(true);
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker?.controller), { timeout: 60_000 }).toBe(true);
   // a later page is loaded only when used: open it once with network, so it is kept too
   await opens(page, '#/trips');
 

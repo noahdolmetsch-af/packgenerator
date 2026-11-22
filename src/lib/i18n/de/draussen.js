@@ -34,4 +34,13 @@ export default {
   'Minutes per day|challenge': 'Minuten pro Tag',
   'Counts by itself: walking, hiking, running, a ride that is not on the trainer, skiing from Strava. Everything else you add with +15, +30, +60 or your own minutes.': 'Zählt von selbst: Gehen, Wandern, Laufen, eine Fahrt nicht auf der Rolle und Skifahren aus Strava. Alles andere zählst du mit +15, +30, +60 oder eigenen Minuten dazu.',
   'End the challenge': 'Challenge beenden',
+  'Remind me on the phone every day at {time}': 'Täglich um {time} aufs Handy erinnern',
+  'Reminder on the phone every day at {time}': 'Erinnerung aufs Handy: täglich um {time}',
+  'The reminder comes every day at {time}.': 'Die Erinnerung kommt jeden Tag um {time}.',
+  'Reminder time on the phone': 'Zeit der Erinnerung aufs Handy',
+  'Enter the time like 16:00.': 'Gib die Zeit so ein: 16:00.',
+  'Outdoors challenge': 'Challenge Draussen',
+  'Every day at 16:00 (or the time you set) while your challenge runs, until the day is reached.': 'Jeden Tag um 16:00 (oder zur Zeit, die du einstellst), solange deine Challenge läuft und der Tag noch nicht erreicht ist.',
+  '{min} min outdoors still to go today. Even a short walk counts.': 'Heute noch {min} Min draussen. Auch ein kurzer Spaziergang zählt.',
+  'Done for today: {name}.': 'Heute geschafft: {name}.',
 };

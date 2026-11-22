@@ -24,6 +24,8 @@
   import { db } from '../../lib/db.js';
   import { mondayOf, shiftDay } from '../../lib/training.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, lightOf, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
+  import { startUnitDone } from '../../lib/flow/ui.svelte.js';
+  import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
   import { WEEKLOG_KEY, QUIET, logOf, weekLog, withSnapshot, setDone, dismiss, setPins, movePin, clearPin, setMode, setReleased, streakNow, progress, suggest, pastWeeks } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME, UNIT_HINT, LOAD_WORD, NOTE_TEXT, WARN_TEXT, whyOf, timeChoices, lengthOf, hoursOf, reachedPct, EXAMPLE_MONDAY } from '../../lib/training/wochenplan-text.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
@@ -106,12 +108,20 @@
     const next = change(cur);
     if (next !== cur) await db.settings.put({ key: WEEKLOG_KEY, value: next });
   }
-  async function tick(u, on) {
+  // «Plan zuerst» (T4): ticking a unit opens the short sheet (duration from the plan, feeling) and then «Geschafft»; Strava's «yes» and the
+  // daily habits tick at once. Taking a tick back also takes the entry of the unit out of the history.
+  async function tick(u, on, box = null, direct = false) {
+    if (on && !direct && needsUnitSheet(u.type)) {
+      if (box) box.checked = false; // nothing is ticked before «Save»
+      startUnitDone({ id: u.id, type: u.type, mins: u.mins, monday: realMonday, units: nowWeek.units, hours: nowCfg.hours, today, done: () => (msg = t('Ticked off: {what}.', { what: nameOf(u.type) })) });
+      return;
+    }
     await writeLog((cur) => setDone(cur, realMonday, u.id, on, today, nowWeek.units, nowCfg.hours));
+    if (!on) await removeUnitEntries(db, realMonday, u.id);
     msg = on ? t('Ticked off: {what}.', { what: nameOf(u.type) }) : t('Tick removed: {what}.', { what: nameOf(u.type) });
   }
   async function stravaYes(u) {
-    await tick(u, true);
+    await tick(u, true, null, true);
   }
   async function stravaNo(a) {
     await writeLog((cur) => dismiss(cur, realMonday, a.id, today));
@@ -403,7 +413,7 @@
                 <div class="evs">
                   {#each list as u (u.id)}
                     <div class="u k-{TYPES[u.type].kind}" class:quiet={quiet(u)} class:withtick={live} class:ticked={live && done[u.id]} class:let-go={live && released.includes(u.id)} data-unit={u.id}>
-                      {#if live}<label class="tk"><input type="checkbox" class="tick" checked={!!done[u.id]} disabled={released.includes(u.id)} onchange={(e) => tick(u, e.currentTarget.checked)} aria-label={t('Done: {what} on {day}', { what: nameOf(u.type), day: dayName(d) })} data-wp-tick={u.id} /></label>{/if}
+                      {#if live}<label class="tk"><input type="checkbox" class="tick" checked={!!done[u.id]} disabled={released.includes(u.id)} onchange={(e) => tick(u, e.currentTarget.checked, e.currentTarget)} aria-label={t('Done: {what} on {day}', { what: nameOf(u.type), day: dayName(d) })} data-wp-tick={u.id} /></label>{/if}
                       <time>{u.t}</time>
                       <span class="t">{nameOf(u.type)}</span>
                       <span class="m num">{lengthText(u.mins)}{#if live && released.includes(u.id)}<span class="tag">{t('let go')}</span>{/if}{#if u.pinned}<span class="tag">{t('moved')}</span>{:else if u.fixed}<span class="tag">{t('fixed')}</span>{/if}{#if u.variant === 'intervals'}<span class="tag">{t('intervals')}</span>{/if}</span>
@@ -868,6 +878,9 @@
     }
     .u .m {
       grid-column: 2;
+    }
+    /* the base rule «nowrap» below comes later in the file and won: with the tags «let go» and «fixed» the row ran out of the page (390 px wide phone: 417 px) */
+    .evs .u .m {
       white-space: normal;
     }
     .u.withtick {
