@@ -427,7 +427,9 @@ const FLOW_PAGES = {
   flowhome: { label: 'Tick off today', href: '#/flow', match: (h) => /^#\/flow(\/week|\/review)?\/?$/.test(h.split('?')[0]) },
   wochenplan: { label: 'Weekly plan', href: '#/flow/wochenplan', match: (h) => /^#\/flow\/wochenplan(\/|\?|$)/.test(h) },
   // Noah «4a» (Runde 2): «Ziele», «Aktivität» and «Sportarten» are one list; every sport has its page. Meditation is a sport too (Runde 3 «1b»).
-  sports: { label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|act|bags)(\/|\?|$)/.test(h) },
+  // «Neue Ordnung» V4b2 (Noah 21.11.2026 «V4 ok», Meditation nach «Alltag»): the Meditation pages are a chip of «Alltag»; the other sports stay here
+  sports: { label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|bags)(\/|\?|$)/.test(h) || /^#\/flow\/act\/(?!meditation(\/|\?|$))/.test(h) },
+  meditation: { label: 'Meditation', href: '#/flow/act/meditation', match: (h) => /^#\/flow\/act\/meditation(\/|\?|$)/.test(h) },
   // Runde 3 «2a»: «Erholung» (the ring, the list to tick)
   rest: { label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
 };
@@ -492,7 +494,7 @@ export const PLACE_TABS = {
     { key: 'week', label: 'Week|tab', subs: ['week', 'agenda'] },
     { key: 'training', label: 'Training|tab', subs: ['training', 'wochenplan', 'flowhome', 'sports', 'rest'] },
     { key: 'notes', label: 'Notes|tab', subs: ['notes', 'inbox', 'remember', 'tagebuch', 'mail'] },
-    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'frei', 'impulse', 'compass', 'links'] },
+    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'meditation', 'frei', 'impulse', 'compass', 'links'] },
   ].map((x) => tabWithSubs(x, { ...WEEK_PAGES, ...FLOW_PAGES })),
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !h.startsWith('#/trips/vorschlaege') && !h.startsWith('#/trips/weg') && !h.startsWith('#/trips/pfad') && !h.startsWith('#/trips/fuel') && !h.startsWith('#/trips/compare') && !isRidesHash(h) }, // Impeccable 20.10.2026: Verpflegung is a page of a tour, not the overview

@@ -143,7 +143,7 @@ describe('the place «Woche» (Noah 1a)', () => {
     expect(placeOf('week')).toBe('week');
     // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): eleven tabs became three, every old page is a chip (`subs`) under one of them
     expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'training', 'notes', 'alltag']);
-    expect(PLACE_TABS.week.flatMap((x) => x.subs.map((s) => s.key)).sort()).toEqual(['agenda', 'alltag', 'compass', 'flowhome', 'frei', 'impulse', 'inbox', 'links', 'mail', 'notes', 'remember', 'rest', 'sports', 'tagebuch', 'training', 'week', 'wochenplan']); // Woche covers plan and away
+    expect(PLACE_TABS.week.flatMap((x) => x.subs.map((s) => s.key)).sort()).toEqual(['agenda', 'alltag', 'compass', 'flowhome', 'frei', 'impulse', 'inbox', 'links', 'mail', 'meditation', 'notes', 'remember', 'rest', 'sports', 'tagebuch', 'training', 'week', 'wochenplan']); // Woche covers plan and away
     expect(tabOf('week', '#/week')).toBe('week');
     expect(tabOf('week', '#/week/plan')).toBe('week'); // UI-Ziele #6: one tap from the week
     expect(tabOf('week', '#/week/away')).toBe('week');

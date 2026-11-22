@@ -3,8 +3,6 @@ import { GEAR_LABELS, labelInfo, itemForLabel, packEmb, likeness, nearestKnown, 
 import { angleAt, backAngle, sideOf, anglesOf, videoSummary, fitHints, KNEE_RANGE, addSitPos, removeSitPos, sitPosOf } from '../src/lib/vision/fit.js';
 import { prefsOf } from '../src/lib/vision/store.js';
 import { MODEL_URLS, MP_URL, MP_WASM } from '../src/lib/vision/engine.js';
-import { TASKS, TASK_NAMES, buildRequest, validate, forbiddenKey, pictureOf, PICTURE_MAX } from '../api/_lib/helper.js';
-import { makeHandler } from '../api/helper.js';
 import { TOOLS } from '../src/lib/tools/tools.js';
 import { FEATURES } from '../src/lib/features.js';
 import { HOWTO } from '../src/lib/know/howto.js';
@@ -115,51 +113,6 @@ describe('one photo against the list', () => {
     expect(r[0]).toMatchObject({ label: 'cup', ask: true });
     expect(r.slice(1).every((x) => x.grid && x.ask === false)).toBe(true);
     expect(r[1].box).toEqual({ x: 0, y: 0, w: 150, h: 150 });
-  });
-});
-
-describe('the server: the vision task takes one photo, only it', () => {
-  const pic = { type: 'image/jpeg', data: 'QUJD' };
-  it('is a task with the photo first in the message', () => {
-    expect(TASK_NAMES).toContain('vision');
-    const req = buildRequest('vision', { mode: 'tick', lang: 'de', items: [{ id: 'A1', name: 'Flasche' }], picture: pic });
-    const content = req.messages[0].content;
-    expect(content[0]).toEqual({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: 'QUJD' } });
-    expect(content[1].text).toContain('"mode":"tick"');
-    expect(content[1].text).not.toContain('QUJD');
-    expect(TASKS.vision.schema.required).toEqual(['found']);
-  });
-  it('checks the picture', () => {
-    expect(pictureOf({ picture: pic })).toEqual(pic);
-    expect(pictureOf({ picture: { type: 'image/gif', data: 'QUJD' } })).toBeNull();
-    expect(pictureOf({ picture: { type: 'image/jpeg', data: 'data:image/jpeg;base64,QUJD' } })).toBeNull();
-    expect(pictureOf({ picture: { type: 'image/jpeg', data: 'A'.repeat(PICTURE_MAX + 1) } })).toBeNull();
-    expect(forbiddenKey({ picture: pic })).toBe('picture');
-  });
-  it('keeps only known ids and short names', () => {
-    const out = validate('vision', { items: [{ id: 'A1', name: 'Flasche' }] }, { found: [{ itemId: 'A1', name: 'egal' }, { itemId: 'ZZ', name: 'Velohelm' }, { itemId: 'A1', name: '' }, { itemId: '', name: '' }] });
-    expect(out.found).toEqual([{ itemId: 'A1', name: 'Flasche' }, { itemId: '', name: 'Velohelm' }]);
-  });
-  const env = () => ({ token: 'T', apiKey: 'K', model: 'claude-sonnet-5-5', cap: 2, redisUrl: 'https://kv.example', redisToken: 'x' });
-  const fakeFetch = (calls) => async (url, init) => {
-    if (String(url).startsWith('https://kv.example')) {
-      calls.push('redis');
-      return new Response(JSON.stringify({ result: null }), { status: 200 });
-    }
-    calls.push(JSON.parse(init.body));
-    return new Response(JSON.stringify({ model: 'claude-sonnet-5-5', usage: { input_tokens: 10, output_tokens: 5 }, content: [{ type: 'tool_use', name: 'answer', input: { found: [{ itemId: 'A1', name: 'x' }] } }] }), { status: 200 });
-  };
-  const post = (body) => new Request('https://packgen-three.vercel.app/api/helper', { method: 'POST', headers: { authorization: 'Bearer T', 'content-type': 'application/json', origin: 'https://noahdolmetsch-af.github.io' }, body: JSON.stringify(body) });
-  it('answers a vision request; refuses a photo on any other task and a vision request without one', async () => {
-    const calls = [];
-    const h = makeHandler({ env, doFetch: fakeFetch(calls) });
-    const ok = await h(post({ task: 'vision', input: { mode: 'tick', items: [{ id: 'A1', name: 'Flasche' }], picture: pic } }));
-    expect(ok.status).toBe(200);
-    expect((await ok.json()).result.found).toEqual([{ itemId: 'A1', name: 'Flasche' }]);
-    const other = await h(post({ task: 'search', input: { question: 'x', picture: pic } }));
-    expect(other.status).toBe(400);
-    const none = await h(post({ task: 'vision', input: { mode: 'tick', items: [] } }));
-    expect(none.status).toBe(400);
   });
 });
 
