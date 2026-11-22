@@ -639,12 +639,12 @@
     font: inherit;
     letter-spacing: inherit;
     text-transform: none;
-    color: var(--brand);
+    color: var(--ink);
     text-decoration: underline;
     cursor: pointer;
   }
   mark {
-    background: color-mix(in srgb, #e6b422 45%, transparent);
+    background: var(--warn-soft);
     color: inherit;
     border-radius: 2px;
     padding: 0 1px;
