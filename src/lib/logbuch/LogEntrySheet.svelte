@@ -60,7 +60,7 @@
 
   function save(event) {
     event.preventDefault();
-    if (!art) return (msg = t('Pick a kind first.'));
+    if (!art && !(entry && entry.art === '')) return (msg = t('Pick a kind first.')); // an entry whose kind was deleted may stay without a kind
     if (!text.trim()) return (msg = t('Write one sentence about it.'));
     onsave?.(context ? { art, urgent, text, page: context.page, pageTitle: context.pageTitle, block: keepBlock ? context.block : '', state, photo: context.photo ?? null, photoNote: context.photoNote ?? null } : { art, urgent, text, page, block, state });
     dialog.close();

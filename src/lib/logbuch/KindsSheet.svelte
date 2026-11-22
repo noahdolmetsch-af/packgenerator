@@ -1,12 +1,16 @@
 <script>
   /**
    * «Verbesserungs-Logbuch» L5 (Noah 22.11.2026 «1a 2a 3a 4a 5a»): the window «Arten und Gruppen». The groups and the kinds in them
-   * can be renamed (the «⋯» menu) and ordered (arrows and drag), and «Back to standard» brings the first version back.
-   * Every change can be undone (the line «Undo» inside the window). Delete and new kinds follow in the next steps.
-   * cfg: the list now (kinds.js); counts: { [artKey]: entries }; onsave(cfg) keeps it (the page writes the setting).
+   * can be renamed and deleted (the «⋯» menu) and ordered (arrows and drag), and «Back to standard» brings the first version back.
+   * Deleting asks first where things go (GroupDeleteSheet, «Ohne …» preselected): the entries of a kind go to another kind or stay
+   * without a kind, the kinds of a group go to another group or to «No group»; nothing is ever deleted but the name.
+   * Every change can be undone (the line «Undo» inside the window). New kinds follow in the next step.
+   * cfg: the list now (kinds.js); counts: { [artKey]: entries }; onsave(cfg) keeps it (the page writes the setting);
+   * ondeletekind(key, toKey) and ondeletegroup(key, toKey) do the delete and return what onrestore(snapshot) needs for Undo.
    */
-  import { X, Pencil, RotateCcw, Undo2 } from '@lucide/svelte';
+  import { X, Pencil, RotateCcw, Undo2, Trash2 } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
+  import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import RowMenu from '../ui/RowMenu.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
   import SortArrows from '../ui/SortArrows.svelte';
@@ -14,29 +18,39 @@
     import { backClose } from '../ui/backclose.js';
   import { t, tn } from '../i18n.svelte.js';
   import { artLabel, groupLabel } from './words.js';
-  import { DEFAULT_KINDS, NAME_MAX, renameArt, renameGroup, moveArt, moveGroup, isStandard } from './kinds.js';
+  import { DEFAULT_KINDS, NAME_MAX, NO_GROUP, renameArt, renameGroup, moveArt, moveGroup, isStandard } from './kinds.js';
   import '../bikes/velo-dlg.css';
 
-  let { cfg, counts = {}, onsave, onclose } = $props();
+  let { cfg, counts = {}, onsave, ondeletekind, ondeletegroup, onrestore, onclose } = $props();
 
   let dialog;
   $effect(() => {
     if (dialog && !dialog.open) dialog.showModal();
   });
   let renaming = $state(null); // { kind: 'art' | 'group', key }
+  let deleting = $state(null); // { kind: 'art' | 'group', key } while the question «where do they go?» is open
   const std = $derived(isStandard(cfg));
 
   // the window is modal, so the Undo sits inside it (the message of the page would lie behind it)
-  let undo = $state(null); // { text, before } of the last change
+  let undo = $state(null); // { text, restore } of the last change
   async function change(next, text) {
     const before = cfg;
     await onsave(next);
-    undo = { text, before };
+    undo = { text, restore: () => onsave(before) };
   }
   async function takeBack() {
     const u = undo;
     undo = null;
-    if (u) await onsave(u.before);
+    if (u) await u.restore();
+  }
+  const kindsIn = (key) => cfg.groups.find((g) => g.key === key)?.arts.length ?? 0;
+  const what = (n) => tn(n, '{n} entry', '{n} entries');
+  const whatKinds = (n) => tn(n, '{n} kind', '{n} kinds');
+  async function confirmDelete(to) {
+    const d = deleting;
+    const name = nameOf(d);
+    const snap = d.kind === 'group' ? await ondeletegroup(d.key, to) : await ondeletekind(d.key, to);
+    undo = { text: t('«{name}» deleted.', { name }), restore: () => onrestore(snap) };
   }
   const nameOf = (r) => (r.kind === 'group' ? groupLabel(r.key, cfg) : artLabel(r.key, cfg));
   async function rename(name) {
@@ -64,7 +78,11 @@
           <SortGrip name={groupLabel(g.key, cfg)} onstep={(d) => reorder(moveGroup(cfg, gi, gi + d))} />
           <b class="kd-name">{groupLabel(g.key, cfg)}</b>
           <SortArrows name={groupLabel(g.key, cfg)} i={gi} n={cfg.groups.length} onstep={(d) => reorder(moveGroup(cfg, gi, gi + d))} />
-          <RowMenu name={groupLabel(g.key, cfg)} items={[{ key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = { kind: 'group', key: g.key }) }]} />
+          <RowMenu name={groupLabel(g.key, cfg)} items={[
+            { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = { kind: 'group', key: g.key }) },
+            // «No group» cannot send its kinds to itself: it can go once it is empty
+            { key: 'delete', label: t('Delete'), icon: Trash2, danger: true, sep: true, disabled: g.key === NO_GROUP && g.arts.length > 0, onclick: () => (deleting = { kind: 'group', key: g.key }) },
+          ]} />
         </div>
         <ul class="kd-arts" use:sortable={{ onmove: (from, to) => reorder(moveArt(cfg, g.key, from, to)) }}>
           {#each g.arts as a, ai (a.key)}
@@ -72,7 +90,10 @@
               <SortGrip name={artLabel(a.key, cfg)} onstep={(d) => reorder(moveArt(cfg, g.key, ai, ai + d))} />
               <span class="kd-name">{artLabel(a.key, cfg)}<small>{counts[a.key] ? tn(counts[a.key], '{n} entry', '{n} entries') : t('No entry')}</small></span>
               <SortArrows name={artLabel(a.key, cfg)} i={ai} n={g.arts.length} onstep={(d) => reorder(moveArt(cfg, g.key, ai, ai + d))} />
-              <RowMenu name={artLabel(a.key, cfg)} items={[{ key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = { kind: 'art', key: a.key }) }]} />
+              <RowMenu name={artLabel(a.key, cfg)} items={[
+                { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = { kind: 'art', key: a.key }) },
+                { key: 'delete', label: t('Delete'), icon: Trash2, danger: true, sep: true, onclick: () => (deleting = { kind: 'art', key: a.key }) },
+              ]} />
             </li>
           {:else}
             <li class="kd-none">{t('No kind in this group yet.')}</li>
@@ -90,6 +111,33 @@
   </div>
 </dialog>
 
+{#if deleting}
+  {#if deleting.kind === 'group'}
+    <GroupDeleteSheet
+      title={t('Delete «{name}»?', { name: nameOf(deleting) })}
+      count={kindsIn(deleting.key)}
+      what={whatKinds}
+      none={t('No group')}
+      noneHint={t('The kinds go to the group «No group». Your entries keep their kind.')}
+      targets={cfg.groups.filter((g) => g.key !== deleting.key).map((g) => ({ id: g.key, name: groupLabel(g.key, cfg) }))}
+      empty={t('No kind in this group.')}
+      onconfirm={confirmDelete}
+      onclose={() => (deleting = null)}
+    />
+  {:else}
+    <GroupDeleteSheet
+      title={t('Delete «{name}»?', { name: nameOf(deleting) })}
+      count={counts[deleting.key] ?? 0}
+      {what}
+      none={t('No kind')}
+      noneHint={t('The entries stay, without a kind. You can give them one later.')}
+      targets={cfg.groups.flatMap((g) => g.arts).filter((a) => a.key !== deleting.key).map((a) => ({ id: a.key, name: artLabel(a.key, cfg) }))}
+      empty={t('No entry has this kind.')}
+      onconfirm={confirmDelete}
+      onclose={() => (deleting = null)}
+    />
+  {/if}
+{/if}
 {#if renaming}
   <RenameSheet
     kicker={renaming.kind === 'group' ? t('Group|logbuch') : t('Kind|logbuch')}
