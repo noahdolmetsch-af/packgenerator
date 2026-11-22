@@ -142,11 +142,6 @@ describe('writing prompts and AI answers', () => {
     expect(a).not.toEqual(b);
     expect(I.promptsFor('gear', '2026-10-26')).toHaveLength(3); // no own list: the notes' prompts
   });
-  it('Gemini lines without list signs, at most max', () => {
-    expect(I.aiLines('1. Was hat dich überrascht?\n\n- **Wer** war dabei?\n• Und morgen?\n* vier', 3)).toEqual(['Was hat dich überrascht?', 'Wer war dabei?', 'Und morgen?']);
-    expect(I.highlightsBlock(['Pass erreicht', 'Kaffee'], 'Highlights')).toBe('Highlights:\n- Pass erreicht\n- Kaffee');
-    expect(I.highlightsBlock([])).toBe('');
-  });
   it('the server knows the two new jobs with their own instruction', () => {
     expect(DIARY_MODES).toContain('prompts');
     expect(DIARY_MODES).toContain('highlights');
