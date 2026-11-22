@@ -96,11 +96,19 @@ test('Sportjahr: the year in hours, the chart with the year before, where the ti
   await press(pg.locator('[data-sj-where] [data-key="hours"]'), info);
   await expect(pg.locator('[data-sj-records]')).toContainText(T('Longest week'));
   await expect(pg.locator('[data-sj-weeks]')).toBeVisible();
+  // S5: the analyses of the old ticks page (weekdays, hours, grid, best values, months) read all units here
+  await expect(pg.locator('[data-section="analyses"]')).toBeVisible();
+  await expect(pg.locator('[data-section="analyses"]')).toContainText(T('Analyses'));
   // a tap on a bar opens the sports of that month
   await pg.locator('[data-chart="sportjahr"] [data-plot]').click({ position: { x: 5, y: 60 } });
   await expect(page.locator('[data-sj-sheet]')).toBeVisible();
   await expect(page.locator('[data-sj-sheet]')).toContainText(/\d h( \d+ min)?|\d+ min/); // exact time, not a rounded hour
   await page.keyboard.press('Escape');
+  // «no data instead of 0»: the chart starts on a month with data, a month to come says so
+  await expect(pg.locator('[data-chart="sportjahr"] [data-readout]')).not.toContainText('2026 Stunden 0');
+  await pg.locator('[data-chart="sportjahr"] [data-plot]').focus();
+  await page.keyboard.press('End');
+  await expect(pg.locator('[data-chart="sportjahr"] [data-readout-note]')).toHaveText(T('Not yet'));
   await shot(page, info, 'sportjahr-jahr');
   expect(errors).toEqual([]);
 });

@@ -47,10 +47,9 @@ Das grosse Durchklicken führt dazu eine Liste «Nur Noah» in jedem Etappenberi
 | Nach jeder «Online»-Meldung | Die genannten 2 bis 4 Prüfschritte auf der echten Seite ansehen; bei Problem «zurück NNN» | Die Meldung im Chat |
 | Wenn eine Mail von GitHub kommt (Wächter oder Live-Check, «Issue») | Lesen. Einmalig und am nächsten Tag zu: nichts tun. Mehrere Tage: im Thread melden | GitHub › Issues |
 | Wenn die App «Neu verbinden» sagt | Antippen und erlauben | In der App |
-| Wenn die KI-Knöpfe weg sind | Das Guthaben ist leer. Nichts tun ist in Ordnung; sonst Guthaben kaufen | https://console.anthropic.com › Billing |
 | Nach einer Änderung am Server (`api/`) | Prüfen, dass der Server «packgen» **Ready** zeigt (Claude meldet es) | https://vercel.com › packgen › Deployments |
 | Alle drei Monate (freiwillig) | **Code-ZIP** herunterladen und zu den Backups legen | GitHub › grüner Knopf Code › Download ZIP |
-| Alle drei Monate (freiwillig) | Konten-Runde: Kann ich mich bei GitHub, Vercel, Google, Strava, Anthropic noch anmelden? Sind die Wiederherstellungs-Codes zu Hause? | [Konten-Liste](konten.md) |
+| Alle drei Monate (freiwillig) | Konten-Runde: Kann ich mich bei GitHub, Vercel, Google, Strava noch anmelden? Sind die Wiederherstellungs-Codes zu Hause? | [Konten-Liste](konten.md) |
 | Wöchentlich (Sonntags-Brief) | Kurs-Check: passt das Geplante zu den sechs Zielen? Kurze a/b-Fragen beantworten | Projekt-Chat |
 | Wenn dein Claude-Abo endet | Vorher auf beiden Geräten Backup exportieren; neue Fehler bleiben dann liegen | [Wann du etwas tun musst](wann-du-etwas-tun-musst.md), Abschnitt 6 |
 
@@ -65,12 +64,12 @@ Die ganze Tabelle mit Zweck, Kosten, Fundort und «was fällt aus, wenn es wegf�
 - **GitHub** (Code, Tests, Wächter, die App online): das wichtigste Konto. Ohne Zugang kann niemand mehr etwas ändern.
 - **Vercel «packgen»** (Server für die Extras, mit allen Schlüsseln) und **Vercel «packgenerator»** (alte Test-Links).
 - **Upstash** (Schliessfach des Servers: Logins, Abgleich).
-- **Google Cloud**, **Strava (API)**, **Anthropic**, **Google AI Studio (Gemini)**, **cron-job.org**, **Trello**: je ein Extra.
+- **Google Cloud**, **Strava (API)**, **cron-job.org**, **Trello**: je ein Extra.
 - **Ohne Konto:** Wetter (Open-Meteo, MeteoSchweiz), Lawinen (SLF), ÖV (transport.opendata.ch), Karten (OpenStreetMap), Seetemperaturen, öffentliche Routen, Router (brouter.de). Fällt einer aus, fehlt nur diese Anzeige.
 - **Keine eigene Internet-Adresse:** nichts läuft ab, was bezahlt werden müsste.
 - Die Namen der Schlüssel stehen in der Konten-Liste, ihre Werte **nur** in Vercel und in deinem Passwort-Manager. Die privaten Angaben (mit welcher Mail wo, wo die Wiederherstellungs-Codes liegen) stehen im Projektordner unter `private/`, nie im Repository.
 
-**Kosten:** alles gratis ausser dem KI-Guthaben bei Anthropic (mit Deckel pro Monat). Regel: zuerst null Kosten.
+**Kosten:** alles gratis. Die KI-Funktionen mit Anthropic und Gemini sind ausgebaut (22.11.2026), es läuft kein bezahlter Dienst mehr. Regel: zuerst null Kosten.
 
 ---
 
@@ -132,5 +131,4 @@ Mehr Wörter: [Aufbau](aufbau.md), Teil 7 «Kleines Wörterbuch».
 | Alle Konten | [Konten-Liste](konten.md) |
 | Die seltenen Fälle (neues Handy, Login abgelaufen, …) | [Wann du etwas tun musst](wann-du-etwas-tun-musst.md) |
 | Strava verbinden | [Strava verbinden](strava-verbinden.md) |
-| KI-Helfer einrichten | [KI-Helfer einrichten](ki-helfer-einrichten.md) |
 | Regeln für jeden Helfer | [CLAUDE.md](../CLAUDE.md) |

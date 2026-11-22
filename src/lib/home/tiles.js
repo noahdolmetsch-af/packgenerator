@@ -77,7 +77,6 @@ export const TILES = [
   { id: 'tipweek', area: 'app', label: 'Tip of the week', icon: 'bulb', sizes: ['w', 'l', 'long'], size: 'long', pitch: 'One thing the app can do, a new one every week, with one button.' },
   { id: 'bikes', area: 'bikes', label: 'Bikes|place', icon: 'bike', sizes: ['l', 'long'], size: 'long', pitch: 'Your bikes with their km and what is due.' },
   { id: 'year', area: 'trips', label: 'Last 12 months', icon: 'chart', sizes: ['long'], size: 'long', pitch: 'Km, trips and nights of the last 12 months in one row.' },
-  { id: 'helper', area: 'app', label: 'Helper', icon: 'chat', sizes: ['s'], size: 's', pitch: 'Ask the helper about a list or a trip.' },
   { id: 'features', area: 'app', label: 'What the app can do', icon: 'info', sizes: ['s', 'w'], size: 's', pitch: 'Everything the app can do, and what is new.' },
   { id: 'inbox', area: 'today', label: 'Inbox', icon: 'inbox', sizes: ['s'], size: 's', pitch: 'Notes from on the way, to sort.' },
   { id: 'data', area: 'app', label: 'Data and backup', icon: 'data', sizes: ['s', 'w'], size: 's', pitch: 'Backup, restore and import (lives under Me).' },
@@ -204,7 +203,6 @@ export const READY_0155 = [
   ['fn:blocks', 's'],
   ['fn:favorites', 's'],
   ['features', 's'],
-  ['helper', 's'],
   ['inbox', 's'],
   ['data', 's'],
   ['bikes', 'long'],
@@ -544,11 +542,11 @@ export function catalog(query = '', tr = (s) => s, hidden = []) {
 }
 
 /**
- * v0.118.0 «KI-Helfer ausblenden» (K4): tiles hidden by a switch (the helper's tile while the AI helper
- * is off) leave the wall that shows, but stay stored. keepHidden puts them back where they stood when
- * the shown wall is saved (moved, resized, a tile added or taken away).
+ * «KI entfernen» (Schritt 7): tiles that are gone for good (the tile «Helper» of the removed AI helper) leave the
+ * wall that shows, but an old wall keeps them stored. keepHidden puts them back where they stood when the shown
+ * wall is saved (moved, resized, a tile added or taken away).
  */
-export const HELPER_TILES = ['helper'];
+export const REMOVED_TILES = ['helper'];
 // Tiles that show only once they have a value (a VO2max from a watch); without one they stay away.
 export const VALUE_TILES = ['vo2max', 'wochentraum'];
 export const hideTiles = (tiles, hidden = []) => (hidden.length ? tiles.filter((x) => !hidden.includes(x.id)) : tiles);

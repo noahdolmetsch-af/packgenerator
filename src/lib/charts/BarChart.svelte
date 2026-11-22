@@ -7,7 +7,9 @@
    *   above the chart (Readout); ← → Home End on the keyboard do the same.
    * - A tap, a click or Enter opens what is behind the column (onopen(i)): the sheet of the week or day.
    * - «Als Tabelle» shows the same numbers as rows (table: { head, rows }).
-   * cols: [{ key, x, top, parts: [{ v, color }] }] (x: the label under it or ''), line: [number] or null,
+   * cols: [{ key, x, top, parts: [{ v, color }], none }] (x: the label under it or ''; none: a text such as «Not yet»
+   * or «No data in this period» for a bar that is no real zero: the line above the chart shows it instead of the numbers,
+   * and the chart starts on the newest bar without it), line: [number] or null,
    * readout(i) → { title, items }, label: what the chart shows (for screen readers), unit: of the axis,
    * steps: the allowed axis steps (counts: [1, 2, 5, 10 …] so the axis never says 0.5 sessions).
    */
@@ -49,8 +51,16 @@
   let sel = $state(null);
   let view = $state('chart');
   let plot = $state();
-  const shown = $derived(sel ?? (n ? n - 1 : null));
-  const ro = $derived(shown == null ? null : readout?.(shown));
+  const lastReal = $derived.by(() => {
+    for (let i = n - 1; i >= 0; i--) if (!cols[i].none) return i;
+    return n ? n - 1 : null;
+  });
+  const shown = $derived(sel ?? lastReal);
+  const ro = $derived.by(() => {
+    if (shown == null) return null;
+    const r = readout?.(shown);
+    return r && cols[shown]?.none ? { ...r, note: cols[shown].none } : r;
+  });
 
   const at = (e) => indexAt(e.clientX, plot?.getBoundingClientRect(), n);
   function move(e) {
@@ -85,7 +95,7 @@
   {#if view === 'table' && table}
     <DataTable head={table.head} rows={table.rows} />
   {:else}
-    {#if ro}<Readout title={ro.title} items={ro.items} />{/if}
+    {#if ro}<Readout title={ro.title} items={ro.items} note={ro.note} />{/if}
     <div class="g" style:--h="{height}px">
       <YTicks ticks={scale.ticks} {y} h={100} text={(v) => tickText(v, scale.step, num)} {unit} />
       <!-- svelte-ignore a11y_no_noninteractive_tabindex -->

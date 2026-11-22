@@ -46,6 +46,7 @@
   import { todayNotes } from '../lib/notebook.js';
   import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
   import { WEEKPLAN_KEY } from '../lib/training/wochenplan.js';
+  import { PLAN_KEY as TRAINING_PLAN_KEY, planOf as trainingSessionsOf } from '../lib/training.js';
   import { WEEKLOG_KEY, logOf as planLogOf, setDone as planSetDone, dueToday as planDueToday } from '../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../lib/training/wochenplan-text.js';
   import { startUnitDone } from '../lib/flow/ui.svelte.js';
@@ -114,7 +115,7 @@
   import { isEveningOn } from '../lib/dayclock.js';
   import { cfgQuery, rowsQuery as freiRows } from '../lib/freidb.js';
   import { todayImpulse } from '../lib/frei.js';
-  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, REMOVED_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
@@ -195,7 +196,6 @@
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
   import { strava } from '../lib/strava/client.svelte.js';
-  import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
@@ -206,6 +206,7 @@
   import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
+  import NachtragHint from '../lib/flow/NachtragHint.svelte'; // «Heute · Gestern» (Noah 22.11.2026 «b»): the morning hint of Aktiv also on top of Heute
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { flowStates } from '../lib/flow.js';
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
@@ -231,7 +232,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY, WEEKPLAN_KEY, WEEKLOG_KEY];
+  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY, WEEKPLAN_KEY, WEEKLOG_KEY, TRAINING_PLAN_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -841,7 +842,7 @@
   const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
   const wegStep = $derived(wegTodayStep(wegOf(S[WEG_KEY]), today));
-  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today));
+  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today, trainingSessionsOf(S[TRAINING_PLAN_KEY])));
   async function planTick(u) {
     const due = planToday;
     if (!due) return;
@@ -888,6 +889,7 @@
   let abEvening = $state(false);
   let abAsk = $state(false); // set → AbCard opens its window again
   const medQ = $derived(flowQuery(today));
+  const nachtragActs = $derived($medQ ? flowStates($medQ.acts, $medQ.log, today, $medQ.tripDays).filter((x) => !x.resting).map((x) => x.act) : []);
   const medSt = $derived($medQ ? (flowStates($medQ.acts, $medQ.log, today, $medQ.tripDays).find((x) => isMedAct(x.act) && !x.act.paused) ?? null) : null);
   let medOpen = $state(false);
   // the ready activities (meditation …) are written on the first start, as the tile «Im Flow» did before
@@ -976,9 +978,9 @@
   // «Deine Gewohnheiten» (Noah 27.10.2026 «1a»): the pencil on the card and «Choose habits on top» open the same window
   let habitsOpen = $state(false);
   const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
-  // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
+  // «KI entfernen» (Schritt 7): the tile «Helper» is gone for good; an old wall keeps it stored but it never shows
   // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
-  const hiddenTiles = $derived(isShown() ? [] : HELPER_TILES);
+  const hiddenTiles = REMOVED_TILES;
   // HN4 4b: on the day before a trip and on its days the trip card stands right under the day card (not while customising)
   const near = $derived(loaded ? tourNear(allTrips, today) : null);
   // the day card at night: the trip of tomorrow, with how far it is packed
@@ -1276,6 +1278,7 @@
 <!-- 4. Important today and Tried it yet? -->
 {#snippet todayS(line = false)}
   <div class="impw" class:line data-section="today">
+    {#if ready && !editing && $medQ}<div class="nhw"><NachtragHint {today} log={$medQ.log} acts={nachtragActs} /></div>{/if}
     {#if cheers.length}
       <section class="cheers" aria-label={t('Well done')} data-cheers>
         <ul>
@@ -1342,7 +1345,6 @@
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
-  {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'tools'}<SmallTile tile={TILE.tools} size={x.size} href="#/me/tools" />
   {:else if x.id === 'diary'}<SmallTile tile={TILE.diary} size={x.size} href="#/tagebuch?neu" isnew={newTile('diary')} sub={t('write or dictate')} />
@@ -2633,6 +2635,9 @@
   }
   .row.now .tx {
     font-weight: 600;
+  }
+  .nhw:not(:empty) {
+    margin-bottom: 10px;
   }
   .impl {
     margin-top: auto;

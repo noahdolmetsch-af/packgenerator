@@ -7,7 +7,7 @@
    * coldest riding hour: one tap adds its missing items. Every add goes through Pack's change()
    * (one Undo) and shows a toast with Undo. Rules: wardrobe.js onionCheck, chooseKit, kitPlan.
    */
-  import { Layers, Check, Circle, ChevronRight, ChevronDown, Plus } from '@lucide/svelte';
+  import { Layers, Check, Circle, ChevronRight, ChevronDown, Plus, ArrowLeftRight } from '@lucide/svelte';
   import { t, tn, nameOf, locale } from '../i18n.svelte.js';
   import { tempRange, ZONES, LAYERS, WAIT_CHOICES } from '../wardrobe.js';
   import Seg from '../ui/Seg.svelte';
@@ -15,7 +15,7 @@
   // Einzelidee 21 «Zu viel an derselben Stelle»: twice = pieces with the same task (einzeln/material.js twiceOf);
   // the check asks what for: both on purpose (ontwiceok) or one stays at home (onremove, with Undo).
   // Touren-Ideen 42: wait (minutes standing still on the way), chill (the degrees it counts colder), onwait(m)
-  let { check, kit = null, plan = null, offset = 0, wait = 0, chill = 0, onwait = null, itemsById = {}, added = [], kitAdded = null, onadd, onkit, twice = [], ontwiceok = null, onremove = null } = $props();
+  let { check, kit = null, plan = null, offset = 0, wait = 0, chill = 0, onwait = null, itemsById = {}, added = [], kitAdded = null, onadd, onkit, twice = [], ontwiceok = null, onremove = null, onswap = null } = $props();
   const waitName = (m) => (m ? (m >= 60 ? t('{n} h', { n: m / 60 }) : t('{n} min', { n: m })) : t('None|wait'));
 
   let open = $state(false);
@@ -34,6 +34,9 @@
     if (r.items.length) return t('{names}: too light for {c} °C', { names: r.items.map(nameOf).join(' · '), c: check.c });
     return r.below ? t('{zone} below {n} °C: nothing packed', { zone: t(r.name), n: r.below }) : t('nothing packed');
   };
+  // Zwiebel einlegen (Noah 21.11.2026 «4b»): one tap puts the best owned piece into every gap; it stays a suggestion
+  // (one Undo, every piece can be taken out again).
+  const fixes = $derived([...new Map(check.rows.filter((r) => !r.ok && r.fix).map((r) => [r.fix.id, r.fix])).values()]);
   watchSuggest();
 </script>
 
@@ -44,6 +47,9 @@
     <Layers size={18} aria-hidden="true" /><span class="s">{summary}</span>
     {#if open}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
   </button>
+  {#if fixes.length && onadd}
+    <button type="button" class="btn sm fill" data-onion-fill onclick={() => onadd(fixes.map((f) => f.id), fixes.map((f) => nameOf(f)).join(', '))}><Plus size={16} aria-hidden="true" />{tn(fixes.length, 'Fill the gap: {n} piece in', 'Fill the gaps: {n} pieces in')}</button>
+  {/if}
   {#if open}
     <div id="onion-rows">
       <ul class="orows">
@@ -53,9 +59,16 @@
             <b class="nm">{t(r.name)}</b>
             <span class="what">
               {#if r.ok}
-                {r.items.length ? r.items.map((i) => nameOf(i)).join(' · ') : t('not needed')}{#each r.items.filter((i) => fresh.has(i.id)) as i (i.id)}<i class="badge">{t('new')}</i>{/each}
+                {#if !r.items.length}{t('not needed')}{:else if onswap}
+                  {#each r.items as i (i.id)}
+                    <span class="pc"><span class="pn">{nameOf(i)}{#if fresh.has(i.id)}<i class="badge">{t('new')}</i>{/if}</span><button type="button" class="swp" data-onion-swap={i.id} aria-label={t('Swap {name}', { name: nameOf(i) })} onclick={() => onswap(i)}><ArrowLeftRight size={18} aria-hidden="true" /></button></span>
+                  {/each}
+                {:else}
+                  {r.items.map((i) => nameOf(i)).join(' · ')}{#each r.items.filter((i) => fresh.has(i.id)) as i (i.id)}<i class="badge">{t('new')}</i>{/each}
+                {/if}
               {:else}
                 <span class="gap">{gapText(r)}</span>
+                {#if onswap}{#each r.items as i (i.id)}<button type="button" class="btn sm add" data-onion-swap={i.id} onclick={() => onswap(i)}><ArrowLeftRight size={16} aria-hidden="true" />{t('Swap {name}', { name: nameOf(i) })}</button>{/each}{/if}
                 {#if r.fix}<button type="button" class="btn sm add" onclick={() => onadd([r.fix.id], nameOf(r.fix))}><Plus size={16} aria-hidden="true" />{t('{name} in', { name: nameOf(r.fix) })}</button>{/if}
               {/if}
             </span>
@@ -102,6 +115,9 @@
 {/if}
 
 <style>
+  .fill {
+    margin: 6px 0 0;
+  }
   .twice {
     margin: 4px 0 0;
     padding: 0;
@@ -200,6 +216,28 @@
     max-width: 100%;
     overflow-wrap: break-word;
     text-align: left;
+  }
+  .pc {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .pn {
+    min-width: 0;
+  }
+  .swp {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -8px -6px -8px 0;
+    border: 0;
+    border-radius: 99px;
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
   }
   .badge {
     font-style: normal;

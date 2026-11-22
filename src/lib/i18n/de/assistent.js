@@ -69,12 +69,9 @@ export default {
   '2 · Chrome AI': '2 · Chrome-KI',
   'free, only on a computer in Chrome': 'gratis, nur am Computer in Chrome',
   'A small AI built into Chrome. It also answers free questions, with the entries from the app that fit. It runs on your computer, nothing goes to the internet.': 'Eine kleine KI, die in Chrome eingebaut ist. Sie beantwortet auch freie Fragen, mit den passenden Einträgen aus der App. Sie läuft auf deinem Computer, nichts geht ins Internet.',
-  '3 · Claude': '3 · Claude',
   'a few centimes per question': 'ein paar Rappen pro Frage',
-  'The best AI: concrete suggestions, e.g. a whole packing list from your gear with reasons. Only when the AI helper is on, and at most up to your monthly limit.': 'Die beste KI: konkrete Vorschläge, z. B. eine ganze Packliste aus deinem Material mit Begründung. Nur wenn der KI-Helfer an ist, und höchstens bis zu deinem Monatslimit.',
   'Me › AI helper': 'Ich › KI-Helfer',
   '«Help me plan» asks four things (when and how long, kind of trip, the night, the bike) and then suggests a plan: weather, packing list, what is due on the bike, your learnings.': '«Hilf mir planen» fragt vier Dinge (wann und wie lange, Art der Tour, die Nacht, das Velo) und schlägt dann einen Plan vor: Wetter, Packliste, was am Velo fällig ist, deine Lernpunkte.',
-  'The app answers first, free. Claude answers too, because the AI helper is on (monthly limit).': 'Zuerst antwortet die App, gratis. Claude antwortet auch, weil der KI-Helfer an ist (Monatslimit).',
   'The app answers free and on this device.': 'Die App antwortet gratis und auf diesem Gerät.',
   // Noah 15.10.2026: the examples per way
   'What did I learn about rain?': 'Was habe ich zu Regen gelernt?',
@@ -85,7 +82,7 @@ export default {
   'Bike care: what is due next on chain, cassette, brake pads and tyres, with a concrete check': 'Velopflege: was als Nächstes an Kette, Kassette, Bremsbelägen und Reifen fällig ist, mit einem konkreten Prüftipp',
   'Look back: a draft and learnings from your notes on the way': 'Rückblick: ein Entwurf und Lernpunkte aus deinen Notizen unterwegs',
   // features, handbook, how-to
-  'Ask the app a question about your data, or let it help you plan a trip. Free; Claude only with the AI helper on.': 'Frag die App etwas zu deinen Daten oder lass dir beim Planen einer Tour helfen. Gratis; Claude nur mit eingeschaltetem KI-Helfer.',
+  'Ask the app a question about your data, or let it help you plan a trip. Free.': 'Frag die App etwas zu deinen Daten oder lass dir beim Planen einer Tour helfen. Gratis.',
   'Open the Assistant (button or search).': 'Öffne den Assistenten (Knopf oder Suche).',
   'Ask a question, or tap «Help me plan».': 'Stell eine Frage oder tippe auf «Hilf mir planen».',
   'The answer or the plan comes from your data; everything is a suggestion.': 'Die Antwort oder der Plan kommt aus deinen Daten; alles ist ein Vorschlag.',

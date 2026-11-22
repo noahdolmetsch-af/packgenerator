@@ -50,6 +50,29 @@ test('a running own goal: Tick off counts the goal, a second tap takes it back, 
   expect(errors).toEqual([]);
 });
 
+test('Aktiv: a running own goal stands under Tick off today and ticks there; without one nothing is added', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { hour: 17, data: fixture([ziel()]) });
+  await page.evaluate(() => (location.hash = '#/flow'));
+  const box = page.locator('[data-aktiv-challenges]');
+  const card = box.locator('[data-ziel-card="tz-test-1"]');
+  await expect(card).toBeVisible();
+  await shot(page, info, 'challenge-aktiv', box);
+  await card.locator('[data-ziel-tick]').click();
+  await expect(card.locator('[data-ziel-tick]')).toHaveAttribute('aria-pressed', 'true');
+  await card.locator('[data-ziel-tick]').click();
+  await expect(card.locator('[data-ziel-tick]')).toHaveAttribute('aria-pressed', 'false');
+  expect(errors).toEqual([]);
+});
+
+test('Aktiv: without a challenge no card is added (no offer line there)', async ({ page, context }, info) => {
+  await openHome(page, context, info, { hour: 17, data: fixture() });
+  await page.evaluate(() => (location.hash = '#/flow'));
+  await expect(page.locator('[data-aktiv-challenges]')).toBeAttached();
+  await expect(page.locator('[data-aktiv-challenges] > section')).toHaveCount(0);
+});
+
 test('the page Challenges: a new goal from the window, an idea to take over, change and end', async ({ page, context }, info) => {
   const T = await openHome(page, context, info, { hour: 17, data: fixture() });
   await page.evaluate(() => (location.hash = '#/flow/milestones'));

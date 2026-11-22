@@ -90,13 +90,15 @@ const save = (page) => card(page).locator('[data-setup-save]');
 test('Kleiderschrank einrichten: suggestion, save with Undo, a place for the unknown, skip, gone, the end', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
 
-  // the wardrobe says how many pieces still lack a temperature or a place, and leads there
+  // the way in: «Fits here» at the end of the wardrobe (Inhalt zuerst: no line above the content)
   await page.goto('./#/wardrobe');
   await expect(page.getByRole('heading', { level: 1, name: T('Wardrobe') })).toBeVisible();
-  const hint = page.locator('[data-setup-hint]');
-  await expect(hint).toContainText(T('{n} pieces still without temperature or place', { n: 4 }));
+  await expect(page.locator('[data-passt-hier="wardrobe"]')).toBeVisible();
+  const hint = page.locator('[data-passt-hier="wardrobe"]');
+  await hint.scrollIntoViewIfNeeded();
+  await expect(hint.locator('[data-passt-item="f.wardrobesetup"]')).toHaveText(T('Set up wardrobe'));
   await shot(page, info, 'kleider-hinweis');
-  await hint.getByRole('link', { name: T('Set up wardrobe') }).click();
+  await hint.locator('[data-passt-item="f.wardrobesetup"]').click();
   await expect(page).toHaveURL(/#\/wardrobe\/setup$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Set up wardrobe') })).toBeVisible();
 

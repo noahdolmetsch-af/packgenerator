@@ -238,7 +238,7 @@
     const cfgs = weekplanOf($wpQ);
     const log = weekLog(logOf($wlQ), monday);
     const cfg = log.mode.light ? lightOf(sum ? cfgs.summer : cfgs.winter, sum) : sum ? cfgs.summer : cfgs.winter;
-    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain })
+    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plan })
       .units.filter((u) => u.type !== 'med' && u.type !== 'stretch' && !log.released.includes(u.id))
       .map((u) => ({ key: u.id, day: shiftDay(monday, u.d), title: t(UNIT_NAME[u.type] ?? 'Session'), time: u.t, mins: u.mins, done: !!log.done[u.id] }));
   });
