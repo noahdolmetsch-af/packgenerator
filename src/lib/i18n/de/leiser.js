@@ -16,5 +16,6 @@ export default {
   'Example: three «Not today» on the rest-day line in two weeks → one question, then quiet.': 'Beispiel: dreimal «Nicht heute» bei der Ruhetag-Zeile in zwei Wochen → eine Frage, danach Ruhe.',
   'Tap «Not today» under a hint on three different days.': 'Tippe an drei verschiedenen Tagen unter einem Hinweis auf «Nicht heute».',
   'Answer «Make this hint quieter?» with «Yes, quieter» or «Keep it».': 'Antworte auf «Diesen Hinweis leiser stellen?» mit «Ja, leiser» oder «Behalten».',
+  'Switch a kind back on later under Me › Look › Suggestions.': 'Schalte eine Art später wieder ein unter Ich › Darstellung › Vorschläge.',
   'A hint you wave away three times is not for you. Say so once, and the app stops asking, instead of you tapping the same button for weeks.': 'Ein Hinweis, den du dreimal wegwinkst, ist nichts für dich. Sag es einmal, dann hört die App auf, statt dass du wochenlang denselben Knopf tippst.',
 };

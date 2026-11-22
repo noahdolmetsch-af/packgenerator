@@ -198,7 +198,7 @@ const LISTED = {
   'f.alerts': ["Open Me › Alerts and news.", "Type your region and tick your passes.", "Add, change or delete your news sources."],
   'f.backuplock': ["Open Me › Data and backup.", "Switch on «Lock backups with a password».", "Type the password twice and save it."],
   'f.yearcheck': ["Open Me › Data and backup.", "Tap «Still right?».", "Tick what is right, change the rest."],
-  'f.hintquiet': ['Tap «Not today» under a hint on three different days.', 'Answer «Make this hint quieter?» with «Yes, quieter» or «Keep it».'],
+  'f.hintquiet': ['Tap «Not today» under a hint on three different days.', 'Answer «Make this hint quieter?» with «Yes, quieter» or «Keep it».', 'Switch a kind back on later under Me › Look › Suggestions.'],
   'f.suggestoff': ["Open Me › Appearance.", "Go to «Suggestions».", "Switch off an area; kinds: under Hidden and switched off."],
   'f.tipweek': ["Open Today.", "Look at «Tip of the week».", "Tap its button to try it."],
   'f.comeback': ["Come back after three weeks away.", "Read «Welcome back».", "Tap a line to go there."],
