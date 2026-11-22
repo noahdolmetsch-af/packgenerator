@@ -592,7 +592,7 @@ const LISTED = {
   },
   'f.readytomorrow': {
     on: null,
-    steps: ['The evening before a tour open the trip in Pack.', 'Read the hints in «Ready for tomorrow?»; with the AI helper on, ask it too.'],
+    steps: ['The evening before a tour open the trip in Pack.', 'Read the hints in «Ready for tomorrow?».'],
     example: 'Example: 3 °C in the morning → gloves on top; still 4 things to pack; charge the lights.',
   },
   // v0.134.0 «Inspiration»
@@ -1612,7 +1612,7 @@ const LISTED = {
     example: 'Example: read the tyre size 40-622 on a dark sidewall.',
   },
   'f.packphoto': {
-    on: 'Downloads the recognition once (about 30 MB), then offline. KI-Helfer: needs internet; the photo goes out only after «Send photo».',
+    on: 'Downloads the recognition once (about 30 MB), then offline; the photo stays on the device.',
     steps: ['Lay the things out side by side and open Toolbox › Packing list by photo (or «Tick off by photo» in Pack).', 'Choose «Tick off» (the trip\'s list) or «Add new» (your gear), then take the photo.', 'Deselect what is wrong and confirm; answer «What is this?» once, the app remembers it on this device.'],
     example: 'Example: 9 things on the floor → 6 ticked on «Jura 3 days», the stove taught once as «Kocher».',
   },
