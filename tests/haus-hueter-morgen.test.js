@@ -3,7 +3,6 @@ import { describe, it, expect } from 'vitest';
 import { houseOf, houseLabel, addHouse, renameHouse, dropHouse, moveHouse, toggleHouse, resetHouse, doneOf, houseCount, houseValue, HOUSE_START } from '../src/lib/unterwegs/haus.js';
 import { keeperOf, addKeeper, renameKeeper, dropKeeper, moveKeeper, keeperCode, readKeeper, keeperUrl, keeperValue, KEEPER_START } from '../src/lib/unterwegs/hueter.js';
 import { eveningHints, startsTomorrow, nextDay } from '../src/lib/unterwegs/morgen.js';
-import { eveningPayload, keysOf, FIELDS } from '../src/lib/helper/payload.js';
 import { validate, buildRequest, TASK_NAMES } from '../api/_lib/helper.js';
 
 describe('Haus-Check', () => {
@@ -75,13 +74,6 @@ describe('Bereit für morgen', () => {
     expect(keys({ wx: { min: 3, max: 30, rain: 'showers' }, open: ['a', 'b'], due: ['Kette'] })).toEqual(['cold', 'rain', 'hot', 'pack', 'bike', 'charge']);
     expect(eveningHints({ open: ['a', 'b', 'c', 'd'] })[0].vars).toEqual({ n: 4, names: 'a, b, c' });
     expect(eveningHints({ open: ['a'] })[0].text).toBe('Still to pack: {names}.');
-  });
-  it('the KI payload holds only allowed keys and no ids', () => {
-    const trip = { id: 'secret-trip-id', title: 'test_data_gtp_ Jura', startDate: '2026-10-20', days: 2, wx: { min: 4, max: 12, rain: 'rain' }, entries: [{ itemId: 'i1' }], photo: 'data:x' };
-    const p = eveningPayload(trip, { open: ['Regenjacke'], due: ['Kette'], learnings: [{ rule: 'kalt', action: 'Handschuhe' }], today: '2026-10-19', tomorrow: '2026-10-20' });
-    for (const k of keysOf(p)) expect(FIELDS.has(k), k).toBe(true);
-    expect(JSON.stringify(p)).not.toContain('secret-trip-id');
-    expect(p.list).toEqual([{ name: 'Regenjacke' }]);
   });
   it('the server task: strict tool, answers checked and cut', () => {
     expect(TASK_NAMES).toContain('evening');

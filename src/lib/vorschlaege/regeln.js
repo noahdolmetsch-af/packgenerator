@@ -22,6 +22,12 @@ export const LEVELS = ['easy', 'medium', 'difficult'];
 export const LEVELS_STD = ['medium', 'difficult'];
 /** The time choices in hours; null = any. */
 export const HOURS = [2, 3, 4, 5, 6];
+/** The kinds of tour (Noah 05.11.2026 «mit 1 beginnen»): a tour can have several. */
+export const ARTS = ['trail', 'downhill', 'gravel', 'loop'];
+/** The start choices: km from your home place to the start (needs a home place); null = any. */
+export const AWAYS = [30, 60, 100];
+/** The lines of «Why this suggestion?» that can be switched off, in their order. */
+export const WHY_KEYS = ['time', 'snow', 'level', 'new', 'away'];
 
 /** The height (m) from which snow can lie on a typical day of the month (1 = January). A rule of thumb, not a forecast. */
 export const SNOW_LINE = { 1: 900, 2: 900, 3: 1200, 4: 1600, 5: 2000, 6: 2400, 7: 3000, 8: 3000, 9: 2500, 10: 2100, 11: 1700, 12: 1100 };
@@ -30,6 +36,16 @@ export const SNOW_BAND = 300;
 
 /** The tour's levels that count: fitness and skill (a downhill has no fitness level). */
 export const levelsOf = (t) => [t?.cond, t?.tech].filter(Boolean);
+
+/** The kinds of a tour: single trail (40 % or more), downhill, gravel and paths (40 % or more unpaved), round trip. */
+export function artsOf(t) {
+  const a = [];
+  if ((t?.single ?? 0) >= 40) a.push('trail');
+  if (t?.kind === 'descent') a.push('downhill');
+  else if ((t?.unpaved ?? 0) >= 40) a.push('gravel');
+  if (t?.kind === 'loop') a.push('loop');
+  return ARTS.filter((k) => a.includes(k));
+}
 
 /** Does the tour have a chosen level (fitness or skill)? levels: a Set or an array. */
 export function matchLevels(t, levels) {
@@ -61,13 +77,20 @@ export function snowOf(t, month) {
 }
 
 /**
- * The tours to show: region (set or array; empty = all), levels, the most hours (null = any), without the hidden ones.
- * pace is used for the time.
+ * The tours to show: region (set or array; empty = all), levels, the most hours (null = any), kinds (empty = all), the most km
+ * from home to the start (null = any; without a home place it does not filter), without the hidden ones. pace is used for the time.
  */
-export function filterTours(tours = [], { regions = [], levels = LEVELS_STD, maxHours = null, hidden = [], pace = null } = {}) {
+export function filterTours(tours = [], { regions = [], levels = LEVELS_STD, maxHours = null, hidden = [], pace = null, arts = [], maxAway = null, home = null } = {}) {
   const rs = new Set(regions ?? []);
   const hid = new Set(hidden ?? []);
-  return tours.filter((t) => !hid.has(t.id) && (!rs.size || rs.has(t.region)) && matchLevels(t, levels) && (!maxHours || hoursOf(t, pace) <= maxHours + 1e-9));
+  const as = new Set(arts ?? []);
+  return tours.filter((t) => {
+    if (hid.has(t.id) || (rs.size && !rs.has(t.region)) || !matchLevels(t, levels)) return false;
+    if (maxHours && hoursOf(t, pace) > maxHours + 1e-9) return false;
+    if (as.size && !artsOf(t).some((k) => as.has(k))) return false;
+    const km = maxAway ? awayKm(t, home) : null;
+    return km === null || km <= maxAway;
+  });
 }
 
 /** Splits a list: what fits this month and what does not (snow likely). */

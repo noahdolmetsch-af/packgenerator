@@ -991,9 +991,9 @@
     return i >= 0 && list[i + 1]?.id === 'balance' ? [...list.slice(0, i), { id: 'flow', size: 'long', join: list[i + 1].size }, ...list.slice(i + 2)] : list;
   };
   // «Heute neu» N2 (Noah «5a»): «Up now» shows only when something is up (the check and meditation live on top now)
-  // the impulse of the day (ImpulseHint) also counts: without it a day with nothing due showed no idea at all
+  // the impulse of the day (ImpulseHint, every day since 21.11.2026) also counts: without it a day with nothing due showed no idea at all
   const impQ = cfgQuery();
-  const impulseUp = $derived(!suggestion && !night && !!$impQ && !!todayImpulse($impQ, today));
+  const impulseUp = $derived(!night && !!$impQ && !!todayImpulse($impQ, today));
   const essQ = freiRows('essential');
   const essUp = $derived(!night && !!$impQ && !!$essQ && !!essentialDue({ entries: $essQ, cfg: $impQ, today }));
   const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp && !essUp);
@@ -1305,7 +1305,7 @@
       {/if}
       {#if ready}<button type="button" class="lkb rowsbtn" onclick={() => (rowsOpen = true)} data-rows-open>{t('Choose rows')}</button>{/if}
       {#if ready && !night}<div class="impl"><WesentlichHint {today} /></div>{/if}
-      {#if ready && !suggestion && !line && !night}<div class="impl"><ImpulseHint {today} /></div>{/if}
+      {#if ready && !line && !night}<div class="impl"><ImpulseHint {today} {now} dry={wx?.dry ?? null} /></div>{/if}
     </section>
   </div>
 {/snippet}
