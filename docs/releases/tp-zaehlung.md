@@ -18,6 +18,10 @@ Auftrag: Noah «1a 2a 3a 4a» und «a» (22.11.2026, Thread «TrainingPeaks ins 
 - Vergangene Wochen zeigen die Zeilen aus TrainingPeaks aus den Einheiten von «Meine Woche», nicht aus dem Schnappschuss (dort stehen sie nur für den Stern).
 - Der Feed reicht nur ca. 14 Tage voraus: für weiter entfernte Wochen plant der Wochenplan allein (steht in W3 auf der Karte).
 
+## Daten (Prüfung mit Kopie)
+- Kein neues Format und kein neues Dexie-Schema. Neu in `training.weeklog` sind nur Haken mit Schlüssel `tp:<id>` und Einheiten vom Typ `tp` im Wochen-Schnappschuss.
+- Geprüft mit einer Kopie im alten Format (Test «Daten: ein Wochenlog aus einer Backup-Kopie»): ohne TrainingPeaks bleibt das Log gleich, mit TrainingPeaks kommen nur `tp:`-Schlüssel dazu, alle alten Haken bleiben, die Eingabe wird nicht verändert. Eine echte Backup-Kopie liegt nicht im Repo; Noahs Daten werden nie angefasst.
+
 ## Entscheide (eigene Datei `docs/decisions/tp-zaehlung.md`)
 - 22.11.2026: Liegt Plan plus TrainingPeaks über dem Soll, bleibt es so, mit Hinweis (Noah «a»).
 

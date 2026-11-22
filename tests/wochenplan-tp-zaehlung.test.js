@@ -103,3 +103,28 @@ describe('Wochenstern: TrainingPeaks zählt mit (4a)', () => {
     expect(p.done).toBe(1);
   });
 });
+
+describe('Daten: ein Wochenlog aus einer Backup-Kopie (ohne TrainingPeaks) bleibt unverändert', () => {
+  // The copy is written the old way (no tp argument) and goes through JSON like a restored backup.
+  const w0 = weekFor(stored, MON);
+  const m0 = w0.week.units.filter((u) => u.type !== 'med' && u.type !== 'stretch');
+  let old = logOf(null);
+  for (const u of m0.slice(0, 3)) old = setDone(old, MON, u.id, true, WED, w0.week.units, w0.cfg.hours);
+  const copy = JSON.parse(JSON.stringify(old));
+  const before = JSON.stringify(copy);
+
+  it('lesen und schreiben ohne TrainingPeaks ändert die Kopie nicht', () => {
+    expect(JSON.stringify(withSnapshot(copy, MON, w0.week.units, w0.cfg.hours, WED))).toBe(JSON.stringify(withSnapshot(old, MON, w0.week.units, w0.cfg.hours, WED)));
+    expect(syncTpDone(copy, MON, [], WED)).toBe(copy);
+    expect(JSON.stringify(copy)).toBe(before);
+  });
+  it('mit TrainingPeaks kommen nur tp:-Schlüssel und tp-Einheiten dazu, alle alten Haken bleiben', () => {
+    const { week } = weekFor(stored, MON, {}, {}, SESS);
+    const log = syncTpDone(copy, MON, [{ id: 'tp:a', done: true, day: '2026-12-01' }], WED);
+    const done = weekLog(log, MON).done;
+    for (const [id, day] of Object.entries(weekLog(copy, MON).done)) expect(done[id]).toBe(day);
+    expect(Object.keys(done).filter((id) => !(id in weekLog(copy, MON).done))).toEqual(['tp:a']);
+    expect(week.tp.length).toBe(2);
+    expect(JSON.stringify(copy)).toBe(before); // the input is not changed in place
+  });
+});
