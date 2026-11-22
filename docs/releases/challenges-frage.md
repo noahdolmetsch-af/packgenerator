@@ -1,6 +1,6 @@
 # Challenges: die Frage alle 10 Tage
 
-Auftrag: Noah 21.11.2026 («alle 10 Tage fragen nach Challenges, Meilensteinen, verrückten Ideen»), Ort gewählt 22.11.2026 01:50 UTC («c»: Mitteilung aufs Handy plus Karte auf der Seite «Challenges»). Thread «Challenges in den Vordergrund stellen». Schritt 4 von 4.
+Auftrag: Noah 21.11.2026 («alle 10 Tage fragen nach Challenges, Meilensteinen, verrückten Ideen»), Ort gewählt 22.11.2026 01:50 UTC («c»: Mitteilung aufs Handy plus Karte auf der Seite «Challenges»). Thread «Challenges in den Vordergrund stellen». Schritt 4 von 4 (Seite «Challenges» ist online).
 
 ## Was ist neu
 - Oben auf der Seite «Challenges» steht alle 10 Tage die Karte «Zeit für einen Blick» mit drei Knöpfen: «Challenge» (öffnet das Fenster für eine neue), «Meilenstein» (öffnet Meilensteine), «Verrückte Idee» (öffnet «Meine Ideen»), und «Später».
