@@ -174,7 +174,6 @@
 <div class="wkp">
   <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
   <AreaIntro place="weekplan" />
-  <AllHere area="plan" />
   <FreeSlotCard {monday} onfound={(w) => (win = w)} />
 
   {#if week}
@@ -347,6 +346,8 @@
   {/if}
   <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
   <PasstHier place="woche" />
+  <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+  <AllHere area="plan" />
 </div>
 
 {#snippet winMark(w)}

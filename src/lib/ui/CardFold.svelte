@@ -17,12 +17,14 @@
   import { phone } from '../media.svelte.js';
   import { CARDS_KEY, START_FOLDED, openMapOf, cardFolded } from './kartenzeile.js';
 
-  let { id, label = '', count = 0, children } = $props();
+  // always: the card starts as one line on every screen («Alles hier» at the end of a page, Hilfen neu 1b), not only on a phone
+  let { id, label = '', count = 0, always = false, children } = $props();
   const mapQ = liveQuery(async () => openMapOf((await db.settings.get(CARDS_KEY))?.value));
   const first = $derived(START_FOLDED.includes(id));
   // the browser tests set __pgCardsOpen (tests/e2e/clock.js) so that a spec that does not look at the cards finds them open as before
   const onPhone = $derived(phone.matches && !globalThis.__pgCardsOpen);
-  const folded = $derived($mapQ ? cardFolded($mapQ, id, onPhone) : false);
+  const asLine = $derived(always ? !globalThis.__pgCardsOpen : onPhone);
+  const folded = $derived($mapQ ? cardFolded($mapQ, id, asLine) : false);
 
   function setOpen(on) {
     chain = chain.then(async () => {
@@ -41,7 +43,7 @@
     </button>
   {:else}
     {@render children()}
-    {#if first && onPhone}
+    {#if first && asLine}
       <button type="button" class="cf-fold" onclick={() => setOpen(false)} data-card-fold={id}><ChevronUp size={16} aria-hidden="true" />{t('Fold the card')}</button>
     {/if}
   {/if}
