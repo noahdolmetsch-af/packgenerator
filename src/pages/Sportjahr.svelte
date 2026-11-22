@@ -27,6 +27,7 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { hoursMin } from '../lib/charts/exact.js';
+  import { sportColour, OTHER } from '../lib/charts/sportcolors.js';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -66,11 +67,9 @@
   const weeksPast = $derived(weeks.filter((w) => !w.future).length);
 
   /* names and colours */
-  const PALETTE = ['var(--l1)', 'var(--hi)', 'var(--l2)', 'var(--l3)', 'var(--l4)', 'var(--z3)', 'var(--z4)'];
-  const OTHER = 'var(--ink-3)';
   const colour = (sport) => {
     const c = colours.get(sport);
-    return c == null || c === 'other' ? OTHER : PALETTE[c];
+    return c == null || c === 'other' ? OTHER : sportColour(sport);
   };
   const nameOf = (r) => {
     const act = r.actId ? d?.acts.find((a) => a.id === r.actId) : null;
