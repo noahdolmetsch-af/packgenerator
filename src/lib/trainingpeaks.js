@@ -115,7 +115,7 @@ export function sessionsFrom(ics, today) {
   for (const e of entries) {
     const mins = minutesOf(e);
     const zone = zoneOf(e.title, e.note);
-    const s = mins ? cleanSession({ id: idOf(e), day: e.day, kind: kindOf(e.title), name: e.title, mins, zone, src: TP_SRC }) : null;
+    const s = mins ? cleanSession({ id: idOf(e), day: e.day, kind: kindOf(e.title), name: e.title, mins, zone, src: TP_SRC, time: e.allDay ? '' : e.from }) : null;
     if (!s) {
       skipped++;
       continue;

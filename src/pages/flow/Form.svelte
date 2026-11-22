@@ -17,6 +17,7 @@
   import FormWasWaere from '../../lib/flow/form/FormWasWaere.svelte';
   import FormTeile from '../../lib/flow/form/FormTeile.svelte';
   import FormTour from '../../lib/flow/form/FormTour.svelte';
+  import MarkerCard from '../../lib/flow/MarkerCard.svelte';
   import { formQuery } from '../../lib/form-data.js';
   import { RAMP_MAX, FIT_DAYS, FAT_DAYS, shownForm } from '../../lib/form.js';
   import { levelWord, levelLine, tourText } from '../../lib/flow/form/words.js';
@@ -109,6 +110,11 @@
         {/if}
         <p class="hint">{t('A resting pulse rising day after day on a tour often means: more sleep, more food, an easier stage.')}</p>
       </div>
+    </Sec>
+
+    <!-- «Marker» (Noah 21.11.2026, K1): sick, injured, stress, holiday: the evaluations leave these days out and can explain what stands out -->
+    <Sec id="marker-h" title={t('Markers')} sub={t('sick, injured, stress, holiday · for the evaluations')}>
+      <MarkerCard />
     </Sec>
 
     <details class="card how">

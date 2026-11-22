@@ -33,6 +33,21 @@ async function open(page, context) {
   return errors;
 }
 const mainUnits = (page) => page.locator('[data-wp-week] [data-unit]:not(.quiet)');
+// «Plan zuerst» (T4): a tick opens the short sheet; these tests count units, so each one is ticked «Nur im Plan» (no history entry, no page change)
+async function tickUnit(page, i) {
+  await mainUnits(page).nth(i).locator('input.tick').click();
+  const sheet = page.locator('[data-unit-sheet]');
+  // the rest day ticks at once, without the sheet
+  const shown = await sheet.waitFor({ state: 'visible', timeout: 1500 }).then(() => true, () => false);
+  if (!shown) return;
+  const still = () => sheet.evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished.catch(() => {}))));
+  await still(); // the sheet slides in: click when it stands
+  const only = sheet.getByRole('button', { name: T('Only in the plan') });
+  if (await only.count()) await only.click();
+  await still();
+  await sheet.locator('[data-unit-save]').click();
+  await expect(sheet).toBeHidden();
+}
 
 test('Wochenplan: the week star comes when every unit is ticked, and counts in Meilensteine', async ({ page, context }, info) => {
   const errors = await open(page, context);
@@ -41,7 +56,7 @@ test('Wochenplan: the week star comes when every unit is ticked, and counts in M
   expect(total).toBeGreaterThan(5);
   await expect(root.locator('[data-wp-left]')).toContainText(fill('Still {n} units until the week star.', { n: total }));
   for (let i = 0; i < total; i++) {
-    await mainUnits(page).nth(i).locator('input.tick').check();
+    await tickUnit(page, i);
     await expect(root.locator('[data-wp-done]')).toHaveText(fill('{a} of {b} units', { a: i + 1, b: total }));
   }
   await expect(root.locator('[data-wp-star]')).toContainText(T('Week star reached.'));
@@ -66,7 +81,7 @@ test('Wochenplan: let a unit go on purpose, and the star counts without it', asy
   await expect(root.locator('[data-wp-done]')).toHaveText(fill('{a} of {b} units', { a: 0, b: total - 1 }));
   await expect(root.locator(`[data-wp-tick="${id}"]`)).toBeDisabled();
   await shot(page, info, 'loslassen');
-  for (let i = 1; i < total; i++) await mainUnits(page).nth(i).locator('input.tick').check();
+  for (let i = 1; i < total; i++) await tickUnit(page, i);
   await expect(root.locator('[data-wp-star]')).toBeVisible();
   // counted again: the star is gone
   await root.locator(`[data-wp-letgo="${id}"]`).click();

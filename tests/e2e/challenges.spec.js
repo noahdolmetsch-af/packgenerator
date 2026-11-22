@@ -76,3 +76,42 @@ test('the page Challenges: a new goal from the window, an idea to take over, cha
   await expect(page.locator('[data-ziel-over]')).toHaveCount(1);
   await expect(page.locator('[data-ziel-card]')).toHaveCount(0);
 });
+
+test('the question every 10 days: three buttons and Later, then it stays quiet', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const T = await openHome(page, context, info, { hour: 17, data: fixture() });
+  // Heute stays as it is: the question is not there
+  await expect(page.locator('[data-challenge-ask]')).toHaveCount(0);
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  const ask = page.locator('[data-challenge-ask]');
+  await expect(ask).toBeVisible();
+  await expect(ask).toContainText(T('Time for a look'));
+  await shot(page, info, 'challenge-frage', ask);
+  await ask.locator('[data-ask-later]').click();
+  await expect(ask).toHaveCount(0);
+  // «Later» asks again tomorrow: after a new look at the page it stays quiet today
+  await page.evaluate(() => (location.hash = '#/flow/milestones'));
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  await expect(page.locator('[data-challenges-page]')).toBeVisible();
+  await expect(page.locator('[data-challenge-ask]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('the question: Challenge opens the window for a new one and starts 10 quiet days', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info, { hour: 17, data: fixture() });
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  await page.locator('[data-ask-challenge]').click();
+  await expect(page.locator('[data-ziel-sheet]')).toBeVisible();
+  await expect(page.locator('[data-challenge-ask]')).toHaveCount(0);
+  expect(T).toBeTruthy();
+});
+
+test('the question: Milestone goes to Milestones', async ({ page, context }, info) => {
+  await openHome(page, context, info, { hour: 17, data: fixture() });
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  await page.locator('[data-ask-milestone]').click();
+  await expect(page).toHaveURL(/#\/flow\/milestones/);
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  await expect(page.locator('[data-challenge-ask]')).toHaveCount(0);
+});

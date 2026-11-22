@@ -41,4 +41,14 @@ export default {
   'Open Milestones › «Challenges ›» and tap «New challenge».': 'Öffne Meilensteine › «Challenges ›» und tippe auf «Neue Challenge».',
   'Choose name, unit and goal per day, then tap «Start».': 'Wähle Name, Einheit und Ziel pro Tag, dann tippe auf «Start».',
   'Each day tap «Tick off»; under «More» add smaller amounts.': 'Tippe jeden Tag auf «Abhaken»; unter «Mehr» zählst du kleinere Mengen dazu.',
+  // PR 4: die Frage alle 10 Tage
+  'Challenge question': 'Challenge-Frage',
+  'Every 10 days at 18:00: do you want a new challenge, a milestone or a crazy idea? Opens the page Challenges.': 'Alle 10 Tage um 18:00: Möchtest du eine neue Challenge, einen Meilenstein oder eine verrückte Idee? Öffnet die Seite Challenges.',
+  'Time for a look: a new challenge, a milestone or a crazy idea?': 'Zeit für einen Blick: eine neue Challenge, ein Meilenstein oder eine verrückte Idee?',
+  'Time for a look': 'Zeit für einen Blick',
+  'Do you want a new challenge, a milestone or a crazy idea? Only if you like; nothing is needed.': 'Möchtest du eine neue Challenge, einen Meilenstein oder eine verrückte Idee? Nur wenn du magst, nichts ist nötig.',
+  'Challenge': 'Challenge',
+  'Milestone': 'Meilenstein',
+  'Crazy idea': 'Verrückte Idee',
+  'Asks again in 10 days. A message on the phone: Ich › Reminders on the phone.': 'Fragt in 10 Tagen wieder. Eine Mitteilung aufs Handy: Ich › Erinnerungen aufs Handy.',
 };

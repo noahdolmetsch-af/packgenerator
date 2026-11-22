@@ -55,7 +55,7 @@ test('Training: the subtitle fits the week, the empty look back says why and lea
   await expect(back.locator('li[data-week]')).toHaveCount(0);
   await expect(back.locator('[data-back-strava]')).toHaveText(T('Connect Strava'));
   // the explanation stands above the days, not under them
-  await expect(main.locator('#plan-h').locator('..')).toContainText(T('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).'));
+  await expect(main.locator('#plan-h').locator('..')).toContainText(T('Tap the free slot of a day to plan a session. Solid = yours, dashed = suggestion, green = done.'));
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);
 });
