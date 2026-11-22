@@ -6,7 +6,7 @@ Keine Versionsnummern, keine privaten Daten.
 
 | Woche bis | Online diese Woche | Plan | Kurs-Check (Frage → Noahs Antwort) |
 |---|---|---|---|
-| 22.11.2026 | wird am Sonntagabend eingetragen | wird eingetragen | wird eingetragen |
+| 22.11.2026 | 154 | 9 von 18 | Tempo: bleibt es bei kleinen PRs mit Live-Check, oder eine Woche weniger neu bauen? (offen) |
 | 15.11.2026 | erster Brief (Stand und Plan) | siehe `stand-und-plan.md` | offen |
 
 ## Spalten

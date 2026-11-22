@@ -391,7 +391,7 @@
           </li>
         {/each}
       </ul>
-      <p class="hint">{t('After each ride the app asks how hard it felt (1 to 10). Without heart rate that answer counts for «Plan kept?»; without an answer nothing counts.')}</p>
+      <p class="hint">{t('After a new Strava activity the app asks how it was (light, good, hard). Without heart rate that answer counts for «Plan kept?»; without an answer nothing counts.')}</p>
     </Sec>
   {/if}
 </div>

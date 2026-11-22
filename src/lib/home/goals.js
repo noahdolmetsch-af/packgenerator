@@ -12,6 +12,8 @@ export const GOALS = [
   // Noah 21.10.2026 06:49 «Körperwerte und countdown ok»: the countdown to the next trip, only when there is one with a date
   { key: 'count', label: 'Countdown to the next trip|goal', on: true, trip: true },
   { key: 'ride', label: 'Ride today|goal', on: true },
+  // Noah 22.11.2026 «ja»: since «Aktiv» sits under Woche › Training, one tap from Heute to «Tick off today»
+  { key: 'tick', label: 'Tick off|goal', on: true, href: '#/flow' },
   { key: 'trip', label: 'Plan a trip|goal', on: false },
   { key: 'care', label: 'Work on the bike|goal', on: false, href: '#/bikes?tab=care' },
   { key: 'week', label: 'Plan the week|goal', on: false, href: '#/week' },
