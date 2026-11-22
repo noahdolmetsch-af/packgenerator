@@ -12,7 +12,6 @@ import { serviceOf, cleanUrl, addProject, editProject, moveProject } from '../sr
 import { makeHandler, geminiRequest, geminiText, geminiKey, GEMINI_URL, helperEnv } from '../api/helper.js';
 import DE from '../src/lib/i18n/de/index.js';
 import { db } from '../src/lib/db.js';
-import { HELPER_KEY } from '../src/lib/helper/client.svelte.js';
 
 const src = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 

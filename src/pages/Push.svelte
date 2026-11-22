@@ -91,8 +91,8 @@
   // cron-job.org wakes the server every minute (Noah «2b»): the address to paste there, set up once
   let cron = $state({ busy: false, done: false, shown: '', msg: '' });
   const CRON_WHY = {
-    no_owner: 'First connect Strava or enter the helper code on this device.',
-    unauthorized: 'First connect Strava or enter the helper code on this device.',
+    no_owner: 'First connect Strava on this device.',
+    unauthorized: 'First connect Strava on this device.',
     storage_not_set_up: 'The server is not set up for this yet.',
   };
   async function copyCron() {

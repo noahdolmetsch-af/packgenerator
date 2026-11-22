@@ -1,17 +1,16 @@
 // «Wochenrückblick» W1–W6 (Noah 15.10.2026 «1-5 a»): Aktiv › Woche › Wochenrückblick (#/flow/review) on a
 // phone and a computer, in German. On a Monday the page shows the week just finished; every card draws from
 // fictional activities, Aktiv ticks, «Wi gaht's?» answers and a training plan written straight into
-// IndexedDB. ‹ › step the weeks, «Kopieren für Claude» only shows with the KI-Helfer switched on and sends
-// nothing. No sideways scroll, no page errors. SHOTS=<dir> saves wochenrueckblick-390.png / -1440.png.
+// IndexedDB. ‹ › step the weeks. (The card «Kopieren für Claude» is gone with the AI helper, KI entfernen
+// Schritt 7.) No sideways scroll, no page errors. SHOTS=<dir> saves wochenrueckblick-390.png / -1440.png.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 
-// the keys as the app stores them (weekreview.js SLEEP_Q / MOOD_Q, training.js PLAN_KEY, helper HELPER_KEY);
+// the keys as the app stores them (weekreview.js SLEEP_Q / MOOD_Q, training.js PLAN_KEY);
 // written out here because those modules load the app's runes, which the test runner cannot
 const SLEEP_Q = 'erholung.schlaf';
 const MOOD_Q = 'spass.stimmung';
 const PLAN_KEY = 'training.plan';
-const HELPER_KEY = 'helper';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -56,7 +55,6 @@ function rows() {
   }
   const settings = [
     { key: PLAN_KEY, value: { sessions: [{ id: `${P}pl1`, day: addDays(MON, 5), kind: 'bike', name: '', mins: 240, zone: 2 }, { id: `${P}pl2`, day: addDays(MON, 3), kind: 'run', name: '', mins: 40, zone: 2 }, { id: `${P}pl3`, day: addDays(TODAY, 2), kind: 'bike', name: '', mins: 90, zone: 2 }] } },
-    { key: HELPER_KEY, value: { code: '', show: true, capChf: 5 } },
   ];
   return { activities, flowLog, abAnswers, settings };
 }
@@ -96,12 +94,8 @@ async function fits(page, where) {
   expect(sw, `${where}: no sideways scroll`).toBeLessThanOrEqual(w);
 }
 
-test('Wochenrückblick: five numbers, strip, sentences, highlights, next week and the text for Claude', async ({ page, context }, info) => {
+test('Wochenrückblick: five numbers, strip, sentences, highlights and next week', async ({ page, context }, info) => {
   const errors = await open(page, context);
-  const sent = [];
-  page.on('request', (r) => {
-    if (/vercel\.app\/api\/helper/.test(r.url())) sent.push(r.url());
-  });
   await put(page, rows());
   await page.reload();
   const main = page.locator('main');
@@ -156,14 +150,8 @@ test('Wochenrückblick: five numbers, strip, sentences, highlights, next week an
   await expect(ahead).toContainText('KW 43: 1 Einheit schon geplant (1:30 Std.).');
   await expect(ahead.locator('[data-to-plan]')).toHaveAttribute('href', '#/flow/training');
 
-  // W6 only with the KI-Helfer on: the text first, copied only on a tap, nothing sent
-  const ask = main.locator('[data-wr="ask"]');
-  await expect(ask.locator('[data-ask-text]')).toHaveValue(/^Meine Woche vom 12\. Oktober bis 18\. Oktober \(KW 42\):/);
-  await expect(ask.locator('[data-ask-text]')).not.toHaveValue(new RegExp(P));
-  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await ask.locator('[data-ask-copy]').click();
-  await expect(ask.locator('[data-ask-copy]')).toContainText(T('Copied'));
-  expect(sent).toEqual([]);
+  // the card «Kopieren für Claude» is gone for good
+  await expect(main.locator('[data-wr="ask"]')).toHaveCount(0);
 
   // German only, readable at 390
   expect(await main.innerText()).not.toMatch(/\b(Hours|Sessions|Week strip|Highlights|Looking ahead|Goals reached|Went well|until today|Copy for)\b/);
@@ -185,10 +173,9 @@ test('Wochenrückblick: five numbers, strip, sentences, highlights, next week an
   expect(errors).toEqual([]);
 });
 
-test('Wochenrückblick: without the KI-Helfer no «Wie war meine Woche?»; Training › Rückblick links here', async ({ page, context }) => {
+test('Wochenrückblick: Training › Rückblick links here', async ({ page, context }) => {
   const errors = await open(page, context);
   const data = rows();
-  data.settings = data.settings.filter((s) => s.key !== HELPER_KEY);
   await put(page, data);
   await page.goto('./#/flow/training');
   await page.reload();
@@ -198,7 +185,6 @@ test('Wochenrückblick: without the KI-Helfer no «Wie war meine Woche?»; Train
   await expect(page).toHaveURL(/#\/flow\/review$/);
   await expect(main.locator('[data-wr="five"]')).toBeVisible();
   await expect(main.locator('[data-wr="highs"]')).toBeVisible();
-  await expect(main.locator('[data-wr="ask"]')).toHaveCount(0);
-  await fits(page, 'review without helper');
+  await fits(page, 'review');
   expect(errors).toEqual([]);
 });

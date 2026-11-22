@@ -33,7 +33,6 @@
   import { INSPO_WISH } from './lib/inspiration.js';
   import { listsReady } from './lib/listsready.svelte.js';
   import TimerFloat from './lib/timer/TimerFloat.svelte';
-  import CreditNotice from './lib/helper/CreditNotice.svelte';
   import RemindCard from './lib/remind/RemindCard.svelte';
   import CalmHome from './lib/ruhig/CalmHome.svelte'; // Paket C: on Today the calm view shows only its one thing
   import RuhigLine from './lib/ruhig/RuhigLine.svelte'; // Paket C: workspace, calm view or a due letter
@@ -402,7 +401,6 @@
     WocheFerien: () => import('./pages/WocheFerien.svelte'),
     Erkenntnisse: () => import('./pages/Erkenntnisse.svelte'),
     Features: () => import('./pages/Features.svelte'),
-    Helper: () => import('./pages/Helper.svelte'),
     Assistent: () => import('./pages/Assistent.svelte'),
     GearImport: () => import('./pages/GearImport.svelte'),
     Rides: () => import('./pages/Rides.svelte'),
@@ -881,9 +879,6 @@
   {:else if page === 'assistent'}
     <!-- «Assistent» (Noah 15.10.2026 «1 beides 2a und b 3 a und b»): Frag die App + Hilf mir planen -->
     <LazyPage load={PAGES.Assistent} {hash} />
-  {:else if page === 'helper'}
-    <!-- v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer -->
-    <LazyPage load={PAGES.Helper} />
   {:else if page === 'inbox'}
     <LazyPage load={PAGES.Inbox} onnew={() => (noteOpen = true)} />
   {:else if page === 'vorgaenge'}
@@ -937,7 +932,6 @@
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if !guest && page !== 'timer'}<TimerFloat />{/if}
 <!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
-{#if !guest}<CreditNotice />{/if}
 <Keys bind:open={keysOpen} />
 <!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
 {#if !guest}<TourStart /><TourHost />{/if}
