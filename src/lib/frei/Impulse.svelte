@@ -280,6 +280,7 @@
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Impulses')}</h1>
   <p class="fz-intro">{t('Small ideas for free time, in ten areas. Tap one, try it, or hide what is not for you.')}</p>
   <p class="fz-intro"><a href="#/flow/ideen" data-ideas-link>{t('Ideas')} · {t('for your balance')} ›</a></p>
+  <p class="fz-intro"><a href="#/me/frei/lust" data-lust-link>{t('What am I up for?')} · {t('Mood, energy and time: one idea that fits')} ›</a></p>
 
   {#if top}
     <section aria-labelledby="fzi-top-h">
