@@ -642,6 +642,7 @@ import belohnungalle from './belohnungalle.js';
 import wochensterne from './wochensterne.js';
 import fastgeschafft from './fastgeschafft.js';
 import draussen from './draussen.js';
+import challenges from './challenges.js';
 // «Alles fertig» (Noah 24.10.2026): leftovers of the older threads; spread last
 import allesfertig from './allesfertig.js';
 // Paket B «Touren ohne Überraschung» (996 Ideen): Generalprobe, Gut ankommen, Kisten-Etiketten; spread last
@@ -1067,6 +1068,7 @@ const ORDERED = [
   wochensterne,
   fastgeschafft,
   draussen,
+  challenges,
   allesfertig,
   generalprobe,
   alltagsichtbar,

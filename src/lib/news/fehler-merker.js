@@ -2,7 +2,7 @@
 export default {
   title: 'Noted errors',
   lead: 'The app now notes its own errors on this phone, so a problem can be found even if you do not see it.',
-  points: [{ text: 'Me › Data › Noted errors: see them, copy them, clear the list', go: { href: '#/me/data', steps: [{ sel: '[data-fehler-count]' }] } }],
+  points: [{ text: 'Me › Data › Noted errors: see them, copy them, clear the list', go: { href: '#/me/logbuch', where: 'The noted errors show in the improvement log as «Error».' } }],
   small: [],
   test: ['Open Me › Data and scroll down to «Noted errors».', 'It says «No errors noted», or lists the last ones with page and time; «Copy the errors» puts them on the clipboard.'],
   since: [],

@@ -3,8 +3,8 @@
 // in localStorage (like the Tempo-Messer switch), so they work even when the database itself is what broke.
 // An entry holds: the error text (cut, no long quoted pieces), the page (the address without parameters), the time and
 // the version. Never a name, a value or a record of the user's.
-// Who reads it: Ich › Daten shows a small line (UEBERGANG-FEHLERZEILE, src/lib/fehler/FehlerZeile.svelte) until the Logbuch
-// (thread «Neue Verbesserungen finden», L1b) takes the entries over with takeErrors() and shows them as «Fehler».
+// Who reads it: the Logbuch takes the entries over with takeErrors() (src/lib/logbuch/fehler.js) and shows them as «Fehler»
+// (thread «Neue Verbesserungen finden», L1b); the small card under Ich › Daten is gone.
 export const KEY = 'pg.errors';
 export const MAX = 30; // the newest 30 stay
 export const TEXT_MAX = 200;

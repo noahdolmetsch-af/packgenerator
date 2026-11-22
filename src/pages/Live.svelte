@@ -25,7 +25,7 @@
    */
   import { untrack, tick } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind, Sun } from '@lucide/svelte';
+  import { CloudRain, Route, Play, Square, Crosshair, MapPin, Navigation, Mountain, Clock, Settings, BatteryMedium, CloudLightning, TriangleAlert, RefreshCw, Utensils, ChevronDown, Moon, Flag, LifeBuoy, Ellipsis, Tent, ChevronLeft, ChevronRight, Minimize2, Maximize2, SlidersHorizontal, Check, X, Layers, Camera, WifiOff, ClipboardList, Send, Droplet, Lightbulb, Snowflake, Wind, Sun } from '@lucide/svelte';
   import KindIcon from '../lib/map/KindIcon.svelte';
   import { DURING_RIDE } from '../lib/live/during.js';
   import { FEATURES } from '../lib/features.js';
@@ -62,6 +62,7 @@
   import NightSheet from '../lib/live/NightSheet.svelte';
   import { awakeH } from '../lib/race/ride-lib.js';
   import RerouteSheet from '../lib/live/RerouteSheet.svelte';
+  import SleepFindSheet from '../lib/live/SleepFindSheet.svelte';
   import ReserveNote from '../lib/live/ReserveNote.svelte';
   import SurfaceNote from '../lib/live/SurfaceNote.svelte';
   import { snapAhead, onDetour, detourDone, detourGpx, saveDetour, loadDetour, DETOUR_COLOUR, atPlace, returnDetour, backDetour, backtrackOf, planReturn, returnModeStd, shouldReroute, OFF_ROUTE_M, offLineM, planDetour, routerMsg } from '../lib/reroute.js';
@@ -845,6 +846,7 @@
 
   /* ---------- «Neu planen zu …» (Paket X, reroute.js) ---------- */
   let reroute = $state(false);
+  let sleepFind = $state(false); // «Schlafplatz finden» (Noah 28.10.2026)
   let picked = $state(null); // a point pressed long on the map
   let detour = $state(loadDetour());
   let gpxMsg = $state('');
@@ -1556,6 +1558,7 @@
           <a class="btn" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-landi><CloudRain size={18} aria-hidden="true" />{t('Landi rain radar')}</a>
           <button type="button" class="btn" onclick={() => ((menu = false), (night = true))} data-live-night><Moon size={18} aria-hidden="true" />{t('Night sheet')}</button>
           <button type="button" class="btn" onclick={() => ((menu = false), (picked = null), (reroute = true))} data-live-reroute><Route size={18} aria-hidden="true" />{t('Plan a new way to …')}</button>
+          <button type="button" class="btn" onclick={() => ((menu = false), (sleepFind = true))} data-live-sleep-open><Tent size={18} aria-hidden="true" />{t('Find a place to sleep')}</button>
           <!-- Navigation zum Ziel 2: the card on the map stays small, the GPX of the way lives here -->
           {#if detour && detour.back !== 'auto'}<button type="button" class="btn" onclick={() => ((menu = false), detourToGarmin())} data-live-detour-garmin><Route size={18} aria-hidden="true" />{t('GPX for Garmin')}</button>{/if}
           <button type="button" class="btn" onclick={() => ((menu = false), (place = true))} data-live-place><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
@@ -2030,6 +2033,7 @@
   {/if}
   <PoiPanel bind:this={poiPanel} title={false} canTap ongo={goTo} ontapmode={(v) => ((poiTapping = v), v && (closeNear(), (snap = 'peek')))} center={me ? { lat: me.lat, lon: me.lon } : null} bounds={mapBounds} line={route?.line ?? null} profile={route?.profile ?? null} tripId={trip?.id ?? null} onpoints={(l) => (poiPoints = l ?? [])} />
 </dialog>
+{#if sleepFind}<SleepFindSheet here={me} onhin={(p) => ((picked = p), (reroute = true))} onclose={() => (sleepFind = false)} />{/if}
 {#if reroute}<RerouteSheet here={me} pts={hasRoute ? pts : []} {km} {pois} {own} {picked} tripBikeId={trip?.bikeId ?? null} onplan={setDetour} onclose={() => ((reroute = false), (picked = null))} />{/if}
 {#if night}<NightSheet race={isRace ? race : null} ctx={isRace && trip ? { trip, race, stored, plan, save: (patch) => saveRace(tid, patch) } : null} awake={isRace ? awakeH(stored?.sleepLog ?? [], plan?.start, now) : 0} {now} {km} {pace} {bed} shop={lastShop} exitNear={exitNear} movingS={movingLive} pausedS={pausedLive} sleep={hasRoute ? { pois, own, pts, km, now, kmh: pace.kmh, wx: $wxQ?.data ?? null, bagC: race?.bagC ?? 5 } : null} ongo={(p) => ((night = false), goTo(p))} onmap={() => ((night = false), (picked = null), (goalTapping = true), (snap = 'peek'))} onclose={() => (night = false)} />{/if}
 {#if sos}<SosSheet here={me} {km} {routeName} {pois} onclose={() => (sos = false)} />{/if}
