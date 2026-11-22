@@ -3,7 +3,6 @@ import { describe, it, expect } from 'vitest';
 import { houseOf, houseLabel, addHouse, renameHouse, dropHouse, moveHouse, toggleHouse, resetHouse, doneOf, houseCount, houseValue, HOUSE_START } from '../src/lib/unterwegs/haus.js';
 import { keeperOf, addKeeper, renameKeeper, dropKeeper, moveKeeper, keeperCode, readKeeper, keeperUrl, keeperValue, KEEPER_START } from '../src/lib/unterwegs/hueter.js';
 import { eveningHints, startsTomorrow, nextDay } from '../src/lib/unterwegs/morgen.js';
-import { validate, buildRequest, TASK_NAMES } from '../api/_lib/helper.js';
 
 describe('Haus-Check', () => {
   it('starts with the suggestions, shown through t; typed lines stay as typed', () => {
@@ -74,11 +73,5 @@ describe('Bereit für morgen', () => {
     expect(keys({ wx: { min: 3, max: 30, rain: 'showers' }, open: ['a', 'b'], due: ['Kette'] })).toEqual(['cold', 'rain', 'hot', 'pack', 'bike', 'charge']);
     expect(eveningHints({ open: ['a', 'b', 'c', 'd'] })[0].vars).toEqual({ n: 4, names: 'a, b, c' });
     expect(eveningHints({ open: ['a'] })[0].text).toBe('Still to pack: {names}.');
-  });
-  it('the server task: strict tool, answers checked and cut', () => {
-    expect(TASK_NAMES).toContain('evening');
-    expect(buildRequest('evening', {}).tools[0].strict).toBe(true);
-    const out = validate('evening', {}, { hints: [{ text: ' Handschuhe  oben ', kind: 'weather' }, { text: 'x', kind: 'nope' }, { text: '' }, ...Array(6).fill({ text: 'y', kind: 'rest' })] });
-    expect(out.hints).toEqual([{ text: 'Handschuhe oben', kind: 'weather' }, { text: 'x', kind: 'rest' }, { text: 'y', kind: 'rest' }]);
   });
 });

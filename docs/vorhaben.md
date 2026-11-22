@@ -279,8 +279,8 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
   7. Monatsgrenze CHF 5, danach Pause bis zum nächsten Monat.
   8. Hinweis «noch nicht eingerichtet» nur in Neue Tour und Einstellungen.
 - **Beispiel Wartung:** «Kette: 2 400 km seit Wechsel, viele Regenfahrten. Mit der Lehre messen: ab 0,5 bald wechseln, ab 0,75 sofort.» Oder: «Bremsbeläge hinten: unter 1 mm Belag wechseln. Mindestdicke der Scheibe steht auf der Scheibe.»
-- **Technik:** kleiner Server auf Vercel (`api/helper.js`) hält den Anthropic-Schlüssel. Die App schickt nur, was die Aufgabe braucht: Namen, Gewichte, Bausteine, Notizen, km. Nie Fotos, Belege, Gesundheitsdaten oder Namen von Personen.
-- **Stand:** gebaut und getestet (PR #89), am 10.10.2026 auf Fünf Orte gebracht und als 0.77.0 vorbereitet (K1 a Ich › Helfer, K2 a «Frag den Helfer» oben in Neue Tour, K3 a Funkel-Knopf «Liste prüfen» am Handy in der Weiter-Leiste). Ohne Helfer-Code bleibt alles wie bisher; Noah richtet Schlüssel und Code in Vercel ein (Anleitung `docs/ki-helfer-einrichten.md`).
+- **Technik:** ausgebaut am 22.11.2026 (Noah «alle KI-Funktionen ausbauen», «a»): der Server und die Seite sind weg; KI im Gerät bleibt.
+- **Stand:** gebaut und getestet (PR #89), am 10.10.2026 auf Fünf Orte gebracht und als 0.77.0 vorbereitet (K1 a Ich › Helfer, K2 a «Frag den Helfer» oben in Neue Tour, K3 a Funkel-Knopf «Liste prüfen» am Handy in der Weiter-Leiste). Ohne Helfer-Code bleibt alles wie bisher; Ausgebaut: siehe `docs/releases/ki-weg-server.md`.
 
 ### 3. Startseite & Integrationen (E1–E4)
 
