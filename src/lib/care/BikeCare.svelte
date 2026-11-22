@@ -980,7 +980,13 @@
     transform: rotate(90deg);
   }
   .fl {
-    min-width: 0;
+    min-width: min-content; /* the words of the row's name stay whole; the right part gives way (wraps) first */
+    overflow-wrap: break-word;
+  }
+  .fold > summary .r {
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
   .fold > .btn {
     margin-bottom: 10px;
