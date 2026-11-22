@@ -1,0 +1,20 @@
+// «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe», Schritt L4): «Auftrag kopieren» und «Bilder speichern»
+export default {
+  'Improvement order': 'Verbesserungs-Auftrag',
+  '{day} · to change: {n} · notes: {m}': '{day} · zu ändern: {n} · Notizen: {m}',
+  'small change = one small step with a before and after picture · picture first = a picture of how it could look, then my ok': 'kleine Änderung = ein kleiner Schritt mit Vorher-Nachher-Bild · zuerst Bild = erst ein Bild, wie es aussehen könnte, dann mein ok',
+  'Without a page': 'Ohne Seite',
+  'picture first': 'zuerst Bild',
+  'small change': 'kleine Änderung',
+  'picture {n}': 'Bild {n}',
+  'Only a note, change nothing:': 'Nur zur Notiz, nichts ändern:',
+  'Copy the order': 'Auftrag kopieren',
+  'Save the pictures': 'Bilder speichern',
+  'Order copied: {n} entries.': 'Auftrag kopiert: {n} Einträge.',
+  'The order could not be copied. Select the text and copy it by hand.': 'Der Auftrag liess sich nicht kopieren. Markiere den Text und kopiere ihn von Hand.',
+  'Pictures saved: {n}. Attach them in the chat.': 'Bilder gespeichert: {n}. Hänge sie im Chat an.',
+  'No pictures to save yet.': 'Noch keine Bilder zum Speichern.',
+  'Nothing open to copy.': 'Nichts Offenes zum Kopieren.',
+  'Order for the chat': 'Auftrag für den Chat',
+  'Copy the open entries as one text, sorted by page, and save their pictures. You paste it in the chat. Nothing is sent from here.': 'Kopiert die offenen Einträge als einen Text, nach Seite sortiert, und speichert ihre Bilder. Du fügst ihn im Chat ein. Von hier wird nichts gesendet.',
+};

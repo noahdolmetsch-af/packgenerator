@@ -53,6 +53,7 @@ export default {
   'Orders and visits to the bike shop': 'Bestellungen und Besuche im Veloladen',
   'Parts and measures of every bike': 'Teile und Masse jedes Velos',
   'Your setup per bike: bags plan and log': 'Dein Setup pro Velo: Taschen-Plan und Logbuch',
+  'Your training: plans, sports and recovery': 'Dein Training: Pläne, Sportarten und Erholung',
   'Tick off today, rings and the week': 'Heute abhaken, Ringe und die Woche',
   'Timer, log and patterns of your meditation': 'Timer, Logbuch und Muster deiner Meditation',
   'Every activity from Strava, races and plans': 'Jede Aktivität von Strava, Rennen und Pläne',

@@ -7,7 +7,6 @@
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { ready } from './settle.js';
-import { TABS } from './placetab.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 
@@ -31,7 +30,7 @@ test('Heute abhaken: Bearbeiten, delete with history kept, restore, hide a tile'
   // «Aktiv neu» (Noah 22.10.2026 «4a»): «Ziele» is «Meine Sportarten»; a row opens the sport, «Bearbeiten» the editor
   await expect(page).toHaveURL(/#\/flow\/sports$/);
   await expect(page.locator('main h1')).toHaveText(T('My sports|tab'));
-  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.psubs:visible').getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page');
 
   // 2. delete, keep the history, restore
   await page.locator('[data-sport-row="run"]').click();

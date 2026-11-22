@@ -5,10 +5,10 @@
  */
 import { UNDO_MS } from '../ui/undo.js';
 import { db } from '../db.js';
-import { lang, t } from '../i18n.svelte.js';
+import { lang, t, locale } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
 import { tick, removeEntry, dayEntries, removeEntries, putEntries } from '../flowdb.js';
-import { tapSub } from '../flow.js';
+import { tapSub, addDays } from '../flow.js';
 import { TIMER_KEY, timerOf, startTimer, pauseTimer, resumeTimer, dueBowls, isDone, loggedMinutes, elapsedSec } from '../flowtimer.js';
 import { strike, wakeAudio } from '../flowbowl.js';
 import { strokesOf, soundAt, playSound, vibrate, schedulePlan, cancelPlan, playedByPlan, setVolume, wakeSounds } from '../flowsounds.js';
@@ -96,11 +96,16 @@ export async function undoTick(entryId) {
   await removeEntry(db, entryId);
   return true;
 }
-/** Tick with choices (the sheet): amount, place, minutes, a commute. */
+/** «yesterday» or «Fri 20 Nov» for the message of a tick on an earlier day. */
+export const dayWord = (day, today) => (day === addDays(today, -1) ? t('yesterday') : new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }));
+/** Tick with choices (the sheet): amount, place, minutes, a commute, and since «Gestern nachtragen» the day. */
 export async function tickWith(a, opts) {
   const today = localDay();
-  const e = await tick(db, a, { day: today, ...opts });
-  const what = opts.via === 'commute' ? t('{name} · commute ticked', { name: actName(a) }) : a.perTap > 1 || e.n > 1 ? t('{name} · {n} ticked', { name: actName(a), n: e.n }) : t('{name} ticked', { name: actName(a) });
+  // «Gestern nachtragen» (Noah 21.11.2026): opts.day is an earlier day; the entry counts there, the message says which day
+  const day = opts.day ?? today;
+  const e = await tick(db, a, { ...opts, day });
+  const base = opts.via === 'commute' ? t('{name} · commute ticked', { name: actName(a) }) : a.perTap > 1 || e.n > 1 ? t('{name} · {n} ticked', { name: actName(a), n: e.n }) : t('{name} ticked', { name: actName(a) });
+  const what = day === today ? base : t('{what} · for {day}', { what: base, day: dayWord(day, today) });
   // a new star from this tick: its own small window (no confetti); «Rückgängig» takes the tick and that star back
   let won = [];
   let near = null;

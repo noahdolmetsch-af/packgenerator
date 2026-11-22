@@ -63,11 +63,9 @@
   import { localDay } from '../localday.js';
   import { mainStep, packedAll } from '../phase.js';
   import '../trip/trip.css';
-  import { Sparkles, ArrowDown } from '@lucide/svelte';
+  import { ArrowDown } from '@lucide/svelte';
   import { packSteps } from '../trips.js';
   import { missingOf, missingText } from '../touren/tourstep.js';
-  import ListCheck from '../helper/ListCheck.svelte';
-  import { isOn } from '../helper/client.svelte.js';
   // Klick-Rundgang H33 (parked until Noah's OK): an empty list offers a template's list in one tap
   import { tripFromTemplate, tplDomain } from '../templates.js';
   import { domainOf } from '../domains.js';
@@ -195,14 +193,6 @@
     history.replaceState(null, '', '#/pack');
     if (!fixed) show('add');
   });
-  // v0.77.0 KI-Helfer (answer 4a, K3a): «Liste prüfen» from the ••• menu and next to «Weiter: Packen»
-  // (on a phone the sparkle on the left of the bar); a second tap asks again.
-  let checking = $state(0);
-  function openCheck() {
-    checking++;
-    setTimeout(() => document.querySelector('.kh-check')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
-  }
-  const checkHere = $derived(isOn() && main.href === '#/pack?day');
   // v0.102.0 Design-Refresh P4 «Touren» (T3–T5, approved 12.10.2026): the top of Plan in two columns:
   // the route with map and height profile, the bike with its bags, the weather at the campsites (left);
   // the weight, the stages, the learnings (right). An event starts with «Bis zum Start» and its weather.
@@ -320,11 +310,10 @@
 {#snippet go()}
   {#if main.kind === 'add'}<button class="btn hi go" onclick={() => show('add')}>{t(main.label)}<Plus size={20} aria-hidden="true" /></button>
   {:else if main.kind === 'packgo'}<button class="btn hi go" onclick={actions.packAndGo}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
-  {:else if main.href === '#/pack?day'}{#if checkHere && !phone.matches}<span class="kh-gorow">{@render checkBtn()}<button class="btn hi go" onclick={toPack}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button></span>{:else}<button class="btn hi go" onclick={toPack}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>{/if}
+  {:else if main.href === '#/pack?day'}<button class="btn hi go" onclick={toPack}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></button>
   {:else if main.kind === 'go'}<a class="btn hi go" href={main.href} onclick={() => actions.choose(trip.id)}>{t(main.label)}<ArrowRight size={20} aria-hidden="true" /></a>{/if}
 {/snippet}
-{#snippet checkBtn()}<button type="button" class="tp-icon-btn kh-go-check" onclick={openCheck}><Sparkles size={18} aria-hidden="true" /><span class="kh-lbl">{t('Check the list')}</span></button>{/snippet}
-{#snippet plus()}{#if checkHere && phone.matches}{@render checkBtn()}{/if}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')} data-add-mat><Plus size={22} aria-hidden="true" /></button>{/snippet}
+{#snippet plus()}<button type="button" class="tp-icon-btn" aria-label={t('Add material')} onclick={() => show('add')} data-add-mat><Plus size={22} aria-hidden="true" /></button>{/snippet}
 
 <!-- «Vereinfachen ohne Verlust» step 2 (Noah 07.11.2026): the planning cards that used to stand beside and under the list, sorted into five groups -->
 {#snippet gWeather()}<DoorCard {trip} only={['planb']} />{/snippet}
@@ -438,7 +427,6 @@
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <details class="list-menu" bind:this={menuEl} use:away onkeydown={(e) => e.key === 'Escape' && closeMenu(e)}><summary aria-label={t('More: other trip, edit trip, templates, print')}><MoreHorizontal size={24} aria-hidden="true" /></summary>
               <div class="list-menu-content" use:inView>
-                {#if isOn() && !fixed}<button class="kh-menu-check" onclick={menu(openCheck)}><Sparkles size={16} aria-hidden="true" />{t('Check the list')}</button>{/if}
                 <label>{t('Open another trip')}<select class="sel" value={trip.id} onchange={(e) => { changeTrip(e.currentTarget.value); menuEl.open = false; }}>{#each trips as tr}<option value={tr.id}>{tr.title}</option>{/each}</select></label>
                 <!-- v0.30.1 (Noah N9): the past trips, easy to find next to the trip chooser. -->
                 {#if pastN}<a href="#/pack/past">{t('Past trips ({n})', { n: pastN })}</a>{/if}
@@ -463,7 +451,6 @@
             </details>
           </div>
         </section>
-        {#if checking}{#key checking}<ListCheck {trip} {items} onadd={actions.helperAdd} onremove={actions.remove} onsearch={(name) => { q = name; show('add'); }} onclose={() => (checking = 0)} />{/key}{/if}
         <!-- L9: a trip made without any gear lands here: say so kindly and lead to adding the first item. -->
         {#if !trip.entries.length}
           <!-- v0.127.0 A-U2: the one empty building block -->
