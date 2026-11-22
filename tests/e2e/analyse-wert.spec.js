@@ -108,7 +108,7 @@ test('«Zurück zu Heute»: the page of a value remembers where you came from (A
   await page.evaluate(() => (location.hash = '#/flow'));
   await ready(page);
   await page.evaluate(() => (location.hash = '#/auswerten/analyse/rhr'));
-  await expect(page.locator('[data-detail="rhr"] [data-crumb-back]')).toContainText(T('Active|place'));
+  await expect(page.locator('[data-detail="rhr"] [data-crumb-back]')).toContainText(T('Plan|place'));
   await page.locator('[data-detail="rhr"] [data-crumb-back]').click();
   await expect(page).toHaveURL(/#\/flow$/);
   expect(errors).toEqual([]);

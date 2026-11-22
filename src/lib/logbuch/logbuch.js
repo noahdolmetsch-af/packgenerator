@@ -35,7 +35,7 @@ const clean = (s, max) => String(s ?? '').trim().slice(0, max);
  * A new entry from what the window collected. Returns null without a valid kind or without a text.
  * `now` is a Date (the day is the local calendar day of the device, never a UTC cut).
  */
-export function makeEntry({ art, urgent, text, page, block, device, width, now = new Date(), id, photo = null, source = 'user' }) {
+export function makeEntry({ art, urgent, text, page, pageTitle = '', block, device, width, now = new Date(), id, photo = null, source = 'user' }) {
   if (!ARTS.includes(art)) return null;
   const body = clean(text, 1000);
   if (!body) return null;
@@ -48,6 +48,7 @@ export function makeEntry({ art, urgent, text, page, block, device, width, now =
     urgent: art === 'gutso' ? null : URGENT.includes(urgent) ? urgent : 'later',
     text: body,
     page: clean(page, 200),
+    pageTitle: clean(pageTitle, 80), // the shown title of the page («Training»), set by the button «Verbessern»
     block: clean(block, 80),
     route,
     device: device === 'computer' ? 'computer' : 'phone',
