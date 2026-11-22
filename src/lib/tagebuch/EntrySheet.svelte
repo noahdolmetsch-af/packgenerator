@@ -6,7 +6,7 @@
    * and appointments of that day, chosen with a tick and added as lines. What was typed stays when the
    * window closes without saving (keepTyped), until «Discard».
    */
-  import { X, Trash2, Check, Star, MapPin, Tag, Plus, CloudSun, LayoutGrid, Sparkles } from '@lucide/svelte';
+  import { X, Trash2, Check, Star, MapPin, Tag, Plus, CloudSun, LayoutGrid } from '@lucide/svelte';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import PhotoPick from '../ui/PhotoPick.svelte';
   import DrawOn from '../draw/DrawOn.svelte'; // Paket NE 1146 (Noah 20.10.2026 «1b»): draw on a photo of the entry
@@ -22,12 +22,8 @@
   import { saveEntry, deleteEntry, restoreEntry, dayThings, weatherPlace, weatherNow } from './journaldb.js';
   import { questionText } from './fragen.js';
   import { MOODS, moodName } from './insights.js';
-  import { diaryAi, cleanTitle } from './ai.js';
-  import { geminiError } from '../assistent/gemini.js';
   import InputBar from '../eingabe/InputBar.svelte'; // «Eingaben überall» (Noah 26.10.2026): voice note, file, templates, prompts
-  import { inputAi } from '../eingabe/inputsdb.js';
-  import { aiLines, highlightsBlock, withBlock } from '../eingabe/inputs.js';
-  import { t, tn, lang } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import '../bikes/velo-dlg.css';
 
   /** entry: the entry to change, or a new one ({ day, time, q, … }); tags: all tags (suggestions); dictate: start listening at once. */
@@ -151,47 +147,6 @@
     }
     things = null;
   }
-  /* ---------- Gemini (Noah «1a»: only with a tick, each time) ---------- */
-  let aiOk = $state(false);
-  let aiBusy = $state('');
-  let aiMsg = $state('');
-  let tidy = $state(null); // the tidied text waiting for «Use it» or «Discard»
-  async function ai(mode) {
-    if (!aiOk || aiBusy) return;
-    if (!String(e.text ?? '').trim()) return (aiMsg = t('Write or dictate some text first.'));
-    aiBusy = mode;
-    aiMsg = '';
-    aiOut = null;
-    const r = mode === 'prompts' || mode === 'highlights' ? await inputAi(mode, { text: e.text, place: 'diary', lang: lang.v === 'en' ? 'en' : 'de' }) : await diaryAi(mode, { context: String(e.text).slice(0, 11000), lang: lang.v === 'en' ? 'en' : 'de' });
-    aiBusy = '';
-    aiOk = false;
-    if (!r.ok) return (aiMsg = geminiError(r.error));
-    if (mode === 'prompts' || mode === 'highlights') {
-      const lines = aiLines(r.text, mode === 'prompts' ? 3 : 4);
-      if (lines.length) aiOut = { mode, lines };
-      else aiMsg = geminiError('error');
-    } else if (mode === 'title') {
-      const s = cleanTitle(r.text);
-      if (s) e.title = s;
-      else aiMsg = geminiError('error');
-    } else tidy = r.text.trim();
-  }
-  // «Eingaben überall»: writing prompts and highlights from Gemini (the same tick)
-  let aiOut = $state(null); // { mode: 'prompts' | 'highlights', lines }
-  function usePrompt(s) {
-    e.text = withBlock(e.text, s);
-    aiOut = null;
-    textEl?.focus();
-  }
-  function useHighlights() {
-    e.text = withBlock(e.text, highlightsBlock(aiOut.lines, t('Highlights')));
-    aiOut = null;
-  }
-  function useTidy() {
-    e.text = tidy;
-    tidy = null;
-  }
-
   const GROUPS = { Activities: 'Activities', Body: 'Body', Tours: 'Tours', Notes: 'Notes', Active: 'Active', Calendar: 'Calendar', Weather: 'Weather' };
 </script>
 
@@ -223,41 +178,6 @@
         <span class="tbe-count" aria-live="polite">{tn(words, '{n} word', '{n} words')}</span>
       </div>
       <InputBar place="diary" {start} text={e.text} ontext={(s) => (e.text = s)} inputs={e.inputs} oninputs={(x) => (e.inputs = x)} />
-
-      <div class="tbe-ai" data-tb-ai>
-        <label class="tbe-aiok"><input type="checkbox" bind:checked={aiOk} data-tb-ai-ok /><span><Sparkles size={16} aria-hidden="true" /> {t('Send the text of this entry to Gemini (Google) for one step. Free; photos and place stay here.')}</span></label>
-        <div class="tbe-inline">
-          <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('title')} data-tb-ai-title>{aiBusy === 'title' ? t('Gemini is thinking …') : t('Suggest a title')}</button>
-          <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('tidy')} data-tb-ai-tidy>{aiBusy === 'tidy' ? t('Gemini is thinking …') : t('Tidy up the text')}</button>
-          <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('prompts')} data-tb-ai-prompts>{aiBusy === 'prompts' ? t('Gemini is thinking …') : t('Prompts that fit')}</button>
-          <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('highlights')} data-tb-ai-highlights>{aiBusy === 'highlights' ? t('Gemini is thinking …') : t('Highlights')}</button>
-        </div>
-        {#if aiOut}
-          <div class="tbe-tidy" data-tb-ai-out>
-            <span class="tbe-note">{aiOut.mode === 'prompts' ? t('Prompts from Gemini. A tap puts one under your text.') : t('Highlights from Gemini. Check them before you keep them.')}</span>
-            {#if aiOut.mode === 'prompts'}
-              <div class="tbe-chips">{#each aiOut.lines as s (s)}<button type="button" class="tbe-chip" onclick={() => usePrompt(s)}>{s}</button>{/each}</div>
-            {:else}
-              <ul class="tbe-hl">{#each aiOut.lines as s (s)}<li>{s}</li>{/each}</ul>
-              <div class="tbe-inline">
-                <button type="button" class="btn sm hi" onclick={useHighlights} data-tb-ai-hl-use>{t('Put under the text')}</button>
-                <button type="button" class="btn sm" onclick={() => (aiOut = null)}>{t('Discard')}</button>
-              </div>
-            {/if}
-          </div>
-        {/if}
-        {#if aiMsg}<p class="tbe-note" role="status" data-tb-ai-msg>{aiMsg}</p>{/if}
-        {#if tidy !== null}
-          <div class="tbe-tidy" data-tb-ai-tidied>
-            <span class="tbe-note">{t('Tidied up by Gemini. Check it before you use it.')}</span>
-            <p>{tidy}</p>
-            <div class="tbe-inline">
-              <button type="button" class="btn sm hi" onclick={useTidy} data-tb-ai-use>{t('Use it')}</button>
-              <button type="button" class="btn sm" onclick={() => (tidy = null)}>{t('Discard')}</button>
-            </div>
-          </div>
-        {/if}
-      </div>
 
       <div class="tbe-sec">
         <span class="tbe-h3">{t('Photos')}</span>
@@ -422,33 +342,6 @@
     filter: none;
     opacity: 1;
   }
-  .tbe-ai {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px 12px;
-    border-radius: 14px;
-    background: var(--paper-2);
-  }
-  .tbe-aiok {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: var(--fs-small);
-    color: var(--ink-2);
-    cursor: pointer;
-  }
-  .tbe-aiok input {
-    width: 20px;
-    height: 20px;
-    margin-top: 1px;
-    flex: none;
-  }
-  .tbe-tidy p {
-    margin: 6px 0 8px;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-  }
   .tbe-title {
     font-weight: 600;
     font-size: var(--fs-sub);
@@ -471,10 +364,6 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
     font-variant-numeric: tabular-nums;
-  }
-  .tbe-hl {
-    margin: 0;
-    padding-left: 20px;
   }
   .tbe-sec {
     display: flex;
