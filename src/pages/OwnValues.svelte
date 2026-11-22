@@ -23,7 +23,7 @@
   import { sortBikes } from '../lib/bikes.js';
   import { localDay } from '../lib/localday.js';
   import { pageInfo } from '../lib/pageinfo/store.svelte.js';
-  import { setTipsOn, setKnowOn } from '../lib/pageinfo.js';
+  import { setTipsOn, setLineOn, setKnowOn } from '../lib/pageinfo.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, tn, num } from '../lib/i18n.svelte.js';
   import { Minus, Plus, Undo2, ChevronRight, Package, Bike, Database, Lightbulb, Wrench, Info, Activity, Pencil, BellRing, RotateCcw } from '@lucide/svelte';
@@ -170,7 +170,13 @@
       <ul class="ich-list">
         <li class="ew-row">
           <div class="ew-top">
-            <span class="ich-m"><b id="ew-tips">{t('Tips on all pages')}</b><small>{t('One tip a day under the page title. Off: no tip line any more.')}</small></span>
+            <span class="ich-m"><b id="ew-line">{t('Tip line under the page title')}</b><small>{t('One tip a day under the title of a page. Off: the tips stay in «Tips for this page» at the page end.')}</small></span>
+            <label class="ew-sw"><input type="checkbox" role="switch" data-own-line aria-labelledby="ew-line" checked={pi.info.lineOn} onchange={(e) => ((on) => pi.save((v) => setLineOn(v, on)))(e.currentTarget.checked)} /></label>
+          </div>
+        </li>
+        <li class="ew-row">
+          <div class="ew-top">
+            <span class="ich-m"><b id="ew-tips">{t('Tips on all pages')}</b><small>{t('Off: no tips at all, also not in «Tips for this page».')}</small></span>
             <label class="ew-sw"><input type="checkbox" role="switch" data-own-tips aria-labelledby="ew-tips" checked={pi.info.tipsOn} onchange={(e) => ((on) => pi.save((v) => setTipsOn(v, on)))(e.currentTarget.checked)} /></label>
           </div>
         </li>
