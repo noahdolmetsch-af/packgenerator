@@ -1,6 +1,6 @@
 # Meditation zieht nach «Alltag»
 
-PR #<Nummer> · 22.11.2026 · Schritt V4b2 (Teil 1) der neuen Ordnung · Entscheid Noah «V4 ok» (21.11.2026), Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
+PR #1459 · 22.11.2026 · Schritt V4b2 (Teil 1) der neuen Ordnung · Entscheid Noah «V4 ok» (21.11.2026), Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
 
 ## Was ist neu
 - Woche › Alltag hat einen neuen Chip «Meditation». Er öffnet die Meditation-Seite (Timer, Protokoll, Rückblick, «Mehr») und ist auf diesen Seiten markiert.
