@@ -1,6 +1,6 @@
 # Freie Zeit in drei Gruppen
 
-PR #<Nummer> · 22.11.2026 · Auftrag: Noah «1a» (Thread «App-Landkarte»)
+PR #1399 · 22.11.2026 · Auftrag: Noah «1a» (Thread «App-Landkarte»)
 
 ## Was ist neu
 - Auf der Seite «Freie Zeit» (Planen › Alltag) stehen die acht Seiten unter drei Überschriften: «Für den Moment» (Impulse, Worauf hab ich Lust?, Mein Abend), «Für mich» (Was mir wesentlich ist, Meine Sammlungen, Reise-Wünsche) und «Rund ums Packen» (Erste Nacht, Fürs nächste Mal).
