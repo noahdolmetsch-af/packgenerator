@@ -5,6 +5,7 @@
  */
 import { t, tn, num, nameOf, locale } from './i18n.svelte.js';
 import { PAGE_ROWS, ACTIONS } from './nav/menu.js';
+import { MORE_KIND, moreGroups } from './suche/mehr.js';
 
 const norm = (s) => String(s ?? '').toLowerCase();
 /** The added words of a diary entry (eingabe/inputs.js inputWords, kept short here so search.js stays light). */
@@ -25,6 +26,7 @@ export const KIND = {
   note: { name: 'Notes', max: 3 },
   diary: { name: 'Diary', max: 3 }, // «Eingaben überall» (Noah 26.10.2026 «5a aber b möglich»): only when the diary is open
   log: { name: 'Logbook', max: 3 }, // v0.42.0 (Noah 9): the old trips of the Excel and the logbook
+  ...MORE_KIND, // Warteliste 1 V1: rides, places, learnings, bike care, training, tasks, settings
   page: { name: 'Pages', max: 4 },
   action: { name: 'Actions', max: 3 },
 };
@@ -39,7 +41,7 @@ const PAGES = PAGE_ROWS;
  * Results grouped by kind, best first: [{ kind, name, rows: [{ id, title, sub, href, tripId? }] }].
  * Empty groups are left out; fewer than 2 letters find nothing.
  */
-export function searchAll(q, { items = [], trips = [], templates = [], bikes = [], notes = [], events = [], diary = [] } = {}) {
+export function searchAll(q, { items = [], trips = [], templates = [], bikes = [], notes = [], events = [], diary = [], more = null, full = null } = {}) {
   const words = norm(q).trim().split(/\s+/).filter(Boolean);
   if (!words.length || norm(q).trim().length < 2) return [];
   const hit = (...fields) => {
@@ -77,6 +79,8 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
       .filter((e) => hit(e.name, e.note, e.date, e.dateText, e.result, e.learnings))
       .sort((a, b) => (b.sortDate ?? '').localeCompare(a.sortDate ?? ''))
       .map((e) => ({ id: e.id, title: e.name, sub: [e.date ?? e.dateText ?? '', e.source === 'excel' ? t('from Excel') : ''].filter(Boolean).join(' · '), href: '#/debrief/logbook' })),
+    // the tables that load only once something is typed (suche/mehr.js); without them: nothing
+    ...(more ? moreGroups(hit, more) : {}),
     page: PAGES.filter((p) => hit(p.words, p.title, t(p.title))).map((p) => ({
       id: p.id,
       title: t(p.title),
@@ -90,7 +94,11 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
   };
   return Object.entries(groups)
     .filter(([, rows]) => rows.length)
-    .map(([kind, rows]) => ({ kind, name: KIND[kind].name, rows: rows.slice(0, KIND[kind].max), more: Math.max(0, rows.length - KIND[kind].max) }));
+    .map(([kind, rows]) => {
+      // «Alle zeigen» (V4): the kind chosen in the buttons is not cut
+      const cap = full === kind ? rows.length : KIND[kind].max;
+      return { kind, name: KIND[kind].name, rows: rows.slice(0, cap), more: Math.max(0, rows.length - cap) };
+    });
 }
 
 /* ---------- v0.46.0 «Startseite neu» (Noah 14a): the search becomes "What do you want to do?" ----------
