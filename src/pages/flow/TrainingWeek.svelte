@@ -39,6 +39,13 @@
   import { racesQuery } from '../../lib/race/store.js';
   import { raceTrips, daysBetween } from '../../lib/race/race.js';
   import { raceHref } from '../../lib/race/parts.js';
+  import { DREAMS_KEY, storeOf as dreamStore, dreamList } from '../../lib/dreams.js'; // «Tour einplanen»
+  import { weekQuery } from '../../lib/woche/load.js'; // «Zeitplan»: the dates of the week stand in the schedule
+  import { buildWeek } from '../../lib/woche.js';
+  import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, lightOf, planWeek } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
+  import { WEEKLOG_KEY, logOf, weekLog } from '../../lib/training/wochenlog.js';
+  import { UNIT_NAME } from '../../lib/training/wochenplan-text.js';
+  import { toMin, fmtMin, sortRows, busyOf, freeSlot } from '../../lib/training/zeitplan.js';
 
   let { acts = [] } = $props();
 
@@ -211,6 +218,44 @@
   }
 
   let monday = $state(mondayOf(today));
+
+  // «Zeitplan» (Noah 21.11.2026 «V4 ok»): the week as a schedule. Every day lists own sessions, TrainingPeaks, the suggestions of the
+  // weekly plan (dashed) and the dates with their time; the free slot of the day is the button to plan a session.
+  const srcQ = weekQuery(today);
+  const dateSrc = $derived($srcQ);
+  const weekDates = $derived(
+    dateSrc
+      ? buildWeek({ ...dateSrc, forecast: null, hide: [], monday, today, goalHours: null, actName: (id) => id })
+          .days.map((d) => ({ day: d.day, rows: d.entries.filter((e) => e.kind === 'date').map((e) => ({ key: e.id, title: e.title, time: e.time || '', mins: e.sub?.mins ?? 60 })) }))
+      : [],
+  );
+  const wpQ = liveQuery(async () => (await db.settings.get(WEEKPLAN_KEY))?.value ?? null);
+  const wlQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
+  // only this week and next week carry suggestions, and only once a weekly plan was saved
+  const suggested = $derived.by(() => {
+    if ($wpQ == null || monday < mondayOf(today) || monday > shiftDay(mondayOf(today), 7)) return [];
+    const sum = isSummer(monday);
+    const cfgs = weekplanOf($wpQ);
+    const log = weekLog(logOf($wlQ), monday);
+    const cfg = log.mode.light ? lightOf(sum ? cfgs.summer : cfgs.winter, sum) : sum ? cfgs.summer : cfgs.winter;
+    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain })
+      .units.filter((u) => u.type !== 'med' && u.type !== 'stretch' && !log.released.includes(u.id))
+      .map((u) => ({ key: u.id, day: shiftDay(monday, u.d), title: t(UNIT_NAME[u.type] ?? 'Session'), time: u.t, mins: u.mins, done: !!log.done[u.id] }));
+  });
+  // one day: what stands on it in order, and the free slot
+  const dayRows = (d) => {
+    const rows = [
+      ...sessions.filter((s) => s.day === d).map((s) => ({ ...s, row: 'plan' })),
+      ...(weekDates.find((x) => x.day === d)?.rows ?? []).map((x) => ({ ...x, row: 'date' })),
+      ...suggested.filter((x) => x.day === d).map((x) => ({ ...x, row: 'sug' })),
+    ];
+    return sortRows(rows);
+  };
+  const slotOf = (d) => freeSlot(busyOf(dayRows(d)));
+  const slotText = (d) => {
+    const f = slotOf(d);
+    return f ? t('free {from}–{to}', { from: fmtMin(f.from), to: fmtMin(f.to) }) : t('Plan a session');
+  };
   const days = $derived(weekOf(monday));
   const sessions = $derived(plan.filter((s) => s.day >= monday && s.day < shiftDay(monday, 7)));
   const weekActs = $derived(acts.filter((a) => a.day >= monday && a.day < shiftDay(monday, 7)));
@@ -227,8 +272,13 @@
   // one session in the form: a new one on a day, or a planned one
   let form = $state(null);
   const KINDS = ['bike', 'run', 'hike', 'other'];
-  const add = (day) => ((newSport = null), (form = { id: '', day, kind: 'bike', name: '', mins: 60, zone: 2, sport: '' }));
-  const edit = (s) => ((newSport = null), (form = { ...s, zone: s.zone ?? 0, sport: s.sport ?? '' }));
+  // «Neue Einheit» (Noah 21.11.2026): opened from the free slot of a day, so the time starts at the slot
+  const add = (day) => ((newSport = null), (form = { id: '', day, kind: 'bike', name: '', mins: 60, zone: 2, sport: '', time: slotOf(day) ? fmtMin(slotOf(day).from) : '' }));
+  // «Tour einplanen»: the dreams (remembered tours) as a quick fill; the person changes name, kind and length as for any session
+  const dreamsQ = liveQuery(async () => (await db.settings.get(DREAMS_KEY))?.value ?? null);
+  const dreamPicks = $derived(dreamList(dreamStore($dreamsQ).dreams).slice(0, 4));
+  const pickDream = (d) => (form = { ...form, kind: d.kind === 'snow' ? 'other' : 'bike', name: d.title, mins: 240, sport: '' });
+  const edit = (s) => ((newSport = null), (form = { ...s, zone: s.zone ?? 0, sport: s.sport ?? '', time: s.time ?? '' }));
   async function keep(e) {
     e.preventDefault();
     const s = cleanSession({ ...form, sport: form.kind === 'other' ? form.sport : '' });
@@ -343,7 +393,7 @@
     <!-- Impeccable runde 2 (clarify): the explanation stands above the days; the week and its hours sit by the week arrows -->
     <!-- UI-Test Training 17.11.2026 (Fund 3): this card is the week by hand, so it is not called «Woche planen» (that is the
          place Planen › Woche); the way to the automatic «Wochenplan» stands beside the training plans -->
-    <Sec id="plan-h" title={t('My week|plan')} sub={t('Tap + on a day to plan a session. Dashed = planned, green = done (from Strava).')} edit={{ href: '#/flow/wochenplan', label: t('Weekly plan') }} more={{ href: '#/flow/plans', label: t('Training plans') }}>
+    <Sec id="plan-h" title={t('My week|plan')} sub={t('Tap the free slot of a day to plan a session. Solid = yours, dashed = suggestion, green = done.')} edit={{ href: '#/flow/wochenplan', label: t('Weekly plan') }} more={{ href: '#/flow/plans', label: t('Training plans') }}>
       <div class="card plan" data-section="week-plan">
         <div class="nav">
           <span class="rg num" data-week-range>{goal?.hours ? t('{range} · planned {a} of {b} h', { range, a: hours(nums.planned), b: hours(goal.hours * 60) }) : t('{range} · planned {a} h', { range, a: hours(nums.planned) })}</span>
@@ -362,34 +412,37 @@
                   {@const z = mainZone(zoneSecs(a.hist, zones.bounds))}
                   <a class="ch done" href="#/flow/training/a/{encodeURIComponent(a.id)}" data-done={a.id}><KindIcon kind={a.kind} size={14} /><span class="cn">{stravaName(a.name) || t(typeKey(a.type))}</span><span class="num">· {rideTimeS(a.movingS)}</span>{#if z != null}<i class="zt z{z + 1}">Z{z + 1}</i>{/if}<Check size={14} aria-hidden="true" /></a>
                 {/each}
-                {#each planned as s (s.id)}
-                  {@const by = doneOf(s, done)}
-                  <button type="button" class="ch plan" class:ok={by} onclick={() => edit(s)} data-planned={s.id}><KindIcon kind={s.kind} size={14} /><span class="cn">{planName(s)}</span>{#if s.src === 'tp'}<i class="tpm" title={t('From TrainingPeaks')} aria-label={t('From TrainingPeaks')}>TP</i>{/if}<span class="num">· {hours(s.mins)}</span>{#if s.zone}<i class="zt z{s.zone}">Z{s.zone}</i>{/if}{#if by}<span class="sr">{t('done')}</span><Check size={14} aria-hidden="true" />{/if}</button>
+                {#each dayRows(d) as r (`${r.row}:${r.id ?? r.key}`)}
+                  {#if r.row === 'plan'}
+                    {@const s = r}
+                    {@const by = doneOf(s, done)}
+                    <button type="button" class="ch plan" class:ok={by} onclick={() => edit(s)} data-planned={s.id}>{#if s.time}<span class="tm num">{s.time}</span>{/if}<KindIcon kind={s.kind} size={14} /><span class="cn">{planName(s)}</span>{#if s.src === 'tp'}<i class="tpm" title={t('From TrainingPeaks')} aria-label={t('From TrainingPeaks')}>TP</i>{/if}<span class="num">· {hours(s.mins)}</span>{#if s.zone}<i class="zt z{s.zone}">Z{s.zone}</i>{/if}{#if by}<span class="sr">{t('done')}</span><Check size={14} aria-hidden="true" />{/if}</button>
+                  {:else if r.row === 'date'}
+                    <span class="ch date" data-date-row>{#if r.time}<span class="tm num">{r.time}</span>{/if}<span class="cn">{r.title}</span></span>
+                  {:else}
+                    <a class="ch sug" class:ok={r.done} href="#/flow/wochenplan" data-sug-row title={t('Suggestion of your weekly plan')}><span class="tm num">{r.time}</span><span class="cn">{r.title}<small class="sub">{t('Suggestion')} · {hours(r.mins)}</small></span>{#if r.done}<Check size={14} aria-hidden="true" />{/if}</a>
+                  {/if}
                 {/each}
-                <button type="button" class="ch add" aria-label={t('Plan a session on {day}', { day: fmt(d, { weekday: 'long' }) })} onclick={() => add(d)} data-add={d}><Plus size={14} aria-hidden="true" /></button>
+                <button type="button" class="ch add" aria-label={t('Plan a session on {day}', { day: fmt(d, { weekday: 'long' }) })} onclick={() => add(d)} data-add={d}><Plus size={14} aria-hidden="true" /><span class="ft">{slotText(d)}</span></button>
               </span>
               {#if form?.day === d}
                 <form class="sf" onsubmit={keep} data-session-form>
+                  <h3 class="fh">{form.id ? t('Change session') : t('New session on {day}', { day: fmt(d, { weekday: 'long' }) })}</h3>
                   <Seg small chips full={false} label={t('Kind')} value={form.kind} onchange={(k) => (form.kind = k)} options={KINDS.map((k) => ({ key: k, name: t(KIND_NAMES[k]) }))} />
-                  {#if form.kind === 'other'}
+                  <div class="sprow" role="group" aria-label={t('Your sports')} data-sport-row>
+                    {#each sports as a (a.id)}<button type="button" class="chip" aria-pressed={form.kind === 'other' && form.sport === a.id} onclick={() => ((form.kind = 'other'), (form.sport = a.id))} data-sport-chip>{sportName(a)}</button>{/each}
+                    {#if newSport == null}<button type="button" class="chip" onclick={() => ((form.kind = 'other'), (newSport = ''))} data-sport-new>+ {t('Add a sport')}</button>{/if}
+                  </div>
+                  {#if newSport != null}
                     <div class="sfl">
-                      <label>{t('Sport')}
-                        <select class="sel" bind:value={form.sport} data-session-sport>
-                          <option value="">{t('Other (no sport)')}</option>
-                          {#each sports as a (a.id)}<option value={a.id}>{sportName(a)}</option>{/each}
-                        </select>
-                      </label>
-                      {#if newSport == null}
-                        <button type="button" class="btn btn-link sm" onclick={() => (newSport = '')} data-sport-new>{t('Add a sport')}</button>
-                      {:else}
-                        <label>{t('Name of the new sport')}<input class="inp" bind:value={newSport} maxlength="40" data-sport-name /></label>
-                        <span class="row"><button type="button" class="btn sm" onclick={addSport} data-sport-save>{t('Add')}</button><button type="button" class="btn btn-link sm" onclick={() => (newSport = null)}>{t('Cancel')}</button></span>
-                      {/if}
+                      <label>{t('Name of the new sport')}<input class="inp" bind:value={newSport} maxlength="40" data-sport-name /></label>
+                      <span class="row"><button type="button" class="btn sm" onclick={addSport} data-sport-save>{t('Add')}</button><button type="button" class="btn btn-link sm" onclick={() => (newSport = null)}>{t('Cancel')}</button></span>
                     </div>
-                    <p class="hint">{t('Your sports are the ones from «Meine Aktivitäten». Done is ticked as soon as you tick the sport in Aktiv.')}</p>
                   {/if}
+                  {#if form.kind === 'other'}<p class="hint">{t('Your sports are the ones from «Meine Aktivitäten». Done is ticked as soon as you tick the sport in Aktiv.')}</p>{/if}
                   <div class="sfl">
                     <label>{t('Name (optional)')}<input class="inp" bind:value={form.name} placeholder={t('e.g. Intervals 4 × 6 min')} data-session-name /></label>
+                    <label>{t('Start time')}<input class="inp" type="time" bind:value={form.time} data-session-time /></label>
                     <label>{t('Minutes')}<input class="inp num" type="number" min="5" max="1440" step="5" bind:value={form.mins} data-session-mins /></label>
                     <label>{t('Zone')}
                       <select class="sel" bind:value={form.zone} data-session-zone>
@@ -398,6 +451,12 @@
                       </select>
                     </label>
                   </div>
+                  {#if !form.id && dreamPicks.length}
+                    <div class="dr" data-dream-picks>
+                      <p class="hint">{t('Or plan one of your remembered tours:')}</p>
+                      <div class="sprow">{#each dreamPicks as dm (dm.id)}<button type="button" class="chip" onclick={() => pickDream(dm)} data-dream-pick>{t('Plan tour: {name}', { name: dm.title })}</button>{/each}<a class="chip" href="#/trips/dreams">{t('All remembered tours')} ›</a></div>
+                    </div>
+                  {/if}
                   <Library items={library} canSave {hours} onpick={pickFromLibrary} onsave={saveToLibrary} onchange={changeLibrary} />
                   <div class="row">
                     <button type="submit" class="btn hi sm">{t('Save')}</button>
@@ -631,10 +690,54 @@
     background: var(--accent-soft);
   }
   .ch.add {
-    width: 40px;
+    flex: none;
+    width: 100%;
     justify-content: center;
-    padding: 0;
+    padding: 0 12px;
     color: var(--ink-2);
+  }
+  /* «Zeitplan»: one row per entry, the time first; a date is quiet, a suggestion of the weekly plan is dashed */
+  .chips {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+  }
+  .ch.plan,
+  .ch.done,
+  .ch.sug,
+  .ch.date {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .ch .num,
+  .ch > :global(svg) {
+    margin: 0;
+  }
+  .ch .cn {
+    flex: 1 1 auto;
+  }
+  .sub {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  .tm {
+    flex: none;
+    min-width: 3.2em;
+    font-weight: 600;
+  }
+  .ch.plan,
+  .ch.done {
+    border-style: solid;
+    border-left: 4px solid var(--accent);
+  }
+  .ch.date {
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    cursor: default;
+  }
+  .ch.sug {
+    border-style: dashed;
   }
   .zt {
     padding: 1px 5px;
@@ -646,6 +749,44 @@
   .zt.z1,
   .zt.z3 {
     color: var(--ink);
+  }
+  .sprow .chip {
+    display: inline-flex;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1 var(--font-body);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .sprow .chip[aria-pressed='true'] {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: var(--brand-ink);
+  }
+  .sfl .sprow {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .fh {
+    margin: 0 0 8px;
+    font: 700 var(--fs-sub) / 1.3 var(--font-body);
+  }
+  .sprow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+  }
+  .ch.plan.ok {
+    border-left: 4px solid var(--accent);
   }
   .sf {
     grid-column: 1 / -1;

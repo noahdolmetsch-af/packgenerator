@@ -9,7 +9,8 @@
    */
   import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
-  import { GROUPS, routeOf } from './logbuch.js';
+  import { routeOf } from './logbuch.js';
+  import { DEFAULT_KINDS } from './kinds.js';
   import { artLabel, groupLabel, stateLabel, ROUTE_TEXT } from './words.js';
   import { t } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
@@ -18,7 +19,7 @@
   import { X, Check, Trash2 } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { entry = null, prefill = {}, context = null, onsave, onremove = null, onclose } = $props();
+  let { entry = null, prefill = {}, context = null, cfg = DEFAULT_KINDS, onkinds = null, onsave, onremove = null, onclose } = $props();
 
   let dialog;
   $effect(() => {
@@ -54,7 +55,7 @@
   const when = $derived(
     context?.at ? new Date(context.at).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''
   );
-  const route = $derived(art ? routeOf(art) : '');
+  const route = $derived(art ? routeOf(art, cfg) : '');
   const STATE_CHOICES = ['open', 'draft', 'done'];
 
   function save(event) {
@@ -63,6 +64,14 @@
     if (!text.trim()) return (msg = t('Write one sentence about it.'));
     onsave?.(context ? { art, urgent, text, page: context.page, pageTitle: context.pageTitle, block: keepBlock ? context.block : '', state, photo: context.photo ?? null, photoNote: context.photoNote ?? null } : { art, urgent, text, page, block, state });
     dialog.close();
+  }
+  // «Change kinds»: on the log page the window for the kinds opens over it, from another page the link goes there
+  function openKinds(e) {
+    if (onkinds) {
+      e.preventDefault();
+      dialog.close();
+      onkinds();
+    } else dialog.close();
   }
   function remove() {
     onremove?.();
@@ -89,24 +98,25 @@
     {/if}
     {/if}
     <div class="lbs-groups" role="radiogroup" aria-label={t('Kind|logbuch')}>
-      {#each GROUPS as g (g.key)}
+      {#each cfg.groups as g (g.key)}
         <div class="lbs-g">
-          <p class="lbl">{groupLabel(g.key)}</p>
+          <p class="lbl">{groupLabel(g.key, cfg)}</p>
           <div class="lbs-chips">
-            {#each g.arts as a (a)}
-              <button type="button" class="fchip" role="radio" aria-checked={art === a} data-art={a} onclick={() => (art = a)}>{artLabel(a)}</button>
+            {#each g.arts as a (a.key)}
+              <button type="button" class="fchip" role="radio" aria-checked={art === a.key} data-art={a.key} onclick={() => (art = a.key)}>{artLabel(a.key, cfg)}</button>
             {/each}
           </div>
         </div>
       {/each}
     </div>
+    <p class="hint"><a href="#/me/logbuch?arten=1" data-lb-kinds-link onclick={openKinds}>{t('Change kinds')}</a></p>
     {#if route}<p class="hint" data-lb-route>{ROUTE_TEXT[route]()}</p>{/if}
 
     <label class="fld"><span class="lbl">{t('What is it?|logbuch')}</span><textarea class="inp" rows="3" maxlength="1000" bind:value={text} data-lb-text></textarea></label>
     <!-- Diktat: speak instead of type, where the browser can -->
     <div class="spk"><SpeakButton onsaid={(w) => (text = appendSpoken(text ?? '', w))} /></div>
 
-    {#if art !== 'gutso'}
+    {#if route !== 'note'}
       <p class="lbl sym" id="lbs-urg">{t('How urgent?')}</p>
       <div class="lbs-chips" role="radiogroup" aria-labelledby="lbs-urg">
         <button type="button" class="fchip" role="radio" aria-checked={urgent === 'now'} data-urgent="now" onclick={() => (urgent = 'now')}>{t('Bothers me now')}</button>
@@ -129,7 +139,7 @@
     </div>
     {/if}
 
-    {#if entry && art !== 'gutso'}
+    {#if entry && route !== 'note'}
       <p class="lbl sym" id="lbs-state">{t('State|logbuch')}</p>
       <div class="lbs-chips" role="radiogroup" aria-labelledby="lbs-state">
         {#each STATE_CHOICES as s (s)}

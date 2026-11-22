@@ -82,8 +82,8 @@
       {#if asked}
         <div class="as-res" aria-live="polite">
           <AskAnswer q={asked} fallback here onresult={(has) => (appHas = has)} />
-          <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»); Gemini asks by itself when the app has no answer («1a») -->
-          <AskElsewhere q={asked} auto={!appHas}>
+          <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a») -->
+          <AskElsewhere q={asked}>
             {#snippet children()}<SearchFree q={asked} data={$all} inside />{/snippet}
           </AskElsewhere>
         </div>

@@ -22,7 +22,7 @@
     <a class="btn sm acl-go" {href} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} aria-hidden="true" />{t('Talk it through with Claude')}</a>
     <label class="acl-tick"><input type="checkbox" bind:checked={withPage} data-ask-claude-page />{t('Send what this page shows along ({n} lines)', { n: clean.length })}</label>
     <p class="acl-note">{t('Opens claude.ai with your own subscription. The answer comes there.')}</p>
-    <div class="acl-local"><LocalAsk q={ask} lines={clean} online={withPage ? clean : []} {name} /></div>
+    <div class="acl-local"><LocalAsk q={ask} lines={clean} {name} /></div>
   </div>
 {/if}
 

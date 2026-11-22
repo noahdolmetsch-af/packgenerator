@@ -3,6 +3,7 @@
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 import { flowSeeded, putWall } from './wall-fixture.js';
+import { openCard } from './karte-auf.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 const D0 = '2026-10-09T07:52:00+02:00';
@@ -15,6 +16,8 @@ async function open(page, context) {
   await flowSeeded(page);
   await putWall(page);
   await page.goto('./#/flow');
+  // Hilfen neu 1b (Noah 21.11.2026): «Alles hier» is a line at the end of the page; the spec opens it first
+  await openCard(page, 'ah:aktiv');
 }
 
 test('AAH-1 Aktiv starts with seventeen tiles; a tile opens its page; no «Gehört zu»', async ({ page, context }) => {
@@ -32,10 +35,10 @@ test('AAH-1 Aktiv starts with seventeen tiles; a tile opens its page; no «Gehö
   // «TrainingPeaks-Plan»: the card for the plan link is one tap from Aktiv, it leads to Ich › Connections
   await expect(box.locator('[data-all-here-tile="f.trainingpeaks"]')).toHaveCount(1);
   await expect(page.locator('[data-gehoert]')).toHaveCount(0);
-  // the field stands above the ticking
+  // Hilfen neu 1b: the field stands at the end of the page, below the ticking
   const top = await box.evaluate((el) => el.getBoundingClientRect().top);
   const tick = await page.locator('#tick-h').evaluate((el) => el.getBoundingClientRect().top);
-  expect(top).toBeLessThan(tick);
+  expect(top).toBeGreaterThan(tick);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   const href = await box.locator('[data-all-here-tile="f.milestones"]').getAttribute('href');
   expect(href).toBe('#/flow/milestones');

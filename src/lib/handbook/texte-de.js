@@ -941,7 +941,7 @@ export default {
   // «Suche mit Sprache und Antworten» (21.10.2026)
   'The microphone is always in the search; Me › Search hides it and switches each answer on or off.': 'Das Mikrofon ist immer in der Suche; unter Ich › Suche blendest du es aus und schaltest jede Antwort ein oder aus.',
   'One command that fits runs at once; «Undo» takes it back.': 'Ein passender Befehl läuft sofort; «Rückgängig» nimmt ihn zurück.',
-  "A question gets the app's answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.": 'Eine Frage bekommt die Antwort der App; weiss die App nichts, antwortet Gemini oder du fragst bei Claude oder ChatGPT weiter.',
+  "A question gets the app's answer; when the app knows nothing, you ask further at Claude or ChatGPT.": 'Eine Frage bekommt die Antwort der App; weiss die App nichts, fragst du bei Claude oder ChatGPT weiter.',
   'Example: say «note brake squeaks» → the note is in the Inbox.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang.',
   'Example: «Check the tyre pressure» every 14 days for every bike.': 'Beispiel: «Reifendruck prüfen» alle 14 Tage für jedes Velo.',
   'Example: «Back pain» 0 to 10 every evening.': 'Beispiel: «Rückenschmerz» 0 bis 10 jeden Abend.',

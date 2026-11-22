@@ -363,6 +363,8 @@ export function cleanSession(s) {
   if (typeof s.sport === 'string' && s.sport) out.sport = s.sport.slice(0, 60);
   // Klick-Rundgang A04: ticked by hand («Gemacht»), for a session without a Strava activity
   if (s.done === true) out.done = true;
+  // «Zeitplan» (Noah 21.11.2026): an optional start time «HH:MM»; a session without one stays at the end of its day
+  if (typeof s.time === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s.time)) out.time = s.time;
   return out;
 }
 export const planOf = (v) => (Array.isArray(v?.sessions) ? v.sessions.map(cleanSession).filter(Boolean) : []);

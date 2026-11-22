@@ -46,21 +46,27 @@ test('phone: the two cards start as one line, open with a tap, fold again, and t
   await page.goto('./#/gear');
   await page.locator('[data-card-line="ah:gear"]').click();
   await expect(page.locator('[data-all-here="gear"] [data-all-here-tile]').first()).toBeVisible();
-  // Planen keeps its card open (not in the list), and no sideways scroll anywhere
+  // Hilfen neu 1b (21.11.2026): «Alles hier» of Woche is a line at the end too (the only card line there), and no sideways scroll anywhere
   await page.goto('./#/week');
-  await expect(page.locator('[data-all-here="plan"]')).toBeVisible();
-  await expect(page.locator('[data-card-line]')).toHaveCount(0);
+  await expect(page.locator('[data-card-line="ah:plan"]')).toBeVisible();
+  await expect(page.locator('[data-all-here="plan"]')).toHaveCount(0);
+  await expect(page.locator('[data-card-line]')).toHaveCount(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });
 
-test('computer: the cards stay open, no line and no fold button', async ({ page, context }, info) => {
+test('computer: «Belongs to» stays open (no line, no fold button); «All here» is a line at the page end (Hilfen neu 1b)', async ({ page, context }, info) => {
   test.skip(info.project.name === 'phone', 'computer only');
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { hour: 9 });
   for (const [hash, id, card] of PAGES) {
     await page.goto('./' + hash);
+    if (id.startsWith('ah:')) {
+      await expect(page.locator(`[data-card-line="${id}"]`)).toBeVisible();
+      await expect(page.locator(card).first()).toHaveCount(0);
+      continue;
+    }
     await expect(page.locator(card).first()).toBeVisible();
     await expect(page.locator(`[data-card-line="${id}"]`)).toHaveCount(0);
     await expect(page.locator(`[data-card-fold="${id}"]`)).toHaveCount(0);

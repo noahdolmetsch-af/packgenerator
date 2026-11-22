@@ -1,5 +1,6 @@
 /** «Verbesserungs-Logbuch»: the words of the kinds, groups and states. Every text goes through t() (German in i18n/de/logbuch.js). */
 import { t } from '../i18n.svelte.js';
+import { DEFAULT_KINDS, artName, groupName } from './kinds.js';
 
 const ART = {
   fehler: () => t('Error|logbuch'),
@@ -19,8 +20,9 @@ const ART = {
 const GROUP = { wrong: () => t('Wrong'), clear: () => t('Understandable'), build: () => t('Structure'), new: () => t('New|logbuch') };
 const STATE = { open: () => t('Open|logbuch'), draft: () => t('Draft made'), done: () => t('Done|logbuch'), noted: () => t('Noted|logbuch') };
 
-export const artLabel = (a) => ART[a]?.() ?? '';
-export const groupLabel = (g) => GROUP[g]?.() ?? '';
+/** What the user typed (L5, kinds.js) wins and never goes through t(); else the built-in word. cfg: the user's list, none = the first version. */
+export const artLabel = (a, cfg = DEFAULT_KINDS) => artName(cfg, a) ?? ART[a]?.() ?? '';
+export const groupLabel = (g, cfg = DEFAULT_KINDS) => groupName(cfg, g) ?? GROUP[g]?.() ?? '';
 export const stateLabel = (s) => STATE[s]?.() ?? '';
 
 /** What happens with a kind (Noah 21.11.2026 «3a»). */
