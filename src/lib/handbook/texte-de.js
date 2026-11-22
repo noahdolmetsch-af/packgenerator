@@ -516,7 +516,7 @@ export default {
   '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
   'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
   // Paket C 0.150.0: f.insights «Erkenntnisse»
-  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Auswerten › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
+  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Auswerten › Zusammenhänge: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
   // Paket G «Daten kommen von selbst»
@@ -750,7 +750,7 @@ export default {
   '«Done» saves values and photos; «Fix myself» and «Bike shop» become problems.': '«Fertig» speichert Werte und Fotos; «Selbst richten» und «Werkstatt» werden Probleme.',
   'Example: three rides in the rain → the monthly check comes sooner; chain at 0,35 % → about how many km are left.': 'Beispiel: drei Regenfahrten → der Monatscheck kommt früher; Kette bei 0,35 % → etwa so viele km bleiben.',
   // Paket L2 «Bilderkennung»: Packliste per Foto, Sitzposition
-  'Downloads the recognition once (about 30 MB), then offline. KI-Helfer: needs internet; the photo goes out only after «Send photo».': 'Lädt die Erkennung einmal herunter (etwa 30 MB), danach offline. KI-Helfer: braucht Internet; das Foto geht erst nach «Foto senden» hinaus.',
+  'Downloads the recognition once (about 30 MB), then offline; the photo stays on the device.': 'Lädt die Erkennung einmal herunter (etwa 30 MB), danach offline; das Foto bleibt auf dem Gerät.',
   'Lay the things out side by side and open Toolbox › Packing list by photo (or «Tick off by photo» in Pack).': 'Leg die Sachen nebeneinander aus und öffne Werkzeugkasten › Packliste per Foto (oder «Per Foto abhaken» beim Packen).',
   "Choose «Tick off» (the trip's list) or «Add new» (your gear), then take the photo.": 'Wähl «Abhaken» (die Liste der Tour) oder «Neu erfassen» (dein Material) und mach das Foto.',
   'Deselect what is wrong and confirm; answer «What is this?» once, the app remembers it on this device.': 'Wähl ab, was nicht stimmt, und bestätige; beantworte einmal «Was ist das?», die App merkt es sich auf diesem Gerät.',
@@ -799,11 +799,11 @@ export default {
   'Set the start (back from the race day or from a day) and the hours per week, then «Try it».': 'Stell den Beginn (rückwärts ab Renntag oder ab einem Tag) und die Stunden pro Woche ein, dann «Ausprobieren».',
   'Missed a session? The plan in use suggests a free day of this week.': 'Eine Einheit verpasst? Der laufende Plan schlägt einen freien Tag dieser Woche vor.',
   'Example: «Multi-day race», race day 12 June, 8 h → 12 weeks from 22 March, long weekends from May.': 'Beispiel: «Mehrtagesrennen», Renntag 12. Juni, 8 Std. → 12 Wochen ab 22. März, lange Wochenenden ab Mai.',
-  'After each ride Active › Training asks «How hard was your ride?» (1 to 10).': 'Nach jeder Fahrt fragt Aktiv › Training «Wie anstrengend war deine Fahrt?» (1 bis 10).',
+  'On Active a card asks «How was it?» after a new Strava activity: light, good or hard.': 'Auf Aktiv fragt eine Karte nach einer neuen Strava-Aktivität «Wie war\'s?»: leicht, gut oder hart.',
   'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.': 'Ohne Puls steht die Antwort für die Zone in «Plan erfüllt?»; ohne Antwort zählt nichts.',
-  'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.': 'Beispiel: Eine Fahrt ohne Pulsgurt fühlte sich wie 4 an → sie zählt als Zone 2.',
+  'Example: a run without heart rate strap felt «good» → it counts like 5 of 10, zone 3.': 'Beispiel: Ein Lauf ohne Pulsgurt fühlte sich «gut» an → er zählt wie 5 von 10, Zone 3.',
   'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.': 'Beispiel: ein Rezept in «Meine Sammlungen» → «Zutaten auf die Einkaufsliste» setzt die fehlenden auf deine Liste.',
-  'Open Active › Impulses, or Me › Free time › Impulses.': 'Öffne Aktiv › Impulse oder Planen › Freie Zeit › Impulse.',
+  'Open Plan › Free time › Impulses.': 'Öffne Planen › Freie Zeit › Impulse.',
   'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.': 'Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.',
   'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.': 'Beispiel: «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.',
   // Noah 19.10.2026 «2a 3a 4a und b möglich»
@@ -827,7 +827,7 @@ export default {
   '«Change list» adds, renames, sorts or deletes items, with their days and a time.': '«Liste ändern» fügt Vorsätze hinzu, benennt, ordnet oder löscht sie, mit Tagen und Zeit.',
   'Example: «A walk» ticked 12 days in a row → the tile shows the flame with 12 days.': 'Beispiel: «Spaziergang» 12 Tage in Folge abgehakt → die Kachel zeigt die Flamme mit 12 Tagen.',
   // Paket C 0.150.0: f.insights «Erkenntnisse»
-  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Auswerten › Erkenntnisse: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
+  'Open Me › Insights: every pair with at least 14 days of both values says in one sentence what goes together.': 'Öffne Auswerten › Zusammenhänge: jedes Paar mit mindestens 14 Tagen mit beiden Werten sagt in einem Satz, was zusammenhängt.',
   'Me › Your questions › Analysis shows the strongest three and leads to all of them.': 'Ich › Wi gaht\'s? › Auswertung zeigt die stärksten drei und führt zu allen.',
   'Example: on days with more than 7 h of sleep your battery was 8 on average, otherwise 5.': 'Beispiel: an Tagen mit mehr als 7 h Schlaf war dein Akku im Schnitt 8, sonst 5.',
   // Paket 4: Haus-Check, Wohnungs-Hüter-Liste, Bereit für morgen
@@ -837,7 +837,7 @@ export default {
   'On the sheet «Before you leave» write what the sitter should do, and a note.': 'Auf dem Blatt «Vor der Abfahrt» schreiben, was die Hüter tun sollen, und eine Notiz.',
   '«Share link» or «QR code»; the list is stored only in the link.': '«Link teilen» oder «QR-Code»; die Liste ist nur im Link gespeichert.',
   'Example: water the plants on Wednesday, empty the letterbox, the key is with the neighbour.': 'Beispiel: am Mittwoch Pflanzen giessen, Briefkasten leeren, der Schlüssel ist bei den Nachbarn.',
-  'Read the hints in «Ready for tomorrow?»; with the AI helper on, ask it too.': 'Die Hinweise in «Bereit für morgen?» lesen; ist der KI-Helfer an, ihn auch fragen.',
+  'Read the hints in «Ready for tomorrow?».': 'Die Hinweise in «Bereit für morgen?» lesen.',
   'Example: 3 °C in the morning → gloves on top; still 4 things to pack; charge the lights.': 'Beispiel: 3 °C am Morgen → Handschuhe zuoberst; noch 4 Sachen einpacken; Lichter laden.',
   // 0.156.0 f.travel «Reise-Links»
   'Open a trip, «Plan», «Getting there and staying»: the links that fit the trip show, with its place and days filled in.': 'Öffne eine Tour, «Planen», «Anreise und Unterkunft»: die Links, die zur Tour passen, erscheinen mit Ort und Tagen eingefüllt.',
@@ -941,7 +941,7 @@ export default {
   // «Suche mit Sprache und Antworten» (21.10.2026)
   'The microphone is always in the search; Me › Search hides it and switches each answer on or off.': 'Das Mikrofon ist immer in der Suche; unter Ich › Suche blendest du es aus und schaltest jede Antwort ein oder aus.',
   'One command that fits runs at once; «Undo» takes it back.': 'Ein passender Befehl läuft sofort; «Rückgängig» nimmt ihn zurück.',
-  "A question gets the app's answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.": 'Eine Frage bekommt die Antwort der App; weiss die App nichts, antwortet Gemini oder du fragst bei Claude oder ChatGPT weiter.',
+  "A question gets the app's answer; when the app knows nothing, you ask further at Claude or ChatGPT.": 'Eine Frage bekommt die Antwort der App; weiss die App nichts, fragst du bei Claude oder ChatGPT weiter.',
   'Example: say «note brake squeaks» → the note is in the Inbox.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang.',
   'Example: «Check the tyre pressure» every 14 days for every bike.': 'Beispiel: «Reifendruck prüfen» alle 14 Tage für jedes Velo.',
   'Example: «Back pain» 0 to 10 every evening.': 'Beispiel: «Rückenschmerz» 0 bis 10 jeden Abend.',

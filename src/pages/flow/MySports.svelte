@@ -34,7 +34,9 @@
   import GoneActs from '../../lib/flow/GoneActs.svelte';
   import YearGoals from '../../lib/flow/YearGoals.svelte';
   import UsualMinList from '../../lib/flow/UsualMinList.svelte';
+  import DauerNachtragen from '../../lib/flow/DauerNachtragen.svelte';
   import StravaNeu from '../../lib/flow/StravaNeu.svelte';
+  import FitbitZaehlen from '../../lib/flow/FitbitZaehlen.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import SortArrows from '../../lib/ui/SortArrows.svelte';
@@ -460,6 +462,8 @@
       <aside class="col">
         <!-- «Aktivität anlegen?» (Noah 21.11.2026 «4a», S7): Strava sports without an activity of Aktiv -->
         <StravaNeu />
+        <!-- «Zählen?» (Noah 21.11.2026, K4): Fitbit workouts without a tick, a suggestion only -->
+        <FitbitZaehlen />
         {#if tripSports.length}
           <Sec id="ts-h" title={t('Sports of your trips')} sub={t('What you pack for. Each has its page with gear, packing list and care.')}>
             <ul class="card tsl" use:sortable={{ onmove: tripDragged }} data-trip-sports>
@@ -479,6 +483,7 @@
         <GoneActs />
         <!-- «Übliche Dauer» (Noah 21.11.2026 «2b»): the estimate for ticks without a measured time -->
         <UsualMinList acts={data?.acts ?? []} />
+        <DauerNachtragen />
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
       </aside>

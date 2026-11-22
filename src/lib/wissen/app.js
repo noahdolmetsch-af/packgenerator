@@ -35,6 +35,7 @@ export default {
   'f.theme': 'In bright sun a light colour world with bigger text reads best. Dark mode is for the tent, not for the noon climb.',
   'f.uisize': 'Set the size once on each device: the phone on the handlebar wants bigger buttons than the computer on the desk.',
   'f.custompage': 'Hide what you never use instead of scrolling past it daily. «As at the start» brings everything back if you hid too much.',
+  'f.hintquiet': 'A hint you wave away three times is not for you. Say so once, and the app stops asking, instead of you tapping the same button for weeks.',
   'f.suggestoff': 'Turn off a whole area rather than ignoring the same tip ten times. Turn it back on before the next season; your habits change too.',
   'f.stravaticks': 'Let it ask first for a few weeks, then you see whether the matching is right before it ticks on its own.',
   'f.lake': 'Below 15 °C, go in slowly and not alone; your breath needs a minute to calm down. The measured value is at one spot, the shore can differ.',
@@ -53,4 +54,5 @@ export default {
   'f.wearpush': 'Order the part when the reminder comes, not when it breaks: chains and pads are always out of stock the week before a tour.',
   'f.push': 'Switch on only what you would act on. A reminder you swipe away three times is better off; turn it off and the others get read again.',
   'f.backupcheck': 'Check one backup a season by really opening it. A backup nobody ever opened is a hope, not a backup.',
+  'f.logbuch': 'One sentence right where it bothers you beats a long list later. Say what you saw, not how to fix it; the photo shows the rest.',
 };

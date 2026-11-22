@@ -65,7 +65,7 @@ export const DEVICE_SETTINGS = ['tips', 'helper', 'offline-strips', 'veloParked'
  * P8 «Automatischer Abgleich»: rows that stay on this device and never sync: the device rows above and
  * the marks of the one-time data updates ('update.…'; every device runs its own, with its own time).
  */
-export const syncLocal = (table, key) => table === 'logbuch' || (table === 'settings' && (DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.'))); // logbuch: «Verbesserungs-Logbuch» stays on this device (Noah 21.11.2026), its photos are big
+export const syncLocal = (table, key) => table === 'logbuch' || (table === 'settings' && (DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.') || String(key).startsWith('logbuch.'))); // logbuch.*: the kinds of the log too (L5); logbuch: «Verbesserungs-Logbuch» stays on this device (Noah 21.11.2026), its photos are big
 /*
  * Paket B (Noah 19.10.2026 «1b»): the Fitbit days (healthDays) and the Fitbit and calendar connection
  * (settings 'health' and 'agenda') sync like everything else. Both devices fetch the same data from Google,

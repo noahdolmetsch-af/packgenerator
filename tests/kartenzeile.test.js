@@ -5,7 +5,8 @@ import { START_FOLDED, openMapOf, cardFolded } from '../src/lib/ui/kartenzeile.j
 describe('cardFolded', () => {
   it('starts folded on a phone for the listed cards only', () => {
     for (const id of START_FOLDED) expect(cardFolded({}, id, true)).toBe(true);
-    expect(cardFolded({}, 'ah:plan', true)).toBe(false);
+    expect(cardFolded({}, 'ah:plan', true)).toBe(true); // Hilfen neu 1b (21.11.2026): «Alles hier» of Woche and Training is a line too
+    expect(cardFolded({}, 'ah:other', true)).toBe(false);
     expect(cardFolded({}, 'gd:debrief', true)).toBe(false);
   });
   it('never folds by itself on a computer', () => {

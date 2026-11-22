@@ -4,16 +4,22 @@
    * groups (Falsch, Verständlich, Aufbau, Neu), how urgent, one sentence, the page and the block it is about. A change also
    * sets the state and deletes. Nothing leaves the device. entry: the row, or null for a new one.
    * prefill: { page, block } for a new entry. onsave(values) / onremove() / onclose().
+   * context: from the button «Verbessern» (step 2): { page, pageTitle, block, at, device, width } are known, so the window shows them
+   * in a line («Wird mit gespeichert») instead of two fields; the block can be taken off with its ×.
    */
   import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
-  import { GROUPS, routeOf } from './logbuch.js';
+  import { routeOf } from './logbuch.js';
+  import { DEFAULT_KINDS } from './kinds.js';
   import { artLabel, groupLabel, stateLabel, ROUTE_TEXT } from './words.js';
   import { t } from '../i18n.svelte.js';
+  import SpeakButton from '../ui/SpeakButton.svelte';
+  import { appendSpoken } from '../speak.js';
+  import { locale } from '../i18n.svelte.js';
   import { X, Check, Trash2 } from '@lucide/svelte';
   import '../bikes/velo-dlg.css';
 
-  let { entry = null, prefill = {}, onsave, onremove = null, onclose } = $props();
+  let { entry = null, prefill = {}, context = null, cfg = DEFAULT_KINDS, onkinds = null, onsave, onremove = null, onclose } = $props();
 
   let dialog;
   $effect(() => {
@@ -31,16 +37,41 @@
   let block = $state(entry?.block ?? prefill.block ?? '');
   // svelte-ignore state_referenced_locally
   let state = $state(entry?.state ?? 'open');
+  // svelte-ignore state_referenced_locally
+  let keepBlock = $state(!!context?.block);
   let msg = $state('');
-  const route = $derived(art ? routeOf(art) : '');
+  const ctxLine = $derived(
+    context
+      ? [
+          t('Page «{title}» ({address})', { title: context.pageTitle || context.page, address: context.page }),
+          keepBlock && context.block ? t('Block «{name}»', { name: context.block }) : '',
+          when,
+          `${context.device === 'computer' ? t('Computer|logbuch') : t('Phone|logbuch')} (${context.width} px)`,
+        ]
+          .filter(Boolean)
+          .join(' · ')
+      : ''
+  );
+  const when = $derived(
+    context?.at ? new Date(context.at).toLocaleString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''
+  );
+  const route = $derived(art ? routeOf(art, cfg) : '');
   const STATE_CHOICES = ['open', 'draft', 'done'];
 
   function save(event) {
     event.preventDefault();
-    if (!art) return (msg = t('Pick a kind first.'));
+    if (!art && !(entry && entry.art === '')) return (msg = t('Pick a kind first.')); // an entry whose kind was deleted may stay without a kind
     if (!text.trim()) return (msg = t('Write one sentence about it.'));
-    onsave?.({ art, urgent, text, page, block, state });
+    onsave?.(context ? { art, urgent, text, page: context.page, pageTitle: context.pageTitle, block: keepBlock ? context.block : '', state, photo: context.photo ?? null, photoNote: context.photoNote ?? null } : { art, urgent, text, page, block, state });
     dialog.close();
+  }
+  // «Change kinds»: on the log page the window for the kinds opens over it, from another page the link goes there
+  function openKinds(e) {
+    if (onkinds) {
+      e.preventDefault();
+      dialog.close();
+      onkinds();
+    } else dialog.close();
   }
   function remove() {
     onremove?.();
@@ -55,23 +86,37 @@
   </div>
 
   <form onsubmit={save}>
+    {#if context && !entry}
+      {#if context.block}
+      <p class="lbs-chip">
+        {#if keepBlock}
+          <span class="chip" data-lb-block-chip>{t('Block: {name}', { name: context.block })}<button type="button" class="chip-x" aria-label={t('Take off the block')} onclick={() => (keepBlock = false)} data-lb-block-off><X size={14} aria-hidden="true" /></button></span>
+        {:else}
+          <span class="hint" data-lb-block-none>{t('Whole page, no block.')}</span>
+        {/if}
+      </p>
+    {/if}
+    {/if}
     <div class="lbs-groups" role="radiogroup" aria-label={t('Kind|logbuch')}>
-      {#each GROUPS as g (g.key)}
+      {#each cfg.groups as g (g.key)}
         <div class="lbs-g">
-          <p class="lbl">{groupLabel(g.key)}</p>
+          <p class="lbl">{groupLabel(g.key, cfg)}</p>
           <div class="lbs-chips">
-            {#each g.arts as a (a)}
-              <button type="button" class="fchip" role="radio" aria-checked={art === a} data-art={a} onclick={() => (art = a)}>{artLabel(a)}</button>
+            {#each g.arts as a (a.key)}
+              <button type="button" class="fchip" role="radio" aria-checked={art === a.key} data-art={a.key} onclick={() => (art = a.key)}>{artLabel(a.key, cfg)}</button>
             {/each}
           </div>
         </div>
       {/each}
     </div>
+    <p class="hint"><a href="#/me/logbuch?arten=1" data-lb-kinds-link onclick={openKinds}>{t('Change kinds')}</a></p>
     {#if route}<p class="hint" data-lb-route>{ROUTE_TEXT[route]()}</p>{/if}
 
     <label class="fld"><span class="lbl">{t('What is it?|logbuch')}</span><textarea class="inp" rows="3" maxlength="1000" bind:value={text} data-lb-text></textarea></label>
+    <!-- Diktat: speak instead of type, where the browser can -->
+    <div class="spk"><SpeakButton onsaid={(w) => (text = appendSpoken(text ?? '', w))} /></div>
 
-    {#if art !== 'gutso'}
+    {#if route !== 'note'}
       <p class="lbl sym" id="lbs-urg">{t('How urgent?')}</p>
       <div class="lbs-chips" role="radiogroup" aria-labelledby="lbs-urg">
         <button type="button" class="fchip" role="radio" aria-checked={urgent === 'now'} data-urgent="now" onclick={() => (urgent = 'now')}>{t('Bothers me now')}</button>
@@ -79,12 +124,22 @@
       </div>
     {/if}
 
+    {#if context && !entry}
+      <div class="lbs-photo" data-lb-photo-box>
+        {#if context.photo}<img src={context.photo} alt={t('Photo of the page')} data-lb-photo /><span>{t('Photo of the page, the block in orange')}</span>{:else}<span data-lb-nophoto>{t('Photo not possible')}</span>{/if}
+      </div>
+      <p class="lbs-ctx" data-lb-context>
+        <b>{t('Saved with it:')}</b>
+        {ctxLine}
+      </p>
+    {:else}
     <div class="lbs-two">
       <label class="fld"><span class="lbl">{t('Page|logbuch')}</span><input class="inp" bind:value={page} autocomplete="off" maxlength="200" placeholder="#/flow/training" data-lb-page /></label>
       <label class="fld"><span class="lbl">{t('Block|logbuch')}</span><input class="inp" bind:value={block} autocomplete="off" maxlength="80" placeholder={t('e.g. the week card')} data-lb-block /></label>
     </div>
+    {/if}
 
-    {#if entry && art !== 'gutso'}
+    {#if entry && route !== 'note'}
       <p class="lbl sym" id="lbs-state">{t('State|logbuch')}</p>
       <div class="lbs-chips" role="radiogroup" aria-labelledby="lbs-state">
         {#each STATE_CHOICES as s (s)}
@@ -160,5 +215,65 @@
   }
   .del {
     color: var(--bad);
+  }
+  .spk {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .spk:not(:has(button)) {
+    display: none;
+  }
+  .lbs-chip {
+    margin: 12px 0 0;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 12px;
+    border-radius: 999px;
+    background: var(--improve-soft);
+    color: var(--improve);
+    font-weight: 600;
+    font-size: var(--fs-small);
+  }
+  .chip-x {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: -10px -6px -10px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .lbs-photo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .lbs-photo img {
+    width: 88px;
+    max-height: 120px;
+    object-fit: cover;
+    object-position: top;
+    border: 2px solid var(--improve);
+    border-radius: 8px;
+  }
+  .lbs-ctx {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
   }
 </style>

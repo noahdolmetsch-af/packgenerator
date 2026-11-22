@@ -60,14 +60,16 @@ async function post(body, doFetch = fetch) {
 
 /** The data schedule.js needs, read from this device. */
 export async function readData() {
-  const [trips, repairs, bikes, settings, meta, items, visits, kmBook, notes] = await Promise.all([db.trips.toArray(), db.maintenance.toArray(), db.bikes.toArray(), db.settings.bulkGet([PUSH_KEY, 'ownValues', 'merken', 'homePlace', 'air', 'lends', 'eatRemind', BUDGET_KEY, CALM_KEY]), db.table('meta').get(LAST_BACKUP), db.items.toArray(), db.visits.toArray(), db.kmBook.toArray(), db.notes.filter((n) => !!n.remind?.at && !n.remind.done).toArray()]);
+  const [trips, repairs, bikes, settings, meta, items, visits, kmBook, notes] = await Promise.all([db.trips.toArray(), db.maintenance.toArray(), db.bikes.toArray(), db.settings.bulkGet([PUSH_KEY, 'ownValues', 'merken', 'homePlace', 'air', 'lends', 'eatRemind', 'outdoor', 'challengeask', BUDGET_KEY, CALM_KEY]), db.table('meta').get(LAST_BACKUP), db.items.toArray(), db.visits.toArray(), db.kmBook.toArray(), db.notes.filter((n) => !!n.remind?.at && !n.remind.done).toArray()]);
   // Paket VG 1128: the rain of the ride cells (inspect/rain.js) and the switch
   // Idee A1: the appointments of the next days (Google, kept on this device) for the morning message
   const from = localDay();
   const [rain, griff, events] = await Promise.all([db.meta.get(INSPECT_RAIN), db.settings.get(GRIFF_PREFS), Promise.resolve().then(() => db.gEvents.where('day').aboveOrEqual(from).limit(400).toArray()).catch(() => [])]);
-  const [push, ownValues, merken, homePlace, air, lends, eatRemind, budget, calm] = settings.map((r) => r?.value ?? null);
+  const [push, ownValues, merken, homePlace, air, lends, eatRemind, outdoor, challengeask, budget, calm] = settings.map((r) => r?.value ?? null);
+  // «Draussen» PR 2: today's activities (the daily reminder is left out once the day is reached)
+  const todayActs = outdoor ? await db.activities.where('day').equals(from).toArray().catch(() => []) : [];
   // Paket H: supplies (items with a best-before date) and lent things (settings 'lends')
-  return { trips, repairs, bikes, notes, events: events ?? [], visits, kmBook, rain: rain ?? null, griff: griff?.value ?? null, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], settings: { push, ownValues, merken, homePlace, air, eatRemind, budget, calm }, lastBackup: meta?.at ?? null, now: new Date() };
+  return { trips, repairs, bikes, notes, events: events ?? [], visits, kmBook, rain: rain ?? null, griff: griff?.value ?? null, items: items.filter((i) => i.expires), lends: Array.isArray(lends) ? lends : [], todayActs, settings: { push, ownValues, merken, homePlace, air, eatRemind, outdoor, challengeask, budget, calm }, lastBackup: meta?.at ?? null, now: new Date() };
 }
 
 /** The subscription of this phone (made when missing). Throws { code } when it cannot. */

@@ -592,7 +592,7 @@ const LISTED = {
   },
   'f.readytomorrow': {
     on: null,
-    steps: ['The evening before a tour open the trip in Pack.', 'Read the hints in «Ready for tomorrow?»; with the AI helper on, ask it too.'],
+    steps: ['The evening before a tour open the trip in Pack.', 'Read the hints in «Ready for tomorrow?».'],
     example: 'Example: 3 °C in the morning → gloves on top; still 4 things to pack; charge the lights.',
   },
   // v0.134.0 «Inspiration»
@@ -1024,6 +1024,11 @@ const LISTED = {
     steps: ['On the live map tap «⋯» › «Plan a new way to …», or press long on the map.', 'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.'],
     example: 'Example: at km 52 to the bakery 1.2 km off the route → 2.6 km detour, back on the route at km 54.',
   },
+  'f.findsleep': {
+    on: null,
+    steps: ['On the live map tap «⋯» › «Find a place to sleep» and «Search around me».', 'Tap «Go there» to plan the way, or «Save as place to sleep» where you stand.'],
+    example: 'Example: a bus stop with a roof 1.4 km ahead → «Go there» plans the way.',
+  },
   'f.live': {
     on: null,
     steps: ['Tap «Start a ride» on Active, On the way or a trip.', 'Allow the location; keep the page open with the phone on the handlebar.'],
@@ -1156,8 +1161,8 @@ const LISTED = {
   },
   'f.feel': {
     on: null,
-    steps: ['After each ride Active › Training asks «How hard was your ride?» (1 to 10).', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
-    example: 'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.',
+    steps: ['On Active a card asks «How was it?» after a new Strava activity: light, good or hard.', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
+    example: 'Example: a run without heart rate strap felt «good» → it counts like 5 of 10, zone 3.',
   },
   'f.frei': {
     on: null,
@@ -1171,7 +1176,7 @@ const LISTED = {
   },
   'f.impulse': {
     on: null,
-    steps: ['Open Active › Impulses, or Me › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
+    steps: ['Open Plan › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
     example: 'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.',
   },
   'f.shopping': {
@@ -1213,6 +1218,11 @@ const LISTED = {
     on: null,
     steps: ['Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).', 'A new star shows right after the tick in a small window.', 'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.'],
     example: 'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.',
+  },
+  'f.challenges': {
+    on: 'Nothing to switch on. Start «Outdoors» on Today, or a goal of your own on the page Challenges.',
+    steps: ['Open Milestones › Challenges, or the card on Today.', 'Tap «New challenge»: name, unit (minutes, a count or steps), goal per day, first and last day.', 'Each day tap «Tick off» when you reached the goal; under «More» add smaller or larger amounts.'],
+    example: 'Example: «Outdoors», 90 min a day until 31 December; a walk of 40 min plus 50 min by hand reaches the day.',
   },
   'f.meditation': {
     on: null,
@@ -1612,7 +1622,7 @@ const LISTED = {
     example: 'Example: read the tyre size 40-622 on a dark sidewall.',
   },
   'f.packphoto': {
-    on: 'Downloads the recognition once (about 30 MB), then offline. KI-Helfer: needs internet; the photo goes out only after «Send photo».',
+    on: 'Downloads the recognition once (about 30 MB), then offline; the photo stays on the device.',
     steps: ['Lay the things out side by side and open Toolbox › Packing list by photo (or «Tick off by photo» in Pack).', 'Choose «Tick off» (the trip\'s list) or «Add new» (your gear), then take the photo.', 'Deselect what is wrong and confirm; answer «What is this?» once, the app remembers it on this device.'],
     example: 'Example: 9 things on the floor → 6 ticked on «Jura 3 days», the stove taught once as «Kocher».',
   },
@@ -1638,7 +1648,7 @@ const LISTED = {
   },
   'f.searchvoice': {
     on: 'The microphone is always in the search; Me › Search hides it and switches each answer on or off.',
-    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.'],
+    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, you ask further at Claude or ChatGPT.'],
     example: 'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.',
   },
   'f.aiprojects': {
@@ -1892,6 +1902,11 @@ const LISTED = {
     on: null,
     steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Moved or a new sport? «Something changed?» lists only what it touches. Any time: Me › Data and backup."],
     example: "Example: weight 72 kg from last year → «Change» → Bikes › Setup.",
+  },
+  'f.hintquiet': {
+    on: null,
+    steps: ['Tap «Not today» under a hint on three different days (rest-day line, ride above the fog).', 'The app asks «Make this hint quieter?»: «Yes, quieter» switches the kind off, «Keep it» leaves it.'],
+    example: 'Example: three «Not today» on the rest-day line in two weeks → one question, then quiet.',
   },
   'f.suggestoff': {
     on: null,

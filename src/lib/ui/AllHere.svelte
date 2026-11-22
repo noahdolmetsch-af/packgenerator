@@ -31,6 +31,9 @@
 
   const save = (s) => putSetting(db, key, s);
   const name = (x) => t(x.title);
+  // Hilfen neu 1b (Noah 21.11.2026): the card sits at the end of the page and starts as one line «All functions of Week (20)»
+  const AREA_NAME = { plan: 'Plan|place', aktiv: 'Training|tab', bikes: 'Bikes|place', gear: 'Gear|place', trips: 'Trips|place' };
+  const lineLabel = $derived(t('All functions of {area}', { area: t(AREA_NAME[area] ?? 'All here') }));
 
   async function hide(x) {
     const before = $state.snapshot(cur);
@@ -39,7 +42,7 @@
 </script>
 
 {#if ALL_HERE[area]}
-  <CardFold id="ah:{area}" label={t('All here')} count={tiles.shown.length}>
+  <CardFold id="ah:{area}" label={lineLabel} count={tiles.shown.length} always>
   <section class="allhere" aria-labelledby="ah-h-{area}" data-all-here={area} data-no-pin>
     <div class="ah-head">
       <h2 id="ah-h-{area}">{t('All here')}</h2>

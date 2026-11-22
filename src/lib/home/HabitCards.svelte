@@ -9,6 +9,8 @@
   import { Pencil } from '@lucide/svelte';
   import MedCard from './MedCard.svelte';
   import HabitCard from './HabitCard.svelte';
+  import OutdoorCard from './OutdoorCard.svelte';
+  import ZielCards from '../challenges/ZielCards.svelte';
   import { flowQuery } from '../flow/data.svelte.js';
   import { flowStates } from '../flow.js';
   import { isMedAct } from '../flow/hobby/medstart.js';
@@ -29,6 +31,9 @@
   const empty = $derived(!!$fq && !!$rq && normHabits(cfg) !== null && !refs.length);
 </script>
 
+<div class="hw">
+<OutdoorCard {today} />
+<ZielCards {today} />
 {#if refs.length}
   <div class="hcs" data-habits>
     {#each refs as r (refKey(r))}
@@ -47,8 +52,14 @@
     {#if onpick}<button type="button" class="btn sm" onclick={onpick} data-habit-pick><Pencil size={16} aria-hidden="true" />{t('Choose habits')}</button>{/if}
   </section>
 {/if}
+</div>
 
 <style>
+  .hw {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
   .hcs {
     display: grid;
     gap: 12px;

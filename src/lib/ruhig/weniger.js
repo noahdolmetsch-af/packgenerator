@@ -86,7 +86,7 @@ export const calmHeld = (items = [], calm, nowMs = Date.now()) => applyCalm(item
 export const BUDGET_GROUPS = [
   { key: 'trip', label: 'Trips and races', prefixes: ['eve', 'shop', 'race'] },
   { key: 'bike', label: 'Bike care', prefixes: ['wetchain', 'wear', 'workshop', 'shopjob'] },
-  { key: 'home', label: 'Everyday', prefixes: ['bday', 'plant', 'own', 'note', 'supply', 'lend'] },
+  { key: 'home', label: 'Everyday', prefixes: ['bday', 'plant', 'outdoor', 'challengeask', 'own', 'note', 'supply', 'lend'] },
   { key: 'app', label: 'Backup and app', prefixes: ['backup'] },
 ];
 export const SAFETY_PREFIXES = ['ice', 'wx', 'ww', 'ws', 'dark', 'rain', 'eat', 'air'];

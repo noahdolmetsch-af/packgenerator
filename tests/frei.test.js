@@ -1,14 +1,18 @@
 // Paket T «Freie Zeit» (Noah 19.10.2026 «alle bauen»): the pure rules of Ich › Freie Zeit and its pages.
 import { describe, it, expect } from 'vitest';
-import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf, collSharePayload, isCollShare, tourOfColl, tourHref, collImport } from '../src/lib/frei.js';
+import { laterUntil, LATER_DAYS, freiPart, collOfHash, queryOf, PAGES, PAGE_GROUPS, IMPULSES, AREAS, impulsesOf, impulseOfDay, nextOf, areasOf, inArea, collsOf, STD_COLLS, linesOf, filterEntries, newEntry, lustPick, LUST_IDEAS, techOfWeek, tickRitual, eveningsInRow, ritualsOf, MAX_RITUALS, stepDone, essentialSpan, nightOf, phaseSummary, nextPiles, markLine, todayImpulse, IMPULSE_OUT, IMPULSE_SHORT, IMPULSE_LITTLE, impulseHref, inviteText, eveTimerState, mmss, goodEvenings, EVE_MINUTES, lustMore, outdoorOf, lustIdeasOf, collSharePayload, isCollShare, tourOfColl, tourHref, collImport } from '../src/lib/frei.js';
 import { pageOf, placeOf } from '../src/lib/nav.js';
 import DE from '../src/lib/i18n/de/index.js';
+import { readFileSync } from 'node:fs';
 
 const P = 'test_data_frei_';
 
 describe('addresses', () => {
   it('the eight pages, the collection and the tab of Aktiv', () => {
     expect(PAGES).toHaveLength(8);
+    // «1a» (Noah 22.11.2026): the hub shows the pages in groups; each page sits in exactly one, none is lost
+    expect(PAGE_GROUPS.flatMap((g) => g.pages).sort()).toEqual(PAGES.map((p) => p.key).sort());
+    for (const g of PAGE_GROUPS) expect(DE[g.title], g.title).toBeTruthy();
     expect(freiPart('#/me/frei')).toBe('');
     expect(freiPart('#/me/frei/lust')).toBe('lust');
     expect(freiPart('#/me/frei/sammlung/recipes')).toBe('sammlung');
@@ -19,7 +23,7 @@ describe('addresses', () => {
     expect(pageOf('#/me/frei/abend')).toBe('frei');
     expect(placeOf(pageOf('#/me/frei'))).toBe('week'); // UI-Ziele #6 (Noah 20.10.2026): Freie Zeit is Planen › Freie Zeit
     expect(pageOf('#/flow/impulse')).toBe('impulse');
-    expect(placeOf('impulse')).toBe('analysis'); // «Aktiv neu» (Noah 22.10.2026): Impulse moved to Auswerten
+    expect(placeOf('impulse')).toBe('week'); // Noah 21.11.2026 «2a»: Impulse moved from Auswerten to Planen › Freie Zeit
   });
 });
 
@@ -66,6 +70,27 @@ describe('impulses', () => {
     const orphans = inArea(impulsesOf(cfg), '', areas);
     expect(orphans.length).toBeGreaterThan(0);
     expect(orphans.every((i) => i.area === 'joy')).toBe(true);
+  });
+  it('Heute: the impulse fits the weather and the free time (Noah 21.11.2026 «mit dieser»)', () => {
+    const day = '2026-10-19';
+    const base = todayImpulse({}, day);
+    expect(base.why).toEqual([]);
+    expect(todayImpulse({}, day, { dry: null, free: null }).id).toBe(base.id); // no information, nothing changes
+    for (let n = 0; n < 12; n++) {
+      const d = `2026-10-${String(10 + n).padStart(2, '0')}`;
+      expect(IMPULSE_OUT.includes(todayImpulse({}, d, { dry: true }).area)).toBe(true);
+      expect(IMPULSE_OUT.includes(todayImpulse({}, d, { dry: false }).area)).toBe(false);
+      expect(IMPULSE_SHORT).toContain(todayImpulse({}, d, { free: 10 }).id);
+    }
+    expect(todayImpulse({}, day, { dry: true }).why).toEqual(['weather']);
+    expect(todayImpulse({}, day, { dry: false, free: 10 }).why).toEqual(['weather', 'free']);
+    expect(todayImpulse({}, day, { free: IMPULSE_LITTLE }).why).toEqual([]); // 30 minutes are enough
+    // hidden and resting impulses are never suggested; if every open-air one is hidden the weather is ignored
+    const hideOut = { hidden: IMPULSES.filter((i) => IMPULSE_OUT.includes(i.area)).map((i) => i.id) };
+    const r = todayImpulse(hideOut, day, { dry: true });
+    expect(r).toBeTruthy();
+    expect(hideOut.hidden).not.toContain(r.id);
+    expect(r.why).toEqual([]);
   });
   it('Heute: none when switched off; «Try it» leads to its page or collection', () => {
     expect(todayImpulse({ onToday: false }, '2026-10-19')).toBeNull();
@@ -251,5 +276,17 @@ describe('a collection as a page and linked with a tour', () => {
     expect(tourOfColl({ collTour: { c1: 't9' } }, 'c1')).toBe('t9');
     expect(tourOfColl({}, 'c1')).toBe('');
     expect(tourHref('t9')).toBe('#/tour/t%3At9');
+  });
+});
+
+describe('Impulse and «What am I up for?» point at each other', () => {
+  // «2b» (Noah 22.11.2026): the two pages stay apart; each has a link to the other, so nobody has to know both exist
+  it('each page links to the other', () => {
+    const impulse = readFileSync(new URL('../src/lib/frei/Impulse.svelte', import.meta.url), 'utf8');
+    const lust = readFileSync(new URL('../src/lib/frei/Lust.svelte', import.meta.url), 'utf8');
+    expect(impulse).toContain('href="#/me/frei/lust" data-lust-link');
+    expect(lust).toContain('href="#/flow/impulse" data-impulse-link');
+    expect(freiPart('#/flow/impulse')).toBe('impulse');
+    expect(freiPart('#/me/frei/lust')).toBe('lust');
   });
 });

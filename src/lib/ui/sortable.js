@@ -69,6 +69,7 @@ export function sortable(node, opts = {}) {
     const rows = rowsOf();
     const row = rows.find((r) => r.contains(grip));
     if (!row) return;
+    if (!o.row && grip.closest('li') !== row) return; // a list inside a row of this list (L5: kinds inside groups) is sorted by its own sortable
     e.preventDefault();
     grip.setPointerCapture?.(e.pointerId);
     const boxes = rows.map((r) => r.getBoundingClientRect());

@@ -26,7 +26,7 @@
   import { phone } from '../media.svelte.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
-  let { hash = '', fromActive = false } = $props();
+  let { hash = '' } = $props();
   const today = localDay();
   const q = cfgQuery();
   const cfg = $derived($q ?? {});
@@ -276,14 +276,11 @@
 {/snippet}
 
 <div class="fz" data-page="impulse">
-  {#if fromActive}
-    <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Impulses')} />
-  {:else}
-    <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('Impulses')} />
-  {/if}
+  <Crumb path={[{ href: '#/week', label: t('Plan|place') }, { href: '#/me/frei', label: t('Free time') }]} here={t('Impulses')} />
   <h1 class="fz-h1" tabindex="-1" data-page-title>{t('Impulses')}</h1>
   <p class="fz-intro">{t('Small ideas for free time, in ten areas. Tap one, try it, or hide what is not for you.')}</p>
-  {#if fromActive}<p class="fz-intro"><a href="#/flow/ideen" data-ideas-link>{t('Ideas')} · {t('for your balance')} ›</a></p>{/if}
+  <p class="fz-intro"><a href="#/flow/ideen" data-ideas-link>{t('Ideas')} · {t('for your balance')} ›</a></p>
+  <p class="fz-intro"><a href="#/me/frei/lust" data-lust-link>{t('What am I up for?')} · {t('Mood, energy and time: one idea that fits')} ›</a></p>
 
   {#if top}
     <section aria-labelledby="fzi-top-h">

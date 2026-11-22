@@ -21,8 +21,10 @@
   import { putEntry } from '../../lib/flowdb.js';
   import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, setMinutes, withFeel } from '../../lib/flow/feel.js';
   import MinInput from '../../lib/flow/MinInput.svelte';
+  import { FEEL_KEY } from '../../lib/flow/feelword.js';
   import { BLOCKS_KEY, blocksMap, blockFor, standardBlock, blockChips, saveBlockSize, rememberBlocks, restoreBlocks } from '../../lib/flow/bloecke.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
+  import { isUnitEntry, weekOfEntry, setUnitTick } from '../../lib/flow/unitdone.js';
   import { sportHref } from '../../lib/flow/mysports.js';
   import { GOAL_KEY, PLAN_KEY } from '../../lib/training.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
@@ -84,7 +86,7 @@
   const unitText = $derived(next ? `${fmt(next.day, { weekday: 'short' }).replace('.', '')} ${next.t} · ${t(UNIT_NAME[next.type] ?? next.type)}` : '');
   const pct = $derived(goalH && week ? Math.min(100, Math.round((week.mins / 60 / goalH) * 100)) : 0);
 
-  const FEEL_TEXT = { light: 'light|feel', good: 'good|feel', hard: 'hard|feel' };
+  const FEEL_TEXT = FEEL_KEY;
   // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
   const chooseMin = (m) => entry && db.flowLog.put(withMinutes(entry, m));
   // an own length typed by hand (Noah 21.11.2026): next to every row of duration buttons; the same value again keeps it
@@ -118,7 +120,13 @@
     if (!e) return;
     const name = actName(act);
     if (!(await undoTick(e.id))) return;
-    toast(t('{name} · taken back', { name }), () => putEntry(db, e));
+    // «Plan zuerst» (T4): a tick that came from a unit of the weekly plan also takes the tick in the plan back, and puts it back with «Undo»
+    const unit = isUnitEntry(e) ? { monday: weekOfEntry(e), id: e.unit } : null;
+    if (unit) await setUnitTick(db, { ...unit, on: false, today });
+    toast(t('{name} · taken back', { name }), async () => {
+      await putEntry(db, e);
+      if (unit) await setUnitTick(db, { ...unit, on: true, today: e.day });
+    });
     location.hash = '#/flow';
   }
 </script>

@@ -30,9 +30,14 @@ test('a tap in the catalogue lights up the spot of the function', async ({ page,
     const lit = page.locator(`[data-spot-on="${id}"]`).first();
     try {
       await lit.waitFor({ state: 'visible', timeout: 10_000 });
-      const box = await lit.boundingBox();
+      // the page may still be drawing (cards come in above the spot on a slow machine): the app looks again at 0.4, 1 and 2 s
+      // and brings the spot back, so «on screen» is what it is a moment later, not the first millisecond (wobbly on 21.11.2026)
       const vh = page.viewportSize().height;
-      if (!box || box.y + box.height < 0 || box.y > vh) missing.push(`${id}: lit up but not on screen`);
+      const onScreen = async () => {
+        const box = await lit.boundingBox().catch(() => null);
+        return !!box && box.y + box.height >= 0 && box.y <= vh;
+      };
+      await expect.poll(onScreen, { timeout: 6000, intervals: [100, 200, 400] }).toBe(true).catch(() => missing.push(`${id}: lit up but not on screen`));
     } catch {
       missing.push(`${id}: no spot lit up on ${page.url().split('#')[1]}`);
     }

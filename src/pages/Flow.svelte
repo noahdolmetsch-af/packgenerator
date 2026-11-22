@@ -21,6 +21,7 @@
    *   #/flow/review/tile «Verlauf und alle Zahlen» of one tile or sentence (?k=&w=)
    *   #/flow/review      «Wochenrückblick» (W1–W6, Noah 15.10.2026 «1-5 a»), ?w=<Monday> (pages/flow/WeekReview.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
+   *   #/flow/challenges  «Challenges» (Noah 21.11.2026 «4a»): Draussen and own daily goals with «Tick off» (pages/flow/Challenges.svelte, lazy)
    *   #/flow/gipfelbuch  v0.165.0 «Gipfelbuch für alle»: passes, summits, trails and places of every sport (pages/flow/Gipfelbuch.svelte)
    *   #/flow/act/<id>    hobby pages 2: Meditation's own page (Meditation.svelte, B1); …/timer the
    *                      intervals (MedTimer.svelte, B2); the running session is in FlowLayer (B7)
@@ -62,6 +63,7 @@
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
   import MySports from './flow/MySports.svelte';
+  import FeelAsk from '../lib/training/plans/FeelAsk.svelte'; // «Von selbst» (T3): «How was it?» about the newest Strava activity
   import Training from './flow/Training.svelte';
   import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
@@ -83,6 +85,7 @@
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier» on top of Aktiv (Noah 03.11.2026 «1a»)
   import WeekGoals from '../lib/flow/WeekGoals.svelte'; // Aktiv 4b (Noah 05.11.2026): own goals for the week Monday to Sunday
+  import NachtragHint from '../lib/flow/NachtragHint.svelte'; // Gestern nachtragen (Noah 21.11.2026): the morning hint «Gestern nichts abgehakt?»
   import RuhetagHint from '../lib/flow/RuhetagHint.svelte'; // Aktiv 4a (Noah 05.11.2026): after three hard days one gentle line
   import { sportHref } from '../lib/flow/mysports.js';
   import { localDay } from '../lib/localday.js';
@@ -164,6 +167,9 @@
   <Activity />
 {:else if route[0] === 'milestones'}
   <Milestones {params} />
+{:else if route[0] === 'challenges'}
+  <!-- «Challenges» (Noah 21.11.2026 «4a»): the page of every challenge with a daily goal; loaded only when opened -->
+  {#await import('./flow/Challenges.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
 {:else if route[0] === 'gipfelbuch'}
@@ -216,8 +222,8 @@
       {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
 
-    <!-- «Aktiv und Auswerten» 1a (Noah 03.11.2026): every function of Aktiv as a tile, right under the head -->
-    <AllHere area="aktiv" />
+    <!-- «Von selbst» (T3): a new Strava activity asks «How was it?» in three words, for every sport -->
+    <FeelAsk />
 
     <!-- Noah 19.10 «2a»: the Einstieg of Aktiv in the card «Was hier steht» (after the first visit one quiet line) -->
     <HintCard page="aktiv" intro="aktiv" />
@@ -229,6 +235,7 @@
            Soll?», in three parts: tick off today, this week, the rings. The form card, Strava, «Wi gaht's?» and the
            tiles moved to Auswerten; the lake and the air to the weather page. -->
       <RuhetagHint {today} />
+      <NachtragHint {today} log={data.log} acts={live.map((s) => s.act)} />
       <div class="lay">
         <div class="col">
           <!-- the stopwatch sits in the head of this part (was Aktiv › Mehr › Stoppuhr) -->
@@ -283,6 +290,8 @@
     {/if}
     <!-- «Auswerten aufräumen» 5a (Noah 07.11.2026): a list pinned to «Aktiv» stands here, not on Auswerten -->
     <PinnedLists place="active" />
+    <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+    <AllHere area="aktiv" />
   </div>
 {/if}
 

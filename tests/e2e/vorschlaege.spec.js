@@ -35,6 +35,13 @@ test('Tour suggestions: five tours, filters, one tour, hide and undo', async ({ 
   await expect(tours).toHaveCount(1); // only the downhill is under two hours
   await page.locator('[data-vs-hours="any"]').click();
 
+  // kind: only the downhill; the start filter needs a home place, so it only gives a hint here
+  await page.locator('[data-vs-art="downhill"]').click();
+  await expect(tours).toHaveCount(1);
+  await page.locator('[data-vs-art="downhill"]').click();
+  await expect(tours).toHaveCount(5);
+  await expect(page.locator('[data-vs-start]')).toContainText(T('Set your home place and you can choose how far the start may be.'));
+
   // one tour: the hardest of the pilot, with warning, profile and the reasons
   await page.locator('[data-vs-tour="sm-332"] a.tl').click();
   await expect(page.locator('[data-page="vorschlaege"] h1')).toContainText('Davos');
@@ -45,6 +52,12 @@ test('Tour suggestions: five tours, filters, one tour, hide and undo', async ({ 
   await page.locator('[data-profile] input[type="range"]').fill('500');
   await expect(page.locator('[data-vs-facts]')).toContainText('33 km');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+
+  // choose the lines: «Snow» off, the line is gone
+  await page.locator('[data-vs-lines] summary').click();
+  await page.locator('[data-vs-line="snow"]').uncheck();
+  await expect(page.locator('[data-vs-why] li')).toHaveCount(2); // time and difficulty are left
+  await page.locator('[data-vs-line="snow"]').check();
 
   // keep as a dream
   await page.locator('[data-vs-dream]').click();
