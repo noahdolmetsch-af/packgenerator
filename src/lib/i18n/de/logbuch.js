@@ -68,9 +68,9 @@ export default {
   'First a picture of how it could look, then the change.': 'Zuerst ein Bild, wie es aussehen könnte, dann die Änderung.',
   'Only a note. Nothing changes.': 'Nur eine Notiz. Es ändert sich nichts.',
   // Funktionskatalog
-  'Write down what bothers you or is missing in the app, right where you see it: tap «Improve» on any page, tap the block, pick the kind and say or write one sentence. Page, block, time and device are kept with it. Stays on this device and goes into your backup.': 'Halte fest, was dich in der App stört oder fehlt, genau dort, wo du es siehst: tippe auf einer Seite auf «Verbessern», dann auf den Block, wähle die Art und sprich oder schreib einen Satz. Seite, Block, Uhrzeit und Gerät werden mitgespeichert. Bleibt auf diesem Gerät und kommt in dein Backup.',
+  'Write down what bothers you or is missing in the app, right where you see it: tap «Improve» on any page, tap the block, pick the kind and say or write one sentence. Page, block, time and device are kept with it. «Copy the order» makes one text of the open entries for the chat. Stays on this device and goes into your backup.': 'Halte fest, was dich in der App stört oder fehlt, genau dort, wo du es siehst: tippe auf einer Seite auf «Verbessern», dann auf den Block, wähle die Art und sprich oder schreib einen Satz. Seite, Block, Uhrzeit und Gerät werden mitgespeichert. «Auftrag kopieren» macht aus den offenen Einträgen einen Text für den Chat. Bleibt auf diesem Gerät und kommt in dein Backup.',
   'Tap «Improve» on a page, then the block you mean, and write one sentence.': 'Tippe auf einer Seite auf «Verbessern», dann auf den Block, und schreib einen Satz.',
-  'Open Me and tap «Improvement log» to see all entries.': 'Öffne Ich und tippe auf «Verbesserungs-Logbuch», um alle Einträge zu sehen.',
-    'Filter by group, tap «Done» when it is changed, or «Change» to edit it.': 'Filtere nach Gruppe, tippe auf «Erledigt», wenn es geändert ist, oder auf «Ändern», um es zu bearbeiten.',
+  'Open Me › Improvement log: filter by group, tap «Done» when it is changed.': 'Öffne Ich › Verbesserungs-Logbuch: nach Gruppe filtern, «Erledigt» tippen, wenn es geändert ist.',
+  'Tap «Copy the order» and paste the text in the chat.': 'Tippe auf «Auftrag kopieren» und füge den Text im Chat ein.',
   'Example: «Improve» on the training page, block «Week 47», kind «Change text».': 'Beispiel: «Verbessern» auf der Trainingsseite, Block «Woche 47», Art «Text ändern».',
 };
