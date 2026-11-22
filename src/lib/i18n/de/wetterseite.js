@@ -10,4 +10,10 @@ export default {
   'From the forecast, in steps of 15 minutes. A guide, not a promise.': 'Aus der Vorhersage, in Schritten von 15 Minuten. Eine Richtschnur, kein Versprechen.',
   'Rain starts now.': 'Der Regen beginnt jetzt.',
   'Rain in about {min} minutes.': 'Regen in etwa {min} Minuten.',
+  // A and G: the weather along the route, webcams on the way
+  'Headwind on {p} % of the way.': 'Gegenwind auf {p} % der Strecke.',
+  'Coldest point: {c} °C at km {km}.': 'Kältester Punkt: {c} °C bei km {km}.',
+  'Along the way also: {list}': 'Auf dem Weg auch: {list}',
+  'Webcams along the route': 'Webcams entlang der Route',
+  'you are there at {at}': 'du bist dort um {at}',
 };
