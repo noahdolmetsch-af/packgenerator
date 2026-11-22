@@ -1,6 +1,6 @@
 # Dein Jahr in Sternen
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 4)
+PR #1443 · 21.11.2026 · Auftrag: Noah «1-5 a» (Thread «Meilensteine motivierender machen», Idee 4)
 
 ## Was ist neu
 - Auf Auswerten › Meilensteine steht unter der grossen Karte (und dem Regal «Ganz geschafft») die Karte «Dein Jahr in Sternen»: zwölf Monate als kleine Balken, «20 Sterne in 2026», «52 Sterne seit Beginn», dein stärkster Monat und der neueste Stern.
