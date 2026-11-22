@@ -42,4 +42,5 @@ export default {
   'Outdoors challenge': 'Challenge Draussen',
   'Every day at 16:00 (or the time you set) while your challenge runs, until the day is reached.': 'Jeden Tag um 16:00 (oder zur Zeit, die du einstellst), solange deine Challenge läuft und der Tag noch nicht erreicht ist.',
   '{min} min outdoors still to go today. Even a short walk counts.': 'Heute noch {min} Min draussen. Auch ein kurzer Spaziergang zählt.',
+  'Done for today: {name}.': 'Heute geschafft: {name}.',
 };

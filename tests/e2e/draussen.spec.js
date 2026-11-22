@@ -116,3 +116,36 @@ test('the time of the reminder is set behind the pencil and saved with the chall
   await sheet.getByRole('button', { name: T('Save'), exact: true }).click();
   await expect(card.locator('[data-outdoor-remind]')).toContainText('17:30');
 });
+
+test('Tick off counts the minutes that are missing, a second tap takes them back, Strava stays', async ({ page, context }, info) => {
+  const acts = [walk('t', day(0), 30)];
+  const T = await openHome(page, context, info, { hour: 17, data: fixture({ activities: acts, settings: [rec({ [day(0)]: [10] })] }) });
+  const card = page.locator('[data-outdoor-card]');
+  const tick = card.locator('[data-outdoor-tick]');
+  await expect(tick).toContainText(T('Tick off|habit'));
+  await expect(card.locator('[data-outdoor-now]')).toContainText(T('{n} min to go', { n: 50 }));
+  if (process.env.SHOTS) {
+    await card.evaluate((el) => (el.style.outline = '3px solid #f08a24')); // the new part, framed for the pictures
+    await card.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
+    await page.screenshot({ path: `${process.env.SHOTS}/draussen-abhaken-offen-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await tick.click();
+  await expect(card.locator('[data-outdoor-now]')).toContainText(T('Done today: {min} of {goal} min', { min: 90, goal: 90 }));
+  await expect(tick).toHaveAttribute('aria-pressed', 'true');
+  await expect(tick).toContainText(T('Ticked · take back'));
+  if (process.env.SHOTS) {
+    await page.waitForTimeout(5500); // the message with Undo is gone
+    await page.screenshot({ path: `${process.env.SHOTS}/draussen-abhaken-geschafft-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  }
+  await tick.click();
+  await expect(card.locator('[data-outdoor-now]')).toContainText(T('{n} min to go', { n: 50 }));
+  await expect(card.locator('[data-outdoor-strava]')).toContainText('30'); // Strava stays
+});
+
+test('Tick off is not offered when Strava alone reached the goal', async ({ page, context }, info) => {
+  await openHome(page, context, info, { hour: 17, data: fixture({ activities: [walk('u', day(0), 120)], settings: [rec()] }) });
+  const card = page.locator('[data-outdoor-card]');
+  await expect(card.locator('[data-outdoor-now]')).toContainText('120');
+  await expect(card.locator('[data-outdoor-tick]')).toHaveCount(0);
+});
