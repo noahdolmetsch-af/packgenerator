@@ -1648,7 +1648,7 @@ const LISTED = {
   },
   'f.searchvoice': {
     on: 'The microphone is always in the search; Me › Search hides it and switches each answer on or off.',
-    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.'],
+    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, you ask further at Claude or ChatGPT.'],
     example: 'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.',
   },
   'f.aiprojects': {

@@ -127,7 +127,7 @@ describe('workshop, backup and Merken', () => {
     expect(l.items.filter((i) => i.key.startsWith('own:'))).toEqual([expect.objectContaining({ at: atMs('2026-10-22', '17:00'), body: 'Velo putzen' })]);
     // winter: watered on 1 December every 7 days → 11 days
     const w = buildList(base({ now: new Date(2026, 11, 2, 9), settings: { push: allOn, merken: [{ id: 'p2', kind: 'plant', text: 'Farn', plant: { every: 7, last: '2026-12-01' }, remind: { at: '08:00' } }] } }));
-    expect(w.items[0].at).toBe(atMs(addDays('2026-12-01', 11), '08:00'));
+    expect(w.items.find((i) => i.key.startsWith('plant:')).at).toBe(atMs(addDays('2026-12-01', 11), '08:00'));
   });
   it('the list is in time order and reaches 14 days ahead at most', () => {
     const l = buildList(base({ trips: [trip('a', '2026-10-26'), trip('b', '2026-10-22')], repairs: [{ id: 1, task: 'x', status: 'open', dueDate: '2026-11-30' }] }));

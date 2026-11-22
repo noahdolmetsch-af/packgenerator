@@ -221,9 +221,6 @@
       {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
 
-    <!-- «Aktiv und Auswerten» 1a (Noah 03.11.2026): every function of Aktiv as a tile, right under the head -->
-    <AllHere area="aktiv" />
-
     <!-- Noah 19.10 «2a»: the Einstieg of Aktiv in the card «Was hier steht» (after the first visit one quiet line) -->
     <HintCard page="aktiv" intro="aktiv" />
 
@@ -289,6 +286,8 @@
     {/if}
     <!-- «Auswerten aufräumen» 5a (Noah 07.11.2026): a list pinned to «Aktiv» stands here, not on Auswerten -->
     <PinnedLists place="active" />
+    <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+    <AllHere area="aktiv" />
   </div>
 {/if}
 

@@ -86,7 +86,6 @@ describe('settings', () => {
     expect(dictOf('read', null)).toBe(false);
     expect(dictOf('read', '1')).toBe(true);
     expect(dictOf('commands', '0')).toBe(false);
-    expect(dictOf('gemini', null)).toBe(true);
     expect(dictOf('others', null)).toBe(null);
     expect(dictOf('others', 'claude')).toBe('claude');
     expect(dictOf('order', null)).toBe(null);

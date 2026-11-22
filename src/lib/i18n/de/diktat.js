@@ -94,7 +94,7 @@ export default {
   Dictation: 'Diktat',
   "Speak into a note until you tap stop; «Punkt», «neue Zeile»; a question gets the app's answer, read aloud if you like.": 'In eine Notiz sprechen, bis du Stopp tippst; «Punkt», «neue Zeile»; auf eine Frage antwortet die App, auf Wunsch vorgelesen.',
   'Ask further': 'Weiter fragen',
-  'Under an answer: open Claude, ChatGPT, Perplexity, Google and more with the question, or ask Gemini in the app, free.': 'Unter einer Antwort: Claude, ChatGPT, Perplexity, Google und mehr mit der Frage öffnen oder Gemini in der App fragen, gratis.',
+  'Under an answer: open Claude, ChatGPT, Perplexity, Google and more with the question.': 'Unter einer Antwort: Claude, ChatGPT, Perplexity, Google und mehr mit der Frage öffnen.',
   'Your own links to AI projects, threads and chats; one tap opens them with your account.': 'Deine eigenen Links zu KI-Projekten, Threads und Chats; ein Tipp öffnet sie mit deinem Konto.',
   "Tap the microphone next to a note.": 'Tippe auf das Mikrofon neben einer Notiz.',
   'Speak; tap stop when you are done.': 'Sprich; tippe Stopp, wenn du fertig bist.',

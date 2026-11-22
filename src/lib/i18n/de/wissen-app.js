@@ -103,4 +103,6 @@ export default {
     'Schalte nur ein, worauf du auch reagierst. Eine Erinnerung, die du dreimal wegwischst, schalte lieber aus, dann werden die anderen wieder gelesen.',
   'Check one backup a season by really opening it. A backup nobody ever opened is a hope, not a backup.':
     'Prüf jede Saison ein Backup, indem du es wirklich öffnest. Ein Backup, das nie jemand geöffnet hat, ist eine Hoffnung, kein Backup.',
+  'One sentence right where it bothers you beats a long list later. Say what you saw, not how to fix it; the photo shows the rest.':
+    'Ein Satz genau dort, wo es dich stört, ist besser als eine lange Liste später. Schreib, was du gesehen hast, nicht wie man es löst; das Foto zeigt den Rest.',
 };
