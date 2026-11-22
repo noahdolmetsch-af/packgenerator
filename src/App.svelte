@@ -57,6 +57,7 @@
   import { OWN_KEY } from './lib/ownvalues.js';
   import { useOwn } from './lib/ownlive.svelte.js';
   import { checkPart } from './lib/flowcheck.js';
+  import { recordError } from './lib/fehler/felog.js';
   import { pageOf, isUnknown, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
@@ -105,6 +106,7 @@
   const onfail = (e, reset) => {
     failReset = reset;
     console.error(e);
+    recordError(e); // «Fehler-Melder»: noted on this device only (the page is the address now)
   };
   const failName = $derived.by(() => {
     if (place === 'me') return t('Me|place');
@@ -429,6 +431,7 @@
     Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
     Fragen: () => import('./pages/Fragen.svelte'), // «Fragen» (Plan 4a, Noah 08.11.2026): Auswerten › Fragen
     SportRueckblick: () => import('./pages/SportRueckblick.svelte'), // «Rückblick pro Sportart» (Noah 21.11.2026, S4): Auswerten › Sportjahr › one sport
+    Logbuch: () => import('./pages/Logbuch.svelte'), // «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): Ich › Logbuch
     Sportjahr: () => import('./pages/Sportjahr.svelte'), // «Sportjahr» (Noah 21.11.2026 «1a dann b»): Auswerten › Sportjahr
     Quellen: () => import('./pages/Quellen.svelte'), // «Meine Datenquellen» (Noah 07.11.2026 «1a»): Auswerten › Datenquellen
     Tourpfad: () => import('./pages/Tourpfad.svelte'), // «Tour-Pfad» (Noah 08.11.2026 «1 go A»): Touren › Tour-Pfad
@@ -543,7 +546,7 @@
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
-  {#if (place === 'gear' || place === 'active' || place === 'analysis') && !mini}<PlaceSwitch place={switchPlace} {hash} />{/if}
+  {#if place === 'gear' && !mini}<PlaceSwitch place={switchPlace} />{/if}
   {#if ops.path && place && page !== 'home' && !calm && !guest && !mini}<PathLine {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
@@ -677,7 +680,7 @@
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     {#key hash}{#if checkPart(hash) === 'history'}<LazyPage load={PAGES.CheckHistory} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'frei' || page === 'impulse'}
-    <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
+    <!-- Paket T «Freie Zeit»: Planen › Freie Zeit (#/me/frei/…) and its Impulse (#/flow/impulse, old address); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
   {:else if page === 'tagebuch'}
     <!-- «Tagebuch» (Noah 20.10.2026, like Day One): #/tagebuch, one entry at #/tagebuch/<id> -->
@@ -709,6 +712,8 @@
   {:else if page === 'data'}
     <!-- Design-Refresh P9 (I2): Ich › Daten und Backup, its own page -->
     <LazyPage load={PAGES.Data} />
+  {:else if page === 'logbuch'}
+    <LazyPage load={PAGES.Logbuch} />
   {:else if page === 'docs'}
     <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
     {#key hash.split('?')[0]}<LazyPage load={PAGES.Docs} />{/key}
@@ -934,6 +939,8 @@
 {#if !guest}<TourStart /><TourHost />{/if}
 <!-- «Quick Links» step 2 (Noah 28.10.2026 «1a 2a»): the small pin on every card of a function; loads later -->
 {#if !guest && !mini}{#await import('./lib/quick/PinMarks.svelte') then M}<M.default {hash} />{/await}{/if}
+<!-- «Verbesserungs-Logbuch» step 2 (Noah 21.11.2026): the button «Verbessern» on every page; loads later, can be switched off in Ich › Darstellung -->
+{#if !guest && !mini && ops.improve}{#await import('./lib/logbuch/Improve.svelte') then M}<M.default {hash} />{/await}{/if}
 {#if komootOpen}<KomootSheet onclose={() => (komootOpen = false)} />{/if}
 {#if mini}
   <!-- Kleine Apps: only the tabs of the small app and «Whole app» -->

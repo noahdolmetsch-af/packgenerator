@@ -5,8 +5,9 @@ import { openHome, homeFixture } from './home0460-fixture.js';
 import { mock } from './hoehe-fixture.js';
 
 test('Today shows the temperatures by height for the home place; the switch on the weather page takes the line away', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture() });
-  await mock(context);
+  // the air layers are set before Today first loads (openHome `weather`): Today asks for them once when the page is drawn, and a
+  // mock set after that came too late on a busy machine (wobbly on 21.11.2026: «the line never showed», 6 of 12 runs under load)
+  await openHome(page, context, info, { data: homeFixture(), weather: mock });
 
   await page.goto('./#/');
   const line = page.locator('[data-heute-hoehe]');

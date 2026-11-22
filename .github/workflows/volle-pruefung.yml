@@ -52,13 +52,15 @@ jobs:
           E2E_SKIP_GESAMTTEST: '1' # its own job below
       # Failed and flaky (passed only on the retry) tests by name, in the summary of the run
       - if: always()
-        run: node scripts/test-summary.mjs pw-report.json "${{ matrix.project }} part ${{ matrix.shard }}" rot-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt
+        run: node scripts/test-summary.mjs pw-report.json "${{ matrix.project }} part ${{ matrix.shard }}" rot-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt wackel-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt
       # The names of the failed tests: the report job compares them with the night before (scripts/nacht-vergleich.mjs)
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rot-e2e-${{ matrix.project }}-${{ matrix.shard }}
-          path: rot-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt
+          path: |
+            rot-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt
+            wackel-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt
           retention-days: 2
           if-no-files-found: ignore
       - if: failure()
@@ -93,12 +95,14 @@ jobs:
       - run: npm ci
       - run: npx playwright test tests/e2e/gesamttest --project=${{ matrix.project }} --shard=${{ matrix.shard }}/2
       - if: always()
-        run: node scripts/test-summary.mjs pw-report.json "gesamttest ${{ matrix.project }} ${{ matrix.shard }}" rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt
+        run: node scripts/test-summary.mjs pw-report.json "gesamttest ${{ matrix.project }} ${{ matrix.shard }}" rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt wackel-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}
-          path: rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt
+          path: |
+            rot-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt
+            wackel-gesamttest-${{ matrix.project }}-${{ matrix.shard }}.txt
           retention-days: 2
           if-no-files-found: ignore
       - if: failure()
@@ -167,6 +171,57 @@ jobs:
           path: rot-liste.txt
           retention-days: 7
           if-no-files-found: ignore
+      # 21.11.2026 (Noah «4»): a test that is red once and green on the retry used to vanish and was started again. Every job
+      # leaves the names of its flaky tests (wackel-*.txt, inside the rot-* artifacts); this step counts the nights per test
+      # (scripts/wackel-liste.mjs). A test that wobbles on a SECOND night is a work order: repair the cause within a day.
+      - name: Wobbly list
+        id: wackel
+        if: always()
+        run: |
+          mkdir -p wackel-vorher
+          for id in $(gh run list --workflow volle-pruefung.yml --status completed --limit 6 --json databaseId --jq '.[].databaseId'); do
+            [ "$id" = "$GITHUB_RUN_ID" ] && continue
+            if gh run download "$id" -n wackel-liste -D wackel-vorher 2>/dev/null; then break; fi
+          done
+          before=-
+          [ -f wackel-vorher/wackel-liste.json ] && before=wackel-vorher/wackel-liste.json
+          node scripts/wackel-liste.mjs rot "$before" wackel-liste.json > wackel.md
+          { echo '### Wackel-Tests'; echo; cat wackel.md; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: wackel-liste
+          path: wackel-liste.json
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Wobbly issue (a mail only when a test wobbles on a second night)
+        if: always()
+        env:
+          WACKLER: ${{ steps.wackel.outputs.wackler }}
+          NEU2: ${{ steps.wackel.outputs.neu2 }}
+          WLABEL: wackel-test
+        run: |
+          [ -f wackel.md ] || exit 0
+          gh label create "$WLABEL" --color FBCA04 --description 'Tests, die rot und beim zweiten Versuch grün waren: Ursache reparieren, nicht neu starten' 2>/dev/null || true
+          num=$(gh issue list --label "$WLABEL" --state open --json number --jq '.[0].number // empty')
+          if [ "${WACKLER:-0}" != "0" ]; then
+            {
+              echo 'Diese Tests waren an mindestens zwei Nächten rot und beim zweiten Versuch grün. Ein Wackler hat eine Ursache (Warten auf etwas Falsches, eine Uhr, die Reihenfolge). Claude sucht sie und repariert den Test oder die App innerhalb eines Tages mit einem kleinen PR. Neu starten ist keine Lösung.'
+              echo
+              cat wackel.md
+              echo
+              echo "Stand: Lauf ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            } > wackel-body.md
+            if [ -n "$num" ]; then
+              gh issue edit "$num" --body-file wackel-body.md
+              [ "${NEU2:-0}" != "0" ] && gh issue comment "$num" --body-file wackel.md
+            else
+              gh issue create --title 'Wackel-Tests: Ursache reparieren' --label "$WLABEL" --body-file wackel-body.md
+            fi
+          elif [ -n "$num" ]; then
+            gh issue close "$num" --comment "Keine Wackler mehr in der Liste.$(printf '\n\n')$(cat wackel.md)"
+          fi
+          true
       # Noah 04.11.2026 «Test-Plan 4»: a red night run says in one line what is red and which merged PRs came
       # since the last run, so the morning starts with the suspects and not with a search.
       # 21.11.2026: since the night before (not since the last GREEN run: that was 18 days back, «232 weitere»).

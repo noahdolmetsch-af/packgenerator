@@ -118,11 +118,6 @@ const LISTED = {
     steps: ['Ask the app: type a question or tap an example; the answer comes from your data, with a link.', 'Help me plan: answer four short questions, check the plan, «Create the trip».'],
     example: 'Example: «What is due on my bikes?» → the parts that are due, and «Open bike care».',
   },
-  'f.ask': {
-    on: 'Needs the helper code: Me › AI helper, switch on and save the code.',
-    steps: ['Open the helper and type a few words.', 'Check the suggestion and take only what fits.'],
-    example: 'Example: «2 days gravel, one night camping, rain likely» → a packing list suggestion.',
-  },
   'f.wardrobe': {
     on: null,
     steps: ['Open Gear › Clothes.', 'Add clothes by layer and body zone; gaps go to the wishlist.'],
@@ -597,7 +592,7 @@ const LISTED = {
   },
   'f.readytomorrow': {
     on: null,
-    steps: ['The evening before a tour open the trip in Pack.', 'Read the hints in «Ready for tomorrow?»; with the AI helper on, ask it too.'],
+    steps: ['The evening before a tour open the trip in Pack.', 'Read the hints in «Ready for tomorrow?».'],
     example: 'Example: 3 °C in the morning → gloves on top; still 4 things to pack; charge the lights.',
   },
   // v0.134.0 «Inspiration»
@@ -1029,6 +1024,11 @@ const LISTED = {
     steps: ['On the live map tap «⋯» › «Plan a new way to …», or press long on the map.', 'Choose a shop, a bed, a station or your own point, or search a place; tap «Plan». «GPX for Garmin» saves it.'],
     example: 'Example: at km 52 to the bakery 1.2 km off the route → 2.6 km detour, back on the route at km 54.',
   },
+  'f.findsleep': {
+    on: null,
+    steps: ['On the live map tap «⋯» › «Find a place to sleep» and «Search around me».', 'Tap «Go there» to plan the way, or «Save as place to sleep» where you stand.'],
+    example: 'Example: a bus stop with a roof 1.4 km ahead → «Go there» plans the way.',
+  },
   'f.live': {
     on: null,
     steps: ['Tap «Start a ride» on Active, On the way or a trip.', 'Allow the location; keep the page open with the phone on the handlebar.'],
@@ -1063,6 +1063,11 @@ const LISTED = {
     on: null,
     steps: ['Open the place search on the live map or a race map and type your radius.', 'Under «My own places» add a place here, by a tap on the map or from a file.'],
     example: 'Example: a CSV of the race checkpoints → all as your own places on the map.',
+  },
+  'f.routeknown': {
+    on: null,
+    steps: ['Open a trip › «Route» with a GPX route: stretches you marked after a ride show under the map.', 'Tap «How new is this route for me?» to see how much of it you have never ridden.'],
+    example: 'Example: «2 stretches you marked as bad are on this route» and «38 % is new for you (21 km)».',
   },
   'f.rwgps': {
     on: null,
@@ -1171,7 +1176,7 @@ const LISTED = {
   },
   'f.impulse': {
     on: null,
-    steps: ['Open Active › Impulses, or Me › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
+    steps: ['Open Plan › Free time › Impulses.', 'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.'],
     example: 'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.',
   },
   'f.shopping': {
@@ -1213,6 +1218,11 @@ const LISTED = {
     on: null,
     steps: ['Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).', 'A new star shows right after the tick in a small window.', 'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.'],
     example: 'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.',
+  },
+  'f.challenges': {
+    on: 'Nothing to switch on. Start «Outdoors» on Today, or a goal of your own on the page Challenges.',
+    steps: ['Open Milestones › Challenges, or the card on Today.', 'Tap «New challenge»: name, unit (minutes, a count or steps), goal per day, first and last day.', 'Each day tap «Tick off» when you reached the goal; under «More» add smaller or larger amounts.'],
+    example: 'Example: «Outdoors», 90 min a day until 31 December; a walk of 40 min plus 50 min by hand reaches the day.',
   },
   'f.meditation': {
     on: null,
@@ -1612,7 +1622,7 @@ const LISTED = {
     example: 'Example: read the tyre size 40-622 on a dark sidewall.',
   },
   'f.packphoto': {
-    on: 'Downloads the recognition once (about 30 MB), then offline. KI-Helfer: needs internet; the photo goes out only after «Send photo».',
+    on: 'Downloads the recognition once (about 30 MB), then offline; the photo stays on the device.',
     steps: ['Lay the things out side by side and open Toolbox › Packing list by photo (or «Tick off by photo» in Pack).', 'Choose «Tick off» (the trip\'s list) or «Add new» (your gear), then take the photo.', 'Deselect what is wrong and confirm; answer «What is this?» once, the app remembers it on this device.'],
     example: 'Example: 9 things on the floor → 6 ticked on «Jura 3 days», the stove taught once as «Kocher».',
   },
@@ -1638,7 +1648,7 @@ const LISTED = {
   },
   'f.searchvoice': {
     on: 'The microphone is always in the search; Me › Search hides it and switches each answer on or off.',
-    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.'],
+    steps: ['Tap the microphone next to the magnifier and say what you want.', 'One command that fits runs at once; «Undo» takes it back.', 'A question gets the app\'s answer; when the app knows nothing, you ask further at Claude or ChatGPT.'],
     example: 'Example: say «note brake squeaks» → the note is in the Inbox. If the microphone stops, the words so far stay in the field.',
   },
   'f.aiprojects': {

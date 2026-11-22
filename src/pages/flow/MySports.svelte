@@ -9,12 +9,14 @@
    * goals and the mosaic of all sports (was the top of #/flow/sports). Addresses #/flow/sports, …/goals and
    * …/activity all show this page.
    */
-  import { Search, Plus, Lightbulb, ChevronRight, Pencil, EyeOff, Pause, Play, Trash, ChevronUp, ChevronDown, ArrowUpToLine, ArrowDownToLine } from '@lucide/svelte';
+  import { Search, Plus, Lightbulb, ChevronRight, Pencil, EyeOff, Pause, Play, Trash, ChevronUp, ChevronDown, ArrowUpToLine, ArrowDownToLine, Merge } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../../lib/db.js';
   import { flowQuery, seedIfNeeded } from '../../lib/flow/data.svelte.js';
   import { flowStates, lastDays, halfOf, halfEnds, halfSince, moveAct, gridRow, activeGoals } from '../../lib/flow.js';
   import { saveOrder, saveAct, removeAct, undoAct } from '../../lib/flowdb.js';
+  import { mergeActs, undoMerge, mergeCounts } from '../../lib/flow/zusammen.js';
+  import MergeSheet from '../../lib/flow/MergeSheet.svelte';
   import { askDelete, deleteWithUndo } from '../../lib/ui/ask.js';
   import RenameSheet from '../../lib/ui/RenameSheet.svelte';
   import { OVERRIDES_KEY, listFor } from '../../lib/standard.js';
@@ -32,7 +34,9 @@
   import GoneActs from '../../lib/flow/GoneActs.svelte';
   import YearGoals from '../../lib/flow/YearGoals.svelte';
   import UsualMinList from '../../lib/flow/UsualMinList.svelte';
+  import DauerNachtragen from '../../lib/flow/DauerNachtragen.svelte';
   import StravaNeu from '../../lib/flow/StravaNeu.svelte';
+  import FitbitZaehlen from '../../lib/flow/FitbitZaehlen.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import SortArrows from '../../lib/ui/SortArrows.svelte';
@@ -191,6 +195,19 @@
       await saveAct(db, back);
     });
   }
+  /* «Zusammenlegen» (Noah 21.11.2026, S8): a sport goes into another one, with Undo */
+  let merging = $state(null); // { from, into?, counts }
+  async function openMerge(from, into = '') {
+    merging = { from, into, counts: await mergeCounts(db, from.id) };
+  }
+  async function doMerge(intoId) {
+    const { from } = merging;
+    const into = all.find((x) => x.id === intoId);
+    merging = null;
+    const saved = await mergeActs(db, from.id, intoId);
+    if (!saved) return;
+    offerDone(t('«{name}» merged into «{into}».', { name: actName(from), into: into ? actName(into) : '' }), () => undoMerge(db, saved));
+  }
   async function togglePause(a) {
     const was = !!a.paused;
     await saveAct(db, { ...$state.snapshot(a), paused: !was });
@@ -280,7 +297,8 @@
       return [
         { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = a) },
         ...(a.paused ? [{ key: 'pause', label: t('Resume'), icon: Play, onclick: () => togglePause(a) }] : []),
-        { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeRow(a) },
+        ...(all.length > 1 ? [{ key: 'merge', label: t('Merge …|sport'), icon: Merge, onclick: () => openMerge(a) }] : []),
+      { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeRow(a) },
       ];
     }
     return [
@@ -291,6 +309,7 @@
       { key: 'top', label: t('To the top'), icon: ArrowUpToLine, disabled: i === 0, onclick: () => moveIn(list, a, 0) },
       { key: 'bottom', label: t('To the bottom'), icon: ArrowDownToLine, disabled: i >= list.length - 1, onclick: () => moveIn(list, a, list.length - 1) },
       ...groupItems(a),
+      ...(all.length > 1 ? [{ key: 'merge', label: t('Merge …|sport'), icon: Merge, sep: true, onclick: () => openMerge(a) }] : []),
       { key: 'delete', label: t('Delete …'), icon: Trash, danger: true, sep: true, onclick: () => removeRow(a) },
     ];
   }
@@ -377,7 +396,7 @@
         <Sec id="ms-h" title={t('Your sports, last 7 days')} sub={t('Dots = last 7 days · today on the right · a tap opens the sport')} more={{ label: reorder ? t('Done|order') : t('Sort|order'), onclick: () => (reorder = !reorder), expanded: reorder }}>
           {#if reorder}<p class="note ronote" data-reorder-note><Lightbulb size={16} aria-hidden="true" /><span>{t('The order here is the order of «Tick off today».')} {t('Drag the grip or use the arrows to move.')}</span></p>{/if}
           {#each similar as g (g.key)}
-            <p class="note simnote" data-similar={g.key}><Lightbulb size={16} aria-hidden="true" /><span>{t('«{name}» appears {n} times. Rename one (for example «{name} winter») or pause it.', { name: g.name, n: g.ids.length })} <button type="button" class="btn btn-link" onclick={() => similarOk(g.key)}>{t('Keep as is|sport')}</button></span></p>
+            <p class="note simnote" data-similar={g.key}><Lightbulb size={16} aria-hidden="true" /><span>{t('«{name}» appears {n} times. Rename one (for example «{name} winter») or pause it.', { name: g.name, n: g.ids.length })} <button type="button" class="btn btn-link" onclick={() => similarOk(g.key)}>{t('Keep as is|sport')}</button>{#if g.ids.length === 2}{' '}<button type="button" class="btn btn-link" onclick={() => openMerge(all.find((x) => x.id === g.ids[1]), g.ids[0])} data-similar-merge>{t('Merge …|sport')}</button>{/if}</span></p>
           {/each}
           <div class="flt" data-filter>
             <label class="srch"><Search size={16} aria-hidden="true" /><input type="search" bind:value={find} placeholder={t('Find a sport')} aria-label={t('Find a sport')} data-find-sport /></label>
@@ -443,6 +462,8 @@
       <aside class="col">
         <!-- «Aktivität anlegen?» (Noah 21.11.2026 «4a», S7): Strava sports without an activity of Aktiv -->
         <StravaNeu />
+        <!-- «Zählen?» (Noah 21.11.2026, K4): Fitbit workouts without a tick, a suggestion only -->
+        <FitbitZaehlen />
         {#if tripSports.length}
           <Sec id="ts-h" title={t('Sports of your trips')} sub={t('What you pack for. Each has its page with gear, packing list and care.')}>
             <ul class="card tsl" use:sortable={{ onmove: tripDragged }} data-trip-sports>
@@ -462,6 +483,7 @@
         <GoneActs />
         <!-- «Übliche Dauer» (Noah 21.11.2026 «2b»): the estimate for ticks without a measured time -->
         <UsualMinList acts={data?.acts ?? []} />
+        <DauerNachtragen />
         <!-- «Werte überall» WU3: the year goals and the footprint -->
         <YearGoals {today} />
       </aside>
@@ -493,6 +515,9 @@
     onconfirm={(to) => deleteGroup(g, to)}
     onclose={() => (groupDeleting = null)}
   />
+{/if}
+{#if merging}
+  <MergeSheet fromName={actName(merging.from)} targets={all.filter((x) => x.id !== merging.from.id).map((x) => ({ id: x.id, name: actName(x) }))} into={merging.into} counts={merging.counts} onconfirm={doMerge} onclose={() => (merging = null)} />
 {/if}
 {#if renamingTrip}
   <RenameSheet kicker={t('Sport|kicker')} title={t('Rename sport')} value={sportName(renamingTrip)} max={40} onsave={(nm) => renameTrip(renamingTrip, nm)} onclose={() => (renamingTrip = null)} />

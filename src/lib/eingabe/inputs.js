@@ -1,7 +1,7 @@
 /**
  * «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»): one input bar
  * under the text of ten places in the app. It adds what the place lacks: a voice note (up to 1 minute, no
- * video), a photo, a file, the place, tags, a template of this place, writing prompts and the AI helpers.
+ * video), a photo, a file, the place, tags, a template of this place, writing prompts.
  * Pure part, tested in tests/eingabe.test.js. The bar is InputBar.svelte, what was added shows with
  * InputsView.svelte. A record keeps it in its field `inputs` (no Dexie change):
  *   inputs = { voices: [{ id, src, s, at, text? }], files: [{ id, name, type, bytes, src }], photos: [{ src }],
@@ -19,18 +19,17 @@ export const PHOTOS_MAX = 6;
 export const TAGS_MAX = 12;
 
 /** The tools of the bar, in their order. */
-export const TOOLS = ['voice', 'photo', 'file', 'place', 'tag', 'template', 'prompt', 'ai'];
+export const TOOLS = ['voice', 'photo', 'file', 'place', 'tag', 'template', 'prompt'];
 
 /**
  * The ten places and what the bar offers there (what the page already has itself is left out, e.g. the
  * diary has its own photos, place and tags). name: English key for t().
  */
 export const PLACES = {
-  // the diary keeps its own AI box (title, tidy), which got «Prompts that fit» and «Highlights» too
   diary: { name: 'Diary', tools: ['voice', 'file', 'template', 'prompt'] },
-  notes: { name: 'Notes', tools: ['voice', 'prompt', 'ai'] }, // the notes have photos, files, place, templates and #tags of their own
+  notes: { name: 'Notes', tools: ['voice', 'prompt'] }, // the notes have photos, files, place, templates and #tags of their own
   check: { name: 'Daily check', tools: ['voice', 'photo', 'template', 'prompt'] },
-  debrief: { name: 'Debrief', tools: ['voice', 'file', 'place', 'tag', 'template', 'prompt', 'ai'] }, // the tour diary has its photos
+  debrief: { name: 'Debrief', tools: ['voice', 'file', 'place', 'tag', 'template', 'prompt'] }, // the tour diary has its photos
   ride: { name: 'Ride', tools: ['voice', 'photo', 'place', 'template'] },
   spur: { name: 'Journey trail', tools: ['voice', 'tag', 'template'] },
   care: { name: 'Bike care', tools: ['voice', 'photo', 'file', 'template'] },
@@ -291,20 +290,6 @@ export function promptsFor(place, day = '2026-01-01', n = 3) {
   const k = Math.floor((d - new Date(Date.UTC(d.getUTCFullYear(), 0, 1))) / 864e5) || 0;
   return Array.from({ length: Math.min(n, list.length) }, (_, i) => list[(k + i) % list.length]);
 }
-
-/* ---------- AI answers ---------- */
-
-/** Gemini's prompts or highlights as lines: list signs and numbers off, empty lines out, at most `max`. */
-export function aiLines(text = '', max = 4) {
-  return String(text ?? '')
-    .split('\n')
-    .map((l) => l.replace(/^\s*(?:[-*•–]|\d+[.)])\s*/, '').replace(/\*\*/g, '').trim())
-    .filter((l) => l.length > 1)
-    .slice(0, max);
-}
-
-/** Highlights as a block for the text. */
-export const highlightsBlock = (lines = [], head = 'Highlights') => (lines.length ? `${head}:\n${lines.map((l) => `- ${l}`).join('\n')}` : '');
 
 /* ---------- files ---------- */
 

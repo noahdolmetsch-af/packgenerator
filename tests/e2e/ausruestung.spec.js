@@ -95,7 +95,14 @@ test('Ausrüstung: from Material to the page, care due with Erledigt, the row on
   // Heute shows the care due (4a) and leads back here
   await page.goto('./#/');
   const row = page.locator('main').getByText(`Tourenski Test: ${T('Wax the base')}`).first();
-  await expect(row).toBeAttached();
+  // «Jetzt dran» shows its first four rows and «Alle N zeigen» opens the rest. Which other rows are there (the tip about the
+  // browser storage, the one about the sync) depends on what the page has found out so far, so the care row sometimes
+  // sat behind the button (wobbly on 22.11.2026): open the whole list, then look for the row
+  await expect(async () => {
+    const more = page.locator('main button.lkb.more[aria-expanded="false"]');
+    if (await more.count()) await more.first().click();
+    await expect(row).toBeAttached({ timeout: 1000 });
+  }).toPass({ timeout: 10_000 });
 
   // «Erledigt» starts the step again; «Rückgängig» brings it back
   await page.goto('./#/equipment');

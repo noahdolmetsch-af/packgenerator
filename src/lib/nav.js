@@ -220,6 +220,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/suche')) return 'suchesettings'; // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»)
   if (h.startsWith('#/me/ki-projekte')) return 'aiprojects'; // «Meine KI-Projekte» (Noah 19.10.2026 «2a»)
   if (h.startsWith('#/me/look')) return 'look'; // v0.97.0 Design-Refresh R1: Ich › Darstellung
+  if (h.startsWith('#/me/logbuch')) return 'logbuch'; // «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): Ich › Logbuch
   if (h.startsWith('#/me/docs/scan')) return 'docscan'; // Dokumente-PDF: «Dokument fotografieren»
   if (h.startsWith('#/me/docs')) return 'docs'; // Dokumente-PDF: Ich › Dokumente
   if (h.startsWith('#/me/connections')) return 'connections'; // package G #155: Ich › Verbindungen
@@ -319,6 +320,12 @@ export function redirectOf(hash = '') {
 }
 
 /**
+ * «Neue Ordnung» V4a (Noah 21.11.2026 «1a 2a»): «Auswerten» is a place of its own in the bar and the sidebar (before, on a phone it
+ * shared the slot of Aktiv; Aktiv itself is part of «Woche» now). It collects what you look at (form, body values, rides,
+ * ticks evaluated, «Wi gaht's?», insights …).
+ */
+export const ANALYSIS = { key: 'analysis', href: '#/auswerten', label: 'Analysis|place', letter: 'a' };
+/**
  * v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places, the same on every page and in this
  * order (bottom bar on a phone, sidebar on a computer). Labels are English keys for t(); key: the
  * letter after «g» on a keyboard (g h = Today). colour: the place's light tint (app.css --pc-*).
@@ -326,22 +333,17 @@ export function redirectOf(hash = '') {
  */
 export const PLACES = [
   { key: 'today', href: '#/', label: 'Today|place', letter: 'h' },
-  // «Woche planen» (mockup WP1, Noah 15.10.2026 21:11 «1a»): the week is its own place, next to Heute.
-  // N1 «Neue Leiste» (Noah 20.10.2026 «1a 2a»): it is «Planen» now: the week, appointments and notes.
+  // «Neue Ordnung» V4a (Noah 21.11.2026 «1a 2a»): «Planen» and «Aktiv» are one place, «Woche» (tabs Woche, Training, Notizen, Alltag).
+  // Before: Planen (the week, appointments, notes) and Aktiv (tick off, sports, training) were two places.
   { key: 'week', href: '#/week', label: 'Plan|place', letter: 'w' },
   // v0.46.1 (Noah): «Touren» opens the overview of all trips, no longer the last trip at Packen.
   { key: 'trips', href: '#/trips', label: 'Trips|place', letter: 't' },
-  // v0.76.0: «Aktiv» is the fifth place; it opens «Im Flow» (v0.51.0).
-  // Noah 15.10.2026 (Paket Aktiv «1a»): Aktiv opens at Heute again; Meditation is its second tab.
-  // N1: it was «Auswerten», with the Strava rides (Fahrten) and the insights; before Velos.
-  // «Aktiv neu» (Noah 22.10.2026 «2a», Runde 2 «2a»): «Aktiv» again, the place to do (tick, the week, sport);
-  // what you look at moved to its own place «Auswerten» (ANALYSIS below), which shares this slot on a phone.
-  { key: 'active', href: '#/flow', label: 'Active|place', letter: 'a' },
   // «Aktiv neu» (Noah 22.10.2026 «1a»): on a phone the slot is «Velos und Material» (bar), the switch on top picks Velos, Ausrüstung or Material
   { key: 'bikes', href: '#/bikes', label: 'Bikes|place', bar: 'Bikes and gear|place', letter: 'v' },
-  // N1: Material belongs to Velos (sidebar: under Velos; phone: the slot of Velos, like Ausrüstung).
+  // N1: Material belongs to Velos (sidebar: its own row until Schritt V5; phone: the slot of Velos, like Ausrüstung).
   { key: 'gear', href: '#/gear', label: 'Gear|place', letter: 'm' },
-  // «Quick Links» (Noah 28.10.2026 «3a»): your pins, last in the bar (a sixth place on a phone) and in the sidebar; g q
+  ANALYSIS,
+  // «Quick Links» (Noah 28.10.2026 «3a»): your pins; not in the bar or the sidebar any more (V4a), the page stays at #/quick (g q) until V6 «Abkürzungen»
   { key: 'quick', href: '#/quick', label: 'Quick Links|place', bar: 'Quick Links|place', letter: 'q' },
 ];
 
@@ -352,34 +354,26 @@ export const PLACES = [
  * back to Velos (nav/PlaceSwitch), a row «Ausrüstung ›» on Velos leads there (Gesamttest 20.10.2026 B7). The bar shows BAR_PLACES (below).
  */
 export const EQUIPMENT = { key: 'equipment', href: '#/equipment', label: 'Equipment|place', shares: 'bikes' };
-/**
- * «Aktiv neu» (Noah 22.10.2026, spec «Aktiv-Bereich: Beschreibung»): «Auswerten» collects what you look at
- * (form, body values, rides, ticks evaluated, «Wi gaht's?», insights …). On a computer it is its own row in
- * the sidebar, under Aktiv; on a phone the bottom bar has no room, so it shares the slot of Aktiv and a
- * switch on top of both changes between them (like Ausrüstung and Velos).
- */
-export const ANALYSIS = { key: 'analysis', href: '#/auswerten', label: 'Analysis|place', shares: 'active' };
 /** Every place, also the ones that share a slot (for names and colours). */
-export const ALL_PLACES = [...PLACES, EQUIPMENT, ANALYSIS];
-const withAnalysis = (p) => (p.key === 'active' ? [p, ANALYSIS] : [p]);
+export const ALL_PLACES = [...PLACES, EQUIPMENT];
 /**
  * «Ganze App neu denken» Schritt 10 (Noah 18.11.2026 «1a 2a»): the sidebar has seven places (plus «Ich» as a card
  * below): Heute, Planen, Touren, Aktiv, Auswerten, Velos, Material. Quick Links (Z1) and Ausrüstung (Z2) are no rows
  * of their own any more: Quick Links stands under Heute (sidePlaceOf), Ausrüstung is the tab «Sets» of Material (placeOf).
  * The bottom bar of a phone is unchanged until step 15 (BAR_PLACES).
  */
-export const SIDE_PLACES = PLACES.filter((p) => p.key !== 'quick').flatMap(withAnalysis);
+export const SIDE_PLACES = PLACES.filter((p) => p.key !== 'quick');
 /** The row of the sidebar that is lit for a place: Quick Links → Heute (its page stays where it is; Ausrüstung is a tab of Material, placeOf). */
 export const sidePlaceOf = (place) => (place === 'quick' ? 'today' : place);
 /** N1: the places that share the slot of Velos in the bottom bar (Ausrüstung, Material). */
 export const SHARES_BIKES = [EQUIPMENT.key, 'gear'];
 /** The place whose slot in the bottom bar a place uses (Ausrüstung and Material → Velos, Auswerten → Aktiv). */
-export const barPlace = (place) => (SHARES_BIKES.includes(place) ? 'bikes' : place === ANALYSIS.key ? 'active' : place);
+export const barPlace = (place) => (SHARES_BIKES.includes(place) ? 'bikes' : place);
 /**
  * The places in the bottom bar of a phone: five (Noah 15.10.2026 «1a»: «Woche» takes the place of «Material»
  * there; Material stays in the sidebar, under Ich › Material and with g m). Ausrüstung shares the slot of Velos.
  */
-export const BAR_PLACES = PLACES.filter((p) => p.key !== 'gear');
+export const BAR_PLACES = PLACES.filter((p) => p.key !== 'gear' && p.key !== 'quick');
 
 /** Gesamttest 20.10.2026 B3: Touren › Fahrten, the Strava activities (the page Trips.svelte shows them on their own). */
 export const RIDES_HREF = '#/trips/rides';
@@ -411,8 +405,25 @@ const WEEK_PAGES = {
   compass: { label: 'Compass|tab', href: '#/me/compass', match: (h) => h.startsWith('#/me/compass') },
   alltag: { label: 'Everyday|tab', href: '#/me/alltag', match: (h) => h.startsWith('#/me/alltag') },
   frei: { label: 'Free time|tab', href: '#/me/frei', match: (h) => h.startsWith('#/me/frei') },
+  // «Impulse» (Noah 21.11.2026 «2a»): the page is one of the eight of Freie Zeit; its old address #/flow/impulse stays
+  impulse: { label: 'Impulses', href: '#/flow/impulse', match: (h) => /^#\/flow\/impulse(\/|\?|$)/.test(h) },
   // «Alles finden 2» (Noah 22.10.2026 «4a»): your links and ideas left Ich; they are things you plan with
   links: { label: 'Tools and links', href: '#/me/links', match: (h) => h.startsWith('#/me/links') },
+};
+
+/**
+ * «Neue Ordnung» V4a (Noah 21.11.2026): the pages of the old place «Aktiv» are chips of the tab «Training» of «Woche»; every address and
+ * every `match` is unchanged. What you look at (the LOOK_FLOW addresses) stays in Auswerten.
+ */
+const FLOW_PAGES = {
+  training: { label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|trainingsplan|plans)(\/|\?|$)/.test(h) },
+  // the old start of Aktiv: tick off, this week, the rings; the week page and the Wochenrückblick open from it
+  flowhome: { label: 'Tick off today', href: '#/flow', match: (h) => /^#\/flow(\/week|\/review)?\/?$/.test(h.split('?')[0]) },
+  wochenplan: { label: 'Weekly plan', href: '#/flow/wochenplan', match: (h) => /^#\/flow\/wochenplan(\/|\?|$)/.test(h) },
+  // Noah «4a» (Runde 2): «Ziele», «Aktivität» and «Sportarten» are one list; every sport has its page. Meditation is a sport too (Runde 3 «1b»).
+  sports: { label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|act|bags)(\/|\?|$)/.test(h) },
+  // Runde 3 «2a»: «Erholung» (the ring, the list to tick)
+  rest: { label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
 };
 
 /**
@@ -435,8 +446,8 @@ const ANALYSIS_PAGES = {
   // UI-Ziele #6: the answers of «Wi gaht's?» with the history, what does you good and the weight
   history: { label: 'How you are|tab', href: '#/me/abfragen', match: (h) => h.startsWith('#/me/history') || h.startsWith('#/me/abfragen') || h.startsWith('#/me/analysis') },
   wohl: { label: 'Good for me|tab', href: '#/me/wohl', match: (h) => h.startsWith('#/me/wohl') },
-  // Runde 3 «3b»: Impulse moves here, with the ideas (Paket T «Freie Zeit», also under Ich › Freie Zeit)
-  impulse: { label: 'Impulses', href: '#/flow/impulse', match: (h) => /^#\/flow\/(impulse|ideen)(\/|\?|$)/.test(h) },
+  // Runde 3 «3b»: the ideas for your balance stand here; the page Impulse moved to Planen › Alltag (Noah 21.11.2026 «2a»)
+  ideen: { label: 'Ideas', href: '#/flow/ideen', match: (h) => /^#\/flow\/ideen(\/|\?|$)/.test(h) },
   // N1: Erkenntnisse (resting pulse, sleep and rides together)
   insights: { label: 'Insights|tab', href: '#/me/insights', match: (h) => h.startsWith('#/me/insights') },
   weight: { label: 'Weight|tab', href: '#/me/weight', match: (h) => h.startsWith('#/me/weight') },
@@ -473,9 +484,10 @@ export const PLACE_TABS = {
   // eleven is still there at its address: it is a chip under its tab (`subs`, PlaceTabs.svelte), no longer a tab of its own.
   week: [
     { key: 'week', label: 'Week|tab', subs: ['week', 'agenda'] },
+    { key: 'training', label: 'Training|tab', subs: ['training', 'wochenplan', 'flowhome', 'sports', 'rest'] },
     { key: 'notes', label: 'Notes|tab', subs: ['notes', 'inbox', 'remember', 'tagebuch', 'mail'] },
-    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'frei', 'compass', 'links'] },
-  ].map((x) => tabWithSubs(x, WEEK_PAGES)),
+    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'frei', 'impulse', 'compass', 'links'] },
+  ].map((x) => tabWithSubs(x, { ...WEEK_PAGES, ...FLOW_PAGES })),
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !h.startsWith('#/trips/vorschlaege') && !h.startsWith('#/trips/weg') && !h.startsWith('#/trips/pfad') && !h.startsWith('#/trips/fuel') && !h.startsWith('#/trips/compare') && !isRidesHash(h) }, // Impeccable 20.10.2026: Verpflegung is a page of a tour, not the overview
     // Paket N (Noah 19.10.2026 «1a»): dream tours with their season, races as event tours.
@@ -512,24 +524,12 @@ export const PLACE_TABS = {
     // UC3 (Noah 14.10.2026 «1-5a»): «Setup», your setup per bike and the ideas of others
     { key: 'rig', label: 'My setup|tab', href: '#/bikes?tab=rig', match: (h) => h.startsWith('#/bikes') && /[?&]tab=rig/.test(h) },
   ],
-  // «Aktiv neu» (Noah 22.10.2026, spec «Aktiv-Bereich: Beschreibung»): four tabs to do things.
-  active: [
-    // the start: tick off, this week, the rings; the week page and the Wochenrückblick open from it
-    { key: 'today', label: 'Today|active', href: '#/flow', match: (h) => /^#\/flow(\/week|\/review)?\/?$/.test(h.split('?')[0]) },
-    // Noah «4a» (Runde 2): «Ziele», «Aktivität» and «Sportarten» are one list; every sport has its page.
-    // Meditation is a sport too (Runde 3 «1b»): its pages are under this tab.
-    { key: 'sports', label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|act|bags)(\/|\?|$)/.test(h) },
-    // «Training» TR2 (Noah 13.10.2026 «1-5a»); Runde 2 «1b»: it stays in Aktiv, with the training plans
-    { key: 'training', label: 'Training|tab', href: '#/flow/training', match: (h) => /^#\/flow\/(training|trainingsplan|plans)(\/|\?|$)/.test(h) },
-    // Runde 3 «2a»: «Erholung» stays its own tab (the ring, the list to tick)
-    { key: 'rest', label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
-  ],
   // «Aktiv neu»: what you look at. The start takes the form card, Strava and «Wi gaht's?» from the old Aktiv.
   analysis: [
     { key: 'start', label: 'Overview|tab', subs: ['fragen', 'start'] },
     { key: 'body', label: 'Body|tab', subs: ['form', 'body', 'insights', 'weight'] },
     { key: 'rides', label: 'Rides|tab', subs: ['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned'] },
-    { key: 'history', label: "How you are|tab", subs: ['history', 'wohl', 'impulse'] },
+    { key: 'history', label: "How you are|tab", subs: ['history', 'wohl', 'ideen'] },
     { key: 'analyse', label: 'Own diagram|tab', subs: ['analyse'] },
   ].map((x) => tabWithSubs(x, ANALYSIS_PAGES)),
 };
@@ -571,12 +571,12 @@ export function placeOf(page, hash = '') {
   if (page === 'quick') return 'quick'; // «Quick Links» (Noah 28.10.2026)
   if (page === 'timer') return 'today'; // «Timer» (Z2): opened from its tile on Heute
   if (page === 'check') return 'today'; // Tages-Check (Noah 18.10.2026): pages of Heute
-  if (page === 'routine') return 'active'; // Routine «Das tut mir gut» (D2): the tile on Heute leads here; «Aktiv und Auswerten» 5 (Noah 03.11.2026): the list stands under Aktiv › Erholung
+  if (page === 'routine') return 'week'; // Routine «Das tut mir gut» (D2): the tile on Heute leads here; «Aktiv und Auswerten» 5 (Noah 03.11.2026): the list stands under Aktiv › Erholung
   // «Aktiv neu» (Noah 22.10.2026): the pages to look at are under Auswerten, the same addresses
-  if (page === 'flow') return LOOK_FLOW.test(hash || '') ? 'analysis' : 'active';
-  if (page === 'impulse' || page === 'auswerten') return 'analysis'; // Runde 3 «3b»: Impulse is in Auswerten
+  if (page === 'flow') return LOOK_FLOW.test(hash || '') ? 'analysis' : 'week'; // V4a: Aktiv is part of Woche (tab Training)
+  if (page === 'auswerten') return 'analysis';
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
-  if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'weblinks'].includes(page)) return 'week';
+  if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'impulse', 'weblinks'].includes(page)) return 'week';
   if (page === 'inspiration') return 'trips'; // Schritt 10 (Z3): a tab of Touren, next to the dreams
   if (page === 'tools') return 'trips'; // «Alles finden 2» (Noah 22.10.2026 «4a»): the toolbox is a tab of Touren
   if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'quellen', 'sportjahr', 'sportrueckblick', 'fragen', 'wohl', 'weight', 'heatmap', 'neuland', 'gelernt', 'jahr'].includes(page)) return 'analysis'; // «Aktiv und Auswerten» 3a: the four pages of looking back
@@ -584,7 +584,7 @@ export function placeOf(page, hash = '') {
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'gear'; // Schritt 10 (Z2, Noah 18.11.2026): Ausrüstung is the tab «Sets» of Material
-  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'album' || page === 'freunde' || page === 'minitools' || page === 'ruhig' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'regeln' || page === 'verstehen' || page === 'karte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
+  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'album' || page === 'freunde' || page === 'minitools' || page === 'ruhig' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'logbuch' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'regeln' || page === 'verstehen' || page === 'karte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
   return null;
 }
 
@@ -634,7 +634,7 @@ export function placeHref(p, current = null, hash = '') {
 /** «Anpassen» 2a (Noah 20.10.2026): the places of the phone bar in your order, without the hidden ones. */
 export const menuBar = () => menuPlaces(readCfg(), BAR_PLACES);
 /** The places of the sidebar in your order, without the hidden ones; Auswerten stays under Aktiv. */
-export const menuSide = () => menuPlaces(readCfg(), PLACES).filter((p) => p.key !== 'quick').flatMap(withAnalysis);
+export const menuSide = () => menuPlaces(readCfg(), PLACES).filter((p) => p.key !== 'quick');
 
 /** «Anpassen» 2a: the tabs of a place in your order without the ones you hid; the tab you are on always stays. */
 export function shownTabs(place, hash = '') {

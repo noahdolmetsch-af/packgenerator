@@ -12,7 +12,7 @@ test('Discover: one function for the moment, Not for me with Undo, Later hides i
   await card.scrollIntoViewIfNeeded();
   await expect(card).toContainText(T('Discover|tile'));
   const first = await card.locator('[data-discover]').getAttribute('data-discover');
-  expect(first).toMatch(/^f\./);
+  expect(first).toMatch(/^[\w.]+$/); // a function id: «f.…» or an older plain one (gpx, blocks …); the pick turns with the number of functions of the moment
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
   if (process.env.SHOTS) {
     mkdirSync(process.env.SHOTS, { recursive: true });

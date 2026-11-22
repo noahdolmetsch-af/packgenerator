@@ -15,6 +15,9 @@
   import { localDay } from '../localday.js';
   import { bikesHash } from '../bikes.js';
   import { ensureParts, partOnBike, fits, PART } from '../care.js';
+  import { withVisits } from '../workshop.js';
+  import { lastPrice, estimateFor } from '../care/estimate.js'; // «Kosten-Schätzung» (Schritt E)
+  import { chfText } from '../money.js';
   import { bikePartOn } from '../bikekind.js';
   import { kindOf } from '../bikekind.js';
   import { shrinkImage } from '../photo.js';
@@ -152,6 +155,11 @@
   };
   const byState = (k) => points.filter((p) => res(p.id)?.state === k);
   const todo = $derived([...byState('fix'), ...byState('shop'), ...byState('watch')]);
+  // «Kosten-Schätzung» (Noah 21.11.2026, Schritt E): a replacement costs about what the last one did (own or workshop price)
+  const visQ = liveQuery(() => db.visits.toArray());
+  const priced = $derived(withVisits(bike, ($visQ ?? []).filter((v) => v.bikeId === bike.id)));
+  const priceOf = (p) => (p?.part ? lastPrice(priced, p.part) : null);
+  const est = $derived(estimateFor(priced, [...byState('fix'), ...byState('shop')].map((p) => p.part)));
   const unanswered = $derived(points.filter((p) => !res(p.id)?.state));
   const STATE_ICON = { ok: Check, watch: Eye, fix: Wrench, shop: Store };
   const fmt = (n) => String(n).replace('.', ',');
@@ -241,9 +249,10 @@
         <ul class="rb-todo" data-run-todo>
           {#each todo as p (p.id)}
             {@const r = res(p.id)}
-            <li><span class="rb-who {r.state}">{r.state === 'shop' ? t('Bike shop') : r.state === 'fix' ? t('Fix myself') : t('Watch|inspect')}</span><span><b>{pointName(p)}</b>{#if r.value != null}{' · '}{fmt(r.value)} {p.measure?.unit ?? ''}{/if}{#if r.note}<small>«{r.note}»</small>{/if}</span></li>
+            <li><span class="rb-who {r.state}">{r.state === 'shop' ? t('Bike shop') : r.state === 'fix' ? t('Fix myself') : t('Watch|inspect')}</span><span><b>{pointName(p)}</b>{#if r.value != null}{' · '}{fmt(r.value)} {p.measure?.unit ?? ''}{/if}{#if r.note}<small>«{r.note}»</small>{/if}{#if r.state !== 'watch' && priceOf(p)}<small data-run-price>{t('about {chf}, last price', { chf: chfText(priceOf(p).chf) })}</small>{/if}</span></li>
           {/each}
         </ul>
+        {#if est.items.length}<p class="rb-est" data-run-estimate><b>{t('Estimated cost: {chf}', { chf: chfText(est.total) })}</b>{#if est.missing.length}<small>{tn(est.missing.length, '{n} point without a known price', '{n} points without a known price')}</small>{/if}<small>{t('From the last price paid for each part.')}</small></p>{/if}
         <p class="hint">{t('«Fix myself» and «Bike shop» become problems of the bike; the bike shop ones go into the workshop order. Values go into the part history.')}</p>
       {:else}<p class="hint">{t('Nothing to do. Everything is in the green.')}</p>{/if}
       {#if unanswered.length}<p class="hint"><button type="button" class="lnk" onclick={() => ((idx = points.findIndex((p) => !res(p.id)?.state)), (mode = 'steps'))} data-run-open>{t('Go to the first point left out')}</button></p>{/if}
@@ -279,6 +288,7 @@
         {#if cur.shop}<p class="rb-shop"><Store size={16} aria-hidden="true" /><span><b>{t('When to go to the bike shop')}</b> {t(cur.shop)}</span></p>{/if}
         {#if lt}<p class="rb-last" data-run-last>{t('Last time')}: {lt}</p>{/if}
         {@render pointBody(cur)}
+        {#if (r?.state === 'fix' || r?.state === 'shop' || (tr && tr.kmLeft <= 0)) && priceOf(cur)}{@const pr = priceOf(cur)}<p class="rb-price" data-run-price>{t('A new one costs about {chf} (last price on {date}).', { chf: chfText(pr.chf), date: dateOf(pr.day) })}</p>{/if}
         {#if tr}<p class="rb-trend" data-run-trend>{tr.kmLeft > 0 ? t('At this value about {km} km are left until {limit} {unit}.', { km: num(tr.kmLeft), limit: fmt(cur.measure.limit), unit: cur.measure.unit }) : t('At this value the limit of {limit} {unit} is reached.', { limit: fmt(cur.measure.limit), unit: cur.measure.unit })}</p>{/if}
       </div>
       <div class="rb-nav">
@@ -720,6 +730,7 @@
     background: var(--warn-soft);
   }
   .rb-last,
+  .rb-price,
   .rb-trend {
     margin: 8px 0;
     padding-left: 10px;
@@ -730,6 +741,19 @@
   }
   .rb-who {
     white-space: nowrap;
+  }
+  .rb-est {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 4px 0 8px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    overflow-wrap: break-word;
+  }
+  .rb-est small {
+    color: var(--ink-2);
   }
   .rb-sub .lnk,
   .hint .lnk {

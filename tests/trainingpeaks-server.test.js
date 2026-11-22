@@ -2,7 +2,7 @@
 // calendar link of trainingpeaks.com. Links and answers are made up; no real link is used anywhere.
 import { describe, it, expect, vi } from 'vitest';
 import { makeHandler } from '../api/linkcheck.js';
-import { trainingpeaksUrl } from '../api/_lib/trainingpeaks.js';
+import { trainingpeaksUrl, redirectTarget } from '../api/_lib/trainingpeaks.js';
 import { DAY_CAPS } from '../api/_lib/daycap.js';
 
 const LINK = 'https://www.trainingpeaks.com/ical/TEST_aaaa-1.ics';
@@ -60,7 +60,10 @@ describe('/api/linkcheck?a=trainingpeaks', () => {
   it('says clearly when the link is dead, the answer is no calendar or TrainingPeaks is down; never repeats the key', async () => {
     const cases = [
       [new Response(null, { status: 404 }), 502, 'link_invalid'],
-      [new Response(null, { status: 302, headers: { location: 'https://home.trainingpeaks.com/login' } }), 502, 'link_invalid'],
+      [new Response(null, { status: 410 }), 502, 'link_invalid'],
+      [new Response(null, { status: 401 }), 502, 'link_invalid'],
+      [new Response(null, { status: 403 }), 502, 'refused'],
+      [new Response(null, { status: 302 }), 502, 'redirect_other'],
       [new Response('<html>login</html>', { status: 200 }), 422, 'not_calendar'],
       [new Response(null, { status: 500 }), 502, 'page_error'],
     ];
@@ -74,6 +77,42 @@ describe('/api/linkcheck?a=trainingpeaks', () => {
     const down = await handler(async () => { throw new Error('down TEST_aaaa-1'); })(req({ url: LINK }));
     expect(down.status).toBe(502);
     expect(await down.text()).not.toContain('TEST_');
+  });
+  it('names the status of the refusal (a number only, never the link)', async () => {
+    const res = await handler(async () => new Response(null, { status: 403 }))(req({ url: LINK }));
+    const body = await res.json();
+    expect(body.status).toBe(403);
+    expect(JSON.stringify(body)).not.toContain('TEST_');
+    expect((await (await handler(async () => new Response(null, { status: 503 }))(req({ url: LINK }))).json()).status).toBe(503);
+  });
+  it('follows up to three redirects by hand, only to https on trainingpeaks.com', async () => {
+    const hop = (to) => new Response(null, { status: 301, headers: { location: to } });
+    const doFetch = vi.fn()
+      .mockResolvedValueOnce(hop('https://home.trainingpeaks.com/ical/TEST_aaaa-1.ics'))
+      .mockResolvedValueOnce(hop('/other/TEST_aaaa-1.ics'))
+      .mockResolvedValueOnce(new Response(ICS, { status: 200 }));
+    const res = await handler(doFetch)(req({ url: LINK }));
+    expect(res.status).toBe(200);
+    expect(doFetch.mock.calls.map((c) => c[0])).toEqual([LINK, 'https://home.trainingpeaks.com/ical/TEST_aaaa-1.ics', 'https://home.trainingpeaks.com/other/TEST_aaaa-1.ics']);
+    expect(doFetch.mock.calls.every((c) => c[1].redirect === 'manual')).toBe(true);
+  });
+  it('stops at the fourth redirect and refuses a redirect to another host, another scheme or a port', async () => {
+    const hop = (to) => new Response(null, { status: 302, headers: { location: to } });
+    const loop = vi.fn(async () => hop('https://www.trainingpeaks.com/ical/TEST_aaaa-1.ics'));
+    expect((await (await handler(loop)(req({ url: LINK }))).json()).code).toBe('redirect_loop');
+    expect(loop).toHaveBeenCalledTimes(4);
+    for (const to of ['https://example.com/ical/TEST_aaaa-1.ics', 'https://trainingpeaks.com.evil.com/x', 'http://www.trainingpeaks.com/ical/a.ics', 'https://www.trainingpeaks.com:8443/x', 'https://me:pw@www.trainingpeaks.com/x']) {
+      const doFetch = vi.fn(async () => hop(to));
+      const res = await handler(doFetch)(req({ url: LINK }));
+      expect((await res.json()).code, to).toBe('redirect_other');
+      expect(doFetch, to).toHaveBeenCalledTimes(1);
+    }
+  });
+  it('redirectTarget takes only https on trainingpeaks.com or a subdomain', () => {
+    expect(redirectTarget('/ical/x.ics', new URL(LINK))?.href).toBe('https://www.trainingpeaks.com/ical/x.ics');
+    expect(redirectTarget('https://home.trainingpeaks.com/x', new URL(LINK))).not.toBeNull();
+    expect(redirectTarget('//evil.com/x', new URL(LINK))).toBeNull();
+    expect(redirectTarget('', new URL(LINK))).toBeNull();
   });
   it('refuses a file over 1.5 MB', async () => {
     const big = new Response('BEGIN:VCALENDAR' + 'x'.repeat(1_500_001), { status: 200 });

@@ -14,6 +14,8 @@
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
   import WeekPeople from '../lib/alltag/WeekPeople.svelte'; // «Alles finden»: people to see again this week
+  import WeekGoals from '../lib/flow/WeekGoals.svelte'; // «Woche» (Schritt V1): the goals of the week stand here, not only on Aktiv
+  import { flowQuery } from '../lib/flow/data.svelte.js';
   import WeekClose from '../lib/woche/WeekClose.svelte'; // «Planen 2b»: the Sunday wrap-up
   import { weekClose, moveItems, isSunday } from '../lib/woche/abschluss.js';
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
@@ -33,6 +35,8 @@
 
   const today = localDay();
   const q = weekQuery(today);
+  const fq = flowQuery(today); // the activities and ticks for the goals of the week
+  const fdata = $derived($fq);
   const src = $derived($q);
   let next = $state(false);
   const monday = $derived(shiftDay(mondayOf(today), next ? 7 : 0));
@@ -144,7 +148,9 @@
     offerDone(on ? t('«{name}» is suggested again.', { name: t(SOURCE_NAMES[k]) }) : t('«{name}» is no longer suggested.', { name: t(SOURCE_NAMES[k]) }), () => putWeek(SG_OFF_KEY, before));
   }
   // the source fold keeps its own state: a reload of the week data must not close what was opened
-  let srcOpen = $state(false);
+  let srcOpen = $state(null); // null = follow the data (open while a source is off)
+  // the folds are switched by the tap itself (not by the later «toggle» event): when the week data reloads a moment after a tap, they must stay as tapped
+  let fltOpen = $state(null); // null = follow the data (open while a kind is hidden)
   let neverOpen = $state(false);
   // «Never suggest again» (Noah 2.11.2026 «b»): one suggestion away for good; the list «Put away» brings it back
   async function never(s) {
@@ -170,15 +176,14 @@
 <div class="wkp">
   <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
   <AreaIntro place="weekplan" />
-  <AllHere area="plan" />
   <FreeSlotCard {monday} onfound={(w) => (win = w)} />
 
   {#if week}
     <div class="top">
       <Seg label={t('Which week')} full={false} options={[{ key: 'now', name: t('This week') }, { key: 'next', name: t('Next week') }]} value={next ? 'next' : 'now'} onchange={(k) => (next = k === 'next')} />
       <!-- Impeccable P5: the filter chips fold away, so the days come right under the title -->
-      <details class="wfold" data-week-filters open={src.hide.length > 0}>
-        <summary>{src.hide.length ? tn(src.hide.length, 'Filter · {n} hidden', 'Filter · {n} hidden|pl') : t('Filter|week')}</summary>
+      <details class="wfold" data-week-filters open={fltOpen ?? src.hide.length > 0}>
+        <summary onclick={(e) => { e.preventDefault(); fltOpen = !(fltOpen ?? src.hide.length > 0); }}>{src.hide.length ? tn(src.hide.length, 'Filter · {n} hidden', 'Filter · {n} hidden|pl') : t('Filter|week')}</summary>
         <div class="chips" role="group" aria-label={t('Show in the week')}>
           {#each KINDS as k (k)}
             <button type="button" class="chip k-{k}" aria-pressed={!hidden(k)} data-filter={k} onclick={() => toggleKind(k)}><span class="dot" aria-hidden="true"></span>{t(KIND_NAMES[k])}</button>
@@ -189,7 +194,7 @@
 
     <p class="sum" data-week-sum>
       {#if week.sums.trips}<span data-week-trips>{tn(week.sums.trips, '{n} trip|week', '{n} trips|week')}</span>{/if}
-      <span>{tn(week.sums.sessions, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
+      <span data-week-units>{week.sums.sessions ? tn(week.sums.sessions, '{done} of {n} session done|week', '{done} of {n} sessions done|week', { done: week.sums.sessionsDone }) : tn(0, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
       <span>{tn(week.sums.dates, '{n} date', '{n} dates')}</span>
       <span>{tn(week.sums.todos, '{n} to-do', '{n} to-dos')}</span>
       {#if week.sums.away.length}<span><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
@@ -252,6 +257,7 @@
       </section>
 
       <aside class="side">
+        {#if !next && fdata}<div data-week-goals><WeekGoals acts={fdata.acts} log={fdata.log} tripDays={fdata.tripDays} {today} /></div>{/if}
         <section class="card wc sg" aria-labelledby="wk-sg">
           <h2 id="wk-sg"><button type="button" class="sgh" aria-expanded={sgOpen} aria-controls="wk-sg-body" data-sg-toggle onclick={toggleSg}>
             <span>{t('Still to plan')}<small>{tn(week.suggestions.length, '{n} suggestion', '{n} suggestions')}</small></span>
@@ -260,16 +266,16 @@
           {#if sgOpen}
           <div id="wk-sg-body">
           <p class="why">{t('The app suggests, you decide. Take puts it on the day shown.')}</p>
-          <details class="srcs" data-sg-sources open={srcOpen || src.sgOff.length > 0} ontoggle={(e) => (srcOpen = e.currentTarget.open)}>
-            <summary>{src.sgOff.length ? tn(src.sgOff.length, 'Sources · {n} off', 'Sources · {n} off|pl') : t('Where do the suggestions come from?')}</summary>
+          <details class="srcs" data-sg-sources open={srcOpen ?? src.sgOff.length > 0}>
+            <summary onclick={(e) => { e.preventDefault(); srcOpen = !(srcOpen ?? src.sgOff.length > 0); }}>{src.sgOff.length ? tn(src.sgOff.length, 'Sources · {n} off', 'Sources · {n} off|pl') : t('Where do the suggestions come from?')}</summary>
             <ul class="srclist">
               {#each SUGG_SOURCES as k (k)}
                 <li><label><input type="checkbox" checked={!src.sgOff.includes(k)} data-sg-source={k} onchange={() => toggleSource(k)} /><span>{t(SOURCE_NAMES[k])}<small>{tn(week.sources[k], '{n} suggestion', '{n} suggestions')}</small></span></label></li>
               {/each}
             </ul>
             <p class="why">{t('Switch off what you do not want to see. Your own to-dos and Google stay as they are.')}</p>
-            <details class="srcs" data-sg-ideas open={ideasOpen} ontoggle={(e) => (ideasOpen = e.currentTarget.open)}>
-              <summary>{t('Change season ideas')}</summary>
+            <details class="srcs" data-sg-ideas open={ideasOpen}>
+              <summary onclick={(e) => { e.preventDefault(); ideasOpen = !ideasOpen; }}>{t('Change season ideas')}</summary>
               <SeasonIdeas cfg={seasonSettings} onsave={saveSeasons} />
             </details>
           </details>
@@ -291,8 +297,8 @@
             {/each}
           </ul>
           {#if src.sgNever.length}
-            <details class="srcs" data-sg-never-list open={neverOpen} ontoggle={(e) => (neverOpen = e.currentTarget.open)}>
-              <summary>{tn(src.sgNever.length, 'Put away · {n}', 'Put away · {n}|pl')}</summary>
+            <details class="srcs" data-sg-never-list open={neverOpen}>
+              <summary onclick={(e) => { e.preventDefault(); neverOpen = !neverOpen; }}>{tn(src.sgNever.length, 'Put away · {n}', 'Put away · {n}|pl')}</summary>
               <ul class="srclist">
                 {#each src.sgNever as n (n.ref)}
                   <li class="nv"><span>{n.title || n.ref}</span><button type="button" class="btn sm" data-sg-again={n.ref} onclick={() => showAgain(n)}>{t('Show again')}</button></li>
@@ -342,6 +348,8 @@
   {/if}
   <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
   <PasstHier place="woche" />
+  <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+  <AllHere area="plan" />
 </div>
 
 {#snippet winMark(w)}

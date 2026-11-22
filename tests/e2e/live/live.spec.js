@@ -7,6 +7,7 @@
 import { test, expect } from '@playwright/test';
 import { appVersion } from '../../../scripts/news.mjs';
 import { readFileSync } from 'node:fs';
+import { isNewerOrSame, shownVersion } from './version.js';
 
 const URL_LIVE = process.env.LIVE_URL || 'https://noahdolmetsch-af.github.io/packgenerator/';
 const WANT = process.env.EXPECT_VERSION || appVersion(); // scripts/news.mjs (version at merge time)
@@ -35,19 +36,22 @@ test('Live: Today opens, Ich shows the new version, and the app starts without n
   for (let i = 0; i < 20; i++) {
     await opens(page, '#/me');
     shown = await page.locator('main').innerText();
-    if (shown.includes(WANT)) break;
+    if (shown.includes(WANT) || (shownVersion(shown) && isNewerOrSame(shownVersion(shown), WANT))) break;
     await page.waitForTimeout(30_000);
     await context.clearCookies();
   }
-  expect(shown, `Ich zeigt die Version ${WANT}`).toContain(WANT);
+  const live = shownVersion(shown);
+  expect(shown.includes(WANT) || (live !== '' && isNewerOrSame(live, WANT)), `Ich zeigt die Version ${WANT} oder eine neuere (gezeigt: ${live || 'keine'})`).toBe(true);
   await opens(page);
 
-  // the service worker has taken over this page: the app is kept for offline use
+  // the service worker has taken over this page: the app is kept for offline use. The first start stores the whole app
+  // (about 1440 files, 27 MB) and took 27 to 48 s on the GitHub computer, so the old 60 s limit cut it off in 4 runs in a row
+  // on 22.11.2026 (49dd8d4 to bcd274a, a false alarm: the app was fine). 3 minutes leave room.
   await expect
-    .poll(() => page.evaluate(async () => !!(await navigator.serviceWorker?.ready)?.active), { timeout: 60_000 })
+    .poll(() => page.evaluate(async () => !!(await navigator.serviceWorker?.ready)?.active), { timeout: 180_000 })
     .toBe(true);
   await page.reload();
-  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker?.controller), { timeout: 30_000 }).toBe(true);
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker?.controller), { timeout: 60_000 }).toBe(true);
   // a later page is loaded only when used: open it once with network, so it is kept too
   await opens(page, '#/trips');
 

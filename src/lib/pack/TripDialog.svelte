@@ -32,9 +32,6 @@
   import { selectAll } from '../ui/selectall.js';
   import { rideName, rideDate, freeTitle, buildBikeTrip, fetchHomeForecast, forecastPreset, homeOf, pickWxChip, noWx } from '../dayride.js';
   import { X } from '@lucide/svelte';
-  import TripAsk from '../helper/TripAsk.svelte';
-  import { helper, isSetUp, isOn } from '../helper/client.svelte.js';
-  import { addHelperItems } from '../helper/logic.js';
   import { take } from '../nav.js';
   import EatEvery from '../unterwegs/EatEvery.svelte';
   import { tripEat } from '../unterwegs/essen.js';
@@ -474,7 +471,7 @@
     const out = chosen.reduce((cur, s) => ({ ...cur, entries: addSetEntries(cur, items, s, { skip, slotOf: (i) => tripSlot(i, cur.setup) }).entries }), nt);
     return out;
   };
-  const withBlocks = (nt) => withExtras(withBlocksOnly(nt));
+  const withBlocks = withBlocksOnly;
   // SA1: the trip keeps its sport (sports.js); trips of other areas (Weekend, World trip) have none.
   const withSport = (nt) => (sport ? { ...nt, sport } : nt);
   // v0.114.0 (answers 4b, 7a): the list in four groups; the button counts what goes into the bags.
@@ -492,32 +489,6 @@
   const RACE_COLOR = STD_CATEGORIES.find((c) => c.key === 'cook').color;
   const raceW = $derived(entriesWeight(raceItems.map((i) => ({ itemId: i.id, qty: 1 })), items));
 
-  /* ---------- v0.77.0 (answer 1a): «Frag den Helfer» ---------- */
-  // From the search («Als Packliste vorschlagen», answer 2a): the question comes along and is asked at once.
-  // svelte-ignore state_referenced_locally
-  const askPrefill = isNew ? take('pack.helperAsk') ?? '' : '';
-  let extras = $state([]); // [{ id, reason }] the helper's extra items, each with × in the form
-  const extraRows = $derived(extras.filter((r) => byId.has(r.id)));
-  const askAreas = $derived(TRIP_DOMAINS.map((d) => ({ key: d.key, name: t(d.name) })));
-  /** «Übernehmen»: the chips that are left go into the form; blocks switch on; the items come along. */
-  function takeProposal(p) {
-    const c = p.conditions;
-    if (c.area && DOMAIN[c.area]) (area = c.area), (sport = isSport(sportForArea(c.area)) ? sportForArea(c.area) : null);
-    if (c.bikeId && bikes.some((b) => b.id === c.bikeId)) draft.bikeId = c.bikeId;
-    if (c.days > 0) {
-      draft.days = c.days;
-      moreWanted = c.days >= 3;
-    }
-    if (c.overnight) (ctx.overnight = c.overnight), (ctx.cook = c.overnight === 'outdoor' && !!c.cook);
-    if (c.tempMin != null || c.tempMax != null || c.rain) {
-      wxTouched = true;
-      if (c.tempMin != null) (ctx.min = c.tempMin), (ctx.max = c.tempMax ?? c.tempMin);
-      if (c.rain) ctx.rain = c.rain;
-    }
-    const comes = contextSets({ overnight: c.overnight || night, cook: !!c.cook });
-    picked = [...new Set([...picked, ...p.blocks.filter((k) => !comes.includes(k) && sets.some((s) => s.key === k))])];
-    extras = [...extras.filter((r) => !p.items.some((x) => x.id === r.id)), ...p.items];
-  }
   /** Idee 52: the proposal of the intent step fills the window; «Create trip» then saves it at once. */
   async function fromIntent(p, key, answers, create) {
     intent = intentRecord(key, answers, p);
@@ -535,8 +506,6 @@
       dialog?.querySelector('form')?.requestSubmit();
     }
   }
-  /** The helper's items into a trip: bike trips into their usual bag, other areas into their first bag. */
-  const withExtras = (nt) => (extraRows.length ? addHelperItems(nt, items, extraRows.map((r) => r.id), (i) => (nt.packs?.length ? nt.packs[0].key : tripSlot(i, nt.setup))) : nt);
 
   // v0.30.0 (Noah, finding 2): when and how long as chips; the date field stays for any other day.
   const today = localDay();
@@ -615,8 +584,8 @@
   /** v0.39.0 (AP28): a new trip without a bike: from a template of this area, a copy of the last one, or the area's items. */
   function packTrip(readyStandard, now) {
     const snap = $state.snapshot(draft);
-    if (chosenTpl) return withSport(withExtras(tripFromTemplate(snap, $state.snapshot(chosenTpl), items, now ?? Date.now(), $state.snapshot(setsValue))));
-    return withSport(withExtras(newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : start === 'history' && hist ? [hist] : trips, items, now ?? Date.now())));
+    if (chosenTpl) return withSport(tripFromTemplate(snap, $state.snapshot(chosenTpl), items, now ?? Date.now(), $state.snapshot(setsValue)));
+    return withSport(newPackTrip({ ...snap, domain: area, readyStandard }, start === 'standard' ? [] : start === 'history' && hist ? [hist] : trips, items, now ?? Date.now()));
   }
 
   // «Rückmeldungen» (Noah 19.10.2026 «2a»): «Save», ✕, back and Escape say what was saved; a second tap
@@ -711,7 +680,7 @@
    * the app made counts then. Only what a tap or a key changes counts (not the forecast filling in).
    */
   let chose = $state(false);
-  const madeOf = () => JSON.stringify($state.snapshot([draft.startDate, draft.days, draft.bikeId, ctx, start, picked, area, off, dark, extras, wxPlace]));
+  const madeOf = () => JSON.stringify($state.snapshot([draft.startDate, draft.days, draft.bikeId, ctx, start, picked, area, off, dark, wxPlace]));
   function watchChoice(e) {
     if (!isNew || chose || ended || !e.isTrusted) return;
     const before = madeOf();
@@ -748,7 +717,7 @@
   // Every change of a field (after a name was typed) saves again, a moment after the last key.
   $effect(() => {
     if (!isNew) return;
-    JSON.stringify([draft, ctx, start, picked, area, sport, autoName, chose, off, dark, extras, wxPlace]); // what the trip is made of
+    JSON.stringify([draft, ctx, start, picked, area, sport, autoName, chose, off, dark, wxPlace]); // what the trip is made of
     if (!autoKeep({ isNew, name: draft.title, changed: !autoName || chose })) return;
     clearTimeout(autoTimer);
     autoTimer = setTimeout(autoSave, 300);
@@ -872,16 +841,6 @@
   {#if clash}<p class="fieldmsg" id="tn-clash">{clashWhen ? t('This name already exists ({when}).', { when: clashWhen }) : t('This name already exists.')} <button type="button" class="tp-link" onclick={takeFree}>{t('Suggestion: «{name}»', { name: clash.suggestion })}</button></p>{/if}
 {/snippet}
 
-{#snippet helperItems()}
-  {#if extraRows.length}
-    <section class="blocks kh-extras" aria-labelledby="kh-extras-h">
-      <h3 id="kh-extras-h">{t('From the helper')}</h3>
-      <div class="tp-chips">
-        {#each extraRows as r (r.id)}<button type="button" class="tp-chip" aria-label={t('Remove {name}', { name: nameOf(byId.get(r.id)) })} title={r.reason} onclick={() => (extras = extras.filter((x) => x.id !== r.id))}>{nameOf(byId.get(r.id))} <X size={16} aria-hidden="true" /></button>{/each}
-      </div>
-    </section>
-  {/if}
-{/snippet}
 
 
 {#snippet templatesFold()}
@@ -992,11 +951,7 @@
     <header class="dh">
       <h2 id="trip-h">{isNew ? t('Conditions|newtrip') : t('Trip details')}</h2>
     </header>
-    <!-- v0.114.0 (Noah: «KI helfer soll raus»): the helper only with a question from the search («Als Packliste vorschlagen»). -->
-    {#if isNew && byBike && !askPrefill}<IntentStep onapply={fromIntent} />{/if}
-    {#if isNew && askPrefill && helper.loaded && isSetUp() && isOn()}
-      <TripAsk {items} {bikes} {sets} areas={askAreas} prefill={askPrefill} onapply={takeProposal} />
-    {/if}
+    {#if isNew && byBike}<IntentStep onapply={fromIntent} />{/if}
     {#if isNew && byBike && lastRidden && start !== 'last'}
       <!-- UI-Grundlagen (Noah 20.10.2026, idea 11 «Wie letztes Mal»): one tap takes the packing list of the last trip on
            this bike; everything below stays changeable, and «Choose a template» shows the choice. -->
@@ -1079,7 +1034,6 @@
       {@render eatBox()}
       {@render eventBox()}
       {@render templatesFold()}{@render komootRow()}
-      {@render helperItems()}
       {#if packList}{@render packListView()}{/if}
     {:else}
       <div class="grid">
@@ -1124,7 +1078,6 @@
       {#if isNew}
         <!-- v0.114.0 (bug «Letzte Tour»): no past trip as a start; templates and examples as buttons. -->
         {@render templatesFold()}{@render komootRow()}
-        {@render helperItems()}
         <p class="note">
           {#if chosenTpl}{t('From the template {name}. Bags: {bags}.', { name: chosenTpl.name, bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
           {:else if areaItems}{t('Starts with the {area} items in Standard. Bags: {bags}.', { area: t(domainName(area)), bags: DOMAIN[area].packs.map((p) => t(p.name)).join(', ') })}
