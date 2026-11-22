@@ -37,7 +37,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | V3 | Woche: Aktiv › Woche, Training › Woche, Wochenplan und Mein Trainingsplan führen auf die eine Woche, eine Ziel-Zahl «n von m Einheiten» | - | offen | - |
 | V4a | Menü mit fünf Bereichen: Bereich «Woche» (Planen und Aktiv zusammen: Woche, Training, Notizen, Alltag), Auswerten mit eigenem Platz; Seitenleiste und Handy-Leiste (alle Adressen bleiben) | #1368 | gebaut | - |
 | V4b | Training als Zeitplan der Woche (Einheiten mit Uhrzeit, freier Slot → «Neue Einheit», «Härter», «Dein Stand»); Meditation nach «Alltag» | #1409 | gebaut | - |
-| V7 | «Alles hier» fällt weg, am Seitenende «Alle Funktionen ›» | #1420 | gebaut | - |
+| V7 | «Alles hier» fällt weg, am Seitenende «Alle Funktionen ›» | #1424 | gebaut | - |
 | 14 | Streichliste umsetzen (W1–W4 ganz weg, M1–M8 hinter «Mehr», Z1–Z8 zusammenlegen), je Punkt ein PR | - | offen | - |
 | 15 | Handy: Leiste unten mit den fünf Bereichen (Heute, Woche, Touren, Velos und Material, Auswerten); kommt mit V4a (Menü) und V6 (Abkürzungen) | - | offen | - |
 | 3s | Streifen-Baustein (Weg B), ersetzt durch die neue Ordnung | - | gestrichen | - |
