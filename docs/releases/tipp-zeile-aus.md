@@ -1,6 +1,6 @@
 # Keine Tipp-Zeile unter den Seitentiteln
 
-PR #<Nummer> · 22.11.2026 · «Hilfen neu» Punkt 3b · Auftrag: Noah «1a 2a» (22.11.2026, Thread «Neue Ordnung»)
+PR #1430 · 22.11.2026 · «Hilfen neu» Punkt 3b · Auftrag: Noah «1a 2a» (22.11.2026, Thread «Neue Ordnung»)
 
 ## Was ist neu
 - Die Zeile «Gut zu wissen» (ein Tipp pro Tag) unter den Seitentiteln ist standardmässig aus. Die Seiten beginnen mit ihrem Inhalt.
