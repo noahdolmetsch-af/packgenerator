@@ -48,6 +48,8 @@
   import { WEEKPLAN_KEY } from '../lib/training/wochenplan.js';
   import { WEEKLOG_KEY, logOf as planLogOf, setDone as planSetDone, dueToday as planDueToday } from '../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../lib/training/wochenplan-text.js';
+  import { startUnitDone } from '../lib/flow/ui.svelte.js';
+  import { needsSheet as needsUnitSheet } from '../lib/flow/unitdone.js';
   import { WEG_KEY, wegOf, todayStep as wegTodayStep, setDone as wegSetDone } from '../lib/weg/weg.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
@@ -844,8 +846,11 @@
     const due = planToday;
     if (!due) return;
     const before = (await db.settings.get(WEEKLOG_KEY))?.value ?? null;
+    const ticked = () => say(t('Ticked off: {what}.', { what: t(UNIT_NAME[u.type]) }), () => (before === null ? db.settings.delete(WEEKLOG_KEY) : db.settings.put({ key: WEEKLOG_KEY, value: before })));
+    // «Plan zuerst» (T4): a unit opens the short sheet (duration from the plan, feeling) and then «Geschafft»; the daily habits tick at once
+    if (needsUnitSheet(u.type)) return startUnitDone({ id: u.id, type: u.type, mins: u.mins, monday: due.monday, units: due.units, hours: due.hours, today, done: ticked });
     await db.settings.put({ key: WEEKLOG_KEY, value: planSetDone(planLogOf(before), due.monday, u.id, true, today, due.units, due.hours) });
-    say(t('Ticked off: {what}.', { what: t(UNIT_NAME[u.type]) }), () => (before === null ? db.settings.delete(WEEKLOG_KEY) : db.settings.put({ key: WEEKLOG_KEY, value: before })));
+    ticked();
   }
   async function wegStepDone(goal, stepId) {
     const before = wegOf(S[WEG_KEY]);

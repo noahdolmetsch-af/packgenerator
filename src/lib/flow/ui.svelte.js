@@ -17,10 +17,35 @@ import { saveSession } from '../flowdb.js';
 import { offerActivity, offerActivityById } from '../remind/ask.svelte.js';
 import { starsAfterTick } from './starcheck.js';
 import { almostOf } from './almost.js';
+import { UNITACTS_KEY, actForUnit, setUnitTick } from './unitdone.js';
 
 // sessionOpen: hobby pages 2, the running session in full (B7)
+// unit: «Plan zuerst» (T4), the unit whose sheet is open
 // star: «Meilensteine als Belohnung» (Noah 22.10.2026 «4a»): the new star of the last tick, shown in its own small window
-export const ui = $state({ tick: null, tickDay: null, timerOpen: false, toast: null, sessionOpen: false, star: null });
+export const ui = $state({ tick: null, tickDay: null, timerOpen: false, toast: null, sessionOpen: false, star: null, unit: null });
+/** «Plan zuerst» (T4): the short sheet after «Done» on a unit of the weekly plan (lib/flow/UnitDoneSheet.svelte). st: { id, type, mins, monday, units, hours, today, done? } */
+export const openUnitDone = (st) => (ui.unit = st);
+
+/**
+ * «Plan zuerst» (T4, Noah 21.11.2026 «blatt nur beim ersten mal pro sportart»): «Done» on a unit. The first time for a kind of unit the
+ * sheet opens (which sport, how long, how it was). Once the sport is kept (training.unitacts) one tap is enough: the unit is ticked in the
+ * plan and in the history with the minutes from the plan, and the toast holds «Undo» (it takes both back).
+ */
+export async function startUnitDone(st) {
+  const [acts, set] = await Promise.all([db.flowActs.toArray(), db.settings.get(UNITACTS_KEY)]);
+  const f = actForUnit(st.type, acts, set?.value ?? null, actName);
+  if (!f.remembered || !f.act) return openUnitDone(st);
+  await setUnitTick(db, { monday: st.monday, id: st.id, on: true, today: st.today, units: st.units, hours: st.hours });
+  const mins = Math.round(Number(st.mins));
+  const e = await tickWith(f.act, { day: st.today, via: 'plan', unit: st.id, min: mins >= 1 && mins <= 1440 ? mins : undefined });
+  const tk = ui.toast;
+  const first = tk?.undo;
+  if (tk && first) tk.undo = async () => {
+    await first();
+    await setUnitTick(db, { monday: st.monday, id: st.id, on: false, today: st.today });
+  };
+  return e;
+}
 
 /* ---------- names in the current language ---------- */
 export const actName = (a) => (a ? (lang.v === 'de' && a.nameDe ? a.nameDe : a.name) || t('Activity') : '');
