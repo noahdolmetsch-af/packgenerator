@@ -89,7 +89,7 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
   const five = main.locator('[data-wr="five"]');
   await expect(five.locator('[data-five="hours"]')).toContainText('1:05');
   await expect(five.locator('[data-five="n"]')).toContainText('2');
-  await expect(five).toContainText(T('Change against the same days of the week before. Hours: Strava plus the minutes you noted in Aktiv; km and Hm from Strava.'));
+  await expect(five).toContainText(T('Change against the same days of the week before. Hours: measured time plus «ca.» where nothing was measured (the usual duration of the sport). km and Hm: your rides, each counted once.'));
 
   // Sunday: shown from today's data, not frozen yet; each bar has its value
   await expect(main.locator('[data-obs-live]')).toBeVisible();

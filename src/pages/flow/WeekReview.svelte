@@ -21,6 +21,7 @@
   import { rideTimeS } from '../../lib/review/fmt.js';
   import { PLAN_KEY, planOf, mondayOf, shiftDay, isoWeek, hmm, typeKey } from '../../lib/training.js';
   import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekSums, weekEnd, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything } from '../../lib/weekreview.js';
+  import { weekSources } from '../../lib/weeksources.js';
   import { localDay } from '../../lib/localday.js';
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import WeekMore from '../../lib/flow/WeekMore.svelte';
@@ -44,7 +45,8 @@
       db.settings.get(PLAN_KEY),
       db.trips.toArray(),
     ]);
-    return { acts, flowActs: flowActs.map(normAct), log, checks, answers, sessions: planOf(plan?.value), tripDays: tripDays(homeTrips(trips), today) };
+    const src = await weekSources(db, today); // the rides, usual durations and Fitbit days of the shared week calculation (weekcalc.js)
+    return { ...src, acts, flowActs: flowActs.map(normAct), log, checks, answers, sessions: planOf(plan?.value), tripDays: tripDays(homeTrips(trips), today) };
   });
   const data = $derived($q);
 
@@ -58,7 +60,7 @@
 
   const any = $derived(data ? hasAnything(data, monday) : false);
   const five = $derived(data ? weekFive(data, monday, today) : []);
-  const sums = $derived(data ? weekSums(data, monday, weekEnd(monday, today)) : { noTime: 0 });
+  const sums = $derived(data ? weekSums(data, monday, weekEnd(monday, today)) : { nCa: 0, caSecs: 0, waiting: 0, other: { km: 0, n: 0 }, watch: { n: 0, min: 0 } });
   const strip = $derived(data ? weekStrip(data, monday, today) : []);
   const notes = $derived(data ? weekNotes(data, monday, today, zones.bounds) : []);
   const highs = $derived(data ? weekHighs(data.acts, monday) : null);
@@ -137,10 +139,14 @@
             <span class="fl">{t(FIVE[f.key])}</span>
             <b class="fv num">{valueOf(f)}{#if unitOf(f)}{' '}<small>{unitOf(f)}</small>{/if}</b>
             <span class="fd num"><Arrow size={14} aria-hidden="true" />{changeOf(f)}</span>
+            {#if f.key === 'hours' && f.ca}<span class="fa num" data-five-ca>{t('of it «ca.» {h} h', { h: hmm(f.ca) })}</span>{/if}
           </li>
         {/each}
       </ul>
-      <p class="cap">{t('Change against the same days of the week before. Hours: Strava plus the minutes you noted in Aktiv; km and Hm from Strava.')}{#if sums.noTime}{' '}{t('{n} Aktiv sessions have no minutes noted.', { n: sums.noTime })}{/if}</p>
+      <p class="cap">{t('Change against the same days of the week before. Hours: measured time plus «ca.» where nothing was measured (the usual duration of the sport). km and Hm: your rides, each counted once.')}{#if sums.nCa}{' '}{tn(sums.nCa, 'For {n} session the time is «ca.» (about {h} h).', 'For {n} sessions the time is «ca.» (about {h} h).', { h: hmm(sums.caSecs) })}{/if}{#if sums.other.n}{' '}{tn(sums.other.n, 'Running, hiking and the like: {km} km in {n} session.', 'Running, hiking and the like: {km} km in {n} sessions.', { km: num(sums.other.km) })}{/if}{#if sums.waiting}{' '}{tn(sums.waiting, '{n} ride waits in «Zum Prüfen» and is counted.', '{n} rides wait in «Zum Prüfen» and are counted.')}{/if}</p>
+      {#if sums.watch.n}
+        <p class="cap" data-wr-watch>{tn(sums.watch.n, 'The watch knows {n} workout ({h} h) that is not counted yet.', 'The watch knows {n} workouts ({h} h) that are not counted yet.', { h: hmm(sums.watch.min * 60) })} <a href="#/flow/sports">{t('Count them?')}</a></p>
+      {/if}
     </section>
 
     <!-- «Form und Erholung» (Noah 20.10.2026): fitness and form at the end of the week -->
@@ -324,6 +330,10 @@
   .fv small {
     font: 500 var(--fs-small) / 1 var(--font-body);
     color: var(--ink-2);
+  }
+  .fa {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .fd {
     display: inline-flex;

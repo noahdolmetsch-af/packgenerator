@@ -19,7 +19,8 @@
   import { CARD_KEY, cardShown, cardAway, cardDone, cardNumbers, cardOpen, cardNews } from './wochenkarte.js';
   import { NEWS_INDEX_ALL } from '../whatsnew.js';
   import { NEWS_HREF } from '../know/wasneu.js';
-  import { t, num } from '../i18n.svelte.js';
+  import { weekSources } from '../weeksources.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { now } = $props();
   const today = $derived(dayOf(now));
@@ -40,7 +41,8 @@
             db.settings.get(PLAN_KEY),
             db.trips.toArray(),
           ]);
-          return { acts, flowActs: flowActs.map(normAct), log, checks, answers, sessions: planOf(plan?.value), tripDays: tripDays(homeTrips(trips), today) };
+          const more = await weekSources(db, today); // rides, usual durations and Fitbit days of the shared week calculation (weekcalc.js)
+          return { ...more, acts, flowActs: flowActs.map(normAct), log, checks, answers, sessions: planOf(plan?.value), tripDays: tripDays(homeTrips(trips), today) };
         })
       : null,
   );
@@ -48,7 +50,10 @@
   const srcQ = $derived(week?.isSunday ? weekQuery(today) : null);
   const src = $derived(srcQ ? $srcQ : null);
 
-  const nums = $derived(data && week ? cardNumbers(weekFive(data, week.monday, today)) : []);
+  const five = $derived(data && week ? weekFive(data, week.monday, today) : []);
+  const nums = $derived(cardNumbers(five));
+  const hoursRow = $derived(five.find((f) => f.key === 'hours'));
+  const kmRow = $derived(five.find((f) => f.key === 'km'));
   const open = $derived(src && week?.isSunday ? cardOpen(weekClose(buildWeek({ ...src, forecast: null, monday: week.monday, today }).days, week.monday, today)) : { n: 0, titles: [] });
   const news = $derived(week ? cardNews(NEWS_INDEX_ALL, week) : 0);
   const any = $derived(!!data && !!week && hasAnything(data, week.monday));
@@ -73,9 +78,18 @@
     {#if any}
       <ul class="nums">
         {#each nums as f (f.key)}
-          <li data-wk-num={f.key}><b>{valueOf(f)}</b><small>{t(NAME[f.key])}</small><i>{changeOf(f)}</i></li>
+          <li data-wk-num={f.key}><b>{valueOf(f)}</b><small>{t(NAME[f.key])}</small><i>{changeOf(f)}</i>{#if f.key === 'hours' && hoursRow?.ca}<i data-wk-ca>{t('of it «ca.» {h} h', { h: hmm(hoursRow.ca) })}</i>{/if}</li>
         {/each}
       </ul>
+      {#if kmRow?.other?.n}
+        <p class="ln" data-wk-other>{tn(kmRow.other.n, 'Running, hiking and the like: {km} km in {n} session.', 'Running, hiking and the like: {km} km in {n} sessions.', { km: num(kmRow.other.km) })}</p>
+      {/if}
+      {#if kmRow?.waiting}
+        <p class="ln" data-wk-waiting>{tn(kmRow.waiting, '{n} ride waits in «Zum Prüfen» and is counted.', '{n} rides wait in «Zum Prüfen» and are counted.')}</p>
+      {/if}
+      {#if kmRow?.watch?.n}
+        <p class="ln" data-wk-watch>{tn(kmRow.watch.n, 'The watch knows {n} workout ({h} h) that is not counted yet.', 'The watch knows {n} workouts ({h} h) that are not counted yet.', { h: hmm(kmRow.watch.min * 60) })} <a href="#/flow/sports">{t('Count them?')}</a></p>
+      {/if}
     {/if}
     {#if open.n > 0}
       <p class="ln" data-wk-open><b>{t('Slides to Monday:')}</b> {open.n === 1 ? t('1 open task') : t('{n} open tasks', { n: open.n })}{#if open.titles.length}{' '}({open.titles.join(', ')}){/if}</p>
