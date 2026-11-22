@@ -17,7 +17,7 @@ export default {
     'Compare any period: the previous day, a week, up to 40 years, or your own number of days, weeks, months or years': 'Vergleiche jeden Zeitraum: Vortag, Woche, bis 40 Jahre oder deine eigene Zahl von Tagen, Wochen, Monaten oder Jahren',
     'Every number says which day it is from and when it was fetched': 'Jede Zahl sagt, von welchem Tag sie ist und wann sie geholt wurde',
     'The small app also installs with its own icon on the phone': 'Die kleine App lässt sich auch mit eigenem Symbol auf dem Handy installieren',
-    'Open the currency tool in the Toolbox and tap «Kursblick» under «Fits here».': 'Öffne den Währungsrechner im Werkzeugkasten und tippe an seinem Ende auf «Kursblick».',
+    'Open the currency tool in the Toolbox and tap «Kursblick» at its end.': 'Öffne den Währungsrechner im Werkzeugkasten und tippe an seinem Ende auf «Kursblick».',
     'Read the gold price and what a sale of 1 kg would bring; tap a period such as «Year» and see the change.': 'Lies den Goldpreis und was ein Verkauf von 1 kg brächte; tippe auf einen Zeitraum wie «Jahr» und sieh die Veränderung.',
     'In Gold, change the dealer deduction and see the sale value change.': 'Ändere im Reiter Gold den Händlerabschlag und sieh, wie sich der Verkaufswert ändert.',
   },

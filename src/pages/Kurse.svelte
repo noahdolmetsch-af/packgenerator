@@ -209,7 +209,7 @@
           {@const r = reihen[id]}
           <li data-stand={id}>
             <b>{NAMES[id]}</b>
-            {#if r}<span>{t('Close of {day}', { day: tagText(r.last.day) })} · {t('fetched {at}', { at: stundeText(r.fetchedAt) })} · {r.source === 'stooq' ? 'Stooq' : 'Yahoo'} · {t('Data since {day}', { day: tagKurz(r.since) })}{#if r.alt} · <i>{t('older, the server did not answer')}</i>{/if}</span>
+            {#if r}<span>{t('Close of {day}', { day: tagText(r.last.day) })} · {t('fetched {at}', { at: stundeText(r.fetchedAt) })} · {r.source === 'stooq' ? 'Stooq' : 'Yahoo'} · {t('Data since {day}', { day: tagKurz(r.since) })}{r.alt ? ` · ${t('older, the server did not answer')}` : ''}</span>
             {:else}<span class="muted">{t('not loaded')}</span>{/if}
           </li>
         {/each}
