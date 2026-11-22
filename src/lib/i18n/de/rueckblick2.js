@@ -7,7 +7,6 @@ export default {
   'How it works': "So geht's",
   'Choose a GPX file': 'GPX-Datei wählen',
   'Weather, clothing, food, km': 'Wetter, Kleidung, Essen, km',
-  'With the helper': 'Mit dem Helfer',
   'Get a draft, optional': 'Entwurf holen, freiwillig',
   // T17 Rückblick
   'Strava, Garmin or GPX': 'Strava, Garmin oder GPX',
