@@ -1,6 +1,6 @@
 # Tür «Plan zuerst»: Erledigt bei einer Einheit des Wochenplans
 
-PR folgt · 21.11.2026 · Auftrag: Noah «1-5a» (Thread «Training erfassen und auswerten vereinfachen», Umsetzungsauftrag T4) und «a» auf die Frage «Wohin zählt Erledigt bei einer Einheit?». **Datenänderung: neues Feld `unit` am Eintrag des Haken-Verlaufs und neue Einstellung `training.unitacts`, Einzelfreigabe von Noah nötig.**
+PR #<Nummer> · 21.11.2026 · Auftrag: Noah «1-5a» (Thread «Training erfassen und auswerten vereinfachen», Umsetzungsauftrag T4) und «a» auf die Frage «Wohin zählt Erledigt bei einer Einheit?». **Datenänderung: neues Feld `unit` am Eintrag des Haken-Verlaufs und neue Einstellung `training.unitacts`, Einzelfreigabe von Noah nötig.**
 
 ## Was ist neu
 - «Erledigt ✓» in «Jetzt dran» auf Heute und das Häkchen einer Einheit im Wochenplan öffnen ein kurzes Blatt: Titel «Erledigt: Tennis», die Dauer aus dem Plan ist vorgewählt (Chips 30, 45, 60, 90 und die geplante Zahl), «Wie war's?» (leicht, gut, hart) ist freiwillig, dazu «Abbrechen» und «Speichern».

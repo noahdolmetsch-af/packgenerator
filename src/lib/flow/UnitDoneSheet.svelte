@@ -16,7 +16,6 @@
   import { ui, tickWith, closeToast, actName } from './ui.svelte.js';
   import { FEELS } from './feel.js';
   import MinInput from './MinInput.svelte';
-  import { FEEL_KEY } from './feelword.js';
   import { UNITACTS_KEY, takers, actForUnit, minuteChips, setUnitTick, unitActsOf, withUnitAct } from './unitdone.js';
 
   let { st = null } = $props();
@@ -98,7 +97,7 @@
       <Seg chips full={false} labelledby="ud-min" value={min} onchange={(k) => (min = k === min ? null : k)} options={minuteChips(st.mins).map((m) => ({ key: m, name: m === Number(st.mins) ? t('{n} min planned', { n: m }) : t('{n} min', { n: m }) }))} />
       <MinInput value={min} chips={minuteChips(st.mins)} onset={(m) => (min = m)} id="ud-own-min" />
       <p class="lbl" id="ud-feel">{t('How was it? (optional)')}</p>
-      <Seg chips full={false} labelledby="ud-feel" value={feel} onchange={(k) => (feel = k === feel ? null : k)} options={FEELS.map((f) => ({ key: f, name: t(FEEL_KEY[f]) }))} />
+      <Seg chips full={false} labelledby="ud-feel" value={feel} onchange={(k) => (feel = k === feel ? null : k)} options={FEELS.map((f) => ({ key: f, name: t(`${f}|feel`) }))} />
     {/if}
 
     <div class="acts">
