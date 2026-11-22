@@ -131,19 +131,6 @@ test('I5 and I6: Notes as rows, pinned first; the note window folds Turn the not
   expect(errors).toEqual([]);
 });
 
-test('I8: the Helper with its path, the code first while it is not set up', async ({ page, context }, info) => {
-  const errors = await start(page, context, info);
-  await page.goto('./#/helper');
-  // v0.118.0 «KI-Helfer ausblenden» (K4, changed on purpose): «AI helper», the one switch, the setup beside it;
-  // the key opens by itself while it is not set up
-  await onePage(page, T('AI helper'));
-  await expect(path(page).getByRole('link', { name: T('Me|place') })).toBeVisible();
-  await expect(page.getByRole('heading', { name: T('Setup|helper') })).toBeVisible();
-  await expect(page.getByLabel(T('Helper code'), { exact: true })).toBeVisible();
-  await expect(page.getByText(T('What goes to Claude?')).first()).toBeVisible();
-  expect(errors).toEqual([]);
-});
-
 test('I10 and I12: the home place window and the shortcuts window', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/me');
@@ -169,7 +156,7 @@ test('no sideways scroll at 320 and 390 px on the Ich pages', async ({ page, con
   await start(page, context, info);
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 800 });
-    for (const hash of ['#/me', '#/me/data', '#/me/phone', '#/inbox', '#/notes', '#/helper', '#/features']) {
+    for (const hash of ['#/me', '#/me/data', '#/me/phone', '#/inbox', '#/notes', '#/features']) {
       await page.goto(`./${hash}`);
       await expect(page.locator('main h1:visible')).toHaveCount(1);
       await noSideways(page);

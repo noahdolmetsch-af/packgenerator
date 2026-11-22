@@ -384,7 +384,6 @@ export default {
   'Open Me › Documents and tap «Photograph document» (or New › «Photograph document»).': 'Öffne Ich › Dokumente und tippe «Dokument fotografieren» (oder Neu › «Dokument fotografieren»).',
   'For Google Drive: «Connect Google Drive» once (needs Strava connected on this device).': 'Für Google Drive: einmal «Google Drive verbinden» (braucht Strava auf diesem Gerät).',
   'Example: a workshop receipt → black and white PDF «Quittung Veloladen Muster» in «Imported PDFs» and in Drive.': 'Beispiel: eine Werkstatt-Quittung → schwarzweisses PDF «Quittung Veloladen Muster» in «Importierte PDF» und in Drive.',
-  'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.': 'Mit eingeschaltetem KI-Helfer: «Kopieren für Claude» kopiert die Woche als Text; nichts wird von selbst gesendet.',
   'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».': 'Beispiel: 4:10 Std., 96 km, 1’240 Hm, «+1:20» gegenüber der Woche davor → «Behalte deinen Rhythmus».',
   // «Assistent» (15.10.2026)
   'Always there: the button «Assistant» (sidebar, on the phone next to the search) or a question in the search.': 'Immer da: der Knopf «Assistent» (Seitenleiste, am Handy neben der Suche) oder eine Frage in der Suche.',
@@ -978,8 +977,8 @@ export default {
   'Tap «Done packing»; the next trip shows the trend.': 'Tippe «Fertig gepackt»; die nächste Tour zeigt den Verlauf.',
   'Example: 42 min for the first weekend tour, 28 min for the next one.': 'Beispiel: 42 min für die erste Wochenendtour, 28 min für die nächste.',
   // «KI im Gerät» (Noah 20.10.2026)
-  'Load a model once: Me › Appearance › Handling › «AI on this device». With internet the AI helper answers if it is set up.':
-    'Einmal ein Modell laden: Ich › Darstellung › Bedienung › «KI im Gerät». Mit Internet antwortet der KI-Helfer, falls eingerichtet.',
+  'Load a model once: Me › Appearance › Handling › «AI on this device».':
+    'Einmal ein Modell laden: Ich › Darstellung › Bedienung › «KI im Gerät».',
   'Choose a model (small and fast, or a bit cleverer) and tap «Load to this device».': 'Wähl ein Modell (klein und schnell, oder etwas klüger) und tipp «Auf dieses Gerät laden».',
   'Tap «Check the speed» to see how quick this device is.': 'Tipp «Tempo prüfen»: So siehst du, wie schnell dieses Gerät ist.',
   'Ask a question in the search or tap «Ask the AI on this device» on the packing list, bike care or look back.':

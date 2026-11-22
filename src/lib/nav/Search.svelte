@@ -30,8 +30,7 @@
   import SearchMic from '../suche/SearchMic.svelte';
   import AskElsewhere from '../assistent/AskElsewhere.svelte';
   import { suche } from '../suche/suche.svelte.js';
-  import { spokenCommand } from '../suche/logic.js';
-  import { looksLikeQuestion } from '../helper/logic.js';
+  import { spokenCommand, looksLikeQuestion } from '../suche/logic.js';
   import { localDay } from '../localday.js';
   // «Zuletzt geöffnet» in der Suche (Noah 05.11.2026 «7a»): the last pages this device opened, from Quick Links' count
   import { deviceKind } from '../quick/quicklinks.js';

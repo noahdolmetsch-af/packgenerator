@@ -75,9 +75,7 @@ const CASES = [
       await tap(page.locator('form.if-add').getByRole('button', { name: T('Add link|insp') }));
     },
   },
-  // v0.77.0 KI-Helfer: Ich › Helfer and New trip before the setup (the notice with «What goes to Claude?» open).
   // v0.76.0 «Fünf Orte»: New trip opens from Trips («+ New trip»), no longer from the list's ••• menu.
-  { id: 'helper', hash: '#/helper' },
   {
     // v0.114.0 «Rahmenbedingungen»: no helper in New trip any more; the window with «Vorlage wählen» open.
     id: 'new-trip',

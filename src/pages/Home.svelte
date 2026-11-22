@@ -114,7 +114,7 @@
   import { isEveningOn } from '../lib/dayclock.js';
   import { cfgQuery, rowsQuery as freiRows } from '../lib/freidb.js';
   import { todayImpulse } from '../lib/frei.js';
-  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, REMOVED_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
@@ -195,7 +195,6 @@
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
   import { strava } from '../lib/strava/client.svelte.js';
-  import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
@@ -976,9 +975,9 @@
   // «Deine Gewohnheiten» (Noah 27.10.2026 «1a»): the pencil on the card and «Choose habits on top» open the same window
   let habitsOpen = $state(false);
   const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
-  // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
+  // «KI entfernen» (Schritt 7): the tile «Helper» is gone for good; an old wall keeps it stored but it never shows
   // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
-  const hiddenTiles = $derived(isShown() ? [] : HELPER_TILES);
+  const hiddenTiles = REMOVED_TILES;
   // HN4 4b: on the day before a trip and on its days the trip card stands right under the day card (not while customising)
   const near = $derived(loaded ? tourNear(allTrips, today) : null);
   // the day card at night: the trip of tomorrow, with how far it is packed
@@ -1342,7 +1341,6 @@
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
-  {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'tools'}<SmallTile tile={TILE.tools} size={x.size} href="#/me/tools" />
   {:else if x.id === 'diary'}<SmallTile tile={TILE.diary} size={x.size} href="#/tagebuch?neu" isnew={newTile('diary')} sub={t('write or dictate')} />
