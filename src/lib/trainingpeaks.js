@@ -11,7 +11,9 @@
  * What a fetch does with the plan (the feed shows about 5 days back and 14 ahead, and changes up to 24 hours late):
  *  - sessions with src 'tp' inside that window are taken from the feed; a session the user changed, ticked or took
  *    out by hand is left as the user has it (TP_KEY remembers what the feed said last time, per session);
- *  - an entry without a duration is left out, never guessed; the card says how many.
+ *  - an entry without a duration is left out, never guessed; the card says how many. The exception is a free day
+ *    («Recovery Day», Ruhetag …): it has no duration by nature, so it is not a session but a day the weekly plan
+ *    keeps free (`rest` in the plan record, Noah 22.11.2026 «Recovery Day ja»).
  */
 import { parseIcs } from './icsparse.js';
 import { addDays } from './flow.js';
@@ -49,13 +51,13 @@ export const maskLink = (url) => (cleanLink(url) ? 'https://www.trainingpeaks.co
 
 const isDay = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 
-/** The record in settings → { url, on, fetchedAt, error, found, skipped, seen } ; url '' when there is no valid link. */
+/** The record in settings → { url, on, fetchedAt, error, found, skipped, rest, seen } ; url '' when there is no valid link. */
 export function prefsOf(v) {
   const o = v && typeof v === 'object' ? v : {};
   const seen = {};
   if (o.seen && typeof o.seen === 'object') for (const [k, sig] of Object.entries(o.seen).slice(0, MAX_SEEN)) if (/^tp-[\w]{1,12}$/.test(k) && typeof sig === 'string') seen[k] = sig.slice(0, 200);
   const n = (x) => (Number.isInteger(x) && x >= 0 && x < 10_000 ? x : 0);
-  return { url: cleanLink(o.url), on: o.on !== false, fetchedAt: typeof o.fetchedAt === 'string' ? o.fetchedAt : null, error: typeof o.error === 'string' ? o.error : '', found: n(o.found), skipped: n(o.skipped), seen };
+  return { url: cleanLink(o.url), on: o.on !== false, fetchedAt: typeof o.fetchedAt === 'string' ? o.fetchedAt : null, error: typeof o.error === 'string' ? o.error : '', found: n(o.found), skipped: n(o.skipped), rest: n(o.rest), seen };
 }
 
 /* ----- one entry of the feed → one planned session ----- */
@@ -106,14 +108,22 @@ export function idOf(e) {
 /** What identifies a session's content for «did the user change it?». */
 export const sigOf = (s) => `${s.day}|${s.kind}|${s.name}|${s.mins}|${s.zone ?? ''}`;
 
-/** The feed → { sessions, skipped, from, to } (sessions as the plan keeps them; skipped = entries without a duration). */
+/** A free day in the feed: «Recovery Day», «Rest day», «Ruhetag», «Erholungstag», «Day off». Only counts without a duration. */
+export const REST_RE = /(^|[^a-zäöüß])(recovery day|rest day|day off|off day|ruhetag|erholungstag|regenerationstag|freier tag)($|[^a-zäöüß])/i;
+
+/** The feed → { sessions, rest, skipped, from, to } (sessions as the plan keeps them; rest = days TrainingPeaks keeps free; skipped = entries without a duration that are no free day). */
 export function sessionsFrom(ics, today) {
   const entries = parseIcs(ics);
   const sessions = [];
   let skipped = 0;
   const seen = new Set();
+  const rest = new Set();
   for (const e of entries) {
     const mins = minutesOf(e);
+    if (!mins && REST_RE.test(String(e.title ?? '')) && /^\d{4}-\d{2}-\d{2}$/.test(e.day ?? '')) {
+      rest.add(e.day);
+      continue;
+    }
     const zone = zoneOf(e.title, e.note);
     const s = mins ? cleanSession({ id: idOf(e), day: e.day, kind: kindOf(e.title), name: e.title, mins, zone, src: TP_SRC, time: e.allDay ? '' : e.from }) : null;
     if (!s) {
@@ -127,7 +137,7 @@ export function sessionsFrom(ics, today) {
   const days = entries.map((e) => e.day).sort();
   const from = days.length && days[0] < addDays(today, -BACK_DAYS) ? days[0] : addDays(today, -BACK_DAYS);
   const to = days.length && days[days.length - 1] > addDays(today, AHEAD_DAYS) ? days[days.length - 1] : addDays(today, AHEAD_DAYS);
-  return { sessions: sessions.sort((a, b) => a.day.localeCompare(b.day)), skipped, from, to };
+  return { sessions: sessions.sort((a, b) => a.day.localeCompare(b.day)), rest: [...rest].sort(), skipped, from, to };
 }
 
 /**
@@ -212,9 +222,9 @@ export async function refresh(db, { doFetch, now = Date.now(), force = false, to
 async function applyFeed(db, feed, { cur, link, now, today }) {
   const plan = (await db.settings.get(PLAN_KEY))?.value?.sessions ?? [];
   const m = mergeFeed(plan.map(cleanSession).filter(Boolean), feed, cur.seen);
-  await db.settings.put({ key: PLAN_KEY, value: { sessions: prunePlan(m.plan, today) } });
-  await db.settings.put({ key: TP_KEY, value: JSON.parse(JSON.stringify({ ...cur, url: link, on: cur.on, fetchedAt: new Date(now).toISOString(), error: '', found: feed.sessions.length, skipped: feed.skipped, seen: m.seen })) });
-  return { ok: true, added: m.added, changed: m.changed, removed: m.removed, skipped: feed.skipped, found: feed.sessions.length };
+  await db.settings.put({ key: PLAN_KEY, value: { sessions: prunePlan(m.plan, today), ...(feed.rest?.length ? { rest: feed.rest } : {}) } });
+  await db.settings.put({ key: TP_KEY, value: JSON.parse(JSON.stringify({ ...cur, url: link, on: cur.on, fetchedAt: new Date(now).toISOString(), error: '', found: feed.sessions.length, skipped: feed.skipped, rest: feed.rest?.length ?? 0, seen: m.seen })) });
+  return { ok: true, added: m.added, changed: m.changed, removed: m.removed, skipped: feed.skipped, found: feed.sessions.length, rest: feed.rest?.length ?? 0 };
 }
 
 /**

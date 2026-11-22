@@ -75,6 +75,7 @@ export default {
   'Without TrainingPeaks these units fit {n} hours. Change a unit with plus or minus if you want it more exact.': 'Ohne TrainingPeaks passen diese Einheiten zu {n} Std. Ändere eine Einheit mit Plus oder Minus, wenn du es genauer willst.',
   'of which TrainingPeaks {h} h': 'davon TrainingPeaks {h} Std',
   'With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.': 'Mit TrainingPeaks liegt die Woche über deinen {h} Std. Nichts wird weggenommen; nimm eine Einheit heraus, wenn es zu viel ist.',
+  'TrainingPeaks has a free day on {day}: the plan puts nothing else there.': 'TrainingPeaks hat am {day} einen freien Tag: Der Plan setzt dort nichts anderes ein.',
   'Replaced by TrainingPeaks: {n} × «{type}».': 'Ersetzt durch TrainingPeaks: {n} × «{type}».',
   'TrainingPeaks alone is above your {h} h. Nothing else in the plan is taken away.': 'TrainingPeaks allein liegt über deinen {h} Std. Sonst wird im Plan nichts weggenommen.',
   'Cycling outdoors adds up to {h} h this week.': 'Velo draussen ergibt diese Woche zusammen {h} Std.',

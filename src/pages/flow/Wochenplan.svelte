@@ -22,7 +22,7 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import { db } from '../../lib/db.js';
-  import { mondayOf, shiftDay, PLAN_KEY, planOf as sessionsOf } from '../../lib/training.js';
+  import { mondayOf, shiftDay, PLAN_KEY, plannerSessions as sessionsOf } from '../../lib/training.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
