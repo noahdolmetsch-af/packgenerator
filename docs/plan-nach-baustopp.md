@@ -1,8 +1,8 @@
 # Plan nach dem Baustopp
 
-Stand 22.11.2026, 21:20 (Zürich). Zwischenstand, nur Planung: gebaut wird nichts, solange der Baustopp gilt. Noah hebt ihn selbst auf und sagt Bescheid. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
+Stand 22.11.2026, 22:35 (Zürich). **Der Baustopp ist seit 22.11., 22:25 aufgehoben (Noah).** Runde 1 läuft, die Wellen steuert der Bündler nach diesem Plan. Die Abschnitte «Baustopp» und «Vor dem Aufheben» unten sind Verlauf, nicht mehr in Kraft. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
 
-## Baustopp seit 22.11., 19:15 (Noah)
+## Baustopp 22.11., 19:15 bis 22:25 (Noah, aufgehoben)
 
 «Ab sofort nur noch begonnene Tests online stellen. Nichts Neues anfangen, alles auf die Warteliste, was nicht gerade schon läuft. Gründlich testen.»
 
@@ -35,6 +35,9 @@ Gruppen von «ok» höchstens 3 Nummern; höchstens 3 gebaute PRs warten gleichz
 - **Server `api/`** (KI Schritt 8): Einzelfreigabe; vorher Push mit dem Strava-Schlüssel prüfen, erst danach den alten Vercel-Schlüssel löschen.
 
 ## Wellen
+
+**Weniger PRs (Noah «ja», 22.11., 22:34): etwa 8 statt rund 15.** (1) Test-PR und die drei Fixes als ein PR. (2) Die übrigen fertigen Stücke ohne Daten als ein bis zwei PRs statt je drei. (3) Wochenrückblick in zwei PRs statt drei, mit A, I, Gym 1 h und Gruss-Skala darin; F bleibt allein. (4) Wetter als ein PR. (5) Kursblick als ein PR. Daten sollen einzeln mit Backup-Kopie bleiben; Empfehlung dazu: Strava-Aufräumen (A) allein lassen, die Einstellungen (I, Gym, Gruss-Skala) dürfen mit, jeder PR mit Daten braucht Einzelfreigabe und Backup-Kopie. Preis: grössere PRs brauchen länger in der Prüfung, und ein roter Test hält alles darin auf. Die Zeile «2 Eine Rechnung» in der Tabelle (drei mittlere PRs) ist damit überholt.
+
 
 | Welle | Inhalt | Art |
 |---|---|---|
