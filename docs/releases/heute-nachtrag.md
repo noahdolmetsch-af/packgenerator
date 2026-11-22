@@ -1,6 +1,6 @@
 # Gestern auch auf Heute: der Morgen-Hinweis oben in «Jetzt dran»
 
-PR folgt · 22.11.2026 · Auftrag: Noah 22.11.2026 (Variante b), Thread «Training erfassen vereinfachen». Baut auf «Gestern nichts abgehakt? Nachtragen» (Aktiv) auf.
+PR #1441 · 22.11.2026 · Auftrag: Noah 22.11.2026 (Variante b), Thread «Training erfassen vereinfachen». Baut auf «Gestern nichts abgehakt? Nachtragen» (Aktiv) auf.
 
 ## Was ist neu
 - Auf Heute steht vor 12 Uhr ganz oben in «Jetzt dran» die ruhige Zeile «Gestern nichts abgehakt? Nachtragen.» «Nachtragen» zeigt die Kacheln; ein Tipp auf eine öffnet ihr Abhak-Fenster mit «Gestern» schon gewählt.
