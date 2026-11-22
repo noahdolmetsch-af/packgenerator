@@ -29,7 +29,3 @@ PR folgt · 22.11.2026 · Auftrag: Noah «a» (Thread «Entfernen aller KI-Funkt
 1. Assistent öffnen und eine Frage stellen: unter der Antwort «Weiter fragen bei», kein «Gemini hier fragen».
 2. Ich › Suche: keine Gemini-Schalter.
 3. Ich › Diktat: keine Zeile «Gemini in der App».
-
-## Nachtrag: alte News-Zeile
-- Die alte Neuigkeit «Freie Sätze in der Suche» (zwei Zeilen) zeigte auf den Schalter «Gemini versteht Sätze», den Schritt 4 entfernt hat. Sie hat jetzt keinen festen Ort mehr (`go: null`), damit «Ausprobieren» nicht ins Leere läuft. Der Text bleibt als Verlauf stehen.
-- Lehre für die nächsten Schritte: Wer einen Schalter oder Knopf entfernt, prüft auch alte News-Zeilen mit diesem Ziel (Test «Ausprobieren» mit allen Zeilen).
