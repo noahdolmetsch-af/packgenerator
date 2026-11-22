@@ -19,7 +19,7 @@ async function tapColumn(page, plot, i, n) {
   await page.mouse.click(b.x + ((i + 0.5) / n) * b.width, b.y + b.height * 0.8);
 }
 
-test('Haken ausgewertet: axis, exact numbers, a window behind every bar, as a table', async ({ page, context }, info) => {
+test('Haken und Rhythmus: axis, exact numbers, a window behind every bar, as a table', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -28,9 +28,11 @@ test('Haken ausgewertet: axis, exact numbers, a window behind every bar, as a ta
   await page.goto('./#/flow');
   await ready(page);
   await put(page, aktivRows());
-  await page.goto('./#/flow/auswertung');
+  await page.goto('./#/flow/auswertung'); // S5: the old address leads to the Sports year, «Haken und Rhythmus» at the bottom
   await page.reload();
   await ready(page);
+  await expect(page).toHaveURL(/#\/auswerten\/sportjahr/);
+  await page.locator('[data-period-bar] [data-key="all"]').click();
 
   const weeks = page.locator('[data-chart="tkweeks"]');
   await expect(weeks).toBeVisible();

@@ -96,6 +96,9 @@ test('Sportjahr: the year in hours, the chart with the year before, where the ti
   await press(pg.locator('[data-sj-where] [data-key="hours"]'), info);
   await expect(pg.locator('[data-sj-records]')).toContainText(T('Longest week'));
   await expect(pg.locator('[data-sj-weeks]')).toBeVisible();
+  // S5: the analyses of the old ticks page (weekdays, hours, grid, best values, months) read all units here
+  await expect(pg.locator('[data-section="analyses"]')).toBeVisible();
+  await expect(pg.locator('[data-section="analyses"]')).toContainText(T('Analyses'));
   // a tap on a bar opens the sports of that month
   await pg.locator('[data-chart="sportjahr"] [data-plot]').click({ position: { x: 5, y: 60 } });
   await expect(page.locator('[data-sj-sheet]')).toBeVisible();

@@ -12,7 +12,7 @@
 import { bodyOf, kindDay, BODY, KIND_ORDER } from '../uebersicht.js';
 import { sportName } from '../flow/garmin/words.js';
 import { actName } from '../flow/ui.svelte.js';
-import { sourceOf, ticksByDay, tickPeriod, hourProfile, activeHours, meanOfHours, sumOf } from '../analyse.js';
+import { sourceOf, ticksByDay, hourProfile, activeHours, meanOfHours, sumOf } from '../analyse.js';
 import { t } from '../i18n.svelte.js';
 import { sleepScoreOf, restlessOf, cardioLoadOf } from './own.js';
 import { valueHref } from './jump.js';
@@ -141,7 +141,7 @@ export function analyseGroups({ table = new Map(), weights = new Map(), ctx = {}
       name: t('Your activities in Aktiv'),
       items: acts.map((a) => {
         const by = ticksByDay(log, a.id);
-        return at({ key: `act:${a.id}`, name: actName(a), unit: '×', src: 'aktiv', sum: true, tick: true, old: `#/flow/auswertung?act=${encodeURIComponent(a.id)}&p=${tickPeriod(period)}`, get: (d) => by.get(d) ?? null });
+        return at({ key: `act:${a.id}`, name: actName(a), unit: '×', src: 'aktiv', sum: true, tick: true, old: `#/auswerten/sportjahr?act=${encodeURIComponent(a.id)}`, get: (d) => by.get(d) ?? null });
       }),
     },
   ];
