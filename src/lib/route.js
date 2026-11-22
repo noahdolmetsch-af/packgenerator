@@ -132,6 +132,9 @@ export function ridingHours(route, days = 1, pace = null) {
   if (!route?.km) return null;
   const kmh = pace?.kmh || SPEED_KMH;
   const climbMh = pace?.climbMh || CLIMB_MH;
-  const total = route.km / kmh + (route.gainM ?? 0) / climbMh;
+  let total = route.km / kmh + (route.gainM ?? 0) / climbMh;
+  // S1 «Lange Tage»: from your long rides (pace-muede.js): a day from tired.fromKm takes tired.factor times as long
+  const tired = pace?.tired;
+  if (tired && route.km / Math.max(1, days) >= tired.fromKm) total *= tired.factor;
   return Math.max(0.5, Math.round((total / Math.max(1, days)) * 2) / 2);
 }

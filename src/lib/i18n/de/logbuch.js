@@ -92,4 +92,13 @@ export default {
   '{n} kind': '{n} Art',
   '{n} kinds': '{n} Arten',
   'No kind in this group yet.': 'In dieser Gruppe ist noch keine Art.',
+  // L5 Schritt 3: neue Arten und Gruppen, der Weg einer Art
+  'Small change': 'Kleine Änderung',
+  'First a picture': 'Zuerst ein Bild',
+  'Name of the kind': 'Name der Art',
+  'Change the way': 'Weg ändern',
+  'Kind in «{name}»': 'Art in «{name}»',
+  'New kind in «{name}»': 'Neue Art in «{name}»',
+  'Way of «{name}»': 'Weg von «{name}»',
+  'The way of «{name}» changed.': 'Der Weg von «{name}» ist geändert.',
 };

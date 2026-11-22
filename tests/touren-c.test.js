@@ -6,7 +6,7 @@ import { memoryTrip, memoryError, lastDay } from '../src/lib/tourenc/memorytrip.
 import { suggestions, applyDebrief, newDebrief } from '../src/lib/debrief.js';
 import { tripFacts } from '../src/lib/review/rueckblick.js';
 import { suggestCuts, partsOf, cutsOf, splitRide, timeAtKm, sportGuess } from '../src/lib/tourenc/split.js';
-import { parseLines, localPoints, withItems, applyPoints, itemIn } from '../src/lib/tourenc/voicepoints.js';
+import { localPoints, withItems, applyPoints, itemIn } from '../src/lib/tourenc/voicepoints.js';
 import de from '../src/lib/i18n/de/tourenc.js';
 import DE from '../src/lib/i18n/de/index.js';
 
@@ -172,12 +172,7 @@ describe('68 Rückblick als Sprachnachricht', () => {
   ];
   const trip = { id: 'trip-v', title: 'test_data_gtp_ Jura', bikeId: 'bike-1', entries: [{ itemId: 'i1' }, { itemId: 'i2' }] };
 
-  it('reads the lines of Gemini', () => {
-    const p = parseLines('GELERNT: Die test_data_gtp_ Regenjacke war zu warm.\n- NICHTGEBRAUCHT: Den test_data_gtp_ Kocher nie gebraucht.\nFEHLTE: test_data_gtp_ Ruecklicht\nirgendwas anderes hier\nVELO: Kette ölen');
-    expect(p.map((x) => x.kind)).toEqual(['learn', 'unused', 'missing', 'note', 'bike']);
-  });
-
-  it('without Gemini: sentence by sentence with a guessed kind', () => {
+  it('sentence by sentence with a guessed kind', () => {
     const p = localPoints('Die Regenjacke war zu warm. Den Kocher habe ich nie gebraucht. Mir hat ein Rücklicht gefehlt! Die Kette quietscht. Schöner Tag am See.');
     expect(p.map((x) => x.kind)).toEqual(['learn', 'unused', 'missing', 'bike', 'note']);
   });

@@ -5,9 +5,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb, syncLocal } from '../src/lib/db.js';
 import { buildBackup, restoreBackup, validateBackup } from '../src/lib/backup.js';
 import { checkBackup } from '../src/lib/backupcheck.js';
-import { KINDS_KEY, NO_GROUP, DEFAULT_KINDS, normalizeKinds, removeArt, removeGroup, hasArt, groupList, artList, routeOfArt, groupOfArt, artName, groupName, renameArt, renameGroup, moveArt, moveGroup, isStandard, NAME_MAX } from '../src/lib/logbuch/kinds.js';
+import { KINDS_KEY, NO_GROUP, DEFAULT_KINDS, normalizeKinds, removeArt, removeGroup, hasArt, addArt, addGroup, setRoute, groupList, artList, routeOfArt, groupOfArt, artName, groupName, renameArt, renameGroup, moveArt, moveGroup, isStandard, NAME_MAX } from '../src/lib/logbuch/kinds.js';
 import { GROUPS, ARTS, makeEntry, changeEntry, filterEntries, counts, reassignEntries } from '../src/lib/logbuch/logbuch.js';
-import { addEntry, updateEntry, loadKinds, saveKinds, deleteKind, deleteGroup, restoreKinds, addAutoError } from '../src/lib/logbuch/logbuchdb.js';
+import { addEntry, updateEntry, loadKinds, saveKinds, deleteKind, deleteGroup, restoreKinds, addAutoError, changeKindRoute, resetKinds } from '../src/lib/logbuch/logbuchdb.js';
 import { artLabel, groupLabel } from '../src/lib/logbuch/words.js';
 
 const at = (iso) => new Date(iso);
@@ -231,5 +231,84 @@ describe('delete in the database, with Undo, with a backup copy', () => {
     const old = await createDb(`logbuch-kinds-${++n}`);
     await restoreBackup(old, { app: 'pack-generator', schemaVersion: 20, tables: { logbuch: [{ id: 'x', art: 'zahl', text: 'old', state: 'open', route: 'direct' }] } }, 'replace'); // a backup without the setting
     expect(await loadKinds(old)).toEqual(DEFAULT_KINDS);
+  });
+});
+
+describe('new kinds and groups (L5 step 3)', () => {
+  it('a new kind: its own key, its name, at the end of the group; the way is the one chosen, the standard is «first a picture»', () => {
+    const made = addArt(DEFAULT_KINDS, 'wrong', '  Mein Fehler  ');
+    expect(made.key).toBe('k-mein-fehler');
+    expect(groupList(made.cfg)[0].arts.at(-1)).toBe('k-mein-fehler');
+    expect(artName(made.cfg, made.key)).toBe('Mein Fehler');
+    expect(routeOfArt(made.key, made.cfg)).toBe('draft');
+    expect(routeOfArt(addArt(DEFAULT_KINDS, 'wrong', 'Rasch', 'direct').key, addArt(DEFAULT_KINDS, 'wrong', 'Rasch', 'direct').cfg)).toBe('direct');
+    const note = addArt(DEFAULT_KINDS, 'new', 'Merkzettel', 'note');
+    expect(routeOfArt(note.key, note.cfg)).toBe('note');
+    expect(isStandard(made.cfg)).toBe(false);
+  });
+  it('the same name twice gets its own keys; the key never touches a kind or group that exists', () => {
+    const a = addArt(DEFAULT_KINDS, 'wrong', 'Idee');
+    const b = addArt(a.cfg, 'wrong', 'Idee');
+    expect(new Set([a.key, b.key]).size).toBe(2);
+    expect(artList(b.cfg)).toHaveLength(15);
+    const g = addGroup(DEFAULT_KINDS, 'Wrong?!');
+    expect(g.key).toMatch(/^g-wrong/);
+    expect(addGroup(g.cfg, 'Wrong?!').key).not.toBe(g.key);
+  });
+  it('without a name, or into a group that does not exist, nothing is made', () => {
+    expect(addArt(DEFAULT_KINDS, 'wrong', '   ')).toBe(null);
+    expect(addArt(DEFAULT_KINDS, 'nope', 'x')).toBe(null);
+    expect(addGroup(DEFAULT_KINDS, '')).toBe(null);
+  });
+  it('a new group is empty and at the end; a kind of the user normalizes back unchanged', () => {
+    const g = addGroup(DEFAULT_KINDS, 'Privat');
+    expect(g.cfg.groups.at(-1)).toEqual({ key: g.key, name: 'Privat', arts: [] });
+    const both = addArt(g.cfg, g.key, 'Meins', 'note');
+    expect(normalizeKinds(JSON.parse(JSON.stringify(both.cfg)))).toEqual(both.cfg);
+  });
+  it('setRoute: the standard way is stored as «nothing», so the first version stays «nothing stored»', () => {
+    const cfg = setRoute(DEFAULT_KINDS, 'fehler', 'draft');
+    expect(routeOfArt('fehler', cfg)).toBe('draft');
+    expect(isStandard(cfg)).toBe(false);
+    expect(isStandard(setRoute(cfg, 'fehler', 'direct'))).toBe(true);
+    expect(setRoute(DEFAULT_KINDS, 'fehler', 'nonsense')).toBe(DEFAULT_KINDS);
+  });
+});
+
+describe('the way of a kind and «Back to standard» in the database', () => {
+  it('a kind that becomes «only a note»: its entries follow (noted, no urgency); Undo gives it all back', async () => {
+    const a = await addEntry({ art: 'fehler', text: 'a', urgent: 'now' }, db);
+    const snap = await changeKindRoute('fehler', 'note', db);
+    expect(await db.logbuch.get(a.id)).toMatchObject({ route: 'note', state: 'noted', urgent: null });
+    expect(routeOfArt('fehler', await loadKinds(db))).toBe('note');
+    await restoreKinds(snap, db);
+    expect(await db.logbuch.get(a.id)).toMatchObject({ route: 'direct', state: 'open', urgent: 'now' });
+    expect(await db.settings.get(KINDS_KEY)).toBeUndefined();
+  });
+  it('«Back to standard» keeps every entry: entries of a kind of the user stay, without a kind; Undo brings kind and entries back', async () => {
+    const made = addArt(DEFAULT_KINDS, 'wrong', 'Mein Fehler', 'direct');
+    await saveKinds(made.cfg, db);
+    const mine = await addEntry({ art: made.key, text: 'mein', photo: 'data:image/jpeg;base64,AAAA' }, db);
+    const std = await addEntry({ art: 'idee', text: 'std' }, db);
+    const snap = await resetKinds(db);
+    expect(isStandard(await loadKinds(db))).toBe(true);
+    expect(await db.logbuch.get(mine.id)).toMatchObject({ art: '', text: 'mein', photo: 'data:image/jpeg;base64,AAAA' });
+    expect((await db.logbuch.get(std.id)).art).toBe('idee');
+    await restoreKinds(snap, db);
+    expect(hasArt(await loadKinds(db), made.key)).toBe(true);
+    expect((await db.logbuch.get(mine.id)).art).toBe(made.key);
+  });
+  it('an entry of a kind of the user passes the backup like any other', async () => {
+    const made = addArt(DEFAULT_KINDS, 'new', 'Wunsch', 'note');
+    await saveKinds(made.cfg, db);
+    const e = await addEntry({ art: made.key, text: 'ein Wunsch', now: at('2026-11-22T10:00:00Z') }, db);
+    expect(e).toMatchObject({ route: 'note', urgent: null, state: 'noted' });
+    const file = JSON.parse(JSON.stringify(await buildBackup(db)));
+    expect(validateBackup(file)).toEqual([]);
+    expect(checkBackup(file).ok).toBe(true);
+    const other = createDb(`logbuch-kinds-${++n}`);
+    await restoreBackup(other, file, 'replace');
+    expect(groupOfArt(made.key, await loadKinds(other))).toBe('new');
+    expect((await other.logbuch.get(e.id)).art).toBe(made.key);
   });
 });

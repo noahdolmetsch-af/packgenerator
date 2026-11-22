@@ -48,8 +48,7 @@ const mock = async (context, opts) => {
 };
 
 test('The weather page and Today show the fog line, with your place, the clearing and a switch', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture() });
-  await mock(context);
+  await openHome(page, context, info, { data: homeFixture(), weather: (c) => mock(c) }); // the fog data must be there before Today first loads, or its first answer is kept for 3 h
 
   await page.goto('./#/wetter');
   const now = page.locator('[data-fogline-now]');
@@ -87,8 +86,7 @@ test('The weather page and Today show the fog line, with your place, the clearin
 });
 
 test('On a clear day the page says there is no fog line (2b: always shown)', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture() });
-  await mock(context, { clear: true });
+  await openHome(page, context, info, { data: homeFixture(), weather: (c) => mock(c, { clear: true }) });
   await page.goto('./#/wetter');
   await expect(page.locator('[data-fogline-now]')).toHaveText('Keine Nebelgrenze: kein Hochnebel erwartet', { timeout: 20_000 });
   await expect(page.locator('[data-fogline-own]')).toHaveCount(0);

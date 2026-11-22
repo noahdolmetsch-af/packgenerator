@@ -14,7 +14,7 @@ describe('Map of the app', () => {
     expect(pathText(map[0].items[0])).toContain(' › ');
   });
   it('finds the functions of a word and leaves the rest out', () => {
-    const hit = filterMap(map, 'understand app');
+    const hit = filterMap(map, 'privacy terms');
     expect(mapSize(hit)).toBeGreaterThan(0);
     expect(mapSize(hit)).toBeLessThan(mapSize(map));
     expect(filterMap(map, '')).toBe(map);

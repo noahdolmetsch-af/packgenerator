@@ -14,7 +14,7 @@ export const WHEN = {
   'f.readytomorrow': 'Appears on the evening before a trip.',
   'f.prep': 'Appears from 14 days before a trip, under Bike care.',
   'f.springservice': 'Appears in February as a to-do in Merken, and after six weeks without a ride.',
-  'f.feel': 'Appears after a ride, as a question.',
+  'f.feel': 'Appears after a Strava activity, as a card on Active.',
   'f.tipweek': 'On Today as a tile, as long as there are tips you have not tried yet.',
   'f.comeback': 'Appears when you open the app after three weeks away.',
   event: 'Appears on a trip marked as an event.',

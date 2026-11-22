@@ -1,7 +1,7 @@
 // «Wochenrückblick» W1–W6 (Noah 15.10.2026 «1-5 a»): the pure rules of lib/weekreview.js.
 // Fictional data only (test_data_gtp_); calendar days, never «now + n × 24 h».
 import { describe, it, expect } from 'vitest';
-import { olderWeeks, defaultMonday, weekParam, weekHref, weekSums, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, dayValues, trainStreak, baseShare, hasAnything, summaryText, SLEEP_Q, MOOD_Q, MAX_NOTES } from '../src/lib/weekreview.js';
+import { olderWeeks, defaultMonday, weekParam, weekHref, weekSums, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, dayValues, trainStreak, baseShare, hasAnything, SLEEP_Q, MOOD_Q, MAX_NOTES } from '../src/lib/weekreview.js';
 import { DEFAULT_BOUNDS, shiftDay } from '../src/lib/training.js';
 import { normAct } from '../src/lib/flow.js';
 
@@ -173,17 +173,7 @@ describe('W5 next week', () => {
   });
 });
 
-describe('W6 the text for Claude', () => {
-  it('composes the week as plain text, with the question at the end', () => {
-    const data = { acts: [act('a', MON, { km: 42.5 })], log: [], flowActs: [], answers: [{ qid: SLEEP_Q, day: MON, value: 6 }], checks: [] };
-    const text = summaryText({ monday: MON, five: weekFive(data, MON, TODAY), strip: weekStrip(data, MON, TODAY), notes: [], highs: weekHighs(data.acts, MON), ahead: null });
-    expect(text).toContain('My week from 2026-10-12 to 2026-10-18 (week 42):');
-    expect(text).toContain('- Moving time 1:30 h (+1:30 against the week before)');
-    expect(text).toContain('- Sleep (1–10): mean 6 on 1 days');
-    expect(text).toContain('- Longest activity: 1:30 h, 42.5 km');
-    expect(text).not.toContain(P); // no names of activities go out
-    expect(text.trim().split('\n').at(-1)).toMatch(/^How was my week\?/);
-  });
+describe('hasAnything', () => {
   it('hasAnything: an activity, an Aktiv entry or an answer', () => {
     expect(hasAnything({ acts: [], log: [], answers: [], checks: [] }, MON)).toBe(false);
     expect(hasAnything({ acts: [], log: [entry('yoga', '2026-10-14')] }, MON)).toBe(true);

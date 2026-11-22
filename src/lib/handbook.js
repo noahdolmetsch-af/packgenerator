@@ -326,7 +326,7 @@ const LISTED = {
   },
   'f.weekreview': {
     on: null,
-    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.'],
+    steps: ['Open Aktiv › Week and tap «Week in review», or Training › Look back.', 'Read the five numbers, body values, the strip and highlights, then write your own note and goal; ‹ › shows other weeks.', 'Only a suggestion: you decide.'],
     example: 'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».',
   },
   'f.weekgoals': {
@@ -921,12 +921,6 @@ const LISTED = {
     steps: ['Open Me › Map of the app.', 'Open a place to see its functions with their path.', 'Type a word in the search, then tap a line to go there.'],
     example: 'Example: you search «backup» and see on which page it lives and how you get there.',
   },
-  // «App verstehen» (Noah 26.10.2026)
-  'f.verstehen': {
-    on: null,
-    steps: ['Open Me › Understand the app.', 'Open a lesson, read it and do the exercise.', 'Tick «Done» if you like.'],
-    example: 'Example: lesson 2 «Make a backup and bring it back» → export a backup and import it in a test link.',
-  },
   // Paket P3 «Warum? und Regeln»
   'f.decides': {
     on: null,
@@ -1161,8 +1155,8 @@ const LISTED = {
   },
   'f.feel': {
     on: null,
-    steps: ['After each ride Active › Training asks «How hard was your ride?» (1 to 10).', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
-    example: 'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.',
+    steps: ['On Active a card asks «How was it?» after a new Strava activity: light, good or hard.', 'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.'],
+    example: 'Example: a run without heart rate strap felt «good» → it counts like 5 of 10, zone 3.',
   },
   'f.frei': {
     on: null,
@@ -1632,7 +1626,7 @@ const LISTED = {
     example: 'Example: knee 158° at the bottom → «a few millimetres lower»; after 3 mm lower 151°.',
   },
   'f.localai': {
-    on: 'Load a model once: Me › Appearance › Handling › «AI on this device». With internet the AI helper answers if it is set up.',
+    on: 'Load a model once: Me › Appearance › Handling › «AI on this device».',
     steps: ['Choose a model (small and fast, or a bit cleverer) and tap «Load to this device».', 'Tap «Check the speed» to see how quick this device is.', 'Ask a question in the search or tap «Ask the AI on this device» on the packing list, bike care or look back.'],
     example: 'Example: no signal on the pass, «What is missing for rain?» → the AI on the phone answers from your list.',
   },
@@ -1837,11 +1831,6 @@ const LISTED = {
     steps: ['Open Me › Reminders on the phone.', 'Switch on «On the phone» and allow notifications.', 'Switch on the reminders you want; what you tick off on another device no longer comes.'],
     example: 'Example: the evening before a trip at 19:00 «Tomorrow: Alpenrunde. The evening-before check is waiting.»',
   },
-  'f.helper': {
-    on: 'Me › AI helper: switch on «Show the AI helper in the app» and save the code.',
-    steps: ['Paste the helper code; it stays on this device.', 'Before each request you see what goes to Claude; a monthly limit applies.', 'Pick the model: Sonnet 5.5 (default) or the cheaper Haiku 5.5. «Usage and costs» says what it costs.'],
-    example: 'Example: switched off again → it shows nowhere, the code stays stored.',
-  },
   'f.shortcuts': {
     on: 'Computer with a keyboard.',
     steps: ['Press ? to see the list.', 'g and a letter switch places; n is New, / is search.', 'Clicked a place often with the mouse? A small tip shows its shortcut once; «No more shortcut tips» stops them.'],
@@ -1902,6 +1891,11 @@ const LISTED = {
     on: null,
     steps: ["Once a year the window «Still right?» comes by itself.", "Tap «Still right» or «Change» for each value.", "Moved or a new sport? «Something changed?» lists only what it touches. Any time: Me › Data and backup."],
     example: "Example: weight 72 kg from last year → «Change» → Bikes › Setup.",
+  },
+  'f.hintquiet': {
+    on: null,
+    steps: ['Tap «Not today» under a hint on three different days (rest-day line, ride above the fog).', 'The app asks «Make this hint quieter?»: «Yes, quieter» switches the kind off, «Keep it» leaves it.'],
+    example: 'Example: three «Not today» on the rest-day line in two weeks → one question, then quiet.',
   },
   'f.suggestoff': {
     on: null,
@@ -2249,18 +2243,13 @@ const LISTED = {
   },
   'f.sources': {
     on: null,
-    steps: ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it; «Ask Gemini» cites them as [1].'],
+    steps: ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it.'],
     example: 'Example: «What did I learn about the Jura?» → 3 entries as sources.',
   },
   'f.devil': {
     on: null,
-    steps: ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', '«Collect the strongest counter-arguments» asks Gemini.'],
+    steps: ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', 'Check what is only assumed and fix it before you leave.'],
     example: 'Example: no plan B yet, tent not weighed.',
-  },
-  'f.aicheck': {
-    on: null,
-    steps: ['Ask Gemini on the page «Assistant with sources».', 'The answer waits under «Check AI suggestions first».', '«Take» makes a to-do, «Drop» puts it away.'],
-    example: 'Example: Gemini suggests a lighter stove → «Take» → a to-do to check it.',
   },
   'f.nogos': {
     on: null,

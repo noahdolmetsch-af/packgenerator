@@ -3,10 +3,9 @@
 export default {
   title: 'Understand your app',
   lead: 'Seven short lessons, so the app stays yours.',
-  points: [{ text: 'Me › Understand the app: lessons with links and one exercise each', href: '#/me/verstehen', go: 'f.verstehen' }],
+  points: [{ text: 'Me › Understand the app: lessons with links and one exercise each', go: null }], // go: null: the page is gone since «App verstehen entfernen» (Noah 22.11.2026)
   small: [{ box: 'new', text: 'On GitHub: emergency handbook and account list in plain German', go: null }],
   test: ['Open Me › Understand the app.', 'Open lesson 2 and tick «Mark as done»: the count above says 1 of 7 done.', 'Tap «Emergency handbook»: GitHub opens the handbook.'],
-  since: ['f.verstehen'],
   de: {
     'Understand your app': 'Deine App verstehen',
     'Seven short lessons, so the app stays yours.': 'Sieben kurze Lektionen, damit die App deine bleibt.',

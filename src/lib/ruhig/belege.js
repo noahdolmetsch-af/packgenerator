@@ -41,22 +41,6 @@ export function sourcesFor(q, groupsOf, { max = 8, kinds = ['trip', 'gear', 'not
   }
   return [...by.values()].sort((a, b) => b.n - a.n).slice(0, max);
 }
-/** The numbered entries as context for the free AI, with the ask to cite them. */
-export function sourceContext(sources, bans = [], { cite, banLine }) {
-  const lines = sources.map((s, i) => `[${i + 1}] ${s.title}${s.sub ? ` (${s.sub})` : ''}`);
-  const b = bans.length ? [`${banLine} ${bans.map((x) => x.text).join('; ')}`] : [];
-  return [cite, ...lines, ...b].join('\n');
-}
-/** The numbers an answer cites ([1], [2, 3]) that exist, in order. */
-export function citedIn(text, n) {
-  const out = [];
-  for (const m of String(text ?? '').matchAll(/\[(\d+(?:\s*,\s*\d+)*)\]/g)) for (const x of m[1].split(',')) {
-    const i = Number(x.trim());
-    if (i >= 1 && i <= n && !out.includes(i)) out.push(i);
-  }
-  return out;
-}
-
 /* ---------- Plan hinterfragen ---------- */
 
 /** The next real trip that has not ended. */
@@ -87,7 +71,6 @@ export function checksOf(value) {
     .filter((x) => x && x.id && clean(x.text, 4000, true) && isDay(x.day))
     .map((x) => ({ id: String(x.id), from: clean(x.from, 40) || 'AI', q: clean(x.q, 300), text: clean(x.text, 4000, true), day: x.day, state: ['open', 'taken', 'dropped'].includes(x.state) ? x.state : 'open' }));
 }
-export const newCheck = ({ from, q, text }, today, id = uid('ki')) => (clean(text, 4000, true) ? { id, from: clean(from, 40) || 'AI', q: clean(q, 300), text: clean(text, 4000, true), day: today, state: 'open' } : null);
 export const setCheck = (list, id, state) => list.map((x) => (x.id === id ? { ...x, state } : x));
 
 /* ---------- Eigene Verbote ---------- */

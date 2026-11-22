@@ -16,7 +16,7 @@
   import IdeaBoard from '../lib/projekt/IdeaBoard.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { t, locale } from '../lib/i18n.svelte.js';
-  import { Lightbulb, Route, BookOpen, Wrench, ChevronDown, ChevronRight, ExternalLink, Info, GraduationCap, Sparkles, Star, Scale, CircleHelp, LayoutGrid, Link2 } from '@lucide/svelte';
+  import { Lightbulb, Route, BookOpen, Wrench, ChevronDown, ChevronRight, ExternalLink, Info, GraduationCap, Star, Scale, CircleHelp, LayoutGrid, Link2 } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const appVersion = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0';
@@ -34,7 +34,6 @@
   ];
   const TOOLS = [
     { href: '#/me/tools', icon: Wrench, name: 'Toolbox', sub: 'PDF, photos, calculator and more' },
-    { href: '#/helper', icon: Sparkles, name: 'Helper', sub: 'The AI helper of the app' },
     { href: '#/me/apps', icon: LayoutGrid, name: 'Small apps', sub: 'Small helpers in one place' },
     { href: '#/me/links', icon: Link2, name: 'Links', sub: 'Your important links' },
   ];
@@ -42,7 +41,6 @@
     { href: '#/features', icon: Info, name: 'What the app can do' },
     { href: '#/me/news', icon: Star, name: 'What is new' },
     { href: '#/gelernt', icon: GraduationCap, name: 'What the app learned' },
-    { href: '#/helper', icon: Sparkles, name: 'Helper' },
   ];
   const GITHUB = 'https://github.com/noahdolmetsch-af/packgenerator';
 </script>

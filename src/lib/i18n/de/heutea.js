@@ -76,6 +76,7 @@ export default {
   'Tap an activity under «Active today»: it is ticked; tap again to take it back.': 'Tippe eine Aktivität unter «Aktiv heute» an: Sie ist abgehakt; nochmals tippen nimmt es zurück.',
   // UI-Ziele #17 (Noah 20.10.2026 «freigabe»): goal chips under the greeting
   'Ride today|goal': 'Heute fahren',
+  'Tick off|goal': 'Abhaken',
   'Plan a trip|goal': 'Tour planen',
   'Work on the bike|goal': 'Velo schrauben',
   'Plan the week|goal': 'Woche planen',

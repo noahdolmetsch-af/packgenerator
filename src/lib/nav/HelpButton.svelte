@@ -6,7 +6,7 @@
    * Since 09.11.2026 (Noah «ja, 1-3», Durchklick-Fund 1) the content of the old card «What you can do here» (each function of the page
    * with what for, «Good to know», «How it works») stands here too, so the «?» is full on every page; on Heute it has a text of its
    * own. The one line behind the page's title (ui/SeitenInhalt.svelte) opens this window (event pg:help).
-   * wide: the row in the sidebar on a computer (with its word); else the round icon in the phone's top bar.
+   * 4a (Noah 21.11.2026): one place for help, the round «?» at the top (phone: top bar; computer: top right of the page).
    */
   import { CircleQuestionMark, X, ChevronRight, BookOpen, Search as SearchIcon } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
@@ -20,7 +20,6 @@
   import { loadHandbook } from '../handbook/load.js';
   import { onMount } from 'svelte';
 
-  let { wide = false } = $props();
   let dlg = $state();
   let btn = $state();
   let open = $state(false);
@@ -63,11 +62,7 @@
   }
 </script>
 
-{#if wide}
-  <button type="button" class="hrow" aria-haspopup="dialog" onclick={show} bind:this={btn} data-help-open><CircleQuestionMark size={18} aria-hidden="true" /><span>{t('Help|nav')}</span></button>
-{:else}
-  <button type="button" class="hic" aria-label={t('Help for this page')} aria-haspopup="dialog" onclick={show} bind:this={btn} data-help-open><CircleQuestionMark size={22} aria-hidden="true" /></button>
-{/if}
+<button type="button" class="hic" aria-label={t('Help for this page')} aria-haspopup="dialog" onclick={show} bind:this={btn} data-help-open><CircleQuestionMark size={22} aria-hidden="true" /></button>
 
 <dialog class="sheet from-below hsheet" bind:this={dlg} use:backClose onclose={() => (open = false)} aria-labelledby="help-h" data-help>
   <div class="hhead">
@@ -112,24 +107,6 @@
     background: none;
     color: var(--ink);
     cursor: pointer;
-  }
-  .hrow {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: var(--sp-2);
-    padding: 8px 12px;
-    border: 0;
-    border-radius: 10px;
-    background: none;
-    color: var(--ink-2);
-    font: 500 var(--fs-body) var(--font-body);
-    text-align: left;
-    cursor: pointer;
-  }
-  .hrow:hover {
-    background: var(--paper-2);
-    color: var(--ink);
   }
   .hsheet > :global(* + *) {
     margin-top: 12px;
