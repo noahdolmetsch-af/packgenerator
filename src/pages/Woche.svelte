@@ -31,7 +31,7 @@
   import { PHONE_ROWS } from '../lib/touren/kurz.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
-  import { deleteWithUndo } from '../lib/ui/ask.js';
+  import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
 
   const today = localDay();
   const q = weekQuery(today);
@@ -62,9 +62,11 @@
   }
   const items = () => src?.rawItems ?? [];
   const toggleDone = (e) => saveItems(items().map((x) => (x.id === e.id ? { ...x, done: !x.done } : x)));
-  // Delete rule: «Remove» on a date or to-do offers Undo (it was gone for good before)
-  const remove = (e) => {
+  // Delete rule: «Remove» on a date or to-do asks first (Warteliste F4), then offers Undo
+  const remove = async (e) => {
     const gone = items().find((x) => x.id === e.id);
+    const ok = await askDelete({ title: t('Delete «{name}»?', { name: titleOf(e) }), text: t('It leaves this week. Right after, you can undo it.') });
+    if (ok !== 'delete') return false;
     return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e) });
   };
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
@@ -283,13 +285,14 @@
             {#each sgShown as s (s.ref)}
               <li class="k-{s.kind}" data-sugg={s.ref}>
                 <span class="dot" aria-hidden="true"></span>
-                <span class="st"><b>{titleOf({ ...s, sessionKind: s.sessionKind })}</b><small>{[subOf(s), s.day && s.act === 'take' ? t('suggested: {day}', { day: dayName(s.day) }) : ''].filter(Boolean).join(' · ')}</small></span>
+                <span class="st"><b>{titleOf({ ...s, sessionKind: s.sessionKind })}</b><small>{[subOf(s), s.day && s.act === 'take' ? (s.source === 'todo' ? t('Your to-do, no day yet · fits {day}', { day: dayName(s.day) }) : t('suggested: {day}', { day: dayName(s.day) })) : ''].filter(Boolean).join(' · ')}</small></span>
                 <span class="sb">
                   {#if s.act === 'drop'}<button type="button" class="btn sm" onclick={() => drop(s)}>{t('Leave out')}</button>
                   {:else if s.act === 'move'}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Move|week')}</button>
                   {:else if s.day}<button type="button" class="btn sm" onclick={() => take(s)}>{t('Take')}</button>{/if}
                   <button type="button" class="btn sm" onclick={() => skip(s)}>{t('Not this week')}</button>
-                  <button type="button" class="btn sm" data-sg-never onclick={() => never(s)}>{t('Never suggest')}</button>
+                  {#if s.source === 'todo'}<button type="button" class="btn sm" data-sg-remove onclick={() => remove(s)}>{t('Remove|to-do')}</button>
+                  {:else}<button type="button" class="btn sm" data-sg-never onclick={() => never(s)}>{t('Never suggest')}</button>{/if}
                 </span>
               </li>
             {:else}
