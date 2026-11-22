@@ -4,7 +4,7 @@ Stand 26.10.2026. Für Noah, in einfachem Deutsch. Dieses Handbuch liegt auf Git
 
 Weitere Seiten:
 - [Konten-Liste](konten.md): alle Konten, die die App braucht, ohne Passwörter.
-- [Wann du etwas tun musst](wann-du-etwas-tun-musst.md): neues Gerät, Login abgelaufen, KI-Guthaben leer.
+- [Wann du etwas tun musst](wann-du-etwas-tun-musst.md): neues Gerät, Login abgelaufen, ein Gratisdienst ändert seine Regeln.
 
 ---
 
@@ -15,7 +15,7 @@ Weitere Seiten:
 | Der Code | Bauplan in der Bibliothek | GitHub, Repository `packgenerator` | Nichts, solange niemand etwas ändern will |
 | Die fertige App | Schaufenster | GitHub Pages: https://noahdolmetsch-af.github.io/packgenerator/ | Deine Geräte haben eine Kopie und starten weiter, auch offline |
 | Deine Daten | Rucksack | Im Browser-Speicher deines Handys und Computers | **Weg, wenn kein Backup da ist.** Darum Teil 3 |
-| Die Extras | Hilfsküche nebenan | Server «packgen» bei Vercel, mit Schliessfach Upstash | Strava, Fitbit/Google, KI, Abgleich, Erinnerungen fallen aus. Der Rest läuft |
+| Die Extras | Hilfsküche nebenan | Server «packgen» bei Vercel, mit Schliessfach Upstash | Strava, Fitbit/Google, Abgleich, Erinnerungen fallen aus. Der Rest läuft |
 
 **Merke:** Packen, Planen, Touren, Velos, Material und Notizen brauchen keinen Server und keinen Helfer. Sie laufen weiter, auch wenn niemand mehr etwas am Code macht.
 
@@ -32,7 +32,7 @@ Gehe die Schritte der Reihe nach durch. Hör auf, sobald es wieder geht.
 
 ### Schritt A: Welcher Teil ist kaputt?
 - **Die App startet nicht oder eine Seite zeigt «Hier ist etwas schiefgelaufen»** → Schritt B.
-- **Nur ein Extra geht nicht** (Strava, Fitbit, Termine, Mail, KI, Abgleich, Erinnerungen) → Schritt C.
+- **Nur ein Extra geht nicht** (Strava, Fitbit, Termine, Mail, Abgleich, Erinnerungen) → Schritt C.
 - **Seit einer neuen Version ist etwas schlechter** → Schritt D.
 - **Du hast eine Mail vom Wächter oder Live-Check bekommen** → Schritt E.
 
@@ -44,10 +44,9 @@ Gehe die Schritte der Reihe nach durch. Hör auf, sobald es wieder geht.
 
 ### Schritt C: Ein Extra geht nicht
 1. Steht in der App «Neu verbinden» oder «Mit Strava/Google verbinden»: antippen und erlauben. Details: [Wann du etwas tun musst](wann-du-etwas-tun-musst.md), Abschnitt 2.
-2. KI-Knöpfe weg: das KI-Guthaben ist leer. Nichts tun ist in Ordnung.
-3. Schau, ob der Server läuft: https://vercel.com › Projekt **packgen** › **Deployments**. Der oberste Eintrag soll **Ready** (grün) sein.
-4. Ist er rot (**Error**): beim letzten grünen Eintrag auf **…** › **Promote** (oder **Instant Rollback**). Damit läuft wieder die letzte gute Server-Version.
-5. Geht es immer noch nicht: Teil 4 (Helfer fragen). Der Rest der App läuft weiter.
+2. Schau, ob der Server läuft: https://vercel.com › Projekt **packgen** › **Deployments**. Der oberste Eintrag soll **Ready** (grün) sein.
+3. Ist er rot (**Error**): beim letzten grünen Eintrag auf **…** › **Promote** (oder **Instant Rollback**). Damit läuft wieder die letzte gute Server-Version.
+4. Geht es immer noch nicht: Teil 4 (Helfer fragen). Der Rest der App läuft weiter.
 
 ### Schritt D: Neue Version ist schlechter, zurück zur alten
 1. https://github.com/noahdolmetsch-af/packgenerator/pulls?q=is%3Amerged öffnen.

@@ -180,15 +180,12 @@ export function startPushSync() {
 /**
  * Paket B (anleitung.md Teil 7): «Adresse für cron-job.org kopieren». The server makes the tick code
  * itself and gives the address only to a device of this server: the key from the Strava login
- * (localStorage, the same name as strava/client.svelte.js KEY_LS) or the Helfer-Code (settings «helper»).
- * Throws { code }: 'no_owner' (neither on this device), 'unauthorized', 'offline', 'server'.
+ * (localStorage, the same name as strava/client.svelte.js KEY_LS).
+ * Throws { code }: 'no_owner' (no key on this device), 'unauthorized', 'offline', 'server'.
  */
 export const STRAVA_KEY_LS = 'pg.strava.key';
 export async function ownerKey() {
-  const k = ls.get(STRAVA_KEY_LS);
-  if (k) return k;
-  const helper = await db.settings.get('helper').catch(() => null);
-  return typeof helper?.value?.code === 'string' && helper.value.code.trim() ? helper.value.code.trim() : null;
+  return ls.get(STRAVA_KEY_LS) || null;
 }
 export async function cronUrl(doFetch = (...a) => fetch(...a)) {
   const key = await ownerKey();
