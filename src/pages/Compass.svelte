@@ -6,14 +6,13 @@
    * - Boxes (#337): resolutions, dreams, to remember, ideas; each a group: add, rename, delete (entries stay).
    * - Ideas in order (#338): every box is a list ordered with arrows and drag; an entry can be ticked
    *   done or become a goal.
-   * - Settings at the bottom: AI suggestions for steps on or off, and the button hidden or shown.
+   * - Settings at the bottom: own boxes and the next step on Today.
    * Data: settings COMPASS_KEY (compass.js), in every backup.
    */
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   import { db } from '../lib/db.js';
   import { COMPASS_KEY, compassOf, boxName, addBox, renameBox, deleteBox, entriesOf, addEntry, editEntry, removeEntry, moveEntry, newGoal, entryToGoal } from '../lib/compass.js';
-  import { isSetUp } from '../lib/helper/client.svelte.js';
   import { sortable } from '../lib/ui/sortable.js';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -85,7 +84,6 @@
     const before = $state.snapshot(c);
     await deleteWithUndo({ run: async () => (await save(deleteBox(before, b.key, to)), before), undo: (snap) => save(snap), text: t('Box «{name}» deleted.', { name }), name });
   }
-  const setAi = (patch) => save({ ...c, ai: { ...c.ai, ...patch } });
 </script>
 
 <div class="ich-page compass" data-page="compass">
@@ -104,10 +102,10 @@
       {#if goalMsg}<p class="err" role="alert">{goalMsg}</p>{/if}
     </form>
     <div class="goals">
-      {#each openGoals as g (g.id)}<GoalCard goal={g} ai={c.ai} onchange={putGoal} onremove={removeGoal} />{/each}
+      {#each openGoals as g (g.id)}<GoalCard goal={g} onchange={putGoal} onremove={removeGoal} />{/each}
     </div>
     {#if doneGoals.length}
-      <details class="reached"><summary>{tn(doneGoals.length, '{n} goal finished', '{n} goals finished')}</summary><div class="goals">{#each doneGoals as g (g.id)}<GoalCard goal={g} ai={c.ai} onchange={putGoal} onremove={removeGoal} />{/each}</div></details>
+      <details class="reached"><summary>{tn(doneGoals.length, '{n} goal finished', '{n} goals finished')}</summary><div class="goals">{#each doneGoals as g (g.id)}<GoalCard goal={g} onchange={putGoal} onremove={removeGoal} />{/each}</div></details>
     {/if}
   </section>
 
@@ -153,17 +151,14 @@
   {/if}
 
   <section class="ich-sec" aria-labelledby="cp-more">
-    <div class="ich-h"><div><h2 id="cp-more"><Settings2 size={16} aria-hidden="true" /> {t('Boxes and AI')}</h2></div></div>
+    <div class="ich-h"><div><h2 id="cp-more"><Settings2 size={16} aria-hidden="true" /> {t('Boxes')}</h2></div></div>
     <div class="card ich-body more">
       <form class="addrow" onsubmit={makeBox}>
         <input class="inp" type="text" bind:value={newBox} maxlength="40" placeholder={t('Own box')} aria-label={t('Own box')} />
         <button type="submit" class="btn"><Plus size={16} aria-hidden="true" />{t('Add box')}</button>
       </form>
       {#if boxEmpty}<p class="rc-note" role="status">{t('Give the box a name first.')}</p>{/if}
-      <label class="ck"><input type="checkbox" checked={!c.ai.off} onchange={(e) => setAi({ off: !e.currentTarget.checked })} data-ai-on /><span>{t('AI suggests steps for a goal')}</span></label>
-      <label class="ck"><input type="checkbox" checked={c.ai.hidden} onchange={(e) => setAi({ hidden: e.currentTarget.checked })} data-ai-hide /><span>{t('Hide the button «Suggest steps»')}</span></label>
       <label class="ck"><input type="checkbox" checked={c.onToday} onchange={(e) => save({ ...c, onToday: e.currentTarget.checked })} data-on-today /><span>{t('Show the next step on Today')}</span></label>
-      <p class="ich-help">{isSetUp() ? t('Uses your AI helper and its monthly limit. Only the goal and its steps are sent.') : t('Needs the AI helper (Me › AI helper). Without it you type the steps yourself.')}</p>
     </div>
   </section>
 </div>
