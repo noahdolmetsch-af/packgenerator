@@ -420,7 +420,7 @@ const LISTED = {
   'f.form': ['Open Active: the card on top shows your readiness.', 'Tap it for the page «Form and recovery».', 'Answer the morning check: your felt sleep and energy count too.'],
   'f.overview': ['Open Active and scroll to «In focus».', 'Swipe for the next sport; tap a card for its page.', 'Tap the heart rate tile for «Body values»: pick a group on top, then a value.'],
   'f.trainplans': ['Open Active › Training › Training plans.', 'Pick a plan, choose «Back from the race day» and set the day.', 'Tap «Try it»: the sessions stand in your week plan.'],
-  'f.feel': ['Open Active › Training after a ride.', 'Tap a number from 1 to 10 under «How hard was your ride?».', 'Change it later on the page of the ride.'],
+  'f.feel': ['Open Active after an activity from Strava.', 'Tap «light», «good» or «hard» under «How was it?», or «Later».', 'Change it later on the page of the activity: words or 1 to 10.'],
   'f.heatmap': ['Open Trips › Look back › Heatmap.', 'Choose clouds or lines, and a year, sport or bike if you like.', 'Tap a coloured line: the rides there show below the map.'],
   'f.analyse': ['On Today tap «More» under «Active today».', 'Choose sources and a period.', 'Tap a value to see its course.'],
   'f.tickreview': ['Open Active › Goals and tap «Evaluate».', 'Choose a period and an activity, or «Your answers».', 'Tap «…» on a card to hide or move it.'],

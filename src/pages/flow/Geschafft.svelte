@@ -21,6 +21,7 @@
   import { putEntry } from '../../lib/flowdb.js';
   import { MIN_CHIPS, FEELS, canSetMinutes, withMinutes, setMinutes, withFeel } from '../../lib/flow/feel.js';
   import MinInput from '../../lib/flow/MinInput.svelte';
+  import { FEEL_KEY } from '../../lib/flow/feelword.js';
   import { BLOCKS_KEY, blocksMap, blockFor, standardBlock, blockChips, saveBlockSize, rememberBlocks, restoreBlocks } from '../../lib/flow/bloecke.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { isUnitEntry, weekOfEntry, setUnitTick } from '../../lib/flow/unitdone.js';
@@ -85,7 +86,7 @@
   const unitText = $derived(next ? `${fmt(next.day, { weekday: 'short' }).replace('.', '')} ${next.t} · ${t(UNIT_NAME[next.type] ?? next.type)}` : '');
   const pct = $derived(goalH && week ? Math.min(100, Math.round((week.mins / 60 / goalH) * 100)) : 0);
 
-  const FEEL_TEXT = { light: 'light|feel', good: 'good|feel', hard: 'hard|feel' };
+  const FEEL_TEXT = FEEL_KEY;
   // «Haken zuerst»: both are optional and can be taken back by tapping the chosen chip again
   const chooseMin = (m) => entry && db.flowLog.put(withMinutes(entry, m));
   // an own length typed by hand (Noah 21.11.2026): next to every row of duration buttons; the same value again keeps it
