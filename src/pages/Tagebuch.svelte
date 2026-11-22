@@ -276,7 +276,7 @@
       </div>
       <button type="button" class="tb-ic" aria-label={t('Diary settings')} title={t('Diary settings')} onclick={() => (settings = true)} data-tb-settings-open><Settings2 size={20} aria-hidden="true" /></button>
     </header>
-    <AreaIntro place="tagebuch" quiet />
+    <AreaIntro place="tagebuch" />
     {#if cfg.resetAt}
       <p class="tb-notice" role="status" data-tb-reset>{t('The lock of the diary was removed on {day}.', { day: long(cfg.resetAt.slice(0, 10)) })} <button type="button" class="btn sm" onclick={() => changeCfg((c) => ({ ...c, resetAt: null }))}>{t('OK')}</button></p>
     {/if}
