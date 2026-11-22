@@ -1,6 +1,6 @@
 # Leichter und Härter oben auf Training
 
-PR #<Nummer> · 22.11.2026 · Schritt V4b2 (Teil 2) der neuen Ordnung · Entscheid Noah «1a» (22.11.2026 17:44), Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
+PR #1476 · 22.11.2026 · Schritt V4b2 (Teil 2) der neuen Ordnung · Entscheid Noah «1a» (22.11.2026 17:44), Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
 
 ## Was ist neu
 - Woche › Training: ganz oben eine Reihe mit «Woche vorschlagen» (öffnet den Vorschlag für die Woche) und, sobald ein Wochenplan gespeichert ist, den Schaltern «Leichter», «Härter», «Regenwoche» und «Skitour-Woche».
