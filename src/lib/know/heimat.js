@@ -80,7 +80,6 @@ const LISTED_HOME = {
   'f.bodytalk': '#/me/ruhig/zahlen',
   'f.sources': '#/me/ruhig/belege',
   'f.devil': '#/me/ruhig/belege',
-  'f.aicheck': '#/me/ruhig/belege',
   'f.nogos': '#/me/ruhig/belege',
   'f.hiddenall': '#/me/ruhig/aus',
   'f.probe': '#/pack',
