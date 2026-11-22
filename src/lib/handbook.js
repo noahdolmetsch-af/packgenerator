@@ -1219,6 +1219,11 @@ const LISTED = {
     steps: ['Tick a sport on Heute or in Aktiv: every tick counts 1 in its counters (times done, weeks in a row, this year, hours).', 'A new star shows right after the tick in a small window.', 'On the sport page: pick a ready challenge or set your own; reached, it is a star in the showcase.'],
     example: 'Example: the 5th yoga tick → «New star: Times done, star 1»; «12× in the next 6 weeks» counts by itself.',
   },
+  'f.challenges': {
+    on: 'Nothing to switch on. Start «Outdoors» on Today, or a goal of your own on the page Challenges.',
+    steps: ['Open Milestones › Challenges, or the card on Today.', 'Tap «New challenge»: name, unit (minutes, a count or steps), goal per day, first and last day.', 'Each day tap «Tick off» when you reached the goal; under «More» add smaller or larger amounts.'],
+    example: 'Example: «Outdoors», 90 min a day until 31 December; a walk of 40 min plus 50 min by hand reaches the day.',
+  },
   'f.meditation': {
     on: null,
     steps: ['Open Aktiv › Meditation.', 'Start like last time or from a template; choose the sounds.'],

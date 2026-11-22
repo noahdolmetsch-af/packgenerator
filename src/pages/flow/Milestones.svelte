@@ -130,6 +130,8 @@
   <header class="ph">
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Milestones')} />
     <PageHead title={t('Milestones')} text={t('Only the next star per milestone · stars reached stay · no ranking')} />
+    <!-- «Challenges» (Noah 21.11.2026 «4a»): the page for challenges with a daily goal sits in Meilensteine -->
+    <a class="btn sm" href="#/flow/challenges" data-challenges-link>{t('Challenges|page')} ›</a>
   </header>
 
   {#if data}

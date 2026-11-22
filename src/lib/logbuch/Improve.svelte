@@ -13,6 +13,7 @@
   import { addEntry, removeEntry } from './logbuchdb.js';
   import { takePhoto } from './photo.js';
   import { db } from '../db.js';
+  import { takeIntoLog } from './fehler.js';
   import { deviceOf } from './logbuch.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { saveFailed } from '../ui/ask.js';
@@ -90,6 +91,10 @@
   function keys(e) {
     if (on && e.key === 'Escape' && !ctx) stop();
   }
+  // the errors the app noted quietly become entries of the log (once, when this loads; the log page does it too)
+  $effect(() => {
+    takeIntoLog();
+  });
   // a page change ends the mode
   $effect(() => {
     void hash;
