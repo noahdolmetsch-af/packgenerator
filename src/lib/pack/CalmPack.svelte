@@ -16,6 +16,7 @@
   import TipLine from '../pageinfo/TipLine.svelte';
   import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
   import Empty from '../ui/Empty.svelte';
+  import PasstHier from '../ui/PasstHier.svelte';
   import DecisionReview from './DecisionReview.svelte';
   import WornCard from './WornCard.svelte';
   import SwapSheet from './SwapSheet.svelte';
@@ -327,6 +328,8 @@
   <PackExtras {trip} {trips} {itemsById} only={['wash', 'morning']} />
   <DoorCard {trip} only={['checkin', 'arrived']} />
   {@render shop?.()}
+  <!-- Freie Zeit 3b (Noah 22.11.2026): a night outdoors → «Fits here» points to «First night» (the group, not the top of the page: Content first) -->
+  {#if trip.overnight === 'outdoor'}<PasstHier place="night" />{/if}
 {/snippet}
 {#snippet gOthers()}<PackExtras {trip} {trips} {itemsById} only={['two']} />{/snippet}
 {#snippet gEasier()}{@render starters?.()}{/snippet}
