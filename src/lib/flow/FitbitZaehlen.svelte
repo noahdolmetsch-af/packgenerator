@@ -71,7 +71,7 @@
           {#each all[g.actId] ? g.rows : g.rows.slice(0, SHOW) as s (s.id)}
             <li data-fz-row={s.id}>
               <span class="nm"><b>{when(s)}</b><small>{t('{n} min', { n: num(s.min) })}{#if s.hr}{' · '}{t('pulse {n}', { n: num(s.hr) })}{/if}</small></span>
-              <button type="button" class="btn hi" data-fz-count={s.id} onclick={() => count([s])}>{t('Count')}</button>
+              <button type="button" class="btn hi" data-fz-count={s.id} onclick={() => count([s])}>{t('Count it|fz')}</button>
               <button type="button" class="btn" data-fz-skip={s.id} onclick={() => skip([s])}>{t('Do not count')}</button>
             </li>
           {/each}

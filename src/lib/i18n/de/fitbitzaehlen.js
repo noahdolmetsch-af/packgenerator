@@ -5,7 +5,7 @@ export default {
   'Your watch knows {n} workouts that are not counted yet. They count in your goals and in the sports year only if you say yes.': 'Deine Uhr kennt {n} Trainings, die noch nicht zählen. Sie zählen in deinen Zielen und im Sportjahr nur, wenn du Ja sagst.',
   '{n} workout': '{n} Training',
   '{n} workouts': '{n} Trainings',
-  'Count': 'Zählen',
+  'Count it|fz': 'Zählen',
   'Count all': 'Alle zählen',
   '{n} workout counts for «{name}».': '{n} Training zählt für «{name}».',
   '{n} workouts count for «{name}».': '{n} Trainings zählen für «{name}».',
