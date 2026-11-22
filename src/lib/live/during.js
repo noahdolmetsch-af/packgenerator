@@ -11,6 +11,7 @@ export const DURING_RIDE = [
   { id: 'f.sensors', sub: 'heart rate, power and cadence' },
   { id: 'f.turns', sub: 'arrow and voice before each turn, with a route' },
   { id: 'f.reroute', sub: 'to a shop, a bed or a station' },
+  { id: 'f.findsleep', sub: 'roofs around you and your own places' },
   { id: 'f.moreplaces', sub: 'your radius and your own kinds' },
   { id: 'f.ovnear', sub: 'stops nearby and their next departures' },
   { id: 'f.postcard', sub: 'after the ride, one picture to share' },
