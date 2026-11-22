@@ -14,7 +14,7 @@ const bikes = [
 
 describe('search settings', () => {
   it('defaults follow Noah: mic always, commands at once, read aloud at once, every source on', () => {
-    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, gemini: true, geminiAuto: true, links: true, chrome: true, local: true });
+    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, links: true, chrome: true, local: true });
     expect(READ_MODES.map((m) => m.key)).toEqual(['auto', 'tap']);
   });
   it('a stored value wins, unknown values fall back', () => {
@@ -56,10 +56,10 @@ describe('where it lives', () => {
     expect(src('src/pages/Me.svelte')).toContain('href="#/me/suche"');
     expect(FEATURE['f.searchvoice']?.href).toBe('#/me/suche');
   });
-  it('the search has the microphone, Gemini and «Ask further at», each behind its setting', () => {
+  it('the search has the microphone and «Ask further at», each behind its setting', () => {
     const s = src('src/lib/nav/Search.svelte');
     expect(s).toContain('<SearchMic onsaid={said}');
-    expect(s).toMatch(/\{#if asking && \(suche\.gemini \|\| suche\.links\)\}<AskElsewhere/);
+    expect(s).toMatch(/\{#if asking && suche\.links\}<AskElsewhere/);
     expect(s).toContain('{#if suche.app && !listSay}<AskAnswer'); // behind its setting; a command sentence shows no answer beside it
     expect(s).toContain('chrome={suche.chrome} links={suche.links}');
   });
@@ -156,7 +156,7 @@ describe('weather of a place (idea 3, with the weather page of 0.171)', () => {
     expect(weatherHref({ place: '' })).toBe('#/wetter');
   });
   it('the search keeps the AI on this device behind its switch, without a second Gemini', () => {
-    expect(src('src/lib/kisuche/SearchFree.svelte')).toContain('{#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly />');
+    expect(src('src/lib/kisuche/SearchFree.svelte')).toContain('{#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" />');
     expect(src('src/lib/nav/Search.svelte')).toContain('local={suche.local}');
   });
 });

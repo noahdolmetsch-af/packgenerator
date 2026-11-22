@@ -47,7 +47,6 @@
     <li>
       <label><span><b>{t('Spoken commands')}</b><small>{COMMANDS.map((c) => `«${lang.v === 'de' ? c.say[0] : c.say[1]}» ${c.put === '\n' ? '↵' : c.put === '\n\n' ? '¶' : c.put}`).join(' · ')}</small></span><input type="checkbox" role="switch" checked={dict.commands} onchange={(e) => setDict('commands', e.currentTarget.checked)} data-dict="commands" /></label>
     </li>
-    <li><label><span><b>{t('Gemini in the app')}</b><small>{t('A free AI from Google answers inside the app. Needs the helper code (Me › AI helper); Google may use the questions to learn.')}</small></span><input type="checkbox" role="switch" checked={dict.gemini} onchange={(e) => setDict('gemini', e.currentTarget.checked)} data-dict="gemini" /></label></li>
   </ul>
 
   <p class="ds-l">{t('Ask further at')}</p>
