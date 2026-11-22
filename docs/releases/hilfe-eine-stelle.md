@@ -1,6 +1,6 @@
 # Eine Stelle für Hilfe
 
-PR #<Nummer> · 22.11.2026 · «Hilfen neu» Punkt 4a · Auftrag: Noah «4a» (21.11.2026, Thread «Neue Ordnung»)
+PR #1447 · 22.11.2026 · «Hilfen neu» Punkt 4a · Auftrag: Noah «4a» (21.11.2026, Thread «Neue Ordnung»)
 
 ## Was ist neu
 - Am Computer stehen das «?» (Hilfe zu dieser Seite) und der Assistent als zwei runde Knöpfe oben rechts auf der Seite, wie auf dem Handy in der oberen Leiste.
