@@ -68,6 +68,41 @@ test('without a plan the card guesses a date from the pace; with little history 
   expect(errors).toEqual([]);
 });
 
+// «Meilensteine motivierender» PR 2 (Idee 3): the shelf «Ganz geschafft»
+test('a milestone with all its stars stands on the shelf, not in the list', async ({ page, context }) => {
+  // own thresholds (flow.msTune) make «Mal gemacht» of tennis finish with 22 ticks: stars 1 and 2 are reached
+  const errors = await open(page, context, { tennis: 22, rows: { settings: [{ key: 'flow.msTune', value: { 'tennis.sessions': { steps: [5, 10] } } }] } });
+  const shelf = page.locator('[data-done-shelf]');
+  await expect(shelf).toBeVisible();
+  await expect(shelf).toContainText(T('Fully done'));
+  await expect(shelf.locator('[data-done-ms="tennis.sessions"]')).toContainText('Letzter Stern am');
+  await expect(page.locator('[data-ms-fold="all"] [data-ms="tennis.sessions"], .grid [data-ms="tennis.sessions"]')).toHaveCount(0);
+  // the sport's own page of the list: finished ones on the shelf, open ones in the list
+  await page.goto('./#/flow/milestones?act=tennis');
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-done-shelf] [data-done-ms="tennis.sessions"]')).toBeVisible();
+  await expect(page.locator('.grid [data-ms="tennis.sessions"]')).toHaveCount(0);
+  await expect(page.locator('.grid [data-ms]').first()).toBeVisible();
+  await fits(page, 'milestones with shelf');
+  expect(errors).toEqual([]);
+});
+
+// «Meilensteine motivierender» PR 3 (Idee 2): the star path under «Pro Aktivität»
+test('per sport the stars stand as a path: gold for the reached ones', async ({ page, context }) => {
+  const errors = await open(page, context, { tennis: 22 });
+  const row = page.locator('[data-path="tennis"]');
+  await expect(row).toBeVisible();
+  const label = await row.locator('[role="img"]').getAttribute('aria-label');
+  const [, n, m] = label.match(/^(\d+) von (\d+) Sternen erreicht/);
+  await expect(row.locator('.stars svg')).toHaveCount(Number(m));
+  await expect(row.locator('.stars svg.full')).toHaveCount(Number(n));
+  await expect(row.locator('.stars svg.part')).toHaveCount(1);
+  await expect(row.locator('a')).toHaveAttribute('href', '#/flow/milestones?act=tennis');
+  await fits(page, 'milestones with path');
+  expect(errors).toEqual([]);
+});
+
 // «Meilensteine motivierender» PR 4 (Idee 5): the reward sits under the card, wishes hang on the next star with a tap
 test('the reward is under the card; a wish hangs on the next star with one tap', async ({ page, context }) => {
   const item = { id: 'test_wish_1', name: 'Fictional gloves', nameDe: 'Erfundene Handschuhe', category: 'clothing', ownership: 'wishlist', qty: 1, weightG: null, domains: [], sets: [], kits: [] };

@@ -60,7 +60,7 @@ export const SINCE = {
   // «Anpassen» (Noah 20.10.2026 «1a–5a»): every page, its tabs and the menu
   'f.custompage': '0.175.0',
   dayride: '0.24.1', blocks: '0.26.0', templates: '0.10.0', gpx: '0.15.0', homeweather: '0.46.0', wxsuggest: '0.15.0', weigh: '0.3.0', fav: '0.19.4', wish: '0.19.2', unused: '0.19.2',
-  'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.ask': '0.77.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
+  'f.plan': '0.30.0', 'f.wear': '0.45.0', 'f.onion': '0.42.0', 'f.shop': '0.34.0', 'f.ballast': '0.19.5', 'f.tripbike': '0.19.3', 'f.switch': '0.35.0', 'f.wardrobe': '0.42.0', 'f.kit': '0.45.0',
   // Einzelideen Planen (provisional version; the bundler sets the final one)
   'f.plantpass': '0.202.0', 'f.doubleinbox': '0.202.0', 'f.mailcase': '0.202.0', 'f.memorycard': '0.202.0',
   // Paket D «Mit Freunden» (provisional version; the bundler sets the final one)

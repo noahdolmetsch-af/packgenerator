@@ -17,7 +17,7 @@ const ROOT = new URL('../src', import.meta.url).pathname;
 const NOT_ADDRESSES = [];
 
 /** Names that two tabs of one place share on purpose or until the rename is decided: 'place: Name'. Only gets shorter. */
-const KNOWN_SAME_NAME = ['analysis: Erkenntnisse'];
+const KNOWN_SAME_NAME = [];
 
 const walk = (dir, out = []) => {
   for (const f of readdirSync(dir)) {

@@ -49,7 +49,7 @@ Gelten für das Innere jeder Seite; Orte, Reiter und Chips gehören dem Umbau «
 
 1. **Ein Seitenaufbau:** Leiste des Ortes, Kopf, Hauptblock, Abschnitte, Fuss.
 2. **Kopf:** Titel in einer Grösse (`--fs-page`, 700), höchstens ein Knopf rechts, darunter ein ruhiger Satz in einer Zeile. Weg-Zeile nur, wenn die Seite tiefer liegt als Reiter und Chips des Ortes. Der Titel sitzt höchstens 120 px unter der Leiste des Ortes.
-3. **Hilfe hat einen Ort:** das «?» oben. Auf der Seite höchstens ein Satz, nie ein Block vor dem Inhalt.
+3. **Hilfe hat einen Ort:** das «?» oben. Auf der Seite höchstens ein Satz, nie ein Block vor dem Inhalt. Die Zeile «Was du hier tun kannst» bleibt auf allen Seiten, immer zugeklappt (Noah 22.11.2026 «so lassen - immer zugeklappt»; ersetzt «2a» vom 21.11.2026, siehe `docs/decisions/zeile-was-du-hier-tun-kannst.md`).
 4. **Ein Hauptknopf** pro Seite (grün gefüllt), zweite Aktionen mit Rand, dritte als Text; die Aktionen einer Seite stehen zusammen in einer Karte.
 5. **Karten:** eine Ecke (`--radius-card`), ein Rand, Innenabstand 16; innere Kacheln 12 bis 14 px, Bedienelemente `--r-ctl`. Hellgrün getönt ist höchstens eine Karte pro Seite, nur für den Tagesimpuls.
 6. **Abstände und Schrift:** nur die Stufen 4, 8, 12, 16, 24, 32; innen 12, zwischen Karten 16, zwischen Abschnitten 24 (Handy) oder 32 (Computer), Rand 16. Fünf Schriftstufen; fett nur 600 oder 700.

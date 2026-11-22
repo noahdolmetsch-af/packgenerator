@@ -144,12 +144,6 @@ export function spreadOpen(steps, today, due) {
   return steps.map((s) => (!s.done && !s.date ? { ...s, date: dates[i++] } : s));
 }
 
-/** Steps suggested by the AI helper (5b) taken over: the checked ones are added with their dates. */
-export function takeSuggested(goal, rows, today, { ids = (i) => `st-${Date.now().toString(36)}-ai${i}` } = {}) {
-  const add = rows.filter((r) => r.take !== false && r.text?.trim()).map((r, i) => ({ id: ids(i), text: r.text.trim(), date: isDay(r.date) && r.date >= today ? r.date : '', done: false, ai: true }));
-  return { ...goal, steps: spreadOpen([...goal.steps, ...add], today, goal.due) };
-}
-
 /** How far a goal is: { done, total, next: the next open step or null, late: open steps before today }. */
 export function goalProgress(goal, today) {
   const open = goal.steps.filter((s) => !s.done).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
@@ -167,9 +161,6 @@ export function answerCheck(goal, how, today, now = new Date().toISOString()) {
 
 /** The goals that want an answer this week (for the Wochenrückblick and the page). */
 export const goalsToCheck = (c, today) => c.goals.filter((g) => checkDue(g, today));
-
-/** The input for the helper task 'steps' (api/_lib/helper.js): only the goal, its day and the steps you have. */
-export const stepsPayload = (goal, today, lang = 'de') => ({ goal: goal.title, due: goal.due || '', today, have: goal.steps.map((s) => s.text), lang });
 
 /** An entry turned into a goal (#338 «Aus Idee wird …»): the entry is ticked done and links to the goal. */
 export function entryToGoal(c, entryId, { id, now = new Date().toISOString(), due = '' } = {}) {
