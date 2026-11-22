@@ -44,9 +44,12 @@ test('Ich leads to Freie Zeit; every one of the eight pages opens in German with
   expect(errors).toEqual([]);
 });
 
-test('Aktiv › Impulse: the impulse of the day, «Gemacht» and the line on Heute', async ({ page, context }) => {
+test('Impulse: the impulse of the day, «Gemacht» and the line on Heute', async ({ page, context }) => {
   const errors = await open(page, context, './#/flow/impulse');
   await expect(page.getByRole('heading', { level: 1, name: T('Impulses') })).toBeVisible();
+  // Noah 21.11.2026 «2a»: Impulse stands in Planen › Freie Zeit; its old address lights that chip, Auswerten has no Impulse chip
+  await expect(page.locator('nav.psubs a[data-sub="impulse"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.psubs a[data-sub="ideen"]')).toHaveCount(0);
   await expect(page.locator('[data-impulse]').first()).toBeVisible();
   await page.locator('[data-done]').first().click();
   await expect(page.getByText(/steht jetzt in deinem Logbuch/).first()).toBeVisible();

@@ -679,7 +679,7 @@
     <!-- v0.127.0 «Tages-Check» 1 (back 18.10.2026, Noah «1 a und b»): #/check/morning (T1) and #/check/evening (T2), pages of Heute -->
     {#key hash}{#if checkPart(hash) === 'history'}<LazyPage load={PAGES.CheckHistory} />{:else if checkPart(hash) === 'insights'}<LazyPage load={PAGES.CheckInsights} />{:else}<LazyPage load={PAGES.Check} part={checkPart(hash)} />{/if}{/key}
   {:else if page === 'frei' || page === 'impulse'}
-    <!-- Paket T «Freie Zeit»: Ich › Freie Zeit (#/me/frei/…) and Aktiv › Impulse (#/flow/impulse); the page picks its part -->
+    <!-- Paket T «Freie Zeit»: Planen › Freie Zeit (#/me/frei/…) and its Impulse (#/flow/impulse, old address); the page picks its part -->
     <LazyPage load={PAGES.Frei} {hash} />
   {:else if page === 'tagebuch'}
     <!-- «Tagebuch» (Noah 20.10.2026, like Day One): #/tagebuch, one entry at #/tagebuch/<id> -->

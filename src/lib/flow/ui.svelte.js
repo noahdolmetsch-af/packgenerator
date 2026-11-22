@@ -131,6 +131,28 @@ export async function tickWith(a, opts) {
   return e;
 }
 
+/**
+ * «Mehrere Tage in einem Rutsch» (Noah 21.11.2026, Festlegung Abhaken, Punkt 5): the same tick for several days, one entry for
+ * each (days: the newest first, at(day): its moment). One message, one «Rückgängig» for all of them.
+ */
+export async function tickMany(a, opts, days, at) {
+  const today = localDay();
+  const [first, ...more] = days;
+  await tickWith(a, { ...opts, day: first === today ? undefined : first, at: at(first) });
+  const extra = [];
+  for (const d of more) extra.push(await tick(db, a, { ...opts, day: d, at: at(d) }));
+  const tk = ui.toast;
+  if (tk) {
+    const one = tk.undo;
+    tk.text = t('{name} · for {n} days ticked', { name: actName(a), n: days.length });
+    tk.undo = async () => {
+      await removeEntries(db, extra);
+      await one?.();
+    };
+  }
+  return extra;
+}
+
 /* ---------- the countdown ---------- */
 const load = () => {
   try {

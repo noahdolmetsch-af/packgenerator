@@ -803,7 +803,7 @@ export default {
   'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.': 'Ohne Puls steht die Antwort für die Zone in «Plan erfüllt?»; ohne Antwort zählt nichts.',
   'Example: a run without heart rate strap felt «good» → it counts like 5 of 10, zone 3.': 'Beispiel: Ein Lauf ohne Pulsgurt fühlte sich «gut» an → er zählt wie 5 von 10, Zone 3.',
   'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.': 'Beispiel: ein Rezept in «Meine Sammlungen» → «Zutaten auf die Einkaufsliste» setzt die fehlenden auf deine Liste.',
-  'Open Active › Impulses, or Me › Free time › Impulses.': 'Öffne Aktiv › Impulse oder Planen › Freie Zeit › Impulse.',
+  'Open Plan › Free time › Impulses.': 'Öffne Planen › Freie Zeit › Impulse.',
   'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.': 'Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.',
   'Example: «Sunrise with breakfast» shows tomorrow’s sunrise at your home place and a short checklist.': 'Beispiel: «Sonnenaufgang mit Zmorge» zeigt den Sonnenaufgang von morgen an deinem Wohnort und eine kurze Checkliste.',
   // Noah 19.10.2026 «2a 3a 4a und b möglich»

@@ -21,7 +21,7 @@ describe('the summit book is a tab of Auswerten', () => {
     const src = readFileSync('src/pages/AuswertenStart.svelte', 'utf8');
     expect(src).not.toContain('<MoreAktiv');
     const keys = pagesOf('analysis');
-    for (const k of ['impulse', 'milestones', 'ticks', 'gipfel']) expect(keys).toContain(k);
+    for (const k of ['ideen', 'milestones', 'ticks', 'gipfel']) expect(keys).toContain(k);
   });
   it('Ideen opens from the page Impulse', () => {
     expect(readFileSync('src/lib/frei/Impulse.svelte', 'utf8')).toContain('href="#/flow/ideen"');
