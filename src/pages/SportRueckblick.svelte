@@ -27,6 +27,8 @@
   import { hoursMin } from '../lib/charts/exact.js';
   import { sportColour } from '../lib/charts/sportcolors.js';
   import { noDataText, firstDayOf } from '../lib/charts/nodata.js';
+  import { againstMean } from '../lib/charts/compare.js';
+  import { sentencesOf } from '../lib/charts/sentence.js';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -81,7 +83,7 @@
   const firstDay = $derived(firstDayOf(mine));
   const noneOf = (b) => noDataText(b.from, b.to, today, firstDay);
   const cols = $derived(bars.map((b, i) => ({ key: b.key, none: noneOf(b), x: bucketX(b, i), top: b.mins >= 30 ? hrs(b.mins) : '', parts: b.mins > 0 ? [{ v: b.mins / 60, color: sportColour(sport) }] : [] })));
-  const readout = (i) => ({ title: bucketTitle(bars[i]), items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, { label: t('Units'), value: num(bars[i].n) }] });
+  const readout = (i) => ({ title: bucketTitle(bars[i]), extra: noneOf(bars[i]) ? '' : againstMean(bars[i].mins, bars.filter((x) => !noneOf(x)).map((x) => x.mins)), items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, { label: t('Units'), value: num(bars[i].n) }] });
   const table = $derived({ head: [t('Period|sj'), t('Hours'), t('Units')], rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), noneOf(b) ? '–' : hoursMin(b.mins), noneOf(b) ? '–' : num(b.n)] })) });
   const chartLine = $derived(line ? line.map((m) => m / 60) : null);
   const aria = $derived(bars.map((b) => `${bucketTitle(b)}: ${hrs(b.mins)} h`).join(', '));
@@ -121,7 +123,7 @@
     <section class="card rb-sec" aria-labelledby="sr-chart-h" data-sr-chart>
       <h2 id="sr-chart-h">{grain === 'month' && mode === 'year' ? t('Hours per month') : grain === 'year' ? t('Hours per year') : t('Hours per day')}</h2>
       <p class="hs">{title ? `${title}` : ''}{line ? ` · ${t('dashed: the year before')}` : ''}</p>
-      <BarChart id="sportrueckblick" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours of this sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for the details.')} />
+      <BarChart sentences={sentencesOf(bars.map((b) => ({ label: bucketTitle(b), v: b.mins, none: noneOf(b) })), hoursMin)} id="sportrueckblick" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours of this sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for the details.')} />
     </section>
 
     <section class="card rb-sec" aria-labelledby="sr-from-h" data-sr-from>

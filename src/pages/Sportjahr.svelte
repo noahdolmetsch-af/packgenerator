@@ -31,6 +31,8 @@
   import { hoursMin } from '../lib/charts/exact.js';
   import { sportColour, OTHER } from '../lib/charts/sportcolors.js';
   import { noDataText, firstDayOf } from '../lib/charts/nodata.js';
+  import { againstYear, againstMean } from '../lib/charts/compare.js';
+  import { sentencesOf } from '../lib/charts/sentence.js';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -116,8 +118,16 @@
       parts: rows.filter((r) => b.parts[r.sport] > 0).map((r) => ({ v: b.parts[r.sport] / 60, color: colour(r.sport) })),
     })),
   );
+  /* one line under the numbers: against the same month a year before, else against the mean of the bars that have come */
+  const compareOf = (i) => {
+    const b = bars[i];
+    if (noneOf(b)) return '';
+    if (mode === 'year' && yearLine && yearLine[i] != null) return againstYear(b.mins, yearLine[i]);
+    return againstMean(b.mins, bars.filter((x) => !noneOf(x)).map((x) => x.mins));
+  };
   const readout = (i) => ({
     title: bucketTitle(bars[i]),
+    extra: compareOf(i),
     items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, ...rows.filter((r) => bars[i].parts[r.sport] > 0).slice(0, 4).map((r) => ({ label: names.get(r.sport), value: hoursMin(bars[i].parts[r.sport]), color: colour(r.sport) }))],
   });
   const table = $derived({
@@ -199,7 +209,7 @@
       <h2 id="sj-chart-h">{grain === 'month' && mode === 'year' ? t('Hours per month') : grain === 'year' ? t('Hours per year') : t('Hours per day')}</h2>
       <p class="hs">{title ? `${title} · ` : ''}{t('by sport')}{line ? ` · ${lineIsGoal ? t('line: your goal of {h} h per week', { h: num(goal.hours) }) : t('dashed: the year before')}` : ''}</p>
       {#if both}<Seg full={false} small label={t('Line')} value={linePick} onchange={(k) => (linePick = k)} options={[{ key: 'last', name: t('Year before') }, { key: 'goal', name: t('Goal|sj') }]} />{/if}
-      <BarChart id="sportjahr" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours by sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for its sports.')} />
+      <BarChart sentences={sentencesOf(bars.map((b) => ({ label: bucketTitle(b), v: b.mins, none: noneOf(b) })), hoursMin)} id="sportjahr" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours by sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for its sports.')} />
       <ul class="lg" data-sj-legend>
         {#each legend as l (l.key)}<li><i style:background={l.color}></i>{l.name}</li>{/each}
         {#if line}<li><i class="dash"></i>{lineIsGoal ? t('Goal|sj') : t('Year before')}</li>{/if}
