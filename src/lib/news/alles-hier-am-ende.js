@@ -3,7 +3,7 @@ export default {
   title: '«All here» at the end of the page',
   lead: 'The list of all functions no longer stands on top of Week, Training, Trips, Bikes and Gear. A line at the page end opens it.',
   points: [
-    { text: 'Each of these pages starts with its content; at the end, one line «All functions of …» opens the list', go: { href: '#/bikes', steps: [], where: 'Scroll to the end of the page and tap the line «All functions of Bikes».' } },
+    { text: 'Each of these pages starts with its content; at the end, one line «All functions of …» opens the list', go: { href: '#/bikes', steps: [{ sel: '[data-card-line="ah:bikes"]' }], where: 'Scroll to the end of the page and tap the line «All functions of Bikes».' } },
   ],
   small: [],
   test: [

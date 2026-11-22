@@ -1,6 +1,6 @@
 # «Alles hier» am Seitenende
 
-PR #<Nummer> · 22.11.2026 · «Hilfen neu» Punkt 1b · Entscheid Noah «1b 2a 3b 4a 5a» (21.11.2026 22:24 UTC); Vorschlag /mnt/project-files/notes/hilfen-2026-11-21/inventar-und-vorschlag.md
+PR #1420 · 22.11.2026 · «Hilfen neu» Punkt 1b · Entscheid Noah «1b 2a 3b 4a 5a» (21.11.2026 22:24 UTC); Vorschlag /mnt/project-files/notes/hilfen-2026-11-21/inventar-und-vorschlag.md
 
 ## Was ist neu
 - Auf Woche, Training, Touren, Velos und Material steht die Kachelliste «Alles hier» nicht mehr oben. Am Seitenende steht eine Zeile «Alle Funktionen von … (n)». Ein Tipp öffnet die Liste (Pfeile, Ausblenden, «Wie am Anfang» wie bisher).
