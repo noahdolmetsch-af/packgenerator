@@ -27,7 +27,7 @@ Prüffragen:
 
 **Letzter Kurs-Check (10.10.2026, Versionen 0.68 bis 0.73, Antworten «1b 2b 3b 4a»):**
 - **Schneller packen:** seit 0.66 nichts Neues; die Start-Packlisten (D5) sind freigegeben.
-- **Velo im Griff:** grösster Sprung (Fahrten-Buch, Strava/Garmin-Import, Velo-Blätter). Wartungsvorschläge kommen mit dem KI-Helfer direkt nach E1.
+- **Velo im Griff:** grösster Sprung (Fahrten-Buch, Strava/Garmin-Import, Velo-Blätter). Wartungsvorschläge kommen aus den eigenen Daten (der KI-Helfer ist am 22.11.2026 ausgebaut).
 - **Von der Haustür bis zurück:** ruhige Startseite live, Fünf Orte im Bau, E1 freigegeben.
 - **Aus jeder Tour lernen:** hinkt noch hinterher; Neuland + Inspiration ist freigegeben (Inspiration kommt mit 0.134.0, 15.10.2026).
 - **Prüffrage 5:** kein fester Plan für eine echte Tour, Funde kommen nebenbei.
@@ -40,7 +40,7 @@ Der Pack Generator ist eine persönliche Web-App (PWA) für Bikepacking- und Vel
 
 Die geplanten Vorhaben verfolgen sechs Ziele (das fünfte seit 19.10.2026, Noah «1a»; das sechste seit 27.10.2026, Noah «2a»):
 
-1. **Schneller packen.** Vorschläge statt leerer Listen: Bausteine, Vorlagen und ein KI-Helfer, der aus dem eigenen Material eine Liste vorschlägt. Beispiel: «3 Tage Jura, 5 °C, Biwak» ergibt eine fertige Liste mit Begründungen.
+1. **Schneller packen.** Vorschläge statt leerer Listen: Bausteine, Vorlagen und Vorschläge aus dem eigenen Material (der KI-Helfer ist am 22.11.2026 ausgebaut). Beispiel: «3 Tage Jura, 5 °C, Biwak» ergibt eine fertige Liste mit Begründungen.
 2. **Das Velo im Griff haben.** km pro Velo (später automatisch aus Strava), Wartung von Kette, Kassette, Bremsbelägen, Bremsscheiben und Reifen mit konkreten Hinweisen. Beispiel: «Kette 2 400 km seit Wechsel, mit der Lehre 0,5 messen.»
 3. **Von der Haustür bis zurück.** Eine Startseite, die sich der Phase anpasst (vor, während, nach der Tour), mit SBB, swisstopo-Karte, Wetter und dem Knopf «Take me home».
 4. **Aus jeder Tour lernen.** Rückblick, Learnings, die beim nächsten Packen wieder auftauchen, und ein Aktivitätsmosaik über alle Sportarten und Meditation.
@@ -279,8 +279,8 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
   7. Monatsgrenze CHF 5, danach Pause bis zum nächsten Monat.
   8. Hinweis «noch nicht eingerichtet» nur in Neue Tour und Einstellungen.
 - **Beispiel Wartung:** «Kette: 2 400 km seit Wechsel, viele Regenfahrten. Mit der Lehre messen: ab 0,5 bald wechseln, ab 0,75 sofort.» Oder: «Bremsbeläge hinten: unter 1 mm Belag wechseln. Mindestdicke der Scheibe steht auf der Scheibe.»
-- **Technik:** kleiner Server auf Vercel (`api/helper.js`) hält den Anthropic-Schlüssel. Die App schickt nur, was die Aufgabe braucht: Namen, Gewichte, Bausteine, Notizen, km. Nie Fotos, Belege, Gesundheitsdaten oder Namen von Personen.
-- **Stand:** gebaut und getestet (PR #89), am 10.10.2026 auf Fünf Orte gebracht und als 0.77.0 vorbereitet (K1 a Ich › Helfer, K2 a «Frag den Helfer» oben in Neue Tour, K3 a Funkel-Knopf «Liste prüfen» am Handy in der Weiter-Leiste). Ohne Helfer-Code bleibt alles wie bisher; Noah richtet Schlüssel und Code in Vercel ein (Anleitung `docs/ki-helfer-einrichten.md`).
+- **Technik:** ausgebaut am 22.11.2026 (Noah «alle KI-Funktionen ausbauen», «a»): der Server und die Seite sind weg; KI im Gerät bleibt.
+- **Stand:** gebaut und getestet (PR #89), am 10.10.2026 auf Fünf Orte gebracht und als 0.77.0 vorbereitet (K1 a Ich › Helfer, K2 a «Frag den Helfer» oben in Neue Tour, K3 a Funkel-Knopf «Liste prüfen» am Handy in der Weiter-Leiste). Ohne Helfer-Code bleibt alles wie bisher; Ausgebaut: siehe `docs/releases/ki-weg-server.md`.
 
 ### 3. Startseite & Integrationen (E1–E4)
 

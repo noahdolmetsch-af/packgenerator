@@ -1,9 +1,8 @@
 // v0.118.0 «Was ist neu 2» (mockups W1–W3, Noah 13.10.2026 00:02 «w1-w3 freigeben», answers 1a 2a 3a 4a 5a)
-// and «KI-Helfer ausblenden» (mockups K1–K4, Noah 12.10.2026 21:50 «k1-k4 ok», answer a ★).
+// (the part «KI-Helfer ausblenden» is gone with the removed AI helper, KI entfernen Schritt 7).
 // W1: after an update «New since your last visit» shows every version since then fully open, each line a
 // link to its place, the small things in their boxes, «Looos ›» to the first place. W2: Ich › Was ist neu with
-// the newest version on top, one row «All functions», all versions open by month. K4: the AI helper is off by
-// default; one switch under Ich › KI-Helfer brings every place back, the tile on Today included; the key stays.
+// the newest version on top, one row «All functions», all versions open by month.
 // The lists come from the app source. Fictional data only (home0460-fixture, test_data_gtp_ names), the clock
 // on Friday 9 October 2026 (Europe/Zurich); SHOTS=<folder> saves screenshots.
 import { test, expect } from './clock.js';
@@ -11,26 +10,14 @@ import { linkOf } from './newsgo-lib.js';
 import { openHome, homeFixture } from './home0460-fixture.js';
 import { BOXES, shortVersion } from '../../src/lib/whatsnew.js';
 import { WHATS_NEW } from '../../src/lib/whatsnew-full.js';
-import { READY, HELPER_TILES, wallRecord } from '../../src/lib/home/tiles.js';
-import { readFileSync } from 'node:fs';
-import { closeDialog } from './settle.js';
+import { READY, REMOVED_TILES, wallRecord } from '../../src/lib/home/tiles.js';
 
-const PLACES = [...readFileSync(new URL('../../src/lib/helper/places.js', import.meta.url), 'utf8').matchAll(/\{ key: '(\w+)'/g)].map((m) => m[1]);
-const CODE = 'test_data_gtp_code';
 
 async function shot(page, info, name, full = false) {
   if (!process.env.SHOTS) return;
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: full });
 }
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
-const table = (page, name) =>
-  page.evaluate((s) => new Promise((ok) => {
-    const r = indexedDB.open('pack-generator');
-    r.onsuccess = () => {
-      const q = r.result.transaction(s).objectStore(s).getAll();
-      q.onsuccess = () => { r.result.close(); ok(q.result); };
-    };
-  }), name);
 
 // v0.127.0 A-U1 (changed on purpose, mockup A-U1, Noah 13.10.2026 answer 3a): the window of W1 became a calm banner
 // on Today; every version since the last visit stays fully open under Ich › Was ist neu (W2)
@@ -135,90 +122,21 @@ test('W2 + SL1: Ich, Was ist neu: the newest on top, one row to all functions, t
   expect(errors).toEqual([]);
 });
 
-test('K4: the AI helper is off by default; one switch under Ich brings every place back at once, the key stays', async ({ page, context }, info) => {
+test('KI entfernen: an old wall that still holds the removed tile «Helper» shows without it, and nothing breaks', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  // the wall has the helper's tile (it stays stored while the helper is off)
   const data = homeFixture();
-  const wall = [...READY, ...HELPER_TILES.map((id) => ({ id, size: 's' }))];
+  const wall = [...READY, ...REMOVED_TILES.map((id) => ({ id, size: 's' }))];
   data.tables.settings.push({ key: 'homeWall', value: wallRecord(wall) });
-  const T = await openHome(page, context, info, { data });
-  const tile = page.locator(`.wall [data-tile="${HELPER_TILES[0]}"]`);
+  await openHome(page, context, info, { data });
   await expect(page.locator('.wall [data-tile="trip"]')).toBeVisible();
-  await expect(tile).toHaveCount(0);
-
-  // Ich: the row says it is off and where to switch it on
-  await page.goto('./#/me');
-  const row = page.locator('main').getByRole('link', { name: new RegExp(`^${T('AI helper')}`) });
-  await expect(row).toContainText(T('off · suggestions from Claude, only if you want'));
-  await row.click();
-  await expect(page.getByRole('heading', { level: 1, name: T('AI helper') })).toBeVisible();
-  const sw = page.getByRole('switch', { name: new RegExp(T('Show the AI helper in the app')) });
-  await expect(sw).not.toBeChecked();
-  await expect(page.getByText(T('Off: it shows nowhere. Your key and your settings stay stored.'))).toBeVisible();
-  await expect(page.getByText(T('{n} places · all hidden now', { n: PLACES.length }))).toBeVisible();
-  expect(await page.locator('[data-helper-place]').evaluateAll((els) => els.map((x) => x.dataset.helperPlace))).toEqual(PLACES);
-  await expect(page.locator('[data-helper-place] .hp-pill')).toHaveText(PLACES.map(() => T('off|helper')));
-
-  // the key is saved, the helper stays off: nothing shows, the tile stays away
-  await page.getByLabel(T('Helper code'), { exact: true }).fill(CODE);
-  await page.getByRole('button', { name: T('Save code'), exact: true }).click(); // Impeccable Runde 2: the 2-step card
-  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE });
-  await expect(page.getByRole('heading', { name: T('Setup|helper') })).toBeVisible();
-  await expect(page.getByText(T('Key saved'))).toBeVisible();
-  await expect(sw).not.toBeChecked();
+  await expect(page.locator(`.wall [data-tile="${REMOVED_TILES[0]}"]`)).toHaveCount(0);
   await noSideways(page);
-  await page.reload(); // with the key saved the setup shows as three closed rows
-  await expect(page.getByText(T('Key saved'))).toBeVisible();
-  await expect(page.getByLabel(T('Helper code'), { exact: true })).toBeHidden();
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await shot(page, info, 'K4-ich-ki-helfer');
-  await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), 'test_data_gtp_Herbstrunde');
-  await page.goto('./#/pack');
-  await expect(page.locator('.list-head').first()).toBeVisible();
-  await expect(page.locator('.kh-menu-check, .kh-go-check')).toHaveCount(0);
-  await shot(page, info, 'K-packen-ohne-helfer');
-  await page.goto('./#/');
-  await expect(page.locator('.wall [data-tile="trip"]')).toBeVisible();
-  await expect(tile).toHaveCount(0);
-  await page.getByRole('button', { name: T('Add a tile') }).click();
-  const cat = page.getByRole('dialog', { name: T('Add a tile') });
-  await expect(cat.locator('[data-add]').first()).toBeVisible();
-  await expect(cat.locator(`[data-add="${HELPER_TILES[0]}"]`)).toHaveCount(0);
-  // wait until the dialog took its history entry away, else its step back undoes the next address
-  await closeDialog(page);
-
-  // one switch: every place that is left is back at once
-  await page.goto('./#/helper');
-  await sw.check();
-  await expect(sw).toBeChecked();
-  await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE, show: true });
-  await expect(page.getByText(T('{n} places · all shown', { n: PLACES.length }))).toBeVisible();
-  await expect(page.locator('[data-helper-place] .hp-pill')).toHaveText(PLACES.map(() => T('on|helper')));
-  await page.goto('./#/pack');
-  await expect(page.locator('.list-head').first()).toBeVisible();
-  // KI entfernen, Schritt 2 (changed on purpose, Noah 20.11.2026 «a»): «Check the list» is gone for good
-  await expect(page.locator('.kh-menu-check, .kh-go-check')).toHaveCount(0);
-  await page.goto('./#/');
-  await expect(tile).toBeVisible();
-
-  // off again: hidden, but the wall and the key stay stored
-  await page.goto('./#/helper');
-  await sw.uncheck();
-  await page.goto('./#/');
-  await expect(page.locator('.wall [data-tile="trip"]')).toBeVisible();
-  await expect(tile).toHaveCount(0);
-  const stored = await table(page, 'settings');
-  expect(stored.find((s) => s.key === 'homeWall').value.tiles.map((x) => x.id)).toContain(HELPER_TILES[0]);
-  expect(stored.find((s) => s.key === 'helper').value).toMatchObject({ code: CODE, show: false });
   expect(errors).toEqual([]);
 });
 
-test('English: the window and the switch read in English too', async ({ page, context }, info) => {
+test('English: the window reads in English too', async ({ page, context }, info) => {
   const T = await openHome(page, context, info, { lang: 'en' });
-  await page.goto('./#/helper');
-  await expect(page.getByRole('heading', { level: 1, name: 'AI helper' })).toBeVisible();
-  await expect(page.getByRole('switch', { name: /Show the AI helper in the app/ })).not.toBeChecked();
   await page.goto('./#/me/news');
   // the small things (and their box labels) exist only when the newest version has some; its buttons always read English
   await expect(page.locator('[data-news-try]').first()).toHaveText(T('Try it'));

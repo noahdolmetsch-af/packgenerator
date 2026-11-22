@@ -9,10 +9,8 @@ import { createDictation } from '../src/lib/dictate.js';
 import { whisperLang, transcribe } from '../src/lib/whisper.js';
 import { SERVICES, shownServices, contextFor, askText, claudeUrl, orderedServices, movedOrder } from '../src/lib/assistent/elsewhere.js';
 import { serviceOf, cleanUrl, addProject, editProject, moveProject } from '../src/lib/aiprojects/aiprojects.js';
-import { makeHandler, geminiRequest, geminiText, geminiKey, GEMINI_URL, helperEnv } from '../api/helper.js';
 import DE from '../src/lib/i18n/de/index.js';
 import { db } from '../src/lib/db.js';
-import { HELPER_KEY } from '../src/lib/helper/client.svelte.js';
 
 const src = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 
@@ -269,110 +267,6 @@ describe('«Weiter fragen bei …»', () => {
     expect(src('src/pages/Pack.svelte')).toContain('<AskClaude name="pack"');
     expect(src('src/lib/care/BikeCare.svelte')).toContain('<AskClaude name="care"');
     expect(src('src/pages/Debrief.svelte')).toContain('<AskClaude name="debrief"');
-  });
-});
-
-describe('Gemini in the app (server)', () => {
-  const TOKEN = 'test-code-not-real-0000';
-  const REDIS = 'https://redis.example.test';
-  const env = (over = {}) => () => ({ apiKey: '', token: TOKEN, model: 'claude-sonnet-5-5', cap: 2, redisUrl: REDIS, redisToken: 'r', geminiKey: 'g-test-not-real', geminiModel: 'gemini-flash-latest', geminiDaily: 2, ...over });
-  const req = (body) => new Request('https://packgen-three.vercel.app/api/helper', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://localhost:5173', authorization: `Bearer ${TOKEN}` }, body: JSON.stringify(body) });
-  function world(answer = { candidates: [{ content: { parts: [{ text: 'Nimm die Regenjacke.' }] } }] }, status = 200) {
-    const store = {};
-    const calls = [];
-    const doFetch = vi.fn(async (url, init) => {
-      if (url === REDIS) {
-        const [cmd, k, v] = JSON.parse(init.body);
-        if (cmd === 'GET') return Response.json({ result: store[k] ?? null });
-        if (cmd === 'INCRBYFLOAT') return Response.json({ result: String((store[k] = String(Number(store[k] ?? 0) + Number(v)))) });
-        return Response.json({ result: 1 });
-      }
-      calls.push({ url, init });
-      return Response.json(answer, { status });
-    });
-    return { store, calls, doFetch };
-  }
-  const now = () => new Date('2026-10-19T10:00:00Z');
-  it('answers through Gemini with the key in a header, never in the body or address', async () => {
-    const w = world();
-    const r = await makeHandler({ env: env(), doFetch: w.doFetch, now })(req({ task: 'gemini', input: { question: 'Welche Jacke bei 5 °C?', context: '- Regenjacke Demo', lang: 'de' } }));
-    expect(r.status).toBe(200);
-    expect(await r.json()).toMatchObject({ ok: true, task: 'gemini', result: { text: 'Nimm die Regenjacke.' } });
-    expect(w.calls[0].url).toBe(GEMINI_URL('gemini-flash-latest'));
-    expect(w.calls[0].init.headers['x-goog-api-key']).toBe('g-test-not-real');
-    expect(w.calls[0].init.body).not.toContain('g-test-not-real');
-    expect(JSON.parse(w.calls[0].init.body).contents[0].parts[0].text).toBe('Welche Jacke bei 5 °C?\n\n- Regenjacke Demo');
-    expect(w.store[geminiKey('2026-10-19')]).toBe('1');
-  });
-  it('stops at the daily limit, says so without a key, needs the code', async () => {
-    const w = world();
-    const h = makeHandler({ env: env(), doFetch: w.doFetch, now });
-    await h(req({ task: 'gemini', input: { question: 'Frage eins?' } }));
-    await h(req({ task: 'gemini', input: { question: 'Frage zwei?' } }));
-    const r = await h(req({ task: 'gemini', input: { question: 'Frage drei?' } }));
-    expect(r.status).toBe(429);
-    expect((await r.json()).code).toBe('daily_limit');
-    const off = await makeHandler({ env: env({ geminiKey: '' }), doFetch: w.doFetch, now })(req({ task: 'gemini', input: { question: 'Frage?' } }));
-    expect(off.status).toBe(503);
-    const bad = new Request('https://packgen-three.vercel.app/api/helper', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://localhost:5173' }, body: JSON.stringify({ task: 'gemini', input: { question: 'Frage?' } }) });
-    expect((await makeHandler({ env: env(), doFetch: w.doFetch, now })(bad)).status).toBe(401);
-    expect((await h(req({ task: 'gemini', input: { question: 'x' } }))).status).toBe(400);
-  });
-  it('«Gemini ausgelastet» (22.10.2026): a second try, then Ersatzmodelle; each failure gets its own code', async () => {
-    const answer = { candidates: [{ content: { parts: [{ text: 'Ersatz antwortet.' }] } }] };
-    const scripted = (byModel) => {
-      const store = {};
-      const calls = [];
-      const doFetch = vi.fn(async (url, init) => {
-        if (url === REDIS) {
-          const [cmd, k, v] = JSON.parse(init.body);
-          if (cmd === 'GET') return Response.json({ result: store[k] ?? null });
-          if (cmd === 'INCRBYFLOAT') return Response.json({ result: String((store[k] = String(Number(store[k] ?? 0) + Number(v)))) });
-          return Response.json({ result: 1 });
-        }
-        calls.push(url);
-        const model = Object.keys(byModel).find((m) => url === GEMINI_URL(m));
-        const [status, body] = byModel[model] ?? [404, { error: { status: 'NOT_FOUND' } }];
-        return Response.json(body, { status });
-      });
-      return { store, calls, h: makeHandler({ env: env({ geminiDaily: 50 }), doFetch, now, wait: async () => {} }) };
-    };
-    const busy = [503, { error: { status: 'UNAVAILABLE', message: 'The model is overloaded.' } }];
-    const ask = (w) => w.h(req({ task: 'gemini', input: { question: 'Welche Jacke?' } }));
-    // the first model is full twice, the first fallback answers
-    const a = scripted({ 'gemini-flash-latest': busy, 'gemini-flash-lite-latest': [200, answer] });
-    const ra = await ask(a);
-    expect(ra.status).toBe(200);
-    expect((await ra.json()).result.text).toBe('Ersatz antwortet.');
-    expect(a.calls).toEqual([GEMINI_URL('gemini-flash-latest'), GEMINI_URL('gemini-flash-latest'), GEMINI_URL('gemini-flash-lite-latest')]);
-    expect(a.store[geminiKey('2026-10-19')]).toBe('3');
-    // all full: «busy», honestly
-    const b = scripted({ 'gemini-flash-latest': busy, 'gemini-flash-lite-latest': busy, 'gemini-2.5-flash': busy });
-    const rb = await ask(b);
-    expect([rb.status, (await rb.json()).code]).toEqual([503, 'busy']);
-    // Google's own free limit is not «enough for today»
-    const lim = [429, { error: { status: 'RESOURCE_EXHAUSTED' } }];
-    const rc = await ask(scripted({ 'gemini-flash-latest': lim, 'gemini-flash-lite-latest': lim, 'gemini-2.5-flash': lim }));
-    expect([rc.status, (await rc.json()).code]).toEqual([429, 'google_limit']);
-    // a wrong or expired key stops at once
-    const k = scripted({ 'gemini-flash-latest': [400, { error: { status: 'INVALID_ARGUMENT', message: 'API key expired. Please renew the API key.' } }] });
-    const rk = await ask(k);
-    expect([rk.status, (await rk.json()).code]).toEqual([503, 'bad_key']);
-    expect(k.calls).toHaveLength(1);
-    // no model left
-    const rn = await ask(scripted({}));
-    expect([rn.status, (await rn.json()).code]).toEqual([502, 'no_model']);
-  });
-  it('reads the request, the answer and the environment', () => {
-    expect(geminiRequest({ question: 'Q', lang: 'en' }).systemInstruction.parts[0].text).toMatch(/English/);
-    expect(geminiText({ candidates: [{ content: { parts: [{ text: 'a\n\n\n\nb' }, { text: ' c' }] } }] })).toBe('a\n\nb c');
-    expect(geminiText(null)).toBe('');
-    expect(helperEnv({ GEMINI_API_KEY: 'k' })).toMatchObject({ geminiKey: 'k', geminiModel: 'gemini-flash-latest', geminiDaily: 200 });
-    expect(helperEnv({ GEMINI_DAILY: '50', GEMINI_MODEL: 'gemini-x' })).toMatchObject({ geminiDaily: 50, geminiModel: 'gemini-x', geminiFallbacks: ['gemini-flash-lite-latest', 'gemini-2.5-flash'] });
-    expect(helperEnv({ GEMINI_FALLBACKS: ' gemini-a , gemini-b ' }).geminiFallbacks).toEqual(['gemini-a', 'gemini-b']);
-  });
-  it('adds no new server function (12-Functions limit)', () => {
-    expect(src('api/helper.js')).toContain("task === 'gemini'");
   });
 });
 

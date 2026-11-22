@@ -216,7 +216,6 @@ export function pageOf(hash = '', careTab = false) {
   // UI-Test T11 (G1-13): the old address of Inspiration (under Ich) still opens Inspiration
   if (h.startsWith('#/inspiration') || h.startsWith('#/me/inspiration')) return 'inspiration'; // «Inspiration» UC2-1: your own links (sidebar; phone: Ich › Inspiration)
   if (h.startsWith('#/assistent')) return 'assistent'; // «Assistent» (Noah 15.10.2026): Frag die App + Hilf mir planen
-  if (h.startsWith('#/helper')) return 'helper'; // v0.77.0 KI-Helfer (K1a): Ich › Helfer
   if (h.startsWith('#/me/suche')) return 'suchesettings'; // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»)
   if (h.startsWith('#/me/ki-projekte')) return 'aiprojects'; // «Meine KI-Projekte» (Noah 19.10.2026 «2a»)
   if (h.startsWith('#/me/look')) return 'look'; // v0.97.0 Design-Refresh R1: Ich › Darstellung
@@ -263,7 +262,6 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/history')) return 'history'; // AB4: Ich › Daten › Verlauf
   if (h.startsWith('#/me/analysis')) return 'analysis'; // AB6: Ich › Daten › Auswertung
   if (h.startsWith('#/me/karte')) return 'karte'; // «Karte der App» (Noah 28.10.2026)
-  if (h.startsWith('#/me/verstehen')) return 'verstehen'; // «App verstehen» (Noah 26.10.2026): the mini course
   if (h.startsWith('#/me/regeln')) return 'regeln'; // P3 «Warum? und Regeln» (RG3): Ich › So entscheidet die App
   if (h.startsWith('#/me/werte')) return 'werte'; // «Mehr selbst einstellen» (IS 254–258): Ich › Eigene Werte
   if (h.startsWith('#/me/insights')) return 'insights'; // Erkenntnisse (Noah 19.10.2026 «4b» + own page)
@@ -313,6 +311,14 @@ export function redirectOf(hash = '') {
     q.delete('tab');
     const rest = q.toString();
     return { hash: `#/bikes?tab=care${rest ? `&${rest}` : ''}`, spot: '', old: '#/care' };
+  }
+  // S5 (Noah 22.11.2026 «a»): «Haken ausgewertet» is part of the Sports year («Haken und Rhythmus»); only the answers stay at #/flow/auswertung?what=answers
+  if (/^#\/flow\/auswertung\/?$/.test(h)) {
+    const q = new URLSearchParams(query);
+    if (!q.has('q') && q.get('what') !== 'answers') {
+      const act = q.get('act');
+      return { hash: `#/auswerten/sportjahr${act ? `?act=${encodeURIComponent(act)}` : ''}`, spot: '', old: '#/flow/auswertung' };
+    }
   }
   // WG «Wi gaht's?»: any other #/check address leads there (quietly)
   if (!CHECK_PAGES.includes(h) && /^#\/check(\/|$)/.test(h)) return { hash: '#/me/abfragen', spot: '', old: null };
@@ -421,7 +427,9 @@ const FLOW_PAGES = {
   flowhome: { label: 'Tick off today', href: '#/flow', match: (h) => /^#\/flow(\/week|\/review)?\/?$/.test(h.split('?')[0]) },
   wochenplan: { label: 'Weekly plan', href: '#/flow/wochenplan', match: (h) => /^#\/flow\/wochenplan(\/|\?|$)/.test(h) },
   // Noah «4a» (Runde 2): «Ziele», «Aktivität» and «Sportarten» are one list; every sport has its page. Meditation is a sport too (Runde 3 «1b»).
-  sports: { label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|act|bags)(\/|\?|$)/.test(h) },
+  // «Neue Ordnung» V4b2 (Noah 21.11.2026 «V4 ok», Meditation nach «Alltag»): the Meditation pages are a chip of «Alltag»; the other sports stay here
+  sports: { label: 'My sports|tab', href: '#/flow/sports', match: (h) => /^#\/flow\/(sports?|goals|edit|new|activity|bags)(\/|\?|$)/.test(h) || /^#\/flow\/act\/(?!meditation(\/|\?|$))/.test(h) },
+  meditation: { label: 'Meditation', href: '#/flow/act/meditation', match: (h) => /^#\/flow\/act\/meditation(\/|\?|$)/.test(h) },
   // Runde 3 «2a»: «Erholung» (the ring, the list to tick)
   rest: { label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
 };
@@ -441,8 +449,8 @@ const ANALYSIS_PAGES = {
   body: { label: 'Body values', href: '#/flow/stats/hr', match: (h) => /^#\/flow\/stats(\/|\?|$)/.test(h) },
   // Gesamttest 20.10.2026 B3: the Strava activities, tab «Fahrten»; same address
   rides: { label: 'Rides|tab', href: RIDES_HREF, match: (h) => isRidesHash(h) },
-  // Runde 3 «4a»: «Haken ausgewertet» (what you tick, evaluated like a ride) is here
-  ticks: { label: 'Ticks evaluated|tab', href: '#/flow/auswertung', match: (h) => /^#\/flow\/auswertung(\/|\?|$)/.test(h) },
+  // S5: «Haken ausgewertet» moved into the Sports year; what stays here are the answers of the check questions with a number
+  ticks: { label: 'Answers evaluated|tab', href: '#/flow/auswertung?what=answers', match: (h) => /^#\/flow\/auswertung(\/|\?|$)/.test(h) },
   // UI-Ziele #6: the answers of «Wi gaht's?» with the history, what does you good and the weight
   history: { label: 'How you are|tab', href: '#/me/abfragen', match: (h) => h.startsWith('#/me/history') || h.startsWith('#/me/abfragen') || h.startsWith('#/me/analysis') },
   wohl: { label: 'Good for me|tab', href: '#/me/wohl', match: (h) => h.startsWith('#/me/wohl') },
@@ -486,7 +494,7 @@ export const PLACE_TABS = {
     { key: 'week', label: 'Week|tab', subs: ['week', 'agenda'] },
     { key: 'training', label: 'Training|tab', subs: ['training', 'wochenplan', 'flowhome', 'sports', 'rest'] },
     { key: 'notes', label: 'Notes|tab', subs: ['notes', 'inbox', 'remember', 'tagebuch', 'mail'] },
-    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'frei', 'impulse', 'compass', 'links'] },
+    { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'meditation', 'frei', 'impulse', 'compass', 'links'] },
   ].map((x) => tabWithSubs(x, { ...WEEK_PAGES, ...FLOW_PAGES })),
   trips: [
     { key: 'overview', label: 'Overview|tab', href: '#/trips', match: (h) => h.startsWith('#/trips') && !h.startsWith('#/trips/dreams') && !h.startsWith('#/trips/vorschlaege') && !h.startsWith('#/trips/weg') && !h.startsWith('#/trips/pfad') && !h.startsWith('#/trips/fuel') && !h.startsWith('#/trips/compare') && !isRidesHash(h) }, // Impeccable 20.10.2026: Verpflegung is a page of a tour, not the overview
@@ -584,7 +592,7 @@ export function placeOf(page, hash = '') {
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'wardrobe') return 'gear';
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'gear'; // Schritt 10 (Z2, Noah 18.11.2026): Ausrüstung is the tab «Sets» of Material
-  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'album' || page === 'freunde' || page === 'minitools' || page === 'ruhig' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'helper' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'logbuch' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'regeln' || page === 'verstehen' || page === 'karte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
+  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'album' || page === 'freunde' || page === 'minitools' || page === 'ruhig' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'logbuch' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'regeln' || page === 'karte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
   return null;
 }
 

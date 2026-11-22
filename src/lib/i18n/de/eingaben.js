@@ -43,10 +43,7 @@ export default {
   'Change templates': 'Vorlagen ändern',
   '«{name}» is under your text.': '«{name}» steht unter deinem Text.',
   'Stuck? A question to write on. A tap puts it under your text. Tomorrow there are others.': 'Hängst du fest? Eine Frage zum Weiterschreiben. Ein Tipp setzt sie unter deinen Text. Morgen gibt es andere.',
-  'Send the text to Gemini (Google) for one step. Free; photos, sound, files and place stay here.': 'Den Text für einen Schritt an Gemini (Google) schicken. Gratis; Fotos, Ton, Dateien und Ort bleiben hier.',
   'Prompts that fit': 'Passende Anreize',
-  'Prompts from Gemini. A tap puts one under your text.': 'Anreize von Gemini. Ein Tipp setzt einen unter deinen Text.',
-  'Highlights from Gemini. Check them before you keep them.': 'Highlights von Gemini. Prüfe sie, bevor du sie übernimmst.',
   'Put under the text': 'Unter den Text setzen',
   'Write something, speak or add a photo first.': 'Schreib oder sprich zuerst etwas, oder füge ein Foto hinzu.',
 

@@ -16,7 +16,7 @@
  * key. On first use the server makes its own VAPID key pair (push:vapid) and its tick code
  * (push:tickkey) and keeps them in Upstash. The app fetches the tick address with «Adresse für
  * cron-job.org kopieren» (?a=cron); only a device of this server (the key from the Strava login,
- * api/_lib/oauth.js) or the Helfer-Code (HELPER_TOKEN) gets it.
+ * api/_lib/oauth.js) gets it.
  * Optional overrides in Vercel «packgen» (never needed): VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY,
  * VAPID_SUBJECT (mailto: or https:, default the app's address), PUSH_TICK_KEY.
  * Storage: the Upstash KV_REST_API_URL / _TOKEN. Every tick notes its time in push:lasttick (api/health).
@@ -38,7 +38,6 @@ export function pushEnv(e = process.env) {
   return {
     vapid: { publicKey: pick('VAPID_PUBLIC_KEY', e), privateKey: pick('VAPID_PRIVATE_KEY', e), subject: pick('VAPID_SUBJECT', e) || DEFAULT_SUBJECT },
     tickKey: pick('PUSH_TICK_KEY', e),
-    helperToken: pick('HELPER_TOKEN', e),
     ...redisEnv(e),
   };
 }
@@ -82,10 +81,9 @@ export async function tickKey(cfg, store, create = false) {
 export const pushCapName = (request) => (new URL(request.url).searchParams.get('a') === 'tick' ? 'tick' : 'push');
 export const tickUrl = (code) => `${API_BASE}/api/push?a=tick&key=${encodeURIComponent(code)}`;
 
-/** Only a device of this server (Strava login key) or the Helfer-Code; else 401. */
+/** Only a device of this server (Strava login key); else 401. */
 export async function needOwner(request, store, cfg) {
   const key = bearerOf(request);
-  if (key && cfg.helperToken && sameToken(key, cfg.helperToken)) return;
   if (key && Number(await store.cmd('SISMEMBER', KEYS, hash(key))) === 1) return;
   throw new ApiError(401, 'unauthorized', key ? 'This device is not connected (any more).' : 'This device is not connected yet.');
 }

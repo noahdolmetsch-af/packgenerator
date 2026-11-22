@@ -15,10 +15,10 @@ test('the map of the app lists places, searches and leads to a function', async 
   await expect(page.locator('[data-appmap]')).toBeVisible();
   expect(await page.locator('[data-am-place]').count()).toBeGreaterThan(2);
 
-  await page.locator('[data-am-search]').fill('verstehen');
-  const item = page.locator('[data-am-item="f.verstehen"]');
+  await page.locator('[data-am-search]').fill('datenschutz');
+  const item = page.locator('[data-am-item="f.privacy"]');
   await expect(item).toBeVisible();
-  await expect(item).toContainText(`${T('Me|place')} › ${T('Understand the app')}`);
+  await expect(item).toContainText(`${T('Me|place')} › ${T('Privacy and terms')}`);
   await item.locator('a').click();
-  await expect(page.locator('[data-verstehen]')).toBeVisible();
+  await expect(page.locator('[data-privacy]')).toBeVisible();
 });

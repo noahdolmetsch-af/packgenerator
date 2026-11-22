@@ -12,7 +12,7 @@ export const DEPENDS = {
     { label: 'Rides|tab', href: RIDES_HREF },
     { label: 'Training|tab', href: '#/flow/training' },
     { label: 'Form|tab', href: '#/flow/form' },
-    { label: 'Ticks evaluated|tab', href: '#/flow/auswertung' },
+    { label: 'Sports year', href: '#/auswerten/sportjahr' },
     { label: 'Bike care|dep', href: '#/bikes?tab=care' },
   ],
   fitbit: [

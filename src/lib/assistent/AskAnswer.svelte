@@ -7,6 +7,7 @@
    * «Read aloud» and «Add to note»; with `fallback` it says so when no rule fits and links to the
    * Assistent; `autoread` reads a new answer aloud at once (onreading(true|false) around it).
    */
+  import { untrack } from 'svelte';
   import { liveQuery } from 'dexie';
   import { MessageCircle, ChevronRight, Volume2, Plus, X } from '@lucide/svelte';
   import { db } from '../db.js';
@@ -20,7 +21,7 @@
   import { zones } from '../strava/zones.svelte.js';
   import { readAloud, stopReading, speechLang, voiceApi } from '../speak.js';
 
-  let { q = '', onlink = () => {}, tools = false, fallback = false, here = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {} } = $props();
+  let { q = '', onlink = () => {}, tools = false, fallback = false, here = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {}, ondone = null } = $props();
   const today = localDay();
   const src = liveQuery(async () => {
     const [book, trips, items, bikes, visits, tasks, learnings, acts] = await Promise.all([db.kmBook.toArray(), db.trips.toArray(), db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray(), db.activities.toArray()]);
@@ -35,6 +36,10 @@
   const canRead = !!voiceApi();
   // «Suche mit Sprache» (21.10.2026): the search knows whether the app had an answer (then Gemini waits for a tap)
   $effect(() => onresult(!!answer));
+  // S6: once the data is read, the page learns whether the app had an answer (onresult also says «no» while it still reads)
+  $effect(() => {
+    if (ondone && $src && q.trim().length >= 3) untrack(() => ondone(!!answer, q.trim()));
+  });
   let reading = $state(false);
   function read() {
     if (reading) {

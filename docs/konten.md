@@ -14,8 +14,6 @@ Zurück zum [Notfall-Handbuch](notfall-handbuch.md).
 | **Upstash** (über Vercel verbunden) | Schliessfach des Servers: Logins, Abgleich Handy-Computer | gratis | Vercel › packgen › Storage | Abgleich und Logins weg, deine Daten auf den Geräten bleiben |
 | **Google Cloud** | Erlaubnis für Fitbit, Termine, Aufgaben, Mail, Drive | gratis | https://console.cloud.google.com › APIs & Services › Credentials | Google-Extras fallen aus |
 | **Strava** (API-App) | Fahrten holen | gratis | https://www.strava.com/settings/api | Strava-Fahrten kommen nicht mehr |
-| **Anthropic** | KI-Helfer (Claude in der App) | Guthaben, Deckel pro Monat | https://console.anthropic.com › Billing | KI-Knöpfe verschwinden |
-| **Google AI Studio** (Gemini) | Gratis-KI | gratis | https://aistudio.google.com › API keys | Weniger KI |
 | **cron-job.org** | Wecker: ruft den Server regelmässig für Erinnerungen aufs Handy | gratis | https://console.cron-job.org | Keine Erinnerungen aufs Handy |
 | **Trello** | Abgleich deiner To-dos mit dem Board «Packgenerator» | gratis | https://trello.com | Kein Trello-Abgleich |
 
@@ -29,13 +27,12 @@ Die Werte stehen nur in Vercel › packgen › Settings › Environment Variable
 
 | Name | Gehört zu | Wenn er fehlt oder abläuft |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Anthropic | KI-Helfer aus |
-| `HELPER_TOKEN`, `HELPER_MONTHLY_CHF` | KI-Helfer: Zugang und Monats-Deckel | KI-Helfer aus |
-| `GEMINI_API_KEY` | Google AI Studio | Keine Gratis-KI |
 | `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` | Strava API-App | Strava aus |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | Google Cloud | Google-Extras aus |
 | `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash (setzt Vercel selbst) | Abgleich und Logins aus |
 | `TRELLO_API_KEY` | Trello | Trello aus |
+
+**Alte KI-Schlüssel (Noah 22.11.2026):** `ANTHROPIC_API_KEY`, `HELPER_TOKEN`, `GEMINI_API_KEY` und `HELPER_MONTHLY_CHF` bleiben in Vercel liegen, falls die KI später wiederkommt. Der Server liest sie nicht mehr, der Wächter verlangt sie nicht.
 
 Der Wächter prüft jeden Morgen, ob diese Schlüssel da sind und funktionieren, und schickt bei einem Fehler eine Mail.
 

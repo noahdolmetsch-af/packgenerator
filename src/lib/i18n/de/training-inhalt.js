@@ -147,7 +147,6 @@ export default {
   'To the training plan': 'Zum Trainingsplan',
   'Only a suggestion: you decide.': 'Nur ein Vorschlag: du entscheidest.',
   'How was my week?': 'Wie war meine Woche?',
-  'This text is what you would give to Claude. Nothing is sent: copy it and paste it yourself.': 'Diesen Text würdest du Claude geben. Nichts wird gesendet: kopiere ihn und füge ihn selbst ein.',
   'The text for Claude': 'Der Text für Claude',
   // the text for Claude (weekreview.js summaryText)
   'My week from {from} to {to} (week {kw}):': 'Meine Woche vom {from} bis {to} (KW {kw}):',

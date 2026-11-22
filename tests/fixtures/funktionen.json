@@ -483,8 +483,10 @@
     "wxsuggest"
   ],
   "abgeloest": {
+    "f.verstehen": "Die Seite «App verstehen» fällt weg: Noah 22.11.2026 «wir können das ganze raus nehmen». Notfall-Handbuch und Konten-Liste bleiben auf GitHub.",
     "f.ask": "Frag den Helfer fällt weg: Noah 20.11.2026 «a» (alle KI-Funktionen von Claude und Gemini werden entfernt, Schritt 1).",
-    "f.aicheck": "Die Funktion «KI-Vorschläge erst prüfen» fällt weg: Noah 20.11.2026 «a» (alle KI-Funktionen von Claude und Gemini werden entfernt, Schritt 6b); schon gehaltene Vorschläge bleiben sichtbar."
+    "f.aicheck": "Die Funktion «KI-Vorschläge erst prüfen» fällt weg: Noah 20.11.2026 «a» (alle KI-Funktionen von Claude und Gemini werden entfernt, Schritt 6b); schon gehaltene Vorschläge bleiben sichtbar.",
+    "f.helper": "Die Seite «KI-Helfer» (Helfer-Code, Limit, Modell) fällt weg: Noah 20.11.2026 «a» (alle KI-Funktionen von Claude und Gemini werden entfernt, Schritt 7); Tipp, Zeile in Ich und Kachel auf Heute fallen mit."
   },
   "versteckt": {
     "f.ballast": {

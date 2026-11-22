@@ -15,6 +15,8 @@
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import ChartSheet from '../lib/charts/ChartSheet.svelte';
+  import Rhythmus from '../lib/flow/auswertung/Rhythmus.svelte';
+  import AnaSheet from '../lib/training/AnaSheet.svelte';
   import { period } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import { db } from '../lib/db.js';
@@ -27,6 +29,8 @@
   import { localDay } from '../lib/localday.js';
   import { t, tn, num, locale } from '../lib/i18n.svelte.js';
   import { hoursMin } from '../lib/charts/exact.js';
+  import { sportColour, OTHER } from '../lib/charts/sportcolors.js';
+  import { noDataText, firstDayOf } from '../lib/charts/nodata.js';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -35,10 +39,21 @@
     return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, goal: goalOf(goal?.value) };
   });
   const d = $derived($q);
-  const units = $derived(d ? training(einheiten({ log: d.log, activities: d.activities, acts: d.acts, usual: d.usual, map: d.map })) : []);
+  const allUnits = $derived(d ? einheiten({ log: d.log, activities: d.activities, acts: d.acts, usual: d.usual, map: d.map }) : []);
+  const units = $derived(training(allUnits));
+  /* S5: the old address of «Haken ausgewertet» (…?act=<id>) leads here and picks the activity of «Haken und Rhythmus» */
+  const act0 = (() => {
+    try {
+      return new URLSearchParams((location.hash.split('?')[1] ?? '')).get('act') ?? '';
+    } catch {
+      return '';
+    }
+  })();
 
   const mode = $derived(period.mode);
   const win = $derived(windowOf(rangeOf(period, today), units, today));
+  /* «Haken und Rhythmus» reads every tick, so «Everything» starts at the first of all (a meditation from before the first ride counts) */
+  const rhWin = $derived(windowOf(rangeOf(period, today), allUnits, today));
   const inWin = $derived(units.filter((u) => u.day >= win.from && u.day <= win.to));
   const prevW = $derived(prevWindow(mode, win));
   const inPrev = $derived(prevW ? units.filter((u) => u.day >= prevW.from && u.day <= prevW.to) : null);
@@ -66,11 +81,9 @@
   const weeksPast = $derived(weeks.filter((w) => !w.future).length);
 
   /* names and colours */
-  const PALETTE = ['var(--l1)', 'var(--hi)', 'var(--l2)', 'var(--l3)', 'var(--l4)', 'var(--z3)', 'var(--z4)'];
-  const OTHER = 'var(--ink-3)';
   const colour = (sport) => {
     const c = colours.get(sport);
-    return c == null || c === 'other' ? OTHER : PALETTE[c];
+    return c == null || c === 'other' ? OTHER : sportColour(sport);
   };
   const nameOf = (r) => {
     const act = r.actId ? d?.acts.find((a) => a.id === r.actId) : null;
@@ -92,9 +105,12 @@
     if (grain === 'month') return dayTxt(b.from, { month: 'narrow' });
     return b.key;
   };
+  const firstDay = $derived(firstDayOf(units));
+  const noneOf = (b) => noDataText(b.from, b.to, today, firstDay);
   const cols = $derived(
     bars.map((b, i) => ({
       key: b.key,
+      none: noneOf(b),
       x: bucketX(b, i),
       top: b.mins >= 30 ? hrs(b.mins) : '',
       parts: rows.filter((r) => b.parts[r.sport] > 0).map((r) => ({ v: b.parts[r.sport] / 60, color: colour(r.sport) })),
@@ -106,7 +122,7 @@
   });
   const table = $derived({
     head: [t('Period|sj'), t('Hours'), t('Units')],
-    rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), hoursMin(b.mins), num(b.n)] })),
+    rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), noneOf(b) ? '–' : hoursMin(b.mins), noneOf(b) ? '–' : num(b.n)] })),
   });
   const chartLine = $derived(line ? line.map((m) => m / 60) : null);
   const aria = $derived(bars.map((b) => `${bucketTitle(b)}: ${hrs(b.mins)} h`).join(', '));
@@ -266,7 +282,11 @@
       {/if}
     </div>
   {/if}
+  {#if d}
+    <Rhythmus units={allUnits} log={d.log} acts={d.acts} from={rhWin.from} to={rhWin.to} {today} {act0} />
+  {/if}
 </div>
+<AnaSheet />
 
 {#if bar}
   <ChartSheet kicker={t('Sports year')} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>

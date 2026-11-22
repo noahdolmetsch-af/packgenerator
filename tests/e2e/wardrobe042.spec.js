@@ -251,12 +251,15 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
   await expect(cond).toContainText('40 %');
   const line = cond.getByRole('button', { name: T('Onion: {n} gap', { n: 1 }) });
   await expect(line).toBeVisible();
+  await expect(cond.locator('[data-onion-fill]')).toHaveText(T('Fill the gap: {n} piece in', { n: 1 }));
   await shot(page, info, 'zwiebel-zu');
   await line.click();
   await expect(cond.locator('.orows li')).toHaveCount(6);
   await expect(cond.locator('.orows li', { hasText: T('Legs') })).toContainText(T('{zone} below {n} °C: nothing packed', { zone: T('Legs'), n: 10 }));
   await shot(page, info, 'zwiebel-offen');
-  await cond.getByRole('button', { name: T('{name} in', { name: `${P} Beinlinge dünn` }) }).click();
+  // one tap fills every gap («Zwiebel einlegen»): here the one gap, with the same piece the row offers
+  await expect(cond.getByRole('button', { name: T('{name} in', { name: `${P} Beinlinge dünn` }) })).toBeVisible();
+  await cond.locator('[data-onion-fill]').click();
   await expect(cond.getByRole('button', { name: T('Onion: fits') })).toBeVisible();
   await expect(cond.locator('.orows li', { hasText: T('Legs') }).locator('.badge')).toHaveText(T('new'));
   // The kit for the coldest hour (no hourly data: the minimum 6 °C): K2 4–15 °C.

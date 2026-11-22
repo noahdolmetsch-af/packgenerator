@@ -2,7 +2,6 @@
 // Ich und ihre Unterseiten (Gruppe 5)
 export default {
   // Ich: no contradicting small texts, one row for lists and checks, the start place on «Darstellung»
-  'off · suggestions from Claude, only if you want': 'aus · Vorschläge von Claude, nur wenn du willst',
   'not active yet': 'noch nicht aktiv',
   'Lists and checks': 'Listen und Checks',
   'Categories, evening-before and after-trip check': 'Kategorien, Vorabend- und Schluss-Check',
@@ -33,7 +32,6 @@ export default {
   // KI-Helfer: first set up, then switch on
   'Set up in 2 steps': 'Einrichten in 2 Schritten',
   'once; the code stays only on this device': 'einmalig; der Code bleibt nur auf diesem Gerät',
-  'Copy the helper code from your Vercel project (Settings › Environment Variables › HELPER_TOKEN).': 'Den Helfer-Code aus deinem Vercel-Projekt kopieren (Einstellungen › Environment Variables › HELPER_TOKEN).',
   'Paste it here and tap «Save code».': 'Hier einfügen und «Code speichern» tippen.',
   'Save code': 'Code speichern',
 

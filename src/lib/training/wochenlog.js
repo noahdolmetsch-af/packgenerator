@@ -16,7 +16,7 @@
  *   Sunday is over: that is the freezing. Past weeks show the snapshot, whatever the plan says today.
  * - Strava only suggests (Noah «2a»): a matching activity of the same day is offered, a tick is always by hand.
  */
-import { shiftDay, mondayOf } from '../training.js';
+import { shiftDay, mondayOf, doneBy } from '../training.js';
 import { planOf, isSummer, planWeek, lightOf } from './wochenplan.js';
 
 export const WEEKLOG_KEY = 'training.weeklog';
@@ -88,26 +88,62 @@ function trim(log) {
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 /**
+ * The sessions from TrainingPeaks as snapshot units (type 'tp', the id of planWeek().tp): they count for the week's star
+ * (Noah 22.11.2026 «4a»). tp: the list `planWeek().tp`; a session without a start time gets «00:00».
+ */
+export const tpSnapUnits = (tp) => (tp ?? []).map((x) => ({ id: x.id, type: 'tp', d: x.d, t: x.t || '00:00', mins: x.mins }));
+
+/**
  * The log with the week's snapshot renewed. A past week is frozen: nothing changes (the same log comes back).
  * The same log also comes back when nothing differs, so a page can compare and write only on a change.
+ * tp: the TrainingPeaks units of the week (tpSnapUnits); left out, the snapshot keeps the ones it has, so a writer that
+ * does not know TrainingPeaks (Heute) never drops them.
  */
-export function withSnapshot(log, monday, units, hours, today) {
+export function withSnapshot(log, monday, units, hours, today, tp) {
   if (isPast(monday, today) || !units.length) return log;
   const w = weekLog(log, monday);
-  const snap = { hours, units: units.map(unitOf).filter(Boolean) };
+  const keep = tp ?? (w.snap?.units ?? []).filter((u) => u.type === 'tp');
+  const snap = { hours, units: [...units, ...keep].map(unitOf).filter(Boolean) };
   if (w.snap && same({ hours: w.snap.hours, units: w.snap.units }, snap)) return log;
   return trim({ ...log, weeks: { ...log.weeks, [monday]: { ...w, snap: { ...snap, saved: today } } } });
 }
 
 /** The log with one unit ticked (or the tick taken away). A past week can not be changed. */
-export function setDone(log, monday, id, on, today, units = [], hours = 0) {
+export function setDone(log, monday, id, on, today, units = [], hours = 0, tp) {
   if (isPast(monday, today)) return log;
-  const base = withSnapshot(log, monday, units, hours, today);
+  const base = withSnapshot(log, monday, units, hours, today, tp);
   const w = weekLog(base, monday);
   const done = { ...w.done };
   if (on) done[id] = today;
   else delete done[id];
   return trim({ ...base, weeks: { ...base.weeks, [monday]: { ...w, done } } });
+}
+
+/** Which TrainingPeaks sessions of a week are done: [{ id, done, day }] for syncTpDone. sessions: training.plan; acts: the activities of the week; tp: planWeek().tp. */
+export function tpTicks(sessions, acts, tp) {
+  const byId = new Map(sessions.map((s) => [`tp:${s.id}`, s]));
+  return tp.map((x) => {
+    const s = byId.get(x.id);
+    return { id: x.id, done: !!(s && doneBy(s, acts)), day: s?.day };
+  });
+}
+
+/**
+ * The ticks of the TrainingPeaks units of a week (Noah «4a»): a session that is done (a Strava activity of its day, or
+ * ticked by hand in «Meine Woche») ticks its unit, one that is not done any more takes the tick away. Only ticks of
+ * 'tp:' ids change. tp: [{ id, done, day }]. A past week stays as it is; the same log comes back when nothing differs.
+ */
+export function syncTpDone(log, monday, tp, today) {
+  if (isPast(monday, today)) return log;
+  const w = weekLog(log, monday);
+  const done = { ...w.done };
+  for (const x of tp) {
+    if (x.done && !done[x.id]) done[x.id] = DAY.test(x.day ?? '') ? x.day : today;
+    else if (!x.done && done[x.id]) delete done[x.id];
+  }
+  for (const id of Object.keys(done)) if (id.startsWith('tp:') && !tp.some((x) => x.id === id)) delete done[id];
+  if (same(done, w.done)) return log;
+  return trim({ ...log, weeks: { ...log.weeks, [monday]: { ...w, done } } });
 }
 
 /** The log with the moved units of a week replaced (a past week can not be changed). Used by move, take back and undo. */
@@ -170,26 +206,26 @@ export function progress(units, done, released = []) {
   };
 }
 
-/** The plan of a week from the stored goals of its season; mode: a lighter week, a ski tour week, a rainy week. */
-export function weekFor(stored, monday, pins = {}, mode = {}) {
+/** The plan of a week from the stored goals of its season; mode: a lighter week, a ski tour week, a rainy week; sessions: the sessions of `training.plan` (TrainingPeaks takes its share). */
+export function weekFor(stored, monday, pins = {}, mode = {}, sessions = []) {
   const p = planOf(stored);
   const summer = isSummer(monday);
   const base = summer ? p.summer : p.winter;
   const cfg = mode.light ? lightOf(base, summer) : base;
-  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain }) };
+  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain, sessions }) };
 }
 
 /**
  * What is up today: the plan of this week, today's units still open (the small daily habits do not count here), and
  * the week's tick state. null when no weekly plan was saved or nothing is planned for today.
  */
-export function dueToday(stored, rawLog, today) {
+export function dueToday(stored, rawLog, today, sessions = []) {
   if (stored == null) return null;
   const monday = mondayOf(today);
   const d = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;
   const log = logOf(rawLog);
   const w = weekLog(log, monday);
-  const { cfg, week } = weekFor(stored, monday, w.pins, w.mode);
+  const { cfg, week } = weekFor(stored, monday, w.pins, w.mode, sessions);
   const done = w.done;
   const open = week.units.filter((u) => u.d === d && !QUIET.includes(u.type) && !done[u.id] && !w.released.includes(u.id));
   if (!open.length) return null;

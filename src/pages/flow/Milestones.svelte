@@ -23,6 +23,8 @@
   import RecordWall from '../../lib/flow/hobby/RecordWall.svelte';
   import MsCard from '../../lib/flow/hobby/MsCard.svelte';
   import Sugg from '../../lib/flow/hobby/Sugg.svelte';
+  import YearStars from '../../lib/flow/hobby/YearStars.svelte';
+  import { yearOfStars } from '../../lib/flow/sternjahr.js';
   import DoneShelf from '../../lib/flow/hobby/DoneShelf.svelte';
   import HeroNext from '../../lib/flow/hobby/HeroNext.svelte';
   import { heroOf } from '../../lib/flow/naechster.js';
@@ -71,6 +73,8 @@
   const inFilter = (r) => (filter === 'all' ? true : filter === 'cross' ? !r.m.actId : r.m.actId === filter);
   const scoped = $derived(shown.filter(inFilter));
   // «Ganz geschafft» (Noah 21.11.2026 «3a»): milestones with all stars stand on the shelf, not in the list
+  // «Dein Jahr in Sternen» (Noah 21.11.2026 «4a»): a look back at the stars of this year, in the scope of the filter
+  const yearStars = $derived(yearOfStars(scoped, today));
   const doneList = $derived(scoped.filter((r) => r.done));
   const cards = $derived((filter === 'all' || filter === 'cross' ? shown.filter((r) => !r.m.actId) : scoped).filter((r) => !r.done));
   const perAct = $derived.by(() => {
@@ -84,7 +88,7 @@
 
   /* A8: the rows «Bald erreichbar» and «Pro Aktivität», the trophy shelf (the newest stars, the next open) */
   // «Dein nächster Stern» (Noah 21.11.2026 «1a»): the card on top; «Soon within reach» below does not repeat its star
-  const hero = $derived(ctx && data ? heroOf({ list: scoped, ctx, acts: data.acts, plan: data.plan, weeklog: data.weeklog, today }) : null);
+  const hero = $derived(ctx && data ? heroOf({ list: scoped, ctx, acts: data.acts, plan: data.plan, weeklog: data.weeklog, sessions: data.plannedSessions ?? [], today }) : null);
   const soon = $derived(soonList(hero ? scoped.filter((r) => r.id !== hero.r.id) : scoped, 5));
   // «Der Sternen-Weg» (Noah 21.11.2026 «2a»): per sport the path of its stars instead of a percent row
   const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, href: `#/flow/milestones?act=${encodeURIComponent(a.id)}`, r })));
@@ -152,6 +156,8 @@
     </Sec>
 
     {#if doneList.length}<DoneShelf list={doneList} {label} />{/if}
+
+    {#if yearStars.all}<YearStars y={yearStars} {today} />{/if}
 
     <MsHow />
 

@@ -22,7 +22,6 @@ export const DAY_CAPS = {
   google: 800,
   'google-callback': 200,
   strava: 800,
-  helper: 200,
   pay: 300,
   booking: 600,
   // cron-job.org wakes the server every minute (1440 a day); 25.10.2026 had 25 hours (end of summer time),

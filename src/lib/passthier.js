@@ -36,6 +36,8 @@ export const PASST_HIER = {
   docs: ['f.ablage', 'f.qr'],
   // Training › Aktivitäten: older rides from Zwift or a Garmin as files, the plan you keep in TrainingPeaks (Noah 19.11.2026)
   training: ['f.kmimport', 'f.trainingpeaks'],
+  // Kleider: give every piece its temperature, layer and zone (Noah 21.11.2026 «5a»: at the end, not above the content)
+  wardrobe: ['f.wardrobesetup', 'f.laundry'],
   // Woche planen: fewer things at once, and the evening
   woche: ['f.workspace', 'f.calmview', 'f.freiabend', 'f.spielerplus'],
   // Erinnerungen aufs Handy: how many a day, and what the app no longer suggests

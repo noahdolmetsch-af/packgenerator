@@ -68,7 +68,7 @@ describe('HN4: a wall stored before (v 4) gets the new order once, nothing lost'
     const w = wallOf(v4);
     // Tages-Check back: «Deine 15 Fragen» comes once, after the balance or else after Im Flow (v < 6);
     // Routine «Das tut mir gut»: and the routine once, under the tiles on top (v < 7)
-    expect(ids(w)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow', 'trip', 'aktiv', 'values', 'tipweek', 'fn:weigh', 'helper', 'strava', 'year']);
+    expect(ids(w)).toEqual(['meditation', 'daycard', 'important', 'routine', 'flow', 'trip', 'aktiv', 'values', 'tipweek', 'fn:weigh', 'strava', 'year']);
     expect(w.find((x) => x.id === 'meditation').size).toBe('long');
     expect(w.find((x) => x.id === 'important').size).toBe('long');
     for (const id of REMOVED_0155) expect(ids(w)).not.toContain(id);
