@@ -139,3 +139,55 @@ test('the tick window has «Eigene Dauer» next to its duration buttons; it goes
   expect(log[0]).toMatchObject({ actId: 'yoga', day: '2026-11-09', min: 75 });
   expect(errors).toEqual([]);
 });
+
+test('in the morning «Gestern nichts abgehakt? Nachtragen» opens the tick window with «Gestern» chosen; «Nicht heute» hides it', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  // a new user is not told off: nothing ticked in the last two weeks, no hint
+  await expect(page.locator('[data-nachtrag]')).toHaveCount(0);
+  // tick «Yoga» for three days ago, through the window itself
+  let sh = await sheet(page);
+  await chip(sh, T('Other day')).click();
+  await sh.locator('[data-when-day]').fill('2026-11-07');
+  await save(sh).click();
+  await expect(sh).toBeHidden();
+  await expect.poll(async () => (await read(page, 'flowLog')).length).toBe(1); // saved before the page loads again
+  await page.reload();
+  await ready(page);
+  const hint = page.locator('[data-nachtrag]');
+  await expect(hint).toBeVisible();
+  await expect(hint.locator('[data-nachtrag-title]')).toHaveText(T('Yesterday nothing ticked off? Add it.'));
+  await shot(page, info, 'nachtrag-hinweis');
+  await hint.locator('[data-nachtrag-open]').click();
+  await shot(page, info, 'nachtrag-hinweis-offen');
+  await hint.locator('[data-nachtrag-act="yoga"]').click();
+  sh = page.locator('dialog.aksheet');
+  await expect(sh).toBeVisible();
+  await expect(chip(sh, T('Yesterday|day'))).toHaveAttribute('aria-pressed', 'true');
+  await save(sh).click();
+  await expect(sh).toBeHidden();
+  await expect(hint).toHaveCount(0); // yesterday has a tick now
+  const log = await read(page, 'flowLog');
+  expect(log.map((e) => e.day).sort()).toEqual(['2026-11-07', '2026-11-09']);
+  // the next tap on «•••» starts on today again
+  sh = await sheet(page);
+  await expect(chip(sh, T('Today|day'))).toHaveAttribute('aria-pressed', 'true');
+  expect(errors).toEqual([]);
+});
+
+test('«Nicht heute» hides the hint for the day, also after a reload', async ({ page, context }) => {
+  const errors = await open(page, context);
+  const sh = await sheet(page);
+  await chip(sh, T('Other day')).click();
+  await sh.locator('[data-when-day]').fill('2026-11-07');
+  await save(sh).click();
+  await expect.poll(async () => (await read(page, 'flowLog')).length).toBe(1);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-nachtrag]')).toBeVisible();
+  await page.locator('[data-nachtrag-no]').click();
+  await expect(page.locator('[data-nachtrag]')).toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-nachtrag]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

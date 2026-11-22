@@ -11,6 +11,34 @@ const trip = (id, start, extra = {}) => ({ id, title: `Testtour ${id}`, status: 
 const base = (over = {}) => ({ trips: [], repairs: [], bikes: [], settings: { push: allOn }, lastBackup: null, now, ...over });
 const keys = (l) => l.items.map((i) => i.key);
 
+describe('push: outdoors challenge', () => {
+  const outdoor = { name: 'Outdoors', goalMin: 90, from: '2026-10-19', until: '2026-12-31', hand: {}, stopped: false, closed: false, no: null };
+  const only = (kinds, extra = {}) => base({ settings: { push: { on: true, kinds: { fog: false, ...kinds } }, outdoor, ...extra.settings }, ...extra.data });
+  it('sends a reminder at 16:00 on every day of the next 14 days, today included while 16:00 is ahead', () => {
+    const l = buildList(only({ outdoor: true }));
+    expect(keys(l)[0]).toBe('outdoor:2026-10-20');
+    expect(l.items).toHaveLength(14); // the 15th 16:00 is past 14 days from 10:00
+    expect(l.items[0].at).toBe(atMs('2026-10-20', '16:00'));
+    expect(l.items[0].body).toContain('90');
+  });
+  it('uses the time of the challenge and leaves today out when its minutes are reached', () => {
+    const rec = { ...outdoor, remindAt: '17:30', hand: { '2026-10-20': [90] } };
+    const l = buildList(base({ settings: { push: { on: true, kinds: { fog: false, outdoor: true } }, outdoor: rec } }));
+    expect(keys(l)[0]).toBe('outdoor:2026-10-21');
+    expect(l.items[0].at).toBe(atMs('2026-10-21', '17:30'));
+  });
+  it('says how many minutes are left today', () => {
+    const rec = { ...outdoor, hand: { '2026-10-20': [30] } };
+    const l = buildList(base({ settings: { push: { on: true, kinds: { fog: false, outdoor: true } }, outdoor: rec } }));
+    expect(l.items[0].body).toContain('60');
+  });
+  it('sends nothing with the switch off, without a challenge or after it ended', () => {
+    expect(buildList(only({ outdoor: false })).items).toEqual([]);
+    expect(buildList(base({ settings: { push: { on: true, kinds: { fog: false, outdoor: true } } } })).items).toEqual([]);
+    expect(buildList(base({ settings: { push: { on: true, kinds: { fog: false, outdoor: true } }, outdoor: { ...outdoor, stopped: true } } })).items).toEqual([]);
+  });
+});
+
 describe('push switches', () => {
   it('everything is off at the start (2b, 5a)', () => {
     const p = pushOf(undefined);
