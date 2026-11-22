@@ -714,10 +714,33 @@ export const marksByKey = (marks = []) => Object.fromEntries(marks.map((m) => [m
 export const markLine = (pile) => (pile === 'missing' ? 'Take {name} next time' : pile === 'unused' ? 'Leave {name} at home next time' : 'Keep {name} on the list');
 
 /* ---------- Heute: «Idea for today» (Noah 15:31 «2a») ---------- */
-/** An impulse for Heute when there is no ride idea; null when switched off or none shown. */
-export function todayImpulse(cfg, day) {
+/** Areas of the impulses that need the open air (they come first on a dry day, rest when it rains). */
+export const IMPULSE_OUT = ['outside', 'nature', 'adventure'];
+/** Impulses that take a minute or a song: they come first when little free time is left. */
+export const IMPULSE_SHORT = ['i03', 'i07', 'i10', 'i13', 'i14', 'i15', 'i16', 'i17'];
+/** «Little time»: below this many free minutes only the short impulses are suggested. */
+export const IMPULSE_LITTLE = 30;
+/**
+ * The impulse for Heute (every day, Noah 21.11.2026 «mit dieser»); null when switched off or none shown.
+ * ctx { dry: true|false|null (today's weather), free: minutes until the next appointment|null } lets it fit:
+ * dry → open-air impulses, rain → the others, under IMPULSE_LITTLE minutes → the short ones. A narrowing that
+ * would leave nothing is skipped. The result carries why: ['weather', 'free'] for what it fits.
+ */
+export function todayImpulse(cfg, day, ctx = {}) {
   if (cfg?.onToday === false) return null;
-  return impulseOfDay(impulsesOf(cfg, day), day, 7);
+  let pool = impulsesOf(cfg, day).filter((i) => !i.hidden && !i.later);
+  const why = [];
+  const out = (i) => IMPULSE_OUT.includes(i.area);
+  if (ctx.dry === true || ctx.dry === false) {
+    const w = pool.filter((i) => out(i) === (ctx.dry === true));
+    if (w.length && w.length < pool.length) (pool = w), why.push('weather');
+  }
+  if (typeof ctx.free === 'number' && ctx.free < IMPULSE_LITTLE) {
+    const s = pool.filter((i) => IMPULSE_SHORT.includes(i.id));
+    if (s.length) (pool = s), why.push('free');
+  }
+  const imp = impulseOfDay(pool, day, 7);
+  return imp ? { ...imp, why } : null;
 }
 /** Where «Try it» of an impulse leads. */
 export function impulseHref(imp, colls = []) {
