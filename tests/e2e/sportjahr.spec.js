@@ -176,3 +176,18 @@ test('Sportjahr: Everything puts the years side by side and the sports of summer
   await expect(pg.locator('[data-sj-years]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Every page of Auswerten remembers its own period', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const bar = (k) => page.locator(`[data-period-bar] [data-key="${k}"]`);
+  await press(bar('year'), info);
+  await expect(bar('year')).toHaveAttribute('aria-pressed', 'true');
+  await page.evaluate(() => (location.hash = '#/auswerten'));
+  await expect(bar('week')).toHaveAttribute('aria-pressed', 'true'); // its own choice, not the year of the Sports year
+  await press(bar('month'), info);
+  await page.evaluate(() => (location.hash = '#/auswerten/sportjahr'));
+  await expect(bar('year')).toHaveAttribute('aria-pressed', 'true');
+  await page.evaluate(() => (location.hash = '#/auswerten'));
+  await expect(bar('month')).toHaveAttribute('aria-pressed', 'true');
+  expect(errors).toEqual([]);
+});

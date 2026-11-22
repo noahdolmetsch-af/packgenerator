@@ -17,7 +17,7 @@
   import ChartSheet from '../lib/charts/ChartSheet.svelte';
   import Rhythmus from '../lib/flow/auswertung/Rhythmus.svelte';
   import AnaSheet from '../lib/training/AnaSheet.svelte';
-  import { period } from '../lib/flow/zeitraum.svelte.js';
+  import { period, enterPage } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import { db } from '../lib/db.js';
   import { einheiten, looseLabel } from '../lib/flow/einheiten.js';
@@ -35,6 +35,7 @@
   import { sentencesOf } from '../lib/charts/sentence.js';
   import '../lib/ich/ich.css';
 
+  enterPage('sportjahr');
   const today = localDay();
   const q = liveQuery(async () => {
     const [log, activities, acts, usual, ticks, goal] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.settings.get(GOAL_KEY)]);

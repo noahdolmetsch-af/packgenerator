@@ -13,7 +13,7 @@
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import ChartSheet from '../lib/charts/ChartSheet.svelte';
-  import { period } from '../lib/flow/zeitraum.svelte.js';
+  import { period, enterPage } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import { db } from '../lib/db.js';
   import { einheiten, looseLabel } from '../lib/flow/einheiten.js';
@@ -31,6 +31,7 @@
   import { sentencesOf } from '../lib/charts/sentence.js';
   import '../lib/ich/ich.css';
 
+  enterPage('sportrueckblick');
   const today = localDay();
   const sport = (() => {
     try {
