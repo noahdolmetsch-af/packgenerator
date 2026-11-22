@@ -9,7 +9,7 @@
   import { einheiten } from './einheiten.js';
   import { USUAL_KEY, usualMap } from './usualmin.js';
   import { TICKS_KEY, prefsOf } from '../stravaticks.js';
-  import { dueRows, writeDuration, restoreTick, NACHTRAG_CHIPS } from './nachtragen.js';
+  import { dueRows, writeDuration, restoreTick, NACHTRAG_CHIPS } from './dauernachtragen.js';
   import { actName } from './ui.svelte.js';
   import { dayShort } from './words.js';
   import ActIcon from './ActIcon.svelte';

@@ -6,7 +6,7 @@
 - Ein neuer Block «Dauer nachtragen» in «Meine Aktivitäten», unter «Übliche Dauer». Er zeigt die Haken, die keine gemessene Zeit haben (die Auswertung rechnet dort mit der üblichen Dauer und schreibt «ca.»), die neuesten zuerst, sechs auf einmal, «Alle zeigen» für den Rest.
 - Ein Tipp auf 15, 30, 45 oder 60 Min oder eine eigene Zahl (Feld «Eigene Länge») schreibt die Minuten in den Haken. Danach zählt die Zeit als gemessen und der Haken verlässt die Liste. «Rückgängig» nimmt die Minuten wieder weg.
 - Es werden nur Haken von Hand, mit Timer oder aus dem Plan angeboten. Nicht angeboten werden: Strava-Haken (die Zeit kommt von Strava), gezählte Mengen (Liegestütze) und der Arbeitsweg.
-- Keine neue Einstellung, kein Schema-Wechsel: geschrieben wird nur das Feld `min` im Haken, wie bei den Dauer-Knöpfen auf «Geschafft». Neue Dateien `src/lib/flow/nachtragen.js`, `src/lib/flow/DauerNachtragen.svelte`; Tests `tests/nachtragen.test.js`, `tests/e2e/nachtragen.spec.js`.
+- Keine neue Einstellung, kein Schema-Wechsel: geschrieben wird nur das Feld `min` im Haken, wie bei den Dauer-Knöpfen auf «Geschafft». Neue Dateien `src/lib/flow/dauernachtragen.js`, `src/lib/flow/DauerNachtragen.svelte`; Tests `tests/dauer-nachtragen.test.js`, `tests/e2e/dauer-nachtragen.spec.js`.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Der Block ist neu und eingeklappt; er erscheint nur, wenn es Haken ohne gemessene Zeit gibt.

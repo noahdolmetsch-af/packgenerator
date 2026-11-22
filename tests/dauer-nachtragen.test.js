@@ -3,7 +3,7 @@ import 'fake-indexeddb/auto';
 import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { einheiten } from '../src/lib/flow/einheiten.js';
-import { dueRows, writeDuration, restoreTick, NACHTRAG_CHIPS } from '../src/lib/flow/nachtragen.js';
+import { dueRows, writeDuration, restoreTick, NACHTRAG_CHIPS } from '../src/lib/flow/dauernachtragen.js';
 
 const acts = [
   { id: 'yoga', name: 'Yoga', ring: 'move', goals: [] },

@@ -2,7 +2,7 @@
  * «Dauer nachtragen» (Noah 21.11.2026, Sportjahr S12): the ticks that have no measured time and count with the usual duration («ca.») are
  * listed, newest first; one tap on a row (15, 30, 45, 60 or an own number) writes the real minutes into that tick, and from then on the
  * time counts as measured. Only ticks you made by hand or with the timer can take minutes (a Strava tick has its time from Strava, the ride
- * to work has none). Pure functions plus two small writers. Tested in tests/nachtragen.test.js.
+ * to work has none). Pure functions plus two small writers. Tested in tests/dauer-nachtragen.test.js.
  */
 import { canSetMinutes, setMinutes, parseMinutes } from './feel.js';
 import { ohneMessung } from './einheiten.js';
