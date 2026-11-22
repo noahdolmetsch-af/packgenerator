@@ -253,7 +253,17 @@ test('d) «In Zahlen»: five groups folded at first (Paket M #1002), «Alle aufk
   // the map is the tile at the end, not a block
   await expect(iz.locator('[data-block="V7"]')).toHaveCount(0);
   // the new blocks: Tempo über die Monate, Geplant und gefahren, Abnutzung, Vergleichsgruppen
-  await expect(iz.locator('[data-block="T1"] .bars li[data-month]').first()).toBeAttached();
+  // «Diagramme zum Antippen»: the month bars follow the chart rules (axis, pointing, window, table)
+  const t1 = iz.locator('[data-block="T1"] [data-chart="iz-T1"]');
+  await expect(t1.locator('[data-plot]')).toHaveAttribute('data-n', /^\d+$/);
+  await t1.locator('[data-plot]').scrollIntoViewIfNeeded();
+  const box = await t1.locator('[data-plot]').boundingBox();
+  await page.mouse.click(box.x + box.width - 4, box.y + box.height / 2);
+  await expect(page.locator('[data-zahlen-sheet]')).toContainText('km/h');
+  await page.keyboard.press('Escape');
+  await t1.getByRole('button', { name: T('As table') }).click();
+  await expect(t1.locator('table tbody tr').first()).toBeVisible();
+  await t1.getByRole('button', { name: T('Chart|table') }).click();
   await expect(iz.locator('[data-block="T3"] [data-pr]').first()).toBeVisible();
   await expect(iz.locator('[data-block="C1"] [data-cmp]').first()).toBeVisible();
   const jump = iz.locator('[data-jump]');

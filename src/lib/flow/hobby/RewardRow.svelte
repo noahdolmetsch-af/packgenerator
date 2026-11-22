@@ -10,7 +10,8 @@
   import { msName, stageName, val } from './words.js';
   import { t, lang } from '../../i18n.svelte.js';
 
-  let { list = [], reward = null, wishlist = [], onsave } = $props();
+  // quick (Noah 21.11.2026 «5a»): without a reward the first wishes are chips; a tap hangs one on the star of `quick` (a milestone)
+  let { list = [], reward = null, wishlist = [], onsave, quick = null } = $props();
   const st = $derived(rewardState(reward, list));
   const item = $derived(wishlist.find((i) => i.id === rewardOf(reward)?.itemId) ?? null);
   const itemName = (i) => (i ? (lang.v === 'de' && i.nameDe ? i.nameDe : i.name) : '');
@@ -54,6 +55,14 @@
   </div>
   {#if wishlist.length && list.length}<button type="button" class="btn sm rbtn" aria-expanded={open} onclick={() => (open ? (open = false) : edit())}>{st && item ? t('Change') : t('Choose')}</button>{/if}
 </div>
+{#if !st && quick?.next && wishlist.length && !open}
+  <div class="wishes" data-reward-quick>
+    <small>{t('Tap a wish: it hangs on your next star, {name}.', { name: msName(quick.m) })}</small>
+    <div class="chips">
+      {#each wishlist.slice(0, 3) as i (i.id)}<button type="button" class="chip" onclick={() => onsave?.({ msId: quick.id, star: quick.next, itemId: i.id })}>{itemName(i)}</button>{/each}
+    </div>
+  </div>
+{/if}
 {#if open}
   <div class="rform">
     <label><span class="lbl">{t('Milestone')}</span>
@@ -109,6 +118,30 @@
   }
   .rbtn {
     min-height: 44px;
+  }
+  .wishes {
+    display: grid;
+    gap: var(--sp-2);
+    margin-top: var(--sp-2);
+  }
+  .wishes small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .chip {
+    min-height: 44px;
+    padding: 6px 14px;
+    border: 1px dashed var(--l2);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink);
+    font: 500 var(--fs-small) / 1.3 var(--font-body);
+    cursor: pointer;
   }
   .rform {
     display: grid;

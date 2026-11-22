@@ -40,7 +40,7 @@ export default {
   'Away|data': 'Unterwegs',
   'Your last logged training was {n} days ago.': 'Dein letztes erfasstes Training war vor {n} Tagen.',
   'A pause from training': 'Pause vom Training',
-  'Asks when you have logged no training for {n} days (Strava or tennis).': 'Fragt, wenn du seit {n} Tagen kein Training erfasst hast (Strava oder Tennis).',
+  'Asks when you have logged no training for {n} days (Strava, tennis or ticked off).': 'Fragt, wenn du seit {n} Tagen kein Training erfasst hast (Strava, Tennis oder abgehakt).',
   'Days without training': 'Tage ohne Training',
   'No training yet. The rules for long days and pauses wait until Strava brings your activities.': 'Noch kein Training. Die Regeln für lange Tage und Pausen warten, bis Strava deine Aktivitäten bringt.',
   // Tennis: «Nach einem Spiel» und «Platzzeit, die ausfiel»

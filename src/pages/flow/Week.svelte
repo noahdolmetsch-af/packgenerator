@@ -13,8 +13,6 @@
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
-  import MoreAktiv from '../../lib/flow/kit/MoreAktiv.svelte';
-  import { morePages } from '../../lib/flow/morepages.js';
   import { flowQuery, seedIfNeeded } from '../../lib/flow/data.svelte.js';
   import { flowStates } from '../../lib/flow.js';
   import { FIXED_KEY, PLAN_KEY, NO_KEY, fixedList, normFixed, weekOf, weekPlan, weekGoals, togglePlan, hideSugg, pruneNo, weekEvents } from '../../lib/flowweek.js';
@@ -25,6 +23,19 @@
   import { localDay } from '../../lib/localday.js';
   import { phone } from '../../lib/media.svelte.js';
   import { t, locale } from '../../lib/i18n.svelte.js';
+
+  // «Ein Kopf für Aktiv» (Noah 17.11.2026 «a»): a tap on a day of the week card on Aktiv comes here with ?day=YYYY-MM-DD:
+  // that day is marked and scrolled into view
+  let { params = new URLSearchParams() } = $props();
+  const pick = $derived(params.get('day') ?? '');
+  let scrolledTo = '';
+  $effect(() => {
+    if (!pick || !week || scrolledTo === pick) return;
+    const el = [...document.querySelectorAll('[data-day]')].find((e) => e.dataset.day === pick);
+    if (!el) return;
+    scrolledTo = pick;
+    el.scrollIntoView({ block: 'center' });
+  });
 
   const today = localDay();
   const q = flowQuery(today);
@@ -49,8 +60,6 @@
   const states = $derived(data ? flowStates(acts, data.log, today, data.tripDays) : []);
   const week = $derived(data ? weekPlan({ acts, states, log: data.log, today, fixed: sets.fixed, plans: sets.plans, no: sets.no, forecast }) : null);
   const goals = $derived(weekGoals(states));
-  const open = $derived(goals.filter((g) => !g.met).length);
-  const pages = $derived(morePages({ openGoals: open }));
 
   const days = weekOf(today);
   const fmt = (d, o) => new Date(`${d}T00:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
@@ -97,7 +106,6 @@
 <div class="hob">
   <header class="ph">
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Week')} />
-    <MoreAktiv items={pages} on="week" />
     <PageHead title={t('Week')} text={t('{range} · suggestions from your goals, fixed dates and the weather. Everything can be changed.', { range })} />
     <a class="btn btn-link sm" style="align-self: flex-start" href="#/flow/review" data-to-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
   </header>
@@ -115,7 +123,7 @@
             <span class="ev done">{t('done')}</span>
           </p>
           {#each week.days as d (d.day)}
-            <div class="day" class:today={d.today} class:past={d.past} data-day={d.day}>
+            <div class="day" class:today={d.today} class:past={d.past} class:pick={d.day === pick} data-day={d.day} aria-current={d.day === pick ? 'date' : undefined}>
               <div class="dn">
                 <b>{fmt(d.day, { weekday: 'short' }).replace('.', '')} {fmt(d.day, { day: 'numeric' })}.</b>
                 {#if d.wx}
@@ -269,6 +277,13 @@
   }
   .legend + .day {
     border-top: 0;
+  }
+  .day.pick {
+    margin-inline: calc(var(--sp-2) * -1);
+    padding-inline: var(--sp-2);
+    border-radius: var(--r-ctl);
+    outline: 2px solid var(--hi);
+    outline-offset: -2px;
   }
   .dn b {
     display: block;

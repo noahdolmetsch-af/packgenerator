@@ -168,3 +168,36 @@ test('Was mir gut tut on Heute: the values tile and the ride in the evening chec
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+// 21.11.2026: «Was mir gut tut» crashed with «Illegal invocation» as soon as «Energieräuber anzeigen» was on and a
+// drain existed (a <details> inside a <p> broke the page's structure). A day of much screen time is a low day here.
+test('Was mir gut tut: Energieräuber anzeigen lässt die Seite stehen', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => {
+    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
+    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+  });
+  await page.goto('./');
+  await ready(page);
+  const rows = answers();
+  for (let i = 1; i <= 30; i++) {
+    const d = day(-i);
+    rows.push({ id: `wohl-screen-${d}`, qid: 'koerper.bildschirm', area: 'koerper', day: d, at: `${d}T20:00`, slot: null, kind: 'scale', value: i % 2 === 0 ? 2 : 7, note: null, unit: null, src: 'hand' });
+  }
+  await seed(page, rows);
+  await page.goto('./#/me/wohl');
+  await page.reload();
+  await ready(page);
+  const drains = page.locator('[data-wohl-drains]');
+  await expect(drains).toBeVisible();
+  await drains.locator('input[type="checkbox"]').check();
+  await expect(drains).toContainText('Tage mit');
+  await expect(drains.locator('details')).not.toHaveCount(0);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-error-page]')).toHaveCount(0);
+  await expect(page.locator('[data-wohl-drains]')).toContainText('Tage mit');
+  expect(errors).toEqual([]);
+});

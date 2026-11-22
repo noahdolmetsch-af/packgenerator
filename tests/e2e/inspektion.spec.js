@@ -53,6 +53,8 @@ test('Kurzcheck: states, value, Rest OK, finish makes a problem, Undo takes it b
 
   const run = page.locator('[data-inspect-run="quick"]');
   await expect(run).toBeVisible();
+  // «Begleiter» (Noah 21.11.2026): a run starts with what you need; this test works on the list of all points
+  await run.locator('[data-run-list]').click();
   // the gravel bike has no fork part: the suspension point stays out
   await expect(run.locator('[data-point="stanchions"]')).toHaveCount(0);
 
@@ -82,8 +84,14 @@ test('Kurzcheck: states, value, Rest OK, finish makes a problem, Undo takes it b
   expect(task?.fix).toBe('shop');
   await expect(page.locator('[data-inspect-page]')).toBeVisible();
   await expect(page.locator('[data-inspection]')).toHaveCount(1);
+  // «Kontrolle zur Werkstatt»: the overview says where the point went and links to it; no wish here, so no wishlist link
+  const made = page.locator('[data-inspect-made]');
+  await expect(made.locator('[data-inspect-made-problems]')).toHaveText(T('See {n} point', { n: 1 }));
+  await expect(made.locator('[data-inspect-made-problems]')).toHaveAttribute('href', new RegExp(`tab=care&bike=${BIKE.id}&open=1`));
+  await expect(made.locator('[data-inspect-made-wish]')).toHaveCount(0);
 
   await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
+  await expect(made).toHaveCount(0);
   // Undo turns the finished check back into the draft it was
   await expect.poll(async () => (await table(page, 'inspections'))[0]?.done ?? false).toBe(false);
   await expect.poll(async () => (await table(page, 'maintenance')).filter((m) => m.inspectionId).length).toBe(0);
@@ -92,6 +100,7 @@ test('Kurzcheck: states, value, Rest OK, finish makes a problem, Undo takes it b
 test('Inspections page: continue later keeps a draft; history delete with Undo', async ({ page }) => {
   await page.goto(`./#/bikes?tab=care&view=inspect&bike=${BIKE.id}&level=quick`);
   const run = page.locator('[data-inspect-run="quick"]');
+  await run.locator('[data-run-list]').click();
   await run.locator('[data-point="axles"] [data-state="ok"]').click();
   await expect.poll(async () => (await table(page, 'inspections'))[0]?.results?.find((r) => r.id === 'axles')?.state).toBe('ok');
   await run.locator('[data-inspect-later]').click();
@@ -129,6 +138,7 @@ test('before a tour: the quick check in the tour preparation, and the switch', a
 test('a soon worn chain goes on the wishlist with the km left; Undo takes it off', async ({ page }) => {
   await page.goto(`./#/bikes?tab=care&view=inspect&bike=${BIKE.id}&level=monthly`);
   const run = page.locator('[data-inspect-run="monthly"]');
+  await run.locator('[data-run-list]').click();
   const chain = run.locator('[data-point="chainwear"]');
   await chain.locator('[data-point-value]').fill('0,45');
   await chain.locator('[data-point-value]').press('Tab');
@@ -138,6 +148,30 @@ test('a soon worn chain goes on the wishlist with the km left; Undo takes it off
   await expect.poll(async () => (await table(page, 'items')).length).toBe(before + 1);
   const wish = (await table(page, 'items')).find((i) => i.ownership === 'wishlist' && i.note?.startsWith(T('From the inspection: soon worn.')));
   expect(wish?.category).toBe('bike');
+  await expect(page.locator('[data-inspect-made-wish]')).toHaveAttribute('href', '#/gear?view=wish');
   await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
   await expect.poll(async () => (await table(page, 'items')).length).toBe(before);
+});
+
+test('Begleiter: the tools first, one point per step, the summary at the end, finish saves', async ({ page }) => {
+  await page.goto(`./#/bikes?tab=care&view=inspect&bike=${BIKE.id}&level=quick`);
+  const run = page.locator('[data-inspect-run="quick"]');
+  await expect(run.locator('[data-run-prep]')).toBeVisible();
+  await expect(run.locator('[data-run-tool]').first()).toBeVisible();
+  await run.locator('[data-run-tool]').first().click();
+  await expect(run.locator('[data-run-tool]').first()).toHaveAttribute('aria-pressed', 'true');
+  await run.locator('[data-run-go]').click();
+  const step = run.locator('[data-run-step]');
+  await expect(step).toBeVisible();
+  await expect(step.locator('[data-point]')).toHaveCount(1);
+  // back is off on the first point, next walks on; every point gets OK
+  await expect(run.locator('[data-run-prev]')).toBeDisabled();
+  for (let i = 0; i < 30 && !(await run.locator('[data-run-summary]').count()); i++) {
+    await run.locator('[data-state="ok"]').click();
+    await run.locator('[data-run-next]').click();
+  }
+  await expect(run.locator('[data-run-summary]')).toBeVisible();
+  await run.locator('[data-inspect-finish]').click();
+  await expect.poll(async () => (await table(page, 'inspections'))[0]?.done).toBe(true);
+  expect((await table(page, 'inspections'))[0].results.every((r) => r.state === 'ok')).toBe(true);
 });

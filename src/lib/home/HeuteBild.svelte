@@ -9,7 +9,8 @@
    */
   import { t, tn } from '../i18n.svelte.js';
 
-  let { trip, line, mood = 'day', weather = '', href = '#/', onopen = () => {} } = $props();
+  // inCard: the picture sits at the top of the card «My tour» (Noah 17.11.2026 «1-5a»): lower, flat below, and without the words (the card says them)
+  let { trip, line, mood = 'day', weather = '', href = '#/', onopen = () => {}, inCard = false } = $props();
 
   let w = $state(640);
   const W = $derived(Math.max(300, Math.round(w || 640)));
@@ -29,7 +30,7 @@
   ];
 </script>
 
-<a class="bild {mood}" {href} onclick={onopen} bind:clientWidth={w} data-heutebild data-mood={mood}>
+<a class="bild {mood}" class:incard={inCard} {href} onclick={onopen} bind:clientWidth={w} aria-label={inCard ? words : undefined} data-heutebild data-mood={mood}>
   <svg viewBox="0 0 {W} {H}" aria-hidden="true" preserveAspectRatio="none">
     {#if mood === 'night'}
       {#each STARS as [x, y] (x)}<circle cx={x * W} cy={y} r="1.3" class="stern" />{/each}
@@ -47,7 +48,7 @@
     <!-- a rider on the road, small, drawn in lines -->
     <g class="rider" transform="translate({W * 0.16},{H - 24})"><circle cx="0" cy="8" r="7" /><circle cx="28" cy="8" r="7" /><path d="M0 8 L11 8 L17 -4 L23 -4 L28 8 M11 8 L17 -4 M13 -6 h7" /></g>
   </svg>
-  <span class="txt"><b data-heutebild-line>{words}</b>{#if weather}<span data-heutebild-wx>{weather}</span>{/if}</span>
+  <span class="txt">{#if !inCard}<b data-heutebild-line>{words}</b>{/if}{#if weather}<span data-heutebild-wx>{weather}</span>{/if}</span>
 </a>
 
 <style>
@@ -172,6 +173,14 @@
   .txt span {
     font-size: var(--fs-small);
     opacity: 0.85;
+  }
+  .bild.incard {
+    height: 96px;
+    margin: -14px -18px 2px;
+    border-radius: var(--radius-card) var(--radius-card) 0 0;
+  }
+  .incard .txt {
+    max-width: 72%;
   }
   .bild:focus-visible {
     outline: 3px solid var(--accent);

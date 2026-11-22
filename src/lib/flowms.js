@@ -95,6 +95,8 @@ function extraOf(x, today) {
     checkDays: x.checkDays ? new Set([...days(x.checkDays).keys()]) : null,
     packOk: days(x.packOk),
     careOnTime: days(x.careOnTime),
+    planWeeks: map(x.planWeeks),
+    planRuns: map(x.planRuns),
   };
   return { ...out, first };
 }
@@ -108,6 +110,11 @@ function cumMap(ctx, m, from = null) {
     n += m.get(d) ?? 0;
     return Math.round(n * 10) / 10;
   });
+}
+/** The running maximum of a day map (the best value so far, from the first day on). */
+function cumMax(ctx, m) {
+  let n = 0;
+  return ctx.days.map((d) => (n = Math.max(n, m.get(d) ?? 0)));
 }
 /**
  * The data milestones (group 'data'): only on Aktiv, Meilensteine and the Vitrine, never on Heute
@@ -127,6 +134,9 @@ export function dataMilestones(ctx) {
   if (x.checkDays) out.push(d({ id: 'd.checkStreak', area: 'daily', name: 'Check in a row', what: 'days in a row with the daily check', steps: [3, 7, 14, 30, 60, 100, 365], series: (c) => streak(c, (_, day) => c.extra.checkDays.has(day)), now: streakNow }));
   if (x.packOk) out.push(d({ id: 'd.packOk', area: 'daily', name: 'Nothing forgotten', what: 'trips without anything missing', steps: [1, 3, 5, 10, 25, 50], series: (c) => cumMap(c, c.extra.packOk) }));
   if (x.careOnTime) out.push(d({ id: 'd.careOnTime', area: 'bike', name: 'Care on time', what: 'bike services done on time', steps: [1, 5, 10, 25, 50, 100], series: (c) => cumMap(c, c.extra.careOnTime) }));
+  // «Wochenplan» part 5: a week with every unit of the weekly plan ticked is a week star; in a row is a series
+  if (x.planWeeks) out.push(d({ id: 'd.planWeeks', area: 'daily', name: 'Weeks with a star', what: 'weeks with every unit of the weekly plan ticked', steps: [1, 4, 12, 26, 52], series: (c) => cumMap(c, c.extra.planWeeks) }));
+  if (x.planRuns) out.push(d({ id: 'd.planRuns', area: 'daily', name: 'Star weeks in a row', what: 'weeks in a row with every unit ticked', steps: [2, 4, 8, 12, 26], series: (c) => cumMax(c, c.extra.planRuns) }));
   return out;
 }
 /** Heute never shows the data milestones (Noah 19.10.2026: new stars only on Aktiv and Meilensteine). */

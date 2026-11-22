@@ -434,7 +434,7 @@ export default {
   // «Quick Links» (Noah 28.10.2026)
   'Open Quick Links in the bar (on a computer: in the sidebar).': 'Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).',
   'Open Quick Links in the bar.': 'Öffne Quick Links in der Leiste.',
-  'Tap «Add a pin» and pin a function.': 'Tippe auf «Pin hinzufügen» und pinne eine Funktion an.',
+  'Tap «Add a pin» and pin a function.': 'Tippe auf «Abkürzung hinzufügen» und pinne eine Funktion an.',
   'Tap a pin: the app goes there.': 'Tippe auf einen Pin: die App geht dorthin.',
   // «Träume und Neuland» N5
   'Counts from New ground: your routes, rides and own ticks.': 'Zählt aus Neuland: deine Routen, Fahrten und eigenen Haken.',

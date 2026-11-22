@@ -32,7 +32,7 @@ const ROUTES = [
   ['#/gear', 'Material'],
   ['#/gear?tab=weigh', 'Material wiegen'],
   ['#/gear?tab=wishlist', 'Wunschliste'],
-  ['#/gear/import', 'Import prüfen'],
+  ['#/gear/import', 'Material-Liste importieren'],
   ['#/gear/supplies', 'Vorrat'], // Paket H
   ['#/gear/lend', 'Ausgeliehen'], // Paket H
   ['#/gear/power', 'Strom'], // Strombudget

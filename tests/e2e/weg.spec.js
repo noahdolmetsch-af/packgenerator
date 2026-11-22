@@ -284,3 +284,29 @@ test('Way to the goal > Today: the next due step stands in Up now and ticks ther
 
   expect(errors).toEqual([]);
 });
+
+test('Way to the goal > Recovery: the last-week steps stand in one card and tick there', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  const inDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
+  await page.goto('./#/trips/weg');
+  await ready(page);
+  await page.getByRole('button', { name: T('New way') }).click();
+  await page.locator('[data-weg-title]').fill('Test Rennen mit Erholung');
+  await page.locator('[data-weg-start]').fill(inDays(90));
+  await page.getByRole('button', { name: T('Create way') }).click();
+  const card = page.locator('[data-weg-rest]');
+  await expect(card).toContainText(T('Last week · Recovery'));
+  const rows = card.locator('[data-weg-rest-row]');
+  await expect(rows).toHaveCount(4);
+  await expect(card.locator('[data-weg-rest-check][aria-pressed="true"]')).toHaveCount(0);
+  await card.locator('[data-weg-rest-check]').first().click();
+  await expect(card.locator('[data-weg-rest-check][aria-pressed="true"]')).toHaveCount(1);
+  // the same step in the line is ticked too: one step, two places
+  await expect(page.locator('[data-weg-step][data-type="erholung"].done')).toHaveCount(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});

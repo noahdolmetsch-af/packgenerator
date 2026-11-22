@@ -12,6 +12,7 @@
   import { readRouteFile, routeFromGpx, splitRoute } from '../route/fromgpx.js'; // «Neue Quellen» 20.10.2026: with the GPX waypoints
   import PasstHier from '../ui/PasstHier.svelte';
   import RouteCheck from '../route/RouteCheck.svelte';
+  import RouteKnown from '../route/RouteKnown.svelte'; // S3 «Route kennt deine Erfahrung»
   import RwgpsLink from '../sources/RwgpsLink.svelte';
   import { stagePlan, hasStages } from '../stages.js';
   import StaticMap from '../ui/StaticMap.svelte';
@@ -83,6 +84,7 @@
     {#if route?.line?.length > 1}
       <StaticMap line={route.line} {marks} label={t('Map of {name}', { name: route.name || trip.title })} />
       {#if foot}<p class="foot">{foot}</p>{/if}
+      <RouteKnown {route} />
       {@render climbs()}
       <RoutePois {trip} />
       <!-- Verpflegung (Noah 19.10.2026 «1a»): the food and water plan of this trip -->

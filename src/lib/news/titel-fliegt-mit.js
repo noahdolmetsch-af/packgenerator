@@ -2,8 +2,8 @@
 export default {
   title: 'The name flies along',
   lead: 'Tap a tour in the list and its name travels to the top of the tour page.',
-  points: [{ text: 'Tours › With packing list: tap the name of a tour and watch it travel to the heading of its page', href: '#/trips', go: { href: '#/trips', where: 'Shows in Tours when you tap the name of a tour in the list (on a phone first open «With packing list»).' } }],
-  small: [{ box: 'new', text: 'Only the name moves, about a quarter of a second; with «Reduce motion» on the device or Motion «Off», and in a browser without this feature, the page opens as before', go: { href: '#/me/look', where: 'Shows in Me › Appearance under Handling.' } }],
+  points: [{ text: 'Tours › With packing list: tap the name of a tour and watch it travel to the heading of its page', href: '#/trips', go: null }],
+  small: [{ box: 'new', text: 'Only the name moves, about a quarter of a second; with «Reduce motion» on the device or Motion «Off», and in a browser without this feature, the page opens as before', go: null }],
   test: ['On a phone open Tours and tap «With packing list». On a computer the list is already there.', 'Tap the name of a tour: the name travels up to the heading of the tour page.'],
   since: [],
   de: {

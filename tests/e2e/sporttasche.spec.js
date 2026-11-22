@@ -4,7 +4,6 @@
 // switched off, on a phone and a computer, in German. No sideways scroll, no page errors. Fictional data.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { TABS } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -69,8 +68,9 @@ test('Sporttasche: the reminder on Heute, pack the bag, often forgotten, switch 
   await expect(rem).toContainText(T('Tomorrow {name} {time}: pack the bag', { name: 'Yoga', time: '07:00' }));
   await rem.click();
   await expect(page).toHaveURL(/#\/flow\/bags\?b=bag-yoga$/);
-  await expect(page.locator(TABS).getByRole('link', { name: T('My sports|tab'), exact: true })).toHaveAttribute('aria-current', 'page'); // «Aktiv neu»: the sport bag belongs to «Meine Sportarten»
-  await expect(main.locator('[data-more="bags"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('nav.psubs a[data-sub="sports"]')).toHaveAttribute('aria-current', 'page'); // «Aktiv neu»: the sport bag belongs to «Meine Sportarten» (since V4a a chip under Training)
+  await expect(main.getByRole('heading', { level: 1, name: T('Sport bag') })).toBeVisible(); // «Ein Kopf für Aktiv»: Titel zuerst, keine Kachelreihe darüber
+  await expect(main.locator('[data-more]')).toHaveCount(0);
   const bag = main.locator('[data-open-bag="bag-yoga"]');
   await expect(bag.getByRole('heading', { level: 2 })).toContainText('07:00');
   await expect(main.locator('[data-bag="bag-yoga"]')).toContainText(T('tomorrow {when}', { when: '' }).trim());

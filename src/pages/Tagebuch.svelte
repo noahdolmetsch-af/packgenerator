@@ -269,28 +269,31 @@
   </div>
 {:else}
   <div class="tb" data-page="tagebuch">
-    <Crumb path={[{ href: '#/week', label: t('Plan|place') }]} here={t('Diary')} />
-    <div class="tb-head">
-      <h1 class="tb-h1" tabindex="-1" data-page-title>{t('Diary')}</h1>
+    <header class="tb-head">
+      <div class="tb-headtext">
+        <h1 class="tb-h1" tabindex="-1" data-page-title>{t('Diary')}</h1>
+        <p class="tb-sentence" data-tb-sentence>{sentence}</p>
+      </div>
       <button type="button" class="tb-ic" aria-label={t('Diary settings')} title={t('Diary settings')} onclick={() => (settings = true)} data-tb-settings-open><Settings2 size={20} aria-hidden="true" /></button>
-    </div>
-    <p class="tb-sentence" data-tb-sentence>{sentence}</p>
-    <AreaIntro place="tagebuch" />
+    </header>
+    <AreaIntro place="tagebuch" quiet />
     {#if cfg.resetAt}
       <p class="tb-notice" role="status" data-tb-reset>{t('The lock of the diary was removed on {day}.', { day: long(cfg.resetAt.slice(0, 10)) })} <button type="button" class="btn sm" onclick={() => changeCfg((c) => ({ ...c, resetAt: null }))}>{t('OK')}</button></p>
     {/if}
 
-    <div class="tb-acts">
-      <button type="button" class="btn hi" onclick={() => write()} data-tb-new><Plus size={18} aria-hidden="true" />{t('New entry')}</button>
-      <button type="button" class="btn" onclick={() => write({}, true)} data-tb-dictate><Mic size={18} aria-hidden="true" />{t('Dictate an entry')}</button>
-      <button type="button" class="btn" onclick={() => write({}, false, 'voice')} data-tb-voice><AudioLines size={18} aria-hidden="true" />{t('Voice note')}</button>
-    </div>
-    {#if tpls.length}
-      <div class="tb-tpl" data-tb-templates>
-        <span class="tb-tpl-h">{t('Start with a template')}</span>
-        {#each tpls as x (x.key)}<button type="button" class="tb-tpl-b" onclick={() => write({ text: tplText(x, t) })} data-tb-template={x.key}>{tplName(x, t)}</button>{/each}
+    <div class="tb-write card">
+      <div class="tb-acts">
+        <button type="button" class="btn hi" onclick={() => write()} data-tb-new><Plus size={18} aria-hidden="true" />{t('New entry')}</button>
+        <button type="button" class="btn" onclick={() => write({}, true)} data-tb-dictate><Mic size={18} aria-hidden="true" />{t('Dictate an entry')}</button>
+        <button type="button" class="btn" onclick={() => write({}, false, 'voice')} data-tb-voice><AudioLines size={18} aria-hidden="true" />{t('Voice note')}</button>
       </div>
-    {/if}
+      {#if tpls.length}
+        <div class="tb-tpl" data-tb-templates>
+          <span class="tb-tpl-h">{t('Start with a template')}</span>
+          {#each tpls as x (x.key)}<button type="button" class="tb-tpl-b" onclick={() => write({ text: tplText(x, t) })} data-tb-template={x.key}>{tplName(x, t)}</button>{/each}
+        </div>
+      {/if}
+    </div>
 
     {#if cfg.questions !== false && !qHidden && !answeredToday && qi != null}
       <section class="tb-q" aria-labelledby="tb-q-h" data-tb-question={qi}>
@@ -319,7 +322,7 @@
 
     {#if all.length}
       <div class="tb-bar">
-        <Seg full={false} label={t('View')} value={view} onchange={setView} options={[{ key: 'list', name: t('Entries') }, { key: 'cal', name: t('Calendar') }, { key: 'photos', name: t('Photos') }, { key: 'look', name: t('Review') }]} />
+        <Seg label={t('View')} value={view} onchange={setView} options={[{ key: 'list', name: t('Entries') }, { key: 'cal', name: t('Calendar') }, { key: 'photos', name: t('Photos') }, { key: 'look', name: t('Review') }]} />
       </div>
       {#if view === 'list' || view === 'photos'}
         <div class="tb-filter">
@@ -423,14 +426,17 @@
     flex-direction: column;
     gap: 16px;
     max-width: 880px;
-    margin: 0 auto;
+    margin: 0;
     padding-bottom: 32px;
   }
   .tb-head {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
+  }
+  .tb-headtext {
+    min-width: 0;
   }
   .tb-h1 {
     margin: 0;
@@ -452,10 +458,26 @@
     font-size: var(--fs-sub);
   }
   .tb-sentence {
-    margin: 0;
-    font-size: var(--fs-sub);
-    font-weight: 700;
+    margin: 6px 0 0;
+    font-size: var(--fs-body);
     color: var(--ink-2);
+  }
+  /* Schreiben: ein Hauptknopf, zwei zweite, die Vorlagen leise darunter */
+  .tb-write {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  @media (max-width: 600px) {
+    .tb-write .tb-acts .btn.hi {
+      flex: 1 0 100%;
+    }
+    .tb-write .tb-acts .btn:not(.hi) {
+      flex: 1 1 0;
+      padding-inline: 8px;
+      white-space: nowrap;
+      font-size: var(--fs-label);
+    }
   }
   .tb-ic {
     flex: none;
@@ -481,9 +503,16 @@
   }
   .tb-tpl {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+  .tb-tpl > * {
+    flex: none;
   }
   .tb-tpl-h {
     margin-right: 4px;
@@ -507,7 +536,7 @@
   .tb-notice {
     margin: 0;
     padding: 10px 14px;
-    border-radius: 14px;
+    border-radius: var(--r-ctl);
     background: var(--warn-soft);
     color: var(--ink);
   }
@@ -515,9 +544,9 @@
   .tb-q {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 18px 20px;
-    border-radius: 20px;
+    gap: 8px;
+    padding: var(--sp-4);
+    border-radius: var(--radius-card);
     background: var(--accent-soft);
   }
   .tb-q-top {
@@ -573,8 +602,13 @@
   }
   .tb-chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tb-chips > * {
+    flex: none;
   }
   .tb-chip {
     display: inline-flex;
@@ -606,7 +640,7 @@
     display: flex;
     flex-direction: column;
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: var(--radius-card);
     background: var(--paper);
     overflow: hidden;
   }
@@ -691,7 +725,7 @@
     flex: none;
     width: 72px;
     height: 72px;
-    border-radius: 12px;
+    border-radius: var(--r-ctl);
     object-fit: cover;
   }
   .tb-empty {
@@ -705,7 +739,7 @@
     gap: 10px;
     padding: 32px 16px;
     border: 1px dashed var(--line);
-    border-radius: 20px;
+    border-radius: var(--radius-card);
     text-align: center;
     color: var(--ink-2);
   }
@@ -764,7 +798,7 @@
     min-height: 40px;
     padding: 0;
     border: 1px solid transparent;
-    border-radius: 12px;
+    border-radius: var(--r-ctl);
     background: var(--paper);
     background-size: cover;
     background-position: center;
@@ -813,7 +847,7 @@
     position: relative;
     display: block;
     aspect-ratio: 1;
-    border-radius: 10px;
+    border-radius: var(--r-ctl);
     overflow: hidden;
   }
   .tb-wall-item img {
@@ -884,7 +918,7 @@
   .tb-galbtn {
     padding: 0;
     border: 0;
-    border-radius: 14px;
+    border-radius: var(--r-ctl);
     overflow: hidden;
     background: none;
     cursor: zoom-in;

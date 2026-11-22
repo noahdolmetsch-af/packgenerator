@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { DEVICE_SETTINGS } from '../src/lib/db.js';
 import {
-  PHOTO_KEY, ARTS, BLOCKS, FORMATS, newConfig, normalizeConfig, step, stepBlock, dragBlock, movable, levelFromOffer, weekdayOf, addMinutes, parsePrice, priceText, rangeText, WORDS,
+  PHOTO_KEY, cleanQrUrl, ARTS, BLOCKS, FORMATS, newConfig, normalizeConfig, step, stepBlock, dragBlock, movable, levelFromOffer, weekdayOf, addMinutes, parsePrice, priceText, rangeText, WORDS,
   buildModel, variantsOf, countImages, fileNameOf, mailText, mailtoHref, emailsOf, photoRect, emptyPhotos, addPhoto, removePhoto, currentPhoto, templateFrom, applyTemplate, MAX_PHOTOS,
 } from '../src/lib/booking/flyer.js';
 
@@ -18,9 +18,13 @@ const offer = (o = {}) => ({
 const TODAY = '2026-08-01';
 
 describe('flyer config', () => {
-  it('has the four kinds and three formats', () => {
+  it('has the four kinds and four formats', () => {
     expect(ARTS.map((a) => a.key)).toEqual(['group', 'trial', 'holiday', 'single']);
-    expect(FORMATS.map((f) => f.key)).toEqual(['169', 'a4', 'sq']);
+    expect(FORMATS.map((f) => f.key)).toEqual(['169', 'a4', 'sq', 'a5']);
+    const a5 = FORMATS.find((f) => f.key === 'a5');
+    // A5 at 300 dpi is 1748 × 2480 px; 3 mm bleed (35 px) on each side makes 1818 × 2550
+    expect([a5.w - 2 * a5.bleed, a5.h - 2 * a5.bleed, a5.pdf]).toEqual([1748, 2480, true]);
+    expect(newConfig('group').formats).not.toContain('a5');
   });
   it('a new config has all blocks, only the first ones on', () => {
     const c = newConfig('single');
@@ -167,6 +171,7 @@ describe('the content of one picture', () => {
     const m = buildModel(cfg(), entries, 'de', { today: TODAY });
     expect(fileNameOf(m, 'a4', 'Unterstufe')).toBe('tennis-unterricht-unterstufe-a4-de.png');
     expect(fileNameOf(m, 'sq')).toBe('tennis-unterricht-sq-de.png');
+    expect(fileNameOf(m, 'a5', '', 'pdf')).toBe('tennis-unterricht-a5-de.pdf');
   });
 });
 
@@ -236,5 +241,35 @@ describe('templates', () => {
 describe('the photo stays on this device', () => {
   it('is a device setting: not in a backup and not synced', () => {
     expect(DEVICE_SETTINGS).toContain(PHOTO_KEY);
+  });
+});
+
+describe('where the QR code leads (Noah 10.11.2026)', () => {
+  const entries = [offer()];
+  const cfg = (qrUrl) => {
+    const c = newConfig('group');
+    c.offerId = 'abc123';
+    c.levels = [levelFromOffer(entries[0], TODAY)];
+    if (qrUrl !== undefined) c.qrUrl = qrUrl;
+    return c;
+  };
+  it('turns what the user typed into a web address, or into nothing', () => {
+    expect(cleanQrUrl('tennisnoah.pages.dev/f')).toBe('https://tennisnoah.pages.dev/f');
+    expect(cleanQrUrl('  https://example.ch/f?x=1 ')).toBe('https://example.ch/f?x=1');
+    expect(cleanQrUrl('http://example.ch')).toBe('http://example.ch/');
+    for (const bad of ['', '   ', 'kein link', 'javascript:alert(1)', 'ftp://example.ch', 'localhost', 'https://x', null, undefined]) expect(cleanQrUrl(bad)).toBe('');
+    expect(cleanQrUrl(`https://example.ch/${'a'.repeat(300)}`)).toBe('');
+  });
+  it('leads to the sign-up page of the offer unless an own address is set', () => {
+    expect(buildModel(cfg(), entries, 'de', { today: TODAY }).url).toContain('/buchen/#abc123');
+    const m = buildModel(cfg('tennisnoah.pages.dev/f'), entries, 'de', { today: TODAY });
+    expect(m.url).toBe('https://tennisnoah.pages.dev/f');
+    expect(m.shortUrl).toBe('tennisnoah.pages.dev/f');
+    expect(buildModel(cfg('kein link'), entries, 'de', { today: TODAY }).url).toContain('/buchen/#abc123');
+  });
+  it('keeps the address in a saved configuration and gives an old one an empty address', () => {
+    expect(normalizeConfig({ art: 'group', qrUrl: 'a.ch/x' }).qrUrl).toBe('a.ch/x');
+    expect(normalizeConfig({ art: 'group' }).qrUrl).toBe('');
+    expect(newConfig().qrUrl).toBe('');
   });
 });

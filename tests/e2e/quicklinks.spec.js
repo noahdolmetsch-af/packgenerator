@@ -15,12 +15,16 @@ test('Quick Links: place, suggestions, go there, add, edit, groups', async ({ pa
   const T = await openHome(page, context, info);
   const phone = info.project.name === 'phone';
 
-  // the place: in the bar (phone) or the sidebar (computer)
-  const nav = phone ? page.locator('nav.bottom') : page.locator('aside.side nav.places');
-  await nav.locator('a[href="#/quick"]').click();
+  // the place: since V4a (21.11.2026, on purpose) it is no row of the bar or the sidebar; its way in is the link under the pins on Heute
+  // (and «g q»); the page keeps its address until V6 «Abkürzungen»
+  await page.goto('./#/quick');
   await expect(page).toHaveURL(/#\/quick$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Quick Links|place') })).toBeVisible();
   await expect(page.locator('[data-quick]')).toHaveAttribute('data-quick', phone ? 'phone' : 'computer');
+  if (!phone) {
+    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(T('Today|place'));
+    await expect(page.locator('.side li.pl .tabs a[aria-current="page"]')).toHaveText(T('Quick Links|place'));
+  }
 
   // the suggestions in five groups
   await expect(page.locator('[data-quick-pin]')).toHaveCount(PINS.length);
@@ -53,6 +57,9 @@ test('Quick Links: place, suggestions, go there, add, edit, groups', async ({ pa
   await expect(page.locator('[data-quick-pin="f.race"] [data-quick-note]')).toHaveText('test_data_gtp_ im Mai');
   await page.getByRole('button', { name: T('Unpin «{name}»', { name }) }).click();
   await expect(page.locator('[data-quick-pin="f.race"]')).toHaveCount(0);
+  // the note «unpinned» comes a moment after the pin is gone (the save first); until then «Pin saved» is the newest note and its
+  // «Undo» would take the note text back instead. So wait for the right note first.
+  await expect(page.locator('.rtoast')).toContainText(T('«{name}» unpinned.', { name }));
   await page.getByRole('button', { name: T('Undo') }).first().click();
   await expect(page.locator('[data-quick-pin="f.race"]')).toHaveCount(1);
 

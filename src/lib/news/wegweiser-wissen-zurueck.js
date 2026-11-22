@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: 'Debriefs, logbook, learnings, letters, meaning and skills show «What you can do here» with «Good to know»',
-      go: { href: '#/debrief', steps: [{ sel: '[data-seiteninhalt]' }] },
+      go: { href: '#/debrief', steps: [{ sel: '[data-seiteninhalt-line]' }] },
     },
   ],
   small: [],

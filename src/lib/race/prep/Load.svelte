@@ -2,10 +2,12 @@
   /** Vorbereiten › Total weight along the route (36), Spares for the surface (34), Tool fits the bike (39). */
   import { CloudDownload } from '@lucide/svelte';
   import RaceBox from '../RaceBox.svelte';
+  import LineChart from '../../charts/LineChart.svelte';
+  import ChartSheet from '../../charts/ChartSheet.svelte';
   import { rigOf } from '../race.js';
   import { weightAlong, fetchRoads, sparesFor, toolCheck, sizeLabel } from '../more.js';
   import { cacheSet, cacheQuery } from '../store.js';
-  import { kmOfKinds, lineOf } from '../prep-lib.js';
+  import { kmOfKinds } from '../prep-lib.js';
   import { t, num, locale } from '../../i18n.svelte.js';
 
   let { ctx } = $props();
@@ -21,7 +23,22 @@
       ? weightAlong({ base, totalKm: ctx.route.km, eta: ctx.plan.etaOf, waterAt: kmOfKinds(ctx.pois, ['water', 'shop', 'food', 'fuel']), foodAt: kmOfKinds(ctx.pois, ['shop', 'food', 'fuel']), waterL, foodKg })
       : null,
   );
-  const line = $derived(along ? lineOf(along.points) : null);
+  // «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»): the weight along the route as a line chart, exact kg on pointing,
+  // a tap opens the stretch, «Als Tabelle». The km under the line: about five of them.
+  const wchart = $derived.by(() => {
+    const pts = along?.points;
+    if (!pts?.length) return null;
+    const stride = Math.max(1, Math.ceil((pts.length - 1) / 4));
+    const kmText = (i) => `${num(pts[i].km)} km`;
+    return {
+      pts,
+      cols: pts.map((x, i) => ({ key: String(x.km), x: i % stride === 0 ? String(num(x.km)) : '' })),
+      series: [{ key: 'kg', color: 'var(--accent, var(--ink-2))', dots: false, v: pts.map((x) => x.kg) }],
+      read: (i) => ({ title: kmText(i), items: [{ label: t('Weight'), value: `${num(pts[i].kg)} kg`, color: 'var(--accent, var(--ink-2))' }] }),
+      table: { head: [t('Distance'), t('Weight')], rows: pts.map((x, i) => ({ key: String(x.km), cells: [kmText(i), `${num(x.kg)} kg`] })) },
+    };
+  });
+  let sel = $state(null);
 
   // 34 · Spares
   const roadsKey = $derived('race-roads:' + ctx.trip.id);
@@ -75,10 +92,7 @@
         <div class="rc-stat"><div><b>{num(Math.round(base * 10) / 10)}</b><small>{t('kg without food and water')}</small></div></div>
       </div>
     </div>
-    <svg viewBox="0 0 300 90" width="100%" role="img" aria-label={t('Heaviest at km {km}: {kg} kg', { km: num(along.max.km), kg: num(along.max.kg) })} data-race-weight-line>
-      <path d={line.d} fill="none" stroke="var(--accent, currentColor)" stroke-width="1.5" />
-      <circle cx={line.x(along.max.km)} cy={line.y(along.max.kg)} r="3" fill="var(--ink, currentColor)" />
-    </svg>
+    <LineChart id="race-weight" cols={wchart.cols} series={wchart.series} readout={wchart.read} table={wchart.table} unit="kg" height={110} label={t('Heaviest at km {km}: {kg} kg', { km: num(along.max.km), kg: num(along.max.kg) })} onopen={(i) => (sel = i)} hint={t('Point at a stretch for the weight, tap it for the km.')} />
     <p class="rc-text"><b>{t('Heaviest at km {km}: {kg} kg', { km: num(along.max.km), kg: num(along.max.kg) })}</b> · {t('lightest {kg} kg', { kg: num(along.min.kg) })}</p>
     {#if !bikeG}<p class="rc-note">{t('The bike has no weight yet: add it under Bikes.')}</p>{/if}
     {#if rig.missing}<p class="rc-note">{t('{n} things without a weight count as 0 g.', { n: rig.missing })}</p>{/if}
@@ -86,6 +100,17 @@
     <p class="rc-empty">{t('Load the route and set the start (Strategy) first.')}</p>
   {/if}
 </RaceBox>
+
+{#if wchart && sel != null && wchart.pts[sel]}
+  {@const x = wchart.pts[sel]}
+  <ChartSheet kicker={t('Total weight along the route')} title={`${num(x.km)} km`} onclose={() => (sel = null)} onprev={sel > 0 ? () => sel-- : null} onnext={sel < wchart.pts.length - 1 ? () => sel++ : null} prevLabel={t('Earlier stretch')} nextLabel={t('Later stretch')}>
+    <ul class="shl" data-race-weight-sheet>
+      <li><span>{t('Weight')}</span><b class="num">{num(x.kg)} kg</b></li>
+      {#if x.km === along.max.km}<li><span>{t('Heaviest point')}</span><b class="num">✓</b></li>{/if}
+      {#if x.km === along.min.km}<li><span>{t('Lightest point')}</span><b class="num">✓</b></li>{/if}
+    </ul>
+  </ChartSheet>
+{/if}
 
 <RaceBox
   id="prep-spares"
@@ -131,3 +156,19 @@
     {#if !check.missing.length}<p class="rc-ok">{t('Your tool fits every bolt you listed.')}</p>{/if}
   {/if}
 </RaceBox>
+
+<style>
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+</style>

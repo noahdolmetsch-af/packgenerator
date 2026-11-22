@@ -20,6 +20,7 @@
   import StartFresh from './maintenance/StartFresh.svelte';
   import NamesDe from './clear/NamesDe.svelte';
   import TempoMesser from './tempo/TempoMesser.svelte';
+  import FehlerZeile from './fehler/FehlerZeile.svelte'; // UEBERGANG-FEHLERZEILE (until the Logbuch shows the errors)
   import SyncPanel from './sync/SyncPanel.svelte';
   import { SYNC_WISH } from './sync/nudge.js';
   import { take } from './nav.js';
@@ -58,7 +59,7 @@
   const LABELS = {
     items: 'Gear + wishlist', kits: 'Old kits (now templates)', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', containers: 'Bags', weightChecks: 'Weight checks', settings: 'Settings',
-    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks', healthDays: 'Fitbit days', sportItems: 'Sports entries', inspections: 'Bike inspections',
+    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks', healthDays: 'Fitbit days', sportItems: 'Sports entries', inspections: 'Bike inspections', logbuch: 'Improvement log',
   };
 
   // Noah 19.10.2026 «1a»: Ich › «Switch on» opens this page at «Phone and computer»
@@ -623,7 +624,7 @@
           </div>
         {:else if pending}
           <div class="confirm" role="dialog" aria-label={t('Import backup')}>
-            <h3 class="ch">{t('Check import')}</h3>
+            <h3 class="ch">{t('Import backup')}</h3>
             <p>
               <strong>{pending.name}</strong> {t('contains {items}, {trips} and {learnings}.', { items: tn(pending.counts.items, '{n} gear item', '{n} gear items'), trips: tn(pending.counts.trips, '{n} trip', '{n} trips'), learnings: tn(pending.counts.learnings, '{n} learning', '{n} learnings') })}
             </p>
@@ -763,6 +764,7 @@
       {/if}
     </section>
     <TempoMesser />
+    <FehlerZeile /> <!-- UEBERGANG-FEHLERZEILE -->
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
   </div>
 </div>

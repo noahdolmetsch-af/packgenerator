@@ -39,7 +39,11 @@ test('one tap ticks with Undo, a second tap takes it back', async ({ page, conte
   // Liegestütze: one tap = 10, the daily goal is reached; tapping again takes it back
   const push = page.locator('[data-act="pushups"]');
   await push.click();
-  await expect(toast).toContainText(T('{name} · {n} ticked', { name: 'Liegestütze', n: 10 }));
+  // T2 «Haken zuerst»: on Aktiv a tap that ticks opens «Geschafft» (its «Zurück zu Aktiv» leads back); the amount shows there
+  await expect(page).toHaveURL(/#\/flow\/geschafft\?e=/);
+  await expect(page.locator('[data-geschafft-head]')).toContainText('10×');
+  await page.locator('[data-geschafft-back]').click();
+  await expect(page).toHaveURL(/#\/flow$/);
   // Design-Refresh P8: the goal grid left Aktiv (it lives on «Ziele»); the tile shows the goal reached
   await expect(push).toHaveAttribute('aria-pressed', 'true');
   await push.click();

@@ -21,6 +21,7 @@ import { partInfo } from '../care.js';
 import { tripEnd } from '../tripstate.js';
 import { isTestTrip } from '../testname.js';
 import { notIgnored } from '../kmbook.js';
+import { logOf, starWeeks } from '../training/wochenlog.js';
 
 const INDOOR = /virtual|indoor|trainer/i;
 const isDay = (d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
@@ -102,13 +103,31 @@ export function careOnTimeDays(bikes = []) {
   return out;
 }
 
+/**
+ * «Wochenplan» part 5: the weeks with every unit of the weekly plan ticked (lib/training/wochenlog.js starWeeks).
+ * planWeeks: Map day → 1 (the day the last unit was ticked); planRuns: Map day → weeks in a row up to that star.
+ * Null without any star, so the two milestones stay away until there is one.
+ */
+export function planStars(rawLog) {
+  const stars = starWeeks(logOf(rawLog));
+  if (!stars.length) return { planWeeks: null, planRuns: null };
+  const planWeeks = new Map();
+  const planRuns = new Map();
+  for (const s of stars) {
+    planWeeks.set(s.day, (planWeeks.get(s.day) ?? 0) + 1);
+    planRuns.set(s.day, Math.max(planRuns.get(s.day) ?? 0, s.run));
+  }
+  return { planWeeks, planRuns };
+}
+
 /** Everything msContext({ extra }) needs, from the rows as stored. */
-export function msExtra({ book = [], acts = [], ignore = [], health = [], checks = [], answers = [], trips = [], debriefs = [], bikes = [] } = {}) {
+export function msExtra({ book = [], acts = [], ignore = [], health = [], checks = [], answers = [], trips = [], debriefs = [], bikes = [], weeklog = null } = {}) {
   return {
     rideKm: rideKmByDay(book, acts, ignore),
     ...healthMaps(health),
     checkDays: checkDaysOf(checks, answers),
     packOk: packOkDays(trips, debriefs),
     careOnTime: careOnTimeDays(bikes),
+    ...planStars(weeklog),
   };
 }

@@ -145,6 +145,11 @@
           <LogBlock {sport} {dayMap} items={mine} activities={strava} {today} {color} />
         </section>
       {/if}
+      <!-- «Rückblick pro Sportart» (Noah 21.11.2026, S4): the year of this sport, on its own page of Auswerten -->
+      <section class="card blk" aria-labelledby="bl-year" data-sport-year>
+        <div class="hl"><h2 id="bl-year">{t('Your year')}</h2><a class="lnk" href="#/auswerten/sportjahr/{encodeURIComponent(sport.act.id)}">{t('Your year in this sport')} ›</a></div>
+        <p class="hint">{t('Hours, units and best values of this sport, by month and against the year before.')}</p>
+      </section>
       <section class="card blk" aria-labelledby="bl-ms" data-block="milestones">
         <div class="hl"><h2 id="bl-ms">{t('Milestones')}</h2></div>
         <MilestoneSlot act={sport.act} {today} />

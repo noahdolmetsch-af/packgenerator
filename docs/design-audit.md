@@ -43,6 +43,19 @@ Bildsprache: «Gletscher» (gewählt 9.10.2026), hell und dunkel. Die Farbwerte 
 
 Noah, 9.10.2026 (0.47): Eine Liste, die man abarbeitet, leert sich selbst: Eine eingeordnete Zeile geht weg (ruhig, etwa 150 ms), die nächste rückt nach und bekommt den Fokus, ein Hinweis «✓ Name → Ziel · Rückgängig» bietet die Rücknahme an; «Rückgängig» stellt die Zeile an ihrem Platz wieder her. Eine leere Liste zeigt eine ruhige Zeile mit einer Aktion. Gilt nicht für Listen, deren Zeilen sichtbar bleiben sollen (Packliste, Material, Entscheide, die bis zum Übernehmen änderbar sind). Umgesetzt in 0.47: Kleiderschrank «Noch einordnen», Inbox, Material → Prüfen. Ab 0.47.1 ist die Inbox eine Liste neueste zuerst; eine eingeordnete Notiz bleibt als Link an ihrem Platz (Noah). Begründung pro Ort in `docs/decisions.md`.
 
+## Seitenregeln (Noah 21.11.2026 «1-5a»)
+
+Gelten für das Innere jeder Seite; Orte, Reiter und Chips gehören dem Umbau «Ganze App neu denken» (`docs/plan-ganze-app.md`). Gründe, Zahlen und Bilder: https://claude.ai/artifact/7vM8VacJjgKav8pEz2484z. Umsetzung in drei Stufen: 1 Werte (Titel, Ecken), 2 Seiten-Baustein für den Kopf, Tagebuch als erster Fall, danach Ort für Ort, 3 Wächter mit Grundlinie.
+
+1. **Ein Seitenaufbau:** Leiste des Ortes, Kopf, Hauptblock, Abschnitte, Fuss.
+2. **Kopf:** Titel in einer Grösse (`--fs-page`, 700), höchstens ein Knopf rechts, darunter ein ruhiger Satz in einer Zeile. Weg-Zeile nur, wenn die Seite tiefer liegt als Reiter und Chips des Ortes. Der Titel sitzt höchstens 120 px unter der Leiste des Ortes.
+3. **Hilfe hat einen Ort:** das «?» oben. Auf der Seite höchstens ein Satz, nie ein Block vor dem Inhalt. Die Zeile «Was du hier tun kannst» bleibt auf allen Seiten, immer zugeklappt (Noah 22.11.2026 «so lassen - immer zugeklappt»; ersetzt «2a» vom 21.11.2026, siehe `docs/decisions/zeile-was-du-hier-tun-kannst.md`).
+4. **Ein Hauptknopf** pro Seite (grün gefüllt), zweite Aktionen mit Rand, dritte als Text; die Aktionen einer Seite stehen zusammen in einer Karte.
+5. **Karten:** eine Ecke (`--radius-card`), ein Rand, Innenabstand 16; innere Kacheln 12 bis 14 px, Bedienelemente `--r-ctl`. Hellgrün getönt ist höchstens eine Karte pro Seite, nur für den Tagesimpuls.
+6. **Abstände und Schrift:** nur die Stufen 4, 8, 12, 16, 24, 32; innen 12, zwischen Karten 16, zwischen Abschnitten 24 (Handy) oder 32 (Computer), Rand 16. Fünf Schriftstufen; fett nur 600 oder 700.
+7. **Farbe und Umschalter:** Grün für Hauptknopf, Gewähltes, Datumszahlen; Rot, Gelb, Blau nur als Zustand mit Wort. Eine Art Umschalter pro Ebene: Reiter des Ortes oben, Ansicht direkt über dem Inhalt (gewählt = weisse Fläche mit Rand), Filter als Chips in einer scrollbaren Zeile.
+8. **Übergänge:** beim Wechsel innerhalb eines Ortes bleiben Leiste und Titelplatz stehen, nur der Inhalt wechselt (120 ms einblenden, aus bei reduzierter Bewegung); der Name einer Karte ist der Titel der Seite dahinter (`docs/namen.md`); der Weg zurück ist immer links oben; nach der Hauptaktion zeigt die Seite «Als Nächstes».
+
 ## Wächter
 
 Automatische Prüfungen bei jedem PR (Skill «packgenerator-einheitlich»), damit alte und neue Seiten gleich aussehen und sich gleich bedienen lassen. Sie fangen Fehler wie die Beschriftung mit der globalen Klasse `.sw` (ein Buchstabe pro Zeile) oder die Pflege-Chips «Di ch tm ilc h».

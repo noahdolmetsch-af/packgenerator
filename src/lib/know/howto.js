@@ -29,7 +29,6 @@ const LISTED = {
   'f.tripbike': ['Open a trip in Packen.', 'Compare the bikes for this trip.', 'Switch to the lighter one with one tap.'],
   'f.switch': ['Open Packen.', 'Tap the small «more» in the dark trip band.', 'Choose another trip from the list.'],
   'f.assistent': ['Open the Assistant (button or search).', 'Ask a question, or tap «Help me plan».', 'The answer or the plan comes from your data; everything is a suggestion.'],
-  'f.ask': ['Open the helper (with the helper code).', 'Write a few words about the trip.', 'A packing list suggestion comes; take what fits.'],
   'f.wardrobe': ['Open Gear › Wardrobe.', 'Your clothing stands by layer and zone.', 'A gap goes to the wishlist with one tap.'],
   'f.kit': ['Open the wardrobe.', 'Choose an outfit and save it as a kit.', 'Planning suggests the kit next time.'],
   'f.lighter': ['Open an item in Gear.', 'Tap its weight.', 'Lighter things from your own gear are listed.'],
@@ -281,6 +280,7 @@ const LISTED = {
   'f.turns': ['Open a trip with a route.', 'Start the ride on the live map.', 'The arrow and the voice come before each turn.'],
   'f.laps': ['Start a ride on the live map.', 'Tap the flag button for a new lap.', 'On a route you rode before, look at «Against your last ride» in the sheet.'],
   'f.moreplaces': ['Open the place search on the live map.', 'Type your radius or change the kinds.', 'Add own places by hand, by a tap or from a file.'],
+  'f.routeknown': ['Open a trip at «Route» with a GPX route.', 'Look under the map for stretches you marked.', 'Tap «How new is this route for me?».'],
   'f.rwgps': ['Open a trip at «Route».', 'Tap «Link from Ride with GPS» and paste the link.', 'Tap «Load».'],
   'f.ovnear': ['Start a ride on the live map.', 'Open the sheet › «Public transport nearby».', 'Tap «Find stops», then a stop.'],
   'f.groupmap': ['Open the live map › «Group ride» and tap «Invite the group».', 'Send the link by WhatsApp or SMS.', 'Friends tap «Share my location»; everyone sees the others on the map.',],
@@ -297,7 +297,7 @@ const LISTED = {
   'f.routine': ['Open Today: «What does me good» is on top.', 'Tap a row to tick it off.', 'Tap «Change list» to add or delete items.'],
   'f.frei': ['Open Me › Free time.', 'Choose a page, for example «What am I up for?».', 'Tap what fits; your own entries stay on this device and in the backup.'],
   'f.journal': ['Open Plan › Diary.', 'Tap «New entry» or answer the question of the day.', 'Settings (top right): lock with a code, tags, download.'],
-  'f.impulse': ['Open Active › Impulses.', 'Tap an area, then «Try it».', 'Your own impulse: «Your own impulse» at the end of the list.'],
+  'f.impulse': ['Open Free time › Impulses.', 'Tap an area, then «Try it».', 'Your own impulse: «Your own impulse» at the end of the list.'],
   'f.shopping': ['Open Me › Everyday life › Shopping list.', 'Type a point and tap «Add»; tick it in the shop.', 'Groups: «Groups» at the end of the page.'],
   'f.cook': ['Open Plan › Everyday life › Cooking.', 'Tap a recipe.', 'Tap «Add to the shopping list»; all steps are below.'],
   'f.contracts': ['Open Me › Documents › Contracts and subscriptions.', 'Tap «New contract» and enter the end of the term and the notice period.', 'The reminder comes in Calendar › Remember, before the last day to cancel.'],
@@ -308,7 +308,7 @@ const LISTED = {
   // v0.136.0 «Inhalte Flow» + «Wusstest du» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.pagetips': ['Open Aktiv › Heute: the tip of the day is under the title.', 'Tap «All tips ›» to switch single tips on or off.', 'At the page end, open «What the app can do here».'],
   // «Training» TR1–TR4 (HOWTO added in Paket 2; the PR came before «So geht's»)
-  'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«Plan the week» sets the sessions and an optional goal.'],
+  'f.training': ['Open Aktiv › Training: every activity from Strava.', 'Tap an activity: the minutes in each heart rate zone.', '«My week» sets the sessions and an optional goal.'],
   'f.weekplan': ['Open Woche: the whole week; on Sunday the wrap-up looks back.', 'On Sunday «Plan the week»: take or leave out what the app suggests.', 'Holidays once under Woche › Holidays.'],
   // v0.139.0 «Rechnungen ohne Gebühren» (HOWTO added in Paket 2; the PR came before «So geht's»)
   'f.sports': ['Open New tour.', 'Choose the sport: a bike sport brings its own standard bike.', 'Tap another bike and «Make standard for …» to keep it for that sport.'],
@@ -332,6 +332,7 @@ const LISTED = {
   'f.lake': ['Open Aktiv.', 'Look at the card «Lake Zurich».', 'Set from how many degrees it is warm enough for you.'],
   'f.datastars': ['Connect Strava or Fitbit.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday.'],
   'f.trello': ['Open Calendar › Remember.', 'Tap «Connect Trello» and allow it in Trello.', 'In a list\'s settings choose «Also in Trello».'],
+  'f.trainingpeaks': ['Open Me › Connections › TrainingPeaks plan.', 'Paste the calendar link from TrainingPeaks and tap «Test and add».', 'Aktiv › Training › My week shows the planned workouts marked «TP».'],
   'f.spielerplus': ['Open Me › Connections › Spielerplus calendar.', 'Paste the calendar link of your team and tap «Test and add».', 'Plan › Week shows the team dates; «Sign up ›» opens Spielerplus.'],
   'f.agenda': ['Open Me › Appointments and tasks.', 'Tick calendar and tasks and tap «Connect with Google».', 'Tick or add tasks; «New appointment» goes into your Google calendar.'],
   'f.docscan': ['Open Me › Documents.', 'Tap «Photograph document», photograph the pages, then «Save as PDF».', 'Sort, search and move them into groups; with Drive on they are also in your Google Drive.'],

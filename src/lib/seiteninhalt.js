@@ -34,7 +34,7 @@ export const ON_PAGES = [
   '#/bikes?tab=compare&view=all', '#/bikes?tab=compare&view=enter', '#/bikes?tab=rig', '#/bikes?tab=rig&view=bags',
   '#/bikes?tab=rig&view=log', '#/bikes?tab=setup', '#/bikes?tab=shop', '#/equipment', '#/gear', '#/me/pros', '#/ski/care', '#/wardrobe',
   // PR 18, area Körper (Aktiv, sports, training, meditation, body values; the Ruhiger pages go with Alltag)
-  '#/flow', '#/flow/sports', '#/flow/sport/act%3Agym', '#/flow/sport/act%3Atennis', '#/flow/training', '#/flow/form', '#/flow/review',
+  '#/flow', '#/flow/sports', '#/flow/sport/act%3Agym', '#/flow/sport/act%3Atennis', '#/flow/training', '#/flow/wochenplan', '#/flow/form', '#/flow/review',
   '#/flow/stats/hr', '#/flow/act/meditation', '#/flow/act/meditation/log', '#/flow/act/meditation/mehr', '#/auswerten',
   '#/auswerten/analyse', '#/me/abfragen', '#/me/insights', '#/me/weight', '#/me/wohl', '#/me/fitbit', '#/trips/rides',
   // PR 20, area «App»: the app itself (lists, privacy, rules, own values, search, assistant, helper, mini apps).
@@ -53,6 +53,11 @@ export const ON_PAGES = [
   // Wegweiser Werkzeuge (Noah 03.11.2026 «a» after the final measurement): the mini tools, as one line
   '#/me/tools',
 ];
+/**
+ * Pages without the line «What you can do here» (Seitenregeln 21.11.2026, Noah «2a»): the help sits only behind the «?», the
+ * content stays in its window. Page by page, with the page head building block (stage 2). Page keys as in ON_PAGES.
+ */
+export const LINE_OFF = ['#/tagebuch'];
 /** Words that are fixed sub-pages, never the id of a placeholder (#/debrief/logbook is not a trip). */
 export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung', 'play', 'ride', 'brief', 'new', 'shared'];
 /** Rows shown before «Show all n». */

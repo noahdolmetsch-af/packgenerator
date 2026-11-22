@@ -482,7 +482,9 @@
     "wish",
     "wxsuggest"
   ],
-  "abgeloest": {},
+  "abgeloest": {
+    "f.ask": "Frag den Helfer fällt weg: Noah 20.11.2026 «a» (alle KI-Funktionen von Claude und Gemini werden entfernt, Schritt 1)."
+  },
   "versteckt": {
     "f.ballast": {
       "wo": "Packen › Mehr zu dieser Tour › Daraus lernen"

@@ -6,7 +6,7 @@ dialog.sheet.vdlg {
   width: min(640px, calc(100vw - 24px));
   padding: 20px 20px 18px;
   border: 0;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   box-shadow: 0 24px 60px var(--shadow);
 }
 .vdlg .vd-head {

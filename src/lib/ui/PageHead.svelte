@@ -30,7 +30,7 @@
   }
   h1 {
     margin: 0;
-    font: 700 var(--fs-title)/1.15 var(--font-body);
+    font: 700 var(--fs-page)/var(--lh-title) var(--font-title);
     overflow-wrap: break-word;
   }
   .text,

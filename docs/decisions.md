@@ -4,6 +4,8 @@
 
 Jede wichtige Entscheidung mit Datum, Entscheid und Grund. Neueste unten. Ältere Zeilen dokumentieren den damaligen Stand und bleiben erhalten.
 
+> **Seit 21.11.2026 (Noah «2a») wird diese Datei nicht mehr ergänzt.** Neue Entscheide stehen je PR in einer eigenen Datei unter [`decisions/`](decisions/README.md), damit zwei PRs nie dieselbe Stelle ändern.
+
 ## Aktuelle Geltung (Abgleich 07.10.2026, ergänzt 08.10.2026)
 
 Nachtrag 08.10.2026: Die Navigation Heute/Touren/Material/Velos gilt seit 0.23.0 auf jeder Seite, die Sprache steht im Profilmenü. Die Eventvorbereitung ist seit 0.22.1 live an das Häkchen „Event“ gebunden. Die beiden entsprechenden Punkte unten sind damit Historie. Neue Entscheide stehen unten im Abschnitt „Seit 7.10.2026“.
@@ -2065,3 +2067,27 @@ Noah 19.10.2026: «1a 2a 3a 4 a oder b beides wählbar 5a», danach «a und b»,
 
 ## 05.11.2026 Handy-Tests nur für den betroffenen Bereich
 - Noah «3a ja» (Thread «Handy-Tests nur für betroffenen Bereich»): Die Handy-Tests eines PR (Label `ok`) laufen nur noch für die Seiten, die der PR berührt. `scripts/ci-map.mjs` liest aus den Importen der App, in welchen Seiten eine geänderte Datei landet, und nimmt die Tests, die diese Seiten öffnen. Der Kern (`flow.spec.js`, `guard.spec.js`) läuft immer. Deutsche Textdateien (`src/lib/i18n/de/`), Doku und News allein lösen keinen Handy-Test aus. Alles läuft wie bisher, wenn eine Datei geändert wird, die jede Seite lädt (zum Beispiel `App.svelte`, `features.js`, Heute), wenn die Zuordnung unklar ist, bei Build- und Workflow-Dateien und bei mehr als 250 gefundenen Tests. Die Nacht-Prüfung läuft weiter mit allen Tests; ein Fehler, den die Auswahl übersieht, zeigt sich dort.
+
+## 10.11.2026 Plan «ganze App»: Weg B, Streifen statt neuer Orte
+- Noah «B» und «Weg B · meine Empfehlung ★» (Thread «Bauen: Karte «Meine Tour» auf Heute», nach den drei Wegen: https://claude.ai/artifact/Ln8vsVUyzvxLNr2t8Gwgc5): Velos, Material, Aktiv, Planen und Ich behalten ihr Aussehen und ihre Reiter. Oben bekommt jeder Ort einen kleinen Streifen «Jetzt: nächster Schritt» mit Phasenpunkten. Das ersetzt für 3a, 3b, 5a und 5b den früheren Entscheid «Ort neu bauen, Ort-Vorlage mit Bändern» (08.11.2026, Fragen 3 a und 5 a). Grund: weniger Umbau, kleinere PRs, nichts Gewohntes wandert.
+- Neu im Plan: 3s «Streifen-Baustein». Unverändert: 1b, 4a, 2b, 7a, 7b (4b danach), 6, die Pause für Noahs echte Tour nach 2b und Frage 9 b (Unterwegs-Modus per Knopf).
+
+
+## 11.11.2026 Ruckeln: zwei Bewegungs-Effekte raus
+- Noah «c» (Thread «Ruckelfunktion finden und entfernen»): Die kleine Titelzeile oben beim Scrollen (Paket A Idee 5) und das Mitfliegen des Tour-Namens beim Öffnen (Paket A Idee 2) sind entfernt. Grund: Ruckeln beim Scrollen und Seitenwechsel. Die Ideen 1, 3 und 4 (Richtung zeigen, Markierung gleitet, Ruhiges Einblenden) bleiben. Der Hauptgrund des Ruckelns (Kopieren der Fahrten, PR #1251) ist ein eigener Schritt.
+
+## 18.11.2026 Ganze App neu denken: neue Ordnung statt Weg B
+- Noah «1a 2a 3b 4b 5b» (Thread «Ganze App neu denken: klickbarer Prototyp»; Prototyp https://claude.ai/artifact/8pjQB9ZWbsKxDaneViBekf, Fragen 17.11.2026 «1a 2a 3 Computer 4b 5b»): (1a) Der Entwurf gilt und ersetzt Weg B vom 10.11.2026; jeder PR braucht trotzdem Noahs «ok». (2a) Die Empfehlungen der Streichliste gelten (4 ganz weg, 8 hinter «Mehr», 8 zusammenlegen). (3b) Keine Pause für Noahs echte Tour, es wird durchgebaut. (4b) Der Heute-Schritt wartet auf die Entscheide des Threads «Startseite ruhiger». (5b) Claude baut alles im selben Thread, ein PR nach dem anderen.
+- Inhalt: acht Orte (Heute, Planen, Touren, Aktiv, Auswerten, Velos, Material, Ich), 23 statt 52 Reiter, jede Tour eine Seite mit vier Phasen, «Quick Links», «Inspiration» und «Ausrüstung» sind keine eigenen Orte mehr, Orte antworten auf eine Frage. Wegweiser und Streichliste: `docs/wegweiser-neue-ordnung.md`; Plan: `docs/plan-ganze-app.md` (Schritte 9 bis 15, 2b, 4b, 6, 7a, 7b; 3s, 3a, 3b, 5a, 5b gestrichen).
+- Vorher (Noah 17.11.2026 «4b», früher «Vereinfachen ohne Verlust» 07.11.2026 «1-5a»): Unbenutztes darf ganz weg, aber nur über die Streichliste, nichts stillschweigend. Alte Adressen führen weiter (Schritt 9).
+
+## 21.11.2026 Seitenregeln für die ganze App
+- Noah «1-5a» (Thread «Einheitliches Erscheinungsbild, Tagebuch zuerst»; Bericht https://claude.ai/artifact/7vM8VacJjgKav8pEz2484z): (1a) Die acht Seitenregeln gelten für alle Seiten (`docs/design-audit.md`), in drei Stufen; (2a) Hilfe nur über das «?», die Zeile «Was du hier tun kannst» unter dem Titel fällt weg; (3a) Frage des Tages im Tagebuch als eigene Karte unter der Schreib-Karte; (4a) gewählter Umschalter = weisse Fläche mit Rand, auch bei Aktiv und Auswerten; (5a) Reihenfolge: Werte-PR (Titel, Ecken), dann Tagebuch, dann Ort für Ort der Kopf-Baustein.
+- 21.11.2026 (Noah «1-5a», Thread «Fix Abhaken-Sync zwischen Computer und Handy»): Der Zustand des Abgleichs darf sichtbar sein: ein kleiner Punkt am «Ich»-Knopf (grün in Ordnung, orange aus oder hinterher) und eine Zeile in «Wichtig heute», wenn der Abgleich aus ist oder Änderungen nicht rausgegangen sind. Grund: der Abgleich war auf einem Gerät aus und nichts hat es gesagt. Gilt neben dem Gebot vom 24.10.2026 (keine Fragen bei Änderungen auf beiden Geräten).
+
+## 21.11.2026 Fünf Bereiche statt acht Orte
+- Noah «1a 2a 3a 4a 5a» (Thread «App vereinfachen: Durchgang mit Opus»; Bilder https://claude.ai/artifact/MLJqa4PpNZAoHFLB51vWie; Auftrag `/mnt/project-files/notes/vereinfachen-durchgang-2026-11-21/umsetzungsauftrag-vereinfachen.md`): (1a) Das Menü hat fünf Bereiche, gleich am Handy und am Computer: Heute, Woche, Touren, Velos und Material, Auswerten; «Ich» oben rechts. (2a) Planen und Aktiv werden der Bereich «Woche» mit den Reitern Woche, Training, Notizen, Alltag; Abhaken wandert nach Heute, Analysen, Meilensteine, Gipfelbuch und Wochenrückblick nach Auswerten. (3a) Ein Haken für alles (`flowLog` und `training.weeklog`; Datenänderung, Einzelfreigabe, Thread «Training erfassen»). (4a) Nachtragen: «Heute · Gestern» und ein Tag im Abhak-Fenster (Thread «Training erfassen»). (5a) «Alles hier» fällt weg, am Seitenende steht «Alle Funktionen ›».
+- Erweitert Plan-Schritt 15 und ersetzt die sieben Orte der Seitenleiste (Schritt 10); Schritt 13 (Velos und Material) wird V5. Jede Seite behält ihre Adresse, alte Adressen führen weiter (`redirectOf`). Reihenfolge und Zuständigkeiten: `docs/plan-ganze-app.md`.
+
+## 21.11.2026 Klügere App: S1, S3, S4, S5, S6 ja, S2 gestrichen
+- Noah «1a 2b 3a 4a 5a» (Thread «Ideen für bessere App und Inhalte sammeln», Analyse unter `notes/app-intelligenz-2026-11-21`): (1a) Tempo genauer pro Velo, Belag und Ermüdung; (2b) «Route kennt deine Erfahrung» ja, «Gegenwind zuerst» nein; (3a) Erkenntnisse mit Sicherheitsangabe nach K3; (4a) Hinweise lernen aus dem Wegtippen; (5a) «Frag die App» merkt sich Fragen ohne Antwort (nur auf dem Gerät). Keine externe KI, nur Regeln und Statistik. Reihenfolge: S3, S5, S1, S6, S4; S1 und S5 brauchen eine Einzelfreigabe wegen Daten.

@@ -38,6 +38,7 @@ import './app.css';
 import './lib/ui/touch.css';
 import App from './App.svelte';
 import { watchWhitePage } from './lib/ui/whitepage.js';
+import { watchErrors } from './lib/fehler/felog.js';
 import { lang, loadDe } from './lib/i18n.svelte.js';
 // Tempo-Messer (Noah 02.11.2026): only when the person switched it on (Ich › Daten); loads on demand, never at the start otherwise
 try {
@@ -67,6 +68,7 @@ import { takeReturn as takeDriveReturn } from './lib/docs/client.svelte.js';
 import { takeReturn as takeMailReturn } from './lib/mail/client.svelte.js';
 import { takeReturn as takeAgendaReturn, watchAutoFetch as watchAgendaFetch } from './lib/agenda/client.svelte.js';
 import { watchSpielerplus } from './lib/spielerplus/watch.js';
+import { watchTrainingpeaks } from './lib/trainingpeaks/watch.js';
 import { takeReturn as takeTrelloReturn, watchAutoSync as watchTrelloSync } from './lib/trello/client.svelte.js';
 import { snapshotOnStart } from './lib/maintenance/snapshots.js';
 import { readMaint } from './lib/maintenance/settings.js';
@@ -146,6 +148,7 @@ noteAppOpen();
 if (lang.v !== 'de') loadDe().catch(() => {});
 mount(App, { target: document.getElementById('app') });
 watchWhitePage();
+watchErrors(); // «Fehler-Melder»: errors nobody caught are noted on this device (nothing is sent)
 
 // P8 «Automatischer Abgleich» (Noah 18.10.2026 «1b … 2b 3b»): while it is switched on, rounds run by
 // themselves (sync/auto.svelte.js); when both devices changed the same entry, the newer change wins quietly (Noah 24.10.2026).
@@ -188,6 +191,7 @@ settling(async () => {
     watchHealthFetch(); // Fitbit: the new daily values when the app opens or comes back (answer 2a)
     watchAgendaFetch(); // Google Kalender und Aufgaben: the same, at most every 15 minutes
     watchSpielerplus(); // Spielerplus-Kalender (Noah 06.11.2026): the team dates, at most every 30 minutes
+    watchTrainingpeaks(); // TrainingPeaks-Plan (Noah 19.11.2026): the planned workouts, at most every 60 minutes
     watchTrelloSync(); // Trello (Noah 19.10.2026 «2a»): Merken and the Trello lists, the same way
     autoCheck(db);
     // «Erster Start» (Noah 20.10.2026 «2a … b auch»): a new, empty app asks once «with examples» or «empty»

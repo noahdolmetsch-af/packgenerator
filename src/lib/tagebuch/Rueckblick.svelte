@@ -212,7 +212,7 @@
     gap: 10px;
     padding: 16px;
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: var(--radius-card);
     background: var(--paper);
   }
   .rb-h {

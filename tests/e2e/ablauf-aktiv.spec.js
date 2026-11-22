@@ -67,7 +67,8 @@ test('Trainingsplan: weeks from today, «Ausprobieren» with Undo; a planned ses
   await expect.poll(async () => (await setting(page, 'training.plan')).sessions[0].done).toBe(true);
   await page.locator('.rtoast').getByRole('button', { name: T('Undo') }).click();
   await expect.poll(async () => (await setting(page, 'training.plan')).sessions[0].done ?? false).toBe(false);
-  // the FTP card shows the way to type one (A07)
+  // the FTP card shows the way to type one (A07); it sits in the tab «Analysen»
+  await page.goto('./#/flow/training?view=ana');
   await expect(page.locator('[data-ftp-add]')).toHaveText(T('Enter FTP'));
   expect(errors).toEqual([]);
 });

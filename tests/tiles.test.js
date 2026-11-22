@@ -52,7 +52,7 @@ describe('the stored wall', () => {
     const w = wallOf({ v: 17, tiles: [{ id: 'play', size: 'long' }, { id: 'nope', size: 's' }, { id: 'play', size: 'w' }, null, { id: 'year', size: 'long' }] });
     expect(w).toEqual([{ id: 'play', size: 's' }, { id: 'year', size: 'long' }, { id: 'spruch', size: 'long' }]); // «Spruch» (v < 19) once, at the end; «Traum der Woche» (v < 20) stays away: no moment cards on this wall
     expect(wallOf({ v: 17, tiles: [{ id: 'news', size: 'long' }] })).toEqual([{ id: 'news', size: 'long' }, { id: 'spruch', size: 'long' }]);
-    expect(wallRecord(w)).toEqual({ v: 20, tiles: w });
+    expect(wallRecord(w)).toEqual({ v: 21, tiles: w }); // «Meine Tour» (Plan 2a): v 21
     expect(wallOf({ v: 17, tiles: [] })).toEqual([{ id: 'spruch', size: 'long' }]);
     expect(wallOf({ v: 9, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);
     expect(wallOf({ v: 8, tiles: [{ id: 'news', size: 'long' }] })).toEqual(READY);

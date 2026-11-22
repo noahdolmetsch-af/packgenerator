@@ -5,7 +5,7 @@ export default {
   points: [
     {
       text: '«What you can do here» on On the way, Before you leave, Mountain, Weather and Ski start, each function with «Good to know»',
-      go: { href: '#/ride/abfahrt', steps: [{ sel: '[data-seiteninhalt-know]' }], where: 'On the way shows while a trip is running.' },
+      go: { href: '#/ride/abfahrt', steps: [{ sel: '[data-seiteninhalt-line]' }], where: 'On the way shows while a trip is running.' },
     },
   ],
   small: [],

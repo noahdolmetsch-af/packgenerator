@@ -12,16 +12,29 @@
    * button, never inside it. `help` adds one quiet line under the grid (Today's «Im Flow» card).
    * «Aktiv neu» (Noah 20.10.2026 «1a»): `compact` draws small tiles, the symbol and the name in one line
    * (the state line goes into the button's label), for Aktiv › Heute.
+   * «Haken zuerst» (Noah 19.11.2026 «1-5a», T2): with `jump` (only Aktiv) a tap that ticks opens the page «Geschafft» for this tick
+   * at once (duration and feeling are optional there); the message after the tick is closed, the page has its own «Rückgängig».
+   * Exceptions: a tick that wins a new star stays (the star window and the message with the link), and the line «almost a star»
+   * stays as the message on the page. A tap that takes a tick back stays here. Heute does not jump.
    */
   import { Check, Hand, Ellipsis } from '@lucide/svelte';
   import ActIcon from './ActIcon.svelte';
   import { press } from './press.js';
-  import { ui, tapAct, actName } from './ui.svelte.js';
+  import { ui, tapAct, actName, closeToast } from './ui.svelte.js';
   import { tileSub } from './words.js';
   import { isMedAct } from './hobby/medstart.js';
   import { t } from '../i18n.svelte.js';
-  let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false } = $props();
-  const tap = (s) => (onmed && isMedAct(s.act) ? onmed(s) : tapAct(s, today));
+  let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false, medHelp = false, jump = false } = $props();
+  const tap = async (s) => {
+    if (onmed && isMedAct(s.act)) return onmed(s);
+    const e = await tapAct(s, today);
+    // a new star keeps its own window and the message (nothing opens over a celebration); «almost a star» stays as the message's line
+    if (jump && e && !ui.star) {
+      if (ui.toast?.hint) ui.toast = { ...ui.toast, next: null };
+      else closeToast();
+      location.hash = `#/flow/geschafft?e=${encodeURIComponent(e.id)}`;
+    }
+  };
 </script>
 
 <ul class="tg" class:big class:compact style:--cols={cols} style:--min={cols > 2 ? '150px' : '0px'}>
@@ -47,7 +60,7 @@
 </ul>
 {#if help && states.length}
   <!-- KT (2a): one quiet line what a tap and a long press do -->
-  <p class="tghelp" data-tick-help><Hand size={16} aria-hidden="true" /><span><b>{t('Tap|tick help')}</b> {t('ticks|tick help')} · <b>{t('long press|tick help')}</b> {t('or •••: duration, place, stopwatch')}</span></p>
+  <p class="tghelp" data-tick-help><Hand size={16} aria-hidden="true" /><span><b>{t('Tap|tick help')}</b> {t('ticks|tick help')} · <b>{t('long press|tick help')}</b> {t('or •••: duration, place, stopwatch')}{#if medHelp}{' '}·{' '}{t('Tap Meditation: start or tick off.')}{/if}</span></p>
 {/if}
 
 <style>

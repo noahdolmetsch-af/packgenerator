@@ -6,6 +6,7 @@
  */
 export default {
   'Equipment|place': 'Ausrüstung',
+  'Your main equipment per sport, with a counter and its care': 'Deine Hauptausrüstung pro Sportart, mit Zähler und Pflege',
   'Bikes or equipment': 'Velos oder Ausrüstung',
   'Your main equipment per sport, with a counter and its care. Bikes have their own place.': 'Deine Hauptausrüstung pro Sportart, mit Zähler und Pflege. Velos haben ihren eigenen Ort.',
   'piece of equipment': 'Ausrüstung',

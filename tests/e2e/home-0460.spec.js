@@ -64,11 +64,14 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   expect(await inFirstScreen(page, page.locator('#hello-h')), 'greeting in the first screen').toBe(true);
   // «Heute neu» N2 (0.169.0, Noah «5a», changed on purpose): one sentence, then the body and the Aktiv tiles; the
   // trip of tomorrow right under them, «Up now» after the trip
-  await expect(page.locator('[data-say]')).toContainText(T('{n} day until {trip}.', { n: 1, trip: 'test_data_gtp_ Herbstrunde' }));
+  // 17.11.2026 (changed on purpose, «Tour nur einmal»): «My tour» says the countdown; the sentence keeps only what is up today
+  await expect(page.locator('[data-say]')).not.toContainText(/Herbstrunde/);
+  await expect(page.locator('[data-say]')).toContainText(/Dinge dran|things are up/);
   // 0.180.0 P6 (Noah 21.10.2026 «2b»): the meditation card is first on the wall, the weekly weight under it.
   // «Heute ruhiger» (Noah 26.10.2026 «3a», mockup H3, changed on purpose): the tiles stand in areas with a heading;
   // «Jetzt» (meditation, the trip, the weekly weight, «Up now») comes first, then «Dein Körper» with the body and Aktiv
-  await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meditation');
+  // «Meine Tour» (Plan 2a, Noah 09.11.2026 «ok 1232»): with a planned tour the card is first, the meditation card right under it
+  await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'meinetour');
   const areas = await page.locator('.wall [data-home-sec]').evaluateAll((els) => els.map((e) => e.dataset.homeSec));
   expect(areas.slice(0, 2)).toEqual(['now', 'body']);
   await expect(page.locator('[data-home-sec="now"] h2')).toHaveText(T('Now|home'));

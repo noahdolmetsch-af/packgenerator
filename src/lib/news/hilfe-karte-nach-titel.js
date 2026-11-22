@@ -9,7 +9,7 @@ export default {
     },
     {
       text: 'Appearance › Page cards › «Fold all cards again», with Undo',
-      go: { href: '#/me/look', steps: [{ sel: '[data-seiteninhalt-set]' }] },
+      go: null,
     },
   ],
   small: [{ box: 'new', text: 'A card you opened stays open on its page' }],

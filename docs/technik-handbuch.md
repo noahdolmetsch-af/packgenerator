@@ -113,13 +113,14 @@ Je Datei eine Aufgabe, Hilfsteile in `api/_lib/`:
 | Datei | Wann | Was |
 |---|---|---|
 | `deploy.yml` | jeder PR und jeder Merge auf `main` | PR: Bauen + Unit-Tests + Wächter auf dem Computer (`guard.spec.js`); **Handy-Tests (5 Teile) erst mit dem Label `ok`**. `main`: Bauen, Tests, **sofort online** (Pages) und Eintrag in «Releases» |
+| `online-rot.yml` | nach jedem Lauf von `deploy.yml` auf `main` | ist das Online-Gehen **rot**: sofort ein Issue «Online-Gehen von main ist rot» (Label `online-rot`) mit Mail; grün schliesst es wieder. Abgebrochene Läufe melden nichts |
 | `waechter.yml` | alle 3 Stunden | fragt den Server (`api/health.js`); bei Fehler ein Issue mit Mail |
-| `live.yml` | morgens und nach Merges | prüft die echte App im Browser |
+| `live.yml` | morgens und nach Merges | prüft die echte App im Browser: Seiten öffnen, Update, offline, und seit 21.11.2026 der **Live-Rundgang** (`tests/e2e/live/rundgang.spec.js`): Haken setzen, Sportjahr ansehen, Backup sichern, Haken zurücknehmen, Backup einspielen; Rot öffnet ein Issue mit Mail |
 | `nacht.yml` | nachts | Rundgang über alle Seiten (nur Links öffnen) |
-| `volle-pruefung.yml` | nachts | volle Browser-Tests auf dem Computer + Gesamttest; Rot öffnet ein Issue |
+| `volle-pruefung.yml` | nachts | volle Browser-Tests auf dem Computer + Gesamttest; Rot öffnet ein Issue. Seit 21.11.2026 vergleicht der Lauf mit der Nacht davor (`scripts/nacht-vergleich.mjs`): ein Kommentar (Mail) kommt nur, wenn etwas **neu** rot ist. Ausserdem die **Wackel-Liste** (`scripts/wackel-liste.mjs`): Tests, die beim zweiten Versuch grün waren, werden pro Nacht gezählt; an der zweiten Nacht öffnet sich das Issue «Wackel-Tests» (Label `wackel-test`) |
 | `dependabot-automerge.yml` | Dependabot-PRs | grün → von selbst zusammenführen (Noah 26.10.2026, ohne Freigabe) |
 
-`scripts/ci-scope.mjs`: ein PR, der nur Doku, News-Dateien oder ganze Specs ändert, führt nur die eigenen Specs aus. «Ausprobieren» tippt in einem PR nur die Zeilen der eigenen News-Dateien; nachts alle.
+`scripts/ci-scope.mjs`: ein PR, der nur Doku, News-Dateien oder ganze Specs ändert, führt nur die eigenen Specs aus. Ein PR mit App-Code führt ausser den Specs seiner Seiten immer den «Kern» (`CORE_SPECS`) aus: die Wächter, die die ganze App prüfen (`guard`, `flow`, `tippzahl`, `functions`, `heimat`, `tote-knoepfe`). Ein neuer Wächter dieser Art kommt in diese Liste. «Ausprobieren» tippt in einem PR nur die Zeilen der eigenen News-Dateien; nachts alle.
 
 **Wächter in den Tests** (die häufigsten Gründe für ein rotes Häkchen):
 - `appstand.test.js`: toter Link in `docs/app-stand.md`, Funktion ohne Zeile, Versionsnummer in der Datei.

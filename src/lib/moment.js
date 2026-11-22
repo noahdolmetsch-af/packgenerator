@@ -95,7 +95,7 @@ const LISTED_MOMENTS = {
   ],
   // Tour planen
   planen: [
-    'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.ask', 'f.sports', 'f.travel',
+    'f.racecheck', 'homeweather', 'f.plan', 'f.tripstate', 'f.assistent', 'f.sports', 'f.travel',
     'f.komoot', 'f.tripcompare', 'f.snow', 'f.skiplan', 'f.swissmap', 'f.sosqr', 'f.scales', 'f.race',
     'f.racesample', 'f.racemap', 'f.climbs', 'f.mapoffline', 'f.sleeplists', 'f.nightswx', 'f.abroad',
     'f.mapmeasure', 'f.wxwatch', 'f.fuel', 'f.sleeporigin', 'f.devil', 'f.nogos', 'f.energy', 'f.gpxstops',
@@ -106,7 +106,7 @@ const LISTED_MOMENTS = {
     'f.remindtime', 'blocks', 'templates', 'gpx', 'wxsuggest', 'f.packblocks', 'f.onion', 'f.shop',
     'f.ballast', 'f.tripbike', 'f.switch', 'f.blockcheck', 'f.packcleanup', 'f.planb', 'f.daysports',
     'f.unclear', 'f.border', 'f.ruleuntil', 'f.itemstories', 'f.intent', 'f.checkin', 'f.packtwo',
-    'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.starters', 'f.packside', 'f.ownrules',
+    'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.routeknown', 'f.starters', 'f.packside', 'f.ownrules',
     'f.forgotten', 'f.newpack', 'f.power', 'f.packphoto', 'f.tourhints', 'f.routepois', 'f.tripalert',
     'f.quiz', 'f.probe', 'f.blockeffect', 'f.needs', 'f.weightsure', 'f.sharepreview', 'bags', 'share',
     'f.tripcheck', 'f.readytomorrow', 'f.readaloud', 'f.offlinesave', 'f.labels', 'f.lightpush', 'f.skicheck',
@@ -144,7 +144,7 @@ const LISTED_MOMENTS = {
   // Körper und Training
   koerper: [
     'f.tick', 'f.check', 'f.stopwatch', 'f.sportpage', 'f.progress', 'f.mosaic', 'f.sportextras', 'f.goals',
-    'f.yeargoals', 'f.abfragen', 'f.datenfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.form',
+    'f.yeargoals', 'f.abfragen', 'f.datenfragen', 'f.stravaticks', 'f.lake', 'f.datastars', 'f.training', 'f.trainingpeaks', 'f.form',
     'f.overview', 'f.trainplans', 'f.feel', 'f.analyses', 'f.analyse', 'f.weekreview', 'f.weekgoals', 'f.milestones', 'f.meditation',
     'f.medlog', 'f.medreview', 'f.gipfelbuch', 'f.routine', 'f.insights', 'f.timer', 'f.medmore',
     'f.parkdays', 'f.tennistop', 'f.yogaclasses', 'f.ownbody', 'f.observations', 'f.ridepage', 'f.tickreview',

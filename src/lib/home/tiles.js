@@ -48,6 +48,8 @@ export const TILES = [
   // «Heute-Check» (Noah 30.10.2026 «1-5a», thread «Tagescheck optimieren»): the questionnaire is one tap away, also when answered
   { id: 'heutecheck', area: 'flow', label: "Today's check", icon: 'list', sizes: ['w', 'l'], size: 'w', pitch: 'The questionnaire of today, also when you have answered it, and the analyses of your answers one tap away.' },
   // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»): the last VO2max from Fitbit or Apple Health; away while there is none
+  // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): the planned tour in four phases with one next step; away while no tour is planned. It replaces the line «Event preparation» of «Up now»
+  { id: 'meinetour', area: 'trips', label: 'My tour', icon: 'route', sizes: ['long'], size: 'long', pitch: 'Your planned tour in four phases (planning, preparing, on the way, afterwards) with the next step and a link to the whole path.' },
   // «Heute als Begleiter» PR 4 (Noah 28.10.2026 «1a 2a 3a»): the moment you are in, with one next step
   { id: 'moment', area: 'today', label: 'Your moment', icon: 'route', sizes: ['long'], size: 'long', pitch: 'The moment you are in (packing, on the way, back home …), the five steps of a trip and one next step.' },
   // «Heute als Begleiter» PR 5 (Noah 28.10.2026 «1a 2a 3a»): one function a day that fits the moment and that you never opened
@@ -132,6 +134,7 @@ export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
  * other tile is still in the catalog («Add a tile»).
  */
 export const READY = [
+  ['meinetour', 'long'], // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): right under the greeting, only while a tour is planned
   ['meditation', 'long'],
   ['moment', 'long'], // «Heute als Begleiter» PR 4 (Noah 28.10.2026): the moment you are in, right under the habits
   ['spruch', 'long'], // «Spruch zum Einstieg» (Noah 07.11.2026): right under the moment card, so it stays within the first screens
@@ -216,7 +219,7 @@ export const REMOVED_0155 = ['morningcheck', 'fn:dayride', 'fn:trip', 'fn:wear',
 /** 0.155.0: the new pieces of HN4; a stored wall gets them once, in their place. */
 export const ADDED_0155 = ['meditation', 'daycard', 'aktiv'];
 /** «Heute neu» N2: the tiles on top of the wall; near a trip its card moves up right under them (tripUp). */
-export const HEAD_N2 = ['meditation', 'moment', 'weighin', 'discover', 'wochentraum', 'body', 'acts', 'vitals']; // PR 4: the moment card too
+export const HEAD_N2 = ['meinetour', 'meditation', 'moment', 'weighin', 'discover', 'wochentraum', 'body', 'acts', 'vitals']; // PR 4: the moment card too
 /** The tiles that stand on top, in this order (the trip card may move up under the day card, tripUp). */
 export const HEAD_0155 = ['meditation', 'daycard', 'important'];
 
@@ -254,7 +257,9 @@ export function wallOf(value, legacy = null) {
     // «Spruch zum Einstieg» (Noah 07.11.2026): a wall of before (v < 19) gets the tile once, right under the moment card
     const sp = (value.v ?? 1) < 19 ? withSpruch(pi) : pi;
     // «Traum der Woche» (Noah 07.11.2026 «1a»): a wall of before (v < 20) gets the tile once, under «Discover»
-    return (value.v ?? 1) < 20 ? withWochentraum(sp) : sp;
+    const wt = (value.v ?? 1) < 20 ? withWochentraum(sp) : sp;
+    // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): a wall of before (v < 21) gets the card once, on top
+    return (value.v ?? 1) < 21 ? withMeineTour(wt) : wt;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -493,8 +498,22 @@ export function withSpruch(tiles = []) {
   out.splice(a !== undefined ? a + 1 : out.length, 0, { id: 'spruch', size: TILE.spruch.size });
   return out;
 }
-/** The record to store (v 20: the tile «Traum der Woche» came once; v 19: the tile «Spruch» came once; v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 20, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): a wall stored before (v < 21) gets the card once, on top (right under the
+ * greeting): before the first of the tiles that open Heute (habits, moment card, trip card, «Up now»). A wall without any of
+ * them was made the person's own: it stays as it is (the card is in the catalog, «Add a tile»). Taken away after that, it
+ * stays away. The card shows only while a tour is planned. → tiles
+ */
+export function withMeineTour(tiles = []) {
+  if (tiles.some((x) => x.id === 'meinetour')) return tiles;
+  const at = tiles.findIndex((x) => ['meditation', 'moment', 'trip', 'important'].includes(x.id));
+  if (at < 0) return tiles;
+  const out = [...tiles];
+  out.splice(0, 0, { id: 'meinetour', size: TILE.meinetour.size });
+  return out;
+}
+/** The record to store (v 21: the card «My tour» came once; v 20: the tile «Traum der Woche» came once; v 19: the tile «Spruch» came once; v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 21, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {

@@ -7,14 +7,16 @@
    * A new activity is the same form, empty. Pause keeps the history. Delete (Noah 20.10.2026 «2a 3a») asks in
    * the app's window: «Keep the history» (flowdb removeAct keep) or «Delete with history», then «Undo».
    */
-  import { ChevronDown, Minus, Plus, Check, Sun, Snowflake, Trash2, X, Pencil } from '@lucide/svelte';
+  import { ChevronDown, Minus, Plus, Check, Sun, Snowflake, Trash2, X, Pencil, Merge } from '@lucide/svelte';
   import Crumb from './kit/Crumb.svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
-  import { offerRename } from '../ui/rename.svelte.js';
+  import { offerRename, offerDone } from '../ui/rename.svelte.js';
   import Seg from '../ui/Seg.svelte';
   import ActIcon, { ACT_ICONS, ACT_ICON_NAMES } from './ActIcon.svelte';
   import { db } from '../db.js';
   import { saveAct, removeAct, undoAct } from '../flowdb.js';
+  import { mergeActs, undoMerge, mergeCounts } from './zusammen.js';
+  import MergeSheet from './MergeSheet.svelte';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import { normAct, blankAct, actState, toggleMonth, halfOf, WINDOWS, SUMMER } from '../flow.js';
   import { actName, goalName } from './ui.svelte.js';
@@ -23,6 +25,7 @@
   import { SPORT_TEMPLATES, applyTemplate } from './sporttemplates.js';
   import { goalHint } from './goalhint.js';
   import { actGoalText, goalsText, oneGoal } from './words.js';
+  import { DEFAULT_MIN, CHOICES, usualFor, standardFor, readUsual, saveUsual } from './usualmin.js';
   import { t, locale, lang } from '../i18n.svelte.js';
 
   // back: where «Save» and the back link lead («Aktiv neu»: the sport's page when opened there, else «Meine Sportarten»)
@@ -39,7 +42,23 @@
     name = isNew ? '' : actName(orig);
     half = a.season ? (halfOf(a, today) ?? 'summer') : 'summer';
     minOwn = [0, 15, 30].includes(a.minMin) ? '' : String(a.minMin);
+    usualKey = 'std';
+    usualOwn = '';
+    if (!isNew) loadUsual(id);
   });
+  /* «Übliche Dauer» (Noah 21.11.2026 «2b»): what one session of this sport usually takes; the setting sport.usualMin (backup) */
+  let usualKey = $state('std');
+  let usualOwn = $state('');
+  async function loadUsual(actId) {
+    const u = usualFor(await readUsual(db), actId, a);
+    if (loadedFor !== actId) return;
+    usualKey = !u.own || u.min === u.std ? 'std' : CHOICES.includes(u.min) ? u.min : 'own';
+    usualOwn = usualKey === 'own' ? String(u.min) : '';
+  }
+  const usualMin = $derived(usualKey === 'std' ? 0 : usualKey === 'own' ? Math.max(0, Math.round(Number(usualOwn) || 0)) : usualKey);
+  /* the standard of this sport: Noah's list by its name (Eishockey 120, Sauna 12 …), else 60 */
+  const stdMin = $derived(standardFor({ id: a?.id, name: name || a?.name, nameDe: a?.nameDe }) || DEFAULT_MIN);
+  const USUAL_OPTS = $derived([{ key: 'std', name: t('Standard {n} min', { n: stdMin }) }, ...CHOICES.filter((m) => m !== stdMin).map((m) => ({ key: m, name: t('{n} min', { n: m }) })), { key: 'own', name: t('own|duration') }]);
   /* «Meine Sportarten» 4b: the group of the sport (own groups of the page «Meine Sportarten»), chosen here too */
   const grpQ = liveQuery(() => db.settings.get(GROUPS_KEY));
   const groups = $derived($grpQ?.value ?? []);
@@ -137,6 +156,7 @@
     }
     if (minKey === 'own') out.minMin = Math.max(0, Math.round(Number(minOwn) || 0));
     await saveAct(db, out);
+    await saveUsual(db, out.id, usualMin);
     location.hash = back || '#/flow/sports';
   }
   /*
@@ -168,6 +188,20 @@
   async function pause() {
     await saveAct(db, { ...$state.snapshot(a), name: orig.name, paused: !orig.paused });
     location.hash = '#/flow/sports';
+  }
+  /* «Zusammenlegen» (Noah 21.11.2026, S8): this sport goes into another one, with Undo */
+  let merging = $state(null); // { counts } while the window is open
+  async function openMerge() {
+    merging = { counts: await mergeCounts(db, a.id) };
+  }
+  async function doMerge(intoId) {
+    const from = orig;
+    const into = acts.find((x) => x.id === intoId);
+    merging = null;
+    const saved = await mergeActs(db, from.id, intoId);
+    if (!saved) return;
+    location.hash = '#/flow/sports';
+    offerDone(t('«{name}» merged into «{into}».', { name: actName(from), into: into ? actName(into) : '' }), () => undoMerge(db, saved));
   }
   async function remove() {
     const nm = actName(orig);
@@ -244,6 +278,10 @@
       <p class="lbl" id="ed-min">{t('Minimum duration')}</p>
       <Seg chips full={false} labelledby="ed-min" value={minKey} onchange={(k) => (k === 'own' ? (minOwn = String(a.minMin || 20)) : ((minOwn = ''), (a.minMin = k)))} options={[{ key: 0, name: t('none|duration') }, { key: 15, name: t('{n} min', { n: 15 }) }, { key: 30, name: t('{n} min', { n: 30 }) }, { key: 'own', name: t('own|duration') }]} />
       {#if minKey === 'own'}<label class="inl"><input class="inp n" type="number" min="1" inputmode="numeric" bind:value={minOwn} aria-label={t('Minimum duration')} /> min</label>{/if}
+      <p class="lbl" id="ed-usual">{t('Usual duration')}</p>
+      <Seg chips full={false} labelledby="ed-usual" value={usualKey} onchange={(k) => (k === 'own' ? ((usualKey = 'own'), (usualOwn = usualOwn || '75')) : ((usualKey = k), (usualOwn = '')))} options={USUAL_OPTS} />
+      {#if usualKey === 'own'}<label class="inl"><input class="inp n" type="number" min="1" max="1440" inputmode="numeric" bind:value={usualOwn} aria-label={t('Usual duration')} data-usual-own /> min</label>{/if}
+      <p class="hint" data-usual-hint>{t('Used for ticks without a measured time, shown as «ca.». Never written into a tick. Measured time always counts first.')}</p>
       <label class="inl tap"><span>{t('One tap counts')}</span><input class="inp n" type="number" min="1" inputmode="numeric" value={a.perTap} oninput={(e) => (a.perTap = Math.max(1, Math.round(Number(e.currentTarget.value) || 1)))} /></label>
     </section>
 
@@ -285,6 +323,7 @@
         <summary><b>{t('Pause or delete')}</b><small>{t('Pause: rests without a goal · delete asks first')}</small><ChevronDown class="cv" size={18} aria-hidden="true" /></summary>
         <div class="more">
           <button type="button" class="btn" onclick={pause}>{orig.paused ? t('Resume') : t('Pause|activity')}</button>
+          {#if acts.length > 1}<button type="button" class="btn" onclick={openMerge} data-act-merge><Merge size={16} aria-hidden="true" />{t('Merge with another sport')}</button>{/if}
           <button type="button" class="btn" onclick={remove} data-act-delete><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         </div>
       </details>
@@ -296,6 +335,10 @@
   </div>
 {:else if !isNew}
   <p>{t('This activity no longer exists.')} <a href="#/flow/sports">{t('My sports|tab')}</a></p>
+{/if}
+
+{#if merging && orig}
+  <MergeSheet fromName={actName(orig)} targets={acts.filter((x) => x.id !== orig.id).map((x) => ({ id: x.id, name: actName(x) }))} counts={merging.counts} onconfirm={doMerge} onclose={() => (merging = null)} />
 {/if}
 
 {#if renaming && a}

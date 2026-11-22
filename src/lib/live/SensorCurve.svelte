@@ -1,43 +1,64 @@
 <script>
   /**
-   * A small curve of a sensor over the ride (Noah 20.10.2026 «3a»: after the ride the pulse and the power as
-   * a curve). samples: [[sec, value]]; a plain SVG line, its average as a dashed line. Only shown, no judging.
+   * A curve of a sensor over the ride (Noah 20.10.2026 «3a»: after the ride the pulse and the power as a curve;
+   * «Diagramme zum Antippen», Noah 27.10.2026 «1-5 a»): on the shared LineChart, an axis with its unit, the average as a dashed
+   * line, pointing shows the time and the value, a tap opens the moment, «Als Tabelle». Only shown, no judging.
+   * samples: [[sec, value]]; id: for tests.
    */
+  import LineChart from '../charts/LineChart.svelte';
+  import ChartSheet from '../charts/ChartSheet.svelte';
   import { t, num } from '../i18n.svelte.js';
 
-  let { samples = [], label = '', unit = '', avg = null, max = null } = $props();
-  const W = 300;
-  const H = 70;
+  let { samples = [], label = '', unit = '', avg = null, max = null, id = 'sensor' } = $props();
+  const clock = (sec) => {
+    const m = Math.round(sec / 60);
+    return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
+  };
+  // at most 120 points: the average of each bucket; the time counts from the first sample
   const pts = $derived.by(() => {
     const s = (samples ?? []).filter((x) => Number.isFinite(x?.[0]) && Number.isFinite(x?.[1]));
     if (s.length < 2) return null;
-    // at most 300 points: the average of each bucket
-    const n = Math.min(300, s.length);
+    const n = Math.min(120, s.length);
     const per = s.length / n;
+    const t0 = s[0][0];
     const out = [];
     for (let i = 0; i < n; i++) {
       const part = s.slice(Math.floor(i * per), Math.max(Math.floor((i + 1) * per), Math.floor(i * per) + 1));
-      out.push([part[0][0], part.reduce((a, b) => a + b[1], 0) / part.length]);
+      out.push({ sec: part[0][0] - t0, v: part.reduce((a, b) => a + b[1], 0) / part.length });
     }
-    const t0 = out[0][0];
-    const t1 = out.at(-1)[0] || t0 + 1;
-    const vs = out.map((x) => x[1]);
-    const lo = Math.min(...vs);
-    const hi = Math.max(...vs, lo + 1);
-    const x = (sec) => ((sec - t0) / Math.max(1, t1 - t0)) * W;
-    const y = (v) => H - 4 - ((v - lo) / (hi - lo)) * (H - 8);
-    return { line: out.map((p) => `${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`).join(' '), avgY: avg != null ? y(avg) : null };
+    return out;
   });
+  const val = (v) => `${num(Math.round(v))} ${unit}`;
+  const chart = $derived.by(() => {
+    if (!pts) return null;
+    const stride = Math.max(1, Math.ceil((pts.length - 1) / 4));
+    return {
+      cols: pts.map((p, i) => ({ key: String(i), x: i % stride === 0 ? clock(p.sec) : '' })),
+      series: [
+        { key: 'v', color: 'var(--hi)', dots: false, v: pts.map((p) => p.v) },
+        ...(avg != null ? [{ key: 'avg', color: 'var(--ink-3)', dashed: true, dots: false, v: pts.map(() => avg) }] : []),
+      ],
+      read: (i) => ({ title: `${clock(pts[i].sec)} h`, items: [{ label, value: val(pts[i].v), color: 'var(--hi)' }, ...(avg != null ? [{ label: t('Average'), value: val(avg), color: 'var(--ink-3)' }] : [])] }),
+      table: { head: [t('Time'), label], rows: pts.map((p, i) => ({ key: String(i), cells: [`${clock(p.sec)} h`, val(p.v)] })) },
+    };
+  });
+  let sel = $state(null);
 </script>
 
-{#if pts}
+{#if chart}
   <figure class="sc" data-after-curve>
     <figcaption><b>{label}</b>{#if avg != null}<span>{t('Ø {v} {unit}', { v: num(avg), unit })}</span>{/if}{#if max != null}<span>{t('max {v} {unit}', { v: num(max), unit })}</span>{/if}</figcaption>
-    <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" role="img" aria-label={label}>
-      {#if pts.avgY != null}<line x1="0" x2={W} y1={pts.avgY} y2={pts.avgY} class="sc-avg" />{/if}
-      <polyline points={pts.line} class="sc-line" />
-    </svg>
+    <LineChart {id} cols={chart.cols} series={chart.series} readout={chart.read} table={chart.table} {unit} height={100} {label} onopen={(i) => (sel = i)} />
   </figure>
+  {#if sel != null && pts[sel]}
+    <ChartSheet kicker={label} title={`${clock(pts[sel].sec)} h`} onclose={() => (sel = null)} onprev={sel > 0 ? () => sel-- : null} onnext={sel < pts.length - 1 ? () => sel++ : null} prevLabel={t('Earlier one')} nextLabel={t('Later one')}>
+      <ul class="shl" data-sensor-sheet>
+        <li><span>{label}</span><b class="num">{val(pts[sel].v)}</b></li>
+        {#if avg != null}<li><span>{t('Average')}</span><b class="num">{val(avg)}</b></li>{/if}
+        {#if max != null}<li><span>{t('Highest')}</span><b class="num">{val(max)}</b></li>{/if}
+      </ul>
+    </ChartSheet>
+  {/if}
 {/if}
 
 <style>
@@ -56,22 +77,17 @@
   figcaption b {
     color: var(--ink);
   }
-  svg {
-    width: 100%;
-    height: 70px;
-    background: var(--paper-2);
-    border-radius: 8px;
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
   }
-  .sc-line {
-    fill: none;
-    stroke: var(--hi);
-    stroke-width: 2;
-    vector-effect: non-scaling-stroke;
-  }
-  .sc-avg {
-    stroke: var(--ink-3);
-    stroke-width: 1;
-    stroke-dasharray: 4 4;
-    vector-effect: non-scaling-stroke;
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
   }
 </style>

@@ -14,6 +14,8 @@
   import Seg from '../lib/ui/Seg.svelte';
   import Entry from '../lib/woche/Entry.svelte';
   import WeekPeople from '../lib/alltag/WeekPeople.svelte'; // «Alles finden»: people to see again this week
+  import WeekGoals from '../lib/flow/WeekGoals.svelte'; // «Woche» (Schritt V1): the goals of the week stand here, not only on Aktiv
+  import { flowQuery } from '../lib/flow/data.svelte.js';
   import WeekClose from '../lib/woche/WeekClose.svelte'; // «Planen 2b»: the Sunday wrap-up
   import { weekClose, moveItems, isSunday } from '../lib/woche/abschluss.js';
   import WeekDreams from '../lib/dreams/WeekDreams.svelte'; // Paket N idea 5: dreams and race deadlines of the week
@@ -33,6 +35,8 @@
 
   const today = localDay();
   const q = weekQuery(today);
+  const fq = flowQuery(today); // the activities and ticks for the goals of the week
+  const fdata = $derived($fq);
   const src = $derived($q);
   let next = $state(false);
   const monday = $derived(shiftDay(mondayOf(today), next ? 7 : 0));
@@ -189,7 +193,7 @@
 
     <p class="sum" data-week-sum>
       {#if week.sums.trips}<span data-week-trips>{tn(week.sums.trips, '{n} trip|week', '{n} trips|week')}</span>{/if}
-      <span>{tn(week.sums.sessions, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
+      <span data-week-units>{week.sums.sessions ? tn(week.sums.sessions, '{done} of {n} session done|week', '{done} of {n} sessions done|week', { done: week.sums.sessionsDone }) : tn(0, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
       <span>{tn(week.sums.dates, '{n} date', '{n} dates')}</span>
       <span>{tn(week.sums.todos, '{n} to-do', '{n} to-dos')}</span>
       {#if week.sums.away.length}<span><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
@@ -252,6 +256,7 @@
       </section>
 
       <aside class="side">
+        {#if !next && fdata}<div data-week-goals><WeekGoals acts={fdata.acts} log={fdata.log} tripDays={fdata.tripDays} {today} /></div>{/if}
         <section class="card wc sg" aria-labelledby="wk-sg">
           <h2 id="wk-sg"><button type="button" class="sgh" aria-expanded={sgOpen} aria-controls="wk-sg-body" data-sg-toggle onclick={toggleSg}>
             <span>{t('Still to plan')}<small>{tn(week.suggestions.length, '{n} suggestion', '{n} suggestions')}</small></span>
@@ -334,6 +339,8 @@
             </div>
           {/if}
           <p class="why">{t(TRAIN_NOTE)}</p>
+          <!-- «Wochenplan» (Noah 09.11.2026): the plan of your training hours; the way to it starts where the week is planned -->
+          <a class="btn btn-link sm" href="#/flow/wochenplan" data-to-wochenplan>{t('Weekly plan for your training')}<ChevronRight size={16} aria-hidden="true" /></a>
         </section>
       </aside>
     </div>

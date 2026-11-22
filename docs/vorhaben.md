@@ -51,6 +51,8 @@ Die geplanten Vorhaben verfolgen sechs Ziele (das fünfte seit 19.10.2026, Noah 
 
 **Träume und Neuland (Noah 27.10.2026 «1-5 a», Ziele 3 und 4):** Träume rückt unter Touren an die zweite Stelle und bekommt «Entdecken»: Ausflugstipps nach Wetter und freier Zeit, weisse Flecken in der Nähe, Herausforderungen mit Ende, kleine Abenteuer (Feierabend-Biwak, Zug hin und Velo heim), Ideen pro Monat; dazu Link wird Traum, Karte aller Träume, Wetterfenster, «Bereit?», erfüllte Träume, neue Sammlungen (Aussichtstürme, Hängebrücken, Wasserfälle) und ein Abenteuer-Würfel. Die Träume aus dem Kompass und die Reisewünsche aus Freie Zeit kommen in Träume; Neuland, Gipfelbuch und «Neuland des Jahres» werden eine Fundliste. Die Neuland-Seite bleibt unter Rückblick. Jede Idee ist ein eigener kleiner PR. Keine neue Kachel auf Heute (nur die Zeilen «Neu heute» und «Abenteuer im Monat»).
 
+**Neue Ordnung der App (Noah 18.11.2026 «1a 2a 3b 4b 5b», Ziele 3 «Von der Haustür bis zurück» und 5 «Alltag»):** Acht Orte statt elf, 23 statt 52 Reiter, jede Tour eine Seite mit vier Phasen, eine Hauptkarte auf Heute. Warum: von 486 Funktionen nutzt Noah heute 31; die App soll sie nur dort zeigen, wo man sie braucht. Plan: `plan-ganze-app.md`, Wegweiser und Streichliste: `wegweiser-neue-ordnung.md`.
+
 Durchgehende Grundsätze: Alles ist ein Vorschlag, nie Pflicht, und immer änderbar. Private Daten bleiben privat. Keine fremden Dienste, wenn es eine eigene, schlanke Lösung gibt.
 
 ## Stand heute (19.10.2026, live 0.152.0)
@@ -590,3 +592,10 @@ Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Z
   - B Inhalte: 11 Baustein «Wozu und So geht's» für alle Seiten (Texte aus Katalog und Handbuch, «Beispiel übernehmen» im leeren Zustand) · 12–20 Inhalte pro Bereich mit Wissen, dünnste zuerst: Lust, Planen, Zurück, Unterwegs, Packen, Alltag, Körper, Velo, App · 21 Inhalts-Prüfung der 29 Funktionen in offener Tour, Rennen, Notiz.
   - C Sichern: 22 gleiche Namen überall (17) · 23 «Erscheint, wenn …» (17) · 24 Test «Inhalt» (Roboter, Lückenliste nur kürzer) · 25 «Fertig»-Regel für neue Funktionen in den Arbeitsregeln · 26 leere Stellen und Schlussmessung.
 - **Stand:** 1 offen (#560), 2 gebaut.
+
+### 18. Variabler Wochenplan (Aktiv, Noah 09.11.2026 «1a 2a 3a», «bau los»)
+
+- **Warum:** Noah will jede Woche einen Trainingsplan, der sich anpasst: Wochenstunden einstellen, daraus Einheiten vorschlagen lassen, jede Einheit mit Plus und Minus ändern, Fixtage setzen (z. B. 3× Tennis), verschieben, abhaken. Ziel 1 «Eine App, die mich im Alltag unterstützt», dazu «Aus jeder Tour lernen» (Fortschritt sehen).
+- **Was:** Regeln statt KI, jede Platzwahl mit «Warum hier?», bei Konflikten zwei Wege zur Wahl, ehrliche Meldung ab etwa 20 Std. Wochenziele («Meine Wochenziele») bleiben getrennt und unverändert. Umsetzungsauftrag mit Entwurf: https://claude.ai/artifact/MUMT5xgrJukUncnRLmvgtc (Tab «Variabler Plan»).
+- **Plan:** fünf kleine PRs: 1 Planer und Stunden (nichts sichtbar) · 2 Seite «Wochenplan» · 3 Abhaken, «Heute dran», Einfrieren vergangener Wochen, Strava-Vorschlag · 4 Fixtage, Wunschzeit, Verschieben, Rückgängig, «Warum hier?» · 5 Meilensteine und leichtere Woche.
+- **Stand:** PR 1 (Planer in `src/lib/training/wochenplan.js`, Einstellung `training.weekplan`, nichts sichtbar) und PR 2 (Seite «Wochenplan» unter `#/flow/wochenplan`: Stunden, Einheiten mit Plus/Minus, Woche mit Zeiten, was nicht passt) sind online; PR 3 (Abhaken, Fortschritt, «Heute dran» auf Heute, vergangene Wochen eingefroren, Strava-Vorschlag, Einstellung `training.weeklog`) ist online; PR 4 (Fixtage mit Wunschzeit, Verschieben für eine Woche, «Warum hier?», Konflikt mit Wahl) ist online; PR 5 (Wochenstern, Loslassen, Leichte Woche, Skitour- und Regenwoche, zwei Meilensteine, Anschluss an «Eine leichtere Woche würde passen») ist gebaut.

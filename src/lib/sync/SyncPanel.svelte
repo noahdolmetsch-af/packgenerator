@@ -347,6 +347,18 @@
       {:else if $cfgQ.lastAt}{t('On · last synced {when}.', { when: when($cfgQ.lastAt) })}
       {:else}{t('On · not synced yet.')}{/if}</span>
     </p>
+    {#if $cfgQ.check && !sync.running && !$cfgQ.error}
+      <!-- Noah 21.11.2026: the proof that nothing is missing: this device and the server hold the same number of entries -->
+      <p class="small" data-sync-check={$cfgQ.check.ok ? 'ok' : 'diff'}>
+        {#if $cfgQ.check.ok}{t('Checked {when}: this device and the server hold the same {n} entries.', { when: when($cfgQ.check.at), n: $cfgQ.check.here })}
+        {:else}{t('Checked {when}: this device holds {a} entries, the server {b}. «Compare with the server» shows which.', { when: when($cfgQ.check.at), a: $cfgQ.check.here, b: $cfgQ.check.server })}{/if}
+        {#if $cfgQ.check.healed}{t('Filled in by itself {when}: {got} taken here, {sent} sent.', { when: when($cfgQ.check.healed.at), got: $cfgQ.check.healed.got, sent: $cfgQ.check.healed.sent })}{/if}
+      </p>
+    {/if}
+    {#if sync.health.state === 'alone' && !sync.running && !$cfgQ.error}
+      <!-- Noah 21.11.2026: two devices with two different codes each looked fine on their own -->
+      <p class="small" data-sync-alone>{t('The sync is on, but no other device has sent anything into it yet. Is your other device paired with the same code?')}</p>
+    {/if}
     {#if lost.length}
       <!-- Noah 24.10.2026: changes on both devices settle by themselves; the replaced versions wait here quietly -->
       <details class="lost" data-sync-history>
@@ -367,6 +379,7 @@
         {#if lost.length > 50}<p class="small">{t('{n} more, the newest are shown.', { n: lost.length - 50 })}</p>{/if}
       </details>
     {/if}
+    {#if $cfgQ.skipped}<p class="small" data-sync-skipped>{tn($cfgQ.skipped, '{n} entry from the other device could not be saved here and was skipped. The rest keeps syncing; «Compare with the server» lists what is missing.', '{n} entries from the other device could not be saved here and were skipped. The rest keeps syncing; «Compare with the server» lists what is missing.')}</p>{/if}
     {#if $cfgQ.big}<p class="small">{tn($cfgQ.big, '{n} very large entry stays only on this device.', '{n} very large entries stay only on this device.')}</p>{/if}
 
     {#if view === 'pair'}

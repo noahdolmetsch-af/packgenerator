@@ -185,7 +185,7 @@
   }
   .rtp-h1 {
     margin: 0;
-    font: 800 var(--fs-page)/1.1 var(--font-brand);
+    font: 700 var(--fs-page)/var(--lh-title) var(--font-title);
   }
   .rtp-intro {
     margin: -4px 0 4px;
@@ -257,7 +257,7 @@
     margin: 0;
     padding: 10px;
     border: 2px dashed var(--line-strong);
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     background: var(--accent-soft);
     list-style: none;
   }
@@ -360,7 +360,7 @@
     margin: 0;
     padding: 4px 16px;
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: var(--radius-card);
     background: var(--paper);
     list-style: none;
   }

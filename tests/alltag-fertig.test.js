@@ -3,7 +3,7 @@
 import { describe, it, expect } from 'vitest';
 import { answerFor, wearKeys, wearAnswer } from '../src/lib/assistent/answers.js';
 import { buildWeek, reviewOf } from '../src/lib/woche.js';
-import { fitNow } from '../src/lib/abfragen.js';
+import { fitNow, windowPart } from '../src/lib/abfragen.js';
 import { t } from '../src/lib/i18n.svelte.js';
 
 const row = (key, name, extra = {}) => ({ key, name, state: 'ok', left: 1200, due: '2026-12-01', why: null, ...extra });
@@ -53,15 +53,23 @@ describe('Woche: what was ticked in Aktiv shows (H22)', () => {
   });
 });
 
-describe('Morgen-Check fits the time of day (H15)', () => {
+describe('Morgen-Check fits the time of day (H15), changed on purpose 17.11.2026 (Noah «1-5a», question 2a): only today', () => {
   const eve = { q: { id: 'raeuber' }, slot: '2026-10-17T20:30', last: '2026-10-21T20:30' };
   const morning = { q: { id: 'schlaf' }, slot: '2026-10-22T07:00', last: '2026-10-22T07:00' };
-  it('a missed evening question stays at night and in the morning, with its own time (Noah 2a)', () => {
-    expect(fitNow([eve, morning], '2026-10-22T02:41').map((d) => [d.q.id, d.slot])).toEqual([['raeuber', '2026-10-17T20:30'], ['schlaf', '2026-10-22T07:00']]);
+  it('a question missed on an earlier day does not come back before its time today', () => {
+    expect(fitNow([eve, morning], '2026-10-22T02:41').map((d) => [d.q.id, d.slot])).toEqual([['schlaf', '2026-10-22T07:00']]);
+    expect(fitNow([eve, morning], '2026-10-22T18:32').map((d) => d.q.id)).toEqual(['schlaf']);
   });
-  it('in the evening it asks about today, not about a missed day', () => {
+  it('a question missed on an earlier day, whose time today has come, asks about today', () => {
     const today = { ...eve, last: '2026-10-22T20:30' };
     expect(fitNow([today], '2026-10-22T20:45')[0].slot).toBe('2026-10-22T20:30');
+    const m = { q: { id: 'schlaf' }, slot: '2026-10-20T07:00', last: '2026-10-22T07:00' };
+    expect(fitNow([m], '2026-10-22T09:00')[0].slot).toBe('2026-10-22T07:00');
+  });
+  it('the window part: morning until 11:00, open from this morning until the evening round, then evening', () => {
+    expect(windowPart('2026-10-22T07:30')).toBe('morning');
+    expect(windowPart('2026-10-22T18:32')).toBe('rest');
+    expect(windowPart('2026-10-22T20:30')).toBe('evening');
   });
 });
 

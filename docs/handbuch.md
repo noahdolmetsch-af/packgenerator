@@ -2361,7 +2361,7 @@ Schreib im Rückblick einen Satz; unterwegs auf deiner nächsten Tour wartet ein
 
 Alles auf einer Zeitachse, eine Seite pro Monat: Touren, Fahrten, Pflege, Meditation, Notizen; «Früher um diese Zeit» zeigt diesen Tag in früheren Jahren.
 
-**Aufschalten:** Wächst mit jedem Rückblick, jeder Fahrt und jedem Learning.
+**Aufschalten:** Wächst mit jedem Rückblick, jeder Fahrt und jeder Erkenntnis.
 
 1. Öffne Touren › Rückblick › Chronik oder die Kachel «Früher um diese Zeit» auf Heute.
 2. Wähle «Alle», «Velo», «Touren», «Pflege», «Meditation» oder «Notizen»; die Pfeile und die Monatsknöpfe wechseln den Monat.
@@ -2379,7 +2379,7 @@ Eine Monatskarte und ein Jahresbrief: neue Erkenntnisse, angepasste Vorlagen, de
 2. «Monat»: bis zu 6 Zeilen mit Zahlen; die Pfeile wechseln den Monat.
 3. «Jahr»: der Brief «Dein Jahr»; «Drucken» sichert ihn auch als PDF.
 
-**Beispiel:** Oktober: 2 Touren, 121 km · 1 neues Learning · 1 Sache bleibt jetzt zu Hause.
+**Beispiel:** Oktober: 2 Touren, 121 km · 1 neue Erkenntnis · 1 Sache bleibt jetzt zu Hause.
 
 ### Dein Jahr als Bildgeschichte
 
@@ -5228,7 +5228,7 @@ Deine Abkürzungen an einem eigenen Ort: Pinne die Funktionen, die du am meisten
 **Aufschalten:** Immer da, nichts zu tun.
 
 1. Öffne Quick Links in der Leiste (am Computer: in der Seitenleiste).
-2. Tippe auf «Pin hinzufügen», suche eine Funktion und tippe auf «Anpinnen».
+2. Tippe auf «Abkürzung hinzufügen», suche eine Funktion und tippe auf «Anpinnen».
 3. Tippe auf «Bearbeiten»: umbenennen, Notiz dazu, mit Pfeilen oder Ziehen verschieben, entfernen.
 
 **Beispiel:** «Verschleiss» in die Gruppe «Velo» pinnen, mit der Notiz «nach Regen».

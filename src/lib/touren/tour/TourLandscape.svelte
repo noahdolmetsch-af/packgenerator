@@ -45,7 +45,7 @@
   .land {
     position: relative;
     overflow: hidden;
-    border-radius: 22px;
+    border-radius: var(--radius-card);
     background: color-mix(in srgb, var(--accent-soft) 45%, var(--paper));
   }
   .sky {

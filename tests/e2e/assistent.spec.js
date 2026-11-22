@@ -30,7 +30,7 @@ async function start(page, context, info) {
 }
 const external = sentOut; // weather and lake values carry nothing of yours
 
-test('the button opens the page; an example asks, the app answers; the three ways with examples', async ({ page, context }, info) => {
+test('the button opens the page; an example asks, the app answers; the two ways with examples', async ({ page, context }, info) => {
   const { errors, out } = await start(page, context, info);
   await page.goto('./#/');
   await page.getByRole('link', { name: T('Assistant'), exact: true }).first().click();
@@ -43,7 +43,7 @@ test('the button opens the page; an example asks, the app answers; the three way
   const how = page.locator('[data-as="how"]');
   await how.locator('summary').click();
   await expect(how.getByText(T('2 · Chrome AI'))).toBeVisible();
-  await expect(how.getByText(T('Bike care: what is due next on chain, cassette, brake pads and tyres, with a concrete check'))).toBeVisible();
+  await expect(how.getByText(T('3 · Claude'))).toHaveCount(0); // KI entfernen, Schritt 1: no Claude way any more
   await noSideways(page);
   await page.screenshot({ path: info.outputPath('as-ask.png'), fullPage: true });
   await how.getByRole('button', { name: `«${T('When is my next trip?')}»` }).click();

@@ -161,7 +161,7 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   await expect(page.locator('[data-helper-place] .hp-pill')).toHaveText(PLACES.map(() => T('off|helper')));
 
   // the key is saved, the helper stays off: nothing shows, the tile stays away
-  await page.getByLabel(T('Helper code')).fill(CODE);
+  await page.getByLabel(T('Helper code'), { exact: true }).fill(CODE);
   await page.getByRole('button', { name: T('Save code'), exact: true }).click(); // Impeccable Runde 2: the 2-step card
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'helper')?.value).toMatchObject({ code: CODE });
   await expect(page.getByRole('heading', { name: T('Setup|helper') })).toBeVisible();
@@ -170,7 +170,7 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   await noSideways(page);
   await page.reload(); // with the key saved the setup shows as three closed rows
   await expect(page.getByText(T('Key saved'))).toBeVisible();
-  await expect(page.getByLabel(T('Helper code'))).toBeHidden();
+  await expect(page.getByLabel(T('Helper code'), { exact: true })).toBeHidden();
   await page.evaluate(() => window.scrollTo(0, 0));
   await shot(page, info, 'K4-ich-ki-helfer');
   await page.evaluate((id) => localStorage.setItem('pack.currentTrip', id), 'test_data_gtp_Herbstrunde');
@@ -188,7 +188,7 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   // wait until the dialog took its history entry away, else its step back undoes the next address
   await closeDialog(page);
 
-  // one switch: every place is back at once
+  // one switch: every place that is left is back at once
   await page.goto('./#/helper');
   await sw.check();
   await expect(sw).toBeChecked();
@@ -197,7 +197,8 @@ test('K4: the AI helper is off by default; one switch under Ich brings every pla
   await expect(page.locator('[data-helper-place] .hp-pill')).toHaveText(PLACES.map(() => T('on|helper')));
   await page.goto('./#/pack');
   await expect(page.locator('.list-head').first()).toBeVisible();
-  await expect(page.locator('.kh-menu-check')).toBeAttached();
+  // KI entfernen, Schritt 2 (changed on purpose, Noah 20.11.2026 «a»): «Check the list» is gone for good
+  await expect(page.locator('.kh-menu-check, .kh-go-check')).toHaveCount(0);
   await page.goto('./#/');
   await expect(tile).toBeVisible();
 

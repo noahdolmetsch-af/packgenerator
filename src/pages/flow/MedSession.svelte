@@ -216,7 +216,7 @@
   }
   .h1 {
     margin: 2px 0 12px;
-    font: 800 var(--fs-title)/1.1 var(--font-brand);
+    font: 700 var(--fs-page)/var(--lh-title) var(--font-title);
     overflow-wrap: break-word;
   }
   .clockrow {

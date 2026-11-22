@@ -142,3 +142,26 @@ test('Kontakt-QR step 4: lock-screen image and sticker Found as PNG files', asyn
   }
   await noSideways(page, 'card with image buttons');
 });
+
+// A late answer of the stored card must not wipe what was typed before it came (it made the code stay empty, a flaky
+// failure of step 2 on slow machines, 11.11.2026). Here the reads of the settings answer 1.5 s late.
+test('Kontakt-QR: a name typed before the stored card arrives stays', async ({ page, context }, info) => {
+  await openHome(page, context, info);
+  await page.evaluate(() => {
+    const d = Object.getOwnPropertyDescriptor(IDBRequest.prototype, 'onsuccess');
+    Object.defineProperty(IDBRequest.prototype, 'onsuccess', {
+      configurable: true,
+      get() { return d.get.call(this); },
+      set(fn) {
+        const slow = window.__slowSettings && this.source?.name === 'settings';
+        d.set.call(this, slow && fn ? function (ev) { setTimeout(() => fn.call(this, ev), 1500); } : fn);
+      },
+    });
+    window.__slowSettings = true;
+  });
+  await page.goto('./#/me/freunde?tab=card');
+  await page.locator('[data-card-name]').fill('test_data_gtp_ Sam');
+  await page.waitForTimeout(2500);
+  await page.evaluate(() => { window.__slowSettings = false; });
+  await expect(page.locator('[data-card-name]')).toHaveValue('test_data_gtp_ Sam');
+});

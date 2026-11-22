@@ -22,11 +22,15 @@ export const ARTS = [
   { key: 'single', label: 'Single lessons' },
 ];
 
-/** The three picture formats: 16:9 for screens, A4 portrait for printing, square for WhatsApp and social media. */
+/**
+ * The picture formats: 16:9 for screens, A4 portrait for printing at home, square for WhatsApp and social media, and A5 for the
+ * print shop (300 dpi, 3 mm bleed on each side: 1818 × 2550 px, saved as a PDF).
+ */
 export const FORMATS = [
   { key: '169', label: '16:9', w: 1920, h: 1080 },
   { key: 'a4', label: 'A4 portrait', w: 1240, h: 1754 },
   { key: 'sq', label: 'Square', w: 1080, h: 1080 },
+  { key: 'a5', label: 'A5 for printing', w: 1818, h: 2550, bleed: 35, pdf: true },
 ];
 export const LANGS = [
   { key: 'de', label: 'Deutsch' },
@@ -120,7 +124,25 @@ export function newConfig(art = 'group') {
     deadline: '',
     spots: '',
     contact: '',
+    qrUrl: '', // where the QR code leads; empty = the sign-up page of the offer
   };
+}
+
+/**
+ * The address the QR code leads to when the user typed one (Noah 10.11.2026: the flyer leads to his own page, where prices and
+ * trust are and where he sees how many come from the flyer). «example.ch/f» works too (https:// is added). Empty or not an
+ * address → '' (then the sign-up page of the offer counts).
+ */
+export function cleanQrUrl(input) {
+  const s = String(input ?? '').trim();
+  if (!s || s.length > 300 || /\s/.test(s)) return '';
+  const full = /^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : `https://${s}`;
+  try {
+    const u = new URL(full);
+    return (u.protocol === 'https:' || u.protocol === 'http:') && u.hostname.includes('.') ? u.href : '';
+  } catch {
+    return '';
+  }
 }
 
 /** A saved configuration, filled up with what a newer app version added. */
@@ -144,6 +166,7 @@ export function normalizeConfig(c) {
     custom: (c.custom ?? []).map((x) => ({ id: x.id ?? rid(), title: x.title ?? '', text: x.text ?? '', on: x.on !== false })),
     ownCards: (c.ownCards ?? []).map((x) => ({ id: x.id ?? rid(), label: x.label ?? '', text: x.text ?? '', on: x.on !== false })),
     levels: (c.levels ?? []).map(normalizeLevel),
+    qrUrl: String(c.qrUrl ?? ''),
   };
 }
 
@@ -303,7 +326,7 @@ export function buildModel(cfg, entries, lang, { variant = null, today = '' } = 
     return true;
   });
   const extra = c.custom.filter((x) => x.on && (x.title || x.text));
-  const url = mainId ? shareUrl(mainId) : '';
+  const url = cleanQrUrl(c.qrUrl) || (mainId ? shareUrl(mainId) : '');
   return {
     lang,
     words: w,
@@ -339,9 +362,9 @@ export function variantsOf(cfg) {
 /** The number of pictures «Save all» makes. */
 export const countImages = (cfg) => variantsOf(cfg).length * normalizeConfig(cfg).formats.length;
 /** A file name for a picture: «tennis-unterricht-unterstufe-a4-de.png». */
-export function fileNameOf(model, format, name = '') {
+export function fileNameOf(model, format, name = '', ext = 'png') {
   const slug = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return `${[slug(model.title) || 'flyer', slug(name), format, model.lang].filter(Boolean).join('-')}.png`;
+  return `${[slug(model.title) || 'flyer', slug(name), format, model.lang].filter(Boolean).join('-')}.${ext}`;
 }
 
 /* ---------- the prepared mail ---------- */
