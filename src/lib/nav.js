@@ -314,6 +314,14 @@ export function redirectOf(hash = '') {
     const rest = q.toString();
     return { hash: `#/bikes?tab=care${rest ? `&${rest}` : ''}`, spot: '', old: '#/care' };
   }
+  // S5 (Noah 22.11.2026 «a»): «Haken ausgewertet» is part of the Sports year («Haken und Rhythmus»); only the answers stay at #/flow/auswertung?what=answers
+  if (/^#\/flow\/auswertung\/?$/.test(h)) {
+    const q = new URLSearchParams(query);
+    if (!q.has('q') && q.get('what') !== 'answers') {
+      const act = q.get('act');
+      return { hash: `#/auswerten/sportjahr${act ? `?act=${encodeURIComponent(act)}` : ''}`, spot: '', old: '#/flow/auswertung' };
+    }
+  }
   // WG «Wi gaht's?»: any other #/check address leads there (quietly)
   if (!CHECK_PAGES.includes(h) && /^#\/check(\/|$)/.test(h)) return { hash: '#/me/abfragen', spot: '', old: null };
   return null;
@@ -439,8 +447,8 @@ const ANALYSIS_PAGES = {
   body: { label: 'Body values', href: '#/flow/stats/hr', match: (h) => /^#\/flow\/stats(\/|\?|$)/.test(h) },
   // Gesamttest 20.10.2026 B3: the Strava activities, tab «Fahrten»; same address
   rides: { label: 'Rides|tab', href: RIDES_HREF, match: (h) => isRidesHash(h) },
-  // Runde 3 «4a»: «Haken ausgewertet» (what you tick, evaluated like a ride) is here
-  ticks: { label: 'Ticks evaluated|tab', href: '#/flow/auswertung', match: (h) => /^#\/flow\/auswertung(\/|\?|$)/.test(h) },
+  // S5: «Haken ausgewertet» moved into the Sports year; what stays here are the answers of the check questions with a number
+  ticks: { label: 'Answers evaluated|tab', href: '#/flow/auswertung?what=answers', match: (h) => /^#\/flow\/auswertung(\/|\?|$)/.test(h) },
   // UI-Ziele #6: the answers of «Wi gaht's?» with the history, what does you good and the weight
   history: { label: 'How you are|tab', href: '#/me/abfragen', match: (h) => h.startsWith('#/me/history') || h.startsWith('#/me/abfragen') || h.startsWith('#/me/analysis') },
   wohl: { label: 'Good for me|tab', href: '#/me/wohl', match: (h) => h.startsWith('#/me/wohl') },

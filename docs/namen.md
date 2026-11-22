@@ -38,5 +38,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 30 | Der Ort in der App, wo man festhält, was stört oder fehlt (Ich) | Merker, Feedback, Wunschliste, Verbesserungen | **«Verbesserungs-Logbuch»**, kurz **«Logbuch»**; die Einträge heissen **«Einträge»**; der Knopf auf jeder Seite **«Verbessern»** (Noah 21.11.2026 «freigabe»; Arbeitsname, Noah kann umbenennen); «Wunschliste» bleibt das Material, das man kaufen will |
 | 31 | Zwei Sportarten werden eine (Meine Sportarten, Bearbeiten) | Zusammenführen, Verschmelzen | **«Zusammenlegen»** (wie bei Material «Zusammenlegen mit …»; «Zusammenführen» bleibt beim Backup einspielen; Noah 21.11.2026 «Ja, bauen») |
 | 32 | Zusammenhänge in den eigenen Daten (Reiter in Auswerten, Seite `#/me/insights`: Ruhepuls, Schlaf, Fahrten zusammen) | Erkenntnisse (gleicher Name wie Nr. 2) | **«Zusammenhänge»** (Noah 21.11.2026 «1a»); «Erkenntnisse» bleibt nur Nr. 2 |
+| 33 | Die Auswertung der Haken (früher eigene Seite «Haken ausgewertet», jetzt ganz unten im Sportjahr) | Haken ausgewertet, Rhythmus, Tick-Auswertung | **«Haken und Rhythmus»**; die Antworten der Check-Fragen heissen **«Antworten ausgewertet»** (Noah 22.11.2026 «a») |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

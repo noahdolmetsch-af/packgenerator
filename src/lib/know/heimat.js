@@ -383,7 +383,7 @@ const LISTED_HOME = {
   'f.observations': '#/flow/review',
   'f.ridepage': '#/trips/rides',
   'f.analyse': '#/auswerten/analyse',
-  'f.tickreview': '#/flow/auswertung',
+  'f.tickreview': '#/flow/auswertung?what=answers',
   'backup': '#/me/data',
   'install': '#/me/data',
   'lang': '#/me',

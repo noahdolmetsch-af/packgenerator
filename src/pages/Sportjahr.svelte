@@ -15,7 +15,7 @@
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import ChartSheet from '../lib/charts/ChartSheet.svelte';
-  import TickAnalyses from '../lib/flow/auswertung/TickAnalyses.svelte';
+  import Rhythmus from '../lib/flow/auswertung/Rhythmus.svelte';
   import AnaSheet from '../lib/training/AnaSheet.svelte';
   import { period } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
@@ -37,10 +37,21 @@
     return { log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map, goal: goalOf(goal?.value) };
   });
   const d = $derived($q);
-  const units = $derived(d ? training(einheiten({ log: d.log, activities: d.activities, acts: d.acts, usual: d.usual, map: d.map })) : []);
+  const allUnits = $derived(d ? einheiten({ log: d.log, activities: d.activities, acts: d.acts, usual: d.usual, map: d.map }) : []);
+  const units = $derived(training(allUnits));
+  /* S5: the old address of «Haken ausgewertet» (…?act=<id>) leads here and picks the activity of «Haken und Rhythmus» */
+  const act0 = (() => {
+    try {
+      return new URLSearchParams((location.hash.split('?')[1] ?? '')).get('act') ?? '';
+    } catch {
+      return '';
+    }
+  })();
 
   const mode = $derived(period.mode);
   const win = $derived(windowOf(rangeOf(period, today), units, today));
+  /* «Haken und Rhythmus» reads every tick, so «Everything» starts at the first of all (a meditation from before the first ride counts) */
+  const rhWin = $derived(windowOf(rangeOf(period, today), allUnits, today));
   const inWin = $derived(units.filter((u) => u.day >= win.from && u.day <= win.to));
   const prevW = $derived(prevWindow(mode, win));
   const inPrev = $derived(prevW ? units.filter((u) => u.day >= prevW.from && u.day <= prevW.to) : null);
@@ -66,18 +77,6 @@
   const season = $derived(mode === 'all' && years.length >= 2 ? seasons(inWin) : null);
   const weeksOk = $derived(weeks.filter((w) => w.ok).length);
   const weeksPast = $derived(weeks.filter((w) => !w.future).length);
-
-  /* «Rhythmus» (S5): the analyses of the old ticks page (weekdays, hours of the day, weeks, grid, best values, months)
-     now read all units, ticks and Strava together; an adapter gives them the entries they know */
-  const tickD = $derived({
-    list: inWin.map((u) => ({ id: u.id, day: u.day, at: u.at, actId: u.sport, min: u.minQuelle === 'gemessen' ? u.min : 0 })),
-    from: win.from,
-    to: win.to < today ? win.to : today,
-    today,
-    ids: rows.map((r) => r.sport),
-    ringOf: (id) => units.find((u) => u.sport === id)?.ring ?? 'move',
-    nameOf: (id) => names.get(id) ?? id,
-  });
 
   /* names and colours */
   const PALETTE = ['var(--l1)', 'var(--hi)', 'var(--l2)', 'var(--l3)', 'var(--l4)', 'var(--z3)', 'var(--z4)'];
@@ -279,8 +278,9 @@
         </section>
       {/if}
     </div>
-
-    <TickAnalyses d={tickD} />
+  {/if}
+  {#if d}
+    <Rhythmus units={allUnits} log={d.log} acts={d.acts} from={rhWin.from} to={rhWin.to} {today} {act0} />
   {/if}
 </div>
 <AnaSheet />
