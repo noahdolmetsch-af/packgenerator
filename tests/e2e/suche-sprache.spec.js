@@ -205,56 +205,17 @@ async function putHelperCode(page) {
   await ready(page);
 }
 
-test('Gemini understands a sentence: first «I would do this», written only after OK, Undo takes it back (07.11.2026)', async ({ page, context }) => {
+test('a sentence the rules do not know gets no «Let Gemini understand it» offer, even with a helper code (KI entfernen, Schritt 4)', async ({ page, context }) => {
   const errors = await open(page, context, '#/');
   const seen = [];
-  await page.route('**/api/helper', async (route) => {
-    if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204 });
-    const body = JSON.parse(route.request().postData() ?? '{}');
-    seen.push({ body, auth: route.request().headers().authorization });
-    const text = JSON.stringify({ actions: [{ kind: 'todo', text: 'Reifen pumpen', due: '2026-10-23' }, { kind: 'note', text: 'Bremse quietscht' }] });
-    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, task: 'gemini', result: { text } }) });
-  });
-  const sentence = 'Trag mir bitte das Pumpen der Reifen auf Freitag ein und merk dir, dass die Bremse quietscht';
-  const glass = page.getByRole('button', { name: T('Search everything') });
-  const field = async () => {
-    if (await glass.first().isVisible()) await glass.first().click();
-    return page.locator('input[type="search"]:visible').first();
-  };
-  // without a helper code there is no offer
-  await (await field()).fill(sentence);
-  await expect(page.locator('[data-ai-offer]')).toHaveCount(0);
-  await putHelperCode(page);
-  await (await field()).fill(sentence);
-  await page.locator('[data-ai-offer]:visible').click();
-  const plan = page.locator('[data-ai-plan]:visible');
-  await expect(plan).toContainText(T('I would do this'));
-  await expect(plan).toContainText('Reifen pumpen');
-  await expect(plan).toContainText('Bremse quietscht');
-  // nothing written yet; only the sentence, today and the names went along, the code only in the header
-  expect(seen).toHaveLength(1);
-  expect(seen[0].auth).toBe('Bearer test-code-not-real-0000');
-  expect(seen[0].body.input).toMatchObject({ mode: 'command', lang: 'de', question: sentence });
-  expect(seen[0].body.input.context).toMatch(/^today: 2026-10-21\nbikes: \ntrips: $/);
-  await page.locator('[data-ai-ok]').click();
-  const done = page.locator('p.done:visible');
-  await expect(done).toContainText('Reifen pumpen');
-  await done.getByRole('button', { name: T('Undo') }).click();
-  await expect(done).toHaveCount(0);
-  await page.goto('./#/inbox');
-  await ready(page);
-  await expect(page.getByText('Bremse quietscht')).toHaveCount(0);
-  expect(errors).toEqual([]);
-});
-
-test('Gemini finds nothing to do in a sentence: it says so and writes nothing (07.11.2026)', async ({ page, context }) => {
-  const errors = await open(page, context, '#/');
-  await page.route('**/api/helper', (route) => (route.request().method() === 'OPTIONS' ? route.fulfill({ status: 204 }) : route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, task: 'gemini', result: { text: '{"actions":[]}' } }) })));
+  await page.route('**/api/helper', (route) => (seen.push(route.request().postData()), route.fulfill({ status: 204 })));
   await putHelperCode(page);
   const glass = page.getByRole('button', { name: T('Search everything') });
   if (await glass.first().isVisible()) await glass.first().click();
-  await page.locator('input[type="search"]:visible').first().fill('Heute war ein richtig schöner Tag');
-  await page.locator('[data-ai-offer]:visible').click();
-  await expect(page.locator('[data-ai-plan]:visible')).toContainText(T('Gemini found nothing to do in this sentence.'));
+  await page.locator('input[type="search"]:visible').first().fill('Trag mir bitte das Pumpen der Reifen auf Freitag ein und merk dir, dass die Bremse quietscht');
+  await page.waitForTimeout(500);
+  await expect(page.locator('[data-ai-offer]')).toHaveCount(0);
+  await expect(page.locator('[data-ai-plan]')).toHaveCount(0);
+  expect(seen).toEqual([]);
   expect(errors).toEqual([]);
 });
