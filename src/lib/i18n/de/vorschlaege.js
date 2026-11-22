@@ -80,4 +80,14 @@ export default {
   'Choose the region, the difficulty and the time, then open a tour.': 'Wähle Region, Schwierigkeit und Zeit und öffne eine Tour.',
   'Read «Why this suggestion?» and tap «Keep as a dream» or «Save GPX».': 'Lies «Warum dieser Vorschlag?» und tippe «Als Traum merken» oder «GPX speichern».',
   'Example: «Flims» (23 km, +840 m, medium fitness, easy skill) in Grisons, with its height profile and the ground along the way.': 'Beispiel: «Flims» (23 km, +840 m, Kondition mittel, Technik leicht) in Graubünden, mit Höhenprofil und Untergrund.',
+  // Art, Start und Zeilen (PR «Art-Filter»)
+  'Gravel and paths|tour': 'Schotter und Wege',
+  'Up to {km} km from home': 'Bis {km} km von zu Hause',
+  'Set your home place and you can choose how far the start may be.': 'Lege deinen Wohnort fest, dann kannst du wählen, wie weit der Start weg sein darf.',
+  'Choose the lines': 'Zeilen wählen',
+  'Time|why': 'Zeit',
+  'Snow|why': 'Schnee',
+  'Difficulty|why': 'Schwierigkeit',
+  'New for you|why': 'Neu für dich',
+  'Distance from home|why': 'Abstand zum Wohnort',
 };

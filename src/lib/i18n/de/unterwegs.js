@@ -289,7 +289,7 @@ export default {
   'Charge lights, phone and power bank tonight.': 'Lichter, Handy und Powerbank heute Abend laden.',
   'Your own checklist for the flat before you leave: stove, windows, rubbish; ticked per trip.': 'Deine eigene Checkliste für die Wohnung vor der Abfahrt: Herd, Fenster, Abfall; pro Tour abgehakt.',
   'What the person looking after your flat should do, shared as a link or a QR code.': 'Was die Person tun soll, die zu deiner Wohnung schaut, geteilt als Link oder QR-Code.',
-  'The evening before a tour: hints from the weather, the packing list and parts due; the AI helper can add some.': 'Am Vorabend einer Tour: Hinweise aus Wetter, Packliste und fälligen Teilen; der KI-Helfer kann welche ergänzen.',
+  'The evening before a tour: hints from the weather, the packing list and parts due.': 'Am Vorabend einer Tour: Hinweise aus Wetter, Packliste und fälligen Teilen.',
   'Tick the house check before you lock the door.': 'Hake den Haus-Check ab, bevor du abschliesst.',
   'Change the lines with «Edit the list».': 'Ändere die Zeilen mit «Liste bearbeiten».',
   'Open «Before you leave» on On the way.': 'Öffne «Vor der Abfahrt» auf Unterwegs.',

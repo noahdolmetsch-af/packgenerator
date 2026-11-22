@@ -126,7 +126,7 @@ test('Ich › Mein Kompass: a goal gets steps with dates, «Wie läuft\'s?», an
   await goal.locator('textarea').fill('Route zeichnen\nTraining planen');
   await goal.getByRole('button', { name: T('Add steps') }).click();
   await expect(goal.locator('.steps li')).toHaveCount(2);
-  await expect(goal.locator('[data-ai-steps]')).toHaveCount(0); // AI helper not set up here
+  await expect(goal.locator('[data-ai-steps]')).toHaveCount(0); // KI entfernen, Schritt 3: no AI button any more
   await expect(root.locator('[data-goal-check]')).toBeVisible();
   await root.locator('[data-goal-check]').getByRole('button', { name: T('Going well') }).click();
   await expect(root.locator('[data-goal-check]')).toHaveCount(0);
