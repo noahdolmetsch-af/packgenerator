@@ -34,7 +34,8 @@ export async function viaTab(page, place, href) {
 export async function tapTab(page, name) {
   // the German texts load before the first screen (i18n.svelte.js loadDe), so the app may appear a moment after the load event
   await page.locator('nav.ptabs, .side .tabs').first().waitFor({ state: 'attached' });
-  const tab = page.locator(TABS).getByRole('link', { name, exact: true });
+  // since V4a (21.11.2026) the pages of Aktiv are chips (nav.psubs) under the tab «Training»
+  const tab = page.locator(`${TABS}, nav.psubs:visible`).getByRole('link', { name, exact: true });
   if ((await tab.count()) && (await tab.first().isVisible())) return tab.first().click();
   await page.locator('nav.ptabs .pmore').click();
   await page.locator('dialog.ptsheet').getByRole('link', { name, exact: true }).click();
@@ -42,6 +43,6 @@ export async function tapTab(page, name) {
 
 /** «Aktiv neu» (Noah 22.10.2026): from Aktiv to Auswerten, the way a person does (the switch on a phone, the sidebar row on a computer). */
 export async function toAnalysis(page) {
-  await page.locator('[data-to-analysis], .side li[data-place="analysis"] > a.pa').filter({ visible: true }).first().click();
+  await page.locator('nav.bottom a[data-place="analysis"], .side li[data-place="analysis"] > a.pa').filter({ visible: true }).first().click();
   await expect(page).toHaveURL(/#\/auswerten$/);
 }
