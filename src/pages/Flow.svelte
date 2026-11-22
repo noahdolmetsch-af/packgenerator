@@ -51,6 +51,8 @@
   import { openTimer, actName } from '../lib/flow/ui.svelte.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
+  import OutdoorCard from '../lib/home/OutdoorCard.svelte'; // Challenges (Noah 22.11.2026): running challenges can be ticked off here too
+  import ZielCards from '../lib/challenges/ZielCards.svelte';
   import PullRefresh from '../lib/home/PullRefresh.svelte'; // pull down: sync phone and computer (Noah 10.11.2026 «ja»)
   import SyncLine from '../lib/flow/SyncLine.svelte'; // «Abgeglichen vor 12 s» (Noah 10.11.2026)
   import WeekGlance from '../lib/flow/WeekGlance.svelte';
@@ -239,6 +241,11 @@
             <!-- the help line (spec «Heute abhaken»), the same as on Heute -->
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help medHelp={hasMed} jump onmed={(s) => (medFor = s.act.id)} />
             <SyncLine />
+            <!-- «Challenges» (Noah 22.11.2026): running challenges (Outdoors, own daily goals) with «Tick off», only when one runs -->
+            <div class="chal" data-aktiv-challenges>
+              <OutdoorCard {today} offerLine={false} />
+              <ZielCards {today} />
+            </div>
             <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
             <TickSuggest />
           </Sec>
@@ -314,6 +321,14 @@
     margin: var(--sp-1) 0 0;
     color: var(--ink-3);
     font: 400 var(--fs-body) / 1.45 var(--font-body);
+  }
+  /* Challenges on Aktiv: the cards stand under the tiles; without a running challenge the box is empty and takes no room */
+  .chal {
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .chal:has(> section) {
+    margin-top: var(--sp-3);
   }
   .lay {
     display: grid;
