@@ -59,7 +59,7 @@ export const countNews = (entries = []) => ({ points: entries.reduce((n, e) => n
  * know/VersionNews.svelte. Most specific address first.
  */
 const ICONS = [
-  ['#/me/news', 'star'], ['#/features', 'star'], ['#/me/checks', 'check'], ['#/me/data', 'save'], ['#/me/look', 'palette'], ['#/helper', 'sparkles'],
+  ['#/me/news', 'star'], ['#/features', 'star'], ['#/me/checks', 'check'], ['#/me/data', 'save'], ['#/me/look', 'palette'],
   ['#/me', 'user'], ['#/inbox', 'inbox'], ['#/notes', 'note'], ['#/bikes?tab=care', 'wrench'], ['#/care', 'wrench'], ['#/bikes', 'bike'],
   ['#/wardrobe', 'shirt'], ['#/favorites', 'star'], ['#/gear', 'box'], ['#/flow', 'activity'], ['#/debrief', 'book'], ['#/review', 'book'],
   ['#/blocks', 'blocks'], ['#/pack?day', 'check'], ['#/pack/templates', 'copy'], ['#/pack', 'pack'], ['#/trips', 'route'], ['#/ride', 'compass'], ['#/', 'sun'],

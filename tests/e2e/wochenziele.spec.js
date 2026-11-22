@@ -122,7 +122,7 @@ test('WG-4 ways: a week goal and a ring row lead to their value in Analyse (44 p
     expect((await r.boundingBox()).height).toBeGreaterThanOrEqual(44);
     expect(await r.getAttribute('href')).toMatch(/^#\/auswerten\/analyse\/act%3A[^/]+\?zeit=w$/);
   }
-  await expect(page.locator('[data-ring-all]').first()).toHaveAttribute('href', '#/flow/auswertung');
+  await expect(page.locator('[data-ring-all]').first()).toHaveAttribute('href', '#/auswerten/sportjahr');
   await fold.click();
   await expect(sports).toHaveCount(0);
   await shot(page, info, 'WG4-wege', page.locator('#ring-h').locator('xpath=ancestor::section[1]'));

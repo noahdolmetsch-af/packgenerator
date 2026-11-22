@@ -96,7 +96,7 @@ export default {
   'Answer per month': 'Antwort pro Monat',
   // features, handbook, how-to
   'Evaluate your ticks and answers': 'Haken und Antworten auswerten',
-  'What you tick off and your answers to the check questions, evaluated like a ride: tiles, ticks per week, weekdays, time of day, course, best values and per month.': 'Was du abhakst und deine Antworten auf die Check-Fragen, ausgewertet wie eine Fahrt: Kacheln, Haken pro Woche, Wochentage, Tageszeit, Verlauf, Bestwerte und pro Monat.',
+  'Your answers to the check questions with a number, evaluated like a ride: tiles, per week, weekdays, time of day, course, best values and per month. Your ticks are evaluated in the Sports year under «Ticks and rhythm».': 'Deine Antworten auf die Check-Fragen mit einer Zahl, ausgewertet wie eine Fahrt: Kacheln, pro Woche, Wochentage, Tageszeit, Verlauf, Bestwerte und pro Monat. Deine Haken wertest du im Sportjahr aus, unter «Haken und Rhythmus».',
   'Choose a period and an activity, or «Your answers».': 'Wähle einen Zeitraum und eine Aktivität, oder «Deine Antworten».',
   'Tap «…» on a card to hide or move it.': 'Tippe «…» auf einer Karte, um sie auszublenden oder zu verschieben.',
   // part 3: the ride analyses on a tour and in the Rückblick

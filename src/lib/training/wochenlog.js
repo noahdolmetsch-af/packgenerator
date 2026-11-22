@@ -170,26 +170,26 @@ export function progress(units, done, released = []) {
   };
 }
 
-/** The plan of a week from the stored goals of its season; mode: a lighter week, a ski tour week, a rainy week. */
-export function weekFor(stored, monday, pins = {}, mode = {}) {
+/** The plan of a week from the stored goals of its season; mode: a lighter week, a ski tour week, a rainy week; sessions: the sessions of `training.plan` (TrainingPeaks takes its share). */
+export function weekFor(stored, monday, pins = {}, mode = {}, sessions = []) {
   const p = planOf(stored);
   const summer = isSummer(monday);
   const base = summer ? p.summer : p.winter;
   const cfg = mode.light ? lightOf(base, summer) : base;
-  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain }) };
+  return { cfg, base, week: planWeek(cfg, { monday, pins, ski: !!mode.ski, rain: !!mode.rain, sessions }) };
 }
 
 /**
  * What is up today: the plan of this week, today's units still open (the small daily habits do not count here), and
  * the week's tick state. null when no weekly plan was saved or nothing is planned for today.
  */
-export function dueToday(stored, rawLog, today) {
+export function dueToday(stored, rawLog, today, sessions = []) {
   if (stored == null) return null;
   const monday = mondayOf(today);
   const d = (new Date(`${today}T12:00:00Z`).getUTCDay() + 6) % 7;
   const log = logOf(rawLog);
   const w = weekLog(log, monday);
-  const { cfg, week } = weekFor(stored, monday, w.pins, w.mode);
+  const { cfg, week } = weekFor(stored, monday, w.pins, w.mode, sessions);
   const done = w.done;
   const open = week.units.filter((u) => u.d === d && !QUIET.includes(u.type) && !done[u.id] && !w.released.includes(u.id));
   if (!open.length) return null;

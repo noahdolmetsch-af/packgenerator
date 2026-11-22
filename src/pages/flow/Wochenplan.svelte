@@ -22,7 +22,7 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import { db } from '../../lib/db.js';
-  import { mondayOf, shiftDay } from '../../lib/training.js';
+  import { mondayOf, shiftDay, PLAN_KEY, planOf as sessionsOf } from '../../lib/training.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, lightOf, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
@@ -38,6 +38,9 @@
   const stored = $derived($setQ);
   const loaded = $derived(stored !== undefined);
   const plan = $derived(planOf(stored));
+  // the sessions of the week suggestion: the ones from TrainingPeaks take their share of the hours (only real weeks, not the example)
+  const sessQ = liveQuery(async () => (await db.settings.get(PLAN_KEY))?.value ?? null);
+  const sessions = $derived(sessionsOf($sessQ));
   // part 3: the ticks and the frozen weeks (undefined while read), and this week's Strava activities
   const logQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
   const log = $derived($logQ === undefined ? null : logOf($logQ));
@@ -61,8 +64,9 @@
   const modeShown = $derived(shownLog?.mode ?? {});
   // a lighter week shows 60 % of the hours for this one week; the goals themselves stay as they are
   const cfgW = $derived(modeShown.light ? lightOf(cfg, summer) : cfg);
-  const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain }));
-  const mins = $derived(plannedMins(week.units));
+  const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain, sessions: isNow ? sessions : [] }));
+  // TrainingPeaks counts on the hours (Noah «1a»): the plan plus what TrainingPeaks brings this week
+  const mins = $derived(plannedMins(week.units) + week.tp.reduce((a, x) => a + x.mins, 0));
   const pct = $derived(reachedPct(mins, cfgW.hours));
   const byHand = $derived(!followsHours(cfg, summer));
   const nothing = $derived(GOAL_TYPES.every((k) => !cfg.counts[k]));
@@ -89,7 +93,7 @@
   const nowSummer = $derived(isSummer(realMonday));
   const nowLog = $derived(weekLog(log ?? logOf(null), realMonday));
   const nowCfg = $derived(nowLog.mode.light ? lightOf(nowSummer ? plan.summer : plan.winter, nowSummer) : nowSummer ? plan.summer : plan.winter);
-  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowLog.pins, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain }));
+  const nowWeek = $derived(planWeek(nowCfg, { monday: realMonday, pins: nowLog.pins, ski: !!nowLog.mode.ski, rain: !!nowLog.mode.rain, sessions }));
   const done = $derived(nowLog.done);
   const released = $derived(nowLog.released);
   const prog = $derived(progress(nowWeek.units, done, released));
@@ -241,22 +245,28 @@
     if (fixed) bits.push(t('{fixed} fixed, {free} free', { fixed, free: Math.max(0, (cfg.counts[type] || 0) - fixed) }));
     return bits.join(' · ');
   }
-  const noteText = (n) => (NOTE_TEXT[n.key] ? t(NOTE_TEXT[n.key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0), type: n.type ? nameOf(n.type) : '' }) : '');
+  // a session from TrainingPeaks has no unit of the plan: its own title (or the word TrainingPeaks)
+  const tpNameOf = (id) => (week.tp ?? []).find((x) => x.id === id)?.name || t('TrainingPeaks');
+  const noteText = (n) => (NOTE_TEXT[n.key] ? t(NOTE_TEXT[n.key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0), n: n.n ?? 0, type: n.type ? nameOf(n.type) : '' }) : '');
   const warnText = (w) =>
     t(WARN_TEXT[w.key] ?? WARN_TEXT['no-room'], {
       day: w.d == null ? '' : dayName(w.d),
       n: w.n ?? 0,
       type: w.type ? nameOf(w.type) : '',
-      a: unitById(w.a) ? nameOf(unitById(w.a).type) : '',
-      b: unitById(w.b) ? nameOf(unitById(w.b).type) : '',
+      a: unitById(w.a) ? nameOf(unitById(w.a).type) : tpNameOf(w.a),
+      b: unitById(w.b) ? nameOf(unitById(w.b).type) : tpNameOf(w.b),
     });
-  const notes = $derived(week.notes.map(noteText).filter(Boolean));
+  const notes = $derived(week.notes.filter((n) => !n.key.startsWith('tp-')).map(noteText).filter(Boolean));
+  // what TrainingPeaks does to the week is said where the hours are (never silent): how much it brings, what it replaced
+  const tpLines = $derived(week.notes.filter((n) => n.key.startsWith('tp-')).map(noteText).filter(Boolean));
   const hoursLine = $derived(
     modeShown.light
       ? t('A lighter week: {n} h instead of {m} h. Plus and minus change your normal plan.', { n: cfgW.hours, m: cfg.hours })
       : cfg.hours >= 21
       ? t('Above about 20 hours it only fits with overload, so only what still fits is suggested.')
-      : byHand
+      : week.tp.length && !byHand
+        ? t('Without TrainingPeaks these units fit {n} hours. Change a unit with plus or minus if you want it more exact.', { n: cfg.hours })
+        : byHand
         ? t('You changed units by hand. The plan now has {h} hours.', { h: hoursText(mins) })
         : t('These units fit {n} hours. Change a unit with plus or minus if you want it more exact.', { n: cfg.hours }),
   );
@@ -299,6 +309,7 @@
           <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(mins), b: cfgW.hours })}</b></p>
           <span class="bar" role="img" aria-label={t('{n} percent of the goal', { n: pct })}><i style="width:{pct}%"></i></span>
           <p class="hint" data-wp-hint>{hoursLine}</p>
+          {#each tpLines as line (line)}<p class="hint" data-wp-tp>{line}</p>{/each}
           {#if byHand}<button type="button" class="btn sm" onclick={suggestAgain} data-wp-again>{t('Suggest the units from the hours again')}</button>{/if}
         </section>
 

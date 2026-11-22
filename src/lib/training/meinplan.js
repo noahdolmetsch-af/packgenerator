@@ -26,7 +26,7 @@ export function weekRows({ stored, log, sessions, acts }, monday, today) {
   const w = weekLog(log, monday);
   const rows = [];
   const past = isPast(monday, today);
-  const units = past ? (w.snap?.units ?? []) : stored != null ? weekFor(stored, monday, w.pins, w.mode).week.units : [];
+  const units = past ? (w.snap?.units ?? []) : stored != null ? weekFor(stored, monday, w.pins, w.mode, sessions).week.units : [];
   for (const u of units) rows.push({ id: u.id, src: 'plan', type: u.type, name: null, d: u.d, t: u.t, mins: u.mins, done: !!w.done[u.id], doneMins: w.done[u.id] ? u.mins : 0, doneDay: w.done[u.id] ?? null, released: w.released.includes(u.id) });
   const end = shiftDay(monday, 6);
   for (const s of sessions) {

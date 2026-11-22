@@ -4,24 +4,23 @@
    *   #/flow/review           the week shown by default (weekreview.js defaultMonday: on a Monday the week
    *                           just finished, from Tuesday on the running week)
    *   #/flow/review?w=<day>   the week of that day; ‹ › step a week back and forth
-   * Six cards: the week in five numbers (W1), the strip Monday to Sunday (W2), two or three calm sentences
-   * (W3), the highlights (W4), one suggestion for next week (W5) and, only with the KI-Helfer switched on,
-   * the week as text to copy for Claude (W6). A card without data shows nothing. Observation only.
+   * Five cards: the week in five numbers (W1), the strip Monday to Sunday (W2), two or three calm sentences
+   * (W3), the highlights (W4) and one suggestion for next week (W5). A card without data shows nothing.
+   * Observation only.
    * The rules are pure and tested (lib/weekreview.js).
    */
   import { liveQuery } from 'dexie';
-  import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Minus, Moon, Smile, Copy, Check, Mountain, Timer, Zap, Star } from '@lucide/svelte';
+  import { ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Minus, Moon, Smile, Mountain, Timer, Zap, Star } from '@lucide/svelte';
   import { db } from '../../lib/db.js';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import KindIcon from '../../lib/strava/KindIcon.svelte';
   import { zones } from '../../lib/strava/zones.svelte.js';
-  import { helper } from '../../lib/helper/client.svelte.js';
   import { normAct, tripDays } from '../../lib/flow.js';
   import { homeTrips } from '../../lib/home/heute.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
   import { PLAN_KEY, planOf, mondayOf, shiftDay, isoWeek, hmm, typeKey } from '../../lib/training.js';
-  import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekSums, weekEnd, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything, summaryText } from '../../lib/weekreview.js';
+  import { SLEEP_Q, MOOD_Q, weekParam, weekHref, weekSums, weekEnd, weekFive, weekStrip, weekNotes, weekHighs, weekAhead, diffText, hasAnything } from '../../lib/weekreview.js';
   import { localDay } from '../../lib/localday.js';
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import WeekMore from '../../lib/flow/WeekMore.svelte';
@@ -106,19 +105,6 @@
   const aheadText = $derived(
     !ahead ? '' : ahead.key === 'calmer' ? t('The load rose three weeks in a row. Next week could be a calmer one.') : ahead.key === 'running' ? t('This week is still running. Your usual week has about {h} h.', { h: hmm(ahead.usualSecs) }) : ahead.key === 'back' ? t('A quieter week lies behind you. Next week can bring your usual rhythm again, about {h} h.', { h: hmm(ahead.usualSecs) }) : t('Keep your rhythm: about {h} h, like this week.', { h: hmm(ahead.secs) }),
   );
-
-  /* W6: only with the KI-Helfer switched on; shown first, copied only on a tap, never sent by itself */
-  const text = $derived(data && helper.show ? summaryText({ monday, five, strip, notes, highs, ahead }, { t, num, day: (d) => fmt(d, { day: 'numeric', month: 'long' }), noteText }) : '');
-  let copied = $state(false);
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(text);
-      copied = true;
-      setTimeout(() => (copied = false), 2500);
-    } catch {
-      copied = false;
-    }
-  }
 </script>
 
 <div class="wrv">
@@ -227,15 +213,6 @@
           <p class="cap"><Timer size={14} aria-hidden="true" />{ahead.plan.n ? tn(ahead.plan.n, 'Week {kw}: {n} session planned already ({h} h).', 'Week {kw}: {n} sessions planned already ({h} h).', { kw: ahead.kw, h: hmm(ahead.plan.mins * 60) }) : t('Week {kw}: nothing planned yet.', { kw: ahead.kw })}</p>
           <a class="more" href="#/flow/training" data-to-plan>{t('To the training plan')}<ChevronRight size={16} aria-hidden="true" /></a>
           <p class="cap">{t('Only a suggestion: you decide.')}</p>
-        </section>
-      {/if}
-
-      {#if helper.show && any}
-        <section class="card wcard" data-wr="ask" aria-labelledby="wr-ask">
-          <h2 id="wr-ask">{t('How was my week?')}</h2>
-          <p class="cap">{t('This text is what you would give to Claude. Nothing is sent: copy it and paste it yourself.')}</p>
-          <textarea class="out" readonly rows="9" aria-label={t('The text for Claude')} data-ask-text value={text}></textarea>
-          <button type="button" class="btn cpy" onclick={copy} data-ask-copy>{#if copied}<Check size={16} aria-hidden="true" />{t('Copied')}{:else}<Copy size={16} aria-hidden="true" />{t('Copy for Claude')}{/if}</button>
         </section>
       {/if}
     </div>
