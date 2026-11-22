@@ -262,6 +262,19 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
   await cond.locator('[data-onion-fill]').click();
   await expect(cond.getByRole('button', { name: T('Onion: fits') })).toBeVisible();
   await expect(cond.locator('.orows li', { hasText: T('Legs') }).locator('.badge')).toHaveText(T('new'));
+  if (SHOTS) {
+    mkdirSync(SHOTS, { recursive: true });
+    const hide = await page.addStyleTag({ content: '.onion-toast { visibility: hidden !important; }' });
+    await cond.screenshot({ path: `${SHOTS}/zwiebel-tauschen-${info.project.name}.png` });
+    await hide.evaluate((el) => el.remove());
+  }
+  // «Tauschen» in every row of the onion (Weg B): the piece has its swap button, it opens the same «Swap» window
+  const legs = cond.locator('.orows li', { hasText: T('Legs') });
+  await legs.locator('[data-onion-swap="CL05"]').click();
+  const swap = page.getByRole('dialog', { name: T('Swap {name}', { name: `${P} Beinlinge dünn` }) });
+  await expect(swap).toBeVisible();
+  await swap.getByRole('button', { name: T('Close') }).click();
+  await expect(swap).toHaveCount(0);
   // The kit for the coldest hour (no hourly data: the minimum 6 °C): K2 4–15 °C.
   await cond.getByRole('button', { name: T('Kit {range} in', { range: '4–15 °C' }) }).click();
   const toast = page.locator('.onion-toast');

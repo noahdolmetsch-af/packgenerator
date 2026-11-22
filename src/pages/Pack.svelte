@@ -1124,7 +1124,7 @@
       testTrip: () => change(() => ({ testTrip: trip.testTrip !== true })),
       reopen: () => askReopen(trip),
     }}>
-    {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} wait={Number(trip.waitMin) || 0} {chill} onwait={setWait} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
+    {#snippet onion(onswap)}{#if onionCk}<Onion check={onionCk} onswap={locked ? null : onswap} {kit} plan={kitP} {offset} wait={Number(trip.waitMin) || 0} {chill} onwait={setWait} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{#if trip.status !== 'done'}<TourSky {trip} {items} place={trip.route?.start ?? trip.place ?? homeOf($homeQ?.value) ?? null} onadd={helperAdd} onhide={(k) => change((c) => ({ skyOff: [...new Set([...(c.skyOff ?? []), k])] }))} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}
