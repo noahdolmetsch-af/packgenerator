@@ -30,6 +30,7 @@ import { activeBikes } from '../bikeretire.js';
 import { wetRides, prefsOf, wetSince, wetPushToday } from '../griff.js';
 import { wetOf } from '../inspect/rain.js';
 import { bundleMorning, morningOn } from './morning.js';
+import { outdoorOf, remindDays } from '../outdoor.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -80,6 +81,8 @@ export const KINDS = [
   { key: 'backup', label: 'Backup', hint: 'When the last backup is older than set.' },
   // Paket N idea 2 (Noah 19.10.2026 «1-5 a»): a race trip's registration deadline (Touren › Träume)
   { key: 'race', label: 'Race registration', hint: '3 days and 1 day before the registration deadline, at 08:00.' },
+  // «Draussen» PR 2 (Noah 21.11.2026 «2b»): every day at the time of the challenge (16:00) while it runs
+  { key: 'outdoor', label: 'Outdoors challenge', hint: 'Every day at 16:00 (or the time you set) while your challenge runs, until the day is reached.' },
   { key: 'own', label: 'Own reminders', hint: 'Your to-dos in Merken with a reminder, at their time.' },
   // Paket H «Packen leichter» (Noah 19.10.2026 «2b», «5 a und b»; #90)
   { key: 'supply', label: 'Supplies expire', hint: '2 weeks before the best-before date, at 08:00.' },
@@ -103,7 +106,7 @@ export const PUSH_GROUPS = [
   { key: 'tour', label: 'Around the tour', keys: ['eve', 'shop', 'race', 'eat'] },
   { key: 'weather', label: 'Weather and light', keys: ['weather', 'ice', 'wxwatch', 'dark', 'rainsoon', 'air', 'fog', 'night'] },
   { key: 'bike', label: 'Bikes and gear', keys: ['wetchain', 'wear', 'workshop', 'supply', 'lend'] },
-  { key: 'day', label: 'Everyday life', keys: ['birthday', 'plant', 'own', 'note', 'backup'] },
+  { key: 'day', label: 'Everyday life', keys: ['birthday', 'plant', 'outdoor', 'own', 'note', 'backup'] },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
@@ -385,6 +388,13 @@ export function buildList(data) {
       const first = String(n.text ?? '').split('\n').find((l) => l.trim()) ?? '';
       add({ key: `note:${n.id}:${r.day}T${r.hm}`, at: atMs(r.day, r.hm), title: t('Note reminder'), body: String(n.title || first.replace(/^[#\-*\s[\]x]+/, '') || t('Note')).slice(0, 200), url: `#/notes?open=${n.id}` });
     }
+  // «Draussen» PR 2: the daily reminder of the challenge (today left out when its minutes are reached)
+  if (on('outdoor')) {
+    const rec = outdoorOf(data.settings?.outdoor);
+    if (rec?.from)
+      for (const { day, left } of remindDays(rec, data.todayActs ?? [], today, AHEAD_DAYS))
+        add({ key: `outdoor:${day}`, at: atMs(day, rec.remindAt), title: t('Outdoors'), body: t('{min} min outdoors still to go today. Even a short walk counts.', { min: left }), url: '#/' });
+  }
   items.sort((a, b) => a.at - b.at);
   // Idee A1 (Noah 27.10.2026 «3a»): the 08:00 reminders of a day come together at 07:00, safety stays single
   const out = p.on && morningOn(data.settings?.push)
