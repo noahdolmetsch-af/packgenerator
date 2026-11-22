@@ -5,9 +5,9 @@ export default {
   points: [
     {
       text: 'A sentence the app does not know, like «Put pumping the tyres on Friday and remember the brake squeaks», shows «I would do this» with Gemini',
-      go: { href: '#/me/suche', steps: [{ sel: '[data-suche="understand"]' }], where: 'Me › Search, the switch «Gemini understands sentences». It needs the helper code (Me › AI helper).' },
+      go: null,
     },
-    { text: 'Only the sentence, the day and the names of your bikes and trips go to Gemini', go: { href: '#/me/suche', steps: [{ sel: '[data-suche="understand"]' }] } },
+    { text: 'Only the sentence, the day and the names of your bikes and trips go to Gemini', go: null },
   ],
   small: [],
   test: [
