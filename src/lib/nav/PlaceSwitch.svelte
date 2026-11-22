@@ -7,26 +7,15 @@
   import { t } from '../i18n.svelte.js';
 
   // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Material shares the slot of Velos too, so the switch has three ways.
-  // «Aktiv neu» (Noah 22.10.2026): Aktiv and Auswerten share one slot too; the switch has two ways there.
-  import { placeHref, PLACES, ANALYSIS } from '../nav.js';
-
-  let { place, hash = '' } = $props();
-  const look = $derived(place === 'active' || place === 'analysis');
-  const ACTIVE = PLACES.find((p) => p.key === 'active');
+  // «Neue Ordnung» V4a (Noah 21.11.2026): Aktiv is part of Woche and Auswerten has its own slot, so only the three ways of Velos remain.
+  let { place } = $props();
 </script>
 
-{#if look}
-  <nav class="psw two" aria-label={t('Active or analysis')} data-place-switch="active">
-    <a href={placeHref(ACTIVE, place, hash)} aria-current={place === 'active' ? 'page' : undefined}>{t('Active|place')}</a>
-    <a href={placeHref(ANALYSIS, place, hash)} aria-current={place === 'analysis' ? 'page' : undefined} data-to-analysis>{t('Analysis|place')}</a>
-  </nav>
-{:else}
-  <nav class="psw" aria-label={t('Bikes, equipment or gear')} data-place-switch>
-    <a href="#/bikes" aria-current={place === 'bikes' ? 'page' : undefined}>{t('Bikes|place')}</a>
-    <a href="#/equipment" aria-current={place === 'equipment' ? 'page' : undefined}>{t('Equipment|place')}</a>
-    <a href="#/gear" aria-current={place === 'gear' ? 'page' : undefined}>{t('Gear|place')}</a>
-  </nav>
-{/if}
+<nav class="psw" aria-label={t('Bikes, equipment or gear')} data-place-switch>
+  <a href="#/bikes" aria-current={place === 'bikes' ? 'page' : undefined}>{t('Bikes|place')}</a>
+  <a href="#/equipment" aria-current={place === 'equipment' ? 'page' : undefined}>{t('Equipment|place')}</a>
+  <a href="#/gear" aria-current={place === 'gear' ? 'page' : undefined}>{t('Gear|place')}</a>
+</nav>
 
 <style>
   .psw {

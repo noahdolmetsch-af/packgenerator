@@ -6,6 +6,8 @@
  * tab of PLACE_TABS has its entry.
  */
 export const TAB_INFO = {
+  // V4a (Noah 21.11.2026): the old Aktiv is the tab «Training» of Woche
+  'week:training': ['dumbbell', 'Your training: plans, sports and recovery'],
   'week:week': ['calendar', 'Your week: appointments, rides and weather day by day'],
   'week:remember': ['flower', 'To-dos, birthdays and plants, with their reminders'],
   'week:agenda': ['clock', 'Appointments and tasks from your calendar'],

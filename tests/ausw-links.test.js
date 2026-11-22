@@ -13,9 +13,9 @@ describe('the summit book is a tab of Auswerten', () => {
     expect(subOf('analysis', '#/flow/gipfelbuch').key).toBe('gipfel');
     expect(subOf('analysis', '#/flow/gipfelbuch?sport=bike').key).toBe('gipfel');
     expect(tabOf('analysis', '#/flow/gipfelbuch')).toBe('rides');
-    expect(tabOf('active', '#/flow/gipfelbuch')).toBeNull();
+    expect(tabOf('week', '#/flow/gipfelbuch')).toBeNull();
     expect(placeOf(pageOf('#/flow/gipfelbuch'), '#/flow/gipfelbuch')).toBe('analysis');
-    expect(placeOf(pageOf('#/flow/sports'), '#/flow/sports')).toBe('active');
+    expect(placeOf(pageOf('#/flow/sports'), '#/flow/sports')).toBe('week');
   });
   it('the start of Auswerten has no link cards any more, and every page of them is a tab', () => {
     const src = readFileSync('src/pages/AuswertenStart.svelte', 'utf8');

@@ -102,7 +102,7 @@ describe('main places', () => {
   it('five places in a fixed order (v0.46.1: Trips opens the overview; v0.76.0 «Fünf Orte»: Aktiv opens Im Flow)', () => {
     // «Woche planen» (Noah 15.10.2026 «1a»): «Woche» is its own place next to Heute
     // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos, Material under Velos
-    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['active', '#/flow'], ['bikes', '#/bikes'], ['gear', '#/gear'], ['quick', '#/quick']]); // «Quick Links» (Noah 28.10.2026 «3a»)
+    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['bikes', '#/bikes'], ['gear', '#/gear'], ['analysis', '#/auswerten'], ['quick', '#/quick']]); // «Quick Links» (Noah 28.10.2026 «3a»)
   });
 
   it('every address belongs to the right place', () => {
@@ -122,8 +122,8 @@ describe('main places', () => {
       '#/bikes?tab=care': 'bikes',
       '#/care': 'bikes',
       // v0.76.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox, the notes and the features live in «Ich»
-      '#/flow': 'active',
-      '#/flow/goals': 'active',
+      '#/flow': 'week',
+      '#/flow/goals': 'week',
       '#/me': 'me',
       '#/inbox': 'week', // UI-Ziele #6: Planen › Eingang
       '#/inbox/new': 'week',

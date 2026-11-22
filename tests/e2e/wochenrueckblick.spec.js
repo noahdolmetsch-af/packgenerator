@@ -5,7 +5,6 @@
 // nothing. No sideways scroll, no page errors. SHOTS=<dir> saves wochenrueckblick-390.png / -1440.png.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { TABS } from './placetab.js';
 
 // the keys as the app stores them (weekreview.js SLEEP_Q / MOOD_Q, training.js PLAN_KEY, helper HELPER_KEY);
 // written out here because those modules load the app's runes, which the test runner cannot
@@ -113,7 +112,8 @@ test('Wochenrückblick: five numbers, strip, sentences, highlights, next week an
   await main.locator('[data-to-review]').click();
   await expect(page).toHaveURL(/#\/flow\/review$/);
   await expect(main.getByRole('heading', { level: 1, name: T('Week in review') })).toBeVisible();
-  await expect(page.locator(TABS).getByRole('link', { name: T('Today|active'), exact: true })).toHaveAttribute('aria-current', 'page');
+  // V4a (21.11.2026, on purpose): the pages of Aktiv are chips under the tab «Training»; «Heute abhaken» is the lit one
+  await expect(page.locator('nav.psubs a[data-sub="flowhome"]:visible')).toHaveAttribute('aria-current', 'page');
 
   // on a Monday: the week just finished
   await expect(main.locator('[data-week]')).toHaveAttribute('data-week', MON);

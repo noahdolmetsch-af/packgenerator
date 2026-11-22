@@ -20,7 +20,8 @@
     if (!p) return [];
     const out = [{ label: placeLabel(p), href: p.href }];
     const tab = (PLACE_TABS[place] ?? []).find((x) => x.key === tabOf(place, hash));
-    if (tab) out.push({ label: tabLabel(place, tab), href: tab.href });
+    // V4a: the place «Woche» has a first tab «Woche» too: never the same name twice in a row
+    if (tab && tabLabel(place, tab).trim() !== out[0].label.trim()) out.push({ label: tabLabel(place, tab), href: tab.href });
     return out;
   });
 

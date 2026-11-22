@@ -97,6 +97,8 @@
         <button type="button" class="pt-pin" role="listitem" data-pin={p.feature || p.href} onclick={() => go(p)}>{pinLabel(p, t)}</button>
       {/each}
     </div>
+    <!-- V4a: «Quick Links» is no row of the bar any more; its way in is this line (and «g q») -->
+    <a class="pt-more" href="#/quick" data-pins-quick>{t('Groups and notes: Quick Links')} ›</a>
     {#if suggest}
       <div class="pt-tip" role="status" data-pins-suggest={suggest.href}>
         <p>{t('You often open «{name}». Pin it here?', { name: suggest.title })}</p>
@@ -266,6 +268,9 @@
     gap: var(--sp-2);
   }
   .pt-more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-size: var(--fs-small);
   }
   .pt-add {
