@@ -1,6 +1,6 @@
 # Training als Zeitplan: Uhrzeit und freier Slot
 
-PR #<Nummer> · 21.11.2026 · Schritt V4b der neuen Ordnung · Entscheid Noah «V4 ok» (21.11.2026 20:07 UTC); Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
+PR #1409 · 21.11.2026 · Schritt V4b der neuen Ordnung · Entscheid Noah «V4 ok» (21.11.2026 20:07 UTC); Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
 
 ## Was ist neu
 - Woche › Training › Karte «Meine Woche» ist der **Zeitplan**: jeder Tag listet in der Reihenfolge der Uhrzeit die eigenen Einheiten (durchgezogen), die aus TrainingPeaks («TP»), die Vorschläge des Wochenplans (gestrichelt) und die Termine (ruhig, nur zum Anschauen).
