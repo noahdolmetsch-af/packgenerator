@@ -73,6 +73,8 @@ export default {
   'No room for meditation on {day}.': 'Am {day} ist kein Platz für Meditation.',
   'TrainingPeaks brings {h} h this week. They count towards your hours; the plan only adds the rest.': 'TrainingPeaks bringt diese Woche {h} Std. Sie zählen auf deine Stunden, der Plan ergänzt nur den Rest.',
   'Without TrainingPeaks these units fit {n} hours. Change a unit with plus or minus if you want it more exact.': 'Ohne TrainingPeaks passen diese Einheiten zu {n} Std. Ändere eine Einheit mit Plus oder Minus, wenn du es genauer willst.',
+  'of which TrainingPeaks {h} h': 'davon TrainingPeaks {h} Std',
+  'With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.': 'Mit TrainingPeaks liegt die Woche über deinen {h} Std. Nichts wird weggenommen; nimm eine Einheit heraus, wenn es zu viel ist.',
   'Replaced by TrainingPeaks: {n} × «{type}».': 'Ersetzt durch TrainingPeaks: {n} × «{type}».',
   'TrainingPeaks alone is above your {h} h. Nothing else in the plan is taken away.': 'TrainingPeaks allein liegt über deinen {h} Std. Sonst wird im Plan nichts weggenommen.',
   'Cycling outdoors adds up to {h} h this week.': 'Velo draussen ergibt diese Woche zusammen {h} Std.',
