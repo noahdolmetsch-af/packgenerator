@@ -67,7 +67,7 @@
 </script>
 
 {#if fixed || also.length}
-  <p class="ks-hint" data-ks="hint">{#if fixed}{t('Nothing for «{q}». Searched: «{fixed}»', { q: question, fixed })}{#if onpick} <button type="button" class="ks-mean" data-ks-mean onclick={() => onpick(fixed)}>{t('Do you mean «{fixed}»?', { fixed })}</button>{/if}{:else}{t('Also searched: {words}', { words: also.join(', ') })}{/if}</p>
+  <p class="ks-hint" data-ks="hint">{#if fixed}{t('Nothing for «{q}». Searched: «{fixed}»', { q: question, fixed })}{#if onpick}{' '}<button type="button" class="ks-mean" data-ks-mean onclick={() => onpick(fixed)}>{t('Do you mean «{fixed}»?', { fixed })}</button>{/if}{:else}{t('Also searched: {words}', { words: also.join(', ') })}{/if}</p>
 {/if}
 {#if isQ && (links || chrome || local)}
   <div class="ks" class:in={inside} data-ks="ask">
@@ -101,7 +101,7 @@
 <style>
   .ks-gh { margin: 8px 6px 2px; font-family: var(--font-body); font-weight: 600; font-size: var(--fs-label); color: var(--ink-3); }
   .ks-hint { margin: 6px 12px 2px; font-size: var(--fs-small); color: var(--ink-3); }
-  .ks-mean { border: 0; background: none; padding: 0; font: inherit; color: var(--brand); text-decoration: underline; cursor: pointer; }
+  .ks-mean { border: 0; background: none; padding: 0; font: inherit; color: var(--ink); text-decoration: underline; cursor: pointer; }
   .ks.in { padding: 0; border-bottom: 0; }
   .ks.in .ks-sub, .ks.in .ks-acts, .ks.in .ks-local, .ks.in .ks-ok, .ks.in .ks-ans { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
   .ks { padding: 4px 0 8px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
