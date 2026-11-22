@@ -83,3 +83,24 @@ const shift = (list, from, to) => {
 export const moveArt = (cfg, groupKey, from, to) => ({ groups: cfg.groups.map((g) => (g.key === groupKey ? { ...g, arts: shift(g.arts, from, to) } : g)) });
 /** Move a group (indices as shown). */
 export const moveGroup = (cfg, from, to) => ({ groups: shift(cfg.groups, from, to) });
+
+/** The group that takes the kinds of a deleted group when nothing else is chosen («No group»). */
+export const NO_GROUP = 'ohne';
+
+/** Delete a kind from the list (its entries are moved by logbuch.js reassignEntries, never deleted). */
+export const removeArt = (cfg, key) => ({ groups: cfg.groups.map((g) => ({ ...g, arts: g.arts.filter((a) => a.key !== key) })) });
+
+/**
+ * Delete a group; its kinds go to the group `toKey`, or (null) to the group «No group» that is made at the end when it is missing.
+ * Nothing is lost: every kind stays in the list. A group that does not exist, or the target equal to the group itself, changes nothing.
+ */
+export function removeGroup(cfg, key, toKey = null) {
+  const g = cfg.groups.find((x) => x.key === key);
+  if (!g || toKey === key) return cfg;
+  const rest = cfg.groups.filter((x) => x.key !== key);
+  if (!g.arts.length) return { groups: rest };
+  if (toKey && rest.some((x) => x.key === toKey)) return { groups: rest.map((x) => (x.key === toKey ? { ...x, arts: [...x.arts, ...g.arts] } : x)) };
+  if (key === NO_GROUP) return cfg; // the «No group» group cannot send its kinds to itself
+  const none = rest.find((x) => x.key === NO_GROUP);
+  return none ? { groups: rest.map((x) => (x === none ? { ...x, arts: [...x.arts, ...g.arts] } : x)) } : { groups: [...rest, { key: NO_GROUP, name: null, arts: g.arts }] };
+}

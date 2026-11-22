@@ -84,5 +84,12 @@ export default {
   'Order changed.': 'Reihenfolge geändert.',
   'Back to the standard kinds and groups.': 'Zurück auf die Standard-Arten und -Gruppen.',
   'No entry': 'Kein Eintrag',
+  'No kind': 'Ohne Art',
+  'The entries stay, without a kind. You can give them one later.': 'Die Einträge bleiben, ohne Art. Du kannst ihnen später eine geben.',
+  'The kinds go to the group «No group». Your entries keep their kind.': 'Die Arten kommen in die Gruppe «Ohne Gruppe». Deine Einträge behalten ihre Art.',
+  'No kind in this group.': 'In dieser Gruppe ist keine Art.',
+  'No entry has this kind.': 'Kein Eintrag hat diese Art.',
+  '{n} kind': '{n} Art',
+  '{n} kinds': '{n} Arten',
   'No kind in this group yet.': 'In dieser Gruppe ist noch keine Art.',
 };
