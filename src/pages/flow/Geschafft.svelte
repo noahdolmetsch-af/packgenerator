@@ -26,7 +26,7 @@
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { isUnitEntry, weekOfEntry, setUnitTick } from '../../lib/flow/unitdone.js';
   import { sportHref } from '../../lib/flow/mysports.js';
-  import { GOAL_KEY, PLAN_KEY } from '../../lib/training.js';
+  import { GOAL_KEY, PLAN_KEY, planOf as planSessionsOf } from '../../lib/training.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { WEEKPLAN_KEY } from '../../lib/training/wochenplan.js';
   import { WEEKLOG_KEY } from '../../lib/training/wochenlog.js';
@@ -73,7 +73,7 @@
   const zoneCmp = $derived(planned && more && entry?.stravaId ? zoneVsPlan(planned, more.activities.find((a) => String(a.id) === String(entry.stravaId)), zones.bounds) : null);
   const weekPlan = $derived(more && entry && week ? plannedWeek(more.plan, entry.day, week.mins) : null);
   const nowTime = new Date().toLocaleTimeString('sv-SE', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit' });
-  const next = $derived(more ? nextUnit(more.weekplan, more.weeklog, { day: today, time: nowTime }) : null);
+  const next = $derived(more ? nextUnit(more.weekplan, more.weeklog, { day: today, time: nowTime }, planSessionsOf(more.plan)) : null);
   // «Meilensteine» (stars are kept per milestone id «<activity>.…»): a star reached on the day of this tick
   const star = $derived(more && entry ? more.stars.some((s) => s.day === entry.day && String(s.msId).startsWith(`${entry.actId}.`)) : false);
 
