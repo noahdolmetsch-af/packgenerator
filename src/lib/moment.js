@@ -171,7 +171,7 @@ const LISTED_MOMENTS = {
     'f.theme', 'f.uisize', 'f.custompage', 'f.explain', 'f.connections', 'f.owncal', 'f.notestasks',
     'f.fitbitold', 'f.alerts', 'f.backuplock', 'f.yearcheck', 'f.suggestoff', 'f.hintquiet', 'f.tipweek', 'f.comeback',
     'f.helpsearch', 'f.news', 'f.workspace', 'f.calmview', 'f.pushbudget', 'f.notforme', 'f.sources',
-    'f.aicheck', 'f.hiddenall', 'f.miniapps', 'f.ruhig',
+    'f.hiddenall', 'f.miniapps', 'f.ruhig',
   ],
 };
 

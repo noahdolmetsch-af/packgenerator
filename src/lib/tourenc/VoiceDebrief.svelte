@@ -2,7 +2,7 @@
   /**
    * Touren c 68 «Rückblick als Sprachnachricht» (Noah 26.10.2026 «3a 4b, a zuschaltbar», mockup C68): in the debrief
    * form a fold «Rückblick sprechen». Tell up to a minute (the dictation writes it; typing works too), then
-   * «Gliedern»: Gemini (free) or, without it, the app itself makes key points. Each point: ✓ keep or ✗ leave, its
+   * «Gliedern»: the app itself makes key points, sentence by sentence. Each point: ✓ keep or ✗ leave, its
    * kind can change. «Übernehmen» puts the kept ones where you would tap them (voicepoints.js applyPoints).
    * The sound: by default nothing is recorded (only the text stays); «Keep the sound» (a switch, on this device)
    * records it as well and keeps it with the debrief (d.voice) to listen to again.
@@ -11,14 +11,13 @@
   import { liveQuery } from 'dexie';
   import { Mic, Check, X, Sparkles, Play } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { t, tn, isDe } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import SpeakButton from '../ui/SpeakButton.svelte';
   import VoiceRec from '../eingabe/VoiceRec.svelte';
   import Seg from '../ui/Seg.svelte';
   import { appendSpoken } from '../speak.js';
-  import { askGemini, geminiError } from '../assistent/gemini.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  import { KINDS, GEMINI_ASK, MAX_TEXT, parseLines, localPoints, withItems, applyPoints } from './voicepoints.js';
+  import { KINDS, MAX_TEXT, localPoints, withItems, applyPoints } from './voicepoints.js';
 
   let { trip, d, items = [], persist } = $props();
   const KEEP_KEY = 'tourenc.voiceKeep';
@@ -34,15 +33,8 @@
     const body = text.trim().slice(0, MAX_TEXT);
     if (!body || busy) return;
     busy = true;
-    note = '';
-    let list = null;
-    const r = await askGemini(GEMINI_ASK[isDe() ? 'de' : 'en'], { context: body, lang: isDe() ? 'de' : 'en' });
-    if (r.ok) list = parseLines(r.text);
-    if (!list?.length) {
-      list = localPoints(body);
-      note = r.ok || r.error === 'off' ? t('Sorted by the app itself (sentence by sentence).') : `${geminiError(r.error)} ${t('Sorted by the app itself (sentence by sentence).')}`;
-    }
-    points = withItems(list, trip, items);
+    note = t('Sorted by the app itself (sentence by sentence).');
+    points = withItems(localPoints(body), trip, items);
     busy = false;
   }
   const kept = $derived((points ?? []).filter((p) => p.keep).length);
@@ -113,7 +105,7 @@
         {/if}
         <p class="acts"><button type="button" class="btn hi" disabled={busy || text.trim().length < 6} onclick={sort} data-voice-sort><Sparkles size={18} aria-hidden="true" />{busy ? t('Sorting …') : t('Make key points')}</button>
           <button type="button" class="btn" disabled={!text.trim()} onclick={asNote} data-voice-note>{t('Only save as a note')}</button></p>
-        <p class="tp-small tp-muted">{t('With the helper code the free Gemini sorts the text; without it the app goes sentence by sentence. Nothing is kept without your tap.')}</p>
+        <p class="tp-small tp-muted">{t('The app goes through the text sentence by sentence. Nothing is kept without your tap.')}</p>
       {:else}
         {#if note}<p class="tp-small tp-muted" role="status">{note}</p>{/if}
         <ul class="kp">

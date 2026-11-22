@@ -2254,18 +2254,13 @@ const LISTED = {
   },
   'f.sources': {
     on: null,
-    steps: ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it; «Ask Gemini» cites them as [1].'],
+    steps: ['Open Me › Calm and personal › Assistant with sources.', 'Ask your question.', 'Tap a source to open it.'],
     example: 'Example: «What did I learn about the Jura?» → 3 entries as sources.',
   },
   'f.devil': {
     on: null,
-    steps: ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', '«Collect the strongest counter-arguments» asks Gemini.'],
+    steps: ['Open Me › Calm and personal › Assistant with sources › Question my plan.', 'Read what is still open.', 'Check what is only assumed and fix it before you leave.'],
     example: 'Example: no plan B yet, tent not weighed.',
-  },
-  'f.aicheck': {
-    on: null,
-    steps: ['Ask Gemini on the page «Assistant with sources».', 'The answer waits under «Check AI suggestions first».', '«Take» makes a to-do, «Drop» puts it away.'],
-    example: 'Example: Gemini suggests a lighter stove → «Take» → a to-do to check it.',
   },
   'f.nogos': {
     on: null,
