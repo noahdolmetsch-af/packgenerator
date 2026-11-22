@@ -19,6 +19,8 @@
   import { loadRain15, rain15Strip } from './regen15.js'; // Wetter-Ausbau B: «Rain in about 30 minutes» on a ride day
   import { WEBCAMS_KEY, camsOf, homeCam, isImage, freshSrc, camLabel } from './webcams.js';
   import LakeChip from '../lake/LakeChip.svelte';
+  import { phrases } from './digest.svelte.js'; // Wetter-Ausbau D: the closed line «Weather today»
+  import { ChevronDown } from '@lucide/svelte';
   import HeuteSchnee from './HeuteSchnee.svelte'; // «Schneefallgrenze» (Noah 04.11.2026): one calm line for the home place
   import HeuteNebel from './HeuteNebel.svelte'; // «Nebelgrenze» (Noah 05.11.2026): one calm line under it
   import HeuteSonne from './HeuteSonne.svelte'; // «Sonnen-Ausfahrt» (Noah 06.11.2026): a ride above the fog, under the fog line
@@ -115,11 +117,17 @@
     {/if}
     <!-- the lake (thread «Seetemperatur und Sauna»): shows itself only with a value -->
     <LakeChip />
-    <HeuteSchnee />
-    <HeuteNebel />
+    <!-- Wetter-Ausbau D (Noah 22.11.2026 «a»): the calm lines under one closed line; each keeps its own switch, nothing is gone -->
+    <details class="hw-fold" data-heute-wetter-fold>
+      <summary data-heute-wetter-fold-sum><b>{t('Weather today|line')}</b><span class="hw-fold-say">{phrases().join(' · ')}</span><ChevronDown size={16} aria-hidden="true" /></summary>
+      <div class="hw-fold-in">
+        <HeuteSchnee />
+        <HeuteNebel />
+        <HeuteNacht />
+        <HeuteHoehe />
+      </div>
+    </details>
     <HeuteSonne />
-    <HeuteNacht />
-    <HeuteHoehe />
   </section>
 
 <style>
@@ -158,6 +166,43 @@
     font-weight: 600;
     color: var(--ink);
     text-decoration: none;
+  }
+  /* the fold shows only when one of its lines has something to say */
+  .hw-fold:not(:has(:global([data-heute-snowline], [data-heute-fogline], [data-heute-nacht], [data-heute-hoehe]))) {
+    display: none;
+  }
+  .hw-fold {
+    flex: 1 1 100%;
+    border-radius: 10px;
+    background: var(--paper-2);
+  }
+  .hw-fold summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 6px 12px;
+    cursor: pointer;
+    list-style: none;
+    font-size: var(--fs-small);
+  }
+  .hw-fold summary::-webkit-details-marker {
+    display: none;
+  }
+  .hw-fold-say {
+    flex: 1;
+    min-width: 0;
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  .hw-fold[open] summary :global(svg) {
+    transform: rotate(180deg);
+  }
+  .hw-fold-in {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 8px 8px;
   }
   .hw-tip {
     color: var(--ink-2);

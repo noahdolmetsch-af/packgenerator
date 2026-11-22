@@ -4,8 +4,8 @@ import { describe, it, expect } from 'vitest';
 import { SIDE_PLACES, BAR_PLACES, PLACE_TABS, sidePlaceOf, placeOf, tabOf, EQUIPMENT } from '../src/lib/nav.js';
 
 describe('the sidebar of the new order', () => {
-  it('V4a (Noah 21.11.2026): has six rows: Heute, Woche, Touren, Velos, Material (until V5), Auswerten (Ich is the card below)', () => {
-    expect(SIDE_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'gear', 'analysis']);
+  it('V4a (Noah 21.11.2026): has seven rows: Heute, Woche, Touren, Velos, Material (until V5), Auswerten, Wetter (W1a, Noah 22.11.2026; Ich is the card below)', () => {
+    expect(SIDE_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'gear', 'analysis', 'weather']);
   });
   it('lights Material for Ausrüstung and Heute for Quick Links', () => {
     expect(sidePlaceOf(placeOf('equipment'))).toBe('gear');

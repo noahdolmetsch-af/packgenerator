@@ -16,4 +16,23 @@ export default {
   'Along the way also: {list}': 'Auf dem Weg auch: {list}',
   'Webcams along the route': 'Webcams entlang der Route',
   'you are there at {at}': 'du bist dort um {at}',
+  // D: Heute, the calm lines under one closed line
+  'Weather today|line': 'Wetter heute',
+  'Snow line {m} m': 'Schneefallgrenze {m} m',
+  'Fog to {m} m, sun above': 'Nebel bis {m} m, darüber Sonne',
+  'Fog to {m} m': 'Nebel bis {m} m',
+  'Night {c} °C': 'Nacht {c} °C',
+  // W1: a place of its own
+  'Weather|place': 'Wetter',
+  // F: the road after rain
+  'It rains now: the road is wet.': 'Es regnet jetzt: Die Strasse ist nass.',
+  'Road still wet, dry again around {at}.': 'Strasse noch nass, etwa um {at} wieder trocken.',
+  'Road stays wet: too cold to dry.': 'Die Strasse bleibt nass: zu kalt zum Trocknen.',
+  'Road dry again since about {at}.': 'Strasse seit etwa {at} wieder trocken.',
+  // H: share the window
+  'Share this window (copy the text)': 'Fenster teilen (Text kopieren)',
+  'rain possible': 'Regen möglich',
+  'wind {kmh} km/h from the {dir}': 'Wind {kmh} km/h aus {dir}',
+  'wind {kmh} km/h': 'Wind {kmh} km/h',
+  'Start {at}': 'Start {at}',
 };

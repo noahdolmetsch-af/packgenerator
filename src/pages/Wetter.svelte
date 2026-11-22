@@ -11,10 +11,9 @@
    * - Meine Webcams (extra 7): add, rename, order with arrows and drag, delete with Undo; on this device only.
    */
   import { liveQuery } from 'dexie';
-  import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target, Moon } from '@lucide/svelte';
+  import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target, Moon, Waves, Copy } from '@lucide/svelte';
   import WindVane from '../lib/wetter/WindVane.svelte'; // «Windfahne beim Wetter» (Paket D, Idee 15)
   import PageHead from '../lib/ui/PageHead.svelte';
-  import Crumbs from '../lib/ui/Crumbs.svelte';
   import { db } from '../lib/db.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { localDay } from '../lib/localday.js';
@@ -33,6 +32,8 @@
   import FensterBox from '../lib/wetter/FensterBox.svelte'; // Fenster für Landi-Radar und SRF-Webcams (Noah 04.11.2026 «1a», «3a»)
   import { thunderSpans } from '../lib/wetter/gewitter.js'; // «Gewitter-Hinweis mit Uhrzeit» (Noah 04.11.2026 «5 alle»)
   import Licht from '../lib/wetter/Licht.svelte'; // «Licht für die Fahrt» (Noah 04.11.2026 «5 alle»)
+  import { roadState } from '../lib/wetter/strasse.js'; // Wetter-Ausbau F: the road after rain
+  import { windowFacts, windowText } from '../lib/wetter/teilen.js'; // Wetter-Ausbau H: the best window as a text for the group
   import Regen3h from '../lib/wetter/Regen3h.svelte'; // Wetter-Ausbau B (Noah 22.11.2026): rain in 15-minute steps
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
@@ -109,6 +110,7 @@
   const warns = $derived(warningsOf(rest).filter((w) => w.kind !== 'thunder')); // thunderstorms: the spans below, with times
   const storms = $derived(core ? thunderSpans(core, now) : []);
   const stormText = (x) => t(x.day === 'today' ? 'Thunderstorms possible today, {from} to {to}.' : x.day === 'tomorrow' ? 'Thunderstorms possible tomorrow, {from} to {to}.' : 'Thunderstorms possible later, {from} to {to}.', { from: hm(x.from), to: hm(x.to) });
+  const road = $derived(core ? roadState(core, now) : null);
   const fb = $derived(foehnBise(rest));
   const train = $derived(core ? trainInstead(core, today) : null);
   const outside = $derived(core ? outdoorOk(core, now) : null);
@@ -124,6 +126,18 @@
   const DURS = [2, 4, 6, 8];
   let dur = $state(4);
   const windows = $derived(core ? bestWindows(core, { durH: dur, days: 7, now }) : { days: [], best: null });
+  // Wetter-Ausbau H (Noah 22.11.2026 «a»): the best window as one line for the group; only copied, nothing is sent
+  const shareText = $derived(windowText(windowFacts(windows.best), { day: wd, hm, num, compass: (d) => t(compass(d)), t }));
+  let copied = $state(false);
+  async function copyWindow() {
+    try {
+      await navigator.clipboard.writeText(shareText);
+      copied = true;
+      setTimeout(() => (copied = false), 2500);
+    } catch {
+      copied = false; // the text stands under the button: it can be selected by hand
+    }
+  }
 
   const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const wd = (date) => new Date(`${date}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'numeric' });
@@ -206,7 +220,6 @@
 </script>
 
 <section class="wx" data-page="wetter">
-  <Crumbs crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Weather')} />
   <PageHead title={t('Weather')} text={t('The weather for riding: today, the best time for a ride, the rain radar and your webcams. Everything is a suggestion.')} />
 
   <div class="wx-chips wx-tabs" role="tablist" aria-label={t('Parts of the weather page')} data-wx-tabs>
@@ -267,6 +280,7 @@
       {#if fb}<p class="wx-note" data-wx-fb={fb}><Wind size={16} aria-hidden="true" />{fb === 'foehn' ? t('Föhn: strong, dry wind from the south. Gusty in the valleys.') : t('Bise: cold wind from the north-east. It feels colder than the number.')}</p>{/if}
       {#if train}<p class="wx-note" data-wx-train><Train size={16} aria-hidden="true" />{t('Today rather the train? On the way to and from work: {why}.', { why: train.why.map((k) => t(k === 'rain' ? 'heavy rain' : k === 'thunder' ? 'thunderstorms' : k === 'storm' ? 'storm gusts' : 'ice')).join(', ') })} <a href="https://www.sbb.ch/" target="_blank" rel="noopener noreferrer">SBB</a></p>{/if}
       {#if outside}<p class="wx-note" data-wx-outside><Sun size={16} aria-hidden="true" />{outside.now ? t('Good for outside now ({temp} °C).', { temp: num(outside.temp) }) : t('Good for outside from {at} ({temp} °C).', { at: hm(outside.at), temp: num(outside.temp) })}</p>{/if}
+      {#if road}<p class="wx-note" data-wx-road={road.kind}><Waves size={16} aria-hidden="true" />{road.kind === 'raining' ? t('It rains now: the road is wet.') : road.kind === 'wet' ? (road.until ? t('Road still wet, dry again around {at}.', { at: hm(road.until) }) : t('Road stays wet: too cold to dry.')) : t('Road dry again since about {at}.', { at: hm(road.since) })}</p>{/if}
       <LakeChip />
       <HoeheBlock {place} {now} />
       <div class="rc-acts">
@@ -314,6 +328,8 @@
       {#if windows.best}
         <p class="wx-bestline" data-wx-bestline>{t('Best: {day}, {from}–{to}', { day: wd(windows.best.date), from: hm(windows.best.start), to: hm(windows.best.end) })}{#if windows.best.line}{' '}· {num(windows.best.line.tmin)}–{num(windows.best.line.tmax)} °C{/if}</p>
         {#if darkAfter(core, windows.best.end)}<p class="wx-note" data-wx-best-dark><Moon size={16} aria-hidden="true" />{t('Back {n} min after sunset: lights on.', { n: num(darkAfter(core, windows.best.end)) })}</p>{/if}
+        <div class="rc-acts"><button type="button" class="btn sm" onclick={copyWindow} data-wx-share><Copy size={16} aria-hidden="true" />{copied ? t('Copied') : t('Share this window (copy the text)')}</button></div>
+        <p class="rc-src" data-wx-share-text>{shareText}</p>
         <ul class="wx-days">
           {#each windows.days as d (d.date)}
             <li class:best={d === windows.best} data-wx-day={costWord(d.cost)}>

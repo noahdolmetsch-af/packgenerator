@@ -151,7 +151,7 @@
           {/each}
         </ol>
         <p class="wt-help">{t('The arrow shows where the wind blows as you ride: up pushes you, down is against you. Swipe the strip for more points.')}</p>
-        {#if head != null}<p class="wt-sum" data-wx-route-head>{t('Headwind on {p} % of the way.', { p: num(head) })}{#if cold} {t('Coldest point: {c} °C at km {km}.', { c: num(cold.temp), km: num(Math.round(cold.km)) })}{/if}</p>{/if}
+        {#if head != null}<p class="wt-sum" data-wx-route-head>{t('Headwind on {p} % of the way.', { p: num(head) })}{#if cold}{' ' + t('Coldest point: {c} °C at km {km}.', { c: num(cold.temp), km: num(Math.round(cold.km)) })}{/if}</p>{/if}
         {#if more.length}<p class="wt-sum" data-wx-route-pack>{t('Along the way also: {list}', { list: more.map((h) => t(PACK_TEXT[h.key])).join(', ') })}</p>{/if}
         {#if cams.length}
           <ul class="wt-cams" aria-label={t('Webcams along the route')} data-wx-route-cams>
