@@ -1,6 +1,6 @@
 # Stand und Plan: was heute geplant und offen ist
 
-Schnappschuss vom **19. November 2026**. Für Noah, in einfachem Deutsch. Der Schnappschuss ist dafür da, dass nichts verloren geht, wenn ein Thread endet. Was die App **heute kann**, steht in [App-Stand](app-stand.md). Wie sie gebaut ist: [Aufbau](aufbau.md) und [Technik-Handbuch](technik-handbuch.md). Was früher geschah und warum: [Verlauf und Entscheide](verlauf-und-entscheide.md). Was du selbst wissen und tun musst: [Noah-Wissen](noah-wissen.md).
+Schnappschuss vom **22. November 2026**. Für Noah, in einfachem Deutsch. Der Schnappschuss ist dafür da, dass nichts verloren geht, wenn ein Thread endet. Was die App **heute kann**, steht in [App-Stand](app-stand.md). Wie sie gebaut ist: [Aufbau](aufbau.md) und [Technik-Handbuch](technik-handbuch.md). Was früher geschah und warum: [Verlauf und Entscheide](verlauf-und-entscheide.md). Was du selbst wissen und tun musst: [Noah-Wissen](noah-wissen.md).
 
 **Wie aktuell ist diese Datei?** Sie ist ein Schnappschuss und wird beim Sonntags-Brief nachgeführt (siehe unten, «So bleibt sie aktuell»). Die echte, immer frische Liste der offenen Änderungen steht auf GitHub unter [Pull requests](https://github.com/noahdolmetsch-af/packgenerator/pulls). Wo hier etwas anders steht als dort, gilt GitHub. Eine Versionsnummer steht hier absichtlich nicht (Regel 13): die aktuelle zeigt die App unter Ich › Was ist neu.
 
@@ -8,43 +8,44 @@ Schnappschuss vom **19. November 2026**. Für Noah, in einfachem Deutsch. Der Sc
 
 ---
 
-## 1. Offene Änderungen (PRs) am 19.11.2026
+## 1. Offene Änderungen (PRs) am 22.11.2026
 
-Stand: 19.11., abends (Zürich), 14 offene PRs auf GitHub. Seit dem Schnappschuss vom 7.11. sind fast 100 PRs gemergt worden, darunter alles, was damals mit «ok» oder auf dein «ok» wartete (#1120 bis #1124, #1126, #1130, #1131, #1135 bis #1149, #1038, #1091, #1110). Einzelheiten je PR stehen in `docs/releases/`.
+Stand: 22.11., Sonntag 17:56 (Zürich), 11 offene PRs auf GitHub. In der Woche vom 16. bis 22.11. sind **154 Änderungen online** gegangen, darunter alles, was am 19.11. mit «ok» wartete (#1233, #1102, #938, #1106, #1257, #1296). Einzelheiten je PR stehen in `docs/releases/`.
 
-### Mit Label «ok», aber noch nicht zusammengeführt
-
-Seit dem 5. bis 8.11. offen (ausser #1257 und #1296). Bei #1102 waren alle Tests am 7.11. grün. Warum der Merge fehlt, ist noch nicht geklärt; der Merge-Thread «Mein Überblick» prüft es.
+### Wartet auf dein «ok» (ohne Label)
 
 | PR | Was |
 |---|---|
-| #976, #938 | Merken: Doppeltipp auf «Speichern» (E4-003); Tourenvorschläge: Art-Filter, Start-Filter, Zeilen wählen |
-| #1043 | Nebelmeer-Tage: Regal auf der Sammel-Wand |
-| #1093, #1094, #1095 | Neuland: Untergrund der Anfahrt, Sammlungen mit Bild und Farbton; Ausflugstipps ab 90 Minuten |
-| #1102 | Live-Karte: Schlafplatz finden, Schritt 1 |
-| #1106 | Test «Aktiv heute» (Flake-Fix, nichts Sichtbares) |
-| #1185 | Notfall ohne Standort, alte Adresse unter Aktiv, Leiste bei 320 px |
-| #1257 | Abgleich ruhiger: weniger Arbeit, wenn nichts Neues da ist (dein «ok» vom 17.11.) |
-| #1296 | TrainingPeaks-Link: der Server kann den Kalenderlink lesen (neu, mit «ok») |
+| #1374 | Abgleich: Haken von zwei Geräten in derselben Packliste oder Woche bleiben beide (Einzelfreigabe, nichts Sichtbares) |
+| #1438 | Tagebuch: die Hilfezeile «Was du hier tun kannst» ist wieder da |
+| #1437, #1439 | Stopps in der Nähe in der Leiste «Touren»; Chip «Abhaken» unter dem Gruss (Tests laufen noch) |
 
-### Wartet auf dein «ok NNN» (ohne Label)
+### Mit Label «ok», in der Prüfung oder im Merge
 
-| PR | Was |
-|---|---|
-| #1233 | Tennis: Teilnehmerliste mit freien Plätzen, Warteliste und Anmeldeschluss |
+#1436 (Seite «App verstehen» entfernen), #1435 (Kleiderschrank einrichten), #1433 (Logbuch L5 Schritt 3), #1431 (KI entfernen 6b), #1430 (keine Tipp-Zeile unter Seitentiteln), #1416 (Hinweise lernen aus dem Wegtippen, Einzelfreigabe).
 
-### Bewusst offen oder Abhängigkeit
+### Hängt: Konflikt mit `main`
 
-- **#1179** Hilfe-Karte als eine Zeile auf jeder Seite: von dir bewusst nicht zusammengeführt.
-- **#1262** diese Doku.
+- **#1095** (Ausflugstipps ab 90 Minuten) und **#1043** (Nebelmeer-Regal auf der Sammel-Wand): beide mit «ok» seit dem 7.11., GitHub meldet einen Konflikt. Sie brauchen einen Thread, der sie auf den heutigen Stand bringt, oder du schliesst sie.
 
-Zwei PRs wurden **geschlossen, nicht gemergt**: #1217 und #1249. `main` war vom 12. bis 18.11. rot (Playwright-Image, behoben mit #1266).
+Geschlossen, nicht gemergt: #976, #1093, #1094, #1179, #1185 (vorher im Schnappschuss vom 19.11.), dazu #1217 und #1249.
 
 ---
 
 ## 2. Alles, was geplant ist (nach Thema)
 
 Jeder Punkt hat einen Stand: **online** (auf der echten Seite), **offen** (PR wartet), **beschlossen** (du hast ja gesagt, noch nicht gebaut), **Idee** (gesammelt, nicht entschieden). Quelle der Beschlüsse sind deine Antworten («1a 2b …») in den Threads; die Ordner `notes/…` im Projektordner enthalten die Einzelheiten.
+
+### 2.0 Seit dem 19.11. dazugekommen (alles online)
+
+- **App vereinfachen** (Noah «1a–5a» 21.11.): Menü mit fünf Bereichen (#1368), Auswerten in fünf Reitern (#1305), «Alles hier» als eine Zeile am Seitenende (#1424), Regel «Inhalt zuerst» (#1429), Hilfen ruhiger (#1415, #1336). **KI entfernen** in Schritten (1 bis 6a: #1306, #1382, #1393, #1404, #1408, #1423), Schritt 6b wartet auf Freigabe.
+- **Abhaken im Alltag:** Gestern nachtragen und Eigene Dauer (#1384, #1347), mehrere Tage in einem Rutsch (#1385, #1389), Block-Knöpfe (#1358), Dauer nachtragen (#1405), Draussen-Challenge und eigene Challenges (#1371, #1380, #1397, #1410, #1428).
+- **Wochenrückblick:** Sonntagskarte auf Heute mit «Neu in der App» (#1304, #1354), Verlauf der Briefe in `docs/wochenbriefe.md` (#1350).
+- **Meilensteine** mit Sternen-Weg und Regal (#1352, #1367, #1369, #1370). **Verbesserungs-Logbuch** Schritt 1 bis 4 und L5 (#1355, #1376, #1383, #1395, #1402, #1419, #1425).
+- **Klügere Auswertungen** (K1 bis K4: #1411, #1426, #1434, #1420), Sportjahr-Rückblick (#1314), Wochenplan als Zeitplan (#1409).
+- **Velopflege:** Inspektions-Begleiter, Kosten und Verlauf (#1317, #1362, #1413, #1422).
+- **Tennis:** Teilnehmerliste mit Warteliste (#1233). **Live-Karte:** Schlafplatz finden Schritt 1 (#1102). **Tourenvorschläge:** Filter (#938).
+- **Stabilität:** Fehler-Melder (#1360), Live-Check auf der echten Seite (#1353), schnelle Prüfung für kleine PRs (#1400), Seiten-Veröffentlichung mit zweitem Versuch (#1307).
 
 ### 2.1 Wetter: Nebelgrenze, Temperaturen nach Höhe, Nacht
 
@@ -124,7 +125,7 @@ Ziel: Routen zuverlässiger, einfacher und intelligenter. Deine Antworten vom 05
 - **Versteckte Funktionen:** alle neun Schritte **online**. **Wegweiser statt Katalog** (26 PRs): Teil A (Absprünge), Teil B (Inhalte pro Bereich), Teil C. Den Stand zeigt `docs/vorhaben.md` Nr. 17.
 - **Verlust-Wächter** (#1111, **online**): ein Test auf jedem PR wird rot, wenn beim Vereinfachen eine Funktion verloren geht oder nicht mehr auffindbar ist. Geplante Folgearbeit aus dem Vereinfachen: «Weiter von hier» (#1133) und «Leere Kachel nennt die fehlende Quelle» (#1134), beides **online**, noch auf keiner Seite benutzt.
 - **Weg zum Ziel** (`#/trips/weg`, Rückwärts-Plan zum grossen Ziel): Gerüst (#1050), die Seite unter Touren (#1070), die Seite als eine Linie mit Punkten, Bearbeiten hinter «…» (#1117, Entwurf G1) und Schrittarten, die sich selbst anmelden (#1098), dazu das Wetterfenster ab 7 Tagen vor dem Start (#1138): **online**. «Start in Tagen», wenn der Start nah ist (#1145), und die Erholungskarte «Letzte Woche» (#1223): **online**. Schrittarten online: Rennplanung, Organisation, Probefahrten 50, 100, 200 km, Erholung, Velo bereit, Trainingsfortschritt, Verpflegung testen, Nachtplan, Packen testen, GPS-Tracker.
-- **Umsetzungs-Prüfung** (du hast «a» gesagt am 07.11.): eine Plan-Datei `docs/plan-ganze-app.md` mit Wächter-Test (rot, wenn ein «online»-Schritt seinen Weg verliert), nach jedem Merge eine Zeile «Plan: X von Y online» und ein Abnahme-Bericht pro Schritt. Plan-Datei und Wächter sind **online** (#1135, #1210); den Stand zeigt `node scripts/plan-stand.mjs` («Plan: X von Y online»; am 19.11.: 4 von 17). Die Reihenfolge der Schritte steht in der Plan-Datei.
+- **Umsetzungs-Prüfung** (du hast «a» gesagt am 07.11.): eine Plan-Datei `docs/plan-ganze-app.md` mit Wächter-Test (rot, wenn ein «online»-Schritt seinen Weg verliert), nach jedem Merge eine Zeile «Plan: X von Y online» und ein Abnahme-Bericht pro Schritt. Plan-Datei und Wächter sind **online** (#1135, #1210); den Stand zeigt `node scripts/plan-stand.mjs` («Plan: X von Y online»; am 22.11.: 9 von 18). Die Reihenfolge der Schritte steht in der Plan-Datei.
 - **Schritt 0 und danach** (du hast am 07.11. entschieden): «Tour-Stand» und «Meine Datenquellen» als zwei PRs; danach Pfad-Baustein auf der Linie von «Weg zum Ziel», «Meine Tour» auf Heute, Ort-Vorlage Velos (mit den 5 Gruppen wie in Packen, #1131) und der Datencenter-Reiter «Fragen». Je ein Bau-Thread, sobald der Vorgänger online ist. Alles **beschlossen, noch nicht gebaut**.
 
 ### 2.10 Das grosse Durchklicken (Etappen)
@@ -161,9 +162,9 @@ Foto-KI für Material, Live-Sync über Drive, fremde Einbettungen (nur Links), P
 
 ## 3. Was auf dich wartet (höchstens die wichtigsten)
 
-1. **«ok 1233»** (Tennis: Teilnehmerliste). #1257 hat dein «ok», wartet auf den Merge.
+1. **«ok 1374»** (Abgleich, Einzelfreigabe) und **«ok 1438»** (Tagebuch-Hilfezeile). #1437 und #1439 folgen, sobald die Tests grün sind.
 2. **Kurs-Check** im Wochenbrief: eine a/b-Frage.
-3. **Auf der echten Seite prüfen:** «Meine Tour» auf Heute, die vier Phasen in der Tour und der Reiter «Fragen» in Auswerten. Nach den Wetter-Merges ausserdem Landi und SRF im Fenster, Nullgradgrenze, Nebel gegen Webcam.
+3. **Auf der echten Seite prüfen:** die Sonntagskarte auf Heute (ab 17 Uhr) und die Live-Check-Liste (Abhaken, Sportjahr, Backup).
 
 Alles Weitere: [Noah-Wissen](noah-wissen.md).
 
