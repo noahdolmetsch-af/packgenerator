@@ -261,8 +261,6 @@ export default {
   'Add a line': 'Zeile hinzufügen',
   'e.g. Blinds down': 'z. B. Storen runter',
   'e.g. Feed the cat in the morning': 'z. B. Katze am Morgen füttern',
-  'From the AI helper': 'Vom KI-Helfer',
-  'The helper has nothing to add for tomorrow.': 'Der Helfer hat für morgen nichts zu ergänzen.',
   'Ask the AI helper for tomorrow': 'KI-Helfer für morgen fragen',
   'Optional. Sends the trip, the weather, what is not packed and parts due; no health data.': 'Freiwillig. Schickt die Tour, das Wetter, was noch nicht gepackt ist und fällige Teile; keine Gesundheitsdaten.',
   'Ready for tomorrow?': 'Bereit für morgen?',
