@@ -1,6 +1,6 @@
 # «Abhaken» als Chip auf Heute
 
-PR folgt · 22.11.2026 · Auftrag: Noah 22.11.2026 («ja»), Thread «Training erfassen vereinfachen»
+PR #1439 · 22.11.2026 · Auftrag: Noah 22.11.2026 («ja»), Thread «Training erfassen vereinfachen»
 
 ## Was ist neu
 - Unter dem Gruss auf Heute steht ein Chip **Abhaken** (neben «Heute fahren»). Ein Tipp öffnet «Heute abhaken» mit deinen Kacheln.
