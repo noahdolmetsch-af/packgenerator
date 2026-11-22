@@ -1,6 +1,6 @@
 # Impulse und «Worauf hab ich Lust?» verlinken sich
 
-PR #<Nummer> · 22.11.2026 · Auftrag: Noah «2b» (Thread «App-Landkarte»)
+PR #1403 · 22.11.2026 · Auftrag: Noah «2b» (Thread «App-Landkarte»)
 
 ## Was ist neu
 - Auf der Seite «Impulse» führt eine Zeile unter dem Titel zu «Worauf hab ich Lust?».
