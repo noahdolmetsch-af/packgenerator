@@ -4,13 +4,16 @@
    * can be renamed and deleted (the «⋯» menu) and ordered (arrows and drag), and «Back to standard» brings the first version back.
    * Deleting asks first where things go (GroupDeleteSheet, «Ohne …» preselected): the entries of a kind go to another kind or stay
    * without a kind, the kinds of a group go to another group or to «No group»; nothing is ever deleted but the name.
-   * Every change can be undone (the line «Undo» inside the window). New kinds follow in the next step.
+   * New kinds («+ Kind in …», the way is chosen at once, standard «first a picture») and new groups («+ New group») are made here, and the
+   * way of a kind can be changed later («⋯» › «Change the way»). Every change can be undone (the line «Undo» inside the window).
    * cfg: the list now (kinds.js); counts: { [artKey]: entries }; onsave(cfg) keeps it (the page writes the setting);
-   * ondeletekind(key, toKey) and ondeletegroup(key, toKey) do the delete and return what onrestore(snapshot) needs for Undo.
+   * ondeletekind(key, toKey), ondeletegroup(key, toKey), onsetway(key, route) and onreset() change the entries too and return what
+   * onrestore(snapshot) needs for Undo.
    */
-  import { X, Pencil, RotateCcw, Undo2, Trash2 } from '@lucide/svelte';
+  import { X, Pencil, RotateCcw, Undo2, Trash2, Plus, Route } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
+  import NewKindSheet from './NewKindSheet.svelte';
   import RowMenu from '../ui/RowMenu.svelte';
   import SortGrip from '../ui/SortGrip.svelte';
   import SortArrows from '../ui/SortArrows.svelte';
@@ -18,16 +21,17 @@
     import { backClose } from '../ui/backclose.js';
   import { t, tn } from '../i18n.svelte.js';
   import { artLabel, groupLabel } from './words.js';
-  import { DEFAULT_KINDS, NAME_MAX, NO_GROUP, renameArt, renameGroup, moveArt, moveGroup, isStandard } from './kinds.js';
+  import { NAME_MAX, NO_GROUP, renameArt, renameGroup, moveArt, moveGroup, isStandard, addArt, addGroup, routeOfArt } from './kinds.js';
   import '../bikes/velo-dlg.css';
 
-  let { cfg, counts = {}, onsave, ondeletekind, ondeletegroup, onrestore, onclose } = $props();
+  let { cfg, counts = {}, onsave, ondeletekind, ondeletegroup, onsetway, onreset, onrestore, onclose } = $props();
 
   let dialog;
   $effect(() => {
     if (dialog && !dialog.open) dialog.showModal();
   });
   let renaming = $state(null); // { kind: 'art' | 'group', key }
+  let adding = $state(null); // { mode: 'kind', group } | { mode: 'group' } | { mode: 'way', key } while the window for a new kind, a new group or a way is open
   let deleting = $state(null); // { kind: 'art' | 'group', key } while the question «where do they go?» is open
   const std = $derived(isStandard(cfg));
 
@@ -60,7 +64,23 @@
     await change(next, t('Renamed to «{name}».', { name: name.trim() || old }));
   }
   const reorder = (next) => change(next, t('Order changed.'));
-  const reset = () => change(DEFAULT_KINDS, t('Back to the standard kinds and groups.'));
+  async function reset() {
+    const snap = await onreset();
+    undo = { text: t('Back to the standard kinds and groups.'), restore: () => onrestore(snap) };
+  }
+  async function add({ name, route }) {
+    const a = adding;
+    if (a.mode === 'way') {
+      const snap = await onsetway(a.key, route);
+      undo = { text: t('The way of «{name}» changed.', { name: artLabel(a.key, cfg) }), restore: () => onrestore(snap) };
+    } else if (a.mode === 'group') {
+      const made = addGroup(cfg, name);
+      if (made) await change(made.cfg, t('«{name}» added.', { name }));
+    } else {
+      const made = addArt(cfg, a.group, name, route);
+      if (made) await change(made.cfg, t('«{name}» added.', { name }));
+    }
+  }
 </script>
 
 <dialog class="sheet vdlg kdlg" bind:this={dialog} use:backClose {onclose} aria-labelledby="kd-h" data-kinds-sheet>
@@ -92,6 +112,7 @@
               <SortArrows name={artLabel(a.key, cfg)} i={ai} n={g.arts.length} onstep={(d) => reorder(moveArt(cfg, g.key, ai, ai + d))} />
               <RowMenu name={artLabel(a.key, cfg)} items={[
                 { key: 'rename', label: t('Rename'), icon: Pencil, onclick: () => (renaming = { kind: 'art', key: a.key }) },
+                { key: 'way', label: t('Change the way'), icon: Route, onclick: () => (adding = { mode: 'way', key: a.key }) },
                 { key: 'delete', label: t('Delete'), icon: Trash2, danger: true, sep: true, onclick: () => (deleting = { kind: 'art', key: a.key }) },
               ]} />
             </li>
@@ -99,6 +120,7 @@
             <li class="kd-none">{t('No kind in this group yet.')}</li>
           {/each}
         </ul>
+        <p class="kd-add"><button type="button" class="btn sm" data-kd-add={g.key} onclick={() => (adding = { mode: 'kind', group: g.key })}><Plus size={14} aria-hidden="true" />{t('Kind in «{name}»', { name: groupLabel(g.key, cfg) })}</button></p>
       </li>
     {/each}
   </ul>
@@ -106,11 +128,22 @@
   {#if undo}
     <p class="kd-undo" role="status" data-kinds-undo><span>{undo.text}</span><button type="button" class="btn sm" onclick={takeBack}><Undo2 size={14} aria-hidden="true" />{t('Undo')}</button></p>
   {/if}
+  <p class="kd-newg"><button type="button" class="btn" data-kd-add-group onclick={() => (adding = { mode: 'group' })}><Plus size={16} aria-hidden="true" />{t('New group')}</button></p>
   <div class="vd-foot">
     <button type="button" class="btn" data-kinds-reset disabled={std} onclick={reset}><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button>
   </div>
 </dialog>
 
+{#if adding}
+  <NewKindSheet
+    mode={adding.mode}
+    name={adding.mode === 'way' ? artLabel(adding.key, cfg) : ''}
+    route={adding.mode === 'way' ? routeOfArt(adding.key, cfg) : 'draft'}
+    where={adding.mode === 'kind' ? groupLabel(adding.group, cfg) : ''}
+    onsave={add}
+    onclose={() => (adding = null)}
+  />
+{/if}
 {#if deleting}
   {#if deleting.kind === 'group'}
     <GroupDeleteSheet
@@ -202,6 +235,13 @@
     background: var(--improve-soft);
     color: var(--ink);
     font-size: var(--fs-small);
+  }
+  .kd-add {
+    margin: 0;
+    padding: 4px 0 8px 22px;
+  }
+  .kd-newg {
+    margin: 4px 0 0;
   }
   .kd-none {
     padding: 10px 8px;

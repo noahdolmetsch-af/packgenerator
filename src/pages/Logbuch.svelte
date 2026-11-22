@@ -15,7 +15,7 @@
   import { db } from '../lib/db.js';
   import { filterEntries, counts, isOpen, routeOf } from '../lib/logbuch/logbuch.js';
   import { DEFAULT_KINDS, artList } from '../lib/logbuch/kinds.js';
-  import { addEntry, updateEntry, removeEntry, restoreEntry, saveKinds, loadKinds, deleteKind, deleteGroup, restoreKinds } from '../lib/logbuch/logbuchdb.js';
+  import { addEntry, updateEntry, removeEntry, restoreEntry, saveKinds, loadKinds, deleteKind, changeKindRoute, resetKinds, deleteGroup, restoreKinds } from '../lib/logbuch/logbuchdb.js';
   import { buildOrder, orderSize, images } from '../lib/logbuch/auftrag.js';
   import { copyText, savePictures } from '../lib/logbuch/export.js';
   import { takeIntoLog } from '../lib/logbuch/fehler.js';
@@ -147,7 +147,7 @@
   </section>
 </div>
 
-{#if kindsOpen}<KindsSheet {cfg} counts={perArt} onsave={keepKinds} ondeletekind={(key, to) => deleteKind(key, to ?? '')} ondeletegroup={(key, to) => deleteGroup(key, to)} onrestore={restoreKinds} onclose={() => (kindsOpen = false)} />{/if}
+{#if kindsOpen}<KindsSheet {cfg} counts={perArt} onsave={keepKinds} ondeletekind={(key, to) => deleteKind(key, to ?? '')} ondeletegroup={(key, to) => deleteGroup(key, to)} onsetway={changeKindRoute} onreset={resetKinds} onrestore={restoreKinds} onclose={() => (kindsOpen = false)} />{/if}
 {#if look}<Lightbox list={look.list} start={look.start} onclose={() => (look = null)} />{/if}
 {#if sheet}
   <LogEntrySheet {cfg} onkinds={() => (kindsOpen = true)} entry={sheet.entry} onsave={save} onremove={sheet.entry ? () => remove(sheet.entry) : null} onclose={() => (sheet = null)} />

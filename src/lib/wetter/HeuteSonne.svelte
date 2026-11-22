@@ -25,6 +25,8 @@
   import { weakSleep, weekLine, shorter, hours } from './sonnenrest.js';
   import { AZM_WEEK_KEY } from '../health.js';
   import { suggest as areas, watchSuggest } from '../clear/suggest.svelte.js';
+  import LeiserFrage from '../hinweise/LeiserFrage.svelte'; // S5: after three days «Not today», the question «quieter?»
+  import { recordSkip } from '../hinweise/leiser-db.js';
   import { t, num } from '../i18n.svelte.js';
 
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -73,7 +75,7 @@
     openTrip(ride.id);
     location.hash = '#/pack';
   };
-  const skip = () => db.settings.put({ key: SKIP_KEY, value: { day } });
+  const skip = () => (db.settings.put({ key: SKIP_KEY, value: { day } }), recordSkip(db, 'sonne', day));
 </script>
 
 {#if sug}
@@ -112,6 +114,7 @@
     <p class="hs-src">{t('A guess from the fog line and your route. A webcam shows how it really is.')}</p>
   </section>
 {/if}
+<LeiserFrage kind="sonne" today={day} />
 
 <style>
   .hs {

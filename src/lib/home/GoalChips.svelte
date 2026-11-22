@@ -6,7 +6,7 @@
    * the chips are a list: switch each on or off, move it with the arrows or drag it (goals.js).
    */
   import { liveQuery } from 'dexie';
-  import { Bike, Map as MapIcon, Wrench, CalendarDays, NotebookPen, Hourglass } from '@lucide/svelte';
+  import { Bike, Map as MapIcon, Wrench, CalendarDays, NotebookPen, Hourglass, CircleCheck } from '@lucide/svelte';
   import { countdown } from './heute.js';
   import { openTrip } from '../nav.js';
   import { db } from '../db.js';
@@ -19,7 +19,7 @@
   // next: the next trip (debrief.js nextTrip) for the countdown chip; now: the clock of Heute
   // hideTrip: «My tour» is on Today and already shows the countdown (Noah 17.11.2026 «1-5a»)
   let { editing = false, onride = () => {}, ontrip = () => {}, next = null, now = new Date(), hideTrip = false } = $props();
-  const ICON = { count: Hourglass, ride: Bike, trip: MapIcon, care: Wrench, week: CalendarDays, diary: NotebookPen };
+  const ICON = { count: Hourglass, ride: Bike, tick: CircleCheck, trip: MapIcon, care: Wrench, week: CalendarDays, diary: NotebookPen };
   // the countdown chip: the trip's own name (never through t()) and «In 5 days», «Tomorrow · 22 h to go», «On the way · day 2 of 3»
   // a long trip name ends in «…» on a phone; the title keeps the full name for a tooltip and a screen reader
   const cd = $derived(next?.startDate ? countdown(next, now) : null);

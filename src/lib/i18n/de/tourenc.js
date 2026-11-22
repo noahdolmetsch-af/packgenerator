@@ -82,8 +82,8 @@ export default {
   'Sorting …': 'Gliedere …',
   'Make key points': 'Kernaussagen machen',
   'Only save as a note': 'Nur als Notiz speichern',
-  'With the helper code the free Gemini sorts the text; without it the app goes sentence by sentence. Nothing is kept without your tap.':
-    'Mit dem Helfer-Code gliedert das kostenlose Gemini den Text; ohne geht die App Satz für Satz vor. Nichts wird ohne deinen Tipp gespeichert.',
+  'The app goes through the text sentence by sentence. Nothing is kept without your tap.':
+    'Die App geht den Text Satz für Satz durch. Nichts wird ohne deinen Tipp gespeichert.',
   'Sorted by the app itself (sentence by sentence).': 'Von der App selbst gegliedert (Satz für Satz).',
   'Saved as a note of the trip.': 'Als Notiz der Tour gespeichert.',
   'Item: {name}': 'Teil: {name}',

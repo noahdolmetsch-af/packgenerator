@@ -3,14 +3,6 @@
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import { GUIDE_INTROS, GUIDE_LATER } from '../../src/lib/guides.js';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-
-// the pages without the help line (LINE_OFF in seiteninhalt.js, read as text like in inhalt.spec.js)
-const LINE_OFF = readFileSync(fileURLToPath(new URL('../../src/lib/seiteninhalt.js', import.meta.url)), 'utf8')
-  .match(/export const LINE_OFF = \[([^\]]*)\]/)[1]
-  .match(/'#\/[^']*'/g)
-  .map((x) => x.slice(1, -1));
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -64,12 +56,6 @@ test('Guides: one line first, a tap opens the steps, fold again', async ({ page 
   for (const [place, hash] of Object.entries(WHERE)) {
     await page.goto(`./${hash}`);
     const line = page.locator(`[data-intro="${place}"][data-open="false"]`);
-    // Seitenregeln 21.11.2026 «2a» (changed on purpose): a page in LINE_OFF has no help line under the title, help only
-    // behind the «?»; its guide stays in the Handbook. The line is still there on every other page.
-    if (LINE_OFF.includes(hash)) {
-      await expect(line, place).toHaveCount(0);
-      continue;
-    }
     await expect(line, place).toBeVisible();
     // Gesamttest 20.10.2026 «2a» (changed on purpose): one quiet line «So geht's» on every page
     await expect(line, place).toContainText(T('How it works|help'));

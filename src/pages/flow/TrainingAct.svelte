@@ -177,12 +177,10 @@
           </Sec>
         {/if}
 
-        {#if act.kind === 'bike'}
-          <!-- «Trainingspläne»: the felt effort 1–10, changeable here -->
-          <Sec id="feel-h" title={t('How hard was it?')} sub={t('Your own answer, 1 to 10. Only on this device.')}>
-            <div class="card nt" data-section="feel"><FeelPick {act} /></div>
-          </Sec>
-        {/if}
+        <!-- «Trainingspläne»: the felt effort, changeable here; «Von selbst» (T3): for every sport, in three words or 1–10 -->
+        <Sec id="feel-h" title={t('How hard was it?')} sub={t('Your own answer, in three words or 1 to 10. Only on this device.')}>
+          <div class="card nt" data-section="feel"><FeelPick {act} /></div>
+        </Sec>
 
         <Sec id="note-h" title={t('Note')}>
           <div class="card nt">

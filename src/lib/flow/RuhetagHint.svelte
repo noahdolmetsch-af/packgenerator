@@ -9,6 +9,8 @@
   import { RUHETAG_NO_KEY } from '../ruhetag.js';
   import { putSetting } from '../flowdb.js';
   import { db } from '../db.js';
+  import LeiserFrage from '../hinweise/LeiserFrage.svelte'; // S5: after three days «Not today», the question «quieter?»
+  import { recordSkip } from '../hinweise/leiser-db.js';
   import { suggest, watchSuggest } from '../clear/suggest.svelte.js';
   import { t, tn } from '../i18n.svelte.js';
 
@@ -33,12 +35,13 @@
       <span>{t('Only a hint from your activities. You decide, a hard day is fine too.')}</span>
       <span class="acts">
         <a class="btn btn-link sm" href="#/flow/rest" data-ruhetag-rest>{t('See recovery')}<ChevronRight size={16} aria-hidden="true" /></a>
-        <button type="button" class="btn sm" data-ruhetag-no onclick={() => putSetting(db, RUHETAG_NO_KEY, today)}>{t('Not today')}</button>
+        <button type="button" class="btn sm" data-ruhetag-no onclick={() => (putSetting(db, RUHETAG_NO_KEY, today), recordSkip(db, 'ruhetag', today))}>{t('Not today')}</button>
       </span>
       <small>{t('Switch off: Me › Look › Suggestions › Performance tips.')}</small>
     </div>
   </section>
 {/if}
+<LeiserFrage kind="ruhetag" {today} />
 
 <style>
   .rt {

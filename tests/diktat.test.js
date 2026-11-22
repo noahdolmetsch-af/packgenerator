@@ -13,7 +13,6 @@ import { makeHandler, geminiRequest, geminiText, geminiKey, GEMINI_URL, helperEn
 import DE from '../src/lib/i18n/de/index.js';
 import { db } from '../src/lib/db.js';
 import { HELPER_KEY } from '../src/lib/helper/client.svelte.js';
-import { askGemini, geminiError } from '../src/lib/assistent/gemini.js';
 
 const src = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 
@@ -363,19 +362,6 @@ describe('Gemini in the app (server)', () => {
     // no model left
     const rn = await ask(scripted({}));
     expect([rn.status, (await rn.json()).code]).toEqual([502, 'no_model']);
-  });
-  it('the app names each Gemini failure in its own words', async () => {
-    const code = { code: 'x' };
-    const reply = (status, body) => async () => Response.json(body, { status });
-    await db.settings.put({ key: HELPER_KEY, value: { code: 'demo-code' } });
-    expect((await askGemini('Frage?', { fetchFn: reply(503, { code: 'busy' }) })).error).toBe('busy');
-    expect((await askGemini('Frage?', { fetchFn: reply(503, { code: 'bad_key' }) })).error).toBe('key');
-    expect((await askGemini('Frage?', { fetchFn: reply(503, { code: 'not_set_up' }) })).error).toBe('server');
-    expect((await askGemini('Frage?', { fetchFn: reply(429, { code: 'google_limit' }) })).error).toBe('google_limit');
-    expect((await askGemini('Frage?', { fetchFn: reply(429, { code: 'daily_limit' }) })).error).toBe('limit');
-    expect((await askGemini('Frage?', { fetchFn: reply(502, { code: 'no_model' }) })).error).toBe('model');
-    expect((await askGemini('Frage?', { fetchFn: reply(502, code) })).error).toBe('error');
-    for (const e of ['key', 'google_limit', 'model', 'busy']) expect(geminiError(e)).not.toBe(geminiError('error'));
   });
   it('reads the request, the answer and the environment', () => {
     expect(geminiRequest({ question: 'Q', lang: 'en' }).systemInstruction.parts[0].text).toMatch(/English/);
