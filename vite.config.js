@@ -37,6 +37,7 @@ export default defineConfig({
         packliste: 'apps/packliste/index.html',
         velopflege: 'apps/velopflege/index.html',
         werkzeug: 'apps/werkzeug/index.html',
+        kursblick: 'apps/kursblick/index.html',
         // Termine buchen (BU2 + BU3): the page the people who book open, without the app
         buchen: 'buchen/index.html',
       },
