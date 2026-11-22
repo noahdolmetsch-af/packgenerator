@@ -72,7 +72,10 @@ jobs:
     # 50 since 07.11.2026: Handy-Test part 1 hit the 35 min limit twice (#1048, #1046 needed 32 min).
     # 35 since 05.11.2026 (Noah «3a», thread «GitHub-Warteschlange»): the slowest green part of that day took
     # 26 min, so 35 keeps a margin; a stuck part now frees its computer 10 minutes sooner.
-    timeout-minutes: 50
+    # 70 since 22.11.2026: with many pull requests at once part 1 (early files: a11y, behind, … with the slow ones) took
+    # 43 to 47 min while the other parts needed 31 to 37 min, and #1345 was cut off twice at 50 min with no red test.
+    # Playwright 1.65 can only cut by number of tests (no cut by duration), so part 1 stays the longest; the limit has room.
+    timeout-minutes: 70
     # Noah 26.10.2026 «1a»: the official Playwright image already has Chromium and its system
     # packages. The tag must match @playwright/test in package.json (tests/ci-image.test.js).
     container:
