@@ -202,6 +202,7 @@ export default {
   '{n} evenings in the last 30 days did you good.': '{n} Abende in den letzten 30 Tagen haben dir gut getan.',
   'Mark an evening that did you good and it is counted here.': 'Markiere einen Abend, der dir gut getan hat, und er wird hier gezählt.',
   'fits the weather': 'passt zum Wetter',
+  'fits your free time': 'passt in deine freie Zeit',
   'fits your mood': 'passt zu deiner Laune',
   'fits your energy': 'passt zu deiner Energie',
   'fits what you want afterwards': 'passt zu dem, was du danach willst',
