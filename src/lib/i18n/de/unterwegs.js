@@ -297,7 +297,7 @@ export default {
   'Tap «Share link» or show the QR code.': 'Tippe auf «Link teilen» oder zeig den QR-Code.',
   'Plan a trip that starts tomorrow.': 'Plane eine Tour, die morgen beginnt.',
   'In the evening open it in Pack.': 'Öffne sie am Abend in Packen.',
-  'Read the hints; ask the AI helper if you like.': 'Lies die Hinweise; frag den KI-Helfer, wenn du willst.',
+  'Read the hints and see what is still open.': 'Lies die Hinweise und sieh nach, was noch offen ist.',
   // Noah 21.10.2026 «ess-erinnerung soll ausgeschaltet werden können»
   'Hide|eat': 'Ausblenden',
   'Show|eat': 'Einblenden',

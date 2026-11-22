@@ -40,6 +40,9 @@ export const NOTE_TEXT = {
   'bike-hours': 'Cycling outdoors adds up to {h} h this week.',
   'ski-drops': 'In a ski tour week the tour replaces «{type}».',
   'ski-day-taken': 'The ski tour takes {day}: «{type}» on that day does not take place.',
+  'tp-in': 'TrainingPeaks brings {h} h this week. They count towards your hours; the plan only adds the rest.',
+  'tp-replaces': 'Replaced by TrainingPeaks: {n} × «{type}».',
+  'tp-over': 'TrainingPeaks alone is above your {h} h. Nothing else in the plan is taken away.',
 };
 
 /** Warnings of the planner: what does not fit. `w` is one warning of planWeek().warnings. */

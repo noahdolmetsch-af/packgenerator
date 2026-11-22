@@ -85,7 +85,7 @@ export default {
   'Bike care: what is due next on chain, cassette, brake pads and tyres, with a concrete check': 'Velopflege: was als Nächstes an Kette, Kassette, Bremsbelägen und Reifen fällig ist, mit einem konkreten Prüftipp',
   'Look back: a draft and learnings from your notes on the way': 'Rückblick: ein Entwurf und Lernpunkte aus deinen Notizen unterwegs',
   // features, handbook, how-to
-  'Ask the app a question about your data, or let it help you plan a trip. Free; Claude only with the AI helper on.': 'Frag die App etwas zu deinen Daten oder lass dir beim Planen einer Tour helfen. Gratis; Claude nur mit eingeschaltetem KI-Helfer.',
+  'Ask the app a question about your data, or let it help you plan a trip. Free.': 'Frag die App etwas zu deinen Daten oder lass dir beim Planen einer Tour helfen. Gratis.',
   'Open the Assistant (button or search).': 'Öffne den Assistenten (Knopf oder Suche).',
   'Ask a question, or tap «Help me plan».': 'Stell eine Frage oder tippe auf «Hilf mir planen».',
   'The answer or the plan comes from your data; everything is a suggestion.': 'Die Antwort oder der Plan kommt aus deinen Daten; alles ist ein Vorschlag.',

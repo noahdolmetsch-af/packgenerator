@@ -11,7 +11,7 @@
   import { liveQuery } from 'dexie';
   import { Copy, ExternalLink, Cpu } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { looksLikeQuestion } from '../helper/logic.js';
+  import { looksLikeQuestion } from '../suche/logic.js';
   import { related, countRelated, claudeText } from './smart.js';
   import { aiStatus, askLocal } from './chromeAi.js';
   import LocalAsk from '../localai/LocalAsk.svelte'; // «KI im Gerät» (Noah 20.10.2026 «5a»)

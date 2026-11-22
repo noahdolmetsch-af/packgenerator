@@ -456,7 +456,6 @@ const LISTED_HOME = {
   'f.tour': '#/me/handbook',
   'f.firststart': '#/me/data',
   'f.playground': '#/me',
-  'f.helper': '#/helper',
   'f.shortcuts': '#/me',
   'f.ownvalues': '#/me/werte',
   'f.ownreminders': '#/me/reminders',
