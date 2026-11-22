@@ -23,6 +23,7 @@
   import { bikeCareWords } from '../readiness.js';
   import { wearRows } from '../wear.js';
   import { ledgerCounts } from '../kmbook.js';
+  import { stravaDoubles } from '../stravasync.js';
 
   let {
     c, tasks = [], visits = [], wished = {}, kmMsg = null, open = false, filter = 'all', today,
@@ -120,6 +121,7 @@
     verlaufOpen = true;
     requestAnimationFrame(() => document.getElementById(`verlauf-${bike.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   }
+  const doubleN = $derived(open ? stravaDoubles(kmEntries.filter((e) => e.bikeId === bike.id)).length : 0); // Strava rides that stand twice: a badge on «More», the line itself is in the ride ledger
   const ledgerOpen = $derived(open ? ledgerCounts(kmEntries, bike.id).open.length : 0);
   $effect(() => {
     if (ledgerOpen) moreOpen = true;
@@ -373,7 +375,7 @@
       {#if filter === 'all'}<VerlaufCard {bike} {visits} bind:open={verlaufOpen} />{/if}
       <div class="folds">
         <details class="fold" id="more-{bike.id}" bind:open={moreOpen} data-care-more>
-          <summary><MoreHorizontal size={18} aria-hidden="true" /><span class="fl">{t('More')}</span><span class="r">{#if ledgerOpen}<span class="badge warn">{tn(ledgerOpen, '{n} unclear ride', '{n} unclear rides')}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
+          <summary><MoreHorizontal size={18} aria-hidden="true" /><span class="fl">{t('More')}</span><span class="r">{#if ledgerOpen}<span class="badge warn">{tn(ledgerOpen, '{n} unclear ride', '{n} unclear rides')}</span>{/if}{#if doubleN}<span class="badge warn" data-km-doubles-badge>{tn(doubleN, '{n} double ride', '{n} double rides')}</span>{/if}<ChevronRight size={18} aria-hidden="true" /></span></summary>
           {#if moreOpen}
             <p class="hint">{t('The ride ledger, the bike sheets and the care rules. Nothing is gone, it is just one tap down.')}</p>
           {#if q1On}

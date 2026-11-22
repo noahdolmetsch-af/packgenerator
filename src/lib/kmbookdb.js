@@ -162,3 +162,26 @@ export async function undoImport(db, importId) {
     await syncBikes(db, gone.map((e) => e.bikeId));
   });
 }
+
+/**
+ * Take the doubles out of the count (Strava rides that stand twice, see stravaDoubles in stravasync.js): the extra entries get the
+ * state «removed» with the reason «double», they are not deleted. Returns what Undo needs (the entries as they were), so
+ * restoreEntries({ put }) brings them back. Only called after Noah's single approval and a copy of the backup.
+ */
+export async function removeDoubles(db, doubles) {
+  const prev = [];
+  await db.transaction('rw', db.kmBook, db.bikes, async () => {
+    const bikes = [];
+    for (const d of doubles) {
+      for (const e of d.drop) {
+        const row = await db.kmBook.get(e.id);
+        if (!row || row.state !== 'counted') continue;
+        prev.push(plain(row));
+        await db.kmBook.update(e.id, { state: 'removed', reason: { code: 'double', of: d.keep.id } });
+        bikes.push(row.bikeId);
+      }
+    }
+    await syncBikes(db, bikes);
+  });
+  return { put: prev };
+}
