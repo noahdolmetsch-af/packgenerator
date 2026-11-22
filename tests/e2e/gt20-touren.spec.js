@@ -26,7 +26,7 @@ test('a) Rides is its own tab, under Auswerten since N1; Touren keeps the trips'
   // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): the tabs of Touren no longer have «Fahrten»
   await expect(page.locator(`nav.ptabs a[href="#/trips/rides"], .side .tabs a[href="#/trips/rides"]`).filter({ visible: true })).toHaveCount(0);
   // Auswerten (it shares Aktiv's place) has the tab «Fahrten», same address as before
-  await page.locator('nav.bottom a[data-place="active"], .side li[data-place="active"] > a.pa').filter({ visible: true }).first().click();
+  await page.goto('./#/flow'); // V4a (Noah 21.11.2026): Aktiv is part of Woche
   await expect(page).toHaveURL(/#\/flow/);
   // «Aktiv neu» (Noah 22.10.2026): Auswerten shares Aktiv's place; the switch (phone) or its row (computer) leads there
   await toAnalysis(page);
@@ -35,7 +35,7 @@ test('a) Rides is its own tab, under Auswerten since N1; Touren keeps the trips'
   await expect(page.getByRole('heading', { level: 1, name: T('Rides from Strava') })).toBeVisible();
   await expect(page.locator(`a[href="#/trips/rides"][aria-current="page"]`).filter({ visible: true }).first()).toBeVisible();
   // on a phone the slot of Aktiv is lit, on a computer the own row of Auswerten
-  await expect(page.locator('nav.bottom a[data-place="active"][aria-current="page"], .side li[data-place="analysis"].on').filter({ visible: true }).first()).toBeVisible();
+  await expect(page.locator('nav.bottom a[data-place="analysis"][aria-current="page"], .side li[data-place="analysis"].on').filter({ visible: true }).first()).toBeVisible();
   await expect(page.locator('section[data-activities]')).toBeVisible();
   await expect(page.locator('section[data-planned], section[data-packmode]')).toHaveCount(0);
   expect(await sideways(page)).toBeLessThanOrEqual(0);

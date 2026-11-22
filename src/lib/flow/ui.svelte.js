@@ -5,10 +5,10 @@
  */
 import { UNDO_MS } from '../ui/undo.js';
 import { db } from '../db.js';
-import { lang, t } from '../i18n.svelte.js';
+import { lang, t, locale } from '../i18n.svelte.js';
 import { localDay } from '../localday.js';
 import { tick, removeEntry, dayEntries, removeEntries, putEntries } from '../flowdb.js';
-import { tapSub } from '../flow.js';
+import { tapSub, addDays } from '../flow.js';
 import { TIMER_KEY, timerOf, startTimer, pauseTimer, resumeTimer, dueBowls, isDone, loggedMinutes, elapsedSec } from '../flowtimer.js';
 import { strike, wakeAudio } from '../flowbowl.js';
 import { strokesOf, soundAt, playSound, vibrate, schedulePlan, cancelPlan, playedByPlan, setVolume, wakeSounds } from '../flowsounds.js';
@@ -22,7 +22,7 @@ import { UNITACTS_KEY, actForUnit, setUnitTick } from './unitdone.js';
 // sessionOpen: hobby pages 2, the running session in full (B7)
 // unit: «Plan zuerst» (T4), the unit whose sheet is open
 // star: «Meilensteine als Belohnung» (Noah 22.10.2026 «4a»): the new star of the last tick, shown in its own small window
-export const ui = $state({ tick: null, timerOpen: false, toast: null, sessionOpen: false, star: null, unit: null });
+export const ui = $state({ tick: null, tickDay: null, timerOpen: false, toast: null, sessionOpen: false, star: null, unit: null });
 /** «Plan zuerst» (T4): the short sheet after «Done» on a unit of the weekly plan (lib/flow/UnitDoneSheet.svelte). st: { id, type, mins, monday, units, hours, today, done? } */
 export const openUnitDone = (st) => (ui.unit = st);
 
@@ -121,11 +121,16 @@ export async function undoTick(entryId) {
   await removeEntry(db, entryId);
   return true;
 }
-/** Tick with choices (the sheet): amount, place, minutes, a commute. */
+/** «yesterday» or «Fri 20 Nov» for the message of a tick on an earlier day. */
+export const dayWord = (day, today) => (day === addDays(today, -1) ? t('yesterday') : new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' }));
+/** Tick with choices (the sheet): amount, place, minutes, a commute, and since «Gestern nachtragen» the day. */
 export async function tickWith(a, opts) {
   const today = localDay();
-  const e = await tick(db, a, { day: today, ...opts });
-  const what = opts.via === 'commute' ? t('{name} · commute ticked', { name: actName(a) }) : a.perTap > 1 || e.n > 1 ? t('{name} · {n} ticked', { name: actName(a), n: e.n }) : t('{name} ticked', { name: actName(a) });
+  // «Gestern nachtragen» (Noah 21.11.2026): opts.day is an earlier day; the entry counts there, the message says which day
+  const day = opts.day ?? today;
+  const e = await tick(db, a, { ...opts, day });
+  const base = opts.via === 'commute' ? t('{name} · commute ticked', { name: actName(a) }) : a.perTap > 1 || e.n > 1 ? t('{name} · {n} ticked', { name: actName(a), n: e.n }) : t('{name} ticked', { name: actName(a) });
+  const what = day === today ? base : t('{what} · for {day}', { what: base, day: dayWord(day, today) });
   // a new star from this tick: its own small window (no confetti); «Rückgängig» takes the tick and that star back
   let won = [];
   let near = null;
@@ -149,6 +154,28 @@ export async function tickWith(a, opts) {
   // ER1 (Noah 14.10.2026 «er1-er3 freigabe»): once per activity «Soll ich dich in Zukunft erinnern?»
   if (opts.via !== 'commute') offerActivity(a, actName(a));
   return e;
+}
+
+/**
+ * «Mehrere Tage in einem Rutsch» (Noah 21.11.2026, Festlegung Abhaken, Punkt 5): the same tick for several days, one entry for
+ * each (days: the newest first, at(day): its moment). One message, one «Rückgängig» for all of them.
+ */
+export async function tickMany(a, opts, days, at) {
+  const today = localDay();
+  const [first, ...more] = days;
+  await tickWith(a, { ...opts, day: first === today ? undefined : first, at: at(first) });
+  const extra = [];
+  for (const d of more) extra.push(await tick(db, a, { ...opts, day: d, at: at(d) }));
+  const tk = ui.toast;
+  if (tk) {
+    const one = tk.undo;
+    tk.text = t('{name} · for {n} days ticked', { name: actName(a), n: days.length });
+    tk.undo = async () => {
+      await removeEntries(db, extra);
+      await one?.();
+    };
+  }
+  return extra;
 }
 
 /* ---------- the countdown ---------- */

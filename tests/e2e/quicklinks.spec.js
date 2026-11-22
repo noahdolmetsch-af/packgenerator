@@ -15,10 +15,9 @@ test('Quick Links: place, suggestions, go there, add, edit, groups', async ({ pa
   const T = await openHome(page, context, info);
   const phone = info.project.name === 'phone';
 
-  // the place: in the bar (phone); on a computer (Schritt 10 «Ganze App neu denken», Noah 18.11.2026) it is no row of the
-  // sidebar any more: its way in is one line under Heute, and Heute stays lit while you are there
-  const entry = phone ? page.locator('nav.bottom a[href="#/quick"]') : page.locator('.side li.pl[data-place="today"] .tabs a[href="#/quick"]');
-  await entry.click();
+  // the place: since V4a (21.11.2026, on purpose) it is no row of the bar or the sidebar; its way in is the link under the pins on Heute
+  // (and «g q»); the page keeps its address until V6 «Abkürzungen»
+  await page.goto('./#/quick');
   await expect(page).toHaveURL(/#\/quick$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Quick Links|place') })).toBeVisible();
   await expect(page.locator('[data-quick]')).toHaveAttribute('data-quick', phone ? 'phone' : 'computer');
