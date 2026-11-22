@@ -10,7 +10,7 @@ describe('ci-scope: which phone tests a PR needs', () => {
     const r = scope(['tests/e2e/pf.spec.js', 'docs/releases/x.md', 'tests/e2e/gesamttest/scenarios.spec.js']);
     expect(r).toEqual({ mode: 'specs', specs: ['tests/e2e/pf.spec.js', 'tests/e2e/gesamttest/scenarios.spec.js'], parts: 1 });
   });
-  it('shared helpers or app code: everything', () => {
+  it('shared helpers or app code without a map: not decided yet (the caller builds the map and asks again)', () => {
     expect(scope(['tests/e2e/clock.js']).mode).toBe('all');
     expect(scope(['tests/e2e/gesamttest/lib.js', 'tests/e2e/pf.spec.js']).mode).toBe('all');
     expect(scope(['src/pages/Home.svelte', 'docs/releases/x.md']).mode).toBe('all');
@@ -32,27 +32,63 @@ describe('ci-scope: app code with the map (Noah 05.11.2026 «3a ja»)', () => {
     expect(r.mode).toBe('specs');
     expect(r.specs).toEqual([...new Set([...CORE_SPECS, 'tests/e2e/own.spec.js', 'tests/e2e/paket-h.spec.js'])].sort());
   });
-  it('the map says unknown (null): everything', () => {
-    expect(scope(['src/lib/home/rows.js'], () => null).mode).toBe('all');
+  it('the map says unknown (null), e.g. a start file: the quick check, the Kern alone (Noah 22.11.2026 «a»)', () => {
+    const r = scope(['src/lib/home/rows.js'], () => null);
+    expect(r).toEqual({ mode: 'specs', specs: [...CORE_SPECS].sort(), parts: 1 });
   });
-  it('only app code is mapped; a config, build or workflow file runs everything, the map is not asked', () => {
+  it('a style is a view: the Kern alone, the map is not asked about it', () => {
+    let asked = false;
+    const r = scope(['src/app.css'], () => { asked = true; return []; });
+    expect(r.mode).toBe('specs');
+    expect(r.specs).toEqual([...CORE_SPECS].sort());
+    expect(asked).toBe(false);
+  });
+  it('a config, build or workflow file, an asset or something not understood: everything, the map is not asked', () => {
     let asked = false;
     const map = () => { asked = true; return []; };
-    for (const f of ['package.json', 'vite.config.js', '.github/workflows/deploy.yml', 'public/x.png', 'src/app.css', 'index.html']) expect(scope([f], map).mode, f).toBe('all');
+    for (const f of ['package.json', 'vite.config.js', '.github/workflows/deploy.yml', 'public/x.png', 'index.html', 'scripts/news.mjs', 'tools/x.py']) expect(scope([f], map).mode, f).toBe('all');
     expect(scope(['src/pages/Lend.svelte', 'vite.config.js'], map).mode).toBe('all');
     expect(asked).toBe(false);
   });
   it('a shared test helper is app code for the map (it reaches the specs that import it)', () => {
     expect(scope(['tests/e2e/clock.js'], () => ['tests/e2e/a.spec.js']).mode).toBe('specs');
   });
-  it('too many specs: everything', () => {
+  it('too many specs (a file nearly every spec reaches): the Kern alone', () => {
     const many = Array.from({ length: MAX_SPECS + 1 }, (_, i) => `tests/e2e/s${i}.spec.js`);
-    expect(scope(['src/pages/Lend.svelte'], () => many).mode).toBe('all');
+    const r = scope(['src/pages/Lend.svelte'], () => many);
+    expect(r.mode).toBe('specs');
+    expect(r.specs).toEqual([...CORE_SPECS].sort());
   });
   it('parts: one per 20 specs, 1 to 5', () => {
     expect(partsFor(['a'])).toBe(1);
     expect(partsFor(Array(21).fill('a'))).toBe(2);
     expect(partsFor(Array(250).fill('a'))).toBe(5);
+  });
+});
+
+describe('ci-scope: data, backup, sync, storage and api are checked in full on every PR (Noah 22.11.2026 «a»)', () => {
+  const map = () => ['tests/e2e/a.spec.js'];
+  it('the full check, the map is not used', () => {
+    for (const f of ['api/booking.js', 'api/_lib/push.js', 'src/lib/db.js', 'src/lib/alltagdb.js', 'src/lib/backup.js', 'src/lib/backupcrypt.js',
+      'src/lib/folderBackup.js', 'src/lib/stravasync.js', 'src/lib/sync/engine.js', 'src/lib/maintenance/snapshots.js', 'src/lib/importstep2.js',
+      'src/lib/fitbitexport.js', 'src/lib/booking/client.js', 'src/pages/Backup.svelte'])
+      expect(scope([f], map).mode, f).toBe('all');
+    expect(scope(['src/pages/Lend.svelte', 'src/lib/db.js'], map).mode).toBe('all');
+  });
+  it('a word with db or sync only inside it, in a view: the full check, the safe side', () => {
+    expect(scope(['src/lib/async-menu.js'], map).mode).toBe('all');
+  });
+  it('docs, news and German texts with such a word in the name are still light', () => {
+    expect(scope(['docs/releases/backup-hinweis.md', 'src/lib/news/sync-x.js', 'src/lib/i18n/de/backup.js']).mode).toBe('none');
+  });
+  it('a spec about backup alone runs only that spec', () => {
+    expect(scope(['tests/e2e/backup.spec.js']).specs).toEqual(['tests/e2e/backup.spec.js']);
+  });
+  it('a small view PR is the quick check: the Kern, the mapped specs and its own specs', () => {
+    const r = scope(['src/pages/Lend.svelte', 'src/lib/i18n/de/lend.js'], () => ['tests/e2e/lend.spec.js']);
+    expect(r.mode).toBe('specs');
+    expect(r.specs).toEqual([...new Set([...CORE_SPECS, 'tests/e2e/lend.spec.js'])].sort());
+    expect(r.parts).toBe(1);
   });
 });
 

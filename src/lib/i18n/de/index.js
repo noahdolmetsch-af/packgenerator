@@ -281,6 +281,7 @@ import flyer from './flyer.js';
 import probestunde from './probestunde.js';
 import erinnerung from './erinnerung.js';
 import bestaetigung from './bestaetigung.js';
+import teilnehmerliste from './teilnehmerliste.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -642,6 +643,7 @@ import belohnungalle from './belohnungalle.js';
 import wochensterne from './wochensterne.js';
 import fastgeschafft from './fastgeschafft.js';
 import draussen from './draussen.js';
+import challenges from './challenges.js';
 // «Alles fertig» (Noah 24.10.2026): leftovers of the older threads; spread last
 import allesfertig from './allesfertig.js';
 // Paket B «Touren ohne Überraschung» (996 Ideen): Generalprobe, Gut ankommen, Kisten-Etiketten; spread last
@@ -911,6 +913,7 @@ const ORDERED = [
   probestunde,
   erinnerung,
   bestaetigung,
+  teilnehmerliste,
   abgleich,
   verbindungenStatus,
   datenaufraeumen,
@@ -1067,6 +1070,7 @@ const ORDERED = [
   wochensterne,
   fastgeschafft,
   draussen,
+  challenges,
   allesfertig,
   generalprobe,
   alltagsichtbar,

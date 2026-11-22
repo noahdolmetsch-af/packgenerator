@@ -7,6 +7,7 @@
    * Paket NE 1146: ondraw(cur, { old, src, ink }) shows «Draw» on the photo; the drawing window opens
    * over it, and the caller stores the new picture and the drawing on its record (drawnOn() in ink.js).
    * A list entry may carry its record's inks, so the drawing can be changed again later.
+   * A list entry with `scroll: true` (a picture of a whole page, Logbuch) is shown as wide as the window and scrolls up and down.
    */
   import { t } from '../i18n.svelte.js';
   import DrawOn from '../draw/DrawOn.svelte';
@@ -52,7 +53,11 @@
       <button type="button" class="close" onclick={() => dialog.close()}>{t('Close')}</button>
     </header>
     <div class="pic" onpointerdown={down} onpointerup={up} onpointercancel={() => (x0 = null)} role="presentation">
-      <img src={cur.src} alt={cur.name} draggable="false" />
+      {#if cur.scroll}
+        <div class="scr" data-lightbox-scroll><img class="tall" src={cur.src} alt={cur.name} draggable="false" /></div>
+      {:else}
+        <img src={cur.src} alt={cur.name} draggable="false" />
+      {/if}
       {#if list.length > 1}
         <button type="button" class="nav prev" aria-label={t('Previous photo')} onclick={() => go(at - 1)}>‹</button>
         <button type="button" class="nav next" aria-label={t('Next photo')} onclick={() => go(at + 1)}>›</button>
@@ -128,6 +133,20 @@
     place-items: center;
     touch-action: pan-y;
     user-select: none;
+  }
+  .scr {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .pic img.tall {
+    display: block;
+    width: min(100%, 760px);
+    max-width: none;
+    max-height: none;
+    margin: 0 auto;
+    object-fit: fill;
   }
   .pic img {
     max-width: 100%;

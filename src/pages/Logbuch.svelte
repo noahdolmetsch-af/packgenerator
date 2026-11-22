@@ -10,22 +10,26 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import LogEntrySheet from '../lib/logbuch/LogEntrySheet.svelte';
+  import Lightbox from '../lib/ui/Lightbox.svelte';
   import { db } from '../lib/db.js';
   import { GROUPS, filterEntries, counts, isOpen, groupOf } from '../lib/logbuch/logbuch.js';
   import { addEntry, updateEntry, removeEntry, restoreEntry } from '../lib/logbuch/logbuchdb.js';
   import { buildOrder, orderSize, images } from '../lib/logbuch/auftrag.js';
   import { copyText, savePictures } from '../lib/logbuch/export.js';
+  import { takeIntoLog } from '../lib/logbuch/fehler.js';
   import { artLabel, groupLabel, stateLabel } from '../lib/logbuch/words.js';
   import { deleteWithUndo, askDelete, saveFailed } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
 
+  takeIntoLog(); // the errors the app noted quietly (Fehler-Melder) become entries of the kind «Error»
   const q = liveQuery(() => db.logbuch.toArray());
   const all = $derived($q ?? []);
   let group = $state('all');
   const shown = $derived(filterEntries(all, group));
   const n = $derived(counts(all));
+  let look = $state(null); // { list, start } while a photo is shown big
   let sheet = $state(null); // { entry } while the window is open (entry null = new)
 
   const when = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
@@ -44,6 +48,7 @@
     if (answer !== 'delete') return;
     await deleteWithUndo({ run: () => removeEntry(e.id), undo: (saved) => restoreEntry(saved), text: t('Entry deleted.'), name: artLabel(e.art) });
   }
+  const photoList = $derived(shown.filter((e) => e.photo).map((e) => ({ src: e.photo, name: e.block || e.pageTitle || e.page, sub: e.text, id: e.id, scroll: true })));
   const size = $derived(orderSize(all));
   const pics = $derived(images(all));
   async function copyOrder() {
@@ -82,8 +87,14 @@
               <span class="pill">{artLabel(e.art)}</span>
               {#if e.urgent === 'now' && isOpen(e)}<span class="pill lb-now" data-lb-now>{t('Bothers me now')}</span>{/if}
               <span class="pill lb-st" data-lb-state={e.state}>{stateLabel(e.state)}</span>
+              {#if e.source === 'auto'}<span class="pill" data-lb-auto>{t('Noted by the app')}{e.count > 1 ? ` · ${e.count}×` : ''}</span>{/if}
             </div>
             <p class="lb-text">{#if e.block}<b>{e.block}:</b> {/if}{e.text}</p>
+            {#if e.photo}
+              <button type="button" class="lb-thumb" data-lb-photo onclick={() => (look = { list: photoList, start: Math.max(0, photoList.findIndex((p) => p.id === e.id)) })} aria-label={t('Show the photo big')}><img src={e.photo} alt={t('Photo of the page')} /></button>
+            {:else if e.photoNote}
+              <small class="lb-meta" data-lb-nophoto>{t('Photo not possible')}</small>
+            {/if}
             <small class="lb-meta">{[e.page, when(e.at), e.device === 'computer' ? t('Computer|logbuch') : t('Phone|logbuch')].filter(Boolean).join(' · ')}</small>
             <div class="lb-acts">
               {#if groupOf(e.art) !== 'new' || e.art === 'idee'}
@@ -117,6 +128,7 @@
   {/if}
 </div>
 
+{#if look}<Lightbox list={look.list} start={look.start} onclose={() => (look = null)} />{/if}
 {#if sheet}
   <LogEntrySheet entry={sheet.entry} onsave={save} onremove={sheet.entry ? () => remove(sheet.entry) : null} onclose={() => (sheet = null)} />
 {/if}
@@ -181,6 +193,23 @@
   .lb-meta {
     color: var(--ink-3);
     overflow-wrap: break-word;
+  }
+  .lb-thumb {
+    display: block;
+    width: 120px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--paper-2);
+    cursor: pointer;
+  }
+  .lb-thumb img {
+    display: block;
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    object-position: top;
   }
   .lb-acts {
     display: flex;
