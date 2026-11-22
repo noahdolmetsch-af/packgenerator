@@ -1,6 +1,6 @@
 # Gestern nichts abgehakt? Nachtragen: ein ruhiger Hinweis am Morgen
 
-PR #<Nummer> · 21.11.2026 · Auftrag: Noah 21.11.2026 (Festlegung Abhaken, Punkt 5 «Nachträglich abhaken»), Thread «Training erfassen vereinfachen». Baut auf «Gestern nachtragen» (Abhak-Fenster mit «Wann») auf.
+PR #1386 · 21.11.2026 · Auftrag: Noah 21.11.2026 (Festlegung Abhaken, Punkt 5 «Nachträglich abhaken»), Thread «Training erfassen vereinfachen». Baut auf «Gestern nachtragen» (Abhak-Fenster mit «Wann») auf.
 
 ## Was ist neu
 - Auf Aktiv steht vor 12 Uhr unter «Ruhetag»-Hinweis (falls da) und über «Heute abhaken» eine ruhige Zeile: «Gestern nichts abgehakt? Nachtragen.» «Nachtragen» zeigt die Kacheln; ein Tipp auf eine öffnet ihr Abhak-Fenster mit «Gestern» schon gewählt.
