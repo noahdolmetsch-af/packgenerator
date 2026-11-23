@@ -67,7 +67,8 @@
         {#if s.clearing.kind === 'clears'}{t('The fog clears around {h} h', { h: num(s.clearing.hour) })}{:else if s.clearing.kind === 'stays'}{t('The fog stays until the evening')}{:else}{t('Fog comes in around {h} h', { h: num(s.clearing.hour) })}{/if}
       </p>
     {/if}
-    {#if s.slots.length}
+    <!-- Wetterseite aufräumen: six dashes say nothing; the list shows only when at least one time has a fog line -->
+    {#if s.slots.some((x) => x.top != null)}
       <ul class="nb-slots" aria-label={t('Fog line through the day')} data-fogline-slots>
         {#each s.slots as x (x.hour)}<li><span>{t('{h} h', { h: x.hour })}</span>{#if x.top != null}<b>{num(x.top)}</b><small>m</small>{:else}<b aria-label={t('no fog line')}>–</b><small>&nbsp;</small>{/if}</li>{/each}
       </ul>
@@ -78,7 +79,7 @@
     {#if sight}
       <p class="nb-row" data-fogline-sight><Eye size={16} aria-hidden="true" />{sight}</p>
     {/if}
-    <p class="nb-src">{t('A guess from the air layers of the weather model, about 200 m precise. A webcam shows how it really is.')}{#if at}{' '}{t('As of {at}', { at })}{/if}</p>
+    {#if s.now.top != null}<p class="nb-src">{t('A guess from the air layers of the weather model, about 200 m precise. A webcam shows how it really is.')}{#if at}{' '}{t('As of {at}', { at })}{/if}</p>{/if}
     <details class="nb-set" data-fogline-set>
       <summary>{t('Set fog line')}</summary>
       <label class="nb-check"><input type="checkbox" checked={onHome} onchange={toggleHome} data-fogline-home />{t('Show the fog line on Today')}</label>

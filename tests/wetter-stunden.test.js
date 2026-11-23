@@ -37,7 +37,7 @@ describe('the next 2, 4, 6 and 8 hours', () => {
   it('one model: rain sum, first wet hour, temperatures, strongest gust', () => {
     const d = parseHours(answer((m, i) => (i === 3 ? 1.2 : 0), (m, i) => 14 + i));
     const w = modelWindow(d.models[0].hours, T0, 4);
-    expect(w).toMatchObject({ rainMm: 1.2, rainFrom: T0 + 3 * 36e5, tmin: 14, tmax: 17, gust: 23, thunder: false });
+    expect(w).toMatchObject({ rainMm: 1.2, rainFrom: T0 + 2 * 36e5, tmin: 15, tmax: 18, gust: 24, thunder: false }); // the value at hour 3 is the rain of hour 2 to 3; the next 4 hours are the stamps 1 to 4
     expect(modelWindow(d.models[0].hours, T0, 2).rainMm).toBe(0);
   });
   it('says where the models agree and where not', () => {
@@ -46,8 +46,8 @@ describe('the next 2, 4, 6 and 8 hours', () => {
     const s = steps(d, T0);
     expect(s.map((x) => x.h)).toEqual([2, 4, 6, 8]);
     expect(s[0]).toMatchObject({ agree: 'dry', wet: 0, of: 5 });
-    expect(s[2]).toMatchObject({ agree: 'split', wet: 2, of: 5, rainFrom: T0 + 5 * 36e5 });
-    expect(s[2].rainMm).toEqual([0, 0.8]);
+    expect(s[2]).toMatchObject({ agree: 'split', wet: 2, of: 5, rainFrom: T0 + 4 * 36e5 }); // stamp 5 = rain from hour 4
+    expect(s[2].rainMm).toEqual([0, 1.6]); // two wet hours (4 to 5 and 5 to 6) in the next 6
   });
   it('all wet, and nothing at all without data', () => {
     const d = parseHours(answer(() => 2));
