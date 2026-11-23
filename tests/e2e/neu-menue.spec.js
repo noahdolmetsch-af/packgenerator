@@ -1,41 +1,27 @@
-// Klick-Rundgang H19 (Noah 22.10.2026 «1a»): the + menu also offers «Velo hinzufügen», «Aktivität abhaken»,
-// «Tagebuch-Eintrag» and «Inspiration-Link»; each leads to its place. Fictional data only, no internet.
+// Neu-Menü nach vorn (Noah 23.11.2026 «1-5a», «5a»): Tour planen und Schnellstart zuerst, «Taschen wiegen», Textfeld und Notfall am Ende
 import { test, expect } from './clock.js';
-import { ready } from './settle.js';
-import { newButton } from './newbutton.js';
-import DE from '../../src/lib/i18n/de/index.js';
+import { openHome } from './home0460-fixture.js';
 
-const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
-
-test('the + menu: bike, activity, diary and inspiration lead to their place', async ({ page, context }) => {
-  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
-  await context.addInitScript(() => {
-    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
-    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+test('the New menu: trips first, Weigh bags, quick field and emergency at the end', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info);
+  await page.goto('./#/gear');
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('pg:new')));
+  const sheet = page.locator('dialog.sheet.new');
+  await expect(sheet).toBeVisible();
+  // order in the page: first row = Plan a trip, then Quick start, then Weigh bags; the quick field and the emergency come after the last group
+  const order = await sheet.evaluate((el) => {
+    const pos = (s) => {
+      const n = el.querySelector(s);
+      return n ? [...el.querySelectorAll('*')].indexOf(n) : -1;
+    };
+    return { weigh: pos('[data-new-weigh]'), check: pos('[data-new-check]'), quick: pos('form.quick'), sos: pos('[data-new-sos]'), firstOpt: [...el.querySelectorAll('.opt, .sos, form.quick')].map((n) => n.className.split(' ')[0] + ':' + (n.textContent || '').trim().slice(0, 14)) };
   });
-  const errors = [];
-  page.on('pageerror', (err) => errors.push(err.message));
-  await page.goto('./');
-  await ready(page);
-  const open = async () => {
-    await (await newButton(page, T('New'))).click();
-    return page.getByRole('dialog', { name: T('New') });
-  };
-  let dlg = await open();
-  for (const name of ['Add bike', 'Tick an activity', 'Diary entry', 'Inspiration link']) await expect(dlg.getByText(T(name), { exact: true })).toBeVisible();
-  await dlg.locator('[data-new-tick]').click();
-  await expect(page).toHaveURL(/#\/flow$/);
-  dlg = await open();
-  await dlg.locator('[data-new-insp]').click();
-  // UI-Test T11 (G1-13): Inspiration lives at #/inspiration, not under Ich
-  await expect(page).toHaveURL(/#\/inspiration$/);
-  dlg = await open();
-  await dlg.locator('[data-new-bike]').click();
-  await expect(page).toHaveURL(/#\/bikes/);
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await page.keyboard.press('Escape');
-  dlg = await open();
-  await dlg.locator('[data-new-diary]').click();
-  await expect(page).toHaveURL(/#\/tagebuch/);
-  expect(errors).toEqual([]);
+  expect(order.firstOpt[0]).toContain(T('Plan a trip').slice(0, 8));
+  expect(order.weigh).toBeGreaterThan(0);
+  expect(order.weigh).toBeLessThan(order.check);
+  expect(order.quick).toBeGreaterThan(order.check);
+  expect(order.sos).toBeGreaterThan(order.quick);
+  await expect(sheet.locator('[data-new-weigh]')).toContainText(T('Weigh bags'));
+  await sheet.locator('[data-new-weigh]').click();
+  await expect(page).toHaveURL(/#\/pack\?day/);
 });
