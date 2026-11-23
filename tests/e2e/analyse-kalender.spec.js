@@ -29,12 +29,16 @@ test('Analyse: calendar fields are even and tappable, count axes are whole numbe
     await page.getByRole('button', { name: range }).or(page.getByRole('radio', { name: range })).first().click();
     const cal = page.locator('.cal');
     await expect(cal).toBeVisible();
-    // every field: the same size, a square of at least 24 px
+    // every field: the same size, as wide as the card allows (at least 22 px) and at least 24 px tall
     const sizes = await cal.locator('button.cell').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; }));
     expect(sizes.length).toBeGreaterThan(20);
-    expect(new Set(sizes.map((s) => s.join('x'))).size, `one size for ${range}`).toBe(1);
-    expect(sizes[0][0]).toBeGreaterThanOrEqual(24);
-    expect(sizes[0][0]).toBe(sizes[0][1]);
+    expect(new Set(sizes.map((s) => s.join('x'))).size, `one size for ${range}`).toBeLessThanOrEqual(2); // a rounding of 1 px between columns
+    expect(sizes[0][0]).toBeGreaterThanOrEqual(22);
+    expect(sizes[0][1]).toBeGreaterThanOrEqual(24);
+    // the fields use the width of the card: 12 weeks or more, never a narrow strip on the left
+    const card = await page.locator('.hm').boundingBox();
+    const cellsBox = await cal.locator('.cells').boundingBox();
+    expect(cellsBox.width, `fields fill the card for ${range}`).toBeGreaterThan(card.width * 0.6);
     // the weekday names sit on their rows: «Mo» level with the first row of fields
     const mo = await cal.locator('.wd span').nth(1).boundingBox();
     const first = await cal.locator('button.cell, span.cell.none').first().boundingBox();

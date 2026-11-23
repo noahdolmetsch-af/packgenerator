@@ -157,7 +157,7 @@ test('Kursblick Märkte: groups and titles of your own, the comparison of up to 
   await wahl('NOVN.SW').check();
   await expect(maerkte.locator('[data-vergleich]')).toBeVisible();
   await expect(maerkte.locator('[data-legende]')).toHaveCount(2);
-  for (const sym of ['ROG.SW', 'ABBN.SW', 'HOLN.SW']) await wahl(sym).check();
+  for (const sym of ['RO.SW', 'ABBN.SW', 'HOLN.SW']) await wahl(sym).check();
   await expect(maerkte.locator('[data-legende]')).toHaveCount(5);
   await expect(wahl('SCHN.SW')).toBeDisabled();
   await maerkte.locator('[data-chart="vergleich"] [data-plot]').click({ position: { x: 60, y: 40 } });
