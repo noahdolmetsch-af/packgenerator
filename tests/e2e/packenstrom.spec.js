@@ -40,7 +40,8 @@ test('Neues Teil beim Packen: one visible button, the new item lands in the bag'
   await nd.getByRole('button', { name: T('Save') }).click();
   await expect(nd).toBeHidden();
   await sheet.getByRole('button', { name: T('Done') }).click();
-  await expect(page.getByText('test_data_gtp_ Regenhülle').first()).toBeVisible();
+  // a rain item is also named in the closed line «Griffbereit: … liegt tief in einer Tasche» of the card (hidden): look for the visible one
+  await expect(page.getByText('test_data_gtp_ Regenhülle').filter({ visible: true }).first()).toBeVisible();
   expect(errors).toEqual([]);
 });
 
