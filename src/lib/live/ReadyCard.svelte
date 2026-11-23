@@ -7,12 +7,13 @@
   import { liveQuery } from 'dexie';
   import { Check, Circle } from '@lucide/svelte';
   import OfflineBox from '../map/OfflineBox.svelte';
+  import OsmandHandoff from './OsmandHandoff.svelte';
   import { STRIPS_KEY, presentIds } from '../map/offline.js';
   import { readiness } from './ready.js';
   import { db } from '../db.js';
   import { t } from '../i18n.svelte.js';
 
-  let { line = [], name = '', tripId = null, reserve = null, voice = false, onvoice } = $props();
+  let { line = [], name = '', tripId = null, reserve = null, voice = false, onvoice, points = [] } = $props();
   const stripsQ = liveQuery(() => db.settings.get(STRIPS_KEY));
   const strips = $derived(Array.isArray($stripsQ?.value?.strips) ? $stripsQ.value.strips : []);
   let present = $state(new Set());
@@ -39,6 +40,7 @@
         <small>{t('The phone says the next shop or climb a few km ahead, so you can keep your eyes on the road.')}</small></span>
       {#if !r.voiceOk}<button type="button" class="btn sm" onclick={() => onvoice?.(true)} data-live-ready-voice-on>{t('Switch the voice on')}</button>{/if}
     </li>
+    <OsmandHandoff route={{ line, name }} {points} {name} />
   </ul>
   {#if r.ready}<p class="rc-note" data-live-ready-say>{t('All set. Have a good ride.')}</p>{/if}
   {#if keeping && !r.mapOk}

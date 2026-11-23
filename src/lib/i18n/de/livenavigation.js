@@ -228,5 +228,10 @@ export default {
   'The voice is off.': 'Die Sprache ist aus.',
   'The phone says the next shop or climb a few km ahead, so you can keep your eyes on the road.': 'Das Handy sagt den nächsten Laden oder Anstieg ein paar km voraus, damit du auf die Strasse schauen kannst.',
   'Switch the voice on': 'Sprache einschalten',
+  'Ride with OsmAnd': 'Mit OsmAnd fahren',
+  'Ride with OsmAnd instead?': 'Lieber mit OsmAnd fahren?',
+  'OsmAnd leads you with the screen off and without internet. The storm warning and the stops of this page stay here.': 'OsmAnd führt dich auch bei dunklem Bildschirm und ohne Internet. Gewitterwarnung und Stopps dieser Seite bleiben hier.',
+  'Pick OsmAnd in the list, then tap «Navigation» there.': 'Wähle OsmAnd in der Liste und tippe dort auf «Navigation».',
+  'Saved. Open the file with OsmAnd (tap it in your downloads), then tap «Navigation».': 'Gespeichert. Öffne die Datei mit OsmAnd (in den Downloads antippen) und tippe dort auf «Navigation».',
   'All set. Have a good ride.': 'Alles bereit. Gute Fahrt.',
 };
