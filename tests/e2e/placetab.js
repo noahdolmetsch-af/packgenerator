@@ -13,6 +13,11 @@ export async function viaTab(page, place, href) {
   await page.goto(`./${ALL_PLACES.find((p) => p.key === place).href}`); // «Aktiv neu» (22.10.2026): also Auswerten, which shares Aktiv's place
   // «Ganze App neu denken» Schritt 11: a page that is a chip under a tab (Planen: Woche, Notizen, Alltag) is reached by that tab first
   const owner = (PLACE_TABS[place] ?? []).find((x) => x.subs?.some((s) => s.href === href));
+  // Velos aufräumen (23.11.2026): the tab «Velos» has no chips; Teile and Mein Setup are rows of the page, the test opens them by their address
+  if (owner?.chips === false && owner.href !== href) {
+    await page.goto(`./${href}`);
+    return;
+  }
   if (owner && owner.href !== href) {
     const own = page.locator(`nav.ptabs a[href="${owner.href}"], .side .tabs a[href="${owner.href}"]`).filter({ visible: true }).first();
     await expect(own).toBeVisible();

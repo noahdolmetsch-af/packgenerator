@@ -941,7 +941,23 @@ export function heartOfRide(entries, ride) {
  * ride (as stravasync toRides).
  */
 const INDOOR = /virtual|indoor|trainer/i;
+/**
+ * A Strava ride that stands twice in the ledger (a doubled import) counts once, in every sum: the first entry of a
+ * Strava id wins, a counted one before an open or removed one. Only reading; the ledger is cleaned up separately,
+ * with the person's ok (Noah 22.11.2026 «Doppelte zuerst bereinigen»).
+ */
+export function onePerStravaId(entries = []) {
+  const win = new Map();
+  for (const e of entries ?? []) {
+    if (e?.source !== 'strava' || !e.stravaId) continue;
+    const k = String(e.stravaId);
+    const best = win.get(k);
+    if (!best || (counts(e) && !counts(best))) win.set(k, e);
+  }
+  return (entries ?? []).filter((e) => !(e?.source === 'strava' && e.stravaId) || win.get(String(e.stravaId)) === e);
+}
 export function withStravaRides(rides = [], entries = [], acts = []) {
+  entries = onePerStravaId(entries);
   const files = rides ?? [];
   const extra = (entries ?? [])
     .filter((e) => e.source === 'strava' && e.kind === 'ride' && (counts(e) || inStartKm(e)) && !files.some((r) => sameFileRide(e, r)))

@@ -347,6 +347,8 @@
   }
   .tx b {
     font-weight: 600;
+    overflow-wrap: break-word;
+    hyphens: auto; /* «Überraschungsrunde» in a narrow card breaks at a syllable with a hyphen, not mid-letter */
   }
   .tx span {
     color: var(--ink-2);

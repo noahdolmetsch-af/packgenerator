@@ -59,7 +59,6 @@
   import { recordError } from './lib/fehler/felog.js';
   import { pageOf, isUnknown, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
-  import PlaceSwitch from './lib/nav/PlaceSwitch.svelte';
   import Explorer from './lib/nav/Explorer.svelte';
   import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
   import { ops } from './lib/bedienung.svelte.js';
@@ -147,8 +146,6 @@
   // Gesamttest 19.11.2026 (Noah «a»): an address no page knows shows «Page not found» instead of Today
   const lost = $derived(isUnknown(hash, parseBikesHash(hash).tab === 'care'));
   const place = $derived(placeOf(page, hash));
-  // Schritt 10: Ausrüstung is a tab of Material now (place «gear»), but on a phone the switch Velos · Ausrüstung · Material still lights it
-  const switchPlace = $derived(page === 'equipment' ? 'equipment' : place);
   // «Anpassen»: the page's name when it has no big title (the place › the tab)
   const anpTitle = $derived.by(() => {
     const p = ALL_PLACES.find((x) => x.key === place);
@@ -405,6 +402,7 @@
     GearImport: () => import('./pages/GearImport.svelte'),
     Rides: () => import('./pages/Rides.svelte'),
     Wardrobe: () => import('./pages/Wardrobe.svelte'),
+    WardrobeTryOn: () => import('./pages/WardrobeTryOn.svelte'), // «Anprobe» (Noah 21.11.2026 «1-5a 4b», Weg A): Kleider › Anprobe
     WardrobeSetup: () => import('./pages/WardrobeSetup.svelte'), // «Kleiderschrank einrichten» (Noah 21.11.2026 «1-5a 4b»): Kleider › Einrichten
     Flow: () => import('./pages/Flow.svelte'),
     Auswerten: () => import('./pages/AuswertenStart.svelte'),
@@ -461,6 +459,7 @@
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
     Gruppe: () => import('./pages/Gruppe.svelte'), // Gruppen-Live-Karte: a friend's view of the group ride
     GroupRide: () => import('./pages/GroupRide.svelte'), // Gruppenfahrt für Events: the page of your group ride
+    Kurse: () => import('./pages/Kurse.svelte'), // «Kursblick» (Noah 22.11.2026): prices of gold and the SMI
     MiniTools: () => import('./pages/MiniTools.svelte'), // Mini-Tools (Noah 28.10.2026 «2a»): Ich › Mini-Tools
     Mitmachen: () => import('./pages/Mitmachen.svelte'), // Mini-Tools: the page of the people asked, no app data
     Karte: () => import('./pages/Karte.svelte'), // Gruppenfahrt für Events: a contact card from a QR code
@@ -547,7 +546,6 @@
   {#if !calm && !guest && !mini}<PlaceTabs {place} {hash} {moved} onclosemoved={() => (moved = null)} />{/if}
   <!-- AU1 «1b»: on a phone Velos and Ausrüstung share a slot. Gesamttest 20.10.2026 B7: the switch stands only
        on Ausrüstung (the way back); Velos already has its tabs and path, Ausrüstung is one row on Velos › Übersicht -->
-  {#if place === 'gear' && !mini}<PlaceSwitch place={switchPlace} />{/if}
   {#if ops.path && place && page !== 'home' && !calm && !guest && !mini}<PathLine {place} {hash} />{/if}
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
@@ -661,7 +659,7 @@
     <LazyPage load={PAGES.Favorites} />
   {:else if page === 'wardrobe'}
     <!-- v0.42.0 (Noah 1): the wardrobe, by layer and body zone -->
-    {#if hash.startsWith('#/wardrobe/setup')}<LazyPage load={PAGES.WardrobeSetup} />{:else}<LazyPage load={PAGES.Wardrobe} />{/if}
+    {#if hash.startsWith('#/wardrobe/setup')}<LazyPage load={PAGES.WardrobeSetup} />{:else if hash.startsWith('#/wardrobe/tryon')}<LazyPage load={PAGES.WardrobeTryOn} />{:else}<LazyPage load={PAGES.Wardrobe} />{/if}
   {:else if page === 'flow'}
     <!-- v0.51.0 «Im Flow»: rings, ticks, goals × days; #/flow/goals, #/flow/edit/<id>, #/flow/new -->
     <LazyPage load={PAGES.Flow} sub={hash.split('/').slice(2).join('/')} />
@@ -785,6 +783,9 @@
   {:else if page === 'handbook'}
     <!-- Ich › Handbuch (mockup HB2, Noah 14.10.2026 «hb freigeben») -->
     <LazyPage load={PAGES.Handbook} />
+  {:else if page === 'kurse'}
+    <!-- «Kursblick» (Noah 22.11.2026): #/kurse (Heute), #/kurse/gold, #/kurse/maerkte, #/kurse/quellen -->
+    {#key hash}<LazyPage load={PAGES.Kurse} sub={hash.split('?')[0].split('/')[2] ?? ''} />{/key}
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->
     <LazyPage load={PAGES.MiniApps} />

@@ -190,7 +190,7 @@ function weekObs(data, days, monday, asOf) {
   const off = Math.max(0, Math.min(6, Math.round((Date.parse(`${asOf}T12:00:00Z`) - Date.parse(`${monday}T12:00:00Z`)) / 864e5)));
   const sums = (m) => {
     const upto = shiftDay(m, off);
-    const s = weekSums({ acts: data.acts ?? [], log: data.log ?? [], flowActs: data.flowActs ?? [] }, m, upto);
+    const s = weekSums(data, m, upto);
     const n = span(m, upto).filter((d) => days.active.has(d)).length;
     return { hours: s.secs / 3600, km: s.km, days: n };
   };

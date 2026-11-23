@@ -119,7 +119,7 @@ describe('the server actions on /api/lake', () => {
     const res = await h(req('?action=nope'));
     expect(res.status).toBe(400);
     expect((await res.json()).code).toBe('unknown_action');
-    expect(ACTIONS).toEqual(['rwgps', 'ov-stops', 'ov-departures']);
+    expect(ACTIONS).toEqual(['rwgps', 'ov-stops', 'ov-departures', 'kurse']);
     expect((await h(req('?step=other'))).status).toBe(400); // the lake's own check
     const pre = await h(new Request('https://packgen-three.vercel.app/api/lake?action=rwgps', { method: 'OPTIONS', headers: { origin: 'https://noahdolmetsch-af.github.io' } }));
     expect(pre.status).toBe(204);

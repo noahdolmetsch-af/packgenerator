@@ -16,8 +16,10 @@
   import BarChart from '../lib/charts/BarChart.svelte';
   import ChartSheet from '../lib/charts/ChartSheet.svelte';
   import Rhythmus from '../lib/flow/auswertung/Rhythmus.svelte';
+  import Rituale from '../lib/flow/Rituale.svelte';
+  import { rituale } from '../lib/flow/rituale.js';
   import AnaSheet from '../lib/training/AnaSheet.svelte';
-  import { period } from '../lib/flow/zeitraum.svelte.js';
+  import { period, enterPage } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import { db } from '../lib/db.js';
   import { einheiten, looseLabel } from '../lib/flow/einheiten.js';
@@ -31,8 +33,11 @@
   import { hoursMin } from '../lib/charts/exact.js';
   import { sportColour, OTHER } from '../lib/charts/sportcolors.js';
   import { noDataText, firstDayOf } from '../lib/charts/nodata.js';
+  import { againstYear, againstMean } from '../lib/charts/compare.js';
+  import { sentencesOf } from '../lib/charts/sentence.js';
   import '../lib/ich/ich.css';
 
+  enterPage('sportjahr');
   const today = localDay();
   const q = liveQuery(async () => {
     const [log, activities, acts, usual, ticks, goal] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.settings.get(GOAL_KEY)]);
@@ -56,6 +61,11 @@
   const rhWin = $derived(windowOf(rangeOf(period, today), allUnits, today));
   const inWin = $derived(units.filter((u) => u.day >= win.from && u.day <= win.to));
   const prevW = $derived(prevWindow(mode, win));
+  /* «Erholung und Rituale» (Schritt J): the rings Ruhe and Geist as times per week, not as hours; reads every tick like «Haken und Rhythmus» */
+  const rit = $derived(d ? rituale(allUnits, d.acts, rhWin.from, rhWin.to) : []);
+  const ritPrevW = $derived(prevWindow(mode, rhWin));
+  const ritPrev = $derived(ritPrevW && d ? new Map(rituale(allUnits, d.acts, ritPrevW.from, ritPrevW.to).map((r) => [r.id, r.n])) : null);
+  const ritNames = $derived(new Map((d?.acts ?? []).map((a) => [a.id, actName(a)])));
   const inPrev = $derived(prevW ? units.filter((u) => u.day >= prevW.from && u.day <= prevW.to) : null);
   const tot = $derived(totals(inWin));
   const rows = $derived(bySport(inWin, inPrev));
@@ -116,8 +126,16 @@
       parts: rows.filter((r) => b.parts[r.sport] > 0).map((r) => ({ v: b.parts[r.sport] / 60, color: colour(r.sport) })),
     })),
   );
+  /* one line under the numbers: against the same month a year before, else against the mean of the bars that have come */
+  const compareOf = (i) => {
+    const b = bars[i];
+    if (noneOf(b)) return '';
+    if (mode === 'year' && yearLine && yearLine[i] != null) return againstYear(b.mins, yearLine[i]);
+    return againstMean(b.mins, bars.filter((x) => !noneOf(x)).map((x) => x.mins));
+  };
   const readout = (i) => ({
     title: bucketTitle(bars[i]),
+    extra: compareOf(i),
     items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, ...rows.filter((r) => bars[i].parts[r.sport] > 0).slice(0, 4).map((r) => ({ label: names.get(r.sport), value: hoursMin(bars[i].parts[r.sport]), color: colour(r.sport) }))],
   });
   const table = $derived({
@@ -131,6 +149,9 @@
   /* a tap on a bar opens the sports of that day, month or year (ChartSheet) */
   let open = $state(null);
   const bar = $derived(open == null ? null : bars[open]);
+  /* «Die N Einheiten ansehen»: the units of the tapped bar, newest first */
+  const barUnits = $derived(bar ? inWin.filter((u) => u.day >= bar.from && u.day <= bar.to).sort((a, b) => b.day.localeCompare(a.day)) : []);
+  const unitList = $derived(barUnits.map((u, i) => ({ key: `${u.day}-${i}`, a: dayTxt(u.day, { day: 'numeric', month: 'short' }), b: names.get(u.sport) ?? u.sport, c: u.min > 0 ? `${u.minQuelle === 'ca.' ? 'ca. ' : ''}${hoursMin(Number(u.min))}` : '–' })));
   const barRows = $derived(bar ? bySport(inWin.filter((u) => u.day >= bar.from && u.day <= bar.to)) : []);
 
   /* «Where did the time go?» */
@@ -199,7 +220,7 @@
       <h2 id="sj-chart-h">{grain === 'month' && mode === 'year' ? t('Hours per month') : grain === 'year' ? t('Hours per year') : t('Hours per day')}</h2>
       <p class="hs">{title ? `${title} · ` : ''}{t('by sport')}{line ? ` · ${lineIsGoal ? t('line: your goal of {h} h per week', { h: num(goal.hours) }) : t('dashed: the year before')}` : ''}</p>
       {#if both}<Seg full={false} small label={t('Line')} value={linePick} onchange={(k) => (linePick = k)} options={[{ key: 'last', name: t('Year before') }, { key: 'goal', name: t('Goal|sj') }]} />{/if}
-      <BarChart id="sportjahr" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours by sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for its sports.')} />
+      <BarChart sentences={sentencesOf(bars.map((b) => ({ label: bucketTitle(b), v: b.mins, none: noneOf(b) })), hoursMin)} id="sportjahr" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours by sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for its sports.')} />
       <ul class="lg" data-sj-legend>
         {#each legend as l (l.key)}<li><i style:background={l.color}></i>{l.name}</li>{/each}
         {#if line}<li><i class="dash"></i>{lineIsGoal ? t('Goal|sj') : t('Year before')}</li>{/if}
@@ -283,13 +304,14 @@
     </div>
   {/if}
   {#if d}
+    <Rituale rows={rit} names={ritNames} mode="period" prev={ritPrev} />
     <Rhythmus units={allUnits} log={d.log} acts={d.acts} from={rhWin.from} to={rhWin.to} {today} {act0} />
   {/if}
 </div>
 <AnaSheet />
 
 {#if bar}
-  <ChartSheet kicker={t('Sports year')} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
+  <ChartSheet list={unitList} kicker={t('Sports year')} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
     {#if barRows.length}
       <ul class="sheetrows" data-sj-sheet>
         {#each barRows as r (r.sport)}

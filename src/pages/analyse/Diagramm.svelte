@@ -24,6 +24,7 @@
   import { DPERIODS, DEFAULT_DPERIOD, STEPS, MODES, DEFAULT_KEYS, SERIES_COLORS, MAX_VALUES, diagramWindow, stepBuckets, seriesOf, rolling7, fromMean, toggleKey, moveKey, cleanFilter, filterCount, keepOf, bothKeep, dropOutliers, tripDaySet, tickDays, FELT_HI, FELT_LO } from '../../lib/analyse/diagram.js';
   import { tripEnd } from '../../lib/tripstate.js';
   import { niceScale } from '../../lib/charts/axis.js';
+  import Readout from '../../lib/charts/Readout.svelte';
   import GridLines from '../../lib/charts/GridLines.svelte';
   import YTicks from '../../lib/charts/YTicks.svelte';
   import { addDays } from '../../lib/analyse.js';
@@ -51,6 +52,7 @@
   let colors = $state(saved.colors && typeof saved.colors === 'object' ? { ...saved.colors } : {});
   let back = $state(0);
   let picked = $state(null);
+  let hover = $state(null); // the point the mouse or a moving finger is on: its numbers show in the line above the chart
   let showDay = $state(false);
   let picking = $state(false);
   let sorting = $state(false);
@@ -119,6 +121,13 @@
       });
   });
   const OFF_NAMES = { 0: 'the same day|link', 1: 'the day after (night after)|link', 2: 'two days later|link' };
+  /** The top of the axis for bars when a few days tower over the rest: 1.3 × the 90th percentile; else null (nothing cut). */
+  function capOf(vals) {
+    const real = vals.filter((x) => x != null && x > 0).sort((a, b) => a - b);
+    if (real.length < 10) return null;
+    const q = real[Math.floor(real.length * 0.9)];
+    return real.at(-1) > q * 2.2 ? q * 1.3 : null;
+  }
   const rows = $derived(
     shownKeys.map((k) => {
       const it = byKey.get(k);
@@ -127,8 +136,12 @@
       let vals = seriesOf(buckets, it.get, { sum: !!it.sum, keep });
       if (filter.outliers || own?.outliers) vals = dropOutliers(vals);
       const bars = !!(it.sum || it.bars);
-      const ax = axisOf(it, vals, num, { zero: bars, count: 2 });
-      return { it, own, color: colorMap[k], vals, bars, smooth: !bars && step === 'day' ? rolling7(vals) : null, sc: ax.sc, tick: ax.text, over: fromMean(vals) };
+      // a few very high bars must not squash all the others (Noah 23.11.2026): the axis stops at a bit above the usual
+      // high days; a bar above it is drawn to the top with a notch, the exact number is in the line above the chart
+      const cap = bars ? capOf(vals) : null;
+      const ax = axisOf(it, cap ? vals.map((x) => (x == null ? x : Math.min(x, cap))) : vals, num, { zero: bars, count: 2 });
+      const top = Math.max(0, ...vals.filter((x) => x != null));
+      return { it, own, color: colorMap[k], vals, bars, smooth: !bars && step === 'day' ? rolling7(vals) : null, sc: ax.sc, tick: ax.text, over: fromMean(vals), cut: cap && top > ax.sc.hi ? top : null };
     }),
   );
   const overSc = $derived.by(() => {
@@ -138,8 +151,52 @@
     const top = Math.max(Math.abs(sc.lo), sc.hi);
     return { lo: -top, hi: top, step: sc.step, ticks: niceScale([-top, top], { count: 4 }).ticks };
   });
-  const bands = $derived(!band ? [] : tripBands(trips, win.days, tripEnd).map((b) => ({ ...b, a: idxOfDay.get(b.from) ?? 0, b: idxOfDay.get(b.to) ?? 0 })));
+  // trips as ONE calm band per stretch of days: trips that overlap are joined, so they never pile up into dark stripes
+  // (Noah 23.11.2026); the names are not printed under the chart, a tap on a day names the trip (DaySheet) and a band has its title
+  const bands = $derived.by(() => {
+    if (!band) return [];
+    const all = tripBands(trips, win.days, tripEnd)
+      .map((b) => ({ ...b, a: idxOfDay.get(b.from) ?? 0, b: idxOfDay.get(b.to) ?? 0 }))
+      .sort((x, y) => x.a - y.a);
+    const out = [];
+    for (const b of all) {
+      const last = out.at(-1);
+      if (last && b.a <= last.b + 1) {
+        last.b = Math.max(last.b, b.b);
+        last.names.push(b.name);
+      } else out.push({ ...b, names: [b.name] });
+    }
+    return out.map((b) => ({ ...b, title: [...new Set(b.names)].join(', ') }));
+  });
+  const tripCount = $derived(new Set(tripBands(trips, win.days, tripEnd).map((b) => b.name + b.from)).size);
   const pickIdx = $derived(picked ? (idxOfDay.get(picked) ?? -1) : -1);
+  // the line through all rows: where you point, else the tapped day
+  const lineIdx = $derived(hover ?? pickIdx);
+  // «Antippen und Werte wie beim Kursblick» (Noah 23.11.2026): one line above the chart with every value of the day
+  // you point at, newest day with a value when nothing is pointed at; a tap still opens the day
+  const lastIdx = $derived.by(() => {
+    for (let i = buckets.length - 1; i >= 0; i--) if (rows.some((r) => r.vals[i] != null)) return i;
+    return buckets.length - 1;
+  });
+  const readIdx = $derived(Math.max(0, Math.min(buckets.length - 1, hover ?? (pickIdx >= 0 ? pickIdx : lastIdx))));
+  const readout = $derived(
+    buckets.length
+      ? {
+          title: step === 'month' ? dfmt(`${buckets[readIdx].key}-01`, { month: 'long', year: 'numeric' }) : step === 'week' ? t('Week of {day}|overview', { day: short(buckets[readIdx].key) }) : dfmt(buckets[readIdx].days.at(-1), { weekday: 'short', day: 'numeric', month: 'short' }),
+          items: rows.map((r) => ({ label: r.it.name, color: r.color, value: r.vals[readIdx] == null ? '–' : `${v(r.it, r.vals[readIdx])}${unitText(r.it) ? ` ${unitText(r.it)}` : ''}` })),
+        }
+      : null,
+  );
+  const idxAt = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    return Math.max(0, Math.min(buckets.length - 1, Math.floor(((e.clientX - r.left) / r.width) * buckets.length)));
+  };
+  const pointer = (e) => {
+    if (e.pointerType === 'mouse' || e.buttons) hover = idxAt(e);
+  };
+  const leave = (e) => {
+    if (e.pointerType === 'mouse') hover = null;
+  };
 
   const W = 1000;
   const RH = 80;
@@ -236,69 +293,6 @@
     </div>
   </div>
 
-  {#if !rows.length}
-    <p class="hint" role="status">{t('No value in the diagram yet. Add one with «+ Value».|diagram')}</p>
-  {:else}
-    <div class="plotwrap">
-      {#if mode === 'rows'}
-        {#each rows as r (r.it.key)}
-          <div class="rowp" data-dg-row={r.it.key}>
-            <div class="rlw"><p class="rl"><b>{r.it.name}</b>{#if unitText(r.it)}&nbsp;{unitText(r.it)}{/if} · {t(SRC[r.it.src] ?? SRC.body)}{#if r.smooth}&nbsp;· {t('7-day mean|diagram')}{/if}{#if r.own}&nbsp;· <span class="ownf">{partsOf(r.own).map((p) => p.text).join(', ')}</span>{/if}</p><button type="button" class="rf" class:set={r.own} aria-label={t('Filter for {name}|filter', { name: r.it.name })} data-dg-row-filter={r.it.key} onclick={() => (filtering = r.it.key)}><Filter size={13} aria-hidden="true" /></button></div>
-            <div class="pl2">
-              <YTicks ticks={r.sc.ticks} y={(x) => yOf(x, r.sc, RH)} h={RH} text={r.tick} width={56} />
-              <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-              <svg viewBox="0 0 {W} {RH}" preserveAspectRatio="none" role="img" aria-label={t('Course of {name}|analyse', { name: r.it.name })} onclick={tap}>
-                {#each bands as b, bi (bi)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={RH} />{/each}
-                <GridLines ticks={r.sc.ticks} y={(x) => yOf(x, r.sc, RH)} x1={0} x2={W} />
-                {#each [...markIdx] as mi (mi)}<circle class="mk" cx={xOf(mi)} cy={RH - 2} r="2.4" />{/each}
-                {#if r.bars}
-                  {#each r.vals as val, i (i)}{#if val != null}<rect x={xOf(i) - barW / 2} width={barW} y={yOf(val, r.sc, RH)} height={Math.max(0.5, RH - 4 - yOf(val, r.sc, RH))} style="fill:{r.color}" class="bar" />{/if}{/each}
-                {:else}
-                  <path class="raw" d={pathOf(r.vals, r.sc, RH)} style="stroke:{r.color}" vector-effect="non-scaling-stroke" />
-                  {#if r.smooth}<path class="smooth" d={pathOf(r.smooth, r.sc, RH)} style="stroke:{r.color}" vector-effect="non-scaling-stroke" />{/if}
-                {/if}
-                {#if pickIdx >= 0}<line class="pick" x1={xOf(pickIdx)} x2={xOf(pickIdx)} y1="0" y2={RH} vector-effect="non-scaling-stroke" />{/if}
-              </svg>
-              {#if pickIdx >= 0}<span class="pv" class:end={pickIdx / n > 0.75} style="left:calc(56px + (100% - 56px) * {xOf(pickIdx) / W})" data-dg-pv>{v(r.it, r.vals[pickIdx])}{#if unitText(r.it) && r.vals[pickIdx] != null}&nbsp;{unitText(r.it)}{/if}</span>{/if}
-            </div>
-          </div>
-        {/each}
-      {:else}
-        <div class="pl2 over">
-          <YTicks ticks={overSc.ticks} y={(x) => yOf(x, overSc, OH)} h={OH} text={(x) => (x === 0 ? t('mean|diagram') : `${x > 0 ? '+' : '−'}${num(Math.abs(x))} %`)} width={56} />
-          <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-          <svg viewBox="0 0 {W} {OH}" preserveAspectRatio="none" role="img" aria-label={t('All values, measured from their own mean|diagram')} onclick={tap}>
-            {#each bands as b, bi (bi)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={OH} />{/each}
-            <GridLines ticks={overSc.ticks} y={(x) => yOf(x, overSc, OH)} x1={0} x2={W} />
-            <line class="base" x1="0" x2={W} y1={yOf(0, overSc, OH)} y2={yOf(0, overSc, OH)} vector-effect="non-scaling-stroke" />
-            {#each rows as r (r.it.key)}
-              <path class="smooth" d={pathOf(step === 'day' ? rolling7(r.over) : r.over, overSc, OH)} style="stroke:{r.color}" vector-effect="non-scaling-stroke" />
-            {/each}
-            {#if pickIdx >= 0}<line class="pick" x1={xOf(pickIdx)} x2={xOf(pickIdx)} y1="0" y2={OH} vector-effect="non-scaling-stroke" />{/if}
-          </svg>
-        </div>
-      {/if}
-      <div class="xl" aria-hidden="true">
-        {#each xticks as tk (tk.i)}<span style="left:calc(56px + (100% - 56px) * {xOf(tk.i) / W})">{tk.text}</span>{/each}
-      </div>
-    </div>
-    {#if mode === 'over'}<p class="hint">{t('Each line shows how far a value is above or below its own mean in this period; the numbers are in the rows view.|diagram')}</p>{/if}
-    <ul class="legend">
-      {#if bands.length}<li><i class="lsw band"></i>{bands.map((b) => b.name).join(', ')}</li>{/if}
-      {#if picked}<li><i class="lsw pk"></i>{dfmt(picked, { weekday: 'short', day: 'numeric', month: 'short' })} ({t('tapped|diagram')})</li>{/if}
-    </ul>
-    <p class="hint">{t('Tap a day: a line through every row and the day with all its values.|diagram')}</p>
-    {#if notice.length}
-      <details class="notice" data-dg-notice>
-        <summary><b>{t('What stands out|link')}</b> ({notice.length}) · {t('only an observation|link')}</summary>
-        <ul>{#each notice as line, i (i)}<li>{line}</li>{/each}</ul>
-      </details>
-    {/if}
-    <div class="sr">
-      {#each buckets as b, i (b.key)}{#if rows.some((r) => r.vals[i] != null)}<button type="button" onclick={() => open(b.days.at(-1))}>{short(b.days.at(-1))}</button>{/if}{/each}
-    </div>
-  {/if}
-
   <div class="chg" data-dg-change>
     <div class="cg" data-dg-what>
       <h3 class="ch">{t('What|diagram')}</h3>
@@ -364,6 +358,70 @@
     {#if filterCount(filter)}<p class="hint" data-dg-kept>{t('{n} of {all} days fit the filter. Days left out stay a gap, so the time stays true.|filter', { n: keptDays, all: win.days.length })}</p>{/if}
     </div>
   </div>
+
+  {#if !rows.length}
+    <p class="hint" role="status">{t('No value in the diagram yet. Add one with «+ Value».|diagram')}</p>
+  {:else}
+    {#if readout}<Readout title={readout.title} items={readout.items} />{/if}
+    <div class="plotwrap">
+      {#if mode === 'rows'}
+        {#each rows as r (r.it.key)}
+          <div class="rowp" data-dg-row={r.it.key}>
+            <div class="rlw"><p class="rl"><b>{r.it.name}</b>{#if unitText(r.it)}&nbsp;{unitText(r.it)}{/if} · {t(SRC[r.it.src] ?? SRC.body)}{#if r.smooth}&nbsp;· {t('7-day mean|diagram')}{/if}{#if r.cut}&nbsp;· <span class="cutn" data-dg-cut>{t('axis stops at {a}, highest day {m}|diagram', { a: `${r.tick(r.sc.hi)}`, m: `${v(r.it, r.cut)}${unitText(r.it) ? ` ${unitText(r.it)}` : ''}` })}</span>{/if}{#if r.own}&nbsp;· <span class="ownf">{partsOf(r.own).map((p) => p.text).join(', ')}</span>{/if}</p><button type="button" class="rf" class:set={r.own} aria-label={t('Filter for {name}|filter', { name: r.it.name })} data-dg-row-filter={r.it.key} onclick={() => (filtering = r.it.key)}><Filter size={13} aria-hidden="true" /></button></div>
+            <div class="pl2">
+              <YTicks ticks={r.sc.ticks} y={(x) => yOf(x, r.sc, RH)} h={RH} text={r.tick} width={56} />
+              <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+              <svg viewBox="0 0 {W} {RH}" preserveAspectRatio="none" role="img" aria-label={t('Course of {name}|analyse', { name: r.it.name })} onclick={tap} onpointermove={pointer} onpointerleave={leave}>
+                {#each bands as b, bi (bi)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={RH}><title>{b.title}</title></rect>{/each}
+                <GridLines ticks={r.sc.ticks} y={(x) => yOf(x, r.sc, RH)} x1={0} x2={W} />
+                {#each [...markIdx] as mi (mi)}<circle class="mk" cx={xOf(mi)} cy={RH - 2} r="2.4" />{/each}
+                {#if r.bars}
+                  {#each r.vals as val, i (i)}{#if val != null}{@const vv = Math.min(val, r.sc.hi)}<rect x={xOf(i) - barW / 2} width={barW} y={yOf(vv, r.sc, RH)} height={Math.max(0.5, RH - 4 - yOf(vv, r.sc, RH))} style="fill:{r.color}" class="bar" />{#if val > r.sc.hi}<line class="notch" x1={xOf(i) - barW / 2} x2={xOf(i) + barW / 2} y1={yOf(vv, r.sc, RH) + 5} y2={yOf(vv, r.sc, RH) + 2} vector-effect="non-scaling-stroke" />{/if}{/if}{/each}
+                {:else}
+                  <path class="raw" d={pathOf(r.vals, r.sc, RH)} style="stroke:{r.color}" vector-effect="non-scaling-stroke" />
+                  {#if r.smooth}<path class="smooth" d={pathOf(r.smooth, r.sc, RH)} style="stroke:{r.color}" vector-effect="non-scaling-stroke" />{/if}
+                {/if}
+                {#if lineIdx >= 0}<line class="pick" x1={xOf(lineIdx)} x2={xOf(lineIdx)} y1="0" y2={RH} vector-effect="non-scaling-stroke" />{/if}
+              </svg>
+              {#if lineIdx >= 0}<span class="pv" class:end={lineIdx / n > 0.75} style="left:calc(56px + (100% - 56px) * {xOf(lineIdx) / W})" data-dg-pv>{v(r.it, r.vals[lineIdx])}{#if unitText(r.it) && r.vals[lineIdx] != null}&nbsp;{unitText(r.it)}{/if}</span>{/if}
+            </div>
+          </div>
+        {/each}
+      {:else}
+        <div class="pl2 over">
+          <YTicks ticks={overSc.ticks} y={(x) => yOf(x, overSc, OH)} h={OH} text={(x) => (x === 0 ? t('mean|diagram') : `${x > 0 ? '+' : '−'}${num(Math.abs(x))} %`)} width={56} />
+          <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+          <svg viewBox="0 0 {W} {OH}" preserveAspectRatio="none" role="img" aria-label={t('All values, measured from their own mean|diagram')} onclick={tap} onpointermove={pointer} onpointerleave={leave}>
+            {#each bands as b, bi (bi)}<rect class="band" x={(b.a / n) * W} width={((b.b - b.a + 1) / n) * W} y="0" height={OH}><title>{b.title}</title></rect>{/each}
+            <GridLines ticks={overSc.ticks} y={(x) => yOf(x, overSc, OH)} x1={0} x2={W} />
+            <line class="base" x1="0" x2={W} y1={yOf(0, overSc, OH)} y2={yOf(0, overSc, OH)} vector-effect="non-scaling-stroke" />
+            {#each rows as r (r.it.key)}
+              <path class="smooth" d={pathOf(step === 'day' ? rolling7(r.over) : r.over, overSc, OH)} style="stroke:{r.color}" vector-effect="non-scaling-stroke" />
+            {/each}
+            {#if lineIdx >= 0}<line class="pick" x1={xOf(lineIdx)} x2={xOf(lineIdx)} y1="0" y2={OH} vector-effect="non-scaling-stroke" />{/if}
+          </svg>
+        </div>
+      {/if}
+      <div class="xl" aria-hidden="true">
+        {#each xticks as tk (tk.i)}<span style="left:calc(56px + (100% - 56px) * {xOf(tk.i) / W})">{tk.text}</span>{/each}
+      </div>
+    </div>
+    {#if mode === 'over'}<p class="hint">{t('Each line shows how far a value is above or below its own mean in this period; the numbers are in the rows view.|diagram')}</p>{/if}
+    <ul class="legend">
+      {#if bands.length}<li><i class="lsw band"></i>{t('Trips ({n}), tap a day for the name|diagram', { n: tripCount })}</li>{/if}
+      {#if picked}<li><i class="lsw pk"></i>{dfmt(picked, { weekday: 'short', day: 'numeric', month: 'short' })} ({t('tapped|diagram')})</li>{/if}
+    </ul>
+    <p class="hint">{t('Tap a day: a line through every row and the day with all its values.|diagram')}</p>
+    {#if notice.length}
+      <details class="notice" data-dg-notice open>
+        <summary><b>{t('What stands out|link')}</b> ({notice.length}) · {t('only an observation|link')}</summary>
+        <ul>{#each notice as line, i (i)}<li>{line}</li>{/each}</ul>
+      </details>
+    {/if}
+    <div class="sr">
+      {#each buckets as b, i (b.key)}{#if rows.some((r) => r.vals[i] != null)}<button type="button" onclick={() => open(b.days.at(-1))}>{short(b.days.at(-1))}</button>{/if}{/each}
+    </div>
+  {/if}
 </section>
 
 <Zusammenhang {groups} {byKey} days={win.days} keep={keepAll} {ticks} acts={actList} onday={open} />
@@ -653,7 +711,14 @@
   }
   .band {
     fill: var(--pz4);
-    fill-opacity: 0.16;
+    fill-opacity: 0.1;
+  }
+  .notch {
+    stroke: var(--paper);
+    stroke-width: 2;
+  }
+  .cutn {
+    color: var(--ink-3);
   }
   .base {
     stroke: var(--line);
@@ -733,7 +798,7 @@
   }
   .lsw.band {
     background: var(--pz4);
-    opacity: 0.35;
+    opacity: 0.25;
   }
   .lsw.pk {
     width: 0;

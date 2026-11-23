@@ -1,7 +1,7 @@
 // «Schneefallgrenze» (Noah 04.11.2026 «1b 2a 3a 4a 5a»): the snow line on the weather page and on Today.
 // Made-up place and weather; Open-Meteo is mocked, everything else outside is blocked (openHome).
 import { test, expect } from './clock.js';
-import { openHome, homeFixture, day, D0 } from './home0460-fixture.js';
+import { openHome, homeFixture, day, D0, openWetterFold } from './home0460-fixture.js';
 
 const OFF = 7200;
 // snowy: wet and cold (1 °C, 80 % rain chance) from the hour `snowy` of every day (08.11.2026: the hint needs all three); line: a fixed snow line
@@ -42,6 +42,7 @@ test('The weather page and Today show the snow line, with a hint and a switch', 
   // Today: the line for the home place (a trip is on today, but the line does not need one)
   await page.goto('./#/');
   const line = page.locator('[data-heute-snowline]');
+  await openWetterFold(page);
   await expect(line).toBeVisible({ timeout: 20_000 });
   await expect(line).toContainText('Schneefallgrenze');
   await expect(line).toContainText('Schnee bei dir möglich');
@@ -75,6 +76,7 @@ test('A dry mild day shows no snow hint, even when the line is down to the place
   await page.locator('[data-wx-today]').screenshot({ path: info.outputPath(`schnee-trocken-wetter-${info.project.name}.png`) });
   await page.goto('./#/');
   const line = page.locator('[data-heute-snowline]');
+  await openWetterFold(page);
   await expect(line).toBeVisible({ timeout: 20_000 });
   await expect(line).toContainText('Schneefallgrenze 400 m');
   await expect(line).not.toContainText('Schnee bei dir möglich');
@@ -90,6 +92,7 @@ test('Snow at the place later today: the hint says from which hour', async ({ pa
   await page.locator('[data-wx-today]').screenshot({ path: info.outputPath(`schnee-ab-wetter-${info.project.name}.png`) });
   await page.goto('./#/');
   const line = page.locator('[data-heute-snowline]');
+  await openWetterFold(page);
   await expect(line).toContainText('Schnee bei dir möglich ab 15 Uhr', { timeout: 20_000 });
   await page.locator('[data-heute-wetter]').screenshot({ path: info.outputPath(`schnee-ab-heute-${info.project.name}.png`) });
 });

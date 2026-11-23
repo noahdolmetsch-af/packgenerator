@@ -71,7 +71,7 @@ test('the evening before a trip: Ready for tomorrow, Pack now opens the packing 
   await expect(page.getByText(/Herbstrunde/).first()).toBeVisible();
 });
 
-test('Sunday from 18:00: the Wochenrueckblick as a window, its button opens the review', async ({ page, context }, info) => {
+test('Sunday from 18:00: no window of its own any more, the card on Heute carries the review (Noah 22.11.2026, F)', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { hour: 9 });
@@ -79,23 +79,7 @@ test('Sunday from 18:00: the Wochenrueckblick as a window, its button opens the 
   await expect(page.locator('[data-section="greeting"]')).toBeVisible();
   await expect(page.locator('dialog[data-window]')).toHaveCount(0);
   await at(page, '2026-10-11T18:10');
-  const win = page.locator('dialog[data-window="week"]');
-  // Paket C: never two windows at once. When the Tages-Check window is open (questions due), it comes first and the
-  // Wochenrückblick waits until it is closed.
-  const check = page.locator('dialog[data-section="abfragen"][open]');
-  await expect(check.or(win)).toBeVisible();
-  if (await check.count()) {
-    await expect(page.locator('dialog[data-window]')).toHaveCount(0);
-    await check.locator('[data-ab-today]').click();
-    await expect(check).toHaveCount(0);
-  }
-  await expect(win).toHaveJSProperty('open', true);
-  await shot(page, info, 'fenster-wochenrueckblick');
-  await win.locator('[data-window-go]').click();
-  await expect(page).toHaveURL(/#\/flow\/review$/);
-  // opened once: not again today
-  await page.goto('./#/');
   await expect(page.locator('[data-section="greeting"]')).toBeVisible();
-  await expect(page.locator('dialog[data-window]')).toHaveCount(0);
+  await expect(page.locator('dialog[data-window="week"]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

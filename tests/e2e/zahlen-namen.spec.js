@@ -1,4 +1,4 @@
-// UI-Test Flow, Fund 3 (Noah «b»): the numbers on Aktiv say what they count. «Diese Woche» says «Wochenziele offen»,
+// UI-Test Flow, Fund 3 (Noah «b»): the numbers on Aktiv say what they count. «Diese Woche» says «k von n Einheiten (Mo bis So)» (V3: one number),
 // the ring «Bewegen» says «Sportzielen im Soll». Fictional data only; the clock stands on Friday 9 October 2026.
 // SHOTS=<folder> saves pictures.
 import { test, expect } from '@playwright/test';
@@ -18,7 +18,7 @@ test('the week card and the ring name what they count', async ({ page, context }
   await page.reload();
   await ready(page);
   const top = page.locator('main [data-week-glance] .wgl');
-  await expect(top).toContainText(/Wochenziel/);
+  await expect(top).toContainText(/\d+ von \d+ Einheiten diese Woche \(Mo bis So\)/);
   const ring = page.locator('main [data-ring-way="move"], main [data-ring-fold="move"]').first();
   await expect(ring).toContainText(/von \d+ Sportzielen im Soll/);
   if (process.env.SHOTS) {

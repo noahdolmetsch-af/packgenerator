@@ -244,6 +244,7 @@ import dokumente from './dokumente.js';
 import bedienregeln from './bedienregeln.js';
 // P8 «Automatischer Abgleich»
 import abgleich from './abgleich.js';
+import stravadoppel from './stravadoppel.js';
 import verbindungenStatus from './verbindungen-status.js';
 import datenaufraeumen from './datenaufraeumen.js';
 
@@ -722,6 +723,9 @@ import ausprobieren from './ausprobieren.js';
 import quicklinks from './quicklinks.js';
 // Velo-Ideen 71–76 (996 Ideen, Noah 25.10.2026); spread last
 import veloideen from './veloideen.js';
+import einheitenWoche from './einheiten-woche.js';
+import velosAufraeumen from './velos-aufraeumen.js';
+import ichVierGruppen from './ich-vier-gruppen.js';
 import AUTO from './auto.gen.js';
 
 const ORDERED = [
@@ -913,6 +917,7 @@ const ORDERED = [
   bestaetigung,
   teilnehmerliste,
   abgleich,
+  stravadoppel,
   verbindungenStatus,
   datenaufraeumen,
   push,
@@ -1114,6 +1119,9 @@ const ORDERED = [
   ausprobieren,
   quicklinks,
   veloideen,
+  einheitenWoche,
+  velosAufraeumen,
+  ichVierGruppen,
   applehealth,
 ];
 

@@ -28,6 +28,7 @@ import { own } from './ownlive.svelte.js';
 import { partStdOf } from './ownvalues.js';
 import { vig } from './veloimgriff.svelte.js';
 import { kindOf, partOn, ownOf, bikePartOn } from './bikekind.js';
+import { isGearWork } from './care/gearwork.js';
 
 /**
  * v0.30.1 (Noah's phone test, D1): km as typed on a phone, in Swiss or German style:
@@ -335,12 +336,13 @@ export function replaceHint(part) {
 
 /* ---------- tasks from the Excel sheet "Wartung" ---------- */
 
-/** Which bike a repair belongs to (null: not a bike, e.g. shoes). The Excel subjects got their bike in the data cleanup (cleanup.js). */
-export const taskBike = (task) => task.bikeId ?? null;
+/** Which bike a repair belongs to (null: not a bike, e.g. shoes). The Excel subjects got their bike in the data cleanup (cleanup.js).
+ *  Velos aufräumen (23.11.2026): work on shoes and cleats (care/gearwork.js) belongs to no bike; it is listed under Material. */
+export const taskBike = (task) => (isGearWork(task) ? null : (task.bikeId ?? null));
 export const isPrep = (task) => task.area === 'Preparation' || task.area === 'Vorbereitung';
 
 /** Repairs that still need something: open, work needed, or not looked at since the Excel (June). */
-export const openRepairs = (tasks) => tasks.filter((t) => !isPrep(t) && ['check', 'open', 'needed'].includes(t.status));
+export const openRepairs = (tasks) => tasks.filter((t) => !isPrep(t) && !isGearWork(t) && ['check', 'open', 'needed'].includes(t.status));
 /** The June walk-through: repairs never looked at in the app. */
 export const toReview = (tasks) => tasks.filter((t) => !isPrep(t) && t.status === 'check');
 

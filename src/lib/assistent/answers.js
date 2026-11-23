@@ -15,6 +15,7 @@ import { t, tn, num, nameOf } from '../i18n.svelte.js';
 import { tripEnd, tripState } from '../tripstate.js';
 import { BAG } from '../gear.js';
 import { trainAnswer } from './trainfragen.js';
+import { asksNights, asksShop, nightsAnswer, shopAnswer } from './luecken.js';
 
 const has = (q, words) => words.some((w) => q.includes(w));
 const addDays = (iso, d) => new Date(Date.parse(`${iso}T00:00:00Z`) + d * 864e5).toISOString().slice(0, 10);
@@ -98,6 +99,10 @@ export function answerFor(question, data = {}) {
   // Klick-Rundgang 22.10.2026 H25: «Wann muss ich die Kette wechseln?» from the own wear data (wear.js)
   const parts = wearKeys(q);
   if (parts.length && data.wear) return wearAnswer(parts, data.wear);
+
+  // S6 (open questions → answers): nights slept outdoors, the last workshop visit
+  if (asksNights(q)) return nightsAnswer(periodOf(q, today) ?? periodOf('jahr', today), data);
+  if (asksShop(q) && !has(q, PACK)) return shopAnswer(data);
 
   // what is due on the bikes
   if (has(q, DUE) && !has(q, PACK)) {
@@ -226,4 +231,4 @@ export function wearAnswer(keys, wear = []) {
 }
 
 /** Example questions for the page and the empty search (English keys for t()). */
-export const EXAMPLES = ['Show me my most efficient Z2 rides', 'Compare my last four weeks', 'How many km this month?', 'What is due on my bikes?', 'When do I change the chain?', 'What is still to pack?', 'When is my next trip?', 'How heavy is my tent?'];
+export const EXAMPLES = ['Show me my most efficient Z2 rides', 'Compare my last four weeks', 'How many km this month?', 'What is due on my bikes?', 'When do I change the chain?', 'What is still to pack?', 'When is my next trip?', 'How heavy is my tent?', 'How many nights did I sleep outdoors this year?', 'When was I last at the workshop?'];

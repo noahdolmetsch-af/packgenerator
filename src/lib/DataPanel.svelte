@@ -163,7 +163,7 @@
       return null;
     }
   };
-  let twoDev = $state(/[?&](koppeln|konto)=/.test(typeof location !== 'undefined' ? location.hash : '') ? 'yes' : readTwo()); // an invite link always shows the sync
+  let twoDev = $state(/[?&](koppeln|konto|verbinden)=/.test(typeof location !== 'undefined' ? location.hash : '') ? 'yes' : readTwo()); // an invite link always shows the sync
   function answerTwo(v) {
     twoDev = v;
     try {

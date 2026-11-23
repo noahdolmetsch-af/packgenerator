@@ -91,17 +91,35 @@ export const isDe = () => lang.v === 'de';
 export const locale = () => (lang.v === 'de' ? 'de-CH' : 'en-GB');
 
 /** A number with thousands separators in the current language (1’460 or 1,460). */
-export const num = (n) => (n == null ? '' : Number(n).toLocaleString(lang.v === 'de' ? 'de-CH' : 'en'));
+export const num = (n) => {
+  if (n == null) return '';
+  const s = Number(n).toLocaleString(lang.v === 'de' ? 'de-CH' : 'en');
+  return /^[-−]0([.,]0+)?$/.test(s) ? s.replace(/^[-−]/, '') : s; // «−0» (a small minus that rounds to nothing) is shown as 0
+};
 
 /**
  * v0.30.2 (test P4.1/PL3.12): a bag's own name (stored as typed, often English like "Seat pack 14 L")
  * with its common words in German when German is on: "Satteltasche 14 L".
  */
-const BAG_WORDS = [['Seat pack', 'Satteltasche'], ['Saddle bag', 'Satteltasche'], ['Frame bag', 'Rahmentasche'], ['Top tube bag', 'Oberrohrtasche'], ['Handlebar roll', 'Lenkerrolle'], ['Handlebar bag', 'Lenkertasche'], ['Stem bag', 'Vorbautasche'], ['Feed bag', 'Vorbautasche'], ['Fork cage', 'Gabelhalter'], ['Fork bag', 'Gabeltasche'], ['Downtube bag', 'Unterrohrtasche'], ['Backpack', 'Rucksack'], ['Hip bag', 'Hüfttasche'], ['Hip pack', 'Hüfttasche'], ['large', 'gross'], ['small', 'klein'], ['medium', 'mittel']];
+const BAG_WORDS = [['Bottle cages', 'Flaschenhalter'], ['Bottle cage', 'Flaschenhalter'], ['Tool bag', 'Werkzeugtasche'], ['down tube', 'Unterrohr'], ['seat tube', 'Sitzrohr'], ['top tube', 'Oberrohr'], ['head tube', 'Steuerrohr'], ['Seat pack', 'Satteltasche'], ['Saddle bag', 'Satteltasche'], ['Frame bag', 'Rahmentasche'], ['Top tube bag', 'Oberrohrtasche'], ['Handlebar roll', 'Lenkerrolle'], ['Handlebar bag', 'Lenkertasche'], ['Stem bag', 'Vorbautasche'], ['Feed bag', 'Vorbautasche'], ['Fork cage', 'Gabelhalter'], ['Fork bag', 'Gabeltasche'], ['Downtube bag', 'Unterrohrtasche'], ['Backpack', 'Rucksack'], ['Hip bag', 'Hüfttasche'], ['Hip pack', 'Hüfttasche'], ['large', 'gross'], ['small', 'klein'], ['medium', 'mittel']];
 export function bagName(name) {
   const s = String(name ?? '');
   if (lang.v !== 'de') return s;
   return BAG_WORDS.reduce((out, [en, de]) => out.replace(new RegExp(`\\b${en}\\b`, 'gi'), de), s);
+}
+
+/**
+ * Velos aufräumen (Noah 23.11.2026): the notes and photo names that came in with the first import are English («Newly ordered (October 2026)»,
+ * «Canyon (maker photo)»). With German on they are shown in German; only these known phrases and «Month Year» change, the stored text never does,
+ * and a name Noah typed himself stays as it is.
+ */
+const IMPORT_WORDS = [['Newly ordered', 'Neu bestellt'], ['maker photo', 'Herstellerfoto'], ['maker\'s photo', 'Herstellerfoto']];
+const MONTHS = { January: 'Januar', February: 'Februar', March: 'März', April: 'April', May: 'Mai', June: 'Juni', July: 'Juli', August: 'August', September: 'September', October: 'Oktober', November: 'November', December: 'Dezember' };
+export function importText(text) {
+  const s = String(text ?? '');
+  if (lang.v !== 'de') return s;
+  const known = IMPORT_WORDS.reduce((out, [en, de]) => out.replace(new RegExp(en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), de), s);
+  return known === s ? s : known.replace(new RegExp(`\\b(${Object.keys(MONTHS).join('|')})(?= \\d{4}\\b)`, 'g'), (m) => MONTHS[m]);
 }
 
 /** v0.30.2 (test V9.8/V9.12): a stored day ("2026-10-08") as people read it: "8. Okt. 2026" / "8 Oct 2026". */

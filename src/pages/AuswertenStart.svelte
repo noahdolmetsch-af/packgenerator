@@ -17,7 +17,7 @@
   import Overview from '../lib/flow/garmin/Overview.svelte';
   import FormCard from '../lib/flow/form/FormCard.svelte';
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
-  import { period } from '../lib/flow/zeitraum.svelte.js';
+  import { period, enterPage } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
@@ -26,6 +26,7 @@
   import { t, tn, lang, locale } from '../lib/i18n.svelte.js';
   import { cols } from '../lib/media.svelte.js';
 
+  enterPage('start');
   const today = localDay();
   const q = liveQuery(async () => {
     const [checks, kmBook] = await Promise.all([db.flowChecks.toArray(), db.kmBook.toArray()]);

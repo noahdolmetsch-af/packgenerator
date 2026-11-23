@@ -177,11 +177,15 @@ const grams = (list) => list.reduce((s, i) => s + (itemWeight(i) ?? 0), 0);
 
 /**
  * The whole wardrobe for one filter: { all, unsorted, layers: [{ key, n, g, zones: [{ key, items }] }], n, g }.
- * all: the clothing in this filter (owned, unclear and wishlist items; not gone). unsorted: items
+ * all: the clothing in this filter (owned and unclear items; not gone, not wishes). wishes: the wishlist
+ * clothing of this filter, apart. unsorted: items
  * without a layer or zone, each with its guesses { item, layer, zone, guessLayer, guessZone }.
  */
+const WISH = new Set(['wishlist', 'to-buy']);
 export function wardrobe(items = [], use = 'all', { gaps = [] } = {}) {
-  const all = items.filter((i) => isClothing(i) && inUse(i, use)).sort(byName);
+  // Kleider «heute» (Noah 23.11.2026): wishes (not yours yet) stand apart, not between the clothes you own
+  const wishes = items.filter((i) => isClothing(i) && inUse(i, use) && WISH.has(i.ownership)).sort(byName);
+  const all = items.filter((i) => isClothing(i) && inUse(i, use) && !WISH.has(i.ownership)).sort(byName);
   const unsorted = [];
   const placed = [];
   for (const i of all) {
@@ -201,7 +205,7 @@ export function wardrobe(items = [], use = 'all', { gaps = [] } = {}) {
     })).filter((z) => z.items.length || z.gap);
     return { key: l.key, n: mine.length, g: grams(mine.map((p) => p.item)), zones };
   }).filter((l) => l.n || l.zones.length);
-  return { all, unsorted, layers, n: all.length, g: grams(all) };
+  return { all, unsorted, layers, wishes, n: all.length, g: grams(all) };
 }
 
 /* ---------- temperature: the coldest riding hour ---------- */
@@ -249,6 +253,33 @@ export function coldest(trip) {
   }
   const min = num(trip?.wx?.min);
   return min == null ? null : { c: min, from: 'min' };
+}
+
+/**
+ * The other moments of the first riding day the onion can be looked at (Noah 21.11.2026 «1-5a 4b»):
+ * [{ key: 'morning' | 'midday', c }], only the ones that differ from the coldest moment.
+ * Morning: the first riding hour; midday: the warmest of 11–15 h. Without hourly data the
+ * packing weather: min is the morning, max the midday.
+ */
+export function dayMoments(trip) {
+  const cold = coldest(trip);
+  if (!cold) return [];
+  const hours = forecastHours(trip).filter((x) => x.temp != null);
+  let morning = null;
+  let midday = null;
+  if (hours.length) {
+    const day = hours.filter((x) => x.date === hours[0].date);
+    morning = Math.round(day[0].temp);
+    const noon = day.filter((x) => x.hour >= 11 && x.hour <= 15);
+    if (noon.length) midday = Math.round(Math.max(...noon.map((x) => x.temp)));
+  } else {
+    morning = num(trip?.wx?.min);
+    midday = num(trip?.wx?.max);
+  }
+  return [
+    { key: 'morning', c: morning },
+    { key: 'midday', c: midday },
+  ].filter((m) => m.c != null && m.c !== cold.c);
 }
 
 /**
@@ -438,15 +469,16 @@ export const rainProof = (item) => !!rainOf(item) || /regen|rain|wasserdicht|wat
 export const matchesRow = (row, item) => (row.layer ? layerKey(item.layer) === row.layer && (!item.zone || zoneGroup(item.zone) === 'upper') : zoneGroup(item.zone) === row.zone);
 
 /**
- * The onion check of a trip: { c, from, wet, pct, rows, gaps } or null (no temperature, or no
+ * The onion check of a trip: { c, from ('hour' | 'min' | 'at'), moment, wet, pct, rows, gaps } or null (no temperature, or no
  * clothing with a layer or zone at all). Each row: { key, name, ok, items (on the trip), need,
  * rain (the outer layer must keep rain out), fix (the best owned item for a gap, or null) }.
  * Only the rows that are needed, or that something on the list covers, are shown.
  */
-export function onionCheck(trip, items = [], offset = 0, rule = null) {
+export function onionCheck(trip, items = [], offset = 0, rule = null, at = null) {
   const L = rule?.limits ?? ONION_LIMITS;
   const prefer = rule?.prefer ?? 'light';
-  const cold = coldest(trip);
+  // at: { key, c } a moment of the day (dayMoments) instead of the coldest riding hour
+  const cold = at ? { c: at.c, from: 'at', moment: at.key } : coldest(trip);
   if (!cold) return null;
   if (!items.some((i) => isInventory(i) && (layerKey(i.layer) || zoneGroup(i.zone)))) return null;
   const c = felt(cold.c, offset);
@@ -468,7 +500,7 @@ export function onionCheck(trip, items = [], offset = 0, rule = null) {
     if (!ok) fix = best(items.filter((i) => isInventory(i) && !onIds.has(i.id) && matchesRow(row, i) && (needRain && warm.length ? rainProof(i) : warmEnough(i, c) && (!needRain || rainProof(i)))), c, prefer);
     rows.push({ key: row.key, name: row.name, below: row.below != null ? L[row.key] : null, need, ok, rain: needRain, items: mine, fix });
   }
-  return { c, real: cold.c, from: cold.from, date: cold.date ?? null, hour: cold.hour ?? null, wet, pct: rainChance(trip), rows, gaps: rows.filter((r) => !r.ok).length };
+  return { c, real: cold.c, from: cold.from, moment: cold.moment ?? null, date: cold.date ?? null, hour: cold.hour ?? null, wet, pct: rainChance(trip), rows, gaps: rows.filter((r) => !r.ok).length };
 }
 
 /** The best item for a gap: a range that holds c first, then the closest lower border, then the lighter one. */
@@ -580,11 +612,28 @@ export function onionRows(own = [], c, wet = false, rule = null) {
   for (const row of ONION) {
     if (!row.need(c, wet, L) && row.key !== 'legs') continue;
     const rain = row.key === 'outer' && wet;
-    const fits = own.filter((i) => matchesRow(row, i) && warmEnough(i, c) && (!rain || rainProof(i)));
+    let fits = own.filter((i) => matchesRow(row, i) && warmEnough(i, c) && (!rain || rainProof(i)));
+    // Kleider «heute» (Noah 23.11.2026): in the cold a piece must say what it is made for; one without a
+    // range or class is not guessed (the ultra-thin «warm rides» jersey, the glasses case in the head row),
+    // and a piece at the very edge of its range yields to one with two degrees to spare.
+    if (c < COOL_BELOW && row.need(c, wet, L)) {
+      // the rain shell is the exception: it keeps the rain out, the warmth comes from the layers under it; one that says
+      // its range still goes first
+      const known = fits.filter(hasRange);
+      fits = rain && !known.length ? fits : known;
+      const spare = fits.filter((i) => typeof i.tempMin !== 'number' || i.tempMin <= c - SPARE);
+      if (spare.length) fits = spare;
+    }
     rows.push({ key: row.key, name: row.name, item: best(fits, c, rule?.prefer), rain });
   }
   return rows;
 }
+/** Below this felt temperature (°C) the suggestion only takes pieces that state a range or class. */
+export const COOL_BELOW = 15;
+/** The degrees a piece's lower border should be below the felt temperature to be suggested in the cold. */
+export const SPARE = 2;
+/** Does a piece say what it is made for (a lower border or a class)? */
+export const hasRange = (i) => typeof i?.tempMin === 'number' || !!i?.tempClass;
 
 /**
  * The ride "What do I wear today?" is for (decision 9), as the Day ride button picks its day

@@ -9,7 +9,8 @@
    * - Pointing (mouse, or a finger moving sideways) shows the exact numbers of that day in the line above the
    *   chart (Readout); ← → Home End do the same. A tap, a click or Enter opens what is behind it (onopen(i)).
    * - «Als Tabelle» shows the same numbers as rows (table: { head, rows }).
-   * cols: [{ key, x }] (x: the label under it or ''), series: [{ key, color, dashed, line, dots, v: [number|null] }],
+   * cols: [{ key, x }] (x: the label under it or ''), series: [{ key, color, dashed, dash, line, dots, v: [number|null] }] (dash: an own
+   * stroke-dasharray, so a legend can show the same pattern),
    * readout(i) → { title, items }, label: what the chart shows (for screen readers), unit: of the axis.
    * bridge: the line joins the points across the days without a value (a mood noted now and then), never a fall to 0.
    */
@@ -22,7 +23,7 @@
   import { indexAt, stepKey } from './pick.js';
   import { t, num } from '../i18n.svelte.js';
 
-  let { cols = [], series = [], scale: fixed = null, tick = null, readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 12, topText = null, id = 'lc', bridge = false } = $props();
+  let { cols = [], series = [], scale: fixed = null, tick = null, readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 12, topText = null, id = 'lc', bridge = false, initial = null } = $props();
 
   const scale = $derived(fixed ?? niceScale(series.flatMap((s) => s.v), { count: 4 }));
   const n = $derived(cols.length);
@@ -56,7 +57,7 @@
     for (let i = n - 1; i >= 0; i--) if (series.some((s) => s.v[i] != null)) return i;
     return n ? n - 1 : null;
   });
-  const shown = $derived(sel ?? newest);
+  const shown = $derived(sel ?? initial ?? newest);
   const ro = $derived(shown == null ? null : readout?.(shown));
 
   const at = (e) => indexAt(e.clientX, plot?.getBoundingClientRect(), n);
@@ -101,7 +102,7 @@
         <svg viewBox="0 0 {W} 100" preserveAspectRatio="none" aria-hidden="true">
           <GridLines ticks={scale.ticks} {y} x1={0} x2={W} />
           {#if sel != null}<rect class="cur" x={sel * 10} y="0" width="10" height="100" />{/if}
-          {#each series as s, k (s.key)}{#if paths[k]}<path d={paths[k]} class="ln" class:dash={s.dashed} style:stroke={s.color} data-line={s.key} />{/if}{/each}
+          {#each series as s, k (s.key)}{#if paths[k]}<path d={paths[k]} class="ln" class:dash={s.dashed && !s.dash} style:stroke={s.color} stroke-dasharray={s.dash || null} data-line={s.key} />{/if}{/each}
         </svg>
         {#each series as s (s.key)}
           {#each s.v as v, i (i)}

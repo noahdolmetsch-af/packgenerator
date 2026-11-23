@@ -47,17 +47,16 @@ describe('the pages under each place', () => {
     expect(placeOf(pageOf('#/trips/rides'))).toBe('analysis');
     expect(placeOf(pageOf('#/trips'))).toBe('trips');
     expect(tabOf('trips', '#/trips/dreams')).toBe('dreams');
-    expect(tabOf('gear', '#/gear?tab=weigh')).toBe('all');
-    expect(tabOf('gear', '#/favorites')).toBe('all');
-    expect(tabOf('gear', '#/wardrobe')).toBe('clothes');
-    expect(tabOf('gear', '#/blocks/check')).toBe('blocks');
-    expect(tabOf('gear', '#/gear?view=wish')).toBe('shop');
-    expect(tabOf('gear', '#/gear?view=never')).toBe('all');
-    expect(tabOf('bikes', '#/bikes?bike=x')).toBe('overview');
+    // V5 (Noah 21.11.2026): Material is the tab «Material» of Velos und Material, its pages are chips
+    for (const [h, tab, chip] of [['#/gear?tab=weigh', 'gear', 'all'], ['#/favorites', 'gear', 'all'], ['#/wardrobe', 'gear', 'clothes'], ['#/blocks/check', 'sets', 'blocks'], ['#/gear?view=wish', 'gear', 'wish'], ['#/gear?view=never', 'gear', 'all'], ['#/gear/supplies', 'gear', 'supplies'], ['#/gear/lend', 'gear', 'lend'], ['#/equipment', 'sets', 'sets'], ['#/bikes', 'bikes', 'overview'], ['#/bikes?tab=rig', 'bikes', 'rig'], ['#/bikes?tab=compare', 'bikes', 'fit'], ['#/bikes?tab=care', 'care', 'care'], ['#/care', 'care', 'care'], ['#/bikes?tab=shop', 'care', 'shop']]) {
+      expect(tabOf('bikes', h), h).toBe(tab);
+      expect(subOf('bikes', h)?.key, h).toBe(chip);
+    }
+    expect(tabOf('bikes', '#/bikes?bike=x')).toBe('bikes');
     expect(tabOf('bikes', '#/bikes?tab=care&bike=x')).toBe('care');
     expect(tabOf('bikes', '#/care')).toBe('care');
-    expect(tabOf('bikes', '#/bikes?tab=shop')).toBe('shop');
-    expect(tabOf('bikes', '#/bikes?tab=compare')).toBe('fit');
+    expect(leaf('bikes', '#/bikes?tab=shop')).toBe('shop');
+    expect(leaf('bikes', '#/bikes?tab=compare')).toBe('fit');
     expect(tabOf('week', '#/flow')).toBe('training'); // V4a: the pages of Aktiv are chips under the tab «Training» of Woche
     expect(subOf('week', '#/flow').key).toBe('flowhome');
     expect(subOf('week', '#/flow/goals').key).toBe('sports');
@@ -80,7 +79,8 @@ describe('keyboard shortcuts', () => {
   it('g and a letter open a place', () => {
     expect(shortcutOf('g')).toEqual({ wait: true });
     expect(PLACES.map((p) => shortcutOf(p.letter, true))).toEqual(PLACES.map((p) => ({ go: p.href })));
-    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'v', 'm', 'a', 'q']); // «Quick Links» (Noah 28.10.2026): g q // «Woche planen» (Noah 15.10.2026 «1a»): g w; N1: the order of the new bar, letters unchanged
+    expect(shortcutOf('m', true)).toEqual({ go: '#/gear' }); // V5: Material is a tab of Velos und Material; g m still opens it
+    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'v', 'a', 'e', 'q']); // «Wetter» (Noah 22.11.2026 «a»): g e; «Quick Links» (Noah 28.10.2026): g q // «Woche planen» (Noah 15.10.2026 «1a»): g w; N1: the order of the new bar, letters unchanged
   });
 
   it('a letter without g does nothing, except n, i, / and ?', () => {

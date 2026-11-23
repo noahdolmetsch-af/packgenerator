@@ -632,7 +632,15 @@ test('S9 import rides: a ride type rule places the ride, take over, undo', async
   writeFileSync(fitFile, fitRide({ start: `${day(0)}T12:00:00Z`, km: 33.3, profile: `${P} Sonst`, subSport: 46 }));
 
   await page.goto(`./#/bikes?tab=care&bike=${GRAVEL}&open=1`);
-  await page.getByRole('link', { name: T('Import rides') }).or(page.getByRole('button', { name: T('Import rides') })).first().click();
+  // since the Velopflege rebuild («Mehr zugeklappt», Noah) the ride ledger with «Import rides» is one tap down, behind «More»
+  const importLink = page.getByRole('link', { name: T('Import rides') }).or(page.getByRole('button', { name: T('Import rides') })).first();
+  const moreFold = page.locator('[data-care-more]');
+  const inMore = (target) => expect(async () => {
+    if (!(await target.isVisible()) && !(await moreFold.evaluate((d) => d.open))) await moreFold.locator(':scope > summary').click();
+    await expect(target).toBeVisible({ timeout: 1500 });
+  }).toPass({ timeout: 20_000 });
+  await inMore(importLink);
+  await importLink.click();
   await expect(page).toHaveURL(/view=import/);
   await page.getByLabel(T('Choose files')).setInputFiles([csvFile, fitFile]);
   const check = page.locator('section.check');
@@ -682,8 +690,10 @@ test('S9 import rides: a ride type rule places the ride, take over, undo', async
   const km = async (id) => (await table(page, 'bikes')).find((b) => b.id === id).km;
   expect(await km(GRAVEL)).toBe(Math.round(bikes0.find((b) => b.id === GRAVEL).km + 41.2 + 33.3));
   expect(await km(HT)).toBe(bikes0.find((b) => b.id === HT).km + 14);
-  // Undo on the bike page takes it all back
-  await page.getByRole('button', { name: T('Undo') }).first().click();
+  // Undo on the bike page takes it all back (the ride ledger, with its Undo, is behind «More»)
+  const undo = page.getByRole('button', { name: T('Undo') }).first();
+  await inMore(undo);
+  await undo.click();
   await expect.poll(async () => (await mine()).length).toBe(0);
   expect(await km(GRAVEL)).toBe(bikes0.find((b) => b.id === GRAVEL).km);
   expect(await km(HT)).toBe(bikes0.find((b) => b.id === HT).km);

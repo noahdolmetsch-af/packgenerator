@@ -15,6 +15,7 @@
   import { loadCore } from './kern.js';
   import { lineNow, lineRange, ownHeight, lowHint, OWN_KEY, HOME_KEY } from './schneegrenze.js';
   import { t, num, locale } from '../i18n.svelte.js';
+  import { setDigest } from './digest.svelte.js';
 
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const ownQ = liveQuery(() => db.settings.get(OWN_KEY));
@@ -44,6 +45,7 @@
 
   const on = $derived($onQ?.value !== false);
   const cur = $derived(core ? lineNow(core, now) : null);
+  $effect(() => setDigest('snow', on && cur ? t('Snow line {m} m', { m: num(cur.m) }) : null));
   const range = $derived(core ? lineRange(core, now) : null);
   const hint = $derived(core ? lowHint(core, now, ownHeight(core, $ownQ?.value)) : null);
   const at = $derived(core?.old && core.at ? new Date(core.at).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '');

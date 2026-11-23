@@ -66,8 +66,11 @@ test.describe('Handy kurz', () => {
     await page.locator('[data-packmode-open]').click();
     const pm = page.locator('[data-packmode]');
     await expect(pm.locator('[data-row]')).toHaveCount(PHONE_ROWS);
+    // «Touren-Liste aufräumen» (Noah 23.11.2026, changed on purpose): a compact line per trip, the values behind its arrow
     await expect(pm.locator('[data-values]')).toHaveCount(0);
-    await expect(pm.locator('[data-pack-line]').first()).toContainText(T('Weather'));
+    await expect(pm.locator('[data-row-stats]').first()).toContainText('km');
+    await pm.locator('[data-row-toggle]').first().click();
+    await expect(pm.locator('[data-values]').first()).toContainText(T('Weather'));
     await pm.locator('[data-pack-phone-more]').click();
     expect(await pm.locator('[data-row]').count()).toBeGreaterThan(PHONE_ROWS);
     // «In Zahlen · Weiter» behind one line; Paket D (Noah 19.10.2026 «1a»): the tip of the day waits there too
@@ -96,6 +99,8 @@ test.describe('Handy kurz', () => {
     await start(page, context, info, { data: data() });
     await open(page, '#/trips');
     await expect(page.locator('[data-act-line], [data-pack-line], [data-trips-extras], [data-packmode-open]')).toHaveCount(0);
+    // «Touren-Liste aufräumen» (Noah 23.11.2026, changed on purpose): the computer also shows one compact line; the values open behind the arrow
+    await page.locator('[data-packmode] [data-row-toggle]').first().click();
     await expect(page.locator('[data-packmode] [data-values]').first()).toBeVisible();
     await expect(page.locator('[data-in-numbers]')).toBeVisible();
     await open(page, '#/trips/rides');

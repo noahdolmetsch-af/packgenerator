@@ -173,7 +173,7 @@ test('the switches sit in four closed folds with a count; a tap opens one', asyn
   await expect(birthdays).toBeHidden();
   await openGroup(page, 'day');
   await birthdays.check();
-  await expect(page.locator('[data-push-group="day"] summary .ps-gs')).toHaveText(T('{n} of {m} on', { n: 1, m: 7 }));
+  await expect(page.locator('[data-push-group="day"] summary .ps-gs')).toHaveText(T('{n} of {m} on', { n: 1, m: 8 }));
   await expect(page.locator('[data-push-group="weather"] summary .ps-gs')).toHaveText(T('All off'));
 });
 

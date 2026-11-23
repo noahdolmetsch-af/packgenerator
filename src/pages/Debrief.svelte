@@ -7,6 +7,7 @@
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { localDay } from '../lib/localday.js';
+  import { livedWeather, livedText, prefill, ensureTripWeather } from '../lib/wetter/erlebt.js'; // Wetter-Ausbau E: the weather that came
   import Skeleton from '../lib/ui/Skeleton.svelte';
   /**
    * Debrief (stage 1, 4.10.2026): after a trip, in about two minutes.
@@ -174,6 +175,22 @@
     saved = stored?.status === 'done';
     offer = null;
     ticks = {};
+  });
+  // Wetter-Ausbau E (Noah 22.11.2026 «a»): what really came is kept with the trip once (online, the trip over) and fills in the
+  // answer «Weather» until you tap one yourself; the suggestion stays in memory until the debrief is saved on its next change
+  const livedTried = new Set();
+  $effect(() => {
+    if (!trip || trip.wxReal?.days?.length || livedTried.has(trip.id)) return;
+    livedTried.add(trip.id);
+    ensureTripWeather(db, trip, localDay()).catch(() => {});
+  });
+  const lived = $derived(trip ? livedWeather(trip) : null);
+  $effect(() => {
+    const v = d && trip ? prefill(d, trip) : null;
+    if (v) {
+      d.weather = v;
+      d.weatherAuto = true;
+    }
   });
   async function persist() {
     d.updatedAt = new Date().toISOString();
@@ -612,6 +629,11 @@
             <div class="rv-h"><div><h2 id="dfeel-h">{t('How hard was it?')}</h2><p class="rv-sub">{t('First your feeling; the numbers come after «Done».')}</p></div></div>
             <div class="rv-box pad"><FeelScale value={d.feel ?? null} onpick={(n) => set('feel', n)} /></div>
           </section>
+          <!-- Kleiderschrank (Noah 21.11.2026 «1-5a 4b»): the question «too cold / fitted / too warm» sits in sight, not in a fold; it slowly shifts the borders of the temperature kits. -->
+          <section class="rv-sec" aria-labelledby="dcloth-h" data-debrief-clothing>
+            <div class="rv-h"><div><h2 id="dcloth-h">{t('How was the clothing?')}</h2><p class="rv-sub">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div></div>
+            <div class="rv-box pad"><Seg labelledby="dcloth-h" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} full /></div>
+          </section>
           <!-- Persönliches Lernen Idee 6 (Noah 04.11.2026 «3a»): what made the tour good, four optional scales -->
           <JoyPick {d} onchange={(v) => set('joy', v)} />
           <SkillPick {d} onchange={(v) => set('skills', v)} />
@@ -650,14 +672,12 @@
             <div class="rv-box">
               <!-- Noah 9a: filled in; change only what was not so. -->
               <details class="how-fold">
-                <summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Sun size={18} /></span><span class="rv-m"><span class="rv-t">{t('How was it?')}</span><span class="rv-s">{byBike ? t('Weather, clothing, food, km') : t('Weather, clothing, food, bags')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
+                <summary class="rv-row"><span class="rv-ic" aria-hidden="true"><Sun size={18} /></span><span class="rv-m"><span class="rv-t">{t('How was it?')}</span><span class="rv-s">{byBike ? t('Weather, food, km') : t('Weather, food, bags')}</span></span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></summary>
                 <div class="in">
                   <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
                   <div class="qa">
-                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={choices('weather', t)} onchange={(v) => set('weather', v)} /></div>
-                    <!-- v0.42.0 (Noah 6): how the clothing was; it slowly shifts the borders of the temperature kits. -->
-                    <div class="segq"><span class="lbl" id="q-cloth">{t('Clothing')}</span><Seg labelledby="q-cloth" value={d.clothing ?? null} options={CLOTHING.map((o) => ({ key: o.key, name: t(o.name) }))} onchange={(v) => set('clothing', v)} />
-                      <p class="tp-muted tp-small clothhint">{tripKit ? t('Slowly shifts the borders of your temperature kits (here kit {range}).', { range: tempRange(tripKit.minC, tripKit.maxC, t) }) : t('Slowly shifts the borders of your temperature kits.')}</p></div>
+                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={choices('weather', t)} onchange={(v) => { d.weatherTouched = true; set('weather', v); }} />
+                      {#if lived}<p class="tp-muted tp-small" data-debrief-lived>{t('Came: {text}', { text: livedText(lived, { t, num }) })}{#if d.weatherAuto && !d.weatherTouched}{' · ' + t('Suggested from what came. Tap an answer to change it.')}{/if}</p>{/if}</div>
                     <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={choices('amount', t)} onchange={(v) => set('amount', v)} /></div>
                     <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={choices('bags', t)} onchange={(v) => set('bags', v)} /></div>
                     {#if bike}
@@ -1033,9 +1053,6 @@
   }
   .num {
     font-variant-numeric: tabular-nums;
-  }
-  .clothhint {
-    margin: 2px 0 0;
   }
   .segq .lbl {
     margin: 0;

@@ -6,13 +6,13 @@
   import { msName, stageName, dayWord } from './words.js';
   import { t, tn, locale } from '../../i18n.svelte.js';
 
-  let { y, today } = $props();
+  let { y, today, embedded = false } = $props();
   const max = $derived(Math.max(1, ...y.months));
   const month = (i, style) => new Date(Date.UTC(2026, i, 1)).toLocaleDateString(locale(), { month: style, timeZone: 'UTC' });
 </script>
 
-<section class="yr card" data-year-stars aria-labelledby="yr-h">
-  <h2 id="yr-h">{t('Your year in stars')}</h2>
+<section class="yr" class:card={!embedded} class:emb={embedded} data-year-stars aria-labelledby="yr-h">
+  {#if embedded}<h3 id="yr-h">{t('Your year in stars')}</h3>{:else}<h2 id="yr-h">{t('Your year in stars')}</h2>{/if}
   <div class="nums">
     <p><b class="num" data-year-total>{y.total}</b><span>{tn(y.total, 'star in {year}', 'stars in {year}', { year: y.year })}</span></p>
     <p><b class="num">{y.all}</b><span>{t('stars since the start')}</span></p>
@@ -37,7 +37,11 @@
     padding: var(--sp-4);
     min-width: 0;
   }
-  h2 {
+  .emb {
+    padding: 0;
+  }
+  h2,
+  h3 {
     margin: 0;
     font: 700 var(--fs-section) / 1.25 var(--font-body);
   }

@@ -7,6 +7,7 @@
    * three; «Ältere Wochen» folds the earlier weeks. Observation only: what was, never what is good.
    */
   import { liveQuery } from 'dexie';
+  import { weekSources } from '../weeksources.js';
   import { EyeOff, Eye } from '@lucide/svelte';
   import { db } from '../db.js';
   import Fold from '../ui/Fold.svelte';
@@ -34,7 +35,8 @@
       db.settings.get(OBS_KEY),
     ]);
     const { weather } = await loadDayData(db);
-    return { data: { acts, rides, trips, health, answers, checks, log, flowActs: flowActs.map(normAct), weather }, value: rec?.value ?? null };
+    const more = await weekSources(db, today); // the shared week calculation (weekcalc.js) reads the ledger, usual durations and Fitbit days too
+    return { data: { ...more, acts, rides, trips, health, answers, checks, log, flowActs: flowActs.map(normAct), weather }, value: rec?.value ?? null };
   });
   const view = $derived($q ? weekView($q.value, $q.data, monday, today) : null);
   const cfg = $derived(obsOf($q?.value));

@@ -32,7 +32,7 @@
   import ClothesAt from '../lib/pack/ClothesAt.svelte';
   import { clothesAt, tempOf } from '../lib/touren/tourextra.js';
   import { leftOutPatch } from '../lib/pack/leftout.js';
-  import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET, waitChill, WEAR_RULE, wearRule } from '../lib/wardrobe.js';
+  import { onionCheck, dayMoments, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET, waitChill, WEAR_RULE, wearRule } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
   import { SWAP_MEMORY, swapEntries, rememberSwap, tripRange } from '../lib/swap.js';
   import { rowReasons, listDiff } from '../lib/reasons.js';
@@ -644,11 +644,12 @@
   const offset = $derived((Number($offsetQ?.value) || 0) + wrule.shift);
   // Touren-Ideen 42: waiting on the way (platform, photos, breaks) counts a few degrees colder
   const chill = $derived(waitChill(trip));
-  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset + chill, wrule) : null);
-  const kit = $derived.by(() => {
-    const cold = onionCk ? coldest(trip) : null;
-    return cold ? chooseKit(tempKits($setsQ?.value ?? []), cold.c, offset + chill) : null;
-  });
+  // Kleiderschrank (Noah 21.11.2026 «1-5a 4b»): look at the onion for the morning or the midday, not only the coldest hour
+  let onionAt = $state('cold');
+  const moments = $derived(trip && !over ? dayMoments(trip) : []);
+  const atMoment = $derived(moments.find((m) => m.key === onionAt) ?? null);
+  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset + chill, wrule, atMoment) : null);
+  const kit = $derived(onionCk ? chooseKit(tempKits($setsQ?.value ?? []), onionCk.real, offset + chill) : null);
   const setWait = (m) => change(() => ({ waitMin: m }));
   const kitP = $derived(kit && trip ? kitPlan(kit, trip, items) : null);
   // Einzelidee 21 «Zu viel an derselben Stelle»: pieces with the same task; the onion asks what for
@@ -1124,7 +1125,7 @@
       testTrip: () => change(() => ({ testTrip: trip.testTrip !== true })),
       reopen: () => askReopen(trip),
     }}>
-    {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} wait={Number(trip.waitMin) || 0} {chill} onwait={setWait} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
+    {#snippet onion(onswap)}{#if onionCk}<Onion check={onionCk} {moments} moment={atMoment?.key ?? 'cold'} onmoment={(k) => (onionAt = k)} onswap={locked ? null : onswap} {kit} plan={kitP} {offset} wait={Number(trip.waitMin) || 0} {chill} onwait={setWait} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{#if trip.status !== 'done'}<TourSky {trip} {items} place={trip.route?.start ?? trip.place ?? homeOf($homeQ?.value) ?? null} onadd={helperAdd} onhide={(k) => change((c) => ({ skyOff: [...new Set([...(c.skyOff ?? []), k])] }))} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}

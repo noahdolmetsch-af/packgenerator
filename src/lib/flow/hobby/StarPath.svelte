@@ -2,7 +2,7 @@
   /**
    * «Meilensteine motivierender» PR 3 (Noah 21.11.2026 «1-5 a», Idee 2): «Pro Aktivität · dein Weg»: per sport its next
    * star as a path of stars: the reached ones gold, the next one fills with the progress, the rest empty. A row is a link
-   * to the sport's milestones. rows: [{ key, title, sub, href, r }] (r: the evaluated milestone).
+   * to the sport's milestones. rows: [{ key, title, nick, sub, href, r }] (r: the evaluated milestone); title: the real name of the sport, nick: its playful name, small after it.
    */
   import { ChevronRight } from '@lucide/svelte';
   import { t } from '../../i18n.svelte.js';
@@ -17,7 +17,7 @@
     {@const r = x.r}
     <li data-row={x.key} data-path={x.key}>
       <a href={x.href}>
-        <span class="tx"><b>{x.title}</b><small>{x.sub}</small></span>
+        <span class="tx"><b>{x.title}</b>{#if x.nick}<em class="nk">{x.nick}</em>{/if}<small>{x.sub}</small></span>
         <span class="pc num">{r.next ? `${Math.round(r.progress * 100)} %` : ''}</span>
         <ChevronRight class="cv" size={18} aria-hidden="true" />
         <span class="stars" role="img" aria-label={r.done ? t('All stars reached') : t('{n} of {m} stars reached, {p} percent to the next', { n: r.reached.length, m: r.steps.length, p: Math.round(r.progress * 100) })}>
@@ -66,6 +66,12 @@
     display: block;
     font-weight: 500;
     overflow-wrap: break-word;
+  }
+  .tx .nk {
+    display: block;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    font-style: normal;
   }
   .tx small {
     color: var(--warn);

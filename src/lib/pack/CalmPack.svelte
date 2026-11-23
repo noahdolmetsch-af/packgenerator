@@ -16,6 +16,7 @@
   import TipLine from '../pageinfo/TipLine.svelte';
   import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
   import Empty from '../ui/Empty.svelte';
+  import PasstHier from '../ui/PasstHier.svelte';
   import DecisionReview from './DecisionReview.svelte';
   import WornCard from './WornCard.svelte';
   import SwapSheet from './SwapSheet.svelte';
@@ -327,6 +328,8 @@
   <PackExtras {trip} {trips} {itemsById} only={['wash', 'morning']} />
   <DoorCard {trip} only={['checkin', 'arrived']} />
   {@render shop?.()}
+  <!-- Freie Zeit 3b (Noah 22.11.2026): a night outdoors → «Fits here» points to «First night» (the group, not the top of the page: Content first) -->
+  {#if trip.overnight === 'outdoor'}<PasstHier place="night" />{/if}
 {/snippet}
 {#snippet gOthers()}<PackExtras {trip} {trips} {itemsById} only={['two']} />{/snippet}
 {#snippet gEasier()}{@render starters?.()}{/snippet}
@@ -376,7 +379,7 @@
             <a class="cell" href="#/pack/templates"><Layers size={18} aria-hidden="true" /><span><small>{t('Start with')}</small>{startText}</span><span class="sr"> · {t('Templates')}</span></a>
           </div>
           <!-- v0.42.0 (Noah 2): the onion check, one quiet line under the weather -->
-          {@render onion?.()}
+          {@render onion?.((item) => (swapping = { entry: null, item }))}
         </section>
         <!-- L2: the open suggestions on top, marked as open work (below the whole list they got lost). -->
         <!-- v0.40.0 (design check): the weather in ONE place: the open suggestions are the first row

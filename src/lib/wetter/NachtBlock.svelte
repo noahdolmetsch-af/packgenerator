@@ -11,6 +11,7 @@
   import { REFRESHED } from '../home/refresh.js';
   import { liveQuery } from 'dexie';
   import { loadNacht, summary, PLUS_C, HOME_KEY } from './nacht.js';
+  import { shortPlace } from './ort.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { core, now = Date.now() } = $props();
@@ -71,8 +72,8 @@
 
 {#if place && (s || asked)}
   <section class="card nt" aria-labelledby="nt-h" data-nacht>
-    <h2 id="nt-h" class="wx-h"><Moon size={18} aria-hidden="true" />{t('Night temperature')}</h2>
-    <p class="nt-where" data-nacht-where>{place.name ? `${place.name} · ` : ''}{t('Lowest value 18 to 8 h')}</p>
+    <h2 id="nt-h" class="nt-h"><Moon size={18} aria-hidden="true" />{t('Night temperature')}</h2>
+    <p class="nt-where" data-nacht-where>{place.name ? `${shortPlace(place.name)} · ` : ''}{t('Lowest value 18 to 8 h')}</p>
     {#if s}
       <div class="nt-two">
         <div class="nt-tile" data-nacht-last>
@@ -128,6 +129,13 @@
     padding: 12px;
     display: grid;
     gap: 8px;
+  }
+  .nt-h {
+    margin: 0;
+    font-size: var(--fs-sub);
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .nt-where {
     margin: 0;

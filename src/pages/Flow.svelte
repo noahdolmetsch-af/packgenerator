@@ -46,7 +46,7 @@
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { restRows } from '../lib/flow/restlist.js';
   import { flowStates, rings as ringsOf } from '../lib/flow.js';
-  import { weekGoals } from '../lib/flowweek.js';
+  import { weekSets, unitsOfWeek } from '../lib/flow/weekunits.js';
   import { ringHrefs, ringParts, TICKS_HREF } from '../lib/flow/ringweg.js';
   import { openTimer, actName } from '../lib/flow/ui.svelte.js';
   import Rings from '../lib/flow/Rings.svelte';
@@ -115,8 +115,10 @@
   const season = $derived(data ? seasonNow(data.acts, today) : null);
   // Noah 08.11.2026 «1-5 a»: ONE number for the goals of the week: all goals. The head, «Heute abhaken», the week card
   // («12 goals open») and the week review («1 of 13») all count the same 13; only the ring «Bewegen» says it counts its part.
-  const goalsAll = $derived(weekGoals(states));
-  const moveLine = $derived(goalsAll.length ? tn(goalsAll.length, 'this week {k} of {n} goal on track', 'this week {k} of {n} goals on track', { k: goalsAll.filter((g) => g.met).length }) : '');
+  // V3 (Noah «3a» of the Vereinfachen order): ONE number for the week, «k of n units» Monday to Sunday (ticked and planned);
+  // the goals themselves stay on the week page («Goals this week») and the rings keep their own 7-day window.
+  const units = $derived(data ? unitsOfWeek({ acts: data.acts, states, log: data.log, today, sets: $weekSets }) : null);
+  const moveLine = $derived(units ? t('this week {k} of {n} units (Mon to Sun)', { k: units.done, n: units.total }) : '');
   const todayLine = $derived(
     [fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }), moveLine, season ? (season.half === 'summer' ? t('Summer') : t('Winter')) : ''].filter(Boolean).join(' · '),
   );

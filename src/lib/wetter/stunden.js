@@ -90,7 +90,8 @@ export async function loadHours(db, place, { fetcher = fetch, now = Date.now(), 
 
 /** One model over the hours from now to now + h: rain sum, wettest hour, temp range, strongest gust. */
 export function modelWindow(hours = [], now, h) {
-  const inside = hours.filter((x) => x.ms + 36e5 > now && x.ms < now + h * 36e5);
+  // an hourly value is the rain of the hour BEFORE its stamp (wetter/regenzeit.js): its span is [ms - 1 h, ms]
+  const inside = hours.filter((x) => x.ms > now && x.ms - 36e5 < now + h * 36e5);
   const vals = (k) => inside.map((x) => x[k]).filter(fin);
   if (!vals('temp').length && !vals('rainMm').length) return null;
   const rain = vals('rainMm');
@@ -100,7 +101,7 @@ export function modelWindow(hours = [], now, h) {
   const codes = vals('code');
   return {
     rainMm: rain.length ? r1(rain.reduce((a, b) => a + b, 0)) : null,
-    rainFrom: firstWet ? firstWet.ms : null,
+    rainFrom: firstWet ? firstWet.ms - 36e5 : null,
     tmin: t.length ? Math.min(...t) : null,
     tmax: t.length ? Math.max(...t) : null,
     gust: g.length ? Math.max(...g) : null,

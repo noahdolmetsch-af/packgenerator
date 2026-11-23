@@ -1,9 +1,9 @@
 /**
  * Gruss C «Letzte 7 Tage» (Noah 05.11.2026 «alle umsetzen»): the seven last days as small dots in the greeting's window,
  * observation only: one neutral colour, a day without an answer stays an empty ring, no good or bad, no streak, no count of misses.
- * Pure parts (tested in tests/hallo-week.test.js); the window reads the answers of `hallo.gaht` from the one history.
+ * Pure parts (tested in tests/hallo-week.test.js); the window reads the answers of `hallo.gaht` (older) and of the scale question `spass.stimmung` (since 22.11.2026) from the one history.
  */
-import { MOODS } from './hallo.js';
+import { MOODS, MOOD_QID, faceOfScale } from './hallo.js';
 
 /** The calendar day `n` days before `day` (YYYY-MM-DD; calendar arithmetic, no 24-hour steps). */
 export function daysBefore(day, n) {
@@ -14,14 +14,16 @@ export function daysBefore(day, n) {
 
 /**
  * The seven days ending on `today`, oldest first: { day, key, label, v } with the face of the latest answer of the day
- * (key null when nothing was answered). `rows` are rows of abAnswers (any question; only `hallo.gaht` counts); `faces` the faces as the user has them.
+ * (key null when nothing was answered). `rows` are rows of abAnswers (any question; only `hallo.gaht` and `spass.stimmung` count); `faces` the faces as the user has them.
  */
 export function weekDots(rows = [], today, faces = MOODS) {
   const byDay = new Map();
   for (const r of rows) {
-    if (r?.qid !== 'hallo.gaht' || typeof r.value !== 'string') continue;
+    // an older face answer (a key) or an answer of the scale (1–10, shown as its closest face)
+    const key = r?.qid === 'hallo.gaht' && typeof r.value === 'string' ? r.value : r?.qid === MOOD_QID ? faceOfScale(r.value, faces)?.key ?? null : null;
+    if (!key) continue;
     const old = byDay.get(r.day);
-    if (!old || String(r.at ?? '') > String(old.at ?? '')) byDay.set(r.day, r);
+    if (!old || String(r.at ?? '') > String(old.at ?? '')) byDay.set(r.day, { ...r, value: key });
   }
   return Array.from({ length: 7 }, (_, i) => {
     const day = daysBefore(today, 6 - i);

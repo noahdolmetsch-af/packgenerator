@@ -16,8 +16,12 @@
   import { onTripDay } from '../ride.js';
   import { compass, intoWind } from '../toursky.js';
   import { loadCore, hoursBetween, dayLine, warningsOf, rainWithin, localDate, atLocal, WARN_TEXT, LANDI_RADAR } from './kern.js';
+  import { loadRain15, rain15Strip } from './regen15.js';
+  import { rainStory, rainWords } from './regenzeit.js'; // the one rain start time of the page // Wetter-Ausbau B: «Rain in about 30 minutes» on a ride day
   import { WEBCAMS_KEY, camsOf, homeCam, isImage, freshSrc, camLabel } from './webcams.js';
   import LakeChip from '../lake/LakeChip.svelte';
+  import { phrases } from './digest.svelte.js'; // Wetter-Ausbau D: the closed line «Weather today»
+  import { ChevronDown } from '@lucide/svelte';
   import HeuteSchnee from './HeuteSchnee.svelte'; // «Schneefallgrenze» (Noah 04.11.2026): one calm line for the home place
   import HeuteNebel from './HeuteNebel.svelte'; // «Nebelgrenze» (Noah 05.11.2026): one calm line under it
   import HeuteSonne from './HeuteSonne.svelte'; // «Sonnen-Ausfahrt» (Noah 06.11.2026): a ride above the fog, under the fog line
@@ -57,6 +61,18 @@
     return () => globalThis.removeEventListener(REFRESHED, again);
   });
   let now = $state(Date.now());
+  // Wetter-Ausbau B (Noah 22.11.2026): only on a ride day, and only when rain starts within the next hour
+  let quarters = $state(null);
+  $effect(() => {
+    const pl = place;
+    now; // asked again with the clock (every 5 minutes)
+    if (!pl) return void (quarters = null);
+    loadRain15(db, pl).then((r) => (quarters = r?.rows ?? null)).catch(() => {});
+  });
+  const soonMin = $derived.by(() => {
+    const m = quarters ? rain15Strip(quarters, now)?.minutesToRain : null;
+    return m != null && m <= 60 ? m : null;
+  });
   $effect(() => {
     const id = setInterval(() => (now = Date.now()), 5 * 60_000);
     return () => clearInterval(id);
@@ -66,6 +82,7 @@
   const hours = $derived(core ? hoursBetween(core, Math.max(now - 36e5, atLocal(localDate(now, off), 6, off)), atLocal(localDate(now, off), 21, off)) : []);
   const line = $derived(dayLine(hours));
   const warn = $derived(warningsOf(hours)[0] ?? null);
+  const story = $derived(core ? rainStory(core, quarters, now) : null);
   const rainSoon = $derived(core ? rainWithin(core, now, 3) : null);
   // a loop: which way round gives the tailwind home (the wind of the day, as on the packing list)
   const loopTip = $derived.by(() => {
@@ -87,10 +104,11 @@
       <a class="hw-line" {href} data-heute-wetter-line>
         <span><b>{num(line.tmin)}–{num(line.tmax)} °C</b></span>
         {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
-        <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
+        <span><CloudRain size={16} aria-hidden="true" />{rainWords(story, t, hm) || t('dry')}</span>
         {#if loopTip}<span class="hw-tip" data-heute-wetter-wind>{loopTip === 'keep' ? t('Ride the loop as planned: tailwind home.') : t('Ride the loop the other way: tailwind home.')}</span>{/if}
         {#if warn}<span class="hw-warn"><TriangleAlert size={16} aria-hidden="true" />{t(WARN_TEXT[warn.kind], { at: hm(warn.at), v: num(warn.value) })}</span>{/if}
       </a>
+      {#if soonMin != null}<a class="hw-soon" {href} data-heute-rain15><CloudRain size={16} aria-hidden="true" />{soonMin < 5 ? t('Rain starts now.') : t('Rain in about {min} minutes.', { min: num(soonMin) })}</a>{/if}
       {#if rainSoon}<a class="btn sm hw-radar" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-heute-radar><CloudRain size={16} aria-hidden="true" />{t('Radar')}</a>{/if}
     {/if}
     {#if cam}
@@ -101,11 +119,17 @@
     {/if}
     <!-- the lake (thread «Seetemperatur und Sauna»): shows itself only with a value -->
     <LakeChip />
-    <HeuteSchnee />
-    <HeuteNebel />
+    <!-- Wetter-Ausbau D (Noah 22.11.2026 «a»): the calm lines under one closed line; each keeps its own switch, nothing is gone -->
+    <details class="hw-fold" data-heute-wetter-fold>
+      <summary data-heute-wetter-fold-sum><b>{t('Weather today|line')}</b><span class="hw-fold-say">{phrases().join(' · ')}</span><ChevronDown size={16} aria-hidden="true" /></summary>
+      <div class="hw-fold-in">
+        <HeuteSchnee />
+        <HeuteNebel />
+        <HeuteNacht />
+        <HeuteHoehe />
+      </div>
+    </details>
     <HeuteSonne />
-    <HeuteNacht />
-    <HeuteHoehe />
   </section>
 
 <style>
@@ -135,6 +159,52 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
+  }
+  .hw-soon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  /* the fold shows only when one of its lines has something to say */
+  .hw-fold:not(:has(:global([data-heute-snowline], [data-heute-fogline], [data-heute-nacht], [data-heute-hoehe]))) {
+    display: none;
+  }
+  .hw-fold {
+    flex: 1 1 100%;
+    border-radius: 10px;
+    background: var(--paper-2);
+  }
+  .hw-fold summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 6px 12px;
+    cursor: pointer;
+    list-style: none;
+    font-size: var(--fs-small);
+  }
+  .hw-fold summary::-webkit-details-marker {
+    display: none;
+  }
+  .hw-fold-say {
+    flex: 1;
+    min-width: 0;
+    color: var(--ink-2);
+    overflow-wrap: break-word;
+  }
+  .hw-fold[open] summary :global(svg) {
+    transform: rotate(180deg);
+  }
+  .hw-fold-in {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 8px 8px;
   }
   .hw-tip {
     color: var(--ink-2);

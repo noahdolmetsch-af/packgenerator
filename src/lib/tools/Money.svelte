@@ -44,6 +44,7 @@
   {:else}
     <p class="tool-status">{t('Loading rates …')}</p>
   {/if}
+  <p class="tool-muted" data-kursblick-link>{t('Prices of gold and the SMI:')} <a href="#/kurse">{t('Kursblick')}</a></p>
 </section>
 
 <style>

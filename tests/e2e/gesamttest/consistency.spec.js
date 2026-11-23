@@ -84,9 +84,15 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
     await page.reload();
     const line = page.locator('summary, button, a').filter({ hasText: T('Before the trip') }).first();
     await expect(line).toBeVisible();
-    const text = (await line.textContent()).replace(/\s+/g, ' ');
-    const m = text.match(new RegExp(`${esc(T('Bike care'))}[^·]*?(\\d+) ${esc(T('{n} due', { n: '' }).trim())}`)) ?? text.match(/Velopflege[^·]*?(\d+)\s*fällig/);
-    const plan = m ? Number(m[1]) : /nichts fällig|nothing due/.test(text) ? 0 : null;
+    const planOf = async () => {
+      const text = (await line.textContent()).replace(/\s+/g, ' ');
+      const m = text.match(new RegExp(`${esc(T('Bike care'))}[^·]*?(\\d+) ${esc(T('{n} due', { n: '' }).trim())}`)) ?? text.match(/Velopflege[^·]*?(\d+)\s*fällig/);
+      return { text, plan: m ? Number(m[1]) : /nichts fällig|nothing due/.test(text) ? 0 : null };
+    };
+    // the line of the Plan counts what is due once the trip page has read its data (a first look can show one point less):
+    // wait until it says the number of Bike care; if it never does, the check below still fails with both numbers
+    if (Number(trip.days) > 1 || trip.event || care[nameOf[trip.bikeId]]) await expect.poll(async () => (await planOf()).plan, { timeout: 8000 }).toBe(care[nameOf[trip.bikeId]]).catch(() => {});
+    const { text, plan } = await planOf();
     // v0.25.0: a short ride (1 day, no event) shows no bike care list in the Plan (it stays in Bikes);
     // v0.45.1 (G013a): but when something is due, one quiet line with the same count and a link.
     const short = !(Number(trip.days) > 1) && !trip.event;
@@ -97,7 +103,8 @@ test('due counts: Today, Plan, Bike care and the bar agree', async ({ page, cont
       await line.click();
       const link = page.locator('details[open] a.care-more').filter({ hasText: T('Bike care') }).first();
       await expect(link).toHaveAttribute('href', /#\/bikes\?.*tab=care/);
-      await expect(page.locator('details[open] .in ul:not(.prep-rows) li')).toHaveCount(0);
+      // only the fold «Before the trip» itself: since the trip page has more open folds («Charge the evening before», 0/3), any `details[open]` is too wide
+      await expect(line.locator('xpath=ancestor::details[1]').locator('.in ul:not(.prep-rows) li')).toHaveCount(0);
     }
   }
   expect(errors).toEqual([]);

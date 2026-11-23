@@ -14,6 +14,7 @@
   import { summary, HOME_KEY } from './nebelgrenze.js';
   import { loadProfil } from './profil.js'; // the air layers, shared with «Temperaturen nach Höhe»
   import { t, num, locale } from '../i18n.svelte.js';
+  import { setDigest } from './digest.svelte.js';
 
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const ownQ = liveQuery(() => db.settings.get(OWN_KEY));
@@ -43,6 +44,7 @@
 
   const on = $derived($onQ?.value !== false);
   const s = $derived(fog ? summary(fog, now, $ownQ?.value) : null);
+  $effect(() => setDigest('fog', on && s?.now?.top != null ? (s.above === 'sun' ? t('Fog to {m} m, sun above', { m: num(s.now.top) }) : t('Fog to {m} m', { m: num(s.now.top) })) : null));
   const at = $derived(fog?.old && fog.at ? new Date(fog.at).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '');
   const sight = $derived(s?.sight ? (s.sight.over ? t('Sight over {v} km', { v: num(s.sight.v) }) : s.sight.unit === 'm' ? t('Sight {v} m', { v: num(s.sight.v) }) : t('Sight {v} km', { v: num(s.sight.v) })) : '');
 </script>
