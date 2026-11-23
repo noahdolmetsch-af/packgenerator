@@ -26,7 +26,8 @@
   import { take } from './nav.js';
   import { sync as autoSync, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
-  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, onlyExamples } from './firststart.js';
+  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, onlyExamples, interestsPresent, INTERESTS } from './firststart.js';
+  import AdjustExamples from './firststart/AdjustExamples.svelte';
   import { MORE_KEY } from './blocksmore.js';
   import { offerDone } from './ui/rename.svelte.js';
   import { localDay } from './localday.js';
@@ -331,6 +332,8 @@
     await deleteWithUndo({ run: () => removeExamples(db), undo: (saved) => undoExamples(db, saved), text: t('Examples removed.'), name: t('Examples') });
   }
   // Noah 20.10.2026 «1-4 alle»: after an empty start (or once removed) the examples can come back
+  let adjust = $state();
+  const canAdjust = $derived(!!$examplesQ && interestsPresent($examplesQ).length < INTERESTS.length);
   let getting = $state(false);
   async function getExamples() {
     getting = true;
@@ -722,8 +725,10 @@
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()} data-row="demo-file"><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trips, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
+        {#if canAdjust}<li><button type="button" class="ich-row" onclick={() => adjust?.show()} disabled={!!$demoQ} data-row="examples-adjust"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Adjust the examples')}</b><small>{t('Pick what fits you: trips with a night out, day rides, active and everyday')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
       </ul>
     </section>
+    <AdjustExamples bind:this={adjust} />
     <NamesDe />
     <StartFresh />
     </MoreFold>

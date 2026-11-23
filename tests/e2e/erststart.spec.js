@@ -31,13 +31,9 @@ test('with examples: a made-up trip shows, «Beispiele entfernen» takes it away
   await expect(win(page).getByRole('heading', { name: T('Welcome to the Pack Generator') })).toBeVisible();
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw).toBeLessThanOrEqual(page.viewportSize().width);
+  // Noah 23.11.2026 «1-5a» (V1): one window, no interest step and no tour offer; one tap puts everything in
+  await expect(win(page).locator('[data-interest], [data-choice="tour"], [data-choice="notour"]')).toHaveCount(0);
   await win(page).locator('[data-choice="examples"]').click();
-  // Einzelidee Heute 7: the interest check comes first, all three on
-  await expect(win(page).locator('[data-interest][aria-pressed="true"]')).toHaveCount(3);
-  await win(page).locator('[data-choice="examples-go"]').click();
-  // second step: the short tour is offered, never started by itself
-  await expect(win(page).locator('[data-choice="tour"]')).toBeVisible();
-  await win(page).locator('[data-choice="notour"]').click();
   await expect(win(page)).toBeHidden();
   await expect(page.locator('.tour')).toHaveCount(0);
 
@@ -77,7 +73,6 @@ test('start empty: no examples, the window never comes back; «Später» asks ag
   await page.reload();
   await expect(win(page)).toBeVisible();
   await win(page).locator('[data-choice="empty"]').click();
-  await win(page).locator('[data-choice="notour"]').click();
   await expect(win(page)).toBeHidden();
   await backDone(page);
   await page.reload();
@@ -88,17 +83,14 @@ test('start empty: no examples, the window never comes back; «Später» asks ag
   expect(errors).toEqual([]);
 });
 
-test('the language is chosen in the window, the examples come in it, and the tour starts', async ({ page, context }) => {
+test('the language is chosen in the window and the examples come in it', async ({ page, context }) => {
   const errors = await open(page, context);
   await expect(win(page)).toBeVisible();
   await win(page).locator('[data-lang="en"]').click();
   await expect(win(page).getByRole('heading', { name: 'Welcome to the Pack Generator' })).toBeVisible();
   await win(page).locator('[data-choice="examples"]').click();
-  await win(page).locator('[data-choice="examples-go"]').click();
-  await win(page).locator('[data-choice="tour"]').click();
   await expect(win(page)).toBeHidden();
-  await expect(page.locator('.tour[data-tour="app"]')).toBeVisible();
-  await page.keyboard.press('Escape');
+  await expect(page.locator('.tour')).toHaveCount(0);
   await page.goto('./#/trips');
   await expect(page.locator('main').getByText('Jura loop (example)').first()).toBeVisible();
   expect(errors).toEqual([]);
@@ -124,3 +116,48 @@ test('«Ich nutze die App schon auf einem anderen Gerät» (2a): the window clos
   await expect(page.locator('main').getByText(T('Jura loop (example)'))).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('«Beispiele anpassen» (V1): only the chosen examples come in, what is there stays, «Beispiele entfernen» takes all away', async ({ page, context }) => {
+  const errors = await open(page, context);
+  await win(page).locator('[data-choice="empty"]').click();
+  await expect(win(page)).toBeHidden();
+  await page.goto('./#/me/data');
+  await openFolds(page);
+  const adjust = page.locator('[data-row="examples-adjust"]');
+  await adjust.click();
+  const dlg = page.getByTestId('adjust-examples');
+  await expect(dlg).toBeVisible();
+  // all three are ticked as a suggestion; take two away
+  await expect(dlg.locator('[data-interest][aria-pressed="true"]')).toHaveCount(3);
+  await dlg.locator('[data-interest="nights"]').click();
+  await dlg.locator('[data-interest="active"]').click();
+  await dlg.locator('[data-choice="examples-go"]').click();
+  await expect(dlg).toBeHidden();
+  await expect.poll(() => tripIds(page)).toEqual(['ex-past']);
+  // open again: «day rides» is there (not clickable), the other two can still be added
+  await adjust.click();
+  await expect(dlg.locator('[data-interest="days"]')).toBeDisabled();
+  // what is missing is ticked again as a suggestion
+  await expect(dlg.locator('[data-interest="nights"]')).toHaveAttribute('aria-pressed', 'true');
+  await dlg.locator('[data-choice="examples-go"]').click();
+  await expect(dlg).toBeHidden();
+  await expect.poll(() => tripIds(page)).toEqual(['ex-past', 'ex-trip']);
+  // «Beispiele entfernen» finds all of them, also the ones from the first round
+  await page.locator('[data-row="examples"]').click();
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Remove') }).click();
+  await expect(page.getByText(T('Examples removed.'))).toBeVisible();
+  await expect.poll(() => tripIds(page)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+const tripIds = (page) =>
+  page.evaluate(
+    () =>
+      new Promise((ok) => {
+        const o = indexedDB.open('pack-generator');
+        o.onsuccess = () => {
+          const q = o.result.transaction('trips').objectStore('trips').getAllKeys();
+          q.onsuccess = () => (o.result.close(), ok(q.result));
+        };
+      })
+  );
