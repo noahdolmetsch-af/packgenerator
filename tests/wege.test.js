@@ -6,8 +6,9 @@ const keys = (h) => (trailOf(h) ?? []).map((s) => (s.kind === 'place' ? s.place 
 
 describe('trailOf: the place and the tab, as the sidebar lights them', () => {
   it('a page under Woche › Training starts with «week» and the tab «training», no longer with Aktiv', () => {
-    expect(keys('#/flow/rest')).toEqual(['week', 'week/training']); // Erholung is a chip under Training
-    expect(keys('#/flow/training')).toEqual(['week', 'week/training']);
+    expect(keys('#/flow/rest')).toEqual(['week', 'week/training', 'week/rest']); // Erholung is a chip under Training: the path names it too («Woche › Training › Erholung»)
+    expect(keys('#/routine')).toEqual(['week', 'week/training', 'week/rest']); // «Das tut mir gut» lives under that chip
+    expect(keys('#/flow/training')).toEqual(['week', 'week/training']); // the first chip is the tab itself
   });
   it('the insights of «Ich › Daten» start under Auswerten, where the sidebar lights them', () => {
     expect(placeKeyOf('#/me/insights')).toBe('analysis');
