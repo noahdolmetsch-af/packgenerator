@@ -228,5 +228,6 @@ export default {
   'The voice is off.': 'Die Sprache ist aus.',
   'The phone says the next shop or climb a few km ahead, so you can keep your eyes on the road.': 'Das Handy sagt den nächsten Laden oder Anstieg ein paar km voraus, damit du auf die Strasse schauen kannst.',
   'Switch the voice on': 'Sprache einschalten',
+  'What the map can do': 'Was die Karte kann',
   'All set. Have a good ride.': 'Alles bereit. Gute Fahrt.',
 };

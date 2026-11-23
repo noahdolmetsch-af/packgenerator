@@ -1389,12 +1389,13 @@
   {#if !rec.on && !after}
     <p class="rc-empty" data-live-empty>{t('Start the ride: then the map fills the screen and shows where you are, the numbers you choose and the stops ahead or around you.')}</p>
     <!-- «Live-Karte sichtbar» (Noah 25.10.2026 «bitte fortfahren»): what the map can do during the ride, named as in the catalogue -->
-    <section class="rc-box lv-during" aria-labelledby="lv-during-h" data-live-during>
-      <h2 id="lv-during-h" class="rc-h2">{t('During the ride')}</h2>
+    <!-- Noah 23.11.2026 «bitte gleich Seite optimieren»: the list is help, so it stays one closed line (Content first) -->
+    <details class="rc-box lv-during lv-during-fold" data-live-during>
+      <summary>{t('During the ride')}<small>{t('What the map can do')}</small></summary>
       <ul>
         {#each DURING_RIDE as x (x.id)}<li data-during={x.id}><b>{t(FEATURE_TITLE[x.id])}</b><span>{t(x.sub)}</span></li>{/each}
       </ul>
-    </section>
+    </details>
   {/if}
 
   <!-- Gruppen-Live-Karte: invite friends before the start too -->
@@ -3096,6 +3097,24 @@
     gap: 4px;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .lv-during-fold summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 10px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .lv-during-fold summary small {
+    color: var(--ink-3);
+    font-weight: 400;
+    font-size: var(--fs-small);
+  }
+  .lv-during-fold ul {
+    margin-top: 8px;
   }
   .lv-during ul {
     list-style: none;
