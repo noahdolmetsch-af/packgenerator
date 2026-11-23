@@ -54,6 +54,18 @@ test('Gewicht: enter, the two charts, hide one and bring it back', async ({ page
   await expect(wk.locator('svg path')).toHaveCount(1);
   await shot(page, info, 'TR6b-gewicht');
 
+  // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): a sentence over the chart, the numbers of a day, the sheet behind a tap, «Als Tabelle»
+  await expect(wt.locator('[data-chart-sentences]')).toContainText(/Jetzt .* kg, .* kg (weniger|mehr) als am/);
+  await expect(wt.locator('[data-readout]')).toContainText('Mittel 7 Tage');
+  await wt.locator('[data-plot]').click({ position: { x: 5, y: 40 } });
+  await expect(page.locator('[data-weight-chart-sheet]')).toBeVisible();
+  await page.locator('[data-weight-chart-edit]').click();
+  await expect(sheet).toBeVisible();
+  await sheet.getByRole('button', { name: 'Abbrechen' }).click();
+  await wt.getByRole('button', { name: 'Als Tabelle' }).click();
+  await expect(wt.locator('[data-chart-table]')).toContainText('71.6 kg');
+  await wt.getByRole('button', { name: 'Diagramm' }).click();
+
   // «…» › Ausblenden, then «Rückgängig»; then off and on in «Analysen anpassen»
   await wt.getByRole('button', { name: /Mehr zu/ }).click();
   await page.getByRole('menuitem', { name: 'Ausblenden' }).click();
