@@ -1,5 +1,5 @@
 // Etappe 6 (Querschnitt, E6-005): in the dark theme the Kochen tips and the count in the chosen «Springen zu» chip
-// (Material, Neuland, Neuigkeiten) were nearly invisible, and so was the kicker of the trip band in the wardrobe. Reads the real colours of the text and of what is behind it.
+// (Neuland, Neuigkeiten; Material had them until 23.11.2026) were nearly invisible, and so was the kicker of the trip band in the wardrobe. Reads the real colours of the text and of what is behind it.
 import { test, expect } from './clock.js';
 import { start } from './gesamttest/lib.js';
 import { ready } from './settle.js';
@@ -33,11 +33,12 @@ test('dark theme: Kochen tips and the chip count can be read', async ({ page, co
   await expect(page.locator('.kt-meal').first()).toBeVisible();
   expect.soft(await ratio(page, '.kt-meal'), 'Kochen: «Frühstück» on the card').toBeGreaterThan(4.5);
   expect.soft(await ratio(page, '.kt-link'), 'Kochen: «Ändern»').toBeGreaterThan(4.5);
-  await page.goto('./#/gear');
+  // Material no longer has the chips «Springen zu» on the phone (Material aufräumen, 23.11.2026); the same chips are on Neuigkeiten
+  await page.goto('./#/me/news');
   await ready(page);
   const chip = page.locator('.ls-c[aria-pressed="true"] em').first();
   await expect(chip).toBeVisible();
-  expect.soft(await ratio(page, '.ls-c[aria-pressed="true"] em'), 'Material: count in the chosen chip').toBeGreaterThan(3);
+  expect.soft(await ratio(page, '.ls-c[aria-pressed="true"] em'), 'Neuigkeiten: count in the chosen chip').toBeGreaterThan(3);
   // E6-006: the trip band of the wardrobe is the light card in the dark theme; its orange kicker was 1.9 : 1
   await page.goto('./#/wardrobe/trip/test_data_gtp_trip25');
   await ready(page);
