@@ -11,7 +11,7 @@
   import { backClose } from '../ui/backclose.js';
   import { db } from '../db.js';
   import { RIDES, RAIN_ITEM } from '../layers.js';
-  import { choosable, CATEGORY, UNKNOWN_CATEGORY, BAGS, BAG, OWNERSHIP, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams } from '../gear.js';
+  import { choosable, CATEGORY, UNKNOWN_CATEGORY, BAGS, BAG, OWNERSHIP, formatWeight, itemWeight, itemDraft, itemRecord, parseGrams, isInventory } from '../gear.js';
   import { liveQuery } from 'dexie';
   import { SETS_KEY, allSets } from '../sets.js';
   import { TEMPLATES_KEY } from '../templates.js';
@@ -36,7 +36,7 @@
   import { Warehouse, Zap, Wrench } from '@lucide/svelte';
   import PowerFields from './PowerFields.svelte'; // Paket P1 «Packen und Strom»: L1, L4
   import { powerLine } from '../strom.js';
-  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis } from '@lucide/svelte';
+  import { Check, Plus, UserRound, Briefcase, Info, Layers, Route, FileText, ChevronRight, MapPin, Package, CalendarClock, Scale, Sparkles, ArrowLeftRight, X, Undo2, Pencil, Ellipsis, Link2 } from '@lucide/svelte';
   import RenameSheet from '../ui/RenameSheet.svelte';
   import { offerRename, offerDone } from '../ui/rename.svelte.js';
   import { isClothing } from '../wardrobe.js';
@@ -48,6 +48,7 @@
   import { fullOf } from '../einzeln/material.js'; // Einzelidee 24: empty weight and content apart
   import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY, dismissValue, linkPatch, suggestWhy } from './material.js';
   import { inSmallAid, AID_KEY } from '../firstaid.js';
+  import { linkedOf, withAdded, withRemoved } from '../pack/dazufeld.js'; // «Dazu nötig» (Noah 23.11.2026 «G1»)
   import { summaryLine, blockNames, ruleNames, placeName, weightState, lifeLine, lastFold, keepFold, nextFold, blockLabel } from './detail.js';
 
   /**
@@ -143,6 +144,9 @@
   const toggleBlock = (key) => (draft.sets = inBlock(key) ? draft.sets.filter((x) => x !== key) : [...(draft.sets ?? []), key]);
   const bagChoices = $derived(BAGS.filter((b) => b.key !== 'body' || draft.defaultBag === 'body'));
   const layerCount = $derived(['ride', 'coldBelow', 'rain', 'perHours', 'maxQty', 'replaces', 'altFor', 'waterL'].filter((k) => String(draft[k] ?? '').trim() !== '').length);
+  // «Dazu nötig»: the things that belong with this one (they show as missing on a list that has this item and not them)
+  const withList = $derived(linkedOf(draft).map((id) => items.find((i) => i.id === id)).filter(Boolean));
+  const withChoices = $derived(items.filter((i) => isInventory(i) && i.id !== draft.id && !linkedOf(draft).includes(i.id)).sort((a, b) => nameOf(a).localeCompare(nameOf(b))));
   // Paket H: «Zu Hause und Vorrat»: where it is (#372), expiry and stock (answer 2b), battery (#346)
   const charges = $derived(CHARGE_CATEGORIES.includes(draft.category));
   const storeLine = $derived.by(() => {
@@ -644,6 +648,27 @@
   <button type="button" class="btn sm" onclick={() => (assigning = true)}>{t('Assign …')}</button>
 {/snippet}
 
+{#snippet withBody()}
+  {#if readOnly}
+    {#if withList.length}<p>{withList.map((w) => nameOf(w)).join(', ')}</p>{:else}<p class="quiet">{t('not set')}</p>{/if}
+  {:else}
+  <div class="dz" data-dazu-field>
+    <Field id="it-with" label={t('Add a thing')} optional>
+      {#snippet children(f)}<select class="sel" {...f.attrs} value="" onchange={(e) => { const v = e.currentTarget.value; if (v) draft.withIds = withAdded(draft, v); e.currentTarget.value = ''; }}>
+        <option value="">{t('Add a thing …')}</option>
+        {#each withChoices as i (i.id)}<option value={i.id}>{nameOf(i)}</option>{/each}
+      </select>{/snippet}
+    </Field>
+    {#if withList.length}
+      <ul class="chips dz-list" aria-label={t('Needed with this')}>
+        {#each withList as w (w.id)}<li><span>{nameOf(w)}</span><button type="button" class="dzx" aria-label={t('Take «{name}» out', { name: nameOf(w) })} onclick={() => (draft.withIds = withRemoved(draft, w.id))}><X size={14} aria-hidden="true" /></button></li>{/each}
+      </ul>
+    {/if}
+    <p class="note">{t('If this item is on a trip list and these are not, the card «Ready to go?» says so. The app also suggests things that were always with it on your last trips.')}</p>
+  </div>
+  {/if}
+{/snippet}
+
 {#snippet rulesBody()}
   {#if readOnly}
     <dl class="facts">
@@ -878,6 +903,7 @@
   {#if !isNew}{@render fold('weight', Scale, t('Weight'), weightSum, weightBody, suggested.length ? tn(suggested.length, '{n} suggestion', '{n} suggestions') : '')}{/if}
   {@render fold('where', MapPin, t('Where it goes'), placeName(draft), whereBody)}
   {@render fold('blocks', Package, t('Building blocks'), blockNames(draft, blocks).join(' · ') || t('no block'), blocksBody)}
+  {@render fold('with', Link2, t('Needed with this'), withList.length ? withList.map((w) => nameOf(w)).join(' · ') : t('not set'), withBody)}
   {@render fold('rules', Route, t('For weather and riding time'), ruleLine, rulesBody)}
   {#if !isNew && life}{@render fold('life', CalendarClock, t('History|item'), lifeSum, lifeBody)}{/if}
   {#if !isNew && (draft.ownership === 'wishlist' || draft.ownership === 'to-buy')}{@render fold('trial', ArrowLeftRight, t('Borrow before buying'), trialSum, trialBody)}{/if}
@@ -1087,6 +1113,39 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 8px 12px;
+  }
+  .dz {
+    display: grid;
+    gap: 6px;
+  }
+  .dz-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .dz-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 44px;
+    padding: 0 2px 0 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    overflow-wrap: break-word;
+  }
+  .dz-list .dzx {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    cursor: pointer;
   }
   .sets legend {
     margin-bottom: 4px;
