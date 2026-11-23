@@ -3,13 +3,13 @@ export default {
   title: 'Form and recovery, clearer',
   lead: 'The page now gives one answer for today from all your values, and no longer contradicts itself.',
   points: [
-    { text: 'At the top: one answer for today from sleep, HRV, resting pulse and form together, with the values that count', go: { href: '#/flow/form', steps: [{ sel: '[data-form-now]' }] } },
-    { text: '«What stands out» sits right under it and looks at resting pulse, HRV and sleep', go: { href: '#/flow/form', steps: [{ sel: '[data-auffaellt]' }] } },
-    { text: '«What if» says it in plain sentences; minutes and the table of numbers are one tap away', go: { href: '#/flow/form', steps: [{ sel: '[data-ww-more] summary' }] } },
+    { text: 'At the top: one answer for today from sleep, HRV, resting pulse and form together, with the values that count', go: { href: '#/flow/form', where: 'Shows at the very top of the page: the answer for today.', steps: [{ sel: '[data-form-now]' }] } },
+    { text: '«What stands out» sits right under it and looks at resting pulse, HRV and sleep', go: { href: '#/flow/form', where: 'Shows right under the answer: «What stands out».', steps: [{ sel: '[data-auffaellt]' }] } },
+    { text: '«What if» says it in plain sentences; minutes and the table of numbers are one tap away', go: { href: '#/flow/form', where: 'Shows further down under «What if …» once your activities from Strava are in.', steps: [{ sel: '[data-ww-more] summary' }] } },
   ],
   small: [
     { box: 'new', text: 'The tour readiness shows only when a tour is running or starts within 7 days, never for the made-up examples' },
-    { box: 'new', text: '«Over time» starts with the form alone; fitness, fatigue and resting pulse are switched on with a tap', go: { href: '#/flow/form', steps: [{ sel: '[data-form-curve] [data-layer="fit"]' }] } },
+    { box: 'new', text: '«Over time» starts with the form alone; fitness, fatigue and resting pulse are switched on with a tap', go: { href: '#/flow/form', where: 'Shows under «Over time» once your activities from Strava are in: tap «Fitness».', steps: [{ sel: '[data-form-curve] [data-layer="fit"]' }] } },
     { box: 'new', text: 'Years without rides stand in one closed line under «Form compared with earlier»; no value is lost' },
   ],
   test: [
@@ -19,6 +19,10 @@ export default {
   ],
   since: [],
   de: {
+    'Shows at the very top of the page: the answer for today.': 'Steht ganz oben auf der Seite: die Antwort für heute.',
+    'Shows right under the answer: «What stands out».': 'Steht direkt unter der Antwort: «Was auffällt».',
+    'Shows further down under «What if …» once your activities from Strava are in.': 'Steht weiter unten bei «Was wäre, wenn …», sobald deine Aktivitäten von Strava da sind.',
+    'Shows under «Over time» once your activities from Strava are in: tap «Fitness».': 'Steht unter «Verlauf», sobald deine Aktivitäten von Strava da sind: Tippe auf «Fitness».',
     'Form and recovery, clearer': 'Form und Erholung, klarer',
     'The page now gives one answer for today from all your values, and no longer contradicts itself.': 'Die Seite gibt jetzt eine Antwort für heute aus allen deinen Werten und widerspricht sich nicht mehr.',
     'At the top: one answer for today from sleep, HRV, resting pulse and form together, with the values that count': 'Oben: eine Antwort für heute aus Schlaf, HRV, Ruhepuls und Form zusammen, mit den Werten, die zählen',
