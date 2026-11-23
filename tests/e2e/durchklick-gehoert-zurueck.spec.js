@@ -26,16 +26,16 @@ test('Belongs to: a closed line behind the title, one tap opens the links', asyn
   expect(errors).toEqual([]);
 });
 
-test('Back: Wetter opened from Heute names Heute, opened directly it names Touren', async ({ page, context }, info) => {
+test('Back: Heatmap opened from Heute names Heute, opened directly it names its own place', async ({ page, context }, info) => {
   const T = await openHome(page, context, info, { hour: 9 });
-  await page.evaluate(() => (location.hash = '#/wetter'));
+  await page.evaluate(() => (location.hash = '#/heatmap'));
   const back = page.locator('nav.crumbs a, nav.pcrumbs a').first();
   await expect(back).toBeVisible();
   await expect(back).toContainText(T('Today|place'));
   if (process.env.SHOTS) {
     await page.screenshot({ path: `${process.env.SHOTS}/zurueck-${info.project.name === 'phone' ? 390 : 1440}.png` });
   }
-  await page.goto('./#/wetter');
+  await page.goto('./#/heatmap');
   await page.reload();
-  await expect(page.locator('nav.crumbs a, nav.pcrumbs a').first()).toContainText(T('Trips|place'));
+  await expect(page.locator('nav.crumbs a, nav.pcrumbs a').first()).toContainText(T('Analysis|place'));
 });
