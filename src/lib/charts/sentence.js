@@ -41,3 +41,21 @@ export function changeSentence(points, fmt = String, { since = '' } = {}) {
   const label = since || first.label;
   return [d > 0 ? t('Now {v}, {d} more than on {label}', { v: fmt(last.v), d: text, label }) : t('Now {v}, {d} less than on {label}', { v: fmt(last.v), d: text, label })];
 }
+
+/**
+ * «Dein Normalbereich» (Noah 23.11.2026 «ja»): the middle half of your own values shown (25th to 75th percentile) as { from, to },
+ * the band behind a line. Needs at least `min` real values and a band that is not a single value; otherwise null. Not a norm of
+ * anybody else, not a rating: it only shows where your own values usually lie.
+ */
+export function usualBand(values, min = 10) {
+  const v = values.filter((x) => Number.isFinite(x)).sort((a, b) => a - b);
+  if (v.length < min) return null;
+  const at = (p) => {
+    const i = (v.length - 1) * p;
+    const lo = Math.floor(i);
+    return v[lo] + (v[Math.ceil(i)] - v[lo]) * (i - lo);
+  };
+  const from = at(0.25);
+  const to = at(0.75);
+  return to > from ? { from, to } : null;
+}

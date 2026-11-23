@@ -10,4 +10,5 @@ export default {
   'Point at a month for its numbers.': 'Zeig auf einen Monat für die Zahlen.',
   'Weight, mean over 7 days now {c} kg': 'Gewicht, Mittel über 7 Tage jetzt {c} kg',
   'Add an entry for this day': 'Eintrag für diesen Tag anlegen',
+  'Your usual range': 'Deine übliche Spanne',
 };

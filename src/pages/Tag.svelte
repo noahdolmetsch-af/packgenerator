@@ -1,0 +1,369 @@
+<script>
+  /**
+   * «Mein Tag» (Noah 23.11.2026 «ja», «freigabe»; plan: docs/releases/mein-tag-lesen.md): one day as a timeline.
+   * Step 1 only reads. The day is made from the entries of `buildWeek` (src/lib/woche.js), the same ones Woche,
+   * Heute and Abhaken show, so nothing is counted or stored twice. Rules of the layout: src/lib/tag/timeline.js.
+   * Address: #/day (today) and #/day/YYYY-MM-DD. A tap on an entry opens it where it lives.
+   */
+  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree } from '@lucide/svelte';
+  import PageHead from '../lib/ui/PageHead.svelte';
+  import Empty from '../lib/ui/Empty.svelte';
+  import { weekQuery } from '../lib/woche/load.js';
+  import { buildWeek, KIND_NAMES } from '../lib/woche.js';
+  import { titleOf, subOf, dayName, wxWords, holidayName } from '../lib/woche/words.js';
+  import { homeForecast } from '../lib/home-weather.js';
+  import { db } from '../lib/db.js';
+  import { mondayOf, shiftDay } from '../lib/training.js';
+  import { actName } from '../lib/flow/ui.svelte.js';
+  import { localDay } from '../lib/localday.js';
+  import { t } from '../lib/i18n.svelte.js';
+  import { layoutDay, fmtMin, nowMin, weekOf } from '../lib/tag/timeline.js';
+
+  let { sub = '' } = $props();
+  const today = localDay();
+  const isDay = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s ?? '') && !Number.isNaN(Date.parse(`${s}T12:00:00Z`));
+  const day = $derived(isDay(sub) ? sub : today);
+  const monday = $derived(mondayOf(day));
+  const days = $derived(weekOf(day, shiftDay));
+
+  const q = $derived(weekQuery(today));
+  const src = $derived($q);
+  let forecast = $state(null);
+  $effect(() => {
+    homeForecast(db)
+      .then((f) => (forecast = f))
+      .catch(() => (forecast = null));
+  });
+  const actOf = $derived(new Map((src?.flowActs ?? []).map((a) => [a.id, a])));
+  const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
+  const d = $derived(week?.days.find((x) => x.day === day) ?? null);
+  const lay = $derived(layoutDay(d?.entries ?? []));
+  const sumOf = (x) => week?.days.find((w) => w.day === x)?.entries.filter((e) => e.kind !== 'away').length ?? 0;
+
+  const HH = 72; // pixels per hour
+  const hours = $derived(Array.from({ length: (lay.to - lay.from) / 60 + 1 }, (_, i) => lay.from + i * 60));
+  const top = (m) => ((m - lay.from) / 60) * HH;
+  const now = $derived(nowMin(day, today));
+
+  const dayLong = (x) => dayName(x, true);
+  const rel = $derived(day === today ? t('Today|day') : day === shiftDay(today, 1) ? t('Tomorrow|day') : day === shiftDay(today, -1) ? t('Yesterday|day') : '');
+  const wetNow = $derived(d?.wx);
+  const href = (e) => (e.href && !e.own ? e.href : '#/week');
+</script>
+
+<PageHead title={t('My day')} context={t('Plan|place')} what={t('Read the day, tap an entry to open it where it lives.')} />
+
+<nav class="wk" aria-label={t('Choose a day')}>
+  <a class="step" href="#/day/{shiftDay(day, -1)}" aria-label={t('Day before')}><ChevronLeft size={18} aria-hidden="true" /></a>
+  <div class="chips">
+    {#each days as x (x)}
+      <a class="chip" class:on={x === day} class:today={x === today} href="#/day/{x}" aria-current={x === day ? 'date' : undefined}>
+        <span class="wd">{dayName(x).split(' ')[0]}</span>
+        <b class="num">{Number(x.slice(8))}</b>
+        {#if sumOf(x)}<span class="dot" aria-label={t('{n} entries', { n: sumOf(x) })}></span>{/if}
+      </a>
+    {/each}
+  </div>
+  <a class="step" href="#/day/{shiftDay(day, 1)}" aria-label={t('Day after')}><ChevronRight size={18} aria-hidden="true" /></a>
+</nav>
+
+<p class="line">
+  <span>{dayLong(day)}</span>
+  {#if rel}<span class="tag">{rel}</span>{/if}
+  {#if d?.holiday}<span class="tag">{holidayName(d.holiday)}</span>{/if}
+  {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={15} aria-hidden="true" />{:else if wetNow.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
+  {#if day !== today}<a class="today-link" href="#/day">{t('Back to today')}</a>{/if}
+</p>
+
+{#if !week}
+  <p class="load" aria-live="polite">{t('Loading the day …')}</p>
+{:else}
+  {#each lay.allDay as e (e.id)}
+    <p class="away"><Palmtree size={16} aria-hidden="true" /> <span>{titleOf(e) || t('Holidays|away')}</span>{#if subOf(e)}<small>{subOf(e)}</small>{/if}</p>
+  {/each}
+
+  {#if lay.untimed.length}
+    <section class="untimed" aria-label={t('Without a time')}>
+      <h2>{t('Without a time')}</h2>
+      <ul>
+        {#each lay.untimed as e (e.id)}
+          <li class="k-{e.kind}" class:done={e.done}>
+            <a href={href(e)}><b>{titleOf(e)}</b><small>{subOf(e) || t(KIND_NAMES[e.kind] ?? 'Other|kind')}</small></a>
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
+
+  {#if !lay.blocks.length && !lay.untimed.length && !lay.allDay.length}
+    <Empty title={t('Nothing planned on this day')} text={t('Plan sessions, dates and to-dos in Woche. They appear here with their time.')} action={{ label: t('Open Woche'), href: '#/week' }} />
+  {/if}
+
+  <section class="tl" aria-label={t('Timeline')} style="--hh: {HH}px; height: {top(lay.to)}px">
+    {#each hours as h (h)}
+      <div class="hr" style="top: {top(h)}px"><span class="num">{fmtMin(h)}</span></div>
+    {/each}
+    {#if now != null && now >= lay.from && now <= lay.to}
+      <div class="now" style="top: {top(now)}px"><span>{t('now|clock')}</span></div>
+    {/if}
+    {#each lay.blocks as b (b.e.id)}
+      <a
+        class="blk k-{b.e.kind}"
+        class:done={b.e.done}
+        class:small={b.end - b.start <= 30}
+        href={href(b.e)}
+        data-entry={b.e.id}
+        style="top: {top(b.start)}px; height: {Math.max(22, ((b.end - b.start) / 60) * HH - 2)}px; left: calc(52px + (100% - 56px) * {b.col / b.cols}); width: calc((100% - 56px) / {b.cols} - 3px)"
+      >
+        <b>{titleOf(b.e)}</b>
+        <small class="num">{fmtMin(b.start)}{b.guessed ? '' : `–${fmtMin(b.end)}`}{subOf(b.e) ? ` · ${subOf(b.e)}` : ''}</small>
+      </a>
+    {/each}
+  </section>
+{/if}
+
+<p class="foot">{t('What you plan in Woche stands here. Moving and editing entries here comes next.')}</p>
+
+<style>
+  .wk {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    margin: 0 0 8px;
+  }
+  .chips {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .chip,
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    min-height: 56px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .step {
+    width: 32px;
+    min-height: 44px;
+    align-self: center;
+    flex: none;
+  }
+  .chip .wd {
+    font-size: var(--fs-tiny);
+    color: var(--ink-2);
+  }
+  .chip b {
+    font-size: var(--fs-sub);
+  }
+  .chip.on {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: var(--brand-ink);
+  }
+  .chip.on .wd {
+    color: var(--brand-ink-2);
+  }
+  .chip.today:not(.on) {
+    border-color: var(--brand);
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--l1);
+  }
+  .chip.on .dot {
+    background: var(--brand-ink);
+  }
+  .line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 12px;
+    color: var(--ink-2);
+  }
+  .tag {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--ok-soft);
+    color: var(--ok);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+  }
+  .wx {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--fs-small);
+  }
+  .today-link {
+    margin-left: auto;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .load {
+    color: var(--ink-2);
+  }
+  .away {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 10px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    border-left: 3px solid var(--wk-away);
+    background: color-mix(in srgb, var(--wk-away) 13%, var(--paper));
+    font-weight: 600;
+  }
+  .away small {
+    margin-left: auto;
+    font-weight: 400;
+    color: var(--ink-2);
+  }
+  .untimed {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .untimed h2 {
+    margin: 0 0 6px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+    font-weight: 600;
+  }
+  .untimed ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .untimed li {
+    --k: var(--wk-sport);
+    border-left: 3px solid var(--k);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--k) 13%, var(--paper));
+  }
+  .untimed li a {
+    display: block;
+    min-height: 44px;
+    padding: 6px 10px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .untimed li b,
+  .blk b {
+    display: block;
+    font-weight: 600;
+  }
+  .untimed li small,
+  .blk small {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  .k-date {
+    --k: var(--wk-date);
+  }
+  .k-todo {
+    --k: var(--wk-todo);
+  }
+  .k-bike {
+    --k: var(--wk-bike);
+  }
+  .done b {
+    text-decoration: line-through;
+    color: var(--ink-2);
+  }
+  .tl {
+    position: relative;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--paper);
+    margin: 0 0 12px;
+    overflow: hidden;
+  }
+  .hr {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid var(--line);
+  }
+  .hr .num {
+    position: absolute;
+    left: 8px;
+    top: 2px;
+    font-size: var(--fs-tiny);
+    color: var(--ink-3);
+  }
+  .now {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 2px solid var(--hi);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .now span {
+    position: absolute;
+    left: 6px;
+    top: -9px;
+    padding: 0 6px;
+    border-radius: 6px;
+    background: var(--hi);
+    color: var(--hi-ink);
+    font-size: var(--fs-tiny);
+    font-weight: 700;
+  }
+  .blk {
+    --k: var(--wk-sport);
+    position: absolute;
+    z-index: 1;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 4px 8px;
+    border-left: 3px solid var(--k);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--k) 16%, var(--paper));
+    color: var(--ink);
+    text-decoration: none;
+    line-height: 1.25;
+  }
+  .blk.small {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+  .blk.small b,
+  .blk.small small {
+    display: inline;
+  }
+  .foot {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  a:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+  }
+  @media (min-width: 1000px) {
+    .tl {
+      max-width: 860px;
+    }
+  }
+</style>
