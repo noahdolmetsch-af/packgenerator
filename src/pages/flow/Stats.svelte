@@ -236,6 +236,10 @@
         series: [{ key: 'rest', color: 'var(--hi)', v: hr.points.map((p) => p.rest) }, { key: 'high', color: 'var(--bad)', v: hr.points.map((p) => p.high) }],
         table: { head: [...head(t('at rest')), t('highest')], rows: [...hr.points].reverse().map((p) => ({ key: p.key, cells: [when(p.key), p.rest ?? '–', p.high ?? '–'] })) },
         label: t('Resting and highest pulse per day'),
+        // «Diagramme überall verbessern»: the usual range and one neutral sentence for the resting pulse (the line that does not jump with every ride)
+        band: usualBand(hr.points.map((p) => p.rest)),
+        bandText: t('Your usual range at rest'),
+        sentences: changeSentence(hr.points.map((p) => ({ label: when(p.key), v: p.rest })), (v) => `${Math.round(v)} bpm`).map((x) => t('Resting pulse: {s}', { s: x })),
       };
     }
     if (bkey === 'year' && !kind && yr.length) {
@@ -312,7 +316,7 @@
     {#if M.kind === 'bar'}
       <BarChart id={M.id} cols={M.cols} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
     {:else}
-      <LineChart id={M.id} cols={M.cols} series={M.series} scale={M.scale} band={M.band ? { ...M.band, text: t('Your usual range') } : null} sentences={M.sentences ?? []} tick={M.tick} topText={M.topText} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
+      <LineChart id={M.id} cols={M.cols} series={M.series} scale={M.scale} band={M.band ? { ...M.band, text: M.bandText ?? t('Your usual range') } : null} sentences={M.sentences ?? []} tick={M.tick} topText={M.topText} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
     {/if}
   {/if}
 {/snippet}

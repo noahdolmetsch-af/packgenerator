@@ -8,7 +8,7 @@ import { ready } from './settle.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z]+$/, '');
 
-async function open(page, context, healthDays) {
+async function open(page, context, healthDays, route = 'vo2max') {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -17,7 +17,7 @@ async function open(page, context, healthDays) {
   await page.goto('./#/flow');
   await ready(page);
   await put(page, { healthDays });
-  await page.goto('./#/flow/stats/vo2max');
+  await page.goto(`./#/flow/stats/${route}`);
   await page.reload();
   await ready(page);
   return errors;
@@ -61,5 +61,17 @@ test('VO2max: the line shows your usual range and one neutral sentence («Diagra
   await expect(st.locator('[data-band]')).toHaveCount(1);
   await expect(st.locator('[data-band-text]')).toHaveText(T('Your usual range'));
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/vo2max-band-${page.viewportSize().width <= 500 ? 390 : 1440}.png`, fullPage: true });
+  expect(errors).toEqual([]);
+});
+
+test('Pulse: the resting line shows your usual range and one neutral sentence', async ({ page, context }) => {
+  // a resting pulse every day for 60 days, between 48 and 52 (made up), today 54
+  const days = Array.from({ length: 60 }, (_, i) => ({ date: addDays(TODAY, -i), restingHr: i === 0 ? 54 : 48 + (i % 5), src: 'google' }));
+  const errors = await open(page, context, days, 'hr');
+  const st = page.locator('.gs');
+  await st.locator('[data-ranges] [data-key="w4"]').click();
+  await expect(st.locator('[data-chart-sentences]')).toContainText(/^Puls in Ruhe: Jetzt \d+ bpm/);
+  await expect(st.locator('[data-band]')).toHaveCount(1);
+  await expect(st.locator('[data-band-text]')).toHaveText(T('Your usual range at rest'));
   expect(errors).toEqual([]);
 });

@@ -17,7 +17,7 @@ test('Planen: three tabs, the other pages as chips, every address still opens it
   // no «Alle n» window any more: nothing is hidden behind it
   await expect(page.locator('nav.ptabs .pmore')).toHaveCount(0);
   const chips = page.locator('nav.psubs');
-  await expect(chips.locator('a')).toHaveCount(2); // Woche: Woche, Termine
+  await expect(chips.locator('a')).toHaveCount(3); // Woche: Woche, Mein Tag, Termine (Mein Tag since 23.11.2026)
   await expect(chips.locator('a[data-sub="week"]')).toHaveAttribute('aria-current', 'page');
   await page.screenshot({ path: info.outputPath('planen-woche.png') });
 
