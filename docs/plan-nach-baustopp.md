@@ -1,6 +1,18 @@
 # Plan nach dem Baustopp
 
-Stand 22.11.2026, 22:35 (Zürich). **Der Baustopp ist seit 22.11., 22:25 aufgehoben (Noah).** **Seit 23.11., 00:03 ist alles vorab freigegeben (Noah «du musst mich nicht mehr fragen. ich gebe jetzt ausdrücklich alles frei»):** kein «ok» pro PR und keine Einzelfreigaben mehr, auch nicht für Daten. Jeder PR geht nach grüner Prüfung von selbst online. Pflicht bleibt ein Backup vor jeder Datenänderung (Test mit Backup-Kopie, frisches Backup von Noah); «schliessen» und Force-Push nur mit seinem Wortlaut (siehe `docs/decisions/alles-freigegeben.md`). Wo unten «ok», «dein ok» oder «Einzelfreigabe» steht, ist das überholt. Runde 1 läuft, die Wellen steuert der Bündler nach diesem Plan. Die Abschnitte «Baustopp» und «Vor dem Aufheben» unten sind Verlauf, nicht mehr in Kraft. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
+Stand 22.11.2026, 22:35 (Zürich); aktueller Stand in «Stand 23.11.2026» unten. **Der Baustopp ist seit 22.11., 22:25 aufgehoben (Noah).** **Seit 23.11., 00:03 ist alles vorab freigegeben (Noah «du musst mich nicht mehr fragen. ich gebe jetzt ausdrücklich alles frei»):** kein «ok» pro PR und keine Einzelfreigaben mehr, auch nicht für Daten. Jeder PR geht nach grüner Prüfung von selbst online. Pflicht bleibt ein Backup vor jeder Datenänderung (Test mit Backup-Kopie, frisches Backup von Noah); «schliessen» und Force-Push nur mit seinem Wortlaut (siehe `docs/decisions/alles-freigegeben.md`). Wo unten «ok», «dein ok» oder «Einzelfreigabe» steht, ist das überholt. Runde 1 läuft, die Wellen steuert der Bündler nach diesem Plan. Die Abschnitte «Baustopp» und «Vor dem Aufheben» unten sind Verlauf, nicht mehr in Kraft. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
+
+## Stand 23.11.2026, 08:05 (Zürich)
+
+Seit dem Aufheben des Baustopps und der Freigabe sind über Nacht rund 45 PRs auf `main` gelandet, fast alle des Plans. Das Wichtigste:
+
+- **Daten:** Strava-Doppel (Fahrten zählen einmal, Doppelte aufräumen), Pausenwochen, Gym zählt 1 Stunde, Gruss-Gesichter als Stimmungs-Antwort, «Daten behalten» mit Meldung, Kopplungscode als Datei, leeres Handy im Startfenster, KI entfernen Schritt 8 (Server) und 9 (Aufräumen).
+- **Wochenrückblick und Sportarten:** eine Rechnung für alle Seiten, Rhythmus und Vergleiche, Sonntag ein Rückblick statt zwei, Aktivzonen gegen das eigene Normal, Erholung und Rituale, Zusammenhänge ab 20 Mal, «k von n Einheiten», Im Fokus und «Diese Woche» für alle Sportarten.
+- **Fertiges von vorher:** Zwiebel mit Tauschen, Anprobe und Morgen/Mittag, Erste Nacht beim Packen, Kleider heute, Challenge-Erinnerung, TrainingPeaks Recovery Day, Training «Woche leichter oder härter» und «Dein Stand», Diagramme mit Vergleich, Meilensteine geordnet.
+- **Aufräumen und neue Teile:** Velos und Material in einem Bereich, Touren-Liste, Wetterseite, Analyse übersichtlicher, «Ich» in vier Gruppen, Frag die App (S6 Schritt 2), Kursblick (Gold, SMI, Märkte).
+- **Tests:** Handy-Prüfungen und Nachtprüfung nachgezogen. Das Backup liegt bereit (heute 04:47).
+
+**Offen und in Arbeit (Threads):** Navigation ohne Sackgassen, Form und Erholung klüger machen, Zusammenhänge nützlicher, Diagramme überall verbessern, Analyse-Seite besser, Velos und Material aufräumen, neue Seite «Mein Tag», Kursblick (Breite und persönliche Teile), Prototyp, Warteliste fertig bauen (online später). Neue Reihenfolge nach Noah: **Navigation und Zählung zuerst, höchstens 4 bis 5 PRs gleichzeitig in der Prüfung**; die Warteliste ganz zum Schluss. Die meisten alten Threads sind geschlossen.
 
 ## Baustopp 22.11., 19:15 bis 22:25 (Noah, aufgehoben)
 

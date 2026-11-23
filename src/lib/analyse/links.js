@@ -42,6 +42,25 @@ export function fitOf(pairs) {
   return { n, r: sxy / Math.sqrt(sxx * syy), b, a: my - b * mx, sdx: Math.sqrt(sxx / n), mx, my };
 }
 
+/**
+ * Values that measure the same thing in another way (Noah 23.11.2026 «selbstverständliche Paare raus»): pulse zones and time in
+ * motion, load and bike km. A link between two of one family is no find, so the list of the strongest links leaves it out
+ * (you can still pick any two values yourself). A family: a list of keys, `km:` and `act:` stand for every key that starts so.
+ */
+export const FAMILIES = [
+  // how much you moved or trained: every value of effort, time, distance, climb and the ticked sports
+  ['azm', 'zones', 'load', 'cardioLoad', 'fitZones', 'activeMin', 'workouts', 'steps', 'kcal', 'actHours', 'sedMin', 'distKm', 'floors', 'climbM', 'tMove', 'kmAll', 'hmAll', 'late', 'rideFeel', 'wkg', 'cad', 'spd', 'km:', 'act:'],
+  // how long and how well you slept
+  ['sleep', 'eff', 'bed', 'skin', 'sleepScore', 'restless'],
+  // the pulse of the day
+  ['rhr', 'hrMax', 'hrMin', 'hrAvg', 'hrDay'],
+  // weight in its three forms
+  ['weight', 'fitKg', 'bodyFat'],
+];
+const inFamily = (fam, key) => fam.some((k) => (k.endsWith(':') ? String(key).startsWith(k) : k === key));
+/** Do the two values say the same thing in different words (same family)? */
+export const obviousPair = (a, b) => FAMILIES.some((f) => inFamily(f, a) && inFamily(f, b));
+
 /** The word for how strong: none, weak, medium, strong (by |r|). */
 export function strengthOf(r) {
   const a = Math.abs(r ?? 0);
@@ -58,8 +77,8 @@ export function niceStep(sd) {
 
 /**
  * The strongest links among the items (each { key, get, group, tick? }), every offset; at most `top`, the
- * strongest first. Left out: a value with itself, and two values of the same group on the same day (sleep
- * and sleep efficiency say the same). An activity (tick) is only ever the first value.
+ * strongest first. Left out: a value with itself, two values of one family (obviousPair: pulse zones and time in motion say
+ * the same), and two values of the same group on the same day (sleep and sleep efficiency say the same). An activity (tick) is only ever the first value.
  */
 export function strongest(items, days, { keep = null, offsets = OFFSETS, top = 5 } = {}) {
   const out = [];
@@ -78,7 +97,7 @@ export function strongest(items, days, { keep = null, offsets = OFFSETS, top = 5
     .filter((it) => it.count >= MIN_PAIRS);
   for (const x of usable) {
     for (const y of usable) {
-      if (x.key === y.key || y.tick) continue;
+      if (x.key === y.key || y.tick || obviousPair(x.key, y.key)) continue;
       for (const offset of offsets) {
         if (!offset && x.group && x.group === y.group) continue;
         const fit = fitOf(pairsOf(days, x.get, y.get, offset, keep));

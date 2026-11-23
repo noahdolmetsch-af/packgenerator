@@ -35,10 +35,15 @@ test('Was wäre, wenn: Pause, kurz und lang im Vergleich, mit Spanne', async ({ 
   await ready(page);
   const card = page.locator('[data-form-whatif]');
   await expect(page.getByRole('heading', { name: T('What if …') })).toBeVisible();
+  // Noah 23.11.2026 «ja»: plain sentences first (each option against a pause, after a week); the table sits in a fold
+  await expect(card.locator('[data-ww-sentence] li')).toHaveCount(2);
+  await expect(card.locator('[data-ww-line="long"]')).toContainText('Nach einer Woche ist deine Form');
+  await expect(card.locator('[data-ww-line="long"]')).toContainText('als mit einer Pause');
+  await expect(card.locator('[data-ww-table]')).toBeHidden();
+  await card.locator('[data-ww-more] summary').click();
   // tomorrow: nothing planned, so three columns: pause, short, long
   await expect(card.locator('[data-ww-col]')).toHaveCount(3);
   await expect(card.locator('[data-ww-col="pause"]')).toBeVisible();
-  await expect(card.locator('[data-ww-sentence]')).toContainText('langen Einheit');
   await expect(card.locator('[data-ww-note]')).toContainText('keine Vorhersage');
   await expect(card.getByText('Ruhepuls, HRV und Schlaf lassen sich aus einem Plan nicht vorhersagen')).toBeVisible();
   // the long session leaves more fatigue the day after than a pause
@@ -47,6 +52,7 @@ test('Was wäre, wenn: Pause, kurz und lang im Vergleich, mit Spanne', async ({ 
   expect(await n('long-1')).toBeGreaterThan(await n('pause-1'));
   // the day with the planned session adds the column «Wie geplant»
   await card.locator('[data-ww-day]').selectOption(addDays(TODAY, 3));
+  await expect(card.locator('[data-ww-sentence] li')).toHaveCount(3);
   await expect(card.locator('[data-ww-col]')).toHaveCount(4);
   await expect(card.locator('[data-ww-col="plan"]')).toContainText('Wie geplant');
   // a longer «long» session changes the numbers

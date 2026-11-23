@@ -1,6 +1,6 @@
 // «Was hängt zusammen?» (D5): the rules of lib/analyse/links.js. Fictional days only.
 import { describe, it, expect } from 'vitest';
-import { pairsOf, fitOf, strengthOf, niceStep, strongest, afterTicks, MIN_PAIRS } from '../src/lib/analyse/links.js';
+import { pairsOf, fitOf, strengthOf, niceStep, strongest, afterTicks, obviousPair, MIN_PAIRS } from '../src/lib/analyse/links.js';
 import { addDays } from '../src/lib/analyse.js';
 
 const days = Array.from({ length: 30 }, (_, i) => addDays('2026-09-10', i));
@@ -49,5 +49,25 @@ describe('strongest links and after-tick days', () => {
     expect(a.diff).toBeCloseTo(50, 0);
     expect(a.above).toBe(a.n);
     expect(afterTicks(days.slice(0, 4), sauna, items[1].get, 1)).toBeNull();
+  });
+});
+
+describe('obvious pairs', () => {
+  it('values that measure the same thing are no find; others are', () => {
+    expect(obviousPair('zones', 'tMove')).toBe(true); // pulse zones and time in motion
+    expect(obviousPair('load', 'km:bike')).toBe(true);
+    expect(obviousPair('cardioLoad', 'act:sauna')).toBe(true);
+    expect(obviousPair('sleep', 'sleepScore')).toBe(true);
+    expect(obviousPair('sleep', 'felt:energy')).toBe(false);
+    expect(obviousPair('act:sauna', 'sleep')).toBe(false);
+    expect(obviousPair('azm', 'rhr')).toBe(false);
+  });
+  it('the list of strongest links leaves them out', () => {
+    const mk = (key, f) => ({ key, group: key, get: (d) => f(idx(d)) });
+    const items = [mk('zones', (i) => i), mk('tMove', (i) => i * 2), mk('sleep', (i) => 400 + i), mk('felt:energy', (i) => 5 + (i % 4))];
+    const list = strongest(items, days, { offsets: [0] });
+    const pairs = list.map((l) => [l.x, l.y].sort().join('|'));
+    expect(pairs).not.toContain('tMove|zones');
+    expect(pairs).toContain('sleep|zones');
   });
 });

@@ -3,7 +3,8 @@
    * «Diagramme zum Antippen» K1 + «Genaue Werte» (Noah 27.10.2026 «1-5 a»): the chart «Verlauf» on the page
    * «Form und Erholung». Fitness and fatigue as lines, form as bars around 0, the resting pulse with its own
    * axis and your normal as a band. Every part has a labelled axis with round steps (charts/axis.js).
-   * - A span switch (4 wk to 1 yr) and chips that show or hide each part (Q3 «a»: at the chart).
+   * - A span switch (4 wk to 1 yr) and chips that show or hide each part (Q3 «a»: at the chart). Form alone is shown first
+   *   (Noah 23.11.2026 «ja»: four lines on top of each other were hard to read).
    * - Pointing shows the exact numbers of that day in the line above (Readout), a cursor goes through all
    *   parts; ← → Home End on the keyboard do the same.
    * - A tap or Enter opens the day: all values, the load and its activities, «Tag davor» / «Nächster Tag».
@@ -34,7 +35,8 @@
     { key: 'rhr', name: 'Resting pulse', color: 'var(--bad)' },
   ];
   let span = $state(SPAN_DEFAULT);
-  let on = $state({ fit: true, fat: true, form: true, rhr: true });
+  // Noah 23.11.2026 «ja»: only the form at first; fitness, fatigue and resting pulse are one tap away (the chips)
+  let on = $state({ fit: false, fat: false, form: true, rhr: false });
   let view = $state('chart');
   let sel = $state(null);
   let open = $state(null);
@@ -192,6 +194,8 @@
           <YTicks ticks={scF.ticks} y={yF} h={100} text={(v) => (v > 0 ? '+' : '') + tickText(v, scF.step, num)} width={40} />
           <div class="p pf" onpointermove={move} onpointerdown={move} onpointerleave={leave} onclick={tap} role="presentation">
             <svg viewBox="0 0 {W} 100" preserveAspectRatio="none" class="bars" aria-hidden="true">
+              <!-- the tours behind the bars when the lines (which carry them otherwise) are off -->
+              {#if !(on.fit || on.fat)}{#each bands as b (b.trip.id ?? b.s)}<rect class="tb" x={b.i0 * 10} width={(b.i1 - b.i0 + 1) * 10} y="0" height="100" data-tour-band />{/each}{/if}
               <GridLines ticks={scF.ticks} y={yF} x1={0} x2={W} />
               {#if sel != null}<line class="cur" x1={X(sel)} x2={X(sel)} y1="0" y2="100" />{/if}
               {#each pts as p, i (p.day)}
