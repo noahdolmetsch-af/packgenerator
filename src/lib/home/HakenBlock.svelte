@@ -17,6 +17,7 @@
   import { actName } from '../flow/ui.svelte.js';
   import { habitActIds } from './habits.js';
   import TileHead from './TileHead.svelte';
+  import ChallengeLine from './ChallengeLine.svelte';
   import { hakenPick } from './haken.js';
   import { t } from '../i18n.svelte.js';
 
@@ -32,6 +33,8 @@
   // the habits load a moment after the activities: wait for them, or a tile shows for a blink and then moves up to the habit cards
   const ready = $derived(!top || !!$rq);
   const pick = $derived(ready ? hakenPick(states, upIds, phone.matches ? 4 : 8) : { shown: [], up: [], done: 0, total: 0 });
+  // the meditation has its own line under the tiles (ChallengeLine), so the quiet line names only the other habits
+  const upRest = $derived(pick.up.filter((s) => !isMedAct(s.act)));
   let medFor = $state(null);
   const medSt = $derived(medFor ? (states.find((s) => s.act.id === medFor) ?? null) : null);
 </script>
@@ -40,7 +43,8 @@
   <section class="hk surf" aria-labelledby="hk-h" data-section="haken">
     <TileHead icon={Check} id="hk-h" title={t('Tick off today')} side={pick.total ? (pick.open ? t('{n} open|haken', { n: pick.open }) : t('All done|haken')) : ''} />
     {#if pick.shown.length}<TickGrid states={pick.shown} {today} cols={phone.matches ? 2 : 4} compact onmed={(s) => (medFor = s.act.id)} />{/if}
-    {#if pick.up.length}<p class="up" data-haken-up>{t('{list}: up with your habits', { list: pick.up.map((s) => actName(s.act)).join(', ') })}</p>{/if}
+    {#if upRest.length}<p class="up" data-haken-up>{t('{list}: up with your habits', { list: upRest.map((s) => actName(s.act)).join(', ') })}</p>{/if}
+    <ChallengeLine {today} />
     <a class="lk" href="#/flow" data-haken-all>{t('All|haken')}<ChevronRight size={16} aria-hidden="true" /></a>
   </section>
 {/if}
