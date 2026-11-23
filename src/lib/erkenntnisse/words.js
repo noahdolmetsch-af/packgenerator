@@ -11,6 +11,7 @@ export function xText(t, v, ownName, key, cut) {
   if (key === 'steps') return t('more than {v} steps', { v: v(Math.round(cut)) });
   if (key === 'rhr') return t('a resting pulse above {v}', { v: v(cut) });
   if (key === 'azm') return cut ? t('more than {v} active zone minutes', { v: v(cut) }) : t('active zone minutes');
+  if (key === 'tmax') return t('a high above {v} degrees', { v: v(cut) });
   if (key === 'sunH') return cut ? t('more than {v} h of sunshine', { v: v(cut) }) : t('sunshine');
   if (key === 'lightH') return t('more than {v} h of daylight', { v: v(cut) });
   if (key === 'rainMm') return cut ? t('more than {v} mm of rain', { v: v(cut) }) : t('rain');
@@ -32,6 +33,7 @@ export const Y = {
   hrv: 'your HRV|insight',
   azm: 'your active zone minutes|insight',
   steps: 'your steps|insight',
+  km: 'your bike km|insight',
 };
 
 /** The short name of a value in a lever line («Akku +1.6»). */
@@ -72,3 +74,17 @@ export const sentenceOf = (t, v, ownName, x) =>
     hi: v(x.hi.mean),
     lo: v(x.lo.mean),
   });
+
+/** The unit after a number of x in a range («7 h»). */
+const X_UNIT = { sleepH: ' h', km: ' km', med: ' min', azm: ' min', sunH: ' h', lightH: ' h', rainMm: ' mm', tmax: ' °C' };
+/** A range of x: «up to 6 h», «6 to 7.5 h», «over 7.5 h» (from / to null at the open ends). */
+export function rangeText(t, v, key, from, to) {
+  const u = X_UNIT[key] ?? '';
+  if (from == null) return t('up to {b}', { b: `${v(to)}${u}` });
+  if (to == null) return t('over {a}', { a: `${v(from)}${u}` });
+  return t('{a} to {b}', { a: v(from), b: `${v(to)}${u}` });
+}
+
+/** The long name of weekday i (0 = Monday), in the shown language. */
+export const dayLong = (locale, i) => new Date(Date.UTC(2026, 0, 5 + i)).toLocaleDateString(locale, { weekday: 'long', timeZone: 'UTC' });
+export const dayShortName = (locale, i) => new Date(Date.UTC(2026, 0, 5 + i)).toLocaleDateString(locale, { weekday: 'short', timeZone: 'UTC' });

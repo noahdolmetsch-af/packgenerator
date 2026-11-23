@@ -75,6 +75,7 @@ export const SERIES_NAME = {
   steps: 'Steps',
   rhr: 'Resting pulse',
   hrv: 'HRV',
+  tmax: 'Daily high',
   azm: 'Active zone minutes',
   sunH: 'Hours of sun',
   lightH: 'Daylight',

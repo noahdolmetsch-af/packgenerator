@@ -43,7 +43,7 @@ export const LEVERS = 3;
 export const RHR_DAYS = 3;
 export const RHR_ABOVE = 5;
 
-const addDays = (day, n) => {
+export const addDays = (day, n) => {
   const d = new Date(`${day}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
@@ -52,8 +52,8 @@ const addDays = (day, n) => {
 export const lastDays = (today, n) => Array.from({ length: n }, (_, i) => addDays(today, i - n + 1));
 
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
-const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
-const round1 = (x) => Math.round(x * 10) / 10;
+export const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
+export const round1 = (x) => Math.round(x * 10) / 10;
 
 /** The value of a question per day (the mean when answered more than once). */
 function perDay(rows, qid) {
@@ -219,6 +219,16 @@ export const PAIRS = [
   { id: 'azm-battery', x: 'azm', y: 'battery', lag: 1, fixedCuts: AZM_CUTS },
   { id: 'azm-mood', x: 'azm', y: 'mood', lag: 1, fixedCuts: AZM_CUTS },
   { id: 'azm-sleepfelt', x: 'azm', y: 'sleepFelt', lag: 1, fixedCuts: AZM_CUTS },
+  // weather and training (Noah 23.11.2026): do you ride and move less when it rains or is cold, and does the day after feel different
+  { id: 'rain-km', x: 'rainMm', y: 'km', lag: 0 },
+  { id: 'rain-steps', x: 'rainMm', y: 'steps', lag: 0 },
+  { id: 'rain-azm', x: 'rainMm', y: 'azm', lag: 0 },
+  { id: 'cold-km', x: 'tmax', y: 'km', lag: 0 },
+  { id: 'sun-km', x: 'sunH', y: 'km', lag: 0 },
+  { id: 'sun-azm', x: 'sunH', y: 'azm', lag: 0 },
+  { id: 'rain-mood-next', x: 'rainMm', y: 'mood', lag: 1 },
+  { id: 'km-battery-next', x: 'km', y: 'battery', lag: 1 },
+  { id: 'km-mood-next', x: 'km', y: 'mood', lag: 1 },
 ];
 
 /** The step a cut is rounded to, so that «more than 9.6 km» says «more than 10 km» and «5.46 h» says «5.5 h». */
@@ -227,7 +237,7 @@ const stepOf = (key, v) => {
   if (key === 'km') return v >= 20 ? 5 : 1;
   if (key === 'steps') return 500;
   if (key === 'med' || key === 'azm') return 5;
-  if (key === 'rhr' || key === 'evts' || key === 'rainMm') return 1;
+  if (key === 'rhr' || key === 'evts' || key === 'rainMm' || key === 'tmax') return 1;
   if (key === 'sleepFelt' || key.startsWith('own:')) return v >= 10 ? 1 : 0.5;
   return 0;
 };
@@ -270,7 +280,7 @@ export function spearman(xs, ys) {
   return sxy / Math.sqrt(sxx * syy);
 }
 
-const median = (list) => {
+export const median = (list) => {
   const s = [...list].sort((a, b) => a - b);
   const m = s.length >> 1;
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
@@ -343,11 +353,11 @@ export function rhrHigh(health = [], today) {
 }
 
 /** Higher is better for these (the resting pulse is better lower). */
-const BETTER_UP = new Set(['battery', 'mood', 'sat', 'sleepH', 'sleepFelt', 'hrv']);
+export const BETTER_UP = new Set(['battery', 'mood', 'sat', 'sleepH', 'sleepFelt', 'hrv']);
 /** What a person can do today: sleep, bike, meditation, steps, active zone minutes and every activity of Aktiv (weather, appointments and the body's own values are not levers). */
 export const isLever = (key) => ['sleepH', 'km', 'med', 'steps', 'azm'].includes(key) || String(key).startsWith('act:');
 /** Is the group «more of x» the better one for y? */
-const goodWay = (row) => (row.y === 'rhr' ? row.hi.mean < row.lo.mean : BETTER_UP.has(row.y) && row.hi.mean > row.lo.mean);
+export const goodWay = (row) => (row.y === 'rhr' ? row.hi.mean < row.lo.mean : BETTER_UP.has(row.y) && row.hi.mean > row.lo.mean);
 
 /**
  * The strongest levers (Noah 23.11.2026 «ja»): the shown insights where more of something you can do goes with a better value
