@@ -81,7 +81,7 @@
     margin: -14px 0 0 -14px;
     border-radius: 50%;
     background: var(--hi);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 1px 4px var(--shadow);
   }
   .nb input[type='range'] {
     position: absolute;
