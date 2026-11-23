@@ -20,6 +20,6 @@ PR · 23.11.2026 · Auftrag: Noah «ja» (Thread «Diagramme überall verbessern
 - Diagramme: Vorschlag 2 («eine Aussage, Normalband») auf Körperwerte eingeschaltet.
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
-1. Auswerten › Körper › Körperwerte, «Puls» oder «VO2max», Zeitraum «1 J»: hinter der Linie liegt ein Band «Deine übliche Spanne».
+1. Auswerten › Körper › Körperwerte, «Puls» oder «VO2max», Zeitraum «4 Wo.»: hinter der Linie liegt ein Band «Deine übliche Spanne».
 2. Über der Kurve steht ein Satz mit «mehr» oder «weniger».
 3. Auf die Kurve zeigen: die Zahlen des Tages stehen weiter darüber.
