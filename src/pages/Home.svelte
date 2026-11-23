@@ -1394,7 +1394,7 @@
   {#if !editing && ready}<PhotoGreeting />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
        (HG1 2a: right under the greeting). -->
-  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={tourOnce ? bildTrip?.id ?? null : on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
+  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={tripMerged ? bildTrip?.id ?? null : on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
   <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): «Heute fällig», only what is really due today: to-dos, birthdays, plants, bike care.
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
