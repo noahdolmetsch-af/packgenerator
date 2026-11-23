@@ -42,13 +42,13 @@ describe('the usual duration of a sport', () => {
 
 describe('Noah\'s usual durations (21.11.2026 «Standartwert beim abhaken»)', () => {
   const std = (name, id = 'x', nameDe) => standardFor({ id, name, nameDe });
-  it('ice hockey 2 h, tennis 1 h, yoga 1 h, sauna 12 min, gym 20 min', () => {
+  it('ice hockey 2 h, tennis 1 h, yoga 1 h, sauna 12 min, gym 1 h (Noah 22.11.2026 «gym normalfall 1h»)', () => {
     expect(std('Ice hockey', 'hockey', 'Eishockey')).toBe(120);
     expect(std('Tennis', 'tennis', 'Tennis spielen')).toBe(60);
     expect(std('Yoga', 'yoga')).toBe(60);
     expect(std('Sauna', 'sauna')).toBe(12);
-    expect(std('Gym', 'gym')).toBe(20);
-    expect(std('eGym')).toBe(20);
+    expect(std('Gym', 'gym')).toBe(60);
+    expect(std('eGym')).toBe(60);
   });
   it('treadmill, running indoors and «rennen indoor» are one activity: 20 min (two blocks of 10), found by the name in German or English', () => {
     expect(std('Laufband rennen')).toBe(20);
