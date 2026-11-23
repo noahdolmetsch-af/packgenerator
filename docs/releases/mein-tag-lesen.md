@@ -20,7 +20,7 @@ Plan: `/mnt/project-files/notes/mein-tag-bauplan-2026-11-23/bauplan.md`, klickba
 - Ein Eintrag ohne bekannte Länge (ein Kalendertermin hat nur einen Start) bekommt die übliche Länge (Termin 60 Min, Einheit 60 Min, To-do 30 Min) und zeigt dann nur die Startzeit, nie eine erfundene Endzeit.
 - Einheiten des Trainingsplans haben heute keine Uhrzeit: sie stehen unter «Ohne Zeit». Zeiten für sie kommen mit dem Ziehen (Schritt 2) in einer eigenen Einstellung.
 - Wetter nur als Wort für den Tag (wie in der Woche); Wetter pro Stunde, die 90-Min-Zeile und «Plan mir den Tag» folgen in späteren Schritten.
-- «Mein Tag» steht als Chip unter dem Reiter «Woche» und als Zeile «Passt hier» in der Woche; die Seite der Woche selbst bleibt unberührt (PR «Heute und Woche aufräumen» bleibt unabhängig).
+- «Mein Tag» steht als Chip unter dem Reiter «Woche» (der Absprung); eine Zeile «Passt hier» gibt es nicht, weil dort schon vier Funktionen stehen (Wächter: höchstens 4); die Seite der Woche selbst bleibt unberührt (PR «Heute und Woche aufräumen» bleibt unabhängig).
 - Keine Datenänderung: kein Schema, kein Backup-Format, keine neue Einstellung, kein `api/`.
 
 ## Stand im Plan
