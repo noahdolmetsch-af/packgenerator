@@ -6,8 +6,8 @@ export default {
   'avg. depth (1–5)': 'Ø Tiefe (1–5)',
   'Your own rating after each session, from 1 (restless) to 5 (very deep).': 'Deine eigene Einschätzung nach jeder Sitzung, von 1 (unruhig) bis 5 (sehr tief).',
   // Training: the subtitle, the hour goal, «Woche planen» explained above the days, the empty look back
-  'Plan your training week and see how much time you spent in which heart rate zone. Strava brings the activities by itself.':
-    'Plane deine Trainingswoche und sieh, wie viel Zeit du in welcher Pulszone warst. Die Aktivitäten bringt Strava von selbst.',
+  'Plan your week and see how long you spent in which heart rate zone.':
+    'Plane deine Woche und sieh, wie lange du in welcher Pulszone warst.',
   'An hour goal for your training?': 'Ein Stundenziel für dein Training?',
   'Hours per week, the share in Z1–Z2 and a day. Unlike under «Goals», the time counts here, not how often. All optional.':
     'Stunden pro Woche, Anteil in Z1–Z2 und ein Datum. Anders als unter «Ziele» zählt hier die Zeit, nicht wie oft. Alles freiwillig.',

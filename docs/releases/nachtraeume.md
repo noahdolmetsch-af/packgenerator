@@ -10,7 +10,7 @@ PR · 23.11.2026 · Auftrag: Noah «7» (Liste «Was noch offen ist»), Beschlus
 - nichts. Die Frage kommt dazu; die Musterfrage «Wovon hast du geträumt, nachts oder am Tag?» (Bereich Visionen, aus) bleibt wie sie ist.
 
 ## Selbst entschieden
-- Name «Nachtträume» (nicht «Träume»: so heissen die Wunschtouren, `docs/namen.md` Zeile 42).
+- Name «Nachtträume» (nicht «Träume»: so heissen die Wunschtouren, `docs/namen.md` Zeile 45).
 - Am Start an (Frage 1, Vorschlag a). Wird sie als aus gewünscht, ist es eine Zeile in `ON_AT_START`.
 - Ohne Satz gibt es keinen Tagebuch-Eintrag; wird der Satz später gelöscht, bleibt der Eintrag stehen (nichts, was man geschrieben hat, geht verloren).
 - Keine Datenbank-Änderung: der Eintrag ist eine gewöhnliche Tagebuch-Zeile in der Tabelle `frei` (kein Schema, kein neues Backup-Format).

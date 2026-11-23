@@ -244,3 +244,23 @@ test('Mein Tag: the tab «Tick off» ticks a sport on one tap, the same tick as 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('Mein Tag: «Plan my day» proposes times for entries without a time and takes them over', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  await page.locator('[data-plan-open]').click();
+  const sheet = page.locator('[data-plan-sheet]');
+  await expect(sheet).toContainText(T('Plan my day'));
+  await expect(sheet.locator('[data-plan-pick="wi3"]')).toBeChecked();
+  // the clock is 09:00: the first free gap with a quarter hour of air is 09:00 itself (the dentist is at 12:00)
+  await expect(sheet).toContainText('09:00');
+  await sheet.locator('[data-plan-apply]').click();
+  await expect(page.locator('.tl [data-entry="wi3"]')).toContainText('09:00');
+  await expect(page.locator('[data-plan-open]')).toHaveCount(0);
+  // Undo gives the entry its empty time back
+  await page.getByRole('button', { name: T('Undo') }).first().click();
+  await expect(page.locator('.untimed')).toContainText('Garage anrufen');
+  expect(errors).toEqual([]);
+});

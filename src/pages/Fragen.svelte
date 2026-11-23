@@ -7,7 +7,7 @@
    * page of the numbers. Only to look at: never a rating, never advice on health. «Das fällt auf» is not here (Schritt 7b).
    */
   import { liveQuery } from 'dexie';
-  import { ChevronRight, MessageCircle, Plug } from '@lucide/svelte';
+  import { ChevronDown, ChevronRight, MessageCircle, Plug } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { db } from '../lib/db.js';
   import { analyseData } from '../lib/analyse/data.svelte.js';
@@ -21,7 +21,7 @@
   import { addDays } from '../lib/analyse.js';
   import { tripEnd } from '../lib/tripstate.js';
   import { localDay } from '../lib/localday.js';
-  import { t, tn, num } from '../lib/i18n.svelte.js';
+  import { t, tn, num, locale } from '../lib/i18n.svelte.js';
 
   const today = localDay();
   // a year back is enough for every question here (the longest looks 180 days back)
@@ -43,10 +43,55 @@
   const ready = $derived(!data.loading && bikes !== undefined);
   const answers = $derived(ready ? Object.fromEntries(QUESTIONS.map((q) => [q.key, answerOf(q.key, ctx)])) : {});
   const nothing = $derived(ready && allFew(Object.values(answers)));
+  // the answers that stand come first as full cards; the questions that still need data are slim rows under them
+  const okQs = $derived(QUESTIONS.filter((q) => answers[q.key]?.state !== 'few'));
+  const fewQs = $derived(QUESTIONS.filter((q) => answers[q.key]?.state === 'few'));
 
   const n1 = (v) => num(Math.round(v * 10) / 10);
   const hours = (v) => shown('sleep', v, num);
   const signed = (v, f) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${f(Math.abs(v))}`;
+
+  /** The signal whose last value tells how far the data of a question reaches («Stand heute, Daten bis gestern»). */
+  const LAST = { koerper: 'rhr', tempo: 'spd', tour: 'sleep', zusammen: 'sleep', jahr: 'kmAll' };
+  function lastDay(key) {
+    const get = byKey.get(LAST[key])?.get;
+    if (!get) return null;
+    for (let i = 0; i < 400; i++) {
+      const d = addDays(today, -i);
+      const v = get(d);
+      if (typeof v === 'number' && Number.isFinite(v) && (key !== 'jahr' || v > 0)) return d;
+    }
+    return null;
+  }
+  /** The calm line under an answer: it is from today, and the data reach up to this day. */
+  function stand(key) {
+    if (!LAST[key]) return t('As of today');
+    const d = lastDay(key);
+    if (!d) return t('As of today');
+    if (d === today) return t('As of today, data up to today');
+    if (d === addDays(today, -1)) return t('As of today, data up to yesterday');
+    return t('As of today, data up to {date}', { date: new Date(`${d}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' }) });
+  }
+
+  /** What a question still needs before it answers («Braucht noch 5 Fahrtage»): the shorter side counts. */
+  function need(key, a) {
+    const left = (have, want) => Math.max(1, want - have);
+    switch (key) {
+      case 'koerper':
+        return tn(left(a.n, a.need), 'Needs {n} more day with a resting pulse', 'Needs {n} more days with a resting pulse');
+      case 'tempo':
+      case 'jahr':
+        return tn(left(Math.min(a.nNow, a.nPrev), a.need), 'Needs {n} more day with a ride', 'Needs {n} more days with a ride');
+      case 'zusammen':
+        return tn(left(Math.min(a.nAfter, a.nOther), a.need), 'Needs {n} more night with a value', 'Needs {n} more nights with a value');
+      case 'tour':
+        return a.why === 'none' ? t('Needs a finished tour') : a.why === 'recent' ? t('Needs a few more days after the tour') : t('Needs sleep or resting pulse values around the tour');
+      case 'velo':
+        return t('Needs a bike');
+      default:
+        return '';
+    }
+  }
 
   /** The names of the six groups (the question of the group) and the question itself. */
   const GROUP = {
@@ -82,7 +127,7 @@
         return a.sleep7 != null ? `${main} ${t('Sleep over the last 7 days: {h} on average.', { h: hours(a.sleep7) })}` : main;
       }
       case 'tempo': {
-        if (a.state === 'few') return t('Too few rides for a statement: {a} and {b} days with a speed, {need} are needed on each side.', { a: a.nNow, b: a.nPrev, need: a.need });
+        if (a.state === 'few') return t('Too few rides for a statement: {a} days with a speed in the last 90 days, {b} in the 90 days before; {need} are needed on each side.', { a: a.nNow, b: a.nPrev, need: a.need });
         if (Math.abs(a.diff) < 0.1) return t('In the last 90 days you ride about as fast as in the 90 days before ({v} km/h).', { v: n1(a.now) });
         return a.diff > 0
           ? t('In the last 90 days you ride {d} km/h faster on average than in the 90 days before.', { d: n1(a.diff) })
@@ -112,7 +157,7 @@
         return t('Due: {list}.', { list: a.due.map((b) => `«${b.name}»: ${b.due.join(', ')}`).join('; ') });
       }
       case 'jahr': {
-        if (a.state === 'few') return t('Too few rides this year or last year for a comparison: {a} and {b} days with a ride, {need} are needed on each side.', { a: a.nNow, b: a.nPrev, need: a.need });
+        if (a.state === 'few') return t('Too few rides for a comparison: {a} days with a ride this year, {b} last year up to the same date; {need} are needed on each side.', { a: a.nNow, b: a.nPrev, need: a.need });
         return t('This year {now} km so far, last year on the same date {prev} km ({diff} km).', { now: num(Math.round(a.now)), prev: num(Math.round(a.prev)), diff: signed(a.diff, (v) => num(Math.round(v))) });
       }
       default:
@@ -174,15 +219,9 @@
 
 <div class="fr" data-page="fragen" data-fragen>
   <header class="ph">
-    <h1 class="title">{t('Questions about my data')}</h1>
-    <p class="sub">{t('Six questions about your own data. Each answer is one sentence with the number and its limit. An answer never says «because» and never gives advice on health.')}</p>
+    <h1 class="title">{t('Ask your data')}</h1>
+    <p class="sub">{t('Six questions, one sentence each as the answer.')}</p>
   </header>
-
-  <a class="ask" href="#/assistent" data-fragen-frei>
-    <MessageCircle size={20} aria-hidden="true" />
-    <span class="am"><b>{t('Ask in your own words')}</b><small>{t('The assistant answers questions about your data, for example «How much did I ride in October?»')}</small></span>
-    <ChevronRight size={18} aria-hidden="true" />
-  </a>
 
   {#if !ready}
     <p class="load" role="status">{t('Counting …')}</p>
@@ -191,23 +230,59 @@
   {/if}
 
   {#if ready}
-    <ul class="qs">
-      {#each QUESTIONS as q (q.key)}
-        {@const a = answers[q.key]}
-        {@const m = more(q.key, a)}
-        <li class="card q" data-frage={q.key} data-state={a.state}>
-          <p class="g">{GROUP[q.group]()}</p>
-          <h2 class="ask-t">{ASK[q.key]()}</h2>
-          <p class="ans" class:few={a.state === 'few'} data-frage-antwort>{sentence(q.key, a)}</p>
-          <p class="lim">{limit(q.key, a)}</p>
-          <details class="why">
-            <summary>{t('Why? How it was counted')}</summary>
-            <p>{HOW[q.key]()}</p>
-          </details>
-          {#if m}<a class="more" href={m.href} data-frage-mehr>{t('More about this')}: {m.label} ›</a>{/if}
-        </li>
-      {/each}
-    </ul>
+    {#if okQs.length}
+      <ul class="qs">
+        {#each okQs as q (q.key)}
+          {@const a = answers[q.key]}
+          {@const m = more(q.key, a)}
+          <li class="card q" data-frage={q.key} data-state={a.state}>
+            <p class="g">{GROUP[q.group]()}</p>
+            <h2 class="ask-t">{ASK[q.key]()}</h2>
+            <p class="ans" data-frage-antwort>{sentence(q.key, a)}</p>
+            <p class="lim">{limit(q.key, a)}</p>
+            <p class="stand" data-frage-stand>{stand(q.key)}</p>
+            <details class="why">
+              <summary>{t('Why? How it was counted')}</summary>
+              <p>{HOW[q.key]()}</p>
+            </details>
+            {#if m}<a class="more" href={m.href} data-frage-mehr>{t('More about this')}: {m.label} ›</a>{/if}
+          </li>
+        {/each}
+      </ul>
+    {/if}
+
+    <!-- questions that still need data: one slim row each, a tap opens the sentence, «Why?» and the way on -->
+    {#if fewQs.length}
+      <section class="few" aria-labelledby="fr-few-h">
+        {#if okQs.length}<h2 id="fr-few-h" class="nh">{t('Waiting for more data')}</h2>{/if}
+        <ul class="slims">
+          {#each fewQs as q (q.key)}
+            {@const a = answers[q.key]}
+            {@const m = more(q.key, a)}
+            <li class="slim" data-frage={q.key} data-state={a.state}>
+              <details>
+                <summary>
+                  <span class="sm"><b>{ASK[q.key]()}</b><small data-frage-braucht>{need(q.key, a)}</small></span>
+                  <ChevronDown size={18} aria-hidden="true" />
+                </summary>
+                <div class="sb">
+                  <p class="ans few" data-frage-antwort>{sentence(q.key, a)}</p>
+                  <p class="lim">{limit(q.key, a)}</p>
+                  <p class="lim">{HOW[q.key]()}</p>
+                  {#if m}<a class="more" href={m.href} data-frage-mehr>{t('More about this')}: {m.label} ›</a>{/if}
+                </div>
+              </details>
+            </li>
+          {/each}
+        </ul>
+      </section>
+    {/if}
+
+    <a class="ask" href="#/assistent" data-fragen-frei>
+      <MessageCircle size={20} aria-hidden="true" />
+      <span class="am"><b>{t('Ask your own question')}</b><small>{t('The assistant answers questions about your data, for example «How much did I ride in October?»')}</small></span>
+      <ChevronRight size={18} aria-hidden="true" />
+    </a>
 
     <!-- «Als Nächstes»: where the numbers come from, then the values themselves -->
     <section class="next" aria-labelledby="fr-next-h">
@@ -302,6 +377,65 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
     line-height: 1.4;
+  }
+  .stand {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .few {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+  .slims {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .slim {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg, 14px);
+    min-width: 0;
+  }
+  .slim summary {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: 56px;
+    padding: var(--sp-2) var(--sp-4);
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink-3);
+  }
+  .slim summary::-webkit-details-marker {
+    display: none;
+  }
+  .slim .sm {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.35;
+  }
+  .slim .sm b {
+    display: block;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .slim .sm small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .slim details[open] summary :global(svg) {
+    transform: rotate(180deg);
+  }
+  .sb {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    padding: 0 var(--sp-4) var(--sp-2);
   }
   .why summary {
     display: flex;

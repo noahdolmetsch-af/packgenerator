@@ -2228,7 +2228,7 @@ const LISTED = {
   },
   'f.datenfragen': {
     on: null,
-    steps: ['Open Me › Your questions: «Questions from your data» is at the top.', 'Switch a rule off, change its threshold or write the question in your own words.', 'When a value stands out, the check shows the question first, with «Why am I asking this?».'],
+    steps: ['Open Me › Your questions: «The app asks you» is at the top.', 'Switch a rule off, change its threshold or write the question in your own words.', 'When a value stands out, the check shows the question first, with «Why am I asking this?».'],
     example: 'Example: resting pulse 61, usual 52 → «What did you do yesterday that throws you off so much today?»',
   },
   'f.scalemeaning': {

@@ -5,13 +5,14 @@
    * Heute and Abhaken show, so nothing is counted or stored twice. Rules of the layout: src/lib/tag/timeline.js.
    * Address: #/day (today) and #/day/YYYY-MM-DD. A tap on an entry opens it where it lives.
    */
-  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree, Plus, GripVertical } from '@lucide/svelte';
+  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree, Plus, GripVertical, WandSparkles } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
   import { buildWeek, KIND_NAMES, ITEMS_KEY, cleanItem, pruneItems } from '../lib/woche.js';
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import EntrySheet from '../lib/tag/EntrySheet.svelte';
+  import PlanSheet from '../lib/tag/PlanSheet.svelte';
   import Todos from '../lib/tag/Todos.svelte';
   import Abhaken from '../lib/tag/Abhaken.svelte';
   import Seg from '../lib/ui/Seg.svelte';
@@ -132,6 +133,15 @@
     await saveItems(before.map((x) => (x.id === it.id ? { ...x, done: true } : x)));
     offerDone(t('«{name}» ticked off.', { name: it.title }), () => saveItems(before));
   }
+  // step 4: «Plan my day»: times for the own entries without one, by rules; nothing is saved before «Take over»
+  let planning = $state(false);
+  const openOwn = $derived(lay.untimed.filter((e) => e.own && !e.done && (e.kind === 'todo' || e.kind === 'date')).length);
+  async function applyPlan(moves) {
+    const before = items();
+    const at = new Map(moves.map((m) => [m.id, m.time]));
+    await saveItems(before.map((x) => (at.has(x.id) ? cleanItem({ ...x, time: at.get(x.id) }) : x)));
+    offerDone(t('{n} entries placed.', { n: moves.length }), () => saveItems(before));
+  }
   const addEntry = (time = '') => (editing = { item: null, day, time });
   async function saveEntry(fields) {
     const old = editing.item;
@@ -181,7 +191,10 @@
   {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={15} aria-hidden="true" />{:else if wetNow.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
   {#if day !== today}<a class="today-link" href="#/day">{t('Back to today')}</a>{/if}
 </p>
-<p class="addrow"><button type="button" class="add" data-add-entry onclick={() => addEntry()}><Plus size={16} aria-hidden="true" /> {t('Add an entry')}</button></p>
+<p class="addrow">
+  <button type="button" class="add" data-add-entry onclick={() => addEntry()}><Plus size={16} aria-hidden="true" /> {t('Add an entry')}</button>
+  {#if openOwn && day >= today}<button type="button" class="add" data-plan-open onclick={() => (planning = true)}><WandSparkles size={16} aria-hidden="true" /> {t('Plan my day')}</button>{/if}
+</p>
 
 {#if !week}
   <p class="load" aria-live="polite">{t('Loading the day …')}</p>
@@ -235,6 +248,10 @@
     {/each}
   </section>
 {/if}
+{/if}
+
+{#if planning}
+  <PlanSheet entries={d?.entries ?? []} {day} {today} now={now ?? 0} wet={!!wetNow?.wet} onapply={applyPlan} onclose={() => (planning = false)} />
 {/if}
 
 {#if editing}
@@ -329,6 +346,9 @@
     font-size: var(--fs-small);
   }
   .addrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     margin: 0 0 8px;
   }
   .add {
