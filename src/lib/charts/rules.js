@@ -23,7 +23,6 @@ export const OPEN = [
   'src/lib/flow/garmin/Overview.svelte',
   'src/lib/flow/garmin/Focus.svelte',
   'src/lib/flow/hobby/RingsWeek.svelte',
-  'src/lib/weight/LineChart.svelte',
   'src/pages/flow/Rest.svelte',
   'src/pages/Wohl.svelte',
   // Heute
