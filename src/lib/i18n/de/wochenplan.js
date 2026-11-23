@@ -30,7 +30,7 @@ export default {
   'With no unit the week stays empty. Let the app suggest units from your hours, or add one with plus.': 'Ohne Einheit bleibt die Woche leer. Lass die App Einheiten aus deinen Stunden vorschlagen oder füge eine mit Plus hinzu.',
   'Suggest from {n} hours': 'Aus {n} Std vorschlagen',
   'Free.': 'Frei.',
-  'Your week goals on Active': 'Deine Wochenziele auf Aktiv',
+  'Your week goals on Active': 'Deine Wochenziele auf «Heute abhaken»',
   'Plan the week with the weather': 'Woche mit dem Wetter planen',
   'Your weekly plan is saved. Change the hours or a unit any time.': 'Dein Wochenplan ist gespeichert. Ändere die Stunden oder eine Einheit, wann du willst.',
   'Units suggested for {n} hours.': 'Einheiten für {n} Std vorgeschlagen.',
@@ -187,7 +187,7 @@ export default {
   'Lighter week in the weekly plan': 'Leichtere Woche im Wochenplan',
   // the catalogue
   'Set your hours per week and the app suggests units and places them in the week with times. Each unit can be changed with plus and minus, and what does not fit is shown. Rules, no AI; your week goals stay as they are.': 'Stell deine Stunden pro Woche ein, und die App schlägt Einheiten vor und legt sie mit Zeiten in die Woche. Jede Einheit lässt sich mit Plus und Minus ändern, und was nicht passt, wird gezeigt. Regeln, keine KI; deine Wochenziele bleiben, wie sie sind.',
-  'Open Active › Weekly plan and tap «Start my weekly plan».': 'Öffne Aktiv › Wochenplan und tippe «Meinen Wochenplan starten».',
+  'Open Active › Weekly plan and tap «Start my weekly plan».': 'Öffne Woche › Training › Wochenplan und tippe «Meinen Wochenplan starten».',
   'Set the hours per week with plus and minus; the units and the week follow.': 'Stell die Stunden pro Woche mit Plus und Minus ein; die Einheiten und die Woche folgen.',
   'Change a unit with plus or minus and read under «What does not fit» what to adjust.': 'Ändere eine Einheit mit Plus oder Minus und lies unter «Was nicht passt», was du anpassen kannst.',
   'Example: 15 hours in winter give tennis three times, yoga and gym twice and a rest block, each with a time.': 'Beispiel: 15 Std im Winter ergeben dreimal Tennis, zweimal Yoga und Gym und einen Ruheblock, je mit Zeit.',

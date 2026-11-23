@@ -27,7 +27,7 @@ export default {
   '«{task}»: not needed any more.': '«{task}»: nicht mehr nötig.',
   '«{task}» saved.': '«{task}» gespeichert.',
   // Woche: the ticks of Aktiv (H22), the bike jobs, «Woche planen»
-  'done in Aktiv': 'erledigt in Aktiv',
+  'done in Aktiv': 'erledigt in «Heute abhaken»',
   '{n} bike job open': '{n} Velo-Arbeit offen',
   '{n} bike jobs open': '{n} Velo-Arbeiten offen',
   'Dates from Google Calendar come here by themselves once it is connected.': 'Termine aus dem Google Kalender kommen hier von selbst dazu, sobald er verbunden ist.',

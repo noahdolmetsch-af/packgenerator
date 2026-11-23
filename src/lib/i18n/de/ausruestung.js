@@ -37,7 +37,7 @@ export default {
   'every {every}': 'alle {every}',
   'done {day}': 'erledigt {day}',
   'No care step. «Change» adds one.': 'Keine Pflege eingetragen. «Ändern» fügt eine hinzu.',
-  'Uses come by themselves from your trips and from Aktiv. Counter, care and intervals are suggestions, all changeable.': 'Einsätze kommen von selbst aus deinen Touren und aus Aktiv. Zähler, Pflege und Intervalle sind Vorschläge, alle änderbar.',
+  'Uses come by themselves from your trips and from Aktiv. Counter, care and intervals are suggestions, all changeable.': 'Einsätze kommen von selbst aus deinen Touren und aus «Heute abhaken». Zähler, Pflege und Intervalle sind Vorschläge, alle änderbar.',
   'Log a use': 'Einsatz eintragen',
   'In Material': 'In Material',
   'Remove|main': 'Entfernen',
@@ -62,7 +62,7 @@ export default {
   'No care step. Add one if you like.': 'Keine Pflege eingetragen. Füg eine hinzu, wenn du willst.',
   'Add a care step': 'Pflegeschritt hinzufügen',
   'Counts from (optional)': 'Zählt ab (freiwillig)',
-  'Uses come by themselves from your trips and from Aktiv. All of it is a suggestion: change or remove what does not fit.': 'Einsätze kommen von selbst aus deinen Touren und aus Aktiv. Alles ist ein Vorschlag: Ändere oder entferne, was nicht passt.',
+  'Uses come by themselves from your trips and from Aktiv. All of it is a suggestion: change or remove what does not fit.': 'Einsätze kommen von selbst aus deinen Touren und aus «Heute abhaken». Alles ist ein Vorschlag: Ändere oder entferne, was nicht passt.',
   // care suggestions (maingear.js careSuggest)
   'Check the skin glue': 'Kleber der Felle prüfen',
   'Change the batteries': 'Batterien wechseln',

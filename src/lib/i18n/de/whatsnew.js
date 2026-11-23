@@ -26,7 +26,7 @@ const ALT_SHARED = {
   'Cushion time': 'Kissenzeit',
   'A few words become a packing list suggestion': 'Aus ein paar Wörtern wird ein Packlisten-Vorschlag',
   'Your last ride, the last 12 months and your trips compared, on one page.': 'Deine letzte Fahrt, die letzten 12 Monate und deine Touren im Vergleich, auf einer Seite.',
-  'In the flow': 'Aktiv',
+  'In the flow': 'Heute abhaken',
   'One problem per line': 'Ein Problem pro Zeile',
   'Warm to cold': 'Von warm bis kalt',
   'Plan a trip': 'Tour planen',

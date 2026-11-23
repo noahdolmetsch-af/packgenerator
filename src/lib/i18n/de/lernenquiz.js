@@ -136,7 +136,7 @@ export default {
   'Open the quiz from «Packed» the evening before, or search «Quiz».': 'Öffne das Quiz am Vorabend auf «Gepackt» oder suche «Quiz».',
   'Tap an answer, then «Next».': 'Tippe eine Antwort, dann «Weiter».',
   'Add your own questions under «Your questions».': 'Eigene Fragen unter «Eigene Fragen» hinzufügen.',
-  'Open Aktiv › Week › Week in review.': 'Öffne Aktiv › Woche › Wochenrückblick.',
+  'Open Aktiv › Week › Week in review.': 'Öffne Woche › Training › Heute abhaken › Wochenrückblick.',
   'On Sunday the 3 observations are at the top.': 'Am Sonntag stehen die 3 Beobachtungen zuoberst.',
   '«Do not show this kind any more» hides one kind.': '«Diese Art nicht mehr zeigen» blendet eine Art aus.',
   'The evening before a trip, tap «Quiz the evening before» on «Packed».': 'Am Vorabend einer Tour auf «Gepackt» «Quiz zum Vorabend» antippen.',

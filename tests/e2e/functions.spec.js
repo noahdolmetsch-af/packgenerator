@@ -85,16 +85,16 @@ test('Im Flow: one tap from its card on Today, two taps through More', async ({ 
   await flowSeeded(page);
   await putWall(page);
   const card = page.locator('[data-section="flow"]');
-  await card.getByRole('link', { name: /Aktiv|In the flow/ }).click(); // 1 tap
+  await card.getByRole('link', { name: /Heute abhaken|Aktiv|In the flow/ }).click(); // 1 tap
   await expect(page).toHaveURL(/#\/flow$/);
   // Design-Refresh P8 (A1): the page is titled like its place; «Aktiv neu» (Noah 22.10.2026): «Aktiv» again
-  await expect(page.locator('main h1')).toHaveText(/^(Aktiv|Active)$/);
+  await expect(page.locator('main h1')).toHaveText(/^(Heute abhaken|Aktiv|Active)$/);
   await page.goto('./#/');
   // v0.76.0 «Fünf Orte»: Aktiv is a place of its own, one tap from every page
   await page.locator('nav.bottom a[data-place="week"], .side li[data-place="week"] > a.pa').click(); // 1; V4a: Aktiv is part of Woche
   await page.locator('nav.ptabs a[href="#/flow/training"], .side .tabs a[href="#/flow/training"]').filter({ visible: true }).first().click();
   await page.locator('nav.psubs a[href="#/flow"]').filter({ visible: true }).first().click();
   await expect(page).toHaveURL(/#\/flow$/);
-  await expect(page.locator('main h1')).toHaveText(/^(Aktiv|Active)$/); // «Aktiv neu» (22.10.2026)
+  await expect(page.locator('main h1')).toHaveText(/^(Heute abhaken|Aktiv|Active)$/); // «Aktiv neu» (22.10.2026)
   expect(errors).toEqual([]);
 });

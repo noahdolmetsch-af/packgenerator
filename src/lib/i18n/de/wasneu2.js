@@ -15,7 +15,7 @@ export default {
   'by version, the newest first': 'nach Version, die neueste zuerst',
   'all {n} in alphabetical order': 'alle {n} alphabetisch',
   'the 6 groups of «What the app can do»': 'die 6 Gruppen aus «Was die App kann»',
-  'Trips, Gear, Bikes, Active, Me': 'Touren, Material, Velo, Aktiv, Ich',
+  'Trips, Gear, Bikes, Active, Me': 'Touren, Material, Velo, Woche, Ich',
   'what you use most, counted on this device': 'was du am meisten nutzt, gezählt auf diesem Gerät',
   'the 10 that bring the most, chosen once': 'die 10, die am meisten bringen, fest ausgewählt',
   Function: 'Funktion',
