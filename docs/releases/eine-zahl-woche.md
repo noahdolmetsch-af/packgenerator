@@ -22,7 +22,7 @@ Schritt V3 der neuen Ordnung · Entscheid Noah «1a 2a 3a 4a 5a» (21.11.2026 17
 - Eine Zahl «k von n Einheiten» statt vier (siehe decisions/eine-zahl-woche.md).
 
 ## Stand im Plan
-- Plan «ganze App»: V3 gebaut (Zahl und Link). Offen: Zusammenlegen der alten Wochenseiten, 6, 14, 15, 7a/7b.
+- Plan «ganze App»: V3 gebaut (#1498, Zahl und Link). Offen: Zusammenlegen der alten Wochenseiten, 6, 14, 15, 7a/7b.
 
 ## Prüfschritte (nach dem Merge, auf der echten Seite)
 1. Aktiv öffnen: Die Zeile unter dem Titel und die Wochenkarte sagen dieselbe Zahl «k von n Einheiten (Mo bis So)».
