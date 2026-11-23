@@ -1052,6 +1052,11 @@
   const secOn = $derived(S[SECTIONS_KEY] !== false);
   const areasCfg = $derived(S[AREAS_KEY] ?? null);
   const timeWall = $derived(editing ? shownWall : byTime(shownWall, now.getHours(), timeOn));
+  // «Heute abhaken» right under the chips (Noah 23.11.2026 «1a 2a»): not in the wall then, so the cards above the wall (adventure, ideas, news …) stand under it.
+  // While customising it stays a tile of the wall (move, hide, size); a wall without it shows nothing here.
+  const hakenTop = $derived(!editing && ready && !emptyDevice && on('haken'));
+  const wallTiles = $derived(hakenTop ? timeWall.filter((x) => x.id !== 'haken') : timeWall);
+  const hakenTile = $derived(timeWall.find((x) => x.id === 'haken') ?? null);
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
   // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
@@ -1162,6 +1167,7 @@
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
       </div>
     </div>
+    {#if hakenTop}<div class="hktop" data-haken-top><HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} /></div>{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
     <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
@@ -1451,7 +1457,7 @@
   {#if ready && emptyDevice}
     {#if emptyTiles.length}<Wall tiles={emptyTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />{/if}
     <p class="muted emptywall" data-empty-wall>{t('Everything else (body, up now, weather) shows up as soon as you have data.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
-  {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {:else if ready}<Wall tiles={wallTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(hakenTop && hakenTile ? [hakenTile, ...kept] : kept)} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
@@ -2511,6 +2517,9 @@
   }
   .odot.off {
     background: var(--ink-3);
+  }
+  .hktop {
+    margin: 12px 0 4px;
   }
   /* «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A»): the personal sentence, the row icons of «Up now» */
   .say {
