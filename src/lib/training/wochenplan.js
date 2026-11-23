@@ -6,7 +6,8 @@
  * into German through `t()`; nothing here is shown to a person directly.
  *
  * Setting WEEKPLAN_KEY (the goals; travels with the backup like every setting, no api/):
- *   { v: 1, winter: Config, summer: Config }, Config = { hours, counts: { [type]: n }, fixes: { [type]: [{ d, t }] }, custom: { [type]: true } }
+ *   { v: 1, winter: Config, summer: Config }, Config = { hours, counts: { [type]: n }, fixes: { [type]: [{ d, t }] }, custom: { [type]: true }, tpHours? }
+ * `tpHours` (optional): the hours goal of a week that has TrainingPeaks or team dates in it; without it `hours` counts for every week.
  * `d` is the weekday 0 (Monday) … 6 (Sunday), `t` is «HH:MM». Which season counts follows the date (1 April to 30 October is summer).
  * What belongs to one week only (moved units, ticks, skiing week, rain week) is not stored here; it goes in as `ctx`.
  *
@@ -121,7 +122,8 @@ export function configOf(raw, summer) {
   }
   Object.keys(custom).forEach((t) => !custom[t] && delete custom[t]);
   const bikeHours = counts.bikeOut && Number.isFinite(Number(raw.bikeHours)) && raw.bikeHours > 0 ? Math.min(40, Number(raw.bikeHours)) : summer && counts.bikeOut ? base.bikeHours : null;
-  return { hours, counts, fixes, custom, bikeHours };
+  const tpHours = raw.tpHours == null ? null : whole(raw.tpHours, MIN_HOURS, MAX_HOURS); // optional: its own goal for weeks with TrainingPeaks or team dates (Noah 23.11.2026 «2b»)
+  return { hours, counts, fixes, custom, bikeHours, ...(tpHours ? { tpHours } : {}) };
 }
 
 /** The stored setting made safe: { v, winter, summer }. Always a full value, also for nothing at all. */
@@ -182,7 +184,12 @@ export const HARD_SHARE = 1.2;
 export const hardOf = (cfg, summer) => setHours(cfg, Math.min(MAX_HOURS, Math.round(cfg.hours * HARD_SHARE)), summer);
 
 /** The hours goal of a week for its modes: harder, lighter or as it is (hard and light never both). */
-export const modeCfg = (cfg, summer, mode = {}) => (mode.hard ? hardOf(cfg, summer) : mode.light ? lightOf(cfg, summer) : cfg);
+export const modeCfg = (cfg, summer, mode = {}) => {
+  const out = mode.hard ? hardOf(cfg, summer) : mode.light ? lightOf(cfg, summer) : cfg;
+  if (out === cfg || !cfg.tpHours) return out;
+  const share = mode.hard ? HARD_SHARE : LIGHT_SHARE; // the goal for weeks with TrainingPeaks follows the kind of week
+  return { ...out, tpHours: Math.min(MAX_HOURS, Math.max(MIN_HOURS, Math.round(cfg.tpHours * share))) };
+};
 
 /** True when the units are exactly what the hours goal suggests (no change by hand since). */
 export const followsHours = (cfg, summer) => same(suggestFromHours(cfg.hours, summer).counts, cfg.counts);
@@ -340,6 +347,36 @@ function replaceByTp(cfg, counts, tp) {
   return { counts: out, bikeHours, notes };
 }
 
+// ---- the hours goal with TrainingPeaks and team dates (Noah 23.11.2026 «2a und b») --------------------------------------
+
+/** What goes first when a week with TrainingPeaks or team dates is above the hours goal. Tennis, yoga, ice hockey, the first gym, the sauna and the rest block stay. */
+const CUT_ORDER = [['mini', 0], ['runIn', 0], ['gym', 1], ['runOut', 0], ['bikeIn', 0], ['bikeOut', 0]];
+
+/**
+ * The goal counts after the hours goal was kept (2a): the hours of the week (`budget` minutes for the units, after meditation, stretching,
+ * TrainingPeaks and team dates) are the limit; the units that matter least go first (CUT_ORDER), one at a time, as long as more than
+ * half of the unit is over. Never below the floor. → { counts, bikeHours, notes: [{ key: 'soll-cut', type, n, mins }], over }.
+ */
+export function fitToHours(cfg, counts, bikeHours, budget) {
+  const out = { ...counts };
+  const unitMins = (t) => (t === 'bikeOut' && bikeHours && out.bikeOut ? Math.round((bikeHours * 60) / out.bikeOut) : TYPES[t].mins);
+  const own = () => GOAL_TYPES.reduce((a, t) => a + (t === 'rest' ? 0 : (out[t] || 0) * unitMins(t)), 0);
+  const notes = [];
+  for (const [type, floor] of CUT_ORDER) {
+    let n = 0;
+    let mins = 0;
+    while ((out[type] || 0) > floor && own() - budget > unitMins(type) / 2) {
+      mins += unitMins(type);
+      out[type]--;
+      n++;
+    }
+    if (n) notes.push({ key: 'soll-cut', type, n, mins });
+  }
+  const left = own() - budget;
+  const bh = bikeHours && out.bikeOut !== counts.bikeOut ? (out.bikeOut ? Math.round((bikeHours * out.bikeOut * 2) / counts.bikeOut) / 2 : null) : bikeHours;
+  return { counts: out, bikeHours: bh, notes, over: Math.max(0, Math.round(left)) };
+}
+
 /**
  * Plans one week.
  *   cfg: a season config (configOf); ctx: { monday, ski, rain, pins: { [unitId]: { d, t } }, sessions }. sessions (optional): the sessions of `training.plan` (and `{ rest: true, day }` for a Recovery Day, see plannerSessions);
@@ -392,6 +429,16 @@ export function planWeek(cfg, ctx) {
       if (counts[t]) notes.push({ key: 'ski-drops', type: t });
       counts[t] = 0;
     }
+  // the hours goal holds with TrainingPeaks and team dates in the week (Noah «2a»); `tpHours` is its own goal for such weeks («2b»). Not in a ski tour week: the tour is the plan.
+  const outside = tp.reduce((a, x) => a + x.mins, 0) + team.dates.reduce((a, x) => a + x.mins, 0);
+  if (outside > 0 && !ski) {
+    const goalH = cfg.tpHours || cfg.hours;
+    const r = fitToHours(cfg, counts, bikeHours, goalH * 60 - MEDSTRETCH - outside);
+    counts = r.counts;
+    bikeHours = r.bikeHours;
+    notes.push(...r.notes.map((n) => ({ ...n, hours: goalH })));
+    if (r.over > 0) notes.push({ key: 'soll-over', hours: goalH, mins: r.over, own: !!cfg.tpHours });
+  }
   const units = (d) => U.filter((x) => x.d === d && !NOT_UNIT.includes(x.type)).length;
   const loadSum = (d) => U.filter((x) => x.d === d && !BARE.includes(x.type)).reduce((a, x) => a + LV[x.load], 0);
   const hardDays = () => new Set(U.filter((x) => x.load === 'H').map((x) => x.d));

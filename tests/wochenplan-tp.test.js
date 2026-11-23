@@ -58,7 +58,9 @@ describe('Ersatz nach Sportart (2a)', () => {
   it('Tennis, Eishockey, Yoga bleiben, auch bei sehr viel Velo; TrainingPeaks über dem Soll rechnet nie ins Minus', () => {
     const before = planWeek(cfg, { monday: MON, pins: {} });
     const r = planWeek(cfg, { monday: MON, pins: {}, sessions: [tp('a', 1, 600), tp('b', 3, 600), tp('c', 5, 600)] });
-    for (const t of ['hockey', 'tennis', 'yoga', 'gym']) expect(count(r, t)).toBe(count(before, t));
+    // Noah 23.11.2026 «2a»: the hours goal holds, the plan gives up the least important units first; the first gym stays
+    for (const t of ['hockey', 'tennis', 'yoga']) expect(count(r, t)).toBe(count(before, t));
+    expect(count(r, 'gym')).toBe(1);
     expect(r.notes.some((n) => n.key === 'tp-over')).toBe(true);
   });
   it('die Einheiten von TrainingPeaks stehen nicht in units, aber in tp', () => {

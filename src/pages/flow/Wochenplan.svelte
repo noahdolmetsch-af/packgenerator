@@ -70,7 +70,9 @@
   const week = $derived(planWeek(cfgW, { monday, pins: pinsShown, ski: !!modeShown.ski, rain: !!modeShown.rain, sessions: isNow ? sessions : [] }));
   // TrainingPeaks counts on the hours (Noah «1a»): the plan plus what TrainingPeaks brings this week
   const mins = $derived(plannedMins(week.units) + week.tp.reduce((a, x) => a + x.mins, 0));
-  const pct = $derived(reachedPct(mins, cfgW.hours));
+  // the goal of this week: its own goal when TrainingPeaks or team dates are in it and one is set (Noah «2b»)
+  const goalNow = $derived(week.tp.length || week.team.length ? cfgW.tpHours || cfgW.hours : cfgW.hours);
+  const pct = $derived(reachedPct(mins, goalNow));
   const byHand = $derived(!followsHours(cfg, summer));
   const nothing = $derived(GOAL_TYPES.every((k) => !cfg.counts[k]));
   const seasonOptions = $derived([
@@ -155,6 +157,17 @@
   const hoursStep = (delta) => {
     const next = setHours(cfg, cfg.hours + delta, summer);
     return commit(next, t('Units suggested for {n} hours.', { n: next.hours }));
+  };
+  // «2b» (Noah 23.11.2026): its own goal for weeks with TrainingPeaks or team dates; without it the goal above counts for every week
+  const outsideWeeks = $derived(sessions.some((s) => s.src === 'tp' || s.team === 'on'));
+  const tpGoal = $derived(cfg.tpHours ?? cfg.hours);
+  const tpStep = (delta) => {
+    const h = Math.min(MAX_HOURS, Math.max(MIN_HOURS, tpGoal + delta));
+    return commit({ ...cfg, tpHours: h }, t('Goal for weeks with TrainingPeaks: {n} h.', { n: h }));
+  };
+  const tpSame = () => {
+    const { tpHours: _gone, ...rest } = cfg;
+    return commit(rest, t('Weeks with TrainingPeaks use the same goal again.'));
   };
   const suggestAgain = () => commit(setHours(cfg, cfg.hours, summer), t('Units suggested again from {n} hours.', { n: cfg.hours }));
   const step = (type, delta) => {
@@ -256,7 +269,10 @@
   }
   // a session from TrainingPeaks has no unit of the plan: its own title (or the word TrainingPeaks)
   const tpNameOf = (id) => (week.tp ?? []).find((x) => x.id === id)?.name || (week.team ?? []).find((x) => x.id === id)?.name || (String(id).startsWith('team:') ? nameOf('hockey') : t('TrainingPeaks'));
-  const noteText = (n) => (NOTE_TEXT[n.key] ? t(NOTE_TEXT[n.key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0), n: n.n ?? 0, type: n.type ? nameOf(n.type) : '' }) : '');
+  const noteText = (n) => {
+    const key = n.own ? `${n.key}-own` : n.key;
+    return NOTE_TEXT[key] ? t(NOTE_TEXT[key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0), m: num(Math.round((n.mins ?? 0) / 6) / 10), n: n.n ?? 0, type: n.type ? nameOf(n.type) : '' }) : '';
+  };
   const warnText = (w) =>
     t(WARN_TEXT[w.key] ?? WARN_TEXT['no-room'], {
       day: w.d == null ? '' : dayName(w.d),
@@ -265,10 +281,11 @@
       a: unitById(w.a) ? nameOf(unitById(w.a).type) : tpNameOf(w.a),
       b: unitById(w.b) ? nameOf(unitById(w.b).type) : tpNameOf(w.b),
     });
-  const notes = $derived(week.notes.filter((n) => !n.key.startsWith('tp-')).map(noteText).filter(Boolean));
+  const kept = (n) => n.key.startsWith('tp-') || n.key.startsWith('soll-'); // what TrainingPeaks and the hours goal do to the week is said where the hours are
+  const notes = $derived(week.notes.filter((n) => !kept(n)).map(noteText).filter(Boolean));
   // what TrainingPeaks does to the week is said where the hours are (never silent): how much it brings, what it replaced
-  const tpOver = $derived(week.tp.length > 0 && mins > cfgW.hours * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over')); // Noah «a»: stays as it is, with a hint
-  const tpLines = $derived([...week.notes.filter((n) => n.key.startsWith('tp-')).map(noteText).filter(Boolean), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
+  const tpOver = $derived(week.tp.length > 0 && mins > goalNow * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over' || n.key === 'soll-over' || n.key === 'soll-cut')); // Noah «a»: stays as it is, with a hint
+  const tpLines = $derived([...week.notes.filter(kept).map(noteText).filter(Boolean), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
   const hoursLine = $derived(
     modeShown.hard
       ? t('A harder week: {n} h instead of {m} h. Plus and minus change your normal plan.', { n: cfgW.hours, m: cfg.hours })
@@ -318,10 +335,21 @@
             <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={18} aria-hidden="true" /></button>
           </div>
           <p class="sub">{t('with meditation and stretching, without the rest block')}</p>
-          <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(mins), b: cfgW.hours })}</b></p>
+          <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(mins), b: goalNow })}</b></p>
           <span class="bar" role="img" aria-label={t('{n} percent of the goal', { n: pct })}><i style="width:{pct}%"></i></span>
           <p class="hint" data-wp-hint>{hoursLine}</p>
           {#each tpLines as line (line)}<p class="hint" data-wp-tp>{line}</p>{/each}
+          {#if outsideWeeks}
+            <div class="tpg" data-wp-tpgoal>
+              <p class="sub">{t('Goal in weeks with TrainingPeaks')}</p>
+              <div class="stepper">
+                <button type="button" class="btn sm" onclick={() => tpStep(-1)} disabled={tpGoal <= MIN_HOURS} aria-label={t('One hour less')} data-wp-tpdec><Minus size={18} aria-hidden="true" /></button>
+                <output class="big num" data-wp-tpvalue>{t('{n} h|plan', { n: tpGoal })}</output>
+                <button type="button" class="btn sm" onclick={() => tpStep(1)} disabled={tpGoal >= MAX_HOURS} aria-label={t('One hour more')} data-wp-tpinc><Plus size={18} aria-hidden="true" /></button>
+              </div>
+              {#if cfg.tpHours}<button type="button" class="btn sm" onclick={tpSame} data-wp-tpsame>{t('Same as the goal above')}</button>{:else}<p class="sub">{t('Same as the goal above, until you change it.')}</p>{/if}
+            </div>
+          {/if}
           {#if byHand}<button type="button" class="btn sm" onclick={suggestAgain} data-wp-again>{t('Suggest the units from the hours again')}</button>{/if}
         </section>
 
@@ -584,6 +612,13 @@
   }
   .plan {
     margin: var(--sp-3) 0 var(--sp-2);
+  }
+  .tpg {
+    margin-top: var(--sp-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    align-items: flex-start;
   }
   .stepper {
     display: flex;
