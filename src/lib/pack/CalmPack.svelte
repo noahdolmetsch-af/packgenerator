@@ -86,6 +86,18 @@
       if (!live) return;
       stepChoice = cleanChoice(r?.value);
       grouping = stepChoice.view ?? globalThis.__pgPackView ?? viewOf(null, trip.entries ?? []);
+      // a card on «Trips» («Continue with Clothes») sends us to that step once: the list opens in Steps with the step open
+      try {
+        const step = sessionStorage.getItem('pg.packStep');
+        if (step) {
+          sessionStorage.removeItem('pg.packStep');
+          grouping = 'steps';
+          opened = { ...opened, [`step-${step}`]: true };
+          setTimeout(() => document.querySelector(`[aria-controls="calm-bag-step-${step}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+        }
+      } catch {
+        /* private window: the list opens as it was */
+      }
     }).catch(() => {});
     return () => { live = false; };
   });
