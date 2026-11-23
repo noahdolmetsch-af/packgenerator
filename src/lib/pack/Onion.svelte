@@ -15,7 +15,7 @@
   // Einzelidee 21 «Zu viel an derselben Stelle»: twice = pieces with the same task (einzeln/material.js twiceOf);
   // the check asks what for: both on purpose (ontwiceok) or one stays at home (onremove, with Undo).
   // Touren-Ideen 42: wait (minutes standing still on the way), chill (the degrees it counts colder), onwait(m)
-  let { check, kit = null, plan = null, offset = 0, wait = 0, chill = 0, onwait = null, itemsById = {}, added = [], kitAdded = null, onadd, onkit, twice = [], ontwiceok = null, onremove = null, onswap = null } = $props();
+  let { check, kit = null, plan = null, offset = 0, wait = 0, chill = 0, onwait = null, itemsById = {}, added = [], kitAdded = null, onadd, onkit, twice = [], ontwiceok = null, onremove = null, onswap = null, moments = [], moment = 'cold', onmoment = null } = $props();
   const waitName = (m) => (m ? (m >= 60 ? t('{n} h', { n: m / 60 }) : t('{n} min', { n: m })) : t('None|wait'));
 
   let open = $state(false);
@@ -24,7 +24,10 @@
   const range = (k) => tempRange(k.minC, k.maxC, tr);
   const summary = $derived([check.gaps ? tn(check.gaps, 'Onion: {n} gap', 'Onion: {n} gaps') : t('Onion: fits'), twice.length ? tn(twice.length, '{n} twice', '{n} twice') : ''].filter(Boolean).join(' · '));
   const placeName = (g) => [t(ZONES.find((z) => z.key === g.zone)?.name ?? g.zone), t(LAYERS.find((l) => l.key === g.layer)?.name ?? g.layer)].join(' · ');
+  // Kleiderschrank (Noah 21.11.2026 «1-5a 4b»): the coldest riding hour, or the morning or the midday of the first day
+  const momentName = (m) => (m.key === 'morning' ? t('Morning {c}°', { c: m.c }) : t('Midday {c}°', { c: m.c }));
   const when = $derived.by(() => {
+    if (check.from === 'at') return check.moment === 'morning' ? t('morning {c} °C', { c: check.real }) : t('midday {c} °C', { c: check.real });
     if (check.from !== 'hour' || !check.date) return t('lowest {c} °C', { c: check.real });
     const day = new Date(`${check.date}T12:00:00`).toLocaleDateString(locale(), { weekday: 'short' });
     return t('coldest riding hour {c} °C ({day}, {h} h)', { c: check.real, day, h: check.hour });
@@ -88,6 +91,12 @@
             </li>
           {/each}
         </ul>
+      {/if}
+      {#if onmoment && moments.length}
+        <div class="wait" data-onion-moment>
+          <p class="meta" id="onion-moment-h">{t('The onion for')}</p>
+          <Seg small full={false} labelledby="onion-moment-h" options={[{ key: 'cold', name: t('Coldest moment') }, ...moments.map((m) => ({ key: m.key, name: momentName(m) }))]} value={moment} onchange={onmoment} />
+        </div>
       {/if}
       {#if onwait}
         <div class="wait" data-onion-wait>

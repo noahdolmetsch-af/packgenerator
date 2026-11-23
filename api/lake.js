@@ -15,11 +15,13 @@
  *   ?action=rwgps&kind=route|trip&id=…[&privacy=…]  → { gpx, file }   (api/_lib/rwgps.js)
  *   ?action=ov-stops&lat=…&lon=…                    → { stops }       (api/_lib/ov.js, transport.opendata.ch)
  *   ?action=ov-departures&id=…                      → { stop, departures }
+ *   ?action=kurse&id=gold|smi|usdchf                → the daily closes of «Kursblick» (api/_lib/kurse.js)
  */
 import { route, json, ApiError } from './_lib/core.js';
 import { lakeNow } from './_lib/lake.js';
 import { fetchRwgps, cleanRef, RwgpsError } from './_lib/rwgps.js';
 import { ovStops, ovDepartures, okStopId } from './_lib/ov.js';
+import { kursReihe, okAsset, KurseError } from './_lib/kurse.js';
 
 export const CACHE = 'public, max-age=300, s-maxage=1800, stale-while-revalidate=3600';
 /** Fix 21.10.2026: an answer without the preview is kept only briefly, so the next one tries again soon. */
@@ -27,7 +29,8 @@ export const CACHE_SHORT = 'public, max-age=120, s-maxage=300, stale-while-reval
 export const RWGPS_CACHE = 'public, max-age=300, s-maxage=600';
 export const STOPS_CACHE = 'public, max-age=600, s-maxage=3600';
 export const BOARD_CACHE = 'public, max-age=20, s-maxage=30';
-export const ACTIONS = ['rwgps', 'ov-stops', 'ov-departures'];
+export const KURSE_CACHE = 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400';
+export const ACTIONS = ['rwgps', 'ov-stops', 'ov-departures', 'kurse'];
 
 const RWGPS_ERRORS = {
   invalid: [400, 'Use ?action=rwgps&kind=route|trip&id=<number>.'],
@@ -104,10 +107,28 @@ export function makeHandler({ doFetch = (...a) => fetch(...a), clock = () => new
     opts,
   );
 
+  const kurse = route(
+    {
+      GET: async (request) => {
+        const id = okAsset(new URL(request.url).searchParams.get('id') ?? '');
+        if (!id) throw new ApiError(400, 'invalid', 'Use ?action=kurse&id=gold|smi|usdchf.');
+        try {
+          return json(request, 200, await kursReihe(id, { doFetch, now: clock(), ...t }), { 'Cache-Control': KURSE_CACHE });
+        } catch (err) {
+          if (err instanceof KurseError && err.code === 'unknown') throw new ApiError(400, 'invalid', 'Use ?action=kurse&id=gold|smi|usdchf.');
+          throw new ApiError(502, 'source_unreachable', 'The prices could not be fetched right now.');
+        }
+      },
+    },
+    'kurse',
+    opts,
+  );
+
   return (request) => {
     const action = new URL(request.url).searchParams.get('action');
     if (action == null) return lake(request);
     if (action === 'rwgps') return rwgps(request);
+    if (action === 'kurse') return kurse(request);
     if (action === 'ov-stops' || action === 'ov-departures') return ov(request);
     if (request.method === 'OPTIONS') return lake(request);
     return json(request, 400, { error: 'unknown_action', code: 'unknown_action', message: `Use ?action=${ACTIONS.join(', ')} or no action.` });
