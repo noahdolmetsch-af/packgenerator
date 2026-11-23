@@ -15,6 +15,7 @@
   import { db } from '../../lib/db.js';
   import { shiftDay, mondayOf, PLAN_KEY, GOAL_KEY, KIND_NAMES } from '../../lib/training.js';
   import { WEEKPLAN_KEY } from '../../lib/training/wochenplan.js';
+  import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
   import { WEEKLOG_KEY } from '../../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../../lib/training/wochenplan-text.js';
   import { meinPlan, LOW_PCT } from '../../lib/training/meinplan.js';
@@ -26,14 +27,15 @@
   const today = localDay();
   const q = liveQuery(async () => {
     const mon = mondayOf(today);
-    const [wp, wl, pl, gl, acts] = await Promise.all([
+    const [wp, wl, pl, gl, sp, acts] = await Promise.all([
       db.settings.get(WEEKPLAN_KEY),
       db.settings.get(WEEKLOG_KEY),
       db.settings.get(PLAN_KEY),
       db.settings.get(GOAL_KEY),
+      db.settings.get(SP_KEY),
       db.activities.where('day').between(shiftDay(mon, -28), shiftDay(mon, 27), true, true).toArray().catch(() => []),
     ]);
-    return { stored: wp?.value ?? null, rawLog: wl?.value ?? null, rawPlan: pl?.value ?? null, rawGoal: gl?.value ?? null, acts };
+    return { stored: wp?.value ?? null, rawLog: wl?.value ?? null, rawPlan: pl?.value ?? null, rawGoal: gl?.value ?? null, team: teamSessions(spPrefsOf(sp?.value)), acts };
   });
   const d = $derived($q);
   const m = $derived(d ? meinPlan({ ...d, today }) : null);

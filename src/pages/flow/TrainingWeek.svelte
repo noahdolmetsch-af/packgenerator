@@ -33,6 +33,7 @@
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
   import { saveAct } from '../../lib/flowdb.js';
   import { blankAct } from '../../lib/flow.js';
+  import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
   import SuggestWeek from '../../lib/training/plans/SuggestWeek.svelte'; // «Training verbessern» 2
   import { homeForecast } from '../../lib/home-weather.js';
   import { formQuery } from '../../lib/form-data.js';
@@ -54,6 +55,7 @@
 
   const today = localDay();
   const planQ = liveQuery(async () => (await db.settings.get(PLAN_KEY))?.value ?? null);
+  const spQ = liveQuery(async () => (await db.settings.get(SP_KEY))?.value ?? null); // the team dates replace the plan's own ice hockey (Noah 23.11.2026 «1a»)
   const goalQ = liveQuery(async () => (await db.settings.get(GOAL_KEY))?.value ?? null);
   const plan = $derived(planOf($planQ));
   const daysQ = liveQuery(async () => (await db.settings.get(DAYS_KEY))?.value ?? null);
@@ -228,7 +230,7 @@
   const weekDates = $derived(
     dateSrc
       ? buildWeek({ ...dateSrc, forecast: null, hide: [], monday, today, goalHours: null, actName: (id) => id })
-          .days.map((d) => ({ day: d.day, rows: d.entries.filter((e) => e.kind === 'date').map((e) => ({ key: e.id, title: e.title, time: e.time || '', mins: e.sub?.mins ?? 60 })) }))
+          .days.map((d) => ({ day: d.day, rows: d.entries.filter((e) => e.kind === 'date').map((e) => ({ key: e.id, title: e.sub?.src === 'spielerplus' && e.sub.name ? `${e.sub.name} · ${e.title}` : e.title, time: e.time || '', mins: e.sub?.mins ?? 60 })) }))
       : [],
   );
   const wpQ = liveQuery(async () => (await db.settings.get(WEEKPLAN_KEY))?.value ?? null);
@@ -240,7 +242,7 @@
     const cfgs = weekplanOf($wpQ);
     const log = weekLog(logOf($wlQ), monday);
     const cfg = modeCfg(sum ? cfgs.summer : cfgs.winter, sum, log.mode);
-    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plannerSessions($planQ) })
+    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plannerSessions($planQ, teamSessions(spPrefsOf($spQ))) })
       .units.filter((u) => u.type !== 'med' && u.type !== 'stretch' && !log.released.includes(u.id))
       .map((u) => ({ key: u.id, day: shiftDay(monday, u.d), title: t(UNIT_NAME[u.type] ?? 'Session'), time: u.t, mins: u.mins, done: !!log.done[u.id] }));
   });

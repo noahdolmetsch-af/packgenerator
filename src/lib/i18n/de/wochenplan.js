@@ -68,6 +68,8 @@ export default {
   'easy|day': 'leicht',
   'free|day': 'frei',
   // notes and warnings of the planner
+  'This week the ice hockey comes from your team calendar. The plan adds none of its own.': 'Diese Woche kommt das Eishockey aus deinem Spielerplus-Kalender. Der Plan setzt keins dazu.',
+  'Your team calendar has no date this week: no ice hockey.': 'Dein Spielerplus-Kalender hat diese Woche keinen Termin: kein Eishockey.',
   'The sauna goes after a gym session. With no gym unit it has no place.': 'Die Sauna kommt nach dem Gym. Ohne Gym-Einheit hat sie keinen Platz.',
   'No room for the sauna after the gym on {day}.': 'Am {day} ist nach dem Gym kein Platz für die Sauna.',
   'No room for meditation on {day}.': 'Am {day} ist kein Platz für Meditation.',

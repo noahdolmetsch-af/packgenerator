@@ -217,7 +217,7 @@
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
   import Profile from '../lib/ui/Profile.svelte';
   import { MERKEN_KEY } from '../lib/merkendb.js';
-  import { SP_KEY, prefsOf as spPrefsOf, dueToday as spDueToday } from '../lib/spielerplus.js';
+  import { SP_KEY, prefsOf as spPrefsOf, dueToday as spDueToday, teamSessions } from '../lib/spielerplus.js';
   import { LISTS_KEY } from '../lib/ownlists.js';
   import { TRELLO_KEY, dueInTrello } from '../lib/trello.js';
   import { backClose } from '../lib/ui/backclose.js';
@@ -862,7 +862,7 @@
   const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
   const wegStep = $derived(wegTodayStep(wegOf(S[WEG_KEY]), today));
-  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today, trainingSessionsOf(S[TRAINING_PLAN_KEY])));
+  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today, trainingSessionsOf(S[TRAINING_PLAN_KEY], teamSessions(spPrefsOf(S[SP_KEY])))));
   async function planTick(u) {
     const due = planToday;
     if (!due) return;

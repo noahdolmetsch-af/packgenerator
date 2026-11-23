@@ -44,6 +44,8 @@ export const NOTE_TEXT = {
   'tp-in': 'TrainingPeaks brings {h} h this week. They count towards your hours; the plan only adds the rest.',
   'tp-replaces': 'Replaced by TrainingPeaks: {n} × «{type}».',
   'tp-rest': 'TrainingPeaks has a free day on {day}: the plan puts nothing else there.',
+  'team-in': 'This week the ice hockey comes from your team calendar. The plan adds none of its own.',
+  'team-none': 'Your team calendar has no date this week: no ice hockey.',
   'tp-over': 'TrainingPeaks alone is above your {h} h. Nothing else in the plan is taken away.',
 };
 

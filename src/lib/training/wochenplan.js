@@ -278,6 +278,29 @@ export function restWeek(sessions, monday) {
   return [...out].sort((a, b) => a - b);
 }
 
+// ---- the team dates of Spielerplus (Noah 23.11.2026 «1a», thread «Wochenplan-Vorschläge verlässlich machen») ---------
+
+/**
+ * The ice hockey of a week comes from the team calendar when one is connected (lib/spielerplus.js teamSessions puts
+ * `{ team: 'on' }` and `{ team: 'date', day, time, mins, id, name }` into the sessions list). Then every date of the week
+ * is an ice hockey session, fixed on its day (training and game alike), and the plan puts no ice hockey of its own: a
+ * week without a date has none. Without a connected calendar the plan keeps its own unit. → { on, dates: [{ id, d, mins, t, name }] }.
+ */
+export function teamWeek(sessions, monday) {
+  const list = Array.isArray(sessions) ? sessions : [];
+  const on = list.some((s) => s?.team === 'on');
+  if (!on) return { on: false, dates: [] };
+  const m0 = Date.parse(`${monday}T12:00:00Z`);
+  const dates = [];
+  for (const s of list) {
+    if (s?.team !== 'date' || !DAY_RE.test(s.day ?? '')) continue;
+    const d = Math.round((Date.parse(`${s.day}T12:00:00Z`) - m0) / 864e5);
+    if (d < 0 || d > 6) continue;
+    dates.push({ id: `team:${s.id}`, d, mins: s.mins > 0 ? Math.round(s.mins) : TYPES.hockey.mins, t: timeOk(s.time) ? s.time : '', name: String(s.name ?? '') });
+  }
+  return { on, dates: dates.sort((a, b) => a.d - b.d || a.t.localeCompare(b.t) || a.id.localeCompare(b.id)) };
+}
+
 /**
  * The goal counts after TrainingPeaks took its share (Noah «1a»: the hours stay, the plan plans the rest). A unit falls
  * away when the minutes TrainingPeaks has left cover at least half of it; the minutes of a sport first cover its own
@@ -326,6 +349,7 @@ function replaceByTp(cfg, counts, tp) {
  *   dayLoad: 'H' | 'M' | 'L' per weekday; perDay: units per weekday (meditation, stretching, sauna and rest not counted)
  *   notes: [{ key, … }] what the planner changed on its own; warnings: [{ key, … , fix? }] what does not fit;
  *   tp: [{ id, d, mins, t, load, type, name }] the TrainingPeaks sessions of the week (not part of `units`: they are sessions, shown as such)
+ *   team: [{ id, d, mins, t, name }] the team dates of the week (Spielerplus, ice hockey; not part of `units` either: the dates are shown as dates)
  */
 export function planWeek(cfg, ctx) {
   const summer = isSummer(ctx.monday);
@@ -350,8 +374,18 @@ export function planWeek(cfg, ctx) {
       U.push({ id: x.id, type: 'tp', d: x.d, t: x.t || toT(UNTIMED), start, end: start + x.mins, mins: x.mins, load: x.load, fixed: true, pinned: false, variant: null, tp: true, assumed: !x.t });
     }
   }
+  // the team dates stand fixed like TrainingPeaks and replace the plan's own ice hockey (Noah «1a»)
+  const team = teamWeek(ctx.sessions, ctx.monday);
+  if (team.on) {
+    counts.hockey = 0;
+    notes.push(team.dates.length ? { key: 'team-in', n: team.dates.length } : { key: 'team-none' });
+    for (const x of team.dates) {
+      const start = x.t ? toM(x.t) : UNTIMED;
+      U.push({ id: x.id, type: 'team', d: x.d, t: x.t || toT(UNTIMED), start, end: start + x.mins, mins: x.mins, load: TYPES.hockey.load, fixed: true, pinned: false, variant: null, team: true, assumed: !x.t, name: x.name });
+    }
+  }
   const ski = !!ctx.ski;
-  const hf = (cfg.fixes.hockey || [])[0];
+  const hf = team.on ? (team.dates[0] ? { d: team.dates.find((x) => x.d === 5)?.d ?? team.dates[0].d } : null) : (cfg.fixes.hockey || [])[0];
   const skiDay = ski ? (hf && hf.d === 5 ? 6 : 5) : -1; // Saturday, or Sunday when the ice hockey is on Saturday
   if (ski)
     for (const t of SKI_DROPS) {
@@ -629,7 +663,7 @@ export function planWeek(cfg, ctx) {
   if (fh < 1) warnings.push({ key: 'no-free-half', ...way('bikeOut', { type: 'bikeOut', delta: -1 }) });
   notes.filter((n) => n.key === 'no-room').forEach((n) => warnings.push({ key: 'no-room', type: n.type }));
   warnings.push(...overlaps(U));
-  return { units: U.filter((x) => !x.tp), dayLoad, notes: notes.filter((n) => n.key !== 'no-room'), warnings, freeHalves: fh, perDay, tp };
+  return { units: U.filter((x) => !x.tp && !x.team), dayLoad, notes: notes.filter((n) => n.key !== 'no-room'), warnings, freeHalves: fh, perDay, tp, team: team.dates };
 }
 
 /** Units that overlap on a day (meditation, stretching and the sauna after the gym do not count): [{ key: 'overlap', a, b, d, fix? }]. */

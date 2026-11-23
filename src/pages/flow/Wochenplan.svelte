@@ -23,6 +23,7 @@
   import Empty from '../../lib/ui/Empty.svelte';
   import { db } from '../../lib/db.js';
   import { mondayOf, shiftDay, PLAN_KEY, plannerSessions as sessionsOf } from '../../lib/training.js';
+  import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
   import { needsSheet as needsUnitSheet, removeUnitEntries } from '../../lib/flow/unitdone.js';
@@ -40,7 +41,8 @@
   const plan = $derived(planOf(stored));
   // the sessions of the week suggestion: the ones from TrainingPeaks take their share of the hours (only real weeks, not the example)
   const sessQ = liveQuery(async () => (await db.settings.get(PLAN_KEY))?.value ?? null);
-  const sessions = $derived(sessionsOf($sessQ));
+  const spQ = liveQuery(async () => (await db.settings.get(SP_KEY))?.value ?? null); // the team dates replace the plan's own ice hockey (Noah 23.11.2026 «1a»)
+  const sessions = $derived(sessionsOf($sessQ, teamSessions(spPrefsOf($spQ))));
   const sessLoaded = $derived($sessQ !== undefined);
   // part 3: the ticks and the frozen weeks (undefined while read), and this week's Strava activities
   const logQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
@@ -253,7 +255,7 @@
     return bits.join(' · ');
   }
   // a session from TrainingPeaks has no unit of the plan: its own title (or the word TrainingPeaks)
-  const tpNameOf = (id) => (week.tp ?? []).find((x) => x.id === id)?.name || t('TrainingPeaks');
+  const tpNameOf = (id) => (week.tp ?? []).find((x) => x.id === id)?.name || (week.team ?? []).find((x) => x.id === id)?.name || (String(id).startsWith('team:') ? nameOf('hockey') : t('TrainingPeaks'));
   const noteText = (n) => (NOTE_TEXT[n.key] ? t(NOTE_TEXT[n.key], { day: n.d == null ? '' : dayName(n.d), h: num(n.hours ?? 0), n: n.n ?? 0, type: n.type ? nameOf(n.type) : '' }) : '');
   const warnText = (w) =>
     t(WARN_TEXT[w.key] ?? WARN_TEXT['no-room'], {
