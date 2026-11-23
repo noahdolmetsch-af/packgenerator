@@ -33,9 +33,14 @@ test('four stations: show me, next, skip, the end card; the sample race stays', 
   await expect(page.locator('#tour-h')).toHaveText(T(S[2].title));
   await page.locator('[data-station-skip]').click();
   await expect(page.locator('#tour-h')).toHaveText(T(S[4].title));
-  // «Skip» at station 3 and 4: the end card
-  await page.locator('[data-station-skip]').click();
+  // station 3: «Show me» lights the box «What lies where» of race mode, with the three drawn example bags
+  await page.locator('[data-station-show]').click();
+  await expect(page.locator('#tour-h')).toHaveText(T(S[5].title));
+  await expect(page.locator('[data-race-box="ride-bags"]')).toBeVisible();
+  await expect(page.locator('[data-race-bag-shot]')).toHaveCount(3);
+  await page.locator('.tcard .btn.hi').click();
   await expect(page.locator('#tour-h')).toHaveText(T(S[6].title));
+  // «Skip» at station 4: the end card
   await page.locator('[data-station-skip]').click();
   await expect(page.locator('#tour-h')).toHaveText(T(S.at(-1).title));
   await page.getByRole('button', { name: T('Close|tour') }).click();

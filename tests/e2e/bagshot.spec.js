@@ -75,20 +75,21 @@ test('Bag photos: take in Pack, big, replace, delete and undo; race mode box sho
   await page.getByRole('button', { name: T('Undo') }).first().click();
   await expect(page.locator('[data-bag-shot-open] img')).toHaveCount(1);
 
-  // race mode: the box says how to get a photo, then lists the bag with a photo (a photo of the sample race, set in the data)
+  // race mode: the sample race has three drawn example bags; your own photo of a bag wins over the drawn one
   await page.goto('./#/race');
   await page.locator('[data-race-sample-open]').click();
   await expect(page).toHaveURL(/#\/race\/race-sample$/);
   await page.locator('[data-race-tab="ride"]').click();
   const box = page.locator('[data-race-box="ride-bags"]');
   await expect(box).toBeVisible();
-  await expect(box.getByText(T('No bag photo yet. Open a bag under «Pack» and take one on the packing day.'))).toBeVisible();
+  // Rundgang der Stärken (Noah 23.11.2026 «1-5a»): the sample race comes with three drawn example bags
+  await expect(page.locator('[data-race-bag-shot]')).toHaveCount(3);
   const data = `data:image/png;base64,${(await picture(page)).buffer.toString('base64')}`;
   await page.evaluate((d) => new Promise((res) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => { const tx = r.result.transaction('photos', 'readwrite'); tx.objectStore('photos').put({ id: 'bagshot-test', bikeId: null, tripId: 'race-sample', slot: 'seat', bagShot: true, name: 'Satteltasche', main: false, data: d, day: '2026-11-20', addedAt: '2026-11-20T10:00:00.000Z' }); tx.oncomplete = () => res(); }; }), data);
   // the page does not see a write made behind its back: open it again
   await page.reload();
   await page.locator('[data-race-tab="ride"]').click();
-  const row = page.locator('[data-race-bag-shot]').first();
+  const row = page.locator('[data-race-bag-shot="seat"]');
   await expect(row).toBeVisible();
   await expect(row).toContainText('Satteltasche');
   await expect(box.locator('img')).toHaveCount(0);

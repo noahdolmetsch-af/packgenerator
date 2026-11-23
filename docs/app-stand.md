@@ -109,7 +109,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 |---|---|---|
 | Rennen planen | `#/race` | Ein Rennen mit Tagesetappen, Schlafstrategie, Stopps und eigenen Annahmen durchspielen; Rennmodus und Bericht nutzen. |
 | Detaillierter Rennen-Check | `#/racecheck` | Packliste, Zielsetup pro Tasche, Basisliste und Schlafvarianten vorbereiten und eine Nacht gedanklich durchspielen. Der Check ist auch die Grundlage der Schrittart «Rennplanung» für «Weg zum Ziel» (`src/lib/weg/types/rennplanung.js`): vier Schritte (Schlaf entscheiden, Basisliste prüfen, Zielsetup packen, Tag vorher durchgehen), die auf den Check zeigen und sich abhaken, sobald das Blatt ausgefüllt ist; sichtbar mit der Seite «Weg zum Ziel». |
-| Muster-Rennen | `#/race?sample` | Ein erfundenes 1000-km-Rennen als Lern- und Testbeispiel öffnen. |
+| Muster-Rennen | `#/race?sample` | Ein erfundenes 1000-km-Rennen als Lern- und Testbeispiel öffnen. Es hat drei gezeichnete Beispiel-Taschen (Etikett «Beispiel», Inhalt, Gewicht; `src/lib/race/samplebags.js`) im Rennmodus-Kasten «Was liegt wo?»; «Muster löschen» nimmt sie mit weg, ein eigenes Foto derselben Tasche geht vor. |
 | Schlafstrategie | `#/race` | Schlafplätze voraus suchen, eigene Listen importieren und geplante Nächte mit Wetter vergleichen. |
 | Hotels für heute Nacht | `#/race` | Hotels bei der erwarteten Abendposition mit Kontaktinformationen prüfen; Anfragen und Antworten festhalten. |
 | Powernap | `#/race` | Kurze Schlafpausen mit Timer vorbereiten. Der App-Alarm benötigt laut Handbuch eine geöffnete App. |
