@@ -73,6 +73,8 @@
   import { SETS_KEY } from '../sets.js';
   import { db } from '../db.js';
   import BagShot from './BagShot.svelte'; // K1 «Taschen-Fotos»: one photo per bag
+  import BagWeigh from './BagWeigh.svelte'; // K3 «Wiegen am Starttag»: the packed bag on the scale
+  import { containerWeight } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
   let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null } = $props();
   let grouping = $state('bags');
@@ -521,7 +523,7 @@
                     {:else}<li class="empty-bag"><p>{t('This bag is still empty.')}</p></li>{/each}
                   </ul>
                   {#if !fixed}<p class="addrow"><button class="tp-link" onclick={() => { zoneKey = grouping === 'bags' && targets.some((x) => x.key === group.key) ? group.key : targets[0]?.key; show('add'); }}><Plus size={16} aria-hidden="true" />{t('Add an item')}</button></p>{/if}
-                  {#if grouping === 'bags' && group.key !== 'body' && group.key !== 'mounted'}<BagShot {trip} slot={group.key} name={zoneTitle(group)} />{/if}
+                  {#if grouping === 'bags' && group.key !== 'body' && group.key !== 'mounted'}{#if !fixed}<BagWeigh {trip} slot={group.key} calcG={groupG(group)} missing={groupMissing(group)} bagG={group.bag ? containerWeight(group.bag, itemsById) : null} onsave={onlist ? (weighed) => onlist((cur) => ({ ...cur, weighed })) : null} />{/if}<BagShot {trip} slot={group.key} name={zoneTitle(group)} />{/if}
                 </div>
               {/if}
             </section>
