@@ -1,6 +1,6 @@
 # Material aufräumen
 
-23.11.2026 · Auftrag: Noah «ja» auf den Vorschlag des Koordinators (Thread «Velos und Material aufräumen», 2. von 2 PRs)
+PR #1520 · 23.11.2026 · Auftrag: Noah «ja» auf den Vorschlag des Koordinators (Thread «Velos und Material aufräumen», 2. von 2 PRs)
 
 ## Was ist neu
 - **Oben nur noch Suche, «Ansicht», «+ Teil» und «…».** Direkt darunter steht die Liste nach Kategorie.
