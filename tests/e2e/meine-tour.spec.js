@@ -72,10 +72,11 @@ test('Meine Tour: the card stands on top of Heute with the four phases and one n
   await expect(card.locator('[data-meinetour-phase]')).toHaveCount(4);
   await expect(card.locator('[data-meinetour-phase]').first()).toContainText(T('Planning|phase'));
   await expect(card.locator('[data-meinetour-phase][aria-current="step"]')).toHaveCount(1);
-  // one main button, no «Unterwegs» button (Noah «9 b»)
+  // one main button; the on-the-way mode (step 7a, Noah «9 b») is only a quiet button that Noah taps himself, never on by itself
   await expect(card.locator('[data-meinetour-next]')).toHaveCount(1);
   await expect(card.locator('[data-meinetour-line]')).toContainText(T('Next: {title}').replace('{title}', ''));
-  await expect(card.getByText(/Unterwegs-Modus/)).toHaveCount(0);
+  await expect(card.locator('[data-meinetour-on]')).toHaveText(T('Switch on on-the-way mode'));
+  await expect(card.locator('[data-meinetour-way]')).toHaveCount(0);
   // the first tile of the wall (it stands under the greeting and the picture, before the habits and the moment card)
   await expect(page.locator('[data-tile]').nth(1)).toHaveAttribute('data-tile', 'meinetour'); // right after the body band (Noah 23.11.2026 «1-4a», changed on purpose)
   await shot(page, info, 'meine-tour', card);
@@ -107,4 +108,32 @@ test('Meine Tour: a tour that is not riding or already done has no card', async 
   await setup(page, context);
   await openToday(page, info, withTour({ skipped: true }));
   await expect(page.locator('[data-meinetour]')).toHaveCount(0);
+});
+
+test('Meine Tour: Unterwegs-Modus is switched on by a tap, shows what is needed on the way and is switched off by a tap', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await setup(page, context);
+  await openToday(page, info, withTour());
+  const card = page.locator('[data-meinetour]');
+  await expect(card).toBeVisible();
+  await expect(card.locator('[data-meinetour-way]')).toHaveCount(0);
+  await card.locator('[data-meinetour-on]').click();
+  const way = card.locator('[data-meinetour-way]');
+  await expect(way).toBeVisible();
+  await expect(way.locator('[data-meinetour-live]')).toHaveText(T('Open the live map'));
+  await expect(way.locator('[data-meinetour-note]')).toBeVisible();
+  await expect(way.locator('[data-meinetour-breakdown]')).toBeVisible();
+  // the packing rows and the four phases give way to it
+  await expect(card.locator('[data-meinetour-phase]')).toHaveCount(0);
+  await expect(card.locator('[data-meinetour-next]')).toHaveCount(0);
+  await shot(page, info, 'unterwegs-an', card);
+  // it stays on after a reload (it is a setting, not a state of the page)
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-meinetour] [data-meinetour-way]')).toBeVisible();
+  await page.locator('[data-meinetour] [data-meinetour-off]').click();
+  await expect(page.locator('[data-meinetour] [data-meinetour-way]')).toHaveCount(0);
+  await expect(page.locator('[data-meinetour] [data-meinetour-phase]')).toHaveCount(4);
+  expect(errors).toEqual([]);
 });
