@@ -53,8 +53,10 @@ export default defineConfig({
     // src/lib/home/HomeWindow.svelte): a test that does not test them must not depend on the hour it runs at.
     // 'pg.packmore' = 'open': the five groups of «More about this trip» on Packen (PackMore.svelte) are closed for a real user; the
     // specs that look into a fold of a group find it open. tests/e2e/packen-mehr.spec.js tests the closed default without it.
+    // 'pg.homeMoreOpen' = '1': the closed line «More» of Heute (Wall.svelte) is open for the specs that look at a tile under it;
+    // tests/e2e/heute-mehr.spec.js tests the closed default without it.
     // The window specs switch them on again with test.use({ storageState: WINDOWS_ON }) from ./tests/e2e/settle.js.
-    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: 'pg.windows', value: 'quiet' }, { name: 'pg.packmore', value: 'open' }] }] },
+    storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: 'pg.windows', value: 'quiet' }, { name: 'pg.packmore', value: 'open' }, { name: 'pg.homeMoreOpen', value: '1' }] }] },
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Locally a preinstalled Chromium can be used (PW_CHROMIUM=/path/to/chrome); CI installs its own.

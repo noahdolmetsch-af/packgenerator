@@ -32,7 +32,9 @@ test.describe('HA Heute neu A', () => {
     await expect(body.locator('[data-body="pulse"]')).toContainText(T('yesterday {v}', { v: '52' }));
     await expect(body.locator('[data-body="sleep"] b')).toHaveText(/7[.,]5 h/);
     await expect(body.locator('[data-body="azm"] b')).toHaveText('12');
-    await expect(body.locator('[data-body-check]')).toBeVisible();
+    // «Heute aufräumen» (Noah 23.11.2026, changed on purpose): the morning check stands once, as the tile «Heute-Check»; the body tile has no second row
+    await expect(page.locator('[data-tile="heutecheck"]')).toBeVisible();
+    await expect(body.locator('[data-body-check]')).toHaveCount(0);
     // Fitbit everywhere (Noah 20.10.2026 22:21): the balance shows the measured pulse and today's active zone minutes
     const pc = page.locator('[data-section="balance"] [data-pc="body"]');
     await expect(pc).toContainText('55');

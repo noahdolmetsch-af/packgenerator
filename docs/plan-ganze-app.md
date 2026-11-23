@@ -35,6 +35,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 6 | Ich (vier Gruppen mit Satz zum Stand, «Wartet auf dich» zuerst) und Suche | #1500 | gebaut | datei:tests/e2e/ich-vier-gruppen.spec.js |
 | V1 | Woche: «n von m Einheiten erledigt» und die Ziele der Woche auf der Woche-Seite | #1349 | gebaut | - |
 | V3 | Woche: Aktiv › Woche, Training › Woche, Wochenplan und Mein Trainingsplan führen auf die eine Woche, eine Ziel-Zahl «n von m Einheiten» | #1498 | gebaut | datei:tests/e2e/einheiten-woche.spec.js |
+| H1 | Heute und Diese Woche aufräumen: Heute in drei Teilen («Jetzt», «Deine Woche», «Mehr» zugeklappt), Doppeltes einmal, Woche ruhiger | #1513 | gebaut | - |
 | V4a | Menü mit fünf Bereichen: Bereich «Woche» (Planen und Aktiv zusammen: Woche, Training, Notizen, Alltag), Auswerten mit eigenem Platz; Seitenleiste und Handy-Leiste (alle Adressen bleiben) | #1368 | gebaut | - |
 | V4b2 | Meditation nach «Alltag», «Woche leichter/härter», Karte «Dein Stand» auf Training | #1459, #1476, #1480 | online | datei:tests/wochenart-backup.test.js |
 | V4b | Training als Zeitplan der Woche (Einheiten mit Uhrzeit, freier Slot → «Neue Einheit», «Härter», «Dein Stand»); Meditation nach «Alltag» | #1409 | gebaut | - |
