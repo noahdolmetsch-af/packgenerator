@@ -4,7 +4,7 @@ export default {
   lead: 'Every entry shows its day with the weekday and the time it went online. Some entries have a picture you can open.',
   points: [
     { text: 'Every update shows its full day, like «Sat, 21 Nov 2026, 14:32»; the tile «New» on Today names the day too', go: { href: '#/me/news', steps: [{ sel: '[data-version]' }] } },
-    { text: 'Under an update with a picture: «Show picture» (before and after next to each other); a tap on the picture makes it bigger', go: { href: '#/me/news', steps: [{ sel: '[data-news-pic]' }] } },
+    { text: 'Under an update with a picture: «Show picture» (before and after next to each other); a tap on the picture makes it bigger', go: { href: '#/me/news', steps: [{ sel: '[data-news-pic]' }], where: 'Me › What is new, under an update that has a picture.' } },
   ],
   small: [{ box: 'new', text: 'The picture loads only when you tap «Show picture»; without the internet it says so', go: null }],
   test: [
@@ -13,6 +13,7 @@ export default {
   ],
   since: [],
   de: {
+    'Me › What is new, under an update that has a picture.': 'Ich › Was ist neu, unter einem Update mit Bild.',
     'What is new: the day, the time and a picture': 'Was ist neu: Tag, Uhrzeit und ein Bild',
     'Every entry shows its day with the weekday and the time it went online. Some entries have a picture you can open.': 'Jeder Eintrag zeigt seinen Tag mit Wochentag und die Uhrzeit, zu der er online ging. Manche Einträge haben ein Bild zum Öffnen.',
     'Every update shows its full day, like «Sat, 21 Nov 2026, 14:32»; the tile «New» on Today names the day too': 'Jede Neuerung zeigt ihren ganzen Tag, etwa «Sa., 21. Nov. 2026, 14:32»; die Kachel «Neu» auf Heute nennt den Tag auch',
