@@ -17,6 +17,8 @@ test('removing a date in the week offers Undo and Undo brings it back', async ({
   await expect(page.getByText('Test-Termin')).toHaveCount(1);
 
   await page.getByRole('button', { name: T('Remove: {title}', { title: 'Test-Termin' }) }).click();
+  // Warteliste F4: removing asks first, «Delete» then removes it with Undo
+  await page.getByTestId('ask-delete').getByRole('button', { name: T('Delete'), exact: true }).click();
   await expect(page.getByText('Test-Termin', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: T('Undo') }).first().click();
   await expect(page.getByText('Test-Termin', { exact: true })).toHaveCount(1);
