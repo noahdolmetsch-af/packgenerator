@@ -258,9 +258,30 @@ test('Mein Tag: «Plan my day» proposes times for entries without a time and ta
   await expect(sheet).toContainText('09:00');
   await sheet.locator('[data-plan-apply]').click();
   await expect(page.locator('.tl [data-entry="wi3"]')).toContainText('09:00');
-  await expect(page.locator('[data-plan-open]')).toHaveCount(0);
+  // planning stays possible on every day from today on
+  await expect(page.locator('[data-plan-open]')).toBeVisible();
   // Undo gives the entry its empty time back
   await page.getByRole('button', { name: T('Undo') }).first().click();
   await expect(page.locator('.untimed')).toContainText('Garage anrufen');
+  expect(errors).toEqual([]);
+});
+
+test('Mein Tag: «Plan my day» works on tomorrow too and gives a calendar date a time only when ticked', async ({ page, context }) => {
+  const errors = await open(page, context, `#/day/${addDays(TODAY, 1)}`);
+  await page.waitForSelector('h1');
+  const tomorrow = addDays(TODAY, 1);
+  await put(page, { settings: [{ key: 'week.calendar', value: [{ id: 'k1', title: 'Rundfahrt', day: tomorrow, time: '', src: 'calendar' }, { id: 'k2', title: 'Kino', day: tomorrow, time: '20:00', src: 'calendar' }] }, { key: 'week.items', value: [{ id: 'wi9', kind: 'todo', title: 'Reifen prüfen', day: tomorrow, time: '' }] }] });
+  await page.reload();
+  await page.locator('[data-plan-open]').click();
+  const sheet = page.locator('[data-plan-sheet]');
+  await expect(sheet.locator('[data-plan-pick="wi9"]')).toBeChecked();
+  await expect(sheet.locator('[data-plan-pick="cal:k1"]')).not.toBeChecked();
+  await sheet.locator('[data-plan-pick="cal:k1"]').check();
+  await sheet.locator('[data-plan-apply]').click();
+  // the calendar date got its time as a layer and now stands in the timeline
+  await expect(page.locator('.tl [data-entry="cal:k1"]')).toBeVisible();
+  await expect(page.locator('.tl [data-entry="wi9"]')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.tl [data-entry="cal:k1"]')).toBeVisible();
   expect(errors).toEqual([]);
 });

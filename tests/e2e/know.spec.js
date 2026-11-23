@@ -91,7 +91,7 @@ test('a fresh app: what is still open is a row of Important today, no Tried it y
   await start(page, context, info, 'de', null);
   // 0.188.0 H32 (Noah 24.10.2026 «1a», changed on purpose): a fresh app shows the first steps; what is still open
   // (bike, GPX rides, first trip) stands there, so «Jetzt dran» holds no to-do row of its own
-  await expect(page.getByRole('region', { name: T('First steps') })).toBeVisible();
+  await expect(page.getByRole('region', { name: T('Start here') })).toBeVisible();
   await expect(page.locator('[data-empty-wall]')).toBeVisible();
   await expect(page.locator('[data-row="todo"]')).toHaveCount(0);
   for (const gone of ['No learnings yet', 'Nothing to sort', 'No forecast loaded yet', 'Standard guess: 16 km/h', 'No backup yet'])

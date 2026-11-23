@@ -33,3 +33,20 @@
     <button type="button" class="btn sm" onclick={go} data-live-osmand-go>{t('Ride with OsmAnd')}</button>
   </li>
 {/if}
+
+<style>
+  /* the same row as the others on the card «Ready for the ride?» (their styles are scoped to ReadyCard) */
+  .lv-ready-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .lv-ready-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .lv-ready-main small {
+    color: var(--ink-2);
+  }
+</style>

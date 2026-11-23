@@ -9,7 +9,7 @@
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { weekQuery, putWeek } from '../lib/woche/load.js';
-  import { buildWeek, KIND_NAMES, ITEMS_KEY, cleanItem, pruneItems } from '../lib/woche.js';
+  import { buildWeek, KIND_NAMES, ITEMS_KEY, TIMES_KEY, timesOf, cleanItem, pruneItems } from '../lib/woche.js';
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import EntrySheet from '../lib/tag/EntrySheet.svelte';
   import PlanSheet from '../lib/tag/PlanSheet.svelte';
@@ -133,14 +133,23 @@
     await saveItems(before.map((x) => (x.id === it.id ? { ...x, done: true } : x)));
     offerDone(t('«{name}» ticked off.', { name: it.title }), () => saveItems(before));
   }
-  // step 4: «Plan my day»: times for the own entries without one, by rules; nothing is saved before «Take over»
+  // step 4: «Plan my day»: times for the entries without one, by rules; nothing is saved before «Take over»
   let planning = $state(false);
-  const openOwn = $derived(lay.untimed.filter((e) => e.own && !e.done && (e.kind === 'todo' || e.kind === 'date')).length);
+  const nextDay = $derived(shiftDay(day, 1));
+  const next = $derived(week?.days.find((x) => x.day === nextDay) ? { day: nextDay, entries: week.days.find((x) => x.day === nextDay).entries } : null);
   async function applyPlan(moves) {
-    const before = items();
-    const at = new Map(moves.map((m) => [m.id, m.time]));
-    await saveItems(before.map((x) => (at.has(x.id) ? cleanItem({ ...x, time: at.get(x.id) }) : x)));
-    offerDone(t('{n} entries placed.', { n: moves.length }), () => saveItems(before));
+    const beforeItems = items();
+    const beforeTimes = src?.times ?? {};
+    const own = new Map(moves.filter((m) => m.own).map((m) => [m.id, m]));
+    const nextItems = beforeItems.map((x) => (own.has(x.id) ? cleanItem({ ...x, time: own.get(x.id).time, day: own.get(x.id).day }) : x));
+    const nextTimes = { ...beforeTimes };
+    for (const m of moves) if (!m.own) nextTimes[`${m.id}@${m.day}`] = m.time;
+    await saveItems(nextItems);
+    await putWeek(TIMES_KEY, timesOf(nextTimes, today));
+    offerDone(t('{n} entries placed.', { n: moves.length }), async () => {
+      await saveItems(beforeItems);
+      await putWeek(TIMES_KEY, beforeTimes);
+    });
   }
   const addEntry = (time = '') => (editing = { item: null, day, time });
   async function saveEntry(fields) {
@@ -193,7 +202,7 @@
 </p>
 <p class="addrow">
   <button type="button" class="add" data-add-entry onclick={() => addEntry()}><Plus size={16} aria-hidden="true" /> {t('Add an entry')}</button>
-  {#if openOwn && day >= today}<button type="button" class="add" data-plan-open onclick={() => (planning = true)}><WandSparkles size={16} aria-hidden="true" /> {t('Plan my day')}</button>{/if}
+  {#if day >= today}<button type="button" class="add" data-plan-open onclick={() => (planning = true)}><WandSparkles size={16} aria-hidden="true" /> {t('Plan my day')}</button>{/if}
 </p>
 
 {#if !week}
@@ -251,7 +260,7 @@
 {/if}
 
 {#if planning}
-  <PlanSheet entries={d?.entries ?? []} {day} {today} now={now ?? 0} wet={!!wetNow?.wet} onapply={applyPlan} onclose={() => (planning = false)} />
+  <PlanSheet entries={d?.entries ?? []} {day} {today} now={now ?? 0} wet={!!wetNow?.wet} {next} onapply={applyPlan} onclose={() => (planning = false)} />
 {/if}
 
 {#if editing}
