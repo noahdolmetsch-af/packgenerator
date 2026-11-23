@@ -177,6 +177,13 @@ export function setHours(cfg, hours, summer) {
 export const LIGHT_SHARE = 0.6;
 export const lightOf = (cfg, summer) => setHours(cfg, Math.max(MIN_HOURS, Math.round(cfg.hours * LIGHT_SHARE)), summer);
 
+/** A harder week (V4b2, Noah 22.11.2026 «1a»): this share of the hours goal, for one week; the goals themselves stay. */
+export const HARD_SHARE = 1.2;
+export const hardOf = (cfg, summer) => setHours(cfg, Math.min(MAX_HOURS, Math.round(cfg.hours * HARD_SHARE)), summer);
+
+/** The hours goal of a week for its modes: harder, lighter or as it is (hard and light never both). */
+export const modeCfg = (cfg, summer, mode = {}) => (mode.hard ? hardOf(cfg, summer) : mode.light ? lightOf(cfg, summer) : cfg);
+
 /** True when the units are exactly what the hours goal suggests (no change by hand since). */
 export const followsHours = (cfg, summer) => same(suggestFromHours(cfg.hours, summer).counts, cfg.counts);
 
