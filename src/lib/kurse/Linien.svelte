@@ -45,7 +45,7 @@
     {#each ergebnis.linien as l, i (l.id)}
       <li data-legende={l.id}>
         <svg class="muster" viewBox="0 0 36 8" aria-hidden="true"><path d="M0 4H36" style:stroke={STIL[i % STIL.length].farbe} stroke-dasharray={STIL[i % STIL.length].strich || null} /></svg>
-        <span class="nm">{nm(l.id)}{#if l.kurz} <small class="muted">· {t('since {day}', { day: tagKurz(l.von) })}</small>{/if}</span>
+        <span class="nm">{nm(l.id)}{#if l.kurz}{' '}<small class="muted">· {t('since {day}', { day: tagKurz(l.von) })}</small>{/if}</span>
         <b class="num {l.aenderung > 0 ? 'up' : l.aenderung < 0 ? 'down' : ''}">{vorzeichen(l.aenderung, 1)} %</b>
         {#if onweg}<button type="button" class="weg" aria-label={t('Take {name} out of the comparison', { name: nm(l.id) })} onclick={() => onweg(l.id)}><X size={16} aria-hidden="true" /></button>{/if}
       </li>

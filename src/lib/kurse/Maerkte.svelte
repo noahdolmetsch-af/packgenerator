@@ -214,12 +214,12 @@
                 <input type="checkbox" class="m-wahl" checked={wahl.includes(x.id)} disabled={!wahl.includes(x.id) && wahl.length >= MAX_LINIEN} onchange={() => waehle(x.id)} aria-label={t('Compare {name}', { name: nm })} data-vergleich-wahl />
                 <div class="m-name">
                   <b>{nm}</b>
-                  <small class="muted">{x.symbol}{#if a} · {t('Close of {day}', { day: tagKurz(a.last.day) })}{/if}</small>
+                  <small class="muted">{x.symbol}{#if a}{' · '}{t('Close of {day}', { day: tagKurz(a.last.day) })}{/if}</small>
                 </div>
                 <div class="m-preis">
                   {#if a}
                     <b class="num" data-titel-preis>{a.currency ? `${a.currency} ` : ''}{zahl(a.last.close, dec(a.last.close))}</b>
-                    <small class="num {tone(v)}" data-titel-aend>{v ? `${vorzeichen(v.pct, 1)} %` : '–'}{#if v?.kurz} · {t('since {day}', { day: tagKurz(v.from[0]) })}{/if}</small>
+                    <small class="num {tone(v)}" data-titel-aend>{v ? `${vorzeichen(v.pct, 1)} %` : '–'}{#if v?.kurz}{' · '}{t('since {day}', { day: tagKurz(v.from[0]) })}{/if}</small>
                   {:else if a === null}
                     <small class="muted" data-titel-fehlt>{t('No prices right now')}</small>
                   {:else}
