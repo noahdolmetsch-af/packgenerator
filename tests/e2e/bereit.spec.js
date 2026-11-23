@@ -28,6 +28,11 @@ test('Live page: before the start the card «Ready for the ride?» checks the ma
   // the map: the offline strips open right there
   await tap(card.locator('[data-live-ready-keep]'), info);
   await expect(card.locator('[data-live-ready-box]')).toBeVisible();
+  // «Ride with OsmAnd» (Noah 23.11.2026 «1a»): one tap makes the GPX file and a line says what to do next
+  const os = card.locator('[data-live-osmand]');
+  await expect(os).toBeVisible();
+  await tap(os.locator('[data-live-osmand-go]'), info);
+  await expect(os.locator('[data-live-osmand-say]')).toContainText(/OsmAnd/);
   // nothing is forced: the ride can start
   await expect(page.locator('[data-live-start]')).toBeVisible();
 });
