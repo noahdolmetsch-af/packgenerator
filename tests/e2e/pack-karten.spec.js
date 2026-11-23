@@ -4,6 +4,9 @@ import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { mkdirSync } from 'node:fs';
 
+// the closed lines behind the title are what a person sees first (clock.js opens every card for the other specs)
+test.use({ cardsOpen: false });
+
 test('Trips: pack cards on top, Continue opens the list in Steps', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
