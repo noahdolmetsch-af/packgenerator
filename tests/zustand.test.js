@@ -16,6 +16,11 @@ describe('Today: «Is everything in order?»', () => {
     expect(zustandRows({ keep: 'not', hasData: true }).map((x) => x.key)).toEqual(['z:keep']);
     expect(zustandRows({ keep: 'unknown', hasData: true })).toEqual([]);
   });
+  it('tells what helps when the browser turns the request down', () => {
+    const r = zustandRows({ keep: 'not', hasData: true });
+    expect(r[0].hint).toMatch(/home screen/);
+    expect(r[0].act.label).toBe('Keep my data');
+  });
   it('shows a failed sync only while the sync is on', () => {
     expect(zustandRows({ sync: { on: false, error: 'x' } })).toEqual([]);
     const calls = [];
