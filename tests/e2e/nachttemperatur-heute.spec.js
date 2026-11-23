@@ -1,7 +1,7 @@
 // «Nachttemperatur» (Noah 06.11.2026 «1a und c 2a 3a 4a 5a», PR 2): the calm line on Today.
 // Made-up place and weather; Open-Meteo is mocked, everything else outside is blocked (openHome).
 import { test, expect } from './clock.js';
-import { openHome, homeFixture, day } from './home0460-fixture.js';
+import { openHome, homeFixture, day, openWetterFold } from './home0460-fixture.js';
 
 const OFF = 7200; // 9 October 2026 is summer time in Zurich
 const atLocal = (date, h) => Date.parse(`${date}T00:00:00Z`) + h * 36e5 - OFF * 1000;
@@ -40,6 +40,7 @@ test('Today shows one calm line for the home place; it can be switched off on th
 
   await page.goto('./#/');
   const line = page.locator('[data-heute-nacht]');
+  await openWetterFold(page);
   await expect(line).toBeVisible({ timeout: 20_000 });
   await expect(line).toContainText('Nacht: heute früh 5 °C, morgen früh 7 °C');
   await expect(line).toContainText('2° wärmer als gestern früh');
@@ -61,6 +62,7 @@ test('Frost within three days is the hint on Today, before the change against ye
   await mock(context, { '-1': 3, 0: 5, 1: 7, 2: 4, 3: -2, 4: 1, 5: 1, 6: 1, 7: 1 });
   await page.goto('./#/');
   const line = page.locator('[data-heute-nacht]');
+  await openWetterFold(page);
   await expect(line).toContainText('Frost in 3 Tagen (unter 0 °C)', { timeout: 20_000 });
   await expect(line).not.toContainText('wärmer als gestern');
 });

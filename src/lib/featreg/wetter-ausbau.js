@@ -1,0 +1,22 @@
+// «Wetter ausbauen» (Noah 22.11.2026 «a»; Thread «Wetter besser machen»): Regen in 15-Minuten-Schritten, Wetter entlang der Route, pro Fahrtag, Strasse nass oder trocken, Fenster teilen
+export default {
+  features: [
+    { id: 'f.wxrain15', group: 'onway', title: 'Rain in the next hours', text: 'The rain of the next three hours in steps of 15 minutes, with one sentence («Dry for the next 3 hours», «Rain from 14:30, until about 15:15»). On the day of a ride one line on Today says it too. Free data from Open-Meteo; it only shows on the weather page and on Today when it matters.', href: '#/wetter', words: 'regen 15 minuten stunden niederschlag trocken bald schauer jetzt radar nächste stunden regenstreifen', moment: 'unterwegs' },
+    { id: 'f.wxroute', group: 'before', title: 'Weather along the route', text: 'On a trip with a route line, the weather of the hour you are expected at each point: rain, temperature and wind as you feel it, the share of headwind, the coldest point, what it adds to the packing hints, the webcams of «My webcams» on the way, and for tours of several days one line per riding day.', href: '#/pack', words: 'wetter entlang route strecke etappe fahrtag gegenwind kälteste stelle webcams unterwegs tour wind regen pass', moment: 'planen' },
+    { id: 'f.wxroad', group: 'onway', title: 'Road wet or dry', text: 'One line on the weather page says whether the road is still wet, when it dries again, or that it stays wet because it is too cold to dry. It is a guess from the last hours, not a measurement.', href: '#/wetter', words: 'strasse nass trocken nässe glatt regen trocknen pfütze bremsen', moment: 'unterwegs' },
+    { id: 'f.wxshare', group: 'before', title: 'Share a weather window', text: 'The best window for a ride as one short text, with day, hours, temperature, rain and wind. One tap copies it, so you can send it to the people you ride with. Nothing is sent by the app itself.', href: '#/wetter?tab=planen', words: 'fenster teilen kopieren text freunde fahren zusammen beste zeit senden nachricht', moment: 'planen' },
+  ],
+  howto: {
+    'f.wxrain15': ['Open the weather page; «Now» shows the rain of the next 3 hours.', 'Read the sentence under the bars: dry, or from when it rains.', 'Tap «Radar and cameras» to see where the rain is.'],
+    'f.wxroute': ['Open a planned trip with a route and look at «Weather along the route».', 'Read the line with headwind and the coldest point; the packing hints say what to add.', 'On a trip of several days read the line per riding day under it.'],
+    'f.wxroad': ['Open the weather page › «Now».', 'Read the line about the road under today\'s weather.', 'After rain it says when the road is dry again.'],
+    'f.wxshare': ['Open the weather page › «Plan» and choose how long you ride.', 'Check the best window.', 'Tap «Share this window (copy the text)» and paste it into a message.'],
+  },
+  handbook: {
+    'f.wxrain15': { on: 'Needs a home place or a place on the weather page.', steps: ['Open the weather page; «Now» shows the rain of the next 3 hours.', 'Read the sentence under the bars: dry, or from when it rains.', 'Tap «Radar and cameras» to see where the rain is.'], example: 'Example: «Rain from 14:30, until about 15:15»: you leave at 13:00 and are home before it.' },
+    'f.wxroute': { on: 'Needs a trip with a route line and a start in the next 16 days.', steps: ['Open a planned trip with a route and look at «Weather along the route».', 'Read the line with headwind and the coldest point; the packing hints say what to add.', 'On a trip of several days read the line per riding day under it.'], example: 'Example: «Headwind on 40 % of the way. Coldest point: 3 °C at km 55»: the pass needs gloves, although the start is mild.' },
+    'f.wxroad': { on: 'Needs a place on the weather page.', steps: ['Open the weather page › «Now».', 'Read the line about the road under today\'s weather.', 'After rain it says when the road is dry again.'], example: 'Example: «Road still wet, dry again around 15:00»: you leave after lunch and take the dry road.' },
+    'f.wxshare': { on: 'Needs a place and a forecast of the next days.', steps: ['Open the weather page › «Plan» and choose how long you ride.', 'Check the best window.', 'Tap «Share this window (copy the text)» and paste it into a message.'], example: 'Example: «Saturday, 09:00–13:00, 12–17 °C, dry, light wind»: one text for the group chat.' },
+  },
+  home: { 'f.wxrain15': '#/wetter', 'f.wxroute': '#/wetter', 'f.wxroad': '#/wetter', 'f.wxshare': '#/wetter' },
+};
