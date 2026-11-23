@@ -136,7 +136,7 @@
   const restore = (tp) => change(setOne(tp.id, { archivedAt: null, keptAt: now() }), t('{name} is back', { name: tp.name }));
   const keep = (tp) => change(setOne(tp.id, { keptAt: now() }), t('{name} kept. No hint for 12 months.', { name: tp.name }));
   async function remove(tp) {
-    const a = await askDelete({ title: t('Delete the template "{name}"?', { name: tp.name }), text: t('Trips made from it stay. You can bring it back for 4 seconds afterwards.'), archive: tp.archivedAt ? '' : t('Archive') });
+    const a = await askDelete({ title: t('Delete the template "{name}"?', { name: tp.name }), text: t('Trips made from it stay. You can bring it back for 8 seconds afterwards.'), archive: tp.archivedAt ? '' : t('Archive') });
     if (a === 'archive') return archive(tp);
     if (a !== 'delete') return;
     await change((list) => list.filter((x) => x.id !== tp.id), t('{name} deleted', { name: tp.name }));

@@ -1,5 +1,5 @@
 <script>
-  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 8 s «Undo»
   /**
    * v0.25.1 (Noah 2b): "Was geil wäre", the bike's own list of ideas (not the Gear wishlist).
    * Stored on the bike record as bike.ideas = [{ id, text, at, done }]. Add one here or from
@@ -45,7 +45,7 @@
   const toggle = (x) => write((ideas) => toggleIdea(ideas, x.id));
   async function remove(x) {
     const name = x.text.slice(0, 60);
-    if ((await askDelete({ title: t('Delete the idea "{text}"?', { text: name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the idea "{text}"?', { text: name }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     let at = 0;
     await deleteWithUndo({
       run: () => write((ideas) => ((at = Math.max(0, ideas.findIndex((i) => i.id === x.id))), removeIdea(ideas, x.id))),
