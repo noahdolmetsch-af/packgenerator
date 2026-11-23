@@ -257,6 +257,11 @@ export default {
   'Another place, e.g. Aarau': 'Ein anderer Ort, z. B. Aarau',
   'The search needs the internet.': 'Die Suche braucht Internet.',
   'From {from} through {name} and back.': 'Von {from} durch {name} und zurück.',
+  // Challenges nach Gelegenheit: Schwierigkeit der Ausflugstipps
+  'Easy|level': 'Locker',
+  'Medium|level': 'Mittel',
+  'Hard|level': 'Knackig',
+  'How hard: a rough guess from the round and the height of the place. Easy up to {a} km, medium from {a} km, hard from {b} km; a place above {c} m is at least medium, above {d} m hard.': 'Wie schwer: eine grobe Schätzung aus der Runde und der Höhe des Ortes. Locker bis {a} km, mittel ab {a} km, knackig ab {b} km; ein Ort über {c} m ist mindestens mittel, über {d} m knackig.',
   // «Neue Kilometer» (Träume und Neuland N4)
   'New kilometres': 'Neue Kilometer',
   'How many km ran on roads you rode for the first time.': 'Wie viele km auf Strassen, die du zum ersten Mal gefahren bist.',
