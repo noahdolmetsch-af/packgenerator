@@ -88,4 +88,6 @@ flowchart LR
 
 - Wer einen Ort, einen Reiter oder einen Absprung ändert, kann die Skizze im selben PR nachführen. Das ist ein Vorschlag, keine Regel; ob es eine werden soll, entscheidet Noah.
 - Quelle für Orte und Reiter ist `src/lib/nav.js`. Stimmt die Skizze nicht mit ihm überein, gilt `nav.js`.
-- Tote Adressen und Seiten ohne Weiter prüft ein Wächter-Test (in Planung, eigener PR). Befunde stehen in der jeweiligen Release-Datei, nicht hier.
+- Tote Adressen prüft `tests/links.test.js`; Orte und Zuhause jeder Seite prüft `tests/orte.test.js`.
+- **Wege-Wächter** (`tests/e2e/wege-waechter.spec.js`): ein Roboter öffnet jede Adresse aus dem Code und prüft drei Dinge. (1) Der Pfad über der Seite beginnt mit dem Ort, der links markiert ist. (2) Die Seite hat mindestens einen Link auf eine andere Seite. (3) Die Zurück-Taste führt von der Seite wieder nach Heute. Was heute noch offen ist, steht als drei Listen oben in der Datei (`PFAD_OFFEN`, `SACKGASSE_OFFEN`, `ZURUECK_OFFEN`); die Listen dürfen nur kürzer werden, ein neuer Fall macht den Test rot.
+- Befunde stehen in der jeweiligen Release-Datei, nicht hier.
