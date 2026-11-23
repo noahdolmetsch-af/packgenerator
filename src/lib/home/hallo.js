@@ -49,6 +49,20 @@ export const MOODS = [
   { key: 'super', label: 'Super', v: 1 },
 ];
 /**
+ * Gruss-Gesichter als Skala (Noah 22.11.2026, Schritt C/F2): a tapped face is saved as an answer of the scale question
+ * `spass.stimmung` (1–10, the same one «Wi gaht's?» asks), so the review and the evaluations read ONE mood. The face keeps its
+ * place on the scale by its `v` (0 → 1, 0.25 → 3, 0.5 → 6, 0.75 → 8, 1 → 10). Older answers of `hallo.gaht` stay and are read as before.
+ */
+export const MOOD_QID = 'spass.stimmung';
+export const scaleOfFace = (face) => (face && Number.isFinite(face.v) ? Math.round(1 + Math.min(1, Math.max(0, face.v)) * 9) : null);
+/** The face closest to an answer of the scale (1–10), or null. */
+export function faceOfScale(value, faces = MOODS) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 1 || n > 10 || !faces.length) return null;
+  return faces.reduce((best, f) => (Math.abs(scaleOfFace(f) - n) < Math.abs(scaleOfFace(best) - n) ? f : best), faces[0]);
+}
+
+/**
  * Gruss A (Noah 05.11.2026 «alle umsetzen»): behind the five faces «Mehr» opens more buttons, in groups, as many as you like at once.
  * Plain Swiss German words like the faces (HG1 1a), one emoji each; the group names go through t(). The key is what history stores.
  */

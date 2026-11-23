@@ -156,8 +156,8 @@ test('HG1d (2b): the tap opens the two questions; the answer lands in the histor
 
   // the one history (Ich › Daten › Verlauf)
   await page.goto('./#/me/history');
-  await expect(page.locator('[data-row="hallo.gaht"]')).toContainText(HELLO_MOOD);
-  await expect(page.locator('[data-row="hallo.gaht"]')).toContainText('Guet');
+  // since 22.11.2026 a face is an answer of the scale question «spass.stimmung» (Guet = 8 of 10)
+  await expect(page.locator('[data-row="spass.stimmung"]').first()).toContainText('8');
   const vor = page.locator('[data-row="hallo.vor"]');
   await expect(vor).toContainText(HELLO_PLAN);
   await expect(vor).toContainText('Training · Arbeit');
@@ -198,7 +198,7 @@ test('Gruss A: yesterday is marked quietly, a tap on the chosen button takes it 
       const r = indexedDB.open('pack-generator');
       r.onsuccess = () => {
         const g = r.result.transaction('abAnswers').objectStore('abAnswers').getAll();
-        g.onsuccess = () => (res(g.result.filter((x) => x.qid === 'hallo.gaht' && !x.id.startsWith('test_')).length), r.result.close());
+        g.onsuccess = () => (res(g.result.filter((x) => x.qid === 'spass.stimmung' && !x.id.startsWith('test_')).length), r.result.close());
       };
     }));
   await sheet.locator('[data-mood="super"]').click();
