@@ -66,7 +66,7 @@ test('3. touch: small buttons have 44 px tap areas', async ({ page, context }, i
   await page.goto('./#/gear');
   await page.reload();
   // v0.102.0 Design-Refresh P3: «Building blocks →» moved into the ••• of the toolbar; that button is checked
-  const blocks = page.locator('details.gmore > summary');
+  const blocks = page.locator('details.gmore:not(.vmenu) > summary');
   expect((await tapArea(blocks)).h).toBeGreaterThanOrEqual(44);
   const select = page.getByRole('button', { name: T('Select'), exact: true }).first();
   expect((await tapArea(select)).h).toBeGreaterThanOrEqual(44);

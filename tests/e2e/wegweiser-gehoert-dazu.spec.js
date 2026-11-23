@@ -10,7 +10,7 @@ test('Belongs to on Bikes and Gear: a quiet row of links, not on sub-pages; Acti
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { hour: 9 });
-  for (const [hash, moment, name] of [['#/bikes', 'velo', 'Bike and gear|moment'], ['#/gear', 'velo', 'Bike and gear|moment']]) {
+  for (const [hash, moment, name] of [['#/bikes', 'velo', 'Bike and gear|moment']]) { // Material aufräumen (23.11.2026): none on #/gear any more
     await page.goto('./' + hash);
     await openCard(page, 'gd:' + hash.slice(2));
     const row = page.locator(`[data-gehoert="${moment}"]`);
