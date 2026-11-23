@@ -2,25 +2,20 @@
   /**
    * «Aktiv neu» (Noah 22.10.2026, spec «Startseite Aktiv», part 2 «Diese Woche»): Monday to Sunday with what
    * you ticked (a tick per sport, the first by name) and the fixed or planned dates still to come, plus
-   * «n Ziele offen». The whole card opens the week page (#/flow/week: plan, fixed dates, Wochenrückblick).
+   * the one number «k of n units» (V3). The whole card opens the week page (#/flow/week: plan, fixed dates, Wochenrückblick).
    * acts, states, log: from flowQuery / flowStates; the plan comes from lib/flowweek.js (no suggestions here).
    */
-  import { liveQuery } from 'dexie';
   import { Check, Clock, ChevronRight } from '@lucide/svelte';
-  import { db } from '../db.js';
-  import { FIXED_KEY, PLAN_KEY, fixedList, weekPlan, weekGoals } from '../flowweek.js';
+  import { weekPlan, weekUnits } from '../flowweek.js';
+  import { weekSets } from './weekunits.js';
   import { actName } from './ui.svelte.js';
   import { tileName } from './hobby/words.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
   let { acts = [], states = [], log = [], today } = $props();
-  const setQ = liveQuery(async () => {
-    const [f, p] = await Promise.all([db.settings.get(FIXED_KEY), db.settings.get(PLAN_KEY)]);
-    return { fixed: fixedList(f?.value), plans: Array.isArray(p?.value) ? p.value : [] };
-  });
-  const sets = $derived($setQ ?? { fixed: [], plans: [] });
+  const sets = $derived($weekSets ?? { fixed: [], plans: [] });
   const week = $derived(weekPlan({ acts, states, log, today, fixed: sets.fixed, plans: sets.plans, no: [], forecast: null }).days);
-  const open = $derived(weekGoals(states).filter((g) => !g.met).length);
+  const units = $derived(weekUnits(week));
   const byId = $derived(new Map(acts.map((a) => [a.id, a])));
   const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
   const name = (id) => {
@@ -48,7 +43,7 @@
 
 <a class="card wg" href="#/flow/week" data-week-glance onclick={openDay}>
   <span class="top">
-    <span class="wgl">{open ? tn(open, '{n} weekly goal open', '{n} weekly goals open') : t('All weekly goals on track')}</span>
+    <span class="wgl">{units ? t('{k} of {n} units this week (Mon to Sun)', { k: units.done, n: units.total }) : t('No units ticked or planned this week')}</span>
     <span class="go">{t('Plan the week')}<ChevronRight size={16} aria-hidden="true" /></span>
   </span>
   <ol class="days">
