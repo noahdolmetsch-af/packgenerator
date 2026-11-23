@@ -154,6 +154,55 @@ test('T1 morning check page: the questions of the window, last night, the sugges
   expect(errors).toEqual([]);
 });
 
+// Noah 23.11.2026 «Beides»: the random question and «Weitere Fragen» on the morning page
+test('T1b morning page: the random question, and «More questions» answers any other question once', async ({ page, context }) => {
+  const errors = await open(page, context, '07:52');
+  await put(page, rows());
+  await page.reload();
+  await ready(page);
+  await page.goto('./#/check/morning');
+  await ready(page);
+  const rq = page.locator('[data-round-questions="morning"]');
+
+  // the random question: one of the switched-off sample questions, like the window's, with «Never again»
+  const day = rq.locator('[data-q]').filter({ has: page.locator('[data-random]') });
+  await expect(day).toHaveCount(1);
+  await expect(day.locator('[data-never]')).toBeVisible();
+  const dayId = await day.getAttribute('data-q');
+
+  // «More questions»: closed first; opened it offers the others (not the ones the page asks), switched off or not
+  const more = page.locator('[data-more-questions="morning"]');
+  await expect(more.locator('[data-more-q]')).toHaveCount(0);
+  await shot(page, 'T1b-morgen-zu');
+  await more.locator('[data-more-toggle]').click();
+  await expect(more.locator('[data-more-toggle]')).toHaveAttribute('aria-expanded', 'true');
+  await expect(more.locator('[data-more-q]')).toHaveCount(8);
+  await expect(more.locator(`[data-q="${dayId}"]`)).toHaveCount(0);
+  await expect(more.locator('[data-q="erholung.schlaf"]')).toHaveCount(0);
+  const sofa = more.locator('[data-q="erholung.sofa"]');
+  await expect(sofa).toBeVisible();
+  await expect(sofa).toContainText(T('switched off|question'));
+  await sofa.locator('button').nth(1).click();
+  await expect.poll(async () => (await abRows(page)).map((r) => r.qid)).toContain('erholung.sofa');
+
+  // the answer is kept: after a reload the question is still answered; the question stays switched off
+  await page.reload();
+  await ready(page);
+  await page.locator('[data-more-toggle]').click();
+  await expect(page.locator('[data-more-questions] [data-q="erholung.sofa"] [aria-pressed="true"]')).toHaveCount(1);
+  await expect(page.locator('[data-round-questions="morning"] > [data-q="erholung.sofa"]')).toHaveCount(0);
+
+  // 8 at a time
+  await page.locator('[data-more-next]').click();
+  await expect(page.locator('[data-more-q]')).toHaveCount(16);
+  await shot(page, 'T1b-weitere-offen');
+
+  // «Never again»: the random question is gone, and no other comes today
+  await page.locator(`[data-round-questions="morning"] [data-q="${dayId}"] [data-never]`).click();
+  await expect(page.locator('[data-random]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
 test('T2 evening review page: filled in from the ride and the meditation, the day in numbers', async ({ page, context }) => {
   const errors = await open(page, context, '21:00');
   await put(page, { ...rows({ todayCheck: { sleep: 6, energy: 5, mood: 7, goal: { id: 'ride' } } }), rides: [{ id: 'test_ride_today', date: DAY, km: 24, movingH: 1.08, totalH: 1.1, tripId: null, name: 'Fiktive Feierabendrunde' }] });

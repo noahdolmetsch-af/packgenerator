@@ -8,7 +8,7 @@ import {
   AREAS, QUESTIONS, QUESTION, ON_AT_START, MERGED_INTO, AB_KEY, configOf, settingOf, setOn, setEvery, putOwn, dropOwn, newOwn, counts,
   everyOf, lastSlot, nextSlot, pendingSlot, dueList, snoozeAll, skipToday, quietToday, isQuiet, dayEnd, eveningEve, QUIET_KEY, QUIET_ROUND, LATER_KEY, laterStamp, valueOf, numberOf, answerRow, fromChecks, mergeHistory,
   lastAnswer, filterHistory, byDay, dowOf, timeOf, CHECK_MAP, MIRROR,
-  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY, roundQuestions,
+  ROUNDS, roundsOf, setRounds, roundTime, roundEvery, partOf, isEveningRound, perDay, BUSY_DAY, roundQuestions, moreQuestions,
 } from '../src/lib/abfragen.js';
 import { redirectOf, pageOf, CHECK_PAGES } from '../src/lib/nav.js';
 import { ownNormal, withWithout, feltMeasured, areaWeek, observation, sourceCounts, weekOf, dailyValues, MIN_GROUP } from '../src/lib/abauswertung.js';
@@ -532,5 +532,37 @@ describe('roundQuestions', () => {
     const id = weekly.own[0].id;
     expect(roundQuestions(weekly, 'morning', '2026-11-04').map((d) => d.q.id)).toContain(id); // 04.11.2026 is a Wednesday
     expect(roundQuestions(weekly, 'morning', '2026-11-05').map((d) => d.q.id)).not.toContain(id);
+  });
+});
+
+// Noah 23.11.2026 «Beides»: «Weitere Fragen» under the questions of a round
+describe('moreQuestions', () => {
+  const day = '2026-11-23';
+  it('offers every question the page does not ask itself, none twice', () => {
+    const asked = roundQuestions(null, 'morning', day).map((d) => d.q.id);
+    const more = moreQuestions(null, 'morning', day);
+    const ids = more.map((d) => d.q.id);
+    for (const id of asked) expect(ids).not.toContain(id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain('erholung.sofa'); // asks in the morning, is off at the start
+    expect(ids).toContain('spass.stimmung'); // is on, but asks at 13:00 (the evening round)
+    expect(asked.length + ids.length).toBe(QUESTIONS.length);
+  });
+  it('the ones of this round come first, with their on or off state', () => {
+    const more = moreQuestions(null, 'morning', day);
+    const firstOther = more.findIndex((d) => !d.fits);
+    expect(firstOther).toBeGreaterThan(0);
+    expect(more.slice(0, firstOther).every((d) => d.fits)).toBe(true);
+    expect(more.slice(firstOther).some((d) => d.fits)).toBe(false);
+    expect(more.find((d) => d.q.id === 'erholung.sofa')).toMatchObject({ on: false, fits: true, slot: `${day}T07:00` });
+    expect(more.find((d) => d.q.id === 'spass.stimmung')).toMatchObject({ on: true, fits: false });
+    const evening = moreQuestions(null, 'evening', day);
+    expect(evening[0].fits).toBe(true);
+    expect(evening.find((d) => d.q.id === 'erholung.schlaf')).toMatchObject({ on: true, fits: false });
+  });
+  it('a question switched off by you is offered, one shown elsewhere on the page is left out', () => {
+    const off = setOn(null, 'erholung.akku', false, `${day}T06:00`);
+    expect(moreQuestions(off, 'morning', day).map((d) => d.q.id)).toContain('erholung.akku');
+    expect(moreQuestions(null, 'morning', day, ['erholung.sofa']).map((d) => d.q.id)).not.toContain('erholung.sofa');
   });
 });

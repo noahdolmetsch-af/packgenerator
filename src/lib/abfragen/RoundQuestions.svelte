@@ -5,9 +5,12 @@
    * round. Today's answer is filled in (from the window, from the page or from the old daily check) and every tap is saved at
    * once (the page's way); the window then no longer asks what was answered. «Skip» puts the question away for today, in the
    * window too. Fitbit's night stays in its card at the side of the page.
+   * Noah 23.11.2026 «Beides»: in the morning the random question (a random one of the switched-off sample questions, the window's
+   * too) always stands in the list, and a closed line «More questions» offers every other question for one answer, switched on or not.
    */
-  import { abQuery, ensureConfig, saveAnswers, saveSnooze } from '../abdb.js';
-  import { roundQuestions, answerRow, fromChecks, skipToday, stampOf, settingOf, dayOf, lastAnswer } from '../abfragen.js';
+  import { abQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
+  import { roundQuestions, moreQuestions, allQuestions, configOf, answerRow, fromChecks, skipToday, stampOf, settingOf, dayOf, lastAnswer } from '../abfragen.js';
+  import { pageRandom, neverAgain } from '../datenfragen.js';
   import { db } from '../db.js';
   import { t, tn } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
@@ -23,7 +26,18 @@
     if (data && !data.stored) ensureConfig(stampOf());
   });
 
-  const list = $derived(data?.stored ? roundQuestions(data.cfg, part, today) : []);
+  // the random question: the random one of the switched-off sample questions (the window's too), in the morning only
+  const pool = $derived(data?.stored ? allQuestions(data.cfg).filter((x) => x.sample && !x.own && !settingOf(data.cfg, x).on) : []);
+  const pick = $derived(data?.stored && part === 'morning' ? pageRandom(pool, data.answers, data.dataCfg, today) : null);
+  const list = $derived(
+    data?.stored ? [...roundQuestions(data.cfg, part, today), ...(pick ? [{ q: pick, slot: `${today}T${configOf(data.cfg).rounds.morning}`, random: true }] : [])] : [],
+  );
+  // «More questions»: closed at first; eight at a time
+  const STEP = 8;
+  let moreOpen = $state(false);
+  let moreN = $state(STEP);
+  const more = $derived(data?.stored ? moreQuestions(data.cfg, part, today, pick ? [pick.id] : []) : []);
+  const moreShown = $derived(moreOpen ? more.slice(0, moreN) : []);
   const skippedKey = `${today}T23:59`;
   const isSkipped = (qid) => data?.snooze?.[qid] === skippedKey;
   const shown = $derived(list.filter((d) => !isSkipped(d.q.id)));
@@ -44,7 +58,7 @@
   // fill in what is answered today, once per question
   $effect(() => {
     if (!data) return;
-    for (const d of list) {
+    for (const d of [...list, ...moreShown]) {
       const id = d.q.id;
       if (ready[id]) continue;
       const r = rowOf(id);
@@ -63,6 +77,7 @@
   $effect(() => {
     // the dependencies: every draft and note of the shown questions
     shown.forEach((d) => sigOf(d.q.id));
+    moreShown.forEach((d) => sigOf(d.q.id));
     clearTimeout(timer);
     timer = setTimeout(flush, 450);
     return () => clearTimeout(timer);
@@ -74,7 +89,8 @@
   });
   async function flush() {
     const rows = [];
-    for (const d of shown) {
+    const hold = []; // answered under «More questions» and switched on at another time: the window does not ask again today
+    for (const d of [...shown, ...moreShown]) {
       const id = d.q.id;
       if (!ready[id]) continue;
       const sig = sigOf(id);
@@ -82,16 +98,25 @@
       saved[id] = sig;
       const own = ownRow(id);
       const row = answerRow(d.q, draft[id], { at: stampOf(), day: today, slot: d.slot, note: notes[id] });
-      if (row) rows.push(own ? { ...row, id: own.id } : row);
-      else if (own) await db.abAnswers.delete(own.id); // taken back with a second tap
+      if (row) {
+        rows.push(own ? { ...row, id: own.id } : row);
+        if (d.on) hold.push(id);
+      } else if (own) await db.abAnswers.delete(own.id); // taken back with a second tap
     }
     if (rows.length) await saveAnswers(rows);
+    if (hold.length) await saveSnooze({ ...(data?.snooze ?? {}), ...Object.fromEntries(hold.map((id) => [id, `${today}T23:58`])) });
   }
 
   const skip = (d) => {
     delete draft[d.q.id];
     delete notes[d.q.id];
     return saveSnooze(skipToday(data?.snooze, d.q.id, `${today}T12:00`));
+  };
+  // «Never again» (the random question): it is not picked any more, and no other one comes today (like in the window)
+  const never = (d) => {
+    delete draft[d.q.id];
+    delete notes[d.q.id];
+    return saveDataCfg(neverAgain(data?.dataCfg, d.q.id, today));
   };
   const skipBack = () => {
     const next = { ...(data?.snooze ?? {}) };
@@ -113,6 +138,7 @@
           <b id={qid}>{qText(d.q)}</b>
           <span class="meta">
             {#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if}
+            {#if d.random}· <span data-random>{t('a random question')}</span><button type="button" class="skip" onclick={() => never(d)} data-never>{t('Never again|question')}</button>{/if}
             <button type="button" class="skip" onclick={() => skip(d)} aria-label={t('Skip «{q}»', { q: qText(d.q) })} data-ab-skip>{t('Skip|question')}</button>
           </span>
         </div>
@@ -122,6 +148,27 @@
     {/each}
     {#if skippedN}
       <button type="button" class="lk" onclick={skipBack} data-skip-back>{tn(skippedN, 'Show {n} skipped question again', 'Show {n} skipped questions again')}</button>
+    {/if}
+    {#if more.length}
+      <div class="more" data-more-questions={part}>
+        <button type="button" class="lk" aria-expanded={moreOpen} onclick={() => (moreOpen = !moreOpen)} data-more-toggle>{t('More questions')}<span class="num cnt">{more.length}</span></button>
+        {#if moreOpen}
+          <small class="hint">{t('Answer any of them once. This does not switch the question on.')}</small>
+          {#each moreShown as d, i (d.q.id)}
+            {@const qid = `rq-${part}-m${i}`}
+            <div class="dq" data-q={d.q.id} data-more-q>
+              <div class="dqh">
+                <b id={qid}>{qText(d.q)}</b>
+                <span class="meta">{#if d.q.own}{everyShort(settingOf(data.cfg, d.q).every)}{:else}{areaName(d.q.area, data.cfg)}{/if}{#if !d.on}<span>· {t('switched off|question')}</span>{/if}</span>
+              </div>
+              <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} />
+            </div>
+          {/each}
+          {#if more.length > moreN}
+            <button type="button" class="lk" onclick={() => (moreN += STEP)} data-more-next>{tn(more.length - moreN, 'Show {n} more question', 'Show {n} more questions')}</button>
+          {/if}
+        {/if}
+      </div>
     {/if}
     <a class="lk" href="#/me/abfragen" data-ab-adjust>{t('Adjust your questions')}</a>
   </div>
@@ -189,6 +236,17 @@
     margin-top: 6px;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .more {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+  .cnt {
+    margin-left: 6px;
+    color: var(--ink-3);
+    font-weight: 400;
   }
   .lk {
     align-self: flex-start;

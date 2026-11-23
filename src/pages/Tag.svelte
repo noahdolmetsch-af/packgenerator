@@ -5,11 +5,14 @@
    * Heute and Abhaken show, so nothing is counted or stored twice. Rules of the layout: src/lib/tag/timeline.js.
    * Address: #/day (today) and #/day/YYYY-MM-DD. A tap on an entry opens it where it lives.
    */
-  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree } from '@lucide/svelte';
+  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree, Plus, GripVertical } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { weekQuery } from '../lib/woche/load.js';
-  import { buildWeek, KIND_NAMES } from '../lib/woche.js';
+  import { weekQuery, putWeek } from '../lib/woche/load.js';
+  import { buildWeek, KIND_NAMES, ITEMS_KEY, cleanItem, pruneItems } from '../lib/woche.js';
+  import { deleteWithUndo } from '../lib/ui/ask.js';
+  import EntrySheet from '../lib/tag/EntrySheet.svelte';
+  import { offerDone } from '../lib/ui/rename.svelte.js';
   import { titleOf, subOf, dayName, wxWords, holidayName } from '../lib/woche/words.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
@@ -49,15 +52,101 @@
   const rel = $derived(day === today ? t('Today|day') : day === shiftDay(today, 1) ? t('Tomorrow|day') : day === shiftDay(today, -1) ? t('Yesterday|day') : '');
   const wetNow = $derived(d?.wx);
   const href = (e) => (e.href && !e.own ? e.href : '#/week');
+
+  // step 2: own dates and to-dos (setting week.items, the same list Woche writes) can be added, changed and deleted here
+  let editing = $state(null); // { item } to change or { item: null, day, time } for a new one
+  const items = () => src?.rawItems ?? [];
+  const isOwn = (e) => !!e.own && items().some((x) => x.id === e.id);
+  const saveItems = (list) => putWeek(ITEMS_KEY, pruneItems(list, today));
+  const openEntry = (e, ev) => {
+    if (!isOwn(e)) return;
+    ev.preventDefault();
+    editing = { item: items().find((x) => x.id === e.id) };
+  };
+
+  // step 2, part 2: drag an own entry (grip) to a new time or onto another day chip; drag the lower edge for its length.
+  // Whole quarter hours; nothing is saved while dragging, and the move offers Undo.
+  const SNAP = 15;
+  let drag = $state(null); // { id, mode: 'move' | 'size', y0, dy, over }
+  const snap = (m) => Math.round(m / SNAP) * SNAP;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  /** Where a block stands (minutes) when it is moved or stretched by `dy` pixels (mode) or by `by` minutes. */
+  function shape(b, mode, by) {
+    if (mode === 'size') return { start: b.start, end: clamp(snap(b.end + by), b.start + SNAP, Math.min(b.start + 480, 24 * 60)) };
+    const len = b.end - b.start;
+    const start = clamp(snap(b.start + by), 0, 24 * 60 - Math.min(len, 24 * 60));
+    return { start, end: start + len };
+  }
+  // over another day's chip the time stays as it is: only the day changes
+  const byOf = (g) => (g.over ? 0 : (g.dy / HH) * 60);
+  const shown = (b) => (drag?.id === b.e.id ? shape(b, drag.mode, byOf(drag)) : { start: b.start, end: b.end });
+  // with pointer capture the click after a drag lands on the grip: it must not open the entry
+  const stopClick = (ev) => (ev.preventDefault(), ev.stopPropagation());
+  function dragStart(ev, b, mode) {
+    if (!isOwn(b.e) || (ev.pointerType === 'mouse' && ev.button !== 0)) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.currentTarget.setPointerCapture(ev.pointerId);
+    drag = { id: b.e.id, mode, y0: ev.clientY, dy: 0, over: null };
+  }
+  function dragMove(ev) {
+    if (!drag) return;
+    drag.dy = ev.clientY - drag.y0;
+    if (drag.mode === 'move') {
+      const over = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-day]')?.dataset.day ?? null;
+      drag.over = over && over !== day ? over : null;
+    }
+  }
+  async function dragEnd(b) {
+    const g = drag;
+    drag = null;
+    if (!g || (Math.abs(g.dy) < 4 && !g.over)) return;
+    const item = items().find((x) => x.id === g.id);
+    if (!item) return;
+    const to = shape(b, g.mode, byOf(g));
+    await change(item, g.mode === 'size' ? { mins: to.end - to.start } : { time: fmtMin(to.start), ...(g.over ? { day: g.over } : {}) });
+  }
+  async function change(item, patch) {
+    const before = items();
+    await saveItems(before.map((x) => (x.id === item.id ? cleanItem({ ...x, ...patch }) : x)));
+    const text = patch.mins ? t('«{name}» now takes {n} min.', { name: item.title, n: patch.mins }) : patch.day ? t('«{name}» moved to {day}.', { name: item.title, day: dayName(patch.day) }) : t('«{name}» moved to {time}.', { name: item.title, time: patch.time });
+    offerDone(text, () => saveItems(before));
+  }
+  // the keyboard: arrow up and down move by a quarter hour, with Shift the length changes
+  function dragKey(ev, b) {
+    if (!isOwn(b.e) || !['ArrowUp', 'ArrowDown'].includes(ev.key)) return;
+    ev.preventDefault();
+    const step = ev.key === 'ArrowUp' ? -SNAP : SNAP;
+    const to = shape(b, ev.shiftKey ? 'size' : 'move', step);
+    const item = items().find((x) => x.id === b.e.id);
+    if (item) change(item, ev.shiftKey ? { mins: to.end - to.start } : { time: fmtMin(to.start) });
+  }
+  const addEntry = (time = '') => (editing = { item: null, day, time });
+  async function saveEntry(fields) {
+    const old = editing.item;
+    const next = cleanItem({ ...old, ...fields, mins: fields.mins ?? undefined });
+    if (!next) return;
+    if (fields.mins == null) delete next.mins;
+    await saveItems(old ? items().map((x) => (x.id === old.id ? next : x)) : [...items(), next]);
+  }
+  function deleteEntry() {
+    const gone = editing.item;
+    return deleteWithUndo({
+      run: () => saveItems(items().filter((x) => x.id !== gone.id)),
+      undo: () => saveItems([...items().filter((x) => x.id !== gone.id), gone]),
+      text: t('"{name}" deleted.', { name: gone.title }),
+      name: gone.title,
+    });
+  }
 </script>
 
-<PageHead title={t('My day')} context={t('Plan|place')} what={t('Read the day, tap an entry to open it where it lives.')} />
+<PageHead title={t('My day')} what={t('Read the day, tap an entry to open it where it lives.')} />
 
 <nav class="wk" aria-label={t('Choose a day')}>
   <a class="step" href="#/day/{shiftDay(day, -1)}" aria-label={t('Day before')}><ChevronLeft size={18} aria-hidden="true" /></a>
   <div class="chips">
     {#each days as x (x)}
-      <a class="chip" class:on={x === day} class:today={x === today} href="#/day/{x}" aria-current={x === day ? 'date' : undefined}>
+      <a class="chip" data-day={x} class:dropon={drag?.over === x} class:on={x === day} class:today={x === today} href="#/day/{x}" aria-current={x === day ? 'date' : undefined}>
         <span class="wd">{dayName(x).split(' ')[0]}</span>
         <b class="num">{Number(x.slice(8))}</b>
         {#if sumOf(x)}<span class="dot" aria-label={t('{n} entries', { n: sumOf(x) })}></span>{/if}
@@ -74,6 +163,7 @@
   {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={15} aria-hidden="true" />{:else if wetNow.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
   {#if day !== today}<a class="today-link" href="#/day">{t('Back to today')}</a>{/if}
 </p>
+<p class="addrow"><button type="button" class="add" data-add-entry onclick={() => addEntry()}><Plus size={16} aria-hidden="true" /> {t('Add an entry')}</button></p>
 
 {#if !week}
   <p class="load" aria-live="polite">{t('Loading the day …')}</p>
@@ -88,7 +178,7 @@
       <ul>
         {#each lay.untimed as e (e.id)}
           <li class="k-{e.kind}" class:done={e.done}>
-            <a href={href(e)}><b>{titleOf(e)}</b><small>{subOf(e) || t(KIND_NAMES[e.kind] ?? 'Other|kind')}</small></a>
+            <a href={href(e)} data-entry={e.id} onclick={(ev) => openEntry(e, ev)}><b>{titleOf(e)}</b><small>{subOf(e) || t(KIND_NAMES[e.kind] ?? 'Other|kind')}</small></a>
           </li>
         {/each}
       </ul>
@@ -110,19 +200,29 @@
       <a
         class="blk k-{b.e.kind}"
         class:done={b.e.done}
-        class:small={b.end - b.start <= 30}
+        class:small={shown(b).end - shown(b).start <= 30}
+        class:dragging={drag?.id === b.e.id}
         href={href(b.e)}
         data-entry={b.e.id}
-        style="top: {top(b.start)}px; height: {Math.max(22, ((b.end - b.start) / 60) * HH - 2)}px; left: calc(52px + (100% - 56px) * {b.col / b.cols}); width: calc((100% - 56px) / {b.cols} - 3px)"
+        onclick={(ev) => openEntry(b.e, ev)}
+        style="top: {top(shown(b).start)}px; height: {Math.max(22, ((shown(b).end - shown(b).start) / 60) * HH - 2)}px; left: calc(52px + (100% - 56px) * {b.col / b.cols}); width: calc((100% - 56px) / {b.cols} - 3px)"
       >
         <b>{titleOf(b.e)}</b>
-        <small class="num">{fmtMin(b.start)}{b.guessed ? '' : `–${fmtMin(b.end)}`}{subOf(b.e) ? ` · ${subOf(b.e)}` : ''}</small>
+        <small class="num">{fmtMin(shown(b).start)}{b.guessed && drag?.id !== b.e.id ? '' : `–${fmtMin(shown(b).end)}`}{subOf(b.e) ? ` · ${subOf(b.e)}` : ''}</small>
+        {#if isOwn(b.e)}
+          <span class="grip" role="button" tabindex="0" aria-label={t('Move «{name}»: drag, or use the arrow keys', { name: titleOf(b.e) })} data-grip={b.e.id} onpointerdown={(ev) => dragStart(ev, b, 'move')} onpointermove={dragMove} onpointerup={() => dragEnd(b)} onpointercancel={() => (drag = null)} onkeydown={(ev) => dragKey(ev, b)} onclick={stopClick}><GripVertical size={16} aria-hidden="true" /></span>
+          <span class="size" role="presentation" data-size={b.e.id} onpointerdown={(ev) => dragStart(ev, b, 'size')} onpointermove={dragMove} onpointerup={() => dragEnd(b)} onpointercancel={() => (drag = null)} onclick={stopClick}></span>
+        {/if}
       </a>
     {/each}
   </section>
 {/if}
 
-<p class="foot">{t('What you plan in Woche stands here. Moving and editing entries here comes next.')}</p>
+{#if editing}
+  <EntrySheet item={editing.item} day={editing.day} time={editing.time} onsave={saveEntry} ondelete={deleteEntry} onclose={() => (editing = null)} />
+{/if}
+
+<p class="foot">{t('What you plan in Woche stands here. Your own dates and to-dos you can add, change and drag here.')}</p>
 
 <style>
   .wk {
@@ -165,12 +265,12 @@
     font-size: var(--fs-sub);
   }
   .chip.on {
-    background: var(--brand);
-    border-color: var(--brand);
-    color: var(--brand-ink);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .chip.on .wd {
-    color: var(--brand-ink-2);
+    color: var(--hi-ink);
   }
   .chip.today:not(.on) {
     border-color: var(--brand);
@@ -205,6 +305,22 @@
     align-items: center;
     gap: 4px;
     font-size: var(--fs-small);
+  }
+  .addrow {
+    margin: 0 0 8px;
+  }
+  .add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
   }
   .today-link {
     margin-left: auto;
@@ -247,7 +363,8 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px;
   }
   .untimed li {
@@ -257,20 +374,27 @@
     background: color-mix(in srgb, var(--k) 13%, var(--paper));
   }
   .untimed li a {
-    display: block;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     min-height: 44px;
-    padding: 6px 10px;
+    padding: 8px 10px;
     color: var(--ink);
     text-decoration: none;
   }
-  .untimed li b,
   .blk b {
     display: block;
     font-weight: 600;
   }
-  .untimed li small,
   .blk small {
     display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  .untimed li b {
+    font-weight: 600;
+  }
+  .untimed li small {
     color: var(--ink-2);
     font-size: var(--fs-tiny);
   }
@@ -340,6 +464,36 @@
     color: var(--ink);
     text-decoration: none;
     line-height: 1.25;
+  }
+  .blk.dragging {
+    z-index: 3;
+    box-shadow: 0 6px 18px var(--shadow);
+    user-select: none;
+  }
+  .grip {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    color: var(--ink-2);
+    cursor: grab;
+    touch-action: none;
+  }
+  .size {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 12px;
+    cursor: ns-resize;
+    touch-action: none;
+  }
+  .chip.dropon {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
   .blk.small {
     display: flex;
