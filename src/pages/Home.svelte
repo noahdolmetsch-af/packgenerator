@@ -46,8 +46,11 @@
   import { todayNotes } from '../lib/notebook.js';
   import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
   import { WEEKPLAN_KEY } from '../lib/training/wochenplan.js';
+  import { PLAN_KEY as TRAINING_PLAN_KEY, plannerSessions as trainingSessionsOf } from '../lib/training.js';
   import { WEEKLOG_KEY, logOf as planLogOf, setDone as planSetDone, dueToday as planDueToday } from '../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../lib/training/wochenplan-text.js';
+  import { startUnitDone } from '../lib/flow/ui.svelte.js';
+  import { needsSheet as needsUnitSheet } from '../lib/flow/unitdone.js';
   import { WEG_KEY, wegOf, todayStep as wegTodayStep, setDone as wegSetDone } from '../lib/weg/weg.js';
   import Skeleton from '../lib/ui/Skeleton.svelte';
   import { liveQuery } from 'dexie';
@@ -112,7 +115,7 @@
   import { isEveningOn } from '../lib/dayclock.js';
   import { cfgQuery, rowsQuery as freiRows } from '../lib/freidb.js';
   import { todayImpulse } from '../lib/frei.js';
-  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, HELPER_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
+  import { WALL_KEY, TILE, wallOf, wallRecord, addTile, removeTile, isNew, REMOVED_TILES, hideTiles, keepHidden, tripUp, HEAD_0155 } from '../lib/home/tiles.js';
   import { tourNear } from '../lib/home/heuteneu.js';
   import HabitCards from '../lib/home/HabitCards.svelte';
   import HabitsSheet from '../lib/home/HabitsSheet.svelte';
@@ -139,6 +142,7 @@
   import { WEIGH_KEY, weighDue } from '../lib/home/weighin.js';
   import GoalChips from '../lib/home/GoalChips.svelte';
   import ActsTile from '../lib/home/ActsTile.svelte';
+  import HakenBlock from '../lib/home/HakenBlock.svelte';
   import { SERIES_STEPS } from '../lib/home/series.js';
   import { readSeries, seriesTables } from '../lib/home/series-data.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions } from '../lib/home/functions.js';
@@ -193,7 +197,6 @@
   import StravaChanges from '../lib/strava/StravaChanges.svelte';
   import StravaTile from '../lib/strava/StravaTile.svelte';
   import { strava } from '../lib/strava/client.svelte.js';
-  import { isShown } from '../lib/helper/client.svelte.js';
   import HomePlaceForm from '../lib/know/HomePlaceForm.svelte';
   import { tripToday } from '../lib/home/ruhig.js';
   import { todayTrip, liveHref } from '../lib/live/start.js'; // Paket U3: the tile «Start a ride»
@@ -204,6 +207,7 @@
   import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
+  import NachtragHint from '../lib/flow/NachtragHint.svelte'; // «Heute · Gestern» (Noah 22.11.2026 «b»): the morning hint of Aktiv also on top of Heute
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { flowStates } from '../lib/flow.js';
   import { isMedAct } from '../lib/flow/hobby/medstart.js';
@@ -229,7 +233,7 @@
   // AU1 «Ausrüstung» 4a (Noah 15.10.2026): the care due of the main equipment is a row of «Important today»
   const mainLogQ = liveQuery(async () => ((await db.items.filter((i) => !!i.main).count()) ? db.flowLog.toArray() : []));
   const NEWS_OFF_KEY = 'homeNewsOff'; // P6 H1: «New» on top taken away for this version
-  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY, WEEKPLAN_KEY, WEEKLOG_KEY];
+  const SKEYS = [DREAMS_KEY, MERKEN_KEY, LISTS_KEY, TRELLO_KEY, WALL_TIME_KEY, 'riderWeightG', TEMPLATES_KEY, USAGE_KEY, LAYOUT_KEY, WALL_KEY, 'userName', NAME_ASKED_KEY, MILESTONE_KEY, SETS_KEY, HOME_PLACE, TIPS_KEY, PACE_KEY, CHALLENGES_KEY, 'homeHintLongPress', INTRO_KEY, COMPASS_KEY, WEG_KEY, WEIGH_KEY, NEWS_OFF_KEY, SECTIONS_KEY, AREAS_KEY, HABITS_KEY, ROWS_KEY, SP_KEY, WEEKPLAN_KEY, WEEKLOG_KEY, TRAINING_PLAN_KEY];
   const setQ = liveQuery(async () => {
     const rows = await db.settings.bulkGet(SKEYS);
     return Object.fromEntries(SKEYS.map((k, i) => [k, rows[i]?.value ?? null]));
@@ -623,7 +627,12 @@
     navigator.storage?.estimate?.().then((e) => (space = e?.quota ? { used: e.usage ?? 0, quota: e.quota } : null), () => {});
     keepState().then((k) => (keep = k));
   });
-  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, health: autoSync.health, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: async () => (keep = await askKeep()), syncNow: () => runSync(), onlyOne: () => db.meta.put({ key: 'syncNudge', off: true, at: new Date().toISOString() }) }));
+  // Noah 22.11.2026 «3a»: a tap that the browser turns down says so and what helps (it did nothing visible before)
+  async function keepNow() {
+    keep = await askKeep();
+    say(keep === 'kept' ? t('Done: the browser keeps your data now.') : t('The browser said no for now. It decides by itself; the app icon on the home screen and regular use help. Your backups protect you meanwhile.'));
+  }
+  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, health: autoSync.health, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: keepNow, syncNow: () => runSync(), onlyOne: () => db.meta.put({ key: 'syncNudge', off: true, at: new Date().toISOString() }) }));
   async function allowFolder() {
     folderNeedsOk = !(await allowAgain(db));
   }
@@ -839,13 +848,16 @@
   const important = $derived(allImportant.filter((r) => r.tone !== 'party'));
   const compassStep = $derived(todayStep(compassOf(S[COMPASS_KEY]), today));
   const wegStep = $derived(wegTodayStep(wegOf(S[WEG_KEY]), today));
-  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today));
+  const planToday = $derived(planDueToday(S[WEEKPLAN_KEY], S[WEEKLOG_KEY], today, trainingSessionsOf(S[TRAINING_PLAN_KEY])));
   async function planTick(u) {
     const due = planToday;
     if (!due) return;
     const before = (await db.settings.get(WEEKLOG_KEY))?.value ?? null;
+    const ticked = () => say(t('Ticked off: {what}.', { what: t(UNIT_NAME[u.type]) }), () => (before === null ? db.settings.delete(WEEKLOG_KEY) : db.settings.put({ key: WEEKLOG_KEY, value: before })));
+    // «Plan zuerst» (T4): a unit opens the short sheet (duration from the plan, feeling) and then «Geschafft»; the daily habits tick at once
+    if (needsUnitSheet(u.type)) return startUnitDone({ id: u.id, type: u.type, mins: u.mins, monday: due.monday, units: due.units, hours: due.hours, today, done: ticked });
     await db.settings.put({ key: WEEKLOG_KEY, value: planSetDone(planLogOf(before), due.monday, u.id, true, today, due.units, due.hours) });
-    say(t('Ticked off: {what}.', { what: t(UNIT_NAME[u.type]) }), () => (before === null ? db.settings.delete(WEEKLOG_KEY) : db.settings.put({ key: WEEKLOG_KEY, value: before })));
+    ticked();
   }
   async function wegStepDone(goal, stepId) {
     const before = wegOf(S[WEG_KEY]);
@@ -883,6 +895,7 @@
   let abEvening = $state(false);
   let abAsk = $state(false); // set → AbCard opens its window again
   const medQ = $derived(flowQuery(today));
+  const nachtragActs = $derived($medQ ? flowStates($medQ.acts, $medQ.log, today, $medQ.tripDays).filter((x) => !x.resting).map((x) => x.act) : []);
   const medSt = $derived($medQ ? (flowStates($medQ.acts, $medQ.log, today, $medQ.tripDays).find((x) => isMedAct(x.act) && !x.act.paused) ?? null) : null);
   let medOpen = $state(false);
   // the ready activities (meditation …) are written on the first start, as the tile «Im Flow» did before
@@ -918,9 +931,19 @@
     const d = next?.startDate ? daysTo(next.startDate) : null;
     if (tourOnce) { /* the card «My tour» names the tour and its countdown */ } else if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
     else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: bare(next.title) }) });
-    parts.push({ hi: false, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
+    // the count leads to «Up now» (Nutzer-Durchgang 23.11.2026): a tap scrolls there; without the tile on the wall it is a plain sentence
+    parts.push({ hi: false, to: upRows.length && onWall.has('important') ? 'imp-h' : '', text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
     return parts;
   });
+  // the sentence under the greeting leads to «Up now»: scrolls to its heading (a tap never changes the address)
+  function jumpTo(e, id) {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    el.setAttribute('tabindex', '-1');
+    el.focus({ preventScroll: true });
+  }
   let notice = $state(null); // { text, undo() } for a few seconds
   let noticeTimer;
   function say(text, undo) {
@@ -971,9 +994,9 @@
   // «Deine Gewohnheiten» (Noah 27.10.2026 «1a»): the pencil on the card and «Choose habits on top» open the same window
   let habitsOpen = $state(false);
   const saveWall = (tiles) => db.settings.put({ key: WALL_KEY, value: wallRecord(tiles) });
-  // v0.118.0 «KI-Helfer ausblenden» (K4): while the AI helper is off its tile leaves the wall, but stays stored
+  // «KI entfernen» (Schritt 7): the tile «Helper» is gone for good; an old wall keeps it stored but it never shows
   // A-U1 (Noah ★ «Nur das Banner»): at most one «new» on Today; while the banner shows, the tile «New» waits
-  const hiddenTiles = $derived(isShown() ? [] : HELPER_TILES);
+  const hiddenTiles = REMOVED_TILES;
   // HN4 4b: on the day before a trip and on its days the trip card stands right under the day card (not while customising)
   const near = $derived(loaded ? tourNear(allTrips, today) : null);
   // the day card at night: the trip of tomorrow, with how far it is packed
@@ -1137,7 +1160,7 @@
       </div>
     </div>
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
-    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}<span class:hi={p.hi}>{p.text}</span>{/each}</p>{/if}
+    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
   </section>
 {/snippet}
 
@@ -1271,6 +1294,7 @@
 <!-- 4. Important today and Tried it yet? -->
 {#snippet todayS(line = false)}
   <div class="impw" class:line data-section="today">
+    {#if ready && !editing && $medQ}<div class="nhw"><NachtragHint {today} log={$medQ.log} acts={nachtragActs} /></div>{/if}
     {#if cheers.length}
       <section class="cheers" aria-label={t('Well done')} data-cheers>
         <ul>
@@ -1312,7 +1336,7 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<div class="stack"><MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{#if tripMerged && ready}<KmCard {today} />{/if}</div>{/if}
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<div class="stack"><MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{#if tripMerged && ready}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it (with one tour: with «Meine Tour») -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
@@ -1326,8 +1350,9 @@
     {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
-  {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}</div>
-  {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
+  {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} check={!on('heutecheck')} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}</div>
+  {:else if x.id === 'haken'}<HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
+  {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} haken={onWall.has('haken')} cfg={S[HABITS_KEY] ?? null} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
@@ -1337,7 +1362,6 @@
   {:else if x.id === 'bikes'}{#if ready}<div data-section="bikes"><BikeCards {bikes} {tasks} {visits} {next} {today} /></div>{/if}
   {:else if x.id === 'year'}<div data-section="year"><YearRow {today} /></div>
   {:else if x.id === 'milestones'}<SmallTile tile={TILE.milestones} size={x.size} href="#/flow/milestones" />
-  {:else if x.id === 'helper'}<SmallTile tile={TILE.helper} size={x.size} href="#/helper" />
   {:else if x.id === 'features'}<SmallTile tile={TILE.features} size={x.size} href="#/features" />
   {:else if x.id === 'tools'}<SmallTile tile={TILE.tools} size={x.size} href="#/me/tools" />
   {:else if x.id === 'diary'}<SmallTile tile={TILE.diary} size={x.size} href="#/tagebuch?neu" isnew={newTile('diary')} sub={t('write or dictate')} />
@@ -1374,7 +1398,7 @@
 <div class="home">
   <PullRefresh />
   <!-- «Paket G» (Noah 03.11.2026 «a»): the drawn landscape with the next trip and its countdown, on top; a switch in Ich › Darstellung › Bedienung takes it away -->
-  {#if ops.heutebild && !editing && bild && !bildInCard}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
+  {#if ops.heutebild && !editing && bild && !bildInCard}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather="" href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
   <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
@@ -1382,7 +1406,7 @@
   {#if !editing && ready}<PhotoGreeting />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
        (HG1 2a: right under the greeting). -->
-  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
+  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={tripMerged ? bildTrip?.id ?? null : on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
   <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): «Heute fällig», only what is really due today: to-dos, birthdays, plants, bike care.
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->
@@ -2613,6 +2637,17 @@
     color: var(--ink);
     text-wrap: pretty;
   }
+  .say .jump {
+    position: relative;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .say .jump::after {
+    content: '';
+    position: absolute;
+    inset: -14px -6px;
+  }
   .say .hi {
     color: var(--hi);
   }
@@ -2628,6 +2663,9 @@
   }
   .row.now .tx {
     font-weight: 600;
+  }
+  .nhw:not(:empty) {
+    margin-bottom: 10px;
   }
   .impl {
     margin-top: auto;

@@ -1,7 +1,7 @@
 // «Nebelgrenze» (Noah 05.11.2026 «1a 2b 3a 4b»): the fog line on the weather page and on Today.
 // Made-up place and weather; Open-Meteo is mocked, everything else outside is blocked (openHome).
 import { test, expect } from './clock.js';
-import { openHome, homeFixture, day } from './home0460-fixture.js';
+import { openHome, homeFixture, day, openWetterFold } from './home0460-fixture.js';
 
 const OFF = 7200;
 const LEVELS = { 1000: 110, 975: 330, 950: 550, 925: 780, 900: 1000, 850: 1500 };
@@ -48,8 +48,7 @@ const mock = async (context, opts) => {
 };
 
 test('The weather page and Today show the fog line, with your place, the clearing and a switch', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture() });
-  await mock(context);
+  await openHome(page, context, info, { data: homeFixture(), weather: (c) => mock(c) }); // the fog data must be there before Today first loads, or its first answer is kept for 3 h
 
   await page.goto('./#/wetter');
   const now = page.locator('[data-fogline-now]');
@@ -71,6 +70,7 @@ test('The weather page and Today show the fog line, with your place, the clearin
   // Today: the line for the home place
   await page.goto('./#/');
   const line = page.locator('[data-heute-fogline]');
+  await openWetterFold(page);
   await expect(line).toBeVisible({ timeout: 20_000 });
   await expect(line).toContainText('Nebelgrenze');
   await expect(line).toContainText('Sicht 600 m');
@@ -87,8 +87,7 @@ test('The weather page and Today show the fog line, with your place, the clearin
 });
 
 test('On a clear day the page says there is no fog line (2b: always shown)', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture() });
-  await mock(context, { clear: true });
+  await openHome(page, context, info, { data: homeFixture(), weather: (c) => mock(c, { clear: true }) });
   await page.goto('./#/wetter');
   await expect(page.locator('[data-fogline-now]')).toHaveText('Keine Nebelgrenze: kein Hochnebel erwartet', { timeout: 20_000 });
   await expect(page.locator('[data-fogline-own]')).toHaveCount(0);

@@ -52,7 +52,8 @@
     after: () => import('./After.svelte'),
     brief: () => import('./Briefing.svelte'),
   };
-  const tripQ = liveQuery(() => db.trips.get(id));
+  // a trip that does not exist is `null` (not `undefined`): undefined means «still loading», so a missing race would load forever
+  const tripQ = liveQuery(async () => (await db.trips.get(id)) ?? null);
   const tripsQ = liveQuery(() => db.trips.toArray());
   const itemsQ = liveQuery(() => db.items.toArray());
   const bikesQ = liveQuery(() => db.bikes.toArray());
@@ -62,7 +63,7 @@
   const osmQ = cacheQuery(POI_CACHE + id);
   const today = localDay();
 
-  const trip = $derived($tripQ);
+  const trip = $derived($tripQ ?? undefined);
   const stored = $derived(($racesQ ?? {})[id] ?? {});
   const race = $derived(trip ? raceOf(stored, trip) : null);
   // an old sample without the fine profile gets it here (Paket U2), without «Reset»

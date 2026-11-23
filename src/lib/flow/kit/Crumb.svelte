@@ -7,14 +7,18 @@
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { phone } from '../../media.svelte.js';
   import { t } from '../../i18n.svelte.js';
+  import { helpHere } from '../../pageinfo/here.svelte.js';
+  import { fitSteps } from '../../nav/wege.svelte.js'; // «Wege»: the path starts with the place and tab of the map of the app
 
   let { path = [], here = '', back = null } = $props(); // back: { href, label } = «‹ Back to Heute», the page you came from (UI-Prüfung A2)
-  const shown = $derived(phone.matches ? path.slice(-1) : path);
+  const steps = $derived(fitSteps(helpHere.route, path));
+  const shown = $derived(phone.matches ? steps.slice(-1) : steps);
 </script>
 
 <nav class="crumb" aria-label={t('Where you are')}>
   {#if back}<a class="back" href={back.href} data-crumb-back><ChevronLeft size={16} aria-hidden="true" />{t('Back to {place}', { place: back.label })}</a>{#if shown.length}<span class="sep" aria-hidden="true">·</span>{/if}{/if}
-  {#each shown as p, i (p.href)}
+  <!-- keyed by place in the line, not by address: the place and its first tab can share one address («#/bikes»), and the line is drawn from the old address for a moment while the page changes; a double key stopped the whole page («Hier ist etwas schiefgelaufen») -->
+  {#each shown as p, i (i)}
     {#if i > 0}<ChevronRight size={14} aria-hidden="true" />{/if}
     <a class:first={i === 0 && !back} href={p.href}>{#if i === 0 && !back}<ChevronLeft size={16} aria-hidden="true" />{/if}{p.label}</a>
   {/each}

@@ -71,5 +71,5 @@ export default {
   'Address copied. In cron-job.org, paste it as the URL.': 'Adresse kopiert. Füge sie in cron-job.org als URL ein.',
   'Copying did not work. Select the address and copy it:': 'Kopieren ging nicht. Markiere die Adresse und kopiere sie:',
   'Keep the address to yourself: with it, anyone can wake the server.': 'Behalte die Adresse für dich: Wer sie hat, kann den Server wecken.',
-  'First connect Strava or enter the helper code on this device.': 'Verbinde zuerst Strava oder trage auf diesem Gerät den Helfer-Code ein.',
+  'First connect Strava on this device.': 'Verbinde zuerst Strava auf diesem Gerät.',
 };

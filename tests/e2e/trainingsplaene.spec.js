@@ -93,18 +93,20 @@ test('own plan: copy, rename, delete with undo; a sample can be deleted and show
   await expect(page.locator('[data-plan="first"]')).toHaveCount(1);
 });
 
-test('after a ride the app asks how hard it was', async ({ page, context }) => {
+test('after a ride the app asks «How was it?» in three words, on Aktiv', async ({ page, context }) => {
   await start(page, context);
   await put(page, 'activities', { id: '9001', name: 'Beispielrunde', type: 'Ride', kind: 'bike', day: day(-1), time: '17:00', km: 40, hm: 400, movingS: 5400, hist: null });
-  await page.goto('./#/flow/training');
+  await page.goto('./#/flow');
   await page.reload(); // Dexie keeps its own cache: the row written straight into IndexedDB shows after a load
   await ready(page);
   const ask = page.locator('[data-section="feel-ask"]');
-  await expect(ask).toContainText(DE['How hard was your ride?']);
-  await ask.locator('[data-feel="7"]').click();
+  await expect(ask).toContainText(DE['How was it?']);
+  await expect(ask.locator('[data-feel-word]')).toHaveText([DE['light|feel'], DE['good|feel'], DE['hard|feel']]);
+  await ask.locator('[data-feel-word="hard"]').click();
   await expect(ask).toHaveCount(0);
   await page.goto('./#/flow/training/a/9001');
-  await expect(page.locator('[data-section="feel"] [data-feel="7"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-section="feel"] [data-feel-word="hard"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-section="feel"] [data-feel="8"]')).toHaveAttribute('aria-pressed', 'false'); // the number is not made up
 });
 
 test('coupled to a race: the plan takes its day and follows when it moves', async ({ page, context }) => {

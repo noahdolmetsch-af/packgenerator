@@ -128,9 +128,10 @@ test('SN3 Bausteine: grouped sections of rows, «Prüfen» and «Neuer Baustein�
   await shot(page, info, 'bausteine');
   await page.getByRole('button', { name: T('New building block') }).click();
   await expect(page.locator('#new-block-name')).toBeFocused();
-  // «Bausteine prüfen»: the same path head and the step buttons.
+  // «Bausteine prüfen»: the same path head and the step buttons. Since «Pfad aus einer Quelle» (23.11.2026) the path names the
+  // tab of the sidebar («Sets», which holds the building blocks); its link still leads back to #/blocks
   await page.goto('./#/blocks/check');
-  await expect(page.getByRole('navigation', { name: T('Path') }).getByRole('link', { name: T('Building blocks') })).toHaveAttribute('href', '#/blocks');
+  await expect(page.getByRole('navigation', { name: T('Path') }).locator('a[href="#/blocks"]')).toBeVisible();
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });
@@ -166,7 +167,7 @@ async function fromBelow(page, dlg, info) {
 test('SN7 Velo: the kind as option buttons, the details folded, «Hinzufügen»', async ({ page, context }, info) => {
   const errors = await load(page, context, TPL);
   await page.goto('./#/bikes?bike=bike-test');
-  await page.locator('section.setup-band').getByRole('button', { name: T('Add bike') }).click();
+  await page.locator('[data-card-add]').click();
   const dlg = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
   await expect(dlg).toBeVisible();
   const kinds = dlg.getByRole('group', { name: T('Kind|bike') });
@@ -191,7 +192,8 @@ test('SN7 Tasche: the place as option buttons, link and note folded', async ({ p
   await openMore(page);
   const fold = page.locator('details', { hasText: T('Your bags') }).last();
   await fold.locator('summary').first().click();
-  await fold.getByRole('button', { name: /Test seat pack/ }).first().click();
+  // Velos aufräumen (23.11.2026, changed on purpose): the bag names from the import show in German (bagName): «Test seat pack» reads «Test Satteltasche»
+  await fold.getByRole('button', { name: /Test (seat pack|Satteltasche)/ }).first().click();
   const dlg = page.locator('dialog[aria-labelledby="bag-h"]');
   await expect(dlg).toBeVisible();
   const place = dlg.getByRole('group', { name: T('Place') });

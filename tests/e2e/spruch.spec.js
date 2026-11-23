@@ -35,7 +35,8 @@ test('Spruch: ein Satz auf Berndeutsch, der Wert dahinter und ein neuer Satz', a
   // the tile sits right under «Up now» (the area «Jetzt»), before the bikes
   const order = await page.evaluate(() => [...document.querySelectorAll('[data-section]')].map((e) => e.getAttribute('data-section')));
   expect(order.indexOf('spruch')).toBeGreaterThan(-1);
-  expect(order.indexOf('spruch')).toBeLessThan(order.indexOf('bikes'));
+  // «Heute aufräumen» (Noah 23.11.2026, changed on purpose): the saying stands under «Mehr» (Entdecken), after the bikes
+  expect(order.indexOf('spruch')).toBeGreaterThan(order.indexOf('bikes'));
 });
 
 test('Spruch: ohne Zahlen kommt ein Zitat aus der Kissenzeit auf Hochdeutsch', async ({ page, context }, info) => {

@@ -53,6 +53,7 @@ import hobby3 from './hobby3.js';
 import ausstattung from './ausstattung.js';
 import medeinfach from './medeinfach.js';
 import aufraeumen from './aufraeumen.js';
+import speicherkarte from './speicherkarte.js';
 import medwunsch from './medwunsch.js';
 import rueckblickantippen from './rueckblickantippen.js';
 import allesfinden from './allesfinden.js';
@@ -244,6 +245,7 @@ import dokumente from './dokumente.js';
 import bedienregeln from './bedienregeln.js';
 // P8 «Automatischer Abgleich»
 import abgleich from './abgleich.js';
+import stravadoppel from './stravadoppel.js';
 import verbindungenStatus from './verbindungen-status.js';
 import datenaufraeumen from './datenaufraeumen.js';
 
@@ -281,6 +283,7 @@ import flyer from './flyer.js';
 import probestunde from './probestunde.js';
 import erinnerung from './erinnerung.js';
 import bestaetigung from './bestaetigung.js';
+import teilnehmerliste from './teilnehmerliste.js';
 
 // Ich › Bezahlen › Shop: products, shop link, orders (mockups SHOP1–SHOP4b)
 import shop from './shop.js';
@@ -555,6 +558,7 @@ import formgarmin from './formgarmin.js';
 import umweg from './umweg.js';
 // Paket Y «Wetter-Kern» (Noah 20.10.2026)
 import wetterkern from './wetterkern.js';
+import heutekarten from './heutekarten.js';
 import wetterfenster from './wetterfenster.js';
 import energie from './energie.js';
 // «Schneefallgrenze» (Noah 04.11.2026 «1b 2a 3a 4a 5a»)
@@ -695,8 +699,6 @@ import kleideranpassen from './kleideranpassen.js';
 import kontaktqr from './kontaktqr.js';
 // Touren c (Einzelideen 60–70)
 import tourenc from './tourenc.js';
-// «App verstehen» (Noah 26.10.2026): Ich › App verstehen; spread last
-import verstehen from './verstehen.js';
 // «Apple-Health-Export einlesen» (Noah 27.10.2026 «4a»); spread last
 import applehealth from './applehealth.js';
 // «FIT-Dateien ganz lesen» (Noah 27.10.2026 «2a»); spread last
@@ -705,6 +707,7 @@ import fitganz from './fitganz.js';
 import morgenpush from './morgenpush.js';
 // «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»); spread last
 import diagramme from './diagramme.js';
+import diagrammeUeberall from './diagramme-ueberall.js';
 // «Aktiv: Bild pro Sportart, Meilensteine kürzer, Nächstes Ziel» (Noah 27.10.2026 «1a 2a 3a»); spread last
 import aktivrest from './aktivrest.js';
 // «Neueste Version» in Ich (Noah 27.10.2026 «1-5 a»); spread last
@@ -723,6 +726,11 @@ import ausprobieren from './ausprobieren.js';
 import quicklinks from './quicklinks.js';
 // Velo-Ideen 71–76 (996 Ideen, Noah 25.10.2026); spread last
 import veloideen from './veloideen.js';
+import einheitenWoche from './einheiten-woche.js';
+import heuteAufraeumen from './heute-aufraeumen.js';
+import velosAufraeumen from './velos-aufraeumen.js';
+import ichVierGruppen from './ich-vier-gruppen.js';
+import koerperBanner from './koerper-banner.js';
 import AUTO from './auto.gen.js';
 
 const ORDERED = [
@@ -774,6 +782,7 @@ const ORDERED = [
   ausstattung,
   medeinfach,
   aufraeumen,
+  speicherkarte,
   rueckblickantippen,
   medwunsch,
   kachel,
@@ -912,7 +921,9 @@ const ORDERED = [
   probestunde,
   erinnerung,
   bestaetigung,
+  teilnehmerliste,
   abgleich,
+  stravadoppel,
   verbindungenStatus,
   datenaufraeumen,
   push,
@@ -1016,6 +1027,7 @@ const ORDERED = [
   umweg,
   haustuer,
   wetterkern,
+  heutekarten,
   schneegrenze,
   nebelgrenze,
   hoehe,
@@ -1101,10 +1113,10 @@ const ORDERED = [
   kleideranpassen,
   kontaktqr,
   tourenc,
-  verstehen,
   fitganz,
   morgenpush,
   diagramme,
+  diagrammeUeberall,
   aktivrest,
   versionszeile,
   packenwischen,
@@ -1115,6 +1127,11 @@ const ORDERED = [
   ausprobieren,
   quicklinks,
   veloideen,
+  einheitenWoche,
+  heuteAufraeumen,
+  velosAufraeumen,
+  ichVierGruppen,
+  koerperBanner,
   applehealth,
 ];
 

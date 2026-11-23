@@ -11,7 +11,6 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData as openDataFold, settle } from './settle.js';
-import { openRow } from './debrief-rows.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z0-9]+$/, '');
@@ -149,8 +148,9 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
   // 1. The wardrobe: v0.76.0 «Fünf Orte»: Material › Kleider (sidebar), on a phone through the search.
   // v0.98.0 R2 (G4/G5): the sidebar shows the pages of the chosen place only
   if (info.project.name === 'desktop') {
-    await page.locator('.side li[data-place="gear"] > a.pa').click();
-    await page.locator('.side li[data-place="gear"] .tabs').getByRole('link', { name: T('Clothes|tab') }).click();
+    await page.locator('.side li[data-place="bikes"] > a.pa').click();
+    await page.locator('.side li[data-place="bikes"] .tabs').getByRole('link', { name: T('Gear|place') }).click();
+    await page.locator('nav.psubs').getByRole('link', { name: T('Clothes|tab') }).click();
   } else {
     await page.getByRole('button', { name: T('Search everything') }).click();
     await page.locator('.search input').fill(T('Wardrobe'));
@@ -208,7 +208,7 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
   // 2. Gear → "Kleiderschrank →" leads here too.
   await page.goto('./#/gear');
   // v0.102.0 Design-Refresh P3 (M1): the link sits in the ••• of the toolbar now
-  await page.locator('details.gmore > summary').click();
+  await page.locator('details.gmore:not(.vmenu) > summary').click();
   await page.getByRole('link', { name: `${T('Wardrobe')} →` }).click();
   await expect(page).toHaveURL(/#\/wardrobe$/);
 
@@ -251,14 +251,43 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
   await expect(cond).toContainText('40 %');
   const line = cond.getByRole('button', { name: T('Onion: {n} gap', { n: 1 }) });
   await expect(line).toBeVisible();
+  await expect(cond.locator('[data-onion-fill]')).toHaveText(T('Fill the gap: {n} piece in', { n: 1 }));
   await shot(page, info, 'zwiebel-zu');
   await line.click();
   await expect(cond.locator('.orows li')).toHaveCount(6);
   await expect(cond.locator('.orows li', { hasText: T('Legs') })).toContainText(T('{zone} below {n} °C: nothing packed', { zone: T('Legs'), n: 10 }));
   await shot(page, info, 'zwiebel-offen');
-  await cond.getByRole('button', { name: T('{name} in', { name: `${P} Beinlinge dünn` }) }).click();
+  // the onion for the midday (min 6, max 14 °C: the morning is the coldest moment): the legs need nothing at 14 °C
+  const pick = cond.locator('[data-onion-moment]');
+  await expect(pick.getByRole('button', { name: T('Midday {c}°', { c: 14 }) })).toBeVisible();
+  await pick.getByRole('button', { name: T('Midday {c}°', { c: 14 }) }).click();
+  await expect(cond.locator('.orows li', { hasText: T('Legs') })).toHaveCount(0);
+  await expect(cond.getByRole('button', { name: T('Onion: fits') })).toBeVisible();
+  await expect(cond).toContainText(T('midday {c} °C', { c: 14 }));
+  if (SHOTS) {
+    mkdirSync(SHOTS, { recursive: true });
+    await cond.screenshot({ path: `${SHOTS}/zwiebel-mittag-${info.project.name}.png` });
+  }
+  await pick.getByRole('button', { name: T('Coldest moment') }).click();
+  await expect(cond.locator('.orows li', { hasText: T('Legs') })).toHaveCount(1);
+  // one tap fills every gap («Zwiebel einlegen»): here the one gap, with the same piece the row offers
+  await expect(cond.getByRole('button', { name: T('{name} in', { name: `${P} Beinlinge dünn` }) })).toBeVisible();
+  await cond.locator('[data-onion-fill]').click();
   await expect(cond.getByRole('button', { name: T('Onion: fits') })).toBeVisible();
   await expect(cond.locator('.orows li', { hasText: T('Legs') }).locator('.badge')).toHaveText(T('new'));
+  if (SHOTS) {
+    mkdirSync(SHOTS, { recursive: true });
+    const hide = await page.addStyleTag({ content: '.onion-toast { visibility: hidden !important; }' });
+    await cond.screenshot({ path: `${SHOTS}/zwiebel-tauschen-${info.project.name}.png` });
+    await hide.evaluate((el) => el.remove());
+  }
+  // «Tauschen» in every row of the onion (Weg B): the piece has its swap button, it opens the same «Swap» window
+  const legs = cond.locator('.orows li', { hasText: T('Legs') });
+  await legs.locator('[data-onion-swap="CL05"]').click();
+  const swap = page.getByRole('dialog', { name: T('Swap {name}', { name: `${P} Beinlinge dünn` }) });
+  await expect(swap).toBeVisible();
+  await swap.getByRole('button', { name: T('Close') }).click();
+  await expect(swap).toHaveCount(0);
   // The kit for the coldest hour (no hourly data: the minimum 6 °C): K2 4–15 °C.
   await cond.getByRole('button', { name: T('Kit {range} in', { range: '4–15 °C' }) }).click();
   const toast = page.locator('.onion-toast');
@@ -287,12 +316,15 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
 test('Rueckblick (debrief): the clothing row shifts the kit borders', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/debrief/gtp-past');
-  await openRow(page, 'how-fold'); // v0.92.0: weather, km, ride and notes are under «Wie war's?»
-  const q = page.getByRole('group', { name: T('Clothing') });
+  // the question sits in plain sight (right column), not in the «Wie war's?» fold
+  const q = page.getByRole('group', { name: T('How was the clothing?') });
   await expect(q).toBeVisible();
   await q.getByRole('button', { name: T('Too cold') }).click();
   await expect(q.getByRole('button', { name: T('Too cold') })).toHaveAttribute('aria-pressed', 'true');
-  await shot(page, info, 'rueckblick-kleidung');
+  if (SHOTS) {
+    mkdirSync(SHOTS, { recursive: true });
+    await page.locator('[data-debrief-clothing]').screenshot({ path: `${SHOTS}/rueckblick-kleidung-${info.project.name}.png` });
+  }
   await page.getByRole('button', { name: T('Done|debrief') }).first().click();
   await expect.poll(async () => (await table(page, 'settings')).find((s) => s.key === 'clothing.offset')?.value).toBe(1);
   expect((await table(page, 'debriefs')).find((d) => d.tripId === 'gtp-past').clothing).toBe('cold');

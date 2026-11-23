@@ -32,7 +32,7 @@
   import ClothesAt from '../lib/pack/ClothesAt.svelte';
   import { clothesAt, tempOf } from '../lib/touren/tourextra.js';
   import { leftOutPatch } from '../lib/pack/leftout.js';
-  import { onionCheck, coldest, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET, waitChill, WEAR_RULE, wearRule } from '../lib/wardrobe.js';
+  import { onionCheck, dayMoments, chooseKit, tempKits, kitPlan, pctOf, CLOTHING_OFFSET, waitChill, WEAR_RULE, wearRule } from '../lib/wardrobe.js';
   import { acceptReview } from '../lib/preparation.js';
   import { SWAP_MEMORY, swapEntries, rememberSwap, tripRange } from '../lib/swap.js';
   import { rowReasons, listDiff } from '../lib/reasons.js';
@@ -89,6 +89,10 @@
   import ChargeSheet from '../lib/trip/ChargeSheet.svelte';
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { ampelShows, ampelRows } from '../lib/trip/ampel.js';
+  import { dazuRows, skipPatch } from '../lib/pack/dazu.js'; // «Dazu nötig» (Noah 23.11.2026 «G1»)
+  import DazuSheet from '../lib/pack/DazuSheet.svelte';
+  import { griffRows, skipGriff } from '../lib/pack/griff.js'; // «Griffbereit» (Noah 23.11.2026 «G3»)
+  import GriffSheet from '../lib/pack/GriffSheet.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, homeOf } from '../lib/dayride.js';
@@ -290,17 +294,25 @@
     return colder || wetter ? { fc: fcWx, have } : null;
   });
   const wxd = $derived(wxGap && trip ? wxDiff(wxGap, allSets($setsQ?.value), items, trip.entries, offset + chill) : null);
+  // «Dazu nötig» (Noah 23.11.2026 «G1»): what belongs with something on the list and is not on it; the line of the card opens the window
+  const dazu = $derived(trip && !over ? dazuRows({ trip, items, trips: $tripsQ ?? [], debriefs: $debriefsQ ?? [] }) : []);
+  let dazuOpen = $state(false);
+  // «Griffbereit» (Noah 23.11.2026 «G3»): food, rain gear and marked things that lie out of reach; the line of the card opens the window
+  const griff = $derived(trip && bikeTrip && !over ? griffRows({ trip, items, bags }) : []);
+  let griffOpen = $state(false);
   // «Tour-Ampel» (Noah 05.11.2026, Touren 3a): packed, weather, bike, devices; a tap leads to what fixes it
   const ampel = $derived.by(() => {
     if (!ampelShows(trip, stats, today)) return [];
     const c = before?.care ?? before?.shortCare ?? null;
     const care = before ? { due: c?.status === 'due' ? c.rows.length : 0, late: !!c?.late, nodata: before.care?.status === 'nodata' && !before.prep.total, open: before.open.length } : null;
-    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null });
+    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null, dazu: dazu.length ? { n: dazu.length, name: nameOf(dazu[0].item) } : null, griff: griff.length && itemsById[griff[0].itemId] ? { n: griff.length, name: nameOf(itemsById[griff[0].itemId]) } : null });
   });
   function ampelAct(act) {
     if (act === 'pack' || act === 'weather') location.hash = '#/pack?day';
     else if (act === 'bike') openBefore();
     else if (act === 'power') chargeOpen = true;
+    else if (act === 'dazu') dazuOpen = true;
+    else if (act === 'griff') griffOpen = true;
   }
   function useForecast() {
     changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) }, wxFrom: 'forecast' }));
@@ -644,11 +656,12 @@
   const offset = $derived((Number($offsetQ?.value) || 0) + wrule.shift);
   // Touren-Ideen 42: waiting on the way (platform, photos, breaks) counts a few degrees colder
   const chill = $derived(waitChill(trip));
-  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset + chill, wrule) : null);
-  const kit = $derived.by(() => {
-    const cold = onionCk ? coldest(trip) : null;
-    return cold ? chooseKit(tempKits($setsQ?.value ?? []), cold.c, offset + chill) : null;
-  });
+  // Kleiderschrank (Noah 21.11.2026 «1-5a 4b»): look at the onion for the morning or the midday, not only the coldest hour
+  let onionAt = $state('cold');
+  const moments = $derived(trip && !over ? dayMoments(trip) : []);
+  const atMoment = $derived(moments.find((m) => m.key === onionAt) ?? null);
+  const onionCk = $derived(trip && !over ? onionCheck(trip, items, offset + chill, wrule, atMoment) : null);
+  const kit = $derived(onionCk ? chooseKit(tempKits($setsQ?.value ?? []), onionCk.real, offset + chill) : null);
   const setWait = (m) => change(() => ({ waitMin: m }));
   const kitP = $derived(kit && trip ? kitPlan(kit, trip, items) : null);
   // Einzelidee 21 «Zu viel an derselben Stelle»: pieces with the same task; the onion asks what for
@@ -1124,7 +1137,7 @@
       testTrip: () => change(() => ({ testTrip: trip.testTrip !== true })),
       reopen: () => askReopen(trip),
     }}>
-    {#snippet onion()}{#if onionCk}<Onion check={onionCk} {kit} plan={kitP} {offset} wait={Number(trip.waitMin) || 0} {chill} onwait={setWait} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
+    {#snippet onion(onswap)}{#if onionCk}<Onion check={onionCk} {moments} moment={atMoment?.key ?? 'cold'} onmoment={(k) => (onionAt = k)} onswap={locked ? null : onswap} {kit} plan={kitP} {offset} wait={Number(trip.waitMin) || 0} {chill} onwait={setWait} {itemsById} added={onionAdd?.tripId === trip.id ? onionAdd.ids : []} kitAdded={onionAdd?.tripId === trip.id ? onionAdd : null} onadd={onionItems} onkit={onionKit} {twice} ontwiceok={locked ? null : twiceOk} onremove={locked ? null : twiceHome} />{/if}{#if clothes}<ClothesAt info={clothes} {itemsById} have={new Set(trip.entries.map((e) => e.itemId))} onadd={onionItems} />{/if}{/snippet}
     {#snippet suggest()}{#if placeRows.length}<PlaceSuggest rows={placeRows} {itemsById} {bags} onapply={applyRows} ondismiss={dismissRow} />{/if}{#if trip.status !== 'done'}<TourSky {trip} {items} place={trip.route?.start ?? trip.place ?? homeOf($homeQ?.value) ?? null} onadd={helperAdd} onhide={(k) => change((c) => ({ skyOff: [...new Set([...(c.skyOff ?? []), k])] }))} />{/if}{/snippet}
     {#snippet settings(mode)}
       {#if mode === 'conditions'}
@@ -1210,6 +1223,8 @@
     <div class="onion-toast packed-toast" role="status"><span>{t('All packed. Have a good trip!')}</span><a class="btn sm" href="#/">{t('To Today')}</a><AlsNaechstes moment="packed" ontap={() => (packedNote = null)} /></div>
   {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
+  {#if dazuOpen}<DazuSheet rows={dazu} {itemsById} onadd={helperAdd} onskip={(id) => change((c) => skipPatch(c, id))} onclose={() => (dazuOpen = false)} />{/if}
+  {#if griffOpen}<GriffSheet rows={griff} {itemsById} {bags} onapply={applyRows} onskip={(id) => change((c) => skipGriff(c, id))} onclose={() => (griffOpen = false)} />{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
   {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onkept={packNew} onclose={() => (newItem = null)} />{/if}

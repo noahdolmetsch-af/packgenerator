@@ -20,6 +20,7 @@
   import StartFresh from './maintenance/StartFresh.svelte';
   import NamesDe from './clear/NamesDe.svelte';
   import TempoMesser from './tempo/TempoMesser.svelte';
+  import StorageMap from './StorageMap.svelte';
   import SyncPanel from './sync/SyncPanel.svelte';
   import { SYNC_WISH } from './sync/nudge.js';
   import { take } from './nav.js';
@@ -163,7 +164,7 @@
       return null;
     }
   };
-  let twoDev = $state(/[?&](koppeln|konto)=/.test(typeof location !== 'undefined' ? location.hash : '') ? 'yes' : readTwo()); // an invite link always shows the sync
+  let twoDev = $state(/[?&](koppeln|konto|verbinden)=/.test(typeof location !== 'undefined' ? location.hash : '') ? 'yes' : readTwo()); // an invite link always shows the sync
   function answerTwo(v) {
     twoDev = v;
     try {
@@ -762,6 +763,7 @@
         </div>
       {/if}
     </section>
+    <StorageMap />
     <TempoMesser />
     <p class="ich-fine"><Check size={16} aria-hidden="true" /><span>{t('Nothing leaves the device unless you send a backup yourself.')}</span></p>
   </div>

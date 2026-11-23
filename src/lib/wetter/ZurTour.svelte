@@ -10,8 +10,13 @@
   import { liveQuery } from 'dexie';
   import { CloudRain, Sun, Backpack, Shirt, Target, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { loadCore, hoursBetween } from './kern.js';
-  import { tourWeather, rainGear, tourDay } from './zurtour.js';
+  import { loadCore, hoursBetween, atLocal, packHints } from './kern.js';
+  import WxTimeline from '../map/WxTimeline.svelte'; // Wetter-Ausbau A and G (Noah 22.11.2026): the weather along the route
+  import { tripPace } from './routewx.js';
+  import { WEBCAMS_KEY, camsOf } from './webcams.js';
+  import { tourWeather, rainGear, tourDay, RIDE_FROM, RIDE_TO } from './zurtour.js';
+  import { loadRain15 } from './regen15.js';
+  import { rainOnDay, rainWords } from './regenzeit.js'; // the one rain start time of the page
   import { localDay } from '../localday.js';
   import { daysTo } from '../touren.js';
   import { PACK_HREF } from '../touren.js';
@@ -22,6 +27,7 @@
   let { trip, fallback = null, onplan = () => {} } = $props();
   const today = localDay();
   const itemsQ = liveQuery(() => db.items.toArray());
+  const camsQ = liveQuery(() => db.settings.get(WEBCAMS_KEY));
 
   const own = $derived(trip?.place ?? trip?.route?.start ?? null);
   const place = $derived(own && Number.isFinite(Number(own.lat)) ? { lat: Number(own.lat), lon: Number(own.lon), name: own.name ?? '' } : fallback);
@@ -52,7 +58,21 @@
     const n = daysTo(day, today);
     return n === 0 ? t('Today') : n === 1 ? t('Tomorrow') : tn(n, 'in {n} day', 'in {n} days');
   });
-  const rainy = $derived(!!w?.rainFrom);
+  // the rain start: the same as on Today and on the weather page (regenzeit.js); on the day itself the 15-minute rain helps
+  let quarters = $state(null);
+  $effect(() => {
+    const p = place;
+    if (!p || day !== today) return void (quarters = null);
+    loadRain15(db, p).then((r) => (quarters = r?.rows ?? null)).catch(() => {});
+  });
+  const story = $derived(core && w ? rainOnDay(core, day, Date.now(), quarters, [RIDE_FROM, RIDE_TO]) : null);
+  const rainy = $derived(!!story && story.kind !== 'dry');
+  const cap = (x) => x.charAt(0).toUpperCase() + x.slice(1);
+  const hmLocal = (ms) => hm(ms + off * 1000);
+  // the way, not only the start: a route with a line and a day the forecast reaches
+  const way = $derived(w && trip?.route?.line?.length > 1 ? tripPace(trip) : null);
+  const camList = $derived(camsOf($camsQ?.value).filter((c) => c.place));
+  const startHints = $derived(core && way ? packHints(hoursBetween(core, atLocal(day, 6, off), atLocal(day, 21, off))).map((h) => h.key) : []);
   // the forecast reaches 16 days; the hours exist, but not for this day
   const covers = $derived(core ? hoursBetween(core, 0, Number.MAX_SAFE_INTEGER).length > 0 : false);
   const gearLine = $derived(gear.n === 0 ? t('nothing on the list yet') : gear.packed === gear.n ? t('packed') : tn(gear.n, '{done} of {n} packed', '{done} of {n} packed', { done: gear.packed }));
@@ -66,7 +86,7 @@
     <p class="zt-head"><a class="zt-name" href={tourHref(`t:${trip.id}`)} data-zt-name>{trip.title}</a><small>{dayName} · {when}</small></p>
     {#if w}
       <p class="zt-wx" data-zt-weather>
-        {#if rainy}<CloudRain size={16} aria-hidden="true" />{t('Rain from {at}', { at: hm(w.rainFrom + off * 1000) })}{:else}<Sun size={16} aria-hidden="true" />{t('dry')}{/if}
+        {#if rainy}<CloudRain size={16} aria-hidden="true" />{cap(rainWords(story, t, hmLocal))}{:else}<Sun size={16} aria-hidden="true" />{t('dry')}{/if}
         <span>· {num(w.tmin)}–{num(w.tmax)} °C{w.windMax != null ? ` · ${t('{kmh} km/h', { kmh: num(w.windMax) })}` : ''}</span>
       </p>
       {#if rainy}
@@ -75,6 +95,7 @@
     {:else if asked}
       <p class="zt-note" data-zt-none role="status">{core && covers ? t('The forecast does not reach this day yet.') : t('The weather for this day is not available right now. The ways below still work.')}</p>
     {/if}
+    {#if way}{#key trip.id}<WxTimeline route={trip.route} pace={way.kmh} startAt={atLocal(day, 8, off)} tripId={trip.id} auto advice dayKm={way.dayKm} {startHints} {camList} />{/key}{/if}
     <div class="zt-acts">
       <a class="btn k" href={PACK_HREF} onclick={openPack} data-zt-pack><Backpack size={16} aria-hidden="true" />{t('Open packing list')}<ChevronRight size={14} aria-hidden="true" /></a>
       <button type="button" class="btn sm" onclick={() => openWear()} data-zt-wear><Shirt size={16} aria-hidden="true" />{t('What do I wear?')}</button>

@@ -1,7 +1,7 @@
 // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b»)
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { SUCHE_DEFAULTS, READ_MODES, sucheOf, spokenCommand, searchText } from '../src/lib/suche/logic.js';
+import { SUCHE_DEFAULTS, READ_MODES, sucheOf, spokenCommand, searchText, looksLikeQuestion } from '../src/lib/suche/logic.js';
 import { commandActions } from '../src/lib/search.js';
 import { FEATURE } from '../src/lib/features.js';
 import { pageOf } from '../src/lib/nav.js';
@@ -14,7 +14,7 @@ const bikes = [
 
 describe('search settings', () => {
   it('defaults follow Noah: mic always, commands at once, read aloud at once, every source on', () => {
-    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, gemini: true, geminiAuto: true, links: true, chrome: true, local: true });
+    expect(SUCHE_DEFAULTS).toEqual({ mic: true, run: true, read: 'auto', app: true, links: true, chrome: true, local: true });
     expect(READ_MODES.map((m) => m.key)).toEqual(['auto', 'tap']);
   });
   it('a stored value wins, unknown values fall back', () => {
@@ -56,10 +56,10 @@ describe('where it lives', () => {
     expect(src('src/pages/Me.svelte')).toContain('href="#/me/suche"');
     expect(FEATURE['f.searchvoice']?.href).toBe('#/me/suche');
   });
-  it('the search has the microphone, Gemini and «Ask further at», each behind its setting', () => {
+  it('the search has the microphone and «Ask further at», each behind its setting', () => {
     const s = src('src/lib/nav/Search.svelte');
     expect(s).toContain('<SearchMic onsaid={said}');
-    expect(s).toMatch(/\{#if asking && \(suche\.gemini \|\| suche\.links\)\}<AskElsewhere/);
+    expect(s).toMatch(/\{#if asking && suche\.links\}<AskElsewhere/);
     expect(s).toContain('{#if suche.app && !listSay}<AskAnswer'); // behind its setting; a command sentence shows no answer beside it
     expect(s).toContain('chrome={suche.chrome} links={suche.links}');
   });
@@ -156,7 +156,7 @@ describe('weather of a place (idea 3, with the weather page of 0.171)', () => {
     expect(weatherHref({ place: '' })).toBe('#/wetter');
   });
   it('the search keeps the AI on this device behind its switch, without a second Gemini', () => {
-    expect(src('src/lib/kisuche/SearchFree.svelte')).toContain('{#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly />');
+    expect(src('src/lib/kisuche/SearchFree.svelte')).toContain('{#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" />');
     expect(src('src/lib/nav/Search.svelte')).toContain('local={suche.local}');
   });
 });
@@ -186,5 +186,14 @@ describe('a list from a sentence (07.11.2026)', async () => {
   it('goes into the actions, as something that writes', () => {
     const a = actionOf('Erstelle eine To-Do-Liste: A, B', { today: '2026-11-07' });
     expect(a).toMatchObject({ kind: 'list', writes: true, name: 'To-do', points: ['A', 'B'] });
+  });
+});
+
+describe('Search: when a text counts as a question', () => {
+  it('on Enter: a text that starts like a question', () => {
+    expect(looksLikeQuestion('Was nehme ich für Regen mit')).toBe(true);
+    expect(looksLikeQuestion('what should I take for rain')).toBe(true);
+    expect(looksLikeQuestion('Regenjacke gelb')).toBe(false);
+    expect(looksLikeQuestion('wiegen')).toBe(false);
   });
 });

@@ -9,9 +9,15 @@
    * - Pointing (mouse, or a finger moving sideways) shows the exact numbers of that day in the line above the
    *   chart (Readout); ← → Home End do the same. A tap, a click or Enter opens what is behind it (onopen(i)).
    * - «Als Tabelle» shows the same numbers as rows (table: { head, rows }).
-   * cols: [{ key, x }] (x: the label under it or ''), series: [{ key, color, dashed, line, dots, v: [number|null] }],
+   * cols: [{ key, x }] (x: the label under it or ''), series: [{ key, color, dashed, dash, line, dots, v: [number|null] }] (dash: an own
+   * stroke-dasharray, so a legend can show the same pattern),
    * readout(i) → { title, items }, label: what the chart shows (for screen readers), unit: of the axis.
    * bridge: the line joins the points across the days without a value (a mood noted now and then), never a fall to 0.
+   * «Diagramme überall verbessern» (Noah 23.11.2026 «ja»), all optional, old charts stay as they are:
+   * - sentences: up to three short sentences over the chart (sentence.js, one rule each, no guessing).
+   * - goal: { v, text } a dashed line where you should stand (a goal, a plan); the axis reaches it, the text stands at its end.
+   * - band: { from, to, text } a soft band behind the line (your usual range); the axis reaches it.
+   * - nowAt: the column of «today»; the first line gets a ring and a small «today» there.
    */
   import { niceScale, fracOf, tickText } from './axis.js';
   import YTicks from './YTicks.svelte';
@@ -22,9 +28,10 @@
   import { indexAt, stepKey } from './pick.js';
   import { t, num } from '../i18n.svelte.js';
 
-  let { cols = [], series = [], scale: fixed = null, tick = null, readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 12, topText = null, id = 'lc', bridge = false } = $props();
+  let { cols = [], series = [], scale: fixed = null, tick = null, readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 12, topText = null, id = 'lc', bridge = false, initial = null, sentences = [], goal = null, band = null, nowAt = null } = $props();
 
-  const scale = $derived(fixed ?? niceScale(series.flatMap((s) => s.v), { count: 4 }));
+  const extra = $derived([goal?.v, band?.from, band?.to].filter((v) => Number.isFinite(v)));
+  const scale = $derived(fixed ?? niceScale([...series.flatMap((s) => s.v), ...extra], { count: 4 }));
   const n = $derived(cols.length);
   const W = $derived(Math.max(1, n) * 10);
   // the svg is 10 units per column wide and 100 high; 8 units stay free above and below for the dots
@@ -56,7 +63,7 @@
     for (let i = n - 1; i >= 0; i--) if (series.some((s) => s.v[i] != null)) return i;
     return n ? n - 1 : null;
   });
-  const shown = $derived(sel ?? newest);
+  const shown = $derived(sel ?? initial ?? newest);
   const ro = $derived(shown == null ? null : readout?.(shown));
 
   const at = (e) => indexAt(e.clientX, plot?.getBoundingClientRect(), n);
@@ -93,6 +100,7 @@
   {#if view === 'table' && table}
     <DataTable head={table.head} rows={table.rows} />
   {:else}
+    {#if sentences.length}<ul class="sn" data-chart-sentences>{#each sentences as x (x)}<li>{x}</li>{/each}</ul>{/if}
     {#if ro}<Readout title={ro.title} items={ro.items} />{/if}
     <div class="g" style:--h="{height}px">
       <YTicks ticks={scale.ticks} {y} h={100} text={tx} {unit} />
@@ -100,14 +108,19 @@
       <div class="plot" bind:this={plot} role="group" tabindex="0" aria-label={label} aria-roledescription={t('chart')} aria-keyshortcuts="ArrowLeft ArrowRight Home End Enter" onpointermove={move} onpointerdown={move} onpointerleave={leave} onclick={tap} onkeydown={key} data-plot data-n={n}>
         <svg viewBox="0 0 {W} 100" preserveAspectRatio="none" aria-hidden="true">
           <GridLines ticks={scale.ticks} {y} x1={0} x2={W} />
+          {#if band}<rect class="band" x="0" y={y(Math.max(band.from, band.to))} width={W} height={Math.max(1, Math.abs(y(band.from) - y(band.to)))} data-band />{/if}
           {#if sel != null}<rect class="cur" x={sel * 10} y="0" width="10" height="100" />{/if}
-          {#each series as s, k (s.key)}{#if paths[k]}<path d={paths[k]} class="ln" class:dash={s.dashed} style:stroke={s.color} data-line={s.key} />{/if}{/each}
+          {#if goal}<line class="goal" x1="0" x2={W} y1={y(goal.v)} y2={y(goal.v)} data-goal />{/if}
+          {#each series as s, k (s.key)}{#if paths[k]}<path d={paths[k]} class="ln" class:dash={s.dashed && !s.dash} style:stroke={s.color} stroke-dasharray={s.dash || null} data-line={s.key} />{/if}{/each}
         </svg>
         {#each series as s (s.key)}
           {#each s.v as v, i (i)}
             {#if v != null && (few || s.dots || i === sel)}<i class="dot" class:on={i === sel} style:left="{((i + 0.5) / n) * 100}%" style:bottom="{100 - y(v)}%" style:background={s.color} data-point></i>{/if}
           {/each}
         {/each}
+        {#if nowAt != null && series[0]?.v[nowAt] != null}<i class="now" style:left="{((nowAt + 0.5) / n) * 100}%" style:bottom="{100 - y(series[0].v[nowAt])}%" style:border-color={series[0].color} data-now></i><b class="nowt" style:left="{((nowAt + 0.5) / n) * 100}%" style:bottom="calc({100 - y(series[0].v[nowAt])}% + 14px)">{t('today')}</b>{/if}
+        {#if goal?.text}<b class="gt" style:bottom="calc({100 - y(goal.v)}% + 3px)" data-goal-text>{goal.text}</b>{/if}
+        {#if band?.text}<b class="bt" style:bottom="calc({100 - y(Math.max(band.from, band.to))}% - 14px)" data-band-text>{band.text}</b>{/if}
         {#if few && series[0]}
           {#each series[0].v as v, i (i)}{#if v != null}<b class="top num" style:left="{((i + 0.5) / n) * 100}%" style:bottom="calc({100 - y(v)}% + 8px)" data-point-label>{topText ? topText(v) : tx(v)}</b>{/if}{/each}
         {/if}
@@ -160,6 +173,63 @@
   }
   .cur {
     fill: var(--paper-2);
+  }
+  .band {
+    fill: var(--paper-2);
+    opacity: 0.8;
+  }
+  .goal {
+    stroke: var(--ink-2);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 4;
+    vector-effect: non-scaling-stroke;
+  }
+  .gt,
+  .bt {
+    position: absolute;
+    right: 0;
+    padding: 0 4px;
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    line-height: 1.3;
+    pointer-events: none;
+  }
+  .bt {
+    left: 0;
+    right: auto;
+    background: none;
+    color: var(--ink-3);
+    font-weight: 400;
+  }
+  .now {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 2.5px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    transform: translate(-50%, 50%);
+    pointer-events: none;
+  }
+  .nowt {
+    position: absolute;
+    transform: translateX(-50%);
+    font-size: var(--fs-tiny);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .sn {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    list-style: none;
   }
   .ln {
     fill: none;

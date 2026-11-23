@@ -11,7 +11,7 @@
   import { liveQuery } from 'dexie';
   import { Copy, ExternalLink, Cpu } from '@lucide/svelte';
   import { db } from '../db.js';
-  import { looksLikeQuestion } from '../helper/logic.js';
+  import { looksLikeQuestion } from '../suche/logic.js';
   import { related, countRelated, claudeText } from './smart.js';
   import { aiStatus, askLocal } from './chromeAi.js';
   import LocalAsk from '../localai/LocalAsk.svelte'; // «KI im Gerät» (Noah 20.10.2026 «5a»)
@@ -82,7 +82,7 @@
         <button type="button" class="btn sm" onclick={askChrome} disabled={busy || !rel}><Cpu size={16} aria-hidden="true" />{ai === 'available' ? t('Ask Chrome AI') : t('Ask Chrome AI (loads once)')}</button>
       {/if}
     </div>
-    {#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" deviceOnly /></div>{/if}
+    {#if local}<div class="ks-local"><LocalAsk q={question} lines={[text]} name="search" /></div>{/if}
     {#if copied === question && !manual}<p class="ks-ok" role="status">{inside ? t('Copied. Now paste it where you ask.') : t('Copied. Now paste it in the Claude app.')}</p>{/if}
     {#if manual}
       <p class="ks-sub">{t('Copying did not work here. Select the text and copy it:')}</p>

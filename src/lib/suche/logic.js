@@ -6,14 +6,12 @@
  *   run        a spoken command runs at once, with Undo (2a)
  *   read       'auto': an answer to a spoken question is read aloud at once; 'tap': only on a tap (4b + a)
  *   app        «The app answers, from your data»
- *   gemini     Gemini answers inside the search (free, needs the helper code; 3a, can be switched off)
- *   geminiAuto Gemini answers a spoken question by itself when the app knows nothing
  *   links      «Ask further at …» (Claude, ChatGPT …) opens the service in a new tab (3b)
  *   chrome     Chrome's own AI on the computer
  *   local      the AI on this device («KI im Gerät»)
  */
 export const SUCHE_KEY = 'suche.';
-export const SUCHE_DEFAULTS = { mic: true, run: true, read: 'auto', app: true, gemini: true, geminiAuto: true, links: true, chrome: true, local: true };
+export const SUCHE_DEFAULTS = { mic: true, run: true, read: 'auto', app: true, links: true, chrome: true, local: true };
 export const READ_MODES = [
   { key: 'auto', name: 'At once', text: 'After a spoken question the answer is read aloud at once.' },
   { key: 'tap', name: 'Only on a tap', text: 'The answer is read aloud only when you tap «Read aloud».' },
@@ -49,3 +47,12 @@ export function searchText(said = '') {
     .replace(/[.。]+$/, '')
     .slice(0, 200);
 }
+
+/* ---------- When a text in the search counts as a question (Noah 2a) ---------- */
+const QUESTION_WORDS = /^(was|wie|welche[rsmn]?|wieviel|wie viel|wo|wann|warum|wieso|brauche|brauch|soll|sollte|kann|könnte|muss|nehme|reicht|lohnt|what|how|which|where|when|why|should|do i|can i|is it|does|will|shall)\b/i;
+/** A question: ends with «?», or (on Enter) starts like one ("Was nehme ich …"). */
+const endsAsQuestion = (text) => /\?\s*$/.test(String(text ?? '')) && String(text).trim().length >= 8;
+export const looksLikeQuestion = (text) => {
+  const s = String(text ?? '').trim();
+  return s.length >= 8 && (endsAsQuestion(s) || (QUESTION_WORDS.test(s) && s.split(/\s+/).length >= 3));
+};

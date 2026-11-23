@@ -45,6 +45,9 @@ test('hide «Good to know» from the search, Undo, show it again', async ({ page
   // hidden again, it stays hidden on another page; «Tipps einblenden» shows it again
   await search(page, 'Gut zu wissen ausblenden');
   await page.locator('[data-cmd="tipsoff"]:visible').click();
+  // 23.11.2026: the switch is written to IndexedDB after the click. Reloading at once cut that write off (1 of 8 runs the tip was
+  // still there). The confirmation line appears only after the write is done: wait for it, as in the first round above.
+  await expect(page.locator('p.done:visible')).toContainText(T('«Good to know» hidden on all pages. Back: search «show tips».'));
   await page.reload();
   await ready(page);
   await expect(page.locator('main [data-tip]')).toHaveCount(0);

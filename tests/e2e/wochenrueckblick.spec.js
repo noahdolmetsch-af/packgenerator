@@ -1,17 +1,16 @@
 // «Wochenrückblick» W1–W6 (Noah 15.10.2026 «1-5 a»): Aktiv › Woche › Wochenrückblick (#/flow/review) on a
 // phone and a computer, in German. On a Monday the page shows the week just finished; every card draws from
 // fictional activities, Aktiv ticks, «Wi gaht's?» answers and a training plan written straight into
-// IndexedDB. ‹ › step the weeks, «Kopieren für Claude» only shows with the KI-Helfer switched on and sends
-// nothing. No sideways scroll, no page errors. SHOTS=<dir> saves wochenrueckblick-390.png / -1440.png.
+// IndexedDB. ‹ › step the weeks. (The card «Kopieren für Claude» is gone with the AI helper, KI entfernen
+// Schritt 7.) No sideways scroll, no page errors. SHOTS=<dir> saves wochenrueckblick-390.png / -1440.png.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
 
-// the keys as the app stores them (weekreview.js SLEEP_Q / MOOD_Q, training.js PLAN_KEY, helper HELPER_KEY);
+// the keys as the app stores them (weekreview.js SLEEP_Q / MOOD_Q, training.js PLAN_KEY);
 // written out here because those modules load the app's runes, which the test runner cannot
 const SLEEP_Q = 'erholung.schlaf';
 const MOOD_Q = 'spass.stimmung';
 const PLAN_KEY = 'training.plan';
-const HELPER_KEY = 'helper';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -56,7 +55,6 @@ function rows() {
   }
   const settings = [
     { key: PLAN_KEY, value: { sessions: [{ id: `${P}pl1`, day: addDays(MON, 5), kind: 'bike', name: '', mins: 240, zone: 2 }, { id: `${P}pl2`, day: addDays(MON, 3), kind: 'run', name: '', mins: 40, zone: 2 }, { id: `${P}pl3`, day: addDays(TODAY, 2), kind: 'bike', name: '', mins: 90, zone: 2 }] } },
-    { key: HELPER_KEY, value: { code: '', show: true, capChf: 5 } },
   ];
   return { activities, flowLog, abAnswers, settings };
 }
@@ -96,12 +94,8 @@ async function fits(page, where) {
   expect(sw, `${where}: no sideways scroll`).toBeLessThanOrEqual(w);
 }
 
-test('Wochenrückblick: five numbers, strip, sentences, highlights, next week and the text for Claude', async ({ page, context }, info) => {
+test('Wochenrückblick: five numbers, strip, sentences, highlights and next week', async ({ page, context }, info) => {
   const errors = await open(page, context);
-  const sent = [];
-  page.on('request', (r) => {
-    if (/vercel\.app\/api\/helper/.test(r.url())) sent.push(r.url());
-  });
   await put(page, rows());
   await page.reload();
   const main = page.locator('main');
@@ -125,8 +119,9 @@ test('Wochenrückblick: five numbers, strip, sentences, highlights, next week an
   await expect(five.locator('[data-five]')).toHaveCount(5);
   await expect(five.locator('[data-five="hours"]')).toContainText('6:20');
   await expect(five.locator('[data-five="hours"]')).toContainText('+3:35 h');
-  await expect(five.locator('[data-five="km"]')).toContainText('144.2');
-  await expect(five.locator('[data-five="hm"]')).toContainText('1’740');
+  await expect(five.locator('[data-five="km"]')).toContainText('134.6'); // only the rides: the run of the week (9.6 km) stands in its own line, never as «Velo»
+  await expect(five.locator('p.cap').first()).toContainText('9.6');
+  await expect(five.locator('[data-five="hm"]')).toContainText('1’660');
   await expect(five.locator('[data-five="goals"]')).toContainText(T('Goals reached'));
 
   // W2 the strip, with sleep and mood
@@ -156,14 +151,8 @@ test('Wochenrückblick: five numbers, strip, sentences, highlights, next week an
   await expect(ahead).toContainText('KW 43: 1 Einheit schon geplant (1:30 Std.).');
   await expect(ahead.locator('[data-to-plan]')).toHaveAttribute('href', '#/flow/training');
 
-  // W6 only with the KI-Helfer on: the text first, copied only on a tap, nothing sent
-  const ask = main.locator('[data-wr="ask"]');
-  await expect(ask.locator('[data-ask-text]')).toHaveValue(/^Meine Woche vom 12\. Oktober bis 18\. Oktober \(KW 42\):/);
-  await expect(ask.locator('[data-ask-text]')).not.toHaveValue(new RegExp(P));
-  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-  await ask.locator('[data-ask-copy]').click();
-  await expect(ask.locator('[data-ask-copy]')).toContainText(T('Copied'));
-  expect(sent).toEqual([]);
+  // the card «Kopieren für Claude» is gone for good
+  await expect(main.locator('[data-wr="ask"]')).toHaveCount(0);
 
   // German only, readable at 390
   expect(await main.innerText()).not.toMatch(/\b(Hours|Sessions|Week strip|Highlights|Looking ahead|Goals reached|Went well|until today|Copy for)\b/);
@@ -185,10 +174,9 @@ test('Wochenrückblick: five numbers, strip, sentences, highlights, next week an
   expect(errors).toEqual([]);
 });
 
-test('Wochenrückblick: without the KI-Helfer no «Wie war meine Woche?»; Training › Rückblick links here', async ({ page, context }) => {
+test('Wochenrückblick: Training › Rückblick links here', async ({ page, context }) => {
   const errors = await open(page, context);
   const data = rows();
-  data.settings = data.settings.filter((s) => s.key !== HELPER_KEY);
   await put(page, data);
   await page.goto('./#/flow/training');
   await page.reload();
@@ -198,7 +186,62 @@ test('Wochenrückblick: without the KI-Helfer no «Wie war meine Woche?»; Train
   await expect(page).toHaveURL(/#\/flow\/review$/);
   await expect(main.locator('[data-wr="five"]')).toBeVisible();
   await expect(main.locator('[data-wr="highs"]')).toBeVisible();
-  await expect(main.locator('[data-wr="ask"]')).toHaveCount(0);
-  await fits(page, 'review without helper');
+  await fits(page, 'review');
+  expect(errors).toEqual([]);
+});
+
+test('Wochenrückblick: «Erholung und Rituale» counts sauna and meditation as times, never as hours (Schritt J)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await put(page, rows());
+  await page.goto('./#/flow/review');
+  await page.reload();
+  const main = page.locator('main');
+  const card = main.locator('[data-rituale="week"]');
+  await expect(card.getByRole('heading', { name: T('Rest and rituals') })).toBeVisible();
+  await expect(card.locator('[data-ritual="sauna"]')).toContainText('1 Mal');
+  await expect(card.locator('[data-ritual="sauna"]')).toContainText(T('Goal: {n} a week', { n: '2' }));
+  await expect(card.locator('[data-ritual="meditation"]')).toContainText('2 Mal');
+  await expect(card.locator('[data-ritual="meditation"]')).toContainText(T('{n} min measured', { n: '20' }));
+  // the sport hours stay as they were: rituals never count in them
+  await expect(main.locator('[data-five="hours"]')).toContainText('6:20');
+  await fits(page, 'review with rituals');
+  if (process.env.SHOTS) await card.screenshot({ path: `${process.env.SHOTS}/rituale-woche-${info.project.name === 'phone' ? 390 : 1440}.png` });
+
+  // the same card in the Sports year, for the period
+  await page.goto('./#/auswerten/sportjahr');
+  await expect(main.locator('[data-sportjahr]')).toBeVisible();
+  const period = main.locator('[data-rituale="period"]');
+  await expect(period).toBeVisible();
+  await expect(period.locator('[data-ritual="sauna"]')).toContainText('1 Mal');
+  await fits(page, 'sports year with rituals');
+  if (process.env.SHOTS) await period.screenshot({ path: `${process.env.SHOTS}/rituale-sportjahr-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  expect(errors).toEqual([]);
+});
+
+test('Wochenrückblick: «Alles, was du angelegt hast» lists daily habits, sports without a goal and Strava sports (23.11.2026)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const r = rows();
+  // a daily habit, a sport without a goal (ticked), one with 0 times; a Strava swim without an activity in Aktiv, no tick
+  r.flowLog.push(
+    { id: `${P}log4`, actId: 'pushups', day: addDays(MON, 1), at: `${addDays(MON, 1)}T06:00:00.000Z`, n: 1 },
+    { id: `${P}log5`, actId: 'pushups', day: addDays(MON, 2), at: `${addDays(MON, 2)}T06:00:00.000Z`, n: 1 },
+    { id: `${P}log6`, actId: 'hockey', day: addDays(MON, 4), at: `${addDays(MON, 4)}T18:00:00.000Z`, n: 1, min: 60 },
+  );
+  r.activities.push(ride('sw1', addDays(MON, 3), { name: `${P}Schwimmen`, type: 'Swim', kind: 'swim', km: 1.2, hm: 0, movingS: 2400, effort: 30 }));
+  await put(page, r);
+  await page.goto('./#/flow/review');
+  await page.reload();
+  const main = page.locator('main');
+  const card = main.locator('[data-alle="week"]');
+  await expect(card.getByRole('heading', { name: T('Everything you created') })).toBeVisible();
+  await expect(card.locator('[data-alle-row="pushups"]')).toContainText('2 Mal');
+  await expect(card.locator('[data-alle-row="hockey"]')).toContainText(T('{n} min measured', { n: '60' }));
+  // the Strava swim has no activity in Aktiv and no tick: it is there, from Strava
+  await expect(card.locator('[data-alle-row^="strava:"]').first()).toContainText(T('From Strava, no activity of its own in Active'));
+  // the ones with 0 times and no goal sit in a closed list; the rituals stay a group of the card
+  await expect(card.locator('[data-alle-quiet="move"]')).toBeVisible();
+  await expect(card.locator('[data-rituale="week"] [data-ritual="sauna"]')).toContainText('1 Mal');
+  await fits(page, 'review with everything');
+  if (process.env.SHOTS) await card.screenshot({ path: `${process.env.SHOTS}/alle-woche-${info.project.name === 'phone' ? 390 : 1440}.png` });
   expect(errors).toEqual([]);
 });

@@ -1,13 +1,11 @@
 // «Tagebuch» round 2 (Noah 20.10.2026 «1a 2a 3a 4b 5a»): mood, «what goes together», word cloud, series,
-// the evening reminder, Gemini contexts and the server's diary modes, the year book PDF. Fictional data only.
-import { describe, it, expect, vi } from 'vitest';
+// the evening reminder, the year book PDF. Fictional data only.
+import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import DE from '../src/lib/i18n/de/index.js';
 import { newEntry, entryMarkdown } from '../src/lib/tagebuch/journal.js';
 import { MOODS, moodOf, moodByDay, moodSeries, moodPairs, topWords, cloudSize, longestStreak, milestones, remindOf, remindDue, MIN_DAYS } from '../src/lib/tagebuch/insights.js';
-import { entryLine, askContext, periodContext, cleanTitle, MAX_CONTEXT, diaryAi } from '../src/lib/tagebuch/ai.js';
 import { wrapText, yearEntries, yearsOf, makeYearBook } from '../src/lib/tagebuch/book.js';
-import { makeHandler, geminiRequest, DIARY_MODES, DIARY_CONTEXT } from '../api/helper.js';
 
 const P = 'test_data_tbx_';
 const day = (n, base = '2026-10-20') => {
@@ -94,61 +92,6 @@ describe('evening reminder (3a)', () => {
   it('is its own window with «Later» and «Not today», mounted once in the app', () => {
     expect(src('src/lib/tagebuch/Reminder.svelte')).toContain('<CheckWindow');
     expect(src('src/App.svelte')).toContain('<DiaryReminder {hash} />');
-  });
-});
-
-describe('Gemini in the diary (1a)', () => {
-  it('sends date, tags, mood and text, never photos or places', () => {
-    const x = e('2026-10-01', { title: 'Pass', tags: ['Tour'], mood: 4, place: { name: 'Geheimort', lat: 46, lon: 8 }, photos: [{ src: 'data:image/jpeg;base64,AAA' }] });
-    const line = entryLine(x);
-    expect(line).toContain('2026-10-01');
-    expect(line).toContain('#Tour');
-    expect(line).toContain('mood 4/5');
-    expect(line).not.toContain('Geheimort');
-    expect(line).not.toContain('base64');
-  });
-  it('picks the entries that fit a question first and stays under the limit', () => {
-    const list = Array.from({ length: 40 }, (_, i) => e(day(-i), { text: `${'Alltag '.repeat(60)}${i === 30 ? 'Gotthard' : ''}` }));
-    const ctx = askContext(list, 'Wann war ich am Gotthard?');
-    expect(ctx).toContain('Gotthard');
-    expect(ctx.length).toBeLessThanOrEqual(MAX_CONTEXT);
-    expect(MAX_CONTEXT).toBeLessThan(DIARY_CONTEXT);
-    const month = periodContext(list, '2026-10-01', '2026-10-31');
-    expect(month.split('\n')[0]).toContain('2026-10-01');
-    expect(month).not.toContain('2026-09-30');
-  });
-  it('cleans a title and sends the mode along', async () => {
-    expect(cleanTitle('«Ein Tag am See.»\nmehr')).toBe('Ein Tag am See');
-    const fetchFn = vi.fn();
-    const r = await diaryAi('title', { context: 'x', fetchFn });
-    expect(r).toEqual({ ok: false, error: 'off' }); // without a helper code nothing is sent
-    expect(fetchFn).not.toHaveBeenCalled();
-  });
-  it('the server knows the diary modes: own instruction, more room, tidy stays close', () => {
-    expect(DIARY_MODES).toEqual(['title', 'tidy', 'summary', 'ask', 'prompts', 'highlights']);
-    const tidy = geminiRequest({ question: 'Q', context: 'c', mode: 'tidy', lang: 'de' });
-    expect(tidy.generationConfig.temperature).toBe(0.1);
-    expect(tidy.generationConfig.maxOutputTokens).toBe(4096);
-    expect(geminiRequest({ question: 'Q', mode: 'nope' }).generationConfig.maxOutputTokens).toBe(1024);
-    expect(geminiRequest({ question: 'Q', mode: 'summary', lang: 'en' }).systemInstruction.parts[0].text).not.toBe(geminiRequest({ question: 'Q', lang: 'en' }).systemInstruction.parts[0].text);
-  });
-  it('the server lets diary text through up to 12000 signs', async () => {
-    const TOKEN = 'test-code-not-real-0000';
-    const REDIS = 'https://redis.example.test';
-    const calls = [];
-    const doFetch = vi.fn(async (url, init) => {
-      if (url === REDIS) return Response.json({ result: null });
-      calls.push(JSON.parse(init.body));
-      return Response.json({ candidates: [{ content: { parts: [{ text: 'Ein ruhiger Monat.' }] } }] });
-    });
-    const env = () => ({ apiKey: '', token: TOKEN, model: 'claude-sonnet-5-5', cap: 2, redisUrl: REDIS, redisToken: 'r', geminiKey: 'g-test-not-real', geminiModel: 'gemini-flash-latest', geminiDaily: 50 });
-    const req = (input) => new Request('https://packgen-three.vercel.app/api/helper', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'http://localhost:5173', authorization: `Bearer ${TOKEN}` }, body: JSON.stringify({ task: 'gemini', input }) });
-    const h = makeHandler({ env, doFetch, now: () => new Date('2026-10-20T10:00:00Z') });
-    const long = 'x'.repeat(15000);
-    expect((await h(req({ question: 'Zusammenfassen', context: long, mode: 'summary' }))).status).toBe(200);
-    expect(calls[0].contents[0].parts[0].text.length).toBeGreaterThan(11000);
-    await h(req({ question: 'Frage', context: long }));
-    expect(calls[1].contents[0].parts[0].text.length).toBeLessThan(2100);
   });
 });
 

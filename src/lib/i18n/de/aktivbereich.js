@@ -4,11 +4,10 @@
  * Spread last in de/index.js.
  */
 export default {
-  'Active or analysis': 'Aktiv oder Auswerten',
+  'Active or analysis': 'Heute abhaken oder Auswerten',
   'My sports|tab': 'Meine Aktivitäten',
   'Recovery|tab': 'Erholung',
   'Form|tab': 'Form und Erholung',
-  'Ticks evaluated|tab': 'Haken ausgewertet',
   'New sport': 'Neue Aktivität',
   'All goals on track this week': 'Diese Woche alle Ziele im Soll',
   'your ticks and fixed dates · a tap plans the week': 'deine Haken und festen Termine · Antippen plant die Woche',
@@ -45,7 +44,7 @@ export default {
   'every sport, step by step': 'jede Aktivität, Schritt für Schritt',
   Trophies: 'Trophäen',
   'what you reached': 'was du erreicht hast',
-  'Here you look at how you are: form, body values, rides and what you ticked. To tick off, go to Active.': 'Hier schaust du, wie es dir geht: Form, Körperwerte, Fahrten und was du abgehakt hast. Zum Abhaken geht es zu Aktiv.',
+  'Form, body values, rides and what you ticked.': 'Form, Körperwerte, Fahrten und was du abgehakt hast.',
   'Bikes and gear|place': 'Velos und Material',
   'Whole summit book': 'Ganzes Gipfelbuch',
   'highest: {name}': 'am höchsten: {name}',

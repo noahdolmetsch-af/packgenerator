@@ -2,6 +2,8 @@
 // nothing new has come, the last values with «von gestern». German UI, fictional data (home0460-fixture.js).
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, day } from './home0460-fixture.js';
+import { D0, TODAY, addDays, put } from './aktiv-fixture.js';
+import { ready } from './settle.js';
 
 test('FS1: Heute keeps the last values and says when they were fetched', async ({ page, context }, info) => {
   const d = homeFixture();
@@ -43,11 +45,38 @@ test('FS3: only the active zone minutes are of today: the other values show the 
   const body = page.locator('[data-section="body"]');
   await expect(body.locator('[data-body="pulse"] b')).toHaveText('54');
   await expect(body.locator('[data-body="pulse"]')).toContainText('von gestern');
-  await expect(body.locator('[data-body="sleep"] b')).toHaveText(/3 h/);
+  await expect(body.locator('[data-body="sleep"] b')).toHaveText('3 h 00');
   await expect(body.locator('[data-body="azm"] b')).toHaveText('10');
   await expect(body.locator('[data-body="azm"]')).toContainText('heute');
   await expect(body.locator('[data-body-hint]')).toContainText('Fitbit hat noch nicht alle Werte von heute geliefert');
   await expect(body.locator('[data-body-fetch]')).toHaveText('Jetzt holen');
   await expect(body.locator('dl b', { hasText: /^–$/ })).toHaveCount(0);
   if (process.env.SHOTS) await body.scrollIntoViewIfNeeded(), await body.screenshot({ path: `${process.env.SHOTS}/gemischt-${info.project.name}.png` });
+});
+
+// «Dein Körper heute» als Band, Schritt 3 (Noah 23.11.2026 «1-4a»): one quiet line when something stands out, «Heute nicht» sends it away.
+// The 40 fictional days are written straight into the database (a backup of that size is not needed for this).
+test('FS4: the resting pulse above the usual: one quiet line under the values, «Heute nicht» hides it for the day', async ({ page, context }, info) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.clock.install({ time: new Date(D0) });
+  await page.goto('./#/');
+  await ready(page);
+  await put(page, {
+    healthDays: Array.from({ length: 40 }, (_, i) => ({ date: addDays(TODAY, -i), restingHr: i < 3 ? 60 : 52, azm: 20, sleep: { asleepMin: 420, efficiency: 91 }, at: `${addDays(TODAY, -i)}T07:00:00Z` })),
+    settings: [{ key: 'health', value: { connected: true, values: ['sleep', 'steps', 'azm', 'restingHr', 'hrvMs'], fetch: 'manual', lastSync: `${TODAY}T05:42:00.000Z` } }],
+  });
+  await page.reload();
+  await ready(page);
+  const ab = page.locator('[data-section="abfragen"]');
+  if (await ab.isVisible().catch(() => false)) await ab.locator('[data-ab-later]').click();
+  const body = page.locator('[data-section="body"]');
+  const note = body.locator('[data-body-note]');
+  await expect(note).toHaveCount(1);
+  await expect(note).toHaveAttribute('data-body-note', 'pulse');
+  await expect(note).toContainText('Ruhepuls');
+  await expect(note).toContainText('über deinem Üblichen');
+  if (process.env.SHOTS) await body.scrollIntoViewIfNeeded(), await body.screenshot({ path: `${process.env.SHOTS}/hinweis-${info.project.name}.png` });
+  await note.locator('[data-body-note-no]').click();
+  await expect(body.locator('[data-body-note]')).toHaveCount(0);
 });

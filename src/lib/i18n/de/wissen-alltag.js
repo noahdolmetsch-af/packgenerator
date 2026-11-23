@@ -12,8 +12,8 @@ export default {
     'Ruhe ist kein Schalter für immer: schau hier vorbei, wenn dir die App laut vorkommt, und schalte jeweils nur eine Sache aus.',
   'Hiding never deletes. If you miss something you once used, look here first before you search the whole app.':
     'Ausblenden löscht nie. Fehlt dir etwas, das du früher genutzt hast, schau zuerst hier, bevor du die ganze App absuchst.',
-  'Ask for the counter-arguments the evening before you book, not the evening before you leave: then there is still time to change.':
-    'Frag nach den Gegenargumenten am Abend vor dem Buchen, nicht am Abend vor der Abfahrt: dann bleibt noch Zeit für eine Änderung.',
+  'Look at what is still open the evening before you book, not the evening before you leave: then there is still time to change.':
+    'Schau am Abend vor dem Buchen, was noch offen ist, nicht am Abend vor der Abfahrt: dann bleibt noch Zeit für eine Änderung.',
   'Short and clear works best: «no single-use plastic» helps more than a long explanation of why.':
     'Kurz und klar wirkt am besten: «kein Einwegplastik» hilft mehr als eine lange Begründung.',
   'An answer without a source is a guess. Tap the source before you rely on a number, a date or a price.':
@@ -117,4 +117,6 @@ export default {
     'Kurz rechnen vor dem Laden: 4 Tage × 3 Riegel sind 12 Riegel, nicht «ein paar». Die Zahlen bleiben auf dem Gerät.',
   'Tyre pressure in bar or psi depends on the pump: check once here and write your number on the frame with tape.':
     'Reifendruck in bar oder psi hängt von der Pumpe ab: einmal hier prüfen und deine Zahl mit Klebeband an den Rahmen schreiben.',
+  'A goal is a number you wait for: set it under «My numbers», Kursblick shows it on Today. Under «Decision» you write your buying rule, under «Portfolio» your buys, sales and the split against your goals.':
+    'Ein Ziel ist eine Zahl, auf die du wartest: Leg es unter «Meine Zahlen» fest, Kursblick zeigt es auf Heute. Unter «Entscheidung» schreibst du deine Kaufregel, unter «Depot» deine Käufe, Verkäufe und die Verteilung gegen deine Ziele.',
 };

@@ -49,13 +49,21 @@ test('Touren: a planned card has Packen, Wetter and Form; the Wetter way opens t
   expect(errors).toEqual([]);
 });
 
-test('Touren: «n warten auf deinen Rückblick» shows only those trips', async ({ page, context }) => {
+test('Touren: «n warten auf deinen Rückblick» shows only those trips', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await start(page, context);
   await page.goto('./#/trips');
   await openShort(page);
   const go = page.locator('[data-counts] [data-waiting-go]');
+  if (info.project.name !== 'phone') {
+    // «Touren-Liste aufräumen» (Noah 23.11.2026, changed on purpose): on a computer the open debriefs stand once, as the tile at the top
+    await expect(go).toHaveCount(0);
+    await expect(page.locator('[data-tile="o2"] [data-open]').first()).toBeVisible();
+    expect(await wide(page)).toBeLessThanOrEqual(0);
+    expect(errors).toEqual([]);
+    return;
+  }
   await expect(go).toBeVisible();
   await go.click();
   const done = page.locator('section[data-finished]');

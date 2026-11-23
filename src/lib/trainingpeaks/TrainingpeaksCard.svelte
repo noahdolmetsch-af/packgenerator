@@ -46,6 +46,7 @@
   const resultLine = (r) => {
     const parts = [tn(r.found, '{n} planned session', '{n} planned sessions')];
     if (r.skipped) parts.push(tn(r.skipped, '{n} entry without a duration left out', '{n} entries without a duration left out'));
+    if (r.rest) parts.push(tn(r.rest, '{n} free day kept free', '{n} free days kept free'));
     return parts.join(' · ');
   };
 
@@ -159,6 +160,7 @@
         <code class="masked" aria-label={t('The link is hidden. It stays on this device.')}>{maskLink(rec.url)}</code>
         <p class="state" class:bad={!!rec.error} role={rec.error ? 'alert' : undefined}>{stateLine(rec)}</p>
         <p class="ich-help">{t('TrainingPeaks passes changes on with a delay of up to a day, and shows about 5 days back and 14 days ahead. A session you change, tick or take out here stays as you have it.')}</p>
+        <p class="ich-help" data-tp-counts>{t('In the weekly plan these sessions count towards your hours of the week; the plan only adds the rest. For weeks further ahead than about 14 days the weekly plan plans alone.')}</p>
         <div class="row">
           <button type="button" class="btn" disabled={busy === 'again' || !rec.on} onclick={again}><RefreshCw size={16} aria-hidden="true" />{t('Fetch again')}</button>
           <button type="button" class="btn" onclick={remove}><Trash2 size={16} aria-hidden="true" />{t('Remove')}</button>

@@ -7,6 +7,7 @@
    * «Read aloud» and «Add to note»; with `fallback` it says so when no rule fits and links to the
    * Assistent; `autoread` reads a new answer aloud at once (onreading(true|false) around it).
    */
+  import { untrack } from 'svelte';
   import { liveQuery } from 'dexie';
   import { MessageCircle, ChevronRight, Volume2, Plus, X } from '@lucide/svelte';
   import { db } from '../db.js';
@@ -20,7 +21,7 @@
   import { zones } from '../strava/zones.svelte.js';
   import { readAloud, stopReading, speechLang, voiceApi } from '../speak.js';
 
-  let { q = '', onlink = () => {}, tools = false, fallback = false, here = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {} } = $props();
+  let { q = '', onlink = () => {}, tools = false, fallback = false, here = false, autoread = false, onadopt = null, onreading = () => {}, onclose = null, onresult = () => {}, ondone = null } = $props();
   const today = localDay();
   const src = liveQuery(async () => {
     const [book, trips, items, bikes, visits, tasks, learnings, acts] = await Promise.all([db.kmBook.toArray(), db.trips.toArray(), db.items.toArray(), db.bikes.toArray(), db.visits.toArray(), db.maintenance.toArray(), db.learnings.toArray(), db.activities.toArray()]);
@@ -28,13 +29,17 @@
     const care = live.map((b) => bikeCare(withVisits(b, visits), { tasks, visits, today })).filter(Boolean);
     // Klick-Rundgang H25: the wear of each part (chain, cassette, pads, tyres) for «Wann muss ich die Kette wechseln?»
     const wear = live.map((b) => ({ bikeId: b.id, bikeName: b.name, rows: wearRows(withVisits(b, visits), { entries: book, today }) }));
-    return { today, book, trips, items, care, learnings, wear, acts, bikeCount: live.length };
+    return { today, book, trips, items, care, learnings, wear, acts, visits, bikeList: live.map((b) => ({ id: b.id, name: b.name })), bikeCount: live.length };
   });
   const answer = $derived($src && q.trim().length >= 3 ? answerFor(q, { ...$src, bounds: zones.bounds }) : null);
   const spoken = $derived(answer ? [answer.title, ...answer.lines].filter(Boolean).join('. ') : '');
   const canRead = !!voiceApi();
   // «Suche mit Sprache» (21.10.2026): the search knows whether the app had an answer (then Gemini waits for a tap)
   $effect(() => onresult(!!answer));
+  // S6: once the data is read, the page learns whether the app had an answer (onresult also says «no» while it still reads)
+  $effect(() => {
+    if (ondone && $src && q.trim().length >= 3) untrack(() => ondone(!!answer, q.trim()));
+  });
   let reading = $state(false);
   function read() {
     if (reading) {

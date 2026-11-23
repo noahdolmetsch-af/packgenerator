@@ -18,6 +18,7 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import BarChart from '../../lib/charts/BarChart.svelte';
   import LineChart from '../../lib/charts/LineChart.svelte';
+  import { changeSentence, usualBand } from '../../lib/charts/sentence.js';
   import ChartSheet from '../../lib/charts/ChartSheet.svelte';
   import DataTable from '../../lib/charts/DataTable.svelte';
   import Readout from '../../lib/charts/Readout.svelte';
@@ -37,6 +38,7 @@
   import { askDelete, deleteWithUndo } from '../../lib/ui/ask.js';
   import { SPORT_ICON, sportName, hms, km2, dm, rangeText, monthShort } from '../../lib/flow/garmin/words.js';
   import { localDay } from '../../lib/localday.js';
+  import { AZM_WEEK_KEY, azmWeekOf } from '../../lib/health.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
 
@@ -51,6 +53,8 @@
   let bkey = $state(BODY[id] || isOwnBody(id) ? id : 'hr');
   // «Eigene Körperwerte» (Noah 21.10.2026 «3a»): the own questions with a number or a scale are a group of their own
   const abQ = liveQuery(() => db.settings.get(AB_KEY));
+  // the weekly goal for the active zone minutes (Aktiv, tap the goal there): one seventh of it is the dashed line over the daily bars
+  const azmGoalQ = liveQuery(() => db.settings.get(AZM_WEEK_KEY));
   const ansQ = liveQuery(() => (db.abAnswers ? db.abAnswers.toArray() : []));
   const ownKeys = $derived(ownBodyKeys(configOf($abQ?.value).own));
   const GROUPS = $derived(bodyGroupsWith(ownKeys));
@@ -235,6 +239,11 @@
         series: [{ key: 'rest', color: 'var(--hi)', v: hr.points.map((p) => p.rest) }, { key: 'high', color: 'var(--bad)', v: hr.points.map((p) => p.high) }],
         table: { head: [...head(t('at rest')), t('highest')], rows: [...hr.points].reverse().map((p) => ({ key: p.key, cells: [when(p.key), p.rest ?? '–', p.high ?? '–'] })) },
         label: t('Resting and highest pulse per day'),
+        // «Diagramme überall verbessern»: the usual range and one neutral sentence for the resting pulse (the line that does not jump with every ride)
+        band: usualBand(hr.points.map((p) => p.rest)),
+        bandText: t('Your usual range at rest'),
+        bandMissing: usualBand(hr.points.map((p) => p.rest)) === null,
+        sentences: changeSentence(hr.points.map((p) => ({ label: when(p.key), v: p.rest })), (v) => `${Math.round(v)} bpm`).map((x) => t('Resting pulse: {s}', { s: x })),
       };
     }
     if (bkey === 'year' && !kind && yr.length) {
@@ -283,12 +292,19 @@
         kind: 'line', id: 'body', unit: u, items, when, rows: pts, name: bname(bkey), scale, tick: bkey === 'bed' ? bedText : null, cols: xsOf(pts),
         series: [{ key: 'v', color: 'var(--hi)', v: pts.map((p) => (p.v == null ? null : p.v / div)) }],
         table, label: bname(bkey), topText: bkey === 'bed' ? bedText : null,
+        // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): where your own values usually lie, and one neutral sentence (not for the bed time and the skin temperature)
+        band: bkey === 'bed' || bkey === 'skin' || bkey === 'weight' || fx ? null : usualBand(pts.map((p) => (p.v == null ? null : p.v / div))),
+        // the short note «too few values» where a band would otherwise stand (the same tabs as above)
+        bandMissing: !(bkey === 'bed' || bkey === 'skin' || bkey === 'weight' || fx) && usualBand(pts.map((p) => (p.v == null ? null : p.v / div))) === null,
+        sentences: bkey === 'bed' || bkey === 'skin' ? [] : changeSentence(pts.map((p) => ({ label: when(p.key), v: p.v == null ? null : p.v / div })), (v) => `${bv(v * div)}${bu && !isSleep ? ` ${B.own ? bu : t(bu)}` : ''}`),
       };
     }
     return {
       kind: 'bar', id: 'body', unit: u, items, when, rows: pts, name: bname(bkey),
       cols: pts.map((p, i) => ({ key: p.key, x: xsOf(pts)[i].x, top: p.v ? one(p.v / div) : '', parts: [{ v: (p.v ?? 0) / div, color: 'var(--hi)' }] })),
       table, label: bname(bkey),
+      // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): the weekly goal of the active zone minutes as a dashed line, one seventh of it per day (not over the monthly sums)
+      goal: bkey === 'azm' && range !== 'y1' ? (() => { const n = Math.round(azmWeekOf($azmGoalQ?.value) / 7); return { v: n, text: t('Weekly goal ÷ 7: {n} min', { n: num(n) }) }; })() : null,
     };
   });
   let open = $state(null);
@@ -306,9 +322,10 @@
 {#snippet chart()}
   {#if M}
     {#if M.kind === 'bar'}
-      <BarChart id={M.id} cols={M.cols} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
+      <BarChart id={M.id} cols={M.cols} goal={M.goal ?? null} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
     {:else}
-      <LineChart id={M.id} cols={M.cols} series={M.series} scale={M.scale} tick={M.tick} topText={M.topText} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
+      <LineChart id={M.id} cols={M.cols} series={M.series} scale={M.scale} band={M.band ? { ...M.band, text: M.bandText ?? t('Your usual range') } : null} sentences={M.sentences ?? []} tick={M.tick} topText={M.topText} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
+      {#if M.bandMissing}<p class="bm" data-band-missing>{t('Too few values for your usual range (from 10 values)')}</p>{/if}
     {/if}
   {/if}
 {/snippet}
@@ -515,6 +532,11 @@
 {/if}
 
 <style>
+  .bm {
+    margin: var(--sp-1, 4px) 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   .shl {
     display: grid;
     gap: 6px;

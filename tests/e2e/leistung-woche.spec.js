@@ -115,7 +115,7 @@ test('Training › Woche: the analyses over the weeks, hide and undo, switch in 
   await expect(card('decouple').locator('[data-plot]')).toHaveAttribute('aria-label', /^\d+ lange ruhige Fahrten, im Schnitt -?\d+\.\d %$/);
   await expect(card('decouple')).toContainText(/\d+ Fahrten ab 1 Std\., meist Z1–Z2/);
   // T4 FTP over the months: a line over 12 months, today in W and W/kg, no hint (hard 20 minutes in the last 6 weeks)
-  await expect(card('ftp').getByRole('img')).toHaveAttribute('aria-label', /^Geschätzte FTP über 12 Monate, heute \d+ W · \d\.\d W\/kg$/);
+  await expect(card('ftp').locator('[data-plot]')).toHaveAttribute('aria-label', /^Geschätzte FTP über 12 Monate, heute \d+ W · \d\.\d W\/kg$/);
   await expect(card('ftp').locator('[data-ftp-now]')).toHaveText(/^Heute\s*\d+ W · \d\.\d W\/kg$/);
   await expect(card('ftp').locator('[data-ftp-hint]')).toHaveCount(0);
   await expect(card('ftp')).toContainText('95 % der besten 20 Minuten aus den 90 Tagen bis Monatsende');

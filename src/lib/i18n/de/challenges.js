@@ -3,6 +3,10 @@
 export default {
   'Challenges|page': 'Challenges',
   'Goals per day that you set yourself: minutes, a count or steps. Every day that reaches the goal counts. All of it is changeable.': 'Tagesziele, die du dir selbst setzt: Minuten, eine Anzahl oder Schritte. Jeder Tag, der das Ziel erreicht, zählt. Alles ist änderbar.',
+  'Own challenges': 'Eigene Challenges',
+  'At the time you set in the window of an own challenge, while it runs, until the day is reached.': 'Zur Zeit, die du im Fenster einer eigenen Challenge einstellst, solange sie läuft, bis der Tag erreicht ist.',
+  '{name}: today\'s goal is still open.': '{name}: das Tagesziel ist heute noch offen.',
+  'Optional: a reminder every day at this time while the challenge runs. A day that reaches the goal sends none. Leave empty for no reminder.': 'Freiwillig: jeden Tag zu dieser Zeit eine Erinnerung, solange die Challenge läuft. Ein Tag, der das Ziel erreicht, sendet keine. Leer lassen für keine Erinnerung.',
   'Running now': 'Läuft jetzt',
   'No own challenge is running. Start one below, for example 10 minutes of stretching every day.': 'Keine eigene Challenge läuft. Starte unten eine, zum Beispiel jeden Tag 10 Minuten Dehnen.',
   'New challenge': 'Neue Challenge',
@@ -41,4 +45,14 @@ export default {
   'Open Milestones › «Challenges ›» and tap «New challenge».': 'Öffne Meilensteine › «Challenges ›» und tippe auf «Neue Challenge».',
   'Choose name, unit and goal per day, then tap «Start».': 'Wähle Name, Einheit und Ziel pro Tag, dann tippe auf «Start».',
   'Each day tap «Tick off»; under «More» add smaller amounts.': 'Tippe jeden Tag auf «Abhaken»; unter «Mehr» zählst du kleinere Mengen dazu.',
+  // PR 4: die Frage alle 10 Tage
+  'Challenge question': 'Challenge-Frage',
+  'Every 10 days at 18:00: do you want a new challenge, a milestone or a crazy idea? Opens the page Challenges.': 'Alle 10 Tage um 18:00: Möchtest du eine neue Challenge, einen Meilenstein oder eine verrückte Idee? Öffnet die Seite Challenges.',
+  'Time for a look: a new challenge, a milestone or a crazy idea?': 'Zeit für einen Blick: eine neue Challenge, ein Meilenstein oder eine verrückte Idee?',
+  'Time for a look': 'Zeit für einen Blick',
+  'Do you want a new challenge, a milestone or a crazy idea? Only if you like; nothing is needed.': 'Möchtest du eine neue Challenge, einen Meilenstein oder eine verrückte Idee? Nur wenn du magst, nichts ist nötig.',
+  'Challenge': 'Challenge',
+  'Milestone': 'Meilenstein',
+  'Crazy idea': 'Verrückte Idee',
+  'Asks again in 10 days. A message on the phone: Ich › Reminders on the phone.': 'Fragt in 10 Tagen wieder. Eine Mitteilung aufs Handy: Ich › Erinnerungen aufs Handy.',
 };

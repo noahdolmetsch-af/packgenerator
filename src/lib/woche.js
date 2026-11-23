@@ -117,7 +117,7 @@ export const calEntries = (v) =>
   Array.isArray(v)
     ? v
         .filter((x) => isDay(x?.day) && String(x?.title ?? '').trim())
-        .map((x) => ({ id: String(x.id ?? `${x.day}-${x.title}`), title: String(x.title).trim().slice(0, 80), day: x.day, time: isTime(x.time) ? x.time : '', src: String(x.src || 'calendar') }))
+        .map((x) => ({ id: String(x.id ?? `${x.day}-${x.title}`), title: String(x.title).trim().slice(0, CAL_TITLE_MAX), day: x.day, time: isTime(x.time) ? x.time : '', src: String(x.src || 'calendar') }))
     : [];
 
 /**
@@ -134,8 +134,8 @@ export function googleWeek(google, monday) {
   if (!events.length && !tasks.length) return { cal: [], todos: [], open: [] };
   const rows = weekItems({ events, tasks, from: monday, to: shiftDay(monday, 6) });
   return {
-    cal: rows.filter((x) => x.kind === 'termin').map((x) => ({ id: `g:${x.id}`, title: String(x.title ?? '').trim().slice(0, 80) || '…', day: x.day, time: x.time, src: 'google' })),
-    todos: rows.filter((x) => x.kind === 'todo').map((x) => ({ id: `gt:${x.id}`, title: String(x.title ?? '').trim().slice(0, 80) || '…', day: x.day, done: x.done })),
+    cal: rows.filter((x) => x.kind === 'termin').map((x) => ({ id: `g:${x.id}`, title: String(x.title ?? '').trim().slice(0, CAL_TITLE_MAX) || '…', day: x.day, time: x.time, src: 'google' })),
+    todos: rows.filter((x) => x.kind === 'todo').map((x) => ({ id: `gt:${x.id}`, title: String(x.title ?? '').trim().slice(0, CAL_TITLE_MAX) || '…', day: x.day, done: x.done })),
     open: undatedTasks(tasks).map((x) => ({ id: x.id, title: String(x.title ?? '').trim().slice(0, 80) })).filter((x) => x.title),
   };
 }
@@ -175,6 +175,12 @@ export function freeDay(days, from, away = []) {
  *     sums: { sessions, sessionsDone, mins, goalMins, trips, dates, todos, away, bike }, suggestions: [...], paused: [...] }
  * suggestions: { ref, kind, title, sub, day (proposed), act 'take'|'drop' }
  */
+/** «Diese Woche aufräumen» (Noah 23.11.2026): names of calendar dates stay whole (they were cut at 80 characters). */
+export const CAL_TITLE_MAX = 200;
+const norm = (x) => String(x ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+/** The title a calendar copy of a trip has: «Tour: …» or the trip's own title. */
+const tripCopy = (title) => norm(title).replace(/^(tour|trip)\s*:\s*/, '');
+
 export function buildWeek(src) {
   const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null, spielerplus = null, flowLog = [], book = [], sgOff = [], sgNever = [], seasons = null } = src;
   const week = daysOf(monday);
@@ -219,7 +225,14 @@ export function buildWeek(src) {
   }
   // dates: your own and the outside calendar's
   const g = googleWeek(google, monday);
-  for (const x of [...cal, ...g.cal]) at(x.day)?.entries.push({ id: `cal:${x.id}`, kind: 'date', title: x.title, sub: { src: x.src }, time: x.time, done: false, own: false });
+  // «Diese Woche aufräumen» (Noah 23.11.2026): a calendar date that is only a copy of a trip («Tour: Canyon Lux …») stands once, as the trip
+  const tripDays = new Set();
+  for (const tr of trips) {
+    if (!isDay(tr.startDate)) continue;
+    for (let i = 0; i < Math.max(1, Math.round(Number(tr.days) || 1)); i++) tripDays.add(`${shiftDay(tr.startDate, i)}|${norm(tr.title)}`);
+  }
+  const isTripCopy = (x) => tripDays.has(`${x.day}|${tripCopy(x.title)}`);
+  for (const x of [...cal, ...g.cal].filter((y) => !isTripCopy(y))) at(x.day)?.entries.push({ id: `cal:${x.id}`, kind: 'date', title: x.title, sub: { src: x.src }, time: x.time, done: false, own: false });
   // Spielerplus (Noah 06.11.2026): the team dates, read only; a tap opens Spielerplus to sign up
   for (const x of spielerWeek(spielerplus, monday)) at(x.day)?.entries.push({ id: `sp:${x.id}`, kind: 'date', title: x.title, sub: { src: 'spielerplus', name: x.name }, time: x.time, done: false, own: false, href: x.href, ext: true });
   for (const x of g.todos) at(x.day)?.entries.push({ id: x.id, kind: 'todo', title: x.title, sub: { src: 'google-tasks' }, time: '', done: x.done, own: false, href: '#/me/agenda' });
@@ -302,7 +315,7 @@ export function buildWeek(src) {
   const sums = {
     sessions: all.filter((e) => e.kind === 'sport').length,
     sessionsDone: all.filter((e) => e.kind === 'sport' && e.done).length,
-    mins: all.filter((e) => e.id.startsWith('tr:') || e.id.startsWith('log:')).reduce((n, e) => n + (e.sub?.mins ?? 0), 0),
+    mins: onceEach(days).reduce((n, e) => n + (e.sub?.mins ?? 0), 0),
     goalMins: goalHours ? Math.round(goalHours * 60) : null,
     // Noah 08.11.2026 «1-5 a»: a trip in the week counts (one trip is several days, so count each trip once)
     trips: new Set(all.filter((e) => e.id.startsWith('trip:')).map((e) => e.id.split(':')[1])).size,
@@ -320,8 +333,28 @@ export function buildWeek(src) {
     suggestions: suggestions.filter((s) => shown(s.kind) && !sgOff.includes(s.source) && !sgNever.some((n) => n.ref === s.ref)),
     paused,
     review,
-    hints: loadHints(days, sums.mins, review),
+    hints: loadHints(days, sums.mins, review, sums.goalMins),
   };
+}
+
+/**
+ * The sport entries whose minutes count in the week, each once (Noah 23.11.2026 «16 h 06 gegen Plan 10 h»): a plan session and a tick
+ * of the same name, day and minutes are one unit (an import and an own copy of it), counted once; the page still shows both.
+ */
+export function onceEach(days) {
+  const seen = new Set();
+  const out = [];
+  for (const d of days) {
+    for (const e of d.entries) {
+      if (!(e.id.startsWith('tr:') || e.id.startsWith('log:'))) continue;
+      const mins = e.sub?.mins ?? 0;
+      const key = `${d.day}|${norm(e.title)}|${mins}`;
+      if (mins && e.title && seen.has(key)) continue;
+      seen.add(key);
+      out.push(e);
+    }
+  }
+  return out;
 }
 
 /** A session this long (minutes) is a long one; it likes a dry day. */
@@ -368,12 +401,18 @@ export function reviewOf({ monday, sessions = [], acts = [], items = [], book = 
  *   twoHard  two hard sessions on two days in a row (day: the second)
  *   noRest   sport on all seven days
  *   jump     the training plan has much more time than last week's activities (pct more, from 30 %)
+ *   over     more time in the week than the weekly plan of your training (over: minutes, goal; title/day/mins: the longest open session)
  */
-export function loadHints(days, plannedMins, review) {
+export function loadHints(days, plannedMins, review, goalMins = null) {
   const out = [];
   for (let i = 1; i < days.length; i++) if (days[i].entries.some(hard) && days[i - 1].entries.some(hard)) out.push({ key: 'twoHard', day: days[i].day });
   if (days.every((d) => d.entries.some((e) => e.kind === 'sport'))) out.push({ key: 'noRest' });
   if (review?.mins >= 60 && plannedMins > review.mins * 1.3) out.push({ key: 'jump', pct: Math.round((plannedMins / review.mins - 1) * 100) });
+  // «Diese Woche aufräumen» (Noah 23.11.2026): more time in the week than the weekly plan of your training: how much, and the longest open session that could go
+  if (goalMins && plannedMins >= goalMins + 30) {
+    const open = days.flatMap((d) => (d.past ? [] : d.entries.filter((e) => e.sid && !e.done).map((e) => ({ e, day: d.day })))).sort((a, b) => (b.e.mins ?? 0) - (a.e.mins ?? 0))[0];
+    out.push({ key: 'over', over: plannedMins - goalMins, goal: goalMins, ...(open ? { title: open.e.title ?? '', kind: open.e.sessionKind ?? '', mins: open.e.mins ?? 0, day: open.day } : {}) });
+  }
   return out;
 }
 

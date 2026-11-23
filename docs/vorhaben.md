@@ -27,7 +27,7 @@ Prüffragen:
 
 **Letzter Kurs-Check (10.10.2026, Versionen 0.68 bis 0.73, Antworten «1b 2b 3b 4a»):**
 - **Schneller packen:** seit 0.66 nichts Neues; die Start-Packlisten (D5) sind freigegeben.
-- **Velo im Griff:** grösster Sprung (Fahrten-Buch, Strava/Garmin-Import, Velo-Blätter). Wartungsvorschläge kommen mit dem KI-Helfer direkt nach E1.
+- **Velo im Griff:** grösster Sprung (Fahrten-Buch, Strava/Garmin-Import, Velo-Blätter). Wartungsvorschläge kommen aus den eigenen Daten (der KI-Helfer ist am 22.11.2026 ausgebaut).
 - **Von der Haustür bis zurück:** ruhige Startseite live, Fünf Orte im Bau, E1 freigegeben.
 - **Aus jeder Tour lernen:** hinkt noch hinterher; Neuland + Inspiration ist freigegeben (Inspiration kommt mit 0.134.0, 15.10.2026).
 - **Prüffrage 5:** kein fester Plan für eine echte Tour, Funde kommen nebenbei.
@@ -40,7 +40,7 @@ Der Pack Generator ist eine persönliche Web-App (PWA) für Bikepacking- und Vel
 
 Die geplanten Vorhaben verfolgen sechs Ziele (das fünfte seit 19.10.2026, Noah «1a»; das sechste seit 27.10.2026, Noah «2a»):
 
-1. **Schneller packen.** Vorschläge statt leerer Listen: Bausteine, Vorlagen und ein KI-Helfer, der aus dem eigenen Material eine Liste vorschlägt. Beispiel: «3 Tage Jura, 5 °C, Biwak» ergibt eine fertige Liste mit Begründungen.
+1. **Schneller packen.** Vorschläge statt leerer Listen: Bausteine, Vorlagen und Vorschläge aus dem eigenen Material (der KI-Helfer ist am 22.11.2026 ausgebaut). Beispiel: «3 Tage Jura, 5 °C, Biwak» ergibt eine fertige Liste mit Begründungen.
 2. **Das Velo im Griff haben.** km pro Velo (später automatisch aus Strava), Wartung von Kette, Kassette, Bremsbelägen, Bremsscheiben und Reifen mit konkreten Hinweisen. Beispiel: «Kette 2 400 km seit Wechsel, mit der Lehre 0,5 messen.»
 3. **Von der Haustür bis zurück.** Eine Startseite, die sich der Phase anpasst (vor, während, nach der Tour), mit SBB, swisstopo-Karte, Wetter und dem Knopf «Take me home».
 4. **Aus jeder Tour lernen.** Rückblick, Learnings, die beim nächsten Packen wieder auftauchen, und ein Aktivitätsmosaik über alle Sportarten und Meditation.
@@ -279,8 +279,8 @@ Was die App heute schon kann: Material mit Gewicht und Kategorie, Touren mit Pac
   7. Monatsgrenze CHF 5, danach Pause bis zum nächsten Monat.
   8. Hinweis «noch nicht eingerichtet» nur in Neue Tour und Einstellungen.
 - **Beispiel Wartung:** «Kette: 2 400 km seit Wechsel, viele Regenfahrten. Mit der Lehre messen: ab 0,5 bald wechseln, ab 0,75 sofort.» Oder: «Bremsbeläge hinten: unter 1 mm Belag wechseln. Mindestdicke der Scheibe steht auf der Scheibe.»
-- **Technik:** kleiner Server auf Vercel (`api/helper.js`) hält den Anthropic-Schlüssel. Die App schickt nur, was die Aufgabe braucht: Namen, Gewichte, Bausteine, Notizen, km. Nie Fotos, Belege, Gesundheitsdaten oder Namen von Personen.
-- **Stand:** gebaut und getestet (PR #89), am 10.10.2026 auf Fünf Orte gebracht und als 0.77.0 vorbereitet (K1 a Ich › Helfer, K2 a «Frag den Helfer» oben in Neue Tour, K3 a Funkel-Knopf «Liste prüfen» am Handy in der Weiter-Leiste). Ohne Helfer-Code bleibt alles wie bisher; Noah richtet Schlüssel und Code in Vercel ein (Anleitung `docs/ki-helfer-einrichten.md`).
+- **Technik:** ausgebaut am 22.11.2026 (Noah «alle KI-Funktionen ausbauen», «a»): der Server und die Seite sind weg; KI im Gerät bleibt.
+- **Stand:** gebaut und getestet (PR #89), am 10.10.2026 auf Fünf Orte gebracht und als 0.77.0 vorbereitet (K1 a Ich › Helfer, K2 a «Frag den Helfer» oben in Neue Tour, K3 a Funkel-Knopf «Liste prüfen» am Handy in der Weiter-Leiste). Ohne Helfer-Code bleibt alles wie bisher; Ausgebaut: siehe `docs/releases/ki-weg-server.md`.
 
 ### 3. Startseite & Integrationen (E1–E4)
 
@@ -599,3 +599,10 @@ Warum: mit anderen Leuten schneller abmachen, ohne langes Hin und Her im Chat (Z
 - **Was:** Regeln statt KI, jede Platzwahl mit «Warum hier?», bei Konflikten zwei Wege zur Wahl, ehrliche Meldung ab etwa 20 Std. Wochenziele («Meine Wochenziele») bleiben getrennt und unverändert. Umsetzungsauftrag mit Entwurf: https://claude.ai/artifact/MUMT5xgrJukUncnRLmvgtc (Tab «Variabler Plan»).
 - **Plan:** fünf kleine PRs: 1 Planer und Stunden (nichts sichtbar) · 2 Seite «Wochenplan» · 3 Abhaken, «Heute dran», Einfrieren vergangener Wochen, Strava-Vorschlag · 4 Fixtage, Wunschzeit, Verschieben, Rückgängig, «Warum hier?» · 5 Meilensteine und leichtere Woche.
 - **Stand:** PR 1 (Planer in `src/lib/training/wochenplan.js`, Einstellung `training.weekplan`, nichts sichtbar) und PR 2 (Seite «Wochenplan» unter `#/flow/wochenplan`: Stunden, Einheiten mit Plus/Minus, Woche mit Zeiten, was nicht passt) sind online; PR 3 (Abhaken, Fortschritt, «Heute dran» auf Heute, vergangene Wochen eingefroren, Strava-Vorschlag, Einstellung `training.weeklog`) ist online; PR 4 (Fixtage mit Wunschzeit, Verschieben für eine Woche, «Warum hier?», Konflikt mit Wahl) ist online; PR 5 (Wochenstern, Loslassen, Leichte Woche, Skitour- und Regenwoche, zwei Meilensteine, Anschluss an «Eine leichtere Woche würde passen») ist gebaut.
+
+### 19. Kursblick (Ziel 5 Alltag, Noah 22.11.2026 «1-4a», «ja»)
+
+- **Warum:** Noah will täglich den Goldpreis und den SMI sehen und wissen, was 1 kg Gold heute bringen würde; der Packgenerator soll seine universelle App für alles Coole sein.
+- **Wo:** eigene kleine App im Packgenerator (`apps/kursblick/`, Seite `#/kurse`), nichts auf Heute. **Kurse:** der Server «packgen» holt Schlusskurse gratis (Stooq, Yahoo als Ausweich; inoffiziell, nur private Nutzung, keine Kursdateien im Repo), das Gerät merkt sich die letzte Antwort.
+- **Plan:** Welle K-A (Gerüst, Gold, SMI, Zeiträume, Verkaufsrechner) · Welle K-B Breite (Aktien, ETFs, Krypto, Metalle und Rohstoffe, Geld und Währung, Vergleich; je ein PR, alles selbst erfassbar mit Rückgängig) · Welle K-C Persönliches (Bestand, Ziele, Dividenden, Teuerung; Backup-Format, Einzelfreigabe). Plan: `/mnt/project-files/notes/kursblick-bauplan-2026-11-22/umsetzungsauftrag.md`.
+- **Stand:** Welle K-A (Gold, SMI, Zeiträume, Verkaufsrechner) ist online; Welle K-B (Reiter «Märkte»: Aktien, Fonds, Krypto, Metalle, Währungen, eigene Titel, Vergleich bis fünf) ist online; Welle K-C Persönliches (Reiter «Meine Zahlen»: Bestand mit Gewinn und Verlust, Ziele, Dividenden und Splits von Hand, Gold nach Teuerung) ist gebaut, privat auf dem Gerät. Offen: K16 (Mitteilung bei geschlossener App, bräuchte die Ziele auf dem Server), Monatswerte der Teuerung vom Bundesamt, Gruppen im Bestand.

@@ -40,6 +40,9 @@
   });
 
   const rows = $derived(data ? steps(data, now) : []);
+  // Wetterseite aufräumen (Noah 23.11.2026): when 2, 4, 6 and 8 hours say the same, one line says it once
+  const same = $derived(rows.length > 1 && rows[0].of > 0 && rows.every((r) => JSON.stringify([r.agree, r.wet, r.of, r.rainMm, r.temp, r.gust, r.thunder, r.rainFrom]) === JSON.stringify([rows[0].agree, rows[0].wet, rows[0].of, rows[0].rainMm, rows[0].temp, rows[0].gust, rows[0].thunder, rows[0].rainFrom])));
+  const shown = $derived(same ? [rows[rows.length - 1]] : rows);
   const names = $derived((data?.models ?? []).map((m) => m.name));
   const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const asOf = $derived(data?.at ? hm(data.at) : '');
@@ -56,16 +59,16 @@
 
   {#if rows.length && rows[0].of}
     <ul class="nh-rows">
-      {#each rows as r (r.h)}
-        <li class="nh-row" data-wx-hours-step={r.h} data-agree={r.agree}>
-          <b class="nh-in">{t('in {n} h', { n: r.h })}</b>
+      {#each shown as r (r.h)}
+        <li class="nh-row" data-wx-hours-step={same ? 'all' : r.h} data-agree={r.agree}>
+          <b class="nh-in">{same ? t('in the next {n} h', { n: r.h }) : t('in {n} h', { n: r.h })}</b>
           <span class="nh-agree a-{r.agree}">
             {#if r.agree === 'dry'}<Sun size={15} aria-hidden="true" />{:else}<CloudRain size={15} aria-hidden="true" />{/if}
             {agreeText(r)}
           </span>
           <span class="nh-dots" aria-hidden="true">{#each Array(r.of) as _, i (i)}<i class:wet={i < r.wet}></i>{/each}</span>
           <span class="nh-vals">
-            {#if r.rainMm && r.rainMm[1] > 0}<span>{range(r.rainMm, 'mm')}{#if r.rainFrom}{' '}· {t('from {at}', { at: hm(r.rainFrom) })}{/if}</span>{/if}
+            {#if r.rainMm && r.rainMm[1] > 0}<span>{range(r.rainMm, 'mm')}{#if r.rainFrom}{' '}· {r.rainFrom <= now ? t('it rains now') : t('from {at}', { at: hm(r.rainFrom) })}{/if}</span>{/if}
             {#if r.temp}<span>{range(r.temp, '°C')}</span>{/if}
             {#if r.gust != null}<span><Wind size={13} aria-hidden="true" />{t('gusts up to {kmh} km/h', { kmh: num(Math.round(r.gust)) })}</span>{/if}
             {#if r.thunder}<span class="nh-thunder"><Zap size={13} aria-hidden="true" />{t('{n} models: thunderstorms', { n: r.thunder })}</span>{/if}
@@ -113,7 +116,7 @@
     align-items: center;
     gap: var(--sp-2);
     margin: 0;
-    font-size: var(--fs-section);
+    font-size: var(--fs-sub);
   }
   .nh-lead {
     margin: 0;

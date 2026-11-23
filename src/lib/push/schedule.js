@@ -31,6 +31,8 @@ import { wetRides, prefsOf, wetSince, wetPushToday } from '../griff.js';
 import { wetOf } from '../inspect/rain.js';
 import { bundleMorning, morningOn } from './morning.js';
 import { outdoorOf, remindDays } from '../outdoor.js';
+import { askDay, ASK_AT } from '../challengeask.js';
+import { tageszieleOf, remindDays as zielDays } from '../tagesziel.js';
 
 export const PUSH_KEY = 'push';
 export const AHEAD_DAYS = 14;
@@ -83,6 +85,10 @@ export const KINDS = [
   { key: 'race', label: 'Race registration', hint: '3 days and 1 day before the registration deadline, at 08:00.' },
   // «Draussen» PR 2 (Noah 21.11.2026 «2b»): every day at the time of the challenge (16:00) while it runs
   { key: 'outdoor', label: 'Outdoors challenge', hint: 'Every day at 16:00 (or the time you set) while your challenge runs, until the day is reached.' },
+  // «Challenges» PR 4 (Noah 22.11.2026 «c»): the question every 10 days, off until switched on
+  { key: 'challengeask', label: 'Challenge question', hint: 'Every 10 days at 18:00: do you want a new challenge, a milestone or a crazy idea? Opens the page Challenges.' },
+  // «Challenges» (Noah 22.11.2026): the phone reminder of an own challenge, at the time set in its window
+  { key: 'ziele', label: 'Own challenges', hint: 'At the time you set in the window of an own challenge, while it runs, until the day is reached.' },
   { key: 'own', label: 'Own reminders', hint: 'Your to-dos in Merken with a reminder, at their time.' },
   // Paket H «Packen leichter» (Noah 19.10.2026 «2b», «5 a und b»; #90)
   { key: 'supply', label: 'Supplies expire', hint: '2 weeks before the best-before date, at 08:00.' },
@@ -106,7 +112,7 @@ export const PUSH_GROUPS = [
   { key: 'tour', label: 'Around the tour', keys: ['eve', 'shop', 'race', 'eat'] },
   { key: 'weather', label: 'Weather and light', keys: ['weather', 'ice', 'wxwatch', 'dark', 'rainsoon', 'air', 'fog', 'night'] },
   { key: 'bike', label: 'Bikes and gear', keys: ['wetchain', 'wear', 'workshop', 'supply', 'lend'] },
-  { key: 'day', label: 'Everyday life', keys: ['birthday', 'plant', 'outdoor', 'own', 'note', 'backup'] },
+  { key: 'day', label: 'Everyday life', keys: ['birthday', 'plant', 'outdoor', 'challengeask', 'ziele', 'own', 'note', 'backup'] },
 ];
 /** Paket H (#90): the shopping and charging reminder comes this many days before the trip. */
 export const SHOP_BEFORE = 2;
@@ -394,6 +400,17 @@ export function buildList(data) {
     if (rec?.from)
       for (const { day, left } of remindDays(rec, data.todayActs ?? [], today, AHEAD_DAYS))
         add({ key: `outdoor:${day}`, at: atMs(day, rec.remindAt), title: t('Outdoors'), body: t('{min} min outdoors still to go today. Even a short walk counts.', { min: left }), url: '#/' });
+  }
+  // «Challenges»: the reminder of each own challenge that has a time (a day that reaches the goal sends none)
+  if (on('ziele'))
+    for (const c of tageszieleOf(data.settings?.tagesziele))
+      for (const { day } of zielDays(c, today, AHEAD_DAYS))
+        add({ key: `ziel:${c.id}:${day}`, at: atMs(day, c.remindAt), title: t('Challenges|page'), body: t('{name}: today\'s goal is still open.', { name: c.name }), url: '#/' });
+  // «Challenges» PR 4: one message on the day the question is due (not repeated when it is left unanswered; the card waits on the page)
+  if (on('challengeask')) {
+    const day = askDay(data.settings?.challengeask, today);
+    if (day >= today && day <= addDays(today, AHEAD_DAYS) && atMs(day, ASK_AT) > ms)
+      add({ key: `challengeask:${day}`, at: atMs(day, ASK_AT), title: t('Challenges|page'), body: t('Time for a look: a new challenge, a milestone or a crazy idea?'), url: '#/flow/challenges' });
   }
   items.sort((a, b) => a.at - b.at);
   // Idee A1 (Noah 27.10.2026 «3a»): the 08:00 reminders of a day come together at 07:00, safety stays single

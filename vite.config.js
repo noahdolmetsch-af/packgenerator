@@ -37,6 +37,7 @@ export default defineConfig({
         packliste: 'apps/packliste/index.html',
         velopflege: 'apps/velopflege/index.html',
         werkzeug: 'apps/werkzeug/index.html',
+        kursblick: 'apps/kursblick/index.html',
         // Termine buchen (BU2 + BU3): the page the people who book open, without the app
         buchen: 'buchen/index.html',
       },
@@ -128,6 +129,13 @@ export default defineConfig({
         // /api/… (the Google and Strava logins come back to /api/…/callback and would land in the app instead).
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
+          {
+            // «Bilder bei jeder Neuheit» (Noah 23.11.2026): the pictures of «What is new» (public/news/) are not in the install-time
+            // cache (globPatterns has no webp, they would be megabytes); a picture seen once stays, so the card reads the same offline.
+            urlPattern: /\/news\/[^/]+\/\d+-(nachher|vorher)\.webp$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'pg-news-bilder', expiration: { maxEntries: 600 }, cacheableResponse: { statuses: [200] } },
+          },
           {
             // Paket L «Werkzeugkasten»: «Freistellen» loads its reader once from jsdelivr (the model itself is
             // kept by transformers.js in its own cache), «Bildformat» its HEIC reader; kept here so both work

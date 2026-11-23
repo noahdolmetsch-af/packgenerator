@@ -22,11 +22,12 @@
   import { PUSH_KEY } from '../push/schedule.js';
   import { setOutdoorRemind, outdoorRemindOn } from '../outdoorpush.js';
   import { resyncPhone } from '../ruhig/store.js';
-  import { OUTDOOR_KEY, REMIND_AT, okHm, CHIPS, DEFAULT_GOAL_MIN, MAX_GOAL_MIN, outdoorOf, startOutdoor, standing, addMin, undoMin, allMin, lightLine, offerOpen, hm } from '../outdoor.js';
+  import { OUTDOOR_KEY, REMIND_AT, okHm, CHIPS, DEFAULT_GOAL_MIN, MAX_GOAL_MIN, outdoorOf, startOutdoor, standing, addMin, undoMin, missingMin, untickMin, allMin, lightLine, offerOpen, hm } from '../outdoor.js';
   import { addDays } from '../flow.js';
   import { t, tn, locale } from '../i18n.svelte.js';
 
-  let { today } = $props();
+  /** `offerLine` false (Aktiv): only a running challenge is shown there, the offer stays on Heute */
+  let { today, offerLine = true } = $props();
 
   const q = $derived(
     liveQuery(async () => {
@@ -74,6 +75,17 @@
     if (next === live) return;
     await save(next);
     toast(t('+{n} min added for today.', { n }), () => save(undoMin(next, today)));
+  }
+  // «Tick off» (Noah 22.11.2026 «a», like the habit cards): the goal of today is reached in one tap; a second tap takes it back
+  const ticked = $derived(!!st?.today.done);
+  const canTick = $derived(st?.phase === 'running' && (!ticked || st.today.hand > 0));
+  async function tick() {
+    const before = live;
+    const next = ticked ? untickMin(live, d.acts, today) : addMin(live, today, missingMin(live, d.acts, today));
+    if (next === live) return;
+    kick++;
+    await save(next);
+    toast(ticked ? t('Taken back.') : t('Done for today: {name}.', { name }), () => save(before));
   }
   const notNow = () => save({ ...(rec ?? {}), no: today });
   const close = () => save({ ...live, closed: true, no: today });
@@ -154,6 +166,9 @@
 
     {#if st.phase === 'running'}
       <span class="bar" role="img" aria-label={t('{min} of {goal} min today', { min: st.today.total, goal: live.goalMin })}><i style:width="{Math.min(100, Math.round((st.today.total / live.goalMin) * 100))}%"></i></span>
+      {#if canTick}
+        <button type="button" class="btn tick" class:hi={!ticked} aria-pressed={ticked} onclick={tick} data-outdoor-tick><Check size={16} aria-hidden="true" />{ticked ? t('Ticked · take back') : t('Tick off|habit')}</button>
+      {/if}
       <span class="adds">
         {#each CHIPS as n (n)}<button type="button" class="btn sm" onclick={() => add(n)} data-outdoor-add={n}>{t('+{n} min', { n })}</button>{/each}
       </span>
@@ -184,7 +199,7 @@
       <span class="adds"><button type="button" class="btn sm" onclick={close} data-outdoor-close>{t('Close')}</button><button type="button" class="btn sm" onclick={openSheet}>{t('Start a new one')}</button></span>
     {/if}
   </section>
-{:else if offer}
+{:else if offer && offerLine}
   <section class="none" data-outdoor-offer>
     <p>{t('Start a challenge with a daily goal? For example 90 minutes outdoors every day, counted by Strava and by you.')}</p>
     <span class="adds">

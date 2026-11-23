@@ -32,7 +32,7 @@ export default {
   'Meditation look back': 'Meditation Rückblick',
   'Week, month or year: days, minutes, the calendar and what helps you.': 'Woche, Monat oder Jahr: Tage, Minuten, der Kalender und was dir hilft.',
   'Count up, countdown, interval, Pomodoro or until a time; five faces, a log with notes.': 'Hochzählen, Countdown, Intervall, Pomodoro oder bis zu einer Uhrzeit; fünf Ziffernblätter, ein Log mit Notizen.',
-  'Open Aktiv › Meditation.': 'Öffne Aktiv › Meditation.',
+  'Open Aktiv › Meditation.': 'Öffne Woche › Alltag › Meditation.',
   'Tap «Look back».': 'Tippe «Rückblick».',
   'Switch between week, month and year.': 'Wechsle zwischen Woche, Monat und Jahr.',
   'Open «What the app can do» › Timer, or search «Timer».': 'Öffne «Was die App kann» › Timer, oder suche «Timer».',

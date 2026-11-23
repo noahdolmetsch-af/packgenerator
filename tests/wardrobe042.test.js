@@ -1,7 +1,7 @@
 // v0.42.0 "Excel Schritt 2 und Kleiderschrank": the wardrobe, the onion check, the temperature kits,
 // the border offset and step 2 of the import (kits, blocks, tasks, old trips). Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { wardrobe, isClothing, guessLayer, guessZone, zoneGroup, tempRange, coldest, ridingHours, rainChance, withRainPct, isWet, clothingOffset, felt, chooseKit, kitFits, kitPlan, onionCheck, tempKits } from '../src/lib/wardrobe.js';
+import { wardrobe, isClothing, guessLayer, guessZone, zoneGroup, tempRange, coldest, ridingHours, rainChance, withRainPct, isWet, clothingOffset, felt, chooseKit, kitFits, kitPlan, onionCheck, tempKits, dayMoments } from '../src/lib/wardrobe.js';
 import { planStep2, buildStep2, similarBlock, tripSortDate, eventOf, validateStep2, hasStep2, withoutStep2, itemFinder } from '../src/lib/importstep2.js';
 import { validateGearImport } from '../src/lib/gearimport.js';
 import { prepFor, isLongTour, PREP_LIST } from '../src/lib/care.js';
@@ -99,6 +99,30 @@ describe('the coldest riding hour (answer 5)', () => {
     expect(isWet(t1)).toBe(true);
     expect(isWet(trip({ forecast: { days: [{ date: '2026-10-17', rainPct: 20 }] } }))).toBe(false);
     expect(rainChance(trip({ forecast: { days: [{ date: '2026-10-17', rainPct: 20 }, { date: '2026-10-18', rainPct: 35 }] } }))).toBe(35);
+  });
+});
+
+describe('the onion for the morning and the midday', () => {
+  it('without hourly data the packing weather: min is the morning, max the midday', () => {
+    expect(dayMoments(trip({ wx: { min: 6, max: 14 } }))).toEqual([{ key: 'midday', c: 14 }]); // the morning is the coldest moment
+    expect(dayMoments(trip({ wx: { min: 6, max: 6 } }))).toEqual([]);
+    expect(dayMoments(trip({ wx: null }))).toEqual([]);
+  });
+
+  it('with hourly data: the first riding hour and the warmest hour between 11 and 15 h of the first day', () => {
+    const t1 = trip({ forecast: { days: [{ date: '2026-10-17', hourly: hourly({ 8: 9, 11: 12, 13: 16, 14: 15, 17: 22 }) }, { date: '2026-10-18', hourly: hourly({ 8: 1 }) }] } });
+    expect(coldest(t1).c).toBe(1);
+    expect(dayMoments(t1)).toEqual([{ key: 'morning', c: 9 }, { key: 'midday', c: 16 }]);
+  });
+
+  it('the check follows the moment: warm midday, no legs row', () => {
+    const t1 = trip({ wx: { min: 6, max: 14 }, entries: [{ itemId: 'C1', slot: 'body', qty: 1 }] });
+    const cold = onionCheck(t1, ITEMS);
+    const noon = onionCheck(t1, ITEMS, 0, null, { key: 'midday', c: 14 });
+    expect(cold.from).toBe('min');
+    expect(noon).toMatchObject({ from: 'at', moment: 'midday', real: 14 });
+    expect(cold.rows.some((x) => x.key === 'legs')).toBe(true);
+    expect(noon.rows.some((x) => x.key === 'legs')).toBe(false);
   });
 });
 

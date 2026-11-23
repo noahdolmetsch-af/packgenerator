@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 import { openShort } from './kurz-open.js';
+import { openSortSheet } from './gearmenu.js';
 
 const FIXTURE = fileURLToPath(new URL('./fixture.json', import.meta.url));
 
@@ -143,8 +144,8 @@ for (const lang of ['en', 'de']) {
     // 8. Debrief on one page: one exception, then save.
     await expect(page.getByRole('heading', { name: T('What did you not need?') })).toBeVisible();
     // v0.40.0 (Noah 4a): segments instead of drop-downs.
-    await expect(page.locator('.qa [role=group]')).toHaveCount(4); // no bike: no km; v0.42.0: + clothing
-    await expect(page.locator('.qa [role=group]').nth(3).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
+    await expect(page.locator('.qa [role=group]')).toHaveCount(3); // no bike: no km; the clothing question has its own section
+    await expect(page.locator('.qa [role=group]').nth(2).locator('[aria-pressed=true]')).toHaveAttribute('data-key', 'fine');
     await fits('debrief, weekend');
     const fold = page.locator('details.items-fold');
     if (!(await fold.evaluate((d) => d.open))) await fold.locator('summary').click();
@@ -161,7 +162,7 @@ for (const lang of ['en', 'de']) {
     // 9. Gear: the area filter shows only weekend items.
     await page.goto('./#/gear');
     // v0.47.2: the area is in the sheet "Sort and filter"
-    await page.locator('.fbtn').click();
+    await openSortSheet(page);
     const fs = page.getByRole('dialog', { name: T('Sort and filter') });
     await fs.getByRole('group', { name: T('Area') }).getByRole('button', { name: new RegExp(`^${esc(T('Weekend'))}`) }).click();
     await page.keyboard.press('Escape');

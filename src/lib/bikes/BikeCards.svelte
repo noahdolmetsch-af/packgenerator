@@ -2,7 +2,13 @@
   /**
    * «Velos-Übersicht» step 1 (Noah 1.11.2026): one card per bike with its km, an honest status and the next work,
    * so you see at once which bike needs attention. Same words as Care (bikeCareWords). Buttons: open its care, show its details.
+   * Velos aufräumen (Noah 23.11.2026): these cards are the only place where the bikes stand and are chosen (the second row of
+   * small cards under them is gone); «Show details» chooses the bike and leads down to its page; «+ Bike» adds one.
    */
+  import { tick } from 'svelte';
+  import { Plus, Star } from '@lucide/svelte';
+  import './standardvelo.css';
+  import { wantBike } from '../nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { activeBikes } from '../bikeretire.js';
@@ -21,6 +27,12 @@
   import { velosHref } from '../analyse/jump.js';
   import { t, tn, num, dateOf } from '../i18n.svelte.js';
   let { bikeId = null, onbike } = $props();
+  /** «Show details»: this bike is chosen and its page below comes into view (on a phone it is far down). */
+  async function showDetails(id) {
+    onbike?.(id);
+    await tick();
+    document.querySelector('[data-bike-detail]')?.scrollIntoView({ block: 'start' });
+  }
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
@@ -62,8 +74,9 @@
 {#if cards.length}
   <section class="cards" data-bike-cards aria-label={t('Your bikes at a glance')}>
     {#each cards as c (c.bike.id)}
-      <article class="vcard" class:sel={c.bike.id === bikeId} data-velo-card={c.bike.id}>
-        <div class="pic"><VeloDraw look={c.look.look} /></div>
+      <article class="vcard" class:sel={c.bike.id === bikeId} aria-current={c.bike.id === bikeId ? 'true' : undefined} data-velo-card={c.bike.id}>
+        <!-- VS3 (Noah 14.10.2026): the standard bike (first in the order) keeps its star, now on its card -->
+        <div class="pic"><VeloDraw look={c.look.look} />{#if c.bike.id === bikes[0]?.id && bikes.length > 1}<Star size={16} class="sv-star" aria-label={t('Standard')} />{/if}</div>
         <b class="nm">{c.bike.name}</b>
         <small class="km num">{#if c.bike.km != null}<NumLink to={velosHref(c.bike.id)} data-card-km-link><Odometer value={c.bike.km} />{' km'}</NumLink>{:else}{t('km not set')}{/if}</small>
         <!-- V1: «nothing due» / «n due» leads to the care list of this bike -->
@@ -78,10 +91,11 @@
           <a class="btn sm" href={bikesHash({ tab: 'care', bike: c.bike.id, open: true })}>{t('Open care')}</a>
           <button type="button" class="btn sm hi" onclick={() => (dialog = { kind: 'visit', bikeId: c.bike.id })} data-card-visit>{t('Log a workshop visit')}</button>
           <button type="button" class="btn sm" onclick={() => (dialog = { kind: 'problem', bikeId: c.bike.id })} data-card-problem>{t('Log a problem')}</button>
-          <button type="button" class="btn sm" onclick={() => onbike?.(c.bike.id)}>{t('Show details')}</button>
+          <button type="button" class="btn sm" onclick={() => showDetails(c.bike.id)} data-card-details>{t('Show details')}</button>
         </div>
       </article>
     {/each}
+    <button type="button" class="vcard addcard" onclick={() => wantBike()} data-card-add><Plus size={20} aria-hidden="true" /><span>{t('Add bike')}</span></button>
   </section>
   {#if cards.length}
     <section class="vcard next-up" data-next-up aria-label={t('Next up')}>
@@ -143,6 +157,9 @@
       flex: 0 0 82%;
       scroll-snap-align: start;
     }
+    .cards .addcard {
+      flex: 0 0 40%;
+    }
   }
   .vcard {
     display: grid;
@@ -156,12 +173,35 @@
   }
   .vcard.sel {
     border-color: var(--accent);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+  .addcard {
+    place-content: center;
+    justify-items: center;
+    min-height: 96px;
+    border-style: dashed;
+    border-color: var(--line-strong);
+    background: none;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) / 1.25 var(--font-body);
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .addcard:hover {
+      background: var(--paper-2);
+    }
   }
   .nm {
     overflow-wrap: break-word;
   }
   .pic {
+    position: relative;
     width: 140px;
+  }
+  .pic :global(.sv-star) {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
   .look {
     color: var(--ink-2);

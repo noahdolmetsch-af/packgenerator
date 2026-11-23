@@ -147,15 +147,14 @@ describe('/api/push', () => {
     expect(pushEnv({}).vapid.subject).toBe('https://noahdolmetsch-af.github.io/packgenerator/');
     expect(vapidOk({ ...vapid, subject: DEFAULT_SUBJECT })).toBe(true);
   });
-  it('gives the tick address only to a device of this server or the Helfer-Code, with a code made once', async () => {
+  it('gives the tick address only to a device of this server, with a code made once', async () => {
     const w = world();
     w.sets[KEYS] = new Set([hash('test-device-key')]);
-    const h = makeHandler({ env: env({ tickKey: '', helperToken: 'test-helper-code' }), doFetch: w.doFetch, now: () => T0 });
+    const h = makeHandler({ env: env({ tickKey: '' }), doFetch: w.doFetch, now: () => T0 });
     expect((await h(get('a=cron'))).status).toBe(401);
     expect((await h(get('a=cron', { authorization: 'Bearer wrong' }))).status).toBe(401);
     const a = await (await h(get('a=cron', { authorization: 'Bearer test-device-key' }))).json();
-    const b = await (await h(get('a=cron', { authorization: 'Bearer test-helper-code' }))).json();
-    expect(a.url).toBe(b.url);
+    expect((await h(get('a=cron', { authorization: 'Bearer test-helper-code' }))).status).toBe(401); // the old Helfer-Code no longer opens it
     const code = w.store[TICK_KEY];
     expect(code.length).toBeGreaterThan(20);
     expect(a.url).toBe(`https://packgen-three.vercel.app/api/push?a=tick&key=${code}`);

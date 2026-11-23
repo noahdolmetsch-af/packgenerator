@@ -148,7 +148,9 @@
     offerDone(on ? t('«{name}» is suggested again.', { name: t(SOURCE_NAMES[k]) }) : t('«{name}» is no longer suggested.', { name: t(SOURCE_NAMES[k]) }), () => putWeek(SG_OFF_KEY, before));
   }
   // the source fold keeps its own state: a reload of the week data must not close what was opened
-  let srcOpen = $state(false);
+  let srcOpen = $state(null); // null = follow the data (open while a source is off)
+  // the folds are switched by the tap itself (not by the later «toggle» event): when the week data reloads a moment after a tap, they must stay as tapped
+  let fltOpen = $state(null); // null = follow the data (open while a kind is hidden)
   let neverOpen = $state(false);
   // «Never suggest again» (Noah 2.11.2026 «b»): one suggestion away for good; the list «Put away» brings it back
   async function never(s) {
@@ -173,16 +175,16 @@
 
 <div class="wkp">
   <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
-  <AreaIntro place="weekplan" />
-  <AllHere area="plan" />
+  <!-- Diese Woche aufräumen (23.11.2026): one help line «Was du hier tun kannst»; «So geht's» does not stand a second time under it -->
+  <AreaIntro place="weekplan" quiet />
   <FreeSlotCard {monday} onfound={(w) => (win = w)} />
 
   {#if week}
     <div class="top">
       <Seg label={t('Which week')} full={false} options={[{ key: 'now', name: t('This week') }, { key: 'next', name: t('Next week') }]} value={next ? 'next' : 'now'} onchange={(k) => (next = k === 'next')} />
       <!-- Impeccable P5: the filter chips fold away, so the days come right under the title -->
-      <details class="wfold" data-week-filters open={src.hide.length > 0}>
-        <summary>{src.hide.length ? tn(src.hide.length, 'Filter · {n} hidden', 'Filter · {n} hidden|pl') : t('Filter|week')}</summary>
+      <details class="wfold" data-week-filters open={fltOpen ?? src.hide.length > 0}>
+        <summary onclick={(e) => { e.preventDefault(); fltOpen = !(fltOpen ?? src.hide.length > 0); }}>{src.hide.length ? tn(src.hide.length, 'Filter · {n} hidden', 'Filter · {n} hidden|pl') : t('Filter|week')}</summary>
         <div class="chips" role="group" aria-label={t('Show in the week')}>
           {#each KINDS as k (k)}
             <button type="button" class="chip k-{k}" aria-pressed={!hidden(k)} data-filter={k} onclick={() => toggleKind(k)}><span class="dot" aria-hidden="true"></span>{t(KIND_NAMES[k])}</button>
@@ -209,8 +211,9 @@
 
     {#if wrapShown}<WeekClose close={wrap} onmove={wrapMove} onnext={() => (next = true)} onlater={() => { wrapOpen = false; wrapLater = true; }} />{/if}
     {#if openOld.length && !wrapShown}
-      <section class="wclose" data-week-close aria-label={t('Close the week')}>
-        <h2>{t('Close the week')}</h2>
+      <!-- Diese Woche aufräumen (23.11.2026): the old items are one closed row «Close the week · 4 old items» -->
+      <details class="wclose" data-week-close>
+        <summary><b>{t('Close the week')}</b><small>{tn(openOld.length, '{n} old item', '{n} old items')}</small></summary>
         <p class="why">{t('Still open from earlier days ({n}). You decide on each one.', { n: openOld.length })}</p>
         {#each openOld as x (x.id)}
           <div class="wc-row" data-close-row>
@@ -221,7 +224,7 @@
           </div>
         {/each}
         <button type="button" class="btn" data-close-later onclick={() => (closeLater = true)}>{t('Later')}</button>
-      </section>
+      </details>
     {/if}
     {#if emptyWeek}
       <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
@@ -265,16 +268,16 @@
           {#if sgOpen}
           <div id="wk-sg-body">
           <p class="why">{t('The app suggests, you decide. Take puts it on the day shown.')}</p>
-          <details class="srcs" data-sg-sources open={srcOpen || src.sgOff.length > 0} ontoggle={(e) => (srcOpen = e.currentTarget.open)}>
-            <summary>{src.sgOff.length ? tn(src.sgOff.length, 'Sources · {n} off', 'Sources · {n} off|pl') : t('Where do the suggestions come from?')}</summary>
+          <details class="srcs" data-sg-sources open={srcOpen ?? src.sgOff.length > 0}>
+            <summary onclick={(e) => { e.preventDefault(); srcOpen = !(srcOpen ?? src.sgOff.length > 0); }}>{src.sgOff.length ? tn(src.sgOff.length, 'Sources · {n} off', 'Sources · {n} off|pl') : t('Where do the suggestions come from?')}</summary>
             <ul class="srclist">
               {#each SUGG_SOURCES as k (k)}
                 <li><label><input type="checkbox" checked={!src.sgOff.includes(k)} data-sg-source={k} onchange={() => toggleSource(k)} /><span>{t(SOURCE_NAMES[k])}<small>{tn(week.sources[k], '{n} suggestion', '{n} suggestions')}</small></span></label></li>
               {/each}
             </ul>
             <p class="why">{t('Switch off what you do not want to see. Your own to-dos and Google stay as they are.')}</p>
-            <details class="srcs" data-sg-ideas open={ideasOpen} ontoggle={(e) => (ideasOpen = e.currentTarget.open)}>
-              <summary>{t('Change season ideas')}</summary>
+            <details class="srcs" data-sg-ideas open={ideasOpen}>
+              <summary onclick={(e) => { e.preventDefault(); ideasOpen = !ideasOpen; }}>{t('Change season ideas')}</summary>
               <SeasonIdeas cfg={seasonSettings} onsave={saveSeasons} />
             </details>
           </details>
@@ -296,8 +299,8 @@
             {/each}
           </ul>
           {#if src.sgNever.length}
-            <details class="srcs" data-sg-never-list open={neverOpen} ontoggle={(e) => (neverOpen = e.currentTarget.open)}>
-              <summary>{tn(src.sgNever.length, 'Put away · {n}', 'Put away · {n}|pl')}</summary>
+            <details class="srcs" data-sg-never-list open={neverOpen}>
+              <summary onclick={(e) => { e.preventDefault(); neverOpen = !neverOpen; }}>{tn(src.sgNever.length, 'Put away · {n}', 'Put away · {n}|pl')}</summary>
               <ul class="srclist">
                 {#each src.sgNever as n (n.ref)}
                   <li class="nv"><span>{n.title || n.ref}</span><button type="button" class="btn sm" data-sg-again={n.ref} onclick={() => showAgain(n)}>{t('Show again')}</button></li>
@@ -346,7 +349,9 @@
     </div>
   {/if}
   <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
-  <PasstHier place="woche" />
+  <PasstHier place="woche" fold />
+  <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+  <AllHere area="plan" />
 </div>
 
 {#snippet winMark(w)}
@@ -806,7 +811,7 @@
     cursor: pointer;
   }
   .wclose{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
-  .wclose h2{font-size:var(--fs-sub);margin:0 0 4px}
+  .wclose>summary{display:flex;align-items:baseline;gap:10px;min-height:44px;cursor:pointer;list-style:none}.wclose>summary::-webkit-details-marker{display:none}.wclose>summary small{color:var(--muted)}.wclose[open]>summary{margin-bottom:4px}
   .wc-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
   .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--muted)}
   .wc-b{display:flex;gap:6px;flex-wrap:wrap}

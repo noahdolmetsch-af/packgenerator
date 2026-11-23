@@ -61,6 +61,8 @@ test.describe('AB Deine Abfragen', () => {
     await save.click();
     // both answered (17.11.2026: no third question from yesterday is left): the window is done; «Heute nicht» has its own test below
     await expect(card).toHaveCount(0);
+    // a closed window takes its history entry away a moment later (backclose.js): a reload in that moment is cut off
+    await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
     await page.reload();
     await expect(page.locator('[data-section="greeting"]')).toBeVisible();
     await expect(page.locator('[data-section="abfragen"]')).toHaveCount(0);

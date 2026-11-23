@@ -95,3 +95,10 @@ export function atHour(list, hour) {
   const one = joined ? [...list.slice(0, i), { ...list[i], with: list[i + 1] }, ...list.slice(i + 2)] : list;
   return byTime(one, hour).flatMap((x) => (x.with ? [{ ...x, with: undefined }, x.with] : [x]));
 }
+
+/** Wetter-Ausbau D (Noah 22.11.2026 «a»): the calm weather lines of Today stand under one closed line «Wetter heute»; open it. */
+export async function openWetterFold(page) {
+  // «Wetter oben» (Noah 23.11.2026 «b», changed on purpose): the lines about snow, fog, night and height stand open in one card,
+  // nothing is behind a tap any more; the helper keeps its name for the specs that call it and waits for the card.
+  await page.locator('[data-heute-wetter-card]').waitFor({ state: 'visible', timeout: 20_000 });
+}

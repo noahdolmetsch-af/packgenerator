@@ -5,6 +5,7 @@
  */
 import { t, tn, num, nameOf, locale } from './i18n.svelte.js';
 import { PAGE_ROWS, ACTIONS } from './nav/menu.js';
+import { mapPages } from './nav/seiten.js';
 
 const norm = (s) => String(s ?? '').toLowerCase();
 /** The added words of a diary entry (eingabe/inputs.js inputWords, kept short here so search.js stays light). */
@@ -88,6 +89,13 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
     })),
     action: ACTIONS.filter((a) => hit(a.words, a.title, t(a.title))).map((a) => ({ id: a.id, title: t(a.title), sub: t('New'), href: a.href ?? null, action: a.action ?? null })),
   };
+  // every place, tab and chip of the map of the app, where no hand-written row leads to the same address (Noah 23.11.2026 «ja»: the search finds pages)
+  const have = new Set(groups.page.map((r) => r.href));
+  for (const m of mapPages()) {
+    if (have.has(m.href)) continue;
+    if (!hit(m.label.replace(/\|[a-z]+$/, ''), t(m.label), m.tabKey ?? '')) continue;
+    groups.page.push({ id: m.id, title: t(m.label), sub: [t(m.place), m.tab ? t(m.tab) : ''].filter((x, i, a) => x && a.indexOf(x) === i && x !== t(m.label)).join(' › '), href: m.href, action: null });
+  }
   return Object.entries(groups)
     .filter(([, rows]) => rows.length)
     .map(([kind, rows]) => ({ kind, name: KIND[kind].name, rows: rows.slice(0, KIND[kind].max), more: Math.max(0, rows.length - KIND[kind].max) }));
@@ -161,7 +169,7 @@ const CMD_TITLE = {
   backup: () => t('Data and backup'),
   settings: () => t('Settings: appearance and handling'),
   quicknote: () => t('Write a note'),
-  fragen: () => t('Questions about my data'),
+  fragen: () => t('Ask your data'),
   tipsoff: () => t('Hide «Good to know» on all pages'),
   tipson: () => t('Show «Good to know» on the pages again'),
   bike: (b) => t('Open the {bike}', { bike: b.name }),

@@ -22,7 +22,8 @@
   const pi = pageInfo();
   $effect(() => sayHere({ can: page, name, base }));
   const today = localDay();
-  const noTip = $derived(pi.loaded && !tipOfDay(pi.info, page, today) && PAGES[page]?.tips?.length);
+  // Hilfen 3b: with the tip line off (the default) the link at the page end is the way to the tips
+  const noTip = $derived(pi.loaded && (!pi.info.lineOn || !tipOfDay(pi.info, page, today)) && PAGES[page]?.tips?.length);
 
   let tipsOpen = $state(false);
   const examples = $derived(examplesOf(page));

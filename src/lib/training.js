@@ -83,7 +83,7 @@ export function actRecord(a) {
   };
 }
 /** What the app adds to an activity and keeps when it is fetched again. */
-export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden', 'weather', 'wxRide', 'hCurve', 'dprof', 'sprof', 'ser', 'p25', 'npS', 'wStrava', 'cadMax', 'photos'];
+export const KEEP = ['kcal', 'hist', 'curve', 'w20', 'pHist', 'pCurve', 'pauses', 'segs', 'best', 'desc', 'detail', 'note', 'cHist', 'secs5', 'prof', 'hw', 'halves', 'climbs', 'dv', 'laps', 'splits', 'rpe', 'feel', 'feelWord', 'feelSkip', 'tempMin', 'tempMax', 'steep', 'noDetail', 'own', 'hidden', 'weather', 'wxRide', 'hCurve', 'dprof', 'sprof', 'ser', 'p25', 'npS', 'wStrava', 'cadMax', 'photos'];
 /**
  * The kind of detail kept: 2 = with cadence, 5 km rows, course, heart rate by power, halves and climbs (TR5b–TR7f);
  * 3 = with laps, splits per km, «How hard?», temperature low/high and the steepest bit (19.10.2026 «2a»).
@@ -369,6 +369,16 @@ export function cleanSession(s) {
 }
 export const planOf = (v) => (Array.isArray(v?.sessions) ? v.sessions.map(cleanSession).filter(Boolean) : []);
 
+/**
+ * Days TrainingPeaks keeps free («Recovery Day», no duration; Noah 22.11.2026 «Recovery Day ja»): `rest` in the plan record,
+ * a list of days. Not sessions: they have no hours and show in no list; only the weekly plan reads them and plans no free unit on them.
+ */
+export const restOf = (v) => (Array.isArray(v?.rest) ? [...new Set(v.rest.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(String(d))))].sort().slice(0, 60) : []);
+/** The sessions as the weekly plan reads them: the sessions plus one entry `{ rest: true, day }` per free day. For the planner only, never for a list. */
+export const plannerSessions = (v) => [...planOf(v), ...restOf(v).map((day) => ({ id: `rest-${day}`, day, src: 'tp', rest: true, kind: 'other', mins: 0, name: '' }))];
+/** The plan record with the new sessions, the free days kept (a writer of the sessions must not lose them). */
+export const planValue = (v, sessions) => ({ sessions, ...(restOf(v).length ? { rest: restOf(v) } : {}) });
+
 /** The goal, cleaned: hours per week (0.5–40), base share in % (0–100), a name and an end day; all optional. */
 export function goalOf(v) {
   if (!v || typeof v !== 'object') return null;
@@ -390,7 +400,9 @@ export const weeksTo = (until, today) => (until ? Math.max(0, Math.ceil((Date.pa
  * «Gefühlte Anstrengung» 1–10 (Noah 19.10.2026, thread «Trainingspläne» 3): asked after every ride; the own
  * answer (feel) comes before Strava's «How hard?» (rpe). Without an answer it simply does not count.
  */
-export const feelOf = (a) => (Number.isFinite(a?.feel) && a.feel >= 1 && a.feel <= 10 ? a.feel : Number.isFinite(a?.rpe) && a.rpe >= 1 && a.rpe <= 10 ? a.rpe : null);
+/** «Von selbst» (T3): the three words of the answer «How was it?» and the felt effort 1–10 each stands for (the middle of 1–3, 4–6, 7–10 as the plans count it). */
+export const WORD_FEEL = { light: 2, good: 5, hard: 8 };
+export const feelOf = (a) => (Number.isFinite(a?.feel) && a.feel >= 1 && a.feel <= 10 ? a.feel : WORD_FEEL[a?.feelWord] ?? (Number.isFinite(a?.rpe) && a.rpe >= 1 && a.rpe <= 10 ? a.rpe : null));
 /** The zone (1–5) a felt effort stands for: 1–2 → Z1, 3–4 → Z2, 5–6 → Z3, 7–8 → Z4, 9–10 → Z5; null without one. */
 export const feelZone = (f) => (Number.isFinite(f) && f >= 1 && f <= 10 ? Math.ceil(f / 2) : null);
 /** The felt effort a zone stands for, as a span: Z2 → [3, 4]. */

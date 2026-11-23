@@ -7,7 +7,7 @@ export default {
   'Strava · from your activities.': 'Strava · aus deinen Aktivitäten.',
   'Your own entries and what the app counts.': 'Deine Eingaben und was die App zählt.',
   "Your answers in «Wi gaht's?».": "Deine Antworten in «Wi gaht's?».",
-  'Your ticks in Aktiv.': 'Deine Haken in Aktiv.',
+  'Your ticks in Aktiv.': 'Deine Haken in «Heute abhaken».',
   'Range|analyse': 'Zeitraum',
   'D|range': 'T',
   'W|range': 'W',
@@ -55,7 +55,6 @@ export default {
   'Day|analyse': 'Tag',
   'Show fewer|analyse': 'Weniger zeigen',
   'Show all {n} days|analyse': 'Alle {n} Tage zeigen',
-  'Also in «Ticks evaluated»|analyse': 'Auch in «Haken ausgewertet»',
   'Also in the older view|analyse': 'Auch in der bisherigen Ansicht',
   // «Gesundheitssignale» (Noah 03.11.2026): your range and what stands out
   'What stands out|signals': 'Was auffällt',

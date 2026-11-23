@@ -2,8 +2,16 @@
 // Beobachtung, neue Kacheln (Körper, Zonen, Velos, Wetter, Termine), Notiz und Wochenziel, zwei neue Beobachtungsarten.
 export default {
   // the five numbers and the strip
-  'Change against the same days of the week before. Hours: Strava plus the minutes you noted in Aktiv; km and Hm from Strava.': 'Veränderung zu den gleichen Tagen der Woche davor. Stunden: Strava plus die Minuten, die du in Aktiv notiert hast; km und Hm von Strava.',
-  '{n} Aktiv sessions have no minutes noted.': 'Bei {n} Aktiv-Einheiten sind keine Minuten notiert.',
+  'For {n} session the time is «ca.» (about {h} h).': 'Bei {n} Einheit ist die Zeit «ca.» (etwa {h} Std.).',
+  'For {n} sessions the time is «ca.» (about {h} h).': 'Bei {n} Einheiten ist die Zeit «ca.» (etwa {h} Std.).',
+  'Running, hiking and the like: {km} km in {n} session.': 'Laufen, Wandern und Ähnliches: {km} km in {n} Einheit.',
+  'Running, hiking and the like: {km} km in {n} sessions.': 'Laufen, Wandern und Ähnliches: {km} km in {n} Einheiten.',
+  '{n} ride waits in «Zum Prüfen» and is counted.': '{n} Fahrt wartet in «Zum Prüfen» und zählt mit.',
+  '{n} rides wait in «Zum Prüfen» and are counted.': '{n} Fahrten warten in «Zum Prüfen» und zählen mit.',
+  'The watch knows {n} workout ({h} h) that is not counted yet.': 'Die Uhr kennt {n} Training ({h} Std.), das noch nicht zählt.',
+  'The watch knows {n} workouts ({h} h) that are not counted yet.': 'Die Uhr kennt {n} Trainings ({h} Std.), die noch nicht zählen.',
+  'Count them?': 'Zählen?',
+  'of it «ca.» {h} h': 'davon ca. {h} Std.',
   'This week is still running. Your usual week has about {h} h.': 'Diese Woche läuft noch. Deine übliche Woche hat etwa {h} Std.',
   // observations (cards)
   'Every week counted for its first {n} days, like this week so far.': 'Jede Woche nur für ihre ersten {n} Tage gezählt, wie diese Woche bis jetzt.',
@@ -47,7 +55,7 @@ export default {
   'no week before': 'keine Woche davor',
   'Fitbit, from the same days of the week before. Only what was, nothing is rated.': 'Fitbit, gegenüber den gleichen Tagen der Woche davor. Nur was war, nichts wird bewertet.',
   'All values in Analyse': 'Alle Werte in Analyse',
-  'From the activities of the week that have a heart rate. Your zones: Aktiv › Training.': 'Aus den Aktivitäten der Woche mit Puls. Deine Zonen: Aktiv › Training.',
+  'From the activities of the week that have a heart rate. Your zones: Aktiv › Training.': 'Aus den Aktivitäten der Woche mit Puls. Deine Zonen: Woche › Training.',
   'Km per bike': 'Km pro Velo',
   'Without a bike': 'Ohne Velo',
   '{n} rides': '{n} Fahrten',

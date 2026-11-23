@@ -4,7 +4,7 @@
    * week from the goal, the race, today's readiness and the sports of Aktiv, says why, and takes it over only on a tap
    * (with Undo). «Another suggestion» shows the next layout. Everything is a suggestion.
    */
-  import { untrack } from 'svelte';
+  import { untrack, onMount, tick } from 'svelte';
   import { Sparkles, Pencil, X, Plus, Minus, CloudRain } from '@lucide/svelte';
   import { t, num, lang } from '../../i18n.svelte.js';
   import { suggestWeek, weeklySports, candidateSports, learnHabits, noHabits, VARIANTS, SRC, FOCUS } from '../suggest.js';
@@ -99,6 +99,20 @@
     form = null;
   }
   const reset = () => ((edits = null), (form = null));
+  // V4b2: the row on top of Training (WeekModes) opens the suggestion too
+  onMount(() => {
+    const go = () => {
+      open = true;
+      variant = 0;
+      hoursSet = null;
+      push = 0;
+      focus = 'cardio';
+      reset();
+      tick().then(() => document.querySelector('[data-suggest]')?.scrollIntoView?.({ block: 'center', behavior: 'smooth' }));
+    };
+    window.addEventListener('pg:suggest-week', go);
+    return () => window.removeEventListener('pg:suggest-week', go);
+  });
   // «Training verbessern» 8: the look back offers hours for next week; a tap opens the suggestion with those hours
   $effect(() => {
     const p = preset;

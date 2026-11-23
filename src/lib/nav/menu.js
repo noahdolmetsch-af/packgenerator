@@ -37,6 +37,8 @@ export const PAGE_GROUPS = [
     key: 'gear',
     name: 'Gear|place',
     rows: [
+      // V5: Material is no place of its own any more (a tab of «Velos und Material»), so its start page is a row here
+      { id: 'gearpage', title: 'Gear|place', href: '#/gear', icon: 'file', words: 'gear material ausrüstung sachen inventar inventory alle teile all items everything you own weight gewicht' },
       { id: 'favorites', title: 'Favourites', href: '#/favorites', icon: 'star', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste' },
       // v0.32.0 (finding 5, stage 1): the old words (role, worn, every trip, kits) find the new places.
       { id: 'blocks', title: 'Building blocks', href: '#/blocks', icon: 'layers', words: 'building blocks block bausteine baustein sets set standard always with you immer dabei with the night mit nacht to add dazunehmen role rolle every trip jeder tour' },
@@ -81,8 +83,6 @@ export const PAGE_GROUPS = [
       // «Inspiration» UC2-1: your own links to rigs, packing lists, videos, routes and more.
       { id: 'inspiration', title: 'Inspiration', href: '#/inspiration', icon: 'compass', words: 'inspiration inspiriert links link rigs rig packing lists packlisten videos video routes routen podcast hör-tipps hörtipps products produkte races rennen bikepacking.com ideen ideas' },
       { id: 'data', title: 'Your data', action: 'data', icon: 'data', words: 'your data deine daten backup sicherung import export restore wiederherstellen' },
-      // v0.77.0 KI-Helfer (K1a): the helper's settings, Ich › Helfer.
-      { id: 'helper', title: 'AI helper', href: '#/helper', icon: 'sparkles', words: 'helper helfer ki ai claude assistant assistent settings einstellungen code limit vorschlag suggestion' },
       // «Meine KI-Projekte» (Noah 19.10.2026 «2a»): own links to AI projects, threads and chats.
       { id: 'aiprojects', title: 'My AI projects', href: '#/me/ki-projekte', icon: 'sparkles', words: 'ai projects ki projekte claude chatgpt gemini perplexity chats threads links projekt' },
       // v0.97.0 Design-Refresh R1: Ich › Darstellung.

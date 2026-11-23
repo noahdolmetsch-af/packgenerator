@@ -19,6 +19,8 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { openData, settle, replaceAll } from './settle.js';
 import { openMore } from './bike-more.js';
+import { openViews } from './gearmenu.js';
+import { RealDate } from './realtime.js'; // the real day, not the test day of an earlier spec's fixed clock (see realtime.js)
 
 const LANG = process.env.PF_LANG === 'en' ? 'en' : 'de';
 const tr = (lang) => (en, vars) => {
@@ -39,7 +41,7 @@ const id = (key) => P + key;
 const BIKE = { scale: `${P}scale`, spark: `${P}spark`, gravel: `${P}gravel` };
 
 /** YYYY-MM-DD in Zurich, n days from today. */
-const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
+const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new RealDate().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 
 /** Items that only belong to night sets: on a day ride each of them is one to take out by hand. */
 const NIGHT_SETS = ['base', 'sleep', 'warm', 'cook', 'lodging'];
@@ -225,7 +227,8 @@ async function fillTrip(dlg, rec, o) {
 async function openAllBags(page) {
   await page.locator('.calm-pack section.bag-group').first().waitFor();
   const heads = page.locator('.calm-pack .bag-heading[aria-expanded="false"]');
-  for (let n = await heads.count(); n > 0; n--) await heads.first().click();
+  // a bag may open by itself while the page settles (the first one): look again before every click, never wait for a fold that is gone
+  for (let n = await heads.count(); n > 0; n = await heads.count()) await heads.first().click({ timeout: 5000 });
 }
 // v0.59.0: worn clothing stands in the card «On me» (with its reason), the rest in the bags.
 const planningRow = (page, key) => page.locator('.calm-pack :is(.planning-row, .worn-card li)').filter({ hasText: nm(key) });
@@ -555,6 +558,8 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
   await page.goto('./#/gear?fav=1');
   const check = async (when) => {
     // v0.47.2: the favourites are the view "Favourite things"; its button carries the number
+    // Material aufräumen (23.11.2026, changed on purpose): the views are rows of the menu «Ansicht»
+    await openViews(page);
     const fav = page.getByRole('group', { name: T('Views') }).locator('[data-view="fav"]');
     await rec.check(`${when}: the favourites filter is on`, () => expect(fav).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
     // v0.102.0 Design-Refresh P3: the button shows a short line under the name too; its name stays «view count»

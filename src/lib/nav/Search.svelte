@@ -30,8 +30,7 @@
   import SearchMic from '../suche/SearchMic.svelte';
   import AskElsewhere from '../assistent/AskElsewhere.svelte';
   import { suche } from '../suche/suche.svelte.js';
-  import { spokenCommand } from '../suche/logic.js';
-  import { looksLikeQuestion } from '../helper/logic.js';
+  import { spokenCommand, looksLikeQuestion } from '../suche/logic.js';
   import { localDay } from '../localday.js';
   // «Zuletzt geöffnet» in der Suche (Noah 05.11.2026 «7a»): the last pages this device opened, from Quick Links' count
   import { deviceKind } from '../quick/quicklinks.js';
@@ -417,9 +416,9 @@
         </ul>
       {/if}
       <!-- «Kluge Suche»: the hint to similar words / a typo and «Ask Claude» sit under the actions (FE17: actions on top, Enter runs the first) -->
-      <!-- «Suche mit Sprache» (3a + b): Gemini answers here, «Ask further at» opens Claude, ChatGPT … -->
+      <!-- «Suche mit Sprache» (3a + b): «Ask further at» opens Claude, ChatGPT … -->
       <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»): the Chrome AI and the AI on this device inside it -->
-      {#if asking && (suche.gemini || suche.links)}<AskElsewhere {q} gemini={suche.gemini} links={suche.links} auto={spoken && suche.geminiAuto && !(suche.app && appHas)} autoread={spoken && suche.read === 'auto'}>
+      {#if asking && suche.links}<AskElsewhere {q} links={suche.links}>
           {#snippet children()}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} inside={suche.links} />{/snippet}
         </AskElsewhere>
       {:else}<SearchFree {q} data={$all} also={smart.also} fixed={smart.fixed} chrome={suche.chrome} links={suche.links} local={suche.local} />{/if}

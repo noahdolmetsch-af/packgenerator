@@ -6,14 +6,16 @@
    * Everything stays on this device and goes into the backup; nothing is sent, nothing is synced.
    */
   import { liveQuery } from 'dexie';
-  import { NotebookPen, Plus, Check, Pencil, ClipboardCopy, Images } from '@lucide/svelte';
+  import { NotebookPen, Plus, Check, Pencil, ClipboardCopy, Images, ListTree } from '@lucide/svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import LogEntrySheet from '../lib/logbuch/LogEntrySheet.svelte';
+  import KindsSheet from '../lib/logbuch/KindsSheet.svelte';
   import Lightbox from '../lib/ui/Lightbox.svelte';
   import { db } from '../lib/db.js';
-  import { GROUPS, filterEntries, counts, isOpen, groupOf } from '../lib/logbuch/logbuch.js';
-  import { addEntry, updateEntry, removeEntry, restoreEntry } from '../lib/logbuch/logbuchdb.js';
+  import { filterEntries, counts, isOpen, routeOf } from '../lib/logbuch/logbuch.js';
+  import { DEFAULT_KINDS, artList } from '../lib/logbuch/kinds.js';
+  import { addEntry, updateEntry, removeEntry, restoreEntry, saveKinds, loadKinds, deleteKind, changeKindRoute, resetKinds, deleteGroup, restoreKinds } from '../lib/logbuch/logbuchdb.js';
   import { buildOrder, orderSize, images } from '../lib/logbuch/auftrag.js';
   import { copyText, savePictures } from '../lib/logbuch/export.js';
   import { takeIntoLog } from '../lib/logbuch/fehler.js';
@@ -26,11 +28,23 @@
   takeIntoLog(); // the errors the app noted quietly (Fehler-Melder) become entries of the kind «Error»
   const q = liveQuery(() => db.logbuch.toArray());
   const all = $derived($q ?? []);
+  const kq = liveQuery(() => loadKinds()); // the kinds and groups the user set (L5), the first version when none; the page waits for them so the old names never flash
+  const cfg = $derived($kq ?? DEFAULT_KINDS);
   let group = $state('all');
-  const shown = $derived(filterEntries(all, group));
-  const n = $derived(counts(all));
+  const shown = $derived(filterEntries(all, group, cfg));
+  const n = $derived(counts(all, cfg));
+  const perArt = $derived(Object.fromEntries(artList(cfg).map((a) => [a, all.filter((e) => e.art === a).length])));
+  // a way's kinds in words: «Error, Number wrong, …» (the first version or what the user named)
+  const kindsOf = (route) => artList(cfg).filter((a) => routeOf(a, cfg) === route).map((a) => artLabel(a, cfg)).join(', ');
+  // the link «Change kinds» in the window «Improve» comes here with ?arten=1
+  // a filter on a group that was deleted goes back to «All»
+  $effect(() => {
+    if (group !== 'all' && !cfg.groups.some((g) => g.key === group)) group = 'all';
+  });
+  let kindsOpen = $state(/[?&]arten=1/.test(globalThis.location?.hash ?? ''));
   let look = $state(null); // { list, start } while a photo is shown big
   let sheet = $state(null); // { entry } while the window is open (entry null = new)
+  const keepKinds = (next) => saveKinds(next).catch((err) => offerDone(saveFailed(err)));
 
   const when = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
   const widthNow = () => globalThis.innerWidth ?? 390;
@@ -46,14 +60,14 @@
   async function remove(e) {
     const answer = await askDelete({ title: t('Delete this entry?'), text: t('Only the entry goes. The app itself stays as it is.') });
     if (answer !== 'delete') return;
-    await deleteWithUndo({ run: () => removeEntry(e.id), undo: (saved) => restoreEntry(saved), text: t('Entry deleted.'), name: artLabel(e.art) });
+    await deleteWithUndo({ run: () => removeEntry(e.id), undo: (saved) => restoreEntry(saved), text: t('Entry deleted.'), name: artLabel(e.art, cfg) });
   }
   const photoList = $derived(shown.filter((e) => e.photo).map((e) => ({ src: e.photo, name: e.block || e.pageTitle || e.page, sub: e.text, id: e.id, scroll: true })));
   const size = $derived(orderSize(all));
   const pics = $derived(images(all));
   async function copyOrder() {
     const day = new Date().toLocaleDateString(locale(), { day: 'numeric', month: 'long', year: 'numeric' });
-    const ok = size.items + size.notes > 0 && (await copyText(buildOrder(all, day)));
+    const ok = size.items + size.notes > 0 && (await copyText(buildOrder(all, day, cfg)));
     offerDone(size.items + size.notes === 0 ? t('Nothing open to copy.') : ok ? t('Order copied: {n} entries.', { n: size.items + size.notes }) : t('The order could not be copied. Select the text and copy it by hand.'));
   }
   async function savePics() {
@@ -69,22 +83,22 @@
     <button type="button" class="btn hi" data-lb-new onclick={() => (sheet = { entry: null })}><Plus size={16} aria-hidden="true" />{t('New entry')}</button>
   </VeloHead>
 
-  {#if $q && !all.length}
+  {#if $q && $kq && !all.length}
     <Empty icon={NotebookPen} title={t('Nothing written down yet')} text={t('The log collects what you notice in the app: a wrong text, a missing hint, a block in the wrong place. One sentence is enough. Small things get changed in one small step, bigger ones get a picture first.')} action={{ label: t('Write the first entry'), onclick: () => (sheet = { entry: null }) }} />
-  {:else if $q}
+  {:else if $q && $kq}
     <section class="ich-sec" aria-labelledby="lb-h">
       <div class="ich-h"><div><h2 id="lb-h">{tn(n.open, '{n} entry open', '{n} entries open')}</h2><p class="ich-hs">{n.now ? tn(n.now, '{n} bothers you now', '{n} bother you now') : t('None bothers you right now')}</p></div></div>
       <div class="lb-chips" role="group" aria-label={t('Group|logbuch')}>
         <button type="button" class="fchip" aria-pressed={group === 'all'} data-lb-group="all" onclick={() => (group = 'all')}>{t('All|logbuch')} {n.all}</button>
-        {#each GROUPS as g (g.key)}
-          <button type="button" class="fchip" aria-pressed={group === g.key} data-lb-group={g.key} onclick={() => (group = g.key)}>{groupLabel(g.key)} {n[g.key]}</button>
+        {#each cfg.groups as g (g.key)}
+          <button type="button" class="fchip" aria-pressed={group === g.key} data-lb-group={g.key} onclick={() => (group = g.key)}>{groupLabel(g.key, cfg)} {n[g.key]}</button>
         {/each}
       </div>
       <ul class="card ich-list lb-list">
         {#each shown as e (e.id)}
           <li class="lb-item" data-lb-entry={e.id} data-art={e.art} class:finished={!isOpen(e)}>
             <div class="lb-top">
-              <span class="pill">{artLabel(e.art)}</span>
+              <span class="pill">{artLabel(e.art, cfg) || t('No kind')}</span>
               {#if e.urgent === 'now' && isOpen(e)}<span class="pill lb-now" data-lb-now>{t('Bothers me now')}</span>{/if}
               <span class="pill lb-st" data-lb-state={e.state}>{stateLabel(e.state)}</span>
               {#if e.source === 'auto'}<span class="pill" data-lb-auto>{t('Noted by the app')}{e.count > 1 ? ` · ${e.count}×` : ''}</span>{/if}
@@ -97,7 +111,7 @@
             {/if}
             <small class="lb-meta">{[e.page, when(e.at), e.device === 'computer' ? t('Computer|logbuch') : t('Phone|logbuch')].filter(Boolean).join(' · ')}</small>
             <div class="lb-acts">
-              {#if groupOf(e.art) !== 'new' || e.art === 'idee'}
+              {#if routeOf(e.art, cfg) !== 'note'}
                 <button type="button" class="btn" data-lb-done onclick={() => done(e)}><Check size={16} aria-hidden="true" />{e.state === 'done' ? t('Open again') : t('Done|logbuch')}</button>
               {/if}
               <button type="button" class="btn" data-lb-edit onclick={() => (sheet = { entry: e })}><Pencil size={16} aria-hidden="true" />{t('Change|logbuch')}</button>
@@ -120,17 +134,23 @@
     <section class="ich-sec" aria-labelledby="lb-next-h">
       <div class="ich-h"><div><h2 id="lb-next-h">{t('What happens with it?')}</h2></div></div>
       <ul class="card ich-list lb-next">
-        <li><b>{t('Small things|logbuch')}</b> <span>{t('Change text, hint missing, explanation, error, number wrong, too slow: one small step with a before and after picture. You say ok.')}</span></li>
-        <li><b>{t('Needs a picture first')}</b> <span>{t('Order, layout, handling, away with it, can\'t find it, missing / idea: first a picture of how it could look, then the change.')}</span></li>
-        <li><b>{t('Good as it is')}</b> <span>{t('Only a note, so it is kept when the app is rebuilt.')}</span></li>
+        {#if kindsOf('direct')}<li><b>{t('Small things|logbuch')}</b> <span>{t('{kinds}: one small step with a before and after picture. You say ok.', { kinds: kindsOf('direct') })}</span></li>{/if}
+        {#if kindsOf('draft')}<li><b>{t('Needs a picture first')}</b> <span>{t('{kinds}: first a picture of how it could look, then the change.', { kinds: kindsOf('draft') })}</span></li>{/if}
+        {#if kindsOf('note')}<li><b>{t('Only a note')}</b> <span>{t('{kinds}: only a note, so it is kept when the app is rebuilt.', { kinds: kindsOf('note') })}</span></li>{/if}
       </ul>
     </section>
   {/if}
+
+  <section class="ich-sec" aria-labelledby="lb-kinds-h">
+    <div class="ich-h"><div><h2 id="lb-kinds-h">{t('Kinds and groups')}</h2><p class="ich-hs">{t('Rename the kinds and groups, put them in your order. Your entries keep their kind.')}</p></div></div>
+    <div class="lb-acts"><button type="button" class="btn" data-lb-kinds onclick={() => (kindsOpen = true)}><ListTree size={16} aria-hidden="true" />{t('Change the kinds and groups')}</button></div>
+  </section>
 </div>
 
+{#if kindsOpen}<KindsSheet {cfg} counts={perArt} onsave={keepKinds} ondeletekind={(key, to) => deleteKind(key, to ?? '')} ondeletegroup={(key, to) => deleteGroup(key, to)} onsetway={changeKindRoute} onreset={resetKinds} onrestore={restoreKinds} onclose={() => (kindsOpen = false)} />{/if}
 {#if look}<Lightbox list={look.list} start={look.start} onclose={() => (look = null)} />{/if}
 {#if sheet}
-  <LogEntrySheet entry={sheet.entry} onsave={save} onremove={sheet.entry ? () => remove(sheet.entry) : null} onclose={() => (sheet = null)} />
+  <LogEntrySheet {cfg} onkinds={() => (kindsOpen = true)} entry={sheet.entry} onsave={save} onremove={sheet.entry ? () => remove(sheet.entry) : null} onclose={() => (sheet = null)} />
 {/if}
 
 <style>

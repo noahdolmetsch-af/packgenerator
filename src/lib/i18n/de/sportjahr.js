@@ -4,8 +4,8 @@ export default {
   'Everything you did, all sports together. Only to look at, nothing is graded.': 'Alles, was du gemacht hast, alle Sportarten zusammen. Nur zum Anschauen, nichts wird bewertet.',
   'Strava and your ticks are read together. Where no time was measured, the usual duration of the sport counts and says «ca.».': 'Strava und deine Haken werden zusammen gelesen. Wo keine Zeit gemessen wurde, zählt die übliche Dauer der Sportart und steht als «ca.».',
   'Nothing in this period': 'In diesem Zeitraum ist nichts',
-  'No unit of movement in this period. Tick a sport on Active or connect Strava, and your sports year fills itself.': 'In diesem Zeitraum gibt es keine Einheit. Hak auf Aktiv eine Sportart ab oder verbinde Strava, dann füllt sich dein Sportjahr von selbst.',
-  'To Active': 'Zu Aktiv',
+  'No unit of movement in this period. Tick a sport on Active or connect Strava, and your sports year fills itself.': 'In diesem Zeitraum gibt es keine Einheit. Hak auf «Heute abhaken» eine Sportart ab oder verbinde Strava, dann füllt sich dein Sportjahr von selbst.',
+  'To Active': 'Zu «Heute abhaken»',
   'The period in numbers': 'Der Zeitraum in Zahlen',
   'Days with training': 'Tage mit Training',
   'For {n} unit the time is estimated (about {h} h, «ca.») with the usual duration of the sport.': 'Bei {n} Einheit ist die Zeit geschätzt (etwa {h} h, «ca.») mit der üblichen Dauer der Sportart.',
@@ -24,7 +24,6 @@ export default {
   'Point at a bar for its numbers, tap it for its sports.': 'Zeig auf einen Balken für seine Zahlen, tippe ihn an für seine Sportarten.',
   'Before|sj': 'Davor',
   'Next|sj': 'Weiter',
-  'Sports year: everything you did, in hours, by sport': 'Sportjahr: alles, was du gemacht hast, in Stunden, nach Sportart',
   'Where did the time go?': 'Wo ging die Zeit hin?',
   '{n} of it «ca.»': '{n} davon «ca.»',
   '«km» shows only sports with a distance.': '«km» zeigt nur Sportarten mit Strecke.',
@@ -38,7 +37,7 @@ export default {
 
   // der Funktionskatalog (features.js), «So geht's» und das Handbuch
   'Sports year page': 'Sportjahr',
-  'All your sports together in hours: week, month, year or everything, the hours per month by sport with the year before as a line, where the time went (hours, units, days, km), records and streaks and the weeks with training. Strava and your ticks are read together; where no time was measured, the usual duration of the sport counts and says «ca.». Only to look at.': 'Alle deine Sportarten zusammen in Stunden: Woche, Monat, Jahr oder Alles, die Stunden pro Monat nach Sportart mit dem Vorjahr als Linie, wo die Zeit hinging (Stunden, Einheiten, Tage, km), Rekorde und Serien und die Wochen mit Training. Strava und deine Haken werden zusammen gelesen; wo keine Zeit gemessen wurde, zählt die übliche Dauer der Sportart und steht als «ca.». Nur zum Anschauen.',
+  'All your sports together in hours: week, month, year or everything, the hours per month by sport with the year before as a line, where the time went (hours, units, days, km), records and streaks and the weeks with training, and at the bottom «Ticks and rhythm»: every tick of every activity (also meditation, sauna and the ride to work) with weekdays, time of day, course, best values and per month, for all activities or one. Strava and your ticks are read together; where no time was measured, the usual duration of the sport counts and says «ca.». Only to look at.': 'Alle deine Sportarten zusammen in Stunden: Woche, Monat, Jahr oder Alles, die Stunden pro Monat nach Sportart mit dem Vorjahr als Linie, wo die Zeit hinging (Stunden, Einheiten, Tage, km), Rekorde und Serien und die Wochen mit Training, ganz unten «Haken und Rhythmus»: jeder Haken jeder Aktivität (auch Meditation, Sauna und der Arbeitsweg) mit Wochentagen, Tageszeit, Verlauf, Bestwerten und pro Monat, für alle Aktivitäten oder eine. Strava und deine Haken werden zusammen gelesen; wo keine Zeit gemessen wurde, zählt die übliche Dauer der Sportart und steht als «ca.». Nur zum Anschauen.',
   'Open Analysis and tap «Sports year».': 'Öffne Auswerten und tippe auf «Sportjahr».',
   'Pick Week, Month, Year or Everything and read the hours, units and days at the top.': 'Wähle Woche, Monat, Jahr oder Alles und lies oben die Stunden, Einheiten und Tage.',
   'Switch «Where did the time go?» between hours, units, days and km.': 'Schalte «Wo ging die Zeit hin?» zwischen Stunden, Einheiten, Tagen und km um.',

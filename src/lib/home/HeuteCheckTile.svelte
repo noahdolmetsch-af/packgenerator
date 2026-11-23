@@ -6,17 +6,46 @@
    * away on the same page. `due` and `evening` come from AbCard through Home.svelte (open questions of the round).
    * Observation only: plain counts, no judgement.
    */
-  import { ListChecks, ChevronRight } from '@lucide/svelte';
+  import { ListChecks, ChevronRight, TrendingUp } from '@lucide/svelte';
   import TileHead from './TileHead.svelte';
-  import { abQuery } from '../abdb.js';
-  import { afterMorning, stampOf } from '../abfragen.js';
-  import { t, tn } from '../i18n.svelte.js';
+  import { abQuery, hintQuery } from '../abdb.js';
+  import { db } from '../db.js';
+  import { afterMorning, stampOf, configOf } from '../abfragen.js';
+  import { t, tn, num as fmt } from '../i18n.svelte.js';
 
   let { today, due = 0, evening = false, isnew = false } = $props();
   const late = afterMorning(stampOf()); // from 11:00: «Open from this morning» (17.11.2026)
   const query = $derived(abQuery(today));
   const data = $derived($query);
   const n = $derived((data?.answers ?? []).filter((a) => a.day === today).length);
+  // the strongest lever of «Zusammenhänge» as one line (Noah 23.11.2026 «Heute-Zeile»): worked out on this device, loaded when Heute is ready
+  // (the insights code stays out of the start), and only when there is one; a tap opens the page with the days behind it
+  let lever = $state(null);
+  $effect(() => {
+    let gone = false;
+    const sub = hintQuery().subscribe({
+      next: async (h) => {
+        try {
+          const [E, W, A, F] = await Promise.all([import('../erkenntnisse.js'), import('../erkenntnisse/words.js'), import('../erkenntnisse/aktiv.js'), import('../flow/ui.svelte.js')]);
+          const acts = await A.countedActs(db);
+          if (gone) return;
+          const ownAll = E.ownNumberQuestions(configOf(h.cfg).own);
+          const own = E.ownNumberQuestions(ownAll, h.ownOff);
+          const series = E.seriesOf({ rows: h.rows, health: h.health, log: h.log, days: E.lastDays(today, E.WINDOW_DAYS + 1), weather: h.weather, events: h.events, own, acts });
+          const row = E.leversOf(E.insights(series, today, { own }), 1)[0];
+          const name = (key) => (key.startsWith('act:') ? F.actName(acts.acts.find((a) => a.id === key.slice(4))) : (ownAll.find((q) => `own:${q.id}` === key)?.text ?? ''));
+          lever = row ? { line: W.leverLine(t, fmt, name, row), tip: W.tipOf(t, name, row) } : null;
+        } catch {
+          lever = null;
+        }
+      },
+      error: () => (lever = null),
+    });
+    return () => {
+      gone = true;
+      sub.unsubscribe();
+    };
+  });
   const href = $derived(evening ? '#/check/evening' : '#/check/morning');
 </script>
 
@@ -32,6 +61,7 @@
     {/if}
   </p>
   <p class="was" data-hc-count>{n ? tn(n, '{n} answer today', '{n} answers today') : t('No answers yet today.')}</p>
+  {#if lever}<a class="lv" href="#/me/insights" data-hc-lever><TrendingUp size={14} aria-hidden="true" /><span><b>{lever.line}</b> <small>{lever.tip}</small></span></a>{/if}
   <a class="btn hi open" {href} data-hc-open>{t('Open questionnaire')}<ChevronRight size={16} aria-hidden="true" /></a>
   <p class="lks"><a href="#/me/insights" data-hc-links>{t('What goes together')}</a><a href="#/me/history">{t('All answers')}</a></p>
 </section>
@@ -52,6 +82,25 @@
   }
   .hd :global(.th) {
     flex: 1;
+  }
+  .lv {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .lv :global(svg) {
+    flex: none;
+    margin-top: 3px;
+  }
+  .lv b {
+    font-weight: 500;
+  }
+  .lv small {
+    color: var(--ink-3);
   }
   .open {
     align-self: flex-start;

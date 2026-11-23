@@ -1,6 +1,6 @@
 /** v0.130.0 «Woche» (mockup AK1) and the cards «Mehr in Aktiv». */
 export default {
-  'More in Active': 'Mehr in Aktiv',
+  'More in Active': 'Mehr in «Heute abhaken»',
   '{n} goal open': '{n} Ziel offen',
   '{n} goals open': '{n} Ziele offen',
   'All goals on track': 'Alle Ziele im Soll',

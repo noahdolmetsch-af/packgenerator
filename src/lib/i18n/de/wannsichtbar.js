@@ -12,7 +12,7 @@ export default {
   'Appears on the evening before a trip.': 'Erscheint am Vorabend einer Tour.',
   'Appears from 14 days before a trip, under Bike care.': 'Erscheint ab 14 Tagen vor einer Tour, unter Velopflege.',
   'Appears in February as a to-do in Merken, and after six weeks without a ride.': 'Erscheint im Februar als To-do in Merken und nach sechs Wochen ohne Fahrt.',
-  'Appears after a ride, as a question.': 'Erscheint nach einer Fahrt, als Frage.',
+  'Appears after a Strava activity, as a card on Active.': 'Erscheint nach einer Strava-Aktivität, als Karte auf «Heute abhaken».',
   'On Today as a tile, as long as there are tips you have not tried yet.': 'Auf Heute als Kachel, solange es Tipps gibt, die du noch nicht ausprobiert hast.',
   'Appears when you open the app after three weeks away.': 'Erscheint, wenn du die App nach drei Wochen Pause öffnest.',
   'Appears on a trip marked as an event.': 'Erscheint bei einer Tour, die als Event markiert ist.',

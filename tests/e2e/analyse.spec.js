@@ -63,10 +63,11 @@ test('Aktiv heute: the dots never cover a name, More opens Analyse', async ({ pa
   await card.scrollIntoViewIfNeeded();
   await expect(card.locator('[data-act]').first()).toBeVisible();
   // every name ends left of its «•••», on every tile
-  const tiles = card.locator('li');
+  const tiles = card.locator('li:has([data-act])'); // only the activity tiles: the week stars below are list items too
   const n = await tiles.count();
   expect(n).toBeGreaterThan(0);
   for (let i = 0; i < n; i++) {
+    await expect(tiles.nth(i).locator('.more')).toBeVisible(); // measure only a tile that is drawn
     const name = await tiles.nth(i).locator('.tx b').boundingBox();
     const dots = await tiles.nth(i).locator('.more').boundingBox();
     expect(name.x + name.width, `tile ${i}`).toBeLessThanOrEqual(dots.x + 0.5);
@@ -121,8 +122,8 @@ test('Analyse: every value as a tile, sources and period, a tap opens its course
   await page.locator('[data-value="act:sauna"]').click();
   await expect(page).toHaveURL(/#\/auswerten\/analyse\/act%3Asauna$/);
   await expect(page.locator('[data-detail="act:sauna"]')).toBeVisible();
-  await page.getByRole('link', { name: T('Also in «Ticks evaluated»|analyse') }).click();
-  await expect(page).toHaveURL(/#\/flow\/auswertung\?act=sauna&p=/);
+  await page.getByRole('link', { name: T('Also in «Sports year»|analyse') }).click();
+  await expect(page).toHaveURL(/#\/auswerten\/sportjahr\?act=sauna/);
   await page.goBack();
   await page.goBack();
   await page.locator('[data-value="rhr"]').click();

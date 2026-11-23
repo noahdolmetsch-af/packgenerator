@@ -16,6 +16,8 @@ export const PASST_HIER = {
   dreams: ['f.freireise', 'f.freilust', 'f.freiwesentlich'],
   // Neuland: a first night outside, a bingo of your own fields (PR 6)
   neuland: ['f.freinacht', 'f.ownbingo'],
+  // Packen › «Before and the evening before» of a trip with a night outdoors: a first night outside as a guided trip (Noah 22.11.2026 «3b»)
+  night: ['f.freinacht', 'f.goodnight'],
   // Packen › Gewicht (bike trips): how sure the total is, lighter things from your own gear, the weight per bag
   weight: ['f.weightsure', 'f.lighter', 'f.bagplan'],
   // Packen › Route without a GPX yet: draw the line on the map and save it as GPX, or take a komoot tour
@@ -34,6 +36,8 @@ export const PASST_HIER = {
   docs: ['f.ablage', 'f.qr'],
   // Training › Aktivitäten: older rides from Zwift or a Garmin as files, the plan you keep in TrainingPeaks (Noah 19.11.2026)
   training: ['f.kmimport', 'f.trainingpeaks'],
+  // Kleider: give every piece its temperature, layer and zone (Noah 21.11.2026 «5a»: at the end, not above the content)
+  wardrobe: ['f.wardrobesetup', 'f.wardrobetryon', 'f.laundry'],
   // Woche planen: fewer things at once, and the evening
   woche: ['f.workspace', 'f.calmview', 'f.freiabend', 'f.spielerplus'],
   // Erinnerungen aufs Handy: how many a day, and what the app no longer suggests

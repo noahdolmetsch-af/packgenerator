@@ -17,12 +17,18 @@ const shot = async (page, info, name, el) => {
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png` });
 };
 
-test('a running own goal: Tick off counts the goal, a second tap takes it back, More adds amounts; Heute stays as it is', async ({ page, context }, info) => {
+test('a running own goal: Tick off counts the goal, a second tap takes it back, More adds amounts; the card stands on Heute and on the page', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info, { hour: 17, data: fixture([ziel({ [day(-1)]: [10] })]) });
-  // Heute stays as it is: the own goal does not stand there, only on the page Challenges
-  await expect(page.locator('[data-ziel-card]')).toHaveCount(0);
+  // Heute (Noah 22.11.2026: planned things may be added): the running own goal stands under the card Outdoors, one tap ticks it
+  const onHome = page.locator('[data-ziel-card="tz-test-1"]').first();
+  await expect(onHome).toBeVisible();
+  await shot(page, info, 'challenge-heute', onHome);
+  await onHome.locator('[data-ziel-tick]').click();
+  await expect(onHome.locator('[data-ziel-tick]')).toHaveAttribute('aria-pressed', 'true');
+  await onHome.locator('[data-ziel-tick]').click();
+  await expect(onHome.locator('[data-ziel-tick]')).toHaveAttribute('aria-pressed', 'false');
   await page.evaluate(() => (location.hash = '#/flow/challenges'));
   const card = page.locator('[data-ziel-card="tz-test-1"]');
   await expect(card).toBeVisible();
@@ -42,6 +48,29 @@ test('a running own goal: Tick off counts the goal, a second tap takes it back, 
   await card.locator('[data-ziel-own]').press('Enter');
   await expect(card.locator('[data-ziel-now]')).toContainText(T('Done today: {have} of {goal}', { have: T('{n} min', { n: 12 }), goal: T('{n} min', { n: 10 }) }));
   expect(errors).toEqual([]);
+});
+
+test('Aktiv: a running own goal stands under Tick off today and ticks there; without one nothing is added', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await openHome(page, context, info, { hour: 17, data: fixture([ziel()]) });
+  await page.evaluate(() => (location.hash = '#/flow'));
+  const box = page.locator('[data-aktiv-challenges]');
+  const card = box.locator('[data-ziel-card="tz-test-1"]');
+  await expect(card).toBeVisible();
+  await shot(page, info, 'challenge-aktiv', box);
+  await card.locator('[data-ziel-tick]').click();
+  await expect(card.locator('[data-ziel-tick]')).toHaveAttribute('aria-pressed', 'true');
+  await card.locator('[data-ziel-tick]').click();
+  await expect(card.locator('[data-ziel-tick]')).toHaveAttribute('aria-pressed', 'false');
+  expect(errors).toEqual([]);
+});
+
+test('Aktiv: without a challenge no card is added (no offer line there)', async ({ page, context }, info) => {
+  await openHome(page, context, info, { hour: 17, data: fixture() });
+  await page.evaluate(() => (location.hash = '#/flow'));
+  await expect(page.locator('[data-aktiv-challenges]')).toBeAttached();
+  await expect(page.locator('[data-aktiv-challenges] > section')).toHaveCount(0);
 });
 
 test('the page Challenges: a new goal from the window, an idea to take over, change and end', async ({ page, context }, info) => {
@@ -75,4 +104,62 @@ test('the page Challenges: a new goal from the window, an idea to take over, cha
   await sheet.getByRole('button', { name: T('End the challenge') }).click();
   await expect(page.locator('[data-ziel-over]')).toHaveCount(1);
   await expect(page.locator('[data-ziel-card]')).toHaveCount(0);
+});
+
+test('a reminder time in the window of an own challenge is kept, also when the browser cannot remind', async ({ page, context }, info) => {
+  // no push in this browser: the challenge is saved anyway and a message says why there is no reminder
+  await context.addInitScript(() => Object.defineProperty(globalThis, 'PushManager', { value: undefined, configurable: true }));
+  const T = await openHome(page, context, info, { hour: 17, data: fixture([ziel()]) });
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  const card = page.locator('[data-ziel-card="tz-test-1"]');
+  await card.locator('[data-ziel-edit]').click();
+  const sheet = page.locator('[data-ziel-sheet]');
+  await expect(sheet.locator('[data-ziel-remind]')).toHaveValue('');
+  await sheet.locator('[data-ziel-remind]').fill('18:30');
+  await shot(page, info, 'challenge-erinnerung-fenster', sheet);
+  await sheet.locator('[data-ziel-save]').click();
+  await expect(sheet).toBeHidden();
+  await expect(card).toBeVisible();
+  await card.locator('[data-ziel-edit]').click();
+  await expect(sheet.locator('[data-ziel-remind]')).toHaveValue('18:30');
+  await sheet.getByRole('button', { name: T('Cancel') }).click();
+});
+
+test('the question every 10 days: three buttons and Later, then it stays quiet', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const T = await openHome(page, context, info, { hour: 17, data: fixture() });
+  // Heute stays as it is: the question is not there
+  await expect(page.locator('[data-challenge-ask]')).toHaveCount(0);
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  const ask = page.locator('[data-challenge-ask]');
+  await expect(ask).toBeVisible();
+  await expect(ask).toContainText(T('Time for a look'));
+  await shot(page, info, 'challenge-frage', ask);
+  await ask.locator('[data-ask-later]').click();
+  await expect(ask).toHaveCount(0);
+  // «Later» asks again tomorrow: after a new look at the page it stays quiet today
+  await page.evaluate(() => (location.hash = '#/flow/milestones'));
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  await expect(page.locator('[data-challenges-page]')).toBeVisible();
+  await expect(page.locator('[data-challenge-ask]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('the question: Challenge opens the window for a new one and starts 10 quiet days', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info, { hour: 17, data: fixture() });
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  await page.locator('[data-ask-challenge]').click();
+  await expect(page.locator('[data-ziel-sheet]')).toBeVisible();
+  await expect(page.locator('[data-challenge-ask]')).toHaveCount(0);
+  expect(T).toBeTruthy();
+});
+
+test('the question: Milestone goes to Milestones', async ({ page, context }, info) => {
+  await openHome(page, context, info, { hour: 17, data: fixture() });
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  await page.locator('[data-ask-milestone]').click();
+  await expect(page).toHaveURL(/#\/flow\/milestones/);
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  await expect(page.locator('[data-challenge-ask]')).toHaveCount(0);
 });

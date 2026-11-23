@@ -1,6 +1,6 @@
 // «Erkenntnisse» (Noah 19.10.2026 «4b» + own page): fictional data only, calendar days.
 import { describe, it, expect } from 'vitest';
-import { seriesOf, spearman, look, insights, rhrHigh, lastDays, ownNumberQuestions, ownPairs, testHint, PAIRS, MIN_DAYS } from '../src/lib/erkenntnisse.js';
+import { seriesOf, spearman, look, insights, rhrHigh, lastDays, ownNumberQuestions, ownPairs, testHint, PAIRS, MIN_DAYS, niceCut, actSeries, actPairs, leversOf, soonOf, isLever, expMetricOf } from '../src/lib/erkenntnisse.js';
 
 const TODAY = '2026-10-19';
 const days = lastDays(TODAY, 30);
@@ -136,5 +136,127 @@ describe('Erkenntnisse', () => {
     it('a strength threshold keeps weak hints away', () => {
       expect(testHint(series(8), TODAY, { minRho: 1.1 })).toBeNull();
     });
+  });
+});
+
+// Noah 23.11.2026 «ja» (Thread «Zusammenhänge nützlicher machen»): activities, round cuts, levers, soon visible
+describe('Zusammenhänge nützlicher', () => {
+  const span = lastDays(TODAY, 40);
+  const ticksOn = (every, id = 'sauna') => span.filter((_, i) => i % every === 0).map((day) => ({ actId: id, day }));
+
+  it('cuts are rounded to what a person says: 9.6 km → 10, 5.46 h → 5.5, 4.3 steps thousands → 500', () => {
+    expect(niceCut('km', 9.6)).toBe(10);
+    expect(niceCut('km', 23)).toBe(25);
+    expect(niceCut('sleepH', 5.46)).toBe(5.5);
+    expect(niceCut('steps', 7312)).toBe(7500);
+    expect(niceCut('rhr', 49.6)).toBe(50);
+    expect(niceCut('act:sauna', 0)).toBe(0);
+  });
+
+  it('a rounded cut is used when both sides keep days, and the picture gets the values of both sides', () => {
+    const km = {};
+    const mood = {};
+    span.forEach((d, i) => ((km[d] = 2 + (i % 10)), (mood[d] = 3 + (i % 10) * 0.5)));
+    const r = look({ id: 'km-mood', x: 'km', y: 'mood', lag: 0 }, { km, mood }, span);
+    expect(Number.isInteger(r.cut)).toBe(true);
+    expect(r.hiVals.length).toBe(r.hi.n);
+    expect(r.loVals.length).toBe(r.lo.n);
+    expect(r.hiVals.length + r.loVals.length).toBe(r.n);
+  });
+
+  it('an activity becomes a series: 1 on a ticked day, 0 on known days; too few or nearly daily ticks are left out', () => {
+    const known = new Set(span);
+    const s = actSeries({ acts: [], log: [...ticksOn(4, 'sauna'), ...ticksOn(1, 'daily'), ...ticksOn(20, 'rare')] }, span, known);
+    expect(Object.keys(s)).toEqual(['act:sauna']); // daily: every day (nothing to compare); rare: 2 days only
+    expect(s['act:sauna'][span[0]]).toBe(1);
+    expect(s['act:sauna'][span[1]]).toBe(0);
+    expect(actSeries({ acts: [{ id: 'sauna', paused: true }], log: ticksOn(4) }, span, known)).toEqual({});
+  });
+
+  it('seriesOf adds act series, HRV, and the pairs against sleep, resting pulse, HRV, battery and mood (day and day after)', () => {
+    const health = span.map((date, i) => ({ date, hrvMs: 40 + (i % 4), restingHr: 50, sleep: { asleepMin: 420 } }));
+    const s = seriesOf({ health, days: span, acts: { acts: [], log: ticksOn(4) } });
+    expect(s.hrv[span[1]]).toBe(41);
+    expect(s['act:sauna']).toBeTruthy();
+    const ids = actPairs(s).map((p) => `${p.y}${p.lag}`);
+    expect(ids).toEqual(expect.arrayContaining(['sleepH1', 'rhr1', 'hrv1', 'battery0', 'battery1', 'mood0', 'mood1', 'sleepFelt1']));
+    expect(actPairs({ 'act:meditation': {} }).some((p) => p.y === 'mood' && !p.lag)).toBe(false);
+  });
+
+  it('an activity that goes with a better night shows, and is a lever with a gain', () => {
+    // sauna every 4th day, the next night 1 h longer
+    const health = span.map((date, i) => ({ date, sleep: { asleepMin: 360 + (i > 0 && (i - 1) % 4 === 0 ? 60 : 0) + (i % 3) * 5 }, restingHr: 50, hrvMs: 40 }));
+    const rows = span.map((day) => ({ qid: 'erholung.akku', day, value: 6, kind: 'scale' }));
+    const s = seriesOf({ rows, health, days: span, acts: { acts: [], log: ticksOn(4) } });
+    const all = insights(s, TODAY);
+    const row = all.find((x) => x.x === 'act:sauna' && x.y === 'sleepH');
+    expect(row).toMatchObject({ shown: true, lag: 1 });
+    expect(row.hi.mean).toBeGreaterThan(row.lo.mean);
+    const levers = leversOf(all);
+    expect(levers[0]).toMatchObject({ x: 'act:sauna', y: 'sleepH' });
+    expect(levers[0].gain).toBeGreaterThan(0.5);
+  });
+
+  it('levers: only things you can do, only the good way, every thing once, at most three; the resting pulse is better lower', () => {
+    const row = (x, y, hi, lo, rho = 0.6) => ({ id: `${x}-${y}`, x, y, lag: 0, shown: true, rho, n: 30, hi: { mean: hi, n: 10 }, lo: { mean: lo, n: 20 } });
+    const rows = [
+      row('sleepH', 'battery', 8, 6),
+      row('sleepH', 'mood', 7, 5, 0.55), // sleep again: not twice
+      row('rhr', 'battery', 5, 8), // the body's own value: not a lever
+      row('act:sauna', 'rhr', 47, 50, 0.5), // a lower resting pulse is good
+      row('act:hockey', 'sleepH', 6, 7, 0.45), // worse: no lever
+      row('km', 'mood', 7, 6, 0.4),
+      row('steps', 'mood', 7, 6, 0.38),
+    ];
+    const l = leversOf(rows);
+    expect(l.map((x) => x.id)).toEqual(['sleepH-battery', 'act:sauna-rhr', 'km-mood']);
+    expect(l[1].gain).toBe(3);
+    expect(isLever('rhr')).toBe(false);
+    expect(isLever('act:yoga')).toBe(true);
+  });
+
+  it('soon visible: from 7 days, with a first trend from 8 days when it already shows', () => {
+    const days = lastDays(TODAY, 10);
+    const sleepH = {};
+    const battery = {};
+    days.forEach((d, i) => ((sleepH[d] = 5 + (i % 4)), (battery[d] = 4 + (i % 4) * 2)));
+    const series = { sleepH, battery };
+    const all = insights(series, TODAY);
+    const { soon, waiting, first } = soonOf(all, series, TODAY);
+    expect(waiting.length).toBeGreaterThan(0);
+    expect(soon.every((x) => x.n >= 7)).toBe(true);
+    expect(first).toMatchObject({ x: 'sleepH', y: 'battery', shown: true });
+    // too few days: nothing soon, no first trend
+    expect(soonOf(insights({ sleepH: { [days[0]]: 6 }, battery: { [days[0]]: 5 } }, TODAY), series, TODAY).first).toBe(null);
+  });
+
+  it('the try measures the value of y', () => {
+    expect(expMetricOf('sleepH')).toBe('sleep');
+    expect(expMetricOf('battery')).toBe('felt:energy');
+    expect(expMetricOf('sat')).toBe('');
+  });
+});
+
+// Noah 23.11.2026 «Muster»: after a short night, after a day over 200 active zone minutes
+describe('Muster nach wenig Schlaf und vielen Aktivzonenminuten', () => {
+  const span = lastDays(TODAY, 30);
+  it('over 200 active zone minutes is the cut when 5 days lie on each side, and the day after is read', () => {
+    const azm = {};
+    const hrv = {};
+    span.forEach((d, i) => (azm[d] = i % 4 === 0 ? 250 + (i % 3) * 20 : 20 + (i % 5) * 10));
+    span.forEach((d, i) => (hrv[d] = i > 0 && (i - 1) % 4 === 0 ? 30 : 45));
+    const r = look(PAIRS.find((p) => p.id === 'azm-hrv'), { azm, hrv }, span);
+    expect(r).toMatchObject({ cut: 200, shown: true, lag: 1 });
+    expect(r.hi.mean).toBeLessThan(r.lo.mean);
+  });
+  it('with too few hard days the median is used again', () => {
+    const azm = {};
+    const hrv = {};
+    span.forEach((d, i) => ((azm[d] = i < 3 ? 250 : 20 + (i % 7) * 10), (hrv[d] = 40 + (i % 4))));
+    const r = look(PAIRS.find((p) => p.id === 'azm-hrv'), { azm, hrv }, span);
+    expect(r.cut).not.toBe(200);
+  });
+  it('the night pairs exist: sleep against resting pulse, HRV, moving', () => {
+    for (const id of ['sleep-rhr', 'sleep-hrv', 'sleep-azm', 'sleep-steps', 'azm-battery', 'azm-mood', 'azm-sleepfelt']) expect(PAIRS.find((p) => p.id === id), id).toBeTruthy();
   });
 });

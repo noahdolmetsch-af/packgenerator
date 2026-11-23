@@ -115,13 +115,13 @@ test('the copy button puts the tick address on the clipboard, with this device�
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(CRON);
 });
 
-test('without a device key or helper code the copy button says what to do first', async ({ page, context }) => {
+test('without a device key the copy button says what to do first', async ({ page, context }) => {
   await open(page, context);
   await page.goto('./#/me/push');
   await settle(page);
   const box = page.locator('[data-push-cron]');
   await box.getByRole('button', { name: T('Copy the address for cron-job.org') }).click();
-  await expect(box.getByRole('alert')).toHaveText(T('First connect Strava or enter the helper code on this device.'));
+  await expect(box.getByRole('alert')).toHaveText(T('First connect Strava on this device.'));
 });
 
 // Arbeitsliste 7b-07 (Impeccable-Test 08.11.2026): with the main switch off, the page no longer says «on» and
@@ -173,7 +173,7 @@ test('the switches sit in four closed folds with a count; a tap opens one', asyn
   await expect(birthdays).toBeHidden();
   await openGroup(page, 'day');
   await birthdays.check();
-  await expect(page.locator('[data-push-group="day"] summary .ps-gs')).toHaveText(T('{n} of {m} on', { n: 1, m: 6 }));
+  await expect(page.locator('[data-push-group="day"] summary .ps-gs')).toHaveText(T('{n} of {m} on', { n: 1, m: 8 }));
   await expect(page.locator('[data-push-group="weather"] summary .ps-gs')).toHaveText(T('All off'));
 });
 

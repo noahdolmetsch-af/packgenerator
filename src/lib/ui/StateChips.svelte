@@ -64,12 +64,12 @@
     color: var(--st-rated);
   }
   .sc[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .sc[aria-pressed='true'] .num {
-    color: var(--paper);
+    color: var(--hi-ink);
   }
   .sc:focus-visible {
     outline: var(--focus-ring);

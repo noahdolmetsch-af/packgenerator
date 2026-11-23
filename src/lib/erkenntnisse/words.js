@@ -11,11 +11,15 @@ export function xText(t, v, ownName, key, cut) {
   if (key === 'steps') return t('more than {v} steps', { v: v(Math.round(cut)) });
   if (key === 'rhr') return t('a resting pulse above {v}', { v: v(cut) });
   if (key === 'azm') return cut ? t('more than {v} active zone minutes', { v: v(cut) }) : t('active zone minutes');
+  if (key === 'tmax') return t('a high above {v} degrees', { v: v(cut) });
   if (key === 'sunH') return cut ? t('more than {v} h of sunshine', { v: v(cut) }) : t('sunshine');
   if (key === 'lightH') return t('more than {v} h of daylight', { v: v(cut) });
   if (key === 'rainMm') return cut ? t('more than {v} mm of rain', { v: v(cut) }) : t('rain');
   if (key === 'evts') return cut ? t('more than {v} appointments', { v: v(cut) }) : t('appointments');
+  if (key === 'hrv') return t('an HRV above {v}', { v: v(cut) });
+  // own questions and activities keep the text the user typed (never through t())
   if (key.startsWith('own:')) return t('«{name}» above {v}', { name: ownName(key), v: v(cut) });
+  if (key.startsWith('act:')) return ownName(key);
   return key;
 }
 
@@ -26,7 +30,41 @@ export const Y = {
   rhr: 'your resting pulse|insight',
   sleepH: 'your sleep in hours|insight',
   sleepFelt: 'your sleep felt|insight',
+  hrv: 'your HRV|insight',
+  azm: 'your active zone minutes|insight',
+  steps: 'your steps|insight',
+  km: 'your bike km|insight',
 };
+
+/** The short name of a value in a lever line («Akku +1.6»). */
+export const SHORT = { battery: 'Battery|lever', mood: 'Mood|lever', sat: 'Satisfaction|lever', rhr: 'Resting pulse|lever', sleepH: 'Sleep|lever', sleepFelt: 'Sleep felt|lever', hrv: 'HRV|lever' };
+/** The unit that follows a difference in a lever line. */
+export const UNIT = { sleepH: ' h', hrv: ' ms' };
+
+/** A signed difference: +1.6, −3 (a real minus sign). */
+export const signed = (v, x) => `${x > 0 ? '+' : x < 0 ? '−' : ''}${v(Math.abs(x))}`;
+
+/** The first letter big («mehr als 5.5 h Schlaf» → «Mehr als …»). */
+export const cap = (s) => (s ? s[0].toLocaleUpperCase() + s.slice(1) : s);
+
+/**
+ * The line of a lever (Noah 23.11.2026): «Mehr als 5.5 h Schlaf: Akku im Schnitt +1.6» (or «… am Tag danach …»), and the tip under it.
+ * x: a row of leversOf(); name(key) gives the user's text of an activity.
+ */
+export function leverLine(t, v, ownName, x) {
+  const xt = cap(xText(t, v, ownName, x.x, x.cut));
+  const d = `${signed(v, x.hi.mean - x.lo.mean)}${UNIT[x.y] ?? ''}`;
+  return t(x.lag ? '{x}: {y} the next day {d}|lever' : '{x}: {y} on average {d}|lever', { x: xt, y: t(SHORT[x.y]), d });
+}
+export function tipOf(t, ownName, x) {
+  const k = x.x;
+  if (k === 'sleepH') return t('Try it today: go to bed earlier.');
+  if (k === 'km') return t('Try it today: a ride, even a short one.');
+  if (k === 'med') return t('Try it today: a few minutes of meditation.');
+  if (k === 'steps') return t('Try it today: a walk.');
+  if (k === 'azm') return t('Try it today: something that gets your pulse up.');
+  return t('Try it today: {name}.', { name: ownName(k) });
+}
 
 /** The one sentence of an insight x (a row of insights()). */
 export const sentenceOf = (t, v, ownName, x) =>
@@ -36,3 +74,17 @@ export const sentenceOf = (t, v, ownName, x) =>
     hi: v(x.hi.mean),
     lo: v(x.lo.mean),
   });
+
+/** The unit after a number of x in a range («7 h»). */
+const X_UNIT = { sleepH: ' h', km: ' km', med: ' min', azm: ' min', sunH: ' h', lightH: ' h', rainMm: ' mm', tmax: ' °C' };
+/** A range of x: «up to 6 h», «6 to 7.5 h», «over 7.5 h» (from / to null at the open ends). */
+export function rangeText(t, v, key, from, to) {
+  const u = X_UNIT[key] ?? '';
+  if (from == null) return t('up to {b}', { b: `${v(to)}${u}` });
+  if (to == null) return t('over {a}', { a: `${v(from)}${u}` });
+  return t('{a} to {b}', { a: v(from), b: `${v(to)}${u}` });
+}
+
+/** The long name of weekday i (0 = Monday), in the shown language. */
+export const dayLong = (locale, i) => new Date(Date.UTC(2026, 0, 5 + i)).toLocaleDateString(locale, { weekday: 'long', timeZone: 'UTC' });
+export const dayShortName = (locale, i) => new Date(Date.UTC(2026, 0, 5 + i)).toLocaleDateString(locale, { weekday: 'short', timeZone: 'UTC' });

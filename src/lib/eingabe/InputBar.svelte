@@ -2,16 +2,16 @@
   /**
    * «Eingaben überall» (Noah 26.10.2026 «1a 2b 3 nur Ton. kein Video 4b 5a aber b möglich»): the one input
    * bar under a text, the same on ten pages. A row «Add» with what fits this place (inputs.js PLACES):
-   * voice note (up to 1 minute), photo, file, place, tag, template of this page, writing prompts, AI helper.
+   * voice note (up to 1 minute), photo, file, place, tag, template of this page, writing prompts.
    * Above the row what was added (InputsView, each part removable with Undo). Everything stays on this
-   * device; only the AI helper sends the text to Gemini, with a tick each time (free).
+   * device.
    *
-   * place: PLACES key; text + ontext(next): the page's text (templates, prompts and highlights go under it);
+   * place: PLACES key; text + ontext(next): the page's text (templates and prompts go under it);
    * inputs + oninputs(next): what was added (store it as the record's `inputs`, inputs.js cleanInputs);
-   * ontitle(s): offers «Suggest a title» in the AI helper; tags: suggestions [{ name }]; only: fewer tools.
+   * tags: suggestions [{ name }]; only: fewer tools.
    */
   import { liveQuery } from 'dexie';
-  import { Mic, Camera, Paperclip, MapPin, Tag, LayoutTemplate, Lightbulb, Sparkles, Plus, Settings2, ClipboardList, SlidersHorizontal } from '@lucide/svelte';
+  import { Mic, Camera, Paperclip, MapPin, Tag, LayoutTemplate, Lightbulb, Plus, Settings2, ClipboardList, SlidersHorizontal } from '@lucide/svelte';
   import PhotoPick from '../ui/PhotoPick.svelte';
   import VoiceRec from './VoiceRec.svelte';
   import InputsView from './InputsView.svelte';
@@ -22,14 +22,12 @@
   import { offerDone } from '../ui/rename.svelte.js';
   import { shrinkImage } from '../photo.js';
   import { localDay } from '../localday.js';
-  import { geminiError } from '../assistent/gemini.js';
-  import { cleanTitle } from '../tagebuch/ai.js';
   import { db } from '../db.js';
   import { t, lang, num } from '../i18n.svelte.js';
-  import { toolsOf, inputsOf, addVoice, dropVoice, setVoice, addFile, dropFile, addPhoto, dropPhoto, setPlace, addTag, dropTag, cleanTag, withBlock, templatesFor, tplName, tplText, promptsFor, aiLines, highlightsBlock, sizeText, FILE_MAX_BYTES, TEMPLATES_KEY } from './inputs.js';
-  import { inputAi, voiceText } from './inputsdb.js';
+  import { toolsOf, inputsOf, addVoice, dropVoice, setVoice, addFile, dropFile, addPhoto, dropPhoto, setPlace, addTag, dropTag, cleanTag, withBlock, templatesFor, tplName, tplText, promptsFor, sizeText, FILE_MAX_BYTES, TEMPLATES_KEY } from './inputs.js';
+  import { voiceText } from './inputsdb.js';
 
-  let { place, text = '', ontext = () => {}, inputs = null, oninputs = () => {}, ontitle = null, tags = [], only = null, start = '' } = $props();
+  let { place, text = '', ontext = () => {}, inputs = null, oninputs = () => {}, tags = [], only = null, start = '' } = $props();
 
   const tools = $derived(toolsOf(place, only));
   const v = $derived(inputsOf(inputs));
@@ -39,8 +37,8 @@
   const toggle = (k) => ((open = open === k ? '' : k), (msg = ''));
   const set = (next) => oninputs($state.snapshot(next));
 
-  const LABEL = { voice: 'Voice note', photo: 'Photo', file: 'File|input', place: 'Place|input', tag: 'Tag|input', template: 'Template', prompt: 'Writing prompts', ai: 'AI helper' };
-  const ICON = { voice: Mic, photo: Camera, file: Paperclip, place: MapPin, tag: Tag, template: LayoutTemplate, prompt: Lightbulb, ai: Sparkles };
+  const LABEL = { voice: 'Voice note', photo: 'Photo', file: 'File|input', place: 'Place|input', tag: 'Tag|input', template: 'Template', prompt: 'Writing prompts' };
+  const ICON = { voice: Mic, photo: Camera, file: Paperclip, place: MapPin, tag: Tag, template: LayoutTemplate, prompt: Lightbulb };
 
   /* ---------- remove (with Undo) ---------- */
   function drop(kind, key) {
@@ -171,35 +169,6 @@
     ontext(withBlock(text, s));
     open = '';
   }
-
-  /* ---------- AI helper (Gemini, free, a tick each time) ---------- */
-  let aiOk = $state(false);
-  let aiBusy = $state('');
-  let aiOut = $state(null); // { mode, lines }
-  async function ai(mode) {
-    if (!aiOk || aiBusy) return;
-    if (!String(text ?? '').trim()) return (msg = t('Write or dictate some text first.'));
-    aiBusy = mode;
-    msg = '';
-    aiOut = null;
-    const r = await inputAi(mode, { text, place, lang: lang.v === 'en' ? 'en' : 'de' });
-    aiBusy = '';
-    aiOk = false;
-    if (!r.ok) return (msg = geminiError(r.error));
-    if (mode === 'title') {
-      const s = cleanTitle(r.text);
-      if (s) ontitle?.(s);
-      else msg = geminiError('error');
-      return;
-    }
-    const lines = aiLines(r.text, mode === 'prompts' ? 3 : 4);
-    if (!lines.length) return (msg = geminiError('error'));
-    aiOut = { mode, lines };
-  }
-  function useHighlights() {
-    ontext(withBlock(text, highlightsBlock(aiOut.lines, t('Highlights'))));
-    aiOut = null;
-  }
 </script>
 
 <div class="inbar" data-input-bar={place}>
@@ -260,29 +229,6 @@
     <div class="in-part" data-in-prompts>
       <p class="in-note">{t('Stuck? A question to write on. A tap puts it under your text. Tomorrow there are others.')}</p>
       <div class="in-chips in-col">{#each prompts as s (s)}<button type="button" class="in-chip" onclick={() => usePrompt(s)}>{s}</button>{/each}</div>
-    </div>
-  {:else if open === 'ai'}
-    <div class="in-part" data-in-ai>
-      <label class="in-aiok"><input type="checkbox" bind:checked={aiOk} data-in-ai-ok /><span>{t('Send the text to Gemini (Google) for one step. Free; photos, sound, files and place stay here.')}</span></label>
-      <div class="in-inline">
-        {#if ontitle}<button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('title')} data-in-ai-title>{aiBusy === 'title' ? t('Gemini is thinking …') : t('Suggest a title')}</button>{/if}
-        <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('prompts')} data-in-ai-prompts>{aiBusy === 'prompts' ? t('Gemini is thinking …') : t('Prompts that fit')}</button>
-        <button type="button" class="btn sm" disabled={!aiOk || !!aiBusy} onclick={() => ai('highlights')} data-in-ai-highlights>{aiBusy === 'highlights' ? t('Gemini is thinking …') : t('Highlights')}</button>
-      </div>
-      {#if aiOut}
-        <div class="in-ai-out" data-in-ai-out>
-          <span class="in-note">{aiOut.mode === 'prompts' ? t('Prompts from Gemini. A tap puts one under your text.') : t('Highlights from Gemini. Check them before you keep them.')}</span>
-          {#if aiOut.mode === 'prompts'}
-            <div class="in-chips in-col">{#each aiOut.lines as s (s)}<button type="button" class="in-chip" onclick={() => ((aiOut = null), usePrompt(s))}>{s}</button>{/each}</div>
-          {:else}
-            <ul>{#each aiOut.lines as s (s)}<li>{s}</li>{/each}</ul>
-            <div class="in-inline">
-              <button type="button" class="btn sm hi" onclick={useHighlights} data-in-ai-use>{t('Put under the text')}</button>
-              <button type="button" class="btn sm" onclick={() => (aiOut = null)}>{t('Discard')}</button>
-            </div>
-          {/if}
-        </div>
-      {/if}
     </div>
   {/if}
   {#if msg}<p class="in-note" role="status" data-in-msg>{msg}</p>{/if}
@@ -391,12 +337,6 @@
     text-decoration: underline;
     cursor: pointer;
   }
-  .in-aiok {
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-    font-size: var(--fs-small);
-  }
   .in-filebtn {
     align-self: flex-start;
     cursor: pointer;
@@ -406,9 +346,5 @@
     width: 1px;
     height: 1px;
     opacity: 0;
-  }
-  .in-ai-out ul {
-    margin: 4px 0 8px;
-    padding-left: 20px;
   }
 </style>

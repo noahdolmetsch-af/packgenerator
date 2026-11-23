@@ -127,7 +127,7 @@ describe('workshop, backup and Merken', () => {
     expect(l.items.filter((i) => i.key.startsWith('own:'))).toEqual([expect.objectContaining({ at: atMs('2026-10-22', '17:00'), body: 'Velo putzen' })]);
     // winter: watered on 1 December every 7 days → 11 days
     const w = buildList(base({ now: new Date(2026, 11, 2, 9), settings: { push: allOn, merken: [{ id: 'p2', kind: 'plant', text: 'Farn', plant: { every: 7, last: '2026-12-01' }, remind: { at: '08:00' } }] } }));
-    expect(w.items[0].at).toBe(atMs(addDays('2026-12-01', 11), '08:00'));
+    expect(w.items.find((i) => i.key.startsWith('plant:')).at).toBe(atMs(addDays('2026-12-01', 11), '08:00'));
   });
   it('the list is in time order and reaches 14 days ahead at most', () => {
     const l = buildList(base({ trips: [trip('a', '2026-10-26'), trip('b', '2026-10-22')], repairs: [{ id: 1, task: 'x', status: 'open', dueDate: '2026-11-30' }] }));
@@ -179,5 +179,23 @@ describe('Paket VG 1128: chain after rain', () => {
     expect(has({ rain: { days: {} } })).toBe(false);
     expect(has({ rain, griff: { wetChain: false } })).toBe(false);
     expect(has({ rain, settings: { push: { on: true, kinds: { ...allOn.kinds, wetchain: false } } } })).toBe(false);
+  });
+});
+
+describe('push: own challenges', () => {
+  const goal = { id: 'tz-t1', name: 'Test stretching', unit: 'min', word: '', goal: 10, from: '2026-10-19', until: '2026-10-25', hand: {}, stopped: false, closed: false, remindAt: '18:30' };
+  const mk = (list, kinds = { fog: false, ziele: true }) => base({ settings: { push: { on: true, kinds }, tagesziele: list } });
+  it('sends a reminder at the time of each challenge on every running day, with its name', () => {
+    const l = buildList(mk([goal]));
+    expect(keys(l)).toEqual(['ziel:tz-t1:2026-10-20', 'ziel:tz-t1:2026-10-21', 'ziel:tz-t1:2026-10-22', 'ziel:tz-t1:2026-10-23', 'ziel:tz-t1:2026-10-24', 'ziel:tz-t1:2026-10-25']);
+    expect(l.items[0].at).toBe(atMs('2026-10-20', '18:30'));
+    expect(l.items[0].body).toContain('Test stretching');
+  });
+  it('leaves a day out that reaches the goal, and sends nothing without a time, off, ended or closed', () => {
+    expect(keys(buildList(mk([{ ...goal, hand: { '2026-10-20': [10] } }])))[0]).toBe('ziel:tz-t1:2026-10-21');
+    expect(buildList(mk([{ ...goal, remindAt: '' }])).items).toEqual([]);
+    expect(buildList(mk([goal], { fog: false, ziele: false })).items).toEqual([]);
+    expect(buildList(mk([{ ...goal, stopped: true }])).items).toEqual([]);
+    expect(buildList(mk([{ ...goal, closed: true }])).items).toEqual([]);
   });
 });

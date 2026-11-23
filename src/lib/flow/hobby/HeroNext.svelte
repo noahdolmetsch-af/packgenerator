@@ -11,7 +11,7 @@
   import { UNIT_NAME } from '../../training/wochenplan-text.js';
   import { t, locale } from '../../i18n.svelte.js';
 
-  let { hero, label = '' } = $props();
+  let { hero, label = '', title = (x) => msName(x.m) } = $props();
   const r = $derived(hero.r);
   const C = 2 * Math.PI * 42;
   const dash = $derived((C * hero.pct) / 100);
@@ -30,7 +30,7 @@
   </div>
   <div class="tx">
     <p class="lab" id="hero-h">{t('Your next star')}</p>
-    <h3>{msName(r.m)} · {starLine(r.next)}</h3>
+    <h3>{title(r)} · {starLine(r.next)}</h3>
     {#if label}<p class="who">{label}</p>{/if}
     <p class="big"><b class="num" data-hero-left>{t('{n} to go', { n: val(hero.left, r.m.unit) })}</b><span>{t('{n} of {m}', { n: val(r.value, r.m.unit), m: val(r.target, r.m.unit) })}</span></p>
   </div>

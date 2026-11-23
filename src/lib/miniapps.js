@@ -58,6 +58,21 @@ export const MINI_APPS = [
       { key: 'photo', label: 'Photos', href: '#/me/tools/photo', match: (h) => path(h).startsWith('#/me/tools/photo') },
     ],
   },
+  {
+    // «Kursblick» (Noah 22.11.2026): the daily prices of gold and the SMI, in francs per kilogram against a reference day
+    key: 'kursblick',
+    name: 'Kursblick',
+    icon: 'trending-up',
+    tabs: [
+      { key: 'today', label: 'Today|kurs', href: '#/kurse', match: (h) => /^#\/kurse\/?$/.test(path(h)) },
+      { key: 'gold', label: 'Gold', href: '#/kurse/gold', match: (h) => path(h).startsWith('#/kurse/gold') },
+      { key: 'decision', label: 'Decision|kurs', href: '#/kurse/entscheidung', match: (h) => path(h).startsWith('#/kurse/entscheidung') },
+      { key: 'markets', label: 'Markets|kurs', href: '#/kurse/maerkte', match: (h) => path(h).startsWith('#/kurse/maerkte') },
+      { key: 'portfolio', label: 'Portfolio|kurs', href: '#/kurse/portfolio', match: (h) => path(h).startsWith('#/kurse/portfolio') },
+      { key: 'mine', label: 'My numbers|kurs', href: '#/kurse/bestand', match: (h) => path(h).startsWith('#/kurse/bestand') },
+      { key: 'sources', label: 'Sources|kurs', href: '#/kurse/quellen', match: (h) => path(h).startsWith('#/kurse/quellen') },
+    ],
+  },
 ];
 
 export const MINI_APP = Object.fromEntries(MINI_APPS.map((a) => [a.key, a]));

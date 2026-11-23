@@ -1,4 +1,4 @@
-// «Auswertung wie Training» (Noah 20.10.2026 «das ist ab jetzt unser standard», «zum auswerten von meinen
+// «Auswertung wie Training» (since S5 the ticks are in the Sports year, the answers keep their page) (Noah 20.10.2026 «das ist ab jetzt unser standard», «zum auswerten von meinen
 // täglich abgehakten aktivitäten»): Aktiv › Ziele › Auswerten (#/flow/auswertung) with the key tiles and the
 // «Analysen» cards of the ride page, in German, at 390 px and on a computer. One card hidden and back with
 // «Rückgängig», the period and the activity changed. Fixed clock, fictional ticks only (aktiv-fixture.js).
@@ -7,14 +7,13 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { ANALYSES } from '../../src/lib/training/analyses.js';
 import { D0, TODAY, addDays, aktivRows, put } from './aktiv-fixture.js';
 import { ready } from './settle.js';
-import { viaTab } from './placetab.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
   return vars ? s.replace(/\{(\w+)\}/g, (m, k) => vars[k] ?? m) : s;
 };
 
-test('Auswerten › Haken ausgewertet: tiles, the tick analyses, hide and undo, period and activity', async ({ page, context }, info) => {
+test('Sportjahr › Haken und Rhythmus: the old page «Haken ausgewertet» lives here, tiles, the tick analyses, hide and undo, one activity', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -24,27 +23,28 @@ test('Auswerten › Haken ausgewertet: tiles, the tick analyses, hide and undo, 
   await ready(page);
   await put(page, aktivRows());
 
-  // the way in («Aktiv neu», Noah 22.10.2026): Auswerten › «Haken ausgewertet»
-  await page.goto('./#/auswerten');
+  // the old address leads to the Sports year (S5, Noah 22.11.2026 «a»)
+  await page.goto('./#/flow/auswertung');
   await page.reload();
   await ready(page);
-  await viaTab(page, 'analysis', '#/flow/auswertung'); // «Auswerten in fünf Reiter»: «Haken ausgewertet» is a chip under «Fahrten»
-  await expect(page).toHaveURL(/#\/flow\/auswertung$/);
-  await expect(page.getByRole('heading', { level: 1, name: T('Your ticks evaluated') })).toBeVisible();
+  await expect(page).toHaveURL(/#\/auswerten\/sportjahr$/);
+  await page.locator('[data-period-bar] [data-key="all"]').click();
+  const rh = page.locator('[data-sj-rhythm]');
+  await expect(rh.getByRole('heading', { level: 2, name: T('Ticks and rhythm') })).toBeVisible();
 
-  // the key tiles like on the ride page
-  const vals = page.locator('[data-section="values"]');
+  // the key tiles like on the old page
+  const vals = rh.locator('[data-section="values"]');
   for (const k of ['days', 'ticks', 'week', 'min', 'longest', 'current', 'acts']) await expect(vals.locator(`[data-val="${k}"]`)).toBeVisible();
   await expect(vals.locator('[data-val="days"] small')).toHaveText(T('Days with a tick'));
 
   // every tick card, in the order of «Analysen anpassen», with its German title
-  const sec = page.locator('[data-section="analyses"]');
+  const sec = rh.locator('[data-section="analyses"]');
   const card = (k) => sec.locator(`[data-ana="${k}"]`);
   const keys = ANALYSES.ticks.map((a) => a.key);
   await expect(sec.locator('.anh .num')).toContainText(`${keys.length} von ${keys.length} ·`);
   for (const a of ANALYSES.ticks) await expect(card(a.key).getByRole('heading', { name: T(a.head ?? a.title) })).toBeVisible();
   expect(await sec.locator('[data-ana]').evaluateAll((els) => els.map((e) => e.dataset.ana))).toEqual(keys);
-  await expect(card('tkgrid').locator('[data-grid-act="meditation"]')).toBeVisible();
+  await expect(card('tkgrid').locator('[data-grid-act="meditation"]')).toBeVisible(); // meditation is no sport, its ticks are here
   await expect(card('tkhalves').locator('[data-halves-sentence]')).toContainText(T('In the second half you ticked'));
   await expect(card('tkbest').locator('[data-best="run"]')).toBeVisible();
 
@@ -61,18 +61,23 @@ test('Auswerten › Haken ausgewertet: tiles, the tick analyses, hide and undo, 
   await page.getByRole('button', { name: 'Rückgängig' }).click();
   await expect(card('tkhours')).toBeVisible();
 
-  // one activity and 30 days: the address keeps the choice
-  await page.locator('[data-tk-act]').selectOption('meditation');
-  await page.getByRole('group', { name: T('Period|tk') }).getByRole('button', { name: T('30 days|tk') }).click();
-  await expect(page).toHaveURL(/#\/flow\/auswertung\?act=meditation&p=30$/);
+  // one activity: no grid, no «activities» tile
+  await rh.locator('[data-tk-act]').selectOption('meditation');
   await expect(vals.locator('[data-val="acts"]')).toHaveCount(0);
-  await expect(card('tkgrid')).toHaveCount(0); // one activity: no grid
+  await expect(card('tkgrid')).toHaveCount(0);
   await expect(card('tkweeks')).toBeVisible();
+
+  // the old address with an activity picks it
+  await page.goto('./#/flow/auswertung?act=sauna&p=30');
+  await page.reload();
+  await ready(page);
+  await expect(page).toHaveURL(/#\/auswerten\/sportjahr\?act=sauna$/);
+  await expect(page.locator('[data-sj-rhythm] [data-tk-act]')).toHaveValue('sauna');
 
   expect(errors).toEqual([]);
 });
 
-test('Auswerten › Deine Antworten: the same cards for a check question with a number', async ({ page, context }, info) => {
+test('Auswerten › Antworten ausgewertet: the same cards for a check question with a number', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -88,12 +93,10 @@ test('Auswerten › Deine Antworten: the same cards for a check question with a 
     abAnswers.push({ id: `test_ak_${day}`, qid: 'erholung.akku', area: 'erholung', day, at: `${day}T08:10`, slot: `${day}T08:00`, kind: 'scale', value: 4 + (i % 5), note: null, src: 'hand' });
   }
   await put(page, { ...aktivRows(), abAnswers });
-  await page.goto('./#/flow/auswertung');
+  await page.goto('./#/flow/auswertung?what=answers');
   await page.reload();
   await ready(page);
-
-  await page.getByRole('group', { name: T('What|tk') }).getByRole('button', { name: T('Your answers') }).click();
-  await expect(page).toHaveURL(/#\/flow\/auswertung\?q=erholung\.akku$/);
+  await expect(page).toHaveURL(/#\/flow\/auswertung\?what=answers&q=erholung\.akku$/);
   await expect(page.getByRole('heading', { level: 1, name: T('Your answers evaluated') })).toBeVisible();
   const vals = page.locator('[data-section="values"]');
   for (const k of ['n', 'days', 'mean', 'min', 'max', 'last']) await expect(vals.locator(`[data-val="${k}"]`)).toBeVisible();
@@ -102,6 +105,21 @@ test('Auswerten › Deine Antworten: the same cards for a check question with a 
   for (const a of ANALYSES.answers) await expect(sec.locator(`[data-ana="${a.key}"]`).getByRole('heading', { name: T(a.head ?? a.title) })).toBeVisible();
   expect(await sec.locator('[data-ana]').evaluateAll((els) => els.map((e) => e.dataset.ana))).toEqual(keys);
   await expect(sec.locator('[data-ana="anhalves"] [data-halves-sentence]')).toContainText(T('In the second half your answer was'));
+  // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): Verlauf and Wochentage are touch charts with the axis 0 to 10, a sentence, a sheet and «Als Tabelle»
+  const line = sec.locator('[data-ana="anline"]');
+  await expect(line.locator('[data-chart-sentences]')).toContainText(/^Jetzt /);
+  await expect(line.locator('[data-readout]')).toContainText(T('Ø of 7 days'));
+  await expect(line.locator('[data-yticks]')).toContainText('10');
+  await line.locator('[data-plot]').click({ position: { x: 20, y: 40 } });
+  await expect(page.locator('[data-anline-sheet]')).toBeVisible();
+  await page.getByRole('button', { name: T('Close') }).click();
+  await line.getByRole('button', { name: T('As table') }).click();
+  await expect(line.locator('[data-chart-table]')).toBeVisible();
+  await line.getByRole('button', { name: T('Chart|table') }).click();
+  const days = sec.locator('[data-ana="andays"]');
+  await days.locator('[data-plot]').click({ position: { x: 20, y: 40 } });
+  await expect(page.locator('[data-andays-sheet]')).toBeVisible();
+  await page.getByRole('button', { name: T('Close') }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/answer-review-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   expect(errors).toEqual([]);

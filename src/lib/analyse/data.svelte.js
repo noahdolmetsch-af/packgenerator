@@ -15,6 +15,9 @@ import { weight } from '../weight.svelte.js';
 import { BP_KEY, WATER_KEY, bpEntries, waterEntries, medByDay } from '../koerper.js';
 import { zones } from '../strava/zones.svelte.js';
 import { normAct } from '../flow.js';
+import { withStrava } from './alle.js';
+import { USUAL_KEY, usualMap } from '../flow/usualmin.js';
+import { TICKS_KEY, prefsOf } from '../stravaticks.js';
 import { localDay } from '../localday.js';
 
 const get = async (k) => (await db.settings.get(k))?.value ?? null;
@@ -32,8 +35,10 @@ export function analyseData({ from = () => localDay() } = {}) {
   const today = localDay();
   const q = fromStore(store(tableQuery()));
   const flow = live(async () => {
-    const [acts, log] = await Promise.all([db.flowActs.toArray(), db.flowLog.toArray()]);
-    return { acts: acts.map(normAct).sort((a, b) => a.order - b.order), log };
+    const [acts, log, activities, usual, ticks] = await Promise.all([db.flowActs.toArray(), db.flowLog.toArray(), db.activities ? db.activities.toArray() : [], db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
+    const own = acts.map(normAct).sort((a, b) => a.order - b.order);
+    // the same sessions as «This week» on Heute: Strava sports without a tick count too (lib/analyse/alle.js)
+    return withStrava({ acts: own, log, activities, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map });
   });
   const checks = live(() => (db.flowChecks ? db.flowChecks.toArray() : []));
   const ab = live(() => db.settings.get(AB_KEY));

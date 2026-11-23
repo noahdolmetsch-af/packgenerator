@@ -9,7 +9,6 @@ import { searchAll } from '../src/lib/search.js';
 import { careChange } from '../src/lib/care/plan.js';
 import { checkOf } from '../src/lib/flowcheck.js';
 import { tripNotes } from '../src/lib/notes.js';
-import { geminiRequest, DIARY_MODES } from '../api/helper.js';
 import DE from '../src/lib/i18n/de/index.js';
 
 const voice = (s = 12) => ({ src: 'data:audio/webm;base64,AAAA', s });
@@ -141,17 +140,6 @@ describe('writing prompts and AI answers', () => {
     expect(a).toHaveLength(3);
     expect(a).not.toEqual(b);
     expect(I.promptsFor('gear', '2026-10-26')).toHaveLength(3); // no own list: the notes' prompts
-  });
-  it('Gemini lines without list signs, at most max', () => {
-    expect(I.aiLines('1. Was hat dich überrascht?\n\n- **Wer** war dabei?\n• Und morgen?\n* vier', 3)).toEqual(['Was hat dich überrascht?', 'Wer war dabei?', 'Und morgen?']);
-    expect(I.highlightsBlock(['Pass erreicht', 'Kaffee'], 'Highlights')).toBe('Highlights:\n- Pass erreicht\n- Kaffee');
-    expect(I.highlightsBlock([])).toBe('');
-  });
-  it('the server knows the two new jobs with their own instruction', () => {
-    expect(DIARY_MODES).toContain('prompts');
-    expect(DIARY_MODES).toContain('highlights');
-    const r = geminiRequest({ question: 'Writing prompts for this text', context: '[Diary]\nHeute am See', mode: 'prompts', lang: 'de' });
-    expect(r.systemInstruction.parts[0].text).toContain('Schreibanreize');
   });
 });
 

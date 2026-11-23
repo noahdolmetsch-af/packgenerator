@@ -53,7 +53,7 @@ Gelten für das Innere jeder Seite; Orte, Reiter und Chips gehören dem Umbau «
 4. **Ein Hauptknopf** pro Seite (grün gefüllt), zweite Aktionen mit Rand, dritte als Text; die Aktionen einer Seite stehen zusammen in einer Karte.
 5. **Karten:** eine Ecke (`--radius-card`), ein Rand, Innenabstand 16; innere Kacheln 12 bis 14 px, Bedienelemente `--r-ctl`. Hellgrün getönt ist höchstens eine Karte pro Seite, nur für den Tagesimpuls.
 6. **Abstände und Schrift:** nur die Stufen 4, 8, 12, 16, 24, 32; innen 12, zwischen Karten 16, zwischen Abschnitten 24 (Handy) oder 32 (Computer), Rand 16. Fünf Schriftstufen; fett nur 600 oder 700.
-7. **Farbe und Umschalter:** Grün für Hauptknopf, Gewähltes, Datumszahlen; Rot, Gelb, Blau nur als Zustand mit Wort. Eine Art Umschalter pro Ebene: Reiter des Ortes oben, Ansicht direkt über dem Inhalt (gewählt = weisse Fläche mit Rand), Filter als Chips in einer scrollbaren Zeile.
+7. **Farbe und Umschalter:** Grün für Hauptknopf, Gewähltes, Datumszahlen; Rot, Gelb, Blau nur als Zustand mit Wort. Eine Art Umschalter pro Ebene: Reiter des Ortes oben, Ansicht direkt über dem Inhalt (gewählt = in der Hauptfarbe gefüllt, Noah 23.11.2026 «2a», `docs/decisions/umschalter-gewaehlt-gefuellt.md`), Filter als Chips in einer scrollbaren Zeile.
 8. **Übergänge:** beim Wechsel innerhalb eines Ortes bleiben Leiste und Titelplatz stehen, nur der Inhalt wechselt (120 ms einblenden, aus bei reduzierter Bewegung); der Name einer Karte ist der Titel der Seite dahinter (`docs/namen.md`); der Weg zurück ist immer links oben; nach der Hauptaktion zeigt die Seite «Als Nächstes».
 
 ## Wächter

@@ -29,7 +29,7 @@ export default {
   '{kg} kg · {day} · only on this device': '{kg} kg · {day} · nur auf diesem Gerät',
   'Voluntary, for watts per kg · only on this device': 'Freiwillig, für Watt pro kg · nur auf diesem Gerät',
   // How it works (f.analyses, f.weight)
-  'Open Aktiv › Training and tap a ride.': 'Öffne Aktiv › Training und tippe eine Fahrt an.',
+  'Open Aktiv › Training and tap a ride.': 'Öffne Woche › Training und tippe eine Fahrt an.',
   'Power, load and the analyses stand on its page.': 'Leistung, Belastung und die Analysen stehen auf ihrer Seite.',
   'Tap «…» on an analysis to hide or move it.': 'Tippe «…» auf einer Analyse, um sie auszublenden oder zu verschieben.',
   'Open Me › Weight.': 'Öffne Auswerten › Gewicht.',

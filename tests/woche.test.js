@@ -134,16 +134,16 @@ describe('buildWeek', () => {
 });
 
 describe('the place «Woche» (Noah 1a)', () => {
-  it('is a place next to Heute; the phone bar keeps five, without Material', () => {
+  it('is a place next to Heute; the phone bar keeps five', () => {
     // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos; Material shares the slot of Velos
-    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'gear', 'analysis', 'quick']); // V4a (Noah 21.11.2026): Aktiv is part of Woche, Auswerten is a place of its own // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
+    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'analysis', 'weather', 'quick']); // V5 (Noah 21.11.2026): Material is part of Velos und Material; V4a (Noah 21.11.2026): Aktiv is part of Woche, Auswerten is a place of its own // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
     expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'analysis']);
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');
     expect(placeOf('week')).toBe('week');
     // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): eleven tabs became three, every old page is a chip (`subs`) under one of them
     expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'training', 'notes', 'alltag']);
-    expect(PLACE_TABS.week.flatMap((x) => x.subs.map((s) => s.key)).sort()).toEqual(['agenda', 'alltag', 'compass', 'flowhome', 'frei', 'impulse', 'inbox', 'links', 'mail', 'notes', 'remember', 'rest', 'sports', 'tagebuch', 'training', 'week', 'wochenplan']); // Woche covers plan and away
+    expect(PLACE_TABS.week.flatMap((x) => x.subs.map((s) => s.key)).sort()).toEqual(['agenda', 'alltag', 'compass', 'day', 'flowhome', 'frei', 'impulse', 'inbox', 'links', 'mail', 'meditation', 'notes', 'remember', 'rest', 'sports', 'tagebuch', 'training', 'week', 'wochenplan']); // Woche covers plan and away; «Mein Tag» (day) is one more chip
     expect(tabOf('week', '#/week')).toBe('week');
     expect(tabOf('week', '#/week/plan')).toBe('week'); // UI-Ziele #6: one tap from the week
     expect(tabOf('week', '#/week/away')).toBe('week');
@@ -255,5 +255,42 @@ describe('buildWeek: the same bike job twice', () => {
     const bike = w.suggestions.filter((s) => s.kind === 'bike');
     expect(bike.map((s) => s.title)).toEqual(['Charge the gear battery · Demo A', 'Charge the gear battery · Demo B', 'Measure the chain']);
     expect(bike.map((s) => !!s.sub.named)).toEqual([true, true, false]);
+  });
+});
+
+// «Diese Woche aufräumen» (Noah 23.11.2026): a calendar copy of a trip stands once, a unit once, long names whole, a hint on too much time
+describe('Diese Woche aufräumen', () => {
+  const trip = { id: 'tr1', title: 'Lake day tour', startDate: '2026-10-21', days: 1 };
+  it('a calendar date that only copies the trip («Tour: …») is left out; other dates stay', () => {
+    const cal = calEntries([
+      { id: 'c1', title: 'Tour: Lake day tour', day: '2026-10-21', src: 'google' },
+      { id: 'c2', title: 'Lake day tour', day: '2026-10-21', src: 'google' },
+      { id: 'c3', title: 'Dinner with friends', day: '2026-10-21', src: 'google' },
+      { id: 'c4', title: 'Tour: Lake day tour', day: '2026-10-22', src: 'google' }, // another day: a real date
+    ]);
+    const w = buildWeek({ ...base, trips: [trip], cal });
+    const titles = w.days[2].entries.map((e) => e.title);
+    expect(titles).toContain('Dinner with friends');
+    expect(titles.filter((x) => /Lake day tour/.test(x))).toHaveLength(1); // the trip itself
+    expect(w.days[3].entries.some((e) => e.id === 'cal:c4')).toBe(true);
+  });
+  it('long calendar names stay whole (up to 200 characters)', () => {
+    const long = 'x'.repeat(150);
+    expect(calEntries([{ id: 'c1', title: long, day: '2026-10-21', src: 'google' }])[0].title).toBe(long);
+    const w = googleWeek({ events: [{ id: 'main|e1', gid: 'e1', cal: 'main', title: long, allDay: false, day: '2026-10-21', start: '2026-10-21T07:30:00Z', end: '2026-10-21T08:00:00Z' }], tasks: [], prefs: { calendar: true } }, MON);
+    expect(w.cal).toHaveLength(1);
+    expect(w.cal[0].title).toBe(long);
+  });
+  it('the same unit twice on a day (same name, day and minutes) counts once in the hours', () => {
+    const twice = [{ id: 's1', day: '2026-10-20', kind: 'bike', name: 'Intervals', mins: 60 }, { id: 's2', day: '2026-10-20', kind: 'bike', name: 'Intervals', mins: 60 }, { id: 's3', day: '2026-10-21', kind: 'bike', name: 'Intervals', mins: 60 }];
+    expect(buildWeek({ ...base, sessions: twice }).sums.mins).toBe(120);
+  });
+  it('over the weekly plan: a hint with the hours too much and the longest open unit', () => {
+    const sessions = [{ id: 's1', day: '2026-10-20', kind: 'bike', name: 'Short', mins: 60 }, { id: 's2', day: '2026-10-23', kind: 'bike', name: 'Long ride', mins: 240 }];
+    const w = buildWeek({ ...base, sessions, goalHours: 3 });
+    const h = w.hints.find((x) => x.key === 'over');
+    expect(h).toMatchObject({ over: 120, goal: 180, title: 'Long ride', day: '2026-10-23', mins: 240 });
+    expect(buildWeek({ ...base, sessions, goalHours: 5 }).hints.some((x) => x.key === 'over')).toBe(false); // within the plan (+30 min)
+    expect(buildWeek({ ...base, sessions }).hints.some((x) => x.key === 'over')).toBe(false); // no plan, no hint
   });
 });

@@ -4,7 +4,7 @@
 export default {
   'Old Fitbit data': 'Alte Fitbit-Daten',
   'Trainings such as tennis, walks or rides and your mindfulness sessions from the Fitbit export become your activity history. Once is enough; new ones come through the connection.':
-    'Trainings wie Tennis, Spaziergänge oder Velofahrten und deine Achtsamkeits-Sitzungen aus dem Fitbit-Export kommen in deinen Aktiv-Verlauf. Einmal reicht; Neues kommt über die Verbindung.',
+    'Trainings wie Tennis, Spaziergänge oder Velofahrten und deine Achtsamkeits-Sitzungen aus dem Fitbit-Export kommen in deinen Abhak-Verlauf. Einmal reicht; Neues kommt über die Verbindung.',
   'How: takeout.google.com › choose only «Fitbit» › export. Then choose the .zip here, or from the unzipped folder the files exercise-….json, UserExercises_….csv and Mindfulness Sessions.csv. The file stays on this device.':
     'So geht’s: takeout.google.com › nur «Fitbit» wählen › exportieren. Dann hier die .zip wählen, oder aus dem entpackten Ordner die Dateien exercise-….json, UserExercises_….csv und Mindfulness Sessions.csv. Die Datei bleibt auf diesem Gerät.',
   'Choose the Fitbit file': 'Fitbit-Datei wählen',
@@ -36,8 +36,8 @@ export default {
   'Take over {n} entry': '{n} Eintrag übernehmen',
   'Take over {n} entries': '{n} Einträge übernehmen',
   'Nothing new to take over': 'Nichts Neues zum Übernehmen',
-  '{n} entry added to your activity history.': '{n} Eintrag in deinen Aktiv-Verlauf übernommen.',
-  '{n} entries added to your activity history.': '{n} Einträge in deinen Aktiv-Verlauf übernommen.',
+  '{n} entry added to your activity history.': '{n} Eintrag in deinen Abhak-Verlauf übernommen.',
+  '{n} entries added to your activity history.': '{n} Einträge in deinen Abhak-Verlauf übernommen.',
   'Taken back. Nothing from the Fitbit file is left.': 'Zurückgenommen. Aus der Fitbit-Datei ist nichts mehr da.',
   // the Fitbit training types
   'Run|fbtype': 'Laufen',

@@ -61,7 +61,7 @@ test('All here on Gear: the tiles show and open their page', async ({ page, cont
   await expect(box).toBeVisible();
   await settle(page);
   expect(await box.locator('[data-all-here-tile]').count()).toBeGreaterThan(10);
-  for (const id of ['favorites', 'f.supplies']) {
+  for (const id of ['favorites', 'f.supplies', 'f.wardrobesetup', 'f.wardrobetryon']) {
     const tile = box.locator(`[data-all-here-tile="${id}"]`);
     const href = await tile.getAttribute('href');
     await tile.click();

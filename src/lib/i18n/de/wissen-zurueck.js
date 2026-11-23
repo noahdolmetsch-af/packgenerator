@@ -69,4 +69,6 @@ export default {
     'Neue Kilometer liegen selten weit weg: das Nachbartal ist oft unbekannter als ein Land am anderen Ende Europas.',
   "A list of finds is a small diary of curiosity: a look at it before a free day shows where you have not been for a long time.":
     "Eine Fundliste ist ein kleines Tagebuch der Neugier: ein Blick darauf vor einem freien Tag zeigt, wo du lange nicht warst.",
+  'How it felt counts more than the number. A windy 8 degrees is colder than a calm 4, so tap «Colder» when it felt that way.':
+    'Das Gefühl zählt mehr als die Zahl. Windige 8 Grad sind kälter als ruhige 4, tippe also auf «Kälter», wenn es sich so anfühlte.',
 };

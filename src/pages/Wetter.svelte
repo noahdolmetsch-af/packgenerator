@@ -11,16 +11,15 @@
    * - Meine Webcams (extra 7): add, rename, order with arrows and drag, delete with Undo; on this device only.
    */
   import { liveQuery } from 'dexie';
-  import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target, Moon } from '@lucide/svelte';
+  import { CloudRain, Wind, TriangleAlert, Train, Sun, ExternalLink, Search, X, Plus, Camera, Mountain, CalendarDays, Target, Moon, Waves, Copy, ChevronRight } from '@lucide/svelte';
   import WindVane from '../lib/wetter/WindVane.svelte'; // «Windfahne beim Wetter» (Paket D, Idee 15)
   import PageHead from '../lib/ui/PageHead.svelte';
-  import Crumbs from '../lib/ui/Crumbs.svelte';
   import { db } from '../lib/db.js';
   import { HOME_PLACE } from '../lib/know.js';
   import { localDay } from '../lib/localday.js';
   import { searchPlace } from '../lib/weather.js';
   import { compass } from '../lib/toursky.js';
-  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, darkAfter, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS, SRF_WEBCAMS } from '../lib/wetter/kern.js';
+  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, packHints, darkAfter, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS, SRF_WEBCAMS } from '../lib/wetter/kern.js';
   import { loadClimate, climateFor } from '../lib/wetter/klima.js';
   import { SAID_KEY, noteSaid, hits } from '../lib/wetter/treffer.js';
   import WebcamList from '../lib/wetter/WebcamList.svelte';
@@ -33,6 +32,13 @@
   import FensterBox from '../lib/wetter/FensterBox.svelte'; // Fenster für Landi-Radar und SRF-Webcams (Noah 04.11.2026 «1a», «3a»)
   import { thunderSpans } from '../lib/wetter/gewitter.js'; // «Gewitter-Hinweis mit Uhrzeit» (Noah 04.11.2026 «5 alle»)
   import Licht from '../lib/wetter/Licht.svelte'; // «Licht für die Fahrt» (Noah 04.11.2026 «5 alle»)
+  import { roadState } from '../lib/wetter/strasse.js'; // Wetter-Ausbau F: the road after rain
+  import { windowFacts, windowText } from '../lib/wetter/teilen.js'; // Wetter-Ausbau H: the best window as a text for the group
+  import { shortPlace } from '../lib/wetter/ort.js';
+  import { loadRain15 } from '../lib/wetter/regen15.js';
+  import { rainStory, rainWords } from '../lib/wetter/regenzeit.js'; // Wetterseite aufräumen: ONE rain start time for the whole page
+  import KurzAntwort from '../lib/wetter/KurzAntwort.svelte'; // Wetterseite aufräumen: the short answer at the top
+  import Regen3h from '../lib/wetter/Regen3h.svelte'; // Wetter-Ausbau B (Noah 22.11.2026): rain in 15-minute steps
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
   import NebelBlock from '../lib/wetter/NebelBlock.svelte'; // «Nebelgrenze» (Noah 05.11.2026)
@@ -105,9 +111,20 @@
   const today = $derived(core ? localDate(now, off) : '');
   const rest = $derived(core ? hoursBetween(core, now - 36e5, atLocal(today, 24, off)) : []);
   const line = $derived(dayLine(rest));
+  // the rain of the next hours in quarters (kept 10 minutes; Regen3h asks the same), for the one rain story of the page
+  let quarters = $state(null);
+  $effect(() => {
+    const pl = place;
+    now;
+    if (!pl) return void (quarters = null);
+    loadRain15(db, pl).then((r) => (quarters = r?.rows ?? null)).catch(() => {});
+  });
+  const story = $derived(core ? rainStory(core, quarters, now) : null);
+  const hintKeys = $derived(packHints(rest).map((h) => h.key));
   const warns = $derived(warningsOf(rest).filter((w) => w.kind !== 'thunder')); // thunderstorms: the spans below, with times
   const storms = $derived(core ? thunderSpans(core, now) : []);
   const stormText = (x) => t(x.day === 'today' ? 'Thunderstorms possible today, {from} to {to}.' : x.day === 'tomorrow' ? 'Thunderstorms possible tomorrow, {from} to {to}.' : 'Thunderstorms possible later, {from} to {to}.', { from: hm(x.from), to: hm(x.to) });
+  const road = $derived(core ? roadState(core, now) : null);
   const fb = $derived(foehnBise(rest));
   const train = $derived(core ? trainInstead(core, today) : null);
   const outside = $derived(core ? outdoorOk(core, now) : null);
@@ -123,6 +140,18 @@
   const DURS = [2, 4, 6, 8];
   let dur = $state(4);
   const windows = $derived(core ? bestWindows(core, { durH: dur, days: 7, now }) : { days: [], best: null });
+  // Wetter-Ausbau H (Noah 22.11.2026 «a»): the best window as one line for the group; only copied, nothing is sent
+  const shareText = $derived(windowText(windowFacts(windows.best), { day: wd, hm, num, compass: (d) => t(compass(d)), t }));
+  let copied = $state(false);
+  async function copyWindow() {
+    try {
+      await navigator.clipboard.writeText(shareText);
+      copied = true;
+      setTimeout(() => (copied = false), 2500);
+    } catch {
+      copied = false; // the text stands under the button: it can be selected by hand
+    }
+  }
 
   const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
   const wd = (date) => new Date(`${date}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'numeric' });
@@ -205,7 +234,6 @@
 </script>
 
 <section class="wx" data-page="wetter">
-  <Crumbs crumbs={[{ label: t('Me|place'), href: '#/me' }]} here={t('Weather')} />
   <PageHead title={t('Weather')} text={t('The weather for riding: today, the best time for a ride, the rain radar and your webcams. Everything is a suggestion.')} />
 
   <div class="wx-chips wx-tabs" role="tablist" aria-label={t('Parts of the weather page')} data-wx-tabs>
@@ -215,6 +243,7 @@
   </div>
 
   {#if tab === 'jetzt'}
+  {#if core}<KurzAntwort {story} {line} hints={hintKeys} {hm} />{/if}
   <ZurTour trip={forTrip} fallback={$homeQ?.value ?? null} onplan={() => pick('planen')} />
   <div class="card wx-place">
     {#if $homeQ?.value || nextTrip}
@@ -223,7 +252,7 @@
         {#if nextTrip}<button type="button" class="wx-chip" aria-pressed={!picked && trip?.id === nextTrip.id} onclick={() => ((picked = null), (found = []), (sel = nextTrip.id))} data-wx-pick-next>{t('Next tour: {name}', { name: nextTrip.title })}</button>{/if}
       </div>
     {/if}
-    <p class="wx-where"><b>{place?.name || t('No place yet')}</b>{#if asOf}<small>{t('As of {at}', { at: asOf })}{core?.old ? ` · ${t('older than 3 hours')}` : ''}</small>{/if}</p>
+    <p class="wx-where"><b>{shortPlace(place?.name) || t('No place yet')}</b>{#if asOf}<small>{t('As of {at}', { at: asOf })}{core?.old ? ` · ${t('older than 3 hours')}` : ''}</small>{/if}</p>
     <form class="wx-search" onsubmit={search}>
       <input class="inp" type="search" bind:value={q} oninput={() => (searchHint = '')} placeholder={t('Another place')} aria-label={t('Another place')} data-wx-q />
       <button type="submit" class="btn sm" disabled={searching}><Search size={16} aria-hidden="true" />{t('Search')}</button>
@@ -241,7 +270,7 @@
   {/if}
 
   {#if tab !== 'jetzt'}
-    <p class="wx-where wx-where-line" data-wx-where><b>{place?.name || t('No place yet')}</b><button type="button" class="btn sm" onclick={() => pick('jetzt')} data-wx-change-place>{t('Change place')}</button></p>
+    <p class="wx-where wx-where-line" data-wx-where><b>{shortPlace(place?.name) || t('No place yet')}</b><button type="button" class="btn sm" onclick={() => pick('jetzt')} data-wx-change-place>{t('Change place')}</button></p>
   {/if}
 
   {#if err}<p class="rc-warn" role="status" data-wx-error>{err}</p>{/if}
@@ -256,7 +285,7 @@
         <p class="wx-line">
           <span><Sun size={16} aria-hidden="true" />{num(line.tmin)}–{num(line.tmax)} °C</span>
           {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
-          <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
+          <span><CloudRain size={16} aria-hidden="true" />{rainWords(story, t, hm) || t('dry')}</span>
         </p>
       {/if}
       <SchneeBlock {core} {now} />
@@ -266,6 +295,7 @@
       {#if fb}<p class="wx-note" data-wx-fb={fb}><Wind size={16} aria-hidden="true" />{fb === 'foehn' ? t('Föhn: strong, dry wind from the south. Gusty in the valleys.') : t('Bise: cold wind from the north-east. It feels colder than the number.')}</p>{/if}
       {#if train}<p class="wx-note" data-wx-train><Train size={16} aria-hidden="true" />{t('Today rather the train? On the way to and from work: {why}.', { why: train.why.map((k) => t(k === 'rain' ? 'heavy rain' : k === 'thunder' ? 'thunderstorms' : k === 'storm' ? 'storm gusts' : 'ice')).join(', ') })} <a href="https://www.sbb.ch/" target="_blank" rel="noopener noreferrer">SBB</a></p>{/if}
       {#if outside}<p class="wx-note" data-wx-outside><Sun size={16} aria-hidden="true" />{outside.now ? t('Good for outside now ({temp} °C).', { temp: num(outside.temp) }) : t('Good for outside from {at} ({temp} °C).', { at: hm(outside.at), temp: num(outside.temp) })}</p>{/if}
+      {#if road}<p class="wx-note" data-wx-road={road.kind}><Waves size={16} aria-hidden="true" />{road.kind === 'raining' ? t('It rains now: the road is wet.') : road.kind === 'wet' ? (road.until ? t('Road still wet, dry again around {at}.', { at: hm(road.until) }) : t('Road stays wet: too cold to dry.')) : t('Road dry again since about {at}.', { at: hm(road.since) })}</p>{/if}
       <LakeChip />
       <HoeheBlock {place} {now} />
       <div class="rc-acts">
@@ -275,6 +305,8 @@
       </div>
     </section>
 
+    <Regen3h {place} {now} onradar={() => pick('radar')} />
+
     <NachtBlock {core} {now} />
 
     <NextHours {place} />
@@ -282,7 +314,11 @@
   <!-- «Aktiv neu» (Noah 22.10.2026, spec): the lake temperature, ozone and pollen moved here from the Aktiv start -->
   <Licht {core} {now} />
   <LakeCard headingLevel={2} />
-  <AirCard headingLevel={2} />
+  <!-- Wetterseite aufräumen (Noah 23.11.2026): pollen and ozone are closed until you want them -->
+  <details class="card wx-fold" data-wx-air-fold>
+    <summary>{t('Ozone and pollen')}</summary>
+    <AirCard headingLevel={3} bare />
+  </details>
   {/if}
 
   {#if tab === 'radar'}
@@ -311,6 +347,8 @@
       {#if windows.best}
         <p class="wx-bestline" data-wx-bestline>{t('Best: {day}, {from}–{to}', { day: wd(windows.best.date), from: hm(windows.best.start), to: hm(windows.best.end) })}{#if windows.best.line}{' '}· {num(windows.best.line.tmin)}–{num(windows.best.line.tmax)} °C{/if}</p>
         {#if darkAfter(core, windows.best.end)}<p class="wx-note" data-wx-best-dark><Moon size={16} aria-hidden="true" />{t('Back {n} min after sunset: lights on.', { n: num(darkAfter(core, windows.best.end)) })}</p>{/if}
+        <div class="rc-acts"><button type="button" class="btn sm" onclick={copyWindow} data-wx-share><Copy size={16} aria-hidden="true" />{copied ? t('Copied') : t('Share this window (copy the text)')}</button></div>
+        <p class="rc-src" data-wx-share-text>{shareText}</p>
         <ul class="wx-days">
           {#each windows.days as d (d.date)}
             <li class:best={d === windows.best} data-wx-day={costWord(d.cost)}>
@@ -387,12 +425,22 @@
   {/if}
   {/if}
 
+  <!-- «Wetter ausbauen» (Noah 22.11.2026 «a»): what usually comes next, one quiet line at the end of every part (never above the content) -->
+  <p class="wx-next" data-wx-next={tab}>{t('Next:')}
+    {#if tab === 'jetzt'}<button type="button" class="wx-nextlink" onclick={() => pick('planen')} data-wx-next-planen>{t('Plan a ride')}<ChevronRight size={14} aria-hidden="true" /></button> · <button type="button" class="wx-nextlink" onclick={() => pick('radar')} data-wx-next-radar>{t('Radar and cameras')}<ChevronRight size={14} aria-hidden="true" /></button>
+    {:else if tab === 'radar'}<button type="button" class="wx-nextlink" onclick={() => pick('planen')} data-wx-next-planen>{t('Plan a ride')}<ChevronRight size={14} aria-hidden="true" /></button> · <a href="#/ride">{t('On the way')}<ChevronRight size={14} aria-hidden="true" /></a>
+    {:else if tab === 'planen'}<a href="#/neuland" data-wx-next-neuland>{t('New ground to ride into')}<ChevronRight size={14} aria-hidden="true" /></a> · <a href="#/pack">{t('Pack for the day')}<ChevronRight size={14} aria-hidden="true" /></a>
+    {:else}<a href="#/heatmap" data-wx-next-heatmap>{t('Heatmap')}<ChevronRight size={14} aria-hidden="true" /></a> · <a href="#/flow/review">{t('Week in review')}<ChevronRight size={14} aria-hidden="true" /></a>{/if}
+  </p>
+
   <p class="rc-src"><Mountain size={14} aria-hidden="true" /> {t('Weather from Open-Meteo (free, open data). Avalanches: the SLF bulletin, shown as it is; the app never rates the danger itself.')}</p>
 </section>
 
 {#if homeSheet}<HomePlaceSheet current={$homeQ?.value ?? null} onclose={() => (homeSheet = false)} />{/if}
 
 <style>
+  .wx-next { margin: 14px 0 6px; font-size: var(--fs-small); color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; }
+  .wx-next a, .wx-nextlink { display: inline-flex; align-items: center; gap: 2px; color: var(--ink); text-decoration: underline; font: inherit; background: none; border: 0; padding: 4px 0; min-height: 32px; cursor: pointer; }
   .wx {
     display: grid;
     gap: 12px;
@@ -437,6 +485,17 @@
   .wx-found small {
     margin-left: 6px;
     color: var(--ink-2);
+  }
+  .wx-fold {
+    padding: 0 12px;
+  }
+  .wx-fold > summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-size: var(--fs-sub);
+    font-weight: 600;
   }
   .wx-h {
     margin: 0;

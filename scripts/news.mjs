@@ -93,6 +93,26 @@ export function readHistory() {
 
 export const newsFiles = (dir = join(ROOT, NEWS_DIR)) => (existsSync(dir) ? readdirSync(dir).filter((f) => NAME.test(f)).sort() : []);
 
+/** The pictures of «What is new» (Noah 23.11.2026): public/news/<name>/<line>-nachher.webp and -vorher.webp (tests/e2e/news-bilder.spec.js). */
+export const PICS_DIR = 'public/news';
+const PIC = /^(\d+)-(nachher|vorher)\.webp$/;
+
+/** Pure: the file names of one entry's folder as [{ line, vorher }], by line. A «vorher» without a «nachher» does not count. */
+export function picsOf(files) {
+  const by = new Map();
+  for (const f of files) {
+    const m = PIC.exec(f);
+    if (m) by.set(Number(m[1]), { ...(by.get(Number(m[1])) ?? {}), [m[2]]: true });
+  }
+  return [...by].filter(([, v]) => v.nachher).sort((a, b) => a[0] - b[0]).map(([line, v]) => ({ line, vorher: !!v.vorher }));
+}
+
+/** The pictures of a news file by its name (with «.js»), [] when there are none. */
+export function picsFor(file, root = ROOT) {
+  const dir = join(root, PICS_DIR, file.slice(0, -3));
+  return existsSync(dir) ? picsOf(readdirSync(dir)) : [];
+}
+
 /** The highest version numbered by hand in whatsnew.js (for the guess without history). */
 function highestNumbered() {
   const src = readFileSync(join(ROOT, 'src/lib/whatsnew.js'), 'utf8');
@@ -125,6 +145,12 @@ export function computeNews({ history = readHistory(), files = newsFiles(), toda
 
 /** The app version (tests and workflows that used package.json's version). */
 export const appVersion = () => computeNews().version;
+
+/** « , bilder: [...]» for an entry that has pictures (the app shows them), else nothing. */
+const picsField = (file) => {
+  const p = picsFor(file);
+  return p.length ? `, bilder: ${JSON.stringify(p)}` : '';
+};
 
 const ident = (file) => `n_${file.slice(0, -3).replace(/-/g, '_')}`;
 
@@ -182,7 +208,7 @@ export function writeNewsIndex() {
     `export const EXACT = ${r.exact};`,
     '/** The news entries of the PRs since 0.232.0, newest first, with the version and day they got. */',
     'export const NEWS = [',
-    ...r.news.map((n) => `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)} },`),
+    ...r.news.map((n) => `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)}${picsField(n.file)} },`),
     '];',
     '/** Their German texts (each file\'s `de`). */',
     `export const NEWS_DE = Object.assign({}, ${r.news.map((n) => `${ident(n.file)}.de`).join(', ') || '{}'});`,
@@ -246,7 +272,7 @@ function writeNewsSplit(r) {
   const oldDe = {};
   for (const n of old) Object.assign(oldDe, readNewsFile(n.file).de ?? {});
   const shared = sharedDe(oldDe, uiText());
-  const entry = (n) => `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)} },`;
+  const entry = (n) => `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)}${picsField(n.file)} },`;
   const files = {
     'neu.gen.js': [
       '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',

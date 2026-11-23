@@ -7,12 +7,14 @@
    *   «New challenge»  name, unit (minutes, a count, steps), goal per day, first and last day;
    *   «Ideas»        a few to take over, only ideas, nothing starts by itself;
    *   «Over»         ended ones with their days reached, to start again or delete (with Undo).
+   * On top: every 10 days the card «Time for a look» (AskCard.svelte): a new challenge, a milestone or a crazy idea.
    * The older «do X n times until a day» challenges (src/lib/challenge.js) keep living on Meilensteine.
    */
   import { Plus, Lightbulb } from '@lucide/svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import OutdoorCard from '../../lib/home/OutdoorCard.svelte';
+  import AskCard from '../../lib/challenges/AskCard.svelte';
   import ZielCard from '../../lib/challenges/ZielCard.svelte';
   import ZielSheet from '../../lib/challenges/ZielSheet.svelte';
   import { zieleQuery, saveOne, stopOne, removeWithUndo } from '../../lib/challenges/zieldb.js';
@@ -43,6 +45,8 @@
     <Crumb path={[{ href: '#/flow/milestones', label: t('Milestones') }]} here={t('Challenges|page')} />
     <PageHead title={t('Challenges|page')} text={t('Goals per day that you set yourself: minutes, a count or steps. Every day that reaches the goal counts. All of it is changeable.')} />
   </header>
+
+  <AskCard {today} onchallenge={() => start()} />
 
   <section class="blk" aria-labelledby="ch-now">
     <h2 id="ch-now" class="sh">{t('Running now')}</h2>

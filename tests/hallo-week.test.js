@@ -43,3 +43,27 @@ describe('keyCounts (Woran liegt\'s?): only counting', () => {
     expect(keyCounts([], 'hallo.grund')).toEqual([]);
   });
 });
+
+describe('the face as an answer of the scale «spass.stimmung» (Noah 22.11.2026)', () => {
+  it('a face has its place on the scale of 1–10, the closest face comes back', async () => {
+    const { MOODS, scaleOfFace, faceOfScale } = await import('../src/lib/home/hallo.js');
+    expect(MOODS.map(scaleOfFace)).toEqual([1, 3, 6, 8, 10]);
+    expect(faceOfScale(7)?.key).toBe('okay'); // 7 is as far from 6 as from 8: the first closest wins
+    expect([1, 2, 3, 5, 6, 8, 9, 10].map((v) => faceOfScale(v).key)).toEqual(['muede', 'muede', 'gahtso', 'okay', 'okay', 'guet', 'guet', 'super']);
+    expect(faceOfScale(0)).toBeNull();
+    expect(faceOfScale('x')).toBeNull();
+  });
+  it('weekDots reads older face answers and answers of the scale side by side, the latest of the day wins', async () => {
+    const { weekDots } = await import('../src/lib/home/hallo-week.js');
+    const rows = [
+      { qid: 'hallo.gaht', day: '2026-10-08', at: '2026-10-08T08:00', value: 'okay' },
+      { qid: 'spass.stimmung', day: '2026-10-09', at: '2026-10-09T08:00', value: 10, kind: 'scale' },
+      { qid: 'spass.stimmung', day: '2026-10-09', at: '2026-10-09T13:00', value: 3, kind: 'scale' },
+      { qid: 'spass.stimmung', day: '2026-10-07', at: '2026-10-07T08:00', value: 'x' },
+    ];
+    const d = weekDots(rows, '2026-10-09');
+    expect(d.find((x) => x.day === '2026-10-08').key).toBe('okay');
+    expect(d.find((x) => x.day === '2026-10-09').key).toBe('gahtso');
+    expect(d.find((x) => x.day === '2026-10-07').key).toBeNull();
+  });
+});

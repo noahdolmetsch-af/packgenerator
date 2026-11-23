@@ -18,7 +18,7 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
-  import { PLAN_KEY, GOAL_KEY, planOf, goalOf, prunePlan, cleanSession, ftpEstimate, mondayOf, shiftDay, hmm, ZONE_NAMES } from '../../lib/training.js';
+  import { PLAN_KEY, GOAL_KEY, planValue, planOf, goalOf, prunePlan, cleanSession, ftpEstimate, mondayOf, shiftDay, hmm, ZONE_NAMES } from '../../lib/training.js';
   import { sessionStates } from '../../lib/training/inhalt/inhalt-woche.js';
   import { TPL_KEY, MORE_KEY, cleanMore, OWN_KEY, HIDE_KEY, allPlans, planById, ownOf, cleanOwn, midHours, firstMonday, buildPlan, longestOf, applyPlan, removePlan, weeksGone, zoneWays, moveSuggestions, raceChoices, raceMoved, RACES_KEY, WEEKS_MIN, WEEKS_MAX } from '../../lib/training/plans.js';
   import { askDelete, deleteWithUndo, once } from '../../lib/ui/ask.js';
@@ -66,7 +66,7 @@
   const nextMonday = shiftDay(mondayOf(today), 7);
   const KIND_WORD = { build: 'Build|week', easy: 'Easier week', taper: 'Easier before the race', race: 'Race week' };
 
-  const savePlan = (next) => db.settings.put({ key: PLAN_KEY, value: { sessions: prunePlan(next, today) } });
+  const savePlan = async (next) => db.settings.put({ key: PLAN_KEY, value: planValue((await db.settings.get(PLAN_KEY))?.value, prunePlan(next, today)) }); // the free days of TrainingPeaks stay
 
   /* ---------- the plan in use: missed sessions of this week (default a: suggest a free day) ---------- */
   const weekStates = $derived(active ? sessionStates(sessions.filter((s) => s.day >= mondayOf(today) && s.day < today && String(s.src ?? '').startsWith('tpl:')), acts, today, zones.bounds) : []);
@@ -391,7 +391,7 @@
           </li>
         {/each}
       </ul>
-      <p class="hint">{t('After each ride the app asks how hard it felt (1 to 10). Without heart rate that answer counts for «Plan kept?»; without an answer nothing counts.')}</p>
+      <p class="hint">{t('After a new Strava activity the app asks how it was (light, good, hard). Without heart rate that answer counts for «Plan kept?»; without an answer nothing counts.')}</p>
     </Sec>
   {/if}
 </div>

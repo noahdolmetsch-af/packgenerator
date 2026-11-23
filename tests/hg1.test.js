@@ -13,11 +13,11 @@ import { lang } from '../src/lib/i18n.svelte.js';
 
 const ASK = HELLO_ASK;
 
-// v0.144.0 RE «Eine Tagesuhr» (Noah 4a): the morning starts at 06:00 like everywhere (was 05:00)
+// v0.144.0 RE «Eine Tagesuhr» (Noah 4a): the morning starts at 05:00 like everywhere (23.11.2026, Noah: «Guät Nacht» at 05:05 was wrong; 06:00 until then)
 describe('the greeting by time of day (4b) and the night (3)', () => {
   const cases = [
     [4, 'night'],
-    [5, 'night'],
+    [5, 'morning'],
     [6, 'morning'],
     [10, 'morning'],
     [11, 'day'],
@@ -27,12 +27,12 @@ describe('the greeting by time of day (4b) and the night (3)', () => {
     [22, 'night'],
     [0, 'night'],
   ];
-  it('the parts at every boundary (05:59, 06:00, 10:59, 11:00, 17:59, 18:00, 21:59, 22:00)', () => {
+  it('the parts at every boundary (04:59, 05:00, 10:59, 11:00, 17:59, 18:00, 21:59, 22:00)', () => {
     for (const [h, part] of cases) expect(helloPart(h), `${h}:00`).toBe(part);
   });
   it('with a name', () => {
-    expect(greetFor(5, 'Lena')).toBe(HELLO_NIGHT); // 05:59
-    expect(greetFor(6, 'Lena')).toBe(`Guete Morge Lena, ${ASK}`); // 06:00
+    expect(greetFor(4, 'Lena')).toBe(HELLO_NIGHT); // 04:59
+    expect(greetFor(5, 'Lena')).toBe(`Guete Morge Lena, ${ASK}`); // 05:00
     expect(greetFor(10, 'Lena')).toBe(`Guete Morge Lena, ${ASK}`); // 10:59
     expect(greetFor(11, 'Lena')).toBe(`Hoi Lena, ${ASK}`); // 11:00
     expect(greetFor(17, 'Lena')).toBe(`Hoi Lena, ${ASK}`); // 17:59
@@ -41,8 +41,8 @@ describe('the greeting by time of day (4b) and the night (3)', () => {
     expect(greetFor(22, 'Lena')).toBe(HELLO_NIGHT); // 22:00
   });
   it('without a name', () => {
-    expect(greetFor(5, '')).toBe(HELLO_NIGHT);
-    expect(greetFor(6, '')).toBe(`Guete Morge, ${ASK}`);
+    expect(greetFor(4, '')).toBe(HELLO_NIGHT);
+    expect(greetFor(5, '')).toBe(`Guete Morge, ${ASK}`);
     expect(greetFor(10, '  ')).toBe(`Guete Morge, ${ASK}`);
     expect(greetFor(11, null)).toBe(`Hoi, ${ASK}`);
     expect(greetFor(17)).toBe(`Hoi, ${ASK}`);
@@ -89,21 +89,22 @@ describe('the answer in the ONE history of «Deine Abfragen» (2b)', () => {
     const at = '2026-10-09T08:10';
     const rows = helloRows({ mood: 'guet', plans: ['training', 'arbeit'], text: ' Kurze Runde ' }, at);
     expect(rows).toHaveLength(2);
-    expect(rows[0]).toMatchObject({ qid: 'hallo.gaht', day: '2026-10-09', at, kind: 'chips', value: 'guet', src: 'hand' });
+    // since 22.11.2026 a face is an answer of the scale question «spass.stimmung» (guet = 8 of 10), no longer of «hallo.gaht»
+    expect(rows[0]).toMatchObject({ qid: 'spass.stimmung', day: '2026-10-09', at, kind: 'scale', value: 8, src: 'hand' });
     expect(rows[1]).toMatchObject({ qid: 'hallo.vor', value: ['training', 'arbeit'], note: 'Kurze Runde' });
     expect(helloRows({ text: 'nur Text' }, at)).toMatchObject([{ qid: 'hallo.vor', value: null, note: 'nur Text' }]);
     expect(helloRows({}, at)).toEqual([]);
     expect(helloRows({ mood: 'unknown' }, at)).toEqual([]);
     // the history shows them like any answer (its words are the Swiss ones, the same in both languages)
-    expect(rowText(rows[0])).toBe("Wi gaht's?");
-    expect(valueText(rows[0], QUESTION['hallo.gaht'])).toBe('Guet');
+    expect(valueText(rows[0], QUESTION['spass.stimmung'])).toBe('8');
+    expect(valueText({ qid: 'hallo.gaht', kind: 'chips', value: 'guet' }, QUESTION['hallo.gaht'])).toBe('Guet'); // older answers stay readable
     expect(valueText(rows[1], QUESTION['hallo.vor'])).toBe('Training · Arbeit');
     expect(numberOf(QUESTION['hallo.gaht'].form, 'guet')).toBe(0.75);
   });
   it('Gruss D: reasons are their own row; in the evening the day words and the text replace the plan', () => {
     const at = '2026-10-09T19:30';
     const rows = helloRows({ mood: 'okay', reasons: ['r-schlaf'], plans: ['tour'], days: ['streng', 'schoen'], text: 'Lange Sitzung', evening: true }, at);
-    expect(rows.map((r) => r.qid)).toEqual(['hallo.gaht', 'hallo.grund', 'hallo.tag']);
+    expect(rows.map((r) => r.qid)).toEqual(['spass.stimmung', 'hallo.grund', 'hallo.tag']);
     expect(rows[1]).toMatchObject({ value: ['r-schlaf'] });
     expect(rows[2]).toMatchObject({ value: ['streng', 'schoen'], note: 'Lange Sitzung' });
     expect(valueText(rows[2], QUESTION['hallo.tag'])).toBe('Streng · Schön');
@@ -116,11 +117,11 @@ describe('the answer in the ONE history of «Deine Abfragen» (2b)', () => {
     const n = await saveHello({ mood: 'okay', plans: ['ruhetag'], text: '' }, '2026-10-09T19:30');
     expect(n).toBe(2);
     const answers = await db.abAnswers.toArray();
-    expect(answers.map((r) => r.qid).sort()).toEqual(['hallo.gaht', 'hallo.vor']);
+    expect(answers.map((r) => r.qid).sort()).toEqual(['hallo.vor', 'spass.stimmung']);
     const hist = mergeHistory(answers, await db.flowChecks.toArray());
     expect(hist.filter((r) => r.day === '2026-10-09')).toHaveLength(2);
-    // no daily check is touched (only sleep, energy and mood of the 50 mirror there)
-    expect(await db.flowChecks.count()).toBe(0);
+    // the face is an answer of «spass.stimmung», which mirrors into the daily check's mood like every answer of it (abdb.js MIRROR)
+    expect((await db.flowChecks.get('2026-10-09')).mood).toBe(6);
     expect(await saveHello({}, '2026-10-09T19:31')).toBe(0);
     expect(await db.abAnswers.count()).toBe(2);
   });
@@ -131,7 +132,7 @@ describe('the answer in the ONE history of «Deine Abfragen» (2b)', () => {
     expect(FEELINGS.every((f) => f.label && f.emoji)).toBe(true);
     const at = '2026-10-09T20:00';
     const rows = helloRows({ mood: 'guet', feelings: ['ruehig', 'dankbar', 'nope'] }, at);
-    expect(rows.map((r) => r.qid)).toEqual(['hallo.gaht', 'hallo.gefuehl']);
+    expect(rows.map((r) => r.qid)).toEqual(['spass.stimmung', 'hallo.gefuehl']);
     expect(rows[1].value).toEqual(['ruehig', 'dankbar']);
     expect(valueText(rows[1], QUESTION['hallo.gefuehl'])).toBe('Ruhig · Dankbar');
     expect(rows[0].id).toBe(helloRows({ mood: 'super' }, at)[0].id); // fixed id: a changed answer replaces
@@ -141,13 +142,14 @@ describe('the answer in the ONE history of «Deine Abfragen» (2b)', () => {
     expect(await saveHello({ mood: 'super', feelings: ['wach', 'stolz'] }, at)).toBe(2);
     let all = await db.abAnswers.toArray();
     expect(all).toHaveLength(2);
-    expect(all.find((r) => r.qid === 'hallo.gaht').value).toBe('super');
+    expect(all.find((r) => r.qid === 'spass.stimmung').value).toBe(10);
     // taken back with a second tap: the row goes
     expect(await saveHello({ mood: 'super' }, at)).toBe(1);
     all = await db.abAnswers.toArray();
-    expect(all.map((r) => r.qid)).toEqual(['hallo.gaht']);
+    expect(all.map((r) => r.qid)).toEqual(['spass.stimmung']);
     expect(await saveHello({}, at)).toBe(0);
     expect(await db.abAnswers.count()).toBe(0);
+    expect((await db.flowChecks.get('2026-10-09'))?.mood).toBeUndefined(); // the mirror goes with the face
   });
   it('the name: saved and asked once; «Nicht jetzt» only marks it asked', async () => {
     await nameAsked();

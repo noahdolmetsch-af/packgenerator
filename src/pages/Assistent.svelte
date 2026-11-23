@@ -10,7 +10,7 @@
   import { MessageCircle, Route } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
-  import { t } from '../lib/i18n.svelte.js';
+  import { t, tn } from '../lib/i18n.svelte.js';
   import { EXAMPLES } from '../lib/assistent/answers.js';
   import AskAnswer from '../lib/assistent/AskAnswer.svelte';
   import PlanHelp from '../lib/assistent/PlanHelp.svelte';
@@ -20,6 +20,9 @@
   import AskElsewhere from '../lib/assistent/AskElsewhere.svelte';
   import SpeakButton from '../lib/ui/SpeakButton.svelte';
   import { appendSpoken } from '../lib/speak.js';
+  import { loadOpen, saveOpen, noteOpen, dropOpen, hasOpen, keyOf } from '../lib/assistent/offen.js';
+  import { toast } from '../lib/flow/ui.svelte.js';
+  import { localDay } from '../lib/localday.js';
 
   let { hash = '' } = $props();
   // Noah 15.10.2026 «spezifisch sollen diese beispiele in der app als beispiele angezeigt werden»: examples
@@ -49,12 +52,34 @@
   function submit(e) {
     e.preventDefault();
     asked = q.trim();
+    noted = '';
     empty = !asked;
   }
   function example(s) {
     empty = false;
+    noted = '';
     q = s;
     asked = s;
+  }
+  // S6 «Frag die App merkt sich Fragen» (Noah 21.11.2026 «5a»): a question the app could not answer is kept on this
+  // device only (offen.js), with Undo to remove it; a question it can answer later leaves the list by itself
+  let openQs = $state(loadOpen());
+  let noted = '';
+  function done(has, qq) {
+    if (has) {
+      if (hasOpen(openQs, qq)) (openQs = dropOpen(openQs, keyOf(qq))), saveOpen(openQs);
+      return;
+    }
+    if (noted === qq) return;
+    noted = qq;
+    openQs = noteOpen(openQs, qq, localDay());
+    saveOpen(openQs);
+  }
+  function drop(e) {
+    const before = openQs;
+    openQs = dropOpen(openQs, e.key);
+    saveOpen(openQs);
+    toast(t('Question removed'), () => ((openQs = before), saveOpen(before)));
   }
 </script>
 
@@ -81,9 +106,9 @@
       </div>
       {#if asked}
         <div class="as-res" aria-live="polite">
-          <AskAnswer q={asked} fallback here onresult={(has) => (appHas = has)} />
-          <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a»); Gemini asks by itself when the app has no answer («1a») -->
-          <AskElsewhere q={asked} auto={!appHas}>
+          <AskAnswer q={asked} fallback here onresult={(has) => (appHas = has)} ondone={done} />
+          <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a») -->
+          <AskElsewhere q={asked}>
             {#snippet children()}<SearchFree q={asked} data={$all} inside />{/snippet}
           </AskElsewhere>
         </div>
@@ -104,6 +129,21 @@
       </dl>
       <p class="as-hint">{t('«Help me plan» asks four things (when and how long, kind of trip, the night, the bike) and then suggests a plan: weather, packing list, what is due on the bike, your learnings.')}</p>
     </details>
+    {#if openQs.length}
+      <details class="card as-card as-how" data-as="open">
+        <summary>{tn(openQs.length, 'One question without an answer', '{n} questions without an answer')}</summary>
+        <p class="as-hint">{t('The app could not answer these. They stay only on this device, not in the backup. When the app can answer one, it leaves this list by itself.')}</p>
+        <ul class="as-eg as-openl">
+          {#each openQs as e (e.key)}
+            <li>
+              <button type="button" class="as-egb" onclick={() => example(e.q)} data-open-ask>«{e.q}»</button>
+              {#if e.n > 1}<small>{t('asked {n} times', { n: e.n })}</small>{/if}
+              <button type="button" class="btn sm" onclick={() => drop(e)} data-open-del aria-label={t('Remove this question')}>{t('Remove')}</button>
+            </li>
+          {/each}
+        </ul>
+      </details>
+    {/if}
     <p class="as-fine">{t('The app answers free and on this device.')}</p>
   {/if}
 </div>
@@ -230,6 +270,25 @@
     margin: var(--sp-2) 0 0;
     font-size: var(--fs-small);
     color: var(--ink-3);
+  }
+  .as-openl {
+    list-style: none;
+    padding: 0;
+    margin: var(--sp-2) 0 0;
+  }
+  .as-openl li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
+    padding: 6px 0;
+  }
+  .as-openl small {
+    color: var(--ink-3);
+    white-space: nowrap;
+  }
+  .as-openl .btn {
+    margin-left: auto;
   }
   .as-fine {
     margin: var(--sp-3) 4px 0;

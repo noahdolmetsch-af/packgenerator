@@ -27,6 +27,7 @@ export const GROUP_PLACES = [
   { name: 'Compass boxes', file: 'src/pages/Compass.svelte' },
   { name: 'Groups of the links', file: 'src/pages/WebLinks.svelte' }, // Paket L «Werkzeuge und Links»
   { name: 'Neuland collections', file: 'src/pages/Neuland.svelte' }, // «Neuland»: own collections (built-in ones: rename, switch off)
+  { name: 'Kinds and groups of the improvement log', file: 'src/lib/logbuch/KindsSheet.svelte' }, // «Verbesserungs-Logbuch» L5: rename, delete (kinds go to another group or «No group»)
   { name: 'Groups of sports', file: 'src/pages/flow/MySports.svelte' }, // «Meine Sportarten»: own groups
   { name: 'Inspection areas', file: 'src/lib/inspect/EditList.svelte' }, // «Velo-Inspektion»: the areas of the checklist
   { name: 'Impulse areas', file: 'src/lib/frei/Impulse.svelte' }, // Paket T «Freie Zeit»
@@ -46,6 +47,8 @@ export const GROUP_PLACES = [
   { name: 'Areas of Today', file: 'src/lib/home/AreasEdit.svelte' },
   { name: 'Groups of the session library', file: 'src/lib/training/plans/Library.svelte' }, // «Training verbessern» 7 (Noah «1-5 a»)
   { name: 'Groups of the kept weeks', file: 'src/lib/training/plans/WeekSaved.svelte' }, // «Training verbessern» 11 (Noah «1a 2a 3a 4a»)
+  { name: 'Groups of the whole picture', file: 'src/lib/kurse/Verteilung.svelte' }, // «Kursblick» Verteilung (Noah 23.11.2026): gold, stocks, bonds, crypto … with a goal each
+  { name: 'Groups of the markets', file: 'src/lib/kurse/Maerkte.svelte' }, // «Kursblick» Märkte (Noah 22.11.2026): the titles the person follows
   { name: 'Groups of the Quick Links', file: 'src/pages/Quick.svelte' }, // «Quick Links» (Noah 28.10.2026 «5a») // «Bereiche anpassen» (Noah 27.10.2026 «2a»): hidden, not deleted
 ];
 

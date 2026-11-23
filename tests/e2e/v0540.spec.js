@@ -7,6 +7,7 @@
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, base } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';
+import { closeDialog } from './settle.js';
 
 const table = (page, name) =>
   page.evaluate((n) => new Promise((ok) => {
@@ -36,7 +37,7 @@ test('the top: name and one summary line; the rest folded, Gewicht first, one ro
   await expect(openFolds(dlg)).toHaveCount(0);
   // v0.102.0 Design-Refresh P3 (M2): a last row «More» (rename, merge, delete)
   // «History» (life) comes once trips and debriefs are read (liveQuery), so the list is polled
-  await expect.poll(() => dlg.locator('details.fold').evaluateAll((ds) => ds.map((d) => d.dataset.fold))).toEqual(['weight', 'where', 'blocks', 'rules', 'life', 'store', 'details', 'templates', 'more']); // Paket H (19.10.2026): «At home and supply» after the history
+  await expect.poll(() => dlg.locator('details.fold').evaluateAll((ds) => ds.map((d) => d.dataset.fold))).toEqual(['weight', 'where', 'blocks', 'with', 'rules', 'life', 'store', 'details', 'templates', 'more']); // Paket H (19.10.2026): «At home and supply» after the history; «Needed with this» (G1) after the blocks
   await expect(fold(dlg, 'weight').locator(':scope > summary')).toContainText('160 g · gewogen');
   await expect(fold(dlg, 'weight').locator(':scope > summary')).toContainText('2 Vorschläge');
   await expect(fold(dlg, 'blocks').locator(':scope > summary')).toContainText('Standard');
@@ -57,8 +58,7 @@ test('the top: name and one summary line; the rest folded, Gewicht first, one ro
   await expect(fold(dlg, 'blocks')).toHaveJSProperty('open', true);
   await expect(dlg.getByRole('group', { name: 'Kommt mit · Bausteine' }).getByRole('button', { name: /^Standard/ })).toHaveAttribute('aria-pressed', 'true');
   // the last row opened stays open for the session
-  await page.keyboard.press('Escape');
-  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await closeDialog(page); // waits until backclose.js has taken the window's history entry away; a next address before that is undone
   await page.goto('./#/gear?item=RA01');
   const d2 = page.locator('dialog[open]');
   await expect(fold(d2, 'blocks')).toHaveJSProperty('open', true);

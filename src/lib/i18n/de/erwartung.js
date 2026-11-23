@@ -29,7 +29,7 @@ export default {
   'After the ride the tour page shows your guess next to how it felt.': 'Nach der Fahrt zeigt die Tour-Seite deine Schätzung neben dem Erleben.',
   'Needs a bike tour. After the ride, the answer to «How hard was your ride?» (own or from Strava).': 'Braucht eine Velotour. Nach der Fahrt die Antwort auf «Wie anstrengend war deine Fahrt?» (eigene oder von Strava).',
   'Open a bike tour in Planen and tap a number under «How hard will it be?».': 'Öffne eine Velotour in Planen und tipp unter «Wie anstrengend wird es?» eine Zahl.',
-  'After the ride say how it felt on the tour page, or under Aktiv › Training.': 'Sag nach der Fahrt auf der Tour-Seite oder unter Aktiv › Training, wie es war.',
+  'After the ride say how it felt on the tour page, or under Aktiv › Training.': 'Sag nach der Fahrt auf der Tour-Seite oder unter Woche › Training, wie es war.',
   'The tour page shows both side by side; from three tours on also whether your guesses lean one way.': 'Die Tour-Seite zeigt beides nebeneinander; ab drei Touren auch, ob deine Schätzungen eher in eine Richtung gehen.',
   'Example: guessed 5, felt 7 → «2 points harder than you guessed». Only a description, never a reason.': 'Beispiel: geschätzt 5, erlebt 7 → «2 Punkte anstrengender, als du geschätzt hast». Nur eine Beschreibung, nie ein Grund.',
 };

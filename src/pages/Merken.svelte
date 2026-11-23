@@ -12,7 +12,7 @@
    */
   import { liveQuery } from 'dexie';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
-  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift, ListChecks, Pin, Users, Check, Sunrise, ArrowUpDown, Search, Link2, NotebookPen } from '@lucide/svelte';
+  import { Plus, Repeat2, Bell, ChevronDown, ChevronRight, Settings2, Cake, Sprout, Droplet, Gift, ListChecks, Pin, Users, Check, Sunrise, ArrowUpDown, Search, Link2, NotebookPen, CalendarDays } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { t, tn, locale } from '../lib/i18n.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -250,6 +250,7 @@
     <!-- «332 sichtbar»: Trello stands at the end of the page; one tap brings you there -->
     <button type="button" class="tlk" onclick={toTrello} data-merken-trello><ListChecks size={16} aria-hidden="true" />{t('Trello')}</button>
     <!-- Wegweiser 8 (Noah 01.11.2026): people you want to see again remind you here -->
+    <a href="#/day/todos" data-merken-day><CalendarDays size={16} aria-hidden="true" />{t('To-dos in My day')}</a>
     <a href="#/me/alltag/menschen" data-merken-people><Users size={16} aria-hidden="true" />{t('Not seen for a while')}</a></p>
 
   <div class="card list">

@@ -18,6 +18,6 @@ export default {
   'The ticks of this activity go too.': 'Die Häkchen dieser Aktivität verschwinden auch.',
   'Delete «{name}» with history': '«{name}» mit Verlauf löschen',
   'Hide tile': 'Kachel ausblenden',
-  'the history stays; back under Aktiv › Activities': 'der Verlauf bleibt; zurück unter Aktiv › Aktivitäten',
-  '«{name}» hidden. Show it again under Aktiv › Activities.': '«{name}» ausgeblendet. Wieder einblenden unter Aktiv › Aktivitäten.',
+  'the history stays; back under Aktiv › Activities': 'der Verlauf bleibt; zurück unter Woche › Training › Meine Aktivitäten',
+  '«{name}» hidden. Show it again under Aktiv › Activities.': '«{name}» ausgeblendet. Wieder einblenden unter Woche › Training › Meine Aktivitäten.',
 };

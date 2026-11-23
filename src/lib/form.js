@@ -11,6 +11,7 @@
  */
 import { addDays } from './health.js';
 import { powerLoad, isoWeek } from './training.js';
+import { dayAnswer } from './flow/form/tagesantwort.js';
 
 export const FIT_DAYS = 42;
 export const FAT_DAYS = 7;
@@ -138,7 +139,12 @@ function readinessAt(series, n, hasLoad, parts) {
   const reason = all.length ? all.reduce((a, b) => (Math.abs(b.points) > Math.abs(a.points) ? b : a)) : null;
   const weekAgo = n > 7 ? series[n - 8] : null;
   const ramp = weekAgo ? Math.round((last.fit - weekAgo.fit) * 10) / 10 : null;
-  return { score, level, formPts: hasLoad ? formPts : null, form: last?.form ?? 0, fit: last?.fit ?? 0, fat: last?.fat ?? 0, parts, reason, ramp };
+  const out = { score, level, scoreLevel: level, formPts: hasLoad ? formPts : null, form: last?.form ?? 0, fit: last?.fit ?? 0, fat: last?.fat ?? 0, parts, reason, ramp };
+  // Noah 23.11.2026 «ja»: `level` is the answer for today (tagesantwort.js): clearly low sleep, HRV or resting pulse
+  // take it down even when the form is good. Every place that reads the level (the page «Form», the card on Auswerten,
+  // «Heute passt», the week suggestion, the tour path) now says the same. The score is unchanged; `scoreLevel` is the level of the score alone.
+  out.level = dayAnswer(out).level;
+  return out;
 }
 
 /** Fitness rising faster than this per week: a calm hint (an assumption from training practice). */

@@ -6,10 +6,9 @@ export default {
   'f.markup': 'Blur number plates and house numbers before you share a picture. A red circle explains more than three sentences.',
   'f.ruhig': 'Calm is not a mode you switch on once: look here when the app feels loud, and switch off one thing at a time.',
   'f.hiddenall': 'Hiding never deletes. If you miss something you once used, look here first before you search the whole app.',
-  'f.devil': 'Ask for the counter-arguments the evening before you book, not the evening before you leave: then there is still time to change.',
+  'f.devil': 'Look at what is still open the evening before you book, not the evening before you leave: then there is still time to change.',
   'f.nogos': 'Short and clear works best: «no single-use plastic» helps more than a long explanation of why.',
   'f.sources': 'An answer without a source is a guess. Tap the source before you rely on a number, a date or a price.',
-  'f.aicheck': 'AI is often right and sometimes very sure while wrong. A short look before «Take over» costs less than a wrong packing list.',
   'f.workspace': 'Set the end day right away: a workspace that forgets to end turns into a second, smaller app.',
   'f.calmview': 'Write the task as a verb, «fix the brake», not «bike». It is easier to tap «Done» when you know when it is done.',
   'f.pushbudget': 'Three a day is plenty for most people. Warnings for weather, ice and light always come, whatever the budget says.',
@@ -60,4 +59,5 @@ export default {
   'f.qr': 'A QR code of your WLAN on the fridge saves guests from typing; one of your route link lets friends follow in one scan.',
   'f.calc': 'Quick check before the shop: 4 days × 3 bars is 12 bars, not «a few». The numbers stay on the device.',
   'f.units': 'Tyre pressure in bar or psi depends on the pump: check once here and write your number on the frame with tape.',
+  'f.kursblick': 'A goal is a number you wait for: set it under «My numbers», Kursblick shows it on Today. Under «Decision» you write your buying rule, under «Portfolio» your buys, sales and the split against your goals.',
 };

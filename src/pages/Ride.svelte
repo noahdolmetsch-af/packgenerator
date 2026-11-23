@@ -38,6 +38,7 @@
   import { loadWerte } from '../lib/review/actdata.js';
   import { paceFor, usualSurface } from '../lib/review/werte.js';
   import { blockPlan, eveningPlan } from '../lib/blockplan.js';
+  import { abendShows } from '../lib/unterwegs/abendblick.js'; // «Abendblick» (Noah 23.11.2026 «G2»)
   import { FUEL_KEY, fuelForTrip } from '../lib/fuel.js';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import ChargeList from '../lib/trip/ChargeList.svelte';
@@ -71,7 +72,7 @@
   // Paket K «Unterwegs» (Noah 19.10.2026): the helpers load only when this page shows them (main.js stays small)
   import { setGloveAuto, glove, setGlove } from '../lib/unterwegs/handschuh.svelte.js';
   import { autoGlove, MODES as GLOVE_MODES } from '../lib/unterwegs/handschuh.js';
-  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation, HeartHandshake, Bike, Sunrise } from '@lucide/svelte';
+  import { House, Gauge, FileText, Hand, Droplets, Sparkles, FileCog, Navigation, HeartHandshake, Bike, Sunrise, ListChecks } from '@lucide/svelte';
   import { morningDue } from '../lib/haustuer/haustuer.js';
   import NextShop from '../lib/unterwegs/NextShop.svelte'; // «Alles fertig»: the next shop in the Live map button
   import MorningList from '../lib/schnellpacken/MorningList.svelte'; // Paket SP «Schneller packen»
@@ -599,7 +600,7 @@
   <PageHead title={t('On the way')} />
   <!-- v0.127.0 A-U2: the one empty building block -->
   {#if $tripsQ?.length}<Empty icon={RouteIcon} title={t('No trip on the way today')} text={t('On the way shows a trip on its days. Plan or start one under Trips.')} action={{ label: t('To the trips'), href: '#/trips' }} />
-  {:else if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} />{:else}<Skeleton rows={3} />{/if}
+  {:else if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} action2={{ label: t('To the trips'), href: '#/trips' }} />{:else}<Skeleton rows={3} />{/if}
   <!-- Paket W 1119: «Wo steht mein Velo?» also without a trip (in town, at the station) -->
   {#if $tripsQ}<p class="parked-solo"><button type="button" class="btn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={18} aria-hidden="true" />{t('Bike parked')}</button></p>{/if}
 {:else}
@@ -890,6 +891,13 @@
               </div></li>
             </ul>
           </details>
+          <!-- «Abendblick» (Noah 23.11.2026 «G2»): the evening before the last day: what was not used so far, what was missing; the marks of the debrief -->
+          {#if abendShows(eve, trip)}
+            <details class="tp-fold" data-fold="abend">
+              <summary><span class="ib" aria-hidden="true"><ListChecks size={18} /></span><span class="tw"><b>{t('Evening look')}</b><small>{t('what you did not use so far, what was missing')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+              <div class="in">{#await import('../lib/unterwegs/Abendblick.svelte') then m}<m.default {trip} {items} />{/await}</div>
+            </details>
+          {/if}
         {/if}
         <!-- Paket K #322 «Wasser- und Essen-Rechner», #99 «Sonne, Mond und Orte», #312 «Umwandeln» -->
         <details class="tp-fold" data-fold="water">

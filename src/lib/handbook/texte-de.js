@@ -384,7 +384,6 @@ export default {
   'Open Me › Documents and tap «Photograph document» (or New › «Photograph document»).': 'Öffne Ich › Dokumente und tippe «Dokument fotografieren» (oder Neu › «Dokument fotografieren»).',
   'For Google Drive: «Connect Google Drive» once (needs Strava connected on this device).': 'Für Google Drive: einmal «Google Drive verbinden» (braucht Strava auf diesem Gerät).',
   'Example: a workshop receipt → black and white PDF «Quittung Veloladen Muster» in «Imported PDFs» and in Drive.': 'Beispiel: eine Werkstatt-Quittung → schwarzweisses PDF «Quittung Veloladen Muster» in «Importierte PDF» und in Drive.',
-  'With the AI helper switched on: «Copy for Claude» copies the week as text; nothing is sent by itself.': 'Mit eingeschaltetem KI-Helfer: «Kopieren für Claude» kopiert die Woche als Text; nichts wird von selbst gesendet.',
   'Example: 4:10 h, 96 km, 1’240 Hm, «+1:20» against the week before → «Keep your rhythm».': 'Beispiel: 4:10 Std., 96 km, 1’240 Hm, «+1:20» gegenüber der Woche davor → «Behalte deinen Rhythmus».',
   // «Assistent» (15.10.2026)
   'Always there: the button «Assistant» (sidebar, on the phone next to the search) or a question in the search.': 'Immer da: der Knopf «Assistent» (Seitenleiste, am Handy neben der Suche) oder eine Frage in der Suche.',
@@ -447,7 +446,7 @@ export default {
   'Drag the frame to cut, choose the size; «Cut out» removes the background.': 'Zieh den Rahmen zum Zuschneiden, wähle die Grösse; «Freistellen» entfernt den Hintergrund.',
   'Tap «Make photo», then «Save or share».': 'Tippe «Foto machen», dann «Speichern oder teilen».',
   'Example: bike photo 4.2 MB → Medium 1280 px, about 300 KB.': 'Beispiel: Velofoto 4,2 MB → Mittel 1280 px, etwa 300 KB.',
-  'Four parts of the app also open as a small app with their own home-screen icon.': 'Vier Teile der App öffnen auch als kleine App mit eigenem Symbol auf dem Startbildschirm.',
+  'Five parts of the app also open as a small app with their own home-screen icon.': 'Fünf Teile der App öffnen auch als kleine App mit eigenem Symbol auf dem Startbildschirm.',
   'In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/werkzeug/.': 'Öffne in Chrome auf dem Handy noahdolmetsch-af.github.io/packgenerator/apps/werkzeug/.',
   'Example: tap the icon → the calculator, PDF and photo tools at once.': 'Beispiel: Symbol antippen → Rechner, PDF- und Foto-Werkzeuge sofort da.',
   'The rates need the internet once a day; offline the last ones count.': 'Die Kurse brauchen 1× am Tag Internet; offline gelten die letzten.',
@@ -799,9 +798,9 @@ export default {
   'Set the start (back from the race day or from a day) and the hours per week, then «Try it».': 'Stell den Beginn (rückwärts ab Renntag oder ab einem Tag) und die Stunden pro Woche ein, dann «Ausprobieren».',
   'Missed a session? The plan in use suggests a free day of this week.': 'Eine Einheit verpasst? Der laufende Plan schlägt einen freien Tag dieser Woche vor.',
   'Example: «Multi-day race», race day 12 June, 8 h → 12 weeks from 22 March, long weekends from May.': 'Beispiel: «Mehrtagesrennen», Renntag 12. Juni, 8 Std. → 12 Wochen ab 22. März, lange Wochenenden ab Mai.',
-  'After each ride Active › Training asks «How hard was your ride?» (1 to 10).': 'Nach jeder Fahrt fragt Aktiv › Training «Wie anstrengend war deine Fahrt?» (1 bis 10).',
+  'On Active a card asks «How was it?» after a new Strava activity: light, good or hard.': 'Auf Aktiv fragt eine Karte nach einer neuen Strava-Aktivität «Wie war\'s?»: leicht, gut oder hart.',
   'Without heart rate the answer stands in for the zone in «Plan kept?»; without an answer nothing counts.': 'Ohne Puls steht die Antwort für die Zone in «Plan erfüllt?»; ohne Antwort zählt nichts.',
-  'Example: a ride without heart rate strap felt like 4 → it counts as zone 2.': 'Beispiel: Eine Fahrt ohne Pulsgurt fühlte sich wie 4 an → sie zählt als Zone 2.',
+  'Example: a run without heart rate strap felt «good» → it counts like 5 of 10, zone 3.': 'Beispiel: Ein Lauf ohne Pulsgurt fühlte sich «gut» an → er zählt wie 5 von 10, Zone 3.',
   'Example: a recipe in «My collections» → «Ingredients to the shopping list» puts the missing ones on your list.': 'Beispiel: ein Rezept in «Meine Sammlungen» → «Zutaten auf die Einkaufsliste» setzt die fehlenden auf deine Liste.',
   'Open Plan › Free time › Impulses.': 'Öffne Planen › Freie Zeit › Impulse.',
   'Tap «Try it» or «Done it»; the areas can be renamed, sorted and deleted.': 'Tipp «Ausprobieren» oder «Gemacht»; die Bereiche lassen sich umbenennen, sortieren und löschen.',
@@ -941,7 +940,7 @@ export default {
   // «Suche mit Sprache und Antworten» (21.10.2026)
   'The microphone is always in the search; Me › Search hides it and switches each answer on or off.': 'Das Mikrofon ist immer in der Suche; unter Ich › Suche blendest du es aus und schaltest jede Antwort ein oder aus.',
   'One command that fits runs at once; «Undo» takes it back.': 'Ein passender Befehl läuft sofort; «Rückgängig» nimmt ihn zurück.',
-  "A question gets the app's answer; when the app knows nothing, Gemini answers or you ask further at Claude or ChatGPT.": 'Eine Frage bekommt die Antwort der App; weiss die App nichts, antwortet Gemini oder du fragst bei Claude oder ChatGPT weiter.',
+  "A question gets the app's answer; when the app knows nothing, you ask further at Claude or ChatGPT.": 'Eine Frage bekommt die Antwort der App; weiss die App nichts, fragst du bei Claude oder ChatGPT weiter.',
   'Example: say «note brake squeaks» → the note is in the Inbox.': 'Beispiel: Sag «Notiz Bremse quietscht» → die Notiz ist im Eingang.',
   'Example: «Check the tyre pressure» every 14 days for every bike.': 'Beispiel: «Reifendruck prüfen» alle 14 Tage für jedes Velo.',
   'Example: «Back pain» 0 to 10 every evening.': 'Beispiel: «Rückenschmerz» 0 bis 10 jeden Abend.',
@@ -978,8 +977,8 @@ export default {
   'Tap «Done packing»; the next trip shows the trend.': 'Tippe «Fertig gepackt»; die nächste Tour zeigt den Verlauf.',
   'Example: 42 min for the first weekend tour, 28 min for the next one.': 'Beispiel: 42 min für die erste Wochenendtour, 28 min für die nächste.',
   // «KI im Gerät» (Noah 20.10.2026)
-  'Load a model once: Me › Appearance › Handling › «AI on this device». With internet the AI helper answers if it is set up.':
-    'Einmal ein Modell laden: Ich › Darstellung › Bedienung › «KI im Gerät». Mit Internet antwortet der KI-Helfer, falls eingerichtet.',
+  'Load a model once: Me › Appearance › Handling › «AI on this device».':
+    'Einmal ein Modell laden: Ich › Darstellung › Bedienung › «KI im Gerät».',
   'Choose a model (small and fast, or a bit cleverer) and tap «Load to this device».': 'Wähl ein Modell (klein und schnell, oder etwas klüger) und tipp «Auf dieses Gerät laden».',
   'Tap «Check the speed» to see how quick this device is.': 'Tipp «Tempo prüfen»: So siehst du, wie schnell dieses Gerät ist.',
   'Ask a question in the search or tap «Ask the AI on this device» on the packing list, bike care or look back.':

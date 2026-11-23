@@ -177,6 +177,13 @@ export function setHours(cfg, hours, summer) {
 export const LIGHT_SHARE = 0.6;
 export const lightOf = (cfg, summer) => setHours(cfg, Math.max(MIN_HOURS, Math.round(cfg.hours * LIGHT_SHARE)), summer);
 
+/** A harder week (V4b2, Noah 22.11.2026 «1a»): this share of the hours goal, for one week; the goals themselves stay. */
+export const HARD_SHARE = 1.2;
+export const hardOf = (cfg, summer) => setHours(cfg, Math.min(MAX_HOURS, Math.round(cfg.hours * HARD_SHARE)), summer);
+
+/** The hours goal of a week for its modes: harder, lighter or as it is (hard and light never both). */
+export const modeCfg = (cfg, summer, mode = {}) => (mode.hard ? hardOf(cfg, summer) : mode.light ? lightOf(cfg, summer) : cfg);
+
 /** True when the units are exactly what the hours goal suggests (no change by hand since). */
 export const followsHours = (cfg, summer) => same(suggestFromHours(cfg.hours, summer).counts, cfg.counts);
 
@@ -219,20 +226,130 @@ export function medDays(monday) {
   return dayNo % 2 === 0 ? [0, 2, 4, 6] : [1, 3, 5];
 }
 
+// ---- TrainingPeaks in the week (Noah 22.11.2026 «1a 2a 3a 4a») -------------------------------------------------------
+
+/** The sessions that come from TrainingPeaks carry this `src` (lib/trainingpeaks.js). */
+export const TP_SRC = 'tp';
+const STRENGTH = /kraft|strength|gym|weights?\b/i;
+const INDOOR = /indoor|drinnen|trainer|zwift|rolle|treadmill|laufband/i;
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+const UNTIMED = 600; // a session without a start time is assumed at 10:00 (only for «does a half day stay free», never shown)
+
+/**
+ * Which unit of the plan a TrainingPeaks session replaces (Noah «2a»: the same sport): bike → «Bike outdoors» (with
+ * «indoor» in the title: «Bike indoors»), run → «Run outdoors / Treadmill», strength → «Gym». Hikes and everything else
+ * replace nothing; they only count towards the hours. The title decides, there is no new field.
+ */
+export function tpTypeOf(s) {
+  const name = String(s?.name ?? '');
+  if (s?.kind === 'bike') return INDOOR.test(name) ? 'bikeIn' : 'bikeOut';
+  if (s?.kind === 'run') return INDOOR.test(name) ? 'runIn' : 'runOut';
+  if (STRENGTH.test(name)) return 'gym';
+  return null;
+}
+/** Hard from the zone (Noah «3a»): zone 4 or 5 hard, zone 3 medium, 1 and 2 easy, no zone medium. */
+export const tpLoad = (zone) => (zone >= 4 ? 'H' : zone === 3 || !zone ? 'M' : 'L');
+
+/**
+ * The TrainingPeaks sessions of one week, as the planner needs them: [{ id, d (0 Monday), mins, t ('HH:MM' or ''), load, type, name, kind }].
+ * sessions: the sessions of `training.plan` (any source; only src 'tp' counts here). Pure.
+ */
+export function tpWeek(sessions, monday) {
+  const m0 = Date.parse(`${monday}T12:00:00Z`);
+  const out = [];
+  for (const s of Array.isArray(sessions) ? sessions : []) {
+    if (s?.src !== TP_SRC || !DAY_RE.test(s.day ?? '') || !(s.mins > 0)) continue;
+    const d = Math.round((Date.parse(`${s.day}T12:00:00Z`) - m0) / 864e5);
+    if (d < 0 || d > 6) continue;
+    out.push({ id: `tp:${s.id}`, d, mins: Math.round(s.mins), t: timeOk(s.time) ? s.time : '', load: tpLoad(s.zone), type: tpTypeOf(s), name: String(s.name ?? ''), kind: s.kind });
+  }
+  return out.sort((a, b) => a.d - b.d || a.t.localeCompare(b.t) || a.id.localeCompare(b.id));
+}
+
+/** The weekdays (0 = Monday) of a week that TrainingPeaks keeps free («Recovery Day»): entries `{ rest: true, day }` of the sessions list. */
+export function restWeek(sessions, monday) {
+  const m0 = Date.parse(`${monday}T12:00:00Z`);
+  const out = new Set();
+  for (const s of Array.isArray(sessions) ? sessions : []) {
+    if (s?.rest !== true || !DAY_RE.test(s.day ?? '')) continue;
+    const d = Math.round((Date.parse(`${s.day}T12:00:00Z`) - m0) / 864e5);
+    if (d >= 0 && d <= 6) out.add(d);
+  }
+  return [...out].sort((a, b) => a - b);
+}
+
+/**
+ * The goal counts after TrainingPeaks took its share (Noah «1a»: the hours stay, the plan plans the rest). A unit falls
+ * away when the minutes TrainingPeaks has left cover at least half of it; the minutes of a sport first cover its own
+ * kind (indoors → indoors), what is left covers the other kind. Never below nothing: what TrainingPeaks has too much
+ * takes nothing from another sport. → { counts, bikeHours, notes }.
+ */
+function replaceByTp(cfg, counts, tp) {
+  const out = { ...counts };
+  const notes = [];
+  let bikeHours = cfg.bikeHours;
+  const FAMILIES = [['bikeIn', 'bikeOut'], ['runIn', 'runOut'], ['gym']];
+  for (const fam of FAMILIES) {
+    const pool = Object.fromEntries(fam.map((t) => [t, tp.filter((x) => x.type === t).reduce((a, x) => a + x.mins, 0)]));
+    if (!fam.some((t) => pool[t] > 0)) continue;
+    const orig = { ...Object.fromEntries(fam.map((t) => [t, out[t] || 0])) };
+    const unitMins = (t) => (t === 'bikeOut' && bikeHours && out.bikeOut ? Math.round((bikeHours * 60) / out.bikeOut) : TYPES[t].mins);
+    const take = (t, r) => {
+      let rest = r;
+      while ((out[t] || 0) > 0 && rest >= unitMins(t) / 2) {
+        rest = Math.max(0, rest - unitMins(t));
+        out[t]--;
+      }
+      return rest;
+    };
+    const left = {};
+    const um = Object.fromEntries(fam.map((t) => [t, unitMins(t)]));
+    for (const t of fam) left[t] = take(t, pool[t]);
+    const spare = fam.reduce((a, t) => a + left[t], 0);
+    let rest = spare;
+    for (const t of [...fam].reverse()) rest = take(t, rest);
+    for (const t of fam) {
+      const n = orig[t] - (out[t] || 0);
+      if (n > 0) notes.push({ key: 'tp-replaces', type: t, n, mins: n * um[t] });
+    }
+  }
+  if (bikeHours && out.bikeOut !== counts.bikeOut) bikeHours = out.bikeOut ? Math.round((bikeHours * out.bikeOut * 2) / counts.bikeOut) / 2 : null;
+  return { counts: out, bikeHours, notes };
+}
+
 /**
  * Plans one week.
- *   cfg: a season config (configOf); ctx: { monday, ski, rain, pins: { [unitId]: { d, t } } }.
+ *   cfg: a season config (configOf); ctx: { monday, ski, rain, pins: { [unitId]: { d, t } }, sessions }. sessions (optional): the sessions of `training.plan` (and `{ rest: true, day }` for a Recovery Day, see plannerSessions);
+ *   the ones from TrainingPeaks stand fixed on their day, take their share of the hours (replaceByTp) and are checked like every unit.
  * Returns { units, dayLoad, notes, warnings, freeHalves, perDay }:
  *   units: [{ id, type, d, t, start, end, mins, load, fixed, pinned, variant, why }] sorted by day and time
  *   dayLoad: 'H' | 'M' | 'L' per weekday; perDay: units per weekday (meditation, stretching, sauna and rest not counted)
- *   notes: [{ key, … }] what the planner changed on its own; warnings: [{ key, … , fix? }] what does not fit
+ *   notes: [{ key, … }] what the planner changed on its own; warnings: [{ key, … , fix? }] what does not fit;
+ *   tp: [{ id, d, mins, t, load, type, name }] the TrainingPeaks sessions of the week (not part of `units`: they are sessions, shown as such)
  */
 export function planWeek(cfg, ctx) {
   const summer = isSummer(ctx.monday);
   const pins = ctx.pins || {};
-  const counts = { ...cfg.counts };
+  let counts = { ...cfg.counts };
+  let bikeHours = cfg.bikeHours;
   const U = [];
   const notes = [];
+  const tp = tpWeek(ctx.sessions, ctx.monday);
+  const restDays = restWeek(ctx.sessions, ctx.monday); // Recovery Day: no free unit on it (what stands fixed stays)
+  for (const d of restDays) notes.push({ key: 'tp-rest', d });
+  if (tp.length) {
+    const r = replaceByTp(cfg, counts, tp);
+    counts = r.counts;
+    bikeHours = r.bikeHours;
+    const all = tp.reduce((a, x) => a + x.mins, 0);
+    notes.push({ key: 'tp-in', n: tp.length, mins: all, hours: Math.round(all / 6) / 10 }, ...r.notes);
+    if (all > cfg.hours * 60) notes.push({ key: 'tp-over', hours: cfg.hours, mins: all });
+    // TrainingPeaks stands fixed: it goes in first, the rest plans around it
+    for (const x of tp) {
+      const start = x.t ? toM(x.t) : UNTIMED;
+      U.push({ id: x.id, type: 'tp', d: x.d, t: x.t || toT(UNTIMED), start, end: start + x.mins, mins: x.mins, load: x.load, fixed: true, pinned: false, variant: null, tp: true, assumed: !x.t });
+    }
+  }
   const ski = !!ctx.ski;
   const hf = (cfg.fixes.hockey || [])[0];
   const skiDay = ski ? (hf && hf.d === 5 ? 6 : 5) : -1; // Saturday, or Sunday when the ice hockey is on Saturday
@@ -247,7 +364,7 @@ export function planWeek(cfg, ctx) {
   const clash = (d, t, m) => {
     const a = toM(t);
     const b = a + m;
-    return U.some((x) => x.d === d && a < x.end + 5 && b + 5 > x.start) || b > 22 * 60;
+    return U.some((x) => x.d === d && !x.assumed && a < x.end + 5 && b + 5 > x.start) || b > 22 * 60;
   };
   const seq = {};
   const nid = (type) => `${type}#${(seq[type] = (seq[type] || 0) + 1)}`;
@@ -287,7 +404,7 @@ export function planWeek(cfg, ctx) {
     if (out.includes(type) && U.some((x) => x.d === d && out.includes(x.type) && x.type !== type)) sc += 6;
     return sc;
   }
-  const banned = (d) => d === skiDay || (ski && d === skiDay - 1); // no unit on the tour day and the day before
+  const banned = (d) => d === skiDay || (ski && d === skiDay - 1) || restDays.includes(d); // no unit on the tour day and the day before, none on a free day of TrainingPeaks
   const noRoom = (type) => notes.push({ key: 'no-room', type });
 
   // 1 the tour
@@ -450,17 +567,17 @@ export function planWeek(cfg, ctx) {
     }
   }
   // summer: spread the cycling hours, the longest ride at the weekend
-  if (cfg.bikeHours) {
+  if (bikeHours) {
     const bs = U.filter((x) => x.type === 'bikeOut').sort((a, b) => a.d - b.d);
     if (bs.length) {
-      const total = cfg.bikeHours * 60;
+      const total = bikeHours * 60;
       const wk = bs.find((b) => b.d >= 5) || bs[bs.length - 1];
       const rest = bs.filter((b) => b !== wk);
       const base = Math.round(total / (bs.length + 0.5) / 5) * 5;
       wk.mins = Math.round((base * 1.5) / 5) * 5;
       rest.forEach((b) => (b.mins = Math.round((total - wk.mins) / Math.max(1, rest.length) / 5) * 5));
       bs.forEach((b) => (b.end = b.start + b.mins));
-      notes.push({ key: 'bike-hours', hours: cfg.bikeHours });
+      notes.push({ key: 'bike-hours', hours: bikeHours });
     }
   }
   if (ctx.rain)
@@ -497,25 +614,27 @@ export function planWeek(cfg, ctx) {
   });
   const perDay = [0, 1, 2, 3, 4, 5, 6].map(units);
   const warnings = [];
+  // with TrainingPeaks in the week a way out is only offered when the unit is there to take away
+  const way = (type, fix) => (!tp.length || (counts[type] || 0) > 0 ? { fix } : {});
   let run = 0;
   dayLoad.forEach((l, d) => {
     run = l === 'H' ? run + 1 : 0;
     if (run === 3) {
-      const t = ['tennis', 'hockey'].find((k) => (counts[k] || 0) > 0 && U.some((x) => x.type === k && x.load === 'H' && x.d === d)) || 'tennis';
-      warnings.push({ key: 'hard-run', d, fix: { type: t, delta: -1 } });
+      const t = ['tennis', 'hockey'].find((k) => (counts[k] || 0) > 0 && U.some((x) => x.type === k && x.load === 'H' && x.d === d));
+      warnings.push({ key: 'hard-run', d, ...(t ? { fix: { type: t, delta: -1 } } : tp.length ? {} : { fix: { type: 'tennis', delta: -1 } }) });
     }
   });
-  perDay.forEach((n, d) => n > DAY_MAX && warnings.push({ key: 'too-many', d, n, fix: { type: 'mini', delta: -1 } }));
+  perDay.forEach((n, d) => n > DAY_MAX && warnings.push({ key: 'too-many', d, n, ...way('mini', { type: 'mini', delta: -1 }) }));
   const fh = freeHalves();
-  if (fh < 1) warnings.push({ key: 'no-free-half', fix: { type: 'bikeOut', delta: -1 } });
+  if (fh < 1) warnings.push({ key: 'no-free-half', ...way('bikeOut', { type: 'bikeOut', delta: -1 }) });
   notes.filter((n) => n.key === 'no-room').forEach((n) => warnings.push({ key: 'no-room', type: n.type }));
   warnings.push(...overlaps(U));
-  return { units: U, dayLoad, notes: notes.filter((n) => n.key !== 'no-room'), warnings, freeHalves: fh, perDay };
+  return { units: U.filter((x) => !x.tp), dayLoad, notes: notes.filter((n) => n.key !== 'no-room'), warnings, freeHalves: fh, perDay, tp };
 }
 
 /** Units that overlap on a day (meditation, stretching and the sauna after the gym do not count): [{ key: 'overlap', a, b, d, fix? }]. */
 export function overlaps(units) {
-  const U = units.filter((x) => !NOT_UNIT.includes(x.type) || x.type === 'rest');
+  const U = units.filter((x) => !x.assumed && (!NOT_UNIT.includes(x.type) || x.type === 'rest'));
   const out = [];
   for (let i = 0; i < U.length; i++)
     for (let j = i + 1; j < U.length; j++) {

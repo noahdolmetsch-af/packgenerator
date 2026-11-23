@@ -1,7 +1,7 @@
 // «Temperaturen nach Höhe» on Today (Noah 05.11.2026 «1b»): one calm line for the home place, with a switch on the weather page.
 // Made-up place and air layers (hoehe-fixture.js); Open-Meteo is mocked, everything else outside is blocked (openHome).
 import { test, expect } from './clock.js';
-import { openHome, homeFixture } from './home0460-fixture.js';
+import { openHome, homeFixture, openWetterFold } from './home0460-fixture.js';
 import { mock } from './hoehe-fixture.js';
 
 test('Today shows the temperatures by height for the home place; the switch on the weather page takes the line away', async ({ page, context }, info) => {
@@ -11,6 +11,7 @@ test('Today shows the temperatures by height for the home place; the switch on t
 
   await page.goto('./#/');
   const line = page.locator('[data-heute-hoehe]');
+  await openWetterFold(page);
   await expect(line).toBeVisible({ timeout: 20_000 });
   // today is 4 degrees warmer than the standard layers (the fixture): 1000 m 7.5 °C, 2000 m 1.2 °C, 3000 m −5 °C
   await expect(line.locator('[data-heute-hoehe-row="1000"]')).toHaveText('1’000 m 8°');

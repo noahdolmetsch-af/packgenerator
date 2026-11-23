@@ -22,8 +22,8 @@ const NONE_AREA = { key: NONE, name: 'Without area', sub: '' };
 /** The areas in their order: key, heading (English for t()), a quiet line or ''. */
 export const SECTIONS = [
   { key: 'now', name: 'Now|home', sub: 'What is up today' },
-  { key: 'body', name: 'Your body|home', sub: 'Only to look at, no rating' },
   { key: 'week', name: 'Your week|home', sub: '' },
+  { key: 'body', name: 'Your body|home', sub: 'Only to look at, no rating' },
   { key: 'away', name: 'On the road and bikes', sub: '' },
   { key: 'quick', name: 'Open quickly', sub: '' },
   { key: 'discover', name: 'Discover|home', sub: 'New in the app and a tip each week' },
@@ -31,22 +31,23 @@ export const SECTIONS = [
 
 /** The area of each tile that is not small; a tile not named here goes by its catalog area (AREA_OF). */
 export const SECTION_OF = {
+  haken: 'now', // «Heute abhaken» (Noah 23.11.2026 «2a»): the first tile of the first area, before everything else
   meinetour: 'now', // «Meine Tour» (Plan 2a): the planned tour stands on top of the first area
   meditation: 'now',
   moment: 'now', // «Heute als Begleiter» PR 4: the moment card sits in the first area, under the habits
-  discover: 'now', // PR 5: «Discover» sits under the moment card
-  wochentraum: 'now', // «Traum der Woche» sits under it
+  discover: 'discover', // Heute aufräumen (23.11.2026): «Discover» is under «More» now (was under the moment card)
+  wochentraum: 'discover', // «Traum der Woche» too (under «More»)
   daycard: 'now',
   important: 'now',
   trip: 'now',
   suggest: 'now',
-  body: 'body',
+  body: 'now', // «Dein Körper heute» as a band right under the greeting (Noah 23.11.2026 «1-4a», point 1a): the first tile of the first area
   acts: 'body',
   weighin: 'now', // a question for this week: it stays in the first area, found on the phone without long scrolling
   vitals: 'body',
   vo2max: 'body',
   heutecheck: 'now',
-  spruch: 'now', // «Spruch zum Einstieg»: under the moment card in the first area
+  spruch: 'discover', // «Spruch zum Einstieg»: under «More» too
   values: 'body',
   du: 'body',
   aktiv: 'body',

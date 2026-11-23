@@ -79,6 +79,22 @@ test('Today: the row of the last 12 months opens the review', async ({ page, con
   await expect(row.locator('dd').nth(1)).toHaveText(/^\d/);
   await expect(row.locator('[data-chart="year"] [data-plot]')).toHaveAttribute('data-n', '12');
   await expect(row.locator('.streak')).toContainText('Serie');
+  // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): no dashed goal line for a goal you never typed; with your own km goal one twelfth of it
+  await expect(row.locator('[data-goal]')).toHaveCount(0);
+  await page.evaluate(() => new Promise((res, rej) => {
+    const r = indexedDB.open('pack-generator');
+    r.onerror = () => rej(r.error);
+    r.onsuccess = () => {
+      const tx = r.result.transaction('settings', 'readwrite');
+      tx.objectStore('settings').put({ key: 'yearGoals', value: { km: { on: true, of: 6000 } } });
+      tx.oncomplete = () => { r.result.close(); res(); };
+      tx.onerror = () => rej(tx.error);
+    };
+  }));
+  await page.reload();
+  await expect(row).toBeVisible();
+  await expect(row.locator('[data-goal]')).toHaveCount(1);
+  await expect(row.locator('[data-goal-text]')).toContainText('Ziel pro Monat: 500 km');
   // «Diagramme zum Antippen»: pointing shows the km of a month, a tap opens the month, the table lists all 12
   await row.locator('[data-chart="year"] [data-plot]').click({ position: { x: 10, y: 20 } });
   await expect(page.locator('[data-year-sheet]')).toContainText('km');

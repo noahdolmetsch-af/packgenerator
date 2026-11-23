@@ -37,10 +37,12 @@ export const ON_PAGES = [
   '#/flow', '#/flow/sports', '#/flow/sport/act%3Agym', '#/flow/sport/act%3Atennis', '#/flow/training', '#/flow/wochenplan', '#/flow/form', '#/flow/review',
   '#/flow/stats/hr', '#/flow/act/meditation', '#/flow/act/meditation/log', '#/flow/act/meditation/mehr', '#/auswerten',
   '#/auswerten/analyse', '#/me/abfragen', '#/me/insights', '#/me/weight', '#/me/wohl', '#/me/fitbit', '#/trips/rides',
-  // PR 20, area «App»: the app itself (lists, privacy, rules, own values, search, assistant, helper, mini apps).
+  // PR 20, area «App»: the app itself (lists, privacy, rules, own values, search, assistant, mini apps).
   // Not Data and backup, Appearance, Connections: with many functions the card pushes them below 2.5 phone screens (heimat.spec.js).
-  '#/me/lists', '#/me/privacy', '#/me/regeln', '#/me/verstehen', '#/me/werte', '#/me/hinweise',
-  '#/me/suche', '#/assistent', '#/helper', '#/me/apps',
+  '#/me/lists', '#/me/privacy', '#/me/regeln', '#/me/werte', '#/me/hinweise',
+  '#/me/suche', '#/assistent', '#/me/apps',
+  // Kursblick (K-C): the small app's first page; its other tabs have no function of their own
+  '#/kurse',
   // PR 21, pages of one thing (a placeholder ':name' stands for one id): one trip's debrief, a race and its parts, one diary
   // entry. Not the race mode (#/race/:race/ride): while racing the first screen belongs to the ride, like Unterwegs. Not one
   // note (#/notes?open=:note): the note opens as a window over Notes, so the card would only sit hidden behind it.
@@ -52,12 +54,9 @@ export const ON_PAGES = [
   '#/me/data', '#/me/look', '#/me/connections', '#/me/push', '#/bikes?tab=care', '#/timer',
   // Wegweiser Werkzeuge (Noah 03.11.2026 «a» after the final measurement): the mini tools, as one line
   '#/me/tools',
+  // Verbesserungs-Logbuch (Noah 22.11.2026 «so lassen, immer zugeklappt»): the line «What you can do here», closed
+  '#/me/logbuch',
 ];
-/**
- * Pages without the line «What you can do here» (Seitenregeln 21.11.2026, Noah «2a»): the help sits only behind the «?», the
- * content stays in its window. Page by page, with the page head building block (stage 2). Page keys as in ON_PAGES.
- */
-export const LINE_OFF = ['#/tagebuch'];
 /** Words that are fixed sub-pages, never the id of a placeholder (#/debrief/logbook is not a trip). */
 export const RESERVED = ['learnings', 'pace', 'compare', 'logbook', 'paesse', 'tourenpass', 'freude', 'technik', 'sammlung', 'play', 'ride', 'brief', 'new', 'shared'];
 /** Rows shown before «Show all n». */

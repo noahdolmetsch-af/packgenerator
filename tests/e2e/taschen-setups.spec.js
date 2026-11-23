@@ -56,7 +56,9 @@ const bag = (page, name) => page.locator('section.bg', { has: page.getByRole('he
 test('Mein Setup: make a bag setup, change it, copy, rename and delete with undo', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=rig&bike=${GRAVEL}`);
-  await expect(page.locator(TABS).getByRole('link', { name: 'Mein Setup' })).toHaveAttribute('aria-current', /page|true/);
+  // Velos aufräumen (23.11.2026): the tab «Velos» lights, and there is no row of chips under it (Mein Setup is a row of the bike page)
+  await expect(page.locator(TABS).first().locator('a[aria-current="page"]')).toHaveText('Velos');
+  await expect(page.locator('nav.psubs')).toHaveCount(0);
   await expect(page.getByRole('heading', { level: 2, name: 'Taschen-Setups' })).toBeVisible();
   // «Standard» is the setup of the trip: last used, the fallback for old trips; base weight 9.4 + 0.9 bags (the cage counts 0) + 2.07 gear; the 0.75 L water only in the total.
   const std = card(page, 'Standard');

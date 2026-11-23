@@ -4,7 +4,7 @@
  */
 export default {
   // names and rings
-  'In the flow': 'Aktiv',
+  'In the flow': 'Heute abhaken',
   'Goals|flow': 'Ziele',
   'Move|ring': 'Bewegen',
   'Mindful|ring': 'Achtsam',

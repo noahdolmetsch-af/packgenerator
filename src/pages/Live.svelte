@@ -83,6 +83,7 @@
   import NightLight from '../lib/live/NightLight.svelte'; // «Licht in der Nacht» (Paket D, Idee 20)
   import { nightStrength, nightLightOn, beamDeg } from '../lib/live/nightlight.js';
   import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
+  import { turnsFromHints } from '../lib/live/brouterturns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, ghostPicks, ghostRide, NO_GHOST, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
   import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
@@ -422,7 +423,8 @@
   const turns = $derived(hasRoute ? turnsOf(pts) : []);
   // Navigation zum Ziel 2 (Noah 27.10.2026 «1a»): on the way to a goal the turns come from that way, always shown
   const detourPts = $derived(detour?.line?.length > 1 ? lineKm({ line: detour.line }) : []);
-  const detourTurns = $derived(detourPts.length ? turnsOf(detourPts) : []);
+  // Noah 23.11.2026 «2a»: a way the router planned brings its own junctions and roundabouts (brouterturns.js); else the shape of the line
+  const detourTurns = $derived(detourPts.length ? (Array.isArray(detour?.hints) ? turnsFromHints(detour.hints, detourPts) : turnsOf(detourPts)) : []);
   const detourKm = $derived(detourPts.length && me && onDetour(detour, me) ? (snapAhead(detourPts, me, 0)?.km ?? null) : null);
   const navTurns = $derived(detourKm != null ? detourTurns : turns);
   const navKm = $derived(detourKm != null ? detourKm : cfg.turns && at && at.offM < 100 ? (at.kmx ?? at.km) : null);
@@ -1336,7 +1338,7 @@
     {#if resumed && rec.on}<p class="rc-note" role="status" data-live-resumed>{t('The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.')}</p>{/if}
     {#if err || rec.error}<p class="rc-warn" role="alert">{err || t(rec.error)}</p>{/if}
     <p class="rc-note">{t('Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.')}</p>
-    {#if !rec.on && hasRoute}<ReadyCard line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} voice={cfg.voice} onvoice={(v) => setOpt('voice', v)} />{/if}
+    {#if !rec.on && hasRoute}<ReadyCard line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} voice={cfg.voice} onvoice={(v) => setOpt('voice', v)} points={pois} />{/if}
     {#if !rec.on}
       <details class="lv-tip" data-live-flight-tip>
         <summary>{t('Save battery: ride in flight mode')}</summary>

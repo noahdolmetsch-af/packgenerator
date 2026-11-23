@@ -55,7 +55,7 @@ test('Weather: the line on Today, the weather page, and a home webcam', async ({
   await expect(line).toBeVisible({ timeout: 15_000 });
   await expect(line).toContainText('°C');
   await expect(line).toContainText('30 km/h');
-  await expect(line).toContainText('15:00');
+  await expect(line).toContainText('14:00'); // the value stamped 15:00 is the rain of 14:00 to 15:00 (one rain time for the page)
   // «Windfahne beim Wetter» (Paket D, Idee 15): the wind icon is a small vane; 30 km/h from the west = strong, pennant to the east
   const vane = line.locator('[data-vane]');
   await expect(vane).toHaveAttribute('data-vane-wind', 'strong');

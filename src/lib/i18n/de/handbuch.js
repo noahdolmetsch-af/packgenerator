@@ -29,7 +29,7 @@ export default {
   'It waits in the Inbox; file it as a workshop visit later.': 'Sie wartet im Eingang; später als Werkstattbesuch ablegen.',
   'Open Bikes › Care › Import.': 'Öffne Velos › Pflege › Import.',
   'Connect Strava under Bikes › Care › Strava.': 'Strava verbinden unter Velos › Pflege › Strava.',
-  'Open Aktiv › Training: the week with your plan and the look back.': 'Öffne Aktiv › Training: die Woche mit deinem Plan und dem Rückblick.',
+  'Open Aktiv › Training: the week with your plan and the look back.': 'Öffne Woche › Training: die Woche mit deinem Plan und dem Rückblick.',
   'Tap + on a day to plan a session with duration and zone.': 'Tippe bei einem Tag auf +, um eine Einheit mit Dauer und Zone zu planen.',
   'Open Bikes › Workshop.': 'Öffne Velos › Werkstatt.',
   'Add a visit with amount, work and receipt photo.': 'Trage einen Besuch ein mit Betrag, Arbeit und Quittungsfoto.',
@@ -38,7 +38,7 @@ export default {
   'Add frame number, photos and insurance once.': 'Trage Rahmennummer, Fotos und Versicherung einmal ein.',
   'Set when and at which km it was fitted, also from another bike.': 'Setz, wann und bei welchen km es montiert wurde, auch von einem anderen Velo.',
   'One tap ticks an activity; «Undo» takes it back.': 'Ein Tipp hakt eine Aktivität ab; «Rückgängig» nimmt es zurück.',
-  'Open Active › Goals.': 'Öffne Aktiv › Ziele.',
+  'Open Active › Goals.': 'Öffne Woche › Training › Meine Aktivitäten.',
   'Start like last time or from a template; choose the sounds.': 'Starte wie letztes Mal oder aus einer Vorlage; wähle die Klänge.',
   'Open Meditation › More.': 'Öffne Meditation › Mehr.',
   'Open the app in the browser and tap «Add to home screen».': 'Öffne die App im Browser und tippe «Zum Startbildschirm».',
@@ -59,7 +59,7 @@ export default {
   'Switch a goal off, or tap its number to change it.': 'Schalte ein Ziel aus oder tippe seine Zahl an, um sie zu ändern.',
   // TR5–TR7 «Leistung und Analysen» and TR6 «Gewicht» (0.147.0)
   'Connect Strava under Bikes › Care › Strava; power needs a power meter on the bike.': 'Strava unter Velos › Pflege › Strava verbinden; Leistung braucht einen Leistungsmesser am Velo.',
-  'Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.': 'Öffne Aktiv › Training › Aktivitäten und tippe eine Fahrt an: Leistung, Belastung, Leistungskurve und die Analysen.',
+  'Open Aktiv › Training › Activities and tap a ride: power, load, power curve and the analyses.': 'Öffne Woche › Training › Aktivitäten und tippe eine Fahrt an: Leistung, Belastung, Leistungskurve und die Analysen.',
   'Tap «…» on an analysis to hide or move it; «Adjust analyses» shows them all.': 'Tippe «…» auf einer Analyse, um sie auszublenden oder zu verschieben; «Analysen anpassen» zeigt alle.',
   // v0.133.0 «Wi gaht's?» and «Tour aus komoot»
   'Open Me › «Wi gaht\'s?»: switch questions on or off, change their rhythm or add your own.': 'Öffne Ich › «Wi gaht\'s?»: Schalte Fragen ein oder aus, ändere ihren Rhythmus oder lege eigene an.',
@@ -69,7 +69,7 @@ export default {
   // v0.134.0 «Listen und Typen»
   'Open Me › «Lists and types» › Categories, or «Edit list» in Gear › Sort and filter.': 'Öffne Ich › «Listen und Typen» › Kategorien oder «Liste bearbeiten» in Material › Sortieren und filtern.',
   // v0.135.0 «Meditation und Timer»
-  'Open Aktiv › Meditation › «Look back».': 'Öffne Aktiv › Meditation › «Rückblick».',
+  'Open Aktiv › Meditation › «Look back».': 'Öffne Woche › Alltag › Meditation › «Rückblick».',
   'Switch between week, month and year; filter by kind or template.': 'Wechsle zwischen Woche, Monat und Jahr; filtere nach Art oder Vorlage.',
   // 0.139.0 Rechnungen und Zu zahlen
   'Enter your account once (IBAN, name, town; TWINT number if you like). It stays only on this device.': 'Gib einmal dein Konto ein (IBAN, Name, Ort; TWINT-Nummer wenn du willst). Es bleibt nur auf diesem Gerät.',
@@ -86,7 +86,7 @@ export default {
   // v0.165.0 f.gipfelbuch
   // Paket E 0.149.0: f.remember, f.reminders, f.birthdays, f.measure
   'Open Calendar › Remember and type a to-do; «New list» makes an own list such as «My ideas».': 'Öffne Planen › Merken und tippe ein To-do; «Neue Liste» macht eine eigene Liste wie «Meine Ideen».',
-  'Open Aktiv › Aktivität › «Summit book».': 'Öffne Aktiv › Aktivität › «Gipfelbuch».',
+  'Open Aktiv › Aktivität › «Summit book».': 'Öffne Auswerten › Fahrten › «Gipfelbuch».',
   'On the device with the newer state: Me › Data and backup › «Send to phone» (or «Send to computer»).': 'Auf dem Gerät mit dem neueren Stand: Ich › Daten und Backup › «An Handy senden» (oder «An Computer senden»).',
   'Tap «Take photo» where a photo is added (note, item, bike, setup, problem); «Gallery» picks one you have.': 'Tippe «Foto machen», wo ein Foto dazukommt (Notiz, Material, Velo, Setup, Problem); «Galerie» nimmt ein vorhandenes.',
   'Open Me › Mail and tap «Connect with Google».': 'Öffne Planen › Mail und tippe «Mit Google verbinden».',
@@ -96,7 +96,7 @@ export default {
   'Photograph page by page or choose photos; check the corners, then «Save as PDF».': 'Fotografiere Seite für Seite oder wähle Fotos; prüfe die Ecken, dann «Als PDF speichern».',
   'Tap «Connect with Google» and allow the values.': 'Tippe «Mit Google verbinden» und erlaube die Werte.',
   // Wochenrückblick (W1–W6)
-  'Open Aktiv › Week and tap «Week in review», or Training › Look back.': 'Öffne Aktiv › Woche und tippe «Wochenrückblick», oder Training › Rückblick.',
+  'Open Aktiv › Week and tap «Week in review», or Training › Look back.': 'Öffne Woche › Training › Heute abhaken und tippe «Wochenrückblick», oder Training › Rückblick.',
   'Read the five numbers, the strip Monday to Sunday and the highlights; ‹ › shows other weeks.': 'Lies die fünf Zahlen, den Streifen Montag bis Sonntag und die Höhepunkte; ‹ › zeigt andere Wochen.',
   'Switch on «On the phone» and allow notifications.': 'Schalte «Aufs Handy» ein und erlaube Benachrichtigungen.',
   'Open Trips › Dreams and write the name of a dream tour.': 'Öffne Touren › Träume und schreib den Namen einer Traumtour.',
@@ -113,9 +113,9 @@ export default {
   "Open Me › Connections.": "Öffne Ich › Verbindungen.",
   "Tap «Allow in Google» once.": "Tippe einmal auf «In Google erlauben».",
   "Open Me › Connections › Earlier Fitbit data and choose the .zip or its files.": "Öffne Ich › Verbindungen › Frühere Fitbit-Daten und wähle die .zip oder ihre Dateien.",
-  "Open Aktiv.": "Öffne Aktiv.",
+  "Open Aktiv.": "Öffne «Heute abhaken».",
   "Connect Strava or Fitbit, or answer the daily check.": "Verbinde Strava oder Fitbit, oder beantworte den Tages-Check.",
-  "Open Aktiv › Milestones.": "Öffne Aktiv › Meilensteine.",
+  "Open Aktiv › Milestones.": "Öffne Auswerten › Fahrten › Meilensteine.",
   "The new stars stand under Bike, Fitbit and Everyday; switch off single ones.": "Die neuen Sterne stehen unter Velo, Fitbit und Alltag; einzelne lassen sich ausschalten.",
   "Strong pollen after the Swiss classes, ozone from 180 µg/m³.": "Starker Pollenflug nach den Schweizer Klassen, Ozon ab 180 µg/m³.",
   "Under «Which values count» switch off the pollen that do not bother you.": "Schalte unter «Welche Werte zählen» die Pollen aus, die dich nicht stören.",
@@ -145,7 +145,7 @@ export default {
   'Add a sentence or a photo, then «Save place».': 'Einen Satz oder ein Foto dazu, dann «Ort speichern».',
   'Needs the internet once to make the link.': 'Braucht einmal Internet, um den Link zu erstellen.',
   'Open a sport › History and progress.': 'Öffne eine Sportart › Verlauf und Fortschritt.',
-  'Open Active › Sports.': 'Öffne Aktiv › Meine Aktivitäten.',
+  'Open Active › Sports.': 'Öffne Woche › Training › Meine Aktivitäten.',
   '«Service done» after the service; it is due again by whichever comes first.': '«Service gemacht» nach dem Service; fällig wird er wieder nach dem, was zuerst kommt.',
   'Bikes › Care › a bike › «Part template».': 'Velos › Pflege › ein Velo › «Teilevorlage».',
   'After a ride in the rain a hint on the page «Wear» and a phone reminder to dry and oil the chain; done counts as care.': 'Nach einer Fahrt im Regen ein Hinweis auf der Seite «Verschleiss» und eine Handy-Erinnerung, die Kette zu trocknen und zu ölen; erledigt zählt als Pflege.',
@@ -197,7 +197,7 @@ export default {
   "Open Calendar › Remember and tap «Connect Trello»; allow it on Trello's page.": 'Öffne Planen › Merken und tippe auf «Trello verbinden»; erlaube es auf der Seite von Trello.',
   "In a list's settings choose «Also in Trello»: the list and its points appear on the board.": 'In den Einstellungen einer Liste wählst du «Auch in Trello»: Die Liste und ihre Punkte erscheinen auf dem Board.',
   'Open Trips › Races › «See the sample race».': 'Öffne Touren › Rennen › «Muster-Rennen ansehen».',
-  'Tap «Start a ride» on Active, On the way or a trip.': 'Tippe «Ausfahrt starten» auf Aktiv, Unterwegs oder bei einer Tour.',
+  'Tap «Start a ride» on Active, On the way or a trip.': 'Tippe «Ausfahrt starten» auf «Heute abhaken», Unterwegs oder bei einer Tour.',
   'Open Trips › Races and a race.': 'Öffne Touren › Rennen und ein Rennen.',
   'Tap «Map».': 'Tippe «Karte».',
   'Switch the layers and tap the profile.': 'Schalte die Schichten und tippe ins Profil.',
@@ -206,11 +206,11 @@ export default {
   'Open a race › «Map».': 'Öffne ein Rennen › «Karte».',
   'Scroll to «Map offline».': 'Scrolle zu «Karte offline».',
   'Tap «Keep for offline».': 'Tippe «Für offline speichern».',
-  'Tap «Start a ride» on Active.': 'Tippe «Ausfahrt starten» auf Aktiv.',
+  'Tap «Start a ride» on Active.': 'Tippe «Ausfahrt starten» auf «Heute abhaken».',
   'Allow the location.': 'Erlaube den Standort.',
   'Keep the page open while you ride.': 'Lass die Seite offen, während du fährst.',
   // «Trainingspläne»: f.trainplans and f.feel
-  'Open Active › Training › Training plans and pick one of the four plans.': 'Öffne Aktiv › Training › Trainingspläne und wähl einen der vier Pläne.',
+  'Open Active › Training › Training plans and pick one of the four plans.': 'Öffne Woche › Training › Trainingspläne und wähl einen der vier Pläne.',
   // Paket T «Freie Zeit»: f.frei and f.impulse
   'Open Me › Free time and choose one of the eight pages.': 'Öffne Planen › Freie Zeit und wähl eine der acht Seiten.',
   'Everything is a suggestion: change, sort, hide or delete it, and add your own.': 'Alles ist ein Vorschlag: ändern, sortieren, ausblenden oder löschen, und Eigenes dazu.',
@@ -230,9 +230,9 @@ export default {
   'Choose «Start with examples» or «Start empty».': 'Wähle «Mit Beispielen starten» oder «Leer starten».',
   'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.': 'Ich › Daten und Backup › «Beispiele entfernen» nimmt sie weg («Rückgängig» holt sie zurück); «Beispiele holen» bringt sie später.',
   // «Form und Erholung» and the Garmin-like overview: f.form and f.overview
-  'Open Active: the card on top shows your readiness from 0 to 100 and what today suits.': 'Öffne Aktiv: Die Karte oben zeigt deine Bereitschaft von 0 bis 100 und was heute passt.',
+  'Open Active: the card on top shows your readiness from 0 to 100 and what today suits.': 'Öffne «Heute abhaken»: Die Karte oben zeigt deine Bereitschaft von 0 bis 100 und was heute passt.',
   'Tap it for the page «Form and recovery»: what counts today, 12 weeks of fitness and form, and the tour readiness.': 'Tipp sie an für die Seite «Form und Erholung»: was heute zählt, 12 Wochen Fitness und Form und die Tour-Bereitschaft.',
-  'Open Active and scroll to «In focus» and «Overview».': 'Öffne Aktiv und scroll zu «Im Fokus» und «Überblick».',
+  'Open Active and scroll to «In focus» and «Overview».': 'Öffne «Heute abhaken» und scroll zu «Im Fokus» und «Überblick».',
   // Live-Karte Teil 1–3 (Noah 20.10.2026): «Was die App kann», Handbuch und «So geht's»
   'Pause and auto-pause': 'Pause und Auto-Pause',
   'Pause the ride with one tap: the riding time stands and a band says «Paused». Auto-pause stops below your own speed, e.g. 4 km/h, and goes on by itself.': 'Pausiere die Fahrt mit einem Tipp: Die Fahrzeit steht und ein Band zeigt «Pausiert». Die Auto-Pause hält unter deinem eigenen Tempo an, z. B. 4 km/h, und läuft von selbst weiter.',
@@ -282,7 +282,7 @@ export default {
   'Pick a list, e.g. Kinds of bike.': 'Wähle eine Liste, z. B. Velo-Arten.',
   'The pen renames, hides or deletes; «+ Own» adds one; arrows and handle sort.': 'Der Stift benennt um, blendet aus oder löscht; «+ Eigene» fügt dazu; Pfeile und Griff ordnen.',
   // Paket Y Wetter-Kern
-  'Tap the weather line on Today, on Active or on a trip.': 'Tippe die Wetterzeile auf Heute, unter Aktiv oder bei einer Tour.',
+  'Tap the weather line on Today, on Active or on a trip.': 'Tippe die Wetterzeile auf Heute, unter «Heute abhaken» oder bei einer Tour.',
   'Choose how long you ride: the app shows the best start; tap «Landi rain radar» for the rain.': 'Wähle, wie lange du fährst: Die App zeigt den besten Start; «Landi-Regenradar» zeigt den Regen.',
   'Open the weather page › «My webcams» and tap «Place on the map» on a webcam.': 'Öffne die Wetterseite › «Meine Webcams» und tippe bei einer Webcam «Ort auf der Karte».',
   'Set your home place on the weather page.': 'Setze deinen Wohnort auf der Wetterseite.',
@@ -323,7 +323,7 @@ export default {
   'Open a note and tap «Remind me».': 'Öffne eine Notiz und tippe «Erinnern».',
   '«Put back» brings it back with its files.': '«Zurückholen» bringt sie mit ihren Dateien zurück.',
   'In a note «Earlier versions» shows the text from before; «Put this version back» takes it.': 'In einer Notiz zeigt «Frühere Fassungen» den Text von vorher; «Diese Fassung zurückholen» übernimmt ihn.',
-  'Open Active › Goals and tap «Evaluate».': 'Öffne Aktiv › Ziele und tippe «Auswerten».',
+  'Open Active › Goals and tap «Evaluate».': 'Öffne Woche › Training › Meine Aktivitäten und tippe «Auswerten».',
   'Open Downhill under Sports.': 'Öffne Downhill unter Sportarten.',
   'Enter the park and the runs (+ and −), mark the protection check, save.': 'Park und Abfahrten (+ und −) eintragen, Schutz-Check markieren, speichern.',
   // «Packliste aufräumen» (Noah 21.10.2026 «5a»)
@@ -342,7 +342,7 @@ export default {
   'Open «Ideas» under «Look up» and tap a goal.': 'Öffne «Ideen» unter «Nachschlagen» und tippe auf ein Ziel.',
   'Tap «Start the sorting round».': 'Tippe auf «Ablegen-Runde starten».',
   'For each note tap «File», a chip, «Keep», «Delete» or «Skip».': 'Tippe bei jeder Notiz auf «Ablegen», einen Chip, «Behalten», «Löschen» oder «Überspringen».',
-  'Open Aktiv › Sports › Tennis.': 'Öffne Aktiv › Meine Aktivitäten › Tennis.',
+  'Open Aktiv › Sports › Tennis.': 'Öffne Woche › Training › Meine Aktivitäten › Tennis.',
   'Tap «Played» or «Like last time».': 'Tippe auf «Gespielt» oder «Wie letztes Mal».',
   'Booked a court? «Enter a time»: afterwards the app asks «Played?».': 'Einen Platz gebucht? «Zeit eintragen»: danach fragt die App «Gespielt?».',
   'In the card Yoga tap «Add a class».': 'Tippe in der Karte Yoga auf «Stunde hinzufügen».',

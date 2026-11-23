@@ -64,4 +64,12 @@ export default {
     'Ozon ist an heissen Nachmittagen am höchsten. An solchen Tagen den harten Teil am Morgen fahren.',
   'Do the transceiver check with the whole group at the car park, not at the first slope. Set the turn-around time before you start.':
     'Mach den LVS-Check mit der ganzen Gruppe beim Parkplatz, nicht am ersten Hang. Leg die Umkehrzeit vor dem Start fest.',
+  'Showers pass in about 20 minutes. If the bars end soon, waiting under a roof often costs less than riding in it.':
+    'Schauer ziehen oft in etwa 20 Minuten durch. Enden die Balken bald, kostet das Warten unter einem Dach oft weniger als das Fahren im Regen.',
+  'A pass is often 10 degrees colder than the start. Pack for the coldest point, not for the car park.':
+    'Ein Pass ist oft 10 Grad kälter als der Start. Pack für die kälteste Stelle, nicht für den Parkplatz.',
+  'A wet road needs a longer braking distance for hours after the rain, and the first rain after a dry spell is the slipperiest.':
+    'Eine nasse Strasse braucht noch Stunden nach dem Regen einen längeren Bremsweg, und der erste Regen nach einer trockenen Zeit ist am glattesten.',
+  'Send a window with the time you leave, not only the day. «Saturday» is vague; «Saturday 09:00 at the station» is a plan.':
+    'Schick ein Fenster mit der Abfahrtszeit, nicht nur mit dem Tag. «Samstag» ist vage; «Samstag 09:00 am Bahnhof» ist ein Plan.',
 };

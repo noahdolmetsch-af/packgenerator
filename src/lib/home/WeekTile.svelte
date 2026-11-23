@@ -11,6 +11,10 @@
   import { flowQuery } from '../flow/data.svelte.js';
   import { actName } from '../flow/ui.svelte.js';
   import { weekDays, activeCount, weekTotals } from './bausteine.js';
+  import { stravaOthers } from '../flow/tickfokus.js';
+  import { USUAL_KEY, usualMap } from '../flow/usualmin.js';
+  import { TICKS_KEY, prefsOf } from '../stravaticks.js';
+  import { sportName } from '../flow/garmin/words.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -33,7 +37,13 @@
   const kmQ = liveQuery(() => db.kmBook.toArray());
   // v0.121.0 (Noah «1a»): the counted Strava rides count too, a ride uploaded as a file once
   const actQ = liveQuery(() => bikeActs(db)); // 0.136.0: Strava rides before a bike's start point
-  const days = $derived(weekDays({ today, log: data?.log ?? [], rides: withStravaRides(rides, $kmQ ?? [], $actQ ?? []) }));
+  // «Alle Sportarten» (Noah 22.11.2026, Schritt E): a run or a hike from Strava without a tick counts as a day of the week too
+  const othQ = liveQuery(async () => {
+    const [activities, usual, ticks] = await Promise.all([db.activities.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
+    return { activities, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map };
+  });
+  const others = $derived($othQ ? stravaOthers({ log: data?.log ?? [], acts: data?.acts ?? [], ...$othQ }) : []);
+  const days = $derived(weekDays({ today, log: data?.log ?? [], rides: withStravaRides(rides, $kmQ ?? [], $actQ ?? []), others }));
   const n = $derived(activeCount(days));
   // «Werte überall» WU1 (Noah 13.10.2026 «1-5a»): km · Hm · minutes in one line, the heart rate next to it
   const tot = $derived(weekTotals(days.filter((d) => !d.future)));
@@ -55,7 +65,7 @@
   const azm = $derived(azmWeek($azmQ ?? [], today));
   // Noah 04.11.2026: a day column is too narrow for a name («Tennis spielen» ended in «Ten…», on a phone and on a
   // computer). The columns keep weekday and dots; the full names stand in short lines under the row.
-  const partsOf = (d) => [d.ride ? (d.km ? t('Bike {km} km', { km: num(d.km) }) : t('Bike|ride')) : '', ...d.acts.map((a) => actName(acts[a]))].filter(Boolean);
+  const partsOf = (d) => [d.ride ? (d.km ? t('Bike {km} km', { km: num(d.km) }) : t('Bike|ride')) : '', ...d.acts.map((a) => actName(acts[a])), ...d.others.map((o) => (o.actId && acts[o.actId] ? actName(acts[o.actId]) : sportName(o.kind)))].filter(Boolean);
   const listed = $derived(days.filter((d) => partsOf(d).length));
   const wd = (day) => new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '');
 </script>
@@ -72,6 +82,7 @@
         <span class="dots" aria-hidden="true">
           {#if d.ride}<i class="ride"></i>{/if}
           {#each d.acts.slice(0, 3) as a (a)}<i class={acts[a]?.ring ?? 'move'}></i>{/each}
+          {#each d.others.slice(0, 2) as o, i (i)}<i class="move"></i>{/each}
         </span>
         {#if hasPlan && planOf(d.day)}<span class="pdots" aria-hidden="true" data-plan-dots>{#each dotsOf(planOf(d.day)) as k (k)}<i class="k-{k}"></i>{/each}</span>{/if}
       </li>

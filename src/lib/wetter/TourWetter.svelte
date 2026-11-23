@@ -16,7 +16,10 @@
   import { compass } from '../toursky.js';
   import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, snowOnRoute, routeTop, packHints, PACK_TEXT, darkAfter, atLocal, localDate, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR } from './kern.js';
   import TourNebel from './TourNebel.svelte'; // «Nebel auf der Tour-Route» (Noah 05.11.2026)
-  import { BERGFEX } from './webcams.js';
+  import WxTimeline from '../map/WxTimeline.svelte'; // Wetter-Ausbau A and G (Noah 22.11.2026): the weather along the route
+  import { tripPace } from './routewx.js';
+  import EtappenWetter from './EtappenWetter.svelte'; // Wetter-Ausbau C: the weather of each riding day
+  import { BERGFEX, WEBCAMS_KEY, camsOf } from './webcams.js';
   import { FEEL_KEY, FEEL_TEXT, PART_TEXT, feelsOf, feelHints } from './gefuehl.js';
   import { FUEL_KEY, fuelForTrip } from '../fuel.js';
   import { RIDER_KEY } from '../weight.js';
@@ -27,6 +30,7 @@
   let { trip } = $props();
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const feelQ = liveQuery(() => db.settings.get(FEEL_KEY));
+  const camsQ = liveQuery(() => db.settings.get(WEBCAMS_KEY));
   const fuelQ = liveQuery(() => db.settings.get(FUEL_KEY));
   const kgQ = liveQuery(() => db.settings.get(RIDER_KEY));
   const place = $derived.by(() => {
@@ -64,6 +68,9 @@
   // Paket X: the one energy rule for the riding day (km and climbing of the route, the warmest riding hour)
   const days = $derived(Math.max(1, Number(trip?.days) || 1));
   const energy = $derived(trip?.route?.km > 0 ? energyFor({ hours: durH, km: trip.route.km / days, gainM: (Number(trip.route.gainM) || 0) / days, tempC: ride?.tmax ?? null, kg: riderKg($kgQ?.value), fuel: fuelForTrip($fuelQ?.value ?? null, trip) }) : null);
+  // Wetter-Ausbau A: the way, not only the start (a route with a line, a start within the forecast)
+  const way = $derived(inForecast && trip?.route?.line?.length > 1 ? tripPace(trip) : null);
+  const camList = $derived(camsOf($camsQ?.value).filter((c) => c.place));
   const week = $derived(core && !inForecast ? bestWindows(core, { durH, days: 7 }).best : null);
 
   const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
@@ -88,6 +95,8 @@
       {#if day}<p class="tw-best" data-tour-wetter-start><Target size={16} aria-hidden="true" />{t('Best start for {h} h riding: {from} (back about {to})', { h: num(durH), from: hm(day.start), to: hm(day.end) })} · <span class="tw-word w-{costWord(day.cost)}">{t(COST_WORD[costWord(day.cost)])}</span></p>{/if}
       {#if week}<p class="tw-best" data-tour-wetter-week><Target size={16} aria-hidden="true" />{t('Best day in the next week: {day}, from {from}', { day: wd(week.date), from: hm(week.start) })}</p>{/if}
       {#if inForecast}<TourNebel {trip} startMs={day?.start ?? null} />{/if}
+      {#if way}{#key trip.id}<WxTimeline route={trip.route} pace={way.kmh} startAt={day?.start ?? atLocal(trip.startDate, 8, off)} tripId={trip.id} auto advice dayKm={way.dayKm} startHints={wear.map((w) => w.key)} {camList} />{/key}{/if}
+      {#if way}{#key trip.id}<EtappenWetter {trip} kmh={way.kmh} {off} />{/key}{/if}
       {#if wear.length}<p class="tw-note" data-tour-wetter-pack><Shirt size={16} aria-hidden="true" />{t('Pack: {list}', { list: wear.map((w) => t(PACK_TEXT[w.key])).join(', ') })}</p>{/if}
       {#if energy}<p class="tw-note" data-tour-energy><Flame size={16} aria-hidden="true" />{t('Per riding day about {kcal} kcal used: eat about {g} g carbohydrates, drink about {l} L.', { kcal: num(energy.burn), g: num(energy.carbsG), l: num(energy.waterL) })} <Nussgipfel kcal={energy.burn} /> <a href="#/trips/fuel">{t('Food and water|fuel')}</a></p>{/if}
       {#each learned.off as x (x.id)}<p class="tw-note" data-tour-wetter-feel>{x.parts.length ? t('Last time at {c} °C: {feel} ({parts}).', { c: num(x.tmin), feel: t(FEEL_TEXT[x.feel]), parts: x.parts.map((p) => t(PART_TEXT[p])).join(', ') }) : t('Last time at {c} °C: {feel}.', { c: num(x.tmin), feel: t(FEEL_TEXT[x.feel]) })}{x.wore ? ` · ${x.wore}` : ''}</p>{/each}

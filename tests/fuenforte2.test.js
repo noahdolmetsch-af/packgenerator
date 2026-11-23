@@ -25,8 +25,8 @@ describe('the last tab of each place (O2.2a)', () => {
 
   it('a place without tabs keeps its address; an unknown tab is forgotten', () => {
     expect(placeHref(place('today'), 'bikes')).toBe('#/');
-    store.set('nav.tab.gear', 'gone');
-    expect(placeHref(place('gear'), 'today')).toBe(PLACE_TABS.gear[0].href);
+    store.set('nav.tab.bikes', 'gone');
+    expect(placeHref(place('bikes'), 'today')).toBe(PLACE_TABS.bikes[0].href);
   });
 });
 
@@ -56,7 +56,9 @@ describe('old addresses (O2.6a)', () => {
 describe('hobby pages 1: the tab «Meine Sportarten» in Aktiv', () => {
   it('«Aktiv neu» (Noah 22.10.2026 «4a»): the sports, their pages, the editor and the hobby pages light «Meine Sportarten»', async () => {
     const { tabOf, subOf } = await import('../src/lib/nav.js');
-    for (const h of ['#/flow/activity', '#/flow/act/yoga', '#/flow/edit/yoga?from=activity', '#/flow/act/meditation', '#/flow/act/meditation/rueckblick', '#/flow/act/meditation/log?view=list', '#/flow/goals', '#/flow/edit/yoga', '#/flow/new', '#/flow/sports', '#/flow/sport/act:yoga']) expect(subOf('week', h)?.key, h).toBe('sports');
+    for (const h of ['#/flow/activity', '#/flow/act/yoga', '#/flow/edit/yoga?from=activity', '#/flow/goals', '#/flow/edit/yoga', '#/flow/new', '#/flow/sports', '#/flow/sport/act:yoga']) expect(subOf('week', h)?.key, h).toBe('sports');
+    // V4b2 (Noah 21.11.2026): the Meditation pages are a chip of «Alltag», no longer of «Meine Sportarten»
+    for (const h of ['#/flow/act/meditation', '#/flow/act/meditation/rueckblick', '#/flow/act/meditation/log?view=list', '#/flow/act/meditation/mehr']) expect(subOf('week', h)?.key, h).toBe('meditation');
     // the milestones are looking: Auswerten › Meilensteine
     expect(subOf('analysis', '#/flow/milestones?act=meditation').key).toBe('milestones');
     expect(subOf('week', '#/flow').key).toBe('flowhome');

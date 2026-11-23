@@ -46,11 +46,13 @@
   import { flowQuery, seedIfNeeded } from '../lib/flow/data.svelte.js';
   import { restRows } from '../lib/flow/restlist.js';
   import { flowStates, rings as ringsOf } from '../lib/flow.js';
-  import { weekGoals } from '../lib/flowweek.js';
+  import { weekSets, unitsOfWeek } from '../lib/flow/weekunits.js';
   import { ringHrefs, ringParts, TICKS_HREF } from '../lib/flow/ringweg.js';
   import { openTimer, actName } from '../lib/flow/ui.svelte.js';
   import Rings from '../lib/flow/Rings.svelte';
   import TickGrid from '../lib/flow/TickGrid.svelte';
+  import OutdoorCard from '../lib/home/OutdoorCard.svelte'; // Challenges (Noah 22.11.2026): running challenges can be ticked off here too
+  import ZielCards from '../lib/challenges/ZielCards.svelte';
   import PullRefresh from '../lib/home/PullRefresh.svelte'; // pull down: sync phone and computer (Noah 10.11.2026 «ja»)
   import SyncLine from '../lib/flow/SyncLine.svelte'; // «Abgeglichen vor 12 s» (Noah 10.11.2026)
   import WeekGlance from '../lib/flow/WeekGlance.svelte';
@@ -63,6 +65,7 @@
   import ActEditor from '../lib/flow/ActEditor.svelte';
   import Activity from './flow/Activity.svelte';
   import MySports from './flow/MySports.svelte';
+  import FeelAsk from '../lib/training/plans/FeelAsk.svelte'; // «Von selbst» (T3): «How was it?» about the newest Strava activity
   import Training from './flow/Training.svelte';
   import TrainingAct from './flow/TrainingAct.svelte';
   import Milestones from './flow/Milestones.svelte';
@@ -112,8 +115,10 @@
   const season = $derived(data ? seasonNow(data.acts, today) : null);
   // Noah 08.11.2026 «1-5 a»: ONE number for the goals of the week: all goals. The head, «Heute abhaken», the week card
   // («12 goals open») and the week review («1 of 13») all count the same 13; only the ring «Bewegen» says it counts its part.
-  const goalsAll = $derived(weekGoals(states));
-  const moveLine = $derived(goalsAll.length ? tn(goalsAll.length, 'this week {k} of {n} goal on track', 'this week {k} of {n} goals on track', { k: goalsAll.filter((g) => g.met).length }) : '');
+  // V3 (Noah «3a» of the Vereinfachen order): ONE number for the week, «k of n units» Monday to Sunday (ticked and planned);
+  // the goals themselves stay on the week page («Goals this week») and the rings keep their own 7-day window.
+  const units = $derived(data ? unitsOfWeek({ acts: data.acts, states, log: data.log, today, sets: $weekSets }) : null);
+  const moveLine = $derived(units ? t('this week {k} of {n} units (Mon to Sun)', { k: units.done, n: units.total }) : '');
   const todayLine = $derived(
     [fmt(today, { weekday: 'long', day: 'numeric', month: 'short' }), moveLine, season ? (season.half === 'summer' ? t('Summer') : t('Winter')) : ''].filter(Boolean).join(' · '),
   );
@@ -221,8 +226,8 @@
       {#await import('../lib/wetter/DraussenTipp.svelte') then m}<m.default />{:catch}{/await}
     </header>
 
-    <!-- «Aktiv und Auswerten» 1a (Noah 03.11.2026): every function of Aktiv as a tile, right under the head -->
-    <AllHere area="aktiv" />
+    <!-- «Von selbst» (T3): a new Strava activity asks «How was it?» in three words, for every sport -->
+    <FeelAsk />
 
     <!-- Noah 19.10 «2a»: the Einstieg of Aktiv in the card «Was hier steht» (after the first visit one quiet line) -->
     <HintCard page="aktiv" intro="aktiv" />
@@ -242,6 +247,11 @@
             <!-- the help line (spec «Heute abhaken»), the same as on Heute -->
             <TickGrid states={live} {today} cols={phone.matches ? 2 : 4} compact help medHelp={hasMed} jump onmed={(s) => (medFor = s.act.id)} />
             <SyncLine />
+            <!-- «Challenges» (Noah 22.11.2026): running challenges (Outdoors, own daily goals) with «Tick off», only when one runs -->
+            <div class="chal" data-aktiv-challenges>
+              <OutdoorCard {today} offerLine={false} />
+              <ZielCards {today} />
+            </div>
             <!-- package G #156: Strava activities waiting for «Count» (only when ticking is set to «suggest first») -->
             <TickSuggest />
           </Sec>
@@ -289,6 +299,8 @@
     {/if}
     <!-- «Auswerten aufräumen» 5a (Noah 07.11.2026): a list pinned to «Aktiv» stands here, not on Auswerten -->
     <PinnedLists place="active" />
+    <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
+    <AllHere area="aktiv" />
   </div>
 {/if}
 
@@ -315,6 +327,14 @@
     margin: var(--sp-1) 0 0;
     color: var(--ink-3);
     font: 400 var(--fs-body) / 1.45 var(--font-body);
+  }
+  /* Challenges on Aktiv: the cards stand under the tiles; without a running challenge the box is empty and takes no room */
+  .chal {
+    display: grid;
+    gap: var(--sp-2);
+  }
+  .chal:has(> section) {
+    margin-top: var(--sp-3);
   }
   .lay {
     display: grid;
