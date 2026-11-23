@@ -1,0 +1,22 @@
+// «Datei auf das Fenster ziehen» (Noah 23.11.2026 «3a»)
+export default {
+  'Drop to open': 'Loslassen zum Öffnen',
+  'What should happen with this file?': 'Was soll mit dieser Datei geschehen?',
+  'A recorded ride (GPX or TCX with times).': 'Eine aufgezeichnete Fahrt (GPX oder TCX mit Zeiten).',
+  'A planned route (GPX without times).': 'Eine geplante Strecke (GPX ohne Zeiten).',
+  'A backup file of the app.': 'Eine Backup-Datei der App.',
+  'A photo or a PDF.': 'Ein Foto oder ein PDF.',
+  '{n} photos or PDFs.': '{n} Fotos oder PDFs.',
+  'The app cannot use this file. It reads rides (GPX, TCX), backups (.json), photos and PDFs.': 'Die App kann diese Datei nicht verwenden. Sie liest Fahrten (GPX, TCX), Backups (.json), Fotos und PDFs.',
+  'Upload the ride': 'Fahrt hochladen',
+  'Take over as planned tour': 'Als geplante Tour übernehmen',
+  'Check the backup': 'Backup prüfen',
+  'Keep in Documents': 'In Dokumenten ablegen',
+  'Just look': 'Nur ansehen',
+  '{n} more file was left out.': '{n} weitere Datei wurde weggelassen.',
+  '{n} more files were left out.': '{n} weitere Dateien wurden weggelassen.',
+  'Nothing is kept before you choose.': 'Nichts wird behalten, bevor du wählst.',
+  'The file could not be handed over. Nothing was changed.': 'Die Datei konnte nicht übergeben werden. Es wurde nichts geändert.',
+  'Drop a file on the window': 'Datei auf das Fenster ziehen',
+  'Computer: drag a GPX or TCX ride, a backup (.json), a photo or a PDF onto the window of the app. A sheet asks what should happen; nothing is kept before you choose.': 'Computer: Ziehe eine GPX- oder TCX-Fahrt, ein Backup (.json), ein Foto oder ein PDF auf das Fenster der App. Ein Blatt fragt, was geschehen soll; nichts wird behalten, bevor du wählst.',
+};

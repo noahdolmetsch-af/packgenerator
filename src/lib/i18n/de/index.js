@@ -569,6 +569,7 @@ import nebelgrenze from './nebelgrenze.js';
 import hoehe from './hoehe.js';
 import nachttemperatur from './nachttemperatur.js';
 import nebelroute from './nebelroute.js';
+import profilfarben from './profilfarben.js'; // «Höhenprofil überall» (Noah 23.11.2026 «1-5a»)
 import nebelpush from './nebelpush.js';
 import sonnenfahrt from './sonnenfahrt.js'; // «Sonnen-Ausfahrt» (Noah 06.11.2026 «1-5a»)
 import nachtpush from './nachtpush.js';
@@ -1036,6 +1037,7 @@ const ORDERED = [
   hoehe,
   nachttemperatur,
   nebelroute,
+  profilfarben,
   nebelpush,
   sonnenfahrt,
   nachtpush,

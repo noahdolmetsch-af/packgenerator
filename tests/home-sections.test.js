@@ -18,7 +18,7 @@ describe('Heute ruhiger: areas (3a)', () => {
   it('the ready wall: Jetzt, Deine Woche, Dein Körper, Unterwegs, Schnell öffnen, Entdecken (the last four under «Mehr» on Heute); inside an area the order of the wall', () => {
     const g = sectionsOf(READY);
     expect(g.map((s) => s.key)).toEqual(['now', 'week', 'body', 'away', 'quick', 'discover']);
-    expect(ids(g[0].tiles)).toEqual(['body', 'meinetour', 'meditation', 'moment', 'heutecheck', 'trip', 'weighin', 'important']); // Spruch, Traum der Woche and Entdecken moved under «Mehr» (Heute aufräumen, 23.11.2026)
+    expect(ids(g[0].tiles)).toEqual(['haken', 'body', 'meinetour', 'meditation', 'moment', 'heutecheck', 'trip', 'weighin', 'important']); // Spruch, Traum der Woche and Entdecken moved under «Mehr» (Heute aufräumen, 23.11.2026)
     expect(ids(g.find((x) => x.key === 'discover').tiles)).toEqual(['spruch', 'discover', 'wochentraum']); // «Meine Tour» (Plan 2a) on top; // «Heute-Check» (Noah 30.10.2026) in «Jetzt»; // «Entdecken» after the day's questions, so «Weight this week?» stays within 2.5 screens
     expect(ids(g.find((x) => x.key === 'body').tiles)).toEqual(['acts', 'vo2max']); // «Dein Körper heute» stands in «Jetzt» under the greeting (Noah 23.11.2026 «1-4a»); VO2max (Noah 28.10.2026) in «Dein Körper»
     expect(ids(g.find((x) => x.key === 'quick').tiles)).toEqual(['pins']); // «Schnell öffnen» (Noah 01.11.2026): the tile with your pins

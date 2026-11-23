@@ -14,6 +14,12 @@ describe('trailOf: the place and the tab, as the sidebar lights them', () => {
     expect(placeKeyOf('#/me/insights')).toBe('analysis');
     expect(keys('#/me/insights')[0]).toBe('analysis');
   });
+  it('the assistant opened from «Fragen» stays where «Fragen» is (Auswerten › Übersicht; Noah 23.11.2026 «5a»); on its own it is a page of Ich', () => {
+    expect(placeKeyOf('#/assistent?von=fragen')).toBe('analysis');
+    expect(keys('#/assistent?von=fragen')).toEqual(keys('#/auswerten/fragen'));
+    expect(placeKeyOf('#/assistent')).toBe('me');
+    expect(placeKeyOf('#/assistent?q=km')).toBe('me');
+  });
   it('a page of Ich starts with «me»', () => {
     expect(keys('#/me/look')).toEqual(['me']);
     expect(keys('#/me/ruhig/aus')).toEqual(['me']);
