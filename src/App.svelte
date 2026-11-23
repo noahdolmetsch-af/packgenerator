@@ -74,6 +74,8 @@
   import { toolKeyOf } from './lib/tools/tools.js';
   import { t, lang } from './lib/i18n.svelte.js';
   import { slideDir, SLIDE_MS } from './lib/nav/slide.js';
+  import { goAt } from './lib/nav/at.js'; // «Link auf den Abschnitt»: ?at=… scrolls to and lights a section
+  import { trackScroll, leavePage, arrivePage, startPage } from './lib/nav/scrollmem.js'; // «Position merken»: Zurück lands where you were
 
   // A tiny "router": the part of the address after # decides which page is shown,
   // e.g. …/packgenerator/#/gear. It works offline and needs no server setup.
@@ -121,6 +123,8 @@
   $effect(() => () => clearTimeout(slideTimer));
   $effect(() => {
     const update = () => {
+      leavePage(); // keep the scroll position of the page that goes
+      const back = !!history.state?.pgv; // an entry shown before: a step in the history, no new link
       spot = '';
       moved = null;
       const from = hash;
@@ -136,10 +140,17 @@
         failReset = null;
         r();
       }
-      window.scrollTo(0, 0);
+      arrivePage(hash, back); // forward: to the top; back: to the kept position
+      if (!back) goAt(hash);
     };
+    const stopTrack = trackScroll();
+    startPage(location.hash); // the first page: mark its entry
+    goAt(location.hash);
     window.addEventListener('hashchange', update);
-    return () => window.removeEventListener('hashchange', update);
+    return () => {
+      window.removeEventListener('hashchange', update);
+      stopTrack();
+    };
   });
   // v0.23.0 (AP07): the address → page and its main place live in nav.js (tested there).
   const page = $derived(pageOf(hash, parseBikesHash(hash).tab === 'care'));

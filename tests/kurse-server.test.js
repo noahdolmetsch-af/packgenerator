@@ -1,6 +1,6 @@
 // «Kursblick» (Noah 22.11.2026): the closing-price service of api/lake.js ?action=kurse. Invented prices only.
 import { describe, it, expect } from 'vitest';
-import { parseStooq, parseYahoo, cleanPoints, zurichDay, kursReihe, okAsset, isKursAnswer, stooqUrl, yahooUrl } from '../api/_lib/kurse.js';
+import { parseStooq, parseYahoo, parseWorldbank, cleanPoints, zurichDay, kursReihe, okAsset, isKursAnswer, stooqUrl, yahooUrl, worldbankUrl } from '../api/_lib/kurse.js';
 import { makeHandler, KURSE_CACHE } from '../api/lake.js';
 
 const csv = (rows) => ['Date,Open,High,Low,Close,Volume', ...rows.map(([d, c]) => `${d},1,2,0.5,${c},0`)].join('\n');
@@ -114,5 +114,28 @@ describe('/api/lake?action=kurse', () => {
     expect((await get('&id=x')).status).toBe(400);
     const down = makeHandler({ doFetch: async () => res('', false), clock: () => NOW });
     expect((await down(new Request('https://x.test/api/lake?action=kurse&id=gold'))).status).toBe(502);
+  });
+});
+
+describe('the consumer price index (id = lik, K-C Teuerung)', () => {
+  const wb = (years) => [{ page: 1, pages: 1 }, years.map((y, i) => ({ date: String(y), value: i === 1 ? null : 90 + i }))];
+  it('reads one value a year onto 1 July and leaves out a year without a value', () => {
+    expect(parseWorldbank(wb([2019, 2020, 2021]))).toEqual([['2019-07-01', 90], ['2021-07-01', 92]]);
+    expect(parseWorldbank({ message: 'error' })).toEqual([]);
+    expect(parseWorldbank([{}, [{ date: 'abc', value: 5 }, { date: '2020', value: 'x' }]])).toEqual([]);
+  });
+  it('is a known asset and asks only the World Bank', async () => {
+    expect(okAsset('lik')).toBe('lik');
+    const calls = [];
+    const doFetch = async (url) => (calls.push(url), res(wb([2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022])));
+    const a = await kursReihe('lik', { doFetch, now: NOW });
+    expect(calls).toEqual([worldbankUrl()]);
+    expect(a.source).toBe('worldbank');
+    expect(a.last).toEqual({ day: '2022-07-01', close: 97 });
+    expect(a.points).toHaveLength(7);
+    expect(isKursAnswer(a)).toBe(true);
+  });
+  it('is unreachable when the World Bank answers nothing usable', async () => {
+    await expect(kursReihe('lik', { doFetch: async () => res([{}, []]), now: NOW })).rejects.toMatchObject({ code: 'unreachable' });
   });
 });

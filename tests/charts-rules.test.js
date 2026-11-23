@@ -19,6 +19,13 @@ describe('chart rules', () => {
     for (const part of ['YTicks', 'GridLines', 'niceScale', 'Readout', 'DataTable', 'indexAt', 'stepKey', 'onopen']) expect(s, part).toContain(part);
   });
 
+  it('the line chart and the bar chart can draw a goal line, a band and a sentence (Noah 23.11.2026 «ja»)', () => {
+    const l = src('src/lib/charts/LineChart.svelte');
+    for (const part of ['goal', 'band', 'sentences', 'nowAt', 'data-goal', 'data-band']) expect(l, part).toContain(part);
+    const b = src('src/lib/charts/BarChart.svelte');
+    for (const part of ['goal', 'data-goal', 'sentences']) expect(b, part).toContain(part);
+  });
+
   it('every chart marked done uses the shared pieces', () => {
     for (const p of DONE) {
       const s = src(p);

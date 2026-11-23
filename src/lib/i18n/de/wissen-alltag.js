@@ -117,4 +117,6 @@ export default {
     'Kurz rechnen vor dem Laden: 4 Tage × 3 Riegel sind 12 Riegel, nicht «ein paar». Die Zahlen bleiben auf dem Gerät.',
   'Tyre pressure in bar or psi depends on the pump: check once here and write your number on the frame with tape.':
     'Reifendruck in bar oder psi hängt von der Pumpe ab: einmal hier prüfen und deine Zahl mit Klebeband an den Rahmen schreiben.',
+  'A goal is a number you wait for: set it once under «My numbers» and Kursblick shows it on Today when it is reached. Enter what a position cost, then profit and loss are exact.':
+    'Ein Ziel ist eine Zahl, auf die du wartest: Leg es einmal unter «Meine Zahlen» fest, und Kursblick zeigt es auf Heute, sobald es erreicht ist. Trag den Einstand eines Postens ein, dann stimmen Gewinn und Verlust genau.',
 };
