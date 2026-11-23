@@ -79,7 +79,7 @@
         <div class="smap">
           <svg viewBox="0 0 {W} {H}" preserveAspectRatio="xMidYMid slice" role="img" aria-label={t('Map of all dreams')}>
             <rect class="ground" width={W} height={H} />
-            {#each tiles as tl (tl.url)}<image class="tile" href={tl.url} x={tl.left} y={tl.top} width="256" height="256" onerror={() => failed++} />{/each}
+            {#each tiles as tl (tl.url)}<image class="tile" href={tl.url} crossorigin="anonymous" x={tl.left} y={tl.top} width="256" height="256" onerror={() => failed++} />{/each}
             {#each drawn as x (x.dream.id)}<path class="casing" d={x.d} />{/each}
             {#each drawn as x (x.dream.id)}<path class="rt" class:on={hover === x.dream.id} d={x.d} />{/each}
             {#each [...drawn].reverse() as x (x.dream.id)}

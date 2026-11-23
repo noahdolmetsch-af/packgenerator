@@ -34,3 +34,16 @@ export function pickDiscover({ moment, today, used = new Set(), notForMe = {}, r
   const f = open[hash(`${today}|${moment}`) % open.length];
   return { feature: f, n: open.indexOf(f) + 1, total: open.length, href: featureHref(f) };
 }
+
+/**
+ * «Heute entdecken» (Noah 23.11.2026 «1a 2b 3a 4a 5a»): up to n functions for the moment, the day's pick first, then the
+ * next ones in the same order. Same rules as pickDiscover (never used, not «Not for me», not put off today).
+ */
+export function discoverList({ moment, today, used = new Set(), notForMe = {}, rec = discoverOf(null) } = {}, n = 3) {
+  if (rec.off) return [];
+  const all = FEATURES.filter((f) => momentOfFeature(f.id) === moment && !used.has(f.id) && !notForMe[f.id]);
+  const open = all.filter((f) => !(rec.later[f.id] && rec.later[f.id] >= today));
+  if (!open.length) return [];
+  const at = hash(`${today}|${moment}`) % open.length;
+  return Array.from({ length: Math.min(n, open.length) }, (_, i) => open[(at + i) % open.length]);
+}

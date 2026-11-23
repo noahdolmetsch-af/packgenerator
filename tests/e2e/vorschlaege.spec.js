@@ -67,6 +67,27 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-vs-view="map"]').click();
   await expect(page.locator('[data-vs-karte] svg')).toBeVisible();
   await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hard.length);
+  // the hover card (Noah 23.11.2026): the mouse over a dot shows title, km, time and climb; on a phone the first tap shows it and does not open the tour yet
+  const near = TOURS.find((x) => x.id === FIRST);
+  const dot = page.locator(`[data-vs-dot="${FIRST}"]`);
+  await dot.scrollIntoViewIfNeeded();
+  if (info.project.name === 'phone') {
+    await dot.tap({ force: true }); // a real touch tap (it also focuses the link): the first tap shows the card
+  } else {
+    await dot.hover({ force: true });
+  }
+  const tip = page.locator('[data-vs-tip]');
+  await expect(tip).toBeVisible();
+  await expect(tip).toHaveAttribute('data-vs-tip', FIRST);
+  await expect(tip).toContainText(near.title);
+  await expect(tip).toContainText('km');
+  await expect(tip).toContainText(`+`);
+  await expect(tip.locator('a.topen')).toHaveAttribute('href', `#/trips/vorschlaege/${FIRST}`);
+  expect(await page.evaluate(() => location.hash)).toBe('#/trips/vorschlaege');
+  if (info.project.name !== 'phone') {
+    await page.mouse.move(2, 2);
+    await expect(tip).toHaveCount(0);
+  }
   // «map on top»: in the map view the map stands above the filters (Noah 23.11.2026: big and well visible)
   const yMap = (await page.locator('[data-vs-karte]').boundingBox()).y;
   const yFilters = (await page.locator('[data-vs-filters]').boundingBox()).y;
@@ -87,10 +108,35 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-vs-tour="sm-332"] a.tl').click();
   await expect(page.locator('[data-page="vorschlaege"] h1')).toContainText('Davos');
   await expect(page.locator('[data-vs-map]')).toBeVisible();
+  // the line stands out (thick, strong colour, km marks) and the ground is a visible choice under the map
+  await expect(page.locator('[data-vs-map] svg.over.strong path.line')).toHaveCount(1);
+  await expect(page.locator('[data-vs-map] svg.over .kmt').first()).toBeAttached();
+  await expect(page.locator('[data-vs-grounds]')).toBeVisible();
+  await page.locator('[data-vs-ground="swissimage"]').click();
+  await expect(page.locator('[data-vs-ground="swissimage"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-vs-ground="auto"]')).toHaveAttribute('aria-pressed', 'false');
+  await page.locator('[data-vs-ground="auto"]').click();
   await expect(page.locator('[data-vs-warn]')).toBeVisible();
+  // the shared profile (steepness colours) and the ground strip under it; the profile and the map show the same place
   await expect(page.locator('[data-profile] svg').first()).toBeVisible();
+  await expect(page.locator('[data-vs-ground-strip]')).toBeVisible();
+  await expect(page.locator('[data-map-marker]')).toHaveCount(0);
+  await page.locator('[data-profile-box]').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('[data-vs-map] [data-map-marker]')).toHaveCount(1);
+  // the steepest pieces: tap one, it is lit on the map and the profile zooms in; tap again, back to the whole tour
+  await expect(page.locator('[data-vs-steep]')).toBeVisible();
+  const items = page.locator('[data-vs-steep-item]');
+  expect(await items.count()).toBeGreaterThan(0);
+  expect(await items.count()).toBeLessThanOrEqual(3);
+  await expect(page.locator('[data-map-lit]')).toHaveCount(0);
+  await items.first().click();
+  await expect(items.first()).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-vs-map] [data-map-lit]')).toHaveCount(1);
+  await expect(page.locator('[data-profile-whole]')).toBeEnabled();
+  await items.first().click();
+  await expect(page.locator('[data-map-lit]')).toHaveCount(0);
   await expect(page.locator('[data-vs-why]')).toContainText(T('Why this suggestion?'));
-  await page.locator('[data-profile] input[type="range"]').fill('500');
   await expect(page.locator('[data-vs-facts]')).toContainText('33 km');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 

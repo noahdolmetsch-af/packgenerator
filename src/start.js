@@ -164,6 +164,9 @@ watchHelloButtons(); // Gruss B: names of own and renamed buttons in the history
 // Without this, a browser may delete website data it considers unimportant.
 navigator.storage?.persist?.();
 
+// Speicher (Noah 23.11.2026): kept map tiles are loaded once again with CORS so Chrome counts their real size (src/lib/tilediet.js).
+import('./lib/tilediet.js').then((m) => m.slimTilesLater()).catch(() => {});
+
 // One-time fixes for older data (brand/model split, bag list and bike setups).
 // «App-Wartung» BF4 (Noah 13.10.2026): on a new version, a copy of the data BEFORE the data updates run
 // (own database, never exported; Ich › Daten und Backup › «Before updates» brings it back).

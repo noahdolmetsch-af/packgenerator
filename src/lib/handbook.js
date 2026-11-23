@@ -1766,6 +1766,21 @@ const LISTED = {
     steps: ['Add a GPX route to the trip.', 'Search once while online; the list then stays on this device, also offline.', 'After changing the route, search again; «Load again» refreshes the list.'],
     example: 'Example: km 23 · Fountain · Village fountain, 80 m beside the route.',
   },
+  'f.bagweigh': {
+    on: 'Nothing to switch on; the numbers belong to the trip and are in the backup.',
+    steps: ['Pack the bag, then open it in Packing list › By bags.', 'Put the packed bag on the scale and type the grams under «Packed bag on the scale».', 'Read what the app says: it fits, or where to look (a missing piece, a wrong weight).'],
+    example: 'Example: saddle bag calculated 1.87 kg, scale 2.25 kg: «380 g more … is a piece missing?» The forgotten tent pegs.',
+  },
+  'f.baglabel': {
+    on: 'Nothing to switch on; the picture is made on this device and nothing is sent.',
+    steps: ['Pack the bag, then open it in Packing list › By bags.', 'Tap «Label of the bag»: a picture with the items and the weights appears.', 'Tap «Share» (phone) or «Save» (computer) and keep or print it.'],
+    example: 'Example: «Frame bag» with 9 items, the heaviest first, 1.2 kg at the bottom: stuck on the bag or kept as a picture.',
+  },
+  'f.bagphoto': {
+    on: 'Nothing to switch on; the photo stays on this device.',
+    steps: ['Pack the bag, then open it in Packing list › By bags.', 'Tap «Photo of this bag» and take the photo (or choose one).', 'In race mode the box «What lies where» shows it with one tap.'],
+    example: 'Example: the saddle bag photographed on 20 Nov: at night you see the sleeping bag lies on the left, the rain jacket on top.',
+  },
   'f.lake': {
     on: 'Nothing to switch on; the card on Aktiv fetches the value.',
     steps: ['Open Aktiv: the card «Lake Zurich» shows the water with the scale pleasant, fresh, cold, icy.', '«Sauna and lake today?»: one tap ticks the sauna or the swim; each swim keeps its water temperature, with your coldest one.', 'Under «Cold-water scale» set the limits that fit you.'],
@@ -1813,12 +1828,12 @@ const LISTED = {
   },
   'f.tour': {
     on: null,
-    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.', 'Ended early? Next time «Go on at step n» starts where you stopped.'],
+    steps: ['On an empty Today tap «Start ›» next to «New here?» in «Start here», or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.', 'Ended early? Next time «Go on at step n» starts where you stopped.'],
     example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
   },
   'f.firststart': {
     on: 'Only on a new, empty app: it asks once when it opens for the first time.',
-    steps: ['Choose the language, «Start with examples» and what interests you, or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
+    steps: ['Choose the language, then tap «Go, start with examples» or «Start empty».', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Adjust the examples» adds more.'],
     example: 'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.',
   },
   'f.playground': {
