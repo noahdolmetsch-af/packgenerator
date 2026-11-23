@@ -5,7 +5,7 @@
 // SHOTS=<dir> saves im-fokus-390.png / im-fokus-1440.png.
 import { test, expect } from '@playwright/test';
 import DE from '../../src/lib/i18n/de/index.js';
-import { flowSeeded } from './wall-fixture.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
 
 const T = (en, vars) => {
   const s = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -88,4 +88,18 @@ test('Im Fokus: the ticked sports stand next to the Strava sports, in the cards 
   await l7.locator('[data-l7="tick:tennis"]').click();
   await expect(page).toHaveURL(/#\/auswerten\/sportjahr\/tennis/);
   expect(errors).toEqual([]);
+});
+
+test('This week on Heute counts a Strava run without a tick as a day', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.clock.install({ time: new Date(D0) });
+  await page.goto('./#/');
+  await flowSeeded(page);
+  await put(page, { activities: [{ ...run, id: `${P}run2`, day: addDays(TODAY, -3), start: `${addDays(TODAY, -3)}T07:00:00Z` }] });
+  await putWall(page); // the wall with «Diese Woche» (and reloads)
+  const week = page.locator('[data-section="week"]');
+  await expect(week).toBeVisible();
+  await expect(week.locator('[data-week-sub]')).toContainText('1 Tag aktiv');
+  await expect(week.locator('[data-week-list]')).toContainText(T('Run|kind'));
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { tickUnits, tickRows, tickKinds, tickFocus } from '../src/lib/flow/tickfokus.js';
+import { tickUnits, tickRows, tickKinds, tickFocus, stravaOthers } from '../src/lib/flow/tickfokus.js';
 
 const act = (id, extra = {}) => ({ id, name: id, ring: 'move', goals: [], ...extra });
 const tick = (id, actId, day, extra = {}) => ({ id, actId, day, at: `${day}T10:00:00.000Z`, ...extra });
@@ -58,5 +58,15 @@ describe('Im Fokus: alle Sportarten (ticks of Aktiv)', () => {
 
   it('no ticks, no card', () => {
     expect(tickKinds(tickUnits({ log: [], acts }), TODAY)).toEqual([]);
+  });
+
+  it('a Strava sport without a tick and no ride is told for «This week»; a ride and a ticked activity are not', () => {
+    const strava = [
+      { id: 77, day: '2026-11-14', kind: 'run', type: 'Run', km: 8, movingS: 2400, name: 'Run' },
+      { id: 88, day: '2026-11-15', kind: 'hike', type: 'Hike', km: 12, movingS: 9000 },
+      { id: 99, day: '2026-11-16', kind: 'bike', type: 'Ride', km: 40, movingS: 5400 },
+    ];
+    const others = stravaOthers({ log, activities: strava, acts, usual });
+    expect(others.map((o) => [o.day, o.kind])).toEqual([['2026-11-15', 'hike']]); // 77 is linked by a tick, 99 is a ride
   });
 });
