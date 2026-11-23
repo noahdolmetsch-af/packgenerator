@@ -239,6 +239,7 @@
         // «Diagramme überall verbessern»: the usual range and one neutral sentence for the resting pulse (the line that does not jump with every ride)
         band: usualBand(hr.points.map((p) => p.rest)),
         bandText: t('Your usual range at rest'),
+        bandMissing: usualBand(hr.points.map((p) => p.rest)) === null,
         sentences: changeSentence(hr.points.map((p) => ({ label: when(p.key), v: p.rest })), (v) => `${Math.round(v)} bpm`).map((x) => t('Resting pulse: {s}', { s: x })),
       };
     }
@@ -290,6 +291,8 @@
         table, label: bname(bkey), topText: bkey === 'bed' ? bedText : null,
         // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): where your own values usually lie, and one neutral sentence (not for the bed time and the skin temperature)
         band: bkey === 'bed' || bkey === 'skin' || bkey === 'weight' || fx ? null : usualBand(pts.map((p) => (p.v == null ? null : p.v / div))),
+        // the short note «too few values» where a band would otherwise stand (the same tabs as above)
+        bandMissing: !(bkey === 'bed' || bkey === 'skin' || bkey === 'weight' || fx) && usualBand(pts.map((p) => (p.v == null ? null : p.v / div))) === null,
         sentences: bkey === 'bed' || bkey === 'skin' ? [] : changeSentence(pts.map((p) => ({ label: when(p.key), v: p.v == null ? null : p.v / div })), (v) => `${bv(v * div)}${bu && !isSleep ? ` ${B.own ? bu : t(bu)}` : ''}`),
       };
     }
@@ -317,6 +320,7 @@
       <BarChart id={M.id} cols={M.cols} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
     {:else}
       <LineChart id={M.id} cols={M.cols} series={M.series} scale={M.scale} band={M.band ? { ...M.band, text: M.bandText ?? t('Your usual range') } : null} sentences={M.sentences ?? []} tick={M.tick} topText={M.topText} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
+      {#if M.bandMissing}<p class="bm" data-band-missing>{t('Too few values for your usual range (from 10 values)')}</p>{/if}
     {/if}
   {/if}
 {/snippet}
@@ -523,6 +527,11 @@
 {/if}
 
 <style>
+  .bm {
+    margin: var(--sp-1, 4px) 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   .shl {
     display: grid;
     gap: 6px;
