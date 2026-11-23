@@ -1,0 +1,36 @@
+/** «Touren-Liste aufräumen» (Noah 23.11.2026): doubled trips, made-up examples, compact rows, short times. */
+export default {
+  // the rows
+  'Times, pace, heart rate and power come from Strava; without Strava the times come from the uploaded ride. Weather and temp. from the forecast saved with the trip. A value without data is left out. Only to look at, no rating.': 'Zeiten, Tempo, Puls und Leistung kommen aus Strava; ohne Strava die Zeiten aus der hochgeladenen Fahrt. Wetter und Temp. aus der Vorhersage, die mit der Tour gespeichert ist. Ein Wert ohne Daten fehlt einfach. Nur zum Anschauen, ohne Wertung.',
+  // doubled trips
+  '{n} trip looks doubled': '{n} Tour sieht doppelt aus',
+  '{n} trips look doubled': '{n} Touren sehen doppelt aus',
+  'Check doubles': 'Doppelte prüfen',
+  '{n} doubled trip hidden': '{n} doppelte Tour ausgeblendet',
+  '{n} doubled trips hidden': '{n} doppelte Touren ausgeblendet',
+  'Take doubles apart': 'Wieder trennen',
+  'Doubled trips': 'Doppelte Touren',
+  'Same name, day, length and bike. Pick the one that stays; the others are hidden, not deleted.': 'Gleicher Name, Tag, Länge und gleiches Velo. Wähle die Tour, die bleibt; die anderen werden ausgeblendet, nicht gelöscht.',
+  'Join «{name}»': '«{name}» zusammenlegen',
+  'Which one stays': 'Welche bleibt',
+  'Stays': 'Bleibt',
+  '{n} times': '{n} Mal',
+  'Debrief written': 'Rückblick geschrieben',
+  'empty list': 'leere Liste',
+  'Hidden, not deleted': 'Ausgeblendet, nicht gelöscht',
+  'The hidden ones no longer count on the list and for learning. «Take doubles apart» brings them back, here, at any time.': 'Die ausgeblendeten zählen nicht mehr in der Liste und fürs Lernen. «Wieder trennen» holt sie zurück, hier, jederzeit.',
+  'No doubled trips found.': 'Keine doppelten Touren gefunden.',
+  'Already joined': 'Schon zusammengelegt',
+  '{n} trip joined.': '{n} Tour zusammengelegt.',
+  '{n} trips joined.': '{n} Touren zusammengelegt.',
+  '{n} trip is back.': '{n} Tour ist zurück.',
+  '{n} trips are back.': '{n} Touren sind zurück.',
+  'Join: hide {n} trip': 'Zusammenlegen: {n} Tour ausblenden',
+  'Join: hide {n} trips': 'Zusammenlegen: {n} Touren ausblenden',
+  // the made-up examples
+  '{n} made-up example hidden': '{n} Beispiel ausgeblendet',
+  '{n} made-up examples hidden': '{n} Beispiele ausgeblendet',
+  'The made-up examples are shown.': 'Die erfundenen Beispiele sind zu sehen.',
+  'Show examples': 'Beispiele zeigen',
+  'Hide examples': 'Beispiele ausblenden',
+};

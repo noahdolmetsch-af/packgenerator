@@ -134,36 +134,35 @@ test('b) every finished trip of the period by month with its values; grey rows k
   // a rated trip with its rides: all the values, highlighted, no button; no power meter: «ohne Wattwerte»
   const herbst = rowOf(page, 'Herbsttour Hochland');
   await expect(herbst).toHaveAttribute('data-state', 'rated');
-  if (phone) {
-    // 0.163.0 «Handy kurz» (2b): on a phone one grey line with the same values, the empty ones left out
-    for (const w of ['Moving time|col', 'Elapsed|col', 'Ø pace', 'Ø heart rate', 'Max. heart rate', 'Weather', 'Temp.']) await expect(herbst.locator('[data-pack-line]')).toContainText(T(w));
-    await expect(herbst.locator('[data-values]')).toHaveCount(0);
-  } else {
-    for (const w of ['Moving time|col', 'Elapsed|col', 'Ø pace', 'Ø heart rate', 'Max. heart rate', 'Weather', 'Temp.']) await expect(herbst.locator('[data-values] dt', { hasText: T(w) }).first()).toBeVisible();
-    // the riding time with its unit, never like minutes (Noah 21.10.2026); from 24 h on as dd:hh:mm:ss
-    await expect(herbst.locator('[data-values] dd').first()).toHaveText(/^(\d+:\d\d h|\d\d:\d\d:\d\d:\d\d)$/);
-    await expect(herbst.locator('[data-no-power]')).toContainText(T('without power values'));
-  }
+  // «Touren-Liste aufräumen» (Noah 23.11.2026, changed on purpose): one compact line per trip; the values open behind the arrow
+  await expect(herbst.locator('[data-values]')).toHaveCount(0);
+  await expect(herbst.locator('[data-row-stats]')).toContainText('km');
+  await herbst.locator('[data-row-toggle]').click();
+  for (const w of ['Moving time|col', 'Elapsed|col', 'Ø pace', 'Ø heart rate', 'Max. heart rate', 'Weather', 'Temp.']) await expect(herbst.locator('[data-values] dt', { hasText: T(w) }).first()).toBeVisible();
+  // the riding time with its unit, never like minutes (Noah 21.10.2026); now «1 h 28 min», never dd:hh:mm:ss (Noah 23.11.2026)
+  await expect(herbst.locator('[data-values] dd').first()).toHaveText(/^(\d+ d( \d+ h)?|\d+ h( \d+ min)?|\d+ min|\d+ s)$/);
+  await expect(herbst.locator('[data-values] dd').filter({ hasText: /^–$/ })).toHaveCount(0); // no empty value
+  await expect(herbst.locator('[data-no-power]')).toContainText(T('without power values'));
   await expect(herbst.locator('[data-power]')).toHaveCount(0);
-  // AT1: below the values, which Strava activity belongs to the trip (none in this fixture)
-  if (!phone) await expect(herbst.locator('[data-strava-of="0"]')).toHaveText(T('no Strava activity')); // 0.163.0: after a tap on a phone
+  // AT1: below the values, which Strava activity belongs to the trip (none in this fixture: nothing is said then)
+  await expect(herbst.locator('[data-strava-of]')).toHaveCount(0);
   await expect(herbst.locator('[data-rate]')).toHaveCount(0);
-  // grey: a trip whose Rückblick is missing keeps «Bewerten», the uploaded ride on its own «Kurz bewerten»
+  // grey: a trip whose Rückblick is missing keeps «Bewerten» inside its values, the uploaded ride on its own «Kurz bewerten»
   const abend = rowOf(page, 'Abendrunde Hügel');
   await expect(abend).toHaveAttribute('data-state', 'done');
+  await expect(abend.locator('[data-rate]')).toHaveCount(0); // no button on the closed row
+  await abend.locator('[data-row-toggle]').click();
   await expect(abend.getByRole('link', { name: `${T('Rate|debrief')}: Abendrunde Hügel` })).toHaveAttribute('href', `#/debrief/${encodeURIComponent(`${P}abend`)}`);
   const solo = rowOf(page, 'Feierabend Seeufer');
   await expect(solo).toContainText(T('Ride from GPX|kind'));
+  await solo.locator('[data-row-toggle]').click();
   await expect(solo.getByRole('link', { name: `${T('Rate briefly')}: Feierabend Seeufer` })).toBeVisible();
   // a trip without a ride: only weather and temp.; Impeccable Touren 2: «no ride linked» is said once above the list
   const ski = rowOf(page, 'Skitour Hochgipfel');
   if (!phone && (await ski.count())) {
+    await ski.locator('[data-row-toggle]').click();
     await expect(ski.locator('[data-no-power]')).toHaveCount(0);
     await expect(page.locator('[data-no-ride]')).toContainText(T('Upload ride'));
-  }
-  if (phone) {
-    // a card (0.163.0 «Handy kurz»: the values as one grey line instead of the box of 4 columns)
-    expect((await abend.locator('[data-rate]').boundingBox()).width).toBeGreaterThan(300);
   }
   if (!phone) await expect(page.getByText(T('highlighted: with a Rückblick (Rated)'))).toBeVisible(); // 0.163.0: no legend on a phone
   await shot(page, info, 'SN4g-touren-werte');

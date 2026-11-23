@@ -108,16 +108,14 @@ test('a) Touren › Fahrten: every Strava activity, a trip with a packing list i
   expect((await pack.boundingBox()).y).toBeLessThan((await toRides.boundingBox()).y);
   // the row of that trip also names its Strava activities
   const pm = pack.locator('li[data-row]').filter({ has: page.getByRole('link', { name: 'Herbsttour Hochland', exact: true }) });
-  if (info.project.name === 'phone') {
-    // 0.163.0 «Handy kurz» (2b): on a phone the values are one grey line; the things packed and Strava after a tap
-    await expect(pm.locator('[data-pack-line]')).toContainText(T('Weather'));
-  } else {
-    await expect(pm.locator('[data-strava-of="2"]')).toContainText(T('Strava: {n} activities', { n: 2 }));
-    // 19.10.2026 «1a»: each activity of the trip is a link to its page
-    await expect(pm.locator('[data-strava-of="2"] a[data-act-link]')).toHaveCount(2);
-    // answer 4a (14.10.2026 «1-5a»): the Packmodus row keeps its values (ride time, heart rate, weather …)
-    await expect(pm.locator('[data-values] dt', { hasText: T('Weather') })).toBeVisible();
-  }
+  // «Touren-Liste aufräumen» (Noah 23.11.2026, changed on purpose): on every screen the values and Strava wait behind the arrow of the row
+  await expect(pm.locator('[data-values]')).toHaveCount(0);
+  await pm.locator('[data-row-toggle]').click();
+  await expect(pm.locator('[data-strava-of="2"]')).toContainText(T('Strava: {n} activities', { n: 2 }));
+  // 19.10.2026 «1a»: each activity of the trip is a link to its page
+  await expect(pm.locator('[data-strava-of="2"] a[data-act-link]')).toHaveCount(2);
+  // answer 4a (14.10.2026 «1-5a»): the Packmodus row keeps its values (ride time, heart rate, weather …)
+  await expect(pm.locator('[data-values] dt', { hasText: T('Weather') })).toBeVisible();
   await noSideways(page);
   await toRides.click();
   await expect(page).toHaveURL(/#\/trips\/rides$/);
