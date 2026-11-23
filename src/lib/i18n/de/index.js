@@ -557,6 +557,7 @@ import formgarmin from './formgarmin.js';
 import umweg from './umweg.js';
 // Paket Y «Wetter-Kern» (Noah 20.10.2026)
 import wetterkern from './wetterkern.js';
+import heutekarten from './heutekarten.js';
 import wetterfenster from './wetterfenster.js';
 import energie from './energie.js';
 // «Schneefallgrenze» (Noah 04.11.2026 «1b 2a 3a 4a 5a»)
@@ -728,6 +729,7 @@ import einheitenWoche from './einheiten-woche.js';
 import heuteAufraeumen from './heute-aufraeumen.js';
 import velosAufraeumen from './velos-aufraeumen.js';
 import ichVierGruppen from './ich-vier-gruppen.js';
+import koerperBanner from './koerper-banner.js';
 import AUTO from './auto.gen.js';
 
 const ORDERED = [
@@ -1023,6 +1025,7 @@ const ORDERED = [
   umweg,
   haustuer,
   wetterkern,
+  heutekarten,
   schneegrenze,
   nebelgrenze,
   hoehe,
@@ -1126,6 +1129,7 @@ const ORDERED = [
   heuteAufraeumen,
   velosAufraeumen,
   ichVierGruppen,
+  koerperBanner,
   applehealth,
 ];
 

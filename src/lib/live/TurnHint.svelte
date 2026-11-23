@@ -9,7 +9,7 @@
    * then/thenM (the turn after it and its metres after this one: a small «then …» line, only within 1 km).
    * Navigation zum Ziel 2 (Noah 27.10.2026 «1a»): a big dark card, the arrow in its own box.
    */
-  import { ArrowUpLeft, ArrowUpRight, ArrowDownLeft, ArrowDownRight, CornerUpLeft, CornerUpRight, Undo2, Spline } from '@lucide/svelte';
+  import { ArrowUpLeft, ArrowUpRight, ArrowDownLeft, ArrowDownRight, CornerUpLeft, CornerUpRight, Undo2, Spline, RotateCw } from '@lucide/svelte';
   import { turnText, NOW_M } from './turns.js';
   import { t, num } from '../i18n.svelte.js';
 
@@ -24,6 +24,7 @@
     'sharp-right': ArrowDownRight,
     'u-turn': Undo2,
     bends: Spline,
+    roundabout: RotateCw,
   };
   const Icon = $derived(turn ? ICON[turn.dir] : null);
   const m = $derived(Number.isFinite(distM) ? distM : turn?.distM);

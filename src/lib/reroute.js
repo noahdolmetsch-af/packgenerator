@@ -21,6 +21,7 @@ import { snap, pointAt } from './race/race.js';
 import { distKm } from './route.js';
 import { gpxString } from './gpxout.js';
 import { surfaceOf } from './live/belag.js';
+import { hintsOf } from './live/brouterturns.js';
 import { nogosParam, nearBadWays, circlesOf } from './live/wegegedaechtnis.js';
 
 export const BROUTER = 'https://brouter.de/brouter';
@@ -51,7 +52,7 @@ const P = (p) => ({ lat: Number(p.lat), lon: Number(p.lon) });
 export function brouterUrl(points, profile = PROFILE_STD, alt = 0, nogos = []) {
   const lonlats = points.map((p) => `${Number(p.lon).toFixed(5)},${Number(p.lat).toFixed(5)}`).join('|');
   const prof = PROFILES.some((x) => x.key === profile) ? profile : PROFILE_STD;
-  return `${BROUTER}?lonlats=${lonlats}&profile=${prof}&alternativeidx=${Math.max(0, Math.min(3, Math.round(Number(alt)) || 0))}${nogos.length ? `&nogos=${nogosParam(nogos)}` : ''}&format=geojson`;
+  return `${BROUTER}?lonlats=${lonlats}&profile=${prof}&alternativeidx=${Math.max(0, Math.min(3, Math.round(Number(alt)) || 0))}${nogos.length ? `&nogos=${nogosParam(nogos)}` : ''}&timode=2&format=geojson`;
 }
 
 /** BRouter GeoJSON → { line: [[lat, lon, ele]], km, gainM, min, surface } or null (surface: belag.js, null without the table). */
@@ -59,13 +60,22 @@ export function parseBrouter(json) {
   const f = json?.features?.[0];
   const c = f?.geometry?.coordinates;
   if (!Array.isArray(c) || c.length < 2) return null;
-  const line = c.filter((x) => fin(x?.[0]) && fin(x?.[1])).map(([lon, lat, ele]) => (fin(ele) ? [lat, lon, Math.round(ele)] : [lat, lon]));
+  // the router's own index of a point → its place in the kept line (hints point at it)
+  const keep = new Map();
+  const line = c
+    .filter((x, i) => {
+      const ok = fin(x?.[0]) && fin(x?.[1]);
+      if (ok) keep.set(i, keep.size);
+      return ok;
+    })
+    .map(([lon, lat, ele]) => (fin(ele) ? [lat, lon, Math.round(ele)] : [lat, lon]));
   const pr = f.properties ?? {};
   let km = Number(pr['track-length']) / 1000;
   if (!(km > 0)) km = line.slice(1).reduce((s, p, i) => s + distKm({ lat: line[i][0], lon: line[i][1] }, { lat: p[0], lon: p[1] }), 0);
   const gainM = fin(pr['filtered ascend']) ? Math.max(0, Math.round(Number(pr['filtered ascend']))) : null;
   const min = fin(pr['total-time']) ? Math.round(Number(pr['total-time']) / 60) : null;
-  return { line, km: Math.round(km * 10) / 10, gainM, min, surface: surfaceOf(pr.messages) };
+  const hints = hintsOf(pr.voicehints, keep);
+  return { line, km: Math.round(km * 10) / 10, gainM, min, surface: surfaceOf(pr.messages), ...(hints ? { hints } : {}) };
 }
 
 /** Where a place lies on the route from fromKm on: { km, offKm } (a round tour does not snap back to the start). */
@@ -553,6 +563,7 @@ export function returnDetour(r, { exitKm = null, back = 'fast', now = Date.now()
     fromKm: exitKm != null && fin(exitKm) ? Math.round(exitKm * 10) / 10 : null,
     extraKm: null,
     skippedKm: r.skippedKm ?? 0,
+    ...(r.hints ? { hints: r.hints } : {}),
     profile: r.profile ?? PROFILE_STD,
     back,
     at: now,

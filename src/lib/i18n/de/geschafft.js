@@ -8,8 +8,8 @@ export default {
   'ride to work': 'Arbeitsweg',
   'from your plan': 'aus deinem Plan',
   'This tick is gone, perhaps it was taken back.': 'Dieses Abhaken gibt es nicht mehr, vielleicht wurde es zurückgenommen.',
-  'Nothing ticked yet. Tick something on Active and this page shows what it brought.': 'Noch nichts abgehakt. Hak auf Aktiv etwas ab, dann zeigt diese Seite, was es gebracht hat.',
-  'Back to Active': 'Zurück zu Aktiv',
+  'Nothing ticked yet. Tick something on Active and this page shows what it brought.': 'Noch nichts abgehakt. Hak auf «Heute abhaken» etwas ab, dann zeigt diese Seite, was es gebracht hat.',
+  'Back to Active': 'Zurück zu «Heute abhaken»',
   'This time': 'Dieses Mal',
   'The first time this week': 'Das erste Mal diese Woche',
   'Time {n} this week': 'Das {n}. Mal diese Woche',
@@ -47,10 +47,10 @@ export default {
 
   // der Funktionskatalog (features.js), «So geht's» und das Handbuch
   'Done page': 'Geschafft',
-  'After you tick something, this page shows what you did, how often this week, the week in hours and days, the weekly goals still open and, with Strava numbers, the last time next to it. On Active a tap on a tile ticks and opens it; duration and feeling are optional chips. It only counts and looks; one tap takes the tick back.': 'Nach dem Abhaken zeigt diese Seite, was du gemacht hast, das wievielte Mal diese Woche, die Woche in Stunden und Tagen, die offenen Wochenziele und mit Strava-Zahlen das letzte Mal daneben. Auf Aktiv hakt ein Tipp auf eine Kachel ab und öffnet sie; Dauer und Gefühl sind freiwillige Chips. Sie zählt und schaut nur; ein Tipp nimmt das Abhaken zurück.',
-  'Tap a tile on Active: it ticks and this page opens.': 'Tippe auf Aktiv auf eine Kachel: sie hakt ab und diese Seite öffnet sich.',
+  'After you tick something, this page shows what you did, how often this week, the week in hours and days, the weekly goals still open and, with Strava numbers, the last time next to it. On Active a tap on a tile ticks and opens it; duration and feeling are optional chips. It only counts and looks; one tap takes the tick back.': 'Nach dem Abhaken zeigt diese Seite, was du gemacht hast, das wievielte Mal diese Woche, die Woche in Stunden und Tagen, die offenen Wochenziele und mit Strava-Zahlen das letzte Mal daneben. Auf «Heute abhaken» hakt ein Tipp auf eine Kachel ab und öffnet sie; Dauer und Gefühl sind freiwillige Chips. Sie zählt und schaut nur; ein Tipp nimmt das Abhaken zurück.',
+  'Tap a tile on Active: it ticks and this page opens.': 'Tippe auf «Heute abhaken» auf eine Kachel: sie hakt ab und diese Seite öffnet sich.',
   'Choose the duration and how it was, if you like; both are optional.': 'Wähle die Dauer und wie es war, wenn du magst; beides ist freiwillig.',
-  'Tap «Back to Active», «All numbers of this training» or «Undo».': 'Tippe auf «Zurück zu Aktiv», «Alle Zahlen zu diesem Training» oder «Rückgängig».',
+  'Tap «Back to Active», «All numbers of this training» or «Undo».': 'Tippe auf «Zurück zu «Heute abhaken»», «Alle Zahlen zu diesem Training» oder «Rückgängig».',
   'Example: tap «Run», pick 45 min and «good»: «Time 2 this week», 2:12 h on 3 days.': 'Beispiel: «Laufen» tippen, 45 Min und «gut» wählen: «Das 2. Mal diese Woche», 2:12 h an 3 Tagen.',
   // «Eigene Dauer» (Noah 21.11.2026): a field for own minutes next to every row of duration buttons
   'Own length': 'Eigene Dauer',

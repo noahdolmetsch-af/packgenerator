@@ -28,7 +28,7 @@ export default {
   'How often per week|compare': 'Wie oft pro Woche',
   '{n} a week|compare': '{n} pro Woche',
   'Choose an activity above.|compare': 'Wähle oben eine Aktivität.',
-  'No activities in Aktiv yet.|compare': 'Noch keine Aktivitäten in Aktiv.',
+  'No activities in Aktiv yet.|compare': 'Noch keine Aktivitäten in «Heute abhaken».',
   'Before and after a trip|compare': 'Vor und nach einer Tour',
   '{n} days before against {n} days after|compare': '{n} Tage davor gegen {n} Tage danach',
   'Trip|compare': 'Tour',

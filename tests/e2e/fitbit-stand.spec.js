@@ -43,7 +43,7 @@ test('FS3: only the active zone minutes are of today: the other values show the 
   const body = page.locator('[data-section="body"]');
   await expect(body.locator('[data-body="pulse"] b')).toHaveText('54');
   await expect(body.locator('[data-body="pulse"]')).toContainText('von gestern');
-  await expect(body.locator('[data-body="sleep"] b')).toHaveText(/3 h/);
+  await expect(body.locator('[data-body="sleep"] b')).toHaveText('3 h 00');
   await expect(body.locator('[data-body="azm"] b')).toHaveText('10');
   await expect(body.locator('[data-body="azm"]')).toContainText('heute');
   await expect(body.locator('[data-body-hint]')).toContainText('Fitbit hat noch nicht alle Werte von heute geliefert');

@@ -1,6 +1,6 @@
 // v0.76.0 «Fünf Orte» 1: the five places, the sidebar, «Ich» and the keyboard shortcuts.
 export default {
-  'Active|place': 'Aktiv',
+  'Active|place': 'Heute abhaken',
   'Me|place': 'Ich',
   Places: 'Orte',
   'Overview|tab': 'Übersicht',

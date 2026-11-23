@@ -125,7 +125,7 @@ export default {
   'longest meditation': 'längste Meditation',
   'push-ups in one go': 'Liegestütze am Stück',
   'longest ride': 'längste Ausfahrt',
-  'longest activity streak': 'längste Aktiv-Serie',
+  'longest activity streak': 'längste Abhak-Serie',
   'most minutes in one week': 'meiste Minuten in einer Woche',
 
   // the reward

@@ -27,7 +27,7 @@ export default {
   'Clothes by temperature. The app suggests layers for the weather of the trip.': 'Kleider nach Temperatur. Die App schlägt Schichten für das Wetter der Tour vor.',
   'A block is a ready package for a situation, like «Rain». One tap adds the whole package to a trip.': 'Ein Baustein ist ein fertiges Paket für eine Situation, zum Beispiel «Regen». Ein Tipp nimmt das ganze Paket in eine Tour.',
   'Tour of the app': 'Rundgang durch die App',
-  'Tour of Active': 'Rundgang durch Aktiv',
+  'Tour of Active': 'Rundgang durch «Heute abhaken»',
   'Tour of Trips': 'Rundgang durch Touren',
   'Tour of Gear': 'Rundgang durch Material',
   // the tour card (TourHost.svelte) and the choice (TourStart.svelte)
@@ -157,7 +157,7 @@ export default {
   "Move, mindful and recovery over the last 7 days.": "Bewegen, Achtsam und Erholung über die letzten 7 Tage.",
   "A sauna or a walk counts too.": "Auch Sauna oder ein Spaziergang zählen.",
   "Something new? «New activity» adds a tile, for example climbing or swimming.": "Etwas Neues? «Neue Aktivität» fügt eine Kachel hinzu, zum Beispiel Klettern oder Schwimmen.",
-  "A long press on a tile under Active enters the duration or the place.": "Lange auf eine Kachel unter Aktiv drücken trägt die Dauer oder den Ort ein.",
+  "A long press on a tile under Active enters the duration or the place.": "Lange auf eine Kachel unter «Heute abhaken» drücken trägt die Dauer oder den Ort ein.",
   "Recovery counts too: a sauna or a walk fills the recovery ring.": "Erholung zählt auch: Sauna oder ein Spaziergang füllen den Erholungsring.",
   "The goal of 10,000 steps a day goes back to a Japanese step counter from 1965 called «manpo-kei», the «10,000-step meter».": "Das Ziel von 10 000 Schritten pro Tag geht auf einen japanischen Schrittzähler von 1965 zurück: «Manpo-kei», der «10 000-Schritte-Messer».",
   "Harvard Health Publishing": "Harvard Health Publishing",

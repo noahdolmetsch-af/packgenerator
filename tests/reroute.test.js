@@ -26,6 +26,7 @@ describe('brouter', () => {
     expect(u).toContain('lonlats=8.20000,47.10000|8.30000,47.20000');
     expect(u).toContain('profile=fastbike');
     expect(u).toContain('format=geojson');
+    expect(u).toContain('timode=2'); // the router sends its junctions and roundabouts (brouterturns.js)
     expect(brouterUrl([{ lat: 1, lon: 2 }], 'nonsense')).toContain(`profile=${PROFILE_STD}`);
   });
   it('reads the line, km, climb and time', () => {

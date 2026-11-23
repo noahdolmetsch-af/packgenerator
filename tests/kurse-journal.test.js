@@ -79,6 +79,18 @@ describe('depots', () => {
     s = loescheDepot(s, 'a');
     expect(s.depots.map((d) => d.id)).toEqual(['b']);
   });
+  it('moves the entries to another portfolio when one is chosen, else they go with it', () => {
+    let s = neuesDepot(leer(), { name: 'Eins' }, 'a').state;
+    s = neuesDepot(s, { name: 'Zwei' }, 'b').state;
+    s = neuerEintrag(s, 'a', kauf('2025-01-02', 10, 100), 'e1').state;
+    s = neuerEintrag(s, 'b', kauf('2025-02-02', 5, 100), 'e2').state;
+    const dahin = loescheDepot(s, 'a', 'b');
+    expect(dahin.depots.map((d) => d.id)).toEqual(['b']);
+    expect(dahin.depots[0].eintraege.map((e) => e.id)).toEqual(['e2', 'e1']);
+    expect(loescheDepot(s, 'a').depots[0].eintraege.map((e) => e.id)).toEqual(['e2']);
+    expect(loescheDepot(s, 'a', 'a').depots.map((d) => d.id)).toEqual(['b']); // to itself or to a gone one: just deleted
+    expect(loescheDepot(s, 'a', 'gone').depots[0].eintraege).toHaveLength(1);
+  });
 });
 
 describe('entries', () => {
