@@ -97,7 +97,8 @@ test('a bag: the pencil in its window opens the same sheet; the window keeps cha
   await openMore(page); // v0.95.0 «Velo kurz»: this lives under «More»
   const fold = page.locator('details', { hasText: T('Your bags') }).last();
   await fold.locator('summary').first().click();
-  await fold.getByRole('button', { name: /Test seat pack/ }).first().click();
+  // Velos aufräumen (23.11.2026, changed on purpose): bag names from the import read German in the list («Test seat pack» → «Test Satteltasche»)
+  await fold.getByRole('button', { name: /Test (seat pack|Satteltasche)/ }).first().click();
   const bag = page.locator('dialog[aria-labelledby="bag-h"]');
   await expect(bag).toBeVisible();
   await bag.getByRole('button', { name: T('Rename {name}', { name: 'Test seat pack' }) }).click();
