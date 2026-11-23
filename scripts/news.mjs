@@ -104,9 +104,9 @@ export function imagesOf(file, dir = join(ROOT, IMAGE_DIR)) {
 
 export const newsFiles = (dir = join(ROOT, NEWS_DIR)) => (existsSync(dir) ? readdirSync(dir).filter((f) => NAME.test(f)).sort() : []);
 
-/** The pictures of «What is new» (Noah 23.11.2026): public/news/<name>/<line>-nachher.jpg and -vorher.jpg (tests/e2e/news-bilder.spec.js). */
+/** The pictures of «What is new» (Noah 23.11.2026): public/news/<name>/<line>-nachher.webp and -vorher.webp (tests/e2e/news-bilder.spec.js). */
 export const PICS_DIR = 'public/news';
-const PIC = /^(\d+)-(nachher|vorher)\.jpg$/;
+const PIC = /^(\d+)-(nachher|vorher)\.webp$/;
 
 /** Pure: the file names of one entry's folder as [{ line, vorher }], by line. A «vorher» without a «nachher» does not count. */
 export function picsOf(files) {

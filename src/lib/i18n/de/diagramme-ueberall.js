@@ -13,6 +13,7 @@ export default {
   'Your usual range': 'Deine übliche Spanne',
   'Goal a month: {n} km': 'Ziel pro Monat: {n} km',
   'Goal a week: {n} h': 'Ziel pro Woche: {n} Std.',
+  'Weekly goal ÷ 7: {n} min': 'Wochenziel ÷ 7: {n} Min.',
   'Your usual range at rest': 'Deine übliche Spanne in Ruhe',
   'Resting pulse: {s}': 'Puls in Ruhe: {s}',
   'Too few values for your usual range (from 10 values)': 'Zu wenige Werte für deine übliche Spanne (ab 10 Werten)',

@@ -1338,7 +1338,7 @@
     {#if resumed && rec.on}<p class="rc-note" role="status" data-live-resumed>{t('The app had loaded anew: your ride goes on. What you rode is saved; the time between is a gap in the travel track.')}</p>{/if}
     {#if err || rec.error}<p class="rc-warn" role="alert">{err || t(rec.error)}</p>{/if}
     <p class="rc-note">{t('Your position runs only while this page is open and the screen stays on. That needs battery: best with the phone on the handlebar and on power. The ride is recorded in the travel track at the same time.')}</p>
-    {#if !rec.on && hasRoute}<ReadyCard line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} voice={cfg.voice} onvoice={(v) => setOpt('voice', v)} />{/if}
+    {#if !rec.on && hasRoute}<ReadyCard line={route?.line ?? []} name={routeName} tripId={tid || null} reserve={trip ? reserveOf(trip) : null} voice={cfg.voice} onvoice={(v) => setOpt('voice', v)} points={pois} />{/if}
     {#if !rec.on}
       <details class="lv-tip" data-live-flight-tip>
         <summary>{t('Save battery: ride in flight mode')}</summary>

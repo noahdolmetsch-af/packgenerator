@@ -16,6 +16,7 @@
    */
   import { shortVersion, iconOf, boxLabel } from '../whatsnew.js';
   import { goOf, hrefOf } from './newsgo.js';
+  import NewsBild from './NewsBild.svelte';
   import { goNews } from './newsRun.js';
   import { t, locale } from '../i18n.svelte.js';
   import { newsWhen } from './neudatum.js';
@@ -36,6 +37,9 @@
     goNews(p, ev);
   }
   // a line with only «where it shows up» still is a link (its tap shows the line)
+  // «Bilder bei jeder Neuheit» (Noah 23.11.2026 «1b»): the pictures of the lines, from public/news/<id>/ (line n = the n-th line: points, then small things)
+  const lines = $derived([...(e.points ?? []), ...(e.small ?? [])]);
+  const pics = $derived((e.bilder ?? []).filter((b) => lines[b.line - 1]).map((b) => ({ ...b, text: lines[b.line - 1].text })));
   const linkOf = (p) => hrefOf(goOf(p)) ?? (goOf(p) ? '#/me/news' : null);
 </script>
 
@@ -43,6 +47,14 @@
   <div class="vn-h"><span class="vn-badge num">{shortVersion(e.version)}</span><small>{when}</small></div>
   <svelte:element this={`h${level}`} class="vn-t" {id}>{t(e.title)}</svelte:element>
   {#if e.lead}<p class="vn-ld">{t(e.lead)}</p>{/if}
+  <!-- the first picture stands open above the lines; more pictures of the same update wait behind one closed line -->
+  {#each pics.slice(0, 1) as b (b.line)}<NewsBild id={e.id} line={b.line} vorher={b.vorher} text={b.text} />{/each}
+  {#if pics.length > 1}
+    <details class="vn-more">
+      <summary>{t('More pictures ({n})', { n: pics.length - 1 })}</summary>
+      {#each pics.slice(1) as b (b.line)}<NewsBild id={e.id} line={b.line} vorher={b.vorher} text={b.text} />{/each}
+    </details>
+  {/if}
   <ul class="vn-pts" class:panel={!card}>
     {#each e.points as p (p.text)}
       {@const Icon = ICON[iconOf(p)] ?? Sparkles}
@@ -170,6 +182,17 @@
     color: var(--hi);
     font-size: var(--fs-tiny);
     font-weight: 600;
+  }
+  .vn-more {
+    margin: 0 0 8px;
+  }
+  .vn-more summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    cursor: pointer;
   }
   .vn-t {
     margin: 6px 0 4px;

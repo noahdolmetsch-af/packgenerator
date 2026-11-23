@@ -13,6 +13,7 @@
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import EntrySheet from '../lib/tag/EntrySheet.svelte';
   import Todos from '../lib/tag/Todos.svelte';
+  import Abhaken from '../lib/tag/Abhaken.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { titleOf, subOf, dayName, wxWords, holidayName } from '../lib/woche/words.js';
@@ -27,8 +28,8 @@
   let { sub = '' } = $props();
   const today = localDay();
   const isDay = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s ?? '') && !Number.isNaN(Date.parse(`${s}T12:00:00Z`));
-  // step 3: the second tab «To-dos» has the address #/day/todos
-  const tab = $derived(sub === 'todos' ? 'todos' : 'day');
+  // step 3: the second tab «To-dos» has the address #/day/todos, step 3c the third «Tick off» #/day/abhaken
+  const tab = $derived(sub === 'todos' ? 'todos' : sub === 'abhaken' ? 'abhaken' : 'day');
   const day = $derived(isDay(sub) ? sub : today);
   const monday = $derived(mondayOf(day));
   const days = $derived(weekOf(day, shiftDay));
@@ -150,12 +151,14 @@
   }
 </script>
 
-<PageHead title={tab === 'todos' ? t('My to-dos') : t('My day')} what={tab === 'todos' ? t('Everything still open in one list: yours from Remember and the ones you put on a day.') : t('Read the day, tap an entry to open it where it lives.')} />
+<PageHead title={tab === 'todos' ? t('My to-dos') : tab === 'abhaken' ? t('Tick off today') : t('My day')} what={tab === 'todos' ? t('Everything still open in one list: yours from Remember and the ones you put on a day.') : tab === 'abhaken' ? t('One tap ticks a sport or habit. Duration and feeling are optional.') : t('Read the day, tap an entry to open it where it lives.')} />
 
-<p class="tabs"><Seg label={t('Views of My day')} value={tab} options={[{ key: 'day', name: t('Day') }, { key: 'todos', name: t('To-dos') }]} onchange={(k) => (location.hash = k === 'todos' ? '#/day/todos' : '#/day')} /></p>
+<p class="tabs"><Seg label={t('Views of My day')} value={tab} options={[{ key: 'day', name: t('Day') }, { key: 'todos', name: t('To-dos') }, { key: 'abhaken', name: t('Tick off|tab') }]} onchange={(k) => (location.hash = k === 'todos' ? '#/day/todos' : k === 'abhaken' ? '#/day/abhaken' : '#/day')} /></p>
 
 {#if tab === 'todos'}
   <Todos {today} {weekTodos} ontick={tickItem} onmove={(it, to) => change(items().find((x) => x.id === it.id) ?? it, { day: to })} onedit={(it) => (editing = { item: items().find((x) => x.id === it.id) })} />
+{:else if tab === 'abhaken'}
+  <Abhaken {today} />
 {:else}
 <nav class="wk" aria-label={t('Choose a day')}>
   <a class="step" href="#/day/{shiftDay(day, -1)}" aria-label={t('Day before')}><ChevronLeft size={18} aria-hidden="true" /></a>

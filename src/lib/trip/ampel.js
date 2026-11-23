@@ -26,9 +26,10 @@ export function ampelShows(trip, stats, today) {
  * The lines. in: { trip, stats, today, forecast: bool (has a forecast for the trip days), wxGap: bool,
  * care: { due, late, nodata, open } | null (null = no bike trip), charged: { done, total } | null,
  * dazu: { n, name } | null (things missing that belong with something on the list, `name` the first one; pack/dazu.js) }.
- * → [{ key, tone, text, vars, act }]  act = what a tap does ('pack' | 'weather' | 'bike' | 'power' | 'dazu' | null)
+ * griff: { n, name } | null (things you reach for on the way that lie deep in a bag, `name` the first one; pack/griff.js).
+ * → [{ key, tone, text, vars, act }]  act = what a tap does ('pack' | 'weather' | 'bike' | 'power' | 'dazu' | 'griff' | null)
  */
-export function ampelRows({ trip, stats, today, forecast = false, wxGap = false, care = null, charged = null, dazu = null }) {
+export function ampelRows({ trip, stats, today, forecast = false, wxGap = false, care = null, charged = null, dazu = null, griff = null }) {
   const rows = [];
   const left = daysBetween(today, trip.startDate.slice(0, 10));
 
@@ -59,6 +60,9 @@ export function ampelRows({ trip, stats, today, forecast = false, wxGap = false,
 
   // 5. «Dazu nötig» (Noah 23.11.2026 «G1»): the small thing that belongs with something on the list; only when one is missing
   if (dazu?.n > 0) rows.push({ key: 'dazu', tone: 'wait', text: dazu.n === 1 ? 'Needed with it: {name} is missing' : 'Needed with it: {n} things are missing', vars: { n: dazu.n, name: dazu.name }, act: 'dazu' });
+
+  // 6. «Griffbereit» (Noah 23.11.2026 «G3»): food, rain gear or a marked thing that lies out of reach on the bike; only when there is one
+  if (griff?.n > 0) rows.push({ key: 'griff', tone: 'wait', text: griff.n === 1 ? 'Within reach: {name} lies deep in a bag' : 'Within reach: {n} things lie deep in a bag', vars: { n: griff.n, name: griff.name }, act: 'griff' });
   return rows;
 }
 

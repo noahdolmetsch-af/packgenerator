@@ -42,7 +42,7 @@ export default {
   '"{name}" added.': '«{name}» hinzugefügt.',
   '«{name}» ticked off.': '«{name}» abgehakt.',
   '«{name}» changed.': '«{name}» geändert.',
-  'Write a to-do and press Enter': 'To-do schreiben und Enter drücken',
+  'Write a to-do': 'To-do schreiben',
   'No open to-dos': 'Keine offenen To-dos',
   'Write one above. It waits in the list, and you can give it a day when it is time.': 'Schreib oben eins auf. Es wartet in der Liste, und einen Tag gibst du ihm, wenn es so weit ist.',
   'Tick off «{name}»': '«{name}» abhaken',
@@ -57,4 +57,15 @@ export default {
   'Tap «Today» to move it to today; tap its words to change or delete it.': 'Tippe «Heute», um es auf heute zu legen; tippe auf den Text, um es zu ändern oder zu löschen.',
   'Example: «Call the garage» without a date waits in the list; on Friday you tap «Today» and tick it off in the evening.': 'Beispiel: «Garage anrufen» ohne Datum wartet in der Liste; am Freitag tippst du «Heute» und hakst es abends ab.',
   'Everything still open in one list: yours from Remember and the ones you put on a day.': 'Alles, was noch offen ist, in einer Liste: deine aus Merken und die, die du auf einen Tag legst.',
+  // step 3b: open points of notes, only on a tap
+  'Open points in your notes': 'Offene Punkte in deinen Notizen',
+  'Nothing becomes a to-do by itself. Tap «Make a to-do» for the ones you want.': 'Nichts wird von selbst ein To-do. Tippe «To-do machen» bei denen, die du willst.',
+  'Make a to-do': 'To-do machen',
+  'Make a to-do of «{name}»': 'Aus «{name}» ein To-do machen',
+  // step 3c: the tab «Tick off»
+  'Tick off|tab': 'Abhaken',
+  'One tap ticks a sport or habit. Duration and feeling are optional.': 'Ein Tipp hakt eine Sportart oder Gewohnheit ab. Dauer und Gefühl sind freiwillig.',
+  'Nothing to tick off yet': 'Noch nichts zum Abhaken',
+  'Add the first sport or habit, then it stands here with one tap.': 'Leg die erste Sportart oder Gewohnheit an, dann steht sie hier zum Abhaken.',
+  'All sports, goals and the week in Aktiv': 'Alle Sportarten, Ziele und die Woche in Aktiv',
 };

@@ -78,6 +78,15 @@ test('route card: search on tap, rows by km with OSM links, chips filter, the li
   expect(gpx).toContain('<trkpt ');
   await expect(box.getByRole('status')).toContainText(T('Saved. On the Garmin: copy it with Garmin Express or the Connect app; on the Wahoo: import it in the app.'));
 
+  // P1 «Kurspunkte für den Garmin»: the same stops as a FIT course with course points
+  const dlFit = page.waitForEvent('download');
+  await box.locator('[data-gpx-fit]').click();
+  const fit = await dlFit;
+  expect(fit.suggestedFilename()).toMatch(/\.fit$/);
+  const bytes = readFileSync(await fit.path());
+  expect(bytes.subarray(8, 12).toString('latin1')).toBe('.FIT');
+  expect(bytes.includes(Buffer.from('test_data_gtp_'))).toBe(true); // the course point of the workshop (the name is cut at 15 bytes)
+
   // after a reload the list is there without asking again
   await page.reload();
   await expect(page.locator('.calm-pack')).toBeVisible();

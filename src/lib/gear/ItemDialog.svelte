@@ -49,6 +49,7 @@
   import { materialStats, tripLog, usageOf, lighterAlts, ALT_DISMISSED_KEY, dismissValue, linkPatch, suggestWhy } from './material.js';
   import { inSmallAid, AID_KEY } from '../firstaid.js';
   import { linkedOf, withAdded, withRemoved } from '../pack/dazufeld.js'; // «Dazu nötig» (Noah 23.11.2026 «G1»)
+  import { reachChoice, withReach } from '../pack/griffeld.js'; // «Griffbereit» (Noah 23.11.2026 «G3»)
   import { summaryLine, blockNames, ruleNames, placeName, weightState, lifeLine, lastFold, keepFold, nextFold, blockLabel } from './detail.js';
 
   /**
@@ -591,6 +592,18 @@
     </label>
   {:else if !comes.body && BAG[draft.defaultBag]}
     <p class="quiet">{t('Usual bag')}: {t(BAG[draft.defaultBag])}</p>
+  {/if}
+  {#if !readOnly && !comes.body}
+    <label class="bagsel" data-reach-field><span class="lbl">{t('Within reach|reach')}</span>
+      <select class="sel" value={reachChoice(draft)} onchange={(e) => Object.assign(draft, withReach(e.currentTarget.value))}>
+        <option value="auto">{t('Automatic: food and rain gear')}</option>
+        <option value="yes">{t('Within reach|reach')}</option>
+        <option value="no">{t('Never suggest a place')}</option>
+      </select>
+    </label>
+    <p class="quiet">{t('A thing within reach lies in the top tube bag, the mini bag or a pouch while riding. The card «Ready to go?» suggests it when it lies deeper.')}</p>
+  {:else if comes.body && reachChoice(draft) === 'yes'}
+    <p class="quiet">{t('Within reach|reach')}</p>
   {/if}
   {#if canBeBag}
     <div class="alsobag">

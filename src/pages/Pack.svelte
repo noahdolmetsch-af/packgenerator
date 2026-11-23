@@ -91,6 +91,8 @@
   import { ampelShows, ampelRows } from '../lib/trip/ampel.js';
   import { dazuRows, skipPatch } from '../lib/pack/dazu.js'; // «Dazu nötig» (Noah 23.11.2026 «G1»)
   import DazuSheet from '../lib/pack/DazuSheet.svelte';
+  import { griffRows, skipGriff } from '../lib/pack/griff.js'; // «Griffbereit» (Noah 23.11.2026 «G3»)
+  import GriffSheet from '../lib/pack/GriffSheet.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, homeOf } from '../lib/dayride.js';
@@ -295,18 +297,22 @@
   // «Dazu nötig» (Noah 23.11.2026 «G1»): what belongs with something on the list and is not on it; the line of the card opens the window
   const dazu = $derived(trip && !over ? dazuRows({ trip, items, trips: $tripsQ ?? [], debriefs: $debriefsQ ?? [] }) : []);
   let dazuOpen = $state(false);
+  // «Griffbereit» (Noah 23.11.2026 «G3»): food, rain gear and marked things that lie out of reach; the line of the card opens the window
+  const griff = $derived(trip && bikeTrip && !over ? griffRows({ trip, items, bags }) : []);
+  let griffOpen = $state(false);
   // «Tour-Ampel» (Noah 05.11.2026, Touren 3a): packed, weather, bike, devices; a tap leads to what fixes it
   const ampel = $derived.by(() => {
     if (!ampelShows(trip, stats, today)) return [];
     const c = before?.care ?? before?.shortCare ?? null;
     const care = before ? { due: c?.status === 'due' ? c.rows.length : 0, late: !!c?.late, nodata: before.care?.status === 'nodata' && !before.prep.total, open: before.open.length } : null;
-    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null, dazu: dazu.length ? { n: dazu.length, name: nameOf(dazu[0].item) } : null });
+    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null, dazu: dazu.length ? { n: dazu.length, name: nameOf(dazu[0].item) } : null, griff: griff.length && itemsById[griff[0].itemId] ? { n: griff.length, name: nameOf(itemsById[griff[0].itemId]) } : null });
   });
   function ampelAct(act) {
     if (act === 'pack' || act === 'weather') location.hash = '#/pack?day';
     else if (act === 'bike') openBefore();
     else if (act === 'power') chargeOpen = true;
     else if (act === 'dazu') dazuOpen = true;
+    else if (act === 'griff') griffOpen = true;
   }
   function useForecast() {
     changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) }, wxFrom: 'forecast' }));
@@ -1218,6 +1224,7 @@
   {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
   {#if dazuOpen}<DazuSheet rows={dazu} {itemsById} onadd={helperAdd} onskip={(id) => change((c) => skipPatch(c, id))} onclose={() => (dazuOpen = false)} />{/if}
+  {#if griffOpen}<GriffSheet rows={griff} {itemsById} {bags} onapply={applyRows} onskip={(id) => change((c) => skipGriff(c, id))} onclose={() => (griffOpen = false)} />{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
   {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onkept={packNew} onclose={() => (newItem = null)} />{/if}

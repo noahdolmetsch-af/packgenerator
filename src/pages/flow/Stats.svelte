@@ -38,6 +38,7 @@
   import { askDelete, deleteWithUndo } from '../../lib/ui/ask.js';
   import { SPORT_ICON, sportName, hms, km2, dm, rangeText, monthShort } from '../../lib/flow/garmin/words.js';
   import { localDay } from '../../lib/localday.js';
+  import { AZM_WEEK_KEY, azmWeekOf } from '../../lib/health.js';
   import { t, num, locale } from '../../lib/i18n.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
 
@@ -52,6 +53,8 @@
   let bkey = $state(BODY[id] || isOwnBody(id) ? id : 'hr');
   // «Eigene Körperwerte» (Noah 21.10.2026 «3a»): the own questions with a number or a scale are a group of their own
   const abQ = liveQuery(() => db.settings.get(AB_KEY));
+  // the weekly goal for the active zone minutes (Aktiv, tap the goal there): one seventh of it is the dashed line over the daily bars
+  const azmGoalQ = liveQuery(() => db.settings.get(AZM_WEEK_KEY));
   const ansQ = liveQuery(() => (db.abAnswers ? db.abAnswers.toArray() : []));
   const ownKeys = $derived(ownBodyKeys(configOf($abQ?.value).own));
   const GROUPS = $derived(bodyGroupsWith(ownKeys));
@@ -300,6 +303,8 @@
       kind: 'bar', id: 'body', unit: u, items, when, rows: pts, name: bname(bkey),
       cols: pts.map((p, i) => ({ key: p.key, x: xsOf(pts)[i].x, top: p.v ? one(p.v / div) : '', parts: [{ v: (p.v ?? 0) / div, color: 'var(--hi)' }] })),
       table, label: bname(bkey),
+      // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): the weekly goal of the active zone minutes as a dashed line, one seventh of it per day (not over the monthly sums)
+      goal: bkey === 'azm' && range !== 'y1' ? (() => { const n = Math.round(azmWeekOf($azmGoalQ?.value) / 7); return { v: n, text: t('Weekly goal ÷ 7: {n} min', { n: num(n) }) }; })() : null,
     };
   });
   let open = $state(null);
@@ -317,7 +322,7 @@
 {#snippet chart()}
   {#if M}
     {#if M.kind === 'bar'}
-      <BarChart id={M.id} cols={M.cols} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
+      <BarChart id={M.id} cols={M.cols} goal={M.goal ?? null} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
     {:else}
       <LineChart id={M.id} cols={M.cols} series={M.series} scale={M.scale} band={M.band ? { ...M.band, text: M.bandText ?? t('Your usual range') } : null} sentences={M.sentences ?? []} tick={M.tick} topText={M.topText} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
       {#if M.bandMissing}<p class="bm" data-band-missing>{t('Too few values for your usual range (from 10 values)')}</p>{/if}
