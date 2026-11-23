@@ -1,6 +1,6 @@
 # Taschen packen: Foto, Etikett, Wiegen
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «P1 und p2 k1 k2 k3 u1 u2 r1 r2 r3» (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), Vorschläge K1, K2, K3 als ein PR (Bündler: Packen)
+PR #1600 · 23.11.2026 · Auftrag: Noah «P1 und p2 k1 k2 k3 u1 u2 r1 r2 r3» (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), Vorschläge K1, K2, K3 als ein PR (Bündler: Packen)
 
 Beitrag zu den Zielen (Noah 23.11. 18:09): *Klarheit*: pro Tasche eine Hauptsache (Foto, Etikett, Waage) direkt in der geöffneten Tasche, im Rennmodus eine Box «Was liegt wo?». *Auffindbarkeit*: die Funktionen stehen in der Tasche, nicht auf einer neuen Seite; sie sind im Handbuch und in der Suche zu finden.
 
