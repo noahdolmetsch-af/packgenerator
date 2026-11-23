@@ -94,7 +94,7 @@
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Data'), href: '#/me/data' }]} here={t('Recently deleted')} title={t('Recently deleted')} sub={t('What you delete stays here for 30 days. «Back» brings it back with everything that belonged to it.')} />
 
   {#if info}
-    <p class="tr-info" role="status" data-trash-info>{info.text}{#if info.href} <a href={info.href}>{t('Have a look')} <ChevronRight size={14} aria-hidden="true" /></a>{/if}</p>
+    <p class="tr-info" role="status" data-trash-info>{info.text}{#if info.href}{' '}<a href={info.href}>{t('Have a look')} <ChevronRight size={14} aria-hidden="true" /></a>{/if}</p>
   {/if}
 
   {#if old.length}
