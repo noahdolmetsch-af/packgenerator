@@ -1,5 +1,6 @@
 <script>
   import { UNDO_MS } from '../ui/undo.js';
+  import PasstHier from '../ui/PasstHier.svelte'; // Wertliste: the list of values for the insurance (Noah 22.11.2026 «1-5 a»)
   /**
    * v0.70.0 «Velo-Blätter Teil 2» (Noah W1–W7 a; mockups einfahr-plan, repair-kit, garantie-belege,
    * diebstahl): the four more sheets of a bike's folder, as a page of paper inside SheetView (which
@@ -396,6 +397,7 @@
       {/each}
     </ol>
   </section>
+  <div class="noprint"><PasstHier place="theft" /></div>
   <p class="pfoot"><span>{t('Pack Generator · only you see this sheet until you share it')}</span></p>
 {/snippet}
 

@@ -366,6 +366,7 @@
   const PAGES = {
     Quick: () => import('./pages/Quick.svelte'), // «Quick Links» (Noah 28.10.2026 «3a»)
     Gear: () => import('./pages/Gear.svelte'),
+    WertListe: () => import('./pages/WertListe.svelte'), // «Wertliste» (Noah 22.11.2026 «1-5 a»): Velos und Material › Wertliste
     Bikes: () => import('./pages/Bikes.svelte'),
     Pack: () => import('./pages/Pack.svelte'),
     Templates: () => import('./pages/Templates.svelte'),
@@ -558,7 +559,7 @@
   {#if lost}
     <NotFound />
   {:else if page === 'gear'}
-    <LazyPage load={PAGES.Gear} />
+    {#if hash.startsWith('#/gear/wertliste')}<LazyPage load={PAGES.WertListe} />{:else}<LazyPage load={PAGES.Gear} />{/if}
   {:else if page === 'gearimport'}
     <!-- v0.36.0 (Noah 1a): the reviewed gear list waits here before it goes into Gear -->
     <LazyPage load={PAGES.GearImport} />
