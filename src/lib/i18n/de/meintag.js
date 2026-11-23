@@ -77,7 +77,7 @@ export default {
   'Harder|plan': 'Härter',
   'Free slot after «{name}»': 'Frei nach «{name}»',
   'Free slot': 'Freie Lücke',
-  'Does not fit today, it stays without a time.': 'Passt heute nicht und bleibt ohne Zeit.',
+  'Does not fit on this day, it stays without a time.': 'Passt an diesem Tag nicht und bleibt ohne Zeit.',
   'Left for later to keep the day light.': 'Bleibt für später, damit der Tag leicht bleibt.',
   'Rain is forecast: «{name}» may want a plan indoors.': 'Regen angesagt: «{name}» braucht vielleicht einen Plan drinnen.',
   'A full day: more than six hours are booked.': 'Ein voller Tag: mehr als sechs Stunden sind belegt.',
@@ -85,5 +85,7 @@ export default {
   'Nothing without a time on this day. Add an entry and plan again.': 'An diesem Tag ist nichts ohne Zeit. Leg einen Eintrag an und plane noch einmal.',
   'Take over {n} entry': '{n} Eintrag übernehmen',
   'Take over {n} entries': '{n} Einträge übernehmen',
+  'Moved to tomorrow: no room left today': 'Auf morgen verschoben: heute ist kein Platz mehr',
+  'Calendar dates without a time are often all day, so they are not preselected.': 'Kalendertermine ohne Zeit dauern oft den ganzen Tag, darum sind sie nicht vorgewählt.',
   '{n} entries placed.': '{n} Einträge eingeplant.',
 };

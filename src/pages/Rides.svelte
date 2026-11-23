@@ -653,7 +653,7 @@
             {/if}
             {#if twin}<p class="rv-note"><a href={actHref(twin)} data-act-link={twin}>{t('This ride in Strava: all values')}</a></p>{/if}
             <!-- v0.151.0 HP3: the profile of this ride -->
-            {#if ride.profile?.length > 1}<div class="rv-box pad rprof"><Profile points={ride.profile} label="Elevation of the ride" /></div>{/if}
+            {#if ride.profile?.length > 1}<div class="rv-box pad rprof"><Profile detail points={ride.profile} label="Elevation of the ride" /></div>{/if}
           </section>
 
           <section class="rv-sec" aria-labelledby="pz-h">
@@ -672,7 +672,7 @@
             <section class="rv-sec" aria-labelledby="cmp-h">
               <div class="rv-h"><div><h2 id="cmp-h">{no('cmp')}{t('Planned vs real')}</h2><p class="rv-sub">{ride.plan?.source === 'plan' ? t('from the time plan') : ride.plan?.source === 'hours' ? t('from your riding hours') : t('from the route')}</p></div></div>
               <!-- v0.151.0 HP3 (Noah «1a»): planned and ridden in one picture -->
-              {#if planP && ride.profile?.length > 1}<div class="rv-box pad rprof"><Profile points={ride.profile} plan={planP} label="Elevation, planned and ridden" /></div>{/if}
+              {#if planP && ride.profile?.length > 1}<div class="rv-box pad rprof"><Profile detail points={ride.profile} plan={planP} label="Elevation, planned and ridden" /></div>{/if}
               <div class="rv-box">
                 <table class="cmp" aria-labelledby="cmp-h">
                   <thead><tr><th scope="col"><span class="sr">{t('What')}</span></th><th scope="col">{t('Planned')}</th><th scope="col">{t('Real')}</th><th scope="col"><span class="sr">{t('Difference')}</span></th></tr></thead>

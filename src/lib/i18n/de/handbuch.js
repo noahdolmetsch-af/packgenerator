@@ -229,6 +229,7 @@ export default {
   'Tap a coloured line: the rides there show below, each with its page.': 'Tippe auf eine farbige Linie: Die Fahrten dort stehen darunter, jede mit ihrer Seite.',
   'Choose «Start with examples» or «Start empty».': 'Wähle «Mit Beispielen starten» oder «Leer starten».',
   'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.': 'Ich › Daten und Backup › «Beispiele entfernen» nimmt sie weg («Rückgängig» holt sie zurück); «Beispiele holen» bringt sie später.',
+  'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Adjust the examples» adds more.': 'Ich › Daten und Backup › «Beispiele entfernen» nimmt sie weg («Rückgängig» holt sie zurück); «Beispiele anpassen» holt mehr.',
   // «Form und Erholung» and the Garmin-like overview: f.form and f.overview
   'Open Active: the card on top shows your readiness from 0 to 100 and what today suits.': 'Öffne «Heute abhaken»: Die Karte oben zeigt deine Bereitschaft von 0 bis 100 und was heute passt.',
   'Tap it for the page «Form and recovery»: what counts today, 12 weeks of fitness and form, and the tour readiness.': 'Tipp sie an für die Seite «Form und Erholung»: was heute zählt, 12 Wochen Fitness und Form und die Tour-Bereitschaft.',

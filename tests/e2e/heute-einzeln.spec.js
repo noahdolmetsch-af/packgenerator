@@ -310,33 +310,5 @@ test('wet rides as one task, check after the standstill, something changed', asy
   expect(errors).toEqual([]);
 });
 
-test('first start: the interest check picks the examples', async ({ page, context }) => {
-  const errors = [];
-  page.on('pageerror', (e) => errors.push(e.message));
-  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
-  await context.addInitScript(() => (localStorage.setItem('lang', 'de'), localStorage.setItem('firstStart.ask', '1')));
-  await page.goto('./');
-  const win = page.getByTestId('first-start');
-  await expect(win).toBeVisible();
-  await win.locator('[data-choice="examples"]').click();
-  await expect(win.locator('[data-interest][aria-pressed="true"]')).toHaveCount(3);
-  await win.locator('[data-interest="nights"]').click();
-  await win.locator('[data-interest="active"]').click();
-  await expect(win.locator('[data-interest][aria-pressed="true"]')).toHaveCount(1);
-  // the last one stays on
-  await win.locator('[data-interest="days"]').click();
-  await expect(win.locator('[data-interest="days"]')).toHaveAttribute('aria-pressed', 'true');
-  await win.locator('[data-interest="active"]').click();
-  await shot(page, 'H7-beispiele');
-  await win.locator('[data-choice="examples-go"]').click();
-  await win.locator('[data-choice="notour"]').click();
-  const ids = await page.evaluate(() => new Promise((ok) => {
-    const o = indexedDB.open('pack-generator');
-    o.onsuccess = () => {
-      const q = o.result.transaction('trips').objectStore('trips').getAllKeys();
-      q.onsuccess = () => (o.result.close(), ok(q.result));
-    };
-  }));
-  expect(ids).toEqual(['ex-past']);
-  expect(errors).toEqual([]);
-});
+// Einzelidee Heute 7 (interest check): since 23.11.2026 «1-5a» (V1) the check sits in Me › Data and backup › «Adjust the examples»;
+// its test is in erststart.spec.js

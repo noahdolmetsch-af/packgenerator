@@ -2762,13 +2762,13 @@ Ein neues Velo: 4 Schritte bis zum ersten Service, mit Erinnerung auf Heute.
 
 **Beispiel:** Nach 300 km → Speichen und Züge prüfen, Heute erinnert dich.
 
-### Repair-Kit
+### Reparaturset
 
 Passend zu den Teilen deines Velos; Fehlendes kommt ins Material.
 
 **Aufschalten:** Braucht ein Velo mit seinen Teilen und km.
 
-1. Öffne die Mappe des Velos und das Repair-Kit.
+1. Öffne die Mappe des Velos und das Reparaturset.
 2. Fehlendes kommt mit einem Tipp ins Material.
 
 **Beispiel:** 12-fach-Kette → «Kettenschloss 12-fach» fehlt und kommt ins Material.
