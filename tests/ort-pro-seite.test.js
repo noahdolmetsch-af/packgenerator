@@ -33,3 +33,15 @@ describe('one place for every page', () => {
     expect(w.tab).toBeTruthy();
   });
 });
+
+describe('«Suche als Entdecker»: the six wishes of an empty search find something', () => {
+  it('each wish finds a page or a function', async () => {
+    const { findFeatures } = await import('../src/lib/features.js');
+    const { t } = await import('../src/lib/i18n.svelte.js');
+    for (const w of ['Tick off|goal', 'Packing list', 'Tour suggestions', 'Milestones', 'Bike care', 'Weather']) {
+      const q = t(w);
+      const pages = searchAll(q).some((g) => g.kind === 'page' && g.rows.length);
+      expect(pages || findFeatures(q, t).length > 0, q).toBe(true);
+    }
+  });
+});

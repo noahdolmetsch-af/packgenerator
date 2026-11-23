@@ -37,3 +37,9 @@ export function wegOf(href) {
   const tab = (PLACE_TABS[placeKey] ?? []).find((x) => x.match?.(href)) ?? null;
   return { placeKey, place: place.label, tab: tab && tab.href !== place.href ? tab.label : null };
 }
+
+/** «Auswerten › Fahrten» as a line for a result (tr is t()); a page without a place keeps `fallback`. */
+export function wegText(href, tr, fallback = '') {
+  const w = wegOf(href);
+  return w ? [tr(w.place), w.tab ? tr(w.tab) : ''].filter((x, i, a) => x && a.indexOf(x) === i).join(' › ') : fallback;
+}

@@ -5,7 +5,7 @@
  */
 import { t, tn, num, nameOf, locale } from './i18n.svelte.js';
 import { PAGE_ROWS, ACTIONS } from './nav/menu.js';
-import { mapPages, wegOf } from './nav/seiten.js';
+import { mapPages, wegText } from './nav/seiten.js';
 
 const norm = (s) => String(s ?? '').toLowerCase();
 /** The added words of a diary entry (eingabe/inputs.js inputWords, kept short here so search.js stays light). */
@@ -37,7 +37,7 @@ export const KIND = {
  */
 const PAGES = PAGE_ROWS;
 /** «Auswerten › Fahrten»: the place and the tab from nav.js («Ein Ort pro Seite»); a row without an address keeps its hand-written place. */
-const wayText = (w, group) => (w ? [t(w.place), w.tab ? t(w.tab) : ''].filter((x, i, a) => x && a.indexOf(x) === i).join(' › ') : t(group));
+const wayText = (href, group) => wegText(href, t, t(group));
 /**
  * Results grouped by kind, best first: [{ kind, name, rows: [{ id, title, sub, href, tripId? }] }].
  * Empty groups are left out; fewer than 2 letters find nothing.
@@ -85,7 +85,7 @@ export function searchAll(q, { items = [], trips = [], templates = [], bikes = [
       title: t(p.title),
       // v0.32.0: each page says what it holds (was: the favourites count for every page).
       // v0.38.0: the others say where they are in the menu ("More › Plan"); v0.76.0: their place («Touren»).
-      sub: p.id === 'blocks' ? t('Standard, with the night, to add') : p.id === 'templates' ? tn(templates.length, '{n} template', '{n} templates') : p.id === 'favorites' ? tn(items.filter((i) => i.favorite && i.ownership !== 'gone').length, '{n} item', '{n} items') : wayText(wegOf(p.href), p.group),
+      sub: p.id === 'blocks' ? t('Standard, with the night, to add') : p.id === 'templates' ? tn(templates.length, '{n} template', '{n} templates') : p.id === 'favorites' ? tn(items.filter((i) => i.favorite && i.ownership !== 'gone').length, '{n} item', '{n} items') : wayText(p.href, p.group),
       href: p.href ?? null,
       action: p.action ?? null,
     })),
