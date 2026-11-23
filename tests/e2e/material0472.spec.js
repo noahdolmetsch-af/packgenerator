@@ -3,6 +3,7 @@
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture, COUNTS } from './material0472-fixture.js';
+import { openViews, openSortSheet } from './gearmenu.js';
 
 // Impeccable (18.10.2026): «Favoriten» (one word), and the wishlist is the tab «Einkauf», no row in «Ansichten»
 const NAMES = { all: 'Alle', most: 'Meist genutzt', proven: 'Bewährt', fav: 'Favoriten', never: 'Nie gebraucht', unweighed: 'Ungewogen' };
@@ -21,32 +22,41 @@ const cards = (page) => page.locator('.cards .mcard');
 test('the views: counts on the buttons, each filters the cards and stays in the address', async ({ page, context }, info) => {
   await openGear(page, context, info);
   for (const [key, name] of Object.entries(NAMES)) {
+    await openViews(page);
     const b = views(page).getByRole('button', { name: new RegExp(`^${name} ${COUNTS[key]}$`) });
     await expect(b).toBeVisible();
     await b.click();
+    await openViews(page); // the menu closes with the tap; the chosen row is marked
     await expect(b).toHaveAttribute('aria-pressed', 'true');
     await expect(cards(page)).toHaveCount(COUNTS[key]);
-    await expect(page.getByRole('heading', { level: 2, name, exact: true })).toBeVisible();
+    // «Material aufräumen» (23.11.2026, changed on purpose): under «Alle» no heading, another view names itself
+    if (key !== 'all') await expect(page.getByRole('heading', { level: 2, name, exact: true })).toBeVisible();
     if (key === 'all') expect(page.url()).not.toContain('view=');
     else expect(page.url()).toContain(`view=${key}`);
   }
   // the wishlist: no row here, the tab «Einkauf» (?view=wish) shows it
+  await openViews(page);
   await expect(views(page).locator('[data-view="wish"]')).toHaveCount(0);
   await page.goto('./#/gear?view=wish');
   await expect(cards(page)).toHaveCount(COUNTS.wish);
   await expect(page.getByRole('heading', { level: 1, name: 'Einkauf' })).toBeVisible();
   await page.goto('./#/gear');
   // the right items in the views
+  await openViews(page);
   await views(page).getByRole('button', { name: /^Meist genutzt/ }).click();
   await expect(cards(page).locator('.nm')).toHaveText(['Bike computer', 'Power bank 10000 mAh', 'Rain jacket']);
+  await openViews(page);
   await views(page).getByRole('button', { name: /^Bewährt/ }).click();
   await expect(cards(page).locator('.nm')).toHaveText(['Bike computer', 'Power bank 10000 mAh']);
   // a reload keeps the view; the old addresses open the matching view
   await page.reload();
+  await openViews(page);
   await expect(views(page).getByRole('button', { name: /^Bewährt/ })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('./#/gear?tab=dead');
+  await openViews(page);
   await expect(views(page).getByRole('button', { name: /^Nie gebraucht/ })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('./#/gear?fav=1');
+  await openViews(page);
   await expect(views(page).getByRole('button', { name: /^Favoriten/ })).toHaveAttribute('aria-pressed', 'true');
   await expect(cards(page)).toHaveCount(COUNTS.fav);
 });
@@ -86,7 +96,7 @@ test('Never used says it in one plain sentence, and Leave at home works', async 
 
 test('sort and filter in one sheet', async ({ page, context }, info) => {
   await openGear(page, context, info);
-  await page.locator('.fbtn').click();
+  await openSortSheet(page);
   const sheet = page.getByRole('dialog', { name: 'Sortieren und filtern' });
   await expect(sheet).toBeVisible();
   await sheet.getByRole('button', { name: 'Gewicht', exact: true }).click();

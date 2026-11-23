@@ -35,7 +35,7 @@ export const HINTS = {
       ['scale', 'Getting lighter', '«Never used» shows what only rides along'],
       ['heart', 'Buying something new', 'onto the wishlist, the app sorts by use'],
     ],
-    jumps: [['Views', 'views-h'], ['Wishlist', 'wish-h'], ['Analysis', 'gear-analysis']],
+    jumps: [], // Material aufräumen (23.11.2026): the views are the button «View», no row «On this page»
   },
   // Impeccable bug: «Einkauf» had the tip of «Material»; it has its own now
   einkauf: {
