@@ -4,7 +4,7 @@
  * only (nothing is rated). Pure: no database, no clock. The numbers come from the one calculation of weekcalc.js.
  *
  *   dayDots        the seven days of the week, a dot for each day with a session or a ride; today and the days to come are grey
- *   usualWeek      the mean of the four weeks before (the same days when the week is still running), weeks without anything left out
+ *   usualWeek      the mean of the four weeks before (the same days when the week is still running), weeks without anything or marked as a break left out
  *   lastYearWeek   the same week one year before (52 weeks back, same weekday), only when it holds anything
  *   answerLines    «Wi gaht's?» of the week: one line per area from 3 answers, every scale question on its own, and on how many days
  */
@@ -15,6 +15,14 @@ import { weekCalc } from './weekcalc.js';
 export const USUAL = 4;
 /** An area or a question needs this many answers in the week before it is evaluated (Noah 22.11.2026: «nur ab 3 Antworten»). */
 export const MIN_ANSWERS = 3;
+
+/** The setting with the weeks marked as a break (Noah 22.11.2026, Schritt I): a list of Mondays. A break week does not count in «your usual week». */
+export const PAUSE_KEY = 'week.pauses';
+const MAX_PAUSES = 200;
+/** The Mondays of the setting, cleaned: only real days, no double, oldest first. */
+export const pausesOf = (value) => (Array.isArray(value) ? [...new Set(value.filter((d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)))].sort().slice(-MAX_PAUSES) : []);
+/** The list with a Monday marked (on) or taken back (off). Never changes the input. */
+export const withPause = (list, monday, on) => pausesOf(on ? [...pausesOf(list), monday] : pausesOf(list).filter((d) => d !== monday));
 
 const mean = (xs) => (xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : null);
 const round1 = (x) => Math.round(x * 10) / 10;
@@ -36,12 +44,14 @@ export function dayDots(calc, monday, today) {
 
 /**
  * The usual week: the mean of the four weeks before (the same days, Monday to `upto`, when the week is still running).
- * Weeks with nothing at all are left out (a break or no data); fewer than two weeks left → null (no «usual» yet).
+ * Weeks marked as a break (data.pauses, Schritt I) and weeks with nothing at all are left out; fewer than two weeks left → null (no «usual» yet).
  * → { secs, km, hm, n, days, weeks } or null
  */
 export function usualWeek(data, monday, upto = shiftDay(monday, 6)) {
   const off = (m) => shiftDay(upto, -(Date.parse(`${monday}T12:00:00Z`) - Date.parse(`${m}T12:00:00Z`)) / 864e5);
+  const paused = new Set(pausesOf(data?.pauses));
   const weeks = Array.from({ length: USUAL }, (_, i) => shiftDay(monday, -7 * (i + 1)))
+    .filter((m) => !paused.has(m))
     .map((m) => weekCalc(data, m, off(m)))
     .filter((w) => !nothing(w));
   if (weeks.length < 2) return null;
