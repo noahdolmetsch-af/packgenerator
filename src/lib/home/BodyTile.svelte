@@ -18,6 +18,8 @@
   import { health, fetchNow } from '../health/client.svelte.js';
   import { fitbitEmpty, fitbitStand } from '../health/emptyline.js';
   import { phone } from '../media.svelte.js';
+  import { OUTDOOR_KEY, outdoorOf, dayOf } from '../outdoor.js';
+  import { levelWord } from '../flow/form/words.js';
   import BodySheet from './BodySheet.svelte';
   import { t, tn, locale } from '../i18n.svelte.js';
 
@@ -25,7 +27,26 @@
   const late = afterMorning(stampOf()); // from 11:00: «Open from this morning» instead of «Morning check» (17.11.2026)
 
   const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -30)).toArray() : [])));
-  const body = $derived(bodyToday($hq ?? [], today));
+  const body = $derived(bodyToday($hq ?? [], today, new Date().getHours()));
+  // outdoors (Noah 23.11.2026 «1-4a»): today's minutes of the challenge «outdoors», only while one runs
+  const odq = $derived(
+    liveQuery(async () => {
+      const rec = outdoorOf((await db.settings.get(OUTDOOR_KEY))?.value);
+      if (!rec?.from || rec.stopped || today < rec.from || today > rec.until) return null;
+      return { goal: rec.goalMin, total: dayOf(rec, await db.activities.where('day').equals(today).toArray(), today).total };
+    }),
+  );
+  const od = $derived($odq ?? null);
+  // today's level from Form und Erholung (the same answer as on Aktiv); the big calculation loads only now, not at the start
+  let formLevel = $state(null);
+  $effect(() => {
+    const rows = $hq;
+    const d = today;
+    if (!rows?.length) return void (formLevel = null);
+    let live = true;
+    import('../form-data.js').then((m) => m.loadForm(d)).then((f) => live && (formLevel = f?.ready?.level ?? null)).catch(() => live && (formLevel = null));
+    return () => (live = false);
+  });
   // Noah 2.11.2026 «1a»: nothing new from Fitbit yet → the last values of the last 7 days, each marked with its day
   const lastVals = $derived(body.rows.some((r) => r.now != null) ? null : bodyWeek($hq ?? [], today));
   // Noah 7.11.2026 «1a 2a»: some values are of today, others not yet (Fitbit delivers the night late): each one that is
@@ -35,17 +56,20 @@
   const stand = $derived(fitbitStand(health));
   const dayTag = (day) => (day === addDays(today, -1) ? t('from yesterday') : shortDay(day));
   const n1 = (x) => Number(x).toLocaleString(locale(), { maximumFractionDigits: 1 });
-  const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body', hrv: 'HRV' };
-  const TAB = { pulse: 'hr', azm: 'azm', sleep: 'sleep', hrv: 'hrv' }; // the tab of Körperwerte a field opens on a computer
+  const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body', hrv: 'HRV', steps: 'Steps' };
+  const TAB = { pulse: 'hr', azm: 'azm', sleep: 'sleep', hrv: 'hrv', steps: 'steps' }; // the tab of Körperwerte a field opens on a computer
   const UNIT = { azm: 'min', hrv: 'ms' };
+  const num0 = (x) => Number(x).toLocaleString(locale(), { maximumFractionDigits: 0 });
   // sleep as «4 h 10» (hours and minutes), the other values as whole numbers
   const hm = (h) => `${Math.floor(Math.round(h * 60) / 60)} h ${String(Math.round(h * 60) % 60).padStart(2, '0')}`;
-  const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? hm(x) : r.key === 'score' && r.kind === 'efficiency' ? `${x} %` : String(Math.round(x)));
+  const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? hm(x) : r.key === 'score' && r.kind === 'efficiency' ? `${x} %` : r.key === 'steps' ? num0(x) : String(Math.round(x)));
   const label = (r) => (r.key === 'score' && r.kind === 'efficiency' ? t('Sleep efficiency|body') : t(LABEL[r.key]));
   const banner = (rows) => BANNER_KEYS.map((k) => rows.find((r) => r.key === k)).filter(Boolean);
   // «geholt 07:12» / «geholt gestern 22:40»: when Fitbit delivered the day
   const fetched = (f) => (f ? t('fetched {when}', { when: f.day === 'today' ? f.hm : `${f.day === 'yesterday' ? t('yesterday') : shortDay(f.day)} ${f.hm}`.trim() }) : '');
-  const offWord = (o) => (o < 0 ? t('lower than usual') : t('higher than usual'));
+  const offWord = (o, key) => (key === 'steps' ? (o < 0 ? t('fewer than yesterday by now') : t('more than yesterday by now')) : o < 0 ? t('lower than usual') : t('higher than usual'));
+  // the line under a value of today: pulse = when fetched; steps = yesterday by now (else yesterday whole); sleep, HRV = your usual; else yesterday
+  const subOf = (r) => (r.key === 'pulse' ? fetched(r.fetched) : r.key === 'steps' ? (r.byNow != null ? t('yesterday by now {v}', { v: fmt(r, r.byNow) }) : r.before != null ? t('yesterday, whole day {v}', { v: fmt(r, r.before) }) : '') : r.usual != null ? t('usual {v}', { v: fmt(r, r.usual) }) : r.before != null ? t('yesterday {v}', { v: fmt(r, r.before) }) : partial ? t('today|body') : '');
   // «Neuer Schwung» Blatt von unten (Noah 27.10.2026 «a»): on a phone the tile opens a sheet, the computer keeps the link
   let sheet = $state(false);
   const shortDay = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
@@ -70,11 +94,28 @@
           <a class="va" href="#/flow/stats/{TAB[r.key]}" data-body-go={r.key}><b class="num" data-body-stale={stale ? '' : undefined}>{fmt(r, v)}</b></a>
         {/if}
         {#if UNIT[r.key]}<small>{UNIT[r.key]}</small>{/if}
-        {#if r.off}<span class="mk" role="img" aria-label={offWord(r.off)} title={offWord(r.off)}>{#if r.off < 0}<ArrowDown size={14} aria-hidden="true" />{:else}<ArrowUp size={14} aria-hidden="true" />{/if}</span>{/if}
+        {#if r.off}<span class="mk" role="img" aria-label={offWord(r.off, r.key)} title={offWord(r.off, r.key)}>{#if r.off < 0}<ArrowDown size={14} aria-hidden="true" />{:else}<ArrowUp size={14} aria-hidden="true" />{/if}</span>{/if}
       </dd>
       {#if sub}<dd class="yd" title={r.key === 'azm' && r.before != null ? t('yesterday {v}', { v: fmt(r, r.before) }) : undefined}><span class="num">{sub}</span></dd>{/if}
       {#if fetch}<dd class="yd" data-body-fetched><span class="num">{fetch}</span></dd>{/if}
     </div>
+  {/snippet}
+  {#snippet extras()}
+    {#if od}
+      <div data-body="outdoor" class="fld">
+        <dt>{t('Outdoors')}</dt>
+        <dd class="v">{#if phone.matches}<b class="num">{od.total}</b>{:else}<a class="va" href="#/flow" data-body-go="outdoor"><b class="num">{od.total}</b></a>{/if}<small>min</small></dd>
+        <dd class="yd"><span class="num">{t('of {n}', { n: od.goal })}</span></dd>
+        <dd class="bar" role="img" aria-label={t('{a} of {b} min outdoors', { a: od.total, b: od.goal })}><i style:width="{Math.min(100, Math.round((od.total / Math.max(1, od.goal)) * 100))}%"></i></dd>
+      </div>
+    {/if}
+    {#if formLevel}
+      <div data-body="level" class="fld">
+        <dt>{t('Today|level')}</dt>
+        <dd class="v">{#if phone.matches}<b class="num">{levelWord(formLevel)}</b>{:else}<a class="va" href="#/flow/form" data-body-go="level"><b class="num">{levelWord(formLevel)}</b></a>{/if}</dd>
+        <dd class="yd"><span class="num">{t('Form and recovery')}</span></dd>
+      </div>
+    {/if}
   {/snippet}
   {#if body.rows.some((r) => r.now != null)}
     <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions (the «Details» button does the same by keyboard) -->
@@ -84,15 +125,17 @@
           <!-- no reading of today yet: the last value, with its day (never an empty dash) -->
           {@render field(r, r.last.value, dayTag(r.last.day), r.key === 'pulse' ? fetched(r.fetched) : '', true)}
         {:else}
-          {@render field(r, r.now, r.key === 'pulse' ? fetched(r.fetched) : r.usual != null ? t('usual {v}', { v: fmt(r, r.usual) }) : r.before != null ? t('yesterday {v}', { v: fmt(r, r.before) }) : partial ? t('today|body') : '', '', false)}
+          {@render field(r, r.now, subOf(r), '', false)}
         {/if}
       {/each}
+      {@render extras()}
     </dl>
   {:else if lastVals?.any}
     <dl class="vals" data-body-last>
       {#each banner(lastVals.rows).filter((r) => r.now != null) as r (r.key)}
         {@render field(r, r.now, r.day === addDays(today, -1) ? t('from yesterday') : shortDay(r.day), '', true)}
       {/each}
+      {@render extras()}
     </dl>
   {:else}
     {@const e = fitbitEmpty(health)}
@@ -216,6 +259,18 @@
   }
   .va:focus-visible::after {
     outline: var(--focus-ring);
+  }
+  .vals dd.bar {
+    height: 4px;
+    margin-top: 3px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--ink-3) 22%, transparent);
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    background: var(--hi);
   }
   .mk {
     display: inline-flex;

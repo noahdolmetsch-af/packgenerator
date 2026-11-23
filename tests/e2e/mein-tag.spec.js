@@ -166,3 +166,41 @@ test('Mein Tag: drag an own entry to another time, to another day, stretch it, U
   await expect(page.locator('[data-entry="wi1"]')).toContainText('12:00');
   expect(errors).toEqual([]);
 });
+
+test('Mein Tag: the tab «To-dos» lists Merken and day to-dos, adds, moves to today and ticks off', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await put(page, {
+    settings: [
+      { key: 'week.items', value: [{ id: 'wi5', kind: 'todo', title: 'Steuern ordnen', day: addDays(TODAY, 2), time: '' }] },
+      { key: 'merken', value: [{ id: 'td-1', text: 'Kette ölen', due: addDays(TODAY, -1), created: D0 }, { id: 'td-2', text: 'Velo putzen', due: null, created: D0 }] },
+    ],
+  });
+  await page.reload();
+  await page.getByRole('button', { name: T('To-dos') }).click();
+  await expect(page).toHaveURL(/#\/day\/todos$/);
+  await expect(page.locator('[data-todo-group="late"]')).toContainText('Kette ölen');
+  await expect(page.locator('[data-todo-group="week"]')).toContainText('Steuern ordnen');
+  await expect(page.locator('[data-todo-group="none"]')).toContainText('Velo putzen');
+  // write a new one with Enter
+  await page.locator('[data-todo-new]').fill('Garage anrufen');
+  await page.locator('[data-todo-new]').press('Enter');
+  await expect(page.locator('[data-todo-group="none"]')).toContainText('Garage anrufen');
+  // «Today» moves it to today
+  await page.getByRole('button', { name: T('Move «{name}» to today').replace('{name}', 'Garage anrufen') }).click();
+  await expect(page.locator('[data-todo-group="today"]')).toContainText('Garage anrufen');
+  await expect(page.locator('[data-todo-group="none"]')).not.toContainText('Garage anrufen');
+  // tick it off: it leaves the list, Undo is offered
+  await page.getByRole('button', { name: T('Tick off «{name}»').replace('{name}', 'Garage anrufen') }).click();
+  await expect(page.locator('[data-todo-group="today"]')).toHaveCount(0);
+  // a to-do of the day is ticked in week.items
+  await page.getByRole('button', { name: T('Tick off «{name}»').replace('{name}', 'Steuern ordnen') }).click();
+  await expect(page.locator('[data-todo-group="week"]')).toHaveCount(0);
+  // change and delete one in the small window
+  await page.locator('[data-todo="m:td-2"]').click();
+  await page.locator('#ts-text').fill('Velo waschen');
+  await page.getByRole('button', { name: T('Save') }).click();
+  await expect(page.locator('[data-todo-group="none"]')).toContainText('Velo waschen');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});

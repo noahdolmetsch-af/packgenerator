@@ -17,7 +17,8 @@
 
 <nav class="crumb" aria-label={t('Where you are')}>
   {#if back}<a class="back" href={back.href} data-crumb-back><ChevronLeft size={16} aria-hidden="true" />{t('Back to {place}', { place: back.label })}</a>{#if shown.length}<span class="sep" aria-hidden="true">·</span>{/if}{/if}
-  {#each shown as p, i (p.href)}
+  <!-- keyed by place in the line, not by address: the place and its first tab can share one address («#/bikes»), and the line is drawn from the old address for a moment while the page changes; a double key stopped the whole page («Hier ist etwas schiefgelaufen») -->
+  {#each shown as p, i (i)}
     {#if i > 0}<ChevronRight size={14} aria-hidden="true" />{/if}
     <a class:first={i === 0 && !back} href={p.href}>{#if i === 0 && !back}<ChevronLeft size={16} aria-hidden="true" />{/if}{p.label}</a>
   {/each}

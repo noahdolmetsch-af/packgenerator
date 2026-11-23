@@ -27,6 +27,7 @@
   import HeuteNebel from './HeuteNebel.svelte'; // «Nebelgrenze» (Noah 05.11.2026): one calm line under it
   import HeuteSonne from './HeuteSonne.svelte'; // «Sonnen-Ausfahrt» (Noah 06.11.2026): a ride above the fog, under the fog line
   import HeuteNacht from './HeuteNacht.svelte'; // «Nachttemperatur» (Noah 06.11.2026): one calm line under that
+  import HeuteKarten from './HeuteKarten.svelte'; // «Wetter oben» W2 (Noah 23.11.2026 «b»): the week, the chain after rain, the ride window
   import HeuteHoehe from './HeuteHoehe.svelte'; // «Temperaturen nach Höhe» (Noah 05.11.2026): one calm line under that
   import { t, num, locale } from '../i18n.svelte.js';
 
@@ -129,6 +130,7 @@
       <LakeChip />
     </div>
   </div>
+  <HeuteKarten />
   {#if cam}
     <a class="hw-cam" href={cam.url} target="_blank" rel="noopener noreferrer" data-heute-cam>
       {#if isImage(cam.url)}<img src={freshSrc(cam.url, now)} alt={t('Webcam {name}', { name: camLabel(cam) })} loading="lazy" referrerpolicy="no-referrer" />{/if}

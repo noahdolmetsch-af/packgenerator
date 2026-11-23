@@ -25,7 +25,7 @@
   });
 
   const n1 = (x) => Number(x).toLocaleString(locale(), { maximumFractionDigits: 1 });
-  const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body', hrv: 'HRV' };
+  const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body', hrv: 'HRV', steps: 'Steps' };
   const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? `${n1(x)} h` : r.key === 'score' && r.kind === 'efficiency' ? `${n1(x)} %` : n1(r.key === 'pulse' || r.key === 'azm' ? Math.round(x) : x));
   const label = (r) => (r.key === 'score' && r.kind === 'efficiency' ? t('Sleep efficiency|body') : t(LABEL[r.key]));
   const shortDay = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
