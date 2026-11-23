@@ -11,4 +11,5 @@ export default {
   'Weight, mean over 7 days now {c} kg': 'Gewicht, Mittel über 7 Tage jetzt {c} kg',
   'Add an entry for this day': 'Eintrag für diesen Tag anlegen',
   'Your usual range': 'Deine übliche Spanne',
+  'Goal a month: {n} km': 'Ziel pro Monat: {n} km',
 };
