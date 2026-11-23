@@ -79,12 +79,10 @@ export const gpxFileName = (name = 'route') =>
       .slice(0, 60) || 'route'
   }.gpx`;
 
-/** Download the GPX on this device (the share sheet on a phone that offers files, else a download). */
-export async function saveGpx(text, name = 'route') {
-  const file = gpxFileName(name);
-  const blob = new Blob([text], { type: 'application/gpx+xml' });
+/** Download a file on this device (the share sheet on a phone that offers files, else a download). */
+async function saveBlob(blob, file, type, name) {
   try {
-    const f = new File([blob], file, { type: 'application/gpx+xml' });
+    const f = new File([blob], file, { type });
     if (navigator.canShare?.({ files: [f] }) && matchMedia?.('(pointer: coarse)').matches) {
       await navigator.share({ files: [f], title: name });
       return 'shared';
@@ -101,4 +99,14 @@ export async function saveGpx(text, name = 'route') {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
   return 'downloaded';
+}
+
+/** Download the GPX on this device (the share sheet on a phone that offers files, else a download). */
+export async function saveGpx(text, name = 'route') {
+  return saveBlob(new Blob([text], { type: 'application/gpx+xml' }), gpxFileName(name), 'application/gpx+xml', name);
+}
+
+/** P1 «Kurspunkte für den Garmin»: the FIT course (bytes) as «name.fit», same way as saveGpx. */
+export async function saveFit(bytes, name = 'route') {
+  return saveBlob(new Blob([bytes], { type: 'application/vnd.ant.fit' }), gpxFileName(name).replace(/\.gpx$/, '.fit'), 'application/vnd.ant.fit', name);
 }

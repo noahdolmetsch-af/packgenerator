@@ -37,9 +37,9 @@ test('Today shows the week, the chain after rain and the ride window; Not today 
   await expect(chain).toContainText('3 mm Regen in den letzten 24 Stunden');
   await expect(chain.locator('a')).toHaveAttribute('href', '#/bikes?tab=care&view=rounds');
 
-  // dry until the rain at 15:00 and daylight until 17:00 of the made-up place (its clock runs at +2 h, the browser's at Zurich: an hour less in winter)
+  // dry until the rain (the value stamped 15:00 is the rain of 14:00–15:00) and daylight until 17:00 of the made-up place (its clock runs at +2 h, the browser's at Zurich: an hour less in winter)
   const win = cards.locator('[data-heute-fenster]');
-  await expect(win).toContainText(/Trocken bis 1[45]:00/);
+  await expect(win).toContainText(/Trocken bis 1[34]:00/);
   await expect(win).toContainText(/Hell bis 1[67]:00/);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: info.outputPath(`heute-karten-${info.project.name}.png`) });

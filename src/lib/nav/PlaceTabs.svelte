@@ -250,10 +250,19 @@
   .psubs a:visited {
     color: var(--ink-2);
   }
+  /* «gewählt ist gefüllt» (Noah 23.11.2026 «2a», docs/decisions/umschalter-gewaehlt-gefuellt.md): the chosen page is filled in the place's colour */
   .psubs a[aria-current='page'] {
     border-color: var(--pc);
-    color: var(--ink);
+    background: var(--pc);
+    color: var(--pc-ink);
     font-weight: 700;
+  }
+  .psubs a[aria-current='page']:visited {
+    color: var(--pc-ink);
+  }
+  .psubs a[aria-current='page'] .pdot {
+    background: var(--pc-ink);
+    color: var(--pc);
   }
   .ptabs a:visited {
     color: var(--ink-2);

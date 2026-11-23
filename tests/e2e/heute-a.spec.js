@@ -60,7 +60,8 @@ test.describe('HA Heute neu A', () => {
     // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): areas with a heading; «Jetzt» (meditation, «Up now») first,
     // then «Dein Körper» with the weight, the body and Aktiv («Körperwerte» left the ready wall, 2a)
     // «Meine Tour» (Plan 2a): with a planned tour its card is first, the meditation card right under it
-    expect(order.slice(0, 2)).toEqual(['meinetour', 'meditation']);
+    // «Dein Körper heute» as a band (Noah 23.11.2026 «1-4a», point 1a, changed on purpose): the body band is first, right under the greeting
+    expect(order.slice(0, 3)).toEqual(['body', 'meinetour', 'meditation']);
     const bodyArea = order.filter((id) => ['weighin', 'body', 'acts'].includes(id));
     expect(bodyArea).toEqual(HEAD_N2.filter((id) => ['weighin', 'body', 'acts'].includes(id) && order.includes(id)));
     for (const id of ['week', 'balance', 'bikes']) expect(order, id).toContain(id);
