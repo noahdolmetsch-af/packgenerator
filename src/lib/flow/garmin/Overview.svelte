@@ -16,6 +16,8 @@
   import AzmWeek from '../../health/AzmWeek.svelte';
   import WeekNumbers from '../WeekNumbers.svelte';
   import ActIcon from '../ActIcon.svelte';
+  import AlleWoche from '../AlleWoche.svelte';
+  import { alleRange } from '../alle-woche.js';
   import { tableQuery } from '../../messwerte-data.js';
   import { db } from '../../db.js';
   import { USUAL_KEY, usualMap } from '../usualmin.js';
@@ -46,9 +48,14 @@
   // «Alle Sportarten» (Noah 22.11.2026, Schritt D): the sports you ticked in Aktiv stand next to the Strava sports
   const tq = liveQuery(async () => {
     const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
-    return { acts, units: tickUnits({ log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map }) };
+    const u = usualMap(usual?.value);
+    const map = prefsOf(ticks?.value).map;
+    return { acts, units: tickUnits({ log, activities, acts, usual: u, map }), raw: { log, flowActs: acts, acts: activities, usual: u, map } };
   });
-  const tdata = $derived($tq ?? { acts: [], units: [] });
+  const tdata = $derived($tq ?? { acts: [], units: [], raw: null });
+  // «Alles, was du angelegt hast» (Noah 23.11.2026): every activity of Aktiv in the chosen period, also daily habits and ones with 0 times
+  const alle = $derived(tdata.raw ? alleRange(tdata.raw, range?.from ?? addDays(today, -6), range?.to ?? today) : null);
+  const alleNames = $derived(new Map(tdata.acts.map((a) => [a.id, actName(a)])));
   const actById = $derived(new Map(tdata.acts.map((a) => [a.id, a])));
   const tickCards = $derived(tickKinds(tdata.units, today).filter((id) => actById.has(id)).map((id) => ({ act: actById.get(id), name: actName(actById.get(id)), card: tickFocus(tdata.units, today, id) })));
   const tickList = $derived(tickRows(tdata.units, range?.from ?? addDays(today, -6), range?.to ?? today).filter((r) => actById.has(r.actId)));
@@ -168,6 +175,12 @@
   </ul>
   {/if}
   {#if !asWeek && !week.kinds.length && !tickList.length && week.rhr == null && week.kcal == null}<p class="l7none" data-l7-none>{t('Nothing recorded in this period.')}</p>{/if}
+  {#if alle && (alle.move.shown.length || alle.move.quiet.length || alle.rest.shown.length || alle.rest.quiet.length || alle.loose.length)}
+    <details class="card alle" data-alle-fold>
+      <summary>{t('Everything you created')}</summary>
+      <AlleWoche week={alle} names={alleNames} period bare />
+    </details>
+  {/if}
   {#if asWeek}<WeekNumbers {today} />{/if}
   {#if !phone.matches}{@render children?.()}{/if}
 </Sec>
@@ -186,6 +199,19 @@
 <style>
   .ovfold {
     padding: 0 14px;
+  }
+  .alle {
+    margin-top: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+  }
+  .alle summary {
+    cursor: pointer;
+    min-height: 32px;
+    font-size: var(--fs-body);
+    color: var(--ink-2);
+  }
+  .alle :global(.al) {
+    margin-top: var(--sp-3);
   }
   .nofocus {
     margin: 0;

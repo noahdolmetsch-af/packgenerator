@@ -8,8 +8,8 @@
   import { tn, t, num } from '../i18n.svelte.js';
   import { RING_WORDS } from './auswertung/words.js';
 
-  /** week: alleWeek(); names: Map id → shown name */
-  let { week, names = new Map() } = $props();
+  /** week: alleWeek() or alleRange(); names: Map id → shown name; period: a window other than a week (the words say «period»); bare: no card and no title (inside a fold) */
+  let { week, names = new Map(), period = false, bare = false } = $props();
   const nameOf = (r) => names.get(r.id) ?? r.id;
   const loose = $derived(week?.loose ?? []);
   const groups = $derived([
@@ -19,11 +19,11 @@
 </script>
 
 {#if week}
-  <section class="card al" data-alle="week" aria-labelledby="al-h">
-    <h2 id="al-h">{t('Everything you created')}</h2>
+  <section class="al" class:card={!bare} class:bare data-alle={period ? 'period' : 'week'} aria-label={t('Everything you created')}>
+    {#if !bare}<h2 id="al-h">{t('Everything you created')}</h2>{/if}
     {#each groups as g (g.ring)}
       {#if g.set.shown.length || g.set.quiet.length || g.extra.length}
-        <div class="grp" data-alle-group={g.ring} data-rituale={g.ring === 'rest' ? 'week' : undefined}>
+        <div class="grp" data-alle-group={g.ring} data-rituale={g.ring === 'rest' && !period ? 'week' : undefined}>
           <h3>{g.ring === 'rest' ? t('Rest and rituals') : t(RING_WORDS.move)}</h3>
           <ul>
             {#each g.set.shown as r (r.id)}
@@ -52,7 +52,7 @@
           </ul>
           {#if g.set.quiet.length}
             <details class="quiet" data-alle-quiet={g.ring}>
-              <summary>{tn(g.set.quiet.length, '{n} activity without a time this week', '{n} activities without a time this week')}</summary>
+              <summary>{period ? tn(g.set.quiet.length, '{n} activity without a time in this period', '{n} activities without a time in this period') : tn(g.set.quiet.length, '{n} activity without a time this week', '{n} activities without a time this week')}</summary>
               <p>{g.set.quiet.map(nameOf).join(', ')}</p>
             </details>
           {/if}
@@ -70,7 +70,12 @@
     gap: var(--sp-3);
     min-width: 0;
     margin: 0;
+  }
+  .al.card {
     padding: var(--sp-4);
+  }
+  .bare .cap {
+    margin-top: 0;
   }
   h2 {
     margin: 0;

@@ -29,13 +29,12 @@ function rowOf(act, units, from, to) {
 }
 
 /**
- * data: as in WeekReview (log, flowActs, acts = activities, usual, map); monday and upto as in ritualeWeek.
+ * data: as in WeekReview (log, flowActs, acts = activities, usual, map); from and to: any window (YYYY-MM-DD), the week, a month, a year.
  * → { from, to, move: rows, rest: rows (rings mind and rest), loose: [{ key, label, n, days, measuredMin }] }
- * Each of move and rest: rows with a time or a goal first (most times first), then { quiet: rows with 0 and no goal }.
+ * Each of move and rest: { shown: rows with a time or a goal (most times first), quiet: rows with 0 and no goal }.
  */
-export function alleWeek(data, monday, upto = shiftDay(monday, 6)) {
+export function alleRange(data, from, to) {
   const { log = [], flowActs = [], acts: activities = [], usual = {}, map = {} } = data ?? {};
-  const end = shiftDay(monday, 6) < upto ? shiftDay(monday, 6) : upto;
   const units = einheiten({ log: log.filter((e) => e.via !== 'trip'), activities, acts: flowActs, usual, map });
   const acts = flowActs.map(normAct).filter((a) => !a.paused);
   const byOrder = new Map(acts.map((a, i) => [a.id, i]));
@@ -43,12 +42,12 @@ export function alleWeek(data, monday, upto = shiftDay(monday, 6)) {
     const sort = (x, y) => y.n - x.n || byOrder.get(x.id) - byOrder.get(y.id);
     return { shown: rows.filter((r) => r.n > 0 || r.goal != null).sort(sort), quiet: rows.filter((r) => r.n === 0 && r.goal == null).sort(sort) };
   };
-  const move = split(acts.filter((a) => a.ring === 'move').map((a) => rowOf(a, units, monday, end)));
-  const restAll = rituale(units, flowActs, monday, end, { all: true });
-  const rest = split(restAll.map((r) => ({ ...r, waiting: units.filter((u) => u.actId === r.id && fromStravaOnly(u) && u.day >= monday && u.day <= end).length })));
+  const move = split(acts.filter((a) => a.ring === 'move').map((a) => rowOf(a, units, from, to)));
+  const restAll = rituale(units, flowActs, from, to, { all: true });
+  const rest = split(restAll.map((r) => ({ ...r, waiting: units.filter((u) => u.actId === r.id && fromStravaOnly(u) && u.day >= from && u.day <= to).length })));
   const loose = new Map();
   for (const u of units) {
-    if (u.actId || !u.stravaType || u.day < monday || u.day > end) continue;
+    if (u.actId || !u.stravaType || u.day < from || u.day > to) continue;
     const r = loose.get(u.stravaType) ?? { key: u.stravaType, label: looseLabel(u.stravaType), n: 0, days: new Set(), measuredMin: 0 };
     r.n += 1;
     r.days.add(u.day);
@@ -56,10 +55,16 @@ export function alleWeek(data, monday, upto = shiftDay(monday, 6)) {
     loose.set(u.stravaType, r);
   }
   return {
-    from: monday,
-    to: end,
+    from,
+    to,
     move,
     rest,
     loose: [...loose.values()].map((r) => ({ ...r, days: r.days.size })).sort((a, b) => b.n - a.n || a.label.localeCompare(b.label)),
   };
+}
+
+/** The week of the review: from Monday to Sunday, or to `upto` while it runs. */
+export function alleWeek(data, monday, upto = shiftDay(monday, 6)) {
+  const end = shiftDay(monday, 6) < upto ? shiftDay(monday, 6) : upto;
+  return alleRange(data, monday, end);
 }

@@ -110,12 +110,13 @@ test('every function is visible on its home page', async ({ page, context }, inf
       { names: list.map((x) => x.name), screens: SCREENS, from },
     );
     // the 22 switches of «Erinnerungen aufs Handy» sit in four folds (7b-08, Noah «alles»): one tap opens a fold, so each
-    // fold is looked at on its own, opened alone (the others closed), like a person who taps it
+    // fold is looked at on its own, opened alone (the others closed), like a person who taps it. The same for the menus «Ansicht» and «…»
+    // on top of Material (Noah 23.11.2026 «Material aufräumen»): their tools show once the menu is tapped
     const lookAll = async () => {
       let all = await look();
-      const folds = await page.locator('details[data-push-group]').count();
+      const folds = await page.locator('details[data-push-group], details.gmore').count();
       for (let g = 0; g < folds; g++) {
-        await page.evaluate((i) => document.querySelectorAll('details[data-push-group]').forEach((d, j) => (d.open = i === j)), g);
+        await page.evaluate((i) => document.querySelectorAll('details[data-push-group], details.gmore').forEach((d, j) => (d.open = i === j)), g);
         const part = await look();
         all = all.map((f, k) => f || part[k]);
       }
