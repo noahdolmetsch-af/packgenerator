@@ -34,8 +34,15 @@ export class KurseError extends Error {
   }
 }
 
-/** The id of an asset this function knows, or ''. */
-export const okAsset = (id) => (Object.hasOwn(KURS_ASSETS, String(id)) ? String(id) : '');
+/**
+ * Any other title (a share, an ETF, a coin …) is asked for by its Yahoo symbol: id = «y:NESN.SW». Only the characters a
+ * symbol has pass, and only Yahoo is asked (Stooq names its symbols differently).
+ */
+export const YSYMBOL = /^[A-Za-z0-9^=.\-]{1,24}$/;
+export const ySymbol = (id) => (String(id).startsWith('y:') && YSYMBOL.test(String(id).slice(2)) ? String(id).slice(2) : '');
+
+/** The id of an asset this function knows (gold, smi, usdchf or «y:SYMBOL»), or ''. */
+export const okAsset = (id) => (Object.hasOwn(KURS_ASSETS, String(id)) ? String(id) : ySymbol(id) ? String(id) : '');
 
 const r4 = (v) => Math.round(v * 1e4) / 1e4;
 const dayOk = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s);
@@ -59,6 +66,13 @@ export function parseStooq(text) {
     if (Number.isFinite(v) && v > 0) out.push([c[0], r4(v)]);
   }
   return out;
+}
+
+/** What Yahoo says about the title: its currency and its short name («CHF», «Nestle SA»). Empty where it says nothing. */
+export function yahooMeta(body) {
+  const m = body?.chart?.result?.[0]?.meta;
+  const text = (v) => (typeof v === 'string' ? v.trim().slice(0, 80) : '');
+  return { currency: /^[A-Za-z]{3,4}$/.test(m?.currency ?? '') ? m.currency : '', name: text(m?.shortName) || text(m?.longName) };
 }
 
 /**
@@ -95,9 +109,13 @@ async function fetchText(url, doFetch, timeout, headers = {}) {
   return res;
 }
 
+// each source gives { points, meta }: the closes, and what it says about the title (only Yahoo does)
 const FETCH = {
-  stooq: async (a, { doFetch, timeout }) => parseStooq(await (await fetchText(stooqUrl(a.stooq), doFetch, timeout)).text()),
-  yahoo: async (a, { doFetch, timeout, now }) => parseYahoo(await (await fetchText(yahooUrl(a.yahoo, new Date(now).getTime() / 1000), doFetch, timeout, { Accept: 'application/json' })).json(), !!a.session),
+  stooq: async (a, { doFetch, timeout }) => ({ points: parseStooq(await (await fetchText(stooqUrl(a.stooq), doFetch, timeout)).text()), meta: { currency: '', name: '' } }),
+  yahoo: async (a, { doFetch, timeout, now }) => {
+    const body = await (await fetchText(yahooUrl(a.yahoo, new Date(now).getTime() / 1000), doFetch, timeout, { Accept: 'application/json' })).json();
+    return { points: parseYahoo(body, !!a.session), meta: yahooMeta(body) };
+  },
 };
 
 /**
@@ -107,18 +125,26 @@ const FETCH = {
 export async function kursReihe(id, { doFetch = (...a) => fetch(...a), now = new Date(), timeout = KURSE_TIMEOUT_MS } = {}) {
   const key = okAsset(id);
   if (!key) throw new KurseError('unknown');
-  const a = KURS_ASSETS[key];
+  // a title of the person: only Yahoo, the currency and the name come from its answer
+  const own = ySymbol(key);
+  // futures («=F») and exchange rates («=X») trade around the clock: their bars get the day they end on (see parseYahoo)
+  const a = own ? { currency: '', unit: 'price', order: ['yahoo'], yahoo: own, session: /=[FX]$/.test(own) } : KURS_ASSETS[key];
   const today = zurichDay(now);
   for (const source of a.order) {
     let points = [];
+    let meta = { currency: '', name: '' };
     try {
-      points = cleanPoints(await FETCH[source](a, { doFetch, timeout, now }), today);
+      const got = await FETCH[source](a, { doFetch, timeout, now });
+      points = cleanPoints(got.points, today);
+      meta = got.meta;
     } catch {
       points = [];
     }
     if (points.length < 5) continue;
     const [day, close] = points[points.length - 1];
-    return { id: key, currency: a.currency, unit: a.unit, source, since: points[0][0], last: { day, close }, fetchedAt: new Date(now).toISOString(), points };
+    const answer = { id: key, currency: own ? meta.currency : a.currency, unit: a.unit, source, since: points[0][0], last: { day, close }, fetchedAt: new Date(now).toISOString(), points };
+    if (own && meta.name) answer.name = meta.name;
+    return answer;
   }
   throw new KurseError('unreachable');
 }

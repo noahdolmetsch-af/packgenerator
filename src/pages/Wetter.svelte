@@ -19,7 +19,7 @@
   import { localDay } from '../lib/localday.js';
   import { searchPlace } from '../lib/weather.js';
   import { compass } from '../lib/toursky.js';
-  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, darkAfter, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS, SRF_WEBCAMS } from '../lib/wetter/kern.js';
+  import { loadCore, hoursBetween, dayLine, warningsOf, bestWindows, packHints, darkAfter, foehnBise, trainInstead, outdoorOk, localDate, atLocal, costWord, COST_WORD, WARN_TEXT, LANDI_RADAR, METEOSWISS, SRF_WEBCAMS } from '../lib/wetter/kern.js';
   import { loadClimate, climateFor } from '../lib/wetter/klima.js';
   import { SAID_KEY, noteSaid, hits } from '../lib/wetter/treffer.js';
   import WebcamList from '../lib/wetter/WebcamList.svelte';
@@ -34,6 +34,10 @@
   import Licht from '../lib/wetter/Licht.svelte'; // «Licht für die Fahrt» (Noah 04.11.2026 «5 alle»)
   import { roadState } from '../lib/wetter/strasse.js'; // Wetter-Ausbau F: the road after rain
   import { windowFacts, windowText } from '../lib/wetter/teilen.js'; // Wetter-Ausbau H: the best window as a text for the group
+  import { shortPlace } from '../lib/wetter/ort.js';
+  import { loadRain15 } from '../lib/wetter/regen15.js';
+  import { rainStory, rainWords } from '../lib/wetter/regenzeit.js'; // Wetterseite aufräumen: ONE rain start time for the whole page
+  import KurzAntwort from '../lib/wetter/KurzAntwort.svelte'; // Wetterseite aufräumen: the short answer at the top
   import Regen3h from '../lib/wetter/Regen3h.svelte'; // Wetter-Ausbau B (Noah 22.11.2026): rain in 15-minute steps
   import NextHours from '../lib/wetter/NextHours.svelte'; // Ziel 6 «Die nächsten Stunden» (Noah 27.10.2026 «4a»)
   import SchneeBlock from '../lib/wetter/SchneeBlock.svelte'; // «Schneefallgrenze» (Noah 04.11.2026)
@@ -107,6 +111,16 @@
   const today = $derived(core ? localDate(now, off) : '');
   const rest = $derived(core ? hoursBetween(core, now - 36e5, atLocal(today, 24, off)) : []);
   const line = $derived(dayLine(rest));
+  // the rain of the next hours in quarters (kept 10 minutes; Regen3h asks the same), for the one rain story of the page
+  let quarters = $state(null);
+  $effect(() => {
+    const pl = place;
+    now;
+    if (!pl) return void (quarters = null);
+    loadRain15(db, pl).then((r) => (quarters = r?.rows ?? null)).catch(() => {});
+  });
+  const story = $derived(core ? rainStory(core, quarters, now) : null);
+  const hintKeys = $derived(packHints(rest).map((h) => h.key));
   const warns = $derived(warningsOf(rest).filter((w) => w.kind !== 'thunder')); // thunderstorms: the spans below, with times
   const storms = $derived(core ? thunderSpans(core, now) : []);
   const stormText = (x) => t(x.day === 'today' ? 'Thunderstorms possible today, {from} to {to}.' : x.day === 'tomorrow' ? 'Thunderstorms possible tomorrow, {from} to {to}.' : 'Thunderstorms possible later, {from} to {to}.', { from: hm(x.from), to: hm(x.to) });
@@ -229,6 +243,7 @@
   </div>
 
   {#if tab === 'jetzt'}
+  {#if core}<KurzAntwort {story} {line} hints={hintKeys} {hm} />{/if}
   <ZurTour trip={forTrip} fallback={$homeQ?.value ?? null} onplan={() => pick('planen')} />
   <div class="card wx-place">
     {#if $homeQ?.value || nextTrip}
@@ -237,7 +252,7 @@
         {#if nextTrip}<button type="button" class="wx-chip" aria-pressed={!picked && trip?.id === nextTrip.id} onclick={() => ((picked = null), (found = []), (sel = nextTrip.id))} data-wx-pick-next>{t('Next tour: {name}', { name: nextTrip.title })}</button>{/if}
       </div>
     {/if}
-    <p class="wx-where"><b>{place?.name || t('No place yet')}</b>{#if asOf}<small>{t('As of {at}', { at: asOf })}{core?.old ? ` · ${t('older than 3 hours')}` : ''}</small>{/if}</p>
+    <p class="wx-where"><b>{shortPlace(place?.name) || t('No place yet')}</b>{#if asOf}<small>{t('As of {at}', { at: asOf })}{core?.old ? ` · ${t('older than 3 hours')}` : ''}</small>{/if}</p>
     <form class="wx-search" onsubmit={search}>
       <input class="inp" type="search" bind:value={q} oninput={() => (searchHint = '')} placeholder={t('Another place')} aria-label={t('Another place')} data-wx-q />
       <button type="submit" class="btn sm" disabled={searching}><Search size={16} aria-hidden="true" />{t('Search')}</button>
@@ -255,7 +270,7 @@
   {/if}
 
   {#if tab !== 'jetzt'}
-    <p class="wx-where wx-where-line" data-wx-where><b>{place?.name || t('No place yet')}</b><button type="button" class="btn sm" onclick={() => pick('jetzt')} data-wx-change-place>{t('Change place')}</button></p>
+    <p class="wx-where wx-where-line" data-wx-where><b>{shortPlace(place?.name) || t('No place yet')}</b><button type="button" class="btn sm" onclick={() => pick('jetzt')} data-wx-change-place>{t('Change place')}</button></p>
   {/if}
 
   {#if err}<p class="rc-warn" role="status" data-wx-error>{err}</p>{/if}
@@ -270,7 +285,7 @@
         <p class="wx-line">
           <span><Sun size={16} aria-hidden="true" />{num(line.tmin)}–{num(line.tmax)} °C</span>
           {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
-          <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
+          <span><CloudRain size={16} aria-hidden="true" />{rainWords(story, t, hm) || t('dry')}</span>
         </p>
       {/if}
       <SchneeBlock {core} {now} />
@@ -299,7 +314,11 @@
   <!-- «Aktiv neu» (Noah 22.10.2026, spec): the lake temperature, ozone and pollen moved here from the Aktiv start -->
   <Licht {core} {now} />
   <LakeCard headingLevel={2} />
-  <AirCard headingLevel={2} />
+  <!-- Wetterseite aufräumen (Noah 23.11.2026): pollen and ozone are closed until you want them -->
+  <details class="card wx-fold" data-wx-air-fold>
+    <summary>{t('Ozone and pollen')}</summary>
+    <AirCard headingLevel={3} bare />
+  </details>
   {/if}
 
   {#if tab === 'radar'}
@@ -466,6 +485,17 @@
   .wx-found small {
     margin-left: 6px;
     color: var(--ink-2);
+  }
+  .wx-fold {
+    padding: 0 12px;
+  }
+  .wx-fold > summary {
+    cursor: pointer;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    font-size: var(--fs-sub);
+    font-weight: 600;
   }
   .wx-h {
     margin: 0;

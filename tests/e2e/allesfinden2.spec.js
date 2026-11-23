@@ -54,9 +54,9 @@ test('AF2-3 Ich is short, the new tabs exist, New has the emergency and the chec
   await page.goto('./#/me');
   await expect(page.locator('a.ich-row[href="#/me/tools"]')).toHaveCount(0);
   await expect(page.locator('a.ich-row[href="#/inspiration"]')).toHaveCount(0);
-  // «Neue Ordnung» V5 (Noah 21.11.2026): the place Material is a tab of «Velos und Material» (place `bikes`) and its pages are chips under the tab (`subs`)
+  // V5 (Noah 21.11.2026): Vorrat and Ausgeliehen are chips (`subs`) under the tab Material of «Velos und Material»
   for (const [place, href] of [['bikes', '#/gear/supplies'], ['bikes', '#/gear/lend'], ['trips', '#/travel'], ['trips', '#/me/tools']]) {
-    expect(PLACE_TABS[place].flatMap((x) => [x, ...(x.subs ?? [])]).some((x) => x.href === href)).toBe(true);
+    expect(PLACE_TABS[place].some((x) => x.href === href || (x.subs || []).some((s) => s.href === href))).toBe(true);
   }
   await page.goto('./#/gear');
   await page.evaluate(() => window.dispatchEvent(new CustomEvent('pg:new')));

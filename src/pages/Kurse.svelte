@@ -1,7 +1,8 @@
 <script>
   /**
    * «Kursblick» (Noah 22.11.2026 «ja»; plan: docs/releases/kursblick.md): the small app for the daily prices of gold,
-   * the SMI and (later) more. Three views: Today (#/kurse), Gold (#/kurse/gold) and Sources (#/kurse/quellen).
+   * the SMI and more. Four views: Today (#/kurse), Gold (#/kurse/gold), Markets (#/kurse/maerkte: the titles the person
+   * follows, src/lib/kurse/Maerkte.svelte) and Sources (#/kurse/quellen).
    * The closing price of the day before comes from the server (api/lake.js ?action=kurse), the last answer stays on the
    * device (src/lib/kurse/laden.js). Gold is shown in francs per kilogram against the reference day (1 Nov 2026, a
    * Sunday: the last close before it) and with what a sale would bring (price minus the dealer's deduction, 2 % as a
@@ -15,6 +16,7 @@
   import DateInput from '../lib/ui/DateInput.svelte';
   import Verlauf from '../lib/kurse/Verlauf.svelte';
   import Zeitraum from '../lib/kurse/Zeitraum.svelte';
+  import Maerkte from '../lib/kurse/Maerkte.svelte';
   import { db } from '../lib/db.js';
   import { t } from '../lib/i18n.svelte.js';
   import { miniAppOf } from '../lib/miniapps.js';
@@ -24,7 +26,7 @@
   import '../lib/ich/ich.css';
 
   let { sub = '' } = $props();
-  const view = $derived(sub === 'gold' ? 'gold' : sub === 'quellen' ? 'quellen' : 'heute');
+  const view = $derived(sub === 'gold' ? 'gold' : sub === 'quellen' ? 'quellen' : sub === 'maerkte' ? 'maerkte' : 'heute');
   const inMini = typeof location !== 'undefined' && !!miniAppOf(location.pathname);
   const NAMES = { gold: 'Gold', smi: 'SMI', usdchf: 'USD/CHF' };
 
@@ -68,8 +70,8 @@
   const smiR = $derived(smi.length ? vergleich(smi, referenz) : null);
   const stand = $derived(reihen.gold ? stundeText(reihen.gold.fetchedAt) : '');
   const alt = $derived(Object.values(reihen).some((r) => r.alt));
-  // the line shows at least one month, so a day or a week still draws a line you can read; the numbers above stay exact
-  const von = (last) => [backBy(last, zeitraum), backBy(last, { n: 1, unit: 'm' })].sort()[0];
+  // the line shows the period that is chosen, not more (a week is a week)
+  const von = (last) => backBy(last, zeitraum);
   const periodStart = $derived(wert ? von(wert[0]) : '');
   const chartPoints = $derived(chart === 'gold' ? ab(goldChf, periodStart) : ab(smi, smi.length ? von(smi[smi.length - 1][0]) : ''));
   const menge1 = $derived(Math.max(0, Number(menge) || 0));
@@ -103,11 +105,13 @@
 
   {#if !inMini}
     <div class="kseg">
-      <Seg label={t('View')} value={view} options={[{ key: 'heute', name: t('Today|kurs') }, { key: 'gold', name: t('Gold') }, { key: 'quellen', name: t('Sources|kurs') }]} onchange={(k) => go(k === 'heute' ? '#/kurse' : `#/kurse/${k}`)} />
+      <Seg label={t('View')} value={view} options={[{ key: 'heute', name: t('Today|kurs') }, { key: 'gold', name: t('Gold') }, { key: 'maerkte', name: t('Markets|kurs') }, { key: 'quellen', name: t('Sources|kurs') }]} onchange={(k) => go(k === 'heute' ? '#/kurse' : `#/kurse/${k}`)} />
     </div>
   {/if}
 
-  {#if laedt && !wert}
+  {#if view === 'maerkte'}
+    <Maerkte {zeitraum} onzeitraum={(p) => (zeitraum = p)} />
+  {:else if laedt && !wert}
     <p class="muted" role="status">{t('Fetching prices …')}</p>
   {:else if fehler && !wert}
     <Empty icon={TrendingUp} title={t('No prices right now')} text={t('The price service does not answer and nothing is saved on this device yet. Try again in a moment.')} action={{ label: t('Try again'), onclick: () => lade(true) }} />

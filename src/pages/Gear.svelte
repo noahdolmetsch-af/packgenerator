@@ -68,6 +68,7 @@
   import TopButton from '../lib/list/TopButton.svelte';
   import { shownRows } from '../lib/list/listen.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte';
+  import GearWork from '../lib/gear/GearWork.svelte'; // Velos aufräumen: work on shoes and cleats
   import AllHere from '../lib/ui/AllHere.svelte'; // «Alles hier»: every Material function one tap away (Noah 03.11.2026 «1a»)
 
   // v0.36.0: a gear list waiting on "Check import" (#/gear/import), counted in the ••• menu.
@@ -1017,6 +1018,8 @@
     <!-- Gesamttest 20.10 Design / UI-Grundlagen (idea 1): the tip of the day under the content, not under the help box -->
     {#if items.length}<TipLine page="gear" name={t('Gear|page')} />{/if}
     {#if !selecting}<PageMore page="gear" name={t('Gear|page')} />{/if}
+    <!-- Velos aufräumen (Noah 23.11.2026): work on shoes and cleats, taken off the bike's care; only there when there is such a job -->
+    {#if !selecting && !mode && view === 'all'}<GearWork />{/if}
     <!-- SK: the tile row at the page end (SK4) -->
     {#if !selecting}<PinnedLists place="gear" />{/if}
     {#if !selecting && view !== 'wish'}<PageTiles page="gear" />{/if}

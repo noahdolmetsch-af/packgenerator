@@ -70,6 +70,37 @@ describe('kursReihe', () => {
   });
 });
 
+describe('a title of the person (id = y:SYMBOL)', () => {
+  const withMeta = (extra) => {
+    const b = yahoo(DAYS);
+    Object.assign(b.chart.result[0].meta, extra);
+    return b;
+  };
+  it('lets only the characters of a symbol through', () => {
+    expect(okAsset('y:NESN.SW')).toBe('y:NESN.SW');
+    expect(okAsset('y:^GSPC')).toBe('y:^GSPC');
+    expect(okAsset('y:BTC-USD')).toBe('y:BTC-USD');
+    for (const bad of ['y:', 'y:a b', 'y:../x', 'y:a/b', 'y:a?b=1', `y:${'A'.repeat(25)}`, 'Y:NESN.SW', 'NESN.SW']) expect(okAsset(bad), bad).toBe('');
+  });
+  it('asks only Yahoo and answers with its currency and name', async () => {
+    const calls = [];
+    const doFetch = async (url) => (calls.push(url), res(withMeta({ currency: 'CHF', shortName: 'Beispiel AG' })));
+    const a = await kursReihe('y:BSP.SW', { doFetch, now: NOW });
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toContain('query1.finance.yahoo.com/v8/finance/chart/BSP.SW');
+    expect(a).toMatchObject({ id: 'y:BSP.SW', currency: 'CHF', unit: 'price', name: 'Beispiel AG', source: 'yahoo' });
+    expect(isKursAnswer(a)).toBe(true);
+  });
+  it('says nothing about a currency or name Yahoo does not give, or gives in a strange shape', async () => {
+    const a = await kursReihe('y:BSP.SW', { doFetch: async () => res(withMeta({ currency: '<b>x</b>', shortName: 5 })), now: NOW });
+    expect(a.currency).toBe('');
+    expect(a.name).toBeUndefined();
+  });
+  it('is 502 when Yahoo does not know the symbol', async () => {
+    await expect(kursReihe('y:NOPE', { doFetch: async () => res('', false), now: NOW })).rejects.toMatchObject({ code: 'unreachable' });
+  });
+});
+
 describe('/api/lake?action=kurse', () => {
   const handler = makeHandler({ doFetch: async () => res(csv(rows)), clock: () => NOW });
   const get = (q) => handler(new Request(`https://x.test/api/lake?action=kurse${q}`));

@@ -94,22 +94,23 @@ test('band: name, km, weight, bags, care due; the bikes as tabs; edit and add', 
   const due = band.getByRole('link', { name: T('Up now: {n} jobs · See', { n: 2 }) });
   await expect(due).toHaveAttribute('href', new RegExp(`tab=care&bike=${SPARK}`));
 
-  // The bikes as tabs: a tap switches the bike and the address.
-  const tabs = band.getByRole('tab');
-  await expect(tabs).toHaveCount(3);
-  await expect(band.getByRole('tab', { name: `${P} Scott Spark 960` })).toHaveAttribute('aria-selected', 'true');
-  await band.getByRole('tab', { name: `${P} Gravel Grinder` }).click();
+  // Velos aufräumen (23.11.2026): the bikes stand once, as the cards on top; «Show details» switches the bike and the address.
+  const cards = page.locator('[data-velo-card]');
+  await expect(cards).toHaveCount(3);
+  await expect(page.locator(`[data-velo-card="${SPARK}"]`)).toHaveAttribute('aria-current', 'true');
+  await page.locator(`[data-velo-card="${GRAVEL}"] [data-card-details]`).click();
   await expect(page).toHaveURL(new RegExp(`bike=${GRAVEL}`));
   await expect(band.getByRole('heading', { name: `${P} Gravel Grinder` })).toBeVisible();
   await expect(band).toContainText('8’000 km');
-  await expect(band.getByRole('tab', { name: `${P} Gravel Grinder` })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator(`[data-velo-card="${GRAVEL}"]`)).toHaveAttribute('aria-current', 'true');
+  await expect(band.getByRole('tab')).toHaveCount(0); // no second row of the same bikes
 
   // Edit and add are one tap away.
   await band.getByRole('button', { name: T('Edit {name}', { name: `${P} Gravel Grinder` }) }).click();
   await expect(page.locator('dialog[open]')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.locator('dialog[open]')).toHaveCount(0);
-  await band.getByRole('button', { name: T('Add bike') }).click();
+  await page.locator('[data-card-add]').click(); // Velos aufräumen: «Add bike» is the dashed card after the bike cards
   await expect(page.locator('dialog[open]')).toBeVisible();
   await page.keyboard.press('Escape');
   await noSideScroll(page);

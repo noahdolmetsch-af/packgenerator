@@ -65,6 +65,14 @@ test('Switch on on one device, pair the other with the link: both have the same 
   // Noah 21.11.2026: the proof that nothing is missing (the count of the device equals the count of the server)
   await expect(box.locator('[data-sync-check="ok"]')).toContainText(T('Checked {when}: this device and the server hold the same {n} entries.').split('{when}')[0].trim());
   await shot(a.page, `A2-koppeln-${size}`);
+  // Noah 22.11.2026 «4a»: the code can be kept on the computer as a small text file
+  const saved = a.page.waitForEvent('download');
+  await box.locator('[data-sync-savecode]').click();
+  const file = await saved;
+  expect(file.suggestedFilename()).toBe('pack-generator-code.txt');
+  const text = readFileSync(await file.path(), 'utf8');
+  expect(text).toContain(code);
+  await expect(box).toContainText(T('Code saved as a file. Keep it somewhere safe.'));
 
   // the other device opens the link
   const b = await device(browser, info, server);
@@ -237,4 +245,36 @@ test('One entry that cannot be saved is skipped and named in the panel; the othe
   await shot(a.page, `S1-uebersprungen-${size}`);
   expect(a.errors).toEqual([]);
   await a.context.close();
+});
+
+// Noah 22.11.2026 («1b 2a 3a 4a 5a», point 5a; the phone started empty after the browser cleared its data): a device that
+// starts empty pairs from the start window with the code of the other device and gets everything. Runs in the night run too.
+test('An emptied device pairs from the start window and gets everything', async ({ browser }, info) => {
+  const server = syncServer();
+  const a = await device(browser, info, server);
+  await a.page.goto('./');
+  await importAndSettle(a.page, fixture);
+  await a.page.goto('./#/me/data');
+  await openFolds(a.page);
+  await syncBox(a.page).scrollIntoViewIfNeeded();
+  await syncBox(a.page).getByRole('button', { name: T('Switch on sync') }).click();
+  await expect(syncBox(a.page).locator('[data-sync-state="ok"]')).toBeVisible();
+  const code = (await syncBox(a.page).locator('[data-sync-code]').textContent()).trim();
+
+  // the «emptied phone»: nothing stored, the start window shows (the test asks for it, as erststart.spec.js does)
+  const c = await device(browser, info, server);
+  await c.context.addInitScript(() => localStorage.setItem('firstStart.ask', '1'));
+  await c.page.goto('./');
+  const win = c.page.getByTestId('first-start');
+  await expect(win).toBeVisible();
+  await win.locator('[data-choice="connect"]').click();
+  await expect(c.page.locator('#sync-code')).toBeVisible();
+  await c.page.locator('#sync-code').fill(code);
+  await syncBox(c.page).getByRole('button', { name: T('Pair') }).click();
+  await expect(syncBox(c.page).getByRole('status')).toContainText(T('Paired. From now on both devices keep the same data.'));
+  await settle(c.page);
+  await expect(yourData(c.page).locator('.csum .num')).toHaveText(await yourData(a.page).locator('.csum .num').textContent());
+  expect([...a.errors, ...c.errors]).toEqual([]);
+  await a.context.close();
+  await c.context.close();
 });

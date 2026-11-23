@@ -11,7 +11,7 @@ test('a long imported type in the bike card does not break in the middle of a wo
   await page.goto('./#/bikes');
   await page.reload();
   await page.locator('main').waitFor();
-  await page.locator('[data-bike-card]').first().waitFor();
+  await page.locator('[data-velo-card]').first().waitFor();
 
   expect(await brokenWords(page)).toEqual([]);
   const sw = await sideways(page);

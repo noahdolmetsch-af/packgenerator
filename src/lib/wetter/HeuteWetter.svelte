@@ -16,7 +16,8 @@
   import { onTripDay } from '../ride.js';
   import { compass, intoWind } from '../toursky.js';
   import { loadCore, hoursBetween, dayLine, warningsOf, rainWithin, localDate, atLocal, WARN_TEXT, LANDI_RADAR } from './kern.js';
-  import { loadRain15, rain15Strip } from './regen15.js'; // Wetter-Ausbau B: «Rain in about 30 minutes» on a ride day
+  import { loadRain15, rain15Strip } from './regen15.js';
+  import { rainStory, rainWords } from './regenzeit.js'; // the one rain start time of the page // Wetter-Ausbau B: «Rain in about 30 minutes» on a ride day
   import { WEBCAMS_KEY, camsOf, homeCam, isImage, freshSrc, camLabel } from './webcams.js';
   import LakeChip from '../lake/LakeChip.svelte';
   import { phrases } from './digest.svelte.js'; // Wetter-Ausbau D: the closed line «Weather today»
@@ -81,6 +82,7 @@
   const hours = $derived(core ? hoursBetween(core, Math.max(now - 36e5, atLocal(localDate(now, off), 6, off)), atLocal(localDate(now, off), 21, off)) : []);
   const line = $derived(dayLine(hours));
   const warn = $derived(warningsOf(hours)[0] ?? null);
+  const story = $derived(core ? rainStory(core, quarters, now) : null);
   const rainSoon = $derived(core ? rainWithin(core, now, 3) : null);
   // a loop: which way round gives the tailwind home (the wind of the day, as on the packing list)
   const loopTip = $derived.by(() => {
@@ -102,7 +104,7 @@
       <a class="hw-line" {href} data-heute-wetter-line>
         <span><b>{num(line.tmin)}–{num(line.tmax)} °C</b></span>
         {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
-        <span><CloudRain size={16} aria-hidden="true" />{line.rainFrom ? t('rain from {at}', { at: hm(line.rainFrom) }) : t('dry')}</span>
+        <span><CloudRain size={16} aria-hidden="true" />{rainWords(story, t, hm) || t('dry')}</span>
         {#if loopTip}<span class="hw-tip" data-heute-wetter-wind>{loopTip === 'keep' ? t('Ride the loop as planned: tailwind home.') : t('Ride the loop the other way: tailwind home.')}</span>{/if}
         {#if warn}<span class="hw-warn"><TriangleAlert size={16} aria-hidden="true" />{t(WARN_TEXT[warn.kind], { at: hm(warn.at), v: num(warn.value) })}</span>{/if}
       </a>

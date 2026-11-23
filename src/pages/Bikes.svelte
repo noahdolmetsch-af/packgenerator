@@ -12,7 +12,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../lib/db.js';
   import { activeBikes } from '../lib/bikeretire.js';
-  import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» on top (Noah «4a»)
+  import HintCard from '../lib/pageinfo/HintCard.svelte'; // Velos aufräumen: the «Einstieg» lives in the «?» window, no second help row on the page
   import SetupTab from '../lib/bikes/SetupTab.svelte';
   import CareTab from '../lib/care/CareTab.svelte';
   import Compare from '../lib/bikes/Compare.svelte';
@@ -155,7 +155,7 @@
   {:else if route.tab === 'care'}
     <CareTab bikeId={route.bike} open={route.open} tripId={route.trip ?? null} onbike={pickBike} onopened={opened} />
   {:else}
-    <AreaIntro place="velos" />
+    <HintCard page="velos" intro="velos" />
     <!-- Noah 06.11.2026 «2a» (Durchklick Etappe 4): the bikes first, «Alles hier» (the functions) under them -->
     <BikeCards bikeId={shownBike} onbike={pickBike} />
     <SetupTab bikeId={shownBike} more={route.open} onbike={pickBike} onopened={opened} />

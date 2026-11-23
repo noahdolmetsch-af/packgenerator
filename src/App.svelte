@@ -784,7 +784,7 @@
     <!-- Ich › Handbuch (mockup HB2, Noah 14.10.2026 «hb freigeben») -->
     <LazyPage load={PAGES.Handbook} />
   {:else if page === 'kurse'}
-    <!-- «Kursblick» (Noah 22.11.2026): #/kurse (Heute), #/kurse/gold, #/kurse/quellen -->
+    <!-- «Kursblick» (Noah 22.11.2026): #/kurse (Heute), #/kurse/gold, #/kurse/maerkte, #/kurse/quellen -->
     {#key hash}<LazyPage load={PAGES.Kurse} sub={hash.split('?')[0].split('/')[2] ?? ''} />{/key}
   {:else if page === 'miniapps'}
     <!-- Ich › Kleine Apps (mockup HB2) -->

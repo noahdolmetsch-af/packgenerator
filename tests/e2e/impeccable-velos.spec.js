@@ -54,15 +54,16 @@ test('Velopflege: the trip of the next days on top, the links in the row menu, t
   expect(errors).toEqual([]);
 });
 
-test('Velos: Workshop and Compare bikes wait under Add a tile', async ({ page }) => {
+test('Velos: Workshop, Bike care and Compare bikes are no tiles (tab Pflege and a row of the page instead)', async ({ page }) => {
   await view(page, '#/bikes');
   const row = page.locator('[data-sk="bikes"]');
   await expect(row).toBeVisible();
   await expect(row.locator('[data-sk-tile="workshop"]')).toHaveCount(0);
   await expect(row.locator('[data-sk-tile="bikecompare"]')).toHaveCount(0);
+  await expect(row.locator('[data-sk-tile="velocare"]')).toHaveCount(0);
   await expect(row.locator('[data-sk-extras]')).toHaveText(T('More tiles are under «Add a tile».'));
   await row.locator('[data-sk-plus]').click();
   const sheet = page.getByRole('dialog');
-  await expect(sheet).toContainText(T('Workshop|tile'));
-  await expect(sheet).toContainText(T('Compare bikes'));
+  await expect(sheet).not.toContainText(T('Workshop|tile'));
+  await expect(sheet).toContainText('bikepacking.com');
 });

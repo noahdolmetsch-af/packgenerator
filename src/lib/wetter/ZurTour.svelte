@@ -14,7 +14,9 @@
   import WxTimeline from '../map/WxTimeline.svelte'; // Wetter-Ausbau A and G (Noah 22.11.2026): the weather along the route
   import { tripPace } from './routewx.js';
   import { WEBCAMS_KEY, camsOf } from './webcams.js';
-  import { tourWeather, rainGear, tourDay } from './zurtour.js';
+  import { tourWeather, rainGear, tourDay, RIDE_FROM, RIDE_TO } from './zurtour.js';
+  import { loadRain15 } from './regen15.js';
+  import { rainOnDay, rainWords } from './regenzeit.js'; // the one rain start time of the page
   import { localDay } from '../localday.js';
   import { daysTo } from '../touren.js';
   import { PACK_HREF } from '../touren.js';
@@ -56,7 +58,17 @@
     const n = daysTo(day, today);
     return n === 0 ? t('Today') : n === 1 ? t('Tomorrow') : tn(n, 'in {n} day', 'in {n} days');
   });
-  const rainy = $derived(!!w?.rainFrom);
+  // the rain start: the same as on Today and on the weather page (regenzeit.js); on the day itself the 15-minute rain helps
+  let quarters = $state(null);
+  $effect(() => {
+    const p = place;
+    if (!p || day !== today) return void (quarters = null);
+    loadRain15(db, p).then((r) => (quarters = r?.rows ?? null)).catch(() => {});
+  });
+  const story = $derived(core && w ? rainOnDay(core, day, Date.now(), quarters, [RIDE_FROM, RIDE_TO]) : null);
+  const rainy = $derived(!!story && story.kind !== 'dry');
+  const cap = (x) => x.charAt(0).toUpperCase() + x.slice(1);
+  const hmLocal = (ms) => hm(ms + off * 1000);
   // the way, not only the start: a route with a line and a day the forecast reaches
   const way = $derived(w && trip?.route?.line?.length > 1 ? tripPace(trip) : null);
   const camList = $derived(camsOf($camsQ?.value).filter((c) => c.place));
@@ -74,7 +86,7 @@
     <p class="zt-head"><a class="zt-name" href={tourHref(`t:${trip.id}`)} data-zt-name>{trip.title}</a><small>{dayName} · {when}</small></p>
     {#if w}
       <p class="zt-wx" data-zt-weather>
-        {#if rainy}<CloudRain size={16} aria-hidden="true" />{t('Rain from {at}', { at: hm(w.rainFrom + off * 1000) })}{:else}<Sun size={16} aria-hidden="true" />{t('dry')}{/if}
+        {#if rainy}<CloudRain size={16} aria-hidden="true" />{cap(rainWords(story, t, hmLocal))}{:else}<Sun size={16} aria-hidden="true" />{t('dry')}{/if}
         <span>· {num(w.tmin)}–{num(w.tmax)} °C{w.windMax != null ? ` · ${t('{kmh} km/h', { kmh: num(w.windMax) })}` : ''}</span>
       </p>
       {#if rainy}
