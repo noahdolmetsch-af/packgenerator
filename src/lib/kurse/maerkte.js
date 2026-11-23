@@ -41,7 +41,7 @@ export const STANDARD = {
     { id: 'std-sren', name: 'Swiss Re', symbol: 'SREN.SW', art: 'share', gruppe: 'aktien' },
     { id: 'std-nesn', name: 'Nestlé', symbol: 'NESN.SW', art: 'share', gruppe: 'aktien' },
     { id: 'std-novn', name: 'Novartis', symbol: 'NOVN.SW', art: 'share', gruppe: 'aktien' },
-    { id: 'std-rog', name: 'Roche', symbol: 'ROG.SW', art: 'share', gruppe: 'aktien' },
+    { id: 'std-rog', name: 'Roche', symbol: 'RO.SW', art: 'share', gruppe: 'aktien' },
     { id: 'std-schn', name: 'Schindler', symbol: 'SCHN.SW', art: 'share', gruppe: 'aktien' },
     { id: 'std-abbn', name: 'ABB', symbol: 'ABBN.SW', art: 'share', gruppe: 'aktien' },
     { id: 'std-holn', name: 'Holcim', symbol: 'HOLN.SW', art: 'share', gruppe: 'aktien' },
