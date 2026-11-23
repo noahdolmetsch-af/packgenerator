@@ -71,7 +71,7 @@
     if (data) deliver(blobOfData(data), f.name, { keep: false });
   }
   async function delLink(l) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: l.title }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: l.title }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const at = links.findIndex((x) => x.id === l.id);
     await deleteWithUndo({
       name: l.title,
@@ -86,7 +86,7 @@
     });
   }
   async function delFile(f) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: f.name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: f.name }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({ name: f.name, text: t('«{name}» deleted.', { name: f.name }), run: () => removeFile(f.id), undo: (s) => restoreFile(s) });
   }
   function rename(name) {

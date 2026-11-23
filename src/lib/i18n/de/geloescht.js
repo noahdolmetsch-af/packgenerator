@@ -18,7 +18,7 @@ export default {
   'Have a look': 'Ansehen',
   'Delete {n} entry for good?': '{n} Eintrag endgültig löschen?',
   'Delete {n} entries for good?': '{n} Einträge endgültig löschen?',
-  'It is then gone from this list. Only a backup file still has it. You can bring it back for 4 seconds afterwards.': 'Dann ist es aus dieser Liste weg. Nur eine Backup-Datei hat es noch. Du kannst es danach 4 Sekunden lang zurückholen.',
+  'It is then gone from this list. Only a backup file still has it. You can bring it back for 8 seconds afterwards.': 'Dann ist es aus dieser Liste weg. Nur eine Backup-Datei hat es noch. Du kannst es danach 8 Sekunden lang zurückholen.',
   '"{name}" deleted for good.': '«{name}» endgültig gelöscht.',
   '{n} entry deleted for good.': '{n} Eintrag endgültig gelöscht.',
   '{n} entries deleted for good.': '{n} Einträge endgültig gelöscht.',

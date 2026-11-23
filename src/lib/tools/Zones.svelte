@@ -45,7 +45,7 @@
     save();
   }
   async function remove(z) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: z.name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: z.name }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const at = list.indexOf(z);
     await deleteWithUndo({
       name: z.name,

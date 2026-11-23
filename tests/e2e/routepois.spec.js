@@ -86,6 +86,8 @@ test('route card: search on tap, rows by km with OSM links, chips filter, the li
   const bytes = readFileSync(await fit.path());
   expect(bytes.subarray(8, 12).toString('latin1')).toBe('.FIT');
   expect(bytes.includes(Buffer.from('test_data_gtp_'))).toBe(true); // the course point of the workshop (the name is cut at 15 bytes)
+  // Abbiegepunkte: the test route is a straight line, so there is no turn and no «Mit Abbiegepunkten» chip
+  await expect(box.locator('[data-gpx-turns]')).toHaveCount(0);
 
   // after a reload the list is there without asking again
   await page.reload();

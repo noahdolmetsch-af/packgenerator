@@ -78,7 +78,7 @@ describe('trashed: a delete of the user keeps the rows that went', () => {
     expect(await db.trash.count()).toBe(0);
   });
 
-  it('too many rows are not kept (the 4 seconds of Undo do it)', async () => {
+  it('too many rows are not kept (the 8 seconds of Undo do it)', async () => {
     await db.kmBook.bulkPut(Array.from({ length: MAX_ROWS + 1 }, (_, i) => ({ id: `big${i}`, bikeId: 'bx' })));
     const r = await trashed('all', () => db.kmBook.where('bikeId').equals('bx').delete(), { db });
     expect(r.id).toBeNull();

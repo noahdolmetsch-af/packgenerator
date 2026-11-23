@@ -145,7 +145,7 @@
     rowMenu = null;
     if ((usedN[item.id] ?? 0) > 0) return archiveOne(item); // never delete a used item from the row
     // «Rückmeldungen» 19.10.2026: deleting asks first everywhere (rule «Löschen» 14.10.2026), then Undo
-    if ((await askDelete({ title: t('Delete "{name}"?', { name: nameOf(item) }), text: t('It is on no trip and in no template. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete "{name}"?', { name: nameOf(item) }), text: t('It is on no trip and in no template. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     offerUndo(t('"{name}" deleted.', { name: nameOf(item) }), (await trashed(nameOf(item), () => deleteItems(db, [item.id]))).value);
   }
   async function favOne(item) {
@@ -682,7 +682,7 @@
       const ids = list.map((i) => i.id);
       const plan = await deletePlan(db, ids);
       // «Rückmeldungen» (Noah 19.10.2026 «1a»): the app's own question; items still used offer «Archive» first
-      const text = [plan.used.length ? t('{n} of them are on a trip or template; they disappear from there too.', { n: plan.used.length }) : '', t('You can bring it back for 4 seconds afterwards.')].filter(Boolean).join(' ');
+      const text = [plan.used.length ? t('{n} of them are on a trip or template; they disappear from there too.', { n: plan.used.length }) : '', t('You can bring it back for 8 seconds afterwards.')].filter(Boolean).join(' ');
       const a = await askDelete({ title: tn(ids.length, 'Delete {n} item from your gear?', 'Delete {n} items from your gear?'), text, lines: list.map((i) => nameOf(i)), archive: plan.used.length ? t('Archive') : '' });
       if (a === 'archive') return offerUndo(tn(ids.length, '{n} item archived. It stays in the look back.', '{n} items archived. They stay in the look back.'), (await archiveItems(db, ids)).snap);
       if (a !== 'delete') return;

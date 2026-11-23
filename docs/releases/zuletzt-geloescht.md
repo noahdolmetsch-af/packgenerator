@@ -11,12 +11,12 @@ Auftrag: Noah «1a» (23.11.2026, Thread «Papierkorb, Tab-Titel und Ziehen baue
 - Technik: Dexie-Schema 21 mit Tabelle `trash` (Schnappschuss der Zeilen); `deleteWithUndo` füllt sie (`src/lib/trash/`). Die Tabelle ist in der Sicherung (`DATA_TABLES`), nicht im Geräteabgleich.
 
 ## Was fällt weg oder rutscht tiefer
-- nichts. Das Rückgängig-Fenster von 4 Sekunden bleibt wie es war; «Zuletzt gelöscht» kommt dahinter dazu.
+- nichts. Das Rückgängig-Fenster von 8 Sekunden bleibt wie es war; «Zuletzt gelöscht» kommt dahinter dazu.
 
 ## Selbst entschieden
 - Eine Zeile wird nur aufgenommen, solange `deleteWithUndo` / `trashed` läuft (Fangfenster des Dexie-Hooks `deleting`), so landen keine inneren Löschungen (Aufräumen, Abgleich) im Papierkorb.
 - Löschen eines Velos verschiebt dessen Touren zu einem anderen Velo (`deleteBike`); «Zurück» stellt das Velo mit Fahrten und Pflege her, macht diese Verschiebung aber nicht rückgängig.
-- Mehr als 5000 Zeilen in einem Löschvorgang werden nicht aufbewahrt (Speicherschutz); die Rückgängig-Taste von 4 Sekunden gilt trotzdem.
+- Mehr als 5000 Zeilen in einem Löschvorgang werden nicht aufbewahrt (Speicherschutz); die Rückgängig-Taste von 8 Sekunden gilt trotzdem.
 - Fotos und Dokumente liegen bis zu 30 Tage doppelt (im Papierkorb), danach fragt die App.
 - Der Papierkorb der Notizen bleibt eigenständig und ist von der neuen Erfassung ausgenommen.
 - Der Geräteabgleich trägt den Papierkorb nicht (`syncLocal`): ein Löschen auf einem Gerät ist auf dem anderen nicht «Zurück»-bar.

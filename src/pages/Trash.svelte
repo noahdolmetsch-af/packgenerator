@@ -63,7 +63,7 @@
   async function drop(list, why) {
     const one = list.length === 1;
     const title = one ? t('Delete "{text}" for good?', { text: list[0].name.slice(0, 40) }) : tn(list.length, 'Delete {n} entry for good?', 'Delete {n} entries for good?');
-    if ((await askDelete({ title, text: why ?? t('It is then gone from this list. Only a backup file still has it. You can bring it back for 4 seconds afterwards.'), lines: one ? [] : list.map((r) => r.name) })) !== 'delete') return;
+    if ((await askDelete({ title, text: why ?? t('It is then gone from this list. Only a backup file still has it. You can bring it back for 8 seconds afterwards.'), lines: one ? [] : list.map((r) => r.name) })) !== 'delete') return;
     const gone = list.map((r) => r.e);
     await purge(db, gone.map((e) => e.id));
     offerDone(one ? t('"{name}" deleted for good.', { name: list[0].name }) : tn(list.length, '{n} entry deleted for good.', '{n} entries deleted for good.'), () => db.trash.bulkPut(gone));
@@ -101,7 +101,7 @@
     <section class="card ich-body tr-old" data-trash-old>
       <p><b>{tn(old.length, '{n} entry is older than 30 days.', '{n} entries are older than 30 days.')}</b> {t('Empty it for good now?')}</p>
       <div class="ich-acts">
-        <button type="button" class="btn" onclick={() => drop(old, t('It is then gone from this list. Only a backup file still has it. You can bring it back for 4 seconds afterwards.'))} data-trash-empty>{t('Empty now')}</button>
+        <button type="button" class="btn" onclick={() => drop(old, t('It is then gone from this list. Only a backup file still has it. You can bring it back for 8 seconds afterwards.'))} data-trash-empty>{t('Empty now')}</button>
         <button type="button" class="btn" onclick={keepOld} data-trash-keep>{t('Keep|trash')}</button>
       </div>
     </section>

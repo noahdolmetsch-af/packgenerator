@@ -194,10 +194,10 @@
   }
   /** Delete: asks first, then 4 s «Undo» (rule «Löschen» 14.10.2026, Ü4a 15.10.2026). */
   async function remove(d) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: d.name }), text: d.drive?.id ? t('A copy in Google Drive stays. You can bring it back for 4 seconds afterwards.') : t('It is gone from this device; older backup files still have it. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: d.name }), text: d.drive?.id ? t('A copy in Google Drive stays. You can bring it back for 8 seconds afterwards.') : t('It is gone from this device; older backup files still have it. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const row = (await trashed(d.name || t('Document'), () => deleteDoc(d.id))).value;
     clearTimeout(undo?.timer);
-    undo = { row, timer: setTimeout(() => (undo = null), 4000) };
+    undo = { row, timer: setTimeout(() => (undo = null), UNDO_MS) };
     location.hash = DOCS_HASH;
   }
   async function undoDelete() {

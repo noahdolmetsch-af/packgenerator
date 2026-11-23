@@ -48,7 +48,7 @@
   }
   async function remove() {
     if (!shot) return;
-    if ((await askDelete({ title: t('Delete the photo of this bag?'), text: t('Only this photo goes. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the photo of this bag?'), text: t('Only this photo goes. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({
       name: name || t('Photo'),
       text: t('Photo deleted.'),

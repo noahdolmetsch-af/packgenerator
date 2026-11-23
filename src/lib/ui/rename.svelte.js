@@ -1,5 +1,5 @@
 /**
- * v0.72.0 «Feinschliff» (Umbenennen 1a, 5a): after a rename, «Renamed to "…" · Undo» for 4 s (Ü4a), the
+ * v0.72.0 «Feinschliff» (Umbenennen 1a, 5a): after a rename, «Renamed to "…" · Undo» for 8 s (Ü4a), the
  * same on every page (as the building blocks did before). The toast mounts itself once on the page
  * body the first time it is needed, so no page has to carry it and it stays when a dialog closes.
  * undo: an async function that puts the old name back (or null: no Undo).
@@ -8,7 +8,7 @@
  *
  * B22 «Rückgängig gleitet» (Noah 27.10.2026 «1a 2a 3a 4a 5a»): the notes stack. Before, a second note
  * replaced the first one and its Undo was gone (two deletes in a row: only the second could come back).
- * Now an older note that has Undo stays above the new one until its own 4 s are over (at most 3); an
+ * Now an older note that has Undo stays above the new one until its own 8 s are over (at most 3); an
  * older note without Undo goes at once, it has nothing to lose. The newest note is `.rtoast`, the
  * older ones `.rtoast-old`.
  */
@@ -23,7 +23,7 @@ import { UNDO_MS } from './undo.js';
 export const MAX_TOASTS = 3;
 /** The notes on screen, oldest first: { id, text, undo (has Undo), ms }. */
 export const toasts = $state({ list: [] });
-const held = new Map(); // id → { fn, timer }: the undo functions stay outside the reactive state
+const held = new Map(); // id → { fn, timer, end, left }: the undo functions stay outside the reactive state
 let seq = 0;
 let host = null;
 
@@ -49,12 +49,29 @@ export function closeToast(id) {
   toasts.list = toasts.list.filter((x) => x.id !== id);
 }
 
+/** The time of a note stands still while a finger, the mouse or the focus is on it (the note stays as long as you read it). */
+export function pauseToast(id) {
+  const h = held.get(id);
+  if (!h || h.left != null) return;
+  clearTimeout(h.timer);
+  h.left = Math.max(0, h.end - Date.now());
+}
+/** The rest of the time runs again. */
+export function resumeToast(id) {
+  const h = held.get(id);
+  if (!h || h.left == null) return;
+  const ms = h.left;
+  h.left = null;
+  h.end = Date.now() + ms;
+  h.timer = setTimeout(() => closeToast(id), ms);
+}
+
 function push(text, undo, ms) {
   if (typeof document !== 'undefined') place();
   for (const x of toasts.list) if (!x.undo) closeToast(x.id);
   while (toasts.list.length >= MAX_TOASTS) closeToast(toasts.list[0].id);
   const id = ++seq;
-  held.set(id, { fn: undo, timer: setTimeout(() => closeToast(id), ms) });
+  held.set(id, { fn: undo, timer: setTimeout(() => closeToast(id), ms), end: Date.now() + ms, left: null });
   toasts.list = [...toasts.list, { id, text, undo: !!undo, ms }];
   return id;
 }

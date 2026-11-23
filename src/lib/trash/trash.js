@@ -10,7 +10,7 @@ import { db as appDb } from '../db.js';
 import { begin, end } from './capture.js';
 import { mainTable, countsOf, kindOfTable } from './kinds.js';
 
-/** More rows than this in one delete («delete all rides»): too big to keep, the 4 seconds of Undo have to do. */
+/** More rows than this in one delete («delete all rides»): too big to keep, the 8 seconds of Undo have to do. */
 export const MAX_ROWS = 5000;
 
 const newId = () => globalThis.crypto?.randomUUID?.() ?? `tr-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;

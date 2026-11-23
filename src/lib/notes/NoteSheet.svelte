@@ -1,5 +1,5 @@
 <script>
-  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 8 s «Undo»
   import LinkedTodos from '../merken/LinkedTodos.svelte'; // N3: the to-dos that belong to this note
   import { backClose } from '../ui/backclose.js'; // Regeln der App (14.10.2026): back closes this window first
   /**
