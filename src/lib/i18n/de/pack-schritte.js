@@ -2,7 +2,6 @@
 export default {
   'Clothes': 'Kleider',
   'Sleeping': 'Schlafen',
-  'Food and water': 'Essen und Trinken',
   'Tech and charging': 'Technik und Laden',
   'Bike and repair': 'Velo und Reparatur',
   'Check': 'Prüfen',
