@@ -546,8 +546,8 @@
                   {#if grouping === 'steps'}
                     <p class="step-nav" data-step-nav>
                       {#if !fixed && stepChoice}
-                        <button type="button" class="tp-link" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, -1) })} aria-label={t('Move step up: {name}', { name: zoneTitle(group) })} data-step-up={group.step}><ArrowUp size={16} aria-hidden="true" />{t('Earlier')}</button>
-                        <button type="button" class="tp-link" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, 1) })} aria-label={t('Move step down: {name}', { name: zoneTitle(group) })} data-step-down={group.step}><ArrowDown size={16} aria-hidden="true" />{t('Later')}</button>
+                        <button type="button" class="tp-link" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, -1, groups.map((x) => x.step)) })} aria-label={t('Move step up: {name}', { name: zoneTitle(group) })} data-step-up={group.step}><ArrowUp size={16} aria-hidden="true" />{t('Earlier')}</button>
+                        <button type="button" class="tp-link" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, 1, groups.map((x) => x.step)) })} aria-label={t('Move step down: {name}', { name: zoneTitle(group) })} data-step-down={group.step}><ArrowDown size={16} aria-hidden="true" />{t('Later')}</button>
                       {/if}
                       {#if next}<button type="button" class="tp-link next-step" onclick={() => goNext(group.key, next.key)} data-step-next>{t('Next: {step}', { step: zoneTitle(next) })} ›</button>{/if}
                     </p>

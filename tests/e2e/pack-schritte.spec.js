@@ -31,7 +31,7 @@ test('Packing list: Steps view with «Next», arrows and a remembered view', asy
   await next.click();
   await expect(heads.nth(1)).toHaveAttribute('aria-expanded', 'true');
   // the arrow puts the second step first
-  await page.locator('[data-step-up]').first().click();
+  await page.locator('.bag-group').nth(1).locator('[data-step-up]').click();
   await expect(heads.first().locator('strong')).toHaveText(names[1]);
   // the view and the order are kept after a reload
   await page.reload();
@@ -39,6 +39,8 @@ test('Packing list: Steps view with «Next», arrows and a remembered view', asy
   await expect(page.locator('.bag-group .bag-heading').first().locator('strong')).toHaveText(names[1]);
   // «By bags» is the whole list as before
   await page.locator('[data-pack-view]').selectOption('bags');
+  // the choice is saved in the settings; wait for it before the reload
+  await expect.poll(() => page.evaluate(() => new Promise((ok) => { const r = indexedDB.open('pack-generator'); r.onsuccess = () => { const q = r.result.transaction('settings').objectStore('settings').get('pack.steps'); q.onsuccess = () => { r.result.close(); ok(q.result?.value?.view ?? null); }; }; }))).toBe('bags');
   await page.reload();
   await expect(page.locator('[data-pack-view]')).toHaveValue('bags');
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
