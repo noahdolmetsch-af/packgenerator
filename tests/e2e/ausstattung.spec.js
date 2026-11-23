@@ -4,7 +4,6 @@
 import { test, expect } from './clock.js';
 import { v048File, P, SPARK, GOAT } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
-import { TABS } from './placetab.js';
 
 const SHOTS = process.env.AUSSTATTUNG_SHOTS;
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);

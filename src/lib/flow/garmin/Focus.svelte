@@ -3,14 +3,24 @@
    * Garmin-Übersicht «Im Fokus» (screenshot 1): per sport one card to swipe: the sport and the 7 days,
    * the distance and the total time, one bar per day (today on the right), the 28 days as dots
    * («Letzte 4 Wochen»). A tap opens the sport's value in Analyse (km:<sport>, one month; the old page stays one link away there).
+   * «Alle Sportarten» (Noah 22.11.2026, Schritt D): after the Strava sports come the sports you ticked in Aktiv (tennis, gym,
+   * yoga …), the one with most time first, with their time (or «etwa» when it is the usual duration); a tap opens its
+   * «Rückblick pro Sportart».
    */
   import { focus } from '../../uebersicht.js';
   import { SPORT_ICON, sportName, hms, km2, wdLetter, rangeText } from './words.js';
+  import ActIcon from '../ActIcon.svelte';
+  import { hoursMin } from '../../charts/exact.js';
   import { numHref } from '../../analyse/zahlweg.js';
-  import { t } from '../../i18n.svelte.js';
+  import { t, tn } from '../../i18n.svelte.js';
 
-  let { table, today, kinds = [] } = $props();
-  const cards = $derived(kinds.map((k) => focus(table, today, k)));
+  // ticks: [{ act: { id, icon, ring }, name, card: tickFocus() }]
+  let { table, today, kinds = [], ticks = [] } = $props();
+  const kindCards = $derived(kinds.map((k) => focus(table, today, k)));
+  const cards = $derived([...kindCards.map((c) => ({ ...c, key: c.kind })), ...ticks.map((x) => ({ ...x.card, key: `tick:${x.card.actId}`, tick: x }))]);
+  const nameOf = (c) => (c.tick ? c.tick.name : sportName(c.kind));
+  const timeText = (c) => (c.est ? t('about {time}', { time: hoursMin(c.secs / 60) }) : hoursMin(c.secs / 60));
+  const tickVal = (b) => b.secs || b.n * 1800;
   let at = $state(0);
   let strip = $state();
   function onscroll() {
@@ -25,30 +35,50 @@
 
 <div class="fo" data-focus>
   <div class="strip noswipe" bind:this={strip} {onscroll}>
-    {#each cards as c (c.kind)}
-      {@const I = SPORT_ICON[c.kind]}
-      {@const top = Math.max(0.001, ...c.bars.map(val))}
-      <a class="card fc" href={numHref({ key: `km:${c.kind}`, range: 'm' })} data-focus-card={c.kind}>
-        <span class="hd"><I size={20} aria-hidden="true" /><span>{sportName(c.kind)} · {rangeText(c.from, c.to)}</span></span>
-        <span class="tot">
-          {#if c.km}<b class="num">{km2(c.km)} <small>km</small></b>{/if}
-          <span class="tm"><b class="num">{hms(c.time)}</b><small>{t('Total time')}</small></span>
-        </span>
-        <span class="bars" role="img" aria-label={t('{name}: one bar per day, today on the right', { name: sportName(c.kind) })}>
-          {#each c.bars as b (b.day)}
-            <span class="b"><i style="height:{val(b) ? Math.max(10, Math.round((val(b) / top) * 100)) : 0}%"></i><small>{wdLetter(b.day)}</small></span>
-          {/each}
-        </span>
-        <span class="dots" aria-hidden="true">
-          {#each c.dots as d (d.day)}<i class="s{d.size}" class:now={d.day === today}></i>{/each}
-        </span>
-        <small class="l4">{t('Last 4 weeks')}</small>
-      </a>
+    {#each cards as c (c.key)}
+      {#if c.tick}
+        {@const top = Math.max(0.001, ...c.bars.map(tickVal))}
+        <a class="card fc" href="#/auswerten/sportjahr/{encodeURIComponent(c.actId)}" data-focus-card={c.key}>
+          <span class="hd"><ActIcon icon={c.tick.act.icon} ring={c.tick.act.ring} box={false} size={20} /><span>{c.tick.name} · {rangeText(c.from, c.to)}</span></span>
+          <span class="tot">
+            <span class="tm"><b class="num">{tn(c.n, '{n} session', '{n} sessions')}</b><small>{t('Last 7 days')}</small></span>
+            {#if c.secs}<span class="tm"><b class="num">{timeText(c)}</b><small>{t('Total time')}</small></span>{/if}
+          </span>
+          <span class="bars" role="img" aria-label={t('{name}: one bar per day, today on the right', { name: c.tick.name })}>
+            {#each c.bars as b (b.day)}
+              <span class="b"><i style="height:{tickVal(b) ? Math.max(10, Math.round((tickVal(b) / top) * 100)) : 0}%"></i><small>{wdLetter(b.day)}</small></span>
+            {/each}
+          </span>
+          <span class="dots" aria-hidden="true">
+            {#each c.dots as d (d.day)}<i class="s{d.size}" class:now={d.day === today}></i>{/each}
+          </span>
+          <small class="l4">{t('Last 4 weeks')}</small>
+        </a>
+      {:else}
+        {@const I = SPORT_ICON[c.kind]}
+        {@const top = Math.max(0.001, ...c.bars.map(val))}
+        <a class="card fc" href={numHref({ key: `km:${c.kind}`, range: 'm' })} data-focus-card={c.kind}>
+          <span class="hd"><I size={20} aria-hidden="true" /><span>{sportName(c.kind)} · {rangeText(c.from, c.to)}</span></span>
+          <span class="tot">
+            {#if c.km}<b class="num">{km2(c.km)} <small>km</small></b>{/if}
+            <span class="tm"><b class="num">{hms(c.time)}</b><small>{t('Total time')}</small></span>
+          </span>
+          <span class="bars" role="img" aria-label={t('{name}: one bar per day, today on the right', { name: sportName(c.kind) })}>
+            {#each c.bars as b (b.day)}
+              <span class="b"><i style="height:{val(b) ? Math.max(10, Math.round((val(b) / top) * 100)) : 0}%"></i><small>{wdLetter(b.day)}</small></span>
+            {/each}
+          </span>
+          <span class="dots" aria-hidden="true">
+            {#each c.dots as d (d.day)}<i class="s{d.size}" class:now={d.day === today}></i>{/each}
+          </span>
+          <small class="l4">{t('Last 4 weeks')}</small>
+        </a>
+      {/if}
     {/each}
   </div>
   {#if cards.length > 1}
     <div class="pg">
-      {#each cards as c, i (c.kind)}<button type="button" class:on={at === i} aria-label={sportName(c.kind)} aria-current={at === i ? 'true' : undefined} onclick={() => go(i)}></button>{/each}
+      {#each cards as c, i (c.key)}<button type="button" class:on={at === i} aria-label={nameOf(c)} aria-current={at === i ? 'true' : undefined} onclick={() => go(i)}></button>{/each}
     </div>
   {/if}
 </div>

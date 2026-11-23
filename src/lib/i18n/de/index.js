@@ -725,6 +725,7 @@ import quicklinks from './quicklinks.js';
 import veloideen from './veloideen.js';
 import einheitenWoche from './einheiten-woche.js';
 import velosAufraeumen from './velos-aufraeumen.js';
+import ichVierGruppen from './ich-vier-gruppen.js';
 import AUTO from './auto.gen.js';
 
 const ORDERED = [
@@ -1120,6 +1121,7 @@ const ORDERED = [
   veloideen,
   einheitenWoche,
   velosAufraeumen,
+  ichVierGruppen,
   applehealth,
 ];
 

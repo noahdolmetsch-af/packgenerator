@@ -9,7 +9,8 @@ const dry = () => Array(16).fill(0);
 describe('parseRain15', () => {
   it('reads Open-Meteo and leaves out a quarter without a value', () => {
     const j = { minutely_15: { time: [t0 / 1000, t0 / 1000 + 900, t0 / 1000 + 1800], precipitation: [0, null, 0.4] } };
-    expect(parseRain15(j)).toEqual([{ ms: t0, mm: 0 }, { ms: t0 + 1800000, mm: 0.4 }]);
+    // the stamp is the end of the quarter: the quarter starts 15 minutes earlier
+    expect(parseRain15(j)).toEqual([{ ms: t0 - QUARTER, mm: 0 }, { ms: t0 + 1800000 - QUARTER, mm: 0.4 }]);
     expect(parseRain15(null)).toEqual([]);
   });
   it('asks for 15-minute rain of the place', () => {
