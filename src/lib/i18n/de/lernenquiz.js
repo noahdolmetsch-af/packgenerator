@@ -21,7 +21,7 @@ export default {
   'Always ask «{name}»': '«{name}» immer fragen',
   'Ask «{name}»': '«{name}» fragen',
   'Delete «{name}»': '«{name}» löschen',
-  'The question leaves the quiz. You can bring it back for 4 seconds afterwards.': 'Die Frage kommt aus dem Quiz. Du kannst sie danach 4 Sekunden lang zurückholen.',
+  'The question leaves the quiz. You can bring it back for 8 seconds afterwards.': 'Die Frage kommt aus dem Quiz. Du kannst sie danach 8 Sekunden lang zurückholen.',
   'No questions of your own yet. Something you always forget? Ask yourself.': 'Noch keine eigenen Fragen. Etwas, das du immer vergisst? Frag dich selbst.',
   'Add a question': 'Frage hinzufügen',
   'Change your question': 'Frage ändern',

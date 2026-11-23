@@ -7,7 +7,7 @@ export default {
   // 1129 Verschleiss-Fotos
   'Photo saved: {part}, {date}.': 'Foto gespeichert: {part}, {date}.',
   'Delete the photo of {date}?': 'Foto vom {date} löschen?',
-  'Only this photo goes. You can bring it back for 4 seconds afterwards.': 'Nur dieses Foto geht weg. Du kannst es danach 4 Sekunden lang zurückholen.',
+  'Only this photo goes. You can bring it back for 8 seconds afterwards.': 'Nur dieses Foto geht weg. Du kannst es danach 8 Sekunden lang zurückholen.',
   'Photo deleted.': 'Foto gelöscht.',
   'Wear photos': 'Verschleiss-Fotos',
   'Chain, chainring and tyre: the old photo next to the new one': 'Kette, Kettenblatt und Reifen: das alte Foto neben dem neuen',

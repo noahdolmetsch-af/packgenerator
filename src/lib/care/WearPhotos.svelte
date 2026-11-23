@@ -50,7 +50,7 @@
     }
   }
   async function remove(p) {
-    if ((await askDelete({ title: t('Delete the photo of {date}?', { date: dateOf(p.date) }), text: t('Only this photo goes. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the photo of {date}?', { date: dateOf(p.date) }), text: t('Only this photo goes. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({
       name: dateOf(p.date),
       text: t('Photo deleted.'),

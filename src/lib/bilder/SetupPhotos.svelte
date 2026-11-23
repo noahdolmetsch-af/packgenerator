@@ -78,7 +78,7 @@
     offerRename(next, () => db.photos.update(p.id, { name: p.name }));
   }
   async function remove(p) {
-    if ((await askDelete({ title: t('Remove the photo "{name}"?', { name: p.name }), text: t('You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Remove the photo "{name}"?', { name: p.name }), text: t('You can bring it back for 8 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
     const bikeId = cur.id;
     await deleteWithUndo({
       run: async () => {
@@ -104,7 +104,7 @@
   const actionsOf = (p) => [
     ...(p.main ? [] : [{ name: t('Show behind the bike'), explain: t('Pale behind the bike in Bike care, Workshop and Pack'), icon: ImageIcon, run: () => setMain(p) }]),
     ...(p.stored ? [{ name: t('Change the day'), explain: t('The day of this setup'), icon: CalendarDays, run: () => (dayOf = p.id) }, { name: t('Rename'), explain: t('Name of the photo'), icon: Pencil, run: () => (renaming = p) }] : []),
-    { name: t('Remove'), explain: t('You can bring it back for 4 seconds afterwards.'), icon: Trash2, run: () => remove(p) },
+    { name: t('Remove'), explain: t('You can bring it back for 8 seconds afterwards.'), icon: Trash2, run: () => remove(p) },
   ];
 </script>
 
