@@ -557,6 +557,7 @@ import formgarmin from './formgarmin.js';
 import umweg from './umweg.js';
 // Paket Y «Wetter-Kern» (Noah 20.10.2026)
 import wetterkern from './wetterkern.js';
+import heutekarten from './heutekarten.js';
 import wetterfenster from './wetterfenster.js';
 import energie from './energie.js';
 // «Schneefallgrenze» (Noah 04.11.2026 «1b 2a 3a 4a 5a»)
@@ -1024,6 +1025,7 @@ const ORDERED = [
   umweg,
   haustuer,
   wetterkern,
+  heutekarten,
   schneegrenze,
   nebelgrenze,
   hoehe,
