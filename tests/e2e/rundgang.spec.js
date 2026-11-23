@@ -114,10 +114,11 @@ test('The small tour of Bikes, and the Einstieg on the pages below the places', 
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/bikes');
-  // «Computer-Breite» (Noah 26.10.2026 «3a», changed on purpose): Bikes starts as one line too; a tap opens it
-  await page.locator('[data-intro="velos"][data-open="false"]').click();
-  const intro = page.locator('[data-intro="velos"][data-open="true"]');
-  await expect(intro).toContainText(T('Every bike with its bags, km and care'));
+  // Velos aufräumen (23.11.2026, changed on purpose): like Active, the Einstieg of Bikes is in the card behind «?» (no second line on the page)
+  const help = await openHelp(page);
+  const intro = help.locator('[data-hint="velos"][data-intro-in="velos"]');
+  await expect(intro).toContainText(T('Here are your bikes, each with its bags, km and care.'));
+  await expect(page.locator('[data-intro="velos"]')).toHaveCount(0);
   await intro.locator('[data-offer]').getByRole('button', { name: T('Start ›|tour') }).click();
   await expect(page.locator('.tour')).toHaveAttribute('data-tour', 'velos');
   for (let i = 1; i < TOURS.velos.length; i++) {
