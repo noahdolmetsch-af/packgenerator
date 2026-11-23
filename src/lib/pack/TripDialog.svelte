@@ -562,6 +562,8 @@
   $effect(() => {
     if (addingBike && bikeInput) bikeInput.focus();
   });
+  // Noah 22.11.2026 «1b»: «Suggestion in a minute» makes the trip like «Create trip» and then shows «Your suggestion» (the page #/pack/vorschlag)
+  let wantSuggest = $state(false);
   async function saveBike() {
     const name = bikeName.trim();
     if (!name) return (error = t('Give the bike a name.'));
@@ -649,7 +651,7 @@
       clearTimeout(autoTimer);
       await db.trips.put(touched(nt));
       rememberDomain(area);
-      oncreated?.(nt.id);
+      oncreated?.(nt.id, { suggest: wantSuggest });
       // UI-Grundlagen (idea 3): one confirmation per action. Pack shows «Trip created · Change · Undo» itself.
       if (!oncreated) offerDone(t('"{name}" saved.', { name: nt.title }));
       offerTrip(nt); // ER2 (Noah 14.10.2026 «er1-er3 freigabe»): «Soll ich dich vor der Tour erinnern?»
@@ -663,7 +665,7 @@
       // v0.30.0 (Noah, finding 2): the building blocks chosen in the window, like Pack's block chips.
       await db.trips.put(touched($state.snapshot(withSport(withBlocks(nt)))));
       rememberDomain(BIKEPACKING);
-      oncreated?.(nt.id);
+      oncreated?.(nt.id, { suggest: wantSuggest });
       // UI-Grundlagen (idea 3): one confirmation per action. Pack shows «Trip created · Change · Undo» itself.
       if (!oncreated) offerDone(t('"{name}" saved.', { name: nt.title }));
       offerTrip(nt); // ER2: «Soll ich dich vor der Tour erinnern?»
@@ -731,7 +733,7 @@
       if (autoId && !ended) {
         ended = true;
         rememberDomain(area);
-        oncreated?.(autoId);
+        oncreated?.(autoId, { suggest: wantSuggest });
       }
     }
     onclose?.();
@@ -950,6 +952,7 @@
     <!-- v0.114.0 (Noah): «Rahmenbedingungen», no hint line under it. -->
     <header class="dh">
       <h2 id="trip-h">{isNew ? t('Conditions|newtrip') : t('Trip details')}</h2>
+      {#if isNew}<button type="submit" class="btn sm sugg" onclick={() => (wantSuggest = true)} data-suggest-start>{t('Suggestion in a minute')}</button>{/if}
     </header>
     {#if isNew && byBike}<IntentStep onapply={fromIntent} />{/if}
     {#if isNew && byBike && lastRidden && start !== 'last'}
@@ -1096,7 +1099,7 @@
       <!-- UI-Grundlagen (Noah 20.10.2026, idea 3): the main button says only what it does; the live count stands
            as a quiet line above the buttons, so the button never runs over «Discard» on a phone. -->
       {#if total}<span class="cnt" data-count-split>{`${t('{n} in the bags', { n: bagN })}${meN ? ` · ${t('{n} on me', { n: meN })}` : ''}`}</span>{/if}
-      <button type="submit" class="btn hi">{isNew ? t('Create trip') : t('Save')}</button>
+      <button type="submit" class="btn hi" onclick={() => (wantSuggest = false)}>{isNew ? t('Create trip') : t('Save')}</button>
     </div>
   </form>
 </dialog>
@@ -1220,6 +1223,11 @@
   }
   .dh {
     margin: 0 0 4px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
   }
   .area .areas {
     gap: 6px;
