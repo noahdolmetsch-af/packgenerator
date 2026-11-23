@@ -370,6 +370,7 @@
     Gear: () => import('./pages/Gear.svelte'),
     Bikes: () => import('./pages/Bikes.svelte'),
     Pack: () => import('./pages/Pack.svelte'),
+    PackVorschlag: () => import('./pages/PackVorschlag.svelte'), // «Dein Vorschlag» (Noah 22.11.2026 «1b»): Packen › Vorschlag
     Templates: () => import('./pages/Templates.svelte'),
     Debrief: () => import('./pages/Debrief.svelte'),
     Share: () => import('./pages/Share.svelte'),
@@ -567,7 +568,7 @@
     <!-- v0.36.0 (Noah 1a): the reviewed gear list waits here before it goes into Gear -->
     <LazyPage load={PAGES.GearImport} />
   {:else if page === 'pack'}
-    <LazyPage load={PAGES.Pack} />
+    {#if hash.startsWith('#/pack/vorschlag')}<LazyPage load={PAGES.PackVorschlag} />{:else}<LazyPage load={PAGES.Pack} />{/if}
   {:else if page === 'bikes' || page === 'care'}
     <!-- v0.21.0 (Noah 6a): Setup and Care are tabs of one page; #/care lands on Care. -->
     <LazyPage load={PAGES.Bikes} />
