@@ -49,6 +49,8 @@ export default {
   'Food and spare parts with their best-before date': 'Essen und Ersatzteile mit Ablaufdatum',
   'What you lent out, and to whom': 'Was du ausgeliehen hast, und wem',
   'Your bikes, their bags and their km': 'Deine Velos, ihre Taschen und ihre km',
+  'Your bikes, their setup and their parts': 'Deine Velos, ihr Setup und ihre Teile',
+  'Building blocks and the main equipment per sport': 'Bausteine und die Hauptausrüstung je Sportart',
   'What is due, wear and the bike diary': 'Was fällig ist, Verschleiss und das Velo-Tagebuch',
   'Orders and visits to the bike shop': 'Bestellungen und Besuche im Veloladen',
   'Parts and measures of every bike': 'Teile und Masse jedes Velos',

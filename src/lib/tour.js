@@ -17,7 +17,7 @@ export const RUN_KEY = 'tour.run';
 
 /**
  * A step: { href, target, place, title, text, prep? }. target: CSS selectors, the first one found is lit.
- * place: the key in the navigation that is marked ('today', 'trips', 'gear', 'bikes', 'active', 'me').
+ * place: the key in the navigation that is marked ('today', 'trips', 'bikes', 'active', 'me').
  * prep: 'playTrip' makes the example trip the open trip first (only in the playground).
  */
 export const TOURS = {
@@ -25,7 +25,7 @@ export const TOURS = {
     { href: '#/', place: 'today', target: ['[data-tile="trip"]', '.first', 'main h1'], title: 'Today|place', text: 'What is on now: your next trip, the weather and what is still open. New every day.' },
     { href: '#/trips', place: 'trips', target: ['section.band', '.trips header.ph'], title: 'Trips|place', text: 'All trips in one place: planned, completed, rated. Tap a trip to open it.' },
     { href: '#/pack', place: 'trips', prep: 'playTrip', target: ['.bag-groups', '.calm-pack', 'main h1'], title: 'Packing|tour', text: 'A tap means packed. What you do not need, you leave out: everything is only a suggestion.' },
-    { href: '#/gear', place: 'gear', target: ['section.vhead', '.gear header'], title: 'Gear|place', text: 'Enter what you own once. After that the app suggests it for every trip that fits.' },
+    { href: '#/gear', place: 'bikes', target: ['section.vhead', '.gear header'], title: 'Gear|place', text: 'Enter what you own once. After that the app suggests it for every trip that fits.' },
     { href: '#/bikes?tab=care', place: 'bikes', target: ['section[aria-labelledby="due-h"]', 'main h1'], title: 'Bikes|place', text: 'Km and care for every bike. The app tells you when the chain, brakes or tyres are due.' },
     { href: '#/flow', place: 'week', target: ['section[aria-labelledby="tick-h"]', '.flow header.ph'], title: 'Active|place', text: 'For everyday life: meditation, training, recovery. One tap ticks off, a long press enters the duration.' },
     { href: '#/', place: 'me', end: true, target: [], title: 'Done. Well done!', text: 'You always find help under Me › Handbook. You can start the tour again there.' },
@@ -43,10 +43,10 @@ export const TOURS = {
     { href: '#/debrief', place: 'trips', target: ['main h1'], title: 'Look back|page', text: 'After the trip: what was too much, what was missing. The next list gets better by itself.' },
   ],
   material: [
-    { href: '#/gear', place: 'gear', target: ['section.vhead', '.gear header'], title: 'Your gear', text: 'Number of items and the known weight. Items without weight are counted, so you can weigh them later.' },
-    { href: '#/gear', place: 'gear', target: ['.gear .tools', '.gear .toolbar', '.gear header'], title: 'Add and find', text: 'Search by name, brand or bag. «+ Item» enters something new.' },
-    { href: '#/wardrobe', place: 'gear', target: ['main h1'], title: 'Clothes|tab', text: 'Clothes by temperature. The app suggests layers for the weather of the trip.' },
-    { href: '#/blocks', place: 'gear', target: ['main h1'], title: 'Building blocks', text: 'A block is a ready package for a situation, like «Rain». One tap adds the whole package to a trip.' },
+    { href: '#/gear', place: 'bikes', target: ['section.vhead', '.gear header'], title: 'Your gear', text: 'Number of items and the known weight. Items without weight are counted, so you can weigh them later.' },
+    { href: '#/gear', place: 'bikes', target: ['.gear .tools', '.gear .toolbar', '.gear header'], title: 'Add and find', text: 'Search by name, brand or bag. «+ Item» enters something new.' },
+    { href: '#/wardrobe', place: 'bikes', target: ['main h1'], title: 'Clothes|tab', text: 'Clothes by temperature. The app suggests layers for the weather of the trip.' },
+    { href: '#/blocks', place: 'bikes', target: ['main h1'], title: 'Building blocks', text: 'A block is a ready package for a situation, like «Rain». One tap adds the whole package to a trip.' },
   ],
   // Paket U › Muster-Rennen (Noah «6a»): the sample race step by step
   race: [

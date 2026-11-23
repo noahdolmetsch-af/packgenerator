@@ -29,7 +29,7 @@ describe('backOf', () => {
   it('names the place of the address', () => {
     expect(backOf('#/')).toEqual({ href: '#/', place: 'Today|place' });
     expect(backOf('#/flow')).toEqual({ href: '#/flow', place: 'Plan|place' });
-    expect(backOf('#/bikes')).toEqual({ href: '#/bikes', place: 'Bikes|place' });
+    expect(backOf('#/bikes')).toEqual({ href: '#/bikes', place: 'Bikes and gear|place' });
   });
   it('is nothing for no address, for Auswerten itself and for pages without a place', () => {
     expect(backOf(null)).toBe(null);
