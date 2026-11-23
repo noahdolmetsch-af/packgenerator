@@ -30,7 +30,7 @@
   import Auswertung from '../lib/abfragen/Auswertung.svelte';
   import { abQuery, ensureConfig, saveConfig, saveDataCfg } from '../lib/abdb.js';
   import { MAX_PER_DAY, DATA_QUESTIONS, VALUES, ruleList, moveRule, ruleName, setRuleName, dropRule, restoreRule, goneRules, ruleOn, setRule, ruleVal, setVal, ruleText, setText, resetRule, ruleChanged, ruleGap, GAP_DAYS, randomOn, setRandom, neverCount, bringBack as bringNeverBack } from '../lib/datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
-  import { OWN_AREA, QUESTION, allQuestions, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
+  import { OWN_AREA, QUESTION, allQuestions, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, setMainOnly, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
   import { t } from '../lib/i18n.svelte.js';
@@ -429,6 +429,16 @@
               <label><span>{t('Evening round')}</span><input class="inp num" type="time" value={cfg.rounds.evening} onchange={(e) => setTime('evening', e.currentTarget.value)} data-round="evening" /></label>
             </div>
           {/if}
+        </div>
+      </section>
+      <!-- «Wechsel-Varianten»: a question asks in other words from day to day; this switch keeps the main words -->
+      <section class="ich-sec" aria-labelledby="ab-words-h" data-words>
+        <div class="ich-h"><div><h2 id="ab-words-h">{t('Words of the questions')}</h2><p class="ich-hs">{t('a suggestion, can be switched off')}</p></div></div>
+        <div class="card side">
+          <div class="rsw">
+            <span class="rm"><b>{t('Always the main question')}</b><small>{t('Many questions ask in other words from day to day. The meaning and your answers stay the same. Switch on to always see the main question.')}</small></span>
+            <label class="ab-sw"><span class="sr">{t('Always the main question')}</span><input type="checkbox" role="switch" checked={cfg.mainOnly} onchange={(e) => save(setMainOnly(cfg, e.currentTarget.checked))} data-main-only /></label>
+          </div>
         </div>
       </section>
       <HelloButtonsSection />

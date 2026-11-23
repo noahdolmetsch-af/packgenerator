@@ -127,6 +127,8 @@ import sn6plus from './sn6plus.js';
 
 // AB «Deine Abfragen»: the 50 questions in 10 areas, Ich › Deine Abfragen, the card on Heute, Ich › Daten › Verlauf
 import abfragen from './abfragen.js';
+// «Wechsel-Varianten»: the other wordings of the questions
+import varianten from './varianten.js';
 
 // «Geheimnis im Logo» (Idee 29) and «Geheimmenü» (H6 …): the surprises behind five taps on «PG»
 import logogeheimnis from './logo-geheimnis.js';
@@ -841,6 +843,7 @@ const ORDERED = [
   komoot,
   sn6plus,
   abfragen,
+  varianten,
   logogeheimnis,
   logosprueche,
   logoplatten,

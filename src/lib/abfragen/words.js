@@ -3,11 +3,17 @@
  * source and an answer as text). The texts of the list go through t(); an own question keeps its own words.
  */
 import { t, tn, locale, lang } from '../i18n.svelte.js';
-import { AREA, OWN_AREA, QUESTION, everyOf, timesOf, dayOf, areaLabel } from '../abfragen.js';
+import { AREA, OWN_AREA, QUESTION, everyOf, timesOf, dayOf, areaLabel, configOf } from '../abfragen.js';
 import { stravaName } from '../stravanames.js';
+import { askVariant } from './varianten.js';
 
 /** The text of a question (an own one and a changed one as written). */
 export const qText = (q) => (q?.own || q?.edited ? q.text : q ? t(q.text) : '');
+/**
+ * The words a question asks in today («Wechsel-Varianten»): one of its wordings, a different one each day, or the main text with
+ * `cfg.mainOnly`. Lists, history and settings keep `qText`, so a question always has one name there.
+ */
+export const askText = (q, day, cfg = null) => (q?.own || q?.edited ? q.text : q ? t(askVariant(q, day, configOf(cfg).mainOnly)) : '');
 /** A history row's question text: the question, the old pool question of the daily check, or its key. */
 export function rowText(row, own = []) {
   if (row.kind === 'ride') return stravaName(row.ride?.name) || t('Ride from Strava');
