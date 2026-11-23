@@ -20,6 +20,7 @@ import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (No
 import { openData, settle, replaceAll } from './settle.js';
 import { openMore } from './bike-more.js';
 import { openViews } from './gearmenu.js';
+import { RealDate } from './realtime.js'; // the real day, not the test day of an earlier spec's fixed clock (see realtime.js)
 
 const LANG = process.env.PF_LANG === 'en' ? 'en' : 'de';
 const tr = (lang) => (en, vars) => {
@@ -40,7 +41,7 @@ const id = (key) => P + key;
 const BIKE = { scale: `${P}scale`, spark: `${P}spark`, gravel: `${P}gravel` };
 
 /** YYYY-MM-DD in Zurich, n days from today. */
-const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
+const day = (n = 0) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${new RealDate().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' })}T12:00:00Z`));
 
 /** Items that only belong to night sets: on a day ride each of them is one to take out by hand. */
 const NIGHT_SETS = ['base', 'sleep', 'warm', 'cook', 'lodging'];
