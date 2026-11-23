@@ -493,9 +493,10 @@ const BIKE_PAGES = {
 };
 
 /** A tab that holds several pages: its address is the first page's, it matches every page's address, and `subs` are the pages as chips. */
-function tabWithSubs({ key, label, subs }, pages) {
+function tabWithSubs({ key, label, subs, chips = true }, pages) {
   const list = subs.map((k) => ({ key: k, ...pages[k] }));
-  return { key, label, href: list[0].href, match: (h) => list.some((x) => x.match(h)), subs: list };
+  // chips: false (Velos aufräumen, Noah 23.11.2026): the pages still belong to the tab (path line, addresses), but no row of chips shows them
+  return { key, label, href: list[0].href, match: (h) => list.some((x) => x.match(h)), subs: list, chips };
 }
 
 /** The chip of a tab that holds several pages (its `subs`) an address belongs to: { key, … } or null. */
@@ -536,7 +537,8 @@ export const PLACE_TABS = {
   // «Neue Ordnung» V5 (Noah 21.11.2026): Velos und Material has four tabs, Velos, Pflege, Material and Sets. Every page of the old three places is
   // still there at its address: it is a chip under its tab (`subs`). The first four lines of BIKE_PAGES are the old tabs of Velos.
   bikes: [
-    { key: 'bikes', label: 'Bikes|place', subs: ['overview', 'fit', 'rig'] },
+    // Velos aufräumen (Noah 23.11.2026): no chips under «Velos» (Übersicht, Teile, Mein Setup were a second row of navigation); Teile and Mein Setup are rows of the page
+    { key: 'bikes', label: 'Bikes|place', subs: ['overview', 'fit', 'rig'], chips: false },
     { key: 'care', label: 'Care|tab', subs: ['care', 'shop'] },
     { key: 'gear', label: 'Gear|place', subs: ['all', 'clothes', 'wish', 'supplies', 'lend'] },
     { key: 'sets', label: 'Sets|tab', subs: ['blocks', 'sets'] },

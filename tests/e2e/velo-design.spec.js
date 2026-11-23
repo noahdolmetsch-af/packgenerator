@@ -44,7 +44,7 @@ test('V1: the bike page: bike chips, care and equipment, import, More as rows', 
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?bike=${SPARK}`);
   await onePage(page, T('Bikes'));
-  await expect(page.locator('section.setup-band').getByRole('tab', { name: NAME })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator(`[data-velo-card="${SPARK}"]`)).toHaveAttribute('aria-current', 'true');
   await expect(page.getByRole('heading', { name: T('Care and equipment') })).toBeVisible();
   await expect(page.locator('a.vk-go')).toHaveText(T('Import rides'));
   const more = page.locator('#vk-more');
