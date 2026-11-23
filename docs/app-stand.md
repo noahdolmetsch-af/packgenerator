@@ -104,7 +104,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 
 | Funktion | Link | Was man damit tun kann |
 |---|---|---|
-| Rennen planen | `#/race` | Ein Rennen mit Tagesetappen, Schlafstrategie, Stopps und eigenen Annahmen durchspielen; Rennmodus und Bericht nutzen. |
+| Rennen planen | `#/race` | Ein Rennen mit Tagesetappen, Schlafstrategie, Stopps und eigenen Annahmen durchspielen; Rennmodus und Bericht nutzen. Nach dem Rennen gibt es den Mini-Bericht als Bild (Linie und vier Zahlen, nur auf Tipp, dieselbe Tourbild-Karte wie im Rückblick einer Tour, `src/lib/tourlernen/PostcardSheet.svelte`, Knopf in `src/lib/race/After.svelte`). |
 | Detaillierter Rennen-Check | `#/racecheck` | Packliste, Zielsetup pro Tasche, Basisliste und Schlafvarianten vorbereiten und eine Nacht gedanklich durchspielen. Der Check ist auch die Grundlage der Schrittart «Rennplanung» für «Weg zum Ziel» (`src/lib/weg/types/rennplanung.js`): vier Schritte (Schlaf entscheiden, Basisliste prüfen, Zielsetup packen, Tag vorher durchgehen), die auf den Check zeigen und sich abhaken, sobald das Blatt ausgefüllt ist; sichtbar mit der Seite «Weg zum Ziel». |
 | Muster-Rennen | `#/race?sample` | Ein erfundenes 1000-km-Rennen als Lern- und Testbeispiel öffnen. |
 | Schlafstrategie | `#/race` | Schlafplätze voraus suchen, eigene Listen importieren und geplante Nächte mit Wetter vergleichen. |
