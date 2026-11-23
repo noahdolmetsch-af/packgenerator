@@ -6,6 +6,7 @@ import { test, expect } from './clock.js';
 import { writeFileSync } from 'node:fs';
 import { v048Data, P, GRAVEL, day } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
+import { TABS } from './placetab.js';
 
 const SHOTS = process.env.TS_SHOTS;
 const shot = async (page, info, name) => SHOTS && (await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name}.png`, fullPage: true }));
