@@ -7,6 +7,7 @@
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
   import { localDay } from '../lib/localday.js';
+  import { livedWeather, livedText, prefill, ensureTripWeather } from '../lib/wetter/erlebt.js'; // Wetter-Ausbau E: the weather that came
   import Skeleton from '../lib/ui/Skeleton.svelte';
   /**
    * Debrief (stage 1, 4.10.2026): after a trip, in about two minutes.
@@ -174,6 +175,22 @@
     saved = stored?.status === 'done';
     offer = null;
     ticks = {};
+  });
+  // Wetter-Ausbau E (Noah 22.11.2026 «a»): what really came is kept with the trip once (online, the trip over) and fills in the
+  // answer «Weather» until you tap one yourself; the suggestion stays in memory until the debrief is saved on its next change
+  const livedTried = new Set();
+  $effect(() => {
+    if (!trip || trip.wxReal?.days?.length || livedTried.has(trip.id)) return;
+    livedTried.add(trip.id);
+    ensureTripWeather(db, trip, localDay()).catch(() => {});
+  });
+  const lived = $derived(trip ? livedWeather(trip) : null);
+  $effect(() => {
+    const v = d && trip ? prefill(d, trip) : null;
+    if (v) {
+      d.weather = v;
+      d.weatherAuto = true;
+    }
   });
   async function persist() {
     d.updatedAt = new Date().toISOString();
@@ -659,7 +676,8 @@
                 <div class="in">
                   <!-- v0.40.0 (Noah 4a): segmented toggles instead of drop-downs: one tap, the answer in sight. -->
                   <div class="qa">
-                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={choices('weather', t)} onchange={(v) => set('weather', v)} /></div>
+                    <div class="segq"><span class="lbl" id="q-wx">{t('Weather')}</span><Seg labelledby="q-wx" value={d.weather} options={choices('weather', t)} onchange={(v) => { d.weatherTouched = true; set('weather', v); }} />
+                      {#if lived}<p class="tp-muted tp-small" data-debrief-lived>{t('Came: {text}', { text: livedText(lived, { t, num }) })}{#if d.weatherAuto && !d.weatherTouched}{' · ' + t('Suggested from what came. Tap an answer to change it.')}{/if}</p>{/if}</div>
                     <div class="segq"><span class="lbl" id="q-amount">{t('Amount of food and drink')}</span><Seg labelledby="q-amount" value={d.amount} options={choices('amount', t)} onchange={(v) => set('amount', v)} /></div>
                     <div class="segq"><span class="lbl" id="q-bags">{Array.isArray(trip.packs) ? t('Bags') : t('Bags and bike')}</span><Seg labelledby="q-bags" value={d.bags} options={choices('bags', t)} onchange={(v) => set('bags', v)} /></div>
                     {#if bike}

@@ -39,4 +39,5 @@ export default {
   'f.findlist': 'A list of finds is a small diary of curiosity: a look at it before a free day shows where you have not been for a long time.',
   'f.osmsets': 'A tower, a bridge or a waterfall in the next valley is a good reason for a detour. Check the weather and whether the way is open before you go; after heavy rain a waterfall is at its best.',
   'f.newkm': 'New kilometres are rarely far away: the next valley is often more unknown than a country on the other side of Europe.',
+  'f.wxlived': 'How it felt counts more than the number. A windy 8 degrees is colder than a calm 4, so tap «Colder» when it felt that way.',
 };
