@@ -25,7 +25,9 @@ const round1 = (x) => Math.round(x * 10) / 10;
  * data: { acts (db.activities), log (flowLog), flowActs, rides (db.rides), book (db.kmBook), usual (sport.usualMin map),
  *         map (strava.ticks map), ignore (Strava bikes set to «Ignorieren»), health (healthDays), handled (fitbit.ticked) };
  *         everything but acts, log and flowActs is optional.
- * → { secs, measuredSecs, caSecs, nCa, noTime, n, km, hm, waiting, other: { km, n }, watch: { n, min } }
+ * → { secs, measuredSecs, caSecs, nCa, noTime, n, km, hm, waiting, other: { km, n }, watch: { n, min }, days }
+ *   items: what the numbers are made of, for «Woher?»: { sessions: [{ day, id, name, min, minQuelle, quelle, km? }], rides: [{ day, km, hm, source }] } (rides that wait in «Zum Prüfen» have source 'wait')
+ *   days: the days of the week (YYYY-MM-DD, oldest first) with a session or a ride (the dots of «an 4 von 7 Tagen in Bewegung»)
  */
 export function weekCalc(data, monday, upto = shiftDay(monday, 6)) {
   const { acts = [], log = [], flowActs = [], rides = [], book = [], usual = {}, map = {}, ignore = [], health = [], handled = [] } = data ?? {};
@@ -69,5 +71,12 @@ export function weekCalc(data, monday, upto = shiftDay(monday, 6)) {
   const todo = suggestions({ health, acts: flowActs, log, activities: acts, handled, today: end }).filter((s) => within(s.day));
   const watch = { n: todo.length, min: todo.reduce((s, x) => s + (Number(x.min) || 0), 0) };
 
-  return { secs: (measured + ca) * 60, measuredSecs: measured * 60, caSecs: ca * 60, nCa, noTime, n: units.length, km, hm, waiting: waiting.length, other, watch };
+  const nameOf = new Map(flowActs.map((a) => [a.id, a.name]));
+  const items = {
+    sessions: units.map((u) => ({ day: u.day, id: u.id, name: u.name || nameOf.get(u.actId) || String(u.sport ?? ''), min: u.min ?? null, minQuelle: u.minQuelle ?? null, quelle: u.quelle, ...(u.km ? { km: u.km } : {}) })),
+    rides: [...list.map((r) => ({ day: r.date, km: Number(r.km) || 0, hm: Number.isFinite(r.gainM) ? r.gainM : 0, source: r.source ?? 'file' })), ...waiting.map((e) => ({ day: e.date, km: Number(e.km) || 0, hm: Number.isFinite(e.hm) ? e.hm : 0, source: 'wait' }))].sort((a, b) => a.day.localeCompare(b.day)),
+  };
+  const days = [...new Set([...units.map((u) => u.day), ...list.map((r) => r.date), ...waiting.map((e) => e.date)])].sort();
+
+  return { secs: (measured + ca) * 60, measuredSecs: measured * 60, caSecs: ca * 60, nCa, noTime, n: units.length, km, hm, waiting: waiting.length, other, watch, days, items };
 }

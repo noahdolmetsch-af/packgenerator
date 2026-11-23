@@ -25,6 +25,9 @@
   import { localDay } from '../../lib/localday.js';
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import WeekMore from '../../lib/flow/WeekMore.svelte';
+  import WeekRhythm from '../../lib/flow/WeekRhythm.svelte';
+  import WeekAnswers from '../../lib/flow/WeekAnswers.svelte';
+  import WeekWhere from '../../lib/flow/WeekWhere.svelte';
   import WeekOlder from '../../lib/flow/WeekOlder.svelte';
   import WeekNote from '../../lib/flow/WeekNote.svelte';
   import GoalCheck from '../../lib/compass/GoalCheck.svelte'; // Paket N #1047: «Wie läuft's?» for your goals, this week only
@@ -50,6 +53,7 @@
   });
   const data = $derived($q);
 
+  let whereOpen = $state(false);
   const monday = $derived(weekParam(params.get('w'), today));
   const sunday = $derived(shiftDay(monday, 6));
   const fmt = (d, o) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
@@ -143,11 +147,13 @@
           </li>
         {/each}
       </ul>
-      <p class="cap">{t('Change against the same days of the week before. Hours: measured time plus «ca.» where nothing was measured (the usual duration of the sport). km and Hm: your rides, each counted once.')}{#if sums.nCa}{' '}{tn(sums.nCa, 'For {n} session the time is «ca.» (about {h} h).', 'For {n} sessions the time is «ca.» (about {h} h).', { h: hmm(sums.caSecs) })}{/if}{#if sums.other.n}{' '}{tn(sums.other.n, 'Running, hiking and the like: {km} km in {n} session.', 'Running, hiking and the like: {km} km in {n} sessions.', { km: num(sums.other.km) })}{/if}{#if sums.waiting}{' '}{tn(sums.waiting, '{n} ride waits in «Zum Prüfen» and is counted.', '{n} rides wait in «Zum Prüfen» and are counted.')}{/if}</p>
+      <p class="cap">{t('Change against the same days of the week before.')}{#if sums.nCa}{' '}{tn(sums.nCa, 'For {n} session the time is «ca.» (about {h} h).', 'For {n} sessions the time is «ca.» (about {h} h).', { h: hmm(sums.caSecs) })}{/if}{#if sums.other.n}{' '}{tn(sums.other.n, 'Running, hiking and the like: {km} km in {n} session.', 'Running, hiking and the like: {km} km in {n} sessions.', { km: num(sums.other.km) })}{/if}{#if sums.waiting}{' '}{tn(sums.waiting, '{n} ride waits in «Zum Prüfen» and is counted.', '{n} rides wait in «Zum Prüfen» and are counted.')}{/if}{' '}<button type="button" class="where" onclick={() => (whereOpen = true)} data-wr-where-open>{t('Where from?')}</button></p>
       {#if sums.watch.n}
         <p class="cap" data-wr-watch>{tn(sums.watch.n, 'The watch knows {n} workout ({h} h) that is not counted yet.', 'The watch knows {n} workouts ({h} h) that are not counted yet.', { h: hmm(sums.watch.min * 60) })} <a href="#/flow/sports">{t('Count them?')}</a></p>
       {/if}
     </section>
+
+    <WeekRhythm {data} calc={sums} {monday} {today} />
 
     <!-- «Form und Erholung» (Noah 20.10.2026): fitness and form at the end of the week -->
     <WeekForm end={running ? today : sunday} />
@@ -177,6 +183,8 @@
         {#if hasMood}<span><Smile size={14} aria-hidden="true" />{hasSleep ? t('second line: mood 1–10') : t('line: mood 1–10')}</span>{/if}
       </p>
     </section>
+
+    <WeekAnswers {monday} upto={weekEnd(monday, today)} />
 
     <WeekOlder {data} {monday} {today} />
 
@@ -223,6 +231,7 @@
       {/if}
     </div>
   {/if}
+  {#if whereOpen}<WeekWhere calc={sums} onclose={() => (whereOpen = false)} />{/if}
 </div>
 
 <style>
@@ -294,6 +303,17 @@
     margin: 0;
     color: var(--ink-3);
     font-size: var(--fs-small);
+  }
+  .where {
+    display: inline;
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
   .cap :global(svg) {
     flex: none;

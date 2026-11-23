@@ -2,7 +2,6 @@
 // Beobachtung, neue Kacheln (Körper, Zonen, Velos, Wetter, Termine), Notiz und Wochenziel, zwei neue Beobachtungsarten.
 export default {
   // the five numbers and the strip
-  'Change against the same days of the week before. Hours: measured time plus «ca.» where nothing was measured (the usual duration of the sport). km and Hm: your rides, each counted once.': 'Veränderung zu den gleichen Tagen der Woche davor. Stunden: gemessene Zeit plus «ca.», wo nichts gemessen wurde (übliche Dauer der Sportart). km und Hm: deine Fahrten, jede einmal gezählt.',
   'For {n} session the time is «ca.» (about {h} h).': 'Bei {n} Einheit ist die Zeit «ca.» (etwa {h} Std.).',
   'For {n} sessions the time is «ca.» (about {h} h).': 'Bei {n} Einheiten ist die Zeit «ca.» (etwa {h} Std.).',
   'Running, hiking and the like: {km} km in {n} session.': 'Laufen, Wandern und Ähnliches: {km} km in {n} Einheit.',
