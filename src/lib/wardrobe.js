@@ -252,6 +252,33 @@ export function coldest(trip) {
 }
 
 /**
+ * The other moments of the first riding day the onion can be looked at (Noah 21.11.2026 «1-5a 4b»):
+ * [{ key: 'morning' | 'midday', c }], only the ones that differ from the coldest moment.
+ * Morning: the first riding hour; midday: the warmest of 11–15 h. Without hourly data the
+ * packing weather: min is the morning, max the midday.
+ */
+export function dayMoments(trip) {
+  const cold = coldest(trip);
+  if (!cold) return [];
+  const hours = forecastHours(trip).filter((x) => x.temp != null);
+  let morning = null;
+  let midday = null;
+  if (hours.length) {
+    const day = hours.filter((x) => x.date === hours[0].date);
+    morning = Math.round(day[0].temp);
+    const noon = day.filter((x) => x.hour >= 11 && x.hour <= 15);
+    if (noon.length) midday = Math.round(Math.max(...noon.map((x) => x.temp)));
+  } else {
+    morning = num(trip?.wx?.min);
+    midday = num(trip?.wx?.max);
+  }
+  return [
+    { key: 'morning', c: morning },
+    { key: 'midday', c: midday },
+  ].filter((m) => m.c != null && m.c !== cold.c);
+}
+
+/**
  * The rain chance of the trip in %: the max over its riding hours (hourly forecast), else the stored
  * forecast.rainPct, else the max of the daily chances on the trip's days, else wx.rainPct; null: unknown.
  */
@@ -438,15 +465,16 @@ export const rainProof = (item) => !!rainOf(item) || /regen|rain|wasserdicht|wat
 export const matchesRow = (row, item) => (row.layer ? layerKey(item.layer) === row.layer && (!item.zone || zoneGroup(item.zone) === 'upper') : zoneGroup(item.zone) === row.zone);
 
 /**
- * The onion check of a trip: { c, from, wet, pct, rows, gaps } or null (no temperature, or no
+ * The onion check of a trip: { c, from ('hour' | 'min' | 'at'), moment, wet, pct, rows, gaps } or null (no temperature, or no
  * clothing with a layer or zone at all). Each row: { key, name, ok, items (on the trip), need,
  * rain (the outer layer must keep rain out), fix (the best owned item for a gap, or null) }.
  * Only the rows that are needed, or that something on the list covers, are shown.
  */
-export function onionCheck(trip, items = [], offset = 0, rule = null) {
+export function onionCheck(trip, items = [], offset = 0, rule = null, at = null) {
   const L = rule?.limits ?? ONION_LIMITS;
   const prefer = rule?.prefer ?? 'light';
-  const cold = coldest(trip);
+  // at: { key, c } a moment of the day (dayMoments) instead of the coldest riding hour
+  const cold = at ? { c: at.c, from: 'at', moment: at.key } : coldest(trip);
   if (!cold) return null;
   if (!items.some((i) => isInventory(i) && (layerKey(i.layer) || zoneGroup(i.zone)))) return null;
   const c = felt(cold.c, offset);
@@ -468,7 +496,7 @@ export function onionCheck(trip, items = [], offset = 0, rule = null) {
     if (!ok) fix = best(items.filter((i) => isInventory(i) && !onIds.has(i.id) && matchesRow(row, i) && (needRain && warm.length ? rainProof(i) : warmEnough(i, c) && (!needRain || rainProof(i)))), c, prefer);
     rows.push({ key: row.key, name: row.name, below: row.below != null ? L[row.key] : null, need, ok, rain: needRain, items: mine, fix });
   }
-  return { c, real: cold.c, from: cold.from, date: cold.date ?? null, hour: cold.hour ?? null, wet, pct: rainChance(trip), rows, gaps: rows.filter((r) => !r.ok).length };
+  return { c, real: cold.c, from: cold.from, moment: cold.moment ?? null, date: cold.date ?? null, hour: cold.hour ?? null, wet, pct: rainChance(trip), rows, gaps: rows.filter((r) => !r.ok).length };
 }
 
 /** The best item for a gap: a range that holds c first, then the closest lower border, then the lighter one. */
