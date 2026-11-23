@@ -7,7 +7,6 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
-import { openSortSheet } from './gearmenu.js';
 
 const tr = (lang) => (en, vars) => {
   const text = (lang === 'de' ? DE[en] : null) ?? en.replace(/\|[a-z]+$/, '');
@@ -64,7 +63,7 @@ test('select two items and change their category, the IDs stay', async ({ page, 
   await start(page, context, info, 'de');
   const n0 = (await table(page, 'items')).length;
   // v0.47.2: the category is in the sheet "Sort and filter"
-  await openSortSheet(page);
+  await page.locator('.fbtn').click();
   await page.getByRole('dialog', { name: T('Sort and filter') }).getByRole('group', { name: T('Category') }).getByRole('button', { name: new RegExp(`^${T('Electronics')}`) }).click();
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: T('Select'), exact: true }).click();

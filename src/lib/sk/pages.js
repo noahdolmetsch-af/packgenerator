@@ -74,7 +74,7 @@ export const SK_PAGES = {
   // page: no tiles for them any more (before: only after «Add a tile»); their addresses stay
   bikes: [T.pack, T.stravacheck, T.kmbook, T.tomorrow, ex(T.bp), ex(T.x12)],
   // Impeccable (18.10.2026): Building blocks, Clothes and Shopping are the tabs above; their tiles only after «Dazunehmen»
-  gear: [T.templates, T.pack, ex(T.weight), ex(T.favs), ex(T.unweighed), ex(T.lighter), ex(T.blocks), ex(T.wardrobe), ex(T.wish)], // Material aufräumen (23.11.2026): «Save weight» and «Favourites» are in «View» already, they stay to add
+  gear: [T.templates, T.weight, T.favs, T.pack, ex(T.unweighed), ex(T.lighter), ex(T.blocks), ex(T.wardrobe), ex(T.wish)],
   flow: [T.med, T.x4s, T.goals, T.kmbook, T.x4g, T.ms, T.lookback, T.daycheck, ex(T.rest), ex(T.week), ex(T.trophies), ex(T.hepa)],
 };
 /** The page names in the sheet's subtitle. */

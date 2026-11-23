@@ -7,7 +7,6 @@ import { test, expect } from './clock.js';
 import { lookButton, pickLook, closeLook } from './gear-look.js';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';
-import { openViews, openSortSheet } from './gearmenu.js';
 
 const desktop = (info) => info.project.name === 'desktop';
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
@@ -33,21 +32,20 @@ test('M1: the list first in one card, one toolbar, the views as a card', async (
   });
   expect(card.radius).toBeGreaterThan(0);
   expect(card.border).toBe('solid');
-  // Material aufräumen (23.11.2026, changed on purpose): one row with search, «Ansicht», «+ Teil» and «…», all 44 px high
+  // one row: search, «Sort and filter», «+ Item», all 44 px high
   const bar = page.locator('.toolbar');
-  for (const b of [bar.locator('summary.fbtn'), bar.getByRole('button', { name: 'Teil hinzufügen' }), bar.getByRole('searchbox')]) {
+  for (const b of [bar.getByRole('button', { name: 'Sortieren und filtern' }), bar.getByRole('button', { name: 'Teil hinzufügen' }), bar.getByRole('searchbox')]) {
     expect((await b.boundingBox()).height).toBeGreaterThanOrEqual(44);
   }
   await expect(bar.getByRole('button', { name: 'Teil hinzufügen' })).toHaveText('Teil');
-  // the views: no card any more, the menu «Ansicht» (name, a short line and the count); a tap still filters
-  await expect(page.locator('.vcard')).toHaveCount(0);
-  const menu = await openViews(page);
-  const views = menu.getByRole('group', { name: 'Ansichten' });
+  // the views: a card with name, a short line and the count; a tap still filters
+  const views = page.locator('.vcard').getByRole('group', { name: 'Ansichten' });
   await expect(views.getByRole('button', { name: /^Nie gebraucht 3$/ })).toBeVisible();
-  await expect(menu).toContainText('oft dabei, nie benutzt');
-  await menu.locator('summary').click();
-  await expect(menu.locator('.vpanel')).toBeHidden();
+  await expect(page.locator('.vcard')).toContainText('oft dabei, nie benutzt');
+  const list = await page.locator('.cats').boundingBox();
+  const vc = await page.locator('.vcard').boundingBox();
   if (desktop(info)) {
+    expect(vc.x, 'the views on the right of the list').toBeGreaterThan(list.x + list.width);
     // Impeccable runde 2 (Material 2, changed on purpose): nothing chosen at the start, a calm card says what a tap shows
     await expect(page.getByRole('complementary', { name: 'Teil antippen' })).toContainText('sein Jahr auf Tour und leichtere Alternativen');
     await expect(page.getByRole('complementary', { name: 'Bike computer' })).toHaveCount(0);
@@ -64,10 +62,11 @@ test('M1: the list first in one card, one toolbar, the views as a card', async (
     await expect(panel.getByRole('button', { name: 'Öffnen' })).toBeVisible();
     await expect(panel.getByRole('button', { name: 'Zuordnen …' })).toBeVisible();
     await expect(page.locator('li.gr[data-item="RA01"]')).toHaveClass(/chosen/);
+  } else {
+    expect(vc.y, 'the views under the list on a phone').toBeGreaterThan(list.y + list.height);
   }
   await noSideways(page);
   await shot(page, info, 'm1-material');
-  await openViews(page);
   await views.getByRole('button', { name: /^Nie gebraucht/ }).click();
   expect(page.url()).toContain('view=never');
 });
@@ -90,7 +89,7 @@ test('M2: the item window has flat rows, More with merge and delete, Cancel and 
 
 test('M3: sort and filter as chips, the chosen one filled, the line n of m match', async ({ page, context }, info) => {
   await openGear(page, context, info);
-  await openSortSheet(page);
+  await page.locator('.fbtn').click();
   const sheet = page.getByRole('dialog', { name: 'Sortieren und filtern' });
   await expect(sheet).toContainText('24 von 24 Teilen passen');
   const weight = sheet.getByRole('group', { name: 'Sortieren' }).getByRole('button', { name: 'Gewicht', exact: true });

@@ -62,15 +62,11 @@ test('SL2: Material: categories closed on every screen, the jump bar opens one, 
   const cats = page.locator('section.cat');
   await expect(cats.first()).toBeVisible();
   await expect(page.locator('section.cat .rows')).toHaveCount(0);
-  // Material aufräumen (23.11.2026, changed on purpose): the jump bar is only beside the list on a wide computer; on a phone a tap on the category opens it
-  const phone = info.project.name === 'phone';
-  await expect(page.locator('.jump-ph')).toHaveCount(0);
-  const nav = page.locator('.jump-dt');
+  const nav = info.project.name === 'phone' ? page.locator('.jump-ph') : page.locator('.jump-dt');
   // the biggest category: it shows five rows and «Show n more»
   const sizes = await cats.evaluateAll((els) => els.map((x) => [x.dataset.group, Number(x.querySelector('.m')?.textContent.match(/\d+/)?.[0] ?? 0)]));
   const [key, n] = sizes.sort((a, b) => b[1] - a[1])[0];
-  if (phone) await page.locator(`#gh-${key} button`).click();
-  else await nav.locator(`[data-jump="${key}"]`).click();
+  await nav.locator(`[data-jump="${key}"]`).click();
   const cat = page.locator(`section.cat[data-group="${key}"]`);
   await expect(cat.locator('.rows > li')).toHaveCount(n > SHOW_ROWS + 1 ? SHOW_ROWS : n);
   await still(page);

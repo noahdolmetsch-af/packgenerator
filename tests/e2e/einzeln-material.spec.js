@@ -3,7 +3,6 @@
 // names, and the search asks when a word means two things. Fictional data only (test_data_gtp_).
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, tr } from './home0460-fixture.js';
-import { openViews } from './gearmenu.js';
 
 const T = tr('de');
 const phone = (info) => info.project.name === 'phone';
@@ -116,8 +115,6 @@ test('22: own views show an item in several places, without a copy; add a view, 
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { data: data2() });
   await page.goto('./#/gear');
-  // Material aufräumen (23.11.2026, changed on purpose): the own views are in the menu «Ansicht»
-  await openViews(page);
   const row = page.locator('[data-own-views]');
   await expect(row).toBeVisible();
   await expect(row.locator('[data-own-view="repair"] .num')).toHaveText('2');
@@ -128,12 +125,10 @@ test('22: own views show an item in several places, without a copy; add a view, 
   await expect(page.getByText('test_data_gtp_ Merino Langarm Ersatz').first()).toBeVisible();
   await expect(page.getByText('test_data_gtp_ Stirnlampe')).toHaveCount(0);
   expect(await noSideways(page)).toBe(0);
-  // a second tap closes the view (under «All» there is no heading)
-  await openViews(page);
+  // a second tap closes the view
   await tap(row.locator('[data-own-view="repair"]'), info);
-  await expect(page.locator('#vh-h')).toHaveCount(0);
+  await expect(page.locator('#vh-h')).not.toHaveText(T('Repair|view'));
   // edit: add a view
-  await openViews(page);
   await tap(row.locator('[data-own-views-edit]'), info);
   const sheet = page.locator('dialog.ov-sheet');
   await expect(sheet).toBeVisible();

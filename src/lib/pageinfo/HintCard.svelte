@@ -77,8 +77,10 @@
   const introName = $derived(intro ? t(intro.name) : '');
   // the «Wusstest du» with its source; never the tip the tip line shows today
   const fact = $derived(intro && pi.loaded ? factOfDay(pi.info, tipsOf(introKey), today, tipOfDay(pi.info, page, today, dc.ctx)?.id) : null);
-  function tour() {
+  function tour(e) {
     saveIntro((v) => setOffered(v, introKey));
+    // the card sits in the «?» window: it closes, so the tour card is not under it (Velos aufräumen, 23.11.2026)
+    e?.currentTarget?.closest?.('dialog')?.close();
     startTour(intro.tour);
   }
   const ICONS = { bike: Bike, wrench: Wrench, shop: Store, bag: ShoppingBag, scale: Scale, heart: Heart, plus: Plus, book: BookOpen, cloud: Cloud, check: Check, clock: Clock, note: NotebookPen, moon: Moon, chart: ChartLine, columns: Columns2, sun: Sun, shirt: Shirt, layers: Layers, camera: Camera, shield: ShieldCheck, save: Save, settings: Settings, help: CircleQuestionMark, target: Target, play: Play, bell: Bell, upload: Upload, link: Link2, flag: Flag };

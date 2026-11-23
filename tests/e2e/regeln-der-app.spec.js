@@ -5,7 +5,6 @@
 import { test, expect } from './clock.js';
 import { openHome, homeFixture, trip, entries, day } from './home0460-fixture.js';
 import { AWAY_MS, SEEN_KEY } from '../../src/lib/bedienung.js';
-import { openSortSheet } from './gearmenu.js';
 
 const noErrors = (page) => {
   const errors = [];
@@ -69,7 +68,7 @@ test('back closes a window first: the filter sheet in Material', async ({ page, 
   const errors = noErrors(page);
   const T = await openHome(page, context, info);
   await page.goto('./#/gear');
-  await openSortSheet(page); // «Ansicht» › «Sortieren und filtern» (Material aufräumen, 23.11.2026)
+  await page.locator('button.fbtn').first().click();
   const sheet = page.locator('dialog[aria-labelledby="fs-h"]');
   await expect(sheet).toBeVisible();
   await page.goBack();

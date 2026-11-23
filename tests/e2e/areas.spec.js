@@ -8,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
 import { openShort } from './kurz-open.js';
-import { openSortSheet } from './gearmenu.js';
 
 const FIXTURE = fileURLToPath(new URL('./fixture.json', import.meta.url));
 
@@ -162,7 +161,7 @@ for (const lang of ['en', 'de']) {
     // 9. Gear: the area filter shows only weekend items.
     await page.goto('./#/gear');
     // v0.47.2: the area is in the sheet "Sort and filter"
-    await openSortSheet(page);
+    await page.locator('.fbtn').click();
     const fs = page.getByRole('dialog', { name: T('Sort and filter') });
     await fs.getByRole('group', { name: T('Area') }).getByRole('button', { name: new RegExp(`^${esc(T('Weekend'))}`) }).click();
     await page.keyboard.press('Escape');

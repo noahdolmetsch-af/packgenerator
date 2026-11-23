@@ -1,7 +1,6 @@
 // Impeccable runde 2 (18.10.2026, Material 3): «List | Cards» and «Compact | With bag» sit in one line above the
 // list on a computer; on a phone they live in «Sort and filter» under «Display». These helpers find them in either place.
 import { expect } from '@playwright/test';
-import { openSortSheet } from './gearmenu.js';
 
 const isPhone = (page) => page.evaluate(() => matchMedia('(max-width: 719px)').matches);
 
@@ -9,7 +8,7 @@ const isPhone = (page) => page.evaluate(() => matchMedia('(max-width: 719px)').m
 export async function lookArea(page) {
   if (!(await isPhone(page))) return page;
   const sheet = page.locator('dialog.fsheet');
-  if (!(await sheet.isVisible())) await openSortSheet(page);
+  if (!(await sheet.isVisible())) await page.locator('.toolbar .fbtn').click();
   await expect(sheet).toBeVisible();
   return sheet;
 }
