@@ -31,7 +31,7 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 11 | Planen: 11 → 3 Reiter (Woche, Notizen, Alltag) | #1303 | online | datei:tests/e2e/planen-drei-reiter.spec.js |
 | 12a | Auswerten: 18 → 5 Reiter nach Frage geordnet (Überblick, Körper, Fahrten, Wi gaht's?, Eigenes Diagramm); die alten Seiten als Chips | #1305 | online | datei:tests/e2e/auswerten-gruppen.spec.js |
 | 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | online | datei:tests/e2e/analyse-diagramm.spec.js |
-| 13 | Velos und Material: ein Bereich mit vier Reitern (Velos, Pflege, Material, Sets) und Chips, «Sets» statt Ausrüstung, der Schalter am Handy fällt weg (= V5 des Auftrags «App vereinfachen») | - | offen | - |
+| 13 | Velos und Material: ein Bereich mit vier Reitern (Velos, Pflege, Material, Sets) und Chips, «Sets» statt Ausrüstung, der Schalter am Handy fällt weg (= V5 des Auftrags «App vereinfachen») | #1488 | gebaut | - |
 | 6 | Ich (vier Gruppen mit Satz zum Stand, «Wartet auf dich» zuerst) und Suche | - | offen | - |
 | V1 | Woche: «n von m Einheiten erledigt» und die Ziele der Woche auf der Woche-Seite | #1349 | gebaut | - |
 | V3 | Woche: Aktiv › Woche, Training › Woche, Wochenplan und Mein Trainingsplan führen auf die eine Woche, eine Ziel-Zahl «n von m Einheiten» | - | offen | - |

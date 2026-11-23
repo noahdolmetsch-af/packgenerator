@@ -1,6 +1,6 @@
 # Velos und Material: ein Bereich mit vier Reitern
 
-PR folgt · 23.11.2026 · Schritt V5 / Plan 13 der neuen Ordnung · Entscheid Noah «1a 2a 3a 4a 5a» (21.11.2026 17:50 UTC), Mockup https://claude.ai/artifact/MLJqa4PpNZAoHFLB51vWie
+PR #1488 · 23.11.2026 · Schritt V5 / Plan 13 der neuen Ordnung · Entscheid Noah «1a 2a 3a 4a 5a» (21.11.2026 17:50 UTC), Mockup https://claude.ai/artifact/MLJqa4PpNZAoHFLB51vWie
 
 ## Was ist neu
 - «Velos und Material» ist **ein** Bereich (Leiste unten, Seitenleiste, Taste `g v`) mit vier Reitern: **Velos**, **Pflege**, **Material**, **Sets**.
