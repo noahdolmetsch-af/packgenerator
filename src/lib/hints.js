@@ -80,7 +80,7 @@ export const HINTS = {
       ['shirt', 'Before a trip', 'the trip range shows what to take'],
       ['layers', 'Gaps', 'the onion shows where a layer is missing'],
     ],
-    jumps: [['What do I wear today?', 'w-today'], ['Your onion', 'onion-h'], ['Your kits', 'kits-h']],
+    jumps: [['Your onion', 'onion-h'], ['Your kits', 'kits-h']],
   },
   workshop: {
     lead: ['Here are your visits to the bike shop and their receipts.', 'What waits for the bike shop is on the left, the visits and costs on the right.'],
