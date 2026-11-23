@@ -136,3 +136,66 @@ describe('the steps of the banner: today next to yesterday up to the same hour',
     expect(valueOf({ steps: -1 }, 'steps')).toBeNull();
   });
 });
+
+// the quiet hint line under the banner (Noah 23.11.2026 «1-4a», step 3). Fictional data.
+import { pulseHint, loadHint, lightHint, bodyHint, noOf, LOAD_SHARE } from '../src/lib/home/bodyhints.js';
+import { startOutdoor, addMin } from '../src/lib/outdoor.js';
+
+describe('the quiet hint line', () => {
+  /** n days up to T: value of day i (0 = today). */
+  const days = (n, f) => Array.from({ length: n }, (_, i) => ({ date: addDays(T, -i), ...f(i) }));
+  it('pulse: the last days well above the usual stand out, a flat pulse does not', () => {
+    const up = days(40, (i) => ({ restingHr: i < 3 ? 60 : 52 }));
+    expect(pulseHint({ health: up, today: T })).toMatchObject({ kind: 'pulse', above: 8 });
+    expect(pulseHint({ health: days(40, () => ({ restingHr: 52 })), today: T })).toBeNull();
+    expect(pulseHint({ health: days(5, () => ({ restingHr: 70 })), today: T })).toBeNull(); // too few values for a usual
+  });
+  it('pulse: a marked day is left out (sick, holiday)', () => {
+    const up = days(40, (i) => ({ restingHr: i < 3 ? 60 : 52 }));
+    const marked = new Set([T, addDays(T, -1), addDays(T, -2)]);
+    expect(pulseHint({ health: up, today: T, marked })).toBeNull();
+  });
+  it('load: 7 days against the 4 weeks before, from 30 % away, with enough values', () => {
+    const more = days(35, (i) => ({ azm: i < 7 ? 40 : 20 }));
+    expect(loadHint({ health: more, today: T })).toMatchObject({ kind: 'load', dir: 1, recent: 280, base: 140, pct: 100 });
+    const less = days(35, (i) => ({ azm: i < 7 ? 10 : 20 }));
+    expect(loadHint({ health: less, today: T })).toMatchObject({ dir: -1, pct: 50 });
+    expect(loadHint({ health: days(35, (i) => ({ azm: i < 7 ? 22 : 20 })), today: T })).toBeNull(); // +10 %
+    expect(LOAD_SHARE).toBe(0.3);
+    expect(loadHint({ health: days(10, () => ({ azm: 40 })), today: T })).toBeNull(); // too few days before
+    expect(loadHint({ health: days(35, (i) => ({ azm: i < 7 ? 6 : 1 })), today: T })).toBeNull(); // a base under 60 a week
+  });
+  it('load: days without a value are not zero', () => {
+    const rows = days(35, (i) => (i % 2 ? {} : { azm: 20 })); // every second day delivered
+    expect(loadHint({ health: rows, today: T })).toBeNull();
+  });
+  it('light: only while the challenge runs and minutes are missing, from an hour before the latest start until sunset', () => {
+    const place = { lat: 47.37, lon: 8.54 };
+    const rec = startOutdoor({ today: '2026-11-20', until: '2026-12-31' });
+    // 23 Nov at Zürich: sunset about 15:43 UTC; 90 minutes missing → the latest start about 14:13 UTC (moments, so any device zone gives the same answer)
+    const at = (utc) => new Date(`2026-11-23T${utc}:00Z`);
+    expect(lightHint({ rec, today: '2026-11-23', place, now: at('11:00') })).toBeNull(); // plenty of time
+    const late = lightHint({ rec, today: '2026-11-23', place, now: at('13:30') });
+    expect(late).toMatchObject({ kind: 'light', missing: 90 });
+    expect(late.latest).not.toBeNull();
+    const tight = lightHint({ rec, today: '2026-11-23', place, now: at('14:40') });
+    expect(tight).toMatchObject({ kind: 'light', latest: null }); // too late to fit, but still light
+    expect(lightHint({ rec, today: '2026-11-23', place, now: at('17:00') })).toBeNull(); // dark already, nothing to say
+    const done = addMin(rec, '2026-11-23', 90);
+    expect(lightHint({ rec: done, today: '2026-11-23', place, now: at('13:30') })).toBeNull();
+    expect(lightHint({ rec: null, today: '2026-11-23', place, now: at('13:30') })).toBeNull();
+    expect(lightHint({ rec, today: '2026-11-23', place: null, now: at('13:30') })).toBeNull();
+  });
+  it('one line only, in the order pulse, load, light; «Not today» hides one for the day', () => {
+    const rows = days(40, (i) => ({ restingHr: i < 3 ? 60 : 52, azm: i < 7 ? 40 : 20 }));
+    expect(bodyHint({ health: rows, today: T }).kind).toBe('pulse');
+    expect(bodyHint({ health: rows, today: T, no: { pulse: T } }).kind).toBe('load');
+    expect(bodyHint({ health: rows, today: T, no: { pulse: T, load: T } })).toBeNull();
+    expect(bodyHint({ health: rows, today: T, no: { pulse: Y } }).kind).toBe('pulse'); // yesterday's «not today» is over
+    expect(bodyHint({ health: [], today: T })).toBeNull();
+  });
+  it('the stored «not today» is made clean', () => {
+    expect(noOf({ pulse: T, load: 5, x: T })).toEqual({ pulse: T });
+    expect(noOf(null)).toEqual({});
+  });
+});
