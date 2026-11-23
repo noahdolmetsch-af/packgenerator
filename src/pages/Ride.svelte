@@ -599,7 +599,7 @@
   <PageHead title={t('On the way')} />
   <!-- v0.127.0 A-U2: the one empty building block -->
   {#if $tripsQ?.length}<Empty icon={RouteIcon} title={t('No trip on the way today')} text={t('On the way shows a trip on its days. Plan or start one under Trips.')} action={{ label: t('To the trips'), href: '#/trips' }} />
-  {:else if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} />{:else}<Skeleton rows={3} />{/if}
+  {:else if $tripsQ}<Empty icon={RouteIcon} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => newTrip('standard') }} action2={{ label: t('To the trips'), href: '#/trips' }} />{:else}<Skeleton rows={3} />{/if}
   <!-- Paket W 1119: «Wo steht mein Velo?» also without a trip (in town, at the station) -->
   {#if $tripsQ}<p class="parked-solo"><button type="button" class="btn" onclick={() => (parkedOpen = true)} data-uw-parked><Bike size={18} aria-hidden="true" />{t('Bike parked')}</button></p>{/if}
 {:else}
