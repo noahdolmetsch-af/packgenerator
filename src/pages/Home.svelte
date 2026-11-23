@@ -930,9 +930,19 @@
     const d = next?.startDate ? daysTo(next.startDate) : null;
     if (tourOnce) { /* the card «My tour» names the tour and its countdown */ } else if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
     else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: bare(next.title) }) });
-    parts.push({ hi: false, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
+    parts.push({ hi: false, jump: upRows.length > 0, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
     return parts;
   });
+  // Durchklick 4a (Noah 22.11.2026): «n things are up today» is tappable and jumps to the list «Up now» (nothing else changes)
+  function jumpToUp() {
+    const h = document.getElementById('imp-h');
+    const sec = h?.closest('section');
+    // at once (not smooth): lazy cards above may still change their height while a smooth scroll runs
+    sec?.scrollIntoView({ block: 'start' });
+    requestAnimationFrame(() => sec?.scrollIntoView({ block: 'start' }));
+    h?.setAttribute('tabindex', '-1');
+    h?.focus({ preventScroll: true });
+  }
   let notice = $state(null); // { text, undo() } for a few seconds
   let noticeTimer;
   function say(text, undo) {
@@ -1149,7 +1159,7 @@
       </div>
     </div>
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
-    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}<span class:hi={p.hi}>{p.text}</span>{/each}</p>{/if}
+    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.jump}<button type="button" class="say-jump tap" data-say-jump title={t('To the list')} onclick={jumpToUp}>{p.text}<span aria-hidden="true"> ↓</span></button>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
   </section>
 {/snippet}
 
@@ -2627,6 +2637,20 @@
   }
   .say .hi {
     color: var(--hi);
+  }
+  .imp {
+    scroll-margin-top: 72px;
+  }
+  .say-jump {
+    border: 0;
+    background: none;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    text-decoration: underline dotted;
+    text-underline-offset: 4px;
+    cursor: pointer;
   }
   .rico {
     display: grid;
