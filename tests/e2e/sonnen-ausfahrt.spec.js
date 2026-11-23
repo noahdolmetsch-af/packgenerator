@@ -1,7 +1,7 @@
 // «Sonnen-Ausfahrt» (Noah 06.11.2026 «1-5a»): the card on Today with a ride above the fog. Made-up place, rides and weather;
 // Open-Meteo is mocked, everything else outside is blocked (openHome). Today is 07:00 here; the fog clears at 11 h.
 import { test, expect } from './clock.js';
-import { openHome, homeFixture, day, trip } from './home0460-fixture.js';
+import { openHome, homeFixture, day, trip, openWetterFold } from './home0460-fixture.js';
 
 const OFF = 7200;
 const LEVELS = { 1000: 110, 975: 330, 950: 550, 925: 780, 900: 1000, 850: 1500 };
@@ -81,6 +81,7 @@ test('Not today puts the card aside for the day', async ({ page, context }, info
   await page.locator('[data-heute-sonne-skip]').click();
   await expect(page.locator('[data-heute-sonne]')).toHaveCount(0);
   await page.reload();
+  await openWetterFold(page); // the fog line stands in the closed line «Wetter heute» (Wetter-Ausbau D)
   await expect(page.locator('[data-heute-fogline]')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('[data-heute-sonne]')).toHaveCount(0);
 });
@@ -92,6 +93,7 @@ test('The switch on the weather page turns the card off', async ({ page, context
   await expect(page.locator('[data-fogline-ride]')).toBeChecked();
   await page.locator('[data-fogline-ride]').uncheck();
   await page.goto('./#/');
+  await openWetterFold(page); // the fog line stands in the closed line «Wetter heute» (Wetter-Ausbau D)
   await expect(page.locator('[data-heute-fogline]')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('[data-heute-sonne]')).toHaveCount(0);
 });
@@ -110,6 +112,7 @@ test('Without a ride that reaches above the fog the card says so and leads to th
 test('On a clear day there is no card', async ({ page, context }, info) => {
   await openHome(page, context, info, { data: withRide(1), hour: 7, weather: (c) => mock(c, { clear: true }) });
   await page.goto('./#/');
+  await openWetterFold(page); // the fog line stands in the closed line «Wetter heute» (Wetter-Ausbau D)
   await expect(page.locator('[data-heute-fogline]')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('[data-heute-sonne]')).toHaveCount(0);
 });
