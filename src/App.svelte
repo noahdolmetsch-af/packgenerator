@@ -9,6 +9,7 @@
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
+  import { lastDeleted } from './lib/trash/trash.js'; // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): ⌘ Z
   import DemoBar from './lib/DemoBar.svelte';
   import LogoRide from './lib/logo/LogoRide.svelte'; // «Geheimnis im Logo» (Idee 29)
   import LogoMark from './lib/logo/LogoMark.svelte'; // «Jahreszeit» (Idee 30)
@@ -48,7 +49,7 @@
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
   import Keys from './lib/nav/Keys.svelte';
-  import { shortcutOf, typing, isSearchChord, G_WAIT } from './lib/nav/keys.js';
+  import { shortcutOf, typing, isSearchChord, isUndoChord, noFieldActive, G_WAIT } from './lib/nav/keys.js';
   import { sortBikes } from './lib/bikes.js';
   import { activeBikes } from './lib/bikeretire.js';
   import { withVisits } from './lib/workshop.js';
@@ -198,6 +199,12 @@
       if (ops.keys && isSearchChord(e) && !document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')) {
         e.preventDefault();
         openSearch();
+        return;
+      }
+      // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): ⌘ Z / Ctrl Z takes the last delete back, only outside fields and windows
+      if (ops.keys && isUndoChord(e) && noFieldActive(e) && lastDeleted.get()) {
+        e.preventDefault();
+        import('./lib/trash/undokey.js').then((m) => m.undoLastDelete());
         return;
       }
       if (!ops.keys || typing(e)) return;
@@ -441,6 +448,7 @@
     Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
     Fragen: () => import('./pages/Fragen.svelte'), // «Fragen» (Plan 4a, Noah 08.11.2026): Auswerten › Fragen
     SportRueckblick: () => import('./pages/SportRueckblick.svelte'), // «Rückblick pro Sportart» (Noah 21.11.2026, S4): Auswerten › Sportjahr › one sport
+    Trash: () => import('./pages/Trash.svelte'), // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): Ich › Daten › Zuletzt gelöscht
     Logbuch: () => import('./pages/Logbuch.svelte'), // «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): Ich › Logbuch
     Sportjahr: () => import('./pages/Sportjahr.svelte'), // «Sportjahr» (Noah 21.11.2026 «1a dann b»): Auswerten › Sportjahr
     Quellen: () => import('./pages/Quellen.svelte'), // «Meine Datenquellen» (Noah 07.11.2026 «1a»): Auswerten › Datenquellen
@@ -728,6 +736,8 @@
     <LazyPage load={PAGES.Data} />
   {:else if page === 'logbuch'}
     <LazyPage load={PAGES.Logbuch} />
+  {:else if page === 'trash'}
+    <LazyPage load={PAGES.Trash} />
   {:else if page === 'docs'}
     <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
     {#key hash.split('?')[0]}<LazyPage load={PAGES.Docs} />{/key}

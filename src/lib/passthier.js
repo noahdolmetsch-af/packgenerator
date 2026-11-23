@@ -33,7 +33,7 @@ export const PASST_HIER = {
   // Eingang: the picture and file tools where photos and files land
   inbox: ['f.markup', 'f.convert', 'f.video', 'f.chains'],
   // Dokumente: links, small files and QR codes next to the documents
-  docs: ['f.ablage', 'f.qr'],
+  docs: ['f.ablage', 'f.qr', 'f.trash'],
   // Training › Aktivitäten: older rides from Zwift or a Garmin as files, the plan you keep in TrainingPeaks (Noah 19.11.2026)
   training: ['f.kmimport', 'f.trainingpeaks'],
   // Kleider: give every piece its temperature, layer and zone (Noah 21.11.2026 «5a»: at the end, not above the content)
