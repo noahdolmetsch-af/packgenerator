@@ -124,7 +124,8 @@ test('V12 to V14b: import, workshop, equipment and compare with path and title',
   await onePage(page, T('Equipment|tab'));
   await page.getByRole('link', { name: T('Compare bikes') }).click();
   await onePage(page, T('Compare bikes'));
-  await path(page).getByRole('link', { name: T('Equipment|tab') }).click();
-  await expect(page).toHaveURL(/tab=compare(?!&view)/);
+  // «Wege»: the path starts with place and tab («Velos und Material › Velos › Vergleichen»); the step before the page leads to the bikes
+  await path(page).locator('a[href="#/bikes"]').last().click();
+  await expect(page).toHaveURL(/#\/bikes$/);
   expect(errors).toEqual([]);
 });
