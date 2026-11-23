@@ -1,7 +1,7 @@
 <script>
   /**
    * «Wochenrückblick» as a card on Heute (Noah 10.11.2026 «1b»; Noah 19.11.2026 «3a»: the window «Your week in review» stays).
-   * From Sunday 17:00 until Monday 12:00: the finished week in three numbers, on Sundays the own tasks that slide to Monday,
+   * From Sunday 17:00 until Monday 12:00 (it also carries what the window «Your week in review» showed, Noah 22.11.2026 Schritt F: the surprises of the week): the finished week in three numbers, on Sundays the own tasks that slide to Monday,
    * and the way on to the review and to «Woche planen». «Not today» puts it away until tomorrow; the main button until
    * next Sunday. A line «New in the app» counts the changes of the week and links to «What is new» (Noah 21.11.2026 «4a»). Nothing is loaded outside its time. The rules are in home/wochenkarte.js, the numbers in weekreview.js.
    */
@@ -22,6 +22,7 @@
   import { NEWS_HREF } from '../know/wasneu.js';
   import { weekSources } from '../weeksources.js';
   import WeekWhere from '../flow/WeekWhere.svelte';
+  import SurpriseLines from '../wohl/SurpriseLines.svelte'; // Paket P #256: surprises of the week (carried here from the Sunday window, Schritt F)
   import { t, tn, num } from '../i18n.svelte.js';
 
   let { now } = $props();
@@ -110,6 +111,7 @@
       {/if}
     {/if}
     {#if any && calc}<p class="ln"><button type="button" class="where" onclick={() => (whereOpen = true)} data-wk-where-open>{t('Where from?')}</button></p>{/if}
+    {#if any}<SurpriseLines {today} />{/if}
     {#if open.n > 0}
       <p class="ln" data-wk-open><b>{t('Slides to Monday:')}</b> {open.n === 1 ? t('1 open task') : t('{n} open tasks', { n: open.n })}{#if open.titles.length}{' '}({open.titles.join(', ')}){/if}</p>
     {/if}
