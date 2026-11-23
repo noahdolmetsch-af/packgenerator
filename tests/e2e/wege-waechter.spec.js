@@ -16,18 +16,7 @@ test.describe.configure({ mode: 'serial' });
 test.setTimeout(20 * 60_000);
 
 /** PFAD open: the path of these pages starts with another name than the lit place. Only gets shorter. */
-export const PFAD_OFFEN = [
-  // Material: the path says «Material», the place is «Velos und Material»
-  '#/blocks/aufraeumen', '#/blocks/check', '#/favorites', '#/gear/import', '#/gear/lend', '#/gear/power', '#/gear/supplies', '#/wardrobe', '#/wardrobe/setup', '#/wardrobe/tryon',
-  // Aktiv is part of Woche since 21.11.2026 (tab Training), the paths still say «Aktiv»
-  '#/flow/act/meditation/log', '#/flow/act/meditation/mehr', '#/flow/act/meditation/muster', '#/flow/act/meditation/rueckblick', '#/flow/activity', '#/flow/bags', '#/flow/challenges', '#/flow/geschafft', '#/flow/goals', '#/flow/new', '#/flow/plans', '#/flow/rest', '#/flow/review', '#/flow/review/obs', '#/flow/review/tile', '#/flow/sports', '#/flow/training', '#/flow/trainingsplan', '#/flow/week', '#/flow/wochenplan', '#/routine',
-  // pages under Auswerten (body values, questions, insights …) that still say «Aktiv» or «Ich › Daten»
-  '#/flow/stats/felt', '#/flow/stats/hr', '#/flow/stats/sleep', '#/flow/stats/vo2max', '#/me/abfragen', '#/me/analysis', '#/me/history', '#/me/insights', '#/me/weight', '#/me/wohl',
-  // pages under Woche with an address under #/me/ that say «Ich» or the old place
-  '#/calendar/pflanzen', '#/me/alltag/einkauf', '#/me/alltag/menschen', '#/me/frei/sammlung/recipes',
-  // Touren: the path starts with «Unterwegs»
-  '#/ride/abfahrt',
-];
+export const PFAD_OFFEN = [];
 /** SACKGASSE open: no link to another page. Only gets shorter. */
 export const SACKGASSE_OFFEN = [
   // without a trip (or with an unknown id) these pages show nothing and no way on
