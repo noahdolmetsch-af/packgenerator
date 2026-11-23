@@ -82,7 +82,7 @@ export default {
   'A long tour is coming: a spare tube, a pump and food for the whole day belong in the bag.': 'Eine lange Tour steht an: Ersatzschlauch, Pumpe und Essen für den ganzen Tag gehören in die Tasche.',
   'only before a tour over 100 km': 'nur vor einer Tour über 100 km',
   // «So geht's» (K4)
-  'Open Aktiv › Heute: the tip of the day is under the title.': 'Öffne Aktiv › Heute: Der Tipp des Tages steht unter dem Titel.',
+  'Open Aktiv › Heute: the tip of the day is under the title.': 'Öffne Woche › Training › Heute abhaken: Der Tipp des Tages steht unter dem Titel.',
   'Tap «All tips ›» to switch single tips on or off.': 'Tippe auf «Alle Tipps ›», um einzelne Tipps ein- oder auszuschalten.',
   'At the page end, open «What the app can do here».': 'Öffne am Seitenende «Das kann die App hier».',
 };

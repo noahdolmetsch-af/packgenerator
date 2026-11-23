@@ -63,7 +63,7 @@ export default {
   'A court time that did not happen': 'Platzzeit, die ausfiel',
   'Asks when you noted «not played» for a planned court time in the last {n} days.': 'Fragt, wenn du in den letzten {n} Tagen eine geplante Platzzeit als «nicht gespielt» eingetragen hast.',
   'Looking back (days)': 'Rückblick (Tage)',
-  'No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.': 'Noch kein Tennis eingetragen. Die Regeln für Spiele und ausgefallene Platzzeiten warten, bis du unter Aktiv › Sportarten › Tennis ein Spiel oder eine Platzzeit einträgst.',
+  'No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.': 'Noch kein Tennis eingetragen. Die Regeln für Spiele und ausgefallene Platzzeiten warten, bis du unter Woche › Training › Meine Aktivitäten › Tennis ein Spiel oder eine Platzzeit einträgst.',
   // Wetter: «Grauer Tag» und «Schönes Wetter, freier Abend»
   'What does you good on grey days?': 'Was tut dir an grauen Tagen gut?',
   'A short walk|data': 'Ein kurzer Spaziergang',

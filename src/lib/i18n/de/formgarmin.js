@@ -115,10 +115,10 @@ export default {
   'Overview like Garmin': 'Übersicht wie bei Garmin',
   "Today's activities, each sport's last 7 days to swipe, heart rate, active minutes, calories and sleep, a page per sport and «Body values»: heart, sleep, activity, body and bike, with blood pressure and water to enter.":
     'Die Aktivitäten von heute, die letzten 7 Tage jeder Sportart zum Wischen, Puls, Aktivzonen-Minuten, Kalorien und Schlaf, eine Seite pro Sportart und «Körperwerte»: Herz, Schlaf, Aktivität, Körper und Velo, mit Blutdruck und Trinkmenge zum Eintragen.',
-  'Open Active: the card on top shows your readiness.': 'Öffne Aktiv: Die Karte oben zeigt deine Bereitschaft.',
+  'Open Active: the card on top shows your readiness.': 'Öffne «Heute abhaken»: Die Karte oben zeigt deine Bereitschaft.',
   'Tap it for the page «Form and recovery».': 'Tipp sie an für die Seite «Form und Erholung».',
   'Answer the morning check: your felt sleep and energy count too.': 'Beantworte «Wi gaht\'s?» am Morgen: Dein gefühlter Schlaf und deine Energie zählen mit.',
-  'Open Active and scroll to «In focus».': 'Öffne Aktiv und scroll zu «Im Fokus».',
+  'Open Active and scroll to «In focus».': 'Öffne «Heute abhaken» und scroll zu «Im Fokus».',
   'Swipe for the next sport; tap a card for its page.': 'Wisch für die nächste Sportart; tipp eine Karte an für ihre Seite.',
   'Tap the heart rate tile for «Body values»: pick a group on top, then a value.': 'Tipp die Puls-Kachel an für «Körperwerte»: oben eine Gruppe wählen, dann einen Wert.',
   // «Körperwerte» (Noah 20.10.2026)
@@ -184,7 +184,7 @@ export default {
   '10 to 20 °C': '10 bis 20 °C',
   'from 20 °C': 'ab 20 °C',
   'Minutes in your pulse zones (Training › Zones), from the pulse of your Strava activities.': 'Minuten in deinen Pulszonen (Training › Zonen), aus dem Puls deiner Strava-Aktivitäten.',
-  'Your meditation ticks in Aktiv; a tick without minutes counts as 10.': 'Deine Meditations-Häkchen in Aktiv; ein Häkchen ohne Minuten zählt 10.',
+  'Your meditation ticks in Aktiv; a tick without minutes counts as 10.': 'Deine Meditations-Häkchen in «Heute abhaken»; ein Häkchen ohne Minuten zählt 10.',
   'Your rides with a temperature from the device (Strava or FIT file). Warm rides often have a higher pulse.': 'Deine Fahrten mit einer Temperatur vom Gerät (Strava oder FIT-Datei). Bei Wärme ist der Puls oft höher.',
   // Handy-Längenbudget: «Überblick» and «Letzte 7 Tage» folded on a phone
   'Overview and last 7 days': 'Überblick und letzte 7 Tage',

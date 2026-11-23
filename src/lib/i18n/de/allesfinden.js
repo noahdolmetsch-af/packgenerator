@@ -3,7 +3,7 @@ export default {
   // the groups and the page
   'Packing and on the way': 'Packen und unterwegs',
   'Bike|features': 'Velo',
-  'Active|features': 'Aktiv',
+  'Active|features': 'Heute abhaken',
   'Data and app': 'Daten und App',
   'By situation': 'Nach Situation',
   'By page': 'Nach Seite',
