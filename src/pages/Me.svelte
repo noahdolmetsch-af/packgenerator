@@ -9,6 +9,8 @@
    * (how many found, the sheet archives them with Undo) and «Try it out» (the playground; the debrief's
    * «Lieber in der Spielwiese probieren» opens it here once).
    * Design-Refresh P9 (I1, Noah 12.10.2026 «Runde 16 freigegeben»): on top only what is due (Backup);
+   * V6 (Plan 6): Tennis is no group of its own any more (its row sits under Settings), so there are four groups and
+   * under each heading a sentence on how it stands.
    * then four groups as in the mockup: Data (Data and backup, Inbox, Notes), Settings (Appearance,
    * Home place, Language), The app (what it can do, help, Helper, what it has learned) and More (try it
    * out, clean up test data, report a problem). «Data and backup» is its own page now (#/me/data, I2),
@@ -168,6 +170,15 @@
   const startName = $derived(t(START_PLACES.find((p) => p.key === ops.start)?.name ?? 'Today|place'));
   const lookSub = $derived([lookLine(t), t('Start: {place}', { place: startName })].filter(Boolean).join(' · '));
   const dataLine = $derived([t('Backup, restore, import'), $waitQ?.folder ? t('auto-backup set up') : ''].filter(Boolean).join(' · '));
+  // «Ich» in four groups (Plan 6): under each heading one sentence says how that group stands
+  const dataStand = $derived.by(() => {
+    const w = $waitQ;
+    if (!w) return '';
+    const last = w.days == null ? t('Backup: none yet') : w.days === 0 ? t('Backup: the last one today') : tn(w.days, 'Backup: the last one {n} day ago', 'Backup: the last one {n} days ago');
+    return [last, w.folder ? t('auto-backup set up') : ''].filter(Boolean).join(' · ');
+  });
+  const settingsStand = $derived([lang.v === 'de' ? 'Deutsch' : 'English', $waitQ?.home ? `${t('Home place')}: ${$waitQ.home}` : t('No home place yet')].join(' · '));
+  const helpStand = $derived([version ? t('Version {v}', { v: version }) : '', t('New in {version}', { version: shortVersion(WHATS_NEW[0].version) })].filter(Boolean).join(' · '));
   const agendaOn = $derived(agenda.prefs.calendar || agenda.prefs.tasks);
 </script>
 
@@ -211,7 +222,7 @@
            and Gewicht under Auswerten; Material under Velos. One quiet line says where they went. -->
       <p class="card moved-to" role="note" data-me-moved><Info size={16} aria-hidden="true" /><span>{t('Looking for appointments, notes, the diary or the Inbox? They are under')} <a href="#/week">{t('Plan|place')}</a>{t('; your questions, insights and weight under')} <a href="#/auswerten">{t('Analysis|place')}</a>{t(', the gear under')} <a href="#/gear">{t('Bikes|place')}</a>. {t('The toolbox is a tab of')} <a href="#/me/tools">{t('Trips|place')}</a>{t(', Inspiration and your links are tabs of')} <a href="#/inspiration">{t('Plan|place')}</a>. {t('Documents, photo album, friends and mini tools are in «All here» on')} <a href="#/week">{t('Plan|place')}</a>.</span></p>
       <section class="ich-sec" aria-labelledby="me-data-h">
-        <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2></div></div>
+        <div class="ich-h"><div><h2 id="me-data-h">{t('Data')}</h2>{#if dataStand}<p class="ich-hs" data-stand="data">{dataStand}</p>{/if}</div></div>
         <ul class="card ich-list">
           <li>
             <a class="ich-row" href="#/me/data">
@@ -231,22 +242,8 @@
         </ul>
       </section>
 
-      <!-- Wegweiser (Noah 08.11.2026 «a»): «Angebote» left this page on 22.10. (Q05); Tennis is one place again -->
-      <section class="ich-sec" aria-labelledby="me-tennis-h">
-        <div class="ich-h"><div><h2 id="me-tennis-h">{t('Tennis')}</h2></div></div>
-        <ul class="card ich-list">
-          <li>
-            <a class="ich-row" href="#/me/tennis" data-me-row="tennis">
-              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Offers and requests')}</b><small>{t('Free times, link for parents, requests, customers')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-        </ul>
-      </section>
-
       <section class="ich-sec" aria-labelledby="me-set-h">
-        <div class="ich-h"><div><h2 id="me-set-h">{t('Settings')}</h2></div></div>
+        <div class="ich-h"><div><h2 id="me-set-h">{t('Settings')}</h2><p class="ich-hs" data-stand="settings">{settingsStand}</p></div></div>
         <ul class="card ich-list">
           <li>
             <!-- v0.97.0 Design-Refresh R1: font, colour world, text size and light or dark on their own page -->
@@ -320,6 +317,14 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </button>
           </li>
+          <li>
+            <!-- Wegweiser (Noah 08.11.2026 «a»): Tennis is one place; V6 (Plan 6): the row sits under Settings, no group of its own -->
+            <a class="ich-row" href="#/me/tennis" data-me-row="tennis">
+              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Offers and requests')}</b><small>{t('Free times, link for parents, requests, customers')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
           <li class="ich-row ich-wrap lang">
             <span class="ich-ib"><Globe size={18} aria-hidden="true" /></span>
             <span class="ich-m"><b id="me-lang">{t('Language')}</b></span>
@@ -352,7 +357,7 @@
 
     <div class="ich-side">
       <section class="ich-sec" aria-labelledby="me-app-h">
-        <div class="ich-h"><div><h2 id="me-app-h">{t('Help|me')}</h2></div></div>
+        <div class="ich-h"><div><h2 id="me-app-h">{t('Help|me')}</h2><p class="ich-hs" data-stand="help">{helpStand}</p></div></div>
         <ul class="card ich-list">
           <li>
             <a class="ich-row" href="#/features">
