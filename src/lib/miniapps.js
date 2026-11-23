@@ -66,6 +66,7 @@ export const MINI_APPS = [
     tabs: [
       { key: 'today', label: 'Today|kurs', href: '#/kurse', match: (h) => /^#\/kurse\/?$/.test(path(h)) },
       { key: 'gold', label: 'Gold', href: '#/kurse/gold', match: (h) => path(h).startsWith('#/kurse/gold') },
+      { key: 'decision', label: 'Decision|kurs', href: '#/kurse/entscheidung', match: (h) => path(h).startsWith('#/kurse/entscheidung') },
       { key: 'markets', label: 'Markets|kurs', href: '#/kurse/maerkte', match: (h) => path(h).startsWith('#/kurse/maerkte') },
       { key: 'mine', label: 'My numbers|kurs', href: '#/kurse/bestand', match: (h) => path(h).startsWith('#/kurse/bestand') },
       { key: 'sources', label: 'Sources|kurs', href: '#/kurse/quellen', match: (h) => path(h).startsWith('#/kurse/quellen') },

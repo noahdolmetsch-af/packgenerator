@@ -108,7 +108,7 @@ export default {
   'comes by itself': 'kommt von selbst',
   'Bike|numbers': 'Velo',
   'no ride today': 'heute keine Fahrt',
-  'Active goals': 'Aktiv-Ziele',
+  'Active goals': 'Wochenziele',
   'reached right now': 'gerade erreicht',
   'Steps and active zones come with Fitbit/Google.': 'Schritte und Aktivzonen kommen mit Fitbit/Google dazu.',
   'Morning → evening': 'Morgen → Abend',

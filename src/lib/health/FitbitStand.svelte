@@ -8,6 +8,8 @@
   import { localDay } from '../localday.js';
   import { t, locale } from '../i18n.svelte.js';
 
+  /** `again`: «Try again now» stays there also when the last fetch worked (the banner of Heute, Noah 23.11.2026) */
+  let { again = false } = $props();
   const st = $derived(fitbitStand(health));
   const when = $derived.by(() => {
     if (!st?.at) return '';
@@ -20,8 +22,8 @@
 {#if st}
   <p class="stand" data-fitbit-stand>
     {#if when}<span>{t('As of {time}', { time: when })}</span>{:else}<span>{t('No fetch yet')}</span>{/if}
-    {#if st.failed || health.busy}
-      <button type="button" class="again" disabled={health.busy} onclick={() => fetchNow()} data-fitbit-again>{health.busy ? t('Fetching …') : t('Try again now')}</button>
+    {#if st.failed || health.busy || again}
+      <button type="button" class="again" disabled={health.busy} onclick={() => fetchNow()} data-fitbit-again>{health.busy ? t('Fetching …') : st.failed ? t('Try again now') : t('Fetch now|fitbit')}</button>
     {/if}
   </p>
 {/if}

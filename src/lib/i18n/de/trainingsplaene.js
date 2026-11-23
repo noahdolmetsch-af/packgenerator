@@ -132,11 +132,11 @@ export default {
   'Tempo: 2 × 12 min': 'Tempo: 2 × 12 min',
   // features, handbook, how-to
   'Sample plans for ultracycling, ski tours, hiking and strength: back from the race day or from a day, hours per week to set; they go into your week plan.': 'Musterpläne fürs Ultracycling, für Skitouren, Wandern und Kraft: rückwärts ab Renntag oder ab einem Tag, Stunden pro Woche einstellbar; sie kommen in deine Trainingswoche.',
-  'After a new Strava activity Active asks «How was it?» in three words; without heart rate it counts for the plan.': 'Nach einer neuen Strava-Aktivität fragt Aktiv «Wie war\'s?» in drei Wörtern; ohne Puls zählt sie für den Plan.',
-  'Open Active › Training › Training plans.': 'Öffne Aktiv › Training › Trainingspläne.',
+  'After a new Strava activity Active asks «How was it?» in three words; without heart rate it counts for the plan.': 'Nach einer neuen Strava-Aktivität fragt «Heute abhaken» «Wie war\'s?» in drei Wörtern; ohne Puls zählt sie für den Plan.',
+  'Open Active › Training › Training plans.': 'Öffne Woche › Training › Trainingspläne.',
   'Pick a plan, choose «Back from the race day» and set the day.': 'Wähl einen Plan, dann «Rückwärts ab Renntag», und stell den Tag ein.',
   'Tap «Try it»: the sessions stand in your week plan.': 'Tipp «Ausprobieren»: Die Einheiten stehen in deiner Trainingswoche.',
-  'Open Active after an activity from Strava.': 'Öffne nach einer Strava-Aktivität Aktiv.',
+  'Open Active after an activity from Strava.': 'Öffne nach einer Strava-Aktivität «Heute abhaken».',
   'Tap «light», «good» or «hard» under «How was it?», or «Later».': 'Tipp unter «Wie war\'s?» auf «leicht», «gut» oder «hart», oder auf «Später».',
   'Change it later on the page of the activity: words or 1 to 10.': 'Ändern kannst du sie später auf der Seite der Aktivität: Wörter oder 1 bis 10.',
   // coupled to a race (Noah «1a»)

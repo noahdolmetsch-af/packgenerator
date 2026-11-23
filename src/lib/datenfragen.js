@@ -805,6 +805,16 @@ export function randomPick(pool = [], answers = [], cfg = null, today) {
   return left.map((x) => [hash(`${today}|${x.id}`), x]).sort((a, b) => a[0] - b[0] || a[1].id.localeCompare(b[1].id))[0][1];
 }
 
+/**
+ * Noah 23.11.2026 «Beides»: the random question on the morning page, the same one as in the window (`randomPick`), but always
+ * there (the window brings it only when something else is due). Not when it is switched off, and no other one on the day
+ * «Never again» was tapped. Answered today it stays, so the answer can be changed. → the question or null.
+ */
+export function pageRandom(pool = [], answers = [], cfg = null, today) {
+  if (!randomOn(cfg) || dataOf(cfg).zufall.day === today) return null;
+  return randomPick(pool, answers, cfg, today);
+}
+
 /** The guess of today: the hint (an insight row, with its `sentence` and `rho`) when it is strong enough: { sentence } or null. */
 export function vermutungHit(hint, strength = 30) {
   if (!hint?.sentence || !(Math.abs(hint.rho) * 100 >= strength)) return null;

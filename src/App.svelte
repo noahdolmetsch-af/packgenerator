@@ -76,6 +76,7 @@
   import { t, lang } from './lib/i18n.svelte.js';
   import { slideDir, SLIDE_MS } from './lib/nav/slide.js';
   import { goAt } from './lib/nav/at.js'; // «Link auf den Abschnitt»: ?at=… scrolls to and lights a section
+  import { entrance } from './lib/nav/eingang.js';
   import { trackScroll, leavePage, arrivePage, startPage } from './lib/nav/scrollmem.js'; // «Position merken»: Zurück lands where you were
 
   // A tiny "router": the part of the address after # decides which page is shown,
@@ -97,6 +98,7 @@
   const mini = miniAppOf(location.pathname);
   if (mini && miniStart(mini, location.hash) !== location.hash) history.replaceState(null, '', `${location.pathname}${location.search}${miniStart(mini, location.hash)}`);
   let hash = $state(follow(location.hash));
+  entrance(); // «Zurück am Eingang»: opened deep, Back goes to Heute first (not out of the app)
   // the «?» window lists the help of the page the app shows (not the raw address: some addresses lead on to another page)
   $effect(() => {
     helpHere.route = hash;

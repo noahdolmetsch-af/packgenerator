@@ -42,7 +42,7 @@ export default {
   'Week before|mp': 'Woche davor',
   'Week after|mp': 'Woche danach',
   'Your plan and what you did, on one page: the goal with the weeks to go, the week in hours and units, the hours per week (bars: done, line: plan), this week unit by unit and the plan against what you did for the last 4 weeks. It reads your weekly plan and your week and only shows; changing is done where it was done before. No alarm, no grade.': 'Dein Plan und was du gemacht hast, auf einer Seite: das Ziel mit den Wochen bis dahin, die Woche in Stunden und Einheiten, die Stunden pro Woche (Balken: gemacht, Linie: Plan), diese Woche Einheit für Einheit und der Plan gegen das Gemachte der letzten 4 Wochen. Sie liest deinen Wochenplan und deine Woche und zeigt nur an; geändert wird dort, wo es bisher geändert wurde. Kein Alarm, keine Note.',
-  'Open Active; under «This week» tap «My training plan».': 'Öffne Aktiv und tippe unter «Diese Woche» auf «Mein Trainingsplan».',
+  'Open Active; under «This week» tap «My training plan».': 'Öffne «Heute abhaken» und tippe unter «Diese Woche» auf «Mein Trainingsplan».',
   'Read the week in hours and units, and the bars against the plan line.': 'Lies die Woche in Stunden und Einheiten, und die Balken gegen die Plan-Linie.',
   'Tap a bar for that week, or a unit to change it in the weekly plan.': 'Tippe auf einen Balken für diese Woche, oder auf eine Einheit, um sie im Wochenplan zu ändern.',
   'Example: 5:54 h of 9:00 h planned, 4 of 7 units done, 93 % of the plan hours so far.': 'Beispiel: 5:54 h von 9:00 h geplant, 4 von 7 Einheiten gemacht, 93 % der Plan-Stunden bisher.',

@@ -4,13 +4,15 @@
    * values of today next to yesterday (body.js) and the check of the moment: the Morgen-Check, from the evening
    * round time the Abend-Check (AbCard tells Heute how many questions wait; «Los» opens its window).
    * Observation only: the arrow says up or down, no colour for good or bad.
+   * Banner (Noah 23.11.2026 «1-4a»): resting pulse (when Fitbit delivered it), active zone minutes today and yesterday,
+   * sleep and HRV next to your usual, one quiet arrow when a value is far from it, «Fetch now» under the values.
    */
   import { liveQuery } from 'dexie';
   import { Activity, ArrowUp, ArrowDown, ArrowRight, ClipboardList, Check, ChevronRight } from '@lucide/svelte';
   import { db } from '../db.js';
   import { addDays } from '../health.js';
   import { afterMorning, stampOf } from '../abfragen.js';
-  import { bodyToday, bodyWeek } from './body.js';
+  import { bodyToday, bodyWeek, BANNER_KEYS } from './body.js';
   import FitbitStand from '../health/FitbitStand.svelte';
   import TileHead from './TileHead.svelte';
   import { health, fetchNow } from '../health/client.svelte.js';
@@ -19,10 +21,10 @@
   import BodySheet from './BodySheet.svelte';
   import { t, tn, locale } from '../i18n.svelte.js';
 
-  let { today, due = 0, areas = [], evening = false, open = false, onstart = () => {} } = $props();
+  let { today, due = 0, areas = [], evening = false, open = false, onstart = () => {}, check = true } = $props();
   const late = afterMorning(stampOf()); // from 11:00: «Open from this morning» instead of «Morning check» (17.11.2026)
 
-  const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -7)).toArray() : [])));
+  const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -30)).toArray() : [])));
   const body = $derived(bodyToday($hq ?? [], today));
   // Noah 2.11.2026 «1a»: nothing new from Fitbit yet → the last values of the last 7 days, each marked with its day
   const lastVals = $derived(body.rows.some((r) => r.now != null) ? null : bodyWeek($hq ?? [], today));
@@ -33,9 +35,17 @@
   const stand = $derived(fitbitStand(health));
   const dayTag = (day) => (day === addDays(today, -1) ? t('from yesterday') : shortDay(day));
   const n1 = (x) => Number(x).toLocaleString(locale(), { maximumFractionDigits: 1 });
-  const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body' };
-  const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? `${n1(x)} h` : r.key === 'score' && r.kind === 'efficiency' ? `${x} %` : String(Math.round(x)));
+  const LABEL = { pulse: 'Resting pulse|body', sleep: 'Sleep|body', score: 'Sleep score|body', azm: 'Active zone minutes|body', hrv: 'HRV' };
+  const TAB = { pulse: 'hr', azm: 'azm', sleep: 'sleep', hrv: 'hrv' }; // the tab of Körperwerte a field opens on a computer
+  const UNIT = { azm: 'min', hrv: 'ms' };
+  // sleep as «4 h 10» (hours and minutes), the other values as whole numbers
+  const hm = (h) => `${Math.floor(Math.round(h * 60) / 60)} h ${String(Math.round(h * 60) % 60).padStart(2, '0')}`;
+  const fmt = (r, x) => (x == null ? '–' : r.key === 'sleep' ? hm(x) : r.key === 'score' && r.kind === 'efficiency' ? `${x} %` : String(Math.round(x)));
   const label = (r) => (r.key === 'score' && r.kind === 'efficiency' ? t('Sleep efficiency|body') : t(LABEL[r.key]));
+  const banner = (rows) => BANNER_KEYS.map((k) => rows.find((r) => r.key === k)).filter(Boolean);
+  // «geholt 07:12» / «geholt gestern 22:40»: when Fitbit delivered the day
+  const fetched = (f) => (f ? t('fetched {when}', { when: f.day === 'today' ? f.hm : `${f.day === 'yesterday' ? t('yesterday') : shortDay(f.day)} ${f.hm}`.trim() }) : '');
+  const offWord = (o) => (o < 0 ? t('lower than usual') : t('higher than usual'));
   // «Neuer Schwung» Blatt von unten (Noah 27.10.2026 «a»): on a phone the tile opens a sheet, the computer keeps the link
   let sheet = $state(false);
   const shortDay = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' });
@@ -50,37 +60,38 @@
       <a class="go" href="#/me/insights">{t('Details|body')}<ChevronRight size={16} aria-hidden="true" /></a>
     {/if}
   </div>
+  {#snippet field(r, v, sub, fetch, stale)}
+    <div data-body={r.key} class="fld" class:off={r.off}>
+      <dt>{label(r)}</dt>
+      <dd class="v">
+        {#if phone.matches}
+          <b class="num" data-body-stale={stale ? '' : undefined}>{fmt(r, v)}</b>
+        {:else}
+          <a class="va" href="#/flow/stats/{TAB[r.key]}" data-body-go={r.key}><b class="num" data-body-stale={stale ? '' : undefined}>{fmt(r, v)}</b></a>
+        {/if}
+        {#if UNIT[r.key]}<small>{UNIT[r.key]}</small>{/if}
+        {#if r.off}<span class="mk" role="img" aria-label={offWord(r.off)} title={offWord(r.off)}>{#if r.off < 0}<ArrowDown size={14} aria-hidden="true" />{:else}<ArrowUp size={14} aria-hidden="true" />{/if}</span>{/if}
+      </dd>
+      {#if sub}<dd class="yd" title={r.key === 'azm' && r.before != null ? t('yesterday {v}', { v: fmt(r, r.before) }) : undefined}><span class="num">{sub}</span></dd>{/if}
+      {#if fetch}<dd class="yd" data-body-fetched><span class="num">{fetch}</span></dd>{/if}
+    </div>
+  {/snippet}
   {#if body.rows.some((r) => r.now != null)}
     <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions (the «Details» button does the same by keyboard) -->
     <dl class="vals" class:tap={phone.matches} onclick={() => phone.matches && (sheet = true)}>
-      {#each body.rows as r (r.key)}
-        <div data-body={r.key}>
-          <dt>{label(r)}</dt>
-          <dd>
-            {#if r.now == null && r.last}
-              <!-- no reading of today yet: the last value, with its day (never an empty dash) -->
-              <b class="num" data-body-stale>{fmt(r, r.last.value)}</b><span class="yd">{dayTag(r.last.day)}</span>
-            {:else}
-              <b class="num">{fmt(r, r.now)}</b>
-              {#if r.dir != null}
-                <span class="yd" title={t('yesterday {v}', { v: fmt(r, r.before) })}>
-                  {#if r.dir > 0}<ArrowUp size={14} aria-hidden="true" />{:else if r.dir < 0}<ArrowDown size={14} aria-hidden="true" />{:else}<ArrowRight size={14} aria-hidden="true" />{/if}
-                  <span class="num">{t('yesterday {v}', { v: fmt(r, r.before) })}</span>
-                </span>
-              {:else if r.before != null}<span class="yd"><span class="num">{t('yesterday {v}', { v: fmt(r, r.before) })}</span></span>
-              {:else if partial}<span class="yd">{t('today|body')}</span>{/if}
-            {/if}
-          </dd>
-        </div>
+      {#each banner(body.rows).filter((r) => r.now != null || r.last) as r (r.key)}
+        {#if r.now == null}
+          <!-- no reading of today yet: the last value, with its day (never an empty dash) -->
+          {@render field(r, r.last.value, dayTag(r.last.day), r.key === 'pulse' ? fetched(r.fetched) : '', true)}
+        {:else}
+          {@render field(r, r.now, r.key === 'pulse' ? fetched(r.fetched) : r.usual != null ? t('usual {v}', { v: fmt(r, r.usual) }) : r.before != null ? t('yesterday {v}', { v: fmt(r, r.before) }) : partial ? t('today|body') : '', '', false)}
+        {/if}
       {/each}
     </dl>
   {:else if lastVals?.any}
     <dl class="vals" data-body-last>
-      {#each lastVals.rows.filter((r) => r.now != null) as r (r.key)}
-        <div data-body={r.key}>
-          <dt>{label(r)}</dt>
-          <dd><b class="num">{fmt(r, r.now)}</b><span class="yd"><span class="num">{r.day === addDays(today, -1) ? t('from yesterday') : shortDay(r.day)}</span></span></dd>
-        </div>
+      {#each banner(lastVals.rows).filter((r) => r.now != null) as r (r.key)}
+        {@render field(r, r.now, r.day === addDays(today, -1) ? t('from yesterday') : shortDay(r.day), '', true)}
       {/each}
     </dl>
   {:else}
@@ -94,9 +105,10 @@
       {#if !stand?.failed}<button type="button" class="again" disabled={health.busy} onclick={() => fetchNow()} data-body-fetch>{health.busy ? t('Fetching …') : t('Fetch now|fitbit')}</button>{/if}
     </p>
   {/if}
-  <FitbitStand />
+  <FitbitStand again={!showHint} />
   <!-- the check of the moment: Morgen-Check, from the evening round time the Abend-Check -->
-  <div class="ck" class:done={!due} data-body-check={evening ? 'evening' : 'morning'}>
+  <!-- Heute aufräumen (23.11.2026): when the tile «Heute-Check» is on Heute it says the same, so the row is only here without it -->
+  {#if check}<div class="ck" class:done={!due} data-body-check={evening ? 'evening' : 'morning'}>
     <span class="ci" aria-hidden="true">{#if due}<ClipboardList size={18} />{:else}<Check size={18} strokeWidth={2.6} />{/if}</span>
     {#if due}
       <span class="ct">{tn(due, evening ? 'Evening check · {n} question' : late ? 'Open from this morning · {n} question' : 'Morning check · {n} question', evening ? 'Evening check · {n} questions' : late ? 'Open from this morning · {n} questions' : 'Morning check · {n} questions')}{#if areas.length}<small class="ar" data-body-areas>{areas.join(' · ')}</small>{/if}</span>
@@ -105,8 +117,8 @@
       <span class="ct">{evening ? t('Evening check: nothing open') : t('Morning check: nothing open')}</span>
       <a class="lk" href={evening ? '#/check/evening' : '#/check/morning'}>{t('See|check')}</a>
     {/if}
-  </div>
-  <p class="note">{t('Only to look at: the arrow compares with yesterday.')}</p>
+  </div>{/if}
+  <p class="note">{t('Only to look at: a small arrow says that a value is lower or higher than usual, never good or bad.')}</p>
 </section>
 {#if phone.matches}<BodySheet bind:open={sheet} {today} />{/if}
 
@@ -142,16 +154,18 @@
   }
   .vals {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 16px;
+    grid-template-columns: repeat(auto-fit, minmax(66px, 1fr));
+    gap: 6px 8px;
     margin: 0;
   }
   .vals.tap {
     cursor: pointer;
   }
-  .vals div {
+  .fld {
+    position: relative;
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
+    gap: 1px;
     min-width: 0;
   }
   .vals dt,
@@ -162,15 +176,51 @@
     font-size: var(--fs-small);
     margin: 0;
   }
+  .vals dt {
+    font-size: var(--fs-tiny);
+  }
+  .fld .yd {
+    font-size: var(--fs-tiny);
+    line-height: 1.25;
+  }
   .vals dd {
     margin: 0;
+  }
+  .vals dd.v {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: baseline;
-    gap: 2px 8px;
+    gap: 0 3px;
   }
   .vals b {
     font-size: var(--fs-sub);
+    white-space: nowrap;
+  }
+  .vals dd.v small {
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+  }
+  .va {
+    color: inherit;
+    text-decoration: none;
+  }
+  .va::after {
+    content: '';
+    position: absolute;
+    inset: -4px -6px;
+    border-radius: 10px;
+  }
+  .va:hover::after {
+    background: color-mix(in srgb, var(--hi) 6%, transparent);
+  }
+  .va:focus-visible::after {
+    outline: var(--focus-ring);
+  }
+  .mk {
+    display: inline-flex;
+    align-self: center;
+    color: var(--ink-3);
   }
   .yd {
     display: inline-flex;

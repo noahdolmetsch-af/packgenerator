@@ -33,8 +33,8 @@ export default {
   'Quick starts': 'Schnellstarts',
   'Own quick start': 'Eigener Schnellstart',
   'Name of the quick start': 'Name des Schnellstarts',
-  'Also tick off in Aktiv': 'Auch in Aktiv abhaken',
+  'Also tick off in Aktiv': 'Auch in «Heute abhaken» abhaken',
   'Which activity?': 'Welche Aktivität?',
   'Tick off · {n} min': 'Abhaken · {n} Min',
-  'Ticked in Aktiv: {name}': 'In Aktiv abgehakt: {name}',
+  'Ticked in Aktiv: {name}': 'In «Heute abhaken» abgehakt: {name}',
 };
