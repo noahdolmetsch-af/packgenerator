@@ -44,5 +44,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 36 | Die Seite, auf der man Kleider bei einer Temperatur anprobiert (Weg A) | Ankleiden, Outfit-Planer, Kleider-Simulator | **«Anprobe»** (`#/wardrobe/tryon`); in der Hilfe «Try on» (Noah 21.11.2026 «1-5a 4b») |
 | 37 | Die kleine App für die Tageskurse von Gold und SMI | Kurse-App, Börsen-App, Gold-Tracker | **«Kursblick»** (Noah 22.11.2026 «3a»); der Kurs vom Vortag heisst **«Schlusskurs»**, der feste Vergleichstag **«Referenztag»**, der Abzug beim Verkauf **«Händlerabschlag»** |
 | 38 | Der Tag als Zeitleiste mit Zeiten und Ziehen | Tagesplan, Tagesansicht, Tageskalender | **«Mein Tag»** (Noah 23.11.2026 «ja»); Reiter und Seite, Adresse `#/day`. Die Woche mit der gleichen Zeitleiste heisst weiter **«Woche»**, der Monat **«Monat»** |
+| 39 | Die zugeklappte Zeile unter den Fragen von «Wi gaht's?» am Morgen und am Abend, die jede andere Frage für eine Antwort anbietet | Mehr Fragen, Fragen einblenden | **«Weitere Fragen»** (Noah 23.11.2026 «Beides»). Im Fenster heisst der Knopf weiter «Noch N Fragen einblenden» (die ersten drei Fragen und der Rest). Die wechselnde Frage heisst **«Zufallsfrage»**, auf der Seite wie im Fenster |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.
