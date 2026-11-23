@@ -49,6 +49,9 @@ test('Strava minutes and minutes by hand add up, the trainer does not count, own
   await expect(card.locator('.dots i.miss')).toHaveCount(1); // the 24th (20)
   await expect(card.locator('.dots i.today')).toHaveCount(1);
   await expect(card.locator('[data-outdoor-light]')).toContainText(T('The sun sets at {set}.', { set: '' }).slice(0, 12));
+  // jump-off (Challenges nach Gelegenheit): while the day is open, a link to the trip tips
+  await expect(card.locator('[data-outdoor-tips]')).toHaveAttribute('href', '#/trips/dreams');
+  await expect(card.locator('[data-outdoor-tips]')).toContainText(T('Trip tips for your time'));
   if (process.env.SHOTS) {
     await card.evaluate((el) => (el.style.outline = '3px solid #f08a24')); // the new part, framed for the pictures
     await card.scrollIntoViewIfNeeded();
@@ -59,6 +62,7 @@ test('Strava minutes and minutes by hand add up, the trainer does not count, own
   await card.locator('[data-own-min-input]').press('Enter');
   await expect(card.locator('[data-outdoor-now]')).toContainText(T('Done today: {min} of {goal} min', { min: 175, goal: 90 }));
   await expect(card.locator('.dots i.ok')).toHaveCount(3);
+  await expect(card.locator('[data-outdoor-tips]')).toHaveCount(0); // the day is done: no more tip
   if (process.env.SHOTS) {
     await card.scrollIntoViewIfNeeded();
     await page.waitForTimeout(5500); // the message with Undo is gone

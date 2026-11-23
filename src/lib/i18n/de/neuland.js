@@ -244,6 +244,8 @@ export default {
   'Open Trips › Dreams; «Fits today» is at the top.': 'Öffne Touren › Träume; «Heute passt» steht oben.',
   'Choose the hours you have.': 'Wähle die Stunden, die du hast.',
   'Tap «Round through it» at a place.': 'Tippe bei einem Ort «Runde hindurch».',
+  // Challenges nach Gelegenheit: Absprung aus der Draussen-Karte
+  'Trip tips for your time': 'Ausflugstipps für deine Zeit',
   // «Neue Kilometer» (Träume und Neuland N4)
   'New kilometres': 'Neue Kilometer',
   'How many km ran on roads you rode for the first time.': 'Wie viele km auf Strassen, die du zum ersten Mal gefahren bist.',
