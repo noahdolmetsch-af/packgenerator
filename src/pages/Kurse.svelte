@@ -1,8 +1,9 @@
 <script>
   /**
    * «Kursblick» (Noah 22.11.2026 «ja»; plan: docs/releases/kursblick.md): the small app for the daily prices of gold,
-   * the SMI and more. Four views: Today (#/kurse), Gold (#/kurse/gold), Markets (#/kurse/maerkte: the titles the person
-   * follows, src/lib/kurse/Maerkte.svelte) and Sources (#/kurse/quellen).
+   * the SMI and more. Five views: Today (#/kurse), Gold (#/kurse/gold, with gold after inflation), Markets (#/kurse/maerkte: the titles the person
+   * follows, src/lib/kurse/Maerkte.svelte), My numbers (#/kurse/bestand: holdings with profit or loss and goals, private, src/lib/kurse/Meins.svelte)
+   * and Sources (#/kurse/quellen).
    * The closing price of the day before comes from the server (api/lake.js ?action=kurse), the last answer stays on the
    * device (src/lib/kurse/laden.js). Gold is shown in francs per kilogram against the reference day (1 Nov 2026, a
    * Sunday: the last close before it) and with what a sale would bring (price minus the dealer's deduction, 2 % as a
@@ -17,6 +18,8 @@
   import Verlauf from '../lib/kurse/Verlauf.svelte';
   import Zeitraum from '../lib/kurse/Zeitraum.svelte';
   import Maerkte from '../lib/kurse/Maerkte.svelte';
+  import Meins from '../lib/kurse/Meins.svelte';
+  import GoldReal from '../lib/kurse/GoldReal.svelte';
   import { db } from '../lib/db.js';
   import { t } from '../lib/i18n.svelte.js';
   import { miniAppOf } from '../lib/miniapps.js';
@@ -26,7 +29,7 @@
   import '../lib/ich/ich.css';
 
   let { sub = '' } = $props();
-  const view = $derived(sub === 'gold' ? 'gold' : sub === 'quellen' ? 'quellen' : sub === 'maerkte' ? 'maerkte' : 'heute');
+  const view = $derived(sub === 'gold' ? 'gold' : sub === 'quellen' ? 'quellen' : sub === 'maerkte' ? 'maerkte' : sub === 'bestand' ? 'bestand' : 'heute');
   const inMini = typeof location !== 'undefined' && !!miniAppOf(location.pathname);
   const NAMES = { gold: 'Gold', smi: 'SMI', usdchf: 'USD/CHF' };
 
@@ -105,12 +108,14 @@
 
   {#if !inMini}
     <div class="kseg">
-      <Seg label={t('View')} value={view} options={[{ key: 'heute', name: t('Today|kurs') }, { key: 'gold', name: t('Gold') }, { key: 'maerkte', name: t('Markets|kurs') }, { key: 'quellen', name: t('Sources|kurs') }]} onchange={(k) => go(k === 'heute' ? '#/kurse' : `#/kurse/${k}`)} />
+      <Seg label={t('View')} value={view} options={[{ key: 'heute', name: t('Today|kurs') }, { key: 'gold', name: t('Gold') }, { key: 'maerkte', name: t('Markets|kurs') }, { key: 'bestand', name: t('My numbers|kurs') }, { key: 'quellen', name: t('Sources|kurs') }]} onchange={(k) => go(k === 'heute' ? '#/kurse' : `#/kurse/${k}`)} />
     </div>
   {/if}
 
   {#if view === 'maerkte'}
     <Maerkte {zeitraum} onzeitraum={(p) => (zeitraum = p)} />
+  {:else if view === 'bestand'}
+    <Meins {reihen} />
   {:else if laedt && !wert}
     <p class="muted" role="status">{t('Fetching prices …')}</p>
   {:else if fehler && !wert}
@@ -145,6 +150,8 @@
     {:else}
       <p class="muted small" data-smi-fehlt>{t('The SMI is not reachable right now.')}</p>
     {/if}
+
+    <Meins modus="heute" {reihen} />
 
     <section class="k-zeit">
       <h2 class="h2">{t('Compare with')}</h2>
@@ -203,11 +210,14 @@
       <Zeitraum value={zeitraum} onchange={(p) => (zeitraum = p)} />
       <Verlauf points={ab(goldChf, periodStart)} label={t('Gold in CHF per kg')} />
     </section>
+
+    <GoldReal {goldChf} />
   {:else}
     <section class="card k-card" data-quellen>
       <h2>{t('Where the prices come from')}</h2>
       <p>{t('Stooq and Yahoo Finance, free and unofficial. They are meant for private use and can change or stop without notice; that is why every price has two sources and says which day it is from.')}</p>
       <p>{t('The prices are fetched by the small server of the app (not by your phone), once a day is enough: you see the close of the day before.')}</p>
+      <p>{t('The consumer price index for «Gold after inflation» comes from the World Bank, one value a year.')}</p>
       <ul class="stand">
         {#each Object.keys(NAMES) as id (id)}
           {@const r = reihen[id]}

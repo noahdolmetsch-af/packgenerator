@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { closeDialog, openData, settle } from './settle.js';
+import { openSortSheet } from './gearmenu.js';
 
 const T = (en, vars) => {
   const text = DE[en] ?? en.replace(/\|[a-z]+$/, '');
@@ -151,7 +152,7 @@ test('LI4: «Liste bearbeiten» in Material › Sortieren und filtern opens the 
   await start(page, context);
   await page.goto('./#/gear');
   await settle(page);
-  await page.locator('.fbtn').click();
+  await openSortSheet(page);
   const fs = page.getByRole('dialog', { name: T('Sort and filter') });
   await fs.getByRole('link', { name: T('Edit list') }).click();
   await expect(page).toHaveURL(/#\/me\/lists\?categories$/);

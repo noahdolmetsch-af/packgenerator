@@ -23,3 +23,21 @@ export function sentencesOf(bars, fmt = String) {
   if (best >= 2) out.push(t('Longest break: {n} bars in a row without anything', { n: best }));
   return out.slice(0, 3);
 }
+
+/**
+ * «Eine Aussage pro Diagramm» (Noah 23.11.2026 «ja»): one neutral sentence over a line chart, by one rule: how the
+ * newest value stands against the first real value of the period. points: [{ label, v }] oldest first (v: a number or null),
+ * fmt writes a difference (an unsigned number with its unit). Under 4 real points, or a difference that fmt writes as
+ * nothing, it returns nothing. Never a rating: «more» and «less», not «better» or «worse».
+ */
+export function changeSentence(points, fmt = String, { since = '' } = {}) {
+  const real = points.filter((p) => Number.isFinite(p.v));
+  if (real.length < 4) return [];
+  const first = real[0];
+  const last = real.at(-1);
+  const d = last.v - first.v;
+  const text = fmt(Math.abs(d));
+  if (!d || !/[1-9]/.test(text)) return [t('Now {v}, the same as at the start', { v: fmt(last.v) })];
+  const label = since || first.label;
+  return [d > 0 ? t('Now {v}, {d} more than on {label}', { v: fmt(last.v), d: text, label }) : t('Now {v}, {d} less than on {label}', { v: fmt(last.v), d: text, label })];
+}

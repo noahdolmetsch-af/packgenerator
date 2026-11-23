@@ -4,12 +4,15 @@
    * compare a pause, a short and a long session (and the plan, if one is planned that day) by fitness,
    * fatigue and form 1, 3 and 7 days later. A model with a range, never a forecast: only what load can
    * explain. Resting pulse, HRV and sleep are not here on purpose. Rules and numbers: wenn.js.
+   * Noah 23.11.2026 «ja»: the answer is a few plain sentences (each option against a pause, after a week); minutes, zone, the
+   * other values and the table with its ranges are folded under «Change it and see all numbers». Nothing is gone.
    */
   import Seg from '../../ui/Seg.svelte';
   import { dayLoads } from '../../form.js';
   import { addDays } from '../../health.js';
   import { plannedByDay, actsByDayOf } from './landschaft.js';
   import { optionsFor, whatIf, CHOOSE_DAYS, CHECKS, DEFAULTS, MINS_MIN, MINS_MAX } from './wenn.js';
+  import { ChevronDown } from '@lucide/svelte';
   import { t, tn, num, locale } from '../../i18n.svelte.js';
 
   let { f, today } = $props();
@@ -36,61 +39,71 @@
   const name = (o) =>
     o.key === 'plan' ? t('As planned|ww') : o.key === 'pause' ? t('Pause|ww') : o.key === 'short' ? t('Short: {n} min|ww', { n: num(o.mins) }) : t('Long: {n} min|ww', { n: num(o.mins) });
 
-  // one calm sentence: the long session against the pause, after a week
-  const sentence = $derived.by(() => {
+  // plain sentences: every option against a pause, the form after a week (the last check)
+  const SAME = 1; // up to this many points counts as «about the same»
+  const lines = $derived.by(() => {
     const p = result.find((o) => o.key === 'pause');
-    const l = result.find((o) => o.key === 'long');
-    if (!p || !l) return '';
+    if (!p) return [];
     const k = CHECKS.length - 1;
-    const d = l.points[k][metric].v - p.points[k][metric].v;
-    const n = CHECKS[k];
-    const what = metric === 'form' ? t('form|ww') : metric === 'fat' ? t('fatigue|ww') : t('fitness|ww');
-    if (d === 0) return t('After {n} days the {what} is about the same with the long session as with a pause.|ww', { n, what });
-    return t(d > 0 ? 'After {n} days the {what} is {d} points higher with the long session than with a pause (a model).|ww' : 'After {n} days the {what} is {d} points lower with the long session than with a pause (a model).|ww', { n, what, d: num(Math.abs(d)) });
+    return result
+      .filter((o) => o.key !== 'pause')
+      .map((o) => {
+        const d = o.points[k].form.v - p.points[k].form.v;
+        const cmp = Math.abs(d) <= SAME ? t('about the same as with a pause|ww') : d > 0 ? t('{d} points higher than with a pause|ww', { d: num(d) }) : t('{d} points lower than with a pause|ww', { d: num(-d) });
+        return { key: o.key, name: name(o), text: t('After a week your form is {cmp} (a model).|ww', { cmp }) };
+      });
   });
   const checkName = (k) => (k === 1 ? t('The day after|ww') : tn(k, 'After {n} day|ww', 'After {n} days|ww'));
 </script>
 
 {#if hasLoad}
   <div class="ww" data-whatif>
-    <div class="row">
-      <label class="fld"><span>{t('Which day?|ww')}</span>
-        <select class="inp" bind:value={day} data-ww-day>
-          {#each choices as d (d)}<option value={d}>{long(d)}</option>{/each}
-        </select>
-      </label>
-      <label class="fld"><span>{t('Short, minutes|ww')}</span><input class="inp" type="number" inputmode="numeric" min={MINS_MIN} max={MINS_MAX} bind:value={short} data-ww-short /></label>
-      <label class="fld"><span>{t('Long, minutes|ww')}</span><input class="inp" type="number" inputmode="numeric" min={MINS_MIN} max={MINS_MAX} bind:value={longM} data-ww-long /></label>
-      <label class="fld"><span>{t('Zone|ww')}</span>
-        <select class="inp" bind:value={zone} data-ww-zone>{#each [1, 2, 3, 4, 5] as z (z)}<option value={z}>Z{z}</option>{/each}</select>
-      </label>
-    </div>
-    <Seg small full={false} label={t('Show|layer')} value={metric} onchange={(v) => (metric = v)} options={[{ key: 'form', name: t('Form|form') }, { key: 'fat', name: t('Fatigue|form') }, { key: 'fit', name: t('Fitness|form') }]} />
-
-    {#if result.length}
-      {#if sentence}<p class="sen" data-ww-sentence>{sentence}</p>{/if}
-      <div class="tw">
-        <table data-ww-table>
-          <thead>
-            <tr>
-              <td></td>
-              {#each result as o (o.key)}<th scope="col" data-ww-col={o.key}>{name(o)}<small class="num">{t('~load {n}|ls', { n: num(o.load) })}</small></th>{/each}
-            </tr>
-          </thead>
-          <tbody>
-            {#each CHECKS as k, i (k)}
-              <tr>
-                <th scope="row">{checkName(k)}<small>{long(result[0].points[i].day)}</small></th>
-                {#each result as o (o.key)}
-                  {@const m = o.points[i][metric]}
-                  <td data-ww-cell="{o.key}-{k}"><b class="num">{fmt(m)}</b>{#if range(m)}<small class="num">{range(m)}</small>{/if}</td>
-                {/each}
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
+    <label class="fld day"><span>{t('Which day?|ww')}</span>
+      <select class="inp" bind:value={day} data-ww-day>
+        {#each choices as d (d)}<option value={d}>{long(d)}</option>{/each}
+      </select>
+    </label>
+    {#if lines.length}
+      <p class="lead">{t('Compared with a pause on {day}:|ww', { day: long(day) })}</p>
+      <ul class="sen" data-ww-sentence>
+        {#each lines as l (l.key)}<li data-ww-line={l.key}><b>{l.name}</b> {l.text}</li>{/each}
+      </ul>
     {/if}
+
+    <details class="more" data-ww-more>
+      <summary><span>{t('Change it and see all numbers|ww')}</span><ChevronDown class="cv" size={16} aria-hidden="true" /></summary>
+      <div class="row">
+        <label class="fld"><span>{t('Short, minutes|ww')}</span><input class="inp" type="number" inputmode="numeric" min={MINS_MIN} max={MINS_MAX} bind:value={short} data-ww-short /></label>
+        <label class="fld"><span>{t('Long, minutes|ww')}</span><input class="inp" type="number" inputmode="numeric" min={MINS_MIN} max={MINS_MAX} bind:value={longM} data-ww-long /></label>
+        <label class="fld"><span>{t('Zone|ww')}</span>
+          <select class="inp" bind:value={zone} data-ww-zone>{#each [1, 2, 3, 4, 5] as z (z)}<option value={z}>Z{z}</option>{/each}</select>
+        </label>
+      </div>
+      <Seg small full={false} label={t('Show|layer')} value={metric} onchange={(v) => (metric = v)} options={[{ key: 'form', name: t('Form|form') }, { key: 'fat', name: t('Fatigue|form') }, { key: 'fit', name: t('Fitness|form') }]} />
+      {#if result.length}
+        <div class="tw">
+          <table data-ww-table>
+            <thead>
+              <tr>
+                <td></td>
+                {#each result as o (o.key)}<th scope="col" data-ww-col={o.key}>{name(o)}<small class="num">{t('~load {n}|ls', { n: num(o.load) })}</small></th>{/each}
+              </tr>
+            </thead>
+            <tbody>
+              {#each CHECKS as k, i (k)}
+                <tr>
+                  <th scope="row">{checkName(k)}<small>{long(result[0].points[i].day)}</small></th>
+                  {#each result as o (o.key)}
+                    {@const m = o.points[i][metric]}
+                    <td data-ww-cell="{o.key}-{k}"><b class="num">{fmt(m)}</b>{#if range(m)}<small class="num">{range(m)}</small>{/if}</td>
+                  {/each}
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
+      {/if}
+    </details>
     <p class="hint" data-ww-note>{t('A model, not a forecast: the small numbers are the range if all coming loads are 25 % lower or higher than estimated. Planned and new sessions count by minutes and zone.|ww')}</p>
     <p class="hint">{t('Resting pulse, HRV and sleep cannot be predicted from a plan, so they are not here. Only fitness, fatigue and form.|ww')} <a href="#/flow/training">{t('Plan it in Training|ww')}</a></p>
   </div>
@@ -120,9 +133,37 @@
     min-width: 0;
     width: 100%;
   }
-  .sen {
+  .day {
+    max-width: 14rem;
+  }
+  .lead {
     margin: 0;
-    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .sen {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .more summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    cursor: pointer;
+    list-style: none;
+    color: var(--ink-2);
+  }
+  .more summary::-webkit-details-marker {
+    display: none;
+  }
+  .more[open] :global(.cv) {
+    transform: rotate(180deg);
+  }
+  .more > :global(*:not(summary)) {
+    margin-top: 8px;
   }
   .tw {
     overflow-x: auto;

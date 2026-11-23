@@ -13,6 +13,22 @@ export const LEVEL = {
 export const levelWord = (l) => t(LEVEL[l]?.word ?? LEVEL.normal.word);
 export const levelLine = (l) => t(LEVEL[l]?.line ?? LEVEL.normal.line);
 
+/** «Form und Erholung klüger» (Noah 23.11.2026 «ja»): the answer for today (tagesantwort.js) in words. */
+export const ANSWER = {
+  rest: 'Rest today, or an easy half hour.',
+  easy: 'Ride easy today, nothing hard.',
+  normal: 'A normal training suits today.',
+  hard: 'A good day for a hard or long ride.',
+};
+export const answerLine = (l) => t(ANSWER[l] ?? ANSWER.normal);
+/** Why: the sentences of the values that count (the same as «What counts today»), and, when the form is good, that they weigh more today. */
+export function answerWhy(a) {
+  if (!a) return [];
+  const lines = (a.reasons ?? []).map((p) => partText(p)).filter(Boolean);
+  if (a.good) lines.push(t('Your form is good, but these values weigh more today.'));
+  return lines;
+}
+
 /** One sentence per part: what it is today against your normal. */
 export function partText(p) {
   if (!p) return '';

@@ -12,6 +12,7 @@
    * and the chart starts on the newest bar without it), line: [number] or null,
    * readout(i) → { title, items, extra } (extra: one line under the numbers, e.g. the comparison with the year before), label: what the chart shows (for screen readers), unit: of the axis,
    * initial: the column the readout shows before anything is pointed at (default: the newest; a forecast starts at the first).
+   * goal: { v, text } a dashed line where you should stand (a goal, a plan; «Diagramme überall verbessern», Noah 23.11.2026 «ja»): the axis reaches it, the text stands at its end.
    * sentences: up to three short sentences over the chart (sentence.js), steps: the allowed axis steps (counts: [1, 2, 5, 10 …] so the axis never says 0.5 sessions).
    */
   import { niceScale, fracOf, tickText } from './axis.js';
@@ -23,10 +24,10 @@
   import { indexAt, stepKey } from './pick.js';
   import { t, num } from '../i18n.svelte.js';
 
-  let { cols = [], line = null, lineColor = 'var(--ch-w)', readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 26, id = 'bc', steps = null, sentences = [], initial = null } = $props();
+  let { cols = [], line = null, lineColor = 'var(--ch-w)', readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 26, id = 'bc', steps = null, sentences = [], initial = null, goal = null } = $props();
 
   const totals = $derived(cols.map((c) => c.parts.reduce((s, p) => s + (p.v || 0), 0)));
-  const scale = $derived(niceScale([...totals, ...(line ?? [])], { zero: true, count: 4, steps }));
+  const scale = $derived(niceScale([...totals, ...(line ?? []), ...(Number.isFinite(goal?.v) ? [goal.v] : [])], { zero: true, count: 4, steps }));
   const n = $derived(cols.length);
   // each bar as pieces from a to b, stacked from the bottom
   const stacks = $derived(
@@ -109,7 +110,9 @@
             {#each st as p, k (k)}<rect x={i * 10 + (10 - bw) / 2} y={y(p.b)} width={bw} height={Math.max(0.6, y(p.a) - y(p.b))} fill={p.color} class:dashed={p.dashed} style:stroke={p.dashed ? p.color : null} />{/each}
           {/each}
           {#if line}<path d={linePath} class="ln" style:stroke={lineColor} />{/if}
+          {#if goal}<line class="goal" x1="0" x2={W} y1={y(goal.v)} y2={y(goal.v)} data-goal />{/if}
         </svg>
+        {#if goal?.text}<b class="gt" style:bottom="calc({fracOf(goal.v, scale) * 86}% + 3px)" data-goal-text>{goal.text}</b>{/if}
         {#if n <= maxTop}
           {#each cols as c, i (c.key)}{#if c.top}<b class="top num" style:left="{((i + 0.5) / n) * 100}%" style:bottom="{fracOf(totals[i], scale) * 86}%">{c.top}</b>{/if}{/each}
         {/if}
@@ -186,6 +189,24 @@
     stroke-width: 2.5;
     vector-effect: non-scaling-stroke;
     stroke-linejoin: round;
+  }
+  .goal {
+    stroke: var(--ink-2);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 4;
+    vector-effect: non-scaling-stroke;
+  }
+  .gt {
+    position: absolute;
+    right: 0;
+    padding: 0 4px;
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    line-height: 1.3;
+    pointer-events: none;
   }
   .top {
     position: absolute;

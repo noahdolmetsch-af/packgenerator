@@ -18,6 +18,8 @@
   import Rhythmus from '../lib/flow/auswertung/Rhythmus.svelte';
   import Rituale from '../lib/flow/Rituale.svelte';
   import { rituale } from '../lib/flow/rituale.js';
+  import AlleWoche from '../lib/flow/AlleWoche.svelte';
+  import { alleRange } from '../lib/flow/alle-woche.js';
   import AnaSheet from '../lib/training/AnaSheet.svelte';
   import { period, enterPage } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
@@ -66,6 +68,8 @@
   const ritPrevW = $derived(prevWindow(mode, rhWin));
   const ritPrev = $derived(ritPrevW && d ? new Map(rituale(allUnits, d.acts, ritPrevW.from, ritPrevW.to).map((r) => [r.id, r.n])) : null);
   const ritNames = $derived(new Map((d?.acts ?? []).map((a) => [a.id, actName(a)])));
+  /* «Alles, was du angelegt hast» (Noah 23.11.2026): every activity of Aktiv in the period, also daily habits and ones with 0 times; the hours above stay as they are */
+  const alle = $derived(d ? alleRange({ log: d.log, flowActs: d.acts, acts: d.activities, usual: d.usual, map: d.map }, rhWin.from, rhWin.to) : null);
   const inPrev = $derived(prevW ? units.filter((u) => u.day >= prevW.from && u.day <= prevW.to) : null);
   const tot = $derived(totals(inWin));
   const rows = $derived(bySport(inWin, inPrev));
@@ -305,6 +309,12 @@
   {/if}
   {#if d}
     <Rituale rows={rit} names={ritNames} mode="period" prev={ritPrev} />
+    {#if alle && (alle.move.shown.length || alle.move.quiet.length || alle.rest.quiet.length || alle.loose.length)}
+      <details class="card sj-alle" data-alle-fold>
+        <summary>{t('Everything you created')}</summary>
+        <AlleWoche week={alle} names={ritNames} period bare />
+      </details>
+    {/if}
     <Rhythmus units={allUnits} log={d.log} acts={d.acts} from={rhWin.from} to={rhWin.to} {today} {act0} />
   {/if}
 </div>
@@ -325,6 +335,18 @@
 {/if}
 
 <style>
+  .sj-alle {
+    padding: var(--sp-3) var(--sp-4);
+  }
+  .sj-alle summary {
+    cursor: pointer;
+    min-height: 32px;
+    font-size: var(--fs-body);
+    color: var(--ink-2);
+  }
+  .sj-alle :global(.al) {
+    margin-top: var(--sp-3);
+  }
   .sj {
     display: grid;
     gap: 16px;

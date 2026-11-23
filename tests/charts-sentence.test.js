@@ -21,3 +21,19 @@ describe('sentencesOf', () => {
     expect(s.length).toBeLessThanOrEqual(3);
   });
 });
+
+import { changeSentence } from '../src/lib/charts/sentence.js';
+
+describe('changeSentence', () => {
+  const pts = (vs) => vs.map((v, i) => ({ label: `D${i + 1}`, v }));
+  it('is quiet under four real points', () => {
+    expect(changeSentence(pts([70, null, 71, 72]), (v) => `${v} kg`)).toEqual([]);
+  });
+  it('says more or less, never better or worse', () => {
+    expect(changeSentence(pts([70, 71, 72, 73]), (v) => `${v} kg`)).toEqual(['Now 73 kg, 3 kg more than on D1']);
+    expect(changeSentence(pts([73, 72, null, 71, 70]), (v) => `${v} kg`)).toEqual(['Now 70 kg, 3 kg less than on D1']);
+  });
+  it('says the same when nothing changed', () => {
+    expect(changeSentence(pts([70, 71, 70, 70]), (v) => `${v} kg`)).toEqual(['Now 70 kg, the same as at the start']);
+  });
+});

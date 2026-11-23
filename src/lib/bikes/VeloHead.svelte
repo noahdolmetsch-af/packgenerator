@@ -10,15 +10,18 @@
   import HeadPhoto from '../bilder/HeadPhoto.svelte';
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
+  import { helpHere } from '../pageinfo/here.svelte.js';
+  import { fitSteps } from '../nav/wege.svelte.js'; // «Wege»: the path starts with the place and tab of the map of the app
 
   let { crumbs = [], here = '', title, sub = '', children = null, bike = null } = $props();
+  const steps = $derived(crumbs.length ? fitSteps(helpHere.route, crumbs) : []);
 </script>
 
 <header class="vhead" class:withpic={!!bike}>
   {#if bike}<HeadPhoto {bike} />{/if}
-  {#if crumbs.length}
+  {#if steps.length}
     <nav class="crumbs" aria-label={t('Path')}>
-      {#each crumbs as c, n (n)}
+      {#each steps as c, n (n)}
         <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}{c.label}</a><ChevronRight class="sep" size={12} aria-hidden="true" />
       {/each}
       <span aria-current="page">{here || title}</span>

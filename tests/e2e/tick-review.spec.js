@@ -105,6 +105,21 @@ test('Auswerten › Antworten ausgewertet: the same cards for a check question w
   for (const a of ANALYSES.answers) await expect(sec.locator(`[data-ana="${a.key}"]`).getByRole('heading', { name: T(a.head ?? a.title) })).toBeVisible();
   expect(await sec.locator('[data-ana]').evaluateAll((els) => els.map((e) => e.dataset.ana))).toEqual(keys);
   await expect(sec.locator('[data-ana="anhalves"] [data-halves-sentence]')).toContainText(T('In the second half your answer was'));
+  // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): Verlauf and Wochentage are touch charts with the axis 0 to 10, a sentence, a sheet and «Als Tabelle»
+  const line = sec.locator('[data-ana="anline"]');
+  await expect(line.locator('[data-chart-sentences]')).toContainText(/^Jetzt /);
+  await expect(line.locator('[data-readout]')).toContainText(T('Ø of 7 days'));
+  await expect(line.locator('[data-yticks]')).toContainText('10');
+  await line.locator('[data-plot]').click({ position: { x: 20, y: 40 } });
+  await expect(page.locator('[data-anline-sheet]')).toBeVisible();
+  await page.getByRole('button', { name: T('Close') }).click();
+  await line.getByRole('button', { name: T('As table') }).click();
+  await expect(line.locator('[data-chart-table]')).toBeVisible();
+  await line.getByRole('button', { name: T('Chart|table') }).click();
+  const days = sec.locator('[data-ana="andays"]');
+  await days.locator('[data-plot]').click({ position: { x: 20, y: 40 } });
+  await expect(page.locator('[data-andays-sheet]')).toBeVisible();
+  await page.getByRole('button', { name: T('Close') }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/answer-review-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   expect(errors).toEqual([]);

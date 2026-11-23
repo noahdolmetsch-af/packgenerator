@@ -11,7 +11,7 @@
 </script>
 
 <div class="ich-page ekpage">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Data'), href: '#/me/data' }]} here={t('Insights')} title={t('Insights')} sub={t('Your answers, Fitbit, Strava, meditation, weather and calendar side by side: what goes together, in one sentence each.')} />
+  <VeloHead crumbs={[{ label: t('Analysis|place'), href: '#/auswerten' }, { label: t('Body|tab'), href: '#/flow/form' }]} here={t('Insights')} title={t('Insights')} sub={t('Your answers, Fitbit, Strava, your activities, weather and calendar side by side: what goes together, and what you can do with it.')} />
   <Insights idp="ekp" />
   <p class="lks"><a class="btn" href="#/me/analysis">{t('How it is analysed')}</a> <a class="btn" href="#/me/history">{t('History')}</a></p>
   <PasstHier place="insights" />

@@ -19,6 +19,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { STEP_BAR as BAR } from '../../src/lib/stepbar.js'; // Schrittleiste (Noah 26.10.2026 «1b», changed on purpose): the bar's short names
 import { openData, settle, replaceAll } from './settle.js';
 import { openMore } from './bike-more.js';
+import { openViews } from './gearmenu.js';
 
 const LANG = process.env.PF_LANG === 'en' ? 'en' : 'de';
 const tr = (lang) => (en, vars) => {
@@ -556,6 +557,8 @@ test('PF08: star an item, open the favourites on Today, reload: one tap, kept, r
   await page.goto('./#/gear?fav=1');
   const check = async (when) => {
     // v0.47.2: the favourites are the view "Favourite things"; its button carries the number
+    // Material aufräumen (23.11.2026, changed on purpose): the views are rows of the menu «Ansicht»
+    await openViews(page);
     const fav = page.getByRole('group', { name: T('Views') }).locator('[data-view="fav"]');
     await rec.check(`${when}: the favourites filter is on`, () => expect(fav).toHaveAttribute('aria-pressed', 'true', { timeout: 3000 }));
     // v0.102.0 Design-Refresh P3: the button shows a short line under the name too; its name stays «view count»
