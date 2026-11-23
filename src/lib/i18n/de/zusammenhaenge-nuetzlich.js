@@ -14,6 +14,8 @@ export default {
   'HRV|lever': 'HRV',
   HRV: 'HRV',
   'your HRV|insight': 'deine HRV',
+  'your active zone minutes|insight': 'deine Aktivzonenminuten',
+  'your steps|insight': 'deine Schritte',
   'an HRV above {v}': 'einer HRV über {v}',
   'Try it today: go to bed earlier.': 'Probier es heute: früher ins Bett.',
   'Try it today: a ride, even a short one.': 'Probier es heute: eine Fahrt, auch eine kurze.',

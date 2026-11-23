@@ -236,3 +236,27 @@ describe('Zusammenhänge nützlicher', () => {
     expect(expMetricOf('sat')).toBe('');
   });
 });
+
+// Noah 23.11.2026 «Muster»: after a short night, after a day over 200 active zone minutes
+describe('Muster nach wenig Schlaf und vielen Aktivzonenminuten', () => {
+  const span = lastDays(TODAY, 30);
+  it('over 200 active zone minutes is the cut when 5 days lie on each side, and the day after is read', () => {
+    const azm = {};
+    const hrv = {};
+    span.forEach((d, i) => (azm[d] = i % 4 === 0 ? 250 + (i % 3) * 20 : 20 + (i % 5) * 10));
+    span.forEach((d, i) => (hrv[d] = i > 0 && (i - 1) % 4 === 0 ? 30 : 45));
+    const r = look(PAIRS.find((p) => p.id === 'azm-hrv'), { azm, hrv }, span);
+    expect(r).toMatchObject({ cut: 200, shown: true, lag: 1 });
+    expect(r.hi.mean).toBeLessThan(r.lo.mean);
+  });
+  it('with too few hard days the median is used again', () => {
+    const azm = {};
+    const hrv = {};
+    span.forEach((d, i) => ((azm[d] = i < 3 ? 250 : 20 + (i % 7) * 10), (hrv[d] = 40 + (i % 4))));
+    const r = look(PAIRS.find((p) => p.id === 'azm-hrv'), { azm, hrv }, span);
+    expect(r.cut).not.toBe(200);
+  });
+  it('the night pairs exist: sleep against resting pulse, HRV, moving', () => {
+    for (const id of ['sleep-rhr', 'sleep-hrv', 'sleep-azm', 'sleep-steps', 'azm-battery', 'azm-mood', 'azm-sleepfelt']) expect(PAIRS.find((p) => p.id === id), id).toBeTruthy();
+  });
+});

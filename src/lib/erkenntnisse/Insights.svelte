@@ -8,7 +8,7 @@
    */
   import { onMount } from 'svelte';
   import { liveQuery } from 'dexie';
-  import { Lightbulb, HeartPulse, Hourglass, ChevronRight, ChevronDown, Lock, FlaskConical, Check, TrendingUp } from '@lucide/svelte';
+  import { Lightbulb, HeartPulse, Hourglass, ChevronRight, ChevronDown, Lock, FlaskConical, Check, TrendingUp, Sparkles } from '@lucide/svelte';
   import { db } from '../db.js';
   import { historyQuery } from '../abdb.js';
   import { localDay } from '../localday.js';
@@ -16,7 +16,11 @@
   import { seriesOf, insights, rhrHigh, lastDays, ownNumberQuestions, leversOf, soonOf, isLever, expMetricOf, MIN_DAYS, WINDOW_DAYS, OWN_OFF_KEY } from '../erkenntnisse.js';
   import { keepDayWeather, loadDayData } from '../daydata.js';
   import { configOf } from '../abfragen.js';
-  import { sentenceOf, xText, leverLine, tipOf, cap, SHORT } from './words.js';
+  import { sentenceOf, xText, leverLine, tipOf, cap, SHORT, rangeText } from './words.js';
+  import { bestBand, newThisWeek } from './muster.js';
+  import Muster from './Muster.svelte';
+  import { counterDays } from '../ruhig/herkunft.js';
+  import { dmy } from '../ruhig/base.js';
   import { countedActs } from './aktiv.js';
   import { actName } from '../flow/ui.svelte.js';
   import MitOhne from './MitOhne.svelte';
@@ -51,6 +55,12 @@
   const soon = $derived(soonOf(all, series, today));
   const waiting = $derived(soon.waiting);
   const levers = $derived(leversOf(all));
+  const span = lastDays(today, WINDOW_DAYS);
+  /** What is new this week: shown today but not a week ago, or clearly stronger. */
+  const fresh = $derived(compact ? [] : newThisWeek(series, today, { own }));
+  /** The best range of x for the row that is open, and the days against its sentence. */
+  const bandOf = (x) => bestBand(x, series, span);
+  const counterOf = (x) => counterDays(x, series, span);
   /** The row that is open (its picture shows), «lev:<id>» for a lever. */
   let openId = $state('');
   const toggle = (id) => (openId = openId === id ? '' : id);
@@ -69,7 +79,7 @@
   /** The text of an own question or an activity as the user typed it (never through t()). */
   const ownName = (key) => (key.startsWith('act:') ? actName(($actsQ?.acts ?? []).find((a) => a.id === key.slice(4))) : (ownAll.find((q) => `own:${q.id}` === key)?.text ?? ''));
   const nameOf = (key) => (key.startsWith('own:') || key.startsWith('act:') ? ownName(key) : t(NAME[key]));
-  const NAME = { hrv: 'HRV', sleepH: 'Sleep (Fitbit)', sleepFelt: 'Sleep felt', battery: 'Battery', mood: 'Mood', sat: 'Satisfaction', km: 'Bike km', med: 'Meditation', steps: 'Steps', rhr: 'Resting pulse', azm: 'Active zone minutes', sunH: 'Sunshine', lightH: 'Daylight', rainMm: 'Rain', evts: 'Appointments' };
+  const NAME = { hrv: 'HRV', sleepH: 'Sleep (Fitbit)', sleepFelt: 'Sleep felt', battery: 'Battery', mood: 'Mood', sat: 'Satisfaction', km: 'Bike km', med: 'Meditation', steps: 'Steps', rhr: 'Resting pulse', azm: 'Active zone minutes', tmax: 'Daily high', sunH: 'Sunshine', lightH: 'Daylight', rainMm: 'Rain', evts: 'Appointments' };
   const sentence = (x) => sentenceOf(t, v, ownName, x);
   const list = $derived(compact ? shown.slice(0, 3) : shown);
   const leverText = (x) => leverLine(t, v, ownName, x);
@@ -90,9 +100,37 @@
   }
 </script>
 
+{#snippet bandBlock(x)}
+  {@const b = bandOf(x)}
+  {#if b}
+    <div class="band" data-best-band>
+      <b>{t('Best range: {r}', { r: rangeText(t, v, x.x, b.from, b.to) })}</b>
+      <small>{t('{y} {m} there, {o} in the other two thirds.', { y: nameOf(x.y), m: v(b.mean), o: v(b.rest) })}</small>
+      <ul>
+        {#each b.rows as r (r.from ?? 'lo')}
+          <li class:best={r.from === b.from}><span>{rangeText(t, v, x.x, r.from, r.to)}</span><span class="num">{v(r.mean)} · {tn(r.n, '{n} day', '{n} days')}</span></li>
+        {/each}
+      </ul>
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet counterBlock(x)}
+  {@const c = counterOf(x)}
+  {#if c.counter.length}
+    <p class="counter" data-counter-days>
+      {tn(c.counter.length, 'Against it: {n} day', 'Against it: {n} days')} {t('of {m}', { m: c.counter.length + c.fit.length })}
+      <small>{c.counter.slice(0, 3).map((d) => dmy(d.day)).join(', ')}{c.counter.length > 3 ? ' …' : ''}</small>
+      <a href="#/me/ruhig/herkunft?open=counter">{t('All counter-examples')}</a>
+    </p>
+  {/if}
+{/snippet}
+
 {#snippet detail(x)}
   <div class="detail" data-insight-detail={x.id}>
     <MitOhne row={x} yName={t(SHORT[x.y])} withText={withText(x)} withoutText={t('Otherwise')} />
+    {@render bandBlock(x)}
+    {@render counterBlock(x)}
     {#if isLever(x.x)}
       {#if openTry(x) || startedId === x.id}
         <p class="tried" data-try-running><Check size={15} aria-hidden="true" /><span>{t('Your try runs.')} <a href="#/me/ruhig/versuche">{t('Open the try')}</a></span></p>
@@ -110,6 +148,14 @@
     <div class="card pad note" data-rhr-high>
       <HeartPulse size={18} aria-hidden="true" />
       <p>{t('Your resting pulse has been above your normal ({n}) for {d} days: {list}. Maybe keep an eye on recovery.', { n: v(rhr.normal), d: rhr.last.length, list: rhr.last.join(', ') })}</p>
+    </div>
+  {/if}
+  {#if fresh.length}
+    <div class="card pad fresh" data-fresh>
+      <b class="wh"><Sparkles size={15} aria-hidden="true" /> {t('New this week')}</b>
+      <ul class="wl">
+        {#each fresh as x (x.id)}<li data-fresh-item={x.id}><span><b>{sentence(x)}</b></span><small class="num">{x.fresh === 'stronger' ? t('clearer than a week ago') : t('found this week')}</small></li>{/each}
+      </ul>
     </div>
   {/if}
   {#if !compact && levers.length}
@@ -169,6 +215,7 @@
       </details>
     </div>
   {/if}
+  {#if !compact}<Muster {series} {today} />{/if}
   {#if !compact}
     <div class="card pad src" data-insights-sources>
       <b class="wh">{t('Also compared')}</b>
@@ -248,6 +295,38 @@
     display: grid;
     gap: 6px;
     margin-bottom: 10px;
+  }
+  .fresh {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .band {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    max-width: 420px;
+  }
+  .band small,
+  .counter small {
+    color: var(--ink-3);
+  }
+  .band ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .band li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    font-size: var(--fs-small);
+  }
+  .band li.best {
+    background: var(--accent-soft);
+    font-weight: 600;
   }
   .lev p,
   .soon p {

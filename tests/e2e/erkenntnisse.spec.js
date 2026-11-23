@@ -25,7 +25,7 @@ function data() {
   return { healthDays, abAnswers, flowLog };
 }
 
-async function open(page, context) {
+async function open(page, context, withData = true) {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(`${DAY}T12:00:00+02:00`) });
@@ -33,7 +33,7 @@ async function open(page, context) {
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/me');
   await ready(page);
-  await put(page, data());
+  if (withData) await put(page, data());
   return errors;
 }
 async function shot(page, info, name) {
@@ -161,5 +161,32 @@ test('levers, a picture with and without, soon visible, a try with an end, the r
   await expect(page.locator('[data-waiting-all]')).not.toHaveAttribute('open', '');
   expect(await noScroll(page)).toBe(true);
   await shot(page, info, 'zusammenhaenge-hebel');
+  expect(errors).toEqual([]);
+});
+
+// Noah 23.11.2026 «Muster» (Thread «Zusammenhänge nützlicher machen»): the days of the week, the recovery after a hard day, the best range,
+// the days against a sentence. 60 fictional days: Mondays have the lowest battery, every 7th day is hard (260 active zone minutes) and the
+// resting pulse is raised the day after.
+test('weekdays, recovery after a hard day, best range and the days against a sentence', async ({ page, context }, info) => {
+  const errors = await open(page, context, false);
+  const days = lastDays(DAY, 60);
+  const dow = (d) => (new Date(`${d}T12:00:00Z`).getUTCDay() + 6) % 7;
+  const hard = (i) => i % 7 === 3;
+  const healthDays = days.map((date, i) => ({ date, sleep: { asleepMin: 330 + (i % 5) * 30 }, restingHr: 50 + (i > 0 && hard(i - 1) ? 4 : 0) + (i % 2 ? 1 : 0), azm: hard(i) ? 260 : 30 + (i % 4) * 10, hrvMs: 40, src: 'test' }));
+  const abAnswers = days.map((day, i) => ({ id: `test_data_gtp_m_${i}`, qid: 'erholung.akku', area: 'erholung', day, at: `${day}T07:10`, slot: `${day}T07:00`, kind: 'scale', value: (dow(day) === 0 ? 3 : 7) + (i % 3) * 0.2 + (330 + (i % 5) * 30 > 420 ? 1 : 0), note: null, unit: null, src: 'hand' }));
+  await put(page, { healthDays, abAnswers });
+  await page.goto('./#/me/insights');
+  const wd = page.locator('[data-weekday="battery"]');
+  await expect(wd).toBeVisible();
+  await expect(page.locator('[data-weekdays]')).toContainText(new Date(Date.UTC(2026, 0, 5)).toLocaleDateString('de-CH', { weekday: 'long', timeZone: 'UTC' }));
+  const rec = page.locator('[data-recovery]');
+  await expect(rec).toContainText(T('Recovery'));
+  await expect(rec.locator('[data-recovery-step="1"]')).toContainText('+');
+  // the best range and the days against it, in the opened sentence
+  const row = page.locator('[data-insight="sleep-battery"]');
+  await row.locator('button.row').click();
+  await expect(row.locator('[data-best-band]')).toContainText(T('Best range: {r}', { r: '' }).trim().split(' ')[0]);
+  expect(await noScroll(page)).toBe(true);
+  await shot(page, info, 'zusammenhaenge-muster');
   expect(errors).toEqual([]);
 });
