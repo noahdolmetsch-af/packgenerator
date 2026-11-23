@@ -38,10 +38,6 @@ test('VO2max: own tab in Körper, mean, range and the year', async ({ page, cont
   await expect(st).toContainText(T('From Fitbit or Apple Health (Me › Connections), observation only. It changes slowly, often only once a week.'));
   await st.locator('[data-ranges] [data-key="y1"]').click();
   await expect(card.locator('[data-body-mean]')).toContainText(/49/);
-  // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): where your own values usually lie, and one neutral sentence
-  await expect(st.locator('[data-chart-sentences]')).toContainText(/^Jetzt .* ml\/kg\/min/);
-  await expect(st.locator('[data-band]')).toHaveCount(1);
-  await expect(st.locator('[data-band-text]')).toHaveText(T('Your usual range'));
   const w = page.viewportSize().width;
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/vo2max-${w <= 500 ? 390 : 1440}.png`, fullPage: true });
@@ -52,5 +48,18 @@ test('VO2max: without a value the page says where it comes from', async ({ page,
   const errors = await open(page, context, [{ date: TODAY, restingHr: 52, src: 'google' }]);
   const st = page.locator('.gs');
   await expect(st).toContainText(T('No value in this range. It comes with Fitbit or the Apple Health export (Me › Connections).'));
+  expect(errors).toEqual([]);
+});
+
+test('VO2max: the line shows your usual range and one neutral sentence («Diagramme überall verbessern», Noah 23.11.2026 «ja»)', async ({ page, context }) => {
+  // a value every day for 60 days, between 46 and 50 (made up), today 50
+  const days = Array.from({ length: 60 }, (_, i) => ({ date: addDays(TODAY, -i), restingHr: 52, vo2max: i === 0 ? 50 : 46 + (i % 5), src: 'google' }));
+  const errors = await open(page, context, days);
+  const st = page.locator('.gs');
+  await st.locator('[data-ranges] [data-key="w4"]').click();
+  await expect(st.locator('[data-chart-sentences]')).toContainText(/^Jetzt .* ml\/kg\/min/);
+  await expect(st.locator('[data-band]')).toHaveCount(1);
+  await expect(st.locator('[data-band-text]')).toHaveText(T('Your usual range'));
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/vo2max-band-${page.viewportSize().width <= 500 ? 390 : 1440}.png`, fullPage: true });
   expect(errors).toEqual([]);
 });
