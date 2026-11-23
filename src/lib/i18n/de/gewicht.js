@@ -14,7 +14,7 @@ export default {
   'Only for watts per kg in Training and the tours. Stays only on this device, never goes to Strava or a server.': 'Nur für Watt pro kg in Training und Touren. Bleibt nur auf diesem Gerät, geht nie an Strava oder einen Server.',
   'Only your entries. No goal, no rating.': 'Nur deine Einträge. Kein Ziel, keine Bewertung.',
   'Pick a day up to today.': 'Wähl einen Tag bis heute.',
-  'Please a weight between {a} and {b} kg.': 'Bitte ein Gewicht zwischen {a} und {b} kg.',
+  'Please enter a weight in kg.': 'Bitte ein Gewicht in kg eingeben.',
   'Today {w} W ÷ {kg} kg = {r} W/kg. Weeks without a ride with a power meter keep the value of the week before.': 'Heute {w} W ÷ {kg} kg = {r} W/kg. Wochen ohne Leistungsmesser-Fahrt behalten den Wert der Woche davor.',
   'Voluntary, only for watts per kg in Training and the tours. Stays only on this device, never goes to Strava or a server. No entry = no W/kg.': 'Freiwillig, nur für Watt pro kg in Training und Touren. Bleibt nur auf diesem Gerät, geht nie an Strava oder einen Server. Kein Eintrag = kein W/kg.',
   'W/kg (FTP ÷ weight)': 'W/kg (FTP ÷ Gewicht)',
