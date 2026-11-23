@@ -49,7 +49,8 @@ test('own page: the sentence about sleep and battery, the resting pulse note, wh
   const sec = page.locator('[data-section="insights"]');
   const ins = sec.locator('[data-insight="sleep-battery"]');
   await expect(ins).toContainText(T('On days with {x}, {y} was {hi} on average, otherwise {lo}.', { x: T('more than {v} h of sleep', { v: '7' }), y: T('your battery|insight'), hi: '8', lo: '5' }));
-  await expect(ins).toContainText(T('goes together clearly'));
+  await expect(ins.locator('[data-sure="sure"]')).toContainText(T('Sure'));
+  await expect(sec.locator('[data-insights-how]')).toBeVisible();
   await expect(sec.locator('[data-rhr-high]')).toContainText('62, 62, 62');
   await expect(sec.locator('[data-waiting="km-mood"]')).toContainText(T('{n} of {m} days', { n: 0, m: 14 }));
   await expect(sec).toContainText(T('Going together is not a cause. Only to look at, never a diagnosis. Everything stays on the device.'));

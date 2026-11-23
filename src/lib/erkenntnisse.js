@@ -37,6 +37,8 @@ export const ACT_MIN_SIDE = 5;
 /** A first trend (not sure yet) needs at least this many days. */
 export const EARLY_DAYS = 8;
 export const EARLY_RHO = 0.4;
+/** Sure (S4, Noah 21.11.2026 «3a»): a shown insight that goes together clearly (CLEAR_RHO) on at least this many days. */
+export const SURE_DAYS = 30;
 /** The levers shown at the top. */
 export const LEVERS = 3;
 /** The resting pulse: this many days in a row above the normal (median of 30 days) plus RHR_ABOVE. */
@@ -230,6 +232,13 @@ export const PAIRS = [
   { id: 'km-battery-next', x: 'km', y: 'battery', lag: 1 },
   { id: 'km-mood-next', x: 'km', y: 'mood', lag: 1 },
 ];
+
+/**
+ * How sure an insight is, the same three words as «Form im Vergleich» (flow/form/Sicherheit.svelte):
+ * 'sure' = shown, goes together clearly and on at least SURE_DAYS days; 'trend' = shown otherwise; 'few' = not shown yet
+ * (too few days, or too weak to say). Observation only, never a cause.
+ */
+export const certaintyOf = (x) => (x?.shown ? (x.clear && x.n >= SURE_DAYS ? 'sure' : 'trend') : 'few');
 
 /** The step a cut is rounded to, so that «more than 9.6 km» says «more than 10 km» and «5.46 h» says «5.5 h». */
 const stepOf = (key, v) => {
