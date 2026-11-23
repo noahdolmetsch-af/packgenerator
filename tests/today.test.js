@@ -101,8 +101,8 @@ describe('Today: the trip and its one next step', () => {
 describe('main places', () => {
   it('five places in a fixed order (v0.46.1: Trips opens the overview; v0.76.0 «Fünf Orte»: Aktiv opens Im Flow)', () => {
     // «Woche planen» (Noah 15.10.2026 «1a»): «Woche» is its own place next to Heute
-    // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos, Material under Velos
-    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['bikes', '#/bikes'], ['gear', '#/gear'], ['analysis', '#/auswerten'], ['weather', '#/wetter'], ['quick', '#/quick']]); // «Wetter» (Noah 22.11.2026 «a»): a place of its own in the sidebar; // «Quick Links» (Noah 28.10.2026 «3a»)
+    // V5 (Noah 21.11.2026): Heute · Woche · Touren · Velos und Material · Auswerten; Material is a tab of Velos und Material
+    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['bikes', '#/bikes'], ['analysis', '#/auswerten'], ['weather', '#/wetter'], ['quick', '#/quick']]); // «Quick Links» (Noah 28.10.2026 «3a»)
   });
 
   it('every address belongs to the right place', () => {
@@ -116,9 +116,9 @@ describe('main places', () => {
       '#/debrief': 'trips',
       '#/debrief/x': 'trips',
       '#/share/abc': 'trips',
-      '#/gear?fav=1': 'gear',
-      '#/gear?q=Tent': 'gear',
-      '#/favorites': 'gear',
+      '#/gear?fav=1': 'bikes',
+      '#/gear?q=Tent': 'bikes',
+      '#/favorites': 'bikes',
       '#/bikes?tab=care': 'bikes',
       '#/care': 'bikes',
       // v0.76.0 «Fünf Orte»: Im Flow is the place Aktiv; the Inbox, the notes and the features live in «Ich»

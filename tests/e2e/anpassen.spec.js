@@ -67,7 +67,7 @@ test.describe('Anpassen', () => {
     await sheet.locator('[data-anp-start]').selectOption('templates');
     // hide «Velos» in the menu
     await sheet.getByRole('button', { name: T('Menu') }).click();
-    const bikes = T('Bikes|place');
+    const bikes = T('Bikes and gear|place');
     await row(sheet, bikes).getByRole('switch').uncheck();
     await sheet.getByRole('button', { name: T('Close') }).click();
 

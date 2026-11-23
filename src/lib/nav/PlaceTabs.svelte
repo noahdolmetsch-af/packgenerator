@@ -65,7 +65,7 @@
 
   /** Bikes: the chosen bike stays chosen in the other tab (#/bikes?tab=care&bike=<id>). */
   function hrefOf(x, h = hash) {
-    if (place !== 'bikes') return x.href;
+    if (place !== 'bikes' || !x.href.startsWith('#/bikes')) return x.href; // only the pages of Velos know a chosen bike
     const bike = new URLSearchParams(h.split('?')[1] ?? '').get('bike');
     return bike ? `${x.href}${x.href.includes('?') ? '&' : '?'}bike=${encodeURIComponent(bike)}` : x.href;
   }
@@ -199,7 +199,7 @@
 {#if subs.length > 1}
   <nav class="psubs noswipe" aria-label={t('Pages of {place}', { place: curName })} data-subtabs={cur}>
     {#each subs as x (x.key)}
-      <a href={x.href} aria-current={curSub === x.key ? 'page' : undefined} data-sub={x.key}>{tabLabel(place, x)}{#if x.key === 'inbox' && waiting}<span class="pdot num" aria-label={t('{n} to sort', { n: waiting })}>{waiting}</span>{/if}</a>
+      <a href={hrefOf(x)} aria-current={curSub === x.key ? 'page' : undefined} data-sub={x.key}>{tabLabel(place, x)}{#if x.key === 'inbox' && waiting}<span class="pdot num" aria-label={t('{n} to sort', { n: waiting })}>{waiting}</span>{/if}</a>
     {/each}
   </nav>
 {/if}

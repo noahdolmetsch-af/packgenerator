@@ -148,8 +148,9 @@ test('Kleiderschrank, Import Schritt 2, Zwiebel in Pack, Logbuch', async ({ page
   // 1. The wardrobe: v0.76.0 «Fünf Orte»: Material › Kleider (sidebar), on a phone through the search.
   // v0.98.0 R2 (G4/G5): the sidebar shows the pages of the chosen place only
   if (info.project.name === 'desktop') {
-    await page.locator('.side li[data-place="gear"] > a.pa').click();
-    await page.locator('.side li[data-place="gear"] .tabs').getByRole('link', { name: T('Clothes|tab') }).click();
+    await page.locator('.side li[data-place="bikes"] > a.pa').click();
+    await page.locator('.side li[data-place="bikes"] .tabs').getByRole('link', { name: T('Gear|place') }).click();
+    await page.locator('nav.psubs').getByRole('link', { name: T('Clothes|tab') }).click();
   } else {
     await page.getByRole('button', { name: T('Search everything') }).click();
     await page.locator('.search input').fill(T('Wardrobe'));
