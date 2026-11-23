@@ -9,15 +9,16 @@ Auftrag: Noah «Mach die App 5 mal schneller» (Thread «App fünfmal schneller 
 - Tempo-Messer (Ich › Daten): neue Angabe «Inhalt da» (grösster Inhalt, `largest-contentful-paint`). Weil «Start» jetzt das Gerüst zeigt und kurz ist, sagt «Inhalt da», wann der echte Inhalt von Heute stand.
 - Neue Tests: `tests/boot-shell.test.js` (Farben aus `app.css`, alle Farbwelten, Wahl von Farbwelt und Hell/Dunkel, Gerüst ohne Text ausser Logo und ohne Orientierungspunkt, Entfernen nach dem Zeichnen), `tests/tempo-messer.test.js` angepasst.
 
-## Gemessen (Handy-Ansicht 390 px, 8 Läufe, Mittelwert; 4× gebremster Prozessor wie auf Noahs Handy; Daten: 700 erfundene Teile, 30 Touren)
+## Gemessen (Handy-Ansicht 390 px, Mittelwert aus 5 bis 6 Läufen; Daten: 700 erfundene Teile, 30 Touren, App schon einmal gestartet; 4× gebremster Prozessor wie auf Noahs Handy)
 | | vorher | nachher |
 |---|---|---|
-| Start (erstes Bild), ohne Bremse | 808 ms | 48 ms |
-| Start (erstes Bild), 4× gebremst | 1834 ms | 142 ms |
-| Inhalt da (grösster Inhalt), 4× gebremst | 2816 ms | 2848 ms |
-| Gebremst in den ersten 8 s, 4× gebremst | 1072 ms | 1136 ms |
+| Start (erstes Bild), ohne Bremse | 772 ms | 60 ms |
+| Start (erstes Bild), 4× gebremst | 2020 ms | 144 ms |
+| Inhalt da (grösster Inhalt), ohne Bremse | 1150 ms | 1268 ms |
+| Inhalt da (grösster Inhalt), 4× gebremst | 3792 ms | 3836 ms |
+| Gebremst in den ersten 8 s, 4× gebremst | 1276 ms | 1155 ms |
 
-Ehrlich gelesen: Der erste Eindruck kommt über zehnmal früher. Der echte Inhalt von Heute kommt dadurch **nicht** früher; das sind die nächsten Schritte (siehe unten).
+Ehrlich gelesen: Der erste Eindruck kommt gut zehnmal früher. Der echte Inhalt von Heute kommt dadurch **nicht** früher (die kleinen Unterschiede liegen im Messrauschen); das sind die nächsten Schritte (siehe unten).
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Die App selbst ist unverändert; das Gerüst steht nur, bis sie gezeichnet ist.
