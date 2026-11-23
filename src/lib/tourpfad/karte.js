@@ -10,7 +10,7 @@
  * ctx: the same as tourStand (today, debriefDone …). prep: eventPrep() of the trip (the preparation tasks of the Excel
  * list), its line is the hint; without it the first row with a note (state «warn») is.
  * next: { key, href, title, line, button } | null (nothing open in this phase). hint: { text, href, prep } | null.
- * There is no «Unterwegs» button here (Noah «9 b»): the on-the-way mode comes with step 7a and is switched on by Noah.
+ * The on-the-way mode (step 7a, Noah «9 b») is a quiet button of the card itself (src/lib/tourpfad/unterwegs.js); Noah switches it on.
  */
 import { tourStand, PHASES } from './stand.js';
 import { PHASE_TITLE, rowWords, headLine } from './saetze.js';
