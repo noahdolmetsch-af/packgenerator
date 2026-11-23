@@ -28,6 +28,7 @@ const LISTED = {
   'f.ballast': ['Open a trip after the ride.', 'The ballast card shows what came along unused.', 'Leave it at home next time, or keep it.'],
   'f.tripbike': ['Open a trip in Packen.', 'Compare the bikes for this trip.', 'Switch to the lighter one with one tap.'],
   'f.switch': ['Open Packen.', 'Tap the small «more» in the dark trip band.', 'Choose another trip from the list.'],
+  'f.askgemini': ['Open the Assistant and tap «Ask Gemini».', 'Speak, type or add a photo, then tap «Ask Gemini».', 'Tap «Read aloud» to hear the answer.'],
   'f.assistent': ['Open the Assistant (button or search).', 'Ask a question, or tap «Help me plan».', 'The answer or the plan comes from your data; everything is a suggestion.'],
   'f.wardrobe': ['Open Gear › Wardrobe.', 'Your clothing stands by layer and zone.', 'A gap goes to the wishlist with one tap.'],
   'f.kit': ['Open the wardrobe.', 'Choose an outfit and save it as a kit.', 'Planning suggests the kit next time.'],

@@ -105,6 +105,7 @@ const LISTED_HOME = {
   'f.tripbike': '#/pack',
   'f.switch': '#/pack',
   'f.assistent': '#/assistent',
+  'f.askgemini': '#/assistent/gemini',
   'f.wardrobe': '#/gear',
   'f.kit': '#/wardrobe',
   'f.lighter': '#/gear',

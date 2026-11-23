@@ -7,7 +7,7 @@
    * (sidebar, phone top bar) and from the search.
    */
   import { liveQuery } from 'dexie';
-  import { ChevronLeft, MessageCircle, Route } from '@lucide/svelte';
+  import { ChevronLeft, MessageCircle, Route, Sparkles } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { t, tn } from '../lib/i18n.svelte.js';
@@ -23,6 +23,8 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import AskElsewhere from '../lib/assistent/AskElsewhere.svelte';
   import SpeakButton from '../lib/ui/SpeakButton.svelte';
+  import AskGemini from '../lib/gemini/AskGemini.svelte'; // «Frag Gemini» (Noah 23.11.2026 «1a 2a 3a 4b»)
+  import { dict } from '../lib/dictation.svelte.js';
   import { appendSpoken } from '../lib/speak.js';
   import { loadOpen, saveOpen, noteOpen, dropOpen, hasOpen, keyOf } from '../lib/assistent/offen.js';
   import { toast } from '../lib/flow/ui.svelte.js';
@@ -33,13 +35,14 @@
   // per way.
   const CHROME_EG = ['What do I take for 2 days of rain?', 'Which jacket for 5 °C?'];
   const plan = $derived(hash.startsWith('#/assistent/plan'));
+  const gemini = $derived(hash.startsWith('#/assistent/gemini'));
   // «Eigene Frage stellen» (Noah 23.11.2026 «1-5a», 5a): opened from «Fragen» (`?von=fragen`) the place stays «Auswerten» and a link
   // leads back; the field has the cursor; the six questions of «Fragen» are buttons that show the same answer (FragenDaten, no second count)
   const von = $derived(/[?&]von=fragen(&|$)/.test(hash));
   let field = $state(null);
   let focused = false;
   $effect(() => {
-    if (field && !plan && !focused && !asked) {
+    if (field && !plan && !gemini && !focused && !asked) {
       focused = true;
       field.focus({ preventScroll: true });
     }
@@ -103,13 +106,16 @@
 
 <div class="as-page">
   {#if von}<a class="as-back" href="#/auswerten/fragen" data-as-back><ChevronLeft size={16} aria-hidden="true" />{t('Back to «Ask your data»')}</a>{/if}
-  <VeloHead title={t('Assistant')} sub={t('Ask the app, or let it help you plan. Free, from your own data.')} />
+  <VeloHead title={t('Assistant')} sub={t('Ask the app, ask Gemini, or let it help you plan. Free.')} />
   <div class="as-tabs" role="tablist" aria-label={t('Assistant')}>
-    <a role="tab" href="#/assistent" aria-selected={!plan} class:on={!plan}><MessageCircle size={16} aria-hidden="true" />{t('Ask the app')}</a>
+    <a role="tab" href="#/assistent" aria-selected={!plan && !gemini} class:on={!plan && !gemini}><MessageCircle size={16} aria-hidden="true" />{t('Ask the app')}</a>
     <a role="tab" href="#/assistent/plan" aria-selected={plan} class:on={plan}><Route size={16} aria-hidden="true" />{t('Help me plan')}</a>
+    <a role="tab" href="#/assistent/gemini" aria-selected={gemini} class:on={gemini} data-as-tab="gemini"><Sparkles size={16} aria-hidden="true" />{t('Ask Gemini')}</a>
   </div>
 
-  {#if plan}
+  {#if gemini}
+    <AskGemini />
+  {:else if plan}
     <PlanHelp prefill={planFromHash(hash)} />
   {:else}
     <section class="card as-card" aria-labelledby="as-ask-h">
@@ -141,7 +147,7 @@
       </div>
       {#if asked}
         <div class="as-res" aria-live="polite">
-          <AskAnswer q={asked} fallback here onresult={(has) => (appHas = has)} ondone={done} />
+          <AskAnswer q={asked} fallback here tools autoread={dict.read} onresult={(has) => (appHas = has)} ondone={done} />
           <!-- one block «Weiter fragen» (Noah 22.10.2026 «3a») -->
           <AskElsewhere q={asked}>
             {#snippet children()}<SearchFree q={asked} data={$all} inside />{/snippet}
@@ -161,6 +167,8 @@
         <dt>{t('2 · Chrome AI')} <span class="as-tag">{t('free, only on a computer in Chrome')}</span></dt>
         <dd>{t('A small AI built into Chrome. It also answers free questions, with the entries from the app that fit. It runs on your computer, nothing goes to the internet.')}</dd>
         <dd><ul class="as-eg" aria-label={t('Examples')}>{#each CHROME_EG as e (e)}<li>«{t(e)}»</li>{/each}</ul></dd>
+        <dt>{t('3 · Gemini')} <span class="as-tag">{t('free, needs internet')}</span></dt>
+        <dd>{t('Simple questions by text, voice or photo, from Google’s free Gemini. It does not know your data; only the question and the photo go out. The answer can be read aloud.')}</dd>
       </dl>
       <p class="as-hint">{t('«Help me plan» asks four things (when and how long, kind of trip, the night, the bike) and then suggests a plan: weather, packing list, what is due on the bike, your learnings.')}</p>
     </details>
