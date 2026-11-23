@@ -22,6 +22,7 @@
   import { localDay } from '../localday.js';
   import DepotSheet from './DepotSheet.svelte';
   import EintragSheet from './EintragSheet.svelte';
+  import Verteilung from './Verteilung.svelte';
   import { meldung } from './meldungen.js';
   import { BESTAND_KEY, lies as liesBestand } from './bestand.js';
   import {
@@ -30,7 +31,7 @@
   import { ladeJournalPreise, preiseChf, titelText } from './preise.js';
   import { zahl, anzahl, vorzeichen, tagKurz } from './format.js';
 
-  let { reihen = {} } = $props();
+  let { reihen = {}, goldChf = [] } = $props();
 
   let jr = $state.raw(lies(null));
   let best = $state.raw(liesBestand(null));
@@ -257,6 +258,10 @@
     {/if}
   </section>
   {@render uebernahme()}
+{/if}
+
+{#if geladen}
+  <Verteilung {jr} {basis} {goldChf} />
 {/if}
 
 <p class="muted small hinweis" data-hinweis>{t('Only what you wrote down and the prices of the day before. Nothing here predicts a price and nothing is investment advice. Everything stays on your devices.')}</p>
