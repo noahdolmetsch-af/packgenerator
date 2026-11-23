@@ -24,7 +24,7 @@
   import { mapGround, chooseGround } from '../lib/map/groundpref.svelte.js';
   import ProfileStrip from '../lib/map/ProfileStrip.svelte';
   import Untergrund from '../lib/vorschlaege/Untergrund.svelte';
-  import { fineOfTour, coarseOfTour } from '../lib/vorschlaege/steil.js';
+  import { fineOfTour, coarseOfTour, steepest, stretchOf, STEEP_PCT } from '../lib/vorschlaege/steil.js';
   import { lineKm, pointAtKm, nearestOnLine } from '../lib/spur/kmmarks.js';
   import { REGIONS, LEVELS, COND_STD, TECH_STD, HOURS, ARTS, AWAYS, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
   import { t, num } from '../lib/i18n.svelte.js';
@@ -197,15 +197,33 @@
   // is the dot on the map, and a tap on the map moves the cursor
   let cursorKm = $state(null);
   let pview = $state(null);
+  let picked = $state(null); // the steep piece in the list that is lit on the map and in the profile
   $effect(() => {
     open; // a new tour starts without the dot and with the whole profile
     cursorKm = null;
     pview = null;
+    picked = null;
   });
   const lineScale = $derived(open ? lineKm(open.line) / (open.km || 1) : 1);
   const mark = $derived(open && cursorKm != null ? pointAtKm(open.line, cursorKm * lineScale) : null);
   const fine = $derived(open ? fineOfTour(open) : null);
   const coarse = $derived(open ? coarseOfTour(open) : []);
+  const steep = $derived(open ? steepest(open) : []);
+  const lit = $derived(open && picked != null && steep[picked] ? { pts: stretchOf(open.line, steep[picked].fromKm, steep[picked].toKm, pointAtKm, lineScale) } : null);
+  // a picked piece fills the map; without one the whole tour is in view
+  const focus = $derived(open ? { lines: [lit ? lit.pts : open.line] } : null);
+  const ZOOM_PAD_KM = 0.4;
+  function pickSteep(i) {
+    if (picked === i) {
+      picked = null;
+      pview = null;
+      return;
+    }
+    const s = steep[i];
+    picked = i;
+    pview = { from: Math.max(0, s.fromKm - ZOOM_PAD_KM), to: Math.min(open.km, s.toKm + ZOOM_PAD_KM) };
+    cursorKm = Math.round(((s.fromKm + s.toKm) / 2) * 100) / 100;
+  }
   const MAP_TAP_KM = 2; // a tap farther than this from the line does nothing
   function onMapTap(pos) {
     const n = open && nearestOnLine(open.line, pos);
@@ -241,7 +259,7 @@
   {#if open}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={`${regionName(open.region)} · ${t(tourClass(open))}`} />
     <div class="map" data-vs-map>
-      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong onmap={onMapTap} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
+      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong onmap={onMapTap} light={lit} {focus} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
     </div>
     <div class="grounds" role="group" aria-label={t('Map ground')} data-vs-grounds>
       <span class="gl">{t('Map ground')}</span>
@@ -277,6 +295,25 @@
           <ProfileStrip profile={coarse} {fine} bind:cursorKm bind:view={pview} />
           <Untergrund cls={open.cls} />
         </div>
+      <div class="steep" data-vs-steep>
+        <h3>{t('The steepest pieces')}</h3>
+        {#if steep.length}
+          <p class="ich-hs">{t('From {pct} % over about 250 m. Tap one: it is lit on the map and the profile zooms in.', { pct: STEEP_PCT })}</p>
+          <ul>
+            {#each steep as p, i (p.fromKm)}
+              <li>
+                <button type="button" class="sp" class:on={picked === i} aria-pressed={picked === i} onclick={() => pickSteep(i)} data-vs-steep-item>
+                  <b class="num">{t('km {a}–{b}', { a: num(p.fromKm), b: num(p.toKm) })}</b>
+                  <span class="num">{t('on average {pct} %, up to {max} %', { pct: num(p.avg), max: num(p.max) })}</span>
+                  <span class="num">{t('+{m} m in {l} m', { m: num(p.up), l: num(p.lenM) })}</span>
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="ich-hs" data-vs-steep-none>{t('No piece is steeper than {pct} %. You can ride it all.', { pct: STEEP_PCT })}</p>
+        {/if}
+      </div>
     </section>
 
     <section class="ich-sec" aria-labelledby="vs-why" data-vs-why>
@@ -466,6 +503,12 @@
   .why { display: flex; gap: 6px; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
   .map { border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; margin-bottom: var(--sp-2); }
   .prof { display: grid; gap: var(--sp-3); }
+  .steep { margin-top: var(--sp-3); }
+  .steep h3 { margin: 0 0 var(--sp-1); font-size: var(--fs-sub); }
+  .steep ul { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: grid; gap: var(--sp-2); }
+  .sp { display: flex; flex-wrap: wrap; gap: 4px var(--sp-3); align-items: baseline; width: 100%; text-align: left; padding: var(--sp-3); min-height: 44px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--card); color: var(--ink); font: inherit; cursor: pointer; overflow-wrap: break-word; }
+  .sp span { color: var(--ink-2); font-size: var(--fs-small); }
+  .sp.on { border-color: var(--bad); background: var(--bad-soft); }
   .grounds { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 var(--sp-2); }
   .src { margin: 0 0 var(--sp-3); color: var(--ink-3); font-size: var(--fs-small); }
   .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7em, 1fr)); gap: var(--sp-2); list-style: none; margin: 0 0 var(--sp-3); padding: var(--sp-3); }

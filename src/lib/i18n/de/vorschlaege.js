@@ -119,5 +119,10 @@ export default {
   'Difficulty|why': 'Schwierigkeit',
   'New for you|why': 'Neu für dich',
   'Distance from home|why': 'Abstand zum Wohnort',
+  'The steepest pieces': 'Die steilsten Stücke',
+  'From {pct} % over about 250 m. Tap one: it is lit on the map and the profile zooms in.': 'Ab {pct} % auf etwa 250 m. Tippe eines an: es leuchtet auf der Karte, und Karte und Profil zoomen hinein.',
+  'on average {pct} %, up to {max} %': 'im Schnitt {pct} %, bis {max} %',
+  '+{m} m in {l} m': '+{m} m auf {l} m',
+  'No piece is steeper than {pct} %. You can ride it all.': 'Kein Stück ist steiler als {pct} %. Du kannst alles fahren.',
   'Tap the profile or the map: the dot shows the same place on both.': 'Tippe ins Profil oder auf die Karte: der Punkt zeigt auf beiden dieselbe Stelle.',
 };

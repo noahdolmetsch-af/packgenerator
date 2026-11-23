@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import TOURS from '../src/lib/vorschlaege/data/netz.js';
 import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
 import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/spur/kmmarks.js';
-import { fineOfTour, coarseOfTour, kmsOf } from '../src/lib/vorschlaege/steil.js';
+import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib/vorschlaege/steil.js';
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
@@ -318,5 +318,53 @@ describe('Tourenvorschläge: Höhenprofil aus den Höhen', () => {
   it('ohne Höhen gibt es kein Profil', () => {
     expect(fineOfTour({ ele: [], km: 5 })).toBeNull();
     expect(coarseOfTour({})).toEqual([]);
+  });
+});
+
+describe('Tourenvorschläge: die steilsten Stücke', () => {
+  const flat = { km: 10, ele: Array.from({ length: 101 }, (_, i) => 500 + i) }; // 1 m per 100 m = 1 %
+  it('eine flache Tour hat kein steiles Stück', () => {
+    expect(steepest(flat)).toEqual([]);
+    expect(steepest({ km: 0, ele: [] })).toEqual([]);
+  });
+  it('ein steiles Stück wird gefunden, mit km, Schnitt und Höhenmetern', () => {
+    // km 4–5 climbs 150 m over 1 km = 15 %
+    const ele = flat.ele.map((m, i) => (i < 40 ? 500 : i <= 50 ? 500 + (i - 40) * 15 : 650));
+    const r = steepest({ km: 10, ele });
+    expect(r).toHaveLength(1);
+    expect(r[0].fromKm).toBeGreaterThanOrEqual(3.5);
+    expect(r[0].toKm).toBeLessThanOrEqual(5.5);
+    expect(r[0].avg).toBeGreaterThanOrEqual(12);
+    expect(r[0].up).toBeGreaterThan(100);
+  });
+  it('höchstens drei Stücke, das steilste zuerst, ein Gefälle zählt nicht', () => {
+    const ele = [];
+    let m = 500;
+    for (let i = 0; i <= 200; i++) {
+      const up = [20, 60, 100, 140, 180].some((a) => i >= a && i < a + 5) ? 20 + [20, 60, 100, 140, 180].indexOf([20, 60, 100, 140, 180].find((a) => i >= a && i < a + 5)) : 0;
+      m += up ? up : i > 190 ? -30 : 0;
+      ele.push(m);
+    }
+    const r = steepest({ km: 20, ele });
+    expect(r.length).toBeLessThanOrEqual(3);
+    for (let i = 1; i < r.length; i++) expect(r[i - 1].avg).toBeGreaterThanOrEqual(r[i].avg);
+    expect(r.every((x) => x.up > 0)).toBe(true);
+  });
+  it('die Stücke der echten Touren sind plausibel (Prozent, km innerhalb der Tour)', () => {
+    for (const t of TOURS) {
+      for (const p of steepest(t)) {
+        expect(p.fromKm).toBeGreaterThanOrEqual(0);
+        expect(p.toKm).toBeLessThanOrEqual(t.km + 0.1);
+        expect(p.avg).toBeGreaterThanOrEqual(12);
+        expect(p.max).toBeGreaterThanOrEqual(p.avg);
+      }
+    }
+  });
+  it('das Stück auf der Linie beginnt und endet an Punkten der Linie', () => {
+    const t = by('sm-33');
+    const s = stretchOf(t.line, 5, 6, pointAtKm, 1);
+    expect(s.length).toBeGreaterThanOrEqual(2);
+    expect(nearestOnLine(t.line, s[0]).away).toBeLessThan(0.05);
+    expect(nearestOnLine(t.line, s.at(-1)).away).toBeLessThan(0.05);
   });
 });

@@ -124,6 +124,18 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-profile-box]').focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('[data-vs-map] [data-map-marker]')).toHaveCount(1);
+  // the steepest pieces: tap one, it is lit on the map and the profile zooms in; tap again, back to the whole tour
+  await expect(page.locator('[data-vs-steep]')).toBeVisible();
+  const items = page.locator('[data-vs-steep-item]');
+  expect(await items.count()).toBeGreaterThan(0);
+  expect(await items.count()).toBeLessThanOrEqual(3);
+  await expect(page.locator('[data-map-lit]')).toHaveCount(0);
+  await items.first().click();
+  await expect(items.first()).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-vs-map] [data-map-lit]')).toHaveCount(1);
+  await expect(page.locator('[data-profile-whole]')).toBeEnabled();
+  await items.first().click();
+  await expect(page.locator('[data-map-lit]')).toHaveCount(0);
   await expect(page.locator('[data-vs-why]')).toContainText(T('Why this suggestion?'));
   await expect(page.locator('[data-vs-facts]')).toContainText('33 km');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
