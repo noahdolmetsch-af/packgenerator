@@ -26,6 +26,10 @@
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import WeekMore from '../../lib/flow/WeekMore.svelte';
   import WeekRhythm from '../../lib/flow/WeekRhythm.svelte';
+  import Zusammenhaenge from '../../lib/flow/Zusammenhaenge.svelte';
+  import Rituale from '../../lib/flow/Rituale.svelte';
+  import { ritualeWeek } from '../../lib/flow/rituale.js';
+  import { actName as flowActName } from '../../lib/flow/ui.svelte.js';
   import WeekAnswers from '../../lib/flow/WeekAnswers.svelte';
   import WeekWhere from '../../lib/flow/WeekWhere.svelte';
   import WeekOlder from '../../lib/flow/WeekOlder.svelte';
@@ -59,6 +63,9 @@
   const fmt = (d, o) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const range = $derived(`${fmt(monday, { day: 'numeric', month: monday.slice(5, 7) === sunday.slice(5, 7) ? undefined : 'long' })}–${fmt(sunday, { day: 'numeric', month: 'long' })}`);
   const running = $derived(monday === mondayOf(today));
+  /* «Erholung und Rituale» (Schritt J): sauna, meditation … as times, never as sport hours */
+  const rit = $derived(data ? ritualeWeek(data, monday, running ? today : sunday) : null);
+  const ritNames = $derived(new Map((data?.flowActs ?? []).map((a) => [a.id, flowActName(a)])));
   const prevHref = $derived(weekHref(shiftDay(monday, -7), today));
   const nextHref = $derived(running ? null : weekHref(shiftDay(monday, 7), today));
 
@@ -158,8 +165,13 @@
     <!-- «Form und Erholung» (Noah 20.10.2026): fitness and form at the end of the week -->
     <WeekForm end={running ? today : sunday} />
 
+    {#if rit}<Rituale rows={rit.rows} names={ritNames} />{/if}
+
     <!-- «Mehr Daten» (Noah 01.11.2026 «3c»): body, zones, bikes, weather and appointments of the week -->
     <WeekMore {monday} upto={running ? today : sunday} {today} />
+
+    <!-- «Zusammenhänge» (Noah 22.11.2026 «a», Schritt L): only said from 20 times on, before that it only counts -->
+    <Zusammenhaenge />
 
     <section class="card wcard" data-wr="strip" aria-labelledby="wr-strip">
       <h2 id="wr-strip">{t('Week strip')}</h2>

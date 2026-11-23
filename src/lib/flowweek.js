@@ -166,6 +166,22 @@ export function weekPlan({ acts = [], states = [], log = [], today, fixed = [], 
   return { days: out, tip };
 }
 
+/**
+ * «Eine Zahl für die Woche» (V3): the units of the week, Monday to Sunday, from the days of weekPlan.
+ * done: what was ticked (a tick counts once per tick); total: done plus the fixed and planned dates still to come.
+ * Suggestions do not count (they are only ideas). null when nothing is ticked or planned.
+ */
+export function weekUnits(days = []) {
+  let done = 0;
+  let ahead = 0;
+  for (const d of days)
+    for (const x of d.items) {
+      if (x.kind === 'done') done += Math.max(1, Number(x.n) || 1);
+      else if (x.kind === 'fix' || x.kind === 'plan') ahead += 1;
+    }
+  return done + ahead ? { done, total: done + ahead } : null;
+}
+
 /** The goals of the week: per live activity its stand (n of m, daily ones as days of 7); a daily one is met when today is done. */
 export function weekGoals(states = []) {
   return states

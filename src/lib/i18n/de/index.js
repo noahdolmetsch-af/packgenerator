@@ -723,6 +723,7 @@ import ausprobieren from './ausprobieren.js';
 import quicklinks from './quicklinks.js';
 // Velo-Ideen 71–76 (996 Ideen, Noah 25.10.2026); spread last
 import veloideen from './veloideen.js';
+import einheitenWoche from './einheiten-woche.js';
 import AUTO from './auto.gen.js';
 
 const ORDERED = [
@@ -1116,6 +1117,7 @@ const ORDERED = [
   ausprobieren,
   quicklinks,
   veloideen,
+  einheitenWoche,
   applehealth,
 ];
 

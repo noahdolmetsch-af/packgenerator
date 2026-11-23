@@ -189,3 +189,31 @@ test('Wochenrückblick: Training › Rückblick links here', async ({ page, cont
   await fits(page, 'review');
   expect(errors).toEqual([]);
 });
+
+test('Wochenrückblick: «Erholung und Rituale» counts sauna and meditation as times, never as hours (Schritt J)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await put(page, rows());
+  await page.goto('./#/flow/review');
+  await page.reload();
+  const main = page.locator('main');
+  const card = main.locator('[data-rituale="week"]');
+  await expect(card.getByRole('heading', { name: T('Rest and rituals') })).toBeVisible();
+  await expect(card.locator('[data-ritual="sauna"]')).toContainText('1 Mal');
+  await expect(card.locator('[data-ritual="sauna"]')).toContainText(T('Goal: {n} a week', { n: '2' }));
+  await expect(card.locator('[data-ritual="meditation"]')).toContainText('2 Mal');
+  await expect(card.locator('[data-ritual="meditation"]')).toContainText(T('{n} min measured', { n: '20' }));
+  // the sport hours stay as they were: rituals never count in them
+  await expect(main.locator('[data-five="hours"]')).toContainText('6:20');
+  await fits(page, 'review with rituals');
+  if (process.env.SHOTS) await card.screenshot({ path: `${process.env.SHOTS}/rituale-woche-${info.project.name === 'phone' ? 390 : 1440}.png` });
+
+  // the same card in the Sports year, for the period
+  await page.goto('./#/auswerten/sportjahr');
+  await expect(main.locator('[data-sportjahr]')).toBeVisible();
+  const period = main.locator('[data-rituale="period"]');
+  await expect(period).toBeVisible();
+  await expect(period.locator('[data-ritual="sauna"]')).toContainText('1 Mal');
+  await fits(page, 'sports year with rituals');
+  if (process.env.SHOTS) await period.screenshot({ path: `${process.env.SHOTS}/rituale-sportjahr-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  expect(errors).toEqual([]);
+});

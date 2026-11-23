@@ -31,11 +31,12 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 11 | Planen: 11 → 3 Reiter (Woche, Notizen, Alltag) | #1303 | online | datei:tests/e2e/planen-drei-reiter.spec.js |
 | 12a | Auswerten: 18 → 5 Reiter nach Frage geordnet (Überblick, Körper, Fahrten, Wi gaht's?, Eigenes Diagramm); die alten Seiten als Chips | #1305 | online | datei:tests/e2e/auswerten-gruppen.spec.js |
 | 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | online | datei:tests/e2e/analyse-diagramm.spec.js |
-| 13 | Velos und Material: ein Bereich mit Reitern und Kacheln, «Sets» statt Ausrüstung (= V5 des Auftrags «App vereinfachen») | - | offen | - |
+| 13 | Velos und Material: ein Bereich mit vier Reitern (Velos, Pflege, Material, Sets) und Chips, «Sets» statt Ausrüstung, der Schalter am Handy fällt weg (= V5 des Auftrags «App vereinfachen») | #1488 | online | datei:tests/e2e/velos-material-bereich.spec.js |
 | 6 | Ich (vier Gruppen mit Satz zum Stand, «Wartet auf dich» zuerst) und Suche | - | offen | - |
 | V1 | Woche: «n von m Einheiten erledigt» und die Ziele der Woche auf der Woche-Seite | #1349 | gebaut | - |
-| V3 | Woche: Aktiv › Woche, Training › Woche, Wochenplan und Mein Trainingsplan führen auf die eine Woche, eine Ziel-Zahl «n von m Einheiten» | - | offen | - |
+| V3 | Woche: Aktiv › Woche, Training › Woche, Wochenplan und Mein Trainingsplan führen auf die eine Woche, eine Ziel-Zahl «n von m Einheiten» | #1498 | gebaut | datei:tests/e2e/einheiten-woche.spec.js |
 | V4a | Menü mit fünf Bereichen: Bereich «Woche» (Planen und Aktiv zusammen: Woche, Training, Notizen, Alltag), Auswerten mit eigenem Platz; Seitenleiste und Handy-Leiste (alle Adressen bleiben) | #1368 | gebaut | - |
+| V4b2 | Meditation nach «Alltag», «Woche leichter/härter», Karte «Dein Stand» auf Training | #1459, #1476, #1480 | online | datei:tests/wochenart-backup.test.js |
 | V4b | Training als Zeitplan der Woche (Einheiten mit Uhrzeit, freier Slot → «Neue Einheit», «Härter», «Dein Stand»); Meditation nach «Alltag» | #1409 | gebaut | - |
 | V7 | «Alles hier» fällt weg, am Seitenende «Alle Funktionen ›» | #1424 | gebaut | - |
 | 14 | Streichliste umsetzen (W1–W4 ganz weg, M1–M8 hinter «Mehr», Z1–Z8 zusammenlegen), je Punkt ein PR | - | offen | - |

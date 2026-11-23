@@ -1,6 +1,6 @@
 /**
  * v0.76.0 «Fünf Orte» 1 (mockup orte-tastenkuerzel): the keyboard shortcuts on a computer.
- * g then a letter opens a place (g h Heute, g t Touren, g m Material, g v Velos, g a Aktiv);
+ * g then a letter opens a place (g h Heute, g t Touren, g v Velos und Material (g m: its tab Material), g w Woche);
  * / searches, n opens «Neu», i opens «Ich», ? shows the list. Letters only when no field is active
  * and no dialog is open, never with Ctrl, Alt or Cmd (App.svelte asks typing() first).
  */
@@ -19,6 +19,8 @@ export function shortcutOf(key, afterG = false, current = null) {
   if (afterG) {
     const p = PLACES.find((x) => x.letter === key);
     if (p) return { go: placeHref(p, current) };
+    // V5: Material is a tab of «Velos und Material» now; the old «g m» still opens it
+    if (key === 'm') return { go: '#/gear' };
   }
   if (key === 'g') return { wait: true };
   if (key === '/') return { act: 'search' };

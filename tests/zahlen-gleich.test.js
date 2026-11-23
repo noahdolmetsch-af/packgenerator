@@ -118,9 +118,10 @@ describe('Aktiv: Kopfzeile, Wochenkarte und Wochenrückblick zählen dieselben Z
     expect(all.filter((g) => g.met).length).toBe(review.met);
     expect(all.filter((g) => !g.met).length).toBe(review.of - review.met); // die Wochenkarte: «n offen»
   });
-  it('die Kopfzeile von Aktiv zählt alle Ziele, nicht nur die des Rings «Bewegen»', () => {
+  it('die Kopfzeile von Aktiv zählt seit V3 eine Zahl, die Einheiten der Woche (wie die Wochenkarte), nicht die Ziele des Rings «Bewegen»', () => {
     const flow = src('src/pages/Flow.svelte');
-    expect(flow).toContain('weekGoals(states)');
+    expect(flow).toContain('unitsOfWeek(');
+    expect(src('src/lib/flow/WeekGlance.svelte')).toContain('weekUnits(week)');
     expect(flow).not.toContain('rings.move.of ? tn(');
   });
 });

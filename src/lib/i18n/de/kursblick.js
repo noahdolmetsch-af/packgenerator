@@ -1,6 +1,7 @@
 // «Kursblick» (Noah 22.11.2026): the small app for the daily prices of gold and the SMI
 export default {
   'Kursblick': 'Kursblick',
+  'Gold and the SMI, with the close of the day before': 'Gold und der SMI, mit dem Schlusskurs vom Vortag',
   'Gold': 'Gold',
   'SMI': 'SMI',
   'Today|kurs': 'Heute',

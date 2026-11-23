@@ -11,8 +11,10 @@
   import { zones } from '../strava/zones.svelte.js';
   import { loadDayData } from '../daydata.js';
   import { shiftDay, hmm } from '../training.js';
-  import { bodyTiles, zonesWeek, bikesWeek, outdoorWeek, weightWeek, meditationWeek, tripsWeek, sleepPhasesWeek } from '../weekmore.js';
+  import { bodyTiles, azmNormal, zonesWeek, bikesWeek, outdoorWeek, weightWeek, meditationWeek, tripsWeek, sleepPhasesWeek } from '../weekmore.js';
   import { WEIGHT_KEY, entriesOf } from '../weight.js';
+  import { PAUSE_KEY, pausesOf } from '../weekrhythm.js';
+  import { AZM_WEEK_KEY, azmWeekOf } from '../health.js';
   import { homeTrips } from '../home/heute.js';
   import { tourHref } from '../touren/tour.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
@@ -20,10 +22,12 @@
   let { monday, upto, today } = $props();
 
   const q = liveQuery(async () => {
-    const [acts, health, prefs, day, wt, log, trips] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.settings.get(PREFS_KEY), loadDayData(db), db.settings.get(WEIGHT_KEY), db.flowLog.toArray(), db.trips.toArray()]);
-    return { acts, health, gear: prefs?.value?.gear ?? [], weather: day.weather, events: day.events, weights: entriesOf(wt?.value), log, trips: homeTrips(trips) };
+    const [acts, health, prefs, day, wt, log, trips, paused, azmRef] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.settings.get(PREFS_KEY), loadDayData(db), db.settings.get(WEIGHT_KEY), db.flowLog.toArray(), db.trips.toArray(), db.settings.get(PAUSE_KEY), db.settings.get(AZM_WEEK_KEY)]);
+    return { acts, health, gear: prefs?.value?.gear ?? [], weather: day.weather, events: day.events, weights: entriesOf(wt?.value), log, trips: homeTrips(trips), pauses: pausesOf(paused?.value), azmRef: azmWeekOf(azmRef?.value) };
   });
   const body = $derived($q ? bodyTiles($q.health, monday, upto) : []);
+  /* Schritt K: the active zone minutes against your own usual week and a year ago; the guideline of the watch only as a line */
+  const azn = $derived($q ? azmNormal($q.health, monday, upto, $q.pauses) : null);
   const zn = $derived($q ? zonesWeek($q.acts, monday, upto, zones.bounds) : null);
   const bikes = $derived($q ? bikesWeek($q.acts, monday, upto, $q.gear) : []);
   const out = $derived($q ? outdoorWeek($q.weather, $q.events, monday, upto) : { days: [], hasWeather: false, hasEvents: false });
@@ -68,6 +72,11 @@
             {/each}
           </ol>
           <span class="s">{t(NOTE[b.how])} · {t('{n} days with a value', { n: b.n })}</span>
+          {#if b.key === 'azm' && azn}
+            {#if azn.normal != null}<span class="s" data-azm-normal>{tn(azn.weeks, 'Your usual: {m} min a week (median of {n} week).', 'Your usual: {m} min a week (median of {n} weeks).', { m: num(azn.normal) })}</span>{/if}
+            {#if azn.year != null}<span class="s" data-azm-year>{t('The same week a year ago: {n} min.', { n: num(azn.year) })}</span>{/if}
+          {/if}
+          {#if b.key === 'azm' && $q}<span class="s" data-azm-ref>{t('For orientation only: the guideline of the watch is {n} min a week.', { n: num($q.azmRef) })}</span>{/if}
           <a class="tp-link more" href="#/flow/review/tile?k={b.key}&w={monday}" data-tile-detail={b.key}>{t('Course and all numbers')}</a>
         </li>
       {/each}
