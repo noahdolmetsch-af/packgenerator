@@ -114,9 +114,7 @@ test('no trip today: the suggestion is a row of Up now; no photo; Continue for a
   const T = await openHome(page, context, info, { data, hour: 9 });
 
   await expect(page.locator('#next-h')).toHaveText(T('How was {trip}?', { trip: 'test_data_gtp_ Albula' }));
-  // «Heute aufräumen» (Noah 23.11.2026, changed on purpose): «My tour» names Fern, so the strip «Continue» does not say it a second time
-  await expect(page.locator('[data-tile="meinetour"]')).toContainText('test_data_gtp_ Fern');
-  await expect(page.locator('[data-row="continue"]')).toHaveCount(0);
+  await expect(page.locator('[data-row="continue"]')).toContainText('test_data_gtp_ Fern');
   await expect(page.locator('[data-photo]')).toHaveCount(0);
   // «Heute neu» A (changed on purpose): the suggestion is one row of «Up now» with «Quick start», the greeting is one sentence
   await expect(page.locator('[data-suggestion]')).toHaveCount(0);
