@@ -55,6 +55,9 @@ test('Trip tips: three new places for the free time, the weather, other hours, a
   await context.route(/api\.open-meteo\.com\/v1\/forecast/, (r) => r.fulfill({ json: METEO() }));
   await context.route(/brouter\.de/, (r) => (asked.push(r.request().url()), r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(ROUND) })));
   await context.route(/^https?:\/\/(?!localhost[:/])(?!brouter\.de)(?!api\.open-meteo\.com)/, (r) => r.abort());
+  await context.route(/geocoding-api\.open-meteo\.com/, (r) => r.fulfill({ json: { results: [{ name: 'Bern', admin1: 'Bern', country: 'Switzerland', latitude: 46.948, longitude: 7.4474 }] } }));
+  await context.grantPermissions(['geolocation']);
+  await context.setGeolocation({ latitude: 47.05, longitude: 8.3 });
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./#/trips/dreams');
   await ready(page);
@@ -85,6 +88,40 @@ test('Trip tips: three new places for the free time, the weather, other hours, a
   const two = await ids();
   await sec.getByRole('button', { name: T('{n} h', { n: 6 }), exact: true }).click();
   await expect.poll(ids).not.toBe(two);
+
+  // 2b. «You have 90 minutes»: the shortest choice shows places close by, or says there are none
+  await sec.getByRole('button', { name: T('{n} min', { n: 90 }), exact: true }).click();
+  await expect(sec.getByRole('button', { name: T('{n} min', { n: 90 }), exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(tips.first().or(sec.getByText(T('No new place within reach. Choose more time.')))).toBeVisible();
+  await noSideways(page);
+  await shot(sec, info, 'CL1-90min');
+  await sec.getByRole('button', { name: T('{n} h', { n: 6 }), exact: true }).click();
+  await expect(tips).toHaveCount(3);
+
+  // 2c. «Where do you start?»: another place changes the tips and hides the home weather; «Home» brings it back
+  const homeIds = await ids();
+  const chip = sec.locator('[data-tt-start]');
+  await expect(chip).toContainText(T('Start: {place}', { place: T('Home|start place') }));
+  await chip.click();
+  const sheet = page.locator('dialog[data-start-sheet][open]');
+  await expect(sheet.locator('[data-start-home]')).toBeVisible();
+  await sheet.locator('[data-start-q]').fill('Bern');
+  await sheet.getByRole('button', { name: T('Find'), exact: true }).click();
+  await shot(page.locator('dialog[data-start-sheet]'), info, 'ST1-startort');
+  await sheet.locator('[data-start-hit]').first().click();
+  await expect(chip).toContainText(T('Start: {place}', { place: 'Bern' }));
+  await expect(sec.locator('[data-tt-wx]')).toHaveCount(0);
+  await expect.poll(ids).not.toBe(homeIds);
+  await noSideways(page);
+  await shot(sec, info, 'ST2-ab-bern');
+  await chip.click();
+  await page.locator('dialog[data-start-sheet][open] [data-start-here]').click();
+  await expect(chip).toContainText(T('Start: {place}', { place: T('Here') }));
+  await chip.click();
+  await page.locator('dialog[data-start-sheet][open] [data-start-home]').click();
+  await expect(chip).toContainText(T('Start: {place}', { place: T('Home|start place') }));
+  await expect(sec.locator('[data-tt-wx]')).toContainText('18°');
+  await expect.poll(ids).toBe(homeIds);
 
   // 3. a round through the first place: one router request
   const name = (await tips.first().locator('b').textContent()).trim();

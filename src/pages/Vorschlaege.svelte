@@ -20,6 +20,8 @@
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import Empty from '../lib/ui/Empty.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
+  import { RASTER_GROUNDS } from '../lib/map/sources.js';
+  import { mapGround, chooseGround } from '../lib/map/groundpref.svelte.js';
   import Profil from '../lib/vorschlaege/Profil.svelte';
   import { REGIONS, LEVELS, COND_STD, TECH_STD, HOURS, ARTS, AWAYS, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
   import { t, num } from '../lib/i18n.svelte.js';
@@ -227,9 +229,15 @@
   {#if open}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={`${regionName(open.region)} · ${t(tourClass(open))}`} />
     <div class="map" data-vs-map>
-      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={320} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
+      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
     </div>
-    <p class="src">{t('Map and tour: © swisstopo, SchweizMobil. Check closures and snow on the spot.')}</p>
+    <div class="grounds" role="group" aria-label={t('Map ground')} data-vs-grounds>
+      <span class="gl">{t('Map ground')}</span>
+      {#each RASTER_GROUNDS as g (g.key)}
+        <button type="button" class="chip" aria-pressed={mapGround.key === g.key} data-vs-ground={g.key} onclick={() => chooseGround(g.key)}>{t(g.name)}</button>
+      {/each}
+    </div>
+    <p class="src">{t('Map and tour: © swisstopo, SchweizMobil. Check closures and snow on the spot.')} {t('Applies to all maps in the app.')}</p>
 
     <ul class="facts card" data-vs-facts>
       <li><b class="num">{num(open.km)} km</b><small>{t('Length|tour')}</small></li>
@@ -289,6 +297,7 @@
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Tour suggestions')} sub={t('Mountain bike tours from the official network of SchweizMobil')} />
     <p class="intro">{t('The app suggests tours you can ride. Everything is a suggestion: change the filters, hide what is not for you.')}</p>
 
+    {#snippet filtersBox()}
     <section class="card pad filters" aria-label={t('Filters|tour')} data-vs-filters>
       <div class="grp" role="group" aria-label={t('Region|tour')}>
         <span class="gl">{t('Region|tour')}</span>
@@ -335,7 +344,9 @@
       </div>
       <p class="hint"><Info size={14} aria-hidden="true" />{t('Only tours that are hard for fitness are on at the start. Switch «Medium» or «Easy» on to see more. A tour is never left out because of its skill level: the filter only narrows it down.')}</p>
     </section>
+    {/snippet}
 
+    {#snippet results()}
     {#if !tours}
       <p class="hint" role="status">{t('Loading the tours…')}</p>
     {:else if !shown.length}
@@ -347,7 +358,7 @@
         <span class="hint num" data-vs-count>{t('{n} tours', { n: shown.length })}</span>
       </div>
       {#if view === 'map'}
-        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} />{:catch}{/await}
+        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} {pace} />{:catch}{/await}
       {:else}
       <section class="ich-sec" aria-labelledby="vs-fit" data-vs-fits>
         <div class="ich-h"><div><h2 id="vs-fit">{t('Fits now')} <small class="n num">{split.fits.length}</small></h2><p class="ich-hs">{t('Tours that suit this month.')}</p></div></div>
@@ -373,6 +384,16 @@
         </section>
       {/if}
       {/if}
+    {/if}
+    {/snippet}
+
+    <!-- «Karte oben» (Noah 23.11.2026, gross und gut sichtbar): in the map view the map comes first, the filters below it -->
+    {#if view === 'map'}
+      {@render results()}
+      {@render filtersBox()}
+    {:else}
+      {@render filtersBox()}
+      {@render results()}
     {/if}
 
     {#if hidden.length}
@@ -408,6 +429,7 @@
   .intro { max-width: 65ch; margin: 0 0 var(--sp-4); color: var(--ink-2); }
   .pad { padding: var(--sp-3); }
   .filters { display: grid; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+  .vs.wide .filters { margin-top: var(--sp-4); }
   .grp { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
   .gl { font-weight: 700; min-width: 6.5em; color: var(--ink-2); }
   .chip { min-height: 44px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: 99px; background: var(--card); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
@@ -428,6 +450,7 @@
   .lvp[data-lv='difficult'] { border-color: var(--bad); color: var(--bad); }
   .why { display: flex; gap: 6px; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
   .map { border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; margin-bottom: var(--sp-2); }
+  .grounds { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 var(--sp-2); }
   .src { margin: 0 0 var(--sp-3); color: var(--ink-3); font-size: var(--fs-small); }
   .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7em, 1fr)); gap: var(--sp-2); list-style: none; margin: 0 0 var(--sp-3); padding: var(--sp-3); }
   .facts li { display: grid; }
