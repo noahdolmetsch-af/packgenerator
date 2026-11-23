@@ -13,7 +13,8 @@
   import { historyQuery } from '../abdb.js';
   import { localDay } from '../localday.js';
   import { t, tn, num as fmt } from '../i18n.svelte.js';
-  import { seriesOf, insights, rhrHigh, lastDays, ownNumberQuestions, leversOf, soonOf, isLever, expMetricOf, MIN_DAYS, WINDOW_DAYS, OWN_OFF_KEY } from '../erkenntnisse.js';
+  import { seriesOf, insights, rhrHigh, lastDays, ownNumberQuestions, leversOf, soonOf, isLever, expMetricOf, certaintyOf, MIN_DAYS, SURE_DAYS, WINDOW_DAYS, OWN_OFF_KEY } from '../erkenntnisse.js';
+  import Sicherheit from '../flow/form/Sicherheit.svelte';
   import { keepDayWeather, loadDayData } from '../daydata.js';
   import { configOf } from '../abfragen.js';
   import { sentenceOf, xText, leverLine, tipOf, cap, SHORT, rangeText } from './words.js';
@@ -185,11 +186,11 @@
         <li data-insight={x.id}>
           <Lightbulb size={16} aria-hidden="true" />
           {#if compact}
-            <span><b>{sentence(x)}</b><small class="num">{tn(x.n, '{n} day', '{n} days')} · {x.clear ? t('goes together clearly') : t('goes together a little')} · {nameOf(x.x)} → {nameOf(x.y)}</small></span>
+            <span><b>{sentence(x)}</b><small class="num">{tn(x.n, '{n} day', '{n} days')} · {nameOf(x.x)} → {nameOf(x.y)}</small><Sicherheit level={certaintyOf(x)} /></span>
           {:else}
             <div class="rowc">
               <button type="button" class="row" aria-expanded={openId === x.id} onclick={() => toggle(x.id)}>
-                <span><b>{sentence(x)}</b><small class="num">{tn(x.n, '{n} day', '{n} days')} · {x.clear ? t('goes together clearly') : t('goes together a little')} · {nameOf(x.x)} → {nameOf(x.y)}</small></span>
+                <span><b>{sentence(x)}</b><small class="num">{tn(x.n, '{n} day', '{n} days')} · {nameOf(x.x)} → {nameOf(x.y)}</small><Sicherheit level={certaintyOf(x)} /></span>
                 <ChevronDown size={16} aria-hidden="true" class="chev" />
               </button>
               {#if openId === x.id}{@render detail(x)}{/if}
@@ -205,7 +206,7 @@
     <div class="card pad soon" data-soon>
       <b class="wh"><Hourglass size={15} aria-hidden="true" /> {soon.soon.length ? tn(soon.soon.length, 'Soon visible: {n} link', 'Soon visible: {n} links') : t('Still collecting days')}</b>
       {#if soon.first}
-        <p class="first" data-soon-first>{t('A first trend, not sure yet:')} <b>{sentence(soon.first)}</b> <small class="num">({tn(soon.first.n, '{n} day', '{n} days')})</small></p>
+        <p class="first" data-soon-first>{t('A first trend, not sure yet:')} <b>{sentence(soon.first)}</b> <small class="num">({tn(soon.first.n, '{n} day', '{n} days')})</small> <Sicherheit level="few" /></p>
       {/if}
       <details class="wd" data-waiting-all>
         <summary>{t('Everything that is still collecting days')}</summary>
@@ -238,11 +239,25 @@
       {/if}
     </div>
   {/if}
+  {#if !compact}
+    <details class="wd how" data-insights-how>
+      <summary>{t('How it is counted')}</summary>
+      <p class="ich-hs">{t('The app looks at the last {n} days and at the days that have both values. From {m} days it says whether the two go up and down together (rank correlation); it shows a sentence only when they do so clearly enough.', { n: WINDOW_DAYS, m: MIN_DAYS })}</p>
+      <p class="ich-hs">{t('Sure: it goes together clearly and the sentence rests on at least {n} days. Tendency: it goes together, but less clearly or on fewer days. Too little data: first days only, nothing to say yet.', { n: SURE_DAYS })}</p>
+    </details>
+  {/if}
   <p class="local"><Lock size={15} aria-hidden="true" /><span>{t('Going together is not a cause. Only to look at, never a diagnosis. Everything stays on the device.')}</span></p>
   {#if compact}<a class="btn" href="#/me/insights" data-insights-all>{t('All insights')}<ChevronRight size={16} aria-hidden="true" /></a>{/if}
 </section>
 
 <style>
+  .ins :global(.sg) {
+    margin-top: 6px;
+    width: fit-content;
+  }
+  .how {
+    margin: 0 0 8px;
+  }
   .pad {
     padding: 14px 16px;
   }

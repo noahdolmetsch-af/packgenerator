@@ -55,7 +55,7 @@ export default {
   'no week before': 'keine Woche davor',
   'Fitbit, from the same days of the week before. Only what was, nothing is rated.': 'Fitbit, gegenüber den gleichen Tagen der Woche davor. Nur was war, nichts wird bewertet.',
   'All values in Analyse': 'Alle Werte in Analyse',
-  'From the activities of the week that have a heart rate. Your zones: Aktiv › Training.': 'Aus den Aktivitäten der Woche mit Puls. Deine Zonen: Aktiv › Training.',
+  'From the activities of the week that have a heart rate. Your zones: Aktiv › Training.': 'Aus den Aktivitäten der Woche mit Puls. Deine Zonen: Woche › Training.',
   'Km per bike': 'Km pro Velo',
   'Without a bike': 'Ohne Velo',
   '{n} rides': '{n} Fahrten',

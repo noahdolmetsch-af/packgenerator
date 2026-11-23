@@ -257,3 +257,40 @@ describe('buildWeek: the same bike job twice', () => {
     expect(bike.map((s) => !!s.sub.named)).toEqual([true, true, false]);
   });
 });
+
+// «Diese Woche aufräumen» (Noah 23.11.2026): a calendar copy of a trip stands once, a unit once, long names whole, a hint on too much time
+describe('Diese Woche aufräumen', () => {
+  const trip = { id: 'tr1', title: 'Lake day tour', startDate: '2026-10-21', days: 1 };
+  it('a calendar date that only copies the trip («Tour: …») is left out; other dates stay', () => {
+    const cal = calEntries([
+      { id: 'c1', title: 'Tour: Lake day tour', day: '2026-10-21', src: 'google' },
+      { id: 'c2', title: 'Lake day tour', day: '2026-10-21', src: 'google' },
+      { id: 'c3', title: 'Dinner with friends', day: '2026-10-21', src: 'google' },
+      { id: 'c4', title: 'Tour: Lake day tour', day: '2026-10-22', src: 'google' }, // another day: a real date
+    ]);
+    const w = buildWeek({ ...base, trips: [trip], cal });
+    const titles = w.days[2].entries.map((e) => e.title);
+    expect(titles).toContain('Dinner with friends');
+    expect(titles.filter((x) => /Lake day tour/.test(x))).toHaveLength(1); // the trip itself
+    expect(w.days[3].entries.some((e) => e.id === 'cal:c4')).toBe(true);
+  });
+  it('long calendar names stay whole (up to 200 characters)', () => {
+    const long = 'x'.repeat(150);
+    expect(calEntries([{ id: 'c1', title: long, day: '2026-10-21', src: 'google' }])[0].title).toBe(long);
+    const w = googleWeek({ events: [{ id: 'main|e1', gid: 'e1', cal: 'main', title: long, allDay: false, day: '2026-10-21', start: '2026-10-21T07:30:00Z', end: '2026-10-21T08:00:00Z' }], tasks: [], prefs: { calendar: true } }, MON);
+    expect(w.cal).toHaveLength(1);
+    expect(w.cal[0].title).toBe(long);
+  });
+  it('the same unit twice on a day (same name, day and minutes) counts once in the hours', () => {
+    const twice = [{ id: 's1', day: '2026-10-20', kind: 'bike', name: 'Intervals', mins: 60 }, { id: 's2', day: '2026-10-20', kind: 'bike', name: 'Intervals', mins: 60 }, { id: 's3', day: '2026-10-21', kind: 'bike', name: 'Intervals', mins: 60 }];
+    expect(buildWeek({ ...base, sessions: twice }).sums.mins).toBe(120);
+  });
+  it('over the weekly plan: a hint with the hours too much and the longest open unit', () => {
+    const sessions = [{ id: 's1', day: '2026-10-20', kind: 'bike', name: 'Short', mins: 60 }, { id: 's2', day: '2026-10-23', kind: 'bike', name: 'Long ride', mins: 240 }];
+    const w = buildWeek({ ...base, sessions, goalHours: 3 });
+    const h = w.hints.find((x) => x.key === 'over');
+    expect(h).toMatchObject({ over: 120, goal: 180, title: 'Long ride', day: '2026-10-23', mins: 240 });
+    expect(buildWeek({ ...base, sessions, goalHours: 5 }).hints.some((x) => x.key === 'over')).toBe(false); // within the plan (+30 min)
+    expect(buildWeek({ ...base, sessions }).hints.some((x) => x.key === 'over')).toBe(false); // no plan, no hint
+  });
+});

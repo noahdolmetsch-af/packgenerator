@@ -63,9 +63,9 @@
   }
   .chipc-c[aria-pressed='true'],
   .chipc-c[aria-checked='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .chipc-c:focus-visible {
     outline: var(--focus-ring);

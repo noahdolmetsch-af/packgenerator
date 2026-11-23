@@ -22,11 +22,11 @@ export default {
   'Type a number above 0.': 'Tippe eine Zahl über 0.',
   'Every sport and the kilometres already have a week goal.': 'Jede Sportart und die Kilometer haben schon ein Wochenziel.',
   // Funktionskatalog, Handbuch, «So geht's»
-  'Open Aktiv; «My week goals» sits next to «This week».': 'Öffne Aktiv; «Meine Wochenziele» steht neben «Diese Woche».',
+  'Open Aktiv; «My week goals» sits next to «This week».': 'Öffne «Heute abhaken»; «Meine Wochenziele» steht neben «Diese Woche».',
   'Tap «Add a week goal» (or one of the suggestions like 2× meditation), pick what and how much.': 'Tippe auf «Wochenziel hinzufügen» (oder einen Vorschlag wie 2× Meditation), wähle was und wie viel.',
   'Tap «Change» to set another number, put the goals in another order or delete one; Undo brings it back.': 'Tippe auf «Ändern», um eine andere Zahl zu setzen, die Ziele umzuordnen oder eins zu löschen; «Rückgängig» holt es zurück.',
   'Example: «150 km» for the week; on Wednesday the bar says «103 km of 150 km, 5 days left».': 'Beispiel: «150 km» für die Woche; am Mittwoch sagt der Balken «103 km von 150 km, noch 5 Tage».',
-  'Open Aktiv › «My week goals».': 'Öffne Aktiv › «Meine Wochenziele».',
+  'Open Aktiv › «My week goals».': 'Öffne Woche › Training › Heute abhaken › «Meine Wochenziele».',
   'Add a goal, like 2× meditation or 150 km.': 'Füge ein Ziel hinzu, zum Beispiel 2× Meditation oder 150 km.',
   'The bar fills from Monday to Sunday; change or delete it any time.': 'Der Balken füllt sich von Montag bis Sonntag; ändere oder lösche ihn jederzeit.',
   'Two or three goals are plenty: a goal you can reach by Thursday keeps the week friendly, a big one only on Sunday.': 'Zwei oder drei Ziele reichen: Ein Ziel, das du bis Donnerstag schaffst, hält die Woche freundlich, ein grosses erst am Sonntag.',

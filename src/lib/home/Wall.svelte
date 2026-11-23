@@ -21,16 +21,23 @@
    */
   import { GripVertical, X, ChevronLeft, ChevronRight, ChevronDown, Plus } from '@lucide/svelte';
   import { TILE, SIZE_NAME, stepTile, moveTile, removeTile, resizeTile } from './tiles.js';
-  import { sectionsOf, fillers } from './sections.js';
+  import { sectionsOf, fillers, NONE } from './sections.js';
   import { runsOf } from './quick.js';
   import { t } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
-  import { readFolded, writeFolded, toggleFold } from './homeFold.js';
+  import { readFolded, writeFolded, toggleFold, readMoreOpen, writeMoreOpen } from './homeFold.js';
 
   let { tiles = [], body, editing = false, sections = true, areas = null, onedit, onchange, onadd } = $props();
 
   let picked = $state(null); // the tile whose ‹ › and sizes show
   // Aufklappen: the areas folded on this phone (all open at the start)
+  /** The areas under «More» (Heute aufräumen, 23.11.2026): closed until the person opens them; the device remembers it. */
+  const MORE = ['body', 'away', 'quick', 'discover'];
+  let moreOpen = $state(readMoreOpen());
+  const toggleMore = () => {
+    moreOpen = !moreOpen;
+    writeMoreOpen(moreOpen);
+  };
   let folded = $state(readFolded());
   const fold = (key) => {
     folded = toggleFold(folded, key);
@@ -129,6 +136,26 @@
   </div>
 {/snippet}
 
+{#snippet areaS(g)}
+  {@const title = g.own ?? t(g.name)}
+  <div class="ti long sech" class:folded={isFolded(g.key)} data-home-sec={g.key} role="listitem">
+    {#if phone.matches}
+      <h2><button type="button" class="sec-t" aria-expanded={!isFolded(g.key)} onclick={() => fold(g.key)} data-sec-toggle={g.key}><span>{title}</span><ChevronDown class="sec-chev" size={20} aria-hidden="true" /></button></h2>
+    {:else}<h2>{title}</h2>{/if}
+    {#if isFolded(g.key)}<p class="sec-sum" data-sec-sum>{g.tiles.map((x) => name(x.id)).join(' · ')}</p>{:else if g.sub && !g.own}<p>{t(g.sub)}</p>{/if}
+  </div>
+  {#if isFolded(g.key)}{:else if g.tiles.every((x) => x.size === 's')}{@render quickS(g.tiles)}
+  {:else if g.key === 'discover' && !g.tiles.some((x) => x.size === 's')}
+    <!-- 4a: «Neu», «Schon probiert?» and the tip side by side -->
+    <div class="ti long disc" role="listitem"><div class="dgrid" role="list">{#each g.tiles as x (x.id)}{@render tileEl(x, 'di', undefined, seen.indexOf(x))}{/each}</div></div>
+  {:else}
+    <!-- a hidden «Open quickly» sends its small tiles elsewhere: they stay one calm list at the end of that area -->
+    {@const big = g.tiles.filter((x) => x.size !== 's')}{@const small = g.tiles.filter((x) => x.size === 's')}{@const fill = fillers(big)}{@const fill4 = fillers(big, 4)}
+    {#each big as x (x.id)}{@render tileEl(x, `${fill.has(x.id) ? 'fill' : ''} ${fill4.has(x.id) ? 'fill4' : ''}`, fill.get(x.id), seen.indexOf(x), fill4.get(x.id))}{/each}
+    {#if small.length}{@render quickS(small)}{/if}
+  {/if}
+{/snippet}
+
 {#if editing}
   <div class="wall editing" bind:this={wallEl} role="list" aria-label={t('Your start page')} onpointermove={dragMove} onpointerup={dragEnd} onpointercancel={dragEnd}>
     {#each shown as x, i (x.id)}{@render tileEl(x, '', undefined, i)}{/each}
@@ -141,25 +168,18 @@
 {:else}
   <div class="wall" class:secs={sections} bind:this={wallEl} role="list" aria-label={t('Your start page')}>
     {#if sections}
-      {#each sectionsOf(shown, areas) as g (g.key)}
-        {@const title = g.own ?? t(g.name)}
-        <div class="ti long sech" class:folded={isFolded(g.key)} data-home-sec={g.key} role="listitem">
-          {#if phone.matches}
-            <h2><button type="button" class="sec-t" aria-expanded={!isFolded(g.key)} onclick={() => fold(g.key)} data-sec-toggle={g.key}><span>{title}</span><ChevronDown class="sec-chev" size={20} aria-hidden="true" /></button></h2>
-          {:else}<h2>{title}</h2>{/if}
-          {#if isFolded(g.key)}<p class="sec-sum" data-sec-sum>{g.tiles.map((x) => name(x.id)).join(' · ')}</p>{:else if g.sub && !g.own}<p>{t(g.sub)}</p>{/if}
+      {@const secs = sectionsOf(shown, areas)}
+      {#each secs.filter((g) => !MORE.includes(g.key) && g.key !== NONE) as g (g.key)}{@render areaS(g)}{/each}
+      {#if secs.some((g) => MORE.includes(g.key))}
+        <!-- Heute aufräumen (23.11.2026, Noah «ja»): what is not for right now stands under one closed line «More» (body values, on the road, quick links, discover) -->
+        {@const rest = secs.filter((g) => MORE.includes(g.key))}
+        <div class="ti long sech" class:folded={!moreOpen} data-home-more role="listitem">
+          <h2><button type="button" class="sec-t" aria-expanded={moreOpen} onclick={toggleMore} data-more-toggle><span>{t('More|home')}</span><ChevronDown class="sec-chev" size={20} aria-hidden="true" /></button></h2>
+          {#if !moreOpen}<p class="sec-sum" data-more-sum>{rest.map((g) => g.own ?? t(g.name)).join(' · ')}</p>{/if}
         </div>
-        {#if isFolded(g.key)}{:else if g.tiles.every((x) => x.size === 's')}{@render quickS(g.tiles)}
-        {:else if g.key === 'discover' && !g.tiles.some((x) => x.size === 's')}
-          <!-- 4a: «Neu», «Schon probiert?» and the tip side by side -->
-          <div class="ti long disc" role="listitem"><div class="dgrid" role="list">{#each g.tiles as x (x.id)}{@render tileEl(x, 'di', undefined, seen.indexOf(x))}{/each}</div></div>
-        {:else}
-          <!-- a hidden «Open quickly» sends its small tiles elsewhere: they stay one calm list at the end of that area -->
-          {@const big = g.tiles.filter((x) => x.size !== 's')}{@const small = g.tiles.filter((x) => x.size === 's')}{@const fill = fillers(big)}{@const fill4 = fillers(big, 4)}
-          {#each big as x (x.id)}{@render tileEl(x, `${fill.has(x.id) ? 'fill' : ''} ${fill4.has(x.id) ? 'fill4' : ''}`, fill.get(x.id), seen.indexOf(x), fill4.get(x.id))}{/each}
-          {#if small.length}{@render quickS(small)}{/if}
-        {/if}
-      {/each}
+        {#if moreOpen}{#each rest as g (g.key)}{@render areaS(g)}{/each}{/if}
+      {/if}
+      {#each secs.filter((g) => g.key === NONE) as g (g.key)}{@render areaS(g)}{/each}
     {:else}
       {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
         {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x, '', undefined, seen.indexOf(x))}{/each}{/if}

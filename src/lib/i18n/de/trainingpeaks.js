@@ -6,11 +6,11 @@ export default {
   'Paste your TrainingPeaks calendar link once under Me › Connections › TrainingPeaks plan (needs Premium).': 'Füge deinen TrainingPeaks-Kalender-Link einmal unter Ich › Verbindungen › TrainingPeaks-Plan ein (braucht Premium).',
   'In TrainingPeaks on a computer: Settings › Account › Calendar, copy the address of the calendar subscription.': 'In TrainingPeaks auf dem Computer: Settings › Account › Calendar, die Adresse des Kalender-Abos kopieren.',
   'Paste it under Me › Connections › TrainingPeaks plan and tap «Test and add».': 'Füge sie unter Ich › Verbindungen › TrainingPeaks-Plan ein und tippe «Testen und hinzufügen».',
-  'Aktiv › Training › My week shows the planned workouts, marked «TP». Ticking done stays with Strava or by hand.': 'Aktiv › Training › Meine Woche zeigt die geplanten Trainings, markiert mit «TP». Das Abhaken bleibt bei Strava oder von Hand.',
+  'Aktiv › Training › My week shows the planned workouts, marked «TP». Ticking done stays with Strava or by hand.': 'Woche › Training › Meine Woche zeigt die geplanten Trainings, markiert mit «TP». Das Abhaken bleibt bei Strava oder von Hand.',
   'Example: «Bike - Endurance Z2» planned for Saturday, 90 min → stands in My week on Saturday; the ride from Strava ticks it.': 'Beispiel: «Bike - Endurance Z2» am Samstag, 90 Min → steht am Samstag in Meine Woche; die Fahrt aus Strava hakt es ab.',
   'Open Me › Connections › TrainingPeaks plan.': 'Öffne Ich › Verbindungen › TrainingPeaks-Plan.',
   'Paste the calendar link from TrainingPeaks and tap «Test and add».': 'Füge den Kalender-Link aus TrainingPeaks ein und tippe «Testen und hinzufügen».',
-  'Aktiv › Training › My week shows the planned workouts marked «TP».': 'Aktiv › Training › Meine Woche zeigt die geplanten Trainings mit «TP».',
+  'Aktiv › Training › My week shows the planned workouts marked «TP».': 'Woche › Training › Meine Woche zeigt die geplanten Trainings mit «TP».',
   'A session you change here stays as you made it: TrainingPeaks does not overwrite it with the next fetch. In the weekly plan it counts towards your hours of the week; the plan only adds the rest.': 'Eine Einheit, die du hier änderst, bleibt, wie du sie gemacht hast: TrainingPeaks überschreibt sie beim nächsten Abruf nicht. Im Wochenplan zählt sie auf deine Stunden der Woche; der Plan ergänzt nur den Rest.',
   'In the weekly plan these sessions count towards your hours of the week; the plan only adds the rest. For weeks further ahead than about 14 days the weekly plan plans alone.': 'Im Wochenplan zählen diese Einheiten auf deine Stunden der Woche; der Plan ergänzt nur den Rest. Für Wochen, die weiter als etwa 14 Tage voraus liegen, plant der Wochenplan allein.',
   // die Karte

@@ -1,7 +1,7 @@
 <script>
   /**
    * «Kursblick» (Noah 22.11.2026 «ja»; plan: docs/releases/kursblick.md): the small app for the daily prices of gold,
-   * the SMI and more. Five views: Today (#/kurse), Gold (#/kurse/gold, with gold after inflation), Markets (#/kurse/maerkte: the titles the person
+   * the SMI and more. Six views: Today (#/kurse), Gold (#/kurse/gold, with gold after inflation), Decision (#/kurse/entscheidung: trend, position and an own buying rule for gold, src/lib/kurse/Entscheidung.svelte), Markets (#/kurse/maerkte: the titles the person
    * follows, src/lib/kurse/Maerkte.svelte), My numbers (#/kurse/bestand: holdings with profit or loss and goals, private, src/lib/kurse/Meins.svelte)
    * and Sources (#/kurse/quellen).
    * The closing price of the day before comes from the server (api/lake.js ?action=kurse), the last answer stays on the
@@ -20,6 +20,8 @@
   import Maerkte from '../lib/kurse/Maerkte.svelte';
   import Meins from '../lib/kurse/Meins.svelte';
   import GoldReal from '../lib/kurse/GoldReal.svelte';
+  import Entscheidung from '../lib/kurse/Entscheidung.svelte';
+  import Portfolio from '../lib/kurse/Portfolio.svelte';
   import { db } from '../lib/db.js';
   import { t } from '../lib/i18n.svelte.js';
   import { miniAppOf } from '../lib/miniapps.js';
@@ -29,7 +31,7 @@
   import '../lib/ich/ich.css';
 
   let { sub = '' } = $props();
-  const view = $derived(sub === 'gold' ? 'gold' : sub === 'quellen' ? 'quellen' : sub === 'maerkte' ? 'maerkte' : sub === 'bestand' ? 'bestand' : 'heute');
+  const view = $derived(sub === 'gold' ? 'gold' : sub === 'quellen' ? 'quellen' : sub === 'maerkte' ? 'maerkte' : sub === 'bestand' ? 'bestand' : sub === 'entscheidung' ? 'entscheidung' : sub === 'portfolio' ? 'portfolio' : 'heute');
   const inMini = typeof location !== 'undefined' && !!miniAppOf(location.pathname);
   const NAMES = { gold: 'Gold', smi: 'SMI', usdchf: 'USD/CHF' };
 
@@ -108,12 +110,14 @@
 
   {#if !inMini}
     <div class="kseg">
-      <Seg label={t('View')} value={view} options={[{ key: 'heute', name: t('Today|kurs') }, { key: 'gold', name: t('Gold') }, { key: 'maerkte', name: t('Markets|kurs') }, { key: 'bestand', name: t('My numbers|kurs') }, { key: 'quellen', name: t('Sources|kurs') }]} onchange={(k) => go(k === 'heute' ? '#/kurse' : `#/kurse/${k}`)} />
+      <Seg label={t('View')} value={view} options={[{ key: 'heute', name: t('Today|kurs') }, { key: 'gold', name: t('Gold') }, { key: 'entscheidung', name: t('Decision|kurs') }, { key: 'maerkte', name: t('Markets|kurs') }, { key: 'portfolio', name: t('Portfolio|kurs') }, { key: 'bestand', name: t('My numbers|kurs') }, { key: 'quellen', name: t('Sources|kurs') }]} onchange={(k) => go(k === 'heute' ? '#/kurse' : `#/kurse/${k}`)} />
     </div>
   {/if}
 
   {#if view === 'maerkte'}
     <Maerkte {zeitraum} onzeitraum={(p) => (zeitraum = p)} />
+  {:else if view === 'portfolio'}
+    <Portfolio {reihen} />
   {:else if view === 'bestand'}
     <Meins {reihen} />
   {:else if laedt && !wert}
@@ -161,6 +165,8 @@
       </div>
       <Verlauf points={chartPoints} label={chart === 'gold' ? t('Gold in CHF per kg') : t('SMI')} dec={0} />
     </section>
+  {:else if view === 'entscheidung'}
+    <Entscheidung {goldChf} />
   {:else if view === 'gold'}
     <section class="card k-card" data-rechner>
       <h2>{t('What a sale brings')}</h2>

@@ -43,7 +43,7 @@ export default {
   'The active zone minutes are switched off on the page Fitbit.': 'Die Aktivzonenminuten sind auf der Seite Fitbit ausgeschaltet.',
   'No active zone minutes this week yet. They come when the app fetches from Fitbit.': 'Diese Woche noch keine Aktivzonenminuten. Sie kommen, wenn die App bei Fitbit holt.',
   'Connect Fitbit: then the minutes of every activity count here.': 'Fitbit verbinden: dann zählen hier die Minuten jeder Aktivität.',
-  'Not counted for the year yet. Your minutes of this week are on Aktiv.': 'Fürs Jahr noch nicht gezählt. Deine Minuten dieser Woche stehen auf Aktiv.',
+  'Not counted for the year yet. Your minutes of this week are on Aktiv.': 'Fürs Jahr noch nicht gezählt. Deine Minuten dieser Woche stehen auf «Heute abhaken».',
   'No goal · set one': 'Kein Ziel · eins setzen',
   'Empty|goal': 'Leeren',
   '{n} active zone min': '{n} Min Aktivzonen',

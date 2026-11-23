@@ -25,7 +25,7 @@ export default {
   'Km of the rides on the bike (Strava).': 'Km der Fahrten auf dem Velo (Strava).',
   'Mean of the daily highs at your home place; days without a value are left out.': 'Mittel der Tageshöchstwerte an deinem Wohnort; Tage ohne Wert bleiben weg.',
   'Sum of the rain at your home place; days without a value are left out.': 'Summe des Regens an deinem Wohnort; Tage ohne Wert bleiben weg.',
-  'Strava moving time plus the minutes you noted in Aktiv.': 'Bewegungszeit aus Strava plus die Minuten, die du in Aktiv notiert hast.',
+  'Strava moving time plus the minutes you noted in Aktiv.': 'Bewegungszeit aus Strava plus die Minuten, die du in «Heute abhaken» notiert hast.',
   'Mean of your own sleep rating 1–10 on the days you answered.': 'Mittel deiner eigenen Schlafbewertung 1–10 an den Tagen, an denen du geantwortet hast.',
   'The longest run of days with training that ends in the week.': 'Die längste Reihe von Trainingstagen, die in der Woche endet.',
 };

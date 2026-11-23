@@ -164,4 +164,4 @@ export async function openHelp(page) {
 }
 
 /** For the specs of Heute's windows: a context without 'pg.windows' = 'quiet' (playwright.config.js), so the windows open by the clock. */
-export const WINDOWS_ON = { cookies: [], origins: [] };
+export const WINDOWS_ON = { cookies: [], origins: [{ origin: `http://localhost:${Number(process.env.E2E_PORT) || 4191}`, localStorage: [{ name: 'pg.homeMoreOpen', value: '1' }] }] };
