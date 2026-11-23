@@ -246,7 +246,7 @@ export default {
   'Tap «Round through it» at a place.': 'Tippe bei einem Ort «Runde hindurch».',
   // Challenges nach Gelegenheit: der Startort der Ausflugstipps
   'Start: {place}': 'Start: {place}',
-  'Home|start place': 'Zuhause',
+  'Home|start': 'Zuhause',
   'Where do you start?': 'Wo startest du?',
   'The tips then count from this place. Nothing is saved.': 'Die Tipps rechnen dann von diesem Ort. Nichts wird gespeichert.',
   'From here': 'Von hier',
@@ -258,9 +258,9 @@ export default {
   'The search needs the internet.': 'Die Suche braucht Internet.',
   'From {from} through {name} and back.': 'Von {from} durch {name} und zurück.',
   // Challenges nach Gelegenheit: Schwierigkeit der Ausflugstipps
-  'Easy|trip tip': 'Locker',
-  'Medium|trip tip': 'Mittel',
-  'Hard|trip tip': 'Knackig',
+  'Easy|tip': 'Locker',
+  'Medium|tip': 'Mittel',
+  'Hard|tip': 'Knackig',
   'How hard: a rough guess from the round and the height of the place. Easy up to {a} km, medium from {a} km, hard from {b} km; a place above {c} m is at least medium, above {d} m hard.': 'Wie schwer: eine grobe Schätzung aus der Runde und der Höhe des Ortes. Locker bis {a} km, mittel ab {a} km, knackig ab {b} km; ein Ort über {c} m ist mindestens mittel, über {d} m knackig.',
   // «Neue Kilometer» (Träume und Neuland N4)
   'New kilometres': 'Neue Kilometer',
