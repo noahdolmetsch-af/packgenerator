@@ -6,7 +6,8 @@
    * small cards under them is gone); «Show details» chooses the bike and leads down to its page; «+ Bike» adds one.
    */
   import { tick } from 'svelte';
-  import { Plus } from '@lucide/svelte';
+  import { Plus, Star } from '@lucide/svelte';
+  import './standardvelo.css';
   import { wantBike } from '../nav.js';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
@@ -74,7 +75,8 @@
   <section class="cards" data-bike-cards aria-label={t('Your bikes at a glance')}>
     {#each cards as c (c.bike.id)}
       <article class="vcard" class:sel={c.bike.id === bikeId} aria-current={c.bike.id === bikeId ? 'true' : undefined} data-velo-card={c.bike.id}>
-        <div class="pic"><VeloDraw look={c.look.look} /></div>
+        <!-- VS3 (Noah 14.10.2026): the standard bike (first in the order) keeps its star, now on its card -->
+        <div class="pic"><VeloDraw look={c.look.look} />{#if c.bike.id === bikes[0]?.id && bikes.length > 1}<Star size={16} class="sv-star" aria-label={t('Standard')} />{/if}</div>
         <b class="nm">{c.bike.name}</b>
         <small class="km num">{#if c.bike.km != null}<NumLink to={velosHref(c.bike.id)} data-card-km-link><Odometer value={c.bike.km} />{' km'}</NumLink>{:else}{t('km not set')}{/if}</small>
         <!-- V1: «nothing due» / «n due» leads to the care list of this bike -->
@@ -193,7 +195,13 @@
     overflow-wrap: break-word;
   }
   .pic {
+    position: relative;
     width: 140px;
+  }
+  .pic :global(.sv-star) {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
   .look {
     color: var(--ink-2);
