@@ -59,7 +59,6 @@ export default {
   'Morning check: nothing open': 'Wi gaht\'s? am Morgen: nichts offen',
   'Evening check: nothing open': 'Wi gaht\'s? am Abend: nichts offen',
   'See|check': 'Ansehen',
-  'Only to look at: the arrow compares with yesterday.': 'Nur zum Anschauen: Der Pfeil vergleicht mit gestern.',
   'Active today': 'Heute abhaken',
   '{n} done today|acts': '{n} heute abgehakt',
   'Add your activities in Aktiv, then you tick them off here in one tap.': 'Lege deine Aktivitäten unter «Heute abhaken» an, dann hakst du sie hier mit einem Tipp ab.',
