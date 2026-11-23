@@ -61,6 +61,7 @@ test('a picture that does not load leaves nothing behind', async ({ page, contex
   await start(page, context, info);
   await page.route('**/news/**/*.webp', (r) => r.abort());
   const card = await open(page, withBild[0]);
-  await expect(card.locator('[data-news-bild]')).toHaveCount(0, { timeout: 10_000 });
+  // (a picture inside the closed «More pictures» does not load, so it cannot fail yet: only the open ones count)
+  await expect(card.locator('[data-news-bild]:visible')).toHaveCount(0, { timeout: 10_000 });
   await expect(card.getByRole('link').first()).toBeVisible();
 });
