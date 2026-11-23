@@ -69,18 +69,18 @@
     <div class="vn-pic">
       <button type="button" class="vn-picbtn" aria-expanded={pic} onclick={() => { pic = !pic; failed = 0; big = false; }} data-news-pic={e.version}>{pic ? t('Hide picture') : t('Show picture')}</button>
       {#if pic}
-        <figure class="vn-fig" class:big data-news-figure>
+        <div class="vn-fig" class:big data-news-figure>
           {#each [e.imageBefore ? { src: e.imageBefore, cap: t('Before|picture') } : null, { src: e.image, cap: e.imageBefore ? t('After|picture') : '' }].filter(Boolean) as p (p.src)}
-            <div class="vn-fi">
+            <figure class="vn-fi">
               {#if failed}
                 <p class="vn-off" role="status">{t('Picture only with internet')}</p>
               {:else}
                 <button type="button" class="vn-zoom" onclick={() => (big = !big)} aria-label={t('Enlarge the picture')}><img src={base + p.src} alt={t('Picture of «{title}»', { title: t(e.title) })} loading="lazy" onerror={() => failed++} /></button>
               {/if}
               {#if p.cap}<figcaption>{p.cap}</figcaption>{/if}
-            </div>
+            </figure>
           {/each}
-        </figure>
+        </div>
       {/if}
     </div>
   {/if}
@@ -97,6 +97,9 @@
     color: var(--hi);
     font: 600 var(--fs-small) var(--font-body);
     cursor: pointer;
+  }
+  .vn-fi {
+    margin: 0;
   }
   .vn-fig {
     display: flex;
