@@ -221,14 +221,30 @@ export async function chooseStart(db, choice, today, interests = ALL_INTERESTS) 
  */
 export async function addExamples(db, today, { at = new Date().toISOString(), first = false, interests = ALL_INTERESTS } = {}) {
   const want = interestsOf(interests);
-  const file = examplesFile(today, want);
+  let file = examplesFile(today, want);
   const active = want.includes('active');
   const present = new Set((await db.flowActs.toArray()).map((a) => a.id));
   const missing = active ? seedActs().filter((a) => !present.has(a.id)) : [];
+  // Noah 23.11.2026 «1-5a» (V1): «Adjust the examples» adds more later. A row that is already there (maybe edited by
+  // the user) is never written over, and the ids of the examples from before stay in the record, so «Remove the
+  // examples» still finds all of them.
+  const before = first ? null : (await db.settings.get(FIRST_KEY))?.value;
+  if (!first) {
+    const tables = {};
+    for (const [k, rows] of Object.entries(file.tables)) {
+      const have = new Set(rows.length ? (await db.table(k).bulkGet(rows.map((r) => keyOf(k, r)))).map((r, i) => (r ? keyOf(k, rows[i]) : null)).filter(Boolean) : []);
+      tables[k] = rows.filter((r) => !have.has(keyOf(k, r)));
+    }
+    file = { ...file, tables };
+  }
   const ids = Object.fromEntries(Object.entries(file.tables).map(([k, rows]) => [k, rows.map((r) => keyOf(k, r))]));
   // on the first start every starter activity counts as an example; later only the ones it brings back
   ids.flowActs = first ? (active ? [...seedIds()] : []) : missing.map((a) => a.id);
-  const value = { choice: 'examples', at, ids, ...(want.length < ALL_INTERESTS.length ? { interests: want } : {}) };
+  const old = before?.choice === 'examples' ? before.ids ?? {} : {};
+  for (const k of Object.keys(old)) ids[k] = [...new Set([...(ids[k] ?? []), ...old[k]])];
+  const had = before?.choice === 'examples' ? interestsOf(before.interests) : [];
+  const all = [...new Set([...had, ...want])];
+  const value = { choice: 'examples', at, ids, ...(all.length < ALL_INTERESTS.length ? { interests: all } : {}) };
   await db.settings.put({ key: FIRST_KEY, value });
   await restoreBackup(db, file, 'merge');
   await blocksAfterImport(db, file, 'merge');
@@ -239,6 +255,16 @@ export async function addExamples(db, today, { at = new Date().toISOString(), fi
     if (acts.length) await db.flowActs.bulkDelete(acts.map((a) => a.id));
   }
   return value;
+}
+
+/** Which of the interests are in the data right now (from examplesLeft): nights, days, active. */
+export function interestsPresent(left = {}) {
+  const trips = new Set((left.trips ?? []).map((x) => x.id));
+  const out = [];
+  if (trips.has('ex-trip')) out.push('nights');
+  if (trips.has('ex-past')) out.push('days');
+  if ((left.flowActs ?? []).length) out.push('active');
+  return out;
 }
 
 /** The examples still in the data: { table: [rows] } (empty object when none). */
