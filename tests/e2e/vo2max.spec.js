@@ -50,3 +50,16 @@ test('VO2max: without a value the page says where it comes from', async ({ page,
   await expect(st).toContainText(T('No value in this range. It comes with Fitbit or the Apple Health export (Me › Connections).'));
   expect(errors).toEqual([]);
 });
+
+test('VO2max: the line shows your usual range and one neutral sentence («Diagramme überall verbessern», Noah 23.11.2026 «ja»)', async ({ page, context }) => {
+  // a value every day for 60 days, between 46 and 50 (made up), today 50
+  const days = Array.from({ length: 60 }, (_, i) => ({ date: addDays(TODAY, -i), restingHr: 52, vo2max: i === 0 ? 50 : 46 + (i % 5), src: 'google' }));
+  const errors = await open(page, context, days);
+  const st = page.locator('.gs');
+  await st.locator('[data-ranges] [data-key="w4"]').click();
+  await expect(st.locator('[data-chart-sentences]')).toContainText(/^Jetzt .* ml\/kg\/min/);
+  await expect(st.locator('[data-band]')).toHaveCount(1);
+  await expect(st.locator('[data-band-text]')).toHaveText(T('Your usual range'));
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/vo2max-band-${page.viewportSize().width <= 500 ? 390 : 1440}.png`, fullPage: true });
+  expect(errors).toEqual([]);
+});

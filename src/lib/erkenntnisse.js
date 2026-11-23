@@ -43,7 +43,7 @@ export const LEVERS = 3;
 export const RHR_DAYS = 3;
 export const RHR_ABOVE = 5;
 
-const addDays = (day, n) => {
+export const addDays = (day, n) => {
   const d = new Date(`${day}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
@@ -52,8 +52,8 @@ const addDays = (day, n) => {
 export const lastDays = (today, n) => Array.from({ length: n }, (_, i) => addDays(today, i - n + 1));
 
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
-const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
-const round1 = (x) => Math.round(x * 10) / 10;
+export const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
+export const round1 = (x) => Math.round(x * 10) / 10;
 
 /** The value of a question per day (the mean when answered more than once). */
 function perDay(rows, qid) {
@@ -167,6 +167,11 @@ export const ownPairs = (own = []) =>
     { id: `own-${q.id}-battery`, x: `own:${q.id}`, y: 'battery', lag: 0, own: q.id, name: q.text ?? q.name ?? '' },
   ]);
 
+/** Cuts a person would say for active zone minutes: the highest one with enough days on both sides is used instead of the median. */
+export const AZM_CUTS = [200, 150, 100, 60, 30];
+/** At least this many days on each side for a fixed cut. */
+export const CUT_SIDE = 5;
+
 /** What an activity is compared with: [y, lag]. The Fitbit night, the felt sleep and the resting pulse of a date come after the day before it. */
 const ACT_OUT = [['sleepH', 1], ['sleepFelt', 1], ['rhr', 1], ['hrv', 1], ['battery', 0], ['battery', 1], ['mood', 0], ['mood', 1]];
 /** The pairs of the activities in `series` (keys `act:<id>`): against sleep, resting pulse, HRV, battery and mood, the day itself and the day after. */
@@ -191,8 +196,8 @@ export const PAIRS = [
   { id: 'med-mood', x: 'med', y: 'mood', lag: 0 },
   { id: 'steps-sat', x: 'steps', y: 'sat', lag: 0 },
   { id: 'rhr-battery', x: 'rhr', y: 'battery', lag: 0 },
-  { id: 'azm-rhr', x: 'azm', y: 'rhr', lag: 1 },
-  { id: 'azm-sleep', x: 'azm', y: 'sleepH', lag: 1 },
+  { id: 'azm-rhr', x: 'azm', y: 'rhr', lag: 1, fixedCuts: AZM_CUTS },
+  { id: 'azm-sleep', x: 'azm', y: 'sleepH', lag: 1, fixedCuts: AZM_CUTS },
   { id: 'km-rhr', x: 'km', y: 'rhr', lag: 1 },
   // weather and daylight (2a): the day's sun, daylight, rain
   { id: 'sun-mood', x: 'sunH', y: 'mood', lag: 0 },
@@ -204,6 +209,26 @@ export const PAIRS = [
   { id: 'evts-mood', x: 'evts', y: 'mood', lag: 0 },
   { id: 'evts-sleepfelt', x: 'evts', y: 'sleepFelt', lag: 1 },
   { id: 'evts-sleep', x: 'evts', y: 'sleepH', lag: 1 },
+  // patterns after a short night and after a hard day (Noah 23.11.2026): what the night does to the pulse, HRV and moving, what a day full of
+  // active zone minutes does to the night after, the next morning and the mood (fixedCuts: «over 200 active zone minutes», not a median)
+  { id: 'sleep-rhr', x: 'sleepH', y: 'rhr', lag: 0 },
+  { id: 'sleep-hrv', x: 'sleepH', y: 'hrv', lag: 0 },
+  { id: 'sleep-azm', x: 'sleepH', y: 'azm', lag: 0 },
+  { id: 'sleep-steps', x: 'sleepH', y: 'steps', lag: 0 },
+  { id: 'azm-hrv', x: 'azm', y: 'hrv', lag: 1, fixedCuts: AZM_CUTS },
+  { id: 'azm-battery', x: 'azm', y: 'battery', lag: 1, fixedCuts: AZM_CUTS },
+  { id: 'azm-mood', x: 'azm', y: 'mood', lag: 1, fixedCuts: AZM_CUTS },
+  { id: 'azm-sleepfelt', x: 'azm', y: 'sleepFelt', lag: 1, fixedCuts: AZM_CUTS },
+  // weather and training (Noah 23.11.2026): do you ride and move less when it rains or is cold, and does the day after feel different
+  { id: 'rain-km', x: 'rainMm', y: 'km', lag: 0 },
+  { id: 'rain-steps', x: 'rainMm', y: 'steps', lag: 0 },
+  { id: 'rain-azm', x: 'rainMm', y: 'azm', lag: 0 },
+  { id: 'cold-km', x: 'tmax', y: 'km', lag: 0 },
+  { id: 'sun-km', x: 'sunH', y: 'km', lag: 0 },
+  { id: 'sun-azm', x: 'sunH', y: 'azm', lag: 0 },
+  { id: 'rain-mood-next', x: 'rainMm', y: 'mood', lag: 1 },
+  { id: 'km-battery-next', x: 'km', y: 'battery', lag: 1 },
+  { id: 'km-mood-next', x: 'km', y: 'mood', lag: 1 },
 ];
 
 /** The step a cut is rounded to, so that «more than 9.6 km» says «more than 10 km» and «5.46 h» says «5.5 h». */
@@ -212,7 +237,7 @@ const stepOf = (key, v) => {
   if (key === 'km') return v >= 20 ? 5 : 1;
   if (key === 'steps') return 500;
   if (key === 'med' || key === 'azm') return 5;
-  if (key === 'rhr' || key === 'evts' || key === 'rainMm') return 1;
+  if (key === 'rhr' || key === 'evts' || key === 'rainMm' || key === 'tmax') return 1;
   if (key === 'sleepFelt' || key.startsWith('own:')) return v >= 10 ? 1 : 0.5;
   return 0;
 };
@@ -255,7 +280,7 @@ export function spearman(xs, ys) {
   return sxy / Math.sqrt(sxx * syy);
 }
 
-const median = (list) => {
+export const median = (list) => {
   const s = [...list].sort((a, b) => a - b);
   const m = s.length >> 1;
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
@@ -289,6 +314,9 @@ export function look(pair, series, days, { minDays = MIN_DAYS, minRho = MIN_RHO 
     const lower = xs.filter((x) => x < cut);
     if (lower.length) cut = Math.max(...lower);
   }
+  // a fixed cut a person would say (over 200 active zone minutes) when enough days lie on both sides
+  const fixed = (pair.fixedCuts ?? []).find((c) => xs.filter((x) => x > c).length >= CUT_SIDE && xs.filter((x) => x <= c).length >= CUT_SIDE);
+  if (fixed != null) cut = fixed;
   // say what a person would say: round the cut, unless that leaves a side nearly empty
   const rounded = niceCut(pair.x, cut);
   if (rounded !== cut && xs.filter((x) => x > rounded).length >= 3 && xs.filter((x) => x <= rounded).length >= 3) cut = rounded;
@@ -325,11 +353,11 @@ export function rhrHigh(health = [], today) {
 }
 
 /** Higher is better for these (the resting pulse is better lower). */
-const BETTER_UP = new Set(['battery', 'mood', 'sat', 'sleepH', 'sleepFelt', 'hrv']);
+export const BETTER_UP = new Set(['battery', 'mood', 'sat', 'sleepH', 'sleepFelt', 'hrv']);
 /** What a person can do today: sleep, bike, meditation, steps, active zone minutes and every activity of Aktiv (weather, appointments and the body's own values are not levers). */
 export const isLever = (key) => ['sleepH', 'km', 'med', 'steps', 'azm'].includes(key) || String(key).startsWith('act:');
 /** Is the group «more of x» the better one for y? */
-const goodWay = (row) => (row.y === 'rhr' ? row.hi.mean < row.lo.mean : BETTER_UP.has(row.y) && row.hi.mean > row.lo.mean);
+export const goodWay = (row) => (row.y === 'rhr' ? row.hi.mean < row.lo.mean : BETTER_UP.has(row.y) && row.hi.mean > row.lo.mean);
 
 /**
  * The strongest levers (Noah 23.11.2026 «ja»): the shown insights where more of something you can do goes with a better value

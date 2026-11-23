@@ -1,0 +1,28 @@
+// «Mein Tag» (Noah 23.11.2026): src/pages/Tag.svelte, src/lib/tag/. Keys are the English texts. Swiss spelling (ss).
+export default {
+  'My day': 'Mein Tag',
+  'My day|tab': 'Mein Tag',
+  'Read the day, tap an entry to open it where it lives.': 'Den Tag lesen; ein Eintrag antippen öffnet ihn dort, wo er lebt.',
+  'Choose a day': 'Tag wählen',
+  'Day before': 'Tag davor',
+  'Day after': 'Folgetag',
+  '{n} entries': '{n} Einträge',
+  'Today|day': 'Heute',
+  'Tomorrow|day': 'Morgen',
+  'Yesterday|day': 'Gestern',
+  'Back to today': 'Zurück zu heute',
+  'Loading the day …': 'Der Tag wird geladen …',
+  'Without a time': 'Ohne Zeit',
+  'Nothing planned on this day': 'An diesem Tag ist nichts geplant',
+  'Plan sessions, dates and to-dos in Woche. They appear here with their time.': 'Plane Einheiten, Termine und To-dos in der Woche. Sie stehen hier mit ihrer Zeit.',
+  'Open Woche': 'Woche öffnen',
+  'Timeline': 'Zeitleiste',
+  'now|clock': 'jetzt',
+  'What you plan in Woche stands here. Moving and editing entries here comes next.': 'Was du in der Woche planst, steht hier. Verschieben und Ändern der Einträge hier kommt als Nächstes.',
+  // catalogue (src/lib/featreg/meintag.js)
+  'One day as a timeline: sessions, dates, to-dos, trips and holidays with their time, the weather of the day and what has no time yet. It shows what Woche, Today and Tick off show, nothing is stored twice.': 'Ein Tag als Zeitleiste: Einheiten, Termine, To-dos, Touren und Ferien mit ihrer Zeit, das Wetter des Tages und was noch keine Zeit hat. Sie zeigt, was Woche, Heute und Abhaken zeigen; nichts wird doppelt gespeichert.',
+  'Open Plan › Week and tap the chip «My day».': 'Öffne Planen › Woche und tippe auf «Mein Tag».',
+  'Pick a day above; read the timeline, what has no time stands above it.': 'Wähle oben einen Tag; lies die Zeitleiste, was keine Zeit hat, steht darüber.',
+  'Tap an entry to open it where it lives.': 'Tippe einen Eintrag an, um ihn dort zu öffnen, wo er lebt.',
+  'Example: 07:00 yoga, 12:00 dentist, 17:30 shopping, and «Call the garage» without a time above the timeline.': 'Beispiel: 07:00 Yoga, 12:00 Zahnarzt, 17:30 Einkaufen, und «Garage anrufen» ohne Zeit über der Zeitleiste.',
+};

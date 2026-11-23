@@ -474,6 +474,7 @@
     SpurLink: () => import('./pages/SpurLink.svelte'), // Paket S: the family's read link
     Gruppe: () => import('./pages/Gruppe.svelte'), // Gruppen-Live-Karte: a friend's view of the group ride
     GroupRide: () => import('./pages/GroupRide.svelte'), // Gruppenfahrt für Events: the page of your group ride
+    Tag: () => import('./pages/Tag.svelte'), // «Mein Tag» (Noah 23.11.2026): one day as a timeline
     Kurse: () => import('./pages/Kurse.svelte'), // «Kursblick» (Noah 22.11.2026): prices of gold and the SMI
     MiniTools: () => import('./pages/MiniTools.svelte'), // Mini-Tools (Noah 28.10.2026 «2a»): Ich › Mini-Tools
     Mitmachen: () => import('./pages/Mitmachen.svelte'), // Mini-Tools: the page of the people asked, no app data
@@ -800,6 +801,9 @@
   {:else if page === 'handbook'}
     <!-- Ich › Handbuch (mockup HB2, Noah 14.10.2026 «hb freigeben») -->
     <LazyPage load={PAGES.Handbook} />
+  {:else if page === 'day'}
+    <!-- «Mein Tag» (Noah 23.11.2026): #/day (today) and #/day/YYYY-MM-DD -->
+    {#key hash}<LazyPage load={PAGES.Tag} sub={hash.split('?')[0].split('/')[2] ?? ''} />{/key}
   {:else if page === 'kurse'}
     <!-- «Kursblick» (Noah 22.11.2026): #/kurse (Heute), #/kurse/gold, #/kurse/maerkte, #/kurse/quellen -->
     {#key hash}<LazyPage load={PAGES.Kurse} sub={hash.split('?')[0].split('/')[2] ?? ''} />{/key}
