@@ -20,6 +20,7 @@
   import { newTrip, addItem, quickRide, wantBike } from '../nav.js';
   import { t, num } from '../i18n.svelte.js';
   import { parseKm } from '../care.js';
+  import TypoZeile from '../typo/TypoZeile.svelte';
   import { saveReadingAsked } from '../care/kmgapask.js'; // Velo-Idee 72
   import ProblemForm from './ProblemForm.svelte';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
@@ -86,6 +87,7 @@
   // km for a bike
   let bikeId = $state('');
   let km = $state('');
+  let kmLeft = $state(false); // Tippfehler-Frage (Noah 22.11.2026 «1-5 a»): the quiet line shows after the field was left
   let kmMsg = $state('');
   const kmBike = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
   async function saveKm(event) {
@@ -97,6 +99,7 @@
     if (how === 'again') return (kmMsg = t('Nothing saved. Type the km again.'));
     kmMsg = t('{bike}: {km} km saved.', { bike: kmBike.name, km: num(n) });
     km = '';
+    kmLeft = false;
     setTimeout(close, 900);
   }
 </script>
@@ -121,8 +124,9 @@
       </label>
       <label><span class="lbl">{t('km on the counter')}</span>
         <!-- svelte-ignore a11y_autofocus -->
-        <input class="inp num" type="text" inputmode="decimal" enterkeyhint="done" bind:value={km} placeholder={kmBike?.km != null ? String(kmBike.km) : t('e.g. 2400')} autofocus />
+        <input class="inp num" type="text" inputmode="decimal" enterkeyhint="done" bind:value={km} placeholder={kmBike?.km != null ? String(kmBike.km) : t('e.g. 2400')} onblur={() => (kmLeft = true)} autofocus />
       </label>
+      <TypoZeile kind="counterKm" text={String(parseKm(km) ?? '')} last={kmBike?.km ?? null} shown={kmLeft} onuse={(v) => (km = String(v))} />
       <button type="submit" class="btn hi">{t('Save km')}</button>
       {#if kmMsg}<p class="msg" role="status">{kmMsg}</p>{/if}
       <p class="small">{t('Or import your rides in Debrief: the km of a trip are added to its bike.')}</p>
