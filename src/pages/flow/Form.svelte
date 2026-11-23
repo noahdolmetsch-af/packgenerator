@@ -7,6 +7,9 @@
    * - Tour-Bereitschaft (4a): the next or the running tour with the resting pulse per tour day, and the
    *   last multi-day tours to compare;
    * - how the app counts (load: power, else Strava effort, else pulse, 1a).
+   * Noah 23.11.2026 «ja»: on top ONE answer for today from all values (tagesantwort.js), «What stands out» right under it for
+   * resting pulse, HRV and sleep, the tour readiness only when a tour is within 7 days, «What if» as sentences (the table
+   * folded), the Verlauf with Form only (the other lines can be switched on).
    * Loaded only when opened (Flow.svelte). Only to look at, no diagnosis.
    */
   import { Info, ChevronDown, Mountain } from '@lucide/svelte';
@@ -22,7 +25,8 @@
   import MarkerCard from '../../lib/flow/MarkerCard.svelte';
   import { formQuery } from '../../lib/form-data.js';
   import { RAMP_MAX, FIT_DAYS, FAT_DAYS, shownForm } from '../../lib/form.js';
-  import { levelWord, levelLine, tourText } from '../../lib/flow/form/words.js';
+  import { levelWord, answerLine, answerWhy, tourText } from '../../lib/flow/form/words.js';
+  import { dayAnswer } from '../../lib/flow/form/tagesantwort.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num } from '../../lib/i18n.svelte.js';
   import { strava, STRAVA_HASH } from '../../lib/strava/client.svelte.js';
@@ -36,6 +40,7 @@
   const s = $derived(f?.series ?? []);
   // UI-Test T3 (G3-01): today's numbers rounded so that form = fitness − Müdigkeit on screen (form.js shownForm)
   const shown = $derived(shownForm(s.at(-1)));
+  const ans = $derived(dayAnswer(r));
   const rows = $derived(r ? [...r.parts, ...(r.formPts != null ? [{ key: 'form', v: r.form, delta: r.form, points: r.formPts }] : [])] : []);
 
 </script>
@@ -51,14 +56,20 @@
     <section class="card now" data-form-now aria-label={t('Readiness')}>
       {#if r}
         <span class="sc num" data-form-score>{num(r.score)}<small>/100</small></span>
-        <span class="tx">
-          <b>{levelWord(r.level)}</b>
-          <span>{levelLine(r.level)}</span>
+        <span class="tx" data-form-answer={ans.level}>
+          <b>{levelWord(ans.level)}</b>
+          <span data-form-answer-line>{answerLine(ans.level)}</span>
+          {#each answerWhy(ans) as line (line)}<small class="why" data-form-why>{line}</small>{/each}
         </span>
       {:else}
         <span class="tx"><b>{t('Readiness')}</b><span>{t('Comes with your first activities from Strava or with Fitbit: then the app shows each morning what today suits.')}</span></span>
       {/if}
     </section>
+
+    <!-- «Was auffällt» (Noah 21.11.2026, K3; 23.11.2026: all values, right under the answer) -->
+    <Sec id="auffaellt-h" title={t('What stands out')} sub={t('resting pulse, HRV and sleep of the last days against your normal')}>
+      <FormAuffaellt {f} {today} />
+    </Sec>
 
     {#if r}
       <Sec id="parts-h" title={t('What counts today')} sub={t('against your normal of the last 30 days · + helps, − holds back')}>
@@ -69,7 +80,7 @@
       </Sec>
     {/if}
 
-    <Sec id="curve-h" title={t('Over time|form')} sub={t('fitness, fatigue and form · resting pulse')}>
+    <Sec id="curve-h" title={t('Over time|form')} sub={t('form · fitness, fatigue and resting pulse can be switched on')}>
       <div class="card chart" data-form-curve>
         {#if s.some((x) => x.load > 0)}
           <!-- UI-Test T3 (G3-01): the one calculation in words, the same on Training -->
@@ -98,26 +109,17 @@
       </div>
     </Sec>
 
-    <Sec id="tour-h" title={t('Tour readiness')} sub={t('before and during a tour of several days: the resting pulse per tour day')}>
-      <div class="card tour" data-form-tours>
-        {#if f.tour}
+    <!-- Noah 23.11.2026 «ja»: only when a tour is running or starts within 7 days; the earlier tours lie over it for comparison -->
+    {#if f.tour}
+      <Sec id="tour-h" title={t('Tour readiness')} sub={t('before and during a tour of several days: the resting pulse per tour day')}>
+        <div class="card tour" data-form-tours>
           <p class="tl" data-tour-now><Mountain size={18} aria-hidden="true" /><span>{tourText(f.tour)}</span></p>
-        {/if}
-        {#if f.tour || f.past.length}
           <!-- «Diagramme zum Antippen» K4 (Noah 27.10.2026 «1-5 a»): one chart, day 1 = tour start, earlier tours on top -->
           <FormTour {f} {today} />
-        {/if}
-        {#if !f.tour && !f.past.length}
-          <p class="wait">{t('No tour in the next 7 days. When one comes, its days show here, with your resting pulse per tour day.')}</p>
-        {/if}
-        <p class="hint">{t('A resting pulse rising day after day on a tour often means: more sleep, more food, an easier stage.')}</p>
-      </div>
-    </Sec>
-
-    <!-- «Was auffällt» (Noah 21.11.2026, K3): the resting pulse of the last days against your normal, as an observation and a question -->
-    <Sec id="auffaellt-h" title={t('What stands out')} sub={t('your resting pulse of the last days against your normal')}>
-      <FormAuffaellt {f} {today} />
-    </Sec>
+          <p class="hint">{t('A resting pulse rising day after day on a tour often means: more sleep, more food, an easier stage.')}</p>
+        </div>
+      </Sec>
+    {/if}
 
     <!-- «Form im Vergleich zu früher» (Noah 21.11.2026, K2): the same months of each year, with how sure the statement is -->
     <Sec id="vergleich-h" title={t('Form compared with earlier')} sub={t('watt per heartbeat, resting pulse and hours · the same months of each year')}>
@@ -134,6 +136,7 @@
       <p>{t('Load: every activity counts, every sport. With a power meter from the power against your FTP, else from Strava’s relative effort, else from pulse and time.')}</p>
       <p>{t('Fitness is the mean load of about {a} days, fatigue of about {b} days. Form = fitness − fatigue: below 0 you are tired, above 0 fresh.', { a: FIT_DAYS, b: FAT_DAYS })}</p>
       <p>{t('Readiness starts at 60. Form, resting pulse, HRV and sleep against your normal, and how you felt in the morning check, add or take away points. 75 and more suits a hard ride, under 35 a rest day.')}</p>
+      <p>{t('The answer at the top starts from that number. When two or more of sleep, HRV, resting pulse and the morning check are clearly low, it moves towards rest even if your form is good, and says which values count.')}</p>
       <p>{t('Fitness rising by more than {n} a week is a lot: a calm hint, no rule.', { n: RAMP_MAX })}</p>
     </details>
   {/if}
@@ -176,6 +179,10 @@
     display: grid;
     gap: 2px;
     min-width: 0;
+  }
+  .why {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .note,
   .wait,

@@ -11,7 +11,7 @@ const state = () => standard();
 describe('the suggestions', () => {
   it('are five groups: shares, funds, crypto, metals and money', () => {
     expect(STANDARD.gruppen.map((g) => g.id)).toEqual(['aktien', 'fonds', 'krypto', 'metalle', 'geld']);
-    expect(STANDARD.titel.filter((x) => x.gruppe === 'aktien').map((x) => x.symbol)).toEqual(['SREN.SW', 'NESN.SW', 'NOVN.SW', 'ROG.SW', 'SCHN.SW', 'ABBN.SW', 'HOLN.SW']);
+    expect(STANDARD.titel.filter((x) => x.gruppe === 'aktien').map((x) => x.symbol)).toEqual(['SREN.SW', 'NESN.SW', 'NOVN.SW', 'RO.SW', 'SCHN.SW', 'ABBN.SW', 'HOLN.SW']);
   });
   it('every title: a symbol Yahoo can read, a known group and kind, a name or a text to translate, nothing twice', () => {
     expect(new Set(STANDARD.titel.map((x) => x.symbol)).size).toBe(STANDARD.titel.length);
@@ -80,7 +80,7 @@ describe('adding, changing, moving and deleting a title', () => {
     const s = state();
     const r = aendereTitel(s, 'std-nesn', { name: 'Nestlé SA', art: 'fund', gruppe: '' }).state.titel.find((x) => x.id === 'std-nesn');
     expect(r).toMatchObject({ name: 'Nestlé SA', art: 'fund', gruppe: '', symbol: 'NESN.SW' });
-    expect(aendereTitel(s, 'std-nesn', { symbol: 'roG.sw' }).error).toBe('dup');
+    expect(aendereTitel(s, 'std-nesn', { symbol: 'rO.sW' }).error).toBe('dup');
     expect(aendereTitel(s, 'std-nesn', { symbol: '??' }).error).toBe('symbol');
     expect(aendereTitel(s, 'std-nesn', { symbol: 'nesn.sw' }).state.titel[1].symbol).toBe('NESN.SW');
     expect(aendereTitel(s, 'nope', { name: 'x' }).error).toBe('gone');
@@ -163,7 +163,7 @@ describe('restoring the suggestions', () => {
     expect(fehlendeVorschlaege(s)).toBe(1);
     const r = ergaenzeVorschlaege(s);
     expect(r.titel.find((x) => x.symbol === 'NESN.SW').name).toBe('Mein Nestlé');
-    expect(r.titel.map((x) => x.symbol)).toContain('ROG.SW');
+    expect(r.titel.map((x) => x.symbol)).toContain('RO.SW');
     expect(fehlendeVorschlaege(r)).toBe(0);
     expect(r.titel).toHaveLength(STANDARD.titel.length);
   });

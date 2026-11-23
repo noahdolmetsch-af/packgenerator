@@ -166,7 +166,7 @@ async function fromBelow(page, dlg, info) {
 test('SN7 Velo: the kind as option buttons, the details folded, «Hinzufügen»', async ({ page, context }, info) => {
   const errors = await load(page, context, TPL);
   await page.goto('./#/bikes?bike=bike-test');
-  await page.locator('section.setup-band').getByRole('button', { name: T('Add bike') }).click();
+  await page.locator('[data-card-add]').click();
   const dlg = page.locator('dialog[aria-labelledby="bike-dlg-h"]');
   await expect(dlg).toBeVisible();
   const kinds = dlg.getByRole('group', { name: T('Kind|bike') });
@@ -191,7 +191,8 @@ test('SN7 Tasche: the place as option buttons, link and note folded', async ({ p
   await openMore(page);
   const fold = page.locator('details', { hasText: T('Your bags') }).last();
   await fold.locator('summary').first().click();
-  await fold.getByRole('button', { name: /Test seat pack/ }).first().click();
+  // Velos aufräumen (23.11.2026, changed on purpose): the bag names from the import show in German (bagName): «Test seat pack» reads «Test Satteltasche»
+  await fold.getByRole('button', { name: /Test (seat pack|Satteltasche)/ }).first().click();
   const dlg = page.locator('dialog[aria-labelledby="bag-h"]');
   await expect(dlg).toBeVisible();
   const place = dlg.getByRole('group', { name: T('Place') });

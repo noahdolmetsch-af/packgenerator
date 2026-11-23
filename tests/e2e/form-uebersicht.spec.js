@@ -164,6 +164,11 @@ test('the page «Form»: what counts, 12 weeks, tour readiness', async ({ page, 
   const parts = page.locator('[data-form-parts]');
   for (const k of ['rhr', 'hrv', 'sleep', 'feltSleep', 'energy', 'form']) await expect(parts.locator(`[data-part="${k}"]`)).toBeVisible();
   await expect(parts.locator('[data-part="energy"]')).toContainText('9');
+  // Noah 23.11.2026 «ja»: the Verlauf shows the form alone at first; fitness, fatigue and resting pulse are one tap away
+  await expect(page.locator('[data-form-curve] svg.bars')).toBeVisible();
+  await expect(page.locator('[data-form-curve] svg.lines')).toHaveCount(0);
+  await expect(page.locator('[data-form-curve] svg.rhr')).toHaveCount(0);
+  for (const k of ['fit', 'fat', 'rhr']) await page.locator(`[data-form-curve] [data-layer="${k}"]`).click();
   await expect(page.locator('[data-form-curve] svg.lines path')).toHaveCount(2);
   await expect(page.locator('[data-form-curve] svg.rhr')).toBeVisible();
   await expect(page.locator('[data-tour-now]')).toContainText(`${P}Testtour`);
@@ -182,6 +187,9 @@ test('the page «Form»: Verlauf with axes, exact numbers, the day behind a tap'
   await go(page, '#/flow/form');
   const ch = page.locator('[data-chart="formweeks"]');
   await expect(ch).toBeVisible();
+  // Noah 23.11.2026 «ja»: the form alone at first, one axis; the other parts are switched on here
+  await expect(ch.locator('[data-yticks]')).toHaveCount(1);
+  for (const k of ['fit', 'fat', 'rhr']) await ch.locator(`[data-layer="${k}"]`).click();
   // three axes (lines, form, resting pulse), each with at least three round labels; lines from 0
   const axes = ch.locator('[data-yticks]');
   await expect(axes).toHaveCount(3);
