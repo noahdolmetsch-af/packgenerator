@@ -44,6 +44,7 @@
   import SkipLink from './lib/nav/SkipLink.svelte';
   import HelpButton from './lib/nav/HelpButton.svelte';
   import { helpHere } from './lib/pageinfo/here.svelte.js';
+  import WeiterZu from './lib/nav/WeiterZu.svelte'; // «Weiter zu …» at the end of a page with no way on (Noah 23.11.2026 «ja»)
   import ErscheintWenn from './lib/ui/ErscheintWenn.svelte'; // «Wegweiser» PR 23: «Appears when …»
   import PageFoot from './lib/anpassen/PageFoot.svelte'; // «Anpassen» (Noah 20.10.2026 «1a»)
   import { pageKeyOf } from './lib/anpassen.js';
@@ -931,6 +932,7 @@
   </svelte:boundary>
   <!-- «Anpassen» (Noah 20.10.2026 «1a»): «Diese Seite anpassen» at the end of every page; not on Heute, where
        «Startseite anpassen» does it (Neuer Schwung, Noah 26.10.2026 «warum haben wir startseite anpassen und diese seite anpassen?») -->
+  {#if !guest && !mini && page !== 'home'}<WeiterZu {hash} />{/if}
   {#if !guest && !mini && page !== 'home'}<ErscheintWenn {hash} />{/if}
   {#if !guest && !mini && page !== 'home'}<PageFoot page={pageKeyOf(page, place ? (subOf(place, hash)?.key ?? tabOf(place, hash)) : null)} {place} fallback={anpTitle} />{/if}
 </main>

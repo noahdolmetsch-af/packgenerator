@@ -4,7 +4,7 @@ export default {
   lead: 'The week review now lists every activity of Active, also daily habits and sports without a goal.',
   points: [
     { text: 'The card «Everything you created» lists every activity with its times of the week: push-ups, stretching, ice hockey, climbing, yoga and your Strava sports without an activity of their own', go: { href: '#/flow/review', steps: [{ sel: '[data-alle="week"]' }], where: 'Active › Week › Week in review, under the numbers.' } },
-    { text: 'Activities with no time this week stand in a closed list, the rituals stay a group of the card', go: { href: '#/flow/review', steps: [{ sel: '[data-alle-quiet]' }] } },
+    { text: 'Activities with no time this week stand in a closed list, the rituals stay a group of the card', go: { href: '#/flow/review', steps: [{ sel: '[data-alle-quiet]' }], where: 'Active › Week › Week in review, under the numbers.' } },
   ],
   small: [{ box: 'new', text: 'A Strava session without a tick is shown and marked «not counted yet»; it counts for no goal' }],
   test: [
