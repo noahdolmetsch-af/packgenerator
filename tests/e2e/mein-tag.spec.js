@@ -223,3 +223,24 @@ test('Mein Tag: open points of notes become to-dos only on a tap, once', async (
   await expect(page.locator('[data-todo-notes]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('Mein Tag: the tab «Tick off» ticks a sport on one tap, the same tick as Aktiv', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await page.getByRole('button', { name: T('Tick off|tab') }).click();
+  await expect(page).toHaveURL(/#\/day\/abhaken$/);
+  await expect(page.locator('h1')).toHaveText(T('Tick off today'));
+  const tile = page.locator('[data-tag-abhaken] button.tile').first();
+  await expect(tile).toBeVisible();
+  await expect(tile).toHaveAttribute('aria-pressed', 'false');
+  const act = await tile.getAttribute('data-act');
+  await tile.click();
+  await expect(tile).toHaveAttribute('aria-pressed', 'true');
+  // still on Mein Tag (no jump to another page)
+  await expect(page).toHaveURL(/#\/day\/abhaken$/);
+  // the same tick stands on Aktiv
+  await page.goto('./#/flow');
+  await expect(page.locator(`button.tile[data-act="${act}"]`).first()).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
