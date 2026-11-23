@@ -93,6 +93,35 @@ export function recheckFrom(from) {
  * noBike: 'check' (default) or 'auto'; ignore: Strava gear ids that do not count; checkFrom: the first
  * day looked at again for a changed bike (null: none).
  */
+/**
+ * The key of a ledger entry that comes from Strava (Noah 22.11.2026, doubles after two devices fetched): it is made from the Strava
+ * number, so two devices that fetch the same ride before they compare write ONE entry. The compare keeps the newer of the two.
+ */
+export const stravaEntryId = (stravaId) => `km-strava-${stravaId}`;
+
+/**
+ * Strava rides that stand twice as «counted» (an older fetch on two devices, before entries got the Strava number as key). Returns
+ * [{ stravaId, keep, drop: [entry…] }]: keep = the entry with most data (heart rate, climbing), then the oldest key; drop = the others.
+ * Only looks: nothing changes here (the clean-up needs Noah's single approval and a copy of the backup first).
+ */
+export function stravaDoubles(entries = []) {
+  const groups = new Map();
+  for (const e of entries) {
+    if (e?.kind !== 'ride' || e.state !== 'counted' || !e.stravaId) continue;
+    const key = String(e.stravaId);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(e);
+  }
+  const data = (e) => (e.hrAvg != null ? 1 : 0) + (e.hm != null ? 1 : 0) + (e.spot ? 1 : 0);
+  const out = [];
+  for (const [stravaId, list] of groups) {
+    if (list.length < 2) continue;
+    const sorted = [...list].sort((a, b) => data(b) - data(a) || String(a.id).localeCompare(String(b.id)));
+    out.push({ stravaId, keep: sorted[0], drop: sorted.slice(1) });
+  }
+  return out.sort((a, b) => String(a.keep.date).localeCompare(String(b.keep.date)));
+}
+
 export function planSync({ activities = [], gear = [], bikes = [], rules = [], entries = [], noBike = 'check', ignore = [], checkFrom = null, importId = null, indoorBike = null }, now = new Date()) {
   const indoorTo = indoorBike && bikes.some((b) => b.id === indoorBike) ? indoorBike : null;
   const { rides, other } = toRides(activities, gear, { indoor: !!indoorTo });
@@ -141,7 +170,7 @@ export function planSync({ activities = [], gear = [], bikes = [], rules = [], e
   const perBike = {};
   const add = (row, fields) => {
     const r = row.ride;
-    const e = makeEntry({ date: r.date, time: r.time, km: r.km, kind: 'ride', source: 'strava', name: r.name, device: r.device, gear: r.gear, type: r.type ?? '', stravaId: r.stravaId, hrAvg: r.hrAvg, hrMax: r.hrMax, hm: r.hm, spot: r.spot, importId, ...fields }, now);
+    const e = makeEntry({ id: stravaEntryId(r.stravaId), date: r.date, time: r.time, km: r.km, kind: 'ride', source: 'strava', name: r.name, device: r.device, gear: r.gear, type: r.type ?? '', stravaId: r.stravaId, hrAvg: r.hrAvg, hrMax: r.hrMax, hm: r.hm, spot: r.spot, importId, ...fields }, now);
     out.push(e);
     if (e.state === 'counted' && e.bikeId) {
       const p = (perBike[e.bikeId] ??= { n: 0, km: 0 });

@@ -21,7 +21,9 @@
   import { ledgerRows, ledgerCounts, bikeKm, reasonText, entryTitle, entryDetail, makeEntry, heartOf } from '../kmbook.js';
   import { stravaName } from '../stravanames.js';
   import HeartLine from '../strava/HeartLine.svelte';
-  import { addEntries, updateEntry, restoreEntries, deleteEntries, undoImport, LAST_KM_IMPORT } from '../kmbookdb.js';
+  import { addEntries, updateEntry, restoreEntries, deleteEntries, undoImport, removeDoubles, LAST_KM_IMPORT } from '../kmbookdb.js';
+  import { stravaDoubles } from '../stravasync.js';
+  import { takeSnapshot, snapDb } from '../maintenance/snapshots.js';
   import KmChips from './KmChips.svelte';
   import DateInput from '../ui/DateInput.svelte';
   import { t, tn, num, dateOf, locale } from '../i18n.svelte.js';
@@ -40,6 +42,27 @@
   // the import banner: only right after an import that wrote into this bike's ledger, until closed
   const last = $derived($lastQ && entries.some((e) => e.importId === $lastQ.id) && Date.now() - Date.parse($lastQ.at) < 864e5 ? $lastQ : null);
   let bannerOff = $state(null);
+
+  // Strava rides that stand twice as «counted» (two devices fetched them before they compared): only a line, nothing changes until the tap
+  const doubles = $derived(stravaDoubles(entries));
+  const doubleKm = $derived(Math.round(doubles.reduce((s, d) => s + d.drop.reduce((x, e) => x + (Number(e.km) || 0), 0), 0) * 10) / 10);
+  let tidy = $state(false);
+  let tidying = $state(false);
+  async function cleanDoubles() {
+    if (tidying) return;
+    tidying = true;
+    try {
+      // a copy first (Noah 22.11.2026: this touches his data), then the extra entries leave the count; Undo puts them back
+      await takeSnapshot(db, snapDb(), { version: typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null, kind: 'import' });
+      const undo = await removeDoubles(db, $state.snapshot(doubles));
+      tidy = false;
+      say(tn(undo.put.length, '{n} double left out. A copy was made first.', '{n} doubles left out. A copy was made first.'), undo);
+    } catch {
+      say(t('Could not tidy up. Nothing was changed.'));
+    } finally {
+      tidying = false;
+    }
+  }
 
   const FILTERS = ['all', 'open', 'corr'];
   let filter = $state('all');
@@ -175,6 +198,24 @@
   </div>
   <p class="expl">{t('The km are the sum of the rides.')} {tn(n.rides, '{n} ride', '{n} rides')}{n.hand ? `, ${tn(n.hand, '{n} entry by hand', '{n} entries by hand')}` : ''}{n.corrections ? `, ${tn(n.corrections, '{n} correction', '{n} corrections')}` : ''}. {t('Nothing is overwritten: every change is its own entry with a date and a source.')}</p>
 
+  {#if doubles.length}
+    <div class="dbl surf" data-km-doubles>
+      <p>{tn(doubles.length, '{n} Strava ride stands twice, {km} km too many.', '{n} Strava rides stand twice, {km} km too many.', { km: num(doubleKm) })} {t('Both devices fetched it before they compared.')}</p>
+      {#if tidy}
+        <ul class="dbl-list">
+          {#each doubles as d (d.stravaId)}<li>{dateOf(d.keep.date)} · {num(d.keep.km)} km · {d.keep.name || d.keep.type || 'Strava'}</li>{/each}
+        </ul>
+        <p class="dbl-note">{t('Each of these rides stays once. The extra entry is left out, not deleted, and you can undo it. A copy of your data is made first.')}</p>
+        <div class="acts">
+          <button type="button" class="btn hi" data-km-doubles-go onclick={cleanDoubles} disabled={tidying}>{t('Leave out the doubles')}</button>
+          <button type="button" class="btn" onclick={() => (tidy = false)}>{t('Cancel')}</button>
+        </div>
+      {:else}
+        <button type="button" class="btn" data-km-doubles-open onclick={() => (tidy = true)}>{t('Tidy up?')}</button>
+      {/if}
+    </div>
+  {/if}
+
   <div class="bar">
     <div class="acts">
       <button type="button" class="btn hi" aria-expanded={form === 'ride'} onclick={() => openForm('ride')}>{t('Enter km')}</button>
@@ -299,6 +340,26 @@
 <style>
   .kmbook {
     margin: 12px 0 16px;
+  }
+  .dbl {
+    margin: 10px 0;
+    padding: 10px 12px;
+    display: grid;
+    gap: 8px;
+  }
+  .dbl p {
+    margin: 0;
+  }
+  .dbl > .btn {
+    justify-self: start;
+  }
+  .dbl-list {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .dbl-note {
+    color: var(--muted, inherit);
+    font-size: var(--fs-small);
   }
   .banner {
     display: flex;

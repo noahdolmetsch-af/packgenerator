@@ -103,6 +103,8 @@ test('Sportjahr: the year in hours, the chart with the year before, where the ti
   await pg.locator('[data-chart="sportjahr"] [data-plot]').click({ position: { x: 5, y: 60 } });
   await expect(page.locator('[data-sj-sheet]')).toBeVisible();
   await expect(page.locator('[data-sj-sheet]')).toContainText(/\d h( \d+ min)?|\d+ min/); // exact time, not a rounded hour
+  await page.locator('[data-sheet-more]').click(); // «See the N units» opens the list of that bar
+  await expect(page.locator('[data-sheet-list] li').first()).toBeVisible();
   await page.keyboard.press('Escape');
   // «no data instead of 0»: the chart starts on a month with data, a month to come says so
   await expect(pg.locator('[data-chart="sportjahr"] [data-readout]')).not.toContainText('2026 Stunden 0');
@@ -172,5 +174,20 @@ test('Sportjahr: Everything puts the years side by side and the sports of summer
   // a single year has no side by side
   await press(pg.locator('[data-period-bar] [data-key="year"]'), info);
   await expect(pg.locator('[data-sj-years]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('Every page of Auswerten remembers its own period', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const bar = (k) => page.locator(`[data-period-bar] [data-key="${k}"]`);
+  await press(bar('year'), info);
+  await expect(bar('year')).toHaveAttribute('aria-pressed', 'true');
+  await page.evaluate(() => (location.hash = '#/auswerten'));
+  await expect(bar('week')).toHaveAttribute('aria-pressed', 'true'); // its own choice, not the year of the Sports year
+  await press(bar('month'), info);
+  await page.evaluate(() => (location.hash = '#/auswerten/sportjahr'));
+  await expect(bar('year')).toHaveAttribute('aria-pressed', 'true');
+  await page.evaluate(() => (location.hash = '#/auswerten'));
+  await expect(bar('month')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });

@@ -3,6 +3,10 @@
 export default {
   'Challenges|page': 'Challenges',
   'Goals per day that you set yourself: minutes, a count or steps. Every day that reaches the goal counts. All of it is changeable.': 'Tagesziele, die du dir selbst setzt: Minuten, eine Anzahl oder Schritte. Jeder Tag, der das Ziel erreicht, zählt. Alles ist änderbar.',
+  'Own challenges': 'Eigene Challenges',
+  'At the time you set in the window of an own challenge, while it runs, until the day is reached.': 'Zur Zeit, die du im Fenster einer eigenen Challenge einstellst, solange sie läuft, bis der Tag erreicht ist.',
+  '{name}: today\'s goal is still open.': '{name}: das Tagesziel ist heute noch offen.',
+  'Optional: a reminder every day at this time while the challenge runs. A day that reaches the goal sends none. Leave empty for no reminder.': 'Freiwillig: jeden Tag zu dieser Zeit eine Erinnerung, solange die Challenge läuft. Ein Tag, der das Ziel erreicht, sendet keine. Leer lassen für keine Erinnerung.',
   'Running now': 'Läuft jetzt',
   'No own challenge is running. Start one below, for example 10 minutes of stretching every day.': 'Keine eigene Challenge läuft. Starte unten eine, zum Beispiel jeden Tag 10 Minuten Dehnen.',
   'New challenge': 'Neue Challenge',

@@ -106,6 +106,25 @@ test('the page Challenges: a new goal from the window, an idea to take over, cha
   await expect(page.locator('[data-ziel-card]')).toHaveCount(0);
 });
 
+test('a reminder time in the window of an own challenge is kept, also when the browser cannot remind', async ({ page, context }, info) => {
+  // no push in this browser: the challenge is saved anyway and a message says why there is no reminder
+  await context.addInitScript(() => Object.defineProperty(globalThis, 'PushManager', { value: undefined, configurable: true }));
+  const T = await openHome(page, context, info, { hour: 17, data: fixture([ziel()]) });
+  await page.evaluate(() => (location.hash = '#/flow/challenges'));
+  const card = page.locator('[data-ziel-card="tz-test-1"]');
+  await card.locator('[data-ziel-edit]').click();
+  const sheet = page.locator('[data-ziel-sheet]');
+  await expect(sheet.locator('[data-ziel-remind]')).toHaveValue('');
+  await sheet.locator('[data-ziel-remind]').fill('18:30');
+  await shot(page, info, 'challenge-erinnerung-fenster', sheet);
+  await sheet.locator('[data-ziel-save]').click();
+  await expect(sheet).toBeHidden();
+  await expect(card).toBeVisible();
+  await card.locator('[data-ziel-edit]').click();
+  await expect(sheet.locator('[data-ziel-remind]')).toHaveValue('18:30');
+  await sheet.getByRole('button', { name: T('Cancel') }).click();
+});
+
 test('the question every 10 days: three buttons and Later, then it stays quiet', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));

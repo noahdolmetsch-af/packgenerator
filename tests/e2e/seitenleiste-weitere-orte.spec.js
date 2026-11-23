@@ -7,7 +7,7 @@ test('Seitenleiste: «Weitere Orte» steht unter der Liste und deckt keinen Ort 
   test.skip(info.project.name === 'phone', 'die Seitenleiste gibt es nur am Computer');
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await page.setViewportSize({ width: 1440, height: 780 });
+  await page.setViewportSize({ width: 1440, height: 520 }); // seven places plus «Ich» now fit at 780 px; a low window (the side bar stays above 500 px) makes the list scroll again
   await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./#/flow/training');
