@@ -12,6 +12,7 @@ import DE from '../../src/lib/i18n/de/index.js';
 import { answer, FIXTURE, titelAnswer } from './kursblick-data.js';
 import { realReihe } from '../../src/lib/kurse/teuerung.js';
 import { ampel, lage, regelVorschlag, rueckblick } from '../../src/lib/kurse/signale.js';
+import { rechne, bewerteRechnung } from '../../src/lib/kurse/journal.js';
 import { goldChfKg, verkaufswert, vergleich, verglichenMit, PERIODS } from '../../src/lib/kurse/rechnen.js';
 
 const T = (en, vars) => {
@@ -436,5 +437,164 @@ test('Kursblick Entscheidung: Trend, Lage und die eigene Kaufregel mit Rückblic
     await page.setViewportSize({ width: w, height: size.height });
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
   }
+  expect(errors).toEqual([]);
+});
+
+test('Kursblick Depot: Depots, Käufe und Verkäufe eintragen, Übungsdepot, Übernahme aus Meine Zahlen; privat auf dem Gerät', async ({ page, context }, info) => {
+  const errors = await start(page, context);
+  const pro_g = lastGold / 1000;
+  const more = (row) => row.getByRole('button', { name: new RegExp(T('More for {what}', { what: '' }).trim()) });
+  const sheet = page.locator('[data-eintrag-sheet]');
+  const eintrag = async (art, f) => {
+    await page.locator('[data-eintrag-neu]').click();
+    await expect(sheet).toBeVisible();
+    await sheet.getByRole('button', { name: T({ kauf: 'Buy', verkauf: 'Sale' }[art]), exact: true }).click();
+    await sheet.locator('input[type="date"]').fill(f.tag);
+    await sheet.locator('[data-eintrag-menge]').fill(String(f.menge));
+    await sheet.locator('[data-eintrag-preis]').fill(String(f.preis));
+    if (f.gebuehr) await sheet.locator('[data-eintrag-gebuehr]').fill(String(f.gebuehr));
+    await sheet.locator('[data-eintrag-save]').click();
+  };
+
+  // nothing yet: the page says why and offers the first step
+  await page.goto('./#/kurse');
+  await page.getByRole('group', { name: T('View') }).getByRole('button', { name: T('Portfolio|kurs'), exact: true }).click();
+  await expect(page).toHaveURL(/#\/kurse\/portfolio$/);
+  await expect(page.getByText(T('No portfolio yet'))).toBeVisible();
+  await shot(page, info, 'kursblick-depot-leer');
+
+  // a portfolio needs a name
+  await page.getByRole('button', { name: T('Add a portfolio') }).click();
+  const ds = page.locator('[data-depot-sheet]');
+  await ds.locator('[data-depot-save]').click();
+  await expect(ds.locator('[data-depot-fehler]')).toBeVisible();
+  await ds.locator('[data-depot-name]').fill('Meine Bank');
+  await ds.locator('[data-depot-save]').click();
+  await expect(ds).toHaveCount(0);
+  await expect(page.locator('[data-depot-leer]')).toBeVisible();
+
+  // two buys and a sale: the average price, the value and the profit follow the calculation
+  await eintrag('kauf', { tag: '2026-01-05', menge: 10, preis: 50, gebuehr: 5 });
+  await expect(sheet).toHaveCount(0);
+  await eintrag('kauf', { tag: '2026-02-05', menge: 10, preis: 60 });
+  await eintrag('verkauf', { tag: '2026-03-05', menge: 5, preis: 70, gebuehr: 2 });
+  await expect(page.locator('[data-eintrag]')).toHaveCount(3);
+  const E = [
+    { id: 'a', art: 'kauf', titel: 'gold', tag: '2026-01-05', menge: 10, preis: 50, gebuehr: 5 },
+    { id: 'b', art: 'kauf', titel: 'gold', tag: '2026-02-05', menge: 10, preis: 60, gebuehr: 0 },
+    { id: 'c', art: 'verkauf', titel: 'gold', tag: '2026-03-05', menge: 5, preis: 70, gebuehr: 2 },
+  ];
+  const w = bewerteRechnung(rechne(E), { gold: pro_g });
+  expect(w.positionen[0].menge).toBe(15);
+  expect(digits(await page.locator('[data-wert]').innerText())).toBe(String(Math.round(w.wert)));
+  const pos = page.locator('[data-position="gold"]');
+  await expect(pos).toContainText('15');
+  await expect(pos).toContainText('55.25'); // the average price: 1105 francs for 20 grams
+  await expect(page.locator('[data-gesamt]')).toContainText(num(Math.abs(w.gesamt)));
+  await shot(page, info, 'kursblick-depot');
+
+  // a sale of more than is held is refused with a sentence, and a change of an entry works
+  await page.locator('[data-eintrag-neu]').click();
+  await sheet.getByRole('button', { name: T('Sale'), exact: true }).click();
+  await sheet.locator('input[type="date"]').fill('2026-04-01');
+  await sheet.locator('[data-eintrag-menge]').fill('100');
+  await sheet.locator('[data-eintrag-preis]').fill('70');
+  await sheet.locator('[data-eintrag-save]').click();
+  await expect(sheet.locator('[data-eintrag-fehler]')).toBeVisible();
+  await sheet.getByRole('button', { name: T('Cancel') }).click();
+  await expect(page.locator('[data-eintrag]')).toHaveCount(3);
+  const letzter = page.locator('[data-eintrag]').first(); // the newest first: the sale
+  await more(letzter).click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Change')}`) }).click();
+  await sheet.locator('[data-eintrag-menge]').fill('6');
+  await sheet.locator('[data-eintrag-save]').click();
+  await expect(page.locator('[data-position="gold"]')).toContainText('14');
+
+  // delete with Undo
+  await more(page.locator('[data-eintrag]').first()).click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Delete')}`) }).click();
+  await page.getByTestId('ask-delete').locator('.btn.del').click();
+  await expect(page.locator('[data-eintrag]')).toHaveCount(2);
+  await page.getByRole('button', { name: T('Undo') }).last().click();
+  await expect(page.locator('[data-eintrag]')).toHaveCount(3);
+
+  // a practice portfolio is its own, marked, and never counts
+  await page.locator('[data-depot-neu]').click();
+  await ds.locator('[data-depot-name]').fill('Gold-Test');
+  await ds.getByRole('button', { name: T('Practice (made up)'), exact: true }).click();
+  await ds.locator('[data-depot-save]').click();
+  await expect(page.locator('[data-uebung]')).toBeVisible();
+  await expect(page.locator('[data-depot-leer]')).toBeVisible();
+  await eintrag('kauf', { tag: '2026-01-05', menge: 3, preis: 55 });
+  await expect(page.locator('[data-eintrag]')).toHaveCount(1);
+
+  // it all stays after a reload
+  await page.waitForTimeout(600);
+  await page.reload();
+  await expect(page.locator('[data-depots]')).toContainText('Meine Bank');
+  await expect(page.locator('[data-depots]')).toContainText('Gold-Test');
+  const saved = await page.evaluate(() => new Promise((res) => {
+    indexedDB.databases().then((dbs) => {
+      const rq = indexedDB.open(dbs[0].name);
+      rq.onsuccess = () => {
+        const get = rq.result.transaction('settings').objectStore('settings').get('kurse.journal');
+        get.onsuccess = () => res(get.result?.value ?? null);
+      };
+    });
+  }));
+  expect(saved.depots.map((d) => [d.name, d.art, d.eintraege.length])).toEqual([['Meine Bank', 'echt', 3], ['Gold-Test', 'uebung', 1]]);
+
+  // delete a portfolio: the entries can go to the other one, and Undo brings it all back
+  await page.locator('[data-depots]').getByRole('button', { name: /Gold-Test/ }).click();
+  await more(page.locator('[data-depot]')).click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Delete')}`) }).click();
+  await page.getByRole('radio', { name: 'Meine Bank' }).check();
+  await page.locator('dialog.gds').getByRole('button', { name: new RegExp(`^${T('Delete')}`) }).click();
+  await expect(page.locator('[data-eintrag]')).toHaveCount(4);
+  await page.getByRole('button', { name: T('Undo') }).last().click();
+  await expect(page.locator('[data-depots]')).toContainText('Gold-Test');
+
+  // nothing runs off the side on a small phone
+  const size = page.viewportSize();
+  for (const wd of [320, 390]) {
+    await page.setViewportSize({ width: wd, height: size.height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(wd);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('Kursblick Depot: der Bestand aus Meine Zahlen wird als Eröffnung übernommen, Meine Zahlen bleibt', async ({ page, context }, info) => {
+  const errors = await start(page, context);
+  // what «My numbers» holds: 100 grams of gold for 5000 francs, bought on 1 March 2024
+  await page.goto('./#/kurse/bestand');
+  await page.getByRole('button', { name: T('Add to my holdings') }).first().click();
+  const ps = page.locator('[data-posten-sheet]');
+  await ps.getByRole('button', { name: T('Gold'), exact: true }).click();
+  await ps.locator('[data-posten-menge]').fill('100');
+  await ps.locator('[data-posten-einstand]').fill('5000');
+  await ps.locator('input[type="date"]').fill('2024-03-01');
+  await ps.locator('[data-posten-save]').click();
+  await expect(page.locator('[data-bestand] [data-posten]')).toHaveCount(1);
+  await page.waitForTimeout(600);
+  await page.goto('./#/kurse/portfolio');
+  await page.reload();
+  await expect(page.locator('[data-uebernahme]')).toBeVisible();
+  await shot(page, info, 'kursblick-depot-uebernahme');
+  // Undo takes the takeover back, then it is done again for good
+  await page.locator('[data-uebernehmen]').click();
+  await expect(page.locator('[data-eintrag]')).toHaveCount(1);
+  await page.getByRole('button', { name: T('Undo') }).last().click();
+  await expect(page.locator('[data-eintrag]')).toHaveCount(0);
+  await expect(page.locator('[data-uebernahme]')).toBeVisible();
+  await page.locator('[data-uebernehmen]').click();
+  await expect(page.locator('[data-eintrag]')).toHaveCount(1);
+  await expect(page.locator('[data-eintrag]')).toContainText(T('Opening'));
+  await expect(page.locator('[data-position="gold"]')).toContainText('100');
+  await expect(page.locator('[data-uebernahme]')).toHaveCount(0); // taken over once, nothing doubles
+  // «My numbers» is as it was
+  await page.goto('./#/kurse/bestand');
+  await expect(page.locator('[data-bestand] [data-posten]')).toHaveCount(1);
+  await page.goto('./#/kurse/portfolio');
+  await expect(page.locator('[data-eintrag]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
