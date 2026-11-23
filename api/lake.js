@@ -15,7 +15,7 @@
  *   ?action=rwgps&kind=route|trip&id=…[&privacy=…]  → { gpx, file }   (api/_lib/rwgps.js)
  *   ?action=ov-stops&lat=…&lon=…                    → { stops }       (api/_lib/ov.js, transport.opendata.ch)
  *   ?action=ov-departures&id=…                      → { stop, departures }
- *   ?action=kurse&id=gold|smi|usdchf                → the daily closes of «Kursblick» (api/_lib/kurse.js)
+ *   ?action=kurse&id=gold|smi|usdchf|y:SYMBOL       → the daily closes of «Kursblick» (api/_lib/kurse.js); y:NESN.SW is any Yahoo symbol
  */
 import { route, json, ApiError } from './_lib/core.js';
 import { lakeNow } from './_lib/lake.js';
@@ -111,11 +111,11 @@ export function makeHandler({ doFetch = (...a) => fetch(...a), clock = () => new
     {
       GET: async (request) => {
         const id = okAsset(new URL(request.url).searchParams.get('id') ?? '');
-        if (!id) throw new ApiError(400, 'invalid', 'Use ?action=kurse&id=gold|smi|usdchf.');
+        if (!id) throw new ApiError(400, 'invalid', 'Use ?action=kurse&id=gold|smi|usdchf|y:SYMBOL.');
         try {
           return json(request, 200, await kursReihe(id, { doFetch, now: clock(), ...t }), { 'Cache-Control': KURSE_CACHE });
         } catch (err) {
-          if (err instanceof KurseError && err.code === 'unknown') throw new ApiError(400, 'invalid', 'Use ?action=kurse&id=gold|smi|usdchf.');
+          if (err instanceof KurseError && err.code === 'unknown') throw new ApiError(400, 'invalid', 'Use ?action=kurse&id=gold|smi|usdchf|y:SYMBOL.');
           throw new ApiError(502, 'source_unreachable', 'The prices could not be fetched right now.');
         }
       },
