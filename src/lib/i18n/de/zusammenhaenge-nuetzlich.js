@@ -38,5 +38,5 @@ export default {
   'Soon visible: {n} links': 'Bald sichtbar: {n} Zusammenhänge',
   'A first trend, not sure yet:': 'Ein erster Trend, noch nicht sicher:',
   'Everything that is still collecting days': 'Alles, was noch Tage sammelt',
-  'Every activity you tick in Aktiv (training, sauna, cold water, friends, meditation, habits) is compared with your sleep, resting pulse, HRV, battery and mood, on the day and the day after. An activity needs 6 ticked days first.': 'Jede Aktivität, die du in Aktiv abhakst (Training, Sauna, Kaltwasser, Freunde, Meditation, Gewohnheiten), wird mit Schlaf, Ruhepuls, HRV, Akku und Stimmung verglichen, am gleichen Tag und am Tag danach. Eine Aktivität braucht zuerst 6 Tage mit Haken.',
+  'Every activity you tick in Aktiv (training, sauna, cold water, friends, meditation, habits) is compared with your sleep, resting pulse, HRV, battery and mood, on the day and the day after. An activity needs 6 ticked days first.': 'Jede Aktivität, die du in «Heute abhaken» abhakst (Training, Sauna, Kaltwasser, Freunde, Meditation, Gewohnheiten), wird mit Schlaf, Ruhepuls, HRV, Akku und Stimmung verglichen, am gleichen Tag und am Tag danach. Eine Aktivität braucht zuerst 6 Tage mit Haken.',
 };

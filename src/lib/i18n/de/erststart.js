@@ -37,8 +37,8 @@ export default {
   'The made-up trips, bike and gear from the first start': 'Die erfundenen Touren, das Velo und die Ausrüstung vom ersten Start',
   'Remove the examples?': 'Beispiele entfernen?',
   'Only the made-up things from the first start go; whatever you added yourself stays. Activities you already ticked stay too.': 'Nur das Erfundene vom ersten Start geht weg; was du selbst eingetragen hast, bleibt. Aktivitäten, die du schon abgehakt hast, bleiben auch.',
-  '{n} starter activity of Active': '{n} Start-Aktivität von Aktiv',
-  '{n} starter activities of Active': '{n} Start-Aktivitäten von Aktiv',
+  '{n} starter activity of Active': '{n} Start-Aktivität von «Heute abhaken»',
+  '{n} starter activities of Active': '{n} Start-Aktivitäten von «Heute abhaken»',
   'Examples removed.': 'Beispiele entfernt.',
   Examples: 'Beispiele',
   // Was die App kann, Handbuch, So geht's

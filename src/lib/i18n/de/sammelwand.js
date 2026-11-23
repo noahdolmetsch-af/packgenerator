@@ -30,7 +30,7 @@ export default {
   '{n} star reached. Stars stay, even when a rhythm pauses.': '{n} Stern erreicht. Sterne bleiben, auch wenn ein Rhythmus pausiert.',
   '{n} stars reached. Stars stay, even when a rhythm pauses.': '{n} Sterne erreicht. Sterne bleiben, auch wenn ein Rhythmus pausiert.',
   'Open the milestones': 'Meilensteine öffnen',
-  'No star yet. Stars come by themselves from what you do in Aktiv and on rides; none is a duty.': 'Noch kein Stern. Sterne kommen von selbst aus dem, was du in Aktiv und auf Fahrten tust; keiner ist Pflicht.',
+  'No star yet. Stars come by themselves from what you do in Aktiv and on rides; none is a duty.': 'Noch kein Stern. Sterne kommen von selbst aus dem, was du in «Heute abhaken» und auf Fahrten tust; keiner ist Pflicht.',
   'Your own collections': 'Deine eigenen Sammlungen',
   // Funktionskatalog, Handbuch, «Gut zu wissen»
   'Stamps, passes, summits, new ground and stars on one page: a few of each and what was added lately. Only to look at, with no goal and no count of what is missing; every shelf is changed where it lives.': 'Stempel, Pässe, Gipfel, Neuland und Sterne auf einer Seite: von jedem ein paar und was zuletzt dazukam. Nur zum Anschauen, ohne Ziel und ohne Zahl für das, was fehlt; jedes Regal änderst du dort, wo es zu Hause ist.',

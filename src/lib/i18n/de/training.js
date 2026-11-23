@@ -133,7 +133,7 @@ export default {
   'Resting heart rate': 'Ruhepuls',
   'with Fitbit': 'mit Fitbit',
   // Paket 2: «So geht's» steps for f.training (src/lib/know/howto.js)
-  'Open Aktiv › Training: every activity from Strava.': 'Öffne Aktiv › Training: jede Aktivität aus Strava.',
+  'Open Aktiv › Training: every activity from Strava.': 'Öffne Woche › Training: jede Aktivität aus Strava.',
   'Tap an activity: the minutes in each heart rate zone.': 'Tippe auf eine Aktivität: die Minuten in jeder Pulszone.',
   '«My week» sets the sessions and an optional goal.': '«Meine Woche» legt die Einheiten und ein freiwilliges Ziel fest.',
   'My week|plan': 'Meine Woche',

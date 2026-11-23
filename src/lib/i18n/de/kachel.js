@@ -47,7 +47,7 @@ export default {
   '{h} h ride, dry': '{h} h Fahrt, trocken',
   'Done today ✓': 'Heute erledigt ✓',
   '▷ like last time': '▷ wie letztes Mal',
-  'In Active': 'Unter Aktiv',
+  'In Active': 'Unter «Heute abhaken»',
   'New · {v}': 'Neu · {v}',
   'Show what is new ›': 'Zeigen, was neu ist ›',
   // the series over everything

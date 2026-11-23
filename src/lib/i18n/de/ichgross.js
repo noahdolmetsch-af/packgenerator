@@ -29,7 +29,7 @@ export default {
   'Tabs': 'Reiter',
   'Parts of pages': 'Teile von Seiten',
   'Entries of lists': 'Einträge von Listen',
-  'Activities in Active': 'Aktivitäten in Aktiv',
+  'Activities in Active': 'Aktivitäten in «Heute abhaken»',
   'Functions «Not for me»': 'Funktionen «Nicht für mich»',
   'Suggestions switched off': 'Ausgeschaltete Vorschläge',
   'Its pages stay; the search still finds them.': 'Seine Seiten bleiben; die Suche findet sie weiter.',
