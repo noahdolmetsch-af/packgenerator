@@ -35,3 +35,18 @@ export function sizes(k) {
   const s = Math.max(0.2, Math.min(1, k || 1));
   return { dot: Math.max(5, 7 / s), line: Math.max(2, 1.6 / s), font: Math.max(13, 12 / s), pad: Math.max(14, 16 / s) };
 }
+
+/** The size of the hover card (px): the card is as wide as this at most and about this high. */
+export const TIP = { w: 232, h: 132, gap: 14 };
+
+/**
+ * Where the hover card of a dot goes, in px inside the map: above the dot, in the middle of it, pushed back into the map on the left and right,
+ * and below the dot when there is no room above. dot: [x, y] in px; box: [width, height] of the drawn map in px.
+ */
+export function tipPos(dot, box, tip = TIP) {
+  const w = Math.min(tip.w, Math.max(120, box[0] - 8));
+  const left = Math.max(4, Math.min(box[0] - w - 4, dot[0] - w / 2));
+  const above = dot[1] - tip.gap - tip.h >= 4;
+  const top = above ? dot[1] - tip.gap - tip.h : Math.min(box[1] - tip.h - 4, dot[1] + tip.gap);
+  return { left: Math.round(left), top: Math.round(Math.max(4, top)), width: w, below: !above };
+}
