@@ -90,7 +90,7 @@ test('Im Fokus: the ticked sports stand next to the Strava sports, in the cards 
   expect(errors).toEqual([]);
 });
 
-test('This week on Heute counts a Strava run without a tick as a day', async ({ page, context }) => {
+test('This week on Heute counts a Strava run without a tick as a day', async ({ page, context }, info) => {
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.clock.install({ time: new Date(D0) });
@@ -102,4 +102,5 @@ test('This week on Heute counts a Strava run without a tick as a day', async ({ 
   await expect(week).toBeVisible();
   await expect(week.locator('[data-week-sub]')).toContainText('1 Tag aktiv');
   await expect(week.locator('[data-week-list]')).toContainText(T('Run|kind'));
+  if (process.env.SHOTS) await week.screenshot({ path: `${process.env.SHOTS}/diese-woche-${info.project.name === 'phone' ? 390 : 1440}.png` });
 });
