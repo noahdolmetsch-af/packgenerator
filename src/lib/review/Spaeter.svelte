@@ -51,7 +51,7 @@
             {#each s.questions as q, i (q)}
               <label class="q">{t(q)}<input class="inp" type="text" maxlength={ANSWER_MAX} value={textsOf(s)[i]} oninput={(e) => type(s, i, e.currentTarget.value)} data-later-input={i} /></label>
             {/each}
-            <p class="row"><button type="submit" class="btn hi sm" data-later-save>{t('Save')}</button>{#if editing === s.key}<button type="button" class="btn sm" onclick={() => ((editing = null), (draft = { ...draft, [s.key]: undefined }))}>{t('Cancel')}</button>{/if}</p>
+            <p class="row"><button type="submit" class="btn sm" data-later-save>{t('Save')}</button>{#if editing === s.key}<button type="button" class="btn sm" onclick={() => ((editing = null), (draft = { ...draft, [s.key]: undefined }))}>{t('Cancel')}</button>{/if}</p>
           </form>
         {:else}
           <dl class="ans">
