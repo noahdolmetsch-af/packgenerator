@@ -49,7 +49,7 @@ test('Training: the subtitle fits the week, the empty look back says why and lea
   const errors = await open(page, context, null);
   const main = page.locator('main');
   await go(page, '#/flow/training');
-  await expect(main.locator('header.ph')).toContainText(T('Plan your training week and see how much time you spent in which heart rate zone. Strava brings the activities by itself.'));
+  await expect(main.locator('header.ph')).toContainText(T('Plan your week and see how long you spent in which heart rate zone.'));
   const back = main.locator('[data-section="look-back"]');
   await expect(back.locator('[data-back-empty]')).toHaveText(T('No training time in the last 6 weeks yet. As soon as Strava brings an activity with heart rate, a bar per week stands here.'));
   await expect(back.locator('li[data-week]')).toHaveCount(0);

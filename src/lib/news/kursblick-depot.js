@@ -3,9 +3,9 @@ export default {
   title: 'Kursblick: your buys and sales in portfolios',
   lead: 'Kursblick now lets you write down every buy and sale in portfolios, real ones and practice ones that are made up.',
   points: [
-    { text: 'New tab «Portfolio»: write down buys, sales, dividends and splits one by one (day, pieces or grams, price, fee); it shows what you hold, the average price and your profit', go: { href: '#/kurse/portfolio', steps: [{ sel: '[data-eintrag-neu]' }] } },
-    { text: 'Practice portfolios: buy and sell in a made-up portfolio to follow what would have happened; it never counts for anything else', go: { href: '#/kurse/portfolio', steps: [{ sel: '[data-depot-neu]' }] } },
-    { text: 'Take over what you entered under «My numbers» as «opening» entries; «My numbers» stays as it was', go: { href: '#/kurse/portfolio', steps: [{ sel: '[data-depots]' }] } },
+    { text: 'New tab «Portfolio»: write down buys, sales, dividends and splits one by one (day, pieces or grams, price, fee); it shows what you hold, the average price and your profit', go: { href: '#/kurse/portfolio', steps: [{ sel: '.kseg' }] } },
+    { text: 'Practice portfolios: buy and sell in a made-up portfolio to follow what would have happened; it never counts for anything else', go: { href: '#/kurse/portfolio', steps: [{ sel: '.kseg' }] } },
+    { text: 'Take over what you entered under «My numbers» as «opening» entries; «My numbers» stays as it was', go: { href: '#/kurse/portfolio', steps: [{ sel: '.kseg' }] } },
   ],
   small: [{ box: 'new', text: 'Everything stays on your devices; only the symbols of titles go to the price service' }],
   test: ['Open Kursblick › «Portfolio», tap «Add a portfolio», write a name and save.', 'Tap «Write down», choose a day, write 10 grams and a price per gram, and save: the value, the average price and the profit show.', 'Add a second portfolio of the kind «Practice (made up)»: it carries the mark «Practice».'],

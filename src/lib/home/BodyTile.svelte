@@ -8,11 +8,16 @@
    * sleep and HRV next to your usual, one quiet arrow when a value is far from it, «Fetch now» under the values.
    */
   import { liveQuery } from 'dexie';
-  import { Activity, ArrowUp, ArrowDown, ArrowRight, ClipboardList, Check, ChevronRight } from '@lucide/svelte';
+  import { Activity, ArrowUp, ArrowDown, ArrowRight, ClipboardList, Check, ChevronRight, Info } from '@lucide/svelte';
   import { db } from '../db.js';
   import { addDays } from '../health.js';
   import { afterMorning, stampOf } from '../abfragen.js';
   import { bodyToday, bodyWeek, BANNER_KEYS } from './body.js';
+  import { bodyHint, NO_KEY, noOf } from './bodyhints.js';
+  import { cleanSettings, SETTINGS_KEY } from '../flow/form/auffaellt.js';
+  import { MARKER_KEY, markedDays } from '../flow/marker.js';
+  import { putSetting } from '../flowdb.js';
+  import { HOME_PLACE } from '../know.js';
   import FitbitStand from '../health/FitbitStand.svelte';
   import TileHead from './TileHead.svelte';
   import { health, fetchNow } from '../health/client.svelte.js';
@@ -26,17 +31,40 @@
   let { today, due = 0, areas = [], evening = false, open = false, onstart = () => {}, check = true } = $props();
   const late = afterMorning(stampOf()); // from 11:00: «Open from this morning» instead of «Morning check» (17.11.2026)
 
-  const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -30)).toArray() : [])));
+  const hq = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addDays(today, -34)).toArray() : [])));
   const body = $derived(bodyToday($hq ?? [], today, new Date().getHours()));
   // outdoors (Noah 23.11.2026 «1-4a»): today's minutes of the challenge «outdoors», only while one runs
   const odq = $derived(
     liveQuery(async () => {
       const rec = outdoorOf((await db.settings.get(OUTDOOR_KEY))?.value);
       if (!rec?.from || rec.stopped || today < rec.from || today > rec.until) return null;
-      return { goal: rec.goalMin, total: dayOf(rec, await db.activities.where('day').equals(today).toArray(), today).total };
+      const acts = await db.activities.where('day').equals(today).toArray();
+      return { goal: rec.goalMin, total: dayOf(rec, acts, today).total, rec, acts };
     }),
   );
   const od = $derived($odq ?? null);
+  // the one quiet hint line (Noah 23.11.2026 «1-4a», point 3): pulse, then week load, then daylight; «Not today» hides one for the day
+  const setq = liveQuery(() => db.settings.bulkGet([MARKER_KEY, SETTINGS_KEY, HOME_PLACE, NO_KEY]));
+  let minute = $state(Date.now());
+  $effect(() => {
+    const id = setInterval(() => (minute = Date.now()), 60000);
+    return () => clearInterval(id);
+  });
+  const nq = $derived(noOf($setq?.[3]?.value));
+  const hint = $derived(
+    $setq
+      ? bodyHint({ health: $hq ?? [], today, marked: markedDays($setq[0]?.value), settings: cleanSettings($setq[1]?.value), rec: od?.rec, activities: od?.acts ?? [], place: $setq[2]?.value ?? null, now: new Date(minute), no: nq })
+      : null,
+  );
+  const hintText = $derived.by(() => {
+    const h = hint;
+    if (!h) return '';
+    if (h.kind === 'pulse') return tn(h.n, 'Your resting pulse has been {above} beats above your usual for {n} day.', 'Your resting pulse has been {above} beats above your usual for {n} days.', { above: h.above });
+    if (h.kind === 'load') return t(h.dir > 0 ? 'Active zone minutes of the last 7 days: {a}, {pct} % more than in your usual week ({b}).' : 'Active zone minutes of the last 7 days: {a}, {pct} % fewer than in your usual week ({b}).', { a: h.recent, pct: h.pct, b: h.base });
+    return h.latest ? t('Daylight until {set}. To get the {n} outdoor minutes still missing, start by {latest}.', { set: h.set, n: h.missing, latest: h.latest }) : t('Daylight until {set}. It gets short for the {n} outdoor minutes still missing.', { set: h.set, n: h.missing });
+  });
+  const HINT_GO = { pulse: '#/flow/form', load: '#/flow/stats/azm', light: '#/flow' };
+  const hintNo = () => putSetting(db, NO_KEY, { ...nq, [hint.kind]: today });
   // today's level from Form und Erholung (the same answer as on Aktiv); the big calculation loads only now, not at the start
   let formLevel = $state(null);
   $effect(() => {
@@ -140,6 +168,13 @@
   {:else}
     {@const e = fitbitEmpty(health)}
     <p class="empty" data-fitbit-empty={e.why}>{e.text ? t(e.text, { date: e.date ? shortDay(e.date) : '' }) : t('Connect Fitbit and your resting pulse, sleep and active zone minutes show here.')} <a href={e.href}>{t(e.link)}</a></p>
+  {/if}
+  {#if hint}
+    <p class="qh" data-body-note={hint.kind}>
+      <Info size={16} aria-hidden="true" />
+      <span>{hintText} <a href={HINT_GO[hint.kind]}>{t('See|note')}</a></span>
+      <button type="button" class="again" onclick={hintNo} data-body-note-no>{t('Not today')}</button>
+    </p>
   {/if}
   {#if showHint}
     <!-- Noah 7.11.2026 «2a»: why a value is not of today, and the way to fetch it -->
@@ -301,6 +336,30 @@
   }
   .hint span {
     flex: 1 1 180px;
+  }
+  .qh {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .qh > :global(svg) {
+    flex: none;
+    color: var(--ink-3);
+  }
+  .qh span {
+    flex: 1;
+    min-width: 0;
+  }
+  .qh a {
+    color: var(--hi);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .qh .again {
+    flex: none;
   }
   .again {
     border: 0;

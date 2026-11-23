@@ -149,8 +149,12 @@ function writer() {
 /**
  * A Garmin FIT course file (Edge 850/1040 and others import it as a course).
  * Times advance with the distance at `kmh`; they only matter for the virtual partner.
+ * coursePoints (Noah 23.11.2026 «P1»): named places [{ lat, lon, name, kind }] that the Edge shows on the
+ * way («Wasser in 12 km»); each sits at the nearest point of the line (see coursePointsOf). A place has `kind`
+ * (a key of COURSE_TYPE: water, shop, food, fuel, summit, left, right …) or its own FIT `type` number, and a `name`.
+ * coursePointsMax and farM change the limits (100 points, 1500 m from the line).
  */
-export function toFit(points, name = '', { start = new Date('2026-01-01T08:00:00Z'), kmh = 16 } = {}) {
+export function toFit(points, name = '', { start = new Date('2026-01-01T08:00:00Z'), kmh = 16, coursePoints = [], coursePointsMax = COURSE_POINTS_MAX, farM = 1500 } = {}) {
   const pts = points.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));
   // cumulative distance (m) and time (s) per point
   let m = 0;
@@ -217,6 +221,13 @@ export function toFit(points, name = '', { start = new Date('2026-01-01T08:00:00
     data('rec', [time[i], semi(p.lat), semi(p.lon), Math.round(dist[i] * 100), alt]);
   });
 
+  // course points: the places the Edge announces, in the order of the course
+  const cps = coursePointsOf(pts, coursePoints, { max: coursePointsMax, farM });
+  if (cps.length) {
+    define('cp', 32, [[1, UINT32], [2, SINT32], [3, SINT32], [4, UINT32], [5, ENUM], [6, STRING, 16]]);
+    for (const c of cps) data('cp', [time[c.i], semi(pts[c.i].lat), semi(pts[c.i].lon), Math.round(dist[c.i] * 100), c.type, nameBytes(c.name)]);
+  }
+
   // event: timer stop_all
   data('event', [tEnd, 0, 4]);
 
@@ -233,6 +244,43 @@ export function toFit(points, name = '', { start = new Date('2026-01-01T08:00:00
   out.set(body, 14);
   dv.setUint16(out.length - 2, fitCrc(out, 0, out.length - 2), true);
   return out;
+}
+
+/** The Edge shows at most this many course points of one course (more are cut, by km). */
+export const COURSE_POINTS_MAX = 100;
+/** FIT course_point types: generic 0, summit 1, water 3, food 4. The kinds of the app's places map to them. */
+export const COURSE_TYPE = {
+  water: 3, shop: 4, food: 4, fuel: 4, pass: 1, summit: 1,
+  // turns (for «Live-Navigation»): the Edge shows an arrow; a place can also give `type` (the FIT number) itself
+  left: 6, right: 7, straight: 8, slight_left: 19, sharp_left: 20, slight_right: 21, sharp_right: 22, u_turn: 23,
+};
+
+/**
+ * The course points to write: each place goes to the nearest point of the line, a place more than `farM` from the line is left out (it is not on the way), twins of the same
+ * type at the same point once, sorted along the course, at most COURSE_POINTS_MAX.
+ * Returns [{ i, type, name }].
+ */
+export function coursePointsOf(pts, places = [], { farM = 1500, max = COURSE_POINTS_MAX } = {}) {
+  if (!pts.length || !places?.length) return [];
+  const out = [];
+  for (const p of places) {
+    const lat = Number(p?.lat);
+    const lon = Number(p?.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon) || p?.lat === null || p?.lon === null) continue;
+    let best = -1;
+    let bd = Infinity;
+    pts.forEach((q, i) => {
+      const d = distKm({ lat, lon }, q) * 1000;
+      if (d < bd) { bd = d; best = i; }
+    });
+    if (best < 0 || bd > farM) continue;
+    const type = Number.isInteger(p.type) && p.type >= 0 && p.type < 256 ? p.type : (COURSE_TYPE[p.kind] ?? 0);
+    const label = String(p.name ?? '').trim() || String(p.kind ?? '');
+    if (out.some((o) => o.i === best && o.type === type && o.name === label)) continue;
+    out.push({ i: best, type, name: label });
+  }
+  out.sort((a, b) => a.i - b.i);
+  return out.slice(0, max);
 }
 
 // ---------- file name ----------

@@ -117,7 +117,7 @@
   {#if view === 'maerkte'}
     <Maerkte {zeitraum} onzeitraum={(p) => (zeitraum = p)} />
   {:else if view === 'portfolio'}
-    <Portfolio {reihen} />
+    <Portfolio {reihen} {goldChf} />
   {:else if view === 'bestand'}
     <Meins {reihen} />
   {:else if laedt && !wert}

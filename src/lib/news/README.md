@@ -64,11 +64,11 @@ Vorher / Nachher) and in the card «New since your last visit» on Today.
 
 - Make them with `npm run news:bilder` (the news files this branch adds against main), or `npm run news:bilder -- <name> …`.
   It builds the base (main as the branch left it) next to this branch, taps «Try it» of each line on the phone with the
-  fictional data, and writes `public/news/<name>/<line>-nachher.jpg` and `<line>-vorher.jpg` (`<line>` counts the lines of
-  the news file from 1, main points first, then the small things; at most three per file; about 10 to 40 KB each).
+  fictional data, and writes `public/news/<name>/<line>-nachher.webp` and `<line>-vorher.webp` (`<line>` counts the lines of
+  the news file from 1, main points first, then the small things; at most three per file; about 5 to 30 KB each, WebP).
   Commit them with the PR: `git add public/news`.
 - A line with `go: null`, with only `where`, or whose spot never lights gets no picture. A PR that fixes something with no
   visible place has no picture; its news file says why in its last point or its `lead`.
 - Never anything from private folders in a picture: the tool uses the fictional data set only.
-- `tests/newsbild.test.js` checks the names, the size (90 KB at most) and that each line exists. The build puts the list of
+- `tests/newsbild.test.js` checks the names, the size (90 KB at most, WebP only: the privacy guard allows no JPG in the repository) and that each line exists. The build puts the list of
   pictures into the entry (`bilder: [{ line, vorher }]`), so nothing else needs to be listed by hand.
