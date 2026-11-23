@@ -698,6 +698,27 @@ export function roundQuestions(cfg, part, today) {
 }
 
 /**
+ * Noah 23.11.2026 «Beides» (Thread «Mehr Fragen in Wi gaht's? zurückholen»): the other questions a round's page can offer under
+ * «More questions»: every question of the list that the page does not ask by itself (a rule of your own is asked by its rule, not here),
+ * the ones that belong to this round's part of the day first, then the rest in the order of the list. One answer is saved like the
+ * others; it does not switch the question on. `skip`: ids that are shown elsewhere on the page (the random question).
+ * part: 'morning' | 'evening'. → [{ q, slot, on, fits }] with the day's time the question usually asks at.
+ */
+export function moreQuestions(cfg, part, today, skip = []) {
+  const c = configOf(cfg);
+  const here = new Set([...roundQuestions(c, part, today).map((d) => d.q.id), ...skip]);
+  const out = [];
+  allQuestions(c).forEach((x, i) => {
+    if (x.rule || here.has(x.id)) return;
+    const s = settingOf(c, x);
+    const hm = timesOf(roundEvery(s.every, c.rounds))[0] ?? (part === 'evening' ? c.rounds.evening : c.rounds.morning);
+    const slot = `${today}T${hm}`;
+    out.push({ q: x, slot, on: s.on, fits: (partOf({ slot }, c.rounds) === 'evening') === (part === 'evening') && s.every.kind !== 'off', i });
+  });
+  return out.sort((a, b) => b.fits - a.fits || a.i - b.i).map(({ q, slot, on, fits }) => ({ q, slot, on, fits }));
+}
+
+/**
  * Klick-Rundgang 22.10.2026 H15, changed 17.11.2026 (Noah «1-5a», Startseite ruhiger, question 2a): the window asks
  * about TODAY only. A question missed on an earlier day does not come back as «question from Thu 20:30»: if it has
  * had its time today, it asks about today (its latest time); if its time today has not come yet, it waits for it.
