@@ -329,6 +329,7 @@ const LISTED = {
   'f.tourhints': ['Open a planned tour on Pack.', 'Under the list, the hints show when they apply: dark, UV or wind.', 'Tap «Add» for an item, or «×» to hide a hint for this tour.'],
   'f.rainsoon': ['Open Me › Reminders on the phone and switch on «Rain on the way».', 'Plan the tour with a route and a start time.', 'While you ride, the phone tells you before the rain comes.'],
   'f.air': ['Set your home place.', 'Look at the card «Ozone and pollen» on Aktiv.', 'Under «Which values count» choose your pollen.'],
+  'f.bagphoto': ['Pack the bag, then open it in Packing list › By bags.', 'Tap «Photo of this bag» and take the photo.', 'In race mode the box «What lies where» shows it.'],
   'f.routepois': ['Open the trip in Packen › Plan; the route card needs a GPX route.', 'Tap «Search fountains and workshops» under the map.', 'Filter with Water, Workshop, Pump; a tap on a row opens the place in OpenStreetMap.'],
   'f.lake': ['Open Aktiv.', 'Look at the card «Lake Zurich».', 'Set from how many degrees it is warm enough for you.'],
   'f.datastars': ['Connect Strava or Fitbit.', 'Open Aktiv › Milestones.', 'The new stars stand under Bike, Fitbit and Everyday.'],

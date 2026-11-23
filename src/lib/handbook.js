@@ -1766,6 +1766,11 @@ const LISTED = {
     steps: ['Add a GPX route to the trip.', 'Search once while online; the list then stays on this device, also offline.', 'After changing the route, search again; «Load again» refreshes the list.'],
     example: 'Example: km 23 · Fountain · Village fountain, 80 m beside the route.',
   },
+  'f.bagphoto': {
+    on: 'Nothing to switch on; the photo stays on this device.',
+    steps: ['Pack the bag, then open it in Packing list › By bags.', 'Tap «Photo of this bag» and take the photo (or choose one).', 'In race mode the box «What lies where» shows it with one tap.'],
+    example: 'Example: the saddle bag photographed on 20 Nov: at night you see the sleeping bag lies on the left, the rain jacket on top.',
+  },
   'f.lake': {
     on: 'Nothing to switch on; the card on Aktiv fetches the value.',
     steps: ['Open Aktiv: the card «Lake Zurich» shows the water with the scale pleasant, fresh, cold, icy.', '«Sauna and lake today?»: one tap ticks the sauna or the swim; each swim keeps its water temperature, with your coldest one.', 'Under «Cold-water scale» set the limits that fit you.'],
