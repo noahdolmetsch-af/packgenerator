@@ -503,7 +503,10 @@ export function onionCheck(trip, items = [], offset = 0, rule = null, at = null)
   return { c, real: cold.c, from: cold.from, moment: cold.moment ?? null, date: cold.date ?? null, hour: cold.hour ?? null, wet, pct: rainChance(trip), rows, gaps: rows.filter((r) => !r.ok).length };
 }
 
-/** The best item for a gap: a range that holds c first, then the closest lower border, then the lighter one. */
+/**
+ * The best item for a gap: a range that holds c first, then your favourite (★; Noah 23.11.2026 «2a»: of the pieces
+ * that fit, the one you like comes first), then the closest lower border, then the lighter one.
+ */
 export function best(list, c, prefer = 'light') {
   const holds = (i) => typeof i.tempMin === 'number' && i.tempMin <= c && (typeof i.tempMax !== 'number' || i.tempMax >= c);
   // step 3 (prefer 'warm'): of the pieces that hold c, the warmer one (the lower border) first
@@ -512,6 +515,7 @@ export function best(list, c, prefer = 'light') {
     [...list].sort(
       (a, b) =>
         Number(holds(b)) - Number(holds(a)) ||
+        Number(!!b.favorite) - Number(!!a.favorite) ||
         dir * ((typeof b.tempMin === 'number' ? b.tempMin : -99) - (typeof a.tempMin === 'number' ? a.tempMin : -99)) ||
         (a.weightG ?? 9999) - (b.weightG ?? 9999) ||
         a.id.localeCompare(b.id),
