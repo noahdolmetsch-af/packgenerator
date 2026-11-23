@@ -8,6 +8,7 @@
    * Noah 04.11.2026 «1a» (thread «Bereinigen: Doppeltes und Fehler auf Heute»): an activity that already stands on top of
    * Heute as a habit card (HabitCards) is not shown a second time here; a quiet line says which ones are up there.
    * `top`: the habit cards are on the wall; `cfg`: the chosen habits (HABITS_KEY).
+   * `haken`: the block «Tick off today» is on the wall (Noah 23.11.2026 «2a»); the ones it shows are not shown a second time here.
    */
   import { Flame, ChevronRight } from '@lucide/svelte';
   import TickGrid from '../flow/TickGrid.svelte';
@@ -23,9 +24,10 @@
   import { isMedAct } from '../flow/hobby/medstart.js';
   import { actName } from '../flow/ui.svelte.js';
   import { habitActIds } from './habits.js';
+  import { hakenIds } from './haken.js';
   import { t } from '../i18n.svelte.js';
 
-  let { today, top = false, cfg = null } = $props();
+  let { today, top = false, haken = false, cfg = null } = $props();
   const rq = $derived(routineQuery(today));
   const q = $derived(flowQuery(today));
   const data = $derived($q);
@@ -36,7 +38,8 @@
   const N = $derived(phone.matches ? 4 : 8);
   const upIds = $derived(top && $rq ? new Set(habitActIds(cfg, states.map((s) => s.act), $rq.routine.items ?? [], isMedAct)) : new Set());
   const up = $derived(states.filter((s) => upIds.has(s.act.id)));
-  const rest = $derived(states.filter((s) => !upIds.has(s.act.id)));
+  const hk = $derived(haken ? hakenIds(states, upIds, phone.matches ? 4 : 8) : new Set());
+  const rest = $derived(states.filter((s) => !upIds.has(s.act.id) && !hk.has(s.act.id)));
   const sorted = $derived([...rest.filter((s) => !s.resting), ...rest.filter((s) => s.resting)]);
   // the habits load a moment after the activities: wait for them, or a tile shows for a blink and then moves up to the habit cards
   const ready = $derived(!top || !!$rq);
