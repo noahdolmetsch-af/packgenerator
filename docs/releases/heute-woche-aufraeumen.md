@@ -31,7 +31,7 @@ Noah 23.11.2026 05:05–05:12 («was fällt dir bei heute auf?» … «ja»), ei
 - «Heute in drei Teilen, Rest unter «Mehr»» (siehe decisions/heute-woche-aufraeumen.md).
 
 ## Stand im Plan
-- Plan «ganze App»: Heute und Woche aufräumen gebaut (neue Zeile H1). Offen: Streichliste (14), 7a/7b, V8–V11.
+- Plan «ganze App»: Heute und Woche aufräumen gebaut (neue Zeile H1, #1513). Offen: Streichliste (14), 7a/7b, V8–V11.
 
 ## Prüfschritte (nach dem Merge, auf der echten Seite)
 1. Heute öffnen: Unter «Jetzt» und «Deine Woche» steht eine Zeile «Mehr» mit den Namen der Bereiche; ein Tipp öffnet sie, ein zweiter schliesst sie, nach dem Neuladen bleibt es so.
