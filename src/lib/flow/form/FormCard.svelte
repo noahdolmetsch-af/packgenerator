@@ -8,28 +8,31 @@
   import { ChevronRight, TriangleAlert, Mountain } from '@lucide/svelte';
   import { formQuery } from '../../form-data.js';
   import { RAMP_MAX } from '../../form.js';
-  import { levelWord, levelLine, partText, tourText } from './words.js';
+  import { levelWord, answerLine, partText, tourText } from './words.js';
+  import { dayAnswer } from './tagesantwort.js';
   import { t, num } from '../../i18n.svelte.js';
 
   let { today } = $props();
   const q = formQuery(today);
   const f = $derived($q);
   const r = $derived(f?.ready);
+  const ans = $derived(dayAnswer(r)); // the same answer as on the page «Form» (Noah 23.11.2026 «ja»)
+  const why = $derived(ans?.reasons?.[0] ?? (r?.reason?.points ? r.reason : null)); // the value that counts most for the answer
   const pct = $derived(r ? r.score / 100 : 0);
 </script>
 
 {#if f}
-  <a class="card fc" href="#/flow/form" data-section="form" data-level={r?.level ?? 'none'}>
+  <a class="card fc" href="#/flow/form" data-section="form" data-level={ans?.level ?? 'none'}>
     {#if r}
       <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
         <circle cx="50" cy="50" r="42" class="tr" />
-        <circle cx="50" cy="50" r="42" class="fl lv-{r.level}" stroke-dasharray="{(pct * 263.9).toFixed(1)} 263.9" transform="rotate(-90 50 50)" />
+        <circle cx="50" cy="50" r="42" class="fl lv-{ans.level}" stroke-dasharray="{(pct * 263.9).toFixed(1)} 263.9" transform="rotate(-90 50 50)" />
       </svg>
       <span class="sc num" data-form-score>{num(r.score)}</span>
       <span class="tx">
-        <b>{t('Readiness')} · {levelWord(r.level)}</b>
-        <span data-form-line>{levelLine(r.level)}</span>
-        {#if r.reason && r.reason.points}<small data-form-reason>{partText(r.reason)}</small>{/if}
+        <b>{t('Readiness')} · {levelWord(ans.level)}</b>
+        <span data-form-line>{answerLine(ans.level)}</span>
+        {#if why}<small data-form-reason>{partText(why)}</small>{/if}
       </span>
     {:else}
       <span class="tx wide">
