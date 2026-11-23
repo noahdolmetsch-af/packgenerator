@@ -33,14 +33,14 @@ export function usualMap(value) {
 
 /**
  * Noah's usual durations (21.11.2026 «Standartwert beim abhaken: eishockey 2h, tennis 1h, yoga 1h, sauna blöcke von 12 min,
- * Gym: eGym (20 min), Laufband rennen indoor 20 min, laufen indoor 10 min blöcke; «rennen indoor» und «laufen indoor» sind das gleiche»): what counts without a setting, found by the
+ * Gym: eGym (20 min), Laufband rennen indoor 20 min, laufen indoor 10 min blöcke; «rennen indoor» und «laufen indoor» sind das gleiche»; Gym ab 22.11.2026 «gym normalfall 1h» (Noah «1a 2a 3 gym normalfall 1h sonst a 4b 5a») 1 Stunde statt 20 Minuten): what counts without a setting, found by the
  * words in the id and the name of the activity (first rule that fits). A sport that fits none counts DEFAULT_MIN.
  */
 export const INDOOR_RUN = /laufband|treadmill|(indoor|innen|drinnen)\W.*(lauf|renn|run)|(lauf|renn|run).*\W(indoor|innen|drinnen)/i;
 export const STANDARD_RULES = [
   // «Rennen indoor» and «Laufen indoor» are one activity (Noah 21.11.2026): 2 blocks of 10 minutes
   [INDOOR_RUN, 20],
-  [/gym/i, 20],
+  [/gym/i, 60], // Noah 22.11.2026: the normal case is one hour (before: 20 min for eGym); where the watch knows the real length, «Dauer nachtragen» offers it
   [/sauna/i, 12],
   [/hockey/i, 120],
   [/tennis/i, 60],
