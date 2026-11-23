@@ -30,6 +30,8 @@ export const Y = {
   sleepH: 'your sleep in hours|insight',
   sleepFelt: 'your sleep felt|insight',
   hrv: 'your HRV|insight',
+  azm: 'your active zone minutes|insight',
+  steps: 'your steps|insight',
 };
 
 /** The short name of a value in a lever line («Akku +1.6»). */

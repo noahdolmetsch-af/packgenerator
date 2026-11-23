@@ -74,6 +74,7 @@ export const SERIES_NAME = {
   med: 'Meditation',
   steps: 'Steps',
   rhr: 'Resting pulse',
+  hrv: 'HRV',
   azm: 'Active zone minutes',
   sunH: 'Hours of sun',
   lightH: 'Daylight',
