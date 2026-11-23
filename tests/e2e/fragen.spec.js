@@ -69,7 +69,7 @@ test('Fragen: six cards, the first tab, a sentence and a limit each, and the way
 
   await page.goto('./#/auswerten/fragen');
   const root = page.locator('[data-fragen]');
-  await expect(root.locator('h1')).toHaveText(T('Questions about my data'));
+  await expect(root.locator('h1')).toHaveText(T('Ask your data'));
   await expect(root.locator('[data-frage]')).toHaveCount(6);
   for (const k of ['koerper', 'tempo', 'tour', 'zusammen', 'velo', 'jahr']) await expect(root.locator(`[data-frage="${k}"] [data-frage-antwort]`)).not.toBeEmpty();
 
@@ -83,6 +83,8 @@ test('Fragen: six cards, the first tab, a sentence and a limit each, and the way
   await expect(ans('zusammen')).toContainText('kürzer');
   // the limit: never «because»
   await expect(root.locator('[data-frage="koerper"] .lim')).toContainText(T('Observation, not a cause. {n} days with a value; your usual is the middle 80 % of the last 60 days.').replace('{n}', '60'));
+  // the calm line: from today, the data reach up to the last value
+  await expect(root.locator('[data-frage="koerper"] [data-frage-stand]')).toContainText('Stand heute, Daten bis');
   // «Why?» opens the rule
   await root.locator('[data-frage="tempo"] details summary').click();
   await expect(root.locator('[data-frage="tempo"] details p')).toBeVisible();
@@ -104,6 +106,16 @@ test('Fragen: without data every card says so and nothing is guessed', async ({ 
   await expect(root.locator('[data-frage]')).toHaveCount(6);
   await expect(root.locator('[data-frage][data-state="few"]')).toHaveCount(6);
   await expect(root.locator('[data-empty]')).toContainText(T('Not enough data for questions yet'));
+  // no big cards: six slim rows, each says what it still needs; a tap opens the sentence with the labelled numbers
+  await expect(root.locator('.qs')).toHaveCount(0);
+  await expect(root.locator('[data-frage-braucht]')).toHaveCount(6);
+  await expect(root.locator('[data-frage="tempo"] [data-frage-braucht]')).toContainText('Braucht noch 5 Fahrtage');
+  await expect(root.locator('[data-frage="tempo"] [data-frage-antwort]')).toBeHidden();
+  await root.locator('[data-frage="tempo"] summary').click();
+  await expect(root.locator('[data-frage="tempo"] [data-frage-antwort]')).toContainText('0 in den 90 Tagen davor');
+  await expect(root.locator('[data-frage="tempo"] [data-frage-mehr]')).toBeVisible();
+  // «Ask your own question» stands under the rows
+  await expect(root.locator('[data-fragen-frei]')).toContainText(T('Ask your own question'));
   await root.locator('[data-empty] a', { hasText: T('See where your numbers come from') }).click();
   await expect(page).toHaveURL(/#\/auswerten\/quellen/);
   await page.goBack();
@@ -118,7 +130,7 @@ test('Fragen: the search leads to the tab', async ({ page, context }, info) => {
   if (info.project.name === 'phone') await page.locator('header.top .search button.icon').click();
   const field = page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') }).first();
   await field.fill('frag deine daten');
-  await expect(page.locator('[data-cmd="fragen"]').first()).toContainText(T('Questions about my data'));
+  await expect(page.locator('[data-cmd="fragen"]').first()).toContainText(T('Ask your data'));
   await field.press('Enter');
   await expect(page).toHaveURL(/#\/auswerten\/fragen/);
 });

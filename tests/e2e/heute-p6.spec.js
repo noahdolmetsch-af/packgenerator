@@ -22,11 +22,11 @@ test.describe('P6 Heute erganzen', () => {
     // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): «Jetzt» first (meditation, the trip of tomorrow, the
     // weekly weight right under the trip, so the phone shows it without long scrolling), then «Dein Körper»
     // «Meine Tour» (Plan 2a): with a planned tour its card is first, the meditation card right under it
-    expect(o.slice(0, 2)).toEqual(['meinetour', 'meditation']);
-    expect(o.filter((id) => ['weighin', 'body', 'acts'].includes(id))).toEqual(['weighin', 'body', 'acts']);
+    expect(o.slice(0, 3)).toEqual(['body', 'meinetour', 'meditation']); // the body band first (Noah 23.11.2026 «1-4a», changed on purpose)
+    expect(o.filter((id) => ['weighin', 'body', 'acts'].includes(id))).toEqual(['body', 'weighin', 'acts']);
     const wall = await page.locator('.wall > *').evaluateAll((els) => els.map((e) => e.dataset.homeSec ?? e.dataset.tile));
     expect(wall.indexOf('weighin')).toBeGreaterThan(wall.indexOf('now'));
-    expect(wall.indexOf('weighin')).toBeLessThan(wall.indexOf('body'));
+    expect(wall.indexOf('body')).toBe(wall.indexOf('now') + 1); // the body band right under the heading of «Jetzt», under the greeting (Noah 23.11.2026 «1-4a»)
     for (const id of ['body', 'acts', 'balance', 'strava']) expect(o, id).toContain(id);
     expect(o.indexOf('strava')).toBeGreaterThan(o.indexOf('balance'));
     await expect(page.locator('[data-tile="meditation"]').getByText(T('Meditation')).first()).toBeVisible();

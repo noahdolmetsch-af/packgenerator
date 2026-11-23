@@ -10,6 +10,8 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Pfad from '../lib/ui/Pfad.svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import Auffaellt from '../lib/tourpfad/Auffaellt.svelte';
+  import { tourAuffaellt } from '../lib/tourpfad/auffaellt.js';
   import { db } from '../lib/db.js';
   import { homeTrips } from '../lib/home/heute.js';
   import { tourStand } from '../lib/tourpfad/stand.js';
@@ -19,7 +21,7 @@
   import '../lib/ich/ich.css';
 
   const today = localDay();
-  const q = liveQuery(async () => ({ trips: await db.trips.toArray(), debriefs: await db.debriefs.toArray() }));
+  const q = liveQuery(async () => ({ trips: await db.trips.toArray(), debriefs: await db.debriefs.toArray(), rides: await db.rides.toArray(), items: await db.items.toArray() }));
   let hash = $state(location.hash);
   $effect(() => {
     const on = () => (hash = location.hash);
@@ -46,6 +48,8 @@
     import('../lib/tourpfad/kontext.js').then((m) => m.loadTourExtra($state.snapshot(tr), today)).then((x) => live && (extra = x));
     return () => (live = false);
   });
+  // «This stood out» (step 7b): only after the debrief is saved
+  const hit = $derived(trip ? tourAuffaellt({ trip, debrief, rides: $q?.rides ?? [], items: $q?.items ?? [] }) : null);
   const stand = $derived(trip ? tourStand(trip, { today, debriefDone: debrief?.status === 'done', ...extra }) : null);
   const titles = $derived(PHASE_TITLE());
   const phases = $derived(
@@ -64,6 +68,7 @@
     <Empty icon={Route} title={t('This tour is not riding')} text={t('A tour that is not riding has no path. Open it again from the trips if it is on.')} action={{ label: t('Back to Trips'), href: '#/trips' }} />
   {:else}
     <Pfad {phases} {next} />
+    <Auffaellt {hit} />
     <p class="ich-help">{t('Every row opens the page where you do it. The path only shows where you are; it changes nothing.')}</p>
   {/if}
 </div>
