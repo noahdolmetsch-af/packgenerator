@@ -14,6 +14,7 @@ import { QUESTIONS_KEY, poolOf, checkOf } from './flowcheck.js';
 import { WEIGHT_KEY } from './review/actdata.js';
 import { loadPastActs } from './review/actdata.js';
 import { WEIGHT_KEY as ENTRIES_KEY, entriesOf, withEntry, cleanKg } from './weight.js';
+import { dreamEntry, DREAM_Q } from './tagebuch/traum.js';
 
 const plain = (x) => JSON.parse(JSON.stringify(x));
 
@@ -80,8 +81,16 @@ export const saveSnooze = (snooze) => db.settings.put({ key: AB_SNOOZE_KEY, valu
 export async function saveAnswers(rows = []) {
   const list = rows.filter(Boolean);
   if (!list.length) return;
-  await db.transaction('rw', db.abAnswers, db.flowChecks, db.settings, async () => {
+  await db.transaction('rw', db.abAnswers, db.flowChecks, db.settings, db.frei, async () => {
+    // Nachtträume: the sentence of the night dream also lands in the Tagebuch (tag «Traum», one entry per day)
+    const dreams = [];
+    for (const r of list) {
+      if (r.qid !== DREAM_Q || !r.note) continue;
+      const entry = dreamEntry(r, await db.frei.get(`traum-${r.day}`), (await db.abAnswers.get(r.id))?.note ?? '');
+      if (entry) dreams.push(entry);
+    }
     await db.abAnswers.bulkPut(plain(list));
+    if (dreams.length) await db.frei.bulkPut(plain(dreams));
     for (const r of list) {
       const field = MIRROR[r.qid];
       if (field && typeof r.value === 'number') {
