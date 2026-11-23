@@ -29,8 +29,10 @@ test.describe('HA Heute neu A', () => {
     const body = page.locator('[data-section="body"]');
     await expect(body.getByRole('heading', { name: T('Your body today') })).toBeVisible();
     await expect(body.locator('[data-body="pulse"] b')).toHaveText('55');
-    await expect(body.locator('[data-body="pulse"]')).toContainText(T('yesterday {v}', { v: '52' }));
-    await expect(body.locator('[data-body="sleep"] b')).toHaveText(/7[.,]5 h/);
+    // «Dein Körper heute» as a banner (Noah 23.11.2026 «1-4a», changed on purpose): the pulse says when Fitbit delivered it,
+    // the active zone minutes next to yesterday, the sleep as hours and minutes
+    await expect(body.locator('[data-body="azm"]')).toContainText(T('yesterday {v}', { v: '30' }));
+    await expect(body.locator('[data-body="sleep"] b')).toHaveText('7 h 30');
     await expect(body.locator('[data-body="azm"] b')).toHaveText('12');
     // «Heute aufräumen» (Noah 23.11.2026, changed on purpose): the morning check stands once, as the tile «Heute-Check»; the body tile has no second row
     await expect(page.locator('[data-tile="heutecheck"]')).toBeVisible();

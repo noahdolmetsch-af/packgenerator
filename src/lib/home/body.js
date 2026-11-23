@@ -6,10 +6,17 @@
  * (time asleep of the time in bed, sleep.efficiency), which the Google interface delivers.
  * Pure functions, tested in tests/body.test.js.
  */
-import { addDays } from '../health.js';
+import { addDays, normalOf } from '../health.js';
 
-/** The four values, in their order on Heute. */
-export const BODY_KEYS = ['pulse', 'sleep', 'score', 'azm'];
+/** The values of a day, in their order in the «Details» sheet (HRV since the banner, 23.11.2026). */
+export const BODY_KEYS = ['pulse', 'sleep', 'score', 'azm', 'hrv'];
+/**
+ * «Dein Körper heute» as a banner (Noah 23.11.2026 «1-4a»): the values in its order. The sleep score is not in the banner,
+ * it stays in the «Details» sheet. More fields (steps, outdoors, today's level) come in the next steps.
+ */
+export const BANNER_KEYS = ['pulse', 'azm', 'sleep', 'hrv'];
+/** A value is marked «lower/higher than usual» from this share away from the usual (sleep, HRV). Only a quiet arrow, never good or bad. */
+export const OFF_SHARE = 0.15;
 
 const num = (x) => (Number.isFinite(Number(x)) && x !== null && x !== '' ? Number(x) : null);
 
@@ -20,7 +27,33 @@ export function valueOf(row, key) {
   if (key === 'sleep') return num(row.sleep?.asleepMin) > 0 ? Math.round((row.sleep.asleepMin / 60) * 10) / 10 : null;
   if (key === 'score') return num(row.sleep?.score) ?? num(row.sleep?.efficiency);
   if (key === 'azm') return num(row.azm);
+  if (key === 'hrv') return num(row.hrvMs) > 0 ? Math.round(num(row.hrvMs)) : null;
   return null;
+}
+
+/** Your usual value (median of the 30 days before today, at least 7 values) in the unit of valueOf(), or null. Only sleep and HRV have one in the banner. */
+export function usualOf(health = [], key, today) {
+  if (key !== 'sleep' && key !== 'hrv') return null;
+  const m = normalOf(health ?? [], key === 'sleep' ? 'sleep' : 'hrvMs', today);
+  if (m == null) return null;
+  return key === 'sleep' ? Math.round((m / 60) * 10) / 10 : Math.round(m);
+}
+
+/** Lower (−1), higher (1) or about the usual (0) — null without a usual value. */
+export function offOf(now, usual) {
+  if (now == null || usual == null || !(usual > 0)) return null;
+  const d = (now - usual) / usual;
+  return d <= -OFF_SHARE ? -1 : d >= OFF_SHARE ? 1 : 0;
+}
+
+/** «geholt …» of a day row: the time it came from Fitbit (row.at) as { day: 'today' | 'yesterday' | ISO day, hm }, or null. */
+export function fetchedOf(at, today, tz = undefined) {
+  const d = new Date(at ?? '');
+  if (!Number.isFinite(d.getTime())) return null;
+  const part = (o) => new Intl.DateTimeFormat('en-CA', { timeZone: tz, ...o }).format(d);
+  const day = part({ year: 'numeric', month: '2-digit', day: '2-digit' });
+  const hm = new Intl.DateTimeFormat('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d);
+  return { day: day === today ? 'today' : day === addDays(today, -1) ? 'yesterday' : day, hm };
 }
 
 /** Up (1), down (−1), the same (0) or nothing to compare (null). */
@@ -41,6 +74,10 @@ export function bodyToday(health = [], today) {
     const now = valueOf(a, key);
     const before = valueOf(b, key);
     const row = { key, now, before, dir: dirOf(now, before), last: now == null ? lastOf(by, key, today) : null };
+    // the banner (Noah 23.11.2026): the usual value, a quiet mark when far from it, and when Fitbit delivered the day
+    row.usual = usualOf(health, key, today);
+    row.off = offOf(row.last ? row.last.value : now, row.usual);
+    row.fetched = fetchedOf((now != null ? a : by.get(row.last?.day))?.at, today);
     if (key === 'score') row.kind = num(a?.sleep?.score) != null || (now == null && num(b?.sleep?.score) != null) ? 'score' : 'efficiency';
     // the efficiency is shown with a %, Fitbit's own score without: the kind follows the day that is shown
     if (key === 'score' && row.last) row.kind = num(by.get(row.last.day)?.sleep?.score) != null ? 'score' : 'efficiency';
