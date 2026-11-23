@@ -6,7 +6,7 @@ import { imagesOf } from '../scripts/news.mjs';
 import { newsDay, newsWhen } from '../src/lib/know/neudatum.js';
 
 const DIR = 'public/news';
-const files = existsSync(DIR) ? readdirSync(DIR) : [];
+const files = existsSync(DIR) ? readdirSync(DIR).filter((f) => statSync(join(DIR, f)).isFile()) : []; // folders hold the pictures of the other mechanism (picsFor)
 const nameOf = (f) => f.replace(/(-vorher)?\.webp$/, '');
 const kb = (f) => statSync(join(DIR, f)).size / 1024;
 
