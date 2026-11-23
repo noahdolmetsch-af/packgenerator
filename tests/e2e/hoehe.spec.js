@@ -5,8 +5,8 @@ import { openHome, homeFixture } from './home0460-fixture.js';
 import { mock } from './hoehe-fixture.js';
 
 test('The weather page shows the temperature by height, for more places and a peak, and an own place with Undo', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture() });
-  await mock(context);
+  // the air layers are set BEFORE Today loads (openHome `weather`): Today asks for them too and keeps the answer, so the plain forecast of openHome must never be that answer
+  await openHome(page, context, info, { data: homeFixture(), weather: mock });
 
   await page.goto('./#/wetter');
   const card = page.locator('[data-hoehe]');
@@ -51,8 +51,8 @@ test('The weather page shows the temperature by height, for more places and a pe
 });
 
 test('Without a choice only the place of the page shows, and the card says it is a guess', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture() });
-  await mock(context);
+  // the air layers are set BEFORE Today loads (openHome `weather`): Today asks for them too and keeps the answer, so the plain forecast of openHome must never be that answer
+  await openHome(page, context, info, { data: homeFixture(), weather: mock });
   await page.goto('./#/wetter');
   const card = page.locator('[data-hoehe]');
   await expect(card.locator('[data-hoehe-item]')).toHaveCount(1, { timeout: 20_000 });
