@@ -9,14 +9,17 @@
    */
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
+  import { backCrumbsOf } from '../nav/herkunft.svelte.js';
 
   let { crumbs = [], here = '', title, sub = '', heading = null, extra = null, children = null } = $props();
+  // Durchklick-Fund 3: a one-step path names where you came from (zurueck.js)
+  const shown = $derived(backCrumbsOf(crumbs));
 </script>
 
 <header class="phead">
-  {#if crumbs.length}
+  {#if shown.length}
     <nav class="pcrumbs" aria-label={t('Path')}>
-      {#each crumbs as c, n (n)}
+      {#each shown as c, n (n)}
         <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}<span>{c.label}</span></a><ChevronRight class="psep" size={12} aria-hidden="true" />
       {/each}
       <span aria-current="page">{here || title}</span>
