@@ -1325,7 +1325,7 @@
 
 <!-- v0.94.0 «Kachel-Wand»: what each tile shows (lib/home/tiles.js) -->
 {#snippet tileBody(x)}
-  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<div class="stack"><MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: wx?.text ?? '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{#if tripMerged && ready}<KmCard {today} />{/if}</div>{/if}
+  {#if x.id === 'meinetour'}{#if meineCard && bildTrip}<div class="stack"><MeineTour trip={bildTrip} card={meineCard} {now} {today} season={momentOnce} pack={tripMerged ? { packed, weight } : null} bild={bildInCard ? { line: bild, mood: moodOf(now.getHours(), wx?.dry === false), weather: '', href: stepHere(bildTrip).href, onopen: () => openTrip(bildTrip.id) } : null} />{#if tripMerged && ready}<KmCard {today} />{/if}</div>{/if}
   {:else if x.id === 'trip'}
     <!-- Start-Karten ST1/ST2 (HN4): the card travels with the trip card, right before it (with one tour: with «Meine Tour») -->
     {#if focus || shown || (loaded && !showFirst)}<div class="stack">{@render tripS(x.size === 'l' && !phone.matches)}{#if ready && x.size !== 'l'}<KmCard {today} />{/if}</div>{/if}
@@ -1339,7 +1339,7 @@
     {:else}<FlowCard {today} round={!onWall.has('daycard')} rings={!onWall.has('balance')} />{/if}
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
-  {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}</div>
+  {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} check={!on('heutecheck')} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}</div>
   {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
@@ -1386,7 +1386,7 @@
 <div class="home">
   <PullRefresh />
   <!-- «Paket G» (Noah 03.11.2026 «a»): the drawn landscape with the next trip and its countdown, on top; a switch in Ich › Darstellung › Bedienung takes it away -->
-  {#if ops.heutebild && !editing && bild && !bildInCard}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather={wx?.text ?? ''} href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
+  {#if ops.heutebild && !editing && bild && !bildInCard}<HeuteBild trip={bildTrip} line={bild} mood={moodOf(now.getHours(), wx?.dry === false)} weather="" href={stepHere(bildTrip).href} onopen={() => openTrip(bildTrip.id)} />{/if}
   <!-- «Heute neu» A (Noah «5b»): «New in …», the tip of the week and «Connect Strava» live under Ich only -->
   <!-- HG1 2a: the greeting always first on Today, the evening before a trip too; the Vorabend line follows -->
   {@render greetingS()}
@@ -1394,7 +1394,7 @@
   {#if !editing && ready}<PhotoGreeting />{/if}
   <!-- v0.67.0 «Übergänge 1» (U3, U007, U24b, Ü6a): «Weitermachen» and the evening reminders, on top
        (HG1 2a: right under the greeting). -->
-  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
+  {#if loaded && $debriefsQ}<Continue {trips} {debriefs} {today} hour={now.getHours()} cardId={tourOnce ? bildTrip?.id ?? null : on('trip') ? cardTrips[0]?.id ?? null : null} />{/if}
   <!-- «Sporttasche» (mockup AK3, 4a): the evening before a fixed date, «Morgen Yoga 07:00: Tasche packen» -->
   <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): «Heute fällig», only what is really due today: to-dos, birthdays, plants, bike care.
        It stands right under «Dein Körper heute» (rule 11: the body check stays on top); here only when that tile is off. -->

@@ -19,13 +19,13 @@ afterEach(() => {
 const at = (h, m = 0) => new Date(2026, 9, 13, h, m);
 
 describe('FE8 night quiet', () => {
-  it('from 22:00 to 05:59 quiet, from 06:00 to 21:59 not', () => {
-    expect([QUIET_FROM, QUIET_TO]).toEqual([22, 6]);
+  it('from 22:00 to 04:59 quiet, from 05:00 to 21:59 not', () => {
+    expect([QUIET_FROM, QUIET_TO]).toEqual([22, 5]);
     expect(quietNow(at(22, 0))).toBe(true);
     expect(quietNow(at(23, 59))).toBe(true);
     expect(quietNow(at(0, 0))).toBe(true);
-    expect(quietNow(at(5, 59))).toBe(true);
-    expect(quietNow(at(6, 0))).toBe(false);
+    expect(quietNow(at(4, 59))).toBe(true);
+    expect(quietNow(at(5, 0))).toBe(false);
     expect(quietNow(at(12, 0))).toBe(false);
     expect(quietNow(at(21, 59))).toBe(false);
   });

@@ -80,9 +80,9 @@ describe('RE2 never used only from 3 trips on', () => {
 });
 
 describe('RE4 one day clock', () => {
-  it('morning until 11, day until 18, evening 18-22, night 22-6', () => {
-    expect(DAY_CLOCK).toEqual({ morning: 6, day: 11, evening: 18, night: 22 });
-    const want = (h) => (h >= 22 || h < 6 ? 'night' : h < 11 ? 'morning' : h < 18 ? 'day' : 'evening');
+  it('morning until 11, day until 18, evening 18-22, night 22-5', () => {
+    expect(DAY_CLOCK).toEqual({ morning: 5, day: 11, evening: 18, night: 22 });
+    const want = (h) => (h >= 22 || h < 5 ? 'night' : h < 11 ? 'morning' : h < 18 ? 'day' : 'evening');
     for (let h = 0; h < 24; h++) {
       expect(partOfDay(h), `${h}:00`).toBe(want(h));
       expect(helloPart(h), `${h}:00`).toBe(partOfDay(h));
