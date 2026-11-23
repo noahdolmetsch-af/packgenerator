@@ -76,7 +76,7 @@ test('Strava friends: list, remove with Undo, invite link with the Strava note',
   await expect(sec.locator('[data-friend="7777"]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Rückgängig' }).click();
   await expect(sec.locator('[data-friend="7777"]')).toBeVisible();
-  await page.waitForTimeout(4600);
+  await page.waitForTimeout(8600);
   expect(server.log.some((x) => x.step === 'friend-remove')).toBe(false);
 
   await tapRemove(sec);

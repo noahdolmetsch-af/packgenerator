@@ -27,7 +27,7 @@
     put({ ...rec, chf: n });
   }
   async function remove() {
-    if ((await askDelete({ title: t('Remove the refund?'), text: t('The visit stays. You can bring the refund back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Remove the refund?'), text: t('The visit stays. You can bring the refund back for 8 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
     const was = $state.snapshot(rec);
     await deleteWithUndo({ run: () => put(null), undo: () => put(was), text: t('Refund removed.'), name: t('Refund') });
   }

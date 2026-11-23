@@ -61,10 +61,28 @@ let toastTimer = null;
 export function toast(text, undo = null, link = null, hint = null, next = null) {
   clearTimeout(toastTimer);
   ui.toast = { text, undo, link, hint, next, id: Date.now() };
-  if (!link) toastTimer = setTimeout(() => (ui.toast = null), undo ? UNDO_MS : 8000);
+  toastLeft = null;
+  toastEnd = Date.now() + UNDO_MS;
+  if (!link) toastTimer = setTimeout(() => (ui.toast = null), UNDO_MS);
+}
+let toastEnd = 0;
+let toastLeft = null;
+/** The note of the flow pages: its time stands still while a finger, the mouse or the focus is on it. */
+export function pauseFlowToast() {
+  if (!ui.toast || ui.toast.link || toastLeft != null) return;
+  clearTimeout(toastTimer);
+  toastLeft = Math.max(0, toastEnd - Date.now());
+}
+export function resumeFlowToast() {
+  if (toastLeft == null) return;
+  const ms = toastLeft;
+  toastLeft = null;
+  toastEnd = Date.now() + ms;
+  toastTimer = setTimeout(() => (ui.toast = null), ms);
 }
 export function closeToast() {
   clearTimeout(toastTimer);
+  toastLeft = null;
   ui.toast = null;
 }
 export async function runUndo() {

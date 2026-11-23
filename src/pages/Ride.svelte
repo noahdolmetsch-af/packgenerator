@@ -374,7 +374,7 @@
   // Impeccable Unterwegs 3: «Entfernen» sits in the «…» of each note. Paket C keeps the app-wide delete
   // question with 4 s «Rückgängig» of «Rückmeldungen» (Paket D) instead of an own toast.
   async function dropNote(n) {
-    if ((await askDelete({ title: t('Delete this note?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete this note?'), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const name = String(n.text ?? '').slice(0, 40);
     const tripId = trip.id;
     await deleteWithUndo({
