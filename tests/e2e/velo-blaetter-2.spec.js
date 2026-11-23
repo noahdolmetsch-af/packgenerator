@@ -182,7 +182,7 @@ test('the Repair kit: per kind of ride, sizes from the parts, a missing item add
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?bike=${XC}&sheet=kit`);
   const paper = page.locator('article.paper[data-sheet="kit"]');
-  await expect(paper.getByRole('heading', { name: 'Repair-Kit' })).toBeVisible();
+  await expect(paper.getByRole('heading', { name: 'Reparaturset' })).toBeVisible();
   const seg = paper.getByRole('group', { name: 'Art der Fahrt' });
   await expect(seg.getByRole('button')).toHaveText(RIDE_TYPES.map((r) => DE[r.name]));
   await expect(seg.getByRole('button', { name: 'Tagestour' })).toHaveAttribute('aria-pressed', 'true'); // the next trip is one day
@@ -235,7 +235,7 @@ test('the Repair kit: per kind of ride, sizes from the parts, a missing item add
   await expect.poll(async () => (await stored(page, 'trips', XC_TRIP)).entries.length).toBe(before);
 
   const text = await copied(page);
-  expect(text).toContain('Repair-Kit');
+  expect(text).toContain('Reparaturset');
   expect(text).toContain('[x] Multitool');
   expect(errors).toEqual([]);
 });
