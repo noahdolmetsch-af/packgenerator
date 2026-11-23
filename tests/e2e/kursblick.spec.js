@@ -11,6 +11,7 @@ import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { answer, FIXTURE, titelAnswer } from './kursblick-data.js';
 import { realReihe } from '../../src/lib/kurse/teuerung.js';
+import { ampel, lage, regelVorschlag, rueckblick } from '../../src/lib/kurse/signale.js';
 import { goldChfKg, verkaufswert, vergleich, verglichenMit, PERIODS } from '../../src/lib/kurse/rechnen.js';
 
 const T = (en, vars) => {
@@ -362,6 +363,74 @@ test('Kursblick Meine Zahlen: Bestand mit Gewinn, Dividende und Split, Ziele auf
   await expect(page.locator('[data-meins]')).toBeVisible();
 
   // nothing runs off the side on a small phone
+  const size = page.viewportSize();
+  for (const w of [320, 390]) {
+    await page.setViewportSize({ width: w, height: size.height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('Kursblick Entscheidung: Trend, Lage und die eigene Kaufregel mit Rückblick, privat auf dem Gerät', async ({ page, context }, info) => {
+  const errors = await start(page, context);
+  const A = ampel(GOLD);
+  const L = lage(GOLD);
+  await page.goto('./#/kurse');
+  await page.getByRole('group', { name: T('View') }).getByRole('button', { name: T('Decision|kurs'), exact: true }).click();
+  await expect(page).toHaveURL(/#\/kurse\/entscheidung$/);
+
+  // the trend and the position are worked out from the series: the same answer as the calculation
+  await expect(page.locator('[data-trend] [data-ampel]')).toHaveAttribute('data-ampel', A.farbe);
+  await expect(page.locator('[data-trend]')).toContainText(T({ gruen: 'Green', gelb: 'Yellow', rot: 'Red' }[A.farbe]));
+  await expect(page.locator('[data-lage] [data-stufe]')).toHaveAttribute('data-stufe', L.stufe);
+  // no amount yet: the rule says what to do, no suggestion, no look back
+  await expect(page.locator('[data-regel-leer]')).toBeVisible();
+  await expect(page.locator('[data-vorschlag]')).toHaveCount(0);
+  await expect(page.locator('[data-rueckblick]')).toHaveCount(0);
+  await expect(page.locator('[data-hinweis]')).toContainText(T('These are observations from past prices and the result of your own rule. Nothing here predicts a price and nothing is investment advice. Everything stays on your devices.').slice(0, 30));
+  await shot(page, info, 'kursblick-entscheidung-leer');
+
+  // an amount and two factors: the suggestion is the amount times the factors that apply
+  const regel = { grundbetrag: 500, rot: 2, teuer: 0.5 };
+  await page.locator("[data-betrag]").fill("500");
+  await page.locator('[data-faktor-rot]').selectOption('2');
+  await page.locator('[data-faktor-teuer]').selectOption('0.5');
+  const v = regelVorschlag(GOLD, GOLD.length - 1, regel);
+  await expect(page.locator('[data-vorschlag] b')).toContainText(num(v.betrag));
+  await expect(page.locator('[data-regel-leer]')).toHaveCount(0);
+  // the look back over the last months against «always the same»
+  const r = rueckblick(GOLD, regel);
+  expect(r.monate.length).toBe(60);
+  await expect(page.locator('[data-rueckblick]')).toContainText(num(r.gleich.einbezahlt));
+  await expect(page.locator('[data-rueckblick]')).toContainText(num(r.regel.einbezahlt));
+  await expect(page.locator('[data-unterschied]')).toBeVisible();
+  await page.locator('[data-rueckblick] summary').click();
+  await expect(page.locator('[data-rueckblick] details tbody tr')).toHaveCount(60);
+  await shot(page, info, 'kursblick-entscheidung');
+
+  // the rule stays on the device and nothing of it goes to the price service
+  await page.waitForTimeout(600);
+  await page.reload();
+  await expect(page.locator('[data-betrag]')).toHaveValue('500');
+  await expect(page.locator('[data-faktor-rot]')).toHaveValue('2');
+  await expect(page.locator('[data-faktor-teuer]')).toHaveValue('0.5');
+  const saved = await page.evaluate(() => new Promise((res) => {
+    const open = indexedDB.databases ? indexedDB.databases() : Promise.resolve([]);
+    open.then((dbs) => {
+      const name = dbs[0]?.name;
+      const rq = indexedDB.open(name);
+      rq.onsuccess = () => {
+        const get = rq.result.transaction('settings').objectStore('settings').get('kurse.regeln');
+        get.onsuccess = () => res(get.result?.value ?? null);
+      };
+    });
+  }));
+  expect(saved).toEqual({ gold: regel });
+
+  // the small app has its own tab for it, and nothing runs off the side on a small phone
+  await page.goto('./apps/kursblick/');
+  await page.getByRole('navigation').getByRole('link', { name: T('Decision|kurs'), exact: true }).first().click();
+  await expect(page.locator('[data-regel]')).toBeVisible();
   const size = page.viewportSize();
   for (const w of [320, 390]) {
     await page.setViewportSize({ width: w, height: size.height });

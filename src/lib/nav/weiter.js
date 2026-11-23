@@ -43,6 +43,7 @@ const NEXT = {
   // Kursblick has its own tabs (Heute, Gold, Märkte …), so the way on leads out of it: to the small apps it lives in, and to Ich
   '#/kurse': ['apps', 'me'],
   '#/kurse/gold': ['apps', 'me'],
+  '#/kurse/entscheidung': ['apps', 'me'],
   '#/kurse/maerkte': ['apps', 'me'],
   '#/kurse/quellen': ['apps', 'me'],
   '#/live': ['group', 'rides', 'trips'],

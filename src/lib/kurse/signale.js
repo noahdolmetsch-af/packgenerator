@@ -99,6 +99,16 @@ export function liesRegel(r) {
   return { grundbetrag: g, rot: faktorOk(r?.rot) ? r.rot : 1, teuer: faktorOk(r?.teuer) ? r.teuer : 1 };
 }
 
+/** The setting that holds the rules, one per title: { gold: { grundbetrag, rot, teuer }, … } (private, on the devices). */
+export const REGELN_KEY = 'kurse.regeln';
+
+/** What was saved → { id: rule } with every rule usable; anything that is not a rule is dropped. */
+export function liesRegeln(v) {
+  const out = {};
+  if (v && typeof v === 'object' && !Array.isArray(v)) for (const id of Object.keys(v)) if (v[id] && typeof v[id] === 'object') out[id] = liesRegel(v[id]);
+  return out;
+}
+
 /**
  * The factor of the rule on index `i`. → { faktor, gruende: ['rot', 'teuer'], farbe, stufe }.
  * Without enough closes for the trend or the position the factor is 1 (the base amount): nothing is guessed.
