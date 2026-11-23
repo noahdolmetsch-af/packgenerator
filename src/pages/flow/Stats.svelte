@@ -18,6 +18,7 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import BarChart from '../../lib/charts/BarChart.svelte';
   import LineChart from '../../lib/charts/LineChart.svelte';
+  import { changeSentence, usualBand } from '../../lib/charts/sentence.js';
   import ChartSheet from '../../lib/charts/ChartSheet.svelte';
   import DataTable from '../../lib/charts/DataTable.svelte';
   import Readout from '../../lib/charts/Readout.svelte';
@@ -283,6 +284,9 @@
         kind: 'line', id: 'body', unit: u, items, when, rows: pts, name: bname(bkey), scale, tick: bkey === 'bed' ? bedText : null, cols: xsOf(pts),
         series: [{ key: 'v', color: 'var(--hi)', v: pts.map((p) => (p.v == null ? null : p.v / div)) }],
         table, label: bname(bkey), topText: bkey === 'bed' ? bedText : null,
+        // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): where your own values usually lie, and one neutral sentence (not for the bed time and the skin temperature)
+        band: bkey === 'bed' || bkey === 'skin' || bkey === 'weight' || fx ? null : usualBand(pts.map((p) => (p.v == null ? null : p.v / div))),
+        sentences: bkey === 'bed' || bkey === 'skin' ? [] : changeSentence(pts.map((p) => ({ label: when(p.key), v: p.v == null ? null : p.v / div })), (v) => `${bv(v * div)}${bu && !isSleep ? ` ${B.own ? bu : t(bu)}` : ''}`),
       };
     }
     return {
@@ -308,7 +312,7 @@
     {#if M.kind === 'bar'}
       <BarChart id={M.id} cols={M.cols} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
     {:else}
-      <LineChart id={M.id} cols={M.cols} series={M.series} scale={M.scale} tick={M.tick} topText={M.topText} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
+      <LineChart id={M.id} cols={M.cols} series={M.series} scale={M.scale} band={M.band ? { ...M.band, text: t('Your usual range') } : null} sentences={M.sentences ?? []} tick={M.tick} topText={M.topText} readout={roOf(M)} onopen={(i) => (open = i)} unit={M.unit} table={M.table} label={M.label} hint={t('Point at a day for its numbers, tap it for what is behind.')} />
     {/if}
   {/if}
 {/snippet}
