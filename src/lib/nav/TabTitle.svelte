@@ -95,4 +95,4 @@
   });
 </script>
 
-<p class="sr" role="status" aria-live="polite" data-tab-title-live>{said}</p>
+<p class="sr" aria-live="polite" data-tab-title-live>{said}</p>
