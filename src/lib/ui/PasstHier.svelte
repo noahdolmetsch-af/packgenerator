@@ -20,7 +20,8 @@
   <!-- Diese Woche aufräumen (23.11.2026): on request of a page the row is one closed line -->
   <details class="phf" data-passt-fold={place}>
     <summary>{t('Fits here · {n}', { n: items.length })}</summary>
-    <nav class="ph" aria-label={t('Fits here')} data-passt-hier={place}>
+    <nav class="ph" aria-labelledby={hid} data-passt-hier={place}>
+      <h3 id={hid} class="vh">{t('Fits here')}</h3>
       <ul>
         {#each items as f (f.id)}
           <li><button type="button" class="chip" onclick={() => goFeature(f, {})} data-passt-item={f.id}>{t(f.title)}</button></li>
@@ -54,6 +55,17 @@
     color: var(--ink-2);
     font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
+  }
+  /* the heading is for readers of the screen; the closed line above says it to the eye */
+  .vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .phf > .ph {
     margin: 0;
