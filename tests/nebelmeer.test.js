@@ -1,6 +1,7 @@
 // «Nebelmeer-Tage» (Noah 06.11.2026 «4a»): the days above the fog, kept on the Sammel-Wand.
 import { describe, it, expect } from 'vitest';
-import { cleanDay, daysOf, valueOf, hasDay, addDay, patchDay, removeDay, winterOf, winterCount, MAX_DAYS } from '../src/lib/sammlung/nebelmeer.js';
+import { DEVICE_SETTINGS } from '../src/lib/backup.js';
+import { KEY, cleanDay, daysOf, valueOf, hasDay, addDay, patchDay, removeDay, winterOf, winterCount, MAX_DAYS } from '../src/lib/sammlung/nebelmeer.js';
 
 describe('cleanDay', () => {
   it('keeps the known fields and rounds the height', () => {
@@ -72,5 +73,14 @@ describe('winter', () => {
     expect(winterCount(days, '2027-06-01')).toEqual({ winter: 2026, n: 2 });
     expect(winterCount(days, '2026-07-15')).toEqual({ winter: 2025, n: 1 });
     expect(winterCount([], '2026-11-20')).toEqual({ winter: 2026, n: 0 });
+  });
+});
+
+describe('backup', () => {
+  it('the days are in every backup (not a device-only setting), and an older backup without them reads as no days', () => {
+    expect(DEVICE_SETTINGS).not.toContain(KEY);
+    expect(daysOf(undefined)).toEqual([]);
+    const copy = JSON.parse(JSON.stringify({ key: KEY, value: valueOf([{ id: 'a', date: '2026-11-06', title: 'Hochplateau' }]) }));
+    expect(daysOf(copy.value)).toHaveLength(1);
   });
 });

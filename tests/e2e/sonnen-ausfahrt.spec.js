@@ -183,6 +183,7 @@ test('Remember today keeps the day and the Sammel-Wand shelf can change and remo
   await card.screenshot({ path: info.outputPath(`nebel-karte-${info.project.name}.png`) });
   await card.locator('[data-heute-sonne-keep]').click();
   await expect(card.locator('[data-heute-sonne-kept]')).toBeVisible();
+  await expect(card.locator('[data-heute-sonne-winter]')).toContainText('1 Nebelmeer-Tag diesen Winter'); // Noah «2b»
   await card.screenshot({ path: info.outputPath(`nebel-karte-gemerkt-${info.project.name}.png`) });
   await expect(card.locator('[data-heute-sonne-keep]')).toHaveCount(0);
 
