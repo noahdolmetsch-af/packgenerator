@@ -130,3 +130,39 @@ test('Mein Tag: add, change and delete an own entry (with Undo)', async ({ page,
   await expect(page.locator('[data-entry="wi1"]')).toContainText('Zahnarzt');
   expect(errors).toEqual([]);
 });
+
+test('Mein Tag: drag an own entry to another time, to another day, stretch it, Undo', async ({ page, context }) => {
+  await page.setViewportSize({ width: page.viewportSize().width, height: 2000 }); // the chips and the entry in view together
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  const blk = page.locator('[data-entry="wi1"]'); // Zahnarzt 12:00, 45 min
+  await expect(blk).toContainText('12:00–12:45');
+  const drag = async (sel, dy, to) => {
+    const g = await page.locator(sel).boundingBox();
+    const x = g.x + g.width / 2;
+    const y = g.y + g.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x, y + dy / 2, { steps: 4 });
+    await page.mouse.move(to?.x ?? x, to?.y ?? y + dy, { steps: 6 });
+    await page.mouse.up();
+  };
+  // 72 px per hour: 72 px later = one hour later
+  await drag('[data-grip="wi1"]', 72);
+  await expect(blk).toContainText('13:00–13:45');
+  // Undo
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(blk).toContainText('12:00–12:45');
+  // the length: lower edge, 36 px = 30 minutes more
+  await drag('[data-size="wi1"]', 36);
+  await expect(blk).toContainText('12:00–13:15');
+  // onto the chip of tomorrow
+  const chip = await page.locator(`[data-day="${addDays(TODAY, 1)}"]`).boundingBox();
+  await drag('[data-grip="wi1"]', 0, { x: chip.x + chip.width / 2, y: chip.y + chip.height / 2 });
+  await expect(blk).toHaveCount(0);
+  await page.locator(`[data-day="${addDays(TODAY, 1)}"]`).click();
+  await expect(page.locator('[data-entry="wi1"]')).toContainText('12:00');
+  expect(errors).toEqual([]);
+});
