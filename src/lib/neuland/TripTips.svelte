@@ -67,7 +67,7 @@
     return Number.isFinite(wx.max) ? `${Math.round(wx.max)}° · ${rain}` : rain;
   });
   const freeText = $derived(!hasCal ? '' : free ? t('Calendar: free {from}–{to}', { from: free.from, to: free.to }) : t('Calendar: the day is full'));
-  const LEVEL_NAME = { easy: 'Easy|level', medium: 'Medium|level', hard: 'Hard|level' };
+  const LEVEL_NAME = { easy: 'Easy|trip tip', medium: 'Medium|trip tip', hard: 'Hard|trip tip' };
   const KIND = { passes: { name: 'Pass', icon: Mountain }, lakes: { name: 'Lake', icon: Waves }, municipalities: { name: 'Municipality', icon: Landmark } };
 
   let placeOpen = $state(false);

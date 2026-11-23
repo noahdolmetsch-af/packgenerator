@@ -79,7 +79,7 @@ test('Trip tips: three new places for the free time, the weather, other hours, a
   await expect(sec.locator('[data-tt-free]')).toContainText(T('Calendar: free {from}–{to}').split('{')[0].trim());
   await expect(tips.first()).toContainText(T('≈ {km} km there and back').split('}')[1].trim());
   // how hard: every tip names a level, the rule stands under the list
-  await expect(tips.first().locator('[data-tt-level]')).toHaveText(new RegExp(`^(${T('Easy|level')}|${T('Medium|level')}|${T('Hard|level')})$`));
+  await expect(tips.first().locator('[data-tt-level]')).toHaveText(new RegExp(`^(${T('Easy|trip tip')}|${T('Medium|trip tip')}|${T('Hard|trip tip')})$`));
   await expect(sec.locator('[data-tt-level-help]')).toBeVisible();
   await noSideways(page);
   await shot(sec, info, 'AT1-tipps');
