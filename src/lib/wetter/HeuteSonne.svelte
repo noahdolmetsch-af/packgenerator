@@ -29,8 +29,8 @@
   import { suggest as areas, watchSuggest } from '../clear/suggest.svelte.js';
   import LeiserFrage from '../hinweise/LeiserFrage.svelte'; // S5: after three days «Not today», the question «quieter?»
   import { recordSkip } from '../hinweise/leiser-db.js';
-  import { KEY as FOG_KEY, daysOf, valueOf, hasDay, addDay } from '../sammlung/nebelmeer.js';
-  import { t, num } from '../i18n.svelte.js';
+  import { KEY as FOG_KEY, daysOf, valueOf, hasDay, addDay, winterCount } from '../sammlung/nebelmeer.js';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
   const ownQ = liveQuery(() => db.settings.get(OWN_KEY));
@@ -81,6 +81,7 @@
   };
   const skip = () => (db.settings.put({ key: SKIP_KEY, value: { day } }), recordSkip(db, 'sonne', day));
   const kept = $derived(hasDay(daysOf($fogQ?.value), day));
+  const winter = $derived(winterCount(daysOf($fogQ?.value), day)); // Noah «2b»: the quiet count also stands on the card
   const remember = () => db.settings.put({ key: FOG_KEY, value: valueOf(addDay(daysOf($fogQ?.value), { date: day, title: ride.title, topM: s?.now?.top, tripId: ride.id })) });
 </script>
 
@@ -111,6 +112,7 @@
         {#if !kept}<button type="button" class="btn sm" onclick={remember} data-heute-sonne-keep>{t('Remember today')}</button>{/if}
         <button type="button" class="btn sm" onclick={skip} data-heute-sonne-skip>{t('Not today')}</button>
       </div>
+      {#if winter.n}<p class="hs-sub" data-heute-sonne-winter>{tn(winter.n, '{n} fog sea day this winter.', '{n} fog sea days this winter.')}</p>{/if}
       {#if kept}
         <p class="hs-sub" data-heute-sonne-kept>{t('Today is kept as a fog sea day.')} <a href="#/debrief/sammlung">{t('Open the collection wall')}</a></p>
       {/if}

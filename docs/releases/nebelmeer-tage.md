@@ -1,12 +1,13 @@
-# Nebelmeer-Tage: das Regal auf der Sammel-Wand (Schritt D)
+# Nebelmeer-Tage: das Regal auf der Sammel-Wand
 
-Auftrag: Noah «1-5a» (Thread «Entwickeln: Über die Nebelgrenze motivieren», Antwort 4a: «Foto-Vorschlag und Zähler, ohne Ziel und ohne Serie, eigenes Regal»). Baut auf der Karte «Sonne über dem Nebel» (#1015, #1040) und der Sammel-Wand auf. B und E bleiben zurückgestellt (5a).
+PR #<Nummer> · 23.11.2026 · neu auf main (der alte PR 1043 bleibt offen, bis Noah «schliessen 1043» schreibt) · Auftrag: Noah «1-5a», am 22.11.2026 «1a 2b 3a 4b» (Thread «Entwickeln: Über die Nebelgrenze motivieren», Antwort 4a: «Foto-Vorschlag und Zähler, ohne Ziel und ohne Serie, eigenes Regal»). Baut auf der Karte «Sonne über dem Nebel» (#1015, #1040) und der Sammel-Wand auf. B und E bleiben zurückgestellt (5a).
 
 ## Was ist neu
 - Auf der Sammel-Wand ein Regal «Nebelmeer»: die Tage, an denen du über dem Nebel warst, je mit Name, Datum, Nebelhöhe («Nebel bis 900 m») und Foto. Dazu eine leise Zahl «3 Nebelmeer-Tage diesen Winter» (Winter = Oktober bis März). Noch keiner: «Diesen Winter noch kein Nebelmeer-Tag. Nebel kommt nicht auf Befehl.»
 - «Tag hinzufügen» (Name, Tag, Nebelhöhe, Foto), ändern (Stift), Foto hinzufügen oder ersetzen (Kamera), entfernen mit Rückgängig. Das Regal zeigt drei Tage, «n weitere Tage zeigen» den Rest.
 - In der Karte «Sonne über dem Nebel» auf Heute der Knopf «Heute merken»: er hält den Tag mit der Fahrt und der Nebelhöhe fest. Danach steht dort «Heute ist als Nebelmeer-Tag gemerkt.» mit Link zur Sammel-Wand.
 - Das Foto eines Tages ist ein normales Album-Foto und liegt auch im Fotoalbum.
+- Die Karte auf Heute nennt leise dieselbe Zahl «n Nebelmeer-Tage diesen Winter» (Noah «2b»); ohne Tage steht dort nichts dazu.
 
 ## Was fällt weg oder rutscht tiefer
 - nichts. Die Sammel-Wand bekommt ein Regal mehr (zwischen Gipfelbuch und Neuland), die Karte auf Heute einen Knopf. Der Satz «Nichts wird hier geändert» auf der Wand stimmt für das Regal «Nebelmeer» nicht mehr (es hat kein anderes Zuhause); die Kopfzeile der Seite bleibt, das Regal erklärt sich selbst.
@@ -20,10 +21,10 @@ Auftrag: Noah «1-5a» (Thread «Entwickeln: Über die Nebelgrenze motivieren»,
 - Kein Ziel, keine Serie, kein Hinweis, wenn lange kein Nebelmeer-Tag dazukam (Idee D: «Nebel kommt nicht auf Befehl»). Das Winterziel (Antwort 4b) gibt es nicht, weil du 4a gewählt hast.
 - Keine neue Funktion in `features.js`: gehört zu «Sammel-Wand» (`f.collectwall`, Suchwort und Handbuch-Schritt ergänzt).
 
-## Entscheide (für decisions.md)
+## Entscheide (eigene Datei `docs/decisions/nebelmeer-tage.md`)
 - 07.11.2026: Nebelmeer-Tage als Regal auf der Sammel-Wand, bestätigt durch Tipp oder von Hand, mit leiser Winterzahl, ohne Serie und ohne Ziel (Noah «4a»).
 
-## Stand im Plan (roadmap.md / vorhaben.md)
+## Stand im Plan
 - Wetter/Sammlungen: Idee «Nebelgrenze motiviert»: A, C und D umgesetzt; B (Zug) und E (zweite Nachricht) zurückgestellt.
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
