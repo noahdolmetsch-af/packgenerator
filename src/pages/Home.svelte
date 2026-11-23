@@ -134,6 +134,7 @@
   import HeuteCheckTile from '../lib/home/HeuteCheckTile.svelte';
   import MomentTile from '../lib/home/MomentTile.svelte'; // «Heute als Begleiter» PR 4
   import DiscoverTile from '../lib/home/DiscoverTile.svelte'; // PR 5
+  import IdeenZeile from '../lib/home/IdeenZeile.svelte'; // «Heute entdecken» (Noah 23.11.2026 «2b»)
   import SpruchTile from '../lib/home/SpruchTile.svelte'; // «Spruch zum Einstieg» PR 1
   import { vo2Of, VO2_DAYS } from '../lib/home/vo2.js';
   import { addDays as addHealthDays } from '../lib/health.js';
@@ -1038,7 +1039,7 @@
   });
   // «Tour nur einmal», step 3b (Noah 17.11.2026 «1-5a»): the big trip card is away while «My tour» says the same tour (one trip, no debrief question, no route profile)
   const tripMerged = $derived(tourOnce && cardTrips.length === 1 && !!shown && shown.id === bildTrip?.id && !ask && !prof);
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(tripMerged ? ['trip'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(tripMerged ? ['trip'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), 'discover', ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1160,6 +1161,8 @@
     </div>
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.jump}<button type="button" class="say-jump tap" data-say-jump title={t('To the list')} onclick={jumpToUp}>{p.text}<span aria-hidden="true"> ↓</span></button>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
+    <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
+    {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} {newsDays} />{/if}
   </section>
 {/snippet}
 
@@ -1374,7 +1377,7 @@
   {:else if x.id === 'heutecheck'}<HeuteCheckTile {today} due={abDue} evening={abEvening} isnew={newTile('heutecheck')} />
   {:else if x.id === 'moment'}<MomentTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('moment')} />
   {:else if x.id === 'spruch'}<SpruchTile {today} {now} forecast={fc} trip={bildTrip} packed={bildTrip ? packedOf(bildTrip, itemsById, nameOf) : null} place={place?.lat != null ? { lat: Number(place.lat), lon: Number(place.lon) } : null} isnew={newTile('spruch')} />
-  {:else if x.id === 'discover'}<DiscoverTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('discover')} />
+  {:else if x.id === 'discover'}<DiscoverTile isnew={newTile('discover')} />
   {:else if x.id === 'wochentraum'}<WochenTraumTile pick={wochen} isnew={newTile('wochentraum')} />
   {:else if x.id === 'vo2max'}<Vo2Tile {today} isnew={newTile('vo2max')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
