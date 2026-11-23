@@ -4,6 +4,8 @@
    * Watt per heartbeat, resting pulse and hours of the same months (May to October) of each year, with the label
    * «Sure / Tendency / Too little data» and the line «How it is counted», where the two limits can be changed
    * (setting training.vergleich). Days with a marker are left out. No judgement, no advice.
+   * Noah 23.11.2026 «ja»: years without a ride are not table rows any more (a row of dashes said nothing); they stand in one
+   * closed line with what they do hold (resting pulse, hours), so no old value is lost.
    * f: formOf() of the page (table); today: «YYYY-MM-DD».
    */
   import { liveQuery } from 'dexie';
@@ -22,6 +24,9 @@
   const set = $derived(cleanSettings($sq?.value));
   const r = $derived(compareYears({ table: f?.table, today, marked, settings: set }));
   const shown = $derived([...r.years].reverse().filter((y) => y.rides > 0 || y.rhr != null || y.hours > 0));
+  const rows = $derived(shown.filter((y) => y.rides > 0));
+  const empty = $derived(shown.filter((y) => y.rides === 0));
+  const emptyLine = (y) => [y.rhr != null ? t('resting pulse {n}', { n: num(Math.round(y.rhr)) }) : '', y.hours > 0 ? t('{n} hours', { n: num(Math.round(y.hours)) }) : ''].filter(Boolean).join(' · ');
   const w2 = (v) => (v == null ? '–' : Number(v).toLocaleString(locale(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
   const hrs = (h) => (h > 0 ? num(Math.round(h)) : '–');
   const yearName = (y) => (y === Number(today.slice(0, 4)) ? t('this year') : y === Number(today.slice(0, 4)) - 1 ? t('last year') : String(y));
@@ -61,7 +66,7 @@
   {#if rhrLine}<p class="sen2">{rhrLine}</p>{/if}
   {#if why}<p class="wait" data-vergleich-why>{why}</p>{/if}
 
-  {#if shown.length}
+  {#if rows.length}
     <div class="tw">
       <table data-vergleich-table>
         <thead>
@@ -73,7 +78,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each shown as y (y.year)}
+          {#each rows as y (y.year)}
             <tr data-vergleich-year={y.year}>
               <th scope="row">{y.year}<small>{tn(y.rides, '{n} ride', '{n} rides')}</small></th>
               <td class="num">{w2(y.wpb)}{#if y.outlier}<small>{t('sticks out')}</small>{/if}</td>
@@ -84,6 +89,14 @@
         </tbody>
       </table>
     </div>
+  {/if}
+  {#if empty.length}
+    <details class="how" data-vergleich-empty-years>
+      <summary><span>{t('Years without rides: {years}', { years: empty.map((y) => y.year).join(', ') })}</span><ChevronDown class="cv" size={16} aria-hidden="true" /></summary>
+      <ul class="ey">
+        {#each empty as y (y.year)}<li data-vergleich-empty-year={y.year}><b>{y.year}</b> {emptyLine(y) || t('no values')}</li>{/each}
+      </ul>
+    </details>
   {/if}
   {#if !r.years.some((y) => y.rides > 0)}
     <p class="wait" data-vergleich-empty>{t('Comes with your rides from Strava: the app then compares the same months of each year.')}</p>
@@ -171,6 +184,15 @@
   }
   .how p {
     margin: 6px 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .ey {
+    display: grid;
+    gap: 4px;
+    margin: 6px 0;
+    padding: 0;
+    list-style: none;
     color: var(--ink-2);
     font-size: var(--fs-small);
   }

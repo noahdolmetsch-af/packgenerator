@@ -8,6 +8,7 @@
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 import { materialFixture } from './material0472-fixture.js';
+import { openViews, openTools, openSortSheet } from './gearmenu.js';
 
 const desktop = (info) => info.project.name === 'desktop';
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
@@ -24,10 +25,8 @@ test('Material 2: the right column waits for a tap; a wish shows price, why and 
   await openGear(page, context, info);
   const none = page.getByRole('complementary', { name: 'Teil antippen' });
   await expect(none).toContainText('Rechts erscheint, wie oft es dabei war, sein Jahr auf Tour und leichtere Alternativen.');
-  // the views card comes right under it
-  const nb = await none.boundingBox();
-  const vb = await page.locator('.vcard').boundingBox();
-  expect(vb.y).toBeGreaterThan(nb.y + nb.height);
+  // Material aufräumen (23.11.2026, changed on purpose): no views card under it, the views are the menu «Ansicht»
+  await expect(page.locator('.vcard')).toHaveCount(0);
 
   // Einkauf: a tap on a wish fills the column with its price and why, and «Gekauft» moves it with Undo
   await page.goto('./#/gear?view=wish');
@@ -55,10 +54,12 @@ test('Material 3: the numbers once, the controls in one line, Display in the she
   await expect(page.locator('.vstats')).toHaveCount(1);
   await expect(page.locator('.vstats')).toContainText('Teile');
   // a filtered view keeps its own numbers (on a computer)
-  await page.getByRole('group', { name: 'Ansichten' }).getByRole('button', { name: /^Favoriten/ }).click();
+  await (await openViews(page)).getByRole('group', { name: 'Ansichten' }).getByRole('button', { name: /^Favoriten/ }).click();
   if (desktop(info)) await expect(page.locator('.vstats')).toBeVisible();
-  await page.getByRole('group', { name: 'Ansichten' }).getByRole('button', { name: /^Alle/ }).click();
-  await expect(page.getByRole('button', { name: /ohne Gewicht · jetzt wiegen$/ })).toBeVisible();
+  await (await openViews(page)).getByRole('group', { name: 'Ansichten' }).getByRole('button', { name: /^Alle/ }).click();
+  // «Material aufräumen» (changed on purpose): the link «… ohne Gewicht · jetzt wiegen» is gone; «Gewichte erfassen» (with the number) is in «…», «Ungewogen» in «Ansicht»
+  await expect(page.getByRole('button', { name: /ohne Gewicht · jetzt wiegen$/ })).toHaveCount(0);
+  await expect((await openTools(page)).locator('[data-gear-quick-item="weigh"] .badge')).toBeVisible();
 
   const line = page.locator('.metaline');
   if (desktop(info)) {
@@ -71,7 +72,7 @@ test('Material 3: the numbers once, the controls in one line, Display in the she
     await expect(line.getByRole('button', { name: 'Auswählen' })).toBeVisible();
     await expect(page.getByRole('group', { name: 'Zeigen als' })).toHaveCount(0);
     await expect(page.getByRole('group', { name: 'Tasche zeigen' })).toHaveCount(0);
-    await page.locator('.toolbar .fbtn').click();
+    await openSortSheet(page);
     const sheet = page.getByRole('dialog', { name: 'Sortieren und filtern' });
     await expect(sheet.getByRole('heading', { name: 'Darstellung' })).toBeVisible();
     await sheet.getByRole('group', { name: 'Tasche zeigen' }).getByRole('button', { name: 'Mit Tasche' }).click();

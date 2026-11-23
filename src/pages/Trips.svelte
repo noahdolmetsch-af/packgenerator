@@ -80,13 +80,16 @@
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf, withActs } from '../lib/review/rueckblick.js';
   import { factStates, factCounts, matchesState, waitingCount } from '../lib/review/state.js';
-  import { homeTrips, testTrips } from '../lib/home/heute.js';
+  import { testTrips } from '../lib/home/heute.js';
+import { listTrips, hiddenExamples, findDoubles, joinedGroups, extraCount, shortTimeS } from '../lib/touren/aufraeumen.js';
+import DoppelteSheet from '../lib/touren/DoppelteSheet.svelte';
+import { normState, skKey } from '../lib/sk/tiles.js';
   import TestDataSheet from '../lib/testdata/TestDataSheet.svelte';
   import { loadPastActs, zonesOf, zoneValues } from '../lib/review/actdata.js';
   import { rowValues, linesOf, routeMap } from '../lib/review/inzahlen.js';
   import { TOUR_VIEW_KEY } from '../lib/review/pastcols.js';
   import { tourViewOf, bikeOfRow } from '../lib/review/tourzahlen.js';
-  import { rideTimeS, elapsedS, n0, n1, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
+  import { n0, n1, temps, dates, monthLong, rainText, DASH } from '../lib/review/fmt.js';
   import { TOURS_KEY, KINDS, toursOf, emptyFilter, normFilter, filterRows, activeChips, withoutChip, kindOf, sameFilter, saveFilter, dropFilter } from '../lib/touren/filter.js';
   import InZahlen from '../lib/review/InZahlen.svelte';
   import PackBand from '../lib/touren/PackBand.svelte';
@@ -104,7 +107,7 @@
   import { tourRows, stravaOfTrip, inPeriodRows } from '../lib/touren/aktivitaeten.js';
   import { loadActs } from '../lib/review/actdata.js';
   import { phone, cols12 } from '../lib/media.svelte.js';
-  import { PHONE_ROWS, TOUR_ROWS, nextRows, shortLine, capGroups } from '../lib/touren/kurz.js';
+  import { PHONE_ROWS, TOUR_ROWS, nextRows, capGroups } from '../lib/touren/kurz.js';
   import { untrack, tick } from 'svelte';
   import { ftpEstimate } from '../lib/training.js';
   import { zones } from '../lib/strava/zones.svelte.js';
@@ -155,8 +158,22 @@
   let shownRows = $state(null);
   const rides = $derived($ridesQ ?? []);
   // 0.161.0 (Bugfixes 0.132.2 B1, Noah 1b + H3a): trips with the «Test trip» switch count nowhere, as on Today
-  const view = $derived(loaded ? tripsOverview(homeTrips($tripsQ), $debriefsQ, today, rides) : null);
+  const view = $derived(loaded ? tripsOverview(listTrips($tripsQ, { showExamples }), $debriefsQ, today, rides) : null);
   const hiddenTests = $derived(testTrips($tripsQ ?? []).length);
+  // «Touren-Liste aufräumen» (Noah 23.11.2026): the made-up trips of the first start stay out once there are real ones,
+  // doubled trips are suggested for joining (nothing by itself), the details of a row open on a tap
+  let showExamples = $state(false);
+  let doublesOpen = $state(false);
+  const nExamples = $derived(hiddenExamples($tripsQ ?? []));
+  const doubles = $derived($tripsQ ? findDoubles($tripsQ, $debriefsQ ?? []) : []);
+  const nDoubled = $derived(extraCount(doubles));
+  const nJoined = $derived(joinedGroups($tripsQ ?? []).reduce((s, g) => s + g.ids.length, 0));
+  let openRows = $state(new Set());
+  const toggleRow = (id) => {
+    const next = new Set(openRows);
+    next.has(id) ? next.delete(id) : next.add(id);
+    openRows = next;
+  };
   let tidyOpen = $state(false);
   // E2-003: the counts of «ridden» and «waiting for review» come from the second query (dataQ below); before it is
   // there they read «0 ridden». The line shows only when both queries are in.
@@ -166,6 +183,7 @@
   const extraOf = (r) => stateExtraText(stateExtra(r.tstate, { trip: byId[r.tripId], debrief: debriefOf[r.tripId] ?? null, today }));
 
   /* ---- SN4g: the page record (saved filters, the band) ---- */
+  const tilesQ = liveQuery(() => db.settings.get(skKey('trips')));
   const toursQ = liveQuery(() => db.settings.get(TOURS_KEY));
   const tours = $derived(toursOf($toursQ?.value));
   const saveTours = (patch) => db.settings.put({ key: TOURS_KEY, value: { ...$state.snapshot(tours), ...patch, at: new Date().toISOString() } });
@@ -208,7 +226,7 @@
   /* ---- SN4g: the finished trips (the same rows as Vergangene Touren, review/rueckblick.js) ---- */
   const dataQ = liveQuery(() => loadReview(db));
   // 0.161.0 B1 (Noah 1b): no archived and no test trips, the same trips as Today and the Rückblick
-  const facts = $derived($dataQ ? tripFacts({ ...$dataQ, trips: homeTrips($dataQ.trips), today }) : []);
+  const facts = $derived($dataQ ? tripFacts({ ...$dataQ, trips: listTrips($dataQ.trips, { showExamples }), today }) : []);
   const states = $derived($dataQ ? factStates(facts, { debriefs: $dataQ.debriefs, rides: $dataQ.rides, today }) : {});
   const bikes = $derived($dataQ?.bikes ?? []);
   const bikeName = $derived(Object.fromEntries(bikes.map((b) => [b.id, b.name])));
@@ -232,7 +250,6 @@
   const actById = $derived(new Map(acts.map((a) => [String(a.id), a])));
   // UI-Test T6 (G2-05): a trip row takes km, Hm and its line from its Strava rides too, as the tour page
   // does, so «ohne Strecke · – km» only shows when there is really nothing
-  const hasLine = (r) => linesOf(r).length > 0 || tourLines(vals[r.id]?.acts ?? []).length > 0;
   const lineOfRow = (r) => tourLines(r.actIds.map((id) => actById.get(String(id))).filter(Boolean));
   let joining = $state(null); // the rows to join (5a), while the name is asked
   async function join(name) {
@@ -262,6 +279,9 @@
   let filter = $state(emptyFilter());
   const ctx = $derived({ bikeOf: (r) => bikeOfRow(r, vals), wattsOf: (r) => !!vals[r.id]?.watts });
   const stCounts = $derived({ ...factCounts(inPeriod, states), done: waitingCount(inPeriod, states) });
+  // «Touren-Liste aufräumen»: the open debriefs stand once at the top. On a computer that is the tile «Offene Rückblicke»;
+  // while it is hidden, and on a phone, the line under the title is the way (no button on every row any more).
+  const openTop = $derived(!phone.matches && !normState($tilesQ?.value).hidden.includes('o2'));
   const rows = $derived(filterRows(inPeriod, filter, ctx).filter((r) => matchesState(states, r.id, st)));
   const chips = $derived(activeChips(filter, bikeName));
   const filtered = $derived(chips.length > 0 || st !== 'all');
@@ -332,26 +352,12 @@
   const rowHref = (r) => (r.kind === 'trip' && r.trip ? tourHref(`t:${r.trip.id}`) : r.href);
   // «Bewerten» opens the trip's Rückblick; an uploaded ride on its own opens its short one («Kurz bewerten»)
   const rateHref = (r) => (r.kind === 'ride' ? r.href : `#/debrief/${encodeURIComponent(r.id)}`);
-  const secs = rideTimeS;
   const hasRide = (v) => !!v && [v.movingS, v.elapsedS, v.kmh, v.hrAvg, v.hrMax].some((x) => x != null);
   const tempOf = (r, v) => (r.tmin != null || r.tmax != null ? temps(r.tmin, r.tmax) : v?.tempAvg != null ? `${v.tempAvg}°` : DASH);
-  /** 0.163.0 (2b, Noah «mit weiteren sinnvollen Werten»): the grey line of a Packmodus row, the empty values left out. */
-  const lineOf = (r) => {
-    const v = vals[r.id];
-    return shortLine(
-      [
-        [t('Moving time|col'), v ? secs(v.movingS) : DASH, ''],
-        [t('Elapsed|col'), v ? elapsedS(v.elapsedS) : DASH, ''],
-        [t('Ø pace'), v ? n1(v.kmh) : DASH, 'km/h'],
-        [t('Ø heart rate'), v ? n0(v.hrAvg) : DASH, t('bpm')],
-        [t('Max. heart rate'), v ? n0(v.hrMax) : DASH, t('bpm')],
-        [t('Ø power'), v?.watts ? n0(v.wAvg) : DASH, 'W'],
-        [t('NP'), v?.watts ? n0(v.wNorm) : DASH, 'W'],
-        [t('Weather'), rainText(r.rain, r.days), ''],
-        [t('Temp.'), tempOf(r, v), ''],
-      ],
-      DASH,
-    );
+  /** «Touren-Liste aufräumen»: the few numbers of a closed row, the empty ones left out («26 km · 2'047 Hm · 1 h 28 min»). */
+  const statsOf = (r) => {
+    const kv = withActs(r, vals[r.id]?.acts ?? []);
+    return [kv.km > 0 ? `${n0(kv.km)} km` : '', kv.gainM > 0 ? `${n0(kv.gainM)} ${t('Hm|col')}` : '', shortTimeS(vals[r.id]?.movingS)].filter(Boolean).join(' · ');
   };
   // Impeccable 18.10.2026 (Touren 2): «Keine Fahrt verknüpft» once above the list instead of in every card
   const noRide = $derived($moreQ ? rows.filter((r) => !hasRide(vals[r.id])).length : 0);
@@ -445,7 +451,10 @@
 
 {#snippet cell(label, value, unit = '', help = '')}
   <!-- FE14: a difficult value explains itself with a «?» (one sentence, in place) -->
-  <div class="vc"><dt>{label}{#if help}<Help {label} text={t(FIELD_HELP[help])} />{/if}</dt><dd class="num">{value}{#if unit && value !== DASH}{' '}<small>{unit}</small>{/if}</dd></div>
+  <!-- «Touren-Liste aufräumen» (Noah 23.11.2026): a value without data is left out, no «–» -->
+  {#if value !== DASH && value !== ''}
+  <div class="vc"><dt>{label}{#if help}<Help {label} text={t(FIELD_HELP[help])} />{/if}</dt><dd class="num">{value}{#if unit}{' '}<small>{unit}</small>{/if}</dd></div>
+  {/if}
 {/snippet}
 
 {#snippet values(r)}
@@ -455,8 +464,8 @@
   <div class="vals" data-values>
     <dl class="vg">
       {#if ride}
-        {@render cell(t('Moving time|col'), secs(v.movingS))}
-        {@render cell(t('Elapsed|col'), elapsedS(v.elapsedS))}
+        {@render cell(t('Moving time|col'), shortTimeS(v.movingS) || DASH)}
+        {@render cell(t('Elapsed|col'), shortTimeS(v.elapsedS) || DASH)}
         {@render cell(t('Ø pace'), n1(v.kmh), 'km/h')}
         {@render cell(t('Ø heart rate'), n0(v.hrAvg), t('bpm'))}
         {@render cell(t('Max. heart rate'), n0(v.hrMax), t('bpm'))}
@@ -487,7 +496,7 @@
   {@const sv = stravaOf(r)}
   <p class="pinfo" data-pack-info>
     {#if ents.length}<span><Backpack size={14} aria-hidden="true" />{tn(ents.length, '{n} item in the list', '{n} items in the list')}</span>{/if}
-    <span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{#if sv.n === 1}<a class="actl" href={actHref(sv.list[0].id)} data-act-link={sv.list[0].id}>{t('Strava: {name}', { name: sv.name || t('1 activity') })}</a>{:else if sv.n > 1}{t('Strava: {n} activities', { n: sv.n })}{#each sv.list as a, i (a.id)}{i ? ',' : ':'} <a class="actl" href={actHref(a.id)} data-act-link={a.id}>{a.name || t('1 activity')}</a>{/each}{:else}{t('no Strava activity')}{/if}</span>
+    {#if sv.n}<span data-strava-of={sv.n}><Activity size={14} aria-hidden="true" />{#if sv.n === 1}<a class="actl" href={actHref(sv.list[0].id)} data-act-link={sv.list[0].id}>{t('Strava: {name}', { name: sv.name || t('1 activity') })}</a>{:else if sv.n > 1}{t('Strava: {n} activities', { n: sv.n })}{#each sv.list as a, i (a.id)}{i ? ',' : ':'} <a class="actl" href={actHref(a.id)} data-act-link={a.id}>{a.name || t('1 activity')}</a>{/each}{/if}</span>{/if}
   </p>
 {/snippet}
 
@@ -502,7 +511,7 @@
       {:else}
       <h1 class="title">{t('Trips|place')}</h1>
       <!-- 0.161.0 B1 (Noah 2a): completed and rated count the chosen period, as the chips, and say which -->
-      {#if counts && $dataQ}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`].join(' · ')}{#if stCounts.done}<span class="cntsep">{' · '}</span><!-- UI-Prüfung T2: the number is a way: it shows the trips that wait for a Rückblick --><button type="button" class="btn btn-link cntgo" onclick={showWaiting} data-waiting-go>{tn(stCounts.done, '{n} waits for your review', '{n} wait for your review')}<ChevronRight size={14} aria-hidden="true" /></button>{/if}</p>{/if}
+      {#if counts && $dataQ}<p class="cnt num" data-counts>{[tn(counts.plan, '{n} planned', '{n} planned'), `${tn(stCounts.all, '{n} ridden', '{n} ridden')} ${periodWords}`].join(' · ')}{#if stCounts.done && !openTop}<span class="cntsep">{' · '}</span><!-- UI-Prüfung T2: the number is a way: it shows the trips that wait for a Rückblick --><button type="button" class="btn btn-link cntgo" onclick={showWaiting} data-waiting-go>{tn(stCounts.done, '{n} waits for your review', '{n} wait for your review')}<ChevronRight size={14} aria-hidden="true" /></button>{/if}</p>{/if}
       {#if hiddenTests}<p class="cnt tests" data-hidden-tests>{tn(hiddenTests, '{n} test trip hidden', '{n} test trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (tidyOpen = true)}>{t('Clean up test data')}</button></p>{/if}
       {/if}
     </div>
@@ -657,6 +666,10 @@
             <h2 id="trips-done"><Backpack size={20} aria-hidden="true" />{t('With packing list|section')}</h2>
             <p class="ss">{t('Trips you packed in the app: what came along and what proved itself')}</p>
             <p class="ss" data-list-sub>{filtered ? t('{n} of {all} · filtered', { n: num(rows.length), all: num(inPeriod.length) }) : `${tn(inPeriod.length, '{n} trip', '{n} trips')} · ${t('newest first, by month')}`}</p>
+            <!-- «Touren-Liste aufräumen» (Noah 23.11.2026): doubled trips are only suggested, the made-up examples can be shown again -->
+            {#if nDoubled}<p class="ss tidy" data-doubles-line>{tn(nDoubled, '{n} trip looks doubled', '{n} trips look doubled')} · <button type="button" class="btn btn-link" onclick={() => (doublesOpen = true)} data-doubles-open>{t('Check doubles')}</button></p>
+            {:else if nJoined}<p class="ss tidy" data-doubles-line>{tn(nJoined, '{n} doubled trip hidden', '{n} doubled trips hidden')} · <button type="button" class="btn btn-link" onclick={() => (doublesOpen = true)} data-doubles-open>{t('Take doubles apart')}</button></p>{/if}
+            {#if nExamples}<p class="ss tidy" data-examples-line>{showExamples ? t('The made-up examples are shown.') : tn(nExamples, '{n} made-up example hidden', '{n} made-up examples hidden')} · <button type="button" class="btn btn-link" onclick={() => (showExamples = !showExamples)} data-examples-toggle>{showExamples ? t('Hide examples') : t('Show examples')}</button></p>{/if}
           </div>
           <a class="btn btn-link more" href="#/pack/past">{t('As a table')}<ChevronRight size={16} aria-hidden="true" /></a>
           <!-- Paket H «3a und b»: change several trips at once (shared table) -->
@@ -676,7 +689,7 @@
           <!-- Impeccable Touren 2: what is missing, said once; the «?» of the values explained here once -->
           <div class="vhead" data-values-head>
             {#if noRide}<p class="vmiss" data-no-ride><Info size={16} aria-hidden="true" /><span>{t('For {n} of {all} trips, times, pace and heart rate are missing because no ride is linked.', { n: num(noRide), all: num(rows.length) })} <a href="#/debrief/ride">{t('Upload ride')}<ChevronRight size={14} aria-hidden="true" /></a></span></p>{/if}
-            {#if rows.length > noRide}
+            {#if rows.length > noRide && openRows.size}
               <div class="vq" data-values-help>
                 <span>{t('Moving time|col')}<Help label={t('Moving time|col')} text={t(FIELD_HELP.moving)} /></span>
                 <span>{t('Elapsed|col')}<Help label={t('Elapsed|col')} text={t(FIELD_HELP.elapsed)} /></span>
@@ -691,25 +704,25 @@
                 {#each g.rows as r (r.id)}
                   {@const s = states[r.id]}
                   {@const bike = rowBike(r)}
-                  {@const kv = withActs(r, vals[r.id]?.acts ?? [])}
-                  <li class="tr st-{s?.state}" data-row={r.id} data-state={s?.state}>
+                  {@const stats = statsOf(r)}
+                  {@const isOpen = openRows.has(r.id)}
+                  <li class="tr st-{s?.state}" class:open={isOpen} data-row={r.id} data-state={s?.state}>
                     <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} fill="currentColor" />{:else}<Flag size={18} />{/if}</span>
                     <div class="rm">
                       <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
-                      {#if !hasLine(r) && !phone.matches}<p class="nr"><Info size={14} aria-hidden="true" />{t('without a route')}</p>{/if}
+                      <!-- «Touren-Liste aufräumen» (Noah 23.11.2026): one compact row; a value without data is left out -->
+                      {#if stats}<p class="rk num" data-row-stats>{stats}</p>{/if}
                     </div>
-                    <div class="rk num"><RouteShape d={shapeOf(r, (vals[r.id]?.acts ?? []))} /><span><b>{n0(kv.km)}</b><small>km</small></span><span><b>{n0(kv.gainM)}</b><small>{t('Hm|col')}</small></span></div>
-                    {#if s?.state === 'done'}
-                      <div class="rr"><Btn label={r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')} href={rateHref(r)} onclick={() => openRow(r)} aria="{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}: {r.title}" data-rate={r.id} /></div>
-                    {/if}
-                    <span class="chev" aria-hidden="true"><ChevronRight size={18} /></span>
-                    {#if phone.matches}
-                      <!-- 0.163.0 (2b): one grey line; the rest after a tap on the trip -->
-                      {@const line = lineOf(r)}
-                      {#if line}<p class="pline num" data-pack-line>{line}</p>{/if}
-                    {:else}
-                      {@render values(r)}
+                    <RouteShape d={shapeOf(r, (vals[r.id]?.acts ?? []))} />
+                    <button type="button" class="tog" aria-expanded={isOpen} aria-controls="det-{r.id}" aria-label="{isOpen ? t('Hide details') : t('Show details')}: {r.title}" onclick={() => toggleRow(r.id)} data-row-toggle={r.id}><ChevronDown size={18} aria-hidden="true" /></button>
+                    {#if isOpen}
+                      <div class="det" id="det-{r.id}" data-row-details>
+                        {@render values(r)}
+                        {#if s?.state === 'done'}
+                          <a class="btn btn-link drate" href={rateHref(r)} onclick={() => openRow(r)} data-rate={r.id} aria-label="{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}: {r.title}">{r.kind === 'ride' ? t('Rate briefly') : t('Rate|debrief')}<ChevronRight size={14} aria-hidden="true" /></a>
+                        {/if}
+                      </div>
                     {/if}
                   </li>
                 {/each}
@@ -723,7 +736,7 @@
             <li><i class="lg rated"></i>{t('highlighted: with a Rückblick (Rated)')}</li>
             <li><i class="lg done"></i>{t('grey: no Rückblick yet (Completed), a tap opens it anyway')}</li>
           </ul>
-          <p class="rv-note hint hide-phone"><Info size={16} aria-hidden="true" /><span>{t('Times, pace, heart rate and power come from Strava; without Strava the times come from the uploaded ride. Weather and temp. from the forecast saved with the trip. Without a value it says «–». Only to look at, no rating.')}</span></p>
+          <p class="rv-note hint hide-phone"><Info size={16} aria-hidden="true" /><span>{t('Times, pace, heart rate and power come from Strava; without Strava the times come from the uploaded ride. Weather and temp. from the forecast saved with the trip. A value without data is left out. Only to look at, no rating.')}</span></p>
         {/if}
       </section>
       {/if}
@@ -759,6 +772,7 @@
   <RenameSheet kicker={t('Tour')} title={t('Join into one tour')} value={joining.find((r) => r.name)?.name ?? ''} hint={tn(joining.flatMap((r) => r.actIds).length, '{n} activity becomes one tour. You can take it apart again any time.', '{n} activities become one tour. You can take it apart again any time.')} empty="" onsave={join} onclose={() => (joining = null)} />
 {/if}
 {#if tidyOpen}<TestDataSheet onclose={() => (tidyOpen = false)} />{/if}
+{#if doublesOpen}<DoppelteSheet onclose={() => (doublesOpen = false)} />{/if}
 {#if sheet}
   <FilterSheet {filter} {st} rows={inPeriod} {ctx} {states} {bikes} saved={tours.saved} onapply={(f, s) => ((filter = f), (st = s))} onsave={(name, f) => saveTours({ saved: saveFilter(tours.saved, name, f) })} ondrop={(id) => saveTours({ saved: dropFilter(tours.saved, id) })} onclose={() => (sheet = false)} />
 {/if}
@@ -1116,8 +1130,8 @@
   .tr {
     position: relative;
     display: grid;
-    grid-template-columns: 36px minmax(0, 1fr) auto auto 20px;
-    grid-template-areas: 'ic main km rate chev' '. vals vals vals vals';
+    grid-template-columns: 36px minmax(0, 1fr) auto 44px;
+    grid-template-areas: 'ic main shape tog' '. det det det';
     align-items: start;
     gap: 6px 14px;
     padding: 12px 14px;
@@ -1177,47 +1191,66 @@
     outline: var(--focus-ring);
     outline-offset: -3px;
   }
-  .rs,
-  .nr {
+  .rs {
     margin: 2px 0 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
     overflow-wrap: break-word;
   }
-  .nr {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--ink-3);
-  }
+  /* «Touren-Liste aufräumen»: the few numbers of a closed row, one quiet line under the date */
   .rk {
-    grid-area: km;
-    display: flex;
-    gap: 20px;
-    text-align: center;
+    margin: 2px 0 0;
+    color: var(--ink);
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
   }
-  .rk span {
-    display: grid;
+  .tr :global(.shape) {
+    grid-area: shape;
+    align-self: center;
   }
-  .rk b {
-    font: 600 var(--fs-body) / 1.2 var(--font-body);
-  }
-  .rk small {
-    color: var(--ink-3);
-    font-size: var(--fs-tiny);
-  }
-  .rr {
-    grid-area: rate;
+  .tog {
+    grid-area: tog;
     position: relative;
     z-index: 1;
-  }
-  .chev {
-    grid-area: chev;
-    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: -6px -8px 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
     color: var(--ink-3);
+    cursor: pointer;
+  }
+  .tog:hover {
+    background: var(--paper);
+  }
+  .tog :global(svg) {
+    transition: transform 0.15s;
+  }
+  .tog[aria-expanded='true'] :global(svg) {
+    transform: rotate(180deg);
+  }
+  /* the opened details: above the link of the whole row, so their links can be tapped */
+  .det {
+    grid-area: det;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+  }
+  .drate {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .tidy {
+    margin-top: 4px;
   }
   .vals {
-    grid-area: vals;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -1337,13 +1370,7 @@
   .hint {
     margin-top: var(--sp-3);
   }
-  /* 0.163.0 «Handy kurz»: the grey line of a row, «Show n more» and the one line for the extras */
-  .pline {
-    grid-area: vals;
-    margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
+  /* 0.163.0 «Handy kurz»: «Show n more» and the one line for the extras */
   .phone-more {
     display: flex;
     align-items: center;
@@ -1406,19 +1433,14 @@
     .fbtn {
       margin-left: 0;
     }
-    /* on a phone every trip is a card: the values in a box of 4 columns, the power below with its own head */
+    /* on a phone every trip is one compact card; the details (values in a box of 4 columns, the power below
+       with its own head) open on a tap */
     .tr {
-      grid-template-columns: 36px minmax(0, 1fr) 20px;
-      grid-template-areas: 'ic main chev' 'km km km' 'vals vals vals' 'rate rate rate';
+      grid-template-columns: 36px minmax(0, 1fr) 44px;
+      grid-template-areas: 'ic main tog' 'det det det';
     }
-    .rk {
-      gap: 16px;
-      text-align: left;
-    }
-    .rk span {
-      display: inline-flex;
-      align-items: baseline;
-      gap: 4px;
+    .tr :global(.shape) {
+      display: none;
     }
     .vals {
       display: grid;
@@ -1445,11 +1467,6 @@
     .pinfo {
       padding-top: 8px;
       border-top: 1px solid var(--line);
-    }
-    .rr :global(.btn) {
-      display: flex;
-      justify-content: center;
-      width: 100%;
     }
   }
   /* v0.143.0 WS3a: start quickly */
@@ -1497,9 +1514,6 @@
     flex: 1;
     min-width: 0;
     margin: 0;
-  }
-  .rk {
-    align-items: center;
   }
   .mprof .ms {
     margin: 4px 0 0;

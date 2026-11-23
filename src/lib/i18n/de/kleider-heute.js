@@ -1,0 +1,22 @@
+// Kleider «heute» (Noah 23.11.2026): Vorschlag bei Kälte, Aufräumen nach Vorschlag, Wunschliste abgesetzt
+export default {
+  'Suggestions only: a tap does it, «Undo» takes it back. Nothing is moved or deleted by itself.': 'Nur Vorschläge: ein Tipp macht es, «Rückgängig» nimmt es zurück. Nichts wird von selbst verschoben oder gelöscht.',
+  '{n} piece without a temperature range': '{n} Teil ohne Temperaturbereich',
+  '{n} pieces without a temperature range': '{n} Teile ohne Temperaturbereich',
+  'Set {name} to {where}': '{name} auf {where} setzen',
+  'Set …': 'Bereich wählen …',
+  '{n} piece looks like everyday clothing': '{n} Teil sieht nach Alltagskleidung aus',
+  '{n} pieces look like everyday clothing': '{n} Teile sehen nach Alltagskleidung aus',
+  'Move {name} to everyday': '{name} zu Alltag verschieben',
+  '{name} stays for cycling': '{name} bleibt fürs Velo',
+  'Stays for cycling': 'Bleibt fürs Velo',
+  '{name} stays for cycling.': '{name} bleibt fürs Velo.',
+  '{n} piece twice': '{n} Teil doppelt',
+  '{n} pieces twice': '{n} Teile doppelt',
+  'Merge the twice {name}': 'Doppeltes {name} zusammenlegen',
+  '{old} merged into {name}.': '{old} mit {name} zusammengelegt.',
+  '{n} more': '{n} weitere',
+  'The weight looks unusual: check it.': 'Das Gewicht sieht ungewöhnlich aus: prüfen.',
+  'check?': 'prüfen?',
+  'Not yours yet: they do not count in the onion, the weights or today’s suggestion.': 'Noch nicht deins: sie zählen nicht in der Zwiebel, bei den Gewichten und im Vorschlag für heute.',
+};

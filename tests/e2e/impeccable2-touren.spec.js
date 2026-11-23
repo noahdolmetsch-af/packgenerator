@@ -58,6 +58,8 @@ test('Touren 1 + 2: the trip on the way leads the band; «no ride linked» is sa
   await openShort(page);
   await expect(page.locator('[data-no-ride]')).toContainText(/Bei \d+ von \d+ Touren fehlen Zeiten, Tempo und Puls/);
   await expect(page.locator('[data-trip-list]')).not.toContainText('Keine Fahrt verknüpft');
+  // «Touren-Liste aufräumen» (Noah 23.11.2026): the explanations of the values show once a row is open
+  await page.locator('[data-trip-list] [data-row-toggle]').first().click();
   const help = page.locator('[data-values-help]');
   await expect(help.getByRole('button')).not.toHaveCount(0);
   await expect(page.locator('[data-trip-list] [data-values] button.q')).toHaveCount(0);

@@ -7,9 +7,12 @@
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { phone } from '../../media.svelte.js';
   import { t } from '../../i18n.svelte.js';
+  import { helpHere } from '../../pageinfo/here.svelte.js';
+  import { fitSteps } from '../../nav/wege.svelte.js'; // «Wege»: the path starts with the place and tab of the map of the app
 
   let { path = [], here = '', back = null } = $props(); // back: { href, label } = «‹ Back to Heute», the page you came from (UI-Prüfung A2)
-  const shown = $derived(phone.matches ? path.slice(-1) : path);
+  const steps = $derived(fitSteps(helpHere.route, path));
+  const shown = $derived(phone.matches ? steps.slice(-1) : steps);
 </script>
 
 <nav class="crumb" aria-label={t('Where you are')}>
