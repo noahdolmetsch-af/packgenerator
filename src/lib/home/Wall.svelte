@@ -21,7 +21,7 @@
    */
   import { GripVertical, X, ChevronLeft, ChevronRight, ChevronDown, Plus } from '@lucide/svelte';
   import { TILE, SIZE_NAME, stepTile, moveTile, removeTile, resizeTile } from './tiles.js';
-  import { sectionsOf, fillers } from './sections.js';
+  import { sectionsOf, fillers, NONE } from './sections.js';
   import { runsOf } from './quick.js';
   import { t } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
@@ -169,7 +169,7 @@
   <div class="wall" class:secs={sections} bind:this={wallEl} role="list" aria-label={t('Your start page')}>
     {#if sections}
       {@const secs = sectionsOf(shown, areas)}
-      {#each secs.filter((g) => !MORE.includes(g.key)) as g (g.key)}{@render areaS(g)}{/each}
+      {#each secs.filter((g) => !MORE.includes(g.key) && g.key !== NONE) as g (g.key)}{@render areaS(g)}{/each}
       {#if secs.some((g) => MORE.includes(g.key))}
         <!-- Heute aufräumen (23.11.2026, Noah «ja»): what is not for right now stands under one closed line «More» (body values, on the road, quick links, discover) -->
         {@const rest = secs.filter((g) => MORE.includes(g.key))}
@@ -179,6 +179,7 @@
         </div>
         {#if moreOpen}{#each rest as g (g.key)}{@render areaS(g)}{/each}{/if}
       {/if}
+      {#each secs.filter((g) => g.key === NONE) as g (g.key)}{@render areaS(g)}{/each}
     {:else}
       {#each runsOf(shown) as r, i (r.key === 'quick' ? 'quick' : `${i}`)}
         {#if r.key === 'quick'}{@render quickS(r.tiles)}{:else}{#each r.tiles as x (x.id)}{@render tileEl(x, '', undefined, seen.indexOf(x))}{/each}{/if}
