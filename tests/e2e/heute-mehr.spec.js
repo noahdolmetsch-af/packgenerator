@@ -33,7 +33,7 @@ test('Mehr is closed with the names of its areas, a tap opens it, the device rem
   await expect(page.locator('[data-home-sec="body"]')).toHaveCount(0);
 });
 
-test('the weather stands once in the greeting, not again in the picture; the body tile has no second «Wi gaht\'s»', async ({ page, context }, info) => {
+test('the weather stands once in the greeting and the body tile has no second morning check', async ({ page, context }, info) => {
   await openHome(page, context, info, { data: homeFixture(), hour: 9 });
   await expect(page.locator('[data-weather]')).toBeVisible();
   await expect(page.locator('[data-heutebild-wx]')).toHaveCount(0);
