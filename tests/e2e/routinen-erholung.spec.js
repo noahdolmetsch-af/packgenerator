@@ -17,7 +17,7 @@ test('RE-1 Erholung shows the daily list with today\'s count, and the list opens
   await link.click();
   await expect(page).toHaveURL(/#\/routine$/);
   await expect(page.locator('main[data-s2-place="week"]')).toHaveCount(1);
-  await expect(page.locator('.crumb')).toContainText(T('Training|tab')); // «Wege»: the path starts with place and tab («Woche › Training»); a phone shows the step one up
+  await expect(page.locator('.crumb')).toContainText(T('Recovery|page')); // V4a: on a computer the path reads «Aktiv › Erholung › …»
   await page.screenshot({ path: info.outputPath('re-liste.png') });
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
 });
