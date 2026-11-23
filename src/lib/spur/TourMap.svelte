@@ -15,9 +15,11 @@
   import { mapGround, chooseGround } from '../map/groundpref.svelte.js';
   import TileNote from '../map/TileNote.svelte';
   import { cellBounds } from './neuland.js';
+  import { kmMarks } from './kmmarks.js';
 
   /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n, cls? }] (kind 'friend': text is the whole label); cells: squares to tint (Neuland); pick(point). */
-  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null } = $props();
+  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null, strong = false } = $props();
+  // strong (tour suggestions): a thick, strongly coloured line with km marks and big start and end, so it stands out from the map
   // Tour-Seite (19.10.2026): marker [lat, lon] = the place the finger is on in the elevation profile
   const mark = $derived(marker ? toScreen(merc(marker), view, w, h) : null);
 
@@ -94,6 +96,7 @@
     }
     return out;
   });
+  const marks = $derived(strong && lines[0] ? kmMarks(lines[0].pts).map((m) => ({ ...m, s: toScreen(merc(m.pos), view, w, h) })).filter((m) => m.s.x > -20 && m.s.x < w + 20 && m.s.y > -20 && m.s.y < h + 20) : []);
   const ends = $derived.by(() => {
     const all = lines.filter((l) => l.pts.length >= 2);
     if (!all.length) return [];
@@ -166,13 +169,17 @@
     {/each}
   </div>
   <TileNote bad={tileBad} ok={tileOk} />
-  <svg class="over" width={w} height={h} aria-hidden="true">
+  <svg class="over" class:strong width={w} height={h} aria-hidden="true">
     {#each squares as q (q.c)}<rect class="neu" x={q.x} y={q.y} width={q.w} height={q.h} />{/each}
     {#each paths as p (p.id)}
       <path d={p.d} class="halo" />
       <path d={p.d} class="line" stroke={p.col} stroke-dasharray={p.dash ? '6 5' : null} />
     {/each}
-    {#each ends as e (e.k)}<circle cx={e.s.x} cy={e.s.y} r="7" class="end {e.k}" />{/each}
+    {#each marks as m (m.km)}
+      <circle cx={m.s.x} cy={m.s.y} r="11" class="km" />
+      <text x={m.s.x} y={m.s.y + 4} class="kmt">{m.km}</text>
+    {/each}
+    {#each ends as e (e.k)}<circle cx={e.s.x} cy={e.s.y} r={strong ? 11 : 7} class="end {e.k}" />{/each}
     {#if mark}<circle cx={mark.x} cy={mark.y} r="8" class="here" data-map-marker />{/if}
   </svg>
   {#each dots as p (p.id)}
@@ -225,6 +232,7 @@
     border-radius: var(--radius-card, 12px);
     --tm-ground: #e8ece6;
     --tm-white: #fff;
+    --tm-strong: #d9480f;
     --tm-shadow: rgb(0 0 0 / 0.35);
     --tm-attr-bg: rgb(255 255 255 / 0.8);
     --tm-attr-ink: #333;
@@ -256,6 +264,25 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     opacity: 0.85;
+  }
+  .strong .halo {
+    stroke-width: 12;
+    opacity: 0.95;
+  }
+  .strong .line {
+    stroke: var(--tm-strong);
+    stroke-width: 7;
+  }
+  .km {
+    fill: var(--tm-white);
+    stroke: var(--tm-strong);
+    stroke-width: 2;
+  }
+  .kmt {
+    fill: var(--tm-strong);
+    font-size: var(--fs-small);
+    font-weight: 700;
+    text-anchor: middle;
   }
   .here {
     fill: var(--bad);
