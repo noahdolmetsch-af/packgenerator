@@ -1231,7 +1231,7 @@
 {#if endAsk && trip}<EndTripSheet {trip} day={Math.max(1, Math.min(trip.days || 1, Math.round((Date.parse(`${today}T12:00:00Z`) - Date.parse(`${trip.startDate}T12:00:00Z`)) / 864e5) + 1))} days={Math.max(1, Number(trip.days) || 1)} onclose={() => (endAsk = false)} />{/if}
 {#if slimOpen}<RepairSlim {items} onapply={slimApply} onclose={() => (slimOpen = false)} />{/if}
 {#if dialog}
-  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {bags} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id) => { dayMade = { id, before: chosen, day: false }; focusNew = id; choose(id); }} />
+  <TripDialog trip={dialog.trip} {trips} {bikes} {items} {bags} {templates} startFrom={dialog.startFrom ?? 'standard'} domain={dialog.domain ?? null} defaultBikeId={trip?.bikeId} onchange={dialog.trip ? (fn) => change(fn, { ctx: true }) : null} onclose={() => (dialog = null)} oncreated={(id, opts) => { dayMade = { id, before: chosen, day: false }; focusNew = id; choose(id); if (opts?.suggest) location.hash = '#/pack/vorschlag'; }} />
 {/if}
 {#if saveTpl && trip}
   <TemplateDialog {trip} {templates} onclose={() => (saveTpl = false)} onsaved={(name) => ((tplNote = t('Saved as template "{name}".', { name })), setTimeout(() => (tplNote = ''), 4000))} />
