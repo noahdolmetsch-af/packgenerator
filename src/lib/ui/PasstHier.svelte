@@ -10,13 +10,26 @@
   import { NOT_KEY, notForMeOf } from '../ruhig/weniger.js';
   import { passtHier } from '../passthier.js';
 
-  let { place = '' } = $props();
+  let { place = '', fold = false } = $props();
   const notQ = liveQuery(async () => notForMeOf((await db.settings.get(NOT_KEY))?.value));
   const items = $derived($notQ ? passtHier(place, $notQ) : []);
   const hid = $derived(`ph-${place}`);
 </script>
 
-{#if items.length}
+{#if items.length && fold}
+  <!-- Diese Woche aufräumen (23.11.2026): on request of a page the row is one closed line -->
+  <details class="phf" data-passt-fold={place}>
+    <summary>{t('Fits here · {n}', { n: items.length })}</summary>
+    <nav class="ph" aria-labelledby={hid} data-passt-hier={place}>
+      <h3 id={hid} class="vh">{t('Fits here')}</h3>
+      <ul>
+        {#each items as f (f.id)}
+          <li><button type="button" class="chip" onclick={() => goFeature(f, {})} data-passt-item={f.id}>{t(f.title)}</button></li>
+        {/each}
+      </ul>
+    </nav>
+  </details>
+{:else if items.length}
   <nav class="ph" aria-labelledby={hid} data-passt-hier={place}>
     <h3 id={hid}>{t('Fits here')}</h3>
     <ul>
@@ -28,6 +41,36 @@
 {/if}
 
 <style>
+  .phf {
+    margin: 12px 0 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--paper);
+  }
+  .phf > summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  /* the heading is for readers of the screen; the closed line above says it to the eye */
+  .vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .phf > .ph {
+    margin: 0;
+    padding: 0 14px 12px;
+  }
   .ph {
     margin: 12px 0 0;
   }

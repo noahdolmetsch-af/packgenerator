@@ -9,13 +9,13 @@ export default {
   ],
   small: [
     { box: 'new', text: 'One line says if the road is wet or dry, and «Share this window» copies the best ride window as a text', go: { href: '#/wetter', steps: [{ sel: '[data-wx-tabs]' }] } },
-    { box: 'new', text: 'On Today the snow, fog and night lines sit in one closed line «Weather today»', go: { href: '#/', steps: [{ sel: '[data-heute-wetter-fold-sum]' }], where: 'Today › the closed line «Weather today»: it shows on a day with a planned trip and a forecast.' } },
+    { box: 'new', text: 'On Today the snow, fog and night lines sit in one closed line «Weather today»', go: { href: '#/', steps: [{ sel: '[data-heute-wetter-card]' }], where: 'Today › the weather card (since 23.11.2026 the lines stand open in it): it shows on a day with a planned trip and a forecast.' } },
   ],
   test: ['Open Weather in the sidebar (on a computer) or from Today; «Now» shows the rain of the next 3 hours with one sentence.', 'Open «Plan», pick how long you ride and tap «Share this window (copy the text)».', 'Open a planned trip with a route: «Weather along the route» now names the headwind and the coldest point.'],
   since: ['f.wxrain15', 'f.wxroute', 'f.wxroad', 'f.wxshare'],
   de: {
     'Weather › Now, «Rain in the next 3 hours»: shows as soon as the weather service has answered.': 'Wetter › Jetzt, «Regen in den nächsten 3 Stunden»: erscheint, sobald der Wetterdienst geantwortet hat.',
-    'Today › the closed line «Weather today»: it shows on a day with a planned trip and a forecast.': 'Heute › die geschlossene Zeile «Wetter heute»: sie erscheint an einem Tag mit geplanter Tour und mit Vorhersage.',
+    'Today › the weather card (since 23.11.2026 the lines stand open in it): it shows on a day with a planned trip and a forecast.': 'Heute › die Wetterkarte (seit 23.11.2026 stehen die Zeilen offen darin): sie erscheint an einem Tag mit geplanter Tour und mit Vorhersage.',
     'More from the weather': 'Mehr aus dem Wetter',
     'Rain in steps of 15 minutes, the weather along your route and a place of its own.': 'Regen in 15-Minuten-Schritten, das Wetter entlang deiner Route und ein eigener Platz.',
     'Weather is a place of its own in the sidebar on a computer, with four parts: Now, Radar and cameras, Plan, Look back': 'Wetter ist am Computer ein eigener Platz in der Seitenleiste, mit vier Teilen: Jetzt, Radar und Kameras, Planen, Rückblick',

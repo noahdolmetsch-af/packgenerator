@@ -145,7 +145,7 @@ export default {
   'Your Strava rides and recorded rides (loaded apart from light), else standard values from bikepacking races.': 'Deine Strava-Fahrten und erfassten Fahrten (beladen getrennt von leer), sonst Standardwerte aus Bikepacking-Rennen.',
   'Your speed on the flat and your climbing rate, fitted on your rides of 40 km or more.': 'Dein Tempo im Flachen und deine Steigleistung, berechnet aus deinen Fahrten ab 40 km.',
   'Loaded is slower than light: rides on a trip of two days or more count as loaded, and you can mark others.': 'Beladen ist langsamer als leer: Fahrten auf einer Tour ab zwei Tagen zählen als beladen, andere kannst du markieren.',
-  'Strava (Aktiv › Training) and your recorded rides.': 'Strava (Aktiv › Training) und deine erfassten Fahrten.',
+  'Strava (Aktiv › Training) and your recorded rides.': 'Strava (Woche › Training) und deine erfassten Fahrten.',
   'Your other years of the same race and the learnings that fit.': 'Deine anderen Jahre desselben Rennens und die passenden Erkenntnisse.',
   'What you learned last time goes into this plan (for example: the tent was never used).': 'Was du letztes Mal gelernt hast, fliesst in diesen Plan (zum Beispiel: das Zelt nie gebraucht).',
   'Your trips with the same name and your learnings (Rückblick).': 'Deine Touren mit demselben Namen und deine Erkenntnisse (Rückblick).',

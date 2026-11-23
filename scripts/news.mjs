@@ -104,6 +104,26 @@ export function imagesOf(file, dir = join(ROOT, IMAGE_DIR)) {
 
 export const newsFiles = (dir = join(ROOT, NEWS_DIR)) => (existsSync(dir) ? readdirSync(dir).filter((f) => NAME.test(f)).sort() : []);
 
+/** The pictures of «What is new» (Noah 23.11.2026): public/news/<name>/<line>-nachher.jpg and -vorher.jpg (tests/e2e/news-bilder.spec.js). */
+export const PICS_DIR = 'public/news';
+const PIC = /^(\d+)-(nachher|vorher)\.jpg$/;
+
+/** Pure: the file names of one entry's folder as [{ line, vorher }], by line. A «vorher» without a «nachher» does not count. */
+export function picsOf(files) {
+  const by = new Map();
+  for (const f of files) {
+    const m = PIC.exec(f);
+    if (m) by.set(Number(m[1]), { ...(by.get(Number(m[1])) ?? {}), [m[2]]: true });
+  }
+  return [...by].filter(([, v]) => v.nachher).sort((a, b) => a[0] - b[0]).map(([line, v]) => ({ line, vorher: !!v.vorher }));
+}
+
+/** The pictures of a news file by its name (with «.js»), [] when there are none. */
+export function picsFor(file, root = ROOT) {
+  const dir = join(root, PICS_DIR, file.slice(0, -3));
+  return existsSync(dir) ? picsOf(readdirSync(dir)) : [];
+}
+
 /** The highest version numbered by hand in whatsnew.js (for the guess without history). */
 function highestNumbered() {
   const src = readFileSync(join(ROOT, 'src/lib/whatsnew.js'), 'utf8');
@@ -137,13 +157,19 @@ export function computeNews({ history = readHistory(), files = newsFiles(), toda
 /** The app version (tests and workflows that used package.json's version). */
 export const appVersion = () => computeNews().version;
 
+/** « , bilder: [...]» for an entry that has pictures (the app shows them), else nothing. */
+const picsField = (file) => {
+  const p = picsFor(file);
+  return p.length ? `, bilder: ${JSON.stringify(p)}` : '';
+};
+
 const ident = (file) => `n_${file.slice(0, -3).replace(/-/g, '_')}`;
 
 /** One entry of the generated lists: the file's content plus id, version, day, time and the pictures it has. */
 function entryLine(n) {
   const img = imagesOf(n.file);
   const extra = [n.time ? `time: ${JSON.stringify(n.time)}` : '', img.image ? `image: ${JSON.stringify(img.image)}` : '', img.imageBefore ? `imageBefore: ${JSON.stringify(img.imageBefore)}` : ''].filter(Boolean).join(', ');
-  return `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)}${extra ? `, ${extra}` : ''} },`;
+  return `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)}${extra ? `, ${extra}` : ''}${picsField(n.file)} },`;
 }
 
 const DE_DIR = 'src/lib/i18n/de';

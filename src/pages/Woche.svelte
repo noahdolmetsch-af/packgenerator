@@ -177,7 +177,8 @@
 
 <div class="wkp">
   <PageHead title={next ? t('Next week') : t('This week')} text={t('For {range} · week {n}. Your dates and planned tasks. You accept new suggestions yourself.', { n: isoWeek(monday), range: rangeLong })} />
-  <AreaIntro place="weekplan" />
+  <!-- Diese Woche aufräumen (23.11.2026): one help line «Was du hier tun kannst»; «So geht's» does not stand a second time under it -->
+  <AreaIntro place="weekplan" quiet />
   <FreeSlotCard {monday} onfound={(w) => (win = w)} />
 
   {#if week}
@@ -212,8 +213,9 @@
 
     {#if wrapShown}<WeekClose close={wrap} onmove={wrapMove} onnext={() => (next = true)} onlater={() => { wrapOpen = false; wrapLater = true; }} />{/if}
     {#if openOld.length && !wrapShown}
-      <section class="wclose" data-week-close aria-label={t('Close the week')}>
-        <h2>{t('Close the week')}</h2>
+      <!-- Diese Woche aufräumen (23.11.2026): the old items are one closed row «Close the week · 4 old items» -->
+      <details class="wclose" data-week-close>
+        <summary><b>{t('Close the week')}</b><small>{tn(openOld.length, '{n} old item', '{n} old items')}</small></summary>
         <p class="why">{t('Still open from earlier days ({n}). You decide on each one.', { n: openOld.length })}</p>
         {#each openOld as x (x.id)}
           <div class="wc-row" data-close-row>
@@ -224,7 +226,7 @@
           </div>
         {/each}
         <button type="button" class="btn" data-close-later onclick={() => (closeLater = true)}>{t('Later')}</button>
-      </section>
+      </details>
     {/if}
     {#if emptyWeek}
       <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
@@ -350,7 +352,7 @@
     </div>
   {/if}
   <!-- Wegweiser 8: fewer things at once while planning the week, and the evening -->
-  <PasstHier place="woche" />
+  <PasstHier place="woche" fold />
   <!-- Hilfen neu 1b (Noah 21.11.2026): «Alles hier» at the end of the page, as one line -->
   <AllHere area="plan" />
 </div>
@@ -812,7 +814,7 @@
     cursor: pointer;
   }
   .wclose{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
-  .wclose h2{font-size:var(--fs-sub);margin:0 0 4px}
+  .wclose>summary{display:flex;align-items:baseline;gap:10px;min-height:44px;cursor:pointer;list-style:none}.wclose>summary::-webkit-details-marker{display:none}.wclose>summary small{color:var(--muted)}.wclose[open]>summary{margin-bottom:4px}
   .wc-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;padding:10px;margin:6px 0}
   .wc-t{display:flex;flex-direction:column;font-weight:600}.wc-t small{font-weight:400;color:var(--muted)}
   .wc-b{display:flex;gap:6px;flex-wrap:wrap}

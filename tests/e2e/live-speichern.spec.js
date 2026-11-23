@@ -3,6 +3,7 @@
 // says so. Free ride with a fake GPS moving north; every outside request is mocked or blocked (openHome).
 import { test, expect } from '@playwright/test';
 import { openHome } from './home0460-fixture.js';
+import { realNow } from './realtime.js'; // the GPS gives real times: not the test day of an earlier spec's fixed clock (see realtime.js)
 
 const phone = (info) => info.project.name === 'phone';
 const tap = (loc, info) => (phone(info) ? loc.tap() : loc.click());
@@ -65,7 +66,7 @@ test('End the ride: asks once, saves the ride in Touren with its label', async (
   await expect(saved.locator('[data-live-saved-open]')).toHaveAttribute('href', /#\/debrief\/ride\//);
   // Touren: the ride is its own entry with the label
   // the GPS gives real times while the page clock stands on the fixture day: Touren must see the ride as past
-  await page.clock.setFixedTime(new Date(Date.now() + 864e5));
+  await page.clock.setFixedTime(new Date(realNow() + 864e5));
   await tap(page.locator('[data-live-saved-link]'), info);
   await expect(page).toHaveURL(/#\/trips/);
   // on the phone the finished trips sit behind «Mit Packliste»
@@ -103,7 +104,7 @@ test('Two rides in a row: both stay in Touren', async ({ page, context }, info) 
     await tap(page.locator('[data-live-end-yes]'), info);
     await expect(page.locator('[data-live-saved]'), `ride ${n}`).toBeVisible();
   }
-  await page.clock.setFixedTime(new Date(Date.now() + 864e5));
+  await page.clock.setFixedTime(new Date(realNow() + 864e5));
   await tap(page.locator('[data-live-saved-link]'), info);
   await expect(page).toHaveURL(/#\/trips/);
   if (phone(info)) await tap(page.locator('[data-packmode-open]'), info);

@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "news:bilder": "node scripts/news-bilder.mjs",
     "e2e": "playwright test"
   },
   "devDependencies": {

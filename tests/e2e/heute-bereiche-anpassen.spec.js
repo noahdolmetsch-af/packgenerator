@@ -18,18 +18,19 @@ test('the areas of Today: move, rename and hide with Undo; the tiles stay', asyn
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('dialog', (d) => { throw new Error(`browser dialog: ${d.message()}`); });
   const T = await openHome(page, context, info);
-  await expect.poll(async () => (await areas(page)).slice(0, 2)).toEqual(['now', 'body']);
+  // «Heute aufräumen» (Noah 23.11.2026, changed on purpose): Jetzt, then Deine Woche; the rest stands under «Mehr»
+  await expect.poll(async () => (await areas(page)).slice(0, 2)).toEqual(['now', 'week']);
   const tilesBefore = await page.locator('.wall [data-tile]').count();
 
   await page.getByRole('button', { name: T('Customise the start page') }).click();
   const box = page.locator('[data-home-areas]');
   await expect(box.getByRole('heading', { name: T('Areas of Today') })).toBeVisible();
   const rows = () => box.locator('[data-area-row]').evaluateAll((els) => els.map((e) => e.dataset.areaRow));
-  expect((await rows()).slice(0, 2)).toEqual(['now', 'body']);
+  expect((await rows()).slice(0, 2)).toEqual(['now', 'week']);
 
-  // 1a: «Dein Körper» one up
-  await box.locator('[data-area-row="body"]').getByRole('button', { name: T('Move {name} up', { name: T('Your body|home') }) }).click();
-  await expect.poll(async () => (await rows()).slice(0, 2)).toEqual(['body', 'now']);
+  // 1a: «Deine Woche» one up
+  await box.locator('[data-area-row="week"]').getByRole('button', { name: T('Move {name} up', { name: T('Your week|home') }) }).click();
+  await expect.poll(async () => (await rows()).slice(0, 2)).toEqual(['week', 'now']);
 
   // 2a: rename «Jetzt»
   await box.locator('[data-area-row="now"] [data-area-rename]').click();
@@ -38,21 +39,21 @@ test('the areas of Today: move, rename and hide with Undo; the tiles stay', asyn
   await sheet.getByRole('textbox').press('Enter');
   await expect(box.locator('[data-area-row="now"]')).toContainText('test_data_gtp_ Mein Morgen');
 
-  // 2a: hide «Deine Woche»: «Without area» is chosen first
-  await box.locator('[data-area-row="week"] [data-area-hide]').click();
+  // 2a: hide «Dein Körper»: «Without area» is chosen first
+  await box.locator('[data-area-row="body"] [data-area-hide]').click();
   const ask = page.getByRole('dialog');
-  await expect(ask.getByRole('heading')).toHaveText(T('Hide area "{name}"?', { name: T('Your week|home') }));
+  await expect(ask.getByRole('heading')).toHaveText(T('Hide area "{name}"?', { name: T('Your body|home') }));
   await expect(ask.getByRole('radio', { name: T('Without area') })).toBeChecked();
   await shot(page, info, 'bereich-ausblenden');
   await ask.getByRole('button', { name: T('Hide|area') }).click();
-  await expect(box.locator('[data-area-hidden="week"]')).toBeVisible();
+  await expect(box.locator('[data-area-hidden="body"]')).toBeVisible();
   await shot(page, info, 'bereiche-anpassen', box);
 
-  // back on Today: the new order, the own name, no «Deine Woche», its tiles under «Ohne Bereich»
+  // back on Today: the new order, the own name, no «Dein Körper», its tiles under «Ohne Bereich»
   await page.getByRole('button', { name: T('Done|customise') }).first().click();
-  await expect.poll(() => areas(page)).not.toContain('week');
+  await expect.poll(() => areas(page)).not.toContain('body');
   const now = await areas(page);
-  expect(now.slice(0, 2)).toEqual(['body', 'now']);
+  expect(now.slice(0, 2)).toEqual(['week', 'now']);
   expect(now.at(-1)).toBe('none');
   await expect(page.locator('[data-home-sec="now"] h2')).toHaveText('test_data_gtp_ Mein Morgen');
   await expect(page.locator('[data-home-sec="none"] h2')).toHaveText(T('Without area'));
@@ -62,9 +63,9 @@ test('the areas of Today: move, rename and hide with Undo; the tiles stay', asyn
 
   // Undo brings the area back, «Show again» too
   await page.getByRole('button', { name: T('Customise the start page') }).click();
-  await box.locator('[data-area-hidden="week"] [data-area-show]').click();
-  await expect(box.locator('[data-area-row="week"]')).toBeVisible();
+  await box.locator('[data-area-hidden="body"] [data-area-show]').click();
+  await expect(box.locator('[data-area-row="body"]')).toBeVisible();
   await page.getByRole('status').getByRole('button', { name: T('Undo') }).click();
-  await expect(box.locator('[data-area-hidden="week"]')).toBeVisible();
+  await expect(box.locator('[data-area-hidden="body"]')).toBeVisible();
   expect(errors).toEqual([]);
 });

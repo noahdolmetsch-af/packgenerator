@@ -87,7 +87,9 @@ test('a trip today: no photo although the bike has one, the 8 buttons in the fir
   // «Jetzt» right under the meditation card, the weekly weight under the trip, then «Dein Körper» with the body and Aktiv
   await expect.poll(() => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile)).then((o) => o.slice(0, 4))).toEqual(['meinetour', 'meditation', 'trip', 'weighin']); // 17.11.2026 (changed on purpose, «Tour nur einmal»): «Your moment» about the trip is away while «My tour» stands // «Dein Moment» sits right under the meditation card; «Entdecken» comes after the trip and the weight
   const o = await page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
-  expect(o.filter((id) => HEAD.includes(id) && id !== 'meditation')).toEqual(HEAD.filter((id) => id !== 'meditation' && o.includes(id)));
+  // «Heute aufräumen» (Noah 23.11.2026, changed on purpose): «Entdecken» stands under «Mehr», after the body and Aktiv
+  expect(o.filter((id) => HEAD.includes(id) && id !== 'meditation' && id !== 'discover')).toEqual(HEAD.filter((id) => id !== 'meditation' && id !== 'discover' && o.includes(id)));
+  if (o.includes('discover')) expect(o.indexOf('discover')).toBeGreaterThan(o.indexOf('acts'));
   await shot(page, info, 'heute-mit-tour');
 
   // the photo is still there, under Velos › Setup › More

@@ -85,12 +85,20 @@
     color: var(--ink);
     background: color-mix(in srgb, var(--paper) 55%, transparent);
   }
-  /* The chosen one: a raised white pill in ink (orange stays for the one main action). */
+  /* The chosen one: filled in the palette's main colour, the same look as Mein Tag (Noah 23.11.2026 «2a»,
+     docs/decisions/umschalter-gewaehlt-gefuellt.md): chosen = filled, in the tab strip, the day row and the filter chips. */
   button[aria-pressed='true'] {
-    background: var(--paper);
-    color: var(--ink);
+    background: var(--hi);
+    color: var(--hi-ink);
     font-weight: 600;
-    box-shadow: 0 1px 3px var(--shadow);
+    box-shadow: none;
+  }
+  button[aria-pressed='true']:focus-visible {
+    outline-color: var(--hi-ink);
+  }
+  /* the count after the name keeps the colour of the filled button (the grey of the others is unreadable on it) */
+  button[aria-pressed='true'] .n {
+    color: inherit;
   }
   /* B15: the pill glides behind the buttons; the chosen button itself stays clear */
   .seg {
@@ -109,8 +117,7 @@
     left: 0;
     top: 0;
     border-radius: 9px;
-    background: var(--paper);
-    box-shadow: 0 1px 3px var(--shadow);
+    background: var(--hi);
     pointer-events: none;
   }
   .glide button {
@@ -157,7 +164,7 @@
     outline: var(--focus-ring);
     outline-offset: -2px;
   }
-  /* v0.105.0 Design-Refresh P8 «Aktiv»: round chips side by side, the chosen one filled in ink */
+  /* v0.105.0 Design-Refresh P8 «Aktiv»: round chips side by side, the chosen one filled in the main colour */
   .seg.chips {
     gap: 6px;
     padding: 0;
@@ -174,14 +181,13 @@
     font-weight: 500;
   }
   .chips button[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
     box-shadow: none;
   }
   /* E6: the count in the chosen chip stays readable on the filled chip (it kept the grey of the unchosen ones) */
   .chips button[aria-pressed='true'] .n {
     color: inherit;
-    opacity: 0.8;
   }
 </style>

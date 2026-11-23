@@ -53,7 +53,7 @@ export default {
   'come on every trip, you can take them off': 'kommen in jede Tour, abwählbar',
   'Bathing|group': 'Baden',
   'Lakes, rivers and saunas along the route are not known to the app yet: you tap them in Plan («still by hand»). The water of Lake Zurich is in Aktiv.':
-    'Seen, Flüsse und Saunas entlang der Strecke kennt die App noch nicht: du tippst sie in Planen an («noch von Hand»). Das Wasser im Zürisee steht in Aktiv.',
+    'Seen, Flüsse und Saunas entlang der Strecke kennt die App noch nicht: du tippst sie in Planen an («noch von Hand»). Das Wasser im Zürisee steht in «Heute abhaken».',
   'Days and night of the trip': 'Daten und Nacht der Tour',
   'Two nights, Sleep well · number of nights, tent or bivouac': 'Zwei Nächte, Gut schlafen · Anzahl Nächte, Zelt oder Biwak',
   'Bathing in Plan': 'Baden in Planen',
@@ -84,7 +84,7 @@ export default {
   'Sauna or bath': 'Sauna oder Bad',
   'Cold water|trip': 'Wasser kalt',
   'Lakes and rivers along the route are not known to the app yet. The water of Lake Zurich is in Aktiv.':
-    'Seen und Flüsse entlang der Strecke kennt die App noch nicht. Das Wasser im Zürisee steht in Aktiv.',
+    'Seen und Flüsse entlang der Strecke kennt die App noch nicht. Das Wasser im Zürisee steht in «Heute abhaken».',
   'Brings suggestions in Pack: Pass & climbing, Abroad, Train, Quick swim, Sauna and bath, Cold water. Tap again to take it off.':
     'Bringt Vorschläge beim Packen: Pass & Höhenmeter, Ausland, Zug, Kurz ins Wasser, Sauna und Bad, Kaltes Wasser. Nochmals tippen nimmt es weg.',
 };
