@@ -140,7 +140,7 @@
   }
 </script>
 
-<PageHead title={t('My day')} context={t('Plan|place')} what={t('Read the day, tap an entry to open it where it lives.')} />
+<PageHead title={t('My day')} what={t('Read the day, tap an entry to open it where it lives.')} />
 
 <nav class="wk" aria-label={t('Choose a day')}>
   <a class="step" href="#/day/{shiftDay(day, -1)}" aria-label={t('Day before')}><ChevronLeft size={18} aria-hidden="true" /></a>
@@ -363,7 +363,8 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px;
   }
   .untimed li {
@@ -373,20 +374,27 @@
     background: color-mix(in srgb, var(--k) 13%, var(--paper));
   }
   .untimed li a {
-    display: block;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     min-height: 44px;
-    padding: 6px 10px;
+    padding: 8px 10px;
     color: var(--ink);
     text-decoration: none;
   }
-  .untimed li b,
   .blk b {
     display: block;
     font-weight: 600;
   }
-  .untimed li small,
   .blk small {
     display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-tiny);
+  }
+  .untimed li b {
+    font-weight: 600;
+  }
+  .untimed li small {
     color: var(--ink-2);
     font-size: var(--fs-tiny);
   }
