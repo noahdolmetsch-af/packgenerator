@@ -9,7 +9,7 @@ test.use({ cardsOpen: false });
 const PAGES = [
   ['#/pack', 'gd:pack', '[data-gehoert]'],
   ['#/trips', 'gd:trips', '[data-gehoert]'],
-  ['#/gear', 'gd:gear', '[data-gehoert]'],
+  // Material aufräumen (23.11.2026, changed on purpose): Material has no row «Belongs to» (a double of «All here» at the end)
   ['#/bikes', 'gd:bikes', '[data-gehoert]'],
   ['#/trips', 'ah:trips', '[data-all-here="trips"]'],
   ['#/gear', 'ah:gear', '[data-all-here="gear"]'],

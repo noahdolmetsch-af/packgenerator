@@ -5,4 +5,6 @@ export default {
   'From Strava, no activity of its own in Active': 'Von Strava, ohne eigene Aktivität in Aktiv',
   '{n} activity without a time this week': '{n} Aktivität ohne Mal diese Woche',
   '{n} activities without a time this week': '{n} Aktivitäten ohne Mal diese Woche',
+  '{n} activity without a time in this period': '{n} Aktivität ohne Mal in diesem Zeitraum',
+  '{n} activities without a time in this period': '{n} Aktivitäten ohne Mal in diesem Zeitraum',
 };

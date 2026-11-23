@@ -705,6 +705,7 @@ import fitganz from './fitganz.js';
 import morgenpush from './morgenpush.js';
 // «Diagramme zum Antippen» (Noah 27.10.2026 «1-5 a»); spread last
 import diagramme from './diagramme.js';
+import diagrammeUeberall from './diagramme-ueberall.js';
 // «Aktiv: Bild pro Sportart, Meilensteine kürzer, Nächstes Ziel» (Noah 27.10.2026 «1a 2a 3a»); spread last
 import aktivrest from './aktivrest.js';
 // «Neueste Version» in Ich (Noah 27.10.2026 «1-5 a»); spread last
@@ -1109,6 +1110,7 @@ const ORDERED = [
   fitganz,
   morgenpush,
   diagramme,
+  diagrammeUeberall,
   aktivrest,
   versionszeile,
   packenwischen,

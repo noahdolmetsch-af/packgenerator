@@ -191,3 +191,20 @@ test('Every page of Auswerten remembers its own period', async ({ page, context 
   await expect(bar('month')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
+
+test('Sportjahr: «Alles, was du angelegt hast» lists every activity of the period, the hours above stay (23.11.2026)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await expect(page.locator('[data-sportjahr]')).toBeVisible();
+  const hoursBefore = await page.locator('[data-sj-hours]').count() ? await page.locator('[data-sj-hours]').first().innerText() : '';
+  const all = page.locator('[data-alle-fold]');
+  await expect(all).toBeVisible();
+  await all.locator('summary').first().click();
+  const card = all.locator('[data-alle="period"]');
+  await expect(card.locator('[data-alle-row="tennis"]')).toContainText('Mal');
+  await expect(card.locator('[data-alle-row="run"]')).toContainText('Mal');
+  // the fold is only a list: it changes none of the numbers of the page
+  if (hoursBefore) expect(await page.locator('[data-sj-hours]').first().innerText()).toBe(hoursBefore);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  await shot(page, info, 'alle-sportjahr');
+  expect(errors).toEqual([]);
+});

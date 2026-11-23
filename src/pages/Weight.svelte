@@ -15,7 +15,10 @@
   import AnaSheet from '../lib/training/AnaSheet.svelte';
   import { ana } from '../lib/training/analyses.svelte.js';
   import { keysOf } from '../lib/training/analyses.js';
-  import LineChart from '../lib/weight/LineChart.svelte';
+  import LineChart from '../lib/charts/LineChart.svelte';
+  import ChartSheet from '../lib/charts/ChartSheet.svelte';
+  import { changeSentence } from '../lib/charts/sentence.js';
+  import { shiftDay } from '../lib/training.js';
   import { backClose } from '../lib/ui/backclose.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { db } from '../lib/db.js';
@@ -34,64 +37,67 @@
   const sub = $derived([last ? `${num(last.kg)} kg · ${short(last.day)}` : t('No entry yet'), t('only on this device')].join(' · '));
   const keys = $derived(keysOf(ana, 'weight'));
 
-  // x from 0 to 1 over the days between the first and the last point
-  const dayNo = (d) => Date.parse(`${d}T12:00:00Z`) / 864e5;
-  function xs(days) {
-    const a = dayNo(days[0]);
-    const b = dayNo(days.at(-1));
-    return (d) => (b > a ? (dayNo(d) - a) / (b - a) : 0.5);
-  }
-  /** The first and the last day, and the 1st of each month between (not too close to the ends). */
+  const long = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+  const kg1 = (v) => `${num(Math.round(v * 10) / 10)} kg`;
+  /** The first and the last day, and the 1st of each month between (not too close to the ends), as labels under the days. */
   function dayLabels(days) {
-    const x = xs(days);
-    const out = [{ x: 0, text: short(days[0]) }];
-    const max = phone.matches ? 1 : 4;
+    const n = days.length;
+    const at = (i) => (n > 1 ? i / (n - 1) : 0.5);
+    const out = new Map([[0, short(days[0])]]);
     const months = [];
-    for (let m = days[0].slice(0, 7); m <= days.at(-1).slice(0, 7); ) {
-      const first = `${m}-01`;
-      if (first > days[0] && x(first) > 0.12 && x(first) < 0.88) months.push(first);
-      const [y, mo] = m.split('-').map(Number);
-      m = mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`;
-    }
-    const step = Math.max(1, Math.ceil(months.length / max));
-    months.filter((_, i) => i % step === 0).forEach((d) => out.push({ x: x(d), text: new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', month: 'short' }) }));
-    if (days.length > 1) out.push({ x: 1, text: short(days.at(-1)) });
+    days.forEach((d, i) => {
+      if (d.endsWith('-01') && i > 0 && at(i) > 0.12 && at(i) < 0.88) months.push(i);
+    });
+    const step = Math.max(1, Math.ceil(months.length / (phone.matches ? 1 : 4)));
+    months.filter((_, k) => k % step === 0).forEach((i) => out.set(i, new Date(`${days[i]}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', month: 'short' })));
+    if (n > 1) out.set(n - 1, short(days.at(-1)));
     return out;
   }
-  const range = (vals, step) => {
-    const lo = Math.floor(Math.min(...vals) / step) * step;
-    const hi = Math.ceil(Math.max(...vals) / step) * step;
-    const out = [];
-    for (let v = lo; v <= hi + step / 2; v += step) out.push(Math.round(v * 100) / 100);
-    return out.length > 6 ? out.filter((_, i) => i % Math.ceil(out.length / 5) === 0) : out;
-  };
 
+  // the weight: one column per day from the first to the last entry, the entries as dots, the mean over 7 days as the line
   const wt = $derived.by(() => {
     if (entries.length < 2) return null;
     const m = mean7(entries);
-    const days = m.map((e) => e.day);
-    const x = xs(days);
-    const span = Math.max(...m.map((e) => e.kg)) - Math.min(...m.map((e) => e.kg));
+    const byDay = new Map(m.map((e) => [e.day, e]));
+    const days = [];
+    for (let d = m[0].day; d <= m.at(-1).day; d = shiftDay(d, 1)) days.push(d);
+    const lab = dayLabels(days);
+    const roundKg = (v) => Math.round(v * 10) / 10;
     return {
-      dots: m.map((e) => ({ x: x(e.day), y: e.kg })),
-      line: m.map((e) => ({ x: x(e.day), y: e.mean })),
-      ticks: range(m.map((e) => e.kg), span > 6 ? 2 : span > 3 ? 1 : 0.5),
-      labels: dayLabels(days),
+      days,
+      cols: days.map((d, i) => ({ key: d, x: lab.get(i) ?? '' })),
+      series: [
+        { key: 'mean', color: 'var(--hi)', v: days.map((d) => byDay.get(d)?.mean ?? null) },
+        { key: 'kg', color: 'var(--ink-3)', line: false, dots: true, v: days.map((d) => byDay.get(d)?.kg ?? null) },
+      ],
+      readout: (i) => {
+        const e = byDay.get(days[i]);
+        return { title: long(days[i]), items: e ? [{ label: t('Weight|place'), value: `${num(e.kg)} kg`, color: 'var(--ink-3)' }, { label: t('Mean 7 days'), value: `${num(e.mean)} kg`, color: 'var(--hi)' }] : [{ label: t('No entry'), value: '–' }] };
+      },
+      table: { head: [t('Day'), t('Weight|place'), t('Mean 7 days')], rows: [...m].reverse().map((e) => ({ key: e.day, cells: [short(e.day), `${num(e.kg)} kg`, `${num(e.mean)} kg`] })) },
+      sentences: changeSentence(m.map((e) => ({ label: short(e.day), v: roundKg(e.mean) })), (v) => `${num(roundKg(v))} kg`),
       now: m.at(-1),
     };
   });
+  // the watts per kg: one column per week
   const wk = $derived.by(() => {
     const list = wkgWeeks($actsQ ?? [], entries, today);
     if (list.length < 2) return list.length ? { one: list[0] } : null;
-    const x = (i) => i / (list.length - 1);
-    const lab = phone.matches ? [0, list.length - 1] : [0, Math.floor((list.length - 1) / 2), list.length - 1];
+    const last = list.length - 1;
+    const wkgText = (v) => comma(v, 2);
     return {
-      line: list.map((p, i) => ({ x: x(i), y: p.wkg })),
-      ticks: range(list.map((p) => p.wkg), 0.1),
-      labels: [...new Set(lab)].map((i) => ({ x: x(i), text: t('KW {n}', { n: list[i].kw }) })),
+      list,
+      cols: list.map((p, i) => ({ key: p.monday, x: i === 0 || i === last || (!phone.matches && i === Math.floor(last / 2)) ? t('KW {n}', { n: p.kw }) : '' })),
+      series: [{ key: 'wkg', color: 'var(--ch-b)', dots: list.length <= 12, v: list.map((p) => p.wkg) }],
+      readout: (i) => ({ title: `${t('KW {n}', { n: list[i].kw })} · ${short(list[i].monday)}`, items: [{ label: t('W/kg (FTP ÷ weight)'), value: wkgText(list[i].wkg), color: 'var(--ch-b)' }, { label: 'FTP', value: `${list[i].ftp} W` }, { label: t('Weight|place'), value: `${num(list[i].kg)} kg` }] }),
+      table: { head: [t('Week|chart'), t('W/kg (FTP ÷ weight)'), 'FTP', t('Weight|place')], rows: [...list].reverse().map((p) => ({ key: p.monday, cells: [`${t('KW {n}', { n: p.kw })} · ${short(p.monday)}`, wkgText(p.wkg), `${p.ftp} W`, `${num(p.kg)} kg`] })) },
+      sentences: changeSentence(list.map((p) => ({ label: t('KW {n}', { n: p.kw }), v: p.wkg })), (v) => `${comma(v, 2)} W/kg`),
       now: list.at(-1),
     };
   });
+  // a tap on a day or a week opens its sheet
+  let dayOpen = $state(null);
+  let wkOpen = $state(null);
   const wkNow = $derived(wk?.now ?? wk?.one ?? null);
   const comma = (v, d = 1) => Number(v).toLocaleString(locale(), { minimumFractionDigits: d, maximumFractionDigits: d });
 
@@ -140,14 +146,14 @@
   {#each keys as k (k)}
     {#if k === 'wtime' && wt}
       <AnaCard key="wtime" sub={t('Dots = entries · line = mean over 7 days')}>
-        <LineChart dots={wt.dots} line={wt.line} ticks={wt.ticks} labels={wt.labels} fmt={(v) => num(v)} label={t('Weight from {a} to {b} kg, mean over 7 days now {c} kg', { a: num(Math.min(...wt.dots.map((d) => d.y))), b: num(Math.max(...wt.dots.map((d) => d.y))), c: num(wt.now.mean) })} />
+        <LineChart id="weight" cols={wt.cols} series={wt.series} readout={wt.readout} sentences={wt.sentences} unit="kg" bridge onopen={(i) => (dayOpen = wt.days[i])} table={wt.table} hint={t('Point at a day for its numbers, tap it to change or add the entry.')} label={t('Weight, mean over 7 days now {c} kg', { c: num(wt.now.mean) })} />
         <p class="lg"><span><i class="lsw ln"></i>{t('Mean 7 days')}</span><span><i class="lsw dt"></i>{t('Entry')}</span></p>
         <p class="cap">{t('Only your entries. No goal, no rating.')}</p>
       </AnaCard>
     {:else if k === 'wkgtime' && wk}
       <AnaCard key="wkgtime" sub={t('FTP estimated ÷ weight, per week')}>
-        {#if wk.line}
-          <LineChart line={wk.line} ticks={wk.ticks} labels={wk.labels} fmt={(v) => comma(v)} color="var(--ch-b)" label={t('Watts per kg now {n}', { n: comma(wk.now.wkg, 2) })} height={170} />
+        {#if wk.list}
+          <LineChart id="wkg" cols={wk.cols} series={wk.series} readout={wk.readout} sentences={wk.sentences} onopen={(i) => (wkOpen = i)} table={wk.table} hint={t('Point at a week for its numbers, tap it for what is behind.')} label={t('Watts per kg now {n}', { n: comma(wk.now.wkg, 2) })} height={170} />
           <p class="lg"><span><i class="lsw or"></i>{t('W/kg (FTP ÷ weight)')}</span></p>
         {/if}
         <p class="cap num">{t('Today {w} W ÷ {kg} kg = {r} W/kg. Weeks without a ride with a power meter keep the value of the week before.', { w: wkNow.ftp, kg: num(wkNow.kg), r: comma(wkNow.wkg, 2) })}</p>
@@ -184,6 +190,27 @@
     </div>
   </form>
 </dialog>
+{#if dayOpen && wt}
+  {@const i = wt.days.indexOf(dayOpen)}
+  {@const e = entries.find((x) => x.day === dayOpen)}
+  <ChartSheet kicker={t('Weight|place')} title={long(dayOpen)} onclose={() => (dayOpen = null)} onprev={i > 0 ? () => (dayOpen = wt.days[i - 1]) : null} onnext={i < wt.days.length - 1 ? () => (dayOpen = wt.days[i + 1]) : null} prevLabel={t('Day before')} nextLabel={t('Next day')}>
+    <ul class="shl" data-weight-chart-sheet>
+      <li><span>{t('Weight|place')}</span><b class="num">{e ? `${num(e.kg)} kg` : '–'}</b></li>
+      {#if e}<li><span>{t('Mean 7 days')}</span><b class="num">{num(mean7(entries).find((x) => x.day === dayOpen)?.mean)} kg</b></li>{/if}
+    </ul>
+    <button type="button" class="btn" onclick={() => { const d = dayOpen; dayOpen = null; openForm(d); }} data-weight-chart-edit>{e ? t('Change the entry') : t('Add an entry for this day')}</button>
+  </ChartSheet>
+{/if}
+{#if wkOpen != null && wk?.list?.[wkOpen]}
+  {@const p = wk.list[wkOpen]}
+  <ChartSheet kicker={t('W/kg (FTP ÷ weight)')} title={`${t('KW {n}', { n: p.kw })} · ${short(p.monday)}`} onclose={() => (wkOpen = null)} onprev={wkOpen > 0 ? () => wkOpen-- : null} onnext={wkOpen < wk.list.length - 1 ? () => wkOpen++ : null} prevLabel={t('Week before')} nextLabel={t('Next week')}>
+    <ul class="shl" data-wkg-chart-sheet>
+      <li><span>{t('W/kg (FTP ÷ weight)')}</span><b class="num">{comma(p.wkg, 2)}</b></li>
+      <li><span>FTP</span><b class="num">{p.ftp} W</b></li>
+      <li><span>{t('Weight|place')}</span><b class="num">{num(p.kg)} kg</b></li>
+    </ul>
+  </ChartSheet>
+{/if}
 <AnaSheet />
 
 <style>
@@ -244,8 +271,23 @@
     background: var(--hi);
   }
   .lsw.dt {
-    background: var(--hi);
-    opacity: 0.45;
+    background: var(--ink-3);
+  }
+  .shl {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .shl li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .shl span {
+    color: var(--ink-2);
   }
   .lsw.or {
     background: var(--ch-b);
