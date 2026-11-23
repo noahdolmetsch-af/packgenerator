@@ -85,10 +85,11 @@ test('I11: Ich, Was ist neu: the newest version, every function, all versions an
   const T = await openHome(page, context, info);
   await updated(page);
   // v0.127.0 A-U1 (changed on purpose): a banner instead of the window, nothing to close first;
-  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner is under Ich, not on Today
-  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
-  await page.goto('./#/me');
+  // «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): the banner is one line on Today, nothing under Ich
   await expect(page.locator('[data-news-banner]')).toBeVisible();
+  await page.goto('./#/me');
+  await expect(page.locator('.ich-cols')).toBeVisible();
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   await page.locator('main').getByRole('link', { name: new RegExp(T('What is new')) }).click();
   await expect(page).toHaveURL(/#\/me\/news$/);
   await expect(page.getByRole('heading', { level: 1, name: T('What is new'), exact: true })).toBeVisible();
@@ -222,11 +223,10 @@ test('I11b: the message after an update: the banner closes with × until the nex
   const T = await openHome(page, context, info);
   await updated(page);
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
-  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner shows under Ich
-  await page.goto('./#/me');
+  // «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): the banner is ONE line on Today again
   const banner = page.locator('[data-news-banner]');
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeVisible();
-  await expect(banner.getByText(T(NEWEST.title))).toBeVisible();
+  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeAttached();
+  await expect(banner.locator('[data-news-title]')).toContainText(T(NEWEST.title));
   await shot(page, info, 'I11b-meldung');
   await noSideways(page);
   await banner.getByRole('button', { name: T('Close the hint') }).click();
@@ -234,8 +234,8 @@ test('I11b: the message after an update: the banner closes with × until the nex
   expect(await page.evaluate(() => localStorage.getItem('wasneu.mute'))).toBe(NEWEST.version);
   // the next start (a new tab): it stays away
   const next = await context.newPage();
-  await next.goto('./#/me');
-  await expect(next.locator('.ich-cols')).toBeVisible();
+  await next.goto('./#/');
+  await expect(next.locator('div.home')).toBeVisible();
   await expect(next.locator('[data-news-banner]')).toHaveCount(0);
 
   // switched on again under Ich › Was ist neu: the next start shows it
@@ -246,28 +246,31 @@ test('I11b: the message after an update: the banner closes with × until the nex
   await sw.check();
   await expect(sw).toBeChecked();
   const third = await context.newPage();
-  await third.goto('./#/me');
+  await third.goto('./#/');
   await expect(third.locator('[data-news-banner]')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-// «Heute neu» A 5b (Noah 20.10.2026 «5b», changed on purpose): hints like «New in …» only under Ich; the tile
-// «New» no longer goes on top of Today after an update (it stays in the catalog, «Add a tile»)
-test('I11e: after an update Today stays as it is; the news wait under Ich', async ({ page, context }, info) => {
+// «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): after an update Today gets ONE line under the chips,
+// the wall stays as it is; the tile «New» stays in the catalog; nothing waits under Ich any more
+test('I11e: after an update Today keeps its wall, one line New under the chips, nothing under Ich', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
   await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
   await updated(page);
   await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
-  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
+  const banner = page.locator('[data-news-banner]');
+  await expect(banner).toBeVisible();
+  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeAttached();
+  await expect(banner.locator('[data-news-title]')).toHaveAttribute('href', '#/me/news');
   await expect(page.locator('.wall [data-tile="news"]')).toHaveCount(0);
+  await expect(page.locator('[data-news-row]')).toHaveCount(0);
   await expect.poll(() => ids(page)).toEqual(SHOWN.map((x) => x.id));
   await noSideways(page);
   await page.goto('./#/me');
-  const banner = page.locator('[data-news-banner]');
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: V }) })).toBeVisible();
-  await expect(banner.getByRole('link', { name: T('View|news') })).toHaveAttribute('href', '#/me/news');
+  await expect(page.locator('.ich-cols')).toBeVisible();
+  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
   // the tile stays in the catalog
   await page.goto('./#/');
   await page.getByRole('button', { name: T('Add a tile') }).click();
