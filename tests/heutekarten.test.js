@@ -42,20 +42,21 @@ describe('afterRain', () => {
 });
 
 describe('rideWindow', () => {
+  // Open-Meteo stamps rain at the END of its hour: a wet value at 14:00 is the rain of 13:00–14:00 (regenzeit.js)
   it('is dry until sunset on a dry day', () => {
     const w = rideWindow(mk(() => ({})), t0 + 10 * H + 20 * 6e4);
     expect(w.by).toBe('dark');
     expect(w.until).toBe(t0 + 17 * H);
     expect(w.lampOn).toBe(t0 + 17 * H - 30 * 6e4);
   });
-  it('ends at the first wet hour', () => {
+  it('ends where the rain starts, the same time as the rest of Today says', () => {
     const w = rideWindow(mk((i, ms) => (ms >= t0 + 14 * H && ms < t0 + 16 * H ? { rainP: 80, rainMm: 1 } : {})), t0 + 10 * H);
     expect(w.by).toBe('rain');
-    expect(w.until).toBe(t0 + 14 * H);
+    expect(w.until).toBe(t0 + 13 * H);
   });
   it('is null when it rains now, after sunset or when the dry stretch is short', () => {
     expect(rideWindow(mk((i, ms) => (ms >= t0 + 9 * H && ms < t0 + 12 * H ? { rainP: 80, rainMm: 1 } : {})), t0 + 10 * H)).toBeNull();
     expect(rideWindow(mk(() => ({})), t0 + 18 * H)).toBeNull();
-    expect(rideWindow(mk((i, ms) => (ms >= t0 + 11 * H ? { rainP: 80, rainMm: 1 } : {})), t0 + 10 * H + 30 * 6e4)).toBeNull();
+    expect(rideWindow(mk((i, ms) => (ms >= t0 + 12 * H ? { rainP: 80, rainMm: 1 } : {})), t0 + 10 * H + 30 * 6e4)).toBeNull();
   });
 });
