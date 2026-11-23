@@ -130,8 +130,11 @@ test('A8: soon within reach as rows and the trophy shelf', async ({ page, contex
   const main = page.locator('main');
   await go(page, '#/flow/milestones');
   await expect(main.getByRole('heading', { level: 2, name: T('Soon within reach') })).toBeVisible();
-  await expect(main.getByRole('heading', { level: 2, name: T('Trophy shelf') })).toBeVisible();
-  await expect(main.getByText(T('Next: {name}', { name: '' }).trim(), { exact: false }).first()).toBeVisible();
+  // «Meilensteine ordnen» (Noah 23.11.2026, changed on purpose): the trophy shelf is a part of the one block «Geschafft»;
+  // its «Nächstes» line is gone, the card «Dein nächster Stern» on top says the same
+  await expect(main.getByRole('heading', { level: 2, name: T('Achieved|ms') })).toBeVisible();
+  await expect(main.getByRole('heading', { level: 3, name: T('Trophy shelf') })).toBeVisible();
+  await expect(main.locator('.ts .nx')).toHaveCount(0);
   await fits(page, 'A8');
   expect(errors).toEqual([]);
 });

@@ -161,7 +161,7 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   // «Zuletzt erreicht» is the trophy shelf there
   await main.locator('[data-row="ms"] a').click();
   await expect(page).toHaveURL(/#\/flow\/milestones$/);
-  await expect(main.getByRole('heading', { level: 2, name: T('Trophy shelf') })).toBeVisible();
+  await expect(main.getByRole('heading', { level: 3, name: T('Trophy shelf') })).toBeVisible(); // a part of the block «Geschafft» (Noah 23.11.2026)
   // the shelf shows the three newest stars, newest first: «Hingebungsvoll» star 1 (7 Oct.). Only meditation is
   // logged, so no three-ring day (a read before the activities are there no longer counts as one: no rings,
   // no three-ring day). «Neues ausprobiert» star 1 is among all milestones

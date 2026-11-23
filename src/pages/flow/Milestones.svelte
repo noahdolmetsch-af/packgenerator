@@ -10,6 +10,10 @@
    * trips and bikes (lib/home/MsHome.svelte): all areas on one page.
    * v0.105.0 Design-Refresh P8 «Aktiv» (A8): two columns; main «Bald erreichbar» as rows, «Pro Aktivität»
    * as rows, the cards; side the trophy shelf, the reward and the record wall; the numbers folded below.
+   * «Meilensteine ordnen» (Noah 23.11.2026 «ja»): on top only «Dein nächster Stern» and «Bald erreichbar»; below one
+   * list per sport (real name, playful name small; a tap opens that sport's cards), the milestones over all sports,
+   * and ONE block «Geschafft» (trophy shelf, «Ganz geschafft», record wall, year in stars). The sport's name leads
+   * every row («Indoor-Velo · Stunden»), so two «Stunden» are never mistaken for one number.
    */
   import { Lightbulb } from '@lucide/svelte';
   import Empty from '../../lib/ui/Empty.svelte';
@@ -35,7 +39,8 @@
   import { msContext, allMilestones, newStars, nextPerAct, soonList, recentStars, records as recordsOf, STAGES, TUNE_KEY, REWARD_KEY } from '../../lib/flowms.js';
   import { favActs } from '../../lib/flowtiles.js';
   import { saveStars, putSetting } from '../../lib/flowdb.js';
-  import { tileName, msName, starLine, val, dayWord, areaWord } from '../../lib/flow/hobby/words.js';
+  import { actNick, msName, starLine, dayWord, areaWord } from '../../lib/flow/hobby/words.js';
+  import { actName } from '../../lib/flow/ui.svelte.js';
   import { localDay } from '../../lib/localday.js';
   import { t, num } from '../../lib/i18n.svelte.js';
   import { phone } from '../../lib/media.svelte.js';
@@ -64,11 +69,13 @@
   // «Meilensteine kürzer» (Noah 27.10.2026 «2a»): on a phone, over all sports, the long parts wait folded
   const fold = $derived(phone.matches && filter === 'all');
   const favs = $derived(data ? favActs(data.acts) : []);
-  const chipActs = $derived.by(() => {
-    if (!data) return [];
-    const rest = data.acts.filter((a) => !a.paused && !a.fav && shown.some((r) => r.m.actId === a.id && r.reached.length));
-    return [...favs, ...rest];
-  });
+  /* the sports with milestones: the favourites first (they are the chips), the others sit in one select «More sports» */
+  const restActs = $derived(data ? data.acts.filter((a) => !a.paused && !a.fav && shown.some((r) => r.m.actId === a.id && r.reached.length)) : []);
+  const chipActs = $derived([...favs, ...restActs]);
+  const goAct = (e) => {
+    const v = e.currentTarget.value;
+    if (v) location.hash = `#/flow/milestones?act=${encodeURIComponent(v)}`;
+  };
   const actOf = $derived(data?.acts.find((a) => a.id === filter) ?? null);
   const inFilter = (r) => (filter === 'all' ? true : filter === 'cross' ? !r.m.actId : r.m.actId === filter);
   const scoped = $derived(shown.filter(inFilter));
@@ -82,7 +89,11 @@
     const by = nextPerAct(shown);
     return chipActs.map((a) => ({ a, r: by.get(a.id) })).filter((x) => x.r);
   });
-  const label = (r) => (r.m.actId && filter !== r.m.actId ? tileName(data?.acts.find((a) => a.id === r.m.actId)) : r.m.area ? areaWord(r.m.area) : '');
+  const actById = (id) => data?.acts.find((a) => a.id === id) ?? null;
+  // the sport's real name leads a row of a milestone of a sport («Indoor-Velo · Stunden»); on the sport's own view it is left out
+  const titleOf = (r) => (r.m.actId && filter !== r.m.actId && actById(r.m.actId) ? `${actName(actById(r.m.actId))} · ${msName(r.m)}` : msName(r.m));
+  // the small line: the sport's playful name, or the area of a data milestone
+  const label = (r) => (r.m.actId && filter !== r.m.actId ? actNick(actById(r.m.actId)) : r.m.area ? areaWord(r.m.area) : '');
   const recs = $derived(ctx ? recordsOf(ctx, data.rides) : []);
   const saveReward = (v) => putSetting(db, REWARD_KEY, v);
 
@@ -91,13 +102,9 @@
   const hero = $derived(ctx && data ? heroOf({ list: scoped, ctx, acts: data.acts, plan: data.plan, weeklog: data.weeklog, sessions: data.plannedSessions ?? [], today }) : null);
   const soon = $derived(soonList(hero ? scoped.filter((r) => r.id !== hero.r.id) : scoped, 5));
   // «Der Sternen-Weg» (Noah 21.11.2026 «2a»): per sport the path of its stars instead of a percent row
-  const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, title: tileName(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, href: `#/flow/milestones?act=${encodeURIComponent(a.id)}`, r })));
-  const nextUp = $derived(soonList(scoped, 1)[0] ?? scoped.filter((r) => r.next).sort((x, y) => y.progress - x.progress)[0] ?? null);
-  const shelf = $derived([
-    ...recentStars(scoped, 3).map((x) => ({ id: x.star.id, name: msName(x.r.m), when: dayWord(x.star.day, today), done: true })),
-    ...(nextUp ? [{ id: `next-${nextUp.id}`, name: msName(nextUp.m), when: starLine(nextUp.next), done: false }] : []),
-  ]);
-  const shelfNext = $derived(nextUp ? { name: msName(nextUp.m), value: val(nextUp.value, nextUp.m.unit), target: val(nextUp.target, nextUp.m.unit) } : null);
+  const perActRows = $derived(perAct.map(({ a, r }) => ({ key: a.id, title: actName(a), nick: actNick(a), sub: `${msName(r.m)} · ${r.next ? starLine(r.next) : t('all stars')}`, href: `#/flow/milestones?act=${encodeURIComponent(a.id)}`, r })));
+  // the trophy shelf shows the newest stars only; the next star stands on the card on top (no second «Weiter» line)
+  const shelf = $derived(recentStars(scoped, 3).map((x) => ({ id: x.star.id, name: titleOf(x.r), when: dayWord(x.star.day, today), done: true })));
 
   /* change the numbers (flow.msTune): own thresholds, hide, back to the suggestion */
   const tuneOpen = $derived(params.get('tune') === '1');
@@ -143,55 +150,58 @@
       <nav class="chips" aria-label={t('Filter by activity')}>
         <a class="chip" href="#/flow/milestones" aria-current={filter === 'all' ? 'page' : undefined}>{t('All')}</a>
         <a class="chip" href="#/flow/milestones?act=cross" aria-current={filter === 'cross' ? 'page' : undefined}>{t('Over all')}</a>
-        {#each chipActs as a (a.id)}<a class="chip" href="#/flow/milestones?act={encodeURIComponent(a.id)}" aria-current={filter === a.id ? 'page' : undefined}>{tileName(a)}</a>{/each}
+        {#each favs as a (a.id)}<a class="chip" href="#/flow/milestones?act={encodeURIComponent(a.id)}" aria-current={filter === a.id ? 'page' : undefined}>{actName(a)}</a>{/each}
+        {#if restActs.length}
+          <!-- the other sports in one select, not one chip each (Noah 23.11.2026) -->
+          <select class="chip pick" aria-label={t('More sports')} value={restActs.some((a) => a.id === filter) ? filter : ''} onchange={goAct} data-ms-more>
+            <option value="">{t('More sports')}</option>
+            {#each restActs as a (a.id)}<option value={a.id}>{actName(a)}</option>{/each}
+          </select>
+        {/if}
       </nav>
       <a class="btn" href="#/flow/milestones?{filter === 'all' ? '' : `act=${encodeURIComponent(filter)}&`}tune=1">{t('Change stages')}</a>
     </div>
 
-    {#if hero}<HeroNext {hero} label={label(hero.r)} />{/if}
+    {#if hero}<HeroNext {hero} label={label(hero.r)} title={titleOf} />{/if}
 
     <!-- «Belohnung nach oben» (Noah 21.11.2026 «5a»): the reward sits right under the next star, not at the side -->
     <Sec id="reward-h" title={t('Reward')}>
       <RewardRow list={scoped.filter((r) => r.next)} reward={data.reward} wishlist={data.wishlist} onsave={saveReward} quick={hero?.r ?? null} />
     </Sec>
 
-    {#if doneList.length}<DoneShelf list={doneList} {label} />{/if}
-
-    {#if yearStars.all}<YearStars y={yearStars} {today} />{/if}
-
-    <MsHow />
-
     <div class="lay">
       <div class="col">
         <Sec id="soon-h" title={t('Soon within reach')} sub={t('from 80 %')}>
-          {#if soon.length}<MsRows list={soon} {label} />{:else}<Empty text={t('Nothing at 80 % yet. The next stars are under «All».')} />{/if}
+          {#if soon.length}<MsRows list={soon} {label} title={titleOf} />{:else}<Empty text={t('Nothing at 80 % yet. The next stars are under «All».')} />{/if}
         </Sec>
 
         {#if perAct.length}
-          <Sec id="per-h" title={t('Per activity · your path')} sub={t('Gold: reached. The next star fills as you get closer.')}>
+          <Sec id="per-h" title={t('Per activity · your path')} sub={t('Tap a sport to see all its milestones.')}>
             <StarPath rows={perActRows} />
           </Sec>
         {/if}
 
-        <Sec id="all-h" title={actOf ? tileName(actOf) : t('All milestones')} sub={actOf ? '' : t('over all activities')}>
-          {#if cards.length}
-            <!-- phone: the first six, the rest after «Alle n zeigen» -->
-            {#if fold && cards.length}
-              <!-- Noah 27.10.2026 «2a»: on a phone only the next star per sport stays open (above); all cards wait folded -->
-              <details class="card fold" data-ms-fold="all" ontoggle={opened('all')}>
-                <summary data-ms-all>{t('Show all {n}', { n: cards.length })}</summary>
-                {#if seen.all}<div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>{/if}
-              </details>
+        {#if filter !== 'all' || cards.length || doneList.length}
+          <Sec id="all-h" title={actOf ? actName(actOf) : filter === 'all' ? t('Over all sports') : t('All milestones')} sub={actOf ? actNick(actOf) : ''}>
+            {#if cards.length}
+              <!-- phone: the first six, the rest after «Alle n zeigen» -->
+              {#if fold && cards.length}
+                <!-- Noah 27.10.2026 «2a»: on a phone only the next star per sport stays open (above); all cards wait folded -->
+                <details class="card fold" data-ms-fold="all" ontoggle={opened('all')}>
+                  <summary data-ms-all>{t('Show all {n}', { n: cards.length })}</summary>
+                  {#if seen.all}<div class="grid">{#each cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>{/if}
+                </details>
+              {:else}
+                <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
+                {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
+              {/if}
+            {:else if doneList.length}
+              <Empty text={t('Every milestone here has all its stars. They stand on the shelf «Fully done» above.')} />
             {:else}
-              <div class="grid">{#each phone.matches && !allCards ? cards.slice(0, CARDS_PHONE) : cards as r (r.id)}<MsCard {r} sub={r.m.area ? '' : label(r)} />{/each}</div>
-              {#if phone.matches && !allCards && cards.length > CARDS_PHONE}<button type="button" class="btn btn-link" onclick={() => (allCards = true)} data-ms-all>{t('Show all {n}', { n: cards.length })} ›</button>{/if}
+              <Empty text={t('This activity has no milestones yet.')} />
             {/if}
-          {:else if doneList.length}
-            <Empty text={t('Every milestone here has all its stars. They stand on the shelf «Fully done» above.')} />
-          {:else}
-            <Empty text={t('This activity has no milestones yet.')} />
-          {/if}
-        </Sec>
+          </Sec>
+        {/if}
 
         {#if filter === 'all' && fold}
           <details class="card fold" data-ms-fold="areas" ontoggle={opened('areas')}>
@@ -202,17 +212,29 @@
       </div>
 
       <aside class="col">
-        <Sec id="shelf-h" title={t('Trophy shelf')} sub={t('reached lately')}>
-          <div class="card shelf"><TrophyShelf items={shelf} next={shelfNext} more="#/flow/trophies" /></div>
+        <!-- ONE block «Geschafft» (Noah 23.11.2026): the trophy shelf, «Ganz geschafft», the record wall and the year in stars -->
+        <Sec id="geschafft-h" title={t('Achieved|ms')} sub={t('Everything you have reached, in one place. Stars stay for ever.')}>
+          <div class="card gb" data-geschafft>
+            <section aria-labelledby="shelf-h">
+              <h3 id="shelf-h">{t('Trophy shelf')}<small>{t('reached lately')}</small></h3>
+              {#if shelf.length}<TrophyShelf items={shelf} more="#/flow/trophies" />{:else}<p class="none">{t('Your first star stands here.')}</p>{/if}
+            </section>
+            {#if doneList.length}<DoneShelf embedded list={doneList} {label} title={titleOf} />{/if}
+            {#if (filter === 'all' || filter === 'cross') && recs.length}
+              <section aria-labelledby="rec-h">
+                <h3 id="rec-h">{t('Record wall')}</h3>
+                <RecordWall list={recs} {today} />
+              </section>
+            {/if}
+            {#if yearStars.all}<YearStars embedded y={yearStars} {today} />{/if}
+          </div>
         </Sec>
-        {#if (filter === 'all' || filter === 'cross') && recs.length}
-          <Sec id="rec-h" title={t('Record wall')}>
-            <RecordWall list={recs} {today} />
-          </Sec>
-        {/if}
         <p class="note"><Lightbulb size={16} aria-hidden="true" /><span>{t('Only the next star per milestone. Stars reached stay, even when a streak breaks. No confetti, no ranking. The numbers are suggestions.')}</span></p>
       </aside>
     </div>
+
+    <!-- the explanation waits folded at the end (Noah 23.11.2026), the choice is kept on this device -->
+    <MsHow start={false} />
 
     <details class="card tune" open={tuneOpen} ontoggle={opened('tune')}>
       <summary>{t('Change numbers and stages')}</summary>
@@ -223,7 +245,7 @@
         <ul class="tl">
           {#each tuneList as r (r.id)}
             <li data-tune={r.m.key}>
-              <span class="tn"><b>{msName(r.m)}</b>{#if r.m.sugg}<Sugg />{/if}{#if r.m.actId}<small>{tileName(data.acts.find((a) => a.id === r.m.actId))}</small>{:else if r.m.area}<small>{areaWord(r.m.area)}</small>{/if}</span>
+              <span class="tn"><b>{msName(r.m)}</b>{#if r.m.sugg}<Sugg />{/if}{#if r.m.actId}<small>{actName(actById(r.m.actId))}</small>{:else if r.m.area}<small>{areaWord(r.m.area)}</small>{/if}</span>
               <label class="ti"><span class="sr">{t('Thresholds of {name}', { name: msName(r.m) })}</span>
                 <input class="inp" inputmode="decimal" value={stepsText(r)} onchange={(e) => setSteps(r, e.currentTarget.value)} />
               </label>
@@ -312,8 +334,31 @@
       grid-template-columns: minmax(0, 1fr);
     }
   }
-  .shelf {
+  .gb {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-5);
     padding: var(--sp-4);
+    min-width: 0;
+  }
+  .gb h3 {
+    margin: 0 0 var(--sp-2);
+    font: 700 var(--fs-section) / 1.25 var(--font-body);
+  }
+  .gb h3 small {
+    margin-left: var(--sp-2);
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 400;
+  }
+  .none {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .pick {
+    appearance: auto;
+    max-width: 100%;
   }
   .note {
     display: flex;

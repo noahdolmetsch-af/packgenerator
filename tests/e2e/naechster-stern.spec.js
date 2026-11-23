@@ -141,3 +141,38 @@ test('the year in stars: twelve bars, totals, filter by sport', async ({ page, c
   await fits(page, 'milestones with year');
   expect(errors).toEqual([]);
 });
+
+// «Meilensteine ordnen» (Noah 23.11.2026 «ja»): one block «Geschafft», a list per sport with the real name first
+test('one block «Geschafft» holds the shelf, the finished ones and the year; the next star is not repeated there', async ({ page, context }) => {
+  const errors = await open(page, context, { tennis: 22, rows: { settings: [{ key: 'flow.msTune', value: { 'tennis.sessions': { steps: [5, 10] } } }] } });
+  const block = page.locator('[data-geschafft]');
+  await expect(block).toHaveCount(1);
+  await expect(page.getByRole('heading', { level: 2, name: T('Achieved|ms') })).toBeVisible();
+  await expect(block.locator('[data-done-shelf]')).toBeVisible();
+  await expect(block.getByRole('heading', { level: 3, name: T('Trophy shelf') })).toBeVisible();
+  await expect(block.locator('.ts .nx')).toHaveCount(0);
+  await expect(block.locator('[data-year-stars]')).toBeVisible();
+  // nothing of it stands outside the block any more
+  await expect(page.locator('[data-done-shelf]')).toHaveCount(1);
+  await expect(page.locator('[data-year-stars]')).toHaveCount(1);
+  await fits(page, 'milestones with the block');
+  expect(errors).toEqual([]);
+});
+
+test('a sport shows its real name first and its playful name small; rows lead with the sport', async ({ page, context }) => {
+  const errors = await open(page, context, { tennis: 22 });
+  const row = page.locator('[data-path="tennis"]');
+  await expect(row.locator('b')).toHaveText('Tennis spielen');
+  await expect(row.locator('.nk')).toHaveText('Filzball');
+  // every row of a sport's milestone starts with the sport: two «Stunden» are never one number
+  const rows = page.locator('section[aria-labelledby="soon-h"] li[data-ms] b');
+  const n = await rows.count();
+  for (let i = 0; i < n; i++) {
+    const id = await page.locator('section[aria-labelledby="soon-h"] li[data-ms]').nth(i).getAttribute('data-ms');
+    if (/^(tennis|bike|yoga|gym|pushups|meditation|run|walk|sauna|hockey)\./.test(id)) expect(await rows.nth(i).textContent(), id).toContain(' · ');
+  }
+  // the chips stay few: «Alle», «Über alle» and the favourites; other sports sit in one select
+  expect(await page.locator('.chips a.chip').count()).toBeLessThanOrEqual(8);
+  await fits(page, 'milestones with sports');
+  expect(errors).toEqual([]);
+});
