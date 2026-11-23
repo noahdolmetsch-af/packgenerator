@@ -8,7 +8,7 @@ export default {
     { text: 'Today: «n things are up today» is tappable and jumps to «Up now»', go: { href: '#/', steps: [{ sel: '[data-say-jump]' }], where: 'Today, under the greeting (on a day with things to do).' } },
   ],
   small: [
-    { box: 'new', text: 'The row «Belongs to …» is a closed line behind the title; «Back» names where you came from', go: { href: '#/trips', steps: [{ sel: '[data-card-line="gd:trips"]' }] } },
+    { box: 'new', text: 'The row «Belongs to …» is a closed line behind the title; «Back» names where you came from', go: { href: '#/trips', steps: [{ sel: '[data-card-line="gd:trips"]' }], where: 'Trips, the closed line behind the title.' } },
     { box: 'new', text: 'What is new shows the day with the weekday and the time, and a picture you can open', go: { href: '#/me/news', steps: [{ sel: '[data-version]' }] } },
     { box: 'new', text: 'Own to-dos in the week say «Remove» (it asks first), and Mail shows its state in Connections', go: null },
   ],
@@ -27,6 +27,7 @@ export default {
     'Today: «n things are up today» is tappable and jumps to «Up now»': 'Heute: «n Dinge sind heute dran» ist tippbar und springt zu «Jetzt dran»',
     'Today, under the greeting (on a day with things to do).': 'Heute, unter dem Gruss (an einem Tag mit Dingen zu tun).',
     'The row «Belongs to …» is a closed line behind the title; «Back» names where you came from': 'Die Zeile «Gehört zu …» ist eine geschlossene Zeile hinter dem Titel; «Zurück» nennt die Herkunft',
+    'Trips, the closed line behind the title.': 'Touren, die geschlossene Zeile hinter dem Titel.',
     'What is new shows the day with the weekday and the time, and a picture you can open': 'Was ist neu zeigt den Tag mit Wochentag und Uhrzeit und ein Bild zum Öffnen',
     'Own to-dos in the week say «Remove» (it asks first), and Mail shows its state in Connections': 'Eigene To-dos in der Woche sagen «Entfernen» (mit Frage), und Mail zeigt in den Verbindungen seinen Stand',
     'Open Me and type «backup» into the field behind the title: the functions appear, a tap leads to one.': 'Ich öffnen und «backup» in das Feld hinter dem Titel tippen: die Funktionen erscheinen, ein Tipp führt zu einer.',
