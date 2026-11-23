@@ -26,6 +26,7 @@
     return min ? t('{h} h {min}', { h: hh, min }) : t('{h} h|tour', { h: hh });
   };
   const LEVEL_NAME = { easy: 'Easy|level', medium: 'Medium|level', difficult: 'Difficult|level' };
+  // on a touch screen a tap also focuses the link: the card then comes from the tap (onTap), not from the focus, or the first tap would open the tour
   const touch = () => typeof matchMedia === 'function' && matchMedia('(hover: none)').matches;
   const onEnter = (id, e) => e.pointerType === 'mouse' && (tip = id);
   const onLeave = (e) => e.pointerType === 'mouse' && (tip = null);
@@ -55,7 +56,7 @@
       <path d={x.d} class="ln" class:hard={x.hard} class:grey={x.grey} class:hot={tip === x.id} class:dim={tip && tip !== x.id} stroke-width={tip === x.id ? z.line * 2.4 : z.line} />
     {/each}
     {#each drawn as x (x.id)}
-      <a href={`#/trips/vorschlaege/${x.id}`} aria-label={x.title} data-explain="off" data-vs-dot={x.id} onpointerenter={(e) => onEnter(x.id, e)} onpointerleave={onLeave} onfocus={() => (tip = x.id)} onblur={() => (tip = null)} onclick={(e) => onTap(x.id, e)}>
+      <a href={`#/trips/vorschlaege/${x.id}`} aria-label={x.title} data-explain="off" data-vs-dot={x.id} onpointerenter={(e) => onEnter(x.id, e)} onpointerleave={onLeave} onfocus={() => touch() || (tip = x.id)} onblur={() => (tip = null)} onclick={(e) => onTap(x.id, e)}>
         <circle cx={x.start[0]} cy={x.start[1]} r={z.dot * 1.4} class="hit" />
         <circle cx={x.start[0]} cy={x.start[1]} r={z.dot} class="dot" class:hard={x.hard} class:grey={x.grey} stroke-width={z.dot * 0.3} />
       </a>

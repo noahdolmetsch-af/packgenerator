@@ -22,3 +22,6 @@ PR (Nummer nach dem Öffnen) · 23.11.2026 · Auftrag: Noah «1-5a» (Idee B des
 1. Tourenvorschläge › eine Tour öffnen, ins Profil tippen: auf der Karte erscheint ein Punkt an derselben Stelle.
 2. Auf der Karte die Linie antippen: der Cursor im Profil springt dorthin.
 3. Unter dem Profil steht der Untergrund-Streifen mit Legende. Am Handy passt alles in die Breite.
+
+## Fehler aus dem vorigen PR (Hover) behoben
+- Am Handy öffnete der erste Tipp auf einen Punkt sofort die Tour, weil ein Tipp den Link auch fokussiert und der Fokus die Karte schon «gezeigt» hatte. Jetzt zeigt am Handy nur der Tipp die Karte (`Karte.svelte`); der Test tippt wirklich (nicht nur ein Klick-Ereignis). Neuheit: eine Datei für den ganzen PR (`tourenvorschlaege-profil.js`).

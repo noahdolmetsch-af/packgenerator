@@ -3,7 +3,7 @@
 PR (Nummer nach dem Öffnen) · 23.11.2026 · Auftrag: Noah «1-5a» (Idee B des Höhenprofil-Auftrags, Thread «100 kluge MTB-Touren vorschlagen»).
 
 ## Was ist neu
-- **Die steilsten Stücke:** unter dem Höhenprofil einer vorgeschlagenen Tour stehen bis zu drei Anstiege ab 12 %, mit km-Bereich, Schnitt, höchster Steigung und Höhenmetern (`src/lib/vorschlaege/steil.js`, gerechnet aus den Höhen alle 100 m über Fenster von etwa 250 m).
+- **Die steilsten Stücke:** unter dem Höhenprofil einer vorgeschlagenen Tour stehen bis zu drei Anstiege ab 12 %, mit km-Bereich, Schnitt, höchster Steigung und Höhenmetern (`src/lib/map/steilste.js`, für alle Seiten mit Höhenprofil nutzbar; gerechnet aus den Höhen alle 100 m über Fenster von etwa 250 m).
 - **Ein Tipp** färbt das Stück auf der Karte dunkelrot (weiss eingerahmt), die Karte und das Profil zoomen hinein; ein zweiter Tipp geht zurück zur ganzen Tour.
 - Ist nichts steiler als 12 %, steht ein ruhiger Satz: «Kein Stück ist steiler als 12 %. Du kannst alles fahren.»
 

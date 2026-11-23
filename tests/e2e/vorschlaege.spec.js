@@ -72,7 +72,7 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   const dot = page.locator(`[data-vs-dot="${FIRST}"]`);
   await dot.scrollIntoViewIfNeeded();
   if (info.project.name === 'phone') {
-    await dot.dispatchEvent('click');
+    await dot.tap({ force: true }); // a real touch tap (it also focuses the link): the first tap shows the card
   } else {
     await dot.hover({ force: true });
   }
