@@ -1,9 +1,9 @@
 <script>
   /**
    * «Tourenvorschläge» (Noah 05.11.2026 «a b, Mockup ja», «1a 2a 3a»), Touren › Träume › Tourenvorschläge (#/trips/vorschlaege).
-   * Pilot: five mountain bike tours from the official network «Mountainbikeland Schweiz» (swisstopo, SchweizMobil) in Zurich
-   * and Grisons, with the filters region, level and time, «Why this suggestion?», a height profile with the ground, and the
-   * real map. The rules are in lib/vorschlaege/regeln.js (pure, tests/vorschlaege.test.js). The data (data/pilot.js) loads only
+   * 100 mountain bike tours from the official network «Mountainbikeland Schweiz» (swisstopo, SchweizMobil), nearest first,
+   * with the filters canton, kind, start, fitness (hard at the start), skill and time, «Why this suggestion?», a height profile with the ground, and the
+   * real map. The rules are in lib/vorschlaege/regeln.js (pure, tests/vorschlaege.test.js). The data (data/netz.js) loads only
    * with this page. Tours that do not fit this month (snow) stand grey in their own group, with the reason.
    * Your own data: pace (Dein Tempo), home place and your rides (for «new for you») are only read; «Not for me» and the
    * filters stay on this device. «Keep as a dream» adds the tour to Touren › Träume.
@@ -21,7 +21,7 @@
   import Empty from '../lib/ui/Empty.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import Profil from '../lib/vorschlaege/Profil.svelte';
-  import { REGIONS, LEVELS, LEVELS_STD, HOURS, ARTS, AWAYS, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
+  import { REGIONS, LEVELS, COND_STD, TECH_STD, HOURS, ARTS, AWAYS, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
   import { t, num } from '../lib/i18n.svelte.js';
   import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight } from '@lucide/svelte';
   import '../lib/ich/ich.css';
@@ -33,7 +33,7 @@
 
   let tours = $state(null); // the data loads with the page
   onMount(async () => {
-    tours = (await import('../lib/vorschlaege/data/pilot.js')).default;
+    tours = (await import('../lib/vorschlaege/data/netz.js')).default;
   });
 
   // ---- hash: the list or one tour (#/trips/vorschlaege/<id>)
@@ -51,13 +51,14 @@
       const f = JSON.parse(localStorage.getItem(FILTER_KEY) || 'null');
       return {
         regions: Array.isArray(f?.regions) ? f.regions.filter((k) => REGIONS.some((r) => r.key === k)) : [],
-        levels: Array.isArray(f?.levels) ? f.levels.filter((l) => LEVELS.includes(l)) : [...LEVELS_STD],
+        conds: Array.isArray(f?.conds) ? f.conds.filter((l) => LEVELS.includes(l)) : [...COND_STD],
+        techs: Array.isArray(f?.techs) ? f.techs.filter((l) => LEVELS.includes(l)) : [...TECH_STD],
         maxHours: HOURS.includes(f?.maxHours) ? f.maxHours : null,
         arts: Array.isArray(f?.arts) ? f.arts.filter((k) => ARTS.includes(k)) : [],
         maxAway: AWAYS.includes(f?.maxAway) ? f.maxAway : null,
       };
     } catch {
-      return { regions: [], levels: [...LEVELS_STD], maxHours: null, arts: [], maxAway: null };
+      return { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null };
     }
   };
   let flt = $state(read());
@@ -73,7 +74,28 @@
     const list = flt[key];
     flt[key] = list.includes(val) ? list.filter((x) => x !== val) : [...list, val];
   };
-  const resetFilters = () => (flt = { regions: [], levels: [...LEVELS_STD], maxHours: null, arts: [], maxAway: null });
+  const resetFilters = () => (flt = { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null });
+
+  // ---- list or map (kept on this device; the first time: the map on a wide screen, the list on a phone)
+  const VIEW_KEY = 'vorschlaege.view';
+  const readView = () => {
+    try {
+      const v = localStorage.getItem(VIEW_KEY);
+      if (v === 'map' || v === 'list') return v;
+    } catch {
+      /* private window */
+    }
+    return matchMedia?.('(min-width: 900px)').matches ? 'map' : 'list';
+  };
+  let view = $state(readView());
+  const setView = (v) => {
+    view = v;
+    try {
+      localStorage.setItem(VIEW_KEY, v);
+    } catch {
+      /* not kept */
+    }
+  };
 
   // ---- the lines of «Why this suggestion?» you do not want (kept on this device)
   const WHY_OFF_KEY = 'vorschlaege.whyoff';
@@ -127,7 +149,7 @@
     });
 
   // ---- the lists
-  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, levels: flt.levels, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, home, hidden, pace }) : []);
+  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, home, hidden, pace }) : []);
   const split = $derived(splitNow(shown, month));
   const open = $derived(tours && openId ? tours.find((x) => x.id === openId) ?? null : null);
 
@@ -151,13 +173,15 @@
       return t('No snow expected up to {m} m in this month.', { m: num(r.max) });
     }
     if (r.k === 'level') {
+      if (r.best) return t('The strongest tour of this canton: only medium for fitness (no hard one in the official network).');
       if (r.cond === 'difficult' && r.tech === 'difficult') return t('Hard for fitness and for skill.');
       return r.cond === 'difficult' ? t('Hard for fitness: long or steep.') : t('Hard for skill: technical trail.');
     }
     if (r.k === 'new') return t('About {n} % of the line is new for you.', { n: r.share });
-    return t('About {km} km from home to the start.', { km: r.km });
+    return r.zurich ? t('About {km} km from Zurich main station to the start.', { km: r.km }) : t('About {km} km from home to the start.', { km: r.km });
   }
   const ART_NAME = { trail: 'Single trail|tour', downhill: 'Downhill|tour', gravel: 'Gravel and paths|tour', loop: 'Round trip|tour' };
+  const regionCount = $derived(tours ? tours.reduce((a, x) => ({ ...a, [x.region]: (a[x.region] ?? 0) + 1 }), {}) : {});
   const artCount = $derived(tours ? Object.fromEntries(ARTS.map((k) => [k, tours.filter((x) => artsOf(x).includes(k)).length])) : {});
   const toneIcon = (r) => (r.tone === 'warn' ? TriangleAlert : Check);
 
@@ -199,7 +223,7 @@
   </span>
 {/snippet}
 
-<div class="ich-page vs" data-page="vorschlaege">
+<div class="ich-page vs" class:wide={!open && view === 'map'} data-page="vorschlaege">
   {#if open}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={`${regionName(open.region)} · ${t(tourClass(open))}`} />
     <div class="map" data-vs-map>
@@ -268,8 +292,8 @@
     <section class="card pad filters" aria-label={t('Filters|tour')} data-vs-filters>
       <div class="grp" role="group" aria-label={t('Region|tour')}>
         <span class="gl">{t('Region|tour')}</span>
-        {#each REGIONS as r (r.key)}
-          <button type="button" class="chip" aria-pressed={flt.regions.includes(r.key)} data-vs-region={r.key} onclick={() => toggle('regions', r.key)}>{regionName(r.key)}</button>
+        {#each REGIONS.filter((r) => regionCount[r.key]) as r (r.key)}
+          <button type="button" class="chip" aria-pressed={flt.regions.includes(r.key)} aria-label={regionName(r.key)} title={regionName(r.key)} data-vs-region={r.key} onclick={() => toggle('regions', r.key)}>{r.key.toUpperCase()}</button>
         {/each}
       </div>
       <div class="grp" role="group" aria-label={t('Kind of tour')} data-vs-arts>
@@ -289,10 +313,17 @@
           <span class="hint">{t('Set your home place and you can choose how far the start may be.')}</span>
         {/if}
       </div>
-      <div class="grp" role="group" aria-label={t('Difficulty|tour')}>
-        <span class="gl">{t('Difficulty|tour')}</span>
+      <div class="grp" role="group" aria-label={t('Fitness|tour')} data-vs-cond-group>
+        <span class="gl">{t('Fitness|tour')}</span>
         {#each LEVELS as l (l)}
-          <button type="button" class="chip" aria-pressed={flt.levels.includes(l)} data-vs-level={l} onclick={() => toggle('levels', l)}>{levelName(l)}</button>
+          <button type="button" class="chip" aria-pressed={flt.conds.includes(l)} data-vs-cond={l} onclick={() => toggle('conds', l)}>{levelName(l)}</button>
+        {/each}
+      </div>
+      <div class="grp" role="group" aria-label={t('Skill|tour')} data-vs-tech-group>
+        <span class="gl">{t('Skill|tour')}</span>
+        <button type="button" class="chip" aria-pressed={flt.techs.length === 0} data-vs-tech="any" onclick={() => (flt.techs = [])}>{t('Any|tour')}</button>
+        {#each LEVELS as l (l)}
+          <button type="button" class="chip" aria-pressed={flt.techs.includes(l)} data-vs-tech={l} onclick={() => toggle('techs', l)}>{levelName(l)}</button>
         {/each}
       </div>
       <div class="grp" role="group" aria-label={t('Time|tour')}>
@@ -302,14 +333,22 @@
           <button type="button" class="chip" aria-pressed={flt.maxHours === h} data-vs-hours={h} onclick={() => (flt.maxHours = h)}>{t('Up to {h} h', { h })}</button>
         {/each}
       </div>
-      <p class="hint"><Info size={14} aria-hidden="true" />{t('«Medium» and «Difficult» are on at the start: a tour shows when its fitness or its skill level is chosen. Switch «Easy» on to see the easy ones too.')}</p>
+      <p class="hint"><Info size={14} aria-hidden="true" />{t('Only tours that are hard for fitness are on at the start. Switch «Medium» or «Easy» on to see more. A tour is never left out because of its skill level: the filter only narrows it down.')}</p>
     </section>
 
     {#if !tours}
       <p class="hint" role="status">{t('Loading the tours…')}</p>
     {:else if !shown.length}
-      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, levels: flt.levels, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, home, pace }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
+      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, home, pace }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
     {:else}
+      <div class="seg" role="group" aria-label={t('View|tour')}>
+        <button type="button" class="chip" aria-pressed={view === 'list'} data-vs-view="list" onclick={() => setView('list')}>{t('List|tour')}</button>
+        <button type="button" class="chip" aria-pressed={view === 'map'} data-vs-view="map" onclick={() => setView('map')}>{t('Map|tour')}</button>
+        <span class="hint num" data-vs-count>{t('{n} tours', { n: shown.length })}</span>
+      </div>
+      {#if view === 'map'}
+        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} />{:catch}{/await}
+      {:else}
       <section class="ich-sec" aria-labelledby="vs-fit" data-vs-fits>
         <div class="ich-h"><div><h2 id="vs-fit">{t('Fits now')} <small class="n num">{split.fits.length}</small></h2><p class="ich-hs">{t('Tours that suit this month.')}</p></div></div>
         {#if split.fits.length}
@@ -333,12 +372,13 @@
           </ul>
         </section>
       {/if}
+      {/if}
     {/if}
 
     {#if hidden.length}
       <p class="hint"><EyeOff size={14} aria-hidden="true" />{t('{n} hidden.', { n: hidden.length })} <button type="button" class="btn btn-link" data-vs-unhide onclick={() => setHidden([])}>{t('Show all again')}</button></p>
     {/if}
-    <p class="src">{t('Tours: © swisstopo, SchweizMobil («Mountainbikeland Schweiz»). Pilot with five tours in Zurich and Grisons. Check closures and snow on the spot.')}</p>
+    <p class="src">{t('Tours: © swisstopo, SchweizMobil («Mountainbikeland Schweiz»). 200 tours in the cantons with official routes, nearest first. Check closures and snow on the spot.')}</p>
   {/if}
 </div>
 
@@ -363,6 +403,8 @@
 
 <style>
   .vs { max-width: 900px; }
+  .vs.wide { max-width: 1440px; }
+  .seg { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: var(--sp-3); }
   .intro { max-width: 65ch; margin: 0 0 var(--sp-4); color: var(--ink-2); }
   .pad { padding: var(--sp-3); }
   .filters { display: grid; gap: var(--sp-3); margin-bottom: var(--sp-4); }
