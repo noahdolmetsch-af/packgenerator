@@ -3,7 +3,7 @@
  * moments come as their own window instead of only a line on Heute. Each window has «Später» (back in one
  * hour) and «Heute nicht» (away until tomorrow); its main button leads to the page. Only one at a time.
  *   - eve:  the evening before a trip, from 17:00, while not everything is packed («Packen»)
- *   - week: Sunday from 18:00, the Wochenrückblick
+ *   - (the Sunday window «week» is gone, Noah 22.11.2026 Schritt F: the card «Deine Woche» on Heute has it)
  *   - flight: the evening before a trip with a flight number (Paket V, Idee 277, Noah «1a»: in the evening
  *     window, not on Heute), when everything is packed; when not, the «eve» window carries the flight line
  * Pure rules: no database, no clock (stamps 'YYYY-MM-DDTHH:MM', local time).
@@ -14,7 +14,6 @@ import { flightOf } from '../alltag.js';
 /** The settings record: { [id]: { later?: stamp, off?: day, done?: day } }. */
 export const WINDOWS_KEY = 'homeWindows';
 export const EVE_FROM = '17:00';
-export const WEEK_FROM = '18:00';
 
 const p2 = (n) => String(n).padStart(2, '0');
 const hmOf = (stamp) => String(stamp ?? '').slice(11, 16);
@@ -69,15 +68,11 @@ export function flightBefore(trips = [], now) {
   return trip ? { trip, flight: flightOf(trip) } : null;
 }
 
-/** Sunday from 18:00: the week is nearly over. */
-export const weekDue = (now) => new Date(`${dayOfStamp(now)}T12:00:00Z`).getUTCDay() === 0 && hmOf(now) >= WEEK_FROM;
-
 /** The one window to show now (the trip first), or null. */
 export function windowNow({ rec, now, trips = [], itemsById = {}, name }) {
   const eve = eveBefore(trips, now, itemsById, name);
   if (eve && mayShow(rec, 'eve', now)) return { id: 'eve', ...eve, flight: flightOf(eve.trip) || null };
   const fly = eve ? null : flightBefore(trips, now);
   if (fly && mayShow(rec, 'flight', now)) return { id: 'flight', ...fly };
-  if (weekDue(now) && mayShow(rec, 'week', now)) return { id: 'week' };
   return null;
 }
