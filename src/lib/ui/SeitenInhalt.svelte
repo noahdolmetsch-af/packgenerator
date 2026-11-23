@@ -13,7 +13,8 @@
   import { pageContent, pagePattern, SEEN_KEY, seenMapOf, newSince } from '../seiteninhalt.js';
   import { afterTitle } from './nachtitel.js';
 
-  let { hash = '' } = $props();
+  // side: a second line that stands in the same row (Velos on a phone: «Belongs to …»), see App.svelte
+  let { hash = '', side = null } = $props();
   const rows = $derived(pageContent(hash));
   const key = $derived(pagePattern(hash)); // one place for all trips (#/debrief/:trip), not one per trip
   const seenQ = liveQuery(async () => seenMapOf((await db.settings.get(SEEN_KEY))?.value));
@@ -30,10 +31,15 @@
 </script>
 
 <div class="si-host" data-seiteninhalt-host use:afterTitle>
-{#if rows.length && $seenQ}
+{#if (rows.length || side) && $seenQ}
+<div class="si-row" class:two={!!side && rows.length > 0}>
+  {#if rows.length}
   <button type="button" class="si-line" onclick={openHelp} aria-haspopup="dialog" data-seiteninhalt-line>
     <Lightbulb size={16} aria-hidden="true" /><span class="si-linet">{t('What you can do here')} <span class="num">{rows.length}</span></span>{#if fresh}<span class="si-new" data-seiteninhalt-new title={t('{n} new on this page', { n: fresh })}>{t('{n} new', { n: fresh })}</span>{/if}<span class="si-open">{t('Open the help')}</span><ChevronRight size={16} aria-hidden="true" />
   </button>
+  {/if}
+  {@render side?.()}
+</div>
 {/if}
 </div>
 
@@ -44,6 +50,32 @@
   }
   .si-host:not([data-placed]) {
     display: none;
+  }
+  /* a row with two lines side by side (Velos on a phone): «What you can do here» and «Belongs to …» are one small row; an opened «Belongs to» card goes under it */
+  .si-row {
+    grid-column: 1 / -1;
+    display: block;
+  }
+  .si-row.two {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .si-row.two .si-line,
+  .si-row.two :global(.cf-line) {
+    flex: 1 1 0;
+    width: auto;
+    margin: 0;
+    min-width: 0;
+  }
+  .si-row.two .si-open,
+  .si-row.two :global(.cf-open) {
+    display: none;
+  }
+  .si-row.two :global(.gd),
+  .si-row.two :global(.cf-fold) {
+    flex: 1 1 100%;
   }
   .si-line {
     grid-column: 1 / -1; /* in a page laid out as a grid the line spans the row */

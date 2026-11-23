@@ -13,7 +13,9 @@ test('the weather service is down: one calm sentence', async ({ page, context },
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./#/');
   await ready(page);
-  // Today asks for the home place with an inline search; the service does not answer
+  // Today asks for the home place with an inline search; the service does not answer. An empty Today keeps this line away
+  // («Starte hier», V2): «Jetzt alles zeigen» brings it
+  await page.locator('[data-empty-wall]').getByRole('button', { name: T('Show everything now') }).click();
   await page.getByText(T('Set your home place for the weather')).first().click();
   await page.getByLabel(T('Your home place')).first().fill('Bern');
   await page.locator('form.find').getByRole('button', { name: T('Find') }).click();

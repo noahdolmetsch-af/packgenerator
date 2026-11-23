@@ -28,6 +28,7 @@ export function watchWhitePage(target = globalThis.document?.getElementById('app
       b.style.cssText = 'padding:.8rem 1.2rem;font-size:1rem;border-radius:.6rem;border:0;background:#1f3a2e;color:#fff';
       b.addEventListener('click', () => freshReload());
       card.append(h, p, b);
+      doc.getElementById?.('boot')?.remove(); // the quiet frame of index.html («Sofort ein Bild») would hide the card
       target.append(card);
     }, wait);
   };
