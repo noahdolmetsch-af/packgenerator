@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import DE from '../../src/lib/i18n/de/index.js';
 import { openData, settle } from './settle.js';
+import { openTools } from './gearmenu.js';
 
 // SN3+ «Bausteine je nach Lage» (answer «aufklappbar b»): only «Je nach Lage» is open on Bausteine; open the other groups
 const openGroups = async (page) => {
@@ -92,9 +93,10 @@ async function shot(page, info, name) {
 test('Wiege-Modus: Velo ueberspringen, 3 Teile wiegen, Undo, Fertig', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/gear');
-  // The quiet line counts the 3 items, as the head and the view «Unweighed» (v0.137.0 DK2); the bike waits in the queue too.
-  const row = page.getByRole('button', { name: T('{n} without weight · weigh now', { n: 3 }) });
-  await expect(row).toBeVisible();
+  // Material aufräumen (23.11.2026, changed on purpose): the quiet line is gone; «Record weights» in «…» counts the 3 items, the bike waits in the queue too.
+  await expect(page.getByRole('button', { name: T('{n} without weight · weigh now', { n: 3 }) })).toHaveCount(0);
+  const row = (await openTools(page)).locator('[data-gear-quick-item="weigh"]');
+  await expect(row.locator('.badge')).toHaveText('4'); // 3 items and the bike in the queue
   await shot(page, info, 'material-wiegen-zeile');
   await row.click();
 
@@ -148,8 +150,8 @@ test('Wiege-Modus: Velo ueberspringen, 3 Teile wiegen, Undo, Fertig', async ({ p
 
   // Done: back to the list, every item has a weight; only the bike is left (v0.137.0 DK2).
   await weigh.getByRole('button', { name: T('Done') }).first().click();
-  await expect(page.getByRole('button', { name: T('Weigh bikes and bags') })).toBeVisible();
-  // The ••• of the page opens it too.
+  // Material aufräumen (23.11.2026, changed on purpose): the quiet line «Weigh bikes and bags» is gone, the ••• of the page opens it.
+  await expect(page.getByRole('button', { name: T('Weigh bikes and bags') })).toHaveCount(0);
   await page.getByLabel(T('More for Gear')).click();
   await page.getByRole('button', { name: new RegExp(T('Record weights')) }).click();
   await expect(name).toHaveText(`${P} Stadtvelo`);

@@ -131,11 +131,12 @@ test('Import pruefen (Check import): choose the file, check, apply, see it in Ge
   // 4. In Gear: the new item is there; Gear "•••" leads back to the staging page.
   await page.goto('./#/gear?q=Kompass');
   await expect(page.getByText('test_data_gtp_Kompass').first()).toBeVisible();
-  await page.locator('details.gmore > summary').click();
+  await page.locator('details.gmore:not(.vmenu) > summary').click();
   // The open menu fits the screen (no horizontal scroll).
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   if (shots) await page.screenshot({ path: `${shots}/gear-menu-${info.project.name}.png` });
-  await page.getByRole('link', { name: T('Check import'), exact: true }).click();
+  // Material aufräumen (23.11.2026): the link says «Import a gear list» when nothing waits
+  await page.locator('.gmenu a[href="#/gear/import"]').click();
   await expect(page).toHaveURL(/#\/gear\/import$/);
 
   // 5. "Rückgängig": everything as before, the list waits again.

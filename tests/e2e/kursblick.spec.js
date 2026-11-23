@@ -4,11 +4,13 @@
 // an offline start shows the last prices, the way in from the currency tool, the small app with its own tabs.
 // Märkte: the groups and titles of the person (add, change, move, delete with Undo, bring the suggestions back), the
 // comparison of up to five titles on one chart, a typo in the symbol shows the check.
+// Meine Zahlen (K-C): holdings with profit and loss, dividends and splits, goals on Today, gold after inflation; private, on the device.
 // KURS_SHOTS=<folder> saves the screenshots for the pull request.
 import { test, expect } from './clock.js';
 import { mkdirSync } from 'node:fs';
 import DE from '../../src/lib/i18n/de/index.js';
 import { answer, FIXTURE, titelAnswer } from './kursblick-data.js';
+import { realReihe } from '../../src/lib/kurse/teuerung.js';
 import { goldChfKg, verkaufswert, vergleich, verglichenMit, PERIODS } from '../../src/lib/kurse/rechnen.js';
 
 const T = (en, vars) => {
@@ -229,6 +231,135 @@ test('Kursblick Märkte: groups and titles of your own, the comparison of up to 
   await expect(nesn).toHaveCount(0);
   await maerkte.locator('[data-vorschlaege]').click();
   await expect(nesn).toBeVisible();
+
+  // nothing runs off the side on a small phone
+  const size = page.viewportSize();
+  for (const w of [320, 390]) {
+    await page.setViewportSize({ width: w, height: size.height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('Kursblick Meine Zahlen: Bestand mit Gewinn, Dividende und Split, Ziele auf Heute, Gold nach Teuerung', async ({ page, context }, info) => {
+  const errors = await start(page, context);
+  const abc = titelAnswer('y:ABC.SW').last.close;
+  await page.goto('./#/kurse/bestand');
+  const bestand = page.locator('[data-bestand]');
+  await expect(bestand.getByText(T('Nothing in your holdings yet'))).toBeVisible();
+  await expect(page.locator('[data-ziele]').getByText(T('No goals yet'))).toBeVisible();
+
+  // a title: the check asks the service, then the value is pieces × price
+  await bestand.getByRole('button', { name: T('Add to my holdings') }).click();
+  const sheet = page.locator('[data-posten-sheet]');
+  await sheet.locator('[data-posten-symbol]').fill('abc.sw');
+  await sheet.locator('[data-posten-menge]').fill('10');
+  await sheet.locator('[data-posten-einstand]').fill("1'000");
+  await sheet.locator('[data-posten-save]').click();
+  await expect(sheet).toHaveCount(0);
+  const zeile = bestand.locator('[data-posten]').first();
+  await expect(zeile).toContainText('ABC.SW');
+  expect(digits(await bestand.locator('[data-bestand-wert]').innerText())).toBe(String(Math.round(10 * abc)));
+  await expect(bestand.locator('[data-bestand-gewinn]')).toContainText('%');
+
+  // gold in grams and a value by hand
+  await bestand.locator('[data-posten-neu]').click();
+  await sheet.getByRole('button', { name: T('Gold'), exact: true }).click();
+  await sheet.locator('[data-posten-menge]').fill('100');
+  await sheet.locator('[data-posten-save]').click();
+  await expect(sheet).toHaveCount(0);
+  await bestand.locator('[data-posten-neu]').click();
+  await sheet.getByRole('button', { name: T('Value by hand') }).click();
+  await sheet.locator('[data-posten-save]').click();
+  await expect(sheet.locator('[data-posten-fehler]')).toContainText(T('Give it a name, for example «My savings account».'));
+  await sheet.locator('[data-posten-name]').fill('Mein Sparkonto');
+  await sheet.locator('[data-posten-wert]').fill('5000');
+  await sheet.locator('[data-posten-save]').click();
+  await expect(sheet).toHaveCount(0);
+  await expect(bestand.locator('[data-posten]')).toHaveCount(3);
+  const total = 10 * abc + (100 / 1000) * lastGold + 5000;
+  expect(digits(await bestand.locator('[data-bestand-wert]').innerText())).toBe(String(Math.round(total)));
+
+  // a dividend and a split on the title: the split doubles its pieces and its value
+  const more = (row) => row.getByRole('button', { name: new RegExp(T('More for {what}', { what: '' }).trim()) });
+  await more(zeile).click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Change')}`) }).click();
+  const ev = sheet.locator('[data-ereignisse]');
+  await ev.locator('input[type="date"]').fill('2026-05-01');
+  await ev.locator('[data-ereignis-wert]').fill('30');
+  await ev.locator('[data-ereignis-neu]').click();
+  await expect(ev.locator('[data-ereignis]')).toHaveCount(1);
+  await ev.getByRole('button', { name: T('Split'), exact: true }).click();
+  await ev.locator('[data-ereignis-neu]').click();
+  await expect(ev.locator('[data-ereignis-fehler]')).toBeVisible(); // no day, no factor
+  await ev.locator('input[type="date"]').fill('2026-06-01');
+  await ev.locator('[data-ereignis-wert]').fill('2');
+  await ev.locator('[data-ereignis-neu]').click();
+  await expect(ev.locator('[data-ereignis]')).toHaveCount(2);
+  await sheet.getByRole('button', { name: T('Cancel') }).click();
+  await expect(sheet).toHaveCount(0);
+  const total2 = 20 * abc + (100 / 1000) * lastGold + 5000;
+  expect(digits(await bestand.locator('[data-bestand-wert]').innerText())).toBe(String(Math.round(total2)));
+  await expect(bestand.locator('[data-mit-dividenden]')).toBeVisible();
+  await bestand.locator('[data-mit-dividenden]').check();
+  await shot(page, info, 'kursblick-bestand');
+
+  // goals: one reached (gold at or above 1), one not (the title at or below 1)
+  const ziele = page.locator('[data-ziele]');
+  await ziele.getByRole('button', { name: T('Add a goal') }).click();
+  const zs = page.locator('[data-ziel-sheet]');
+  await zs.locator('[data-ziel-wert]').fill('');
+  await zs.locator('[data-ziel-save]').click();
+  await expect(zs.locator('[data-ziel-fehler]')).toBeVisible();
+  await zs.locator('[data-ziel-wert]').fill('1');
+  await zs.locator('[data-ziel-save]').click();
+  await expect(zs).toHaveCount(0);
+  await ziele.locator('[data-ziel-neu]').click();
+  await zs.locator('[data-ziel-art]').selectOption('titel');
+  await zs.locator('[data-ziel-symbol]').fill('abc.sw');
+  await zs.getByRole('button', { name: T('at or below') }).click();
+  await zs.locator('[data-ziel-wert]').fill('1');
+  await zs.locator('[data-ziel-save]').click();
+  await expect(zs).toHaveCount(0);
+  await expect(ziele.locator('[data-ziel]')).toHaveCount(2);
+  await expect(ziele.locator('[data-ziel-erreicht]')).toHaveCount(1);
+  await shot(page, info, 'kursblick-ziele');
+
+  // it is all still there after a reload, and the goal shows on Today with the holdings
+  await page.waitForTimeout(600);
+  await page.reload();
+  await expect(page.locator('[data-bestand] [data-posten]')).toHaveCount(3);
+  await page.goto('./#/kurse');
+  await expect(page.locator('[data-ziele-heute] [data-ziel-erreicht]')).toBeVisible();
+  await expect(page.locator('[data-bestand-heute]')).toContainText('CHF');
+  await shot(page, info, 'kursblick-heute-ziele');
+
+  // delete a position with Undo
+  await page.goto('./#/kurse/bestand');
+  const sparkonto = page.locator('[data-bestand] [data-posten]', { hasText: 'Mein Sparkonto' });
+  await more(sparkonto).click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Delete')}`) }).click();
+  await page.getByTestId('ask-delete').locator('.btn.del').click();
+  await expect(sparkonto).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).last().click();
+  await expect(sparkonto).toBeVisible();
+
+  // gold after inflation: the year can be chosen, the numbers follow the calculation
+  await page.goto('./#/kurse/gold');
+  const real = page.locator('[data-gold-real]');
+  await expect(real.locator('[data-real-jahr]')).toBeVisible();
+  await real.locator('[data-real-jahr]').selectOption('2010');
+  const r = realReihe(GOLD, FIXTURE.lik.points, 2010);
+  const pct = (v) => `${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('de-CH', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+  await expect(real.locator('[data-real-nominal]')).toContainText(pct(r.nominal));
+  await expect(real.locator('[data-real-real]')).toContainText(pct(r.real));
+  await expect(real.locator('[data-chart]')).toBeVisible();
+  await shot(page, info, 'kursblick-gold-real');
+
+  // the small app has its own tab for it
+  await page.goto('./apps/kursblick/');
+  await page.getByRole('navigation').getByRole('link', { name: T('My numbers|kurs'), exact: true }).first().click();
+  await expect(page.locator('[data-meins]')).toBeVisible();
 
   // nothing runs off the side on a small phone
   const size = page.viewportSize();

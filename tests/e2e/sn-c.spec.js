@@ -128,9 +128,10 @@ test('SN3 Bausteine: grouped sections of rows, «Prüfen» and «Neuer Baustein�
   await shot(page, info, 'bausteine');
   await page.getByRole('button', { name: T('New building block') }).click();
   await expect(page.locator('#new-block-name')).toBeFocused();
-  // «Bausteine prüfen»: the same path head and the step buttons.
+  // «Bausteine prüfen»: the same path head and the step buttons. Since «Pfad aus einer Quelle» (23.11.2026) the path names the
+  // tab of the sidebar («Sets», which holds the building blocks); its link still leads back to #/blocks
   await page.goto('./#/blocks/check');
-  await expect(page.getByRole('navigation', { name: T('Path') }).getByRole('link', { name: T('Building blocks') })).toHaveAttribute('href', '#/blocks');
+  await expect(page.getByRole('navigation', { name: T('Path') }).locator('a[href="#/blocks"]')).toBeVisible();
   expect(await wide(page)).toBeLessThanOrEqual(0);
   expect(errors).toEqual([]);
 });

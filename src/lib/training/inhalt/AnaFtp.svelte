@@ -6,10 +6,10 @@
    * 20 minutes (90 % of today's estimate). Observation only. inhalt-woche.js ftpMonths, hardRecently.
    */
   import AnaCard from '../AnaCard.svelte';
-  import LineChart from '../../weight/LineChart.svelte';
+  import LineChart from '../../charts/LineChart.svelte';
+  import { changeSentence } from '../../charts/sentence.js';
   import { t, locale } from '../../i18n.svelte.js';
   import { weight } from '../../weight.svelte.js';
-  import { niceTicks } from '../week/weeks.js';
   import { ftpMonths, hardRecently, FTP_MONTHS } from './inhalt-woche.js';
 
   let { acts = [], today = '' } = $props();
@@ -21,12 +21,10 @@
   const hard = $derived(today ? hardRecently(acts, today) : null);
   const f1 = (v) => Number(v).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const monthName = (ym, month = 'short') => new Date(`${ym}-15T12:00:00Z`).toLocaleDateString(locale(), { month, timeZone: 'UTC' });
-  const ticks = $derived.by(() => {
-    if (!has) return [];
-    const v = pts.map((p) => p.ftp);
-    return niceTicks(Math.min(...v) - 5, Math.max(...v) + 5, 3).ticks;
-  });
-  const labels = $derived(months.map((m, i) => ({ x: i / (FTP_MONTHS - 1), text: monthName(m.ym) })).filter((_, i) => i % 3 === 2));
+  const cols = $derived(months.map((m, i) => ({ key: m.ym, x: i % 3 === 2 || i === 0 ? monthName(m.ym) : '' })));
+  const series = $derived([{ key: 'ftp', color: 'var(--ch-w)', dots: true, v: months.map((m) => m.ftp || null) }]);
+  const readout = (i) => ({ title: `${monthName(months[i].ym, 'long')} ${months[i].ym.slice(0, 4)}`, items: months[i].ftp ? [{ label: 'FTP', value: `${months[i].ftp} W`, color: 'var(--ch-w)' }, ...(months[i].wkg ? [{ label: 'W/kg', value: f1(months[i].wkg) }] : [])] : [{ label: t('No data'), value: '–' }] });
+  const table = $derived({ head: [t('Month'), 'FTP', 'W/kg'], rows: [...months].reverse().map((m) => ({ key: m.ym, cells: [`${monthName(m.ym, 'long')} ${m.ym.slice(0, 4)}`, m.ftp ? `${m.ftp} W` : '–', m.wkg ? f1(m.wkg) : '–'] })) });
   const value = (m) => (m.wkg ? t('{w} W · {r} W/kg', { w: m.ftp, r: f1(m.wkg) }) : t('{w} W', { w: m.ftp }));
   const label = $derived(has && now?.ftp ? t('Estimated FTP over {n} months, today {v}', { n: FTP_MONTHS, v: value(now) }) : has ? t('Estimated FTP over {n} months', { n: FTP_MONTHS }) : '');
 </script>
@@ -35,7 +33,7 @@
   <AnaCard key="ftp" wide sub={t('Estimated from your best 20 minutes')}>
     {#if has}
       {#if pts.length > 1}
-        <LineChart dots={pts.map((p) => ({ x: p.x, y: p.ftp }))} line={pts.map((p) => ({ x: p.x, y: p.ftp }))} {ticks} {labels} fmt={(v) => `${v} W`} color="var(--ch-w)" {label} height={170} />
+        <LineChart id="ftp" {cols} {series} unit="W" readout={readout} sentences={changeSentence(pts.map((p) => ({ label: `${monthName(p.ym, 'long')} ${p.ym.slice(0, 4)}`, v: p.ftp })), (v) => `${Math.round(v)} W`)} table={table} hint={t('Point at a month for its numbers.')} {label} height={170} />
       {/if}
       <ul class="ft-vals">
         {#if now?.ftp}<li data-ftp-now><span>{t('Today')}</span><b>{value(now)}</b></li>{/if}

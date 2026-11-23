@@ -34,9 +34,9 @@ const mock = async (context, lows) => {
 };
 
 test('The weather page shows the night temperature with the changes, the bars, the trend and frost', async ({ page, context }, info) => {
-  await openHome(page, context, info, { data: homeFixture() });
   // this morning 5, yesterday 3, a week ago -5; tomorrow 7, then falling to frost on night 6
-  await mock(context, { '-7': -5, '-1': 3, 0: 5, 1: 7, 2: 5, 3: 3, 4: 1, 5: 0, 6: -1, 7: 2 });
+  // (the mock is set BEFORE Today loads: Today asks for the nights too and keeps the answer, so the plain forecast of openHome must never be that answer)
+  await openHome(page, context, info, { data: homeFixture(), weather: (c) => mock(c, { '-7': -5, '-1': 3, 0: 5, 1: 7, 2: 5, 3: 3, 4: 1, 5: 0, 6: -1, 7: 2 }) });
 
   await page.goto('./#/wetter');
   const card = page.locator('[data-nacht]');
@@ -57,8 +57,7 @@ test('The weather page shows the night temperature with the changes, the bars, t
 });
 
 test('A cold night: «Wieder 5 Plus in 6 Tagen» and the note that a forecast is unsure after 5 days', async ({ page, context }) => {
-  await openHome(page, context, test.info(), { data: homeFixture() });
-  await mock(context, { 0: 3, 1: 2, 2: 1, 3: 2, 4: 3, 5: 4, 6: 6, 7: 6 });
+  await openHome(page, context, test.info(), { data: homeFixture(), weather: (c) => mock(c, { 0: 3, 1: 2, 2: 1, 3: 2, 4: 3, 5: 4, 6: 6, 7: 6 }) });
   await page.goto('./#/wetter');
   await expect(page.locator('[data-nacht-plus]')).toContainText('Wieder 5 Plus in 6 Tagen', { timeout: 20_000 });
   await expect(page.locator('[data-nacht-trend]')).toContainText('Nach 5 Tagen ist eine Prognose unsicher');
@@ -66,9 +65,10 @@ test('A cold night: «Wieder 5 Plus in 6 Tagen» and the note that a forecast is
 });
 
 test('Without an answer from the weather service the card says why it is empty', async ({ page, context }) => {
-  await openHome(page, context, test.info(), { data: homeFixture() });
-  await context.route(/api\.open-meteo\.com\/v1\/forecast\?.*cape/, (r) => r.fulfill({ json: core(day(-1)) }));
-  await context.route(/api\.open-meteo\.com\/v1\/forecast\?.*past_days=8/, (r) => r.abort());
+  await openHome(page, context, test.info(), { data: homeFixture(), weather: async (c) => {
+    await c.route(/api\.open-meteo\.com\/v1\/forecast\?.*cape/, (r) => r.fulfill({ json: core(day(-1)) }));
+    await c.route(/api\.open-meteo\.com\/v1\/forecast\?.*past_days=8/, (r) => r.abort());
+  } });
   await page.goto('./#/wetter');
   await expect(page.locator('[data-nacht-empty]')).toContainText('Noch keine Nachtwerte', { timeout: 20_000 });
 });

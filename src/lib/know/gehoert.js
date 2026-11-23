@@ -13,6 +13,8 @@ import { momentOfFeature } from '../moment.js';
 export const PAGE_MOMENT = { pack: 'packen', trips: 'planen', me: 'app', bikes: 'velo', gear: 'velo', debrief: 'zurueck', neuland: 'lust', wetter: 'planen' };
 /** Pages whose row shows only on the page itself, not on its sub-pages (a form like #/flow/edit/… stays quiet). */
 export const HUB_ONLY = ['bikes', 'gear', 'debrief'];
+/** Pages that show no row: Material has «All here» at its end (Noah 23.11.2026 «Material aufräumen»: the row was a double). */
+export const NO_ROW = ['gear'];
 /** Chips shown before «all n ›». */
 export const SHOWN = 5;
 
@@ -20,7 +22,7 @@ const pathOf = (href) => (href ?? '').split('?')[0];
 
 /** Whether the row shows for this page and hash: a page of PAGE_MOMENT, and for HUB_ONLY only on '#/page' itself. */
 export function showsRow(page, hash = '') {
-  if (!PAGE_MOMENT[page]) return false;
+  if (!PAGE_MOMENT[page] || NO_ROW.includes(page)) return false;
   return !HUB_ONLY.includes(page) || pathOf(hash).replace(/\/$/, '') === `#/${page}`;
 }
 

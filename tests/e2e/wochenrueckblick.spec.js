@@ -217,3 +217,31 @@ test('Wochenrückblick: «Erholung und Rituale» counts sauna and meditation as 
   if (process.env.SHOTS) await period.screenshot({ path: `${process.env.SHOTS}/rituale-sportjahr-${info.project.name === 'phone' ? 390 : 1440}.png` });
   expect(errors).toEqual([]);
 });
+
+test('Wochenrückblick: «Alles, was du angelegt hast» lists daily habits, sports without a goal and Strava sports (23.11.2026)', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  const r = rows();
+  // a daily habit, a sport without a goal (ticked), one with 0 times; a Strava swim without an activity in Aktiv, no tick
+  r.flowLog.push(
+    { id: `${P}log4`, actId: 'pushups', day: addDays(MON, 1), at: `${addDays(MON, 1)}T06:00:00.000Z`, n: 1 },
+    { id: `${P}log5`, actId: 'pushups', day: addDays(MON, 2), at: `${addDays(MON, 2)}T06:00:00.000Z`, n: 1 },
+    { id: `${P}log6`, actId: 'hockey', day: addDays(MON, 4), at: `${addDays(MON, 4)}T18:00:00.000Z`, n: 1, min: 60 },
+  );
+  r.activities.push(ride('sw1', addDays(MON, 3), { name: `${P}Schwimmen`, type: 'Swim', kind: 'swim', km: 1.2, hm: 0, movingS: 2400, effort: 30 }));
+  await put(page, r);
+  await page.goto('./#/flow/review');
+  await page.reload();
+  const main = page.locator('main');
+  const card = main.locator('[data-alle="week"]');
+  await expect(card.getByRole('heading', { name: T('Everything you created') })).toBeVisible();
+  await expect(card.locator('[data-alle-row="pushups"]')).toContainText('2 Mal');
+  await expect(card.locator('[data-alle-row="hockey"]')).toContainText(T('{n} min measured', { n: '60' }));
+  // the Strava swim has no activity in Aktiv and no tick: it is there, from Strava
+  await expect(card.locator('[data-alle-row^="strava:"]').first()).toContainText(T('From Strava, no activity of its own in Active'));
+  // the ones with 0 times and no goal sit in a closed list; the rituals stay a group of the card
+  await expect(card.locator('[data-alle-quiet="move"]')).toBeVisible();
+  await expect(card.locator('[data-rituale="week"] [data-ritual="sauna"]')).toContainText('1 Mal');
+  await fits(page, 'review with everything');
+  if (process.env.SHOTS) await card.screenshot({ path: `${process.env.SHOTS}/alle-woche-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  expect(errors).toEqual([]);
+});

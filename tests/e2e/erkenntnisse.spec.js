@@ -20,7 +20,9 @@ function data() {
   const days = lastDays(DAY, 30);
   const healthDays = days.map((date, i) => ({ date, sleep: { asleepMin: 360 + (i % 3) * 60 }, restingHr: i >= 27 ? 62 : 50 + (i % 2), src: 'test' }));
   const abAnswers = days.map((day, i) => ({ id: `test_data_gtp_ab_${i}`, qid: 'erholung.akku', area: 'erholung', day, at: `${day}T07:10`, slot: `${day}T07:00`, kind: 'scale', value: 4 + (i % 3) * 2, note: null, unit: null, src: 'hand' }));
-  return { healthDays, abAnswers };
+  // sauna on every third day (the night after is the longest): an activity of Aktiv that goes with the night
+  const flowLog = days.filter((_, i) => i % 3 === 1).map((day) => ({ id: `test_sauna_${day}`, actId: 'sauna', day, at: `${day}T19:00:00+02:00`, min: 30 }));
+  return { healthDays, abAnswers, flowLog };
 }
 
 async function open(page, context) {
@@ -116,5 +118,48 @@ test('weather, appointments and an own question are compared; the own question c
   await expect(ownIns).toHaveCount(0);
   await sec.locator('[data-insights-own="own-test"] input').click();
   await expect(ownIns).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+// Noah 23.11.2026 «ja» (Thread «Zusammenhänge nützlicher machen»): the strongest levers with a tip, every activity of Aktiv compared,
+// a tap shows the days with and without, «Bald sichtbar» instead of the long list (which stays behind a fold), a try with an end, the path.
+test('levers, a picture with and without, soon visible, a try with an end, the right path', async ({ page, context }, info) => {
+  const errors = await open(page, context);
+  await page.goto('./#/me/insights');
+  await expect(page.getByRole('heading', { level: 1, name: T('Insights') })).toBeVisible();
+  // the path says Auswerten › Körper (not Ich › Daten)
+  await expect(page.getByRole('link', { name: T('Analysis|place') }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: T('Data'), exact: true })).toHaveCount(0);
+  const lev = page.locator('[data-levers]');
+  await expect(lev).toContainText(T('Your strongest levers'));
+  expect(await lev.locator('[data-lever]').count()).toBeLessThanOrEqual(3);
+  // the strongest lever is sleep → battery, with a tip
+  const first = lev.locator('[data-lever="sleep-battery"]');
+  await expect(first).toContainText(T('Try it today: go to bed earlier.'));
+  // an activity of Aktiv is a lever too (sauna, the night after)
+  const sauna = lev.locator('[data-lever^="act-sauna"]');
+  await expect(sauna).toHaveCount(1);
+  await expect(sauna).toContainText(T('Try it today: {name}.', { name: 'Sauna' }));
+  // a tap shows the little picture
+  await first.locator('button.row').click();
+  await expect(first.locator('[data-mit-ohne] circle').first()).toBeVisible();
+  await expect(first.locator('[data-mit-ohne]')).toContainText(T('Otherwise'));
+  // a test with an end starts a try in «Experiment mit Ende»
+  await first.locator('[data-try-start]').click();
+  await expect(first.locator('[data-try-running]')).toBeVisible();
+  // the try is there in «Experiment mit Ende», with its question
+  await first.locator('[data-try-running] a').click();
+  await expect(page).toHaveURL(/#\/me\/ruhig\/versuche/);
+  await expect(page.locator('body')).toContainText(T('What changes with «{x}»: {y}?', { x: T('more than {v} h of sleep', { v: '7' }), y: T('Battery|lever') }));
+  await page.goBack();
+  await expect(page.locator('[data-levers]')).toBeVisible();
+  // the list is tappable too, the long list of pairs without days is behind a fold, with a headline
+  const sec = page.locator('[data-section="insights"]');
+  await sec.locator('[data-insight="sleep-battery"] button.row').click();
+  await expect(sec.locator('[data-insight="sleep-battery"] [data-mit-ohne]')).toBeVisible();
+  await expect(page.locator('[data-soon]')).toBeVisible();
+  await expect(page.locator('[data-waiting-all]')).not.toHaveAttribute('open', '');
+  expect(await noScroll(page)).toBe(true);
+  await shot(page, info, 'zusammenhaenge-hebel');
   expect(errors).toEqual([]);
 });
