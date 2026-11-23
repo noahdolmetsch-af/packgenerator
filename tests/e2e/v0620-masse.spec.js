@@ -26,8 +26,13 @@ const bikeOf = async (page, id) => (await table(page, 'bikes')).find((b) => b.id
 
 // v0.83.0 (A5a): on a phone «Velos vergleichen» starts with two bikes; these checks want every bike.
 async function allBikes(page) {
-  const off = page.getByRole('group', { name: 'Velos zum Vergleichen' }).locator('button[aria-pressed="false"]');
+  const group = page.getByRole('group', { name: 'Velos zum Vergleichen' });
+  // 23.11.2026: the chips come with the bikes (liveQuery). Counting «no chip is off» before they are drawn is true for an empty
+  // page: the loop ended at once and the table kept its two bikes (6 of 8 runs red on the phone). Wait for the four chips first.
+  await expect(group.locator('button')).toHaveCount(4);
+  const off = group.locator('button[aria-pressed="false"]');
   while (await off.count()) await off.first().click();
+  await expect(off).toHaveCount(0);
 }
 async function start(page, context, info) {
   const file = v0620File(info);
