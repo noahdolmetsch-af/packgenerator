@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, tickDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, todoHit, vermutungHit, randomPick, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES, VALUES, valueNow, customRule, customHit, condOf, ruleList, moveRule, setRuleName, ruleName, dropRule, restoreRule, goneRules } from '../src/lib/datenfragen.js';
+import { setVal, setText, ruleVal, ruleText, resetRule, ruleChanged, dataDue, noteSkip, clearSkips, setGap, ruleGap, fewerOffer, SKIP_OFFER, FEWER_GAP, ruhepulsHit, schlafHit, stimmungHit, trainingHit, pauseHit, trainingDays, tickDays, spielHit, platzHit, grauHit, draussenHit, eveningBusy, todoHit, vermutungHit, randomPick, pageRandom, randomOn, setRandom, neverAgain, bringBack, neverCount, moodByDay, dataOf, setRule, ruleOn, MAX_PER_DAY, GAP_DAYS, DATA_QUESTIONS, RULES, VALUES, valueNow, customRule, customHit, condOf, ruleList, moveRule, setRuleName, ruleName, dropRule, restoreRule, goneRules } from '../src/lib/datenfragen.js';
 import { QUESTION, QUESTIONS, answerRow, newOwn, putOwn, allQuestions, settingOf, dueList, counts, configOf, deleteQuestion } from '../src/lib/abfragen.js';
 
 const TODAY = '2026-11-03';
@@ -553,5 +553,21 @@ describe('Fragen aus deinen Daten', () => {
       const cfg = putOwn(null, q, '2026-11-03T08:00');
       expect(configOf(deleteQuestion(cfg, q.id)).own.some((x) => x.id === q.id)).toBe(false);
     });
+  });
+});
+
+// Noah 23.11.2026 «Beides»: the question of the day is on the morning page too
+describe('pageRandom', () => {
+  const pool = QUESTIONS.filter((x) => x.sample).slice(0, 12);
+  it('is the same question as the window picks, and stays when it is answered today', () => {
+    const p = randomPick(pool, [], null, TODAY);
+    expect(pageRandom(pool, [], null, TODAY).id).toBe(p.id);
+    expect(pageRandom(pool, [{ qid: p.id, day: TODAY }], null, TODAY).id).toBe(p.id);
+  });
+  it('is none when it is switched off, and none after «Never again» today', () => {
+    expect(pageRandom(pool, [], setRandom(null, false), TODAY)).toBeNull();
+    const p = pageRandom(pool, [], null, TODAY);
+    expect(pageRandom(pool, [], neverAgain(null, p.id, TODAY), TODAY)).toBeNull();
+    expect(pageRandom(pool, [], neverAgain(null, p.id, TODAY), add(TODAY, 1)).id).not.toBe(p.id);
   });
 });
