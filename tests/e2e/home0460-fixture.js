@@ -98,7 +98,7 @@ export function atHour(list, hour) {
 
 /** Wetter-Ausbau D (Noah 22.11.2026 «a»): the calm weather lines of Today stand under one closed line «Wetter heute»; open it. */
 export async function openWetterFold(page) {
-  const sum = page.locator('[data-heute-wetter-fold-sum]');
-  await sum.waitFor({ state: 'visible', timeout: 20_000 });
-  if (!(await page.locator('[data-heute-wetter-fold]').evaluate((d) => d.open))) await sum.click();
+  // «Wetter oben» (Noah 23.11.2026 «b», changed on purpose): the lines about snow, fog, night and height stand open in one card,
+  // nothing is behind a tap any more; the helper keeps its name for the specs that call it and waits for the card.
+  await page.locator('[data-heute-wetter-card]').waitFor({ state: 'visible', timeout: 20_000 });
 }
