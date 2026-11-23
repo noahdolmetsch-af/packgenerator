@@ -32,16 +32,18 @@ export function dayAnswer(r) {
   const form = r.formPts != null ? { key: 'form', v: r.form, delta: r.form, points: r.formPts } : null;
   const low = rec.filter((p) => p.points <= LOW).sort((a, b) => a.points - b.points);
   const sum = low.reduce((s, p) => s + p.points, 0);
-  const rank = ORDER.indexOf(r.level);
-  let level = r.level;
+  // the level of the score alone: readiness() keeps it in `scoreLevel` once it has applied this answer, so the answer is the same however often it is asked
+  const base = r.scoreLevel ?? r.level;
+  const rank = ORDER.indexOf(base);
+  let level = base;
   if (low.length >= 2 && sum <= LOW_SUM) level = 'rest';
   else if (low.length >= 2 && rank > 1) level = 'easy';
-  else if (low.length === 1 && low[0].points <= VERY_LOW && r.level === 'hard') level = 'normal';
-  if (ORDER.indexOf(level) > rank) level = r.level; // never raise
+  else if (low.length === 1 && low[0].points <= VERY_LOW && base === 'hard') level = 'normal';
+  if (ORDER.indexOf(level) > rank) level = base; // never raise
   const all = [...rec, ...(form ? [form] : [])];
   let reasons;
   if (low.length) reasons = low.slice(0, 3);
   else if (level === 'rest' || level === 'easy') reasons = all.filter((p) => p.points < 0).sort((a, b) => a.points - b.points).slice(0, 2);
   else reasons = all.filter((p) => p.points >= GOOD).sort((a, b) => b.points - a.points).slice(0, 2);
-  return { level, adjusted: level !== r.level, reasons, good: low.length > 0 && (r.formPts ?? 0) >= GOOD };
+  return { level, adjusted: level !== base, reasons, good: low.length > 0 && (r.formPts ?? 0) >= GOOD };
 }
