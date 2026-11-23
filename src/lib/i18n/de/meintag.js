@@ -62,4 +62,10 @@ export default {
   'Nothing becomes a to-do by itself. Tap «Make a to-do» for the ones you want.': 'Nichts wird von selbst ein To-do. Tippe «To-do machen» bei denen, die du willst.',
   'Make a to-do': 'To-do machen',
   'Make a to-do of «{name}»': 'Aus «{name}» ein To-do machen',
+  // step 3c: the tab «Tick off»
+  'Tick off|tab': 'Abhaken',
+  'One tap ticks a sport or habit. Duration and feeling are optional.': 'Ein Tipp hakt eine Sportart oder Gewohnheit ab. Dauer und Gefühl sind freiwillig.',
+  'Nothing to tick off yet': 'Noch nichts zum Abhaken',
+  'Add the first sport or habit, then it stands here with one tap.': 'Leg die erste Sportart oder Gewohnheit an, dann steht sie hier zum Abhaken.',
+  'All sports, goals and the week in Aktiv': 'Alle Sportarten, Ziele und die Woche in Aktiv',
 };

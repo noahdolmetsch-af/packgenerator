@@ -88,3 +88,15 @@ test('Pulse: with too few values a quiet line says why the usual range is missin
   await expect(st.locator('[data-band]')).toHaveCount(1);
   expect(errors).toEqual([]);
 });
+
+test('Active zone minutes: the weekly goal is a dashed line of one seventh over the daily bars, not over the monthly sums', async ({ page, context }) => {
+  const days = Array.from({ length: 60 }, (_, i) => ({ date: addDays(TODAY, -i), azm: 10 + (i % 7) * 5, restingHr: 52, src: 'google' }));
+  const errors = await open(page, context, days, 'azm');
+  const st = page.locator('.gs');
+  await st.locator('[data-ranges] [data-key="w4"]').click();
+  await expect(st.locator('[data-chart="body"] [data-goal-text]')).toHaveText(T('Weekly goal ÷ 7: {n} min').replace('{n}', '21'));
+  await expect(st.locator('[data-chart="body"] [data-goal]')).toHaveCount(1);
+  await st.locator('[data-ranges] [data-key="y1"]').click();
+  await expect(st.locator('[data-chart="body"] [data-goal]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

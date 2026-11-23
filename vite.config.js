@@ -138,6 +138,13 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           {
+            // «Bilder bei jeder Neuheit» (Noah 23.11.2026): the pictures of «What is new» (public/news/) are not in the install-time
+            // cache (globPatterns has no webp, they would be megabytes); a picture seen once stays, so the card reads the same offline.
+            urlPattern: /\/news\/[^/]+\/\d+-(nachher|vorher)\.webp$/,
+            handler: 'CacheFirst',
+            options: { cacheName: 'pg-news-bilder', expiration: { maxEntries: 600 }, cacheableResponse: { statuses: [200] } },
+          },
+          {
             // Paket L «Werkzeugkasten»: «Freistellen» loads its reader once from jsdelivr (the model itself is
             // kept by transformers.js in its own cache), «Bildformat» its HEIC reader; kept here so both work
             // offline afterwards.

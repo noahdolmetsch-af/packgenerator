@@ -133,6 +133,7 @@ export const TILE = Object.fromEntries(TILES.map((x) => [x.id, x]));
  * other tile is still in the catalog («Add a tile»).
  */
 export const READY = [
+  ['body', 'l'], // «Dein Körper heute» as a band (Noah 23.11.2026 «1-4a», point 1a): right under the greeting
   ['meinetour', 'long'], // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): right under the greeting, only while a tour is planned
   ['meditation', 'long'],
   ['moment', 'long'], // «Heute als Begleiter» PR 4 (Noah 28.10.2026): the moment you are in, right under the habits
@@ -140,7 +141,6 @@ export const READY = [
   ['discover', 'long'], // PR 5: one function a day right under it
   ['wochentraum', 'long'], // «Traum der Woche» (Noah 07.11.2026): shows only while a dream fits
   ['weighin', 'long'],
-  ['body', 'l'],
   ['acts', 'l'],
   ['heutecheck', 'w'], // «Heute-Check» (Noah 30.10.2026 «1-5a»): always there, leads to the questionnaire
   ['week', 'l'],
@@ -217,7 +217,7 @@ export const REMOVED_0155 = ['morningcheck', 'fn:dayride', 'fn:trip', 'fn:wear',
 /** 0.155.0: the new pieces of HN4; a stored wall gets them once, in their place. */
 export const ADDED_0155 = ['meditation', 'daycard', 'aktiv'];
 /** «Heute neu» N2: the tiles on top of the wall; near a trip its card moves up right under them (tripUp). */
-export const HEAD_N2 = ['meinetour', 'meditation', 'moment', 'weighin', 'discover', 'wochentraum', 'body', 'acts', 'vitals']; // PR 4: the moment card too
+export const HEAD_N2 = ['body', 'meinetour', 'meditation', 'moment', 'weighin', 'discover', 'wochentraum', 'acts', 'vitals']; // PR 4: the moment card too
 /** The tiles that stand on top, in this order (the trip card may move up under the day card, tripUp). */
 export const HEAD_0155 = ['meditation', 'daycard', 'important'];
 
@@ -257,7 +257,9 @@ export function wallOf(value, legacy = null) {
     // «Traum der Woche» (Noah 07.11.2026 «1a»): a wall of before (v < 20) gets the tile once, under «Discover»
     const wt = (value.v ?? 1) < 20 ? withWochentraum(sp) : sp;
     // «Meine Tour» (Plan 2a, Noah 08.11.2026 «2 a»): a wall of before (v < 21) gets the card once, on top
-    return (value.v ?? 1) < 21 ? withMeineTour(wt) : wt;
+    const mt = (value.v ?? 1) < 21 ? withMeineTour(wt) : wt;
+    // «Dein Körper heute» as a band (Noah 23.11.2026 «1-4a», point 1a): a wall of before (v < 22) gets it on top once; moved or taken away after that, it stays so
+    return (value.v ?? 1) < 22 ? withBanner(mt) : mt;
   }
   const off = new Set((Array.isArray(legacy?.off) ? legacy.off : []).flatMap((k) => FROM_SECTION[k] ?? []));
   return READY.filter((x) => !off.has(x.id)).map((x) => ({ ...x }));
@@ -510,8 +512,20 @@ export function withMeineTour(tiles = []) {
   out.splice(0, 0, { id: 'meinetour', size: TILE.meinetour.size });
   return out;
 }
-/** The record to store (v 21: the card «My tour» came once; v 20: the tile «Traum der Woche» came once; v 19: the tile «Spruch» came once; v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
-export const wallRecord = (tiles) => ({ v: 21, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
+/**
+ * «Dein Körper heute» as a band right under the greeting (Noah 23.11.2026 «1-4a», point 1a): a stored wall that still has the tile
+ * gets it on the first place once (the tile of a wall that took it away stays away). → tiles
+ */
+export function withBanner(tiles = []) {
+  const i = tiles.findIndex((x) => x.id === 'body');
+  if (i <= 0) return tiles;
+  const out = [...tiles];
+  const [b] = out.splice(i, 1);
+  out.unshift(b);
+  return out;
+}
+/** The record to store (v 22: the body band moved to the first place once; v 21: the card «My tour» came once; v 20: the tile «Traum der Woche» came once; v 19: the tile «Spruch» came once; v 18: the 8 small tiles became the tile with your pins once; v 17: the Heute-Check tile came once; v 16: the card «Discover» came once; v 15: the moment card came once; v 14: the VO2max tile came once; v 13: «Heute ruhiger», the double tiles went once; v 12: P6 «Heute ergänzen» came once; v 11: «Körperwerte» came once; v 10: «Heute neu» N2; v 9: «Heute neu» A; v 5: the order of 0.155.0 HN4; v 6: «Deine 15 Fragen» is back; v 7: the routine came once; v 8: «Your values today» (P) and the tip of the week (Q) came once). */
+export const wallRecord = (tiles) => ({ v: 22, tiles: tiles.map((x) => ({ id: x.id, size: sizeFor(x.id, x.size) })) });
 
 /** Move tile `id` to place `to` (0 … n − 1). */
 export function moveTile(tiles, id, to) {
