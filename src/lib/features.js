@@ -86,6 +86,9 @@ const TIP_PLAY = { bags: 'pack', share: 'pack', ride: 'ride', debrief: 'after' }
 
 /** The functions that are not a tip. */
 const OWN_LISTED = [
+  { id: 'f.bagweigh', group: 'before', title: 'Weigh the bags on the start day', text: 'On the start day put each packed bag on the scale: open the bag in Pack and type the weight under «Packed bag on the scale». The app compares it with its calculation and says where they differ.', href: '#/pack', words: 'wiegen waage tasche taschen gewicht starttag abweichung rechnung stimmt fehlt bikepacking kontrolle' },
+  { id: 'f.baglabel', group: 'before', title: 'Label for every bag', text: 'Open a bag in Pack and tap «Label of the bag»: the content as one picture with the weights, to keep on the phone or print. Good for packing in the hotel room and for searching on the way.', href: '#/pack', words: 'etikett zettel tasche inhalt drucken bild liste gewicht hotel packen suchen bikepacking' },
+  { id: 'f.bagphoto', group: 'before', title: 'Photo of every bag', text: 'On the packing day take one photo of each packed bag: open the bag in Pack and tap «Photo of this bag». In race mode the box «What lies where» shows it again with one tap, at night, tired or in the rain.', href: '#/pack', words: 'foto tasche taschen packtag was liegt wo inhalt rennmodus nachts finden kamera bikepacking' },
   // Before the trip
   // v0.119.0 «Schnellstart» (Q1–Q3): one click on Today plans a ride for today; «Take me there» opens Today
   { id: 'f.quickstart', group: 'before', title: 'Ride today', text: 'One click on Today plans a ride for today: 2.5 h, the bike you rode last, the standard items and the weather. «New» › «Surprise round» suggests a round from home on the side you know least.', run: 'quick', words: 'schnellstart quick start heute fahren tagestour sofort ein klick heute überraschung überraschungsrunde neue runde abenteuer' },
@@ -634,9 +637,6 @@ const OWN = [...OWN_LISTED, ...FEATREG.features];
 
 /** Every function: the tips (with their group) first, then the own entries, by group order. */
 export const FEATURES = FEATURE_GROUPS.flatMap((g) => [
-  { id: 'f.bagweigh', group: 'before', title: 'Weigh the bags on the start day', text: 'On the start day put each packed bag on the scale: open the bag in Pack and type the weight under «Packed bag on the scale». The app compares it with its calculation and says where they differ.', href: '#/pack', words: 'wiegen waage tasche taschen gewicht starttag abweichung rechnung stimmt fehlt bikepacking kontrolle' },
-  { id: 'f.baglabel', group: 'before', title: 'Label for every bag', text: 'Open a bag in Pack and tap «Label of the bag»: the content as one picture with the weights, to keep on the phone or print. Good for packing in the hotel room and for searching on the way.', href: '#/pack', words: 'etikett zettel tasche inhalt drucken bild liste gewicht hotel packen suchen bikepacking' },
-  { id: 'f.bagphoto', group: 'before', title: 'Photo of every bag', text: 'On the packing day take one photo of each packed bag: open the bag in Pack and tap «Photo of this bag». In race mode the box «What lies where» shows it again with one tap, at night, tired or in the rain.', href: '#/pack', words: 'foto tasche taschen packtag was liegt wo inhalt rennmodus nachts finden kamera bikepacking' },
   ...Object.entries(TIP_GROUP)
     .filter(([, k]) => k === g.key)
     .map(([id]) => ({ id, group: g.key, tip: id, title: TIP[id].title, text: TIP[id].text, play: TIP_PLAY[id] ?? null, words: '' })),
