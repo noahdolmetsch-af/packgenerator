@@ -134,3 +134,35 @@ test('Fragen: the search leads to the tab', async ({ page, context }, info) => {
   await field.press('Enter');
   await expect(page).toHaveURL(/#\/auswerten\/fragen/);
 });
+
+test('Fragen: own question opens the assistant with the cursor in the field, Auswerten stays lit, a link leads back, the six questions answer there', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await setup(page, context);
+  const data = JSON.parse(readFileSync(FIX, 'utf8'));
+  Object.assign(data.tables, rows());
+  const file = info.outputPath('fragen-daten-2.json');
+  writeFileSync(file, JSON.stringify(data));
+  await page.goto('./');
+  await importAndSettle(page, file);
+
+  await page.goto('./#/auswerten/fragen');
+  await page.locator('[data-fragen-frei]').click();
+  await expect(page).toHaveURL(/#\/assistent\?von=fragen/);
+  // the cursor is in the field, the place stays «Auswerten», a link with its goal leads back
+  await expect(page.getByRole('searchbox', { name: T('Your question') })).toBeFocused();
+  await expect(page.locator('a[data-place="analysis"][aria-current="page"], li.pl.on[data-place="analysis"]').first()).toBeVisible();
+  await expect(page.locator('[data-as-back]')).toContainText(T('Back to «Ask your data»'));
+  // the six questions are buttons; a tap shows the same answer as on the page
+  await expect(page.locator('[data-as-frage]')).toHaveCount(6);
+  await page.locator('[data-as-frage="tempo"]').click();
+  await expect(page.locator('[data-as-frage-antwort] [data-frage-antwort]')).toContainText('schneller');
+  await expect(page.locator('[data-as-frage-antwort] [data-frage-stand]')).toContainText('Stand heute');
+  await page.locator('[data-as-back]').click();
+  await expect(page).toHaveURL(/#\/auswerten\/fragen/);
+
+  // opened on its own (not from «Fragen») the assistant is a page of «Ich» and has no link back
+  await page.goto('./#/assistent');
+  await expect(page.locator('[data-as-back]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

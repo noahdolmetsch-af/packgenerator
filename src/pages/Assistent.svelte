@@ -7,12 +7,16 @@
    * (sidebar, phone top bar) and from the search.
    */
   import { liveQuery } from 'dexie';
-  import { MessageCircle, Route } from '@lucide/svelte';
+  import { ChevronLeft, MessageCircle, Route } from '@lucide/svelte';
   import { db } from '../lib/db.js';
   import { TEMPLATES_KEY } from '../lib/templates.js';
   import { t, tn } from '../lib/i18n.svelte.js';
   import { EXAMPLES } from '../lib/assistent/answers.js';
   import AskAnswer from '../lib/assistent/AskAnswer.svelte';
+  import FragenDaten from '../lib/fragen/FragenDaten.svelte';
+  import FrageKarte from '../lib/fragen/FrageKarte.svelte';
+  import { QUESTIONS } from '../lib/fragen/fragen.js';
+  import { ASK } from '../lib/fragen/saetze.js';
   import PlanHelp from '../lib/assistent/PlanHelp.svelte';
   import { planFromHash } from '../lib/suche/say.js'; // «Plane mir 3 Tage Jura» from the search
   import SearchFree from '../lib/kisuche/SearchFree.svelte';
@@ -29,6 +33,18 @@
   // per way.
   const CHROME_EG = ['What do I take for 2 days of rain?', 'Which jacket for 5 °C?'];
   const plan = $derived(hash.startsWith('#/assistent/plan'));
+  // «Eigene Frage stellen» (Noah 23.11.2026 «1-5a», 5a): opened from «Fragen» (`?von=fragen`) the place stays «Auswerten» and a link
+  // leads back; the field has the cursor; the six questions of «Fragen» are buttons that show the same answer (FragenDaten, no second count)
+  const von = $derived(/[?&]von=fragen(&|$)/.test(hash));
+  let field = $state(null);
+  let focused = false;
+  $effect(() => {
+    if (field && !plan && !focused && !asked) {
+      focused = true;
+      field.focus({ preventScroll: true });
+    }
+  });
+  let pick = $state(''); // the key of the question of «Fragen» that is shown
   let q = $state('');
   let asked = $state('');
   let appHas = $state(false); // the app's own answer has something for `asked`
@@ -51,11 +67,13 @@
   let empty = $state(false);
   function submit(e) {
     e.preventDefault();
+    pick = '';
     asked = q.trim();
     noted = '';
     empty = !asked;
   }
   function example(s) {
+    pick = '';
     empty = false;
     noted = '';
     q = s;
@@ -84,6 +102,7 @@
 </script>
 
 <div class="as-page">
+  {#if von}<a class="as-back" href="#/auswerten/fragen" data-as-back><ChevronLeft size={16} aria-hidden="true" />{t('Back to «Ask your data»')}</a>{/if}
   <VeloHead title={t('Assistant')} sub={t('Ask the app, or let it help you plan. Free, from your own data.')} />
   <div class="as-tabs" role="tablist" aria-label={t('Assistant')}>
     <a role="tab" href="#/assistent" aria-selected={!plan} class:on={!plan}><MessageCircle size={16} aria-hidden="true" />{t('Ask the app')}</a>
@@ -96,13 +115,29 @@
     <section class="card as-card" aria-labelledby="as-ask-h">
       <h2 id="as-ask-h" class="as-h">{t('Ask the app')}</h2>
       <form class="as-row" onsubmit={submit}>
-        <input class="inp" type="search" bind:value={q} oninput={() => ((asked = ''), (empty = false))} placeholder={t('e.g. How many km this month?')} aria-label={t('Your question')} autocomplete="off" />
+        <input class="inp" type="search" bind:this={field} bind:value={q} oninput={() => ((asked = ''), (pick = ''), (empty = false))} placeholder={t('e.g. How many km this month?')} aria-label={t('Your question')} autocomplete="off" />
         <button type="submit" class="btn hi">{t('Ask')}</button>
       </form>
       {#if empty}<p class="as-empty" role="status" data-as-empty>{t('Type a question first, or tap one of the examples below.')}</p>{/if}
       <p class="as-spk"><SpeakButton onsaid={spoken} /></p>
       <div class="as-ex" aria-label={t('Examples')}>
         {#each EXAMPLES as e (e)}<button type="button" class="chip" onclick={() => example(t(e))}>{t(e)}</button>{/each}
+      </div>
+      <!-- the six questions of «Fragen»: a tap shows the same answer as there -->
+      <div class="as-q" data-as="fragen" role="group" aria-label={t('Ask your data')}>
+        <p class="as-qh">{t('Ask your data')}</p>
+        <div class="as-ex">
+          {#each QUESTIONS as fq (fq.key)}<button type="button" class="chip" class:on={pick === fq.key} aria-pressed={pick === fq.key} data-as-frage={fq.key} onclick={() => ((pick = pick === fq.key ? '' : fq.key), (asked = ''), (q = ''), (empty = false))}>{ASK[fq.key]()}</button>{/each}
+        </div>
+        {#if pick}
+          <div class="as-res" aria-live="polite" data-as-frage-antwort>
+            <FragenDaten>
+              {#snippet children({ ready, answers, stand })}
+                {#if !ready}<p class="as-hint" role="status">{t('Counting …')}</p>{:else}<FrageKarte q={QUESTIONS.find((x) => x.key === pick)} a={answers[pick]} stand={stand(pick)} slim={answers[pick].state === 'few'} />{/if}
+              {/snippet}
+            </FragenDaten>
+          </div>
+        {/if}
       </div>
       {#if asked}
         <div class="as-res" aria-live="polite">
@@ -151,6 +186,27 @@
 <style>
   .as-page {
     max-width: 820px;
+  }
+  .as-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 44px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    text-decoration: none;
+  }
+  .as-q {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    margin-top: var(--sp-3);
+  }
+  .as-qh {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    font-weight: 500;
   }
   .as-tabs {
     display: flex;
@@ -219,6 +275,15 @@
     color: var(--ink);
     font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
+  }
+  .as-q .chip {
+    min-height: 44px;
+    text-align: left;
+  }
+  .chip.on {
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .as-res {
     margin-top: var(--sp-2);

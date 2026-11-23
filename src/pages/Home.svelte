@@ -143,6 +143,7 @@
   import { WEIGH_KEY, weighDue } from '../lib/home/weighin.js';
   import GoalChips from '../lib/home/GoalChips.svelte';
   import ActsTile from '../lib/home/ActsTile.svelte';
+  import HakenBlock from '../lib/home/HakenBlock.svelte';
   import { SERIES_STEPS } from '../lib/home/series.js';
   import { readSeries, seriesTables } from '../lib/home/series-data.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions } from '../lib/home/functions.js';
@@ -931,18 +932,18 @@
     const d = next?.startDate ? daysTo(next.startDate) : null;
     if (tourOnce) { /* the card «My tour» names the tour and its countdown */ } else if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
     else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: bare(next.title) }) });
-    parts.push({ hi: false, jump: upRows.length > 0, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
+    // the count leads to «Up now» (Nutzer-Durchgang 23.11.2026): a tap scrolls there; without the tile on the wall it is a plain sentence
+    parts.push({ hi: false, to: upRows.length && onWall.has('important') ? 'imp-h' : '', text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
     return parts;
   });
-  // Durchklick 4a (Noah 22.11.2026): «n things are up today» is tappable and jumps to the list «Up now» (nothing else changes)
-  function jumpToUp() {
-    const h = document.getElementById('imp-h');
-    const sec = h?.closest('section');
-    // at once (not smooth): lazy cards above may still change their height while a smooth scroll runs
-    sec?.scrollIntoView({ block: 'start' });
-    requestAnimationFrame(() => sec?.scrollIntoView({ block: 'start' }));
-    h?.setAttribute('tabindex', '-1');
-    h?.focus({ preventScroll: true });
+  // the sentence under the greeting leads to «Up now»: scrolls to its heading (a tap never changes the address)
+  function jumpTo(e, id) {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    el.setAttribute('tabindex', '-1');
+    el.focus({ preventScroll: true });
   }
   let notice = $state(null); // { text, undo() } for a few seconds
   let noticeTimer;
@@ -1160,7 +1161,7 @@
       </div>
     </div>
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
-    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.jump}<button type="button" class="say-jump tap" data-say-jump title={t('To the list')} onclick={jumpToUp}>{p.text}<span aria-hidden="true"> ↓</span></button>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
+    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
     <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
     {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} {newsDays} />{/if}
   </section>
@@ -1353,7 +1354,8 @@
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
   {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} check={!on('heutecheck')} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}</div>
-  {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
+  {:else if x.id === 'haken'}<HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
+  {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} haken={onWall.has('haken')} cfg={S[HABITS_KEY] ?? null} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
@@ -2638,22 +2640,22 @@
     color: var(--ink);
     text-wrap: pretty;
   }
+  .say .jump {
+    position: relative;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .say .jump::after {
+    content: '';
+    position: absolute;
+    inset: -14px -6px;
+  }
   .say .hi {
     color: var(--hi);
   }
   .imp {
     scroll-margin-top: 72px;
-  }
-  .say-jump {
-    border: 0;
-    background: none;
-    padding: 0;
-    font: inherit;
-    color: inherit;
-    text-align: left;
-    text-decoration: underline dotted;
-    text-underline-offset: 4px;
-    cursor: pointer;
   }
   .rico {
     display: grid;
