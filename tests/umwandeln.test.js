@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toKml, toGpx, toFit, fitCrc, fileName, pointsOf } from '../src/lib/unterwegs/umwandeln.js';
+import { toKml, toGpx, toFit, fitCrc, fileName, pointsOf, coursePointsOf, COURSE_POINTS_MAX } from '../src/lib/unterwegs/umwandeln.js';
 import { parseGpx, distKm } from '../src/lib/route.js';
 
 // Fictional route around Zurich
@@ -151,5 +151,50 @@ describe('umwandeln', () => {
     expect(fileName('Zürich / Üetliberg!', '.gpx')).toBe('Zürich-Üetliberg.gpx');
     expect(fileName('  ', 'kml')).toBe('Strecke.kml');
     expect(fileName(null, 'kml')).toBe('Strecke.kml');
+  });
+
+  // P1 «Kurspunkte für den Garmin»
+  it('FIT with course points writes one course_point per place, in km order, with the right type', () => {
+    const near = (i) => ({ lat: POINTS[i].lat + 0.0001, lon: POINTS[i].lon });
+    const places = [
+      { ...near(15), name: 'Dorfladen', kind: 'shop' },
+      { ...near(3), name: 'Brunnen', kind: 'water' },
+      { ...near(9), name: 'Hotel Sonne mit einem sehr langen Namen', kind: 'sleep' },
+      { lat: 48.5, lon: 9.5, name: 'Zu weit weg', kind: 'shop' }, // not on the way
+    ];
+    const msgs = readFit(toFit(POINTS, 'Ring', { coursePoints: places }));
+    const cps = msgs.filter((m) => m.global === 32);
+    expect(cps).toHaveLength(3);
+    expect(cps.map((c) => c.values[6])).toEqual(['Brunnen', 'Hotel Sonne mit', 'Dorfladen']);
+    expect(cps.map((c) => c.values[5])).toEqual([3, 0, 4]); // water, generic, food
+    const recs = msgs.filter((m) => m.global === 20);
+    expect(cps[0].values[4]).toBe(recs[3].values[5]); // distance of the point it sits on
+    expect(cps[2].values[2]).toBe(recs[15].values[0]); // its latitude
+    // still a whole, valid file
+    expect(fitCrc(toFit(POINTS, 'Ring', { coursePoints: places }), 0, toFit(POINTS, 'Ring', { coursePoints: places }).length)).toBe(0);
+  });
+
+  it('FIT without places has no course_point and stays as before', () => {
+    const plain = readFit(toFit(POINTS, 'Ring'));
+    expect(plain.filter((m) => m.global === 32)).toHaveLength(0);
+    expect(readFit(toFit(POINTS, 'Ring', { coursePoints: [] })).length).toBe(plain.length);
+  });
+
+  it('coursePointsOf drops twins and places off the line and cuts at the limit', () => {
+    const pts = POINTS;
+    const a = { lat: pts[5].lat, lon: pts[5].lon, name: 'A', kind: 'water' };
+    expect(coursePointsOf(pts, [a, { ...a }])).toHaveLength(1);
+    expect(coursePointsOf(pts, [{ lat: 0, lon: 0, name: 'x', kind: 'water' }])).toHaveLength(0);
+    expect(coursePointsOf(pts, [{ lat: null, lon: null, name: 'x', kind: 'water' }])).toHaveLength(0);
+    const many = Array.from({ length: COURSE_POINTS_MAX + 30 }, (_, i) => ({ lat: pts[i % N].lat, lon: pts[i % N].lon, name: `S${i}`, kind: 'shop' }));
+    expect(coursePointsOf(pts, many)).toHaveLength(COURSE_POINTS_MAX);
+  });
+
+  it('course points take a kind of COURSE_TYPE or their own FIT type, and the limit can be raised', () => {
+    const at = (i, extra) => ({ lat: POINTS[i].lat, lon: POINTS[i].lon, name: `P${i}`, ...extra });
+    const cps = readFit(toFit(POINTS, 'Ring', { coursePoints: [at(2, { kind: 'left' }), at(4, { type: 7 }), at(6, { kind: 'summit' }), at(8, { kind: 'zzz' })] })).filter((m) => m.global === 32);
+    expect(cps.map((c) => c.values[5])).toEqual([6, 7, 1, 0]);
+    const many = Array.from({ length: 150 }, (_, i) => at(i % N, { kind: 'left', name: `T${i}` }));
+    expect(readFit(toFit(POINTS, 'Ring', { coursePoints: many, coursePointsMax: 150 })).filter((m) => m.global === 32)).toHaveLength(150);
   });
 });
