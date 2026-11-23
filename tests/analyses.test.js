@@ -31,7 +31,7 @@ describe('analyses', () => {
 
 describe('weight', () => {
   it('keeps one entry per day, oldest first, and finds the weight of a day', () => {
-    const e = entriesOf({ entries: [{ day: '2026-10-11', kg: 71.3 }, { day: '2026-09-01', kg: '72,4' }, { day: 'x', kg: 70 }, { day: '2026-10-01', kg: 10 }] });
+    const e = entriesOf({ entries: [{ day: '2026-10-11', kg: 71.3 }, { day: '2026-09-01', kg: '72,4' }, { day: 'x', kg: 70 }, { day: '2026-10-01', kg: 0 }] }); // only nonsense is invalid (Noah 22.11.2026 «5a»)
     expect(e).toEqual([{ day: '2026-09-01', kg: 72.4 }, { day: '2026-10-11', kg: 71.3 }]);
     expect(kgOn(e, '2026-09-20')).toBe(72.4);
     expect(kgOn(e, '2026-08-01')).toBe(72.4);
