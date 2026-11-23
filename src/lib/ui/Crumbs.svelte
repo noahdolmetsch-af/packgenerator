@@ -6,12 +6,15 @@
    */
   import { ChevronLeft, ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
+  import { backCrumbsOf } from '../nav/herkunft.svelte.js';
 
   let { crumbs = [], here = '' } = $props();
+  // Durchklick-Fund 3: a one-step path names where you came from (zurueck.js)
+  const shown = $derived(backCrumbsOf(crumbs));
 </script>
 
 <nav class="crumbs back" aria-label={t('Path')}>
-  {#each crumbs as c, n (n)}
+  {#each shown as c, n (n)}
     <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}{c.label}</a><ChevronRight class="sep" size={12} aria-hidden="true" />
   {/each}
   <span aria-current="page">{here}</span>
