@@ -86,6 +86,15 @@ test('Trip tips: three new places for the free time, the weather, other hours, a
   await sec.getByRole('button', { name: T('{n} h', { n: 6 }), exact: true }).click();
   await expect.poll(ids).not.toBe(two);
 
+  // 2b. «You have 90 minutes»: the shortest choice shows places close by, or says there are none
+  await sec.getByRole('button', { name: T('{n} min', { n: 90 }), exact: true }).click();
+  await expect(sec.getByRole('button', { name: T('{n} min', { n: 90 }), exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(tips.first().or(sec.getByText(T('No new place within reach. Choose more time.')))).toBeVisible();
+  await noSideways(page);
+  await shot(sec, info, 'CL1-90min');
+  await sec.getByRole('button', { name: T('{n} h', { n: 6 }), exact: true }).click();
+  await expect(tips).toHaveCount(3);
+
   // 3. a round through the first place: one router request
   const name = (await tips.first().locator('b').textContent()).trim();
   await tips.first().locator('[data-tt-round]').click();
