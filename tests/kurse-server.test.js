@@ -25,6 +25,14 @@ describe('parsers', () => {
     const w = { chart: { result: [{ meta: { gmtoffset: -18000 }, timestamp: [Date.parse('2026-11-03T01:00:00Z') / 1000], indicators: { quote: [{ close: [5] }] } }] } };
     expect(parseYahoo(w)).toEqual([['2026-11-02', 5]]);
   });
+  it('a bar of a market that trades around the clock gets the day it ends on, never a Sunday', () => {
+    const at = (iso) => Date.parse(iso) / 1000;
+    const g = { chart: { result: [{ meta: { gmtoffset: -18000 }, timestamp: [at('2026-10-29T22:00:00Z'), at('2026-11-01T23:00:00Z'), at('2026-11-02T05:00:00Z'), at('2026-11-22T23:00:00Z')], indicators: { quote: [{ close: [1, 2, 3, 4] }] } }] } };
+    // Thursday evening starts Friday's bar, Sunday evening Monday's; a bar that starts at 05:00 UTC is that day's
+    expect(parseYahoo(g, true)).toEqual([['2026-10-30', 1], ['2026-11-02', 2], ['2026-11-02', 3], ['2026-11-23', 4]]);
+    // the Monday that has not been traded yet is today, so it drops out; Friday stays the last close
+    expect(cleanPoints(parseYahoo(g, true), '2026-11-23')).toEqual([['2026-10-30', 1], ['2026-11-02', 3]]);
+  });
   it('the Zurich day changes at local midnight, summer and winter', () => {
     expect(zurichDay('2026-07-14T22:30:00Z')).toBe('2026-07-15');
     expect(zurichDay('2026-12-14T22:30:00Z')).toBe('2026-12-14');

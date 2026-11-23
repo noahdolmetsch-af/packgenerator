@@ -21,9 +21,10 @@ export const MAX_POINTS = 14000; // 40 years of trading days are about 10 000
 
 /** The assets of this wave. order: the sources to try, first the one with the longer history. */
 export const KURS_ASSETS = {
-  gold: { currency: 'USD', unit: 'oz', order: ['stooq', 'yahoo'], stooq: 'xauusd', yahoo: 'GC=F' }, // spot gold per troy ounce; the futures as fallback
+  // session: the market trades around the clock (a bar can start on Sunday evening), so Yahoo's day is the one the bar ENDS on
+  gold: { currency: 'USD', unit: 'oz', order: ['stooq', 'yahoo'], stooq: 'xauusd', yahoo: 'GC=F', session: true }, // spot gold per troy ounce; the futures as fallback
   smi: { currency: 'CHF', unit: 'points', order: ['yahoo', 'stooq'], stooq: '^smi', yahoo: '^SSMI' },
-  usdchf: { currency: 'CHF', unit: 'rate', order: ['yahoo', 'stooq'], stooq: 'usdchf', yahoo: 'CHF=X' },
+  usdchf: { currency: 'CHF', unit: 'rate', order: ['yahoo', 'stooq'], stooq: 'usdchf', yahoo: 'CHF=X', session: true },
 };
 
 export class KurseError extends Error {
@@ -60,8 +61,13 @@ export function parseStooq(text) {
   return out;
 }
 
-/** Yahoo's chart answer → [[day, close]]. The day is the market's own day (the exchange's offset to UTC is applied). */
-export function parseYahoo(body) {
+/**
+ * Yahoo's chart answer → [[day, close]]. The day is the market's own day (the exchange's offset to UTC is applied).
+ * session = true (gold futures, currencies): a daily bar starts in the evening before (Sunday evening for Monday) and the
+ * label of old bars flips with the clock change, so the day is the one 12 hours after the bar's start: the bar that started on
+ * Sunday evening is Monday's, never a «Sunday close» (Monday not yet traded is today and drops out).
+ */
+export function parseYahoo(body, session = false) {
   const r = body?.chart?.result?.[0];
   const ts = r?.timestamp;
   const close = r?.indicators?.quote?.[0]?.close;
@@ -71,7 +77,7 @@ export function parseYahoo(body) {
   for (let i = 0; i < ts.length; i++) {
     const v = close[i];
     if (typeof v !== 'number' || !Number.isFinite(v) || v <= 0 || !Number.isFinite(ts[i])) continue;
-    out.push([new Date((ts[i] + off) * 1000).toISOString().slice(0, 10), r4(v)]);
+    out.push([new Date((session ? ts[i] + 12 * 3600 : ts[i] + off) * 1000).toISOString().slice(0, 10), r4(v)]);
   }
   return out;
 }
@@ -91,7 +97,7 @@ async function fetchText(url, doFetch, timeout, headers = {}) {
 
 const FETCH = {
   stooq: async (a, { doFetch, timeout }) => parseStooq(await (await fetchText(stooqUrl(a.stooq), doFetch, timeout)).text()),
-  yahoo: async (a, { doFetch, timeout, now }) => parseYahoo(await (await fetchText(yahooUrl(a.yahoo, new Date(now).getTime() / 1000), doFetch, timeout, { Accept: 'application/json' })).json()),
+  yahoo: async (a, { doFetch, timeout, now }) => parseYahoo(await (await fetchText(yahooUrl(a.yahoo, new Date(now).getTime() / 1000), doFetch, timeout, { Accept: 'application/json' })).json(), !!a.session),
 };
 
 /**
