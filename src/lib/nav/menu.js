@@ -37,6 +37,8 @@ export const PAGE_GROUPS = [
     key: 'gear',
     name: 'Gear|place',
     rows: [
+      // V5: Material is no place of its own any more (a tab of «Velos und Material»), so its start page is a row here
+      { id: 'gearpage', title: 'Gear|place', href: '#/gear', icon: 'file', words: 'gear material ausrüstung sachen inventar inventory alle teile all items everything you own weight gewicht' },
       { id: 'favorites', title: 'Favourites', href: '#/favorites', icon: 'star', words: 'favourites favorites favourite favorite best things lieblingsstücke favoriten beste' },
       // v0.32.0 (finding 5, stage 1): the old words (role, worn, every trip, kits) find the new places.
       { id: 'blocks', title: 'Building blocks', href: '#/blocks', icon: 'layers', words: 'building blocks block bausteine baustein sets set standard always with you immer dabei with the night mit nacht to add dazunehmen role rolle every trip jeder tour' },
