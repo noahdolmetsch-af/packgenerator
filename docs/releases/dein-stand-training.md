@@ -1,6 +1,6 @@
 # «Dein Stand» auf Training
 
-PR #<Nummer> · 22.11.2026 · Schritt V4b2 (Teil 3) der neuen Ordnung · Entscheid Noah «2a 3a» (22.11.2026 17:44), Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
+PR #1480 · 22.11.2026 · Schritt V4b2 (Teil 3) der neuen Ordnung · Entscheid Noah «2a 3a» (22.11.2026 17:44), Bilder https://claude.ai/artifact/GNcF9PjPknnCyUicL7vgk4
 
 ## Was ist neu
 - Woche › Training: unter «Meine Woche» steht die Karte «Dein Stand» mit bis zu vier ruhigen Zeilen: Bereitschaft (wie die Karte in Auswerten), Stunden dieser Woche gegen dein Ziel, Ruhepuls der letzten Tage gegen dein Übliches, nächstes Rennen. Jede Zeile führt mit einem Tipp dorthin, wo sie angeschaut wird (Form, Wochenrückblick, Körperwerte, Rennen).
