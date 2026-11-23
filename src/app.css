@@ -1323,12 +1323,22 @@ dialog.sheet::backdrop {
   }
   .tap,
   .back a,
-  a.back {
+  a.back,
+  a.chip,
+  button.skip,
+  button.more,
+  button.idot {
     position: relative;
   }
+  /* Durchklick Fund 1 (Noah 22.11.2026 «1a»): small chips and quiet buttons get the same invisible 44 px area
+     (looks unchanged, touch only; two close neighbours share the space) */
   .tap::after,
   .back a::after,
-  a.back::after {
+  a.back::after,
+  a.chip::after,
+  button.skip::after,
+  button.more::after,
+  button.idot::after {
     content: '';
     position: absolute;
     left: -8px;
