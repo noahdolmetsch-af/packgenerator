@@ -10,7 +10,7 @@ export default {
   'from your data': 'aus deinen Daten',
   'Why am I asking this?': 'Warum frage ich das?',
   'Your resting pulse today is {v}, your usual of the last 30 days is {normal}.': 'Dein Ruhepuls ist heute {v}, dein Üblicher der letzten 30 Tage liegt bei {normal}.',
-  'Questions from your data': 'Fragen aus deinen Daten',
+  'The app asks you': 'Die App fragt dich', // Noah 23.11.2026 «3a»: the app asks you (Fragen an meine Daten = you ask)
   'When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.': 'Wenn ein Wert auffällt, stellt das Fenster eine offene Frage dazu und sagt, warum. Gerechnet wird nur auf diesem Gerät. Bis zu {n} pro Tag.',
   'Resting pulse above your usual': 'Ruhepuls über deinem Üblichen',
   'Asks when your resting pulse today is at least {n} above your usual of the last 30 days.': 'Fragt, wenn dein Ruhepuls heute mindestens {n} über deinem Üblichen der letzten 30 Tage liegt.',
@@ -119,7 +119,7 @@ export default {
   'No Fitbit values yet. The rules for pulse and sleep wait until Fitbit brings them (Me › Fitbit); the mood rule needs your answers.': 'Noch keine Fitbit-Werte. Die Regeln für Puls und Schlaf warten, bis Fitbit sie bringt (Ich › Fitbit); die Stimmungs-Regel braucht deine Antworten.',
   'Your mood on the last {days} days was {list}, your usual is {usual}.': 'Deine Stimmung war an den letzten {days} Tagen {list}, dein Üblicher liegt bei {usual}.',
   'When a value stands out, the check asks one open question about it and says why. Each rule has a switch, a threshold and your own wording; it is all worked out on this device.': 'Wenn ein Wert auffällt, stellt der Check eine offene Frage dazu und sagt, warum. Jede Regel hat einen Schalter, eine Schwelle und deine eigenen Worte; gerechnet wird nur auf diesem Gerät.',
-  'Open Me › Your questions: «Questions from your data» is at the top.': 'Öffne Ich › Deine Abfragen: «Fragen aus deinen Daten» steht ganz oben.',
+  'Open Me › Your questions: «The app asks you» is at the top.': 'Öffne Ich › Deine Abfragen: «Die App fragt dich» steht ganz oben.',
   'Switch a rule off, change its threshold or write the question in your own words.': 'Schalte eine Regel aus, ändere ihre Schwelle oder schreibe die Frage in deinen eigenen Worten.',
   'When a value stands out, the check shows the question first, with «Why am I asking this?».': 'Fällt ein Wert auf, zeigt der Check die Frage zuerst, mit «Warum frage ich das?».',
   'Example: resting pulse 61, usual 52 → «What did you do yesterday that throws you off so much today?»': 'Beispiel: Ruhepuls 61, üblich 52 → «Was hast du gestern gemacht, das dich heute so aus der Ruhe bringt?»',

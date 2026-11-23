@@ -246,6 +246,19 @@ export default {
   'Tap «Round through it» at a place.': 'Tippe bei einem Ort «Runde hindurch».',
   // Challenges nach Gelegenheit: Absprung aus der Draussen-Karte
   'Trip tips for your time': 'Ausflugstipps für deine Zeit',
+  // Challenges nach Gelegenheit: der Startort der Ausflugstipps
+  'Start: {place}': 'Start: {place}',
+  'Home|start place': 'Zuhause',
+  'Where do you start?': 'Wo startest du?',
+  'The tips then count from this place. Nothing is saved.': 'Die Tipps rechnen dann von diesem Ort. Nichts wird gespeichert.',
+  'From here': 'Von hier',
+  'Here': 'Hier',
+  'Looking for your location …': 'Suche deinen Standort …',
+  'Asks for your location once, keeps nothing': 'Fragt einmal nach deinem Standort, behält nichts',
+  'Your location is not available here. Search a place instead.': 'Dein Standort ist hier nicht verfügbar. Suche stattdessen einen Ort.',
+  'Another place, e.g. Aarau': 'Ein anderer Ort, z. B. Aarau',
+  'The search needs the internet.': 'Die Suche braucht Internet.',
+  'From {from} through {name} and back.': 'Von {from} durch {name} und zurück.',
   // «Neue Kilometer» (Träume und Neuland N4)
   'New kilometres': 'Neue Kilometer',
   'How many km ran on roads you rode for the first time.': 'Wie viele km auf Strassen, die du zum ersten Mal gefahren bist.',
