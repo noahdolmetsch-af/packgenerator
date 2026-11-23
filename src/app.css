@@ -930,6 +930,8 @@ html {
   --wk-away: var(--l4);
   --wk-bike: var(--warn);
   --wk-sp: var(--hi); /* Spielerplus dates (Noah 06.11.2026 «4a»): an own colour and the word «Spielerplus» */
+  --wk-rest: var(--ok); /* rest and recovery in «Mein Tag» (Noah 23.11.2026 «1-5 a»): green, with the word */
+  --wk-food: var(--improve); /* meals in «Mein Tag»: orange, with the word */
 }
 :root,
 :root[data-place] {

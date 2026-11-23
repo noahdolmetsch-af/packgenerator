@@ -3,9 +3,9 @@ export default {
   title: 'Kursblick: the tab «Decision» for gold',
   lead: 'Kursblick now shows the trend of gold, where the price stands in five years, and lets you write your own buying rule.',
   points: [
-    { text: 'New tab «Decision»: a traffic light for the trend (the price against the mean of the last 50 and 200 days) and where the price stands in the last five years', go: { href: '#/kurse/entscheidung', steps: [{ sel: '[data-trend]' }] } },
-    { text: 'Your own buying rule: an amount a month, and a factor when the trend is red or the price is very expensive; it suggests an amount for this month', go: { href: '#/kurse/entscheidung', steps: [{ sel: '[data-regel]' }] } },
-    { text: 'A look back over the last 60 months: your rule against paying the same amount every month', go: { href: '#/kurse/entscheidung', steps: [{ sel: '[data-regel]' }] } },
+    { text: 'New tab «Decision»: a traffic light for the trend (the price against the mean of the last 50 and 200 days) and where the price stands in the last five years', go: { href: '#/kurse/entscheidung', steps: [{ sel: '.kseg' }] } },
+    { text: 'Your own buying rule: an amount a month, and a factor when the trend is red or the price is very expensive; it suggests an amount for this month', go: { href: '#/kurse/entscheidung', steps: [{ sel: '.kseg' }] } },
+    { text: 'A look back over the last 60 months: your rule against paying the same amount every month', go: { href: '#/kurse/entscheidung', steps: [{ sel: '.kseg' }] } },
   ],
   small: [{ box: 'new', text: 'Only observations and your own rule: no prediction, no advice, and the rule stays on your devices' }],
   test: ['Open Kursblick › «Decision»: the trend shows green, yellow or red, with a sentence.', 'Write an amount, for example 500, under «My buying rule»: a suggestion for this month and a look back appear.', 'Change «When the trend is red» to «Double»: the suggestion and the look back follow, and after a reload your rule is still there.'],
