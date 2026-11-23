@@ -89,6 +89,8 @@
   import ChargeSheet from '../lib/trip/ChargeSheet.svelte';
   import ChargeList from '../lib/trip/ChargeList.svelte';
   import { ampelShows, ampelRows } from '../lib/trip/ampel.js';
+  import { dazuRows, skipPatch } from '../lib/pack/dazu.js'; // «Dazu nötig» (Noah 23.11.2026 «G1»)
+  import DazuSheet from '../lib/pack/DazuSheet.svelte';
   import { chargeList, chargeCount } from '../lib/charge.js';
   import { tickPrep, untickPrep } from '../lib/care/prep.js';
   import { dayRidePlan, buildBikeTrip, fetchHomeForecast, forecastPreset, rideDate, homeOf } from '../lib/dayride.js';
@@ -290,17 +292,21 @@
     return colder || wetter ? { fc: fcWx, have } : null;
   });
   const wxd = $derived(wxGap && trip ? wxDiff(wxGap, allSets($setsQ?.value), items, trip.entries, offset + chill) : null);
+  // «Dazu nötig» (Noah 23.11.2026 «G1»): what belongs with something on the list and is not on it; the line of the card opens the window
+  const dazu = $derived(trip && !over ? dazuRows({ trip, items, trips: $tripsQ ?? [], debriefs: $debriefsQ ?? [] }) : []);
+  let dazuOpen = $state(false);
   // «Tour-Ampel» (Noah 05.11.2026, Touren 3a): packed, weather, bike, devices; a tap leads to what fixes it
   const ampel = $derived.by(() => {
     if (!ampelShows(trip, stats, today)) return [];
     const c = before?.care ?? before?.shortCare ?? null;
     const care = before ? { due: c?.status === 'due' ? c.rows.length : 0, late: !!c?.late, nodata: before.care?.status === 'nodata' && !before.prep.total, open: before.open.length } : null;
-    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null });
+    return ampelRows({ trip, stats, today, forecast: !!fcWx, wxGap: bikeTrip && !!wxGap, care, charged: charge.length ? charged : null, dazu: dazu.length ? { n: dazu.length, name: nameOf(dazu[0].item) } : null });
   });
   function ampelAct(act) {
     if (act === 'pack' || act === 'weather') location.hash = '#/pack?day';
     else if (act === 'bike') openBefore();
     else if (act === 'power') chargeOpen = true;
+    else if (act === 'dazu') dazuOpen = true;
   }
   function useForecast() {
     changeContext((t) => ({ wx: { ...(t.wx ?? {}), ...fcWx, ...pctOf(t) }, wxFrom: 'forecast' }));
@@ -1211,6 +1217,7 @@
     <div class="onion-toast packed-toast" role="status"><span>{t('All packed. Have a good trip!')}</span><a class="btn sm" href="#/">{t('To Today')}</a><AlsNaechstes moment="packed" ontap={() => (packedNote = null)} /></div>
   {/if}
   {#if tplNote}<p role="status">{tplNote}</p>{/if}{#if shareNote}<p role="status">{shareNote}</p>{/if}
+  {#if dazuOpen}<DazuSheet rows={dazu} {itemsById} onadd={helperAdd} onskip={(id) => change((c) => skipPatch(c, id))} onclose={() => (dazuOpen = false)} />{/if}
   {#if chargeOpen}<ChargeSheet {trip} {items} onclose={() => (chargeOpen = false)} />{/if}
   {#if choosing && choiceRows.length}<BikeChoice rows={choiceRows} {trip} onpick={useBike} onclose={() => choosing = false} />{/if}
   {#if newItem}<ItemDialog item={null} {items} preset={{ name: newItem.name, ...(trip?.domain && trip.domain !== 'bikepacking' ? { domains: [trip.domain] } : {}) }} onsaved={packNew} onkept={packNew} onclose={() => (newItem = null)} />{/if}
