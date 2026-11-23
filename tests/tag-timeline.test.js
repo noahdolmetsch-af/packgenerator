@@ -94,6 +94,8 @@ describe('nextBlocks', () => {
   it('leaves done untimed entries out and handles nothing', () => {
     expect(nextBlocks([{ ...e('t', 'todo', ''), done: true }], 600).items).toEqual([]);
     expect(nextBlocks(undefined, 600)).toEqual({ items: [], more: 0 });
+  });
+});
 
 import { planDay } from '../src/lib/tag/plan.js';
 describe('planDay', () => {
