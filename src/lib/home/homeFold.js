@@ -21,3 +21,21 @@ export function writeFolded(list, store = globalThis.localStorage) {
 }
 
 export const toggleFold = (list, key) => (list.includes(key) ? list.filter((x) => x !== key) : [...list, key]);
+
+// Heute aufräumen (23.11.2026): the one closed line «More» under the first areas; closed at the start, the device remembers it.
+export const MORE_KEY = 'pg.homeMoreOpen';
+export function readMoreOpen(store = globalThis.localStorage) {
+  try {
+    return store?.getItem(MORE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+export function writeMoreOpen(open, store = globalThis.localStorage) {
+  try {
+    if (open) store?.setItem(MORE_KEY, '1');
+    else store?.removeItem(MORE_KEY);
+  } catch {
+    /* private window or blocked storage: it just is not remembered */
+  }
+}

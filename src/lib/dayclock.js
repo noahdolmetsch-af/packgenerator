@@ -1,11 +1,11 @@
 /**
  * v0.144.0 RE «Eine Tagesuhr» (Noah 14.10.2026 «4a»): one clock for the whole app.
- * Morgen 06:00–10:59, Tag 11:00–17:59, Abend 18:00–21:59, Nacht 22:00–05:59 (device time).
+ * Morgen 05:00–10:59, Tag 11:00–17:59, Abend 18:00–21:59, Nacht 22:00–04:59 (the morning starts at 05:00 since 23.11.2026, Noah: «Guät Nacht» at 05:05 was wrong) (device time).
  * The greeting, the night quiet, the weather line «morgen», the evening rows and reminders, the evening
  * on a trip and the fixed rounds of «Wi gaht's?» all read these hours. The evening round at 20:30 stays
  * (it is a time to ask, not a part of the day). No imports on purpose (hallo.js and quiet.js read it).
  */
-export const DAY_CLOCK = { morning: 6, day: 11, evening: 18, night: 22 };
+export const DAY_CLOCK = { morning: 5, day: 11, evening: 18, night: 22 };
 /** The parts in the order of the day. */
 export const DAY_PARTS = ['morning', 'day', 'evening', 'night'];
 

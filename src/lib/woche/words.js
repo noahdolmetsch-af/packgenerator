@@ -31,6 +31,10 @@ export function subOf(e) {
   if (s.bike) return s.before ? t('{bike} · before the holidays', { bike: s.bike }) : s.bike;
   if (s.paused) return t('Paused: holidays');
   if (s.wet) return t('rain on {day}, dry here', { day: dayName(s.wet) });
+  if (h.key === 'over') {
+    const base = t('{over} more than the {goal} of your weekly plan. It is fine to move or leave out a unit.', { over: hours(h.over), goal: hours(h.goal) });
+    return h.mins ? `${base} ${t('The longest one still open: «{name}», {day}, {mins}.', { name: titleOf({ title: h.title, sessionKind: h.kind }), day: dayName(h.day), mins: hours(h.mins) })}` : base;
+  }
   return '';
 }
 

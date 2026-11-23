@@ -18,6 +18,10 @@ test('Woche abschliessen: move to today, drop and keep without a day, each with 
   await page.goto('./#/week');
   await settle(page);
   const card = page.locator('[data-week-close]');
+  // «Diese Woche aufräumen» (Noah 23.11.2026): the old items are one closed row with their number; a tap opens it
+  await expect(card).toHaveJSProperty('open', false);
+  await expect(card.locator('summary')).toContainText(/3 alte Punkte/);
+  await card.locator('summary').click();
   await expect(card.locator('[data-close-row]')).toHaveCount(3);
   await card.locator('[data-close-row]').filter({ hasText: 'Reifen bestellen' }).locator('[data-close-move]').click();
   await expect(card.locator('[data-close-row]')).toHaveCount(2);
@@ -30,6 +34,7 @@ test('Woche abschliessen: move to today, drop and keep without a day, each with 
   await expect(page.getByText('Kette reinigen').first()).toBeVisible();
   // Undo brings the last one back
   await page.getByRole('button', { name: T('Undo') }).first().click();
+  await page.locator('[data-week-close] summary').click();
   await expect(page.locator('[data-week-close] [data-close-row]')).toHaveCount(1);
 });
 
@@ -42,6 +47,7 @@ test('Woche abschliessen: «Später» hides the card', async ({ page, context })
   await importAndSettle(page, { name: 'abschluss2.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(d)) });
   await page.goto('./#/week');
   await settle(page);
+  await page.locator('[data-week-close] summary').click();
   await page.locator('[data-close-later]').click();
   await expect(page.locator('[data-week-close]')).toHaveCount(0);
 });
