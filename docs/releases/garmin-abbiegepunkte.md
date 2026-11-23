@@ -6,6 +6,7 @@ PR #<Nummer> · 23.11.2026 · Auftrag: Noah «1a 2a 3a 4a 5b» (Thread «Live-Na
 - Der FIT-Kurs für den Garmin Edge 850 und 1040 (Knopf «FIT-Kurs mit n Kurspunkten» bei der Route, unter Verpflegung, auf der Rennkarte) enthält jetzt auch die Abbiegepunkte der Strecke. Der Edge zeigt vor jedem einen Pfeil und «Links abbiegen», «Rechts abbiegen», «Leicht links» …, auch bei ausgeschaltetem Handy.
 - Ein Chip «Mit Abbiegepunkten» (an) schaltet sie ab. Darunter steht, wie viele Abbiegepunkte in den Kurs kommen.
 - Der Knopf steht jetzt auch, wenn keine Orte geladen sind, sobald die Strecke Abbiegungen hat.
+- Nebenbei: Die Zeile «Lieber mit OsmAnd fahren?» auf der Karte «Bereit für unterwegs?» sitzt jetzt wie die zwei Zeilen darüber (Symbol links, Titel und Erklärung untereinander, Knopf rechts). Vorher liefen Titel, Erklärung und Meldung ineinander, weil die Formate nur für die Karte selbst galten; sie stehen jetzt auch in `OsmandHandoff.svelte`.
 - Technik: neue Datei `src/lib/live/garminturns.js` (`turnPlaces`, `withTurns`), die Abbiegungen von `turnsOf` gehen als Kurspunkte (`left`, `right`, `slight_*`, `sharp_*`, `u_turn`) durch `toFit`.
 
 ## Was fällt weg oder rutscht tiefer
