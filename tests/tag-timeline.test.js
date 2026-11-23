@@ -1,6 +1,6 @@
 // «Mein Tag»: the day as a timeline (src/lib/tag/timeline.js). Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { layoutDay, lengthOf, toMin, fmtMin, nowMin, weekOf, DAY_START, DAY_END } from '../src/lib/tag/timeline.js';
+import { layoutDay, nextBlocks, lengthOf, toMin, fmtMin, nowMin, weekOf, DAY_START, DAY_END } from '../src/lib/tag/timeline.js';
 import { shiftDay } from '../src/lib/training.js';
 
 const e = (id, kind, time, mins) => ({ id, kind, time, title: id, sub: mins ? { mins } : null });
@@ -72,5 +72,72 @@ describe('weekOf', () => {
     expect(w[0]).toBe('2026-11-23');
     expect(w[6]).toBe('2026-11-29');
     expect(weekOf('2026-11-29', shiftDay)[0]).toBe('2026-11-23');
+  });
+});
+
+describe('nextBlocks', () => {
+  const list = [e('trip', 'away', ''), e('run', 'sport', '07:00', 60), e('cal', 'date', '12:00', 60), e('call', 'todo', '16:00', 30), e('todo', 'todo', '')];
+  it('lists what runs now, then what comes, then entries without a time', () => {
+    const r = nextBlocks(list, 7 * 60 + 30, 10);
+    expect(r.items.map((x) => [x.e.id, x.state])).toEqual([['run', 'now'], ['cal', 'next'], ['call', 'next'], ['todo', 'untimed']]);
+    expect(r.more).toBe(0);
+  });
+  it('drops blocks that are over and holidays', () => {
+    const r = nextBlocks(list, 13 * 60, 10);
+    expect(r.items.map((x) => x.e.id)).toEqual(['call', 'todo']);
+  });
+  it('says how many more there are', () => {
+    const r = nextBlocks(list, 6 * 60, 2);
+    expect(r.items.map((x) => x.e.id)).toEqual(['run', 'cal']);
+    expect(r.more).toBe(2);
+  });
+  it('leaves done untimed entries out and handles nothing', () => {
+    expect(nextBlocks([{ ...e('t', 'todo', ''), done: true }], 600).items).toEqual([]);
+    expect(nextBlocks(undefined, 600)).toEqual({ items: [], more: 0 });
+  });
+});
+
+import { planDay } from '../src/lib/tag/plan.js';
+describe('planDay', () => {
+  const own = (id, mins) => ({ ...e(id, 'todo', '', mins), own: true });
+  const base = [e('meet', 'date', '08:00', 120), own('a', 30), own('b', 45)];
+  it('puts open own entries into the first free gaps with air after the others', () => {
+    const r = planDay(base, { day: '2026-11-24', today: '2026-11-23' });
+    expect(r.moves.map((m) => [m.id, m.time])).toEqual([['a', '10:15'], ['b', '11:00']]);
+    expect(r.moves[0].why).toEqual({ code: 'after', other: 'meet' });
+    expect(r.left).toEqual([]);
+  });
+  it('keeps lunch free', () => {
+    const r = planDay([own('big', 120)], { day: '2026-11-24', today: '2026-11-23' });
+    expect(r.moves[0].time).toBe('08:00');
+    const r2 = planDay([e('m', 'date', '08:00', 180), own('x', 60)], { day: '2026-11-24', today: '2026-11-23' });
+    expect(r2.moves[0].time).toBe('13:00');
+  });
+  it('starts after now on today', () => {
+    const r = planDay([own('a', 30)], { day: '2026-11-23', today: '2026-11-23', now: 14 * 60 + 5 });
+    expect(r.moves[0].time).toBe('14:15');
+  });
+  it('lighter places half, harder places all with less air', () => {
+    const four = [own('a', 30), own('b', 30), own('c', 30), own('d', 30)];
+    const l = planDay(four, { day: '2026-11-24', today: '2026-11-23', mode: 'lighter' });
+    expect(l.moves).toHaveLength(2);
+    expect(l.left.map((x) => x.code)).toEqual(['later', 'later']);
+    const n = planDay([e('m', 'date', '08:00', 120), own('a', 30)], { day: '2026-11-24', today: '2026-11-23' });
+    const h = planDay([e('m', 'date', '08:00', 120), own('a', 30)], { day: '2026-11-24', today: '2026-11-23', mode: 'harder' });
+    expect(n.moves[0].time).toBe('10:15');
+    expect(h.moves[0].time).toBe('10:15');
+    const m = planDay([e('m', 'date', '08:00', 120), own('a', 30)], { day: '2026-11-24', today: '2026-11-23', mode: 'lighter' });
+    expect(m.moves[0].time).toBe('10:30');
+  });
+  it('says what does not fit and gives hints', () => {
+    const r = planDay([e('m', 'date', '08:00', 480), e('n', 'date', '16:00', 480), own('x', 120)], { day: '2026-11-24', today: '2026-11-23', wet: true });
+    expect(r.left).toEqual([{ id: 'x', title: 'x', code: 'full' }]);
+    expect(r.hints.map((h) => h.code)).toEqual(['busy']);
+    const rain = planDay([e('run', 'sport', '07:00', 60), own('a', 30)], { day: '2026-11-24', today: '2026-11-23', wet: true });
+    expect(rain.hints).toEqual([{ code: 'rain', title: 'run' }]);
+  });
+  it('plans nothing for the past and ignores done and foreign entries', () => {
+    expect(planDay([own('a', 30)], { day: '2026-11-20', today: '2026-11-23' }).moves).toEqual([]);
+    expect(planDay([{ ...own('a', 30), done: true }, e('f', 'todo', '')], { day: '2026-11-24', today: '2026-11-23' }).moves).toEqual([]);
   });
 });

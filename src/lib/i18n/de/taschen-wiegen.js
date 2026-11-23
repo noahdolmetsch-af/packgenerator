@@ -1,0 +1,22 @@
+// K3 «Wiegen am Starttag»: die gepackte Tasche auf der Waage, die App vergleicht mit ihrer Rechnung
+export default {
+  'Packed bag on the scale (g)': 'Gepackte Tasche auf der Waage (g)',
+  'e.g. 1850': 'z. B. 1850',
+  'Type the weight in grams, e.g. 1850.': 'Tippe das Gewicht in Gramm, z. B. 1850.',
+  'Weight of the bag saved.': 'Gewicht der Tasche gespeichert.',
+  'Weight of the bag removed.': 'Gewicht der Tasche entfernt.',
+  'On the scale: {kg}': 'Auf der Waage: {kg}',
+  'The calculation says {kg}: this fits.': 'Die Rechnung sagt {kg}: das passt.',
+  '{kg} more than the calculation ({calc}). Is a piece missing from the list, or does a weight in your gear not fit?': '{kg} mehr als die Rechnung ({calc}). Fehlt ein Teil auf der Liste, oder stimmt ein Gewicht im Material nicht?',
+  '{kg} less than the calculation ({calc}). Is a piece on the list that is not in the bag, or does a weight in your gear not fit?': '{kg} weniger als die Rechnung ({calc}). Steht ein Teil auf der Liste, das nicht in der Tasche ist, oder stimmt ein Gewicht im Material nicht?',
+  'The calculation ({calc}) lacks the weight of {n} items, so it cannot say yet. Weigh them and look again.': 'Der Rechnung ({calc}) fehlt das Gewicht von {n} Teilen, deshalb sagt sie noch nichts. Wiege sie und schau nochmals.',
+  'The bag itself is not weighed in your gear; its weight is part of the difference.': 'Die Tasche selbst ist im Material nicht gewogen; ihr Gewicht steckt im Unterschied.',
+  'Pack the bag, then open it in Packing list › By bags.': 'Tasche packen, dann in Packliste › Nach Taschen öffnen.',
+  'Put the packed bag on the scale and type the grams under «Packed bag on the scale».': 'Gepackte Tasche auf die Waage stellen und die Gramm unter «Gepackte Tasche auf der Waage» tippen.',
+  'Read what the app says: it fits, or where to look (a missing piece, a wrong weight).': 'Lesen, was die App sagt: es passt, oder wo man nachschauen soll (ein fehlendes Teil, ein falsches Gewicht).',
+  'Nothing to switch on; the numbers belong to the trip and are in the backup.': 'Nichts einzuschalten; die Zahlen gehören zur Tour und sind im Backup.',
+  'Example: saddle bag calculated 1.87 kg, scale 2.25 kg: «380 g more … is a piece missing?» The forgotten tent pegs.': 'Beispiel: Satteltasche gerechnet 1.87 kg, Waage 2.25 kg: «380 g mehr … fehlt ein Teil?» Die vergessenen Heringe.',
+  'A weighed bag tells you more than the list: weigh it closed and packed, with the bottles and snacks you will carry.': 'Eine gewogene Tasche sagt mehr als die Liste: wiege sie gepackt und zu, mit den Flaschen und dem Znüni, die du mitnimmst.',
+  'Weigh the bags on the start day': 'Taschen am Starttag wiegen',
+  'On the start day put each packed bag on the scale: open the bag in Pack and type the weight under «Packed bag on the scale». The app compares it with its calculation and says where they differ.': 'Stell am Starttag jede gepackte Tasche auf die Waage: öffne die Tasche beim Packen und tippe das Gewicht unter «Gepackte Tasche auf der Waage». Die App vergleicht es mit ihrer Rechnung und sagt, wo sie abweichen.',
+};
