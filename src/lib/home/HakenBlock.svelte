@@ -38,7 +38,7 @@
 
 {#if data && ready && (pick.shown.length || pick.up.length)}
   <section class="hk surf" aria-labelledby="hk-h" data-section="haken">
-    <TileHead icon={Check} id="hk-h" title={t('Tick off today')} side={pick.total ? t('{n} of {m} done|haken', { n: pick.done, m: pick.total }) : ''} />
+    <TileHead icon={Check} id="hk-h" title={t('Tick off today')} side={pick.total ? (pick.open ? t('{n} open|haken', { n: pick.open }) : t('All done|haken')) : ''} />
     {#if pick.shown.length}<TickGrid states={pick.shown} {today} cols={phone.matches ? 2 : 4} compact onmed={(s) => (medFor = s.act.id)} />{/if}
     {#if pick.up.length}<p class="up" data-haken-up>{t('{list}: up with your habits', { list: pick.up.map((s) => actName(s.act)).join(', ') })}</p>{/if}
     <a class="lk" href="#/flow" data-haken-all>{t('All|haken')}<ChevronRight size={16} aria-hidden="true" /></a>

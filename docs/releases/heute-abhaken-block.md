@@ -3,7 +3,7 @@
 Auftrag: Noah 23.11.2026 «1a 2a» (Thread «Prototyp»), dazu der Sprung «n Dinge dran» (Plan «ganze App»)
 
 ## Was ist neu
-- Der Block **«Heute abhaken»** (`src/lib/home/HakenBlock.svelte`, Rechnung `src/lib/home/haken.js`) steht als **erste Kachel** auf Heute, vor dem Körper-Band. Er zeigt deine Aktivitäten als kleine Kacheln (Handy 4, Computer 8, in der Reihenfolge von «Heute abhaken»), ein Tipp hakt ab, «Rückgängig» nimmt zurück. Oben steht «n von m erledigt», «Alle ›» öffnet die Seite «Heute abhaken» (`#/flow`).
+- Der Block **«Heute abhaken»** (`src/lib/home/HakenBlock.svelte`, Rechnung `src/lib/home/haken.js`) steht als **erste Kachel** auf Heute, vor dem Körper-Band. Er zeigt deine Aktivitäten als kleine Kacheln (Handy 4, Computer 8, in der Reihenfolge von «Heute abhaken»), ein Tipp hakt ab, «Rückgängig» nimmt zurück. Oben steht «n offen» (dieselbe Zahl wie am Menüpunkt «Plan», Abstimmung mit dem Menü-Thread) oder «Alles erledigt», «Alle ›» öffnet die Seite «Heute abhaken» (`#/flow`).
 - Habit-Karten (Meditation und Co.) stehen weiter als Karten; eine leise Zeile nennt, was dort schon steht. «Aktiv heute» zeigt keine Kachel doppelt.
 - Die Wand bekommt einmal die Version 23: ältere Wände rücken den Block an die erste Stelle (`withHaken` in `src/lib/home/tiles.js`); er lässt sich wie jede Kachel verschieben und ausblenden.
 - Die Zeile unter dem Gruss «n Dinge dran» ist ein Link und springt zum Block «Jetzt dran».
