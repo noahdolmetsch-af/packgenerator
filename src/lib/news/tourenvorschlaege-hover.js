@@ -4,7 +4,7 @@ export default {
   lead: 'Point at a dot on the map and you see the main numbers of the tour: km, time and climb.',
   points: [
     { text: 'The mouse over a dot shows a small card with the title, km, time at your pace, climb and the levels; the line of that tour gets thick and the others pale', go: { href: '#/trips/vorschlaege', steps: [{ sel: '[data-vs-view="map"]' }, { sel: '[data-vs-karte]' }], where: 'Trips › Dreams › Tour suggestions, «Map»: point at a dot.' } },
-    { text: 'On a phone the first tap on a dot shows the card, the second tap opens the tour' },
+    { text: 'On a phone the first tap on a dot shows the card, the second tap opens the tour', go: null },
   ],
   small: [],
   test: ['Open Trips › Dreams › Tour suggestions › «Map» and point at a dot: a card shows km, time and climb.', 'Move away: the card goes. Click the dot: the tour opens.', 'On a phone: tap a dot once for the card, tap again to open the tour.'],
