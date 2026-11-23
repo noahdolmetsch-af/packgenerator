@@ -5,6 +5,11 @@ import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/s
 import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib/vorschlaege/steil.js';
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
 import { crowKm, travelMin, anreiseOf, dayHours, fitsHalfDay, withinTravel, TRAVELS, ZURICH_HB } from '../src/lib/vorschlaege/anreise.js';
+<<<<<<< HEAD
+=======
+import { freeToday, formFit, freeFit, bikeFit, doableToday, EASY_MAX_H } from '../src/lib/vorschlaege/passt.js';
+import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes } from '../src/lib/vorschlaege/karte.js';
+>>>>>>> 555933e4d (Tourenvorschläge: Passt zu dir (Form heute, freie Zeit, Velo) und Filter «Heute machbar»)
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
 const by = (id) => TOURS.find((t) => t.id === id);
@@ -419,5 +424,81 @@ describe('Tourenvorschläge: Anreise (Schätzung)', () => {
     const far = whyOf(by('sm-332'), { month: 11, mode: 'pt' }).find((x) => x.k === 'trip');
     expect(far.half).toBe(false);
     expect(far.tone).toBe('warn');
+  });
+});
+
+describe('Tourenvorschläge: passt zu dir', () => {
+  // 23.11.2026, 08:00 Zürich (UTC+1); Sonnenuntergang 16:30
+  const OFF = 3600;
+  const at = (h, m = 0) => Date.parse('2026-11-23T00:00:00Z') + (h * 60 + m) * 6e4 - OFF * 1000;
+  const core = { offset: OFF, days: [{ date: '2026-11-23', set: at(16, 30), rise: at(7, 45) }] };
+  const now = at(8, 0);
+
+  it('freie Zeit: von jetzt plus Bereitmachen bis Sonnenuntergang', () => {
+    const w = freeToday(core, [], [], now);
+    expect(w.start).toBe(at(8, 30));
+    expect(w.end).toBe(at(16, 30));
+    expect(w.until).toBe('sunset');
+    expect(w.hours).toBeCloseTo(8, 5);
+  });
+  it('freie Zeit: ein eigener Termin begrenzt das Fenster; ohne Wetterdaten gibt es keins', () => {
+    const items = [{ kind: 'date', day: '2026-11-23', time: '12:00', mins: 60, title: 'Zahnarzt' }];
+    const w = freeToday(core, [], items, now);
+    expect(w.end).toBe(at(12, 0));
+    expect(w.until).toBe('date');
+    expect(w.hours).toBeCloseTo(3.5, 5);
+    expect(freeToday(null, [], [], now)).toBeNull();
+  });
+  it('freie Zeit: ein Termin am Anfang schiebt den Start nach hinten', () => {
+    const items = [{ kind: 'date', day: '2026-11-23', time: '08:00', mins: 120, title: 'Termin' }];
+    const w = freeToday(core, [], items, now);
+    expect(w.start).toBe(at(10, 0));
+  });
+  it('Form: Ruhe warnt immer, leicht warnt bei langen Touren, normal und bereit passen', () => {
+    const long = by('sm-332');
+    const t = TOURS.find((x) => hoursOf(x) <= EASY_MAX_H && (x.up ?? 0) <= 1200);
+    expect(formFit(t, 'rest').tone).toBe('warn');
+    expect(formFit(t, 'easy').tone).toBe('ok');
+    expect(formFit(long, 'easy').tone).toBe('warn');
+    expect(formFit(t, 'normal').key).toBe('fit');
+    expect(formFit(t, 'hard').tone).toBe('ok');
+    expect(formFit(t, null)).toBeNull();
+  });
+  it('freie Zeit gegen Tour: der ganze Tag (Fahrt plus Anreise) muss ins Fenster passen', () => {
+    const t = by('sm-332');
+    const small = freeFit(t, { hours: 1, end: at(10), until: 'date' });
+    expect(small.tone).toBe('warn');
+    const big = freeFit(t, { hours: 24, end: at(23), until: 'late' });
+    expect(big.tone).toBe('ok');
+    expect(freeFit(t, null)).toBeNull();
+  });
+  it('Velo: mit Mountainbike passt es, ohne warnt es, ohne Velos sagt es nichts', () => {
+    expect(bikeFit([])).toBeNull();
+    expect(bikeFit([{ id: 1, kind: 'mtb' }]).key).toBe('mtb');
+    expect(bikeFit([{ id: 2, kind: 'road' }]).key).toBe('nomtb');
+    expect(bikeFit([{ id: 3, kind: 'mtb', retired: true }])).toBeNull();
+  });
+  it('heute machbar: Ruhe sagt nein; mit Fenster zählt der ganze Tag; ohne Angaben ja', () => {
+    const t = by('sm-332');
+    expect(doableToday(t, {})).toBe(true);
+    expect(doableToday(t, { level: 'rest' })).toBe(false);
+    expect(doableToday(t, { level: 'hard', win: { hours: 1, end: at(10), until: 'date' } })).toBe(false);
+    expect(doableToday(t, { level: 'hard', win: { hours: 24, end: at(23), until: 'late' } })).toBe(true);
+  });
+  it('«Warum dieser Vorschlag?» hat die Zeilen frei, Form und Velo nur, wenn die App sie kennt', () => {
+    const t = by('sm-33');
+    const ks = (c) => whyOf(t, { month: 11, ...c }).map((r) => r.k);
+    expect(ks({})).not.toContain('free');
+    expect(ks({})).not.toContain('form');
+    expect(ks({})).not.toContain('bike');
+    const all = ks({ win: { hours: 5, end: at(14), until: 'date' }, form: 'normal', bikes: [{ id: 1, kind: 'mtb' }] });
+    expect(all).toEqual(expect.arrayContaining(['free', 'form', 'bike']));
+    expect(all.indexOf('free')).toBeLessThan(all.indexOf('snow'));
+  });
+  it('filterTours: ok(t) engt zusätzlich ein', () => {
+    const base = filterTours(TOURS, { conds: [] });
+    const some = filterTours(TOURS, { conds: [], ok: (t) => t.region === 'gr' });
+    expect(some.length).toBeGreaterThan(0);
+    expect(some.length).toBeLessThan(base.length);
   });
 });

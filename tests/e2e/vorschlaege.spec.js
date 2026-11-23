@@ -62,6 +62,16 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-vs-travel-max="any"]').click();
   await expect(tours).toHaveCount(hard.length);
 
+  // «For you»: the line says what is known; «Doable today» starts off, and without a free window or a form answer it keeps every tour
+  await expect(page.locator('[data-vs-you]')).toBeVisible();
+  await expect(page.locator('[data-vs-you-line]')).not.toBeEmpty();
+  await expect(page.locator('[data-vs-today]')).toHaveAttribute('aria-pressed', 'false');
+  await page.locator('[data-vs-today]').click();
+  await expect(page.locator('[data-vs-today]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(tours.first()).toBeVisible();
+  await page.locator('[data-vs-today]').click();
+  await expect(tours).toHaveCount(hard.length);
+
   // time and kind (all fitness levels, so that the short downhill is in)
   await page.locator('[data-vs-cond="medium"]').click();
   await page.locator('[data-vs-cond="easy"]').click();

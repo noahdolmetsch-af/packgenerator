@@ -28,8 +28,15 @@
   import { lineKm, pointAtKm, nearestOnLine } from '../lib/spur/kmmarks.js';
   import { REGIONS, LEVELS, COND_STD, TECH_STD, HOURS, ARTS, AWAYS, TRAVELS, MODES, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
   import { anreiseOf, dayHours } from '../lib/vorschlaege/anreise.js';
-  import { t, num } from '../lib/i18n.svelte.js';
-  import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight, TrainFront, Car } from '@lucide/svelte';
+  import { freeToday, doableToday, bikeFit } from '../lib/vorschlaege/passt.js';
+  import { formQuery } from '../lib/form-data.js';
+  import { dayAnswer } from '../lib/flow/form/tagesantwort.js';
+  import { answerLine } from '../lib/flow/form/words.js';
+  import { loadCore } from '../lib/wetter/kern.js';
+  import { prefsOf, AGENDA_KEY } from '../lib/agenda.js';
+  import { ITEMS_KEY } from '../lib/woche.js';
+  import { t, num, locale } from '../lib/i18n.svelte.js';
+  import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight, TrainFront, Car, User } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -125,7 +132,7 @@
     }
   });
   const toggleWhy = (k) => (whyOff = whyOff.includes(k) ? whyOff.filter((x) => x !== k) : [...whyOff, k]);
-  const WHY_NAME = { time: 'Time|why', trip: 'Journey|why', snow: 'Snow|why', level: 'Difficulty|why', new: 'New for you|why', away: 'Distance from home|why' };
+  const WHY_NAME = { time: 'Time|why', trip: 'Journey|why', free: 'Free time|why', form: 'Form today|why', bike: 'Bike|why', snow: 'Snow|why', level: 'Difficulty|why', new: 'New for you|why', away: 'Distance from home|why' };
 
   // ---- your data (only read)
   const paceQ = liveQuery(async () => (await db.settings.get(PACE_KEY))?.value ?? null);
@@ -136,6 +143,36 @@
     const [activities, rides, tracks] = await Promise.all([db.activities ? db.activities.toArray() : [], db.rides.toArray(), db.tracks ? db.tracks.where('kind').equals('rec').toArray() : []]);
     return { activities, rides, tracks };
   });
+  // «Passt zu dir» (Noah 23.11.2026): form today, free time today (Mein Tag and your calendar), your bikes. All only read.
+  const formQ = formQuery(today);
+  const setQ = liveQuery(() => db.settings.bulkGet([AGENDA_KEY, ITEMS_KEY]));
+  const evQ = liveQuery(() => db.gEvents.where('day').aboveOrEqual(today).limit(300).toArray().catch(() => []));
+  const bikesQ = liveQuery(() => db.bikes.toArray().catch(() => []));
+  let core = $state(null);
+  let coreKey = '';
+  $effect(() => {
+    const k = home ? `${home.lat},${home.lon}` : '';
+    if (k === coreKey) return;
+    coreKey = k;
+    core = null;
+    if (k) loadCore(db, home).then((c) => k === coreKey && (core = c)).catch(() => {});
+  });
+  const level = $derived(dayAnswer($formQ?.ready)?.level ?? null);
+  const calOn = $derived(prefsOf($setQ?.[0]?.value).calendar);
+  const ownItems = $derived(Array.isArray($setQ?.[1]?.value) ? $setQ[1].value : []);
+  const win = $derived(core ? freeToday(core, calOn ? ($evQ ?? []) : [], ownItems) : null);
+  const bikes = $derived($bikesQ ?? []);
+  const bikeNow = $derived(bikeFit(bikes));
+  const hm = (ms) => new Date(ms).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' });
+  /** The line «for you today»: the form, the free time, the bike (what is known). */
+  const youLine = $derived(
+    [
+      level ? answerLine(level) : null,
+      win ? (win.hours > 0 ? t('Free from {from} to {to} ({h}).', { from: hm(win.start), to: hm(win.end), h: hoursText(win.hours) }) : t('No free time left today.')) : null,
+      bikeNow ? (bikeNow.key === 'mtb' ? t('You have a mountain bike.') : t('You have no mountain bike yet: the tours are made for one.')) : null,
+    ].filter(Boolean),
+  );
+  let onlyToday = $state(false); // «Doable today»: starts switched off and is not kept
   const pace = $derived(paceOf($paceQ));
   const home = $derived($homeQ?.lat != null ? $homeQ : null);
   const hidden = $derived(Array.isArray($hideQ?.hidden) ? $hideQ.hidden : []);
@@ -157,7 +194,7 @@
     });
 
   // ---- the lists
-  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, hidden, pace }) : []);
+  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, hidden, pace, ok: onlyToday ? (x) => doableToday(x, { level, win, pace, home, mode: flt.mode }) : null }) : []);
   const split = $derived(splitNow(shown, month));
   const open = $derived(tours && openId ? tours.find((x) => x.id === openId) ?? null : null);
 
@@ -182,6 +219,13 @@
       const back = r.back === r.out ? t('and the same back') : t('and {back} back', { back: minText(r.back) });
       return `${t('Journey about {out} there', { out: minText(r.out) })} ${back} (${way}, ${from}, ${t('a rough guess')}). ${r.half ? t('The whole day is about {h}: it fits into half a day.', { h: hoursText(r.day) }) : t('The whole day is about {h}.', { h: hoursText(r.day) })}`;
     }
+    if (r.k === 'free') {
+      const until = r.why === 'sunset' ? t('until sunset') : r.why === 'date' ? t('until your next appointment') : t('until the evening');
+      const p = { free: hoursText(r.free), until, h: hoursText(r.day) };
+      return r.tone === 'ok' ? t('Free today for {free} {until}. The ride and the journey take about {h}.', p) : t('Free today only for {free} {until}. The ride and the journey take about {h}.', p);
+    }
+    if (r.k === 'form') return t(FORM_TEXT[r.key]);
+    if (r.k === 'bike') return r.key === 'mtb' ? t('You have a mountain bike.') : t('You have no mountain bike yet: the tours are made for one.');
     if (r.k === 'snow') {
       if (r.state === 'likely') return t('Snow is likely at {m} m in this month.', { m: num(r.max) });
       if (r.state === 'possible') return t('Snow is possible at {m} m in this month.', { m: num(r.max) });
@@ -195,13 +239,19 @@
     if (r.k === 'new') return t('About {n} % of the line is new for you.', { n: r.share });
     return r.zurich ? t('About {km} km from Zurich main station to the start.', { km: r.km }) : t('About {km} km from home to the start.', { km: r.km });
   }
+  const FORM_TEXT = {
+    rest: 'Your form says rest today: better a short, easy ride or none.',
+    easy: 'Your form says an easy day: this tour is long or steep for it.',
+    long: 'A very long tour for a normal day: plan it for a rested day.',
+    fit: 'Your form today is fine for this tour.',
+  };
   const ART_NAME = { trail: 'Single trail|tour', downhill: 'Downhill|tour', gravel: 'Gravel and paths|tour', loop: 'Round trip|tour' };
   const regionCount = $derived(tours ? tours.reduce((a, x) => ({ ...a, [x.region]: (a[x.region] ?? 0) + 1 }), {}) : {});
   const artCount = $derived(tours ? Object.fromEntries(ARTS.map((k) => [k, tours.filter((x) => artsOf(x).includes(k)).length])) : {});
   const toneIcon = (r) => (r.tone === 'warn' ? TriangleAlert : Check);
 
   // ---- the open tour
-  const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home, mode: flt.mode }).filter((r) => !whyOff.includes(r.k)) : []);
+  const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home, mode: flt.mode, win, form: level, bikes }).filter((r) => !whyOff.includes(r.k)) : []);
   const warns = $derived(open ? warnsOf(open, month) : []);
   // the profile and the map show the same place in both directions (Noah 23.11.2026 «1-5a», idea B): the cursor of the profile
   // is the dot on the map, and a tap on the map moves the cursor
@@ -384,6 +434,15 @@
           <span class="hint">{t('Set your home place and you can choose how far the start may be.')}</span>
         {/if}
       </div>
+      <div class="grp" role="group" aria-label={t('For you|tour')} data-vs-you>
+        <span class="gl">{t('For you|tour')}</span>
+        <button type="button" class="chip" aria-pressed={onlyToday} data-vs-today onclick={() => (onlyToday = !onlyToday)}><User size={16} aria-hidden="true" />{t('Doable today')}</button>
+        {#if youLine.length}
+          <span class="hint" data-vs-you-line>{youLine.join(' ')}</span>
+        {:else}
+          <span class="hint" data-vs-you-line>{t('Set your home place and fill in your form and the app says what fits you today.')}</span>
+        {/if}
+      </div>
       <div class="grp" role="group" aria-label={t('Journey|tour')} data-vs-travel>
         <span class="gl">{t('Journey|tour')}</span>
         <button type="button" class="chip" aria-pressed={flt.mode === 'pt'} data-vs-mode="pt" onclick={() => (flt.mode = 'pt')}><TrainFront size={16} aria-hidden="true" />{t('Public transport with the bike')}</button>
@@ -421,7 +480,7 @@
     {#if !tours}
       <p class="hint" role="status">{t('Loading the tours…')}</p>
     {:else if !shown.length}
-      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, pace }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
+      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, pace, ok: onlyToday ? (x) => doableToday(x, { level, win, pace, home, mode: flt.mode }) : null }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
     {:else}
       <div class="seg" role="group" aria-label={t('View|tour')}>
         <button type="button" class="chip" aria-pressed={view === 'list'} data-vs-view="list" onclick={() => setView('list')}>{t('List|tour')}</button>
@@ -477,6 +536,7 @@
 {#snippet card(tour, grey)}
   {@const share = grid ? newShare(tour, grid) : null}
   {@const trip = anreiseOf(tour, home, flt.mode)}
+  {@const todayOk = level || win ? doableToday(tour, { level, win, pace, home, mode: flt.mode }) : null}
   <li class="tc card" class:grey data-vs-tour={tour.id}>
     <a class="tl" href={`#/trips/vorschlaege/${tour.id}`}>
       <span class="th"><b>{tour.title}</b><small>{regionName(tour.region)} · {t(tourClass(tour))}</small></span>
@@ -489,6 +549,7 @@
         <span class="why"><Snowflake size={14} aria-hidden="true" />{t('Snow is possible at {m} m in this month.', { m: num(tour.max) })}</span>
       {/if}
       {#if trip}<span class="why" data-vs-trip>{#if flt.mode === 'car'}<Car size={14} aria-hidden="true" />{:else}<TrainFront size={14} aria-hidden="true" />{/if}{t('Journey about {out} there', { out: minText(trip.out) })} {trip.back === trip.out ? t('and the same back') : t('and {back} back', { back: minText(trip.back) })} · {t('whole day about {h}', { h: hoursText(dayHours(hoursOf(tour, pace), trip)) })}</span>{/if}
+      {#if todayOk !== null}<span class="why" class:bad={!todayOk} data-vs-doable={todayOk ? 'yes' : 'no'}>{#if todayOk}<Check size={14} aria-hidden="true" />{t('Doable today')}{:else}<TriangleAlert size={14} aria-hidden="true" />{t('Not doable today')}{/if}</span>{/if}
       {#if share !== null}<span class="why"><MapPin size={14} aria-hidden="true" />{t('About {n} % new for you', { n: Math.round(share * 100) })}</span>{/if}
     </a>
     <button type="button" class="btn sm" onclick={() => hideTour(tour)} data-vs-hide><EyeOff size={16} aria-hidden="true" />{t('Not for me')}</button>
@@ -521,6 +582,7 @@
   .lv { display: flex; flex-wrap: wrap; gap: 6px; }
   .lvp { font-size: var(--fs-small); font-weight: 600; border-radius: 99px; padding: 1px var(--sp-2); background: var(--paper); border: 1px solid var(--line); color: var(--ink-2); }
   .lvp[data-lv='difficult'] { border-color: var(--bad); color: var(--bad); }
+  .why.bad { color: var(--bad); }
   .why { display: flex; gap: 6px; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
   .map { border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; margin-bottom: var(--sp-2); }
   .prof { display: grid; gap: var(--sp-3); }

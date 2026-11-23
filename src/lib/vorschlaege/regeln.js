@@ -16,6 +16,7 @@
 import { SPEED_KMH, CLIMB_MH } from '../route.js';
 import { gpxString } from '../gpxout.js';
 import { anreiseOf, dayHours, fitsHalfDay, withinTravel, TRAVELS, MODES } from './anreise.js';
+import { formFit, freeFit, bikeFit } from './passt.js';
 
 export { TRAVELS, MODES };
 
@@ -59,7 +60,7 @@ export const ARTS = ['trail', 'downhill', 'gravel', 'loop'];
 /** The start choices: km from your home place to the start (needs a home place); null = any. */
 export const AWAYS = [30, 60, 100];
 /** The lines of «Why this suggestion?» that can be switched off, in their order. */
-export const WHY_KEYS = ['time', 'trip', 'snow', 'level', 'new', 'away'];
+export const WHY_KEYS = ['time', 'trip', 'free', 'form', 'bike', 'snow', 'level', 'new', 'away'];
 
 /** The height (m) from which snow can lie on a typical day of the month (1 = January). A rule of thumb, not a forecast. */
 export const SNOW_LINE = { 1: 900, 2: 900, 3: 1200, 4: 1600, 5: 2000, 6: 2400, 7: 3000, 8: 3000, 9: 2500, 10: 2100, 11: 1700, 12: 1100 };
@@ -123,9 +124,9 @@ export function snowOf(t, month) {
  * The tours to show, nearest first: regions (cantons; set or array; empty = all), conds (fitness levels, empty = all), techs (skill
  * levels, empty = all), the most hours (null = any), kinds (empty = all), the most km from home to the start (null = any; without a
  * home place it does not filter), the longest journey one way in minutes (maxTravel, with mode 'pt' or 'car', from home, else from
- * Zurich main station), without the hidden ones. pace is used for the time.
+ * Zurich main station), without the hidden ones; ok(t): one more test, for example «doable today». pace is used for the time.
  */
-export function filterTours(tours = [], { regions = [], conds = COND_STD, techs = TECH_STD, maxHours = null, hidden = [], pace = null, arts = [], maxAway = null, home = null, maxTravel = null, mode = 'pt' } = {}) {
+export function filterTours(tours = [], { regions = [], conds = COND_STD, techs = TECH_STD, maxHours = null, hidden = [], pace = null, arts = [], maxAway = null, home = null, maxTravel = null, mode = 'pt', ok = null } = {}) {
   const rs = new Set(regions ?? []);
   const hid = new Set(hidden ?? []);
   const as = new Set(arts ?? []);
@@ -133,6 +134,7 @@ export function filterTours(tours = [], { regions = [], conds = COND_STD, techs 
     if (hid.has(t.id) || (rs.size && !rs.has(t.region)) || !matchCond(t, conds, rs) || !matchTech(t, techs)) return false;
     if (maxHours && hoursOf(t, pace) > maxHours + 1e-9) return false;
     if (as.size && !artsOf(t).some((k) => as.has(k))) return false;
+    if (ok && !ok(t)) return false;
     if (maxTravel && !withinTravel(anreiseOf(t, home, mode), maxTravel)) return false;
     const km = maxAway ? awayKm(t, home) : null;
     return km === null || km <= maxAway;
@@ -227,7 +229,7 @@ export function awayKm(t, home) {
 
 /**
  * The lines under «Why this suggestion?»: [{ k, tone, ...params }], tone 'ok' or 'warn'.
- * k: 'level' (levels), 'time' (hours, window), 'snow' (state), 'new' (share), 'away' (km), 'trip' (the journey there and back and the whole day). ctx: { pace, month, maxHours, grid, home, mode }.
+ * k: 'level' (levels), 'time' (hours, window), 'snow' (state), 'new' (share), 'away' (km), 'trip' (the journey there and back and the whole day). ctx: { pace, month, maxHours, grid, home, mode, win (free window today), form (the level of today), bikes }. 'free', 'form' and 'bike' say what fits you today.
  */
 export function whyOf(t, ctx = {}) {
   const out = [];
@@ -235,6 +237,12 @@ export function whyOf(t, ctx = {}) {
   out.push({ k: 'time', tone: ctx.maxHours && h > ctx.maxHours ? 'warn' : 'ok', hours: h, window: ctx.maxHours ?? null, mine: !!ctx.pace?.mine });
   const trip = anreiseOf(t, ctx.home, ctx.mode);
   if (trip) out.push({ k: 'trip', tone: fitsHalfDay(h, trip) ? 'ok' : 'warn', ...trip, day: dayHours(h, trip), half: fitsHalfDay(h, trip) });
+  const free = freeFit(t, ctx.win, { pace: ctx.pace, home: ctx.home, mode: ctx.mode });
+  if (free) out.push({ k: 'free', ...free });
+  const form = formFit(t, ctx.form, ctx.pace);
+  if (form) out.push({ k: 'form', ...form, level: ctx.form });
+  const bike = bikeFit(ctx.bikes);
+  if (bike) out.push({ k: 'bike', ...bike });
   const snow = snowOf(t, ctx.month);
   if (snow) out.push({ k: 'snow', tone: 'warn', state: snow, max: t.max });
   else if (ctx.month) out.push({ k: 'snow', tone: 'ok', state: 'none', max: t.max });
