@@ -5,7 +5,8 @@
  *  - afterRain: it rained in the last 24 hours, so the chain wants oil («Nach dem Regen: Kette ölen»)
  *  - rideWindow: how long it stays dry today and how long the light lasts («Fahrfenster»)
  */
-import { bestWindows, costWord, hoursBetween, localDate, wet } from './kern.js';
+import { bestWindows, costWord, hoursBetween, localDate } from './kern.js';
+import { rainStory } from './regenzeit.js'; // the one rain start time of the app (a value stands for the hour BEFORE its stamp)
 import { lightDay } from './licht.js';
 
 /** Rain in the last 24 hours (mm) from which the chain wants oil. */
@@ -43,16 +44,16 @@ export function afterRain(core, now = Date.now()) {
 }
 
 /**
- * The window for a ride today: from now until the first wet hour or until sunset. → { until (ms), by: 'rain' | 'dark',
+ * The window for a ride today: from now until the rain starts (as the rest of Today says it) or until sunset. → { until (ms), by: 'rain' | 'dark',
  * set (ms), lampOn (ms) } or null (it rains now, the sun has set, or the dry stretch is shorter than MIN_WINDOW_MIN).
  */
 export function rideWindow(core, now = Date.now()) {
   const light = lightDay(core, localDate(now, core?.offset ?? 0));
   if (!light || now >= light.set) return null;
-  const hs = hoursBetween(core, now - 36e5 + 1, light.set);
-  if (!hs.length || wet(hs[0])) return null;
-  const rain = hs.find(wet);
-  const until = rain ? rain.ms : light.set;
+  const story = rainStory(core, null, now); // the same start time of the rain as the rest of Today
+  if (!story || story.kind === 'now') return null;
+  const rain = story.kind === 'later' && story.from < light.set;
+  const until = rain ? story.from : light.set;
   if (until - now < MIN_WINDOW_MIN * 6e4) return null;
   return { until, by: rain ? 'rain' : 'dark', set: light.set, lampOn: light.lampOn };
 }
