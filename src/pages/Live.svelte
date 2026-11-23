@@ -83,6 +83,7 @@
   import NightLight from '../lib/live/NightLight.svelte'; // «Licht in der Nacht» (Paket D, Idee 20)
   import { nightStrength, nightLightOn, beamDeg } from '../lib/live/nightlight.js';
   import { turnsOf, nextTurn, turnSay, turnListText } from '../lib/live/turns.js';
+  import { turnsFromHints } from '../lib/live/brouterturns.js';
   import { lapNow, lapsOf, ghostOf, ghostDelta, ghostPicks, ghostRide, NO_GHOST, deltaText } from '../lib/live/laps.js';
   import DataPages from '../lib/live/DataPages.svelte';
   import LiveSmallMap from '../lib/live/LiveSmallMap.svelte';
@@ -422,7 +423,8 @@
   const turns = $derived(hasRoute ? turnsOf(pts) : []);
   // Navigation zum Ziel 2 (Noah 27.10.2026 «1a»): on the way to a goal the turns come from that way, always shown
   const detourPts = $derived(detour?.line?.length > 1 ? lineKm({ line: detour.line }) : []);
-  const detourTurns = $derived(detourPts.length ? turnsOf(detourPts) : []);
+  // Noah 23.11.2026 «2a»: a way the router planned brings its own junctions and roundabouts (brouterturns.js); else the shape of the line
+  const detourTurns = $derived(detourPts.length ? (Array.isArray(detour?.hints) ? turnsFromHints(detour.hints, detourPts) : turnsOf(detourPts)) : []);
   const detourKm = $derived(detourPts.length && me && onDetour(detour, me) ? (snapAhead(detourPts, me, 0)?.km ?? null) : null);
   const navTurns = $derived(detourKm != null ? detourTurns : turns);
   const navKm = $derived(detourKm != null ? detourKm : cfg.turns && at && at.offM < 100 ? (at.kmx ?? at.km) : null);

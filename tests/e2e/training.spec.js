@@ -209,6 +209,8 @@ test('Training › Woche: an optional goal, plan the week, «Wie letzte Woche»,
   const back = page.locator('[data-section="look-back"]');
   await expect(back.locator('[data-chart="lookback"] [data-plot]')).toHaveAttribute('data-n', '6');
   await expect(back.locator('[data-this-week]')).toContainText('von 8:00 Std.');
+  // «Diagramme überall verbessern»: the hour goal you typed is a dashed line in the six weeks
+  await expect(back.locator('[data-chart="lookback"] [data-goal-text]')).toHaveText('Ziel pro Woche: 8 Std.');
   await expect(back).toContainText('mit Fitbit');
 
   // next week: «Wie letzte Woche» takes the plan over, a tap changes or removes a session
