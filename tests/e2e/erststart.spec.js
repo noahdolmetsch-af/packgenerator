@@ -137,7 +137,8 @@ test('«Beispiele anpassen» (V1): only the chosen examples come in, what is the
   // open again: «day rides» is there (not clickable), the other two can still be added
   await adjust.click();
   await expect(dlg.locator('[data-interest="days"]')).toBeDisabled();
-  await dlg.locator('[data-interest="nights"]').click();
+  // what is missing is ticked again as a suggestion
+  await expect(dlg.locator('[data-interest="nights"]')).toHaveAttribute('aria-pressed', 'true');
   await dlg.locator('[data-choice="examples-go"]').click();
   await expect(dlg).toBeHidden();
   await expect.poll(() => tripIds(page)).toEqual(['ex-past', 'ex-trip']);
