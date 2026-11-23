@@ -54,9 +54,10 @@
 <div class="aus" data-page="auswerten">
   <header class="ph">
     <h1 class="title">{t('Analysis|place')}</h1>
-    <p class="sub">{t('Here you look at how you are: form, body values, rides and what you ticked. To tick off, go to Active.')}</p>
-    <!-- «Sportjahr» (Noah 21.11.2026 «1 a dann b»): one quiet line, not a tab (the tabs of Auswerten may not grow) -->
-    <p class="sjl"><a href="#/auswerten/sportjahr" data-sportjahr-link>{t('Sports year: everything you did, in hours, by sport')} ›</a></p>
+    <p class="sub">{t('Form, body values, rides and what you ticked.')}</p>
+    <!-- «Sportjahr» (Noah 21.11.2026 «1 a dann b»): one quiet line, not a tab (the tabs of Auswerten may not grow).
+         «Knapper Seitenkopf» (Noah 23.11.2026 «3a»): one sentence; the way to «Heute abhaken» stands in the same line -->
+    <p class="sjl"><a href="#/auswerten/sportjahr" data-sportjahr-link>{t('Sports year')} ›</a><a href="#/flow" data-aktiv-link>{t('Tick off today')} ›</a></p>
   </header>
   <PeriodBar {today} />
   <!-- «Form und Erholung» (Noah 20.10.2026 «2b 3a»): the readiness of today, on top -->
@@ -113,6 +114,9 @@
     min-width: 0;
   }
   .sjl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--sp-4);
     margin: var(--sp-1) 0 0;
     font-size: var(--fs-small);
   }

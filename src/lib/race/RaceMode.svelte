@@ -14,6 +14,7 @@
   import SleepList from './ride/SleepList.svelte';
   import CallHotels from './ride/CallHotels.svelte';
   import NapTimer from './ride/NapTimer.svelte';
+  import BagShots from './ride/BagShots.svelte'; // K1 «Taschen-Fotos»
   import { ownQuery } from '../map/ownpoints.js';
   import { TIRED, BAD_WEATHER, checkpointRows, cutoffNeed, lastActual, miniGoals, hhmm, hm, localOf, dayOfMs } from './race.js';
   import { nextSupply, openAt, wxAt, uvAdvice, WX_CACHE, POI_KIND } from './outside.js';
@@ -232,6 +233,8 @@
     </Box>
 
     <Contacts {ctx} {now} />
+
+    <BagShots {ctx} />
 
     <Box id="ride-actual" title={t('Plan vs actual')} what="One tap at a checkpoint notes the time; the app shows how far ahead or behind your plan you are." why="You know at once if the plan still holds, and the report after the race uses these times." from="Your checkpoints from «Prepare», your plan, your taps.">
       {#if rows.length}
