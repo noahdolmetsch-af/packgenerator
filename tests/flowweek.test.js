@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { MAX_SUGG_DAY, weekdayOf, weekOf, normFixed, fixedList, togglePlan, hideSugg, prunePlans, wxOf, weekPlan, weekGoals, weekEvents, nextOn } from '../src/lib/flowweek.js';
+import { MAX_SUGG_DAY, weekdayOf, weekOf, normFixed, fixedList, togglePlan, hideSugg, prunePlans, wxOf, weekPlan, weekGoals, weekUnits, weekEvents, nextOn } from '../src/lib/flowweek.js';
 import { normAct, flowStates } from '../src/lib/flow.js';
 import { icsCalendar } from '../src/lib/flowmed.js';
 
@@ -240,5 +240,21 @@ describe('the week (AK1)', () => {
     expect(ics).toContain('DTSTART;VALUE=DATE:20261016');
     expect(ics).toContain('DTEND;VALUE=DATE:20261017');
     expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(2);
+  });
+});
+
+describe('weekUnits: ONE number for the week (V3)', () => {
+  const day = (items) => ({ day: '2026-10-05', items });
+  it('counts ticks plus the fixed and planned dates still to come, not suggestions', () => {
+    const days = [
+      day([{ kind: 'done', actId: 'a', n: 2, min: 60 }, { kind: 'fix', actId: 'b', time: '18:00', id: 'x' }]),
+      day([{ kind: 'plan', actId: 'c' }, { kind: 'sug', actId: 'd', why: 'goal' }]),
+    ];
+    expect(weekUnits(days)).toEqual({ done: 2, total: 4 });
+  });
+  it('counts a tick without n as one and gives null for an empty week', () => {
+    expect(weekUnits([day([{ kind: 'done', actId: 'a' }])])).toEqual({ done: 1, total: 1 });
+    expect(weekUnits([day([{ kind: 'sug', actId: 'd', why: 'daily' }])])).toBeNull();
+    expect(weekUnits([])).toBeNull();
   });
 });

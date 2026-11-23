@@ -107,7 +107,10 @@
   <header class="ph">
     <Crumb path={[{ href: '#/flow', label: t('Active|place') }]} here={t('Week')} />
     <PageHead title={t('Week')} text={t('{range} · suggestions from your goals, fixed dates and the weather. Everything can be changed.', { range })} />
-    <a class="btn btn-link sm" style="align-self: flex-start" href="#/flow/review" data-to-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
+    <span class="hlinks">
+      <a class="btn btn-link sm" href="#/flow/review" data-to-review>{t('Week in review')}<ChevronRight size={16} aria-hidden="true" /></a>
+      <a class="btn btn-link sm" href="#/week" data-to-week>{t('Whole week with dates and notes')}<ChevronRight size={16} aria-hidden="true" /></a>
+    </span>
   </header>
   <AreaIntro place="week" />
 
@@ -217,6 +220,12 @@
 {/snippet}
 
 <style>
+  .hlinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--sp-3);
+    align-self: flex-start;
+  }
   /* the look of the other Aktiv pages (Trophies.svelte); the days as in mockup AK1 */
   .hob {
     display: flex;

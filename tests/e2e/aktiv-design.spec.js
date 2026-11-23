@@ -74,11 +74,11 @@ test('A1 and A5: tick tiles, rings, the tab «Meine Sportarten» opens the sport
   // «Aktiv neu» (Noah 22.10.2026): the start has three parts; «Mehr» is gone (the stopwatch sits in the head of «Heute abhaken»)
   await expect(main.locator('section[aria-labelledby="more-h"]')).toHaveCount(0);
   await expect(main.locator('#open-h')).toHaveCount(0);
-  // the head line says how the goals of the week stand (all of them, as the week card and the review), not «Heute, …»
-  await expect(main.locator('[data-today-line]')).toContainText(new RegExp(T('this week {k} of {n} goals on track', { k: '\\d+', n: '\\d+' })));
+  // the head line says how the units of the week stand (V3: ONE number, ticked and planned, Monday to Sunday), not «Heute, …»
+  await expect(main.locator('[data-today-line]')).toContainText(new RegExp(T('this week {k} of {n} units (Mon to Sun)', { k: '\\d+', n: '\\d+' }).replace(/[()]/g, '\\$&')));
   await expect(main.locator('[data-today-line]')).not.toContainText(T('Today, {date}', { date: '' }).trim());
   // «Heute abhaken» names the same count as the head
-  await expect(main.locator('section[aria-labelledby="tick-h"] .sh p')).toHaveText(new RegExp(T('this week {k} of {n} goals on track', { k: '\\d+', n: '\\d+' }), 'i'));
+  await expect(main.locator('section[aria-labelledby="tick-h"] .sh p')).toHaveText(new RegExp(T('this week {k} of {n} units (Mon to Sun)', { k: '\\d+', n: '\\d+' }).replace(/[()]/g, '\\$&'), 'i'));
   await tapTab(page, T('My sports|tab'));
   await expect(page).toHaveURL(/#\/flow\/sports$/);
   const row = main.locator('li[data-row="meditation"]');

@@ -11,6 +11,4 @@ export default {
   '{n} trips|week': '{n} Touren',
   'This week only the trip stood in the plan. Plan the next week when you like.': 'Diese Woche stand nur die Tour im Plan. Plane die nächste Woche, wenn du magst.',
   'This week only the trips stood in the plan. Plan the next week when you like.': 'Diese Woche standen nur die Touren im Plan. Plane die nächste Woche, wenn du magst.',
-  'this week {k} of {n} goal on track': 'diese Woche {k} von {n} Ziel im Soll',
-  'this week {k} of {n} goals on track': 'diese Woche {k} von {n} Zielen im Soll',
 };
