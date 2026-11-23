@@ -74,3 +74,17 @@ export function tickFocus(units, today, actId) {
 
 /** The ticked sports with a session in the last 7 days, the one with most time first. */
 export const tickKinds = (units, today) => tickRows(units, addDays(today, -6), today).map((r) => r.actId);
+
+/**
+ * The Strava sports of the move ring that have no tick and are no ride (running, hiking …): [{ day, actId, kind, name }].
+ * For the card «This week» on Heute, which draws the rides from the rides list and the ticks from Aktiv, so these two
+ * kinds of sport did not show there (Noah 22.11.2026, Schritt E). A Strava activity that a tick already links counts as the tick.
+ */
+export function stravaOthers(data = {}) {
+  const { log = [], activities = [], acts = [], usual = {}, map = {} } = data;
+  const kindOf = new Map(activities.map((a) => [String(a.id), a.kind]));
+  const own = log.filter((e) => e.via !== 'trip');
+  return training(einheiten({ log: own, activities, acts, usual, map }))
+    .filter((u) => String(u.id).startsWith('strava-') && u.stravaId && kindOf.get(String(u.stravaId)) !== 'bike')
+    .map((u) => ({ day: u.day, actId: u.actId ?? null, kind: kindOf.get(String(u.stravaId)) ?? 'other', name: u.name ?? '' }));
+}

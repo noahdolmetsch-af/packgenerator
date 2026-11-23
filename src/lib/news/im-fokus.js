@@ -5,6 +5,7 @@ export default {
   points: [
     { text: '«Im Fokus» has a card for each sport you ticked (tennis, ice hockey, gym …): the sessions, the time, one bar per day and the last four weeks as dots', go: { href: '#/auswerten', steps: [{ sel: '[data-focus]' }], where: 'Evaluate, at the top, swipe the cards.' } },
     { text: '«Last 7 days» lists them with the count and the time; a tap opens the look back at that sport', go: { href: '#/auswerten', steps: [{ sel: '[data-last7]' }], where: 'Evaluate, «Last 7 days» (on a phone behind «Overview and last 7 days»).' } },
+    { text: 'The card «This week» on Today counts a Strava sport without a tick (for example running) as a day of the week too', go: { href: '#/', steps: [{ sel: '[data-section="week"]' }], where: 'Today, the card «This week».' } },
   ],
   small: [
     { box: 'new', text: 'The time reads «about» when it is the usual duration of the sport; a session that is already a Strava activity counts once, as the Strava sport', go: { href: '#/auswerten', where: 'Evaluate › Im Fokus.' } },
@@ -12,6 +13,7 @@ export default {
   test: [
     'Open Evaluate: next to the Strava sports «Im Fokus» shows a card for each sport you ticked in the last 7 days (for example tennis).',
     'Swipe to a ticked sport: it shows the sessions, the time (with «etwa» when it is the usual duration), seven bars and the four weeks as dots.',
+    'Open Today: the card «This week» shows a dot and the name for a Strava sport without a tick, and counts its day as active.',
     'Open «Last 7 days» (on a phone behind the row «Overview and last 7 days») and tap «Tennis»: the look back at tennis opens.',
   ],
   since: [],
@@ -24,6 +26,9 @@ export default {
     'Evaluate, «Last 7 days» (on a phone behind «Overview and last 7 days»).': 'Auswerten, «Letzte 7 Tage» (am Handy hinter «Überblick und letzte 7 Tage»).',
     'The time reads «about» when it is the usual duration of the sport; a session that is already a Strava activity counts once, as the Strava sport': 'Die Zeit steht mit «etwa», wenn es die übliche Dauer der Sportart ist; eine Einheit, die schon eine Strava-Aktivität ist, zählt einmal, als Strava-Sportart',
     'Evaluate › Im Fokus.': 'Auswerten › Im Fokus.',
+    'The card «This week» on Today counts a Strava sport without a tick (for example running) as a day of the week too': 'Die Karte «Diese Woche» auf Heute zählt auch eine Strava-Sportart ohne Haken (zum Beispiel Laufen) als Tag der Woche',
+    'Today, the card «This week».': 'Heute, die Karte «Diese Woche».',
+    'Open Today: the card «This week» shows a dot and the name for a Strava sport without a tick, and counts its day as active.': 'Öffne Heute: die Karte «Diese Woche» zeigt für eine Strava-Sportart ohne Haken einen Punkt und den Namen und zählt den Tag als aktiv.',
     'Open Evaluate: next to the Strava sports «Im Fokus» shows a card for each sport you ticked in the last 7 days (for example tennis).': 'Öffne Auswerten: neben den Strava-Sportarten zeigt «Im Fokus» für jede Sportart, die du in den letzten 7 Tagen abgehakt hast, eine Karte (zum Beispiel Tennis).',
     'Swipe to a ticked sport: it shows the sessions, the time (with «etwa» when it is the usual duration), seven bars and the four weeks as dots.': 'Wische zu einer abgehakten Sportart: sie zeigt die Einheiten, die Zeit (mit «etwa», wenn es die übliche Dauer ist), sieben Balken und die vier Wochen als Punkte.',
     'Open «Last 7 days» (on a phone behind the row «Overview and last 7 days») and tap «Tennis»: the look back at tennis opens.': 'Öffne «Letzte 7 Tage» (am Handy hinter der Zeile «Überblick und letzte 7 Tage») und tippe auf «Tennis»: der Rückblick auf Tennis öffnet sich.',

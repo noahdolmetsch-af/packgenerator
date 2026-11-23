@@ -41,7 +41,7 @@
         <a class="card fc" href="#/auswerten/sportjahr/{encodeURIComponent(c.actId)}" data-focus-card={c.key}>
           <span class="hd"><ActIcon icon={c.tick.act.icon} ring={c.tick.act.ring} box={false} size={20} /><span>{c.tick.name} · {rangeText(c.from, c.to)}</span></span>
           <span class="tot">
-            <b class="num">{tn(c.n, '{n} session', '{n} sessions')}</b>
+            <span class="tm"><b class="num">{tn(c.n, '{n} session', '{n} sessions')}</b><small>{t('Last 7 days')}</small></span>
             {#if c.secs}<span class="tm"><b class="num">{timeText(c)}</b><small>{t('Total time')}</small></span>{/if}
           </span>
           <span class="bars" role="img" aria-label={t('{name}: one bar per day, today on the right', { name: c.tick.name })}>
