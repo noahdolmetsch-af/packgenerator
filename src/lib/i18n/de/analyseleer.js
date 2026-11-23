@@ -5,5 +5,5 @@ export default {
   'Add a bike|analyse': 'Velo anlegen',
   'Connect Strava|analyse': 'Strava verbinden',
   'Connect Fitbit|analyse': 'Fitbit verbinden',
-  'Nothing ticked or recorded in these {n} days yet. Tick an activity in Aktiv or connect Fitbit or Strava, then the overview fills.|overview': 'In diesen {n} Tagen ist noch nichts abgehakt oder aufgezeichnet. Hake eine Aktivität in Aktiv ab oder verbinde Fitbit oder Strava, dann füllt sich die Übersicht.',
+  'Nothing ticked or recorded in these {n} days yet. Tick an activity in Aktiv or connect Fitbit or Strava, then the overview fills.|overview': 'In diesen {n} Tagen ist noch nichts abgehakt oder aufgezeichnet. Hake eine Aktivität in «Heute abhaken» ab oder verbinde Fitbit oder Strava, dann füllt sich die Übersicht.',
 };

@@ -169,7 +169,9 @@ test('computer: the bubble on hover and keyboard focus; actions right-aligned; t
   // a click elsewhere closes it too
   await more.click();
   await expect(menu).toBeVisible();
-  await page.locator('h1').click();
+  // 23.11.2026: the title is a block as wide as the page, so its middle can lie under the open menu (it grows with the row: «Ersetzen»,
+  // «Erledigt», a guide link …). Playwright then waited for the click until the test timed out (2 of 4 runs red). Click the left edge of the title.
+  await page.locator('h1').click({ position: { x: 4, y: 4 } });
   await expect(menu).toHaveCount(0);
   expect(errors).toEqual([]);
 });

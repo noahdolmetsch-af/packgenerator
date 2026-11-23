@@ -115,8 +115,17 @@ export function aendereDepot(state, id, d) {
   return { state: { ...state, depots: state.depots.map((x) => (x.id === id ? { ...x, name, art } : x)) } };
 }
 
-/** Delete a portfolio with its entries (the page asks first and offers Undo with the old state). */
-export const loescheDepot = (state, id) => ({ ...state, depots: state.depots.filter((x) => x.id !== id) });
+/**
+ * Delete a portfolio (the page asks first and offers Undo with the old state). With `to` (another portfolio) its entries are
+ * moved there first; without it they go with it. A sale that then has too little behind it is flagged by `rechne`, not refused.
+ */
+export function loescheDepot(state, id, to = '') {
+  const from = state.depots.find((x) => x.id === id);
+  const ziel = to && to !== id ? state.depots.find((x) => x.id === to) : null;
+  const rest = state.depots.filter((x) => x.id !== id);
+  if (!from || !ziel) return { ...state, depots: rest };
+  return { ...state, depots: rest.map((x) => (x.id === ziel.id ? { ...x, eintraege: [...x.eintraege, ...from.eintraege] } : x)) };
+}
 
 /** One place up (-1) or down (+1). */
 export function schiebeDepot(state, id, richtung) {

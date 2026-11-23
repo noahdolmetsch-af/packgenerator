@@ -20,7 +20,7 @@ export default {
   'Off: no tips at all, also not in «Tips for this page».': 'Aus: gar keine Tipps, auch nicht unter «Tipps für diese Seite».',
   'Off: only useful tips, no «Did you know».': 'Aus: nur nützliche Tipps, kein «Wusstest du».',
   'Ideas for activities': 'Ideen für Aktivitäten',
-  'Hide single ideas under Aktiv › Activity': 'Einzelne Ideen unter Aktiv › Aktivität ausblenden',
+  'Hide single ideas under Aktiv › Activity': 'Einzelne Ideen unter Woche › Training › Meine Aktivitäten ausblenden',
   'Only on this device and in the backup. Nothing here is mandatory.': 'Nur auf diesem Gerät und im Backup. Nichts hier ist Pflicht.',
   'Set your own numbers': 'Eigene Zahlen einstellen',
   'Me › Own values: the packing step, the backup reminder, the bike check, chain wax, sealant, fork service, the workshop lead and «cold».': 'Ich › Eigene Werte: der Packen-Schritt, die Backup-Erinnerung, der Velo-Check, Kette wachsen, Dichtmilch, Gabel-Service, der Werkstatt-Vorlauf und «kalt».',

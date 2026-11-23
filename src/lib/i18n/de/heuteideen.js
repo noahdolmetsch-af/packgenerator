@@ -81,7 +81,7 @@ export default {
   'a 2-day trip, sleeping bag, mat, tarp': 'eine 2-Tages-Tour, Schlafsack, Matte, Tarp',
   'Day rides': 'Tagesfahrten',
   'a ridden day ride with its debrief': 'eine gefahrene Tagesfahrt mit Rückblick',
-  'Active and everyday': 'Aktiv und Alltag',
+  'Active and everyday': 'Heute abhaken und Alltag',
   'twelve activities like walk, yoga, sauna': 'zwölf Aktivitäten wie Spaziergang, Yoga, Sauna',
   'Which examples fit you? A few that fit are better than a full app. You can get the rest later.': 'Welche Beispiele passen zu dir? Wenige passende sind besser als eine volle App. Den Rest kannst du später holen.',
   'Your interests': 'Deine Interessen',
@@ -120,7 +120,7 @@ export default {
   'A to-do in Merken in February with what is due on each bike; the month can change. After six weeks without a ride, «After the standstill» on «Wear» lists what changes while a bike stands.':
     'Ein To-do in Merken im Februar mit dem, was an jedem Velo fällig ist; der Monat lässt sich ändern. Nach sechs Wochen ohne Fahrt listet «Nach der Standzeit» auf «Verschleiss», was sich im Stehen verändert.',
   'A new app asks once: with made-up trips, bike and gear (only what interests you: nights out, day rides, active), or empty; then it offers the short tour. Me › Data and backup gets or removes the examples later.':
-    'Eine neue App fragt einmal: mit erfundenen Touren, Velo und Ausrüstung (nur, was dich interessiert: Übernachtung, Tagesfahrten, Aktiv) oder leer; danach bietet sie den kurzen Rundgang an. Ich › Daten und Backup holt oder entfernt die Beispiele später.',
+    'Eine neue App fragt einmal: mit erfundenen Touren, Velo und Ausrüstung (nur, was dich interessiert: Übernachtung, Tagesfahrten, «Heute abhaken») oder leer; danach bietet sie den kurzen Rundgang an. Ich › Daten und Backup holt oder entfernt die Beispiele später.',
   'Choose «Start with examples» and what interests you, or «Start empty».': 'Wähle «Mit Beispielen starten» und was dich interessiert, oder «Leer starten».',
   'Once a year one window asks whether weight, home place, name and papers are still right. «Something changed?» (moved, a new sport) lists only what that touches.':
     'Einmal im Jahr fragt ein Fenster, ob Gewicht, Wohnort, Name und Papiere noch stimmen. «Hat sich etwas geändert?» (umgezogen, neue Sportart) listet nur, was davon betroffen ist.',

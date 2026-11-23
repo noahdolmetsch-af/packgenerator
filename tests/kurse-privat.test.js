@@ -7,6 +7,7 @@ import { buildBackup, restoreBackup, validateBackup } from '../src/lib/backup.js
 import { BESTAND_KEY, lies as liesB, neuerPosten, neuesEreignis } from '../src/lib/kurse/bestand.js';
 import { ZIELE_KEY, lies as liesZ, neuesZiel } from '../src/lib/kurse/ziele.js';
 import { JOURNAL_KEY, lies as liesJ, neuesDepot, neuerEintrag } from '../src/lib/kurse/journal.js';
+import { VERTEILUNG_KEY, lies as liesV, standardVerteilung, setzeZiel, neuerHandwert, ordneZu } from '../src/lib/kurse/verteilung.js';
 
 let n = 0;
 const frisch = () => createDb(`kursblick-privat-${++n}`);
@@ -27,14 +28,16 @@ function beispiel() {
 describe('private data of Kursblick and the backup', () => {
   it('the settings go through export and import unchanged', async () => {
     const { b, z, j } = beispiel();
+    const v = ordneZu(neuerHandwert(setzeZiel(standardVerteilung(), 'gold', 20), { name: 'Konto', gruppe: 'cash', wert: 1500 }, 'h1').state, 'NESN.SW', 'aktien');
     const db = frisch();
-    await db.settings.bulkPut([{ key: BESTAND_KEY, value: b }, { key: ZIELE_KEY, value: z }, { key: JOURNAL_KEY, value: j }, { key: 'kurse.mitdividenden', value: true }]);
+    await db.settings.bulkPut([{ key: BESTAND_KEY, value: b }, { key: ZIELE_KEY, value: z }, { key: JOURNAL_KEY, value: j }, { key: VERTEILUNG_KEY, value: v }, { key: 'kurse.mitdividenden', value: true }]);
     const file = JSON.parse(JSON.stringify(await buildBackup(db)));
     expect(validateBackup(file)).toEqual([]);
     const rows = Object.fromEntries(file.tables.settings.map((r) => [r.key, r.value]));
     expect(rows[BESTAND_KEY]).toEqual(b);
     expect(rows[ZIELE_KEY]).toEqual(z);
     expect(rows[JOURNAL_KEY]).toEqual(j);
+    expect(rows[VERTEILUNG_KEY]).toEqual(v);
     expect(rows['kurse.mitdividenden']).toBe(true);
 
     const other = frisch();
@@ -42,6 +45,7 @@ describe('private data of Kursblick and the backup', () => {
     expect(liesB((await other.settings.get(BESTAND_KEY)).value)).toEqual(b);
     expect(liesZ((await other.settings.get(ZIELE_KEY)).value)).toEqual(z);
     expect(liesJ((await other.settings.get(JOURNAL_KEY)).value)).toEqual(j);
+    expect(liesV((await other.settings.get(VERTEILUNG_KEY)).value)).toEqual(v);
     expect((await other.settings.get('kurse.mitdividenden')).value).toBe(true);
   });
 
@@ -51,10 +55,11 @@ describe('private data of Kursblick and the backup', () => {
     await db.settings.put({ key: BESTAND_KEY, value: b });
     await restoreBackup(db, { app: 'pack-generator', schemaVersion: 1, tables: { settings: [{ key: 'other', value: 1 }] } }, 'merge');
     expect(liesB((await db.settings.get(BESTAND_KEY)).value).posten).toHaveLength(2);
+    expect(liesV((await db.settings.get(VERTEILUNG_KEY))?.value)).toEqual(standardVerteilung()); // nothing saved: the standard groups
   });
 
   it('they are not device-only: they sync to the other devices (sealed with the sync code), not into the price service', () => {
-    for (const key of [BESTAND_KEY, ZIELE_KEY, JOURNAL_KEY, 'kurse.mitdividenden']) {
+    for (const key of [BESTAND_KEY, ZIELE_KEY, JOURNAL_KEY, VERTEILUNG_KEY, 'kurse.mitdividenden']) {
       expect(DEVICE_SETTINGS).not.toContain(key);
       expect(syncLocal('settings', key)).toBe(false);
     }

@@ -45,6 +45,7 @@ const NEXT = {
   '#/kurse/gold': ['apps', 'me'],
   '#/kurse/entscheidung': ['apps', 'me'],
   '#/kurse/maerkte': ['apps', 'me'],
+  '#/kurse/portfolio': ['apps', 'me'],
   '#/kurse/quellen': ['apps', 'me'],
   '#/live': ['group', 'rides', 'trips'],
   '#/me/album': ['trips', 'rides'],

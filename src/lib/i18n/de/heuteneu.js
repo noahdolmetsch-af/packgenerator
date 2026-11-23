@@ -49,13 +49,13 @@ export default {
   'Next up:': 'Als Nächstes:',
   'fixed date': 'fester Termin',
   'Observation only, no judgement': 'Nur Beobachtung, keine Wertung',
-  'Open Aktiv': 'Aktiv öffnen',
+  'Open Aktiv': '«Heute abhaken» öffnen',
   'Week|aktiv': 'Woche',
   'Goals|aktiv': 'Ziele',
   'Recovery|aktiv': 'Erholung',
   'Sports bag': 'Sporttasche',
   // the compact balance (HN4b-1)
-  "Your balance fills by itself as soon as you answer «Wi gaht's?» or tick something in Aktiv.": "Deine Balance füllt sich von selbst, sobald du «Wi gaht's?» beantwortest oder in Aktiv etwas abhakst.",
+  "Your balance fills by itself as soon as you answer «Wi gaht's?» or tick something in Aktiv.": "Deine Balance füllt sich von selbst, sobald du «Wi gaht's?» beantwortest oder in «Heute abhaken» etwas abhakst.",
   Challenge: 'Challenge',
   'until {day}': 'bis {day}',
   Inspiration: 'Inspiration',
@@ -70,7 +70,7 @@ export default {
   '{bike}: {n} due': '{bike}: {n} fällig',
   // the new tiles («Customise», catalog)
   'Morning, day, evening, night: what fits the time of day, in one card.': 'Morgen, Tag, Abend, Nacht: was zur Tageszeit passt, in einer Karte.',
-  'Sleep, your last activity, the next fixed date and the ways into Aktiv.': 'Schlaf, deine letzte Aktivität, der nächste feste Termin und die Wege in Aktiv.',
+  'Sleep, your last activity, the next fixed date and the ways into Aktiv.': 'Schlaf, deine letzte Aktivität, der nächste feste Termin und die Wege in «Heute abhaken».',
   // the wear cell of the day card when the wardrobe is still empty
   'What to wear': 'Was anziehen',
   'Nothing in the wardrobe yet: add clothes, then a suggestion shows here.': 'Noch nichts im Kleiderschrank: Kleider erfassen, dann steht hier ein Vorschlag.',
