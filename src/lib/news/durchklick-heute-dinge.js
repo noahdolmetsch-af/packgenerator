@@ -3,7 +3,7 @@ export default {
   title: 'Heute: the sentence jumps to the list',
   lead: '«Seven things are up today» is tappable now and leads to the list «Up now». Small chips and quiet buttons are easier to hit on the phone.',
   points: [
-    { text: 'Tap «n things are up today» under the greeting: the page jumps to «Up now»', go: { href: '#/', steps: [{ sel: '[data-say-jump]' }] } },
+    { text: 'Tap «n things are up today» under the greeting: the page jumps to «Up now»', go: { href: '#/', steps: [{ sel: '[data-say-jump]' }], where: 'Today, under the greeting (on a day with things to do).' } },
   ],
   small: [{ box: 'new', text: 'Small chips and quiet buttons have a full tap area on the phone, the look stays the same', go: null }],
   test: [
@@ -12,6 +12,7 @@ export default {
   ],
   since: [],
   de: {
+    'Today, under the greeting (on a day with things to do).': 'Heute, unter der Begrüssung (an einem Tag mit Dingen zu tun).',
     'Heute: the sentence jumps to the list': 'Heute: Der Satz springt zur Liste',
     '«Seven things are up today» is tappable now and leads to the list «Up now». Small chips and quiet buttons are easier to hit on the phone.': '«Heute sind 7 Dinge dran» ist jetzt antippbar und führt zur Liste «Jetzt dran». Kleine Chips und stille Knöpfe sind am Handy leichter zu treffen.',
     'Tap «n things are up today» under the greeting: the page jumps to «Up now»': '«Heute sind n Dinge dran» unter dem Gruss antippen: die Seite springt zu «Jetzt dran»',
