@@ -1,0 +1,23 @@
+/** «Suche am Ort» (Warteliste 1, V2; Noah 22.11.2026 «2a», «3b»): das Suchfeld oben auf Ich, Touren und Auswerten. Keys are the English texts. */
+export default {
+  'Find a setting': 'Einstellung suchen',
+  'Find a trip or ride': 'Tour oder Fahrt suchen',
+  'Find a value or question': 'Wert oder Frage suchen',
+  'Searches {n} functions of {place}': 'Sucht in {n} Funktionen von {place}',
+  'Search everywhere for «{q}»': 'Überall suchen nach «{q}»',
+  'Nothing found here.': 'Hier nichts gefunden.',
+  'Nothing to choose yet': 'Noch nichts zur Auswahl',
+  'Filter': 'Filter',
+  'Year': 'Jahr',
+  'Kind|filter': 'Art',
+  'Distance': 'Distanz',
+  'under 30 km': 'unter 30 km',
+  '30 to 80 km': '30 bis 80 km',
+  'over 80 km': 'über 80 km',
+  'File|source': 'Datei',
+  'By hand|source': 'Von Hand',
+  'Trip|source': 'Tour',
+  '{n} hit': '{n} Treffer',
+  '{n} hits': '{n} Treffer',
+  'open': 'öffnen',
+};
