@@ -1,6 +1,6 @@
 # Kursblick «Entscheidung»: das Journal (Teil 2 von 4, nur Daten, nichts sichtbar)
 
-PR folgt · 23.11.2026 · Auftrag: Noah «1, 3 und 4 zusammen» und «ok freigabe» (23.11.2026, Thread «Kursblick»); Bauplan `/mnt/project-files/notes/kursblick-entscheidung-bauplan-2026-11-23/bauplan.md`. Teil 1 ist online (#1546), Teil 2 erst danach (Vorgabe des Bündlers).
+23.11.2026 · Auftrag: Noah «1, 3 und 4 zusammen» und «ok freigabe» (23.11.2026, Thread «Kursblick»); Bauplan `/mnt/project-files/notes/kursblick-entscheidung-bauplan-2026-11-23/bauplan.md`. Teil 1 ist online (#1546), Teil 2 kam erst danach (Vorgabe des Bündlers).
 
 ## Was ist neu
 - **Nichts Sichtbares.** Dieser PR legt nur die Daten und das Rechnen für das Journal an: `src/lib/kurse/journal.js` mit Tests in `tests/kurse-journal.test.js` und einem Zusatz in `tests/kurse-privat.test.js`. Es gibt noch keine Seite, die es benutzt.
