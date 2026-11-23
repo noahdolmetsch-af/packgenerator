@@ -12,6 +12,16 @@ import { clock } from '../../flowtimer.js';
 
 /** The tile name: the playful name (a suggestion, renamable), else the activity's name. */
 export const tileName = (a) => (a ? (lang.v === 'de' && a.nickDe ? a.nickDe : a.nick) || actName(a) : '');
+/**
+ * «Meilensteine ordnen» (Noah 23.11.2026): the activity's real name first, the playful name small after it
+ * («Velo · Pedal-Glück»). actNick is '' when there is none or it is the same word.
+ */
+export const actNick = (a) => {
+  const n = a ? tileName(a) : '';
+  return n && n !== actName(a) ? n : '';
+};
+/** Weekly milestones that still stand at 0: the week is not over, so «0 of 1» would only discourage. */
+export const runningWeek = (r) => !!r && !r.done && Number(r.value) === 0 && !!r.m && (r.m.id === 'x.wholeWeek' || r.m.id === 'd.planRuns' || /\.weeks$/.test(r.m.id));
 /** Dates among a milestone's words (a challenge's first and last day) as «31 Oct». */
 const fmtVars = (v) => (v ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x) ? dayShort(x) : typeof x === 'number' ? num(x) : x])) : v);
 /** A milestone's name. */

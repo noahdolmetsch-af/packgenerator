@@ -9,15 +9,16 @@ const fin = (x) => typeof x === 'number' && Number.isFinite(x);
 const HOUR = 36e5;
 
 /**
- * The 24 hours from the start of the current hour.
+ * The 24 hours from the start of the current hour (bar.ms = the start of the hour it stands for).
  * → { bars: [{ ms, mm, p, wet }], max (mm/h, at least 1), from (ms | null), to (ms | null), peak (ms | null),
  *     total (mm), nowWet (bool), dry (bool) } or null when the core has no hours in that range.
  */
 export function rainStrip(core, now = Date.now(), n = 24) {
   const start = Math.floor(now / HOUR) * HOUR;
-  const hours = (core?.hours ?? []).filter((h) => h.ms >= start - 1 && h.ms < start + n * HOUR);
+  // an hourly value is the rain of the hour BEFORE its stamp (wetter/regenzeit.js): the bar of the current hour carries the stamp one hour later
+  const hours = (core?.hours ?? []).filter((h) => h.ms > start && h.ms <= start + n * HOUR);
   if (!hours.length) return null;
-  const bars = hours.map((h) => ({ ms: h.ms, mm: fin(h.rainMm) ? Math.max(0, h.rainMm) : 0, p: fin(h.rainP) ? h.rainP : null, wet: wet(h) }));
+  const bars = hours.map((h) => ({ ms: h.ms - HOUR, mm: fin(h.rainMm) ? Math.max(0, h.rainMm) : 0, p: fin(h.rainP) ? h.rainP : null, wet: wet(h) }));
   const wetBars = bars.filter((b) => b.wet);
   const peak = bars.reduce((a, b) => (b.mm > (a?.mm ?? 0) ? b : a), null);
   const nowWet = bars[0].wet;

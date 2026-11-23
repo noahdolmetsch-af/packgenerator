@@ -13,6 +13,16 @@ describe('this week', () => {
   });
 });
 
+describe('this week: every sport', () => {
+  it('a Strava run or hike without a tick makes its day an active day', () => {
+    const others = [{ day: '2026-10-06', actId: null, kind: 'hike', name: '' }];
+    const days = weekDays({ today: '2026-10-08', rides: [{ date: '2026-10-07', km: 38 }], log: [{ day: '2026-10-05', actId: 'med' }], others });
+    expect(days[1].others).toHaveLength(1);
+    expect(days[0].others).toEqual([]);
+    expect(activeCount(days)).toBe(3);
+  });
+});
+
 describe('bike this month', () => {
   it('sums this month and compares with the same days of last month', () => {
     const rides = [{ date: '2026-10-02', km: 100 }, { date: '2026-10-09', km: 112 }, { date: '2026-09-05', km: 200 }, { date: '2026-09-20', km: 50 }];

@@ -26,7 +26,7 @@ describe('Für deine Tour', () => {
     const core = { offset: 3600, hours: [...hours('2026-11-21', 15), ...hours('2026-11-22')] };
     const w = tourWeather(core, trip('a', '2026-11-21'), TODAY);
     expect(w.date).toBe('2026-11-21');
-    expect(w.rainFrom).toBe(atLocal('2026-11-21', 15, 3600));
+    expect(w.rainFrom).toBe(atLocal('2026-11-21', 14, 3600)); // the value at 15:00 is the rain of the hour before
     expect(w.tmin).toBeLessThan(w.tmax);
     expect(tourWeather({ offset: 3600, hours: hours('2026-11-22') }, trip('a', '2026-11-21'), TODAY)).toBeNull(); // only the next day saved: nothing for the tour day
   });

@@ -23,7 +23,7 @@
   import { indexAt, stepKey } from './pick.js';
   import { t, num } from '../i18n.svelte.js';
 
-  let { cols = [], series = [], scale: fixed = null, tick = null, readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 12, topText = null, id = 'lc', bridge = false } = $props();
+  let { cols = [], series = [], scale: fixed = null, tick = null, readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 12, topText = null, id = 'lc', bridge = false, initial = null } = $props();
 
   const scale = $derived(fixed ?? niceScale(series.flatMap((s) => s.v), { count: 4 }));
   const n = $derived(cols.length);
@@ -57,7 +57,7 @@
     for (let i = n - 1; i >= 0; i--) if (series.some((s) => s.v[i] != null)) return i;
     return n ? n - 1 : null;
   });
-  const shown = $derived(sel ?? newest);
+  const shown = $derived(sel ?? initial ?? newest);
   const ro = $derived(shown == null ? null : readout?.(shown));
 
   const at = (e) => indexAt(e.clientX, plot?.getBoundingClientRect(), n);

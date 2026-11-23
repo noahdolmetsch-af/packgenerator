@@ -91,7 +91,11 @@ export const isDe = () => lang.v === 'de';
 export const locale = () => (lang.v === 'de' ? 'de-CH' : 'en-GB');
 
 /** A number with thousands separators in the current language (1’460 or 1,460). */
-export const num = (n) => (n == null ? '' : Number(n).toLocaleString(lang.v === 'de' ? 'de-CH' : 'en'));
+export const num = (n) => {
+  if (n == null) return '';
+  const s = Number(n).toLocaleString(lang.v === 'de' ? 'de-CH' : 'en');
+  return /^[-−]0([.,]0+)?$/.test(s) ? s.replace(/^[-−]/, '') : s; // «−0» (a small minus that rounds to nothing) is shown as 0
+};
 
 /**
  * v0.30.2 (test P4.1/PL3.12): a bag's own name (stored as typed, often English like "Seat pack 14 L")

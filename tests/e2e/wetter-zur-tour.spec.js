@@ -33,7 +33,7 @@ test('Wetter: the card «Für deine Tour» says rain, the rain things and leads 
   const card = page.locator('[data-zur-tour]');
   await expect(card).toBeVisible({ timeout: 20_000 });
   await expect(card.locator('[data-zt-name]')).toHaveText('test_data_gtp_ Herbstrunde');
-  await expect(card.locator('[data-zt-weather]')).toContainText('Regen ab 15:00');
+  await expect(card.locator('[data-zt-weather]')).toContainText('Regen ab 14:00'); // the value stamped 15:00 is the rain of 14:00 to 15:00
   await expect(card.locator('[data-zt-weather]')).toContainText('°C');
   await expect(card.locator('[data-zt-gear]')).toContainText('2 von 3 gepackt');
   expect(await wide(page)).toBeLessThanOrEqual(0);
