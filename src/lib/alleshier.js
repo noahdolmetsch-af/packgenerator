@@ -24,6 +24,7 @@ export const ALL_HERE = {
     'f.wardrobe',
     'f.wardrobesetup',
     'f.wardrobetryon',
+    'f.wertliste',
     { id: 'favorites', title: 'Favourites', href: '#/favorites' },
     { id: 'wishlist', title: 'Wishlist', href: '#/gear?tab=wishlist' },
     'f.shop',
