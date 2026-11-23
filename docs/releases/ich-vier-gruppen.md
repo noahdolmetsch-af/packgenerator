@@ -20,7 +20,10 @@ Schritt 6 der neuen Ordnung (Plan «ganze App») · Entscheid Noah «1a 2a 3a 4a
 - Ich hat vier Gruppen, Tennis liegt unter Einstellungen (siehe decisions/ich-vier-gruppen.md).
 
 ## Stand im Plan
-- Plan «ganze App»: Schritt 6 gebaut. Offen: 14, 15, 7a/7b.
+- Plan «ganze App»: Schritt 6 gebaut; Schritt 15 (Handy-Leiste mit den fünf Bereichen) steht seit V4a (#1368) im Code, von `tests/woche.test.js` geprüft: nur die Plan-Zeile wird `online`, kein Code. Offen: 14, 7a/7b.
+
+## Bilder
+- `/mnt/project-files/bilder/prototyp-2026-11-23/v6-ich-vier-gruppen-handy.png` (Handy 390 px, fiktive Daten)
 
 ## Prüfschritte (nach dem Merge, auf der echten Seite)
 1. «Ich» öffnen: oben «Wartet auf dich», dann Daten, Einstellungen, Hilfe und Mehr.
