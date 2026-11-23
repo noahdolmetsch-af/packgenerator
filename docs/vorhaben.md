@@ -12,7 +12,7 @@ Diese Datei wird geprüft:
 
 Prüffragen:
 
-1. Dient es einem der sechs Ziele, und merkt Noah den Nutzen im Alltag oder auf Tour?
+1. Dient es einem der sechs Ziele, und merkt Noah den Nutzen im Alltag oder auf Tour? Und bleibt es klar und auffindbar (die zwei wichtigsten Ziele, siehe unten)?
 2. Bleibt alles ein Vorschlag, nie Pflicht, immer änderbar?
 3. Bleiben private Daten auf dem Gerät und aus dem Repo?
 4. Braucht es einen fremden Dienst, wo eine eigene, schlanke Lösung reicht?
@@ -31,6 +31,15 @@ Prüffragen:
 - **Von der Haustür bis zurück:** ruhige Startseite live, Fünf Orte im Bau, E1 freigegeben.
 - **Aus jeder Tour lernen:** hinkt noch hinterher; Neuland + Inspiration ist freigegeben (Inspiration kommt mit 0.134.0, 15.10.2026).
 - **Prüffrage 5:** kein fester Plan für eine echte Tour, Funde kommen nebenbei.
+
+## Die zwei wichtigsten Ziele für die App (Noah 23.11.2026)
+
+Diese zwei Ziele stehen **über** den sechs Zielen unten. Sie sagen nicht, was die App kann, sondern wie sie sich anfühlen soll, auf jeder Seite und ab dem ersten Öffnen. Jede Änderung wird auch an ihnen gemessen.
+
+1. **Klarheit.** Man sieht sofort, wo man ist und was man hier tun kann. Pro Bildschirm gibt es eine Hauptsache. Zudem hat jede Seite sinnvolle Absprünge: der Nutzer bleibt nie irgendwo stecken.
+2. **Auffindbarkeit.** Wichtiges liegt oben, und man erreicht es mit wenigen Tipps. Was man oft braucht, wie Abhaken, liegt vorne. Die Suche hilft dem Nutzer, versteckte Inhalte zu finden.
+
+Prüffrage für jede Änderung: Sieht man sofort, wo man ist und was die Hauptsache ist? Gibt es einen Absprung weiter? Liegt das oft Gebrauchte vorne, und findet die Suche das Versteckte?
 
 ## Kurz gesagt
 
