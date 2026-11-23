@@ -4,7 +4,7 @@ export default {
   lead: 'At the end of Today one card counts every news item since you last looked, with pictures, and groups them by place.',
   points: [
     {
-      text: 'The card «{n} news items since Friday» shows a few pictures and opens the news by place',
+      text: 'The card «News since Friday» shows a few pictures and opens the news by place',
       go: { href: '#/', steps: [{ sel: '[data-neu-seit]' }], where: 'Shows at the end of Today as soon as there is news since you last looked.' },
     },
     {
@@ -23,7 +23,7 @@ export default {
   de: {
     'All the news since you last looked': 'Alle Neuheiten seit deinem letzten Besuch',
     'At the end of Today one card counts every news item since you last looked, with pictures, and groups them by place.': 'Am Ende von Heute zählt eine Karte jede Neuheit seit deinem letzten Besuch, mit Bildern, und ordnet sie nach Ort.',
-    'The card «{n} news items since Friday» shows a few pictures and opens the news by place': 'Die Karte «{n} Neuheiten seit Freitag» zeigt ein paar Bilder und öffnet die Neuheiten nach Ort',
+    'The card «News since Friday» shows a few pictures and opens the news by place': 'Die Karte «Neuheiten seit Freitag» zeigt ein paar Bilder und öffnet die Neuheiten nach Ort',
     'In the window each place opens to its news, one picture each, and «Try it» leads to the place': 'Im Fenster öffnet sich jeder Ort mit seinen Neuheiten, je ein Bild, und «Ausprobieren» führt an die Stelle',
     'Shows at the end of Today as soon as there is news since you last looked.': 'Erscheint am Ende von Heute, sobald es Neuheiten seit deinem letzten Besuch gibt.',
     'Shows at the end of Today as soon as there is news since you last looked; «See the news by place» opens the window.': 'Erscheint am Ende von Heute, sobald es Neuheiten seit deinem letzten Besuch gibt; «Neuheiten nach Ort ansehen» öffnet das Fenster.',
