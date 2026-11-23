@@ -16,7 +16,7 @@ export default {
   de: {
     'Pack step by step': 'Schritt für Schritt packen',
     'The packing list can show one step after the other: Clothes, Sleeping, Food, Tech, Bike, Check. «Next» leads on, the whole list stays one tap away.': 'Die Packliste kann einen Schritt nach dem anderen zeigen: Kleider, Schlafen, Essen, Technik, Velo, Prüfen. «Weiter» führt voran, die ganze Liste bleibt einen Tipp entfernt.',
-    'Packing list: the new view «Steps» with «Next: Food and water» at the end of each step; the arrows change the order': 'Packliste: die neue Ansicht «Schritte» mit «Weiter: Essen und Trinken» am Ende jedes Schritts; die Pfeile ändern die Reihenfolge',
+    'Packing list: the new view «Steps» with «Next: Food and water» at the end of each step; the arrows change the order': 'Packliste: die neue Ansicht «Schritte» mit «Weiter: Verpflegung und Wasser» am Ende jedes Schritts; die Pfeile ändern die Reihenfolge',
     'The view you choose (Steps, by bags, by category) and your order of the steps are kept': 'Die gewählte Ansicht (Schritte, nach Taschen, nach Kategorie) und deine Reihenfolge der Schritte werden gemerkt',
     'A list with nothing packed yet opens in Steps; a list under way keeps its bags': 'Eine Liste, in der noch nichts gepackt ist, öffnet in Schritten; eine begonnene bleibt bei den Taschen',
     'Open a trip (Plan) and choose «Steps» above the packing list: the list shows Clothes, Sleeping and so on.': 'Eine Tour öffnen (Planen) und über der Packliste «Schritte» wählen: die Liste zeigt Kleider, Schlafen und so weiter.',
