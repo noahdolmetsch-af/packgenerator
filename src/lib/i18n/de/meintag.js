@@ -31,9 +31,8 @@ export default {
   // catalogue (src/lib/featreg/meintag.js)
   'One day as a timeline: sessions, dates, to-dos, trips and holidays with their time, the weather of the day and what has no time yet. It shows what Woche, Today and Tick off show, nothing is stored twice.': 'Ein Tag als Zeitleiste: Einheiten, Termine, To-dos, Touren und Ferien mit ihrer Zeit, das Wetter des Tages und was noch keine Zeit hat. Sie zeigt, was Woche, Heute und Abhaken zeigen; nichts wird doppelt gespeichert.',
   'Open Plan › Week and tap the chip «My day».': 'Öffne Planen › Woche und tippe auf «Mein Tag».',
-  'Pick a day above; read the timeline, what has no time stands above it.': 'Wähle oben einen Tag; lies die Zeitleiste, was keine Zeit hat, steht darüber.',
-  'Tap an entry to open it where it lives; your own dates and to-dos open a small window to change or delete them.': 'Tippe einen Eintrag an, um ihn dort zu öffnen, wo er lebt; eigene Termine und To-dos öffnen ein kleines Fenster zum Ändern oder Löschen.',
-  'Tap «Add an entry» to plan something, drag the grip of your own entry to another time or onto another day, drag its lower edge for the length.': 'Tippe «Eintrag hinzufügen», um etwas zu planen; ziehe den Griff deines Eintrags auf eine andere Zeit oder auf einen anderen Tag, ziehe seinen unteren Rand für die Länge.',
+  'Pick a day. «Add an entry» plans; tap an entry to open it, or change your own.': 'Wähle einen Tag. «Eintrag hinzufügen» plant; tippe einen Eintrag an, um ihn zu öffnen, oder ändere deinen eigenen.',
+  'Drag your own entry by its grip to a new time or day; its lower edge sets the length.': 'Ziehe deinen Eintrag am Griff auf eine neue Zeit oder einen neuen Tag; der untere Rand stellt die Länge ein.',
   'Tap an entry to open it where it lives.': 'Tippe einen Eintrag an, um ihn dort zu öffnen, wo er lebt.',
   'Example: 07:00 yoga, 12:00 dentist, 17:30 shopping, and «Call the garage» without a time above the timeline.': 'Beispiel: 07:00 Yoga, 12:00 Zahnarzt, 17:30 Einkaufen, und «Garage anrufen» ohne Zeit über der Zeitleiste.',
 };
