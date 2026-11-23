@@ -728,6 +728,7 @@ import einheitenWoche from './einheiten-woche.js';
 import heuteAufraeumen from './heute-aufraeumen.js';
 import velosAufraeumen from './velos-aufraeumen.js';
 import ichVierGruppen from './ich-vier-gruppen.js';
+import koerperBanner from './koerper-banner.js';
 import AUTO from './auto.gen.js';
 
 const ORDERED = [
@@ -1126,6 +1127,7 @@ const ORDERED = [
   heuteAufraeumen,
   velosAufraeumen,
   ichVierGruppen,
+  koerperBanner,
   applehealth,
 ];
 

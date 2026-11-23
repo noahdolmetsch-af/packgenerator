@@ -39,7 +39,8 @@ test.describe('KB Koerper Blatt', () => {
     const sheet = page.locator('[data-body-sheet]');
     await expect(sheet).toBeVisible();
     await expect(sheet.getByRole('heading', { name: T('Your body today') })).toBeVisible();
-    await expect(sheet.locator('[data-sheet-body]')).toHaveCount(4);
+    // HRV has a ring too (the banner of Heute, Noah 23.11.2026, changed on purpose: four rings became five)
+    await expect(sheet.locator('[data-sheet-body]')).toHaveCount(5);
     const pulse = sheet.locator('[data-sheet-body="pulse"]');
     await expect(pulse.locator('b')).toHaveText('56');
     // mean of the last 7 days (54.3, the pulse shown whole) next to the 7 before (50)
