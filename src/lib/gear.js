@@ -4,6 +4,7 @@
  */
 import { t } from './i18n.svelte.js';
 import { inStandard, isWorn, leaveHome, blockKeys, oldFieldsPatch } from './blocks2026.js';
+import { withRecord } from './pack/dazufeld.js';
 
 /**
  * The Standard categories in display order, with the Trail Journal colour of each. They never change
@@ -374,6 +375,7 @@ export function itemRecord(draft, { item = null, items = [], weightG = null, now
     weightStatus: weightG == null ? 'missing' : weightG !== item?.weightG ? 'measured' : item.weightStatus,
     ...boughtNow(item, rest.ownership, now),
     ...storeRecord(draft, item),
+    ...withRecord(draft, item), // «Gehört dazu» (pack/dazu.js)
     updatedAt: now,
   };
 }

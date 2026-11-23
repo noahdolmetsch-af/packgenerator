@@ -4,6 +4,7 @@
 // an offline start shows the last prices, the way in from the currency tool, the small app with its own tabs.
 // Märkte: the groups and titles of the person (add, change, move, delete with Undo, bring the suggestions back), the
 // comparison of up to five titles on one chart, a typo in the symbol shows the check.
+// Verteilung (PR 5): groups with goals, titles sorted, values by hand.
 // Meine Zahlen (K-C): holdings with profit and loss, dividends and splits, goals on Today, gold after inflation; private, on the device.
 // KURS_SHOTS=<folder> saves the screenshots for the pull request.
 import { test, expect } from './clock.js';
@@ -596,5 +597,110 @@ test('Kursblick Depot: der Bestand aus Meine Zahlen wird als Eröffnung übernom
   await expect(page.locator('[data-bestand] [data-posten]')).toHaveCount(1);
   await page.goto('./#/kurse/portfolio');
   await expect(page.locator('[data-eintrag]')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('Kursblick Verteilung: Gruppen mit Ziel, Titel einordnen, Werte von Hand, Gruppe löschen mit Rückgängig; privat auf dem Gerät', async ({ page, context }, info) => {
+  const errors = await start(page, context);
+  const more = (row) => row.getByRole('button', { name: new RegExp(T('More for {what}', { what: '' }).trim()) });
+  const sheet = page.locator('[data-eintrag-sheet]');
+  const pro_g = lastGold / 1000;
+
+  // nothing yet: the picture says what it is and offers the first step
+  await page.goto('./#/kurse/portfolio');
+  await expect(page.locator('[data-verteilung-leer]')).toBeVisible();
+  await expect(page.locator('[data-vgruppe]')).toHaveCount(6);
+
+  // a portfolio with 10 grams of gold at 50 francs a gram and 4 pieces of a share
+  await page.getByRole('button', { name: T('Add a portfolio') }).click();
+  await page.locator('[data-depot-name]').fill('Meine Bank');
+  await page.locator('[data-depot-save]').click();
+  await page.locator('[data-eintrag-neu]').click();
+  await sheet.locator('input[type="date"]').fill('2026-01-05');
+  await sheet.locator('[data-eintrag-menge]').fill('10');
+  await sheet.locator('[data-eintrag-preis]').fill('50');
+  await sheet.locator('[data-eintrag-save]').click();
+  await expect(sheet).toHaveCount(0);
+  await expect(page.locator('[data-gesamt-verteilung]')).toContainText(num(10 * pro_g));
+
+  // a value by hand: a savings account, counted in «Savings and cash»
+  await page.locator('[data-hand-neu]').click();
+  const hs = page.locator('[data-hand-sheet]');
+  await hs.locator('[data-hand-save]').click();
+  await expect(hs.locator('[data-hand-fehler]')).toBeVisible(); // a name is needed
+  await hs.locator('[data-hand-name]').fill('Sparkonto');
+  await hs.locator('[data-hand-gruppe]').selectOption('cash');
+  await hs.locator('[data-hand-wert]').fill('x');
+  await hs.locator('[data-hand-save]').click();
+  await expect(hs.locator('[data-hand-fehler]')).toBeVisible(); // a number is needed
+  await hs.locator('[data-hand-wert]').fill('5000');
+  await hs.locator('[data-hand-save]').click();
+  await expect(hs).toHaveCount(0);
+  await expect(page.locator('[data-hand]')).toHaveCount(1);
+  const gesamt = 10 * pro_g + 5000;
+  await expect(page.locator('[data-gesamt-verteilung]')).toContainText(num(gesamt));
+
+  // a goal: gold should be 50 %, it is about 16 %: below the goal, by points and francs
+  await page.locator('[data-ziel="gold"]').fill('50');
+  const jetzt = ((10 * pro_g) / gesamt) * 100;
+  const punkte = Math.round(Math.abs(jetzt - 50));
+  await expect(page.locator('[data-status="gold"]')).toContainText('unter dem Ziel');
+  await expect(page.locator('[data-status="gold"]')).toContainText(String(punkte));
+  await expect(page.locator('[data-status="cash"]')).toContainText(T('No goal set.'));
+  await shot(page, info, 'kursblick-verteilung');
+
+  // the band: a goal inside it is «within your band»
+  await page.locator('[data-spielraum]').fill('50');
+  await expect(page.locator('[data-status="gold"]')).toContainText(T('Within your band.'));
+  await page.locator('[data-spielraum]').fill('5');
+
+  // a share is sorted into a group; until then it waits under «Not sorted yet» and still counts for the whole
+  await page.locator('[data-eintrag-neu]').click();
+  await sheet.locator('[data-eintrag-titel]').fill('NESN.SW');
+  await sheet.locator('input[type="date"]').fill('2026-01-05');
+  await sheet.locator('[data-eintrag-menge]').fill('4');
+  await sheet.locator('[data-eintrag-preis]').fill('90');
+  await sheet.locator('[data-eintrag-save]').click();
+  await expect(sheet).toHaveCount(0);
+  await expect(page.locator('[data-ungeordnet-titel="NESN.SW"]')).toBeVisible();
+  await page.locator('[data-sortieren="NESN.SW"]').selectOption('aktien');
+  await expect(page.locator('[data-ungeordnet]')).toHaveCount(0);
+  await expect(page.locator('[data-sortiert-titel="NESN.SW"]')).toBeVisible();
+
+  // a group is renamed, one is deleted (its value goes to another group) and Undo brings it back
+  const cash = page.locator('[data-vgruppe="cash"]');
+  await more(cash).first().click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Rename')}`) }).click();
+  await cash.locator('[data-group-rename] input').fill('Konten');
+  await cash.locator('[data-group-rename] button[type="submit"]').click();
+  await expect(cash).toContainText('Konten');
+  await more(cash).first().click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Delete')}`) }).click();
+  await page.locator('dialog[open] .btn.del').click();
+  await expect(page.locator('[data-vgruppe="cash"]')).toHaveCount(0);
+  await expect(page.locator('[data-hand]')).toContainText(T('No group')); // the value stays, without a group
+  await page.getByRole('button', { name: T('Undo') }).last().click();
+  await expect(page.locator('[data-vgruppe="cash"]')).toBeVisible();
+
+  // it stays after a reload (the setting lives on the device)
+  await page.waitForTimeout(600);
+  await page.reload();
+  await expect(page.locator('[data-hand]')).toHaveCount(1);
+  await expect(page.locator('[data-ziel="gold"]')).toHaveValue('50');
+
+  // a value by hand is changed and deleted with Undo
+  await more(page.locator('[data-hand]')).click();
+  await page.getByRole('menuitem', { name: new RegExp(`^${T('Delete')}`) }).click();
+  await page.getByTestId('ask-delete').locator('.btn.del').click();
+  await expect(page.locator('[data-hand]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).last().click();
+  await expect(page.locator('[data-hand]')).toHaveCount(1);
+
+  // nothing runs off the side on a small phone
+  const size = page.viewportSize();
+  for (const w of [320, 390]) {
+    await page.setViewportSize({ width: w, height: size.height });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
+  }
   expect(errors).toEqual([]);
 });

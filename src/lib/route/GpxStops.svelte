@@ -7,7 +7,8 @@
    */
   import { Download } from '@lucide/svelte';
   import { routeGpx, stopsOf, kindsIn, STOP_KINDS_STD } from '../gpxstops.js';
-  import { saveGpx } from '../gpxout.js';
+  import { saveGpx, saveFit } from '../gpxout.js';
+  import { toFit, pointsOf } from '../unterwegs/umwandeln.js';
   import { POI_KIND } from '../race/outside.js';
   import { t, tn } from '../i18n.svelte.js';
 
@@ -27,6 +28,13 @@
     if (r === 'cancelled') return;
     msg = r === 'shared' ? t('Shared.') : t('Saved. On the Garmin: copy it with Garmin Express or the Connect app; on the Wahoo: import it in the app.');
   }
+  async function saveCourse() {
+    const places = stopsOf(points, { kinds }).map((p) => ({ ...p, name: p.name || kindName(p.kind) }));
+    const bytes = toFit(pointsOf(route), name || route?.name || '', { coursePoints: places });
+    const r = await saveFit(bytes, name || route?.name || 'route');
+    if (r === 'cancelled') return;
+    msg = r === 'shared' ? t('Shared.') : t('Saved. On the Garmin: copy it with Garmin Express or the Connect app; on the Wahoo: import it in the app.');
+  }
 </script>
 
 {#if route?.line?.length > 1}
@@ -38,6 +46,11 @@
       </div>
     {/if}
     <button type="button" class="btn sm" onclick={save} data-gpx-stops-save><Download size={16} aria-hidden="true" />{n ? tn(n, 'GPX with {n} stop', 'GPX with {n} stops', { n }) : t('GPX of the route')}</button>
+    {#if n}
+      <!-- P1 «Kurspunkte für den Garmin» (Noah 23.11.2026): the same stops as named course points in a FIT course; the Edge says «Water in 12 km» -->
+      <button type="button" class="btn sm" onclick={saveCourse} data-gpx-fit><Download size={16} aria-hidden="true" />{tn(n, 'FIT course with {n} point', 'FIT course with {n} points', { n })}</button>
+      <p class="gs-note">{t('For the Edge 850 and 1040: the route with the places as course points. The Edge announces them on the way, even when the phone is off. Copy the file into the folder «NewFiles» of the Edge.')}</p>
+    {/if}
     {#if msg}<p class="gs-note" role="status">{msg}</p>{/if}
   </div>
 {/if}
