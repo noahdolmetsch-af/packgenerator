@@ -32,7 +32,8 @@ test('a list from the quick field: points, tick, pinned to Material, in Merken',
   await expect(main.getByRole('heading', { name: T('Remember'), level: 1 })).toBeVisible();
   await page.getByRole('button', { name: T('New'), exact: true }).first().click();
   const sheet = page.locator('dialog.new');
-  await expect(sheet.locator('h3').first()).toHaveText(T('Remember'));
+  // Nutzersicht 4 (Noah 23.11.2026): «Touren» now come first, «Merken» right after
+  await expect(sheet.locator('h3', { hasText: T('Remember') })).toBeVisible();
   await sheet.getByLabel(T('Quick field')).fill('Liste Einkauf: Brot, Käse');
   await expect(sheet.locator('.qchip', { hasText: T('List') })).toHaveAttribute('aria-pressed', 'true');
   await sheet.getByLabel(T('Quick field')).press('Enter');
