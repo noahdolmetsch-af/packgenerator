@@ -6,7 +6,6 @@ import { test, expect } from './clock.js';
 import { writeFileSync } from 'node:fs';
 import { v048Data, P, GRAVEL, day } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
-import { TABS } from './placetab.js';
 
 const SHOTS = process.env.TS_SHOTS;
 const shot = async (page, info, name) => SHOTS && (await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name}.png`, fullPage: true }));
@@ -56,7 +55,8 @@ const bag = (page, name) => page.locator('section.bg', { has: page.getByRole('he
 test('Mein Setup: make a bag setup, change it, copy, rename and delete with undo', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=rig&bike=${GRAVEL}`);
-  await expect(page.locator(TABS).getByRole('link', { name: 'Mein Setup' })).toHaveAttribute('aria-current', /page|true/);
+  // V5 (21.11.2026): «Mein Setup» is a chip under the tab «Velos» (before: a tab of its own)
+  await expect(page.locator('nav.psubs').getByRole('link', { name: 'Mein Setup' })).toHaveAttribute('aria-current', /page|true/);
   await expect(page.getByRole('heading', { level: 2, name: 'Taschen-Setups' })).toBeVisible();
   // «Standard» is the setup of the trip: last used, the fallback for old trips; base weight 9.4 + 0.9 bags (the cage counts 0) + 2.07 gear; the 0.75 L water only in the total.
   const std = card(page, 'Standard');
