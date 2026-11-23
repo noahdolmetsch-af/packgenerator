@@ -107,7 +107,7 @@ const LISTED_MOMENTS = {
     'f.ballast', 'f.tripbike', 'f.switch', 'f.blockcheck', 'f.packcleanup', 'f.planb', 'f.daysports',
     'f.unclear', 'f.border', 'f.ruleuntil', 'f.itemstories', 'f.intent', 'f.checkin', 'f.packtwo',
     'f.laundry', 'f.morninglist', 'f.packtime', 'f.rwgps', 'f.routeknown', 'f.starters', 'f.packside', 'f.ownrules',
-    'f.forgotten', 'f.newpack', 'f.power', 'f.packphoto', 'f.bagphoto', 'f.bagweigh', 'f.tourhints', 'f.routepois', 'f.tripalert',
+    'f.forgotten', 'f.newpack', 'f.power', 'f.packphoto', 'f.bagphoto', 'f.bagweigh', 'f.baglabel', 'f.tourhints', 'f.routepois', 'f.tripalert',
     'f.quiz', 'f.probe', 'f.blockeffect', 'f.needs', 'f.weightsure', 'f.sharepreview', 'bags', 'share',
     'f.tripcheck', 'f.readytomorrow', 'f.readaloud', 'f.offlinesave', 'f.labels', 'f.lightpush', 'f.skicheck',
   ],

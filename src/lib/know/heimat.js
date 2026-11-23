@@ -191,6 +191,7 @@ const LISTED_HOME = {
   'f.tourhints': '#/pack',
   'f.fuel': '#/trips',
   'f.bagweigh': '#/pack',
+  'f.baglabel': '#/pack',
   'f.bagphoto': '#/pack',
   'f.routepois': '#/pack',
   'f.tripalert': '#/pack',

@@ -1771,6 +1771,11 @@ const LISTED = {
     steps: ['Pack the bag, then open it in Packing list › By bags.', 'Put the packed bag on the scale and type the grams under «Packed bag on the scale».', 'Read what the app says: it fits, or where to look (a missing piece, a wrong weight).'],
     example: 'Example: saddle bag calculated 1.87 kg, scale 2.25 kg: «380 g more … is a piece missing?» The forgotten tent pegs.',
   },
+  'f.baglabel': {
+    on: 'Nothing to switch on; the picture is made on this device and nothing is sent.',
+    steps: ['Pack the bag, then open it in Packing list › By bags.', 'Tap «Label of the bag»: a picture with the items and the weights appears.', 'Tap «Share» (phone) or «Save» (computer) and keep or print it.'],
+    example: 'Example: «Frame bag» with 9 items, the heaviest first, 1.2 kg at the bottom: stuck on the bag or kept as a picture.',
+  },
   'f.bagphoto': {
     on: 'Nothing to switch on; the photo stays on this device.',
     steps: ['Pack the bag, then open it in Packing list › By bags.', 'Tap «Photo of this bag» and take the photo (or choose one).', 'In race mode the box «What lies where» shows it with one tap.'],

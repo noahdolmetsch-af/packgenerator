@@ -30,6 +30,7 @@ export default {
   "f.power": "Cold drains batteries faster. At night keep the phone and power bank in the sleeping bag, not in the bag on the bike.",
   "f.tourhints": "Ride a loop so the wind is behind you on the way home: the last hour decides how the whole day feels.",
   "f.bagweigh": "A weighed bag tells you more than the list: weigh it closed and packed, with the bottles and snacks you will carry.",
+  "f.baglabel": "Stick the label on the inside of the bag flap: in the dark you read it without unpacking.",
   "f.bagphoto": "Photograph the bag only when it is closed and packed the way you will ride: the picture then answers where the sleeping bag is, not where it was planned.",
   "f.routepois": "Village fountains in Switzerland are drinking water unless a sign says «kein Trinkwasser». Cemeteries almost always have a tap.",
   "f.tripalert": "A warning is a reason to look again, not to cancel. Often a later start or the valley route is enough.",

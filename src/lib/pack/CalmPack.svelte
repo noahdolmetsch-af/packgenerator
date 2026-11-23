@@ -14,7 +14,7 @@
    */
   import HintCard from '../pageinfo/HintCard.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
-  import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
+  import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package, Tag } from '@lucide/svelte';
   import Empty from '../ui/Empty.svelte';
   import PasstHier from '../ui/PasstHier.svelte';
   import DecisionReview from './DecisionReview.svelte';
@@ -93,6 +93,7 @@
   const swapRain = $derived(tripRain(trip));
   const wardrobeHref = $derived(`#/wardrobe/trip/${encodeURIComponent(trip.id)}`);
   let swapping = $state(null); // { entry, item } while «Swap» is open
+  let labelFor = $state(null); // K2: the group whose label picture is open
   // v0.26.1 (Noah 15b): litres only when every bag in use and every item in them has litres; else nothing.
   const volumes = $derived(bagVolumes(stats, itemsById));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
@@ -523,7 +524,7 @@
                     {:else}<li class="empty-bag"><p>{t('This bag is still empty.')}</p></li>{/each}
                   </ul>
                   {#if !fixed}<p class="addrow"><button class="tp-link" onclick={() => { zoneKey = grouping === 'bags' && targets.some((x) => x.key === group.key) ? group.key : targets[0]?.key; show('add'); }}><Plus size={16} aria-hidden="true" />{t('Add an item')}</button></p>{/if}
-                  {#if grouping === 'bags' && group.key !== 'body' && group.key !== 'mounted'}{#if !fixed}<BagWeigh {trip} slot={group.key} calcG={groupG(group)} missing={groupMissing(group)} bagG={group.bag ? containerWeight(group.bag, itemsById) : null} onsave={onlist ? (weighed) => onlist((cur) => ({ ...cur, weighed })) : null} />{/if}<BagShot {trip} slot={group.key} name={zoneTitle(group)} />{/if}
+                  {#if grouping === 'bags' && group.key !== 'body' && group.key !== 'mounted'}{#if !fixed}<BagWeigh {trip} slot={group.key} calcG={groupG(group)} missing={groupMissing(group)} bagG={group.bag ? containerWeight(group.bag, itemsById) : null} onsave={onlist ? (weighed) => onlist((cur) => ({ ...cur, weighed })) : null} />{/if}<BagShot {trip} slot={group.key} name={zoneTitle(group)} />{#if group.entries.length}<p class="addrow"><button type="button" class="tp-link" onclick={() => (labelFor = group)} data-bag-label-open><Tag size={16} aria-hidden="true" />{t('Label of the bag')}</button></p>{/if}{/if}
                 </div>
               {/if}
             </section>
@@ -561,6 +562,8 @@
   {/if}
   {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
 </div>
+
+{#if labelFor}{#await import('./BagLabel.svelte') then m}<m.default {trip} title={zoneTitle(labelFor)} entries={labelFor.entries} {itemsById} onclose={() => (labelFor = null)} />{:catch}{/await}{/if}
 
 {#if swapping}
   {@const from = swapping.item}
