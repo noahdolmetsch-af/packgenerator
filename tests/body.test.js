@@ -1,6 +1,6 @@
 // «Heute neu» N2 (Noah 20.10.2026 «5a»): «Dein Körper heute», four values of today next to yesterday. Fictional data.
 import { describe, it, expect } from 'vitest';
-import { bodyToday, bodyWeek, valueOf, dirOf, usualOf, offOf, fetchedOf, BODY_KEYS, BANNER_KEYS } from '../src/lib/home/body.js';
+import { bodyToday, bodyWeek, valueOf, dirOf, usualOf, offOf, fetchedOf, stepsByNow, BODY_KEYS, BANNER_KEYS } from '../src/lib/home/body.js';
 import { addDays } from '../src/lib/health.js';
 
 const T = '2026-10-09';
@@ -72,7 +72,7 @@ describe('«Dein Körper heute» as a banner (Noah 23.11.2026)', () => {
   // 30 fictional days before today: sleep 6 h 15 (375 min), HRV 60, resting pulse 50; today a short night and a low HRV
   const days = Array.from({ length: 30 }, (_, i) => ({ date: addDays(T, -(i + 1)), restingHr: 50, hrvMs: 60, sleep: { asleepMin: 375 }, azm: 40 }));
   it('the banner has the pulse, the zone minutes, sleep and HRV, in this order; the sleep score stays in the sheet', () => {
-    expect(BANNER_KEYS).toEqual(['pulse', 'azm', 'sleep', 'hrv']);
+    expect(BANNER_KEYS).toEqual(['pulse', 'azm', 'sleep', 'hrv', 'steps']);
     expect(BODY_KEYS).toContain('score');
     expect(BODY_KEYS).toContain('hrv');
   });
@@ -112,5 +112,27 @@ describe('«Dein Körper heute» as a banner (Noah 23.11.2026)', () => {
     expect(fetchedOf('2026-10-05T10:00:00.000Z', T, 'UTC')).toEqual({ day: '2026-10-05', hm: '10:00' });
     expect(fetchedOf(undefined, T)).toBeNull();
     expect(fetchedOf('nonsense', T)).toBeNull();
+  });
+});
+
+describe('the steps of the banner: today next to yesterday up to the same hour', () => {
+  const hours = (per) => Array.from({ length: 24 }, (_, h) => (h >= 6 && h < 22 ? per : 0));
+  it('yesterday by now counts the hours that have begun', () => {
+    expect(stepsByNow({ stepH: hours(100) }, 9)).toBe(400); // hours 6, 7, 8, 9
+    expect(stepsByNow({ stepH: hours(100) }, 23)).toBe(1600);
+    expect(stepsByNow({ stepH: hours(100) }, 3)).toBe(0);
+    expect(stepsByNow({ stepH: [1, 2] }, 9)).toBeNull();
+    expect(stepsByNow({}, 9)).toBeNull();
+    expect(stepsByNow({ stepH: hours(100) }, null)).toBeNull();
+    expect(stepsByNow({ stepH: new Array(24).fill(null) }, 9)).toBeNull();
+  });
+  it('bodyToday: steps with yesterday by now and a quiet mark far from it', () => {
+    const rows = [{ date: addDays(T, -1), steps: 9000, stepH: hours(100) }, { date: T, steps: 700, stepH: hours(100) }];
+    const s = bodyToday(rows, T, 9).rows.find((r) => r.key === 'steps');
+    expect(s).toMatchObject({ now: 700, before: 9000, byNow: 400, off: 1 });
+    const none = bodyToday([{ date: addDays(T, -1), steps: 9000 }, { date: T, steps: 700 }], T, 9).rows.find((r) => r.key === 'steps');
+    expect(none).toMatchObject({ now: 700, before: 9000, byNow: null, off: null });
+    expect(valueOf({ steps: 4210.4 }, 'steps')).toBe(4210);
+    expect(valueOf({ steps: -1 }, 'steps')).toBeNull();
   });
 });
