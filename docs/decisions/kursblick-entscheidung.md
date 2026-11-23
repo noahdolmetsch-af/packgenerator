@@ -1,0 +1,10 @@
+# Kursblick «Entscheidung»: Hilfe zum Entscheiden, nur Beobachtungen und eigene Regeln
+
+23.11.2026 · Auftrag: Noah «1, 3 und 4 zusammen» (12:21), «zudem möchte ich … kurskäufe und verkäufe loggen … ein digitaler twin meiner richtigen portfolios» (12:22), «Gold wie vorher, das Ganze zusätzlich» (12:35), «ok freigabe» (12:44) (Thread «Kursblick»)
+
+- **Drei Hilfen:** Trend-Ampel (Preis gegen 50- und 200-Tage-Mittel), eigene Kaufregel (Grundbetrag, Faktor bei Rot, Faktor bei sehr teuer, Rückblick gegen «immer gleich viel») und Zielgewichtung mit Spielraum. Verworfen für jetzt: «Teuer oder günstig» als eigene Hilfe (steckt als «Lage» in der Kaufregel).
+- **Keine Anlageberatung.** Die App zeigt nur Beobachtungen aus Preisen und die Ergebnisse von Regeln, die Noah selbst festlegt. Jeder Text sagt das. Kein Satz sagt einen Preis voraus.
+- **Alles privat.** Journal, Depots, Ziele und Regeln bleiben auf den Geräten (Einstellung, Backup, versiegelter Abgleich); zum Kursdienst gehen nur Symbole. **Keine Mitteilung bei geschlossener App** (Noah «nein»).
+- **Der bisherige Kursblick bleibt unverändert** (Referenztag 1. Nov., Verkaufswert, Zeiträume, Teuerung, Märkte, Meine Zahlen). Das Neue kommt als zusätzlicher Reiter «Entscheidung».
+- **Journal und Depots:** jeder Kauf und Verkauf einzeln (Datum, Menge, Preis, Gebühr), echte Depots und beliebig viele Übungsdepots (fiktiv; sie zählen nie zum Gesamtbild, zur Verteilung oder zur Kaufregel). Angenommene Antworten ★, Noah kann sie ändern: Verkäufe mit dem Durchschnittspreis; bisherige Posten aus «Meine Zahlen» als «Eröffnung» ins Journal, das Original bleibt sichtbar und die Übernahme lässt sich zurücknehmen; Gebühr pro Eintrag.
+- **Portfolio:** Gruppen mit Ziel (Gold, Aktien, ETFs und Fonds, Obligationen, Krypto, Rohstoffe, Immobilien, Sparkonto und 3a), in jeder Gruppe eigene Titel (Symbol, Vorschläge aus «Märkte», oder ein Wert von Hand). Gruppen und Titel lassen sich umbenennen und löschen (die Titel bleiben erhalten, auf Wunsch «Ohne Gruppe»), mit Rückgängig.
