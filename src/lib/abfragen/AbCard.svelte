@@ -13,12 +13,14 @@
    */
   import { ClipboardList, X, ChevronRight } from '@lucide/svelte';
   import { backClose } from '../ui/backclose.js';
-  import { abQuery, hintQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
+  import { connQuery, abQuery, hintQuery, ensureConfig, saveAnswers, saveSnooze, saveDataCfg } from '../abdb.js';
   import { fitbitFill, dueList, snoozeAll, skipToday, quietToday, isQuiet, QUIET_KEY, QUIET_ROUND, answerRow, lastAnswer, stampOf, settingOf, fromChecks, dayOf, configOf, isEveningRound, windowPart, LATER_KEY, laterStamp, fitNow, allQuestions } from '../abfragen.js';
   import { kgOf } from '../review/actdata.js';
   import { dataDue, ruleOn, DATA_QUESTIONS, noteSkip, clearSkips, setGap, neverAgain, FEWER_GAP } from '../datenfragen.js'; // 03.11.2026 «Fragen aus deinen Daten»
   import { t, tn, num as fmt } from '../i18n.svelte.js';
   import AnswerInput from './AnswerInput.svelte';
+  import { sourcesOf, groupsFor } from './verbindungen.js';
+  import { actLabel as actName } from './words.js';
   import CheckLine from '../wohl/CheckLine.svelte'; // Paket P: ride numbers, recipe, morning tip, a moment from the jar
   import { qText, areaName, timeText, dayShort, srcText, unitText, everyShort } from './words.js';
   import '../bikes/velo-dlg.css';
@@ -36,6 +38,13 @@
   });
   const query = $derived(abQuery(today));
   const data = $derived($query);
+  // «Verbindungen»: what the app knows, offered as one-tap answers of the sentence questions (abfragen/verbindungen.js)
+  const connQ = connQuery(today);
+  const sources = $derived(sourcesOf($connQ ?? {}, today, { tr: t, actName }));
+  const linksOf = (qid) => groupsFor(qid, sources, { tr: t });
+  // this morning's goal, quietly above the question that asks if it was reached
+  const goalToday = $derived(data ? [...data.answers].filter((r) => r.day === today && r.qid === 'ziele.ziel' && r.value).at(-1)?.value ?? '' : '');
+  const hintOf = (qid) => (qid === 'erreicht.ziel' && goalToday ? t('This morning: «{goal}»', { goal: goalToday }) : '');
   $effect(() => {
     if (data && !data.stored) ensureConfig(now);
   });
@@ -240,7 +249,7 @@
             <button type="button" class="btn sm" onclick={() => keepAsIs(d)} data-fewer-no>{t('No, keep it')}</button>
           </div>
         {/if}
-        <AnswerInput q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
+        <AnswerInput links={linksOf(d.q.id)} hint={hintOf(d.q.id)} q={d.q} bind:value={draft[d.q.id]} bind:note={notes[d.q.id]} id="{qid}-in" label={qText(d.q)} quick last={yesterdayOf(d.q.id)} onanswer={() => next(i)} />
         {#if fit}<small class="last fit num" data-fitbit={fit.hint.key}><span class="ab-src fitbit">Fitbit</span> {fitText(fit.hint)}{fit.value != null ? ` · ${t('filled in, changeable')}` : ''}</small>{/if}
         {#if d.q.id === 'koerper.waage' && lastKg}
           <small class="last num">{lastKg.day ? t('last {v} on {day}', { v: `${lastKg.kg} ${unitText('kg')}`, day: dayShort(lastKg.day) }) : t('body weight under Me › My data: {v}', { v: `${lastKg.kg} ${unitText('kg')}` })}</small>
