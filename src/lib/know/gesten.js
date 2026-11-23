@@ -28,6 +28,7 @@ export const TRICKS = [
       { id: 'g.tripname', title: 'Overwrite the trip name', text: 'Tapping the trip name marks the whole automatic name; typing replaces it.', go: '#/pack' },
       { id: 'g.appicon', title: 'Press the app icon for a long time', text: 'On the phone: press the app icon for a long time to offer «New note» and «Start a ride».', go: '#/inbox/new' },
       { id: 'g.share', title: 'Share to Pack Generator', text: 'Share from another app: text goes to the inbox, a link to Inspiration, a GPX file to «Upload a ride», a picture to Documents, a backup (.json) to «Check import».', go: '#/inbox' },
+      { id: 'g.dropfile', title: 'Drop a file on the window', text: 'Computer: drag a GPX or TCX ride, a backup (.json), a photo or a PDF onto the window of the app. A sheet asks what should happen; nothing is kept before you choose.', go: '#/me/data' },
       { id: 'g.bookmark', title: 'Bookmark «Into the inbox»', text: 'A browser bookmark puts the open web page straight into the inbox as an entry.', go: '#/inbox' },
     ],
   },

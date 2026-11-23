@@ -944,6 +944,7 @@
 {/if}
 {#if !guest}<SkiTurn />{/if}
 <!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
+{#if !guest && !mini}{#await import('./lib/drop/DropLayer.svelte') then M}<M.default />{/await}{/if}
 {#if !guest}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if !guest && page !== 'timer'}<TimerFloat />{/if}
