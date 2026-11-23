@@ -74,10 +74,16 @@
   // v0.36.0: a gear list waiting on "Check import" (#/gear/import), counted in the ••• menu.
   const stagedQ = liveQuery(() => db.table('meta').get(STAGED));
   let gmoreEl = $state();
-  function closeGmore(e) {
+  let vmoreEl = $state(); // Material aufräumen: the menu «View»
+  function closeMenu(e, el) {
     e.stopPropagation();
-    gmoreEl.open = false;
-    gmoreEl.querySelector('summary')?.focus();
+    if (el) el.open = false;
+    el?.querySelector('summary')?.focus();
+  }
+  // a tap on an entry closes both menus (the page under them goes on)
+  function closeMenus() {
+    if (gmoreEl) gmoreEl.open = false;
+    if (vmoreEl) vmoreEl.open = false;
   }
   // All items, kept up to date by the database (liveQuery re-runs on every change).
   const itemsQuery = liveQuery(() => db.items.toArray());
@@ -201,6 +207,7 @@
     history.replaceState(history.state, '', `${path || '#/gear'}${s ? `?${s}` : ''}`);
   }
   function setView(v) {
+    closeMenus();
     view = v;
     mine = '';
     mode = '';
@@ -740,23 +747,40 @@
         <ListBar bind:active={activeCat} current={curCat && tab === 'inventory' && display === 'list' ? t(curCat.name) : ''} count={curCat && tab === 'inventory' && display === 'list' ? tn(curCat.items.length, '{n} item', '{n} items') : ''}>
         <div class="toolbar">
           <label class="q"><span class="sr">{t('Search gear')}</span><Search class="qi" size={18} aria-hidden="true" /><input class="inp" type="search" placeholder={t('Name, brand, bag or ID')} value={qText} data-applied={filter.q} oninput={typed} onchange={flushQ} onkeydown={(e) => e.key === 'Enter' && flushQ()} bind:this={searchEl} /></label>
-          <button type="button" class="btn fbtn" onclick={() => (sheet = true)}>
-            <SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}
-          </button>
+          <!-- Material aufräumen (Noah 23.11.2026): on top only search, «+ Part» and «View»; views, sort and filter live in «View», the tools in «…» -->
+          <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+          <details class="gmore vmenu" bind:this={vmoreEl} data-gear-views onkeydown={(e) => e.key === 'Escape' && closeMenu(e, vmoreEl)}>
+            <summary class="btn fbtn" aria-label={t('View: {name}', { name: mineView ? kindName(mineView, t) : t(VIEW_NAME[view === 'wish' ? 'all' : view]) })}>
+              <SlidersHorizontal size={18} aria-hidden="true" />{t('View|menu')}{#if (view !== 'all' && view !== 'wish') || mineView}<i class="badge num">1</i>{/if}{#if activeN}<i class="badge num">{activeN}</i>{/if}
+            </summary>
+            <div class="gmenu vpanel">
+              {@render viewButtons('vrows')}
+              {#if !selecting && !mode}<div class="vown"><OwnViews items={stats.inventory} mine={mineView ? mine : ''} onpick={(id) => { closeMenus(); pickMine(id); }} /></div>{/if}
+              <button type="button" class="vsort" onclick={() => { closeMenus(); sheet = true; }}><SlidersHorizontal size={18} aria-hidden="true" />{t('Sort and filter')}{#if activeN}<i class="badge num">{activeN}</i>{/if}</button>
+            </div>
+          </details>
           <!-- FE1: on a phone «+ Item» sits at the bottom (not while the selection bar is there) -->
           <span class="daumen" class:off={selecting || !!undo}><button type="button" class="btn hi addb" aria-label={t('Add item')} onclick={() => addItem()}><Plus size={18} aria-hidden="true" />{t('Item|add')}</button></span>
           <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-          <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeGmore(e)}>
+          <details class="gmore" bind:this={gmoreEl} onkeydown={(e) => e.key === 'Escape' && closeMenu(e, gmoreEl)}>
             <summary class="btn" aria-label={t('More for Gear')}><Ellipsis size={18} aria-hidden="true" /></summary>
             <div class="gmenu">
               <!-- v0.43.0 (Wiege-Modus): weigh one thing after the other -->
-              <button type="button" onclick={startWeigh}>{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
+              <button type="button" onclick={() => { closeMenus(); startWeigh(); }} data-gear-quick-item="weigh">{t('Record weights')}{#if toWeigh}<i class="badge num">{toWeigh}</i>{/if}</button>
               <!-- v0.47.2: "Check" was a tab; now a mode, one tap from here -->
-              <button type="button" onclick={startCheck}>{t('Check items')}{#if toReview}<i class="badge num">{toReview}</i>{/if}</button>
+              <button type="button" onclick={() => { closeMenus(); startCheck(); }}>{t('Check items')}{#if toReview}<i class="badge num">{toReview}</i>{/if}</button>
+              <button type="button" onclick={() => { closeMenus(); setSelecting(true); }} data-gear-quick-item="several">{t('Change several')}</button>
+              <!-- «Alltag sichtbar» (Noah 24.10.2026) and «Material aufräumen» (23.11.2026): the tools of Gear, one place -->
+              <a href="#/gear?unused=1" data-gear-quick-item="unused">{t('Long not used')}</a>
+              <button type="button" aria-pressed={finds === 'light'} onclick={() => { closeMenus(); finds = finds === 'light' ? null : 'light'; }} data-gear-quick-item="lighter">{t('Lighter alternatives')}</button>
+              <button type="button" aria-pressed={finds === 'power'} onclick={() => { closeMenus(); finds = finds === 'power' ? null : 'power'; }} data-gear-quick-item="power">{t('Power values of a device')}</button>
+              <a href="#/gear/import" data-gear-quick-item="import">{$stagedQ ? t('Check import') : t('Import a gear list')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
+              {#if namesN}<a href={NAMES_HASH} data-names-link>{t('English names')}<i class="badge num">{namesN}</i></a>{/if}
+              <!-- Wegweiser 3 (Noah 01.11.2026): two tools of the Toolbox that belong to gear -->
+              <a href="#/me/tools/barcode" data-gear-quick-item="barcode">{t('Bar code → gear')}</a>
+              <a href="#/me/tools/units" data-gear-quick-item="units">{t('Convert units')}</a>
               <!-- v0.66.0 (Noah 4a): «Bausteine prüfen» -->
               <a href="#/blocks/check">{t('Check building blocks')}</a>
-              <a href="#/gear/import">{t('Check import')}{#if $stagedQ}<i class="badge num">{$stagedQ.data?.items?.length || t('Step 2')}</i>{/if}</a>
-              {#if namesN}<a href={NAMES_HASH} data-names-link>{t('English names')}<i class="badge num">{namesN}</i></a>{/if}
               <!-- v0.26.0 (Noah 2b) / v0.42.0: the building blocks and the wardrobe, also in the sub-navigation -->
               <a href="#/blocks">{t('Building blocks')} →</a>
               <a href="#/wardrobe">{t('Wardrobe')} →</a>
@@ -764,29 +788,7 @@
           </details>
         </div>
         </ListBar>
-        <!-- one quiet line: how it is sorted, list or cards, select.
-             Impeccable runde 2 (Material 3): «Compact | With bag» joins this line; on a phone both toggles live in
-             «Sort and filter» under «Display» (one tap more), so the first categories come up a screen earlier -->
-        <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a 2b», use cases 6, 7, 8, 29, 75): the views and tools of Gear one tap
-             away, under the names of «What the app can do» (were in ••• or further down) -->
-        {#if tab === 'inventory' && view !== 'wish' && !selecting}
-          <nav class="gquick" aria-label={t('Views and tools of Gear')} data-gear-quick>
-            <a class="gq" href="#/gear?tab=wishlist" data-gear-quick-item="wish">{t('Wishlist')}</a>
-            <a class="gq" href="#/gear?unused=1" data-gear-quick-item="unused">{t('Long not used')}</a>
-            <a class="gq" href="#/favorites" data-gear-quick-item="fav">{t('Favourites ★').replace(' ★', '')}</a>
-            <a class="gq" href="#/gear/supplies" data-gear-quick-item="supplies">{t('Supplies')}</a>
-            <a class="gq" href="#/gear/lend" data-gear-quick-item="lend">{t('Lending list')}</a>
-            <button type="button" class="gq" onclick={startWeigh} data-gear-quick-item="weigh">{t('Weigh items')}</button>
-            <a class="gq" href="#/gear/import" data-gear-quick-item="import">{t('Import a gear list')}</a>
-            <button type="button" class="gq" onclick={() => setSelecting(true)} data-gear-quick-item="several">{t('Change several')}</button>
-            <button type="button" class="gq" aria-pressed={finds === 'light'} onclick={() => (finds = finds === 'light' ? null : 'light')} data-gear-quick-item="lighter">{t('Lighter alternatives')}</button>
-            <button type="button" class="gq" aria-pressed={finds === 'power'} onclick={() => (finds = finds === 'power' ? null : 'power')} data-gear-quick-item="power">{t('Power values of a device')}</button>
-            <!-- Wegweiser 3 (Noah 01.11.2026): two tools of the Toolbox that belong to gear -->
-            <a class="gq" href="#/me/tools/barcode" data-gear-quick-item="barcode">{t('Bar code → gear')}</a>
-            <a class="gq" href="#/me/tools/units" data-gear-quick-item="units">{t('Convert units')}</a>
-          </nav>
-          {#if finds}<GearFinds kind={finds} {items} onopen={(item) => (dialog = { item })} onclose={() => (finds = null)} />{/if}
-        {/if}
+        {#if tab === 'inventory' && view !== 'wish' && !selecting && finds}<GearFinds kind={finds} {items} onopen={(item) => (dialog = { item })} onclose={() => (finds = null)} />{/if}
         <div class="metaline">
           <span class="sorted">{view === 'wish' && !mode ? t('Sorted: most needed first') : t('Sorted: {s}', { s: t(SORT_NAME[sort]) })}</span>
           {@render showAs()}
@@ -817,12 +819,14 @@
         {#if view === 'wish'}
         <p class="vs shopnote">{t('Not bought yet and in no total. At the top: what you missed on trips.')}</p>
         {:else}
-        <section class="vhead" aria-labelledby="vh-h">
+        <section class="vhead" class:plain={view === 'all' && !mineView} aria-labelledby="vh-h">
+          <!-- Material aufräumen (Noah 23.11.2026): under «All» no heading (the button «View» says it); another view says which one it is and how to leave it -->
+          {#if view !== 'all' || mineView}
           <div class="vt">
             <h2 id="vh-h" class="title">{mineView ? kindName(mineView, t) : t(VIEW_NAME[view])}</h2>
-            <p class="vs">{mineView ? t('Your own view: an item can be in several views, without a copy.') : VIEW_TEXT[view]}</p>
-            {#if !selecting && !mode}<OwnViews items={stats.inventory} mine={mineView ? mine : ''} onpick={pickMine} />{/if}
+            <p class="vs">{mineView ? t('Your own view: an item can be in several views, without a copy.') : VIEW_TEXT[view]} <button type="button" class="link tap" onclick={() => setView('all')} data-view-all>{t('Show all|filter')}</button></p>
           </div>
+          {/if}
           <!-- Gesamttest 20.10.2026 Design 1: the head is one line of words, so the tiles show under «All» too -->
           <dl class="vstats">
             <div><dt>{t('Items')}</dt><dd class="num">{summary.n}</dd></div>
@@ -835,10 +839,6 @@
         {#if view === 'never' && sorted.length}<p class="vs small">{t('"Leave at home" makes it optional: new trips no longer pack it on their own.')}</p>{/if}
         {#if view === 'unweighed' && toWeigh}<p class="weighrow"><button type="button" class="btn" onclick={startWeigh} data-explain={t('Weigh one after the other')}><Scale size={18} aria-hidden="true" />{t('Weigh in turn')}</button></p>{/if}
 
-        {#if toWeigh && !selecting && !searching && !(shownAs === 'list' && tab === 'inventory')}
-          <!-- v0.43.0 (Wiege-Modus): one quiet row, no alarm -->
-          <p class="weighrow">{@render weighLink()}</p>
-        {/if}
         {#if shownAs === 'table' && sorted.length}
           <ListTable rows={sorted} cols={gearCols()} nameOf={(i) => nameOf(i)} onsave={(pairs) => saveItemRows(db, pairs)} ondelete={(rows) => deleteItems(db, rows.map((r) => r.id))} onrestore={(snap) => undoBulk(db, snap)} onopen={open} label={t('Gear|page')} search={false} />
         {:else if shownAs === 'cards'}
@@ -863,11 +863,8 @@
               {#if !searching && groups.length}<button type="button" class="link tap" onclick={() => setAll(allOpen)}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}
               {#if view === 'fav'}<a class="favlink" href="#/favorites">{t('All favourites')} →</a>{/if}
             </p>
-            <!-- Impeccable runde 2 (Material 3): «60 without weight · weigh now» on the count line (one row less) -->
-            {#if toWeigh && !selecting && !searching}<span class="weighin">{@render weighLink()}</span>{/if}
           </div>
           <!-- SL2 (answer 2a): the jump bar, on a phone as chips -->
-          {#if !searching}<div class="jump-ph"><ListNav groups={catJumps} active={activeCat} onjump={jump} /></div>{/if}
           <div class="cats">
             {#each groups as g (g.key)}
               {@const GIcon = catIcon(g.key)}
@@ -967,9 +964,8 @@
       <div class="rcol">
         {#if showPanel && !selItem}
           <!-- Impeccable runde 2 (Material 2): no choice yet, a calm card instead of a random item -->
-          <aside class="detail dnone" aria-labelledby="det-none-h" data-detail-none>
-            <h2 id="det-none-h" class="title">{t('Tap an item')}</h2>
-            <p class="dnt">{view === 'wish' ? t('On the right you see its price, why it is on the list and «Bought».') : t('On the right you see how often it was along, its year on tour and lighter alternatives.')}</p>
+          <aside class="detail dnone" aria-label={t('Tap an item')} data-detail-none>
+            <p class="dnt"><b>{t('Tap an item')}</b> · {view === 'wish' ? t('On the right you see its price, why it is on the list and «Bought».') : t('On the right you see how often it was along, its year on tour and lighter alternatives.')}</p>
           </aside>
         {/if}
         {#if showPanel && selItem}
@@ -1002,14 +998,6 @@
             </div>
           </aside>
         {/if}
-        {#if view !== 'wish'}
-        <section class="vcard" aria-labelledby="views-h">
-          <h2 id="views-h" class="title">{t('Views')}</h2>
-          <!-- Impeccable (18.10.2026): the views filter; the places (Clothes, Building blocks, Shopping) are the tabs above -->
-          <p class="vnote">{t('Filters the list above. To switch place, pick it at the top: Clothes, Building blocks, Shopping.')}</p>
-          {@render viewButtons('vrows')}
-        </section>
-        {/if}
         <!-- SL2 (answer 2a): the jump bar beside the list on a computer, it stays in view -->
         {#if tab === 'inventory' && display === 'list' && !searching}<div class="jump-dt"><ListNav groups={catJumps} active={activeCat} onjump={jump} mode="toc" /></div>{/if}
       </div>
@@ -1028,11 +1016,6 @@
   {/if}
 </div>
 
-{#snippet weighLink()}
-  <!-- v0.137.0 (Durchklick DK2): the number is the items without a weight, as in the head and the view «Unweighed» -->
-  <button type="button" class="link tap" onclick={startWeigh}>{stats.unweighed ? t('{n} without weight · weigh now', { n: stats.unweighed }) : t('Weigh bikes and bags')}</button>
-{/snippet}
-
 {#snippet showAs()}
   <!-- Paket H «3a und b» (Noah 19.10.2026): the third choice «Table» on a computer (shared ui/ListTable) -->
   <!-- on a phone «Show as» lives in the filter sheet (Impeccable 2, Material 3) -->
@@ -1047,9 +1030,13 @@
       {@const I = VIEW_ICON[v]}
       <button type="button" class="vbtn" data-view={v} aria-pressed={view === v && !mineView} aria-describedby="vsub-{v}" onclick={() => setView(v)}><span class="vic" aria-hidden="true"><I size={18} /></span><span class="vm"><span class="vn">{t(VIEW_NAME[v])}</span><span class="vsub" id="vsub-{v}" aria-hidden="true">{t(VIEW_SUB[v])}</span></span> <small class="num">{counts[v]}</small></button>
     {/each}
+    <!-- Material aufräumen (Noah 23.11.2026): the other lists of Material are rows of «View», not a second row on the page -->
+    <a class="vbtn vlink" href="#/gear?tab=wishlist" data-gear-quick-item="wish" onclick={closeMenus}><span class="vic" aria-hidden="true"><Heart size={18} /></span><span class="vm"><span class="vn">{t('Wishlist')}</span><span class="vsub">{t('what you want to buy')}</span></span><ChevronRight size={18} aria-hidden="true" /></a>
+    <a class="vbtn vlink" href="#/gear/supplies" data-gear-quick-item="supplies" onclick={closeMenus}><span class="vic" aria-hidden="true"><Package size={18} /></span><span class="vm"><span class="vn">{t('Supplies')}</span><span class="vsub">{t('what is used up')}</span></span><ChevronRight size={18} aria-hidden="true" /></a>
+    <a class="vbtn vlink" href="#/gear/lend" data-gear-quick-item="lend" onclick={closeMenus}><span class="vic" aria-hidden="true"><Link2 size={18} /></span><span class="vm"><span class="vn">{t('Lending list')}</span><span class="vsub">{t('lent out and borrowed')}</span></span><ChevronRight size={18} aria-hidden="true" /></a>
     {#if view === 'all'}
       <!-- v0.23.0 (AP08): the analyses below the list, one tap from here -->
-      <button type="button" class="vbtn" aria-expanded={analysis} aria-controls="gear-analysis" onclick={showAnalysis}><span class="vic" aria-hidden="true"><Scale size={18} /></span><span class="vm"><span class="vn">{t('Weight by category')}</span><span class="vsub">{t('and the heaviest items')}</span></span><ChevronRight size={18} aria-hidden="true" /></button>
+      <button type="button" class="vbtn" aria-expanded={analysis} aria-controls="gear-analysis" onclick={() => { closeMenus(); showAnalysis(); }}><span class="vic" aria-hidden="true"><Scale size={18} /></span><span class="vm"><span class="vn">{t('Weight by category')}</span><span class="vsub">{t('and the heaviest items')}</span></span><ChevronRight size={18} aria-hidden="true" /></button>
     {/if}
   </div>
 {/snippet}
@@ -2730,6 +2717,76 @@
   .vbtn[aria-pressed='true'] .vic {
     background: var(--accent-soft);
     color: var(--accent);
+  }
+  /* Material aufräumen (Noah 23.11.2026): «View» is a menu: the views as rows, then own views, then «Sort and filter» */
+  .toolbar {
+    position: relative;
+  }
+  .gmore[open] .gmenu {
+    z-index: 80;
+  }
+  .vpanel {
+    width: min(380px, calc(100vw - 32px));
+    max-height: min(78vh, 640px);
+    overflow-y: auto;
+    padding: 4px 12px 8px;
+  }
+  .vpanel .views.vrows {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: none;
+  }
+  .vpanel .vbtn {
+    min-height: 56px;
+    padding: 6px 0;
+    white-space: normal;
+    justify-content: flex-start;
+    border-radius: 0;
+    border-top: 1px solid var(--line);
+  }
+  .vpanel .vbtn:first-child {
+    border-top: 0;
+  }
+  .vpanel .vbtn:hover {
+    background: none;
+  }
+  .vpanel .vbtn small {
+    margin-left: auto;
+  }
+  .vpanel a.vlink {
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .vpanel .vown {
+    padding: 8px 0 4px;
+    border-top: 1px solid var(--line);
+  }
+  .vpanel .vsort {
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 4px;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+  }
+  @media (max-width: 719px) {
+    /* both menus hang under the whole toolbar, not under their button (the button sits left on the second row) */
+    .gmore {
+      position: static;
+    }
+    .gmenu {
+      right: 0;
+      max-width: calc(100vw - 32px);
+    }
+    .vmenu .vpanel {
+      left: 0;
+      right: 0;
+      width: auto;
+      max-width: none;
+    }
+  }
+  .vhead.plain {
+    margin-top: 0;
   }
   /* «Alltag sichtbar»: views and tools one tap away */
   .gquick {

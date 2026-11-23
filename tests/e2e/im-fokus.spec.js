@@ -104,3 +104,32 @@ test('This week on Heute counts a Strava run without a tick as a day', async ({ 
   await expect(week.locator('[data-week-list]')).toContainText(T('Run|kind'));
   if (process.env.SHOTS) await week.screenshot({ path: `${process.env.SHOTS}/diese-woche-${info.project.name === 'phone' ? 390 : 1440}.png` });
 });
+
+test('Auswerten: «Alles, was du angelegt hast» lists every activity of the period, also a daily habit and ones with 0 times (23.11.2026)', async ({ page, context }, info) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.clock.install({ time: new Date(D0) });
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./#/');
+  await flowSeeded(page);
+  await put(page, { ...rows(), flowLog: [...rows().flowLog, log('p1', 'pushups', addDays(TODAY, -1)), log('p2', 'pushups', addDays(TODAY, -2)), log('s1', 'sauna', addDays(TODAY, -3))] });
+  await page.goto('./#/auswerten');
+  await page.reload();
+  await expect(page.locator('[data-focus]')).toBeVisible(); // the page has loaded
+  // on a phone «Letzte 7 Tage» waits behind one row
+  const fold = page.locator('[data-ov-fold] details').first();
+  if ((await fold.count()) && !(await fold.evaluate((el) => el.open))) await fold.locator('summary').click();
+  const all = page.locator('[data-alle-fold]');
+  await expect(all).toBeVisible();
+  await all.locator('summary').first().click();
+  const card = all.locator('[data-alle="period"]');
+  // a daily habit (push-ups) is not in «Letzte 7 Tage», but here it is; the sauna as a ritual; ones with 0 times in a closed line
+  await expect(card.locator('[data-alle-row="pushups"]')).toContainText('2 Mal');
+  await expect(card.locator('[data-alle-row="sauna"]')).toContainText('1 Mal');
+  await expect(card.locator('[data-alle-row="tennis"]')).toContainText('2 Mal');
+  await expect(card.locator('[data-alle-quiet]').first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+  if (process.env.SHOTS) await all.screenshot({ path: `${process.env.SHOTS}/alle-auswerten-${info.project.name === 'phone' ? 390 : 1440}.png` });
+  expect(errors).toEqual([]);
+});

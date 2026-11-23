@@ -21,6 +21,8 @@ export const FIXTURE = {
   gold: { id: 'gold', currency: 'USD', unit: 'oz', source: 'stooq', points: walk(11, '1986-01-02', LAST, LAST, 3800, 0.0004) },
   smi: { id: 'smi', currency: 'CHF', unit: 'points', source: 'yahoo', points: walk(23, '1990-07-09', LAST, LAST, 12400, 0.0003) },
   usdchf: { id: 'usdchf', currency: 'CHF', unit: 'rate', source: 'yahoo', points: walk(37, '1986-01-02', LAST, LAST, 0.8, -0.0002, 0.004) },
+  // the price index of Switzerland, one invented value a year on 1 July (a rise of about 1 % a year)
+  lik: { id: 'lik', currency: '', unit: 'index', source: 'worldbank', points: Array.from({ length: 36 }, (_, k) => [`${1990 + k}-07-01`, Math.round(100 * 1.012 ** k * 100) / 100]) },
 };
 
 export const answer = (id, fetchedAt = new Date().toISOString()) => {
