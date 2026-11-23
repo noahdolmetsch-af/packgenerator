@@ -9,7 +9,7 @@
   import { onMount } from 'svelte';
   import { Plus, Minus, Maximize2, Layers, Check } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  import { merc, unmerc, fitView, toScreen, zoomAt, panBy, tilesFor, pathOf } from './mapmath.js';
+  import { merc, unmerc, fitView, toScreen, fromScreen, zoomAt, panBy, tilesFor, pathOf } from './mapmath.js';
   import { boundsOf } from './polyline.js';
   import { RASTER_GROUNDS, rasterGround, tileUrl } from '../map/sources.js';
   import { mapGround, chooseGround } from '../map/groundpref.svelte.js';
@@ -18,7 +18,8 @@
   import { kmMarks } from './kmmarks.js';
 
   /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n, cls? }] (kind 'friend': text is the whole label); cells: squares to tint (Neuland); pick(point). */
-  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null, strong = false } = $props();
+  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null, strong = false, onmap = null, light = null } = $props();
+  // onmap([lat, lon]): a tap (no drag) on the map ground (tour suggestions: moves the dot of the profile); light { pts }: a stretch of the tour drawn on top in dark red (the steep pieces)
   // strong (tour suggestions): a thick, strongly coloured line with km marks and big start and end, so it stands out from the map
   // Tour-Seite (19.10.2026): marker [lat, lon] = the place the finger is on in the elevation profile
   const mark = $derived(marker ? toScreen(merc(marker), view, w, h) : null);
@@ -82,6 +83,7 @@
   const COLS = ['var(--l3)', 'var(--l2)', 'var(--l1)', 'var(--l4)', 'var(--z5)', 'var(--z2)'];
   const colOf = (n) => COLS[((n ?? 1) - 1) % COLS.length];
   const paths = $derived(lines.map((l) => ({ id: l.id, d: pathOf(l.pts, view, w, h), col: l.src === 'rec' ? 'var(--bad)' : colOf(l.n), dash: l.src === 'rec' })));
+  const lit = $derived(light?.pts?.length > 1 ? pathOf(light.pts, view, w, h) : null);
   const dots = $derived(points.map((p) => ({ ...p, s: toScreen(merc(p.pos), view, w, h) })).filter((p) => p.s.x > -30 && p.s.x < w + 30 && p.s.y > -30 && p.s.y < h + 30));
   const squares = $derived.by(() => {
     if (!cells || view.zoom < 9) return [];
@@ -138,6 +140,12 @@
     }
   }
   function up(e) {
+    // a tap on the ground (not on a button or a dot) hands the place to the page
+    if (onmap && e.type === 'pointerup' && ptrs.size === 1 && moved < 8 && !e.target.closest('button, .gp')) {
+      const r = unzoomRect(box.getBoundingClientRect());
+      const c = pt(e);
+      onmap(unmerc(fromScreen(c.x - r.left, c.y - r.top, view, w, h)));
+    }
     ptrs.delete(e.pointerId);
     if (ptrs.size < 2) pinch = null;
   }
@@ -165,7 +173,7 @@
 <div class="tmap" style:height="{height}px" bind:this={box} role="application" aria-label={label || t('Tour map: drag to move, pinch or wheel to zoom')} tabindex="0" onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up} onwheel={wheel} onkeydown={key}>
   <div class="tiles" aria-hidden="true">
     {#each tiles as tl (tl.key + g.key)}
-      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onerror={() => tileBad++} onload={() => tileOk++} />
+      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" crossorigin="anonymous" referrerpolicy="strict-origin-when-cross-origin" onerror={() => tileBad++} onload={() => tileOk++} />
     {/each}
   </div>
   <TileNote bad={tileBad} ok={tileOk} />
@@ -179,6 +187,7 @@
       <circle cx={m.s.x} cy={m.s.y} r="11" class="km" />
       <text x={m.s.x} y={m.s.y + 4} class="kmt">{m.km}</text>
     {/each}
+    {#if lit}<path d={lit} class="lit-halo" /><path d={lit} class="lit" data-map-lit />{/if}
     {#each ends as e (e.k)}<circle cx={e.s.x} cy={e.s.y} r={strong ? 11 : 7} class="end {e.k}" />{/each}
     {#if mark}<circle cx={mark.x} cy={mark.y} r="8" class="here" data-map-marker />{/if}
   </svg>
@@ -233,6 +242,7 @@
     --tm-ground: #e8ece6;
     --tm-white: #fff;
     --tm-strong: #d9480f;
+    --tm-lit: #7c1b12;
     --tm-shadow: rgb(0 0 0 / 0.35);
     --tm-attr-bg: rgb(255 255 255 / 0.8);
     --tm-attr-ink: #333;
@@ -272,6 +282,20 @@
   .strong .line {
     stroke: var(--tm-strong);
     stroke-width: 7;
+  }
+  .lit-halo {
+    fill: none;
+    stroke: var(--tm-white);
+    stroke-width: 18;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .lit {
+    fill: none;
+    stroke: var(--tm-lit);
+    stroke-width: 12;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
   .km {
     fill: var(--tm-white);

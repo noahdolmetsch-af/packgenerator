@@ -29,13 +29,17 @@ async function start(page, context, info) {
   return errors;
 }
 
-test('Heute on an empty device: short, with the way to the weather page and Jetzt alles zeigen', async ({ page, context }) => {
+test('Heute on an empty device: short, the date line leads to the weather page, no home-place and weather lines, Jetzt alles zeigen', async ({ page, context }) => {
   const errors = await blank(page, context);
   await page.goto('./');
   const wall = page.locator('[data-empty-wall]');
   await expect(wall).toBeVisible();
-  await expect(wall).toContainText(T('The rest of Today comes as soon as you have a bike, an item or a trip.'));
-  await expect(page.locator('[data-weather-page]')).toHaveAttribute('href', '#/wetter');
+  await expect(wall).toContainText(T('Everything else (body, up now, weather) shows up as soon as you have data.'));
+  // «Starte hier» (Noah 23.11.2026 «1-5a», V2): the date line leads to the weather; the two extra lines and «Nothing urgent» are away
+  await expect(page.locator('[data-weather-home]')).toHaveAttribute('href', '#/wetter');
+  await expect(page.locator('[data-weather-page]')).toHaveCount(0);
+  await expect(page.getByText(T('Set your home place for the weather'))).toHaveCount(0);
+  await expect(page.getByText(T('Nothing urgent today.'))).toHaveCount(0);
   await wall.getByRole('button', { name: T('Show everything now') }).click();
   await expect(wall).toHaveCount(0);
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

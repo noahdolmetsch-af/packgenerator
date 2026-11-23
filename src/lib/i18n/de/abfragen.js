@@ -19,6 +19,13 @@ export default {
 
   // 1 Erholung
   'How well did you sleep: marmot or zombie?': 'Wie gut hast du geschlafen: Murmeltier oder Zombie?',
+  'What did you dream last night?': 'Was hast du heute Nacht geträumt?',
+  'nothing remembered|dream': 'nichts gemerkt',
+  'nice|dream': 'schön',
+  'strange|dream': 'wirr',
+  'exciting|dream': 'spannend',
+  'nightmare|dream': 'Albtraum',
+  'it came back|dream': 'wieder derselbe',
   'How full is your battery right now?': 'Wie voll ist dein Akku gerade?',
   'Does your body feel more like a freshly oiled bike or a rusty chain today?': 'Fühlt sich dein Körper heute eher wie ein frisch geöltes Velo oder wie eine rostige Kette an?',
   'How many coffees do you need today to be human?': 'Wie viele Kaffees brauchst du heute, um Mensch zu sein?',

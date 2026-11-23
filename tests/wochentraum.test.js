@@ -90,11 +90,11 @@ describe('the tile on the wall', () => {
   it('a wall of before (v < 20) gets it once under «Discover»; a wall without the moment cards stays as it is', () => {
     expect(withWochentraum([{ id: 'moment', size: 'long' }, { id: 'discover', size: 'long' }, { id: 'week', size: 'l' }]).map((x) => x.id)).toEqual(['moment', 'discover', 'wochentraum', 'week']);
     expect(withWochentraum([{ id: 'week', size: 'l' }]).map((x) => x.id)).toEqual(['week']);
-    expect(wallOf({ v: 18, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['meinetour', 'moment', 'wochentraum', 'spruch', 'week']); // + «Meine Tour» (v < 21) on top
+    expect(wallOf({ v: 18, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['haken', 'meinetour', 'moment', 'wochentraum', 'spruch', 'week']); // + «Meine Tour» (v < 21) on top
     // stored as v 19 (after «Spruch»): gets it once; stored as v 20: taken away stays away (both get «Meine Tour», v < 21)
-    expect(wallOf({ v: 19, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['meinetour', 'moment', 'wochentraum', 'week']);
-    expect(wallOf({ v: 20, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['meinetour', 'moment', 'week']);
-    expect(wallRecord([]).v).toBe(22);
+    expect(wallOf({ v: 19, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['haken', 'meinetour', 'moment', 'wochentraum', 'week']);
+    expect(wallOf({ v: 20, tiles: [{ id: 'moment', size: 'long' }, { id: 'week', size: 'l' }] }).map((x) => x.id)).toEqual(['haken', 'meinetour', 'moment', 'week']);
+    expect(wallRecord([]).v).toBe(23);
     expect(TILE.wochentraum.sizes).toEqual(['long']);
     expect(READY.some((x) => x.id === 'wochentraum')).toBe(true);
   });

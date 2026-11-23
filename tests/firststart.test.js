@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { ensureSeed } from '../src/lib/flowdb.js';
 import { seedActs } from '../src/lib/flow.js';
-import { FIRST_KEY, isFresh, chooseStart, examplesFile, examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, mayAsk } from '../src/lib/firststart.js';
+import { FIRST_KEY, isFresh, chooseStart, examplesFile, examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, interestsPresent, mayAsk } from '../src/lib/firststart.js';
 import { isTestName } from '../src/lib/testname.js';
 
 const TODAY = '2026-10-20';
@@ -105,6 +105,24 @@ describe('first start: with examples or empty', () => {
     await removeExamples(db);
     expect((await db.items.toArray()).map((i) => i.id)).toEqual(['mine']);
     expect((await db.flowActs.toArray()).map((a) => a.id)).toEqual(['own-act']);
+  });
+
+  it('«Adjust the examples»: adds only what is missing, never writes over an edited example, and all stay removable', async () => {
+    const db = await fresh('fs-10');
+    await chooseStart(db, 'empty', TODAY);
+    await addExamples(db, TODAY, { interests: ['days'] });
+    expect((await db.trips.toArray()).map((x) => x.id)).toEqual(['ex-past']);
+    expect(interestsPresent(await examplesLeft(db))).toEqual(['days']);
+    await db.bikes.update('ex-bike', { name: 'My renamed bike' });
+    await addExamples(db, TODAY, { interests: ['nights', 'active'] });
+    expect((await db.trips.toArray()).map((x) => x.id).sort()).toEqual(['ex-past', 'ex-trip']);
+    expect((await db.bikes.get('ex-bike')).name).toBe('My renamed bike');
+    expect(interestsPresent(await examplesLeft(db))).toEqual(['nights', 'days', 'active']);
+    const saved = await removeExamples(db);
+    expect(await db.trips.count()).toBe(0);
+    expect(exampleCount(await examplesLeft(db))).toBe(0);
+    await undoExamples(db, saved);
+    expect(await db.trips.count()).toBe(2);
   });
 
   it('«Get the examples» on a used app: its own unused starter activities stay when the examples go', async () => {

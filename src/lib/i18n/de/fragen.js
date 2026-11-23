@@ -10,6 +10,7 @@ export default {
   'Ask your data': 'Frag deine Daten',
   'Six questions, one sentence each as the answer.': 'Sechs Fragen, je ein Satz als Antwort.',
   'Ask your own question': 'Eigene Frage stellen',
+  'Back to «Ask your data»': 'Zurück zu «Frag deine Daten»',
   'Waiting for more data': 'Warten auf mehr Daten',
   'Too few rides for a statement: {a} days with a speed in the last 90 days, {b} in the 90 days before; {need} are needed on each side.': 'Zu wenige Fahrten für eine Aussage: {a} Fahrtage mit Tempo in den letzten 90 Tagen, {b} in den 90 Tagen davor; auf jeder Seite braucht es {need}.',
   'Too few rides for a comparison: {a} days with a ride this year, {b} last year up to the same date; {need} are needed on each side.': 'Zu wenige Fahrten für einen Vergleich: {a} Fahrtage dieses Jahr, {b} im letzten Jahr bis zum selben Datum; auf jeder Seite braucht es {need}.',
