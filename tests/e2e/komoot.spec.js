@@ -117,7 +117,8 @@ test('Unterwegs: Tour aus komoot in Mehr, the location only in the link, offline
 test('Neue Tour: Tour aus komoot next to the templates', async ({ page, context }, info) => {
   await open(page, context, info);
   await page.goto('./#/trips');
-  await tap(page.getByRole('button', { name: new RegExp(`^${esc(T('New trip'))}`) }), info);
+  // the pack cards on top («Pack-Karten») have their own «New trip» card (data-pack-new): the button of the page is the other one
+  await tap(page.getByRole('button', { name: new RegExp(`^${esc(T('New trip'))}`) }).and(page.locator(':not([data-pack-new])')), info);
   const dlg = page.locator('dialog.trip-dlg');
   await expect(dlg).toBeVisible();
   const row = dlg.locator('[data-komoot-find]');

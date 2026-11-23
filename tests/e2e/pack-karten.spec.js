@@ -14,8 +14,9 @@ test('Trips: pack cards on top, Continue opens the list in Steps', async ({ page
   expect(await cards.count()).toBeLessThanOrEqual(3);
   await expect(page.locator('[data-pack-new]')).toBeVisible();
   // the content is not pushed: the cards stand right behind the title block
-  const top = (await page.locator('[data-pack-cards]').boundingBox()).y;
-  expect(top).toBeLessThan(500);
+  // (relative to the title: the path, the closed help lines and the search of the place stand between them since the day-one layout of Touren)
+  const gap = (await page.locator('[data-pack-cards]').boundingBox()).y - (await page.locator('main h1').first().boundingBox()).y;
+  expect(gap).toBeLessThan(500);
   if (process.env.SHOTS) {
     mkdirSync(process.env.SHOTS, { recursive: true });
     await page.screenshot({ path: `${process.env.SHOTS}/karten-${info.project.name === 'phone' ? 390 : 1440}.png` });
