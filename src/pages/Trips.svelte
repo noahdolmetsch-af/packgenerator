@@ -41,6 +41,7 @@
   import HintCard from '../lib/pageinfo/HintCard.svelte';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import AllHere from '../lib/ui/AllHere.svelte';
+  import PackKarten from '../lib/pack/PackKarten.svelte'; // Warteliste 4: the tours being prepared, with «Continue with …»
   import { komootFindUrl } from '../lib/komoot.js';
   import PageMore from '../lib/pageinfo/PageMore.svelte';
   import TipLine from '../lib/pageinfo/TipLine.svelte';
@@ -515,6 +516,7 @@
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
+  {#if !onRides}<PackKarten />{/if}
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
   <!-- «Alles hier» (Noah 03.11.2026 «1a»): every Touren function as a tile on top; the row «More for your tours» keeps only komoot (an outside page), its other links are tiles now -->
   {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
