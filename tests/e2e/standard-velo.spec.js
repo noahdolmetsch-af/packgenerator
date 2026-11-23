@@ -56,14 +56,15 @@ async function newTrip(page) {
   return dlg;
 }
 
-const bikeTabs = (page) => page.locator('section.setup-band [role=tab] .bn');
+// Velos aufräumen (23.11.2026, changed on purpose): the bikes stand once as the cards on top (no second row of tabs)
+const bikeTabs = (page) => page.locator('[data-velo-card] .nm');
 
 test('VS3 + VS1: star, order with arrows and «Als Standard»; a new trip brings the standard bike', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/bikes?tab=setup');
   // without an order yet: by name, the first one is the standard bike with a star
   await expect(bikeTabs(page)).toHaveText([GRAVEL, SCALE, SPARK]);
-  await expect(page.locator('section.setup-band [role=tab]').first().locator('.sv-star')).toBeVisible();
+  await expect(page.locator('[data-velo-card]').first().locator('.sv-star')).toBeVisible();
   await page.locator('.sv-line').getByRole('button', { name: T('Change') }).click();
   const sheet = page.locator('dialog.bo-dlg');
   await expect(sheet.getByRole('heading', { name: T('Standard bike and order') })).toBeVisible();
@@ -113,7 +114,7 @@ test('VS3: «the one ridden last» brings the bike of the last trip to a new tri
 test('VS4: a new bike asks «Neues Standard-Velo?»; «Ja» puts it on top', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/bikes?tab=setup');
-  await page.locator('section.setup-band').getByRole('button', { name: T('Add bike') }).click();
+  await page.locator('[data-card-add]').click();
   const bd = page.locator('dialog.vdlg', { has: page.locator('#bike-dlg-h') });
   await bd.getByLabel(T('Name'), { exact: true }).fill('test_data_gtp_ Enduro');
   await bd.getByRole('button', { name: T('Add|bike') }).click();
