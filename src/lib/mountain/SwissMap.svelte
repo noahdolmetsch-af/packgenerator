@@ -40,12 +40,12 @@
     if (!map || !L) return;
     for (const b of BASES) {
       const want = b.key === base;
-      if (want && !tiles[b.key]) tiles[b.key] = L.tileLayer(tileUrl(b), { maxZoom: 18, minZoom: 7, attribution: ATTRIBUTION, zIndex: 1 });
+      if (want && !tiles[b.key]) tiles[b.key] = L.tileLayer(tileUrl(b), { maxZoom: 18, minZoom: 7, attribution: ATTRIBUTION, zIndex: 1, crossOrigin: 'anonymous' });
       if (tiles[b.key]) want ? tiles[b.key].addTo(map) : tiles[b.key].remove();
     }
     for (const o of OVERLAYS) {
       const want = on.includes(o.key);
-      if (want && !tiles[o.key]) tiles[o.key] = L.tileLayer(tileUrl(o), { maxZoom: 18, minZoom: 7, opacity: o.opacity, zIndex: 10 + OVERLAYS.indexOf(o) });
+      if (want && !tiles[o.key]) tiles[o.key] = L.tileLayer(tileUrl(o), { maxZoom: 18, minZoom: 7, opacity: o.opacity, zIndex: 10 + OVERLAYS.indexOf(o), crossOrigin: 'anonymous' });
       if (tiles[o.key]) want ? tiles[o.key].addTo(map) : tiles[o.key].remove();
     }
   }

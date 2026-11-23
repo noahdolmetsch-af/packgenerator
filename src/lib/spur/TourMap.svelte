@@ -165,7 +165,7 @@
 <div class="tmap" style:height="{height}px" bind:this={box} role="application" aria-label={label || t('Tour map: drag to move, pinch or wheel to zoom')} tabindex="0" onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up} onwheel={wheel} onkeydown={key}>
   <div class="tiles" aria-hidden="true">
     {#each tiles as tl (tl.key + g.key)}
-      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onerror={() => tileBad++} onload={() => tileOk++} />
+      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" crossorigin="anonymous" referrerpolicy="strict-origin-when-cross-origin" onerror={() => tileBad++} onload={() => tileOk++} />
     {/each}
   </div>
   <TileNote bad={tileBad} ok={tileOk} />

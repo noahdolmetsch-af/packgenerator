@@ -16,6 +16,14 @@ import { writeNewsIndex } from './scripts/news.mjs';
 // (scripts/news.mjs), not from package.json; this also writes src/lib/news/index.gen.js.
 const pkg = { version: writeNewsIndex().version };
 
+// Speicher (Noah 23.11.2026): Chrome counts every map tile it kept as an «opaque» answer (an <img> without CORS) with about
+// 8 MB, although it is 25 KB. The tiles are now asked for with CORS; an old opaque answer must not be handed to such a
+// request (the browser would refuse it), so it is dropped and the tile comes from the network. Stands alone: Workbox
+// copies the functions into the worker as text.
+const noOpaqueForCors = {
+  cachedResponseWillBeUsed: async ({ cachedResponse, request }) => (cachedResponse && cachedResponse.type === 'opaque' && request.mode === 'cors' ? null : cachedResponse),
+};
+
 export default defineConfig({
   base,
   preview: { host: "127.0.0.1" },
@@ -154,13 +162,13 @@ export default defineConfig({
             // Paket J #161: the swisstopo map tiles you looked at stay for the mountains without the internet.
             urlPattern: /^https:\/\/wmts\.geo\.admin\.ch\/.*/,
             handler: 'CacheFirst',
-            options: { cacheName: 'swisstopo-tiles', expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+            options: { cacheName: 'swisstopo-tiles', expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [200] }, plugins: [noOpaqueForCors] },
           },
           {
             // Paket S «Reise-Spur»: OpenStreetMap tiles seen once stay for the tour map offline (swisstopo: Paket J's «swisstopo-tiles»).
             urlPattern: /^https:\/\/tile\.openstreetmap\.org\/.*/,
             handler: 'CacheFirst',
-            options: { cacheName: 'osm-tiles', expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
+            options: { cacheName: 'osm-tiles', expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [200] }, plugins: [noOpaqueForCors] },
           },
           {
             // Paket L2 «Bilderkennung»: the recognition (MediaPipe script, WebAssembly, models; about 30 MB) is
