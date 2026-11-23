@@ -102,7 +102,7 @@ describe('main places', () => {
   it('five places in a fixed order (v0.46.1: Trips opens the overview; v0.76.0 «Fünf Orte»: Aktiv opens Im Flow)', () => {
     // «Woche planen» (Noah 15.10.2026 «1a»): «Woche» is its own place next to Heute
     // V5 (Noah 21.11.2026): Heute · Woche · Touren · Velos und Material · Auswerten; Material is a tab of Velos und Material
-    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['bikes', '#/bikes'], ['analysis', '#/auswerten'], ['quick', '#/quick']]); // «Quick Links» (Noah 28.10.2026 «3a»)
+    expect(PLACES.map((p) => [p.key, p.href])).toEqual([['today', '#/'], ['week', '#/week'], ['trips', '#/trips'], ['bikes', '#/bikes'], ['analysis', '#/auswerten'], ['weather', '#/wetter'], ['quick', '#/quick']]); // «Quick Links» (Noah 28.10.2026 «3a»)
   });
 
   it('every address belongs to the right place', () => {

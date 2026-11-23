@@ -12,6 +12,7 @@
   import { HOME_PLACE } from '../know.js';
   import { REFRESHED } from '../home/refresh.js';
   import { loadNacht, summary, HOME_KEY } from './nacht.js';
+  import { setDigest } from './digest.svelte.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   const homeQ = liveQuery(() => db.settings.get(HOME_PLACE));
@@ -41,6 +42,7 @@
 
   const on = $derived($onQ?.value !== false);
   const s = $derived(data ? summary(data, now) : null);
+  $effect(() => setDigest('night', on && s && (s.next ?? s.last) != null ? t('Night {c} °C', { c: num(s.next ?? s.last) }) : null));
   const at = $derived(data?.old && data.at ? new Date(data.at).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' }) : '');
   const main = $derived.by(() => {
     if (!s) return '';

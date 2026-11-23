@@ -5,16 +5,17 @@
 import { QUESTION, answerRow, stampOf } from '../abfragen.js';
 import { saveAnswers } from '../abdb.js';
 import { db } from '../db.js';
-import { NAME_ASKED_KEY, HELLO_QUESTIONS } from './hallo.js';
+import { NAME_ASKED_KEY, HELLO_QUESTIONS, MOODS, MOOD_QID, scaleOfFace } from './hallo.js';
 
 /**
  * The history rows of one answer: { mood: a key of MOODS or null, feelings: [keys of FEELINGS], plans: [keys of PLANS], reasons: [keys of REASONS], days: [keys of DAY_WORDS], text, evening }.
  * The free text goes into the note of «Was häsch vor?». Nothing chosen and nothing written: no rows.
  * Gruss A: the row ids are fixed by question and time, so every tap saves over the same rows (nothing piles up).
+ * The face is saved as an answer of the scale question `spass.stimmung` (1–10; Noah 22.11.2026), no longer as `hallo.gaht`.
  */
 export function helloRows({ mood = null, feelings = [], reasons = [], plans = [], days = [], text = '', evening = false } = {}, at = stampOf()) {
   return [
-    answerRow(QUESTION['hallo.gaht'], mood, { at }),
+    answerRow(QUESTION[MOOD_QID], scaleOfFace(MOODS.find((m) => m.key === mood)), { at }),
     answerRow(QUESTION['hallo.gefuehl'], feelings, { at }),
     answerRow(QUESTION['hallo.grund'], reasons, { at }),
     // Gruss D: in the evening the field and the chips tell about the day («Wie war's?»), otherwise about the plan
@@ -29,8 +30,19 @@ const helloId = (qid, at) => `ab-${qid}-${at}`;
 export async function saveHello(answer, at = stampOf()) {
   const rows = helloRows(answer, at);
   const keep = new Set(rows.map((r) => r.id));
-  const stale = HELLO_QUESTIONS.map((q) => helloId(q.id, at)).filter((id) => !keep.has(id));
-  if (stale.length) await db.abAnswers.bulkDelete(stale);
+  const stale = [...HELLO_QUESTIONS.map((q) => q.id), MOOD_QID].map((id) => helloId(id, at)).filter((id) => !keep.has(id));
+  if (stale.length) {
+    // a face taken back: the mood row goes, and so does its mirror in the daily check (abdb.js MIRROR) when it is still the same value
+    const gone = await db.abAnswers.get(helloId(MOOD_QID, at));
+    if (gone && stale.includes(gone.id)) {
+      const c = await db.flowChecks.get(gone.day);
+      if (c && c.mood === gone.value) {
+        const { mood, ...rest } = c;
+        await db.flowChecks.put(rest);
+      }
+    }
+    await db.abAnswers.bulkDelete(stale);
+  }
   if (rows.length) await saveAnswers(rows);
   return rows.length;
 }

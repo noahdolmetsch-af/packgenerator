@@ -332,6 +332,12 @@ export function redirectOf(hash = '') {
  */
 export const ANALYSIS = { key: 'analysis', href: '#/auswerten', label: 'Analysis|place', letter: 'a' };
 /**
+ * Wetter-Ausbau W1 (Noah 22.11.2026 «a»): «Wetter» is a place of its own in the sidebar of a computer (g e). The bar of a phone keeps its
+ * five places: there the weather is reached from the line «Wetter heute» on Heute, from the tour page, from the search and from «Alle Orte».
+ * Before: the page stood under Touren without a row of its own.
+ */
+export const WEATHER = { key: 'weather', href: '#/wetter', label: 'Weather|place', letter: 'e' };
+/**
  * v0.76.0 «Fünf Orte» 1 (Noah 10.10.2026, all a): five places, the same on every page and in this
  * order (bottom bar on a phone, sidebar on a computer). Labels are English keys for t(); key: the
  * letter after «g» on a keyboard (g h = Today). colour: the place's light tint (app.css --pc-*).
@@ -348,6 +354,7 @@ export const PLACES = [
   // (Velos, Pflege, Material, Sets) and chips under them. Before: three places (Velos, Material in the sidebar, Ausrüstung a tab of Material) and a switch on a phone.
   { key: 'bikes', href: '#/bikes', label: 'Bikes and gear|place', bar: 'Bikes and gear|place', letter: 'v' },
   ANALYSIS,
+  WEATHER,
   // «Quick Links» (Noah 28.10.2026 «3a»): your pins; not in the bar or the sidebar any more (V4a), the page stays at #/quick (g q) until V6 «Abkürzungen»
   { key: 'quick', href: '#/quick', label: 'Quick Links|place', bar: 'Quick Links|place', letter: 'q' },
 ];
@@ -369,7 +376,7 @@ export const sidePlaceOf = (place) => (place === 'quick' ? 'today' : place);
 /** The place whose slot in the bottom bar a place uses (Ausrüstung → Velos und Material). */
 export const barPlace = (place) => (place === EQUIPMENT.key ? 'bikes' : place);
 /** The places in the bottom bar of a phone: five (Heute, Woche, Touren, Velos und Material, Auswerten). */
-export const BAR_PLACES = PLACES.filter((p) => p.key !== 'quick');
+export const BAR_PLACES = PLACES.filter((p) => p.key !== 'quick' && p.key !== 'weather');
 
 /** Gesamttest 20.10.2026 B3: Touren › Fahrten, the Strava activities (the page Trips.svelte shows them on their own). */
 export const RIDES_HREF = '#/trips/rides';
@@ -584,12 +591,13 @@ export function placeOf(page, hash = '') {
   // «Aktiv neu» (Noah 22.10.2026): the pages to look at are under Auswerten, the same addresses
   if (page === 'flow') return LOOK_FLOW.test(hash || '') ? 'analysis' : 'week'; // V4a: Aktiv is part of Woche (tab Training)
   if (page === 'auswerten') return 'analysis';
+  if (page === 'wetter') return 'weather'; // Wetter-Ausbau W1 (Noah 22.11.2026 «a»): a place of its own
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
   if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'impulse', 'weblinks'].includes(page)) return 'week';
   if (page === 'inspiration') return 'trips'; // Schritt 10 (Z3): a tab of Touren, next to the dreams
   if (page === 'tools') return 'trips'; // «Alles finden 2» (Noah 22.10.2026 «4a»): the toolbox is a tab of Touren
   if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'quellen', 'sportjahr', 'sportrueckblick', 'fragen', 'wohl', 'weight', 'heatmap', 'neuland', 'gelernt', 'jahr'].includes(page)) return 'analysis'; // «Aktiv und Auswerten» 3a: the four pages of looking back
-  if (['trips', 'dreams', 'vorschlaege', 'weg', 'tourpfad', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'spur', 'tour', 'travel', 'stopps', 'race', 'raceplan', 'live', 'groupride', 'fuel', 'compare', 'wetter'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
+  if (['trips', 'dreams', 'vorschlaege', 'weg', 'tourpfad', 'between', 'pack', 'templates', 'past', 'ride', 'debrief', 'rides', 'share', 'review', 'ski', 'mountain', 'quiz', 'chronik', 'spur', 'tour', 'travel', 'stopps', 'race', 'raceplan', 'live', 'groupride', 'fuel', 'compare'].includes(page)) return 'trips'; // wetter: Paket Y, the weather to plan rides (no own tab: Touren has its 5)
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'wardrobe') return 'bikes'; // V5: Material is part of «Velos und Material» (tab Material)
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'bikes'; // V5: Ausrüstung is the chip «Sets» of the tab Sets

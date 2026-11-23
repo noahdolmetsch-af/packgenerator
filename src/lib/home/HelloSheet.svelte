@@ -11,7 +11,7 @@
   import { ChevronRight, X, Plus, Clock3, Pencil, Smile, FaceSlightlyFrowning, FaceExpressionless, FaceNeutral, FaceSlightlySmiling, FaceGrinning } from '@lucide/svelte';
   import { t, locale } from '../i18n.svelte.js';
   import { backClose } from '../ui/backclose.js';
-  import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, HELLO_FEEL, HELLO_WHY, HELLO_DAY, helloTitle } from './hallo.js';
+  import { HELLO_TAP, HELLO_MOOD, HELLO_PLAN, HELLO_OWN, HELLO_FEEL, HELLO_WHY, HELLO_DAY, helloTitle, MOOD_QID, faceOfScale } from './hallo.js';
   import { partOfDay } from '../dayclock.js';
   import { buttonsQuery, saveButtons, offered, groupName, defaults } from './hallobuttons.js';
   import { saveHello } from './hallo-save.js';
@@ -65,7 +65,7 @@
   const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', timeZone: 'UTC' }).replace('.', '').slice(0, 2);
   async function week() {
     const to = stampOf().slice(0, 10);
-    weekRows = await db.abAnswers.where('day').between(daysBefore(to, 29), to, true, true).filter((r) => r.qid === 'hallo.gaht' || r.qid === 'hallo.grund').toArray();
+    weekRows = await db.abAnswers.where('day').between(daysBefore(to, 29), to, true, true).filter((r) => r.qid === 'hallo.gaht' || r.qid === MOOD_QID || r.qid === 'hallo.grund').toArray();
   }
   let touched = false;
   let timer;
@@ -77,7 +77,8 @@
     d.setUTCDate(d.getUTCDate() - 1);
     const rows = await db.abAnswers.where('day').equals(d.toISOString().slice(0, 10)).toArray();
     const last = (qid) => rows.filter((r) => r.qid === qid).sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')))[0]?.value ?? null;
-    ydMood = typeof last('hallo.gaht') === 'string' ? last('hallo.gaht') : null;
+    const ydScale = faceOfScale(last(MOOD_QID), faces)?.key ?? null; // since 22.11.2026 the face is saved on the scale of «spass.stimmung»
+    ydMood = ydScale ?? (typeof last('hallo.gaht') === 'string' ? last('hallo.gaht') : null);
     const f = last('hallo.gefuehl');
     ydFeelings = Array.isArray(f) ? f : [];
   }

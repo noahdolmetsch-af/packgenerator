@@ -10,6 +10,11 @@
    * pace (km/h or { kmh }) with startAt (ms or 'YYYY-MM-DDTHH:MM', default now), fromKm (where you are:
    * the strip starts there), tripId (cache key; '' = the live map), auto (load once when nothing fits or
    * it is older than 3 h). Key the component on tripId: the cache key is read once.
+   *
+   * Wetter-Ausbau A and G (Noah 22.11.2026 «a»), for the tour page: advice (bool) adds the share of headwind, the
+   * coldest point and what it adds to the packing hints of the start place (startHints: keys of kern.js PACK_TEXT);
+   * dayKm cuts a route of several days to its first day; camList ([{ name, url, place }], «My webcams») shows the
+   * cams that have a place within 2 km of the route, each with the hour you pass it.
    */
   import { untrack } from 'svelte';
   import { CloudSun, RefreshCw, ArrowUp } from '@lucide/svelte';
@@ -17,9 +22,12 @@
   import { lineKm, hhmm, dayOfMs } from '../race/race.js';
   import { isOld } from './wx.js';
   import { linePoints, fetchWxLine, timelineRows, lineSummary, etaFn, routeKey, cacheFits, wxLineKey, WIND_KIND } from './wxline.js';
+  import { dayRows, headShare, coldest, routeHints, camsAlong } from '../wetter/routewx.js';
+  import { PACK_TEXT } from '../wetter/kern.js';
+  import { isImage, freshSrc, camLabel } from '../wetter/webcams.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
-  let { route = null, plan = null, pace = null, startAt = null, fromKm = 0, tripId = '', auto = false } = $props();
+  let { route = null, plan = null, pace = null, startAt = null, fromKm = 0, tripId = '', auto = false, advice = false, dayKm = null, startHints = [], camList = [] } = $props();
 
   const key = untrack(() => wxLineKey(tripId));
   const q = cacheQuery(key);
@@ -36,9 +44,15 @@
   });
 
   const eta = $derived(etaFn({ plan, pace, startAt, fromKm: Number(fromKm) || 0, profile: route?.profile ?? [], totalKm: Number(route?.km) || 0, now }));
-  const rows = $derived(cache ? timelineRows(cache, { eta, fromKm: Number(fromKm) || 0, now }) : []);
+  const rows = $derived(cache ? dayRows(timelineRows(cache, { eta, fromKm: Number(fromKm) || 0, now }), dayKm) : []);
   const sum = $derived(lineSummary(rows));
   const inForecast = $derived(rows.some((r) => r.w));
+  // A: what the whole way says, besides the start
+  const head = $derived(advice && inForecast ? headShare(rows) : null);
+  const cold = $derived(advice && inForecast ? coldest(rows) : null);
+  const more = $derived(advice && inForecast ? routeHints(rows, startHints) : []);
+  // G: the webcams on the way (only when the forecast shows the strip)
+  const cams = $derived(advice && inForecast ? camsAlong(camList, pts, 2, Number(fromKm) || 0, dayKm ?? Infinity) : []);
 
   /* ---------- load, only on a tap (or once with auto) ---------- */
   let busy = $state(false);
@@ -137,6 +151,20 @@
           {/each}
         </ol>
         <p class="wt-help">{t('The arrow shows where the wind blows as you ride: up pushes you, down is against you. Swipe the strip for more points.')}</p>
+        {#if head != null}<p class="wt-sum" data-wx-route-head>{t('Headwind on {p} % of the way.', { p: num(head) })}{#if cold}{' ' + t('Coldest point: {c} °C at km {km}.', { c: num(cold.temp), km: num(Math.round(cold.km)) })}{/if}</p>{/if}
+        {#if more.length}<p class="wt-sum" data-wx-route-pack>{t('Along the way also: {list}', { list: more.map((h) => t(PACK_TEXT[h.key])).join(', ') })}</p>{/if}
+        {#if cams.length}
+          <ul class="wt-cams" aria-label={t('Webcams along the route')} data-wx-route-cams>
+            {#each cams as c (c.cam.id)}
+              <li>
+                <a href={c.cam.url} target="_blank" rel="noopener noreferrer">
+                  {#if isImage(c.cam.url)}<img src={freshSrc(c.cam.url, now)} alt="" loading="lazy" referrerpolicy="no-referrer" />{/if}
+                  <span><b>{camLabel(c.cam)}</b><small>{t('km {km}', { km: num(Math.round(c.km)) })}{eta ? ` · ${t('you are there at {at}', { at: when(eta(c.km)) })}` : ''}</small></span>
+                </a>
+              </li>
+            {/each}
+          </ul>
+        {/if}
       {:else}
         <p class="wt-help">{t('The forecast reaches about 16 days ahead. Load again closer to the start.')}</p>
       {/if}
@@ -178,6 +206,35 @@
   }
   .wt-old {
     color: var(--warn);
+  }
+  .wt-cams {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .wt-cams a {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .wt-cams img {
+    width: 84px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--paper-2);
+  }
+  .wt-cams span {
+    display: grid;
+    gap: 2px;
+  }
+  .wt-cams small {
+    color: var(--ink-2);
   }
   .wt-sum {
     margin: 0;

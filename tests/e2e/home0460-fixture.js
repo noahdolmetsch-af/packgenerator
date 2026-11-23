@@ -95,3 +95,10 @@ export function atHour(list, hour) {
   const one = joined ? [...list.slice(0, i), { ...list[i], with: list[i + 1] }, ...list.slice(i + 2)] : list;
   return byTime(one, hour).flatMap((x) => (x.with ? [{ ...x, with: undefined }, x.with] : [x]));
 }
+
+/** Wetter-Ausbau D (Noah 22.11.2026 «a»): the calm weather lines of Today stand under one closed line «Wetter heute»; open it. */
+export async function openWetterFold(page) {
+  const sum = page.locator('[data-heute-wetter-fold-sum]');
+  await sum.waitFor({ state: 'visible', timeout: 20_000 });
+  if (!(await page.locator('[data-heute-wetter-fold]').evaluate((d) => d.open))) await sum.click();
+}

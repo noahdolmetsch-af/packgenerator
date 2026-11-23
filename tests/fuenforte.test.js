@@ -80,7 +80,7 @@ describe('keyboard shortcuts', () => {
     expect(shortcutOf('g')).toEqual({ wait: true });
     expect(PLACES.map((p) => shortcutOf(p.letter, true))).toEqual(PLACES.map((p) => ({ go: p.href })));
     expect(shortcutOf('m', true)).toEqual({ go: '#/gear' }); // V5: Material is a tab of Velos und Material; g m still opens it
-    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'v', 'a', 'q']); // «Quick Links» (Noah 28.10.2026): g q // «Woche planen» (Noah 15.10.2026 «1a»): g w; N1: the order of the new bar, letters unchanged
+    expect(PLACES.map((p) => p.letter)).toEqual(['h', 'w', 't', 'v', 'a', 'e', 'q']); // «Wetter» (Noah 22.11.2026 «a»): g e; «Quick Links» (Noah 28.10.2026): g q // «Woche planen» (Noah 15.10.2026 «1a»): g w; N1: the order of the new bar, letters unchanged
   });
 
   it('a letter without g does nothing, except n, i, / and ?', () => {

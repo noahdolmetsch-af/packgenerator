@@ -104,6 +104,27 @@ export function entryOf(s, act) {
 export const withHandled = (list = [], ids = []) => [...new Set([...list.map(String), ...ids.map(String)])].slice(-MAX_HANDLED);
 export const withoutHandled = (list = [], ids = []) => list.map(String).filter((x) => !ids.map(String).includes(x));
 
+/**
+ * «Dauer von der Uhr übernehmen» (Noah 22.11.2026 «3», Schritt G): for ticks without minutes, the minutes of the watch workout of the same
+ * sport on the same day, offered as a tip (never written silently). Only a day with exactly one such workout gives a tip (two are
+ * ambiguous); a workout shorter than MIN_MIN is noise.
+ * rows: [{ id, day, actId }] (the rows of «Dauer nachtragen»); health: healthDays; acts: flowActs.
+ * → Map id → { min, name } (name: the workout as the watch calls it)
+ */
+export function watchMinutesFor({ rows = [], health = [], acts = [] } = {}) {
+  const live = acts.map(normAct);
+  const byDay = new Map(health.map((h) => [h?.date, h?.exercises ?? []]));
+  const out = new Map();
+  for (const r of rows) {
+    const same = (byDay.get(r.day) ?? []).filter((ex) => {
+      const k = typeOf(ex);
+      return k && !EXCLUDED.has(k.key) && Number(ex?.min) >= MIN_MIN && defaultAct(k.key, live) === r.actId;
+    });
+    if (same.length === 1) out.set(r.id, { min: Math.round(Number(same[0].min)), name: String(same[0].name ?? '') });
+  }
+  return out;
+}
+
 /** The suggestions grouped by activity: [{ actId, label, rows, min }] most first. */
 export function grouped(list = []) {
   const m = new Map();
