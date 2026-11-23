@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import TOURS from '../src/lib/vorschlaege/data/netz.js';
 import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
+import { kmMarks, stepFor } from '../src/lib/spur/kmmarks.js';
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
@@ -255,5 +256,26 @@ describe('Tourenvorschläge: die Karte zeigt die Zahlen beim Hovern', () => {
     const p = tipPos([100, 300], [300, 500]);
     expect(p.width).toBeLessThanOrEqual(300 - 8);
     expect(p.left).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('Tourenvorschläge: km-Marken auf der Tourlinie', () => {
+  it('die Schrittweite passt zur Länge', () => {
+    expect(stepFor(4)).toBe(1);
+    expect(stepFor(12)).toBe(5);
+    expect(stepFor(44)).toBe(10);
+    expect(stepFor(130)).toBe(20);
+  });
+  it('eine Marke alle 10 km, nicht ganz am Ende, in der Reihenfolge der Linie', () => {
+    const t = by('sm-33');
+    const marks = kmMarks(t.line);
+    expect(marks.length).toBeGreaterThanOrEqual(2);
+    expect(marks.map((m) => m.km)).toEqual(marks.map((_, i) => (i + 1) * stepFor(t.km)));
+    expect(marks.at(-1).km).toBeLessThan(t.km + 1);
+    for (const m of marks) expect(m.pos).toHaveLength(2);
+  });
+  it('ohne Linie gibt es keine Marken', () => {
+    expect(kmMarks([])).toEqual([]);
+    expect(kmMarks([[47, 8]])).toEqual([]);
   });
 });
