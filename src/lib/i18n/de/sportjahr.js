@@ -24,7 +24,6 @@ export default {
   'Point at a bar for its numbers, tap it for its sports.': 'Zeig auf einen Balken für seine Zahlen, tippe ihn an für seine Sportarten.',
   'Before|sj': 'Davor',
   'Next|sj': 'Weiter',
-  'Sports year: everything you did, in hours, by sport': 'Sportjahr: alles, was du gemacht hast, in Stunden, nach Sportart',
   'Where did the time go?': 'Wo ging die Zeit hin?',
   '{n} of it «ca.»': '{n} davon «ca.»',
   '«km» shows only sports with a distance.': '«km» zeigt nur Sportarten mit Strecke.',
