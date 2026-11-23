@@ -41,8 +41,9 @@ test('Weather: the rain strip and the two windows at the bottom', async ({ page,
 
   const strip = page.locator('[data-wx-r24]');
   await expect(strip).toBeVisible({ timeout: 15_000 });
-  await expect(strip.locator('[data-wx-r24-say]')).toContainText('15:00');
-  await expect(strip.locator('.wx-r24-bar')).toHaveCount(24);
+  // the value stamped 15:00 is the rain of the hour before (Wetterseite aufräumen): it starts at 14:00
+  await expect(strip.locator('[data-wx-r24-say]')).toContainText('14:00');
+  await expect(strip.locator('[data-chart="wxr24"] [data-plot]')).toHaveAttribute('data-n', '24');
 
   const landi = page.locator('[data-wx-window="landi"]');
   await expect(landi.locator('iframe')).toHaveCount(0); // closed: nothing is loaded by itself

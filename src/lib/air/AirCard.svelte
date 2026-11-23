@@ -12,7 +12,7 @@
   import { t } from '../i18n.svelte.js';
   import { Flower2, RefreshCw } from '@lucide/svelte';
 
-  let { fetcher = undefined, auto = true, headingLevel = 2 } = $props();
+  let { fetcher = undefined, auto = true, headingLevel = 2, bare = false } = $props();
 
   const q = liveQuery(async () => {
     const [c, s, h] = await Promise.all([db.meta.get(AIR_CACHE), db.settings.get(AIR_KEY), db.settings.get('homePlace')]);
@@ -66,10 +66,11 @@
 {#if home && failed && !days.length}
   <p class="air ai-line" data-section="air" data-air-failed><Flower2 size={16} aria-hidden="true" /><span role="status">{tried && busy ? t('Loading…') : tried ? t('Still not reachable. Try again later.') : t('Ozone and pollen not reachable just now.')}</span><button type="button" class="btn sm" onclick={() => refresh(true)} disabled={busy}>{tried && busy ? t('Loading…') : t('Try again|load')}</button></p>
 {:else}
-<section class="air card" aria-labelledby={hid} data-section="air">
+<section class="air card" class:bare aria-labelledby={hid} data-section="air">
   <div class="ai-head">
+    {#if bare}<span class="ai-title" id={hid}></span>{:else}
     <span class="ai-ib" aria-hidden="true"><Flower2 size={18} /></span>
-    <svelte:element this={headingLevel === 3 ? 'h3' : 'h2'} id={hid} class="ai-title">{t('Ozone and pollen')}</svelte:element>
+    <svelte:element this={headingLevel === 3 ? 'h3' : 'h2'} id={hid} class="ai-title">{t('Ozone and pollen')}</svelte:element>{/if}
     {#if home}<button type="button" class="ai-re" onclick={() => refresh()} disabled={busy} aria-label={t('Load again')}><RefreshCw size={18} class={busy ? 'spin' : ''} aria-hidden="true" /></button>{/if}
   </div>
   {#if !home}
@@ -107,6 +108,8 @@
 
 <style>
   .air { padding: var(--sp-4); display: grid; gap: var(--sp-3); }
+  /* Wetterseite aufräumen: inside the fold «Ozone and pollen» the title is the fold's, the card has no frame of its own */
+  .air.bare { border: 0; background: transparent; box-shadow: none; padding: var(--sp-2) 0 0; }
   .ai-head { display: flex; align-items: center; gap: var(--sp-2); }
   .ai-ib { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius); background: var(--ok-soft); color: var(--ink); flex: none; }
   .ai-title { margin: 0; font-size: var(--fs-sub); flex: 1; }

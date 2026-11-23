@@ -81,12 +81,15 @@ test('a sport page: counters, what counts, ready challenges', async ({ page, con
   expect(errors).toEqual([]);
 });
 
-test('the milestones page explains it on top, every card says what counts', async ({ page, context }) => {
+test('the milestones page explains it in a closed line, every card says what counts', async ({ page, context }) => {
   const errors = await open(page, context);
   await go(page, '#/flow/milestones?act=run');
+  // «Meilensteine ordnen» (Noah 23.11.2026, changed on purpose): «So funktionieren Meilensteine» is closed at first
   const how = page.locator('main [data-ms-how]');
-  await expect(how).toHaveAttribute('open', '');
+  await expect(how).not.toHaveAttribute('open', '');
   await expect(how).toContainText(T('How milestones work'));
+  await how.locator('summary').click();
+  await expect(how).toHaveAttribute('open', '');
   await expect(page.locator('main [data-counts]').first()).toBeVisible();
   await fits(page, 'milestones');
   expect(errors).toEqual([]);

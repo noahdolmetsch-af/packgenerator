@@ -14,21 +14,24 @@ const iso = (n) => new Date(n).toISOString().slice(0, 10);
 const addDays = (d, n) => iso(ms(d) + n * 864e5);
 const dayOf = (x) => (typeof x === 'string' && /^\d{4}-\d{2}-\d{2}/.test(x) ? x.slice(0, 10) : null);
 
-/** The 7 days of the week of `today` (Monday first): [{ day, rides: km, acts: [actId], future }]. */
-export function weekDays({ today, log = [], rides = [] }) {
+/**
+ * The 7 days of the week of `today` (Monday first): [{ day, rides: km, acts: [actId], others, future }].
+ * others: the Strava sports without a tick and no ride (running, hiking …) from flow/tickfokus.js stravaOthers, so the card counts every sport (Noah 22.11.2026, Schritt E).
+ */
+export function weekDays({ today, log = [], rides = [], others = [] }) {
   const d = new Date(`${today}T00:00:00Z`);
   const monday = addDays(today, -((d.getUTCDay() + 6) % 7));
   return Array.from({ length: 7 }, (_, i) => {
     const day = addDays(monday, i);
     const rs = rides.filter((r) => dayOf(r?.date) === day);
     const acts = [...new Set(log.filter((e) => dayOf(e?.day) === day && e.actId).map((e) => e.actId))];
-    return { day, ride: rs.length > 0, km: Math.round(rs.reduce((s, r) => s + (Number(r.km) || 0), 0)), hm: Math.round(rs.reduce((s, r) => s + (Number.isFinite(r?.gainM) ? r.gainM : 0), 0)), acts, future: day > today };
+    return { day, ride: rs.length > 0, km: Math.round(rs.reduce((s, r) => s + (Number(r.km) || 0), 0)), hm: Math.round(rs.reduce((s, r) => s + (Number.isFinite(r?.gainM) ? r.gainM : 0), 0)), acts, others: others.filter((o) => o.day === day), future: day > today };
   });
 }
 /** «Werte überall» WU1: km and metres climbed of the week so far. */
 export const weekTotals = (days = []) => ({ km: days.reduce((s, x) => s + (x.km || 0), 0), hm: days.reduce((s, x) => s + (x.hm || 0), 0) });
 /** How many of those days had anything. */
-export const activeCount = (days = []) => days.filter((x) => !x.future && (x.ride || x.acts.length)).length;
+export const activeCount = (days = []) => days.filter((x) => !x.future && (x.ride || x.acts.length || x.others?.length)).length;
 
 /**
  * km ridden this month up to today, and the change against the same days of last month in % (null when
