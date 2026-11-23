@@ -17,6 +17,7 @@
   import { WEIGHT_KEY, entriesOf } from '../weight.js';
   import { normAct } from '../flow.js';
   import { isoWeek, hmm } from '../training.js';
+  import { weekSources } from '../weeksources.js';
   import { localDay } from '../localday.js';
   import { t, num } from '../i18n.svelte.js';
   import '../trip/trip.css';
@@ -28,7 +29,8 @@
 
   const q = liveQuery(async () => {
     const [acts, health, log, flowActs, answers, checks, day, wt] = await Promise.all([db.activities.toArray(), db.healthDays.toArray(), db.flowLog.toArray(), db.flowActs.toArray(), db.abAnswers.where('qid').anyOf([SLEEP_Q, MOOD_Q]).toArray(), db.flowChecks.toArray(), loadDayData(db), db.settings.get(WEIGHT_KEY)]);
-    return { acts, health, log, flowActs: flowActs.map(normAct), answers, checks, weather: day.weather, weightEntries: entriesOf(wt?.value) };
+    const more = await weekSources(db, today); // the shared week calculation (weekcalc.js)
+    return { ...more, acts, health, log, flowActs: flowActs.map(normAct), answers, checks, weather: day.weather, weightEntries: entriesOf(wt?.value) };
   });
   const course = $derived($q && key ? weekCourse(key, $q, monday, today, zones.bounds) : null);
 

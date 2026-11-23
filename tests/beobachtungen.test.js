@@ -162,7 +162,10 @@ describe('what the week review shows', () => {
     const base = sample();
     const data = { ...base, acts: base.acts.filter((a) => a.day < MON), log: [{ id: `${P}l`, actId: 'yoga', day: MON, at: `${MON}T07:00:00.000Z`, n: 1 }], flowActs: [{ id: 'yoga', ring: 'move', icon: 'yoga', goals: [] }] };
     const c = candidates(data, MON, '2026-10-14');
-    expect(c.list.find((o) => o.kind === 'week' && /hours|km/.test(o.key))).toBeUndefined();
+    // km stays out (no ride, no «100 % less»); hours now count the yoga tick as «ca.» 1 h (one calculation, Noah 22.11.2026 «1a»), never as 0
+    expect(c.list.find((o) => o.kind === 'week' && /km/.test(o.key))).toBeUndefined();
+    const hours = c.list.find((o) => o.kind === 'week' && /hours/.test(o.key));
+    if (hours) expect(hours.vars.a).toBeGreaterThan(0);
   });
   it('off, and thin when nothing has enough data (nothing stored)', () => {
     expect(weekView({ on: false }, sample(), MON, SUN).state).toBe('off');

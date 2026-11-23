@@ -15,6 +15,7 @@ import { shiftDay, mondayOf, isoWeek, zoneSecs, doneBy, hmm } from './training.j
 import { flowStates } from './flow.js';
 import { weekGoals } from './flowweek.js';
 import { loadsOf } from './training/week/weeks.js';
+import { weekCalc } from './weekcalc.js';
 
 /** The two «Wi gaht's?» questions the strip shows (abfragen.js), and their field in the old daily check. */
 export const SLEEP_Q = 'erholung.schlaf';
@@ -54,35 +55,17 @@ export const weekEnd = (monday, today) => (shiftDay(monday, 6) < today ? shiftDa
 
 /** The rings of the Aktiv activities: Map actId → 'move' | 'mind' | 'rest'. */
 const ringsOf = (flowActs = []) => new Map(flowActs.map((a) => [a.id, a.ring ?? 'move']));
-/** Strava kinds an Aktiv activity stands for (by its symbol), so a ticked ride and its Strava ride count once. */
-const ICON_KIND = { bike: 'bike', run: 'run', walk: 'hike' };
 
 /* ---------------------------------------------------------------- W1 the week in five numbers */
 
 /**
  * Hours, km, Hm and sessions of one week, up to a day (default: Sunday; the running week is compared with the
- * same days of the weeks before). Time: Strava moving time plus the minutes of Aktiv entries (`min`) that are not
- * already a Strava activity; km and Hm come from Strava only. Sessions: Strava activities plus Aktiv entries of
- * the move ring that are not already one of them. `noTime`: Aktiv sessions without minutes (time unknown).
+ * same days of the weeks before). One shared calculation for the card, the review and the comparisons: weekcalc.js
+ * (Noah 22.11.2026 «1a-5a»). Time = measured + «ca.» (the usual duration of the sport), kept apart as measuredSecs
+ * and caSecs; km and Hm of the rides (each Strava ride once; rides in «Zum Prüfen» count and are named in `waiting`);
+ * `other` = running, hiking …; `watch` = the watch's workouts nobody ticked (only a hint, never counted).
  */
-export function weekSums({ acts = [], log = [], flowActs = [] }, monday, upto = shiftDay(monday, 6)) {
-  const within = (d) => inWeek(d, monday) && d <= upto;
-  const list = acts.filter((a) => within(a.day));
-  const ring = ringsOf(flowActs);
-  const icon = new Map(flowActs.map((a) => [a.id, a.icon]));
-  const daily = new Set(flowActs.filter((a) => (a.goals ?? []).length && a.goals.every((q) => q.days === 1)).map((a) => a.id));
-  const stravaOn = new Set(list.map((a) => `${a.day}|${a.kind}`));
-  const extra = log.filter((e) => within(e.day) && ring.get(e.actId) === 'move' && !daily.has(e.actId) && e.via !== 'trip' && !stravaOn.has(`${e.day}|${ICON_KIND[icon.get(e.actId)] ?? '-'}`));
-  const extraSecs = extra.reduce((s, e) => s + (Number(e.min) > 0 ? Number(e.min) * 60 : 0), 0);
-  return {
-    secs: list.reduce((s, a) => s + (Number(a.movingS) || 0), 0) + extraSecs,
-    extraSecs,
-    noTime: extra.filter((e) => !(Number(e.min) > 0)).length,
-    km: round1(list.reduce((s, a) => s + (Number(a.km) || 0), 0)),
-    hm: Math.round(list.reduce((s, a) => s + (Number(a.hm) || 0), 0)),
-    n: list.length + extra.length,
-  };
-}
+export const weekSums = (data, monday, upto = shiftDay(monday, 6)) => weekCalc(data, monday, upto);
 
 /** The goals of the Aktiv page reached at the end of the week (rolling, as on Aktiv › Woche): { met, of } or null without goals. */
 export function weekGoalsMet({ flowActs = [], log = [], tripDays = [] }, monday, today) {
@@ -94,7 +77,9 @@ export function weekGoalsMet({ flowActs = [], log = [], tripDays = [] }, monday,
 
 /**
  * W1: five numbers and their change against the week before.
- * → [{ key: 'hours' | 'km' | 'hm' | 'n' | 'goals', value, prev, diff }] (goals: value = met, of).
+ * → [{ key: 'hours' | 'km' | 'hm' | 'n' | 'goals', value, prev, diff }] (goals: value = met, of; hours also
+ * measured, ca (secs) and nCa; km also waiting (rides in «Zum Prüfen»), other = { km, n } of the sports that are no ride,
+ * watch = { n, min } of the watch's workouts nobody ticked).
  */
 export function weekFive(data, monday, today) {
   const upto = weekEnd(monday, today); // the running week counts up to today …
@@ -103,7 +88,7 @@ export function weekFive(data, monday, today) {
   const g = weekGoalsMet(data, monday, today);
   const gb = weekGoalsMet(data, shiftDay(monday, -7), today);
   const row = (key, value, prev) => ({ key, value, prev, diff: key === 'km' ? round1(value - prev) : value - prev });
-  const out = [row('hours', now.secs, before.secs), row('km', now.km, before.km), row('hm', now.hm, before.hm), row('n', now.n, before.n)];
+  const out = [{ ...row('hours', now.secs, before.secs), measured: now.measuredSecs, ca: now.caSecs, nCa: now.nCa }, { ...row('km', now.km, before.km), waiting: now.waiting, other: now.other, watch: now.watch }, row('hm', now.hm, before.hm), row('n', now.n, before.n)];
   if (g) out.push({ ...row('goals', g.met, gb?.met ?? 0), of: g.of });
   return out;
 }

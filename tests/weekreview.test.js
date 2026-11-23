@@ -37,12 +37,12 @@ describe('W1 five numbers', () => {
     flowActs: ACTS,
     tripDays: [],
   };
-  it('sums hours, km, Hm; a ticked ride on a Strava day counts once, yoga counts as a session', () => {
-    expect(weekSums(data, MON)).toMatchObject({ secs: 12600, km: 95.5, hm: 1400, n: 3 });
+  it('sums hours, km, Hm; a ticked ride on a Strava day counts once, yoga counts as a session with its usual hour «ca.»', () => {
+    expect(weekSums(data, MON)).toMatchObject({ secs: 16200, measuredSecs: 12600, caSecs: 3600, nCa: 1, km: 95.5, hm: 1400, n: 3 });
   });
-  it('Aktiv minutes count as time; a session without minutes is told, not counted as 0 h silently (Noah 01.11.2026 «1a»)', () => {
+  it('Aktiv minutes count as measured time; a session without minutes counts with its usual duration «ca.», kept apart (Noah 22.11.2026 «1a»)', () => {
     const d = { acts: [], log: [entry('yoga', MON, { min: 45 }), entry('yoga', '2026-10-14')], flowActs: ACTS };
-    expect(weekSums(d, MON)).toMatchObject({ secs: 2700, extraSecs: 2700, noTime: 1, n: 2 });
+    expect(weekSums(d, MON)).toMatchObject({ secs: 6300, measuredSecs: 2700, caSecs: 3600, nCa: 1, noTime: 0, n: 2 });
   });
   it('up to a day: the running week and the week before are compared on the same days', () => {
     const d = { acts: [act('a', MON), act('b', '2026-10-16'), act('c', '2026-10-05'), act('d', '2026-10-09')], log: [], flowActs: [] };
@@ -54,7 +54,7 @@ describe('W1 five numbers', () => {
   it('each number with its change against the week before, goals from Aktiv', () => {
     const five = weekFive(data, MON, TODAY);
     expect(five.map((f) => f.key)).toEqual(['hours', 'km', 'hm', 'n', 'goals']);
-    expect(five[0]).toMatchObject({ value: 12600, prev: 3600, diff: 9000 });
+    expect(five[0]).toMatchObject({ value: 16200, prev: 3600, diff: 12600, ca: 3600, nCa: 1 });
     expect(five[1]).toMatchObject({ value: 95.5, prev: 30, diff: 65.5 });
     expect(five[3]).toMatchObject({ value: 3, prev: 1, diff: 2 });
     expect(five[4].of).toBe(4);
@@ -184,9 +184,9 @@ describe('older weeks (Noah 02.11.2026 «3a»)', () => {
   it('lists the 8 weeks before the shown one, newest first, each whole, empty ones marked', () => {
     const MON = '2026-10-26';
     const acts = [
-      { id: 'a', day: '2026-10-20', movingS: 3600, km: 20, hm: 100 },
-      { id: 'b', day: '2026-10-21', movingS: 1800, km: 10, hm: 50 },
-      { id: 'c', day: '2026-10-05', movingS: 600, km: 5, hm: 0 },
+      { id: 'a', day: '2026-10-20', kind: 'bike', movingS: 3600, km: 20, hm: 100 },
+      { id: 'b', day: '2026-10-21', kind: 'bike', movingS: 1800, km: 10, hm: 50 },
+      { id: 'c', day: '2026-10-05', kind: 'bike', movingS: 600, km: 5, hm: 0 },
     ];
     const rows = olderWeeks({ acts }, MON, '2026-11-01');
     expect(rows).toHaveLength(8);
