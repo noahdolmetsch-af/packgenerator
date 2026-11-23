@@ -37,3 +37,19 @@ describe('changeSentence', () => {
     expect(changeSentence(pts([70, 71, 70, 70]), (v) => `${v} kg`)).toEqual(['Now 70 kg, the same as at the start']);
   });
 });
+
+import { usualBand } from '../src/lib/charts/sentence.js';
+
+describe('usualBand', () => {
+  it('is the middle half of your own values', () => {
+    const v = Array.from({ length: 21 }, (_, i) => i); // 0..20
+    expect(usualBand(v)).toEqual({ from: 5, to: 15 });
+  });
+  it('needs ten real values and a spread', () => {
+    expect(usualBand([1, 2, 3, null, 5])).toBeNull();
+    expect(usualBand(Array(12).fill(60))).toBeNull();
+  });
+  it('leaves gaps out', () => {
+    expect(usualBand([...Array.from({ length: 21 }, (_, i) => i), null, undefined])).toEqual({ from: 5, to: 15 });
+  });
+});
