@@ -446,7 +446,7 @@ export default {
   'Drag the frame to cut, choose the size; «Cut out» removes the background.': 'Zieh den Rahmen zum Zuschneiden, wähle die Grösse; «Freistellen» entfernt den Hintergrund.',
   'Tap «Make photo», then «Save or share».': 'Tippe «Foto machen», dann «Speichern oder teilen».',
   'Example: bike photo 4.2 MB → Medium 1280 px, about 300 KB.': 'Beispiel: Velofoto 4,2 MB → Mittel 1280 px, etwa 300 KB.',
-  'Four parts of the app also open as a small app with their own home-screen icon.': 'Vier Teile der App öffnen auch als kleine App mit eigenem Symbol auf dem Startbildschirm.',
+  'Five parts of the app also open as a small app with their own home-screen icon.': 'Fünf Teile der App öffnen auch als kleine App mit eigenem Symbol auf dem Startbildschirm.',
   'In Chrome on the phone, open noahdolmetsch-af.github.io/packgenerator/apps/werkzeug/.': 'Öffne in Chrome auf dem Handy noahdolmetsch-af.github.io/packgenerator/apps/werkzeug/.',
   'Example: tap the icon → the calculator, PDF and photo tools at once.': 'Beispiel: Symbol antippen → Rechner, PDF- und Foto-Werkzeuge sofort da.',
   'The rates need the internet once a day; offline the last ones count.': 'Die Kurse brauchen 1× am Tag Internet; offline gelten die letzten.',

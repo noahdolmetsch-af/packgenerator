@@ -1,0 +1,11 @@
+/** «Kursblick»: how numbers and days are written (de-CH or en-GB as the app's language says). Pure but for the locale. */
+import { locale } from '../i18n.svelte.js';
+
+export const zahl = (n, dec = 0) => (Number.isFinite(n) ? n.toLocaleString(locale() === 'de-CH' ? 'de-CH' : 'en-GB', { minimumFractionDigits: dec, maximumFractionDigits: dec }) : '–');
+export const vorzeichen = (n, dec = 0) => (n > 0 ? '+' : n < 0 ? '−' : '') + zahl(Math.abs(n), dec);
+/** «Fr, 30.10.2026» from a calendar day. */
+export const tagText = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'UTC' }) : '');
+/** «20. Nov. 2026» without the weekday. */
+export const tagKurz = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '');
+/** The moment prices were fetched, on the device's clock: «22.11.2026, 09:12». */
+export const stundeText = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
