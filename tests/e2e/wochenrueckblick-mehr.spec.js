@@ -99,6 +99,14 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
   await expect(rhythm.locator('[data-rhythm-usual-h]')).toContainText(T('Your usual week'));
   await expect(rhythm.locator('[data-rhythm-row="km"]')).toContainText('103.8'); // 42.3 + 61.5 per week
 
+  // Pausenwochen: mark the week as a break, the mark is saved and can be taken back
+  await rhythm.locator('[data-rhythm-pause]').click();
+  await expect(rhythm.locator('[data-rhythm-pause-line]')).toContainText(T('This week is marked as a break: it does not count in your usual week.'));
+  await page.reload();
+  await expect(main.locator('[data-wr="rhythm"] [data-rhythm-pause-line]')).toContainText(T('This week is marked as a break: it does not count in your usual week.'));
+  await main.locator('[data-wr="rhythm"] [data-rhythm-pause]').click();
+  await expect(main.locator('[data-wr="rhythm"] [data-rhythm-pause]')).toHaveText(T('Mark as a break'));
+
   // «Woher?»: one tap opens the sources of the numbers (sessions with their time, rides with their km)
   await five.locator('[data-wr-where-open]').click();
   const where = page.locator('[data-wr-where]');

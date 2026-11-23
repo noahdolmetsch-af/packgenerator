@@ -6,12 +6,21 @@
    * rated, no arrows of good or bad. The rules are pure and tested (lib/weekrhythm.js), the numbers come from weekcalc.js.
    */
   import { shiftDay, hmm } from '../training.js';
-  import { dayDots, usualWeek, lastYearWeek } from '../weekrhythm.js';
+  import { dayDots, usualWeek, lastYearWeek, PAUSE_KEY, pausesOf, withPause } from '../weekrhythm.js';
+  import { db } from '../db.js';
+  import { offerDone } from '../ui/rename.svelte.js';
   import { t, tn, num, locale } from '../i18n.svelte.js';
 
   let { data, calc, monday, today } = $props();
   const upto = $derived(shiftDay(monday, 6) < today ? shiftDay(monday, 6) : today);
   const dots = $derived(dayDots(calc, monday, today));
+  const paused = $derived(pausesOf(data?.pauses).includes(monday));
+  // Schritt I: a week marked as a break stays out of «your usual week»; the mark can be taken back (Undo)
+  async function setPause(on) {
+    const before = (await db.settings.get(PAUSE_KEY))?.value ?? [];
+    await db.settings.put({ key: PAUSE_KEY, value: withPause(before, monday, on) });
+    offerDone(on ? t('Week marked as a break.') : t('Break mark taken away.'), () => db.settings.put({ key: PAUSE_KEY, value: pausesOf(before) }));
+  }
   const usual = $derived(data ? usualWeek(data, monday, upto) : null);
   const year = $derived(data ? lastYearWeek(data, monday, upto) : null);
   const wd = (d) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', weekday: 'short' }).replace('.', '');
@@ -35,6 +44,11 @@
     {/each}
   </ol>
   <p class="say" data-rhythm-say>{tn(dots.of, 'Active on {n} of {m} day.', 'Active on {n} of {m} days.', { n: dots.active, m: dots.of })}</p>
+
+  <p class="cap pz" data-rhythm-pause-line>
+    {#if paused}{t('This week is marked as a break: it does not count in your usual week.')}{:else}{t('A holiday, an illness or a quiet week? Mark it as a break so it does not pull your usual week down.')}{/if}
+    <button type="button" class="pb" onclick={() => setPause(!paused)} data-rhythm-pause>{paused ? t('Take the break mark away') : t('Mark as a break')}</button>
+  </p>
 
   {#if usual || year}
     <table class="cmp" data-rhythm-table>
@@ -136,6 +150,22 @@
   .cmp tbody th {
     text-align: left;
     font-weight: 500;
+  }
+  .pz {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+  .pb {
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-ctl);
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
   }
   .vh {
     position: absolute;
