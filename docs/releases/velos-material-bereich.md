@@ -7,6 +7,8 @@ PR #1488 · 23.11.2026 · Schritt V5 / Plan 13 der neuen Ordnung · Entscheid No
 - Die alten Seiten sind Chips unter ihrem Reiter: Velos (Übersicht, Ausrüstung je Velo, Mein Setup), Pflege (Pflege, Werkstatt), Material (Alle, Kleider, Einkauf, Vorrat, Ausgeliehen), Sets (Bausteine, Sets).
 - Eine Zeile «Material» in der Suche führt auf die Material-Startseite.
 
+- Nebenbei repariert: Die Prüfung «Jede Funktion höchstens 3 Tipps von Heute» war seit Kursblick auf main rot. Auf Woche › Alltag steht am Ende der Seite eine ruhige Zeile «Kurse von Gold und SMI: Kursblick» (ein Link); Heute → Woche → Alltag → Kursblick sind drei Tipps.
+
 ## Was fällt weg oder rutscht tiefer
 - Die eigene Zeile «Material» in der Seitenleiste am Computer: weg, Material ist der dritte Reiter von «Velos und Material».
 - Der Schalter «Velos | Ausrüstung | Material» oben auf den Seiten am Handy: weg (die Reiter ersetzen ihn).
@@ -27,6 +29,7 @@ PR #1488 · 23.11.2026 · Schritt V5 / Plan 13 der neuen Ordnung · Entscheid No
 - Plan «ganze App»: Schritt 13 / V5 gebaut. Offen: V3, 6, 14, 15, 7a/7b.
 
 ## Prüfschritte (nach dem Merge, auf der echten Seite)
+0. Woche › Alltag: am Ende der Seite der Link «Kursblick».
 1. «Velos und Material» öffnen: vier Reiter, Velos, Pflege, Material, Sets.
 2. «Material» tippen: Chips Alle, Kleider, Einkauf, Vorrat, Ausgeliehen.
 3. «Sets» tippen: Chips Bausteine und Sets; am Handy gibt es keinen Schalter mehr oben.
