@@ -16,6 +16,8 @@
   import BarChart from '../lib/charts/BarChart.svelte';
   import ChartSheet from '../lib/charts/ChartSheet.svelte';
   import Rhythmus from '../lib/flow/auswertung/Rhythmus.svelte';
+  import Rituale from '../lib/flow/Rituale.svelte';
+  import { rituale } from '../lib/flow/rituale.js';
   import AnaSheet from '../lib/training/AnaSheet.svelte';
   import { period, enterPage } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
@@ -59,6 +61,11 @@
   const rhWin = $derived(windowOf(rangeOf(period, today), allUnits, today));
   const inWin = $derived(units.filter((u) => u.day >= win.from && u.day <= win.to));
   const prevW = $derived(prevWindow(mode, win));
+  /* «Erholung und Rituale» (Schritt J): the rings Ruhe and Geist as times per week, not as hours; reads every tick like «Haken und Rhythmus» */
+  const rit = $derived(d ? rituale(allUnits, d.acts, rhWin.from, rhWin.to) : []);
+  const ritPrevW = $derived(prevWindow(mode, rhWin));
+  const ritPrev = $derived(ritPrevW && d ? new Map(rituale(allUnits, d.acts, ritPrevW.from, ritPrevW.to).map((r) => [r.id, r.n])) : null);
+  const ritNames = $derived(new Map((d?.acts ?? []).map((a) => [a.id, actName(a)])));
   const inPrev = $derived(prevW ? units.filter((u) => u.day >= prevW.from && u.day <= prevW.to) : null);
   const tot = $derived(totals(inWin));
   const rows = $derived(bySport(inWin, inPrev));
@@ -297,6 +304,7 @@
     </div>
   {/if}
   {#if d}
+    <Rituale rows={rit} names={ritNames} mode="period" prev={ritPrev} />
     <Rhythmus units={allUnits} log={d.log} acts={d.acts} from={rhWin.from} to={rhWin.to} {today} {act0} />
   {/if}
 </div>
