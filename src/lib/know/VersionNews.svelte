@@ -18,12 +18,19 @@
   import { goOf, hrefOf } from './newsgo.js';
   import { goNews } from './newsRun.js';
   import { t, locale } from '../i18n.svelte.js';
+  import { newsWhen } from './neudatum.js';
   import { ChevronRight, Star, Check, Save, Palette, Sparkles, User, Inbox, StickyNote, Wrench, Bike, Shirt, Package, Activity, BookOpen, Blocks, Copy, Backpack, Route, Compass, Sun } from '@lucide/svelte';
 
   let { e, card = false, level = 3, top = false, onnav = null, extra = null, id = undefined } = $props();
   const ICON = { star: Star, check: Check, save: Save, palette: Palette, sparkles: Sparkles, user: User, inbox: Inbox, note: StickyNote, wrench: Wrench, bike: Bike, shirt: Shirt, box: Package, activity: Activity, book: BookOpen, blocks: Blocks, copy: Copy, pack: Backpack, route: Route, compass: Compass, sun: Sun };
-  const day = (iso, o) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), o);
-  const when = $derived(top ? t('New · {date}', { date: day(e.date, { day: 'numeric', month: 'short', year: 'numeric' }) }) : day(e.date, { day: 'numeric', month: 'short' }));
+  // Warteliste 3 (Noah «2a und Uhrzeit»): every entry shows the full day with the weekday, and the time of the merge where it is known
+  const full = $derived(newsWhen(e.date, e.time, locale()));
+  const when = $derived(top ? t('New · {date}', { date: full }) : full);
+  // «1b»: the picture of an entry loads only after a tap (nothing when the page opens); without the internet a short note stands there
+  let pic = $state(false);
+  let big = $state(false);
+  let failed = $state(0);
+  const base = import.meta.env.BASE_URL ?? '/';
   function go(p, ev) {
     onnav?.(p, ev);
     goNews(p, ev);
@@ -58,10 +65,74 @@
       {/each}
     </ul>
   {/if}
+  {#if e.image}
+    <div class="vn-pic">
+      <button type="button" class="vn-picbtn" aria-expanded={pic} onclick={() => { pic = !pic; failed = 0; big = false; }} data-news-pic={e.version}>{pic ? t('Hide picture') : t('Show picture')}</button>
+      {#if pic}
+        <figure class="vn-fig" class:big data-news-figure>
+          {#each [e.imageBefore ? { src: e.imageBefore, cap: t('Before|picture') } : null, { src: e.image, cap: e.imageBefore ? t('After|picture') : '' }].filter(Boolean) as p (p.src)}
+            <div class="vn-fi">
+              {#if failed}
+                <p class="vn-off" role="status">{t('Picture only with internet')}</p>
+              {:else}
+                <button type="button" class="vn-zoom" onclick={() => (big = !big)} aria-label={t('Enlarge the picture')}><img src={base + p.src} alt={t('Picture of «{title}»', { title: t(e.title) })} loading="lazy" onerror={() => failed++} /></button>
+              {/if}
+              {#if p.cap}<figcaption>{p.cap}</figcaption>{/if}
+            </div>
+          {/each}
+        </figure>
+      {/if}
+    </div>
+  {/if}
   {@render extra?.()}
 </article>
 
 <style>
+  .vn-picbtn {
+    min-height: 44px;
+    margin: 4px 0 0;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--hi);
+    font: 600 var(--fs-small) var(--font-body);
+    cursor: pointer;
+  }
+  .vn-fig {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 4px 0 8px;
+  }
+  .vn-fig:not(.big) .vn-fi {
+    flex: 1 1 140px;
+    max-width: 240px;
+  }
+  .vn-fig.big .vn-fi {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+  .vn-zoom {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 1px solid var(--card-line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--paper);
+    cursor: zoom-in;
+  }
+  .vn-zoom img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .vn-fi figcaption,
+  .vn-off {
+    margin: 4px 0 0;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
   .vn {
     min-width: 0;
     padding: 14px 0 6px;
