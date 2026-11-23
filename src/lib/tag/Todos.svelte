@@ -11,6 +11,8 @@
   import Empty from '../ui/Empty.svelte';
   import TodoSheet from './TodoSheet.svelte';
   import { db } from '../db.js';
+  import { openNoteItems, todoFromItem } from './notetodos.js';
+  import { noteTitle } from '../notebook.js';
   import { MERKEN_KEY, addTodo, updateTodo, tickTodo, removeTodo } from '../merkendb.js';
   import { groupTodos, GROUPS, doneTodos, addDays } from '../merken.js';
   import { notWaiting } from '../stand/stand.js';
@@ -22,8 +24,9 @@
   // today; weekTodos: the to-dos of week.items [{ id, title, day, done }]; ontick, onmove(item, day), onedit(item) change those
   let { today, weekTodos = [], ontick, onmove, onedit } = $props();
 
-  const q = liveQuery(async () => (await db.settings.get(MERKEN_KEY))?.value ?? []);
-  const todos = $derived($q ?? []);
+  const q = liveQuery(async () => ({ todos: (await db.settings.get(MERKEN_KEY))?.value ?? [], notes: await db.notes.toArray() }));
+  const todos = $derived($q?.todos ?? []);
+  const fromNotes = $derived(openNoteItems($q?.notes ?? [], todos, noteTitle));
 
   const HEAD = { late: 'Overdue', today: 'Today', week: 'This week', later: 'Later', none: 'Without date' };
   const groupOfDay = (day) => (!day ? 'none' : day < today ? 'late' : day === today ? 'today' : day <= addDays(today, 7) ? 'week' : 'later');
@@ -58,6 +61,11 @@
     const undo = await updateTodo(db, r.ref.id, { due: today });
     offerDone(t('«{name}» moved to {day}.', { name: r.title, day: t('Today') }), undo);
   }
+  // step 3b: an open point of a note becomes a to-do only on a tap
+  async function fromNote(it) {
+    const r = await addTodo(db, todoFromItem(it));
+    if (r) offerDone(t('"{name}" added.', { name: r.todo.text }), r.undo);
+  }
   const openRow = (r) => (r.from === 'week' ? onedit?.(r.ref) : (editing = r.ref));
   async function saveTodo(f) {
     const before = editing;
@@ -78,7 +86,7 @@
 
 <form class="quick" onsubmit={add}>
   <label class="vh" for="td-new">{t('New to-do')}</label>
-  <input id="td-new" class="inp" bind:value={text} maxlength="200" autocomplete="off" enterkeyhint="done" placeholder={t('Write a to-do and press Enter')} data-todo-new />
+  <input id="td-new" class="inp" bind:value={text} maxlength="200" autocomplete="off" enterkeyhint="done" placeholder={t('Write a to-do')} data-todo-new />
   <button type="submit" class="btn hi" disabled={!text.trim()}><Plus size={16} aria-hidden="true" /> {t('Add')}</button>
 </form>
 
@@ -102,6 +110,21 @@
     </section>
   {/if}
 {/each}
+
+{#if fromNotes.length}
+  <details class="notes" data-todo-notes>
+    <summary>{t('Open points in your notes')} <small class="n">{fromNotes.length}</small></summary>
+    <p class="hint">{t('Nothing becomes a to-do by itself. Tap «Make a to-do» for the ones you want.')}</p>
+    <ul>
+      {#each fromNotes as it (it.key)}
+        <li>
+          <span class="what"><b>{it.text}</b><small>{it.noteName}</small></span>
+          <button type="button" class="tod" onclick={() => fromNote(it)} aria-label={t('Make a to-do of «{name}»', { name: it.text })}>{t('Make a to-do')}</button>
+        </li>
+      {/each}
+    </ul>
+  </details>
+{/if}
 
 <p class="more">
   {#if doneN}{t('{n} done are kept under «Remember».', { n: doneN })} {/if}<a href="#/calendar">{t('All to-dos, repeats and steps in Remember')}</a>
@@ -204,6 +227,27 @@
     color: var(--ink-2);
     text-decoration: underline;
     cursor: pointer;
+  }
+  .notes {
+    margin: 4px 0 0;
+  }
+  .notes summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .notes .hint {
+    margin: 0 0 6px;
+    font-size: var(--fs-small);
+    color: var(--ink-2);
+  }
+  .notes .what {
+    padding: 6px 0;
   }
   .more {
     margin: 14px 0 0;
