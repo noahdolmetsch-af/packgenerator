@@ -31,6 +31,11 @@ import { isAwayType } from './woche/away.js';
 
 export const ITEMS_KEY = 'week.items';
 export const AWAY_KEY = 'week.away';
+/**
+ * Times that «Plan my day» (Mein Tag) gave to entries that have none of their own: sessions, calendar dates, tasks.
+ * { '<entry id>@<day>': 'HH:MM' }. It is a layer on top: the entry stays where it lives and is not changed.
+ */
+export const TIMES_KEY = 'week.times';
 export const HIDE_KEY = 'week.hide';
 export const NO_KEY = 'week.no';
 /** «Still to plan» folded or open (Noah 2.11.2026): true = open; nothing saved = folded. */
@@ -86,6 +91,16 @@ export function cleanItem(x = {}) {
     ...(x.part ? { part: String(x.part) } : {}),
     ...(x.ref ? { ref: String(x.ref) } : {}),
   };
+}
+/** The given times, cleaned: only well-formed ones, and not older than KEEP_DAYS when `today` is given. */
+export function timesOf(v, today = '') {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+  const out = {};
+  for (const [k, t] of Object.entries(v)) {
+    const day = k.slice(k.lastIndexOf('@') + 1);
+    if (k.includes('@') && isDay(day) && isTime(t) && (!today || day >= shiftDay(today, -KEEP_DAYS))) out[k] = t;
+  }
+  return out;
 }
 export const itemsOf = (v) => (Array.isArray(v) ? v.map(cleanItem).filter((x) => x && (x.kind !== 'date' || x.day)) : []);
 /** The list without what is long past (done ones and dates older than KEEP_DAYS). */
@@ -182,7 +197,7 @@ const norm = (x) => String(x ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
 const tripCopy = (title) => norm(title).replace(/^(tour|trip)\s*:\s*/, '');
 
 export function buildWeek(src) {
-  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null, spielerplus = null, flowLog = [], book = [], sgOff = [], sgNever = [], seasons = null } = src;
+  const { monday, today, items = [], away = [], hide = [], no = [], cal = [], trips = [], sessions = [], acts = [], fixed = [], plans = [], actName = (id) => id, care = [], goalHours = null, forecast = null, google = null, spielerplus = null, flowLog = [], book = [], sgOff = [], sgNever = [], seasons = null, times = {} } = src;
   const week = daysOf(monday);
   const end = shiftDay(monday, 7);
   const skipped = new Set(no.filter((k) => k.endsWith(`|${monday}`)).map((k) => k.slice(0, k.lastIndexOf('|'))));
@@ -251,6 +266,8 @@ export function buildWeek(src) {
     if (!x.day) continue;
     at(x.day)?.entries.push({ id: x.id, kind: x.kind, title: x.title, sub: x.mins ? { mins: x.mins } : null, time: x.time, done: x.done, own: true });
   }
+  // times given by «Plan my day» for entries without one (a layer: the entry itself is not changed)
+  for (const d of days) for (const e of d.entries) if (!e.time && e.kind !== 'away' && times[`${e.id}@${d.day}`]) (e.time = times[`${e.id}@${d.day}`]), (e.planned = true);
   const order = { away: 0, date: 1, sport: 2, bike: 3, todo: 4 };
   for (const d of days) d.entries.sort((a, b) => (a.time || '99').localeCompare(b.time || '99') || order[a.kind] - order[b.kind]);
 

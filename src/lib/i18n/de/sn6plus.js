@@ -206,7 +206,7 @@ export default {
   'Open a new bike.': 'Öffne ein neues Velo.',
   'Open the break-in plan.': 'Öffne den Einfahr-Plan.',
   '4 steps to the first service; Today reminds you.': '4 Schritte bis zum ersten Service; «Heute» erinnert dich.',
-  'Open the repair kit.': 'Öffne das Repair-Kit.',
+  'Open the repair kit.': 'Öffne das Reparaturset.',
   'Missing parts go to Gear with one tap.': 'Fehlende Teile gehen mit einem Tipp ins Material.',
   'Open warranty and receipts; enter the end date.': 'Öffne Garantie und Belege; trag das Enddatum ein.',
   '30 days before the end a reminder comes, also as a calendar file.': '30 Tage vor dem Ende kommt eine Erinnerung, auch als Kalenderdatei.',

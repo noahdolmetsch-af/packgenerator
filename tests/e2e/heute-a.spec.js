@@ -96,7 +96,7 @@ test.describe('HA Heute neu A', () => {
       await expect(first).toHaveAttribute('aria-pressed', 'true');
     }
     await page.locator('[data-all-areas]').click();
-    await expect(page).toHaveURL(/#\/features/);
+    await expect(page).toHaveURL(/#\/me\/karte/);
     await page.goto('./#/me/news');
     await expect(page.locator('[data-tipweek-me]')).toBeVisible();
   });

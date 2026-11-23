@@ -80,6 +80,7 @@
   import { stepOf, lastEvening, notBegun } from '../lib/phase.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
+  import StartHier from '../lib/home/StartHier.svelte';
   import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide, openData, openPlay } from '../lib/nav.js';
   import { todayFocus, openDebrief, endedOn } from '../lib/today.js';
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
@@ -938,7 +939,7 @@
   // Impeccable: a title that ends with a full stop gets no second one («Heute: Tour..»)
   const bare = (x) => String(x ?? '').replace(/[.!?…]+\s*$/, '');
   const sentence = $derived.by(() => {
-    if (!ready || night) return null;
+    if (!ready || night || emptyDevice) return null; // «Starte hier» (V2): no «Nothing urgent» while there is nothing yet
     const parts = [];
     const d = next?.startDate ? daysTo(next.startDate) : null;
     if (tourOnce) { /* the card «My tour» names the tour and its countdown */ } else if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
@@ -1032,6 +1033,9 @@
   const essQ = freiRows('essential');
   const essUp = $derived(!night && !!$impQ && !!$essQ && !!essentialDue({ entries: $essQ, cfg: $impQ, today }));
   const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp && !essUp);
+  // «Starte hier» (Noah 23.11.2026 «1-5a», V2): on an empty device the body block and «Up now» (with the idea) show only with content
+  const healthQ = liveQuery(() => (db.healthDays ? db.healthDays.count() : 0));
+  const emptyTiles = $derived(timeWall.filter((x) => EMPTY_KEEP.has(x.id) && (x.id === 'body' ? ($healthQ ?? 0) > 0 : x.id === 'important' ? !upEmpty : true)));
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -1145,8 +1149,6 @@
   });
 </script>
 
-{#snippet mark(done, n)}{#if done}<span class="mark ok" role="img" aria-label={t('Done|task')}>✓</span>{:else}<span class="mark" aria-hidden="true">{n}</span>{/if}{/snippet}
-
 <!-- 1. greeting and weather, the suggestion of the day -->
 {#snippet greetingS()}
   <section class="greet solo" aria-labelledby="hello-h" data-section="greeting">
@@ -1160,7 +1162,7 @@
         <!-- UI-Ziele #17 (Noah 20.10.2026 «freigabe»): «Was häsch vor?» as chips; while customising a list to sort -->
         <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a»): the quick start «Heute fahren» stays visible at night too -->
         {#if ready}<GoalChips {editing} {next} {now} hideTrip={tourOnce} onride={startQuick} ontrip={() => (countUse('trip'), openNew('list'))} />{/if}
-        {#if !wx && ready}
+        {#if !wx && ready && !emptyDevice}
           {#if !place}
             <button type="button" class="linkq" aria-expanded={placeOpen} onclick={() => (placeOpen = !placeOpen)}>{t('Set your home place for the weather')}</button>
             <!-- Alles fertig (Versteckte Funktionen, Noah 24.10.2026 «1a»): the weather page is one tap away without a home place too -->
@@ -1429,38 +1431,8 @@
   {#if loaded && !editing}<WochenKarte now={stampOf(now)} />{/if}
   {#if loaded && !editing}<NeuHeute {today} />{/if}
   {#if loaded && !editing}<MonthAdventureRow {today} />{/if}
-  <!-- v0.30.2 (L9): a new user: three steps, each ticked once it has data. -->
-  {#if showFirst}
-    <section class="card first" aria-labelledby="first-h">
-      <h2 id="first-h" class="title">{t('First steps')}</h2>
-      <p class="muted">{t('Three steps, then Today shows your next trip.')}</p>
-      <!-- «Rundgang» (Noah 15.10.2026 «4a», the line on Today approved): the tour through the app, on top of First steps -->
-      <div class="tourline" data-tourline>
-        <span><b>{t('New here? Take the tour')}</b><small>{t('2 minutes, with an example trip. Your data stays untouched.')}</small></span>
-        <button type="button" class="btn sm hi" onclick={() => askTour('app')}>{t('Start ›|tour')}</button>
-      </div>
-      <!-- Paket U «Muster-Rennen» (Noah «7b»): also findable in First steps -->
-      <div class="tourline soft" data-tourline-race>
-        <span><b>{t('Planning a race?')}</b><small>{t('See a made-up sample race and try what you can change.')}</small></span>
-        <a class="btn sm" href="#/race?sample">{t('See the sample race')}</a>
-      </div>
-      <ol>
-        <li class:done={steps.bike}>
-          {@render mark(steps.bike, 1)}
-          {#if steps.bike}<span class="txt">{t('Add your bike')}</span>{:else}<a class="btn sm step" href="#/bikes" onclick={wantBike}>{t('Add your bike')}</a>{/if}
-        </li>
-        <li class:done={steps.gear}>
-          {@render mark(steps.gear, 2)}
-          <span class="txt">{t('Gear: import a backup or enter your first items')}</span>
-          {#if !steps.gear}<span class="step-acts"><button type="button" class="btn sm step" onclick={openData}>{t('Import backup')}</button><button type="button" class="btn sm step" onclick={() => addItem()}>{t('Add item')}</button></span>{/if}
-        </li>
-        <li class:done={steps.trip}>
-          {@render mark(steps.trip, 3)}
-          {#if steps.trip}<span class="txt">{t('Plan your first trip')}</span>{:else}<button type="button" class="btn sm step" onclick={() => openNew('list')} data-explain={t('Plan your first trip')}>{t('Plan a trip|first')}</button>{/if}
-        </li>
-      </ol>
-    </section>
-  {/if}
+  <!-- «Starte hier» (Noah 23.11.2026 «1-5a», V2): a new user: one main button, the three steps as a line, the tour, the sample race and a backup as quiet lines -->
+  {#if showFirst}<StartHier {steps} onbike={wantBike} onitem={() => addItem()} ontrip={() => openNew('list')} ondata={openData} ontour={() => askTour('app')} />{/if}
 
   {#if editing}
     <div class="ebar" role="region" aria-label={t('Customise the start page')}>
@@ -1487,8 +1459,8 @@
   {#if !editing}{#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top />{:catch}{/await}{/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if ready && emptyDevice}
-    <Wall tiles={timeWall.filter((x) => EMPTY_KEEP.has(x.id))} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />
-    <p class="muted emptywall" data-empty-wall>{t('The rest of Today comes as soon as you have a bike, an item or a trip.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
+    {#if emptyTiles.length}<Wall tiles={emptyTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />{/if}
+    <p class="muted emptywall" data-empty-wall>{t('Everything else (body, up now, weather) shows up as soon as you have data.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
   {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
@@ -1515,7 +1487,7 @@
       <footer class="endbar" data-home-end>
         {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
         <div class="lkrow">
-          <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
+          <a class="lkb" href="#/me/karte" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
           <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Customise the start page')}</button>
         </div>
         <p class="ver"><span class="odot" class:off={!online}></span>{online ? t('Online') : t('Offline')} · v{__APP_VERSION__}</p>
@@ -2527,69 +2499,6 @@
     gap: 6px;
   }
 
-  /* v0.30.2 (L9): First steps, three numbered rows; a done one shows ✓ and loses its buttons. */
-  .first h2 {
-    margin: 0;
-    font-size: var(--fs-section);
-  }
-  .first > p {
-    margin: 4px 0 8px;
-  }
-  .first ol {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .first li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px 12px;
-    min-height: 44px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .first li:last-child {
-    border-bottom: 0;
-  }
-  .first .txt {
-    flex: 1 1 200px;
-    min-width: 0;
-    overflow-wrap: break-word;
-  }
-  .first li.done .txt {
-    color: var(--ink-3);
-    text-decoration: line-through;
-  }
-  .mark {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: 1.5px solid var(--ink-3);
-    border-radius: 50%;
-    font-weight: 700;
-  }
-  .mark.ok {
-    border-color: var(--ok);
-    background: var(--ok);
-    color: var(--paper);
-  }
-  .first .step {
-    min-height: 44px;
-    max-width: 100%;
-    white-space: normal;
-    text-align: left;
-  }
-  .step-acts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding-left: 40px;
-  }
-
   .wear {
     width: min(560px, calc(100vw - 24px));
   }
@@ -2609,35 +2518,6 @@
   }
   .odot.off {
     background: var(--ink-3);
-  }
-  /* «Rundgang»: the line on top of First steps */
-  .tourline {
-    display: flex;
-    flex-wrap: wrap; /* a long button («Muster-Rennen ansehen») goes below the text on a 320 px phone */
-    align-items: center;
-    gap: 12px;
-    margin: 12px 0 4px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: var(--hi-soft);
-    border: 2px solid var(--hi);
-  }
-  .tourline > span {
-    flex: 1 1 10rem;
-    min-width: 0;
-    display: grid;
-    gap: 2px;
-  }
-  .tourline small {
-    color: var(--ink-2);
-    font-size: var(--fs-small);
-  }
-  .tourline .btn {
-    white-space: nowrap;
-  }
-  .tourline.soft {
-    border-width: 1px;
-    background: transparent;
   }
   /* «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A»): the personal sentence, the row icons of «Up now» */
   .say {
