@@ -9,6 +9,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { einheiten } from './einheiten.js';
+  import { watchMinutesFor } from './fitbittraining.js';
   import { USUAL_KEY, usualMap } from './usualmin.js';
   import { TICKS_KEY, prefsOf } from '../stravaticks.js';
   import { dueRows, writeDuration, restoreTick, NACHTRAG_CHIPS } from './dauernachtragen.js';
@@ -23,11 +24,12 @@
 
   const SHOWN = 6;
   const q = liveQuery(async () => {
-    const [log, activities, acts, usual, ticks, trips] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.trips ? db.trips.toArray() : []]);
+    const [log, activities, acts, usual, ticks, trips, health] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY), db.trips ? db.trips.toArray() : [], db.healthDays ? db.healthDays.toArray() : []]);
     const map = prefsOf(ticks?.value).map;
     const ticksDue = dueRows(einheiten({ log, activities, acts, usual: usualMap(usual?.value), map }), log);
     const tours = tourRows({ trips, acts, log, activities, map, today: localDay() }).map((r) => ({ id: r.id, day: r.day, actId: r.actId, tour: r.title || t('Tour') }));
-    return { log, acts, rows: [...ticksDue, ...tours].sort((a, b) => b.day.localeCompare(a.day)) };
+    const rows = [...ticksDue, ...tours].sort((a, b) => b.day.localeCompare(a.day));
+    return { log, acts, rows, watch: watchMinutesFor({ rows: ticksDue, health, acts }) };
   });
   const d = $derived($q);
   const actOf = $derived(new Map((d?.acts ?? []).map((a) => [a.id, a])));
@@ -53,7 +55,7 @@
 {#if rows.length}
   <details class="card fold nachtrag" data-nachtragen>
     <summary><span>{t('Add the duration')}</span><small>{tn(rows.length, '{n} entry without a measured time', '{n} entries without a measured time')}</small></summary>
-    <p class="hint">{t('These entries have no minutes. Ticks count with the usual duration and are marked «ca.»; days of a tour without a time count nothing until you say. Tap the real length and it counts as measured.')}</p>
+    <p class="hint">{t('These entries have no minutes. Ticks count with the usual duration and are marked «ca.»; days of a tour without a time count nothing until you say. Tap the real length and it counts as measured. Where the watch knows a workout of that day, its length is offered, never taken by itself.')}</p>
     <ul class="ul">
       {#each shown as r (r.id)}
         {@const a = actOf.get(r.actId)}
@@ -68,6 +70,9 @@
             {/if}
           </span>
           <span class="chips">
+            {#if d.watch.get(r.id)}{@const w = d.watch.get(r.id)}
+              <button type="button" class="chip hi" data-nachtrag-watch={w.min} onclick={() => set(r, w.min)}>{t('Take {n} min from the watch', { n: w.min })}</button>
+            {/if}
             {#each r.tour != null ? TOUR_CHIPS : NACHTRAG_CHIPS as m (m)}
               <button type="button" class="chip" data-nachtrag-min={m} onclick={() => set(r, m)}>{t('{n} min', { n: m })}</button>
             {/each}

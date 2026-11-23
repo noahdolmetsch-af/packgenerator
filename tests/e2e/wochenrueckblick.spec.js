@@ -119,8 +119,9 @@ test('Wochenrückblick: five numbers, strip, sentences, highlights and next week
   await expect(five.locator('[data-five]')).toHaveCount(5);
   await expect(five.locator('[data-five="hours"]')).toContainText('6:20');
   await expect(five.locator('[data-five="hours"]')).toContainText('+3:35 h');
-  await expect(five.locator('[data-five="km"]')).toContainText('144.2');
-  await expect(five.locator('[data-five="hm"]')).toContainText('1’740');
+  await expect(five.locator('[data-five="km"]')).toContainText('134.6'); // only the rides: the run of the week (9.6 km) stands in its own line, never as «Velo»
+  await expect(five.locator('p.cap').first()).toContainText('9.6');
+  await expect(five.locator('[data-five="hm"]')).toContainText('1’660');
   await expect(five.locator('[data-five="goals"]')).toContainText(T('Goals reached'));
 
   // W2 the strip, with sleep and mood

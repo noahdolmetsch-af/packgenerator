@@ -1,6 +1,6 @@
 // «Zählen?» for Fitbit workouts (Noah 21.11.2026, K4): fictional days only.
 import { describe, it, expect } from 'vitest';
-import { suggestions, entryOf, idOf, zurichAt, withHandled, withoutHandled, grouped } from '../src/lib/flow/fitbittraining.js';
+import { suggestions, entryOf, idOf, zurichAt, withHandled, withoutHandled, grouped, watchMinutesFor } from '../src/lib/flow/fitbittraining.js';
 
 const TODAY = '2026-10-09';
 const act = (id, name, extra = {}) => ({ id, name, ring: 'move', icon: 'heart', order: 0, goals: [], ...extra });
@@ -74,5 +74,27 @@ describe('the tick', () => {
   it('handled ids: add and take away', () => {
     expect(withHandled(['a'], ['b', 'a'])).toEqual(['a', 'b']);
     expect(withoutHandled(['a', 'b'], ['a'])).toEqual(['b']);
+  });
+});
+
+describe('watchMinutesFor: the length of the watch as a tip for a tick without minutes (Noah 22.11.2026 «3», G)', () => {
+  const rows = [{ id: 'k1', day: '2026-10-05', actId: 'tennis' }, { id: 'k2', day: '2026-10-06', actId: 'tennis' }, { id: 'k3', day: '2026-10-07', actId: 'gym' }];
+  const health = [
+    day('2026-10-05', ex('Tennis', '18:00', 68)),
+    day('2026-10-06', ex('Tennis', '10:00', 40), ex('Tennis', '18:00', 50)), // two: ambiguous
+    day('2026-10-07', ex('Tennis', '18:00', 60)), // another sport
+  ];
+  it('exactly one workout of the same sport that day gives its minutes', () => {
+    const m = watchMinutesFor({ rows, health, acts: ACTS });
+    expect(m.get('k1')).toEqual({ min: 68, name: 'Tennis' });
+  });
+  it('two workouts that day, or another sport, give no tip', () => {
+    const m = watchMinutesFor({ rows, health, acts: ACTS });
+    expect(m.has('k2')).toBe(false);
+    expect(m.has('k3')).toBe(false);
+  });
+  it('a workout shorter than the noise limit, or no health day, gives no tip', () => {
+    expect(watchMinutesFor({ rows: [rows[0]], health: [day('2026-10-05', ex('Tennis', '18:00', 3))], acts: ACTS }).size).toBe(0);
+    expect(watchMinutesFor({ rows, health: [], acts: ACTS }).size).toBe(0);
   });
 });

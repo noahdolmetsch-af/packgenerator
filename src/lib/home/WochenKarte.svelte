@@ -11,15 +11,18 @@
   import { weekQuery } from '../woche/load.js';
   import { buildWeek } from '../woche.js';
   import { weekClose } from '../woche/abschluss.js';
-  import { SLEEP_Q, MOOD_Q, weekFive, hasAnything, diffText } from '../weekreview.js';
+  import { SLEEP_Q, MOOD_Q, weekFive, weekSums, hasAnything, diffText } from '../weekreview.js';
+  import { dayDots, usualWeek } from '../weekrhythm.js';
   import { normAct, tripDays } from '../flow.js';
-  import { PLAN_KEY, planOf, hmm } from '../training.js';
+  import { PLAN_KEY, planOf, hmm, shiftDay } from '../training.js';
   import { homeTrips } from './heute.js';
   import { dayOfStamp as dayOf } from './windows.js';
   import { CARD_KEY, cardShown, cardAway, cardDone, cardNumbers, cardOpen, cardNews } from './wochenkarte.js';
   import { NEWS_INDEX_ALL } from '../whatsnew.js';
   import { NEWS_HREF } from '../know/wasneu.js';
-  import { t, num } from '../i18n.svelte.js';
+  import { weekSources } from '../weeksources.js';
+  import WeekWhere from '../flow/WeekWhere.svelte';
+  import { t, tn, num } from '../i18n.svelte.js';
 
   let { now } = $props();
   const today = $derived(dayOf(now));
@@ -40,7 +43,8 @@
             db.settings.get(PLAN_KEY),
             db.trips.toArray(),
           ]);
-          return { acts, flowActs: flowActs.map(normAct), log, checks, answers, sessions: planOf(plan?.value), tripDays: tripDays(homeTrips(trips), today) };
+          const more = await weekSources(db, today); // rides, usual durations and Fitbit days of the shared week calculation (weekcalc.js)
+          return { ...more, acts, flowActs: flowActs.map(normAct), log, checks, answers, sessions: planOf(plan?.value), tripDays: tripDays(homeTrips(trips), today) };
         })
       : null,
   );
@@ -48,7 +52,14 @@
   const srcQ = $derived(week?.isSunday ? weekQuery(today) : null);
   const src = $derived(srcQ ? $srcQ : null);
 
-  const nums = $derived(data && week ? cardNumbers(weekFive(data, week.monday, today)) : []);
+  const five = $derived(data && week ? weekFive(data, week.monday, today) : []);
+  const nums = $derived(cardNumbers(five));
+  const hoursRow = $derived(five.find((f) => f.key === 'hours'));
+  const kmRow = $derived(five.find((f) => f.key === 'km'));
+  const calc = $derived(data && week ? weekSums(data, week.monday, shiftDay(week.monday, 6)) : null);
+  const dots = $derived(calc && week ? dayDots(calc, week.monday, today) : null);
+  const usual = $derived(data && week ? usualWeek(data, week.monday, shiftDay(week.monday, 6)) : null);
+  let whereOpen = $state(false);
   const open = $derived(src && week?.isSunday ? cardOpen(weekClose(buildWeek({ ...src, forecast: null, monday: week.monday, today }).days, week.monday, today)) : { n: 0, titles: [] });
   const news = $derived(week ? cardNews(NEWS_INDEX_ALL, week) : 0);
   const any = $derived(!!data && !!week && hasAnything(data, week.monday));
@@ -73,10 +84,32 @@
     {#if any}
       <ul class="nums">
         {#each nums as f (f.key)}
-          <li data-wk-num={f.key}><b>{valueOf(f)}</b><small>{t(NAME[f.key])}</small><i>{changeOf(f)}</i></li>
+          <li data-wk-num={f.key}><b>{valueOf(f)}</b><small>{t(NAME[f.key])}</small><i>{changeOf(f)}</i>{#if f.key === 'hours' && hoursRow?.ca}<i data-wk-ca>{t('of it «ca.» {h} h', { h: hmm(hoursRow.ca) })}</i>{/if}</li>
         {/each}
       </ul>
+      {#if dots}
+        <p class="ln dotsrow" data-wk-days>
+          <span class="dots" aria-hidden="true">{#each dots.dots as d (d.day)}<i class:on={d.active} class:fut={d.future} data-wk-day={d.day} data-on={d.active ? '1' : '0'}></i>{/each}</span>
+          <span>{tn(dots.of, 'Active on {n} of {m} day.', 'Active on {n} of {m} days.', { n: dots.active, m: dots.of })}</span>
+        </p>
+      {/if}
+      {#if usual}
+        <p class="ln" data-wk-usual>{t('Your usual week: {h} h, {km} km, {n} sessions.', { h: hmm(usual.secs), km: num(usual.km), n: num(Math.round(usual.n)) })}</p>
+      {/if}
+      {#if calc?.nCa}
+        <p class="ln" data-wk-nodur>{tn(calc.nCa, '{n} session has no duration, counted with its usual one.', '{n} sessions have no duration, counted with their usual one.')} <a href="#/flow/sports">{t('Add the duration')}</a></p>
+      {/if}
+      {#if kmRow?.other?.n}
+        <p class="ln" data-wk-other>{tn(kmRow.other.n, 'Running, hiking and the like: {km} km in {n} session.', 'Running, hiking and the like: {km} km in {n} sessions.', { km: num(kmRow.other.km) })}</p>
+      {/if}
+      {#if kmRow?.waiting}
+        <p class="ln" data-wk-waiting>{tn(kmRow.waiting, '{n} ride waits in «Zum Prüfen» and is counted.', '{n} rides wait in «Zum Prüfen» and are counted.')}</p>
+      {/if}
+      {#if kmRow?.watch?.n}
+        <p class="ln" data-wk-watch>{tn(kmRow.watch.n, 'The watch knows {n} workout ({h} h) that is not counted yet.', 'The watch knows {n} workouts ({h} h) that are not counted yet.', { h: hmm(kmRow.watch.min * 60) })} <a href="#/flow/sports">{t('Count them?')}</a></p>
+      {/if}
     {/if}
+    {#if any && calc}<p class="ln"><button type="button" class="where" onclick={() => (whereOpen = true)} data-wk-where-open>{t('Where from?')}</button></p>{/if}
     {#if open.n > 0}
       <p class="ln" data-wk-open><b>{t('Slides to Monday:')}</b> {open.n === 1 ? t('1 open task') : t('{n} open tasks', { n: open.n })}{#if open.titles.length}{' '}({open.titles.join(', ')}){/if}</p>
     {/if}
@@ -89,6 +122,7 @@
       <button type="button" class="btn q" onclick={away} data-wk-today>{t('Not today|mask')}</button>
     </div>
   </section>
+  {#if whereOpen && calc}<WeekWhere {calc} onclose={() => (whereOpen = false)} />{/if}
 {/if}
 
 <style>
@@ -157,6 +191,40 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+  .dotsrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .dots {
+    display: inline-flex;
+    gap: 5px;
+    flex: none;
+  }
+  .dots i {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+  }
+  .dots i.on {
+    background: var(--ok);
+    border-color: var(--ok);
+  }
+  .dots i.fut {
+    border-style: dashed;
+    opacity: 0.55;
+  }
+  .where {
+    padding: 0;
+    min-height: 32px;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
   }
   .btn.q {
     color: var(--ink-3);

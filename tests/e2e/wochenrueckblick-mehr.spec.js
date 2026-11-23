@@ -89,7 +89,24 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
   const five = main.locator('[data-wr="five"]');
   await expect(five.locator('[data-five="hours"]')).toContainText('1:05');
   await expect(five.locator('[data-five="n"]')).toContainText('2');
-  await expect(five).toContainText(T('Change against the same days of the week before. Hours: Strava plus the minutes you noted in Aktiv; km and Hm from Strava.'));
+  await expect(five).toContainText(T('Change against the same days of the week before.'));
+
+  // «Rhythmus und Vergleich»: days as dots, one sentence, the week next to the usual week (the mean of the weeks before)
+  const rhythm = main.locator('[data-wr="rhythm"]');
+  await expect(rhythm.locator('[data-rhythm-day]')).toHaveCount(7);
+  await expect(rhythm.locator('[data-rhythm-day][data-on="1"]')).toHaveCount(2);
+  await expect(rhythm.locator('[data-rhythm-say]')).toContainText('In Bewegung an 2 von');
+  await expect(rhythm.locator('[data-rhythm-usual-h]')).toContainText(T('Your usual week'));
+  await expect(rhythm.locator('[data-rhythm-row="km"]')).toContainText('103.8'); // 42.3 + 61.5 per week
+
+  // «Woher?»: one tap opens the sources of the numbers (sessions with their time, rides with their km)
+  await five.locator('[data-wr-where-open]').click();
+  const where = page.locator('[data-wr-where]');
+  await expect(where).toBeVisible();
+  await expect(where.locator('[data-where="sessions"] li')).toHaveCount(2);
+  await expect(where).toContainText(T('Where the numbers come from'));
+  await page.keyboard.press('Escape');
+  await expect(where).toHaveCount(0);
 
   // Sunday: shown from today's data, not frozen yet; each bar has its value
   await expect(main.locator('[data-obs-live]')).toBeVisible();
@@ -175,5 +192,23 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/wochenrueckblick-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
   const sw = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(sw, 'no sideways scroll').toBeLessThanOrEqual(page.viewportSize().width);
+  expect(errors).toEqual([]);
+});
+
+test('Wochenrückblick: your answers per area and each question, only from three answers', async ({ page, context }) => {
+  const errors = await open(page, context);
+  const ans = (qid, day, value) => ({ id: `${P}${qid}-${day}`, qid, area: qid.split('.')[0], day, at: `${day}T07:00`, slot: null, kind: 'scale', value, note: null, unit: null, src: 'hand' });
+  await put(page, {
+    ...rows(),
+    abAnswers: [ans('erholung.schlaf', MON, 6), ans('erholung.schlaf', addDays(MON, 1), 8), ans('erholung.akku', addDays(MON, 2), 7), ans('spass.stimmung', MON, 7), ans('spass.stimmung', addDays(MON, 3), 9)],
+  });
+  await page.goto('./#/flow/review');
+  await page.reload();
+  const a = page.locator('main [data-wr="answers"]');
+  await expect(a.locator('[data-answers-days]')).toContainText('Du hast an 4 von');
+  await expect(a.locator('[data-answer-area="erholung"]')).toContainText('Ø 7');
+  await expect(a.locator('[data-answer-area="spass"]')).toHaveCount(0); // two answers: no line for the area
+  await expect(a.locator('[data-answer-q="spass.stimmung"]')).toContainText('Zu wenig Antworten');
+  await expect(a.locator('[data-answer-q="erholung.schlaf"]')).toBeVisible();
   expect(errors).toEqual([]);
 });

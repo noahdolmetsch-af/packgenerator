@@ -70,11 +70,11 @@ test('the editor of a sport shows the same value and saves it', async ({ page, c
   expect(errors).toEqual([]);
 });
 
-test('Noah\'s standard values: ice hockey 2 h, sauna 12 min, gym 20 min, tennis 1 h, shown as standard', async ({ page, context }, info) => {
+test('Noah\'s standard values: ice hockey 2 h, sauna 12 min, gym 1 h, tennis 1 h, shown as standard', async ({ page, context }, info) => {
   const errors = await open(page, context, './#/flow/sports');
   const fold = page.locator('[data-usual-list]');
   await fold.locator('summary').click();
-  for (const [id, min] of [['hockey', '120'], ['sauna', '12'], ['gym', '20'], ['tennis', '60']]) {
+  for (const [id, min] of [['hockey', '120'], ['sauna', '12'], ['gym', '60'], ['tennis', '60']]) {
     const row = fold.locator(`[data-usual="${id}"]`);
     await expect(row.locator('[data-usual-min]')).toHaveAttribute('data-usual-min', min);
     await expect(row).toContainText(T('{n} min (standard)').replace('{n}', min));
