@@ -69,7 +69,6 @@ export default {
   'Fetch prices again': 'Kurse neu holen',
   'Only numbers, no advice. Gold is turned from dollars per ounce into francs per kilogram with the dollar rate of the same day.': 'Nur Zahlen, keine Beratung. Gold wird von Dollar pro Unze mit dem Dollarkurs desselben Tages in Franken pro Kilogramm umgerechnet.',
   // function, jump, handbook, news
-  'Kursblick: prices of gold and the SMI': 'Kursblick: Kurse von Gold und SMI',
   'Gold in francs per kilogram against your reference day, what a sale would bring after the dealer deduction, and the SMI, with the close of the day before and any period you choose.': 'Gold in Franken pro Kilogramm gegen deinen Referenztag, was ein Verkauf nach dem Händlerabschlag brächte, und der SMI, mit dem Schlusskurs vom Vortag und jedem Zeitraum, den du wählst.',
   'Open Kursblick, or the link at the end of the currency tool.': 'Öffne Kursblick oder den Link am Ende des Währungsrechners.',
   'See the gold price, the change since your reference day and the sale value.': 'Sieh den Goldpreis, die Veränderung seit deinem Referenztag und den Verkaufswert.',
