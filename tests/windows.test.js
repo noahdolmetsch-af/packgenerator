@@ -1,7 +1,7 @@
 // Windows on Heute (Noah 19.10.2026 «1a 3a»): the evening before a trip and Sunday's Wochenrückblick.
 // Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { hourLater, mayShow, later, notToday, done, eveBefore, weekDue, windowNow, EVE_FROM, WEEK_FROM } from '../src/lib/home/windows.js';
+import { hourLater, mayShow, later, notToday, done, eveBefore, windowNow, EVE_FROM } from '../src/lib/home/windows.js';
 
 const trip = (over = {}) => ({ id: 'test_data_gtp_t1', title: 'test_data_gtp_ Runde', startDate: '2026-10-10', endDate: '2026-10-11', entries: [{ itemId: 'a', packed: true }, { itemId: 'b', packed: false }], ...over });
 
@@ -35,18 +35,16 @@ describe('windows on Heute', () => {
     expect(eveBefore([trip({ skipped: true })], '2026-10-09T18:00')).toBe(null);
   });
 
-  it('the Wochenrückblick: Sunday from 18:00', () => {
-    expect(WEEK_FROM).toBe('18:00');
-    expect(weekDue('2026-10-11T17:59')).toBe(false); // a Sunday
-    expect(weekDue('2026-10-11T18:00')).toBe(true);
-    expect(weekDue('2026-10-10T20:00')).toBe(false); // a Saturday
+  it('no window of its own for the Wochenrückblick any more: Sunday evening has the card on Heute (Noah 22.11.2026, Schritt F)', () => {
+    expect(windowNow({ rec: {}, now: '2026-10-11T18:10', trips: [] })).toBe(null);
+    expect(windowNow({ rec: {}, now: '2026-10-11T21:00', trips: [] })).toBe(null);
   });
 
   it('one window at a time, the trip first', () => {
     // Saturday 10.10. evening: a trip on Sunday 11.10.
     const t2 = trip({ startDate: '2026-10-12' });
     expect(windowNow({ rec: {}, now: '2026-10-11T19:00', trips: [t2] }).id).toBe('eve');
-    expect(windowNow({ rec: notToday({}, 'eve', '2026-10-11T19:00'), now: '2026-10-11T19:00', trips: [t2] }).id).toBe('week');
+    expect(windowNow({ rec: notToday({}, 'eve', '2026-10-11T19:00'), now: '2026-10-11T19:00', trips: [t2] })).toBe(null); // no Sunday window behind it any more
     expect(windowNow({ rec: {}, now: '2026-10-11T12:00', trips: [t2] })).toBe(null);
   });
 });
