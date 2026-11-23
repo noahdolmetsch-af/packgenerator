@@ -178,7 +178,7 @@
 
   <section class="card p-karte" data-depot={depot.id}>
     <div class="p-kopf">
-      <h2>{depot.name}{#if depot.art === 'uebung'} <small class="badge" data-uebung>{t('Practice')}</small>{/if}</h2>
+      <h2>{depot.name}{#if depot.art === 'uebung'}{' '}<small class="badge" data-uebung>{t('Practice')}</small>{/if}</h2>
       <MoreActions
         small
         title={depot.name}
@@ -237,7 +237,7 @@
         {#each eintraege as e (e.id)}
           <li class="j-zeile" data-eintrag={e.id}>
             <div class="j-text">
-              <b>{tagKurz(e.tag)}{' · '}{t(ART[e.art])}{' · '}{nameOf(e.titel)}{#if e.eroeffnung} <small class="badge">{t('Opening')}</small>{/if}</b>
+              <b>{tagKurz(e.tag)}{' · '}{t(ART[e.art])}{' · '}{nameOf(e.titel)}{#if e.eroeffnung}{' '}<small class="badge">{t('Opening')}</small>{/if}</b>
               <small class="muted num">{eintragText(e)}</small>
               {#if e.id in rechnung.zuviel}<small class="warn" data-zuviel>{t('More sold than held that day ({n}). Check the entries.', { n: anzahl(rechnung.zuviel[e.id], 4) })}</small>{/if}
               {#if e.ohneTag}<small class="muted">{t('The day of the purchase was not known: it counts from this day.')}</small>{/if}
