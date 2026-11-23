@@ -32,7 +32,10 @@
   import TempBar from '../lib/ui/TempBar.svelte';
   import { tripRange, tripRain, unfitDuplicates } from '../lib/swap.js';
   import ItemDialog from '../lib/gear/ItemDialog.svelte';
-  import { wearItems, undoBulk } from '../lib/gear/bulk.js';
+  import { wearItems, areaItems, undoBulk } from '../lib/gear/bulk.js';
+  import { mergeItems } from '../lib/gear/mergeitems.js';
+  import { noRange, everydayGuess, duplicateGroups, oddWeight } from '../lib/wardrobe-tidy.js';
+  import { setupPatch, rangeOfLevels } from '../lib/wardrobe-setup.js';
   import { SvelteSet } from 'svelte/reactivity';
   import { ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal, Undo2, Check, Thermometer, Sparkles, Heart, Layers, X } from '@lucide/svelte';
   import { phone } from '../lib/media.svelte.js';
@@ -191,6 +194,61 @@
     if (fn) await fn();
   }
   $effect(() => () => clearTimeout(timer));
+
+  /* ---------- Kleider «heute» (Noah 23.11.2026): tidy up by suggestion ---------- */
+  // No range, everyday pieces on the bike list, the same piece twice: each a tap with an Undo; nothing happens by itself.
+  let tidyOpen = $state(false);
+  let tidyMore = $state({ range: false, everyday: false, twice: false });
+  const KEEP = 'wardrobe.everydayKeep';
+  let kept = $state(
+    (() => {
+      try {
+        const v = JSON.parse(localStorage.getItem(KEEP) ?? '[]');
+        return Array.isArray(v) ? v : [];
+      } catch {
+        return [];
+      }
+    })(),
+  );
+  const saveKept = () => {
+    try {
+      localStorage.setItem(KEEP, JSON.stringify(kept));
+    } catch {
+      /* private mode: only this visit */
+    }
+  };
+  const inView = $derived(new Set(w.all.map((i) => i.id)));
+  const rangeList = $derived(use === 'everyday' ? [] : noRange(items).filter((r) => inView.has(r.item.id)));
+  const everydayList = $derived(use === 'everyday' ? [] : everydayGuess(items, kept).filter((i) => inView.has(i.id)));
+  const twiceList = $derived(duplicateGroups(items).filter((g) => g.items.some((i) => inView.has(i.id))));
+  const tidyCount = $derived(rangeList.length + everydayList.length + twiceList.length);
+  const TIDY_SHOWN = 3;
+  const rangeText = (levels) => {
+    const r = rangeOfLevels(levels);
+    return tempRange(r.tempMin, r.tempMax, tr);
+  };
+  async function takeRange(r) {
+    const patch = setupPatch(r.item, { levels: r.levels });
+    const res = await wearItems(db, [r.item.id], patch);
+    if (res.n) offer(t('{name} → {where}', { name: nameOf(r.item), where: rangeText(r.levels) }), res.snap);
+  }
+  async function toEveryday(item) {
+    const res = await areaItems(db, [item.id], 'everyday', true);
+    if (res.n) offer(t('{name} → {where}', { name: nameOf(item), where: t('Everyday|use') }), res.snap);
+  }
+  function keepForBike(item) {
+    kept = [...kept, item.id];
+    saveKept();
+    offer(t('{name} stays for cycling.', { name: nameOf(item) }), null, () => {
+      kept = kept.filter((id) => id !== item.id);
+      saveKept();
+    });
+  }
+  async function mergeTwice(g) {
+    const [target, old] = g.items;
+    const snap = await mergeItems(db, old.id, [target.id]);
+    if (snap) offer(t('{old} merged into {name}.', { old: nameOf(old), name: nameOf(target) }), snap);
+  }
 
   /* ---------- v0.45.0 "Kleiderschrank 2" ---------- */
   // Decision 8: back to 0 °C; only debriefs saved after this count (wardrobe.js offsetRecord).
@@ -469,6 +527,63 @@
         </section>
       {/if}
 
+      {#if tidyCount}
+        <section class="surf tidy" aria-labelledby="tidy-h" data-tidy>
+          <button type="button" class="sort-h" aria-expanded={tidyOpen} aria-controls="tidy-list" onclick={() => (tidyOpen = !tidyOpen)}>
+            <span id="tidy-h">{t('Tidy up')}</span><span class="pill act"><span class="r num">{tidyCount}</span></span><span class="sp"></span><ChevronDown class={tidyOpen ? 'chev up' : 'chev'} size={18} aria-hidden="true" />
+          </button>
+          {#if tidyOpen}
+            <div id="tidy-list">
+              <p class="hint">{t('Suggestions only: a tap does it, «Undo» takes it back. Nothing is moved or deleted by itself.')}</p>
+              {#if rangeList.length}
+                <h3 class="tg">{tn(rangeList.length, '{n} piece without a temperature range', '{n} pieces without a temperature range')}</h3>
+                <ul class="srows" data-tidy-range>
+                  {#each tidyMore.range ? rangeList : rangeList.slice(0, TIDY_SHOWN) as r (r.item.id)}
+                    <li data-range-id={r.item.id}>
+                      <p class="srow">
+                        <span class="sname"><span class="snm">{nameOf(r.item)}</span><small class="num">{weight(r.item)}{#if r.levels.length}{' · '}{t('Suggested from the name')}{/if}</small></span>
+                        {#if r.levels.length}<button type="button" class="chip" aria-label={t('Set {name} to {where}', { name: nameOf(r.item), where: rangeText(r.levels) })} onclick={() => takeRange(r)}><Check size={16} aria-hidden="true" />{rangeText(r.levels)}</button>{/if}
+                        <a class="other" href="#/wardrobe/setup">{r.levels.length ? t('Other …|sort') : t('Set …')}</a>
+                      </p>
+                    </li>
+                  {/each}
+                </ul>
+                {#if rangeList.length > TIDY_SHOWN && !tidyMore.range}<p class="more"><button type="button" class="linkbtn" onclick={() => (tidyMore.range = true)}>{tn(rangeList.length - TIDY_SHOWN, '{n} more', '{n} more')}</button></p>{/if}
+              {/if}
+              {#if everydayList.length}
+                <h3 class="tg">{tn(everydayList.length, '{n} piece looks like everyday clothing', '{n} pieces look like everyday clothing')}</h3>
+                <ul class="srows" data-tidy-everyday>
+                  {#each tidyMore.everyday ? everydayList : everydayList.slice(0, TIDY_SHOWN) as i (i.id)}
+                    <li data-everyday-id={i.id}>
+                      <p class="srow">
+                        <span class="sname"><span class="snm">{nameOf(i)}</span><small class="num">{weight(i)}</small></span>
+                        <button type="button" class="chip" aria-label={t('Move {name} to everyday', { name: nameOf(i) })} onclick={() => toEveryday(i)}><Check size={16} aria-hidden="true" />{t('Everyday|use')}</button>
+                        <button type="button" class="other" aria-label={t('{name} stays for cycling', { name: nameOf(i) })} onclick={() => keepForBike(i)}>{t('Stays for cycling')}</button>
+                      </p>
+                    </li>
+                  {/each}
+                </ul>
+                {#if everydayList.length > TIDY_SHOWN && !tidyMore.everyday}<p class="more"><button type="button" class="linkbtn" onclick={() => (tidyMore.everyday = true)}>{tn(everydayList.length - TIDY_SHOWN, '{n} more', '{n} more')}</button></p>{/if}
+              {/if}
+              {#if twiceList.length}
+                <h3 class="tg">{tn(twiceList.length, '{n} piece twice', '{n} pieces twice')}</h3>
+                <ul class="srows" data-tidy-twice>
+                  {#each tidyMore.twice ? twiceList : twiceList.slice(0, TIDY_SHOWN) as g (g.items[0].id)}
+                    <li data-twice-id={g.items[0].id}>
+                      <p class="srow">
+                        <span class="sname"><span class="snm">{nameOf(g.items[0])} <span class="num">×{g.items.length}</span></span><small class="num">{g.items.map(weight).join(' · ')}</small></span>
+                        <button type="button" class="chip" aria-label={t('Merge the twice {name}', { name: nameOf(g.items[0]) })} onclick={() => mergeTwice(g)}><Check size={16} aria-hidden="true" />{t('Merge')}</button>
+                      </p>
+                    </li>
+                  {/each}
+                </ul>
+                {#if twiceList.length > TIDY_SHOWN && !tidyMore.twice}<p class="more"><button type="button" class="linkbtn" onclick={() => (tidyMore.twice = true)}>{tn(twiceList.length - TIDY_SHOWN, '{n} more', '{n} more')}</button></p>{/if}
+              {/if}
+            </div>
+          {/if}
+        </section>
+      {/if}
+
       {#if !w.unsorted.length && sortedHere}
         <!-- v0.47.0: the emptied to-do list says so once, calmly, with the next step -->
         <p class="surf sortdone" id="sort-done" tabindex="-1" role="status"><Check size={18} aria-hidden="true" /><span>{t('Everything sorted.')}</span><button type="button" class="linkbtn" onclick={() => document.querySelector('.cols')?.scrollIntoView({ behavior: 'smooth' })}>{t('To the layers')}</button></p>
@@ -545,7 +660,7 @@
                         <div class="row">
                           {#if i.photo}<img class="thumb" src={i.photo} alt="" />{:else}<span class="zi" aria-hidden="true">{@render zoneIcon(z.key)}</span>{/if}
                           <span class="mid">
-                            <span class="nm">{nameOf(i)}{#if i.ownership === 'wishlist' || i.ownership === 'to-buy'}<i class="badge">{t('Wishlist')}</i>{/if}{#if onTripIds.has(i.id)}<i class="badge on">{t('on the trip')}</i>{/if}</span>
+                            <span class="nm">{nameOf(i)}{#if i.ownership === 'wishlist' || i.ownership === 'to-buy'}<i class="badge">{t('Wishlist')}</i>{/if}{#if oddWeight(i)}<i class="badge warn" title={t('The weight looks unusual: check it.')}>{t('check?')}</i>{/if}{#if onTripIds.has(i.id)}<i class="badge on">{t('on the trip')}</i>{/if}</span>
                             <span class="tl">{#if trip}<TempBar item={i} mark={tripR} width={64} />{:else if bar}<span class="tbar"><i style={bar}></i></span>{/if}<span class="tc num">{tshort(i)}</span><span class="w num">{weight(i)}</span></span>
                           </span>
                           <button type="button" class="dots" aria-expanded={open} aria-label={t('Layer, zone or edit: {name}', { name: nameOf(i) })} onclick={() => flip(i.id)}><MoreHorizontal size={20} aria-hidden="true" /></button>
@@ -576,6 +691,24 @@
           </section>
         {/each}
       </div>
+
+      {#if w.wishes.length}
+        <!-- Kleider «heute» (Noah 23.11.2026): wishes stand apart; they do not count in the onion, the weights or the suggestion -->
+        <section class="surf wishes" aria-labelledby="wish-h" data-wishes>
+          <p class="zlabel cap" id="wish-h"><span>{t('Wishlist')}</span><span class="num">{w.wishes.length}</span></p>
+          <p class="hint">{t('Not yours yet: they do not count in the onion, the weights or today’s suggestion.')}</p>
+          <ul class="rows">
+            {#each w.wishes as i (i.id)}
+              <li>
+                <div class="row">
+                  <span class="mid"><span class="nm">{nameOf(i)}</span><span class="tl"><span class="tc num">{tshort(i)}</span><span class="w num">{weight(i)}</span></span></span>
+                  <button type="button" class="other" aria-label={t('Edit {name}', { name: nameOf(i) })} onclick={() => (editing = i)}>{t('Edit item')}</button>
+                </div>
+              </li>
+            {/each}
+          </ul>
+        </section>
+      {/if}
 
       {#if w.n}
         <p class="foot"><span class="tbar legend"><i style="left:0;width:100%"></i></span>{t('°C from −10 to 35: what the item is made for. Without a range the class shows (warm, medium, cold).')} {t('Within a zone from warm to cold.')}</p>
@@ -1158,7 +1291,8 @@
     font-size: var(--fs-small);
   }
   /* To sort (Noah 3b): a compact list, one suggestion chip per row. */
-  .sort {
+  .sort,
+  .tidy {
     padding: 4px 16px 10px;
   }
   .sort-h {
@@ -1250,6 +1384,11 @@
     color: var(--ink-2);
     font: 500 var(--fs-small) var(--font-body);
     cursor: pointer;
+  }
+  a.other {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
   }
   .other[aria-expanded='true'] {
     background: var(--paper-2);
@@ -1690,6 +1829,18 @@
   }
   .tb-back {
     margin: 10px 0 0;
+  }
+  .tg {
+    margin: 10px 0 2px;
+    color: var(--ink-2);
+    font: 500 var(--fs-small) var(--font-body);
+  }
+  .badge.warn {
+    background: var(--warn-soft, var(--hi-soft));
+    color: var(--warn, var(--badge-ink));
+  }
+  .wishes {
+    padding: 10px 16px 12px;
   }
   .badge.on {
     background: var(--accent-soft);
