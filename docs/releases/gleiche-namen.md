@@ -5,7 +5,7 @@ PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» (Thread «Navigation ohne Sac
 ## Was ist neu
 - Alle deutschen Texte der App (Handbuch, Hilfe, Hinweise, Rundgang, Meldungen) schreiben den Weg wie die Seitenleiste: «Woche › Training › …» statt «Aktiv › …». Meditation steht unter «Woche › Alltag › Meditation», Meilensteine und Gipfelbuch unter «Auswerten › Fahrten».
 - Die Seite zum Abhaken heisst überall «Heute abhaken»: Titel, Kachel auf Heute, Ort in den Listen, Sätze wie «in «Heute abhaken» abhaken». Zusammensetzungen: «Abhak-Verlauf», «Abhak-Serie».
-- `docs/namen.md` hat dafür die Zeile 38.
+- `docs/namen.md` hat dafür die Zeile 40 (zuerst 38, dabei gingen die Zeilen «Mein Tag» und «Weitere Fragen» verloren; siehe `namen-zeilen`).
 
 ## Was fällt weg oder rutscht tiefer
 - Der Name «Aktiv» für den Ort fällt in den Texten weg (141 deutsche Texte in `src/lib/i18n/de`). Die Kachel auf Heute heisst jetzt «Heute abhaken» statt «Aktiv». «Aktiv» bleibt nur für aktive Kilokalorien und für das Kürzel im Tagebuch.
