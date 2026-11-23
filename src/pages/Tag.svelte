@@ -150,7 +150,7 @@
   }
 </script>
 
-<PageHead title={t('My day')} what={t('Read the day, tap an entry to open it where it lives.')} />
+<PageHead title={tab === 'todos' ? t('My to-dos') : t('My day')} what={tab === 'todos' ? t('Everything still open in one list: yours from Remember and the ones you put on a day.') : t('Read the day, tap an entry to open it where it lives.')} />
 
 <p class="tabs"><Seg label={t('Views of My day')} value={tab} options={[{ key: 'day', name: t('Day') }, { key: 'todos', name: t('To-dos') }]} onchange={(k) => (location.hash = k === 'todos' ? '#/day/todos' : '#/day')} /></p>
 
