@@ -27,8 +27,8 @@
   import WeekMore from '../../lib/flow/WeekMore.svelte';
   import WeekRhythm from '../../lib/flow/WeekRhythm.svelte';
   import Zusammenhaenge from '../../lib/flow/Zusammenhaenge.svelte';
-  import Rituale from '../../lib/flow/Rituale.svelte';
-  import { ritualeWeek } from '../../lib/flow/rituale.js';
+  import AlleWoche from '../../lib/flow/AlleWoche.svelte';
+  import { alleWeek } from '../../lib/flow/alle-woche.js';
   import { actName as flowActName } from '../../lib/flow/ui.svelte.js';
   import WeekAnswers from '../../lib/flow/WeekAnswers.svelte';
   import WeekWhere from '../../lib/flow/WeekWhere.svelte';
@@ -63,8 +63,8 @@
   const fmt = (d, o) => new Date(`${d}T12:00:00Z`).toLocaleDateString(locale(), { timeZone: 'UTC', ...o });
   const range = $derived(`${fmt(monday, { day: 'numeric', month: monday.slice(5, 7) === sunday.slice(5, 7) ? undefined : 'long' })}–${fmt(sunday, { day: 'numeric', month: 'long' })}`);
   const running = $derived(monday === mondayOf(today));
-  /* «Erholung und Rituale» (Schritt J): sauna, meditation … as times, never as sport hours */
-  const rit = $derived(data ? ritualeWeek(data, monday, running ? today : sunday) : null);
+  /* «Alles, was du angelegt hast» (Noah 23.11.2026): every activity of Aktiv as times; rituals (Schritt J) stay a group of it */
+  const alle = $derived(data ? alleWeek(data, monday, running ? today : sunday) : null);
   const ritNames = $derived(new Map((data?.flowActs ?? []).map((a) => [a.id, flowActName(a)])));
   const prevHref = $derived(weekHref(shiftDay(monday, -7), today));
   const nextHref = $derived(running ? null : weekHref(shiftDay(monday, 7), today));
@@ -165,7 +165,7 @@
     <!-- «Form und Erholung» (Noah 20.10.2026): fitness and form at the end of the week -->
     <WeekForm end={running ? today : sunday} />
 
-    {#if rit}<Rituale rows={rit.rows} names={ritNames} />{/if}
+    {#if alle}<AlleWoche week={alle} names={ritNames} />{/if}
 
     <!-- «Mehr Daten» (Noah 01.11.2026 «3c»): body, zones, bikes, weather and appointments of the week -->
     <WeekMore {monday} upto={running ? today : sunday} {today} />
