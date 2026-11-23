@@ -18,6 +18,7 @@ PR (G3) · 23.11.2026 · Auftrag: Noah «G1 G2 G3» (Thread «Packen leichter un
 - Höchstens 6 Zeilen; Teile, die du nicht besitzt (Wunschliste), und Touren ohne Velo (eigene Packstücke) werden nicht geprüft.
 - Die Marken aus G2 («Abendblick») fliessen noch nicht ein: «oft unterwegs gebraucht» lernt die App erst, wenn genug Rückblicke da sind; das wäre ein eigener, späterer Schritt.
 - Keine eigene Funktionsseite (wie «Dazu nötig»).
+- Dieser PR bringt auch den Testfix für `tests/e2e/v0540.spec.js`: das Fenster eines Teils hat seit «Dazu nötig» die Zeile `with` nach den Bausteinen, der Test kannte die Reihenfolge noch ohne sie (auf main rot, Nur Testcode).
 
 ## Daten
 - Neues optionales Feld `reach` am Teil (wahr/falsch, sonst fehlt es), keine Änderung an Schema, Backup-Format oder Abgleich; die Liste der Tour bekommt bei «Diesmal nicht» `griffSkip` (Liste von Teil-Nummern). Öffnen und Speichern eines Teils lässt das Feld weg, wenn es nie gesetzt war (Test).
