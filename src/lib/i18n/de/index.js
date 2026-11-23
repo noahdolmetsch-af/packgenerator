@@ -53,6 +53,7 @@ import hobby3 from './hobby3.js';
 import ausstattung from './ausstattung.js';
 import medeinfach from './medeinfach.js';
 import aufraeumen from './aufraeumen.js';
+import speicherkarte from './speicherkarte.js';
 import medwunsch from './medwunsch.js';
 import rueckblickantippen from './rueckblickantippen.js';
 import allesfinden from './allesfinden.js';
@@ -780,6 +781,7 @@ const ORDERED = [
   ausstattung,
   medeinfach,
   aufraeumen,
+  speicherkarte,
   rueckblickantippen,
   medwunsch,
   kachel,
