@@ -1,6 +1,6 @@
 // «Tippfehler-Frage» (Warteliste 6; Noah 22.11.2026 «1-5 a»): the rule asks, it never blocks; a shifted comma becomes the suggestion.
 import { describe, it, expect } from 'vitest';
-import { askTypo, numberOf, okKey, okOf, withOk, KINDS } from '../src/lib/typo/frage.js';
+import { askTypo, askCounter, numberOf, okKey, okOf, withOk, KINDS } from '../src/lib/typo/frage.js';
 
 describe('askTypo', () => {
   it('a normal value is not asked about', () => {
@@ -51,5 +51,21 @@ describe('numberOf and the remembered values', () => {
     expect(okOf(v).at(-1)).toBe('km:205');
     expect(okOf(withOk(withOk(undefined, 'km', 3), 'km', 3))).toEqual(['km:3']);
     expect(okOf(undefined)).toEqual([]);
+  });
+});
+
+describe('askCounter', () => {
+  it('a reading that goes up a little is fine', () => {
+    expect(askCounter({ value: 2450, last: 2400 })).toBe(null);
+    expect(askCounter({ value: 2400, last: 2400 })).toBe(null);
+  });
+  it('a reading below the last one or far above it is asked about, with a shifted comma as suggestion', () => {
+    expect(askCounter({ value: 24500, last: 2400 })).toMatchObject({ suggest: 2450, why: 'counter' });
+    expect(askCounter({ value: 240, last: 2400 })).toMatchObject({ suggest: 2400 });
+    expect(askCounter({ value: 1200, last: 2400 })).toMatchObject({ suggest: null });
+  });
+  it('without a reading to compare, or marked as right, it does not ask', () => {
+    expect(askCounter({ value: 500, last: null })).toBe(null);
+    expect(askCounter({ value: 24500, last: 2400, ok: [okKey('counterKm', 24500)] })).toBe(null);
   });
 });
