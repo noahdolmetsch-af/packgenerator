@@ -31,6 +31,8 @@ describe('order and view', () => {
     expect(moveStep([], 'sleep', -1).slice(0, 2)).toEqual(['sleep', 'clothes']);
     expect(moveStep([], 'clothes', -1)[0]).toBe('clothes'); // the first cannot go up
     expect(moveStep([], 'check', 1).at(-1)).toBe('check');
+    // only the steps that show count as neighbours: Tech moves above Sleeping, over Food that has nothing in it
+    expect(moveStep([], 'tech', -1, ['clothes', 'sleep', 'tech'])).toEqual(['clothes', 'tech', 'food', 'sleep', 'bike', 'check']);
   });
   it('opens in Steps for a fresh list and in the bags for a list under way; a remembered choice wins', () => {
     expect(viewOf(null, [{ packed: false }])).toBe('steps');

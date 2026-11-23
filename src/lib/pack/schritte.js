@@ -33,11 +33,15 @@ export function orderedSteps(order = []) {
   return [...known, ...STEPS.map((s) => s.key).filter((k) => !known.includes(k))].map((k) => STEP[k]);
 }
 
-/** One step up (dir -1) or down (+1) in the order; the order is complete after it. */
-export function moveStep(order, key, dir) {
+/**
+ * One step up (dir -1) or down (+1) in the order; the order is complete after it. `visible`: the steps that show in this list: the step
+ * swaps with the nearest shown one (a step with nothing in it is no neighbour you can see).
+ */
+export function moveStep(order, key, dir, visible = null) {
   const keys = orderedSteps(order).map((s) => s.key);
   const i = keys.indexOf(key);
-  const j = i + dir;
+  let j = i + dir;
+  while (visible && j >= 0 && j < keys.length && !visible.includes(keys[j])) j += dir;
   if (i < 0 || j < 0 || j >= keys.length) return keys;
   [keys[i], keys[j]] = [keys[j], keys[i]];
   return keys;
