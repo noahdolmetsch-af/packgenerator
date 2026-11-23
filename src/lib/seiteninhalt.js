@@ -41,6 +41,8 @@ export const ON_PAGES = [
   // Not Data and backup, Appearance, Connections: with many functions the card pushes them below 2.5 phone screens (heimat.spec.js).
   '#/me/lists', '#/me/privacy', '#/me/regeln', '#/me/werte', '#/me/hinweise',
   '#/me/suche', '#/assistent', '#/me/apps',
+  // Kursblick (K-C): the small app's first page; its other tabs have no function of their own
+  '#/kurse',
   // PR 21, pages of one thing (a placeholder ':name' stands for one id): one trip's debrief, a race and its parts, one diary
   // entry. Not the race mode (#/race/:race/ride): while racing the first screen belongs to the ride, like Unterwegs. Not one
   // note (#/notes?open=:note): the note opens as a window over Notes, so the card would only sit hidden behind it.
