@@ -28,17 +28,21 @@ export function rain15Url(place) {
     longitude: Number(place.lon).toFixed(3),
     minutely_15: 'precipitation',
     forecast_minutely_15: String(STEPS + 4),
-    past_minutely_15: '1',
+    past_minutely_15: '2',
     timezone: 'UTC',
     timeformat: 'unixtime',
   });
   return `${OPEN_METEO}?${q}`;
 }
 
-/** The answer as kept: [{ ms, mm }] (a quarter with no value is left out). */
+/**
+ * The answer as kept: [{ ms, mm }] (a quarter with no value is left out). ms is the START of the quarter: Open-Meteo
+ * stamps the rain of a quarter at its end («the preceding 15 minutes»), so one quarter is taken back (Wetterseite
+ * aufräumen, Noah 23.11.2026: one rain start time for the whole page, wetter/regenzeit.js).
+ */
 export function parseRain15(j) {
   const m = j?.minutely_15 ?? {};
-  return (m.time ?? []).map((s, i) => ({ ms: s * 1000, mm: m.precipitation?.[i] })).filter((r) => fin(r.ms) && fin(r.mm));
+  return (m.time ?? []).map((s, i) => ({ ms: s * 1000 - QUARTER, mm: m.precipitation?.[i] })).filter((r) => fin(r.ms) && fin(r.mm));
 }
 
 /**
