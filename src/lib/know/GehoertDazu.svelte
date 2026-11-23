@@ -22,7 +22,7 @@
 </script>
 
 <!-- Durchklick-Fund 2 (Noah «2a»): the card is a closed line behind the title and behind the line «What you can do here» -->
-<div class="gd-host" data-gehoert-host use:afterTitle={{ behind: '[data-seiteninhalt-host]' }}>
+<div class="gd-host" data-gehoert-host use:afterTitle={{ behind: '[data-seiteninhalt-host], [data-suchehier-host]' }}>
 {#if row && row.items.length}
   <CardFold id="gd:{page}" label={t('Belongs to {moment}', { moment: t(momentName(moment)) })} count={row.total} always>
   <nav class="gd" aria-labelledby="gd-h" data-gehoert={moment}>

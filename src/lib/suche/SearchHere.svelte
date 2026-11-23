@@ -23,8 +23,9 @@
   let data = $state(null);
   let sub = null;
   let loading = false;
+  // the field starts again only when another page takes it (Ich, Touren, Auswerten), not when the address of the same page changes
   $effect(() => {
-    void hash;
+    void kind;
     q = '';
     f = { year: null, bike: null, art: null, dist: null };
     openChip = null;

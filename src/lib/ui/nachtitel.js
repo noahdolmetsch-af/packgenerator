@@ -49,8 +49,8 @@ export function placeAfter(h1, main, win = window) {
 
 /**
  * Svelte action for the host element of the card. opts.behind: a selector of another card's host that stands behind the same
- * title («Belongs to …» goes behind the line «What you can do here», Durchklick-Fund 2); when that host has its place, this one
- * goes right behind it, so the two never push each other back and forth.
+ * title («Belongs to …» goes behind the line «What you can do here», Durchklick-Fund 2, and behind the search field where there is one);
+ * when such a host has its place, this one goes right behind the last of them, so the cards never push each other back and forth.
  */
 export function afterTitle(host, opts = {}) {
   const main = host.closest('main');
@@ -72,8 +72,9 @@ export function afterTitle(host, opts = {}) {
     const h1 = titleOf(main, host);
     if (h1) {
       let a = placeAfter(h1, main);
-      const other = opts.behind ? main.querySelector(opts.behind) : null;
-      if (other && other !== host && other.dataset.placed === 'title' && other.isConnected) a = other;
+      // behind: a selector (list) of other cards; the last one that already has its place behind the title is the one to stand behind
+      const others = opts.behind ? [...main.querySelectorAll(opts.behind)].filter((o) => o !== host && o.dataset.placed === 'title' && o.isConnected) : [];
+      if (others.length) a = others[others.length - 1];
       if (!host.isConnected || host.previousElementSibling !== a) a.after(host);
       host.dataset.placed = 'title';
     } else if (late) {
