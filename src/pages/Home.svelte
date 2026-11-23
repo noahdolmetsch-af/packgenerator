@@ -134,6 +134,7 @@
   import HeuteCheckTile from '../lib/home/HeuteCheckTile.svelte';
   import MomentTile from '../lib/home/MomentTile.svelte'; // «Heute als Begleiter» PR 4
   import DiscoverTile from '../lib/home/DiscoverTile.svelte'; // PR 5
+  import IdeenZeile from '../lib/home/IdeenZeile.svelte'; // «Heute entdecken» (Noah 23.11.2026 «2b»)
   import SpruchTile from '../lib/home/SpruchTile.svelte'; // «Spruch zum Einstieg» PR 1
   import { vo2Of, VO2_DAYS } from '../lib/home/vo2.js';
   import { addDays as addHealthDays } from '../lib/health.js';
@@ -142,6 +143,7 @@
   import { WEIGH_KEY, weighDue } from '../lib/home/weighin.js';
   import GoalChips from '../lib/home/GoalChips.svelte';
   import ActsTile from '../lib/home/ActsTile.svelte';
+  import HakenBlock from '../lib/home/HakenBlock.svelte';
   import { SERIES_STEPS } from '../lib/home/series.js';
   import { readSeries, seriesTables } from '../lib/home/series-data.js';
   import { FUNCTIONS, USAGE_KEY, usageOf, dataUsed, usedFunctions } from '../lib/home/functions.js';
@@ -930,9 +932,19 @@
     const d = next?.startDate ? daysTo(next.startDate) : null;
     if (tourOnce) { /* the card «My tour» names the tour and its countdown */ } else if (d != null && d >= 1 && d <= 14) parts.push({ hi: true, text: tn(d, '{n} day until {trip}.', '{n} days until {trip}.', { trip: bare(next.title) }) });
     else if (d === 0) parts.push({ hi: true, text: t('Today: {trip}.', { trip: bare(next.title) }) });
-    parts.push({ hi: false, text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
+    // the count leads to «Up now» (Nutzer-Durchgang 23.11.2026): a tap scrolls there; without the tile on the wall it is a plain sentence
+    parts.push({ hi: false, to: upRows.length && onWall.has('important') ? 'imp-h' : '', text: upRows.length ? tn(upRows.length, 'One thing is up today.', '{n} things are up today.') : t('Nothing urgent today.') });
     return parts;
   });
+  // the sentence under the greeting leads to «Up now»: scrolls to its heading (a tap never changes the address)
+  function jumpTo(e, id) {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    el.setAttribute('tabindex', '-1');
+    el.focus({ preventScroll: true });
+  }
   let notice = $state(null); // { text, undo() } for a few seconds
   let noticeTimer;
   function say(text, undo) {
@@ -1028,7 +1040,7 @@
   });
   // «Tour nur einmal», step 3b (Noah 17.11.2026 «1-5a»): the big trip card is away while «My tour» says the same tour (one trip, no debrief question, no route profile)
   const tripMerged = $derived(tourOnce && cardTrips.length === 1 && !!shown && shown.id === bildTrip?.id && !ask && !prof);
-  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(tripMerged ? ['trip'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
+  const quiet = $derived([...(upEmpty && on('body') ? ['important'] : []), ...(tripMerged ? ['trip'] : []), ...(weighOn ? [] : ['weighin']), ...(vo2On ? [] : ['vo2max']), ...(wochen ? [] : ['wochentraum']), 'discover', ...(meineCard ? [] : ['meinetour']), ...(momentOnce ? ['moment'] : [])]);
   const shownWall = $derived(editing ? hideTiles(wall, hiddenTiles) : joinFlow(tripUp(hideTiles(wall, [...hiddenTiles, ...quiet]), !!near)));
   // Paket Q #74 (Noah 19.10.2026 «4a»): the wall follows the time of day; while editing the stored order shows
   const timeOn = $derived(S[WALL_TIME_KEY] !== false);
@@ -1149,7 +1161,9 @@
       </div>
     </div>
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
-    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}<span class:hi={p.hi}>{p.text}</span>{/each}</p>{/if}
+    {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
+    <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
+    {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} {newsDays} />{/if}
   </section>
 {/snippet}
 
@@ -1340,7 +1354,8 @@
   {:else if x.id === 'daycard'}<TagesKarte {today} {now} {fc} {items} {trips} {bikes} {tasks} {visits} rides={$ridesQ ?? []} idea={suggestion ? { text: t('Ride up to {h} h with the {bike}, today', { h: hrs(suggestion.hours), bike: suggestion.bike.name }) } : null} onquick={startQuick} onplan={() => (countUse('trip'), openNew('list'))} onother={suggestion ? nextBike : null} onkm={() => (countUse('km'), openNew('km'))} {debrief} care={careRows} careN={due.points} tomorrowTrip={tomorrowTrip} />
   {:else if x.id === 'du'}<DuTile {today} />
   {:else if x.id === 'body'}<div class="bodyw"><BodyTile {today} check={!on('heutecheck')} due={abDue} areas={abAreas} evening={abEvening} open={roundOpen} onstart={() => (abAsk = true)} />{#if ready && !editing}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}</div>
-  {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
+  {:else if x.id === 'haken'}<HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} />
+  {:else if x.id === 'acts'}<ActsTile {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} haken={onWall.has('haken')} cfg={S[HABITS_KEY] ?? null} />
   {:else if x.id === 'aktiv'}<AktivTile {today} rides={$ridesQ ?? []} size={x.size} hm={`${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`} />
   {:else if x.id === 'series'}<SeriesTile {today} size={x.size} party={seriesParty} />
   {:else if x.id === 'news'}<NewsTile size={x.size} days={newsDays} onremove={() => saveWall(removeTile(wall, 'news'))} />
@@ -1364,7 +1379,7 @@
   {:else if x.id === 'heutecheck'}<HeuteCheckTile {today} due={abDue} evening={abEvening} isnew={newTile('heutecheck')} />
   {:else if x.id === 'moment'}<MomentTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('moment')} />
   {:else if x.id === 'spruch'}<SpruchTile {today} {now} forecast={fc} trip={bildTrip} packed={bildTrip ? packedOf(bildTrip, itemsById, nameOf) : null} place={place?.lat != null ? { lat: Number(place.lat), lon: Number(place.lon) } : null} isnew={newTile('spruch')} />
-  {:else if x.id === 'discover'}<DiscoverTile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} isnew={newTile('discover')} />
+  {:else if x.id === 'discover'}<DiscoverTile isnew={newTile('discover')} />
   {:else if x.id === 'wochentraum'}<WochenTraumTile pick={wochen} isnew={newTile('wochentraum')} />
   {:else if x.id === 'vo2max'}<Vo2Tile {today} isnew={newTile('vo2max')} />
   {:else if x.id === 'values'}<DataWidget idp="hdw" />
@@ -2624,6 +2639,17 @@
     font: 650 var(--fs-sub) / 1.4 var(--font-body);
     color: var(--ink);
     text-wrap: pretty;
+  }
+  .say .jump {
+    position: relative;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .say .jump::after {
+    content: '';
+    position: absolute;
+    inset: -14px -6px;
   }
   .say .hi {
     color: var(--hi);

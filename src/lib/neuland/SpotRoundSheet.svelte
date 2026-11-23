@@ -26,7 +26,7 @@
   import { spotRoundPlan, planSpotRound } from './runde.js';
   import '../bikes/velo-dlg.css';
 
-  let { home, spot, onclose } = $props();
+  let { home, spot, fromName = null, onclose } = $props();
   let dialog = $state();
   $effect(() => {
     if (dialog && !dialog.open) dialog.showModal();
@@ -110,7 +110,7 @@
   {#if round}
     <div class="sp-out" role="status" data-sp-result>
       <b>{(round.gainM == null ? t('{km} km · about {time}', { km: num(Math.round(round.km)), time: timeOf(round.min) }) : t('{km} km · {up} m up · about {time}', { km: num(Math.round(round.km)), up: num(round.gainM), time: timeOf(round.min) }))}</b>
-      <span>{t('From home through {name} and back.', { name: spot.name })}</span>
+      <span>{fromName ? t('From {from} through {name} and back.', { from: fromName, name: spot.name }) : t('From home through {name} and back.', { name: spot.name })}</span>
       {#if round.via}<ReserveNote cls="sp-note" />{/if}
     </div>
     <div class="sp-row">

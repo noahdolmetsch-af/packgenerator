@@ -22,7 +22,8 @@ import { FEATURES_JS, FEATREG_SRC } from './featsrc.js';
 // «Heute ruhiger» (Noah 26.10.2026 «1a», changed on purpose): the small tiles are one list where the first stands
 // «Heute ruhiger» 3a (changed on purpose): Heute shows the tiles in areas, inside an area in wall order
 // 17.11.2026 (changed on purpose, «Tour nur einmal»): while «My tour» stands, «Your moment» about the trip is away (the fixture's trip is tomorrow)
-const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment'), true), 9));
+// «Heute entdecken» (Noah 23.11.2026 «2b», changed on purpose): the old tile «Entdecken» left the wall; the row under the chips replaces it
+const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment' && x.id !== 'discover'), true), 9));
 
 const NEWEST = WHATS_NEW[0];
 // the newest function (highest since-version) and whether the newest version brought it
