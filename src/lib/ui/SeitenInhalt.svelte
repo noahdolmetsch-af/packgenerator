@@ -29,7 +29,7 @@
   }
 </script>
 
-<div class="si-host" data-seiteninhalt-host use:afterTitle>
+<div class="si-host" data-seiteninhalt-host use:afterTitle={{ behind: '[data-suchehier-host]' }}>
 {#if rows.length && $seenQ}
   <button type="button" class="si-line" onclick={openHelp} aria-haspopup="dialog" data-seiteninhalt-line>
     <Lightbulb size={16} aria-hidden="true" /><span class="si-linet">{t('What you can do here')} <span class="num">{rows.length}</span></span>{#if fresh}<span class="si-new" data-seiteninhalt-new title={t('{n} new on this page', { n: fresh })}>{t('{n} new', { n: fresh })}</span>{/if}<span class="si-open">{t('Open the help')}</span><ChevronRight size={16} aria-hidden="true" />
