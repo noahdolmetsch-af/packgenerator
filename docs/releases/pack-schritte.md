@@ -4,7 +4,7 @@ PR #<Nummer> · 23.11.2026 · Auftrag: Noah «2a», «3a» (Warteliste 4, Bauste
 
 ## Was ist neu
 - Über der Packliste wählt ein Umschalter die Ansicht: **Schritte**, nach Taschen (die ganze Liste wie bisher) oder nach Kategorie.
-- **Schritte** zeigt die Liste als Kleider, Schlafen, Essen und Trinken, Technik und Laden, Velo und Reparatur, Prüfen (`src/lib/pack/schritte.js`). Jeder Schritt ist eine Gruppe wie eine Tasche: Zeilen, Gewicht, «Hinzufügen» und der Haken der Liste selbst. Am Ende steht «Weiter: …», das den nächsten Schritt öffnet. Mit «Früher» und «Später» ändert sich die Reihenfolge.
+- **Schritte** zeigt die Liste als Kleider, Schlafen, Verpflegung und Wasser, Technik und Laden, Velo und Reparatur, Prüfen (`src/lib/pack/schritte.js`). Jeder Schritt ist eine Gruppe wie eine Tasche: Zeilen, Gewicht, «Hinzufügen» und der Haken der Liste selbst. Am Ende steht «Weiter: …», das den nächsten Schritt öffnet. Mit «Früher» und «Später» ändert sich die Reihenfolge.
 - Die Wahl und die Reihenfolge werden gemerkt (Einstellung `pack.steps`, im Backup wie jede Einstellung). Eine Liste, in der noch nichts gepackt ist, öffnet in Schritten, eine begonnene bleibt bei den Taschen, solange du nichts gewählt hast.
 
 ## Was fällt weg oder rutscht tiefer
