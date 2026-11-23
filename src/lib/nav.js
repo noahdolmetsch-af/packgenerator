@@ -436,6 +436,9 @@ const FLOW_PAGES = {
   rest: { label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
 };
 
+/** The assistant opened from «Fragen» (`#/assistent?von=fragen`, «Eigene Frage stellen») stays in Auswerten under the chip «Fragen». */
+const FROM_FRAGEN = /^#\/assistent\?(?:[^#]*&)?von=fragen(?:&|$)/;
+
 /**
  * The pages of Auswerten (the old eighteen tabs). Since «Ganze App neu denken» Schritt 12 they are the chips under the five tabs of
  * Auswerten (PLACE_TABS.analysis), sorted by the question you ask; every address and every `match` is unchanged.
@@ -443,7 +446,7 @@ const FLOW_PAGES = {
  */
 const ANALYSIS_PAGES = {
   // «Fragen» (Plan 4a, Noah 08.11.2026 «D b»): the first tab; it stands before «Overview», whose address also starts with #/auswerten
-  fragen: { label: 'Questions|tab', href: '#/auswerten/fragen', match: (h) => /^#\/auswerten\/fragen(\/|\?|$)/.test(h) },
+  fragen: { label: 'Questions|tab', href: '#/auswerten/fragen', match: (h) => /^#\/auswerten\/fragen(\/|\?|$)/.test(h) || FROM_FRAGEN.test(h) },
   start: { label: 'Overview|tab', href: '#/auswerten', match: (h) => /^#\/auswerten(\/(?!analyse)|\?|$)/.test(h) },
   // Analyse PR 1 (Noah 27.10.2026 «1a»): every value as a tile, also behind «Mehr» on Heute
   analyse: { label: 'Analyse|page', href: '#/auswerten/analyse', match: (h) => /^#\/auswerten\/analyse(\/|\?|$)/.test(h) },
@@ -598,6 +601,7 @@ export function placeOf(page, hash = '') {
   // «Aktiv neu» (Noah 22.10.2026): the pages to look at are under Auswerten, the same addresses
   if (page === 'flow') return LOOK_FLOW.test(hash || '') ? 'analysis' : 'week'; // V4a: Aktiv is part of Woche (tab Training)
   if (page === 'auswerten') return 'analysis';
+  if (page === 'assistent' && FROM_FRAGEN.test(hash || '')) return 'analysis'; // «Eigene Frage stellen» (Noah 23.11.2026 «5a»): the place stays lit
   if (page === 'wetter') return 'weather'; // Wetter-Ausbau W1 (Noah 22.11.2026 «a»): a place of its own
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
   if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'day', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'impulse', 'weblinks'].includes(page)) return 'week';
