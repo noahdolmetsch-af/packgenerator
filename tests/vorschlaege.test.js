@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import TOURS from '../src/lib/vorschlaege/data/netz.js';
 import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
-import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes } from '../src/lib/vorschlaege/karte.js';
+import { kmMarks, stepFor } from '../src/lib/spur/kmmarks.js';
+import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
 const by = (id) => TOURS.find((t) => t.id === id);
@@ -232,5 +233,49 @@ describe('Tourenvorschläge: die Karte', () => {
     expect(sizes(1).dot).toBe(7);
     expect(sizes(0.27).dot).toBeGreaterThan(sizes(1).dot);
     expect(sizes(0.27).font).toBeGreaterThanOrEqual(13);
+  });
+});
+
+describe('Tourenvorschläge: die Karte zeigt die Zahlen beim Hovern', () => {
+  it('die Karte steht über dem Punkt, in der Mitte', () => {
+    const p = tipPos([600, 400], [1200, 800]);
+    expect(p.below).toBe(false);
+    expect(p.left).toBe(600 - p.width / 2);
+    expect(p.top).toBe(400 - TIP.gap - TIP.h);
+  });
+  it('am Rand rutscht sie in die Karte zurück, ganz oben darunter', () => {
+    const l = tipPos([5, 400], [1200, 800]);
+    expect(l.left).toBeGreaterThanOrEqual(4);
+    const r = tipPos([1195, 400], [1200, 800]);
+    expect(r.left + r.width).toBeLessThanOrEqual(1200 - 4);
+    const top = tipPos([600, 20], [1200, 800]);
+    expect(top.below).toBe(true);
+    expect(top.top).toBeGreaterThan(20);
+  });
+  it('auf einer schmalen Karte wird sie schmaler, nie breiter als die Karte', () => {
+    const p = tipPos([100, 300], [300, 500]);
+    expect(p.width).toBeLessThanOrEqual(300 - 8);
+    expect(p.left).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('Tourenvorschläge: km-Marken auf der Tourlinie', () => {
+  it('die Schrittweite passt zur Länge', () => {
+    expect(stepFor(4)).toBe(1);
+    expect(stepFor(12)).toBe(5);
+    expect(stepFor(44)).toBe(10);
+    expect(stepFor(130)).toBe(20);
+  });
+  it('eine Marke alle 10 km, nicht ganz am Ende, in der Reihenfolge der Linie', () => {
+    const t = by('sm-33');
+    const marks = kmMarks(t.line);
+    expect(marks.length).toBeGreaterThanOrEqual(2);
+    expect(marks.map((m) => m.km)).toEqual(marks.map((_, i) => (i + 1) * stepFor(t.km)));
+    expect(marks.at(-1).km).toBeLessThan(t.km + 1);
+    for (const m of marks) expect(m.pos).toHaveLength(2);
+  });
+  it('ohne Linie gibt es keine Marken', () => {
+    expect(kmMarks([])).toEqual([]);
+    expect(kmMarks([[47, 8]])).toEqual([]);
   });
 });
