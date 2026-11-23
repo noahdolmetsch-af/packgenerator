@@ -4,11 +4,12 @@
  *
  * upcomingTrip(trips, today): the first planned trip whose last day is not over (by start date); archived and test trips do not count.
  * tourWeather(core, trip, today): the weather of the trip's day (the first day still to come) between 07:00 and 20:00, from the
- *   saved forecast of wetter/kern.js: { date, tmin, tmax, rainFrom (ms | null), windMax } or null when the forecast does not
+ *   saved forecast of wetter/kern.js (the rain start from wetter/regenzeit.js, the same as on every part of the weather page): { date, tmin, tmax, rainFrom (ms | null), windMax } or null when the forecast does not
  *   cover that day (more than 16 days away, or none saved).
  * rainGear(trip, items): the rain things on the trip's packing list: { n, packed }.
  */
 import { atLocal, hoursBetween, dayLine } from './kern.js';
+import { rainDay } from './regenzeit.js';
 import { lastDay } from '../touren/wege.js';
 import { rainOf } from '../layers.js';
 import { homeTrips } from '../home/heute.js';
@@ -35,7 +36,9 @@ export function tourWeather(core, trip, today) {
   const date = tourDay(trip, today);
   const off = core.offset ?? 0;
   const line = dayLine(hoursBetween(core, atLocal(date, RIDE_FROM, off), atLocal(date, RIDE_TO, off)));
-  return line ? { date, tmin: line.tmin, tmax: line.tmax, rainFrom: line.rainFrom, windMax: line.windMax } : null;
+  // the rain start is the one of the whole page (regenzeit.js): its true start, also when it began before the ride
+  const rain = rainDay(core, date, RIDE_FROM, RIDE_TO);
+  return line ? { date, tmin: line.tmin, tmax: line.tmax, rainFrom: rain?.kind === 'later' ? rain.from : null, windMax: line.windMax } : null;
 }
 
 /** The rain things (own setting «Bei Regen», or in a Regen block) among the trip's entries: how many, how many packed. */

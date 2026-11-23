@@ -16,8 +16,9 @@
   import { onMount } from 'svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
-  import { LAKE_CACHE_KEY, LAKE_SET_KEY, LAKE_NAME, SCALE_WORDS, lakeSetOf, saveLakeSet, loadLake, waterScale, isStale, trend, sparkline, WARM_MIN, WARM_MAX, COLD_MIN } from '../lake.js';
+  import { LAKE_CACHE_KEY, LAKE_SET_KEY, LAKE_NAME, SCALE_WORDS, lakeSetOf, saveLakeSet, loadLake, waterScale, isStale, trend, WARM_MIN, WARM_MAX, COLD_MIN } from '../lake.js';
   import SaunaSee from './SaunaSee.svelte';
+  import LineChart from '../charts/LineChart.svelte'; // Wetterseite aufräumen: the one line chart of the app, with an axis and the exact value on pointing
   import { localDay } from '../localday.js';
   import { t, locale } from '../i18n.svelte.js';
   import { Waves, RefreshCw } from '@lucide/svelte';
@@ -47,9 +48,26 @@
   };
   const stale = $derived(cur ? isStale(cur.at, now) : false);
   const tr = $derived(trend(data?.days));
-  const W = 300;
-  const H = 64;
-  const line = $derived(data ? sparkline(data.days, data.forecast, { w: W, h: H, warm }) : null);
+  // the daily mean of the last days and, dashed, the Eawag preview: one column per day
+  const rows = $derived.by(() => {
+    const past = (data?.days ?? []).filter((d) => typeof d.mean === 'number').map((d) => ({ day: d.day, v: d.mean, ahead: false }));
+    const lastPast = past.length ? past[past.length - 1].day : '';
+    const next = (data?.forecast ?? []).filter((d) => typeof d.water === 'number' && d.day > lastPast).map((d) => ({ day: d.day, v: d.water, ahead: true }));
+    return [...past, ...next];
+  });
+  const line = $derived(rows.length >= 2 ? rows : null);
+  const nPast = $derived(rows.filter((r) => !r.ahead).length);
+  const chartCols = $derived(rows.map((r, i) => ({ key: r.day, x: i === 0 || (i % 7 === 0 && rows.length - 1 - i > 3) || i === rows.length - 1 ? shortDay(r.day) : '' })));
+  const lo = $derived(rows.length ? Math.min(...rows.map((r) => r.v)) : 0);
+  const hi = $derived(rows.length ? Math.max(...rows.map((r) => r.v)) : 0);
+  const chartSeries = $derived([
+    { key: 'past', color: 'var(--accent)', v: rows.map((r) => (r.ahead ? null : r.v)) },
+    ...(rows.some((r) => r.ahead) ? [{ key: 'ahead', color: 'var(--ink-3)', dashed: true, v: rows.map((r, i) => (r.ahead || i === nPast - 1 ? r.v : null)) }] : []),
+    ...(warm >= lo && warm <= hi ? [{ key: 'warm', color: 'var(--line)', dashed: true, v: rows.map(() => warm) }] : []),
+  ]);
+  const chartReadout = (i) => ({ title: `${dayName(rows[i].day)}${rows[i].ahead ? ` · ${t('preview')}` : ''}`, items: [{ label: rows[i].ahead ? t('Preview') : t('Water'), value: `${one(rows[i].v)} °C` }] });
+  const chartTable = $derived({ head: [t('Day'), t('Water')], rows: [...rows].reverse().map((r) => ({ key: r.day, cells: [`${dayName(r.day)}${r.ahead ? ` · ${t('preview')}` : ''}`, `${one(r.v)} °C`] })) });
+  const shortDay = (day) => new Date(`${day}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'numeric' });
   const ahead = $derived((data?.forecast ?? []).filter((d) => d.day > localDay(now)));
   const hid = `lake-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -132,15 +150,10 @@
 
     {#if line}
       <figure class="lk-fig">
-        <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" role="img" aria-label={t('Water temperature of the last {n} days, from {lo} to {hi} °C', { n: data.days.length, lo: one(line.lo), hi: one(line.hi) })}>
-          {#if line.warmY != null}<line class="lk-warm" x1="0" x2={W} y1={line.warmY} y2={line.warmY} />{/if}
-          <path class="lk-past" d={line.past} />
-          {#if line.ahead}<path class="lk-ahead" d={line.ahead} />{/if}
-        </svg>
+        <LineChart id="lake" cols={chartCols} series={chartSeries} unit="°C" height={120} maxTop={0} initial={Math.max(0, nPast - 1)} readout={chartReadout} table={chartTable} label={t('Water temperature of the last {n} days, from {lo} to {hi} °C', { n: data.days.length, lo: one(lo), hi: one(hi) })} />
         <figcaption class="lk-axis num">
           <span>{t('{n} days', { n: data.days.length })}</span>
-          <span>{one(line.lo)}–{one(line.hi)} °C</span>
-          {#if line.ahead}<span class="lk-key"><i aria-hidden="true"></i>{t('preview')}</span>{/if}
+          {#if rows.some((r) => r.ahead)}<span class="lk-key"><i aria-hidden="true"></i>{t('preview')}</span>{/if}
         </figcaption>
       </figure>
     {/if}
@@ -213,11 +226,6 @@
   .lk-hint.fresh, .lk-hint.cold { background: var(--info-soft); color: var(--ink-2); }
   .lk-hint.icy { background: var(--info-soft); color: var(--ink); font-weight: 600; }
   .lk-fig { margin: 0; }
-  .lk-fig svg { display: block; width: 100%; height: 64px; }
-  .lk-past, .lk-ahead { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
-  .lk-past { stroke: var(--accent); }
-  .lk-ahead { stroke: var(--ink-3); stroke-dasharray: 4 3; }
-  .lk-warm { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 3; vector-effect: non-scaling-stroke; }
   .lk-axis { display: flex; gap: var(--sp-3); justify-content: space-between; color: var(--ink-3); font-size: var(--fs-tiny); margin-top: var(--sp-1); }
   .lk-key { display: inline-flex; align-items: center; gap: var(--sp-1); }
   .lk-key i { display: inline-block; width: 14px; border-top: 2px dashed var(--ink-3); }

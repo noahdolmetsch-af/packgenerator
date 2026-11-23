@@ -22,20 +22,20 @@ describe('rainStrip', () => {
   });
   it('finds the first wet hour and the strongest hour', () => {
     const rows = dryDay();
-    rows[4] = [4, 0.4, 70];
+    rows[4] = [4, 0.4, 70]; // the value at 04:00 is the rain of 03:00 to 04:00
     rows[5] = [5, 2.2, 90];
     rows[6] = [6, 1.1, 80];
     const s = rainStrip(core(rows), t0);
     expect(s.dry).toBe(false);
     expect(s.nowWet).toBe(false);
-    expect(s.from).toBe(t0 + 4 * H);
-    expect(s.peak).toBe(t0 + 5 * H);
+    expect(s.from).toBe(t0 + 3 * H);
+    expect(s.peak).toBe(t0 + 4 * H);
     expect(s.total).toBe(3.7);
   });
   it('knows when the rain that falls now ends', () => {
     const rows = dryDay();
-    rows[0] = [0, 1.5, 90];
-    rows[1] = [1, 0.8, 80];
+    rows[1] = [1, 1.5, 90]; // the hours t0 to t0+1 and t0+1 to t0+2
+    rows[2] = [2, 0.8, 80];
     const s = rainStrip(core(rows), t0);
     expect(s.nowWet).toBe(true);
     expect(s.to).toBe(t0 + 2 * H);

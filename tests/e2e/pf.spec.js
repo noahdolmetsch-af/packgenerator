@@ -225,7 +225,8 @@ async function fillTrip(dlg, rec, o) {
 async function openAllBags(page) {
   await page.locator('.calm-pack section.bag-group').first().waitFor();
   const heads = page.locator('.calm-pack .bag-heading[aria-expanded="false"]');
-  for (let n = await heads.count(); n > 0; n--) await heads.first().click();
+  // a bag may open by itself while the page settles (the first one): look again before every click, never wait for a fold that is gone
+  for (let n = await heads.count(); n > 0; n = await heads.count()) await heads.first().click({ timeout: 5000 });
 }
 // v0.59.0: worn clothing stands in the card «On me» (with its reason), the rest in the bags.
 const planningRow = (page, key) => page.locator('.calm-pack :is(.planning-row, .worn-card li)').filter({ hasText: nm(key) });

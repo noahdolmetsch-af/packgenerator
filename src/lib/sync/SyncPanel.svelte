@@ -23,11 +23,11 @@
    * days in the fold «Automatisch abgeglichen», where it can be brought back.
    */
   import { onMount } from 'svelte';
-  import { RefreshCw, Link2, Copy, Share2 } from '@lucide/svelte';
+  import { RefreshCw, Link2, Copy, Share2, Download } from '@lucide/svelte';
   import { db } from '../db.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import QrCode from '../ich/QrCode.svelte';
-  import { newCode, readCode } from './code.js';
+  import { newCode, readCode, findCode, codeFileText, CODE_FILE_NAME } from './code.js';
   import { runningLine, failedLine } from '../ui/connstatus.js';
   import { compareSync, fixMissing } from './compare.js';
   import { startSync, stopSync, readCfg, lostVersions, bringBack, dropLost } from './engine.js';
@@ -229,7 +229,7 @@
     }
   }
   async function pairWith(code) {
-    const c = readCode(code);
+    const c = findCode(code);
     if (!c) {
       message = t('This code is not complete. It has 32 letters and digits.');
       return;
@@ -279,6 +279,19 @@
       }
     } catch {
       /* cancelled */
+    }
+  }
+  // Noah 22.11.2026 «4a»: the code can be kept on the computer, for a phone that starts empty one day
+  function saveCode(code) {
+    try {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([codeFileText(code, t)], { type: 'text/plain' }));
+      a.download = CODE_FILE_NAME;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      message = t('Code saved as a file. Keep it somewhere safe.');
+    } catch {
+      /* not allowed */
     }
   }
   async function copyCode(code) {
@@ -400,6 +413,7 @@
           <div class="ich-acts">
             <button type="button" class="btn sm" onclick={() => share($cfgQ.code)}><Share2 size={16} aria-hidden="true" />{t('Share link')}</button>
             <button type="button" class="btn sm" onclick={() => copyCode($cfgQ.code)}><Copy size={16} aria-hidden="true" />{t('Copy code')}</button>
+            <button type="button" class="btn sm" onclick={() => saveCode($cfgQ.code)} data-sync-savecode><Download size={16} aria-hidden="true" />{t('Save code as file')}</button>
             <button type="button" class="btn sm" onclick={() => (view = '')}>{t('Done')}</button>
           </div>
           <p class="small">{t('Keep the code to yourself: whoever has it can read your data.')}</p>

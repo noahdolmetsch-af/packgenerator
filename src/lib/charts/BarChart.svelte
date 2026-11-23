@@ -11,6 +11,7 @@
    * or «No data in this period» for a bar that is no real zero: the line above the chart shows it instead of the numbers,
    * and the chart starts on the newest bar without it), line: [number] or null,
    * readout(i) → { title, items, extra } (extra: one line under the numbers, e.g. the comparison with the year before), label: what the chart shows (for screen readers), unit: of the axis,
+   * initial: the column the readout shows before anything is pointed at (default: the newest; a forecast starts at the first).
    * sentences: up to three short sentences over the chart (sentence.js), steps: the allowed axis steps (counts: [1, 2, 5, 10 …] so the axis never says 0.5 sessions).
    */
   import { niceScale, fracOf, tickText } from './axis.js';
@@ -22,7 +23,7 @@
   import { indexAt, stepKey } from './pick.js';
   import { t, num } from '../i18n.svelte.js';
 
-  let { cols = [], line = null, lineColor = 'var(--ch-w)', readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 26, id = 'bc', steps = null, sentences = [] } = $props();
+  let { cols = [], line = null, lineColor = 'var(--ch-w)', readout, onopen = null, label = '', unit = '', height = 150, table = null, hint = '', maxTop = 26, id = 'bc', steps = null, sentences = [], initial = null } = $props();
 
   const totals = $derived(cols.map((c) => c.parts.reduce((s, p) => s + (p.v || 0), 0)));
   const scale = $derived(niceScale([...totals, ...(line ?? [])], { zero: true, count: 4, steps }));
@@ -55,7 +56,7 @@
     for (let i = n - 1; i >= 0; i--) if (!cols[i].none) return i;
     return n ? n - 1 : null;
   });
-  const shown = $derived(sel ?? lastReal);
+  const shown = $derived(sel ?? initial ?? lastReal);
   const ro = $derived.by(() => {
     if (shown == null) return null;
     const r = readout?.(shown);

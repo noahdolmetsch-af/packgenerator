@@ -19,6 +19,7 @@
   import { searchPlace } from '../weather.js';
   import { askDelete, deleteWithUndo } from '../ui/ask.js';
   import RenameSheet from '../ui/RenameSheet.svelte';
+  import { shortPlace } from './ort.js';
   import { t, num, locale } from '../i18n.svelte.js';
 
   let { place = null, now = Date.now() } = $props();
@@ -118,7 +119,7 @@
     {@const rows = rowsFor(it)}
     {@const p = profs[it.id]}
     <article class="hh-item" data-hoehe-item={it.id}>
-      <p class="hh-name"><b>{it.kind === 'page' ? (it.name ? t('Over {name}', { name: it.name }) : t('Over your place')) : it.kind === 'peak' ? `${it.name}, ${num(it.z)} m` : t('Over {name}', { name: it.name })}</b>{#if at(p)}<small> · {t('As of {at}', { at: at(p) })}</small>{/if}</p>
+      <p class="hh-name"><b>{it.kind === 'page' ? (it.name ? t('Over {name}', { name: shortPlace(it.name) }) : t('Over your place')) : it.kind === 'peak' ? `${it.name}, ${num(it.z)} m` : t('Over {name}', { name: it.name })}</b>{#if at(p)}<small> · {t('As of {at}', { at: at(p) })}</small>{/if}</p>
       {#if rows && hasValue(rows)}
         <div class="hh-wrap">
           <table class="hh-tab" data-hoehe-table>
@@ -176,7 +177,7 @@
     <summary>{t('Choose places and peaks')}</summary>
     <label class="hh-check"><input type="checkbox" checked={onHome} onchange={toggleHome} data-hoehe-home />{t('Show the temperatures by height on Today')}</label>
     <div class="hh-chips" role="group" aria-label={t('Places')}>
-      <button type="button" class="hh-chip" aria-pressed={isOn('page')} onclick={() => toggle('page')} data-hoehe-pick="page">{place?.name ? place.name : t('This place')}</button>
+      <button type="button" class="hh-chip" aria-pressed={isOn('page')} onclick={() => toggle('page')} data-hoehe-pick="page">{place?.name ? shortPlace(place.name) : t('This place')}</button>
       {#each SPOTS as s (s.id)}<button type="button" class="hh-chip" aria-pressed={isOn(s.id)} onclick={() => toggle(s.id)} data-hoehe-pick={s.id}>{s.name}</button>{/each}
       {#each own as o (o.id)}<button type="button" class="hh-chip" aria-pressed={isOn(`own:${o.id}`)} onclick={() => toggle(`own:${o.id}`)} data-hoehe-pick={`own:${o.id}`}>{o.name}</button>{/each}
     </div>
