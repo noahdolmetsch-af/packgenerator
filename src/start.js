@@ -147,6 +147,8 @@ noteAppOpen();
 // (the bike shop sheet and the gear import use German words); a German app has them already (main.js).
 if (lang.v !== 'de') loadDe().catch(() => {});
 mount(App, { target: document.getElementById('app') });
+// «Sofort ein Bild» (23.11.2026): the quiet frame of index.html (#boot) goes as soon as the app is drawn
+document.getElementById('boot')?.remove();
 watchWhitePage();
 watchErrors(); // «Fehler-Melder»: errors nobody caught are noted on this device (nothing is sent)
 

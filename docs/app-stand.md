@@ -8,7 +8,7 @@ Quelle der Funktionsübersicht (Abschnitt 3): Noahs Dokument «Was die App kann�
 
 ## 1. Die App in einem Absatz
 
-Persönliches Aktivitäts-, Touren- und Alltags-Cockpit: Tourenplanung, Packlisten, Navigation, Velopflege, Training und persönliche Organisation. Svelte 5 + Vite, Daten nur auf dem Gerät (Dexie/IndexedDB), läuft offline als PWA (Desktop und Samsung-Handy). GitHub Pages liefert die App; der Vercel-Server «packgen» (`api/`) wird nur für Verbindungen gebraucht (Strava, Fitbit, Google, KI-Helfer, Push, Abgleich).
+Persönliches Aktivitäts-, Touren- und Alltags-Cockpit: Tourenplanung, Packlisten, Navigation, Velopflege, Training und persönliche Organisation. Svelte 5 + Vite, Daten nur auf dem Gerät (Dexie/IndexedDB), läuft offline als PWA (Desktop und Samsung-Handy). GitHub Pages liefert die App; der Vercel-Server «packgen» (`api/`) wird nur für Verbindungen gebraucht (Strava, Fitbit, Google, KI-Helfer, Push, Abgleich). Beim Start zeigt `index.html` sofort ein ruhiges Gerüst von Heute in der gewählten Farbwelt (`#boot`, `scripts/boot-shell.mjs`), bis die App gezeichnet ist; Messung unter Ich › Daten › Tempo-Messer (`src/lib/tempo/messer.js`: Start, Inhalt da, Gebremst beim Start).
 
 ## 2. Orte der App und wo sie im Code liegen
 
