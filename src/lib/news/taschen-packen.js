@@ -1,0 +1,35 @@
+// «Taschen packen: Foto, Etikett, Wiegen» (Noah 23.11.2026 «K1 K2 K3», als ein PR gebündelt, Thread «Bikepacking-Rennen: Stand und Ideen zeigen»)
+export default {
+  title: 'Photo, label and scale for every bag',
+  lead: 'Photograph, label and weigh every packed bag on the packing day; in race mode one tap shows what lies where.',
+  points: [
+    { text: 'In Pack an open bag has «Photo of this bag»; in race mode the new box «What lies where» shows the photos, also at night and tired', go: null },
+    { text: 'In Pack an open bag has «Packed bag on the scale (g)»: the app compares your number with the items and the bag itself and says «380 g more: is a piece missing?»', go: null },
+    { text: 'In Pack an open bag has «Label of the bag»: the items, the heaviest first, with weights and the total; share or save it', go: null },
+  ],
+  test: [
+    'Open a trip in Pack, open a bag «By bags» and tap «Photo of this bag»: take or choose a photo; it shows small with the date.',
+    'Open race mode of a race: the box «What lies where» lists the bags with a photo; one tap shows it.',
+    'Open a trip in Pack, open a bag «By bags» and type the weight under «Packed bag on the scale (g)», then «Save».',
+    'Read the line: «this fits» or the difference with a question where to look.',
+    'Open a trip in Pack, open a bag «By bags» that has items and tap «Label of the bag».',
+    'A picture with the bag, the trip, the items with weights and the total appears.',
+  ],
+  since: ['f.bagphoto', 'f.bagweigh', 'f.baglabel'],
+  de: {
+    'Photo, label and scale for every bag': 'Foto, Etikett und Waage für jede Tasche',
+    'Photograph, label and weigh every packed bag on the packing day; in race mode one tap shows what lies where.': 'Jede gepackte Tasche am Packtag fotografieren, beschriften und wiegen; im Rennmodus zeigt ein Tipp, was wo liegt.',
+    'In Pack an open bag has «Photo of this bag»; in race mode the new box «What lies where» shows the photos, also at night and tired': 'Beim Packen hat eine geöffnete Tasche «Foto dieser Tasche»; im Rennmodus zeigt die neue Box «Was liegt wo?» die Fotos, auch nachts und müde',
+    'Open a trip in Pack, open a bag «By bags» and tap «Photo of this bag»: take or choose a photo; it shows small with the date.': 'Öffne beim Packen eine Tour, öffne eine Tasche «Nach Taschen» und tippe auf «Foto dieser Tasche»: Foto machen oder wählen; es erscheint klein mit dem Datum.',
+    'Tap the small picture: it opens big. «Other photo» replaces it, the bin deletes it with Undo.': 'Tippe auf das kleine Bild: es geht gross auf. «Anderes Foto» ersetzt es, der Mülleimer löscht es mit Rückgängig.',
+    'Open race mode of a race: the box «What lies where» lists the bags with a photo; one tap shows it.': 'Öffne den Rennmodus eines Rennens: die Box «Was liegt wo?» listet die Taschen mit Foto; ein Tipp zeigt es.',
+    'In Pack an open bag has «Packed bag on the scale (g)»: the app compares your number with the items and the bag itself and says «380 g more: is a piece missing?»': 'Beim Packen hat eine geöffnete Tasche «Gepackte Tasche auf der Waage (g)»: die App vergleicht deine Zahl mit den Teilen und der Tasche selbst und sagt «380 g mehr: fehlt ein Teil?»',
+    'Open a trip in Pack, open a bag «By bags» and type the weight under «Packed bag on the scale (g)», then «Save».': 'Öffne beim Packen eine Tour, öffne eine Tasche «Nach Taschen» und tippe das Gewicht unter «Gepackte Tasche auf der Waage (g)», dann «Speichern».',
+    'Read the line: «this fits» or the difference with a question where to look.': 'Lies die Zeile: «das passt» oder der Unterschied mit der Frage, wo man nachschauen soll.',
+    '«Change» edits the number, «Remove» takes it away; «Undo» brings it back.': '«Ändern» ändert die Zahl, «Entfernen» nimmt sie weg; «Rückgängig» bringt sie zurück.',
+    'In Pack an open bag has «Label of the bag»: the items, the heaviest first, with weights and the total; share or save it': 'Beim Packen hat eine geöffnete Tasche «Etikett der Tasche»: die Teile, das schwerste zuerst, mit Gewichten und der Summe; teilen oder speichern',
+    'Open a trip in Pack, open a bag «By bags» that has items and tap «Label of the bag».': 'Öffne beim Packen eine Tour, öffne eine Tasche «Nach Taschen» mit Teilen und tippe auf «Etikett der Tasche».',
+    'A picture with the bag, the trip, the items with weights and the total appears.': 'Ein Bild mit der Tasche, der Tour, den Teilen mit Gewichten und der Summe erscheint.',
+    'Tap «Share» (phone) or «Save» (computer): nothing is sent by itself.': 'Tippe auf «Teilen» (Handy) oder «Speichern» (Computer): nichts wird von selbst gesendet.',
+  },
+};

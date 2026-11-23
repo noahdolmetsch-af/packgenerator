@@ -61,6 +61,7 @@
   import { pageOf, isUnknown, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import Explorer from './lib/nav/Explorer.svelte';
+  import TabTitle from './lib/nav/TabTitle.svelte'; // «Seitentitel im Browser-Tab» (Noah 23.11.2026 «2a»)
   import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
   import { ops } from './lib/bedienung.svelte.js';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -944,10 +945,12 @@
 {/if}
 {#if !guest}<SkiTurn />{/if}
 <!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
+{#if !guest && !mini}{#await import('./lib/drop/DropLayer.svelte') then M}<M.default />{/await}{/if}
 {#if !guest}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if !guest && page !== 'timer'}<TimerFloat />{/if}
 <!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
+<TabTitle {hash} {page} {place} />
 <Keys bind:open={keysOpen} />
 <!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
 {#if !guest}<TourStart /><TourHost />{/if}

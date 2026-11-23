@@ -66,12 +66,15 @@
 <style>
   .ampel {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 6px;
   }
+  /* the title line may wrap (320 px phone): with the sixth sign (Griffbereit) its parts no longer fit on one line and widened the page */
   .top {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    gap: 2px 10px;
     min-height: 44px;
     cursor: pointer;
     list-style: none;
@@ -81,6 +84,7 @@
   }
   .signs {
     display: flex;
+    flex-wrap: wrap;
     gap: 4px;
   }
   .state {
