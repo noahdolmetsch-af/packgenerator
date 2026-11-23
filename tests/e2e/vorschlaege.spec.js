@@ -67,6 +67,27 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-vs-view="map"]').click();
   await expect(page.locator('[data-vs-karte] svg')).toBeVisible();
   await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hard.length);
+  // the hover card (Noah 23.11.2026): the mouse over a dot shows title, km, time and climb; on a phone the first tap shows it and does not open the tour yet
+  const near = TOURS.find((x) => x.id === FIRST);
+  const dot = page.locator(`[data-vs-dot="${FIRST}"]`);
+  await dot.scrollIntoViewIfNeeded();
+  if (info.project.name === 'phone') {
+    await dot.dispatchEvent('click');
+  } else {
+    await dot.hover({ force: true });
+  }
+  const tip = page.locator('[data-vs-tip]');
+  await expect(tip).toBeVisible();
+  await expect(tip).toHaveAttribute('data-vs-tip', FIRST);
+  await expect(tip).toContainText(near.title);
+  await expect(tip).toContainText('km');
+  await expect(tip).toContainText(`+`);
+  await expect(tip.locator('a.topen')).toHaveAttribute('href', `#/trips/vorschlaege/${FIRST}`);
+  expect(await page.evaluate(() => location.hash)).toBe('#/trips/vorschlaege');
+  if (info.project.name !== 'phone') {
+    await page.mouse.move(2, 2);
+    await expect(tip).toHaveCount(0);
+  }
   // «map on top»: in the map view the map stands above the filters (Noah 23.11.2026: big and well visible)
   const yMap = (await page.locator('[data-vs-karte]').boundingBox()).y;
   const yFilters = (await page.locator('[data-vs-filters]').boundingBox()).y;

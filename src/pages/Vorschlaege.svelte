@@ -350,7 +350,7 @@
         <span class="hint num" data-vs-count>{t('{n} tours', { n: shown.length })}</span>
       </div>
       {#if view === 'map'}
-        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} />{:catch}{/await}
+        {#await import('../lib/vorschlaege/Karte.svelte') then m}<m.default tours={shown} grey={split.notNow.map((x) => x.id)} regions={flt.regions} onregion={(k) => toggle('regions', k)} region={regionName} {pace} />{:catch}{/await}
       {:else}
       <section class="ich-sec" aria-labelledby="vs-fit" data-vs-fits>
         <div class="ich-h"><div><h2 id="vs-fit">{t('Fits now')} <small class="n num">{split.fits.length}</small></h2><p class="ich-hs">{t('Tours that suit this month.')}</p></div></div>
