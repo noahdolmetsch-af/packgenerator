@@ -90,7 +90,6 @@ export default {
   'Own diagram': 'Eigenes Diagramm',
   'Comparisons': 'Vergleiche',
   // Funktion f.fragen (featreg/fragen.js)
-  'Questions about my data': 'Fragen an meine Daten',
   'Six questions about your own data, each answered in one sentence with the number and its limit: resting pulse, speed, your last tour, sleep after a ride, what is due on your bikes and this year against last. With too little data it says so and does not guess.': 'Sechs Fragen zu deinen eigenen Daten, jede mit einem Satz als Antwort, mit der Zahl und ihrer Grenze: Ruhepuls, Tempo, deine letzte Tour, Schlaf nach einer Fahrt, was bei deinen Velos fällig ist und dieses Jahr gegen das letzte. Bei zu wenig Daten steht das da, es wird nichts geraten.',
   'Open Analysis and tap the first tab «Questions».': 'Öffne Auswerten und tippe den ersten Reiter «Fragen».',
   'Read the answer under a question: one sentence with the number and its limit.': 'Lies die Antwort unter einer Frage: ein Satz mit der Zahl und ihrer Grenze.',

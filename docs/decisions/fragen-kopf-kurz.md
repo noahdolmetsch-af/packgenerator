@@ -8,3 +8,5 @@ Noah wählte bei der Prüfung «Fragen-Bereich» in allen fünf Fragen die Empfe
 
 Noch offen aus derselben Antwort: 4 (eine Antwort als Idee in «Heute entdecken») und 5 (Assistent).
 Grund: Klarheit (die Antwort ist das Erste, das man sieht) und Auffindbarkeit (Wichtiges oben).
+
+Nachtrag (beim Bauen): Titel und Name der Seite in Suche und Katalog heissen beide «Frag deine Daten». «Fragen an meine Daten» fällt als Name weg, weil der Wächter «jede Funktion steht auf ihrer Seite» (`tests/e2e/heimat.spec.js`) und die Regel «ein Ding, ein Name» denselben Namen verlangen.

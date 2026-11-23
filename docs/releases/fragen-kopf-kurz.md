@@ -9,7 +9,7 @@ Ziele von Noah (23.11.2026 18:09): **Klarheit** (man sieht sofort die Antwort; p
 - **Zahlen beschriftet:** «16 Fahrtage mit Tempo in den letzten 90 Tagen, 0 in den 90 Tagen davor; auf jeder Seite braucht es 5» (Tempo) und «… dieses Jahr … im letzten Jahr bis zum selben Datum …» (Jahr).
 - **Schmale Zeilen:** Antworten, die stehen, sind volle Karten und kommen zuerst. Fragen mit zu wenig Daten sind eine schmale Zeile mit «Braucht noch 5 Fahrtage». Ein Tipp klappt sie auf: Satz mit den Zahlen, Grenze, «Wie gerechnet», «Mehr dazu». Ohne Daten: eine Leer-Karte und sechs Zeilen statt sechs grossen Karten.
 - **Stand:** unter jeder Antwort «Stand heute, Daten bis gestern» (oder bis zum Tag des letzten Werts).
-- **Namen:** «Fragen an meine Daten» (Name in Listen und Suche), «Die App fragt dich» (das Kästchen mit den Fragen, die die App stellt, auf «Wi gaht's?»), «Eigene Frage stellen» (Assistent). `docs/namen.md` Zeile 44.
+- **Namen:** «Frag deine Daten» (Titel und Name überall), «Die App fragt dich» (das Kästchen mit den Fragen, die die App stellt, auf «Wi gaht's?»), «Eigene Frage stellen» (Assistent). `docs/namen.md` Zeile 44.
 
 ## Was fällt weg oder rutscht tiefer
 - Der lange Einleitungssatz oben fällt weg (die Grenzen stehen unter jeder Antwort).
@@ -18,7 +18,7 @@ Ziele von Noah (23.11.2026 18:09): **Klarheit** (man sieht sofort die Antwort; p
 - «Fragen aus deinen Daten» heisst im Deutschen nur noch «Die App fragt dich».
 
 ## Selbst entschieden
-- Der Seitentitel spricht in der Du-Form («Frag deine Daten»); der Name in Seitenleiste, Suche und Handbuch bleibt «Fragen an meine Daten», wie im Entscheid 3.
+- Titel, Name in Suche und Katalog heissen gleich: «Frag deine Daten» (Du-Form). Der Entscheid 3 nannte noch «Fragen an meine Daten» als Listenname; der Wächter «jede Funktion steht auf ihrer Seite» verlangt aber denselben Namen wie der Titel, und ein Ding soll einen Namen haben. «Fragen an meine Daten» fällt als Name weg.
 - Der Name «Wi gaht's?» für die Seite bleibt (Noahs eigener Name, 14.10.2026). «Die App fragt dich» heisst nur das Kästchen mit den Regeln darin; der Kasten und die Funktion «Die App fragt dich» im Katalog tragen den neuen Namen, auch in den Schritten von Handbuch und Hilfe (alte «Was ist neu»-Texte bleiben, wie sie waren).
 - «Fragen in eigenen Worten» bleibt als Name der Such-Hilfe (anderes Ding: die Suche, nicht der Assistent).
 - «Stand»: kein fester Text «bis gestern», sondern der Tag des letzten Werts, damit es stimmt, wenn eine Uhr zwei Tage nicht synchronisiert hat.

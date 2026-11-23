@@ -130,7 +130,7 @@ test('Fragen: the search leads to the tab', async ({ page, context }, info) => {
   if (info.project.name === 'phone') await page.locator('header.top .search button.icon').click();
   const field = page.getByRole('searchbox', { name: T('What do you want to do? Search or say an action') }).first();
   await field.fill('frag deine daten');
-  await expect(page.locator('[data-cmd="fragen"]').first()).toContainText(T('Questions about my data'));
+  await expect(page.locator('[data-cmd="fragen"]').first()).toContainText(T('Ask your data'));
   await field.press('Enter');
   await expect(page).toHaveURL(/#\/auswerten\/fragen/);
 });
