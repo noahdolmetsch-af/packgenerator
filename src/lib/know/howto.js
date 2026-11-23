@@ -385,6 +385,7 @@ const LISTED = {
   'f.daylisten': ['Open the debrief of a tour.', 'Tap play in «Your day to listen to».', 'Change the order or turn them into text.'],
   'f.usedbook': ['Open the debrief of a tour.', 'Count what was used.', 'Tap «Book»: stock, shopping list and costs follow.'],
   'f.sleepspots': ['Under «For next time» tap «Rate a place to sleep».', 'Give stars, a note and the place (a night of the trip or where you are).', 'Planning a trip nearby shows «Your places to sleep here».'],
+  'f.later': ['Open the debrief of a trip that is over and scroll to «Later, three questions each».', 'Answer the stage that is due; the others say on which day their questions come.', 'Come back after a week: the next three questions wait. «Change» edits an answer.'],
   'f.postcard': ['Under «For next time» tap «Tour picture».', 'Add a photo if you like.', 'Tap «Share» and pick WhatsApp, mail or a chat.'],
   'f.packtwo': ['Open a trip in Planen and fold open «Packing for two».', 'Type the name of who comes along.', 'Tap what they carry; the weight per person shows on top.'],
   'f.laundry': ['Open a trip in Planen and fold open «In the wash».', 'Tap the clothes still in the wash.', 'Two days before the trip Merken reminds you.'],

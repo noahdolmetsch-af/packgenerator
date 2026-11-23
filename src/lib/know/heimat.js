@@ -190,6 +190,7 @@ const LISTED_HOME = {
   'f.freeslot': '#/week',
   'f.tourhints': '#/pack',
   'f.fuel': '#/trips',
+  'f.later': '#/debrief/:trip',
   'f.routepois': '#/pack',
   'f.tripalert': '#/pack',
   'f.quiz': '#/debrief',
