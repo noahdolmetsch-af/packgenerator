@@ -105,6 +105,9 @@ test('Suche: commands to try, the last searches, functions, all functions', asyn
   await expect(tries.locator('[data-try]')).toHaveCount(3);
   await expect(tries.getByRole('link', { name: new RegExp(T('See all {n} functions', { n: '\\d+' })) })).toBeVisible();
   await page.screenshot({ path: info.outputPath('f1-suche.png') });
+  // the six wishes come first; the commands stand behind «Show commands» (V4, Noah 23.11.2026 «1-5a»)
+  await expect(tries.locator('[data-wish]')).toHaveCount(6);
+  await tries.locator('[data-search-cmds] summary').click();
   // a command to try fills the field; the search then offers to do it
   await tries.locator('[data-try]').first().click();
   await expect(field).toHaveValue(new RegExp(`^${T('chain lubed|command')} `));

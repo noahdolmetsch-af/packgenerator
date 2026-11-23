@@ -3,7 +3,7 @@
  * of the app (nav.js) is a row the search can find, besides the hand-written rows of nav/menu.js (which keep their words and come first).
  * [{ id, href, label (English key), place (English key of the place), tab (English key of the tab, for a chip) }]
  */
-import { PLACE_TABS, ALL_PLACES } from '../nav.js';
+import { PLACE_TABS, ALL_PLACES, pageOf, placeOf } from '../nav.js';
 
 export function mapPages() {
   const out = [];
@@ -22,4 +22,24 @@ export function mapPages() {
     }
   }
   return out;
+}
+
+/**
+ * «Ein Ort pro Seite» (Noah 23.11.2026 «1-5a», V5): where a page lives, read from the same source as the bar and the map of the app
+ * (nav.js), never from the hand-written groups of menu.js. → { place (English key), tab (English key or null), placeKey } or null.
+ * «Meilensteine» lives under Auswerten › Fahrten, not under Woche.
+ */
+export function wegOf(href) {
+  if (!href) return null;
+  const placeKey = placeOf(pageOf(href), href);
+  const place = ALL_PLACES.find((p) => p.key === placeKey) ?? (placeKey === 'me' ? { label: 'Me|place' } : null);
+  if (!place) return null;
+  const tab = (PLACE_TABS[placeKey] ?? []).find((x) => x.match?.(href)) ?? null;
+  return { placeKey, place: place.label, tab: tab && tab.href !== place.href ? tab.label : null };
+}
+
+/** «Auswerten › Fahrten» as a line for a result (tr is t()); a page without a place keeps `fallback`. */
+export function wegText(href, tr, fallback = '') {
+  const w = wegOf(href);
+  return w ? [tr(w.place), w.tab ? tr(w.tab) : ''].filter((x, i, a) => x && a.indexOf(x) === i).join(' › ') : fallback;
 }
