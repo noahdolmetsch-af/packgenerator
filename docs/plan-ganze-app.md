@@ -26,8 +26,8 @@ Reihenfolge der Bauschritte (jeder PR einzeln mit Bildern und «ok»; abgestimmt
 | 10 | Seitenleiste 11 → 8 Orte: Quick Links, Inspiration und Ausrüstung sind keine eigenen Orte mehr | #1284 | online | datei:src/lib/nav/SideBar.svelte; datei:tests/seitenleiste.test.js |
 | 2b | Heute: Hauptkarte nach Lage und «Mehr für heute»; erst nach den Entscheiden des Threads «Startseite ruhiger» | - | offen | - |
 | 4b | Tourseite mit vier Phasen (Plan, Packen, Unterwegs, Danach), Packliste zuerst; ersetzt die drei Schrittlisten | #1293 | online | datei:tests/e2e/packliste-zuerst.spec.js |
-| 7a | Unterwegs-Modus: Noah schaltet ihn selbst ein (Knopf auf «Meine Tour», kein Autostart) | - | offen | - |
-| 7b | Danach, «Das fällt auf» nur nach der Tour, Antwort in Worten | - | offen | - |
+| 7a | Unterwegs-Modus: Noah schaltet ihn selbst ein (Knopf auf «Meine Tour», kein Autostart) | #1590 | gebaut | - |
+| 7b | Danach, «Das fällt auf» nur nach der Tour, Antwort in Worten | #1594 | gebaut | - |
 | 11 | Planen: 11 → 3 Reiter (Woche, Notizen, Alltag) | #1303 | online | datei:tests/e2e/planen-drei-reiter.spec.js |
 | 12a | Auswerten: 18 → 5 Reiter nach Frage geordnet (Überblick, Körper, Fahrten, Wi gaht's?, Eigenes Diagramm); die alten Seiten als Chips | #1305 | online | datei:tests/e2e/auswerten-gruppen.spec.js |
 | 12b | Auswerten: Eigenes Diagramm zuerst, die Auswahl darunter (Seite Analyse) | #1344 | online | datei:tests/e2e/analyse-diagramm.spec.js |

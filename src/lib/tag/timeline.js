@@ -79,6 +79,22 @@ export function layoutDay(entries = []) {
   return { allDay, untimed, blocks, from, to: Math.min(24 * 60, to) };
 }
 
+/**
+ * «Heute laut Plan» (Noah 23.11.2026 «B»): the next blocks of today, from the same entries as the timeline.
+ * What is running now and what comes later, in order, then entries without a time (only when there is room).
+ * A block that is over is not listed again (the timeline still shows it); a ticked one that still runs stays, with its tick. Holidays and trips (kind 'away') are not blocks.
+ * → { items: [{ e, state: 'now'|'next'|'untimed', start, end }], more } (`more` = how many fit not into `max`)
+ */
+export function nextBlocks(entries = [], now = 0, max = 4) {
+  const lay = layoutDay(entries);
+  const timed = lay.blocks
+    .filter((b) => b.end > now)
+    .map((b) => ({ e: b.e, state: b.start <= now ? 'now' : 'next', start: b.start, end: b.end }));
+  const untimed = lay.untimed.filter((e) => !e.done).map((e) => ({ e, state: 'untimed', start: null, end: null }));
+  const all = [...timed, ...untimed];
+  return { items: all.slice(0, Math.max(0, max)), more: Math.max(0, all.length - Math.max(0, max)) };
+}
+
 /** Minutes of the day for «now» (null on another day). */
 export const nowMin = (day, today, now = new Date()) => (day === today ? now.getHours() * 60 + now.getMinutes() : null);
 

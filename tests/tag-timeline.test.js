@@ -1,6 +1,6 @@
 // «Mein Tag»: the day as a timeline (src/lib/tag/timeline.js). Fictional data only.
 import { describe, it, expect } from 'vitest';
-import { layoutDay, lengthOf, toMin, fmtMin, nowMin, weekOf, DAY_START, DAY_END } from '../src/lib/tag/timeline.js';
+import { layoutDay, nextBlocks, lengthOf, toMin, fmtMin, nowMin, weekOf, DAY_START, DAY_END } from '../src/lib/tag/timeline.js';
 import { shiftDay } from '../src/lib/training.js';
 
 const e = (id, kind, time, mins) => ({ id, kind, time, title: id, sub: mins ? { mins } : null });
@@ -72,5 +72,27 @@ describe('weekOf', () => {
     expect(w[0]).toBe('2026-11-23');
     expect(w[6]).toBe('2026-11-29');
     expect(weekOf('2026-11-29', shiftDay)[0]).toBe('2026-11-23');
+  });
+});
+
+describe('nextBlocks', () => {
+  const list = [e('trip', 'away', ''), e('run', 'sport', '07:00', 60), e('cal', 'date', '12:00', 60), e('call', 'todo', '16:00', 30), e('todo', 'todo', '')];
+  it('lists what runs now, then what comes, then entries without a time', () => {
+    const r = nextBlocks(list, 7 * 60 + 30, 10);
+    expect(r.items.map((x) => [x.e.id, x.state])).toEqual([['run', 'now'], ['cal', 'next'], ['call', 'next'], ['todo', 'untimed']]);
+    expect(r.more).toBe(0);
+  });
+  it('drops blocks that are over and holidays', () => {
+    const r = nextBlocks(list, 13 * 60, 10);
+    expect(r.items.map((x) => x.e.id)).toEqual(['call', 'todo']);
+  });
+  it('says how many more there are', () => {
+    const r = nextBlocks(list, 6 * 60, 2);
+    expect(r.items.map((x) => x.e.id)).toEqual(['run', 'cal']);
+    expect(r.more).toBe(2);
+  });
+  it('leaves done untimed entries out and handles nothing', () => {
+    expect(nextBlocks([{ ...e('t', 'todo', ''), done: true }], 600).items).toEqual([]);
+    expect(nextBlocks(undefined, 600)).toEqual({ items: [], more: 0 });
   });
 });
