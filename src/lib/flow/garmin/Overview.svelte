@@ -6,6 +6,7 @@
    * the calories and «Deine Woche in Zahlen» with the comparison to your usual week).
    * The values come from Strava, the rides of the app and Fitbit (messwerte.js, uebersicht.js).
    */
+  import { liveQuery } from 'dexie';
   import { Heart, Flame, Moon, ChevronRight, LayoutGrid } from '@lucide/svelte';
   import Sec from '../kit/Sec.svelte';
   import FoldRow from '../../ui/FoldRow.svelte';
@@ -14,7 +15,14 @@
   import Focus from './Focus.svelte';
   import AzmWeek from '../../health/AzmWeek.svelte';
   import WeekNumbers from '../WeekNumbers.svelte';
+  import ActIcon from '../ActIcon.svelte';
   import { tableQuery } from '../../messwerte-data.js';
+  import { db } from '../../db.js';
+  import { USUAL_KEY, usualMap } from '../usualmin.js';
+  import { TICKS_KEY, prefsOf } from '../../stravaticks.js';
+  import { tickUnits, tickRows, tickKinds, tickFocus } from '../tickfokus.js';
+  import { actName } from '../ui.svelte.js';
+  import { hoursMin } from '../../charts/exact.js';
   import { kindsOf, lastActivity, rangeSummary, caloriesOf, rhrLine, latestOf } from '../../uebersicht.js';
   import { shown } from '../../messwerte.js';
   import { addDays } from '../../health.js';
@@ -35,6 +43,17 @@
   const todays = $derived(table.get(today)?.acts ?? []);
   // «Aufräumen» (Noah 07.11.2026 «3a»): «Im Fokus» shows the sports of the 7 days it draws; the older ones say when the last was
   const kinds = $derived(kindsOf(table, today, 7));
+  // «Alle Sportarten» (Noah 22.11.2026, Schritt D): the sports you ticked in Aktiv stand next to the Strava sports
+  const tq = liveQuery(async () => {
+    const [log, activities, acts, usual, ticks] = await Promise.all([db.flowLog.toArray(), db.activities.toArray(), db.flowActs.toArray(), db.settings.get(USUAL_KEY), db.settings.get(TICKS_KEY)]);
+    return { acts, units: tickUnits({ log, activities, acts, usual: usualMap(usual?.value), map: prefsOf(ticks?.value).map }) };
+  });
+  const tdata = $derived($tq ?? { acts: [], units: [] });
+  const actById = $derived(new Map(tdata.acts.map((a) => [a.id, a])));
+  const tickCards = $derived(tickKinds(tdata.units, today).filter((id) => actById.has(id)).map((id) => ({ act: actById.get(id), name: actName(actById.get(id)), card: tickFocus(tdata.units, today, id) })));
+  const tickList = $derived(tickRows(tdata.units, range?.from ?? addDays(today, -6), range?.to ?? today).filter((r) => actById.has(r.actId)));
+  const tickN = $derived(tickList.reduce((x, r) => x + r.n, 0));
+  const timeOf = (r) => (r.secs ? (r.est ? t('about {time}', { time: hoursMin(r.secs / 60) }) : hoursMin(r.secs / 60)) : '');
   const last = $derived(lastActivity(table, today));
   const asWeek = $derived(!range || range.week);
   const week = $derived(rangeSummary(table, range?.from ?? addDays(today, -6), range?.to ?? today));
@@ -66,7 +85,7 @@
   // Tage» wait behind one row with the main numbers; a computer shows them open
   let more = $state(false);
   const foldSum = $derived(
-    [rhr ? t('{n} bpm at rest', { n: num(rhr.v) }) : '', sleep ? `${t('Sleep|metric')} ${shown('sleep', sleep.v, num)}` : '', week.kinds.length ? tn(week.kinds.reduce((x, k) => x + k.n, 0), '{n} activity', '{n} activities') : ''].filter(Boolean).join(' · '),
+    [rhr ? t('{n} bpm at rest', { n: num(rhr.v) }) : '', sleep ? `${t('Sleep|metric')} ${shown('sleep', sleep.v, num)}` : '', week.kinds.length || tickN ? tn(week.kinds.reduce((x, k) => x + k.n, 0) + tickN, '{n} activity', '{n} activities') : ''].filter(Boolean).join(' · '),
   );
   const kcalPct = $derived(kcal.total && kcal.active != null ? Math.max(3, Math.min(97, Math.round((kcal.active / kcal.total) * 100))) : null);
 </script>
@@ -77,9 +96,9 @@
   </Sec>
 {/if}
 
-{#if top && kinds.length}
+{#if top && (kinds.length || tickCards.length)}
   <Sec id="focus-h" title={t('In focus')} sub={t('per sport, the last 7 days · swipe for the next sport')}>
-    <Focus {table} {today} {kinds} />
+    <Focus {table} {today} {kinds} ticks={tickCards} />
   </Sec>
 {:else if top && last}
   <Sec id="focus-h" title={t('In focus')} sub={t('per sport, the last 7 days · swipe for the next sport')}>
@@ -134,17 +153,21 @@
 
 {#if tail}
 <Sec id="km-h" title={asWeek ? t('Last 7 days') : range.title} sub={asWeek ? t('compared with your usual week') : ''}>
-  {#if asWeek || week.kinds.length || week.rhr != null || week.kcal != null}
+  {#if asWeek || week.kinds.length || tickList.length || week.rhr != null || week.kcal != null}
   <ul class="card l7" data-last7>
     {#each week.kinds as k (k.kind)}
       {@const I = SPORT_ICON[k.kind]}
       <li><a href={numHref({ key: `km:${k.kind}`, range: asWeek ? 'w' : 'm' })} data-l7={k.kind}><span class="ico si" aria-hidden="true"><I size={20} /></span><span>{tn(k.n, '{n}× {sport}', '{n}× {sport}', { sport: sportName(k.kind) })}</span><b class="num">{k.km ? `${km2(k.km)} km` : ''}</b></a></li>
     {/each}
+    {#each tickList as r (r.actId)}
+      {@const a = actById.get(r.actId)}
+      <li><a href="#/auswerten/sportjahr/{encodeURIComponent(r.actId)}" data-l7="tick:{r.actId}"><span class="ico si" aria-hidden="true"><ActIcon icon={a.icon} ring={a.ring} box={false} size={20} /></span><span>{tn(r.n, '{n}× {sport}', '{n}× {sport}', { sport: actName(a) })}</span><b class="num">{timeOf(r)}</b></a></li>
+    {/each}
     {#if week.rhr != null}<li><a href={numHref({ key: 'rhr', range: asWeek ? 'w' : 'm' })} data-l7="hr"><span class="ico hrt" aria-hidden="true"><Heart size={20} /></span><span>{t('Heart rate')}</span><b class="num">{t('{n} avg at rest', { n: num(week.rhr) })}</b></a></li>{/if}
     {#if week.kcal != null}<li data-l7="kcal"><a href={numHref({ key: 'kcal', range: asWeek ? 'w' : 'm' })} data-l7-way="kcal"><span class="ico fl" aria-hidden="true"><Flame size={20} /></span><span>{t('Calories burned')}</span><b class="num">{t('avg {n}', { n: num(week.kcal) })}</b></a></li>{/if}
   </ul>
   {/if}
-  {#if !asWeek && !week.kinds.length && week.rhr == null && week.kcal == null}<p class="l7none" data-l7-none>{t('Nothing recorded in this period.')}</p>{/if}
+  {#if !asWeek && !week.kinds.length && !tickList.length && week.rhr == null && week.kcal == null}<p class="l7none" data-l7-none>{t('Nothing recorded in this period.')}</p>{/if}
   {#if asWeek}<WeekNumbers {today} />{/if}
   {#if !phone.matches}{@render children?.()}{/if}
 </Sec>
