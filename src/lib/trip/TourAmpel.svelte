@@ -66,12 +66,14 @@
 <style>
   .ampel {
     display: grid;
+    grid-template-columns: minmax(0, 1fr); /* a long word in a line must not make the card wider than the page */
     gap: 6px;
   }
   .top {
     display: flex;
+    flex-wrap: wrap; /* on a narrow phone the state and the arrow go to a second line instead of out of the card */
     align-items: center;
-    gap: 10px;
+    gap: 2px 10px;
     min-height: 44px;
     cursor: pointer;
     list-style: none;
@@ -102,6 +104,7 @@
     margin: 0;
     padding: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 2px;
   }
   .row {
@@ -155,7 +158,7 @@
   .txt {
     flex: 1;
     min-width: 0;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
   }
   .w {
     flex: none;
