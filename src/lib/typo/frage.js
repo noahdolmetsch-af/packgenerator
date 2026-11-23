@@ -10,10 +10,10 @@ const MAX_OK = 200;
 
 /** The kinds: the rough outer limits, a typical value (the target of a suggestion without own values), the decimals and the unit. */
 export const KINDS = {
-  bodyKg: { min: 35, max: 200, typical: 70, digits: 1, unit: 'kg' },
-  gearG: { min: 1, max: 20000, typical: 300, digits: 0, unit: 'g' },
-  km: { min: 0.5, max: 600, typical: 60, digits: 1, unit: 'km' },
-  minutes: { min: 1, max: 1440, typical: 90, digits: 0, unit: 'min' },
+  bodyKg: { min: 35, max: 200, typical: 70, digits: 1, unit: 'kg', own: [0.5, 1.6] },
+  gearG: { min: 1, max: 20000, typical: 300, digits: 0, unit: 'g', own: [0.1, 10] },
+  km: { min: 0.5, max: 600, typical: 60, digits: 1, unit: 'km', own: [0.2, 5] },
+  minutes: { min: 1, max: 600, typical: 90, digits: 0, unit: 'min', own: [0.2, 5] },
 };
 
 const median = (a) => {
@@ -51,11 +51,27 @@ export function askTypo({ kind, value, own = [], ok = [] } = {}) {
   const mine = own.map(Number).filter((x) => Number.isFinite(x) && x > 0);
   const m = mine.length >= 3 ? median(mine) : null;
   const outside = v < k.min || v > k.max;
-  const far = m != null && (v < m * 0.5 || v > m * 1.6);
+  const far = m != null && (v < m * k.own[0] || v > m * k.own[1]);
   if (!outside && !far) return null;
   const fits = (c) => c >= k.min && c <= k.max && (m == null || (c >= m * 0.7 && c <= m * 1.4));
   const target = m ?? k.typical;
   const options = [v / 10, v / 100, v * 10, v * 100].map((c) => round(c, k.digits)).filter(fits);
   options.sort((a, b) => Math.abs(Math.log(a / target)) - Math.abs(Math.log(b / target)));
   return { value: v, suggest: options[0] ?? null, why: outside ? 'range' : 'own' };
+}
+
+/**
+ * The reading of a counter (the km of a bike): it only goes up, and not by thousands at once. → null or { value, suggest, why: 'counter' }.
+ * last: the reading now (a number) or null; step: the most a reading may rise at once before it is asked about (default 3000 km).
+ * A reading below the last or far above it is asked about; the suggestion is a shifted comma that lands between the last reading and last + step.
+ */
+export function askCounter({ value, last, ok = [], step = 3000 } = {}) {
+  const v = Number(value);
+  const l = Number(last);
+  if (!Number.isFinite(v) || v <= 0 || !Number.isFinite(l) || l <= 0) return null;
+  if (ok.includes(okKey('counterKm', v))) return null;
+  if (v >= l && v <= l + step) return null;
+  const options = [v / 10, v / 100, v * 10, v * 100].map((c) => Math.round(c * 10) / 10).filter((c) => c >= l && c <= l + step);
+  options.sort((a, b) => Math.abs(a - l) - Math.abs(b - l));
+  return { value: v, suggest: options[0] ?? null, why: 'counter' };
 }

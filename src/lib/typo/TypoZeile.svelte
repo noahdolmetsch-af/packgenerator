@@ -7,12 +7,13 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { t, num } from '../i18n.svelte.js';
-  import { KINDS, OK_KEY, askTypo, numberOf, okOf, withOk } from './frage.js';
+  import { KINDS, OK_KEY, askTypo, askCounter, numberOf, okOf, withOk } from './frage.js';
 
-  let { kind, text = '', own = [], shown = false, onuse = () => {} } = $props();
+  let { kind, text = '', own = [], last = null, shown = false, onuse = () => {} } = $props();
+  // kind «counterKm»: the reading of a counter (km of a bike) is compared with the last reading (`last`)
   const okQ = liveQuery(() => db.settings.get(OK_KEY));
-  const q = $derived(shown ? askTypo({ kind, value: numberOf(text), own, ok: okOf($okQ?.value) }) : null);
-  const unit = $derived(t(KINDS[kind]?.unit ?? ''));
+  const q = $derived(!shown ? null : kind === 'counterKm' ? askCounter({ value: numberOf(text), last, ok: okOf($okQ?.value) }) : askTypo({ kind, value: numberOf(text), own, ok: okOf($okQ?.value) }));
+  const unit = $derived(t(kind === 'counterKm' ? 'km' : (KINDS[kind]?.unit ?? '')));
   const right = () => db.settings.put({ key: OK_KEY, value: withOk($okQ?.value, kind, q.value) });
 </script>
 
