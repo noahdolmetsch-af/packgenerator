@@ -42,7 +42,7 @@ export default {
   '"{name}" added.': '«{name}» hinzugefügt.',
   '«{name}» ticked off.': '«{name}» abgehakt.',
   '«{name}» changed.': '«{name}» geändert.',
-  'Write a to-do and press Enter': 'To-do schreiben und Enter drücken',
+  'Write a to-do': 'To-do schreiben',
   'No open to-dos': 'Keine offenen To-dos',
   'Write one above. It waits in the list, and you can give it a day when it is time.': 'Schreib oben eins auf. Es wartet in der Liste, und einen Tag gibst du ihm, wenn es so weit ist.',
   'Tick off «{name}»': '«{name}» abhaken',

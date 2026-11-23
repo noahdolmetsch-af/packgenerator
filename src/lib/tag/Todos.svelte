@@ -86,7 +86,7 @@
 
 <form class="quick" onsubmit={add}>
   <label class="vh" for="td-new">{t('New to-do')}</label>
-  <input id="td-new" class="inp" bind:value={text} maxlength="200" autocomplete="off" enterkeyhint="done" placeholder={t('Write a to-do and press Enter')} data-todo-new />
+  <input id="td-new" class="inp" bind:value={text} maxlength="200" autocomplete="off" enterkeyhint="done" placeholder={t('Write a to-do')} data-todo-new />
   <button type="submit" class="btn hi" disabled={!text.trim()}><Plus size={16} aria-hidden="true" /> {t('Add')}</button>
 </form>
 
