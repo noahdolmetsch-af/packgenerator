@@ -71,7 +71,7 @@ for (const lang of ['en', 'de']) {
       // «Aktiv neu» «1a»: on a phone the slot of Velos reads «Velos und Material» (nav.js bar)
       await expect(places, hash).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => T((!side && p.bar) || p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
-      if (['Gear|place', 'Bikes|place', 'Equipment|place'].includes(place) && !side) await expect(lit, hash).toHaveText(T('Bikes and gear|place')); // N1: on a phone Material shares the slot of Velos
+      if (['Gear|place', 'Bikes|place', 'Equipment|place'].includes(place)) await expect(lit, hash).toHaveText(T('Bikes and gear|place')); // V5 (Noah 21.11.2026): Velos, Material and Ausrüstung are one place, «Velos und Material»
       else if (place) await expect(lit, hash).toHaveText(T(place));
       else await expect(lit, hash).toHaveCount(0);
       await expect(page.locator('main'), hash).not.toBeEmpty();

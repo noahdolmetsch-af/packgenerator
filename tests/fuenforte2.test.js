@@ -25,8 +25,8 @@ describe('the last tab of each place (O2.2a)', () => {
 
   it('a place without tabs keeps its address; an unknown tab is forgotten', () => {
     expect(placeHref(place('today'), 'bikes')).toBe('#/');
-    store.set('nav.tab.gear', 'gone');
-    expect(placeHref(place('gear'), 'today')).toBe(PLACE_TABS.gear[0].href);
+    store.set('nav.tab.bikes', 'gone');
+    expect(placeHref(place('bikes'), 'today')).toBe(PLACE_TABS.bikes[0].href);
   });
 });
 
