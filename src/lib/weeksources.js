@@ -8,16 +8,17 @@ import { USUAL_KEY, usualMap } from './flow/usualmin.js';
 import { HANDLED_KEY } from './flow/fitbittraining.js';
 import { TICKS_KEY, prefsOf } from './stravaticks.js';
 import { shiftDay } from './training.js';
+import { PAUSE_KEY, pausesOf } from './weekrhythm.js';
 
 /** The Strava prefs key (strava/client.svelte.js PREFS_KEY, as in kmbook.js). */
 const STRAVA_PREFS = 'strava';
 /** The Fitbit days read: a workout older than this is no suggestion any more (fitbittraining.js WINDOW_DAYS). */
 const HEALTH_DAYS = 100;
 
-/** → { rides, book, usual, map, ignore, health, handled } for weekCalc / weekSums. */
+/** → { rides, book, usual, map, ignore, health, handled, pauses } for weekCalc / weekSums. */
 export async function weekSources(db, today) {
   const from = shiftDay(today, -HEALTH_DAYS);
-  const [rides, book, usual, ticks, prefs, health, handled] = await Promise.all([
+  const [rides, book, usual, ticks, prefs, health, handled, pauses] = await Promise.all([
     db.rides.toArray(),
     db.kmBook.toArray(),
     db.settings.get(USUAL_KEY),
@@ -25,6 +26,7 @@ export async function weekSources(db, today) {
     db.settings.get(STRAVA_PREFS),
     db.healthDays ? db.healthDays.where('date').aboveOrEqual(from).toArray() : [],
     db.settings.get(HANDLED_KEY),
+    db.settings.get(PAUSE_KEY),
   ]);
   return {
     rides,
@@ -34,5 +36,6 @@ export async function weekSources(db, today) {
     ignore: Array.isArray(prefs?.value?.ignore) ? prefs.value.ignore : [],
     health,
     handled: Array.isArray(handled?.value) ? handled.value : [],
+    pauses: pausesOf(pauses?.value),
   };
 }

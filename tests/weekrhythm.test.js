@@ -80,3 +80,27 @@ describe('answerLines: «Wi gaht\'s?» of the week', () => {
     expect(answerLines([], MON)).toEqual({ areas: [], questions: [], days: 0, of: 7 });
   });
 });
+
+describe('Pausenwochen (Noah 22.11.2026, Schritt I): a week marked as a break stays out of the usual week', async () => {
+  const { pausesOf, withPause, PAUSE_KEY } = await import('../src/lib/weekrhythm.js');
+  const acts = [];
+  for (let w = 1; w <= USUAL; w++) acts.push(act(`a${w}`, shiftDay(MON, -7 * w + 1), { km: w === 1 ? 300 : 40, movingS: w === 1 ? 36000 : 3600 }));
+  it('the setting is cleaned: real days only, no double, oldest first; with and without a mark', () => {
+    expect(PAUSE_KEY).toBe('week.pauses');
+    expect(pausesOf(['2026-10-05', 'x', '2026-09-28', '2026-10-05', 3])).toEqual(['2026-09-28', '2026-10-05']);
+    expect(pausesOf(null)).toEqual([]);
+    expect(withPause(['2026-09-28'], '2026-10-05', true)).toEqual(['2026-09-28', '2026-10-05']);
+    expect(withPause(['2026-09-28', '2026-10-05'], '2026-09-28', false)).toEqual(['2026-10-05']);
+    const l = ['2026-09-28'];
+    withPause(l, '2026-10-05', true);
+    expect(l).toEqual(['2026-09-28']);
+  });
+  it('a marked week does not count, the others do', () => {
+    const lone = shiftDay(MON, -7); // the week with the 300 km
+    expect(usualWeek({ acts }, MON).km).toBe(105);
+    expect(usualWeek({ acts, pauses: [lone] }, MON)).toMatchObject({ km: 40, weeks: 3 });
+  });
+  it('all but one week marked: no usual week (fewer than two)', () => {
+    expect(usualWeek({ acts, pauses: [shiftDay(MON, -14), shiftDay(MON, -21), shiftDay(MON, -28)] }, MON)).toBeNull();
+  });
+});
