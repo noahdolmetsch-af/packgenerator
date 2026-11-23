@@ -67,6 +67,13 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-vs-view="map"]').click();
   await expect(page.locator('[data-vs-karte] svg')).toBeVisible();
   await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hard.length);
+  // «map on top»: in the map view the map stands above the filters (Noah 23.11.2026: big and well visible)
+  const yMap = (await page.locator('[data-vs-karte]').boundingBox()).y;
+  const yFilters = (await page.locator('[data-vs-filters]').boundingBox()).y;
+  expect(yMap).toBeLessThan(yFilters);
+  await page.locator('[data-vs-view="list"]').click();
+  expect((await page.locator('[data-vs-filters]').boundingBox()).y).toBeLessThan((await page.locator('[data-vs-tour]').first().boundingBox()).y);
+  await page.locator('[data-vs-view="map"]').click();
   await page.locator('[data-vs-kt="gr"]').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('[data-vs-karte] a[href^="#/trips/vorschlaege/"]')).toHaveCount(hard.filter((x) => x.region === 'gr').length);
