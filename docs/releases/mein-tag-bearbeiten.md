@@ -13,7 +13,8 @@ PR # · 23.11.2026 · Auftrag: Noah «ja», «freigabe»; Plan `/mnt/project-fil
 ## Selbst entschieden
 - Gezogen wird nur an einem Griff (rechts oben) und am unteren Rand, nicht am ganzen Block: ein Tipp auf den Block öffnet das Fenster, und die Seite lässt sich am Handy weiter scrollen.
 - Zeiten für Einheiten des Trainingsplans und «Ziehen aus Ohne Zeit auf die Zeitleiste» kommen mit den To-dos (Schritt 3), weil sie eine neue Einstellung brauchen.
-- Keine Datenänderung: es wird nur die bestehende Einstellung `week.items` geschrieben (gleiche Form wie in der Woche), kein neues Schema, kein `api/`.
+- Datenänderung im weiteren Sinn: Schritt 2 schreibt Nutzerdaten, aber nur die bestehende Einstellung `week.items` in derselben Form wie die Woche (`cleanItem`); kein neues Schema, kein Backup-Format, kein `api/`.
+- Backup-Kopie-Prüfung (23.11.2026): die Kopie des Backups von Noah vom 23.11. 04:47 (nicht im Repo) wurde nur gelesen. Alle 9 Einträge von `week.items` kommen durch `itemsOf` unverändert (keiner fällt weg), und eine Änderung von Zeit und Dauer an jedem lässt Id, Name, Art, Tag und Haken gleich. Es wurde nichts in die App geschrieben.
 
 ## Stand im Plan
 - «Mein Tag»: Schritt 2 von 6 gebaut.
