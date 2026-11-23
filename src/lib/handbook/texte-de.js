@@ -197,7 +197,7 @@ export default {
   'Open the bike’s folder and the break-in plan.': 'Öffne die Mappe des Velos und den Einfahr-Plan.',
   'Follow the 4 steps; Today reminds you of the first service.': 'Folge den 4 Schritten; Heute erinnert an den ersten Service.',
   'Example: after 300 km → check spokes and cables, Today reminds you.': 'Beispiel: nach 300 km → Speichen und Züge prüfen, Heute erinnert dich.',
-  'Open the bike’s folder and the repair kit.': 'Öffne die Mappe des Velos und das Repair-Kit.',
+  'Open the bike’s folder and the repair kit.': 'Öffne die Mappe des Velos und das Reparaturset.',
   'Missing things go to Gear with one tap.': 'Fehlendes kommt mit einem Tipp ins Material.',
   'Example: 12-speed chain → «quick link 12-speed» is missing and goes to Gear.': 'Beispiel: 12-fach-Kette → «Kettenschloss 12-fach» fehlt und kommt ins Material.',
   'Needs a bike or part with a purchase date.': 'Braucht ein Velo oder Teil mit Kaufdatum.',
