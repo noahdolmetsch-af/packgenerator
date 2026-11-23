@@ -626,7 +626,12 @@
     navigator.storage?.estimate?.().then((e) => (space = e?.quota ? { used: e.usage ?? 0, quota: e.quota } : null), () => {});
     keepState().then((k) => (keep = k));
   });
-  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, health: autoSync.health, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: async () => (keep = await askKeep()), syncNow: () => runSync(), onlyOne: () => db.meta.put({ key: 'syncNudge', off: true, at: new Date().toISOString() }) }));
+  // Noah 22.11.2026 «3a»: a tap that the browser turns down says so and what helps (it did nothing visible before)
+  async function keepNow() {
+    keep = await askKeep();
+    say(keep === 'kept' ? t('Done: the browser keeps your data now.') : t('The browser said no for now. It decides by itself; the app icon on the home screen and regular use help. Your backups protect you meanwhile.'));
+  }
+  const zustand = $derived(zustandRows({ storage: space, keep, sync: autoSync, health: autoSync.health, hasData: items.length + allTrips.length > 0 && !$demoQ }, { keepNow: keepNow, syncNow: () => runSync(), onlyOne: () => db.meta.put({ key: 'syncNudge', off: true, at: new Date().toISOString() }) }));
   async function allowFolder() {
     folderNeedsOk = !(await allowAgain(db));
   }
