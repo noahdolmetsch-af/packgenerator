@@ -1477,7 +1477,7 @@
       <footer class="endbar" data-home-end>
         {#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top={false} />{:catch}{/await}
         <div class="lkrow">
-          <a class="lkb" href="#/features" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
+          <a class="lkb" href="#/me/karte" data-all-areas><LayoutGrid size={16} aria-hidden="true" />{t('All areas|home')}</a>
           <button type="button" class="lkb" data-intro="custom" onclick={() => (editing = true)}><SlidersHorizontal size={16} aria-hidden="true" />{t('Customise the start page')}</button>
         </div>
         <p class="ver"><span class="odot" class:off={!online}></span>{online ? t('Online') : t('Offline')} · v{__APP_VERSION__}</p>
