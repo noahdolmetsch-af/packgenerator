@@ -14,6 +14,22 @@ test('the map of the app lists places, searches and leads to a function', async 
   await page.locator('[data-me-row="karte"]').click();
   await expect(page.locator('[data-appmap]')).toBeVisible();
   expect(await page.locator('[data-am-place]').count()).toBeGreaterThan(2);
+  // the sketch (Noah 23.11.2026): the places of the bar, each with its pages as points, a mark on every point
+  await expect(page.locator('[data-am-place="today"]')).toBeVisible();
+  await expect(page.locator('[data-am-place="me"]')).toBeVisible();
+  const all = await page.locator('[data-am-point]').count();
+  expect(all).toBeGreaterThan(40);
+  expect(await page.locator('[data-am-point]:not([data-am-mark])').count()).toBe(0);
+  if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/karte-${page.viewportSize().width}.png`, fullPage: false });
+  await page.locator('[data-am-filter="never"]').click();
+  expect(await page.locator('[data-am-point]').count()).toBeGreaterThan(30);
+  expect(await page.locator('[data-am-mark="open"]').count()).toBe(0);
+  await page.locator('[data-am-filter="all"]').click();
+  // a page opened on this device turns its point into a filled dot
+  await page.locator('[data-am-point="#/trips/vorschlaege"]').click();
+  await page.waitForTimeout(1500);
+  await page.goto('./#/me/karte');
+  await expect(page.locator('[data-am-point="#/trips/vorschlaege"]')).toHaveAttribute('data-am-mark', 'open');
 
   await page.locator('[data-am-search]').fill('datenschutz');
   const item = page.locator('[data-am-item="f.privacy"]');
