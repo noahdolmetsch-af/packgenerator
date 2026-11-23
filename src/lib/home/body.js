@@ -9,12 +9,13 @@
 import { addDays, normalOf } from '../health.js';
 
 /** The values of a day, in their order in the «Details» sheet (HRV since the banner, 23.11.2026). */
-export const BODY_KEYS = ['pulse', 'sleep', 'score', 'azm', 'hrv'];
+export const BODY_KEYS = ['pulse', 'sleep', 'score', 'azm', 'hrv', 'steps'];
 /**
  * «Dein Körper heute» as a banner (Noah 23.11.2026 «1-4a»): the values in its order. The sleep score is not in the banner,
- * it stays in the «Details» sheet. More fields (steps, outdoors, today's level) come in the next steps.
+ * it stays in the «Details» sheet. Steps stand next to yesterday up to the same hour; outdoors and today's level
+ * (Form und Erholung) are two more fields the tile adds from their own data.
  */
-export const BANNER_KEYS = ['pulse', 'azm', 'sleep', 'hrv'];
+export const BANNER_KEYS = ['pulse', 'azm', 'sleep', 'hrv', 'steps'];
 /** A value is marked «lower/higher than usual» from this share away from the usual (sleep, HRV). Only a quiet arrow, never good or bad. */
 export const OFF_SHARE = 0.15;
 
@@ -28,7 +29,20 @@ export function valueOf(row, key) {
   if (key === 'score') return num(row.sleep?.score) ?? num(row.sleep?.efficiency);
   if (key === 'azm') return num(row.azm);
   if (key === 'hrv') return num(row.hrvMs) > 0 ? Math.round(num(row.hrvMs)) : null;
+  if (key === 'steps') return num(row.steps) != null && row.steps >= 0 ? Math.round(row.steps) : null;
   return null;
+}
+
+/**
+ * Yesterday's steps up to the same hour as now (hour 0–23, the hour that has begun counts), from the 24 hours of
+ * the day (stepH); null without them. Only for the banner: «today so far» next to «yesterday by now».
+ */
+export function stepsByNow(row, hour) {
+  const h = row?.stepH;
+  if (!Array.isArray(h) || h.length !== 24 || !Number.isFinite(hour)) return null;
+  const part = h.slice(0, Math.min(23, Math.max(0, hour)) + 1);
+  if (part.every((x) => x == null)) return null;
+  return Math.round(part.reduce((s, x) => s + (Number.isFinite(x) ? x : 0), 0));
 }
 
 /** Your usual value (median of the 30 days before today, at least 7 values) in the unit of valueOf(), or null. Only sleep and HRV have one in the banner. */
@@ -66,7 +80,7 @@ export function dirOf(now, before) {
  * The values of today and yesterday. health: rows of healthDays; today: the local day.
  * → { rows: [{ key, now, before, dir, kind }], any } — kind 'score' or 'efficiency' for the sleep score
  */
-export function bodyToday(health = [], today) {
+export function bodyToday(health = [], today, hour = null) {
   const by = new Map((health ?? []).filter((r) => r?.date).map((r) => [r.date, r]));
   const a = by.get(today) ?? null;
   const b = by.get(addDays(today, -1)) ?? null;
@@ -76,7 +90,9 @@ export function bodyToday(health = [], today) {
     const row = { key, now, before, dir: dirOf(now, before), last: now == null ? lastOf(by, key, today) : null };
     // the banner (Noah 23.11.2026): the usual value, a quiet mark when far from it, and when Fitbit delivered the day
     row.usual = usualOf(health, key, today);
-    row.off = offOf(row.last ? row.last.value : now, row.usual);
+    // steps: next to yesterday up to the same hour (when the watch gave the hours), else only yesterday's whole day
+    if (key === 'steps') row.byNow = hour != null && now != null ? stepsByNow(b, hour) : null;
+    row.off = offOf(row.last ? row.last.value : now, row.usual ?? row.byNow ?? null);
     row.fetched = fetchedOf((now != null ? a : by.get(row.last?.day))?.at, today);
     if (key === 'score') row.kind = num(a?.sleep?.score) != null || (now == null && num(b?.sleep?.score) != null) ? 'score' : 'efficiency';
     // the efficiency is shown with a %, Fitbit's own score without: the kind follows the day that is shown
