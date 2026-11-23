@@ -76,12 +76,12 @@ test('Strava friends: list, remove with Undo, invite link with the Strava note',
   await expect(sec.locator('[data-friend="7777"]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Rückgängig' }).click();
   await expect(sec.locator('[data-friend="7777"]')).toBeVisible();
-  await page.waitForTimeout(4600);
+  await page.waitForTimeout(8600);
   expect(server.log.some((x) => x.step === 'friend-remove')).toBe(false);
 
   await tapRemove(sec);
   await page.getByRole('dialog').getByRole('button', { name: 'Entfernen' }).click();
-  await expect.poll(() => server.log.find((x) => x.step === 'friend-remove')?.body, { timeout: 8000 }).toEqual({ id: '7777' });
+  await expect.poll(() => server.log.find((x) => x.step === 'friend-remove')?.body, { timeout: 14000 }).toEqual({ id: '7777' });
   await expect(sec).toContainText('Nur du bist verbunden');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
   expect(errors).toEqual([]);

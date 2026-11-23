@@ -1,5 +1,5 @@
 <script>
-  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 8 s «Undo»
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   /**
    * Bikes → Setup. v0.31.0 (Noah 9a, variant A "Ruhig und klar"):
@@ -277,7 +277,7 @@
   }
   const setTrip = (p, tripId) => db.photos.update(p.id, { tripId: tripId || null });
   async function removePhoto(p) {
-    if ((await askDelete({ title: t('Remove the photo "{name}"?', { name: p.name }), text: t('You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Remove the photo "{name}"?', { name: p.name }), text: t('You can bring it back for 8 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
     const bikeId = bike.id;
     const ok = await deleteWithUndo({
       run: async () => {

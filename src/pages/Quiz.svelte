@@ -67,7 +67,7 @@
     await save(putOwn(cfg, x.id ? x : newOwn(x)));
   }
   async function removeOwn(o) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: o.text }), text: t('The question leaves the quiz. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: o.text }), text: t('The question leaves the quiz. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const at = cfg.own.findIndex((x) => x.id === o.id);
     await deleteWithUndo({
       run: async () => (await save(dropOwn(cfg, o.id)), { o: $state.snapshot(o), at }),

@@ -40,7 +40,7 @@
     dialog.close();
   }
   async function remove() {
-    if ((await askDelete({ title: t('Delete the dream "{text}"?', { text: dream.title }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the dream "{text}"?', { text: dream.title }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     if (await deleteWithUndo({ run: () => onremove?.(dream.id), undo: (snap) => onchange?.(dream, snap), text: t('"{name}" deleted.', { name: dream.title }), name: dream.title })) dialog.close();
   }
   // idea 1 (Noah 19.10.2026 «1-5 a»): a photo and a map (a GPX file, e.g. from komoot) for the dream

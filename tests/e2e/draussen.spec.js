@@ -61,7 +61,7 @@ test('Strava minutes and minutes by hand add up, the trainer does not count, own
   await expect(card.locator('.dots i.ok')).toHaveCount(3);
   if (process.env.SHOTS) {
     await card.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(5500); // the message with Undo is gone
+    await page.waitForTimeout(8500); // the message with Undo is gone
     await page.screenshot({ path: `${process.env.SHOTS}/draussen-${info.project.name === 'phone' ? 390 : 1440}.png` });
   }
 });
@@ -135,7 +135,7 @@ test('Tick off counts the minutes that are missing, a second tap takes them back
   await expect(tick).toHaveAttribute('aria-pressed', 'true');
   await expect(tick).toContainText(T('Ticked · take back'));
   if (process.env.SHOTS) {
-    await page.waitForTimeout(5500); // the message with Undo is gone
+    await page.waitForTimeout(8500); // the message with Undo is gone
     await page.screenshot({ path: `${process.env.SHOTS}/draussen-abhaken-geschafft-${info.project.name === 'phone' ? 390 : 1440}.png` });
   }
   await tick.click();
