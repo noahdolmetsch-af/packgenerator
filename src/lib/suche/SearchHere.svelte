@@ -115,7 +115,7 @@
         {#if rows.length}
           <ul class="sh-list">
             {#each rows as r (r.id)}
-              <li><button type="button" onclick={() => openRow(r)} data-suche-row><span class="m"><b>{#each parts(r.title, marked) as p}{#if p.m}<mark>{p.s}</mark>{:else}{p.s}{/if}{/each}</b><small>{r.sub}</small></span><span class="sh-go">{t('open')} ›</span></button></li>
+              <li><button type="button" onclick={() => openRow(r)} data-suche-row><span class="m"><b>{#each parts(r.title, marked) as p}{#if p.m}<mark>{p.s}</mark>{:else}{p.s}{/if}{/each}</b><small>{r.sub}</small></span><span class="sh-go">{t('open|hit')} ›</span></button></li>
             {/each}
           </ul>
         {:else}

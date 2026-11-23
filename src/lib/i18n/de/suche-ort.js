@@ -19,5 +19,5 @@ export default {
   'Trip|source': 'Tour',
   '{n} hit': '{n} Treffer',
   '{n} hits': '{n} Treffer',
-  'open': 'öffnen',
+  'open|hit': 'öffnen',
 };

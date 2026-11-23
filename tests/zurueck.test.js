@@ -6,6 +6,7 @@ import { ALL_PLACES } from '../src/lib/nav.js';
 const label = (k) => ALL_PLACES.find((p) => p.key === k)?.label ?? null;
 const href = (k) => ALL_PLACES.find((p) => p.key === k)?.href ?? null;
 const wetterCrumb = [{ label: 'Trips|place', href: '#/trips' }];
+const ownCrumb = [{ label: 'Weather|place', href: '#/wetter' }]; // the place of the Weather page since it has its own place
 
 describe('prevMove', () => {
   it('remembers where you came from when you step onto another page', () => {
@@ -35,13 +36,13 @@ describe('backCrumbs', () => {
     expect(out[0].href).toBe(href('analysis'));
   });
   it('keeps a crumb that already names the place of the page', () => {
-    expect(backCrumbs(wetterCrumb, null, '#/wetter', label, href)).toBe(wetterCrumb);
+    expect(backCrumbs(ownCrumb, null, '#/wetter', label, href)).toBe(ownCrumb);
   });
   it('leaves deeper paths alone', () => {
     const deep = [{ label: 'Bike', href: '#/bikes' }, { label: 'Care', href: '#/bikes?tab=care' }];
     expect(backCrumbs(deep, { from: '#/', to: '#/bikes/x' }, '#/bikes/x', label, href)).toBe(deep);
   });
   it('ignores a move that was made for another page', () => {
-    expect(backCrumbs(wetterCrumb, { from: '#/', to: '#/dreams' }, '#/wetter', label, href)).toBe(wetterCrumb);
+    expect(backCrumbs(ownCrumb, { from: '#/', to: '#/dreams' }, '#/wetter', label, href)).toBe(ownCrumb);
   });
 });
