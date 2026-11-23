@@ -1,12 +1,12 @@
 /**
- * v0.70.0 «Velo-Blätter Teil 2»: Einfahr-Plan, Repair-Kit, Garantie & Belege, Diebstahl-Blatt und
+ * v0.70.0 «Velo-Blätter Teil 2»: Einfahr-Plan, Reparaturset, Garantie & Belege, Diebstahl-Blatt und
  * ihre Erinnerungen auf Heute. Keys are the English texts. Swiss spelling (ss).
  */
 export default {
   // the folder
   'Break-in plan': 'Einfahr-Plan',
   'What to check after the first km, step by step': 'Was nach den ersten km zu prüfen ist, Schritt für Schritt',
-  'Repair kit': 'Repair-Kit',
+  'Repair kit': 'Reparaturset',
   'What comes along, matching the parts of this bike': 'Was mitkommt, passend zu den Teilen dieses Velos',
   'Warranty & receipts': 'Garantie & Belege',
   'Purchase date, warranty per part, all receipts': 'Kaufdatum, Garantie pro Teil, alle Quittungen',
@@ -120,7 +120,7 @@ export default {
   'Name, emergency number, allergies': 'Name, Notfallnummer, Allergien',
   '{n}-speed': '{n}-fach',
   'for {n}-piston': 'für {n}-Kolben',
-  'From the Repair kit of {bike}.': 'Aus dem Repair-Kit von {bike}.',
+  'From the Repair kit of {bike}.': 'Aus dem Reparaturset von {bike}.',
   'matching the parts of this bike, all suggestions': 'passend zu den Teilen dieses Velos, alles Vorschläge',
   '{item}: packed': '{item}: eingepackt',
   'on the wish list: {item}': 'auf der Wunschliste: {item}',
