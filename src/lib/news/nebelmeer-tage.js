@@ -7,7 +7,7 @@ export default {
     { text: 'The shelf «Fog sea» on the collection wall shows the days with name, fog height and photo, counts them quietly («3 fog sea days this winter») and lets you add, change and remove days. No goal, no streak', go: { href: '#/debrief/sammlung', where: 'Trips › Look back › Collection wall, shelf «Fog sea».' } },
     { text: 'The photo of a day is also in the photo album', go: { href: '#/me/album', where: 'Me › Photo album.' } },
   ],
-  small: [],
+  small: [{ box: 'new', text: 'The card on Today also says quietly how many fog sea days this winter has', go: null }],
   test: [
     'Open Trips › Look back › Collection wall: the shelf «Fog sea» is there.',
     'Tap «Add a day», give it a name and a photo and save: the day shows with its photo and the count says «1 fog sea day this winter».',
@@ -15,6 +15,7 @@ export default {
   ],
   since: [],
   de: {
+    'The card on Today also says quietly how many fog sea days this winter has': 'Die Karte auf Heute nennt auch leise, wie viele Nebelmeer-Tage dieser Winter hat',
     'Fog sea days': 'Nebelmeer-Tage',
     'The days you were above the fog now have their own shelf on the collection wall, with a photo.': 'Die Tage, an denen du über dem Nebel warst, haben jetzt ein eigenes Regal auf der Sammel-Wand, mit Foto.',
     '«Remember today» on the card «Sun above the fog» keeps the day; you say that you were up there, the app does not guess it': '«Heute merken» auf der Karte «Sonne über dem Nebel» hält den Tag fest; du sagst, dass du oben warst, die App rät es nicht',
