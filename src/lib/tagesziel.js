@@ -29,6 +29,8 @@ export const SUGGESTIONS = [
   { name: 'Glasses of water', unit: 'count', word: 'glasses', goal: 8, days: 30 },
 ];
 
+/** The time of the phone reminder, «HH:MM» (empty = no reminder). */
+export const okTime = (s) => typeof s === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s);
 const isDay = (x) => typeof x === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(x);
 const whole = (n, lo, hi) => Math.max(lo, Math.min(hi, Math.round(Number(n) || 0)));
 const clean = (s, n) => String(s ?? '').trim().slice(0, n);
@@ -57,6 +59,7 @@ export function tageszieleOf(value) {
         hand,
         stopped: !!c.stopped,
         closed: !!c.closed,
+        remindAt: okTime(c.remindAt) ? c.remindAt : '',
       };
     });
 }
@@ -134,6 +137,23 @@ export function standing(c, today) {
     streak,
     days,
   };
+}
+
+/**
+ * The days of the phone reminder of one goal: from today up to `ahead` days, while it runs. A day that already reaches the
+ * goal is left out. → [{ day }] (empty without a time, ended by hand or closed)
+ */
+export function remindDays(c, today, ahead = 14) {
+  if (!c?.remindAt || c.stopped || c.closed) return [];
+  const out = [];
+  for (let i = 0; i <= ahead; i++) {
+    const d = addDays(today, i);
+    if (d < c.from) continue;
+    if (d > c.until) break;
+    if (handSum(c, d) >= c.goal) continue;
+    out.push({ day: d });
+  }
+  return out;
 }
 
 /** The goals that run today (not ended by hand, not closed, the last day not passed). */

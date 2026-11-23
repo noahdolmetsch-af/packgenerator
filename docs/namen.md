@@ -41,6 +41,7 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 33 | Die Auswertung der Haken (früher eigene Seite «Haken ausgewertet», jetzt ganz unten im Sportjahr) | Haken ausgewertet, Rhythmus, Tick-Auswertung | **«Haken und Rhythmus»**; die Antworten der Check-Fragen heissen **«Antworten ausgewertet»** (Noah 22.11.2026 «a») |
 | 34 | Tage oder Zeiträume festhalten, an denen man krank, verletzt, gestresst oder in den Ferien war (Form und Erholung) | Tag-Etikett, Phase, Zeitraum-Notiz | **«Marker»** («Marker setzen»; Arten: Krank, Verletzt, Stress, Ferien; Noah 21.11.2026 «ja» zu Marker) |
 | 35 | Die geführte Runde, in der jedes Kleidungsstück seine Temperatur bekommt | Kleider-Wizard, Kleiderschrank-Assistent | **«Kleiderschrank einrichten»**; die Kältestufen heissen **Warm, Mild, Kühl, Kalt, Frost** (Noah 21.11.2026 «1-5a 4b», Namen aus dem Entwurf) |
-| 36 | Die kleine App für die Tageskurse von Gold und SMI | Kurse-App, Börsen-App, Gold-Tracker | **«Kursblick»** (Noah 22.11.2026 «3a»); der Kurs vom Vortag heisst **«Schlusskurs»**, der feste Vergleichstag **«Referenztag»**, der Abzug beim Verkauf **«Händlerabschlag»** |
+| 36 | Die Seite, auf der man Kleider bei einer Temperatur anprobiert (Weg A) | Ankleiden, Outfit-Planer, Kleider-Simulator | **«Anprobe»** (`#/wardrobe/tryon`); in der Hilfe «Try on» (Noah 21.11.2026 «1-5a 4b») |
+| 37 | Die kleine App für die Tageskurse von Gold und SMI | Kurse-App, Börsen-App, Gold-Tracker | **«Kursblick»** (Noah 22.11.2026 «3a»); der Kurs vom Vortag heisst **«Schlusskurs»**, der feste Vergleichstag **«Referenztag»**, der Abzug beim Verkauf **«Händlerabschlag»** |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.

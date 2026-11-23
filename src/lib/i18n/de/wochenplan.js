@@ -147,6 +147,11 @@ export default {
   'Rain week: indoors instead of outdoors.': 'Regenwoche: drinnen statt draussen.',
   // part 5: week star, let go, lighter / ski tour / rainy week
   'Lighter week': 'Leichtere Woche',
+  'Harder week': 'Härtere Woche',
+  'A harder week: {n} h instead of {m} h. Plus and minus change your normal plan.': 'Eine härtere Woche: {n} Std statt {m} Std. Plus und Minus ändern deinen normalen Plan.',
+  'Lighter|week': 'Leichter',
+  'Suggest the week': 'Woche vorschlagen',
+  'Set up a weekly plan': 'Wochenplan einrichten',
   'Ski tour week': 'Skitour-Woche',
   'Rainy week': 'Regenwoche',
   'Kind of week': 'Art der Woche',
