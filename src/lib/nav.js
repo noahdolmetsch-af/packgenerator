@@ -277,6 +277,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me')) return 'me'; // v0.76.0 «Fünf Orte»: «Ich», top right
   if (h.startsWith('#/routine')) return 'routine'; // Routine «Das tut mir gut» (mockup D2): the list, a page of Heute
   if (h.startsWith('#/timer')) return 'timer'; // «Timer» (mockups Z2–Z5): Heute › Timer, its faces and its log
+  if (/^#\/day(\/|\?|$)/.test(h)) return 'day'; // «Mein Tag» (Noah 23.11.2026): one day as a timeline, a page of Planen › Woche
   if (h.startsWith('#/week')) return 'week'; // «Woche planen» (WP1–WP3, Noah 15.10.2026 «1a»): its own place
   if (/^#\/quick(\/|\?|$)/.test(h)) return 'quick'; // «Quick Links» (Noah 28.10.2026 «3a»): its own place
   return 'home';
@@ -398,6 +399,8 @@ const WEEK_PAGES = {
   // UI-Ziele #6 (Noah 20.10.2026 «freigabe», 4a): «Ich» keeps data, settings and help; what you plan moved here.
   // Woche planen and Ferien are one tap from the week (its buttons), so «Woche» covers all of #/week.
   week: { label: 'Week|tab', href: '#/week', match: (h) => /^#\/week(\/|\?|$)/.test(h) },
+  // «Mein Tag» (Noah 23.11.2026): the day of the week as a timeline; its own chip next to Woche
+  day: { label: 'My day|tab', href: '#/day', match: (h) => /^#\/day(\/|\?|$)/.test(h) },
   // «Alltag sichtbar» (Noah 24.10.2026 «1a 2b 3a 4 nein 5b»): Merken with birthdays and plants
   remember: { label: 'Remember|tab', href: '#/calendar', match: (h) => h.startsWith('#/calendar') },
   agenda: { label: 'Appointments|tab', href: '#/me/agenda', match: (h) => h.startsWith('#/me/agenda') },
@@ -513,7 +516,7 @@ export const PLACE_TABS = {
   // «Ganze App neu denken» Schritt 11 (Noah 18.11.2026): Planen has three tabs, Woche, Notizen and Alltag. Every page of the old
   // eleven is still there at its address: it is a chip under its tab (`subs`, PlaceTabs.svelte), no longer a tab of its own.
   week: [
-    { key: 'week', label: 'Week|tab', subs: ['week', 'agenda'] },
+    { key: 'week', label: 'Week|tab', subs: ['week', 'day', 'agenda'] },
     { key: 'training', label: 'Training|tab', subs: ['training', 'wochenplan', 'flowhome', 'sports', 'rest'] },
     { key: 'notes', label: 'Notes|tab', subs: ['notes', 'inbox', 'remember', 'tagebuch', 'mail'] },
     { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'meditation', 'frei', 'impulse', 'compass', 'links'] },
@@ -596,7 +599,7 @@ export function placeOf(page, hash = '') {
   if (page === 'auswerten') return 'analysis';
   if (page === 'wetter') return 'weather'; // Wetter-Ausbau W1 (Noah 22.11.2026 «a»): a place of its own
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
-  if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'impulse', 'weblinks'].includes(page)) return 'week';
+  if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'day', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'impulse', 'weblinks'].includes(page)) return 'week';
   if (page === 'inspiration') return 'trips'; // Schritt 10 (Z3): a tab of Touren, next to the dreams
   if (page === 'tools') return 'trips'; // «Alles finden 2» (Noah 22.10.2026 «4a»): the toolbox is a tab of Touren
   if (['stravarides', 'insights', 'history', 'abfragen', 'analysis', 'quellen', 'sportjahr', 'sportrueckblick', 'fragen', 'wohl', 'weight', 'heatmap', 'neuland', 'gelernt', 'jahr'].includes(page)) return 'analysis'; // «Aktiv und Auswerten» 3a: the four pages of looking back
