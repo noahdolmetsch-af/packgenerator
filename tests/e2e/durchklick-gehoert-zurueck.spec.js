@@ -26,16 +26,17 @@ test('Belongs to: a closed line behind the title, one tap opens the links', asyn
   expect(errors).toEqual([]);
 });
 
-test('Back: Heatmap opened from Heute names Heute, opened directly it names its own place', async ({ page, context }, info) => {
+test('Back: a page with a one-step path opened from Heute names Heute, opened directly it names its own place', async ({ page, context }, info) => {
   const T = await openHome(page, context, info, { hour: 9 });
-  await page.evaluate(() => (location.hash = '#/heatmap'));
+  await page.evaluate(() => (location.hash = '#/trips/compare'));
+  // since «Wege» (23.11.2026) a page under a tab starts with place and tab; only a one-step path names where you came from
   const back = page.locator('nav.crumbs a, nav.pcrumbs a').first();
   await expect(back).toBeVisible();
   await expect(back).toContainText(T('Today|place'));
   if (process.env.SHOTS) {
     await page.screenshot({ path: `${process.env.SHOTS}/zurueck-${info.project.name === 'phone' ? 390 : 1440}.png` });
   }
-  await page.goto('./#/heatmap');
+  await page.goto('./#/trips/compare');
   await page.reload();
-  await expect(page.locator('nav.crumbs a, nav.pcrumbs a').first()).toContainText(T('Analysis|place'));
+  await expect(page.locator('nav.crumbs a, nav.pcrumbs a').first()).toContainText(T('Trips|place'));
 });
