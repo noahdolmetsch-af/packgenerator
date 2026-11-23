@@ -25,6 +25,8 @@ export const KURS_ASSETS = {
   gold: { currency: 'USD', unit: 'oz', order: ['stooq', 'yahoo'], stooq: 'xauusd', yahoo: 'GC=F', session: true }, // spot gold per troy ounce; the futures as fallback
   smi: { currency: 'CHF', unit: 'points', order: ['yahoo', 'stooq'], stooq: '^smi', yahoo: '^SSMI' },
   usdchf: { currency: 'CHF', unit: 'rate', order: ['yahoo', 'stooq'], stooq: 'usdchf', yahoo: 'CHF=X', session: true },
+  // K-C (Teuerung): the Swiss consumer price index, one value a year (World Bank, the series FP.CPI.TOTL), put on 1 July of its year
+  lik: { currency: '', unit: 'index', order: ['worldbank'] },
 };
 
 export class KurseError extends Error {
@@ -54,6 +56,7 @@ export function zurichDay(at) {
 }
 
 export const stooqUrl = (symbol) => `https://stooq.com/q/d/l/?s=${encodeURIComponent(symbol)}&i=d`;
+export const worldbankUrl = () => 'https://api.worldbank.org/v2/country/CHE/indicator/FP.CPI.TOTL?format=json&per_page=200';
 export const yahooUrl = (symbol, nowSec) => `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?period1=0&period2=${Math.floor(nowSec)}&interval=1d`;
 
 /** Stooq's CSV → [[day, close]], skips broken rows (an error text instead of a table gives []). */
@@ -73,6 +76,21 @@ export function yahooMeta(body) {
   const m = body?.chart?.result?.[0]?.meta;
   const text = (v) => (typeof v === 'string' ? v.trim().slice(0, 80) : '');
   return { currency: /^[A-Za-z]{3,4}$/.test(m?.currency ?? '') ? m.currency : '', name: text(m?.shortName) || text(m?.longName) };
+}
+
+/**
+ * The World Bank's answer [{ page … }, [{ date: '2024', value: 106.3 }, …]] → [[«2024-07-01», 106.3]]: a year's average lies in
+ * its middle. A year without a value is left out.
+ */
+export function parseWorldbank(body) {
+  const rows = Array.isArray(body) ? body[1] : null;
+  if (!Array.isArray(rows)) return [];
+  const out = [];
+  for (const r of rows) {
+    const v = Number(r?.value);
+    if (/^\d{4}$/.test(String(r?.date ?? '')) && r.value != null && Number.isFinite(v) && v > 0) out.push([`${r.date}-07-01`, r4(v)]);
+  }
+  return out;
 }
 
 /**
@@ -111,6 +129,7 @@ async function fetchText(url, doFetch, timeout, headers = {}) {
 
 // each source gives { points, meta }: the closes, and what it says about the title (only Yahoo does)
 const FETCH = {
+  worldbank: async (a, { doFetch, timeout }) => ({ points: parseWorldbank(await (await fetchText(worldbankUrl(), doFetch, timeout, { Accept: 'application/json' })).json()), meta: { currency: '', name: '' } }),
   stooq: async (a, { doFetch, timeout }) => ({ points: parseStooq(await (await fetchText(stooqUrl(a.stooq), doFetch, timeout)).text()), meta: { currency: '', name: '' } }),
   yahoo: async (a, { doFetch, timeout, now }) => {
     const body = await (await fetchText(yahooUrl(a.yahoo, new Date(now).getTime() / 1000), doFetch, timeout, { Accept: 'application/json' })).json();

@@ -12,3 +12,6 @@ export const stundeText = (iso) => (iso ? new Date(iso).toLocaleString(locale(),
 
 /** A short label for the middle of an axis: «20. Okt.» inside a year, «Okt. 2026» over a longer stretch. */
 export const tagMitte = (day, lang = false) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), lang ? { month: 'short', year: 'numeric', timeZone: 'UTC' } : { day: 'numeric', month: 'short', timeZone: 'UTC' }) : '');
+
+/** A count of pieces or grams without needless zeros: «10», «2.5», «0.0125» (at most `max` decimals). */
+export const anzahl = (n, max = 4) => (Number.isFinite(n) ? n.toLocaleString(locale() === 'de-CH' ? 'de-CH' : 'en-GB', { minimumFractionDigits: 0, maximumFractionDigits: max }) : '–');
