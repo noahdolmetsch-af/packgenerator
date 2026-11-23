@@ -1838,7 +1838,7 @@ const LISTED = {
   },
   'f.firststart': {
     on: 'Only on a new, empty app: it asks once when it opens for the first time.',
-    steps: ['Choose the language, «Start with examples» and what interests you, or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
+    steps: ['Choose the language, then tap «Go, start with examples» or «Start empty».', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Adjust the examples» adds more.'],
     example: 'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.',
   },
   'f.playground': {

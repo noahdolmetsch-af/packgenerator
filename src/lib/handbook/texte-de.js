@@ -881,6 +881,7 @@ export default {
   // «Erster Start» (Noah 20.10.2026)
   'Only on a new, empty app: it asks once when it opens for the first time.': 'Nur bei einer neuen, leeren App: Sie fragt einmal beim ersten Öffnen.',
   'Choose the language and «Start with examples» or «Start empty»; then the short tour if you like.': 'Wähle die Sprache und «Mit Beispielen starten» oder «Leer starten»; danach, wenn du magst, den kurzen Rundgang.',
+  'Choose the language, then tap «Go, start with examples» or «Start empty».': 'Wähle die Sprache, dann tippe auf «Los, mit Beispielen starten» oder «Leer starten».',
   'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.': 'Beispiel: Ein Freund öffnet den Link und sieht sofort die erfundene «Jura-Runde» mit Packliste.',
   'Example: resting pulse 6 above your normal and a short night → 38, «Today suits an easy ride».': 'Beispiel: Ruhepuls 6 über deinem Normal und eine kurze Nacht → 38, «Heute passt eine lockere Fahrt».',
   'Tap a sport for its page, or the heart rate tile for «Body values» in five groups; enter blood pressure and water there.': 'Tipp eine Sportart an für ihre Seite oder die Puls-Kachel für «Körperwerte» in fünf Gruppen; Blutdruck und Trinkmenge trägst du dort ein.',
@@ -1134,7 +1135,6 @@ export default {
   'Or «New» › «Surprise round»: pick adventure and time; the app suggests a round from home.': 'Oder «Neu» › «Überraschungsrunde»: Abenteuer und Zeit wählen; die App schlägt eine Runde ab zu Hause vor.',
   'At home: «At home: how was it really?» notes wind and sun on your spot; after a few notes your own hints show.': 'Zu Hause: «Zu Hause: wie war es wirklich?» notiert Wind und Sonne an deinem Platz; nach ein paar Notizen kommen eigene Hinweise.',
   'Example: the gravel bike stood 8 weeks → «After the standstill»: tyres, sealant, chain, brakes, a test ride.': 'Beispiel: das Gravel stand 8 Wochen → «Nach der Standzeit»: Reifen, Dichtmilch, Kette, Bremsen, eine Probefahrt.',
-  'Choose the language, «Start with examples» and what interests you, or «Start empty»; then the short tour if you like.': 'Wähle die Sprache, «Mit Beispielen starten» und was dich interessiert, oder «Leer starten»; danach, wenn du magst, den kurzen Rundgang.',
   'Moved or a new sport? «Something changed?» lists only what it touches. Any time: Me › Data and backup.': 'Umgezogen oder neue Sportart? «Hat sich etwas geändert?» listet nur, was betroffen ist. Jederzeit: Ich › Daten und Backup.',
   '«Observation»: sun, wind, soil and a photo of the spot; the hint says what it means.': '«Beobachtung»: Sonne, Wind, Erde und ein Foto vom Platz; der Hinweis sagt, was das bedeutet.',
   '«Moved»: the new spot; the old one stays in the history.': '«Umgezogen»: der neue Platz; der alte bleibt im Verlauf.',
