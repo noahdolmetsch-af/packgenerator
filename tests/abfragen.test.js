@@ -25,7 +25,7 @@ describe('the 50 questions', () => {
     expect(AREAS).toHaveLength(10);
     // Noah 20.10.2026: plus 50 sample questions, 5 per area, all off at the start
     expect(QUESTIONS).toHaveLength(105);
-    expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key).length)).toEqual([12, 10, 10, 10, 12, 10, 10, 11, 10, 10]);
+    expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key).length)).toEqual([12, 10, 10, 10, 12, 10, 11, 11, 10, 10]);
     expect(AREAS.map((a) => QUESTIONS.filter((q) => q.area === a.key && q.sample).length)).toEqual(Array(10).fill(5));
     expect(QUESTIONS.filter((q) => q.sample).some((q) => ON_AT_START.has(q.id))).toBe(false);
     expect(new Set(QUESTIONS.map((q) => q.id)).size).toBe(105);
@@ -53,7 +53,7 @@ describe('the 50 questions', () => {
     for (const id of ON_AT_START) expect(QUESTION[id]).toBeTruthy();
     const n = counts(null);
     expect(n).toMatchObject({ all: 105, on: 30 });
-    expect(AREAS.map((a) => n.per[a.key].on)).toEqual([6, 2, 1, 3, 4, 3, 2, 3, 4, 2]);
+    expect(AREAS.map((a) => n.per[a.key].on)).toEqual([6, 2, 1, 3, 4, 3, 3, 3, 4, 2]);
     expect(settingOf(null, QUESTION['erholung.sofa']).on).toBe(false); // AB5: Sofa oder Sattel is off
     // Noah 04.11.2026 «3a»: one question per topic: the merged ones are off at the start, the one they merge into is on
     expect(Object.keys(MERGED_INTO)).toHaveLength(6);
