@@ -176,7 +176,7 @@
     display: none;
   }
   .hw-temp b {
-    font-size: var(--fs-h3, 1.25rem);
+    font-size: var(--fs-sub);
     white-space: nowrap;
   }
   .hw-radar {
