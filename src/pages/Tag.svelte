@@ -5,11 +5,13 @@
    * Heute and Abhaken show, so nothing is counted or stored twice. Rules of the layout: src/lib/tag/timeline.js.
    * Address: #/day (today) and #/day/YYYY-MM-DD. A tap on an entry opens it where it lives.
    */
-  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree } from '@lucide/svelte';
+  import { Sun, CloudRain, CloudSun, ChevronLeft, ChevronRight, Palmtree, Plus } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
   import Empty from '../lib/ui/Empty.svelte';
-  import { weekQuery } from '../lib/woche/load.js';
-  import { buildWeek, KIND_NAMES } from '../lib/woche.js';
+  import { weekQuery, putWeek } from '../lib/woche/load.js';
+  import { buildWeek, KIND_NAMES, ITEMS_KEY, cleanItem, pruneItems } from '../lib/woche.js';
+  import { deleteWithUndo } from '../lib/ui/ask.js';
+  import EntrySheet from '../lib/tag/EntrySheet.svelte';
   import { titleOf, subOf, dayName, wxWords, holidayName } from '../lib/woche/words.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
@@ -49,6 +51,34 @@
   const rel = $derived(day === today ? t('Today|day') : day === shiftDay(today, 1) ? t('Tomorrow|day') : day === shiftDay(today, -1) ? t('Yesterday|day') : '');
   const wetNow = $derived(d?.wx);
   const href = (e) => (e.href && !e.own ? e.href : '#/week');
+
+  // step 2: own dates and to-dos (setting week.items, the same list Woche writes) can be added, changed and deleted here
+  let editing = $state(null); // { item } to change or { item: null, day, time } for a new one
+  const items = () => src?.rawItems ?? [];
+  const isOwn = (e) => !!e.own && items().some((x) => x.id === e.id);
+  const saveItems = (list) => putWeek(ITEMS_KEY, pruneItems(list, today));
+  const openEntry = (e, ev) => {
+    if (!isOwn(e)) return;
+    ev.preventDefault();
+    editing = { item: items().find((x) => x.id === e.id) };
+  };
+  const addEntry = (time = '') => (editing = { item: null, day, time });
+  async function saveEntry(fields) {
+    const old = editing.item;
+    const next = cleanItem({ ...old, ...fields, mins: fields.mins ?? undefined });
+    if (!next) return;
+    if (fields.mins == null) delete next.mins;
+    await saveItems(old ? items().map((x) => (x.id === old.id ? next : x)) : [...items(), next]);
+  }
+  function deleteEntry() {
+    const gone = editing.item;
+    return deleteWithUndo({
+      run: () => saveItems(items().filter((x) => x.id !== gone.id)),
+      undo: () => saveItems([...items().filter((x) => x.id !== gone.id), gone]),
+      text: t('"{name}" deleted.', { name: gone.title }),
+      name: gone.title,
+    });
+  }
 </script>
 
 <PageHead title={t('My day')} context={t('Plan|place')} what={t('Read the day, tap an entry to open it where it lives.')} />
@@ -74,6 +104,7 @@
   {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={15} aria-hidden="true" />{:else if wetNow.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
   {#if day !== today}<a class="today-link" href="#/day">{t('Back to today')}</a>{/if}
 </p>
+<p class="addrow"><button type="button" class="add" data-add-entry onclick={() => addEntry()}><Plus size={16} aria-hidden="true" /> {t('Add an entry')}</button></p>
 
 {#if !week}
   <p class="load" aria-live="polite">{t('Loading the day …')}</p>
@@ -88,7 +119,7 @@
       <ul>
         {#each lay.untimed as e (e.id)}
           <li class="k-{e.kind}" class:done={e.done}>
-            <a href={href(e)}><b>{titleOf(e)}</b><small>{subOf(e) || t(KIND_NAMES[e.kind] ?? 'Other|kind')}</small></a>
+            <a href={href(e)} data-entry={e.id} onclick={(ev) => openEntry(e, ev)}><b>{titleOf(e)}</b><small>{subOf(e) || t(KIND_NAMES[e.kind] ?? 'Other|kind')}</small></a>
           </li>
         {/each}
       </ul>
@@ -113,6 +144,7 @@
         class:small={b.end - b.start <= 30}
         href={href(b.e)}
         data-entry={b.e.id}
+        onclick={(ev) => openEntry(b.e, ev)}
         style="top: {top(b.start)}px; height: {Math.max(22, ((b.end - b.start) / 60) * HH - 2)}px; left: calc(52px + (100% - 56px) * {b.col / b.cols}); width: calc((100% - 56px) / {b.cols} - 3px)"
       >
         <b>{titleOf(b.e)}</b>
@@ -122,7 +154,11 @@
   </section>
 {/if}
 
-<p class="foot">{t('What you plan in Woche stands here. Moving and editing entries here comes next.')}</p>
+{#if editing}
+  <EntrySheet item={editing.item} day={editing.day} time={editing.time} onsave={saveEntry} ondelete={deleteEntry} onclose={() => (editing = null)} />
+{/if}
+
+<p class="foot">{t('What you plan in Woche stands here. Your own dates and to-dos you can add and change here; dragging comes next.')}</p>
 
 <style>
   .wk {
@@ -205,6 +241,22 @@
     align-items: center;
     gap: 4px;
     font-size: var(--fs-small);
+  }
+  .addrow {
+    margin: 0 0 8px;
+  }
+  .add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
   }
   .today-link {
     margin-left: auto;

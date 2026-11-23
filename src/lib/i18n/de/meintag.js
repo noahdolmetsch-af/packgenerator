@@ -18,7 +18,12 @@ export default {
   'Open Woche': 'Woche öffnen',
   'Timeline': 'Zeitleiste',
   'now|clock': 'jetzt',
-  'What you plan in Woche stands here. Moving and editing entries here comes next.': 'Was du in der Woche planst, steht hier. Verschieben und Ändern der Einträge hier kommt als Nächstes.',
+  'What you plan in Woche stands here. Your own dates and to-dos you can add and change here; dragging comes next.': 'Was du in der Woche planst, steht hier. Eigene Termine und To-dos kannst du hier ergänzen und ändern; das Ziehen kommt als Nächstes.',
+  'Add an entry': 'Eintrag hinzufügen',
+  'New entry': 'Neuer Eintrag',
+  'Change entry': 'Eintrag ändern',
+  'Minutes|length': 'Minuten',
+  'Without a time, the entry stands above the timeline. Without minutes, the usual length counts.': 'Ohne Zeit steht der Eintrag über der Zeitleiste. Ohne Minuten gilt die übliche Länge.',
   // catalogue (src/lib/featreg/meintag.js)
   'One day as a timeline: sessions, dates, to-dos, trips and holidays with their time, the weather of the day and what has no time yet. It shows what Woche, Today and Tick off show, nothing is stored twice.': 'Ein Tag als Zeitleiste: Einheiten, Termine, To-dos, Touren und Ferien mit ihrer Zeit, das Wetter des Tages und was noch keine Zeit hat. Sie zeigt, was Woche, Heute und Abhaken zeigen; nichts wird doppelt gespeichert.',
   'Open Plan › Week and tap the chip «My day».': 'Öffne Planen › Woche und tippe auf «Mein Tag».',

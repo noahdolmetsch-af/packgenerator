@@ -98,3 +98,35 @@ test('Mein Tag: the chip stands next to Woche', async ({ page, context }) => {
   await expect(page.locator('h1')).toHaveText(T('My day'));
   expect(errors).toEqual([]);
 });
+
+test('Mein Tag: add, change and delete an own entry (with Undo)', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day');
+  await page.waitForSelector('h1');
+  await put(page, { settings: [{ key: 'week.items', value: ITEMS }] });
+  await page.reload();
+  await expect(page.locator('[data-entry="wi1"]')).toContainText('Zahnarzt');
+  // add
+  await page.locator('[data-add-entry]').click();
+  const sheet = page.locator('[data-entry-sheet]');
+  await expect(sheet).toBeVisible();
+  await sheet.locator('#es-title').fill('Bibliothek');
+  await sheet.locator('#es-time').fill('14:00');
+  await sheet.locator('#es-mins').fill('60');
+  await sheet.getByRole('button', { name: T('Save') }).click();
+  await expect(page.locator('.tl')).toContainText('Bibliothek');
+  await expect(page.locator('.tl')).toContainText('14:00–15:00');
+  // change: a tap on an own entry opens the window instead of leaving the page
+  await page.locator('[data-entry="wi1"]').click();
+  await expect(sheet).toBeVisible();
+  await expect(sheet.locator('#es-title')).toHaveValue('Zahnarzt');
+  await sheet.locator('#es-time').fill('13:30');
+  await sheet.getByRole('button', { name: T('Save') }).click();
+  await expect(page.locator('[data-entry="wi1"]')).toContainText('13:30–14:15');
+  // delete with Undo
+  await page.locator('[data-entry="wi1"]').click();
+  await sheet.getByRole('button', { name: T('Delete') }).click();
+  await expect(page.locator('[data-entry="wi1"]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Undo') }).click();
+  await expect(page.locator('[data-entry="wi1"]')).toContainText('Zahnarzt');
+  expect(errors).toEqual([]);
+});
