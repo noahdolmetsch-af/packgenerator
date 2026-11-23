@@ -26,6 +26,7 @@
   import WeekForm from '../../lib/flow/form/WeekForm.svelte';
   import WeekMore from '../../lib/flow/WeekMore.svelte';
   import WeekRhythm from '../../lib/flow/WeekRhythm.svelte';
+  import Zusammenhaenge from '../../lib/flow/Zusammenhaenge.svelte';
   import Rituale from '../../lib/flow/Rituale.svelte';
   import { ritualeWeek } from '../../lib/flow/rituale.js';
   import { actName as flowActName } from '../../lib/flow/ui.svelte.js';
@@ -168,6 +169,9 @@
 
     <!-- «Mehr Daten» (Noah 01.11.2026 «3c»): body, zones, bikes, weather and appointments of the week -->
     <WeekMore {monday} upto={running ? today : sunday} {today} />
+
+    <!-- «Zusammenhänge» (Noah 22.11.2026 «a», Schritt L): only said from 20 times on, before that it only counts -->
+    <Zusammenhaenge />
 
     <section class="card wcard" data-wr="strip" aria-labelledby="wr-strip">
       <h2 id="wr-strip">{t('Week strip')}</h2>
