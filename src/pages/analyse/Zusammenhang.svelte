@@ -159,7 +159,7 @@
       <h3>{t('In words|link')}</h3>
       {#if fit}
         <div class="boxes">
-          <div class="box" data-link-word={word}><b>{t(WORDS[word])}</b><span>{t('link ({r})|link', { r: num(Math.round(fit.r * 100) / 100) })}</span></div>
+          <div class="box" data-link-word={word}>{#if word === 'none'}<b>{t('No link|link')}</b><span>{t('in these days|link')}</span>{:else}<b>{t(WORDS[word])}</b><span>{t('link|link')}</span>{/if}</div>
           {#if word !== 'none'}<div class="box"><b class="num">{perStep.big}</b><span>{perStep.small}</span></div>{/if}
           <div class="box"><b class="num">{fit.n}</b><span>{t('days compared|link')}</span></div>
         </div>

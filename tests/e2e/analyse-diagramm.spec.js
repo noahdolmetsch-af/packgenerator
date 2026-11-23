@@ -95,14 +95,16 @@ test('Eigenes Diagramm: the D1 values under each other, a tapped day with all va
   for (const k of DEFAULT_KEYS) await expect(dg.locator(`[data-dg-row="${k}"]`), k).toBeVisible();
   await expect(dg.locator('[data-dg-row="rhr"] rect.band')).toHaveCount(1);
   await expect(dg.locator('[data-dg-row="km:bike"] rect.bar').first()).toBeVisible();
-  // «Auswerten in fünf Reiter» (Schritt 12b): the chart comes first, the three choices (what, how long, filter) sit below it
+  // Noah 23.11.2026: the three choices (what, how long, filter) sit ABOVE the chart (before: «Auswerten in fünf Reiter», Schritt 12b, below it)
   const firstRow = await dg.locator('[data-dg-row]').first().boundingBox();
   const change = dg.locator('[data-dg-change]');
   await expect(change.locator('.cg')).toHaveCount(3);
   await expect(change.locator('[data-dg-what] [data-dg-add]')).toBeVisible();
   await expect(change.locator('[data-dg-howlong] [data-dg-range]')).toBeVisible();
   await expect(change.locator('[data-dg-look] [data-dg-filter]')).toBeVisible();
-  expect(firstRow.y).toBeLessThan((await change.boundingBox()).y);
+  expect((await change.boundingBox()).y).toBeLessThan(firstRow.y);
+  // the trips are one calm band without a list of names under the chart; the legend only counts them
+  await expect(dg.locator('.legend')).not.toContainText('Scott Scale');
   await shot(page, 'diagramm', info);
   // tap a day in the resting pulse row: a line through all rows and the day with every value
   const svg = dg.locator('[data-dg-row="rhr"] svg[role="img"]');
@@ -257,7 +259,9 @@ test('Eigenes Diagramm: two trips starting the same day (or before the window) d
   await go(page, '#/auswerten/analyse');
   await tab(page, 'diagramm');
   await expect(page.locator('[data-diagram]')).toBeVisible();
-  await expect(page.locator('[data-diagram] [data-dg-row="rhr"] rect.band')).toHaveCount(2);
+  // Noah 23.11.2026: trips that overlap are ONE calm band (no stacked stripes); its title names both
+  await expect(page.locator('[data-diagram] [data-dg-row="rhr"] rect.band')).toHaveCount(1);
+  await expect(page.locator('[data-diagram] [data-dg-row="rhr"] rect.band title')).toHaveText(/Probefahrt Jura.*Zweite Tour|Zweite Tour.*Probefahrt Jura/);
   expect(errors).toEqual([]);
 });
 
@@ -279,12 +283,16 @@ test('Überblick (M2): the numbers of the period, every day a field, ranking, ti
   expect(perDay).toBeLessThanOrEqual(70);
   await expect(ov.locator('[data-ov-box="km:bike"]')).toContainText(T('Bike, Strava, in {n} days|overview').replace('{n}', '90'));
   const heat = page.locator('[data-heat]');
-  await expect(heat.locator('button.cell')).toHaveCount(90);
+  // whole weeks (Monday first): every day of the 90 and the days before them up to a Monday
+  expect(await heat.locator('button.cell').count()).toBeGreaterThanOrEqual(90);
+  expect(await heat.locator('button.cell').count()).toBeLessThanOrEqual(96);
   await expect(heat.locator('button.cell.l4').first()).toBeVisible();
-  const rank = page.locator('[data-ranking] li');
-  await expect(rank.first()).toHaveAttribute('data-rank', /meditation/);
-  expect(await page.locator('[data-weekly] rect.wb').count()).toBeGreaterThanOrEqual(13);
-  await expect(page.locator('[data-weekly] path.m4')).toBeVisible();
+  // the ranking stands in groups (Move, Mindful, Recovery); meditation is one of its lines
+  await expect(page.locator('[data-ranking] [data-rank-group]').first()).toBeVisible();
+  await expect(page.locator('[data-ranking] li[data-rank*="meditation"]').first()).toBeVisible();
+  // the course is the shared bar chart: one column per week with its mean line
+  expect(Number(await page.locator('[data-weekly] [data-plot]').getAttribute('data-n'))).toBeGreaterThanOrEqual(13);
+  await expect(page.locator('[data-weekly] path.ln')).toBeVisible();
   await heat.scrollIntoViewIfNeeded();
   await shot(page, 'ueberblick', info);
   // a field opens its day
