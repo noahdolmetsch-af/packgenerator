@@ -57,4 +57,9 @@ export default {
   'Tap «Today» to move it to today; tap its words to change or delete it.': 'Tippe «Heute», um es auf heute zu legen; tippe auf den Text, um es zu ändern oder zu löschen.',
   'Example: «Call the garage» without a date waits in the list; on Friday you tap «Today» and tick it off in the evening.': 'Beispiel: «Garage anrufen» ohne Datum wartet in der Liste; am Freitag tippst du «Heute» und hakst es abends ab.',
   'Everything still open in one list: yours from Remember and the ones you put on a day.': 'Alles, was noch offen ist, in einer Liste: deine aus Merken und die, die du auf einen Tag legst.',
+  // step 3b: open points of notes, only on a tap
+  'Open points in your notes': 'Offene Punkte in deinen Notizen',
+  'Nothing becomes a to-do by itself. Tap «Make a to-do» for the ones you want.': 'Nichts wird von selbst ein To-do. Tippe «To-do machen» bei denen, die du willst.',
+  'Make a to-do': 'To-do machen',
+  'Make a to-do of «{name}»': 'Aus «{name}» ein To-do machen',
 };

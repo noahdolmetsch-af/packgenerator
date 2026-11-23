@@ -204,3 +204,22 @@ test('Mein Tag: the tab «To-dos» lists Merken and day to-dos, adds, moves to t
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('Mein Tag: open points of notes become to-dos only on a tap, once', async ({ page, context }) => {
+  const errors = await open(page, context, '#/day/todos');
+  await page.waitForSelector('h1');
+  await put(page, { notes: [{ id: 'n1', kind: 'note', status: 'kept', title: 'Packliste Herbst', text: '', at: D0, editedAt: D0, checklist: [{ text: 'Gas', done: false }, { text: 'Riegel', done: true }] }] });
+  await page.reload();
+  const fold = page.locator('[data-todo-notes]');
+  await expect(fold).toContainText(T('Open points in your notes'));
+  await fold.locator('summary').click();
+  await expect(fold).toContainText('Gas');
+  await expect(fold).not.toContainText('Riegel');
+  // nothing is a to-do yet
+  await expect(page.locator('[data-todo-group]')).toHaveCount(0);
+  await page.getByRole('button', { name: T('Make a to-do of «{name}»').replace('{name}', 'Gas') }).click();
+  await expect(page.locator('[data-todo-group="none"]')).toContainText('Gas');
+  // offered once: the fold is gone
+  await expect(page.locator('[data-todo-notes]')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
