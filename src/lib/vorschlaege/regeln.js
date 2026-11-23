@@ -1,11 +1,14 @@
 /**
- * «Tourenvorschläge» Pilot (Noah 05.11.2026 «a b, Mockup ja», «1a 2a 3a»): mountain bike tours from the open
- * data set «Mountainbikeland Schweiz» (swisstopo/ASTRA, © swisstopo, SchweizMobil). The pilot has five tours
- * in Zurich and Grisons (data/pilot.js, built by scripts/vorschlaege/build-pilot.py).
+ * «Tourenvorschläge» (Noah 05.11.2026 «a b, Mockup ja», «1a 2a 3a»; 23.11.2026 «alles umsetzen mit 100 strecken, davon auch ein paar
+ * verteilt in allen kantonen. was näher ist hat vorrang. aber nur schwere touren was kondition angeht»): mountain bike tours from the
+ * open data set «Mountainbikeland Schweiz» (swisstopo/ASTRA, © swisstopo, SchweizMobil). 100 tours in the cantons that have
+ * official routes (data/netz.js, built by scripts/vorschlaege/build-netz.py); the five pilot tours keep their ids.
  *
  * The rules are pure and tested in tests/vorschlaege.test.js. The page is pages/Vorschlaege.svelte.
- * - Level (official, 3 steps): «Kondition» (fitness) and «Technik» (skill). «Medium and difficult» (Noah) means
- *   a tour is shown when its fitness OR its skill level is chosen; «easy» is off at the start but can be switched on.
+ * - Level (official, 3 steps): «Kondition» (fitness) and «Technik» (skill) are two filters. Fitness «difficult» is on at the
+ *   start (Noah: only hard tours for fitness); skill is only shown, and can be filtered, never at the start. A tour that is
+ *   the strongest of its canton but only «medium» (`best`) also shows when you choose that canton, with a note.
+ * - Order: nearest first: from your home place, else from Zurich main station (`dz` in the data).
  * - Time: your own pace (pace.js, «Dein Tempo»): km / speed + climb / metres per hour.
  * - Snow: a rule of thumb by month and height (no weather data in the pilot). It only warns, nothing is hidden for good.
  * - New for you: how much of the line is farther than 150 m from every ride you have recorded.
@@ -13,13 +16,39 @@
 import { SPEED_KMH, CLIMB_MH } from '../route.js';
 import { gpxString } from '../gpxout.js';
 
+/** The cantons (the region of a tour is the canton of its start), in the order of the Swiss list; code + name. */
 export const REGIONS = [
   { key: 'zh', name: 'Zurich|tour' },
+  { key: 'be', name: 'Bern|tour' },
+  { key: 'lu', name: 'Lucerne|tour' },
+  { key: 'ur', name: 'Uri|tour' },
+  { key: 'sz', name: 'Schwyz|tour' },
+  { key: 'ow', name: 'Obwalden|tour' },
+  { key: 'nw', name: 'Nidwalden|tour' },
+  { key: 'gl', name: 'Glarus|tour' },
+  { key: 'zg', name: 'Zug|tour' },
+  { key: 'fr', name: 'Fribourg|tour' },
+  { key: 'so', name: 'Solothurn|tour' },
+  { key: 'bs', name: 'Basel-City|tour' },
+  { key: 'bl', name: 'Basel-Country|tour' },
+  { key: 'sh', name: 'Schaffhausen|tour' },
+  { key: 'ar', name: 'Appenzell Outer Rhodes|tour' },
+  { key: 'ai', name: 'Appenzell Inner Rhodes|tour' },
+  { key: 'sg', name: 'St. Gallen|tour' },
   { key: 'gr', name: 'Grisons|tour' },
+  { key: 'ag', name: 'Aargau|tour' },
+  { key: 'tg', name: 'Thurgau|tour' },
+  { key: 'ti', name: 'Ticino|tour' },
+  { key: 'vd', name: 'Vaud|tour' },
+  { key: 'vs', name: 'Valais|tour' },
+  { key: 'ne', name: 'Neuchatel|tour' },
+  { key: 'ge', name: 'Geneva|tour' },
+  { key: 'ju', name: 'Jura|tour' },
 ];
 export const LEVELS = ['easy', 'medium', 'difficult'];
-/** What is on at the start (Noah: only medium and difficult). */
-export const LEVELS_STD = ['medium', 'difficult'];
+/** What is on at the start (Noah 23.11.2026): fitness only «difficult»; skill any (empty = no filter). */
+export const COND_STD = ['difficult'];
+export const TECH_STD = [];
 /** The time choices in hours; null = any. */
 export const HOURS = [2, 3, 4, 5, 6];
 /** The kinds of tour (Noah 05.11.2026 «mit 1 beginnen»): a tour can have several. */
@@ -47,10 +76,21 @@ export function artsOf(t) {
   return ARTS.filter((k) => a.includes(k));
 }
 
-/** Does the tour have a chosen level (fitness or skill)? levels: a Set or an array. */
-export function matchLevels(t, levels) {
-  const set = levels instanceof Set ? levels : new Set(levels ?? []);
-  return levelsOf(t).some((l) => set.has(l));
+/** The fitness level of a tour; a downhill has none and counts as «easy» for the filter. */
+export const condOf = (t) => t?.cond ?? 'easy';
+
+/** Fitness filter: the level is chosen; empty = no filter. The strongest tour of a chosen canton (`best`) passes too. */
+export function matchCond(t, conds, regions) {
+  const set = conds instanceof Set ? conds : new Set(conds ?? []);
+  if (!set.size || set.has(condOf(t))) return true;
+  const rs = regions instanceof Set ? regions : new Set(regions ?? []);
+  return !!t?.best && rs.has(t.region);
+}
+
+/** Skill filter: the level is chosen; empty = no filter. */
+export function matchTech(t, techs) {
+  const set = techs instanceof Set ? techs : new Set(techs ?? []);
+  return !set.size || set.has(t?.tech ?? 'easy');
 }
 
 /** Riding hours with your pace ({ kmh, climbMh }) or the standard; rounded to 5 minutes. */
@@ -77,21 +117,28 @@ export function snowOf(t, month) {
 }
 
 /**
- * The tours to show: region (set or array; empty = all), levels, the most hours (null = any), kinds (empty = all), the most km
- * from home to the start (null = any; without a home place it does not filter), without the hidden ones. pace is used for the time.
+ * The tours to show, nearest first: regions (cantons; set or array; empty = all), conds (fitness levels, empty = all), techs (skill
+ * levels, empty = all), the most hours (null = any), kinds (empty = all), the most km from home to the start (null = any; without a
+ * home place it does not filter), without the hidden ones. pace is used for the time.
  */
-export function filterTours(tours = [], { regions = [], levels = LEVELS_STD, maxHours = null, hidden = [], pace = null, arts = [], maxAway = null, home = null } = {}) {
+export function filterTours(tours = [], { regions = [], conds = COND_STD, techs = TECH_STD, maxHours = null, hidden = [], pace = null, arts = [], maxAway = null, home = null } = {}) {
   const rs = new Set(regions ?? []);
   const hid = new Set(hidden ?? []);
   const as = new Set(arts ?? []);
-  return tours.filter((t) => {
-    if (hid.has(t.id) || (rs.size && !rs.has(t.region)) || !matchLevels(t, levels)) return false;
+  return sortNear(tours, home).filter((t) => {
+    if (hid.has(t.id) || (rs.size && !rs.has(t.region)) || !matchCond(t, conds, rs) || !matchTech(t, techs)) return false;
     if (maxHours && hoursOf(t, pace) > maxHours + 1e-9) return false;
     if (as.size && !artsOf(t).some((k) => as.has(k))) return false;
     const km = maxAway ? awayKm(t, home) : null;
     return km === null || km <= maxAway;
   });
 }
+
+/** Km to the start for the order: from home when there is a home place, else from Zurich main station (`dz`). */
+export const nearKm = (t, home) => awayKm(t, home) ?? t?.dz ?? 999;
+
+/** The tours, nearest start first (a copy; the same order for the same distance). */
+export const sortNear = (tours = [], home = null) => tours.map((t, i) => [t, nearKm(t, home), i]).sort((a, b) => a[1] - b[1] || a[2] - b[2]).map((x) => x[0]);
 
 /** Splits a list: what fits this month and what does not (snow likely). */
 export function splitNow(tours = [], month) {
@@ -186,10 +233,12 @@ export function whyOf(t, ctx = {}) {
   else if (ctx.month) out.push({ k: 'snow', tone: 'ok', state: 'none', max: t.max });
   const hard = levelsOf(t).includes('difficult');
   if (hard) out.push({ k: 'level', tone: 'warn', cond: t.cond ?? null, tech: t.tech });
+  else if (t.best) out.push({ k: 'level', tone: 'ok', best: true, cond: t.cond ?? null, tech: t.tech });
   const share = newShare(t, ctx.grid);
   if (share !== null) out.push({ k: 'new', tone: 'ok', share: Math.round(share * 100) });
   const km = awayKm(t, ctx.home);
   if (km !== null) out.push({ k: 'away', tone: 'ok', km });
+  else if (Number.isFinite(t?.dz)) out.push({ k: 'away', tone: 'ok', km: t.dz, zurich: true });
   return out;
 }
 

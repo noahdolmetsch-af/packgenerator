@@ -1,52 +1,95 @@
 import { describe, it, expect } from 'vitest';
-import TOURS from '../src/lib/vorschlaege/data/pilot.js';
-import { REGIONS, LEVELS, LEVELS_STD, ARTS, artsOf, levelsOf, matchLevels, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
+import TOURS from '../src/lib/vorschlaege/data/netz.js';
+import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
+import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes } from '../src/lib/vorschlaege/karte.js';
+import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
 const by = (id) => TOURS.find((t) => t.id === id);
 
-describe('Tourenvorschläge: die Pilot-Daten', () => {
-  it('hat 5 Touren, je mit Linie, Höhenprofil und Untergrund', () => {
-    expect(TOURS.map((t) => t.id)).toEqual(['sm-33', 'sm-10711', 'sm-250', 'sm-636', 'sm-332']);
+const PILOT = ['sm-33', 'sm-10711', 'sm-250', 'sm-636', 'sm-332'];
+/** The five pilot tours in their old order (the other tests keep their numbers). */
+const P = PILOT.map(by);
+const ids = (o, list = TOURS) => filterTours(list, o).map((t) => t.id);
+
+describe('Tourenvorschläge: die Daten', () => {
+  it('hat 200 Touren, je mit Linie, Höhenprofil, Untergrund und Kanton', () => {
+    expect(TOURS.length).toBe(200);
+    expect(new Set(TOURS.map((t) => t.id)).size).toBe(200);
     for (const t of TOURS) {
       expect(t.line.length).toBeGreaterThan(20);
       expect(t.ele.length).toBe(t.cls.length);
       expect(t.ele.length).toBeGreaterThan(10);
       expect(t.single + t.unpaved + t.paved).toBeGreaterThanOrEqual(98);
       expect(REGIONS.map((r) => r.key)).toContain(t.region);
+      expect(Number.isFinite(t.dz)).toBe(true);
       for (const l of levelsOf(t)) expect(LEVELS).toContain(l);
     }
   });
-  it('liegt in der Schweiz (Zürich und Graubünden)', () => {
+  it('die fünf Pilot-Touren bleiben mit ihren Nummern', () => {
+    for (const id of PILOT) expect(by(id)).toBeTruthy();
+    expect(by('sm-33').title).toBe('Winterthur → Hulftegg');
+  });
+  it('liegt in der Schweiz und verteilt sich auf viele Kantone', () => {
     for (const t of TOURS) {
       const [la, lo] = t.line[0];
-      expect(la).toBeGreaterThan(46.3);
-      expect(la).toBeLessThan(47.6);
-      expect(lo).toBeGreaterThan(8.3);
-      expect(lo).toBeLessThan(10.2);
+      expect(la).toBeGreaterThan(45.7);
+      expect(la).toBeLessThan(47.9);
+      expect(lo).toBeGreaterThan(5.9);
+      expect(lo).toBeLessThan(10.6);
     }
+    const n = {};
+    for (const t of TOURS) n[t.region] = (n[t.region] ?? 0) + 1;
+    expect(Object.keys(n).length).toBeGreaterThanOrEqual(20);
     expect(by('sm-332').single).toBeGreaterThan(40);
+  });
+  it('alle offiziell schweren Etappen sind dabei, dazu die stärksten «mittel» (best, in Kantonen ohne schwere Tour) und mittlere mit viel Aufstieg', () => {
+    const best = TOURS.filter((t) => t.best);
+    expect(best.length).toBeGreaterThanOrEqual(5);
+    for (const t of best) {
+      expect(t.cond).toBe('medium');
+      expect(TOURS.filter((x) => x.region === t.region && x.cond === 'difficult')).toEqual([]);
+    }
+    expect(TOURS.filter((t) => t.cond === 'difficult').length).toBeGreaterThanOrEqual(125);
+    for (const t of TOURS.filter((x) => x.cond === 'medium' && !x.best && !PILOT.includes(x.id))) expect(t.up).toBeGreaterThanOrEqual(900);
   });
 });
 
-describe('Tourenvorschläge: Stufen', () => {
-  it('«mittel und schwierig» (Standard): Kondition oder Technik reicht', () => {
-    expect(filterTours(TOURS, { levels: LEVELS_STD }).length).toBe(5);
-    // Flims: Kondition mittel, Technik leicht → bleibt; nur «leicht» zeigt Flims (Technik) und sonst nichts
-    expect(filterTours(TOURS, { levels: ['easy'] }).map((t) => t.id)).toEqual(['sm-250']);
-    expect(filterTours(TOURS, { levels: ['difficult'] }).map((t) => t.id)).toEqual(['sm-33', 'sm-332']);
-    expect(filterTours(TOURS, { levels: [] })).toEqual([]);
+describe('Tourenvorschläge: Stufen und Reihenfolge', () => {
+  it('Standard: nur schwere Kondition (Noah 23.11.2026); Technik schränkt nur ein', () => {
+    expect(COND_STD).toEqual(['difficult']);
+    expect(ids({}, P)).toEqual(['sm-33', 'sm-332']);
+    expect(ids({ conds: ['medium'] }, P)).toEqual(['sm-250', 'sm-636']);
+    expect(ids({ conds: [] }, P).length).toBe(5);
+    expect(ids({ techs: ['difficult'] }, P)).toEqual(['sm-332']);
+    expect(ids({ conds: [], techs: ['medium'] }, P).sort()).toEqual(['sm-10711', 'sm-33', 'sm-636']);
   });
-  it('eine Abfahrt hat keine Kondition, nur Technik', () => {
+  it('eine Abfahrt hat keine Kondition: sie zählt als leicht und hat nur Technik', () => {
     const d = by('sm-10711');
     expect(levelsOf(d)).toEqual(['medium']);
-    expect(matchLevels(d, new Set(['medium']))).toBe(true);
-    expect(matchLevels(d, ['easy', 'difficult'])).toBe(false);
+    expect(condOf(d)).toBe('easy');
+    expect(matchCond(d, ['difficult'], [])).toBe(false);
+    expect(matchCond(d, ['easy'], [])).toBe(true);
+    expect(matchTech(d, ['medium'])).toBe(true);
+    expect(matchTech(d, ['difficult'])).toBe(false);
   });
-  it('Region, Zeit und ausgeblendete Touren', () => {
-    expect(filterTours(TOURS, { regions: ['zh'] }).map((t) => t.id)).toEqual(['sm-33', 'sm-10711']);
-    expect(filterTours(TOURS, { regions: ['gr'], hidden: ['sm-250'] }).map((t) => t.id)).toEqual(['sm-636', 'sm-332']);
-    expect(filterTours(TOURS, { maxHours: 1 }).map((t) => t.id)).toEqual(['sm-10711']);
-    expect(filterTours(TOURS, { maxHours: 6 }).length).toBeGreaterThan(3);
+  it('die stärkste Tour eines gewählten Kantons zeigt sich auch bei «schwer», sonst nicht', () => {
+    const b = TOURS.find((t) => t.best);
+    expect(ids({}).includes(b.id)).toBe(false);
+    expect(ids({ regions: [b.region] })).toEqual([b.id]);
+  });
+  it('Kanton, Zeit und ausgeblendete Touren', () => {
+    expect(ids({ regions: ['zh'], conds: [] }, P)).toEqual(['sm-10711', 'sm-33']); // nearest first
+    expect(ids({ regions: ['gr'], conds: [], hidden: ['sm-250'] }, P)).toEqual(['sm-636', 'sm-332']);
+    expect(ids({ maxHours: 1, conds: [] }, P)).toEqual(['sm-10711']);
+    expect(ids({ maxHours: 6 }).length).toBeGreaterThan(10);
+  });
+  it('zuerst die Nächsten: ohne Wohnort ab Zürich Hauptbahnhof, mit Wohnort ab dort', () => {
+    const list = sortNear(TOURS, null);
+    for (let i = 1; i < list.length; i++) expect(list[i - 1].dz).toBeLessThanOrEqual(list[i].dz);
+    expect(nearKm(by('sm-33'), null)).toBe(by('sm-33').dz);
+    const home = { lat: 46.8, lon: 9.83 }; // Davos
+    expect(sortNear(TOURS, home)[0].region).toBe('gr');
+    expect(ids({}, TOURS)[0]).toBe(sortNear(TOURS, null).find((t) => t.cond === 'difficult').id);
   });
 });
 
@@ -70,10 +113,10 @@ describe('Tourenvorschläge: Schnee (Faustregel nach Monat und Höhe)', () => {
     expect(snowOf(by('sm-33'), 1)).toBe('possible');
   });
   it('trennt «passt jetzt» und «heute nicht»', () => {
-    const { fits, notNow } = splitNow(TOURS, 11);
+    const { fits, notNow } = splitNow(P, 11);
     expect(fits.map((t) => t.id)).toEqual(['sm-33', 'sm-10711', 'sm-250']);
     expect(notNow.map((t) => t.id)).toEqual(['sm-636', 'sm-332']);
-    expect(splitNow(TOURS, 7).notNow).toEqual([]);
+    expect(splitNow(P, 7).notNow).toEqual([]);
   });
 });
 
@@ -130,8 +173,7 @@ describe('Tourenvorschläge: GPX', () => {
 });
 
 describe('Tourenvorschläge: Art und Start', () => {
-  const ids = (o) => filterTours(TOURS, o).map((t) => t.id);
-  it('Art: Singletrail, Abfahrt, Schotter und Wege, Runde', () => {
+    it('Art: Singletrail, Abfahrt, Schotter und Wege, Runde', () => {
     expect(artsOf(by('sm-332'))).toEqual(['trail', 'loop']);
     expect(artsOf(by('sm-10711'))).toEqual(['trail', 'downhill']);
     expect(artsOf(by('sm-33'))).toEqual(['gravel']);
@@ -139,15 +181,56 @@ describe('Tourenvorschläge: Art und Start', () => {
     for (const t of TOURS) for (const k of artsOf(t)) expect(ARTS).toContain(k);
   });
   it('filtert nach Art (eine genügt); ohne Wahl alle', () => {
-    expect(ids({ levels: LEVELS_STD, arts: ['downhill'] })).toEqual(['sm-10711']);
-    expect(ids({ levels: LEVELS_STD, arts: ['trail'] })).toEqual(['sm-10711', 'sm-332']);
-    expect(ids({ levels: LEVELS_STD, arts: ['loop', 'downhill'] })).toEqual(['sm-10711', 'sm-250', 'sm-636', 'sm-332']);
-    expect(ids({ levels: LEVELS_STD, arts: [] }).length).toBe(5);
+    expect(ids({ conds: [], arts: ['downhill'] }, P)).toEqual(['sm-10711']);
+    expect(ids({ conds: [], arts: ['trail'] }, P)).toEqual(['sm-10711', 'sm-332']);
+    expect(ids({ conds: [], arts: ['loop', 'downhill'] }, P)).toEqual(['sm-10711', 'sm-250', 'sm-636', 'sm-332']);
+    expect(ids({ conds: [], arts: [] }, P).length).toBe(5);
   });
   it('Start: bis x km vom Wohnort, ohne Wohnort kein Filter', () => {
     const home = { lat: 47.3769, lon: 8.5417 };
-    expect(ids({ levels: LEVELS_STD, maxAway: 30, home })).toEqual(['sm-33', 'sm-10711']);
-    expect(ids({ levels: LEVELS_STD, maxAway: 30, home: null }).length).toBe(5);
-    expect(ids({ levels: LEVELS_STD, maxAway: 100, home }).length).toBeGreaterThanOrEqual(2);
+    expect(ids({ conds: [], maxAway: 30, home }, P)).toEqual(['sm-10711', 'sm-33']);
+    expect(ids({ conds: [], maxAway: 30, home: null }, P).length).toBe(5);
+    expect(ids({ conds: [], maxAway: 100, home }, P).length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('Tourenvorschläge: die Karte', () => {
+  it('rechnet Breite und Länge in das Landesnetz um (Zürich HB und Bern)', () => {
+    const [e, n] = lv95(47.3779, 8.5403);
+    expect(Math.abs(e - 2683260)).toBeLessThan(300);
+    expect(Math.abs(n - 1247900)).toBeLessThan(300);
+    const [be, bn] = lv95(46.9511, 7.4386);
+    expect(Math.abs(be - 2600000)).toBeLessThan(300);
+    expect(Math.abs(bn - 1200000)).toBeLessThan(100);
+  });
+  it('legt Zürich und jede Tour in den Rahmen 1440 × 900', () => {
+    expect(FRAME.w).toBe(1440);
+    expect(FRAME.h).toBe(900);
+    expect(KANTONE.w).toBe(1440);
+    expect(ZURICH[0]).toBeGreaterThan(700);
+    expect(ZURICH[0]).toBeLessThan(900);
+    for (const t of TOURS) {
+      const [x, y] = toXY(t.line[0]);
+      expect(x).toBeGreaterThan(0);
+      expect(x).toBeLessThan(1440);
+      expect(y).toBeGreaterThan(0);
+      expect(y).toBeLessThan(900);
+    }
+    expect(pathOf(by('sm-33').line)).toMatch(/^M[\d.]+ [\d.]+L/);
+  });
+  it('hat für jeden Kanton der Touren eine Fläche und eine Beschriftung', () => {
+    expect(Object.keys(KANTONE.paths).length).toBe(26);
+    for (const t of TOURS) {
+      expect(KANTONE.paths[t.region]).toBeTruthy();
+      expect(KANTONE.labels[t.region]).toBeTruthy();
+    }
+    for (const r of REGIONS) expect(KANTONE.paths[r.key]).toBeTruthy();
+  });
+  it('zählt die Touren je Kanton, und die Zeichengrössen bleiben lesbar', () => {
+    expect(countBy(P).gr).toBe(3);
+    expect(countBy([]).gr).toBeUndefined();
+    expect(sizes(1).dot).toBe(7);
+    expect(sizes(0.27).dot).toBeGreaterThan(sizes(1).dot);
+    expect(sizes(0.27).font).toBeGreaterThanOrEqual(13);
   });
 });
