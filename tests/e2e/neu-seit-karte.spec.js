@@ -26,7 +26,9 @@ async function seed(page, { card = null } = {}) {
   await settle(page);
   // an update also brings the short intro of Today: skip it, it is not what is tested here
   const skip = page.getByRole('button', { name: T('Skip|intro') });
-  if (await skip.first().isVisible({ timeout: 3000 }).catch(() => false)) await skip.first().click();
+  // the bubble comes about 0.7 s after Today is laid out: wait for it (isVisible does not wait)
+  const shown = await skip.first().waitFor({ state: 'visible', timeout: 4000 }).then(() => true, () => false);
+  if (shown) await skip.first().click();
 }
 
 test('the card counts the news since the last visit and its window groups them by place', async ({ page, context }, info) => {
