@@ -72,7 +72,7 @@
               {:else}
                 <span class="gap">{gapText(r)}</span>
                 {#if onswap}{#each r.items as i (i.id)}<button type="button" class="btn sm add" data-onion-swap={i.id} onclick={() => onswap(i)}><ArrowLeftRight size={16} aria-hidden="true" />{t('Swap {name}', { name: nameOf(i) })}</button>{/each}{/if}
-                {#if r.fix}<button type="button" class="btn sm add" onclick={() => onadd([r.fix.id], nameOf(r.fix))}><Plus size={16} aria-hidden="true" />{t('{name} in', { name: nameOf(r.fix) })}</button>{/if}
+                {#if r.fix}<button type="button" class="btn sm add" onclick={() => onadd([r.fix.id], nameOf(r.fix))}><Plus size={16} aria-hidden="true" />{t('{name} in', { name: nameOf(r.fix) })}</button>{#if r.fix.favorite}<small class="fav" data-onion-fav>★ {t('Your favourite')}</small>{/if}{/if}
               {/if}
             </span>
           </li>
@@ -124,6 +124,11 @@
 {/if}
 
 <style>
+  .fav {
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
   .fill {
     margin: 6px 0 0;
   }
