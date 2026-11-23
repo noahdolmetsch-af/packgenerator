@@ -5,6 +5,7 @@
 import { t } from './i18n.svelte.js';
 import { inStandard, isWorn, leaveHome, blockKeys, oldFieldsPatch } from './blocks2026.js';
 import { withRecord } from './pack/dazufeld.js';
+import { reachRecord } from './pack/griffeld.js';
 
 /**
  * The Standard categories in display order, with the Trail Journal colour of each. They never change
@@ -376,6 +377,7 @@ export function itemRecord(draft, { item = null, items = [], weightG = null, now
     ...boughtNow(item, rest.ownership, now),
     ...storeRecord(draft, item),
     ...withRecord(draft, item), // «Gehört dazu» (pack/dazu.js)
+    ...reachRecord(draft, item), // «Griffbereit» (pack/griff.js)
     updatedAt: now,
   };
 }
