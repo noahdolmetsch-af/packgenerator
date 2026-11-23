@@ -19,6 +19,7 @@
   import { dueCards } from '../care/overview.js';
   import { localDay } from '../localday.js';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
+  import BikeOrderSheet from './BikeOrderSheet.svelte';
   import VeloDraw from './VeloDraw.svelte';
   import { careLook } from './pflegezustand.js';
   import { phone } from '../media.svelte.js';
@@ -50,6 +51,7 @@
   );
   // step 2: «Log a workshop visit» and «Log a problem» straight from the card (the Today dialogs, one bike chosen)
   let dialog = $state(null); // { kind, bikeId }
+  let orderOpen = $state(false); // «Change the order and the standard bike»: the window of the order (was a line further down)
   let saved = $state(null);
   let savedTimer;
   function done(s) {
@@ -72,6 +74,8 @@
 </script>
 
 {#if cards.length}
+  <!-- Velos nach impeccable (Noah 23.11.2026 «1-5 a», 1): one line over the cards says what stands here and where the order is changed -->
+  <p class="vhead" data-bikes-head><b>{t('Your bikes')} <span class="num">{cards.length}</span></b>{#if cards.length > 1}<button type="button" class="link" onclick={() => (orderOpen = true)} data-order-open>{t('Change the order and the standard bike')}</button>{/if}</p>
   <section class="cards" data-bike-cards aria-label={t('Your bikes at a glance')}>
     {#each cards as c (c.bike.id)}
       <article class="vcard" class:sel={c.bike.id === bikeId} aria-current={c.bike.id === bikeId ? 'true' : undefined} data-velo-card={c.bike.id}>
@@ -112,6 +116,10 @@
       {/if}
     </section>
   {/if}
+  {#if !recent.length}
+    <!-- one line as long as there is nothing to show -->
+    <p class="vcard hist one" data-visit-history data-visit-none><span>{t('Workshop: no visit yet')}</span><a href={bikesHash({ tab: 'shop' })}>{t('To the workshop')}</a></p>
+  {:else}
   <section class="vcard hist" data-visit-history aria-label={t('Workshop and history')}>
     <b>{t('Workshop and history')} <small>{t('latest')}</small></b>
     {#if recent.length}
@@ -125,13 +133,15 @@
           </li>
         {/each}
       </ul>
-    {:else}
-      <p class="next" data-visit-none>{t('No workshop visit yet.')} <a href={bikesHash({ tab: 'shop' })}>{t('Open the workshop')}</a></p>
     {/if}
   </section>
+  {/if}
   {#if saved}
     <p class="saved" role="status" data-card-saved>{saved.kind === 'visit' ? t('Workshop visit saved.') : t('Saved in Bike care.')} <a href={bikesHash({ tab: 'care', bike: saved.bikeId, open: true })}>{t('Open')}</a>
       {#if saved.resets?.length}<br /><span data-saved-resets>{t('Changed:')} {saved.resets.join(' · ')}</span>{/if}</p>
+  {/if}
+  {#if orderOpen}
+    <BikeOrderSheet {bikes} onclose={() => (orderOpen = false)} />
   {/if}
   {#if dialog}
     <BikeQuickDialog kind={dialog.kind} {bikes} bikeId={dialog.bikeId} onsaved={done} onclose={() => (dialog = null)} />
@@ -298,6 +308,48 @@
   .next-up small,
   .hist small {
     color: var(--ink-2);
+  }
+  .vhead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0 12px;
+    margin: 0 0 var(--sp-2);
+  }
+  .vhead b {
+    font-weight: 600;
+  }
+  .vhead .num {
+    color: var(--ink-3);
+    font-weight: 500;
+  }
+  .vhead .link {
+    min-height: 44px;
+    padding: 0 4px;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 500 var(--fs-small) var(--font-body);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .hist.one {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0 12px;
+    margin-top: 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .hist.one a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--accent);
+    font-weight: 500;
   }
   .saved {
     margin: 0 0 var(--sp-3);

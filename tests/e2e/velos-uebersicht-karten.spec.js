@@ -58,3 +58,21 @@ test('Bikes: a visit saved from a card names what it changed', async ({ page, co
   await dlg.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.locator('[data-saved-resets]')).toContainText('Chain');
 });
+
+test('Bikes: one line over the cards says how many bikes and changes the order; the bike below is named «Chosen bike»', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await page.goto('./');
+  await importAndSettle(page, fixture);
+  await page.goto('./#/bikes');
+  const head = page.locator('[data-bikes-head]');
+  await expect(head).toBeVisible();
+  const n = await page.locator('[data-velo-card]').count();
+  await expect(head.locator('.num')).toHaveText(String(n));
+  if (n > 1) {
+    await expect(page.locator('[data-bike-chosen]')).toBeVisible();
+    await head.locator('[data-order-open]').click();
+    await expect(page.locator('dialog.bo-dlg')).toBeVisible();
+  }
+  // the order of the cards comes before the card of the bike chosen below, and no second «n bikes» line stands there
+  await expect(page.locator('section.setup-band .vb-sub')).toHaveCount(0);
+});
