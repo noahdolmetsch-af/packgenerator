@@ -99,7 +99,10 @@
           {#if wxText}<span data-tt-wx><CloudSun size={16} aria-hidden="true" />{wxText}</span>{/if}
           {#if freeText}<span data-tt-free>{freeText}</span>{/if}
         </p>
+<<<<<<< HEAD
         <button type="button" class="btn sm tt-start" onclick={() => (startOpen = true)} data-tt-start><MapPin size={16} aria-hidden="true" />{t('Start: {place}', { place: startName })}<ChevronDown size={14} aria-hidden="true" /></button>
+=======
+>>>>>>> origin/main
         <Seg small full={false} label={t('Time for the ride')} value={String(hours)} onchange={(v) => (picked = Number(v))} options={TIP_HOURS.map((h) => ({ key: String(h), name: h < 2 ? t('{n} min', { n: h * 60 }) : t('{n} h', { n: h }) }))} />
       </div>
       {#if tips.length}

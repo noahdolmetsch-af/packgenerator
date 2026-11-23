@@ -89,3 +89,32 @@ test('Tour path: without a tour the page says so and offers to plan one', async 
   await expect(page.locator('[data-empty]')).toContainText(T('No tour yet'));
   await expect(page.locator('[data-empty] a', { hasText: T('Plan a tour') })).toBeVisible();
 });
+
+test('Tour path: after the debrief is saved one sentence says what stood out, with «Why?»; before it nothing', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./');
+  await ready(page);
+  await put(page, 'trips', [{ id: `${P}fertig`, title: `${P}Seerunde`, domain: 'bikepacking', startDate: plusDays(-10), days: 3, status: 'planned', entries: [], ready: [], route: { km: 300 } }]);
+
+  // debrief not saved yet: no sentence
+  await page.goto(`./#/trips/pfad?t=${P}fertig`);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-tourpfad] h1')).toContainText(`${P}Seerunde`);
+  await expect(page.locator('[data-tour-auffaellt]')).toHaveCount(0);
+
+  // debrief saved with 200 of 300 km: the sentence appears, «Why?» opens the rule
+  await put(page, 'debriefs', [{ tripId: `${P}fertig`, status: 'done', km: 200, items: {}, missing: [], weather: 'same', amount: 'right', bags: 'right', note: '', applied: [], doneAt: plusDays(-7) }]);
+  await page.reload(); // the page reads the database through Dexie, which does not see a write made behind its back
+  await ready(page);
+  await expect(page.locator('[data-tour-auffaellt="km"]')).toBeVisible();
+  await expect(page.locator('[data-tour-auffaellt-text]')).toHaveText(T('You rode {r} km, {p} km were planned: {d} % less.', { r: '200', p: '300', d: '33' }));
+  await expect(page.locator('[data-tour-auffaellt-obs]')).toHaveCount(0);
+  await page.locator('[data-tour-auffaellt-why]').click();
+  await expect(page.locator('[data-tour-auffaellt-obs]')).toBeVisible();
+  await shot(page, info, 'pfad-auffaellt');
+  expect(errors).toEqual([]);
+});

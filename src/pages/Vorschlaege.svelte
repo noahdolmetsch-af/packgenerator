@@ -289,6 +289,7 @@
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Tour suggestions')} sub={t('Mountain bike tours from the official network of SchweizMobil')} />
     <p class="intro">{t('The app suggests tours you can ride. Everything is a suggestion: change the filters, hide what is not for you.')}</p>
 
+    {#snippet filtersBox()}
     <section class="card pad filters" aria-label={t('Filters|tour')} data-vs-filters>
       <div class="grp" role="group" aria-label={t('Region|tour')}>
         <span class="gl">{t('Region|tour')}</span>
@@ -335,7 +336,9 @@
       </div>
       <p class="hint"><Info size={14} aria-hidden="true" />{t('Only tours that are hard for fitness are on at the start. Switch «Medium» or «Easy» on to see more. A tour is never left out because of its skill level: the filter only narrows it down.')}</p>
     </section>
+    {/snippet}
 
+    {#snippet results()}
     {#if !tours}
       <p class="hint" role="status">{t('Loading the tours…')}</p>
     {:else if !shown.length}
@@ -374,6 +377,16 @@
       {/if}
       {/if}
     {/if}
+    {/snippet}
+
+    <!-- «Karte oben» (Noah 23.11.2026, gross und gut sichtbar): in the map view the map comes first, the filters below it -->
+    {#if view === 'map'}
+      {@render results()}
+      {@render filtersBox()}
+    {:else}
+      {@render filtersBox()}
+      {@render results()}
+    {/if}
 
     {#if hidden.length}
       <p class="hint"><EyeOff size={14} aria-hidden="true" />{t('{n} hidden.', { n: hidden.length })} <button type="button" class="btn btn-link" data-vs-unhide onclick={() => setHidden([])}>{t('Show all again')}</button></p>
@@ -408,6 +421,7 @@
   .intro { max-width: 65ch; margin: 0 0 var(--sp-4); color: var(--ink-2); }
   .pad { padding: var(--sp-3); }
   .filters { display: grid; gap: var(--sp-3); margin-bottom: var(--sp-4); }
+  .vs.wide .filters { margin-top: var(--sp-4); }
   .grp { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
   .gl { font-weight: 700; min-width: 6.5em; color: var(--ink-2); }
   .chip { min-height: 44px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: 99px; background: var(--card); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
