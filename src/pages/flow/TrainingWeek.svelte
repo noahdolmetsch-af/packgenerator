@@ -44,6 +44,8 @@
   import { buildWeek } from '../../lib/woche.js';
   import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, modeCfg, planWeek } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
   import { WEEKLOG_KEY, logOf, weekLog, setMode } from '../../lib/training/wochenlog.js';
+  import YourStand from '../../lib/training/YourStand.svelte'; // V4b2: the card «Your status»
+  import { restLine } from '../../lib/training/dein-stand.js';
   import WeekModes from '../../lib/training/WeekModes.svelte'; // V4b2: «Lighter», «Harder», rain, ski on top
   import { UNIT_NAME } from '../../lib/training/wochenplan-text.js';
   import { toMin, fmtMin, sortRows, busyOf, freeSlot } from '../../lib/training/zeitplan.js';
@@ -262,6 +264,13 @@
       await db.settings.put({ key: WEEKLOG_KEY, value: setMode(now, at, before, today) });
     });
   }
+  // V4b2 «Your status»: readiness, the hours of this week, the resting pulse of the last days, the next race
+  const stand = $derived({
+    ready: $formQ?.ready ?? null,
+    week: nums.secs > 0 || goal?.hours ? { done: hmm(nums.secs), goal: goal?.hours ? hours(goal.hours * 60) : null } : null,
+    rest: $formQ?.table ? restLine($formQ.table, today, $formQ.opts?.rest, (d, n) => shiftDay(d, -n)) : null,
+    race: nextRace?.startDate ? { href: raceHref(nextRace.id), name: nextRace.title, when: daysBetween(today, nextRace.startDate) === 0 ? t('today') : tn(daysBetween(today, nextRace.startDate), 'in {n} day', 'in {n} days') } : null,
+  });
   const suggestWeek = () => window.dispatchEvent(new Event('pg:suggest-week'));
   // one day: what stands on it in order, and the free slot
   const dayRows = (d) => {
@@ -498,6 +507,8 @@
         <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} preset={nextPreset} />
       </div>
     </Sec>
+
+    <YourStand {...stand} />
 
     <Sec id="back-h" title={t('Look back')} sub={t('Hours per week by zone · line = plan')} more={{ href: '#/flow/review', label: t('Week in review') }}>
       <div class="card back" data-section="look-back">
