@@ -22,7 +22,8 @@
   import { smartSearch } from '../kisuche/smart.js';
   import { parts, markWords } from '../suche/mark.js'; // «Treffer lesbarer»: the words found are marked
   import { meaningsOf } from '../suche/meanings.js'; // Einzelidee 40: two meanings, the search asks
-  import { findFeatures, FEATURE, FEATURES } from '../features.js';
+  import { findFeatures, FEATURE, FEATURES, featureHref } from '../features.js';
+  import { wegText } from './seiten.js';
   import { goFeature } from '../know/featureRun.js';
   import { helpAnswers, isQuestion } from '../clear/help.js';
   // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «1a 2a 3a+b 4b+a 5b»): microphone, spoken commands
@@ -98,7 +99,7 @@
   // v0.46.0 (Noah 14a): "What do you want to do?": actions by keyword above the results.
   const cmds = $derived($all ? commandActions(q, { bikes: sortBikes($all.bikes), more: ops.search }) : []);
   // v0.96.0 «F1 Alles finden» (mockup B): the functions of the app are found too («garantie»).
-  const feats = $derived(q.trim().length >= 2 && !isQuestion(q) ? findFeatures(q, t).filter((f) => !groups.some((g) => (g.kind === 'page' || g.kind === 'setting') && g.rows.some((r) => r.title === f.title))).slice(0, 3) : []);
+  const feats = $derived(q.trim().length >= 2 && !isQuestion(q) ? findFeatures(q, t).filter((f) => !groups.some((g) => (g.kind === 'page' || g.kind === 'setting') && g.rows.some((r) => r.title === f.title))).slice(0, 3).map((f) => ({ ...f, sub: wegText(featureHref(FEATURE[f.featureId]), t, f.sub) })) : []);
   // Paket Q Zusatz 2 (Noah «1-3 alle a»): a whole question («Wo stelle ich das Backup-Passwort ein?») that no
   // function fits word for word finds the functions that answer it, with their first step (instead of «Functions»).
   const help = $derived(isQuestion(q) ? helpAnswers(q, t) : []);
@@ -132,6 +133,8 @@
     { say: t('note saddle creaks'), sub: t('puts a note into the Inbox') },
     { say: t('day ride|command'), sub: t('makes a day ride like the last one') },
   ]);
+  // «Suche als Entdecker» (Noah 23.11.2026 «1-5a», V4): an empty search first shows the six things most people look for; a tap searches for it
+  const wishes = $derived(['Tick off|goal', 'Packing list', 'Tour suggestions', 'Milestones', 'Bike care', 'Weather'].map((k) => t(k)));
   const RECENT = 'search.recent';
   let recent = $state(readRecent());
   function readRecent() {
@@ -380,6 +383,10 @@
 
 {#snippet empty()}
   <div class="try" role="region" aria-label={t('Try a command')}>
+    <p class="gh">{t('Many look for')}</p>
+    <div class="recent" data-search-wishes>
+      {#each wishes as w (w)}<button type="button" class="rchip" onclick={() => fill(w)} data-wish={w}>{w}</button>{/each}
+    </div>
     {#if places.length}
       <p class="gh">{t('Opened lately')}</p>
       <ul class="cmds places" data-search-places>
@@ -389,12 +396,15 @@
       </ul>
       <button type="button" class="btn btn-link forget" data-search-forget onclick={forgetPlaces}>{t('Forget this list')}</button>
     {/if}
-    <p class="gh">{t('Try a command')}</p>
-    <ul class="cmds">
-      {#each tries as x (x.say)}
-        <li><button type="button" data-try={x.say} onclick={() => fill(x.say)}><span class="m"><b class="say">{x.say}</b><small>{x.sub}</small></span></button></li>
-      {/each}
-    </ul>
+    <details class="cmdfold" data-search-cmds>
+      <summary>{t('Show commands')}</summary>
+      <p class="gh">{t('Try a command')}</p>
+      <ul class="cmds">
+        {#each tries as x (x.say)}
+          <li><button type="button" data-try={x.say} onclick={() => fill(x.say)}><span class="m"><b class="say">{x.say}</b><small>{x.sub}</small></span></button></li>
+        {/each}
+      </ul>
+    </details>
     {#if recent.length}
       <p class="gh">{t('Searched lately')}</p>
       <div class="recent">
@@ -483,6 +493,10 @@
       {/if}
       {#if !listSay && !groups.some((g) => g.kind === 'gear' && g.rows.some((r) => r.title.replace(/^★ /, '').toLowerCase() === q.trim().toLowerCase()))}
         <button type="button" class="add" onclick={addNew}>+ {t('Add "{q}" as a new item', { q: q.trim() })}</button>
+      {/if}
+      <!-- V4: a result that is no gear says where to go on when it is not the right one -->
+      {#if !listSay && (groups.some((g) => g.kind === 'page') || feats.length)}
+        <p class="notright" data-search-notright>{t('Not the right one?')} <a href="#/me/karte" onclick={() => ((q = ''), (open = false))}>{t('Map of the app')} ›</a> · <a href="#/features" onclick={allFunctions}>{t('All functions')} ›</a></p>
       {/if}
     </div>
   {/if}
@@ -752,6 +766,19 @@
   }
   .say {
     font-family: var(--font-mono, ui-monospace, monospace);
+  }
+  .cmdfold > summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .notright {
+    margin: 8px 0 0;
+    color: var(--ink-2);
+    font-size: var(--fs-small);
   }
   .recent {
     display: flex;

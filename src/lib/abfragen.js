@@ -68,6 +68,8 @@ const q = (area, key, textEn, form, every, src = ['hand'], was = null) => ({ id:
 const BASE_QUESTIONS = [
   // 1 Erholung
   q('erholung', 'schlaf', 'How well did you sleep: marmot or zombie?', scale(), daily('07:00'), ['hand', 'fitbit'], 'How well did you sleep?'),
+  // Noah 04./05.11.2026 «Nachtträume»: chips and one sentence; the sentence also lands in the Tagebuch with the tag «Traum» (abdb.js dreamEntry)
+  q('erholung', 'traum', 'What did you dream last night?', chips([['nothing', 'nothing remembered|dream'], ['nice', 'nice|dream'], ['strange', 'strange|dream'], ['exciting', 'exciting|dream'], ['nightmare', 'nightmare|dream'], ['again', 'it came back|dream']], { multi: true, note: true }), daily('07:00')),
   q('erholung', 'akku', 'How full is your battery right now?', scale({ style: 'battery' }), at('08:00', '13:00', '20:00'), ['hand'], 'How much energy do you have?'),
   q('erholung', 'koerper', 'Does your body feel more like a freshly oiled bike or a rusty chain today?', scale(), daily('08:00'), ['hand'], 'How rested does your body feel?'),
   q('erholung', 'kaffee', 'How many coffees do you need today to be human?', number('cups'), at('12:00', '18:00'), ['only'], 'own question «Coffee»'),
@@ -211,7 +213,7 @@ export const QUESTION = Object.fromEntries([...QUESTIONS, ...HELLO_QUESTIONS, ..
  * six that asked the same as another are off at the start (MERGED_INTO): 29.
  */
 export const ON_AT_START = new Set([
-  'erholung.schlaf', 'erholung.akku', 'erholung.koerper', 'erholung.kaffee',
+  'erholung.schlaf', 'erholung.traum', 'erholung.akku', 'erholung.koerper', 'erholung.kaffee',
   'spass.stimmung', 'spass.coolstes',
   'sport.bewegung',
   'achtsamkeit.kopf', 'achtsamkeit.moment', 'achtsamkeit.tabs',

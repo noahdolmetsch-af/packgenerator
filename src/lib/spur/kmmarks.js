@@ -29,3 +29,51 @@ export function kmMarks(pts = [], step = null) {
   }
   return out;
 }
+
+/** The length of the line in km (haversine, leg by leg). */
+export function lineKm(pts = []) {
+  let total = 0;
+  for (let i = 1; i < pts.length; i++) total += legKm(pts[i - 1], pts[i]);
+  return total;
+}
+
+/** The point at `km` along the line, straight between the two points it lies between; null for no line. */
+export function pointAtKm(pts = [], km = 0) {
+  if (!Array.isArray(pts) || !pts.length) return null;
+  if (pts.length === 1 || km <= 0) return pts[0];
+  let run = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const leg = legKm(pts[i - 1], pts[i]);
+    if (run + leg >= km) {
+      const f = leg > 0 ? (km - run) / leg : 0;
+      return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f];
+    }
+    run += leg;
+  }
+  return pts.at(-1);
+}
+
+/**
+ * The km along the line of the point of the line nearest to `pos` ([lat, lon]), with the distance to it in km:
+ * { km, away }. The nearest point lies on a stretch between two points (flat plane around the place). null for no line.
+ */
+export function nearestOnLine(pts = [], pos) {
+  if (!Array.isArray(pts) || pts.length < 2 || !pos) return null;
+  const k = Math.cos(rad(pos[0]));
+  const px = (p) => [(p[1] - pos[1]) * k * 111.32, (p[0] - pos[0]) * 110.57];
+  let best = null;
+  let run = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const leg = legKm(pts[i - 1], pts[i]);
+    const [ax, ay] = px(pts[i - 1]);
+    const [bx, by] = px(pts[i]);
+    const dx = bx - ax;
+    const dy = by - ay;
+    const len2 = dx * dx + dy * dy;
+    const f = len2 > 0 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / len2)) : 0;
+    const away = Math.hypot(ax + dx * f, ay + dy * f);
+    if (!best || away < best.away) best = { km: run + leg * f, away };
+    run += leg;
+  }
+  return best;
+}
