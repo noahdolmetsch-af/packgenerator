@@ -20,7 +20,8 @@
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import { db } from '../lib/db.js';
   import { weight, saveWeight } from '../lib/weight.svelte.js';
-  import { cleanKg, latestOf, KG_MIN, KG_MAX } from '../lib/weight.js';
+  import { cleanKg, latestOf } from '../lib/weight.js';
+  import TypoZeile from '../lib/typo/TypoZeile.svelte';
   import { mean7, wkgWeeks } from '../lib/weightcharts.js';
   import { phone } from '../lib/media.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -99,17 +100,20 @@
   let dialog = $state();
   let form = $state({ day: today, kg: '', had: false });
   let err = $state('');
+  let left = $state(false); // the weight field was left: the quiet question may show
+  const own = $derived(entries.map((x) => x.kg));
   function openForm(day = today) {
     const e = entries.find((x) => x.day === day);
     form = { day, kg: e ? num(e.kg) : last ? num(last.kg) : '', had: !!e };
     err = '';
+    left = false;
     dialog?.showModal();
   }
   async function save(e) {
     e.preventDefault();
     const kg = cleanKg(form.kg);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(form.day) || form.day > today) return (err = t('Pick a day up to today.'));
-    if (kg == null) return (err = t('Please a weight between {a} and {b} kg.', { a: KG_MIN, b: KG_MAX }));
+    if (kg == null) return (err = t('Please enter a weight in kg.'));
     const before = entries.find((x) => x.day === form.day)?.kg ?? null;
     await saveWeight(form.day, kg);
     dialog.close();
@@ -173,8 +177,9 @@
     <div class="hd"><h2 id="wts-h" class="title">{t('Weight|place')}</h2><span class="muted">{t('voluntary')}</span></div>
     <div class="two">
       <label><span class="lbl">{t('Day')}</span><input class="inp" type="date" max={today} bind:value={form.day} /></label>
-      <label><span class="lbl">{t('Weight in kg')}</span><span class="kg"><input class="inp num" type="text" inputmode="decimal" autocomplete="off" bind:value={form.kg} data-weight-kg /><span>kg</span></span></label>
+      <label><span class="lbl">{t('Weight in kg')}</span><span class="kg"><input class="inp num" type="text" inputmode="decimal" autocomplete="off" bind:value={form.kg} onblur={() => (left = true)} data-weight-kg /><span>kg</span></span></label>
     </div>
+    <TypoZeile kind="bodyKg" text={form.kg} {own} shown={left} onuse={(v) => (form.kg = num(v))} />
     <p class="muted small">{t('Only for watts per kg in Training and the tours. Stays only on this device, never goes to Strava or a server.')}</p>
     {#if err}<p class="err" role="alert">{err}</p>{/if}
     <div class="acts">
