@@ -44,6 +44,8 @@
         </li>
       {/each}
     </ul>
+    <!-- 23.11.2026: Kursblick (gold and SMI) was further than 3 taps from Heute; a quiet line at the end, as at the end of the currency tool -->
+    <p class="fz-intro" data-kursblick-link>{t('Prices of gold and the SMI:')} <a href="#/kurse">{t('Kursblick')}</a></p>
   </div>
 {/if}
 

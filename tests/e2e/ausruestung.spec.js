@@ -42,16 +42,15 @@ test('Ausrüstung: from Material to the page, care due with Erledigt, the row on
   const main = page.locator('main');
   const phone = page.viewportSize().width < 720;
 
-  // the place: the tab «Sets» under Material in the sidebar (computer), one slot with Velos and a switch on top (phone)
+  // the place: «Velos und Material», its tab «Sets» (V5, Noah 21.11.2026: one place with four tabs, no switch any more)
   if (phone) {
     await expect(page.locator('nav.bottom a[aria-current="page"]')).toHaveText(T('Bikes and gear|place'));
-    await expect(page.locator('[data-place-switch] a[aria-current="page"]')).toHaveText(T('Equipment|place'));
   } else {
-    // «Ganze App neu denken» Schritt 10 (Noah 18.11.2026): no row of its own, Material is lit and «Sets» is its tab
-    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(T('Gear|place'));
+    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(T('Bikes and gear|place'));
     await expect(page.locator('.side li.pl .tabs a[aria-current="page"]')).toHaveText(T('Sets|tab'));
-    await expect(page.locator('[data-place-switch]')).toBeHidden();
   }
+  await expect(page.locator('[data-place-switch]')).toHaveCount(0);
+  await expect(page.locator('nav.psubs a[aria-current="page"]')).toHaveText(T('Sets|tab'));
   await expect(main.getByRole('heading', { level: 1 })).toHaveText(T('Equipment|place'));
   await expect(main.locator('[data-mg-empty]')).toBeVisible();
   await fits(page, 'empty');
@@ -111,14 +110,13 @@ test('Ausrüstung: from Material to the page, care due with Erledigt, the row on
   await main.locator('.undo button').click();
   await expect(main.locator('[data-mg-due]')).toBeVisible();
 
-  // the switch leads to Velos (phone); Velos has no switch any more (Gesamttest 20.10.2026 B7), one quiet row leads back
+  // Velos has one quiet row to the page (phone; Gesamttest 20.10.2026 B7)
   if (phone) {
-    await page.locator('[data-place-switch] a[href="#/bikes"]').click();
-    await expect(page).toHaveURL(/#\/bikes/);
+    await page.goto('./#/bikes');
     await expect(page.locator('[data-place-switch]')).toHaveCount(0);
     await page.locator('[data-equipment-link]').click();
     await expect(page).toHaveURL(/#\/equipment/);
-    await expect(page.locator('[data-place-switch] a[aria-current="page"]')).toHaveText(T('Equipment|place'));
+    await expect(page.locator('nav.psubs a[aria-current="page"]')).toHaveText(T('Sets|tab'));
   } else {
     await page.goto('./#/bikes');
     await expect(page.locator('[data-equipment-link]')).toBeHidden();

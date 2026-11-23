@@ -53,8 +53,9 @@ test('the bars are light; «Neu» is at the top on a phone and in the sidebar on
     // only the chosen place shows its pages
     await expect(side.locator('.tabs')).toHaveCount(1);
     // «Alles finden 2» (Noah 22.10.2026 «5a»): Vorrat and Ausgeliehen are tabs of Material now (read from nav.js)
-    await expect(side.locator('li[data-place="gear"] .tabs a')).toHaveCount(PLACE_TABS.gear.length);
-    await expect(side.locator('li[data-place="gear"] .tabs a[aria-current="page"]')).toHaveText(T('All|gear'));
+    // V5 (Noah 21.11.2026): Material is a tab of «Velos und Material»; its pages are chips under the tabs
+    await expect(side.locator('li[data-place="bikes"] .tabs a')).toHaveCount(PLACE_TABS.bikes.length);
+    await expect(side.locator('li[data-place="bikes"] .tabs a[aria-current="page"]')).toHaveText(T('Gear|place'));
     // «Ich» as a card at the bottom of the sidebar
     const me = side.locator('a.me');
     await expect(me).toContainText(T('Data, Inbox, Help'));
