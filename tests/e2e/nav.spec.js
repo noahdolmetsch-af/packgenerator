@@ -168,7 +168,7 @@ test('Today folds nothing; First steps and the 16 functions on the wall', async 
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./');
   const T = tr('de');
-  await expect(page.getByRole('region', { name: T('First steps') })).toBeVisible();
+  await expect(page.getByRole('region', { name: T('Start here') })).toBeVisible();
   await expect(page.locator('main details.folded')).toHaveCount(0);
   // 0.188.0 H32 (Noah 24.10.2026 «1a», changed on purpose): an empty device shows the first steps; the wall after «Jetzt alles zeigen»
   await page.locator('[data-empty-wall]').getByRole('button', { name: T('Show everything now') }).click();
