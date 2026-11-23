@@ -10,6 +10,7 @@ import { addDays } from './health.js';
 import { dayLoads, formSeries, readinessOf, recoveryParts, readiness, recoveryAlarm, tourOf, pastTours, RAMP_MAX } from './form.js';
 import { ftpEstimate, DEFAULT_MAX, PLAN_KEY, planOf } from './training.js';
 import { checkOf } from './flowcheck.js';
+import { isExample } from './touren/aufraeumen.js';
 
 /** The highest pulse of the last year's activities (at least 160), else the app's default. */
 export function maxOf(acts, today) {
@@ -27,7 +28,9 @@ function restOf(table, today) {
 }
 
 /** All of «Form und Erholung» for today, from the parts the database holds. */
-export function formOf({ table, trips = [], checks = [], plan = [], today, days = 84 }) {
+export function formOf({ table, trips: allTrips = [], checks = [], plan = [], today, days = 84 }) {
+  // «Form und Erholung klüger» (Noah 23.11.2026 «ja»): the made-up example trips of the first start never count as «a tour is coming»
+  const trips = allTrips.filter((x) => !isExample(x));
   const acts = [...table.values()].flatMap((r) => r.acts ?? []);
   const opts = { ftp: ftpEstimate(acts, today), rest: restOf(table, today), max: maxOf(acts, today) };
   const loads = dayLoads(acts, opts);

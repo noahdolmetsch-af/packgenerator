@@ -5,9 +5,11 @@
    */
   import { ChevronRight } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  import { levelWord, levelLine } from '../flow/form/words.js';
+  import { levelWord, answerLine } from '../flow/form/words.js';
+  import { dayAnswer } from '../flow/form/tagesantwort.js';
 
   let { ready = null, week = null, rest = null, race = null } = $props();
+  const ans = $derived(dayAnswer(ready)); // the answer of the page «Form» (Noah 23.11.2026 «ja»)
   const any = $derived(!!ready || !!week || !!rest || !!race);
 </script>
 
@@ -16,7 +18,7 @@
     <h2 id="stand-h" class="sh">{t('Your status')}</h2>
     <ul>
       {#if ready}
-        <li><a href="#/flow/form" data-stand="ready"><span><b>{t('Readiness')} · {levelWord(ready.level)}</b><small>{levelLine(ready.level)}</small></span><ChevronRight size={16} aria-hidden="true" /></a></li>
+        <li><a href="#/flow/form" data-stand="ready"><span><b>{t('Readiness')} · {levelWord(ans.level)}</b><small>{answerLine(ans.level)}</small></span><ChevronRight size={16} aria-hidden="true" /></a></li>
       {/if}
       {#if week}
         <li><a href="#/flow/review" data-stand="hours"><span><b>{week.goal ? t('This week {a} of {b} h', { a: week.done, b: week.goal }) : t('This week {a} h', { a: week.done })}</b><small>{t('Week in review')}</small></span><ChevronRight size={16} aria-hidden="true" /></a></li>
