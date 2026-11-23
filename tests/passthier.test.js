@@ -12,6 +12,9 @@ describe('Fits here', () => {
     expect(passtHier('ski').map((f) => f.id)[0]).toBe('f.skicheck');
     expect(passtHier('sleeplists').map((f) => f.id)[0]).toBe('f.sleeporigin');
   });
+  it('a night outdoors on Pack: «Fits here» leads to «First night» (Freie Zeit 3b, Noah 22.11.2026)', () => {
+    expect(passtHier('night').map((f) => f.id)).toEqual(['f.freinacht', 'f.goodnight']);
+  });
   it('Velos › Setup shows gear ratios and spirit level (PR 3)', () => {
     expect(passtHier('rig').map((f) => f.id)).toEqual(['f.gears', 'f.level']);
   });

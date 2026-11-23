@@ -9,6 +9,12 @@ import { toast } from '../flow/ui.svelte.js';
 import { askDelete, deleteWithUndo } from '../ui/ask.js';
 import { t } from '../i18n.svelte.js';
 import { TAGESZIELE_KEY, tageszieleOf, putZiel, removeZiel } from '../tagesziel.js';
+import { PUSH_KEY } from '../push/schedule.js';
+import { zielRemindOn } from '../zielpush.js';
+import { resyncPhone } from '../ruhig/store.js';
+
+// with the phone reminder on, the phone gets its new list (a day that reaches the goal sends none)
+const resync = async () => (zielRemindOn((await db.settings.get(PUSH_KEY))?.value) ? resyncPhone() : undefined);
 
 /** The list of goals, live (undefined while reading). */
 export const zieleQuery = () => liveQuery(async () => tageszieleOf((await db.settings.get(TAGESZIELE_KEY))?.value));
@@ -16,12 +22,14 @@ export const zieleQuery = () => liveQuery(async () => tageszieleOf((await db.set
 export async function saveOne(c) {
   const list = tageszieleOf((await db.settings.get(TAGESZIELE_KEY))?.value);
   await putSetting(db, TAGESZIELE_KEY, putZiel(list, c));
+  await resync();
 }
 /** One goal removed. */
 export async function removeOne(id) {
   const list = tageszieleOf((await db.settings.get(TAGESZIELE_KEY))?.value);
   const next = removeZiel(list, id);
   await putSetting(db, TAGESZIELE_KEY, next.length ? next : null);
+  await resync();
 }
 
 /** «End the challenge»: ended by hand, the days stay saved (Undo in the message). */

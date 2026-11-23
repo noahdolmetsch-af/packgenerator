@@ -18,7 +18,7 @@
   import { db } from '../../lib/db.js';
   import { zones } from '../../lib/strava/zones.svelte.js';
   import { rideTimeS } from '../../lib/review/fmt.js';
-  import { PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, WEEKS_KEY, cleanWeeks, weekTemplate, insertWeek, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, NEXTKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
+  import { planValue, plannerSessions, PLAN_KEY, GOAL_KEY, DAYS_KEY, cleanDayLimits, SPORTGOALS_KEY, cleanSportGoals, HABITS_KEY, LIBRARY_KEY, cleanLibrary, WEEKS_KEY, cleanWeeks, weekTemplate, insertWeek, libraryOf, TODAYKEEP_KEY, LOADKEEP_KEY, NEXTKEEP_KEY, cleanHabits, planOf, goalOf, cleanSession, prunePlan, copyWeek, doneBy, weekNumbers, weeksTo, isoWeek, mondayOf, weekOf, shiftDay, zoneSecs, mainZone, hmm, KIND_NAMES, ZONE_NAMES, typeKey } from '../../lib/training.js';
   import { t, tn, num, locale, lang } from '../../lib/i18n.svelte.js';
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
@@ -42,8 +42,11 @@
   import { DREAMS_KEY, storeOf as dreamStore, dreamList } from '../../lib/dreams.js'; // «Tour einplanen»
   import { weekQuery } from '../../lib/woche/load.js'; // «Zeitplan»: the dates of the week stand in the schedule
   import { buildWeek } from '../../lib/woche.js';
-  import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, lightOf, planWeek } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
-  import { WEEKLOG_KEY, logOf, weekLog } from '../../lib/training/wochenlog.js';
+  import { WEEKPLAN_KEY, planOf as weekplanOf, isSummer, modeCfg, planWeek } from '../../lib/training/wochenplan.js'; // «Zeitplan»: the suggestions of the weekly plan
+  import { WEEKLOG_KEY, logOf, weekLog, setMode } from '../../lib/training/wochenlog.js';
+  import YourStand from '../../lib/training/YourStand.svelte'; // V4b2: the card «Your status»
+  import { restLine } from '../../lib/training/dein-stand.js';
+  import WeekModes from '../../lib/training/WeekModes.svelte'; // V4b2: «Lighter», «Harder», rain, ski on top
   import { UNIT_NAME } from '../../lib/training/wochenplan-text.js';
   import { toMin, fmtMin, sortRows, busyOf, freeSlot } from '../../lib/training/zeitplan.js';
 
@@ -237,11 +240,38 @@
     const sum = isSummer(monday);
     const cfgs = weekplanOf($wpQ);
     const log = weekLog(logOf($wlQ), monday);
-    const cfg = log.mode.light ? lightOf(sum ? cfgs.summer : cfgs.winter, sum) : sum ? cfgs.summer : cfgs.winter;
-    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plan })
+    const cfg = modeCfg(sum ? cfgs.summer : cfgs.winter, sum, log.mode);
+    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plannerSessions($planQ) })
       .units.filter((u) => u.type !== 'med' && u.type !== 'stretch' && !log.released.includes(u.id))
       .map((u) => ({ key: u.id, day: shiftDay(monday, u.d), title: t(UNIT_NAME[u.type] ?? 'Session'), time: u.t, mins: u.mins, done: !!log.done[u.id] }));
   });
+  // V4b2 «Lighter» / «Harder» / «Rainy week» / «Ski tour week»: the kind of the shown week (this week and next), with Undo
+  const weekMode = $derived(weekLog(logOf($wlQ), monday).mode);
+  const modeEditable = $derived(monday >= mondayOf(today));
+  const MODE_NAMES = { light: 'Lighter|week', hard: 'Harder', rain: 'Rainy week', ski: 'Ski tour week' };
+  async function toggleWeekMode(key) {
+    const cur = logOf((await db.settings.get(WEEKLOG_KEY))?.value);
+    const before = weekLog(cur, monday).mode;
+    const turn = { ...before, [key]: !before[key] };
+    if (turn[key] && key === 'hard') delete turn.light; // a week is lighter or harder, never both
+    if (turn[key] && key === 'light') delete turn.hard;
+    const next = setMode(cur, monday, turn, today);
+    if (next === cur) return;
+    const at = monday;
+    await db.settings.put({ key: WEEKLOG_KEY, value: next });
+    offerDone(!before[key] ? t('{what} is on for this week.', { what: t(MODE_NAMES[key]) }) : t('{what} is off again.', { what: t(MODE_NAMES[key]) }), async () => {
+      const now = logOf((await db.settings.get(WEEKLOG_KEY))?.value);
+      await db.settings.put({ key: WEEKLOG_KEY, value: setMode(now, at, before, today) });
+    });
+  }
+  // V4b2 «Your status»: readiness, the hours of this week, the resting pulse of the last days, the next race
+  const stand = $derived({
+    ready: $formQ?.ready ?? null,
+    week: nums.secs > 0 || goal?.hours ? { done: hmm(nums.secs), goal: goal?.hours ? hours(goal.hours * 60) : null } : null,
+    rest: $formQ?.table ? restLine($formQ.table, today, $formQ.opts?.rest, (d, n) => shiftDay(d, -n)) : null,
+    race: nextRace?.startDate ? { href: raceHref(nextRace.id), name: nextRace.title, when: daysBetween(today, nextRace.startDate) === 0 ? t('today') : tn(daysBetween(today, nextRace.startDate), 'in {n} day', 'in {n} days') } : null,
+  });
+  const suggestWeek = () => window.dispatchEvent(new Event('pg:suggest-week'));
   // one day: what stands on it in order, and the free slot
   const dayRows = (d) => {
     const rows = [
@@ -266,7 +296,7 @@
   const hours = (mins) => hmm(mins * 60);
 
   async function savePlan(next) {
-    await db.settings.put({ key: PLAN_KEY, value: { sessions: prunePlan(next, today) } });
+    await db.settings.put({ key: PLAN_KEY, value: planValue((await db.settings.get(PLAN_KEY))?.value, prunePlan(next, today)) }); // the free days of TrainingPeaks stay
   }
 
   // one session in the form: a new one on a day, or a planned one
@@ -346,6 +376,7 @@
 </script>
 
 <div class="wk">
+  <WeekModes mode={weekMode} hasPlan={$wpQ != null} canChange={modeEditable} onmode={toggleWeekMode} onsuggest={suggestWeek} />
   <!-- «Aktiv sichtbar» (332 Use Cases, Noah 25.10.2026 «fange mit dem bereich aktiv an»): the week plan, the week in
        review and the training plans stand 2 screens down; one chip row on top -->
   <QuickLinks label={t('On this page')} links={[{ key: 'plan', jump: '#plan-h', label: t('My week|plan') }, { key: 'review', href: '#/flow/review', label: t('Week in review') }, { key: 'plans', href: '#/flow/plans', label: t('Training plans') }, { key: 'ana', href: '#/flow/training?view=ana', label: t('Power and analyses') }]} />
@@ -476,6 +507,8 @@
         <SuggestWeek {acts} flowActs={$actsQ ?? []} {plan} {goal} {monday} {today} level={$formQ?.ready?.level ?? null} daysToRace={nextRace?.startDate ? daysBetween(today, nextRace.startDate) : null} {dayLimits} forecast={homeFc} {sportGoals} onsportgoals={saveSportGoals} {habits} onhabits={saveHabits} onlimits={saveLimits} onapply={applySuggestion} preset={nextPreset} />
       </div>
     </Sec>
+
+    <YourStand {...stand} />
 
     <Sec id="back-h" title={t('Look back')} sub={t('Hours per week by zone · line = plan')} more={{ href: '#/flow/review', label: t('Week in review') }}>
       <div class="card back" data-section="look-back">

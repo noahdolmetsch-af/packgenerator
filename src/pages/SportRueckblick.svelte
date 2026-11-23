@@ -13,7 +13,7 @@
   import PeriodBar from '../lib/flow/PeriodBar.svelte';
   import BarChart from '../lib/charts/BarChart.svelte';
   import ChartSheet from '../lib/charts/ChartSheet.svelte';
-  import { period } from '../lib/flow/zeitraum.svelte.js';
+  import { period, enterPage } from '../lib/flow/zeitraum.svelte.js';
   import { rangeOf, labelOf } from '../lib/flow/zeitraum.js';
   import { db } from '../lib/db.js';
   import { einheiten, looseLabel } from '../lib/flow/einheiten.js';
@@ -27,8 +27,11 @@
   import { hoursMin } from '../lib/charts/exact.js';
   import { sportColour } from '../lib/charts/sportcolors.js';
   import { noDataText, firstDayOf } from '../lib/charts/nodata.js';
+  import { againstMean } from '../lib/charts/compare.js';
+  import { sentencesOf } from '../lib/charts/sentence.js';
   import '../lib/ich/ich.css';
 
+  enterPage('sportrueckblick');
   const today = localDay();
   const sport = (() => {
     try {
@@ -81,13 +84,14 @@
   const firstDay = $derived(firstDayOf(mine));
   const noneOf = (b) => noDataText(b.from, b.to, today, firstDay);
   const cols = $derived(bars.map((b, i) => ({ key: b.key, none: noneOf(b), x: bucketX(b, i), top: b.mins >= 30 ? hrs(b.mins) : '', parts: b.mins > 0 ? [{ v: b.mins / 60, color: sportColour(sport) }] : [] })));
-  const readout = (i) => ({ title: bucketTitle(bars[i]), items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, { label: t('Units'), value: num(bars[i].n) }] });
+  const readout = (i) => ({ title: bucketTitle(bars[i]), extra: noneOf(bars[i]) ? '' : againstMean(bars[i].mins, bars.filter((x) => !noneOf(x)).map((x) => x.mins)), items: [{ label: t('Hours'), value: hoursMin(bars[i].mins) }, { label: t('Units'), value: num(bars[i].n) }] });
   const table = $derived({ head: [t('Period|sj'), t('Hours'), t('Units')], rows: [...bars].reverse().map((b) => ({ key: b.key, cells: [bucketTitle(b), noneOf(b) ? '–' : hoursMin(b.mins), noneOf(b) ? '–' : num(b.n)] })) });
   const chartLine = $derived(line ? line.map((m) => m / 60) : null);
   const aria = $derived(bars.map((b) => `${bucketTitle(b)}: ${hrs(b.mins)} h`).join(', '));
   /* a tap on a bar opens its hours and units (ChartSheet) */
   let open = $state(null);
   const bar = $derived(open == null ? null : bars[open]);
+  const unitList = $derived(bar ? mine.filter((u) => u.day >= bar.from && u.day <= bar.to).sort((a, b) => b.day.localeCompare(a.day)).map((u, i) => ({ key: `${u.day}-${i}`, a: dayTxt(u.day, { day: 'numeric', month: 'short' }), b: Number(u.km) > 0 ? km(Number(u.km)) : '', c: u.min > 0 ? `${u.minQuelle === 'ca.' ? 'ca. ' : ''}${hoursMin(Number(u.min))}` : '–' })) : []);
   const showKm = $derived(rb.now.km > 0 || (rb.prev?.km ?? 0) > 0);
 </script>
 
@@ -121,7 +125,7 @@
     <section class="card rb-sec" aria-labelledby="sr-chart-h" data-sr-chart>
       <h2 id="sr-chart-h">{grain === 'month' && mode === 'year' ? t('Hours per month') : grain === 'year' ? t('Hours per year') : t('Hours per day')}</h2>
       <p class="hs">{title ? `${title}` : ''}{line ? ` · ${t('dashed: the year before')}` : ''}</p>
-      <BarChart id="sportrueckblick" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours of this sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for the details.')} />
+      <BarChart sentences={sentencesOf(bars.map((b) => ({ label: bucketTitle(b), v: b.mins, none: noneOf(b) })), hoursMin)} id="sportrueckblick" {cols} {readout} {table} line={chartLine} onopen={(i) => (open = i)} unit="h" label={t('Hours of this sport: {list}', { list: aria })} hint={t('Point at a bar for its numbers, tap it for the details.')} />
     </section>
 
     <section class="card rb-sec" aria-labelledby="sr-from-h" data-sr-from>
@@ -145,7 +149,7 @@
 </div>
 
 {#if bar}
-  <ChartSheet kicker={name} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
+  <ChartSheet list={unitList} kicker={name} title={bucketTitle(bar)} onclose={() => (open = null)} onprev={open > 0 ? () => open-- : null} onnext={open < bars.length - 1 ? () => open++ : null} prevLabel={t('Before|sj')} nextLabel={t('Next|sj')}>
     <ul class="rows" data-sr-sheet>
       <li><span>{t('Hours')}</span><b class="num">{hoursMin(bar.mins)}</b></li>
       <li><span>{t('Units')}</span><b class="num">{num(bar.n)}</b></li>

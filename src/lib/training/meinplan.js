@@ -11,7 +11,7 @@
  * is the week, and `tpMins` of the sums says how much of it TrainingPeaks brings.
  * Counted for the hours are the units that move you (not the small habits, not the rest block, not the ones let go).
  */
-import { shiftDay, mondayOf, isoWeek, goalOf, weeksTo, planOf as sessionsOf, doneBy } from '../training.js';
+import { shiftDay, mondayOf, isoWeek, goalOf, weeksTo, planOf as sessionsOf, plannerSessions, doneBy } from '../training.js';
 import { QUIET, logOf, weekLog, isPast, weekFor } from './wochenlog.js';
 import { TP_SRC } from './wochenplan.js';
 
@@ -25,11 +25,11 @@ const dayIndex = (monday, day) => Math.round((Date.parse(`${day}T12:00:00Z`) - D
 const counts = (r) => !r.released && !QUIET.includes(r.type) && r.type !== 'rest';
 
 /** The rows of one week: the units of the Wochenplan (frozen after Sunday) and the sessions of the week suggestion. */
-export function weekRows({ stored, log, sessions, acts }, monday, today) {
+export function weekRows({ stored, log, sessions, planner, acts }, monday, today) {
   const w = weekLog(log, monday);
   const rows = [];
   const past = isPast(monday, today);
-  const units = past ? (w.snap?.units ?? []).filter((u) => u.type !== 'tp') : stored != null ? weekFor(stored, monday, w.pins, w.mode, sessions).week.units : [];
+  const units = past ? (w.snap?.units ?? []).filter((u) => u.type !== 'tp') : stored != null ? weekFor(stored, monday, w.pins, w.mode, planner ?? sessions).week.units : []; // planner: the sessions plus the free days of TrainingPeaks, for the plan only
   for (const u of units) rows.push({ id: u.id, src: 'plan', type: u.type, name: null, d: u.d, t: u.t, mins: u.mins, done: !!w.done[u.id], doneMins: w.done[u.id] ? u.mins : 0, doneDay: w.done[u.id] ?? null, released: w.released.includes(u.id) });
   const end = shiftDay(monday, 6);
   for (const s of sessions) {
@@ -60,7 +60,7 @@ export function meinPlan({ stored = null, rawLog = null, rawPlan = null, rawGoal
   const log = logOf(rawLog);
   const sessions = sessionsOf(rawPlan);
   const monday = mondayOf(today);
-  const ctx = { stored, log, sessions, acts };
+  const ctx = { stored, log, sessions, planner: plannerSessions(rawPlan), acts };
   const g = goalOf(rawGoal);
   const goal = g && (g.name || g.until) ? { name: g.name, until: g.until, weeks: weeksTo(g.until, today), passed: !!g.until && g.until < today } : null;
 

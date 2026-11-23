@@ -52,3 +52,35 @@ test('Pack of a ski tour: Fits here leads to the backpack check', async ({ page,
   await expect(page).toHaveURL(/#\/ski\/check/);
   expect(errors).toEqual([]);
 });
+
+// Freie Zeit 3b (Noah 22.11.2026): a trip with a night outdoors shows «First night» in the group «Before and the evening before»;
+// a trip without a night outdoors does not
+test('Pack of a trip with a night outdoors: Fits here leads to First night', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const d = homeFixture();
+  const tent = trip('Biwak-Beispiel', day(3), { days: 2, overnight: 'outdoor', tent: false });
+  d.tables.trips = [tent, ...d.tables.trips];
+  await context.addInitScript((id) => localStorage.setItem('pack.currentTrip', id), tent.id);
+  await openHome(page, context, info, { data: d });
+  await page.goto('./#/pack');
+  const row = page.locator('[data-passt-hier="night"]');
+  await expect(row.locator('[data-passt-item]')).toHaveCount(count('night'));
+  expect(await noScroll(page)).toBe(0);
+  await row.scrollIntoViewIfNeeded();
+  await info.attach('passt-hier-nacht', { body: await page.screenshot(), contentType: 'image/png' });
+  await tap(row.locator('[data-passt-item="f.freinacht"]'), info);
+  await expect(page).toHaveURL(/#\/me\/frei\/nacht/);
+  expect(errors).toEqual([]);
+});
+
+test('Pack of a day trip without a night outdoors: no First night row', async ({ page, context }, info) => {
+  const d = homeFixture();
+  const day1 = trip('Tag-Beispiel', day(3), { days: 1, overnight: 'none' });
+  d.tables.trips = [day1, ...d.tables.trips];
+  await context.addInitScript((id) => localStorage.setItem('pack.currentTrip', id), day1.id);
+  await openHome(page, context, info, { data: d });
+  await page.goto('./#/pack');
+  await expect(page.locator('[data-pack-more]')).toBeAttached();
+  await expect(page.locator('[data-passt-hier="night"]')).toHaveCount(0);
+});

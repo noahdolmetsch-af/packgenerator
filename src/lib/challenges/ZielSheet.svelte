@@ -8,7 +8,9 @@
   import DateInput from '../ui/DateInput.svelte';
   import { keepTyped } from '../ui/keeptyped.js';
   import { backClose } from '../ui/backclose.js';
-  import { UNITS, UNIT_KEYS, newZiel, tageszieleOf } from '../tagesziel.js';
+  import { UNITS, UNIT_KEYS, newZiel, tageszieleOf, okTime } from '../tagesziel.js';
+  import { ensureZielRemind } from '../zielpush.js';
+  import { toast } from '../flow/ui.svelte.js';
   import { t } from '../i18n.svelte.js';
 
   let { open = $bindable(false), c = null, preset = null, today, onsave, onstop, onremove } = $props();
@@ -20,7 +22,14 @@
   let goal = $state('');
   let from = $state('');
   let until = $state('');
+  let remind = $state('');
   let bad = $state('');
+  const WHY = {
+    unsupported: 'This browser cannot get reminders. On the phone it works in Chrome.',
+    denied: 'Your browser blocks notifications.',
+    not_set_up: 'The server is not set up for this yet.',
+    storage_not_set_up: 'The server is not set up for this yet.',
+  };
   const UNIT_NAME = { min: 'Minutes', count: 'Count', steps: 'Steps' };
 
   $effect(() => {
@@ -33,6 +42,7 @@
         goal = String(c.goal);
         from = c.from;
         until = c.until;
+        remind = c.remindAt ?? '';
       } else {
         const p = preset ?? {};
         nm = p.name ? t(p.name) : '';
@@ -42,6 +52,7 @@
         const n = newZiel({ today, name: 'x', unit, goal: Number(goal), days: p.days });
         from = n.from;
         until = n.until;
+        remind = '';
       }
       dialog.showModal();
     }
@@ -51,16 +62,24 @@
     if (!c && Number(goal) === UNITS[unit].goal) goal = String(UNITS[u].goal);
     unit = u;
   };
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
     const g = Math.round(Number(goal));
     if (!nm.trim()) return (bad = t('Give it a name.'));
     if (!(g >= 1 && g <= UNITS[unit].max)) return (bad = t('Whole number from 1 to {n}.', { n: UNITS[unit].max }));
     if (!from || !until || until < from) return (bad = t('The last day comes after the first day.'));
-    const next = tageszieleOf([{ ...(c ?? { id: `tz-${today}-${Math.random().toString(36).slice(2, 7)}`, hand: {} }), name: nm, unit, word, goal: g, from, until, stopped: false, closed: false }])[0];
+    if (remind && !okTime(remind)) return (bad = t('Enter the time like 16:00.'));
+    const next = tageszieleOf([{ ...(c ?? { id: `tz-${today}-${Math.random().toString(36).slice(2, 7)}`, hand: {} }), name: nm, unit, word, goal: g, from, until, remindAt: remind, stopped: false, closed: false }])[0];
     if (!next) return (bad = t('Give it a name.'));
+    // a time asks the browser for notifications once and switches the kind on; the challenge is saved either way
+    let msg = '';
+    if (next.remindAt) {
+      const r = await ensureZielRemind();
+      if (!r.ok) msg = t(WHY[r.code] ?? 'The server could not be reached. Try again later.');
+    }
     open = false;
-    onsave?.(next);
+    await onsave?.(next);
+    if (msg) toast(msg);
   }
 </script>
 
@@ -79,6 +98,7 @@
       <label><span class="lbl">{t('First day')}</span><DateInput bind:value={from} /></label>
       <label><span class="lbl">{t('Last day')}</span><DateInput bind:value={until} min={from} /></label>
     </div>
+    <label><span class="lbl">{t('Reminder time on the phone')}</span><input class="inp" type="time" bind:value={remind} data-ziel-remind /><small class="muted">{t('Optional: a reminder every day at this time while the challenge runs. A day that reaches the goal sends none. Leave empty for no reminder.')}</small></label>
     {#if bad}<p class="bad" role="alert">{bad}</p>{/if}
     <div class="acts">
       <button type="submit" class="btn hi" data-ziel-save>{c ? t('Save') : t('Start')}</button>

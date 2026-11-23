@@ -22,7 +22,7 @@ import { withStravaRides, notIgnored } from '../kmbook.js';
 import { msExtra } from './msdata.js';
 import { WEEKLOG_KEY } from '../training/wochenlog.js';
 import { WEEKPLAN_KEY } from '../training/wochenplan.js';
-import { PLAN_KEY, planOf as planSessionsOf } from '../training.js';
+import { PLAN_KEY, plannerSessions as planSessionsOf } from '../training.js';
 import { BAGS_KEY, PACK_KEY, bagsOf, packsOf, packedDays } from '../flowbag.js';
 import { FIXED_KEY } from '../flowweek.js';
 

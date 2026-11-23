@@ -46,6 +46,7 @@
   const resultLine = (r) => {
     const parts = [tn(r.found, '{n} planned session', '{n} planned sessions')];
     if (r.skipped) parts.push(tn(r.skipped, '{n} entry without a duration left out', '{n} entries without a duration left out'));
+    if (r.rest) parts.push(tn(r.rest, '{n} free day kept free', '{n} free days kept free'));
     return parts.join(' · ');
   };
 

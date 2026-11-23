@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { tageszieleOf, newZiel, addAmount, undoAmount, standing, running, untick, missing, putZiel, removeZiel, handSum, UNITS, MAX_ZIELE } from '../src/lib/tagesziel.js';
+import { tageszieleOf, newZiel, addAmount, undoAmount, standing, running, untick, missing, putZiel, removeZiel, handSum, UNITS, MAX_ZIELE, remindDays, okTime } from '../src/lib/tagesziel.js';
 
 const mk = (over = {}) => newZiel({ today: '2026-11-22', name: 'Stretching', unit: 'min', goal: 10, days: 14, id: 'tz-1', ...over });
 
@@ -69,5 +69,19 @@ describe('daily goals (Challenges page)', () => {
     expect(putZiel([a], { ...a, goal: 20 })[0].goal).toBe(20);
     expect(putZiel([a], b)).toHaveLength(2);
     expect(removeZiel([a, b], 'tz-1')).toEqual([b]);
+  });
+  it('keeps a valid reminder time and drops a bad one', () => {
+    expect(okTime('07:05')).toBe(true);
+    expect(okTime('24:00')).toBe(false);
+    expect(tageszieleOf([{ ...mk(), remindAt: '18:30' }])[0].remindAt).toBe('18:30');
+    expect(tageszieleOf([{ ...mk(), remindAt: '8:30' }])[0].remindAt).toBe('');
+    expect(mk().remindAt).toBe('');
+  });
+  it('lists the days of the phone reminder: running days that do not reach the goal yet', () => {
+    const c = { ...mk({ days: 5 }), remindAt: '18:00', hand: { '2026-11-22': [10] } };
+    expect(remindDays(c, '2026-11-22').map((d) => d.day)).toEqual(['2026-11-23', '2026-11-24', '2026-11-25', '2026-11-26']);
+    expect(remindDays({ ...c, remindAt: '' }, '2026-11-22')).toEqual([]);
+    expect(remindDays({ ...c, stopped: true }, '2026-11-22')).toEqual([]);
+    expect(remindDays(c, '2026-11-22', 1).map((d) => d.day)).toEqual(['2026-11-23']);
   });
 });

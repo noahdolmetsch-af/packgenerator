@@ -962,6 +962,8 @@
   .lt b,
   .lv b {
     font-weight: 500;
+    overflow-wrap: break-word;
+    hyphens: auto; /* a long layer name («Accessories», «Überschicht») breaks at a syllable with a hyphen, never mid-letter */
   }
   .lt small,
   .lv small {
@@ -1432,6 +1434,8 @@
   }
   .lt2 b {
     font-weight: 600;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
   .lt2 small {
     color: var(--ink-3);
@@ -1473,6 +1477,8 @@
   }
   .lh b {
     font-weight: 500;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
   .lh small {
     color: var(--ink-3);

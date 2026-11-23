@@ -46,7 +46,7 @@
   import { todayNotes } from '../lib/notebook.js';
   import { COMPASS_KEY, compassOf, todayStep, setStepDone } from '../lib/compass.js';
   import { WEEKPLAN_KEY } from '../lib/training/wochenplan.js';
-  import { PLAN_KEY as TRAINING_PLAN_KEY, planOf as trainingSessionsOf } from '../lib/training.js';
+  import { PLAN_KEY as TRAINING_PLAN_KEY, plannerSessions as trainingSessionsOf } from '../lib/training.js';
   import { WEEKLOG_KEY, logOf as planLogOf, setDone as planSetDone, dueToday as planDueToday } from '../lib/training/wochenlog.js';
   import { UNIT_NAME } from '../lib/training/wochenplan-text.js';
   import { startUnitDone } from '../lib/flow/ui.svelte.js';
