@@ -47,7 +47,7 @@ describe('the tile on the wall', () => {
   it('is in the catalog, in the first area, right under the habits on the ready wall and in the head', () => {
     expect(TILE.moment.sizes).toContain(TILE.moment.size);
     expect(SECTION_OF.moment).toBe('now');
-    expect(ids(READY).slice(0, 3)).toEqual(['meinetour', 'meditation', 'moment']); // «Meine Tour» (Plan 2a) stands on top
+    expect(ids(READY).slice(1, 4)).toEqual(['meinetour', 'meditation', 'moment']); // (the body band stands first) // «Meine Tour» (Plan 2a) stands on top
     expect(HEAD_N2).toContain('moment');
     expect(DE[TILE.moment.label]).toBeTruthy();
     expect(DE[TILE.moment.pitch]).toBeTruthy();

@@ -77,7 +77,7 @@ test('Meine Tour: the card stands on top of Heute with the four phases and one n
   await expect(card.locator('[data-meinetour-line]')).toContainText(T('Next: {title}').replace('{title}', ''));
   await expect(card.getByText(/Unterwegs-Modus/)).toHaveCount(0);
   // the first tile of the wall (it stands under the greeting and the picture, before the habits and the moment card)
-  await expect(page.locator('[data-tile]').first()).toHaveAttribute('data-tile', 'meinetour');
+  await expect(page.locator('[data-tile]').nth(1)).toHaveAttribute('data-tile', 'meinetour'); // right after the body band (Noah 23.11.2026 «1-4a», changed on purpose)
   await shot(page, info, 'meine-tour', card);
   expect(errors).toEqual([]);
 });

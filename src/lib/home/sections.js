@@ -40,7 +40,7 @@ export const SECTION_OF = {
   important: 'now',
   trip: 'now',
   suggest: 'now',
-  body: 'body',
+  body: 'now', // «Dein Körper heute» as a band right under the greeting (Noah 23.11.2026 «1-4a», point 1a): the first tile of the first area
   acts: 'body',
   weighin: 'now', // a question for this week: it stays in the first area, found on the phone without long scrolling
   vitals: 'body',
