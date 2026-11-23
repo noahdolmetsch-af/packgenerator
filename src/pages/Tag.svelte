@@ -265,12 +265,12 @@
     font-size: var(--fs-sub);
   }
   .chip.on {
-    background: var(--brand);
-    border-color: var(--brand);
-    color: var(--brand-ink);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .chip.on .wd {
-    color: var(--brand-ink-2);
+    color: var(--hi-ink);
   }
   .chip.today:not(.on) {
     border-color: var(--brand);
