@@ -8,7 +8,7 @@
  * Pure (no screen, no translation): the labels stay English keys; the components translate them (wege.svelte.js).
  * Tested in tests/wege.test.js; the browser check of every address is tests/e2e/wege-waechter.spec.js.
  */
-import { pageOf, placeOf, tabOf, PLACE_TABS, ALL_PLACES } from '../nav.js';
+import { pageOf, placeOf, tabOf, subOf, PLACE_TABS, ALL_PLACES } from '../nav.js';
 
 /** «Ich» is no place of the sidebar (a card under it), but it is the start of the path of its pages. */
 export const ME = { key: 'me', href: '#/me', label: 'Me|place' };
@@ -33,7 +33,7 @@ const ROOTS = roots();
 export const isRoot = (href = '') => ROOTS.has(href) || (!String(href).includes('?') && ROOTS.has(String(href)));
 
 /**
- * The canonical start of the path: [{ kind: 'place', place, entry, href }, { kind: 'tab', place, entry, href }?].
+ * The canonical start of the path: [{ kind: 'place', place, entry, href }, { kind: 'tab', place, entry, href }?, { kind: 'tab' (the chip under the tab) }?].
  * null when the address belongs to no place (a page for someone without the app).
  */
 export function trailOf(hash = '') {
@@ -43,6 +43,9 @@ export function trailOf(hash = '') {
   const out = [{ kind: 'place', place, entry: p, href: p.href }];
   const tab = (PLACE_TABS[place] ?? []).find((x) => x.key === tabOf(place, hash));
   if (tab) out.push({ kind: 'tab', place, entry: tab, href: tab.href });
+  // a chip under the tab («Training › Erholung»): the page is named after the chip it lives under, not only the tab
+  const sub = tab ? subOf(place, hash) : null;
+  if (sub && sub.href && sub.href !== tab.href) out.push({ kind: 'tab', place, entry: sub, href: sub.href });
   return out;
 }
 
