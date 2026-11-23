@@ -3,29 +3,34 @@
    * «Mein Tag» step 4 (Noah 23.11.2026 «ja»): «Plan my day». A proposal for the own entries of the day that have no time yet,
    * made by rules (src/lib/tag/plan.js), with the reason for each line. Leichter / Normal / Härter changes how full the day gets.
    * Every line can be unticked; nothing is saved before «Take over» (the page saves the times and offers Undo).
-   * entries: the entries of the day; day, today, now (minutes), wet (rain is forecast); onapply(moves).
+   * Sessions, calendar dates and tasks get a time too (a layer on top, the entry stays where it lives); what does not fit moves to tomorrow.
+   * Calendar dates without a time are often all day, so they are not preselected.
+   * entries: the entries of the day; day, today, now (minutes), wet (rain is forecast); next: { day, entries } of the following day; onapply(moves).
    */
   import { X } from '@lucide/svelte';
   import Seg from '../ui/Seg.svelte';
   import { backClose } from '../ui/backclose.js';
   import { t, tn } from '../i18n.svelte.js';
+  import { dayName } from '../woche/words.js';
   import { planDay } from './plan.js';
   import '../ui/daumen.css';
 
-  let { entries = [], day, today, now = 0, wet = false, onapply, onclose } = $props();
+  let { entries = [], day, today, now = 0, wet = false, next = null, onapply, onclose } = $props();
 
   let mode = $state('normal');
-  let off = $state([]); // ids the user unticked
+  let flipped = $state([]); // ids the user ticked or unticked against the preselection
   let dialog;
-  const plan = $derived(planDay(entries, { day, today, now, wet, mode }));
-  const picked = $derived(plan.moves.filter((m) => !off.includes(m.id)));
-  const toggle = (id) => (off = off.includes(id) ? off.filter((x) => x !== id) : [...off, id]);
+  const plan = $derived(planDay(entries, { day, today, now, wet, mode, next }));
+  const isOn = (m) => !m.soft !== flipped.includes(m.id);
+  const picked = $derived(plan.moves.filter(isOn));
+  const toggle = (id) => (flipped = flipped.includes(id) ? flipped.filter((x) => x !== id) : [...flipped, id]);
+  const anySoft = $derived(plan.moves.some((m) => m.soft));
 
   $effect(() => {
     dialog.showModal();
   });
 
-  const why = (w) => (w.code === 'after' ? t('Free slot after «{name}»', { name: w.other }) : t('Free slot'));
+  const why = (w) => (w.code === 'after' ? t('Free slot after «{name}»', { name: w.other }) : w.code === 'tomorrow' ? t('Moved to tomorrow: no room left today') : t('Free slot'));
   const hint = (h) => (h.code === 'rain' ? t('Rain is forecast: «{name}» may want a plan indoors.', { name: h.title }) : h.code === 'busy' ? t('A full day: more than six hours are booked.') : t('It is late: little of the day is left.'));
 
   async function apply() {
@@ -48,9 +53,9 @@
       {#each plan.moves as m (m.id)}
         <li>
           <label>
-            <input type="checkbox" checked={!off.includes(m.id)} onchange={() => toggle(m.id)} data-plan-pick={m.id} />
+            <input type="checkbox" checked={isOn(m)} onchange={() => toggle(m.id)} data-plan-pick={m.id} />
             <span class="what"><b>{m.title}</b><small>{why(m.why)}</small></span>
-            <span class="num time">{m.time}</span>
+            <span class="num time">{#if m.day !== day}{dayName(m.day).split(' ')[0]} {/if}{m.time}</span>
           </label>
         </li>
       {/each}
@@ -58,8 +63,9 @@
   {:else if !plan.left.length}
     <p class="none" data-plan-none>{t('Nothing without a time on this day. Add an entry and plan again.')}</p>
   {/if}
+  {#if anySoft}<p class="note">{t('Calendar dates without a time are often all day, so they are not preselected.')}</p>{/if}
   {#each plan.left as l (l.id)}
-    <p class="left"><b>{l.title}</b> <small>{l.code === 'full' ? t('Does not fit today, it stays without a time.') : t('Left for later to keep the day light.')}</small></p>
+    <p class="left"><b>{l.title}</b> <small>{l.code === 'full' ? t('Does not fit on this day, it stays without a time.') : t('Left for later to keep the day light.')}</small></p>
   {/each}
   {#each plan.hints as h, i (i)}
     <p class="note">{hint(h)}</p>

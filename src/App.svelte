@@ -26,7 +26,7 @@
   import { watchTourBike } from './lib/tourbike.svelte.js';
   import { watchVeloImGriff } from './lib/veloimgriff.svelte.js';
   import { watchInspect } from './lib/inspect/live.svelte.js';
-  import { wide } from './lib/media.svelte.js';
+  import { wide, phone } from './lib/media.svelte.js';
   import { Plus, MessageCircle } from '@lucide/svelte';
   import { startPushSync } from './lib/push/client.js';
   import { linkFrom } from './lib/notebook.js';
@@ -61,6 +61,7 @@
   import { pageOf, isUnknown, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import Explorer from './lib/nav/Explorer.svelte';
+  import TabTitle from './lib/nav/TabTitle.svelte'; // «Seitentitel im Browser-Tab» (Noah 23.11.2026 «2a»)
   import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
   import { ops } from './lib/bedienung.svelte.js';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -565,9 +566,10 @@
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
   <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
-  {#if !guest && !mini && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}
+  <!-- «Seitenkopf schlanker» (Noah 23.11.2026 «ja», Velos): on a phone «Belongs to …» and «What you can do here» are ONE row behind the title -->
+  {#if !guest && !mini && showsRow(page, hash) && !(phone.matches && page === 'bikes')}<GehoertDazu {page} {hash} />{/if}
   <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
-  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash} />{/if}
+  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash}>{#snippet side()}{#if phone.matches && page === 'bikes' && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}{/snippet}</SeitenInhalt>{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if lost}
@@ -944,10 +946,12 @@
 {/if}
 {#if !guest}<SkiTurn />{/if}
 <!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
+{#if !guest && !mini}{#await import('./lib/drop/DropLayer.svelte') then M}<M.default />{/await}{/if}
 {#if !guest}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if !guest && page !== 'timer'}<TimerFloat />{/if}
 <!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
+<TabTitle {hash} {page} {place} />
 <Keys bind:open={keysOpen} />
 <!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
 {#if !guest}<TourStart /><TourHost />{/if}
