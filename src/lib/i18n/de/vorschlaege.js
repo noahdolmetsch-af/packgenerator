@@ -77,7 +77,6 @@ export default {
   'Snow is likely up high in this month.': 'In diesem Monat liegt oben wahrscheinlich Schnee.',
   'Snow is possible up high in this month.': 'In diesem Monat kann oben Schnee liegen.',
   'Height and ground': 'Höhe und Untergrund',
-  'Move the slider: the dot shows the place on the map.': 'Schiebe den Regler: der Punkt zeigt die Stelle auf der Karte.',
   'Why this suggestion?': 'Warum dieser Vorschlag?',
   'With your own rides (Strava, GPX or recordings) the app also says how much of the tour is new for you.': 'Mit deinen eigenen Fahrten (Strava, GPX oder Aufzeichnungen) sagt die App auch, wie viel der Tour neu für dich ist.',
   'Set your home place and the app says how far the start is.': 'Lege deinen Wohnort fest, dann sagt die App, wie weit der Start ist.',
@@ -103,10 +102,7 @@ export default {
   'About {n} % of the line is new for you.': 'Etwa {n} % der Strecke sind neu für dich.',
   'About {km} km from home to the start.': 'Etwa {km} km von zu Hause bis zum Start.',
   'About {n} % new for you': 'Etwa {n} % neu für dich',
-  'Height profile: from {lo} m to {hi} m': 'Höhenprofil: von {lo} m bis {hi} m',
   'Ground along the tour: single trail, gravel or path, asphalt': 'Untergrund entlang der Tour: Singletrail, Schotter oder Weg, Asphalt',
-  'Place on the tour': 'Stelle auf der Tour',
-  '{km} km from the start, {m} m high': '{km} km ab Start, {m} m hoch',
   // Katalog und Handbuch (featreg/tourenvorschlaege.js)
   'Mountain bike tours from the official network of SchweizMobil (100 tours that are hard for fitness, in every canton with official routes, nearest first). Filter by canton, fitness, skill and time; each tour says why it is suggested, shows the height and the ground, and can be kept as a dream or saved as GPX.': 'Mountainbike-Touren aus dem offiziellen Netz von SchweizMobil (100 Touren mit schwerer Kondition, in jedem Kanton mit offiziellen Routen, die nächsten zuerst). Filtere nach Kanton, Kondition, Technik und Zeit; jede Tour sagt, warum sie vorgeschlagen wird, zeigt Höhe und Untergrund und lässt sich als Traum merken oder als GPX speichern.',
   'Open Trips › Dreams › Tour suggestions.': 'Öffne Touren › Träume › Tourenvorschläge.',
@@ -123,4 +119,5 @@ export default {
   'Difficulty|why': 'Schwierigkeit',
   'New for you|why': 'Neu für dich',
   'Distance from home|why': 'Abstand zum Wohnort',
+  'Tap the profile or the map: the dot shows the same place on both.': 'Tippe ins Profil oder auf die Karte: der Punkt zeigt auf beiden dieselbe Stelle.',
 };

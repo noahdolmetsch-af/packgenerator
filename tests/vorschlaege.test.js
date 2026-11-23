@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import TOURS from '../src/lib/vorschlaege/data/netz.js';
 import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
-import { kmMarks, stepFor } from '../src/lib/spur/kmmarks.js';
+import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/spur/kmmarks.js';
+import { fineOfTour, coarseOfTour, kmsOf } from '../src/lib/vorschlaege/steil.js';
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
@@ -277,5 +278,45 @@ describe('Tourenvorschläge: km-Marken auf der Tourlinie', () => {
   it('ohne Linie gibt es keine Marken', () => {
     expect(kmMarks([])).toEqual([]);
     expect(kmMarks([[47, 8]])).toEqual([]);
+  });
+});
+
+describe('Tourenvorschläge: Ort auf der Linie (Profil und Karte zeigen dieselbe Stelle)', () => {
+  const t = by('sm-33');
+  it('die Länge der Linie passt ungefähr zur Tour', () => {
+    expect(lineKm(t.line)).toBeGreaterThan(t.km * 0.6);
+    expect(lineKm(t.line)).toBeLessThan(t.km * 1.4);
+  });
+  it('Anfang und Ende der Linie sind ihre Endpunkte', () => {
+    expect(pointAtKm(t.line, 0)).toEqual(t.line[0]);
+    const end = pointAtKm(t.line, lineKm(t.line));
+    expect(Math.abs(end[0] - t.line.at(-1)[0])).toBeLessThan(1e-3);
+  });
+  it('ein Punkt der Linie liegt bei seinem km und ist nicht entfernt', () => {
+    const km = lineKm(t.line) / 2;
+    const p = pointAtKm(t.line, km);
+    const n = nearestOnLine(t.line, p);
+    expect(Math.abs(n.km - km)).toBeLessThan(0.1);
+    expect(n.away).toBeLessThan(0.05);
+  });
+  it('ein Punkt weit weg meldet seine Entfernung', () => {
+    expect(nearestOnLine(t.line, [t.line[0][0] + 0.5, t.line[0][1]]).away).toBeGreaterThan(20);
+  });
+});
+
+describe('Tourenvorschläge: Höhenprofil aus den Höhen', () => {
+  const t = by('sm-33');
+  it('die km der Höhen liegen gleichmässig von 0 bis zur Länge', () => {
+    const ks = kmsOf(t.ele, t.km);
+    expect(ks[0]).toBe(0);
+    expect(ks.at(-1)).toBeCloseTo(t.km, 6);
+  });
+  it('grobes und feines Profil haben für jede Höhe einen Punkt oder mehr', () => {
+    expect(coarseOfTour(t)).toHaveLength(t.ele.length);
+    expect(fineOfTour(t)).toBeTruthy();
+  });
+  it('ohne Höhen gibt es kein Profil', () => {
+    expect(fineOfTour({ ele: [], km: 5 })).toBeNull();
+    expect(coarseOfTour({})).toEqual([]);
   });
 });

@@ -9,7 +9,7 @@
   import { onMount } from 'svelte';
   import { Plus, Minus, Maximize2, Layers, Check } from '@lucide/svelte';
   import { t } from '../i18n.svelte.js';
-  import { merc, unmerc, fitView, toScreen, zoomAt, panBy, tilesFor, pathOf } from './mapmath.js';
+  import { merc, unmerc, fitView, toScreen, fromScreen, zoomAt, panBy, tilesFor, pathOf } from './mapmath.js';
   import { boundsOf } from './polyline.js';
   import { RASTER_GROUNDS, rasterGround, tileUrl } from '../map/sources.js';
   import { mapGround, chooseGround } from '../map/groundpref.svelte.js';
@@ -18,7 +18,8 @@
   import { kmMarks } from './kmmarks.js';
 
   /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n, cls? }] (kind 'friend': text is the whole label); cells: squares to tint (Neuland); pick(point). */
-  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null, strong = false } = $props();
+  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null, strong = false, onmap = null } = $props();
+  // onmap([lat, lon]): a tap (no drag) on the map ground (tour suggestions: moves the dot of the profile)
   // strong (tour suggestions): a thick, strongly coloured line with km marks and big start and end, so it stands out from the map
   // Tour-Seite (19.10.2026): marker [lat, lon] = the place the finger is on in the elevation profile
   const mark = $derived(marker ? toScreen(merc(marker), view, w, h) : null);
@@ -138,6 +139,12 @@
     }
   }
   function up(e) {
+    // a tap on the ground (not on a button or a dot) hands the place to the page
+    if (onmap && e.type === 'pointerup' && ptrs.size === 1 && moved < 8 && !e.target.closest('button, .gp')) {
+      const r = unzoomRect(box.getBoundingClientRect());
+      const c = pt(e);
+      onmap(unmerc(fromScreen(c.x - r.left, c.y - r.top, view, w, h)));
+    }
     ptrs.delete(e.pointerId);
     if (ptrs.size < 2) pinch = null;
   }

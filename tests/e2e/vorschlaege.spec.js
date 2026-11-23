@@ -110,16 +110,21 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await expect(page.locator('[data-vs-map]')).toBeVisible();
   // the line stands out (thick, strong colour, km marks) and the ground is a visible choice under the map
   await expect(page.locator('[data-vs-map] svg.over.strong path.line')).toHaveCount(1);
-  expect(await page.locator('[data-vs-map] svg.over .kmt').count()).toBeGreaterThan(0);
+  await expect(page.locator('[data-vs-map] svg.over .kmt').first()).toBeAttached();
   await expect(page.locator('[data-vs-grounds]')).toBeVisible();
   await page.locator('[data-vs-ground="swissimage"]').click();
   await expect(page.locator('[data-vs-ground="swissimage"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-vs-ground="auto"]')).toHaveAttribute('aria-pressed', 'false');
   await page.locator('[data-vs-ground="auto"]').click();
   await expect(page.locator('[data-vs-warn]')).toBeVisible();
+  // the shared profile (steepness colours) and the ground strip under it; the profile and the map show the same place
   await expect(page.locator('[data-profile] svg').first()).toBeVisible();
+  await expect(page.locator('[data-vs-ground-strip]')).toBeVisible();
+  await expect(page.locator('[data-map-marker]')).toHaveCount(0);
+  await page.locator('[data-profile-box]').focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('[data-vs-map] [data-map-marker]')).toHaveCount(1);
   await expect(page.locator('[data-vs-why]')).toContainText(T('Why this suggestion?'));
-  await page.locator('[data-profile] input[type="range"]').fill('500');
   await expect(page.locator('[data-vs-facts]')).toContainText('33 km');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 

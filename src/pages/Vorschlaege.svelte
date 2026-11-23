@@ -22,7 +22,10 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { RASTER_GROUNDS } from '../lib/map/sources.js';
   import { mapGround, chooseGround } from '../lib/map/groundpref.svelte.js';
-  import Profil from '../lib/vorschlaege/Profil.svelte';
+  import ProfileStrip from '../lib/map/ProfileStrip.svelte';
+  import Untergrund from '../lib/vorschlaege/Untergrund.svelte';
+  import { fineOfTour, coarseOfTour } from '../lib/vorschlaege/steil.js';
+  import { lineKm, pointAtKm, nearestOnLine } from '../lib/spur/kmmarks.js';
   import { REGIONS, LEVELS, COND_STD, TECH_STD, HOURS, ARTS, AWAYS, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
   import { t, num } from '../lib/i18n.svelte.js';
   import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight } from '@lucide/svelte';
@@ -188,17 +191,26 @@
   const toneIcon = (r) => (r.tone === 'warn' ? TriangleAlert : Check);
 
   // ---- the open tour
-  let mark = $state(null);
   const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home }).filter((r) => !whyOff.includes(r.k)) : []);
   const warns = $derived(open ? warnsOf(open, month) : []);
+  // the profile and the map show the same place in both directions (Noah 23.11.2026 «1-5a», idea B): the cursor of the profile
+  // is the dot on the map, and a tap on the map moves the cursor
+  let cursorKm = $state(null);
+  let pview = $state(null);
   $effect(() => {
-    open; // a new tour starts without the dot
-    mark = null;
+    open; // a new tour starts without the dot and with the whole profile
+    cursorKm = null;
+    pview = null;
   });
-  const pickAt = (f) => {
-    const line = open.line;
-    mark = line[Math.min(line.length - 1, Math.round(f * (line.length - 1)))];
-  };
+  const lineScale = $derived(open ? lineKm(open.line) / (open.km || 1) : 1);
+  const mark = $derived(open && cursorKm != null ? pointAtKm(open.line, cursorKm * lineScale) : null);
+  const fine = $derived(open ? fineOfTour(open) : null);
+  const coarse = $derived(open ? coarseOfTour(open) : []);
+  const MAP_TAP_KM = 2; // a tap farther than this from the line does nothing
+  function onMapTap(pos) {
+    const n = open && nearestOnLine(open.line, pos);
+    if (n && n.away <= MAP_TAP_KM) cursorKm = Math.round((n.km / lineScale) * 100) / 100;
+  }
   let note = $state('');
   async function keepDream(tour) {
     const st = storeOf($dreamsQ?.value);
@@ -229,7 +241,7 @@
   {#if open}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={`${regionName(open.region)} · ${t(tourClass(open))}`} />
     <div class="map" data-vs-map>
-      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
+      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong onmap={onMapTap} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
     </div>
     <div class="grounds" role="group" aria-label={t('Map ground')} data-vs-grounds>
       <span class="gl">{t('Map ground')}</span>
@@ -260,8 +272,11 @@
     {/if}
 
     <section class="ich-sec" aria-labelledby="vs-prof">
-      <div class="ich-h"><div><h2 id="vs-prof">{t('Height and ground')}</h2><p class="ich-hs">{t('Move the slider: the dot shows the place on the map.')}</p></div></div>
-      <div class="card pad"><Profil ele={open.ele} cls={open.cls} km={open.km} onpick={pickAt} /></div>
+      <div class="ich-h"><div><h2 id="vs-prof">{t('Height and ground')}</h2><p class="ich-hs">{t('Tap the profile or the map: the dot shows the same place on both.')}</p></div></div>
+      <div class="card pad prof">
+          <ProfileStrip profile={coarse} {fine} bind:cursorKm bind:view={pview} />
+          <Untergrund cls={open.cls} />
+        </div>
     </section>
 
     <section class="ich-sec" aria-labelledby="vs-why" data-vs-why>
@@ -450,6 +465,7 @@
   .lvp[data-lv='difficult'] { border-color: var(--bad); color: var(--bad); }
   .why { display: flex; gap: 6px; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
   .map { border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; margin-bottom: var(--sp-2); }
+  .prof { display: grid; gap: var(--sp-3); }
   .grounds { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 var(--sp-2); }
   .src { margin: 0 0 var(--sp-3); color: var(--ink-3); font-size: var(--fs-small); }
   .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(7em, 1fr)); gap: var(--sp-2); list-style: none; margin: 0 0 var(--sp-3); padding: var(--sp-3); }
