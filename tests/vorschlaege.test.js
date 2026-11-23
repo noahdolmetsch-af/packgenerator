@@ -5,11 +5,7 @@ import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/s
 import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib/vorschlaege/steil.js';
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
 import { crowKm, travelMin, anreiseOf, dayHours, fitsHalfDay, withinTravel, TRAVELS, ZURICH_HB } from '../src/lib/vorschlaege/anreise.js';
-<<<<<<< HEAD
-=======
 import { freeToday, formFit, freeFit, bikeFit, doableToday, EASY_MAX_H } from '../src/lib/vorschlaege/passt.js';
-import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes } from '../src/lib/vorschlaege/karte.js';
->>>>>>> 555933e4d (Tourenvorschläge: Passt zu dir (Form heute, freie Zeit, Velo) und Filter «Heute machbar»)
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
 const by = (id) => TOURS.find((t) => t.id === id);
@@ -372,6 +368,8 @@ describe('Tourenvorschläge: die steilsten Stücke', () => {
     expect(s.length).toBeGreaterThanOrEqual(2);
     expect(nearestOnLine(t.line, s[0]).away).toBeLessThan(0.05);
     expect(nearestOnLine(t.line, s.at(-1)).away).toBeLessThan(0.05);
+  });
+});
 
 describe('Tourenvorschläge: Anreise (Schätzung)', () => {
   it('rechnet ÖV mit Velo und Auto aus der Luftlinie, in 5-Minuten-Schritten', () => {
