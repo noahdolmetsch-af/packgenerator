@@ -14,4 +14,5 @@ export default {
   'Goal a month: {n} km': 'Ziel pro Monat: {n} km',
   'Your usual range at rest': 'Deine übliche Spanne in Ruhe',
   'Resting pulse: {s}': 'Puls in Ruhe: {s}',
+  'Too few values for your usual range (from 10 values)': 'Zu wenige Werte für deine übliche Spanne (ab 10 Werten)',
 };

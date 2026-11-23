@@ -75,3 +75,16 @@ test('Pulse: the resting line shows your usual range and one neutral sentence', 
   await expect(st.locator('[data-band-text]')).toHaveText(T('Your usual range at rest'));
   expect(errors).toEqual([]);
 });
+
+test('Pulse: with too few values a quiet line says why the usual range is missing', async ({ page, context }) => {
+  const days = Array.from({ length: 60 }, (_, i) => ({ date: addDays(TODAY, -i), restingHr: i === 0 ? 54 : 48 + (i % 5), src: 'google' }));
+  const errors = await open(page, context, days, 'hr');
+  const st = page.locator('.gs');
+  await st.locator('[data-ranges] [data-key="d7"]').click();
+  await expect(st.locator('[data-band-missing]')).toHaveText(T('Too few values for your usual range (from 10 values)'));
+  await expect(st.locator('[data-band]')).toHaveCount(0);
+  await st.locator('[data-ranges] [data-key="w4"]').click();
+  await expect(st.locator('[data-band-missing]')).toHaveCount(0);
+  await expect(st.locator('[data-band]')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
