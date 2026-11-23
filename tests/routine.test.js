@@ -145,7 +145,7 @@ describe('the list', () => {
     const gone = removeItem(r, x.id);
     expect(gone.items.some((y) => y.id === x.id)).toBe(false);
     expect(gone.ticks[x.id]).toBeUndefined();
-    expect(recordOf(gone)).toEqual({ items: gone.items, ticks: gone.ticks, felt: {} });
+    expect(recordOf(gone)).toEqual({ items: gone.items, ticks: gone.ticks, felt: {}, gone: [x.id] }); // a quiet note of the deleted entry, for the device sync (sync/merge.js)
   });
   it('moves an item, also one place within the shown list', () => {
     const r = r0();
