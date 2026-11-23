@@ -70,6 +70,12 @@
 
   // a pairing link opened on this device: ask once, then take the code out of the address
   function takeLink() {
+    // «I already use the app on another device» in the first-start window: the window «I have a code» opens (Noah 22.11.2026 «2a»)
+    if (/[?&]verbinden=1/.test(location.hash)) {
+      history.replaceState(null, '', location.hash.replace(/[?&]verbinden=1/, '').replace(/^(#[^?]*)&/, '$1?'));
+      view = 'enter';
+      requestAnimationFrame(() => setTimeout(() => document.getElementById('sync-code')?.scrollIntoView({ block: 'center' }), 50));
+    }
     const m = location.hash.match(/[?&]koppeln=([0-9A-Za-z-]+)/);
     if (!m) return;
     const code = readCode(m[1]);
