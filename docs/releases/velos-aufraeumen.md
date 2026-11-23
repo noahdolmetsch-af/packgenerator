@@ -1,6 +1,6 @@
 # Velos aufräumen
 
-PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» auf den Vorschlag des Koordinators (Thread «Velos und Material aufräumen»)
+PR #1508 · 23.11.2026 · Auftrag: Noah «ja» auf den Vorschlag des Koordinators (Thread «Velos und Material aufräumen»)
 
 ## Was ist neu
 - **Die Velos stehen einmal.** Die drei grossen Karten oben sind die Auswahl; die zweite Reihe kleiner Kacheln («3 Velos») ist weg. «Details zeigen» wählt das Velo und führt zu seiner Seite weiter unten. «Velo hinzufügen» ist die letzte Karte (gestrichelt).
@@ -22,7 +22,7 @@ PR #<Nummer> · 23.11.2026 · Auftrag: Noah «ja» auf den Vorschlag des Koordin
 - Ob eine Arbeit zum Material gehört, entscheidet ein Wort im Text (Cleat, Schuh, Schuhplatte, shoe; nicht bei Bremsschuh und Belägen) oder das Feld `gear` der Arbeit. «Zum Velo» setzt `gear: false`, das gewinnt immer. Ein Feld, das sonst nicht gebraucht wird, kommt nur mit dem Klick in die Daten.
 - Die Karte «Arbeit am Material» nennt das Velo, bei dem die Arbeit eingetragen wurde («bei Canyon Lux eingetragen»), damit nichts ohne Spur verschwindet.
 - Fertig-Regel: Absprung (Zeile «Mein Setup», Zeile «Teile» auf der Velo-Seite), Inhalt («?»-Fenster der Seite Velos), leerer Zustand (die Karte «Arbeit am Material» steht nur, wenn es so eine Arbeit gibt) und Seitenzustand sind erfüllt; keine neue Funktion in `features.js` (die Karte gehört zur Seite Material).
-- Die zwei Testzeilen in `ausstattung.spec.js` und `taschen-setups.spec.js`, die PR 1500 ändert, prüfen hier «keine Chips».
+- Die Testzeilen in `ausstattung.spec.js`, `taschen-setups.spec.js` und `setup-rig.spec.js` (nach PR 1500 auf «Mein Setup» als Chip) prüfen hier «Reiter Velos leuchtet, keine Chips». Nichts gelockert.
 
 ## Entscheide
 - 23.11.2026: Velos ohne Chips, die Velos einmal, Schuhe und Cleats im Material (siehe `docs/decisions/velos-aufraeumen.md`).
