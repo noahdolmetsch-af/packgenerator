@@ -8,7 +8,7 @@
    */
   import { Star } from '@lucide/svelte';
   import Sugg from './Sugg.svelte';
-  import { msName, starLine, val, countsLine } from './words.js';
+  import { msName, starLine, val, countsLine, runningWeek } from './words.js';
   import { t, num } from '../../i18n.svelte.js';
 
   let { r, kind = 'plain', sub = '' } = $props();
@@ -24,7 +24,7 @@
       <p class="st">{r.done ? t('All stars · {stage}', { stage: t('Path|stage') }) : starLine(r.next)}</p>
     </div>
   </div>
-  <p class="v"><b class="num">{val(r.done ? r.best : r.value)}</b>{#if !r.done}<span>{t('of {n}', { n: val(r.target, unit) })}</span>{:else if unit}<span>{unit}</span>{/if}</p>
+  <p class="v">{#if runningWeek(r)}<b>{t('This week is running')}</b>{:else}<b class="num">{val(r.done ? r.best : r.value)}</b>{#if !r.done}<span>{t('of {n}', { n: val(r.target, unit) })}</span>{:else if unit}<span>{unit}</span>{/if}{/if}</p>
   <div class="bar" role="progressbar" aria-label={msName(r.m)} aria-valuemin="0" aria-valuemax="100" aria-valuenow={Math.round(r.progress * 100)}><i style:width="{Math.round(r.progress * 100)}%"></i></div>
   <p class="w">{#if sub}{sub}{#if r.next && kind === 'soon'}{' · '}{t('{n} to go', { n: val(left, unit) })}{/if}{:else if kind === 'soon'}{t('{n} to go', { n: val(left, unit) })} · {t('from 80 % «soon»')}{:else}{t(r.m.what)}{/if}</p>
   {#if r.m.counts}<p class="w" data-counts>{countsLine(r.m)}</p>{/if}

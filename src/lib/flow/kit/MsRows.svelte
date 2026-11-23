@@ -5,19 +5,20 @@
    * label(r): the activity's name or ''.
    */
   import { Star } from '@lucide/svelte';
-  import { msName, starLine, val } from '../hobby/words.js';
+  import { msName, starLine, val, runningWeek } from '../hobby/words.js';
   import { t } from '../../i18n.svelte.js';
 
-  let { list = [], label = () => '' } = $props();
+  let { list = [], label = () => '', title = (r) => msName(r.m) } = $props();
+  const words = (r) => (runningWeek(r) ? t('This week is running') : t('{n} of {m}', { n: val(r.value, r.m.unit), m: val(r.target, r.m.unit) }));
 </script>
 
 <ul class="msr card">
   {#each list as r (r.id)}
     <li data-ms={r.id} class:soon={r.soon}>
       <span class="ib" aria-hidden="true"><Star size={18} /></span>
-      <span class="tx"><b>{msName(r.m)}</b><small>{r.next ? starLine(r.next) : t('all stars')}{#if label(r)}{' · '}{label(r)}{/if}</small></span>
-      <span class="bar" role="img" aria-label={t('{n} of {m}', { n: val(r.value, r.m.unit), m: val(r.target, r.m.unit) })}><i style:width="{Math.round(r.progress * 100)}%"></i></span>
-      <span class="v num">{t('{n} of {m}', { n: val(r.value, r.m.unit), m: val(r.target, r.m.unit) })}</span>
+      <span class="tx"><b>{title(r)}</b><small>{r.next ? starLine(r.next) : t('all stars')}{#if label(r)}{' · '}{label(r)}{/if}</small></span>
+      <span class="bar" role="img" aria-label={words(r)}><i style:width="{Math.round(r.progress * 100)}%"></i></span>
+      <span class="v num">{words(r)}</span>
     </li>
   {/each}
 </ul>
