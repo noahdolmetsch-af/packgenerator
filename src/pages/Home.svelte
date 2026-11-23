@@ -163,6 +163,7 @@
   import { INTRO_KEY, introDue } from '../lib/home/introkt.js';
   import SeriesTile from '../lib/home/SeriesTile.svelte';
   import NewsTile from '../lib/home/NewsTile.svelte';
+  import NeuSeitCard from '../lib/home/NeuSeitCard.svelte';
   import MedTile from '../lib/home/MedTile.svelte';
   import BalanceTile from '../lib/home/BalanceTile.svelte';
   import RoundTile from '../lib/home/RoundTile.svelte'; // WG: the round of «Wi gaht's?» (was the morning check)
@@ -1468,6 +1469,8 @@
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
+  <!-- «Bilder bei jeder Neuheit» PR 3 (Noah 23.11.2026 «1b 2a 3a 4b 5a»): «N Neuheiten seit …» under the content (Content first) -->
+  {#if ready && !editing && !emptyDevice}<NeuSeitCard {today} />{/if}
   <!-- SV1 «Strava verbinden» (Noah 13.10.2026): until Strava is connected on this device, one card;
        0.155.0 HN4: at the very bottom, under the wall (was on top) -->
 
