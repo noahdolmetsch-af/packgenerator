@@ -56,8 +56,11 @@ const messen = (page) =>
     return { hash: location.hash, place, first: steps[0] ?? '', steps, links: links.size, empty: body.length === 0, lost: /^(seite nicht gefunden|page not found)/i.test(txt(main?.querySelector('h1'))) };
   });
 
-async function oeffne(page, hash, warte = 0) {
+async function oeffne(page, hash, warte = 0, neuLaden = false) {
   await page.evaluate((h) => { location.hash = h; }, hash);
+  // «Zurück» (Durchklick-Fund 3): after a step from another page the first crumb names where you came from. The path check
+  // wants the place of the page, so it looks at the page opened directly (reload): that is what a link or a bookmark shows.
+  if (neuLaden) await page.reload();
   await page.locator('main').waitFor({ timeout: 15_000 });
   await page
     .waitForFunction(() => {
@@ -88,7 +91,7 @@ test('Wege-Wächter: Pfad, Sackgasse und Zurück auf jeder Adresse', async ({ pa
   for (const hash of liste) {
     await page.goto('./#/');
     await page.waitForTimeout(80);
-    await oeffne(page, hash);
+    await oeffne(page, hash, 0, true);
     let m = await messen(page);
     let p = pruefe(m);
     if (p.pfad || p.sackgasse) {
