@@ -130,6 +130,11 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
   await expect(body.locator('[data-body="restingHr"]')).toContainText('55');
   await expect(body.locator('[data-body="restingHr"]')).toContainText('+4');
   await expect(body.locator('[data-body="steps"]')).toBeVisible();
+  // Schritt K: the active zone minutes next to your own usual week (median of the weeks before: 7 days × 14 = 98); the guideline of the watch only as a line
+  await expect(body.locator('[data-azm-normal]')).toContainText('98');
+  await expect(body.locator('[data-azm-year]')).toHaveCount(0);
+  await expect(body.locator('[data-azm-ref]')).toContainText('150');
+  if (process.env.SHOTS) await body.locator('[data-body="azm"]').screenshot({ path: `${process.env.SHOTS}/zonenminuten-${info.project.name === 'phone' ? 390 : 1440}.png` });
   await expect(main.locator('[data-wr="outdoor"] [data-out-day]')).toHaveCount(7);
   if (process.env.SCENARIO === 'full') {
     await expect(main.locator('[data-wr="zones"] [data-zone]')).toHaveCount(5);

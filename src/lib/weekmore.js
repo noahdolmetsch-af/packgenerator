@@ -51,6 +51,41 @@ export function bodyTiles(health = [], monday, upto) {
 }
 
 /**
+ * «Aktivzonenminuten gegen das eigene Normal» (Noah 22.11.2026 «a», Thread «Alle Sportarten und Erholung», Schritt K): the active zone
+ * minutes of a week next to YOUR usual week (the median of the weeks before, up to a year back, paused weeks left out) and the same
+ * week a year ago. The guideline of the watch (150 a week) is only a line, never a goal or a rating (the page adds it). Only reading.
+ * A week counts for the median when at least four of its days have a value (a half-synced week would pull the usual down).
+ * health: db.healthDays; pauses: the Mondays of «Pause» weeks (week.pauses). → { normal, weeks, year } or null without a usual week.
+ */
+export const AZM_NORMAL_WEEKS = 52;
+export const AZM_MIN_WEEKS = 4;
+export const AZM_MIN_DAYS = 4;
+const median = (xs) => {
+  const s = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+};
+export function azmNormal(health = [], monday, upto = shiftDay(monday, 6), pauses = []) {
+  const by = new Map(health.filter((h) => h?.date && Number.isFinite(h.azm) && h.azm > 0).map((h) => [h.date, h.azm]));
+  const week = (m, to = shiftDay(m, 6)) => {
+    const ds = days(m, to).filter((d) => by.has(d));
+    return { n: ds.length, sum: ds.reduce((x, d) => x + by.get(d), 0) };
+  };
+  const sums = [];
+  for (let i = 1; i <= AZM_NORMAL_WEEKS; i++) {
+    const m = shiftDay(monday, -7 * i);
+    if (pauses.includes(m)) continue;
+    const w = week(m);
+    if (w.n >= AZM_MIN_DAYS) sums.push(w.sum);
+  }
+  const yearMonday = shiftDay(monday, -364);
+  const y = week(yearMonday, shiftDay(upto, -364));
+  const year = y.n ? Math.round(y.sum) : null;
+  if (sums.length < AZM_MIN_WEEKS) return year == null ? null : { normal: null, weeks: sums.length, year };
+  return { normal: Math.round(median(sums)), weeks: sums.length, year };
+}
+
+/**
  * «Wochenrückblick: mehr Daten» (Noah 02.11.2026 «2b»): body weight, meditation minutes, trips and sleep phases of a week.
  * Each is null when the week has no value, never 0.
  */
