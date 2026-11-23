@@ -69,4 +69,7 @@ export default {
   'sleep, mood, goal, the evening': 'Schlaf, Stimmung, Ziel, der Abend',
   'Almost all of these questions are asked like the questions in the window now: whether and when, you decide under Me › Your questions.': 'Fast alle dieser Fragen werden jetzt wie die Fragen im Fenster gestellt: ob und wann, bestimmst du unter Ich › Deine Fragen.',
   'Open Your questions': 'Deine Fragen öffnen',
+  'More questions': 'Weitere Fragen',
+  'Answer any of them once. This does not switch the question on.': 'Beantworte jede einmal. Die Frage wird dadurch nicht eingeschaltet.',
+  'switched off|question': 'ausgeschaltet',
 };
