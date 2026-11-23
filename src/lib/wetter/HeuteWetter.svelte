@@ -5,6 +5,9 @@
    * gives the tailwind home), the first warning, and «Radar» (the Landi rain radar) when rain comes within
    * 3 hours. Under it the home webcam as a small picture, only when one is set (Meine Webcams).
    * Then the lake chip (Seetemperatur thread) when it has a value. Nothing shows without any of them. Tap → the weather page.
+   * «Wetter oben» (Noah 23.11.2026 «b», «alle Infos zwingend drin»): everything stands in ONE card, nothing behind a tap: the
+   * day on the left (temperature, wind, rain, Radar), the air layers and the snow line on the right as a small ladder, fog,
+   * night and the lake in one row under them. It takes about a fifth of the first screen.
    * Home.svelte mounts it with one line (owner: «Heute neu gestalten»).
    */
   import { liveQuery } from 'dexie';
@@ -20,8 +23,6 @@
   import { rainStory, rainWords } from './regenzeit.js'; // the one rain start time of the page // Wetter-Ausbau B: «Rain in about 30 minutes» on a ride day
   import { WEBCAMS_KEY, camsOf, homeCam, isImage, freshSrc, camLabel } from './webcams.js';
   import LakeChip from '../lake/LakeChip.svelte';
-  import { phrases } from './digest.svelte.js'; // Wetter-Ausbau D: the closed line «Weather today»
-  import { ChevronDown } from '@lucide/svelte';
   import HeuteSchnee from './HeuteSchnee.svelte'; // «Schneefallgrenze» (Noah 04.11.2026): one calm line for the home place
   import HeuteNebel from './HeuteNebel.svelte'; // «Nebelgrenze» (Noah 05.11.2026): one calm line under it
   import HeuteSonne from './HeuteSonne.svelte'; // «Sonnen-Ausfahrt» (Noah 06.11.2026): a ride above the fog, under the fog line
@@ -100,41 +101,125 @@
 </script>
 
 <section class="hw-wx" aria-label={t('Weather')} data-heute-wetter>
-    {#if trip && line}
-      <a class="hw-line" {href} data-heute-wetter-line>
-        <span><b>{num(line.tmin)}–{num(line.tmax)} °C</b></span>
-        {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
-        <span><CloudRain size={16} aria-hidden="true" />{rainWords(story, t, hm) || t('dry')}</span>
-        {#if loopTip}<span class="hw-tip" data-heute-wetter-wind>{loopTip === 'keep' ? t('Ride the loop as planned: tailwind home.') : t('Ride the loop the other way: tailwind home.')}</span>{/if}
-        {#if warn}<span class="hw-warn"><TriangleAlert size={16} aria-hidden="true" />{t(WARN_TEXT[warn.kind], { at: hm(warn.at), v: num(warn.value) })}</span>{/if}
-      </a>
-      {#if soonMin != null}<a class="hw-soon" {href} data-heute-rain15><CloudRain size={16} aria-hidden="true" />{soonMin < 5 ? t('Rain starts now.') : t('Rain in about {min} minutes.', { min: num(soonMin) })}</a>{/if}
-      {#if rainSoon}<a class="btn sm hw-radar" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-heute-radar><CloudRain size={16} aria-hidden="true" />{t('Radar')}</a>{/if}
-    {/if}
-    {#if cam}
-      <a class="hw-cam" href={cam.url} target="_blank" rel="noopener noreferrer" data-heute-cam>
-        {#if isImage(cam.url)}<img src={freshSrc(cam.url, now)} alt={t('Webcam {name}', { name: camLabel(cam) })} loading="lazy" referrerpolicy="no-referrer" />{/if}
-        <small>{camLabel(cam)}</small>
-      </a>
-    {/if}
-    <!-- the lake (thread «Seetemperatur und Sauna»): shows itself only with a value -->
-    <LakeChip />
-    <!-- Wetter-Ausbau D (Noah 22.11.2026 «a»): the calm lines under one closed line; each keeps its own switch, nothing is gone -->
-    <details class="hw-fold" data-heute-wetter-fold>
-      <summary data-heute-wetter-fold-sum><b>{t('Weather today|line')}</b><span class="hw-fold-say">{phrases().join(' · ')}</span><ChevronDown size={16} aria-hidden="true" /></summary>
-      <div class="hw-fold-in">
-        <HeuteSchnee />
-        <HeuteNebel />
-        <HeuteNacht />
-        <HeuteHoehe />
+  <div class="hw-card" data-heute-wetter-card>
+    <div class="hw-top">
+      <div class="hw-now">
+        {#if trip && line}
+          <a class="hw-line" {href} data-heute-wetter-line>
+            <span class="hw-temp"><b>{num(line.tmin)}–{num(line.tmax)} °C</b></span>
+            {#if line.windMax != null}<span><WindVane dir={line.dir} kmh={line.windMax} size={26} />{line.dir != null ? t('{kmh} km/h from the {dir}', { kmh: num(line.windMax), dir: t(compass(line.dir)) }) : t('{kmh} km/h', { kmh: num(line.windMax) })}</span>{/if}
+            <span><CloudRain size={16} aria-hidden="true" />{rainWords(story, t, hm) || t('dry')}</span>
+            {#if loopTip}<span class="hw-tip" data-heute-wetter-wind>{loopTip === 'keep' ? t('Ride the loop as planned: tailwind home.') : t('Ride the loop the other way: tailwind home.')}</span>{/if}
+            {#if warn}<span class="hw-warn"><TriangleAlert size={16} aria-hidden="true" />{t(WARN_TEXT[warn.kind], { at: hm(warn.at), v: num(warn.value) })}</span>{/if}
+          </a>
+          {#if soonMin != null}<a class="hw-soon" {href} data-heute-rain15><CloudRain size={16} aria-hidden="true" />{soonMin < 5 ? t('Rain starts now.') : t('Rain in about {min} minutes.', { min: num(soonMin) })}</a>{/if}
+          {#if rainSoon}<a class="btn sm hw-radar" href={LANDI_RADAR} target="_blank" rel="noopener noreferrer" data-heute-radar><CloudRain size={16} aria-hidden="true" />{t('Radar')}</a>{/if}
+        {/if}
       </div>
-    </details>
-    <HeuteSonne />
-  </section>
+      <!-- the air layers and the snow line: a small ladder; each line keeps its own switch (nothing is gone) -->
+      <div class="hw-ladder">
+        <HeuteHoehe />
+        <HeuteSchnee />
+      </div>
+    </div>
+    <div class="hw-rest">
+      <HeuteNebel />
+      <HeuteNacht />
+      <!-- the lake (thread «Seetemperatur und Sauna»): shows itself only with a value -->
+      <LakeChip />
+    </div>
+  </div>
+  {#if cam}
+    <a class="hw-cam" href={cam.url} target="_blank" rel="noopener noreferrer" data-heute-cam>
+      {#if isImage(cam.url)}<img src={freshSrc(cam.url, now)} alt={t('Webcam {name}', { name: camLabel(cam) })} loading="lazy" referrerpolicy="no-referrer" />{/if}
+      <small>{camLabel(cam)}</small>
+    </a>
+  {/if}
+  <HeuteSonne />
+</section>
 
 <style>
   /* nothing to show (no ride, no home cam, no lake value): no empty space either */
-  .hw-wx:not(:has(a, img)) {
+  .hw-wx:not(:has(a, img, button)) {
+    display: none;
+  }
+  .hw-card:not(:has(a, button)) {
+    display: none;
+  }
+  .hw-card {
+    flex: 1 1 100%;
+    min-width: 0;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: grid;
+    gap: 6px;
+  }
+  .hw-top {
+    display: grid;
+    grid-template-columns: fit-content(55%) minmax(0, 1fr);
+    gap: 6px 14px;
+  }
+  .hw-top:has(.hw-now:empty),
+  .hw-top:has(.hw-ladder:not(:has(a))) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hw-now {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+  .hw-now:empty {
+    display: none;
+  }
+  .hw-temp b {
+    font-size: var(--fs-h3, 1.25rem);
+    white-space: nowrap;
+  }
+  .hw-radar {
+    margin-top: 2px;
+  }
+  /* the ladder: the layers one under the other, the snow line under them; the two small boxes lose their own background here */
+  .hw-ladder {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border-left: 3px solid var(--line);
+    padding-left: 10px;
+  }
+  .hw-ladder:not(:has(a)) {
+    display: none;
+  }
+  .hw-ladder :global([data-heute-hoehe]),
+  .hw-ladder :global([data-heute-snowline]),
+  .hw-rest :global([data-heute-fogline]),
+  .hw-rest :global([data-heute-nacht]) {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0;
+    background: none;
+    border-radius: 0;
+    font-size: var(--fs-small);
+  }
+  .hw-ladder :global([data-heute-hoehe-row]) {
+    display: block;
+  }
+  .hw-ladder :global([data-heute-hoehe] [aria-hidden='true']) {
+    display: none;
+  }
+  .hw-rest {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 14px;
+    border-top: 1px solid var(--paper-2);
+    padding-top: 6px;
+  }
+  .hw-rest:not(:has(a, button)) {
     display: none;
   }
   .hw-wx {
@@ -145,12 +230,11 @@
     margin: 0 0 12px;
   }
   .hw-line {
-    flex: 1 1 260px;
     min-width: 0;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
     color: var(--ink);
     text-decoration: none;
     font-size: var(--fs-small);
@@ -168,43 +252,6 @@
     font-weight: 600;
     color: var(--ink);
     text-decoration: none;
-  }
-  /* the fold shows only when one of its lines has something to say */
-  .hw-fold:not(:has(:global([data-heute-snowline], [data-heute-fogline], [data-heute-nacht], [data-heute-hoehe]))) {
-    display: none;
-  }
-  .hw-fold {
-    flex: 1 1 100%;
-    border-radius: 10px;
-    background: var(--paper-2);
-  }
-  .hw-fold summary {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 44px;
-    padding: 6px 12px;
-    cursor: pointer;
-    list-style: none;
-    font-size: var(--fs-small);
-  }
-  .hw-fold summary::-webkit-details-marker {
-    display: none;
-  }
-  .hw-fold-say {
-    flex: 1;
-    min-width: 0;
-    color: var(--ink-2);
-    overflow-wrap: break-word;
-  }
-  .hw-fold[open] summary :global(svg) {
-    transform: rotate(180deg);
-  }
-  .hw-fold-in {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 0 8px 8px;
   }
   .hw-tip {
     color: var(--ink-2);
