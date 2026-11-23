@@ -38,6 +38,10 @@ test('VO2max: own tab in Körper, mean, range and the year', async ({ page, cont
   await expect(st).toContainText(T('From Fitbit or Apple Health (Me › Connections), observation only. It changes slowly, often only once a week.'));
   await st.locator('[data-ranges] [data-key="y1"]').click();
   await expect(card.locator('[data-body-mean]')).toContainText(/49/);
+  // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): where your own values usually lie, and one neutral sentence
+  await expect(st.locator('[data-chart-sentences]')).toContainText(/^Jetzt .* ml\/kg\/min/);
+  await expect(st.locator('[data-band]')).toHaveCount(1);
+  await expect(st.locator('[data-band-text]')).toHaveText(T('Your usual range'));
   const w = page.viewportSize().width;
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(w);
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/vo2max-${w <= 500 ? 390 : 1440}.png`, fullPage: true });
