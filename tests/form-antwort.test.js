@@ -18,7 +18,8 @@ const ready = (parts, form = 10, fit = 13) => {
 describe('dayAnswer', () => {
   it('the day of the page: good form, but HRV −42 % and 3 h 55 sleep → rest, not «you are fresh»', () => {
     const r = ready([part('rhr', 0), part('hrv', -20, { delta: -42 }), part('sleep', -18, { v: 235 })]);
-    expect(r.level).toBe('easy'); // the score alone said «easy»
+    expect(r.scoreLevel).toBe('easy'); // the score alone said «easy»
+    expect(r.level).toBe('rest'); // readiness() already carries the answer, so every place that reads the level agrees
     const a = dayAnswer(r);
     expect(a.level).toBe('rest');
     expect(a.adjusted).toBe(true);
@@ -107,5 +108,20 @@ describe('valueAlert: sleep', () => {
   });
   it('valueAlerts gives HRV, then sleep', () => {
     expect(valueAlerts({ table: table([{ hrv: 29, sleep: 235 }]), today: TODAY }).map((v) => [v.key, v.state])).toEqual([['hrv', 'lowNow'], ['sleep', 'lowNow']]);
+  });
+});
+
+describe('readiness() carries the answer in its level', () => {
+  it('the same low values as the page: level «rest», the score and the level of the score stay', () => {
+    const r = ready([part('rhr', 0), part('hrv', -20, { delta: -42 }), part('sleep', -18, { v: 235 })]);
+    expect(r.score).toBe(42);
+    expect(r.scoreLevel).toBe('easy');
+    expect(r.level).toBe('rest');
+    expect(dayAnswer(r).level).toBe('rest'); // asking again gives the same answer
+    expect(dayAnswer(r).adjusted).toBe(true);
+  });
+  it('a day without low values keeps the level of the score', () => {
+    const r = ready([part('rhr', 2), part('hrv', 5), part('sleep', 3)]);
+    expect(r.level).toBe(r.scoreLevel);
   });
 });
