@@ -2,7 +2,7 @@
 export default {
   title: 'From the Outdoors card to a trip tip',
   lead: 'While today\'s minutes are still open, the Outdoors card links to three new places that fit your time.',
-  points: [{ text: 'Today › Outdoors card: tap «Trip tips for your time»', href: '#/', go: { href: '#/', where: 'The link shows in the Outdoors card while today\'s goal is open.', steps: [{ sel: '[data-outdoor-tips]' }] } }],
+  points: [{ text: 'Today › Outdoors card: tap «Trip tips for your time»', href: '#/trips/dreams', go: { href: '#/', where: 'The link shows in the Outdoors card while today\'s goal is open.', steps: [{ sel: '[data-outdoor-tips]' }] } }],
   small: [{ box: 'new', text: 'The link disappears when the goal of the day is reached' }],
   test: [
     'On Today, find the Outdoors card (start a challenge if there is none).',
