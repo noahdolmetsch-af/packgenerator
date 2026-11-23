@@ -27,15 +27,16 @@ export function goalPerWeek(act, day) {
  * units: einheiten() of ALL rings; acts: flowActs; from, to: the window (YYYY-MM-DD).
  * → [{ id, n, days, measuredMin, perWeek, goal }]: one row per ritual activity that was ticked in the window or has a live goal,
  * most ticks first, then by name order of the list. `goal` is per week (or null), `perWeek` the mean per week of the window.
+ * all: also the activities without a tick and without a goal (a row with 0), for the list «Alles, was du angelegt hast».
  */
-export function rituale(units = [], acts = [], from, to) {
+export function rituale(units = [], acts = [], from, to, { all = false } = {}) {
   const weeks = span(from, to) / 7;
   const mine = acts.map(normAct).filter((a) => RITUAL_RINGS.includes(a.ring) && !a.paused);
   const rows = [];
   for (const a of mine) {
     const own = units.filter((u) => isRitual(u) && u.actId === a.id && u.day >= from && u.day <= to);
     const goal = goalPerWeek(a, to);
-    if (!own.length && goal == null) continue;
+    if (!own.length && goal == null && !all) continue;
     rows.push({
       id: a.id,
       n: own.length,
