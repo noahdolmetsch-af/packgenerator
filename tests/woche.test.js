@@ -136,7 +136,7 @@ describe('buildWeek', () => {
 describe('the place «Woche» (Noah 1a)', () => {
   it('is a place next to Heute; the phone bar keeps five, without Material', () => {
     // N1 «Neue Leiste» (Noah 20.10.2026 «2a»): Heute · Planen · Touren · Auswerten · Velos; Material shares the slot of Velos
-    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'gear', 'analysis', 'quick']); // V4a (Noah 21.11.2026): Aktiv is part of Woche, Auswerten is a place of its own // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
+    expect(PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'gear', 'analysis', 'weather', 'quick']); // «Wetter» (Noah 22.11.2026 «a»): a place of its own, not in the phone bar; V4a (Noah 21.11.2026): Aktiv is part of Woche, Auswerten is a place of its own // «Quick Links» (Noah 28.10.2026 «3a»): a sixth place
     expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'analysis']);
     expect(pageOf('#/week')).toBe('week');
     expect(pageOf('#/week/plan')).toBe('week');

@@ -846,6 +846,7 @@ html {
   --pc-week: #3b5f8f; /* «Woche planen» (WP1): its own place since Noah 15.10.2026 «1a» */
   --pc-me: #14232d;
   --pc-quick: #3f6b58; /* «Quick Links» (Noah 28.10.2026): sage green */
+  --pc-weather: #2b7a9b; /* «Wetter» (Noah 22.11.2026): sky blue */
   --pc-ink: #ffffff; /* an icon or a word on the place colour */
   /* the dark sidebar: a lighter row, a line between groups */
   --side-row: color-mix(in srgb, var(--brand-ink) 9%, var(--brand));
@@ -860,6 +861,7 @@ html {
   --pc-week: #8fb2e0;
   --pc-me: #c9d6dd;
   --pc-quick: #8fc4aa;
+  --pc-weather: #7fc3df;
   --pc-ink: #0e171d;
 }
 /* v0.125.0 TZ-1 «Zustand sichtbar» (Noah 13.10.2026 «1-5 a», spec tour-zustaende 5): the three trip states,
@@ -915,6 +917,9 @@ html {
 }
 :root[data-place='quick'] {
   --pc: var(--pc-quick);
+}
+:root[data-place='weather'] {
+  --pc: var(--pc-weather);
 }
 /* «Woche planen» (WP1): one colour per kind of entry, the same in the week and on Heute; never colour
    alone (each entry has its word). Sport teal, dates blue, to-dos ochre, holidays violet, bike service orange. */
@@ -1022,6 +1027,7 @@ main[data-s2-page='bikes'],
 main[data-s2-page='week'],
 main[data-s2-place='week'],
 main[data-s2-place='trips'],
+main[data-s2-place='weather'], /* Wetter-Ausbau W1: the weather page had this look as a page of Touren */
 main[data-s2-place='analysis'],
 main[data-s2-place='active'] {
   --card-line: transparent;
