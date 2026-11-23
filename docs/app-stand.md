@@ -266,7 +266,7 @@ Jede Zeile: Name, echter Link in der App (`#/…`, aus dem Durchlauf der Seite) 
 | Eigene Werte | `#/me/werte` | Grenzwerte, Standardannahmen und Erinnerungsabstände anpassen. |
 | Listen und Typen | `#/me/lists` | Kategorien und andere Auswahllisten selbst ergänzen, umbenennen und ordnen (auch die Velo-Sportarten der Touren: Name und Ausblenden); auch die Sprüche, die das «PG»-Logo nach fünf Tipps sagen kann. |
 | Entscheidungsregeln | `#/me/regeln` | Nachvollziehen, weshalb die App etwas vorschlägt und wo sich die zugrunde liegenden Werte ändern lassen. |
-| Update | `#/me/news` | Änderungen und neue Funktionen nach Version nachlesen. |
+| Update | `#/me/news` | Änderungen und neue Funktionen nach Version nachlesen. Jeder Eintrag zeigt den Tag mit Wochentag und Jahr und, wo bekannt, die Uhrzeit des Merge (Zürich, `scripts/news.mjs`); die Kachel «Neu» auf Heute nennt den Tag auch. Hat ein Eintrag ein Bild (`public/news/<name>.webp`, bei «Vorher» dazu `<name>-vorher.webp`), steht darunter «Bild zeigen»; das Bild lädt erst beim Antippen und braucht Internet. |
 | Neueste Version laden | `#/me` | In Ich zeigt die Zeile «Version … auf diesem Gerät» auch die Version, die online ist, und «Neueste laden» holt sie frisch aus dem Internet (Daten bleiben). Ist die Version online schon länger als zwei Minuten neuer, erscheint oben ein dunkler Balken mit «Jetzt laden». Klappt das Laden nicht (die Seite ist nach acht Sekunden noch da, oder nach dem Laden ist die alte Version noch da), sagt der Balken es ehrlich und nennt den Weg: App ganz schliessen und neu öffnen; «Nochmal versuchen» probiert es erneut. |
 
 ### 12. Beim Abgleich ergänzt: in Noahs Dokument nicht einzeln genannt

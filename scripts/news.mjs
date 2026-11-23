@@ -42,6 +42,9 @@ export function bump(v, part) {
 /** The day in Zurich of an ISO time (the app's days are Zurich days). */
 export const zurichDay = (iso) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Zurich' }).format(new Date(iso));
 
+/** The clock time «14:32» in Zurich of an ISO time (shown behind the day of a news entry, Noah 22.11.2026 «Uhrzeit»). */
+export const zurichTime = (iso) => new Intl.DateTimeFormat('de-CH', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(iso));
+
 /**
  * Pure: numbers main's history. history = [{ date, pkg?, added: [file] }], oldest first, one per
  * first-parent commit after the anchor. Returns { version, files: { file: { version, date } } }.
@@ -52,7 +55,7 @@ export function numberHistory(history, start = ANCHOR_VERSION) {
   for (const c of history) {
     const next = bump(version, c.added.length ? 'minor' : 'patch');
     version = c.pkg && compare(c.pkg, next) > 0 ? c.pkg : next;
-    for (const f of c.added) files[f] = { version, date: c.date };
+    for (const f of c.added) files[f] = { version, date: c.date, ...(c.time ? { time: c.time } : {}) };
   }
   return { version, files };
 }
@@ -69,7 +72,7 @@ export function readHistory() {
     const commits = git(['log', '--first-parent', '--reverse', '--format=%H %cI', range])
       .split('\n')
       .filter(Boolean)
-      .map((l) => ({ sha: l.slice(0, 40), date: zurichDay(l.slice(41)), added: [] }));
+      .map((l) => ({ sha: l.slice(0, 40), date: zurichDay(l.slice(41)), time: zurichTime(l.slice(41)), added: [] }));
     const bySha = new Map(commits.map((c) => [c.sha, c]));
     let cur = null;
     const added = git(['log', '--first-parent', '--diff-merges=first-parent', '--diff-filter=A', '--name-only', '--format=@%H', range, '--', NEWS_DIR]);
@@ -89,6 +92,14 @@ export function readHistory() {
   } catch {
     return null;
   }
+}
+
+/** The pictures of «What is new» (Noah 22.11.2026 «1b»): public/news/<name>.webp (after) and <name>-vorher.webp (before), named like the news file. */
+export const IMAGE_DIR = 'public/news';
+export function imagesOf(file, dir = join(ROOT, IMAGE_DIR)) {
+  const name = file.slice(0, -3);
+  const has = (f) => existsSync(join(dir, f));
+  return { image: has(`${name}.webp`) ? `news/${name}.webp` : null, imageBefore: has(`${name}-vorher.webp`) ? `news/${name}-vorher.webp` : null };
 }
 
 export const newsFiles = (dir = join(ROOT, NEWS_DIR)) => (existsSync(dir) ? readdirSync(dir).filter((f) => NAME.test(f)).sort() : []);
@@ -127,6 +138,13 @@ export function computeNews({ history = readHistory(), files = newsFiles(), toda
 export const appVersion = () => computeNews().version;
 
 const ident = (file) => `n_${file.slice(0, -3).replace(/-/g, '_')}`;
+
+/** One entry of the generated lists: the file's content plus id, version, day, time and the pictures it has. */
+function entryLine(n) {
+  const img = imagesOf(n.file);
+  const extra = [n.time ? `time: ${JSON.stringify(n.time)}` : '', img.image ? `image: ${JSON.stringify(img.image)}` : '', img.imageBefore ? `imageBefore: ${JSON.stringify(img.imageBefore)}` : ''].filter(Boolean).join(', ');
+  return `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)}${extra ? `, ${extra}` : ''} },`;
+}
 
 const DE_DIR = 'src/lib/i18n/de';
 
@@ -182,7 +200,7 @@ export function writeNewsIndex() {
     `export const EXACT = ${r.exact};`,
     '/** The news entries of the PRs since 0.232.0, newest first, with the version and day they got. */',
     'export const NEWS = [',
-    ...r.news.map((n) => `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)} },`),
+    ...r.news.map(entryLine),
     '];',
     '/** Their German texts (each file\'s `de`). */',
     `export const NEWS_DE = Object.assign({}, ${r.news.map((n) => `${ident(n.file)}.de`).join(', ') || '{}'});`,
@@ -246,7 +264,7 @@ function writeNewsSplit(r) {
   const oldDe = {};
   for (const n of old) Object.assign(oldDe, readNewsFile(n.file).de ?? {});
   const shared = sharedDe(oldDe, uiText());
-  const entry = (n) => `  { ...${ident(n.file)}, id: ${JSON.stringify(n.file.slice(0, -3))}, version: ${JSON.stringify(n.version)}, date: ${JSON.stringify(n.date)} },`;
+  const entry = entryLine;
   const files = {
     'neu.gen.js': [
       '// Written by scripts/news.mjs (vite.config.js, playwright.config.js). Not in git, do not edit.',
