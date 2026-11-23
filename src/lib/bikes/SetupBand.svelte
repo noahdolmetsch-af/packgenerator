@@ -7,13 +7,11 @@
    * «+ Velo» dashed, then the bike's name as the section title with its numbers below.
    * VS3 (Noah 14.10.2026 «1a»): the standard bike (first in the order) has a star; one quiet line
    * «Standard bike and order · Change» opens the order window.
-   * «Neuer Schwung» Velos (Noah 27.10.2026 «1a 2a 3a», style S2 «Kacheln mit Tiefe»): the bikes are small cards
-   * with a drawn bike, the name and «type · km»; the chosen one framed in the accent, its bike rolls in. The cards
-   * come in one after another (opacity only); nothing moves with «Reduce motion».
+   * Velos aufräumen (Noah 23.11.2026): the bikes stand once, as the cards above (BikeCards); the small cards that
+   * were here (a second row of the same bikes) are gone. The chosen bike is the card with the frame; «Show details» chooses it.
    */
-  import { tick } from 'svelte';
-  import { Gauge, Weight, Briefcase, Pencil, Plus, Scale, Star, Check } from '@lucide/svelte';
-  import { t, tn, num, locale } from '../i18n.svelte.js';
+  import { Gauge, Weight, Briefcase, Pencil, Scale, Star, Check } from '@lucide/svelte';
+  import { t, tn, num, locale, importText } from '../i18n.svelte.js';
   import { formatVolume, bikeTypeName, bikesHash } from '../bikes.js';
   import { velosHref } from '../analyse/jump.js';
   import { openTrip } from '../nav.js';
@@ -23,29 +21,14 @@
   import './standardvelo.css';
   import MoreActions from '../ui/MoreActions.svelte';
 
-  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', ride = null, onbike, onadd, onedit, onorder = null, menu = [], link = null } = $props();
+  let { bikes, bike, setup, kind, cost = '', due = 0, careHref = '', sub = '', ride = null, onedit, onorder = null, menu = [], link = null } = $props();
 
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
   const bagsG = $derived(setup.bagCount && setup.unweighed < setup.bagCount ? formatWeight(setup.bagsG) : '');
-  let strip = $state();
-  let row = $state();
-  // the chosen bike stands first on a phone: show the row from its start again
-  $effect(() => {
-    void bike.id;
-    if (row) row.scrollLeft = 0;
-  });
-  function keys(e) {
-    const i = bikes.findIndex((b) => b.id === bike.id);
-    const to = e.key === 'ArrowRight' ? i + 1 : e.key === 'ArrowLeft' ? i - 1 : null;
-    if (to == null || to < 0 || to >= bikes.length) return;
-    e.preventDefault();
-    onbike?.(bikes[to].id);
-    tick().then(() => strip?.querySelector('[aria-selected="true"]')?.focus());
-  }
   // Gesamttest 20.10.2026 C8: the type stays in the line; «What you use it for» (often a long note) is its
   // own quiet line below, at most two lines, «more» shows all of it. It is changed with «Edit».
   const kick = $derived(bike.type ? t(bikeTypeName(bike.type)) : '');
-  const use = $derived(String(bike.use ?? '').trim());
+  const use = $derived(importText(String(bike.use ?? '').trim()));
   let useEl = $state();
   let useOpen = $state(false);
   let useLong = $state(false);
@@ -67,24 +50,12 @@
   });
 </script>
 
-<section class="setup-band" aria-label={t('Bike')}>
+<section class="setup-band" aria-label={t('Bike')} data-bike-detail>
   {#if sub || ride}
     <!-- V1: «next trip» is a way to that trip's packing list (it was a sentence); the trip is chosen first, then the plain link opens Pack
          (switchTrip would reload this page for the new address before the address has changed) -->
     <p class="page-sub vb-sub">{sub}{#if ride}{sub ? ' · ' : ''}<a class="vb-ride" href="#/pack" data-bike-ride onclick={() => openTrip(ride.id)}>{ride.text}</a>{#if ride.fit}{' · '}<a class="vb-fit {ride.fit.tone}" href={ride.fit.href} data-bike-ride-fit>{#if ride.fit.tone === 'ok'}<Check size={13} aria-hidden="true" />{/if}{ride.fit.text}</a>{/if}{/if}</p>
   {/if}
-  <div class="tabsrow" bind:this={row}>
-    <div class="strip" bind:this={strip} role="tablist" aria-label={t('Bike')} tabindex="-1" onkeydown={keys}>
-      {#each bikes as b, i (b.id)}
-        <button type="button" role="tab" class="bcard" aria-selected={b.id === bike.id} tabindex={b.id === bike.id ? 0 : -1} title={b.name} style:--i={i} onclick={() => onbike?.(b.id)} data-bike-card>
-          <svg class="mini" viewBox="0 0 72 40" aria-hidden="true"><circle cx="15" cy="27" r="11" /><circle cx="57" cy="27" r="11" /><path d="M15 27 L32 27 L28 12 Z M28 12 L50 11 L57 27 M50 11 L52 6 M24 9 L33 9 M32 27 L50 11" /></svg>
-          <span class="bt"><span class="bn">{b.name}</span>{#if b.id === bikes[0]?.id && bikes.length > 1}<Star size={13} class="sv-star" aria-hidden="true" />{/if}</span>
-          <small class="bs num" title={b.type ? t(bikeTypeName(b.type)) : undefined}>{[b.type ? t(bikeTypeName(b.type)).replace(/\//g, '/\u200b') : '', b.km != null ? `${num(b.km)} km` : ''].filter(Boolean).join(' · ') || ' '}</small>
-        </button>
-      {/each}
-    </div>
-    <button type="button" class="add bcard" style:--i={bikes.length} onclick={() => onadd?.()} aria-label={t('Add bike')} title={t('Add bike')}><Plus size={18} aria-hidden="true" /><span class="addt">{t('Bike')}</span></button>
-  </div>
   {#if onorder && bikes.length > 1}
     <p class="sv-line"><Star size={14} class="sv-star" aria-hidden="true" /><span>{t('Standard bike and order')}</span><button type="button" class="link" onclick={() => onorder()}>{t('Change')}</button></p>
   {/if}
@@ -118,7 +89,7 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 6px;
-    margin: -8px 0 16px;
+    margin: 0 0 12px;
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
@@ -133,117 +104,7 @@
     cursor: pointer;
   }
   .vb-sub {
-    margin: -6px 0 12px;
-  }
-  .tabsrow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0 0 20px;
-  }
-  /* The tabs and «+ Velo» wrap as one row of chips. */
-  .strip {
-    display: contents;
-  }
-  .tabsrow .bcard {
-    display: inline-grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-content: start;
-    justify-items: start;
-    gap: 2px;
-    width: 172px;
-    max-width: 100%;
-    min-height: 96px;
-    padding: 10px 12px;
-    box-sizing: border-box;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: var(--paper);
-    box-shadow: 0 1px 2px var(--shadow), 0 4px 12px -8px var(--shadow);
-    color: var(--ink);
-    font: 500 var(--fs-small) / 1.25 var(--font-body);
-    text-align: left;
-    cursor: pointer;
-  }
-  .mini {
-    width: 54px;
-    height: 30px;
-    margin: 0 0 4px;
-    fill: none;
-    stroke: var(--ink-3);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .bt {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    max-width: 100%;
-    font-weight: 600;
-  }
-  .strip .bn {
-    min-width: 0;
-    overflow-wrap: break-word;
-  }
-  /* A long type from an import («A/B (Quelle)») no longer breaks in the middle of a word: it may break after the
-     slash, and a third line is cut with «…». The chosen card shows all of it. */
-  .bs {
-    max-width: 100%;
-    color: var(--ink-3);
-    font-weight: 400;
-    overflow-wrap: break-word;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
-  }
-  .strip .bcard[aria-selected='true'] .bs {
-    display: block;
-    -webkit-line-clamp: unset;
-    line-clamp: unset;
-  }
-  .strip .bcard[aria-selected='true'] {
-    border-color: var(--accent);
-    box-shadow: inset 0 0 0 1px var(--accent), 0 6px 16px -10px var(--shadow);
-    background: color-mix(in srgb, var(--accent) 7%, var(--paper));
-  }
-  .strip .bcard[aria-selected='true'] .mini {
-    stroke: var(--accent);
-  }
-  .tabsrow .add {
-    place-content: center;
-    justify-items: center;
-    width: 96px;
-    border-style: dashed;
-    border-color: var(--line-strong);
-    box-shadow: none;
-    color: var(--ink-2);
-  }
-  @media (hover: hover) {
-    .tabsrow .bcard:not([aria-selected='true']):hover {
-      background: var(--paper-2);
-    }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .tabsrow .bcard {
-      animation: vb-in 320ms ease-out calc(min(var(--i, 0), 8) * 40ms) backwards;
-    }
-    .strip .bcard[aria-selected='true'] .mini {
-      animation: vb-roll 520ms ease-out;
-    }
-  }
-  @keyframes vb-in {
-    from {
-      opacity: 0;
-    }
-  }
-  @keyframes vb-roll {
-    from {
-      translate: -10px 0;
-      opacity: 0.4;
-    }
+    margin: 0 0 8px;
   }
   .name {
     display: flex;
@@ -433,42 +294,5 @@
     top: 50%;
     height: 44px;
     transform: translateY(-50%);
-  }
-  /* Impeccable Runde 2 (Ausstattung 2): on a phone the bikes are one row to swipe, the chosen one first
-     and the right end fading out, like BikeChips on the other Velo pages. */
-  @media (max-width: 599px) {
-    .tabsrow {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      scrollbar-width: none;
-      padding-right: 32px;
-      -webkit-mask-image: linear-gradient(to right, var(--ink) calc(100% - 40px), transparent);
-      mask-image: linear-gradient(to right, var(--ink) calc(100% - 40px), transparent);
-    }
-    .tabsrow::-webkit-scrollbar {
-      display: none;
-    }
-    .tabsrow .bcard {
-      flex: none;
-      width: 150px;
-      max-width: 80vw;
-    }
-    .tabsrow .add {
-      width: 84px;
-    }
-    .strip .bn {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .strip .bcard[aria-selected='true'] {
-      order: -1;
-    }
-  }
-  @media print {
-    .tabsrow {
-      display: none;
-    }
   }
 </style>

@@ -99,7 +99,8 @@ test('Touren: the three states on cards and rows, chips with numbers, a pill on 
   // UI-Test T6 (G2-03, changed on purpose): «4 geplant · 17 gefahren seit Beginn · 3 warten auf deinen Rückblick»
   const nDone = await nState('done');
   const ridden = `${T('{n} ridden', { n: await done.locator('[data-trip-list] li[data-row]').count() })} ${T('since the start')}`;
-  const waits = nDone ? T(nDone === 1 ? '{n} waits for your review' : '{n} wait for your review', { n: nDone }) : '';
+  // «Touren-Liste aufräumen» (Noah 23.11.2026, changed on purpose): on a computer the tile «Offene Rückblicke» says it once, the line is only for a phone
+  const waits = nDone && info.project.name === 'phone' ? T(nDone === 1 ? '{n} waits for your review' : '{n} wait for your review', { n: nDone }) : '';
   await expect(page.locator('.trips .ph .cnt[data-counts]')).toHaveText([T('{n} planned', { n: counts.plan }), ridden, waits].filter(Boolean).join(' · '));
   const chips = tools.getByRole('group', { name: T('Show trips') }).getByRole('button');
   await expect(chips).toHaveCount(1 + LIST_STATES.length);

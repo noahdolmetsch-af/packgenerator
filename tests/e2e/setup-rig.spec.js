@@ -7,6 +7,7 @@ import { test, expect } from './clock.js';
 import { writeFileSync } from 'node:fs';
 import { v048Data, P, GRAVEL, day } from './v048-fixture.js';
 import { openData, settle } from './settle.js';
+import { TABS } from './placetab.js';
 
 const SHOTS = process.env.RIG_SHOTS;
 const shot = async (page, info, name) => SHOTS && (await page.screenshot({ path: `${SHOTS}/${name}-${info.project.name}.png`, fullPage: true }));
@@ -64,8 +65,9 @@ async function start(page, context, info) {
 test('Setup: photos, weight, bag plan, log, compare, races and own links on one page', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto(`./#/bikes?tab=rig&bike=${GRAVEL}`);
-  // V5 (21.11.2026): «Mein Setup» is a chip under the tab «Velos» (before: a tab of its own)
-  await expect(page.locator('nav.psubs').getByRole('link', { name: 'Mein Setup' })).toHaveAttribute('aria-current', /page|true/);
+  // Velos aufräumen (23.11.2026): the tab «Velos» lights, and there is no row of chips under it (Mein Setup is a row of the bike page)
+  await expect(page.locator(TABS).first().locator('a[aria-current="page"]')).toHaveText('Velos');
+  await expect(page.locator('nav.psubs')).toHaveCount(0);
   // Impeccable Runde 2 (Setup 1+3): its own head «Mein Setup» (Taschen-Setups TS: the tab's name); «Fotos vom Setup»;
   // compare, races and ideas in a fold «Ideen und Rennen · n Links», open because links are there.
   await expect(page.getByRole('heading', { level: 1, name: 'Mein Setup', exact: true })).toBeVisible();

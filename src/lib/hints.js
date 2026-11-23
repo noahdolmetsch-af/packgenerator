@@ -18,6 +18,16 @@ export const HINTS = {
     ],
     jumps: [['Due now', 'due-h'], ['Bikes', 'bikes-h'], ['For the bike shop', 'shop-h'], ['Costs', 'cost-h'], ['Bike diary', 'diary-h']],
   },
+  // Velos aufräumen (Noah 23.11.2026): «So geht's» and «Was du hier tun kannst» were two help rows on Velos; the first one lives in the «?» window now
+  velos: {
+    lead: ['Here are your bikes, each with its bags, km and care.', 'A card says what is due; «Show details» opens the bike with its bag drawing.'],
+    uses: [
+      ['bike', 'Before a trip', 'choose the bike and look at its bags'],
+      ['wrench', 'After a ride', 'the km come by themselves, wear is counted'],
+      ['columns', 'Two bikes', '«Compare bikes» puts them side by side'],
+    ],
+    jumps: [],
+  },
   gear: {
     lead: ['Here is everything you own.', 'Each dot is a trip of the last 12 months, so you see what proves itself and what only rides along.'],
     uses: [
@@ -80,7 +90,7 @@ export const HINTS = {
       ['shirt', 'Before a trip', 'the trip range shows what to take'],
       ['layers', 'Gaps', 'the onion shows where a layer is missing'],
     ],
-    jumps: [['What do I wear today?', 'w-today'], ['Your onion', 'onion-h'], ['Your kits', 'kits-h']],
+    jumps: [['Your onion', 'onion-h'], ['Your kits', 'kits-h']],
   },
   workshop: {
     lead: ['Here are your visits to the bike shop and their receipts.', 'What waits for the bike shop is on the left, the visits and costs on the right.'],

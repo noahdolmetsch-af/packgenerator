@@ -9,3 +9,6 @@ export const tagText = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDate
 export const tagKurz = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '');
 /** The moment prices were fetched, on the device's clock: «22.11.2026, 09:12». */
 export const stundeText = (iso) => (iso ? new Date(iso).toLocaleString(locale(), { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '');
+
+/** A short label for the middle of an axis: «20. Okt.» inside a year, «Okt. 2026» over a longer stretch. */
+export const tagMitte = (day, lang = false) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), lang ? { month: 'short', year: 'numeric', timeZone: 'UTC' } : { day: 'numeric', month: 'short', timeZone: 'UTC' }) : '');

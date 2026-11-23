@@ -28,3 +28,16 @@ export const answer = (id, fetchedAt = new Date().toISOString()) => {
   const [day, close] = f.points[f.points.length - 1];
   return { ...f, since: f.points[0][0], last: { day, close }, fetchedAt };
 };
+
+/**
+ * A title of the person («y:SYMBOL»): a series of its own from the symbol, invented. A symbol that starts with «NOPE» is
+ * unknown to the service (a typo the test makes on purpose).
+ */
+export function titelAnswer(id, fetchedAt = new Date().toISOString()) {
+  const sym = id.slice(2);
+  if (sym.startsWith('NOPE')) return null;
+  const h = [...sym].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 100003, 7);
+  const points = walk(h, '2012-01-02', LAST, LAST, 20 + (h % 900), 0.0003, 0.012);
+  const [day, close] = points[points.length - 1];
+  return { id, currency: /-USD$|=F$|^(URA|GDX)$/.test(sym) ? 'USD' : 'CHF', unit: 'price', source: 'yahoo', since: points[0][0], last: { day, close }, fetchedAt, points };
+}

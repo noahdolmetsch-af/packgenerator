@@ -177,11 +177,15 @@ const grams = (list) => list.reduce((s, i) => s + (itemWeight(i) ?? 0), 0);
 
 /**
  * The whole wardrobe for one filter: { all, unsorted, layers: [{ key, n, g, zones: [{ key, items }] }], n, g }.
- * all: the clothing in this filter (owned, unclear and wishlist items; not gone). unsorted: items
+ * all: the clothing in this filter (owned and unclear items; not gone, not wishes). wishes: the wishlist
+ * clothing of this filter, apart. unsorted: items
  * without a layer or zone, each with its guesses { item, layer, zone, guessLayer, guessZone }.
  */
+const WISH = new Set(['wishlist', 'to-buy']);
 export function wardrobe(items = [], use = 'all', { gaps = [] } = {}) {
-  const all = items.filter((i) => isClothing(i) && inUse(i, use)).sort(byName);
+  // Kleider «heute» (Noah 23.11.2026): wishes (not yours yet) stand apart, not between the clothes you own
+  const wishes = items.filter((i) => isClothing(i) && inUse(i, use) && WISH.has(i.ownership)).sort(byName);
+  const all = items.filter((i) => isClothing(i) && inUse(i, use) && !WISH.has(i.ownership)).sort(byName);
   const unsorted = [];
   const placed = [];
   for (const i of all) {
@@ -201,7 +205,7 @@ export function wardrobe(items = [], use = 'all', { gaps = [] } = {}) {
     })).filter((z) => z.items.length || z.gap);
     return { key: l.key, n: mine.length, g: grams(mine.map((p) => p.item)), zones };
   }).filter((l) => l.n || l.zones.length);
-  return { all, unsorted, layers, n: all.length, g: grams(all) };
+  return { all, unsorted, layers, wishes, n: all.length, g: grams(all) };
 }
 
 /* ---------- temperature: the coldest riding hour ---------- */
@@ -608,11 +612,28 @@ export function onionRows(own = [], c, wet = false, rule = null) {
   for (const row of ONION) {
     if (!row.need(c, wet, L) && row.key !== 'legs') continue;
     const rain = row.key === 'outer' && wet;
-    const fits = own.filter((i) => matchesRow(row, i) && warmEnough(i, c) && (!rain || rainProof(i)));
+    let fits = own.filter((i) => matchesRow(row, i) && warmEnough(i, c) && (!rain || rainProof(i)));
+    // Kleider «heute» (Noah 23.11.2026): in the cold a piece must say what it is made for; one without a
+    // range or class is not guessed (the ultra-thin «warm rides» jersey, the glasses case in the head row),
+    // and a piece at the very edge of its range yields to one with two degrees to spare.
+    if (c < COOL_BELOW && row.need(c, wet, L)) {
+      // the rain shell is the exception: it keeps the rain out, the warmth comes from the layers under it; one that says
+      // its range still goes first
+      const known = fits.filter(hasRange);
+      fits = rain && !known.length ? fits : known;
+      const spare = fits.filter((i) => typeof i.tempMin !== 'number' || i.tempMin <= c - SPARE);
+      if (spare.length) fits = spare;
+    }
     rows.push({ key: row.key, name: row.name, item: best(fits, c, rule?.prefer), rain });
   }
   return rows;
 }
+/** Below this felt temperature (°C) the suggestion only takes pieces that state a range or class. */
+export const COOL_BELOW = 15;
+/** The degrees a piece's lower border should be below the felt temperature to be suggested in the cold. */
+export const SPARE = 2;
+/** Does a piece say what it is made for (a lower border or a class)? */
+export const hasRange = (i) => typeof i?.tempMin === 'number' || !!i?.tempClass;
 
 /**
  * The ride "What do I wear today?" is for (decision 9), as the Day ride button picks its day
