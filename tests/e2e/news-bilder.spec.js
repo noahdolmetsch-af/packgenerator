@@ -2,9 +2,9 @@
 // pictures of «What is new». This is a tool, not a check: it runs only when NEWS_BILDER is set (names of news files without
 // «.js», separated by blanks, or «all») and is skipped otherwise. `npm run news:bilder` sets it up (scripts/news-bilder.mjs).
 //
-// For every line of a news file that has an exact place (`go` with steps, or a function of the catalogue) it takes
-//   public/news/<name>/<line>-nachher.jpg   the lit spot after the change, from «Try it» on the phone (390 px, fictional data)
-//   public/news/<name>/<line>-vorher.jpg    the same cut of the same page in the app before the change (BASE_URL), only when
+// For every line of a news file that has an exact place (`go` with steps, or a function of the catalogue; a line with only `where` has none) it takes
+//   public/news/<name>/<line>-nachher.webp  the lit spot after the change, from «Try it» on the phone (390 px, fictional data)
+//   public/news/<name>/<line>-vorher.webp   the same cut of the same page in the app before the change (BASE_URL), only when
 //                                           the place existed there and looks different
 // <line> counts the lines of the news file, main points first, then the small things, from 1. At most MAX_LINES per file.
 // Fictional data only (gesamttest fixture), light mode, German, clock at noon.
@@ -20,7 +20,7 @@ const WANT = process.env.NEWS_BILDER;
 const BASE = process.env.BASE_URL || '';
 const OUT = new URL('../../public/news/', import.meta.url).pathname;
 const MAX_LINES = 3;
-const QUALITY = 70;
+const QUALITY = 0.8; // webp, 0 to 1
 
 const names = !WANT ? [] : WANT === 'all' ? NEWS.map((e) => e.id) : WANT.split(/\s+/).filter(Boolean);
 
@@ -33,7 +33,7 @@ function linesOf(e) {
   const out = [];
   items.forEach((p, i) => {
     const g = Object.hasOwn(p, 'go') ? p.go : null;
-    if (typeof g === 'string' || (g && typeof g === 'object' && g.steps?.length && !g.where)) out.push({ line: i + 1, text: p.text, go: g });
+    if (typeof g === 'string' || (g && typeof g === 'object' && g.steps?.length)) out.push({ line: i + 1, text: p.text, go: g });
   });
   return out.slice(0, MAX_LINES);
 }
@@ -65,6 +65,28 @@ async function tapSteps(page, steps) {
   }, steps);
 }
 
+/** A PNG as WebP, made by the browser itself (a canvas), so no extra program is needed; `codec` is an empty page. */
+async function toWebp(codec, png) {
+  const b64 = await codec.evaluate(
+    async ({ data, q }) => {
+      const img = new Image();
+      img.src = `data:image/png;base64,${data}`;
+      await img.decode();
+      const c = document.createElement('canvas');
+      c.width = img.width;
+      c.height = img.height;
+      c.getContext('2d').drawImage(img, 0, 0);
+      const blob = await new Promise((ok) => c.toBlob(ok, 'image/webp', q));
+      const buf = new Uint8Array(await blob.arrayBuffer());
+      let s = '';
+      for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+      return btoa(s);
+    },
+    { data: png.toString('base64'), q: QUALITY },
+  );
+  return Buffer.from(b64, 'base64');
+}
+
 const shown = (s) => {
   if (s.sel) return s;
   const text = T(s.text ?? s.aria);
@@ -74,6 +96,8 @@ const shown = (s) => {
 test('pictures of the news', async ({ page, context, browser }, info) => {
   expect(info.project.name, 'run it with --project=phone').toBe('phone');
   await start(page, context, info);
+  const codec = await context.newPage();
+  await codec.goto('about:blank');
   let before = null; // { page, context } on the app before the change
   const baseCtx = async () => {
     if (!BASE) return null;
@@ -88,7 +112,10 @@ test('pictures of the news', async ({ page, context, browser }, info) => {
   const made = [];
   for (const id of names) {
     const e = NEWS.find((n) => n.id === id);
-    if (!e) throw new Error(`no news file «${id}»`);
+    if (!e) {
+      made.push(`${id}: no such news file, skipped`);
+      continue;
+    }
     const dir = `${OUT}${id}/`;
     for (const { line, text, go } of linesOf(e)) {
       // «Try it» of that line, the way a reader taps it (as tests/e2e/ausprobieren.spec.js does)
@@ -97,10 +124,15 @@ test('pictures of the news', async ({ page, context, browser }, info) => {
       await page.locator('main h1').first().waitFor({ timeout: 8000 }).catch(() => {});
       await settle(page);
       await page.getByRole('searchbox', { name: T('Find an update') }).fill(e.version);
-      await page.locator(`[data-row="${e.version}"]`).first().click().catch(() => {});
+      await page.locator(`[data-row="${e.version}"]`).first().click({ timeout: 5000 }).catch(() => {});
       const box = page.locator(`[data-newest="${e.version}"], .wn-vopen`).first();
       await page.evaluate(() => document.querySelector('.spot-note')?.remove());
-      await box.getByRole('link', { name: T(text), exact: false }).first().click();
+      try {
+        await box.getByRole('link', { name: T(text), exact: false }).first().click({ timeout: 8000 });
+      } catch {
+        made.push(`${id} line ${line}: link not found`);
+        continue;
+      }
       const lit = page.locator('[data-spot-on]').first();
       try {
         await lit.waitFor({ state: 'visible', timeout: 10_000 });
@@ -124,10 +156,11 @@ test('pictures of the news', async ({ page, context, browser }, info) => {
       });
       await page.evaluate(() => document.querySelectorAll('.spot-note').forEach((n) => (n.style.display = 'none')));
       mkdirSync(dir, { recursive: true });
-      const after = await page.screenshot({ type: 'jpeg', quality: QUALITY, clip, animations: 'disabled' });
-      writeFileSync(`${dir}${line}-nachher.jpg`, after);
-      rmSync(`${dir}${line}-vorher.jpg`, { force: true });
+      const after = await page.screenshot({ type: 'png', clip, animations: 'disabled' });
+      writeFileSync(`${dir}${line}-nachher.webp`, await toWebp(codec, after));
+      rmSync(`${dir}${line}-vorher.webp`, { force: true });
       made.push(`${id} line ${line}: nachher`);
+      console.log(made.at(-1));
       // before: the same page in the app before the change, same steps but the last, same scroll and cut
       const steps = go && typeof go === 'object' ? go.steps : null;
       const b0 = steps && (await baseCtx());
@@ -142,9 +175,9 @@ test('pictures of the news', async ({ page, context, browser }, info) => {
             await b0.page.waitForTimeout(600);
             await b0.page.evaluate((y0) => window.scrollTo(0, y0), scrollY);
             await b0.page.waitForTimeout(300);
-            const was = await b0.page.screenshot({ type: 'jpeg', quality: QUALITY, clip, animations: 'disabled' });
+            const was = await b0.page.screenshot({ type: 'png', clip, animations: 'disabled' });
             if (!was.equals(after)) {
-              writeFileSync(`${dir}${line}-vorher.jpg`, was);
+              writeFileSync(`${dir}${line}-vorher.webp`, await toWebp(codec, was));
               made.push(`${id} line ${line}: vorher`);
             }
           }
