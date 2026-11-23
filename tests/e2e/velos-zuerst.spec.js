@@ -10,7 +10,7 @@ test('on Bikes the bike cards stand above the function tiles', async ({ page, co
   await page.reload();
   await page.locator('main').waitFor();
   await settle(page);
-  const card = page.locator('[data-bike-card]').first();
+  const card = page.locator('[data-velo-card]').first();
   const all = page.locator('[data-all-here="bikes"]');
   await expect(card).toBeVisible();
   await expect(all).toHaveCount(1);

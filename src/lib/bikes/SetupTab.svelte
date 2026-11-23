@@ -48,7 +48,7 @@
   import { upcomingTrips } from '../care.js';
   import { bikeCare, bikeCareWords } from '../readiness.js';
   import { nextForShop } from './who.js';
-  import { t, tn, num, nameOf, bagName, dateOf } from '../i18n.svelte.js';
+  import { t, tn, num, nameOf, bagName, dateOf, importText } from '../i18n.svelte.js';
   import { phone } from '../media.svelte.js';
   import TipLine from '../pageinfo/TipLine.svelte';
   // Impeccable Runde 2 (18.10.2026, Velos 2): «Hersteller und Garantie» (SK X9) is entered from the bike's «…»;
@@ -432,11 +432,12 @@
    * right away, the name and everything else in one window (was: only «Rename bike», v0.72.0).
    */
 
-  function chooseBike(id) {
-    onbike?.(id);
+  // Velos aufräumen: the bike is chosen on the cards above (BikeCards); a new bike clears the open place and sheet
+  $effect(() => {
+    void bike?.id;
     activeSlot = null;
     sheet = null;
-  }
+  });
 
   // WS5 «Wieder sichtbar» (Noah 14.10.2026 «ws1-ws7 freigeben»): what the bike costs, back in its head
   // line (since 0.107 only in «Ausstattung»): the workshop this year and per 1000 km, when known.
@@ -454,7 +455,7 @@
     <!-- v0.127.0 A-U2: the one empty building block -->
     <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
   {:else if bike}
-    <SetupBand {bikes} {bike} {setup} {sub} {ride} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onbike={chooseBike} onadd={() => (bikeDialog = { bike: null })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
+    <SetupBand {bikes} {bike} {setup} {sub} {ride} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
 
     <!-- «Alltag sichtbar» (Noah 24.10.2026 «1a 2b», use cases 177–181, 198): the bike's folder and photos one tap
          away, under the names of «What the app can do» (were only in the fold «More» at the bottom) -->
@@ -602,12 +603,12 @@
               <SheetFolder {bike} />
             </SetupFold>
             <div bind:this={photosEl}></div>
-            <SetupFold flat icon={ImageIcon} bind:open={photosOpen} label={t('Photos')} summary={`${gallery.length ? tn(gallery.length, '{n} photo', '{n} photos') : t('no photo yet')}${gallery.find((p) => p.main) ? ` · ${t('in Pack: {name}', { name: gallery.find((p) => p.main).name })}` : ''}`}>
+            <SetupFold flat icon={ImageIcon} bind:open={photosOpen} label={t('Photos')} summary={`${gallery.length ? tn(gallery.length, '{n} photo', '{n} photos') : t('no photo yet')}${gallery.find((p) => p.main) ? ` · ${t('in Pack: {name}', { name: importText(gallery.find((p) => p.main).name) })}` : ''}`}>
               <div class="gal" aria-label={t('Photos of the {bike}', { bike: bike.name })}>
                 {#each gallery as p, n (p.id)}
-                  <button type="button" class="th" class:main={p.main} onclick={() => (shown = n)} aria-label={p.main ? t('Open photo {name}, shown in Pack', { name: p.name }) : t('Open photo {name}', { name: p.name })}>
+                  <button type="button" class="th" class:main={p.main} onclick={() => (shown = n)} aria-label={p.main ? t('Open photo {name}, shown in Pack', { name: importText(p.name) }) : t('Open photo {name}', { name: importText(p.name) })}>
                     <img src={p.src} alt="" loading="lazy" />
-                    <span>{p.name}</span>
+                    <span>{importText(p.name)}</span>
                   </button>
                 {/each}
                 <label class="th add">{adding ? t('Reading…') : t('+ Photo')}<input type="file" accept="image/*" multiple onchange={addPhotos} hidden disabled={adding} /></label>
@@ -618,6 +619,8 @@
               {#if photoMsg}<p class="photo-err" role="alert">{photoMsg}</p>{/if}
             </SetupFold>
             <!-- v0.48.0 (Noah): all bikes' parts, values and geometry side by side, two taps from Bikes. -->
+            <!-- Velos aufräumen (Noah 23.11.2026): «Mein Setup» was a chip under the tab Velos; the chips are gone, so it is a row here -->
+            <a class="vk-row" href={bikesHash({ tab: 'rig', bike: bike.id })} data-my-setup-row><span class="ib"><Briefcase size={18} aria-hidden="true" /></span><span class="m"><b>{t('My setup|tab')}</b><small>{t('Bag setups, photos, weight, setup log')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
             <a class="vk-row cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><span class="ib"><ArrowLeftRight size={18} aria-hidden="true" /></span><span class="m"><b class="cl">{t('Compare bikes')}</b><small class="sum">{t('Fit, parts, values, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
             <SetupFold flat cls="vm-profile" icon={MoreHorizontal} bind:open={profileOpen} label={t('Profile and settings')} summary={t('Rider {weight} · rear wheel hint over {pct} %', { weight: $riderQ?.value ? formatWeight($riderQ.value) : t('not set'), pct: $rearQ?.value ?? 60 })}>
               {#if profile}
@@ -720,7 +723,7 @@
         {#each g.list as b (b.id)}
           <li>
             <button type="button" onclick={() => (dialog = { bag: b })}>
-              <span class="nm">{b.name}</span>
+              <span class="nm">{bagName(b.name)}</span>
               <span class="bg">{onBikes(b.id).join(', ') || t('Not on a bike')}</span>
               <span class="v num">{formatVolume(b.volumeL)}</span>
               <span class="w num">{#if bagWeight(b) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{:else}{formatWeight(bagWeight(b))}{/if}</span>

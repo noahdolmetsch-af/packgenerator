@@ -724,6 +724,7 @@ import quicklinks from './quicklinks.js';
 // Velo-Ideen 71–76 (996 Ideen, Noah 25.10.2026); spread last
 import veloideen from './veloideen.js';
 import einheitenWoche from './einheiten-woche.js';
+import velosAufraeumen from './velos-aufraeumen.js';
 import ichVierGruppen from './ich-vier-gruppen.js';
 import AUTO from './auto.gen.js';
 
@@ -1119,6 +1120,7 @@ const ORDERED = [
   quicklinks,
   veloideen,
   einheitenWoche,
+  velosAufraeumen,
   ichVierGruppen,
   applehealth,
 ];

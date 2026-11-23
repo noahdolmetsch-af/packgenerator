@@ -17,8 +17,8 @@ test('Velos und Material: four tabs, the old pages as chips, every address still
   for (const href of ['#/bikes', '#/bikes?tab=care', '#/gear', '#/blocks']) await expect(tabs.locator(`a[href="${href}"]`)).toHaveCount(1);
   await expect(page.locator('[data-place-switch]')).toHaveCount(0);
   const chips = page.locator('nav.psubs');
-  await expect(chips.locator('a')).toHaveCount(3); // Velos: Übersicht, Ausrüstung, Mein Setup
-  await expect(chips.locator('a[data-sub="overview"]')).toHaveAttribute('aria-current', 'page');
+  await expect(chips).toHaveCount(0); // Velos aufräumen (23.11.2026): no chips under «Velos»; Teile and Mein Setup are rows of the page
+  await expect(page.locator('[data-my-setup-row]')).toBeVisible();
   await page.screenshot({ path: info.outputPath('velos-material-velos.png') });
 
   await tabs.locator('a[href="#/gear"]').click();
@@ -31,10 +31,10 @@ test('Velos und Material: four tabs, the old pages as chips, every address still
   await noSideScroll(page);
 
   // every old page opens at its old address and lights its tab and its chip
-  for (const [hash, tab, sub] of [['#/bikes?tab=care', '#/bikes?tab=care', 'care'], ['#/care', '#/bikes?tab=care', 'care'], ['#/bikes?tab=shop', '#/bikes?tab=care', 'shop'], ['#/bikes?tab=compare', '#/bikes', 'fit'], ['#/bikes?tab=rig', '#/bikes', 'rig'], ['#/gear?view=wish', '#/gear', 'wish'], ['#/gear/supplies', '#/gear', 'supplies'], ['#/gear/lend', '#/gear', 'lend'], ['#/blocks', '#/blocks', 'blocks'], ['#/equipment', '#/blocks', 'sets']]) {
+  for (const [hash, tab, sub] of [['#/bikes?tab=care', '#/bikes?tab=care', 'care'], ['#/care', '#/bikes?tab=care', 'care'], ['#/bikes?tab=shop', '#/bikes?tab=care', 'shop'], ['#/bikes?tab=compare', '#/bikes', null], ['#/bikes?tab=rig', '#/bikes', null], ['#/gear?view=wish', '#/gear', 'wish'], ['#/gear/supplies', '#/gear', 'supplies'], ['#/gear/lend', '#/gear', 'lend'], ['#/blocks', '#/blocks', 'blocks'], ['#/equipment', '#/blocks', 'sets']]) {
     await page.goto(`./${hash}`);
     await expect(tabs.locator(`a[href="${tab}"]`), hash).toHaveAttribute('aria-current', /page|true/);
-    await expect(chips.locator(`a[data-sub="${sub}"]`), hash).toHaveAttribute('aria-current', 'page');
+    if (sub) await expect(chips.locator(`a[data-sub="${sub}"]`), hash).toHaveAttribute('aria-current', 'page');
   }
   expect(errors).toEqual([]);
 });

@@ -1,34 +1,30 @@
-// «Neuer Schwung» Velos (Noah 27.10.2026 «1a 2a 3a», style S2 «Kacheln mit Tiefe»): the bikes on Velos are small
-// cards with a drawn bike, the name and «type · km»; the chosen one is framed and its bike rolls in; the cards come
-// in one after another; nothing moves with «Bewegung reduzieren». Fictional data.
+// Velos aufräumen (Noah 23.11.2026): the bikes stand once, as the big cards on top. The small cards under them (a second
+// row of the same bikes) are gone; «Show details» chooses a bike, «Add bike» is the dashed card at the end. Fictional data.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
-const anim = (loc) => loc.evaluate((el) => getComputedStyle(el).animationName);
-
-test('Velos: the bikes are cards with a drawing, name and km; a tap chooses one', async ({ page, context }, info) => {
+test('Velos: the bikes stand once, Show details chooses one', async ({ page, context }, info) => {
   await openHome(page, context, info);
   await page.goto('./#/bikes');
-  const cards = page.locator('section.setup-band [data-bike-card]');
+  const cards = page.locator('[data-velo-card]');
   await expect(cards.nth(1)).toBeVisible(); // the page loads later: wait for the cards before counting
   expect(await cards.count()).toBeGreaterThan(1);
-  await expect(cards.first().locator('svg.mini')).toBeVisible();
-  await expect(cards.first().locator('.bs')).toContainText('km');
-  expect(await anim(cards.first())).toMatch(/vb-in$/);
+  // no second row of the same bikes
+  await expect(page.locator('section.setup-band [data-bike-card]')).toHaveCount(0);
+  await expect(page.locator('section.setup-band').getByRole('tab')).toHaveCount(0);
   const second = cards.nth(1);
-  const name = await second.locator('.bn').textContent();
-  await second.click();
-  await expect(page.locator('section.setup-band [data-bike-card][aria-selected="true"] .bn')).toHaveText(name);
-  const sel = page.locator('section.setup-band [data-bike-card][aria-selected="true"]');
-  expect(await anim(sel.locator('svg.mini'))).toMatch(/vb-roll$/);
+  const name = await second.locator('.nm').textContent();
+  await second.locator('[data-card-details]').click();
+  await expect(page.locator('[data-velo-card][aria-current="true"] .nm')).toHaveText(name);
+  await expect(page.locator('section.setup-band h2.name')).toContainText(name);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
 });
 
-test('Velos with reduce motion: the cards stand still', async ({ page, context }, info) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
+test('Velos: Add bike is the last card and opens the window', async ({ page, context }, info) => {
   await openHome(page, context, info);
   await page.goto('./#/bikes');
-  const card = page.locator('section.setup-band [data-bike-card]').first();
-  await expect(card).toBeVisible();
-  expect(await anim(card)).toBe('none');
+  const add = page.locator('[data-card-add]');
+  await expect(add).toBeVisible();
+  await add.click();
+  await expect(page.locator('dialog[open]')).toBeVisible();
 });

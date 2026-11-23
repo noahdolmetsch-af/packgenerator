@@ -48,7 +48,15 @@
   const menus = {};
 
   const label = (d) => (d.own ? d.label : t(d.label));
-  const sub = (d) => (d.own ? t('your link') : hints[d.id]?.text ?? '');
+  // Velos aufräumen: an own link says where it goes («example.ch»), so a short name like «L» is no riddle; else «your link»
+  const hostOf = (url) => {
+    try {
+      return new URL(url).hostname.replace(/^www\./, '');
+    } catch {
+      return '';
+    }
+  };
+  const sub = (d) => (d.own ? hostOf(d.url) || t('your link') : hints[d.id]?.text ?? '');
   const hrefOf = (d) => (d.own ? d.url : d.url ? tileUrl(d, lang.v) : hints[d.id]?.href ?? d.href ?? '#');
   const change = (fn) => changePage(page, fn);
 
