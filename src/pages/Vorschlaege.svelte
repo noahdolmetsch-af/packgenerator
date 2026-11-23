@@ -26,9 +26,10 @@
   import Untergrund from '../lib/vorschlaege/Untergrund.svelte';
   import { fineOfTour, coarseOfTour, steepest, stretchOf, STEEP_PCT } from '../lib/vorschlaege/steil.js';
   import { lineKm, pointAtKm, nearestOnLine } from '../lib/spur/kmmarks.js';
-  import { REGIONS, LEVELS, COND_STD, TECH_STD, HOURS, ARTS, AWAYS, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
+  import { REGIONS, LEVELS, COND_STD, TECH_STD, HOURS, ARTS, AWAYS, TRAVELS, MODES, WHY_KEYS, artsOf, filterTours, splitNow, hoursOf, splitHours, snowOf, gridOf, newShare, whyOf, warnsOf, levelsOf, gpxOf, dreamTextOf } from '../lib/vorschlaege/regeln.js';
+  import { anreiseOf, dayHours } from '../lib/vorschlaege/anreise.js';
   import { t, num } from '../lib/i18n.svelte.js';
-  import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight } from '@lucide/svelte';
+  import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight, TrainFront, Car } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -61,9 +62,11 @@
         maxHours: HOURS.includes(f?.maxHours) ? f.maxHours : null,
         arts: Array.isArray(f?.arts) ? f.arts.filter((k) => ARTS.includes(k)) : [],
         maxAway: AWAYS.includes(f?.maxAway) ? f.maxAway : null,
+        maxTravel: TRAVELS.includes(f?.maxTravel) ? f.maxTravel : null,
+        mode: MODES.includes(f?.mode) ? f.mode : 'pt',
       };
     } catch {
-      return { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null };
+      return { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt' };
     }
   };
   let flt = $state(read());
@@ -79,7 +82,7 @@
     const list = flt[key];
     flt[key] = list.includes(val) ? list.filter((x) => x !== val) : [...list, val];
   };
-  const resetFilters = () => (flt = { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null });
+  const resetFilters = () => (flt = { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt' });
 
   // ---- list or map (kept on this device; the first time: the map on a wide screen, the list on a phone)
   const VIEW_KEY = 'vorschlaege.view';
@@ -122,7 +125,7 @@
     }
   });
   const toggleWhy = (k) => (whyOff = whyOff.includes(k) ? whyOff.filter((x) => x !== k) : [...whyOff, k]);
-  const WHY_NAME = { time: 'Time|why', snow: 'Snow|why', level: 'Difficulty|why', new: 'New for you|why', away: 'Distance from home|why' };
+  const WHY_NAME = { time: 'Time|why', trip: 'Journey|why', snow: 'Snow|why', level: 'Difficulty|why', new: 'New for you|why', away: 'Distance from home|why' };
 
   // ---- your data (only read)
   const paceQ = liveQuery(async () => (await db.settings.get(PACE_KEY))?.value ?? null);
@@ -154,7 +157,7 @@
     });
 
   // ---- the lists
-  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, home, hidden, pace }) : []);
+  const shown = $derived(tours ? filterTours(tours, { regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, hidden, pace }) : []);
   const split = $derived(splitNow(shown, month));
   const open = $derived(tours && openId ? tours.find((x) => x.id === openId) ?? null : null);
 
@@ -166,11 +169,18 @@
     const { h: hh, min } = splitHours(h);
     return min ? t('{h} h {min}', { h: hh, min }) : t('{h} h|tour', { h: hh });
   }
+  const minText = (m) => (m >= 60 ? (m % 60 ? t('{h} h {min}', { h: Math.floor(m / 60), min: m % 60 }) : t('{h} h|tour', { h: Math.floor(m / 60) })) : t('{min} min', { min: m }));
   function whyText(r) {
     if (r.k === 'time') {
       const when = hoursText(r.hours);
       if (r.tone === 'warn') return t('About {time}: longer than your {n} h.', { time: when, n: r.window });
       return r.mine ? t('About {time} at your own pace.', { time: when }) : t('About {time} at the standard pace.', { time: when });
+    }
+    if (r.k === 'trip') {
+      const way = r.mode === 'car' ? t('By car') : t('Public transport with the bike');
+      const from = r.fromHome ? t('from home') : t('from Zurich main station');
+      const back = r.back === r.out ? t('and the same back') : t('and {back} back', { back: minText(r.back) });
+      return `${t('Journey about {out} there', { out: minText(r.out) })} ${back} (${way}, ${from}, ${t('a rough guess')}). ${r.half ? t('The whole day is about {h}: it fits into half a day.', { h: hoursText(r.day) }) : t('The whole day is about {h}.', { h: hoursText(r.day) })}`;
     }
     if (r.k === 'snow') {
       if (r.state === 'likely') return t('Snow is likely at {m} m in this month.', { m: num(r.max) });
@@ -191,7 +201,7 @@
   const toneIcon = (r) => (r.tone === 'warn' ? TriangleAlert : Check);
 
   // ---- the open tour
-  const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home }).filter((r) => !whyOff.includes(r.k)) : []);
+  const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home, mode: flt.mode }).filter((r) => !whyOff.includes(r.k)) : []);
   const warns = $derived(open ? warnsOf(open, month) : []);
   // the profile and the map show the same place in both directions (Noah 23.11.2026 «1-5a», idea B): the cursor of the profile
   // is the dot on the map, and a tap on the map moves the cursor
@@ -374,6 +384,15 @@
           <span class="hint">{t('Set your home place and you can choose how far the start may be.')}</span>
         {/if}
       </div>
+      <div class="grp" role="group" aria-label={t('Journey|tour')} data-vs-travel>
+        <span class="gl">{t('Journey|tour')}</span>
+        <button type="button" class="chip" aria-pressed={flt.mode === 'pt'} data-vs-mode="pt" onclick={() => (flt.mode = 'pt')}><TrainFront size={16} aria-hidden="true" />{t('Public transport with the bike')}</button>
+        <button type="button" class="chip" aria-pressed={flt.mode === 'car'} data-vs-mode="car" onclick={() => (flt.mode = 'car')}><Car size={16} aria-hidden="true" />{t('By car')}</button>
+        <button type="button" class="chip" aria-pressed={flt.maxTravel === null} data-vs-travel-max="any" onclick={() => (flt.maxTravel = null)}>{t('Any|tour')}</button>
+        {#each TRAVELS as m (m)}
+          <button type="button" class="chip" aria-pressed={flt.maxTravel === m} data-vs-travel-max={m} onclick={() => (flt.maxTravel = m)}>{t('Up to {h} h', { h: m / 60 })}</button>
+        {/each}
+      </div>
       <div class="grp" role="group" aria-label={t('Fitness|tour')} data-vs-cond-group>
         <span class="gl">{t('Fitness|tour')}</span>
         {#each LEVELS as l (l)}
@@ -402,7 +421,7 @@
     {#if !tours}
       <p class="hint" role="status">{t('Loading the tours…')}</p>
     {:else if !shown.length}
-      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, home, pace }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
+      <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, pace }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
     {:else}
       <div class="seg" role="group" aria-label={t('View|tour')}>
         <button type="button" class="chip" aria-pressed={view === 'list'} data-vs-view="list" onclick={() => setView('list')}>{t('List|tour')}</button>
@@ -457,6 +476,7 @@
 
 {#snippet card(tour, grey)}
   {@const share = grid ? newShare(tour, grid) : null}
+  {@const trip = anreiseOf(tour, home, flt.mode)}
   <li class="tc card" class:grey data-vs-tour={tour.id}>
     <a class="tl" href={`#/trips/vorschlaege/${tour.id}`}>
       <span class="th"><b>{tour.title}</b><small>{regionName(tour.region)} · {t(tourClass(tour))}</small></span>
@@ -468,6 +488,7 @@
       {:else if snowOf(tour, month) === 'possible'}
         <span class="why"><Snowflake size={14} aria-hidden="true" />{t('Snow is possible at {m} m in this month.', { m: num(tour.max) })}</span>
       {/if}
+      {#if trip}<span class="why" data-vs-trip>{#if flt.mode === 'car'}<Car size={14} aria-hidden="true" />{:else}<TrainFront size={14} aria-hidden="true" />{/if}{t('Journey about {out} there', { out: minText(trip.out) })} {trip.back === trip.out ? t('and the same back') : t('and {back} back', { back: minText(trip.back) })} · {t('whole day about {h}', { h: hoursText(dayHours(hoursOf(tour, pace), trip)) })}</span>{/if}
       {#if share !== null}<span class="why"><MapPin size={14} aria-hidden="true" />{t('About {n} % new for you', { n: Math.round(share * 100) })}</span>{/if}
     </a>
     <button type="button" class="btn sm" onclick={() => hideTour(tour)} data-vs-hide><EyeOff size={16} aria-hidden="true" />{t('Not for me')}</button>

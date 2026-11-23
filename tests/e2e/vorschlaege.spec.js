@@ -4,6 +4,7 @@
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
 import TOURS from '../../src/lib/vorschlaege/data/netz.js';
+import { anreiseOf, withinTravel } from '../../src/lib/vorschlaege/anreise.js';
 import { ready } from './settle.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
@@ -47,6 +48,18 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   await page.locator('[data-vs-tech="difficult"]').click();
   await expect(page.getByText(T('No tour fits these filters.'))).toBeVisible(); // Zurich has no tour hard for skill
   await page.getByRole('button', { name: T('Reset filters') }).click();
+  await expect(tours).toHaveCount(hard.length);
+
+  // the journey: a line on every card; «up to 1 h» keeps the tours whose journey (there or back) is that short; the car is quicker
+  await expect(tours.first().locator('[data-vs-trip]')).toBeVisible();
+  const within = (mode, max) => hard.filter((x) => withinTravel(anreiseOf(x, null, mode), max)).length;
+  await page.locator('[data-vs-travel-max="60"]').click();
+  await expect(tours).toHaveCount(within('pt', 60));
+  await page.locator('[data-vs-mode="car"]').click();
+  await expect(tours).toHaveCount(within('car', 60));
+  expect(within('car', 60)).toBeGreaterThanOrEqual(within('pt', 60));
+  await page.locator('[data-vs-mode="pt"]').click();
+  await page.locator('[data-vs-travel-max="any"]').click();
   await expect(tours).toHaveCount(hard.length);
 
   // time and kind (all fitness levels, so that the short downhill is in)
@@ -143,7 +156,7 @@ test('Tour suggestions: 200 tours, filters, one tour, hide and undo', async ({ p
   // choose the lines: «Snow» off, the line is gone
   await page.locator('[data-vs-lines] summary').click();
   await page.locator('[data-vs-line="snow"]').uncheck();
-  await expect(page.locator('[data-vs-why] li')).toHaveCount(3); // time, difficulty and the distance from Zurich are left
+  await expect(page.locator('[data-vs-why] li')).toHaveCount(4); // time, journey, difficulty and the distance from Zurich are left
   await page.locator('[data-vs-line="snow"]').check();
 
   // keep as a dream

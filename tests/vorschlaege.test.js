@@ -4,6 +4,7 @@ import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
 import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/spur/kmmarks.js';
 import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib/vorschlaege/steil.js';
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
+import { crowKm, travelMin, anreiseOf, dayHours, fitsHalfDay, withinTravel, TRAVELS, ZURICH_HB } from '../src/lib/vorschlaege/anreise.js';
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
 const by = (id) => TOURS.find((t) => t.id === id);
@@ -152,7 +153,7 @@ describe('Tourenvorschläge: «Warum dieser Vorschlag?» und Warnungen', () => {
   it('nennt Zeit, Schnee, Stufe, neu und Abstand', () => {
     const t = by('sm-332');
     const w = whyOf(t, { month: 11, maxHours: 3, pace: null, grid: gridOf([[[46.0, 7.0]]]), home: { lat: 47.38, lon: 8.54 } });
-    expect(w.map((x) => x.k)).toEqual(['time', 'snow', 'level', 'new', 'away']);
+    expect(w.map((x) => x.k)).toEqual(['time', 'trip', 'snow', 'level', 'new', 'away']);
     expect(w.find((x) => x.k === 'time').tone).toBe('warn');
     expect(w.find((x) => x.k === 'snow').state).toBe('likely');
     expect(w.find((x) => x.k === 'new').share).toBe(100);
@@ -366,5 +367,57 @@ describe('Tourenvorschläge: die steilsten Stücke', () => {
     expect(s.length).toBeGreaterThanOrEqual(2);
     expect(nearestOnLine(t.line, s[0]).away).toBeLessThan(0.05);
     expect(nearestOnLine(t.line, s.at(-1)).away).toBeLessThan(0.05);
+
+describe('Tourenvorschläge: Anreise (Schätzung)', () => {
+  it('rechnet ÖV mit Velo und Auto aus der Luftlinie, in 5-Minuten-Schritten', () => {
+    expect(travelMin(0, 'pt')).toBe(30);
+    expect(travelMin(100, 'pt')).toBe(105);
+    expect(travelMin(100, 'car')).toBe(105);
+    expect(travelMin(20, 'car')).toBeLessThan(travelMin(20, 'pt'));
+    for (const km of [3, 17, 66, 143]) expect(travelMin(km, 'pt') % 5).toBe(0);
+    expect(crowKm([47, 8], [47, 8])).toBe(0);
+    expect(Math.round(crowKm([47.0, 8.0], [48.0, 8.0]))).toBe(111);
+  });
+  it('ohne Wohnort ab Zürich Hauptbahnhof; eine Strecke kommt vom Ende zurück, eine Runde vom Start', () => {
+    const one = by('sm-33'); // Winterthur → Hulftegg, Einweg
+    const a = anreiseOf(one, null, 'pt');
+    expect(a.fromHome).toBe(false);
+    expect(a.outKm).toBeGreaterThan(10);
+    expect(a.backKm).not.toBe(a.outKm);
+    const loop = by('sm-332'); // Davos, Runde
+    const b = anreiseOf(loop, { lat: ZURICH_HB.lat, lon: ZURICH_HB.lon }, 'pt');
+    expect(b.fromHome).toBe(true);
+    expect(b.out).toBe(b.back);
+    expect(anreiseOf({ line: [] }, null)).toBeNull();
+  });
+  it('ganzer Tag und halber Tag', () => {
+    const a = { out: 60, back: 90 };
+    expect(dayHours(4, a)).toBe(6.5);
+    expect(dayHours(4, null)).toBe(4);
+    expect(fitsHalfDay(2, { out: 30, back: 30 })).toBe(true);
+    expect(fitsHalfDay(4, a)).toBe(false);
+  });
+  it('Filter: die längste Anreise (hin oder zurück) bis x Minuten; ohne Wahl alle', () => {
+    expect(withinTravel({ out: 60, back: 90 }, 60)).toBe(false);
+    expect(withinTravel({ out: 60, back: 90 }, 120)).toBe(true);
+    expect(withinTravel({ out: 60, back: 90 }, null)).toBe(true);
+    const all = filterTours(TOURS, { conds: [] });
+    const near = filterTours(TOURS, { conds: [], maxTravel: TRAVELS[0] });
+    expect(near.length).toBeGreaterThan(0);
+    expect(near.length).toBeLessThan(all.length);
+    for (const t of near) {
+      const a = anreiseOf(t, null, 'pt');
+      expect(Math.max(a.out, a.back)).toBeLessThanOrEqual(60);
+    }
+    expect(filterTours(TOURS, { conds: [], maxTravel: 60, mode: 'car' }).length).toBeGreaterThanOrEqual(near.length);
+  });
+  it('«Warum dieser Vorschlag?» nennt die Anreise und den ganzen Tag', () => {
+    const w = whyOf(by('sm-33'), { month: 11, mode: 'pt' }).find((x) => x.k === 'trip');
+    expect(w.out).toBeGreaterThan(0);
+    expect(w.day).toBeGreaterThan(w.out / 60);
+    expect(typeof w.half).toBe('boolean');
+    const far = whyOf(by('sm-332'), { month: 11, mode: 'pt' }).find((x) => x.k === 'trip');
+    expect(far.half).toBe(false);
+    expect(far.tone).toBe('warn');
   });
 });
