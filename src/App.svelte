@@ -3,6 +3,8 @@
   import LazyPage from './lib/nav/LazyPage.svelte';
   import GehoertDazu from './lib/know/GehoertDazu.svelte'; // «Heute als Begleiter» PR 7
   import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
+  import SearchHere from './lib/suche/SearchHere.svelte'; // «Suche am Ort» (Warteliste 1, V2)
+  import { hereKind } from './lib/suche/ort.js';
   import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
   import { noteHashMove } from './lib/nav/herkunft.svelte.js';
@@ -553,6 +555,8 @@
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
   <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
   {#if !guest && !mini && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}
+  <!-- «Suche am Ort» (Noah «2a»): a field of its own behind the title of Ich, Touren and Auswerten -->
+  {#if !guest && !mini && hereKind(hash)}<SearchHere {hash} />{/if}
   <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
   {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash} />{/if}
   <svelte:boundary onerror={onfail}>

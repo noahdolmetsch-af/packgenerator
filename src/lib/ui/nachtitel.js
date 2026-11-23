@@ -47,8 +47,12 @@ export function placeAfter(h1, main, win = window) {
   return a;
 }
 
-/** Svelte action for the host element of the card. */
-export function afterTitle(host) {
+/**
+ * Svelte action for the host element of the card. opts.behind: a selector of another card's host that stands behind the same
+ * title («Belongs to …» goes behind the line «What you can do here», Durchklick-Fund 2); when that host has its place, this one
+ * goes right behind it, so the two never push each other back and forth.
+ */
+export function afterTitle(host, opts = {}) {
   const main = host.closest('main');
   if (!main) return {};
   const home = document.createComment('si-home'); // where App.svelte put the card: the fallback and the way back
@@ -67,7 +71,9 @@ export function afterTitle(host) {
     }
     const h1 = titleOf(main, host);
     if (h1) {
-      const a = placeAfter(h1, main);
+      let a = placeAfter(h1, main);
+      const other = opts.behind ? main.querySelector(opts.behind) : null;
+      if (other && other !== host && other.dataset.placed === 'title' && other.isConnected) a = other;
       if (!host.isConnected || host.previousElementSibling !== a) a.after(host);
       host.dataset.placed = 'title';
     } else if (late) {
