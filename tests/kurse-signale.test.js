@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  mittelAm, mittelReihe, ampel, lage, liesRegel, regelFaktor, regelVorschlag, monatsAnfaenge, rueckblick, verteilung, widersprueche, REGEL_STANDARD, LAGE_MIN,
+  mittelAm, mittelReihe, ampel, lage, liesRegel, regelFaktor, regelVorschlag, monatsAnfaenge, rueckblick, verteilung, widersprueche, REGEL_STANDARD, LAGE_MIN, liesRegeln, REGELN_KEY,
 } from '../src/lib/kurse/signale.js';
 
 /** A series of weekdays from a start day; `f(i)` is the close of day i. Invented numbers only. */
@@ -212,5 +212,15 @@ describe('Verteilung', () => {
       { id: 't6', gruppe: 'ohne-gruppe', betrag: 10, faktor: 1 },
     ], v);
     expect(w.map((x) => [x.id, x.art])).toEqual([['t1', 'kauft-ueber'], ['t2', 'kauft-wenig-unter']]);
+  });
+});
+
+describe('Regeln im Speicher', () => {
+  it('reads one rule per title and drops what is no rule', () => {
+    expect(liesRegeln(null)).toEqual({});
+    expect(liesRegeln([1, 2])).toEqual({});
+    expect(liesRegeln({ gold: { grundbetrag: 300, rot: 2, teuer: 0.5 }, kaputt: 5, leer: null })).toEqual({ gold: { grundbetrag: 300, rot: 2, teuer: 0.5 } });
+    expect(liesRegeln({ gold: { grundbetrag: -1, rot: 7 } })).toEqual({ gold: REGEL_STANDARD });
+    expect(REGELN_KEY).toBe('kurse.regeln');
   });
 });

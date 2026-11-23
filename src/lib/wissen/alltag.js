@@ -59,5 +59,5 @@ export default {
   'f.qr': 'A QR code of your WLAN on the fridge saves guests from typing; one of your route link lets friends follow in one scan.',
   'f.calc': 'Quick check before the shop: 4 days × 3 bars is 12 bars, not «a few». The numbers stay on the device.',
   'f.units': 'Tyre pressure in bar or psi depends on the pump: check once here and write your number on the frame with tape.',
-  'f.kursblick': 'A goal is a number you wait for: set it once under «My numbers» and Kursblick shows it on Today when it is reached. Enter what a position cost, then profit and loss are exact.',
+  'f.kursblick': 'A goal is a number you wait for: set it under «My numbers», Kursblick shows it on Today. Enter what a position cost for exact profit. Under «Decision» you write your own buying rule.',
 };
