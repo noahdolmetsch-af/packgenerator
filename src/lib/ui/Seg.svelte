@@ -99,7 +99,6 @@
   /* the count after the name keeps the colour of the filled button (the grey of the others is unreadable on it) */
   button[aria-pressed='true'] .n {
     color: inherit;
-    opacity: 0.85;
   }
   /* B15: the pill glides behind the buttons; the chosen button itself stays clear */
   .seg {
@@ -190,6 +189,5 @@
   /* E6: the count in the chosen chip stays readable on the filled chip (it kept the grey of the unchosen ones) */
   .chips button[aria-pressed='true'] .n {
     color: inherit;
-    opacity: 0.8;
   }
 </style>
