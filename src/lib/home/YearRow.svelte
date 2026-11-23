@@ -15,6 +15,8 @@
   import { yearReview } from '../yearreview.js';
   import { formatWeight } from '../gear.js';
   import BarChart from '../charts/BarChart.svelte';
+  import { sentencesOf } from '../charts/sentence.js';
+  import { YEAR_GOALS_KEY, goalsOf } from '../flow/yeargoals.js';
   import ChartSheet from '../charts/ChartSheet.svelte';
   import { homeTrips } from './heute.js';
   import { readSeries } from './series-data.js';
@@ -26,6 +28,14 @@
   const data = $derived($dataQ ? { ...$dataQ, trips: homeTrips($dataQ.trips) } : null);
   const review = $derived(data ? yearReview({ ...data, today }) : null);
   const months = $derived(review ? review.months.slice(-12) : []);
+  // «Diagramme überall verbessern» (Noah 23.11.2026 «ja»): a dashed line at one twelfth of your own km goal of the year, only when you set one
+  // (a goal you never typed is not drawn); one sentence over the bars
+  const goalQ = liveQuery(() => db.settings.get(YEAR_GOALS_KEY));
+  const kmGoal = $derived.by(() => {
+    const g = $goalQ?.value?.km;
+    return g && g.on !== false && Number(g.of) > 0 ? goalsOf($goalQ.value).km.of : null;
+  });
+  const perMonth = $derived(kmGoal ? Math.round(kmGoal / 12) : null);
   const nowMonth = $derived(today.slice(0, 7));
   // UI-Test T4: the one series (series-data.js); null while it loads, so «A new series starts» never
   // shows for a moment beside the tile that says «9 weeks in a row»
@@ -57,7 +67,7 @@
       </dl>
       <a class="lnk" href="#/debrief">{t('Look back|function')} ›</a>
       </div>
-      <div class="chart"><BarChart id="year" {cols} readout={read} {table} unit="km" height={90} label={t('km per month, last 12 months')} onopen={(i) => (sel = i)} /></div>
+      <div class="chart"><BarChart id="year" {cols} sentences={sentencesOf(months.map((m) => ({ label: monthName(m.month), v: m.km })), (v) => `${num(v)} km`).slice(0, 1)} goal={perMonth ? { v: perMonth, text: t('Goal a month: {n} km', { n: num(perMonth) }) } : null} readout={read} {table} unit="km" height={90} label={t('km per month, last 12 months')} onopen={(i) => (sel = i)} /></div>
     </div>
     {#if streak != null}<div class="streak" data-year-series={streak}>
       <span class="k">{t('Series')}</span>
