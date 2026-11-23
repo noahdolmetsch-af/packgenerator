@@ -7,7 +7,7 @@
    *   above the chart (Readout); ← → Home End on the keyboard do the same.
    * - A tap, a click or Enter opens what is behind the column (onopen(i)): the sheet of the week or day.
    * - «Als Tabelle» shows the same numbers as rows (table: { head, rows }).
-   * cols: [{ key, x, top, parts: [{ v, color }], none }] (x: the label under it or ''; none: a text such as «Not yet»
+   * cols: [{ key, x, top, parts: [{ v, color }], none, dashed }] (dashed: a column that is not over yet, drawn as a dashed outline) (x: the label under it or ''; none: a text such as «Not yet»
    * or «No data in this period» for a bar that is no real zero: the line above the chart shows it instead of the numbers,
    * and the chart starts on the newest bar without it), line: [number] or null,
    * readout(i) → { title, items, extra } (extra: one line under the numbers, e.g. the comparison with the year before), label: what the chart shows (for screen readers), unit: of the axis,
@@ -32,7 +32,7 @@
   const stacks = $derived(
     cols.map((c) => {
       let b = 0;
-      return c.parts.filter((p) => p.v > 0).map((p) => ({ a: b, b: (b += p.v), color: p.color }));
+      return c.parts.filter((p) => p.v > 0).map((p) => ({ a: b, b: (b += p.v), color: p.color, dashed: !!c.dashed }));
     }),
   );
   // the svg is 10 units per column wide and 100 high; the top 14 stay free for the numbers on the bars
@@ -106,7 +106,7 @@
           <GridLines ticks={scale.ticks} {y} x1={0} x2={W} />
           {#if sel != null}<rect class="cur" x={sel * 10} y="0" width="10" height="100" />{/if}
           {#each stacks as st, i (cols[i].key)}
-            {#each st as p, k (k)}<rect x={i * 10 + (10 - bw) / 2} y={y(p.b)} width={bw} height={Math.max(0.6, y(p.a) - y(p.b))} fill={p.color} />{/each}
+            {#each st as p, k (k)}<rect x={i * 10 + (10 - bw) / 2} y={y(p.b)} width={bw} height={Math.max(0.6, y(p.a) - y(p.b))} fill={p.color} class:dashed={p.dashed} style:stroke={p.dashed ? p.color : null} />{/each}
           {/each}
           {#if line}<path d={linePath} class="ln" style:stroke={lineColor} />{/if}
         </svg>
@@ -173,6 +173,13 @@
   }
   .cur {
     fill: var(--paper-2);
+  }
+  /* a column that is not over yet (cols[].dashed, e.g. the running week): an outline, so it is not read as a fall */
+  rect.dashed {
+    fill-opacity: 0.18;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+    vector-effect: non-scaling-stroke;
   }
   .ln {
     fill: none;

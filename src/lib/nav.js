@@ -549,7 +549,7 @@ export const PLACE_TABS = {
     { key: 'body', label: 'Body|tab', subs: ['form', 'body', 'insights', 'weight'] },
     { key: 'rides', label: 'Rides|tab', subs: ['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned'] },
     { key: 'history', label: "How you are|tab", subs: ['history', 'wohl', 'ideen'] },
-    { key: 'analyse', label: 'Own diagram|tab', subs: ['analyse'] },
+    { key: 'analyse', label: 'Analyse|page', subs: ['analyse'] },
   ].map((x) => tabWithSubs(x, ANALYSIS_PAGES)),
 };
 
