@@ -22,7 +22,7 @@ export function recent({ stamps = [], passes = [], book = null } = {}, limit = R
   const out = [
     ...stamps.map((s) => ({ kind: 'stamp', id: s.id, name: s.place, date: s.date || '', m: null, href: '#/debrief/tourenpass' })),
     ...passes.map((p) => ({ kind: 'pass', id: p.id, name: p.name, date: p.date || '', m: p.m ?? null, href: '#/debrief/paesse' })),
-    ...(book ? placeRows(book) : []).map((r) => ({ kind: 'place', id: r.place.id, name: r.place.name, date: r.last || '', m: r.place.ele ?? null, href: '#/flow/gipfelbuch' })),
+    ...(book ? placeRows(book) : []).map((r) => ({ kind: 'place', id: r.place.id, name: r.place.name, date: r.last || '', m: r.place.ele ?? null, href: `#/flow/gipfelbuch/${encodeURIComponent(r.place.id)}` })),
   ];
   return out.sort(byDayDesc).slice(0, limit);
 }

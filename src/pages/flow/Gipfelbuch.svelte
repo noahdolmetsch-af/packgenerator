@@ -191,6 +191,7 @@
             {#if picked.place.note}<p class="note">{picked.place.note}</p>{/if}
             <h3>{t('Visits')}</h3>
             <ul class="vis">{#each [...picked.visits].reverse() as v (v.id)}<li>{dayLong(v.day)}{v.ref === 'hand' ? ` · ${t('by hand')}` : ''}{v.hm != null ? ` · ${num(v.hm)} Hm` : ''}</li>{/each}</ul>
+            <p class="sub"><a href="#/flow/gipfelbuch/{encodeURIComponent(picked.place.id)}" data-gb-own>{t('Open the page of this place')}</a></p>
             <div class="acts">
               <button type="button" class="btn" onclick={() => (sheet = { mode: 'visit', place: picked.place })}><Plus size={16} aria-hidden="true" />{t('One more visit')}</button>
               <button type="button" class="btn" onclick={() => (sheet = { mode: 'edit', place: picked.place })} data-gb-edit>{t('Change')}</button>

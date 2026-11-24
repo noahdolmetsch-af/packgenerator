@@ -82,3 +82,64 @@ describe('Gipfelbuch für alle (v0.165.0)', () => {
     expect(starsOfPlace(b, idOf(b, 'Pass 9')).map((x) => x.id)).toEqual(['gb.pass2000', 'gb.passes-10']);
   });
 });
+
+describe('the page of one place', async () => {
+  const g = await import('../src/lib/gipfelbuch.js');
+  const mk = () => {
+    let b = g.emptyBook();
+    b = g.addPlace(b, { name: 'Testpass Nord', sport: 'bike', ele: 2100, lat: 46.5, lon: 8.4 }, { day: '2026-06-01', ref: 'act:a1' });
+    b = g.addVisit(b, b.places[0].id, { day: '2026-07-01', ref: 'act:a2' });
+    return b;
+  };
+  const acts = [
+    { id: 'a1', name: 'Pass-Tag', tempMin: 3.4, tempMax: 18.2, photos: [{ url: 'https://x.test/1.jpg' }, { url: 'http://bad.test/2.jpg' }], climbs: [{ name: 'Testpass Nord (Südseite)', s: 4000 }, { name: 'Andere', s: 100 }] },
+    { id: 'a2', name: 'Nochmal', climbs: [{ name: 'Aufstieg Testpass Nord', s: 3800 }] },
+  ];
+
+  it('finds the time up by the name of the place and keeps the fastest', () => {
+    const b = mk();
+    const best = g.fastestUp(b, b.places[0].id, { acts });
+    expect(best).toMatchObject({ s: 3800, day: '2026-07-01' });
+    expect(g.fastestUp(b, 'nope', { acts })).toBeNull();
+  });
+
+  it('reads the facts of a visit: temperature, secure photos only, source', () => {
+    const b = mk();
+    const f = g.visitFacts(b.visits[0], b.places[0], { acts });
+    expect(f).toMatchObject({ source: 'strava', title: 'Pass-Tag', tmin: 3, tmax: 18 });
+    expect(f.photos).toEqual(['https://x.test/1.jpg']);
+    expect(g.visitFacts({ ref: 'hand' }, b.places[0], {}).source).toBe('hand');
+    expect(g.visitFacts({ ref: 'ride:r1' }, b.places[0], { rides: [{ id: 'r1', name: 'GPX' }] })).toMatchObject({ source: 'gpx', title: 'GPX' });
+  });
+
+  it('changes a visit and removes one, but never the last of a place', () => {
+    let b = mk();
+    const [v1, v2] = b.visits;
+    b = g.editVisit(b, v1.id, { note: '  Nebel  ', wx: { tmin: 1, tmax: 9 } });
+    expect(b.visits[0]).toMatchObject({ note: 'Nebel', wx: { tmin: 1, tmax: 9 } });
+    b = g.removeVisit(b, v2.id);
+    expect(b.visits).toHaveLength(1);
+    expect(g.removeVisit(b, v1.id)).toBe(b);
+  });
+
+  it('writes times as clock', () => {
+    expect(g.clock(3800)).toBe('1:03:20');
+    expect(g.clock(125)).toBe('2:05');
+  });
+});
+
+describe('the own photos of the visits', async () => {
+  const f = await import('../src/lib/gipfelfotos.js');
+  it('keeps data images only, three per visit, newest last', () => {
+    expect(f.fotosOf({ a: ['data:image/jpeg;base64,x', 'https://x.test/1.jpg', 5], b: [] })).toEqual({ a: ['data:image/jpeg;base64,x'] });
+    expect(f.fotosOf(null)).toEqual({});
+    let m = {};
+    for (const n of [1, 2, 3, 4]) m = f.addFoto(m, 'v', `data:image/jpeg;base64,${n}`);
+    expect(m.v).toEqual(['data:image/jpeg;base64,2', 'data:image/jpeg;base64,3', 'data:image/jpeg;base64,4']);
+  });
+  it('removes one photo and the photos of removed visits', () => {
+    const m = { v: ['data:image/jpeg;base64,1'], w: ['data:image/jpeg;base64,2'] };
+    expect(f.removeFoto(m, 'v', 0)).toEqual({ w: ['data:image/jpeg;base64,2'] });
+    expect(f.pruneFotos(m, { visits: [{ id: 'w' }] })).toEqual({ w: ['data:image/jpeg;base64,2'] });
+  });
+});

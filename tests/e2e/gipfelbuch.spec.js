@@ -125,3 +125,55 @@ test('Gipfelbuch on the page of a sport: the last places and the link to the who
   await expect(page.locator('[data-gb-chip="bike"]')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });
+
+// «Eine Seite pro Gipfel» (Noah 24.11.2026 «alle 1-5 zusammen»): #/flow/gipfelbuch/<id> shows the visits of a place
+// with the temperature and the time up of the Strava ride, the fastest time on top, a note that stays, and an unknown
+// place says so with a way back. Fictional data only.
+test('Gipfelbuch: the page of one place with visits, time up and a note', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/gipfelbuch');
+  await expect(page.locator('main')).toBeVisible();
+  const d1 = addDays(TODAY, -20);
+  const d2 = addDays(TODAY, -3);
+  const book = {
+    places: [{ id: 'gbp_ort', name: 'Testpass Mitte', sport: 'bike', ele: 2150, lat: null, lon: null, label: '', note: 'Test-Notiz zum Ort', createdAt: `${d1}T08:00:00.000Z` }],
+    visits: [
+      { id: 'gbv_o1', placeId: 'gbp_ort', day: d1, ref: 'act:test_ort_1', hm: 1200 },
+      { id: 'gbv_o2', placeId: 'gbp_ort', day: d2, ref: 'act:test_ort_2', hm: 1250 },
+    ],
+    dismissed: [],
+  };
+  const ortActs = [
+    { id: 'test_ort_1', type: 'Ride', kind: 'ride', day: d1, name: 'Testrunde Eins', tempMin: 4, tempMax: 17, climbs: [{ name: 'Testpass Mitte Nordrampe', s: 4200 }] },
+    { id: 'test_ort_2', type: 'Ride', kind: 'ride', day: d2, name: 'Testrunde Zwei', climbs: [{ name: 'Testpass Mitte Nordrampe', s: 3900 }] },
+  ];
+  await put(page, { settings: [{ key: 'gipfelbuch', value: book }], activities: ortActs });
+  await page.reload();
+  const main = page.locator('main');
+
+  // from the book: the place, its detail and the link to its own page
+  await main.locator('[data-gb-place="Testpass Mitte"]').click();
+  await main.locator('[data-gb-own]').click();
+  await expect(page).toHaveURL(/#\/flow\/gipfelbuch\/gbp_ort$/);
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText('Testpass Mitte');
+  await expect(main.locator('[data-gp-visit]')).toHaveCount(2);
+  await expect(main.locator('[data-core-line]')).toContainText('1:05:00'); // the faster of 70:00 and 65:00
+  await expect(main.locator('[data-gp-visit="gbv_o1"] [data-gp-wx]')).toContainText('4 – 17 °C');
+  await expect(main.locator('[data-gp-visit="gbv_o2"] [data-gp-up]')).toContainText(T('fastest'));
+  await expect(main).toContainText('Test-Notiz zum Ort');
+  await fits(page, 'place page');
+
+  // a note on a visit stays after a reload
+  const v2 = main.locator('[data-gp-visit="gbv_o2"]');
+  await v2.locator('[data-gp-note-open]').click();
+  await v2.locator('[data-gp-note-input]').fill('Test: Nebel am Gipfel');
+  await v2.getByRole('button', { name: T('Save') }).click();
+  await expect(v2.locator('[data-gp-note]')).toHaveText('Test: Nebel am Gipfel');
+  await page.reload();
+  await expect(page.locator('[data-gp-visit="gbv_o2"] [data-gp-note]')).toHaveText('Test: Nebel am Gipfel');
+
+  // an unknown place says so and leads back
+  await page.goto('./#/flow/gipfelbuch/gbp_gibtsnicht');
+  await expect(page.locator('[data-gp-missing]')).toBeVisible();
+  await expect(page.locator('[data-gp-missing] a[href="#/flow/gipfelbuch"]')).toBeVisible();
+  expect(errors).toEqual([]);
+});
