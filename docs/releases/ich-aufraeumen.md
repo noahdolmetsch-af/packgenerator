@@ -22,6 +22,7 @@ Auftrag: Noah 24.11.2026 «K1-K9 und Veloinspektion und Logbuch nach vorne holen
 - «Mehr» zeigt auch weiter «Aufräumen von Testdaten».
 - Der Satz unter «Mehr» nennt jetzt Kleine Apps, Projekt-Ablage, KI-Projekte, Ausprobieren.
 - Keine Datenänderung: kein Dexie-Schema, kein Backup-Format, kein `api/`, kein Sync.
+- Testzeile in `heute-design.spec.js` nachgezogen: das Neu-Menü beginnt seit #1655 mit «Tour planen» (Reihenfolge Touren, Merken, Check, Material, Velos, Heute abhaken, Notiz); Test absichtlich angepasst, nichts gelockert.
 
 ## Entscheide (eigene Datei `docs/decisions/ich-aufraeumen.md`)
 - 24.11.2026: Ich in fünf Gruppen, eine Zeile für Erinnerungen.
