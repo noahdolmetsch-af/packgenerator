@@ -20,6 +20,8 @@
   import { titleOf, subOf, dayName, wxWords, holidayName } from '../lib/woche/words.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
+  import { liveQuery } from 'dexie';
+  import SoSiehts from '../lib/firststart/SoSiehts.svelte';
   import { mondayOf, shiftDay } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -56,6 +58,8 @@
   const monday = $derived(mondayOf(day));
   const days = $derived(weekOf(day, shiftDay));
 
+  // «So sieht's aus» (Noah «1-5a»): the sample week is offered only while there is not one tick in the app (not on every empty day of a used app)
+  const anyTick = liveQuery(() => db.flowLog.limit(1).count());
   const q = $derived(weekQuery(today));
   const src = $derived($q);
   let forecast = $state(null);
@@ -277,7 +281,7 @@
   {/snippet}
 
   {#if !lay.blocks.length && !lay.untimed.length && !lay.allDay.length}
-    <Empty title={t('Nothing planned on this day')} text={t('Plan sessions, dates and to-dos in Woche. They appear here with their time.')} action={{ label: t('Open Woche'), href: '#/week' }} />
+    <Empty title={t('Nothing planned on this day')} text={t('Plan sessions, dates and to-dos in Woche. They appear here with their time.')} action={{ label: t('Open Woche'), href: '#/week' }}>{#if $anyTick === 0}<SoSiehts area="week" />{/if}</Empty>
     <details class="tlfold" data-tl-fold>
       <summary>{t('Show the timeline')}</summary>
       {@render timeline()}
