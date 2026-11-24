@@ -29,7 +29,7 @@ test('Ride file: three hours below 5 °C asks «Did you freeze?» and a yes keep
   await page.locator('.pickbtn input[type=file]').setInputFiles(gpx);
   await page.getByRole('button', { name: T('Save ride') }).click();
   await expect(page).toHaveURL(/#\/debrief\/ride\/ride-/);
-  const question = T('{time} h below {t} °C. Did you freeze?', { time: '3:00', t: 5 });
+  const question = T('{time} h below {t} °C. Did you freeze?', { time: '3', t: 5 });
   const learn = page.getByRole('list', { name: new RegExp(T('Learnings from this ride')) });
   await expect(learn.getByText(question)).toBeVisible();
   expect((await stored(page, 'learnings')).filter((l) => l.rideId)).toEqual([]);
