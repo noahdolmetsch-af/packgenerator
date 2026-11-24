@@ -307,7 +307,7 @@
     <TipLine page="debrief" name={t('Look back|page')} />
   {:else}
     <!-- «Alles finden 2» (new proposal): the pages of «Mehr» further down, as one row right under the title -->
-    <QuickLinks label={t('More in Look back')} links={[{ key: 'heatmap', href: '#/heatmap', label: t('Heatmap') }, { key: 'neuland', href: '#/neuland', label: t('New ground') }, { key: 'chronik', href: '#/chronik', label: t('Chronicle') }, { key: 'jahr', href: '#/jahr', label: t('Your year as pictures') }, { key: 'quiz', href: '#/quiz', label: t('Quiz|short') }, { key: 'gelernt', href: '#/gelernt', label: t('Learned|review') }]} />
+    <QuickLinks label={t('More in Look back')} links={[{ key: 'sammlung', href: '#/debrief/sammlung', label: t('Collection wall') }, { key: 'heatmap', href: '#/heatmap', label: t('Heatmap') }, { key: 'neuland', href: '#/neuland', label: t('New ground') }, { key: 'chronik', href: '#/chronik', label: t('Chronicle') }, { key: 'jahr', href: '#/jahr', label: t('Your year as pictures') }, { key: 'quiz', href: '#/quiz', label: t('Quiz|short') }, { key: 'gelernt', href: '#/gelernt', label: t('Learned|review') }]} />
     {#if openList.length}
       <!-- SN2: the trip whose debrief is missing, with the one main button «Bewerten» -->
       {@const r = openList[0]}
