@@ -451,4 +451,10 @@ export default {
   // «Wi gaht's?» window, one question per screen (Noah 24.11.2026)
   'Next|round': 'Weiter',
   'Back|round': 'Zurück',
+  // «Wi gaht's?: Heute offen und Auswertung zuerst» (Noah 24.11.2026 «1-5a»)
+  'Answered today': 'Heute beantwortet',
+  'Morning round · one tap per question': 'Morgen-Runde · ein Tipp pro Frage',
+  'Evening round · one tap per question': 'Abend-Runde · ein Tipp pro Frage',
+  'change, switch off, create your own': 'ändern, ausschalten, eigene anlegen',
+  'Asks when a value stands out · up to {n} a day': 'Fragt, wenn ein Wert auffällt · bis {n} pro Tag',
 };

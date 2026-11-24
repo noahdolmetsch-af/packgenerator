@@ -36,6 +36,7 @@
   import { OWN_AREA, QUESTION, allQuestions, MERGED_INTO, configOf, settingOf, setOn, setEvery, putOwn, newOwn, counts, stampOf, setRounds, setMainOnly, timeOf, perDay, BUSY_DAY, areasOf, questionsIn, renameQuestion, moveToArea, deleteQuestion, restoreQuestion, goneQuestions, moveQuestion, renameArea, addArea, deleteArea, moveArea, listChanged, resetList } from '../lib/abfragen.js';
   import { qText, areaName, everyText, kindLabel, kindExtra, srcText } from '../lib/abfragen/words.js';
   import { localDay } from '../lib/localday.js';
+  import { FIXED, checkOf } from '../lib/flowcheck.js';
   import { t } from '../lib/i18n.svelte.js';
   import '../lib/ich/ich.css';
   import '../lib/abfragen/ab.css';
@@ -57,6 +58,14 @@
   const areas = $derived(areasOf(cfg));
   const groups = $derived([...areas.map((a) => ({ key: a.key, list: questionsIn(cfg, a.key) })), { key: OWN_AREA, list: questionsIn(cfg, OWN_AREA) }]);
   const nameOf = (key) => areaName(key, cfg);
+  // «Wi gaht's?: Heute offen und Auswertung zuerst» (Noah 24.11.2026 «1-5a»): on top, what is still open today, with the way in
+  const check = $derived(checkOf((data?.checks ?? []).find((c) => c.day === today), today));
+  const known = $derived(FIXED.some((f) => check[f.key] != null));
+  const evening = $derived((() => {
+    const [h, m] = String(cfg.rounds.evening ?? '20:30').split(':').map(Number);
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes() >= h * 60 + (m || 0);
+  })());
 
   let open = $state({ erholung: true });
   const allOpen = $derived(areas.every((a) => open[a.key]));
@@ -74,6 +83,11 @@
   /* Noah 20.10.2026 «editieren und löschen …, neue pro Gruppe erstellen, Gruppen editieren, hinzufügen, löschen»:
      «Bearbeiten» shows on every question and group: drag handle, arrows, pencil and bin. */
   let editing = $state(false);
+  // «Die App fragt dich» is a closed line; a link «Change this rule» (#/me/abfragen?rules=1) lands with it open
+  let rulesOpen = $state(/[?&]rules=1/.test(location.hash));
+  const openRulesFromHash = () => {
+    if (/[?&]rules=1/.test(location.hash)) rulesOpen = true;
+  };
   let renamingArea = $state(null);
   let deletingArea = $state(null);
   let newAreaName = $state('');
@@ -244,91 +258,37 @@
   import PasstHier from '../lib/ui/PasstHier.svelte'; // «Wegweiser statt Katalog» PR 7
 </script>
 
+<svelte:window onhashchange={openRulesFromHash} />
+
 <div class="ich-page abpage">
-  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your questions')} sub={headLine}>
-    <button type="button" class="btn" class:hi={editing} aria-pressed={editing} onclick={() => (editing = !editing)} data-ab-edit>{#if editing}<Check size={20} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={18} aria-hidden="true" />{t('Edit questions and groups')}{/if}</button>
-    <button type="button" class="btn" onclick={() => addIn(OWN_AREA)}><Plus size={18} aria-hidden="true" />{t('Create your own question')}</button>
-  </VeloHead>
+  <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your questions')} sub={headLine} />
 
   <div class="ich-cols">
     <div class="ich-main">
-      <div class="top"><span class="num">{t('{areas} areas · {all} questions · {on} on', { areas: areas.length, all: n.all, on: n.on })}</span>{#if !editing}<button type="button" class="ab-lnk lk" onclick={toggleAll}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}</div>
-      <!-- 03.11.2026 «Fragen aus deinen Daten» (Noah «2a»): a suggestion; each rule has its switch, threshold and own question -->
-      <section class="card dfr" aria-labelledby="ab-data-h" data-datenfragen>
-        <h2 id="ab-data-h">{t('The app asks you')}</h2>
-        <p class="eh">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
-        {#if !hasFitbit}<p class="eh" data-data-empty>{t('No Fitbit values yet. The rules for pulse and sleep wait until Fitbit brings them (Me › Fitbit); the mood rule needs your answers.')}</p>{/if}
-        {#if !hasTraining}<p class="eh" data-data-empty-training>{t('No training yet. The rules for long days and pauses wait until Strava brings your activities.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
-        {#if !hasWeather}<p class="eh" data-data-empty-weather>{t('No weather for today yet. The weather rules wait until Today shows the forecast of your home place.')} <a class="ab-lnk" href="#/wetter">{t('Weather page ›')}</a></p>{/if}
-        {#if !hasCalendar}<p class="eh" data-data-empty-calendar>{t('No calendar on this device yet. The rule for a free evening waits until your Google calendar is connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
-        {#if !hasTasks}<p class="eh" data-data-empty-tasks>{t('No tasks on this device yet. The rule for a stuck to-do waits until your Google tasks are connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
-        {#if !hasTennis}<p class="eh" data-data-empty-tennis>{t('No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.')}</p>{/if}
-        <div class="rbar">
-          <button type="button" class="btn" onclick={() => (ruleFor = null)} data-rule-add><Plus size={16} aria-hidden="true" />{t('Create your own rule')}</button>
-          <button type="button" class="btn" class:hi={ruleEdit} aria-pressed={ruleEdit} onclick={() => (ruleEdit = !ruleEdit)} data-rule-edit>{#if ruleEdit}<Check size={16} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={16} aria-hidden="true" />{t('Sort, rename, delete')}{/if}</button>
-        </div>
-        {#if ruleEdit}
-          <p class="eh">{t('Sort with the arrows or drag the handle: the first rule that fits asks first. A deleted rule can be brought back.')}</p>
-          <ul class="er" use:sortable={{ onmove: stepRule }} data-rule-list>
-            {#each rules as x, i (x.id)}
-              <li data-sort-id={x.id} data-rule-row={x.id}>
-                <SortGrip name={ruleTitle(x)} onstep={(dir) => stepRule(i, i + dir)} />
-                <span class="nm">{ruleTitle(x)}{#if x.q}<small>{t('your own rule')}</small>{/if}</span>
-                <SortArrows name={ruleTitle(x)} {i} n={rules.length} onstep={(dir) => stepRule(i, i + dir)} />
-                <button type="button" class="eb" aria-label={t('Change {name}', { name: ruleTitle(x) })} onclick={() => (x.q ? (ruleFor = x.q) : (renamingRule = x))} data-rule-rename={x.id}><Pencil size={16} aria-hidden="true" /></button>
-                <button type="button" class="eb" aria-label={t('Delete {name}', { name: ruleTitle(x) })} onclick={() => removeRule(x)} data-rule-delete={x.id}><Trash2 size={16} aria-hidden="true" /></button>
-              </li>
-            {/each}
-          </ul>
+      <!-- Noah 24.11.2026 «1-5a»: what is open today, then what the answers show, then the questions themselves -->
+      <section class="card hnow" aria-label={t('Still open today')} data-ab-today>
+        {#if known}
+          <div class="hrow" data-check-row="done">
+            <span class="ct"><b>{t('Answered today')}</b><small>{FIXED.map((f) => `${t(f.short)} ${check[f.key] ?? '–'}`).join(' · ')}</small></span>
+            <a class="btn" href={evening ? '#/check/evening' : '#/check/morning'}>{t('Change')}</a>
+          </div>
         {:else}
-        {#each rules as x (x.id)}
-          {@const r = x.rule}
-          <div class="dr" data-rule={x.id}>
-            <div class="rsw">
-              <span class="rm"><b>{ruleTitle(x)}</b><small>{#if r}{t(r.about, { n: ruleVal(dcfg, r.id) })}{:else}{t('If {cond}, ask «{q}».', { cond: condLine(x), q: x.q.text })}{/if}</small></span>
-              <label class="ab-sw"><span class="sr">{ruleTitle(x)}</span><input type="checkbox" role="switch" checked={ruleOn(dcfg, x.id)} onchange={(e) => saveD(setRule(dcfg, x.id, e.currentTarget.checked))} /></label>
-            </div>
-            {#if ruleOn(dcfg, x.id)}
-              <div class="dset">
-                {#if r}
-                  <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
-                  <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => { saveD(setText(dcfg, r.id, e.currentTarget.value)); typed[r.id] = e.currentTarget.value; }} data-rule-text={r.id} /></label>
-                  <SpellHint text={typed[r.id] ?? ''} ontake={(v) => { saveD(setText(dcfg, r.id, v)); typed[r.id] = ''; }} />
-                {:else}
-                  <button type="button" class="btn" onclick={() => (ruleFor = x.q)} data-rule-change={x.id}><Pencil size={16} aria-hidden="true" />{t('Change this rule')}</button>
-                {/if}
-                {#if ruleGap(dcfg, x.id) !== GAP_DAYS}<p class="eh" data-rule-gap={x.id}>{t('Asks only every {n} days, because you chose «less often».', { n: ruleGap(dcfg, x.id) })}</p>{/if}
-                {#if r && ruleChanged(dcfg, r.id)}<button type="button" class="btn" onclick={() => saveD(resetRule(dcfg, r.id))} data-rule-reset={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button>{/if}
-              </div>
-            {/if}
+          <div class="hrow" data-check-row="open">
+            <span class="ct"><b>{t('Still open today')}</b><small>{evening ? t('Evening round · one tap per question') : t('Morning round · one tap per question')}</small></span>
+            <a class="btn hi" href={evening ? '#/check/evening' : '#/check/morning'} data-check-start>{t('Start|check')}</a>
           </div>
-        {/each}
         {/if}
-        {#if goneRs.length}
-          <details class="gonef" data-rules-gone>
-            <summary>{t('Deleted rules ({n})', { n: goneRs.length })}</summary>
-            <ul class="er">
-              {#each goneRs as r (r.id)}
-                <li><span class="nm">{ruleName(dcfg, r.id) ?? t(r.title)}</span><button type="button" class="btn sm" onclick={() => bringRuleBack(r)} data-rule-restore={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Bring back')}</button></li>
-              {/each}
-            </ul>
-          </details>
-        {/if}
-        <!-- the random question (Noah 04.11.2026 «3a»): one a day from the sample questions that are switched off; counts toward the daily limit -->
-        <div class="dr" data-rule="zufall">
-          <div class="rsw">
-            <span class="rm"><b>{t('A random question')}</b><small>{t('Once a day a question from your sample questions that are switched off. It counts toward the three questions from your data. «Never again» removes it for good.')}</small></span>
-            <label class="ab-sw"><span class="sr">{t('A random question')}</span><input type="checkbox" role="switch" checked={randomOn(dcfg)} onchange={(e) => saveD(setRandom(dcfg, e.currentTarget.checked))} data-random-switch /></label>
-          </div>
-          {#if neverCount(dcfg)}
-            <div class="dset">
-              <p class="eh" data-random-never>{t('Questions that will not be picked again: {n}', { n: neverCount(dcfg) })}</p>
-              <button type="button" class="btn" onclick={() => saveD(bringNeverBack(dcfg))} data-random-back><RotateCcw size={16} aria-hidden="true" />{t('Bring them back')}</button>
-            </div>
-          {/if}
-        </div>
-        <a class="ab-lnk" href="#/me/insights" data-data-next>{t('See what goes together')}<ChevronRight size={14} aria-hidden="true" /></a>
       </section>
+      <!-- AB6, Noah 14.10. 00:52:22 1a 2a 3b 4ab (4ab): the analysis here too, short, with a link to the whole page -->
+      <div class="ich-sec" data-analysis><Auswertung compact idp="awa" /></div>
+      <div class="ich-h qhead" data-ab-questions>
+        <div><h2 id="ab-qs-h">{t('Your questions')}</h2><p class="ich-hs">{t('change, switch off, create your own')}</p></div>
+      </div>
+      <div class="rbar qbar">
+        <button type="button" class="btn" class:hi={editing} aria-pressed={editing} onclick={() => (editing = !editing)} data-ab-edit>{#if editing}<Check size={18} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={18} aria-hidden="true" />{t('Edit questions and groups')}{/if}</button>
+        <button type="button" class="btn" onclick={() => addIn(OWN_AREA)}><Plus size={18} aria-hidden="true" />{t('Create your own question')}</button>
+      </div>
+      <div class="top"><span class="num">{t('{areas} areas · {all} questions · {on} on', { areas: areas.length, all: n.all, on: n.on })}</span>{#if !editing}<button type="button" class="ab-lnk lk" onclick={toggleAll}>{allOpen ? t('Collapse all') : t('Expand all')}</button>{/if}</div>
       {#if editing}
         <!-- the groups: drag or arrows to sort, pencil to rename, bin to delete (the questions go where you choose) -->
         <section class="card edg" aria-labelledby="ab-groups-h" data-ab-groups>
@@ -437,6 +397,82 @@
       {#if editing && listChanged(cfg)}
         <p><button type="button" class="btn" onclick={backToStandard} data-ab-reset><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button> <small class="quiet">{t('Texts, groups and order of the app come back; your own questions and the switches stay.')}</small></p>
       {/if}
+      <!-- 03.11.2026 «Fragen aus deinen Daten» (Noah «2a»): a suggestion; each rule has its switch, threshold and own question -->
+      <details class="card dfr" data-datenfragen bind:open={rulesOpen}>
+        <summary class="howsum dfsum"><div><h2 id="ab-data-h">{t('The app asks you')}</h2><p class="ich-hs">{t('Asks when a value stands out · up to {n} a day', { n: MAX_PER_DAY })}</p></div><ChevronDown class="howchev" size={20} aria-hidden="true" /></summary>
+        <p class="eh">{t('When a value stands out, the window asks one open question about it and says why. It is worked out on this device only. Up to {n} a day.', { n: MAX_PER_DAY })}</p>
+        {#if !hasFitbit}<p class="eh" data-data-empty>{t('No Fitbit values yet. The rules for pulse and sleep wait until Fitbit brings them (Me › Fitbit); the mood rule needs your answers.')}</p>{/if}
+        {#if !hasTraining}<p class="eh" data-data-empty-training>{t('No training yet. The rules for long days and pauses wait until Strava brings your activities.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasWeather}<p class="eh" data-data-empty-weather>{t('No weather for today yet. The weather rules wait until Today shows the forecast of your home place.')} <a class="ab-lnk" href="#/wetter">{t('Weather page ›')}</a></p>{/if}
+        {#if !hasCalendar}<p class="eh" data-data-empty-calendar>{t('No calendar on this device yet. The rule for a free evening waits until your Google calendar is connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasTasks}<p class="eh" data-data-empty-tasks>{t('No tasks on this device yet. The rule for a stuck to-do waits until your Google tasks are connected.')} <a class="ab-lnk" href="#/me/connections">{t('Me › Connections')}</a></p>{/if}
+        {#if !hasTennis}<p class="eh" data-data-empty-tennis>{t('No tennis noted yet. The rules for games and missed court times wait until you note a game or a court time under Aktiv › Sports › Tennis.')}</p>{/if}
+        <div class="rbar">
+          <button type="button" class="btn" onclick={() => (ruleFor = null)} data-rule-add><Plus size={16} aria-hidden="true" />{t('Create your own rule')}</button>
+          <button type="button" class="btn" class:hi={ruleEdit} aria-pressed={ruleEdit} onclick={() => (ruleEdit = !ruleEdit)} data-rule-edit>{#if ruleEdit}<Check size={16} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={16} aria-hidden="true" />{t('Sort, rename, delete')}{/if}</button>
+        </div>
+        {#if ruleEdit}
+          <p class="eh">{t('Sort with the arrows or drag the handle: the first rule that fits asks first. A deleted rule can be brought back.')}</p>
+          <ul class="er" use:sortable={{ onmove: stepRule }} data-rule-list>
+            {#each rules as x, i (x.id)}
+              <li data-sort-id={x.id} data-rule-row={x.id}>
+                <SortGrip name={ruleTitle(x)} onstep={(dir) => stepRule(i, i + dir)} />
+                <span class="nm">{ruleTitle(x)}{#if x.q}<small>{t('your own rule')}</small>{/if}</span>
+                <SortArrows name={ruleTitle(x)} {i} n={rules.length} onstep={(dir) => stepRule(i, i + dir)} />
+                <button type="button" class="eb" aria-label={t('Change {name}', { name: ruleTitle(x) })} onclick={() => (x.q ? (ruleFor = x.q) : (renamingRule = x))} data-rule-rename={x.id}><Pencil size={16} aria-hidden="true" /></button>
+                <button type="button" class="eb" aria-label={t('Delete {name}', { name: ruleTitle(x) })} onclick={() => removeRule(x)} data-rule-delete={x.id}><Trash2 size={16} aria-hidden="true" /></button>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+        {#each rules as x (x.id)}
+          {@const r = x.rule}
+          <div class="dr" data-rule={x.id}>
+            <div class="rsw">
+              <span class="rm"><b>{ruleTitle(x)}</b><small>{#if r}{t(r.about, { n: ruleVal(dcfg, r.id) })}{:else}{t('If {cond}, ask «{q}».', { cond: condLine(x), q: x.q.text })}{/if}</small></span>
+              <label class="ab-sw"><span class="sr">{ruleTitle(x)}</span><input type="checkbox" role="switch" checked={ruleOn(dcfg, x.id)} onchange={(e) => saveD(setRule(dcfg, x.id, e.currentTarget.checked))} /></label>
+            </div>
+            {#if ruleOn(dcfg, x.id)}
+              <div class="dset">
+                {#if r}
+                  <label><span>{t(r.param.label)}</span><input class="inp num" type="number" min={r.param.min} max={r.param.max} step={r.param.step} value={ruleVal(dcfg, r.id)} onchange={(e) => saveD(setVal(dcfg, r.id, e.currentTarget.value))} data-rule-val={r.id} /></label>
+                  <label class="wide"><span>{t('The question|data')}</span><input class="inp" type="text" maxlength="140" value={ruleText(dcfg, r.id) ?? ''} placeholder={t(DATA_QUESTIONS[r.qid].text)} onchange={(e) => { saveD(setText(dcfg, r.id, e.currentTarget.value)); typed[r.id] = e.currentTarget.value; }} data-rule-text={r.id} /></label>
+                  <SpellHint text={typed[r.id] ?? ''} ontake={(v) => { saveD(setText(dcfg, r.id, v)); typed[r.id] = ''; }} />
+                {:else}
+                  <button type="button" class="btn" onclick={() => (ruleFor = x.q)} data-rule-change={x.id}><Pencil size={16} aria-hidden="true" />{t('Change this rule')}</button>
+                {/if}
+                {#if ruleGap(dcfg, x.id) !== GAP_DAYS}<p class="eh" data-rule-gap={x.id}>{t('Asks only every {n} days, because you chose «less often».', { n: ruleGap(dcfg, x.id) })}</p>{/if}
+                {#if r && ruleChanged(dcfg, r.id)}<button type="button" class="btn" onclick={() => saveD(resetRule(dcfg, r.id))} data-rule-reset={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Back to standard')}</button>{/if}
+              </div>
+            {/if}
+          </div>
+        {/each}
+        {/if}
+        {#if goneRs.length}
+          <details class="gonef" data-rules-gone>
+            <summary>{t('Deleted rules ({n})', { n: goneRs.length })}</summary>
+            <ul class="er">
+              {#each goneRs as r (r.id)}
+                <li><span class="nm">{ruleName(dcfg, r.id) ?? t(r.title)}</span><button type="button" class="btn sm" onclick={() => bringRuleBack(r)} data-rule-restore={r.id}><RotateCcw size={16} aria-hidden="true" />{t('Bring back')}</button></li>
+              {/each}
+            </ul>
+          </details>
+        {/if}
+        <!-- the random question (Noah 04.11.2026 «3a»): one a day from the sample questions that are switched off; counts toward the daily limit -->
+        <div class="dr" data-rule="zufall">
+          <div class="rsw">
+            <span class="rm"><b>{t('A random question')}</b><small>{t('Once a day a question from your sample questions that are switched off. It counts toward the three questions from your data. «Never again» removes it for good.')}</small></span>
+            <label class="ab-sw"><span class="sr">{t('A random question')}</span><input type="checkbox" role="switch" checked={randomOn(dcfg)} onchange={(e) => saveD(setRandom(dcfg, e.currentTarget.checked))} data-random-switch /></label>
+          </div>
+          {#if neverCount(dcfg)}
+            <div class="dset">
+              <p class="eh" data-random-never>{t('Questions that will not be picked again: {n}', { n: neverCount(dcfg) })}</p>
+              <button type="button" class="btn" onclick={() => saveD(bringNeverBack(dcfg))} data-random-back><RotateCcw size={16} aria-hidden="true" />{t('Bring them back')}</button>
+            </div>
+          {/if}
+        </div>
+        <a class="ab-lnk" href="#/me/insights" data-data-next>{t('See what goes together')}<ChevronRight size={14} aria-hidden="true" /></a>
+      </details>
     </div>
 
     <div class="ich-side">
@@ -499,8 +535,6 @@
           <li><span class="ab-kind">{t('Sentence')}</span><span>{t('text')}</span><small>{t('saved: only for the diary')}</small></li>
         </ul>
       </details>
-      <!-- AB6, Noah 14.10. 00:52:22 1a 2a 3b 4ab (4ab): the analysis here too, short, with a link to the whole page -->
-      <div class="ich-sec" data-analysis><Auswertung compact idp="awa" /></div>
       <p class="hint"><Info size={15} aria-hidden="true" /><span>{t('If a wording changes, the old answers go on in the same history. «so far» names the earlier question that lives on in it.')}</span></p>
     </div>
   </div>
@@ -912,6 +946,45 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
     overflow-wrap: break-word;
+  }
+  .hnow {
+    margin: 0 0 var(--sp-4, 16px);
+  }
+  .hrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hrow .ct {
+    flex: 1;
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .hrow .ct small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+    overflow-wrap: break-word;
+  }
+  .qhead {
+    margin-top: 8px;
+  }
+  .qbar {
+    margin: 0 0 10px;
+  }
+  .dfsum {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .dfsum h2 {
+    margin: 0;
+  }
+  .dfr[open] > .dfsum :global(.howchev) {
+    transform: rotate(180deg);
+  }
+  .dfr:not([open]) {
+    gap: 0;
   }
   .rbar {
     display: flex;

@@ -245,6 +245,45 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();
   });
 
+  // Noah 24.11.2026 «1-5a»: the page starts with what is open today, then what the answers show, then the questions;
+  // «Die App fragt dich» is a closed line
+  test('AB-O: open today and the analysis come first, the rules are a closed line', async ({ page, context }, info) => {
+    const T = await openHome(page, context, info, { data: data() });
+    await viaTab(page, 'analysis', '#/me/abfragen');
+    const today = page.locator('[data-ab-today]');
+    await expect(today).toContainText(T('Still open today'));
+    await expect(today).toContainText(T('Morning round · one tap per question'));
+    await expect(today.locator('[data-check-start]')).toHaveAttribute('href', '#/check/morning');
+    await expect(page.locator('[data-analysis]')).toBeVisible();
+    const tops = await page.evaluate(() => ['[data-ab-today]', '[data-analysis]', '[data-ab-questions]', '[data-datenfragen]'].map((q) => document.querySelector(q).getBoundingClientRect().top + scrollY));
+    expect(tops).toEqual([...tops].sort((a, b) => a - b));
+    // the first screen of a phone shows «Still open today»
+    if (info.project.name === 'phone') expect(tops[0]).toBeLessThan(page.viewportSize().height);
+    // the two buttons moved under «Deine Fragen»
+    await expect(page.locator('[data-ab-questions]')).toContainText(T('Your questions'));
+    await expect(page.locator('[data-ab-edit]')).toBeVisible();
+    // «Die App fragt dich»: closed, one tap opens the rules
+    const rules = page.locator('[data-datenfragen]');
+    await expect(rules).toContainText(T('The app asks you'));
+    expect(await rules.evaluate((d) => d.open)).toBe(false);
+    await expect(page.locator('[data-rule-add]')).toBeHidden();
+    await rules.locator('> summary').click();
+    await expect(page.locator('[data-rule-add]')).toBeVisible();
+    await noSideways(page);
+    await shot(page, info, 'ab-reihenfolge');
+  });
+
+  test('AB-O2: answered today shows the values and a way to change them', async ({ page, context }, info) => {
+    const d = data();
+    d.tables.flowChecks = [...d.tables.flowChecks, { day: day(0), sleep: 7, energy: 6, mood: 8 }];
+    const T = await openHome(page, context, info, { data: d });
+    await viaTab(page, 'analysis', '#/me/abfragen');
+    const today = page.locator('[data-ab-today]');
+    await expect(today).toContainText(T('Answered today'));
+    await expect(today.locator('[data-check-start]')).toHaveCount(0);
+    await expect(today.getByRole('link', { name: T('Change') })).toBeVisible();
+  });
+
   test('AB4: the history with an old daily check, filters, change an answer', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: data() });
     await page.goto('./#/me/history');
