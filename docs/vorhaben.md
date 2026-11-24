@@ -6,13 +6,13 @@ Stand 10.10.2026, nachgeführt am 19.10.2026 (Abschnitte «Stand heute» und «R
 
 Diese Datei wird geprüft:
 
-- **vor jedem neuen Paket** (bevor Mockups entstehen): Passt das Paket zu einem der sechs Ziele unten und zur Reihenfolge? Wenn nicht: Noah fragen, ob das Ziel oder die Reihenfolge ändert.
+- **vor jedem neuen Paket** (bevor Mockups entstehen): Passt das Paket zu den zwei Zielen Klarheit und Auffindbarkeit und zum Leitfaden (`leitfaden.md`) und zur Reihenfolge? (Seit Noah «1-5a», 24.11.2026, sind die sechs Ziele unten kein Massstab mehr, nur noch die Gliederung der Vorhaben.) Wenn nicht: Noah fragen, ob das Ziel oder die Reihenfolge ändert.
 - **in jedem Release-PR**: Abschnitt «Stand heute» und den Stand des Vorhabens nachführen. Neue Entscheide von Noah hier und in `decisions.md` eintragen.
 - **etwa alle fünf Releases**: kurzer Kurs-Check an Noah. Pro Ziel ein Satz, was erreicht ist, was fehlt und ob die Reihenfolge noch stimmt, mit a/b-Fragen, falls etwas abweicht.
 
 Prüffragen:
 
-1. Dient es einem der sechs Ziele, und merkt Noah den Nutzen im Alltag oder auf Tour? Und bleibt es klar und auffindbar (die zwei wichtigsten Ziele, siehe unten)?
+1. Dient es Klarheit, Auffindbarkeit und dem Leitfaden, und merkt Noah den Nutzen im Alltag oder auf Tour? Und bleibt es klar und auffindbar (die zwei wichtigsten Ziele, siehe unten)?
 2. Bleibt alles ein Vorschlag, nie Pflicht, immer änderbar?
 3. Bleiben private Daten auf dem Gerät und aus dem Repo?
 4. Braucht es einen fremden Dienst, wo eine eigene, schlanke Lösung reicht?
@@ -47,7 +47,7 @@ Der Pack Generator ist eine persönliche Web-App (PWA) für Bikepacking- und Vel
 
 **Alle Vorhaben in einer Liste:** [vorhaben-liste.md](vorhaben-liste.md) (seit 19.10.2026, gegen den Code geprüft, nach Ziel geordnet). Sie ist die Übersicht; die Abschnitte unten erklären die grossen Vorhaben genauer.
 
-Die geplanten Vorhaben verfolgen sechs Ziele (das fünfte seit 19.10.2026, Noah «1a»; das sechste seit 27.10.2026, Noah «2a»):
+Die geplanten Vorhaben sind nach sechs Zielen gegliedert (seit 24.11.2026 nur die Gliederung, nicht mehr der Massstab, Noah «1-5a»; das fünfte seit 19.10.2026, Noah «1a»; das sechste seit 27.10.2026, Noah «2a»):
 
 1. **Schneller packen.** Vorschläge statt leerer Listen: Bausteine, Vorlagen und Vorschläge aus dem eigenen Material (der KI-Helfer ist am 22.11.2026 ausgebaut). Beispiel: «3 Tage Jura, 5 °C, Biwak» ergibt eine fertige Liste mit Begründungen.
 2. **Das Velo im Griff haben.** km pro Velo (später automatisch aus Strava), Wartung von Kette, Kassette, Bremsbelägen, Bremsscheiben und Reifen mit konkreten Hinweisen. Beispiel: «Kette 2 400 km seit Wechsel, mit der Lehre 0,5 messen.»

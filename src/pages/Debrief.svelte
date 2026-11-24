@@ -65,6 +65,7 @@
   import ReachChips from '../lib/tourenc/ReachChips.svelte'; // Touren c 65
   import VoiceDebrief from '../lib/tourenc/VoiceDebrief.svelte'; // Touren c 68
   import LearnCard from '../lib/tourlernen/LearnCard.svelte'; // Paket Z
+  import Spaeter from '../lib/review/Spaeter.svelte'; // R1: three questions again after 1 day, 1 week, 1 month
   import UsedCard from '../lib/tourenb/UsedCard.svelte'; // Idee 58 (Touren b): Verbrauch buchen
   import IntentAsks from '../lib/tourenb/IntentAsks.svelte'; // Idee 52 (Touren b): die Fragen der Absicht
   import DayListen from '../lib/tourenb/DayListen.svelte'; // Idee 56 (Touren b): Dein Tag zum Hören
@@ -525,6 +526,7 @@
         <PasstHier place="debrief" />
         <!-- Paket Z «Aus jeder Tour lernen»: breakdown, where you slept, the tour postcard (below the answers, so the chips stay first) -->
         <LearnCard {trip} {bike} />
+        <Spaeter {trip} />
         <IntentAsks {trip} />
         <DayListen {trip} />
         <UsedCard {trip} {items} book />

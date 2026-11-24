@@ -50,6 +50,18 @@ describe('Schnellspur (Weg zu online)', () => {
     expect(deploy).toMatch(/group: pages-\$\{\{ github\.ref \}\}\$\{\{ github\.event\.action == 'labeled'/);
   });
 
+  it('a «Schwer» PR runs everything only with the label «voll», and «e2e (phone)» stays red without it (Noah 24.11.2026 «a»)', () => {
+    const job = (name) => deploy.slice(deploy.indexOf(`\n  ${name}:`), deploy.indexOf('\n\n', deploy.indexOf(`\n  ${name}:`)));
+    for (const name of ['e2e-part', 'e2e-phone']) {
+      expect(job(name)).toContain("contains(github.event.pull_request.labels.*.name, 'voll')");
+      expect(job(name)).toContain("github.event.label.name == 'voll'");
+    }
+    // the parts hand the label to the scope; the gate asks the scope whether the PR is Schwer
+    expect(job('e2e-part')).toContain("contains(github.event.pull_request.labels.*.name, 'voll') && '--voll'");
+    expect(job('e2e-phone')).toContain('steps.scope.outputs.schwer == \'yes\' && !contains(github.event.pull_request.labels.*.name, \'voll\')');
+    expect(job('e2e-phone')).toContain('exit 1');
+  });
+
   it('keeps the check names the branch rule asks for', () => {
     expect(deploy).toContain('name: e2e (phone)');
     expect(deploy).toContain('name: e2e (desktop)');
