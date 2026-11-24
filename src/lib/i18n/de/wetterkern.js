@@ -70,7 +70,7 @@ export default {
   'The weather service did not answer. Try again in a moment.': 'Der Wetterdienst antwortet nicht. Versuche es gleich nochmals.',
   'No values found for this day.': 'Für diesen Tag gibt es keine Werte.',
   'The weather archive did not answer. Try again in a moment.': 'Das Wetterarchiv antwortet nicht. Versuche es gleich nochmals.',
-  'The weather for riding: today, the best time for a ride, the rain radar and your webcams. Everything is a suggestion.': 'Das Wetter fürs Velo: heute, die beste Zeit für eine Fahrt, das Regenradar und deine Webcams. Alles ist ein Vorschlag.',
+  'The weather for riding: today, the best time, the rain radar and your webcams.': 'Das Wetter fürs Velo: heute, die beste Zeit, das Regenradar und deine Webcams.',
   'No place yet': 'Noch kein Ort',
   'older than 3 hours': 'älter als 3 Stunden',
   'Another place': 'Anderer Ort',

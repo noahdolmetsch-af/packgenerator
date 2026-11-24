@@ -11,6 +11,8 @@ const PAGES = [
   ['#/trips', 'gd:trips', '[data-gehoert]'],
   // Material aufräumen (23.11.2026, changed on purpose): Material has no row «Belongs to» (a double of «All here» at the end)
   ['#/bikes', 'gd:bikes', '[data-gehoert]'],
+  // «Knapper Seitenkopf» (Noah 23.11.2026 «3a»): Weather starts with its row folded too
+  ['#/wetter', 'gd:wetter', '[data-gehoert]'],
   ['#/trips', 'ah:trips', '[data-all-here="trips"]'],
   ['#/gear', 'ah:gear', '[data-all-here="gear"]'],
   ['#/bikes', 'ah:bikes', '[data-all-here="bikes"]'],
