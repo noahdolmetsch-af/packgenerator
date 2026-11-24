@@ -7,7 +7,7 @@ export default {
   '{n} functions in {places} places': '{n} Funktionen in {places} Bereichen',
   'Search the map': 'In der Karte suchen',
   'Nothing found. Try another word.': 'Nichts gefunden. Versuche ein anderes Wort.',
-  'Me › Map of the app: every place of the app with its functions, each with its path (place › function). A search narrows it; a tap goes there.': 'Ich › Karte der App: jeder Bereich der App mit seinen Funktionen, jede mit ihrem Pfad (Bereich › Funktion). Eine Suche grenzt ein; ein Tipp führt hin.',
+  'Me › Map of the app: every place of the app with its functions, each with its path (place › function). A search narrows it; a tap goes there. A button draws it as a mind map.': 'Ich › Karte der App: jeder Bereich der App mit seinen Funktionen, jede mit ihrem Pfad (Bereich › Funktion). Eine Suche grenzt ein; ein Tipp führt hin. Ein Knopf zeichnet sie als Mindmap.',
   'Open Me › Map of the app.': 'Öffne Ich › Karte der App.',
   'Open a place to see its functions with their path.': 'Öffne einen Bereich, um seine Funktionen mit ihrem Pfad zu sehen.',
   'Type a word in the search, then tap a line to go there.': 'Tippe ein Wort in die Suche, dann auf eine Zeile, um dorthin zu gehen.',

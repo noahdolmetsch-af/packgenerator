@@ -57,5 +57,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 49 | Die Seite-im-Reiter, die die Rennliste aus der Datei zeigt (Liste mit Filtern, Zeitstrahl, Karte) | Rennliste, Saison-Raster, Atlas | **«Rennatlas»** (Reiter in Touren › Rennen); die Zeitstrahl-Ansicht heisst **«Zeitstrahl»**, der Titel **«Rennatlas 2027»** (Noah 24.11.2026 «1:1 wie das Mockup») |
 | 50 | Die sechs Kacheln der leeren Suche, die zu den Seiten eines Bereichs führen | Kategorien, Bereiche, Rubriken | **«Themen»** (Packen, Touren, Velo, Körper, Wetter, App) (Noah 24.11.2026 «1-5a») |
 | 51 | Die drei grossen Zahlen oben auf einem Bereich, mit einem Verlauf darunter | Kennzahlen, Dashboard, Landingpage, Mini-Landingpage | **«Dein Stand in Zahlen»** (Noah 24.11.2026 «b»); der Schalter unter Ich › Darstellung › Bedienung heisst gleich; zuerst auf Velos und Material |
+| 53 | Die Zeichnung der Karte der App neben der Liste: die App mit ihren Bereichen als Äste | Skizze, Diagramm, Baum, Karte | **«Mindmap»** (Knopf neben «Liste»; Noah 24.11.2026 «beide», ohne «Kreislauf» 25.11.2026) |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.
