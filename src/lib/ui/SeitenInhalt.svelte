@@ -30,7 +30,7 @@
   }
 </script>
 
-<div class="si-host" data-seiteninhalt-host use:afterTitle>
+<div class="si-host" data-seiteninhalt-host use:afterTitle={{ behind: '[data-suchehier-host]' }}>
 {#if (rows.length || side) && $seenQ}
 <div class="si-row" class:two={!!side && rows.length > 0}>
   {#if rows.length}
