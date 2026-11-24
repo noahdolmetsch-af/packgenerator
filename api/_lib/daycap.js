@@ -76,12 +76,17 @@ export async function countCall(store, name, now = Date.now(), caps = DAY_CAPS) 
   return { n, total, over: overTotal || (Number.isFinite(own) && n > own) };
 }
 
-/** The day's numbers for the watcher: { day, total, limit, over: [names over their cap] }. */
+/** The day's numbers for the watcher: { day, total, limit, over: [names over their cap], top: [the four busiest names with their calls] }. */
 export async function dayUsage(store, day, caps = DAY_CAPS) {
   const names = Object.keys(caps).filter((n) => n !== 'total');
   const vals = (await store.cmd('MGET', capKeys('total', day).all, ...names.map((n) => capKeys(n, day).one))) ?? [];
   const total = Number(vals[0]) || 0;
   const over = names.filter((n, i) => (Number(vals[i + 1]) || 0) >= caps[n]);
   if (total >= caps.total) over.unshift('total');
-  return { day, total, limit: caps.total, over };
+  const top = names
+    .map((name, i) => ({ name, n: Number(vals[i + 1]) || 0 }))
+    .filter((x) => x.n > 0)
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 4);
+  return { day, total, limit: caps.total, over, top };
 }

@@ -280,7 +280,7 @@
     <div class="q" data-q="story">
       <div class="more">
         <PenLine size={16} aria-hidden="true" />
-        <textarea class="st" rows="1" placeholder={t('Want to tell a bit more?')} aria-label={t('Want to tell a bit more?')} value={cur.story} onchange={(e) => set({ story: e.currentTarget.value })} data-story></textarea>
+        <textarea class="st" rows="1" placeholder={t('One sentence about the day')} aria-label={t('One sentence about the day')} value={cur.story} onchange={(e) => set({ story: e.currentTarget.value })} data-story></textarea>
         <!-- «Diktat» (Noah 19.10.2026): the app's one microphone, until you stop -->
         <SpeakButton onsaid={(w) => set({ story: appendSpoken(cur.story ?? '', w) })} />
       </div>

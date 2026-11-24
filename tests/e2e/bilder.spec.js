@@ -139,6 +139,8 @@ test('5a: a photo of the trip shows pale on top of the tour page; the star choos
   await expect(tour.locator('[data-tour-cover]').first()).toHaveAttribute('aria-pressed', 'true');
   await tour.locator('[data-tour-cover]').nth(1).click();
   await expect(tour.locator('[data-tour-cover]').nth(1)).toHaveAttribute('aria-pressed', 'true');
+  // the page shows the choice at once and writes it a moment later: wait for the stored choice before the reload
+  await expect.poll(async () => (await dbRows(page, 'meta')).some((r) => r.cover)).toBe(true);
   await page.reload();
   await expect(page.locator('[data-tour-page] [data-tour-cover]').nth(1)).toHaveAttribute('aria-pressed', 'true');
   expect(typeof first).toBe('string');
