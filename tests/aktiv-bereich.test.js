@@ -17,8 +17,8 @@ describe('the places', () => {
   it('Woche has the four tabs of the new order (the pages of Aktiv are chips under Training), Auswerten the looking pages', () => {
     expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'training', 'notes', 'alltag']);
     expect(PLACE_TABS.week.find((x) => x.key === 'training').subs.map((x) => x.key)).toEqual(['flowhome', 'training', 'wochenplan', 'sports', 'rest']);
-    // Schritt 12: five tabs by question, every old page is a chip under one of them
-    expect(PLACE_TABS.analysis.map((x) => x.key)).toEqual(['start', 'body', 'rides', 'history', 'analyse']);
+    // Schritt 12: tabs by question, every old page is a chip under one of them (since «Auswerten neu» three: Heute, Woche, Verlauf)
+    expect(PLACE_TABS.analysis.map((x) => x.key)).toEqual(['start', 'rides', 'verlauf']); // «Auswerten neu» (Noah 24.11.2026 «2a»): Heute, Woche, Verlauf
     expect(PLACE_TABS.analysis.flatMap((x) => x.subs.map((s) => s.key))).toEqual(expect.arrayContaining(['fragen', 'start', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones']));
   });
   it('the start of Auswerten is its own page', () => {
@@ -103,19 +103,18 @@ describe('«Nächstes Ziel» and shorter milestones (Noah 27.10.2026 «2a 3a»)'
 // «Ganze App neu denken» Schritt 12 (Noah 18.11.2026): Auswerten has five tabs, sorted by the question you ask (before: three groups in «Alle n»)
 describe('Auswerten in five tabs by question', () => {
   const all = PLACE_TABS.analysis;
-  it('five tabs: overview, body, rides, how you are, own diagram', () => {
-    expect(all.map((x) => x.key)).toEqual(['start', 'body', 'rides', 'history', 'analyse']);
+  it('three tabs: Heute, Woche, Verlauf (before: overview, body, rides, how you are, own diagram)', () => {
+    expect(all.map((x) => x.key)).toEqual(['start', 'rides', 'verlauf']);
     const subs = Object.fromEntries(all.map((x) => [x.key, x.subs.map((s) => s.key)]));
     expect(subs.start).toEqual(['heute', 'fragen', 'start']); // «Auswerten neu» (Noah 24.11.2026): «Heute» is the new first chip
-    expect(subs.body).toEqual(expect.arrayContaining(['form', 'body', 'weight', 'insights']));
+    expect(subs.verlauf).toEqual(expect.arrayContaining(['verlauf', 'form', 'body', 'weight', 'insights']));
     expect(subs.rides).toEqual(expect.arrayContaining(['woche', 'rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned', 'challenges']));
-    expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'ideen']));
-    expect(subs.analyse).toEqual(['analyse']);
+    expect(subs.verlauf).toEqual(expect.arrayContaining(['history', 'wohl', 'ideen', 'analyse']));
   });
   it('no page of the old eighteen tabs is lost or stands twice', () => {
     const shown = all.flatMap((x) => x.subs.map((s) => s.key));
     expect(new Set(shown).size).toBe(shown.length);
-    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start', 'challenges', 'heute', 'woche'].sort());
+    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start', 'challenges', 'heute', 'woche', 'verlauf'].sort());
   });
 });
 
@@ -129,6 +128,12 @@ describe('Auswerten: Heute is the start, the old overview moved', () => {
     // «Auswerten neu» Teil 2: «Woche» is the first chip of the tab that was «Rides»; the Heute tab does not claim its address
     expect(subOf('analysis', '#/auswerten/woche')?.key).toBe('woche');
     expect(PLACE_TABS.analysis.find((x) => x.match('#/auswerten/woche'))?.key).toBe('rides');
+    // «Auswerten neu» Teil 3: «Verlauf» is the first chip of the third tab, which also holds the pages of the old tabs Body, How you are and Own diagram
+    expect(subOf('analysis', '#/auswerten/verlauf')?.key).toBe('verlauf');
+    for (const [h, k] of [['#/flow/form', 'form'], ['#/me/wohl', 'wohl'], ['#/auswerten/analyse', 'analyse'], ['#/me/weight', 'weight']]) {
+      expect(subOf('analysis', h)?.key, h).toBe(k);
+      expect(PLACE_TABS.analysis.find((x) => x.match(h))?.key, h).toBe('verlauf');
+    }
     expect(PLACE_TABS.analysis.find((x) => x.key === 'rides').href).toBe('#/auswerten/woche');
     const tab = PLACE_TABS.analysis[0];
     expect(tab.href).toBe('#/auswerten');
