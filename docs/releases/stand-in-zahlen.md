@@ -1,6 +1,6 @@
 # Dein Stand in Zahlen (Velos und Material, das Muster)
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah «b» (Thread «Mini-Landingpage pro Bereich bauen»)
+PR #1728 · 24.11.2026 · Auftrag: Noah «b» (Thread «Mini-Landingpage pro Bereich bauen»)
 
 ## Was ist neu
 - Oben auf Velos und Material steht die Karte «Dein Stand in Zahlen»: drei grosse Zahlen (Kilometer im laufenden Monat, was in der Pflege fällig ist, Tage seit der letzten Fahrt). Jede führt dorthin, woher sie kommt (Fahrten-Buch, Pflege, Fahrten).
