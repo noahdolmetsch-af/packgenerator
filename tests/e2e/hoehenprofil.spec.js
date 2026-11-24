@@ -58,6 +58,8 @@ test('Elevation profile: debrief, saved debrief, ride, Touren tile, past trips',
   const planned = data.trips.find((x) => x.startDate > fixture().summary.today && x.route?.profile?.length > 1);
   await go(page, '#/trips');
   // SN4g: «Geplant» is a short list of cards (data-planned); open all of them
+  // (wait for the cards first: the page fills the list after the first paint, and a count taken before it is 0)
+  await page.locator('[data-planned] li.pc').first().waitFor();
   const more = page.locator('[data-planned] button.more');
   if (await more.count()) await more.click();
   const tile = page.locator(`[data-planned] li.pc[data-trip="${planned.id}"]`);
