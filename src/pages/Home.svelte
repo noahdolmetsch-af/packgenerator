@@ -74,7 +74,7 @@
   import { tripStats } from '../lib/trips.js';
   import { onTripDay } from '../lib/ride.js';
   import { demoState } from '../lib/demo.js';
-  import { askTour, TOUR_EVENT, END_EVENT } from '../lib/tour/run.js';
+  import { startStaerken, TOUR_EVENT, END_EVENT } from '../lib/tour/run.js';
   import { readRun } from '../lib/tour.js';
   import Continue from '../lib/home/Continue.svelte';
   import TagesSatz from '../lib/home/TagesSatz.svelte';
@@ -1445,7 +1445,7 @@
   {#if loaded && !editing}<NeuHeute {today} />{/if}
   {#if loaded && !editing}<MonthAdventureRow {today} />{/if}
   <!-- «Starte hier» (Noah 23.11.2026 «1-5a», V2): a new user: one main button, the three steps as a line, the tour, the sample race and a backup as quiet lines -->
-  {#if showFirst}<StartHier {steps} onbike={wantBike} onitem={() => addItem()} ontrip={() => openNew('list')} ondata={openData} ontour={() => askTour('app')} />{/if}
+  {#if showFirst}<StartHier {steps} onbike={wantBike} onitem={() => addItem()} ontrip={() => openNew('list')} ondata={openData} ontour={startStaerken} />{/if}
 
   {#if editing}
     <div class="ebar" role="region" aria-label={t('Customise the start page')}>

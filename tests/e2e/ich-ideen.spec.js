@@ -2,7 +2,7 @@
 // after a few mouse clicks in the sidebar; 36 suggestions off by kind (Ich › Ruhig › Ausgeblendet und aus). Empty app, German UI.
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
-import { TOURS, stepCount } from '../../src/lib/tour.js';
+import { TOURS, TOUR_NAMES, stepCount } from '../../src/lib/tour.js';
 import { SUGGEST_KINDS } from '../../src/lib/clear/suggest.js';
 import { HINT_AT } from '../../src/lib/nav/keyhint.js';
 
@@ -18,7 +18,8 @@ test.beforeEach(async ({ context }) => {
 
 test('30: a tour ended at step 3 offers «Weiter bei Schritt 3» and goes on there', async ({ page }) => {
   await page.goto('./');
-  await page.locator('[data-tourline]').getByRole('button', { name: T('Start ›|tour') }).click();
+  await page.goto('./#/me/handbook');
+  await page.locator('.hb-tsmall .lk', { hasText: T(TOUR_NAMES.app) }).click();
   await page.getByRole('dialog', { name: T('Tour of the app') }).locator('[data-choice="own"]').click();
   for (let i = 1; i <= 2; i++) {
     await page.locator('.tcard .btn.hi').click();
@@ -27,7 +28,8 @@ test('30: a tour ended at step 3 offers «Weiter bei Schritt 3» and goes on the
   await page.getByRole('button', { name: T('End tour') }).click();
   await expect(page.locator('.tour')).toHaveCount(0);
   await page.goto('./#/');
-  await page.locator('[data-tourline]').getByRole('button', { name: T('Start ›|tour') }).click();
+  await page.goto('./#/me/handbook');
+  await page.locator('.hb-tsmall .lk', { hasText: T(TOUR_NAMES.app) }).click();
   const ask = page.getByRole('dialog', { name: T('Tour of the app') });
   const resume = ask.locator('[data-choice="resume"]');
   await expect(resume).toContainText(T('Go on at step {n}', { n: 3 }));
