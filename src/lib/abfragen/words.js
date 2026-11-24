@@ -8,6 +8,8 @@ import { stravaName } from '../stravanames.js';
 
 /** The text of a question (an own one and a changed one as written). */
 export const qText = (q) => (q?.own || q?.edited ? q.text : q ? t(q.text) : '');
+/** The name of an activity in the shown language (as on Aktiv). */
+export const actLabel = (a) => (a ? (lang.v === 'de' && a.nameDe ? a.nameDe : a.name) || t('Activity') : '');
 /** A history row's question text: the question, the old pool question of the daily check, or its key. */
 export function rowText(row, own = []) {
   if (row.kind === 'ride') return stravaName(row.ride?.name) || t('Ride from Strava');

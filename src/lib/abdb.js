@@ -13,10 +13,33 @@ import { AB_KEY, AB_SNOOZE_KEY, MIRROR, configOf, mergeHistory, stampOf } from '
 import { QUESTIONS_KEY, poolOf, checkOf } from './flowcheck.js';
 import { WEIGHT_KEY } from './review/actdata.js';
 import { loadPastActs } from './review/actdata.js';
+import { WEEK_GOALS_KEY } from './flow/weekgoals.js';
+import { MERKEN_KEY } from './merkendb.js';
+import { PEOPLE_KEY as ALLTAG_PEOPLE_KEY } from './alltag.js';
 import { WEIGHT_KEY as ENTRIES_KEY, entriesOf, withEntry, cleanKg } from './weight.js';
 import { dreamEntry, DREAM_Q } from './tagebuch/traum.js';
 
 const plain = (x) => JSON.parse(JSON.stringify(x));
+
+/**
+ * «Verbindungen» (abfragen/verbindungen.js): what a text question can offer as one-tap answers, read live: the own to-dos, the goals of the
+ * week, the activities, the people you want to see, the stars of the last days. Only reading; a missing table or record is just empty.
+ */
+export function connQuery(today) {
+  return liveQuery(async () => {
+    const from = new Date(`${today}T00:00:00Z`);
+    from.setUTCDate(from.getUTCDate() - 8);
+    const get = (key) => db.settings.get(key).then((r) => r?.value ?? null).catch(() => null);
+    const [merken, weekGoals, people, acts, stars] = await Promise.all([
+      get(MERKEN_KEY),
+      get(WEEK_GOALS_KEY),
+      get(ALLTAG_PEOPLE_KEY),
+      db.flowActs ? db.flowActs.toArray().catch(() => []) : [],
+      db.flowStars ? db.flowStars.where('day').aboveOrEqual(from.toISOString().slice(0, 10)).toArray().catch(() => []) : [],
+    ]);
+    return { merken, weekGoals, people, acts, stars };
+  });
+}
 
 /** The settings, the snooze record, the answers and daily checks of the last 40 days, the body weight, live. */
 export function abQuery(today) {

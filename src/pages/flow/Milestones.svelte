@@ -159,7 +159,6 @@
           </select>
         {/if}
       </nav>
-      <a class="btn" href="#/flow/milestones?{filter === 'all' ? '' : `act=${encodeURIComponent(filter)}&`}tune=1">{t('Change stages')}</a>
     </div>
 
     {#if hero}<HeroNext {hero} label={label(hero.r)} title={titleOf} />{/if}

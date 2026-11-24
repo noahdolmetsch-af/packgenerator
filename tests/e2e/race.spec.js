@@ -21,6 +21,8 @@ test('Races: the sample race plays through, its tasks tick, the 40 functions swi
   await page.locator('[data-to-races]').click();
   await expect(page).toHaveURL(/#\/race$/);
   await expect(page.locator('h1')).toHaveText(T('Races'));
+  // «Sitemap» Touren (Noah 24.11.2026 «K3»): Rennen is a tab of Touren and stays lit on its pages
+  if (info.project.name === 'phone') await expect(page.locator('a[aria-current="page"]', { hasText: T('Races') }).first()).toBeVisible();
   await page.locator('[data-race-sample-open]').click();
   await expect(page).toHaveURL(/#\/race\/race-sample$/);
   await expect(page.locator('[data-race-sample]')).toBeVisible();
