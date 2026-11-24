@@ -1,6 +1,6 @@
 # Tests «Rückblick» und «Wochenrückblick»: kleine Knöpfe am Computer, Notiz und Ziel erst speichern, dann neu laden
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Regel 3 (Thread «Wackel-Tests zuverlässig machen»; `rueckblick-design.spec.js` am Computer rot auf main, `wochenrueckblick-mehr.spec.js` Wochenziel nach Neuladen leer)
+PR #1727 · 24.11.2026 · Auftrag: Regel 3 (Thread «Wackel-Tests zuverlässig machen»; `rueckblick-design.spec.js` am Computer rot auf main, `wochenrueckblick-mehr.spec.js` Wochenziel nach Neuladen leer)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für den Rückblick einer Tour und den Wochenrückblick.
