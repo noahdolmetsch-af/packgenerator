@@ -704,3 +704,44 @@ test('Kursblick Verteilung: Gruppen mit Ziel, Titel einordnen, Werte von Hand, G
   }
   expect(errors).toEqual([]);
 });
+
+test('Kursblick Depot: der Schlusskurs des gewählten Tages füllt den Preis ein, ein eigener Preis bleibt', async ({ page, context }, info) => {
+  const errors = await start(page, context);
+  const sheet = page.locator('[data-eintrag-sheet]');
+  const pts = titelAnswer('y:NESN.SW').points;
+  const close = (day) => String(Math.round(pts.find((p) => p[0] === day)[1] * 100) / 100);
+
+  await page.goto('./#/kurse/portfolio');
+  await page.getByRole('button', { name: T('Add a portfolio') }).click();
+  await page.locator('[data-depot-name]').fill('Übung');
+  await page.locator('[data-depot-save]').click();
+  await page.locator('[data-eintrag-neu]').click();
+  await expect(sheet).toBeVisible();
+  await sheet.locator('[data-eintrag-titel]').fill('nesn.sw');
+
+  // a Friday: that day's close
+  await sheet.locator('input[type="date"]').fill('2026-11-13');
+  await expect(sheet.locator('[data-eintrag-preis]')).toHaveValue(close('2026-11-13'));
+  await expect(sheet.locator('[data-eintrag-kurs-text]')).not.toContainText(T('That day had no trading, so this is the last trading day before it.'));
+
+  // a Saturday: the last trading day before it, and the text says so
+  await sheet.locator('input[type="date"]').fill('2026-11-14');
+  await expect(sheet.locator('[data-eintrag-preis]')).toHaveValue(close('2026-11-13'));
+  await expect(sheet.locator('[data-eintrag-kurs-text]')).toContainText(T('That day had no trading, so this is the last trading day before it.'));
+  await shot(page, info, 'kursblick-schlusskurs');
+
+  // an own price stays when the day changes; «Use this close» brings the close back
+  await sheet.locator('[data-eintrag-preis]').fill('123.45');
+  await sheet.locator('input[type="date"]').fill('2026-11-12');
+  await expect(sheet.locator('[data-eintrag-kurs]')).toBeVisible();
+  await expect(sheet.locator('[data-eintrag-preis]')).toHaveValue('123.45');
+  await sheet.locator('[data-eintrag-kurs]').click();
+  await expect(sheet.locator('[data-eintrag-preis]')).toHaveValue(close('2026-11-12'));
+
+  // the entry keeps the price that stands there
+  await sheet.locator('[data-eintrag-menge]').fill('4');
+  await sheet.locator('[data-eintrag-save]').click();
+  await expect(sheet).toHaveCount(0);
+  await expect(page.locator('[data-position="NESN.SW"]')).toContainText('4');
+  expect(errors).toEqual([]);
+});

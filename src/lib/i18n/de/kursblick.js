@@ -386,4 +386,9 @@ export default {
   'Bonds': 'Obligationen',
   'Real estate': 'Immobilien',
   'Savings and cash': 'Sparkonto und Bargeld',
+  'Looking up the close …': 'Der Schlusskurs wird gesucht …',
+  'No close found for this title and day. Write the price yourself.': 'Für diesen Titel und Tag gibt es keinen Schlusskurs. Schreib den Preis selbst.',
+  'Close of {day}: CHF {p}.': 'Schlusskurs vom {day}: CHF {p}.',
+  'That day had no trading, so this is the last trading day before it.': 'An diesem Tag wurde nicht gehandelt, darum gilt der letzte Handelstag davor.',
+  'Use this close': 'Diesen Schlusskurs nehmen',
 };
