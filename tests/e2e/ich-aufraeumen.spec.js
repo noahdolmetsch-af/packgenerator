@@ -24,7 +24,7 @@ test('Ich: five groups, Documents under Data, one row for reminders, the log und
   expect(errors).toEqual([]);
 });
 
-test('Logbuch: «?neu» opens the empty entry; the «?» window of every page has the line', async ({ page, context }, info) => {
+test('Logbuch: the address with neu opens the empty entry, the help window of every page has the line', async ({ page, context }, info) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   const T = await openHome(page, context, info);
@@ -36,5 +36,18 @@ test('Logbuch: «?neu» opens the empty entry; the «?» window of every page ha
   await expect(page.locator('[data-logbuch-sheet]')).toBeVisible();
   // the address no longer asks for a new entry (a reload does not open it again)
   await expect(page).toHaveURL(/#\/me\/logbuch$/);
+  expect(errors).toEqual([]);
+});
+
+test('Neu menu: the row Write down an improvement opens the empty log entry', async ({ page, context }, info) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const T = await openHome(page, context, info);
+  await page.goto('./#/gear');
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('pg:new')));
+  const row = page.locator('dialog.sheet.new [data-new-log]');
+  await expect(row).toContainText(T('Write down an improvement'));
+  await row.click();
+  await expect(page.locator('[data-logbuch-sheet]')).toBeVisible();
   expect(errors).toEqual([]);
 });

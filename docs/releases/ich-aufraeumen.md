@@ -3,7 +3,7 @@
 Auftrag: Noah 24.11.2026 «K1-K9 und Veloinspektion und Logbuch nach vorne holen. Ich ist ein Hinterzimmer mit 24 Türen» (Thread «Sitemap der App zeichnen», Umsetzungsauftrag PR 1 «Ich aufräumen»)
 
 ## Was ist neu
-- **Fünf Gruppen, 16 Zeilen** statt vier Gruppen mit 24 Zeilen: Daten (Daten und Backup, Verbindungen, **Dokumente neu**, Zuletzt gelöscht), Erinnerungen, Einstellungen, Hilfe, Mehr (zugeklappt).
+- **Fünf Gruppen, 17 Zeilen** statt vier Gruppen mit 24 Zeilen: Daten (Daten und Backup, Verbindungen, **Dokumente neu**, Zuletzt gelöscht), Erinnerungen, Einstellungen, Hilfe, Mehr (zugeklappt).
 - **Dokumente** (`#/me/docs`) ist eine Zeile in Daten.
 - **«Erinnerungen und Hinweise»**: eine Zeile statt drei (Erinnerungen, Erinnerungen aufs Handy, Hinweise und News). Die drei Seiten behalten ihre Adressen und führen mit «Weiter zu» (`weiter.js`) ineinander.
 - **Verbesserungs-Logbuch** steht jetzt in der Gruppe Hilfe (statt mitten in den Einstellungen).
