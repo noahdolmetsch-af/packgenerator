@@ -13,6 +13,7 @@ Auftrag: Noah 23.11.2026 «1a» (Thread «Prototyp», Prüfung Heute); Ziele Kla
 ## Selbst entschieden
 - **Wand bleibt gleich:** die gespeicherte Wand (Version 23) ändert sich nicht, keine Datenänderung. Der Block bleibt in der Wand gespeichert, nur die Anzeige holt ihn nach oben.
 - **Fertig-Regel:** Seite und Absprung: der Block selbst; Leer-Zustand und nächster Schritt wie in «Heute abhaken als erster Block»; keine neue Funktion in `features.js`.
+- Tests: `tests/e2e/bedienung.spec.js` «night quiet» wartete auf das Körper-Band; auf dem leeren Gerät steht seit «Starte hier» (1633) die Karte `[data-start-here]` (Test war auf main rot).
 - Tests: Reihenfolge-Annahmen in `heute-a`, `heute-p6`, `heute-ruhig`, `home-0460`, `meine-tour` und `heute-haken-block` auf die neue Stelle angepasst (`[data-haken-top]` nach `.ghead`, vor `.wall`).
 
 ## Wie das zu Klarheit und Auffindbarkeit beiträgt
