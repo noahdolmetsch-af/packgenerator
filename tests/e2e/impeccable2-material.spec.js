@@ -17,7 +17,7 @@ async function openGear(page, context, info, hash = '#/gear', display = 'list') 
   await openHome(page, context, info, { data: materialFixture() });
   await page.evaluate((d) => localStorage.setItem('gear.display', d), display);
   await page.goto(`./${hash}`);
-  await expect(page.getByRole('heading', { level: 1, name: hash.includes('view=wish') ? 'Einkauf' : 'Material' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: hash.includes('view=wish') ? 'Wunschliste' : 'Material' })).toBeVisible();
 }
 
 test('Material 2: the right column waits for a tap; a wish shows price, why and Bought', async ({ page, context }, info) => {
@@ -31,7 +31,7 @@ test('Material 2: the right column waits for a tap; a wish shows price, why and 
   // Einkauf: a tap on a wish fills the column with its price and why, and «Gekauft» moves it with Undo
   await page.goto('./#/gear?view=wish');
   await expect(page.getByRole('complementary', { name: 'Teil antippen' })).toContainText('warum es auf der Liste steht');
-  const wish = page.getByRole('region', { name: 'Einkauf' });
+  const wish = page.getByRole('region', { name: 'Wunschliste' });
   await wish.locator('li.fr > button:not(.btn)', { hasText: 'Ultralight tarp' }).click();
   await expect(page.locator('dialog[open]')).toBeVisible();
   await page.keyboard.press('Escape');
@@ -87,7 +87,7 @@ test('Material 3: the numbers once, the controls in one line, Display in the she
 
 test('Einkauf 2: no Woanders box and no Wishlist chip per row; the shop link through the row menu', async ({ page, context }, info) => {
   await openGear(page, context, info, '#/gear?view=wish');
-  const wish = page.getByRole('region', { name: 'Einkauf' });
+  const wish = page.getByRole('region', { name: 'Wunschliste' });
   await expect(wish.locator('li.fr').first()).toBeVisible();
   // no dashed «Woanders · Im Shop ansehen · eintragen» under every row, and no «Wunschliste» chip (the whole list is wishes)
   await expect(wish.locator('[data-sk-woanders]')).toHaveCount(0);

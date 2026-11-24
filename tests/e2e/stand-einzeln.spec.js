@@ -90,7 +90,11 @@ test('A wish waits 30 days before buying', async ({ page, context }, info) => {
   await openHome(page, context, info, { data: data() });
   await page.goto('./#/gear?view=wish');
   const pause = page.locator('[data-wish-pause="test_data_gtp_wish"]');
-  await tap(pause.locator('[data-wish-wait]'), info);
+  // Impeccable «Wunschliste» (24.11.2026): «30 Tage warten» is the first entry in the card's «…», no button on the card
+  await expect(pause.locator('[data-wish-wait]')).toHaveCount(0);
+  const row = page.locator('li.fr').filter({ has: pause });
+  await row.getByRole('button', { name: /^Mehr zu/ }).click();
+  await page.getByRole('menuitem', { name: /30 Tage warten/ }).click();
   await expect(pause.locator('[data-wish-waiting]')).toBeVisible();
   await expect.poll(async () => (await rows(page, 'items')).find((i) => i.id === 'test_data_gtp_wish')?.wishPause).toBe(day(30));
   expect(await noSideways(page)).toBe(0);
