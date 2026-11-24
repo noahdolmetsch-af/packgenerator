@@ -6,6 +6,7 @@
    * as Training: saved here, they show there too.
    */
   import { t, num } from '../i18n.svelte.js';
+  import Empty from '../ui/Empty.svelte';
   import { zoneRows, validBounds } from '../review/werte.js';
   import '../review/zones.css';
   import { weiter } from '../daumen.js'; // FE16: «Weiter» to the next field, the number keyboard
@@ -42,7 +43,7 @@
         {#each rows as r (r.z)}<li><i class="zc-{r.z}" aria-hidden="true"></i><b>Z{r.z}</b><span class="num">{range(r)}</span></li>{/each}
       </ul>
     {:else if !edit}
-      <p class="none">{t('No heart rate yet. Rides from Strava bring it.')}</p>
+      <Empty size="klein" text={t('No heart rate yet. Rides from Strava bring it.')} action={{ label: t('Connect Strava'), href: '#/me/connections' }} />
     {/if}
     {#if edit}
       <form class="ze" onsubmit={save} use:weiter>
@@ -94,11 +95,6 @@
   }
   .zr b {
     width: 2em;
-  }
-  .none {
-    margin: 0 0 12px;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
   }
   .ze {
     display: grid;

@@ -4,6 +4,7 @@
    * sport of a trip the last trip's list and a new trip of this sport.
    */
   import { ChevronRight, ShoppingBag, Plus } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
   import { switchTrip, newTrip } from '../nav.js';
   import { bagName } from '../flow/bagwords.js';
   import { t, tn, locale } from '../i18n.svelte.js';
@@ -17,8 +18,7 @@
   {#if bag}
     <a class="srow" href="#/flow/bags?b={encodeURIComponent(bag.id)}" data-sport-bag><ShoppingBag size={18} aria-hidden="true" /><span class="t"><b>{bagName(bag)}</b><small>{tn(bag.items.length, '{n} thing', '{n} things')}</small></span><ChevronRight size={18} aria-hidden="true" /></a>
   {:else}
-    <p class="none">{t('No sport bag for this activity yet.')}</p>
-    <a class="lnk" href="#/flow/bags"><Plus size={14} aria-hidden="true" /> {t('Make a sport bag')}</a>
+    <Empty size="klein" text={t('No sport bag for this activity yet.')} action={{ label: t('Make a sport bag'), href: '#/flow/bags' }} />
   {/if}
 {:else}
   {#if lastTrip}
