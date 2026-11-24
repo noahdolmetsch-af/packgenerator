@@ -9,6 +9,7 @@
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import LazyPage from '../lib/nav/LazyPage.svelte';
   import RaceSheet from '../lib/race/RaceSheet.svelte';
+  import AtlasImport from '../lib/race/AtlasImport.svelte';
   import { db } from '../lib/db.js';
   import { newTrip } from '../lib/trips.js';
   import { racesQuery, saveRace } from '../lib/race/store.js';
@@ -132,6 +133,7 @@
           <button type="button" class="btn sm" onclick={() => openSample(true)} data-race-sample-tour>{t('Show me around')}</button>
         </div>
       </section>
+      <AtlasImport trips={$tripsQ ?? []} bikes={$bikesQ ?? []} />
       {#if others.length}
         <section class="rc-box" aria-labelledby="rc-mark-h">
           <h2 id="rc-mark-h" class="rc-h2">{t('Make a trip a race')}</h2>

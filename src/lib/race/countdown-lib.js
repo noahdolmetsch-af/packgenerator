@@ -1,6 +1,6 @@
 /**
  * «Velo-Countdown» (Ziel 6, Noah 27.10.2026 «1a»: idea 3 of the ultra analysis): what to do with the bike
- * 6, 5, 4 … weeks before a race, as your own list per race (stored.countdown = [{ id, text, weeks, done }]).
+ * 8, 6, 4, 3 … weeks before a race, as your own list per race (stored.countdown = [{ id, text, weeks, done }]).
  * Until you change something the suggestions show (English keys for t()); your own words never go
  * through t(). Pure functions; tested in tests/race-countdown.test.js.
  */
@@ -10,11 +10,11 @@ const daysBetween = (a, b) => Math.round((Date.parse(`${b}T12:00:00Z`) - Date.pa
 
 /** The suggestions: a few steps from the paper check (sheet 1 B and F) and the learnings of long races. */
 export const STEPS = [
-  { id: 'cd-shop', weeks: 6, text: 'Bike to the shop: service, order worn parts' },
-  { id: 'cd-parts', weeks: 6, text: 'New parts on now (tyres, chain), so you ride them in' },
-  { id: 'cd-freeze', weeks: 5, text: 'Nothing new on the bike from now: no new parts, no new position' },
+  { id: 'cd-parts', weeks: 8, text: 'New parts on now (tyres, chain, bags, mounts), so you ride them in' },
+  { id: 'cd-freeze', weeks: 6, text: 'Nothing changes from now: bike, bags, luggage, lights and mounts stay as they are' },
   { id: 'cd-night', weeks: 4, text: 'Lights, power bank and bike computer: test them for a whole night' },
-  { id: 'cd-test', weeks: 3, text: 'Test ride fully loaded, then no more setup questions' },
+  { id: 'cd-shop', weeks: 3, text: 'Bike service in the shop (no new parts, no new position)' },
+  { id: 'cd-test', weeks: 2, text: 'Ride it in with everything mounted: all bags, lights, bike computer' },
   { id: 'cd-pads', weeks: 2, text: 'Top up the sealant, look at the brake pads' },
   { id: 'cd-track', weeks: 1, text: 'Track on the bike computer, clean and oil the chain' },
 ];

@@ -1113,6 +1113,11 @@ const LISTED = {
     steps: ['Open Trips › «Plan races in detail» and tap a race.', 'Fill in the five sheets one by one; everything saves by itself.'],
     example: 'Example: sheet 2 «Target setup»: the frame bag holds the rain jacket and the head torch, 150 g empty.',
   },
+  'f.raceatlas': {
+    on: null,
+    steps: ['Open Trips › Races › «Take races from your race list» and choose the file.', 'Tick the races and tap «Create … races».'],
+    example: 'Example: 3 races in the file, 1 already here → 2 new races with day and length.',
+  },
   'f.racesample': {
     on: null,
     steps: ['Open Trips › Races › «See the sample race».', 'Tap «Show me around» for the tour, then do the small tasks in «Plan».'],
