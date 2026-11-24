@@ -34,7 +34,9 @@ const LINES = ONLY === undefined || ONLY === 'all' ? ROWS : ROWS.filter(([, text
 
 // The lines are tapped in parts of PART lines each, so that a part finishes well inside its time limit (one test over
 // all ~500 lines ran into the 10-minute limit). Every line is still tapped once; the parts are counted from the source.
-const PART = 40;
+// 24.11.2026: about 1,400 lines now. 40 lines took up to 2 minutes on a quiet machine and 4 to 5 minutes on the loaded
+// CI machines, so part 34 and 35 ran into the 5-minute limit of a part. 20 lines keep a part at about half of it.
+const PART = 20;
 const PARTS = Math.max(1, Math.ceil(LINES.length / PART));
 test.setTimeout(300_000);
 
