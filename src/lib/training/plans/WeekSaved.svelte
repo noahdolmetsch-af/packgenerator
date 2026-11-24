@@ -5,7 +5,7 @@
    * or replaces the sessions of the week that are not done. Own groups (rename, delete with «No group» preselected),
    * arrows and drag to order, rename, remove. Every change goes to the page with a message (Undo is offered there).
    */
-  import { CalendarPlus } from '@lucide/svelte';
+  import { CalendarPlus, X } from '@lucide/svelte';
   import { t, tn } from '../../i18n.svelte.js';
   import RenameSheet from '../../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../../ui/GroupDeleteSheet.svelte';
@@ -122,7 +122,7 @@
                 <option value="__new">{t('New group …')}</option>
               </select>
               <SortArrows name={w.name} {i} n={b.list.length} onstep={(dir) => step(w, dir)} />
-              <button type="button" class="btn btn-link sm" aria-label={t('Remove')} onclick={() => remove(w)} data-weeks-delete={w.id}>✕</button>
+              <button type="button" class="btn btn-link sm" aria-label={t('Remove')} onclick={() => remove(w)} data-weeks-delete={w.id}><X size={16} aria-hidden="true" /></button>
             </li>
           {/each}
         </ul>

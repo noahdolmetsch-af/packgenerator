@@ -40,6 +40,7 @@
   import PackBike from './PackBike.svelte';
   import BagRoll from './BagRoll.svelte';
   import '../trip/trip.css';
+  import { tickPop } from '../ui/rowout.js'; // «Bewegung» 4a: the tick of an item that was just packed pops once
 
   let { trip, steps, itemsById, badges = {}, ready = [], wxGap = null, wxd = null, onwx = () => {}, ontoggle, onready, onpack = () => {}, onreadyall = () => {}, onnext, onundo = () => {}, canUndo = false, main = { kind: 'finish', label: 'Finish packing' }, onend = () => {}, bike = true, lessons = [], reminders = [], oncharge = null, pressure = '', stats = null, charge = null, top = null, fixed = false, onread = null, onmove = null, spare = [] } = $props();
   // TZ-2 «Fest nach der Fahrt» (mockup TZ2, Noah 5a): a completed or rated trip (fixed) shows its bags as
@@ -146,6 +147,7 @@
     if (busy.has(e.itemId)) return;
     busy.add(e.itemId);
     const willFill = !e.packed && step.done + 1 === step.entries.length;
+    const box = !e.packed ? ev?.currentTarget?.querySelector?.('.box') : null;
     if (!e.packed) buzz(); // FE7 (Noah 13.10.2026): a short buzz when an item goes in, where the phone can
     try {
       remember();
@@ -153,6 +155,7 @@
     } finally {
       busy.delete(e.itemId);
     }
+    if (box) requestAnimationFrame(() => tickPop(box));
     if (willFill) advance(step.key, JUMP_MS, at);
     else if (timer) cancelJump();
     sortLater();

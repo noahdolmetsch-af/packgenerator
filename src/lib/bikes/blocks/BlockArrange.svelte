@@ -221,8 +221,6 @@
   .sheet .bname b {
     color: var(--accent);
     font: 700 var(--fs-tiny) / 1.4 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .bsum {
     margin: 2px 0 0;

@@ -305,8 +305,6 @@
     color: var(--ink-3);
     font-size: var(--fs-tiny);
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .sentence {
     margin: 8px 0 0;

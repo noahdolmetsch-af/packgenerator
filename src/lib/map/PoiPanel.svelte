@@ -798,9 +798,9 @@
     scroll-snap-align: start;
   }
   .pp-chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .pp-where {
     display: flex;
@@ -1061,9 +1061,9 @@
     color: var(--ink);
   }
   .pp-iconbtn[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .pp-form,
   .pp-lab {

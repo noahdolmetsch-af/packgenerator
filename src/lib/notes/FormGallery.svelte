@@ -157,8 +157,6 @@
     margin: 16px 0 4px;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
   }
   .fg-x {
     display: grid;

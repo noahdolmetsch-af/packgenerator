@@ -458,8 +458,6 @@
     color: var(--ink-3);
     font-size: var(--fs-label);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .rrow,
   .quiet li {

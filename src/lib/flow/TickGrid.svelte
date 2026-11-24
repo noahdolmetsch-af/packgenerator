@@ -24,10 +24,13 @@
   import { tileSub } from './words.js';
   import { isMedAct } from './hobby/medstart.js';
   import { t } from '../i18n.svelte.js';
+  import { tickPop } from '../ui/rowout.js'; // «Bewegung» 4a: the tick of a tile that was just ticked pops once
   let { states = [], today, cols = 2, onmed = null, big = false, compact = false, help = false, medHelp = false, jump = false } = $props();
-  const tap = async (s) => {
+  const tap = async (s, el) => {
     if (onmed && isMedAct(s.act)) return onmed(s);
+    const ticking = !s.todayDone;
     const e = await tapAct(s, today);
+    if (ticking) requestAnimationFrame(() => tickPop(el?.querySelector?.('.ic')));
     // a new star keeps its own window and the message (nothing opens over a celebration); «almost a star» stays as the message's line
     if (jump && e && !ui.star) {
       if (ui.toast?.hint) ui.toast = { ...ui.toast, next: null };
@@ -48,7 +51,7 @@
         aria-pressed={s.todayDone}
         title={compact ? tileSub(s) : undefined}
         aria-description={t('Long press: place, amount, duration or the countdown')}
-        use:press={{ tap: () => tap(s), long: () => (ui.tick = s.act.id) }}
+        use:press={{ tap: (ev) => tap(s, ev?.currentTarget), long: () => (ui.tick = s.act.id) }}
       >
         <span class="ic" aria-hidden="true">{#if s.todayDone}<Check size={big ? 18 : 20} strokeWidth={2.6} />{:else}<ActIcon icon={s.act.icon} ring={s.act.ring} box={false} size={18} />{/if}</span>
         <span class="tx"><b>{actName(s.act)}</b>{#if compact}<small class="sr">{tileSub(s)}</small>{:else}<small>{tileSub(s)}</small>{/if}</span>

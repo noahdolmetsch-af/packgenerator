@@ -369,8 +369,6 @@
     margin: 16px 0 8px;
     font-size: var(--fs-label);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-2);
   }
   .days {
@@ -396,9 +394,9 @@
     font-size: var(--fs-body);
   }
   .dy[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dy[aria-pressed='true'] b {
     color: var(--paper);

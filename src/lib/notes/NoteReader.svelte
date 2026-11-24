@@ -8,7 +8,7 @@
   import { noteTitle } from '../notebook.js';
   import { photosOf, linksOf, placeLinks, placeText, mdToHtml } from '../noteformats.js';
   import { t, locale } from '../i18n.svelte.js';
-  import { X, Pencil, MapPin } from '@lucide/svelte';
+  import { X, Pencil, MapPin, SquareCheck, Square } from '@lucide/svelte';
 
   let { note, onclose } = $props();
   let dialog;
@@ -32,7 +32,7 @@
     {#if note.text?.trim()}<div class="md">{@html mdToHtml(note.text)}</div>{/if}
     {#if cl.length}
       <ul class="cl">
-        {#each cl as c, i (i)}<li class:done={c.done}><span aria-hidden="true">{c.done ? '☑' : '☐'}</span> {c.text}</li>{/each}
+        {#each cl as c, i (i)}<li class:done={c.done}><span aria-hidden="true">{#if c.done}<SquareCheck size={16} class="ic-in" />{:else}<Square size={16} class="ic-in" />{/if}</span> {c.text}</li>{/each}
       </ul>
     {/if}
     {#if note.place}

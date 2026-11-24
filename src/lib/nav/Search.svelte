@@ -800,8 +800,6 @@
     margin: 10px 8px 4px;
     font: 600 var(--fs-tiny) var(--font-body);
     color: var(--ink-2);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   ul {
     list-style: none;

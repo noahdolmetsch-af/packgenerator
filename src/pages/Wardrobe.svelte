@@ -1016,9 +1016,9 @@
     border-color: var(--warn);
   }
   .pin[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .pin[aria-pressed='true'] .n,
   .pin[aria-pressed='true'] .gp {
@@ -1801,8 +1801,6 @@
     margin: 0;
     color: var(--hi);
     font: 600 var(--fs-label)/1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   /* Etappe 6 (E6-006): in the dark theme the band is the light card of the page; the orange kicker was 1.9 : 1 on it */
   :global(:root[data-theme='dark']) .tband .tk {

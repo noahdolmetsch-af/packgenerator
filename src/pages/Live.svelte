@@ -2302,8 +2302,8 @@
     transition: bottom 0.15s var(--ease-out);
   }
   .lvf-goal[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .lvf-photo {
     position: absolute;
@@ -2680,8 +2680,8 @@
     transition: bottom 0.15s var(--ease-out);
   }
   .lvf-north[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .lvf-follow {
     position: absolute;

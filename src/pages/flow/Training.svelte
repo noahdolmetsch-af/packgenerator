@@ -158,7 +158,7 @@
         {/each}
       </ul>
       {#if list.length > shown}<button type="button" class="btn more" onclick={() => (shown += PAGE)}>{t('Show more')} <span class="num">({list.length - shown})</span></button>{/if}
-      {#if !list.length}<p class="none">{t('No activity for this choice.')}</p>{/if}
+      {#if !list.length}<Empty size="klein" text={t('No activity for this choice.')} action={{ label: t('Show all'), onclick: () => ((kind = 'all'), (indoor = false), (month = ''), (shown = PAGE)) }} />{/if}
       <div class="lg"><ZoneBar bar={false} legend /></div>
       <p class="hint">{t('The bar fills in once the heart rate of the activity is fetched (the newest by themselves, any other when you open it).')}</p>
       <PasstHier place="training" />
@@ -258,8 +258,6 @@
     padding: 8px 0;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.2 var(--font-body);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   a.row:hover {
     background: var(--paper-2);
@@ -301,7 +299,6 @@
   .more {
     margin-top: 12px;
   }
-  .none,
   .hint {
     margin: 10px 0 0;
     color: var(--ink-2);

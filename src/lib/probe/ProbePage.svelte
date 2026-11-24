@@ -276,9 +276,9 @@
     cursor: pointer;
   }
   .ch[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .ch.ok[aria-pressed='true'] {
     border-color: var(--accent);

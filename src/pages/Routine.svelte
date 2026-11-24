@@ -239,9 +239,9 @@
     cursor: pointer;
   }
   .rtp-day[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .rtp-plus {
     font-weight: 600;

@@ -96,8 +96,6 @@
   }
   .kick {
     font-size: var(--fs-rec-kick);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--rv-rec);
     margin: 0;
   }

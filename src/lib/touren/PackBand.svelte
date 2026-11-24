@@ -99,8 +99,6 @@
     margin: 0;
     color: var(--st-plan);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .bt b {
     font: 600 var(--fs-body) / 1.3 var(--font-body);

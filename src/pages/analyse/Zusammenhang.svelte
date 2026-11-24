@@ -208,8 +208,6 @@
     color: var(--ink-3);
     font-size: var(--fs-label);
     font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .sub {
     margin: 2px 0 0;
@@ -248,8 +246,6 @@
   .pl {
     color: var(--ink-3);
     font-size: var(--fs-label);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .off {
     display: flex;

@@ -331,8 +331,6 @@
   .al-tile i {
     font-style: normal;
     font-size: var(--fs-tiny);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     color: var(--ink-3);
     min-height: 1em;
   }

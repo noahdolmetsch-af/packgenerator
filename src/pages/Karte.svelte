@@ -158,7 +158,5 @@
     margin: 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
 </style>

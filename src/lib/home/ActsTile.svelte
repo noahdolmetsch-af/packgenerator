@@ -11,6 +11,7 @@
    * `haken`: the block «Tick off today» is on the wall (Noah 23.11.2026 «2a»); the ones it shows are not shown a second time here.
    */
   import { Flame, ChevronRight } from '@lucide/svelte';
+  import Empty from '../ui/Empty.svelte';
   import TickGrid from '../flow/TickGrid.svelte';
   import MedStartSheet from '../flow/MedStartSheet.svelte';
   import { flowQuery, seedIfNeeded } from '../flow/data.svelte.js';
@@ -56,7 +57,7 @@
   {#if shown.length}
     <TickGrid states={shown} {today} cols={phone.matches ? 2 : 4} onmed={(s) => (medFor = s.act.id)} />
   {:else if data && ready && !up.length}
-    <p class="empty">{t('Add your activities in Aktiv, then you tick them off here in one tap.')}</p>
+    <Empty size="klein" text={t('Add your activities in Aktiv, then you tick them off here in one tap.')} action={{ label: t('Open my activities'), href: '#/flow/goals' }} />
   {/if}
   {#if up.length}<p class="up" data-acts-up>{t('{list}: up with your habits', { list: up.map((s) => actName(s.act)).join(', ') })}</p>{/if}
   <NudgeCards {today} />
@@ -74,11 +75,6 @@
     height: 100%;
     padding: 14px 18px;
     box-sizing: border-box;
-  }
-  .empty {
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-    margin: 0;
   }
   .up {
     margin: 0;

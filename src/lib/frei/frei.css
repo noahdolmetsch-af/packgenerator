@@ -60,9 +60,9 @@
   cursor: pointer;
 }
 .fz-chip[aria-pressed='true'] {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--paper);
+  border-color: var(--hi);
+  background: var(--hi);
+  color: var(--hi-ink);
 }
 .fz-list {
   display: flex;
@@ -172,8 +172,6 @@
 .fz-kick {
   color: var(--ink-3);
   font: 600 var(--fs-tiny) var(--font-body);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 .fz-big {
   margin: 0;

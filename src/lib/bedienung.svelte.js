@@ -31,6 +31,9 @@ function apply() {
   const root = document.documentElement;
   if (ops.contrast) root.dataset.contrast = 'high';
   else delete root.dataset.contrast;
+  // «Farbe pro Bereich» (Noah 24.11.2026 «1b»): app.css colours the action colour by place unless this says off
+  if (ops.areacolor) delete root.dataset.areacolor;
+  else root.dataset.areacolor = 'off';
 }
 
 /** Read the stored switches, set the contrast on <html>, open the start place, keep the last place. */

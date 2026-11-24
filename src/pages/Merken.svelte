@@ -626,8 +626,6 @@
     margin: 16px 0 2px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.4 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .sh {
     margin: 10px 0 2px;
@@ -777,9 +775,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .lists {
     margin-top: 22px;

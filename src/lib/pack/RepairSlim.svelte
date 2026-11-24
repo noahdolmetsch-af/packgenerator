@@ -106,7 +106,7 @@
   .sic { display: grid; flex: none; place-items: center; width: 40px; height: 40px; border-radius: 8px; background: var(--paper); color: var(--ok); }
   .sum b { display: block; font-weight: 600; }
   .sum small { display: block; font-size: var(--fs-small); color: var(--ink-2); overflow-wrap: break-word; }
-  .grp-l { margin: 18px 0 8px; font-size: var(--fs-tiny); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); }
+  .grp-l { margin: 18px 0 8px; font-size: var(--fs-tiny); font-weight: 600; color: var(--ink-2); }
   .ogrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: 10px; }
   .full { margin: 8px 0 0; font-size: var(--fs-small); color: var(--warn); }
   .more { margin: 12px 0 0; font-size: var(--fs-small); color: var(--ink-2); }

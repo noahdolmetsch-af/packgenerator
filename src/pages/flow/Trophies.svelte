@@ -9,6 +9,7 @@
    * Only the stars that exist today (flowms.js). Package G (#231–#233): the data areas bike, Fitbit and everyday.
    */
   import { Star, ChevronRight } from '@lucide/svelte';
+  import Empty from '../../lib/ui/Empty.svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import Sec from '../../lib/flow/kit/Sec.svelte';
@@ -90,7 +91,7 @@
             </ul>
           </section>
         {:else}
-          {#if !gbShow}<p class="card none">{t('No stars here yet. The next ones are under «Milestones».')}</p>{/if}
+          {#if !gbShow}<Empty size="klein" text={t('No stars here yet. The next ones are under «Milestones».')} action={{ label: t('Open the milestones'), href: '#/flow/milestones' }} />{/if}
         {/each}
         {#if gbShow}
           <section class="grp" data-area="gipfelbuch" aria-labelledby="tv-gipfelbuch">
@@ -292,12 +293,6 @@
   }
   .wait {
     margin: 0;
-    color: var(--ink-3);
-    font-size: var(--fs-small);
-  }
-  .none {
-    margin: 0;
-    padding: var(--sp-3) var(--sp-4);
     color: var(--ink-3);
     font-size: var(--fs-small);
   }

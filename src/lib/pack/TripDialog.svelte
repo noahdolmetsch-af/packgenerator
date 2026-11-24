@@ -1155,9 +1155,9 @@
     opacity: 0.85;
   }
   .toggle[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   /* v0.25.0 (M3): the context of a bike trip and the live "Your packing list". */
   .ctx {
@@ -1492,8 +1492,6 @@
     margin: 10px 0 6px;
     font-size: var(--fs-tiny);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-2);
   }
   .obtns {

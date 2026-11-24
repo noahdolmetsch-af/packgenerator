@@ -99,7 +99,8 @@ test('2 + 3: newest problems on top; the priority changes in two taps, also thro
   await expect(group.getByRole('button', { name: 'Mittel' })).toHaveAttribute('aria-pressed', 'true');
   await shot(page, info, 'priority-row-after');
   await tap(group.getByRole('button', { name: 'Hoch' }), info);
-  await expect(row.getByRole('status')).toHaveText('✓ Priorität: Hoch');
+  // the tick is an icon since «Schöner Runde 1» (on purpose), so only the text is compared
+  await expect(row.getByRole('status')).toHaveText(/Priorität: Hoch$/);
   await expect.poll(async () => (await repairs(page)).find((r) => r.id === 9202)?.priority).toBe('high');
   await expect(row.getByRole('button', { name: 'Priorität: Hoch' })).toBeVisible();
 

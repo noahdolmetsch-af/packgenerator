@@ -52,9 +52,9 @@
     gap: 8px;
   }
   .kp [aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .ko {
     display: grid;

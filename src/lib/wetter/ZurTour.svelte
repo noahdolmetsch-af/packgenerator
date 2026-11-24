@@ -114,8 +114,6 @@
     margin: 0;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
   .zt-head {
     margin: 0;

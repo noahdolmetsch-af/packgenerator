@@ -105,8 +105,6 @@
     margin: 0;
     color: var(--warn);
     font: 700 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   h3 {
     margin: 2px 0 0;

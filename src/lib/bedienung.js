@@ -15,6 +15,7 @@
  * - heutebild: the drawn landscape with the next trip on top of Today (Noah 03.11.2026, Paket G), on by default
  * - kuhglocke: the cow bells of the logo surprise ring out loud (Noah 03.11.2026, H1 aus dem Geheimmenü), off by default: the only sound that is never on by itself
  * - improve: the button «Verbessern» on every page (Noah 21.11.2026, Verbesserungs-Logbuch step 2), on by default; browser tests (webdriver) start with it off, unless a test turns it on
+ * - areacolor: a colour per area (Noah 24.11.2026 «1b»): Plan ochre, Tours terracotta, Bikes and gear blue, Analysis plum, Weather sky blue; the action colour of the page follows, on by default
  * - contrast: high contrast for the sun outdoors (FE2), off by default
  * The pure part; bedienung.svelte.js holds the live state.
  */
@@ -34,6 +35,7 @@ export const OPS = [
   { key: 'heutebild', name: 'Picture on top of Today', text: 'A drawn landscape with your next trip and the days to go; the sky follows the time of day and the weather.', on: true },
   { key: 'kuhglocke', name: 'Cow bells', text: 'Sound for the bell surprise behind the logo («PG», tapped five times). Off: only the picture, no sound.', on: false },
   { key: 'improve', name: 'Improve button', text: 'A button «Improve» on every page: tap it, tap a block, and write down what could be better. It goes into Me › Improvement log.', on: true },
+  { key: 'areacolor', name: 'Colour per area', text: 'Each area has its own colour: the + button, chosen chips and the line under the tab follow it. Off: one green everywhere.', on: true },
   { key: 'contrast', name: 'High contrast (outdoors)', text: 'Darker text and stronger lines, easier to read in the sun.', on: false },
 ];
 export const OPS_KEY = 'ops.';
