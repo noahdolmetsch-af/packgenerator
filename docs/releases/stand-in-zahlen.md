@@ -19,7 +19,7 @@ PR #1728 · 24.11.2026 · Auftrag: Noah «b» (Thread «Mini-Landingpage pro Ber
 - **Ein globaler Schalter** statt einem pro Bereich: «Ausblenden» auf einem Bereich gilt für alle gleich; Rückgängig und der Schalter in Bedienung holen sie zurück. Nur auf diesem Gerät (wie alle Schalter in Bedienung), keine Daten, kein Backup berührt.
 - «Fällig» ist grau-braun (Warnfarbe), nie rot: ein Hinweis, kein Alarm.
 - Kein Eintrag in `features.js`: ein Baustein, keine eigene Seite. Er bekommt einen, wenn er auf mehreren Bereichen steht. Absprung: jede Zahl ist selbst einer.
-- Die Farbe pro Bereich und der Zahlenstil («Stat») aus «App schöner, Runde 1» sind noch nicht online; die Karte nutzt die heutigen Farben und denselben Zahlengrössen-Wert (`--fs-num`) und wird danach auf `Stat` umgestellt.
+- Zahlenstil und Farbe pro Bereich (#1716) sind online: die Karte nutzt dieselbe Zahlengrösse und -schrift wie `Stat` (`--fs-num`) und folgt der Farbe des Bereichs (Velos und Material blau). Den Baustein `Stat` selbst nutzt sie nicht, weil die Beschriftung einer Zahl hier den Weg-Pfeil trägt.
 
 ## Entscheide (eigene Datei `docs/decisions/stand-in-zahlen.md`)
 - 24.11.2026: Idee «b» (Dein Stand in Zahlen) für alle Bereiche, erst als Muster auf einem Bereich.
