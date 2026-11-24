@@ -20,6 +20,8 @@
   import { titleOf, subOf, dayName, wxWords, holidayName } from '../lib/woche/words.js';
   import { homeForecast } from '../lib/home-weather.js';
   import { db } from '../lib/db.js';
+  import { liveQuery } from 'dexie';
+  import SoSiehts from '../lib/firststart/SoSiehts.svelte';
   import { mondayOf, shiftDay } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -56,6 +58,8 @@
   const monday = $derived(mondayOf(day));
   const days = $derived(weekOf(day, shiftDay));
 
+  // «So sieht's aus» (Noah «1-5a»): the sample week is offered only while there is not one tick in the app (not on every empty day of a used app)
+  const anyTick = liveQuery(() => db.flowLog.limit(1).count());
   const q = $derived(weekQuery(today));
   const src = $derived($q);
   let forecast = $state(null);
@@ -148,7 +152,7 @@
     const item = items().find((x) => x.id === b.e.id);
     if (item) change(item, ev.shiftKey ? { mins: to.end - to.start } : { time: fmtMin(to.start) });
   }
-  const weekTodos = $derived(items().filter((x) => x.kind === 'todo').map((x) => ({ id: x.id, title: x.title, day: x.day, done: x.done })));
+  const weekTodos = $derived(items().filter((x) => x.kind === 'todo').map((x) => ({ id: x.id, title: x.title, day: x.day, done: x.done, time: x.time || '' })));
   async function tickItem(it) {
     const before = items();
     await saveItems(before.map((x) => (x.id === it.id ? { ...x, done: true } : x)));
@@ -191,7 +195,7 @@
   }
 </script>
 
-<PageHead title={tab === 'todos' ? t('My to-dos') : tab === 'abhaken' ? t('Tick off today') : t('My day')} what={tab === 'todos' ? t('Everything still open in one list: yours from Remember and the ones you put on a day.') : tab === 'abhaken' ? t('One tap ticks a sport or habit. Duration and feeling are optional.') : t('Read the day, tap an entry to open it where it lives.')} />
+<PageHead title={tab === 'todos' ? t('My to-dos') : tab === 'abhaken' ? t('Tick off today') : t('My day')} what={tab === 'todos' ? t('Everything still open, in one list.') : tab === 'abhaken' ? t('One tap ticks a sport or habit.') : t('Your day at a glance. Tap an entry to open it.')} />
 
 <p class="tabs"><Seg label={t('Views of My day')} value={tab} options={[{ key: 'day', name: t('Day') }, { key: 'todos', name: t('To-dos') }, { key: 'abhaken', name: t('Tick off|tab') }]} onchange={(k) => (remember(k), (location.hash = k === 'todos' ? '#/day/todos' : k === 'abhaken' ? '#/day/abhaken' : `#/day/${today}`))} /></p>
 
@@ -277,7 +281,7 @@
   {/snippet}
 
   {#if !lay.blocks.length && !lay.untimed.length && !lay.allDay.length}
-    <Empty title={t('Nothing planned on this day')} text={t('Plan sessions, dates and to-dos in Woche. They appear here with their time.')} action={{ label: t('Open Woche'), href: '#/week' }} />
+    <Empty title={t('Nothing planned on this day')} text={t('Plan sessions, dates and to-dos in Woche. They appear here with their time.')} action={{ label: t('Open Woche'), href: '#/week' }}>{#if $anyTick === 0}<SoSiehts area="week" />{/if}</Empty>
     <details class="tlfold" data-tl-fold>
       <summary>{t('Show the timeline')}</summary>
       {@render timeline()}

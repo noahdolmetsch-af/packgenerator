@@ -76,6 +76,7 @@
   import { undoSteps, keepUndoSteps } from '../lib/pack/undostack.js';
   import { Wrench, Package, ChevronRight, BatteryCharging, Undo2, Mountain, Bike as BikeIc, TrainFront, Car, Waves, Bath, Droplets, Hand } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import SoSiehts from '../lib/firststart/SoSiehts.svelte';
   import { stageCount } from '../lib/ride.js';
   import { forecastForTrip, toWx } from '../lib/weather.js';
   import { wxDiff } from '../lib/wxdiff.js'; // idea C2: what the turned weather changes on the list
@@ -931,6 +932,7 @@
   <h1 class="title big">{t('Pack')}</h1>
   <!-- v0.127.0 A-U2: the one empty building block -->
   <Empty icon={Package} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip'), onclick: () => (dialog = { trip: null }) }}>
+    <SoSiehts area="pack" />
     {t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.
   </Empty>
 <!-- v0.59.0: the list waits for the gear too. Without it a worn jersey is not known as clothing for a
