@@ -1,6 +1,6 @@
 # Test «Tote Knöpfe»: «Aktualisieren» bei Hinweisen erst, wenn die Seite da ist, dann offline
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Regel 3 (Thread «Wackel-Tests zuverlässig machen»; `tote-knoepfe.spec.js:28`, am Handy rot auf main)
+PR #1731 · 24.11.2026 · Auftrag: Regel 3 (Thread «Wackel-Tests zuverlässig machen»; `tote-knoepfe.spec.js:28`, am Handy rot auf main)
 
 ## Was ist neu
 - Nichts Sichtbares geändert, nur Test für die toten Knöpfe. Der Test schaltete das Netz aus, sobald `#/me/hinweise` aufgerufen war. Die Seite ist ein nachgeladenes Stück (lazy chunk); fehlt es beim Ausschalten noch, lädt die App neu und landet auf der Offline-Seite des Browsers. «Aktualisieren» ist dann nie da (Zeitüberschreitung nach 90 s).
