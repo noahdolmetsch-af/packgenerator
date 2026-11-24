@@ -2,7 +2,7 @@
 // and the window groups them by place (src/lib/know/neuseit.js, neuseitOrte.js).
 import { describe, it, expect } from 'vitest';
 import { fromOf, sinceInfo, sinceFormat, STRIP } from '../src/lib/know/neuseit.js';
-import { groupByPlace, placeOfLine, ELSEWHERE } from '../src/lib/know/neuseitOrte.js';
+import { groupByPlace, placeOfLine, placeLabel, ELSEWHERE } from '../src/lib/know/neuseitOrte.js';
 
 const rows = [
   { version: '0.5.0', date: '2026-11-23', np: 2, ns: 1, id: 'e', bilder: [{ line: 1, vorher: true }] },
@@ -63,5 +63,12 @@ describe('groupByPlace', () => {
   it('a line with an address finds its place; one without goes to «elsewhere»', () => {
     expect(placeOfLine({ text: 'x', go: { href: '#/trips', where: 'w' } })).toBe('trips');
     expect(placeOfLine({ text: 'x', go: null })).toBe(ELSEWHERE);
+  });
+  it('Me has its own name and no two groups share a name', () => {
+    expect(placeLabel('me')).toBe('Me|place');
+    const list = [{ version: '0.2.0', date: '2026-11-23', points: [{ text: 'a', go: { href: '#/me/news', where: 'w' } }, { text: 'b', go: null }], small: [] }];
+    const labels = groupByPlace(list, '0.1.0').map((x) => x.label);
+    expect(labels).toEqual(['Me|place', 'More places|news']);
+    expect(new Set(labels).size).toBe(labels.length);
   });
 });

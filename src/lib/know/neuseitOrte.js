@@ -19,7 +19,7 @@ export function placeOfLine(p) {
 }
 
 /** The English key (for t()) of a place's name. */
-export const placeLabel = (key) => ALL_PLACES.find((x) => x.key === key)?.label ?? 'More places|news';
+export const placeLabel = (key) => (key === 'me' ? 'Me|place' : (ALL_PLACES.find((x) => x.key === key)?.label ?? 'More places|news')); // «Ich» is no place of the bar, so it has no row in ALL_PLACES
 
 /**
  * Groups the lines of the full entries after `from`: [{ key, label, items: [{ id, version, date, line, p, bild }] }], the group
