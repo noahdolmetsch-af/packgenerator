@@ -8,9 +8,9 @@ export default {
   since: [],
   de: {
     'The Data page opens fast again': 'Die Seite «Daten» öffnet wieder schnell',
-    'It no longer reads every safety copy just to list them. Me › Data › Storage now also shows how much the copies take.': 'Sie liest nicht mehr jede Sicherung, nur um sie aufzulisten. Ich › Daten › Speicher zeigt jetzt auch, wie viel die Kopien brauchen.',
-    'Me › Data opens at once, even with many copies before updates': 'Ich › Daten öffnet sofort, auch mit vielen Sicherungen vor Updates',
+    'It no longer reads every safety copy just to list them. Me › Data › Storage now also shows how much the copies take.': 'Sie liest nicht mehr jede Kopie, nur um sie aufzulisten. Ich › Daten › Speicher zeigt jetzt auch, wie viel die Kopien brauchen.',
+    'Me › Data opens at once, even with many copies before updates': 'Ich › Daten öffnet sofort, auch mit vielen Kopien unter «Vor Updates»',
     'Open Me › Data: the page stands within a second.': 'Öffne Ich › Daten: Die Seite steht innerhalb einer Sekunde.',
-    'Tap «Measure storage»: the row «Copies before updates» says how many copies there are and how much they take.': 'Tippe auf «Speicher messen»: Die Zeile «Sicherungen vor Updates» nennt, wie viele Kopien es gibt und wie viel sie brauchen.',
+    'Tap «Measure storage»: the row «Copies before updates» says how many copies there are and how much they take.': 'Tippe auf «Speicher messen»: Die Zeile «Vor Updates» nennt, wie viele Kopien es gibt und wie viel sie brauchen.',
   },
 };

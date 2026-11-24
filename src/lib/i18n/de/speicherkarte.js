@@ -24,7 +24,7 @@ export default {
   'Cut-out tool': 'Freistellen-Werkzeug',
   'Fonts': 'Schriften',
   'Files shared to the app, not opened yet': 'An die App geteilte Dateien, noch nicht geöffnet',
-  'Copies before updates': 'Sicherungen vor Updates',
+  'Copies before updates': 'Vor Updates',
   '{n} copy': '{n} Kopie',
   '{n} copies': '{n} Kopien',
   'each holds all your data; Me › Data › More': 'jede enthält alle deine Daten; Ich › Daten › Mehr',
