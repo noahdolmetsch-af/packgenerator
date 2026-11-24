@@ -235,7 +235,7 @@
     width: 72px;
     height: 72px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: var(--r-ctl);
   }
   .ag-eg,
   .ag-res {
