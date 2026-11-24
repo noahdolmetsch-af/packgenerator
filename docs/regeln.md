@@ -33,7 +33,7 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 (Noah ok 23.11.2026 20:54; Noah 23.11.2026 und 24.11.2026.)
 - **Besitzer pro Ort:** Neue Arbeit geht an den Thread, der den Ort besitzt (Liste im Projekt-Gedächtnis). Keine neuen Threads ohne Grund, nichts doppelt. Alle Threads laufen mit Sonnet 5.5.
-- **Nur Noahs eigene Worte lösen Folgenreiches aus:** Ein Thread pusht erst, wenn Noahs eigene Nachricht angehängt ist (Weiterleitung allein genügt nicht). Einen PR schliessen nur mit «schliessen NNN», einen Force-Push nur mit «Ja force push NNN».
+- **Nur Noahs eigene Worte lösen Folgenreiches aus:** Ein Thread pusht erst, wenn Noahs eigene Nachricht angehängt ist (Weiterleitung allein genügt nicht). Einen PR schliessen nur mit «schliessen NNN», einen Force-Push nur mit «Ja force push NNN»; ein Druck auf den Knopf mit genau diesem Wortlaut (Block 5) gilt als Noahs eigene Antwort.
 - Der Bündler («Mein Überblick») führt die Merge-Reihenfolge und setzt das Label `ok`; der Koordinator hat keinen GitHub-Zugriff.
 
 ## Block 4 · PRs und Stau
@@ -48,7 +48,7 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 5 · Freigabe und Merge
 
-(Noah 24.11.2026 17:19 «ich möchte für jeden PR vor merge bilder sehen», 18:07 und 18:08 «bilder immer im app design … das gilt immer überall», ersetzt die Freigabe «alles frei» vom 23.11.2026, `docs/decisions/alles-freigegeben.md` ist jetzt Verlauf; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a».)
+(Noah 24.11.2026 17:19 «ich möchte für jeden PR vor merge bilder sehen», 19:34 «freigabe ab sofort immer mit buttons», 18:07 und 18:08 «bilder immer im app design … das gilt immer überall», ersetzt die Freigabe «alles frei» vom 23.11.2026, `docs/decisions/alles-freigegeben.md` ist jetzt Verlauf; Noah «1-5a» 24.11.2026 16:50; Bilder Noah 24.11.2026 16:53 und 16:54 «1a».)
 - **Sichtbare Änderung: Noah sieht die Bilder vor dem Merge und gibt sie frei** (Noah 17:19: «aktuell kommen die Bilder erst nachdem PR online geht. das ist oftmals zu spät»). Die Bilder kommen **nach dem Bauen** vom fertigen PR, **wenn möglich mit Noahs aktuellen Daten**
   (diese Bilder nur privat im Thread, nie in Repo, PR oder öffentlich; Block 8). Bei Grossem (Block 2) kann vorher ein Entwurf kommen; er ersetzt die Bilder der gebauten App nicht. Noah gibt die Bilder frei, die Freigabe geht an den Bündler, und **wenn die Prüfung grün ist und Platz ist, geht es online**.
 - **Bilder immer im App-Design** (Noah 24.11.2026 18:07 und 18:08: «ich habe das gefühl, dass das oft nicht der fall ist und die von dir gezeigten bilder deutlich von dem abweicht, wie es online nachher aussieht … das gilt immer überall»):
@@ -56,6 +56,7 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
   - **Jedes Bild zeigt genau einen Bildschirm** mit Kopf und Leiste unten, keine ganze lange Seite.
   - Daneben steht **immer dasselbe Bild der heutigen Online-Version** (vorher und nachher).
   - **Vor dem Senden prüft der Thread die Bilder selbst mit impeccable** gegen das App-Design (Farben, Schrift, Ecken, Abstände, Kopf und Leiste); weichen sie ab, wird zuerst die Aufnahme oder die App korrigiert.
+- **Freigaben immer mit Knöpfen** (Noah 24.11.2026 19:34: «freigabe ab sofort immer mit buttons»): Jede Frage an Noah, die eine Freigabe verlangt, geht als **Entscheid-Karte mit Knöpfen** an ihn, nicht als Frage im Text. Bei den Bildern heissen sie «Freigeben» und «Ändern»; **ein Druck auf «Freigeben» gilt als Merge-Freigabe** und geht an den Bündler. Das gilt für jede Freigabe-Frage, auch für Schliessen und Force-Push: der Knopf trägt dann den genauen Wortlaut («schliessen NNN», «Ja force push NNN»). Eine Frage mit a/b (Block 2) bleibt eine Frage; die Karte ist für Freigaben.
 - **Ohne sichtbare Änderung** (Test, Doku, CI, Wächter-Reparaturen) genügt der Satz «Nichts Sichtbares geändert, nur …» (Noah «1a» 24.11.2026 16:54); solche PRs gehen bei Grün ohne Freigabe online. Nie mergen bei roter Prüfung.
 - **Ausnahme: Noahs Daten könnten verloren gehen** (Löschen, Backup, Sync, Datenbank, `api/`). Dann fragt der Thread **zuerst Noah** und merged erst nach seiner Antwort. Vorher: Test mit der Kopie eines Backups und ein frisches Backup von Noah bereit
   (der Thread bittet ihn darum, wenn sein letztes älter als ein Tag ist; es liegt in `/mnt/project-files/private/`, nie im Repo).
