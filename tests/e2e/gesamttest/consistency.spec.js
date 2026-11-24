@@ -10,6 +10,7 @@
 import { test, expect } from '@playwright/test';
 import { start, table, fixture, tr, esc, openData } from './lib.js';
 import { flowSeeded, putWall } from '../wall-fixture.js';
+import { openViews } from '../gearmenu.js';
 
 const T = tr('de');
 const num = (s) => {
@@ -146,6 +147,8 @@ test('notes, gear and past trips: the same counts everywhere', async ({ page, co
   await page.goto('./#/gear');
   await page.reload();
   // v0.47.2: the views carry the counts; what waits for the scale is on "Record weights" in •••
+  // Material aufräumen (Noah 23.11.2026): the views sit in the menu «Ansicht» (closed at the start)
+  await openViews(page);
   const views = page.getByRole('group', { name: T('Views') });
   await expect(views.locator('[data-view="all"] small')).toHaveText(String(owned));
   // Impeccable (18.10.2026): the wishlist is the tab «Einkauf»; its count is in the head there
