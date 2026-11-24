@@ -13,13 +13,17 @@
   import { goOf } from './newsgo.js';
   import { NEWS_HREF } from './wasneu.js';
   import { groupByPlace } from './neuseitOrte.js';
-  import { shortVersion } from '../whatsnew.js';
+  import { localDay } from '../localday.js';
+  import { dayWord } from './neuseit.js';
   import '../ui/daumen.css';
 
   let { from = null, onclose } = $props();
   let dialog;
   let groups = $state(null); // null while the whole list loads
-  const day = (iso) => new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
+  const day = (iso) => {
+    const w = dayWord(iso, localDay());
+    return w ? (w === 'today' ? t('today|news') : t('yesterday|news')) : new Date(`${iso}T12:00:00`).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
+  };
 
   $effect(() => {
     dialog.showModal();
@@ -39,14 +43,14 @@
   {#if !groups}
     <p class="muted">{t('Loading…')}</p>
   {:else}
-    {#each groups as g (g.key)}
-      <details class="grp" data-group={g.key}>
+    {#each groups as g, i (g.key)}
+      <details class="grp" data-group={g.key} open={i === 0}>
         <summary><b>{t(g.label)}</b><span class="cnt">{g.items.length}</span></summary>
         <ul>
           {#each g.items as it (it.id + '/' + it.line + it.version)}
             <li>
               {#if it.bild}<NewsBild id={it.id} line={it.line} vorher={it.bild.vorher} text={it.p.text} />{:else}<p class="tx">{t(it.p.text)}</p>{/if}
-              <p class="meta"><span class="num">{shortVersion(it.version)}</span> · {day(it.date)}
+              <p class="meta">{day(it.date)}
                 {#if goOf(it.p)}<a class="try" href={NEWS_HREF} onclick={(ev) => go(it.p, ev)}>{t('Try it')}<ChevronRight size={14} aria-hidden="true" /></a>{/if}
               </p>
             </li>

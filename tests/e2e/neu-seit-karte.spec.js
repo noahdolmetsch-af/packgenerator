@@ -49,9 +49,16 @@ test('the card counts the news since the last visit and its window groups them b
   const groups = sheet.locator('details.grp');
   await expect(groups.first()).toBeVisible({ timeout: 10_000 });
   expect(await groups.count()).toBeGreaterThan(0);
-  // a group opens to its news with «Try it»
-  await groups.first().locator('summary').click();
+  // the first (largest) place is open at once, so a picture shows without a tap; the others open with a tap
+  await expect(groups.first()).toHaveAttribute('open', '');
   await expect(groups.first().locator('li').first()).toBeVisible();
+  if ((await groups.count()) > 1) {
+    await expect(groups.nth(1)).not.toHaveAttribute('open', '');
+    await groups.nth(1).locator('summary').click();
+    await expect(groups.nth(1).locator('li').first()).toBeVisible();
+  }
+  // no version number in the lines (impeccable 24.11.2026)
+  await expect(sheet.locator('.meta .num')).toHaveCount(0);
   await expect(sheet.getByRole('link', { name: T('Everything under Me › What is new') })).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(sheet).toHaveCount(0);

@@ -7,6 +7,8 @@ export default {
   '{n} news items since {when}': '{n} Neuheiten seit {when}',
   '{n} news item|card': '{n} Neuheit',
   '{n} news items|card': '{n} Neuheiten',
+  'today|news': 'heute',
+  'yesterday|news': 'gestern',
   'See the news by place': 'Neuheiten nach Ort ansehen',
   'News by place': 'Neuheiten nach Ort',
   'More places|news': 'Weitere Orte',

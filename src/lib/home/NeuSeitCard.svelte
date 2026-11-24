@@ -8,7 +8,7 @@
    */
   import { NEWS_INDEX_ALL, WHATS_NEW } from '../whatsnew.js';
   import { readUpdate } from '../know/wasneuStore.js';
-  import { CARD_KEY, fromOf, sinceInfo, sinceFormat } from '../know/neuseit.js';
+  import { CARD_KEY, fromOf, sinceInfo, sinceFormat, dayWord } from '../know/neuseit.js';
   import { t, tn, locale } from '../i18n.svelte.js';
   import { Sparkles, X } from '@lucide/svelte';
 
@@ -25,6 +25,8 @@
   let open = $state(false);
   const info = $derived(sinceInfo(NEWS_INDEX_ALL, fromOf(card, readUpdate())));
   const when = $derived.by(() => {
+    const w = dayWord(info.since, today);
+    if (w) return w === 'today' ? t('today|news') : t('yesterday|news');
     const f = sinceFormat(info.since, today);
     return f ? new Date(`${info.since}T12:00:00`).toLocaleDateString(locale(), f) : '';
   });

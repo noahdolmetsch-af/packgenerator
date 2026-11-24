@@ -1,7 +1,7 @@
 // «Bilder bei jeder Neuheit» PR 3 (Noah 23.11.2026): the card «N Neuheiten seit …» counts every line of the news since a version
 // and the window groups them by place (src/lib/know/neuseit.js, neuseitOrte.js).
 import { describe, it, expect } from 'vitest';
-import { fromOf, sinceInfo, sinceFormat, STRIP } from '../src/lib/know/neuseit.js';
+import { fromOf, sinceInfo, sinceFormat, dayWord, STRIP } from '../src/lib/know/neuseit.js';
 import { groupByPlace, placeOfLine, placeLabel, ELSEWHERE } from '../src/lib/know/neuseitOrte.js';
 
 const rows = [
@@ -43,6 +43,15 @@ describe('sinceFormat', () => {
     expect(sinceFormat('2026-11-20', '2026-11-23')).toEqual({ weekday: 'long' });
     expect(sinceFormat('2026-11-01', '2026-11-23')).toEqual({ day: 'numeric', month: 'short' });
     expect(sinceFormat(null, '2026-11-23')).toBe(null);
+  });
+});
+
+describe('dayWord', () => {
+  it('today and yesterday get a word, every other day none (a Tuesday card on a Tuesday must not say «since Tuesday»)', () => {
+    expect(dayWord('2026-11-24', '2026-11-24')).toBe('today');
+    expect(dayWord('2026-11-23', '2026-11-24')).toBe('yesterday');
+    expect(dayWord('2026-11-22', '2026-11-24')).toBe(null);
+    expect(dayWord(null, '2026-11-24')).toBe(null);
   });
 });
 

@@ -47,3 +47,10 @@ export function sinceFormat(iso, today) {
   const days = Math.round((b - a) / 864e5);
   return days >= 0 && days < 7 ? { weekday: 'long' } : { day: 'numeric', month: 'short' };
 }
+
+/** «today» / «yesterday» for the day `iso` when it is one of those, else null (impeccable 24.11.2026: «seit Dienstag» on a Tuesday read as last Tuesday). */
+export function dayWord(iso, today) {
+  if (!iso) return null;
+  const days = Math.round((new Date(`${today}T12:00:00`) - new Date(`${iso}T12:00:00`)) / 864e5);
+  return days === 0 ? 'today' : days === 1 ? 'yesterday' : null;
+}
