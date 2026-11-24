@@ -224,6 +224,36 @@
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <!-- Sitemap 24.11.2026 (Noah «K1-K9 … Ich aufräumen»): the documents are one tap from Ich, in Data -->
+            <a class="ich-row" href="#/me/docs" data-me-row="docs">
+              <span class="ich-ib"><FileText size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Documents')}</b><small>{t('IDs, insurance, warranties, travel: as PDF, also offline')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): what you deleted stays 30 days -->
+            <a class="ich-row" href="#/me/trash" data-row="trash">
+              <span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Recently deleted')}</b><small>{t('Bring back what you deleted in the last 30 days')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Ich aufräumen (Noah 24.11.2026): three rows became one; the three pages keep their addresses and lead to each other with «Weiter zu» -->
+      <section class="ich-sec" aria-labelledby="me-rem-h">
+        <div class="ich-h"><div><h2 id="me-rem-h">{t('Reminders')}</h2></div></div>
+        <ul class="card ich-list">
+          <li>
+            <a class="ich-row" href="#/me/reminders" data-row="reminders">
+              <span class="ich-ib"><Bell size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Reminders and alerts')}</b><small>{t('In the app, on the phone, weather warnings and news')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
         </ul>
       </section>
 
@@ -239,26 +269,10 @@
             </a>
           </li>
           <li>
-            <!-- Paket C «Ruhig und persönlich» (996 Ideen, Noah 24.10.2026 «5a»): workspace, calm view, letters, meaning -->
-            <a class="ich-row" href="#/me/ruhig" data-row="ruhig">
-              <span class="ich-ib"><Leaf size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Calm and personal')}</b><small>{t('Less app, letters to yourself, what you can do')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): what you deleted stays 30 days -->
-            <a class="ich-row" href="#/me/trash" data-row="trash">
-              <span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Recently deleted')}</b><small>{t('Bring back what you deleted in the last 30 days')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): write down what bothers you in the app -->
-            <a class="ich-row" href="#/me/logbuch" data-row="logbuch">
-              <span class="ich-ib"><NotebookPen size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Improvement log')}</b><small>{t('Write down what bothers you or is missing in the app')}</small></span>
+            <!-- «Mehr selbst einstellen» (IS 254–258): the numbers of the app and the suggestions on or off -->
+            <a class="ich-row" href="#/me/werte">
+              <span class="ich-ib"><SlidersHorizontal size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Own values')}</b><small>{t('Packing step, backup reminder, bike check, care, cold')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -267,39 +281,7 @@
                  until more lists come (the page holds both: categories and the checks) -->
             <a class="ich-row" href="#/me/lists">
               <span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Lists and checks')}</b><small>{t('Categories, evening-before and after-trip check')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- ER3 (Noah 14.10.2026 «er1-er3 freigabe», 4a): every reminder on one page -->
-            <a class="ich-row" href="#/me/reminders">
-              <span class="ich-ib"><Bell size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Reminders')}</b><small>{t('What the app reminds you of, and when it asks')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Erinnerungen aufs Handy (Web-Push): one main switch and one per kind, all off at the start -->
-            <a class="ich-row" href="#/me/push">
-              <span class="ich-ib"><BellRing size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Reminders on the phone')}</b><small>{t('Birthdays, plants, the evening before, the weather')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- Paket Q #148: weather warnings, avalanche danger, passes and news from your own sources -->
-            <a class="ich-row" href="#/me/hinweise" data-row="hinweise">
-              <span class="ich-ib"><TriangleAlert size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Alerts and news')}</b><small>{t('Weather warnings, avalanches, passes, news')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <!-- «Mehr selbst einstellen» (IS 254–258): the numbers of the app and the suggestions on or off -->
-            <a class="ich-row" href="#/me/werte">
-              <span class="ich-ib"><SlidersHorizontal size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Own values')}</b><small>{t('Packing step, backup reminder, bike check, care, cold')}</small></span>
+              <span class="ich-m"><b>{t('Lists and types')}</b><small>{t('Categories, evening-before and after-trip check')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -309,14 +291,6 @@
               <span class="ich-m"><b>{t('Home place')}</b><small>{$waitQ?.home || t('Not set yet: for the weather of a ride from home')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </button>
-          </li>
-          <li>
-            <!-- Wegweiser (Noah 08.11.2026 «a»): Tennis is one place; V6 (Plan 6): the row sits under Settings, no group of its own -->
-            <a class="ich-row" href="#/me/tennis" data-me-row="tennis">
-              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Offers and requests')}</b><small>{t('Free times, link for parents, requests, customers')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
           </li>
           <li class="ich-row ich-wrap lang">
             <span class="ich-ib"><Globe size={18} aria-hidden="true" /></span>
@@ -331,16 +305,10 @@
             </a>
           </li>
           <li>
-            <a class="ich-row" href="#/me/apps">
-              <span class="ich-ib"><LayoutGrid size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Small apps')}</b><small>{t('Own icon on the phone, same data')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          <li>
-            <a class="ich-row" href="#/kurse" data-me-row="kurse">
-              <span class="ich-ib"><TrendingUp size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Kursblick')}</b><small>{t('Gold and the SMI, with the close of the day before')}</small></span>
+            <!-- Paket C «Ruhig und persönlich» (996 Ideen, Noah 24.10.2026 «5a»): workspace, calm view, letters, meaning -->
+            <a class="ich-row" href="#/me/ruhig" data-row="ruhig">
+              <span class="ich-ib"><Leaf size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Calm and personal')}</b><small>{t('Less app, letters to yourself, what you can do')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -368,19 +336,6 @@
             </a>
           </li>
           <li>
-            <!-- Paket R: what stays on the device, what the server keeps, costs, terms -->
-            <a class="ich-row" href="#/me/privacy">
-              <span class="ich-ib"><ShieldCheck size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Privacy and terms')}</b><small>{t('Free, your data stays with you')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
-            </a>
-          </li>
-          
-          <li>
-            <!-- «Neueste Version» (Noah 27.10.2026 «1-5 a»): this device's version, the online one, «Neueste laden» -->
-            <VersionRow />
-          </li>
-          <li>
             <!-- v0.110.0 Design-Refresh P10 (I11): Ich › Was ist neu -->
             <a class="ich-row" href="#/me/news">
               <span class="ich-ib"><Star size={18} aria-hidden="true" /></span>
@@ -389,13 +344,26 @@
             </a>
           </li>
           <li>
-            <!-- Paket N #68 (19.10.2026), P7 (0.184.0): Ich › Projekt-Ablage, everything about the app on one page -->
-            <a class="ich-row" href="#/me/next" data-row="next">
-              <span class="ich-ib"><FolderOpen size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('Project shelf')}</b><small>{t('Ideas, the way, what waits for you')}</small></span>
+            <!-- «Neueste Version» (Noah 27.10.2026 «1-5 a»): this device's version, the online one, «Neueste laden» -->
+            <VersionRow />
+          </li>
+          <li>
+            <!-- «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): write down what bothers you in the app -->
+            <a class="ich-row" href="#/me/logbuch" data-row="logbuch">
+              <span class="ich-ib"><NotebookPen size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Improvement log')}</b><small>{t('Write down what bothers you or is missing in the app')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <!-- Paket R: what stays on the device, what the server keeps, costs, terms -->
+            <a class="ich-row" href="#/me/privacy">
+              <span class="ich-ib"><ShieldCheck size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Privacy and terms')}</b><small>{t('Free, your data stays with you')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          
           
           
           <!-- «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»): microphone and who answers in the search -->
@@ -414,19 +382,27 @@
 
       <!-- Impeccable: «More» folded; its head says what is inside -->
       <details class="ich-sec fold" bind:open={moreOpen}>
-        <summary class="ich-h fsum"><div><h2 id="me-more-h">{t('More')}</h2><p class="ich-hs">{t('AI projects, try it out, test data')}</p></div><ChevronDown class="fchev" size={20} aria-hidden="true" /></summary>
+        <summary class="ich-h fsum"><div><h2 id="me-more-h">{t('More')}</h2><p class="ich-hs">{t('Small apps, project shelf, AI projects, try it out')}</p></div><ChevronDown class="fchev" size={20} aria-hidden="true" /></summary>
         <ul class="card ich-list">
           <li>
-            <a class="ich-row" href="#/me/ki-projekte" data-me-row="aiprojects">
-              <span class="ich-ib"><MessageCircle size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('My AI projects')}</b><small>{t('Your own links to projects, threads and chats')}</small></span>
+            <a class="ich-row" href="#/me/apps">
+              <span class="ich-ib"><LayoutGrid size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Small apps')}</b><small>{t('Own icon on the phone, same data')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
           <li>
-            <a class="ich-row" href="#/debrief/learnings">
-              <span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span>
-              <span class="ich-m"><b>{t('What the app has learned')}</b></span>
+            <!-- Paket N #68 (19.10.2026), P7 (0.184.0): Ich › Projekt-Ablage, everything about the app on one page -->
+            <a class="ich-row" href="#/me/next" data-row="next">
+              <span class="ich-ib"><FolderOpen size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Project shelf')}</b><small>{t('Ideas, the way, what waits for you')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <a class="ich-row" href="#/me/ki-projekte" data-me-row="aiprojects">
+              <span class="ich-ib"><MessageCircle size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('My AI projects')}</b><small>{t('Your own links to projects, threads and chats')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>
@@ -446,6 +422,22 @@
               {#if $testQ?.found.n}<span class="pill act num" aria-hidden="true">{$testQ.found.n}</span>{/if}
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </button>
+          </li>
+          <!-- until Woche › Alltag takes them (Sitemap 24.11.2026, step Woche): Kursblick and Offers and requests wait here, nothing falls away -->
+          <li>
+            <a class="ich-row" href="#/kurse" data-me-row="kurse">
+              <span class="ich-ib"><TrendingUp size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Kursblick')}</b><small>{t('Gold and the SMI, with the close of the day before')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- Wegweiser (Noah 08.11.2026 «a»): Tennis is one place; V6 (Plan 6): the row sits under Settings, no group of its own -->
+            <a class="ich-row" href="#/me/tennis" data-me-row="tennis">
+              <span class="ich-ib"><CalendarClock size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Offers and requests')}</b><small>{t('Free times, link for parents, requests, customers')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
           </li>
         </ul>
       </details>
