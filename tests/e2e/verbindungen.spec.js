@@ -72,7 +72,7 @@ test('Verbindungen: the row «Mail» shows «aus» until Gmail has been allowed,
   await ready(page);
   const row = page.locator('[data-conn="mail"]');
   await expect(row.locator('.pill')).toHaveText(/^(aus|off)$/i);
-  await idb(page, 'put', ['settings', 'readwrite', { key: 'mail', value: { allowed: true } }]);
+  await put(page, { settings: [{ key: 'mail', value: { allowed: true } }] });
   await page.reload();
   await ready(page);
   await expect(page.locator('[data-conn="mail"] .pill')).toHaveText(/^(an|on)$/i);
