@@ -90,8 +90,9 @@
   import { meineTour } from '../lib/tourpfad/karte.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, pointCount, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
-  import { tileDaysLeft, unpinNews } from '../lib/know/wasneu.js';
-  import { readUpdate, writeUpdate, readPin, writePin } from '../lib/know/wasneuStore.js';
+  import { tileDaysLeft, unpinNews, messageOn } from '../lib/know/wasneu.js';
+  import { readUpdate, writeUpdate, readPin, writePin, readMute } from '../lib/know/wasneuStore.js';
+  import NewsBanner from '../lib/know/NewsBanner.svelte';
   import MaintHint from '../lib/maintenance/MaintHint.svelte';
   import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
   import { openTodos } from '../lib/todos.js';
@@ -310,6 +311,16 @@
     unpinNewsTile();
   });
   const newsDays = $derived(tileDaysLeft(newsUpdate, today));
+  // «Banner Was ist neu» (Noah 23.11.2026 «1-5a»): ONE narrow line under the chips after an update, «since your last visit»
+  let bannerOff = $state(false);
+  const bannerEntries = $derived.by(() => {
+    if (bannerOff) return [];
+    try {
+      return messageOn({ update: newsUpdate, mute: readMute(), today }) ? newerThan(newsUpdate.from ?? BEFORE) : [];
+    } catch {
+      return [];
+    }
+  });
   // I11e: a tile «New» pinned by an earlier version goes back where it stood after the 14 days
   function unpinNewsTile() {
     const p = readPin();
@@ -1029,7 +1040,6 @@
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
   // P6 H1 (Noah 21.10.2026 «2b»): after an update «New» stands on top as a whole row for 14 days, unless the wall has the tile itself
-  const newsRow = $derived(ready && !editing && newsDays > 0 && !onWall.has('news') && S[NEWS_OFF_KEY] !== WHATS_NEW[0].version);
   // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»): the tile only while there is a value of the last 90 days
   const vo2Q = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addHealthDays(today, -VO2_DAYS)).toArray() : [])));
   const vo2On = $derived(!!vo2Of($vo2Q ?? [], today));
@@ -1162,10 +1172,11 @@
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
       </div>
     </div>
+    {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} onclose={() => (bannerOff = true)} />{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
     <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
-    {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} {newsDays} />{/if}
+    {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} />{/if}
   </section>
 {/snippet}
 
@@ -1447,7 +1458,6 @@
   <!-- «Stopps in der Nähe»: on a ride day up here, on other days at the bottom (so «Dein Körper heute» stays in the first screen) -->
   {#if !editing}{#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top />{:catch}{/await}{/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
-  {#if newsRow}<div class="newsrow" data-news-row><NewsTile size="long" days={newsDays} onremove={() => db.settings.put({ key: NEWS_OFF_KEY, value: WHATS_NEW[0].version })} /></div>{/if}
   {#if ready && emptyDevice}
     {#if emptyTiles.length}<Wall tiles={emptyTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />{/if}
     <p class="muted emptywall" data-empty-wall>{t('Everything else (body, up now, weather) shows up as soon as you have data.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
@@ -2413,9 +2423,6 @@
 
   .kmrow {
     margin-top: var(--sp-3);
-  }
-  .newsrow {
-    margin-bottom: var(--sp-3);
   }
   .custom {
     display: flex;
