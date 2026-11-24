@@ -285,7 +285,8 @@ function writeNewsSplit(r) {
   const old = r.news.slice(NEW_COUNT);
   const index = r.news.map((n) => {
     const e = readNewsFile(n.file);
-    return { version: n.version, date: n.date, np: e.points.length, ns: (e.small ?? []).length, ...(e.since?.length ? { since: e.since } : {}) };
+    const pics = picsFor(n.file); // the card «N Neuheiten seit …» on Today shows these (id: the folder under public/news/)
+    return { version: n.version, date: n.date, np: e.points.length, ns: (e.small ?? []).length, ...(e.since?.length ? { since: e.since } : {}), ...(pics.length ? { id: n.file.slice(0, -3), bilder: pics } : {}) };
   });
   const oldDe = {};
   for (const n of old) Object.assign(oldDe, readNewsFile(n.file).de ?? {});
