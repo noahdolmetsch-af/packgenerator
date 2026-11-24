@@ -38,13 +38,14 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 4 · PRs und Stau
 
-(Noah 23.11.2026 18:58; Noah 24.11.2026 07:29 «1 2 3 4 5», 10:27, 16:38, 16:58 «a», 17:19, 23:18.)
+(Noah 23.11.2026 18:58; Noah 24.11.2026 07:29 «1 2 3 4 5», 10:27, 16:38, 16:58 «a», 17:19, 23:18, «a-c alle» 23:19.)
 - **Ein PR pro Seite**, kleine Änderungen derselben Seite gebündelt. Einzeln bleiben Datenänderungen (Dexie, Backup, Sync, `api/`) und Test-Fixes.
 - **Grenzen** (Noah «a» 24.11.2026 16:58, ersetzt «höchstens 6 offen» von 16:38; die Zahl in der Prüfung geändert von Noah 24.11.2026 23:18): **höchstens 4 PRs gleichzeitig in der Prüfung auf GitHub** (vorher 5–6; Noah: «ich möchte weniger rote tests haben»), **bis 8 offen insgesamt; 6–10 Threads arbeiten gleichzeitig.** Die 4 gelten, sobald main wieder grün ist. Ein neuer PR wird erst geöffnet, wenn in der Prüfung weniger als 4 sind und insgesamt weniger als 8 offen; sonst wartende PRs abbauen helfen.
 - **Reihenfolge der Wichtigkeit** (Noah 24.11.2026 23:18): Wenn mehrere Pakete auf einen Platz warten oder etwas als Nächstes gebaut wird, kommt zuerst **1. Auswerten, 2. App schöner, 3. Suche, 4. Rennen, 5. Versteckte Inhalte, 6. weitere Bereiche, 7. alle anderen**. Der Bündler vergibt Plätze in dieser Reihenfolge; Reparaturen von rotem main gehen immer vor.
 - **Was darüber hinaus fertig wird** (Wellen der impeccable-Prüfung), wird **lokal gebaut und getestet, ohne PR und ohne Push**, bis der Bündler «Platz» meldet (Platz heisst: unter den Grenzen oben). Wartet ein PR auf CI oder auf Platz, geht der Thread am nächsten Schritt weiter, lokal vorbereitet (Noah 27.10.2026). **Wartende Threads bauen die nächsten Schritte wenn immer möglich schon vor und zeigen Noah dazu Bilder** (Noah 24.11.2026 17:19), damit er sie freigeben kann, sobald Platz ist.
 - **Main rot:** bis zu 1 Stunde nichts anderes mergen, bis repariert.
-- **Ein Test, der 2× zufällig fällt,** kommt auf die Liste und wird noch am selben Tag stabil gemacht (Wackel-Thread).
+- **Nie zwei PRs gleichzeitig mergen** (Noah «a-c alle» 24.11.2026 22:19, Vorschlag a): Jeder PR wird zuerst auf das neueste main gebracht, dann geprüft und erst dann gemergt; der Bündler mergt einen PR nach dem anderen. Grund: ein Zusammenstoss zweier PRs hat am 24.11.2026 main rot gemacht.
+- **Wackel-Wächter** (Noah «a-c alle», Vorschlag b): Ein Test, der **einmal** zufällig rot war, kommt auf die Liste der Wackler und wird **noch am selben Tag stabil gemacht, bevor neue PRs dazukommen** (Wackel-Thread; früher «2×»).
 - Ziel der CI: etwa 15 Minuten statt 25–70, mit Tests nur der geänderten Seite (Thread «Tests schneller machen»).
 
 ## Block 5 · Freigabe und Merge
@@ -74,10 +75,11 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 7 · Tests
 
-(Noah 11.10.2026; 26.10.2026; Noah «a» 24.11.2026 15:18; Noah «2a» 24.11.2026 10:27, live seit 24.11.2026 mit PR 1679; Lessons 23./24.11.2026.)
+(Noah 11.10.2026; 26.10.2026; Noah «a-c alle» 24.11.2026 22:19; Noah «a» 24.11.2026 15:18; Noah «2a» 24.11.2026 10:27, live seit 24.11.2026 mit PR 1679; Lessons 23./24.11.2026.)
 - **Lokal:** die eigenen Tests und die Tests der geänderten Seite. **Wer eine Seite umbaut, sucht vor dem PR auch alle fremden Tests, die diese Seite antippen** (Adresse, Überschrift, Beschriftung in `tests/`), und lässt sie lokal laufen. Der Gesamttest läuft auf GitHub.
 - **Nie lockern:** Kein Test wird übersprungen, abgeschaltet oder gelockert, um Grün zu bekommen. Ursache beheben, oder den Test mit Absicht anpassen, wenn sich die Oberfläche mit Absicht geändert hat.
 - **Volle Prüfung** nur einmal pro schwerem PR, am Schluss: **live seit 24.11.2026** (Thread «Tests schneller machen», PR 1679). Schwer = Daten, Backup, Sync, Speicher, `api/`, Build- und Workflow-Dateien und alles Unklare (Definition in `scripts/ci-scope.mjs`). Bis zum Label «voll» läuft nur die schnelle Stufe.
+- **Nachtlauf** (Noah «a-c alle» 24.11.2026 22:19, Vorschlag c): Jede Nacht laufen alle Tests einmal auf main (`volle-pruefung.yml`). Am Morgen, im Rundgang um 08:00 (Block 2), steht eine kurze Meldung an Noah, ob alles grün ist; ein roter Test kommt auf die Wackel-Liste (Block 4).
 - Befehle, Phone-Test-Mechanik (Label `ok`) und Lessons zu Wackel-Tests: `CLAUDE.md`.
 
 ## Block 8 · Privat und gratis
