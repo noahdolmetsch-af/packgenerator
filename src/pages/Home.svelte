@@ -1466,6 +1466,8 @@
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if ready && emptyDevice}
     {#if emptyTiles.length}<Wall tiles={emptyTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />{/if}
+    <!-- what is due today never hides (rule 11), also with a calendar and nothing else: without the body tile it stands here -->
+    {#if !emptyTiles.some((x) => x.id === 'body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}
     <p class="muted emptywall" data-empty-wall>{t('Everything else (body, up now, weather) shows up as soon as you have data.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
   {:else if ready}<Wall tiles={wallTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(hakenTop && hakenTile ? [hakenTile, ...kept] : kept)} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
