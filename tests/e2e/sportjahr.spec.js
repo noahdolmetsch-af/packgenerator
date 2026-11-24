@@ -182,12 +182,12 @@ test('Every page of Auswerten remembers its own period', async ({ page, context 
   const bar = (k) => page.locator(`[data-period-bar] [data-key="${k}"]`);
   await press(bar('year'), info);
   await expect(bar('year')).toHaveAttribute('aria-pressed', 'true');
-  await page.evaluate(() => (location.hash = '#/auswerten'));
+  await page.evaluate(() => (location.hash = '#/auswerten/uebersicht'));
   await expect(bar('week')).toHaveAttribute('aria-pressed', 'true'); // its own choice, not the year of the Sports year
   await press(bar('month'), info);
   await page.evaluate(() => (location.hash = '#/auswerten/sportjahr'));
   await expect(bar('year')).toHaveAttribute('aria-pressed', 'true');
-  await page.evaluate(() => (location.hash = '#/auswerten'));
+  await page.evaluate(() => (location.hash = '#/auswerten/uebersicht'));
   await expect(bar('month')).toHaveAttribute('aria-pressed', 'true');
   expect(errors).toEqual([]);
 });

@@ -55,7 +55,7 @@ test('Im Fokus: the ticked sports stand next to the Strava sports, in the cards 
   await page.goto('./#/');
   await flowSeeded(page);
   await put(page, rows());
-  await page.goto('./#/auswerten');
+  await page.goto('./#/auswerten/uebersicht');
   await page.reload();
 
   const focus = page.locator('[data-focus]');
@@ -114,7 +114,7 @@ test('Auswerten: «Alles, was du angelegt hast» lists every activity of the per
   await page.goto('./#/');
   await flowSeeded(page);
   await put(page, { ...rows(), flowLog: [...rows().flowLog, log('p1', 'pushups', addDays(TODAY, -1)), log('p2', 'pushups', addDays(TODAY, -2)), log('s1', 'sauna', addDays(TODAY, -3))] });
-  await page.goto('./#/auswerten');
+  await page.goto('./#/auswerten/uebersicht');
   await page.reload();
   await expect(page.locator('[data-focus]')).toBeVisible(); // the page has loaded
   // on a phone «Letzte 7 Tage» waits behind one row

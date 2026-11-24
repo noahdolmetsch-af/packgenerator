@@ -14,7 +14,7 @@ async function open(page, context) {
   await page.goto('./#/');
   await flowSeeded(page);
   await putWall(page);
-  await page.goto('./#/auswerten');
+  await page.goto('./#/auswerten/uebersicht');
   await expect(page.locator('[data-period-bar]')).toBeVisible();
 }
 const pick = (page, name) => page.locator('[data-period-bar]').getByRole('button', { name, exact: true }).click();
