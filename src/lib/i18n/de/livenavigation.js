@@ -234,4 +234,5 @@ export default {
   'Pick OsmAnd in the list, then tap «Navigation» there.': 'Wähle OsmAnd in der Liste und tippe dort auf «Navigation».',
   'Saved. Open the file with OsmAnd (tap it in your downloads), then tap «Navigation».': 'Gespeichert. Öffne die Datei mit OsmAnd (in den Downloads antippen) und tippe dort auf «Navigation».',
   'All set. Have a good ride.': 'Alles bereit. Gute Fahrt.',
+  'Map and voice are set.': 'Karte und Sprache sind bereit.',
 };
