@@ -141,7 +141,7 @@
     </section>
     {#if error}<p class="atl-err" role="alert" data-race-atlas-error>{t(ERRORS[error] ?? ERRORS.unreadable)}</p>{/if}
 
-    <Seg chips small label={t('Show|race')} value={show} {options} onchange={(k) => (show = k)} />
+    <div class="atl-chips"><Seg chips small label={t('Show|race')} value={show} {options} onchange={(k) => (show = k)} /></div>
 
     {#if gridItems.length}
       {#if years.length > 1}<Seg small label={t('Year|race')} value={year} options={years.map((y) => ({ key: y, name: y }))} onchange={(k) => (yearPick = k)} />{/if}
@@ -185,6 +185,14 @@
 </div>
 
 <style>
+  .atl-chips {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .atl-chips :global(.seg) {
+    flex-wrap: nowrap;
+    width: max-content;
+  }
   .atl {
     display: flex;
     flex-direction: column;

@@ -100,7 +100,9 @@
     </div>
 
     {#if $tripsQ !== undefined}
-      <Seg label={t('Views of the races')} value={tab} options={[{ key: 'coming', name: t('Coming|races'), n: list.coming.length }, { key: 'list', name: t('Race list') }, { key: 'done', name: t('Done|races'), n: list.past.length }]} onchange={(k) => (tab = k)} />
+      <div class="rc-tabs">
+        <Seg label={t('Views of the races')} value={tab} options={[{ key: 'coming', name: t('Coming|races'), n: list.coming.length }, { key: 'list', name: t('Race list') }, { key: 'done', name: t('Done|races'), n: list.past.length }]} onchange={(k) => (tab = k)} />
+      </div>
       {#if tab === 'coming'}
         {#if !list.coming.length && !list.past.length}
           <section class="rc-box rc-soft" data-race-empty>

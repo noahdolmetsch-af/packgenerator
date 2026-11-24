@@ -174,9 +174,9 @@
     background: var(--paper);
   }
   .bc-pt.now {
-    background: var(--bad);
+    background: var(--ink);
     border-color: var(--paper);
-    box-shadow: 0 0 0 2px var(--bad);
+    box-shadow: 0 0 0 2px var(--ink);
   }
   .bc-pt.end {
     left: 100%;

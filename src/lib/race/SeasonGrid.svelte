@@ -19,7 +19,7 @@
         if (x0 == null && x1 == null) return null;
         const a = Math.max(0, x0 ?? 0);
         const b = Math.min(100, (x1 ?? 100) + 100 / 365);
-        const label = ((it.name.length * 7 + 10) / Math.max(w, 1)) * 100;
+        const label = ((it.name.length * 8.5 + 14) / Math.max(w, 1)) * 100;
         const right = b + 0.8 + label <= 100;
         const lo = right ? a : Math.max(0, a - 0.8 - label);
         const hi = right ? b + 0.8 + label : b;
@@ -97,6 +97,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    box-sizing: border-box;
+    padding: 0 6px;
   }
   .lab.r {
     text-align: right;
