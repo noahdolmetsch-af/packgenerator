@@ -41,7 +41,7 @@ test('Wochenplan: weeks with TrainingPeaks get an own hours goal, suggested, cha
   await expect(g.locator('[data-wp-tpvalue]')).toHaveText('15 Std');
   await expect(g.locator('[data-wp-tpsame]')).toHaveCount(0);
   // one tap sets the suggestion: five hours more than the goal above
-  await g.locator('[data-wp-tpsuggest]').click();
+  await root.locator('[data-wp-tpsuggest]').click();
   await expect(g.locator('[data-wp-tpvalue]')).toHaveText('20 Std');
   await expect(root.locator('[data-wp-hvalue]')).toHaveText('15 Std'); // the goal above stays
   await g.locator('[data-wp-tpdec]').click();
