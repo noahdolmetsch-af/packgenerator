@@ -73,9 +73,9 @@
   <ul class="card ich-list">
     {#if home}
       <li>
-        <button type="button" class="ich-row" onclick={() => pick({ kind: 'home', name: t('Home|start place'), lat: home.lat, lon: home.lon })} data-start-home>
+        <button type="button" class="ich-row" onclick={() => pick({ kind: 'home', name: t('Home|start'), lat: home.lat, lon: home.lon })} data-start-home>
           <span class="ich-ib"><House size={18} aria-hidden="true" /></span>
-          <span class="ich-m"><b>{t('Home|start place')}</b>{#if home.name}<small>{home.name}</small>{/if}</span>
+          <span class="ich-m"><b>{t('Home|start')}</b>{#if home.name}<small>{home.name}</small>{/if}</span>
         </button>
       </li>
     {/if}

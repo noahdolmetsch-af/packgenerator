@@ -67,7 +67,7 @@
     const gone = items().find((x) => x.id === e.id);
     const ok = await askDelete({ title: t('Delete «{name}»?', { name: titleOf(e) }), text: t('It leaves this week. Right after, you can undo it.') });
     if (ok !== 'delete') return false;
-    return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e) });
+    return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e), item: gone ? { store: ITEMS_KEY, row: gone, kind: 'plan' } : null });
   };
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
 

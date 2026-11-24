@@ -191,11 +191,12 @@
       undo: () => saveItems([...items().filter((x) => x.id !== gone.id), gone]),
       text: t('"{name}" deleted.', { name: gone.title }),
       name: gone.title,
+      item: { store: ITEMS_KEY, row: gone, kind: 'plan' },
     });
   }
 </script>
 
-<PageHead title={tab === 'todos' ? t('My to-dos') : tab === 'abhaken' ? t('Tick off today') : t('My day')} what={tab === 'todos' ? t('Everything still open, in one list.') : tab === 'abhaken' ? t('One tap ticks a sport or habit.') : t('Your day at a glance. Tap an entry to open it.')} />
+<PageHead title={tab === 'todos' ? t('My to-dos') : tab === 'abhaken' ? t('Tick off today') : t('My day')} />
 
 <p class="tabs"><Seg label={t('Views of My day')} value={tab} options={[{ key: 'day', name: t('Day') }, { key: 'todos', name: t('To-dos') }, { key: 'abhaken', name: t('Tick off|tab') }]} onchange={(k) => (remember(k), (location.hash = k === 'todos' ? '#/day/todos' : k === 'abhaken' ? '#/day/abhaken' : `#/day/${today}`))} /></p>
 
@@ -401,12 +402,23 @@
     gap: 6px;
     min-height: 44px;
     padding: 0 14px;
+    white-space: nowrap;
     border: 1px solid var(--line);
     border-radius: 12px;
     background: var(--paper);
     color: var(--ink);
     font: inherit;
     cursor: pointer;
+  }
+  /* on a phone the two buttons share one row (Noah «3a»: two buttons in one row) */
+  @media (max-width: 520px) {
+    .add {
+      flex: 1 1 auto;
+      justify-content: center;
+      gap: 5px;
+      padding: 0 10px;
+      font-size: var(--fs-small);
+    }
   }
   .today-link {
     margin-left: auto;

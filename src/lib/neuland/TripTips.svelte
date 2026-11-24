@@ -9,7 +9,7 @@
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { readRaw, computeFrom } from './store.js';
-  import { tripTips, freeTime, startHours, TIP_KINDS, TIP_HOURS } from './tipps.js';
+  import { tripTips, freeTime, startHours, TIP_KINDS, TIP_HOURS, LEVEL_KM, LEVEL_ALT } from './tipps.js';
   import { homeForecast } from '../home-weather.js';
   import { localDay } from '../localday.js';
   import Seg from '../ui/Seg.svelte';
@@ -67,12 +67,13 @@
     return Number.isFinite(wx.max) ? `${Math.round(wx.max)}° · ${rain}` : rain;
   });
   const freeText = $derived(!hasCal ? '' : free ? t('Calendar: free {from}–{to}', { from: free.from, to: free.to }) : t('Calendar: the day is full'));
+  const LEVEL_NAME = { easy: 'Easy|tip', medium: 'Medium|tip', hard: 'Hard|tip' };
   const KIND = { passes: { name: 'Pass', icon: Mountain }, lakes: { name: 'Lake', icon: Waves }, municipalities: { name: 'Municipality', icon: Landmark } };
 
   let placeOpen = $state(false);
   let roundTo = $state(null);
   let startOpen = $state(false);
-  const startName = $derived(startPick ? startPick.name : t('Home|start place'));
+  const startName = $derived(startPick ? startPick.name : t('Home|start'));
 </script>
 
 <section class="ich-sec" aria-labelledby="tt-h" data-trip-tips>
@@ -107,7 +108,7 @@
             {@const K = KIND[x.cid]}
             <li class="tt-row" data-tt-tip={x.id}>
               <span class="ich-ib"><K.icon size={18} aria-hidden="true" /></span>
-              <span class="tt-m"><b>{x.name}</b><small>{t(K.name)} · {t('≈ {km} km there and back', { km: num(x.roundKm) })}{#if x.alt}{' · '}{num(x.alt)} m{/if}</small></span>
+              <span class="tt-m"><b>{x.name}</b><small><span data-tt-level={x.level}>{t(LEVEL_NAME[x.level])}</span> · {t(K.name)} · {t('≈ {km} km there and back', { km: num(x.roundKm) })}{#if x.alt}{' · '}{num(x.alt)} m{/if}</small></span>
               <button type="button" class="btn sm" onclick={() => (roundTo = x)} data-tt-round><Route size={16} aria-hidden="true" />{t('Round through it')}</button>
             </li>
           {/each}
@@ -115,6 +116,7 @@
       {:else}
         <p class="ich-help">{t('No new place within reach. Choose more time.')}</p>
       {/if}
+      {#if tips.length}<p class="ich-help" data-tt-level-help>{t('How hard: a rough guess from the round and the height of the place. Easy up to {a} km, medium from {a} km, hard from {b} km; a place above {c} m is at least medium, above {d} m hard.', { a: LEVEL_KM[0], b: LEVEL_KM[1], c: LEVEL_ALT[0], d: LEVEL_ALT[1] })}</p>{/if}
     </div>
   {/if}
 </section>
