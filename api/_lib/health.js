@@ -227,7 +227,7 @@ export function makeChecks({ cfg, store, doFetch, now }) {
       const today = await dayUsage(store, dayOf(now()));
       const before = await dayUsage(store, dayOf(now() - 86_400_000));
       const hit = today.over.length ? today : before.over.length ? before : null;
-      if (hit) return fail('tagesgrenze', 'cap_reached', `Tagesgrenze erreicht am ${hit.day}: ${hit.over.join(', ')}. Der Server sagte «morgen wieder», es kostete nichts.`);
+      if (hit) return fail('tagesgrenze', 'cap_reached', `Tagesgrenze erreicht am ${hit.day}: ${hit.over.join(', ')} (${hit.total} Aufrufe; am meisten: ${hit.top.map((x) => `${x.name} ${x.n}`).join(', ') || 'keine Zahlen'}). Der Server sagte «morgen wieder», es kostete nichts.`);
       return ok('tagesgrenze', `${today.total} von ${today.limit} Aufrufen heute`);
     },
   };
