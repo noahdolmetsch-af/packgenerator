@@ -177,3 +177,48 @@ test('Gipfelbuch: the page of one place with visits, time up and a note', async 
   await expect(page.locator('[data-gp-missing] a[href="#/flow/gipfelbuch"]')).toBeVisible();
   expect(errors).toEqual([]);
 });
+
+// «Gipfelbuch ausbauen» (Noah 24.11.2026 «alle 1-5 zusammen», ideas 1 and 4): a Strava ride over a pass of the app's list is
+// found with its name and goes into the book with one tap; the collection «Pässe über 2000 m» counts it; own lists can be
+// added, changed and deleted with Undo. Fictional ride, real geography.
+test('Gipfelbuch: a pass found on a ride by name, a collection counts it, an own list', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/gipfelbuch');
+  await expect(page.locator('main')).toBeVisible();
+  const act = { id: 'test_gb_furka', type: 'Ride', kind: 'ride', day: addDays(TODAY, -4), name: 'Testrunde Furka', hm: 1500, line: '_z`{G_vcr@wjEs{EgjD{wE', prof: { pts: [[0, 900], [60, 1500], [120, 900]] } };
+  await put(page, { activities: [act] });
+  await page.reload();
+  const main = page.locator('main');
+
+  // the pass is found by its name, one tap puts it in the book
+  const found = main.locator('[data-gb-found]');
+  await expect(found.locator('[data-gb-sugg="act:test_gb_furka"]').first()).toContainText('Furkapass');
+  await found.locator('[data-gb-add]').first().click();
+  await expect(main.locator('[data-gb-place="Furkapass"]')).toBeVisible();
+  await expect(main.locator('.undo')).toContainText('Furkapass');
+
+  // the collection counts it, without a goal
+  const coll = main.locator('[data-gb-coll="paesse2000"]');
+  await coll.locator('summary').click();
+  await expect(coll.locator('summary small')).toContainText(/^1 /);
+  await expect(coll.locator('a.have', { hasText: 'Furkapass' })).toBeVisible();
+  await fits(page, 'collections');
+
+  // an own list: add, change, delete
+  await main.locator('[data-gb-list-new]').click();
+  const sheet = page.locator('[data-list-sheet]');
+  await sheet.locator('[data-gbl-save]').click();
+  await expect(sheet.locator('.err')).toHaveText(T('Give it a name.'));
+  await sheet.locator('[data-gbl-name]').fill('Testliste');
+  await sheet.locator('[data-gbl-items]').fill('Furkapass\nNiemalshorn');
+  await sheet.locator('[data-gbl-save]').click();
+  await expect(sheet).toBeHidden();
+  const own = main.locator('[data-gb-colls] details', { hasText: 'Testliste' });
+  await expect(own.locator('summary small')).toContainText(/^1 /);
+  await own.locator('summary').click();
+  await own.locator('[data-gb-list-edit]').click();
+  await sheet.locator('[data-gbl-delete]').click();
+  await expect(main.locator('[data-gb-colls] details', { hasText: 'Testliste' })).toHaveCount(0);
+  await main.locator('.undo button').click();
+  await expect(main.locator('[data-gb-colls] details', { hasText: 'Testliste' })).toHaveCount(1);
+  expect(errors).toEqual([]);
+});

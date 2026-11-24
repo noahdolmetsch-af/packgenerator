@@ -17,8 +17,10 @@
   import MainBar from '../../lib/ui/MainBar.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PlaceSheet from '../../lib/flow/PlaceSheet.svelte';
+  import ListSheet from '../../lib/flow/ListSheet.svelte';
   import { db } from '../../lib/db.js';
   import { GB_KEY, bookOf, suggestions, addPlace, addVisit, editPlace, removePlace, dismiss, yearGroups, coreOf, sportCounts, sportOf, isVelo, gbStars, starsOfPlace, nextPassStar, placeRows, PLACE_WORD, GB_SPORTS } from '../../lib/gipfelbuch.js';
+  import { loadCatalog, catalogSuggestions, mergeSuggestions, hitRef, collectionOf, ownCollection, COLLECTIONS, LISTS_KEY, listsOf, saveList, removeList, setHidden } from '../../lib/gipfelkatalog.js';
   import { localDay } from '../../lib/localday.js';
   import { t, tn, num, locale } from '../../lib/i18n.svelte.js';
 
@@ -26,8 +28,8 @@
   const today = localDay();
   const year = today.slice(0, 4);
   const q = liveQuery(async () => {
-    const [row, acts, rides, flowActs] = await Promise.all([db.settings.get(GB_KEY), db.activities.toArray(), db.rides.toArray(), db.flowActs.toArray()]);
-    return { book: bookOf(row?.value), acts, rides, others: [...new Set(flowActs.map((a) => a.name).filter(Boolean))] };
+    const [row, acts, rides, flowActs, lrow] = await Promise.all([db.settings.get(GB_KEY), db.activities.toArray(), db.rides.toArray(), db.flowActs.toArray(), db.settings.get(LISTS_KEY)]);
+    return { book: bookOf(row?.value), lists: listsOf(lrow?.value), acts, rides, others: [...new Set(flowActs.map((a) => a.name).filter(Boolean))] };
   });
   const data = $derived($q);
   const book = $derived(data?.book ?? bookOf(null));
@@ -37,12 +39,23 @@
   let sport = $state(sportKeyOf(params.get('sport')));
   let sel = $state(null);
   let sheet = $state(null); // { mode: 'new' | 'confirm' | 'edit' | 'visit', sugg?, place? }
-  let undo = $state(null); // { text, book }
+  let undo = $state(null); // { text, book, lists? }
 
   const groups = $derived(yearGroups(book, sport));
   const core = $derived(coreOf(book, year, sport));
   const counts = $derived(sportCounts(book));
-  const sugg = $derived(data ? suggestions(book, { acts: data.acts, rides: data.rides }) : []);
+  // the places of the catalogue (own chunk) are found on the rides once it has loaded
+  let catalog = $state([]);
+  $effect(() => {
+    loadCatalog().then((c) => (catalog = c)).catch(() => {});
+  });
+  const lists = $derived(data?.lists ?? listsOf(null));
+  const generic = $derived(data ? suggestions(book, { acts: data.acts, rides: data.rides }) : []);
+  const found = $derived(data && catalog.length ? catalogSuggestions(book, catalog, { acts: data.acts, rides: data.rides }) : []);
+  const sugg = $derived(mergeSuggestions(generic, found));
+  const colls = $derived([...COLLECTIONS.filter((c) => !lists.hidden.includes(c.id)).map((c) => collectionOf(c, catalog, book)).filter((c) => c.total), ...lists.own.map((l) => ownCollection(l, book))]);
+  const hiddenColls = $derived(COLLECTIONS.filter((c) => lists.hidden.includes(c.id)));
+  let listSheet = $state(null); // { list: the own list to change | null }
   const next = $derived(nextPassStar(book));
   const stars = $derived(gbStars(book));
   const rows = $derived(placeRows(book));
@@ -62,7 +75,13 @@
   const undoNow = async () => {
     if (!undo) return;
     await db.settings.put({ key: GB_KEY, value: JSON.parse(JSON.stringify(undo.book)) });
+    if (undo.lists) await db.settings.put({ key: LISTS_KEY, value: JSON.parse(JSON.stringify(undo.lists)) });
     undo = null;
+  };
+  // the lists of the collections: changing them can be undone like the book
+  const saveLists = async (nl, text = '') => {
+    if (text) undo = { text, book, lists };
+    await db.settings.put({ key: LISTS_KEY, value: JSON.parse(JSON.stringify(nl)) });
   };
 
   const dayWord = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'short', timeZone: 'UTC' }) : '');
@@ -79,7 +98,17 @@
     if (typeof matchMedia === 'function' && !matchMedia('(min-width: 1000px)').matches) document.getElementById('gb-det')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   const visitAgain = (s) => save(addVisit(book, s.match, { day: s.day, ref: s.ref, hm: s.hm }), t('Visit added to {name}', { name: placeOf(s.match)?.name ?? '' }));
-  const noPeak = (s) => save(dismiss(book, s.ref), t('Suggestion put away'));
+  const noPeak = (s) => save(dismiss(book, s.cat ? hitRef(s.ref, s.cat) : s.ref), t('Suggestion put away'));
+  // a place of the catalogue found on a ride has its name, height and position: one tap puts it in the book
+  const addFound = (s) => {
+    const nb = addPlace(book, { name: s.name, sport: s.sport, ele: s.ele, lat: s.lat, lon: s.lon }, { day: s.day, ref: s.ref, hm: s.hm });
+    sel = nb.places.at(-1).id;
+    return save(nb, t('«{name}» is in the summit book', { name: s.name }));
+  };
+  // «I was there» in a collection: the sheet with name, height and position from the list, the day is asked
+  const wasThere = (it) => (sheet = { mode: 'confirm', sugg: { name: it.name, sport: it.kind === 'pass' ? 'bike' : 'hike', ele: it.m ?? null, day: today, lat: it.lat ?? null, lon: it.lon ?? null, ref: 'hand', hm: null } });
+  const hideColl = (c) => saveLists(setHidden(lists, c.id, true), t('«{name}» hidden', { name: t(c.name) }));
+  const onlist = (v) => saveLists(saveList(lists, { id: listSheet.list?.id, name: v.name, items: v.items }), listSheet.list ? '' : t('List «{name}» added', { name: v.name }));
   const remove = (r) => {
     sel = null;
     save(removePlace(book, r.place.id), t('«{name}» removed', { name: r.place.name }));
@@ -128,16 +157,17 @@
     {#if sugg.length}
       <section class="gbc found" aria-labelledby="gb-found-h" data-gb-found>
         <h2 id="gb-found-h">{t('Found in your rides')}</h2>
-        <p class="sub">{t('The highest point of a ride or tour. Confirm it with a name, or put it away.')}</p>
+        <p class="sub">{t('Passes and summits on your rides and tours, and the highest point of a ride. Confirm one with a tap, or put it away.')}</p>
         <ul>
-          {#each sugg.slice(0, 3) as s (s.ref)}
+          {#each sugg.slice(0, 3) as s (`${s.ref}|${s.cat ?? ""}`)}
             <li data-gb-sugg={s.ref}>
               <span class="ic" aria-hidden="true"><Mountain size={20} /></span>
-              <span class="t"><b class="num">{m(s.ele)} · {t(sportOf(s.sport).name)}</b><small>{[s.title ? `«${s.title}»` : '', dayWord(s.day)].filter(Boolean).join(' · ')}</small></span>
+              <span class="t"><b class="num">{s.cat ? `${s.name} · ${m(s.ele)}` : `${m(s.ele)} · ${t(sportOf(s.sport).name)}`}</b><small>{[s.title ? `«${s.title}»` : '', dayWord(s.day), s.cat && s.level === 'maybe' ? t('near the route, please check') : ''].filter(Boolean).join(' · ')}</small></span>
               <span class="acts">
-                {#if s.match}<button type="button" class="btn sm hi" onclick={() => visitAgain(s)}>{t('Again at {name}', { name: placeOf(s.match)?.name ?? '' })}</button>
+                {#if s.match}<button type="button" class="btn sm hi" onclick={() => visitAgain(s)} data-gb-again>{t('Again at {name}', { name: placeOf(s.match)?.name ?? '' })}</button>
+                {:else if s.cat}<button type="button" class="btn sm hi" onclick={() => addFound(s)} data-gb-add>{t('Into the summit book')}</button><button type="button" class="btn sm" onclick={() => (sheet = { mode: 'confirm', sugg: s })} data-gb-confirm>{t('Change')}</button>
                 {:else}<button type="button" class="btn sm hi" onclick={() => (sheet = { mode: 'confirm', sugg: s })} data-gb-confirm>{t('Into the summit book')}</button>{/if}
-                <button type="button" class="btn sm" onclick={() => noPeak(s)}>{t('No summit')}</button>
+                <button type="button" class="btn sm" onclick={() => noPeak(s)}>{s.cat ? t('Not there') : t('No summit')}</button>
               </span>
             </li>
           {/each}
@@ -202,11 +232,48 @@
       </div>
     {/if}
 
+    {#if colls.length || hiddenColls.length}
+      <section class="gbc coll" aria-labelledby="gb-coll-h" data-gb-colls>
+        <h2 id="gb-coll-h">{t('Collections')}</h2>
+        <p class="sub">{t('Lists to collect. The book only counts how many you have, there is no goal.')}</p>
+        {#each colls as c (c.id)}
+          <details class="cl" data-gb-coll={c.id}>
+            <summary><b>{c.own ? c.name : t(c.name)}</b><small class="num">{t('{have} of {total}', { have: c.have, total: c.total })}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+            {#if c.hint}<p class="sub pad">{t(c.hint)}</p>{/if}
+            {#if !c.total}<p class="sub pad">{t('No places in this list yet. Tap «Change list» to add some.')}</p>{/if}
+            <ul class="cli">
+              {#each c.rows as r (r.it.key)}
+                <li>
+                  {#if r.place}<a class="have" href="#/flow/gipfelbuch/{encodeURIComponent(r.place.id)}"><Star size={14} aria-hidden="true" />{r.it.name}</a>{:else}<span class="miss">{r.it.name}</span>{/if}
+                  {#if r.it.m}<small class="num">{m(r.it.m)}</small>{/if}
+                  {#if !r.place}<button type="button" class="btn sm" onclick={() => wasThere(r.it)} data-gb-there>{t('I was there')}</button>{/if}
+                </li>
+              {/each}
+            </ul>
+            <p class="acts pad">
+              {#if c.own}<button type="button" class="btn sm" onclick={() => (listSheet = { list: lists.own.find((l) => l.id === c.id) })} data-gb-list-edit>{t('Change list')}</button>
+              {:else}<button type="button" class="link" onclick={() => hideColl(c)}>{t('Hide this list')}</button>{/if}
+            </p>
+          </details>
+        {/each}
+        <p class="acts pad">
+          <button type="button" class="btn sm" onclick={() => (listSheet = { list: null })} data-gb-list-new>{t('New list')}</button>
+          {#each hiddenColls as c (c.id)}<button type="button" class="link" onclick={() => saveLists(setHidden(lists, c.id, false))}>{t('Show «{name}» again', { name: t(c.name) })}</button>{/each}
+        </p>
+      </section>
+    {/if}
+
     {#if stars.length}<p class="sub foot">{tn(stars.length, '{n} star from the summit book, also in the trophy showcase', '{n} stars from the summit book, also in the trophy showcase')} · <a href="#/flow/trophies?area=gipfelbuch">{t('Trophy showcase')}</a></p>{/if}
   {/if}
 </div>
 
 <MainBar main={{ label: t('Enter a place by hand'), onclick: () => (sheet = { mode: 'new' }), arrow: false }} />
+
+{#if listSheet}
+  {#key listSheet}
+    <ListSheet list={listSheet.list} onsave={onlist} ondelete={listSheet.list ? () => saveLists(removeList(lists, listSheet.list.id), t('List «{name}» deleted', { name: listSheet.list.name })) : null} onclose={() => (listSheet = null)} />
+  {/key}
+{/if}
 
 {#if sheet}
   {#key sheet}
@@ -543,5 +610,69 @@
   }
   .foot a {
     color: var(--ink);
+  }
+  .coll {
+    padding: var(--sp-4);
+  }
+  .cl {
+    margin-top: var(--sp-2);
+    border-top: 1px solid var(--line);
+  }
+  .cl summary {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    min-height: 48px;
+    list-style: none;
+    cursor: pointer;
+  }
+  .cl summary::-webkit-details-marker {
+    display: none;
+  }
+  .cl summary small {
+    margin-left: auto;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .cl summary :global(.chev) {
+    flex: none;
+    color: var(--ink-3);
+    transition: transform 0.15s;
+  }
+  .cl[open] summary :global(.chev) {
+    transform: rotate(90deg);
+  }
+  .pad {
+    margin: var(--sp-1) 0;
+  }
+  .cli li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    min-height: 44px;
+    padding: 2px 0;
+    border-top: 1px solid var(--line);
+  }
+  .cli small {
+    margin-left: auto;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .cli li > :global(.btn) {
+    margin-left: var(--sp-2);
+  }
+  .have {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .have :global(svg) {
+    color: var(--warn);
+  }
+  .miss {
+    color: var(--ink-2);
   }
 </style>
