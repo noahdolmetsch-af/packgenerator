@@ -117,7 +117,8 @@ describe('the watcher check «tagesgrenze»', () => {
     expect(r).toMatchObject({ state: 'fail', code: 'cap_reached' });
     expect(r.note).toContain('2026-10-18');
     expect(r.note).toContain('google');
-    expect(await dayUsage(s, '2026-10-17')).toEqual({ day: '2026-10-17', total: 0, limit: DAY_CAPS.total, over: [] });
+    expect(r.note).toContain(`am meisten: google ${DAY_CAPS.google}`);
+    expect(await dayUsage(s, '2026-10-17')).toEqual({ day: '2026-10-17', total: 0, limit: DAY_CAPS.total, over: [], top: [] });
   });
   it('skips without a store', async () => {
     expect((await check(null)).state).toBe('skip');
