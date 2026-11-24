@@ -78,6 +78,7 @@ export default {
   'Goal in weeks with TrainingPeaks': 'Ziel in Wochen mit TrainingPeaks',
   'Same as the goal above': 'Wie das Ziel oben',
   'Same as the goal above, until you change it.': 'Wie das Ziel oben, bis du es änderst.',
+  'Suggest {n} h for these weeks': '{n} Std. für diese Wochen vorschlagen',
   'The sauna goes after a gym session. With no gym unit it has no place.': 'Die Sauna kommt nach dem Gym. Ohne Gym-Einheit hat sie keinen Platz.',
   'No room for the sauna after the gym on {day}.': 'Am {day} ist nach dem Gym kein Platz für die Sauna.',
   'No room for meditation on {day}.': 'Am {day} ist kein Platz für Meditation.',

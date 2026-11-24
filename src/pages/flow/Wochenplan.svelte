@@ -165,6 +165,9 @@
     const h = Math.min(MAX_HOURS, Math.max(MIN_HOURS, tpGoal + delta));
     return commit({ ...cfg, tpHours: h }, t('Goal for weeks with TrainingPeaks: {n} h.', { n: h }));
   };
+  // Noah 24.11.2026 «2b»: the own goal starts with a suggestion of five hours more than the goal above (15 → 20); one tap sets it, the stepper changes it
+  const tpSuggest = $derived(Math.min(MAX_HOURS, cfg.hours + 5));
+  const tpSet = () => commit({ ...cfg, tpHours: tpSuggest }, t('Goal for weeks with TrainingPeaks: {n} h.', { n: tpSuggest }));
   const tpSame = () => {
     const { tpHours: _gone, ...rest } = cfg;
     return commit(rest, t('Weeks with TrainingPeaks use the same goal again.'));
@@ -347,7 +350,7 @@
                 <output class="big num" data-wp-tpvalue>{t('{n} h|plan', { n: tpGoal })}</output>
                 <button type="button" class="btn sm" onclick={() => tpStep(1)} disabled={tpGoal >= MAX_HOURS} aria-label={t('One hour more')} data-wp-tpinc><Plus size={18} aria-hidden="true" /></button>
               </div>
-              {#if cfg.tpHours}<button type="button" class="btn sm" onclick={tpSame} data-wp-tpsame>{t('Same as the goal above')}</button>{:else}<p class="sub">{t('Same as the goal above, until you change it.')}</p>{/if}
+              {#if cfg.tpHours}<button type="button" class="btn sm" onclick={tpSame} data-wp-tpsame>{t('Same as the goal above')}</button>{:else}<p class="sub">{t('Same as the goal above, until you change it.')}</p><button type="button" class="btn sm" onclick={tpSet} data-wp-tpsuggest>{t('Suggest {n} h for these weeks', { n: tpSuggest })}</button>{/if}
             </div>
           {/if}
           {#if byHand}<button type="button" class="btn sm" onclick={suggestAgain} data-wp-again>{t('Suggest the units from the hours again')}</button>{/if}

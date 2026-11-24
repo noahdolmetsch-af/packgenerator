@@ -5,7 +5,7 @@ PR #<Nummer> · 23.11.2026 · Auftrag: Noah «2a und b» (Thread «Wochenplan-Vo
 ## Was ist neu
 - 2a: Das Ziel pro Woche gilt für alles. TrainingPeaks und Spieltermine zählen voll mit; ist die Woche darüber, lässt der Plan zuerst das Unwichtigste weg: Mini-Workout, Laufen drinnen, das zweite Gym, Laufen draussen, Velo. Tennis, Yoga, Eishockey, das erste Gym und die Sauna bleiben. In einer Skitour-Woche gilt das nicht (die Tour ist der Plan). `fitToHours` in `src/lib/training/wochenplan.js`.
 - Unter den Stunden steht, was weggelassen wurde («Um nahe an deinen 15 Std. zu bleiben, fällt diese Woche 1 × «Mini-Workout» weg») und, wenn es trotzdem nicht reicht, wie viel die Woche noch darüber liegt.
-- 2b: Neues Feld «Ziel in Wochen mit TrainingPeaks» (Plus und Minus, «Wie das Ziel oben») stellt für solche Wochen ein eigenes Ziel ein. Es erscheint, sobald TrainingPeaks-Einheiten oder ein Spielerplus-Kalender da sind.
+- 2b: Neues Feld «Ziel in Wochen mit TrainingPeaks» (Plus und Minus, «Wie das Ziel oben») stellt für solche Wochen ein eigenes Ziel ein. Es erscheint, sobald TrainingPeaks-Einheiten oder ein Spielerplus-Kalender da sind. Solange es nicht gesetzt ist, steht dort der Knopf «20 Std. für diese Wochen vorschlagen» (das Ziel oben plus 5 Std.); ein Tipp setzt ihn, Plus und Minus ändern ihn (Noah 24.11.2026 «2b»).
 
 ## Warum
 Befund vom 23.11.2026: Das Ziel von 15 Std. hielt mit TrainingPeaks nicht (Beispiel 19,5 Std., mit Noahs 9 bis 11 Std. TrainingPeaks etwa 21 bis 23 Std.), weil TrainingPeaks nur die zwei Velo-Einheiten ersetzte. Der Hinweis «über dem Soll» kam nur, wenn TrainingPeaks allein mehr als 15 Std. hatte.
@@ -18,7 +18,7 @@ Mit 9 Std. TrainingPeaks bleibt die Woche auch nach dem Weglassen bei etwa 19 St
 - Der Hinweis «Mit TrainingPeaks liegt die Woche über deinen Std. Nichts wird weggenommen» kommt nur noch, wenn der Plan nichts weggelassen hat.
 
 ## Daten (Prüfung mit Kopie)
-- Kein Dexie-Schema, kein `api/`. Neu ist ein optionales Feld `tpHours` im bestehenden Ziel `training.weekplan` (je Jahreszeit). Ohne das Feld gilt das Ziel oben; alte Sicherungen laden unverändert (Test `configOf`).
+- Kein Dexie-Schema, kein `api/`. Neu ist ein optionales Feld `tpHours` im bestehenden Ziel `training.weekplan` (je Jahreszeit). Ohne das Feld gilt das Ziel oben; alte Sicherungen laden unverändert (Test `configOf`). Geprüft am 24.11.2026 mit Kopie von Noahs Sicherung vom 24.11. (Format ohne `tpHours`): lädt, plant mit Ziel und mit 20 Std. ohne Fehler; Browser-Test `tests/e2e/wochenplan-tp-ziel.spec.js`.
 
 ## Selbst entschieden
 - Weggelassen wird nie unter einen Boden: Tennis, Yoga, Eishockey, erstes Gym, Sauna und Ruheblock bleiben.
