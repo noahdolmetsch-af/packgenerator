@@ -124,7 +124,7 @@ test('Wiege-Modus: Velo ueberspringen, 3 Teile wiegen, Undo, Fertig', async ({ p
   await grams.fill('980');
   await grams.press('Enter');
   await expect(name).toHaveText(`${P} Windjacke`);
-  await expect(page.getByRole('status')).toContainText(T('{name}: {w} saved', { name: `${P} Daunenschlafsack`, w: '980 g' }));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toContainText(T('{name}: {w} saved', { name: `${P} Daunenschlafsack`, w: '980 g' }));
   await grams.fill('210');
   await shot(page, info, 'wiegen-teil');
   await weigh.getByRole('button', { name: T('Save & next') }).click();

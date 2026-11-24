@@ -1,5 +1,5 @@
 // Durchklick Etappe 2, Frage 1a (Noah 05.11.2026): on a phone «Belongs to …» and «All here» start as ONE line on Packing, Trips,
-// Material and Bikes; a tap opens the card, «Fold the card» closes it, the choice stays after a reload. A computer shows them open.
+// Material and Bikes; a tap opens the card, «Fold the card» closes it, the choice stays after a reload. On a computer «Belongs to» is a closed line too since Durchklick-Fund 2 (22.11.2026).
 // Fictional data (home0460-fixture), German.
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
@@ -11,6 +11,8 @@ const PAGES = [
   ['#/trips', 'gd:trips', '[data-gehoert]'],
   // Material aufräumen (23.11.2026, changed on purpose): Material has no row «Belongs to» (a double of «All here» at the end)
   ['#/bikes', 'gd:bikes', '[data-gehoert]'],
+  // «Knapper Seitenkopf» (Noah 23.11.2026 «3a»): Weather starts with its row folded too
+  ['#/wetter', 'gd:wetter', '[data-gehoert]'],
   ['#/trips', 'ah:trips', '[data-all-here="trips"]'],
   ['#/gear', 'ah:gear', '[data-all-here="gear"]'],
   ['#/bikes', 'ah:bikes', '[data-all-here="bikes"]'],
@@ -55,21 +57,16 @@ test('phone: the two cards start as one line, open with a tap, fold again, and t
   expect(errors).toEqual([]);
 });
 
-test('computer: «Belongs to» stays open (no line, no fold button); «All here» is a line at the page end (Hilfen neu 1b)', async ({ page, context }, info) => {
+test('computer: «Belongs to» is a closed line behind the title (Durchklick-Fund 2); «All here» is a line at the page end (Hilfen neu 1b)', async ({ page, context }, info) => {
   test.skip(info.project.name === 'phone', 'computer only');
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await openHome(page, context, info, { hour: 9 });
   for (const [hash, id, card] of PAGES) {
     await page.goto('./' + hash);
-    if (id.startsWith('ah:')) {
-      await expect(page.locator(`[data-card-line="${id}"]`)).toBeVisible();
-      await expect(page.locator(card).first()).toHaveCount(0);
-      continue;
-    }
-    await expect(page.locator(card).first()).toBeVisible();
-    await expect(page.locator(`[data-card-line="${id}"]`)).toHaveCount(0);
-    await expect(page.locator(`[data-card-fold="${id}"]`)).toHaveCount(0);
+    // Durchklick-Fund 2 (Noah «2a»): «Belongs to» is a closed line on a computer too, behind the title
+    await expect(page.locator(`[data-card-line="${id}"]`)).toBeVisible();
+    await expect(page.locator(card).first()).toHaveCount(0);
   }
   expect(errors).toEqual([]);
 });

@@ -38,6 +38,8 @@ test('shortcuts on a computer: ? shows the list, n opens «Neu»; switched off n
   await expect(keys.locator('#keys-h')).toHaveText(T('Keyboard shortcuts'));
   await page.keyboard.press('Escape');
   await expect(keys).toBeHidden();
+  // the closed window takes its history entry away one task later (backClose); a sheet opened before that is closed by the back step
+  await expect.poll(() => page.evaluate(() => history.state?.pgDialog ?? null)).toBeNull();
   await page.keyboard.press('n');
   const neu = page.locator('dialog.sheet.new');
   await expect(neu).toBeVisible();

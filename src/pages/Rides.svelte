@@ -701,7 +701,7 @@
                       <span class="rv-tag warn">{t('Not kept')}</span>
                     {:else}
                       <span class="acts" role="group" aria-label={s.label}>
-                        <button type="button" class="btn" disabled={saving} onclick={() => answer(s, true)}><Check size={16} aria-hidden="true" />{t('Remember')}</button>
+                        <button type="button" class="btn" disabled={saving} onclick={() => answer(s, true)}><Check size={16} aria-hidden="true" />{s.ask ? t('Yes, remember') : t('Remember')}</button>
                         <button type="button" class="btn" disabled={saving} onclick={() => answer(s, false)}>{t('No')}</button>
                       </span>
                     {/if}

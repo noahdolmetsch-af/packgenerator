@@ -11,6 +11,9 @@ export const KINDS = [
   { key: 'doc', label: 'Documents' },
   { key: 'note', label: 'Notes' },
   { key: 'ride', label: 'Rides' },
+  { key: 'todo', label: 'To-dos' },
+  { key: 'plan', label: 'My day' },
+  { key: 'week', label: 'Week|tab' },
   { key: 'other', label: 'Other|trash' },
 ];
 

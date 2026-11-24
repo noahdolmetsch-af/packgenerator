@@ -44,7 +44,7 @@ test('add products, view the shop as a buyer and order with TWINT', async ({ pag
   await page.getByLabel(T('Price (CHF)')).fill('5');
   await page.getByLabel(T('Download link (stays on this device, goes into the mail)')).fill('https://example.test/packliste.pdf');
   await page.getByRole('button', { name: T('Save'), exact: true }).click();
-  await expect(page.getByRole('status')).toHaveText(T('{name} is in the shop.', { name: 'Packliste Bikepacking' }));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toHaveText(T('{name} is in the shop.', { name: 'Packliste Bikepacking' }));
 
   // a thing by post
   await page.getByRole('button', { name: T('New product') }).click();
@@ -108,7 +108,7 @@ test('orders come in, get paid and sent', async ({ page, context }) => {
   await put(page, { settings: [{ key: 'shop.products', value: [{ id: 'pflege-set', name: 'Pflege-Set', kind: 'post', price: 2400, note: '', ship: 900, stock: 4 }] }] });
   await page.goto('./#/me/shop/orders');
   await ready(page);
-  await expect(page.getByRole('status')).toHaveText(T('{n} new order', { n: 1 }));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toHaveText(T('{n} new order', { n: 1 }));
   const row = page.getByTestId('order-row');
   await expect(row).toHaveCount(1);
   await expect(row).toContainText('#1001 · Mia Beispiel · 33.00 CHF');
@@ -117,13 +117,13 @@ test('orders come in, get paid and sent', async ({ page, context }) => {
   await noSideways(page);
 
   await row.getByRole('button', { name: T('Paid'), exact: true }).click();
-  await expect(page.getByRole('status')).toHaveText(T('#{no} is marked as paid.', { no: 1001 }));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toHaveText(T('#{no} is marked as paid.', { no: 1001 }));
   await expect(row).toContainText(T('to send'));
   await expect(row).toContainText('Musterweg 1, 8000 Zürich');
   await row.getByRole('button', { name: T('Sent'), exact: true }).click();
   await row.getByLabel(T('Tracking number (optional)')).fill('99.00.123456.78901234');
   await row.getByRole('button', { name: T('Mark as sent') }).click();
-  await expect(page.getByRole('status')).toHaveText(T('#{no} is sent.', { no: 1001 }));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toHaveText(T('#{no} is sent.', { no: 1001 }));
   await expect(row).toContainText(T('sent|order'));
   await expect(row).toContainText('99.00.123456.78901234');
   await noSideways(page);

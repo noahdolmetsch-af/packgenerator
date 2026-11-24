@@ -1,6 +1,6 @@
 /**
  * Durchklick Etappe 2, Frage 1a (Noah 05.11.2026): on a phone the two cards «Belongs to …» and «All here» start as ONE line
- * on the pages where the page itself should come first (Packing, Trips, Material, Bikes), like «What you can do here» already
+ * on the pages where the page itself should come first (Packing, Trips, Material, Bikes, Weather), like «What you can do here» already
  * does (like the line «What you can do here» did until 09.11.2026). A tap on the line opens the card; «Fold the card» closes it again. The choice is
  * kept per card in the settings (so in the backup). Computer and tablets keep the open cards. Pure; CardFold.svelte uses it.
  */
@@ -9,7 +9,7 @@
 export const CARDS_KEY = 'karten.offen';
 
 /** The cards that start as one line on a phone: 'gd:<page>' is «Belongs to …» of a page, 'ah:<area>' is «All here» of an area. */
-export const START_FOLDED = ['gd:pack', 'gd:trips', 'gd:bikes', 'gd:gear', 'ah:trips', 'ah:gear', 'ah:bikes', 'ah:plan', 'ah:aktiv'];
+export const START_FOLDED = ['gd:pack', 'gd:trips', 'gd:bikes', 'gd:gear', 'gd:me', 'gd:debrief', 'gd:neuland', 'gd:wetter', 'ah:trips', 'ah:gear', 'ah:bikes', 'ah:plan', 'ah:aktiv'];
 
 /** The stored choices, anything but true/false left out. */
 export const openMapOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => typeof x === 'boolean')) : {});

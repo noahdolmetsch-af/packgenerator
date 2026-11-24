@@ -45,7 +45,9 @@ test('Ich: the row leads to «Erinnerungen aufs Handy»; all off at the start; a
   await open(page, context);
   await page.goto('./#/me');
   await settle(page);
-  await page.getByRole('link', { name: new RegExp(T('Reminders on the phone')) }).click();
+  // Ich aufräumen (Noah 24.11.2026): Ich has one row «Erinnerungen und Hinweise»; «Erinnerungen aufs Handy» is one tap further, on that page
+  await page.locator('main [data-row="reminders"]').click();
+  await page.locator('main [data-push-link]').click();
   await expect(page.getByRole('heading', { name: T('Reminders on the phone'), level: 1 })).toBeVisible();
   const box = page.locator('[data-push-page]');
   const main = box.locator('[data-push-main]');

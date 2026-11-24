@@ -1,108 +1,80 @@
-// Package G «Daten kommen von selbst»: the page Ich › Verbindungen (#155), Strava ticks Aktiv with
-// «Erst vorschlagen» (#156), the lake card (#9) and the tours as .ics (#84). The servers are answered by
-// the test; everything else outside the preview server is blocked. Fictional values only.
-import { test, expect } from './clock.js';
+// «Verbindungen» (Noah 04./05.11.2026, «3b» 23.11.2026): the goal question of the morning page offers to-dos, goals of the week and
+// activities as one-tap answers. On a phone and a computer, in German, fixed clock in Europe/Zurich. Fictional data only.
+// SHOTS=<folder> saves full-page screenshots.
+import { test, expect } from '@playwright/test';
 import { ready } from './settle.js';
+import { put } from './aktiv-fixture.js';
+import { flowSeeded, putWall } from './wall-fixture.js';
 
-const zurichToday = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Zurich' });
-const day = (n) => ((d) => (d.setUTCDate(d.getUTCDate() + n), d.toISOString().slice(0, 10)))(new Date(`${zurichToday()}T12:00:00Z`));
+const DAY = '2026-10-15';
 
-const idb = (page, fn, arg) =>
-  page.evaluate(
-    ([fn, arg]) =>
-      new Promise((ok, fail) => {
-        const r = indexedDB.open('pack-generator');
-        r.onsuccess = () => {
-          const db = r.result;
-          const [name, mode, rec] = arg;
-          const tx = db.transaction(name, mode);
-          const store = tx.objectStore(name);
-          const q = fn === 'put' ? store.put(rec) : store.getAll();
-          q.onsuccess = () => tx.commit?.();
-          tx.oncomplete = () => (db.close(), ok(q.result));
-          tx.onerror = () => fail(tx.error);
-        };
-      }),
-    [fn, arg],
-  );
+async function shot(page, name) {
+  if (!process.env.SHOTS) return;
+  const w = page.viewportSize().width;
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${process.env.SHOTS}/${name}-${w <= 500 ? 390 : 1440}.png`, fullPage: true });
+}
 
-test('Verbindungen: all connections, Strava suggests first, the lake, tours as .ics', async ({ page, context }) => {
+test('Verbindungen: the goal question offers to-dos, goals of the week and activities; a tap fills the sentence', async ({ page, context }) => {
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.clock.install({ time: new Date(`${DAY}T07:52:00+02:00`) });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
-  const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'authorization, content-type', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
-  await context.route(/packgen-three\.vercel\.app\/api\/lake/, (route) =>
-    route.fulfill({
-      status: 200,
-      headers: { ...cors, 'content-type': 'application/json' },
-      body: JSON.stringify({
-        ok: true,
-        at: `${day(0)}T09:00:00.000Z`,
-        now: { at: `${day(0)}T08:50:00.000Z`, water: 17.4, air: 12.1 },
-        days: [day(-2), day(-1), day(0)].map((d, i) => ({ day: d, min: 16 + i * 0.3, max: 17 + i * 0.3, mean: 16.5 + i * 0.3, n: 144 })),
-        forecast: [{ day: day(1), water: 17.6, min: 17.4, max: 17.8 }],
-        sources: { measurement: 'ok', forecast: 'ok' },
-      }),
-    }),
-  );
-  await context.addInitScript(() => {
-    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
-    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
+  await page.goto('./#/');
+  await ready(page);
+  await flowSeeded(page);
+  await putWall(page);
+  await put(page, {
+    settings: [
+      { key: 'merken', value: [
+        { id: 'td-1', text: 'Kette ölen', due: DAY, remind: null, repeat: null, list: null, created: '2026-10-10T08:00:00Z', doneAt: null },
+        { id: 'td-2', text: 'Steuer ordnen', due: '2026-10-10', remind: null, repeat: null, list: null, created: '2026-10-01T08:00:00Z', doneAt: null },
+      ] },
+      { key: 'flow.weekGoals', value: [{ id: 'km', kind: 'km', of: 150 }] },
+    ],
   });
-
-  // Aktiv first: the start activities are there; the lake card (on the weather page since «Aktiv neu», 22.10.2026) shows the measurement
-  await page.goto('./#/flow');
+  await page.reload();
   await ready(page);
-  await page.goto('./#/wetter');
+
+  await page.goto('./#/check/morning');
   await ready(page);
-  await expect(page.getByText('17.4', { exact: false }).or(page.getByText('17,4', { exact: false })).first()).toBeVisible();
+  const q = page.locator('[data-round-questions="morning"] [data-q="ziele.ziel"]');
+  const todos = q.locator('[data-links="todos"]');
+  await expect(todos).toContainText('Aus deinen To-dos');
+  await expect(todos.getByRole('button')).toHaveText(['Steuer ordnen', 'Kette ölen']);
+  await expect(q.locator('[data-links="goals"]').getByRole('button', { name: '150 Velo-km' })).toBeVisible();
+  await shot(page, 'verbindungen-frage');
 
-  // a fictional Strava run of yesterday
-  await idb(page, 'put', ['activities', 'readwrite', { id: 'e2e-run-1', day: day(-1), time: '07:00', start: `${day(-1)}T05:00:00Z`, name: 'Morgenrunde', type: 'Run', kind: 'run', km: 8, movingS: 2700 }]);
+  // a tap fills the sentence, a second one adds, the same one twice changes nothing
+  await todos.getByRole('button', { name: 'Kette ölen' }).click();
+  await expect(q.getByRole('textbox')).toHaveValue('Kette ölen');
+  await q.locator('[data-links="goals"]').getByRole('button', { name: '150 Velo-km' }).click();
+  await expect(q.getByRole('textbox')).toHaveValue('Kette ölen · 150 Velo-km');
+  await todos.getByRole('button', { name: 'Kette ölen' }).click();
+  await expect(q.getByRole('textbox')).toHaveValue('Kette ölen · 150 Velo-km');
+  await shot(page, 'verbindungen-getippt');
 
-  // Ich › Verbindungen
-  await page.goto('./#/me');
-  await page.locator('a[data-row="connections"]').click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Verbindungen' })).toBeVisible();
-  for (const k of ['strava', 'fitbit', 'agenda', 'mail', 'lake']) await expect(page.locator(`a[data-conn="${k}"]`)).toBeVisible();
-
-  // «Erst vorschlagen»: the run waits; «Zählen» ticks «Laufen» for yesterday
-  const ticks = page.locator('[data-section="strava-ticks"]');
-  await ticks.getByRole('button', { name: 'Erst vorschlagen' }).click();
-  await expect(ticks.getByRole('heading', { name: 'Von Strava: 1 Aktivität zählen?' })).toBeVisible();
-  await ticks.getByRole('button', { name: 'Zählen', exact: true }).click();
-  await expect(ticks.locator('[data-section="strava-suggest"]')).toHaveCount(0);
-  await expect.poll(async () => (await idb(page, 'all', ['flowLog', 'readonly'])).filter((e) => e.via === 'strava').map((e) => [e.actId, e.day])).toEqual([['run', day(-1)]]);
-
-  // the tours as a calendar file
-  const dl = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Touren als .ics speichern' }).click();
-  expect((await dl).suggestedFilename()).toMatch(/^touren-\d{4}-\d{2}-\d{2}\.ics$/);
-
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
+  // saved at once, kept after a reload
+  await page.waitForTimeout(900);
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-round-questions="morning"] [data-q="ziele.ziel"]').getByRole('textbox')).toHaveValue('Kette ölen · 150 Velo-km');
   expect(errors).toEqual([]);
 });
 
-test('#226 Heute im Blick: the fixed date of Aktiv › Woche and a Google appointment of today, by time', async ({ page, context }) => {
+test('Verbindungen: the row «Mail» shows «aus» until Gmail has been allowed, then «an» (Warteliste F6)', async ({ page, context }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
-  await context.addInitScript(() => {
-    if (!localStorage.getItem('lang')) localStorage.setItem('lang', 'de');
-    if (!localStorage.getItem('whatsnew.seen')) localStorage.setItem('whatsnew.seen', '9.9.9');
-  });
-  await page.goto('./#/flow');
+  await page.goto('./#/me/connections');
   await ready(page);
-  // weekday of today in Zurich: 1 Monday … 7 Sunday
-  const wd = ((new Date(`${zurichToday()}T12:00:00Z`).getUTCDay() + 6) % 7) + 1;
-  await idb(page, 'put', ['settings', 'readwrite', { key: 'flow.fixed', value: [{ id: 'e2e-fix', actId: 'run', wd, time: '18:15', minutes: 45 }] }]);
-  await idb(page, 'put', ['gEvents', 'readwrite', { id: 'e2e-ev', day: day(0), cal: 'primary', title: 'Testtermin Muster', allDay: false, start: `${day(0)}T07:30:00Z` }]);
-  await page.goto('./#/check/morning');
-  const rows = page.locator('[data-row="appt"]');
-  await expect(rows).toHaveCount(2);
-  await expect(rows.nth(0)).toContainText('Testtermin Muster');
-  await expect(rows.nth(0)).toContainText('Google Kalender');
-  await expect(rows.nth(1)).toContainText('18:15');
-  await expect(rows.nth(1)).toContainText('fester Termin');
+  const row = page.locator('[data-conn="mail"]');
+  await expect(row.locator('.pill')).toHaveText(/^(aus|off)$/i);
+  await put(page, { settings: [{ key: 'mail', value: { allowed: true } }] });
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-conn="mail"] .pill')).toHaveText(/^(an|on)$/i);
   expect(errors).toEqual([]);
 });

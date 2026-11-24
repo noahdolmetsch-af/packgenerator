@@ -16,7 +16,7 @@ describe('the places', () => {
   });
   it('Woche has the four tabs of the new order (the pages of Aktiv are chips under Training), Auswerten the looking pages', () => {
     expect(PLACE_TABS.week.map((x) => x.key)).toEqual(['week', 'training', 'notes', 'alltag']);
-    expect(PLACE_TABS.week.find((x) => x.key === 'training').subs.map((x) => x.key)).toEqual(['training', 'wochenplan', 'flowhome', 'sports', 'rest']);
+    expect(PLACE_TABS.week.find((x) => x.key === 'training').subs.map((x) => x.key)).toEqual(['flowhome', 'training', 'wochenplan', 'sports', 'rest']);
     // Schritt 12: five tabs by question, every old page is a chip under one of them
     expect(PLACE_TABS.analysis.map((x) => x.key)).toEqual(['start', 'body', 'rides', 'history', 'analyse']);
     expect(PLACE_TABS.analysis.flatMap((x) => x.subs.map((s) => s.key))).toEqual(expect.arrayContaining(['fragen', 'start', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones']));
@@ -108,14 +108,14 @@ describe('Auswerten in five tabs by question', () => {
     const subs = Object.fromEntries(all.map((x) => [x.key, x.subs.map((s) => s.key)]));
     expect(subs.start).toEqual(['fragen', 'start']);
     expect(subs.body).toEqual(expect.arrayContaining(['form', 'body', 'weight', 'insights']));
-    expect(subs.rides).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned']));
+    expect(subs.rides).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned', 'challenges']));
     expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'ideen']));
     expect(subs.analyse).toEqual(['analyse']);
   });
   it('no page of the old eighteen tabs is lost or stands twice', () => {
     const shown = all.flatMap((x) => x.subs.map((s) => s.key));
     expect(new Set(shown).size).toBe(shown.length);
-    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start'].sort());
+    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start', 'challenges'].sort());
   });
 });
 

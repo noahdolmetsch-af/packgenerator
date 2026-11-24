@@ -50,20 +50,50 @@ export async function forgetFor(value, db = appDb) {
   if (id) await dropEntry(db, id).catch(() => {});
 }
 
-/** Writes one entry for the rows [{ t, key, row }] (a row that is twice in it counts once). */
-export async function putEntry(db, label, rows, now = new Date()) {
+/** Rows that are not a table row but one item in a list that lives in a settings record (a to-do, an entry of My day): { t: LIST, key: settings key, row: the item }. */
+export const LIST = '@list';
+
+/** Writes one entry for the rows [{ t, key, row }] (a row that is twice in it counts once). kind: for entries that sit under no table (a to-do). */
+export async function putEntry(db, label, rows, now = new Date(), kind = '') {
   const seen = new Set();
   const list = [];
   for (const r of rows) {
-    const k = `${r.t}|${JSON.stringify(r.key)}`;
+    const k = `${r.t}|${JSON.stringify(r.key)}${r.t === LIST ? `|${r.path ?? ''}|${r.row?.id ?? ''}` : ''}`;
     if (seen.has(k)) continue;
     seen.add(k);
-    list.push({ t: r.t, key: r.key, row: r.row });
+    list.push({ t: r.t, key: r.key, row: r.row, ...(r.path ? { path: r.path } : {}) });
   }
   const main = mainTable(list);
   const id = newId();
-  await db.trash.put({ id, at: now.toISOString(), kind: kindOfTable(main), name: String(label ?? '').slice(0, 160), main, counts: countsOf(list), rows: list });
+  await db.trash.put({ id, at: now.toISOString(), kind: kind || kindOfTable(main), name: String(label ?? '').slice(0, 160), main, counts: countsOf(list), rows: list });
   return id;
+}
+
+/**
+ * Items of lists in settings records went (a to-do in `merken`, an entry of My day in `week.items`, a session in `training.plan`,
+ * a stay away in `week.away`): keeps them for 30 days as one entry. spec: { kind, store, row, path? } for one item, or
+ * { kind, parts: [{ store, row, path? }] } for several that go together (a stay away and the entries it made). `path`: the list
+ * sits under this name inside the record (`training.plan` is { sessions: [...] }).
+ * → the entry id, or null (the trash never stops a delete). It is also the one ⌘Z takes back.
+ */
+export async function trashItem(db, label, spec) {
+  try {
+    const parts = spec.parts ?? [spec];
+    const rows = parts.map((p) => ({ t: LIST, key: p.store, row: p.row, ...(p.path ? { path: p.path } : {}) }));
+    const id = await putEntry(db, label, rows, new Date(), spec.kind);
+    last = { id, name: String(label ?? ''), at: Date.now() };
+    return id;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
+/** The delete of an item was taken back at once: its entry goes, and ⌘Z has nothing to take back. */
+export async function forgetItem(db, id) {
+  if (!id) return;
+  await dropEntry(db, id).catch(() => {});
+  if (last?.id === id) last = null;
 }
 
 /** The entry is gone because the delete was taken back at once (Undo): it does not belong in the trash. */
@@ -80,10 +110,24 @@ export async function restoreEntry(db, id) {
   if (!e) return null;
   const by = {};
   for (const r of e.rows ?? []) (by[r.t] ??= []).push(r);
+  const items = by[LIST] ?? [];
+  delete by[LIST];
   const names = Object.keys(by);
   let back = 0;
   let skipped = 0;
-  await db.transaction('rw', [...names.map((n) => db.table(n)), db.trash], async () => {
+  await db.transaction('rw', [...names.map((n) => db.table(n)), ...(items.length ? [db.settings] : []), db.trash], async () => {
+    // an item of a list in a settings record goes to the end of that list again, unless one with its id is there
+    for (const it of items) {
+      const cur = (await db.settings.get(it.key))?.value;
+      const list = it.path ? (Array.isArray(cur?.[it.path]) ? cur[it.path] : []) : Array.isArray(cur) ? cur : [];
+      if (list.some((x) => x && x.id === it.row?.id)) {
+        skipped++;
+        continue;
+      }
+      const next = [...list, JSON.parse(JSON.stringify(it.row))];
+      await db.settings.put({ key: it.key, value: it.path ? { ...(cur && typeof cur === 'object' ? cur : {}), [it.path]: next } : next });
+      back++;
+    }
     for (const n of names) {
       const tbl = db.table(n);
       const inbound = !!tbl.schema.primKey.keyPath;

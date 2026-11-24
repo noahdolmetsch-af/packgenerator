@@ -20,6 +20,7 @@
   import FitbitImport from '../lib/fitbit/FitbitImport.svelte';
   import AppleImport from '../lib/applehealth/AppleImport.svelte';
   import { db } from '../lib/db.js';
+  import { MAIL_KEY, prefsOf as mailPrefsOf } from '../lib/mail.js';
   import { strava, STRAVA_HASH, PREFS_KEY as STRAVA_KEY, prefsOf as stravaPrefsOf, savePrefs as saveStrava, readKey } from '../lib/strava/client.svelte.js';
   import { health, FITBIT_HASH } from '../lib/health/client.svelte.js';
   import { agenda, AGENDA_HASH, saveEvent } from '../lib/agenda/client.svelte.js';
@@ -38,7 +39,7 @@
 
   const today = localDay();
   const q = liveQuery(async () => {
-    const [ticks, own, stravaRec, acts, activities, bikes, lake] = await Promise.all([
+    const [ticks, own, stravaRec, acts, activities, bikes, lake, mailRec] = await Promise.all([
       db.settings.get(TICKS_KEY),
       db.settings.get(OWN_KEY),
       db.settings.get(STRAVA_KEY),
@@ -46,8 +47,9 @@
       db.activities.toArray(),
       db.bikes.toArray(),
       db.meta.get(LAKE_CACHE_KEY),
+      db.settings.get(MAIL_KEY),
     ]);
-    return { ticks: ticksOf(ticks?.value), own: ownOf(own?.value), sp: stravaPrefsOf(stravaRec?.value), acts: acts.filter((a) => !a.paused).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), activities, bikes: bikes.filter((b) => !b.retired && !b.archived), lake: lake?.value ?? null };
+    return { ticks: ticksOf(ticks?.value), own: ownOf(own?.value), sp: stravaPrefsOf(stravaRec?.value), acts: acts.filter((a) => !a.paused).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)), activities, bikes: bikes.filter((b) => !b.retired && !b.archived), lake: lake?.value ?? null, mail: mailPrefsOf(mailRec?.value) };
   });
   const d = $derived($q);
   // Einzelidee 35: the Fitbit days of the last two weeks, to find days without values
@@ -62,7 +64,7 @@
     { key: 'fitbit', Icon: HeartPulse, name: t('Fitbit via Google'), on: !!health.prefs.connected, line: health.prefs.connected ? [health.last?.date ? t('values up to {day}', { day: health.last.date }) : t('connected'), hasKey ? '' : t('fetching needs the app key on this device')].filter(Boolean).join(' · ') : t('Sleep, steps, heart rate as observation'), href: FITBIT_HASH, st: { busy: health.busy, since: health.since, code: health.error || (health.lastTry && !health.lastTry.ok ? health.lastTry.code : ''), lastOk: health.prefs.lastSync } },
     { key: 'agenda', Icon: CalendarDays, name: t('Google Calendar and Tasks'), on: agenda.prefs.calendar || agenda.prefs.tasks, line: agenda.prefs.lastSync ? t('last fetch {when}', { when: when(agenda.prefs.lastSync) }) : t('Appointments and tasks, the calendar «Packgenerator»'), href: AGENDA_HASH, st: { busy: agenda.busy, since: agenda.since, code: agenda.error, lastOk: agenda.prefs.lastSync } },
     { key: 'trello', Icon: ListChecks, name: 'Trello', on: !!trello.prefs?.on, line: trello.prefs?.on ? (trello.prefs.lastSync ? t('last fetch {when}', { when: when(trello.prefs.lastSync) }) : t('connected')) : t('Your to-dos also on a Trello board'), href: '#/calendar', st: trello.prefs?.on ? { busy: trello.busy, since: trello.since, code: trello.error, lastOk: trello.prefs.lastSync } : null },
-    { key: 'mail', Icon: Mail, name: t('Mail'), on: null, line: t('Your Gmail: read, search, answer, write'), href: '#/me/mail' },
+    { key: 'mail', Icon: Mail, name: t('Mail'), on: !!d?.mail.allowed, line: t('Your Gmail: read, search, answer, write'), href: '#/me/mail' },
     { key: 'lake', Icon: Waves, name: t('Lake temperature'), on: !!lakeAt, line: lakeAt ? t('last value {when} · City of Zurich and Eawag, no login', { when: when(lakeAt) }) : t('City of Zurich and Eawag, no login'), href: '#/flow' },
   ]);
 

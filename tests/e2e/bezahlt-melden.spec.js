@@ -34,7 +34,7 @@ test('the payer sees how to pay and reports «paid»', async ({ page, context })
   await expect(page.locator('.plink-way').nth(1)).toContainText('CH44 3199 9123 0008 8901 2');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.getByRole('button', { name: T('I have paid with TWINT') }).click();
-  await expect(page.getByRole('status')).toContainText(T('Thank you! {name} now knows. You get a confirmation once the money has arrived.', { name: 'Beispiel Velo-Werkstatt' }));
+  await expect(page.locator('.plink-done')).toContainText(T('Thank you! {name} now knows. You get a confirmation once the money has arrived.', { name: 'Beispiel Velo-Werkstatt' }));
   expect(sent).toEqual([{ box: await boxOf(KEY), no: 'R-0317', way: 'twint' }]);
   expect(JSON.stringify(sent)).not.toContain('Mia');
 });
