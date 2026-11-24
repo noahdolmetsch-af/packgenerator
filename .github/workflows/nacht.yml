@@ -8,7 +8,8 @@ name: Nacht-Rundgang
 
 on:
   schedule:
-    - cron: '37 1 * * *' # every night 01:37 UTC (03:37 in Zurich in summer)
+    # 24.11.2026: moved to the evening like volle-pruefung.yml (its runs started 7 to 10 hours after 01:37), so the result is there in the morning
+    - cron: '37 20 * * *' # every evening 20:37 UTC (21:37 in Zurich in winter)
   workflow_dispatch:
 
 permissions:

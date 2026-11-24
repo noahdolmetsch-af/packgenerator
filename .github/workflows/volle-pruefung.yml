@@ -1,7 +1,7 @@
 # Volle Prüfung (Noah 27.10.2026 «1a 2a», thread «Weg von gebaut zu online»): the browser tests that no
 # longer hold up going online. They ran after every publish of main.
 # Noah 03.11.2026 «2a» (thread «Prüfen: Warum die Tests langsam sind»): since then only once a night
-# (02:07 UTC) or by hand («Run workflow»). After every merge it took 9 of the 20 GitHub computers on top of
+# (21:17 UTC since 24.11.2026) or by hand («Run workflow»). After every merge it took 9 of the 20 GitHub computers on top of
 # the pull request checks, and the queue was 40 minutes long. It runs the phone and computer browser tests
 # (7 parts each since 21.11.2026) and the Gesamttest (phone and computer, 2 parts each) on main as it is then.
 # Only on a failure it opens an issue (or adds to the open one), so Noah gets a mail and Claude repairs
@@ -10,7 +10,10 @@ name: Volle Prüfung
 
 on:
   schedule:
-    - cron: '7 2 * * *' # every night 02:07 UTC, after the Nacht-Rundgang has started
+    # 24.11.2026 (Noah «a-c alle», c = Nachtlauf): the scheduled runs of the last 20 nights did not start at 02:07 but between
+    # 08:39 and 10:31 UTC (once 12:21), so the result came at noon, not in the morning. Now the start is set to the evening
+    # (21:17 UTC = 22:17 in Zurich in winter); with the same delay it runs in the night and is done before the morning round at 08:00.
+    - cron: '17 21 * * *'
   workflow_dispatch:
 
 permissions:
@@ -284,3 +287,38 @@ jobs:
           for num in $(gh issue list --label "$LABEL" --state open --json number --jq '.[].number'); do
             gh issue close "$num" --comment "Alles wieder grün.$(printf '\n\n')$(cat report.md)"
           done
+
+      # 24.11.2026 (Noah «a-c alle», c = Nachtlauf): the short morning message. One standing issue «Nacht-Meldung»: title and body
+      # are overwritten every night (an edit sends no mail), so green and «did not run» no longer look the same. The coordinator
+      # reads it in the morning round and tells Noah. The line comes from scripts/nacht-meldung.mjs.
+      - name: Morning message
+        if: always()
+        env:
+          E2E: ${{ needs.e2e-part.result }}
+          GESAMTTEST: ${{ needs.gesamttest.result }}
+          ROT: ${{ steps.vergleich.outputs.rot }}
+          NEU: ${{ steps.vergleich.outputs.neu }}
+          ERSTER: ${{ steps.vergleich.outputs.erster }}
+          UNVOLLSTAENDIG: ${{ steps.vergleich.outputs.unvollstaendig }}
+          WACKLER: ${{ steps.wackel.outputs.wackler }}
+          VERGLEICH_DATEI: vergleich.md
+          ROT_LISTE_DATEI: rot-liste.txt
+          MLABEL: nacht-meldung
+        run: |
+          DATUM=$(TZ=Europe/Zurich date +'%d.%m.')
+          RUNDGANG=$(gh run list --workflow nacht.yml --status completed --limit 1 --json conclusion --jq '.[0].conclusion // empty' || true)
+          at=$(gh run list --workflow nacht.yml --status completed --limit 1 --json updatedAt --jq '.[0].updatedAt // empty' || true)
+          RUNDGANG_ALTER_H=''
+          [ -n "$at" ] && RUNDGANG_ALTER_H=$(( ($(date -u +%s) - $(date -u -d "$at" +%s)) / 3600 ))
+          export DATUM RUNDGANG RUNDGANG_ALTER_H
+          title=$(node scripts/nacht-meldung.mjs titel)
+          node scripts/nacht-meldung.mjs text > meldung.md
+          { echo '### Morgenmeldung'; echo; cat meldung.md; } >> "$GITHUB_STEP_SUMMARY"
+          gh label create "$MLABEL" --color 0E8A16 --description 'Stand der letzten Nacht, wird jede Nacht überschrieben (kein Kommentar, keine Mail)' 2>/dev/null || true
+          num=$(gh issue list --label "$MLABEL" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$num" ]; then
+            gh issue edit "$num" --title "$title" --body-file meldung.md
+          else
+            gh issue create --title "$title" --label "$MLABEL" --body-file meldung.md
+          fi
+          true
