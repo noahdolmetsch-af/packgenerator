@@ -189,7 +189,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    margin: 0;
+    margin: -2px 0 4px 44px;
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
