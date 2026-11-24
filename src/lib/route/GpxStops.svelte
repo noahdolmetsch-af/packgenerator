@@ -9,6 +9,9 @@
   import { routeGpx, stopsOf, kindsIn, STOP_KINDS_STD } from '../gpxstops.js';
   import { saveGpx, saveFit } from '../gpxout.js';
   import { toFit, pointsOf } from '../unterwegs/umwandeln.js';
+  import { lineKm } from '../race/race.js';
+  import { turnsOf } from '../live/turns.js';
+  import { turnPlaces, withTurns, COURSE_ALL_MAX } from '../live/garminturns.js';
   import { POI_KIND } from '../race/outside.js';
   import { t, tn } from '../i18n.svelte.js';
 
@@ -21,6 +24,12 @@
   const kinds = $derived(!chips ? present : picked ?? (present.some((k) => STOP_KINDS_STD.includes(k)) ? present.filter((k) => STOP_KINDS_STD.includes(k)) : present));
   const n = $derived(stopsOf(points, { kinds }).length);
   const flip = (k) => (picked = kinds.includes(k) ? kinds.filter((x) => x !== k) : [...kinds, k]);
+  // Abbiegepunkte (Noah 23.11.2026 «3a»): the turns of the Live-Karte as course points; on by default, a chip turns them off
+  let turnsOn = $state(true);
+  const allTurns = $derived(route?.line?.length > 1 ? turnPlaces(turnsOf(lineKm(route)), (k, v) => t(k, v)) : []);
+  const placesFit = $derived(stopsOf(points, { kinds }).map((p) => ({ ...p, name: p.name || kindName(p.kind) })));
+  const course = $derived(withTurns(placesFit, turnsOn ? allTurns : []));
+  const cpCount = $derived(Math.min(placesFit.length, 100) + course.turns);
   let msg = $state('');
   async function save() {
     const text = routeGpx(route, points, { name: name || route?.name, kinds, nameOf: (s) => kindName(s.kind) });
@@ -29,8 +38,7 @@
     msg = r === 'shared' ? t('Shared.') : t('Saved. On the Garmin: copy it with Garmin Express or the Connect app; on the Wahoo: import it in the app.');
   }
   async function saveCourse() {
-    const places = stopsOf(points, { kinds }).map((p) => ({ ...p, name: p.name || kindName(p.kind) }));
-    const bytes = toFit(pointsOf(route), name || route?.name || '', { coursePoints: places });
+    const bytes = toFit(pointsOf(route), name || route?.name || '', { coursePoints: course.places, coursePointsMax: COURSE_ALL_MAX });
     const r = await saveFit(bytes, name || route?.name || 'route');
     if (r === 'cancelled') return;
     msg = r === 'shared' ? t('Shared.') : t('Saved. On the Garmin: copy it with Garmin Express or the Connect app; on the Wahoo: import it in the app.');
@@ -46,9 +54,13 @@
       </div>
     {/if}
     <button type="button" class="btn sm" onclick={save} data-gpx-stops-save><Download size={16} aria-hidden="true" />{n ? tn(n, 'GPX with {n} stop', 'GPX with {n} stops', { n }) : t('GPX of the route')}</button>
-    {#if n}
+    {#if n || allTurns.length}
       <!-- P1 «Kurspunkte für den Garmin» (Noah 23.11.2026): the same stops as named course points in a FIT course; the Edge says «Water in 12 km» -->
-      <button type="button" class="btn sm" onclick={saveCourse} data-gpx-fit><Download size={16} aria-hidden="true" />{tn(n, 'FIT course with {n} point', 'FIT course with {n} points', { n })}</button>
+      <button type="button" class="btn sm" onclick={saveCourse} disabled={!cpCount} data-gpx-fit><Download size={16} aria-hidden="true" />{tn(cpCount, 'FIT course with {n} point', 'FIT course with {n} points', { n: cpCount })}</button>
+      {#if allTurns.length}
+        <button type="button" class="gs-chip" aria-pressed={turnsOn} onclick={() => (turnsOn = !turnsOn)} data-gpx-turns>{t('With turns')}</button>
+        <p class="gs-note">{turnsOn ? tn(course.turns, '{n} turn goes into the course: the Edge shows an arrow before it.', '{n} turns go into the course: the Edge shows an arrow before each.', { n: course.turns }) : t('Without turns: only the places.')}{course.cut ? ` ${tn(course.cut, '{n} gentle turn is left out (limit of the Edge).', '{n} gentle turns are left out (limit of the Edge).', { n: course.cut })}` : ''}</p>
+      {/if}
       <p class="gs-note">{t('For the Edge 850 and 1040: the route with the places as course points. The Edge announces them on the way, even when the phone is off. Copy the file into the folder «NewFiles» of the Edge.')}</p>
     {/if}
     {#if msg}<p class="gs-note" role="status">{msg}</p>{/if}
@@ -72,6 +84,7 @@
     gap: 6px;
   }
   .gs-chip {
+    justify-self: start;
     min-height: 44px;
     padding: 8px 12px;
     border: 1px solid var(--line-strong);

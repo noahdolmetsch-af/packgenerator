@@ -1,6 +1,7 @@
 <script>
   import PasstHier from '../lib/ui/PasstHier.svelte'; // Wegweiser 8: «Fits here»
-  import { askDelete } from '../lib/ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question
+  import { askDelete } from '../lib/ui/ask.js';
+  import { trashed, forgetFor } from '../lib/trash/trash.js'; // «Zuletzt gelöscht» (Noah 23.11.2026 «1a») // «Rückmeldungen» 19.10.2026: the app's own question
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Anleitungen überall»: the guide of this page (lib/guides.js)
   /**
    * Ich › Dokumente (P3b «Daten sicher», Noah 15.10.2026 «1a»; mockups D3 and D4 approved 12.10.2026
@@ -193,10 +194,10 @@
   }
   /** Delete: asks first, then 4 s «Undo» (rule «Löschen» 14.10.2026, Ü4a 15.10.2026). */
   async function remove(d) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: d.name }), text: d.drive?.id ? t('A copy in Google Drive stays. You can bring it back for 4 seconds afterwards.') : t('It is gone from this device; older backup files still have it. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
-    const row = await deleteDoc(d.id);
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: d.name }), text: d.drive?.id ? t('A copy in Google Drive stays. You can bring it back for 8 seconds afterwards.') : t('It is gone from this device; older backup files still have it. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
+    const row = (await trashed(d.name || t('Document'), () => deleteDoc(d.id))).value;
     clearTimeout(undo?.timer);
-    undo = { row, timer: setTimeout(() => (undo = null), 4000) };
+    undo = { row, timer: setTimeout(() => (undo = null), UNDO_MS) };
     location.hash = DOCS_HASH;
   }
   async function undoDelete() {
@@ -204,6 +205,7 @@
     const row = undo?.row;
     undo = null;
     await restoreDoc(row);
+    await forgetFor(row);
   }
   /* ---------- Paket A: rename and delete a group ---------- */
   let groupUndo = $state.raw(null); // { text, u, timer }; raw: u goes back into IndexedDB as it is

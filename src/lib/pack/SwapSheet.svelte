@@ -112,7 +112,7 @@
       <span class="mid">
         <span class="nm">{nameOf(r.item)}{#if best}<i class="pill ok best">{t('fits best')}</i>{:else if !r.fit.ok}<i class="pill warn best">{t('fits less')}</i>{/if}</span>
         <small class="num">{[range0(r.item) ? t('fits {range}', { range: range0(r.item) }) : '', !r.fit.ok ? whyText(r.fit.why) : r.mem ? `${memText(r.mem)}${r.mem.n > 1 ? ` · ${r.mem.n}×` : ''}` : ''].filter(Boolean).join(' · ')}</small>
-        {#if favWhy(r.item)}<small class="fav">★ {favWhy(r.item)}</small>{/if}
+        {#if r.item.favorite}<small class="fav">★ {favWhy(r.item) || t('Your favourite')}</small>{/if}
       </span>
       <span class="w num">{g(r.item)}</span>
       <span class="go" class:first aria-hidden="true">{t('Swap')}</span>

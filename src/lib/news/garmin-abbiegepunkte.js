@@ -1,0 +1,24 @@
+// «Abbiegepunkte für den Garmin» (Noah 23.11.2026 «3a», Thread «Live-Navigation»)
+export default {
+  title: 'Turns for the Garmin',
+  lead: 'The FIT course for the Edge now has the turns of the route: an arrow before each, with the phone off.',
+  points: [
+    { text: 'The FIT course («FIT course with n points») also holds the turns of the route; the Edge shows an arrow and «Turn left» before each', go: { href: '#/trips/fuel', where: 'Shows under the stops of a route: Supplies, the route card and the race map.' } },
+    { text: 'The chip «With turns» switches them off again; the places (shops, water, beds) always come first', go: { href: '#/trips/fuel', where: 'Shows under the stops of a route: Supplies, the route card and the race map.' } },
+    { text: 'The row «Ride with OsmAnd instead?» on the live page now has its button on the right, like the rows above it', go: { href: '#/live', where: 'Shows on the live page before the start, on the card «Ready for the ride?».' } },
+  ],
+  test: ['Open Supplies for a tour with a route and look under the stops: the chip «With turns» is on.', 'Tap the chip: the number of points drops to the places; tap again: it rises.', 'Save the .fit file and copy it into the folder «NewFiles» of the Edge: an arrow shows before each turn.'],
+  since: [],
+  de: {
+    'Turns for the Garmin': 'Abbiegepunkte für den Garmin',
+    'The FIT course for the Edge now has the turns of the route: an arrow before each, with the phone off.': 'Der FIT-Kurs für den Edge enthält jetzt die Abbiegungen der Route: vor jeder ein Pfeil, auch bei ausgeschaltetem Handy.',
+    'The FIT course («FIT course with n points») also holds the turns of the route; the Edge shows an arrow and «Turn left» before each': 'Der FIT-Kurs («FIT-Kurs mit n Kurspunkten») enthält auch die Abbiegungen der Route; der Edge zeigt vor jeder einen Pfeil und «Links abbiegen»',
+    'The chip «With turns» switches them off again; the places (shops, water, beds) always come first': 'Der Chip «Mit Abbiegepunkten» schaltet sie wieder ab; die Orte (Läden, Wasser, Betten) kommen immer zuerst',
+    'The row «Ride with OsmAnd instead?» on the live page now has its button on the right, like the rows above it': 'Die Zeile «Lieber mit OsmAnd fahren?» auf der Live-Seite hat ihren Knopf jetzt rechts, wie die Zeilen darüber',
+    'Shows under the stops of a route: Supplies, the route card and the race map.': 'Zeigt sich unter den Stopps einer Route: Verpflegung, Routenkarte und Rennkarte.',
+    'Shows on the live page before the start, on the card «Ready for the ride?».': 'Zeigt sich auf der Live-Seite vor dem Start, auf der Karte «Bereit für unterwegs?».',
+    'Open Supplies for a tour with a route and look under the stops: the chip «With turns» is on.': 'Öffne Verpflegung für eine Tour mit Route und schau unter die Stopps: der Chip «Mit Abbiegepunkten» ist an.',
+    'Tap the chip: the number of points drops to the places; tap again: it rises.': 'Tippe den Chip: die Zahl der Punkte sinkt auf die Orte; tippe noch einmal: sie steigt.',
+    'Save the .fit file and copy it into the folder «NewFiles» of the Edge: an arrow shows before each turn.': 'Speichere die .fit-Datei und kopiere sie in den Ordner «NewFiles» des Edge: vor jeder Abzweigung erscheint ein Pfeil.',
+  },
+};

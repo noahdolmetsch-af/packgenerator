@@ -8,6 +8,7 @@ export default {
   'Copied.': 'Kopiert.',
   'Copying did not work. Select the line and copy it by hand.': 'Kopieren hat nicht geklappt. Markiere die Zeile und kopiere sie von Hand.',
   Start: 'Start',
+  'Content shown': 'Inhalt da',
   'Held up at start': 'Gebremst beim Start',
   Scrolling: 'Scrollen',
   frames: 'Bilder',

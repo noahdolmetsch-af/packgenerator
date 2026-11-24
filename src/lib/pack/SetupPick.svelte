@@ -4,7 +4,7 @@
    * the chip «Setup: …» under «Velo und Taschen» of a trip. A new trip starts with the setup last used
    * on its bike; here it can be changed: the list shows every setup of the bike with its bags, when it
    * was last used, its weight and how many things would move. Switching puts the packing list into
-   * that setup's bags (only this trip, 4 s «Rückgängig»). «Taschen nur für diese Tour ändern» opens the
+   * that setup's bags (only this trip, 8 s «Rückgängig»). «Taschen nur für diese Tour ändern» opens the
    * bags of the trip; when the trip differs from its setup, «Ins Setup übernehmen» saves it there; and
    * the trip's bags can become a new setup. A finished trip only shows its setup.
    */
@@ -76,7 +76,7 @@
             {#if onbags}<button type="button" class="ln" onclick={() => ((open = false), onbags())}><Pencil size={16} aria-hidden="true" />{t('Change bags only for this trip')}</button>{/if}
             <button type="button" class="ln" onclick={() => ((open = false), (naming = true))}><Plus size={16} aria-hidden="true" />{t('Save these bags as a new setup')}</button>
           </div>
-          <p class="hint">{t('Switching puts the packing list into the bags of that setup, only for this trip. Undo stays 4 seconds.')}</p>
+          <p class="hint">{t('Switching puts the packing list into the bags of that setup, only for this trip. Undo stays 8 seconds.')}</p>
         </div>
       {/if}
     {/if}

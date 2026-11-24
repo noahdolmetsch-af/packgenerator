@@ -37,7 +37,7 @@
   <div class="smap">
     <svg viewBox="0 0 {w} {h}" preserveAspectRatio="xMidYMid slice" role="img" aria-label={label || t('Map of the route')}>
       <rect class="ground" width={w} height={h} />
-      {#each tiles as tl (tl.url)}<image class="tile" href={tl.url} x={tl.left} y={tl.top} width="256" height="256" onerror={() => failed++} />{/each}
+      {#each tiles as tl (tl.url)}<image class="tile" href={tl.url} crossorigin="anonymous" x={tl.left} y={tl.top} width="256" height="256" onerror={() => failed++} />{/each}
       <path class="casing" d={d} />
       <path class="rt" d={d} />
       {#each at as m, n (n)}

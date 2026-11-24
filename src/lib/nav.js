@@ -219,6 +219,7 @@ export function pageOf(hash = '', careTab = false) {
   if (h.startsWith('#/me/suche')) return 'suchesettings'; // «Suche mit Sprache und Antworten» (Noah 21.10.2026 «5b»)
   if (h.startsWith('#/me/ki-projekte')) return 'aiprojects'; // «Meine KI-Projekte» (Noah 19.10.2026 «2a»)
   if (h.startsWith('#/me/look')) return 'look'; // v0.97.0 Design-Refresh R1: Ich › Darstellung
+  if (h.startsWith('#/me/trash')) return 'trash'; // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): Ich › Daten › Zuletzt gelöscht
   if (h.startsWith('#/me/logbuch')) return 'logbuch'; // «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): Ich › Logbuch
   if (h.startsWith('#/me/docs/scan')) return 'docscan'; // Dokumente-PDF: «Dokument fotografieren»
   if (h.startsWith('#/me/docs')) return 'docs'; // Dokumente-PDF: Ich › Dokumente
@@ -435,6 +436,9 @@ const FLOW_PAGES = {
   rest: { label: 'Recovery|tab', href: '#/flow/rest', match: (h) => /^#\/(flow\/rest|routine)(\/|\?|$)/.test(h) },
 };
 
+/** The assistant opened from «Fragen» (`#/assistent?von=fragen`, «Eigene Frage stellen») stays in Auswerten under the chip «Fragen». */
+const FROM_FRAGEN = /^#\/assistent\?(?:[^#]*&)?von=fragen(?:&|$)/;
+
 /**
  * The pages of Auswerten (the old eighteen tabs). Since «Ganze App neu denken» Schritt 12 they are the chips under the five tabs of
  * Auswerten (PLACE_TABS.analysis), sorted by the question you ask; every address and every `match` is unchanged.
@@ -442,7 +446,7 @@ const FLOW_PAGES = {
  */
 const ANALYSIS_PAGES = {
   // «Fragen» (Plan 4a, Noah 08.11.2026 «D b»): the first tab; it stands before «Overview», whose address also starts with #/auswerten
-  fragen: { label: 'Questions|tab', href: '#/auswerten/fragen', match: (h) => /^#\/auswerten\/fragen(\/|\?|$)/.test(h) },
+  fragen: { label: 'Questions|tab', href: '#/auswerten/fragen', match: (h) => /^#\/auswerten\/fragen(\/|\?|$)/.test(h) || FROM_FRAGEN.test(h) },
   start: { label: 'Overview|tab', href: '#/auswerten', match: (h) => /^#\/auswerten(\/(?!analyse)|\?|$)/.test(h) },
   // Analyse PR 1 (Noah 27.10.2026 «1a»): every value as a tile, also behind «Mehr» on Heute
   analyse: { label: 'Analyse|page', href: '#/auswerten/analyse', match: (h) => /^#\/auswerten\/analyse(\/|\?|$)/.test(h) },
@@ -597,6 +601,7 @@ export function placeOf(page, hash = '') {
   // «Aktiv neu» (Noah 22.10.2026): the pages to look at are under Auswerten, the same addresses
   if (page === 'flow') return LOOK_FLOW.test(hash || '') ? 'analysis' : 'week'; // V4a: Aktiv is part of Woche (tab Training)
   if (page === 'auswerten') return 'analysis';
+  if (page === 'assistent' && FROM_FRAGEN.test(hash || '')) return 'analysis'; // «Eigene Frage stellen» (Noah 23.11.2026 «5a»): the place stays lit
   if (page === 'wetter') return 'weather'; // Wetter-Ausbau W1 (Noah 22.11.2026 «a»): a place of its own
   // N1 + UI-Ziele #6 (Noah 20.10.2026): what you plan is Planen, what you look back on is Auswerten; Ich keeps data, settings, help
   if (['vorgaenge', 'notecontext', 'plantpass', 'week', 'day', 'agenda', 'calendar', 'notes', 'tagebuch', 'inbox', 'mail', 'compass', 'alltag', 'frei', 'impulse', 'weblinks'].includes(page)) return 'week';
@@ -607,7 +612,7 @@ export function placeOf(page, hash = '') {
   if (page === 'gear' || page === 'supplies' || page === 'lend' || page === 'power' || page === 'gearimport' || page === 'favorites' || page === 'blocks' || page === 'blockcheck' || page === 'packcleanup' || page === 'wardrobe') return 'bikes'; // V5: Material is part of «Velos und Material» (tab Material)
   if (page === 'bikes' || page === 'care') return 'bikes';
   if (page === 'equipment') return 'bikes'; // V5: Ausrüstung is the chip «Sets» of the tab Sets
-  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'album' || page === 'freunde' || page === 'minitools' || page === 'ruhig' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'logbuch' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'kurse' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'regeln' || page === 'karte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
+  if (page === 'me' || page === 'aiprojects' || page === 'suchesettings' || page === 'tools' || page === 'weblinks' || page === 'hinweise' || page === 'compass' || page === 'next' || page === 'album' || page === 'freunde' || page === 'minitools' || page === 'ruhig' || page === 'wohl' || page === 'inbox' || page === 'features' || page === 'assistent' || page === 'offers' || page === 'privacy' || page === 'pros' || page === 'push' || page === 'look' || page === 'data' || page === 'logbuch' || page === 'trash' || page === 'docs' || page === 'docscan' || page === 'connections' || page === 'mail' || page === 'fitbit' || page === 'weight' || page === 'phone' || page === 'news' || page === 'checks' || page === 'abfragen' || page === 'history' || page === 'analysis' || page === 'handbook' || page === 'miniapps' || page === 'kurse' || page === 'inspiration' || page === 'lists' || page === 'pay' || page === 'invoices' || page === 'invoice' || page === 'bills' || page === 'shop' || page === 'shoporders' || page === 'werte' || page === 'regeln' || page === 'karte' || page === 'reminders' || page === 'calendar' || page === 'list') return 'me'; // Kalender: own place once Noah chose the 5 phone places (decision 11.10 1a)
   return null;
 }
 

@@ -9,6 +9,8 @@
   import SkiTurn from './lib/ski/SkiTurn.svelte';
   import { parseBetween } from './lib/phase.js';
   import FlowLayer from './lib/flow/FlowLayer.svelte';
+  import { lastDeleted } from './lib/trash/trash.js'; // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): ⌘ Z
+  import Punkte from './lib/nav/Punkte.svelte'; // «Ruhige Punkte an allen Orten» (Noah 23.11.2026 «4a»)
   import DemoBar from './lib/DemoBar.svelte';
   import LogoRide from './lib/logo/LogoRide.svelte'; // «Geheimnis im Logo» (Idee 29)
   import LogoMark from './lib/logo/LogoMark.svelte'; // «Jahreszeit» (Idee 30)
@@ -26,7 +28,7 @@
   import { watchTourBike } from './lib/tourbike.svelte.js';
   import { watchVeloImGriff } from './lib/veloimgriff.svelte.js';
   import { watchInspect } from './lib/inspect/live.svelte.js';
-  import { wide } from './lib/media.svelte.js';
+  import { wide, phone } from './lib/media.svelte.js';
   import { Plus, MessageCircle } from '@lucide/svelte';
   import { startPushSync } from './lib/push/client.js';
   import { linkFrom } from './lib/notebook.js';
@@ -48,7 +50,7 @@
   import { pageKeyOf } from './lib/anpassen.js';
   import { placeLabel, tabLabel } from './lib/anpassen.svelte.js';
   import Keys from './lib/nav/Keys.svelte';
-  import { shortcutOf, typing, isSearchChord, G_WAIT } from './lib/nav/keys.js';
+  import { shortcutOf, typing, isSearchChord, isUndoChord, noFieldActive, G_WAIT } from './lib/nav/keys.js';
   import { sortBikes } from './lib/bikes.js';
   import { activeBikes } from './lib/bikeretire.js';
   import { withVisits } from './lib/workshop.js';
@@ -61,6 +63,7 @@
   import { pageOf, isUnknown, placeOf, redirectOf, tabOf, subOf, keepTab, ALL_PLACES, PLACE_TABS } from './lib/nav.js';
   import PlaceTabs from './lib/nav/PlaceTabs.svelte';
   import Explorer from './lib/nav/Explorer.svelte';
+  import TabTitle from './lib/nav/TabTitle.svelte'; // «Seitentitel im Browser-Tab» (Noah 23.11.2026 «2a»)
   import PathLine from './lib/nav/PathLine.svelte'; // «Pfad auf jeder Seite» (Noah 28.10.2026 «1a»)
   import { ops } from './lib/bedienung.svelte.js';
   import ErrorPage from './lib/ui/ErrorPage.svelte';
@@ -198,6 +201,12 @@
       if (ops.keys && isSearchChord(e) && !document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')) {
         e.preventDefault();
         openSearch();
+        return;
+      }
+      // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): ⌘ Z / Ctrl Z takes the last delete back, only outside fields and windows
+      if (ops.keys && isUndoChord(e) && noFieldActive(e) && lastDeleted.get()) {
+        e.preventDefault();
+        import('./lib/trash/undokey.js').then((m) => m.undoLastDelete());
         return;
       }
       if (!ops.keys || typing(e)) return;
@@ -441,6 +450,7 @@
     Vorschlaege: () => import('./pages/Vorschlaege.svelte'), // «Tourenvorschläge» (Noah 05.11.2026): Touren › Träume › Tourenvorschläge
     Fragen: () => import('./pages/Fragen.svelte'), // «Fragen» (Plan 4a, Noah 08.11.2026): Auswerten › Fragen
     SportRueckblick: () => import('./pages/SportRueckblick.svelte'), // «Rückblick pro Sportart» (Noah 21.11.2026, S4): Auswerten › Sportjahr › one sport
+    Trash: () => import('./pages/Trash.svelte'), // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): Ich › Daten › Zuletzt gelöscht
     Logbuch: () => import('./pages/Logbuch.svelte'), // «Verbesserungs-Logbuch» (Noah 21.11.2026 «freigabe»): Ich › Logbuch
     Sportjahr: () => import('./pages/Sportjahr.svelte'), // «Sportjahr» (Noah 21.11.2026 «1a dann b»): Auswerten › Sportjahr
     Quellen: () => import('./pages/Quellen.svelte'), // «Meine Datenquellen» (Noah 07.11.2026 «1a»): Auswerten › Datenquellen
@@ -565,9 +575,10 @@
   <!-- ER1/ER2: «Soll ich dich erinnern?» on top of the next page, in the page (never over its buttons) -->
   {#if !guest && page !== 'home'}<RemindCard /><RuhigLine {hash} />{/if}
   <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
-  {#if !guest && !mini && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}
+  <!-- «Seitenkopf schlanker» (Noah 23.11.2026 «ja», Velos): on a phone «Belongs to …» and «What you can do here» are ONE row behind the title -->
+  {#if !guest && !mini && showsRow(page, hash) && !(phone.matches && page === 'bikes')}<GehoertDazu {page} {hash} />{/if}
   <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
-  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash} />{/if}
+  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash}>{#snippet side()}{#if phone.matches && page === 'bikes' && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}{/snippet}</SeitenInhalt>{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if lost}
@@ -728,6 +739,8 @@
     <LazyPage load={PAGES.Data} />
   {:else if page === 'logbuch'}
     <LazyPage load={PAGES.Logbuch} />
+  {:else if page === 'trash'}
+    <LazyPage load={PAGES.Trash} />
   {:else if page === 'docs'}
     <!-- P3b «Daten sicher» (mockups D3/D4): Ich › Dokumente, one document at #/me/docs/<id> -->
     {#key hash.split('?')[0]}<LazyPage load={PAGES.Docs} />{/key}
@@ -944,10 +957,13 @@
 {/if}
 {#if !guest}<SkiTurn />{/if}
 <!-- ER1/ER2: «Soll ich dich in Zukunft erinnern?» under what was just saved -->
+{#if !guest && !mini}<Punkte />{/if}
+{#if !guest && !mini}{#await import('./lib/drop/DropLayer.svelte') then M}<M.default />{/await}{/if}
 {#if !guest}<FlowLayer page={page === 'flow' && !/^#\/flow\/?$/.test(hash) ? 'flow-sub' : page} />{/if}
 <!-- «Timer» (Z1): a running timer stays in sight on every other page -->
 {#if !guest && page !== 'timer'}<TimerFloat />{/if}
 <!-- empty AI credit: the sentence once (Noah 18.10.2026 «1a») -->
+<TabTitle {hash} {page} {place} />
 <Keys bind:open={keysOpen} />
 <!-- «Rundgang» (Noah 15.10.2026 «1a … 5a»): the choice «example trip or own data» and the running tour -->
 {#if !guest}<TourStart /><TourHost />{/if}

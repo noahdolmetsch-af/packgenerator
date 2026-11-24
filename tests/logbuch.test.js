@@ -104,7 +104,7 @@ describe('the table: save, change, delete with Undo, automatic errors', () => {
 
 describe('the backup (Noah: a change of the storage is first checked with a copy of a backup)', () => {
   it('logbuch is a data table of version 20 and stays on this device in the sync', () => {
-    expect(SCHEMA_VERSION).toBe(20);
+    expect(SCHEMA_VERSION).toBe(21);
     expect(DATA_TABLES).toContain('logbuch');
     expect(syncLocal('logbuch', 'lb-1')).toBe(true);
     expect(syncLocal('items', 'EL01')).toBe(false);

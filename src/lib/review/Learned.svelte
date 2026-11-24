@@ -17,6 +17,7 @@
   import RenameSheet from '../ui/RenameSheet.svelte';
   import GroupDeleteSheet from '../ui/GroupDeleteSheet.svelte';
   import UndoToast from './UndoToast.svelte';
+  import { UNDO_MS } from '../ui/undo.js';
   import { retopicLearnings, writeGroupChange, undoGroupChange, FIXED_LEARN_TOPICS } from '../groups.js';
   import { phone } from '../media.svelte.js';
   import './review.css';
@@ -56,7 +57,7 @@
     const snap = await writeGroupChange(db, { learnings: changed });
     clearTimeout(timer);
     undo = { text, snap };
-    timer = setTimeout(() => (undo = null), 8000);
+    timer = setTimeout(() => (undo = null), UNDO_MS);
   }
   async function doUndo() {
     const snap = undo?.snap;

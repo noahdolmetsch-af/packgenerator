@@ -55,7 +55,7 @@
     uText = '';
   }
   async function dropUnclear(x) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: x.text }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: x.text }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = $state.snapshot(trip.unclear) ?? [];
     await deleteWithUndo({ run: () => save({ unclear: unclearRemove(trip, x.id) }), undo: () => save({ unclear: before }), text: t('"{name}" deleted.', { name: x.text }), name: x.text });
   }
@@ -84,12 +84,12 @@
   }
   async function dropCountry(c) {
     const lines = c.points.length ? [tn(c.points.length, '{n} point goes with it.', '{n} points go with it.')] : [];
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: c.country }), text: t('You can bring it back for 4 seconds afterwards.'), lines })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: c.country }), text: t('You can bring it back for 8 seconds afterwards.'), lines })) !== 'delete') return;
     const before = $state.snapshot(trip.border) ?? [];
     await deleteWithUndo({ run: () => save({ border: borderRemoveCountry(trip, c.id) }), undo: () => save({ border: before }), text: t('"{name}" deleted.', { name: c.country }), name: c.country });
   }
   async function dropPoint(c, p) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: p.text }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: p.text }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = $state.snapshot(trip.border) ?? [];
     await deleteWithUndo({ run: () => save({ border: borderRemovePoint(trip, c.id, p.id) }), undo: () => save({ border: before }), text: t('"{name}" deleted.', { name: p.text }), name: p.text });
   }

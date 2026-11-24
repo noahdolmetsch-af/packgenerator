@@ -41,7 +41,7 @@
       offerRename(draft.trim() || label({ ...w, name: '' }), () => save(renameWay(cleanMemory($memQ?.value), w.id, old)));
     });
   async function remove(w) {
-    if ((await askDelete({ title: t('Delete "{name}" from the remembered ways?', { name: label(w) }), text: t('The app will no longer avoid or show this stretch. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete "{name}" from the remembered ways?', { name: label(w) }), text: t('The app will no longer avoid or show this stretch. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({
       name: label(w),
       text: t('"{name}" deleted.', { name: label(w) }),

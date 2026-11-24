@@ -29,7 +29,8 @@ function noTripTomorrow() {
   data.tables.trips = data.tables.trips.filter((x) => !x.id.endsWith('Herbstrunde'));
   return data;
 }
-const order = (page) => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
+// «Heute abhaken» stands under the chips, outside the wall (Noah 23.11.2026 «1a», changed on purpose): it counts as the first tile
+const order = (page) => page.locator('[data-haken-top], .wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile ?? 'haken'));
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
@@ -169,7 +170,7 @@ test('a stored wall of before (v 4) gets the new order once; Try it of a wide Ne
   await openHome(page, context, info, { data, hour: 13 });
   // Tages-Check back: «Deine 15 Fragen» after the balance; Routine «Das tut mir gut»: the routine once, under the tiles on top
   // «Heute neu» A (homeWall v 9, changed on purpose): every wall stored before becomes the new ready wall once
-  await expect.poll(() => order(page)).toEqual(areaOrder(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment' && x.id !== 'trip'), false), 13)).map((x) => x.id));
+  await expect.poll(() => order(page)).toEqual(areaOrder(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment' && x.id !== 'trip' && x.id !== 'discover'), false), 13)).map((x) => x.id));
   // put «New» wide on a wall of the user (as it was) and check its button stays inside the tile at 390 px too
   const v5 = { v: 11, tiles: HN4().map((x) => (x.id === 'news' ? { ...x, size: 'w' } : x)) };
   await page.evaluate(async (value) => {

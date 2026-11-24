@@ -72,6 +72,7 @@ test('sections, greeting with the weather, the trip card, the 16 functions as sm
   // «Jetzt» (meditation, the trip, the weekly weight, «Up now») comes first, then «Dein Körper» with the body and Aktiv
   // «Meine Tour» (Plan 2a, Noah 09.11.2026 «ok 1232»): with a planned tour the card is first, the meditation card right under it
   // «Dein Körper heute» as a band (Noah 23.11.2026 «1-4a», changed on purpose): the body band is first, «Meine Tour» after it
+  await expect(page.locator('[data-haken-top]')).toBeVisible(); // «Heute abhaken» stands above the wall, under the chips (Noah 23.11.2026 «1a 2a», changed on purpose)
   await expect(page.locator('.wall > [data-tile]').first()).toHaveAttribute('data-tile', 'body');
   await expect(page.locator('.wall > [data-tile]').nth(1)).toHaveAttribute('data-tile', 'meinetour');
   const areas = await page.locator('.wall [data-home-sec]').evaluateAll((els) => els.map((e) => e.dataset.homeSec));

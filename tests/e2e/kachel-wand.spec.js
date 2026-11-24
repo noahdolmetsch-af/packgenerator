@@ -18,14 +18,15 @@ import { inAreas } from '../../src/lib/home/sections.js';
 // «Heute ruhiger» (Noah 26.10.2026 «1a», changed on purpose): the small tiles are one list «Schnell öffnen» where the first stands
 // «Heute ruhiger» 3a (changed on purpose): Heute shows the tiles in areas, inside an area in wall order
 // 17.11.2026 (changed on purpose, «Tour nur einmal»): «Your moment» about the trip is away while «My tour» stands (the fixture's trip is tomorrow)
-const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment'), true), 9));
+const SHOWN = inAreas(atHour(tripUp(READY.filter((x) => !VALUE_TILES.includes(x.id) && x.id !== 'moment' && x.id !== 'discover'), true), 9));
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 }
-const ids = (page) => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
+// «Heute abhaken» stands under the chips, outside the wall, while not customising (Noah 23.11.2026 «1a», changed on purpose): it counts as the first tile
+const ids = (page) => page.locator('[data-haken-top], .wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile ?? 'haken'));
 const wallStored = (page) =>
   page.evaluate(
     () =>
@@ -50,7 +51,7 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   // 0.155.0 «Im Flow + Balance» (Noah 15.10.2026 «4a», changed on purpose): Im Flow with the balance after it is
   // one card over the whole row; the balance inside keeps its size for customising
   const joined = (x, i) => x.id === 'flow' && SHOWN[i + 1]?.id === 'balance';
-  for (const [i, x] of SHOWN.entries()) await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', joined(x, i) ? 'long' : x.size);
+  for (const [i, x] of SHOWN.entries()) if (x.id !== 'haken') await expect(page.locator(`.wall [data-tile="${x.id}"]`)).toHaveAttribute('data-size', joined(x, i) ? 'long' : x.size);
   // the functions are small buttons, the numbers where something waits (0.155.0: the bike care is a line in
   // Important today now, the two open notes stay a number)
   // «Schnell öffnen» (Noah 01.11.2026 «5a», changed on purpose): the 8 small tiles are one tile with the pins
@@ -62,7 +63,7 @@ test('the ready wall: every tile in its place and size, 8 columns on a computer,
   await expect(page.locator('.wall .plusw')).toBeVisible();
   await expect(page.locator('.wall > div').last()).toHaveClass(/plusw/);
   // «New» on the new tiles (idea 1), Important today and Im Flow on Today, no «Your data» at the bottom
-  for (const x of SHOWN.filter((y) => TILE[y.id].since)) await expect(page.locator(`.wall [data-tile="${x.id}"] .nw`)).toHaveCount(isNew(TILE[x.id], D0) ? 1 : 0);
+  for (const x of SHOWN.filter((y) => TILE[y.id].since && y.id !== 'haken')) await expect(page.locator(`.wall [data-tile="${x.id}"] .nw`)).toHaveCount(isNew(TILE[x.id], D0) ? 1 : 0);
   await expect(page.locator('[data-section="today"] li[data-row]').first()).toBeVisible();
   await expect(page.locator('details.data')).toHaveCount(0);
   // no sideways scroll

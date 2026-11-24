@@ -14,7 +14,7 @@
    */
   import HintCard from '../pageinfo/HintCard.svelte';
   import TipLine from '../pageinfo/TipLine.svelte';
-  import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package } from '@lucide/svelte';
+  import { Bike, Backpack, Clock3, CloudSun, UserRound, Briefcase, ChevronRight, ChevronDown, Plus, Minus, MoreHorizontal, Mountain, Layers, Weight, ArrowRight, Undo2, GripVertical, Wrench, Package, Tag } from '@lucide/svelte';
   import Empty from '../ui/Empty.svelte';
   import PasstHier from '../ui/PasstHier.svelte';
   import DecisionReview from './DecisionReview.svelte';
@@ -72,6 +72,10 @@
   import { domainOf } from '../domains.js';
   import { SETS_KEY } from '../sets.js';
   import { db } from '../db.js';
+  import BagShot from './BagShot.svelte'; // K1 «Taschen-Fotos»: one photo per bag
+  import { weighedOf } from './bagweigh.js';
+  import BagWeigh from './BagWeigh.svelte'; // K3 «Wiegen am Starttag»: the packed bag on the scale
+  import { containerWeight } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
   let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null } = $props();
   let grouping = $state('bags');
@@ -90,6 +94,7 @@
   const swapRain = $derived(tripRain(trip));
   const wardrobeHref = $derived(`#/wardrobe/trip/${encodeURIComponent(trip.id)}`);
   let swapping = $state(null); // { entry, item } while «Swap» is open
+  let labelFor = $state(null); // K2: the group whose label picture is open
   // v0.26.1 (Noah 15b): litres only when every bag in use and every item in them has litres; else nothing.
   const volumes = $derived(bagVolumes(stats, itemsById));
   const kg = (g) => `${(g / 1000).toLocaleString(locale(), { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kg`;
@@ -139,6 +144,25 @@
     opened = { ...opened, [key]: true };
     setTimeout(() => document.querySelector(`[aria-controls="calm-bag-${key}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 30);
   }
+  // «Wiegen» (Noah 23.11.2026 «5a»): the button in the weight card and #/pack?weigh open the first bag you have not weighed
+  // yet (else the first bag) with its box «Packed bag on the scale», and put the cursor in the field.
+  function weighNow() {
+    const bagGroups = groups.filter((g) => g.key !== 'body' && g.key !== 'mounted');
+    const first = bagGroups.find((g) => !weighedOf(trip)[g.key]) ?? bagGroups[0];
+    if (!first) return;
+    grouping = 'bags';
+    opened = { ...opened, [first.key]: true };
+    setTimeout(() => {
+      const box = document.querySelector(`[data-bag-weigh="${first.key}"]`);
+      box?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      box?.querySelector('input')?.focus({ preventScroll: true });
+    }, 60);
+  }
+  $effect(() => {
+    if (!/^#\/pack\?(?:.*&)?weigh\b/.test(location.hash)) return;
+    history.replaceState(null, '', '#/pack');
+    if (!fixed) weighNow();
+  });
   const groupG = (g) => g.entries.reduce((s, e) => s + (itemsById[e.itemId]?.weightG ?? 0) * (e.qty || 1), 0);
   const groupMissing = (g) => g.entries.filter((e) => itemsById[e.itemId]?.weightG == null).length;
   const preview = (g) => g.entries.map((e) => `${itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}${(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}`).join(' · ');
@@ -520,6 +544,7 @@
                     {:else}<li class="empty-bag"><p>{t('This bag is still empty.')}</p></li>{/each}
                   </ul>
                   {#if !fixed}<p class="addrow"><button class="tp-link" onclick={() => { zoneKey = grouping === 'bags' && targets.some((x) => x.key === group.key) ? group.key : targets[0]?.key; show('add'); }}><Plus size={16} aria-hidden="true" />{t('Add an item')}</button></p>{/if}
+                  {#if grouping === 'bags' && group.key !== 'body' && group.key !== 'mounted'}{#if !fixed}<BagWeigh {trip} slot={group.key} calcG={groupG(group)} missing={groupMissing(group)} bagG={group.bag ? containerWeight(group.bag, itemsById) : null} onsave={onlist ? (weighed) => onlist((cur) => ({ ...cur, weighed })) : null} />{/if}<BagShot {trip} slot={group.key} name={zoneTitle(group)} />{#if group.entries.length}<p class="addrow"><button type="button" class="tp-link" onclick={() => (labelFor = group)} data-bag-label-open><Tag size={16} aria-hidden="true" />{t('Label of the bag')}</button></p>{/if}{/if}
                 </div>
               {/if}
             </section>
@@ -543,7 +568,7 @@
         </div>
         <div class="pcol">
           {#if ev}<TripWeather {trip} kind="event" />{/if}
-          {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
+          {#if trip.entries.length}<WeightCard {trip} {stats} {itemsById} onweigh={fixed ? null : weighNow} />{/if}
           {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
           <!-- the rest of the planning cards sit in the groups of «More about this trip» below the packing list (PackMore) -->
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
@@ -557,6 +582,8 @@
   {/if}
   {#if note && sheet !== 'add'}<p class="calm-status" role="status">{note}</p>{/if}
 </div>
+
+{#if labelFor}{#await import('./BagLabel.svelte') then m}<m.default {trip} title={zoneTitle(labelFor)} entries={labelFor.entries} {itemsById} onclose={() => (labelFor = null)} />{:catch}{/await}{/if}
 
 {#if swapping}
   {@const from = swapping.item}

@@ -2,6 +2,7 @@
 // Every spec either imports `test` from tests/e2e/clock.js (12:00 Zurich) or sets its own clock.
 import { describe, it, expect } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { noonToday, midMonthNoon, shiftDate } from './e2e/clock.js';
 
 const dir = new URL('./e2e/', import.meta.url);
@@ -28,6 +29,34 @@ describe('fixed clock in the browser tests', () => {
       const now = real.now();
       expect(Math.abs(inPlaywright() - now), 'Playwright: the real time').toBeLessThan(5000);
       expect(inSpec() - now, 'a spec: shifted').toBeLessThan(-2 * 24 * 3600 * 1000);
+    } finally {
+      globalThis.__pgShift = 0;
+    }
+  });
+
+  // 23.11.2026: the shift stays on in a worker after a test with the fixture. A spec WITHOUT the fixture (pf.spec, live-speichern: the
+  // page runs on the real day) must read the real time all the same; before, it read the test day whenever such a test ran before it
+  // in the same worker (PF13, Scenario 2, «End the ride» red in the night run, green on the retry in a fresh worker).
+  it('a spec without the fixture reads the real time, a spec with it (also through a helper) the test day', () => {
+    const real = globalThis.__realDate ?? Date;
+    shiftDate(-3 * 24 * 3600 * 1000);
+    const abs = (f) => fileURLToPath(new URL(`./e2e/${f}`, import.meta.url));
+    const at = (file, code = 'return Date.now();') => new Function('inner', `${code}\n//# sourceURL=${file}`);
+    const DAY = 24 * 3600 * 1000;
+    try {
+      const now = real.now();
+      expect(Math.abs(at(abs('pf.spec.js'))() - now), 'pf.spec.js has no fixture').toBeLessThan(5000);
+      expect(Math.abs(at(abs('live-speichern.spec.js'))() - now), 'live-speichern.spec.js has no fixture').toBeLessThan(5000);
+      expect(at(abs('gut-zu-wissen-suche.spec.js'))() - now, 'a spec with the fixture').toBeLessThan(-2 * DAY);
+      expect(at(abs('gesamttest/pages.spec.js'))() - now, 'a spec with the fixture through gesamttest/lib.js').toBeLessThan(-2 * DAY);
+      // a helper called from a spec: the spec decides
+      const helper = at('/x/tests/e2e/settle.js');
+      expect(Math.abs(at(abs('pf.spec.js'), 'return inner();')(helper) - now), 'helper under a spec without the fixture').toBeLessThan(5000);
+      expect(at(abs('gut-zu-wissen-suche.spec.js'), 'return inner();')(helper) - now, 'helper under a spec with the fixture').toBeLessThan(-2 * DAY);
+      // new Date() is read the same way
+      const ctor = (file) => at(file, 'return new Date().getTime();');
+      expect(Math.abs(ctor(abs('pf.spec.js'))() - now), 'new Date() in a spec without the fixture').toBeLessThan(5000);
+      expect(ctor(abs('gut-zu-wissen-suche.spec.js'))() - now, 'new Date() in a spec with the fixture').toBeLessThan(-2 * DAY);
     } finally {
       globalThis.__pgShift = 0;
     }

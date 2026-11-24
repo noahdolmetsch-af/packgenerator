@@ -1,5 +1,5 @@
 <script>
-  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 4 s «Undo»
+  import { askDelete, deleteWithUndo } from '../ui/ask.js'; // «Rückmeldungen» 19.10.2026: the app's own question, then 8 s «Undo»
   import CameraButton from '../ui/CameraButton.svelte'; // P3b Teil 3: the camera wherever a photo is added
   /**
    * Bikes → Setup. v0.31.0 (Noah 9a, variant A "Ruhig und klar"):
@@ -13,6 +13,7 @@
    */
   import { localDay } from '../localday.js';
   import Empty from '../ui/Empty.svelte';
+  import SoSiehts from '../firststart/SoSiehts.svelte';
   import { liveQuery } from 'dexie';
   import { db } from '../db.js';
   import { SLOTS, SLOT, sortBikes, bikeSetup, bagsFor, containerWeight, formatVolume, bikesHash, bikeWeightKind, placesOf, onBikeSlot } from '../bikes.js';
@@ -277,7 +278,7 @@
   }
   const setTrip = (p, tripId) => db.photos.update(p.id, { tripId: tripId || null });
   async function removePhoto(p) {
-    if ((await askDelete({ title: t('Remove the photo "{name}"?', { name: p.name }), text: t('You can bring it back for 4 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Remove the photo "{name}"?', { name: p.name }), text: t('You can bring it back for 8 seconds afterwards.'), label: t('Remove') })) !== 'delete') return;
     const bikeId = bike.id;
     const ok = await deleteWithUndo({
       run: async () => {
@@ -453,7 +454,7 @@
 <div class="setup">
   {#if !bikes.length && $bikesQ}
     <!-- v0.127.0 A-U2: the one empty building block -->
-    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}>{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
+    <Empty icon={BikeIcon} title={t('No bikes yet')} text={t('Add your bike, or bring your data along with a backup.')} action={{ label: t('Add bike'), onclick: () => (bikeDialog = { bike: null }) }}><SoSiehts area="bikes" />{t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.</Empty>
   {:else if bike}
     <SetupBand {bikes} {bike} {setup} {sub} {ride} kind={bikeKind} cost={costLine} due={care?.rows.length ?? 0} careHref={bikesHash({ tab: 'care', bike: bike.id, open: true })} onedit={() => (bikeDialog = { bike })} onorder={() => (standardOpen = true)} menu={bikeMenu} link={makerOn && maker ? { kind: 'x9', url: maker.url, name: maker.name || t(LINKS.x9.label) } : null} />
 

@@ -241,7 +241,7 @@
 <div class="hmap" style:height="{height}px" bind:this={box} role="application" aria-label={label || t('Heatmap: drag to move, pinch or wheel to zoom, tap a line for its rides')} tabindex="0" onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up} onwheel={wheel} onkeydown={key} data-heatmap data-mode={mode} data-lines={lines.length}>
   <div class="tiles" aria-hidden="true">
     {#each tiles as tl (tl.key + g.key)}
-      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" onerror={() => tileBad++} onload={() => tileOk++} />
+      <img src={tileUrl(g, tl.z, tl.x, tl.y)} alt="" draggable="false" style:left="{tl.left}px" style:top="{tl.top}px" style:width="{tl.size + 0.5}px" style:height="{tl.size + 0.5}px" loading="lazy" crossorigin="anonymous" referrerpolicy="strict-origin-when-cross-origin" onerror={() => tileBad++} onload={() => tileOk++} />
     {/each}
   </div>
   <TileNote bad={tileBad} ok={tileOk} />

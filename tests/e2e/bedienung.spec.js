@@ -109,7 +109,8 @@ test('night quiet: at 23:00 Today keeps the tip back; switched off it shows', as
   await page.reload();
   await ready(page);
   const intro = page.locator('[data-intro-step]');
-  await expect(page.locator('[data-section="body"]')).toBeVisible();
+  // «Starte hier» (V2, Noah 23.11.2026, changed on purpose): an empty device shows that card instead of the body band
+  await expect(page.locator('[data-start-here]')).toBeVisible();
   await page.clock.runFor(1500); // the intro waits a moment for the tiles
   await expect(intro).toHaveCount(0);
 
