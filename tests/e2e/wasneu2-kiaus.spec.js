@@ -33,16 +33,15 @@ test('W1: after an update a banner names the versions since the last visit, View
   await page.goto('./#/');
   await expect(page.locator('dialog.news[open]')).toHaveCount(0);
   await expect(page.locator('.wall [data-tile]').first()).toBeVisible();
-  // «Heute neu» A 5b (0.165.0, changed on purpose): the banner is under Ich, not on Today
-  await expect(page.locator('[data-news-banner]')).toHaveCount(0);
+  // «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): ONE line on Today, «since your last visit», not under Ich
   await expect.poll(() => page.evaluate(() => localStorage.getItem('wasneu.update'))).not.toBeNull();
-  await page.goto('./#/me');
   const banner = page.locator('[data-news-banner]');
-  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(since[0].version) }) })).toBeVisible();
-  await expect(banner.locator('p')).toHaveText(since.map((e) => T(e.title)).join(' · '));
+  await expect(banner.getByRole('heading', { name: T('New in {v}|banner', { v: shortVersion(since[0].version) }) })).toBeAttached();
+  await expect(banner.locator('[data-news-title]')).toContainText(T('New: {title}', { title: T(since[0].title) }));
+  await expect(banner.locator('[data-news-title]')).toContainText(T('and {n} more things', { n: since.length - 1 }));
   await noSideways(page);
   await shot(page, info, 'W1-neu-banner');
-  await banner.getByRole('link', { name: T('View|news') }).click();
+  await banner.locator('[data-news-title]').click();
   await expect.poll(() => new URL(page.url()).hash).toBe('#/me/news');
   // the page holds the newest on top and the versions since then in the open group (SL1: rows by day)
   await expect(page.locator(`article[data-version="${since[0].version}"]`).first()).toBeAttached();

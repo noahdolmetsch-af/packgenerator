@@ -76,6 +76,7 @@
   import { SETS_KEY } from '../sets.js';
   import { db } from '../db.js';
   import BagShot from './BagShot.svelte'; // K1 «Taschen-Fotos»: one photo per bag
+  import { weighedOf } from './bagweigh.js';
   import BagWeigh from './BagWeigh.svelte'; // K3 «Wiegen am Starttag»: the packed bag on the scale
   import { containerWeight } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
@@ -178,6 +179,25 @@
     opened = { ...opened, [key]: true };
     setTimeout(() => document.querySelector(`[aria-controls="calm-bag-${key}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 30);
   }
+  // «Wiegen» (Noah 23.11.2026 «5a»): the button in the weight card and #/pack?weigh open the first bag you have not weighed
+  // yet (else the first bag) with its box «Packed bag on the scale», and put the cursor in the field.
+  function weighNow() {
+    const bagGroups = groups.filter((g) => g.key !== 'body' && g.key !== 'mounted');
+    const first = bagGroups.find((g) => !weighedOf(trip)[g.key]) ?? bagGroups[0];
+    if (!first) return;
+    grouping = 'bags';
+    opened = { ...opened, [first.key]: true };
+    setTimeout(() => {
+      const box = document.querySelector(`[data-bag-weigh="${first.key}"]`);
+      box?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      box?.querySelector('input')?.focus({ preventScroll: true });
+    }, 60);
+  }
+  $effect(() => {
+    if (!/^#\/pack\?(?:.*&)?weigh\b/.test(location.hash)) return;
+    history.replaceState(null, '', '#/pack');
+    if (!fixed) weighNow();
+  });
   const groupG = (g) => g.entries.reduce((s, e) => s + (itemsById[e.itemId]?.weightG ?? 0) * (e.qty || 1), 0);
   const groupMissing = (g) => g.entries.filter((e) => itemsById[e.itemId]?.weightG == null).length;
   const preview = (g) => g.entries.map((e) => `${itemsById[e.itemId] ? nameOf(itemsById[e.itemId]) : e.itemId}${(e.qty || 1) > 1 ? ` × ${e.qty}` : ''}`).join(' · ');
@@ -593,7 +613,7 @@
         </div>
         <div class="pcol">
           {#if ev}<TripWeather {trip} kind="event" />{/if}
-          {#if bikeTrip && trip.entries.length}<WeightCard {trip} {stats} {itemsById} />{/if}
+          {#if trip.entries.length}<WeightCard {trip} {stats} {itemsById} onweigh={fixed ? null : weighNow} />{/if}
           {#if hasStages(trip)}<StagesCard {trip} onchange={edit ? onstages : null} />{/if}
           <!-- the rest of the planning cards sit in the groups of «More about this trip» below the packing list (PackMore) -->
           <!-- Planungs-Notizen (IS 246–249): what comes to mind while planning; «Daraus wird …» -->
