@@ -87,19 +87,19 @@ export function layerSuggest(trip, items, limit = rainLimit()) {
     if (!isInventory(i) || i.altFor) continue; // alternatives only come in through a choice
     const qty = Math.min(i.maxQty || 99, i.perHours && hours ? Math.max(1, Math.ceil(hours / i.perHours)) : 1);
     if (i.ride && RIDE_RANK[i.ride] <= level) {
-      rows.push({ id: i.id, why: t(RIDES.find((r) => r.key === i.ride).name), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
+      rows.push({ id: i.id, kind: 'ride', why: t(RIDES.find((r) => r.key === i.ride).name), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
       rankOf.set(rows.at(-1), i.ride === 'daily' ? 1 : i.ride === 'training' ? 2 : 2.5);
     } else if (coldLayer(i) && hasTemps(wx) && wx.min < i.coldBelow) {
-      rows.push({ id: i.id, why: t('Below {n} °C', { n: i.coldBelow }), place: wx.max < i.coldBelow ? 'wear' : 'pack', qty, optional: false });
+      rows.push({ id: i.id, kind: 'cold', why: t('Below {n} °C', { n: i.coldBelow }), place: wx.max < i.coldBelow ? 'wear' : 'pack', qty, optional: false });
       rankOf.set(rows.at(-1), 3 + (40 - i.coldBelow) / 100);
     } else if (rainOf(i) && rainy) {
       const rain = rainOf(i);
       const why = byPct ? t('{n} % rain · rain from {limit} %', { n: Math.round(pct), limit }) : t(RAIN_ITEM[rain] ?? 'Rain');
-      rows.push({ id: i.id, why, place: 'pack', qty, optional: rain === 'optional', ...(byPct ? { pct: Math.round(pct) } : {}) });
+      rows.push({ id: i.id, kind: 'rain', why, place: 'pack', qty, optional: rain === 'optional', ...(byPct ? { pct: Math.round(pct) } : {}) });
       rankOf.set(rows.at(-1), 4 + (rain === 'optional' ? 0.5 : 0));
     } else if (qty > 1 && (isWorn(i) || inStandard(i))) {
       // Every-ride food and drink: more pieces on a longer ride.
-      rows.push({ id: i.id, why: t('1 per {n} h', { n: i.perHours }), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
+      rows.push({ id: i.id, kind: 'amount', why: t('1 per {n} h', { n: i.perHours }), place: i.defaultBag === 'body' ? 'wear' : 'pack', qty, optional: false });
       rankOf.set(rows.at(-1), 2.5);
     }
   }
@@ -116,7 +116,11 @@ function withChoice(row, trip, items) {
   const byId = (id) => items.find((i) => i.id === id);
   const alts = items.filter((i) => i.altFor === row.id && isInventory(i)).map((i) => i.id);
   const pick = trip?.layerPick?.[row.id];
-  const id = pick && pick !== 'none' && alts.includes(pick) ? pick : row.id;
+  // Packvorschläge nach Wetter und Lieblingsteilen (Noah 24.11.2026 «1-5»): without a choice of yours, a favourite among
+  // the alternatives (★) takes the place of a usual item that is not one; a pick (also «back to the usual one») always wins.
+  const isFav = (id) => !!byId(id)?.favorite;
+  const favAlt = !pick && !isFav(row.id) ? alts.find(isFav) : null;
+  const id = pick && pick !== 'none' && alts.includes(pick) ? pick : favAlt ?? row.id;
   const replaces = row.place === 'wear' ? byId(id)?.replaces ?? null : null;
   return { ...row, id, slot: row.id, alts: alts.length ? [row.id, ...alts] : [], skipped: pick === 'none', replaces };
 }

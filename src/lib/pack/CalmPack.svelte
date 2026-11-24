@@ -65,7 +65,7 @@
   import { mainStep, packedAll } from '../phase.js';
   import '../trip/trip.css';
   import { onMount } from 'svelte';
-  import { ArrowDown, ArrowUp } from '@lucide/svelte';
+  import { ArrowDown, ArrowUp, CloudRain, Star, X } from '@lucide/svelte';
   // «Packen in Schritten» (Warteliste 4; Noah 22.11.2026 «2a», «3a»): the list one step after the other, the view and the order are kept
   import { SETTING as STEPS_KEY, cleanChoice, viewOf, stepGroups, moveStep, nextGroup } from './schritte.js';
   import { packSteps } from '../trips.js';
@@ -80,7 +80,7 @@
   import BagWeigh from './BagWeigh.svelte'; // K3 «Wiegen am Starttag»: the packed bag on the scale
   import { containerWeight } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
-  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null, onionLine = '' } = $props();
+  let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, weatherBags = {}, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null, onionLine = '' } = $props();
   let grouping = $state('bags');
   let stepChoice = $state({ view: null, order: [] });
   // the remembered view and order come with the first read of the settings; a list with nothing packed opens in Steps. A browser test may ask for the bags (__pgPackView).
@@ -564,6 +564,15 @@
               {/if}
               </div>
               {#if !isOpen && group.entries.length}<p class="preview">{preview(group)}</p>{/if}
+              <!-- Packvorschläge nach Wetter und Lieblingsteilen (Noah 24.11.2026 «1-5»): what the weather asks for in this bag and is not packed yet; a tap adds it (Undo), × stops suggesting it -->
+              {#if grouping === 'bags' && !fixed && weatherBags[group.key]?.length}
+                <p class="wx-bag" data-wx-bag={group.key}>
+                  <CloudRain size={16} aria-hidden="true" /><span>{t('For the weather, still to pack here:')}</span>
+                  {#each weatherBags[group.key] as w (w.id)}
+                    <span class="wx-pick"><button type="button" class="tp-link" data-wx-add={w.id} onclick={() => actions.weatherAdd(group.key, w.id)} aria-label={t('Add {name} for the weather', { name: nameOf(itemsById[w.id]) })}><Plus size={14} aria-hidden="true" />{nameOf(itemsById[w.id])}{#if w.favorite}{' '}<Star size={12} aria-hidden="true" />{/if}<small>{w.why}</small></button><button type="button" class="tp-link wx-x" data-wx-skip={w.id} onclick={() => actions.weatherSkip(w.slot)} aria-label={t('Do not suggest {name} again', { name: nameOf(itemsById[w.id]) })}><X size={14} aria-hidden="true" /></button></span>
+                  {/each}
+                </p>
+              {/if}
               <!-- v0.37.0 (Noah 3a): a trip without a bike still on a general bag: a quiet way to the real one. -->
               {#if grouping === 'bags' && group.bag?.pack && !group.bag.real && !fixed}<p class="real-pack"><button type="button" class="tp-link quiet-link" onclick={() => show('bags')}>{t('Choose a real backpack')}</button></p>{/if}
               {#if isOpen}
@@ -788,6 +797,13 @@
   .step-nav { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0 0 32px; }
   .step-nav .tp-link { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; }
   .real-pack { margin: 0 0 4px 32px; }
+  /* «Fürs Wetter noch in diese Tasche»: one calm line under the bag title; every tap target 44 px */
+  .wx-bag { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: 0 0 6px 32px; color: var(--ink-2); font-size: var(--fs-small); }
+  .wx-bag > span:first-of-type { flex: 1 0 100%; }
+  .wx-pick { display: inline-flex; align-items: center; }
+  .wx-pick .tp-link { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 6px; }
+  .wx-pick small { color: var(--ink-3); }
+  .wx-pick .wx-x { padding: 0 8px; color: var(--ink-3); }
   .quiet-link { font-size: var(--fs-small); color: var(--ink-2); min-height: 44px; }
   /* P3 (RG1): «Why?» sits right of the row; amount, move and the change line take the whole width below */
   .planning-row.has-why { display: flex; flex-wrap: wrap; align-items: flex-start; }
