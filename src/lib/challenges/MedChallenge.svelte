@@ -66,7 +66,7 @@
     place-items: center;
     width: 40px;
     height: 40px;
-    border-radius: 10px;
+    border-radius: var(--r-2);
     background: var(--paper);
     color: var(--ink-2);
   }
