@@ -3,7 +3,7 @@
 PR · 24.11.2026 · Auftrag: Tempo-Zeile von Noah (Ich › Daten: ein Ladeteil «import-wrapper.js» 7452 ms bei 7 Besuchen) · Gruppe: Klarheit
 
 ## Was ist neu
-- Jede «Vor Updates» (Import, Sync, Neu beginnen, Zurückgehen) ist eine volle Kopie aller Daten. Mit Noahs Daten (Backup ~140 MB) ist jede Kopie rund 140 MB gross. Die Seite Ich › Daten las bisher bei jedem Öffnen **alle** Kopien (bis 9) ganz, nur um eine Zeile je Kopie zu zeigen. Nachgemessen mit Noahs Backup (privat, nicht im Repo): 3 Kopien = ein Block von 4,5 s im Hauptfaden, die Seite stand erst nach 5,4 s.
+- Jede Kopie unter «Vor Updates» (vor Update, Import, Sync, Neu beginnen, Zurückgehen) ist eine volle Kopie aller Daten. Mit Noahs Daten (Backup ~140 MB) ist jede Kopie rund 140 MB gross. Die Seite Ich › Daten las bisher bei jedem Öffnen **alle** Kopien (bis 9) ganz, nur um eine Zeile je Kopie zu zeigen. Nachgemessen mit Noahs Backup (privat, nicht im Repo): 3 Kopien = ein Block von 4,5 s im Hauptfaden, die Seite stand erst nach 5,4 s.
 - Neben jeder Kopie liegt jetzt eine kleine Notiz («head:<id>» in der Tabelle `meta` derselben Kopien-Datenbank: wann, welche Version, wie viele Einträge). Liste (`BeforeUpdates.svelte`) und Hinweis in «Neu» (`snapshotFor`) lesen nur diese Notizen.
 - Kopien aus der Zeit vor den Notizen bekommen ihre Notiz einmal, 4 s nach dem Öffnen der Seite, eine nach der anderen (`ensureHeads`). Das ist die einmalige Last, die vorher bei jedem Besuch kam. Die Kopie selbst wird nie verändert.
 - `takeSnapshot` räumt die alten Kopien jetzt über die Indizes auf (Zeit und Art), ohne eine Kopie zu lesen; vorher las es alle Kopien bei jedem Update-Start.
