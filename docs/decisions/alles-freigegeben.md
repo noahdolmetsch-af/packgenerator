@@ -1,5 +1,7 @@
 # Alles vorab freigegeben
 
+> **Ersetzt am 24.11.2026 17:19 (Noah «neue regel: ich möchte für jeden PR vor merge bilder sehen»):** Für PRs mit sichtbarer Änderung gilt nicht mehr «ohne Freigabe online»; Noah gibt zuerst die Bilder frei, siehe `docs/decisions/bilder-vor-merge.md`. Unverändert: PRs ohne sichtbare Änderung gehen bei Grün von selbst online, bei möglichem Datenverlust fragt der Thread zuerst. Der Text unten ist Verlauf.
+
 23.11.2026, 00:03 (Zürich) · Auftrag: Noah «du musst mich nicht mehr fragen. ich gebe jetzt ausdrücklich alles frei» (Thread «Weiteres Vorgehen nach dem Baustopp planen»)
 
 - **Alle PRs gehen nach grüner Prüfung ohne «ok» online, auch Daten, Backup, Sync und `api/`.** Es gibt keine Einzelfreigaben mehr (Grund: Noah will nicht mehr gefragt werden; ersetzt die Regel vom 22.11. 22:48 «a», nach der nur PRs ohne Daten von selbst online gingen).
