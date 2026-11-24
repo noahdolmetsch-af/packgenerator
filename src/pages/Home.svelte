@@ -77,6 +77,7 @@
   import { askTour, TOUR_EVENT, END_EVENT } from '../lib/tour/run.js';
   import { readRun } from '../lib/tour.js';
   import Continue from '../lib/home/Continue.svelte';
+  import TagesSatz from '../lib/home/TagesSatz.svelte';
   import { stepOf, lastEvening, notBegun } from '../lib/phase.js';
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
@@ -1184,6 +1185,8 @@
     {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} onclose={() => (bannerOff = true)} />{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
+    <!-- «Heute erholen» / «Welcher Berg ruft?» (Noah 24.11.2026 «1-5»): one quiet sentence from the form of the day, the zone minutes and the weather -->
+    {#if ready && !editing && !night && !emptyDevice}<TagesSatz {today} dry={fc ? dayDry(fc, today, now.getHours()) : null} />{/if}
     <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
     {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} />{/if}
   </section>
