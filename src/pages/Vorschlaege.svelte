@@ -19,6 +19,11 @@
   import { localDay } from '../lib/localday.js';
   import { deleteWithUndo } from '../lib/ui/ask.js';
   import Empty from '../lib/ui/Empty.svelte';
+  import MoreActions from '../lib/ui/MoreActions.svelte';
+  import ShowMore from '../lib/ui/ShowMore.svelte';
+  import MainBar from '../lib/ui/MainBar.svelte';
+  import { backClose } from '../lib/ui/backclose.js';
+  import { phone } from '../lib/media.svelte.js';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import { RASTER_GROUNDS } from '../lib/map/sources.js';
   import { mapGround, chooseGround } from '../lib/map/groundpref.svelte.js';
@@ -38,7 +43,7 @@
   import { prefsOf, AGENDA_KEY } from '../lib/agenda.js';
   import { ITEMS_KEY } from '../lib/woche.js';
   import { t, num, locale } from '../lib/i18n.svelte.js';
-  import { Mountain, Download, Sparkles, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight, TrainFront, Car, User, CloudRain, Droplets, Shirt } from '@lucide/svelte';
+  import { Mountain, Download, Sparkles, SlidersHorizontal, EyeOff, Snowflake, TriangleAlert, Clock, MapPin, Check, Info, ChevronRight, TrainFront, Car, User, CloudRain, Droplets, Shirt } from '@lucide/svelte';
   import '../lib/ich/ich.css';
 
   const today = localDay();
@@ -104,7 +109,7 @@
     } catch {
       /* private window */
     }
-    return matchMedia?.('(min-width: 900px)').matches ? 'map' : 'list';
+    return 'list'; // Noah 24.11.2026 «1-5a» (impeccable): phone and computer both open with the list
   };
   let view = $state(readView());
   const setView = (v) => {
@@ -387,6 +392,53 @@
     await db.settings.put({ key: DREAMS_KEY, value: $state.snapshot({ dreams: [d, ...st.dreams], kinds: st.kinds }) });
     note = t('«{name}» is kept under Dreams.', { name: tour.title });
   }
+  $effect(() => {
+    openId; // a new page starts without the line «kept as a dream»
+    note = '';
+  });
+  const dreamUrls = $derived(new Set(storeOf($dreamsQ?.value).dreams.map((d) => d.url)));
+  const isDream = (tour) => dreamUrls.has(sourceOf(tour));
+  // ---- the list in pages of ten (phone) or twelve (computer); «Show {n} more» adds the next page (Noah 24.11.2026 «1-5a»)
+  const PAGE = $derived(phone.matches ? 10 : 12);
+  let more = $state(0); // pages added by «Show more»; every change of the filters starts again with the first
+  $effect(() => {
+    JSON.stringify($state.snapshot(flt));
+    onlyToday;
+    more = 0;
+  });
+  const limit = $derived(PAGE * (more + 1));
+  const fitsShown = $derived(split.fits.slice(0, limit));
+  const notNowShown = $derived(split.notNow.slice(0, Math.max(0, limit - split.fits.length)));
+  const hiddenN = $derived(split.fits.length + split.notNow.length - fitsShown.length - notNowShown.length);
+  // ---- phone: the filters are one line, «Change ›» opens the whole list in a sheet
+  let fdialog = $state(null);
+  let fopen = $state(false);
+  const openFilters = () => {
+    fopen = true;
+  };
+  $effect(() => {
+    if (fopen && fdialog && !fdialog.open) fdialog.showModal();
+  });
+  const closeFilters = () => {
+    fopen = false;
+    if (fdialog?.open) fdialog.close();
+  };
+  $effect(() => {
+    if (!phone.matches && fopen) closeFilters();
+  });
+  const filterLine = $derived.by(() => {
+    const parts = [flt.regions.length ? flt.regions.map((k) => k.toUpperCase()).join(', ') : t('All cantons|vs')];
+    if (flt.conds.length && flt.conds.length < LEVELS.length) parts.push(flt.conds.map(levelName).join(', '));
+    if (flt.techs.length) parts.push(`${t('Skill|tour')}: ${flt.techs.map(levelName).join(', ')}`);
+    if (flt.arts.length) parts.push(flt.arts.map((k) => t(ART_NAME[k])).join(', '));
+    if (flt.maxAway !== null) parts.push(t('Up to {km} km from home', { km: flt.maxAway }));
+    if (flt.maxTravel !== null) parts.push(t('Up to {h} h', { h: flt.maxTravel / 60 }));
+    if (flt.maxHours !== null) parts.push(t('Up to {h} h', { h: flt.maxHours }));
+    if (onlyToday) parts.push(t('Doable today'));
+    if (flt.wday) parts.push(t(WX_DAY[flt.wday]));
+    if (flt.neu) parts.push(t(NEU_NAME[flt.neu]));
+    return parts.join(' · ');
+  });
   const sourceOf = (tour) => `https://map.schweizmobil.ch/?trackId=${tour.route}`;
   async function gpx(tour) {
     await saveGpx(gpxOf(tour), tour.title);
@@ -404,6 +456,7 @@
 <div class="ich-page vs" class:wide={!open && view === 'map'} data-page="vorschlaege">
   {#if open}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={`${regionName(open.region)} · ${t(tourClass(open))}`} />
+    {#if note && phone.matches}<p class="ok" role="status" data-vs-note><Check size={16} aria-hidden="true" />{note} <a href="#/trips/dreams">{t('Open Dreams')}</a></p>{/if}
     <div class="map" data-vs-map>
       {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong onmap={onMapTap} light={lit} {focus} old={oldRuns} spots={mapSpots} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
     </div>
@@ -543,12 +596,20 @@
     </section>
 
     <div class="acts">
-      <button type="button" class="btn hi" onclick={() => keepDream(open)} data-vs-dream><Sparkles size={16} aria-hidden="true" />{t('Keep as a dream')}</button>
+      {#if !phone.matches}<button type="button" class="btn hi" onclick={() => keepDream(open)} data-vs-dream><Sparkles size={16} aria-hidden="true" />{t('Keep as a dream')}</button>{/if}
       <button type="button" class="btn" onclick={() => gpx(open)} data-vs-gpx><Download size={16} aria-hidden="true" />{t('Save GPX')}</button>
       <button type="button" class="btn" onclick={() => hideTour(open)} data-vs-hide><EyeOff size={16} aria-hidden="true" />{t('Not for me')}</button>
     </div>
-    {#if note}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{note} <a href="#/trips/dreams">{t('Open Dreams')}</a></p>{/if}
+    {#if note && !phone.matches}<p class="ok" role="status"><Check size={16} aria-hidden="true" />{note} <a href="#/trips/dreams">{t('Open Dreams')}</a></p>{/if}
     <p class="next"><ChevronRight size={14} aria-hidden="true" />{t('Next: keep it as a dream, then plan it on its day from Dreams.')}</p>
+    {#if phone.matches}
+      <MainBar>
+        {#snippet children()}
+          {#if isDream(open)}<a class="btn go" href="#/trips/dreams" data-vs-dreamed><Check size={20} aria-hidden="true" />{t('In your dreams|vs')}</a>
+          {:else}<button type="button" class="btn hi go" onclick={() => keepDream(open)} data-vs-dream><Sparkles size={20} aria-hidden="true" />{t('Keep as a dream')}</button>{/if}
+        {/snippet}
+      </MainBar>
+    {/if}
   {:else}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Tour suggestions')} sub={t('Mountain bike tours from the official network of SchweizMobil')} />
     <p class="intro">{t('The app suggests tours you can ride. Everything is a suggestion: change the filters, hide what is not for you.')}</p>
@@ -656,6 +717,7 @@
     {:else if !shown.length}
       <Empty icon={Mountain} text={hidden.length && !filterTours(tours, { hidden: [], regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, pace, ok: okFn }).length ? t('Nothing left: you hid all of them.') : t('No tour fits these filters.')} action={{ label: t('Reset filters'), onclick: resetFilters }} />
     {:else}
+      {#if note && !open}<p class="ok" role="status" data-vs-note><Check size={16} aria-hidden="true" />{note} <a href="#/trips/dreams">{t('Open Dreams')}</a></p>{/if}
       <div class="seg" role="group" aria-label={t('View|tour')}>
         <button type="button" class="chip" aria-pressed={view === 'list'} data-vs-view="list" onclick={() => setView('list')}>{t('List|tour')}</button>
         <button type="button" class="chip" aria-pressed={view === 'map'} data-vs-view="map" onclick={() => setView('map')}>{t('Map|tour')}</button>
@@ -668,7 +730,7 @@
         <div class="ich-h"><div><h2 id="vs-fit">{t('Fits now')} <small class="n num">{split.fits.length}</small></h2><p class="ich-hs">{t('Tours that suit this month.')}</p></div></div>
         {#if split.fits.length}
           <ul class="cards">
-            {#each split.fits as tour (tour.id)}
+            {#each fitsShown as tour (tour.id)}
               {@render card(tour, false)}
             {/each}
           </ul>
@@ -677,26 +739,46 @@
         {/if}
       </section>
 
-      {#if split.notNow.length}
+      {#if notNowShown.length}
         <section class="ich-sec" aria-labelledby="vs-not" data-vs-notnow>
           <div class="ich-h"><div><h2 id="vs-not">{t('Not for today')} <small class="n num">{split.notNow.length}</small></h2><p class="ich-hs">{t('Snow is likely up high in this month. They come back when it melts.')}</p></div></div>
           <ul class="cards">
-            {#each split.notNow as tour (tour.id)}
+            {#each notNowShown as tour (tour.id)}
               {@render card(tour, true)}
             {/each}
           </ul>
         </section>
       {/if}
+      {#if hiddenN > 0}<ShowMore n={hiddenN} data-vs-more onclick={() => more++} />{/if}
       {/if}
     {/if}
+    {/snippet}
+
+    <!-- Noah 24.11.2026 «1-5a» (impeccable): on a phone the filters are one line, «Change ›» opens all groups in a sheet; a computer keeps the chips -->
+    {#snippet filtersArea()}
+      {#if phone.matches}
+        <section class="card pad fsum" aria-label={t('Filters|tour')} data-vs-filters-sum>
+          <p class="fl"><b>{t('Filter|vs')}</b> · <span data-vs-filters-text>{filterLine}</span></p>
+          <button type="button" class="btn sm" data-vs-filters-open onclick={openFilters}><SlidersHorizontal size={16} aria-hidden="true" />{t('Change|vs')} ›</button>
+        </section>
+        {#if fopen}
+          <dialog class="fsheet" bind:this={fdialog} aria-label={t('Filters|tour')} data-backdrop="own" data-vs-filters-sheet use:backClose onclose={() => (fopen = false)}>
+            <span class="fgrip" aria-hidden="true"></span>
+            {@render filtersBox()}
+            <div class="fdone"><button type="button" class="btn hi" data-vs-filters-done onclick={closeFilters}>{t('Show {n} tours|vs', { n: shown.length })}</button></div>
+          </dialog>
+        {/if}
+      {:else}
+        {@render filtersBox()}
+      {/if}
     {/snippet}
 
     <!-- «Karte oben» (Noah 23.11.2026, gross und gut sichtbar): in the map view the map comes first, the filters below it -->
     {#if view === 'map'}
       {@render results()}
-      {@render filtersBox()}
+      {@render filtersArea()}
     {:else}
-      {@render filtersBox()}
+      {@render filtersArea()}
       {@render results()}
     {/if}
 
@@ -739,7 +821,14 @@
       {#if fresh.length}<span class="why" data-vs-card-fresh><Mountain size={14} aria-hidden="true" />{t('New for you: {list}', { list: spotsText(fresh) })}</span>{/if}
       {#if newCanton}<span class="why" data-vs-card-canton><MapPin size={14} aria-hidden="true" />{t('A new canton for you: {name}.', { name: regionName(tour.region) })}</span>{/if}
     </a>
-    <button type="button" class="btn sm" onclick={() => hideTour(tour)} data-vs-hide><EyeOff size={16} aria-hidden="true" />{t('Not for me')}</button>
+    <div class="cacts">
+      {#if isDream(tour)}
+        <a class="btn grow" href="#/trips/dreams" data-vs-dreamed><Check size={16} aria-hidden="true" />{t('In your dreams|vs')}</a>
+      {:else}
+        <button type="button" class="btn hi grow" onclick={() => keepDream(tour)} data-vs-dream-card><Sparkles size={16} aria-hidden="true" />{t('Keep as a dream')}</button>
+      {/if}
+      <MoreActions title={tour.title} label={t('More for {what}', { what: tour.title })} actions={[{ name: t('Not for me'), icon: EyeOff, run: () => hideTour(tour) }, { name: t('Save GPX'), icon: Download, run: () => gpx(tour) }]} />
+    </div>
   </li>
 {/snippet}
 
@@ -782,6 +871,17 @@
   .wxstarts li.best { font-weight: 600; }
   .wxbest { margin: 0 0 var(--sp-2); font-weight: 600; }
   @media (min-width: 700px) { .wxweek li { grid-template-columns: 7em 9em 1fr; } .wxweek li > .wxn { grid-column: auto; } }
+  .fsum { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+  .fsum .fl { margin: 0; min-width: 0; overflow-wrap: break-word; }
+  .fsum .btn { flex: none; }
+  .fsheet { position: fixed; inset: auto 0 0 0; width: 100%; max-width: 100%; max-height: 90vh; margin: 0; padding: 12px 10px calc(16px + env(safe-area-inset-bottom)); box-sizing: border-box; border: 0; border-radius: 22px 22px 0 0; background: var(--paper); color: var(--ink); box-shadow: 0 -10px 40px var(--shadow); overflow-y: auto; }
+  .fsheet::backdrop { background: var(--scrim); }
+  .fgrip { display: block; width: 40px; height: 5px; margin: 0 auto 8px; border-radius: 9px; background: var(--line); }
+  .fsheet .filters { margin-bottom: var(--sp-3); border: 0; box-shadow: none; padding: var(--sp-2); }
+  .fdone { position: sticky; bottom: 0; padding-top: var(--sp-2); background: var(--paper); }
+  .fdone .btn { width: 100%; justify-content: center; min-height: 52px; }
+  .cacts { display: flex; gap: var(--sp-2); align-items: center; }
+  .cacts .grow { flex: 1; justify-content: center; min-height: 48px; }
   .goalbox { flex-basis: 100%; }
   .goalbox summary { cursor: pointer; color: var(--ink-2); min-height: 44px; display: flex; align-items: center; }
   .goalbox .grp { margin-bottom: var(--sp-2); }

@@ -21,8 +21,14 @@ PR folgt · 24.11.2026 · Auftrag: Noah «a» (Wetter) und «1, 2, 3, 4 (wichtig
 - Monatsziel («3 Touren mit über 60 % neu»): bei der Tour von Hand abhaken; Zeile «Ziel im November: 1 von 3 …» unter «Neuland» in den Filtern; «Ziel ändern» (1 bis 5 Touren, über 40/60/80 %) oder ganz ausschalten. Ruhig: nichts passiert, wenn du es nicht schaffst.
 - Neu für andere Seiten: `toursNear(tours, lat, lon)` in `src/lib/vorschlaege/neuland.js` liefert die Touren an einem Punkt (das Gipfelbuch kann damit zu einem Gipfel eine Tour zeigen).
 
+### Handy-Layout (impeccable Touren, Noah «1-5a»)
+- Filter am Handy als eine Zeile («Filter · Alle Kantone · Schwierig» und «Ändern ›»); das Fenster zeigt alle Gruppen mit dem Knopf «N Touren zeigen». Der Computer behält die Chips.
+- Die Liste zeigt zuerst 10 Karten und «N weitere zeigen» (Computer: 12). Die Seite öffnet am Handy und am Computer mit der Liste.
+- Karte der Tour: Hauptknopf «Als Traum merken»; «Nicht für mich» und «GPX speichern» im «…»-Menü. Auf der Tour-Seite bleibt am Handy der Knopf «Als Traum merken» unten fest stehen.
+
 ## Was fällt weg oder rutscht tiefer
-- nichts (zwei neue Filtergruppen «Wetter» und «Neuland» unter «Für dich» und ein Abschnitt «Neuland auf dieser Tour»; ohne Verbindung fehlen die Wetterzeilen und der Filter tut nichts).
+- Handy: die 36 Chips der Filter stehen nicht mehr offen, sondern hinter «Ändern ›»; Karten ab Nummer 11 hinter «weitere zeigen»; «Nicht für mich» und «GPX speichern» auf den Karten hinter «…»; der Knopf «Als Traum merken» auf der Tour-Seite wandert in die feste Leiste unten; der Computer öffnet nicht mehr mit der Karte, sondern mit der Liste (die Karte ist ein Tipp auf «Karte» entfernt).
+- sonst nichts (zwei neue Filtergruppen «Wetter» und «Neuland» unter «Für dich» und ein Abschnitt «Neuland auf dieser Tour»; ohne Verbindung fehlen die Wetterzeilen und der Filter tut nichts).
 
 ## Selbst entschieden
 ### Wetter
@@ -39,6 +45,8 @@ PR folgt · 24.11.2026 · Auftrag: Noah «a» (Wetter) und «1, 2, 3, 4 (wichtig
 - Das Ziel wird von Hand abgehakt, nicht automatisch: eine Tour aus dem Vorschlag ist nicht zwingend die Fahrt, die man danach macht.
 - Ohne eigene Fahrten (kein `grid`) fehlen die Anteile und die graue Strecke, der Text sagt es; «Mindestens zur Hälfte neu» lässt dann alle stehen.
 - «Neuestes zuerst» geht vor der Wetter-Sortierung (wer beides wählt, bekommt die neuesten zuerst; das Wetter filtert weiter).
+
+- Handy-Layout: Das «…»-Menü (`MoreActions`) und «weitere zeigen» (`ShowMore`) sind die vorhandenen Bausteine; die Seitengrösse am Computer ist 12.
 
 ## Entscheide (eigene Datei `docs/decisions/tourenvorschlaege-wetter-neuland.md`)
 - 24.11.2026: Wetter (Noah «a») und Neuland (Noah «1, 2, 3, 4, 5») in den Tourenvorschlägen, in einem PR.

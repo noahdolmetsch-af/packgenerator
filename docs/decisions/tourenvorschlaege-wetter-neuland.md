@@ -6,3 +6,5 @@
 
 - Noah 24.11.2026 «1, 2, 3, 4 (wichtig, lieblingsfeature), 5»: Filter und Sortierung «Neuestes zuerst», graue Strecke auf der Karte, neue Kantone, neue Pässe und Gipfel auf dem Weg (Lieblingsfunktion) und ein ruhiges Monatsziel, alles in einem PR.
 - Das Monatsziel ist von Hand abgehakt, abschaltbar und ohne Druck; die Seite liest Neuland und das Gipfelbuch nur.
+
+- Noah 24.11.2026 18:01 UTC «1-5a» (impeccable Touren): Tourenvorschläge am Handy: Filter als eine Zeile mit «Ändern ›», 10 Karten und «Mehr zeigen», Hauptknopf «Als Traum merken», «Nicht für mich» und «GPX speichern» ins «…», fester Knopf auf der Tour-Seite; Handy und Computer öffnen mit der Liste. Noah 24.11.2026 18:44 UTC «ok» zu den Bildern (Handy 390 und Computer 1440, echte Daten).
