@@ -23,5 +23,5 @@ test('the New menu: trips first, Weigh bags, quick field and emergency at the en
   expect(order.sos).toBeGreaterThan(order.quick);
   await expect(sheet.locator('[data-new-weigh]')).toContainText(T('Weigh bags'));
   await sheet.locator('[data-new-weigh]').click();
-  await expect(page).toHaveURL(/#\/pack\?weigh/);
+  await expect(page).toHaveURL(/#\/pack(\?|$)/) // the page takes «?weigh» and opens the first bag you have not weighed;
 });
