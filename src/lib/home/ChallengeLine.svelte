@@ -90,7 +90,7 @@
         <span class="tx">
           <a href="#/flow/act/{encodeURIComponent(actId)}"><b>{actName(mst.act)}</b></a>
           <small>
-            {done ? t('done today ✓ · {n} min', { n: todayMin }) : t('still open today')}{#if str.now} · {tn(str.now, '{n} day in a row', '{n} days in a row')}{/if}
+            {done ? t('done today ✓ · {n} min', { n: todayMin }) : t('still open today')}{#if str.now}{' · '}{tn(str.now, '{n} day in a row', '{n} days in a row')}{/if}
           </small>
         </span>
         {#if start}
