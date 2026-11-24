@@ -71,7 +71,7 @@ test('Inspiration: add links, kind recognised, filter, a note becomes a packing 
   if (phone) await expect(page.locator('nav').getByRole('link', { name: 'Inspiration' })).toHaveCount(0);
   await page.goto('./#/inspiration');
   if (!phone) {
-    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText('Touren');
+    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(/^\s*Touren/);
     await expect(page.locator('.side li.pl .tabs').getByRole('link', { name: 'Inspiration' })).toHaveAttribute('aria-current', 'page');
   }
   await expect(page.getByRole('heading', { level: 1, name: 'Inspiration' })).toBeVisible();

@@ -15,6 +15,7 @@
  * Other records keep the old rule: the newer change wins, the other version waits 30 days.
  */
 import { stable } from './track.js';
+import { seedItems, normItem } from '../routine.js';
 
 /** The newer of two records by the time of their change; the same time: the larger content, the same on both devices. */
 export function newerOf(mine, theirs, mineAt = '', theirsAt = '') {
@@ -68,9 +69,65 @@ export function mergeWeeklog(newer, older) {
   return { ...newer, value: { ...a, weeks } };
 }
 
+/**
+ * The list «Das tut mir gut» (setting routine; Noah 23.11.2026: the list on the phone had 11 entries, the one on the computer 8):
+ * the whole record used to go to the newer device, so a list edited on one device was replaced by the other one, and a device that
+ * had never saved its list (it showed the seven examples) wrote the examples over the real list with its first tick.
+ * Now: every entry that either device has stays; the ticks and the answers «Did it do you good?» of both stay; the order and the
+ * wording of an entry come from the newer record, except that an example nobody changed never beats an entry someone changed;
+ * an example that only one device still has was deleted on the other (the examples were on both at the start), so it goes;
+ * an own entry only one device has stays, unless the newer record notes it as deleted («gone»).
+ */
+const seedOf = new Map(seedItems().map((x) => [x.id, stable(x)]));
+const untouched = (x) => !!x && seedOf.get(x.id) === stable(normItem(x));
+export function mergeRoutine(newer, older) {
+  const a = obj(newer?.value);
+  const b = obj(older?.value);
+  const itemsA = list(a.items).filter((x) => x && x.id);
+  const itemsB = list(b.items).filter((x) => x && x.id);
+  const inB = new Map(itemsB.map((x) => [x.id, x]));
+  const inA = new Set(itemsA.map((x) => x.id));
+  const goneA = new Set(list(a.gone));
+  const items = [];
+  for (const x of itemsA) {
+    const o = inB.get(x.id);
+    if (!o) {
+      if (!untouched(x) || list(obj(a.ticks)[x.id]).length) items.push(x); // a new entry of this side, or an example it changed: stays; an unchanged, never ticked example the other deleted: goes
+      continue;
+    }
+    items.push(untouched(x) && !untouched(o) ? o : x);
+  }
+  for (const x of itemsB) if (!inA.has(x.id) && !goneA.has(x.id) && (!untouched(x) || list(obj(b.ticks)[x.id]).length)) items.push(x);
+  const ticks = {};
+  for (const id of new Set([...Object.keys(obj(a.ticks)), ...Object.keys(obj(b.ticks))])) {
+    const days = [...new Set([...list(obj(a.ticks)[id]), ...list(obj(b.ticks)[id])])].sort();
+    if (days.length) ticks[id] = days;
+  }
+  const felt = {};
+  for (const id of new Set([...Object.keys(obj(a.felt)), ...Object.keys(obj(b.felt))])) {
+    const days = { ...obj(obj(b.felt)[id]), ...obj(obj(a.felt)[id]) };
+    if (Object.keys(days).length) felt[id] = days;
+  }
+  const have = new Set(items.map((x) => x.id));
+  const gone = [...new Set([...list(a.gone), ...list(b.gone)])].filter((id) => !have.has(id)).sort().slice(-100);
+  const value = { ...a, items, ticks, felt };
+  if (gone.length) value.gone = gone;
+  else delete value.gone;
+  return { ...newer, value };
+}
+
+/** A plain list of ids kept in one setting (wardrobe.everydayKeep): the ids of both devices stay, in the order of the newer record. */
+export function mergeIdList(newer, older) {
+  const a = list(newer?.value);
+  const rest = list(older?.value).filter((x) => !a.includes(x));
+  return { ...newer, value: [...a, ...rest] };
+}
+
 const RULES = {
   trips: mergeTrip,
   'settings:training.weeklog': mergeWeeklog,
+  'settings:routine': mergeRoutine,
+  'settings:wardrobe.everydayKeep': mergeIdList,
 };
 const ruleOf = (t, id) => RULES[t] ?? RULES[`${t}:${id}`] ?? null;
 
