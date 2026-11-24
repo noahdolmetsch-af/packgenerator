@@ -16,7 +16,7 @@
 import { restoreBackup, APP_ID } from './backup.js';
 import { SCHEMA_VERSION } from './db.js';
 import { blocksAfterImport } from './updates.js';
-import { seedActs } from './flow.js';
+import { seedActs, newEntry } from './flow.js';
 import { seedTemplates } from './flowmed.js';
 import { WALK } from './flowtiles.js';
 import { addDays } from './play.js';
@@ -27,7 +27,9 @@ export const FIRST_KEY = 'firstStart';
 /** Tables the app fills by itself on a new start (settings, its own notes, the starter activities). */
 const SEEDED = new Set(['settings', 'meta', 'flowActs', 'flowTemplates']);
 /** The tables that hold the examples, in the order they are put back. */
-export const EXAMPLE_TABLES = ['bikes', 'containers', 'items', 'trips', 'debriefs', 'flowActs'];
+export const EXAMPLE_TABLES = ['bikes', 'containers', 'items', 'trips', 'debriefs', 'flowActs', 'flowLog'];
+/** The ticks of the example week (Noah 23.11.2026 «1-5a», «Muster-Woche»): ids start with this, so they are never taken for your own. */
+export const TICK_PREFIX = 'ex-tick-';
 /** The key of a row (debriefs are keyed by their trip). */
 const keyOf = (name, row) => (name === 'debriefs' ? row.tripId : row.id);
 
@@ -73,9 +75,11 @@ export function examplesFile(today, interests = ALL_INTERESTS) {
   const file = allExamples(today);
   const nights = want.includes('nights');
   const days = want.includes('days');
-  if (nights && days) return file;
+  // the example week (ticks of the starter activities) belongs to «Active and everyday»
+  const flowLog = want.includes('active') ? file.tables.flowLog : [];
+  if (nights && days) return { ...file, tables: { ...file.tables, flowLog } };
   const tb = file.tables;
-  if (!nights && !days) return { ...file, tables: { bikes: [], containers: [], items: [], trips: [], debriefs: [] } };
+  if (!nights && !days) return { ...file, tables: { bikes: [], containers: [], items: [], trips: [], debriefs: [], flowLog } };
   // a night out needs the whole gear of its trip; day rides only the day gear
   const keepItem = (id) => nights || DAY_GEAR.has(id);
   const items = tb.items.filter((i) => keepItem(i.id));
@@ -91,6 +95,7 @@ export function examplesFile(today, interests = ALL_INTERESTS) {
       items,
       trips: tb.trips.filter((x) => (x.id === 'ex-trip' ? nights : days)).map((x) => ({ ...x, setup: setupOf(x.setup) })),
       debriefs: days ? tb.debriefs : [],
+      flowLog,
     },
   };
 }
@@ -162,7 +167,25 @@ function allExamples(today) {
       updatedAt: now,
     },
   ];
-  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: now, tables: { bikes, containers, items, trips, debriefs } };
+  return { app: APP_ID, schemaVersion: SCHEMA_VERSION, exportedAt: now, tables: { bikes, containers, items, trips, debriefs, flowLog: weekTicks(today) } };
+}
+
+/** [days ago, activity, minutes or null, count or null]: a made-up week of ticks (a few ticks a day, rest days included). */
+const WEEK = [
+  [1, 'meditation', 10], [1, 'yoga', 45], [1, 'bike', 90],
+  [2, 'meditation', 10], [2, 'pushups', null, 20], [2, 'sauna', 12],
+  [3, 'meditation', 10], [3, 'bike', 120],
+  [4, 'yoga', 45], [4, 'stretch', 15],
+  [5, 'meditation', 10], [5, 'run', 40],
+  [6, 'pushups', null, 20], [6, 'bike', 75],
+];
+/** The example week as flowLog rows (ids «ex-tick-n»): ticks of starter activities, marked by their id. */
+export function weekTicks(today) {
+  const acts = Object.fromEntries(seedActs().map((a) => [a.id, a]));
+  return WEEK.filter(([, id]) => acts[id]).map(([ago, id, min, n], i) => {
+    const day = addDays(today, -ago);
+    return { ...newEntry(acts[id], { day, at: `${day}T18:00:00.000Z`, n, min }), id: `${TICK_PREFIX}${i + 1}` };
+  });
 }
 
 const seedIds = () => new Set(seedActs().map((a) => a.id));
@@ -194,7 +217,8 @@ async function unusedSeedActs(db, ids = null) {
   const acts = (await db.flowActs.toArray()).filter((a) => seeds.has(a.id));
   const out = [];
   for (const a of acts) {
-    const used = (await db.flowLog.where('actId').equals(a.id).count()) + (await db.flowSessions.where('actId').equals(a.id).count());
+    // the ticks of the example week do not count as use: «Remove the examples» takes them away together with the activity
+    const used = (await db.flowLog.where('actId').equals(a.id).toArray()).filter((e) => !String(e.id).startsWith(TICK_PREFIX)).length + (await db.flowSessions.where('actId').equals(a.id).count());
     if (!used) out.push(a);
   }
   return out;
@@ -263,7 +287,7 @@ export function interestsPresent(left = {}) {
   const out = [];
   if (trips.has('ex-trip')) out.push('nights');
   if (trips.has('ex-past')) out.push('days');
-  if ((left.flowActs ?? []).length) out.push('active');
+  if ((left.flowActs ?? []).length || (left.flowLog ?? []).length) out.push('active');
   return out;
 }
 
@@ -294,7 +318,7 @@ export function onlyExamples(existing = {}, left = {}, parts = []) {
 }
 
 /** How many example things are left (the activities count as one). */
-export const exampleCount = (left) => Object.entries(left).reduce((n, [k, rows]) => n + (k === 'flowActs' ? 1 : rows.length), 0);
+export const exampleCount = (left) => Object.entries(left).reduce((n, [k, rows]) => n + (k === 'flowActs' ? 1 : k === 'flowLog' ? 0 : rows.length), 0);
 
 /** Take the examples away. Returns what undoExamples needs. */
 export async function removeExamples(db) {

@@ -42,7 +42,13 @@ test('no line when no star is close', async ({ page, context }) => {
   await page.clock.install({ time: new Date(D0) });
   await page.goto('./#/flow');
   await ready(page);
+  // the first tick of a week always brings «Weeks in a row» within reach (1 of 2): switch that one off, so no star is close
+  await put(page, { settings: [{ key: 'flow.msTune', value: { 'run.weeks': { off: true } } }] });
+  await page.reload();
+  await ready(page);
   await page.locator('section[aria-labelledby="tick-h"]').locator('[data-act="run"]').click();
-  await expect(page.locator('.ftoast')).toBeVisible();
+  // no star is close: the tick goes straight to the page «Geschafft» and the note with its line is gone (TickGrid)
+  await expect(page).toHaveURL(/#\/flow\/geschafft/);
   await expect(page.locator('[data-toast-hint]')).toHaveCount(0);
+  await expect(page.locator('.ftoast')).toHaveCount(0);
 });

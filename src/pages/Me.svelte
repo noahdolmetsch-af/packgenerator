@@ -42,7 +42,7 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Leaf, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, ShoppingCart, MessageCircle, FileText, TrendingUp, Search as SearchIcon } from '@lucide/svelte';
+  import { Leaf, Trash2, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, ShoppingCart, MessageCircle, FileText, TrendingUp, Search as SearchIcon } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
@@ -243,6 +243,14 @@
             <a class="ich-row" href="#/me/ruhig" data-row="ruhig">
               <span class="ich-ib"><Leaf size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Calm and personal')}</b><small>{t('Less app, letters to yourself, what you can do')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): what you deleted stays 30 days -->
+            <a class="ich-row" href="#/me/trash" data-row="trash">
+              <span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Recently deleted')}</b><small>{t('Bring back what you deleted in the last 30 days')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

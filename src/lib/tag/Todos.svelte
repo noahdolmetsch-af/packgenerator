@@ -35,12 +35,15 @@
   const rows = $derived.by(() => {
     const g = groupTodos(notWaiting(todos), today);
     const out = Object.fromEntries(GROUPS.map((k) => [k, g[k].map((td) => ({ key: `m:${td.id}`, title: td.text, due: td.due ?? null, from: 'merken', ref: td }))]));
-    for (const it of weekTodos) if (!it.done) out[groupOfDay(it.day)].push({ key: `w:${it.id}`, title: it.title, due: it.day ?? null, from: 'week', ref: it });
-    for (const k of GROUPS) out[k].sort((a, b) => (a.due ?? '9999').localeCompare(b.due ?? '9999') || a.title.localeCompare(b.title));
+    for (const it of weekTodos) if (!it.done) out[groupOfDay(it.day)].push({ key: `w:${it.id}`, title: it.title, due: it.day ?? null, time: it.time || '', from: 'week', ref: it });
+    for (const k of GROUPS) out[k].sort((a, b) => (a.due ?? '9999').localeCompare(b.due ?? '9999') || (a.time ?? '').localeCompare(b.time ?? '') || a.title.localeCompare(b.title));
     return out;
   });
   const open = $derived(GROUPS.reduce((n, k) => n + rows[k].length, 0));
   const doneN = $derived(doneTodos(todos).length + weekTodos.filter((x) => x.done).length);
+
+  // under the title: the day (not in the group «Today», it says so already) and the time
+  const subOf = (r, k) => [k === 'today' || !r.due ? '' : dayLabel(r.due, today), r.time].filter(Boolean).join(' · ');
 
   let text = $state('');
   let editing = $state(null); // a to-do of Merken
@@ -102,7 +105,7 @@
         {#each rows[k] as r (r.key)}
           <li>
             <button type="button" class="tick" aria-label={t('Tick off «{name}»', { name: r.title })} onclick={() => tickRow(r)}><Check size={14} aria-hidden="true" /></button>
-            <button type="button" class="what" data-todo={r.key} onclick={() => openRow(r)}><b>{r.title}</b>{#if r.due}<small>{dayLabel(r.due, today)}</small>{/if}</button>
+            <button type="button" class="what" data-todo={r.key} onclick={() => openRow(r)}><b>{r.title}</b>{#if subOf(r, k)}<small>{subOf(r, k)}</small>{/if}</button>
             {#if r.due !== today}<button type="button" class="tod" onclick={() => toToday(r)} aria-label={t('Move «{name}» to today', { name: r.title })}>{t('Today')}</button>{/if}
           </li>
         {/each}

@@ -1,6 +1,7 @@
 <script>
   import PinnedLists from '../lib/merken/PinnedLists.svelte';
   import { askDelete } from '../lib/ui/ask.js';
+  import { trashed, forgetFor } from '../lib/trash/trash.js'; // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»)
   import { UNDO_MS } from '../lib/ui/undo.js';
   import { backClose } from '../lib/ui/backclose.js';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
@@ -57,6 +58,7 @@
   import { localDay } from '../lib/localday.js';
   import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis, ExternalLink, Link2, Pencil } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import SoSiehts from '../lib/firststart/SoSiehts.svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
   import Sum from '../lib/ui/Sum.svelte';
@@ -145,7 +147,7 @@
     if ((usedN[item.id] ?? 0) > 0) return archiveOne(item); // never delete a used item from the row
     // «Rückmeldungen» 19.10.2026: deleting asks first everywhere (rule «Löschen» 14.10.2026), then Undo
     if ((await askDelete({ title: t('Delete "{name}"?', { name: nameOf(item) }), text: t('It is on no trip and in no template. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
-    offerUndo(t('"{name}" deleted.', { name: nameOf(item) }), await deleteItems(db, [item.id]));
+    offerUndo(t('"{name}" deleted.', { name: nameOf(item) }), (await trashed(nameOf(item), () => deleteItems(db, [item.id]))).value);
   }
   async function favOne(item) {
     rowMenu = null;
@@ -685,14 +687,17 @@
       const a = await askDelete({ title: tn(ids.length, 'Delete {n} item from your gear?', 'Delete {n} items from your gear?'), text, lines: list.map((i) => nameOf(i)), archive: plan.used.length ? t('Archive') : '' });
       if (a === 'archive') return offerUndo(tn(ids.length, '{n} item archived. It stays in the look back.', '{n} items archived. They stay in the look back.'), (await archiveItems(db, ids)).snap);
       if (a !== 'delete') return;
-      offerUndo(tn(ids.length, '{n} item deleted.', '{n} items deleted.'), await deleteItems(db, ids));
+      offerUndo(tn(ids.length, '{n} item deleted.', '{n} items deleted.'), (await trashed(list.length === 1 ? nameOf(list[0]) : tn(ids.length, '{n} item', '{n} items'), () => deleteItems(db, ids))).value);
     });
   async function doUndo() {
     if (!undo) return;
     const { snap } = undo;
     clearTimeout(undoTimer);
     undo = null;
-    if (snap) await undoBulk(db, snap);
+    if (snap) {
+      await undoBulk(db, snap);
+      await forgetFor(snap);
+    }
   }
   $effect(() => () => clearTimeout(undoTimer));
 </script>
@@ -726,6 +731,7 @@
       <Empty icon={Package} title={t('No wishes yet')} text={t('Things you do not have yet go here. Put an item on the wishlist and you see what it costs and how much weight it saves.')} action={{ label: t('Add a wish'), onclick: () => addItem({ ownership: 'wishlist' }) }} />
     {:else}
       <Empty icon={Package} title={t('No gear yet')} text={t('Add your first item, or bring your list along with a backup.')} action={{ label: t('Add item'), onclick: () => addItem() }}>
+        <SoSiehts area="gear" />
         {t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.
       </Empty>
     {/if}
