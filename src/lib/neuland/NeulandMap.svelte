@@ -12,7 +12,7 @@
    */
   import { t } from '../i18n.svelte.js';
 
-  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false, span = 0.62, ratio = 1.15, dotLabels = false, selId = null } = $props();
+  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false, span = 0.62, ratio = 1.15, labelSize = 3.4, dotLabels = false, selId = null } = $props();
 
   const S = 100; // 1° = 100 units
   const BOX = { ch: [5.9, 45.78, 10.55, 47.84, 46.8], alps: [5.4, 43.85, 14.4, 48.0, 46.2], europe: [-11, 35, 33, 66, 50] };
@@ -72,7 +72,12 @@
   // the names of your places and of the open ones near you stand beside their dots, where no other name or dot is
   const dotNames = $derived.by(() => {
     if (!dotLabels) return [];
-    const fs = unit * 3.4;
+    const fs = unit * labelSize;
+    const bx0 = box[0] * k * S;
+    const bx1 = box[2] * k * S;
+    const by0 = -box[3] * S;
+    const by1 = -box[1] * S;
+    const inside = (b) => b.x0 >= bx0 && b.x1 <= bx1 && b.y0 >= by0 && b.y1 <= by1;
     const tw = (n) => n.length * fs * 0.56;
     const named = dots.filter((d) => d.name && (d.st === 'year' || d.st === 'old'));
     const boxes = dots.map((d) => ({ x0: d.xy[0] - radius(d), x1: d.xy[0] + radius(d), y0: d.xy[1] - radius(d), y1: d.xy[1] + radius(d) }));
@@ -88,7 +93,7 @@
         { x, y: y + r + fs * 0.75, anchor: 'middle', b: { x0: x - w / 2, x1: x + w / 2, y0: y + r, y1: y + r + fs * 1.3 } },
         { x, y: y - r - fs * 0.75, anchor: 'middle', b: { x0: x - w / 2, x1: x + w / 2, y0: y - r - fs * 1.3, y1: y - r } },
       ];
-      const free = opts.find((o) => !boxes.some((b) => b !== boxes[dots.indexOf(d)] && hit(o.b, b)) && !out.some((l) => hit(o.b, l.b)));
+      const free = opts.find((o) => inside(o.b) && !boxes.some((b) => b !== boxes[dots.indexOf(d)] && hit(o.b, b)) && !out.some((l) => hit(o.b, l.b)));
       const o = free ?? opts[0];
       out.push({ id: d.id, name: d.name, x: o.x, y: o.y, anchor: o.anchor, b: o.b, fs });
     }
@@ -110,11 +115,11 @@
   {#each shapes as a (a.id)}<path class="area {a.st || 'no'}" data-id={a.id} d={a.d} />{/each}
   {#each bgLakes as l (l.id)}<path class="lake" d={l.d} />{/each}
   {#each routes as r, i (i)}<polyline class="route" points={r} />{/each}
+  {#each dotNames as l (l.id)}
+    <text class="dn" x={l.x} y={l.y} font-size={l.fs} text-anchor={l.anchor} dominant-baseline="central" data-id={l.id} style:stroke-width="{l.fs * 0.28}px">{l.name}</text>
+  {/each}
   {#each dots as p (p.id)}
     <circle class="dot {p.st || 'no'}" class:sel={selId === p.id} data-id={p.id} cx={p.xy[0]} cy={p.xy[1]} r={radius(p)} />
-  {/each}
-  {#each dotNames as l (l.id)}
-    <text class="dn" x={l.x} y={l.y} font-size={l.fs} text-anchor={l.anchor} dominant-baseline="central" data-id={l.id}>{l.name}</text>
   {/each}
   {#each labels as l (l.text)}
     {@const [x, y] = xy(l.lon, l.lat)}
@@ -211,7 +216,6 @@
     font-weight: 600;
     paint-order: stroke;
     stroke: var(--paper);
-    stroke-width: 3.5px;
     stroke-linejoin: round;
     cursor: pointer;
   }

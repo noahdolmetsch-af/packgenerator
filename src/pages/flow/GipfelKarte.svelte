@@ -158,7 +158,7 @@
     {:else}
       <div class="lay">
         <div class="mapbox">
-          <NeulandMap {view} {points} {bg} big dotLabels={view === 'near'} {span} {ratio} selId={sel} center={home ? { lat: Number(home.lat), lon: Number(home.lon) } : null} title={t('Summit map')} onpick={(id) => (sel = id)} />
+          <NeulandMap {view} {points} {bg} big dotLabels={view === 'near'} {span} {ratio} labelSize={ratio > 1 ? 2.1 : 3.4} selId={sel} center={home ? { lat: Number(home.lat), lon: Number(home.lon) } : null} title={t('Summit map')} onpick={(id) => (sel = id)} />
           <div class="vsw" data-gk-view><Seg small full={false} label={t('Map section')} value={view} onchange={(v) => (viewSel = v)} options={views} /></div>
           <p class="legend" data-gk-legend>
             <span class="mk"><span class="k have" aria-hidden="true"></span>{t('you have it')}</span>
