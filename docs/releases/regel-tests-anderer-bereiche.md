@@ -9,6 +9,7 @@ PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (Tests anderer Bere
 - `docs/regeln.md` und `CLAUDE.md`: **Bilder zu jedem PR** schon beim Öffnen (Noah 24.11.2026 16:53); ohne sichtbare Änderung genügt ein Satz (Noah «1a» 16:54).
 - `CLAUDE.md`: Technisches aus den alten Regeln (Merge-Prüfung, Label `ok`, Wackel-Tests, volle Prüfung, Datenbank-PRs) steht jetzt dort; Verweise zeigen auf «Block n» statt «R n».
 - `tests/regeln-doku.test.js`: prüft neun Blöcke in Reihenfolge, je mit Datum und Quelle, und dass `CLAUDE.md` nur vorhandene Blöcke nennt.
+- `docs/regeln.md` Block 7 und `CLAUDE.md`: die volle Prüfung nur am Schluss ist live seit 24.11.2026 (PR 1679); Definition «schwer» steht in `scripts/ci-scope.mjs`.
 - Nur Doku und ein Doku-Test, nichts sichtbar in der App.
 
 ## Was fällt weg oder rutscht tiefer

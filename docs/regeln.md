@@ -66,10 +66,10 @@ So fühlt sich die App für Nutzer an, auf jeder Seite:
 
 ## Block 7 · Tests
 
-(Noah 11.10.2026; 26.10.2026; Noah «a» 24.11.2026 15:18; Noah «2a» 24.11.2026 10:27; Lessons 23./24.11.2026.)
+(Noah 11.10.2026; 26.10.2026; Noah «a» 24.11.2026 15:18; Noah «2a» 24.11.2026 10:27, live seit 24.11.2026 mit PR 1679; Lessons 23./24.11.2026.)
 - **Lokal:** die eigenen Tests und die Tests der geänderten Seite. **Wer eine Seite umbaut, sucht vor dem PR auch alle fremden Tests, die diese Seite antippen** (Adresse, Überschrift, Beschriftung in `tests/`), und lässt sie lokal laufen. Der Gesamttest läuft auf GitHub.
 - **Nie lockern:** Kein Test wird übersprungen, abgeschaltet oder gelockert, um Grün zu bekommen. Ursache beheben, oder den Test mit Absicht anpassen, wenn sich die Oberfläche mit Absicht geändert hat.
-- **Volle Prüfung** nur einmal pro schwerem PR (berührt `db.js`, `package.json`, `api/`, `.github/`), am Schluss (im Bau, Thread «Tests schneller machen»); bis dahin gilt sie für Daten-PRs.
+- **Volle Prüfung** nur einmal pro schwerem PR, am Schluss: **live seit 24.11.2026** (Thread «Tests schneller machen», PR 1679). Schwer = Daten, Backup, Sync, Speicher, `api/`, Build- und Workflow-Dateien und alles Unklare (Definition in `scripts/ci-scope.mjs`). Bis zum Label «voll» läuft nur die schnelle Stufe.
 - Befehle, Phone-Test-Mechanik (Label `ok`) und Lessons zu Wackel-Tests: `CLAUDE.md`.
 
 ## Block 8 · Privat und gratis
