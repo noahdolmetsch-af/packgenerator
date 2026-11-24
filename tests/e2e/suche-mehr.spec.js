@@ -28,16 +28,17 @@ test('Search finds rides, learnings and bike care, marks the words, narrows to o
   await expect(res).toContainText(T('Bike care'));
   // the words found are marked; the text stays whole
   await expect(res.locator('mark').first()).toBeVisible();
-  // buttons «All | Rides · 6 | …»: the rides are cut at first, «Show all» shows every one
-  const kinds = res.locator('[data-search-kinds]');
+  // «Klügere Suche» (Noah 24.11.2026 «1-5a», «1-4a»): the buttons under the field show the number of hits (the rides stand under «Trips»);
+  // the rides are cut at first, «Show all» shows every one
+  const kinds = res.locator('[data-search-filters]');
   await expect(kinds).toBeVisible();
-  await expect(kinds.locator('[data-kind-btn="ride"]')).toContainText('6');
+  await expect(kinds.locator('[data-search-filter="trips"] .cnt')).toContainText('6');
   await expect(res.locator('[data-show-all="ride"]')).toBeVisible();
   await res.locator('[data-show-all="ride"]').click();
   await expect(res.locator('.gh')).toHaveCount(1);
   await expect(res.getByRole('button', { name: /Hausrunde \d/ })).toHaveCount(6);
   // «All» brings the other kinds back; typing again starts over
-  await kinds.getByRole('button', { name: T('All|search') }).click();
+  await kinds.locator('[data-search-filter="all"]').click();
   await expect(res).toContainText(T('Learnings'));
   // a typo: the app searches the close word and asks «Do you mean …?»; a tap puts the word in the field
   await f.fill('herbstrunbe');

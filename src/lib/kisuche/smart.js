@@ -140,19 +140,22 @@ export function closest(word, vocab) {
 /** Groups of searchAll merged (first wins, the order kept), cut again to each kind's maximum. */
 function merge(lists, full = null) {
   const by = new Map();
-  for (const groups of lists)
-    for (const g of groups) {
+  lists.forEach((groups, n) =>
+    // a row only a similar word found (not the typed one) is a weak hit: shown last, and it never hides your own gear (Klügere Suche)
+    groups.forEach((g) => {
       const cur = by.get(g.kind) ?? { kind: g.kind, name: g.name, all: [], seen: new Set(), extra: 0 };
-      for (const r of g.rows) if (!cur.seen.has(r.id)) cur.seen.add(r.id), cur.all.push(r);
+      for (const r of g.rows) if (!cur.seen.has(r.id)) cur.seen.add(r.id), cur.all.push(n && !r.weak ? { ...r, weak: true } : r);
       cur.extra = Math.max(cur.extra, g.more ?? 0);
       by.set(g.kind, cur);
-    }
+    }),
+  );
   const order = Object.keys(KIND);
   return [...by.values()]
     .sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind))
     .map((g) => {
-      const cap = full === g.kind ? g.all.length : KIND[g.kind].max;
-      return { kind: g.kind, name: g.name, rows: g.all.slice(0, cap), more: Math.max(0, g.all.length - cap) + (full === g.kind ? 0 : g.extra) };
+      const uncut = full === g.kind || (Array.isArray(full) && full.includes(g.kind)); // one kind, or the kinds of one button (Klügere Suche)
+      const cap = uncut ? g.all.length : KIND[g.kind].max;
+      return { kind: g.kind, name: g.name, rows: g.all.slice(0, cap), more: Math.max(0, g.all.length - cap) + (uncut ? 0 : g.extra) };
     });
 }
 
