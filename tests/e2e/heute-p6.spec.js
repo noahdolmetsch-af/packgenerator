@@ -22,11 +22,11 @@ test.describe('P6 Heute erganzen', () => {
     // «Heute ruhiger» (Noah 26.10.2026 «3a», changed on purpose): «Jetzt» first (meditation, the trip of tomorrow, the
     // weekly weight right under the trip, so the phone shows it without long scrolling), then «Dein Körper»
     // «Meine Tour» (Plan 2a): with a planned tour its card is first, the meditation card right under it
-    expect(o.slice(0, 4)).toEqual(['haken', 'body', 'meinetour', 'meditation']); // the body band first (Noah 23.11.2026 «1-4a», changed on purpose)
+    expect(o.slice(0, 3)).toEqual(['body', 'meinetour', 'meditation']); // the body band first (Noah 23.11.2026 «1-4a», changed on purpose)
     expect(o.filter((id) => ['weighin', 'body', 'acts'].includes(id))).toEqual(['body', 'weighin', 'acts']);
     const wall = await page.locator('.wall > *').evaluateAll((els) => els.map((e) => e.dataset.homeSec ?? e.dataset.tile));
     expect(wall.indexOf('weighin')).toBeGreaterThan(wall.indexOf('now'));
-    expect(wall.indexOf('body')).toBe(wall.indexOf('now') + 2); // the body band right under «Heute abhaken», the first block of «Jetzt» (Noah 23.11.2026 «1a 2a»)
+    expect(wall.indexOf('body')).toBe(wall.indexOf('now') + 1); // the body band right under the heading of «Jetzt»; «Heute abhaken» stands above the wall (Noah 23.11.2026 «1a 2a»)
     for (const id of ['body', 'acts', 'balance', 'strava']) expect(o, id).toContain(id);
     expect(o.indexOf('strava')).toBeGreaterThan(o.indexOf('balance'));
     await expect(page.locator('[data-tile="meditation"]').getByText(T('Meditation')).first()).toBeVisible();
@@ -61,17 +61,19 @@ test.describe('P6 Heute erganzen', () => {
     await expect(card).toHaveCount(0);
   });
 
-  test('P6-3: after an update New on top as a whole row', async ({ page, context }, info) => {
+  // «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): the whole row «New» is replaced by ONE line under the chips
+  test('P6-3: after an update ONE line New under the chips, the row New is gone', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: homeFixture() });
     await page.evaluate((k) => localStorage.setItem(k, '0.150.0'), SEEN_KEY);
     await page.reload();
     await closeCheck(page);
-    const row = page.locator('[data-news-row]');
-    await expect(row).toBeVisible();
-    const top = await row.evaluate((el) => el.getBoundingClientRect().top);
+    await expect(page.locator('[data-news-row]')).toHaveCount(0);
+    const banner = page.locator('[data-news-banner]');
+    await expect(banner).toBeVisible();
+    const top = await banner.evaluate((el) => el.getBoundingClientRect().top);
     const wall = await page.locator('.wall').evaluate((el) => el.getBoundingClientRect().top);
     expect(top).toBeLessThan(wall);
-    await row.getByRole('button', { name: T('Take away|tile') }).click();
-    await expect(row).toHaveCount(0);
+    await banner.getByRole('button', { name: T('Close the hint') }).click();
+    await expect(banner).toHaveCount(0);
   });
 });

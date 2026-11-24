@@ -1,5 +1,6 @@
 import Dexie from 'dexie';
 import { trackSync } from './sync/track.js';
+import { watchDeletes } from './trash/capture.js';
 
 /**
  * The app's database. It lives in IndexedDB, inside the browser on this device.
@@ -14,7 +15,7 @@ import { trackSync } from './sync/track.js';
  */
 
 /** Bump this when the stored shape changes, and add a Dexie upgrade step below. */
-export const SCHEMA_VERSION = 20; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none). 16: Reise-Spur (own recordings and «Hier bin ich» places). 17: Paket O «Sportarten» (sportItems). 18: «Velo-Inspektion» (inspections). 19: Paket T «Freie Zeit» (frei). 20: «Verbesserungs-Logbuch» (logbuch)
+export const SCHEMA_VERSION = 21; // 2: bags (containers) table, bike setups. 3: workshop visits, photos. 4: quick notes. 5: rides. 6: Im Flow. 7: ride ledger. 8: hobby pages. 9: AB «Deine Abfragen». 10: Strava activities («Training»). 11: timer log. 12: documents (Ich › Dokumente). 13: Fitbit daily values. 15: Google calendar and tasks (14 left out: DP needs none). 16: Reise-Spur (own recordings and «Hier bin ich» places). 17: Paket O «Sportarten» (sportItems). 18: «Velo-Inspektion» (inspections). 19: Paket T «Freie Zeit» (frei). 20: «Verbesserungs-Logbuch» (logbuch). 21: «Zuletzt gelöscht» (trash)
 
 /** Tables that belong to the user's data and go into every backup file. */
 /** Tables on the device that never go into a backup: GA's copy of Google's events and tasks (Google keeps the truth). */
@@ -51,6 +52,7 @@ export const DATA_TABLES = [
   'sportItems', // Paket O «Sportarten»: measures and values, notes, lessons, matches, loops, plans per sport (sportsdb.js)
   'inspections', // «Velo-Inspektion»: one row per inspection of a bike, with the result, value, note and photos of every point (inspect/)
   'frei', // Paket T «Freie Zeit»: collection entries with photos, «In this phase …», travel wishes, marks (freidb.js)
+  'trash', // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): what the user deleted in the last 30 days, with the rows that went along; in the backup, never in the sync (trash/trash.js)
   'logbuch', // «Verbesserungs-Logbuch» (Noah 21.11.2026): what Noah notices in the app, with page, block, device and a photo; in the backup, never in the sync (logbuch/logbuchdb.js)
 ];
 
@@ -65,7 +67,7 @@ export const DEVICE_SETTINGS = ['tips', 'helper', 'offline-strips', 'veloParked'
  * P8 «Automatischer Abgleich»: rows that stay on this device and never sync: the device rows above and
  * the marks of the one-time data updates ('update.…'; every device runs its own, with its own time).
  */
-export const syncLocal = (table, key) => table === 'logbuch' || (table === 'settings' && (DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.') || String(key).startsWith('logbuch.'))); // logbuch.*: the kinds of the log too (L5); logbuch: «Verbesserungs-Logbuch» stays on this device (Noah 21.11.2026), its photos are big
+export const syncLocal = (table, key) => table === 'logbuch' || table === 'trash' || (table === 'settings' && (DEVICE_SETTINGS.includes(key) || String(key).startsWith('update.') || String(key).startsWith('logbuch.'))); // logbuch.*: the kinds of the log too (L5); logbuch: «Verbesserungs-Logbuch» stays on this device (Noah 21.11.2026), its photos are big
 /*
  * Paket B (Noah 19.10.2026 «1b»): the Fitbit days (healthDays) and the Fitbit and calendar connection
  * (settings 'health' and 'agenda') sync like everything else. Both devices fetch the same data from Google,
@@ -240,6 +242,12 @@ export function createDb(name = 'pack-generator') {
   db.version(20).stores({
     logbuch: 'id, art, state, day',
   });
+  // Version 21 («Zuletzt gelöscht», Noah 23.11.2026 «1a») only adds the table trash, so existing data stays as it is.
+  db.version(21).stores({
+    trash: 'id, at, kind',
+  });
+  // «Zuletzt gelöscht»: while a delete of the user runs, the rows that go are kept (trash/capture.js); outside of that nothing is noted
+  watchDeletes(db, DATA_TABLES);
   // P8 «Automatischer Abgleich»: every save of a data record notes when it changed (and a delete leaves
   // a «tombstone»), in the meta table, in the same step as the save (sync/track.js). No schema change.
   trackSync(db, { tables: DATA_TABLES, skip: syncLocal });

@@ -155,6 +155,8 @@ test('c) doubled trips are suggested, joined by choice, nothing deleted, and tak
   // «Wieder trennen» brings them back
   await finished(page).locator('[data-doubles-open]').click();
   await page.locator('[data-doubles-sheet] [data-joined]').getByRole('button', { name: new RegExp(T('Take doubles apart')) }).click();
+  // the note «Undo» covers «Close» for 8 seconds and holds its time while the mouse is on it (Aktionen 1): take the mouse away
+  await page.mouse.move(0, 0);
   await page.locator('[data-doubles-sheet]').getByRole('button', { name: T('Close'), exact: true }).click();
   await expect(twins(page)).toHaveCount(3);
   await expect(rows(page)).toHaveCount(all);
