@@ -23,7 +23,7 @@
   import { offerDone } from '../../lib/ui/rename.svelte.js';
   import { stravaName } from '../../lib/stravanames.js';
   import { localDay } from '../../lib/localday.js';
-  import { weekLoadHint, scaleWeek } from '../../lib/training/suggest.js';
+  import { weekLoadHint, scaleWeek, planAfterSuggestion } from '../../lib/training/suggest.js';
   import NextWeek from '../../lib/training/plans/NextWeek.svelte'; // «Training verbessern» 8: «Next week» in the look back
   import WeekSaved from '../../lib/training/plans/WeekSaved.svelte'; // «Training verbessern» 11: «My weeks»
   import Library from '../../lib/training/plans/Library.svelte'; // «Training verbessern» 7: «From your library»
@@ -102,8 +102,7 @@
   // «Training verbessern» 2: the suggestion replaces the planned days from today on; Undo puts the old plan back
   async function applySuggestion(list) {
     const before = plan;
-    const end = shiftDay(monday, 7);
-    await savePlan([...plan.filter((s) => !(s.day >= monday && s.day < end && s.day >= today)), ...list]);
+    await savePlan(planAfterSuggestion(plan, list, { monday, today })); // what comes from TrainingPeaks stays (Noah 23.11.2026 «5a»)
     offerDone(t('Suggestion for the week taken over.'), () => savePlan(before));
   }
 

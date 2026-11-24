@@ -23,7 +23,7 @@ import { UNDO_MS } from './undo.js';
 export const MAX_TOASTS = 3;
 /** The notes on screen, oldest first: { id, text, undo (has Undo), ms }. */
 export const toasts = $state({ list: [] });
-const held = new Map(); // id → { fn, timer, end, left }: the undo functions stay outside the reactive state
+const held = new Map(); // id → { fn, act, timer, end, left }: the undo functions stay outside the reactive state
 let seq = 0;
 let host = null;
 
@@ -66,13 +66,13 @@ export function resumeToast(id) {
   h.timer = setTimeout(() => closeToast(id), ms);
 }
 
-function push(text, undo, ms) {
+function push(text, undo, ms, action = null) {
   if (typeof document !== 'undefined') place();
   for (const x of toasts.list) if (!x.undo) closeToast(x.id);
   while (toasts.list.length >= MAX_TOASTS) closeToast(toasts.list[0].id);
   const id = ++seq;
-  held.set(id, { fn: undo, timer: setTimeout(() => closeToast(id), ms), end: Date.now() + ms, left: null });
-  toasts.list = [...toasts.list, { id, text, undo: !!undo, ms }];
+  held.set(id, { fn: undo, act: action?.run ?? null, timer: setTimeout(() => closeToast(id), ms), end: Date.now() + ms, left: null });
+  toasts.list = [...toasts.list, { id, text, undo: !!undo, ms, action: action?.label ?? null }];
   return id;
 }
 
@@ -85,8 +85,15 @@ export function offerRename(name, undo = null) {
  * (e.g. «Workshop visit saved.»). text: already translated; undo: async function or null.
  * ms: how long it stays (Taschen-Setups: 4 s, Noah's rule for deleting).
  */
-export function offerDone(text, undo = null, ms = UNDO_MS) {
-  return push(text, undo, ms);
+export function offerDone(text, undo = null, ms = UNDO_MS, action = null) {
+  return push(text, undo, ms, action);
+}
+
+/** The second button of a note («View» after «Question saved»): the note goes, then its action runs. */
+export async function actToast(id) {
+  const fn = held.get(id)?.act;
+  closeToast(id);
+  if (fn) await fn();
 }
 
 /** Undo of one note (B22: every note on the stack keeps its own). */

@@ -6,6 +6,7 @@
  */
 import { shiftDay, weekOf } from '../training.js';
 import { activeGoals } from '../flow.js';
+import { TP_SRC } from './wochenplan.js';
 
 export const SRC = 'sug'; // src of a session written by a suggestion
 export const FOCUS = ['cardio', 'hit', 'kraft', 'ruhe']; // Ausdauer, Intervalle, Kraft, Erholung
@@ -256,4 +257,16 @@ export function scaleWeek(sessions, { monday, today, target }) {
   if (!flex) return sessions;
   const f = Math.max(0.4, Math.min(1, (target - fixed) / flex));
   return sessions.map((s) => (flexible(s) ? { ...s, mins: Math.max(15, Math.min(s.mins, Math.round((s.mins * f) / 5) * 5)) } : s));
+}
+
+/**
+ * The plan after a suggestion was taken over (Noah 23.11.2026 «5a»): the days of the shown week from today on get the
+ * suggestion, **but what comes from TrainingPeaks stays**. It is fixed at its day and the weekly plan counts it; the feed
+ * would not bring a removed one back (it counts as taken out by hand). Everything before today and outside the week stays too.
+ * plan: the sessions now; list: the suggestion. Pure.
+ */
+export function planAfterSuggestion(plan, list, { monday, today }) {
+  const end = shiftDay(monday, 7);
+  const goes = (s) => s.day >= monday && s.day < end && s.day >= today && s.src !== TP_SRC;
+  return [...plan.filter((s) => !goes(s)), ...list];
 }

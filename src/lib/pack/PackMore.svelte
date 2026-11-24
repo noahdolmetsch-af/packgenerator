@@ -25,12 +25,23 @@
   const key = (k) => `${trip.id}:${k}`;
   // the first time a trip is drawn: closed, unless a link points into a group
   $effect.pre(() => {
-    for (const [k, on] of [['weather', allOpen], ['before', allOpen || wantsShop || jumpBefore], ['others', allOpen], ['easier', allOpen], ['learn', allOpen]]) {
+    for (const [k, on] of [['weather', allOpen], ['before', allOpen || wantsShop || jumpBefore], ['others', allOpen], ['easier', allOpen], ['learn', allOpen], ['tools', allOpen]]) {
       if (opened[key(k)] === undefined) opened[key(k)] = on;
     }
   });
   // a link to «Bike care» of the trip (Heute, the push) opens its group at any time
   $effect(() => { if (jumpBefore) opened[key('before')] = true; });
+
+  // «Sitemap» Touren (Noah 24.11.2026 «K6»): the pages that serve one tour, in one closed group (names as everywhere: docs/namen.md)
+  const tools = $derived([
+    ['#/trips/fuel', 'Food and water'],
+    ['#/trips/pfad?t=' + encodeURIComponent(trip.id), 'Tour path'],
+    ['#/trips/weg', 'Way to the goal'],
+    ['#/trips/compare', 'Trips side by side'],
+    ['#/stopps', 'Stops nearby'],
+    ['#/quiz/' + encodeURIComponent(trip.id), 'Quiz the evening before'],
+    ['#/me/checks', 'Checks per trip type'],
+  ]);
 
   const groups = $derived([
     { k: 'weather', title: t('Weather and warnings'), sub: t('Plan B for bad weather'), body: weather },
@@ -38,6 +49,7 @@
     { k: 'others', title: t('With others'), sub: t('Packing for two'), body: others },
     { k: 'easier', title: t('Packing made easier'), sub: t('Start list by sport'), body: easier },
     { k: 'learn', title: t('Learn from it'), sub: t('Ballast, earlier tours, packing time'), body: learn },
+    { k: 'tools', title: t('Tools for this tour'), sub: t('Food and water, tour path, way to the goal, stops, quiz, checks'), body: toolsBody },
   ].filter((g) => g.body));
 
   // a group with nothing in it is hidden (the content of a closed <details> is still in the page)
@@ -50,6 +62,12 @@
     return { destroy: () => mo.disconnect() };
   }
 </script>
+
+{#snippet toolsBody()}
+  <ul class="tl" data-pack-tools>
+    {#each tools as [href, name]}<li><a href={href}>{t(name)}</a></li>{/each}
+  </ul>
+{/snippet}
 
 {#if groups.length}
   <section class="pm" aria-labelledby="pm-h" data-pack-more>
@@ -64,5 +82,7 @@
 
 <style>
   .pm { margin: 18px 0 8px; }
+  .tl { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .tl a { display: block; padding: 10px 2px; min-height: 44px; box-sizing: border-box; overflow-wrap: break-word; }
   h2 { margin: 0 0 8px; font: 600 var(--fs-h3, 1.05rem) / 1.3 var(--font-body); color: var(--ink-2, var(--ink)); }
 </style>

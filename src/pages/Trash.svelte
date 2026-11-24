@@ -39,7 +39,7 @@
 
   const when = (iso) => new Date(iso).toLocaleDateString(locale(), { day: 'numeric', month: 'short' });
   const alongOf1 = (r) => (r.src === 'trash' ? alongLine(alongOf(r.e.counts, r.e.main), tn) : '');
-  const HOME = { bike: '#/bikes', trip: '#/trips', gear: '#/gear', doc: '#/me/docs', note: '#/notes', ride: '#/trips/rides' };
+  const HOME = { bike: '#/bikes', trip: '#/trips', gear: '#/gear', doc: '#/me/docs', note: '#/notes', ride: '#/trips/rides', todo: '#/day/todos', plan: '#/day' };
 
   let info = $state(null); // { text, href } after a «Zurück»: the way on (the next step)
   async function back(r) {
