@@ -39,7 +39,6 @@
    */
   import LiveLabel from '../lib/live/LiveLabel.svelte';
   import HintCard from '../lib/pageinfo/HintCard.svelte';
-  import QuickLinks from '../lib/ui/QuickLinks.svelte';
   import AllHere from '../lib/ui/AllHere.svelte';
   import PackKarten from '../lib/pack/PackKarten.svelte'; // Warteliste 4: the tours being prepared, with «Continue with …»
   import { komootFindUrl } from '../lib/komoot.js';
@@ -77,7 +76,7 @@
   import { stravaName } from '../lib/stravanames.js';
   import Help from '../lib/ui/Help.svelte';
   import { FIELD_HELP } from '../lib/daumen.js'; // FE14
-  import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity } from '@lucide/svelte';
+  import { Plus, ChevronRight, ChevronDown, Route, Upload, Flag, Star, SlidersHorizontal, Bookmark, X, Zap, ZapOff, Info, Calendar, Backpack, Search, Activity, ExternalLink } from '@lucide/svelte';
   // SN4g: the rows, their values and the filters
   import { loadReview } from '../lib/review/load.js';
   import { tripFacts, periodOf, withActs } from '../lib/review/rueckblick.js';
@@ -525,13 +524,14 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       {#if !onRides}<a class="btn btn-link racelink" href="#/race" data-to-races><Flag size={16} aria-hidden="true" />{t('Races')} ›</a>{/if}
       <!-- «Sitemap» Touren (Noah 24.11.2026 «K7»): with a planned tour, «On the way» is one tap away (its day overview of the next tour) -->
       {#if !onRides && plan.length}<a class="btn btn-link racelink" href="#/ride" data-to-ontheway><Route size={16} aria-hidden="true" />{t('On the way')} ›</a>{/if}
+      <!-- «Knopf-Formen» (Noah 24.11.2026 «7»): three kinds in this row: the main action, the side actions as quiet text links (an outside page gets the arrow) -->
+      {#if !onRides}<button type="button" class="btn btn-link racelink" data-to-komoot onclick={() => window.open(komootFindUrl(), '_blank', 'noopener')}><ExternalLink size={16} aria-hidden="true" />{t('Tour from komoot')}</button>{/if}
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
   {#if !onRides}<PackKarten />{/if}
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): pages for every tour that were only reachable through search -->
   <!-- «Alles hier» (Noah 03.11.2026 «1a»): every Touren function as a tile on top; the row «More for your tours» keeps only komoot (an outside page), its other links are tiles now -->
-  {#if !onRides}<QuickLinks label={t('More for your tours')} links={[{ key: 'komoot', onclick: () => window.open(komootFindUrl(), '_blank', 'noopener'), label: t('Tour from komoot') }]} />{/if}
   {#if !onRides}<NextRaceRow />{/if}
   {#if !onRides}<DreamNowRow />{/if}
   {#if onRides}
