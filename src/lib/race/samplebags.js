@@ -21,7 +21,7 @@ const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 /** One drawn bag picture as an SVG data URL (4:3). weight: the text of the weight, e.g. «1.7 kg». */
 export function bagDrawing({ name, things, weight, tag }) {
-  const list = things.map((x, i) => `<text x="40" y="${176 + i * 34}" font-size="22" fill="#3b4540">• ${esc(x)}</text>`).join('');
+  const list = things.map((x, i) => `<text x="40" y="${174 + i * 29}" font-size="21" fill="#3b4540">• ${esc(x)}</text>`).join('');
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" font-family="system-ui, sans-serif">` +
     `<rect width="400" height="300" fill="#eef2ee"/>` +
