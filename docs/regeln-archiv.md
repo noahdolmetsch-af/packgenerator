@@ -2,6 +2,12 @@
 
 Stand vor der Aufräumrunde vom 24.11.2026 (Noah «bringe regeln … auf den neusten stand»). Nur Verlauf, keine Regel. Aktuell gilt [regeln.md](regeln.md). Ersetzt eine neue Regel eine alte, kommt die alte hierher, mit Datum.
 
+## Ersetzt am 24.11.2026 16:38: PR-Grenze «höchstens 8 offen»
+
+- Stau-Regel 1 (Noah 24.11.2026 07:29, «1 2 3 4 5»): «Neues erst bauen, wenn höchstens 8 PRs offen sind; sonst wartende PRs abbauen helfen.»
+- R12 (Noah 24.11.2026 01:17 «nur 5–6 aktive PRs», verbunden mit der 8er-Grenze durch Noah «1a» 24.11.2026 10:27): «Höchstens 8 offen, davon 5–6 gleichzeitig in der Prüfung. Der Rest wartet lokal gebaut.»
+- Ersetzt durch Noah 24.11.2026 16:38: höchstens 6 offen, Ziel 5.
+
 ## Alte Projekt-Anweisung: Alte Projekt-Anweisung (bis 24.11.2026)
 
 schritt für schritt denken. bei komplexen dingen mir komplxität aufzeigen. mir sinnvolle vorschläge zur umsetzung liefern. mir rückfragen zur präzisierung stellen wenn nötig.

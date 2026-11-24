@@ -57,16 +57,16 @@ Schliessen eines PR nur mit «schliessen NNN». Force-Push nur mit «Ja force pu
 Einzeln bleiben: Datenänderungen (Dexie, Backup, Sync, `api/`) und Test-Fixes. Das ersetzt «kleine PRs für alles, keine Bündel» (26.10.2026).
 
 **R11 · Stau-Regeln** (Noah 24.11.2026 07:29, «1 2 3 4 5»):
-1. Neues erst bauen, wenn höchstens 8 PRs offen sind; sonst wartende PRs abbauen helfen.
+1. Neues erst bauen, wenn höchstens 6 PRs offen sind (Ziel: 5); sonst wartende PRs abbauen helfen. (Grenze seit Noah 24.11.2026 16:38 «lass uns die grenze auf 5-6 herunter tun»; vorher 8, siehe `docs/regeln-archiv.md`.)
 2. Main rot: bis zu 1 Stunde nichts anderes mergen, bis repariert.
 3. Ein Test, der 2× zufällig fällt, kommt auf die Liste und wird noch am selben Tag stabil gemacht (Wackel-Thread).
 4. Kleine Änderungen derselben Seite in einen PR bündeln (R10).
 5. CI von 25–70 Minuten auf etwa 15 Minuten: nur Tests der geänderten Seite (Thread «Tests schneller machen», R24).
 
-**R12 · Höchstens 8 offen, davon 5–6 gleichzeitig in der Prüfung** (Noah 24.11.2026 01:17 «nur 5–6 aktive PRs»; Noah «1a» 24.11.2026 10:27, verbindet es mit R11.1). Der Rest wartet lokal gebaut (R13).
+**R12 · Höchstens 6 PRs offen, Ziel 5** (Noah 24.11.2026 16:38: «lass uns die grenze auf 5-6 herunter tun. 6-9 ist mir zu vieles gleichzeitig»). Das ersetzt «höchstens 8 offen, davon 5–6 gleichzeitig in der Prüfung» vom 24.11.2026 10:27. Mehr als 6 offene PRs gibt es nicht; was darüber hinaus fertig wird, wartet lokal gebaut (R13).
 
 **R13 · Wellen (impeccable-Prüfung, Noah 24.11.2026 07:37 «1-5a» und «ja» ~08:40).** Pakete einer Welle werden **lokal gebaut und getestet, ohne PR und ohne Push**,
-bis der Bündler «Platz» meldet (≤ 8 offen). Welle 3 wartet, bis Welle 1 und 2 gemergt sind.
+bis der Bündler «Platz» meldet (≤ 6 offen, R12). Welle 3 wartet, bis Welle 1 und 2 gemergt sind.
 
 **R14 · Warten heisst vorbauen** (Noah 27.10.2026): Wartet ein PR auf CI, geht der Thread am nächsten geplanten Schritt weiter, lokal vorbereitet; gepusht wird nur nach R9–R13.
 
