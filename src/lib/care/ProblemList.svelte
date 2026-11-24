@@ -62,7 +62,7 @@
     offerRename(text, () => db.maintenance.update(task.id, { task: was }));
   }
   async function remove(task) {
-    if ((await askDelete({ title: t('Delete the problem "{name}"?', { name: task.task }), text: t('It is gone from the list and from Bike care. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the problem "{name}"?', { name: task.task }), text: t('It is gone from the list and from Bike care. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({
       run: async () => {
         const rec = await db.maintenance.get(task.id);

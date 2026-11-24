@@ -341,7 +341,7 @@
         ? { title: t('Take apart "{name}"?', { name }), text: t('The {n} activities stay, each as its own tour again. Your notes of the joined tour go.', { n: d.acts.length }), label: t('Take apart') }
         : d.kind === 'a'
           ? { title: t('Delete "{name}"?', { name }), text: t('It is gone from the app and is not fetched again. Strava keeps it. The km on the bike stay counted.') }
-          : { title: t('Delete the trip "{name}"?', { name }), text: t('Its packing list goes with it. You can bring it back for 4 seconds afterwards.') };
+          : { title: t('Delete the trip "{name}"?', { name }), text: t('Its packing list goes with it. You can bring it back for 8 seconds afterwards.') };
     if ((await askDelete(ask)) !== 'delete') return;
     const target = { kind: d.kind, id: d.id };
     const ok = await deleteWithUndo({ run: () => deleteTour(db, target), undo: (s) => undoDelete(db, s), text: d.kind === 'g' ? t('"{name}" taken apart.', { name }) : t('"{name}" deleted.', { name }), name });

@@ -108,7 +108,7 @@
     sOpen = false;
   }
   async function dropSpot(p) {
-    if ((await askDelete({ title: t('Delete this sleep spot?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete this sleep spot?'), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     let before = [];
     await deleteWithUndo({ run: async () => (before = await saveOwn((list) => list.filter((x) => x.id !== p.id))), undo: () => putOwn(before), text: t('"{name}" deleted.', { name: p.name || t('Place to sleep') }), name: p.name || t('Place to sleep') });
   }

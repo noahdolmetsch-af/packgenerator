@@ -21,6 +21,15 @@ describe('never a white page', () => {
     expect(target.children.length).toBe(1);
     expect(target.children[0].attrs['data-white-card']).toBeDefined();
   });
+  it('takes the quiet start frame of index.html away, so the card shows', async () => {
+    const { handlers, win, target, doc } = rig();
+    let removed = false;
+    watchWhitePage(target, { wait: 5, win, doc: { ...doc, getElementById: (id) => (id === 'boot' ? { remove: () => (removed = true) } : null) } });
+    handlers.error();
+    await wait(30);
+    expect(removed).toBe(true);
+    expect(target.children.length).toBe(1);
+  });
   it('leaves a working app alone', async () => {
     const { handlers, win, target, doc } = rig([{ attrs: {} }]);
     watchWhitePage(target, { wait: 5, win, doc });

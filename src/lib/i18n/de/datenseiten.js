@@ -45,7 +45,7 @@ export default {
   '{n} chart': '{n} Diagramm',
   '{n} charts': '{n} Diagramme',
   'Delete the page "{name}"?': 'Seite «{name}» löschen?',
-  'Its fields and charts go with it. The map and the other pages stay. You can bring it back for 4 seconds afterwards.': 'Ihre Felder und Diagramme gehen mit. Die Karte und die anderen Seiten bleiben. Danach kannst du sie 4 Sekunden lang zurückholen.',
+  'Its fields and charts go with it. The map and the other pages stay. You can bring it back for 8 seconds afterwards.': 'Ihre Felder und Diagramme gehen mit. Die Karte und die anderen Seiten bleiben. Danach kannst du sie 8 Sekunden lang zurückholen.',
   'No data pages: only the map. Add a page to see your numbers big.': 'Keine Datenseiten: nur die Karte. Füg eine Seite hinzu, dann siehst du deine Zahlen gross.',
   'Add page': 'Seite hinzufügen',
   'At most {n} data pages.': 'Höchstens {n} Datenseiten.',

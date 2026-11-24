@@ -49,7 +49,7 @@
   const putGoal = (g) => save({ ...c, goals: c.goals.some((x) => x.id === g.id) ? c.goals.map((x) => (x.id === g.id ? g : x)) : [g, ...c.goals] });
   async function removeGoal(id) {
     const g = c.goals.find((x) => x.id === id);
-    if (!g || (await askDelete({ title: t('Delete the goal "{text}"?', { text: g.title }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if (!g || (await askDelete({ title: t('Delete the goal "{text}"?', { text: g.title }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({ run: async () => (await save({ ...c, goals: c.goals.filter((x) => x.id !== id) }), g), undo: (snap) => putGoal(snap), text: t('"{name}" deleted.', { name: g.title }), name: g.title });
   }
 

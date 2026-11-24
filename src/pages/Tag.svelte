@@ -30,6 +30,27 @@
   const today = localDay();
   const isDay = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s ?? '') && !Number.isNaN(Date.parse(`${s}T12:00:00Z`));
   // step 3: the second tab «To-dos» has the address #/day/todos, step 3c the third «Tick off» #/day/abhaken
+  // the page opens with the tab used last (Noah 23.11.2026 «5a»; this device only, localStorage); a day address always opens «Day»
+  const TAB_KEY = 'pg.tag.tab';
+  const lastTab = () => {
+    try {
+      const v = localStorage.getItem(TAB_KEY);
+      return v === 'todos' || v === 'abhaken' ? v : 'day';
+    } catch {
+      return 'day';
+    }
+  };
+  const remember = (k) => {
+    try {
+      localStorage.setItem(TAB_KEY, k);
+    } catch {
+      /* ignore: the page works without it */
+    }
+  };
+  if (sub === '') {
+    const k = lastTab();
+    if (k !== 'day') location.replace(`#/day/${k}`);
+  }
   const tab = $derived(sub === 'todos' ? 'todos' : sub === 'abhaken' ? 'abhaken' : 'day');
   const day = $derived(isDay(sub) ? sub : today);
   const monday = $derived(mondayOf(day));
@@ -46,7 +67,7 @@
   const actOf = $derived(new Map((src?.flowActs ?? []).map((a) => [a.id, a])));
   const week = $derived(src ? buildWeek({ ...src, forecast, monday, today, goalHours: src.goal?.hours ?? null, actName: (id) => actName(actOf.get(id)) || id }) : null);
   const d = $derived(week?.days.find((x) => x.day === day) ?? null);
-  const lay = $derived(layoutDay(d?.entries ?? []));
+  const lay = $derived(layoutDay(d?.entries ?? [], { now: nowMin(day, today) }));
   const sumOf = (x) => week?.days.find((w) => w.day === x)?.entries.filter((e) => e.kind !== 'away').length ?? 0;
 
   const HH = 72; // pixels per hour
@@ -172,7 +193,7 @@
 
 <PageHead title={tab === 'todos' ? t('My to-dos') : tab === 'abhaken' ? t('Tick off today') : t('My day')} what={tab === 'todos' ? t('Everything still open in one list: yours from Remember and the ones you put on a day.') : tab === 'abhaken' ? t('One tap ticks a sport or habit. Duration and feeling are optional.') : t('Read the day, tap an entry to open it where it lives.')} />
 
-<p class="tabs"><Seg label={t('Views of My day')} value={tab} options={[{ key: 'day', name: t('Day') }, { key: 'todos', name: t('To-dos') }, { key: 'abhaken', name: t('Tick off|tab') }]} onchange={(k) => (location.hash = k === 'todos' ? '#/day/todos' : k === 'abhaken' ? '#/day/abhaken' : '#/day')} /></p>
+<p class="tabs"><Seg label={t('Views of My day')} value={tab} options={[{ key: 'day', name: t('Day') }, { key: 'todos', name: t('To-dos') }, { key: 'abhaken', name: t('Tick off|tab') }]} onchange={(k) => (remember(k), (location.hash = k === 'todos' ? '#/day/todos' : k === 'abhaken' ? '#/day/abhaken' : `#/day/${today}`))} /></p>
 
 {#if tab === 'todos'}
   <Todos {today} {weekTodos} ontick={tickItem} onmove={(it, to) => change(items().find((x) => x.id === it.id) ?? it, { day: to })} onedit={(it) => (editing = { item: items().find((x) => x.id === it.id) })} />
@@ -198,7 +219,7 @@
   {#if rel}<span class="tag">{rel}</span>{/if}
   {#if d?.holiday}<span class="tag">{holidayName(d.holiday)}</span>{/if}
   {#if wetNow}<span class="wx">{#if wetNow.wet}<CloudRain size={15} aria-hidden="true" />{:else if wetNow.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}{wxWords(wetNow)}</span>{/if}
-  {#if day !== today}<a class="today-link" href="#/day">{t('Back to today')}</a>{/if}
+  {#if day !== today}<a class="today-link" href="#/day/{today}">{t('Back to today')}</a>{/if}
 </p>
 <p class="addrow">
   <button type="button" class="add" data-add-entry onclick={() => addEntry()}><Plus size={16} aria-hidden="true" /> {t('Add an entry')}</button>
@@ -225,10 +246,7 @@
     </section>
   {/if}
 
-  {#if !lay.blocks.length && !lay.untimed.length && !lay.allDay.length}
-    <Empty title={t('Nothing planned on this day')} text={t('Plan sessions, dates and to-dos in Woche. They appear here with their time.')} action={{ label: t('Open Woche'), href: '#/week' }} />
-  {/if}
-
+  {#snippet timeline()}
   <section class="tl" aria-label={t('Timeline')} style="--hh: {HH}px; height: {top(lay.to)}px">
     {#each hours as h (h)}
       <div class="hr" style="top: {top(h)}px"><span class="num">{fmtMin(h)}</span></div>
@@ -256,6 +274,19 @@
       </a>
     {/each}
   </section>
+  {/snippet}
+
+  {#if !lay.blocks.length && !lay.untimed.length && !lay.allDay.length}
+    <Empty title={t('Nothing planned on this day')} text={t('Plan sessions, dates and to-dos in Woche. They appear here with their time.')} action={{ label: t('Open Woche'), href: '#/week' }} />
+    <details class="tlfold" data-tl-fold>
+      <summary>{t('Show the timeline')}</summary>
+      {@render timeline()}
+    </details>
+  {:else}
+    {@render timeline()}
+  {/if}
+
+  <p class="foot">{t('What you plan in Woche stands here. Your own dates and to-dos you can add, change and drag here.')}</p>
 {/if}
 {/if}
 
@@ -267,7 +298,7 @@
   <EntrySheet item={editing.item} day={editing.day} time={editing.time} onsave={saveEntry} ondelete={deleteEntry} onclose={() => (editing = null)} />
 {/if}
 
-<p class="foot">{t('What you plan in Woche stands here. Your own dates and to-dos you can add, change and drag here.')}</p>
+
 
 <style>
   .tabs {
@@ -493,7 +524,7 @@
   }
   .now span {
     position: absolute;
-    left: 6px;
+    right: 6px;
     top: -9px;
     padding: 0 6px;
     border-radius: 6px;
@@ -556,6 +587,13 @@
   .blk.small b,
   .blk.small small {
     display: inline;
+  }
+  .tlfold summary {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--ink-2);
   }
   .foot {
     margin: 0;
