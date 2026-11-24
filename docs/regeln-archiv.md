@@ -8,6 +8,13 @@ Stand vor der Aufräumrunde vom 24.11.2026 (Noah «bringe regeln … auf den neu
 - R12 (Noah 24.11.2026 01:17 «nur 5–6 aktive PRs», verbunden mit der 8er-Grenze durch Noah «1a» 24.11.2026 10:27): «Höchstens 8 offen, davon 5–6 gleichzeitig in der Prüfung. Der Rest wartet lokal gebaut.»
 - Ersetzt durch Noah 24.11.2026 16:38: höchstens 6 offen, Ziel 5.
 
+## Ersetzt am 24.11.2026 16:45 (Noah «1-5a», Bereinigung der Projekt-Anweisung)
+
+- Satz «zuerst nur Analyse und Entwurf, Produktcode erst nach Umsetzungsauftrag» aus Thema und Anweisung: gestrichen.
+- R1 «Jede Änderung dient einem der sechs Ziele in `docs/vorhaben.md` und dem Leitfaden»: jetzt nur noch Klarheit, Auffindbarkeit und Leitfaden. Gleiches in `CLAUDE.md` (Kurs-Check) und `docs/vorhaben.md` (Prüffragen).
+- R6 «Bei komplexen Dingen zuerst die Komplexität zeigen»: jetzt «einfach erklären, Komplexität nur wo für Noahs Entscheid wichtig».
+- R26 nannte nur «ICS-Token, Schlüssel»: jetzt ausdrücklich Bankname, IBAN, Konten, Beträge, Fotos, ICS-Token und «Entwürfe mit Echtdaten nie öffentlich».
+
 ## Alte Projekt-Anweisung: Alte Projekt-Anweisung (bis 24.11.2026)
 
 schritt für schritt denken. bei komplexen dingen mir komplxität aufzeigen. mir sinnvolle vorschläge zur umsetzung liefern. mir rückfragen zur präzisierung stellen wenn nötig.

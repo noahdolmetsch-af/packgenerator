@@ -14,7 +14,7 @@ Noah writes German and is not a developer. Write replies to him in simple German
 |---|---|
 | What does the app do? | `docs/app-stand.md` |
 | How do we work, what is allowed when? | `docs/regeln.md` |
-| Why does the app exist, which goals? | `docs/vorhaben.md` (six goals, Klarheit and Auffindbarkeit above them), `docs/leitfaden.md` (Noah's vision 23.11.2026; every change serves it) |
+| Why does the app exist, which goals? | `docs/vorhaben.md` (the planned projects; since 24.11.2026 the measure is only Klarheit and Auffindbarkeit plus the Leitfaden, not the six goals), `docs/leitfaden.md` (Noah's vision 23.11.2026; every change serves it) |
 | What is a thing called? | `docs/namen.md` |
 | What was decided, what was replaced? | `docs/decisions/<name>.md` (own file per PR), `docs/regeln-archiv.md` |
 
@@ -24,11 +24,11 @@ Noah writes German and is not a developer. Write replies to him in simple German
 - **Pages load later** (Tempo, 19.10.2026): only Heute (`Home.svelte`) is imported at the start. A new page goes into `PAGES` in `src/App.svelte` as `Name: () => import('./pages/Name.svelte')` and is shown with `<LazyPage load={PAGES.Name} />` (`src/lib/nav/lazy.js`). Big tools (PDF, text recognition, image models, video) load with `await import()` on first use. The build stops when a JS file passes 3 MB (`scripts/size-guard.mjs`, guard test `tests/size-guard.test.js`).
 - **Change everything yourself** (Noah, 19.10.2026 «alle daten können vom nutzer selber hinzugefügt, umbenannt oder gelöscht werden»): every kind of data the user sees can be added, renamed and deleted in the UI. **Delete (rule changed 24.11.2026, Noah «4a» on 23.11.2026 19:49, `docs/decisions/loeschen-rueckgaengig.md`):** what is quickly made again (an idea, a life phase, a weight, a place in a list, a photo) is deleted at once and offers Undo for 8 seconds (`UNDO_MS`, `offerDone`); things with a history (a question with answers, a group with contents, a bike, a tour) ask first in the app's own window (`askDelete`, never `confirm()`) and then offer Undo (`deleteWithUndo`). When unsure, ask. `confirm()` stays forbidden. Nothing is blocked because it is still used: the delete window asks where the dependent things go (e.g. a bike's trips, `src/lib/bikedelete.js`). App lists live in «Listen und Typen» (`STANDARD_LISTS` in `src/lib/standard.js`, applied in `src/lib/lists.js`). Open gaps: `notes/alles-bearbeiten/README.md` in the project folder.
 - **Content first** (Noah 21.11.2026 «5a»; user criterion R3 in `docs/regeln.md`): help never stands before the content of a page. A page starts with what the user came for. Help is one closed line («Was du hier tun kannst» opens the «?» window, Noah 22.11.2026 «so lassen – immer zugeklappt», and it stays) and «Alle Funktionen von …» at the page end (V7). No new card, tile field or hint line above the content; a hint line inside the content only on Heute. A new function's jump-off and «Gut zu wissen» go into these existing help places (a «Passt hier» row, the «?» window, the line at the page end), never as a new block on top. This loosens Fertig-Regel points (2) and (3): they are met by those places.
-- **Course check:** `docs/vorhaben.md` lists every planned project with its why and goals. Before starting, check it fits one of the six goals and the Leitfaden; if not, ask Noah (R1). Once a week, the Sunday brief carries a short course check with a/b questions.
+- **Course check:** `docs/vorhaben.md` lists every planned project with its why and goals. Before starting, check it serves Klarheit, Auffindbarkeit and the Leitfaden (R1, R2; the old «six goals» are no longer the measure, Noah 24.11.2026); if not, ask Noah. Once a week, the Sunday brief carries a short course check with a/b questions.
 
 ## Privacy (never break)
 
-- The repo is public. Never commit personal data: no Excel lists, backups, receipts, photos, GPX files, real bike specs, or anything from Noah's private folders.
+- The repo is public. Never commit personal data: no Excel lists, backups, receipts, photos, GPX files, real bike specs, or anything from Noah's private folders. Bank name, IBAN, accounts, amounts, photos and the ICS token never go into the repo, the chat or memory; drafts with real data are never made public.
 - Tests, fixtures and screenshots use fictional data only.
 - Health data is observation only. Do not name people, teams, studios or workshop staff.
 - Secrets (for example the Strava client secret, the ICS token) live only in the Vercel environment, never in the code, chat or files.

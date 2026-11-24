@@ -7,6 +7,7 @@ PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (R31) und «ich mö
 - `docs/regeln.md`: neue Regel R32. Antworten an Noah sind ab sofort ausführlicher (was passiert ist, warum, was es für ihn bedeutet, nächster Schritt); R4 verweist darauf.
 - `docs/regeln.md`: neue Regel R33. Jede Nachricht an Noah verlinkt den Thread, nennt das Thema in Worten, erklärt jede PR-Nummer in Worten und benennt den offenen Punkt.
 - `docs/regeln.md`: PR-Grenze gesenkt (R11.1, R12, R13): höchstens 6 PRs offen, Ziel 5 (Noah 24.11.2026 16:38). Die alte Fassung «höchstens 8» steht im Archiv.
+- Bereinigung der Projekt-Anweisung (Noah «1-5a»): R1, R6, R26, `CLAUDE.md` und `docs/vorhaben.md` (Prüffragen) angeglichen; die sechs Ziele sind kein Massstab mehr, der Leitfaden bleibt ganz.
 - `CLAUDE.md`: Verweis auf R31 im Abschnitt «Tests», und der Satz zur Antwortlänge am Anfang folgt R32.
 - `tests/regeln-doku.test.js`: die Regeln müssen lückenlos nummeriert sein, aber nicht mehr in der Reihenfolge der Datei.
 - Nur Doku und ein Doku-Test, nichts sichtbar in der App.

@@ -13,8 +13,9 @@ Der Abend-Rundgang (20:00) prüft, ob Projekt-Anweisung, Gedächtnis und diese D
 
 ## 1. Ziel und Massstab
 
-**R1 · Eine App, die mich im Alltag unterstützt.** Jede Änderung dient einem der sechs Ziele in `docs/vorhaben.md` und dem Leitfaden `docs/leitfaden.md`
-(Noah, 23.11.2026). Passt etwas nirgends, fragt der Thread Noah. Der Kurs-Check kommt einmal pro Woche im Sonntags-Brief.
+**R1 · Eine App, die mich im Alltag unterstützt.** Jede Änderung dient den zwei Zielen aus R2 und dem Leitfaden `docs/leitfaden.md`
+(Noah, 23.11.2026; Noah «1-5a» 24.11.2026 16:45: nur noch diese beiden als Massstab, die «sechs Ziele» aus `docs/vorhaben.md` nicht mehr; der Leitfaden bleibt ganz).
+Passt etwas nirgends, fragt der Thread Noah. Der Kurs-Check kommt einmal pro Woche im Sonntags-Brief.
 
 **R2 · Zwei Ziele darüber: Klarheit und Auffindbarkeit** (Noah, 23.11.2026 18:09 UTC). Man sieht sofort, wo man ist und was man hier tun kann
 (eine Hauptsache pro Bildschirm, sinnvolle Absprünge, nie stecken bleiben). Wichtiges liegt oben und ist mit wenigen Tipps erreichbar,
@@ -41,7 +42,7 @@ Fragt Noah, was offen ist: höchstens 3 Punkte.
 **R33 · Jede Nachricht sagt klar, wovon die Rede ist** (Noah 24.11.2026 16:31, zur Antwortlänge von R32). Eine Nachricht an Noah verlinkt den Thread, nennt das Thema in Worten, erklärt **jede PR-Nummer mit ihrer Bedeutung in Worten** (nicht «#1694», sondern «der Doku-PR 1694 mit den neuen Regeln R31 und R32») und benennt den offenen Punkt klar (was fehlt, wer es tut, was Noah tun muss, falls etwas). Nie nur Nummern oder Kürzel. Gilt für den Koordinator und alle Threads.
 
 **R6 · Fragen** (Noah 26.10.2026; Projekt-Anweisung). Höchstens 5 pro Runde, a/b ausgeschrieben, mit Empfehlung ★. Zuerst alles fragen, was man braucht, dann selbständig arbeiten
-und mit Lösungsvorschlägen zurückkommen. Bei komplexen Dingen zuerst die Komplexität zeigen (Projekt-Anweisung).
+und mit Lösungsvorschlägen zurückkommen. Einfach erklären; Komplexität nur zeigen, wo sie für Noahs Entscheid wichtig ist (Noah «1-5a» 24.11.2026 16:45).
 
 **R7 · Mockups nur für Grosses** (Noah 26.10.2026; neue Seite, neuer Ablauf wie die Live-Karte). Alles andere: bauen, dann Bilder.
 
@@ -117,7 +118,8 @@ mehrere rote Tests gleicher Breite = gemeinsame Ursache; PR-Zweige bleiben linea
 
 ## 6. Daten, Privatsphäre, Kosten
 
-**R26 · Privat** (Noah 04.10.2026 ff.): Das Repo ist öffentlich. Keine persönlichen Daten, keine echten Namen, keine Backups, Belege, Fotos, GPX, Excel-Listen, ICS-Token, Schlüssel.
+**R26 · Privat** (Noah 04.10.2026 ff.; ausdrücklich ergänzt «1-5a» 24.11.2026 16:45): Das Repo ist öffentlich. Keine persönlichen Daten, keine echten Namen, keine Backups, Belege, Fotos, GPX, Excel-Listen, Schlüssel.
+**Bankname, IBAN, Konten, Beträge, Fotos und ICS-Token stehen nie in Repo, Chat oder Gedächtnis.** Entwürfe mit Echtdaten (zum Beispiel Seiten oder Dokumente) werden nie öffentlich gemacht.
 Privates liegt nur in `/mnt/project-files/private/`. Tests und Bilder nutzen nur erfundene Daten. Gesundheitsdaten sind reine Beobachtung.
 
 **R27 · Gratis** (Noah 26.10.2026): null Kosten. Der KI-Schlüssel bleibt in Vercel (Noah, 23.11.2026).
