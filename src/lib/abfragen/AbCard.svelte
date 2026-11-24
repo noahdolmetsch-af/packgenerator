@@ -263,7 +263,7 @@
       <a class="ab-lnk" href="#/me/abfragen">{t('Adjust|questions')}</a>
       <a class="ab-lnk" href="#/me/history">{t('History under Data')}</a>
     </div>
-    <div class="ft">
+    <div class="ft vd-foot">
       <button type="button" class="btn" onclick={notToday} data-ab-today>{t('Not today|mask')}</button>
       <button type="button" class="btn" onclick={later} data-ab-later>{t('Later|mask')}</button>
       <button type="button" class="btn hi" onclick={save} disabled={!filled || saving} data-ab-save>{t('Save')}</button>
@@ -275,6 +275,7 @@
 <style>
   .abm {
     max-height: min(88vh, 900px);
+    max-height: min(88dvh, 900px);
     overflow-y: auto;
   }
   .ib {

@@ -119,6 +119,7 @@
     margin: 0;
     padding: 0;
     max-height: 65vh;
+    max-height: 65dvh;
     overflow-y: auto;
   }
   .fp-list li {
