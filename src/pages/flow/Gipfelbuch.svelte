@@ -10,10 +10,10 @@
    */
   import { liveQuery } from 'dexie';
   import { tick } from 'svelte';
-  import { Mountain, Star, ChevronRight, Plus } from '@lucide/svelte';
+  import { Mountain, Star, ChevronRight, Plus, Check } from '@lucide/svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
-  import CoreLine from '../../lib/ui/CoreLine.svelte';
+  import Seg from '../../lib/ui/Seg.svelte';
   import MainBar from '../../lib/ui/MainBar.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PlaceSheet from '../../lib/flow/PlaceSheet.svelte';
@@ -40,6 +40,11 @@
   let sel = $state(null);
   let sheet = $state(null); // { mode: 'new' | 'confirm' | 'edit' | 'visit', sugg?, place? }
   let undo = $state(null); // { text, book, lists? }
+  // «Liste · Karte · Sammlungen» like «Mein Tag» (Noah 24.11.2026 «1-5a»): the list is the page, the collections are their own view, the map its own page
+  let view = $state('list');
+  let foundOpen = $state(false);
+  const views = $derived([{ key: 'list', name: t('List|view') }, { key: 'map', name: t('Map') }, { key: 'colls', name: t('Collections') }]);
+  const setView = (k) => (k === 'map' ? (location.hash = '#/flow/gipfelbuch/karte') : (view = k));
 
   const groups = $derived(yearGroups(book, sport));
   const core = $derived(coreOf(book, year, sport));
@@ -132,29 +137,32 @@
 <div class="hob gb">
   <header class="ph">
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }]} here={t('Summit book')} />
-    <PageHead title={t('Summit book')} text={t('Passes, summits and trails of every sport. New places become milestones.')} />
-    {#if data && rows.length}<CoreLine parts={[{ v: core.places, label: tn(core.places, 'place', 'places') }, { v: core.fresh, label: t('new in {year}', { year }) }, core.top ? { v: m(core.top.ele), label: t('highest point {year}', { year }) } : null, core.hm ? { v: `${num(core.hm)} Hm`, label: t('climbed for them in {year}', { year }) } : null]} />{/if}
+    <PageHead title={t('Summit book')} text={t('Passes, summits and trails of every sport.')} />
   </header>
+  {#if data && rows.length}
+    <div class="tiles" data-core-line>
+      <div><b class="num">{core.places}</b><small>{tn(core.places, 'place', 'places')}, {t('{n} new', { n: core.fresh })}</small></div>
+      <div><b class="num">{core.top ? m(core.top.ele) : '–'}</b><small>{t('highest point {year}', { year })}</small></div>
+      <div><b class="num">{core.hm ? num(core.hm) : '–'}</b><small>{t('Hm climbed in {year}', { year })}</small></div>
+    </div>
+  {/if}
+  {#if data && rows.length}<div class="vw" data-gb-views><Seg label={t('View')} value={view} onchange={setView} options={views} /></div>{/if}
 
   {#if data}
-    {#if counts.length > 1}
+    {#if counts.length > 1 && view === 'list'}
       <nav class="chips" aria-label={t('Filter by sport')}>
         <button type="button" class="chip" aria-pressed={!sport} onclick={() => (sport = null)}>{t('All')} · {rows.length}</button>
         {#each counts as s (s.key)}<button type="button" class="chip" aria-pressed={sport === s.key} onclick={() => (sport = sport === s.key ? null : s.key)} data-gb-chip={s.key}>{t(s.name)} · {s.n}</button>{/each}
       </nav>
     {/if}
 
-    {#if next && (!sport || isVelo(sport))}
-      <a class="ms" href="#/flow/trophies?area=gipfelbuch" data-gb-next>
-        <span class="st" aria-hidden="true"><Star size={24} /></span>
-        <span class="tx"><b>{t('Next milestone: {n} passes by bike', { n: next.target })}</b><small class="num">{t('{left} more · {have} of {n}', { left: next.target - next.have, have: next.have, n: next.target })}</small><span class="bar" aria-hidden="true"><i style:width="{(next.have / next.target) * 100}%"></i></span></span>
-        <span class="go">{t('All milestones')}<ChevronRight size={16} aria-hidden="true" /></span>
-      </a>
-    {/if}
-
     {#if undo}<p class="undo" role="status">{undo.text} <button type="button" class="link" onclick={undoNow}>{t('Undo')}</button></p>{/if}
 
-    {#if sugg.length}
+    {#if sugg.length && view === 'list'}
+      {#if rows.length}
+        <button type="button" class="line" aria-expanded={foundOpen} onclick={() => (foundOpen = !foundOpen)} data-gb-found-line><i class="dot" aria-hidden="true"></i><span>{tn(sugg.length, '{n} suggestion from your rides', '{n} suggestions from your rides')}</span><em>{foundOpen ? t('Hide') : t('Look')} <ChevronRight size={16} aria-hidden="true" /></em></button>
+      {/if}
+      {#if foundOpen || !rows.length}
       <section class="gbc found" aria-labelledby="gb-found-h" data-gb-found>
         <h2 id="gb-found-h">{t('Found in your rides')}</h2>
         <p class="sub">{t('Passes and summits on your rides and tours, and the highest point of a ride. Confirm one with a tap, or put it away.')}</p>
@@ -174,13 +182,14 @@
         </ul>
         {#if sugg.length > 3}<p class="sub">{tn(sugg.length - 3, '{n} more after these', '{n} more after these')}</p>{/if}
       </section>
+      {/if}
     {/if}
 
     {#if !rows.length}
       <section data-gb-empty>
         <Empty icon={Mountain} level={2} title={t('Your summit book is still empty')} text={t('Passes and summits come from your rides by themselves. You can also enter a place by hand, for every sport.')} />
       </section>
-    {:else}
+    {:else if view === 'list'}
       <div class="lay">
         <div class="col">
           {#each groups as g, i (g.year)}
@@ -191,12 +200,15 @@
                   {@const st = starsOfPlace(book, r.place.id)}
                   <li>
                     <button type="button" class="row" class:on={sel === r.place.id} aria-pressed={sel === r.place.id} onclick={() => pick(r.place.id)} data-gb-place={r.place.name}>
-                      <span class="ic s-{r.place.sport}" aria-hidden="true"><Mountain size={16} /></span>
-                      <span class="t">
-                        <b>{r.place.name}{#if r.firstEver}<i class="gbp new">{t('new|gb')}</i>{/if}{#each st.filter((x) => x.day.startsWith(g.year)) as x (x.id)}<i class="gbp star">★ {starShort(x)}</i>{/each}</b>
-                        <small>{[sportName(r.place), dayWord(r.visit.day), r.firstEver && r.n === 1 ? t('first time') : t('{n}×', { n: r.n })].join(' · ')}</small>
+                      <span class="ic {isVelo(r.place.sport) ? 'pass' : 'top'}" aria-hidden="true">
+                        {#if isVelo(r.place.sport)}<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18c4-1 6-5 9-11 3 6 5 10 9 11" /></svg>{:else}<Mountain size={16} />{/if}
                       </span>
-                      <span class="h num">{m(r.place.ele)}</span>
+                      <span class="t">
+                        <b>{r.place.name}{#if r.firstEver}<i class="nd" aria-hidden="true"></i><span class="sr">{t('new|gb')}</span>{/if}{#each st.filter((x) => x.day.startsWith(g.year)) as x (x.id)}<i class="gbp star">★ {starShort(x)}</i>{/each}</b>
+                        <small>{[sportName(r.place), r.n > 1 ? t('{n}×', { n: r.n }) : '', r.n > 1 ? t('last on {day}', { day: dayWord(r.visit.day) }) : dayWord(r.visit.day)].filter(Boolean).join(' · ')}</small>
+                        {#if r.place.ele != null}<span class="hb" aria-hidden="true"><i style:width="{Math.min(100, (r.place.ele / 4000) * 100)}%"></i></span>{/if}
+                      </span>
+                      <span class="h"><b class="num">{m(r.place.ele)}</b><small>{t(PLACE_WORD[r.place.sport] ?? 'Place|gb')}</small></span>
                     </button>
                   </li>
                 {/each}
@@ -230,15 +242,18 @@
           </aside>
         {/if}
       </div>
+      {#if next && (!sport || isVelo(sport))}
+        <a class="line" href="#/flow/trophies?area=gipfelbuch" data-gb-next><i class="dot" aria-hidden="true"></i><span>{t('Next star: {n} passes by bike', { n: next.target })} · <span class="num">{t('{have} of {total}', { have: next.have, total: next.target })}</span></span><em>{t('Stars')} <ChevronRight size={16} aria-hidden="true" /></em></a>
+      {/if}
     {/if}
 
-    {#if colls.length || hiddenColls.length}
+    {#if (colls.length || hiddenColls.length) && (view === 'colls' || !rows.length)}
       <section class="gbc coll" aria-labelledby="gb-coll-h" data-gb-colls>
         <h2 id="gb-coll-h">{t('Collections')}</h2>
         <p class="sub">{t('Lists to collect. The book only counts how many you have, there is no goal.')} <a href="#/flow/gipfelbuch/karte" data-gb-map>{t('See them on the map')}</a></p>
         {#each colls as c (c.id)}
           <details class="cl" data-gb-coll={c.id}>
-            <summary><b>{c.own ? c.name : t(c.name)}</b><small class="num">{t('{have} of {total}', { have: c.have, total: c.total })}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+            <summary><span class="cn"><b>{c.own ? c.name : t(c.name)}</b>{#if c.total}<span class="hb" aria-hidden="true"><i style:width="{(c.have / c.total) * 100}%"></i></span>{/if}</span><small class="num">{t('{have} of {total}', { have: c.have, total: c.total })}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
             {#if c.hint}<p class="sub pad">{t(c.hint)}</p>{/if}
             {#if !c.total}<p class="sub pad">{t('No places in this list yet. Tap «Change list» to add some.')}</p>{/if}
             <ul class="cli">
@@ -246,7 +261,7 @@
                 <li>
                   {#if r.place}<a class="have" href="#/flow/gipfelbuch/{encodeURIComponent(r.place.id)}"><Star size={14} aria-hidden="true" />{r.it.name}</a>{:else}<span class="miss">{r.it.name}</span>{/if}
                   {#if r.it.m}<small class="num">{m(r.it.m)}</small>{/if}
-                  {#if !r.place}<button type="button" class="btn sm" onclick={() => wasThere(r.it)} data-gb-there>{t('I was there')}</button>{/if}
+                  {#if !r.place}<button type="button" class="tick" onclick={() => wasThere(r.it)} data-gb-there aria-label={t('I was there')} title={t('I was there')}><Check size={18} aria-hidden="true" /></button>{/if}
                 </li>
               {/each}
             </ul>
@@ -263,7 +278,7 @@
       </section>
     {/if}
 
-    {#if stars.length}<p class="sub foot">{tn(stars.length, '{n} star from the summit book, also in the trophy showcase', '{n} stars from the summit book, also in the trophy showcase')} · <a href="#/flow/trophies?area=gipfelbuch">{t('Trophy showcase')}</a> · <a href="#/flow/gipfelbuch/karte">{t('Map')}</a></p>{/if}
+    {#if stars.length && view === 'list'}<p class="sub foot">{tn(stars.length, '{n} star from the summit book, also in the trophy showcase', '{n} stars from the summit book, also in the trophy showcase')} · <a href="#/flow/trophies?area=gipfelbuch">{t('Trophy showcase')}</a> · <a href="#/flow/gipfelbuch/karte">{t('Map')}</a></p>{/if}
   {/if}
 </div>
 
@@ -336,53 +351,109 @@
     background: var(--hi);
     color: var(--hi-ink);
   }
-  .ms {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-2) var(--sp-3);
-    padding: var(--sp-3) var(--sp-4);
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-2);
+  }
+  .tiles div {
+    min-width: 0;
+    padding: var(--sp-3);
+    border: 1px solid var(--line);
     border-radius: 12px;
-    background: var(--warn-soft);
-    color: var(--ink);
-    text-decoration: none;
+    background: var(--paper);
   }
-  .ms .st {
-    color: var(--warn);
+  .tiles b {
+    display: block;
+    font: 600 var(--fs-sub) / 1.2 var(--font-body);
+    overflow-wrap: break-word;
   }
-  .ms .tx {
-    flex: 1 1 220px;
+  .tiles small {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    line-height: 1.3;
+  }
+  .vw {
     min-width: 0;
   }
-  .ms b {
-    display: block;
-    font-weight: 600;
+  .line {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    width: 100%;
+    min-height: 52px;
+    padding: var(--sp-2) var(--sp-4);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
   }
-  .ms small {
-    display: block;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
+  .line .dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 99px;
+    background: var(--warn);
   }
-  .bar {
+  .line span {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .line em {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    color: var(--accent);
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+    font-style: normal;
+  }
+  .hb {
     display: block;
-    height: 6px;
+    height: 4px;
     margin-top: 6px;
-    border-radius: 3px;
+    border-radius: 2px;
     background: var(--line);
     overflow: hidden;
   }
-  .bar i {
+  .hb i {
     display: block;
     height: 100%;
-    background: var(--warn);
+    border-radius: 2px;
+    background: var(--accent);
   }
-  .go {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-height: 44px;
-    font-size: var(--fs-small);
-    text-decoration: underline;
+  .nd {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 8px;
+    border-radius: 99px;
+    background: var(--accent);
+    vertical-align: 1px;
+  }
+  .cn {
+    display: block;
+    flex: 1;
+    min-width: 0;
+  }
+  .tick {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    border: 1px solid var(--line-strong);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink-2);
+    cursor: pointer;
   }
   .undo {
     margin: 0;
@@ -457,16 +528,13 @@
     background: var(--paper-2);
     color: var(--ink-2);
   }
-  .ic.s-bike,
-  .ic.s-gravel {
-    background: var(--info-soft);
-  }
-  .ic.s-hike {
+  .ic.pass {
     background: var(--ok-soft);
+    color: var(--ok);
   }
-  .ic.s-xc,
-  .ic.s-dh {
-    background: var(--hi-soft);
+  .ic.top {
+    background: var(--warn-soft);
+    color: var(--warn);
   }
   .lay {
     display: grid;
@@ -538,9 +606,16 @@
   }
   .h {
     flex: none;
-    color: var(--ink-2);
-    font-size: var(--fs-small);
+    text-align: right;
     white-space: nowrap;
+  }
+  .h b {
+    display: block;
+    font: 600 var(--fs-body) / 1.2 var(--font-body);
+  }
+  .h small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
   }
   .gbp {
     display: inline-block;
@@ -551,10 +626,6 @@
     font-style: normal;
     white-space: nowrap;
     vertical-align: 1px;
-  }
-  .gbp.new {
-    background: var(--hi-soft);
-    color: var(--badge-ink);
   }
   .gbp.star {
     background: var(--warn-soft);
@@ -659,7 +730,7 @@
     color: var(--ink-3);
     font-size: var(--fs-small);
   }
-  .cli li > :global(.btn) {
+  .cli .tick {
     margin-left: var(--sp-2);
   }
   .have {

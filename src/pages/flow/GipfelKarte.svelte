@@ -7,10 +7,10 @@
    * (read only when you ask). A tap on a dot shows it; nothing is a goal, nothing is written without a tap.
    */
   import { liveQuery } from 'dexie';
-  import { Mountain, MapPin } from '@lucide/svelte';
+  import { Mountain, MapPin, Check } from '@lucide/svelte';
   import PageHead from '../../lib/ui/PageHead.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
-  import CoreLine from '../../lib/ui/CoreLine.svelte';
+  import Seg from '../../lib/ui/Seg.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PlaceSheet from '../../lib/flow/PlaceSheet.svelte';
   import HomePlaceSheet from '../../lib/ich/HomePlaceSheet.svelte';
@@ -44,7 +44,10 @@
   });
 
   let filter = $state('all');
-  let view = $state('ch');
+  // «Um dich» (Noah 24.11.2026 «1-5a»): with a home place the map starts on its surroundings
+  let viewSel = $state(null);
+  const view = $derived(viewSel ?? (home ? 'near' : 'ch'));
+  const views = $derived([...(home ? [{ key: 'near', name: t('Around you') }] : []), { key: 'ch', name: t('Switzerland') }, { key: 'alps', name: t('Alps') }]);
   let sel = $state(null);
   let sheet = $state(null); // { sugg }
   let homeOpen = $state(false);
@@ -66,6 +69,8 @@
   const picked = $derived(rows.find((r) => r.id === sel) ?? null);
   const points = $derived(rows.map((r) => ({ id: r.id, lat: r.it.lat, lon: r.it.lon, st: r.st === 'have' ? 'year' : r.st === 'near' ? 'old' : '' })));
   const km = (v) => (v == null ? '' : v < 10 ? `${num(Math.round(v * 10) / 10)} km` : `${num(Math.round(v))} km`);
+  const kmNum = (v) => (v == null ? '' : v < 10 ? num(Math.round(v * 10) / 10) : num(Math.round(v)));
+  const openNear = $derived(gaps.filter((g) => g.km != null).length);
   const m = (v) => (v == null ? '' : `${num(v)} m`);
 
   async function askTours(r) {
@@ -97,16 +102,18 @@
 
 {#snippet card(r)}
   <li class="gkrow" data-gk-row={r.id}>
+    {#if r.km != null}<span class="dist" aria-hidden="true"><b class="num">{kmNum(r.km)}</b><small>km</small></span>{/if}
     <div class="who">
       <b>{r.it.name}</b>
-      <small>{[r.it.kind === 'pass' ? t('Pass') : t('Summit'), m(r.it.m), r.km != null ? t('{km} as the crow flies', { km: km(r.km) }) : ''].filter(Boolean).join(' · ')}</small>
+      <small>{[r.it.kind === 'pass' ? t('Pass') : t('Summit'), m(r.it.m)].filter(Boolean).join(' · ')}</small>
+      {#if r.km != null}<span class="sr">{t('{km} as the crow flies', { km: km(r.km) })}</span>{/if}
     </div>
     <div class="acts">
       {#if r.place}
-        <a class="btn sm" href="#/flow/gipfelbuch/{encodeURIComponent(r.place.id)}">{t('Open the page of this place')}</a>
+        <a class="go" href="#/flow/gipfelbuch/{encodeURIComponent(r.place.id)}">{t('Open the page of this place')}</a>
       {:else}
-        <button type="button" class="btn sm" disabled={busy === r.id} onclick={() => askTours(r)} data-gk-tours>{t('Tours toward it')}</button>
-        <button type="button" class="btn sm" onclick={() => wasThere(r)} data-gk-there>{t('I was there')}</button>
+        <button type="button" class="go" disabled={busy === r.id} onclick={() => askTours(r)} data-gk-tours aria-label={t('Tours toward it')}>{t('Tours')} ›</button>
+        <button type="button" class="tick" onclick={() => wasThere(r)} data-gk-there aria-label={t('I was there')} title={t('I was there')}><Check size={18} aria-hidden="true" /></button>
       {/if}
     </div>
     {#if tours[r.id]}
@@ -124,8 +131,7 @@
 <div class="hob gk">
   <header class="ph">
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/flow/gipfelbuch', label: t('Summit book') }]} here={t('Map')} />
-    <PageHead title={t('Map of summits and passes')} text={t('Where you have been and what is still open near you.')} />
-    {#if catalog.length}<CoreLine parts={[{ v: map.have, label: t('on the map: yours') }, { v: gaps.filter((g) => g.km != null).length || null, label: home ? t('open near you') : '' }]} />{/if}
+    <PageHead title={t('Summit map')} text={!catalog.length ? '' : home ? t('{have} you have · {open} open near you', { have: map.have, open: openNear }) : t('{have} you have', { have: map.have })} />
   </header>
 
   {#if data}
@@ -142,12 +148,11 @@
     {:else}
       <div class="lay">
         <div class="mapbox">
-          <NeulandMap {view} {points} {bg} title={t('Map of summits and passes')} onpick={(id) => (sel = id)} />
+          <NeulandMap {view} {points} {bg} big center={home ? { lat: Number(home.lat), lon: Number(home.lon) } : null} title={t('Summit map')} onpick={(id) => (sel = id)} />
+          <div class="vsw" data-gk-view><Seg small full={false} label={t('Map section')} value={view} onchange={(v) => (viewSel = v)} options={views} /></div>
           <p class="legend" data-gk-legend>
-            <span class="k have" aria-hidden="true"></span>{t('you have it')}
-            <span class="k near" aria-hidden="true"></span>{t('near you, not yet')}
-            <span class="k far" aria-hidden="true"></span>{t('other places')}
-            <button type="button" class="link" onclick={() => (view = view === 'ch' ? 'alps' : 'ch')} data-gk-view>{view === 'ch' ? t('Show the Alps') : t('Show Switzerland')}</button>
+            <span class="mk"><span class="k have" aria-hidden="true"></span>{t('you have it')}</span>
+            <span class="mk"><span class="k near" aria-hidden="true"></span>{t('open, near you')}</span>
           </p>
         </div>
         <div class="side">
@@ -256,34 +261,48 @@
     }
   }
   .mapbox {
+    position: relative;
     min-width: 0;
   }
+  .vsw {
+    position: absolute;
+    top: var(--sp-2);
+    right: var(--sp-2);
+    max-width: calc(100% - 16px);
+  }
   .legend {
+    position: absolute;
+    bottom: var(--sp-2);
+    left: var(--sp-2);
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: var(--sp-1) var(--sp-3);
-    margin: var(--sp-2) 0 0;
-    color: var(--ink-2);
+    gap: var(--sp-1) var(--sp-2);
+    margin: 0;
     font-size: var(--fs-small);
+  }
+  .mk {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink-2);
   }
   .k {
     display: inline-block;
     width: 12px;
     height: 12px;
-    margin-right: -6px;
     border-radius: 99px;
+    box-sizing: border-box;
   }
   .k.have {
     background: var(--accent);
   }
   .k.near {
-    background: var(--accent);
-    opacity: 0.55;
-  }
-  .k.far {
-    background: var(--ink-3);
-    opacity: 0.55;
+    border: 2px solid var(--accent);
+    background: var(--paper);
   }
   .side {
     display: flex;
@@ -313,8 +332,21 @@
   .gkrow:first-child {
     border-top: 0;
   }
+  .dist {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    align-items: center;
+    width: 40px;
+    color: var(--accent);
+    line-height: 1.2;
+  }
+  .dist small {
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+  }
   .who {
-    flex: 1 1 160px;
+    flex: 1 1 120px;
     min-width: 0;
   }
   .who b {
@@ -328,8 +360,29 @@
   }
   .acts {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     gap: var(--sp-2);
+  }
+  .go {
+    min-height: 44px;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .tick {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--line-strong);
+    border-radius: 99px;
+    background: var(--paper);
+    color: var(--ink-2);
+    cursor: pointer;
   }
   .tl {
     flex: 1 1 100%;

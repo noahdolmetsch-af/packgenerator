@@ -1,5 +1,18 @@
 // v0.165.0 «Gipfelbuch für alle» (Noah 15.10.2026 «1a 2a 3a 4a … 5b»): Aktiv › Gipfelbuch, its sheet, its stars in the showcase
 export default {
+  'Passes, summits and trails of every sport.': 'Pässe, Gipfel und Trails aus allen Sportarten.',
+  'Hm climbed in {year}': 'Hm geklettert {year}',
+  '{n} suggestion from your rides': '{n} Vorschlag aus deinen Fahrten',
+  '{n} suggestions from your rides': '{n} Vorschläge aus deinen Fahrten',
+  'Next star: {n} passes by bike': 'Nächster Stern: {n} Pässe mit dem Velo',
+  'last on {day}': 'zuletzt {day}',
+  'Summit map': 'Gipfel-Karte',
+  'Around you': 'Um dich',
+  'Alps': 'Alpen',
+  'Map section': 'Kartenausschnitt',
+  '{have} you have · {open} open near you': '{have} hast du · {open} offen in deiner Nähe',
+  '{have} you have': '{have} hast du',
+  'open, near you': 'offen, nah',
   'Summit book': 'Gipfelbuch',
   'Passes, summits and trails of every sport': 'Pässe, Gipfel und Trails aus allen Sportarten',
   'Passes, summits and trails of every sport. New places become milestones.': 'Pässe, Gipfel und Trails aus allen Sportarten. Neue Orte werden zu Meilensteinen.',

@@ -29,6 +29,14 @@ PR #<Nummer> · 24.11.2026 · Auftrag: Noah «alle 1-5 zusammen» (Thread «Gipf
 
 ## Prüfschritte (nach dem Merge auf der echten Seite)
 1. Gipfelbuch öffnen, einen Ort antippen, «Seite dieses Ortes öffnen» tippen.
-2. Bei einem Besuch «Notiz dazu»: ein paar Worte schreiben, speichern, Seite neu laden: die Notiz steht noch da.
-3. Bei einem Besuch «Foto hinzufügen»: ein Bild wählen; das Kreuz nimmt es weg, «Rückgängig» holt es zurück.
+2. Bei einem Besuch «Notiz»: ein paar Worte schreiben, speichern, Seite neu laden: die Notiz steht noch da.
+3. Bei einem Besuch «Foto»: ein Bild wählen; das Kreuz nimmt es weg, «Rückgängig» holt es zurück.
 4. Sammel-Wand › «Zuletzt dazugekommen»: ein Ort öffnet seine eigene Seite.
+
+## Design nach der impeccable-Prüfung (Noah 24.11.2026 07:37 UTC «1-5a», Frage 4a)
+Alle vier Verbesserungen kommen in diesen einen Gipfelbuch-PR (`docs/decisions/gipfelbuch-design.md`):
+- Übersicht: Zahl-Kacheln, Schalter «Liste · Karte · Sammlungen», Vorschläge und nächster Stern je eine Zeile; die Zeilen zeigen Pass/Gipfel, «neu» als Punkt und einen Höhenbalken.
+- Ort-Seite: Kopfbild, Kacheln, Besuche als Zeitleiste, «Notiz · Foto · Wetter» als leise Zeile, «⋯» für «Besuch entfernen».
+- Karte: startet «Um dich», grosse Punkte, pro Ort «Touren ›» und ein runder Haken «Ich war da».
+- Was rutscht tiefer: «Gefunden in deinen Fahrten» ist eine Zeile mit «Ansehen» (bei leerem Buch offen); die Meilenstein-Karte ist eine schmale Zeile unter der Liste; die Sammlungen sind eine eigene Ansicht; «Besuch entfernen» steht hinter «⋯».
+- Selbst entschieden: Die Erklärsätze in den Sammlungen bleiben (nur in der eigenen Ansicht); der Höhenbalken misst gegen 4000 m; die Silhouette der Ort-Seite ist ein Bild aus der App (später das erste eigene Foto).

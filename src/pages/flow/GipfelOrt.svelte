@@ -7,10 +7,8 @@
    * of a day without Strava values comes on a tap (Open-Meteo, needs a place with coordinates).
    */
   import { liveQuery } from 'dexie';
-  import { Mountain, Star, Camera, X } from '@lucide/svelte';
-  import PageHead from '../../lib/ui/PageHead.svelte';
+  import { Mountain, Star, Camera, X, Pencil, Sun, Ellipsis } from '@lucide/svelte';
   import Empty from '../../lib/ui/Empty.svelte';
-  import CoreLine from '../../lib/ui/CoreLine.svelte';
   import MainBar from '../../lib/ui/MainBar.svelte';
   import Crumb from '../../lib/flow/kit/Crumb.svelte';
   import PlaceSheet from '../../lib/flow/PlaceSheet.svelte';
@@ -61,6 +59,7 @@
 
   const dayLong = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '');
   const m = (v) => (v == null ? '–' : `${num(v)} m`);
+  const dayShort = (day) => (day ? new Date(`${day}T12:00:00Z`).toLocaleDateString(locale(), { day: 'numeric', month: 'numeric', year: '2-digit', timeZone: 'UTC' }) : '–');
   const sportName = (p) => (p.sport === 'other' && p.label ? p.label : t(sportOf(p.sport).name));
   const starText = (s) => (s.kind === 'pass2000' ? t('First pass over 2000 m') : s.kind === 'passes' ? t('{n} passes by bike', { n: s.n }) : s.kind === 'top' ? t('Highest point {year}', { year: s.year }) : t('5 new places in {year}', { year: s.year }));
   const where = (f) => (f.source === 'strava' ? t('Strava ride') : f.source === 'gpx' ? t('Ride from a file') : t('Entered by hand'));
@@ -130,10 +129,24 @@
   <header class="ph">
     <Crumb path={[{ href: '#/auswerten', label: t('Analysis|place') }, { href: '#/flow/gipfelbuch', label: t('Summit book') }]} here={place?.name ?? t('Summit book')} />
     {#if place}
-      <PageHead title={place.name} text={[sportName(place), t(PLACE_WORD[place.sport] ?? 'Place|gb'), place.ele != null ? m(place.ele) : ''].filter(Boolean).join(' · ')} />
-      {#if row}<CoreLine parts={[{ v: row.n, label: tn(row.n, 'visit', 'visits') }, { v: dayLong(row.first), label: t('first time') }, fast ? { v: clock(fast.s), label: t('fastest time up') } : null]} />{/if}
+      <div class="hero" data-gp-hero>
+        <svg class="sil" viewBox="0 0 390 120" preserveAspectRatio="none" aria-hidden="true">
+          <path class="far" d="M0 120V70l50-24 45 28 60-52 70 62 45-30 60 40 60-32V120Z" />
+          <path class="near" d="M0 120V92l70-30 55 34 65-50 70 56 60-34 70 28V120Z" />
+        </svg>
+        <small>{[sportName(place), t(PLACE_WORD[place.sport] ?? 'Place|gb')].join(' · ')}</small>
+        <h1>{place.name}</h1>
+        {#if place.ele != null}<span class="ele num">{m(place.ele)}</span>{/if}
+      </div>
+      {#if row}
+        <div class="tiles" data-core-line>
+          <div><b class="num">{row.n}</b><small>{tn(row.n, 'visit', 'visits')}</small></div>
+          <div><b class="num">{dayShort(row.first)}</b><small>{t('first time')}</small></div>
+          <div><b class="num">{fast ? clock(fast.s) : '–'}</b><small>{t('fastest time up')}</small></div>
+        </div>
+      {/if}
     {:else}
-      <PageHead title={t('Summit book')} text="" />
+      <h1 class="plain">{t('Summit book')}</h1>
     {/if}
   </header>
 
@@ -153,17 +166,18 @@
       <section class="gpc" aria-labelledby="gp-vis-h">
         <h2 id="gp-vis-h">{t('Visits')}</h2>
         <ul class="vis">
-          {#each visits as { v, f } (v.id)}
+          {#each visits as { v, f }, i (v.id)}
             {@const own = fotos[v.id] ?? []}
-            <li data-gp-visit={v.id}>
+            <li data-gp-visit={v.id} class:first={i === visits.length - 1}>
+              <span class="pt" aria-hidden="true"></span>
               <div class="top">
                 <b>{dayLong(v.day)}</b>
                 <small>{[where(f), f.title ? `«${f.title}»` : '', v.hm != null ? `${num(v.hm)} Hm` : ''].filter(Boolean).join(' · ')}</small>
               </div>
               {#if temp(v, f) || f.up}
                 <p class="facts">
-                  {#if temp(v, f)}<span data-gp-wx>{temp(v, f)}</span>{/if}
-                  {#if f.up}<span data-gp-up class:best={fast?.visitId === v.id}>{t('Time up')} <b class="num">{clock(f.up.s)}</b>{fast?.visitId === v.id && visits.length > 1 ? ` · ${t('fastest')}` : ''}</span>{/if}
+                  {#if temp(v, f)}<span class="mark" data-gp-wx>{temp(v, f)}</span>{/if}
+                  {#if f.up}<span class="mark" data-gp-up class:best={fast?.visitId === v.id}>{fast?.visitId === v.id && visits.length > 1 ? '★ ' : ''}{t('Time up')} <b class="num">{clock(f.up.s)}</b>{fast?.visitId === v.id && visits.length > 1 ? ` · ${t('fastest')}` : ''}</span>{/if}
                 </p>
               {/if}
               {#if f.photos.length || own.length}
@@ -183,10 +197,15 @@
                 <p class="note" data-gp-note>{v.note}</p>
               {/if}
               <div class="acts">
-                <button type="button" class="btn sm" onclick={() => openNote(v)} data-gp-note-open>{v.note ? t('Change note') : t('Add a note')}</button>
-                {#if own.length < 3}<label class="btn sm cam"><Camera size={16} aria-hidden="true" />{t('Add a photo')}<input type="file" accept="image/*" onchange={(e) => pickPhoto(v, e)} hidden data-gp-photo /></label>{/if}
-                {#if canWx(v, f)}<button type="button" class="btn sm" disabled={busy === v.id} onclick={() => getWx(v)} data-gp-getwx>{t('Get the weather of that day')}</button>{/if}
-                {#if visits.length > 1}<button type="button" class="link" onclick={() => dropVisit(v)}>{t('Remove this visit')}</button>{/if}
+                <button type="button" class="qa" onclick={() => openNote(v)} data-gp-note-open><Pencil size={16} aria-hidden="true" />{v.note ? t('Change note') : t('Note')}</button>
+                {#if own.length < 3}<label class="qa"><Camera size={16} aria-hidden="true" />{t('Photo')}<input type="file" accept="image/*" onchange={(e) => pickPhoto(v, e)} hidden data-gp-photo /></label>{/if}
+                {#if canWx(v, f)}<button type="button" class="qa" disabled={busy === v.id} onclick={() => getWx(v)} data-gp-getwx title={t('Get the weather of that day')}><Sun size={16} aria-hidden="true" />{t('Weather')}</button>{/if}
+                {#if visits.length > 1}
+                  <details class="more">
+                    <summary aria-label={t('More')}><Ellipsis size={18} aria-hidden="true" /></summary>
+                    <button type="button" class="link" onclick={() => dropVisit(v)} data-gp-drop>{t('Remove this visit')}</button>
+                  </details>
+                {/if}
               </div>
             </li>
           {/each}
@@ -223,13 +242,82 @@
     margin: 0 auto;
     min-width: 0;
   }
-  .hob :global(.pagehead) {
-    margin: 0;
-  }
   .ph {
     display: flex;
     flex-direction: column;
-    gap: var(--sp-1);
+    gap: var(--sp-3);
+  }
+  .hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-height: 150px;
+    padding: var(--sp-4);
+    border-radius: 16px;
+    background: var(--ok-soft);
+    overflow: hidden;
+  }
+  .hero > :not(.sil) {
+    position: relative;
+  }
+  .hero small {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+  .hero h1,
+  .plain {
+    margin: 0;
+    font: 700 var(--fs-page) / 1.15 var(--font-title);
+    overflow-wrap: break-word;
+  }
+  .ele {
+    margin-top: var(--sp-2);
+    padding: 2px 12px;
+    border-radius: 99px;
+    background: var(--paper);
+    font-weight: 600;
+  }
+  .sil {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+  }
+  .sil .far {
+    fill: var(--accent);
+    opacity: 0.18;
+  }
+  .sil .near {
+    fill: var(--accent);
+    opacity: 0.3;
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-2);
+  }
+  .tiles div {
+    min-width: 0;
+    padding: var(--sp-3);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+  }
+  .tiles b {
+    display: block;
+    font: 600 var(--fs-sub) / 1.2 var(--font-body);
+    overflow-wrap: break-word;
+  }
+  .tiles small {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink-3);
+    font-size: var(--fs-tiny);
+    line-height: 1.3;
   }
   h2 {
     margin: 0;
@@ -246,15 +334,41 @@
     padding: 0;
     list-style: none;
   }
+  .vis {
+    margin-top: var(--sp-3);
+  }
   .vis li {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--sp-2);
-    padding: var(--sp-3) 0;
-    border-top: 1px solid var(--line);
+    padding: 0 0 var(--sp-4) var(--sp-5);
   }
-  .vis li:first-child {
-    margin-top: var(--sp-2);
+  .vis li::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    bottom: -2px;
+    left: 5px;
+    width: 2px;
+    background: var(--line);
+  }
+  .vis li:last-child::before {
+    display: none;
+  }
+  .pt {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    box-sizing: border-box;
+    border: 2px solid var(--accent);
+    border-radius: 99px;
+    background: var(--paper);
+  }
+  .vis li.first .pt {
+    background: var(--accent);
   }
   .top b {
     display: block;
@@ -274,8 +388,49 @@
     color: var(--ink-2);
     font-size: var(--fs-small);
   }
-  .facts .best {
+  .mark {
+    padding: 2px 10px;
+    border-radius: 8px;
+    background: var(--paper-2);
+  }
+  .mark.best {
+    background: var(--warn-soft);
     color: var(--warn);
+  }
+  .qa {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 10px 0 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: 600 var(--fs-small) / 1.3 var(--font-body);
+    cursor: pointer;
+  }
+  .more {
+    position: relative;
+    margin-left: auto;
+  }
+  .more summary {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 99px;
+    color: var(--ink-2);
+    list-style: none;
+    cursor: pointer;
+  }
+  .more summary::-webkit-details-marker {
+    display: none;
+  }
+  .more[open] {
+    flex: 1 1 100%;
+  }
+  .more[open] summary {
+    margin-left: auto;
   }
   .pics {
     display: flex;
@@ -310,6 +465,7 @@
   .note {
     margin: 0;
     color: var(--ink-2);
+    font-style: italic;
     overflow-wrap: break-word;
     white-space: pre-wrap;
   }
@@ -326,12 +482,6 @@
   }
   .acts.end {
     margin: 0;
-  }
-  .cam {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
   }
   .stars {
     display: flex;

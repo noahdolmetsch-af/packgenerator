@@ -7,17 +7,20 @@
    * st: 'year' (new in the chosen year), 'old' (reached before), '' (not yet); bg: { cantons, countries,
    * lakes } background shapes; labels: [{ lon, lat, text, st }]; lines: [[[lat, lon], …], …];
    * onpick(id): a tap on an area or a dot. The list below the map does the same for the keyboard.
+   * Summit book map (Noah 24.11.2026 «1-5a»): view 'near' shows the surroundings of `center` {lat, lon}, and `big` draws
+   * big dots: yours filled, the open ones near you as rings, the rest pale.
    */
   import { t } from '../i18n.svelte.js';
 
-  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null } = $props();
+  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false } = $props();
 
   const S = 100; // 1° = 100 units
   const BOX = { ch: [5.9, 45.78, 10.55, 47.84, 46.8], alps: [5.4, 43.85, 14.4, 48.0, 46.2], europe: [-11, 35, 33, 66, 50] };
 
   // the box: the view's own, widened for countries reached outside Europe
   const box = $derived.by(() => {
-    const b = [...BOX[view]];
+    if (view === 'near' && center) return [center.lon - 1.0, center.lat - 0.62, center.lon + 1.0, center.lat + 0.62, center.lat];
+    const b = [...BOX[view === 'near' ? 'ch' : view]];
     if (view === 'europe') {
       for (const a of areas) {
         if (!a.st || !a.bbox) continue;
@@ -71,14 +74,14 @@
 
 <!-- the list under the map is the way for the keyboard and the screen reader; the map is a picture with taps -->
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-<svg class="nmap {view}" viewBox={vb} role="img" aria-label={title || t('Map')} onclick={pick} preserveAspectRatio="xMidYMid meet">
+<svg class="nmap {view}" class:big viewBox={vb} role="img" aria-label={title || t('Map')} onclick={pick} preserveAspectRatio="xMidYMid meet">
   {#each bgCountries as c (c.id)}<path class="bgc" d={c.d} />{/each}
   {#each bgCantons as c (c.id)}<path class="bgk" d={c.d} />{/each}
   {#each shapes as a (a.id)}<path class="area {a.st || 'no'}" data-id={a.id} d={a.d} />{/each}
   {#each bgLakes as l (l.id)}<path class="lake" d={l.d} />{/each}
   {#each routes as r, i (i)}<polyline class="route" points={r} />{/each}
   {#each dots as p (p.id)}
-    <circle class="dot {p.st || 'no'}" data-id={p.id} cx={p.xy[0]} cy={p.xy[1]} r={p.st ? unit * 1.1 : unit * 0.75} />
+    <circle class="dot {p.st || 'no'}" data-id={p.id} cx={p.xy[0]} cy={p.xy[1]} r={big ? (p.st === 'year' ? unit * 2.4 : p.st === 'old' ? unit * 2.1 : unit * 1.1) : p.st ? unit * 1.1 : unit * 0.75} />
   {/each}
   {#each labels as l (l.text)}
     {@const [x, y] = xy(l.lon, l.lat)}
@@ -164,6 +167,16 @@
   }
   .dot.year {
     fill: var(--accent);
+  }
+  .big .dot.old {
+    fill: var(--paper);
+    fill-opacity: 1;
+    stroke: var(--accent);
+    stroke-width: 2.5;
+  }
+  .big .dot.no {
+    fill-opacity: 0.35;
+    stroke: none;
   }
   .nl-lbl {
     fill: var(--ink-2);

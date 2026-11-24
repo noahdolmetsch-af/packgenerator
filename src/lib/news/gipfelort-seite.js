@@ -10,8 +10,8 @@ export default {
   test: [
     'Open the summit book and tap a place.',
     'Tap «Open the page of this place»: the visits stand there, newest first.',
-    'Tap «Add a note» on a visit, type a few words and save; they stay after you leave the page.',
-    'Tap «Add a photo» and pick a picture; the small cross takes it away again.',
+    'Tap «Note» on a visit, type a few words and save; they stay after you leave the page.',
+    'Tap «Photo» and pick a picture; the small cross takes it away again.',
   ],
   since: [],
   de: {
@@ -23,7 +23,7 @@ export default {
     'Shows after you have a place in the summit book: tap it under «Added lately».': 'Erscheint, sobald du einen Ort im Gipfelbuch hast: tippe ihn unter «Zuletzt dazugekommen» an.',
     'Open the summit book and tap a place.': 'Öffne das Gipfelbuch und tippe einen Ort an.',
     'Tap «Open the page of this place»: the visits stand there, newest first.': 'Tippe auf «Seite dieses Ortes öffnen»: die Besuche stehen dort, die neuesten zuerst.',
-    'Tap «Add a note» on a visit, type a few words and save; they stay after you leave the page.': 'Tippe bei einem Besuch auf «Notiz dazu», schreibe ein paar Worte und speichere; sie bleiben, auch wenn du die Seite verlässt.',
-    'Tap «Add a photo» and pick a picture; the small cross takes it away again.': 'Tippe auf «Foto hinzufügen» und wähle ein Bild; das kleine Kreuz nimmt es wieder weg.',
+    'Tap «Note» on a visit, type a few words and save; they stay after you leave the page.': 'Tippe bei einem Besuch auf «Notiz», schreibe ein paar Worte und speichere; sie bleiben, auch wenn du die Seite verlässt.',
+    'Tap «Photo» and pick a picture; the small cross takes it away again.': 'Tippe auf «Foto» und wähle ein Bild; das kleine Kreuz nimmt es wieder weg.',
   },
 };

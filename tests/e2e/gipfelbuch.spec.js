@@ -196,6 +196,8 @@ test('Gipfelbuch: a pass found on a ride by name, a collection counts it, an own
   await expect(main.locator('[data-gb-place="Furkapass"]')).toBeVisible();
   await expect(main.locator('.undo')).toContainText('Furkapass');
 
+  // the collections are their own view of the book, next to the list and the map
+  await main.locator('[data-gb-views] [data-key="colls"]').click();
   // the collection counts it, without a goal
   const coll = main.locator('[data-gb-coll="paesse2000"]');
   await coll.locator('summary').click();
@@ -231,9 +233,9 @@ test('Gipfelbuch: the map with the gaps near home and a tour toward one', async 
   await put(page, { settings: [{ key: 'homePlace', value: { name: 'Testort Zürich', lat: 47.3779, lon: 8.5403 } }] });
   await page.goto('./#/flow/gipfelbuch/karte');
   const main = page.locator('main');
-  await expect(main.getByRole('heading', { level: 1 })).toHaveText(T('Map of summits and passes'));
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText(T('Summit map'));
   await expect(main.locator('svg.nmap circle.dot').first()).toBeVisible();
-  await expect(main.locator('[data-gk-legend]')).toContainText(T('near you, not yet'));
+  await expect(main.locator('[data-gk-legend]')).toContainText(T('open, near you'));
   await fits(page, 'map');
 
   // the nearest gap from Zürich is the Üetliberg; a tour of the suggestions leads over it
