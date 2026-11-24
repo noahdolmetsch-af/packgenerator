@@ -32,10 +32,12 @@ test('Unterwegs: the profile of the stage has steepness colours and shows km, he
     const b = await prof.boundingBox();
     if (info.project.name === 'phone') await page.touchscreen.tap(b.x + b.width * 0.5, b.y + b.height * 0.5);
     else await page.mouse.click(b.x + b.width * 0.5, b.y + b.height * 0.5);
+    // (the readout can fall back to the whole-stage summary when the page redraws under a slow runner:
+    // so the tap is repeated until km, steepness and % are all there at once)
     await expect(at).toContainText('km', { timeout: 2000 });
-  }).toPass({ timeout: 20_000 });
-  await expect(at).toContainText(T('Gradient'));
-  await expect(at).toContainText('%');
+    await expect(at).toContainText(T('Gradient'), { timeout: 2000 });
+    await expect(at).toContainText('%', { timeout: 2000 });
+  }).toPass({ timeout: 30_000 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(1);
   expect(errors).toEqual([]);
 });
