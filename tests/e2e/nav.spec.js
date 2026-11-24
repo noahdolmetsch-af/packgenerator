@@ -140,7 +140,7 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
     await expect(page.locator('.trip-band nav a[aria-current="page"]')).toContainText(T(step === 'Pack|stage' ? BAR.pack : BAR.plan));
     if (step === 'Pack|stage') await expect(page.locator('.pd')).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ sooner' }));
     // v0.67.0: the trip's steps are the StepBar (nav.stepbar), not a place
-    await expect(page.locator('nav[aria-label]:not(.steps):not(.stepbar) a[aria-current="page"]').filter({ visible: true })).toHaveText(T('Trips|place'));
+    await expect.poll(() => nameOf(page.locator('nav[aria-label]:not(.steps):not(.stepbar) a[aria-current="page"]').filter({ visible: true }))).toEqual([T('Trips|place')]); // «Ruhige Punkte»: the dot of a tour to pack is not part of the name
     expect(await page.evaluate(() => localStorage.getItem('pack.currentTrip'))).toBe('test_data_gtp_sooner');
   });
 }
