@@ -56,6 +56,12 @@ describe('typos and similar words', () => {
     expect(titles(r)).toContain(`${P} Hardshell jacket`);
     expect(r.also).toContain('hardshell');
   });
+  it('a row only a similar word found is a weak hit, a row the typed word found is not', () => {
+    const rows = smartSearch('regenjacke', data).groups.flatMap((g) => g.rows);
+    expect(rows.find((x) => x.title === `${P} Hardshell jacket`)?.weak).toBe(true);
+    const own = smartSearch('hardshell', data).groups.flatMap((g) => g.rows);
+    expect(own.find((x) => x.title === `${P} Hardshell jacket`)?.weak).toBeFalsy();
+  });
   it('a typo finds the right thing', () => {
     const r = smartSearch('schlafsak', data);
     expect(titles(r)).toContain(`${P} Sleeping bag`);

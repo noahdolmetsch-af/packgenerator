@@ -77,6 +77,13 @@
       </ul>
     {/if}
   </section>
+  <section class="card su-card" aria-labelledby="su-learn">
+    <!-- «Die Suche lernt von dir» (Noah 24.11.2026 «1-4a»): only on this device, never in the backup -->
+    <h2 id="su-learn">{t('Learn|search')}</h2>
+    <ul class="su-sw">
+      <li><label><span><b>{t('The search learns what you open')}</b><small>{t('When you open gear three times for the same word, the next search for it shows gear first. Only on this device, not in the backup.')}</small></span><input type="checkbox" role="switch" checked={suche.learn} onchange={(e) => setSuche('learn', e.currentTarget.checked)} data-suche="learn" /></label></li>
+    </ul>
+  </section>
 </div>
 
 <style>

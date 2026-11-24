@@ -11,7 +11,7 @@
  *   local      the AI on this device («KI im Gerät»)
  */
 export const SUCHE_KEY = 'suche.';
-export const SUCHE_DEFAULTS = { mic: true, run: true, read: 'auto', app: true, links: true, chrome: true, local: true };
+export const SUCHE_DEFAULTS = { mic: true, run: true, read: 'auto', app: true, links: true, chrome: true, local: true, learn: true };
 export const READ_MODES = [
   { key: 'auto', name: 'At once', text: 'After a spoken question the answer is read aloud at once.' },
   { key: 'tap', name: 'Only on a tap', text: 'The answer is read aloud only when you tap «Read aloud».' },
