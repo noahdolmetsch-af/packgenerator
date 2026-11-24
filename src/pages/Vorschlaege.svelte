@@ -34,6 +34,7 @@
   import { answerLine } from '../lib/flow/form/words.js';
   import { loadCore, bestWindows, hoursBetween, warningsOf, packHints, PACK_TEXT, WARN_TEXT, costWord, COST_WORD } from '../lib/wetter/kern.js';
   import { CHOICES, loadWetter, verdictFor, bestDay, weekOf, sortByWeather, addDays } from '../lib/vorschlaege/wetter.js';
+  import { NEU_MODES, spotList, reachedOf, spotIndex, freshSpots, cantonNew, runsOf, neuOk, neuSort, GOAL_KEY, GOAL_NS, GOAL_PCTS, goalOf, monthOf, doneIn, tickTour } from '../lib/vorschlaege/neuland.js';
   import { prefsOf, AGENDA_KEY } from '../lib/agenda.js';
   import { ITEMS_KEY } from '../lib/woche.js';
   import { t, num, locale } from '../lib/i18n.svelte.js';
@@ -73,9 +74,10 @@
         maxTravel: TRAVELS.includes(f?.maxTravel) ? f.maxTravel : null,
         mode: MODES.includes(f?.mode) ? f.mode : 'pt',
         wday: CHOICES.includes(f?.wday) ? f.wday : null,
+        neu: NEU_MODES.includes(f?.neu) ? f.neu : null,
       };
     } catch {
-      return { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt', wday: null };
+      return { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt', wday: null, neu: null };
     }
   };
   let flt = $state(read());
@@ -91,7 +93,7 @@
     const list = flt[key];
     flt[key] = list.includes(val) ? list.filter((x) => x !== val) : [...list, val];
   };
-  const resetFilters = () => (flt = { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt', wday: null });
+  const resetFilters = () => (flt = { regions: [], conds: [...COND_STD], techs: [...TECH_STD], maxHours: null, arts: [], maxAway: null, maxTravel: null, mode: 'pt', wday: null, neu: null });
 
   // ---- list or map (kept on this device; the first time: the map on a wide screen, the list on a phone)
   const VIEW_KEY = 'vorschlaege.view';
@@ -182,9 +184,32 @@
     loadWetter(db, tours).then((d) => !gone && (wx = d)).catch(() => {});
     return () => (gone = true);
   });
+  // «Neuland» (Noah 24.11.2026 «1 bis 5»): what is new for you on a tour. Neuland's own count (cantons, passes, peaks, with the summit book) is only read;
+  // the goal of the month is the one thing this page keeps (settings «vorschlaege.neuziel»)
+  const nlQ = liveQuery(() => db.settings.bulkGet(['neuland', 'gipfelbuch']));
+  let nl = $state(null);
+  $effect(() => {
+    if (!tours) return;
+    $ridesQ;
+    $nlQ;
+    let gone = false;
+    import('../lib/neuland/store.js').then((m) => m.computeNeuland(db, { only: ['cantons', 'passes', 'peaks'] })).then((r) => !gone && (nl = r.collections)).catch(() => {});
+    return () => (gone = true);
+  });
+  const spotMap = $derived(nl && tours ? spotIndex(tours, spotList(nl)) : null);
+  const reached = $derived(nl ? reachedOf(nl) : new Set());
+  const freshOf = (tour) => (spotMap ? freshSpots(spotMap.get(tour.id) ?? [], reached) : []);
+  const shareMap = $derived(grid && tours ? new Map(tours.map((x) => [x.id, newShare(x, grid)])) : null);
+  const neuFn = $derived(flt.neu && flt.neu !== 'sort' && (flt.neu === 'half' || nl) ? (x) => neuOk(flt.neu, { share: shareMap?.get(x.id) ?? null, fresh: freshOf(x), canton: nl ? cantonNew(x, nl) : null }) : null);
+  const goalQ = liveQuery(async () => (await db.settings.get(GOAL_KEY))?.value ?? null);
+  const goal = $derived(goalOf($goalQ));
+  const thisMonth = monthOf(today);
+  const saveGoal = (g) => db.settings.put({ key: GOAL_KEY, value: JSON.parse(JSON.stringify(g)) });
+  const monthName = new Date(`${today}T12:00:00`).toLocaleDateString(locale(), { month: 'long' });
   let onlyToday = $state(false); // «Doable today»: starts switched off and is not kept
   const todayOkFn = $derived(onlyToday ? (x) => doableToday(x, { level, win, pace, home, mode: flt.mode }) : null);
-  const okFn = $derived(flt.wday && wx ? (x) => (!todayOkFn || todayOkFn(x)) && verdictFor(x, wx, flt.wday, today)?.level !== 'bad' : todayOkFn);
+  const wxFn = $derived(flt.wday && wx ? (x) => (!todayOkFn || todayOkFn(x)) && verdictFor(x, wx, flt.wday, today)?.level !== 'bad' : todayOkFn);
+  const okFn = $derived(neuFn ? (x) => (!wxFn || wxFn(x)) && neuFn(x) : wxFn);
   const pace = $derived(paceOf($paceQ));
   const home = $derived($homeQ?.lat != null ? $homeQ : null);
   const hidden = $derived(Array.isArray($hideQ?.hidden) ? $hideQ.hidden : []);
@@ -207,7 +232,8 @@
 
   // ---- the lists
   const shownRaw = $derived(tours ? filterTours(tours, { regions: flt.regions, conds: flt.conds, techs: flt.techs, maxHours: flt.maxHours, arts: flt.arts, maxAway: flt.maxAway, maxTravel: flt.maxTravel, mode: flt.mode, home, hidden, pace, ok: okFn }) : []);
-  const shown = $derived(flt.wday && wx ? sortByWeather(shownRaw, wx, flt.wday, today) : shownRaw);
+  const byWeather = $derived(flt.wday && wx ? sortByWeather(shownRaw, wx, flt.wday, today) : shownRaw);
+  const shown = $derived(flt.neu === 'sort' && shareMap ? neuSort(byWeather, (x) => shareMap.get(x.id) ?? null) : byWeather);
   const split = $derived(splitNow(shown, month));
   // the ring around each dot of the map: the traffic light of the chosen day (today when none is chosen)
   const lightVerdicts = $derived(wx && tours ? Object.fromEntries(shown.map((x) => [x.id, verdictFor(x, wx, flt.wday ?? 'today', today)]).filter((e) => e[1])) : {});
@@ -294,6 +320,9 @@
     const v = verdictFor(tour, wx, 'today', today);
     return v ? { today: v, best: bestDay(tour, wx, today) } : null;
   }
+  const NEU_NAME = { sort: 'Newest first|nl', half: 'Mostly new|nl', places: 'With a new pass or peak|nl', canton: 'New canton|nl' };
+  const KIND_NAME = { pass: 'Pass|nl', peak: 'Peak|nl' };
+  const spotsText = (list) => list.slice(0, 2).map((s) => s.name).join(', ') + (list.length > 2 ? ` +${list.length - 2}` : '');
   const ART_NAME = { trail: 'Single trail|tour', downhill: 'Downhill|tour', gravel: 'Gravel and paths|tour', loop: 'Round trip|tour' };
   const regionCount = $derived(tours ? tours.reduce((a, x) => ({ ...a, [x.region]: (a[x.region] ?? 0) + 1 }), {}) : {});
   const artCount = $derived(tours ? Object.fromEntries(ARTS.map((k) => [k, tours.filter((x) => artsOf(x).includes(k)).length])) : {});
@@ -302,6 +331,14 @@
   // ---- the open tour
   const why = $derived(open ? whyOf(open, { month, maxHours: flt.maxHours, pace, grid, home, mode: flt.mode, win, form: level, bikes, weather: weatherOf(open) }).filter((r) => !whyOff.includes(r.k)) : []);
   const warns = $derived(open ? warnsOf(open, month) : []);
+  // «Neuland» of the open tour: the pieces you have ridden (grey on the map), the passes and peaks on the way, the canton, the goal
+  const runs = $derived(open && grid ? runsOf(open.line, grid) : null);
+  const oldRuns = $derived(runs ? runs.filter((r) => !r.fresh) : null);
+  const along = $derived(open && spotMap ? spotMap.get(open.id) ?? [] : []);
+  const mapSpots = $derived(along.map((x) => ({ ...x, fresh: !reached.has(x.id) })));
+  const openShare = $derived(open && shareMap ? shareMap.get(open.id) ?? null : null);
+  const openCanton = $derived(open && nl ? cantonNew(open, nl) : null);
+  const ticked = $derived(open ? (goal.done[thisMonth] ?? []).includes(open.id) : false);
   // the profile and the map show the same place in both directions (Noah 23.11.2026 «1-5a», idea B): the cursor of the profile
   // is the dot on the map, and a tap on the map moves the cursor
   let cursorKm = $state(null);
@@ -368,7 +405,7 @@
   {#if open}
     <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }, { label: t('Tour suggestions'), href: '#/trips/vorschlaege' }]} title={open.title} here={open.title} sub={`${regionName(open.region)} · ${t(tourClass(open))}`} />
     <div class="map" data-vs-map>
-      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong onmap={onMapTap} light={lit} {focus} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
+      {#await import('../lib/spur/TourMap.svelte') then m}<m.default lines={[{ id: open.id, pts: open.line, n: 1, src: 'gpx' }]} marker={mark} height={420} strong onmap={onMapTap} light={lit} {focus} old={oldRuns} spots={mapSpots} label={t('Map of «{name}»: drag to move, pinch or wheel to zoom', { name: open.title })} />{:catch}{/await}
     </div>
     <div class="grounds" role="group" aria-label={t('Map ground')} data-vs-grounds>
       <span class="gl">{t('Map ground')}</span>
@@ -376,6 +413,7 @@
         <button type="button" class="chip" aria-pressed={mapGround.key === g.key} data-vs-ground={g.key} onclick={() => chooseGround(g.key)}>{t(g.name)}</button>
       {/each}
     </div>
+    {#if oldRuns?.length || mapSpots.length}<p class="src legend" data-vs-legend>{[oldRuns?.length ? t('Grey: you have ridden it before. In colour: new for you.') : null, mapSpots.length ? t('Diamond: pass. Triangle: peak. In colour: new for you.') : null].filter(Boolean).join(' ')}</p>{/if}
     <p class="src">{t('Map and tour: © swisstopo, SchweizMobil. Check closures and snow on the spot.')} {t('Applies to all maps in the app.')}</p>
 
     <ul class="facts card" data-vs-facts>
@@ -451,6 +489,37 @@
       </section>
     {/if}
 
+    <section class="ich-sec" aria-labelledby="vs-neu" data-vs-neu-sec>
+      <div class="ich-h"><div><h2 id="vs-neu">{t('New ground on this tour')}</h2><p class="ich-hs">{t('What you have not ridden or reached yet. Your rides and Neuland are only read.')}</p></div></div>
+      <div class="card pad neu">
+        {#if openShare !== null}<p data-vs-neu-share><MapPin size={14} aria-hidden="true" />{t('About {n} % of the line is new for you.', { n: Math.round(openShare * 100) })}</p>{:else}<p class="hint"><Info size={14} aria-hidden="true" />{t('With your own rides (Strava, GPX or recordings) the app can say what is new for you.')}</p>{/if}
+        {#if openCanton !== null}<p data-vs-neu-canton={openCanton ? 'new' : 'known'}><MapPin size={14} aria-hidden="true" />{openCanton ? t('A new canton for you: {name}.', { name: regionName(open.region) }) : t('You have ridden in {name} before.', { name: regionName(open.region) })}</p>{/if}
+        <h3 class="neuh">{t('Passes and peaks on the way')}</h3>
+        {#if along.length}
+          <ul class="spots" data-vs-spots>
+            {#each along as sp (sp.id)}
+              <li data-vs-spot={sp.id} data-fresh={reached.has(sp.id) ? 'no' : 'yes'}>
+                <Mountain size={14} aria-hidden="true" />
+                <span><b>{sp.name}</b>{sp.alt ? ` ${num(sp.alt)} m` : ''} <small>({t(KIND_NAME[sp.kind])}, {t('km {a}', { a: num(sp.km) })})</small></span>
+                <span class="sp-state" class:fresh={!reached.has(sp.id)}>{reached.has(sp.id) ? t('Already reached') : t('New for you')}</span>
+              </li>
+            {/each}
+          </ul>
+          <p class="ich-hs">{t('Neuland counts a pass or a peak by itself once you have been there.')} <a href="#/neuland">{t('New ground')}</a> · <a href="#/flow/gipfelbuch">{t('Summit book')}</a></p>
+        {:else if nl}
+          <p class="ich-hs" data-vs-spots-none>{t('No pass and no peak of Neuland lies on this tour.')}</p>
+        {:else}
+          <p class="ich-hs">{t('Loading…')}</p>
+        {/if}
+        {#if goal.on}
+          <div class="tick">
+            <button type="button" class="btn" aria-pressed={ticked} data-vs-goal-tick onclick={() => saveGoal(tickTour(goal, thisMonth, open.id, !ticked))}><Check size={16} aria-hidden="true" />{ticked ? t('Ticked for the goal') : t('Tick for the goal')}</button>
+            <span class="hint num" data-vs-goal-line>{t('Goal for {month}: {done} of {n} tours with over {pct} % new', { month: monthName, done: doneIn(goal, thisMonth), n: goal.n, pct: goal.pct })}</span>
+          </div>
+        {/if}
+      </div>
+    </section>
+
     <section class="ich-sec" aria-labelledby="vs-why" data-vs-why>
       <details class="card pad whybox" open>
         <summary id="vs-why">{t('Why this suggestion?')}</summary>
@@ -525,6 +594,28 @@
           <button type="button" class="chip" aria-pressed={flt.wday === c} data-vs-wday={c} onclick={() => (flt.wday = c)}>{t(WX_DAY[c])}</button>
         {/each}
         <span class="hint" data-vs-wx-hint>{wx ? t('Only a forecast. A day that fits shows first; a day with thunderstorms, a lot of rain, strong wind or frost up high is left out.') : t('The forecast for the tours is loading. Without a connection the tours stay as they are.')}</span>
+      </div>
+      <div class="grp" role="group" aria-label={t('New ground')} data-vs-neu-group>
+        <span class="gl">{t('New ground')}</span>
+        <button type="button" class="chip" aria-pressed={flt.neu === null} data-vs-neu="any" onclick={() => (flt.neu = null)}>{t('Any|tour')}</button>
+        {#each NEU_MODES as m (m)}
+          <button type="button" class="chip" aria-pressed={flt.neu === m} data-vs-neu={m} onclick={() => (flt.neu = m)}>{t(NEU_NAME[m])}</button>
+        {/each}
+        <span class="hint" data-vs-neu-hint>{grid ? t('New for you means: you have not ridden there or been there yet. Your rides and Neuland are only read.') : t('With your own rides (Strava, GPX or recordings) the app can say what is new for you.')}</span>
+        <span class="hint num" data-vs-goal>{goal.on ? t('Goal for {month}: {done} of {n} tours with over {pct} % new', { month: monthName, done: doneIn(goal, thisMonth), n: goal.n, pct: goal.pct }) : t('The goal of the month is off.')}</span>
+        <details class="goalbox" data-vs-goal-edit>
+          <summary>{t('Change goal')}</summary>
+          <div class="grp" role="group" aria-label={t('Tours per month')}>
+            <span class="gl">{t('Tours per month')}</span>
+            {#each GOAL_NS as n (n)}<button type="button" class="chip" aria-pressed={goal.n === n} data-vs-goal-n={n} onclick={() => saveGoal({ ...goal, n })}>{n}</button>{/each}
+          </div>
+          <div class="grp" role="group" aria-label={t('Share of new line')}>
+            <span class="gl">{t('Share of new line')}</span>
+            {#each GOAL_PCTS as pc (pc)}<button type="button" class="chip" aria-pressed={goal.pct === pc} data-vs-goal-pct={pc} onclick={() => saveGoal({ ...goal, pct: pc })}>{t('Over {pct} %', { pct: pc })}</button>{/each}
+          </div>
+          <button type="button" class="btn" data-vs-goal-on onclick={() => saveGoal({ ...goal, on: !goal.on })}>{goal.on ? t('Switch the goal off') : t('Switch the goal on')}</button>
+          <p class="hint"><Info size={14} aria-hidden="true" />{t('A quiet goal, ticked by hand on the tour. Nothing happens if you do not reach it.')}</p>
+        </details>
       </div>
       <div class="grp" role="group" aria-label={t('Journey|tour')} data-vs-travel>
         <span class="gl">{t('Journey|tour')}</span>
@@ -617,7 +708,9 @@
 </div>
 
 {#snippet card(tour, grey)}
-  {@const share = grid ? newShare(tour, grid) : null}
+  {@const share = shareMap ? shareMap.get(tour.id) ?? null : null}
+  {@const fresh = freshOf(tour)}
+  {@const newCanton = nl ? cantonNew(tour, nl) : false}
   {@const trip = anreiseOf(tour, home, flt.mode)}
   {@const todayOk = level || win ? doableToday(tour, { level, win, pace, home, mode: flt.mode }) : null}
   <li class="tc card" class:grey data-vs-tour={tour.id}>
@@ -643,6 +736,8 @@
       {/if}
       {#if todayOk !== null}<span class="why" class:bad={!todayOk} data-vs-doable={todayOk ? 'yes' : 'no'}>{#if todayOk}<Check size={14} aria-hidden="true" />{t('Doable today')}{:else}<TriangleAlert size={14} aria-hidden="true" />{t('Not doable today')}{/if}</span>{/if}
       {#if share !== null}<span class="why"><MapPin size={14} aria-hidden="true" />{t('About {n} % new for you', { n: Math.round(share * 100) })}</span>{/if}
+      {#if fresh.length}<span class="why" data-vs-card-fresh><Mountain size={14} aria-hidden="true" />{t('New for you: {list}', { list: spotsText(fresh) })}</span>{/if}
+      {#if newCanton}<span class="why" data-vs-card-canton><MapPin size={14} aria-hidden="true" />{t('A new canton for you: {name}.', { name: regionName(tour.region) })}</span>{/if}
     </a>
     <button type="button" class="btn sm" onclick={() => hideTour(tour)} data-vs-hide><EyeOff size={16} aria-hidden="true" />{t('Not for me')}</button>
   </li>
@@ -687,6 +782,20 @@
   .wxstarts li.best { font-weight: 600; }
   .wxbest { margin: 0 0 var(--sp-2); font-weight: 600; }
   @media (min-width: 700px) { .wxweek li { grid-template-columns: 7em 9em 1fr; } .wxweek li > .wxn { grid-column: auto; } }
+  .goalbox { flex-basis: 100%; }
+  .goalbox summary { cursor: pointer; color: var(--ink-2); min-height: 44px; display: flex; align-items: center; }
+  .goalbox .grp { margin-bottom: var(--sp-2); }
+  .neu { display: grid; gap: var(--sp-2); }
+  .neu p { display: flex; gap: 6px; align-items: flex-start; margin: 0; }
+  .neu p :global(svg) { flex: none; margin-top: 4px; }
+  .neuh { margin: var(--sp-2) 0 0; font-size: var(--fs-sub); }
+  .spots { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .spots li { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; overflow-wrap: break-word; }
+  .spots li :global(svg) { flex: none; align-self: center; color: var(--ink-3); }
+  .sp-state { margin-left: auto; font-size: var(--fs-small); font-weight: 600; color: var(--ink-3); }
+  .sp-state.fresh { color: var(--accent-ink); }
+  .tick { display: flex; flex-wrap: wrap; gap: 8px var(--sp-3); align-items: center; margin-top: var(--sp-2); }
+  .tick .btn[aria-pressed='true'] { background: var(--accent-soft); color: var(--accent-ink); border-color: var(--accent); }
   .why { display: flex; gap: 6px; align-items: center; font-size: var(--fs-small); color: var(--ink-2); }
   .map { border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; margin-bottom: var(--sp-2); }
   .prof { display: grid; gap: var(--sp-3); }

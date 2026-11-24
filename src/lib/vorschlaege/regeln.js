@@ -197,27 +197,24 @@ export function densify(line = [], step = 100) {
   return out;
 }
 
+/** Did you ride within `near` m of the point p? grid: gridOf() of your own ride points. */
+export function rodeNear(p, grid, near = 150) {
+  const la = Math.round(p[0] / CELL);
+  const lo = Math.round(p[1] / (CELL * 1.45));
+  for (let a = -1; a <= 1; a++) {
+    for (let b = -1; b <= 1; b++) {
+      for (const q of grid.get(`${la + a}:${lo + b}`) ?? []) if (metres(p, q) <= near) return true;
+    }
+  }
+  return false;
+}
+
 /** Share (0 to 1) of the tour's line that you have not ridden (farther than `near` m from your points); null without rides. */
 export function newShare(t, grid, near = 150) {
   if (!grid || !t?.line?.length) return null;
   const pts = densify(t.line, 100);
   let fresh = 0;
-  for (const p of pts) {
-    const la = Math.round(p[0] / CELL);
-    const lo = Math.round(p[1] / (CELL * 1.45));
-    let hit = false;
-    for (let a = -1; a <= 1 && !hit; a++) {
-      for (let b = -1; b <= 1 && !hit; b++) {
-        for (const q of grid.get(`${la + a}:${lo + b}`) ?? []) {
-          if (metres(p, q) <= near) {
-            hit = true;
-            break;
-          }
-        }
-      }
-    }
-    if (!hit) fresh++;
-  }
+  for (const p of pts) if (!rodeNear(p, grid, near)) fresh++;
   return fresh / pts.length;
 }
 

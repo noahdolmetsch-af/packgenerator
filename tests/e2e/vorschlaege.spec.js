@@ -7,6 +7,7 @@ import TOURS from '../../src/lib/vorschlaege/data/netz.js';
 import { anreiseOf, withinTravel } from '../../src/lib/vorschlaege/anreise.js';
 import { ready } from './settle.js';
 import { cellOf, cellsOf, addDays } from '../../src/lib/vorschlaege/wetter.js';
+import { encodePolyline } from '../../src/lib/spur/polyline.js';
 
 const T = (en) => DE[en] ?? en.replace(/\|[a-z ]+$/, '');
 const hard = TOURS.filter((x) => x.cond === 'difficult');
@@ -269,5 +270,100 @@ test('Tour suggestions: weather light on every tour, best day, filter by day, th
   await expect(week.locator('[data-vs-wx-wear]')).toBeVisible();
   await expect(week.locator('[data-vs-wx-wear] a')).toHaveAttribute('href', '#/wardrobe');
   await expect(page.locator('[data-vs-why] li').filter({ hasText: T('Today: {what}.').replace(' {what}.', '') })).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
+test('Tour suggestions: new ground (filter, grey line, passes and peaks, goal of the month)', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (r) => r.abort());
+  await context.addInitScript(() => localStorage.setItem('lang', 'de'));
+  await page.goto('./#/');
+  await ready(page);
+  // two fictional rides: 80 % of one tour (its pass at the end stays new) and the first part of a tour over a pass (reached)
+  const A = TOURS.find((x) => x.id === 'sm-33');
+  const B = TOURS.find((x) => x.id === 'sm-205');
+  const part = (t, f) => t.line.slice(0, Math.floor(t.line.length * f));
+  await page.evaluate(
+    (rows) =>
+      new Promise((ok, bad) => {
+        const r = indexedDB.open('pack-generator');
+        r.onerror = () => bad(r.error);
+        r.onsuccess = () => {
+          const tx = r.result.transaction('activities', 'readwrite');
+          for (const row of rows) tx.objectStore('activities').put(row);
+          tx.oncomplete = () => (r.result.close(), ok());
+          tx.onerror = () => bad(tx.error);
+        };
+      }),
+    [
+      { id: '9101', day: '2026-10-03', kind: 'bike', type: 'MountainBikeRide', name: 'Testfahrt A', km: 35, line: encodePolyline(part(A, 0.8)) },
+      { id: '9102', day: '2026-10-10', kind: 'bike', type: 'MountainBikeRide', name: 'Testfahrt B', km: 20, line: encodePolyline(part(B, 0.6)) },
+    ],
+  );
+  await page.goto('./#/trips/vorschlaege');
+  await ready(page);
+  await page.locator('[data-vs-view="list"]').click();
+  const group = page.locator('[data-vs-neu-group]');
+  await expect(group).toBeVisible();
+  await expect(group.locator('[data-vs-neu="any"]')).toHaveAttribute('aria-pressed', 'true');
+  const tours = page.locator('[data-vs-tour]');
+  const all = await tours.count();
+
+  // the card of the first tour: its pass is new
+  await expect(page.locator('[data-vs-tour="sm-33"] [data-vs-card-fresh]')).toContainText('Hulftegg');
+  await expect(page.locator('[data-vs-tour="sm-205"] [data-vs-card-fresh]')).toHaveCount(0); // its pass is reached
+
+  // filter: a new pass or peak keeps only the tours with one that is new
+  await group.locator('[data-vs-neu="places"]').click();
+  await expect(group.locator('[data-vs-neu="places"]')).toHaveAttribute('aria-pressed', 'true');
+  const n = await tours.count();
+  expect(n).toBeGreaterThan(0);
+  expect(n).toBeLessThan(all);
+  await expect(page.locator('[data-vs-tour="sm-33"]')).toHaveCount(1);
+  await expect(page.locator('[data-vs-tour="sm-205"]')).toHaveCount(0);
+  // mostly new: the tour ridden by 80 % goes
+  await group.locator('[data-vs-neu="half"]').click();
+  await expect(page.locator('[data-vs-tour="sm-33"]')).toHaveCount(0);
+  // newest first: the tour ridden by 80 % is not on top
+  await group.locator('[data-vs-neu="sort"]').click();
+  await expect(tours).toHaveCount(all);
+  expect(await tours.first().getAttribute('data-vs-tour')).not.toBe('sm-33');
+  await group.locator('[data-vs-neu="any"]').click();
+  await expect(tours).toHaveCount(all);
+
+  // the goal of the month: 0 of 3, tick a tour on its page, 1 of 3
+  await expect(group.locator('[data-vs-goal]')).toContainText(/0 von 3 Touren mit über 60 % neu/);
+  await page.locator('[data-vs-tour="sm-33"] a.tl').click();
+  await expect(page.locator('[data-vs-neu-sec]')).toBeVisible();
+  await expect(page.locator('[data-vs-neu-share]')).toBeVisible();
+  await expect(page.locator('[data-vs-neu-canton]')).toBeVisible();
+  await expect(page.locator('[data-vs-spot]')).toHaveCount(1);
+  await expect(page.locator('[data-vs-spot]')).toHaveAttribute('data-fresh', 'yes');
+  await expect(page.locator('[data-vs-spot]')).toContainText('Hulftegg');
+  await expect(page.locator('[data-vs-legend]')).toContainText(T('Grey: you have ridden it before. In colour: new for you.'));
+  await expect(page.locator('[data-map-old]').first()).toBeAttached();
+  await expect(page.locator('[data-map-spot="p-hulftegg"]')).toHaveAttribute('data-fresh', 'yes');
+  await page.locator('[data-vs-goal-tick]').click();
+  await expect(page.locator('[data-vs-goal-tick]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('[data-vs-goal-line]')).toContainText(/1 von 3/);
+  // the tour over a pass: the pass is reached
+  await page.goto('./#/trips/vorschlaege/sm-205');
+  await ready(page);
+  await expect(page.locator('[data-vs-spot]').first()).toHaveAttribute('data-fresh', 'no');
+  await expect(page.locator('[data-vs-goal-line]')).toContainText(/1 von 3/);
+
+  // change and switch off
+  await page.goto('./#/trips/vorschlaege');
+  await ready(page);
+  await page.locator('[data-vs-goal-edit] summary').click();
+  await page.locator('[data-vs-goal-n="5"]').click();
+  await page.locator('[data-vs-goal-pct="80"]').click();
+  await expect(page.locator('[data-vs-goal]')).toContainText(/1 von 5 Touren mit über 80 % neu/);
+  await page.locator('[data-vs-goal-on]').click();
+  await expect(page.locator('[data-vs-goal]')).toContainText(T('The goal of the month is off.'));
+  await page.goto('./#/trips/vorschlaege/sm-33');
+  await ready(page);
+  await expect(page.locator('[data-vs-goal-tick]')).toHaveCount(0);
   expect(errors).toEqual([]);
 });

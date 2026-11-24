@@ -6,6 +6,7 @@ import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
 import { crowKm, travelMin, anreiseOf, dayHours, fitsHalfDay, withinTravel, TRAVELS, ZURICH_HB } from '../src/lib/vorschlaege/anreise.js';
 import { CELL, cellOf, cellsOf, wetterUrl, parseWetter, dayVerdict, rainBefore, wetTrail, technical, addDays, weekdayOf, dateOfChoice, verdictFor, bestDay, weekOf, sortByWeather, loadWetter, BEST_DAYS } from '../src/lib/vorschlaege/wetter.js';
+import { NEAR_KM, HALF, spotList, reachedOf, spotsAlong, spotIndex, freshSpots, cantonNew, runsOf, neuOk, neuSort, toursNear, goalOf, monthOf, doneIn, tickTour, GOAL_STD } from '../src/lib/vorschlaege/neuland.js';
 import { freeToday, formFit, freeFit, bikeFit, doableToday, EASY_MAX_H } from '../src/lib/vorschlaege/passt.js';
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
@@ -615,5 +616,90 @@ describe('Tourenvorschläge: Wetter', () => {
     expect(await loadWetter(db, two, { fetcher: down, now: t0 + 5 * 36e5, online: true })).toEqual(first);
     expect(await loadWetter(db, two, { fetcher: down, now: t0 + 30 * 36e5, online: true })).toBe(null);
     expect(await loadWetter(db, [], { fetcher, now: t0 })).toBe(null);
+  });
+});
+
+describe('Tourenvorschläge: Neuland', () => {
+  const tour = by('sm-33');
+  const mid = tour.line[Math.floor(tour.line.length / 2)];
+  const cols = (spots = []) => [
+    { id: 'passes', items: spots.filter((x) => x.kind === 'pass'), visited: new Map() },
+    { id: 'peaks', items: spots.filter((x) => x.kind === 'peak'), visited: new Map([['k-gipfel', { years: {} }]]) },
+    { id: 'cantons', items: [{ id: 'ZH' }, { id: 'GR' }], visited: new Map([['ZH', {}]]) },
+  ];
+  const spotsRaw = [
+    { id: 'p-nahe', name: 'Nahe', kind: 'pass', lat: mid[0], lon: mid[1], alt: 1500 },
+    { id: 'k-gipfel', name: 'Gipfel', kind: 'peak', lat: mid[0] + 0.0005, lon: mid[1], alt: 3100 },
+    { id: 'p-fern', name: 'Fern', kind: 'pass', lat: 46.0, lon: 7.0, alt: 2000 },
+  ];
+  it('spotList und reachedOf: nur Pässe und Gipfel, mit Besuchen', () => {
+    const cs = cols(spotsRaw);
+    expect(spotList(cs).map((x) => x.id)).toEqual(['p-nahe', 'p-fern', 'k-gipfel']);
+    expect(spotList([{ id: 'huts', items: [{ id: 'h', lat: 1, lon: 1 }] }])).toEqual([]);
+    expect([...reachedOf(cs)]).toEqual(['k-gipfel']);
+  });
+  it('spotsAlong: nur was am Weg liegt, in der Reihenfolge der Tour, mit km', () => {
+    const list = spotsAlong(tour, spotList(cols(spotsRaw)));
+    expect(list.map((x) => x.id).sort()).toEqual(['k-gipfel', 'p-nahe']);
+    expect(list[0].km).toBeLessThanOrEqual(list[1].km);
+    expect(list.every((x) => x.away <= NEAR_KM)).toBe(true);
+    expect(spotsAlong({ line: [] }, spotList(cols(spotsRaw)))).toEqual([]);
+    expect(spotIndex([tour], spotList(cols(spotsRaw))).get(tour.id).length).toBe(2);
+  });
+  it('freshSpots: was du noch nicht erreicht hast', () => {
+    const list = spotsAlong(tour, spotList(cols(spotsRaw)));
+    expect(freshSpots(list, reachedOf(cols(spotsRaw))).map((x) => x.id)).toEqual(['p-nahe']);
+  });
+  it('cantonNew: neu, wenn du im Kanton noch nie gefahren bist', () => {
+    const cs = cols(spotsRaw);
+    expect(cantonNew({ region: 'zh' }, cs)).toBe(false);
+    expect(cantonNew({ region: 'gr' }, cs)).toBe(true);
+    expect(cantonNew({ region: 'gr' }, [])).toBe(null);
+  });
+  it('runsOf: Teile, die du gefahren bist, und neue Teile hängen ohne Lücke aneinander', () => {
+    const line = tour.line;
+    expect(runsOf(line, null)).toBeNull();
+    const half = gridOf([densify(line.slice(0, Math.floor(line.length / 2)), 50)]);
+    const runs = runsOf(line, half);
+    expect(runs.some((r) => r.fresh)).toBe(true);
+    expect(runs.some((r) => !r.fresh)).toBe(true);
+    for (let i = 1; i < runs.length; i++) expect(runs[i].pts[0]).toEqual(runs[i - 1].pts.at(-1));
+    expect(runsOf(line, gridOf([[[46.0, 7.0]]])).every((r) => r.fresh)).toBe(true);
+  });
+  it('neuOk und neuSort', () => {
+    expect(HALF).toBe(0.5);
+    expect(neuOk('half', { share: 0.6 })).toBe(true);
+    expect(neuOk('half', { share: 0.3 })).toBe(false);
+    expect(neuOk('half', { share: null })).toBe(true);
+    expect(neuOk('places', { fresh: [] })).toBe(false);
+    expect(neuOk('places', { fresh: [{}] })).toBe(true);
+    expect(neuOk('canton', { canton: true })).toBe(true);
+    expect(neuOk('canton', { canton: null })).toBe(false);
+    expect(neuOk('sort', {})).toBe(true);
+    const shares = { a: 0.2, b: 0.9, c: null, d: 0.9, e: 0.5 };
+    expect(neuSort(['a', 'b', 'c', 'd', 'e'].map((id) => ({ id })), (x) => shares[x.id]).map((x) => x.id)).toEqual(['b', 'd', 'e', 'a', 'c']);
+  });
+  it('toursNear: Touren an einem Punkt, die nächste zuerst', () => {
+    const r = toursNear(TOURS, mid[0], mid[1]);
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.length).toBeLessThanOrEqual(3);
+    expect(r[0].tour.id).toBe(tour.id);
+    expect(r[0].away).toBeLessThanOrEqual(NEAR_KM);
+    expect(toursNear(TOURS, 10, 10)).toEqual([]);
+    expect(toursNear(TOURS, NaN, 1)).toEqual([]);
+  });
+  it('Ziel des Monats: Standard, abhaken, zurücknehmen, Fremdes wird bereinigt', () => {
+    expect(goalOf(null)).toEqual({ ...GOAL_STD, done: {} });
+    expect(goalOf({ on: false, n: 9, pct: 60, done: { '2026-11': ['a', 'a', 5], x: ['b'] } })).toEqual({ on: false, n: 3, pct: 60, done: { '2026-11': ['a'] } });
+    const m = monthOf('2026-11-24');
+    expect(m).toBe('2026-11');
+    let g = goalOf(null);
+    g = tickTour(g, m, 'a', true);
+    g = tickTour(g, m, 'a', true);
+    g = tickTour(g, m, 'b', true);
+    expect(doneIn(g, m)).toBe(2);
+    expect(doneIn(g, '2026-12')).toBe(0);
+    g = tickTour(g, m, 'a', false);
+    expect(g.done[m]).toEqual(['b']);
   });
 });

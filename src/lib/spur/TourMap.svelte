@@ -18,7 +18,9 @@
   import { kmMarks } from './kmmarks.js';
 
   /** lines: [{ id, pts, n, src }]; points: [{ id, pos, kind, photo, text, n, cls? }] (kind 'friend': text is the whole label); cells: squares to tint (Neuland); pick(point). */
-  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null, strong = false, onmap = null, light = null } = $props();
+  let { lines = [], points = [], cells = null, cellZ = 14, height = 420, ground = null, focus = null, onpick = null, label = '', marker = null, strong = false, onmap = null, light = null, old = null, spots = [] } = $props();
+  // old [{ pts }]: the pieces of the tour you have ridden before, drawn grey on top of the line (tour suggestions, «Neuland»)
+  // spots [{ id, name, kind: 'pass' | 'peak', lat, lon, alt, fresh }]: passes (diamond) and peaks (triangle) on the way; fresh = new for you
   // onmap([lat, lon]): a tap (no drag) on the map ground (tour suggestions: moves the dot of the profile); light { pts }: a stretch of the tour drawn on top in dark red (the steep pieces)
   // strong (tour suggestions): a thick, strongly coloured line with km marks and big start and end, so it stands out from the map
   // Tour-Seite (19.10.2026): marker [lat, lon] = the place the finger is on in the elevation profile
@@ -84,6 +86,8 @@
   const colOf = (n) => COLS[((n ?? 1) - 1) % COLS.length];
   const paths = $derived(lines.map((l) => ({ id: l.id, d: pathOf(l.pts, view, w, h), col: l.src === 'rec' ? 'var(--bad)' : colOf(l.n), dash: l.src === 'rec' })));
   const lit = $derived(light?.pts?.length > 1 ? pathOf(light.pts, view, w, h) : null);
+  const oldPaths = $derived((old ?? []).filter((r) => r.pts?.length > 1).map((r, i) => ({ i, d: pathOf(r.pts, view, w, h) })));
+  const spotDots = $derived(spots.map((p) => ({ ...p, s: toScreen(merc([p.lat, p.lon]), view, w, h) })).filter((p) => p.s.x > -60 && p.s.x < w + 60 && p.s.y > -30 && p.s.y < h + 30));
   const dots = $derived(points.map((p) => ({ ...p, s: toScreen(merc(p.pos), view, w, h) })).filter((p) => p.s.x > -30 && p.s.x < w + 30 && p.s.y > -30 && p.s.y < h + 30));
   const squares = $derived.by(() => {
     if (!cells || view.zoom < 9) return [];
@@ -183,11 +187,18 @@
       <path d={p.d} class="halo" />
       <path d={p.d} class="line" stroke={p.col} stroke-dasharray={p.dash ? '6 5' : null} />
     {/each}
+    {#each oldPaths as o (o.i)}<path d={o.d} class="old" data-map-old />{/each}
     {#each marks as m (m.km)}
       <circle cx={m.s.x} cy={m.s.y} r="11" class="km" />
       <text x={m.s.x} y={m.s.y + 4} class="kmt">{m.km}</text>
     {/each}
     {#if lit}<path d={lit} class="lit-halo" /><path d={lit} class="lit" data-map-lit />{/if}
+    {#each spotDots as p (p.id)}
+      <g class="spot" class:fresh={p.fresh} data-map-spot={p.id} data-fresh={p.fresh ? 'yes' : 'no'}>
+        {#if p.kind === 'peak'}<polygon points="{p.s.x},{p.s.y - 11} {p.s.x + 10},{p.s.y + 7} {p.s.x - 10},{p.s.y + 7}" class="sp-shape" />{:else}<polygon points="{p.s.x},{p.s.y - 11} {p.s.x + 11},{p.s.y} {p.s.x},{p.s.y + 11} {p.s.x - 11},{p.s.y}" class="sp-shape" />{/if}
+        <text x={p.s.x + 15} y={p.s.y + 4} class="sp-text">{p.name}{p.alt ? ` ${p.alt}` : ''}</text>
+      </g>
+    {/each}
     {#each ends as e (e.k)}<circle cx={e.s.x} cy={e.s.y} r={strong ? 11 : 7} class="end {e.k}" />{/each}
     {#if mark}<circle cx={mark.x} cy={mark.y} r="8" class="here" data-map-marker />{/if}
   </svg>
@@ -282,6 +293,31 @@
   .strong .line {
     stroke: var(--tm-strong);
     stroke-width: 7;
+  }
+  .old {
+    fill: none;
+    stroke: var(--ink-3);
+    stroke-width: 7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.95;
+  }
+  .sp-shape {
+    fill: var(--ink-3);
+    stroke: var(--tm-white);
+    stroke-width: 2.5;
+  }
+  .spot.fresh .sp-shape {
+    fill: var(--accent);
+  }
+  .sp-text {
+    fill: var(--ink);
+    font-size: var(--fs-small);
+    font-weight: 700;
+    paint-order: stroke;
+    stroke: var(--tm-white);
+    stroke-width: 4;
+    stroke-linejoin: round;
   }
   .lit-halo {
     fill: none;
