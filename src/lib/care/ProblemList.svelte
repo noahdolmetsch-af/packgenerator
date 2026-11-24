@@ -151,7 +151,7 @@
               </span>
             </div>
           {:else if prioSaved?.id === task.id}
-            <p class="extra saved-prio" role="status">✓ {prioSaved.text}</p>
+            <p class="extra saved-prio" role="status"><Check size={14} class="ic-in" aria-hidden="true" /> {prioSaved.text}</p>
           {/if}
         </li>
       {/each}

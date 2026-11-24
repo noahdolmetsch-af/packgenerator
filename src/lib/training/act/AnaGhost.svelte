@@ -8,6 +8,7 @@
    * Rules: ghost.js. Fewer than one comparable earlier ride: nothing.
    */
   import AnaCard from '../AnaCard.svelte';
+  import { Check, X } from '@lucide/svelte';
   import { ghostCase, betterOf, TEMP_FLAG, WIND_FLAG } from './ghost.js';
   import { mss } from './analysen.js';
   import { t, tn, num, locale } from '../../i18n.svelte.js';
@@ -73,7 +74,7 @@
       </select>
     </label>
     <div class="gb {gc.result}" data-ghost-result={gc.result}>
-      <b>{#if gc.result === 'beat'}<span aria-hidden="true">✓ </span>{/if}{t(HEAD[gc.result])}</b>
+      <b>{#if gc.result === 'beat'}<Check size={14} class="ic-in" aria-hidden="true" />{' '}{/if}{t(HEAD[gc.result])}</b>
       {#if sentence}<p class="gs" data-ghost-verdict={cmp.verdict.key}>{sentence}</p>{/if}
     </div>
     <div class="gw">
@@ -92,7 +93,7 @@
               <th scope="row">{t(r.name)}</th>
               <td>{r.show(r.me)}</td>
               <td>{r.show(r.ghost)}</td>
-              <td class="df" class:bt={r.better === true}>{r.diff(r.me, r.ghost)}{#if r.better === true}<span class="ck" aria-label={t('better|gh')}> ✓</span>{/if}</td>
+              <td class="df" class:bt={r.better === true}>{r.diff(r.me, r.ghost)}{#if r.better === true}<span class="ck" aria-label={t('better|gh')}> <Check size={14} class="ic-in" aria-hidden="true" /></span>{/if}</td>
             </tr>
           {/each}
           {#if cmp.drift}
@@ -100,7 +101,7 @@
               <th scope="row">{driftName}</th>
               <td>{f(cmp.drift.me, 1)} %</td>
               <td>{f(cmp.drift.ghost, 1)} %</td>
-              <td class="df" class:bt={cmp.drift.me < cmp.drift.ghost}>{sgn(Math.round((cmp.drift.me - cmp.drift.ghost) * 10) / 10, 1, ' %')}{#if cmp.drift.me < cmp.drift.ghost}<span class="ck" aria-label={t('better|gh')}> ✓</span>{/if}</td>
+              <td class="df" class:bt={cmp.drift.me < cmp.drift.ghost}>{sgn(Math.round((cmp.drift.me - cmp.drift.ghost) * 10) / 10, 1, ' %')}{#if cmp.drift.me < cmp.drift.ghost}<span class="ck" aria-label={t('better|gh')}> <Check size={14} class="ic-in" aria-hidden="true" /></span>{/if}</td>
             </tr>
           {/if}
         </tbody>
@@ -109,7 +110,7 @@
     <div class="gc" data-ghost-alike={ghost.alike.level}>
       <p class="gh2">{t(ghost.alike.level === 'good' ? 'A good match: you can compare these two.|gh' : 'Fairly alike: compare with care.|gh')}</p>
       <ul>
-        {#each checks as c (c.key)}<li class:ok={c.ok === true} class:off={c.ok === false} data-ghost-check={c.key}><span aria-hidden="true">{c.ok === true ? '✓' : c.ok === false ? '≠' : '?'}</span> {c.text}</li>{/each}
+        {#each checks as c (c.key)}<li class:ok={c.ok === true} class:off={c.ok === false} data-ghost-check={c.key}><span aria-hidden="true">{#if c.ok === true}<Check size={14} class="ic-in" />{:else if c.ok === false}<X size={14} class="ic-in" />{:else}?{/if}</span> {c.text}</li>{/each}
       </ul>
     </div>
     <p class="cap">{[effNote, t('Beaten means: more watts per beat, or the same power with a lower heart rate. A tick marks the better value.|gh'), t('Wind, rain, traffic and sleep are only in the numbers where Strava weather knows them. A better number is an observation, not an order to ride harder.|gh')].filter(Boolean).join(' ')}</p>

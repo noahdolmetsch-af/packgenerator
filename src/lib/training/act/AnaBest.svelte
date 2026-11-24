@@ -5,6 +5,7 @@
    * least as good as the 90 days. With a weight also W/kg. Only with a power curve.
    */
   import AnaCard from '../AnaCard.svelte';
+  import { Star } from '@lucide/svelte';
   import { bestTable } from './analysen.js';
   import { wkg } from '../../training.js';
   import { kgOn } from '../../weight.js';
@@ -35,7 +36,7 @@
             <th scope="row" class="l">{spanName(r.span)}</th>
             <td>
               {#if r.me != null}
-                <b>{num(r.me)} W</b>{#if r.star}<span class="bst" role="img" aria-label={t('best of the last 90 days or as good')}>☆</span>{/if}
+                <b>{num(r.me)} W</b>{#if r.star}<span class="bst" role="img" aria-label={t('best of the last 90 days or as good')}><Star size={14} class="ic-in" aria-hidden="true" /></span>{/if}
                 {#if kg}<small>{wk(r.me)} W/kg</small>{/if}
               {:else}–{/if}
             </td>

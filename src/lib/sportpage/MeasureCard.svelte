@@ -153,7 +153,7 @@
     <ul class="shl" data-measure-sheet>
       <li><span>{name}</span><b class="num">{show(x.v)}</b></li>
       {#if setsText(x)}<li><span>{t('Sets')}</span><b class="num">{setsText(x)}</b></li>{/if}
-      {#if best && best.id === x.id}<li><span>{t('Best')}</span><b class="num">★</b></li>{/if}
+      {#if best && best.id === x.id}<li><span>{t('Best')}</span><b class="num"><Star size={16} fill="currentColor" aria-hidden="true" /></b></li>{/if}
     </ul>
   </ChartSheet>
 {/if}

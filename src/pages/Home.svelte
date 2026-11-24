@@ -210,7 +210,7 @@
   import { mundartFor } from '../lib/home/mundart.js'; // «Wetter-Sprüche auf Mundart» (Idee 27)
   import HeuteBild from '../lib/home/HeuteBild.svelte'; // «Paket G»: the drawn landscape on top
   import { bildOf, moodOf } from '../lib/home/heutebild.js';
-  import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid } from '@lucide/svelte';
+  import { PartyPopper, Sun, RotateCcw, Route, ChevronRight, SlidersHorizontal, Hand, X, ClipboardList, Flower2, Bike as BikeIcon, LayoutGrid, Check } from '@lucide/svelte';
   import DuTile from '../lib/home/DuTile.svelte'; // «Heute neu» A (Noah 20.10.2026 «3a»): «You today»
   import MedStartSheet from '../lib/flow/MedStartSheet.svelte';
   import NachtragHint from '../lib/flow/NachtragHint.svelte'; // «Heute · Gestern» (Noah 22.11.2026 «b»): the morning hint of Aktiv also on top of Heute
@@ -1242,7 +1242,7 @@
             {#each bars as s (s.key)}
               {@const cur = s.key === sched.next?.key}
               <li class:done={s.state === 'done'} class:skip={s.state === 'skip'} class:cur class:late={s.late} aria-current={cur ? 'step' : undefined}>
-                <span>{#if s.state === 'done'}{'✓ '}{/if}{t(STEP_NAME[s.key])}</span>
+                <span>{#if s.state === 'done'}<Check size={14} class="ic-in" aria-hidden="true" />{' '}{/if}{t(STEP_NAME[s.key])}</span>
               </li>
             {/each}
           </ol>
@@ -1520,7 +1520,7 @@
 <!-- v0.119.0 «Schnellstart» (mockup Q2a): what one click made, Noah stays on Today -->
 {#if made}
   <div class="qmade" role="status" data-quick-made>
-    <p class="qt"><span aria-hidden="true">✓{'\u00a0'}</span>{t('Trip planned: {name}', { name: made.title })}</p>
+    <p class="qt"><Check size={14} class="ic-in" aria-hidden="true" />{'\u00a0'}{t('Trip planned: {name}', { name: made.title })}</p>
     <p class="qs">{made.line}</p>
     <div class="qa">
       <Btn kind="hi" label={t('Open')} explain={explain('Open|quick')} href={madeTrip ? stepHere(madeTrip).href : '#/pack'} onclick={() => (openTrip(made.id), (made = null))} />

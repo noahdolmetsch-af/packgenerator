@@ -1900,6 +1900,14 @@ html:root[data-contrast='high'][data-theme='dark'] {
   }
 }
 
+/* Icons (Noah 24.11.2026 «5a»): sizes 14 / 16 / 20 / 24, stroke 2. An icon that stands in a line of text (instead of a ✓ ★ ✕ glyph)
+   sits on the baseline like a letter and never shrinks. */
+.ic-in {
+  display: inline-block;
+  vertical-align: -0.15em;
+  flex: none;
+}
+
 /* «Richtung zeigen» (Noah 03.11.2026 «b», Paket A Seitenwechsel 1): a page that goes deeper glides in from the right,
    the way back from the left (src/lib/nav/slide.js, the mark data-slide on <main> lasts as long as the glide).
    Only opacity and a short shift move, the tab bars and the path line stand still; the old page is gone at once.

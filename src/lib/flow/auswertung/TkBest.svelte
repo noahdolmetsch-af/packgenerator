@@ -5,6 +5,7 @@
    * 90 days and the year. A star when the period is as good as the 90 days.
    */
   import AnaCard from '../../training/AnaCard.svelte';
+  import { Star } from '@lucide/svelte';
   import { bestTable } from '../auswertung.js';
   import { t, tn, num } from '../../i18n.svelte.js';
 
@@ -29,7 +30,7 @@
         {#each tab.rows as r (r.k)}
           <tr data-best={r.k}>
             <th scope="row" class="l">{t(NAMES[r.k])}</th>
-            <td><b>{fmt(r.k, r.me)}</b>{#if r.star}<span class="bst" role="img" aria-label={t('best of the last 90 days or as good')}>☆</span>{/if}</td>
+            <td><b>{fmt(r.k, r.me)}</b>{#if r.star}<span class="bst" role="img" aria-label={t('best of the last 90 days or as good')}><Star size={14} class="ic-in" aria-hidden="true" /></span>{/if}</td>
             <td>{fmt(r.k, r.d90)}</td>
             <td>{fmt(r.k, r.year)}</td>
           </tr>
