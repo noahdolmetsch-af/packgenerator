@@ -282,10 +282,11 @@
     if (type === 'bikeOut' && summer && cfg.bikeHours) bits.push(t('{h} h together', { h: num(cfg.bikeHours) }));
     // Noah 23.11.2026 «4a»: how many of the goal this week really holds (TrainingPeaks, team dates and the hours goal can take some away)
     const standing = cfg.counts[type] || 0;
-    if (type === 'hockey' && isNow && sessions.some((s) => s.team === 'on')) bits.push(tn(week.team.length, 'This week 1 from the team dates', 'This week {n} from the team dates'));
+    const fromTeam = type === 'hockey' && isNow && sessions.some((s) => s.team === 'on');
+    if (fromTeam) bits.push(tn(week.team.length, 'This week 1 from the team dates', 'This week {n} from the team dates'));
     else if (standing > 0 && isNow) bits.push(t('This week {a} of {b}', { a: week.units.filter((u) => u.type === type).length, b: standing }));
     const fixed = Math.min((cfg.fixes[type] || []).length, cfg.counts[type] || 0);
-    if (fixed) bits.push(t('{fixed} fixed, {free} free', { fixed, free: Math.max(0, (cfg.counts[type] || 0) - fixed) }));
+    if (fixed && !fromTeam) bits.push(t('{fixed} fixed, {free} free', { fixed, free: Math.max(0, (cfg.counts[type] || 0) - fixed) }));
     return bits.join(' · ');
   }
   // a session from TrainingPeaks has no unit of the plan: its own title (or the word TrainingPeaks)
@@ -306,7 +307,22 @@
   const notes = $derived(week.notes.filter((n) => !said(n)).map(noteText).filter(Boolean));
   // what TrainingPeaks does to the week is said where the hours are (never silent): how much it brings, what it replaced
   const tpOver = $derived(week.tp.length > 0 && mins > goalNow * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over' || n.key === 'tpl-over' || n.key === 'soll-over' || n.key === 'soll-cut')); // Noah «a»: stays as it is, with a hint
-  const tpLines = $derived([...week.notes.filter(said).map(noteText).filter(Boolean), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
+  // impeccable: same-kind lines («fällt weg», «Ersetzt durch») are one line with a list, not four near-identical paragraphs
+  const MERGED = { 'soll-cut': 'To stay near your {h} h this week, this is left out: {list}.', 'tp-replaces': 'Replaced by TrainingPeaks: {list}.', 'tpl-replaces': 'Replaced by your training plan: {list}.' };
+  function sayNotes(list) {
+    const out = [];
+    const done = new Set();
+    for (const n of list) {
+      const group = MERGED[n.key] && !n.own ? list.filter((x) => x.key === n.key && !x.own) : [];
+      if (group.length > 1) {
+        if (done.has(n.key)) continue;
+        done.add(n.key);
+        out.push(t(MERGED[n.key], { h: num(n.hours ?? 0), list: group.map((x) => `${x.n} × «${nameOf(x.type)}»`).join(', ') }));
+      } else out.push(noteText(n));
+    }
+    return out.filter(Boolean);
+  }
+  const tpLines = $derived([...sayNotes(week.notes.filter(said)), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
   const hoursLine = $derived(
     modeShown.hard
       ? t('A harder week: {n} h instead of {m} h. Plus and minus change your normal plan.', { n: cfgW.hours, m: cfg.hours })

@@ -13,6 +13,7 @@ Nichts. Die alten Einheiten gehen nur, wenn Noah «Entfernen» tippt (mit Rückg
 
 ## Selbst entschieden
 - Die Zeile steht im Wochenplan unter den Hinweisen zu den Stunden, nicht über dem Inhalt (Content first).
+- Nach der Bildprüfung (impeccable, ohne Prüfprogramm): gleichartige Hinweise unter den Stunden sind eine Zeile mit Liste («fällt diese Woche weg: 1 × «Mini-Workout», 1 × «Gym» …», «Ersetzt durch TrainingPeaks: …») statt vier fast gleicher Absätze; bei Eishockey aus dem Spielplan fehlt das irreführende «1 fest, 0 frei».
 - Kein Schema, kein `api/`.
 
 ## Entscheide (eigene Datei `docs/decisions/alte-vorschlaege-weg.md`)
