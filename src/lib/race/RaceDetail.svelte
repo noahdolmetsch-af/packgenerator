@@ -19,6 +19,7 @@
   import SampleBar from './SampleBar.svelte';
   import RaceJumps from './RaceJumps.svelte';
   import { withSampleFine } from './sample.js';
+  import { atlasLine } from './atlas.js';
   import { setBox } from './view.js';
   import { t, tn, num } from '../i18n.svelte.js';
   import './race.css';
@@ -109,6 +110,10 @@
       {#if route?.km}{t('{km} km · {up} m up', { km: Math.round(route.km), up: num(Math.round(route.gainM ?? 0)) })}{:else}{t('No route yet: load it under «Prepare».')}{/if}
       {#if cd && cd.days >= 0}{' '}· {tn(cd.days, 'starts in {n} day', 'starts in {n} days')}{/if}
     </p>
+    {#if !route?.km && atlasLine(stored.atlas)}
+      {@const al = atlasLine(stored.atlas)}
+      <p class="rc-note" data-race-atlas-line>{al.km && al.hm ? t('Your race list says {km} km and {hm} m up.', { km: num(al.km), hm: num(al.hm) }) : al.km ? t('Your race list says {km} km.', { km: num(al.km) }) : t('Your race list says {hm} m up.', { hm: num(al.hm) })}</p>
+    {/if}
     {#if stored.sample}<SampleBar {stored} />{/if}
     <nav class="rc-tabs" aria-label={t('Parts of the race')}>
       {#each PARTS as p (p.key)}
