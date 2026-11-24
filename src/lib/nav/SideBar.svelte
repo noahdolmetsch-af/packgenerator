@@ -10,16 +10,20 @@
    */
   import { menuSide, shownTabs, tabOf, placeHref, sidePlaceOf } from '../nav.js';
   import { anp, placeLabel, tabLabel } from '../anpassen.svelte.js'; // «Anpassen» 2a + 3a: your menu, tabs and names
-  import { t } from '../i18n.svelte.js';
+  import { t, tn } from '../i18n.svelte.js';
   import LogoMark from '../logo/LogoMark.svelte'; // «Jahreszeit» (Idee 30)
   import Search from './Search.svelte';
   import MeButton from './MeButton.svelte';
   import PlaceIcon from './PlaceIcon.svelte';
+  import { dots as dotsNow } from './punkte.svelte.js'; // «Ruhige Punkte an allen Orten» (Noah 23.11.2026 «4a»)
   import { Plus, ChevronDown } from '@lucide/svelte';
   import { countClick, readHint, writeHint, keysOf } from './keyhint.js'; // Einzelidee 31: one shortcut at a time
 
   let { place = null, hash = '#/', due = 0, inbox = 0, onnew, shownew = true } = $props();
   const sidePlaces = $derived((void anp.v, menuSide()));
+  const dots = $derived(dotsNow());
+  const dotOf = (key) => (key === 'week' ? dots.week : key === 'trips' ? dots.trips : null);
+  const dotTip = (key, d) => (key === 'week' ? tn(d.n, 'Plan: {n} tick open today', 'Plan: {n} ticks open today') : tn(d.n, 'Tours: {n} tour to pack soon', 'Tours: {n} tours to pack soon'));
   // «Ganze App neu denken» Schritt 10: the row that is lit for the page (Ausrüstung → Material, Quick Links → Heute)
   const lit = $derived(sidePlaceOf(place));
   const QUICK_TAB = { key: 'quick', label: 'Quick Links|place', href: '#/quick' };
@@ -74,15 +78,17 @@
       <ul>
         {#each sidePlaces as p (p.key)}
           {@const on = lit === p.key}
+          {@const d = dotOf(p.key)}
           <!-- Schritt 10 (Z1): Quick Links is no row of its own; under Heute it is one line, while you are on Heute or in Quick Links -->
           {@const tabs = p.key === 'today' ? (on ? [QUICK_TAB] : []) : (void anp.v, shownTabs(p.key, place === p.key ? hash : ''))}
           {@const tab = on ? (p.key === 'today' ? (place === 'quick' ? QUICK_TAB.key : null) : tabOf(p.key, hash)) : null}
           <li class="pl" class:on data-place={p.key}>
             <!-- the place of the page: «page» when none of its pages is lit (a trip), else «true» -->
-            <a class="pa" href={(void anp.v, placeHref(p, lit, hash))} onclick={(e) => p.letter && clicked(e, p.letter, placeLabel(p))} aria-current={on ? (tab && (tabs.length > 1 || p.key === 'today') ? 'true' : 'page') : undefined}>
+            <a class="pa" href={(void anp.v, placeHref(p, lit, hash))} title={d ? dotTip(p.key, d) : undefined} onclick={(e) => p.letter && clicked(e, p.letter, placeLabel(p))} aria-current={on ? (tab && (tabs.length > 1 || p.key === 'today') ? 'true' : 'page') : undefined}>
               <span class="pi"><PlaceIcon place={p.key} size={20} /></span>
               <span class="pn">{placeLabel(p)}</span>
               {#if p.key === 'bikes' && due}<span class="cnt due num"><span class="sr">, {t('{n} due', { n: due })}</span><span aria-hidden="true">{due}</span></span>{/if}
+              {#if d}<span class="cnt due num" data-place-dot={p.key}><span class="sr">, {dotTip(p.key, d)}</span>{#if p.key === 'week'}<span aria-hidden="true">{d.n}</span>{:else}<span class="dotm" aria-hidden="true"></span>{/if}</span>{/if}
             </a>
             {#if on && (tabs.length > 1 || p.key === 'today') && tabs.length}
               <ul class="tabs">
@@ -283,6 +289,16 @@
     color: var(--ink);
     font: 600 var(--fs-tiny) / 1.67 var(--font-body);
     text-align: center;
+  }
+  /* «Ruhige Punkte» (Noah 23.11.2026 «4a»): Touren gets a small dot instead of a number */
+  .cnt .dotm {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin: 6px 3px;
+    vertical-align: top;
+    border-radius: 50%;
+    background: var(--hi);
   }
   .tabs {
     margin: 2px 0 6px 44px;

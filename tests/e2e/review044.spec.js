@@ -176,7 +176,8 @@ test('Empty: no card on Today, one sentence on the review page', async ({ page, 
   const errors = [];
   page.on('pageerror', (err) => errors.push(err.message));
   await page.goto('./');
-  await expect(page.getByRole('heading', { name: 'Erste Schritte' })).toBeVisible();
+  // «Starte hier» (V2, Noah 23.11.2026, changed on purpose): the card of an empty Today
+  await expect(page.getByRole('heading', { name: 'Starte hier' })).toBeVisible();
   await expect(page.locator('[data-year-row]')).toHaveCount(0);
   await page.goto('./#/review');
   await expect(page.getByText('Noch nichts für den Rückblick.')).toBeVisible();

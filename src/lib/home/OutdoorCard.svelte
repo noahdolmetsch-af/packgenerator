@@ -9,7 +9,7 @@
    * The record is the setting `outdoor` (src/lib/outdoor.js).
    */
   import { liveQuery } from 'dexie';
-  import { TreePine, Pencil, Check, Bell, BellOff } from '@lucide/svelte';
+  import { TreePine, Pencil, Check, Bell, BellOff, Compass } from '@lucide/svelte';
   import { db } from '../db.js';
   import { HOME_PLACE } from '../know.js';
   import { putSetting } from '../flowdb.js';
@@ -176,6 +176,9 @@
       {#if light}
         <small class="lt" data-outdoor-light>{#if light.latest}{t('The sun sets at {set}. Start by {latest} and the light is enough for the rest.', { set: light.set, latest: light.latest })}{:else}{t('The sun sets at {set}.', { set: light.set })}{/if}</small>
       {/if}
+      {#if offerLine && !st.today.done}
+        <a class="btn btn-link sm ot" href="#/trips/dreams" data-outdoor-tips><Compass size={14} aria-hidden="true" />{t('Trip tips for your time')}</a>
+      {/if}
     {/if}
 
     <span class="dots" role="img" aria-label={t('{ok} days reached, {miss} missed', { ok: st.doneN, miss: st.missed })}>
@@ -319,6 +322,13 @@
   .lt,
   .sum {
     flex: 1 1 100%;
+  }
+  .ot {
+    flex: 1 1 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-start;
   }
   .rem {
     flex: 1 1 100%;
