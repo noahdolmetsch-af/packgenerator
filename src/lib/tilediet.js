@@ -12,6 +12,12 @@ export const CONCURRENCY = 2;
 export const PAUSE_MS = 150;
 /** Stop after this many failures in a row (the host does not answer with CORS or is down); the old copies stay. */
 export const MAX_FAILS = 5;
+/**
+ * The server answers «no tile here» (404/410; swisstopo says 400 for a place outside its map). An opaque copy of such an
+ * answer is only an error page that was kept as a picture (the cache kept every opaque answer, whatever it said), so it
+ * goes. Without this, the first five of them stopped the whole run at every start and the rest never became small.
+ */
+export const NO_TILE = [400, 404, 410];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -32,7 +38,7 @@ export async function opaqueKeys(cache) {
 
 /**
  * Load the opaque tiles again with CORS and keep the new copy. Returns { total, done, gone, failed, stopped }.
- * A tile the server no longer has (404/410) is dropped (it could not be shown any more anyway).
+ * A tile the server has no picture for (404, 410, swisstopo's 400 outside its map) is dropped: what was kept is an error page.
  */
 export async function slimTiles({ store = globalThis.caches, fetchFn = globalThis.fetch?.bind(globalThis), online = () => globalThis.navigator?.onLine !== false, pauseMs = PAUSE_MS, concurrency = CONCURRENCY, names = TILE_CACHES } = {}) {
   const out = { total: 0, done: 0, gone: 0, failed: 0, stopped: false };
@@ -66,7 +72,7 @@ export async function slimTiles({ store = globalThis.caches, fetchFn = globalThi
           await job.cache.put(job.req.url, res);
           out.done++;
           streak = 0;
-        } else if (res.status === 404 || res.status === 410) {
+        } else if (NO_TILE.includes(res.status)) {
           await job.cache.delete(job.req);
           out.gone++;
           streak = 0;
