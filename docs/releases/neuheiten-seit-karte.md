@@ -1,4 +1,4 @@
-# Alle Neuheiten seit deinem letzten Besuch
+# Neuheiten am Ende von Heute
 
 Auftrag: Noah «1b 2a 3a 4b 5a» (Thread «Neuheiten in der App besser zeigen»), Schritt 3 von 4 von Weg B. Baut auf `news-bilder` und `news-bilder-anzeige` auf.
 

@@ -1,6 +1,6 @@
 // «Bilder bei jeder Neuheit» PR 3 (Noah 23.11.2026 «1b 2a 3a 4b 5a»): the card «N Neuheiten seit …» at the end of Heute
 export default {
-  title: 'All the news since you last looked',
+  title: 'News at the end of Today',
   lead: 'At the end of Today one card counts every news item since you last looked, with pictures, and groups them by place.',
   points: [
     {
@@ -21,7 +21,7 @@ export default {
   ],
   since: [],
   de: {
-    'All the news since you last looked': 'Alle Neuheiten seit deinem letzten Besuch',
+    'News at the end of Today': 'Neuheiten am Ende von Heute',
     'At the end of Today one card counts every news item since you last looked, with pictures, and groups them by place.': 'Am Ende von Heute zählt eine Karte jede Neuheit seit deinem letzten Besuch, mit Bildern, und ordnet sie nach Ort.',
     'The card «News since Friday» shows a few pictures and opens the news by place': 'Die Karte «Neuheiten seit Freitag» zeigt ein paar Bilder und öffnet die Neuheiten nach Ort',
     'In the window each place opens to its news, one picture each, and «Try it» leads to the place': 'Im Fenster öffnet sich jeder Ort mit seinen Neuheiten, je ein Bild, und «Ausprobieren» führt an die Stelle',
