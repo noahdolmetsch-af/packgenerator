@@ -114,6 +114,27 @@ export async function readTables(db, names) {
   return out.sort((a, b) => b.bytes - a.bytes);
 }
 
+/**
+ * The safety copies before updates, imports and so on (own database, «Before updates»): each holds ALL data, so
+ * they can be the biggest part of «Your data». Counted here once each, one at a time. Returns { n, bytes }.
+ */
+export async function readCopies(sdb) {
+  const ids = await sdb.snaps.toCollection().primaryKeys();
+  let bytes = 0;
+  let n = 0;
+  for (const id of ids) {
+    try {
+      const snap = await sdb.snaps.get(id);
+      if (!snap) continue;
+      n++;
+      bytes += approxBytes(snap.data);
+    } catch {
+      /* one unreadable copy must not hide the others */
+    }
+  }
+  return { n, bytes };
+}
+
 /** Does the picture add up? Says in one word where most of the browser's number comes from. */
 export function verdict({ usage, caches, tables }) {
   const opaquePad = caches.reduce((n, c) => n + c.opaque * OPAQUE_PAD, 0);
