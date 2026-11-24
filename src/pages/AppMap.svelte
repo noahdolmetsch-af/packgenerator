@@ -187,7 +187,7 @@
     gap: 2px;
   }
   .am-head b {
-    font-size: var(--fs-body, 1rem);
+    font-size: var(--fs-body);
   }
   .am-head small {
     color: var(--ink-3);
@@ -230,7 +230,7 @@
   .am-pt-t {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   a.am-pg:hover {
     background: color-mix(in srgb, var(--hi) 6%, var(--paper));
