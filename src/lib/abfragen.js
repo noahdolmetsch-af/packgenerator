@@ -930,6 +930,9 @@ export function fromChecks(checks = [], pool = []) {
     add('sleep', CHECK_MAP.sleep);
     add('energy', CHECK_MAP.energy);
     add('mood', CHECK_MAP.mood);
+    // «Ein Satz zum Tag» (Noah 24.11.2026 «1a»): the free sentence of the evening page also stands in the history
+    const story = typeof c.story === 'string' ? c.story.trim() : '';
+    if (story) out.push({ id: `tc-${c.day}-satz`, qid: 'tc.satz', area: 'erreicht', day: c.day, at: null, slot: null, kind: 'text', value: story, note: null, unit: null, src: 'hand', from: 'check', label: { text: 'One sentence about the day', textDe: 'Ein Satz zum Tag' } });
     if (c.q) {
       const p = pool.find((x) => x.id === c.q);
       const qid = CHECK_MAP[c.q] ?? `tc.${c.q}`;
