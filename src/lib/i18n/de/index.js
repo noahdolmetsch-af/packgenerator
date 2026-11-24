@@ -127,6 +127,8 @@ import sn6plus from './sn6plus.js';
 
 // AB «Deine Abfragen»: the 50 questions in 10 areas, Ich › Deine Abfragen, the card on Heute, Ich › Daten › Verlauf
 import abfragen from './abfragen.js';
+// «Wechsel-Varianten»: the other wordings of the questions
+import varianten from './varianten.js';
 // «Verbindungen»: what a sentence question offers from your own data
 import verbindungen from './verbindungen.js';
 
@@ -844,6 +846,7 @@ const ORDERED = [
   komoot,
   sn6plus,
   abfragen,
+  varianten,
   verbindungen,
   logogeheimnis,
   logosprueche,
