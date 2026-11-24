@@ -1,5 +1,7 @@
 // K3 «Wiegen am Starttag»: die gepackte Tasche auf der Waage, die App vergleicht mit ihrer Rechnung
 export default {
+  'Weigh bags': 'Taschen wiegen',
+  'On the start day: each packed bag on the scale': 'Am Starttag: jede gepackte Tasche auf der Waage',
   'Packed bag on the scale (g)': 'Gepackte Tasche auf der Waage (g)',
   'e.g. 1850': 'z. B. 1850',
   'Type the weight in grams, e.g. 1850.': 'Tippe das Gewicht in Gramm, z. B. 1850.',
