@@ -116,7 +116,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page).toHaveURL(/#\/me\/abfragen$/);
     await expect(page.getByRole('heading', { level: 1, name: T('Your questions') })).toBeVisible();
     // Impeccable Runde 2 (on purpose): the head says how often a day the app asks
-    await expect(page.locator('.vhead .vsub')).toHaveText(/^30 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
+    await expect(page.locator('.vhead .vsub')).toHaveText(/^31 Fragen an · etwa [0-9]+ Mal pro Tag gefragt, in 2 Runden [(]07:00 und 20:30[)]/);
     await expect(page.getByText('10 Bereiche · 106 Fragen · 31 an')).toBeVisible();
     const areas = page.locator('[data-area]');
     await expect(areas).toHaveCount(11); // 10 areas and «Eigene»
