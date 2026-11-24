@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { buildMap, filterMap, pathText, mapSize, filterPoints, markOf, freshIds, MAP_PLACES } from '../src/lib/appmap.js';
+import { readFileSync } from 'node:fs';
+import { buildMap, buildTree, ICH_GROUPS, filterMap, pathText, mapSize, filterPoints, markOf, freshIds, MAP_PLACES } from '../src/lib/appmap.js';
+import { PLACE_TABS } from '../src/lib/nav.js';
 import { PLACES } from '../src/lib/nav.js';
 import { FEATURES } from '../src/lib/features.js';
 
@@ -52,5 +54,34 @@ describe('Map of the app', () => {
   it('knows the functions the versions of the last two weeks brought', () => {
     const list = [{ version: '2', date: '2026-11-22', since: ['f.a'] }, { version: '1', date: '2026-10-01', since: ['f.b'] }, { version: '0', date: '2026-11-20' }];
     expect([...freshIds('2026-11-23', 14, list)]).toEqual(['f.a']);
+  });
+
+  it('shows a tree: every point of a place stands in exactly one page row under a tab', () => {
+    for (const g of map) {
+      const tree = buildTree(g);
+      const rows = tree.flatMap((t) => t.pages);
+      const ids = rows.flatMap((r) => r.ids);
+      expect(ids.toSorted()).toEqual(g.items.map((i) => i.id).toSorted());
+      // the tabs are the tabs of the place, in the order of the bar
+      const keys = (PLACE_TABS[g.key] ?? []).map((t) => t.key);
+      expect(tree.filter((t) => keys.includes(t.key)).map((t) => t.key)).toEqual(keys.filter((k) => tree.some((t) => t.key === k)));
+    }
+  });
+  it('keeps «Further pages» small, so the tree says where a page lives', () => {
+    for (const g of map) {
+      const rest = buildTree(g).find((t) => t.key === 'rest');
+      if (g.key === 'me' || g.key === 'today' || g.key === 'weather') continue;
+      expect(rest?.pages.length ?? 0, g.key).toBeLessThanOrEqual(12);
+    }
+  });
+  it('counts a page as opened when any address that leads to it was opened', () => {
+    const row = { path: '#/a', alsoPaths: ['#/a/b'], ids: ['x'] };
+    expect(markOf(row, { opened: { '#/a/b': 'd' } })).toBe('open');
+  });
+  it('groups «Ich» like the page «Ich»: every row of Me.svelte lands in one of its groups', () => {
+    const me = readFileSync(new URL('../src/pages/Me.svelte', import.meta.url), 'utf8');
+    const hrefs = [...me.matchAll(/class="ich-row" href="(#\/[^"]+)"/g)].map((m) => m[1].split('?')[0]);
+    expect(hrefs.length).toBeGreaterThan(10);
+    for (const h of hrefs) expect(ICH_GROUPS.some((x) => x.re.test(h)), h).toBe(true);
   });
 });
