@@ -22,7 +22,7 @@
     busy = true;
     try {
       await settling(async () => {
-        await addExamples(db, localDay(), { interests: ['nights'] });
+        await addExamples(db, localDay(), { interests: cfg.interests ?? ['nights'] });
         await tidyData(db);
       });
       if (cfg.trip) openTrip(SAMPLE_TRIP_ID);

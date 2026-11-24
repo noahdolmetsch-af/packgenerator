@@ -253,6 +253,9 @@ test('weather at home, surprise round, rating in parts', async ({ page, context 
   await expect(sr).toBeHidden();
   await expect(page.getByText(T('Surprise round')).first()).toBeVisible();
 
+  // the note stops its time while the mouse is on it (Noah 23.11.2026 «1-5a», Aktionen 1): take the mouse away first
+  await page.mouse.move(0, 0);
+  await page.evaluate(() => document.activeElement?.blur?.());
   await expect(page.getByText(T('Surprise round planned: {km} km. Undo deletes the trip.', { km: '34' }))).toBeHidden({ timeout: 20_000 });
 
   // 4 the evening review: a 4 asks what it was about

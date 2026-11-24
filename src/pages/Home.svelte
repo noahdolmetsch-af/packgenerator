@@ -81,6 +81,7 @@
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import StartHier from '../lib/home/StartHier.svelte';
+  import { health } from '../lib/health/client.svelte.js'; // connected Fitbit: the body tile also stands on an empty device (its line says why there is no value)
   import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide, openData, openPlay } from '../lib/nav.js';
   import { todayFocus, openDebrief, endedOn } from '../lib/today.js';
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
@@ -1035,7 +1036,7 @@
   const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp && !essUp);
   // «Starte hier» (Noah 23.11.2026 «1-5a», V2): on an empty device the body block and «Up now» (with the idea) show only with content
   const healthQ = liveQuery(() => (db.healthDays ? db.healthDays.count() : 0));
-  const emptyTiles = $derived(timeWall.filter((x) => EMPTY_KEEP.has(x.id) && (x.id === 'body' ? ($healthQ ?? 0) > 0 : x.id === 'important' ? !upEmpty : true)));
+  const emptyTiles = $derived(timeWall.filter((x) => EMPTY_KEEP.has(x.id) && (x.id === 'body' ? ($healthQ ?? 0) > 0 || !!health.prefs?.connected : x.id === 'important' ? !upEmpty : true)));
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
@@ -1466,6 +1467,8 @@
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
   {#if ready && emptyDevice}
     {#if emptyTiles.length}<Wall tiles={emptyTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />{/if}
+    <!-- what is due today never hides (rule 11), also with a calendar and nothing else: without the body tile it stands here -->
+    {#if !emptyTiles.some((x) => x.id === 'body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}
     <p class="muted emptywall" data-empty-wall>{t('Everything else (body, up now, weather) shows up as soon as you have data.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
   {:else if ready}<Wall tiles={wallTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(hakenTop && hakenTile ? [hakenTile, ...kept] : kept)} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
