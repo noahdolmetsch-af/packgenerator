@@ -181,4 +181,22 @@
       bottom: calc(84px + env(safe-area-inset-bottom));
     }
   }
+  /* a note with two buttons («Rückgängig» and «Ansehen») on a phone: the text keeps the whole line, the buttons wrap below it */
+  @media (max-width: 480px) {
+    .rtoast,
+    .rtoast-old {
+      flex-wrap: wrap;
+      gap: 0 8px;
+      padding-bottom: 0;
+    }
+    .rtoast span,
+    .rtoast-old span {
+      flex: 1 1 calc(100% - 100px);
+      padding: 8px 0;
+    }
+    .rtoast .close,
+    .rtoast-old .close {
+      margin-left: auto;
+    }
+  }
 </style>
