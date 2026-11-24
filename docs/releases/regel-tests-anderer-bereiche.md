@@ -1,10 +1,11 @@
-# Regeln R31 und R32: Tests anderer Bereiche, ausführlichere Antworten
+# Regeln R31, R32 und R33: Tests anderer Bereiche, ausführlichere Antworten
 
-PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (R31) und «ich möchte, dass du ab sofort mehr antwortest» (R32) (Thread «Regeln und Anweisungen auf neuen Stand bringen»)
+PR (Nummer steht im PR) · 24.11.2026 · Auftrag: Noah «a» (R31) und «ich möchte, dass du ab sofort mehr antwortest» (R32), «Jede Nachricht sagt klar, wovon die Rede ist» (R33) (Thread «Regeln und Anweisungen auf neuen Stand bringen»)
 
 ## Was ist neu
 - `docs/regeln.md`: neue Regel R31. Wer eine Seite umbaut, sucht vor dem PR alle Tests, die diese Seite antippen (auch aus anderen Bereichen), und lässt sie lokal laufen.
 - `docs/regeln.md`: neue Regel R32. Antworten an Noah sind ab sofort ausführlicher (was passiert ist, warum, was es für ihn bedeutet, nächster Schritt); R4 verweist darauf.
+- `docs/regeln.md`: neue Regel R33. Jede Nachricht an Noah verlinkt den Thread, nennt das Thema in Worten, erklärt jede PR-Nummer in Worten und benennt den offenen Punkt.
 - `CLAUDE.md`: Verweis auf R31 im Abschnitt «Tests», und der Satz zur Antwortlänge am Anfang folgt R32.
 - `tests/regeln-doku.test.js`: die Regeln müssen lückenlos nummeriert sein, aber nicht mehr in der Reihenfolge der Datei.
 - Nur Doku und ein Doku-Test, nichts sichtbar in der App.
