@@ -64,7 +64,10 @@
   import { localDay } from '../localday.js';
   import { mainStep, packedAll } from '../phase.js';
   import '../trip/trip.css';
-  import { ArrowDown } from '@lucide/svelte';
+  import { onMount } from 'svelte';
+  import { ArrowDown, ArrowUp } from '@lucide/svelte';
+  // «Packen in Schritten» (Warteliste 4; Noah 22.11.2026 «2a», «3a»): the list one step after the other, the view and the order are kept
+  import { SETTING as STEPS_KEY, cleanChoice, viewOf, stepGroups, moveStep, nextGroup } from './schritte.js';
   import { packSteps } from '../trips.js';
   import { missingOf, missingText } from '../touren/tourstep.js';
   // Klick-Rundgang H33 (parked until Noah's OK): an empty list offers a template's list in one tap
@@ -79,6 +82,33 @@
   import { offerDone } from '../ui/rename.svelte.js';
   let { trip, stats, bike, bikeTrip, domainLabel, items, itemsById, trips, candidates, targets, templates, hasPhoto = false, power = false, openLayers, canUndo, changeNote = '', ctxChanged = false, ctxRows = {}, reasons = {}, readyCount, readyTotal, over, fixed = false, phaseOpts = {}, carry = new Set(), q = $bindable(''), zoneKey = $bindable('seat'), review = $bindable(false), actions, settings, picker, moreWeights, preparation, ballastContent, shop = null, starters = null, jumpBefore = false, suggest = null, notice = null, made = false, onion = null, photo = null, edit = null, swapMemory = {}, onroute = null, onstages = null, prep = null, onprep = null, lessons = [], reminders = [], onlist = null, ampel = [], onampel = null } = $props();
   let grouping = $state('bags');
+  let stepChoice = $state({ view: null, order: [] });
+  // the remembered view and order come with the first read of the settings; a list with nothing packed opens in Steps. A browser test may ask for the bags (__pgPackView).
+  onMount(() => {
+    let live = true;
+    db.settings.get(STEPS_KEY).then((r) => {
+      if (!live) return;
+      stepChoice = cleanChoice(r?.value);
+      grouping = stepChoice.view ?? globalThis.__pgPackView ?? viewOf(null, trip.entries ?? []);
+      // a card on «Trips» («Continue with Clothes») sends us to that step once: the list opens in Steps with the step open
+      try {
+        const step = sessionStorage.getItem('pg.packStep');
+        if (step) {
+          sessionStorage.removeItem('pg.packStep');
+          grouping = 'steps';
+          opened = { ...opened, [`step-${step}`]: true };
+          setTimeout(() => document.querySelector(`[aria-controls="calm-bag-step-${step}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+        }
+      } catch {
+        /* private window: the list opens as it was */
+      }
+    }).catch(() => {});
+    return () => { live = false; };
+  });
+  const keepChoice = (next) => {
+    stepChoice = { ...stepChoice, ...next };
+    db.settings.put({ key: STEPS_KEY, value: $state.snapshot(stepChoice) }).catch(() => {});
+  };
   let opened = $state({});
   let itemMenu = $state(null);
   let sheet = $state(null);
@@ -89,7 +119,7 @@
   // v0.59.0 «Tauschen» (OP2a, Noah a): the worn clothing is the first card «On me» (a tap swaps); the
   // groups below leave it out, so a piece stands in one place. «On me» without other things goes away.
   const worn = $derived(wornClothes(trip, itemsById));
-  const groups = $derived(planningGroups(stats, items, grouping).map((g) => (worn.n ? { ...g, entries: g.entries.filter((e) => !worn.ids.has(e.itemId)) } : g)).filter((g) => !worn.n || g.entries.length || (grouping === 'bags' && g.key !== 'body')));
+  const groups = $derived((grouping === 'steps' ? stepGroups(stats.zones, items, stepChoice.order) : planningGroups(stats, items, grouping)).map((g) => (worn.n ? { ...g, entries: g.entries.filter((e) => !worn.ids.has(e.itemId)) } : g)).filter((g) => !worn.n || g.entries.length || (grouping === 'bags' && g.key !== 'body')));
   const swapRange = $derived(tripRange(trip));
   const swapRain = $derived(tripRain(trip));
   const wardrobeHref = $derived(`#/wardrobe/trip/${encodeURIComponent(trip.id)}`);
@@ -133,11 +163,16 @@
   const until = $derived(trip.startDate ? daysUntil(trip.startDate) : null);
   const whenText = $derived(until == null ? '' : until > 1 ? tn(until, 'in {n} day', 'in {n} days') : until === 1 ? t('tomorrow') : until === 0 ? t('today') : '');
   const kicker = $derived([bikeTrip ? t('Trip') : domainLabel, whenText, startText].filter(Boolean).join(' · '));
-  const zoneTitle = (g) => grouping === 'category' ? t(g.zone.name) : (trip.purpose?.[g.key] || t(g.key === 'mounted' ? 'On the bike|zone' : g.zone.name));
+  const zoneTitle = (g) => grouping !== 'bags' ? t(g.zone.name) : (trip.purpose?.[g.key] || t(g.key === 'mounted' ? 'On the bike|zone' : g.zone.name));
   const icon = (g) => g.key === 'body' ? UserRound : g.key === 'mounted' ? Bike : g.worn || g.bag?.pack ? Backpack : Briefcase;
   // v0.37.0 (Noah 5a): a quiet litre note, only from known litres (litreWarning never guesses).
   const litresOver = (g) => (grouping === 'bags' ? litreWarning(g, itemsById) : null);
   const flip = (key) => opened = { ...opened, [key]: !opened[key] };
+  // «Next: Food and water»: this step closes, the next one opens and comes into view
+  function goNext(from, to) {
+    opened = { ...opened, [from]: false, [to]: true };
+    setTimeout(() => document.querySelector(`[aria-controls="calm-bag-${to}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
+  }
   // v0.47.0 (Noah 8): a tap on a bag of the drawing opens that bag in the list.
   function openBag(key) {
     grouping = 'bags';
@@ -447,7 +482,7 @@
         <section class="tp-sec list-head">
           <h2>{t('Packing list')}</h2>
           <div class="list-toolbar">
-            <label class="group-control"><select aria-label={t('Group packing list')} bind:value={grouping}><option value="bags">{t('By bags')}</option><option value="category">{t('By category')}</option></select><ChevronDown size={16} aria-hidden="true" /></label>
+            <label class="group-control"><select aria-label={t('Group packing list')} bind:value={grouping} onchange={(e) => keepChoice({ view: e.currentTarget.value })} data-pack-view><option value="steps">{t('Steps')}</option><option value="bags">{t('By bags')}</option><option value="category">{t('By category')}</option></select><ChevronDown size={16} aria-hidden="true" /></label>
             {#if !fixed}<button class="tp-link add-mat" onclick={() => show('add')} data-add-mat><Plus size={18} aria-hidden="true" />{t('Add material')}</button>{/if}
             <!-- v0.27.0 (Noah 1a): Undo is announced when it appears (a live region). -->
             <span class="undo-live" role="status" aria-live="polite">{#if canUndo}<button class="tp-link undo" onclick={actions.undo}><Undo2 size={18} aria-hidden="true" />{t('Undo')}</button>{/if}</span>
@@ -494,6 +529,7 @@
             {@const isOpen = !!opened[group.key]}
             {@const g = groupG(group)}
             {@const miss = groupMissing(group)}
+            {@const next = grouping === 'steps' ? nextGroup(groups, group.key) : null}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <section class="bag-group" class:open={isOpen} aria-label={zoneTitle(group)} ondragover={(e) => { if (grouping === 'bags' && !fixed) e.preventDefault(); }} ondrop={(e) => { if (grouping !== 'bags' || fixed) return; e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); if (id) actions.addTo(group.key, id); }}>
               <button class="bag-heading" aria-expanded={isOpen} aria-controls={`calm-bag-${group.key}`} onclick={() => flip(group.key)}>
@@ -543,6 +579,15 @@
                       </li>
                     {:else}<li class="empty-bag"><p>{t('This bag is still empty.')}</p></li>{/each}
                   </ul>
+                  {#if grouping === 'steps'}
+                    <p class="step-nav" data-step-nav>
+                      {#if !fixed && stepChoice}
+                        <button type="button" class="tp-link" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, -1, groups.map((x) => x.step)) })} aria-label={t('Move step up: {name}', { name: zoneTitle(group) })} data-step-up={group.step}><ArrowUp size={16} aria-hidden="true" />{t('Earlier')}</button>
+                        <button type="button" class="tp-link" onclick={() => keepChoice({ order: moveStep(stepChoice.order, group.step, 1, groups.map((x) => x.step)) })} aria-label={t('Move step down: {name}', { name: zoneTitle(group) })} data-step-down={group.step}><ArrowDown size={16} aria-hidden="true" />{t('Later')}</button>
+                      {/if}
+                      {#if next}<button type="button" class="tp-link next-step" onclick={() => goNext(group.key, next.key)} data-step-next>{t('Next: {step}', { step: zoneTitle(next) })} ›</button>{/if}
+                    </p>
+                  {/if}
                   {#if !fixed}<p class="addrow"><button class="tp-link" onclick={() => { zoneKey = grouping === 'bags' && targets.some((x) => x.key === group.key) ? group.key : targets[0]?.key; show('add'); }}><Plus size={16} aria-hidden="true" />{t('Add an item')}</button></p>{/if}
                   {#if grouping === 'bags' && group.key !== 'body' && group.key !== 'mounted'}{#if !fixed}<BagWeigh {trip} slot={group.key} calcG={groupG(group)} missing={groupMissing(group)} bagG={group.bag ? containerWeight(group.bag, itemsById) : null} onsave={onlist ? (weighed) => onlist((cur) => ({ ...cur, weighed })) : null} />{/if}<BagShot {trip} slot={group.key} name={zoneTitle(group)} />{#if group.entries.length}<p class="addrow"><button type="button" class="tp-link" onclick={() => (labelFor = group)} data-bag-label-open><Tag size={16} aria-hidden="true" />{t('Label of the bag')}</button></p>{/if}{/if}
                 </div>
@@ -684,6 +729,8 @@
   .bag-heading strong { flex: 1 1 auto; }
   .preview { margin: 0 0 4px 32px; font-size: var(--fs-small); line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: break-word; }
   .addrow { margin: 4px 0 0 32px; }
+  .step-nav { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0 0 32px; }
+  .step-nav .tp-link { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; }
   .real-pack { margin: 0 0 4px 32px; }
   .quiet-link { font-size: var(--fs-small); color: var(--ink-2); min-height: 44px; }
   /* P3 (RG1): «Why?» sits right of the row; amount, move and the change line take the whole width below */
