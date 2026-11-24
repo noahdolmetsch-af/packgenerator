@@ -191,6 +191,7 @@
       undo: () => saveItems([...items().filter((x) => x.id !== gone.id), gone]),
       text: t('"{name}" deleted.', { name: gone.title }),
       name: gone.title,
+      item: { store: ITEMS_KEY, row: gone, kind: 'plan' },
     });
   }
 </script>

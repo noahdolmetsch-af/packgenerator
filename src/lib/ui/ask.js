@@ -13,7 +13,7 @@ import DeleteSheet from './DeleteSheet.svelte';
 import { offerDone } from './rename.svelte.js';
 import { t } from '../i18n.svelte.js';
 import { db as appDb } from '../db.js';
-import { trashed, dropEntry, lastDeleted } from '../trash/trash.js'; // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»)
+import { trashed, trashItem, dropEntry, lastDeleted } from '../trash/trash.js'; // «Zuletzt gelöscht» (Noah 23.11.2026 «1a»)
 
 let open = null; // the question shown now: a second tap on «Delete» does not open a second one
 
@@ -61,7 +61,7 @@ export function askDelete({ title, text = '', lines = [], label = '', archive = 
  * it back. text: «"Tent" deleted.»; name: shown in «"Tent" is back.» and in the error lines.
  * → true when deleted, false when it failed (the error line says so, nothing is gone).
  */
-export async function deleteWithUndo({ run, undo = null, text, name = '', trash = true }) {
+export async function deleteWithUndo({ run, undo = null, text, name = '', trash = true, item = null }) {
   let saved;
   let trashId = null;
   try {
@@ -69,6 +69,8 @@ export async function deleteWithUndo({ run, undo = null, text, name = '', trash 
     const r = await trashed(name || text, run, { keep: trash });
     saved = r.value;
     trashId = r.id;
+    // an item of a list in a settings record (an entry of My day): no table row goes, so the item itself is kept: item { store, row, kind }
+    if (!trashId && item && trash) trashId = await trashItem(appDb, name || text, item);
   } catch (err) {
     console.error(err);
     offerDone(t('"{name}" couldn\'t be deleted. It\'s still there. Try again.', { name }));

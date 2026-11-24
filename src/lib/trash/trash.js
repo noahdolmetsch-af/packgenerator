@@ -50,8 +50,11 @@ export async function forgetFor(value, db = appDb) {
   if (id) await dropEntry(db, id).catch(() => {});
 }
 
-/** Writes one entry for the rows [{ t, key, row }] (a row that is twice in it counts once). */
-export async function putEntry(db, label, rows, now = new Date()) {
+/** Rows that are not a table row but one item in a list that lives in a settings record (a to-do, an entry of My day): { t: LIST, key: settings key, row: the item }. */
+export const LIST = '@list';
+
+/** Writes one entry for the rows [{ t, key, row }] (a row that is twice in it counts once). kind: for entries that sit under no table (a to-do). */
+export async function putEntry(db, label, rows, now = new Date(), kind = '') {
   const seen = new Set();
   const list = [];
   for (const r of rows) {
@@ -62,8 +65,30 @@ export async function putEntry(db, label, rows, now = new Date()) {
   }
   const main = mainTable(list);
   const id = newId();
-  await db.trash.put({ id, at: now.toISOString(), kind: kindOfTable(main), name: String(label ?? '').slice(0, 160), main, counts: countsOf(list), rows: list });
+  await db.trash.put({ id, at: now.toISOString(), kind: kind || kindOfTable(main), name: String(label ?? '').slice(0, 160), main, counts: countsOf(list), rows: list });
   return id;
+}
+
+/**
+ * One item of a list in a settings record went (a to-do in `merken`, an entry of My day in `week.items`): keeps the item for 30 days.
+ * → the entry id, or null (the trash never stops a delete). It is also the one ⌘Z takes back.
+ */
+export async function trashItem(db, label, { store, row, kind }) {
+  try {
+    const id = await putEntry(db, label, [{ t: LIST, key: store, row }], new Date(), kind);
+    last = { id, name: String(label ?? ''), at: Date.now() };
+    return id;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
+
+/** The delete of an item was taken back at once: its entry goes, and ⌘Z has nothing to take back. */
+export async function forgetItem(db, id) {
+  if (!id) return;
+  await dropEntry(db, id).catch(() => {});
+  if (last?.id === id) last = null;
 }
 
 /** The entry is gone because the delete was taken back at once (Undo): it does not belong in the trash. */
@@ -80,10 +105,23 @@ export async function restoreEntry(db, id) {
   if (!e) return null;
   const by = {};
   for (const r of e.rows ?? []) (by[r.t] ??= []).push(r);
+  const items = by[LIST] ?? [];
+  delete by[LIST];
   const names = Object.keys(by);
   let back = 0;
   let skipped = 0;
-  await db.transaction('rw', [...names.map((n) => db.table(n)), db.trash], async () => {
+  await db.transaction('rw', [...names.map((n) => db.table(n)), ...(items.length ? [db.settings] : []), db.trash], async () => {
+    // an item of a list in a settings record goes to the end of that list again, unless one with its id is there
+    for (const it of items) {
+      const cur = (await db.settings.get(it.key))?.value;
+      const list = Array.isArray(cur) ? cur : [];
+      if (list.some((x) => x && x.id === it.row?.id)) {
+        skipped++;
+        continue;
+      }
+      await db.settings.put({ key: it.key, value: [...list, JSON.parse(JSON.stringify(it.row))] });
+      back++;
+    }
     for (const n of names) {
       const tbl = db.table(n);
       const inbound = !!tbl.schema.primKey.keyPath;
