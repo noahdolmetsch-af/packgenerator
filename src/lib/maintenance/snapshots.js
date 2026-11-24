@@ -15,7 +15,8 @@ export const SNAP_DB = 'pack-generator-snapshots';
 // P3b «Daten sicher» (Noah 15.10.2026, rule 5a): also a copy before every import of a backup file
 // («Replace all data» and «Merge»), the last 3 of them.
 // P8 «Automatischer Abgleich»: one copy before the first sync with another device.
-export const KEEP = { update: 3, restore: 1, import: 3, sync: 1, reset: 1 };
+// Noah 24.11.2026 (Karte «Vor Updates»: 3 Kopien = 166 MB): only the last copy before an update stays (was 3).
+export const KEEP = { update: 1, restore: 1, import: 3, sync: 1, reset: 1 };
 /** The version this device started with last time (in the snapshot database, never exported). */
 export const VERSION_KEY = 'version';
 
@@ -66,17 +67,23 @@ async function lightList(sdb) {
   return atIds.map((id, i) => ({ id, at: ats[i], kind: kindOf.get(id) }));
 }
 
+/** Drop the copies beyond KEEP (indexes only, no copy is read). Returns how many went. */
+export async function pruneNow(sdb) {
+  const drop = pruneIds(await lightList(sdb));
+  if (drop.length) {
+    await sdb.snaps.bulkDelete(drop);
+    await sdb.meta.bulkDelete(drop.map((x) => HEAD + x));
+  }
+  return drop.length;
+}
+
 /** Keep a copy of the data now. kind: 'update' (before an update), 'restore' (before going back) or 'import' (before an import). */
 export async function takeSnapshot(db, sdb, { version, to = null, kind = 'update', now = new Date() }) {
   const data = await buildBackup(db);
   const entry = { at: now.toISOString(), version: version ?? null, to, kind, rows: rowsOf(data) };
   const id = await sdb.snaps.add({ ...entry, data });
   await sdb.meta.put({ key: HEAD + id, value: headOf({ ...entry, id }) });
-  const drop = pruneIds(await lightList(sdb));
-  if (drop.length) {
-    await sdb.snaps.bulkDelete(drop);
-    await sdb.meta.bulkDelete(drop.map((x) => HEAD + x));
-  }
+  await pruneNow(sdb);
   return id;
 }
 
@@ -126,6 +133,7 @@ export async function snapshotOnStart(db, { sdb = snapDb(), current, seen = null
   const mark = (await sdb.meta.get(VERSION_KEY))?.value ?? null;
   const last = mark ?? seen;
   let made = false;
+  await pruneNow(sdb).catch(() => {}); // the limit may have got smaller since the last start
   if (last && last !== current) {
     const { snap } = await readMaint(db);
     if (shouldSnapshot({ last, current, hasData: await hasDataIn(db), on: snap })) {

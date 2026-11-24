@@ -38,7 +38,7 @@ export default {
   // 3a: Fenster schliessen behält das Getippte
   'Your text from before is back.': 'Dein Getipptes von vorhin ist wieder da.',
   'Back to the state before the import': 'Zurück zum Stand vor dem Import',
-  'A copy of your data before every update and every import, only on this device. The last 3 stay.': 'Eine Kopie deiner Daten vor jedem Update und jedem Import, nur auf diesem Gerät. Die letzten 3 bleiben.',
+  'A copy of your data before the last update and before each of the last 3 imports, only on this device.': 'Eine Kopie deiner Daten vor dem letzten Update und vor jedem der letzten 3 Importe, nur auf diesem Gerät.',
   // Funktionen, Handbuch, So geht's
   'Send the backup file to the other device; it says which is newer and suggests what to do, with a copy of before.':
     'Schick die Backup-Datei an das andere Gerät; es sagt, was neuer ist, und schlägt vor, was zu tun ist, mit einer Kopie von vorher.',

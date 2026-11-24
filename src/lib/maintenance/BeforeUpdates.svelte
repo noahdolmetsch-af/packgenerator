@@ -60,7 +60,7 @@
 </script>
 
 <section class="ich-sec" id="before-updates" aria-labelledby="bu-h" data-section="before-updates" bind:this={sec}>
-  <div class="ich-h"><div><h2 id="bu-h">{t('Before updates')}</h2><p class="ich-hs">{t('A copy of your data before every update and every import, only on this device. The last 3 stay.')}</p></div></div>
+  <div class="ich-h"><div><h2 id="bu-h">{t('Before updates')}</h2><p class="ich-hs">{t('A copy of your data before the last update and before each of the last 3 imports, only on this device.')}</p></div></div>
   <ul class="card ich-list">
     {#each $listQ ?? [] as s (s.id)}
       <li class="ich-row ich-wrap" data-snapshot={s.kind}>
