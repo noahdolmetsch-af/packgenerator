@@ -7,10 +7,12 @@
    */
   import { t } from '../i18n.svelte.js';
   import { optText, unitText } from './words.js';
+  import { withLink } from './verbindungen.js';
 
   // UI-Ziele #12 (Noah 20.10.2026 «freigabe»): `quick` draws a scale as 5 steps with words (stored as 2, 4 … 10 of the
   // 1–10 scale), `last` (yesterday's value) is marked quietly, `onanswer` runs after a pick (the check moves on)
-  let { q, value = $bindable(), note = $bindable(), id, label = '', quick = false, last = null, onanswer = null } = $props();
+  // «Verbindungen»: `links` = [{ kind, label, items }] what the app knows (to-dos, goals …) as one-tap answers of a sentence; `hint` = a quiet line above (this morning's goal)
+  let { q, value = $bindable(), note = $bindable(), id, label = '', quick = false, last = null, onanswer = null, links = [], hint = '' } = $props();
   const STEPS = [
     { v: 2, w: 'bad|step' },
     { v: 4, w: 'rather bad|step' },
@@ -36,6 +38,7 @@
   const pressed = (k) => (form.multi ? Array.isArray(value) && value.includes(k) : value === k);
 </script>
 
+{#if hint}<p class="ab-hint" data-ab-hint>{hint}</p>{/if}
 {#if form.kind === 'scale' && quick}
   <div class="ab-five" role="group" aria-label={label} data-quick-scale>
     {#each STEPS as st (st.v)}
@@ -80,6 +83,14 @@
     <span class="sr">{label}</span>
     <input class="inp ab-txt" type="text" maxlength="500" {id} value={value ?? ''} oninput={(e) => (value = e.currentTarget.value)} />
   </label>
+  {#each links as g (g.kind)}
+    <div class="ab-links" role="group" aria-label={g.label} data-links={g.kind}>
+      <small>{g.label}</small>
+      {#each g.items as item (item)}
+        <button type="button" class="ab-link" onclick={() => (value = withLink(value, item))}>{item}</button>
+      {/each}
+    </div>
+  {/each}
 {/if}
 {#if form.note}
   <label class="ab-note">
@@ -89,6 +100,36 @@
 {/if}
 
 <style>
+  .ab-hint {
+    margin: 0 0 6px;
+    color: var(--ink-3);
+    font-size: var(--fs-small);
+  }
+  .ab-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .ab-links small {
+    flex: 0 0 100%;
+    color: var(--ink-3);
+    font-size: var(--fs-label);
+  }
+  .ab-link {
+    max-width: 100%;
+    min-height: 36px;
+    padding: 4px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--ink-2);
+    font: 500 var(--fs-small) / 1.2 var(--font-body);
+    overflow-wrap: break-word;
+    text-align: left;
+    cursor: pointer;
+  }
   .ab-five {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));

@@ -5,6 +5,7 @@
  */
 import { newTodo, tick } from './merken.js';
 import { reorderGroup } from './merken/order.js';
+import { trashItem, forgetItem } from './trash/trash.js'; // «Zuletzt gelöscht»: a deleted to-do waits 30 days
 import { newBirthday, newPlant, watered } from './merken/kinds.js';
 
 export const MERKEN_KEY = 'merken';
@@ -69,9 +70,15 @@ export async function tickTodo(db, id, opts) {
   return () => restoreTodos(db, before);
 }
 
-export async function removeTodo(db, id) {
+/** Deletes a to-do; returns Undo. trash: false when it is no delete of the user (a reminder that is only taken away). */
+export async function removeTodo(db, id, { trash = true } = {}) {
   const { before } = await write(db, (list) => list.filter((t) => t.id !== id));
-  return () => restoreTodos(db, before);
+  const gone = before.find((t) => t.id === id);
+  const entry = trash && gone ? await trashItem(db, String(gone.text ?? '').trim() || String(gone.name ?? ''), { store: MERKEN_KEY, row: gone, kind: 'todo' }) : null;
+  return async () => {
+    await restoreTodos(db, before);
+    await forgetItem(db, entry);
+  };
 }
 
 export const restoreTodos = (db, list) => db.settings.put({ key: MERKEN_KEY, value: list });

@@ -108,14 +108,14 @@ describe('Auswerten in five tabs by question', () => {
     const subs = Object.fromEntries(all.map((x) => [x.key, x.subs.map((s) => s.key)]));
     expect(subs.start).toEqual(['fragen', 'start']);
     expect(subs.body).toEqual(expect.arrayContaining(['form', 'body', 'weight', 'insights']));
-    expect(subs.rides).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned']));
+    expect(subs.rides).toEqual(expect.arrayContaining(['rides', 'ticks', 'milestones', 'heatmap', 'neuland', 'gipfel', 'year', 'learned', 'challenges']));
     expect(subs.history).toEqual(expect.arrayContaining(['history', 'wohl', 'ideen']));
     expect(subs.analyse).toEqual(['analyse']);
   });
   it('no page of the old eighteen tabs is lost or stands twice', () => {
     const shown = all.flatMap((x) => x.subs.map((s) => s.key));
     expect(new Set(shown).size).toBe(shown.length);
-    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start'].sort());
+    expect([...shown].sort()).toEqual(['analyse', 'fragen', 'form', 'body', 'rides', 'ticks', 'history', 'wohl', 'ideen', 'insights', 'weight', 'milestones', 'heatmap', 'neuland', 'gipfel', 'learned', 'year', 'start', 'challenges'].sort());
   });
 });
 

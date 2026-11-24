@@ -27,7 +27,9 @@ test('Night temperature in the evening: off at the start, can be switched on and
   await importAndSettle(page, { name: 'push.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(d)) });
   await page.goto('./#/me');
   await settle(page);
-  await page.getByRole('link', { name: new RegExp(T('Reminders on the phone')) }).click();
+  // Ich aufräumen (Noah 24.11.2026): Ich has one row «Erinnerungen und Hinweise»; «Erinnerungen aufs Handy» is one tap further, on that page
+  await page.locator('main [data-row="reminders"]').click();
+  await page.locator('main [data-push-link]').click();
   const box = page.locator('[data-push-page]');
   // the switches sit in four folds (7b-08): this one is in «Wetter und Licht»
   await box.locator('[data-push-group="weather"] summary').click();
