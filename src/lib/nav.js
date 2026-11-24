@@ -447,7 +447,9 @@ const FROM_FRAGEN = /^#\/assistent\?(?:[^#]*&)?von=fragen(?:&|$)/;
 const ANALYSIS_PAGES = {
   // «Fragen» (Plan 4a, Noah 08.11.2026 «D b»): the first tab; it stands before «Overview», whose address also starts with #/auswerten
   fragen: { label: 'Questions|tab', href: '#/auswerten/fragen', match: (h) => /^#\/auswerten\/fragen(\/|\?|$)/.test(h) || FROM_FRAGEN.test(h) },
-  start: { label: 'Overview|tab', href: '#/auswerten', match: (h) => /^#\/auswerten(\/(?!analyse)|\?|$)/.test(h) },
+  // «Auswerten neu» (Noah 24.11.2026 «1b 2a 3b 4a 5a»): «Heute» is the new start at #/auswerten; the old overview moved, unchanged, to #/auswerten/uebersicht
+  heute: { label: 'Today|tab', href: '#/auswerten', match: (h) => /^#\/auswerten(\?|$)/.test(h) },
+  start: { label: 'Overview|tab', href: '#/auswerten/uebersicht', match: (h) => /^#\/auswerten\/(?!analyse)/.test(h) },
   // Analyse PR 1 (Noah 27.10.2026 «1a»): every value as a tile, also behind «Mehr» on Heute
   analyse: { label: 'Analyse|page', href: '#/auswerten/analyse', match: (h) => /^#\/auswerten\/analyse(\/|\?|$)/.test(h) },
   form: { label: 'Form|tab', href: '#/flow/form', match: (h) => /^#\/flow\/form(\/|\?|$)/.test(h) },
@@ -557,7 +559,7 @@ export const PLACE_TABS = {
   ].map((x) => tabWithSubs(x, BIKE_PAGES)),
   // «Aktiv neu»: what you look at. The start takes the form card, Strava and «Wi gaht's?» from the old Aktiv.
   analysis: [
-    { key: 'start', label: 'Overview|tab', subs: ['fragen', 'start'] },
+    { key: 'start', label: 'Today|tab', subs: ['heute', 'fragen', 'start'] },
     { key: 'body', label: 'Body|tab', subs: ['form', 'body', 'insights', 'weight'] },
     { key: 'rides', label: 'Rides|tab', subs: ['rides', 'ticks', 'learned', 'milestones', 'challenges', 'heatmap', 'neuland', 'gipfel', 'year'] },
     { key: 'history', label: "How you are|tab", subs: ['history', 'wohl', 'ideen'] },

@@ -63,7 +63,7 @@ async function fits(page, where) {
 test('Auswerten: readiness on top, then the Garmin overview', async ({ page, context }) => {
   const errors = await open(page, context);
   // «Aktiv neu» (Noah 22.10.2026): the form card and the overview are on the start of Auswerten
-  await go(page, '#/auswerten');
+  await go(page, '#/auswerten/uebersicht');
   const card = page.locator('[data-section="form"]');
   await expect(card).toBeVisible();
   await expect(card.locator('[data-form-score]')).toHaveText(/^\d{1,3}$/);
@@ -256,7 +256,7 @@ test('the page «Form»: what counts today, each row opens its days', async ({ p
   await expect(sheet).toBeVisible();
   await expect(sheet.locator('#cs-h')).toHaveText(T('Resting pulse'));
   await expect(sheet.locator('[data-part-sum]')).toContainText('bpm');
-  await expect(sheet.locator('[data-part-why]')).toContainText(T('Normal: the middle of your 30 days before.'));
+  await expect(sheet.locator('[data-part-why]')).toContainText(T('Normal: the middle of your last 12 months.'));
   const plot = sheet.locator('[data-part-plot]');
   await expect(plot).toHaveAttribute('data-n', '7');
   expect(await plot.locator('[data-yticks] span').count()).toBeGreaterThanOrEqual(3);
@@ -440,7 +440,7 @@ test('Fitbit everywhere: Erholung shows the latest night next to your normal', a
 
 test('Auswerten: «Im Fokus» has no empty sport and says when the last activity was; the tiles name their days', async ({ page, context }) => {
   const errors = await open(page, context, true);
-  await go(page, '#/auswerten');
+  await go(page, '#/auswerten/uebersicht');
   await expect(page.locator('[data-focus-card]')).toHaveCount(0);
   const none = page.locator('[data-focus-none]');
   await expect(none).toContainText('In den letzten 7 Tagen keine Aktivität.');

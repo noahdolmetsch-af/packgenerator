@@ -20,7 +20,9 @@ test('AG-1 Auswerten has five tabs by question, the other pages are chips under 
   for (const x of all) await expect(tabs.locator(`a[href="${x.href}"]`)).toHaveCount(1);
   if (info.project.name === 'phone') await expect(page.locator('nav.ptabs .pmore')).toHaveCount(0);
   const chips = page.locator('nav.psubs');
-  await expect(chips.locator('a')).toHaveCount(2); // Überblick: Fragen, Übersicht
+  await expect(chips.locator('a')).toHaveCount(3); // Heute: Heute, Fragen, Übersicht («Auswerten neu», Noah 24.11.2026)
+  await expect(chips.locator('a[data-sub="heute"]')).toHaveAttribute('aria-current', 'page');
+  await page.goto('./#/auswerten/uebersicht');
   await expect(chips.locator('a[data-sub="start"]')).toHaveAttribute('aria-current', 'page');
   await page.screenshot({ path: info.outputPath('ag-ueberblick.png') });
   // every old page opens at its old address and lights its chip (and the tab with it)

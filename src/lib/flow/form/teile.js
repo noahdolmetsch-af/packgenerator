@@ -9,8 +9,8 @@ import { recoveryParts, readiness } from '../../form.js';
 
 /** The parts in the order of the page, with how the app turns them into points and what normal means. */
 export const PARTS = {
-  rhr: { rule: 'Every beat above your normal takes 4 points, every beat below adds 4 (from −25 to +12).', normal: 'Normal: the middle of your 30 days before.' },
-  hrv: { rule: 'Every 10 % above your normal adds 6 points, every 10 % below takes 6 (from −20 to +12).', normal: 'Normal: the middle of your 30 days before.' },
+  rhr: { rule: 'Every beat above your normal takes 4 points, every beat below adds 4 (from −25 to +12).', normal: 'Normal: the middle of your last 12 months.' },
+  hrv: { rule: 'Every 10 % above your normal adds 6 points, every 10 % below takes 6 (from −20 to +12).', normal: 'Normal: the middle of your last 12 months.' },
   sleep: { rule: 'Every hour above 7.5 h adds 6 points, every hour below takes 6 (from −18 to +8).', normal: 'Normal: 7.5 h.' },
   feltSleep: { rule: 'Every step above 6 of 10 adds 2.5 points, every step below takes 2.5 (from −10 to +8).', normal: 'Normal: 6 of 10.' },
   energy: { rule: 'Every step above 6 of 10 adds 3 points, every step below takes 3 (from −12 to +10).', normal: 'Normal: 6 of 10.' },
