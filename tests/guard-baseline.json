@@ -781,7 +781,6 @@
     "src/lib/nav/Search.svelte": {
       "breakword": 1,
       "fontsize": 5,
-      "radius": 1,
       "shadow": 1
     },
     "src/lib/nav/SideBar.svelte": {

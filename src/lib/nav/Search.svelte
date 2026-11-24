@@ -582,7 +582,7 @@
     min-height: 56px;
     padding: 8px 10px;
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: var(--r-ctl);
     background: var(--paper);
     color: var(--ink);
     font: inherit;
@@ -648,7 +648,7 @@
     width: min(460px, calc(32vw / var(--ui-zoom, 1)));
     height: 40px;
     padding: 0 12px;
-    border-radius: 10px;
+    border-radius: var(--r-ctl);
     background: var(--ground);
     color: var(--ink-3);
     box-sizing: border-box;
