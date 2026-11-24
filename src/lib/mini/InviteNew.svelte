@@ -99,7 +99,7 @@
   </section>
 
   <section class="card in-box" aria-labelledby="in-wx-h">
-    <h2 id="in-wx-h"><CloudSun size={18} aria-hidden="true" /> {t('Weather')}</h2>
+    <h2 id="in-wx-h"><CloudSun size={20} aria-hidden="true" /> {t('Weather')}</h2>
     {#if wx}
       <label class="in-check"><input type="checkbox" bind:checked={useWx} data-in-wx /><span>{t('Show the weather: {place} {line}', { place: wx.place, line: wxLine(wx) })}</span></label>
     {:else}
@@ -109,7 +109,7 @@
 
   <p class="in-help"><Lock size={14} aria-hidden="true" /> {t('Only you see who answers. The link closes by itself the day after the ride.')}</p>
   {#if formErr}<p class="in-err" role="alert" data-in-err>{formErr}</p>{/if}
-  <div class="in-acts"><button type="submit" class="btn hi" disabled={making} data-in-make><Share2 size={18} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
+  <div class="in-acts"><button type="submit" class="btn hi" disabled={making} data-in-make><Share2 size={20} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
 </form>
 
 <style>

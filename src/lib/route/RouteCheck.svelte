@@ -12,7 +12,7 @@
 </script>
 
 <div class="rck" role="group" aria-labelledby="rck-h" data-route-check>
-  <p class="h" id="rck-h"><TriangleAlert size={18} aria-hidden="true" /><b>{name ? t('Check «{name}» before you use it', { name }) : t('Check the route before you use it')}</b></p>
+  <p class="h" id="rck-h"><TriangleAlert size={20} aria-hidden="true" /><b>{name ? t('Check «{name}» before you use it', { name }) : t('Check the route before you use it')}</b></p>
   <ul>
     {#each lines as l (l.key)}<li data-route-check-line={l.key}>{l.text}</li>{/each}
   </ul>

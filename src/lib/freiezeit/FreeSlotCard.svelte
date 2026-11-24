@@ -73,7 +73,7 @@
 
 {#if slot}
   <div class="card fz" data-free-slot>
-    <span class="fz-ib" aria-hidden="true"><Bike size={18} /></span>
+    <span class="fz-ib" aria-hidden="true"><Bike size={20} /></span>
     <p class="fz-t">
       <b>{t('{day} {from}–{to} free and dry', { day: dayWord(slot.date), from: hm(slot.start), to: hm(slot.end) })}</b>
       <small data-fz-basis>{calOn ? t('Based on your calendar, your own dates and your home place; 30 minutes of the window stay free as a buffer.') : t('Based on your own dates and your home place; 30 minutes of the window stay free as a buffer.')}</small>

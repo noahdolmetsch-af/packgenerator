@@ -99,7 +99,7 @@
   <div class="kinds" role="group" aria-labelledby="rule-kind">
     {#each KINDS as k (k.key)}
       <button type="button" class="kb" aria-pressed={kind === k.key} onclick={() => (kind = k.key)} data-rule-kind={k.key}>
-        {#if kind === k.key}<Check size={18} aria-hidden="true" />{:else}<k.icon size={18} aria-hidden="true" />{/if}<span>{t(k.name)}</span>
+        {#if kind === k.key}<Check size={20} aria-hidden="true" />{:else}<k.icon size={18} aria-hidden="true" />{/if}<span>{t(k.name)}</span>
       </button>
     {/each}
   </div>

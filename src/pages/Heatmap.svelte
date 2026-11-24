@@ -171,7 +171,7 @@
               {@const href = hrefOf(l)}
               <li>
                 {#if href}
-                  <a class="rv-row" {href}><span class="rv-m"><span class="rv-t">{nameOf(l)}</span><span class="rv-s">{dayLong(l.day)} · {kindName(l.kind)}{#if l.bikeId && bikeName[l.bikeId]}{' · '}{bikeName[l.bikeId]}{/if}</span></span><span class="rv-v">{num(Math.round(l.km))} km</span><ChevronRight class="rv-chev" size={18} aria-hidden="true" /></a>
+                  <a class="rv-row" {href}><span class="rv-m"><span class="rv-t">{nameOf(l)}</span><span class="rv-s">{dayLong(l.day)} · {kindName(l.kind)}{#if l.bikeId && bikeName[l.bikeId]}{' · '}{bikeName[l.bikeId]}{/if}</span></span><span class="rv-v">{num(Math.round(l.km))} km</span><ChevronRight class="rv-chev" size={20} aria-hidden="true" /></a>
                 {:else}
                   <div class="rv-row"><span class="rv-m"><span class="rv-t">{nameOf(l)}</span><span class="rv-s">{dayLong(l.day)} · {kindName(l.kind)}</span></span><span class="rv-v">{num(Math.round(l.km))} km</span></div>
                 {/if}

@@ -33,7 +33,7 @@
       <a class="whole" {href} onclick={open}><b>{band.title}</b></a>
       <span class="nx">{band.day < band.total ? t('Tomorrow: stage {n}', { n: band.day + 1 }) : t('Last day')}</span>
     </div>
-    <a class="btn hi go" {href} onclick={open} data-ride-open><Bike size={17} aria-hidden="true" /><span class="kl">{t('Open On the way')}</span><ChevronRight size={17} aria-hidden="true" /></a>
+    <a class="btn hi go" {href} onclick={open} data-ride-open><Bike size={16} aria-hidden="true" /><span class="kl">{t('Open On the way')}</span><ChevronRight size={16} aria-hidden="true" /></a>
   {:else if band.state === 'draft'}
     <div class="bt">
       <p class="k" id="pm-h">{t('Packing|band')} · {t('pack draft exists')}</p>
@@ -43,15 +43,15 @@
       <TripState state="plan" {extra} />
       <span class="pr"><span class="bar" aria-hidden="true"><i style:width="{pct}%"></i></span><span class="num">{tn(band.total, '{done} of {n} packed', '{done} of {n} packed', { done: band.done })}</span></span>
     </div>
-    <a class="btn hi go" href={PACK_HREF} onclick={open} data-pack-open><Backpack size={17} aria-hidden="true" /><span class="kl">{t('Open packing')}</span><ChevronRight size={17} aria-hidden="true" /></a>
+    <a class="btn hi go" href={PACK_HREF} onclick={open} data-pack-open><Backpack size={16} aria-hidden="true" /><span class="kl">{t('Open packing')}</span><ChevronRight size={16} aria-hidden="true" /></a>
   {:else}
     <div class="bt">
       <p class="k" id="pm-h">{t('Packing|band')} · {t('nothing open')}</p>
       <b>{t('No trip is being packed right now')}</b>
     </div>
     <div class="acts">
-      <button type="button" class="btn hi" onclick={() => openNew('list')} data-band-new><Plus size={17} aria-hidden="true" /><span class="kl">{t('New trip')}</span></button>
-      <a class="btn k" href="#/pack/templates" data-band-tpl><LayoutTemplate size={17} aria-hidden="true" /><span class="kl">{t('From a template|band')}</span></a>
+      <button type="button" class="btn hi" onclick={() => openNew('list')} data-band-new><Plus size={16} aria-hidden="true" /><span class="kl">{t('New trip')}</span></button>
+      <a class="btn k" href="#/pack/templates" data-band-tpl><LayoutTemplate size={16} aria-hidden="true" /><span class="kl">{t('From a template|band')}</span></a>
     </div>
   {/if}
   {#if onhide}<button type="button" class="hide" aria-label={t('Hide the packing band')} onclick={onhide} data-band-hide><X size={16} aria-hidden="true" /></button>{/if}

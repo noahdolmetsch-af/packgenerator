@@ -63,7 +63,7 @@
 
 {#if soon}
   <div class="offsave" data-offline-save>
-    <CloudDownload size={18} aria-hidden="true" />
+    <CloudDownload size={20} aria-hidden="true" />
     <div class="os-m">
       {#if line}
         <p role="status">{t(line.text, line.vars ? { what: line.vars.what.map((w) => t(NAME[w])).join(', ') } : undefined)} <small>{t('As of {when}', { when: when(saved.at) })}</small></p>

@@ -23,9 +23,9 @@
 
 <div class="cal" data-act-cal={ym}>
   <div class="ch">
-    <button type="button" class="nav" aria-label={t('Month before')} onclick={() => (ym = shiftMonth(ym, -1))} data-cal-prev><ChevronLeft size={18} aria-hidden="true" /></button>
+    <button type="button" class="nav" aria-label={t('Month before')} onclick={() => (ym = shiftMonth(ym, -1))} data-cal-prev><ChevronLeft size={20} aria-hidden="true" /></button>
     <h3>{monthLong(ym)} <small class="num">· {t('{n} tours', { n })}</small></h3>
-    <button type="button" class="nav" aria-label={t('Month after')} onclick={() => (ym = shiftMonth(ym, 1))} data-cal-next><ChevronRight size={18} aria-hidden="true" /></button>
+    <button type="button" class="nav" aria-label={t('Month after')} onclick={() => (ym = shiftMonth(ym, 1))} data-cal-next><ChevronRight size={20} aria-hidden="true" /></button>
   </div>
   <table>
     <thead><tr>{#each DAYS as dn (dn)}<th scope="col">{dn}</th>{/each}</tr></thead>

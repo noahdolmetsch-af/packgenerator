@@ -19,7 +19,7 @@
 </script>
 
 <a class="me" class:mecard={card} href="#/me" aria-current={current ? 'page' : undefined} aria-keyshortcuts="i" aria-label={(inbox ? t('Me, Inbox: {n} to sort', { n: inbox }) : t('Me|place')) + (dotLabel ? `. ${dotLabel}` : '')}>
-  <span class="face"><UserRound size={20} strokeWidth={2.2} aria-hidden="true" />{#if inbox}<span class="dot num" data-inbox-count aria-hidden="true">{inbox > 99 ? '99+' : inbox}</span>{/if}{#if health !== 'none'}<span class="sdot {health}" data-sync-dot={health} aria-hidden="true"></span>{/if}</span>
+  <span class="face"><UserRound size={20} strokeWidth={2} aria-hidden="true" />{#if inbox}<span class="dot num" data-inbox-count aria-hidden="true">{inbox > 99 ? '99+' : inbox}</span>{/if}{#if health !== 'none'}<span class="sdot {health}" data-sync-dot={health} aria-hidden="true"></span>{/if}</span>
   {#if card}<span class="tx" aria-hidden="true"><b>{t('Me|place')}</b><small>{t('Data, Inbox, Help')}</small></span>{/if}
 </a>
 

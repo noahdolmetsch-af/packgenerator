@@ -79,7 +79,7 @@
   {#if tomorrow}<Morgen {trip} />{/if}
 
   <div class="listen">
-    <h3 class="uw-h3"><Headphones size={18} aria-hidden="true" /> {t('Listening tip for {kind}', { kind: kindText(trip, t) })}</h3>
+    <h3 class="uw-h3"><Headphones size={20} aria-hidden="true" /> {t('Listening tip for {kind}', { kind: kindText(trip, t) })}</h3>
     {#if tips.length}
       <ul class="tl">
         {#each tips as x (x.id)}
@@ -90,7 +90,7 @@
                 <button type="submit" class="btn sm"><Check size={16} aria-hidden="true" />{t('Save')}</button>
               </form>
             {:else}
-              <a class="btn uw-listen" href={x.url} target="_blank" rel="noopener noreferrer"><Headphones size={18} aria-hidden="true" /><span>{x.name}</span><ExternalLink size={14} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a>
+              <a class="btn uw-listen" href={x.url} target="_blank" rel="noopener noreferrer"><Headphones size={20} aria-hidden="true" /><span>{x.name}</span><ExternalLink size={14} aria-hidden="true" /><span class="sr">{t('(opens elsewhere)')}</span></a>
               <button type="button" class="tp-icon-btn" aria-label={t('Rename {name}', { name: x.name })} onclick={() => ((editing = x.id), (editName = x.name))}><Pencil size={16} aria-hidden="true" /></button>
               <button type="button" class="tp-icon-btn" aria-label={t('Delete {name}', { name: x.name })} onclick={() => drop(x)}><Trash2 size={16} aria-hidden="true" /></button>
             {/if}

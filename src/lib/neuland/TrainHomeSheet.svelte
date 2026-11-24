@@ -110,7 +110,7 @@
       <h2 id="th-sh"><TrainFront size={20} aria-hidden="true" /> {title}</h2>
       <p class="vd-sub">{t('The next trains there, then the way home through new ground.')}</p>
     </div>
-    <button type="button" class="btn icon" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="btn icon" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={20} aria-hidden="true" /></button>
   </div>
 
   {#if busy && !tr && !ride}<p class="th-note" role="status">{t('Asking the timetable and the bike router …')}</p>{/if}
@@ -139,15 +139,15 @@
       <span>{t('By bike from {name} home.', { name: start.name })}</span>
     </div>
     <div class="th-row">
-      <button type="button" class="btn hi" disabled={busy} onclick={plan} data-th-plan><Route size={18} aria-hidden="true" />{t('Plan as a trip')}</button>
-      <button type="button" class="btn" disabled={busy} onclick={gpx} data-th-gpx><Download size={18} aria-hidden="true" />{t('GPX for the Garmin')}</button>
+      <button type="button" class="btn hi" disabled={busy} onclick={plan} data-th-plan><Route size={20} aria-hidden="true" />{t('Plan as a trip')}</button>
+      <button type="button" class="btn" disabled={busy} onclick={gpx} data-th-gpx><Download size={20} aria-hidden="true" />{t('GPX for the Garmin')}</button>
     </div>
   {:else if rideErr}
     <p class="th-note err" role="alert">{rideErr}</p>
   {/if}
 
   {#if (trErr || rideErr) && !busy}
-    <button type="button" class="btn" onclick={ask} data-th-retry><RefreshCw size={18} aria-hidden="true" />{t('Try again')}</button>
+    <button type="button" class="btn" onclick={ask} data-th-retry><RefreshCw size={20} aria-hidden="true" />{t('Try again')}</button>
   {/if}
   <p class="th-note">{t('Asks the free timetable (transport.opendata.ch) and the free bike router once, with your home place and this place. Nothing else leaves the device.')}</p>
 </dialog>

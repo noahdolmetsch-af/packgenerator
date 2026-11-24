@@ -31,12 +31,12 @@
 
 {#if tip && pi.info.lineOn}
   <div class="card tipl {tip.kind}" data-tip={tip.id} role="note">
-    {#if ops.murmeltier}<span class="mmt"><Murmeltier size={30} /></span>{:else}<Leaf size={18} aria-hidden="true" />{/if}
+    {#if ops.murmeltier}<span class="mmt"><Murmeltier size={30} /></span>{:else}<Leaf size={20} aria-hidden="true" />{/if}
     <p>
       <span>{#if tip.kind === 'tip'}<b>{t('Good to know:')}</b>{:else}<KindTag kind={tip.kind} {deg} />{/if} {tipText(tip)} <TipLink {tip} /></span>
       <small>{#if tip.kind === 'today'}{t(tip.note)}{:else}{t('Tip {n} of {of} for {page}', { n: place.n, of: place.of, page: name })}{/if}{#if tip.button && tip.href}{' '}· <a class="lk" href={tip.href} data-tip-go>{t(tip.button)} ›</a>{/if} · <button type="button" class="lk" onclick={() => (open = true)}>{t('All tips ›')}</button></small>
     </p>
-    <button type="button" class="ib" aria-label={t('Hide the tip for today')} onclick={() => pi.save((v) => hideToday(v, page, today))}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="ib" aria-label={t('Hide the tip for today')} onclick={() => pi.save((v) => hideToday(v, page, today))}><X size={20} aria-hidden="true" /></button>
   </div>
 {/if}
 

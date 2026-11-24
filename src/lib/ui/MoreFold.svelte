@@ -12,7 +12,7 @@
 <details class="morefold card" bind:open data-morefold={id}>
   <summary>
     <span class="mf-m"><b>{title}</b>{#if sub}<small>{sub}</small>{/if}</span>
-    <ChevronRight class="mf-chev" size={18} aria-hidden="true" />
+    <ChevronRight class="mf-chev" size={20} aria-hidden="true" />
   </summary>
   <div class="mf-body">{@render children()}</div>
 </details>

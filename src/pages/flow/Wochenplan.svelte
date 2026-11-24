@@ -311,9 +311,9 @@
         <section class="card pc hrs" aria-labelledby="wp-hours" data-wp-hours>
           <h2 id="wp-hours">{t('Goal per week')}</h2>
           <div class="stepper">
-            <button type="button" class="btn sm" onclick={() => hoursStep(-1)} disabled={cfg.hours <= MIN_HOURS} aria-label={t('One hour less')} data-wp-hdec><Minus size={18} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" onclick={() => hoursStep(-1)} disabled={cfg.hours <= MIN_HOURS} aria-label={t('One hour less')} data-wp-hdec><Minus size={20} aria-hidden="true" /></button>
             <output class="big num" data-wp-hvalue>{t('{n} h|plan', { n: cfg.hours })}</output>
-            <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={18} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" onclick={() => hoursStep(1)} disabled={cfg.hours >= MAX_HOURS} aria-label={t('One hour more')} data-wp-hinc><Plus size={20} aria-hidden="true" /></button>
           </div>
           <p class="sub">{t('with meditation and stretching, without the rest block')}</p>
           <p class="plan num"><b data-wp-plan>{t('Plan: {a} h of {b} h', { a: hoursText(mins), b: cfgW.hours })}</b></p>
@@ -343,7 +343,7 @@
             <span class="bar" role="img" aria-label={t('{a} of {b} units', { a: prog.done, b: prog.total })}><i style="width:{Math.round((prog.done / prog.total) * 100)}%"></i></span>
             <p class="sub" data-wp-quiet>{t('Meditation and stretching: {a} of {b}.', { a: prog.quietDone, b: prog.quietTotal })}</p>
             {#if star}
-              <p class="starline" data-wp-star><Star size={18} aria-hidden="true" /> <b>{t('Week star reached.')}</b> {t('Every unit of this week is ticked off.')}</p>
+              <p class="starline" data-wp-star><Star size={20} aria-hidden="true" /> <b>{t('Week star reached.')}</b> {t('Every unit of this week is ticked off.')}</p>
               <p class="hint">{t('It counts under Milestones › Stars.')} <a class="link" href="#/flow/milestones" data-wp-to-milestones>{t('Open the milestones')}</a></p>
             {:else}
               <p class="hint" data-wp-left>{tn(prog.total - prog.done, 'Still {n} unit until the week star.', 'Still {n} units until the week star.', {})} {t('Tick a unit when you did it. Only you tick: Strava only suggests.')}</p>

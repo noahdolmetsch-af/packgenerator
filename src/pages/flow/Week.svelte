@@ -121,7 +121,7 @@
         <section class="card wk" aria-labelledby="wk-days">
           <h2 id="wk-days" class="vh">{t('The days of the week')}</h2>
           <p class="legend">
-            <span class="ev fix"><Clock size={15} aria-hidden="true" />{t('fixed')}</span>
+            <span class="ev fix"><Clock size={16} aria-hidden="true" />{t('fixed')}</span>
             <span class="ev sug lg"><Plus size={14} aria-hidden="true" />{t('suggestion')} <em>{t('tap = plan')}</em></span>
             <span class="ev done">{t('done')}</span>
           </p>
@@ -139,9 +139,9 @@
                   {#if x.kind === 'done'}
                     <span class="ev done" data-done={x.actId}>{doneText(x)}</span>
                   {:else if x.kind === 'fix'}
-                    <span class="ev fix" data-fix={x.actId}><Clock size={15} aria-hidden="true" />{name(x.actId)} {x.time}</span>
+                    <span class="ev fix" data-fix={x.actId}><Clock size={16} aria-hidden="true" />{name(x.actId)} {x.time}</span>
                   {:else if x.kind === 'plan'}
-                    <button type="button" class="ev fix" data-plan={x.actId} aria-pressed="true" title={t('Planned · tap to unplan')} onclick={() => plan(d.day, x.actId)}><CalendarPlus size={15} aria-hidden="true" />{name(x.actId)}</button>
+                    <button type="button" class="ev fix" data-plan={x.actId} aria-pressed="true" title={t('Planned · tap to unplan')} onclick={() => plan(d.day, x.actId)}><CalendarPlus size={16} aria-hidden="true" />{name(x.actId)}</button>
                   {:else}
                     <span class="ev sug" data-sug={x.actId}>
                       <button type="button" class="sp" onclick={() => plan(d.day, x.actId)} aria-label={t('Plan {name} on {day}', { name: name(x.actId), day: fmt(d.day, { weekday: 'long' }) })}><Plus size={14} aria-hidden="true" /><span>{name(x.actId)}{#if x.why !== 'goal'}{' '}<em>{t(WHY[x.why])}</em>{/if}</span></button>
@@ -162,7 +162,7 @@
           <div class="card fixed">
             <ul class="rows">
               {#each sets.fixed as f (f.id)}
-                <li><button type="button" class="fr" data-fixed={f.id} onclick={() => (edit = { ...f })}><Clock size={18} aria-hidden="true" /><span><b>{name(f.actId)}</b><small>{t('every {day} {time}', { day: WD[f.wd - 1].long, time: f.time })} · {t('{n} min', { n: f.minutes })}</small></span><ChevronRight size={16} aria-hidden="true" /></button></li>
+                <li><button type="button" class="fr" data-fixed={f.id} onclick={() => (edit = { ...f })}><Clock size={20} aria-hidden="true" /><span><b>{name(f.actId)}</b><small>{t('every {day} {time}', { day: WD[f.wd - 1].long, time: f.time })} · {t('{n} min', { n: f.minutes })}</small></span><ChevronRight size={16} aria-hidden="true" /></button></li>
               {:else}
                 <li class="none">{t('No fixed dates yet. Yoga on Thursday 07:00? Add it once, it comes back every week.')}</li>
               {/each}
@@ -189,7 +189,7 @@
 
         {#if week.tip}
           <p class="note" data-tip>
-            <Lightbulb size={18} aria-hidden="true" />
+            <Lightbulb size={20} aria-hidden="true" />
             <span>
               {t('{day} has the best weather of the week. {name}?', { day: fmt(week.tip.day, { weekday: 'long' }), name: name(week.tip.actId) })}
               <span class="tb">

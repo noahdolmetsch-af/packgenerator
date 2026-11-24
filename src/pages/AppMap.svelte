@@ -98,14 +98,14 @@
             {/each}
           {/if}
           <details class="am-all" open={searching}>
-            <summary>{tn(g.items.length, 'All {n} function', 'All {n} functions')}<ChevronDown class="am-chev" size={18} aria-hidden="true" /></summary>
+            <summary>{tn(g.items.length, 'All {n} function', 'All {n} functions')}<ChevronDown class="am-chev" size={20} aria-hidden="true" /></summary>
             <ul class="am-list">
               {#each g.items as i (i.id)}
                 <li data-am-item={i.id}>
                   {#if i.href}
                     <a href={i.href}>
                       <span class="am-t"><b>{t(i.title)}</b><small>{pathText(i, t)}</small></span>
-                      <ChevronRight size={18} aria-hidden="true" />
+                      <ChevronRight size={20} aria-hidden="true" />
                     </a>
                   {:else}
                     <div class="am-row">

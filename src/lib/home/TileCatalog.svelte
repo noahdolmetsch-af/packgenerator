@@ -25,10 +25,10 @@
 <dialog data-backdrop="own" class="sheet cat" class:phone={phone.matches} bind:this={dlg} use:backClose onclose={() => onclose?.()} onclick={(e) => e.target === dlg && dlg.close()} aria-labelledby="cat-h">
   <div class="sh">
     <h2 id="cat-h" class="title">{t('Add a tile')}</h2>
-    <button type="button" class="btn sm ic" onclick={() => dlg.close()} aria-label={t('Close')}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="btn sm ic" onclick={() => dlg.close()} aria-label={t('Close')}><X size={20} aria-hidden="true" /></button>
   </div>
   <p class="lead">{t('Every tile can go on your start page, as often as you like to change it.')}</p>
-  <label class="srch"><Search size={18} aria-hidden="true" /><input class="inp" type="search" bind:value={query} placeholder={t('Search tiles')} aria-label={t('Search tiles')} /></label>
+  <label class="srch"><Search size={20} aria-hidden="true" /><input class="inp" type="search" bind:value={query} placeholder={t('Search tiles')} aria-label={t('Search tiles')} /></label>
   <div class="chips" role="group" aria-label={t('Areas')}>
     <button type="button" class="chip" aria-pressed={area === 'all'} onclick={() => (area = 'all')}>{t('All|tiles')}</button>
     {#each AREAS as a (a.key)}<button type="button" class="chip" aria-pressed={area === a.key} onclick={() => (area = a.key)}>{t(a.name)}</button>{/each}
@@ -43,7 +43,7 @@
           <button type="button" class="ci" class:there data-add={x.id} aria-pressed={there} onclick={() => ontoggle?.(x.id)}>
             <span class="cic"><Icon size={18} aria-hidden="true" /></span>
             <span class="cm"><b>{t(x.label)}</b><small>{t(x.pitch)}</small></span>
-            <span class="cs">{#if there}<Check size={18} aria-hidden="true" /><span class="sr">{t('On the start page')}</span>{:else}<Plus size={18} aria-hidden="true" /><span class="sr">{t('Add')}</span>{/if}</span>
+            <span class="cs">{#if there}<Check size={20} aria-hidden="true" /><span class="sr">{t('On the start page')}</span>{:else}<Plus size={20} aria-hidden="true" /><span class="sr">{t('Add')}</span>{/if}</span>
           </button>
         </li>
       {/each}

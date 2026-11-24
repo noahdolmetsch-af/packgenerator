@@ -211,15 +211,15 @@
     <p class="ich-help"><Clock size={14} aria-hidden="true" /> {span(e)}{#if e.where}{' · '}<MapPin size={14} aria-hidden="true" /> {e.where}{/if}</p>
     {#if e.note}<p class="note-t">{e.note}</p>{/if}
     <div class="btns">
-      {#if e.link}<a class="btn sm" href={e.link} target="_blank" rel="noopener"><ExternalLink size={15} aria-hidden="true" />{t('Open in Google')}</a>{/if}
-      {#if mail.prefs.allowed && eventQuery(e)}<a class="btn sm" href={`${MAIL_HASH}?${new URLSearchParams({ q: eventQuery(e), for: e.title })}`}><Mail size={15} aria-hidden="true" />{t('Mails to it')}</a>{/if}
+      {#if e.link}<a class="btn sm" href={e.link} target="_blank" rel="noopener"><ExternalLink size={16} aria-hidden="true" />{t('Open in Google')}</a>{/if}
+      {#if mail.prefs.allowed && eventQuery(e)}<a class="btn sm" href={`${MAIL_HASH}?${new URLSearchParams({ q: eventQuery(e), for: e.title })}`}><Mail size={16} aria-hidden="true" />{t('Mails to it')}</a>{/if}
       {#if writable.length}
-        <button type="button" class="btn sm" data-ev-dup onclick={() => copyEvent(e)}><Copy size={15} aria-hidden="true" />{t('Duplicate')}</button>
-        {#if canCopyTo(e)}<button type="button" class="btn sm" onclick={() => copyEvent(e, true)}><CopyPlus size={15} aria-hidden="true" />{t('Copy to another calendar')}</button>{/if}
+        <button type="button" class="btn sm" data-ev-dup onclick={() => copyEvent(e)}><Copy size={16} aria-hidden="true" />{t('Duplicate')}</button>
+        {#if canCopyTo(e)}<button type="button" class="btn sm" onclick={() => copyEvent(e, true)}><CopyPlus size={16} aria-hidden="true" />{t('Copy to another calendar')}</button>{/if}
       {/if}
       {#if writable.some((c) => c.id === e.cal) || e.cal === 'primary'}
-        <button type="button" class="btn sm" onclick={() => changeEvent(e)}><Pencil size={15} aria-hidden="true" />{t('Change')}</button>
-        <button type="button" class="btn sm danger" onclick={() => dropEvent(e)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>
+        <button type="button" class="btn sm" onclick={() => changeEvent(e)}><Pencil size={16} aria-hidden="true" />{t('Change')}</button>
+        <button type="button" class="btn sm danger" onclick={() => dropEvent(e)}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
       {/if}
     </div>
   </div>
@@ -239,8 +239,8 @@
           <div class="card ich-body">
             {#if hasKey}
               <ul class="ich-list pick">
-                <li><label class="ich-row"><input type="checkbox" bind:checked={want.calendar} /><span class="ich-ib"><CalendarDays size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google Calendar')}</b><small>{t('see your appointments, enter new ones')}</small></span></label></li>
-                <li><label class="ich-row"><input type="checkbox" bind:checked={want.tasks} /><span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google Tasks')}</b><small>{t('see, tick, add and change tasks')}</small></span></label></li>
+                <li><label class="ich-row"><input type="checkbox" bind:checked={want.calendar} /><span class="ich-ib"><CalendarDays size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google Calendar')}</b><small>{t('see your appointments, enter new ones')}</small></span></label></li>
+                <li><label class="ich-row"><input type="checkbox" bind:checked={want.tasks} /><span class="ich-ib"><ListChecks size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Google Tasks')}</b><small>{t('see, tick, add and change tasks')}</small></span></label></li>
               </ul>
               <button type="button" class="btn hi big wide" disabled={!services.length} onclick={() => connect(services)}><Link size={16} aria-hidden="true" />{t('Connect with Google')}</button>
             {:else}
@@ -261,7 +261,7 @@
                 <button type="button" class="chip" aria-pressed={view === 'list'} data-view="list" onclick={() => setView('list')}>{t('List|view')}</button>
                 <button type="button" class="chip" aria-pressed={view === 'week'} data-view="week" onclick={() => setView('week')}>{t('Week|view')}</button>
               </div>
-              {#if !ev}<button type="button" class="btn sm" onclick={newEvent}><Plus size={15} aria-hidden="true" />{t('New appointment')}</button>{/if}
+              {#if !ev}<button type="button" class="btn sm" onclick={newEvent}><Plus size={16} aria-hidden="true" />{t('New appointment')}</button>{/if}
             </div>
           </div>
           {#if ev}
@@ -330,7 +330,7 @@
                   {:else}
                     <p class="ich-help">{t('No reminder.')}</p>
                   {/each}
-                  {#if ev.remind.length < 5}<button type="button" class="btn sm" onclick={addRemind}><Plus size={15} aria-hidden="true" />{t('Add reminder')}</button>{/if}
+                  {#if ev.remind.length < 5}<button type="button" class="btn sm" onclick={addRemind}><Plus size={16} aria-hidden="true" />{t('Add reminder')}</button>{/if}
                 {/if}
               </fieldset>
               {#if writable.length > 1 && !ev.gid}
@@ -432,7 +432,7 @@
         <section class="ich-sec" aria-labelledby="st-h">
           <div class="ich-h"><div><h2 id="st-h">{t('From Google')}</h2><p class="ich-hs">{p.lastSync ? t('fetched {when}', { when: ago(p.lastSync) }) : t('not fetched yet')}</p></div></div>
           <div class="card ich-body">
-            <button type="button" class="btn wide" disabled={agenda.busy} onclick={fetchButton}><RefreshCw size={15} aria-hidden="true" />{agenda.busy ? t('Fetching…') : t('Fetch now')}</button>
+            <button type="button" class="btn wide" disabled={agenda.busy} onclick={fetchButton}><RefreshCw size={16} aria-hidden="true" />{agenda.busy ? t('Fetching…') : t('Fetch now')}</button>
             <ConnStatus name="Google" busy={agenda.busy} since={agenda.since} />
             <p class="ich-help">{t('By itself when the app opens, at most every 15 minutes.')}</p>
           </div>
@@ -455,9 +455,9 @@
                 <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{t(name)}</b><small>{p[k] ? t('on') : t('off')}</small></span>
                 {#if p[k]}
-                  <button type="button" class="btn sm" onclick={() => hide(k)}><EyeOff size={15} aria-hidden="true" />{t('Hide')}</button>
+                  <button type="button" class="btn sm" onclick={() => hide(k)}><EyeOff size={16} aria-hidden="true" />{t('Hide')}</button>
                 {:else}
-                  <button type="button" class="btn sm" onclick={() => connect([k])}><Link size={15} aria-hidden="true" />{t('Connect')}</button>
+                  <button type="button" class="btn sm" onclick={() => connect([k])}><Link size={16} aria-hidden="true" />{t('Connect')}</button>
                 {/if}
               </li>
             {/each}
@@ -476,7 +476,7 @@
       <label>{t('Due (optional)')}<DateInput bind:value={editTask.due} /></label>
       <label>{t('Note')}<textarea bind:value={editTask.notes} rows="3" maxlength="2000"></textarea></label>
       <div class="go">
-        <button type="button" class="btn sm danger" onclick={() => dropTask(x)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>
+        <button type="button" class="btn sm danger" onclick={() => dropTask(x)}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
         <span class="fill"></span>
         <button type="button" class="btn sm" onclick={() => (editTask = null)}>{t('Cancel')}</button>
         <button type="submit" class="btn sm hi">{t('Save')}</button>
@@ -485,7 +485,7 @@
   {:else}
     <div class="ich-row trow" class:done={x.done}>
       <button type="button" class="tick" aria-pressed={x.done} aria-label={x.done ? t('Not done: {name}', { name: x.title }) : t('Done: {name}', { name: x.title })} onclick={() => tick(x)}>
-        {#if x.done}<CircleCheck size={22} aria-hidden="true" />{:else}<Circle size={22} aria-hidden="true" />{/if}
+        {#if x.done}<CircleCheck size={24} aria-hidden="true" />{:else}<Circle size={24} aria-hidden="true" />{/if}
       </button>
       <span class="ich-m"><b>{x.title}</b>{#if x.due || x.notes}<small>{[x.due ? short(x.due) : '', x.notes ? x.notes.split('\n')[0].slice(0, 80) : ''].filter(Boolean).join(' · ')}</small>{/if}</span>
       <button type="button" class="ib" aria-label={t('Change «{name}»', { name: x.title })} onclick={() => (editTask = { ...x, due: x.due ?? '' })}><Pencil size={16} aria-hidden="true" /></button>

@@ -18,7 +18,7 @@
 
 <article class="mscard {kind}" data-ms={r.id}>
   <div class="mh">
-    <span class="si" class:full={r.done} aria-hidden="true"><Star size={22} /></span>
+    <span class="si" class:full={r.done} aria-hidden="true"><Star size={24} /></span>
     <div class="mt">
       <h3>{msName(r.m)}{#if r.m.sugg}<Sugg />{/if}</h3>
       <p class="st">{r.done ? t('All stars · {stage}', { stage: t('Path|stage') }) : starLine(r.next)}</p>

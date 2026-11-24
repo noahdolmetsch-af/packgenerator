@@ -8,12 +8,13 @@
    *   <Stat value={num(km)} unit="km" label={t('This year')} align="center" />
    *
    * value: text of the number (already formatted with num()/hours()). unit: small, after the number. label: one quiet line.
-   * align: 'start' | 'center'. Other attributes (data-…) go on the tile.
+   * align: 'start' | 'center'. size: 'm' (--fs-num, the default) | 's' (--fs-sub, for a row of sums under a title). Other attributes (data-…) go on the tile.
+   * statParts(text) (stat.js) splits «2 of 3 sessions done» into the number and the rest, so a sentence with plurals keeps its translation.
    */
-  let { value, unit = '', label = '', align = 'start', ...rest } = $props();
+  let { value, unit = '', label = '', align = 'start', size = 'm', ...rest } = $props();
 </script>
 
-<div class="stat {align}" {...rest}>
+<div class="stat {align} s-{size}" {...rest}>
   <span class="sv"><b class="num">{value}</b>{#if unit}{' '}<small>{unit}</small>{/if}</span>
   {#if label}{' '}<span class="sl">{label}</span>{/if}
 </div>
@@ -37,6 +38,9 @@
   .sv b {
     font: 700 var(--fs-num) / 1.1 var(--font-body);
     font-variant-numeric: tabular-nums;
+  }
+  .s-s .sv b {
+    font-size: var(--fs-sub);
   }
   .sv small {
     color: var(--ink-2);

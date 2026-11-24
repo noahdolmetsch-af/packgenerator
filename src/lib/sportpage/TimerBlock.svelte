@@ -16,7 +16,7 @@
 
 {#if act}
   <button type="button" class="srow" onclick={() => openTimer(act.id)} data-sport-timer>
-    <Timer size={18} aria-hidden="true" />
+    <Timer size={20} aria-hidden="true" />
     <span class="t"><b>{t('Start the timer')}</b><small>{minutes ? t('A stopwatch for this sport, suggested {n} minutes.', { n: minutes }) : t('A stopwatch for this sport. You set the time.')}</small></span>
     <ChevronRight size={16} aria-hidden="true" />
   </button>

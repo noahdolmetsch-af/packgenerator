@@ -155,7 +155,7 @@
 </script>
 
 <dialog use:backClose class="calm-sheet ra-sheet" bind:this={el} onclose={end} aria-labelledby="ra-h">
-  <header><h2 id="ra-h"><Volume2 size={22} aria-hidden="true" /> {t('Read aloud')}</h2><button type="button" class="text-button" onclick={() => el.close()}>{t('End')}</button></header>
+  <header><h2 id="ra-h"><Volume2 size={24} aria-hidden="true" /> {t('Read aloud')}</h2><button type="button" class="text-button" onclick={() => el.close()}>{t('End')}</button></header>
   <Seg label={t('How you tick off')} options={[{ key: 'voice', name: t('Say «ok»') }, { key: 'button', name: t('Button only') }]} value={mode} onchange={setMode} />
   <p class="how">{mode === 'voice' ? (canListen ? t('Say «ok» when it is packed, «weiter» to skip, «zurück» to go back, «stopp» to end. Listening runs over Google and needs the internet.') : t('This browser cannot listen. Use the big button.')) : t('The app only reads. Tap the big button when it is packed.')}</p>
   {#if !voice}<p class="how">{t('This browser has no voice: the item shows here in big letters.')}</p>{/if}
@@ -168,12 +168,12 @@
     </div>
     <button type="button" class="big" onclick={tickNow}><Check size={32} aria-hidden="true" /> {t('Packed')}</button>
     <div class="nav">
-      <button type="button" class="btn" onclick={() => go(prevIndex(queue, i, done))}><SkipBack size={18} aria-hidden="true" /> {t('Back')}</button>
-      <button type="button" class="btn" onclick={readNow}><RotateCcw size={18} aria-hidden="true" /> {t('Again')}</button>
-      <button type="button" class="btn" onclick={() => go(nextIndex(queue, i, done))}><SkipForward size={18} aria-hidden="true" /> {t('Later|skip')}</button>
+      <button type="button" class="btn" onclick={() => go(prevIndex(queue, i, done))}><SkipBack size={20} aria-hidden="true" /> {t('Back')}</button>
+      <button type="button" class="btn" onclick={readNow}><RotateCcw size={20} aria-hidden="true" /> {t('Again')}</button>
+      <button type="button" class="btn" onclick={() => go(nextIndex(queue, i, done))}><SkipForward size={20} aria-hidden="true" /> {t('Later|skip')}</button>
     </div>
     {#if mode === 'voice' && canListen}
-      <p class="mic" class:on={listening}>{#if listening}<Mic size={18} aria-hidden="true" /> {t('Listening …')}{:else}<MicOff size={18} aria-hidden="true" /> {t('Not listening right now')}{/if}{#if heardText}{' '}· <i>«{heardText}»</i>{/if}</p>
+      <p class="mic" class:on={listening}>{#if listening}<Mic size={20} aria-hidden="true" /> {t('Listening …')}{:else}<MicOff size={20} aria-hidden="true" /> {t('Not listening right now')}{/if}{#if heardText}{' '}· <i>«{heardText}»</i>{/if}</p>
     {/if}
   {:else}
     <div class="now"><b>{left ? tn(left, 'Read through. {n} item is still open.', 'Read through. {n} items are still open.') : t('Everything packed.')}</b></div>

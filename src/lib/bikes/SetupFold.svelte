@@ -15,7 +15,7 @@
   <summary>
     {#if Icon}<span class="ib"><Icon class="ic" size={18} aria-hidden="true" /></span>{/if}
     <span class="m"><span class="lbl">{label}</span>{#if summary}<span class="sum" class:late>{summary}</span>{/if}</span>
-    <ChevronRight class="chev" size={18} aria-hidden="true" />
+    <ChevronRight class="chev" size={20} aria-hidden="true" />
   </summary>
   {#if open}<div class="fold-in">{@render children()}</div>{/if}
 </details>

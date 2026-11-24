@@ -112,7 +112,7 @@
     {/snippet}
     <ul class="parts">{#each first as p (p.key)}{@render item(p)}{/each}</ul>
     {#if later.length}
-      <button type="button" class="restbtn" aria-expanded={rest} onclick={() => (rest = !rest)}>{#if rest}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}{tn(later.length, '{n} more part, all original', '{n} more parts, all original')}</button>
+      <button type="button" class="restbtn" aria-expanded={rest} onclick={() => (rest = !rest)}>{#if rest}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}{tn(later.length, '{n} more part, all original', '{n} more parts, all original')}</button>
       {#if rest}<ul class="parts">{#each later as p (p.key)}{@render item(p)}{/each}</ul>{/if}
     {/if}
   {/if}

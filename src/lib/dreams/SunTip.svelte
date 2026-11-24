@@ -49,13 +49,13 @@
         <ul class="st-list">
           {#if clear.rise}
             <li class="st-row" data-st="rise">
-              <span class="ich-ib"><Sunrise size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Sunrise size={20} aria-hidden="true" /></span>
               <span class="st-m"><b>{t('Clear morning {day}: sunrise {at}', { day: dayName(clear.rise.date), at: clear.rise.hm })}</b><small>{goText(clear.rise)}</small></span>
             </li>
           {/if}
           {#if clear.set}
             <li class="st-row" data-st="set">
-              <span class="ich-ib"><Sunset size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Sunset size={20} aria-hidden="true" /></span>
               <span class="st-m"><b>{t('Clear evening {day}: sunset {at}', { day: dayName(clear.set.date), at: clear.set.hm })}</b><small>{goText(clear.set)}</small></span>
             </li>
           {/if}

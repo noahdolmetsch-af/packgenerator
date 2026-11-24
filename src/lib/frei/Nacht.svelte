@@ -163,14 +163,14 @@
   {#if draft}
     <section class="fz-box" data-night-part={NIGHT_STEPS[night.step].key}>
       {#if night.step === 0}
-        <h2 class="fz-h2"><Tent size={18} aria-hidden="true" /> {t('What do you want to find out?')}</h2>
+        <h2 class="fz-h2"><Tent size={20} aria-hidden="true" /> {t('What do you want to find out?')}</h2>
         <p class="fz-note">{t('One question is enough. It turns a night in the woods into an experiment, which sounds far more scientific.')}</p>
         <div class="fz-chips">
           {#each TEST_QUESTIONS as tq (tq)}<button type="button" class="fz-chip" aria-pressed={draft.question === t(tq)} onclick={() => pickQuestion(tq)}>{t(tq)}</button>{/each}
         </div>
         <label class="fz-lab">{t('My test question')}<input class="inp" maxlength="200" bind:value={draft.question} onchange={() => saveField('question')} data-night-question /></label>
       {:else if night.step === 1}
-        <h2 class="fz-h2"><Route size={18} aria-hidden="true" /> {t('Route and bed')}</h2>
+        <h2 class="fz-h2"><Route size={20} aria-hidden="true" /> {t('Route and bed')}</h2>
         <p class="fz-note">{t('Short enough that the way home is never a drama. A bakery on the way does not hurt either.')}</p>
         <label class="fz-lab">{t('Route')}<input class="inp" maxlength="200" bind:value={draft.route} onchange={() => saveField('route')} placeholder={t('e.g. along the river, 40 km')} data-night-route /></label>
         <label class="fz-lab">{t('Lunch')}<input class="inp" maxlength="200" bind:value={draft.lunch} onchange={() => saveField('lunch')} placeholder={t('e.g. the bakery in the next village')} /></label>
@@ -183,7 +183,7 @@
         </label>
         <p class="fz-note">{t('Pack as usual on a trip; in step 3 you can pick from its list.')} <a href="#/trips">{t('To the trips')}</a></p>
       {:else if night.step === 2}
-        <h2 class="fz-h2"><Hand size={18} aria-hidden="true" /> {t('Pack your day in your head')}</h2>
+        <h2 class="fz-h2"><Hand size={20} aria-hidden="true" /> {t('Pack your day in your head')}</h2>
         <p class="fz-note">{t('Walk through the day once, from getting up to falling asleep. What do you need, where is it, can you reach it without unpacking everything?')}</p>
         {#if sum.n}<p class="fz-note" data-night-sum>{tn(sum.n, '{n} thing', '{n} things')} · {t('{n} within reach', { n: sum.reach })}{#if sum.noPlace}{' '}· {tn(sum.noPlace, '{n} without a place yet', '{n} without a place yet')}{/if}</p>{/if}
         {#each PHASES as p (p.key)}
@@ -191,7 +191,7 @@
           <div class="fzn-phase" data-phase={p.key}>
             <div class="fz-row">
               <span class="fz-row-main"><b>{t(p.name)}</b></span>
-              <button type="button" class="fz-icon" aria-label={t('Add to {name}', { name: t(p.name) })} onclick={() => openNew(p.key)} data-phase-add={p.key}><Plus size={18} aria-hidden="true" /></button>
+              <button type="button" class="fz-icon" aria-label={t('Add to {name}', { name: t(p.name) })} onclick={() => openNew(p.key)} data-phase-add={p.key}><Plus size={20} aria-hidden="true" /></button>
             </div>
             {#if list.length}
               <ul class="fz-list" use:sortable={{ onmove: (from, to) => reorder(p.key, from, to) }}>
@@ -200,7 +200,7 @@
                     <SortGrip name={x.name} onstep={(dir) => step(p.key, i, dir)} />
                     <button type="button" class="fz-row-main" onclick={() => openEdit(p.key, x)}><b>{x.name}</b><small>{[x.where, x.reach ? t('within reach') : ''].filter(Boolean).join(' · ') || t('no place yet')}</small></button>
                     {#if !phone.matches}<SortArrows name={x.name} {i} n={list.length} onstep={(dir) => step(p.key, i, dir)} />{/if}
-                    <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.name })} onclick={() => openEdit(p.key, x)}><Pencil size={18} aria-hidden="true" /></button>
+                    <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: x.name })} onclick={() => openEdit(p.key, x)}><Pencil size={20} aria-hidden="true" /></button>
                   </li>
                 {/each}
               </ul>
@@ -208,7 +208,7 @@
           </div>
         {/each}
       {:else}
-        <h2 class="fz-h2"><Tent size={18} aria-hidden="true" /> {t('After the night')}</h2>
+        <h2 class="fz-h2"><Tent size={20} aria-hidden="true" /> {t('After the night')}</h2>
         {#if night.question}<p class="fz-text"><b>{t('Your question:')}</b> {night.question}</p>{/if}
         <label class="fz-lab">{t('What I found out')}<textarea class="inp" rows="4" maxlength="2000" bind:value={draft.after} onchange={() => saveField('after')} placeholder={t('e.g. the bag was fine, the pillow was a joke')} data-night-after></textarea></label>
         <section class="fzn-three" aria-labelledby="fzn-q-h" data-night-three>
@@ -229,7 +229,7 @@
           </label>
         </section>
         <section class="fz-box fz-soft" aria-labelledby="fzn-take-h" data-night-take-box>
-          <h3 id="fzn-take-h" class="fz-h2"><ClipboardCheck size={18} aria-hidden="true" /> {t('Onto the packing list')}</h3>
+          <h3 id="fzn-take-h" class="fz-h2"><ClipboardCheck size={20} aria-hidden="true" /> {t('Onto the packing list')}</h3>
           {#if !over}
             <p class="fz-note">{t('Answer «What was missing?» or tell us it was cold or you slept badly: then you can put it on the packing list of a real trip.')}</p>
           {:else if target}

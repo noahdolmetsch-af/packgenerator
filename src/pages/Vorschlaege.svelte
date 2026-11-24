@@ -479,7 +479,7 @@
 
     {#if warns.length}
       <section class="warn" role="note" data-vs-warn>
-        <TriangleAlert size={18} aria-hidden="true" />
+        <TriangleAlert size={20} aria-hidden="true" />
         <div>
           <b>{t('Please check before you ride')}</b>
           {#each warns as w (w.k)}

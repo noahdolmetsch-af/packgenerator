@@ -34,7 +34,7 @@
 
 {#if show}
   <section class="stc" aria-labelledby="stc-h" data-stand-check>
-    <h2 id="stc-h"><Snowflake size={18} aria-hidden="true" />{t('After the standstill')}</h2>
+    <h2 id="stc-h"><Snowflake size={20} aria-hidden="true" />{t('After the standstill')}</h2>
     <p class="quiet">
       {stand.back
         ? tn(stand.days, 'The bike stood for {n} day before {day}. Worth a look at what changes while it stands:', 'The bike stood for {n} days before {day}. Worth a look at what changes while it stands:', { day: dateOf(stand.back) })

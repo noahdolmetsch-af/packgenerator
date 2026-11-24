@@ -23,7 +23,7 @@
 <section class="ls-g" class:open data-group={id} id="g-{id}" aria-labelledby="gh-{id}">
   <h3 class="ls-gh-w" id="gh-{id}">
     <button type="button" class="ls-gh" aria-expanded={open} onclick={() => (open = !open)}>
-      {#if open}<ChevronDown size={18} aria-hidden="true" />{:else}<ChevronRight size={18} aria-hidden="true" />{/if}
+      {#if open}<ChevronDown size={20} aria-hidden="true" />{:else}<ChevronRight size={20} aria-hidden="true" />{/if}
       <span class="ls-gt"><b>{#if head}{@render head()}{:else}{title}{/if}</b>{#if peek && !open}<small>{peek}</small>{/if}</span>
       {#if count}<span class="ls-gn num">{count}</span>{/if}
       {#if sum}<span class="ls-gv num">{sum}</span>{/if}

@@ -9,6 +9,8 @@
    */
   import { Plus, ChevronDown, ChevronUp, CalendarCheck, ChevronRight, Palmtree, Bike, Sun, CloudRain, CloudSun, Info, History } from '@lucide/svelte';
   import PageHead from '../lib/ui/PageHead.svelte';
+  import Stat from '../lib/ui/Stat.svelte';
+  import { statParts } from '../lib/ui/stat.js';
   import AreaIntro from '../lib/intro/AreaIntro.svelte'; // «Einstieg» for the place «Woche» (key weekplan)
   import FreeSlotCard from '../lib/freiezeit/FreeSlotCard.svelte'; // Idee A3: free time plus good weather
   import Seg from '../lib/ui/Seg.svelte';
@@ -126,6 +128,18 @@
   let wrapOpen = $state(false); // asked for by hand on any day
   let wrapLater = $state(false);
   const wrapShown = $derived(!!week && !next && !wrapLater && (wrapOpen || isSunday(today)));
+  // the sums under the title as one number style (Stat): the number big, the rest of the counted sentence small
+  const sumParts = $derived.by(() => {
+    const u = week?.sums;
+    if (!u) return { trips: ['', ''], units: ['', ''], dates: ['', ''], todos: ['', ''], bike: ['', ''] };
+    return {
+      trips: statParts(tn(u.trips, '{n} trip|week', '{n} trips|week')),
+      units: statParts(u.sessions ? tn(u.sessions, '{done} of {n} session done|week', '{done} of {n} sessions done|week', { done: u.sessionsDone }) : tn(0, '{n} session|week', '{n} sessions|week')),
+      dates: statParts(tn(u.dates, '{n} date', '{n} dates')),
+      todos: statParts(tn(u.todos, '{n} to-do', '{n} to-dos')),
+      bike: statParts(tn(u.bike, '{n} bike job open', '{n} bike jobs open')),
+    };
+  });
   const wrap = $derived(week ? weekClose(week.days, monday, today, week.sums.trips) : null);
   async function wrapMove(ids) {
     const before = items();
@@ -202,19 +216,19 @@
       </details>
     </div>
 
-    <p class="sum" data-week-sum>
-      {#if week.sums.trips}<span data-week-trips>{tn(week.sums.trips, '{n} trip|week', '{n} trips|week')}</span>{/if}
-      <span data-week-units>{week.sums.sessions ? tn(week.sums.sessions, '{done} of {n} session done|week', '{done} of {n} sessions done|week', { done: week.sums.sessionsDone }) : tn(0, '{n} session|week', '{n} sessions|week')}{#if week.sums.mins}{' · '}<b class="num">{hours(week.sums.mins)}</b>{/if}{#if week.sums.goalMins}{' '}{t('(plan: {h})', { h: hours(week.sums.goalMins) })}{/if}</span>
-      <span>{tn(week.sums.dates, '{n} date', '{n} dates')}</span>
-      <span>{tn(week.sums.todos, '{n} to-do', '{n} to-dos')}</span>
-      {#if week.sums.away.length}<span><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
-      {#if week.sums.bike}<span>{tn(week.sums.bike, '{n} bike job open', '{n} bike jobs open')}</span>{/if}
+    <div class="sum" data-week-sum>
+      {#if week.sums.trips}<Stat size="s" value={sumParts.trips[0]} label={sumParts.trips[1]} data-week-trips />{/if}
+      <Stat size="s" value={sumParts.units[0]} label={sumParts.units[1] + (week.sums.mins ? ' · ' + hours(week.sums.mins) : '') + (week.sums.goalMins ? ' ' + t('(plan: {h})', { h: hours(week.sums.goalMins) }) : '')} data-week-units />
+      <Stat size="s" value={sumParts.dates[0]} label={sumParts.dates[1]} />
+      <Stat size="s" value={sumParts.todos[0]} label={sumParts.todos[1]} />
+      {#if week.sums.away.length}<span class="away"><Palmtree size={14} aria-hidden="true" /> {week.sums.away.length === 1 ? dayName(week.sums.away[0]) : `${dayName(week.sums.away[0])}–${dayName(week.sums.away.at(-1))}`}</span>{/if}
+      {#if week.sums.bike}<Stat size="s" value={sumParts.bike[0]} label={sumParts.bike[1]} />{/if}
       {#if !next && !wrapShown}<button type="button" class="btn sm" data-wrap-open-btn onclick={() => { wrapLater = false; wrapOpen = true; }}>{t('Show the week wrap-up')}</button>{/if}
-    </p>
+    </div>
     {#if reviewLine(week.review) || week.hints.length}
       <div class="notes">
-        {#if reviewLine(week.review)}<p class="why" data-review><History size={15} aria-hidden="true" /><span>{reviewLine(week.review)}</span></p>{/if}
-        {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why" data-load-hint={h.key}><Info size={15} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
+        {#if reviewLine(week.review)}<p class="why" data-review><History size={16} aria-hidden="true" /><span>{reviewLine(week.review)}</span></p>{/if}
+        {#each week.hints as h (h.key + (h.day ?? ''))}<p class="why" data-load-hint={h.key}><Info size={16} aria-hidden="true" /><span>{hintText(h)}</span></p>{/each}
       </div>
     {/if}
 
@@ -236,7 +250,7 @@
       </details>
     {/if}
     {#if emptyWeek}
-      <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
+      <p class="emptytop" data-week-empty><a class="btn hi" href="#/week/plan" data-plan-week-top><CalendarCheck size={20} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a><span class="why">{t('Nothing planned yet. Plan the week or add a day yourself.')}</span></p>
     {/if}
     <div class="lay">
       <section class="days" class:slim={emptyWeek} aria-label={t('The days of the week')}>
@@ -249,7 +263,7 @@
                 {#if win?.date === d.day}{@render winMark(win)}{/if}
                 <span class="dots" aria-hidden="true">{#each dotsOf(d) as k (k)}<i class="k-{k}"></i>{/each}</span>
                 <span class="cnt">{d.holiday ? holidayName(d.holiday) : d.today ? t('today') : tn(d.entries.length, '{n} entry', '{n} entries')}</span>
-                <ChevronRight size={18} aria-hidden="true" />
+                <ChevronRight size={20} aria-hidden="true" />
               </summary>
               <div class="ens">
                 {#each d.entries as e (e.id)}<Entry {e} ondone={toggleDone} onremove={remove} />{:else}<p class="none">{t('Nothing planned')}</p>{/each}
@@ -272,7 +286,7 @@
         <section class="card wc sg" aria-labelledby="wk-sg">
           <h2 id="wk-sg"><button type="button" class="sgh" aria-expanded={sgOpen} aria-controls="wk-sg-body" data-sg-toggle onclick={toggleSg}>
             <span>{t('Still to plan')}<small>{tn(week.suggestions.length, '{n} suggestion', '{n} suggestions')}</small></span>
-            {#if sgOpen}<ChevronUp size={18} aria-hidden="true" />{:else}<ChevronDown size={18} aria-hidden="true" />{/if}
+            {#if sgOpen}<ChevronUp size={20} aria-hidden="true" />{:else}<ChevronDown size={20} aria-hidden="true" />{/if}
           </button></h2>
           {#if sgOpen}
           <div id="wk-sg-body">
@@ -324,7 +338,7 @@
           {/if}
           </div>
           {/if}
-          <a class="btn hi" href="#/week/plan" data-plan-week><CalendarCheck size={18} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a>
+          <a class="btn hi" href="#/week/plan" data-plan-week><CalendarCheck size={20} aria-hidden="true" />{due ? t('Plan the week (10 min)') : t('Plan the week again')}</a>
         </section>
 
         <WeekDreams {monday} {today} />
@@ -370,7 +384,7 @@
 
 {#snippet wxMark(wx)}
   <span class="wx" class:wet={wx.wet} data-wx={wx.wet ? 'wet' : wx.dry ? 'dry' : 'showers'}>
-    {#if wx.wet}<CloudRain size={15} aria-hidden="true" />{:else if wx.dry}<Sun size={15} aria-hidden="true" />{:else}<CloudSun size={15} aria-hidden="true" />{/if}
+    {#if wx.wet}<CloudRain size={16} aria-hidden="true" />{:else if wx.dry}<Sun size={16} aria-hidden="true" />{:else}<CloudSun size={16} aria-hidden="true" />{/if}
     <span class="sr">{wxWords(wx)}</span>{#if wx.max != null}<span class="num" aria-hidden="true">{Math.round(wx.max)}°</span>{/if}
   </span>
 {/snippet}
@@ -451,17 +465,15 @@
   .sum {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 18px;
+    align-items: flex-end;
+    gap: 8px 22px;
     margin: 0 0 16px;
     color: var(--ink-2);
   }
-  .sum span {
+  .sum .away {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-  }
-  .sum b {
-    color: var(--ink);
   }
   /* the seven days take the full width; «Still to plan» and «Add» sit beneath them, beside only on very wide screens */
   .notes {

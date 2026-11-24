@@ -29,7 +29,7 @@
       {/each}
     </ul>
     <p class="fine">{t('This list is stored only in the link. Ticks are not saved.')}</p>
-    <p class="no-print"><button type="button" class="btn" onclick={() => window.print()}><Printer size={18} aria-hidden="true" />{t('Print|pdf')}</button></p>
+    <p class="no-print"><button type="button" class="btn" onclick={() => window.print()}><Printer size={20} aria-hidden="true" />{t('Print|pdf')}</button></p>
   {/if}
 </div>
 

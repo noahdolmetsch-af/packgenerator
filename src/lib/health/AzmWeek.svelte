@@ -35,7 +35,7 @@
 {#if week.any && tile}
   {@const pct = Math.min(1, week.sum / of)}
   <div class="card azt" data-section="azm">
-    <span class="th"><Timer size={18} aria-hidden="true" /><span>{t('Active zone minutes|metric')}</span></span>
+    <span class="th"><Timer size={20} aria-hidden="true" /><span>{t('Active zone minutes|metric')}</span></span>
     <svg class="ring" viewBox="0 0 100 100" role="img" aria-label="{Math.round(pct * 100)} %">
       <circle cx="50" cy="50" r="40" class="tr" />
       <circle cx="50" cy="50" r="40" class="fl" stroke-dasharray="{(pct * 251.3).toFixed(1)} 251.3" transform="rotate(-90 50 50)" />
@@ -45,7 +45,7 @@
       <!-- svelte-ignore a11y_autofocus -->
       <input class="inp sm num" type="text" inputmode="numeric" value={of} autofocus aria-label={t('Weekly goal for the active zone minutes')} onchange={setOf} onblur={() => (editing = false)} />
     {:else}
-      <button type="button" class="ofb num" data-azm-goal onclick={() => (editing = true)} aria-label={t('Change the weekly goal for the active zone minutes')}><Pencil size={12} aria-hidden="true" />{num(of)}</button>
+      <button type="button" class="ofb num" data-azm-goal onclick={() => (editing = true)} aria-label={t('Change the weekly goal for the active zone minutes')}><Pencil size={14} aria-hidden="true" />{num(of)}</button>
     {/if}
     <small class="wkr" data-azm-range>{t('since Monday')} · {rangeText(week.monday, today)}</small>
     <ul class="dl" aria-label={t('Active zone minutes per day')}>
@@ -57,13 +57,13 @@
 {:else if week.any}
   <div class="card azw" data-section="azm">
     <div class="hd">
-      <span class="ib" aria-hidden="true"><Timer size={18} /></span>
+      <span class="ib" aria-hidden="true"><Timer size={20} /></span>
       <b class="num" data-azm-sum>{t('{n} min', { n: num(week.sum) })}</b>
       {#if editing}
         <!-- svelte-ignore a11y_autofocus -->
         <input class="inp sm num" type="text" inputmode="numeric" value={of} autofocus aria-label={t('Weekly goal for the active zone minutes')} onchange={setOf} onblur={() => (editing = false)} />
       {:else}
-        <button type="button" class="ofb num" data-azm-goal onclick={() => (editing = true)} aria-label={t('Change the weekly goal for the active zone minutes')}><Pencil size={12} aria-hidden="true" />{t('of {n} min', { n: num(of) })}</button>
+        <button type="button" class="ofb num" data-azm-goal onclick={() => (editing = true)} aria-label={t('Change the weekly goal for the active zone minutes')}><Pencil size={14} aria-hidden="true" />{t('of {n} min', { n: num(of) })}</button>
       {/if}
     </div>
     <span class="bar" role="img" aria-label="{Math.min(100, Math.round((week.sum / of) * 100))} %"><i style="width:{Math.max(2, Math.min(100, Math.round((week.sum / of) * 100)))}%"></i></span>
@@ -80,7 +80,7 @@
   </div>
 {:else}
   <a class="card azm" href={FITBIT_HASH} data-section="azm">
-    <Timer size={18} aria-hidden="true" />
+    <Timer size={20} aria-hidden="true" />
     <span>
       {#if off}{t('The active zone minutes are switched off on the page Fitbit.')}
       {:else if health.prefs.connected}{t('No active zone minutes this week yet. They come when the app fetches from Fitbit.')}

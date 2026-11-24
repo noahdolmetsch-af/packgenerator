@@ -424,7 +424,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   {#if chips.length}
     <div class="active" data-active-filters>
       <span class="al">{t('Active|filter')}</span>
-      {#each chips as c (c.id)}<button type="button" class="ac" data-chip={c.id} aria-label={t('Remove filter {name}', { name: t(c.label, c.vars) })} onclick={() => (filter = withoutChip(filter, c))}>{t(c.label, c.vars)}<X size={15} aria-hidden="true" /></button>{/each}
+      {#each chips as c (c.id)}<button type="button" class="ac" data-chip={c.id} aria-label={t('Remove filter {name}', { name: t(c.label, c.vars) })} onclick={() => (filter = withoutChip(filter, c))}>{t(c.label, c.vars)}<X size={16} aria-hidden="true" /></button>{/each}
       <button type="button" class="btn btn-link clear" onclick={() => (filter = emptyFilter())} data-clear-filters>{t('Clear filters')}</button>
     </div>
   {/if}
@@ -433,7 +433,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
 {#snippet saBand()}
   <button type="button" class="sa-band" onclick={() => (shownRows = oldRows)}>
     <span class="sa-bt"><b>{t('New: every trip has a sport')}</b><small>{tn(oldRows.length, 'Choose one for {n} old bike trip', 'Choose one for {n} old bike trips')}</small></span>
-    <ChevronRight size={18} aria-hidden="true" />
+    <ChevronRight size={20} aria-hidden="true" />
   </button>
 {/snippet}
 
@@ -441,7 +441,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   <div class="tools">
     <Seg full={false} label={t('Period')} value={mode} options={PERIODS} onchange={(v) => (mode = v)} />
     <StateChips value={st} counts={stCounts} onchange={(v) => (st = v)} />
-    <button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-filter-open><SlidersHorizontal size={17} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if chips.length}<span class="fn num" data-filter-n>{chips.length}</span>{/if}</button>
+    <button type="button" class="btn k fbtn" aria-haspopup="dialog" onclick={() => (sheet = true)} data-filter-open><SlidersHorizontal size={16} aria-hidden="true" /><span class="kl">{t('Filter')}</span>{#if chips.length}<span class="fn num" data-filter-n>{chips.length}</span>{/if}</button>
   </div>
   {#if tours.saved.length}
     <div class="mine" role="group" aria-label={t('My filters')} data-my-filters>
@@ -477,7 +477,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     </dl>
     {#if v?.watts}
       <div class="pw" data-power>
-        <span class="pwh"><Zap size={15} aria-hidden="true" />{t('Power')}</span>
+        <span class="pwh"><Zap size={16} aria-hidden="true" />{t('Power')}</span>
         <dl class="vg">
           {@render cell(t('Ø power'), n0(v.wAvg), 'W')}
           {@render cell(t('Max. power'), n0(v.wMax), 'W')}
@@ -486,7 +486,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       </div>
     {:else if ride}
       <!-- Impeccable Touren 2: «ohne Wattwerte» only where a ride could have them; «Keine Fahrt verknüpft» is said once above the list -->
-      <p class="nw" data-no-power><ZapOff size={15} aria-hidden="true" /><span>{[t('without power values'), v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
+      <p class="nw" data-no-power><ZapOff size={16} aria-hidden="true" /><span>{[t('without power values'), v.hrAvg == null ? t('No heart rate.') : ''].filter(Boolean).join(' · ')}</span></p>
     {/if}
     {@render packInfo(r)}
   </div>
@@ -640,14 +640,14 @@ import { normState, skKey } from '../lib/sk/tiles.js';
                 {/if}
                 <!-- B4: the band above no longer repeats this trip, so its card is the way into Packen -->
                 {#if bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
-                  <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={13} aria-hidden="true" />{t('being packed')} · {t('Open packing')}<ChevronRight size={13} aria-hidden="true" /></a>
+                  <a class="inpm go-pm" href={PACK_HREF} onclick={(e) => (e.preventDefault(), switchTrip(r.tripId, PACK_HREF))} data-in-pack-mode><Backpack size={14} aria-hidden="true" />{t('being packed')} · {t('Open packing')}<ChevronRight size={14} aria-hidden="true" /></a>
                 {/if}
                 <!-- UI-Prüfung T2: the ways of the trip by its phase (Packen, Wetter, Form; after the trip Rückblick, Form) -->
                 {#if r.kind === 'trip' && byId[r.tripId]}
                   {@const hasPm = bandRow?.tripId === r.tripId && (!ride || ride.tripId !== r.tripId)}
                   <nav class="pways" aria-label="{t('Ways for this trip')}: {r.title}" data-plan-ways>
                     {#each tripWays(byId[r.tripId], today).filter((w) => !(w.key === 'pack' && hasPm)) as w (w.key)}
-                      <a class="pway" href={w.href} onclick={w.key === 'pack' ? (e) => (e.preventDefault(), switchTrip(r.tripId, w.href)) : undefined} data-way={w.key}>{t(w.label)}<ChevronRight size={13} aria-hidden="true" /></a>
+                      <a class="pway" href={w.href} onclick={w.key === 'pack' ? (e) => (e.preventDefault(), switchTrip(r.tripId, w.href)) : undefined} data-way={w.key}>{t(w.label)}<ChevronRight size={14} aria-hidden="true" /></a>
                     {/each}
                   </nav>
                 {/if}
@@ -713,7 +713,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
                   {@const stats = statsOf(r)}
                   {@const isOpen = openRows.has(r.id)}
                   <li class="tr st-{s?.state}" class:open={isOpen} data-row={r.id} data-state={s?.state}>
-                    <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={18} fill="currentColor" />{:else}<Flag size={18} />{/if}</span>
+                    <span class="ric" aria-hidden="true">{#if s?.state === 'rated'}<Star size={20} fill="currentColor" />{:else}<Flag size={20} />{/if}</span>
                     <div class="rm">
                       <div class="rt"><a class="rn" href={rowHref(r)} onclick={() => openRow(r)}>{r.title}</a>{#if r.live}<LiveLabel />{/if}<TripState state={s?.state} extra={stateExtraText(s?.extra)} /></div>
                       <p class="rs">{[dates(r.start, r.end), what(r), bike].filter(Boolean).join(' · ')}</p>
@@ -721,7 +721,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
                       {#if stats}<p class="rk num" data-row-stats>{stats}</p>{/if}
                     </div>
                     <RouteShape d={shapeOf(r, (vals[r.id]?.acts ?? []))} />
-                    <button type="button" class="tog" aria-expanded={isOpen} aria-controls="det-{r.id}" aria-label="{isOpen ? t('Hide details') : t('Show details')}: {r.title}" onclick={() => toggleRow(r.id)} data-row-toggle={r.id}><ChevronDown size={18} aria-hidden="true" /></button>
+                    <button type="button" class="tog" aria-expanded={isOpen} aria-controls="det-{r.id}" aria-label="{isOpen ? t('Hide details') : t('Show details')}: {r.title}" onclick={() => toggleRow(r.id)} data-row-toggle={r.id}><ChevronDown size={20} aria-hidden="true" /></button>
                     {#if isOpen}
                       <div class="det" id="det-{r.id}" data-row-details>
                         {@render values(r)}

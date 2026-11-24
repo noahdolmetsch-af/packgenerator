@@ -75,7 +75,7 @@
 
 {#if pts.length > 2}
   <details class="split" bind:open data-split>
-    <summary><Scissors size={18} aria-hidden="true" /><span><b>{t('Split the recording')}</b><small>{sugg.length ? tn(sugg.length, '{n} suggestion, e.g. at a long pause', '{n} suggestions, e.g. at long pauses') : t('Into stages or own activities')}</small></span></summary>
+    <summary><Scissors size={20} aria-hidden="true" /><span><b>{t('Split the recording')}</b><small>{sugg.length ? tn(sugg.length, '{n} suggestion, e.g. at a long pause', '{n} suggestions, e.g. at long pauses') : t('Into stages or own activities')}</small></span></summary>
     <p class="tp-small tp-muted">{t('One file, several experiences: cut it at long pauses into stages of the trip or own activities. Tap the profile to cut anywhere.')}</p>
     <button type="button" class="prof" onclick={tapProfile} aria-label={t('Profile: tap to cut here')} data-split-profile>
       <svg viewBox="0 0 {W} {H}" preserveAspectRatio="none" aria-hidden="true">{#if line}<path d="{line} L{W} {H} L0 {H}z" class="fill" /><path d={line} class="ln" />{/if}</svg>
@@ -90,7 +90,7 @@
             <button type="button" class="btn sm" aria-pressed={chosen.has(i)} onclick={() => toggle(i)} data-split-sugg={i}>{chosen.has(i) ? t('Remove') : t('Cut here')}</button></li>
         {/each}
         {#each own as at (at)}
-          <li><span class="ic" aria-hidden="true"><Scissors size={18} /></span><span class="m"><b>{t('Your cut at {time}', { time: hm(at) })}</b></span>
+          <li><span class="ic" aria-hidden="true"><Scissors size={20} /></span><span class="m"><b>{t('Your cut at {time}', { time: hm(at) })}</b></span>
             <button type="button" class="btn sm" aria-label={t('Remove')} onclick={() => ((own = own.filter((x) => x !== at)), (choice = {}))}><X size={16} aria-hidden="true" /></button></li>
         {/each}
       </ul>
@@ -105,7 +105,7 @@
         </div>
       {/each}
       {#if !stageOk && parts.some((_, i) => asOf(i) === 'stage')}<p class="tp-small warn">{t('Choose a trip under «Save to» for the stages.')}</p>{/if}
-      <p class="acts"><button type="button" class="btn hi" disabled={busy || (!stageOk && parts.some((_, i) => asOf(i) === 'stage'))} onclick={() => onsplit(parts.map((ride, i) => ({ ride, as: asOf(i), sport: sportOf(i) })))} data-split-go><Scissors size={18} aria-hidden="true" />{t('Split and save')}</button></p>
+      <p class="acts"><button type="button" class="btn hi" disabled={busy || (!stageOk && parts.some((_, i) => asOf(i) === 'stage'))} onclick={() => onsplit(parts.map((ride, i) => ({ ride, as: asOf(i), sport: sportOf(i) })))} data-split-go><Scissors size={20} aria-hidden="true" />{t('Split and save')}</button></p>
       <p class="tp-small tp-muted">{t('The pause at a cut is no riding time. Only the bike parts count for the bike.')}</p>
     {:else}
       <p class="tp-small tp-muted">{t('Choose a suggestion or tap the profile: then the parts show here.')}</p>

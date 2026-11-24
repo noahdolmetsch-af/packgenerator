@@ -143,7 +143,7 @@
     <Empty text={wanted ? t('This tick is gone, perhaps it was taken back.') : t('Nothing ticked yet. Tick something on Active and this page shows what it brought.')} action={{ label: t('Back to Active'), href: '#/flow' }} />
   {:else}
     <section class="head" data-geschafft-head>
-      <span class="check" aria-hidden="true"><Check size={22} strokeWidth={2.5} /></span>
+      <span class="check" aria-hidden="true"><Check size={24} strokeWidth={2.5} /></span>
       <div class="ht">
         <h1 tabindex="-1" data-page-title>{t('Done page: {name}', { name: actName(act) })}{#if amount || entry.feel}{' '}<span class="amt">· {[amount, entry.feel ? t(FEEL_TEXT[entry.feel]) : ''].filter(Boolean).join(' · ')}</span>{/if}</h1>
         <p class="src" data-geschafft-source>{when} · {t(SOURCE[sourceKey(entry)])}</p>

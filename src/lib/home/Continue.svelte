@@ -70,27 +70,27 @@
       <a class="row eve" href={`${betweenHref(eve, 'packed')}?check`} onclick={() => openTrip(eve.id)} data-row="eve">
         <Moon size={20} aria-hidden="true" />
         <span class="tx"><b>{t("Tomorrow it starts: {trip}", { trip: eve.title })}</b><small>{t('Your evening-before check is waiting.')}</small></span>
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </a>
     {/if}
     {#if last}
       <a class="row eve" href={betweenHref(last, 'ended')} onclick={() => openTrip(last.id)} data-row="last">
         <Flag size={20} aria-hidden="true" />
         <span class="tx"><b>{t('Last evening: {trip}', { trip: last.title })}</b><small>{t('Back home? Finish the trip.')}</small></span>
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </a>
     {/if}
     {#if ride && !hidden}
       <a class="row go ride" href="#/live" data-row="ride">
         <Bike size={20} aria-hidden="true" />
         <span class="tx"><small class="k sl">{t('Where you left off')}</small><b>{t('Ride running since {time}', { time: zurichTime(ride.startAt) })}</b></span>
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </a>
     {/if}
     {#if extra && !ride && !hidden}
       <a class="row go" href={extra.href} onclick={() => openTrip(extra.tripId)} data-row="begun" data-step={extra.step}>
         <span class="tx"><small class="k sl">{t('Where you left off')} · {t(extra.stepLabel)}</small><b>{extra.title}</b></span>
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </a>
     {/if}
     {#if lead && step && banner}
@@ -100,12 +100,12 @@
       <a class="row go band" href={step.href} onclick={() => openTrip(lead.id)} data-row="continue" data-step={step.key}>
         <span class="ic" aria-hidden="true"><Icon size={20} /></span>
         <span class="tx"><small class="sl"><TripState state={leadState} />{t('Continue · {step}, step {n} of {total}', { step: t(TAB_NAMES[step.key]), n: step.n, total: step.total })}</small><b>{lead.title}{#if step.key === 'pack' && n}<span class="pk num">{` · ${tn(n, '{done} of {n} packed', '{done} of {n} packed', { done: p })}`}</span>{/if}</b></span>
-        <span class="gob">{t('Continue|go')}<ChevronRight size={18} aria-hidden="true" /></span>
+        <span class="gob">{t('Continue|go')}<ChevronRight size={20} aria-hidden="true" /></span>
       </a>
     {:else if lead && step && !ride && !hidden}
       <a class="row go" href={step.href} onclick={() => openTrip(lead.id)} data-row="continue" data-step={step.key}>
         <span class="tx"><small class="k sl"><TripState state={leadState} />{t('Continue · {step}, step {n} of {total}', { step: t(TAB_NAMES[step.key]), n: step.n, total: step.total })}</small><b>{lead.title}</b></span>
-        <ChevronRight size={18} aria-hidden="true" />
+        <ChevronRight size={20} aria-hidden="true" />
       </a>
     {/if}
     {#if !banner && !hidden && (ride || extra || (lead && step))}

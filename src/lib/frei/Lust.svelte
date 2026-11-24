@@ -183,7 +183,7 @@
   </section>
 
   <section class="fz-form" aria-labelledby="fzl-h">
-    <h2 id="fzl-h" class="fz-h2"><Dices size={18} aria-hidden="true" /> {chosen ? t('This could fit') : t('A few ideas to start')}</h2>
+    <h2 id="fzl-h" class="fz-h2"><Dices size={20} aria-hidden="true" /> {chosen ? t('This could fit') : t('A few ideas to start')}</h2>
     {#if !picks.length}<p class="fz-empty">{t('No idea left. Add your own below.')}</p>{/if}
     <div class="fz-grid three">
       {#each picks as p, n (p.idea.id)}
@@ -215,7 +215,7 @@
         {#each ideas as i (i.id)}
           <li class="fz-row">
             <button type="button" class="fz-row-main" onclick={() => openEdit(i)}><b>{name(i)}</b><small>{[...i.mood.map((k) => t(MOODS.find((x) => x.key === k)?.name ?? k)), t('{n} min', { n: i.min })].join(' · ')}</small></button>
-            <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: name(i) })} onclick={() => removeIdea(i)} data-idea-del>{#if i.own}<X size={18} aria-hidden="true" />{:else}<EyeOff size={18} aria-hidden="true" />{/if}</button>
+            <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: name(i) })} onclick={() => removeIdea(i)} data-idea-del>{#if i.own}<X size={20} aria-hidden="true" />{:else}<EyeOff size={20} aria-hidden="true" />{/if}</button>
           </li>
         {/each}
         <li class="fz-row"><button type="button" class="btn sm" onclick={resetIdeas}>{t('Reset the ideas')}</button></li>
@@ -224,7 +224,7 @@
   </section>
 
   <section class="fz-box" aria-labelledby="fzl-tech-h" data-technique>
-    <h2 id="fzl-tech-h" class="fz-h2"><GraduationCap size={18} aria-hidden="true" /> {t('Technique of the week')}</h2>
+    <h2 id="fzl-tech-h" class="fz-h2"><GraduationCap size={20} aria-hidden="true" /> {t('Technique of the week')}</h2>
     {#if tech}
       <span class="fz-kick">{tSport(tech)}</span>
       <p class="fz-big">{tName(tech)}</p>

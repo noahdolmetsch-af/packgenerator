@@ -48,9 +48,9 @@
         <li data-result={r.id}>
           <span class="tr-m"><b>{r.name}</b><small>{[toolName(r.tool), when(r.at), sizeText(r.size)].filter(Boolean).join(' · ')}</small></span>
           <span class="tr-b">
-            <button type="button" class="btn sm" onclick={() => again(r)}><Share2 size={15} aria-hidden="true" />{t('Save or share')}</button>
-            <button type="button" class="btn sm" onclick={() => toAblage(r)} data-result-keep><Paperclip size={15} aria-hidden="true" />{t('To Links and files')}</button>
-            <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: r.name })} onclick={() => drop(r)}><Trash2 size={15} aria-hidden="true" /></button>
+            <button type="button" class="btn sm" onclick={() => again(r)}><Share2 size={16} aria-hidden="true" />{t('Save or share')}</button>
+            <button type="button" class="btn sm" onclick={() => toAblage(r)} data-result-keep><Paperclip size={16} aria-hidden="true" />{t('To Links and files')}</button>
+            <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: r.name })} onclick={() => drop(r)}><Trash2 size={16} aria-hidden="true" /></button>
           </span>
         </li>
       {/each}

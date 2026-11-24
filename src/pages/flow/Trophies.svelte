@@ -83,10 +83,10 @@
             <p class="sub">{tn(g.count, '{n} star', '{n} stars')}{year ? ` · ${year}` : ''}</p>
             <ul class="card badges">
               {#each g.items as x (x.id)}
-                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={18} /></span><b>{msName(x.r.m)}</b><small>{when(x)}</small></li>
+                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={20} /></span><b>{msName(x.r.m)}</b><small>{when(x)}</small></li>
               {/each}
               {#if g.next && !year}
-                <li class="open" data-next={g.next.id}><span class="b" aria-hidden="true"><Star size={18} /></span><b>{msName(g.next.m)}</b><small>{t('next: {what}', { what: stageName(g.next.next) })}</small></li>
+                <li class="open" data-next={g.next.id}><span class="b" aria-hidden="true"><Star size={20} /></span><b>{msName(g.next.m)}</b><small>{t('next: {what}', { what: stageName(g.next.next) })}</small></li>
               {/if}
             </ul>
           </section>
@@ -99,7 +99,7 @@
             <p class="sub">{tn(gb.length, '{n} star', '{n} stars')}{year ? ` · ${year}` : ''} · <a href="#/flow/gipfelbuch">{t('Open the summit book')}</a></p>
             <ul class="card badges">
               {#each [...gb].reverse() as x (x.id)}
-                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={18} /></span><b>{gbName(x)}</b><small>{x.name} · {monthWord(x.day)} {x.day.slice(0, 4)}</small></li>
+                <li data-star={x.id}><span class="b" aria-hidden="true"><Star size={20} /></span><b>{gbName(x)}</b><small>{x.name} · {monthWord(x.day)} {x.day.slice(0, 4)}</small></li>
               {/each}
             </ul>
           </section>

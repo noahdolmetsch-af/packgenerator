@@ -28,7 +28,7 @@
 </script>
 
 <section class="rc-box" aria-labelledby="rlr-h" data-race-learnings>
-  <h2 id="rlr-h" class="rc-h2"><Lightbulb size={18} aria-hidden="true" /> {t('Learned in earlier races')}</h2>
+  <h2 id="rlr-h" class="rc-h2"><Lightbulb size={20} aria-hidden="true" /> {t('Learned in earlier races')}</h2>
   {#if $learnQ === undefined}
     <p class="rc-note">{t('Loading…')}</p>
   {:else if !rows.length}
@@ -41,7 +41,7 @@
           <span class="rlr-txt">
             <b>{l.rule}</b>
             {#if l.action}<span class="rlr-do"><ArrowRight size={14} aria-hidden="true" />{l.action}</span>{/if}
-            {#if l.race}<small class="rlr-race"><Flag size={12} aria-hidden="true" />{l.race}</small>{/if}
+            {#if l.race}<small class="rlr-race"><Flag size={14} aria-hidden="true" />{l.race}</small>{/if}
           </span>
         </li>
       {/each}

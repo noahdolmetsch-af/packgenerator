@@ -130,7 +130,7 @@
       {:else}
         <p class="big">{t('Your devices use about {wh} a day.', { wh: wh(budget.dailyWh) })} {budget.stretch > 1 ? tn(budget.stretch, 'The longest stretch without a socket is {n} day.', 'The longest stretch without a socket is {n} days.') : t('You can charge every night.')}</p>
         <div class="ans" class:ok={budget.banks.enough}>
-          <BatteryCharging size={22} aria-hidden="true" />
+          <BatteryCharging size={24} aria-hidden="true" />
           <div>
             {#if budget.needWh <= 0}
               <b>{t('No power bank needed.')}</b>
@@ -146,7 +146,7 @@
         </div>
         {#if budget.charger}
           <div class="ans" class:ok={!budget.charger.tooLong}>
-            <Plug size={22} aria-hidden="true" />
+            <Plug size={24} aria-hidden="true" />
             <div>
               <b>{budget.charger.pick ? t('Charger: {name}', { name: nameOf(budget.charger.pick) }) : t('Charger: one with {n} sockets', { n: Math.min(budget.charger.n, 3) })}</b>
               <span>{tn(budget.charger.n, 'Charging {n} thing takes about {h} h a night.', 'Charging {n} things takes about {h} h a night.', { h: budget.charger.hours })}{#if budget.charger.tooLong}{' '}{t('That is too long for one night: take a charger with more sockets.')}{/if}</span>

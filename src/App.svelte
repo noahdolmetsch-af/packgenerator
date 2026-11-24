@@ -552,10 +552,10 @@
     {#if mini}<a class="brand" href={mini.tabs[0].href}><span class="mark" aria-hidden="true">PG</span><span class="long show">{t(mini.name)}</span></a>{:else}<a class="brand" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true"><LogoMark /></span><span class="long">Pack Generator</span></a>{/if}
     <div class="tools">
       <!-- «Assistent» (Noah 15.10.2026 «3 a und b»): its own button next to the search -->
-      <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={22} aria-hidden="true" /></a>
+      <a class="asst-ic" href="#/assistent" aria-label={t('Assistant')}><MessageCircle size={24} aria-hidden="true" /></a>
       {#if !mini}<HelpButton />{/if}<!-- «Alles finden 2» (Noah 22.10.2026 «3a»): the help of this page -->
       <Search compact />
-      {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={22} strokeWidth={2.4} aria-hidden="true" /></button>{/if}
+      {#if !guest}<button type="button" class="plus" aria-label={t('New')} aria-haspopup="dialog" aria-keyshortcuts="n" onclick={() => (newMode = 'all')}><Plus size={24} strokeWidth={2.5} aria-hidden="true" /></button>{/if}
       <MeButton inbox={$inboxQ ?? 0} current={place === 'me'} />
     </div>
   </header>
@@ -563,7 +563,7 @@
 <div class="col">
 {#if wide.matches && !mini}
 <!-- 4a (Noah 21.11.2026 «4a»): one place for help; on a computer the «?» and the assistant sit at the top right of the page, like in the phone's top bar -->
-<div class="dtools"><a class="asst-ic" href="#/assistent" aria-label={t('Assistant')} aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={22} aria-hidden="true" /></a><HelpButton /></div>
+<div class="dtools"><a class="asst-ic" href="#/assistent" aria-label={t('Assistant')} aria-current={hash.startsWith('#/assistent') ? 'page' : undefined}><MessageCircle size={24} aria-hidden="true" /></a><HelpButton /></div>
 {/if}
 <DemoBar />
 <LogoRide />

@@ -263,13 +263,13 @@
         <button type="button" class="btn sm" onclick={() => notToday(i)} data-not-today><CalendarOff size={16} aria-hidden="true" />{t('Not today')}</button>
       {/if}
       {#if big}<button type="button" class="btn sm" onclick={anotherTop} data-another><Shuffle size={16} aria-hidden="true" />{t('Another idea')}</button>{/if}
-      <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: title(i) })} onclick={() => openEdit(i)} data-edit><Pencil size={18} aria-hidden="true" /></button>
+      <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: title(i) })} onclick={() => openEdit(i)} data-edit><Pencil size={20} aria-hidden="true" /></button>
       {#if i.own}
-        <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: title(i) })} onclick={() => remove(i)} data-del><X size={18} aria-hidden="true" /></button>
+        <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: title(i) })} onclick={() => remove(i)} data-del><X size={20} aria-hidden="true" /></button>
       {:else if i.hidden}
-        <button type="button" class="fz-icon" aria-label={t('Show {name} again', { name: title(i) })} onclick={() => unhide(i)} data-unhide><Eye size={18} aria-hidden="true" /></button>
+        <button type="button" class="fz-icon" aria-label={t('Show {name} again', { name: title(i) })} onclick={() => unhide(i)} data-unhide><Eye size={20} aria-hidden="true" /></button>
       {:else}
-        <button type="button" class="fz-icon" aria-label={t('Hide {name}', { name: title(i) })} onclick={() => hide(i)} data-hide><EyeOff size={18} aria-hidden="true" /></button>
+        <button type="button" class="fz-icon" aria-label={t('Hide {name}', { name: title(i) })} onclick={() => hide(i)} data-hide><EyeOff size={20} aria-hidden="true" /></button>
       {/if}
     </div>
   </article>
@@ -284,7 +284,7 @@
 
   {#if top}
     <section aria-labelledby="fzi-top-h">
-      <h2 id="fzi-top-h" class="fz-h2 fzi-toph"><Sparkles size={18} aria-hidden="true" />{t('Impulse for today')}</h2>
+      <h2 id="fzi-top-h" class="fz-h2 fzi-toph"><Sparkles size={20} aria-hidden="true" />{t('Impulse for today')}</h2>
       {@render card(top, true)}
     </section>
   {/if}
@@ -309,8 +309,8 @@
               <SortGrip name={areaName(a, t)} onstep={(dir) => step(a.id, dir)} />
               <span class="fz-row-main"><b>{areaName(a, t)}</b><small>{tn(inArea(visible, a.id, areas).length, '{n} impulse', '{n} impulses')}</small></span>
               {#if !phone.matches}<SortArrows name={areaName(a, t)} i={n} n={shownAreas.length} onstep={(dir) => step(a.id, dir)} />{/if}
-              <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: areaName(a, t) })} onclick={() => (renaming = a)} data-area-rename><Pencil size={18} aria-hidden="true" /></button>
-              <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: areaName(a, t) })} onclick={() => (deleting = a)} data-area-delete><X size={18} aria-hidden="true" /></button>
+              <button type="button" class="fz-icon" aria-label={t('Rename {name}', { name: areaName(a, t) })} onclick={() => (renaming = a)} data-area-rename><Pencil size={20} aria-hidden="true" /></button>
+              <button type="button" class="fz-icon" aria-label={t('Delete {name}', { name: areaName(a, t) })} onclick={() => (deleting = a)} data-area-delete><X size={20} aria-hidden="true" /></button>
             </li>
           {/each}
         </ul>
@@ -328,7 +328,7 @@
         <li class="fzi-li" class:fzi-off={i.hidden} data-impulse-row={i.id}>
           <button type="button" class="fzi-rowbtn" aria-expanded={openId === i.id} onclick={() => (openId = openId === i.id ? null : i.id)}>
             <span class="fzi-rm"><b>{title(i)}</b><small>{nameOfArea(i.area) || t('Without an area')}{#if i.hidden}{' '}· {t('hidden')}{:else if i.later}{' '}· {t('rests until {day}', { day: dayLabel(i.laterUntil) })}{/if}</small></span>
-            <ChevronDown class="fzi-chev" size={18} aria-hidden="true" />
+            <ChevronDown class="fzi-chev" size={20} aria-hidden="true" />
           </button>
           {#if openId === i.id}{@render card(i)}{/if}
         </li>

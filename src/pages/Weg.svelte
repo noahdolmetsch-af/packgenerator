@@ -404,7 +404,7 @@
             {@const done = goal.steps.find((s) => s.id === m.id)?.done}
             <div class="wg-circle-box">
               <button type="button" class="wg-circle" class:on={done} class:late={!done && m.state === 'late'} aria-pressed={!!done} aria-label={done ? t('Practice ride of {km} km, done', { km: m.km }) : t('Practice ride of {km} km, open', { km: m.km })} onclick={() => putGoal(setDone(goal, m.id, !done, today))} data-weg-proben-circle>
-                {#if done}<Check size={28} aria-hidden="true" />{:else}{num(m.km)}{/if}
+                {#if done}<Check size={24} aria-hidden="true" />{:else}{num(m.km)}{/if}
               </button>
               <b>{t('{km} km', { km: num(m.km) })}</b>
               <span class="wg-sub">{dayText(m.due)}</span>
@@ -522,7 +522,7 @@
             {#each wetter.days as d (d.date)}
               <li class:wet={d.wet} class:start={d.isStart} aria-label={t('{pct} % rain on {day}', { pct: num(d.pct), day: wWord(d.date) })}>
                 <b>{wWord(d.date)}</b>
-                {#if d.wet}<CloudRain size={22} aria-hidden="true" />{:else}<Sun size={22} aria-hidden="true" />{/if}
+                {#if d.wet}<CloudRain size={24} aria-hidden="true" />{:else}<Sun size={24} aria-hidden="true" />{/if}
                 <small>{num(d.pct)} %</small>
               </li>
             {/each}
@@ -556,7 +556,7 @@
                 {#if r.step.note}<span class="wg-note">{r.step.note}</span>{/if}
                 {#if linkOf(r)}<a class="wg-go" href={linkOf(r)}>{t('Open')} <ChevronRight size={14} aria-hidden="true" /></a>{/if}
               </div>
-              <button type="button" class="wg-dots" aria-expanded={isOpen('step', r.step.id)} aria-label={t('Edit {name}', { name: r.step.title })} onclick={() => toggleMenu('step', r.step.id)}><Ellipsis size={18} aria-hidden="true" /></button>
+              <button type="button" class="wg-dots" aria-expanded={isOpen('step', r.step.id)} aria-label={t('Edit {name}', { name: r.step.title })} onclick={() => toggleMenu('step', r.step.id)}><Ellipsis size={20} aria-hidden="true" /></button>
               {#if isOpen('step', r.step.id)}
                 <div class="wg-menu">
                   <label class="wg-startf"><span><CalendarClock size={14} aria-hidden="true" /> {t('Day (optional)')}</span><DateInput value={r.step.due || r.due} onchange={(v) => putGoal(setDue(goal, r.step.id, v))} aria-label={t('Day of {name}', { name: r.step.title })} /></label>

@@ -89,7 +89,7 @@
               <a class="ich-row" href={`${TOOLS_HASH}/${x.key}`} data-fit={x.key}>
                 <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{t(x.title)}</b><small>{t(f.why)}</small></span>
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
               </a>
             </li>
           {/each}
@@ -120,7 +120,7 @@
             <a class="ich-row" href={`${TOOLS_HASH}/${x.key}`} data-tool={x.key}>
               <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t(x.title)}</b><small>{t(x.sub)}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
         {:else}

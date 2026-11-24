@@ -79,11 +79,11 @@
   <section class="ich-sec" aria-labelledby="pa-look-h">
     <div class="ich-h"><div><h2 id="pa-look-h">{t('Look up|shelf')}</h2><p class="ich-hs">{t('Folded; open what you need')}</p></div></div>
     <details class="card pa-fold" data-pa-fold="ideas">
-      <summary class="pa-sum"><span class="ich-ib"><Lightbulb size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Ideas')}</b><small>{t('{total} ideas · {wish} planned · {live} live', counts)}</small></span><ChevronDown class="pa-chev" size={18} aria-hidden="true" /></summary>
+      <summary class="pa-sum"><span class="ich-ib"><Lightbulb size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Ideas')}</b><small>{t('{total} ideas · {wish} planned · {live} live', counts)}</small></span><ChevronDown class="pa-chev" size={20} aria-hidden="true" /></summary>
       <div class="pa-body"><IdeaBoard ideas={list.ideas} goals={list.goals} /></div>
     </details>
     <details class="card pa-fold" data-pa-fold="releases">
-      <summary class="pa-sum"><span class="ich-ib"><Route size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Way and releases')}</b><small>{t('{n} versions · {version} {title}', { n: WHATS_NEW.length, version: WHATS_NEW[0].version, title: t(WHATS_NEW[0].title) })}</small></span><ChevronDown class="pa-chev" size={18} aria-hidden="true" /></summary>
+      <summary class="pa-sum"><span class="ich-ib"><Route size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Way and releases')}</b><small>{t('{n} versions · {version} {title}', { n: WHATS_NEW.length, version: WHATS_NEW[0].version, title: t(WHATS_NEW[0].title) })}</small></span><ChevronDown class="pa-chev" size={20} aria-hidden="true" /></summary>
       <div class="pa-body">
         <ol class="pa-time">
           {#each ahead as w (w.key)}
@@ -97,20 +97,20 @@
       </div>
     </details>
     <details class="card pa-fold" data-pa-fold="knowledge">
-      <summary class="pa-sum"><span class="ich-ib"><BookOpen size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Knowledge')}</b><small>{t('Rules, what the app learned, handbook')}</small></span><ChevronDown class="pa-chev" size={18} aria-hidden="true" /></summary>
+      <summary class="pa-sum"><span class="ich-ib"><BookOpen size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Knowledge')}</b><small>{t('Rules, what the app learned, handbook')}</small></span><ChevronDown class="pa-chev" size={20} aria-hidden="true" /></summary>
       <ul class="ich-list pa-links">
         {#each KNOW as k (k.href)}
           {@const I = k.icon}
-          <li><a class="ich-row" href={k.href}><span class="ich-ib"><I size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(k.name)}</b><small>{t(k.sub)}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+          <li><a class="ich-row" href={k.href}><span class="ich-ib"><I size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(k.name)}</b><small>{t(k.sub)}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
         {/each}
       </ul>
     </details>
     <details class="card pa-fold" data-pa-fold="tools">
-      <summary class="pa-sum"><span class="ich-ib"><Wrench size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Toolbox')}</b><small>{t('Tools, helper, small apps, links')}</small></span><ChevronDown class="pa-chev" size={18} aria-hidden="true" /></summary>
+      <summary class="pa-sum"><span class="ich-ib"><Wrench size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Toolbox')}</b><small>{t('Tools, helper, small apps, links')}</small></span><ChevronDown class="pa-chev" size={20} aria-hidden="true" /></summary>
       <ul class="ich-list pa-links">
         {#each TOOLS as k (k.href)}
           {@const I = k.icon}
-          <li><a class="ich-row" href={k.href}><span class="ich-ib"><I size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(k.name)}</b><small>{t(k.sub)}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+          <li><a class="ich-row" href={k.href}><span class="ich-ib"><I size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t(k.name)}</b><small>{t(k.sub)}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
         {/each}
       </ul>
     </details>

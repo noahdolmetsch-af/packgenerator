@@ -64,7 +64,7 @@
 
   <h3 class="zh">{t('On the list now|swap')}</h3>
   <div class="card now">
-    <span class="ic" aria-hidden="true"><Shirt size={18} /></span>
+    <span class="ic" aria-hidden="true"><Shirt size={20} /></span>
     <span class="mid"><span class="nm">{nameOf(item)}</span><small class="num">{[range0(item) ? t('fits {range}', { range: range0(item) }) : '', !now.ok ? whyText(now.why) : '', placeOf].filter(Boolean).join(' · ')}</small>{#if favWhy(item)}<small class="fav" data-swap-favwhy>★ {t('Favourite because: {why}', { why: favWhy(item) })}</small>{/if}</span>
     <span class="w num">{g(item)}</span>
   </div>
@@ -108,7 +108,7 @@
 {#snippet alt(r, best, first)}
   <li>
     <button type="button" class="alt" aria-label={t('Swap for {name}', { name: nameOf(r.item) })} onclick={() => pick(r.item.id)}>
-      <span class="ic" aria-hidden="true"><Shirt size={18} /></span>
+      <span class="ic" aria-hidden="true"><Shirt size={20} /></span>
       <span class="mid">
         <span class="nm">{nameOf(r.item)}{#if best}<i class="pill ok best">{t('fits best')}</i>{:else if !r.fit.ok}<i class="pill warn best">{t('fits less')}</i>{/if}</span>
         <small class="num">{[range0(r.item) ? t('fits {range}', { range: range0(r.item) }) : '', !r.fit.ok ? whyText(r.fit.why) : r.mem ? `${memText(r.mem)}${r.mem.n > 1 ? ` · ${r.mem.n}×` : ''}` : ''].filter(Boolean).join(' · ')}</small>

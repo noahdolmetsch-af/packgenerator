@@ -163,6 +163,6 @@
       </div>
     </div>
   {:else}
-    <div><button type="button" class="btn" onclick={() => start()} disabled={!canSend} data-event-cost-add><Plus size={18} aria-hidden="true" />{t('Add an expense')}</button></div>
+    <div><button type="button" class="btn" onclick={() => start()} disabled={!canSend} data-event-cost-add><Plus size={20} aria-hidden="true" />{t('Add an expense')}</button></div>
   {/if}
 </section>

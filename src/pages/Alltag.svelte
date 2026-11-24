@@ -39,7 +39,7 @@
           <a class="fz-row" href="{ALLTAG_HASH}/{p.key}" data-alltag-page={p.key}>
             <span class="fz-icon" aria-hidden="true"><Icon size={20} /></span>
             <span class="fz-row-main"><b>{t(p.title)}</b><small>{t(p.sub)}</small></span>
-            <ChevronRight size={18} aria-hidden="true" />
+            <ChevronRight size={20} aria-hidden="true" />
           </a>
         </li>
       {/each}

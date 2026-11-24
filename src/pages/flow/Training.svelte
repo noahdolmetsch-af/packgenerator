@@ -152,7 +152,7 @@
               <span class="r num hr" data-label={t('Ø heart rate')}>{a.hrAvg ?? '–'}</span>
               <span class="pv num">{[rideTimeS(a.movingS), a.km ? `${num(a.km)} km` : '', a.hm != null ? `${num(a.hm)} ${t('Hm|short')}` : '', a.hrAvg != null ? `Ø ${a.hrAvg}` : ''].filter(Boolean).join(' · ')}</span>
               <span class="zb"><ZoneBar secs={zoneSecs(a.hist, zones.bounds)} /></span>
-              <span class="go" aria-hidden="true"><ChevronRight size={18} /></span>
+              <span class="go" aria-hidden="true"><ChevronRight size={20} /></span>
             </a>
           </li>
         {/each}

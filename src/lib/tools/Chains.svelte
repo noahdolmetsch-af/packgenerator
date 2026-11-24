@@ -159,7 +159,7 @@
           </button>
           <span class="ch-acts">
             <SortArrows name={name(c)} {i} n={chains.length} onstep={(d) => moveChain(i, i + d)} />
-            <button type="button" class="btn hi sm" disabled={!c.steps.length || bad >= 0} onclick={() => start(c)}><Play size={15} aria-hidden="true" />{t('Start|chain')}</button>
+            <button type="button" class="btn hi sm" disabled={!c.steps.length || bad >= 0} onclick={() => start(c)}><Play size={16} aria-hidden="true" />{t('Start|chain')}</button>
           </span>
         </div>
         {#if running?.id === c.id}
@@ -189,7 +189,7 @@
                     </select>
                   {/if}
                   <SortArrows name={label} i={j} n={c.steps.length} onstep={(d) => setSteps(c, moveIn(c.steps, j, j + d))} />
-                  <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: label })} onclick={() => removeStep(c, s)}><Trash2 size={15} aria-hidden="true" /></button>
+                  <button type="button" class="btn sm" aria-label={t('Delete {name}', { name: label })} onclick={() => removeStep(c, s)}><Trash2 size={16} aria-hidden="true" /></button>
                 </li>
               {/each}
             </ol>
@@ -200,8 +200,8 @@
                   {#each STEPS as s (s.kind)}<option value={s.kind}>{t(s.label)}</option>{/each}
                 </select>
               </label>
-              <button type="button" class="btn sm" onclick={() => (renaming = { chain: c })}><Pencil size={15} aria-hidden="true" />{t('Rename')}</button>
-              <button type="button" class="btn sm" onclick={() => removeChain(c)}><Trash2 size={15} aria-hidden="true" />{t('Delete')}</button>
+              <button type="button" class="btn sm" onclick={() => (renaming = { chain: c })}><Pencil size={16} aria-hidden="true" />{t('Rename')}</button>
+              <button type="button" class="btn sm" onclick={() => removeChain(c)}><Trash2 size={16} aria-hidden="true" />{t('Delete')}</button>
             </div>
           </div>
         {/if}

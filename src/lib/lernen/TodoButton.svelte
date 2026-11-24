@@ -39,7 +39,7 @@
 </script>
 
 {#if sent}
-  <span class="tdb done" data-todo-sent><Check size={15} aria-hidden="true" />{t('To-do')}</span>
+  <span class="tdb done" data-todo-sent><Check size={16} aria-hidden="true" />{t('To-do')}</span>
 {:else}
   <button type="button" class="btn k tdb" disabled={busy} onclick={go} aria-label={t('«{text}» as a to-do', { text: note.text })} data-todo-btn><ListPlus size={16} aria-hidden="true" /><span class="kl">{failed ? t('Try again') : t('As to-do')}</span></button>
 {/if}

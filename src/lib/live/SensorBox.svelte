@@ -35,7 +35,7 @@
 </script>
 
 <div class="sb" data-live-sensors>
-  <h2 class="lvf-h"><Bluetooth size={18} aria-hidden="true" />{t('Sensors')}</h2>
+  <h2 class="lvf-h"><Bluetooth size={20} aria-hidden="true" />{t('Sensors')}</h2>
   {#if !ok}
     <p class="rc-note" data-live-sensors-none>{t('This browser cannot connect Bluetooth sensors. Chrome on Android or on a computer can.')}</p>
   {:else}

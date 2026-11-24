@@ -38,8 +38,8 @@
   <h2 id="es-h">{t('Ready and arrived')}</h2>
   <p class="ev-muted">{plan?.start ? t('Start {time}.', { time: plan.start }) + ' ' : ''}{t('One tap, and everyone knows who is ready and who is already in camp.')}</p>
   <div class="ev-acts">
-    <button type="button" class="btn" class:hi={st?.kind !== 'ready'} aria-pressed={st?.kind === 'ready'} onclick={() => set('ready')} disabled={busy || !canSend} data-event-ready><CircleCheck size={18} aria-hidden="true" />{t('I am ready')}</button>
-    <button type="button" class="btn" aria-pressed={st?.kind === 'camp'} onclick={() => set('camp')} disabled={busy || !canSend} data-event-camp><Tent size={18} aria-hidden="true" />{t('I am in camp')}</button>
+    <button type="button" class="btn" class:hi={st?.kind !== 'ready'} aria-pressed={st?.kind === 'ready'} onclick={() => set('ready')} disabled={busy || !canSend} data-event-ready><CircleCheck size={20} aria-hidden="true" />{t('I am ready')}</button>
+    <button type="button" class="btn" aria-pressed={st?.kind === 'camp'} onclick={() => set('camp')} disabled={busy || !canSend} data-event-camp><Tent size={20} aria-hidden="true" />{t('I am in camp')}</button>
   </div>
   <p class="ev-strong" data-event-count>{t('{ready} of {total} ready, {camp} in camp.', { ready: count.ready, total: count.total, camp: count.camp })}</p>
   {#if st}<p class="ev-muted" role="status">{st.kind === 'ready' ? t('You are ready since {time}. Tap again to take it back.', { time: time(st.at) }) : t('You are in camp since {time}. Tap again to take it back.', { time: time(st.at) })}</p>{/if}
@@ -47,7 +47,7 @@
   {#if plan?.race && cps.length}
     <h3>{t('In the race')}</h3>
     {#if near}
-      <div><button type="button" class="btn hi" onclick={() => arrive(near)} disabled={busy || !canSend} data-event-cp-near><Flag size={18} aria-hidden="true" />{near.finish ? t('Arrived at the finish') : t('Arrived at {cp}', { cp: cpName(near) })}</button></div>
+      <div><button type="button" class="btn hi" onclick={() => arrive(near)} disabled={busy || !canSend} data-event-cp-near><Flag size={20} aria-hidden="true" />{near.finish ? t('Arrived at the finish') : t('Arrived at {cp}', { cp: cpName(near) })}</button></div>
     {/if}
     <ul class="ev-list" data-event-cps>
       {#each cps as c (c.i)}

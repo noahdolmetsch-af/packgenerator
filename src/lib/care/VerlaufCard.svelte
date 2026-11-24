@@ -70,7 +70,7 @@
 {/snippet}
 
 <section class="vl" aria-labelledby="vl-h-{bike.id}" id="verlauf-{bike.id}" data-verlauf>
-  <h3 id="vl-h-{bike.id}"><History size={18} aria-hidden="true" />{t('History')}</h3>
+  <h3 id="vl-h-{bike.id}"><History size={20} aria-hidden="true" />{t('History')}</h3>
   <p class="lead">{t('What was done on the bike and what it cost: workshop, checks and parts in one list.')}</p>
 
   {#if !rows.length}

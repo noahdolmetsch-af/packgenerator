@@ -87,7 +87,7 @@
     {#if place.fee === 'yes'}<p class="pd-hint">{t('Costs a fee.|poi')}</p>{/if}
 
     {#if ongo}
-      <button type="button" class="btn pd-hin" onclick={() => ongo(place)} data-poi-go><Route size={18} aria-hidden="true" />{t('Go there|poi')}</button>
+      <button type="button" class="btn pd-hin" onclick={() => ongo(place)} data-poi-go><Route size={20} aria-hidden="true" />{t('Go there|poi')}</button>
       <p class="pd-hint">{t('The bike router plans the way there and back onto your route, with the extra km and minutes.|poi')}</p>
     {/if}
     <div class="pd-acts">

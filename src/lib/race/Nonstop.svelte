@@ -51,7 +51,7 @@
 </script>
 
 <section class="rc-box" aria-labelledby="ns-h" data-race-nonstop>
-  <h2 id="ns-h" class="rc-h2"><Timer size={18} aria-hidden="true" /> {t('Finish time riding through')}</h2>
+  <h2 id="ns-h" class="rc-h2"><Timer size={20} aria-hidden="true" /> {t('Finish time riding through')}</h2>
   <p class="rc-note">{t('When are you at the finish if you ride through without sleeping? Change any number; speed, climbing, stops and tiredness are the same as under Strategy.')}</p>
 
   {#if rows}

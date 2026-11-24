@@ -32,7 +32,7 @@
 </script>
 
 <section class="rc-box" aria-labelledby="bc-h" data-race-countdown>
-  <h2 id="bc-h" class="rc-h2"><Bike size={18} aria-hidden="true" /> {t('Bike countdown')}</h2>
+  <h2 id="bc-h" class="rc-h2"><Bike size={20} aria-hidden="true" /> {t('Bike countdown')}</h2>
   <p class="rc-note">{t('What to do with the bike in the weeks before the race. Change the weeks and the steps as they fit you.')}</p>
   {#if !race}
     <p class="rc-warn" data-countdown-nodate>{t('The race has no date yet, so the steps have no day. Set the date under Route, strategy and race mode.')}</p>

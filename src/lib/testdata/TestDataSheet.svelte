@@ -96,7 +96,7 @@
                 <b>{tn(st.found[g].length, ...NAMES[g])}</b>
                 <small>{g === 'trips' && nDebriefs ? tn(nDebriefs, 'with {n} debrief: no longer counts for learning', 'with {n} debriefs: no longer count for learning') : sample(g)}</small>
               </button>
-              <span class="chev" class:down={open === g}><ChevronRight size={18} aria-hidden="true" /></span>
+              <span class="chev" class:down={open === g}><ChevronRight size={20} aria-hidden="true" /></span>
             </div>
             {#if open === g}
               <ul class="entries">

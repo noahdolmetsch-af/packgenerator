@@ -111,7 +111,7 @@
           {#if ideaFor(p) && !p.off && isDue(p, today)}<button type="button" class="btn sm" onclick={() => invite(p)} data-person-invite><Send size={16} aria-hidden="true" />{t('Invite')}</button>{/if}
           <button type="button" class="btn sm" onclick={() => seen(p)} data-person-seen><Check size={16} aria-hidden="true" />{t('Seen today')}</button>
           {#if !phone.matches}<SortArrows name={p.name} i={n} n={list.length} onstep={(dir) => step(p.id, dir)} />{/if}
-          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: p.name })} onclick={() => openEdit(p)} data-person-edit><Pencil size={18} aria-hidden="true" /></button>
+          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: p.name })} onclick={() => openEdit(p)} data-person-edit><Pencil size={20} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

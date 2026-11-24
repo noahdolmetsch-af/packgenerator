@@ -70,7 +70,7 @@
       <button type="button" class="x" aria-label={t('Close')} onclick={close}><X size={20} aria-hidden="true" /></button>
     </div>
 
-    <button type="button" class="btn hi go" onclick={go} data-start="sheet"><Play size={22} aria-hidden="true" />{t('Now {n} min', { n })}</button>
+    <button type="button" class="btn hi go" onclick={go} data-start="sheet"><Play size={24} aria-hidden="true" />{t('Now {n} min', { n })}</button>
 
     <div class="chips" role="group" aria-label={t('Duration')}>
       {#each MED_DURATIONS as m (m)}
@@ -83,7 +83,7 @@
     <ul class="rows">
       <li>
         <button type="button" class="row" onclick={tickOnly} data-tick-only>
-          <span class="ri" aria-hidden="true"><Check size={18} /></span>
+          <span class="ri" aria-hidden="true"><Check size={20} /></span>
           <span class="rt">{#if st?.todayDone}<b>{t('Take today’s tick back')}</b><small>{t('with «Undo»')}</small>{:else}<b>{t('Only tick off')}</b><small>{t('meditated already, without the clock')}</small>{/if}</span>
         </button>
       </li>
@@ -91,7 +91,7 @@
         <a class="row" href="#/flow/act/{encodeURIComponent(actId)}" onclick={close} data-to="meditation">
           <ActIcon icon={act.icon} ring="rest" size={18} />
           <span class="rt"><b>{t('To the meditation page')}</b><small>{t('Templates, log, stars')}</small></span>
-          <ChevronRight size={18} aria-hidden="true" />
+          <ChevronRight size={20} aria-hidden="true" />
         </a>
       </li>
     </ul>

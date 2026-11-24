@@ -19,7 +19,7 @@
 
 {#if days.length}
   <section class="card wx-light" aria-labelledby="wx-light" data-wx-light>
-    <h2 id="wx-light" class="wx-light-h"><Sunrise size={18} aria-hidden="true" />{t('Light for your ride')}</h2>
+    <h2 id="wx-light" class="wx-light-h"><Sunrise size={20} aria-hidden="true" />{t('Light for your ride')}</h2>
     <ul class="wx-light-days">
       {#each days as d (d.date)}
         <li data-wx-light-day={d.day}>
@@ -35,7 +35,7 @@
   </section>
 {:else}
   <section class="card wx-light" aria-labelledby="wx-light" data-wx-light>
-    <h2 id="wx-light" class="wx-light-h"><Sunrise size={18} aria-hidden="true" />{t('Light for your ride')}</h2>
+    <h2 id="wx-light" class="wx-light-h"><Sunrise size={20} aria-hidden="true" />{t('Light for your ride')}</h2>
     <p class="rc-note" data-wx-light-empty>{t('No sun times yet. Set a place and sunrise, sunset and the time for the lights show here.')}</p>
   </section>
 {/if}

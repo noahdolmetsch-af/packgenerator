@@ -34,7 +34,7 @@
 
 {#if due}
   <section class="lq" data-leiser={kind} aria-label={t('Make this hint quieter?')}>
-    <Volume1 size={18} aria-hidden="true" />
+    <Volume1 size={20} aria-hidden="true" />
     <div class="tx">
       <b>{t('Make this hint quieter?')}</b>
       <span>{tn(n, 'You sent «{name}» away on one day.', 'You sent «{name}» away on {n} different days.', { name: t(info.label) })}</span>

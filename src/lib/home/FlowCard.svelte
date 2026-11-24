@@ -78,7 +78,7 @@
       <span class="quiet hq">{t('last 7 days')}</span>
       <!-- KT (1b): the head is a way in too; for screen readers and the keyboard the same link «Im Flow ›»
            waits below, so this one is a tap shortcut only (no second link of the same name) -->
-      <a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')} data-head-go><ChevronRight size={16} strokeWidth={2.4} aria-hidden="true" /></a>
+      <a class="go" href="#/flow" aria-hidden="true" tabindex="-1" title={t('Open')} data-head-go><ChevronRight size={16} strokeWidth={2.5} aria-hidden="true" /></a>
     </div>
     <div class="jn" class:af={asideFirst}>{#if aside && asideFirst}<div class="aside first">{@render aside()}</div>{/if}<div class="main">
     <div class="body">

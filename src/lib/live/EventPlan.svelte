@@ -98,6 +98,6 @@
       <label class="ev-fld"><span>{t('km of the route')}</span><input type="text" inputmode="decimal" bind:value={cpKm} data-event-cp-km /></label>
     </div>
     {#if err}<p class="rc-warn" role="alert">{err}</p>{/if}
-    <div><button type="button" class="btn" onclick={addCp} data-event-cp-add><Plus size={18} aria-hidden="true" />{t('Add checkpoint')}</button></div>
+    <div><button type="button" class="btn" onclick={addCp} data-event-cp-add><Plus size={20} aria-hidden="true" />{t('Add checkpoint')}</button></div>
   {/if}
 </section>

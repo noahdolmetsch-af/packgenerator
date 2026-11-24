@@ -64,8 +64,8 @@
 
 <section class="rv-sec zf" aria-labelledby="zf-h" data-zusatzfragen>
   <div class="rv-h">
-    <div><h2 id="zf-h"><MessageCircleQuestion size={18} aria-hidden="true" /> {t('More to learn')}</h2><p class="rv-sub">{t('optional questions · the ones that fit this trip first')}</p></div>
-    <button type="button" class="tp-link" aria-expanded={editing} onclick={() => (editing = !editing)}><Settings2 size={15} aria-hidden="true" /> {editing ? t('Done|edit') : t('Adjust questions')}</button>
+    <div><h2 id="zf-h"><MessageCircleQuestion size={20} aria-hidden="true" /> {t('More to learn')}</h2><p class="rv-sub">{t('optional questions · the ones that fit this trip first')}</p></div>
+    <button type="button" class="tp-link" aria-expanded={editing} onclick={() => (editing = !editing)}><Settings2 size={16} aria-hidden="true" /> {editing ? t('Done|edit') : t('Adjust questions')}</button>
   </div>
   <div class="rv-box pad">
     {#if editing}
@@ -90,7 +90,7 @@
     {:else}
       {#each shown.open as q (q.id)}{@render ask(q)}{/each}
       {#if shown.more.length}
-        <button type="button" class="tp-link zf-more" aria-expanded={moreOpen} onclick={() => (moreOpen = !moreOpen)}><ChevronDown size={15} aria-hidden="true" /> {moreOpen ? t('Fewer questions') : t('Ask more ({n})', { n: shown.more.length })}</button>
+        <button type="button" class="tp-link zf-more" aria-expanded={moreOpen} onclick={() => (moreOpen = !moreOpen)}><ChevronDown size={16} aria-hidden="true" /> {moreOpen ? t('Fewer questions') : t('Ask more ({n})', { n: shown.more.length })}</button>
         {#if moreOpen}{#each shown.more as q (q.id)}{@render ask(q)}{/each}{/if}
       {/if}
     {/if}

@@ -112,7 +112,7 @@
               <a class="ich-row" href={r.href} data-quelle={r.key}>
                 <span class="ich-ib"><Icon size={18} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{NAMES[r.key]()}</b><small>{line(r)}</small>{#if gap(r)}<small class="qu-gap" data-quelle-gap={r.key}>{gap(r)}</small>{/if}</span>
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
               </a>
             {:else}
               <div class="ich-row" data-quelle={r.key}>
@@ -129,8 +129,8 @@
     <section class="ich-sec" aria-labelledby="qu-next-h">
       <div class="ich-h"><div><h2 id="qu-next-h">{t('What next?')}</h2></div></div>
       <ul class="card ich-list">
-        <li><a class="ich-row" href="#/me/connections" data-quellen-verbinden><span class="ich-ib"><Plug size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Manage connections')}</b><small>{t('Connect, switch off or fetch again')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
-        <li><a class="ich-row" href="#/auswerten/analyse" data-quellen-analyse><span class="ich-ib"><Activity size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Look at your values')}</b><small>{t('Every value as a tile, with its period')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
+        <li><a class="ich-row" href="#/me/connections" data-quellen-verbinden><span class="ich-ib"><Plug size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Manage connections')}</b><small>{t('Connect, switch off or fetch again')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
+        <li><a class="ich-row" href="#/auswerten/analyse" data-quellen-analyse><span class="ich-ib"><Activity size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Look at your values')}</b><small>{t('Every value as a tile, with its period')}</small></span><ChevronRight class="ich-chev" size={20} aria-hidden="true" /></a></li>
       </ul>
     </section>
   {/if}

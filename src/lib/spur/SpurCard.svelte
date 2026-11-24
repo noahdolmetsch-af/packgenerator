@@ -24,11 +24,11 @@
   <p class="ssub">{t('Your line, places and photos of this tour')}</p>
   <div class="card">
     <div class="btns">
-      <button type="button" class="btn" onclick={() => (place = true)}><MapPin size={18} aria-hidden="true" />{t('I am here')}</button>
+      <button type="button" class="btn" onclick={() => (place = true)}><MapPin size={20} aria-hidden="true" />{t('I am here')}</button>
       <RecordButton {trip} />
     </div>
     <p class="tp-muted tp-small">{todayN || recN ? [todayN ? tn(todayN, '{n} place today', '{n} places today') : '', recN ? tn(recN, '{n} recording', '{n} recordings') : ''].filter(Boolean).join(' · ') : t('The line comes from Strava or Garmin by itself; record only when you want.')}</p>
-    <a class="row" href="#/spur/{trip.id}"><MapIcon size={18} aria-hidden="true" /><span>{t('Tour map and days')}</span><ChevronRight size={16} aria-hidden="true" /></a>
+    <a class="row" href="#/spur/{trip.id}"><MapIcon size={20} aria-hidden="true" /><span>{t('Tour map and days')}</span><ChevronRight size={16} aria-hidden="true" /></a>
   </div>
 </section>
 

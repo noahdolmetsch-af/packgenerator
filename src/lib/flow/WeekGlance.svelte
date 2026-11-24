@@ -53,7 +53,7 @@
       <li class:now={d.today} class:past={d.past} aria-label={dayLabel(d)} data-week-day={d.day}>
         <b>{wd(d.day)}</b>
         {#if dn.length}
-          <span class="ticks" aria-hidden="true"><Check size={14} strokeWidth={3} />{#if dn.length > 1}<small class="num">{dn.length}</small>{/if}</span>
+          <span class="ticks" aria-hidden="true"><Check size={14} strokeWidth={2.5} />{#if dn.length > 1}<small class="num">{dn.length}</small>{/if}</span>
           <small class="nm">{name(dn[0].actId)}</small>
         {:else if ah.length}
           <span class="fix" aria-hidden="true"><Clock size={14} /></span>

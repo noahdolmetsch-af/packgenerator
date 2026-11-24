@@ -11,8 +11,8 @@
   let { trip } = $props();
 </script>
 
-<a class="spurrow" href={tourHref(`t:${trip.id}`)} data-to-tour-page><Route size={18} aria-hidden="true" /><span><b>{t('See the tour page')}</b> · {t('values, map, gear and diary of this trip')}</span><ChevronRight size={16} aria-hidden="true" /></a>
-<a class="spurrow" href="#/spur/{trip.id}"><MapIcon size={18} aria-hidden="true" /><span><b>{t('Travel track')}</b> · {t('map, days, link for your family, travel book')}</span><ChevronRight size={16} aria-hidden="true" /></a>
+<a class="spurrow" href={tourHref(`t:${trip.id}`)} data-to-tour-page><Route size={20} aria-hidden="true" /><span><b>{t('See the tour page')}</b> · {t('values, map, gear and diary of this trip')}</span><ChevronRight size={16} aria-hidden="true" /></a>
+<a class="spurrow" href="#/spur/{trip.id}"><MapIcon size={20} aria-hidden="true" /><span><b>{t('Travel track')}</b> · {t('map, days, link for your family, travel book')}</span><ChevronRight size={16} aria-hidden="true" /></a>
 
 <style>
   .spurrow {

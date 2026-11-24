@@ -123,9 +123,9 @@
                 {@const cd = countdown(tr.startDate, today)}
                 <li>
                   <a class="lrow" href={raceHref(tr.id)} data-race-row={tr.id}>
-                    <span class="ic" aria-hidden="true"><Flag size={18} /></span>
+                    <span class="ic" aria-hidden="true"><Flag size={20} /></span>
                     <span class="m"><span class="t">{tr.title}</span><span class="s">{dateOf(tr.startDate)}{#if cd && cd.days > 0}{' '}· {tn(cd.days, 'in {n} day', 'in {n} days')}{/if}</span></span>
-                    <ChevronRight class="chev" size={18} aria-hidden="true" />
+                    <ChevronRight class="chev" size={20} aria-hidden="true" />
                   </a>
                 </li>
               {/each}

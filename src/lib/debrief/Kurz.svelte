@@ -26,7 +26,7 @@
 </script>
 
 <section class="rv-sec kurz" aria-labelledby="kurz-h" data-debrief-kurz>
-  <div class="rv-h"><div><h2 id="kurz-h"><Timer size={18} aria-hidden="true" />{t('Debrief in 30 seconds')}</h2><p class="rv-sub">{t('Three questions for a tired evening. The long version is right below.')}</p></div></div>
+  <div class="rv-h"><div><h2 id="kurz-h"><Timer size={20} aria-hidden="true" />{t('Debrief in 30 seconds')}</h2><p class="rv-sub">{t('Three questions for a tired evening. The long version is right below.')}</p></div></div>
   <div class="rv-box pad kz">
     <div class="q" role="group" aria-labelledby="kz-fun">
       <b id="kz-fun">{t('1. How was the ride?')}</b>
@@ -49,8 +49,8 @@
     <div class="q" role="group" aria-labelledby="kz-miss">
       <b id="kz-miss">{t('3. Did you miss something?')}</b>
       <div class="faces two">
-        <button type="button" class="face" aria-pressed={!yes && said === 'no'} onclick={() => (said = 'no')} data-kurz-miss="no"><Smile size={26} aria-hidden="true" /><span>{t('No, nothing')}</span></button>
-        <button type="button" class="face" aria-pressed={yes} onclick={() => (said = 'yes')} data-kurz-miss="yes"><Meh size={26} aria-hidden="true" /><span>{t('Yes, something')}</span></button>
+        <button type="button" class="face" aria-pressed={!yes && said === 'no'} onclick={() => (said = 'no')} data-kurz-miss="no"><Smile size={24} aria-hidden="true" /><span>{t('No, nothing')}</span></button>
+        <button type="button" class="face" aria-pressed={yes} onclick={() => (said = 'yes')} data-kurz-miss="yes"><Meh size={24} aria-hidden="true" /><span>{t('Yes, something')}</span></button>
       </div>
       {#if yes}
         {#if d.missing.length}<p class="names">{d.missing.map((m) => m.name).join(', ')}</p>{/if}

@@ -110,8 +110,8 @@
             <li data-stamp-row={s.id}>
               <Stempel id={s.id} place={s.place} date={dayText(s.date)} km={s.km} press={fresh.includes(s.id)} />
               <div class="pa">
-                <button type="button" class="btn" onclick={() => open(s)} aria-label={t('Change «{name}»', { name: s.place })} data-stamp-edit><Pencil size={15} aria-hidden="true" />{t('Change')}</button>
-                <button type="button" class="btn" onclick={() => drop(s)} aria-label={t('Remove «{name}»', { name: s.place })} data-stamp-drop><Trash2 size={15} aria-hidden="true" /></button>
+                <button type="button" class="btn" onclick={() => open(s)} aria-label={t('Change «{name}»', { name: s.place })} data-stamp-edit><Pencil size={16} aria-hidden="true" />{t('Change')}</button>
+                <button type="button" class="btn" onclick={() => drop(s)} aria-label={t('Remove «{name}»', { name: s.place })} data-stamp-drop><Trash2 size={16} aria-hidden="true" /></button>
               </div>
             </li>
           {/each}

@@ -22,7 +22,7 @@
   {#if steps.length}
     <nav class="pcrumbs" aria-label={t('Path')}>
       {#each steps as c, n (n)}
-        <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}<span>{c.label}</span></a><ChevronRight class="psep" size={12} aria-hidden="true" />
+        <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}<span>{c.label}</span></a><ChevronRight class="psep" size={14} aria-hidden="true" />
       {/each}
       <span aria-current="page">{here || title}</span>
     </nav>

@@ -49,8 +49,8 @@
   </label>
   <div class="tool-row calc-res">
     <p class="tool-big" aria-live="polite" data-result>{shown ? `= ${shown}` : '='}</p>
-    {#if shown}<button type="button" class="btn sm" onclick={copy}><Copy size={15} aria-hidden="true" />{copied ? t('Copied') : t('Copy')}</button>{/if}
-    {#if line}<button type="button" class="btn sm" aria-label={t('Delete last sign')} onclick={() => (line = line.slice(0, -1))}><Delete size={15} aria-hidden="true" /></button>{/if}
+    {#if shown}<button type="button" class="btn sm" onclick={copy}><Copy size={16} aria-hidden="true" />{copied ? t('Copied') : t('Copy')}</button>{/if}
+    {#if line}<button type="button" class="btn sm" aria-label={t('Delete last sign')} onclick={() => (line = line.slice(0, -1))}><Delete size={16} aria-hidden="true" /></button>{/if}
   </div>
   {#if hint}<p class="tool-help" role="status" data-calc-hint>{hint}</p>{/if}
   <div class="calc-keys">

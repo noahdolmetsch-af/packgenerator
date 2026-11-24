@@ -108,9 +108,9 @@
               <div class="ew-top">
                 <span class="ew-sort"><SortGrip name={nameOf(f)} onstep={(dir) => put(moveOwn(raw, s.key, f.key, dir))} /><SortArrows name={nameOf(f)} {i} n={fs.length} onstep={(dir) => put(moveOwn(raw, s.key, f.key, dir))} /></span>
                 <span class="ich-m"><b id="ew-{f.key}">{nameOf(f)}</b><small>{t(f.why)}</small></span>
-                <button type="button" class="ew-pen" aria-haspopup="dialog" aria-label={t('Edit: {name}', { name: nameOf(f) })} data-own-edit={f.key} onclick={() => (sheet = { field: f })}><Pencil size={18} aria-hidden="true" /></button>
+                <button type="button" class="ew-pen" aria-haspopup="dialog" aria-label={t('Edit: {name}', { name: nameOf(f) })} data-own-edit={f.key} onclick={() => (sheet = { field: f })}><Pencil size={20} aria-hidden="true" /></button>
                 <span class="ew-ctl" role="group" aria-labelledby="ew-{f.key}">
-                  <button type="button" class="ew-step" aria-label={t('Less: {name}', { name: nameOf(f) })} disabled={v <= f.min} onclick={() => step(f, -1)}><Minus size={18} aria-hidden="true" /></button>
+                  <button type="button" class="ew-step" aria-label={t('Less: {name}', { name: nameOf(f) })} disabled={v <= f.min} onclick={() => step(f, -1)}><Minus size={20} aria-hidden="true" /></button>
                   <input
                     class="inp num ew-in"
                     type="text"
@@ -122,12 +122,12 @@
                     onkeydown={(e) => e.key === 'Enter' && commit(f)}
                   />
                   <span class="ew-unit">{f.unit === 'days' ? tn(v, 'day', 'days') : f.unit === 'time' ? t('o’clock') : f.unit}</span>
-                  <button type="button" class="ew-step" aria-label={t('More: {name}', { name: nameOf(f) })} disabled={v >= f.max} onclick={() => step(f, 1)}><Plus size={18} aria-hidden="true" /></button>
+                  <button type="button" class="ew-step" aria-label={t('More: {name}', { name: nameOf(f) })} disabled={v >= f.max} onclick={() => step(f, 1)}><Plus size={20} aria-hidden="true" /></button>
                 </span>
               </div>
               <p class="ew-std">
                 <span>{t('Standard: {value}', { value: say(f, f.std) })}</span>
-                {#if v !== f.std}<span class="ew-mine">{t('Adapted')}</span><button type="button" class="ew-reset" data-own-reset={f.key} onclick={() => save(f.key, null)}><Undo2 size={15} aria-hidden="true" />{t('Back to Standard|value')}</button>{/if}
+                {#if v !== f.std}<span class="ew-mine">{t('Adapted')}</span><button type="button" class="ew-reset" data-own-reset={f.key} onclick={() => save(f.key, null)}><Undo2 size={16} aria-hidden="true" />{t('Back to Standard|value')}</button>{/if}
               </p>
             </li>
           {/each}
@@ -135,9 +135,9 @@
             <li>
               <!-- IS 256: the care per part and per bike is already its own card (v0.144.0 RE) -->
               <a class="ich-row" href="#/bikes?tab=care">
-                <span class="ich-ib"><Wrench size={18} aria-hidden="true" /></span>
+                <span class="ich-ib"><Wrench size={20} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{t('Care per bike')}</b><small>{t('One bike needs other numbers? Bikes › Care › «Care for …»: they win over these')}</small></span>
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
               </a>
             </li>
           {/if}
@@ -146,7 +146,7 @@
     {/each}
 
     <section class="ich-sec card ew-box" aria-labelledby="ew-mine-h" data-own-sec="mine">
-      <h2 id="ew-mine-h"><BellRing size={18} aria-hidden="true" />{t('Own reminders')}</h2>
+      <h2 id="ew-mine-h"><BellRing size={20} aria-hidden="true" />{t('Own reminders')}</h2>
       <p class="ew-intro">{t('Your own numbers: «every N km» or «every N days», for all bikes or one. They show in Bikes › Care with «Done».')}</p>
       {#if mine.length}
         <ul class="ich-list" use:sortable={{ row: 'li[data-sort-id]', onmove: (from, to) => put(moveOwnTo(raw, MINE, mine[from].id, to)) }}>
@@ -156,17 +156,17 @@
                 <span class="ew-sort"><SortGrip name={x.name} onstep={(dir) => put(moveOwn(raw, MINE, x.id, dir))} /><SortArrows name={x.name} {i} n={mine.length} onstep={(dir) => put(moveOwn(raw, MINE, x.id, dir))} /></span>
                 <button type="button" class="ew-edit" aria-haspopup="dialog" aria-label={t('Edit: {name}', { name: x.name })} onclick={() => (sheet = { mine: x })}>
                   <span class="ich-m"><b>{x.name}</b><small>{mineSay(x)} · {x.bike ? bikeName(x.bike) : t('all bikes')}</small></span>
-                  <Pencil size={18} aria-hidden="true" />
+                  <Pencil size={20} aria-hidden="true" />
                 </button>
               </div>
             </li>
           {/each}
         </ul>
       {/if}
-      <button type="button" class="ew-add" aria-haspopup="dialog" data-mine-add onclick={() => (sheet = { mine: null })}><Plus size={18} aria-hidden="true" />{t('Own reminder')}</button>
+      <button type="button" class="ew-add" aria-haspopup="dialog" data-mine-add onclick={() => (sheet = { mine: null })}><Plus size={20} aria-hidden="true" />{t('Own reminder')}</button>
     </section>
     <section class="ich-sec card ew-box" aria-labelledby="ew-sugg-h" data-own-sec="suggest">
-      <h2 id="ew-sugg-h"><Lightbulb size={18} aria-hidden="true" />{t('Suggestions')}</h2>
+      <h2 id="ew-sugg-h"><Lightbulb size={20} aria-hidden="true" />{t('Suggestions')}</h2>
       <ul class="ich-list">
         <li class="ew-row">
           <div class="ew-top">
@@ -188,9 +188,9 @@
         </li>
         <li>
           <a class="ich-row" href="#/flow/activity">
-            <span class="ich-ib"><Activity size={18} aria-hidden="true" /></span>
+            <span class="ich-ib"><Activity size={20} aria-hidden="true" /></span>
             <span class="ich-m"><b>{t('Ideas for activities')}</b><small>{t('Hide single ideas under Aktiv › Activity')}</small></span>
-            <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
           </a>
         </li>
       </ul>
@@ -200,12 +200,12 @@
     <div class="ew-gone" data-own-gone><Fold label={t('Deleted values')} summary={tn(gone.length, '{n} value', '{n} values')}>
       <ul class="ich-list">
         {#each gone as f (f.key)}
-          <li class="ew-row"><div class="ew-top"><span class="ich-m"><b>{nameOf(f)}</b><small>{t('Standard: {value}', { value: say(f, f.std) })}</small></span><button type="button" class="btn sm" data-own-restore={f.key} onclick={() => put(restoreOwn(raw, f.key))}><RotateCcw size={15} aria-hidden="true" />{t('Bring back')}</button></div></li>
+          <li class="ew-row"><div class="ew-top"><span class="ich-m"><b>{nameOf(f)}</b><small>{t('Standard: {value}', { value: say(f, f.std) })}</small></span><button type="button" class="btn sm" data-own-restore={f.key} onclick={() => put(restoreOwn(raw, f.key))}><RotateCcw size={16} aria-hidden="true" />{t('Bring back')}</button></div></li>
         {/each}
       </ul>
     </Fold></div>
   {/if}
-  <p class="ich-fine"><Info size={15} aria-hidden="true" /><span>{t('Only on this device and in the backup. Nothing here is mandatory. The pen renames or deletes a value; the handle and the arrows change the order.')}</span></p>
+  <p class="ich-fine"><Info size={16} aria-hidden="true" /><span>{t('Only on this device and in the backup. Nothing here is mandatory. The pen renames or deletes a value; the handle and the arrows change the order.')}</span></p>
 </div>
 
 {#if sheet}

@@ -110,7 +110,7 @@
       </div>
     </div>
   {:else}
-    <div><button type="button" class="btn" onclick={() => start()} disabled={!canSend} data-event-point-add><Plus size={18} aria-hidden="true" />{t('Set a meeting point')}</button></div>
+    <div><button type="button" class="btn" onclick={() => start()} disabled={!canSend} data-event-point-add><Plus size={20} aria-hidden="true" />{t('Set a meeting point')}</button></div>
     <p class="ev-muted">{t('You can rename or delete your points later.')}</p>
   {/if}
 </section>

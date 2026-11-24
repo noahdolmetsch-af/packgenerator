@@ -35,15 +35,15 @@
     <button type="button" class="sv-opt" aria-pressed={yes} onclick={() => (yes = true)}>
       <span class="sv-oi"><Star size={20} aria-hidden="true" /></span>
       <span class="sv-ot"><b>{t('Yes, {name} becomes the standard', { name: bike.name })}</b><small>{t('Comes with every new trip and stands on top')}</small></span>
-      <span class="sv-om">{#if yes}<Check size={18} aria-hidden="true" />{/if}</span>
+      <span class="sv-om">{#if yes}<Check size={20} aria-hidden="true" />{/if}</span>
     </button>
     <button type="button" class="sv-opt" aria-pressed={!yes} onclick={() => (yes = false)}>
       <span class="sv-oi"><Bike size={20} aria-hidden="true" /></span>
       <span class="sv-ot"><b>{t('No, {name} stays', { name: standard.name })}</b><small>{t('{name} stands last in the order', { name: bike.name })}</small></span>
-      <span class="sv-om">{#if !yes}<Check size={18} aria-hidden="true" />{/if}</span>
+      <span class="sv-om">{#if !yes}<Check size={20} aria-hidden="true" />{/if}</span>
     </button>
   </div>
   <div class="vd-foot">
-    <button type="button" class="btn hi" onclick={done}><Check size={17} aria-hidden="true" />{t('Done')}</button>
+    <button type="button" class="btn hi" onclick={done}><Check size={16} aria-hidden="true" />{t('Done')}</button>
   </div>
 </dialog>

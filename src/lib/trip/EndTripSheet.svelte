@@ -52,7 +52,7 @@
 <dialog class="sheet endsheet" bind:this={dialog} use:backClose onclose={() => onclose?.()} aria-labelledby="end-h">
   <div class="hd">
     <h2 id="end-h">{t('End the trip now?')}</h2>
-    <button type="button" class="x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
   <p class="lead">{text}</p>
   <fieldset>

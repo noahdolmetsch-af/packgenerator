@@ -550,7 +550,7 @@
                 <li class:active={activeSlot === s.key}>
                   {#if editMounts}
                     <div class="row">
-                      <span class="ibox" class:empty={!on}><Briefcase size={18} aria-hidden="true" /></span>
+                      <span class="ibox" class:empty={!on}><Briefcase size={20} aria-hidden="true" /></span>
                       <span class="nm"><b>{t(s.name)}</b><small>{t(s.where)}</small></span>
                       <button type="button" class="switch" role="switch" aria-checked={on} aria-label={t('Mount: {place}', { place: t(s.name) })} onclick={() => toggleMount(s.key)}><span class="knob"></span></button>
                     </div>
@@ -595,10 +595,10 @@
         <!-- the coordinator 11.10.2026: Noah could not find the Strava import (it was three taps deep in Care).
              Impeccable Runde 2 (Velos 3): a normal button; the km mostly come by themselves. -->
         <div class="card vk-imp">
-          <a class="btn vk-go" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}><Route size={18} aria-hidden="true" />{t('Import rides')}</a>
+          <a class="btn vk-go" href={bikesHash({ tab: 'care', bike: bike.id, view: 'import' })}><Route size={20} aria-hidden="true" />{t('Import rides')}</a>
           <p class="vk-imp-s">{t('Strava file or GPX · counts the km for every part')}</p>
           <!-- WS5: Strava right here, one tap to connect (or to see it, when connected) -->
-          <a class="vk-row vk-strava" href={bikesHash({ tab: 'care', bike: bike.id, view: 'strava' })}><span class="ib"><RefreshCw size={18} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{strava.key ? t('connected: new rides come by themselves') : t('connect: new rides come by themselves')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+          <a class="vk-row vk-strava" href={bikesHash({ tab: 'care', bike: bike.id, view: 'strava' })}><span class="ib"><RefreshCw size={20} aria-hidden="true" /></span><span class="m"><b>Strava</b><small>{strava.key ? t('connected: new rides come by themselves') : t('connect: new rides come by themselves')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
         </div>
 
         <section class="vsec" aria-labelledby="vm-h">
@@ -630,8 +630,8 @@
             </SetupFold>
             <!-- v0.48.0 (Noah): all bikes' parts, values and geometry side by side, two taps from Bikes. -->
             <!-- Velos aufräumen (Noah 23.11.2026): «Mein Setup» was a chip under the tab Velos; the chips are gone, so it is a row here -->
-            <a class="vk-row" href={bikesHash({ tab: 'rig', bike: bike.id })} data-my-setup-row><span class="ib"><Briefcase size={18} aria-hidden="true" /></span><span class="m"><b>{t('My setup|tab')}</b><small>{t('Bag setups, photos, weight, setup log')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
-            <a class="vk-row cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><span class="ib"><ArrowLeftRight size={18} aria-hidden="true" /></span><span class="m"><b class="cl">{t('Compare bikes')}</b><small class="sum">{t('Fit, parts, values, geometry')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a>
+            <a class="vk-row" href={bikesHash({ tab: 'rig', bike: bike.id })} data-my-setup-row><span class="ib"><Briefcase size={20} aria-hidden="true" /></span><span class="m"><b>{t('My setup|tab')}</b><small>{t('Bag setups, photos, weight, setup log')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
+            <a class="vk-row cmplink" href={bikesHash({ tab: 'compare', view: 'all' })}><span class="ib"><ArrowLeftRight size={20} aria-hidden="true" /></span><span class="m"><b class="cl">{t('Compare bikes')}</b><small class="sum">{t('Fit, parts, values, geometry')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a>
             <SetupFold flat cls="vm-profile" icon={MoreHorizontal} bind:open={profileOpen} label={t('Profile and settings')} summary={t('Rider {weight} · rear wheel hint over {pct} %', { weight: $riderQ?.value ? formatWeight($riderQ.value) : t('not set'), pct: $rearQ?.value ?? 60 })}>
               {#if profile}
                 <dl class="profile" aria-label={t('Profile of the {bike}', { bike: bike.name })}>
@@ -672,7 +672,7 @@
   {#if list.length}
     <li class="empties">
       <details open={list.some((s) => s.key === activeSlot)}>
-        <summary class="row erow"><span class="ibox empty"><Plus size={18} aria-hidden="true" /></span><span class="nm"><b class="quiet">{tn(list.length, '{n} place empty', '{n} places empty')}</b><small>{list.map((s) => t(s.name)).join(' · ')}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
+        <summary class="row erow"><span class="ibox empty"><Plus size={20} aria-hidden="true" /></span><span class="nm"><b class="quiet">{tn(list.length, '{n} place empty', '{n} places empty')}</b><small>{list.map((s) => t(s.name)).join(' · ')}</small></span><ChevronRight class="chev" size={20} aria-hidden="true" /></summary>
         <ul class="slots inner">
           {#each list as s (s.key)}<li class:active={activeSlot === s.key}>{@render slotRow(s, null, tripBag(s.key))}</li>{/each}
         </ul>
@@ -683,10 +683,10 @@
 
 {#snippet slotRow(s, bag, other)}
                   <button type="button" class="row" id="slot-{s.key}" onclick={() => pick(s.key)}>
-                    <span class="ibox" class:empty={!bag}>{#if bag}<Briefcase size={18} aria-hidden="true" />{:else}<Plus size={18} aria-hidden="true" />{/if}</span>
+                    <span class="ibox" class:empty={!bag}>{#if bag}<Briefcase size={20} aria-hidden="true" />{:else}<Plus size={20} aria-hidden="true" />{/if}</span>
                     <span class="nm">{#if bag}<b>{bagName(bag.name)}</b>{:else}<b class="quiet">{t('empty · choose a bag')}</b>{/if}<small>{t(s.name)} · {t(s.where)}{#if bag && onBikeSlot(s.key)}{' · '}{t('in the bike weight')}{/if}</small></span>
                     {#if bag}<span class="w num">{[bag.volumeL ? formatVolume(bag.volumeL) : '', onBikeSlot(s.key) ? '' : bagWeight(bag) != null ? formatWeight(bagWeight(bag)) : ''].filter(Boolean).join(' · ')}{#if !onBikeSlot(s.key) && bagWeight(bag) == null}<span class="nw" title={t('not weighed')}><Scale size={14} aria-hidden="true" /><span class="sr">{t('not weighed')}</span></span>{/if}</span>{/if}
-                    <ChevronRight class="chev" size={18} aria-hidden="true" />
+                    <ChevronRight class="chev" size={20} aria-hidden="true" />
                   </button>
                   {#if other}
                     <p class="trip-bag">{tripOn.title}: {other.none ? t('no bag here') : `${bagName(other.name)}${other.volumeL ? ` ${formatVolume(other.volumeL)}` : ''}`}{#if !other.none}<button type="button" class="link" onclick={() => setBag(s.key, other.id)}>{t('Use as standard')}</button>{/if}</p>

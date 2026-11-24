@@ -135,7 +135,7 @@
 
 <div class="abf" data-abfahrt>
   <PathHead crumbs={[{ label: t('On the way'), href: '#/ride' }]} title={t('Before you leave|sheet')} sub={trip ? trip.title : t('No trip yet')}>
-    {#if trip}<button type="button" class="btn hi" onclick={pdf} disabled={pdfBusy} data-abfahrt-pdf><FileDown size={18} aria-hidden="true" />{pdfBusy ? t('Making …') : t('As PDF')}</button>{/if}
+    {#if trip}<button type="button" class="btn hi" onclick={pdf} disabled={pdfBusy} data-abfahrt-pdf><FileDown size={20} aria-hidden="true" />{pdfBusy ? t('Making …') : t('As PDF')}</button>{/if}
   </PathHead>
   <!-- «332 Use Cases» (Noah 24.10.2026 «2b»): the two lists at the end of the page, one tap away -->
   <QuickLinks label={t('On this page')} links={[{ key: 'house', jump: '#house-h', label: t('House check') }, { key: 'keeper', jump: '#keeper-h', label: t('List for the flat sitter') }]} />
@@ -209,7 +209,7 @@
   </section>
 
   <section class="card">
-    <h2 class="sh"><House size={18} aria-hidden="true" /> {t('Home|way')}</h2>
+    <h2 class="sh"><House size={20} aria-hidden="true" /> {t('Home|way')}</h2>
     {#if home}
       <p>{t('Home place: {place}', { place: home.name })}</p>
       <a class="tp-link" href={sbbUrl(home, null)} target="_blank" rel="noopener noreferrer">{t('Timetable to {place} (SBB)', { place: home.name })}</a>

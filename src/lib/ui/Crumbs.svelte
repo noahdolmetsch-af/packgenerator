@@ -17,7 +17,7 @@
 
 <nav class="crumbs back" aria-label={t('Path')}>
   {#each steps as c, n (n)}
-    <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}{c.label}</a><ChevronRight class="sep" size={12} aria-hidden="true" />
+    <a href={c.href}>{#if n === 0}<ChevronLeft size={14} aria-hidden="true" />{/if}{c.label}</a><ChevronRight class="sep" size={14} aria-hidden="true" />
   {/each}
   <span aria-current="page">{here}</span>
 </nav>

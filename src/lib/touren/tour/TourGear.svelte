@@ -196,7 +196,7 @@
   </div>
 {:else if partTrip}
   <div class="card pad" data-no-gear>
-    <p class="tp-muted"><Backpack size={18} aria-hidden="true" /> {t('The gear of this ride is with the trip «{name}».', { name: partTrip.name })}</p>
+    <p class="tp-muted"><Backpack size={20} aria-hidden="true" /> {t('The gear of this ride is with the trip «{name}».', { name: partTrip.name })}</p>
     <a class="btn" href={partTrip.href}>{t('To the trip')}<ChevronRight size={16} aria-hidden="true" /></a>
   </div>
 {:else}

@@ -290,11 +290,11 @@
             <div class="pfoot">
               <small>{fileOf(doc).name} · {kindLine(doc)} · {mb(doc.bytes || dataBytes(doc.data))}</small>
               <span class="ich-acts">
-                <button type="button" class="btn sm" onclick={() => openDoc(doc)}><ExternalLink size={15} aria-hidden="true" />{t('Open')}</button>
-                <button type="button" class="btn sm" onclick={() => shareDoc(doc)}><Share2 size={15} aria-hidden="true" />{t('Share')}</button>
+                <button type="button" class="btn sm" onclick={() => openDoc(doc)}><ExternalLink size={16} aria-hidden="true" />{t('Open')}</button>
+                <button type="button" class="btn sm" onclick={() => shareDoc(doc)}><Share2 size={16} aria-hidden="true" />{t('Share')}</button>
                 <!-- «Aus der App mailen» (Noah 19.10.2026 «5a»): a new mail under Ich › Mail with this document attached -->
-                <a class="btn sm" href={`#/me/mail?attach=doc:${encodeURIComponent(doc.id)}`}><Mail size={15} aria-hidden="true" />{t('By mail')}</a>
-                {#if doc.drive?.link}<a class="btn sm" href={doc.drive.link} target="_blank" rel="noopener"><Cloud size={15} aria-hidden="true" />{t('Open in Drive')}</a>{/if}
+                <a class="btn sm" href={`#/me/mail?attach=doc:${encodeURIComponent(doc.id)}`}><Mail size={16} aria-hidden="true" />{t('By mail')}</a>
+                {#if doc.drive?.link}<a class="btn sm" href={doc.drive.link} target="_blank" rel="noopener"><Cloud size={16} aria-hidden="true" />{t('Open in Drive')}</a>{/if}
               </span>
             </div>
             <!-- «Mail in die App» round 4 «2a»: the same tips as for mails, from the recognised text; one tap puts
@@ -302,7 +302,7 @@
             {#if doc.text}
             {@const tip = tipOf({ text: `${doc.name}\n${doc.note ?? ''}\n${doc.text}` })}
             {#if tip && tip.kind !== 'sender'}
-              <p class="dtip"><Lightbulb size={15} aria-hidden="true" /><span>{tip.kind === 'booking' ? t('Looks like a booking') : tip.kind === 'bill' ? t('Looks like a bill') : t('Deadline: {day}', { day: tip.deadline.day.split('-').reverse().join('.') })}</span><button type="button" class="btn sm" onclick={() => toInbox(doc)}>{t('Sort in the Inbox')}</button></p>
+              <p class="dtip"><Lightbulb size={16} aria-hidden="true" /><span>{tip.kind === 'booking' ? t('Looks like a booking') : tip.kind === 'bill' ? t('Looks like a bill') : t('Deadline: {day}', { day: tip.deadline.day.split('-').reverse().join('.') })}</span><button type="button" class="btn sm" onclick={() => toInbox(doc)}>{t('Sort in the Inbox')}</button></p>
             {/if}
             {/if}
             {#if doc.text}<details class="txt"><summary>{t('Recognised text')}</summary><p>{doc.text.slice(0, 1200)}{doc.text.length > 1200 ? '…' : ''}</p></details>{/if}
@@ -343,7 +343,7 @@
             <ul class="card ich-list">
               <li>
                 <label class="ich-row">
-                  <span class="ich-ib"><Backpack size={18} aria-hidden="true" /></span>
+                  <span class="ich-ib"><Backpack size={20} aria-hidden="true" /></span>
                   <span class="ich-m"><b>{t('In the packing list')}</b><small>{groupOf(doc) === 'IDs' ? t('on trips: «ID and cash with you?» with a link to this document') : t('on trips: «{name} with you?» with a link to this document', { name: doc.name })}</small></span>
                   <input type="checkbox" role="switch" class="mt-sw" checked={!!doc.inPack} onchange={(e) => updateDoc(doc.id, { inPack: e.currentTarget.checked })} />
                 </label>
@@ -353,8 +353,8 @@
           <section class="ich-sec" aria-labelledby="dm-h">
             <div class="ich-h"><div><h2 id="dm-h">{t('More')}</h2></div></div>
             <ul class="card ich-list">
-              <li><label class="ich-row"><span class="ich-ib"><FileUp size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Replace file')}</b><small>{t('The details stay')}</small></span><input type="file" accept="application/pdf,.pdf,image/*" onchange={(e) => addFile(e, doc)} hidden /></label></li>
-              <li><button type="button" class="ich-row" onclick={() => remove(doc)}><span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Delete')}</b></span></button></li>
+              <li><label class="ich-row"><span class="ich-ib"><FileUp size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Replace file')}</b><small>{t('The details stay')}</small></span><input type="file" accept="application/pdf,.pdf,image/*" onchange={(e) => addFile(e, doc)} hidden /></label></li>
+              <li><button type="button" class="ich-row" onclick={() => remove(doc)}><span class="ich-ib"><Trash2 size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Delete')}</b></span></button></li>
             </ul>
           </section>
         </div>
@@ -428,7 +428,7 @@
             <ul class="card ich-list" data-doc-reminders>
               {#each reminders as r (r.doc.id)}
                 <li><a class="ich-row ich-wrap" href={`${DOCS_HASH}/${encodeURIComponent(r.doc.id)}`}>
-                  <span class="ich-ib" class:warn={r.ex.soon || r.ex.over}>{#if r.ex.soon || r.ex.over}<TriangleAlert size={18} aria-hidden="true" />{:else}<Bell size={18} aria-hidden="true" />{/if}</span>
+                  <span class="ich-ib" class:warn={r.ex.soon || r.ex.over}>{#if r.ex.soon || r.ex.over}<TriangleAlert size={20} aria-hidden="true" />{:else}<Bell size={20} aria-hidden="true" />{/if}</span>
                   <span class="ich-m"><b>{r.ex.soon || r.ex.over ? t('Renew {name}', { name: r.doc.name }) : r.doc.name}</b><small>{r.ex.over ? t('expired {month}', { month: monthName(r.ex.until) }) : r.ex.soon ? t('expires {month} · many countries want 6 months', { month: monthName(r.ex.until) }) : r.ex.remindFrom ? tn(Number.isFinite(r.doc.remind) ? r.doc.remind : DEFAULT_REMIND, 'reminder {n} month before', 'reminder {n} months before') : t('no reminder')}</small></span>
                   <span class="when num">{r.ex.over ? '' : r.ex.soon ? tn(r.ex.left, 'in {n} mo', 'in {n} mo') : r.ex.remindFrom ? monthName(r.ex.remindFrom) : monthName(r.ex.until)}</span>
                 </a></li>
@@ -439,7 +439,7 @@
         <!-- Paket V «Alltag» (Noah «4a»): contracts and subscriptions under Dokumente, with the deadline and a reminder -->
         <section class="ich-sec" aria-labelledby="abo-h">
           <div class="ich-h"><div><h2 id="abo-h">{t('Contracts and subscriptions')}</h2><p class="ich-hs">{t('cost, last day to cancel, reminder')}</p></div></div>
-          <ul class="card ich-list"><li><a class="ich-row" href="#/me/alltag/abos" data-docs-abos><span class="ich-ib"><Bell size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Contracts and subscriptions')}</b><small>{t('Phone, insurance, streaming: the app reminds you before the notice period ends.')}</small></span><ChevronRight size={18} aria-hidden="true" /></a></li></ul>
+          <ul class="card ich-list"><li><a class="ich-row" href="#/me/alltag/abos" data-docs-abos><span class="ich-ib"><Bell size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Contracts and subscriptions')}</b><small>{t('Phone, insurance, streaming: the app reminds you before the notice period ends.')}</small></span><ChevronRight size={20} aria-hidden="true" /></a></li></ul>
         </section>
         <section class="ich-sec" aria-labelledby="nt-h">
           <div class="ich-h"><div><h2 id="nt-h">{t('For the next trip')}</h2><p class="ich-hs">{next ? next.title || t('Next trip') : t('No trip planned')}</p></div></div>
@@ -451,14 +451,14 @@
         <section class="ich-sec" aria-labelledby="where-h">
           <div class="ich-h"><div><h2 id="where-h">{t('Where your documents are')}</h2></div></div>
           <ul class="card ich-list">
-            <li class="ich-row"><span class="ich-ib"><Lock size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('On this device')}</b><small>{tn(docs.list.length, '{n} document', '{n} documents')} · {mb(total)}</small></span><Check size={16} aria-hidden="true" /></li>
-            <li><a class="ich-row" href="#/me/data"><span class="ich-ib"><Database size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('In your backup file')}</b><small>{t('with «Make a backup» under Me')}</small></span><Check size={16} aria-hidden="true" /></a></li>
-            <li class="ich-row"><span class="ich-ib"><Cloud size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('In your Google Drive')}</b><small>{docs.prefs.drive ? `${t('Folder «Imported PDFs», a subfolder per group')} · ${t('{n} of {m} there', { n: inDrive, m: docs.list.length })}` : t('not connected yet')}</small></span>{#if docs.prefs.drive}<Check size={16} aria-hidden="true" />{/if}</li>
+            <li class="ich-row"><span class="ich-ib"><Lock size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('On this device')}</b><small>{tn(docs.list.length, '{n} document', '{n} documents')} · {mb(total)}</small></span><Check size={16} aria-hidden="true" /></li>
+            <li><a class="ich-row" href="#/me/data"><span class="ich-ib"><Database size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('In your backup file')}</b><small>{t('with «Make a backup» under Me')}</small></span><Check size={16} aria-hidden="true" /></a></li>
+            <li class="ich-row"><span class="ich-ib"><Cloud size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('In your Google Drive')}</b><small>{docs.prefs.drive ? `${t('Folder «Imported PDFs», a subfolder per group')} · ${t('{n} of {m} there', { n: inDrive, m: docs.list.length })}` : t('not connected yet')}</small></span>{#if docs.prefs.drive}<Check size={16} aria-hidden="true" />{/if}</li>
           </ul>
           <div class="card ich-body drive">
             {#if docs.prefs.drive}
               <label class="tg"><input type="checkbox" checked={docs.prefs.auto} onchange={(e) => savePrefs({ auto: e.currentTarget.checked })} /> {t('Upload new documents by themselves')}</label>
-              {#if inDrive < docs.list.length}<button type="button" class="btn sm" onclick={upNow} disabled={Object.keys(docs.uploading).length > 0}><Upload size={15} aria-hidden="true" />{Object.keys(docs.uploading).length ? t('Uploading…') : t('Upload now')}</button>{/if}
+              {#if inDrive < docs.list.length}<button type="button" class="btn sm" onclick={upNow} disabled={Object.keys(docs.uploading).length > 0}><Upload size={16} aria-hidden="true" />{Object.keys(docs.uploading).length ? t('Uploading…') : t('Upload now')}</button>{/if}
             {:else if hasKey}
               <button type="button" class="btn wide" onclick={() => connectDrive()}><Cloud size={16} aria-hidden="true" />{t('Connect Google Drive')}</button>
               <p class="ich-help">{t('A suggestion, never a must. The same Google login as Fitbit; the app sees only the folders and files it makes itself.')}</p>
@@ -472,7 +472,7 @@
         <section class="ich-sec" aria-labelledby="gal-h">
           <div class="ich-h"><div><h2 id="gal-h">{t('Photos from the gallery')}</h2></div></div>
           <ul class="card ich-list">
-            <li class="ich-row"><span class="ich-ib"><ImageIcon size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Gallery › Share › Pack Generator')}</b><small>{t('when the app is on the home screen of your phone; or here «Photograph document» › «Gallery»')}</small></span></li>
+            <li class="ich-row"><span class="ich-ib"><ImageIcon size={20} aria-hidden="true" /></span><span class="ich-m"><b>{t('Gallery › Share › Pack Generator')}</b><small>{t('when the app is on the home screen of your phone; or here «Photograph document» › «Gallery»')}</small></span></li>
           </ul>
         </section>
         {#if !docs.prefs.drive}<p class="ich-fine"><Lock size={16} aria-hidden="true" /><span>{t('Your files stay on this device and in your backup file. They never go to the internet.')}</span></p>{/if}

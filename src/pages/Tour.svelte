@@ -388,7 +388,7 @@
       <p class="pills">
         {#if !steps}<TripState state={d.state} />{/if}
         {#if row.changed?.length}<span class="chg" data-changed>{t('changed')}</span>{/if}
-        {#if (d.kind === 'a' && d.acts[0]?.hidden) || (d.kind === 'g' && d.group?.hidden)}<span class="chg" data-hidden><EyeOff size={13} aria-hidden="true" />{t('hidden')}</span>{/if}
+        {#if (d.kind === 'a' && d.acts[0]?.hidden) || (d.kind === 'g' && d.group?.hidden)}<span class="chg" data-hidden><EyeOff size={14} aria-hidden="true" />{t('hidden')}</span>{/if}
         {#if d.partOf}<a class="part" href={d.partOf.href} data-part-of>{t('Part of «{name}»', { name: d.partOf.name })}<ChevronRight size={14} aria-hidden="true" /></a>{/if}
       </p>
     {/snippet}
@@ -427,7 +427,7 @@
     {#if d.kind === 't' && !steps}
       <!-- Gesamttest 20.10.2026 (journey): a trip's two pages lead to each other; the Rückblick has «Tour-Seite ansehen ›» -->
       <ul class="rowlist" aria-label={t('Look back|tour')}>
-        <li><a class="lrow" href="#/debrief/{encodeURIComponent(d.id)}" data-to-review><span class="ic" aria-hidden="true"><Star size={18} /></span><span class="m"><span class="t">{t('Look back|tour')}</span><span class="s">{d.state === 'rated' ? t('The Rückblick is written.') : d.state === 'plan' ? t('The Rückblick opens after the ride.') : t('The Rückblick is still open.')}</span></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+        <li><a class="lrow" href="#/debrief/{encodeURIComponent(d.id)}" data-to-review><span class="ic" aria-hidden="true"><Star size={20} /></span><span class="m"><span class="t">{t('Look back|tour')}</span><span class="s">{d.state === 'rated' ? t('The Rückblick is written.') : d.state === 'plan' ? t('The Rückblick opens after the ride.') : t('The Rückblick is still open.')}</span></span><ChevronRight class="chev" size={20} aria-hidden="true" /></a></li>
       </ul>
     {/if}
 
@@ -464,7 +464,7 @@
             {@const def = KPIS.find((x) => x.key === k)}
             {@const v = kpiOf(row, k)}
             <li class="kpi" data-kpi={k}>
-              <b class="num">{#if k === 'hf' || k === 'hfmax'}<Heart class="hico" size={18} aria-hidden="true" />{/if}{KPI_FMT[k](v)}{#if def.unit && v != null}{' '}<small>{def.unit === 'bpm' ? t('bpm') : def.unit}</small>{/if}</b>
+              <b class="num">{#if k === 'hf' || k === 'hfmax'}<Heart class="hico" size={20} aria-hidden="true" />{/if}{KPI_FMT[k](v)}{#if def.unit && v != null}{' '}<small>{def.unit === 'bpm' ? t('bpm') : def.unit}</small>{/if}</b>
               <span>{t(def.name)}</span>
               {#if isChanged(k)}<small class="was" data-was={k}>{t('changed · Strava: {v}', { v: stravaWas(k) })}</small>{/if}
             </li>
@@ -473,7 +473,7 @@
         {/if}
         {#if over}
         <p class="wx" data-tour-weather>
-          <CloudSun size={18} aria-hidden="true" />
+          <CloudSun size={20} aria-hidden="true" />
           {#if wxText}<span><b>{t('Weather')}</b> {wxText}</span>
           {:else if wxState === 'loading'}<span class="tp-muted">{t('Getting the weather of that day …')}</span>
           {:else if wxState === 'failed'}<span class="tp-muted">{navigator.onLine === false ? t('You are offline right now: the weather loads once you are online.') : t('The weather could not be fetched.')}</span><button type="button" class="btn btn-link" onclick={() => loadWeather(true)} data-weather-retry><RefreshCw size={14} aria-hidden="true" />{t('Try again')}</button>
@@ -591,7 +591,7 @@
           {:else}
             <p class="tp-muted tp-small">{t('Your own rating, only for you. It makes the tour «Rated».')}</p>
             <div class="stars" role="group" aria-label={t('Rating')} data-tour-rating>
-              {#each STARS as s (s)}<button type="button" class="tstar" aria-pressed={(notes.rating ?? 0) >= s} aria-label={tn(s, '{n} star', '{n} stars')} onclick={() => setNote('rating', notes.rating === s ? null : s)}><Star size={22} fill={(notes.rating ?? 0) >= s ? 'currentColor' : 'none'} aria-hidden="true" /></button>{/each}
+              {#each STARS as s (s)}<button type="button" class="tstar" aria-pressed={(notes.rating ?? 0) >= s} aria-label={tn(s, '{n} star', '{n} stars')} onclick={() => setNote('rating', notes.rating === s ? null : s)}><Star size={24} fill={(notes.rating ?? 0) >= s ? 'currentColor' : 'none'} aria-hidden="true" /></button>{/each}
             </div>
             <label class="lf"><span>{t('What was good?')}</span><textarea class="inp" rows="2" value={notes.good ?? ''} onchange={(e) => setNote('good', e.currentTarget.value.trim())} data-tour-good></textarea></label>
             <label class="lf"><span>{t('Next time')}</span><textarea class="inp" rows="2" value={notes.next ?? ''} onchange={(e) => setNote('next', e.currentTarget.value.trim())} data-tour-next></textarea></label>

@@ -117,10 +117,10 @@
             <span>{t('Time')}</span>
             <select class="inp" bind:value={r.time}>{#each HOURS as h (h)}<option value={h}>{h}</option>{/each}</select>
           </label>
-          {#if rows.length > 1}<button type="button" class="ibtn" aria-label={t('Remove this wish time')} onclick={() => dropRow(i)}><X size={18} aria-hidden="true" /></button>{/if}
+          {#if rows.length > 1}<button type="button" class="ibtn" aria-label={t('Remove this wish time')} onclick={() => dropRow(i)}><X size={20} aria-hidden="true" /></button>{/if}
         </div>
       {/each}
-      {#if rows.length < MAX_WISHES}<button type="button" class="btn wf-add" onclick={addRow} data-wish-add><Plus size={18} aria-hidden="true" />{t('Add another wish time')}</button>{/if}
+      {#if rows.length < MAX_WISHES}<button type="button" class="btn wf-add" onclick={addRow} data-wish-add><Plus size={20} aria-hidden="true" />{t('Add another wish time')}</button>{/if}
     </fieldset>
 
     <fieldset class="wf-set">

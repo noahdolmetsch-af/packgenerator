@@ -101,7 +101,7 @@
       <h2 id="sp-h"><Compass size={20} aria-hidden="true" /> {title}</h2>
       <p class="vd-sub">{t('A round from home through a place you have never been.')}</p>
     </div>
-    <button type="button" class="btn icon" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="btn icon" aria-label={t('Close')} onclick={() => dialog?.close()}><X size={20} aria-hidden="true" /></button>
   </div>
 
   {#if busy && !round}
@@ -114,14 +114,14 @@
       {#if round.via}<ReserveNote cls="sp-note" />{/if}
     </div>
     <div class="sp-row">
-      <button type="button" class="btn hi" disabled={busy} onclick={plan} data-sp-plan><Route size={18} aria-hidden="true" />{t('Plan as a trip')}</button>
-      <button type="button" class="btn" disabled={busy} onclick={gpx} data-sp-gpx><Download size={18} aria-hidden="true" />{t('GPX for the Garmin')}</button>
-      <button type="button" class="btn" disabled={busy} onclick={() => ask(-side)} data-sp-again><RefreshCw size={18} aria-hidden="true" />{t('Other side')}</button>
+      <button type="button" class="btn hi" disabled={busy} onclick={plan} data-sp-plan><Route size={20} aria-hidden="true" />{t('Plan as a trip')}</button>
+      <button type="button" class="btn" disabled={busy} onclick={gpx} data-sp-gpx><Download size={20} aria-hidden="true" />{t('GPX for the Garmin')}</button>
+      <button type="button" class="btn" disabled={busy} onclick={() => ask(-side)} data-sp-again><RefreshCw size={20} aria-hidden="true" />{t('Other side')}</button>
     </div>
   {/if}
   {#if err}
     <p class="sp-note err" role="alert">{err}</p>
-    <button type="button" class="btn" disabled={busy} onclick={() => ask(round ? -side : side)} data-sp-retry><RefreshCw size={18} aria-hidden="true" />{t('Try again')}</button>
+    <button type="button" class="btn" disabled={busy} onclick={() => ask(round ? -side : side)} data-sp-retry><RefreshCw size={20} aria-hidden="true" />{t('Try again')}</button>
   {/if}
   <RouterNote round cls="sp-note" />
 </dialog>

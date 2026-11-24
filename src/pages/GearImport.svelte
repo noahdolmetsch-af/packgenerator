@@ -308,7 +308,7 @@
           <ul class="card slist" data-sec="history">
             {#each $histQ as e (e.id)}
               <li class="srow">
-                <span class="sib" aria-hidden="true"><FileText size={18} /></span>
+                <span class="sib" aria-hidden="true"><FileText size={20} /></span>
                 <span class="sm"><b>{e.name || t('Gear list')}</b><small class="num">{histLine(e)}</small>
                   {#if e.undone}<small class="undone">{t('undone {when}', { when: when(e.undone) })}{#if e.kept?.length}{' · '}{tn(e.kept.length, '{n} item stayed', '{n} items stayed')}{/if}</small>{/if}
                 </span>
@@ -317,7 +317,7 @@
               </li>
             {/each}
           </ul>
-          <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Undo takes back what this import brought. What you changed yourself since stays, and the app says so.')}</span></p>
+          <p class="shint"><Info size={16} aria-hidden="true" /><span>{t('Undo takes back what this import brought. What you changed yourself since stays, and the app says so.')}</span></p>
         {:else}
           <p class="note">{t('No import yet.')}</p>
         {/if}
@@ -414,14 +414,14 @@
     {#if weight && (weight.delta || weight.unweighed.length)}
       <!-- SN5+ (I1): the weight before and after; only what is on «Übernehmen» counts. -->
       <div class="card wcard" data-sec="weight">
-        <span class="sib" aria-hidden="true"><Backpack size={18} /></span>
+        <span class="sib" aria-hidden="true"><Backpack size={20} /></span>
         <div class="wtext">
           <b class="num">{t('{w} in your gear list', { w: plusWeight(weight.delta) || formatWeight(0) })}</b>
           <small class="num">{t('before {a} → after {b} · only what you apply counts', { a: formatWeight(weight.before), b: formatWeight(weight.after) })}</small>
         </div>
         <div class="wbar" aria-hidden="true"><span class="wnow" style:width="{(1 - barNew) * 100}%"></span><span class="wnew" style:width="{barNew * 100}%"></span></div>
         <p class="wkey num" aria-hidden="true"><span><i class="dot now"></i>{t('today {w}', { w: formatWeight(weight.before) })}</span><span><i class="dot new"></i>{t('new {w}', { w: formatWeight(Math.max(0, weight.delta)) })}</span></p>
-        {#if weight.unweighed.length}<p class="shint wq"><Info size={15} aria-hidden="true" /><span>{tn(weight.unweighed.length, '{names} is not weighed and does not count.', '{names} are not weighed and do not count.', { names: weight.unweighed.join(', ') })}</span></p>{/if}
+        {#if weight.unweighed.length}<p class="shint wq"><Info size={16} aria-hidden="true" /><span>{tn(weight.unweighed.length, '{names} is not weighed and does not count.', '{names} are not weighed and do not count.', { names: weight.unweighed.join(', ') })}</span></p>{/if}
       </div>
     {/if}
     <p class="hint">
@@ -443,7 +443,7 @@
                   <span class="sib" aria-hidden="true"><Icon size={18} /></span>
                   <span class="sm"><b>{r.item.name}{#if r.item.qty > 1}<small class="qx"> × {r.item.qty}</small>{/if}</b><small>{r.item.weightG == null ? t('not weighed') : formatWeight(itemWeight(r.item))}{#if r.item.ownership === 'wishlist'}{' · '}<i class="badge">{t('Wishlist')}</i>{/if}{#if r.item.leaveHome}{' · '}<i class="badge">{t('Optional')}</i>{/if}</small>
                     <!-- SN5+ (I3): where it goes, a suggestion from the category; a tap opens category and bag -->
-                    <button type="button" class="place" aria-expanded={placing === r.key} aria-controls="place-{r.key}" aria-label={t('Where {name} goes: {cat} · {bag}. Change', { name: r.item.name, cat: catText(r.item.category), bag: bagText(r.item.defaultBag) })} onclick={() => (placing = placing === r.key ? null : r.key)}><ArrowRight size={14} aria-hidden="true" /><span>{catText(r.item.category)} · {bagText(r.item.defaultBag)}</span><Pencil size={13} aria-hidden="true" /></button>
+                    <button type="button" class="place" aria-expanded={placing === r.key} aria-controls="place-{r.key}" aria-label={t('Where {name} goes: {cat} · {bag}. Change', { name: r.item.name, cat: catText(r.item.category), bag: bagText(r.item.defaultBag) })} onclick={() => (placing = placing === r.key ? null : r.key)}><ArrowRight size={14} aria-hidden="true" /><span>{catText(r.item.category)} · {bagText(r.item.defaultBag)}</span><Pencil size={14} aria-hidden="true" /></button>
                   </span>
                   <span class="rowacts"><OptionButton pressed={takes(r)} label={t('Apply|import')} aria-label={t('Apply {name}', { name: r.item.name })} disabled={busy} onclick={() => flipFresh(r)} /></span>
                 </li>
@@ -457,7 +457,7 @@
                     <div class="pick" role="group" aria-label={t('Bag of {name}', { name: r.item.name })}>
                       {#each BAG_CHOICES as b (b)}<button type="button" class="opt" aria-pressed={r.item.defaultBag === b} onclick={() => pickBag(r, b)}>{t(BAG[b])}</button>{/each}
                     </div>
-                    <p class="shint"><Info size={15} aria-hidden="true" /><span>{t('Suggested from the category. You can change it later in the item too.')}</span></p>
+                    <p class="shint"><Info size={16} aria-hidden="true" /><span>{t('Suggested from the category. You can change it later in the item too.')}</span></p>
                   </li>
                 {/if}
               {/each}
@@ -527,9 +527,9 @@
         <Section title={t('Not in the import')} sub={`${tn(notIn.length, '{n} item', '{n} items')} · ${t('they stay, nothing is deleted')}`} id="imp-notin">
           <details class="card isec nifold" data-sec="notin">
             <summary class="srow">
-              <span class="sib" aria-hidden="true"><Archive size={18} /></span>
+              <span class="sib" aria-hidden="true"><Archive size={20} /></span>
               <span class="sm"><b>{t('Look at them')}</b><small>{t('archive one by one, if you like')}</small></span>
-              <ChevronRight class="schev chev" size={18} aria-hidden="true" />
+              <ChevronRight class="schev chev" size={20} aria-hidden="true" />
             </summary>
             <p class="note">{t('In your gear, but not in the list. Archived items move to Gear → Gone; past trips stay complete. Nothing is deleted.')}</p>
             {#if notIn.length}

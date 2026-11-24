@@ -79,7 +79,7 @@
 {#if rows.length}
   <button type="button" class="tp-fold shop-row" onclick={() => (open = true)}>
     <ShoppingCart size={20} aria-hidden="true" /><span>{t('Shopping list')}</span>
-    <span class="r"><i class="tp-badge">{count.open ? tn(count.open, '{n} to buy', '{n} to buy') : t('all bought')}</i><ChevronRight class="chev" size={18} aria-hidden="true" /></span>
+    <span class="r"><i class="tp-badge">{count.open ? tn(count.open, '{n} to buy', '{n} to buy') : t('all bought')}</i><ChevronRight class="chev" size={20} aria-hidden="true" /></span>
   </button>
 {/if}
 
@@ -113,7 +113,7 @@
     {#if copyText}<label class="copy"><span>{t('Copy this text:')}</span><textarea class="inp" readonly rows={Math.min(10, copyText.split('\n').length + 1)}>{copyText}</textarea></label>{/if}
     <footer>
       <button type="button" class="primary" onclick={() => el.close()}>{t('Done')}</button>
-      {#if rows.length}<button type="button" class="text-button" onclick={share}><Share2 size={18} aria-hidden="true" />{t('Share as text')}</button>{/if}
+      {#if rows.length}<button type="button" class="text-button" onclick={share}><Share2 size={20} aria-hidden="true" />{t('Share as text')}</button>{/if}
     </footer>
   </dialog>
 {/if}

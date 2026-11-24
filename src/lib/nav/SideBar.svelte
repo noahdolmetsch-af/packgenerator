@@ -68,7 +68,7 @@
     <a class="logo" href="#/" aria-label={t('Pack Generator, start page')}><span class="mark" aria-hidden="true"><LogoMark /></span><span>Pack Generator</span></a>
     {#if shownew}
       <button type="button" class="newbtn" onclick={(e) => (clicked(e, 'new', t('New')), onnew?.(e))} aria-haspopup="dialog" aria-keyshortcuts="n">
-        <Plus size={20} strokeWidth={2.4} aria-hidden="true" /><span>{t('New')}</span><kbd aria-hidden="true">N</kbd>
+        <Plus size={20} strokeWidth={2.5} aria-hidden="true" /><span>{t('New')}</span><kbd aria-hidden="true">N</kbd>
       </button>
     {/if}
     <div class="srow">

@@ -113,7 +113,7 @@
     </section>
 
     <section class="tbs-sec">
-      <h3><BellRing size={18} aria-hidden="true" />{t('Evening reminder')}</h3>
+      <h3><BellRing size={20} aria-hidden="true" />{t('Evening reminder')}</h3>
       <label class="tbs-row">
         <input type="checkbox" checked={remind.on} onchange={(e) => setRemind({ on: e.currentTarget.checked })} data-tb-remind-on />
         <span>{t('When today has no entry yet, ask once in the evening. «Later» asks again in an hour, «Not today» waits until tomorrow.')}</span>
@@ -125,7 +125,7 @@
 
     <!-- «Eingaben überall» (Noah 26.10.2026 «5a aber b möglich»): on by default, can be switched off -->
     <section class="tbs-sec">
-      <h3><Search size={18} aria-hidden="true" />{t('In the app search')}</h3>
+      <h3><Search size={20} aria-hidden="true" />{t('In the app search')}</h3>
       <label class="tbs-row">
         <input type="checkbox" checked={cfg.inSearch !== false} onchange={(e) => { const on = e.currentTarget.checked; changeCfg((c) => ({ ...c, inSearch: on })); }} data-tb-insearch />
         <span>{t('The search at the top also finds diary entries. With a lock code only while the diary is open.')}</span>
@@ -133,7 +133,7 @@
     </section>
 
     <section class="tbs-sec">
-      <h3><LockKeyhole size={18} aria-hidden="true" />{t('Lock')}</h3>
+      <h3><LockKeyhole size={20} aria-hidden="true" />{t('Lock')}</h3>
       {#if cfg.lock?.hash}
         <p class="tbs-p">{t('The diary asks for your code on this and your other devices. It locks again when you leave it or the app is in the background for a minute.')}</p>
         <button type="button" class="btn" onclick={removeLock} data-tb-lock-off>{t('Turn the lock off')}</button>
@@ -158,8 +158,8 @@
           {#each tags as x (x.name)}
             <li data-tb-tagrow={x.name}>
               <span class="tbs-tag">#{x.name} <small>{tn(x.n, '{n} entry', '{n} entries')}</small></span>
-              <button type="button" class="tbs-ic" aria-label={t('Rename {name}', { name: x.name })} onclick={() => (renaming = x)} data-tb-tag-rename><Pencil size={18} aria-hidden="true" /></button>
-              <button type="button" class="tbs-ic" aria-label={t('Delete {name}', { name: x.name })} onclick={() => (deleting = x)} data-tb-tag-delete><Trash2 size={18} aria-hidden="true" /></button>
+              <button type="button" class="tbs-ic" aria-label={t('Rename {name}', { name: x.name })} onclick={() => (renaming = x)} data-tb-tag-rename><Pencil size={20} aria-hidden="true" /></button>
+              <button type="button" class="tbs-ic" aria-label={t('Delete {name}', { name: x.name })} onclick={() => (deleting = x)} data-tb-tag-delete><Trash2 size={20} aria-hidden="true" /></button>
             </li>
           {/each}
         </ul>

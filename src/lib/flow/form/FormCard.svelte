@@ -40,7 +40,7 @@
         <span>{t('Comes with your first activities from Strava or with Fitbit: then the app shows each morning what today suits.')}</span>
       </span>
     {/if}
-    <ChevronRight class="go" size={18} aria-hidden="true" />
+    <ChevronRight class="go" size={20} aria-hidden="true" />
     {#if f.alarm || f.rampHigh || f.tour}
       <ul class="notes">
         {#if f.alarm}<li data-form-alarm><TriangleAlert size={16} aria-hidden="true" /><span>{t('Resting pulse up and HRV down two days in a row: an easy day may help.')}</span></li>{/if}
@@ -79,7 +79,7 @@
     stroke: var(--paper-2);
   }
   .ring .fl {
-    stroke: var(--hi);
+    stroke: var(--ok); /* a status colour (good / take it easy / rest), never the area colour («Zahlen», Noah 24.11.2026 «5a») */
     stroke-linecap: round;
   }
   .ring .lv-rest {

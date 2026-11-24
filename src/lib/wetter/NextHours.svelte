@@ -51,7 +51,7 @@
 </script>
 
 <section class="card nh" aria-labelledby="nh-h" data-wx-hours>
-  <h2 id="nh-h" class="nh-h"><CloudSun size={18} aria-hidden="true" />{t('The next hours')}</h2>
+  <h2 id="nh-h" class="nh-h"><CloudSun size={20} aria-hidden="true" />{t('The next hours')}</h2>
   <p class="nh-lead">{t('Several weather models side by side. Where they agree, the forecast is surer.')}</p>
 
   {#if err}<p class="rc-warn" role="status" data-wx-hours-error>{err}</p>{/if}
@@ -63,15 +63,15 @@
         <li class="nh-row" data-wx-hours-step={same ? 'all' : r.h} data-agree={r.agree}>
           <b class="nh-in">{same ? t('in the next {n} h', { n: r.h }) : t('in {n} h', { n: r.h })}</b>
           <span class="nh-agree a-{r.agree}">
-            {#if r.agree === 'dry'}<Sun size={15} aria-hidden="true" />{:else}<CloudRain size={15} aria-hidden="true" />{/if}
+            {#if r.agree === 'dry'}<Sun size={16} aria-hidden="true" />{:else}<CloudRain size={16} aria-hidden="true" />{/if}
             {agreeText(r)}
           </span>
           <span class="nh-dots" aria-hidden="true">{#each Array(r.of) as _, i (i)}<i class:wet={i < r.wet}></i>{/each}</span>
           <span class="nh-vals">
             {#if r.rainMm && r.rainMm[1] > 0}<span>{range(r.rainMm, 'mm')}{#if r.rainFrom}{' '}· {r.rainFrom <= now ? t('it rains now') : t('from {at}', { at: hm(r.rainFrom) })}{/if}</span>{/if}
             {#if r.temp}<span>{range(r.temp, '°C')}</span>{/if}
-            {#if r.gust != null}<span><Wind size={13} aria-hidden="true" />{t('gusts up to {kmh} km/h', { kmh: num(Math.round(r.gust)) })}</span>{/if}
-            {#if r.thunder}<span class="nh-thunder"><Zap size={13} aria-hidden="true" />{t('{n} models: thunderstorms', { n: r.thunder })}</span>{/if}
+            {#if r.gust != null}<span><Wind size={14} aria-hidden="true" />{t('gusts up to {kmh} km/h', { kmh: num(Math.round(r.gust)) })}</span>{/if}
+            {#if r.thunder}<span class="nh-thunder"><Zap size={14} aria-hidden="true" />{t('{n} models: thunderstorms', { n: r.thunder })}</span>{/if}
           </span>
         </li>
       {/each}

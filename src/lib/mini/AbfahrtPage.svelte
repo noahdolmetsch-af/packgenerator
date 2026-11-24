@@ -157,7 +157,7 @@
 {#if !id}
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Mini tools'), href: '#/me/mini' }]} title={t('When do I leave?')} sub={t('Everybody starts somewhere else; the app says when each one leaves so you all arrive together')} />
   <div class="ich-main ab-main" data-ab>
-    <div><button type="button" class="btn hi" onclick={start} data-ab-new><Plus size={18} aria-hidden="true" />{t('New meeting')}</button></div>
+    <div><button type="button" class="btn hi" onclick={start} data-ab-new><Plus size={20} aria-hidden="true" />{t('New meeting')}</button></div>
     <p class="ab-help">{t('A new meeting takes the meeting point and the people of your last one; you can change them right after.')}</p>
     <section class="ich-sec" aria-labelledby="ab-mine-h">
       <div class="ich-h"><div><h2 id="ab-mine-h">{t('Your meetings')}</h2></div></div>
@@ -169,9 +169,9 @@
             <li class="ab-lrow">
               <SortGrip name={x.title} onstep={(dir) => moveMeet(i, i + dir)} />
               <a class="ich-row" href={`#/me/mini/abfahrt/${encodeURIComponent(x.id)}`} data-ab-item={x.id}>
-                <span class="ich-ib"><Clock size={18} aria-hidden="true" /></span>
+                <span class="ich-ib"><Clock size={20} aria-hidden="true" /></span>
                 <span class="ich-m"><b>{x.title}</b><small>{[x.place?.name, x.time, t('{n} people', { n: x.people.length })].filter(Boolean).join(' · ')}</small></span>
-                <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
               </a>
               <SortArrows name={x.title} {i} n={meets.length} onstep={(dir) => moveMeet(i, i + dir)} />
             </li>
@@ -189,7 +189,7 @@
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }, { label: t('Mini tools'), href: '#/me/mini' }, { label: t('When do I leave?'), href: '#/me/mini/abfahrt' }]} title={meet.title} sub={[dayFmt(meet.day), meet.time, meet.place?.name].filter(Boolean).join(' · ')} />
   <div class="ich-main ab-main" data-ab-meet>
     <section class="card ab-box" aria-labelledby="ab-where-h">
-      <h2 id="ab-where-h"><MapPin size={18} aria-hidden="true" /> {t('Meeting point and time')}</h2>
+      <h2 id="ab-where-h"><MapPin size={20} aria-hidden="true" /> {t('Meeting point and time')}</h2>
       <PlacePick value={meet.place} {home} label={t('Meeting point')} onpick={(p) => setMeet({ place: p })} testid="meet" />
       <div class="ab-two">
         <label class="ab-fld"><span>{t('Day (optional)')}</span><input type="date" value={meet.day} onchange={(e) => setMeet({ day: e.currentTarget.value })} data-ab-day /></label>
@@ -198,7 +198,7 @@
     </section>
 
     <section class="card ab-box ab-plan" aria-labelledby="ab-plan-h" data-ab-plan>
-      <h2 id="ab-plan-h"><Clock size={18} aria-hidden="true" /> {t('When who leaves')}</h2>
+      <h2 id="ab-plan-h"><Clock size={20} aria-hidden="true" /> {t('When who leaves')}</h2>
       {#if !meet.place}
         <p class="ab-help" data-ab-noplace>{t('Pick the meeting point first.')}</p>
       {:else if !meet.people.length}

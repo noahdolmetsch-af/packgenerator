@@ -87,7 +87,7 @@
           <SortGrip name={f.name} onstep={(d) => move(i, i + d)} />
           <span class="pf-m"><b>{f.name}</b><small class="tool-muted">{f.kind === 'pdf' ? 'PDF' : t('Photo')} · {sizeText(f.size)}</small></span>
           <SortArrows name={f.name} {i} n={files.length} onstep={(d) => move(i, i + d)} />
-          <button type="button" class="btn sm" aria-label={t('Remove {name}', { name: f.name })} onclick={() => ((files = files.filter((x) => x.id !== f.id)), (result = null))}><Trash2 size={15} aria-hidden="true" /></button>
+          <button type="button" class="btn sm" aria-label={t('Remove {name}', { name: f.name })} onclick={() => ((files = files.filter((x) => x.id !== f.id)), (result = null))}><Trash2 size={16} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

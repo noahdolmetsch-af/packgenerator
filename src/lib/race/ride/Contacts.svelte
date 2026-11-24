@@ -51,7 +51,7 @@
             <b>{t('Day {n}', { n: c.stage })} · {hhmm(Date.parse(c.at))}</b>
             <small>{CONTACT_PARTS.filter((p) => Number(c.parts?.[p.key]) > 0).map((p) => `${t(p.name)} ${c.parts[p.key]}`).join(' · ') || t('Nothing')}{c.setup ? ` · ${c.setup}` : ''}</small>
           </span>
-          <button type="button" class="rc-icon" aria-label={t('Delete the entry of day {n}?', { n: c.stage })} onclick={() => drop(c)}><Trash2 size={18} aria-hidden="true" /></button>
+          <button type="button" class="rc-icon" aria-label={t('Delete the entry of day {n}?', { n: c.stage })} onclick={() => drop(c)}><Trash2 size={20} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

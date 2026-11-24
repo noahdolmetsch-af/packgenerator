@@ -139,7 +139,7 @@
   <div class="top card">
     <span class="ib" aria-hidden="true"><Scale size={20} /></span>
     <p>{t('Voluntary, only for watts per kg in Training and the tours. Stays only on this device, never goes to Strava or a server. No entry = no W/kg.')}</p>
-    <button type="button" class="btn hi" onclick={() => openForm()} data-weight-add><Plus size={18} aria-hidden="true" />{t('Enter weight')}</button>
+    <button type="button" class="btn hi" onclick={() => openForm()} data-weight-add><Plus size={20} aria-hidden="true" />{t('Enter weight')}</button>
   </div>
 
   {#if entries.length > 1}<AnaHead id="wt-h" title={t('Over time|weight')} groups={['weight']} />{/if}

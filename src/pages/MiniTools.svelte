@@ -395,7 +395,7 @@
         <p class="mt-help"><Lock size={14} aria-hidden="true" /> {t('Only you can read the answers. They are locked on the other person’s device; the server cannot read them and deletes them after these days.')}</p>
       </section>
       {#if formErr}<p class="mt-err" role="alert" data-mt-err>{formErr}</p>{/if}
-      <div class="mt-acts"><button type="submit" class="btn hi" disabled={making} data-mt-make><Share2 size={18} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
+      <div class="mt-acts"><button type="submit" class="btn hi" disabled={making} data-mt-make><Share2 size={20} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
     </form>
   {:else if isNewPoll}
     <PollNew />
@@ -454,7 +454,7 @@
         {:else}
         {#if chosenOpt}
           <section class="card mt-box mt-fixed" aria-labelledby="mt-fixed-h" data-mt-fixed>
-            <h2 id="mt-fixed-h"><CalendarCheck size={18} aria-hidden="true" /> {t('The date is fixed: {day}', { day: optFmt(chosenOpt) })}</h2>
+            <h2 id="mt-fixed-h"><CalendarCheck size={20} aria-hidden="true" /> {t('The date is fixed: {day}', { day: optFmt(chosenOpt) })}</h2>
             <p class="mt-help">{t('The question has ended. Send the date to the group.')}</p>
             <div class="mt-acts">
               <a class="btn hi" href={waChosen} target="_blank" rel="noopener" data-mt-fixed-wa><MessageCircle size={16} aria-hidden="true" />{t('Send the date to the group')}</a>
@@ -543,51 +543,51 @@
         <ul class="ich-list card">
           <li>
             <a class="ich-row" href="#/me/mini/neu" data-mt-tool="date">
-              <span class="ich-ib"><CalendarCheck size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><CalendarCheck size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Find a date')}</b><small>{t('Which day works for everyone? Like Doodle, without an account.')}</small></span>
-              <Plus class="ich-chev" size={18} aria-hidden="true" />
+              <Plus class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="ich-row" href="#/me/mini/umfrage" data-mt-tool="poll">
-              <span class="ich-ib"><ListChecks size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><ListChecks size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Mini survey')}</b><small>{t('A few short questions; the app counts the answers and sums them up.')}</small></span>
-              <Plus class="ich-chev" size={18} aria-hidden="true" />
+              <Plus class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="ich-row" href="#/me/mini/liste" data-mt-tool="list">
-              <span class="ich-ib"><ClipboardList size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><ClipboardList size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Sign-up list')}</b><small>{t('A number of places and a waiting list; who comes too late moves up.')}</small></span>
-              <Plus class="ich-chev" size={18} aria-hidden="true" />
+              <Plus class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="ich-row" href="#/me/mini/einladung" data-mt-tool="invite">
-              <span class="ich-ib"><Bike size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Bike size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Quick invite')}</b><small>{t('«Are you riding with me tomorrow?» with meeting point, route and weather.')}</small></span>
-              <Plus class="ich-chev" size={18} aria-hidden="true" />
+              <Plus class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="ich-row" href="#/me/mini/essen" data-mt-tool="food">
-              <span class="ich-ib"><Utensils size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Utensils size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Who eats what')}</b><small>{t('Diets and allergies of the group, and a shopping list from them.')}</small></span>
-              <Plus class="ich-chev" size={18} aria-hidden="true" />
+              <Plus class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="ich-row" href="#/me/mini/los" data-mt-tool="los">
-              <span class="ich-ib"><Dices size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Dices size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Fair draw')}</b><small>{t('Who cooks, who rides in front, who sleeps where: fair, without a link.')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
           <li>
             <a class="ich-row" href="#/me/mini/abfahrt" data-mt-tool="abfahrt">
-              <span class="ich-ib"><Clock size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><Clock size={20} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('When do I leave?')}</b><small>{t('Each start place and speed; when everyone leaves to arrive together.')}</small></span>
-              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+              <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
             </a>
           </li>
         </ul>
@@ -602,9 +602,9 @@
             {#each mine as x (x.id)}
               <li>
                 <a class="ich-row" href={`#/me/mini/${encodeURIComponent(x.id)}`} data-mt-item={x.id}>
-                  <span class="ich-ib">{#if x.kind === KIND_POLL}<ListChecks size={18} aria-hidden="true" />{:else if x.kind === KIND_LIST}<ClipboardList size={18} aria-hidden="true" />{:else if x.kind === KIND_INVITE}<Bike size={18} aria-hidden="true" />{:else if x.kind === KIND_FOOD}<Utensils size={18} aria-hidden="true" />{:else}<CalendarCheck size={18} aria-hidden="true" />{/if}</span>
+                  <span class="ich-ib">{#if x.kind === KIND_POLL}<ListChecks size={20} aria-hidden="true" />{:else if x.kind === KIND_LIST}<ClipboardList size={20} aria-hidden="true" />{:else if x.kind === KIND_INVITE}<Bike size={20} aria-hidden="true" />{:else if x.kind === KIND_FOOD}<Utensils size={20} aria-hidden="true" />{:else}<CalendarCheck size={20} aria-hidden="true" />{/if}</span>
                   <span class="ich-m"><b>{x.title}</b><small>{answersText(x.answers?.length ?? 0)}{#if newAnswers(x, serverN[x.id]) > 0}{' · '}<span class="mt-new" data-mt-fresh>{t('{n} new', { n: newAnswers(x, serverN[x.id]) })}</span>{/if} · {running(x) ? t('open until {day}', { day: endFmt(x.srv.end) }) : t('ended')}</small></span>
-                  <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+                  <ChevronRight class="ich-chev" size={20} aria-hidden="true" />
                 </a>
               </li>
             {/each}

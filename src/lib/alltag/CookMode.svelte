@@ -108,7 +108,7 @@
 
   {#each rung as i (i)}
     <p class="cm-rung" role="alert" data-ko-cook-rung={i}>
-      <Timer size={18} aria-hidden="true" />{t('The timer of step {n} is done.', { n: i })}
+      <Timer size={20} aria-hidden="true" />{t('The timer of step {n} is done.', { n: i })}
       <button type="button" class="btn sm" onclick={() => resetTimer(i)}>{t('OK')}</button>
     </p>
   {/each}
@@ -141,7 +141,7 @@
       <p class="cm-big">{tx(cur.text)}</p>
       {#if timerOf(cur)}
         <div class="cm-timer" data-ko-timer>
-          <Timer size={22} aria-hidden="true" />
+          <Timer size={24} aria-hidden="true" />
           <span class="cm-clock" data-ko-timer-left>{fmtClock(leftOf(at))}</span>
           {#if timers[at]?.endAt}
             <button type="button" class="btn sm" onclick={() => pauseTimer(at)} data-ko-timer-pause><Pause size={16} aria-hidden="true" />{t('Pause')}</button>
@@ -159,11 +159,11 @@
         {#each steps as _, i (i)}<i class:done={i + 1 < at} class:on={i + 1 === at}></i>{/each}
       </div>
       <div class="cm-nav">
-        <button type="button" class="btn" onclick={() => go(at - 1)} disabled={at <= 1} data-ko-cook-back><ChevronLeft size={18} aria-hidden="true" />{t('Back')}</button>
+        <button type="button" class="btn" onclick={() => go(at - 1)} disabled={at <= 1} data-ko-cook-back><ChevronLeft size={20} aria-hidden="true" />{t('Back')}</button>
         {#if last}
-          <button type="button" class="btn hi" onclick={() => ondone?.()} data-ko-cook-done><Check size={18} aria-hidden="true" />{t('Done')}</button>
+          <button type="button" class="btn hi" onclick={() => ondone?.()} data-ko-cook-done><Check size={20} aria-hidden="true" />{t('Done')}</button>
         {:else}
-          <button type="button" class="btn hi" onclick={() => go(at + 1)} data-ko-cook-next>{t('Next|cook')}<ChevronRight size={18} aria-hidden="true" /></button>
+          <button type="button" class="btn hi" onclick={() => go(at + 1)} data-ko-cook-next>{t('Next|cook')}<ChevronRight size={20} aria-hidden="true" /></button>
         {/if}
       </div>
     </section>

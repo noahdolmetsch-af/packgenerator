@@ -51,7 +51,7 @@
         {/each}
       </ul>
     {:else}
-      <span class="done"><Check size={18} aria-hidden="true" /> {t('All with me')}</span>
+      <span class="done"><Check size={20} aria-hidden="true" /> {t('All with me')}</span>
     {/if}
     <div class="end">
       {#if open.length}

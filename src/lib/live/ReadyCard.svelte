@@ -37,17 +37,17 @@
   <summary class="lv-ready-sum" onclick={toggle} data-live-ready-head>
     <h2 class="rc-h2">{t('Ready for the ride?')}</h2>
     {#if r.ready && !isOpen}<span class="lv-ready-yes" data-live-ready-yes><Check size={16} aria-hidden="true" />{t('Map and voice are set.')}</span>{/if}
-    <ChevronDown size={18} class="lv-ready-chev" aria-hidden="true" />
+    <ChevronDown size={20} class="lv-ready-chev" aria-hidden="true" />
   </summary>
   <ul class="lv-ready-list">
     <li class="lv-ready-row" data-live-ready-map={r.mapOk ? 'yes' : 'no'}>
-      {#if r.mapOk}<Check size={18} aria-hidden="true" />{:else}<Circle size={18} aria-hidden="true" />{/if}
+      {#if r.mapOk}<Check size={20} aria-hidden="true" />{:else}<Circle size={20} aria-hidden="true" />{/if}
       <span class="lv-ready-main"><b>{r.mapOk ? t('The map along the route is on this phone.') : t('The map along the route is not on this phone yet.')}</b>
         <small>{r.mapOk ? t('It works without internet.') : t('Without it the map stays empty when you have no signal.')}</small></span>
       {#if !r.mapOk}<button type="button" class="btn sm" aria-expanded={keeping} onclick={() => (keeping = !keeping)} data-live-ready-keep>{t('Keep the map')}</button>{/if}
     </li>
     <li class="lv-ready-row" data-live-ready-voice={r.voiceOk ? 'yes' : 'no'}>
-      {#if r.voiceOk}<Check size={18} aria-hidden="true" />{:else}<Circle size={18} aria-hidden="true" />{/if}
+      {#if r.voiceOk}<Check size={20} aria-hidden="true" />{:else}<Circle size={20} aria-hidden="true" />{/if}
       <span class="lv-ready-main"><b>{r.voiceOk ? t('The voice is on.') : t('The voice is off.')}</b>
         <small>{t('The phone says the next shop or climb a few km ahead, so you can keep your eyes on the road.')}</small></span>
       {#if !r.voiceOk}<button type="button" class="btn sm" onclick={() => onvoice?.(true)} data-live-ready-voice-on>{t('Switch the voice on')}</button>{/if}

@@ -244,7 +244,7 @@
 
 <div class="ich-page abpage">
   <VeloHead crumbs={[{ label: t('Me|place'), href: '#/me' }]} title={t('Your questions')} sub={headLine}>
-    <button type="button" class="btn" class:hi={editing} aria-pressed={editing} onclick={() => (editing = !editing)} data-ab-edit>{#if editing}<Check size={18} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={18} aria-hidden="true" />{t('Edit questions and groups')}{/if}</button>
+    <button type="button" class="btn" class:hi={editing} aria-pressed={editing} onclick={() => (editing = !editing)} data-ab-edit>{#if editing}<Check size={20} aria-hidden="true" />{t('Done|edit')}{:else}<Pencil size={18} aria-hidden="true" />{t('Edit questions and groups')}{/if}</button>
     <button type="button" class="btn" onclick={() => addIn(OWN_AREA)}><Plus size={18} aria-hidden="true" />{t('Create your own question')}</button>
   </VeloHead>
 

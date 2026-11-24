@@ -33,7 +33,7 @@
   {#if strip}
     <ol class="strip" aria-label={t('The steps of a trip')}>
       {#each strip as s (s.key)}
-        <li class={s.state} aria-current={s.state === 'now' ? 'step' : undefined}>{#if s.state === 'done'}<Check size={12} aria-hidden="true" />{/if}{t(s.name)}</li>
+        <li class={s.state} aria-current={s.state === 'now' ? 'step' : undefined}>{#if s.state === 'done'}<Check size={14} aria-hidden="true" />{/if}{t(s.name)}</li>
       {/each}
     </ol>
   {/if}

@@ -71,7 +71,7 @@
 
   <label class="fld"><span class="lbl">{builtin ? t('Question|text') : t('Name|question')}</span><input class="inp" type="text" maxlength="120" bind:value={name} placeholder={builtin ? t(question.text) : t('e.g. Coffee')} data-own-name /></label>
   {#if builtin}<p class="srcl"><small>{t('Empty brings back the app’s wording. The answers so far stay with the question.')}</small></p>{:else}
-  <p class="srcl"><span class="ab-src only"><Hand size={13} aria-hidden="true" />{t('only by hand possible')}</span><small>{t('no known source, the app asks you')}</small></p>{/if}
+  <p class="srcl"><span class="ab-src only"><Hand size={14} aria-hidden="true" />{t('only by hand possible')}</span><small>{t('no known source, the app asks you')}</small></p>{/if}
 
   <label class="fld"><span class="lbl">{t('Area|question')}</span>
     <select class="sel" bind:value={area}>
@@ -86,7 +86,7 @@
   <div class="kinds" role="group" aria-labelledby="own-kind">
     {#each KINDS as k (k.key)}
       <button type="button" class="kb" aria-pressed={kind === k.key} onclick={() => (kind = k.key)} data-own-kind={k.key}>
-        {#if kind === k.key}<Check size={18} aria-hidden="true" />{:else}<k.icon size={18} aria-hidden="true" />{/if}<span>{t(k.name)}</span>
+        {#if kind === k.key}<Check size={20} aria-hidden="true" />{:else}<k.icon size={18} aria-hidden="true" />{/if}<span>{t(k.name)}</span>
       </button>
     {/each}
   </div>

@@ -40,7 +40,7 @@
         <h2 id="sp-h">{t('Gear into «{bag}»', { bag: bagName(bag) })}</h2>
         <p class="vd-sub meta">{t('Tick what goes in this bag. Things from another bag move here.')}</p>
       </div>
-      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+      <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
     </div>
     <label class="srch"><span class="lbl">{t('Search')}</span><input class="inp" type="search" bind:value={q} /></label>
     <ul class="pl">

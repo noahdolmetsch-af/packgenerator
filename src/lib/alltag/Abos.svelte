@@ -106,13 +106,13 @@
           <button type="button" class="fz-row-main al-open" onclick={() => openEdit(c)} data-abo-open>
             <b class:al-stopped={c.stopped}>{c.name}{#if c.travel}{' '}<Plane size={14} aria-label={t('Travel insurance')} />{/if}</b>
             <small>{c.cost ? `${money(c.cost)} ${c.period === 'year' ? t('per year') : t('per month')}` : t('No cost entered')}{c.period === 'year' && c.cost ? ` · ${t('{sum} per month', { sum: money(perMonth(c)) })}` : ''}</small>
-            <small class:al-soon={soon(c)}>{#if soon(c)}<Bell size={13} aria-hidden="true" /> {/if}{dueLine(c)}</small>
+            <small class:al-soon={soon(c)}>{#if soon(c)}<Bell size={14} aria-hidden="true" /> {/if}{dueLine(c)}</small>
             {#if useYear(c, today).perUse}<small data-use-per={c.id}>{t('{sum} per use in the last year', { sum: money(useYear(c, today).perUse) })}</small>{/if}
             {#if cancelState(c) === 'sent' || cancelState(c) === 'drafted'}<small class="al-soon" data-cancel-state={cancelState(c)}>{cancelState(c) === 'sent' ? t('Cancellation sent, confirmation missing') : t('Cancellation written, not sent yet')}</small>{/if}
           </button>
-          {#if c.phone}<a class="fz-icon" href={telOf(c.phone)} aria-label={t('Call {name}', { name: c.name })}><Phone size={18} aria-hidden="true" /></a>{/if}
+          {#if c.phone}<a class="fz-icon" href={telOf(c.phone)} aria-label={t('Call {name}', { name: c.name })}><Phone size={20} aria-hidden="true" /></a>{/if}
           {#if !phone.matches}<SortArrows name={c.name} i={n} n={list.length} onstep={(dir) => step(c.id, dir)} />{/if}
-          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: c.name })} onclick={() => openEdit(c)}><Pencil size={18} aria-hidden="true" /></button>
+          <button type="button" class="fz-icon" aria-label={t('Change {name}', { name: c.name })} onclick={() => openEdit(c)}><Pencil size={20} aria-hidden="true" /></button>
         </li>
       {/each}
     </ul>

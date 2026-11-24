@@ -33,9 +33,9 @@
 
 {#if show}
   <p class="mhint" role="note" data-hint="maintenance">
-    <Wrench size={18} aria-hidden="true" />
+    <Wrench size={20} aria-hidden="true" />
     <span><b>{t('App maintenance:')}</b> {hintLine(list, { t, tn })} <a href="#/me">{t('View|maintenance')}</a></span>
-    <button type="button" class="mx" aria-label={t('Close the hint')} onclick={close}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="mx" aria-label={t('Close the hint')} onclick={close}><X size={20} aria-hidden="true" /></button>
   </p>
 {/if}
 

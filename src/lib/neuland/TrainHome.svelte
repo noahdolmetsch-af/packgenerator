@@ -74,7 +74,7 @@
         <ul class="th-list">
           {#each starts as x (x.id)}
             <li class="th-row" data-th-start={x.id}>
-              <span class="ich-ib"><TrainFront size={18} aria-hidden="true" /></span>
+              <span class="ich-ib"><TrainFront size={20} aria-hidden="true" /></span>
               <span class="th-m"><b>{x.name}</b><small>{t('≈ {km} km home', { km: num(x.rideKm) })} · {tn(x.around, '{n} new municipality around', '{n} new municipalities around')}</small><small data-th-times>{#if Number.isFinite(times[x.id])}{t('about {time} by train', { time: timeOf(times[x.id]) })}{' · '}{/if}{t('about {time} by bike', { time: timeOf(bikeMinutes(x.rideKm)) })}</small></span>
               <button type="button" class="btn sm" onclick={() => (open = x)} data-th-open>{t('Trains and the way home')}</button>
             </li>

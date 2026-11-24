@@ -562,14 +562,14 @@
                     <span class="tw num">{clock(e.at)}{#if e.km != null}<small>km {num(Math.round(e.km))}</small>{/if}</span>
                     <span class="tnum" class:solid={e.kind === 'start' || e.kind === 'end'}>{e.n ?? ''}</span>
                     <span class="tbx">
-                      {#if e.kind === 'start'}<b><Flag size={15} aria-hidden="true" />{t('Start')}</b>
-                      {:else if e.kind === 'end'}<b><Flag size={15} aria-hidden="true" />{t('Arrival')}</b>
-                      {:else if e.kind === 'pause'}<b><Coffee size={15} aria-hidden="true" />{t('Pause · {n} min', { n: num(e.min ?? 0) })}</b>
-                      {:else if e.kind === 'best'}<b data-tl-best><Trophy size={15} aria-hidden="true" />{t(e.pr === 1 ? 'Best time|timeline' : e.pr === 2 ? '2nd best time|timeline' : '3rd best time|timeline')}</b><span>{e.name} · {mmss(e.s)}</span>
-                      {:else if e.kind === 'climb'}<b data-tl-climb><Mountain size={15} aria-hidden="true" />{t('Climb|timeline')}</b><span>{[e.name, e.len ? `${num(e.len)} km` : '', e.grade ? `${num(e.grade)} %` : '', e.hm ? `${n0(e.hm)} Hm` : '', mmss(e.s)].filter(Boolean).join(' · ')}</span>
-                      {:else if e.kind === 'photo'}<b><ImageIc size={15} aria-hidden="true" />{t('Photo')}</b><a class="tlph" href={e.url} target="_blank" rel="noopener noreferrer" data-tl-photo><img src={e.url} alt={e.caption || t('Photo from Strava')} loading="lazy" referrerpolicy="no-referrer" /></a>{#if e.caption}<span>{e.caption}</span>{/if}
-                      {:else if e.kind === 'voice'}<b data-tl-voicenote><Mic size={15} aria-hidden="true" />{t('Voice note')}</b>{#if e.where || e.text}<span>{[e.where, e.text ? `«${e.text}»` : ''].filter(Boolean).join(' · ')}</span>{/if}<TlVoice voices={e.voices ?? []} />
-                      {:else}<b><NotebookPen size={15} aria-hidden="true" />{t('Note')}</b>{#if e.text}<span>«{e.text}»</span>{/if}{#if e.photo}<span class="ph" aria-label={t('Photo')}><ImageIc size={18} aria-hidden="true" /></span>{/if}{#if e.voices?.length}<TlVoice voices={e.voices} />{/if}{/if}
+                      {#if e.kind === 'start'}<b><Flag size={16} aria-hidden="true" />{t('Start')}</b>
+                      {:else if e.kind === 'end'}<b><Flag size={16} aria-hidden="true" />{t('Arrival')}</b>
+                      {:else if e.kind === 'pause'}<b><Coffee size={16} aria-hidden="true" />{t('Pause · {n} min', { n: num(e.min ?? 0) })}</b>
+                      {:else if e.kind === 'best'}<b data-tl-best><Trophy size={16} aria-hidden="true" />{t(e.pr === 1 ? 'Best time|timeline' : e.pr === 2 ? '2nd best time|timeline' : '3rd best time|timeline')}</b><span>{e.name} · {mmss(e.s)}</span>
+                      {:else if e.kind === 'climb'}<b data-tl-climb><Mountain size={16} aria-hidden="true" />{t('Climb|timeline')}</b><span>{[e.name, e.len ? `${num(e.len)} km` : '', e.grade ? `${num(e.grade)} %` : '', e.hm ? `${n0(e.hm)} Hm` : '', mmss(e.s)].filter(Boolean).join(' · ')}</span>
+                      {:else if e.kind === 'photo'}<b><ImageIc size={16} aria-hidden="true" />{t('Photo')}</b><a class="tlph" href={e.url} target="_blank" rel="noopener noreferrer" data-tl-photo><img src={e.url} alt={e.caption || t('Photo from Strava')} loading="lazy" referrerpolicy="no-referrer" /></a>{#if e.caption}<span>{e.caption}</span>{/if}
+                      {:else if e.kind === 'voice'}<b data-tl-voicenote><Mic size={16} aria-hidden="true" />{t('Voice note')}</b>{#if e.where || e.text}<span>{[e.where, e.text ? `«${e.text}»` : ''].filter(Boolean).join(' · ')}</span>{/if}<TlVoice voices={e.voices ?? []} />
+                      {:else}<b><NotebookPen size={16} aria-hidden="true" />{t('Note')}</b>{#if e.text}<span>«{e.text}»</span>{/if}{#if e.photo}<span class="ph" aria-label={t('Photo')}><ImageIc size={20} aria-hidden="true" /></span>{/if}{#if e.voices?.length}<TlVoice voices={e.voices} />{/if}{/if}
                     </span>
                   </li>
                 {/each}
@@ -583,7 +583,7 @@
             {#if dayNotes.length}
               <ul class="nl">
                 {#each dayNotes as n, i (i)}
-                  <li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={18} /></span><span class="rv-m"><span class="rv-t">«{n.text}»</span><span class="rv-s num">{[n.at ? clock(n.at) : '', trip.days > 1 && n.day != null ? t('Day {n}', { n: n.day + 1 }) : '', n.km != null ? `km ${num(Math.round(n.km))}` : '', n.after ? t('after the trip') : ''].filter(Boolean).join(' · ')}</span></span></li>
+                  <li class="rv-row"><span class="rv-ic" aria-hidden="true"><NotebookPen size={20} /></span><span class="rv-m"><span class="rv-t">«{n.text}»</span><span class="rv-s num">{[n.at ? clock(n.at) : '', trip.days > 1 && n.day != null ? t('Day {n}', { n: n.day + 1 }) : '', n.km != null ? `km ${num(Math.round(n.km))}` : '', n.after ? t('after the trip') : ''].filter(Boolean).join(' · ')}</span></span></li>
                 {/each}
               </ul>
             {:else}
@@ -591,8 +591,8 @@
             {/if}
           {/snippet}
           {#if trip.days > 1 && day == null}
-            <details class="fold" data-fold="timeline"><summary><span><b>{t('Timeline')}</b><small>{tlAll.length ? tn(tlAll.length, '{n} entry over the days · choose a day on top for its entries', '{n} entries over the days · choose a day on top for its entries') : t('nothing recorded')}</small></span><ChevronDown size={18} aria-hidden="true" /></summary><div class="fb">{@render tlBody()}</div></details>
-            <details class="fold" data-fold="notes"><summary><span><b>{t('Notes')}</b><small>{tn(noteList.length, '{n} note with time and place', '{n} notes with time and place')}</small></span><ChevronDown size={18} aria-hidden="true" /></summary><div class="fb">{@render notesBody()}</div></details>
+            <details class="fold" data-fold="timeline"><summary><span><b>{t('Timeline')}</b><small>{tlAll.length ? tn(tlAll.length, '{n} entry over the days · choose a day on top for its entries', '{n} entries over the days · choose a day on top for its entries') : t('nothing recorded')}</small></span><ChevronDown size={20} aria-hidden="true" /></summary><div class="fb">{@render tlBody()}</div></details>
+            <details class="fold" data-fold="notes"><summary><span><b>{t('Notes')}</b><small>{tn(noteList.length, '{n} note with time and place', '{n} notes with time and place')}</small></span><ChevronDown size={20} aria-hidden="true" /></summary><div class="fb">{@render notesBody()}</div></details>
           {:else}
             <section class="rv-sec" aria-labelledby="tl-h" data-timeline>
               <div class="rv-h"><div><h2 id="tl-h">{t('Timeline')}</h2><p class="rv-sub">{day != null ? tn(tl.length, 'Day {day} · {n} entry', 'Day {day} · {n} entries', { day: day + 1 }) : t('Notes and pauses where they happened')}</p></div></div>
@@ -699,7 +699,7 @@
           <section class="rv-sec" aria-labelledby="fd-h" data-food>
             <div class="rv-h"><div><h2 id="fd-h">{t('Food and drink')}</h2><p class="rv-sub">{t('your answer in the debrief')}</p></div></div>
             {#if d.amount}
-              <p class="rv-box rv-row one"><span class="rv-ic" aria-hidden="true"><Utensils size={18} /></span><span class="rv-m"><span class="rv-t">{t('Amount of food and drink')}</span></span><span class="rv-v">{choiceName('amount', d.amount, t)}</span></p>
+              <p class="rv-box rv-row one"><span class="rv-ic" aria-hidden="true"><Utensils size={20} /></span><span class="rv-m"><span class="rv-t">{t('Amount of food and drink')}</span></span><span class="rv-v">{choiceName('amount', d.amount, t)}</span></p>
             {:else}
               <p class="quiet">{t('No answer on food and drink.')}</p>
             {/if}
@@ -789,7 +789,7 @@
               <div class="rv-h"><div><h2 id="wr-h">{t('Wear|parts')}</h2><p class="rv-sub">{t('{bike} · added with this trip', { bike: bike?.name ?? '' })}</p></div><a class="rv-more" href="#/bikes?tab=care">{t('Bike care')}<ChevronRight size={16} aria-hidden="true" /></a></div>
               <ul class="rv-box">
                 {#each wear as x (x.key)}
-                  <li class="rv-row" data-wear-part={x.key}><span class="rv-ic" aria-hidden="true"><Gauge size={18} /></span><span class="rv-m"><span class="rv-t">{t(WEAR[x.key])}</span>{#if x.nowKm != null}<span class="rv-s">{t('now {km} km', { km: num(x.nowKm) })}</span>{/if}</span><span class="rv-v num">{x.addKm != null ? `+${num(x.addKm)} km` : `+${num(x.addHm)} Hm`}</span></li>
+                  <li class="rv-row" data-wear-part={x.key}><span class="rv-ic" aria-hidden="true"><Gauge size={20} /></span><span class="rv-m"><span class="rv-t">{t(WEAR[x.key])}</span>{#if x.nowKm != null}<span class="rv-s">{t('now {km} km', { km: num(x.nowKm) })}</span>{/if}</span><span class="rv-v num">{x.addKm != null ? `+${num(x.addKm)} km` : `+${num(x.addHm)} Hm`}</span></li>
                 {/each}
               </ul>
               <p class="rv-note"><Info size={16} aria-hidden="true" /><span>{t('Counts the km and climbing of this trip to the parts of the bike. You record a change in bike care.')}</span></p>

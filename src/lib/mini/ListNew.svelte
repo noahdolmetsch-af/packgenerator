@@ -76,9 +76,9 @@
   <section class="card ln-box" aria-labelledby="ln-places-h">
     <h2 id="ln-places-h">{t('Places|seats')}</h2>
     <div class="ln-places">
-      <button type="button" class="ln-step" aria-label={t('One place less')} onclick={() => step(-1)} disabled={places <= PLACES_MIN}><Minus size={18} aria-hidden="true" /></button>
+      <button type="button" class="ln-step" aria-label={t('One place less')} onclick={() => step(-1)} disabled={places <= PLACES_MIN}><Minus size={20} aria-hidden="true" /></button>
       <label><span class="sr">{t('Places|seats')}</span><input type="number" inputmode="numeric" min={PLACES_MIN} max={PLACES_MAX} bind:value={places} data-ln-places /></label>
-      <button type="button" class="ln-step" aria-label={t('One place more')} onclick={() => step(1)} disabled={places >= PLACES_MAX}><Plus size={18} aria-hidden="true" /></button>
+      <button type="button" class="ln-step" aria-label={t('One place more')} onclick={() => step(1)} disabled={places >= PLACES_MAX}><Plus size={20} aria-hidden="true" /></button>
     </div>
     <p class="ln-help">{t('Whoever signs up after the last place is on the waiting list. When someone signs off, the first on the waiting list moves up by itself.')}</p>
   </section>
@@ -93,7 +93,7 @@
     <p class="ln-help"><Lock size={14} aria-hidden="true" /> {t('Only you see the names. They are locked on the other person’s device; the server only counts the places and deletes everything after these days.')}</p>
   </section>
   {#if formErr}<p class="ln-err" role="alert" data-ln-err>{formErr}</p>{/if}
-  <div class="ln-acts"><button type="submit" class="btn hi" disabled={making} data-ln-make><Share2 size={18} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
+  <div class="ln-acts"><button type="submit" class="btn hi" disabled={making} data-ln-make><Share2 size={20} aria-hidden="true" />{t('Make the link')}</button><a class="btn btn-link" href="#/me/mini">{t('Cancel')}</a></div>
 </form>
 
 <style>

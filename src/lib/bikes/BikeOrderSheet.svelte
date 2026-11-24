@@ -37,7 +37,7 @@
       <h2 id="bo-h">{t('Standard bike and order')}</h2>
       <p class="vd-sub">{t('This is how your bikes stand everywhere in the app.')}</p>
     </div>
-    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
+    <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={20} aria-hidden="true" /></button>
   </div>
   <ol class="vd-panel bo-list">
     {#each list as b, i (b.id)}
@@ -45,7 +45,7 @@
         <span class="bo-n num">{i + 1}</span>
         <span class="bo-name">{b.name}</span>
         {#if i === 0}
-          <span class="sv-pill"><Star size={13} class="sv-star" aria-hidden="true" />{t('Standard')}</span>
+          <span class="sv-pill"><Star size={14} class="sv-star" aria-hidden="true" />{t('Standard')}</span>
         {:else}
           <button type="button" class="btn sm bo-mk" onclick={() => top(b.id)}>{t('Make standard')}</button>
         {/if}
@@ -58,12 +58,12 @@
   </ol>
   <h3 class="bo-h3" id="bo-mode">{t('A new trip brings')}</h3>
   <div class="bo-seg" role="group" aria-labelledby="bo-mode">
-    <button type="button" aria-pressed={mode === 'standard'} onclick={() => (mode = 'standard')}>{#if mode === 'standard'}<Check size={15} aria-hidden="true" />{/if}{t('The standard bike')}</button>
-    <button type="button" aria-pressed={mode === 'last'} onclick={() => (mode = 'last')}>{#if mode === 'last'}<Check size={15} aria-hidden="true" />{/if}{t('The one ridden last')}</button>
+    <button type="button" aria-pressed={mode === 'standard'} onclick={() => (mode = 'standard')}>{#if mode === 'standard'}<Check size={16} aria-hidden="true" />{/if}{t('The standard bike')}</button>
+    <button type="button" aria-pressed={mode === 'last'} onclick={() => (mode = 'last')}>{#if mode === 'last'}<Check size={16} aria-hidden="true" />{/if}{t('The one ridden last')}</button>
   </div>
   <div class="vd-foot">
     <button type="button" class="btn" onclick={() => dialog.close()}>{t('Cancel')}</button>
-    <button type="button" class="btn hi" onclick={save}><Check size={17} aria-hidden="true" />{t('Save')}</button>
+    <button type="button" class="btn hi" onclick={save}><Check size={16} aria-hidden="true" />{t('Save')}</button>
   </div>
 </dialog>
 
