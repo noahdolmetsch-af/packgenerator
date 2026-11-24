@@ -5,13 +5,17 @@ import { SOSIEHT, SOSIEHT_AREAS, SAMPLE_TRIP_ID } from '../src/lib/firststart/so
 
 describe('So sieht\'s aus', () => {
   it('has the four main pages, each with a page to go back to and German texts', () => {
-    expect(SOSIEHT_AREAS).toEqual(['trips', 'pack', 'gear', 'bikes']);
+    expect(SOSIEHT_AREAS).toEqual(['trips', 'pack', 'gear', 'bikes', 'week']);
     for (const a of SOSIEHT_AREAS) {
       const c = SOSIEHT[a];
       expect(c.hash, a).toMatch(/^#\//);
       for (const k of [c.title, c.sub]) expect(DE[k] ?? DE[k.replace(/\|[a-z]+$/, '')], k).toBeTruthy();
     }
     for (const k of ['How it looks', 'See a sample']) expect(DE[k], k).toBeTruthy();
+  });
+  it('the example week brings the interest «Active and everyday», the others the night out', () => {
+    expect(SOSIEHT.week.interests).toEqual(['active']);
+    expect(SOSIEHT_AREAS.filter((a) => !SOSIEHT[a].interests)).toEqual(['trips', 'pack', 'gear', 'bikes']);
   });
   it('only Pack opens the example trip, and it is the trip of the first start', () => {
     expect(SOSIEHT_AREAS.filter((a) => SOSIEHT[a].trip)).toEqual(['pack']);

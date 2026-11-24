@@ -9,6 +9,8 @@ export const SOSIEHT = {
   pack: { title: 'Jura loop (example)', sub: 'The packing list, bag by bag', hash: '#/pack', trip: true },
   gear: { title: 'Rain jacket|play', sub: 'Every item with weight and bag', hash: '#/gear', trip: false },
   bikes: { title: 'Gravel bike (example)', sub: 'With bags, km and care', hash: '#/bikes', trip: false },
+  // «Example week» (Noah 23.11.2026 «1-5a»): a week of made-up ticks, from the interest «Active and everyday»
+  week: { title: 'Example week', sub: 'Ticks of the last six days', hash: '#/day', trip: false, interests: ['active'] },
 };
 export const SOSIEHT_AREAS = Object.keys(SOSIEHT);
 /** The example trip of the first start (its id). */
