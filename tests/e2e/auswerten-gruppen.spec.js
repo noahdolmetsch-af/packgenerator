@@ -24,12 +24,13 @@ test('AG-1 Auswerten has five tabs by question, the other pages are chips under 
   await expect(chips.locator('a[data-sub="start"]')).toHaveAttribute('aria-current', 'page');
   await page.screenshot({ path: info.outputPath('ag-ueberblick.png') });
   // every old page opens at its old address and lights its chip (and the tab with it)
-  for (const [hash, sub] of [['#/auswerten/fragen', 'fragen'], ['#/flow/form', 'form'], ['#/me/weight', 'weight'], ['#/me/insights', 'insights'], ['#/trips/rides', 'rides'], ['#/heatmap', 'heatmap'], ['#/neuland', 'neuland'], ['#/flow/gipfelbuch', 'gipfel'], ['#/jahr', 'year'], ['#/gelernt', 'learned'], ['#/me/abfragen', 'history'], ['#/me/wohl', 'wohl'], ['#/flow/ideen', 'ideen']]) {
+  for (const [hash, sub] of [['#/auswerten/fragen', 'fragen'], ['#/flow/form', 'form'], ['#/me/weight', 'weight'], ['#/me/insights', 'insights'], ['#/trips/rides', 'rides'], ['#/heatmap', 'heatmap'], ['#/neuland', 'neuland'], ['#/flow/gipfelbuch', 'gipfel'], ['#/jahr', 'year'], ['#/gelernt', 'learned'], ['#/flow/milestones', 'milestones'], ['#/flow/challenges', 'challenges'], ['#/me/abfragen', 'history'], ['#/me/wohl', 'wohl'], ['#/flow/ideen', 'ideen']]) {
     await page.goto(`./${hash}`);
     await expect(chips.locator(`a[data-sub="${sub}"]`), hash).toHaveAttribute('aria-current', 'page');
   }
   await page.goto('./#/trips/rides');
-  await expect(chips.locator('a')).toHaveCount(8); // Fahrten: Fahrten, Haken, Meilensteine, Heatmap, Neuland, Gipfelbuch, Jahr, Gelernt
+  await expect(chips.locator('a')).toHaveCount(9); // Fahrten: Fahrten, Haken, Gelernt, Meilensteine, Challenges, Heatmap, Neuland, Gipfelbuch, Jahr
+  await expect(chips.locator('a')).toHaveText([/./, /./, /Erkenntnisse/, /Meilensteine/, /Challenges/, /Heatmap/, /Neuland/, /Gipfel/, /Jahr/]);
   await noSideScroll(page);
   expect(errors).toEqual([]);
 });
