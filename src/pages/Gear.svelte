@@ -57,6 +57,7 @@
   import { localDay } from '../lib/localday.js';
   import { List, TrendingUp, Trophy, Star, PackageX, Package, Scale, Heart, SlidersHorizontal, Plus, ChevronRight, ChevronLeft, ChevronDown, Check, Search, Ellipsis, ExternalLink, Link2, Pencil } from '@lucide/svelte';
   import Empty from '../lib/ui/Empty.svelte';
+  import SoSiehts from '../lib/firststart/SoSiehts.svelte';
   import { t, tn, nameOf, locale } from '../lib/i18n.svelte.js';
   import { DOMAINS, countByDomain, domainName } from '../lib/domains.js';
   import Sum from '../lib/ui/Sum.svelte';
@@ -726,6 +727,7 @@
       <Empty icon={Package} title={t('No wishes yet')} text={t('Things you do not have yet go here. Put an item on the wishlist and you see what it costs and how much weight it saves.')} action={{ label: t('Add a wish'), onclick: () => addItem({ ownership: 'wishlist' }) }} />
     {:else}
       <Empty icon={Package} title={t('No gear yet')} text={t('Add your first item, or bring your list along with a backup.')} action={{ label: t('Add item'), onclick: () => addItem() }}>
+        <SoSiehts area="gear" />
         {t('Or bring your data along from a backup:')} <a href="#/me/data">{t('Me › Data and backup')}</a>.
       </Empty>
     {/if}
