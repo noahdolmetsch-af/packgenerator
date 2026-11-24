@@ -11,6 +11,7 @@
    * big dots: yours filled, the open ones near you as rings, the rest pale.
    */
   import { t } from '../i18n.svelte.js';
+  import { placeLabels } from '../dotlabels.js';
 
   let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false, span = 0.62, ratio = 1.15, labelSize = 3.4, dotLabels = false, selId = null } = $props();
 
@@ -73,31 +74,8 @@
   const dotNames = $derived.by(() => {
     if (!dotLabels) return [];
     const fs = unit * labelSize;
-    const bx0 = box[0] * k * S;
-    const bx1 = box[2] * k * S;
-    const by0 = -box[3] * S;
-    const by1 = -box[1] * S;
-    const inside = (b) => b.x0 >= bx0 && b.x1 <= bx1 && b.y0 >= by0 && b.y1 <= by1;
-    const tw = (n) => n.length * fs * 0.56;
-    const named = dots.filter((d) => d.name && (d.st === 'year' || d.st === 'old'));
-    const boxes = dots.map((d) => ({ x0: d.xy[0] - radius(d), x1: d.xy[0] + radius(d), y0: d.xy[1] - radius(d), y1: d.xy[1] + radius(d) }));
-    const hit = (a, b) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
-    const out = [];
-    for (const d of named) {
-      const r = radius(d);
-      const w = tw(d.name);
-      const [x, y] = d.xy;
-      const opts = [
-        { x: x + r + fs * 0.3, y, anchor: 'start', b: { x0: x + r, x1: x + r + fs * 0.3 + w, y0: y - fs / 2, y1: y + fs / 2 } },
-        { x: x - r - fs * 0.3, y, anchor: 'end', b: { x0: x - r - fs * 0.3 - w, x1: x - r, y0: y - fs / 2, y1: y + fs / 2 } },
-        { x, y: y + r + fs * 0.75, anchor: 'middle', b: { x0: x - w / 2, x1: x + w / 2, y0: y + r, y1: y + r + fs * 1.3 } },
-        { x, y: y - r - fs * 0.75, anchor: 'middle', b: { x0: x - w / 2, x1: x + w / 2, y0: y - r - fs * 1.3, y1: y - r } },
-      ];
-      const free = opts.find((o) => inside(o.b) && !boxes.some((b) => b !== boxes[dots.indexOf(d)] && hit(o.b, b)) && !out.some((l) => hit(o.b, l.b)));
-      const o = free ?? opts[0];
-      out.push({ id: d.id, name: d.name, x: o.x, y: o.y, anchor: o.anchor, b: o.b, fs });
-    }
-    return out;
+    const all = dots.map((d) => ({ id: d.id, x: d.xy[0], y: d.xy[1], r: radius(d), name: d.name && (d.st === 'year' || d.st === 'old') ? d.name : '' }));
+    return placeLabels(all, fs, { x0: box[0] * k * S, x1: box[2] * k * S, y0: -box[3] * S, y1: -box[1] * S }).map((l) => ({ ...l, fs }));
   });
   const routes = $derived(lines.map((l) => l.map(([lat, lon]) => xy(lon, lat).join(',')).join(' ')));
 

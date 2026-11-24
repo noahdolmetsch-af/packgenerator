@@ -15,6 +15,7 @@
   import PlaceSheet from '../../lib/flow/PlaceSheet.svelte';
   import HomePlaceSheet from '../../lib/ich/HomePlaceSheet.svelte';
   import NeulandMap from '../../lib/neuland/NeulandMap.svelte';
+  import GipfelTiles from '../../lib/flow/GipfelTiles.svelte';
   import { loadBase } from '../../lib/neuland/load.js';
   import { db } from '../../lib/db.js';
   import { GB_KEY, bookOf, addPlace } from '../../lib/gipfelbuch.js';
@@ -45,6 +46,17 @@
 
   let filter = $state('all');
   // «Um dich» (Noah 24.11.2026 «1-5a»): with a home place the map starts on its surroundings
+  let tilesFailed = $state(false);
+  let online = $state(typeof navigator === 'undefined' ? true : navigator.onLine);
+  $effect(() => {
+    const up = () => (online = navigator.onLine);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', up);
+    return () => {
+      window.removeEventListener('online', up);
+      window.removeEventListener('offline', up);
+    };
+  });
   let viewSel = $state(null);
   const view = $derived(viewSel ?? (home ? 'near' : 'ch'));
   const views = $derived([...(home ? [{ key: 'near', name: t('Around you') }] : []), { key: 'ch', name: t('Switzerland') }, { key: 'alps', name: t('Alps') }]);
@@ -158,7 +170,11 @@
     {:else}
       <div class="lay">
         <div class="mapbox">
+          {#if view === 'near' && home && online && !tilesFailed}
+            <GipfelTiles center={{ lat: Number(home.lat), lon: Number(home.lon) }} {span} {ratio} {points} selId={sel} title={t('Summit map')} onpick={(id) => (sel = id)} onfail={() => (tilesFailed = true)} />
+          {:else}
           <NeulandMap {view} {points} {bg} big dotLabels={view === 'near'} {span} {ratio} labelSize={ratio > 1 ? 2.1 : 3.4} selId={sel} center={home ? { lat: Number(home.lat), lon: Number(home.lon) } : null} title={t('Summit map')} onpick={(id) => (sel = id)} />
+          {/if}
           <div class="vsw" data-gk-view><Seg small full={false} label={t('Map section')} value={view} onchange={(v) => (viewSel = v)} options={views} /></div>
           <p class="legend" data-gk-legend>
             <span class="mk"><span class="k have" aria-hidden="true"></span>{t('you have it')}</span>
