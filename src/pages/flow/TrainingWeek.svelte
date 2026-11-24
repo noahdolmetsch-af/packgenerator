@@ -236,15 +236,30 @@
   const wpQ = liveQuery(async () => (await db.settings.get(WEEKPLAN_KEY))?.value ?? null);
   const wlQ = liveQuery(async () => (await db.settings.get(WEEKLOG_KEY))?.value ?? null);
   // only this week and next week carry suggestions, and only once a weekly plan was saved
-  const suggested = $derived.by(() => {
-    if ($wpQ == null || monday < mondayOf(today) || monday > shiftDay(mondayOf(today), 7)) return [];
+  const wpWeek = $derived.by(() => {
+    if ($wpQ == null || monday < mondayOf(today) || monday > shiftDay(mondayOf(today), 7)) return null;
     const sum = isSummer(monday);
     const cfgs = weekplanOf($wpQ);
     const log = weekLog(logOf($wlQ), monday);
     const cfg = modeCfg(sum ? cfgs.summer : cfgs.winter, sum, log.mode);
-    return planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plannerSessions($planQ, teamSessions(spPrefsOf($spQ))) })
-      .units.filter((u) => u.type !== 'med' && u.type !== 'stretch' && !log.released.includes(u.id))
+    const wk = planWeek(cfg, { monday, pins: log.pins, ski: !!log.mode.ski, rain: !!log.mode.rain, sessions: plannerSessions($planQ, teamSessions(spPrefsOf($spQ))) });
+    return { wk, log, cfg };
+  });
+  const suggested = $derived.by(() => {
+    if (!wpWeek) return [];
+    const { wk, log } = wpWeek;
+    return wk.units.filter((u) => u.type !== 'med' && u.type !== 'stretch' && !log.released.includes(u.id))
       .map((u) => ({ key: u.id, day: shiftDay(monday, u.d), title: t(UNIT_NAME[u.type] ?? 'Session'), time: u.t, mins: u.mins, done: !!log.done[u.id] }));
+  });
+  // Noah 23.11.2026 «4a»: «planned 19:20 of 15 h» counts everything the week holds: the days by hand and from TrainingPeaks, the suggestions of the
+  // weekly plan and the team dates; the goal is the one of the weekly plan (its own goal in a week with TrainingPeaks or team dates)
+  const weekAll = $derived.by(() => {
+    if (!wpWeek) return { mins: nums.planned, goalMins: goal?.hours ? goal.hours * 60 : 0 };
+    const { wk, cfg } = wpWeek;
+    const team = (wk.team?.dates ?? []).reduce((a, x) => a + x.mins, 0);
+    const outside = (wk.tp ?? []).reduce((a, x) => a + x.mins, 0) + team;
+    const own = suggested.reduce((a, x) => a + x.mins, 0);
+    return { mins: nums.planned + own + team, goalMins: (outside > 0 ? cfg.tpHours || cfg.hours : cfg.hours) * 60 };
   });
   // V4b2 «Lighter» / «Harder» / «Rainy week» / «Ski tour week»: the kind of the shown week (this week and next), with Undo
   const weekMode = $derived(weekLog(logOf($wlQ), monday).mode);
@@ -431,7 +446,7 @@
     <Sec id="plan-h" title={t('My week|plan')} sub={t('Tap the free slot of a day to plan a session. Solid = yours, dashed = suggestion, green = done.')} edit={{ href: '#/flow/wochenplan', label: t('Weekly plan') }} more={{ href: '#/flow/plans', label: t('Training plans') }}>
       <div class="card plan" data-section="week-plan">
         <div class="nav">
-          <span class="rg num" data-week-range>{goal?.hours ? t('{range} · planned {a} of {b} h', { range, a: hours(nums.planned), b: hours(goal.hours * 60) }) : t('{range} · planned {a} h', { range, a: hours(nums.planned) })}</span>
+          <span class="rg num" data-week-range>{weekAll.goalMins ? t('{range} · planned {a} of {b} h', { range, a: hours(weekAll.mins), b: hours(weekAll.goalMins) }) : t('{range} · planned {a} h', { range, a: hours(weekAll.mins) })}</span>
           <button type="button" class="ib" aria-label={t('Week before')} onclick={() => ((monday = shiftDay(monday, -7)), (form = null))}><ChevronLeft size={18} aria-hidden="true" /></button>
           {#if monday !== mondayOf(today)}<button type="button" class="btn btn-link sm" onclick={() => ((monday = mondayOf(today)), (form = null))}>{t('This week|plan')}</button>{/if}
           <button type="button" class="ib" aria-label={t('Week after')} onclick={() => ((monday = shiftDay(monday, 7)), (form = null))}><ChevronRight size={18} aria-hidden="true" /></button>
