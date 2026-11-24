@@ -74,7 +74,7 @@ export default {
   'not at all|sat': 'gar nicht',
   'very|sat': 'sehr',
   'What was the best part of today?': 'Was war heute am coolsten?',
-  'Want to tell a bit more?': 'Magst du mehr dazu erzählen?',
+  'One sentence about the day': 'Ein Satz zum Tag',
   Speak: 'Sprechen',
   'Stop|speak': 'Stopp',
   'Goal from this morning: «{goal}»': 'Ziel von heute Morgen: «{goal}»',
