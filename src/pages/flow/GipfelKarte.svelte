@@ -67,7 +67,17 @@
   const rows = $derived(map.rows);
   const gaps = $derived(gapsList(rows));
   const picked = $derived(rows.find((r) => r.id === sel) ?? null);
-  const points = $derived(rows.map((r) => ({ id: r.id, lat: r.it.lat, lon: r.it.lon, st: r.st === 'have' ? 'year' : r.st === 'near' ? 'old' : '' })));
+  const points = $derived(rows.map((r) => ({ id: r.id, lat: r.it.lat, lon: r.it.lon, st: r.st === 'have' ? 'year' : r.st === 'near' ? 'old' : '', name: r.it.name })));
+  // a wide screen gets a wide map, a phone a nearly square one
+  const ratio = typeof matchMedia === 'function' && matchMedia('(min-width: 1000px)').matches ? 1.35 : 0.95;
+  // «Um dich» zooms to the open places near you: wide enough for the farthest of them, never tighter than 0.3° or wider than 0.8°
+  const span = $derived.by(() => {
+    if (!home) return 0.62;
+    const h = { lat: Number(home.lat), lon: Number(home.lon) };
+    const k = Math.cos((h.lat * Math.PI) / 180);
+    const far = Math.max(0, ...rows.filter((r) => r.st === 'near').map((r) => Math.max(Math.abs(r.it.lat - h.lat), (Math.abs(r.it.lon - h.lon) * k) / ratio)));
+    return Math.min(0.8, Math.max(0.3, far * 1.35));
+  });
   const km = (v) => (v == null ? '' : v < 10 ? `${num(Math.round(v * 10) / 10)} km` : `${num(Math.round(v))} km`);
   const kmNum = (v) => (v == null ? '' : v < 10 ? num(Math.round(v * 10) / 10) : num(Math.round(v)));
   const openNear = $derived(gaps.filter((g) => g.km != null).length);
@@ -148,7 +158,7 @@
     {:else}
       <div class="lay">
         <div class="mapbox">
-          <NeulandMap {view} {points} {bg} big center={home ? { lat: Number(home.lat), lon: Number(home.lon) } : null} title={t('Summit map')} onpick={(id) => (sel = id)} />
+          <NeulandMap {view} {points} {bg} big dotLabels={view === 'near'} {span} {ratio} selId={sel} center={home ? { lat: Number(home.lat), lon: Number(home.lon) } : null} title={t('Summit map')} onpick={(id) => (sel = id)} />
           <div class="vsw" data-gk-view><Seg small full={false} label={t('Map section')} value={view} onchange={(v) => (viewSel = v)} options={views} /></div>
           <p class="legend" data-gk-legend>
             <span class="mk"><span class="k have" aria-hidden="true"></span>{t('you have it')}</span>

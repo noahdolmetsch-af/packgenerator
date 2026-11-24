@@ -12,14 +12,18 @@
    */
   import { t } from '../i18n.svelte.js';
 
-  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false } = $props();
+  let { view = 'ch', areas = [], points = [], bg = {}, labels = [], lines = [], title = '', onpick = null, center = null, big = false, span = 0.62, ratio = 1.15, dotLabels = false, selId = null } = $props();
 
   const S = 100; // 1° = 100 units
   const BOX = { ch: [5.9, 45.78, 10.55, 47.84, 46.8], alps: [5.4, 43.85, 14.4, 48.0, 46.2], europe: [-11, 35, 33, 66, 50] };
 
   // the box: the view's own, widened for countries reached outside Europe
   const box = $derived.by(() => {
-    if (view === 'near' && center) return [center.lon - 1.0, center.lat - 0.62, center.lon + 1.0, center.lat + 0.62, center.lat];
+    if (view === 'near' && center) {
+      const kc = Math.cos((center.lat * Math.PI) / 180);
+      const hx = (span * ratio) / kc;
+      return [center.lon - hx, center.lat - span, center.lon + hx, center.lat + span, center.lat];
+    }
     const b = [...BOX[view === 'near' ? 'ch' : view]];
     if (view === 'europe') {
       for (const a of areas) {
@@ -63,7 +67,33 @@
   const bgCantons = $derived((bg.cantons ?? []).map((c) => ({ id: c.id, d: path(c.rings) })));
   const bgLakes = $derived((bg.lakes ?? []).filter((l) => l.rings).map((l) => ({ id: l.id, d: path(l.rings) })));
   const shapes = $derived(areas.filter((a) => a.rings && visible(a.bbox)).map((a) => ({ id: a.id, st: a.st, d: path(a.rings) })));
-  const dots = $derived(points.map((p) => ({ id: p.id, st: p.st, xy: xy(p.lon, p.lat) })));
+  const dots = $derived(points.map((p) => ({ id: p.id, st: p.st, name: p.name, xy: xy(p.lon, p.lat) })));
+  const radius = (p) => (big ? (p.st === 'year' ? unit * 2.4 : p.st === 'old' ? unit * 2.1 : unit * 1.1) : p.st ? unit * 1.1 : unit * 0.75);
+  // the names of your places and of the open ones near you stand beside their dots, where no other name or dot is
+  const dotNames = $derived.by(() => {
+    if (!dotLabels) return [];
+    const fs = unit * 3.4;
+    const tw = (n) => n.length * fs * 0.56;
+    const named = dots.filter((d) => d.name && (d.st === 'year' || d.st === 'old'));
+    const boxes = dots.map((d) => ({ x0: d.xy[0] - radius(d), x1: d.xy[0] + radius(d), y0: d.xy[1] - radius(d), y1: d.xy[1] + radius(d) }));
+    const hit = (a, b) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+    const out = [];
+    for (const d of named) {
+      const r = radius(d);
+      const w = tw(d.name);
+      const [x, y] = d.xy;
+      const opts = [
+        { x: x + r + fs * 0.3, y, anchor: 'start', b: { x0: x + r, x1: x + r + fs * 0.3 + w, y0: y - fs / 2, y1: y + fs / 2 } },
+        { x: x - r - fs * 0.3, y, anchor: 'end', b: { x0: x - r - fs * 0.3 - w, x1: x - r, y0: y - fs / 2, y1: y + fs / 2 } },
+        { x, y: y + r + fs * 0.75, anchor: 'middle', b: { x0: x - w / 2, x1: x + w / 2, y0: y + r, y1: y + r + fs * 1.3 } },
+        { x, y: y - r - fs * 0.75, anchor: 'middle', b: { x0: x - w / 2, x1: x + w / 2, y0: y - r - fs * 1.3, y1: y - r } },
+      ];
+      const free = opts.find((o) => !boxes.some((b) => b !== boxes[dots.indexOf(d)] && hit(o.b, b)) && !out.some((l) => hit(o.b, l.b)));
+      const o = free ?? opts[0];
+      out.push({ id: d.id, name: d.name, x: o.x, y: o.y, anchor: o.anchor, b: o.b, fs });
+    }
+    return out;
+  });
   const routes = $derived(lines.map((l) => l.map(([lat, lon]) => xy(lon, lat).join(',')).join(' ')));
 
   function pick(e) {
@@ -81,7 +111,10 @@
   {#each bgLakes as l (l.id)}<path class="lake" d={l.d} />{/each}
   {#each routes as r, i (i)}<polyline class="route" points={r} />{/each}
   {#each dots as p (p.id)}
-    <circle class="dot {p.st || 'no'}" data-id={p.id} cx={p.xy[0]} cy={p.xy[1]} r={big ? (p.st === 'year' ? unit * 2.4 : p.st === 'old' ? unit * 2.1 : unit * 1.1) : p.st ? unit * 1.1 : unit * 0.75} />
+    <circle class="dot {p.st || 'no'}" class:sel={selId === p.id} data-id={p.id} cx={p.xy[0]} cy={p.xy[1]} r={radius(p)} />
+  {/each}
+  {#each dotNames as l (l.id)}
+    <text class="dn" x={l.x} y={l.y} font-size={l.fs} text-anchor={l.anchor} dominant-baseline="central" data-id={l.id}>{l.name}</text>
   {/each}
   {#each labels as l (l.text)}
     {@const [x, y] = xy(l.lon, l.lat)}
@@ -167,6 +200,20 @@
   }
   .dot.year {
     fill: var(--accent);
+  }
+  .dot.sel {
+    stroke: var(--ink);
+    stroke-width: 3;
+  }
+  .dn {
+    fill: var(--ink);
+    font-family: var(--font-body);
+    font-weight: 600;
+    paint-order: stroke;
+    stroke: var(--paper);
+    stroke-width: 3.5px;
+    stroke-linejoin: round;
+    cursor: pointer;
   }
   .big .dot.old {
     fill: var(--paper);
