@@ -43,6 +43,8 @@ test('TrainingPeaks counts: the line in Mein Trainingsplan, units in the week, a
   const root = page.locator('[data-wochenplan]');
   await root.locator('[data-empty] button').first().click();
   await expect(root.locator('[data-wp-hvalue]')).toHaveText('15 Std');
+  // the card counts from what the page has loaded: wait for the number before reading it (a cold start shows it a moment later)
+  await expect(root.locator('[data-wp-progress]')).toContainText('0 von');
   const before = await root.locator('[data-wp-progress]').innerText();
   await seed(page, [
     ['settings', { key: 'training.plan', value: { sessions: [
@@ -52,9 +54,9 @@ test('TrainingPeaks counts: the line in Mein Trainingsplan, units in the week, a
   ]);
   await page.reload();
   await ready(page);
-  const after = await root.locator('[data-wp-progress]').innerText();
-  expect(after).not.toBe(before);
+  // after the reload the card first shows the week without TrainingPeaks and counts it once the plan is read: wait for it, never read it once
   await expect(root.locator('[data-wp-progress]')).toContainText('1 von');
+  await expect(root.locator('[data-wp-progress]')).not.toHaveText(before);
   await shot(page, info, 'wochenplan-tp-stern');
   // the numbers page
   await page.goto('./#/flow/trainingsplan');
