@@ -224,7 +224,7 @@
       {#if allTools.length}
         <p class="hint">{t('Tap what is ready. This is only for you, nothing is saved.')}</p>
         <div class="rb-tools" role="group" aria-label={t('Tools')}>
-          {#each allTools as x (x)}<button type="button" class="rb-tool" aria-pressed={!!ready[x]} onclick={() => (ready = { ...ready, [x]: !ready[x] })} data-run-tool>{ready[x] ? '✓ ' : ''}{t(x)}</button>{/each}
+          {#each allTools as x (x)}<button type="button" class="rb-tool" aria-pressed={!!ready[x]} onclick={() => (ready = { ...ready, [x]: !ready[x] })} data-run-tool>{#if ready[x]}<Check size={14} class="ic-in" aria-hidden="true" />{' '}{/if}{t(x)}</button>{/each}
         </div>
       {:else}<p class="hint">{t('No special tools needed.')}</p>{/if}
       <h2 class="rb-h">{t('2. Look at this first')}</h2>

@@ -1,4 +1,5 @@
 <script>
+  import { Check } from '@lucide/svelte';
   /**
    * Paket D «Mit Freunden»: one answer of a friend, as they wrote it, with their name and the day.
    * ask: the ask it answers (yours as stored, or the copy inside the answer).
@@ -41,7 +42,7 @@
     </ul>
   {/if}
   {#if a.done && note.topic !== 'pair'}
-    <ul class="fr-list">{#each Object.keys(a.done) as id (id)}<li>✓ {textOf(id)} <small>· {note.by}, {dayText(note.at)}</small></li>{/each}</ul>
+    <ul class="fr-list">{#each Object.keys(a.done) as id (id)}<li><Check size={14} class="ic-in" aria-hidden="true" /> {textOf(id)} <small>· {note.by}, {dayText(note.at)}</small></li>{/each}</ul>
   {/if}
   {#if a.take}
     <ul class="fr-list">{#each Object.keys(a.take) as id (id)}<li>{t('{name} takes «{task}»', { name: note.by, task: textOf(id) })}</li>{/each}</ul>

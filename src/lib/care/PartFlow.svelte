@@ -130,7 +130,7 @@
   {#if STEPS.length > 1}
     <ol class="steps" aria-label={t('Steps')}>
       {#each STEPS as s, i (s)}
-        <li class:done={STEPS.indexOf(step) > i} class:now={step === s}><i></i><span>{STEPS.indexOf(step) > i ? '✓ ' : ''}{t(stepNames[s])}</span></li>
+        <li class:done={STEPS.indexOf(step) > i} class:now={step === s}><i></i><span>{#if STEPS.indexOf(step) > i}<Check size={14} class="ic-in" aria-hidden="true" />{' '}{/if}{t(stepNames[s])}</span></li>
       {/each}
     </ol>
   {/if}

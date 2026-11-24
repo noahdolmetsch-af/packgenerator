@@ -126,7 +126,7 @@
     <section class="box res" aria-labelledby="pw-res" data-power-result>
       <h2 id="pw-res" class="title"><Zap size={20} aria-hidden="true" /> {t('Result')}</h2>
       {#if !devices.length}
-        <p class="none">{trip ? t('This trip has no devices to charge yet.') : t('No devices yet. Items in Electronics and Lights count as devices.')}</p>
+        <Empty size="klein" text={trip ? t('This trip has no devices to charge yet.') : t('No devices yet. Items in Electronics and Lights count as devices.')} action={{ label: t('Open Gear'), href: '#/gear' }} />
       {:else}
         <p class="big">{t('Your devices use about {wh} a day.', { wh: wh(budget.dailyWh) })} {budget.stretch > 1 ? tn(budget.stretch, 'The longest stretch without a socket is {n} day.', 'The longest stretch without a socket is {n} days.') : t('You can charge every night.')}</p>
         <div class="ans" class:ok={budget.banks.enough}>

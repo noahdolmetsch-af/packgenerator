@@ -46,7 +46,7 @@
   import DateWho from '../lib/mini/DateWho.svelte';
   import DateEdit from '../lib/mini/DateEdit.svelte';
   import { KIND_DATE, OPTS_MIN, OPTS_MAX, PICKS, dateQuestion, cleanOpts, optKey, tally, mergeAnswers, whoAnswered, busyDays, nextDays, summaryLines, icsOf } from '../lib/mini/termin.js';
-  import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks, ClipboardList, Bike, Utensils, Dices, Clock } from '@lucide/svelte';
+  import { CalendarCheck, Plus, ChevronRight, Share2, Copy, QrCode as QrIcon, RefreshCw, CalendarPlus, Route, MessageCircle, Pencil, Trash2, CircleStop, Lock, ListChecks, ClipboardList, Bike, Utensils, Dices, Clock, Check, X } from '@lucide/svelte';
 
   let { hash = '' } = $props();
   const sub = untrack(() => String(hash).replace(/^#\/me\/mini\/?/, '').split('?')[0]);
@@ -503,7 +503,7 @@
                 {#each merged as r (r.key)}
                   <tr data-mt-row>
                     <th scope="row">{r.name || t('Without a name')}{#if r.note}<small>{r.note}</small>{/if}</th>
-                    {#each q.opts as o (optKey(o))}{@const v = cell(r, o)}<td class={`p-${v || 'o'}`} title={pickLabel(v)}><span aria-hidden="true">{v === 'y' ? '✓' : v === 'm' ? '?' : v === 'n' ? '✗' : '–'}</span><span class="sr">{pickLabel(v)}</span></td>{/each}
+                    {#each q.opts as o (optKey(o))}{@const v = cell(r, o)}<td class={`p-${v || 'o'}`} title={pickLabel(v)}><span aria-hidden="true">{#if v === 'y'}<Check size={14} class="ic-in" aria-hidden="true" />{:else if v === 'm'}?{:else if v === 'n'}<X size={14} class="ic-in" aria-hidden="true" />{:else}–{/if}</span><span class="sr">{pickLabel(v)}</span></td>{/each}
                     <td class="mt-edit"><button type="button" class="btn sm" onclick={() => (editing = { row: r })} aria-label={t('Change the answer of {name}', { name: r.name || t('Without a name') })} data-mt-edit><Pencil size={14} aria-hidden="true" /></button></td>
                   </tr>
                 {/each}
@@ -512,7 +512,7 @@
                   {#each q.opts as o (optKey(o))}
                     {@const v = q.me?.picks?.[optKey(o)] ?? ''}
                     <td class={`p-${v || 'o'}`}>
-                      <button type="button" class="mt-cyc" onclick={() => setMine(optKey(o), v === '' ? 'y' : v === 'y' ? 'm' : v === 'm' ? 'n' : v)} aria-label={t('Your answer for {day}: {answer}', { day: optFmt(o), answer: pickLabel(v) })} data-mt-mine={optKey(o)}>{v === 'y' ? '✓' : v === 'm' ? '?' : v === 'n' ? '✗' : '+'}</button>
+                      <button type="button" class="mt-cyc" onclick={() => setMine(optKey(o), v === '' ? 'y' : v === 'y' ? 'm' : v === 'm' ? 'n' : v)} aria-label={t('Your answer for {day}: {answer}', { day: optFmt(o), answer: pickLabel(v) })} data-mt-mine={optKey(o)}>{#if v === 'y'}<Check size={14} class="ic-in" aria-hidden="true" />{:else if v === 'm'}?{:else if v === 'n'}<X size={14} class="ic-in" aria-hidden="true" />{:else}+{/if}</button>
                     </td>
                   {/each}
                 </tr>

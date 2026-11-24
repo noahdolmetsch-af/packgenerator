@@ -6,7 +6,7 @@
    * each checkpoint and the finish; the button shows up when you are near it, and by hand in the list.
    * rows: memberRows with .part; mine: my part; onpart(patch).
    */
-  import { CircleCheck, Tent, Flag } from '@lucide/svelte';
+  import { CircleCheck, Tent, Flag, FlagTriangleRight } from '@lucide/svelte';
   import { t, num } from '../i18n.svelte.js';
   import { statusToday, statusCount, cpNear, lastCp, zurichTime } from './event.js';
   import './event.css';
@@ -53,7 +53,7 @@
       {#each cps as c (c.i)}
         {@const who = rows.filter((r) => r.part?.cps?.[c.i])}
         <li data-event-cp={c.i}>
-          <span class="ev-ic" aria-hidden="true">{c.finish ? '🏁' : '🚩'}</span>
+          <span class="ev-ic" aria-hidden="true">{#if c.finish}<Flag size={16} />{:else}<FlagTriangleRight size={16} />{/if}</span>
           <span class="ev-txt"><b>{cpName(c)}</b><small>{t('km {km}', { km: num(c.km) })} · {who.length ? who.map((r) => `${r.name || t('Without a name')} ${time(r.part.cps[c.i])}`).join(', ') : t('nobody there yet')}</small></span>
           <button type="button" class="btn sm" aria-pressed={!!reached[c.i]} onclick={() => arrive(c)} disabled={busy || !canSend} data-event-cp-tap={c.i}>{reached[c.i] ? t('Arrived {time}', { time: time(reached[c.i]) }) : t('I am here')}</button>
         </li>

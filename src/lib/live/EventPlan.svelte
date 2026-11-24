@@ -72,7 +72,7 @@
       <ul class="ev-list">
         {#each p.cps as c, i (`${i}-${c.km}`)}
           <li data-event-plan-cp>
-            <span class="ev-ic" aria-hidden="true">🚩</span>
+            <span class="ev-ic" aria-hidden="true"><Flag size={16} /></span>
             <span class="ev-txt">
               {#if editing === i}
                 <label class="ev-fld"><span>{t('New name')}</span><input type="text" bind:value={editName} maxlength="40" onkeydown={(e) => e.key === 'Enter' && saveName(i)} /></label>

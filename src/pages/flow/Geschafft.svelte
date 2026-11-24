@@ -227,7 +227,7 @@
           {/if}
           <div class="days" data-geschafft-days>
             {#each week.days as d, i (d)}
-              <span class:today={d === entry.day}>{dayShort(d)}<b class:y={week.done[i]} aria-hidden="true">{#if week.done[i]}✓{/if}</b><span class="vh">{fmt(d, { weekday: 'long' })}: {week.done[i] ? t('trained|day') : t('nothing ticked')}</span></span>
+              <span class:today={d === entry.day}>{dayShort(d)}<b class:y={week.done[i]} aria-hidden="true">{#if week.done[i]}<Check size={14} class="ic-in" aria-hidden="true" />{/if}</b><span class="vh">{fmt(d, { weekday: 'long' })}: {week.done[i] ? t('trained|day') : t('nothing ticked')}</span></span>
             {/each}
           </div>
           <small>{tn(week.daysDone, '{n} day with training this week', '{n} days with training this week')}</small>

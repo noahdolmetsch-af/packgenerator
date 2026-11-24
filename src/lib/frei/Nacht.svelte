@@ -8,7 +8,7 @@
    *   4 after the night: the answer to your question, then on to a real trip.
    * Everything is a suggestion: steps can be skipped, every thing changed, sorted and deleted.
    */
-  import { Tent, Plus, Pencil, ChevronLeft, ChevronRight, Hand, RotateCcw, Route, ClipboardCheck } from '@lucide/svelte';
+  import { Tent, Plus, Pencil, ChevronLeft, ChevronRight, Hand, RotateCcw, Route, ClipboardCheck, Check } from '@lucide/svelte';
   import { liveQuery } from 'dexie';
   import Crumb from '../flow/kit/Crumb.svelte';
   import FreiSheet from './FreiSheet.svelte';
@@ -156,7 +156,7 @@
 
   <ol class="fzn-steps" aria-label={t('Steps')}>
     {#each NIGHT_STEPS as s, i (s.key)}
-      <li><button type="button" class="fz-chip" aria-pressed={night.step === i} aria-current={night.step === i ? 'step' : undefined} onclick={() => go(i)} data-night-step={s.key}>{i + 1}. {t(s.name)}{#if answered[i]}{' '}✓{/if}</button></li>
+      <li><button type="button" class="fz-chip" aria-pressed={night.step === i} aria-current={night.step === i ? 'step' : undefined} onclick={() => go(i)} data-night-step={s.key}>{i + 1}. {t(s.name)}{#if answered[i]}{' '}<Check size={14} class="ic-in" aria-hidden="true" />{/if}</button></li>
     {/each}
   </ol>
 
