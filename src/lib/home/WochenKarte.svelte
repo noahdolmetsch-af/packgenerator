@@ -201,6 +201,9 @@
     color: var(--ink-2);
     overflow-wrap: break-word;
   }
+  [data-wk-stand] span {
+    white-space: nowrap;
+  }
   .acts {
     display: flex;
     flex-wrap: wrap;
