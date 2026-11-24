@@ -1063,8 +1063,12 @@
     justify-content: flex-end;
     align-items: center;
     gap: var(--sp-1);
-    padding: 4px var(--gut) 0;
-    min-height: 48px;
+    padding: 0 var(--gut);
+    min-height: 44px;
+  }
+  /* «Navigation schlank» (Noah 24.11.2026 «was ja»): on a computer the page starts right under the two round icons, not 32 px lower (less empty room above the content) */
+  .shell.wide main:not(.calm) {
+    padding-top: var(--sp-1);
   }
   .tools {
     display: flex;
