@@ -392,6 +392,14 @@ describe('the old daily checks in the one history (never lost)', () => {
     expect(rows.filter((r) => r.day === d(-3))).toEqual([]); // nothing valid that day
   });
 
+  it('the free sentence of the evening page («Ein Satz zum Tag») is a text row of its day', () => {
+    const rows = fromChecks([{ day: d(-1), mood: 7, story: '  Ein ruhiger Abend am See.  ' }, { day: d(-2), story: '   ' }, { day: d(-3), story: 5 }], pool);
+    const satz = rows.filter((r) => r.qid === 'tc.satz');
+    expect(satz).toHaveLength(1);
+    expect(satz[0]).toMatchObject({ day: d(-1), kind: 'text', value: 'Ein ruhiger Abend am See.', from: 'check', label: { textDe: 'Ein Satz zum Tag' } });
+    expect(rows.some((r) => r.day === d(-2) || r.day === d(-3))).toBe(false); // empty or not a text: no row
+  });
+
   it('read together with the answers; an answer of the same day and question wins', () => {
     const answers = [answerRow(QUESTION['erholung.schlaf'], 8, { at: `${d(-1)}T07:10` }), answerRow(QUESTION['erholung.akku'], 6, { at: `${D0}T08:10` })];
     const all = mergeHistory(answers, checks, pool);
