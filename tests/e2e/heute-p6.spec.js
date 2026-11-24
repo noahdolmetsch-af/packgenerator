@@ -61,17 +61,19 @@ test.describe('P6 Heute erganzen', () => {
     await expect(card).toHaveCount(0);
   });
 
-  test('P6-3: after an update New on top as a whole row', async ({ page, context }, info) => {
+  // «Banner Was ist neu» (Noah 23.11.2026 «1-5a», changed on purpose): the whole row «New» is replaced by ONE line under the chips
+  test('P6-3: after an update ONE line New under the chips, the row New is gone', async ({ page, context }, info) => {
     const T = await openHome(page, context, info, { data: homeFixture() });
     await page.evaluate((k) => localStorage.setItem(k, '0.150.0'), SEEN_KEY);
     await page.reload();
     await closeCheck(page);
-    const row = page.locator('[data-news-row]');
-    await expect(row).toBeVisible();
-    const top = await row.evaluate((el) => el.getBoundingClientRect().top);
+    await expect(page.locator('[data-news-row]')).toHaveCount(0);
+    const banner = page.locator('[data-news-banner]');
+    await expect(banner).toBeVisible();
+    const top = await banner.evaluate((el) => el.getBoundingClientRect().top);
     const wall = await page.locator('.wall').evaluate((el) => el.getBoundingClientRect().top);
     expect(top).toBeLessThan(wall);
-    await row.getByRole('button', { name: T('Take away|tile') }).click();
-    await expect(row).toHaveCount(0);
+    await banner.getByRole('button', { name: T('Close the hint') }).click();
+    await expect(banner).toHaveCount(0);
   });
 });
