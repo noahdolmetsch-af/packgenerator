@@ -153,7 +153,7 @@
     {/if}
 
     <div class="atl-dock" data-race-atlas-dock>
-      <div class="atl-dock-t"><b>{tn(chosen.length, '{n} race chosen', '{n} races chosen')}</b><small><button type="button" class="atl-link" onclick={() => tickShown(true)} data-race-atlas-all>{t('Tick all shown')}</button> · <button type="button" class="atl-link" onclick={() => tickShown(false)} data-race-atlas-none>{t('Untick all')}</button></small></div>
+      <div class="atl-dock-t"><b>{tn(chosen.length, '{n} race chosen', '{n} races chosen')}</b><small><button type="button" class="atl-link" onclick={() => tickShown(true)} data-race-atlas-all>{t('Tick all shown')}</button> · <button type="button" class="atl-link" onclick={() => tickShown(false)} data-race-atlas-none>{t('Untick all races')}</button></small></div>
       <button type="button" class="btn hi" disabled={!chosen.length || busy} onclick={create} data-race-atlas-make>{tn(chosen.length, 'Create {n} race', 'Create {n} races')}</button>
     </div>
 

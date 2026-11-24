@@ -3,7 +3,7 @@ export default {
   // Rennliste-Reiter (C mit A, Noah 24.11.2026)
   'Views of the races': 'Ansichten der Rennen',
   'Race list': 'Rennliste',
-  'Done|races': 'Erledigt',
+  'Finished|races': 'Erledigt',
   'Races that are over stand here.': 'Hier stehen Rennen, die vorbei sind.',
   'Your race list': 'Deine Rennliste',
   'Choose the JSON file your own race list saves. Every race you tick becomes a race of the app, with its day and length. The file stays on this device.': 'Wähl die JSON-Datei, die deine eigene Rennliste speichert. Jedes Rennen, das du ankreuzt, wird ein Rennen der App, mit Tag und Länge. Die Datei bleibt auf diesem Gerät.',
@@ -22,7 +22,7 @@ export default {
   '{n} race chosen': '{n} Rennen gewählt',
   '{n} races chosen': '{n} Rennen gewählt',
   'Tick all shown': 'Alle gezeigten wählen',
-  'Untick all': 'Alle abwählen',
+  'Untick all races': 'Alle abwählen',
   '{n} race': '{n} Rennen',
   '{n} races': '{n} Rennen',
   'Season {year}: {n} races': 'Saison {year}: {n} Rennen',

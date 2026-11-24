@@ -101,7 +101,7 @@
 
     {#if $tripsQ !== undefined}
       <div class="rc-tabs">
-        <Seg label={t('Views of the races')} value={tab} options={[{ key: 'coming', name: t('Coming|races'), n: list.coming.length }, { key: 'list', name: t('Race list') }, { key: 'done', name: t('Done|races'), n: list.past.length }]} onchange={(k) => (tab = k)} />
+        <Seg label={t('Views of the races')} value={tab} options={[{ key: 'coming', name: t('Coming|races'), n: list.coming.length }, { key: 'list', name: t('Race list') }, { key: 'done', name: t('Finished|races'), n: list.past.length }]} onchange={(k) => (tab = k)} />
       </div>
       {#if tab === 'coming'}
         {#if !list.coming.length && !list.past.length}
@@ -114,7 +114,7 @@
       {/if}
       {#each [{ key: 'coming', rows: list.coming }, { key: 'done', rows: list.past }] as g (g.key)}
         {#if tab === g.key && g.rows.length}
-          <section class="rc-box" aria-label={t(g.key === 'coming' ? 'Coming|races' : 'Done|races')}>
+          <section class="rc-box" aria-label={t(g.key === 'coming' ? 'Coming|races' : 'Finished|races')}>
             <!-- Gesamttest 20.10.2026 C9: rows like the app's other lists (title, the date small, ›; the whole row is the link) -->
             <ul class="rowlist rc-races">
               {#each g.rows as tr (tr.id)}
