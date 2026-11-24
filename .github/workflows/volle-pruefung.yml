@@ -53,6 +53,7 @@ jobs:
       - run: npm run e2e -- --project=${{ matrix.project }} --shard=${{ matrix.shard }}/7
         env:
           E2E_SKIP_GESAMTTEST: '1' # its own job below
+          E2E_SKIP_AUSPROBIEREN: '1' # its own job below (24.11.2026, see «ausprobieren»)
       # Failed and flaky (passed only on the retry) tests by name, in the summary of the run
       - if: always()
         run: node scripts/test-summary.mjs pw-report.json "${{ matrix.project }} part ${{ matrix.shard }}" rot-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt wackel-e2e-${{ matrix.project }}-${{ matrix.shard }}.txt
@@ -117,8 +118,57 @@ jobs:
           path: test-results
           retention-days: 1
 
+  # 24.11.2026 (thread «Tests schneller machen», found for the Wackel thread): part 1 ran into its 45 minutes every night, on the phone
+  # and on the computer, and was cancelled before it wrote its list of red tests, so the night run could never become green.
+  # Cause: Playwright 1.65 cuts the parts only by number of tests, one block after the other in the order of the files, and
+  # «Ausprobieren» (tests/e2e/ausprobieren.spec.js: 85 tests, each taps 20 lines of What is new, 1 to 1.5 minutes each) lies in
+  # one piece in part 1: about an hour of work. Now these tests are cut out of the 7 parts (E2E_SKIP_AUSPROBIEREN) and run as
+  # their own 3 parts per project. No limit of a test was raised and no test was loosened: all 85 still tap their lines.
+  ausprobieren:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      options: --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [phone, desktop]
+        shard: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the whole history: scripts/news.mjs numbers versions by the order of merges
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright test tests/e2e/ausprobieren.spec.js --project=${{ matrix.project }} --shard=${{ matrix.shard }}/3
+        env:
+          E2E_SKIP_GESAMTTEST: '1'
+      - if: always()
+        run: node scripts/test-summary.mjs pw-report.json "ausprobieren ${{ matrix.project }} ${{ matrix.shard }}" rot-ausprobieren-${{ matrix.project }}-${{ matrix.shard }}.txt wackel-ausprobieren-${{ matrix.project }}-${{ matrix.shard }}.txt
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: rot-ausprobieren-${{ matrix.project }}-${{ matrix.shard }}
+          path: |
+            rot-ausprobieren-${{ matrix.project }}-${{ matrix.shard }}.txt
+            wackel-ausprobieren-${{ matrix.project }}-${{ matrix.shard }}.txt
+          retention-days: 2
+          if-no-files-found: ignore
+      - if: failure()
+        run: for f in test-results/*/error-context.md; do echo "::group::$f"; head -c 20000 "$f"; echo "::endgroup::"; done
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: voll-ausprobieren-${{ matrix.project }}-${{ matrix.shard }}
+          path: test-results
+          retention-days: 1
+
   report:
-    needs: [e2e-part, gesamttest]
+    needs: [e2e-part, gesamttest, ausprobieren]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -139,6 +189,7 @@ jobs:
             echo
             echo "- Browsertests: ${{ needs.e2e-part.result }}"
             echo "- Gesamttest: ${{ needs.gesamttest.result }}"
+            echo "- Ausprobieren: ${{ needs.ausprobieren.result }}"
             echo
             echo "Ganzer Lauf: $RUN"
           } > report.md
@@ -164,8 +215,8 @@ jobs:
           prev_sha=''
           [ -n "$prev" ] && prev_sha=$(gh run view "$prev" --json headSha --jq .headSha || true)
           echo "prev_sha=$prev_sha" >> "$GITHUB_OUTPUT"
-          # 18 jobs leave a list: 14 browser parts + 4 Gesamttest parts
-          node scripts/nacht-vergleich.mjs rot "${prev:+vorher/rot-liste.txt}" rot-liste.txt 18 > vergleich.md
+          # 24 jobs leave a list: 14 browser parts + 4 Gesamttest parts + 6 Ausprobieren parts
+          node scripts/nacht-vergleich.mjs rot "${prev:+vorher/rot-liste.txt}" rot-liste.txt 24 > vergleich.md
           cat vergleich.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v7
         if: always()
@@ -229,7 +280,7 @@ jobs:
       # since the last run, so the morning starts with the suspects and not with a search.
       # 21.11.2026: since the night before (not since the last GREEN run: that was 18 days back, «232 weitere»).
       - name: Name the suspects
-        if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success'
+        if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success' || needs.ausprobieren.result != 'success'
         env:
           PREV_SHA: ${{ steps.vergleich.outputs.prev_sha }}
         run: |
@@ -258,7 +309,7 @@ jobs:
           mv report-new.md report.md
           cat report.md >> "$GITHUB_STEP_SUMMARY"
       - name: Open or update the issue
-        if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success'
+        if: needs.e2e-part.result != 'success' || needs.gesamttest.result != 'success' || needs.ausprobieren.result != 'success'
         env:
           NEU: ${{ steps.vergleich.outputs.neu }}
           ERSTER: ${{ steps.vergleich.outputs.erster }}
@@ -282,7 +333,7 @@ jobs:
             gh issue create --title 'Volle Prüfung: ein Test ist rot' --label "$LABEL" --body-file body.md
           fi
       - name: Close the issue when all is fine again
-        if: needs.e2e-part.result == 'success' && needs.gesamttest.result == 'success'
+        if: needs.e2e-part.result == 'success' && needs.gesamttest.result == 'success' && needs.ausprobieren.result == 'success'
         run: |
           for num in $(gh issue list --label "$LABEL" --state open --json number --jq '.[].number'); do
             gh issue close "$num" --comment "Alles wieder grün.$(printf '\n\n')$(cat report.md)"
@@ -294,7 +345,7 @@ jobs:
       - name: Morning message
         if: always()
         env:
-          E2E: ${{ needs.e2e-part.result }}
+          E2E: ${{ needs.e2e-part.result == 'success' && needs.ausprobieren.result == 'success' && 'success' || 'failure' }} # browser parts and Ausprobieren together
           GESAMTTEST: ${{ needs.gesamttest.result }}
           ROT: ${{ steps.vergleich.outputs.rot }}
           NEU: ${{ steps.vergleich.outputs.neu }}
