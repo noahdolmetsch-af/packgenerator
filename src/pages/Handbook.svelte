@@ -20,7 +20,7 @@
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import '../lib/ich/ich.css';
   import { TOUR_NAMES, stepCount } from '../lib/tour.js';
-  import { askTour, startTour } from '../lib/tour/run.js';
+  import { askTour, startTour, startStaerken } from '../lib/tour/run.js';
   import { INTRO_KEY, showAll, hiddenCount } from '../lib/intro.js';
   import { putSetting } from '../lib/flowdb.js';
   import { Footprints } from '@lucide/svelte';
@@ -35,7 +35,7 @@
   const introQ = liveQuery(() => db.settings.get(INTRO_KEY));
   const introGone = $derived(hiddenCount($introQ?.value));
   const bringBack = () => putSetting(db, INTRO_KEY, showAll($introQ?.value));
-  const PLACE_TOURS = ['aktiv', 'touren', 'material', 'velos'];
+  const PLACE_TOURS = ['app', 'aktiv', 'touren', 'material', 'velos'];
   // Impeccable Runde 2: the search (title, text, how to switch on, steps, example; English and German)
   let q = $state('');
   const hayOf = (x) => {
@@ -63,11 +63,11 @@
     <div class="ich-h"><div><h2 id="hb-tour"><Footprints size={18} aria-hidden="true" /> {t('Tour|short')}</h2></div></div>
     <div class="card hb-tc">
       <div class="hb-tmain">
-        <span><b>{t(TOUR_NAMES.app)}</b><small>{t('{n} short steps, about 2 minutes', { n: stepCount('app') })}</small></span>
-        <button type="button" class="btn sm hi" onclick={() => askTour('app')}>{t('Start ›|tour')}</button>
+        <span><b>{t(TOUR_NAMES.staerken)}</b><small>{t('{n} questions about what the app can do, about 2 minutes', { n: stepCount('staerken') })}</small></span>
+        <button type="button" class="btn sm hi" onclick={startStaerken} data-tour-staerken>{t('Start ›|tour')}</button>
       </div>
       <p class="hb-tsmall">
-        {#each PLACE_TOURS as id, i (id)}{#if i}{' · '}{/if}<button type="button" class="lk" onclick={() => startTour(id)}>{t(TOUR_NAMES[id])}</button>{/each}
+        {#each PLACE_TOURS as id, i (id)}{#if i}{' · '}{/if}<button type="button" class="lk" onclick={() => (id === 'app' ? askTour(id) : startTour(id))}>{t(TOUR_NAMES[id])}</button>{/each}
       </p>
       {#if introGone}<p class="hb-tsmall"><button type="button" class="lk" onclick={bringBack}>{t('Show the introductions on top of the places again ({n})', { n: introGone })}</button></p>{/if}
     </div>
