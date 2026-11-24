@@ -4,7 +4,7 @@
 // Empty app plus the playground's made-up trip only, German UI, nothing leaves the preview.
 import { test, expect } from './clock.js';
 import DE from '../../src/lib/i18n/de/index.js';
-import { TOURS, stepCount } from '../../src/lib/tour.js';
+import { TOURS, TOUR_NAMES, stepCount } from '../../src/lib/tour.js';
 import { INTROS } from '../../src/lib/intro.js';
 import { openHelp } from './settle.js';
 
@@ -24,7 +24,8 @@ test('Tour of the app with own data: six steps, the end card, then gone', async 
   await page.goto('./');
   const line = page.locator('[data-tourline]');
   await expect(line).toContainText(`${T('New here?')} ${T('Tour, 2 minutes')}`); // «Starte hier» (Noah 23.11.2026 «1-5a», changed on purpose)
-  await line.getByRole('button', { name: T('Start ›|tour') }).click();
+  await page.goto('./#/me/handbook');
+  await page.locator('.hb-tsmall .lk', { hasText: T(TOUR_NAMES.app) }).click();
   const ask = page.getByRole('dialog', { name: T('Tour of the app') });
   await expect(ask).toContainText(T('{n} short steps, about 2 minutes', { n: 6 }));
   await ask.locator('[data-choice="own"]').click();
@@ -45,7 +46,8 @@ test('Tour of the app with own data: six steps, the end card, then gone', async 
 
 test('Tour with the example trip runs in the playground; Esc ends it', async ({ page }) => {
   await page.goto('./');
-  await page.locator('[data-tourline]').getByRole('button', { name: T('Start ›|tour') }).click();
+  await page.goto('./#/me/handbook');
+  await page.locator('.hb-tsmall .lk', { hasText: T(TOUR_NAMES.app) }).click();
   const started = page.waitForEvent('load');
   await page.getByRole('dialog', { name: T('Tour of the app') }).locator('[data-choice="play"]').click();
   await started;

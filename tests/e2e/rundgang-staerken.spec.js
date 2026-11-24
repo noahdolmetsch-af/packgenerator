@@ -60,3 +60,15 @@ test('Esc ends the tour and the next start begins again with the question', asyn
   await page.keyboard.press('Escape');
   await expect(page.locator('.tour')).toHaveCount(0);
 });
+
+// Noah 23.11.2026 «1-5a»: the line «New here? Tour, 2 minutes» on Starte hier (empty Heute) starts this main tour
+test('the tour line on Starte hier starts the Rundgang der Stärken', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('./');
+  await page.locator('[data-tourline]').getByRole('button', { name: T('Start ›|tour') }).click();
+  await expect(page.locator('#tour-h')).toHaveText(T(S[0].title));
+  await expect(page.locator('.tcard')).toContainText(T('Station {n} of {of}').replace('{n}', '1').replace('{of}', '4'));
+  await expect(page).toHaveURL(/#\/race\/race-sample/);
+  expect(errors).toEqual([]);
+});
