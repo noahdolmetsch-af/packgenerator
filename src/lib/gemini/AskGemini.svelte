@@ -206,6 +206,15 @@
     flex: 1;
     min-width: 0;
   }
+  /* Phone (Noah 24.11.2026 «bild neu mit impeccable»): a question is a sentence, so the field gets the whole row and the button sits under it. */
+  @media (max-width: 520px) {
+    .ag-row {
+      flex-direction: column;
+    }
+    .ag-row .btn {
+      justify-content: center;
+    }
+  }
   .ag-tools {
     display: flex;
     flex-wrap: wrap;
