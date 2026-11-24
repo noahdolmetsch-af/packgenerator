@@ -567,9 +567,9 @@
               <!-- Packvorschläge nach Wetter und Lieblingsteilen (Noah 24.11.2026 «1-5»): what the weather asks for in this bag and is not packed yet; a tap adds it (Undo), × stops suggesting it -->
               {#if grouping === 'bags' && !fixed && weatherBags[group.key]?.length}
                 <p class="wx-bag" data-wx-bag={group.key}>
-                  <CloudRain size={16} aria-hidden="true" /><span>{t('For the weather, still to pack here:')}</span>
+                  <span class="wx-t"><CloudRain size={16} aria-hidden="true" />{t('For the weather, still to pack here:')}</span>
                   {#each weatherBags[group.key] as w (w.id)}
-                    <span class="wx-pick"><button type="button" class="tp-link" data-wx-add={w.id} onclick={() => actions.weatherAdd(group.key, w.id)} aria-label={t('Add {name} for the weather', { name: nameOf(itemsById[w.id]) })}><Plus size={14} aria-hidden="true" />{nameOf(itemsById[w.id])}{#if w.favorite}{' '}<Star size={12} aria-hidden="true" />{/if}<small>{w.why}</small></button><button type="button" class="tp-link wx-x" data-wx-skip={w.id} onclick={() => actions.weatherSkip(w.slot)} aria-label={t('Do not suggest {name} again', { name: nameOf(itemsById[w.id]) })}><X size={14} aria-hidden="true" /></button></span>
+                    <span class="wx-pick"><button type="button" class="tp-link" data-wx-add={w.id} onclick={() => actions.weatherAdd(group.key, w.id)} aria-label={t('Add {name} for the weather', { name: nameOf(itemsById[w.id]) })}><Plus size={14} aria-hidden="true" />{nameOf(itemsById[w.id])}{#if w.favorite}{' '}<Star size={12} fill="currentColor" aria-hidden="true" />{/if}<small>{w.why}</small></button><button type="button" class="tp-link wx-x" data-wx-skip={w.id} onclick={() => actions.weatherSkip(w.slot)} aria-label={t('Do not suggest {name} again', { name: nameOf(itemsById[w.id]) })}><X size={14} aria-hidden="true" /></button></span>
                   {/each}
                 </p>
               {/if}
@@ -799,7 +799,7 @@
   .real-pack { margin: 0 0 4px 32px; }
   /* «Fürs Wetter noch in diese Tasche»: one calm line under the bag title; every tap target 44 px */
   .wx-bag { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; margin: 0 0 6px 32px; color: var(--ink-2); font-size: var(--fs-small); }
-  .wx-bag > span:first-of-type { flex: 1 0 100%; }
+  .wx-t { flex: 1 0 100%; display: inline-flex; align-items: center; gap: 6px; }
   .wx-pick { display: inline-flex; align-items: center; }
   .wx-pick .tp-link { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 6px; }
   .wx-pick small { color: var(--ink-3); }
