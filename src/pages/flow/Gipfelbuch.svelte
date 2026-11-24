@@ -235,7 +235,7 @@
     {#if colls.length || hiddenColls.length}
       <section class="gbc coll" aria-labelledby="gb-coll-h" data-gb-colls>
         <h2 id="gb-coll-h">{t('Collections')}</h2>
-        <p class="sub">{t('Lists to collect. The book only counts how many you have, there is no goal.')}</p>
+        <p class="sub">{t('Lists to collect. The book only counts how many you have, there is no goal.')} <a href="#/flow/gipfelbuch/karte" data-gb-map>{t('See them on the map')}</a></p>
         {#each colls as c (c.id)}
           <details class="cl" data-gb-coll={c.id}>
             <summary><b>{c.own ? c.name : t(c.name)}</b><small class="num">{t('{have} of {total}', { have: c.have, total: c.total })}</small><ChevronRight class="chev" size={18} aria-hidden="true" /></summary>
@@ -263,7 +263,7 @@
       </section>
     {/if}
 
-    {#if stars.length}<p class="sub foot">{tn(stars.length, '{n} star from the summit book, also in the trophy showcase', '{n} stars from the summit book, also in the trophy showcase')} · <a href="#/flow/trophies?area=gipfelbuch">{t('Trophy showcase')}</a></p>{/if}
+    {#if stars.length}<p class="sub foot">{tn(stars.length, '{n} star from the summit book, also in the trophy showcase', '{n} stars from the summit book, also in the trophy showcase')} · <a href="#/flow/trophies?area=gipfelbuch">{t('Trophy showcase')}</a> · <a href="#/flow/gipfelbuch/karte">{t('Map')}</a></p>{/if}
   {/if}
 </div>
 

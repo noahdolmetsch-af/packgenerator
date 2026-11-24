@@ -22,6 +22,7 @@
    *   #/flow/review      «Wochenrückblick» (W1–W6, Noah 15.10.2026 «1-5 a»), ?w=<Monday> (pages/flow/WeekReview.svelte)
    *   #/flow/bags        «Sporttasche» (mockup AK3): a packing list per sport (pages/flow/Bags.svelte)
    *   #/flow/challenges  «Challenges» (Noah 21.11.2026 «4a»): Draussen and own daily goals with «Tick off» (pages/flow/Challenges.svelte, lazy)
+   *   #/flow/gipfelbuch/karte  «Gipfel-Karte mit Lücken» (Noah 24.11.2026): the summits and passes on the map, the gaps near you, tours toward them (pages/flow/GipfelKarte.svelte, lazy)
    *   #/flow/gipfelbuch/<id>  «Eine Seite pro Gipfel» (Noah 24.11.2026): one place with its visits, photos and notes (pages/flow/GipfelOrt.svelte, lazy)
    *   #/flow/gipfelbuch  v0.165.0 «Gipfelbuch für alle»: passes, summits, trails and places of every sport (pages/flow/Gipfelbuch.svelte)
    *   #/flow/act/<id>    hobby pages 2: Meditation's own page (Meditation.svelte, B1); …/timer the
@@ -177,6 +178,9 @@
   {#await import('./flow/Challenges.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'trophies'}
   <Trophies {params} />
+{:else if route[0] === 'gipfelbuch' && route[1] === 'karte'}
+  <!-- «Gipfel-Karte mit Lücken» (Noah 24.11.2026): the map of summits and passes; loaded only when opened -->
+  {#await import('./flow/GipfelKarte.svelte') then m}<m.default />{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}
 {:else if route[0] === 'gipfelbuch' && route[1]}
   <!-- «Eine Seite pro Gipfel» (Noah 24.11.2026): one place of the summit book with its visits; loaded only when opened -->
   {#await import('./flow/GipfelOrt.svelte') then m}{#key route[1]}<m.default id={decodeURIComponent(route[1])} />{/key}{:catch}<p class="hint" role="alert">{t('This page could not load. Please check the connection and try again.')}</p>{/await}

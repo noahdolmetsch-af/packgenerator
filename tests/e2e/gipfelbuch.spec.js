@@ -222,3 +222,40 @@ test('Gipfelbuch: a pass found on a ride by name, a collection counts it, an own
   await expect(main.locator('[data-gb-colls] details', { hasText: 'Testliste' })).toHaveCount(1);
   expect(errors).toEqual([]);
 });
+
+// «Gipfel-Karte mit Lücken» (Noah 24.11.2026 «alle 1-5 zusammen», idea 2): #/flow/gipfelbuch/karte shows the summits and passes
+// as dots, the gaps near the home place with «Touren dorthin» from the tour suggestions, and «Ich war da» puts a place in the book.
+test('Gipfelbuch: the map with the gaps near home and a tour toward one', async ({ page, context }) => {
+  const errors = await open(page, context, '#/flow/gipfelbuch');
+  await expect(page.locator('main')).toBeVisible();
+  await put(page, { settings: [{ key: 'homePlace', value: { name: 'Testort Zürich', lat: 47.3779, lon: 8.5403 } }] });
+  await page.goto('./#/flow/gipfelbuch/karte');
+  const main = page.locator('main');
+  await expect(main.getByRole('heading', { level: 1 })).toHaveText(T('Map of summits and passes'));
+  await expect(main.locator('svg.nmap circle.dot').first()).toBeVisible();
+  await expect(main.locator('[data-gk-legend]')).toContainText(T('near you, not yet'));
+  await fits(page, 'map');
+
+  // the nearest gap from Zürich is the Üetliberg; a tour of the suggestions leads over it
+  const gaps = main.locator('[data-gk-gaps]');
+  const first = gaps.locator('[data-gk-row]').first();
+  await expect(first).toContainText('Üetliberg');
+  await first.locator('[data-gk-tours]').click();
+  await expect(gaps.locator('[data-gk-tourlist] a[href^="#/trips/vorschlaege/"]').first()).toBeVisible({ timeout: 20000 });
+
+  // «I was there»: into the book, and the dot is yours
+  await first.locator('[data-gk-there]').click();
+  const sheet = page.locator('[data-place-sheet]');
+  await expect(sheet.locator('[data-gb-name]')).toHaveValue('Üetliberg');
+  await sheet.locator('[data-gb-save]').click();
+  await expect(sheet).toBeHidden();
+  await expect(main.locator('.undo')).toContainText('Üetliberg');
+  await expect(gaps.locator('[data-gk-row]').filter({ hasText: 'Üetliberg' })).toHaveCount(0);
+
+  // a filter and the way back
+  await main.locator('[data-gk-chip="vier"]').click();
+  await expect(main.locator('svg.nmap')).toBeVisible();
+  await main.locator('a[href="#/flow/gipfelbuch"]').first().click();
+  await expect(page).toHaveURL(/#\/flow\/gipfelbuch$/);
+  expect(errors).toEqual([]);
+});
