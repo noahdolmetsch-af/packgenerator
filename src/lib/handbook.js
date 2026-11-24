@@ -524,6 +524,11 @@ const LISTED = {
     steps: ['In the debrief tap «Rate a place to sleep»: stars, note, the night.', 'Plan a trip nearby: Planen shows «Your places to sleep here».'],
     example: 'Example: a quiet campsite at the lake with 5 stars → it comes back on the next tour in the area.',
   },
+  'f.later': {
+    on: 'Nothing to switch on; the answers belong to the trip and are in the backup.',
+    steps: ['Open the debrief of a trip that is over and scroll to «Later, three questions each».', 'Answer the stage that is due; the others say on which day their questions come.', 'Come back after a week: the next three questions wait. «Change» edits an answer.'],
+    example: 'Example: after 1 day «left knee», after 1 month «the second bag was too heavy»: both are on the trip for the next one.',
+  },
   'f.postcard': {
     on: null,
     steps: ['In the debrief tap «Tour picture» and add a photo if you like; after a ride on the live map it comes under «Your ride».', '«Share» opens the share sheet; on a computer «Save» downloads the picture.'],

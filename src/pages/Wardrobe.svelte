@@ -19,7 +19,7 @@
   import { db } from '../lib/db.js';
   import { wardrobe, USES, LAYERS, ZONES, tempRange, tempKey, tempKits, CLOTHING_OFFSET, WEAR_RULE, wearRule, wardrobeGaps, gapWish, offsetLine, resetOffset, kitFromOutfit, rangeAround, barStyle } from '../lib/wardrobe.js';
   import { SETS_KEY, allSets } from '../lib/sets.js';
-  import { tick } from 'svelte';
+  import { tick, untrack } from 'svelte';
   import { slide } from 'svelte/transition';
   import { flip as flipMove } from '../lib/ui/flip.js';
   import { HOME_PLACE, HOME_FORECAST } from '../lib/know.js';
@@ -200,23 +200,23 @@
   let tidyOpen = $state(false);
   let tidyMore = $state({ range: false, everyday: false, twice: false });
   const KEEP = 'wardrobe.everydayKeep';
-  let kept = $state(
-    (() => {
+  // Noah 23.11.2026 («Abgleich sichern»): the choice «stays for cycling» is data, it lives in the settings so it reaches the other device
+  // (the list of ids; two devices that add different pieces keep both, sync/merge.js). The old copy in this browser is taken over once.
+  const keepQ = liveQuery(() => db.settings.get(KEEP));
+  const kept = $derived(Array.isArray($keepQ?.value) ? $keepQ.value : []);
+  const saveKept = (list) => db.settings.put({ key: KEEP, value: [...new Set(list)] });
+  $effect(() => {
+    if ($keepQ !== undefined) return; // the setting exists: nothing to take over
+    untrack(async () => {
       try {
-        const v = JSON.parse(localStorage.getItem(KEEP) ?? '[]');
-        return Array.isArray(v) ? v : [];
+        const old = JSON.parse(localStorage.getItem(KEEP) ?? 'null');
+        if (Array.isArray(old) && old.length && !(await db.settings.get(KEEP))) await saveKept(old);
+        localStorage.removeItem(KEEP);
       } catch {
-        return [];
+        /* private mode: nothing to take over */
       }
-    })(),
-  );
-  const saveKept = () => {
-    try {
-      localStorage.setItem(KEEP, JSON.stringify(kept));
-    } catch {
-      /* private mode: only this visit */
-    }
-  };
+    });
+  });
   const inView = $derived(new Set(w.all.map((i) => i.id)));
   const rangeList = $derived(use === 'everyday' ? [] : noRange(items).filter((r) => inView.has(r.item.id)));
   const everydayList = $derived(use === 'everyday' ? [] : everydayGuess(items, kept).filter((i) => inView.has(i.id)));
@@ -237,12 +237,9 @@
     if (res.n) offer(t('{name} → {where}', { name: nameOf(item), where: t('Everyday|use') }), res.snap);
   }
   function keepForBike(item) {
-    kept = [...kept, item.id];
-    saveKept();
-    offer(t('{name} stays for cycling.', { name: nameOf(item) }), null, () => {
-      kept = kept.filter((id) => id !== item.id);
-      saveKept();
-    });
+    const before = [...kept];
+    saveKept([...before, item.id]);
+    offer(t('{name} stays for cycling.', { name: nameOf(item) }), null, () => saveKept(before));
   }
   async function mergeTwice(g) {
     const [target, old] = g.items;

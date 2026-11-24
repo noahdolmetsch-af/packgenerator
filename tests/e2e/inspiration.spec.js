@@ -70,8 +70,10 @@ test('Inspiration: add links, kind recognised, filter, a note becomes a packing 
   await expect(page.locator('aside.side ul.extra')).toHaveCount(0);
   if (phone) await expect(page.locator('nav').getByRole('link', { name: 'Inspiration' })).toHaveCount(0);
   await page.goto('./#/inspiration');
+  // the first crumb names the page you came from («Zurück», Durchklick); opened directly it names the place, so start again here
+  await page.reload();
   if (!phone) {
-    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText('Touren');
+    await expect(page.locator('.side li.pl > a.pa[aria-current]')).toHaveText(/^\s*Touren/);
     await expect(page.locator('.side li.pl .tabs').getByRole('link', { name: 'Inspiration' })).toHaveAttribute('aria-current', 'page');
   }
   await expect(page.getByRole('heading', { level: 1, name: 'Inspiration' })).toBeVisible();

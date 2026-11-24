@@ -20,6 +20,7 @@ export default {
   'f.eveningtour': 'Rate it the same evening; the next morning every day looks better. A 4 is fine and helps more than a polite 7.',
   'f.letters': 'Short letters work best: one sentence on what you hope, one on what you fear. Open it on the first night out.',
   'f.letterreply': 'Answer only when you have something new to say. Two lines a year later are a whole story.',
+  'f.later': 'Write the answer the day it comes, in one line: after a month you read your own words and remember the rest.',
   'f.laterview': 'Wait at least a week. Hard days often look better later; your evening answer stays as it was.',
   'f.voiceletters': 'Speak where it is quiet, the wind eats every second word. One thought per letter is enough.',
   'f.meaning': 'Mark the trip while you remember why it mattered. «With a friend» finds more than «82 km» in two years.',

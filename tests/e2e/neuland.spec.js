@@ -132,6 +132,8 @@ test('Neuland: found on the route, bingo, ticks by hand, own collection with Und
   await page.getByRole('status').getByRole('button', { name: T('Undo') }).click();
   await expect(cols.getByText(`${P}Cafés`, { exact: true })).toBeVisible();
   await expect(cols.getByText(T('Without collection'), { exact: true })).toHaveCount(0);
+  // the older note «Renamed» holds its time while the mouse is on it and covers «Done»: take the mouse away
+  await page.mouse.move(0, 0);
   await cols.getByRole('button', { name: T('Done') }).click();
 
   expect(errors).toEqual([]);
