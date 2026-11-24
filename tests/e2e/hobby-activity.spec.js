@@ -184,7 +184,7 @@ test('Meilensteine: a fictional history counts, stars stay, filter, own numbers,
   await fits(page, 'Meilensteine');
 
   // own numbers: 3, 7, 12 → all stars, «Weg»; back to the suggestion
-  await main.getByText(T('Change numbers and stages')).click();
+  await main.getByText(T('Change numbers and stages'), { exact: true }).click();
   const row = main.locator('[data-tune="meditation.daily"]');
   await row.locator('input.inp').fill('3, 7, 12');
   await row.locator('input.inp').press('Enter');

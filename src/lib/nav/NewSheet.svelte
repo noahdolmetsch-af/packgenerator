@@ -175,6 +175,8 @@
     <h3 class="ngrp">{t('Note|group')}</h3>
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><span class="ic" aria-hidden="true"><StickyNote size={20} /></span><span class="tx"><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></span></button></li>
+      <!-- Sitemap 24.11.2026 (Noah «Logbuch nach vorne»): write down what is missing from the + menu; opens the empty entry -->
+      <li><a class="opt" href="#/me/logbuch?neu" onclick={close} data-new-log><span class="ic" aria-hidden="true"><NotebookPen size={20} /></span><span class="tx"><b>{t('Write down an improvement')}</b><span>{t('What bothers you or is missing in the app')}</span></span></a></li>
       <!-- Dokumente-PDF (Noah 15.10.2026): photograph a document, it becomes a PDF in Ich › Dokumente -->
       <li><a class="opt" href="#/inspiration" onclick={close} data-new-insp><span class="ic" aria-hidden="true"><Lightbulb size={20} /></span><span class="tx"><b>{t('Inspiration link')}</b><span>{t('A rig, a route, a video: paste the link')}</span></span></a></li>
       <li><a class="opt" href="#/me/docs/scan" onclick={close}><span class="ic" aria-hidden="true"><ScanLine size={20} /></span><span class="tx"><b>{t('Photograph document')}</b><span>{t('Becomes a PDF in «Imported PDFs»')}</span></span></a></li>
