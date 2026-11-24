@@ -6,7 +6,7 @@
    */
   import { t } from '../i18n.svelte.js';
   import { ampelHead } from './ampel.js';
-  import { Check, Clock, TriangleAlert, Minus, ChevronRight, ChevronDown } from '@lucide/svelte';
+  import { Check, Clock, TriangleAlert, Minus, Lightbulb, ChevronRight, ChevronDown } from '@lucide/svelte';
 
   /** rows: ampelRows(); onact(act) runs the tap of a line. */
   let { rows = [], onact = null, stays = '' } = $props();
@@ -14,8 +14,8 @@
   // lines with a tap come first as buttons; the calm ones (done, or nothing to fix) share one short line each
   const todo = $derived(onact ? rows.filter((r) => r.act) : []);
   const calm = $derived(rows.filter((r) => !todo.includes(r)));
-  const ICON = { ok: Check, wait: Clock, stop: TriangleAlert, none: Minus };
-  const WORD = { ok: 'OK', wait: 'To do|ampel', stop: 'Soon|ampel', none: 'No data|ampel' };
+  const ICON = { ok: Check, wait: Clock, stop: TriangleAlert, none: Minus, tip: Lightbulb };
+  const WORD = { ok: 'OK', wait: 'To do|ampel', stop: 'Soon|ampel', none: 'No data|ampel', tip: 'Tip|ampel' };
 </script>
 
 {#if rows.length}
@@ -152,7 +152,9 @@
     color: var(--bad);
   }
   .none .sign,
-  .sign.none {
+  .sign.none,
+  .tip .sign,
+  .sign.tip {
     background: var(--paper);
     color: var(--ink-2);
   }

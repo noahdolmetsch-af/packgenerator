@@ -5,7 +5,8 @@
  *
  * Pure functions, tested in tests/ampel.test.js. Texts are English keys for t().
  *
- * tone: 'ok' (green), 'wait' (yellow, still to do), 'stop' (red, soon and still open), 'none' (grey, no data).
+ * tone: 'ok' (green), 'wait' (yellow, still to do), 'stop' (red, soon and still open), 'none' (grey, no data),
+ * 'tip' (grey, a suggestion that does not change the headline).
  */
 
 /** Whole days between two YYYY-MM-DD days (calendar arithmetic, no 864e5 on timestamps). */
@@ -27,9 +28,10 @@ export function ampelShows(trip, stats, today) {
  * care: { due, late, nodata, open } | null (null = no bike trip), charged: { done, total } | null,
  * dazu: { n, name } | null (things missing that belong with something on the list, `name` the first one; pack/dazu.js) }.
  * griff: { n, name } | null (things you reach for on the way that lie deep in a bag, `name` the first one; pack/griff.js).
- * → [{ key, tone, text, vars, act }]  act = what a tap does ('pack' | 'weather' | 'bike' | 'power' | 'dazu' | 'griff' | null)
+ * tasche: { n, name } | null (things you keep putting into another bag than their usual one, `name` the first one; pack/taschelernen.js).
+ * → [{ key, tone, text, vars, act }]  act = what a tap does ('pack' | 'weather' | 'bike' | 'power' | 'dazu' | 'griff' | 'tasche' | null)
  */
-export function ampelRows({ trip, stats, today, forecast = false, wxGap = false, care = null, charged = null, dazu = null, griff = null }) {
+export function ampelRows({ trip, stats, today, forecast = false, wxGap = false, care = null, charged = null, dazu = null, griff = null, tasche = null }) {
   const rows = [];
   const left = daysBetween(today, trip.startDate.slice(0, 10));
 
@@ -63,6 +65,9 @@ export function ampelRows({ trip, stats, today, forecast = false, wxGap = false,
 
   // 6. «Griffbereit» (Noah 23.11.2026 «G3»): food, rain gear or a marked thing that lies out of reach on the bike; only when there is one
   if (griff?.n > 0) rows.push({ key: 'griff', tone: 'wait', text: griff.n === 1 ? 'Within reach: {name} lies deep in a bag' : 'Within reach: {n} things lie deep in a bag', vars: { n: griff.n, name: griff.name }, act: 'griff' });
+
+  // 7. «Tasche lernen» (Noah 23.11.2026 «3a»): an item you keep putting into another bag than its usual one; only when there is one
+  if (tasche?.n > 0) rows.push({ key: 'tasche', tone: 'tip', text: tasche.n === 1 ? 'Usual bag: you often pack {name} elsewhere' : 'Usual bag: {n} things you often pack elsewhere', vars: { n: tasche.n, name: tasche.name }, act: 'tasche' });
   return rows;
 }
 
