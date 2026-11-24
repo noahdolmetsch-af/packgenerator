@@ -110,10 +110,12 @@ async function dialogKeys(page, opener, dialog, back = opener) {
   await expect(back, 'focus goes back to the opener').toBeFocused();
 }
 
-test('no core view scrolls sideways at 320 and 390 px', async ({ page, context }, info) => {
-  test.skip(info.project.name !== 'phone', 'phone widths (touch, mobile) only');
-  await start(page, context, info);
-  for (const width of [320, 390]) {
+// One test per width: both widths in one test took 84 to 96 s on the loaded CI machines (the limit of a test is 90 s) and the
+// click that was waiting at that moment got the blame («Mehr», a different one each time). The checks are the same.
+for (const width of [320, 390]) {
+  test(`no core view scrolls sideways at ${width} px`, async ({ page, context }, info) => {
+    test.skip(info.project.name !== 'phone', 'phone widths (touch, mobile) only');
+    await start(page, context, info);
     await page.setViewportSize({ width, height: 740 });
     for (const hash of ['#/', '#/pack', '#/ride', '#/debrief/trip-test_data_gtp_past', '#/gear', '#/blocks', '#/bikes', '#/care', '#/inbox', '#/pack/templates', '#/pack/past']) {
       await view(page, hash);
@@ -149,8 +151,8 @@ test('no core view scrolls sideways at 320 and 390 px', async ({ page, context }
     expect(row.height).toBeGreaterThanOrEqual(44);
     // the four tabs in the band are a thumb high too
     for (const tab of await page.getByRole('navigation', { name: T('Steps of this trip') }).getByRole('link').all()) expect((await tab.boundingBox()).height).toBeGreaterThanOrEqual(44);
-  }
-});
+  });
+}
 
 test('dialogs: focus in, Tab stays inside, Escape closes, focus back', async ({ page, context }, info) => {
   await start(page, context, info);

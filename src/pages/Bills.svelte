@@ -101,7 +101,7 @@
   }
   async function remove(b) {
     const name = b.to || t('Bill');
-    if ((await askDelete({ title: t('Delete the bill to "{name}"?', { name }), text: t('Its photo goes too. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the bill to "{name}"?', { name }), text: t('Its photo goes too. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const ok = await deleteWithUndo({ run: () => deleteBill(b.id), undo: async (rec) => (await restoreBill(rec), await load()), text: t('"{name}" deleted.', { name }), name });
     if (!ok) return;
     opened = null;

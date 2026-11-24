@@ -153,7 +153,7 @@ export default {
   "Delete \"{text}\" for good?": "«{text}» endgültig löschen?",
   "Delete {n} note for good?": "{n} Notiz endgültig löschen?",
   "Delete {n} notes for good?": "{n} Notizen endgültig löschen?",
-  "Its files and versions go too. You can bring it back for 4 seconds afterwards.": "Ihre Dateien und Fassungen gehen mit. Danach kannst du sie 4 Sekunden lang zurückholen.",
+  "Its files and versions go too. You can bring it back for 8 seconds afterwards.": "Ihre Dateien und Fassungen gehen mit. Danach kannst du sie 8 Sekunden lang zurückholen.",
   "\"{name}\" is back in Notes.": "«{name}» ist wieder in Notizen.",
   "Empty the trash": "Papierkorb leeren",
   "Due now. «Done» takes the reminder away; the note stays.": "Jetzt fällig. «Fertig» nimmt die Erinnerung weg; die Notiz bleibt.",

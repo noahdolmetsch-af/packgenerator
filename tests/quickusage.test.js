@@ -64,4 +64,14 @@ describe('Quick Links usage', () => {
     expect(f.no).toEqual({ '#/p1': day(5) });
     expect(recentPlaces(f)).toEqual([]);
   });
+
+  it('remembers every page this device opened, with the first day (for the map of the app)', () => {
+    let u = cleanUsage(null);
+    expect(u.opened).toEqual({});
+    u = recordVisit(u, '#/trips/vorschlaege?x=1', 'Tourenvorschläge', '2026-11-23');
+    u = recordVisit(u, '#/trips/vorschlaege', 'Tourenvorschläge', '2026-11-25');
+    expect(u.opened).toEqual({ '#/trips/vorschlaege': '2026-11-23' });
+    expect(recordVisit(u, '#/', 'Heute', '2026-11-25').opened).toEqual(u.opened);
+    expect(cleanUsage({ opened: { a: '2026-11-01', b: 3 } }).opened).toEqual({ a: '2026-11-01' });
+  });
 });

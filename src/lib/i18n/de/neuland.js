@@ -244,6 +244,8 @@ export default {
   'Open Trips › Dreams; «Fits today» is at the top.': 'Öffne Touren › Träume; «Heute passt» steht oben.',
   'Choose the hours you have.': 'Wähle die Stunden, die du hast.',
   'Tap «Round through it» at a place.': 'Tippe bei einem Ort «Runde hindurch».',
+  // Challenges nach Gelegenheit: Absprung aus der Draussen-Karte
+  'Trip tips for your time': 'Ausflugstipps für deine Zeit',
   // Challenges nach Gelegenheit: der Startort der Ausflugstipps
   'Start: {place}': 'Start: {place}',
   'Home|start place': 'Zuhause',

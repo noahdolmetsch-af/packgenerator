@@ -392,7 +392,7 @@ const LISTED = {
   'f.editall': {
     on: null,
     steps: ['A bike: the pen «Edit» next to its name; «Delete bike» asks which bike its trips get.', 'Problems: «…» › Rename or Delete. Learnings: tap one, or «+ Learning».', 'Sports, places on the bike, care parts: Me › «Lists and types».'],
-    example: 'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 4 seconds.',
+    example: 'Example: you sold a bike → «Delete bike», its trips go to your new bike; «Undo» for 8 seconds.',
   },
   // 0.156.0 «Reise-Links»
   'f.travel': {
@@ -1828,12 +1828,12 @@ const LISTED = {
   },
   'f.tour': {
     on: null,
-    steps: ['Tap «New here? Take the tour» in First steps on Today, or open Me › Handbook › Tour.', 'Choose the example trip (playground) or your own data, then tap «Next» through the steps.', 'Ended early? Next time «Go on at step n» starts where you stopped.'],
-    example: 'Example: on the top of Active, «Tour of Active (4 steps)» shows ticking off, the week, goals and more.',
+    steps: ['On an empty Today tap «Start ›» next to «New here?» in «Start here», or open Me › Handbook › Tour.', 'At a question tap «Show me ›» to see it in the sample race, or «Skip».', 'Ended early? Next time «Go on at step n» starts where you stopped.'],
+    example: 'Example: «Where do I have to shop?» lights up the gaps of the sample race: the Sunday without a shop.',
   },
   'f.firststart': {
     on: 'Only on a new, empty app: it asks once when it opens for the first time.',
-    steps: ['Choose the language, «Start with examples» and what interests you, or «Start empty»; then the short tour if you like.', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Get the examples» brings them later.'],
+    steps: ['Choose the language, then tap «Go, start with examples» or «Start empty».', 'Me › Data and backup › «Remove the examples» takes them away («Undo» brings them back); «Adjust the examples» adds more.'],
     example: 'Example: a friend opens the link and sees the made-up «Jura loop» with its packing list right away.',
   },
   'f.playground': {

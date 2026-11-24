@@ -20,9 +20,9 @@ beforeEach(() => {
 
 const bikes = [{ id: 'b-test-1', name: 'Test Gravel' }, { id: 'b-test-2', name: 'Test Rennvelo' }];
 
-describe('Ü4a: Undo 4 s everywhere', () => {
+describe('Ü4a: Undo the same time everywhere (8 s since 23.11.2026, Noah 3a)', () => {
   it('one time for all', () => {
-    expect(UNDO_MS).toBe(4000);
+    expect(UNDO_MS).toBe(8000);
     expect(RENAME_UNDO).toBe(UNDO_MS);
   });
 });

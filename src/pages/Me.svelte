@@ -42,14 +42,11 @@
   import Seg from '../lib/ui/Seg.svelte';
   import VeloHead from '../lib/bikes/VeloHead.svelte';
   import HomePlaceSheet from '../lib/ich/HomePlaceSheet.svelte';
-  import { Leaf, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, ShoppingCart, MessageCircle, FileText, TrendingUp, Search as SearchIcon } from '@lucide/svelte';
+  import { Leaf, Trash2, Globe, Palette, House, Inbox, NotebookPen, Database, Info, Lightbulb, Keyboard, ChevronRight, ChevronDown, Archive, FlaskConical, TriangleAlert, Star, ListChecks, ClipboardList, History, CreditCard, Hand, BookOpen, LayoutGrid, Compass, ListTree, CircleHelp, Check, Bell, ListTodo, SlidersHorizontal, Scale, CalendarDays, BellRing, Mail, Backpack, Link2, Wrench, ExternalLink, CalendarClock, FolderOpen, Target, ShieldCheck, ShoppingCart, MessageCircle, FileText, TrendingUp, Search as SearchIcon } from '@lucide/svelte';
   import { wide } from '../lib/media.svelte.js';
   import QuickLinks from '../lib/ui/QuickLinks.svelte';
-  import { WHATS_NEW, shortVersion, newerThan, BEFORE } from '../lib/whatsnew.js';
-  import NewsBanner from '../lib/know/NewsBanner.svelte';
+  import { WHATS_NEW, shortVersion } from '../lib/whatsnew.js';
   import StravaConnect from '../lib/strava/StravaConnect.svelte';
-  import { messageOn } from '../lib/know/wasneu.js';
-  import { readUpdate, readMute } from '../lib/know/wasneuStore.js';
   import { testDataState } from '../lib/testdatadb.js';
   import { PLAY_WISH, DAYS } from '../lib/play.js';
   import { take } from '../lib/nav.js';
@@ -69,17 +66,6 @@
   import { dueCount } from '../lib/docs.js';
   // Ich schlank: the documents moved to Planen › «Alles hier»; when one expires soon it waits here
   const docDue = $derived(dueCount(docList.list, localDay()));
-  // «Heute neu» A 5b (Noah 20.10.2026): the banner «New in …» after an update lives here under Ich, not on Heute
-  let newsBanner = $state(
-    (() => {
-      try {
-        const u = readUpdate();
-        return messageOn({ update: u, mute: readMute(), today: localDay() }) ? newerThan(u.from ?? BEFORE) : [];
-      } catch {
-        return [];
-      }
-    })(),
-  );
   import { weight } from '../lib/weight.svelte.js';
   import { latestOf } from '../lib/weight.js';
   import { SYNC_WISH, NUDGE_KEY, needsNudge } from '../lib/sync/nudge.js';
@@ -208,7 +194,6 @@
     {/if}
   {/if}
 
-  {#if newsBanner.length}<NewsBanner entries={newsBanner} onclose={() => (newsBanner = [])} />{/if}
   <!-- «Heute neu» A 5b: «Strava verbinden» lives here under Ich until connected or «Later» -->
   <StravaConnect wide={wide.matches} />
   <!-- «Mehr Inhalt» (Noah 15.10.2026, 1a–5a): the tip of the day, at the end the fold -->
@@ -258,6 +243,14 @@
             <a class="ich-row" href="#/me/ruhig" data-row="ruhig">
               <span class="ich-ib"><Leaf size={18} aria-hidden="true" /></span>
               <span class="ich-m"><b>{t('Calm and personal')}</b><small>{t('Less app, letters to yourself, what you can do')}</small></span>
+              <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
+            </a>
+          </li>
+          <li>
+            <!-- «Zuletzt gelöscht» (Noah 23.11.2026 «1a»): what you deleted stays 30 days -->
+            <a class="ich-row" href="#/me/trash" data-row="trash">
+              <span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span>
+              <span class="ich-m"><b>{t('Recently deleted')}</b><small>{t('Bring back what you deleted in the last 30 days')}</small></span>
               <ChevronRight class="ich-chev" size={18} aria-hidden="true" />
             </a>
           </li>

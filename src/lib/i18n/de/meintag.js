@@ -2,7 +2,7 @@
 export default {
   'My day': 'Mein Tag',
   'My day|tab': 'Mein Tag',
-  'Read the day, tap an entry to open it where it lives.': 'Den Tag lesen; ein Eintrag antippen öffnet ihn dort, wo er lebt.',
+  'Your day at a glance. Tap an entry to open it.': 'Dein Tag auf einen Blick. Tippe einen Eintrag an, um ihn zu öffnen.',
   'Choose a day': 'Tag wählen',
   'Day before': 'Tag davor',
   'Day after': 'Folgetag',
@@ -56,7 +56,7 @@ export default {
   'Write a to-do and press Enter; tap the circle to tick it off.': 'Schreib ein To-do und drücke Enter; tippe den Kreis zum Abhaken.',
   'Tap «Today» to move it to today; tap its words to change or delete it.': 'Tippe «Heute», um es auf heute zu legen; tippe auf den Text, um es zu ändern oder zu löschen.',
   'Example: «Call the garage» without a date waits in the list; on Friday you tap «Today» and tick it off in the evening.': 'Beispiel: «Garage anrufen» ohne Datum wartet in der Liste; am Freitag tippst du «Heute» und hakst es abends ab.',
-  'Everything still open in one list: yours from Remember and the ones you put on a day.': 'Alles, was noch offen ist, in einer Liste: deine aus Merken und die, die du auf einen Tag legst.',
+  'Everything still open, in one list.': 'Alles, was noch offen ist, in einer Liste.',
   // step 3b: open points of notes, only on a tap
   'Open points in your notes': 'Offene Punkte in deinen Notizen',
   'Nothing becomes a to-do by itself. Tap «Make a to-do» for the ones you want.': 'Nichts wird von selbst ein To-do. Tippe «To-do machen» bei denen, die du willst.',
@@ -64,7 +64,7 @@ export default {
   'Make a to-do of «{name}»': 'Aus «{name}» ein To-do machen',
   // step 3c: the tab «Tick off»
   'Tick off|tab': 'Abhaken',
-  'One tap ticks a sport or habit. Duration and feeling are optional.': 'Ein Tipp hakt eine Sportart oder Gewohnheit ab. Dauer und Gefühl sind freiwillig.',
+  'One tap ticks a sport or habit.': 'Ein Tipp hakt eine Sportart oder Gewohnheit ab.',
   'Nothing to tick off yet': 'Noch nichts zum Abhaken',
   'Add the first sport or habit, then it stands here with one tap.': 'Leg die erste Sportart oder Gewohnheit an, dann steht sie hier zum Abhaken.',
   'All sports, goals and the week in Aktiv': 'Alle Sportarten, Ziele und die Woche in Aktiv',
@@ -77,7 +77,7 @@ export default {
   'Harder|plan': 'Härter',
   'Free slot after «{name}»': 'Frei nach «{name}»',
   'Free slot': 'Freie Lücke',
-  'Does not fit today, it stays without a time.': 'Passt heute nicht und bleibt ohne Zeit.',
+  'Does not fit on this day, it stays without a time.': 'Passt an diesem Tag nicht und bleibt ohne Zeit.',
   'Left for later to keep the day light.': 'Bleibt für später, damit der Tag leicht bleibt.',
   'Rain is forecast: «{name}» may want a plan indoors.': 'Regen angesagt: «{name}» braucht vielleicht einen Plan drinnen.',
   'A full day: more than six hours are booked.': 'Ein voller Tag: mehr als sechs Stunden sind belegt.',
@@ -85,5 +85,8 @@ export default {
   'Nothing without a time on this day. Add an entry and plan again.': 'An diesem Tag ist nichts ohne Zeit. Leg einen Eintrag an und plane noch einmal.',
   'Take over {n} entry': '{n} Eintrag übernehmen',
   'Take over {n} entries': '{n} Einträge übernehmen',
+  'Moved to tomorrow: no room left today': 'Auf morgen verschoben: heute ist kein Platz mehr',
+  'Calendar dates without a time are often all day, so they are not preselected.': 'Kalendertermine ohne Zeit dauern oft den ganzen Tag, darum sind sie nicht vorgewählt.',
   '{n} entries placed.': '{n} Einträge eingeplant.',
+  'Show the timeline': 'Zeitleiste zeigen',
 };

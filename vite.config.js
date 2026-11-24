@@ -3,6 +3,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { VitePWA } from 'vite-plugin-pwa';
 import { sizeGuard } from './scripts/size-guard.mjs';
 import { viewportZoom } from './scripts/viewport-zoom.mjs';
+import { bootShell } from './scripts/boot-shell.mjs';
 
 // GitHub Pages serves the app from https://<user>.github.io/packgenerator/.
 // A test link (a Vercel preview per pull request, or a Cloudflare Pages preview, so Noah can test
@@ -65,6 +66,8 @@ export default defineConfig({
   },
   plugins: [
     svelte(),
+    // «Sofort ein Bild» (23.11.2026): the quiet frame of index.html, its colours read from app.css (scripts/boot-shell.mjs)
+    bootShell(),
     // Wächter: no JavaScript file over 3 MB (the offline store keeps up to 6 MiB per file)
     sizeGuard(),
     // 20.10.2026 (src/lib/behind.js): version.json tells an app stuck on an old offline copy that a newer one is
