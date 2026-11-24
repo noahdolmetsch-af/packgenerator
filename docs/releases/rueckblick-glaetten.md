@@ -1,6 +1,6 @@
 # Klarere Fahrtenfrage und Berichtbild
 
-PR #<Nummer> · 24.11.2026 · Auftrag: Noah (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), kleine Korrektur zu «Rückblick: Fragen später, Fragen aus der Fahrdatei und Mini-Bericht»
+PR #1704 · 24.11.2026 · Auftrag: Noah (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), kleine Korrektur zu «Rückblick: Fragen später, Fragen aus der Fahrdatei und Mini-Bericht»
 
 ## Was ist neu
 - Die Frage aus der Fahrdatei sagt bei vollen Stunden «3 Std. unter 5 °C» statt «3:00 Std. unter 5 °C»; bei «3:05» bleibt es so.
