@@ -58,10 +58,10 @@ export async function putEntry(db, label, rows, now = new Date(), kind = '') {
   const seen = new Set();
   const list = [];
   for (const r of rows) {
-    const k = `${r.t}|${JSON.stringify(r.key)}`;
+    const k = `${r.t}|${JSON.stringify(r.key)}${r.t === LIST ? `|${r.path ?? ''}|${r.row?.id ?? ''}` : ''}`;
     if (seen.has(k)) continue;
     seen.add(k);
-    list.push({ t: r.t, key: r.key, row: r.row });
+    list.push({ t: r.t, key: r.key, row: r.row, ...(r.path ? { path: r.path } : {}) });
   }
   const main = mainTable(list);
   const id = newId();
@@ -70,12 +70,17 @@ export async function putEntry(db, label, rows, now = new Date(), kind = '') {
 }
 
 /**
- * One item of a list in a settings record went (a to-do in `merken`, an entry of My day in `week.items`): keeps the item for 30 days.
+ * Items of lists in settings records went (a to-do in `merken`, an entry of My day in `week.items`, a session in `training.plan`,
+ * a stay away in `week.away`): keeps them for 30 days as one entry. spec: { kind, store, row, path? } for one item, or
+ * { kind, parts: [{ store, row, path? }] } for several that go together (a stay away and the entries it made). `path`: the list
+ * sits under this name inside the record (`training.plan` is { sessions: [...] }).
  * → the entry id, or null (the trash never stops a delete). It is also the one ⌘Z takes back.
  */
-export async function trashItem(db, label, { store, row, kind }) {
+export async function trashItem(db, label, spec) {
   try {
-    const id = await putEntry(db, label, [{ t: LIST, key: store, row }], new Date(), kind);
+    const parts = spec.parts ?? [spec];
+    const rows = parts.map((p) => ({ t: LIST, key: p.store, row: p.row, ...(p.path ? { path: p.path } : {}) }));
+    const id = await putEntry(db, label, rows, new Date(), spec.kind);
     last = { id, name: String(label ?? ''), at: Date.now() };
     return id;
   } catch (err) {
@@ -114,12 +119,13 @@ export async function restoreEntry(db, id) {
     // an item of a list in a settings record goes to the end of that list again, unless one with its id is there
     for (const it of items) {
       const cur = (await db.settings.get(it.key))?.value;
-      const list = Array.isArray(cur) ? cur : [];
+      const list = it.path ? (Array.isArray(cur?.[it.path]) ? cur[it.path] : []) : Array.isArray(cur) ? cur : [];
       if (list.some((x) => x && x.id === it.row?.id)) {
         skipped++;
         continue;
       }
-      await db.settings.put({ key: it.key, value: [...list, JSON.parse(JSON.stringify(it.row))] });
+      const next = [...list, JSON.parse(JSON.stringify(it.row))];
+      await db.settings.put({ key: it.key, value: it.path ? { ...(cur && typeof cur === 'object' ? cur : {}), [it.path]: next } : next });
       back++;
     }
     for (const n of names) {
