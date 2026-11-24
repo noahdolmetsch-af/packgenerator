@@ -97,7 +97,7 @@
   }
   async function remove(p) {
     const name = nameOf(p);
-    if ((await askDelete({ title: t('Delete the page "{name}"?', { name }), text: t('Its fields and charts go with it. The map and the other pages stay. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the page "{name}"?', { name }), text: t('Its fields and charts go with it. The map and the other pages stay. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({
       run: async () => {
         const r = deletePage(cur, p.id);

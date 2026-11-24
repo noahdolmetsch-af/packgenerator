@@ -105,7 +105,7 @@
   }
   async function removeEv(ev) {
     const name = ev.name || t('Entry');
-    if ((await askDelete({ title: t('Delete the entry "{name}"?', { name }), text: t('It is gone from the logbook. You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete the entry "{name}"?', { name }), text: t('It is gone from the logbook. You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({
       run: async () => {
         const rec = await db.events.get(ev.id);

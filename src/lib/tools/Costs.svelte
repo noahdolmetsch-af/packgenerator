@@ -62,7 +62,7 @@
     const used = costs.items.filter((x) => x.paidBy === p.id).length;
     const ok = await askDelete({
       title: t('Delete «{name}»?', { name: p.name }),
-      text: used ? t('What {name} paid ({n}×) then counts as paid by you. You can bring it back for 4 seconds afterwards.', { name: p.name, n: used }) : t('You can bring it back for 4 seconds afterwards.'),
+      text: used ? t('What {name} paid ({n}×) then counts as paid by you. You can bring it back for 8 seconds afterwards.', { name: p.name, n: used }) : t('You can bring it back for 8 seconds afterwards.'),
     });
     if (ok !== 'delete') return;
     const before = JSON.parse(JSON.stringify(costs));
@@ -105,7 +105,7 @@
     form = null;
   }
   async function delItem(x) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: x.what }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: x.what }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = JSON.parse(JSON.stringify(costs));
     await deleteWithUndo({ name: x.what, text: t('«{name}» deleted.', { name: x.what }), run: async () => (await save({ ...costs, items: costs.items.filter((y) => y.id !== x.id) }), before), undo: (b) => save(b) });
   }
