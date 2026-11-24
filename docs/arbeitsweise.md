@@ -1,5 +1,7 @@
 # Arbeitsweise: so entsteht jeder Release
 
+> **Seit 24.11.2026 gilt [regeln.md](regeln.md) als die eine Quelle der Arbeitsregeln.** Diese Datei bleibt als Verlauf; ersetzte Fassungen stehen auch in [regeln-archiv.md](regeln-archiv.md).
+
 Gilt ab 9.10.2026, 23:26, für alle folgenden Releases. Quelle: Noahs Anweisung im Projekt-Chat. Ersetzt den «Schnellmodus» vom 9.10.2026 (mehrere Pakete gleichzeitig, Mockups nur für ganz neue Seiten).
 
 ## Stand 26.10.2026 abends: die einzigen gültigen Regeln
