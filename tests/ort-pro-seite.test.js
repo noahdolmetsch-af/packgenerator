@@ -24,10 +24,10 @@ describe('one place for every page', () => {
     const rows = (q) => searchAll(q).find((g) => g.kind === 'page')?.rows ?? [];
     const ms = rows('meilensteine milestones').find((r) => r.href === '#/flow/milestones') ?? rows('milestones').find((r) => r.href === '#/flow/milestones');
     expect(ms, 'Milestones is found').toBeTruthy();
-    expect(ms.sub).toBe('Analysis › Rides');
+    expect(ms.sub).toBe('Analysis › Week'); // «Auswerten neu» Teil 2: the tab «Rides» is now «Week», «Rides» is a chip in it
     
   });
-  it('names the tab as well: Analysis › Rides for the milestones', () => {
+  it('names the tab as well: Analysis › Week for the milestones', () => {
     const w = wegOf('#/flow/milestones');
     expect(w).toMatchObject({ placeKey: 'analysis', place: 'Analysis|place' });
     expect(w.tab).toBeTruthy();
