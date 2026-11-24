@@ -1855,13 +1855,13 @@ html:root[data-contrast='high'][data-theme='dark'] {
 }
 @media (prefers-reduced-motion: no-preference) {
   dialog[open] {
-    animation: mv-pop 180ms var(--ease-out);
+    animation: mv-pop var(--t-base) var(--ease-out);
   }
   dialog[open]::backdrop {
-    animation: mv-fade 200ms ease-out;
+    animation: mv-fade var(--t-base) var(--ease-out);
   }
   details[open] > :not(summary) {
-    animation: mv-reveal 160ms var(--ease-out);
+    animation: mv-reveal var(--t-base) var(--ease-out);
   }
 }
 @media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
@@ -1869,16 +1869,34 @@ html:root[data-contrast='high'][data-theme='dark'] {
   dialog.sheet:not(.centered)[open],
   dialog.calm-sheet:not(.centered)[open],
   dialog.fact-sheet:not(.centered)[open] {
-    animation: mv-up 280ms var(--ease-drawer);
+    animation: mv-up var(--t-sheet) var(--ease-drawer);
   }
 }
 @media (prefers-reduced-motion: reduce) {
   dialog[open],
   dialog[open]::backdrop {
-    animation: mv-fade 150ms ease-out;
+    animation: mv-fade var(--t-fast) var(--ease-out);
   }
   details[open] > :not(summary) {
-    animation: mv-fade 120ms ease-out;
+    animation: mv-fade var(--t-fast) var(--ease-out);
+  }
+}
+/* «Bewegung» (Noah 24.11.2026 «4a»): the tick of something you just ticked grows a little and settles (src/lib/ui/rowout.js tickPop).
+   A row that is ticked off or deleted folds away (rowOut). Both are still with reduced motion and with «Bewegung: Aus». */
+@keyframes tick-pop {
+  from {
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.14);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tick-pop {
+    animation: tick-pop var(--t-base) var(--ease-out);
   }
 }
 
