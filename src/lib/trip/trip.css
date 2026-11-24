@@ -25,7 +25,7 @@
 .tp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .tp-chip { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper); color: var(--ink); font: 500 var(--fs-body) var(--font-body); cursor: pointer; text-align: left; overflow-wrap: break-word; }
 .tp-chip.quiet { border-style: dashed; color: var(--ink-2); font-weight: 400; }
-.tp-chip[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.tp-chip[aria-pressed='true'] { background: var(--hi); border-color: var(--hi); color: var(--hi-ink); }
 .tp-chip:disabled { opacity: 0.5; cursor: default; }
 
 .tp-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: 400 var(--fs-body) var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; text-align: left; }

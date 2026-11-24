@@ -226,9 +226,9 @@
     cursor: pointer;
   }
   .seg button[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
     font-weight: 600;
   }
   /* v0.67.1: the date field is ui/DateInput.svelte (its own box around the input) */
@@ -273,9 +273,9 @@
     cursor: pointer;
   }
   .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .field {
     display: grid;

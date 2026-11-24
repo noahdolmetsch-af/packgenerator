@@ -1109,9 +1109,9 @@ import { normState, skKey } from '../lib/sk/tiles.js';
   }
   .mf[aria-pressed='true'],
   .ac {
-    border: 1px solid var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border: 1px solid var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .clear {
     min-height: 44px;

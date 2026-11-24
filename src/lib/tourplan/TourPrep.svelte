@@ -301,9 +301,9 @@
     cursor: pointer;
   }
   .kc[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .chg {
     padding: 8px 10px;

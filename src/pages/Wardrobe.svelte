@@ -1016,9 +1016,9 @@
     border-color: var(--warn);
   }
   .pin[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
   }
   .pin[aria-pressed='true'] .n,
   .pin[aria-pressed='true'] .gp {

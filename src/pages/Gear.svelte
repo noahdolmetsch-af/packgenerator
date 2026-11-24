@@ -1527,8 +1527,8 @@
     border-left: 1.5px solid var(--line-strong);
   }
   .seg button[aria-pressed='true'] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   @media (pointer: coarse) {
     .seg button {
@@ -2483,9 +2483,9 @@
     color: var(--ink-2);
   }
   .selbtn[aria-pressed='true'] {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
+    background: var(--hi);
+    border-color: var(--hi);
+    color: var(--hi-ink);
     text-decoration: none;
   }
   .badge {

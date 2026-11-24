@@ -394,9 +394,9 @@
     font-size: var(--fs-body);
   }
   .dy[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .dy[aria-pressed='true'] b {
     color: var(--paper);

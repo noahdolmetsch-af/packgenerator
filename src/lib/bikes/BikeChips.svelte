@@ -61,9 +61,9 @@
     background: var(--paper-2);
   }
   .bk[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   @media (max-width: 599px) {
     .bike-row {

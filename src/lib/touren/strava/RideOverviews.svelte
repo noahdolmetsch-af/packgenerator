@@ -68,9 +68,9 @@
     color: var(--ink-2);
   }
   .chip[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .chip[aria-pressed='true'] small {
     color: var(--paper);

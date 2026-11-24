@@ -343,9 +343,9 @@
     cursor: pointer;
   }
   .mk[aria-pressed='true'] {
-    border-color: var(--ink);
-    background: var(--ink);
-    color: var(--paper);
+    border-color: var(--hi);
+    background: var(--hi);
+    color: var(--hi-ink);
   }
   .mk.broken[aria-pressed='true'] {
     border-color: var(--bad);
