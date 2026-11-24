@@ -190,10 +190,21 @@ test('Wochenrückblick: Aktiv minutes count, observations live on Sunday, the nu
 
   // note and goal: kept after a reload, removable with Undo
   const note = main.locator('[data-wn-note]');
+  // the page writes on «change» (blur) and builds the next record from its live view of the stored one: wait until each
+  // text is really stored before the next one and before the reload, or the reload cuts the write off
+  const stored = () => page.evaluate(() => new Promise((ok) => {
+    const r = indexedDB.open('pack-generator');
+    r.onsuccess = () => {
+      const q = r.result.transaction('settings').objectStore('settings').get('weeknotes');
+      q.onsuccess = () => { r.result.close(); ok(JSON.stringify(q.result?.value ?? null)); };
+    };
+  }));
   await note.fill('Gute Woche, Beine müde.');
   await note.blur();
+  await expect.poll(stored).toContain('Gute Woche, Beine müde.');
   await main.locator('[data-wn-next]').fill('Zwei Fahrten, eine lang');
   await main.locator('[data-wn-next]').blur();
+  await expect.poll(stored).toContain('Zwei Fahrten, eine lang');
   await page.reload();
   await expect(main.locator('[data-wn-note]')).toHaveValue('Gute Woche, Beine müde.');
   await expect(main.locator('[data-wn-next]')).toHaveValue('Zwei Fahrten, eine lang');

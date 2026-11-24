@@ -39,11 +39,16 @@ async function fits(page, info) {
   }
 }
 
-/** The new rows, chips, path links and buttons are at least 44 px high. */
+/**
+ * The new rows, chips, path links and buttons are at least 44 px high. A small button (`.btn.sm`) is 44 px only on a
+ * touch screen (app.css `pointer: coarse`, plus an invisible tap area); with a mouse it is meant to be 32 px, so it
+ * counts only where the page has a coarse pointer.
+ */
 async function targets(page) {
   const small = await page.evaluate(() =>
     [...document.querySelectorAll('main a.rv-row, main button.rv-row, main label.rv-row, main .rv-chip, main .crumb a, main label.btn, main a.btn, main button.btn')]
       .filter((el) => el.offsetParent !== null)
+      .filter((el) => !el.matches('.btn.sm') || matchMedia('(pointer: coarse)').matches)
       .map((el) => ({ h: el.getBoundingClientRect().height, text: el.textContent.trim().slice(0, 40) }))
       .filter((x) => x.h < 43.5),
   );
