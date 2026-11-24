@@ -17,6 +17,8 @@ Auftrag: Noah «1b 2a 3a 4b 5a» (Thread «Neuheiten in der App besser zeigen»)
 - Die Karte nennt keine Orte mit Zahlen (Entwurf: «Velos 6 · Analyse 5»): die Orte stehen im Fenster. So muss Heute die ganze Liste nicht laden.
 - Der Ort einer Zeile kommt aus dem Ziel von «Ausprobieren» (`nav.js` pageOf/placeOf); eine Zeile ohne Ziel steht unter «Weitere Orte».
 - Auf einem Gerät ohne Daten (leere Heute-Wand) erscheint die Karte nicht.
+- Nach der impeccable-Prüfung (Noah 24.11.2026): «seit heute»/«seit gestern» statt des Wochentags, wenn der Tag heute oder gestern ist; im Fenster ist der erste (grösste) Ort offen; unter den Zeilen steht «heute», «gestern» oder Tag und Monat, keine Versionsnummer.
+- Das Fenster sieht aus wie der Rest der App (Ich › Was ist neu): jeder Ort eine Karte, die Zeilen auf dem weichen Feld mit Icon, die Zahl als farbiger Kreis, «Ausprobieren» in der Hauptfarbe.
 - Offen für später: die Zeile «Seit deinem letzten Besuch» in `clear/comeback.js` zählt noch Versionen, nicht Neuheiten.
 
 ## Entscheide (eigene Datei)
