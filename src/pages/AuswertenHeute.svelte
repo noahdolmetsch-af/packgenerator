@@ -59,7 +59,7 @@
   {#if f}
     <section class="card ans" data-heute-answer data-level={ans?.level ?? 'none'} aria-labelledby="h-ans">
       {#if ans}
-        <h2 id="h-ans" class="lv">{levelWord(ans.level)}<span class="sc num" data-form-score>{num(r.score)}<span class="of"> / 100</span></span></h2>
+        <h2 id="h-ans" class="lv">{levelWord(ans.level)}<span class="sc num" data-form-score>{num(r.score)}<span class="of">/100</span></span></h2>
         <p class="line" data-form-line>{answerLine(ans.level)}</p>
         {#if why.length}
           <ul class="why" data-heute-why>{#each why as w (w)}<li>{w}</li>{/each}</ul>
