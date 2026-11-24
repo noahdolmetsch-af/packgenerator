@@ -3,7 +3,7 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createDb } from '../src/lib/db.js';
-import { createSnapDb, shouldSnapshot, pruneIds, snapshotOnStart, listSnapshots, restoreSnapshot, takeSnapshot, snapshotFor, VERSION_KEY, KEEP } from '../src/lib/maintenance/snapshots.js';
+import { createSnapDb, shouldSnapshot, pruneIds, snapshotOnStart, listSnapshots, restoreSnapshot, takeSnapshot, snapshotFor, readSnapshotList, ensureHeads, HEAD, VERSION_KEY, KEEP } from '../src/lib/maintenance/snapshots.js';
 import { maintOf, saveMaint, readMaint, DEFAULT_KEYS, MAINT_KEY } from '../src/lib/maintenance/settings.js';
 import { rateBars, rateHot, saveRate, RATE_KEY, HOT } from '../src/lib/maintenance/rate.js';
 import { pair, rateOf } from '../api/_lib/rate.js';
@@ -85,6 +85,54 @@ describe('BF4 copies before an update', () => {
     await db.items.put(item('EL01'));
     for (let i = 1; i <= 5; i++) await takeSnapshot(db, sdb, { version: `0.${i}.0`, to: `0.${i + 1}.0`, now: new Date(`2026-10-0${i}T08:00:00Z`) });
     expect((await listSnapshots(sdb)).map((s) => s.version)).toEqual(['0.5.0', '0.4.0', '0.3.0']);
+  });
+
+  // Noah 24.11.2026: each copy holds all data (~140 MB); the page «Data» read every copy to show a list line (4.5 s with 3 copies)
+  it('the list and the banner read the small notes, never a copy', async () => {
+    await db.items.put(item('EL01'));
+    for (let i = 1; i <= 4; i++) await takeSnapshot(db, sdb, { version: `0.${i}.0`, to: `0.${i + 1}.0`, now: new Date(`2026-10-0${i}T08:00:00Z`) });
+    const get = vi.spyOn(sdb.snaps, 'get');
+    const toArray = vi.spyOn(sdb.snaps, 'toArray');
+    const list = await readSnapshotList(sdb);
+    expect(list.map((s) => s.version)).toEqual(['0.4.0', '0.3.0', '0.2.0']);
+    expect((await snapshotFor(sdb, '0.5.0'))?.version).toBe('0.4.0');
+    expect(list[0]).toEqual({ id: expect.any(Number), at: '2026-10-04T08:00:00.000Z', version: '0.4.0', to: '0.5.0', kind: 'update', rows: expect.any(Number) });
+    expect(list[0]).not.toHaveProperty('data');
+    expect(get).not.toHaveBeenCalled();
+    expect(toArray).not.toHaveBeenCalled();
+  });
+
+  it('taking a copy prunes without reading the other copies', async () => {
+    await db.items.put(item('EL01'));
+    await takeSnapshot(db, sdb, { version: '0.1.0', to: '0.2.0', now: new Date('2026-10-01T08:00:00Z') });
+    const get = vi.spyOn(sdb.snaps, 'get');
+    const toArray = vi.spyOn(sdb.snaps, 'toArray');
+    for (let i = 2; i <= 5; i++) await takeSnapshot(db, sdb, { version: `0.${i}.0`, to: `0.${i + 1}.0`, now: new Date(`2026-10-0${i}T08:00:00Z`) });
+    expect(get).not.toHaveBeenCalled();
+    expect(toArray).not.toHaveBeenCalled();
+    // the notes of pruned copies go with them
+    expect(await sdb.meta.where('key').startsWith(HEAD).count()).toBe(3);
+    expect((await readSnapshotList(sdb)).map((s) => s.version)).toEqual(['0.5.0', '0.4.0', '0.3.0']);
+  });
+
+  it('a copy from before the notes existed gets its note once, and nothing is lost', async () => {
+    const data = { app: 'x', tables: { items: [item('EL01')] } };
+    const id = await sdb.snaps.add({ at: '2026-09-01T08:00:00.000Z', version: '0.1.0', to: '0.2.0', kind: 'update', rows: 1, data });
+    expect(await readSnapshotList(sdb)).toEqual([]); // not listed until its note is made
+    expect(await ensureHeads(sdb)).toBe(1);
+    expect(await ensureHeads(sdb)).toBe(0); // second time: nothing to read
+    expect(await readSnapshotList(sdb)).toEqual([{ id, at: '2026-09-01T08:00:00.000Z', version: '0.1.0', to: '0.2.0', kind: 'update', rows: 1 }]);
+    expect((await sdb.snaps.get(id)).data).toEqual(data); // the copy itself is untouched
+    expect((await listSnapshots(sdb)).map((s) => s.id)).toEqual([id]);
+  });
+
+  it('the note of a copy that is gone is dropped', async () => {
+    const id = await sdb.snaps.add({ at: '2026-09-01T08:00:00.000Z', version: '0.1.0', kind: 'update', rows: 1, data: {} });
+    await ensureHeads(sdb);
+    await sdb.snaps.delete(id);
+    expect(await readSnapshotList(sdb)).toEqual([]);
+    await ensureHeads(sdb);
+    expect(await sdb.meta.where('key').startsWith(HEAD).count()).toBe(0);
   });
 });
 
