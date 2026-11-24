@@ -392,6 +392,14 @@ describe('the old daily checks in the one history (never lost)', () => {
     expect(rows.filter((r) => r.day === d(-3))).toEqual([]); // nothing valid that day
   });
 
+  it('the free sentence of the evening page («Ein Satz zum Tag») is a text row of its day', () => {
+    const rows = fromChecks([{ day: d(-1), mood: 7, story: '  Ein ruhiger Abend am See.  ' }, { day: d(-2), story: '   ' }, { day: d(-3), story: 5 }], pool);
+    const satz = rows.filter((r) => r.qid === 'tc.satz');
+    expect(satz).toHaveLength(1);
+    expect(satz[0]).toMatchObject({ day: d(-1), kind: 'text', value: 'Ein ruhiger Abend am See.', from: 'check', label: { textDe: 'Ein Satz zum Tag' } });
+    expect(rows.some((r) => r.day === d(-2) || r.day === d(-3))).toBe(false); // empty or not a text: no row
+  });
+
   it('read together with the answers; an answer of the same day and question wins', () => {
     const answers = [answerRow(QUESTION['erholung.schlaf'], 8, { at: `${d(-1)}T07:10` }), answerRow(QUESTION['erholung.akku'], 6, { at: `${D0}T08:10` })];
     const all = mergeHistory(answers, checks, pool);
@@ -412,7 +420,7 @@ describe('the database (schema 9): answers next to the daily checks', () => {
   });
 
   it('a new table abAnswers in the backup; flowChecks stay untouched', async () => {
-    expect(SCHEMA_VERSION).toBe(20); // «Verbesserungs-Logbuch»: version 20 adds logbuch; Paket T «Freie Zeit»: version 19 adds frei; «Velo-Inspektion»: version 18 adds inspections; Paket O: version 17 adds sportItems; Paket S «Reise-Spur» adds tracks as 16; «Timer» (Z5) adds the timer log as version 11, P3b the documents as 12, Fitbit healthDays as 13, Google gEvents and gTasks as 15
+    expect(SCHEMA_VERSION).toBe(21); // «Zuletzt gelöscht»: version 21 adds trash; «Verbesserungs-Logbuch»: version 20 adds logbuch; Paket T «Freie Zeit»: version 19 adds frei; «Velo-Inspektion»: version 18 adds inspections; Paket O: version 17 adds sportItems; Paket S «Reise-Spur» adds tracks as 16; «Timer» (Z5) adds the timer log as version 11, P3b the documents as 12, Fitbit healthDays as 13, Google gEvents and gTasks as 15
     expect(DATA_TABLES).toContain('abAnswers');
     await db.flowChecks.put({ day: d(-1), sleep: 6, energy: 5, mood: 7, q: null, extra: null });
     await db.abAnswers.put(answerRow(QUESTION['erholung.akku'], 6, { at: `${D0}T08:10` }));

@@ -27,7 +27,7 @@
   import { bikesHash } from '../bikes.js';
   import { offerDone } from '../ui/rename.svelte.js';
   import { removeVisit } from '../visitdb.js';
-  import {  Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine, Siren, Sunrise, Moon , CircleCheck, NotebookPen, Lightbulb, Dices  } from '@lucide/svelte';
+  import {  Route, Bike, Activity, Backpack, Package, Plus, TriangleAlert, Receipt, StickyNote, X, ListTodo, ListChecks, ScanLine, Siren, Sunrise, Moon , CircleCheck, NotebookPen, Lightbulb, Dices, Scale } from '@lucide/svelte';
   import TodoSheet from '../merken/TodoSheet.svelte';
   import ListSheet from '../merken/ListSheet.svelte';
   import { suggestKind, listFrom } from '../merken/quick.js';
@@ -128,18 +128,18 @@
       <p class="small">{t('Or import your rides in Debrief: the km of a trip are added to its bike.')}</p>
     </form>
   {:else}
-    <!-- PL1 (Noah «3a»): the quick field, the app suggests what it is -->
-    <form class="quick" onsubmit={(e) => (e.preventDefault(), take())}>
-      <input class="inp" bind:value={quick} maxlength="160" enterkeyhint="done" placeholder={t('Type what you want to keep …')} aria-label={t('Quick field')} />
-      {#if kind}
-        <div class="qk" role="group" aria-label={t('What is it?')}>
-          {#each QUICK as [k, label] (k)}<button type="button" class="qchip" aria-pressed={kind === k} onclick={() => take(k)}>{t(label)}{#if kind === k}{' · '}{t('suggested')}{/if}</button>{/each}
-        </div>
-      {/if}
-    </form>
-    <!-- «Alles finden 2» (Noah 22.10.2026 «1a», new proposal): the emergency was 5 taps deep (Touren › Skitouren ›
-         Berg und Notfall); here it is one tap from every page -->
-    <a class="sos" href="#/mountain/sos" onclick={close} data-new-sos><Siren size={20} aria-hidden="true" /><span><b>{t('Emergency: show my location')}</b><small>{t('Rega 1414 and 112, also offline')}</small></span></a>
+    <!-- Nutzersicht 4 (Noah 23.11.2026 «1-5a»): «Plan a trip» and «Quick start» first, then To-do, List, Checks -->
+    <!-- v0.101.0 Design-Refresh P2 (H7): the same 9 ways, in groups by area, «Plan a trip» on top -->
+    <h3 class="ngrp">{t('Trips|place')}</h3>
+    <ul class="opts">
+      <li class="wide"><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><span class="ic" aria-hidden="true"><Route size={20} /></span><span class="tx"><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></span></button></li>
+      <li><button type="button" class="opt" onclick={() => run(quickRide)}><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Quick start')}</b><span>{t('today, 2.5 h, the bike ridden last')}</span></span></button></li>
+      <!-- Nutzersicht 4 / Häufiges nach vorn (Noah 23.11.2026 «5a»): weighing the bags is one tap from every page -->
+      <li><a class="opt" href="#/pack?weigh" onclick={close} data-new-weigh><span class="ic" aria-hidden="true"><Scale size={20} /></span><span class="tx"><b>{t('Weigh bags')}</b><span>{t('On the start day: each packed bag on the scale')}</span></span></a></li>
+      <li><button type="button" class="opt" onclick={() => run(() => (surpriseOpen = true))} data-new-surprise><span class="ic" aria-hidden="true"><Dices size={20} /></span><span class="tx"><b>{t('Surprise round')}</b><span>{t('Adventure and time: a round you do not know yet')}</span></span></button></li>
+      <li><a class="opt" href="#/debrief/ride" onclick={close}><span class="ic" aria-hidden="true"><Activity size={20} /></span><span class="tx"><b>{t('Upload ride')}</b><span>{t('GPX: pauses, planned vs real, learnings')}</span></span></a></li>
+      <li><a class="opt" href="#/pack/templates" onclick={close}><span class="ic" aria-hidden="true"><Backpack size={20} /></span><span class="tx"><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></span></a></li>
+    </ul>
     <!-- PL1 (Noah «5a»): «Merken» first -->
     <h3 class="ngrp">{t('Remember')}</h3>
     <ul class="opts">
@@ -151,15 +151,6 @@
     <ul class="opts">
       <li><a class="opt" href="#/check/morning" onclick={close} data-new-check="morning"><span class="ic" aria-hidden="true"><Sunrise size={20} /></span><span class="tx"><b>{t('Morning check')}</b><span>{t('Sleep, energy, mood')}</span></span></a></li>
       <li><a class="opt" href="#/check/evening" onclick={close} data-new-check="evening"><span class="ic" aria-hidden="true"><Moon size={20} /></span><span class="tx"><b>{t('Evening check')}</b><span>{t('How the day was')}</span></span></a></li>
-    </ul>
-    <!-- v0.101.0 Design-Refresh P2 (H7): the same 9 ways, in groups by area, «Plan a trip» on top -->
-    <h3 class="ngrp">{t('Trips|place')}</h3>
-    <ul class="opts">
-      <li class="wide"><button type="button" class="opt hi" onclick={() => run(() => newTrip('standard'))}><span class="ic" aria-hidden="true"><Route size={20} /></span><span class="tx"><b>{t('Plan a trip')}</b><span>{t('Name, date, bike and packing list')}</span></span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(quickRide)}><span class="ic" aria-hidden="true"><Bike size={20} /></span><span class="tx"><b>{t('Quick start')}</b><span>{t('today, 2.5 h, the bike ridden last')}</span></span></button></li>
-      <li><button type="button" class="opt" onclick={() => run(() => (surpriseOpen = true))} data-new-surprise><span class="ic" aria-hidden="true"><Dices size={20} /></span><span class="tx"><b>{t('Surprise round')}</b><span>{t('Adventure and time: a round you do not know yet')}</span></span></button></li>
-      <li><a class="opt" href="#/debrief/ride" onclick={close}><span class="ic" aria-hidden="true"><Activity size={20} /></span><span class="tx"><b>{t('Upload ride')}</b><span>{t('GPX: pauses, planned vs real, learnings')}</span></span></a></li>
-      <li><a class="opt" href="#/pack/templates" onclick={close}><span class="ic" aria-hidden="true"><Backpack size={20} /></span><span class="tx"><b>{t('Template')}</b><span>{t('From the open trip, in Templates')}</span></span></a></li>
     </ul>
     <h3 class="ngrp">{t('Gear|place')}</h3>
     <ul class="opts">
@@ -184,10 +175,25 @@
     <h3 class="ngrp">{t('Note|group')}</h3>
     <ul class="opts">
       <li><button type="button" class="opt" onclick={() => run(() => onnote(''))}><span class="ic" aria-hidden="true"><StickyNote size={20} /></span><span class="tx"><b>{t('Note + photo')}</b><span>{t('"What was missing", "This is broken"')}</span></span></button></li>
+      <!-- Sitemap 24.11.2026 (Noah «Logbuch nach vorne»): write down what is missing from the + menu; opens the empty entry -->
+      <li><a class="opt" href="#/me/logbuch?neu" onclick={close} data-new-log><span class="ic" aria-hidden="true"><NotebookPen size={20} /></span><span class="tx"><b>{t('Write down an improvement')}</b><span>{t('What bothers you or is missing in the app')}</span></span></a></li>
       <!-- Dokumente-PDF (Noah 15.10.2026): photograph a document, it becomes a PDF in Ich › Dokumente -->
       <li><a class="opt" href="#/inspiration" onclick={close} data-new-insp><span class="ic" aria-hidden="true"><Lightbulb size={20} /></span><span class="tx"><b>{t('Inspiration link')}</b><span>{t('A rig, a route, a video: paste the link')}</span></span></a></li>
       <li><a class="opt" href="#/me/docs/scan" onclick={close}><span class="ic" aria-hidden="true"><ScanLine size={20} /></span><span class="tx"><b>{t('Photograph document')}</b><span>{t('Becomes a PDF in «Imported PDFs»')}</span></span></a></li>
     </ul>
+    <!-- Nutzersicht 4: the quick field and the emergency at the bottom (the emergency stays red, now small) -->
+    <!-- PL1 (Noah «3a»): the quick field, the app suggests what it is -->
+    <form class="quick" onsubmit={(e) => (e.preventDefault(), take())}>
+      <input class="inp" bind:value={quick} maxlength="160" enterkeyhint="done" placeholder={t('Type what you want to keep …')} aria-label={t('Quick field')} />
+      {#if kind}
+        <div class="qk" role="group" aria-label={t('What is it?')}>
+          {#each QUICK as [k, label] (k)}<button type="button" class="qchip" aria-pressed={kind === k} onclick={() => take(k)}>{t(label)}{#if kind === k}{' · '}{t('suggested')}{/if}</button>{/each}
+        </div>
+      {/if}
+    </form>
+    <!-- «Alles finden 2» (Noah 22.10.2026 «1a», new proposal): the emergency was 5 taps deep (Touren › Skitouren ›
+         Berg und Notfall); here it is one tap from every page -->
+    <a class="sos" href="#/mountain/sos" onclick={close} data-new-sos><Siren size={20} aria-hidden="true" /><span><b>{t('Emergency: show my location')}</b><small>{t('Rega 1414 and 112, also offline')}</small></span></a>
   {/if}
 </dialog>
 {#if surpriseOpen}{#await import('../ueberraschung/SurpriseSheet.svelte') then m}<m.default onclose={() => (surpriseOpen = false)} />{:catch}{/await}{/if}
@@ -201,12 +207,13 @@
   .sos {
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-height: 56px;
-    margin: 4px 0 8px;
-    padding: 10px 14px;
+    gap: 10px;
+    min-height: 44px;
+    margin: 12px 0 4px;
+    padding: 6px 12px;
     border: 1.5px solid var(--bad);
     border-radius: 12px;
+    font-size: var(--fs-small);
     color: var(--bad);
     text-decoration: none;
   }
@@ -221,7 +228,7 @@
   .quick {
     display: grid;
     gap: 8px;
-    margin: 4px 0 8px;
+    margin: 12px 0 4px;
   }
   .qk {
     display: flex;

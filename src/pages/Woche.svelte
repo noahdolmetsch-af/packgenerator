@@ -65,7 +65,7 @@
   // Delete rule: «Remove» on a date or to-do offers Undo (it was gone for good before)
   const remove = (e) => {
     const gone = items().find((x) => x.id === e.id);
-    return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e) });
+    return deleteWithUndo({ run: () => saveItems(items().filter((x) => x.id !== e.id)), undo: () => saveItems([...items().filter((x) => x.id !== e.id), gone]), text: t('"{name}" deleted.', { name: titleOf(e) }), name: titleOf(e), item: gone ? { store: ITEMS_KEY, row: gone, kind: 'plan' } : null });
   };
   const toggleKind = (k) => putWeek(HIDE_KEY, src.hide.includes(k) ? src.hide.filter((x) => x !== k) : [...src.hide, k]);
 

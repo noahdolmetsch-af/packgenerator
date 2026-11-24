@@ -4,12 +4,25 @@
 import { test, expect } from './clock.js';
 import { openHome } from './home0460-fixture.js';
 
+// The touch events are made in the page (a Touch and a TouchEvent per step, as a finger sends them), not through the browser's
+// touch input (CDP Input.dispatchTouchEvent): Chrome passes that to the page only in part (measured: after the first one or two
+// moves the rest, and sometimes the touchend, never arrived; 6 of 8 pulls stood at 10–40 px of 96 and stayed there, also with
+// slower moves or touch-action: none). The app's handlers get the same events either way, and this test is about them.
 async function pull(page, context, { from = 200, by = 220 } = {}) {
-  const cdp = await context.newCDPSession(page);
-  const touch = (type, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x: 190, y }] });
-  await touch('touchStart', from);
-  for (let d = 20; d <= by; d += 20) await touch('touchMove', from + d);
-  return { release: () => touch('touchEnd', from + by) };
+  const send = (type, y) =>
+    page.evaluate(
+      async ([type, y]) => {
+        const target = document.elementFromPoint(190, Math.min(Math.max(y, 1), innerHeight - 1)) ?? document.body;
+        const touch = new Touch({ identifier: 1, target, clientX: 190, clientY: y, pageX: 190, pageY: y + scrollY });
+        const list = type === 'touchend' ? [] : [touch];
+        target.dispatchEvent(new TouchEvent(type, { bubbles: true, cancelable: true, touches: list, targetTouches: list, changedTouches: [touch] }));
+        await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))); // the page draws what the finger did
+      },
+      [type, y],
+    );
+  await send('touchstart', from);
+  for (let d = 20; d <= by; d += 20) await send('touchmove', from + d);
+  return { release: () => send('touchend', from + by) };
 }
 
 test.describe('pull to refresh', () => {

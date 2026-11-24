@@ -60,6 +60,7 @@
   import TripTable from '../lib/touren/TripTable.svelte';
   import { savedView, saveView } from '../lib/listtable.js';
   import Empty from '../lib/ui/Empty.svelte';
+  import SoSiehts from '../lib/firststart/SoSiehts.svelte';
   import { tripWays } from '../lib/touren/wege.js'; // UI-Prüfung T2: the ways on a planned trip's card
   import { overviewCounts, weatherWindow, packBand, tileRows, rideBand, PACK_HREF } from '../lib/touren.js';
   import { homeForecast } from '../lib/home-weather.js';
@@ -521,6 +522,8 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       <!-- Paket U «Rennen» (Noah 19.10.2026 «1b»): the races have their own area under Touren -->
       <!-- Gesamttest 20.10.2026 Design 1: one head with at most one button; «Races» is a quiet link beside it -->
       {#if !onRides}<a class="btn btn-link racelink" href="#/race" data-to-races><Flag size={16} aria-hidden="true" />{t('Races')} ›</a>{/if}
+      <!-- «Sitemap» Touren (Noah 24.11.2026 «K7»): with a planned tour, «On the way» is one tap away (its day overview of the next tour) -->
+      {#if !onRides && plan.length}<a class="btn btn-link racelink" href="#/ride" data-to-ontheway><Route size={16} aria-hidden="true" />{t('On the way')} ›</a>{/if}
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
@@ -540,6 +543,7 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       <AreaIntro place="touren" />
       <!-- v0.127.0 A-U2: the one empty building block -->
       <Empty icon={Route} title={t('No trips yet')} text={t('A trip is the packing list for one ride or journey.')} action={{ label: t('Create a trip|first'), onclick: () => openNew('list'), explain: t('Create the first trip') }}>
+        <SoSiehts area="trips" />
         {t('Best values come after your first ride with a GPX file.')} <a href="#/debrief/ride">{t('Upload a ride')}</a>
       </Empty>
       {#if acts.length}{@render ridesRow()}{/if}

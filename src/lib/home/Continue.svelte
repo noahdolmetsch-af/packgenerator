@@ -14,7 +14,12 @@
    * with the step's icon, the trip, how far it is packed and «Weiter ›» on the right (the page's one main action).
    * v0.125.0 TZ-1 «Zustand sichtbar» (mockup TZ1): the trip's state pill (ui/TripState.svelte) before the step.
    */
-  import { ChevronRight, Moon, Flag, Backpack, Map as MapIcon, Bike, NotebookPen } from '@lucide/svelte';
+  import { ChevronRight, Moon, Flag, Backpack, Map as MapIcon, Bike, NotebookPen, X } from '@lucide/svelte';
+  import { liveQuery } from 'dexie';
+  import { db } from '../db.js';
+  import { openRecording } from '../spur/recorder.svelte.js';
+  import { zurichTime } from '../spur/spur.js';
+  import { begun, putAway, awayValue, lineKey, NOT_TODAY_KEY } from './weiter.js';
   import { t, tn } from '../i18n.svelte.js';
   import { TAB_NAMES } from '../tabs.js';
   import { nextTrip, toDebrief } from '../debrief.js';
@@ -33,10 +38,33 @@
   const step = $derived(lead && !sameAsCard(lead.id, cardId) ? stepOf(lead, today, { debriefDone: done(lead) }) : null);
   const eve = $derived(trips.find((x) => eveningBefore(x, today, hour)) ?? null);
   const leadState = $derived(lead ? tripStateInfo(lead, { debrief: debriefs.find((d) => d.tripId === lead.id) ?? null, rides, today }).state : null);
+  // «Weiter, wo du warst» (Noah 23.11.2026 «1-5a»): on Today the line also takes you back to a running ride and to what you began
+  // lately (a trip without a date, a debrief started); «Not today any more» puts the line away for the day on this device.
+  const openQ = liveQuery(() => openRecording(db));
+  const ride = $derived(banner ? null : $openQ ?? null);
+  const extra = $derived(banner || (lead && step) ? null : begun({ trips, debriefs, today, leadId: lead?.id ?? null })[0] ?? null);
+  const stored = (() => {
+    try {
+      return localStorage.getItem(NOT_TODAY_KEY);
+    } catch {
+      return null;
+    }
+  })();
+  let away = $state(stored);
+  const key = $derived(lineKey({ ride, extra, lead: lead && step ? lead : null }));
+  const hidden = $derived(!banner && putAway(away, today, key));
+  function putDown() {
+    away = awayValue(today, key);
+    try {
+      localStorage.setItem(NOT_TODAY_KEY, away);
+    } catch {
+      /* the line just comes back after a reload */
+    }
+  }
   const last = $derived(noLast ? null : trips.find((x) => lastEvening(x, today, hour, { debriefDone: done(x) })) ?? null);
 </script>
 
-{#if eve || last || (lead && step)}
+{#if eve || last || (!hidden && (ride || extra || (lead && step)))}
   <div class="continue" data-section="continue">
     {#if eve}
       <a class="row eve" href={`${betweenHref(eve, 'packed')}?check`} onclick={() => openTrip(eve.id)} data-row="eve">
@@ -52,6 +80,19 @@
         <ChevronRight size={18} aria-hidden="true" />
       </a>
     {/if}
+    {#if ride && !hidden}
+      <a class="row go ride" href="#/live" data-row="ride">
+        <Bike size={20} aria-hidden="true" />
+        <span class="tx"><small class="k sl">{t('Where you left off')}</small><b>{t('Ride running since {time}', { time: zurichTime(ride.startAt) })}</b></span>
+        <ChevronRight size={18} aria-hidden="true" />
+      </a>
+    {/if}
+    {#if extra && !ride && !hidden}
+      <a class="row go" href={extra.href} onclick={() => openTrip(extra.tripId)} data-row="begun" data-step={extra.step}>
+        <span class="tx"><small class="k sl">{t('Where you left off')} · {t(extra.stepLabel)}</small><b>{extra.title}</b></span>
+        <ChevronRight size={18} aria-hidden="true" />
+      </a>
+    {/if}
     {#if lead && step && banner}
       {@const Icon = STEP_ICON[step.key] ?? Backpack}
       {@const n = lead.entries?.length ?? 0}
@@ -61,11 +102,14 @@
         <span class="tx"><small class="sl"><TripState state={leadState} />{t('Continue · {step}, step {n} of {total}', { step: t(TAB_NAMES[step.key]), n: step.n, total: step.total })}</small><b>{lead.title}{#if step.key === 'pack' && n}<span class="pk num">{` · ${tn(n, '{done} of {n} packed', '{done} of {n} packed', { done: p })}`}</span>{/if}</b></span>
         <span class="gob">{t('Continue|go')}<ChevronRight size={18} aria-hidden="true" /></span>
       </a>
-    {:else if lead && step}
+    {:else if lead && step && !ride && !hidden}
       <a class="row go" href={step.href} onclick={() => openTrip(lead.id)} data-row="continue" data-step={step.key}>
         <span class="tx"><small class="k sl"><TripState state={leadState} />{t('Continue · {step}, step {n} of {total}', { step: t(TAB_NAMES[step.key]), n: step.n, total: step.total })}</small><b>{lead.title}</b></span>
         <ChevronRight size={18} aria-hidden="true" />
       </a>
+    {/if}
+    {#if !banner && !hidden && (ride || extra || (lead && step))}
+      <button type="button" class="away" data-weiter-away onclick={putDown}><X size={16} aria-hidden="true" />{t('Not today any more')}</button>
     {/if}
   </div>
 {/if}
@@ -179,6 +223,24 @@
     .row.band .ic {
       display: none;
     }
+  }
+  .away {
+    display: inline-flex;
+    align-items: center;
+    justify-self: end;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 0;
+    background: none;
+    color: var(--ink-2);
+    font: inherit;
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+  .away:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
   }
   .row:focus-visible {
     outline: var(--focus-ring);

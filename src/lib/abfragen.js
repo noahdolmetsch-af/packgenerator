@@ -497,6 +497,8 @@ export function configOf(value) {
     q: qs,
     own,
     rounds: roundsOf(v.rounds),
+    // «Wechsel-Varianten» (Noah 23.11.2026 «2a»): true = every question asks in its main words (varianten.js)
+    mainOnly: v.mainOnly === true,
     // Noah 20.10.2026: the person's changes to the list and its groups (a difference, so new questions of the app still come)
     names: texts(v.names),
     gone: strs(v.gone),
@@ -528,6 +530,8 @@ export const setRounds = (cfg, patch = {}) => {
   const c = configOf(cfg);
   return { ...c, rounds: roundsOf({ ...c.rounds, ...patch }) };
 };
+/** «Always the main question»: switch the changing wordings (varianten.js) off or on; the rest kept. */
+export const setMainOnly = (cfg, on) => ({ ...configOf(cfg), mainOnly: on === true });
 /**
  * WG: the time a question asks at with the rounds: before 11:00 the morning, from 11:00 the evening time.
  * v0.144.0 RE «Eine Tagesuhr»: the borders of the one day clock (dayclock.js; the morning ended at 12:00 before).
@@ -926,6 +930,9 @@ export function fromChecks(checks = [], pool = []) {
     add('sleep', CHECK_MAP.sleep);
     add('energy', CHECK_MAP.energy);
     add('mood', CHECK_MAP.mood);
+    // «Ein Satz zum Tag» (Noah 24.11.2026 «1a»): the free sentence of the evening page also stands in the history
+    const story = typeof c.story === 'string' ? c.story.trim() : '';
+    if (story) out.push({ id: `tc-${c.day}-satz`, qid: 'tc.satz', area: 'erreicht', day: c.day, at: null, slot: null, kind: 'text', value: story, note: null, unit: null, src: 'hand', from: 'check', label: { text: 'One sentence about the day', textDe: 'Ein Satz zum Tag' } });
     if (c.q) {
       const p = pool.find((x) => x.id === c.q);
       const qid = CHECK_MAP[c.q] ?? `tc.${c.q}`;
