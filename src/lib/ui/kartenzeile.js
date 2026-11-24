@@ -9,7 +9,7 @@
 export const CARDS_KEY = 'karten.offen';
 
 /** The cards that start as one line on a phone: 'gd:<page>' is «Belongs to …» of a page, 'ah:<area>' is «All here» of an area. */
-export const START_FOLDED = ['gd:pack', 'gd:trips', 'gd:bikes', 'gd:gear', 'gd:wetter', 'ah:trips', 'ah:gear', 'ah:bikes', 'ah:plan', 'ah:aktiv'];
+export const START_FOLDED = ['gd:pack', 'gd:trips', 'gd:bikes', 'gd:gear', 'gd:me', 'gd:debrief', 'gd:neuland', 'gd:wetter', 'ah:trips', 'ah:gear', 'ah:bikes', 'ah:plan', 'ah:aktiv'];
 
 /** The stored choices, anything but true/false left out. */
 export const openMapOf = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).filter(([, x]) => typeof x === 'boolean')) : {});

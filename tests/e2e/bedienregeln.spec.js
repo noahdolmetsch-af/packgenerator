@@ -37,6 +37,7 @@ test('Ich shows the Inbox number; Darstellung has the full path', async ({ page,
   await expect(me).toBeVisible();
   await expect(me.locator('[data-inbox-count]')).toHaveText('4');
   await page.goto('./#/me/look');
+  await page.reload(); // after a step from Heute the first crumb names Heute («Zurück»); opened directly it names the place
   const path = page.locator('main').getByRole('navigation', { name: T('Path') });
   await expect(path.getByRole('link', { name: T('Me|place') })).toBeVisible();
   await expect(path).toContainText(T('Appearance'));

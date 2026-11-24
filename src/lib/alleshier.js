@@ -37,6 +37,7 @@ export const ALL_HERE = {
   trips: [
     { id: 'numbers', title: 'In numbers', href: '#/trips?numbers' },
     'templates',
+    'f.packvorschlag',
     'f.fuel',
     'f.tripcompare',
     'f.weather',

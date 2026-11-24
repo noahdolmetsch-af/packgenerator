@@ -7,7 +7,8 @@ describe('cardFolded', () => {
     for (const id of START_FOLDED) expect(cardFolded({}, id, true)).toBe(true);
     expect(cardFolded({}, 'ah:plan', true)).toBe(true); // Hilfen neu 1b (21.11.2026): «Alles hier» of Woche and Training is a line too
     expect(cardFolded({}, 'ah:other', true)).toBe(false);
-    expect(cardFolded({}, 'gd:debrief', true)).toBe(false);
+    expect(cardFolded({}, 'gd:debrief', true)).toBe(true); // Durchklick-Fund 2 (Noah «2a»): «Belongs to …» is a closed line on every page that shows it
+    expect(cardFolded({}, 'gd:other', true)).toBe(false);
   });
   it('never folds by itself on a computer', () => {
     for (const id of START_FOLDED) expect(cardFolded({}, id, false)).toBe(false);

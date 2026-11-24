@@ -12,7 +12,8 @@
   import { Sparkles, ChevronRight } from '@lucide/svelte';
   import { WHATS_NEW, shortVersion } from '../whatsnew.js';
   import { NEWS_HREF } from '../know/wasneu.js';
-  import { t, tn } from '../i18n.svelte.js';
+  import { t, tn, locale } from '../i18n.svelte.js';
+  import { newsDay } from '../know/neudatum.js';
 
   let { size = 'w', days = 0, onremove = null } = $props();
   const e = WHATS_NEW[0];
@@ -37,7 +38,7 @@
   <section class="news" class:long={size === 'long'} data-news={e.version} aria-labelledby="news-tile-h">
     <span class="ic" aria-hidden="true"><Sparkles size={20} /></span>
     <div class="m">
-      <p class="when">{days > 0 ? tn(days, 'New in {v} · {n} day left', 'New in {v} · {n} days left', { v: shortVersion(e.version) }) : t('New in {version}', { version: shortVersion(e.version) })}</p>
+      <p class="when">{days > 0 ? tn(days, 'New in {v} · {n} day left', 'New in {v} · {n} days left', { v: shortVersion(e.version) }) : t('New in {version}', { version: shortVersion(e.version) })}{#if newsDay(e.date, locale(), false)}{' · '}{newsDay(e.date, locale(), false)}{/if}</p>
       <h3 id="news-tile-h">{e.title ? t(e.title) : t('New in the app')}</h3>
       <p class="pt">{e.lead ? t(e.lead) : t(e.points[0].text)}</p>
       <div class="acts">
