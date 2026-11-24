@@ -4,8 +4,9 @@
  * trip and the small record that stays on the race. Nothing is fetched and the file never leaves the
  * device. Tested in tests/atlas.test.js.
  *
- * File: { "format": "rennatlas", "races": [{ name, date, days, km, hm, city, land, surface, url,
- * status, registered, fav, source, checked }] } or the list alone. Only `name` is needed.
+ * File: { "format": "rennatlas", "asOf": "2026-11-24", "races": [{ name, date, days, km, hm, city, land, surface, url,
+ * status, registered, fav, source, checked, opens, closes, quality, note, lat, lon }] } or the list alone.
+ * Only `name` is needed; the rest is shown when it is there.
  */
 export const MAX_ROWS = 400;
 export const MAX_FILE = 2_000_000;
@@ -15,6 +16,10 @@ const dayOf = (v) => (/^\d{4}-\d\d-\d\d$/.test(String(v ?? '')) ? String(v) : ''
 const count = (v) => {
   const n = Number(v);
   return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+};
+const coord = (v, max) => {
+  const n = typeof v === 'number' ? v : Number.NaN;
+  return Number.isFinite(n) && Math.abs(n) <= max ? Math.round(n * 1e4) / 1e4 : null;
 };
 const link = (v) => (/^https:\/\/[^\s]+$/i.test(String(v ?? '').trim()) ? String(v).trim().slice(0, 300) : '');
 
@@ -50,26 +55,32 @@ export function rowOf(x) {
     fav: x.fav === true,
     source: text(x.source, 80),
     checked: dayOf(x.checked),
+    opens: dayOf(x.opens),
+    closes: dayOf(x.closes),
+    quality: text(x.quality, 60),
+    note: text(x.note, 300),
+    lat: coord(x.lat, 90),
+    lon: coord(x.lon, 180),
   };
 }
 
-/** The text of a file → { rows, error } with error 'unreadable', 'format', 'empty' or ''. The dated rows come first, by day; a race twice in the file counts once. */
+/** The text of a file → { rows, error, asOf } with error 'unreadable', 'format', 'empty' or ''. The dated rows come first, by day; a race twice in the file counts once. */
 export function parseAtlas(raw) {
   let json;
   try {
     json = JSON.parse(String(raw ?? ''));
   } catch {
-    return { rows: [], error: 'unreadable' };
+    return { rows: [], error: 'unreadable', asOf: '' };
   }
   const list = Array.isArray(json) ? json : Array.isArray(json?.races) ? json.races : null;
-  if (!list) return { rows: [], error: 'format' };
+  if (!list) return { rows: [], error: 'format', asOf: '' };
   const seen = new Set();
   const rows = list
     .slice(0, MAX_ROWS)
     .map(rowOf)
     .filter((r) => r && !seen.has(keyOf(r)) && seen.add(keyOf(r)));
   rows.sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999') || a.name.localeCompare(b.name));
-  return { rows, error: rows.length ? '' : 'empty' };
+  return { rows, error: rows.length ? '' : 'empty', asOf: dayOf(json?.asOf) };
 }
 
 

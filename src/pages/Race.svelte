@@ -9,7 +9,7 @@
   import Crumb from '../lib/flow/kit/Crumb.svelte';
   import LazyPage from '../lib/nav/LazyPage.svelte';
   import RaceSheet from '../lib/race/RaceSheet.svelte';
-  import AtlasImport from '../lib/race/AtlasImport.svelte';
+  import Atlas from '../lib/race/Atlas.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import { db } from '../lib/db.js';
   import { newTrip } from '../lib/trips.js';
@@ -83,7 +83,7 @@
     <!-- Gesamttest 20.10.2026 Design 1: the common page head (title, one line, one main button); the
       explanation is the quiet help line «ⓘ So geht's ›» under it instead of an ⓘ next to the title -->
     <h1 class="rc-h1" tabindex="-1" data-page-title>{t('Races')}</h1>
-    <p class="rc-intro">{t('Bikepacking races and ultra rides: plan the strategy, know the route, ride with a calm head and learn afterwards.')}</p>
+    {#if tab !== 'list'}<p class="rc-intro">{t('Bikepacking races and ultra rides: plan the strategy, know the route, ride with a calm head and learn afterwards.')}</p>{/if}
     <button type="button" class="help-line" aria-expanded={info} data-race-help onclick={() => (info = !info)}><Info size={18} aria-hidden="true" /><span>{t('How it works|help')}</span><ChevronRight class="hl-chev" size={16} aria-hidden="true" /></button>
     {#if info}
       <div class="rc-info" data-race-explain="hub">
@@ -93,22 +93,24 @@
       </div>
     {/if}
 
-    <div class="rc-acts">
-      <button type="button" class="btn hi" onclick={openNew} data-race-new><Plus size={16} aria-hidden="true" />{t('New race')}</button>
-      <!-- «Rennen detailliert planen» (Noah 27.10.2026 «1b»): the Rennen-Check of every race on its own page -->
-      <a class="btn" href="#/racecheck" data-race-to-check>{t('Plan races in detail')}</a>
-    </div>
+    {#if tab !== 'list'}
+      <div class="rc-acts">
+        <button type="button" class="btn hi" onclick={openNew} data-race-new><Plus size={16} aria-hidden="true" />{t('New race')}</button>
+        <!-- «Rennen detailliert planen» (Noah 27.10.2026 «1b»): the Rennen-Check of every race on its own page -->
+        <a class="btn" href="#/racecheck" data-race-to-check>{t('Plan races in detail')}</a>
+      </div>
+    {/if}
 
     {#if $tripsQ !== undefined}
       <div class="rc-tabs">
-        <Seg label={t('Views of the races')} value={tab} options={[{ key: 'coming', name: t('Coming|races'), n: list.coming.length }, { key: 'list', name: t('Race list') }, { key: 'done', name: t('Finished|races'), n: list.past.length }]} onchange={(k) => (tab = k)} />
+        <Seg label={t('Views of the races')} value={tab} options={[{ key: 'coming', name: t('Coming|races'), n: list.coming.length }, { key: 'list', name: t('Race atlas') }, { key: 'done', name: t('Finished|races'), n: list.past.length }]} onchange={(k) => (tab = k)} />
       </div>
       {#if tab === 'coming'}
         {#if !list.coming.length && !list.past.length}
           <section class="rc-box rc-soft" data-race-empty>
             <h2 class="rc-h2"><Flag size={18} aria-hidden="true" /> {t('No race yet')}</h2>
             <p class="rc-text">{t('Create a race, or make one of your trips a race. Then load the route files and the stops of the organiser.')}</p>
-            <div class="rc-acts"><button type="button" class="btn" onclick={() => (tab = 'list')} data-race-to-list>{t('Take races from your race list')}</button></div>
+            <div class="rc-acts"><button type="button" class="btn" onclick={() => (tab = 'list')} data-race-to-list>{t('Open the race atlas')}</button></div>
           </section>
         {/if}
       {/if}
@@ -134,10 +136,10 @@
       {#if tab === 'done' && !list.past.length}
         <section class="rc-box rc-soft" data-race-done-empty><p class="rc-text">{t('Races that are over stand here.')}</p></section>
       {/if}
-      <div hidden={tab !== 'list'}><AtlasImport trips={$tripsQ ?? []} bikes={$bikesQ ?? []} ondone={() => (tab = 'coming')} /></div>
+      <div hidden={tab !== 'list'}><Atlas trips={$tripsQ ?? []} bikes={$bikesQ ?? []} ondone={() => (tab = 'coming')} /></div>
       {#if tab === 'coming'}
       {#if list.coming.length || list.past.length}
-        <div class="rc-acts rc-tolist"><button type="button" class="btn" onclick={() => (tab = 'list')} data-race-to-list>{t('Take races from your race list')}</button></div>
+        <div class="rc-acts rc-tolist"><button type="button" class="btn" onclick={() => (tab = 'list')} data-race-to-list>{t('Open the race atlas')}</button></div>
       {/if}
       <!-- Impeccable: the sample race comes after your own races, not above them -->
       <section class="rc-box rc-soft" data-race-sample-offer>

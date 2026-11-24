@@ -1120,8 +1120,8 @@ const LISTED = {
   },
   'f.raceatlas': {
     on: null,
-    steps: ['Open Trips › Races › «Take races from your race list» and choose the file.', 'Tick the races and tap «Create … races».'],
-    example: 'Example: 3 races in the file, 1 already here → 2 new races with day and length.',
+    steps: ['Open Trips › Races › «Race atlas» and choose the file, once.', 'Filter the races, star the ones you want, open one and tap «Create race».'],
+    example: 'Example: 140 races in the file, the filter «Gravel, 3 to 6 days» shows 9; the star puts one on your year line.',
   },
   'f.racesample': {
     on: null,
