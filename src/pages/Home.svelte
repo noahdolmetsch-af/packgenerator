@@ -954,7 +954,9 @@
     e.preventDefault();
     const el = document.getElementById(id);
     if (!el) return;
-    el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    // at once (not smooth), and once more a frame later: lazy cards above may still change their height while a smooth scroll runs, and the jump would end beside the heading
+    el.scrollIntoView({ block: 'start' });
+    requestAnimationFrame(() => el.scrollIntoView({ block: 'start' }));
     el.setAttribute('tabindex', '-1');
     el.focus({ preventScroll: true });
   }
@@ -2552,6 +2554,9 @@
   }
   .say .hi {
     color: var(--hi);
+  }
+  .imp {
+    scroll-margin-top: 72px;
   }
   .rico {
     display: grid;
