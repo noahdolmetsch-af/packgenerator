@@ -81,6 +81,7 @@
   import { quickDebrief, templateOffer, templateName, nextTrip, learningsFor } from '../lib/debrief.js';
   import TemplateOffer from '../lib/debrief/TemplateOffer.svelte';
   import StartHier from '../lib/home/StartHier.svelte';
+  import { health } from '../lib/health/client.svelte.js'; // connected Fitbit: the body tile also stands on an empty device (its line says why there is no value)
   import { openNew, openNote, openTrip, openPrep, addItem, wantBike, take, dayRide, openData, openPlay } from '../lib/nav.js';
   import { todayFocus, openDebrief, endedOn } from '../lib/today.js';
   import { t, tn, num, locale, lang, setLang, nameOf } from '../lib/i18n.svelte.js';
@@ -90,8 +91,9 @@
   import { meineTour } from '../lib/tourpfad/karte.js';
   import { phone } from '../lib/media.svelte.js';
   import { newsHint, newerThan, pointCount, SEEN_KEY, BEFORE, WHATS_NEW } from '../lib/whatsnew.js';
-  import { tileDaysLeft, unpinNews } from '../lib/know/wasneu.js';
-  import { readUpdate, writeUpdate, readPin, writePin } from '../lib/know/wasneuStore.js';
+  import { tileDaysLeft, unpinNews, messageOn } from '../lib/know/wasneu.js';
+  import { readUpdate, writeUpdate, readPin, writePin, readMute } from '../lib/know/wasneuStore.js';
+  import NewsBanner from '../lib/know/NewsBanner.svelte';
   import MaintHint from '../lib/maintenance/MaintHint.svelte';
   import { HOME_PLACE, HOME_FORECAST, usable, needsFetch, knowCards, wearWhat } from '../lib/know.js';
   import { openTodos } from '../lib/todos.js';
@@ -310,6 +312,16 @@
     unpinNewsTile();
   });
   const newsDays = $derived(tileDaysLeft(newsUpdate, today));
+  // «Banner Was ist neu» (Noah 23.11.2026 «1-5a»): ONE narrow line under the chips after an update, «since your last visit»
+  let bannerOff = $state(false);
+  const bannerEntries = $derived.by(() => {
+    if (bannerOff) return [];
+    try {
+      return messageOn({ update: newsUpdate, mute: readMute(), today }) ? newerThan(newsUpdate.from ?? BEFORE) : [];
+    } catch {
+      return [];
+    }
+  });
   // I11e: a tile «New» pinned by an earlier version goes back where it stood after the 14 days
   function unpinNewsTile() {
     const p = readPin();
@@ -1024,12 +1036,11 @@
   const upEmpty = $derived(ready && !upRows.length && !calmRows.length && !cheers.length && !notice && !quick && !impulseUp && !essUp);
   // «Starte hier» (Noah 23.11.2026 «1-5a», V2): on an empty device the body block and «Up now» (with the idea) show only with content
   const healthQ = liveQuery(() => (db.healthDays ? db.healthDays.count() : 0));
-  const emptyTiles = $derived(timeWall.filter((x) => EMPTY_KEEP.has(x.id) && (x.id === 'body' ? ($healthQ ?? 0) > 0 : x.id === 'important' ? !upEmpty : true)));
+  const emptyTiles = $derived(timeWall.filter((x) => EMPTY_KEEP.has(x.id) && (x.id === 'body' ? ($healthQ ?? 0) > 0 || !!health.prefs?.connected : x.id === 'important' ? !upEmpty : true)));
   // P6 SN2l: the weekly weight only while no weight for 7 days (and not put away today); after «Save» it stays for its thanks
   let weighedNow = $state(false);
   const weighOn = $derived(weighedNow || (weightStore.loaded && weighDue(weightStore.entries, today, S[WEIGH_KEY] ?? null)));
   // P6 H1 (Noah 21.10.2026 «2b»): after an update «New» stands on top as a whole row for 14 days, unless the wall has the tile itself
-  const newsRow = $derived(ready && !editing && newsDays > 0 && !onWall.has('news') && S[NEWS_OFF_KEY] !== WHATS_NEW[0].version);
   // «VO2max auf Heute» (Noah 28.10.2026 «2 a und b»): the tile only while there is a value of the last 90 days
   const vo2Q = $derived(liveQuery(() => (db.healthDays ? db.healthDays.where('date').aboveOrEqual(addHealthDays(today, -VO2_DAYS)).toArray() : [])));
   const vo2On = $derived(!!vo2Of($vo2Q ?? [], today));
@@ -1052,6 +1063,11 @@
   const secOn = $derived(S[SECTIONS_KEY] !== false);
   const areasCfg = $derived(S[AREAS_KEY] ?? null);
   const timeWall = $derived(editing ? shownWall : byTime(shownWall, now.getHours(), timeOn));
+  // «Heute abhaken» right under the chips (Noah 23.11.2026 «1a 2a»): not in the wall then, so the cards above the wall (adventure, ideas, news …) stand under it.
+  // While customising it stays a tile of the wall (move, hide, size); a wall without it shows nothing here.
+  const hakenTop = $derived(!editing && ready && !emptyDevice && on('haken'));
+  const wallTiles = $derived(hakenTop ? timeWall.filter((x) => x.id !== 'haken') : timeWall);
+  const hakenTile = $derived(timeWall.find((x) => x.id === 'haken') ?? null);
   const saveShown = (tiles) => saveWall(keepHidden(tiles, wall, hiddenTiles));
   const toggleTile = (id) => saveWall(onWall.has(id) ? removeTile(wall, id) : addTile(wall, id));
   // «Reset» (Noah 3a): the ready wall again; the old layout no longer counts after that
@@ -1162,10 +1178,12 @@
         {#if placeOpen}<div class="pf"><HomePlaceForm onchosen={() => (placeOpen = false)} /></div>{/if}
       </div>
     </div>
+    {#if hakenTop}<div class="hktop" data-haken-top><HakenBlock {today} top={shownWall.some((w) => w.id === 'meditation' && w.size === 'long')} cfg={S[HABITS_KEY] ?? null} /></div>{/if}
+    {#if ready && !editing && bannerEntries.length}<NewsBanner entries={bannerEntries} onclose={() => (bannerOff = true)} />{/if}
     <!-- «Heute neu» A: one personal sentence; the idea for today moved into «Up now» -->
     {#if sentence}<p class="say" data-say>{#each sentence as p, i (i)}{#if i}{' '}{/if}{#if p.to}<a class="jump" href={`#${p.to}`} data-say-jump onclick={(e) => jumpTo(e, p.to)}>{p.text}</a>{:else}<span class:hi={p.hi}>{p.text}</span>{/if}{/each}</p>{/if}
     <!-- «Heute entdecken» (Noah 23.11.2026 «2b»): one idea with its «Warum», right under the chips; it was the card «Entdecken» under «Mehr» -->
-    {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} {newsDays} />{/if}
+    {#if ready && !editing}<IdeenZeile {today} hour={now.getHours()} weekday={now.getDay()} {trips} debriefDone={(tr) => debriefs.some((d) => d.tripId === tr.id && d.status === 'done')} careDue={due.points} inbox={notes.length} />{/if}
   </section>
 {/snippet}
 
@@ -1243,7 +1261,7 @@
             <div><dt>{t('Distance')}</dt><dd>{num(Math.round(shown.route.km))} km</dd></div>
             {#if shown.route.gainM}<div><dt>{t('Climbing')}</dt><dd>{num(Math.round(shown.route.gainM))} m</dd></div>{/if}
           </dl>
-          <Profile points={prof} />
+          <Profile detail points={prof} />
         </div>
       {/if}
       <!-- «Neuer Schwung» Stil S2 (Noah 26.10.2026 «1a»): a drawn landscape with the dashed route at the foot of the trip card -->
@@ -1447,11 +1465,12 @@
   <!-- «Stopps in der Nähe»: on a ride day up here, on other days at the bottom (so «Dein Körper heute» stays in the first screen) -->
   {#if !editing}{#await import('../lib/stops/HeuteStopps.svelte') then m}<m.default {today} top />{:catch}{/await}{/if}
   <!-- v0.127.0 A-U2 (mockup «Laden»): calm placeholders until Today has read its data, then the wall -->
-  {#if newsRow}<div class="newsrow" data-news-row><NewsTile size="long" days={newsDays} onremove={() => db.settings.put({ key: NEWS_OFF_KEY, value: WHATS_NEW[0].version })} /></div>{/if}
   {#if ready && emptyDevice}
     {#if emptyTiles.length}<Wall tiles={emptyTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(timeWall.map((x) => kept.find((y) => y.id === x.id) ?? x))} onadd={() => (catalogOpen = true)} />{/if}
+    <!-- what is due today never hides (rule 11), also with a calendar and nothing else: without the body tile it stands here -->
+    {#if !emptyTiles.some((x) => x.id === 'body')}<DueToday todos={S[MERKEN_KEY] ?? []} {today} care={due.points} sp={spDue} />{/if}
     <p class="muted emptywall" data-empty-wall>{t('Everything else (body, up now, weather) shows up as soon as you have data.')} <button type="button" class="linkq" onclick={() => (wallAnyway = true)}>{t('Show everything now')}</button></p>
-  {:else if ready}<Wall tiles={timeWall} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={saveShown} onadd={() => (catalogOpen = true)} />
+  {:else if ready}<Wall tiles={wallTiles} body={tileBody} {editing} sections={secOn} areas={areasCfg} onedit={() => (editing = true)} onchange={(kept) => saveShown(hakenTop && hakenTile ? [hakenTile, ...kept] : kept)} onadd={() => (catalogOpen = true)} />
   {:else}<Skeleton kind="home" rows={2} />{/if}
   <!-- «Heute neu» A: the half-width trip card has no room for the weekly km check; it shows under the wall then -->
   {#if ready && !editing && timeWall.some((x) => x.id === 'trip' && x.size === 'l')}<div class="kmrow"><KmCard {today} /></div>{/if}
@@ -2414,9 +2433,6 @@
   .kmrow {
     margin-top: var(--sp-3);
   }
-  .newsrow {
-    margin-bottom: var(--sp-3);
-  }
   .custom {
     display: flex;
     flex-direction: column;
@@ -2511,6 +2527,9 @@
   }
   .odot.off {
     background: var(--ink-3);
+  }
+  .hktop {
+    margin: 12px 0 4px;
   }
   /* «Heute neu» A «Ein Blick» (Noah 20.10.2026 «1A»): the personal sentence, the row icons of «Up now» */
   .say {

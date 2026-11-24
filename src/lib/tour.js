@@ -30,6 +30,19 @@ export const TOURS = {
     { href: '#/flow', place: 'week', target: ['section[aria-labelledby="tick-h"]', '.flow header.ph'], title: 'Active|place', text: 'For everyday life: meditation, training, recovery. One tap ticks off, a long press enters the duration.' },
     { href: '#/', place: 'me', end: true, target: [], title: 'Done. Well done!', text: 'You always find help under Me › Handbook. You can start the tour again there.' },
   ],
+  // «Rundgang der Stärken» (Noah 23.11.2026 «1-5a»): four stations, each a question of a rider. A station is an
+  // `ask` card (the question, one sentence: «Show me ›» or «Skip») and a `show` step that lights the real part of the sample.
+  staerken: [
+    { station: 1, ask: true, href: '#/race/race-sample', place: 'trips', target: [], title: 'How far do I get with luggage?', text: 'The sample race plans ten days from your own experience. Every number says where it comes from.' },
+    { station: 1, href: '#/race/race-sample', place: 'trips', target: ['[data-race-box="plan-assume"]', 'main h1'], title: 'The assumptions|race', text: 'Every number behind the plan, with its source. Change one and the whole plan recalculates.' },
+    { station: 2, ask: true, href: '#/race/race-sample', place: 'trips', target: [], title: 'Where do I have to shop?', text: 'A Sunday with no shop on the way: the app finds it before you stand there.' },
+    { station: 2, href: '#/race/race-sample', place: 'trips', target: ['[data-race-box="summary"]', 'main h1'], title: 'The gaps', text: 'Where there is no shop for a long time, and which days are Sundays: buy before.' },
+    { station: 3, ask: true, href: '#/race/race-sample/ride', place: 'trips', target: [], title: 'Which bag is the jacket in?', text: 'Photograph, label and weigh your bags. On the bike you see at once what lies where.' },
+    { station: 3, href: '#/race/race-sample/ride', place: 'trips', target: ['[data-race-box="ride-bags"]', 'main h1'], title: 'What lies where', text: 'Every bag with its photo, label and weight. Tap a bag: race mode shows what lies where while you ride.' },
+    { station: 4, ask: true, href: '#/', place: 'today', target: [], title: 'What do I do today?', text: 'Today shows what is on now. In the evening a short check asks how the day went.' },
+    { station: 4, href: '#/', place: 'today', target: ['[data-section="haken"]', '[data-pagemore]', 'main h1'], title: 'Tick off today', text: 'One tap ticks an activity off. The evening check asks how you feel, in your own words.' },
+    { href: '#/race/race-sample', place: 'trips', end: true, target: [], title: 'Done. Well done!', text: 'The sample race stays under Trips › Races, marked as a sample. «Delete the sample» there takes it away. You find this tour in Me › Handbook.' },
+  ],
   aktiv: [
     { href: '#/flow', place: 'week', target: ['section[aria-labelledby="tick-h"]'], title: 'Tick off today', text: 'One tile per sport. A tap ticks it off, a long press enters the duration, place or stopwatch.' },
     { href: '#/flow', place: 'week', target: ['section[aria-labelledby="rings-h"]', '.lay .side', '.lay'], title: 'Your week', text: 'The rings count the last 7 days: move, mindful and recovery. A rest day does not cost everything at once.' },
@@ -75,10 +88,19 @@ export const TOURS = {
 };
 
 /** The tour's name for buttons and the Handbook. */
-export const TOUR_NAMES = { app: 'Tour of the app', aktiv: 'Tour of Active', touren: 'Tour of Trips', material: 'Tour of Gear', velos: 'Tour of Bikes', race: 'Tour of the sample race', quick: 'Tour of Quick Links' };
+export const TOUR_NAMES = { staerken: 'Tour of the strengths', app: 'Tour of the app', aktiv: 'Tour of Active', touren: 'Tour of Trips', material: 'Tour of Gear', velos: 'Tour of Bikes', race: 'Tour of the sample race', quick: 'Tour of Quick Links' };
 
 /** How many steps a tour shows with «Step n of m» (the end card does not count). */
-export const stepCount = (id) => (TOURS[id] ?? []).filter((s) => !s.end).length;
+export const stepCount = (id) => {
+  const steps = (TOURS[id] ?? []).filter((s) => !s.end);
+  return steps.some((s) => s.station) ? new Set(steps.map((s) => s.station)).size : steps.length;
+};
+
+/** The number shown as «Step n of m»: the station of a tour with stations, else the step. */
+export const stepNo = (id, i) => {
+  const s = stepAt(id, i);
+  return s?.station ?? i + 1;
+};
 
 /** The step `i` of tour `id`, or null past the end or for an unknown tour. */
 export const stepAt = (id, i) => (Number.isInteger(i) && i >= 0 ? (TOURS[id]?.[i] ?? null) : null);
@@ -93,6 +115,14 @@ export function runOf(v) {
 /** The next run after «Next» (null after the last step) and after «Back» (never before the first). */
 export const nextRun = (run) => (run && run.step + 1 < TOURS[run.id].length ? { ...run, step: run.step + 1 } : null);
 export const backRun = (run) => (run ? { ...run, step: Math.max(0, run.step - 1) } : null);
+/** «Skip» on a station card: on to the first step of the next station (the end card after the last one). */
+export function skipRun(run) {
+  if (!run) return null;
+  const steps = TOURS[run.id];
+  const here = steps[run.step]?.station;
+  const at = steps.findIndex((s, i) => i > run.step && s.station !== here);
+  return at < 0 ? null : { ...run, step: at };
+}
 
 /** The navigation link of a place, on the phone (bottom bar) and on the computer (side bar), and Me. */
 export const navSelector = (place) => (place === 'me' ? 'a.me' : `nav.bottom a[data-place="${place}"], nav.places li[data-place="${place}"] > a`);

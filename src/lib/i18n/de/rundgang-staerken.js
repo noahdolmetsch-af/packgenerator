@@ -1,0 +1,23 @@
+// «Rundgang der Stärken» (Noah 23.11.2026 «1-5a»): vier Stationen mit dem Muster-Rennen als Beispiel (src/lib/tour.js)
+export default {
+  'Tour of the strengths': 'Rundgang der Stärken',
+  'Station {n} of {of}': 'Station {n} von {of}',
+  'Skip|station': 'Überspringen',
+  'Show me ›|station': 'Zeig mir ›',
+  '{n} questions about what the app can do, about 2 minutes': '{n} Fragen dazu, was die App kann, etwa 2 Minuten',
+  'How far do I get with luggage?': 'Wie weit komme ich mit Gepäck?',
+  'The sample race plans ten days from your own experience. Every number says where it comes from.': 'Das Muster-Rennen plant zehn Tage aus deiner eigenen Erfahrung. Jede Zahl sagt, woher sie kommt.',
+  'Where do I have to shop?': 'Wo muss ich einkaufen?',
+  'A Sunday with no shop on the way: the app finds it before you stand there.': 'Ein Sonntag ohne Laden unterwegs: Die App findet ihn, bevor du davor stehst.',
+  'Which bag is the jacket in?': 'In welcher Tasche ist die Jacke?',
+  'Photograph, label and weigh your bags. On the bike you see at once what lies where.': 'Taschen fotografieren, beschriften und wiegen. Auf dem Velo siehst du sofort, was wo liegt.',
+  'Every bag with its photo, label and weight. Tap a bag: race mode shows what lies where while you ride.': 'Jede Tasche mit Foto, Etikett und Gewicht. Tipp auf eine Tasche: Der Rennmodus zeigt unterwegs, was wo liegt.',
+  'Handlebar roll': 'Lenkerrolle',
+  'What do I do today?': 'Was tue ich heute?',
+  'Today shows what is on now. In the evening a short check asks how the day went.': 'Heute zeigt, was jetzt dran ist. Am Abend fragt ein kurzer Check, wie der Tag war.',
+  'One tap ticks an activity off. The evening check asks how you feel, in your own words.': 'Ein Tipp hakt eine Aktivität ab. Der Abend-Check fragt, wie du dich fühlst, in deinen eigenen Worten.',
+  'The sample race stays under Trips › Races, marked as a sample. «Delete the sample» there takes it away. You find this tour in Me › Handbook.': 'Das Muster-Rennen bleibt unter Touren › Rennen, als Muster markiert. «Muster löschen» nimmt es dort weg. Diesen Rundgang findest du unter Ich › Handbuch.',
+  'Four questions show on the sample race what the app can do; plus the tour of the places and a small tour per place. A tour you end early goes on at its step next time.': 'Vier Fragen zeigen am Muster-Rennen, was die App kann; dazu der Rundgang durch die Orte und kleine Rundgänge pro Ort. Ein abgebrochener Rundgang geht beim nächsten Mal beim richtigen Schritt weiter.',
+  'At a question tap «Show me ›» to see it in the sample race, or «Skip».': 'Tippe bei einer Frage auf «Zeig mir ›», um sie im Muster-Rennen zu sehen, oder auf «Überspringen».',
+  'Example: «Where do I have to shop?» lights up the gaps of the sample race: the Sunday without a shop.': 'Beispiel: «Wo muss ich einkaufen?» zeigt die Lücken des Muster-Rennens: den Sonntag ohne Laden.',
+};

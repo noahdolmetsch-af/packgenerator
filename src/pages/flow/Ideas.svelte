@@ -84,7 +84,12 @@
     const undo = await change((l) => addPoint(l, t(CAT[c.key].tip), { id: uid('id'), area: c.key }));
     offerDone(t('In your ideas.'), undo);
   }
-  const later = (c) => db.settings.put({ key: NOT_NOW_KEY, value: { ...notNow, [c.key]: today } });
+  /** «Not now»: the tip rests for 7 days; the note says so and «Undo» brings it back (Noah 23.11.2026 «1-5a», 1a). */
+  async function later(c) {
+    const before = (await db.settings.get(NOT_NOW_KEY))?.value ?? {};
+    await db.settings.put({ key: NOT_NOW_KEY, value: { ...before, [c.key]: today } });
+    offerDone(t('«{name}» rests for 7 days.', { name: t(CAT[c.key].label) }), () => db.settings.put({ key: NOT_NOW_KEY, value: before }));
+  }
   const toggle = (x) => change((l) => togglePoint(l, x.id));
   async function drop(x) {
     const undo = await change((l) => removePoint(l, x.id));
