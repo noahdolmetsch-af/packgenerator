@@ -3,7 +3,7 @@
 // any violation). Prints a summary so the baseline can shrink release by release.
 import { describe, it, expect } from 'vitest';
 import { existsSync } from 'node:fs';
-import { lintAll, lintFile, countsOf, readBaseline, compare, summary, globalClasses, checkDecl, RULES, STRICT_STYLE, stillToRebuild } from '../scripts/style-lint.mjs';
+import { lintAll, lintFile, countsOf, readBaseline, compare, summary, globalClasses, checkDecl, RULES, STRICT_STYLE, STRICT_RULES, stillToRebuild } from '../scripts/style-lint.mjs';
 
 describe('style lint rules', () => {
   const globals = globalClasses('.sw { width: 10px }\n.btn.hi { color: red }\n.card, .row .x { padding: 0 }\n@media (max-width: 9px) { .sel { width: 1px } }');
@@ -36,6 +36,13 @@ describe('style lint rules', () => {
     expect(checkDecl('font', '600 var(--fs-label)/1.3 var(--font-body)')).toEqual([]);
     expect(checkDecl('font', 'inherit')).toEqual([]);
   });
+  it('corners on the ladder and shadows in three steps (baseline-only, Noah 24.11.2026 «2a»)', () => {
+    expect(checkDecl('border-radius', '10px')).toEqual(['radius']);
+    expect(checkDecl('border-radius', '6px 6px 0 0')).toEqual(['radius']);
+    for (const v of ['var(--r-ctl)', '8px', '12px', '16px 16px 0 0', '999px', '50%', '0', 'var(--radius-card)']) expect(checkDecl('border-radius', v), v).toEqual([]);
+    expect(checkDecl('box-shadow', '0 8px 24px var(--shadow)')).toEqual(['shadow']);
+    for (const v of ['none', 'var(--shadow-2)', 'var(--card-shadow)', '0 0 0 2px var(--paper)', 'inset 0 0 0 2px var(--accent)', 'var(--shadow-1), 0 0 0 2px var(--paper)']) expect(checkDecl('box-shadow', v), v).toEqual([]);
+  });
   it('reads inline styles, not ids in selectors', () => {
     const v = lintFile('/x/src/B.svelte', '<div style="color: #123456; gap: 4px" style:background="rgb(1,2,3)"></div>\n<style>\n  #main { color: var(--ink) }\n</style>', new Set());
     expect(v.map((x) => x.rule)).toEqual(['colour', 'colour']);
@@ -54,7 +61,7 @@ describe('style lint on src/', () => {
       `${w.key}: ${w.now} ${w.rule} violation(s), baseline ${w.was}`,
       ...result[w.key].filter((v) => v.rule === w.rule).map((v) => `    ${w.key}:${v.line}  ${v.text}`),
     ]);
-    const help = { colour: 'use a var(--…) token from src/app.css', breakword: 'use overflow-wrap: break-word (whole words wrap)', global: 'rename the class: app.css styles it for everyone', fontsize: 'use var(--fs-page|section|sub|body|label|small)' };
+    const help = { colour: 'use a var(--…) token from src/app.css', breakword: 'use overflow-wrap: break-word (whole words wrap)', global: 'rename the class: app.css styles it for everyone', fontsize: 'use var(--fs-page|section|sub|body|label|small)', radius: 'use the ladder var(--r-1…--r-4), var(--r-pill), var(--r-ctl) or var(--radius-card)', shadow: 'use var(--shadow-1|2|3) or var(--card-shadow)' };
     expect(messages, `New style violations (${[...new Set(worse.map((w) => `${w.rule}: ${help[w.rule]}`))].join('; ')}):\n${messages.join('\n')}`).toEqual([]);
   });
 });
@@ -67,8 +74,9 @@ describe('style lint: strict for the kit and the touched pages', () => {
     const base = readBaseline().style ?? {};
     for (const f of STRICT_STYLE) {
       expect(existsSync(new URL(`../${f}`, import.meta.url)), f).toBe(true);
-      expect(base[f], `${f} must not be in the baseline`).toBeUndefined();
-      expect((result[f] ?? []).map((v) => `${f}:${v.line} ${v.rule} ${v.text}`), f).toEqual([]);
+      // radius and shadow («Feinschliff», Noah 24.11.2026 «2a») are baseline-only: the no-growth check above holds them; the old four stay at 0
+      expect(Object.keys(base[f] ?? {}).filter((r) => STRICT_RULES.includes(r)), `${f} must not be in the baseline`).toEqual([]);
+      expect((result[f] ?? []).filter((v) => STRICT_RULES.includes(v.rule)).map((v) => `${f}:${v.line} ${v.rule} ${v.text}`), f).toEqual([]);
     }
   });
   it('lists the files still to rebuild («noch umbauen»)', () => {

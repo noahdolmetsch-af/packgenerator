@@ -765,7 +765,6 @@
       "radius": 3
     },
     "src/lib/nav/PlaceTabs.svelte": {
-      "colour": 2,
       "radius": 2
     },
     "src/lib/nav/ProblemForm.svelte": {

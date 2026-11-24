@@ -25,6 +25,8 @@ import { fileURLToPath } from 'node:url';
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const BASELINE = join(ROOT, 'tests/guard-baseline.json');
 export const RULES = ['colour', 'breakword', 'global', 'fontsize', 'radius', 'shadow'];
+/** The rules a strict file must keep at 0. `radius` and `shadow` (Noah 24.11.2026 «2a», no mass replacement) are baseline-only everywhere: a strict file may list them, only the count may not grow. */
+export const STRICT_RULES = ['colour', 'breakword', 'global', 'fontsize'];
 /**
  * v0.67.0 «Übergänge 1» (Noah Ü2a, Mitziehen): what a release builds or brings onto the kit is STRICT:
  * no baseline, every rule must be 0 (style lint here; the Konsistenz-Test also: at most one main
@@ -397,7 +399,12 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     const counts = countsOf(result);
     const b = readBaseline();
     if (process.argv.includes('--update')) {
-      b.style = counts;
+      // a strict file keeps no baseline for the four strict rules: a violation there stays loud, it is never written down
+      b.style = Object.fromEntries(
+        Object.entries(counts)
+          .map(([f, c]) => [f, STRICT_STYLE.includes(f) ? Object.fromEntries(Object.entries(c).filter(([r]) => !STRICT_RULES.includes(r))) : c])
+          .filter(([, c]) => Object.keys(c).length),
+      );
       writeBaseline(b);
       console.log('style baseline written');
     }
