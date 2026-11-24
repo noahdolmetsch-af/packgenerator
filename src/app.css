@@ -1699,8 +1699,6 @@ details[open] > summary.lrow .chev {
   margin: 14px 0 4px;
   color: var(--ink-3);
   font: 600 var(--fs-tiny)/1.3 var(--font-body);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 .zlabel::after {
   content: '';

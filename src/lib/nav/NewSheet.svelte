@@ -287,8 +287,6 @@
     margin: 14px 0 6px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny)/1.4 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .opts {
     list-style: none;

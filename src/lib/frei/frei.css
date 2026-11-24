@@ -172,8 +172,6 @@
 .fz-kick {
   color: var(--ink-3);
   font: 600 var(--fs-tiny) var(--font-body);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 .fz-big {
   margin: 0;

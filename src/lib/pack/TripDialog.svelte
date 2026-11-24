@@ -1492,8 +1492,6 @@
     margin: 10px 0 6px;
     font-size: var(--fs-tiny);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-2);
   }
   .obtns {

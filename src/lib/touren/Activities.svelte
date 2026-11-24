@@ -378,8 +378,6 @@
     margin: 14px 4px 4px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .rows {
     margin: 0;

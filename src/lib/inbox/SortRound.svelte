@@ -153,8 +153,6 @@
     margin: 0;
     font-size: var(--fs-tiny);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     color: var(--ink-3);
   }
   .abr-what {

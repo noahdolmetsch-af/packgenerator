@@ -2502,8 +2502,6 @@
     margin: 14px 0 6px;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   /* every view says in one sentence what it shows: quiet, above the list */
   .vhead {

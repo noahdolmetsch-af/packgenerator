@@ -144,8 +144,6 @@
     margin: 16px 0 4px;
     color: var(--ink-3);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
   .pl {
     margin: 0;

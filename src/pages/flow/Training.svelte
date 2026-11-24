@@ -258,8 +258,6 @@
     padding: 8px 0;
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.2 var(--font-body);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   a.row:hover {
     background: var(--paper-2);

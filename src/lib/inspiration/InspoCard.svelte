@@ -108,8 +108,6 @@
     background: var(--hi-soft);
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.5 var(--font-body);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .ic-badge[data-type='video'],
   .ic-badge[data-type='podcast'] {

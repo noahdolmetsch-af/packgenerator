@@ -199,8 +199,6 @@
     margin: 0;
     color: var(--head);
     font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     font-size: var(--fs-small);
   }
   .cm-big {

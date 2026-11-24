@@ -365,8 +365,6 @@
     margin: 14px 0 0;
     color: var(--ink-2);
     font-size: var(--fs-small);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .srow {
     display: flex;

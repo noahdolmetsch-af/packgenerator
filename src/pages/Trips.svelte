@@ -1120,8 +1120,6 @@ import { normState, skKey } from '../lib/sk/tiles.js';
     margin: var(--sp-4) 0 var(--sp-2);
     color: var(--ink-2);
     font: 600 var(--fs-tiny) / 1.3 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .mh:first-child {
     margin-top: var(--sp-2);

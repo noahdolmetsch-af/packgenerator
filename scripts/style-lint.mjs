@@ -24,7 +24,7 @@ import { fileURLToPath } from 'node:url';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const BASELINE = join(ROOT, 'tests/guard-baseline.json');
-export const RULES = ['colour', 'breakword', 'global', 'fontsize', 'radius', 'shadow'];
+export const RULES = ['colour', 'breakword', 'global', 'fontsize', 'radius', 'shadow', 'upper'];
 /** The rules a strict file must keep at 0. `radius` and `shadow` (Noah 24.11.2026 «2a», no mass replacement) are baseline-only everywhere: a strict file may list them, only the count may not grow. */
 export const STRICT_RULES = ['colour', 'breakword', 'global', 'fontsize'];
 /**
@@ -234,6 +234,8 @@ export function checkDecl(prop, value, { colours = true, fonts = true } = {}) {
   if (colours && (HEX.test(v) || FUNC.test(v))) out.push('colour');
   if (RADIUS_PROPS.test(p) && radiusStray(v)) out.push('radius');
   if (p === 'box-shadow' && shadowStray(v)) out.push('shadow');
+  // «Versalien weg» (Noah 24.11.2026 «2a»): a heading is written normally and bold; capitals only for units. Baseline-only.
+  if (p === 'text-transform' && /^uppercase$/i.test(v.trim())) out.push('upper');
   if (fonts && p === 'font-size' && !OK_SIZE.test(v)) out.push('fontsize');
   if (fonts && p === 'font') {
     // the shorthand: a size outside var(…) («500 15px/1.25 var(--font-body)»); `font: inherit` is fine

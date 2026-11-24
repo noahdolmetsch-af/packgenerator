@@ -315,8 +315,6 @@
     padding: 14px 0 6px;
     color: var(--ink-3);
     font: 600 var(--fs-tiny) var(--font-body);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
   }
   .h {
     display: grid;

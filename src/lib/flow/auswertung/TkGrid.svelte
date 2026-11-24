@@ -55,7 +55,6 @@
     padding: 4px 2px;
   }
   thead .rh {
-    text-transform: uppercase;
     text-align: left;
     border-bottom: 1px solid var(--line);
   }

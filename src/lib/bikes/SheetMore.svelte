@@ -454,8 +454,6 @@
     margin: 0 0 6px;
     color: var(--accent);
     font: 700 var(--fs-tiny) / 1.4 var(--font-body);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   .bdg {
     padding: 1px 8px;

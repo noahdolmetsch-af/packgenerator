@@ -369,8 +369,6 @@
     margin: 16px 0 8px;
     font-size: var(--fs-label);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-2);
   }
   .days {

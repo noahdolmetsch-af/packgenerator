@@ -19,8 +19,6 @@
     border-radius: 6px;
     font-size: var(--fs-tiny);
     font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
     vertical-align: 1px;
     color: var(--ink-2);
     /* Gesamttest 20.10 Design 2: one quiet tag for every kind, the word says which */

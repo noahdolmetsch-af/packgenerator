@@ -157,8 +157,6 @@
   }
   .ld-caps {
     margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   textarea {
     resize: vertical;

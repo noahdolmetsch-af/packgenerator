@@ -45,6 +45,6 @@
   .sl {
     color: var(--ink-2);
     font-size: var(--fs-small);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 </style>

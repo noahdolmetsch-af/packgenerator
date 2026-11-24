@@ -187,8 +187,6 @@
 .rc-kick {
   color: var(--ink-3);
   font: 600 var(--fs-tiny) var(--font-body);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 .rc-big {
   margin: 0;

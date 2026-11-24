@@ -37,6 +37,8 @@ describe('style lint rules', () => {
     expect(checkDecl('font', 'inherit')).toEqual([]);
   });
   it('corners on the ladder and shadows in three steps (baseline-only, Noah 24.11.2026 «2a»)', () => {
+    expect(checkDecl('text-transform', 'uppercase')).toEqual(['upper']);
+    expect(checkDecl('text-transform', 'none')).toEqual([]);
     expect(checkDecl('border-radius', '10px')).toEqual(['radius']);
     expect(checkDecl('border-radius', '6px 6px 0 0')).toEqual(['radius']);
     for (const v of ['var(--r-ctl)', '8px', '12px', '16px 16px 0 0', '999px', '50%', '0', 'var(--radius-card)']) expect(checkDecl('border-radius', v), v).toEqual([]);
@@ -61,7 +63,7 @@ describe('style lint on src/', () => {
       `${w.key}: ${w.now} ${w.rule} violation(s), baseline ${w.was}`,
       ...result[w.key].filter((v) => v.rule === w.rule).map((v) => `    ${w.key}:${v.line}  ${v.text}`),
     ]);
-    const help = { colour: 'use a var(--…) token from src/app.css', breakword: 'use overflow-wrap: break-word (whole words wrap)', global: 'rename the class: app.css styles it for everyone', fontsize: 'use var(--fs-page|section|sub|body|label|small)', radius: 'use the ladder var(--r-1…--r-4), var(--r-pill), var(--r-ctl) or var(--radius-card)', shadow: 'use var(--shadow-1|2|3) or var(--card-shadow)' };
+    const help = { colour: 'use a var(--…) token from src/app.css', breakword: 'use overflow-wrap: break-word (whole words wrap)', global: 'rename the class: app.css styles it for everyone', fontsize: 'use var(--fs-page|section|sub|body|label|small)', radius: 'use the ladder var(--r-1…--r-4), var(--r-pill), var(--r-ctl) or var(--radius-card)', shadow: 'use var(--shadow-1|2|3) or var(--card-shadow)', upper: 'write the heading normally (capitals only for units)' };
     expect(messages, `New style violations (${[...new Set(worse.map((w) => `${w.rule}: ${help[w.rule]}`))].join('; ')}):\n${messages.join('\n')}`).toEqual([]);
   });
 });

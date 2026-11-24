@@ -141,8 +141,6 @@
     margin: 0;
     font-size: var(--fs-tiny);
     font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     color: var(--ink-2);
     overflow-wrap: break-word;
   }

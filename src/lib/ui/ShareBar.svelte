@@ -51,8 +51,6 @@
   .cap {
     font-size: var(--fs-tiny);
     color: var(--ink-3);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
   .bar {
     display: flex;

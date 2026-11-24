@@ -1687,8 +1687,6 @@
   .kick {
     margin: 0;
     font: 600 13px/1.3 var(--font-body);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
     color: var(--ink-2);
   }
   .lk,
