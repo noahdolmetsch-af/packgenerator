@@ -150,6 +150,9 @@
   let batch = $state(null);
   // GPX-Weg R3 (Noah 15.10.2026 «5a»): a CSV list comes in here too; what it did, in one card
   let list = $state(null);
+  // Impeccable Touren (Noah 24.11.2026 «1-5a», 4a): with saved rides and nothing being read, the list comes first and the
+  // upload is one button; the big dashed card stays for the empty page and while a file is being read
+  const idleRides = $derived(rides.length > 0 && !draft && !route && !batch && !list && !msg);
   let listFiles = [];
   async function read(text, name) {
     msg = '';
@@ -736,16 +739,18 @@
     <nav class="crumb" aria-label={t('Path')}><a href="#/trips"><ChevronLeft size={14} aria-hidden="true" />{t('Trips|place')}</a><ChevronRight size={12} aria-hidden="true" /><a href="#/debrief">{t('Look back|page')}</a><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{t('Rides|page')}</span></nav>
     <!-- Impeccable Runde 2 (Fahrten 1): the page is the list of rides; uploading is the button in the card -->
     <h1 class="title">{t('Rides|page')}</h1>
-    <p class="page-sub">{t('A recorded ride as GPX, TCX or FIT: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.')}</p>
+    <p class="page-sub">{idleRides ? t('Your rides as files, compared with the plan. Read on this device.') : t('A recorded ride as GPX, TCX or FIT: pauses, planned vs real, learnings. A CSV list from Strava or Garmin: the km of your trips. Read on this device.')}</p>
     <HintCard page="rides" />
 
     <div class="rv-lay">
       <div class="rv-col">
         <section class="up" aria-label={t('Upload ride')}>
-          <div class="drop">
-            <span class="rv-ic" aria-hidden="true"><Plus size={18} /></span>
-            <span class="rv-m"><span class="rv-t">{t('Choose a ride file')}</span>{#if !draft}<span class="rv-s">{t('GPX, TCX, FIT or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX or the original FIT file. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
-            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.fit,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
+          <div class="drop" class:slim={idleRides}>
+            {#if !idleRides}
+              <span class="rv-ic" aria-hidden="true"><Plus size={18} /></span>
+              <span class="rv-m"><span class="rv-t">{t('Choose a ride file')}</span>{#if !draft}<span class="rv-s">{t('GPX, TCX, FIT or CSV. Garmin, Wahoo, Strava or Komoot: a ride → Export GPX or the original FIT file. On Android you can also share the file to Pack Generator.')}</span>{/if}</span>
+            {/if}
+            <label class="btn pickbtn" class:hi={!draft}><Upload size={18} aria-hidden="true" />{busy && !draft ? t('Reading …') : idleRides ? t('Upload ride') : draft ? t('Choose another file') : t('Choose file')}<input type="file" multiple accept=".gpx,.tcx,.fit,.csv,application/gpx+xml,application/vnd.garmin.tcx+xml,application/xml,text/xml,text/csv" onchange={pick} disabled={busy} /></label>
           </div>
           {#if !draft && !route && !batch && !list && !rides.length}
             <!-- GPX-Weg 3a/5a: before the first ride, what a ride file does here -->
@@ -756,7 +761,7 @@
             </ol>
           {/if}
           <!-- GPX-Weg R3: where the files come from (was in the trip's look back) -->
-          <details class="rv-box pad howto" data-where-from>
+          <details class="rv-box pad howto" class:slimhow={idleRides} data-where-from>
             <summary>{t('Where do I get the file?')}</summary>
             <p><b>Strava:</b> {t('on a ride → ••• → Export GPX (one ride), or Settings → My Account → Download your data → activities.csv (all rides).')}</p>
             <p><b>Garmin Connect:</b> {t('on a ride → ⚙ → Export Original (a ZIP: open it, then choose the .fit file), Export to GPX or TCX, or Activities → Export CSV (the list).')}</p>
@@ -972,6 +977,24 @@
   }
   .drop .rv-m {
     flex: 1 1 260px;
+  }
+  /* with saved rides the upload is one button, not a card (the list comes first) */
+  .drop.slim {
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  /* and «Where do I get the file?» is a quiet line, not a card */
+  .up .howto.slimhow {
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .up .howto.slimhow summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
   }
   .drop .rv-t {
     font-weight: 600;

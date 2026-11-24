@@ -60,7 +60,7 @@ export const ARTS = ['trail', 'downhill', 'gravel', 'loop'];
 /** The start choices: km from your home place to the start (needs a home place); null = any. */
 export const AWAYS = [30, 60, 100];
 /** The lines of «Why this suggestion?» that can be switched off, in their order. */
-export const WHY_KEYS = ['time', 'trip', 'free', 'form', 'bike', 'snow', 'level', 'new', 'away'];
+export const WHY_KEYS = ['time', 'trip', 'free', 'form', 'bike', 'weather', 'snow', 'level', 'new', 'away'];
 
 /** The height (m) from which snow can lie on a typical day of the month (1 = January). A rule of thumb, not a forecast. */
 export const SNOW_LINE = { 1: 900, 2: 900, 3: 1200, 4: 1600, 5: 2000, 6: 2400, 7: 3000, 8: 3000, 9: 2500, 10: 2100, 11: 1700, 12: 1100 };
@@ -197,27 +197,24 @@ export function densify(line = [], step = 100) {
   return out;
 }
 
+/** Did you ride within `near` m of the point p? grid: gridOf() of your own ride points. */
+export function rodeNear(p, grid, near = 150) {
+  const la = Math.round(p[0] / CELL);
+  const lo = Math.round(p[1] / (CELL * 1.45));
+  for (let a = -1; a <= 1; a++) {
+    for (let b = -1; b <= 1; b++) {
+      for (const q of grid.get(`${la + a}:${lo + b}`) ?? []) if (metres(p, q) <= near) return true;
+    }
+  }
+  return false;
+}
+
 /** Share (0 to 1) of the tour's line that you have not ridden (farther than `near` m from your points); null without rides. */
 export function newShare(t, grid, near = 150) {
   if (!grid || !t?.line?.length) return null;
   const pts = densify(t.line, 100);
   let fresh = 0;
-  for (const p of pts) {
-    const la = Math.round(p[0] / CELL);
-    const lo = Math.round(p[1] / (CELL * 1.45));
-    let hit = false;
-    for (let a = -1; a <= 1 && !hit; a++) {
-      for (let b = -1; b <= 1 && !hit; b++) {
-        for (const q of grid.get(`${la + a}:${lo + b}`) ?? []) {
-          if (metres(p, q) <= near) {
-            hit = true;
-            break;
-          }
-        }
-      }
-    }
-    if (!hit) fresh++;
-  }
+  for (const p of pts) if (!rodeNear(p, grid, near)) fresh++;
   return fresh / pts.length;
 }
 
@@ -243,6 +240,8 @@ export function whyOf(t, ctx = {}) {
   if (form) out.push({ k: 'form', ...form, level: ctx.form });
   const bike = bikeFit(ctx.bikes);
   if (bike) out.push({ k: 'bike', ...bike });
+  // «Wetter» (Noah 24.11.2026 «a»): ctx.weather = { today: verdict, best: bestDay } from wetter.js; without a forecast there is no line
+  if (ctx.weather?.today) out.push({ k: 'weather', tone: ctx.weather.today.level === 'good' ? 'ok' : 'warn', level: ctx.weather.today.level, reasons: ctx.weather.today.reasons, best: ctx.weather.best ?? null });
   const snow = snowOf(t, ctx.month);
   if (snow) out.push({ k: 'snow', tone: 'warn', state: snow, max: t.max });
   else if (ctx.month) out.push({ k: 'snow', tone: 'ok', state: 'none', max: t.max });
