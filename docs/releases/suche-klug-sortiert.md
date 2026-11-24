@@ -24,6 +24,7 @@ Auftrag: Noah «1-5a» (24.11.2026) im Thread «Suche, Hilfe und Assistent zu ei
 - Der Material-Kontext gilt für die Seiten von `#/gear`, `#/blocks`, `#/equipment`, die Packliste und die Reiter «Material» und «Sets» von «Velos und Material»; nicht für vergangene Touren und Vorlagen.
 - Die Themen sind Kacheln mit einer Liste von Seiten, kein Suchwort: ein Suchwort wie «Körper» fand zu wenig Passendes.
 - Die Wörter für «meine Sachen» (Teil, Gewicht, Material, Sachen, item, gear, weight) stehen in einer kurzen Liste (`GEAR_WORDS`).
+- Ein Treffer, den nur ein ähnliches Wort fand («Jersey» bei «Trikot»), zählt als schwacher Treffer: er steht unten und versteckt dein Material nicht.
 - Keine Datenänderung.
 
 ## Entscheide (eigene Datei)
