@@ -10,7 +10,8 @@ import { test, expect } from './clock.js';
 import { viaTab } from './placetab.js'; // UI-Ziele #6: the pages that were rows under Ich are tabs now
 import { mkdirSync } from 'node:fs';
 import { openHome, homeFixture, D0, day } from './home0460-fixture.js';
-import { QUESTIONS, ON_AT_START } from '../../src/lib/abfragen.js';
+import { QUESTIONS, QUESTION, ON_AT_START } from '../../src/lib/abfragen.js';
+import { askVariant } from '../../src/lib/abfragen/varianten.js';
 
 const SHOTS = '/tmp/claude-0/sn-shots/ab';
 const shot = async (page, info, name, fullPage = true) => {
@@ -42,7 +43,7 @@ test.describe('AB Deine Abfragen', () => {
     await expect(card.getByText(T('{n} questions', { n: 2 }))).toBeVisible();
     // the battery 1–10 and the weight with the last value
     const akku = card.locator('[data-q="erholung.akku"]');
-    await expect(akku.getByText(T('How full is your battery right now?'))).toBeVisible();
+    await expect(akku.getByText(T(askVariant(QUESTION['erholung.akku'], D0)))).toBeVisible(); // the wording of the day (Wechsel-Varianten)
     // 17.11.2026 (changed on purpose, Noah «1-5a», question 2a): the window asks only about today. The battery question,
     // missed yesterday evening, does not come back as «Frage von Do., 8. Okt. 20:30»: it asks about today, at its time today.
     await expect(card.getByText(/Frage von/)).toHaveCount(0);
@@ -148,18 +149,36 @@ test.describe('AB Deine Abfragen', () => {
     await expect(page.locator('[data-q]')).toHaveCount(105);
 
     // AB2: an own question
-    await page.locator('[data-own-add]').click();
-    const own = page.getByRole('dialog', { name: T('Create your own question') });
-    await expect(own).toBeVisible();
-    await own.locator('[data-own-name]').fill('Kaffee');
-    await own.locator('[data-own-kind="number"]').click();
-    await own.locator('[data-own-unit]').fill('Tassen');
-    await own.getByRole('button', { name: T('Several times a day') }).click();
-    await expect(own.getByText(T('How Today asks'))).toBeVisible();
-    await shot(page, info, 'AB2-eigene-frage', false);
-    await own.locator('[data-own-save]').click();
-    await expect(own).toHaveCount(0);
+    const addKaffee = async (info2) => {
+      await page.locator('[data-own-add]').click();
+      const own = page.getByRole('dialog', { name: T('Create your own question') });
+      await expect(own).toBeVisible();
+      await own.locator('[data-own-name]').fill('Kaffee');
+      await own.locator('[data-own-kind="number"]').click();
+      await own.locator('[data-own-unit]').fill('Tassen');
+      await own.getByRole('button', { name: T('Several times a day') }).click();
+      await expect(own.getByText(T('How Today asks'))).toBeVisible();
+      if (info2) await shot(page, info, 'AB2-eigene-frage', false);
+      await own.locator('[data-own-save]').click();
+      await expect(own).toHaveCount(0);
+    };
     const mine = page.locator('[data-area="eigene"]');
+    // Noah 23.11.2026 «1-5a» (2a): the note says it is saved and when it comes; «Undo» takes the question away again
+    await addKaffee(false);
+    const note = page.locator('.rtoast');
+    await expect(note).toContainText('Frage gespeichert. Sie kommt');
+    // two buttons («Rückgängig», «Ansehen») must not squeeze the text into a thin column on a phone
+    const box = await note.locator('span').first().boundingBox();
+    expect(box.width).toBeGreaterThan(150);
+    expect((await note.boundingBox()).height).toBeLessThan(160);
+    await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
+    await note.getByRole('button', { name: T('Undo') }).click();
+    await expect(mine.getByText('Kaffee')).toHaveCount(0);
+    await addKaffee(true);
+    // «Ansehen» jumps to the new question and lights it up for a moment
+    await expect(note).toContainText('Frage gespeichert. Sie kommt');
+    await note.locator('[data-toast-action]').click();
+    await expect(mine.locator('[data-q].hl')).toHaveCount(1);
     await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
     await expect(mine.getByText('Tassen')).toBeVisible();
     await expect(page.getByText('10 Bereiche · 106 Fragen · 32 an')).toBeVisible();

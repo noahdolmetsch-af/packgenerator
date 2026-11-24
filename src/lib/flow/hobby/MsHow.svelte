@@ -33,7 +33,7 @@
     <li><b>{t('2. Count')}</b><span>{t('Every tick counts 1 in the counters of that sport, also a second one on the same day.')}</span></li>
     <li><b>{t('3. Star')}</b><span>{t('At each step there is a star, right after the tick. It stays, even when a series breaks.')}</span></li>
   </ol>
-  <p>{t('Every card says what counts. Challenges count the same ticks. All numbers are suggestions: «Change stages» sets your own or hides a counter.')}</p>
+  <p>{t('Every card says what counts. Challenges count the same ticks. All numbers are suggestions: «Change numbers and stages» at the end of the page sets your own or hides a counter.')}</p>
 </details>
 
 <style>

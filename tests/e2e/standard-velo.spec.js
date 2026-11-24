@@ -2,7 +2,7 @@
 // VS1  New trip: the standard bike (first in the order) is chosen, with ★ «Standard» and one line
 //      «Standard-Velo ist vorgewählt …»; a tap on another bike counts only for this trip.
 // VS2  At the very first trip (no trip yet, two bikes or more) the app asks once: standard or last ridden.
-// VS3  Velos: ★ on the standard bike; «Standard-Velo und Reihenfolge · Ändern» opens the order with
+// VS3  Velos: ★ on the standard bike; «Reihenfolge und Standard-Velo ändern» (over the cards) opens the order with
 //      arrows and «Als Standard», and what a new trip brings.
 // VS4  A new bike: «Neues Standard-Velo?» right after adding it; «Ja» puts it on top.
 // Fictional data only (test_data_gtp_), German UI, Europe/Zurich, service workers blocked (config).
@@ -65,7 +65,7 @@ test('VS3 + VS1: star, order with arrows and «Als Standard»; a new trip brings
   // without an order yet: by name, the first one is the standard bike with a star
   await expect(bikeTabs(page)).toHaveText([GRAVEL, SCALE, SPARK]);
   await expect(page.locator('[data-velo-card]').first().locator('.sv-star')).toBeVisible();
-  await page.locator('.sv-line').getByRole('button', { name: T('Change') }).click();
+  await page.locator('[data-order-open]').click();
   const sheet = page.locator('dialog.bo-dlg');
   await expect(sheet.getByRole('heading', { name: T('Standard bike and order') })).toBeVisible();
   // arrows: the Spark one up; then «Als Standard» on the Scale
@@ -95,13 +95,13 @@ test('VS3 + VS1: star, order with arrows and «Als Standard»; a new trip brings
 test('VS3: «the one ridden last» brings the bike of the last trip to a new trip', async ({ page, context }, info) => {
   const errors = await start(page, context, info);
   await page.goto('./#/bikes?tab=setup');
-  await page.locator('.sv-line').getByRole('button', { name: T('Change') }).click();
+  await page.locator('[data-order-open]').click();
   const sheet = page.locator('dialog.bo-dlg');
   await sheet.getByRole('button', { name: T('The one ridden last') }).click();
   await sheet.getByRole('button', { name: T('Save') }).click();
   await expect(sheet).toBeHidden();
   // kept: opening the window again shows the choice
-  await page.locator('.sv-line').getByRole('button', { name: T('Change') }).click();
+  await page.locator('[data-order-open]').click();
   await expect(sheet.getByRole('button', { name: T('The one ridden last') })).toHaveAttribute('aria-pressed', 'true');
   await sheet.getByRole('button', { name: T('Cancel') }).click();
   await expect(sheet).toBeHidden();

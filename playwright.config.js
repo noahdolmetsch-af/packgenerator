@@ -57,7 +57,10 @@ export default defineConfig({
     // tests/e2e/heute-mehr.spec.js tests the closed default without it.
     // The window specs switch them on again with test.use({ storageState: WINDOWS_ON }) from ./tests/e2e/settle.js.
     storageState: { cookies: [], origins: [{ origin: `http://localhost:${PORT}`, localStorage: [{ name: 'pg.windows', value: 'quiet' }, { name: 'pg.packmore', value: 'open' }, { name: 'pg.homeMoreOpen', value: '1' }] }] },
-    trace: 'retain-on-failure',
+    // 24.11.2026 (Noah «5», thread «Tests schneller machen»): in CI a trace is recorded only on the retry of a failed test, not for
+    // every test. Recording every test cost about 13 % of the run time (35 phone tests: 431 s with, 374 s without); a failed
+    // test still leaves its trace, because CI retries it once. Locally nothing changes.
+    trace: process.env.CI ? 'on-first-retry' : 'retain-on-failure',
     screenshot: 'only-on-failure',
     // Locally a preinstalled Chromium can be used (PW_CHROMIUM=/path/to/chrome); CI installs its own.
     launchOptions: { args: browserArgs, ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}) },
