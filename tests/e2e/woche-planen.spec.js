@@ -200,6 +200,29 @@ test('Ferien: entered once, the training plan pauses and the packing list comes 
   await expect(page.locator(`[data-day="${day(1)}"] [data-kind="away"]`).filter({ hasText: 'test_data_gtp_ Jura' })).toHaveCount(1);
 });
 
+test('Ferien: deleting a stay waits in Recently deleted and comes back with Back', async ({ page, context }, info) => {
+  const T = await openHome(page, context, info, { data: weekFixture() });
+  await page.goto('./#/week/away');
+  await page.locator('[data-add-away]').click();
+  const form = page.locator('[data-away-form]');
+  await form.getByLabel(T('From|away')).fill(day(1));
+  await form.getByLabel(T('To|away')).fill(day(2));
+  await form.getByLabel(T('Name')).fill('test_data_gtp_ Jura');
+  await form.getByRole('button', { name: T('Save') }).click();
+  const row = page.locator('[data-away]', { hasText: 'test_data_gtp_ Jura' });
+  await expect(row).toHaveCount(1);
+  await row.click();
+  await page.locator('[data-away-form]').getByRole('button', { name: T('Delete'), exact: true }).click();
+  await expect(row).toHaveCount(0);
+  await page.goto('./#/me/trash');
+  const rows = page.locator('[data-trash-row]');
+  await expect(rows).toHaveCount(1);
+  await expect(rows.first()).toContainText('test_data_gtp_ Jura');
+  await rows.first().locator('[data-trash-back]').click();
+  await page.goto('./#/week/away');
+  await expect(page.locator('[data-away]', { hasText: 'test_data_gtp_ Jura' })).toHaveCount(1);
+});
+
 test('Content: weather per day, the rainy long ride moves, last week, load hints and trip to-dos', async ({ page, context }, info) => {
   // the home forecast: rain on Sunday (the long ride), dry otherwise
   await page.route(/api\.open-meteo\.com\/v1\/forecast/, (route) => {

@@ -48,7 +48,7 @@ test('upload a received QR bill, see the payment part, mark it paid; by hand wit
   await expect(page.getByLabel(T('Reminder'))).toHaveValue('3');
   await noSideways(page);
   await page.getByRole('button', { name: T('Add to «To pay»') }).click();
-  await expect(page.getByRole('status')).toHaveText(T('{to} is in «To pay».', { to: 'Velo-Werkstatt Beispiel' }));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toHaveText(T('{to} is in «To pay».', { to: 'Velo-Werkstatt Beispiel' }));
 
   const row = page.getByTestId('bill-row');
   await expect(row).toHaveCount(1);
@@ -61,7 +61,7 @@ test('upload a received QR bill, see the payment part, mark it paid; by hand wit
   await expect(part.getByRole('img', { name: T('Photo of the bill') })).toBeVisible();
   await noSideways(page);
   await row.getByRole('button', { name: T('Paid'), exact: true }).click();
-  await expect(page.getByRole('status')).toHaveText(T('{to} is marked as paid.', { to: 'Velo-Werkstatt Beispiel' }));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toHaveText(T('{to} is marked as paid.', { to: 'Velo-Werkstatt Beispiel' }));
   await expect(page.getByTestId('bill-row')).toHaveCount(0); // the «Offen» tab
   await page.getByRole('button', { name: new RegExp(`^${T('Paid')}`) }).first().click();
   await expect(page.getByTestId('bill-row')).toContainText(T('paid|invoice'));

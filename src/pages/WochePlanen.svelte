@@ -17,6 +17,7 @@
   import { homeForecast } from '../lib/home-weather.js';
   import { prefsOf as agendaPrefs, weekItems } from '../lib/agenda.js';
   import { db } from '../lib/db.js';
+  import { deleteWithUndo } from '../lib/ui/ask.js';
   import { PLAN_KEY as TRAIN_KEY, KIND_NAMES as TRAIN_KINDS, shiftDay, copyWeek, cleanSession, prunePlan } from '../lib/training.js';
   import { actName } from '../lib/flow/ui.svelte.js';
   import { localDay } from '../lib/localday.js';
@@ -84,7 +85,17 @@
   const takeProp = (s) => saveTrain([...(src?.sessions ?? []), cleanSession({ ...s, id: '' })]);
   const takeAll = () => saveTrain([...(src?.sessions ?? []), ...proposals.filter((s) => !pausedOn(s.day)).map((s) => cleanSession({ ...s, id: '' }))]);
   const moveSession = (s) => saveTrain((src?.sessions ?? []).map((x) => (x.id === s.id ? { ...x, day: nextDay(x.day) } : x)));
-  const removeSession = (s) => saveTrain((src?.sessions ?? []).filter((x) => x.id !== s.id));
+  // «Leave out» takes a session out of the plan: «Rückgängig» and «Zuletzt gelöscht» (Noah 23.11.2026 «1a»)
+  const removeSession = (s) => {
+    const before = src?.sessions ?? [];
+    return deleteWithUndo({
+      run: () => saveTrain(before.filter((x) => x.id !== s.id)),
+      undo: () => saveTrain(before),
+      text: t('«{name}» left out of the training plan.', { name: sessName(s) }),
+      name: sessName(s),
+      item: { store: TRAIN_KEY, path: 'sessions', row: s, kind: 'week' },
+    });
+  };
   // «Planen als verbindende Mitte» (Noah 1.11.2026 «1a»): add a session right here, in the flow; it lands in the same training plan as Aktiv › Training
   let tform = $state(null);
   async function addSession(ev) {

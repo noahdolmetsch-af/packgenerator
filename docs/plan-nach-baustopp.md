@@ -1,5 +1,7 @@
 # Plan nach dem Baustopp
 
+> Verlauf, keine Regel. Die Regel «Pläne führt der Bündler zuletzt nach, nur wenn wenig läuft» (alte R29) steht seit Noah «1-5a» 24.11.2026 16:50 nur noch in `docs/regeln-archiv.md`; `docs/regeln.md` hat sie nicht mehr.
+
 Stand 22.11.2026, 22:35 (Zürich); aktueller Stand in «Stand 23.11.2026» unten. **Der Baustopp ist seit 22.11., 22:25 aufgehoben (Noah).** **Seit 23.11., 00:03 ist alles vorab freigegeben (Noah «du musst mich nicht mehr fragen. ich gebe jetzt ausdrücklich alles frei»):** kein «ok» pro PR und keine Einzelfreigaben mehr, auch nicht für Daten. Jeder PR geht nach grüner Prüfung von selbst online. Pflicht bleibt ein Backup vor jeder Datenänderung (Test mit Backup-Kopie, frisches Backup von Noah); «schliessen» und Force-Push nur mit seinem Wortlaut (siehe `docs/decisions/alles-freigegeben.md`). Wo unten «ok», «dein ok» oder «Einzelfreigabe» steht, ist das überholt. Runde 1 läuft, die Wellen steuert der Bündler nach diesem Plan. Die Abschnitte «Baustopp» und «Vor dem Aufheben» unten sind Verlauf, nicht mehr in Kraft. Die volle Seite mit Bildern und Tabellen liegt als Claude-Doc im Projekt; hier steht, was später nicht verloren gehen darf. Entscheide von heute: `docs/decisions/plan-nach-baustopp.md`.
 
 ## Stand 23.11.2026, 08:05 (Zürich)

@@ -78,7 +78,7 @@ test('write a QR invoice with TWINT, then mark it paid by amount and open it aga
   await page.getByRole('button', { name: T('Money received') }).click();
   await page.getByLabel(T('How much has arrived?')).fill('80.00');
   await page.getByRole('button', { name: T('This one'), exact: true }).click();
-  await expect(page.getByRole('status')).toHaveText(T('{no} is marked as paid.').replace('{no}', 'R-0001'));
+  await expect(page.locator('[role="status"]:not([data-tab-title-live])')).toHaveText(T('{no} is marked as paid.').replace('{no}', 'R-0001'));
   await expect(page.getByTestId('invoice-row')).toContainText(T('paid|invoice'));
   await noSideways(page);
 
