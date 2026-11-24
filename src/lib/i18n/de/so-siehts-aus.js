@@ -6,5 +6,7 @@ export default {
   'The packing list, bag by bag': 'Die Packliste, Tasche für Tasche',
   'Every item with weight and bag': 'Jedes Teil mit Gewicht und Tasche',
   'With bags, km and care': 'Mit Taschen, Kilometern und Pflege',
+  'Example week': 'Beispiel-Woche',
+  'Ticks of the last six days': 'Abhaken der letzten sechs Tage',
   'The sample is in, marked «example». Me › Data and backup › «Remove the examples» takes it away again.': 'Das Muster ist da, als «Beispiel» markiert. Ich › Daten und Backup › «Beispiele entfernen» nimmt es wieder weg.',
 };

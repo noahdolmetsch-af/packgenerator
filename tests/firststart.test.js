@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import { createDb } from '../src/lib/db.js';
 import { ensureSeed } from '../src/lib/flowdb.js';
 import { seedActs } from '../src/lib/flow.js';
-import { FIRST_KEY, isFresh, chooseStart, examplesFile, examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, interestsPresent, mayAsk } from '../src/lib/firststart.js';
+import { FIRST_KEY, isFresh, chooseStart, examplesFile, examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, weekTicks, TICK_PREFIX, interestsPresent, mayAsk } from '../src/lib/firststart.js';
 import { isTestName } from '../src/lib/testname.js';
 
 const TODAY = '2026-10-20';
@@ -123,6 +123,30 @@ describe('first start: with examples or empty', () => {
     expect(exampleCount(await examplesLeft(db))).toBe(0);
     await undoExamples(db, saved);
     expect(await db.trips.count()).toBe(2);
+  });
+
+  it('the example week: ticks of the starter activities over six days, only with «Active and everyday», removable with Undo, own ticks stay', async () => {
+    const ticks = weekTicks(TODAY);
+    expect(ticks.length).toBeGreaterThanOrEqual(10);
+    expect(ticks.every((x) => x.id.startsWith(TICK_PREFIX))).toBe(true);
+    expect(new Set(ticks.map((x) => x.day)).size).toBe(6);
+    expect(ticks.every((x) => x.day < TODAY && x.day >= '2026-10-14')).toBe(true);
+    expect(examplesFile(TODAY, ['nights']).tables.flowLog).toEqual([]);
+    expect(examplesFile(TODAY, ['active']).tables.flowLog).toHaveLength(ticks.length);
+
+    const db = await fresh('fs-11');
+    await chooseStart(db, 'empty', TODAY);
+    await db.flowLog.put({ id: 'mine-1', actId: 'meditation', day: TODAY });
+    await addExamples(db, TODAY, { interests: ['active'] });
+    expect(await db.flowLog.count()).toBe(ticks.length + 1);
+    expect(interestsPresent(await examplesLeft(db))).toEqual(['active']);
+    // the example ticks are no use of their own: their activities go away with them, but a ticked one stays
+    const saved = await removeExamples(db);
+    expect((await db.flowLog.toArray()).map((x) => x.id)).toEqual(['mine-1']);
+    expect((await db.flowActs.toArray()).map((a) => a.id)).toEqual(['meditation']);
+    expect(exampleCount(await examplesLeft(db))).toBe(0);
+    await undoExamples(db, saved);
+    expect(await db.flowLog.count()).toBe(ticks.length + 1);
   });
 
   it('«Get the examples» on a used app: its own unused starter activities stay when the examples go', async () => {

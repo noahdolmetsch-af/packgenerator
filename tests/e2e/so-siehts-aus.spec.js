@@ -15,7 +15,8 @@ test.beforeEach(async ({ context }) => {
 test('every empty main page has the line, inside the empty card and not above it', async ({ page }) => {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  for (const a of SOSIEHT_AREAS) {
+  // «week» (Mein Tag) is put in by the Alltag pages; this spec covers the four pages that carry the line here
+  for (const a of SOSIEHT_AREAS.filter((x) => PAGE[x])) {
     await page.goto(`./${PAGE[a]}`);
     const line = page.locator(`[data-sosieht="${a}"]`);
     await expect(line).toBeVisible();
