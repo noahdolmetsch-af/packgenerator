@@ -134,6 +134,9 @@
       {/if}
       <div hidden={tab !== 'list'}><AtlasImport trips={$tripsQ ?? []} bikes={$bikesQ ?? []} ondone={() => (tab = 'coming')} /></div>
       {#if tab === 'coming'}
+      {#if list.coming.length || list.past.length}
+        <div class="rc-acts rc-tolist"><button type="button" class="btn" onclick={() => (tab = 'list')} data-race-to-list>{t('Take races from your race list')}</button></div>
+      {/if}
       <!-- Impeccable: the sample race comes after your own races, not above them -->
       <section class="rc-box rc-soft" data-race-sample-offer>
         <h2 class="rc-h2">{t('Sample race')}</h2>

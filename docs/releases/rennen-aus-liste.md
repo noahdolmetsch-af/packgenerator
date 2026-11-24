@@ -3,12 +3,14 @@
 Auftrag: Noah 24.11.2026 «a» (Thread «Bikepacking-Rennen: Stand und Ideen zeigen»), erster Schritt der Rennvorbereitung: Brücke von der privaten Rennliste («Rennatlas») in die App und die Zeiten des Velo-Countdowns.
 
 ## Was ist neu
-- Touren › Rennen: eine geschlossene Box «Rennen aus deiner Rennliste übernehmen». Man wählt die JSON-Datei, die die eigene Rennliste speichert; die App liest sie nur auf dem Gerät. Die Rennen stehen in einer Liste, angemeldete Rennen und Favoriten sind vorgewählt, Rennen, die es schon gibt (gleicher Name und Tag), sind grau markiert und nicht wählbar.
+- Touren › Rennen hat jetzt drei Reiter wie Mein Tag: «Kommende», «Rennliste» und «Erledigt». Im Reiter «Rennliste» wählt man die JSON-Datei, die die eigene Rennliste speichert; die App liest sie nur auf dem Gerät. Oben zeigt ein Saison-Raster (12 Monate) die gewählten Rennen als Balken; Rennen am selben Tag sind markiert und es steht ein Hinweis darüber. Darunter die Liste nach Monaten, mit Chips «Alle · Angemeldet · Favoriten · Neu»; angemeldete Rennen und Favoriten sind vorgewählt, Rennen, die es schon gibt (gleicher Name und Tag), sind grau markiert und nicht wählbar. Eine Leiste unten sagt, wie viele gewählt sind («Alle ankreuzen», «Alle abwählen»).
 - «… Rennen anlegen» macht aus jeder Wahl ein Rennen mit Namen, Starttag, Tagen (die längste Zeit, bei «6–10 Tage» also 10) und dem ersten Velo. «Rückgängig» nimmt alle wieder weg.
 - Auf der Seite des Rennens steht, solange noch keine Strecke geladen ist, «Laut deiner Rennliste: … km und … m hoch.»
 - Velo-Countdown: neu «Ab jetzt ändert sich nichts mehr» 6 Wochen vorher (Velo, Taschen, Gepäck, Licht, Halterungen), «Velo-Service in der Werkstatt» 3 Wochen vorher, «Neue Teile jetzt montieren» 8 Wochen vorher, danach einfahren mit allem Montierten.
+- Der Countdown hat oben ein Band (Entwurf D): Tage bis zum Start, «Stopp in n Tagen» und eine Zeitleiste mit Heute, Stopp und Start. Der Schritt «Ab jetzt ändert sich nichts mehr» ist dunkel hervorgehoben; die Schritte stehen in «Bis zum Stopp» und «Bis zum Start».
 
 ## Was fällt weg oder rutscht tiefer
+- Auf der Rennen-Seite stehen «Kommende» und «Erledigt» nicht mehr als Überschriften untereinander, sondern als Reiter; die Box zum Aufklappen für die Rennliste ist ersetzt durch den Reiter «Rennliste».
 - Im Countdown heissen vier Schritte anders und stehen zu anderen Zeiten (Service und Teile früher). Erledigte Haken gehen nicht verloren, die Schritte behalten ihre Kennungen, wo der Sinn gleich bleibt.
 
 ## Selbst entschieden
