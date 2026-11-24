@@ -25,8 +25,9 @@ describe('the sidebar of the new order', () => {
     expect(tabOf('trips', '#/inspiration')).toBe('inspiration');
     expect(PLACE_TABS.week.map((x) => x.key)).not.toContain('inspiration');
     const keys = PLACE_TABS.trips.map((x) => x.key);
-    expect(keys.slice(0, 4)).toEqual(['overview', 'dreams', 'templates', 'lookback']);
-    expect(keys.indexOf('inspiration')).toBe(4);
+    expect(keys.slice(0, 4)).toEqual(['overview', 'dreams', 'races', 'lookback']);
+    expect(keys.indexOf('templates')).toBe(4);
+    expect(keys.indexOf('inspiration')).toBe(5);
   });
   it('V4a: the bottom bar of a phone has the five places Heute, Woche, Touren, Velos und Material, Auswerten', () => {
     expect(BAR_PLACES.map((p) => p.key)).toEqual(['today', 'week', 'trips', 'bikes', 'analysis']);
