@@ -29,7 +29,8 @@ function noTripTomorrow() {
   data.tables.trips = data.tables.trips.filter((x) => !x.id.endsWith('Herbstrunde'));
   return data;
 }
-const order = (page) => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
+// «Heute abhaken» stands under the chips, outside the wall (Noah 23.11.2026 «1a», changed on purpose): it counts as the first tile
+const order = (page) => page.locator('[data-haken-top], .wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile ?? 'haken'));
 
 async function shot(page, info, name) {
   if (!process.env.SHOTS) return;
