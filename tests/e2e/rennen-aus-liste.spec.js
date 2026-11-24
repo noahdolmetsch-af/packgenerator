@@ -101,6 +101,15 @@ test('Race atlas: file, list with filters, saved filter, year line, map, one rac
   await expect(page.locator('[data-atlas-mapsvg="europe"]')).toBeVisible();
   await expect(page.locator('[data-atlas-point]').first()).toBeVisible();
   await expect(page.locator('[data-atlas-map-missing]')).toHaveCount(1);
+  // three zoom levels: the large map is Zoom 3, «−» brings the wider region, a tap on a small map makes it large
+  await expect(page.locator('[data-atlas-mapsvg]')).toHaveCount(3);
+  await expect(page.locator('[data-atlas-zoomname]')).toContainText('Zoom 3');
+  await expect(page.locator('[data-atlas-zoom-in]')).toBeDisabled();
+  await page.locator('[data-atlas-zoom-out]').click();
+  await expect(page.locator('[data-atlas-zoomname]')).toContainText('Zoom 2');
+  await expect(page.locator('[data-atlas-zoom-pick="3"]')).toBeVisible();
+  await page.locator('[data-atlas-zoom-pick="3"]').click();
+  await expect(page.locator('[data-atlas-zoomname]')).toContainText('Zoom 3');
   await noSideways(page);
   await page.locator('[data-atlas-mapsvg="europe"]').scrollIntoViewIfNeeded();
   await page.screenshot({ path: info.outputPath('rennatlas-karte.png'), fullPage: false });

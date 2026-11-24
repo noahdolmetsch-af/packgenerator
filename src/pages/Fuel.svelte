@@ -35,6 +35,7 @@
   import PathHead from '../lib/ui/PathHead.svelte';
   import Seg from '../lib/ui/Seg.svelte';
   import Fold from '../lib/ui/Fold.svelte';
+  import PageNote from '../lib/ui/PageNote.svelte';
   import SortGrip from '../lib/ui/SortGrip.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
   import { sortable } from '../lib/ui/sortable.js';
@@ -213,7 +214,6 @@
 
 <div class="page fuel" data-page="fuel">
   <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Food and water|fuel')} sub={t('Your fuelling plan, section by section')} />
-  <p class="intro">{t('How much to eat and drink on the way: the app splits the route at the places where you can buy food and says, for each part, how many carbohydrates and how much water you need and what to carry. All values are suggestions: change them below.')}</p>
   {#if problem}<p class="err" role="alert">{problem}</p>{/if}
 
   <section class="box" aria-labelledby="fu-trip">
@@ -373,6 +373,7 @@
       <button type="submit" class="btn"><Plus size={16} aria-hidden="true" />{t('Add')}</button>
     </form>
   </section>
+  <PageNote text={t('How much to eat and drink on the way: the app splits the route at the places where you can buy food and says, for each part, how many carbohydrates and how much water you need and what to carry. All values are suggestions: change them below.')} />
 </div>
 
 <style>

@@ -10,6 +10,7 @@
   import { localDay } from '../lib/localday.js';
   import { switchTrip } from '../lib/nav.js';
   import PathHead from '../lib/ui/PathHead.svelte';
+  import PageNote from '../lib/ui/PageNote.svelte';
   import Empty from '../lib/ui/Empty.svelte';
   import { TriangleAlert, Check, Package, ListChecks, ChevronRight } from '@lucide/svelte';
   import { compareChoices, firstPair, pickTrip, spanOf, overlapDays, timeline, sharedGear, openTasks } from '../lib/tourplan/compare.js';
@@ -46,7 +47,6 @@
 
 <div class="page cmp" data-page="trips-compare">
   <PathHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Trips side by side')} sub={t('Two trips at a glance')} />
-  <p class="intro">{t('Pick two trips: where the days overlap, which gear both lists need and what is still open.')}</p>
 
   {#if choices.length < 2}
     <div data-compare-empty>
@@ -141,6 +141,7 @@
       </div>
     {/if}
   {/if}
+  <PageNote text={t('Pick two trips: where the days overlap, which gear both lists need and what is still open.')} />
 </div>
 
 <style>

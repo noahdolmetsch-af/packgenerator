@@ -23,6 +23,7 @@
   import { askDelete, deleteWithUndo } from '../lib/ui/ask.js';
   import { offerDone } from '../lib/ui/rename.svelte.js';
   import Empty from '../lib/ui/Empty.svelte';
+  import PageNote from '../lib/ui/PageNote.svelte';
   import DateInput from '../lib/ui/DateInput.svelte';
   import RenameSheet from '../lib/ui/RenameSheet.svelte';
   import SortArrows from '../lib/ui/SortArrows.svelte';
@@ -288,7 +289,6 @@
 
 <div class="ich-page weg" data-page="weg">
   <VeloHead crumbs={[{ label: t('Trips|place'), href: '#/trips' }]} title={t('Way to the goal')} sub={t('Count back from a big day: the app lays out the steps')} />
-  <p class="wg-intro">{t('Name a big goal and its start day. The app counts back and suggests steps. Everything is a suggestion: change, move or delete any step.')}</p>
 
   {#if !goal && !adding}
     <Empty icon={Flag} text={t('No way yet. Name a big goal with a start day, for example a race in May.')} action={{ label: t('New way'), onclick: openAdd }} />
@@ -592,6 +592,7 @@
   {#if w.goals.length && !adding}
     <p class="wg-more"><button type="button" class="btn" onclick={openAdd} data-weg-add><Plus size={16} aria-hidden="true" /> {t('New way')}</button></p>
   {/if}
+  <PageNote text={t('Name a big goal and its start day. The app counts back and suggests steps. Everything is a suggestion: change, move or delete any step.')} />
 </div>
 
 {#if renaming && (goal || renaming.kind === 'template')}
