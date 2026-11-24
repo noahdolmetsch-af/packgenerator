@@ -27,6 +27,6 @@ export default {
   'Copies before updates': 'Vor Updates',
   '{n} copy': '{n} Kopie',
   '{n} copies': '{n} Kopien',
-  'each holds all your data; Me › Data › More': 'jede enthält alle deine Daten; Ich › Daten › Mehr',
+  'each holds all your data · under «More»': 'jede enthält alle deine Daten · unter «Mehr»',
   'Kursblick prices': 'Kursblick-Kurse',
 };

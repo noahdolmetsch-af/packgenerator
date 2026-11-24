@@ -86,7 +86,7 @@
         </li>
         {#if res.copies?.n}
           <li data-copies>
-            <span class="nm">{t('Copies before updates')}<small>{tn(res.copies.n, '{n} copy', '{n} copies')}{' · '}{t('each holds all your data; Me › Data › More')}</small></span>
+            <span class="nm">{t('Copies before updates')}<small>{tn(res.copies.n, '{n} copy', '{n} copies')}{' · '}{t('each holds all your data · under «More»')}</small></span>
             <span class="val">{size(res.copies.bytes)}</span>
           </li>
         {/if}
