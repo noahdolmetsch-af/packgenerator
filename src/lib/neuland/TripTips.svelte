@@ -12,12 +12,18 @@
   import { tripTips, freeTime, startHours, TIP_KINDS, TIP_HOURS, LEVEL_KM, LEVEL_ALT } from './tipps.js';
   import { homeForecast } from '../home-weather.js';
   import { localDay } from '../localday.js';
+  import { putSetting } from '../flowdb.js';
+  import { toast } from '../flow/ui.svelte.js';
+  import { PUSH_KEY } from '../push/schedule.js';
+  import { outdoorRemindOn } from '../outdoorpush.js';
+  import { resyncPhone } from '../ruhig/store.js';
+  import { OUTDOOR_KEY, outdoorOf, addMin, undoMin } from '../outdoor.js';
   import Seg from '../ui/Seg.svelte';
   import HomePlaceSheet from '../ich/HomePlaceSheet.svelte';
   import SpotRoundSheet from './SpotRoundSheet.svelte';
   import StartPlaceSheet from './StartPlaceSheet.svelte';
   import { t, num } from '../i18n.svelte.js';
-  import { MapPin, Route, Mountain, Waves, Landmark, CloudSun, ChevronDown } from '@lucide/svelte';
+  import { MapPin, Route, Mountain, Waves, Landmark, CloudSun, ChevronDown, Check } from '@lucide/svelte';
 
   const now = new Date();
   const hourZ = Number(now.toLocaleTimeString('de-CH', { hour: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Zurich' }).slice(0, 2));
@@ -70,6 +76,25 @@
   const LEVEL_NAME = { easy: 'Easy|tip', medium: 'Medium|tip', hard: 'Hard|tip' };
   const KIND = { passes: { name: 'Pass', icon: Mountain }, lakes: { name: 'Lake', icon: Waves }, municipalities: { name: 'Municipality', icon: Landmark } };
 
+  // «Tip → minutes» (Noah 24.11.2026 «1-3»): while the challenge «Outdoors» runs, «Did it» adds the chosen time to today
+  const ocQ = liveQuery(async () => {
+    const [set, push] = await Promise.all([db.settings.get(OUTDOOR_KEY), db.settings.get(PUSH_KEY)]);
+    return { rec: outdoorOf(set?.value), remind: outdoorRemindOn(push?.value) };
+  });
+  const oc = $derived($ocQ?.rec?.from && !$ocQ.rec.closed && !$ocQ.rec.stopped && today >= $ocQ.rec.from && today <= $ocQ.rec.until ? $ocQ.rec : null);
+  async function didIt() {
+    const live = oc;
+    const n = Math.round(hours * 60);
+    const next = live ? addMin(live, today, n) : null;
+    if (!next || next === live) return;
+    const save = async (v) => {
+      await putSetting(db, OUTDOOR_KEY, v);
+      if ($ocQ?.remind) resyncPhone();
+    };
+    await save(next);
+    toast(t('+{n} min added for today.', { n }), () => save(undoMin(next, today)));
+  }
+
   let placeOpen = $state(false);
   let roundTo = $state(null);
   let startOpen = $state(false);
@@ -113,6 +138,9 @@
             </li>
           {/each}
         </ul>
+        {#if oc}
+          <p class="tt-did"><button type="button" class="btn sm" onclick={didIt} data-tt-did><Check size={16} aria-hidden="true" />{t('Did it · +{n} min', { n: Math.round(hours * 60) })}</button><small>{t('Adds the time you chose to «Outdoors» today. Undo takes it back.')}</small></p>
+        {/if}
       {:else}
         <p class="ich-help">{t('No new place within reach. Choose more time.')}</p>
       {/if}
@@ -168,6 +196,17 @@
     min-width: 9em;
     display: grid;
     overflow-wrap: break-word;
+  }
+  .tt-did {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    margin: 0;
+  }
+  .tt-did small {
+    color: var(--ink-3);
+    font-size: var(--fs-small);
   }
   .tt-m small {
     color: var(--ink-3);
