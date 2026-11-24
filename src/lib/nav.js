@@ -500,10 +500,10 @@ const BIKE_PAGES = {
 };
 
 /** A tab that holds several pages: its address is the first page's, it matches every page's address, and `subs` are the pages as chips. */
-function tabWithSubs({ key, label, subs, chips = true }, pages) {
+function tabWithSubs({ key, label, subs, chips = true, home }, pages) {
   const list = subs.map((k) => ({ key: k, ...pages[k] }));
   // chips: false (Velos aufräumen, Noah 23.11.2026): the pages still belong to the tab (path line, addresses), but no row of chips shows them
-  return { key, label, href: list[0].href, match: (h) => list.some((x) => x.match(h)), subs: list, chips };
+  return { key, label, href: (home ? list.find((x) => x.key === home) : list[0]).href, match: (h) => list.some((x) => x.match(h)), subs: list, chips };
 }
 
 /** The chip of a tab that holds several pages (its `subs`) an address belongs to: { key, … } or null. */
@@ -521,7 +521,8 @@ export const PLACE_TABS = {
   // eleven is still there at its address: it is a chip under its tab (`subs`, PlaceTabs.svelte), no longer a tab of its own.
   week: [
     { key: 'week', label: 'Week|tab', subs: ['week', 'day', 'agenda'] },
-    { key: 'training', label: 'Training|tab', subs: ['training', 'wochenplan', 'flowhome', 'sports', 'rest'] },
+    // Rahmen-Chips (Noah 24.11.2026 «1-5a»): «Tick off today» is the first chip, the tab still opens on «Training»
+    { key: 'training', label: 'Training|tab', subs: ['flowhome', 'training', 'wochenplan', 'sports', 'rest'], home: 'training' },
     { key: 'notes', label: 'Notes|tab', subs: ['notes', 'inbox', 'remember', 'tagebuch', 'mail'] },
     { key: 'alltag', label: 'Everyday|tab', subs: ['alltag', 'meditation', 'frei', 'impulse', 'compass', 'links'] },
   ].map((x) => tabWithSubs(x, { ...WEEK_PAGES, ...FLOW_PAGES })),

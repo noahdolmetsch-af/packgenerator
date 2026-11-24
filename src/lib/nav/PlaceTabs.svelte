@@ -2,7 +2,7 @@
   /**
    * v0.78.0 «Fünf Orte» 2 (Noah 10.10.2026, O2.1a–O2.6a): the pages of a place as tabs on top (at
    * most four; tabs whose function is missing stay hidden). On a phone a swipe sideways on the page
-   * opens the next or the previous tab; dots show where you are (v0.86.0 «Meditation einfach», Noah
+   * opens the next or the previous tab; the line under the tab shows where you are (v0.86.0 «Meditation einfach», Noah
    * «1-5 a»: no more «wischen für den nächsten Tab» hint; the swipe itself stays).
    * The tab opened last is remembered per place (nav.js keepTab / placeHref). An old address that
    * leads here (#/care, #/review …) says so once, in a small note you can close.
@@ -45,7 +45,18 @@
   const waiting = $derived(place === 'week' ? ($inboxQ ?? 0) : 0);
   // «Ganze App neu denken» Schritt 11: a tab that holds several pages (Planen: Woche, Notizen, Alltag) shows them as chips under the tabs
   const subs = $derived((void order, tabs.find((x) => x.key === cur)?.subs ?? []));
+  let subsEl = $state();
   const curSub = $derived(subs.find((x) => x.match(hash || '#/'))?.key ?? null);
+  // Impeccable «Ganze App» Paket 1 (Noah 24.11.2026 «1-5a»): on a phone the chips stand in one row you can swipe; the chosen chip is always in view.
+  $effect(() => {
+    void curSub;
+    void subs;
+    const box = subsEl;
+    if (!box) return;
+    const on = box.querySelector('a[aria-current="page"]');
+    if (!on || box.scrollWidth <= box.clientWidth + 1) return;
+    box.scrollLeft = Math.max(0, on.offsetLeft - (box.clientWidth - on.offsetWidth) / 2);
+  });
   function move(from, to) {
     if (to < 0 || to >= all.length || from === to) return;
     const keys = all.map((x) => x.key);
@@ -189,15 +200,10 @@
       {/if}
     </dialog>
   {/if}
-  {#if tabs.length <= 4}
-    <p class="dots">
-      <span class="dd" aria-hidden="true">{#each tabs as x (x.key)}<span class="d" class:on={cur === x.key}></span>{/each}</span>
-    </p>
-  {/if}
 {/if}
 <!-- v0.137.0 (Durchklick DK6): no note about an old address; the old address still leads here -->
 {#if subs.length > 1 && curTab?.chips !== false}
-  <nav class="psubs noswipe" aria-label={t('Pages of {place}', { place: curName })} data-subtabs={cur}>
+  <nav class="psubs noswipe" bind:this={subsEl} aria-label={t('Pages of {place}', { place: curName })} data-subtabs={cur}>
     {#each subs as x (x.key)}
       <a href={hrefOf(x)} aria-current={curSub === x.key ? 'page' : undefined} data-sub={x.key}>{tabLabel(place, x)}{#if x.key === 'inbox' && waiting}<span class="pdot num" aria-label={t('{n} to sort', { n: waiting })}>{waiting}</span>{/if}</a>
     {/each}
@@ -264,6 +270,26 @@
     background: var(--pc-ink);
     color: var(--pc);
   }
+  @media (max-width: 719px) {
+    /* one row, swipe sideways; the soft edges show that it goes on (Noah 24.11.2026 «1-5a», Rahmen-Chips) */
+    .psubs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin: var(--sp-2) calc(-1 * var(--gut)) var(--sp-3);
+      padding: 0 var(--gut);
+      scroll-padding: 0 var(--gut);
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--gut), #000 calc(100% - 28px), transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0, #000 var(--gut), #000 calc(100% - 28px), transparent 100%);
+    }
+    .psubs::-webkit-scrollbar {
+      display: none;
+    }
+    .psubs a {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+  }
   .ptabs a:visited {
     color: var(--ink-2);
   }
@@ -314,28 +340,6 @@
       padding: 0 var(--sp-1);
       font-size: var(--fs-tiny);
     }
-  }
-  .dots {
-    display: flex;
-    align-items: center;
-    gap: var(--sp-2);
-    margin: var(--sp-2) 0 var(--sp-3);
-    color: var(--ink-2);
-    font: 400 var(--fs-tiny) / 1.3 var(--font-body);
-  }
-  .dd {
-    display: inline-flex;
-    gap: var(--sp-1);
-  }
-  .d {
-    width: 6px;
-    height: 6px;
-    border-radius: 3px;
-    background: var(--line);
-  }
-  .d.on {
-    width: 18px;
-    background: var(--pc);
   }
   .pmore {
     display: inline-flex;
