@@ -135,6 +135,7 @@ export const GERAET_DATEIEN = {
   'pages/Pack.svelte': 'ansicht',
   'pages/Ride.svelte': 'ansicht',
   'pages/Tagebuch.svelte': 'ansicht',
+  'pages/Tag.svelte': 'ansicht',
   'pages/Templates.svelte': 'ansicht',
   'pages/Trips.svelte': 'ansicht',
   'pages/Vorschlaege.svelte': 'ansicht',
