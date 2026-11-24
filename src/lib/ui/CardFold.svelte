@@ -66,6 +66,9 @@
   /* the folded line looks like the one of «What you can do here»: framed and with a word, so it is not taken for a leftover */
   .cf-line {
     width: 100%;
+    min-width: 0; /* behind the title the line sits in the title block (a flex item): it must not widen it */
+    max-width: 100%;
+    contain: inline-size; /* its text (nowrap) is not counted when the title block is sized */
     margin: 0 0 8px;
     padding: 0 12px;
     border: 1px solid var(--card-line);

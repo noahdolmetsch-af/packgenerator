@@ -99,3 +99,18 @@ test('Verbindungen: the monthly vision question offers the visions of the notes,
   await shot(page, 'verbindungen-vision');
   expect(errors).toEqual([]);
 });
+
+test('Verbindungen: the row «Mail» shows «aus» until Gmail has been allowed, then «an» (Warteliste F6)', async ({ page, context }) => {
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await context.route(/^https?:\/\/(?!localhost[:/])/, (route) => route.abort());
+  await page.goto('./#/me/connections');
+  await ready(page);
+  const row = page.locator('[data-conn="mail"]');
+  await expect(row.locator('.pill')).toHaveText(/^(aus|off)$/i);
+  await put(page, { settings: [{ key: 'mail', value: { allowed: true } }] });
+  await page.reload();
+  await ready(page);
+  await expect(page.locator('[data-conn="mail"] .pill')).toHaveText(/^(an|on)$/i);
+  expect(errors).toEqual([]);
+});

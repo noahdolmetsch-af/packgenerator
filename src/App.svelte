@@ -3,6 +3,8 @@
   import LazyPage from './lib/nav/LazyPage.svelte';
   import GehoertDazu from './lib/know/GehoertDazu.svelte'; // «Heute als Begleiter» PR 7
   import SeitenInhalt from './lib/ui/SeitenInhalt.svelte'; // «Wegweiser statt Katalog» PR 11
+  import SearchHere from './lib/suche/SearchHere.svelte'; // «Suche am Ort» (Warteliste 1, V2)
+  import { hereKind } from './lib/suche/ort.js';
   import { showsRow } from './lib/know/gehoert.js';
   import { warmUp } from './lib/nav/lazy.js';
   import { noteHashMove } from './lib/nav/herkunft.svelte.js';
@@ -391,6 +393,7 @@
     Gear: () => import('./pages/Gear.svelte'),
     Bikes: () => import('./pages/Bikes.svelte'),
     Pack: () => import('./pages/Pack.svelte'),
+    PackVorschlag: () => import('./pages/PackVorschlag.svelte'), // «Dein Vorschlag» (Noah 22.11.2026 «1b»): Packen › Vorschlag
     Templates: () => import('./pages/Templates.svelte'),
     Debrief: () => import('./pages/Debrief.svelte'),
     Share: () => import('./pages/Share.svelte'),
@@ -577,8 +580,10 @@
   <!-- «Heute als Begleiter» PR 7: «Belongs to …», the functions of the same moment, on top of the page -->
   <!-- «Seitenkopf schlanker» (Noah 23.11.2026 «ja», Velos): on a phone «Belongs to …» and «What you can do here» are ONE row behind the title -->
   {#if !guest && !mini && showsRow(page, hash) && !(phone.matches && page === 'bikes')}<GehoertDazu {page} {hash} />{/if}
+  <!-- «Suche am Ort» (Noah «2a»): a field of its own behind the title of Ich, Touren and Auswerten -->
+  {#if !guest && !mini && hereKind(hash)}<SearchHere {hash} />{/if}
   <!-- «Wegweiser statt Katalog» PR 11: what you can do on this page, with what for and how it works (switched on page by page) -->
-  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash}>{#snippet side()}{#if phone.matches && page === 'bikes' && showsRow(page, hash)}<GehoertDazu {page} {hash} />{/if}{/snippet}</SeitenInhalt>{/if}
+  {#if !guest && !mini && page !== 'home'}<SeitenInhalt {hash}>{#snippet side()}{#if phone.matches && page === 'bikes' && showsRow(page, hash)}<GehoertDazu {page} {hash} inline />{/if}{/snippet}</SeitenInhalt>{/if}
   <svelte:boundary onerror={onfail}>
   {#key `${switchN}-${listsReady.v}`}
   {#if lost}
@@ -589,7 +594,7 @@
     <!-- v0.36.0 (Noah 1a): the reviewed gear list waits here before it goes into Gear -->
     <LazyPage load={PAGES.GearImport} />
   {:else if page === 'pack'}
-    <LazyPage load={PAGES.Pack} />
+    {#if hash.startsWith('#/pack/vorschlag')}<LazyPage load={PAGES.PackVorschlag} />{:else}<LazyPage load={PAGES.Pack} />{/if}
   {:else if page === 'bikes' || page === 'care'}
     <!-- v0.21.0 (Noah 6a): Setup and Care are tabs of one page; #/care lands on Care. -->
     <LazyPage load={PAGES.Bikes} />

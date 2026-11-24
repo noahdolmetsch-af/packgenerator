@@ -39,6 +39,10 @@ const KIND_WORDS = {
   touren: 'trip', trips: 'trip',
   material: 'gear', sachen: 'gear', gear: 'gear',
   velos: 'bike', bikes: 'bike',
+  fahrten: 'ride', rides: 'ride',
+  orte: 'place', places: 'place',
+  aufgaben: 'task', tasks: 'task',
+  erkenntnisse: 'learning',
   notizen: 'note', notes: 'note',
   tagebuch: 'diary', diary: 'diary',
   lernpunkte: 'log', logbuch: 'log', logbook: 'log',
@@ -134,7 +138,7 @@ export function closest(word, vocab) {
 }
 
 /** Groups of searchAll merged (first wins, the order kept), cut again to each kind's maximum. */
-function merge(lists) {
+function merge(lists, full = null) {
   const by = new Map();
   for (const groups of lists)
     for (const g of groups) {
@@ -146,7 +150,10 @@ function merge(lists) {
   const order = Object.keys(KIND);
   return [...by.values()]
     .sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind))
-    .map((g) => ({ kind: g.kind, name: g.name, rows: g.all.slice(0, KIND[g.kind].max), more: Math.max(0, g.all.length - KIND[g.kind].max) + g.extra }));
+    .map((g) => {
+      const cap = full === g.kind ? g.all.length : KIND[g.kind].max;
+      return { kind: g.kind, name: g.name, rows: g.all.slice(0, cap), more: Math.max(0, g.all.length - cap) + (full === g.kind ? 0 : g.extra) };
+    });
 }
 
 /** A gear row as searchAll shows it (for a filter without words, «material unter 100 g»). */
@@ -180,7 +187,7 @@ export function smartSearch(q, data = {}) {
       if (r.some((g) => g.kind !== 'page' && g.kind !== 'action')) also.push(s), lists.push(r);
     }
   });
-  let groups = keep(merge(lists));
+  let groups = keep(merge(lists, data.full ?? null));
   let fixed = null;
   if (!groups.length) {
     const vocab = vocabulary(d);
