@@ -6,7 +6,7 @@
    * small cards under them is gone); «Show details» chooses the bike and leads down to its page; «+ Bike» adds one.
    */
   import { tick } from 'svelte';
-  import { Plus, Star } from '@lucide/svelte';
+  import { Plus, Star, ChevronRight, BookOpen, ClipboardCheck } from '@lucide/svelte';
   import './standardvelo.css';
   import { wantBike } from '../nav.js';
   import { liveQuery } from 'dexie';
@@ -17,6 +17,7 @@
   import { chfText } from '../money.js';
   import { bikeCare, bikeCareWords } from '../readiness.js';
   import { dueCards } from '../care/overview.js';
+  import { checkGlance } from '../care/glance.js';
   import { localDay } from '../localday.js';
   import BikeQuickDialog from '../hubs/BikeQuickDialog.svelte';
   import BikeOrderSheet from './BikeOrderSheet.svelte';
@@ -37,6 +38,7 @@
   const bikesQ = liveQuery(() => db.bikes.toArray());
   const visitsQ = liveQuery(() => db.visits.toArray());
   const tasksQ = liveQuery(() => db.maintenance.toArray());
+  const inspQ = liveQuery(() => db.inspections.toArray());
   const bikes = $derived(sortBikes(activeBikes($bikesQ ?? [])));
   const visits = $derived($visitsQ ?? []);
   const tasks = $derived($tasksQ ?? []);
@@ -69,6 +71,11 @@
       return { bike: b, w, status: care?.status ?? 'nodata', care, look };
     }),
   );
+  // Sitemap K1 (Noah 24.11.2026): «Ride ledger» and «Start inspection» stand right under the cards, for the chosen bike
+  const chosen = $derived(bikes.find((b) => b.id === bikeId) ?? bikes[0] ?? null);
+  const lastCheck = $derived(chosen ? checkGlance($inspQ ?? [], chosen.id, null) : null);
+  const daysAgo = (day) => Math.max(0, Math.round((Date.parse(`${today}T00:00:00Z`) - Date.parse(`${day}T00:00:00Z`)) / 864e5));
+  const checkLine = $derived(!lastCheck ? t('No check yet') : daysAgo(lastCheck.day) === 0 ? t('Last check: today') : tn(daysAgo(lastCheck.day), 'Last check: {n} day ago', 'Last check: {n} days ago'));
   // step 3: «Next up», the open work over all bikes, the most urgent first (the same rows as the care overview)
   const upNext = $derived(dueCards(cards.map((c) => ({ bike: c.bike, care: c.care })), phone.matches ? 3 : 5));
 </script>
@@ -101,6 +108,12 @@
     {/each}
     <button type="button" class="vcard addcard" onclick={() => wantBike()} data-card-add><Plus size={20} aria-hidden="true" /><span>{t('Add bike')}</span></button>
   </section>
+  {#if chosen}
+    <ul class="vcard qrows" data-bike-quick-rows aria-label={t('Ride ledger and inspection of {name}', { name: chosen.name })}>
+      <li><a href={bikesHash({ tab: 'care', view: 'km', bike: chosen.id })} data-km-row><span class="ib"><BookOpen size={18} aria-hidden="true" /></span><span class="m"><b>{t('Ride ledger')}</b><small class="num">{t('Every km counts')}{chosen.km != null ? ` · ${num(chosen.km)} km` : ''}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+      <li><a href={bikesHash({ tab: 'care', view: 'inspect', bike: chosen.id, level: 'quick' })} data-inspect-row><span class="ib"><ClipboardCheck size={18} aria-hidden="true" /></span><span class="m"><b>{t('Start inspection')}</b><small>{checkLine}</small></span><ChevronRight class="chev" size={18} aria-hidden="true" /></a></li>
+    </ul>
+  {/if}
   {#if cards.length}
     <section class="vcard next-up" data-next-up aria-label={t('Next up')}>
       <b>{t('Next up')} <small>{t('all bikes')}</small></b>
@@ -308,6 +321,48 @@
   .next-up small,
   .hist small {
     color: var(--ink-2);
+  }
+  .qrows {
+    list-style: none;
+    margin: 0 0 var(--sp-3);
+    padding: 0 var(--sp-3);
+  }
+  .qrows li + li {
+    border-top: 1px solid var(--line);
+  }
+  .qrows a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 8px 0;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .qrows .ib {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--paper-2);
+    color: var(--ink-2);
+  }
+  .qrows .m {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+  }
+  .qrows b {
+    font-weight: 600;
+  }
+  .qrows small {
+    color: var(--ink-2);
+  }
+  .qrows :global(.chev) {
+    flex: none;
+    color: var(--ink-3);
   }
   .vhead {
     display: flex;
