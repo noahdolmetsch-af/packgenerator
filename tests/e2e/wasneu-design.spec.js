@@ -60,7 +60,8 @@ async function shot(page, info, name) {
   await page.screenshot({ path: `${process.env.SHOTS}/${name}-${info.project.name === 'phone' ? 390 : 1440}.png`, fullPage: true });
 }
 const noSideways = async (page) => expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize().width);
-const ids = (page) => page.locator('.wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile));
+// «Heute abhaken» stands under the chips, outside the wall, while not customising (Noah 23.11.2026 «1a», changed on purpose): it counts as the first tile
+const ids = (page) => page.locator('[data-haken-top], .wall [data-tile]').evaluateAll((els) => els.map((e) => e.dataset.tile ?? 'haken'));
 const rows = (page) => page.locator('.wn-rows > li').evaluateAll((els) => els.map((e) => e.dataset.feature));
 /** A calendar day n days from D0 (Europe/Zurich has no time in it: plain dates). */
 const dayFrom = (n) => {
