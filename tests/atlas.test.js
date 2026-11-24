@@ -71,3 +71,34 @@ describe('what stays on the race', () => {
     expect(atlasLine(undefined)).toBeNull();
   });
 });
+
+import { rangeOf, overlaps, byMonth, yearPos, packLanes, yearsOf } from '../src/lib/race/atlas.js';
+
+describe('season', () => {
+  const A = { name: 'A', date: '2027-06-12', days: 3 };
+  const B = { name: 'B', date: '2027-06-14', days: 1 };
+  const C = { name: 'C', date: '2027-06-15', days: 2 };
+  it('gives the days of a race and finds races on the same days', () => {
+    expect(rangeOf(A)).toEqual({ from: '2027-06-12', to: '2027-06-14' });
+    expect(rangeOf({ name: 'x', days: 2 })).toBeNull();
+    const o = overlaps([A, B, C, { name: 'D' }]);
+    expect(o[keyOf(A)]).toEqual(['B']);
+    expect(o[keyOf(B)]).toEqual(['A']);
+    expect(o[keyOf(C)]).toBeUndefined();
+  });
+  it('groups by month and puts the undated last', () => {
+    const g = byMonth([{ name: 'z' }, C, { name: 'J', date: '2027-01-02' }, A]);
+    expect(g.map((x) => x.key)).toEqual(['2027-01', '2027-06', '']);
+    expect(g[1].rows.map((r) => r.name)).toEqual(['C', 'A']);
+  });
+  it('places a day in its year and says nothing for another year', () => {
+    expect(yearPos('2027-01-01', 2027)).toBe(0);
+    expect(Math.round(yearPos('2027-07-02', 2027))).toBe(50);
+    expect(yearPos('2026-12-31', 2027)).toBeNull();
+    expect(yearsOf([{ name: 'a', date: '2028-01-01' }, A, { name: 'n' }])).toEqual(['2027', '2028']);
+  });
+  it('packs bars on lanes without touching', () => {
+    expect(packLanes([{ a: 0, b: 20 }, { a: 10, b: 30 }, { a: 25, b: 40 }, { a: 50, b: 60 }])).toEqual([0, 1, 0, 0]);
+    expect(packLanes([])).toEqual([]);
+  });
+});

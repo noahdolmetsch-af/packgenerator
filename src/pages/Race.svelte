@@ -10,6 +10,7 @@
   import LazyPage from '../lib/nav/LazyPage.svelte';
   import RaceSheet from '../lib/race/RaceSheet.svelte';
   import AtlasImport from '../lib/race/AtlasImport.svelte';
+  import Seg from '../lib/ui/Seg.svelte';
   import { db } from '../lib/db.js';
   import { newTrip } from '../lib/trips.js';
   import { racesQuery, saveRace } from '../lib/race/store.js';
@@ -34,6 +35,7 @@
   const list = $derived(raceTrips(homeTrips($tripsQ ?? []), $racesQ ?? {}, today));
   const others = $derived(homeTrips($tripsQ ?? []).filter((x) => !list.coming.includes(x) && !list.past.includes(x) && !x.skipped));
   let info = $state(false);
+  let tab = $state('coming'); // «C mit A» (Noah 24.11.2026): Kommende | Rennliste | Erledigt, like Mein Tag
 
   let draft = $state(null); // { title, startDate, days, bikeId }
   let pick = $state('');
@@ -98,16 +100,19 @@
     </div>
 
     {#if $tripsQ !== undefined}
-      {#if !list.coming.length && !list.past.length}
-        <section class="rc-box rc-soft" data-race-empty>
-          <h2 class="rc-h2"><Flag size={18} aria-hidden="true" /> {t('No race yet')}</h2>
-          <p class="rc-text">{t('Create a race, or make one of your trips a race. Then load the route files and the stops of the organiser.')}</p>
-        </section>
+      <Seg label={t('Views of the races')} value={tab} options={[{ key: 'coming', name: t('Coming|races'), n: list.coming.length }, { key: 'list', name: t('Race list') }, { key: 'done', name: t('Done|races'), n: list.past.length }]} onchange={(k) => (tab = k)} />
+      {#if tab === 'coming'}
+        {#if !list.coming.length && !list.past.length}
+          <section class="rc-box rc-soft" data-race-empty>
+            <h2 class="rc-h2"><Flag size={18} aria-hidden="true" /> {t('No race yet')}</h2>
+            <p class="rc-text">{t('Create a race, or make one of your trips a race. Then load the route files and the stops of the organiser.')}</p>
+            <div class="rc-acts"><button type="button" class="btn" onclick={() => (tab = 'list')} data-race-to-list>{t('Take races from your race list')}</button></div>
+          </section>
+        {/if}
       {/if}
-      {#each [{ key: 'coming', name: 'Coming|races', rows: list.coming }, { key: 'past', name: 'Done', rows: list.past }] as g (g.key)}
-        {#if g.rows.length}
-          <section class="rc-box" aria-labelledby="rc-{g.key}-h">
-            <h2 id="rc-{g.key}-h" class="rc-h2">{t(g.name)}</h2>
+      {#each [{ key: 'coming', rows: list.coming }, { key: 'done', rows: list.past }] as g (g.key)}
+        {#if tab === g.key && g.rows.length}
+          <section class="rc-box" aria-label={t(g.key === 'coming' ? 'Coming|races' : 'Done|races')}>
             <!-- Gesamttest 20.10.2026 C9: rows like the app's other lists (title, the date small, ›; the whole row is the link) -->
             <ul class="rowlist rc-races">
               {#each g.rows as tr (tr.id)}
@@ -124,6 +129,11 @@
           </section>
         {/if}
       {/each}
+      {#if tab === 'done' && !list.past.length}
+        <section class="rc-box rc-soft" data-race-done-empty><p class="rc-text">{t('Races that are over stand here.')}</p></section>
+      {/if}
+      <div hidden={tab !== 'list'}><AtlasImport trips={$tripsQ ?? []} bikes={$bikesQ ?? []} ondone={() => (tab = 'coming')} /></div>
+      {#if tab === 'coming'}
       <!-- Impeccable: the sample race comes after your own races, not above them -->
       <section class="rc-box rc-soft" data-race-sample-offer>
         <h2 class="rc-h2">{t('Sample race')}</h2>
@@ -133,7 +143,6 @@
           <button type="button" class="btn sm" onclick={() => openSample(true)} data-race-sample-tour>{t('Show me around')}</button>
         </div>
       </section>
-      <AtlasImport trips={$tripsQ ?? []} bikes={$bikesQ ?? []} />
       {#if others.length}
         <section class="rc-box" aria-labelledby="rc-mark-h">
           <h2 id="rc-mark-h" class="rc-h2">{t('Make a trip a race')}</h2>
@@ -146,6 +155,7 @@
             <button type="button" class="btn" disabled={!pick} onclick={markRace}>{t('Make it a race')}</button>
           </div>
         </section>
+      {/if}
       {/if}
     {/if}
   </div>

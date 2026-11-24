@@ -102,3 +102,63 @@ export function atlasLine(a) {
   const hm = count(a.hm);
   return km || hm ? { km, hm } : null;
 }
+
+const addDay = (day, n) => new Date(Date.parse(`${day}T12:00:00Z`) + n * 864e5).toISOString().slice(0, 10);
+
+/** The days a race takes, from its start to its last day (calendar days); null without a start day. */
+export function rangeOf(row) {
+  if (!row?.date) return null;
+  return { from: row.date, to: addDay(row.date, Math.max(1, row.days || 1) - 1) };
+}
+
+/** Which of these races fall on the same days: { key → [names of the others] }. Races without a day never clash. */
+export function overlaps(rows = []) {
+  const dated = rows.map((r) => ({ r, g: rangeOf(r) })).filter((x) => x.g);
+  const out = {};
+  for (const a of dated) {
+    for (const b of dated) {
+      if (a === b || a.g.from > b.g.to || b.g.from > a.g.to) continue;
+      (out[keyOf(a.r)] ??= []).push(b.r.name);
+    }
+  }
+  return out;
+}
+
+/** The races by month: [{ key: '2027-06', rows }], the ones without a day last under key ''. */
+export function byMonth(rows = []) {
+  const groups = [];
+  for (const r of rows) {
+    const key = r.date ? r.date.slice(0, 7) : '';
+    let g = groups.find((x) => x.key === key);
+    if (!g) groups.push((g = { key, rows: [] }));
+    g.rows.push(r);
+  }
+  return groups.sort((a, b) => (a.key || '9999').localeCompare(b.key || '9999'));
+}
+
+/** Where a day stands in a year, 0 to 100 (per cent of the 365 days); a day of another year is null. */
+export function yearPos(day, year) {
+  if (!day || day.slice(0, 4) !== String(year)) return null;
+  const jan1 = Date.parse(`${year}-01-01T12:00:00Z`);
+  return ((Date.parse(`${day}T12:00:00Z`) - jan1) / 864e5 / 365) * 100;
+}
+
+/**
+ * Puts bars (with their label) on lanes so that none touches another: items [{ a, b }] in per cent
+ * (b includes the label); returns the lane number of each item in the same order (greedy, by start).
+ */
+export function packLanes(items = [], gap = 1) {
+  const order = items.map((_, i) => i).sort((x, y) => items[x].a - items[y].a);
+  const ends = [];
+  const lane = new Array(items.length).fill(0);
+  for (const i of order) {
+    let l = ends.findIndex((e) => e + gap <= items[i].a);
+    if (l < 0) l = ends.length;
+    ends[l] = items[i].b;
+    lane[i] = l;
+  }
+  return lane;
+}
+
+/** The years in the races (in the order of the days), for the season grid. */
+export const yearsOf = (rows = []) => [...new Set(rows.filter((r) => r.date).map((r) => r.date.slice(0, 4)))].sort();

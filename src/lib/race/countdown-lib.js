@@ -27,6 +27,9 @@ export function stepsOf(stored = {}, t = (x) => x) {
   return base.map((r) => ({ id: r.id, text: String(r.text ?? ''), weeks: weeksOf(r.weeks), done: r.done === true }));
 }
 
+/** Days from `today` to `day` (calendar days; negative when `day` has passed). */
+export const daysTo = (today, day) => daysBetween(today, day);
+
 /** The day a step is due: the race day minus its weeks (calendar days). null without a race day. */
 export const dueOf = (raceDay, weeks) => (raceDay ? addDay(raceDay, -7 * weeksOf(weeks)) : null);
 
