@@ -26,7 +26,7 @@
     offerDone(e === 'big' ? t('«{name}» is bigger than 5 MB. Small files only.', { name: r.name }) : t('«{name}» is now under Links and files.', { name: r.name }));
   }
   async function drop(r) {
-    if ((await askDelete({ title: t('Delete «{name}»?', { name: r.name }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete «{name}»?', { name: r.name }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     await deleteWithUndo({
       name: r.name,
       text: t('«{name}» deleted.', { name: r.name }),

@@ -49,7 +49,7 @@ test('Three days «Not today»: the question appears, «Yes, quieter» switches 
   await tap(q.locator('[data-leiser-yes]'), info);
   await expect(q).toHaveCount(0);
   expect(await stored(page, 'suggestOff')).toContain('performance');
-  // Undo (the note stays 4 s): the tips are on again
+  // Undo (the note stays 8 s): the tips are on again
   await tap(page.getByRole('button', { name: /Rückgängig|Undo/ }).first(), info);
   await expect.poll(() => stored(page, 'suggestOff')).not.toContain('performance');
   expect(errors).toEqual([]);

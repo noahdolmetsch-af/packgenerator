@@ -457,7 +457,7 @@
           </section>
 
           <!-- Impeccable (Noah 18.10.2026, Rückblick einer Tour 1): the open suggestions in sight, right under
-               «Fertig. Gute Tour!», each with «Übernehmen» and «Nein, danke» (4 s «Rückgängig», Debrief.svelte) -->
+               «Fertig. Gute Tour!», each with «Übernehmen» and «Nein, danke» (8 s «Rückgängig», Debrief.svelte) -->
           {#if openSugg.length}
             <section class="rv-sec sugs" id="rv-suggestions" aria-labelledby="sg-h" data-suggestions tabindex="-1">
               <div class="rv-h"><div><h2 id="sg-h">{tn(openSugg.length, '{n} suggestion from this trip', '{n} suggestions from this trip')}</h2><p class="rv-sub">{t('Take over what helps next time; the rest stays as it is.')}</p></div></div>

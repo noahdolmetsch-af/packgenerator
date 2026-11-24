@@ -49,7 +49,7 @@
   async function drop(list) {
     const one = list.length === 1;
     const title = one ? t('Delete "{text}" for good?', { text: nameOf(list[0]).slice(0, 40) }) : tn(list.length, 'Delete {n} note for good?', 'Delete {n} notes for good?');
-    if ((await askDelete({ title, text: t('Its files and versions go too. You can bring it back for 4 seconds afterwards.'), lines: one ? [] : list.map(nameOf) })) !== 'delete') return;
+    if ((await askDelete({ title, text: t('Its files and versions go too. You can bring it back for 8 seconds afterwards.'), lines: one ? [] : list.map(nameOf) })) !== 'delete') return;
     await deleteWithUndo({
       run: () => dropForGood(db, list),
       undo: (gone) => gone?.length && db.docs.bulkPut(gone),

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ideasOf, ideasRecOf, setNot, unsetNot, setLast, TOUR_FEATURE, ALMOST } from '../src/lib/home/ideen.js';
+import { ideasOf, ideasRecOf, setNot, unsetNot, setLast, learnedOf, daysBetween, TOUR_FEATURE, ALMOST, LEARNED_DAYS } from '../src/lib/home/ideen.js';
 import { discoverList, discoverOf, putOff } from '../src/lib/home/discover.js';
 import { FEATURES } from '../src/lib/features.js';
 
@@ -55,5 +55,28 @@ describe('«Heute entdecken»: the ideas of the day', () => {
   });
   it('knows the tour suggestions as a function of the catalogue', () => {
     expect(FEATURES.some((f) => f.id === TOUR_FEATURE)).toBe(true);
+  });
+  it('asks for the debrief of the tour you just came back from, right after a star', () => {
+    const back = { id: 'tr1', tripTitle: 'Jura-Runde', href: '#/trips/tr1/debrief' };
+    const l = ideasOf({ moment: 'zurueck', today, back, star });
+    expect(l[0].kind).toBe('star');
+    expect(l[1]).toMatchObject({ kind: 'back', id: 'back:tr1', tripTitle: 'Jura-Runde' });
+    expect(ideasOf({ moment: 'lust', today }).some((x) => x.kind === 'back')).toBe(false);
+    // «Not for me» keeps it away for good
+    expect(ideasOf({ moment: 'zurueck', today, back, ir: setNot(ideasRecOf(null), 'back:tr1', today) }).some((x) => x.kind === 'back')).toBe(false);
+  });
+  it('names what the app learned from your debriefs, newest first, only the last weeks', () => {
+    const mk = (id, day, extra = {}) => ({ id, rule: `Rule ${id}`, createdAt: `${day}T08:00:00.000Z`, ...extra });
+    expect(daysBetween('2026-11-02T10:00:00Z', today)).toBe(21);
+    expect(LEARNED_DAYS).toBe(21);
+    expect(learnedOf([], today)).toBe(null);
+    expect(learnedOf([mk('old', '2026-09-01')], today)).toBe(null);
+    expect(learnedOf([mk('a', '2026-11-20'), mk('b', '2026-11-22'), mk('c', '2026-11-22', { archivedAt: '2026-11-23' }), { id: 'e', rule: '  ', createdAt: '2026-11-22' }], today)).toEqual({ id: 'b', rule: 'Rule b', n: 2 });
+    const l = ideasOf({ moment: 'lust', today, learned: { id: 'b', rule: 'Rule b', n: 2 } });
+    expect(l.find((x) => x.kind === 'learned')).toMatchObject({ id: 'learned:b', n: 2 });
+    // after the tour suggestions, before the news
+    const all = ideasOf({ moment: 'lust', today, learned: { id: 'b', rule: 'r', n: 1 }, news: { version: '1.0.0', title: '', text: '' } }).map((x) => x.kind);
+    expect(all.indexOf('content')).toBeLessThan(all.indexOf('learned'));
+    expect(all.indexOf('learned')).toBeLessThan(all.indexOf('new'));
   });
 });

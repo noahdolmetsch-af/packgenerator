@@ -3,7 +3,7 @@
    * Taschen-Setups (TS1): the small windows of the setup list.
    *  - kind 'new':    a name and what it starts from (a copy of one setup, or empty bags)
    *  - kind 'tobike': «Auf anderes Velo kopieren», the other bike and the name there
-   *  - kind 'delete': the one question before deleting (then 4 s «Rückgängig»)
+   *  - kind 'delete': the one question before deleting (then 8 s «Rückgängig»)
    *  - kind 'fromtrip': only a name, to save a trip's bags as a new setup (TS5)
    * setups: the bike's setups ({ id, name }); setup: the setup it is about; bikes: the other bikes.
    * onsave({ name, from, bikeId }) does the write; the window closes itself.
@@ -45,7 +45,7 @@
       <div class="vd-t">
         <h2 id="sd-h">{title}</h2>
         <p class="vd-sub meta">
-          {kind === 'delete' ? t('Trips that used it show «Standard» afterwards. You can undo it for 4 seconds.') : kind === 'tobike' ? t('Places the other bike does not have keep their things «without a bag».') : kind === 'fromtrip' ? t('The bags of this trip and what is in each of them. The trip then uses the new setup.') : t('Which bags are on the bike and what goes in which bag.')}
+          {kind === 'delete' ? t('Trips that used it show «Standard» afterwards. You can undo it for 8 seconds.') : kind === 'tobike' ? t('Places the other bike does not have keep their things «without a bag».') : kind === 'fromtrip' ? t('The bags of this trip and what is in each of them. The trip then uses the new setup.') : t('Which bags are on the bike and what goes in which bag.')}
         </p>
       </div>
       <button type="button" class="vd-x" aria-label={t('Close')} onclick={() => dialog.close()}><X size={18} aria-hidden="true" /></button>
