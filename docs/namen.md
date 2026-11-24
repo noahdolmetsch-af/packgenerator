@@ -56,5 +56,6 @@ Verbindlich seit 08.11.2026 (Noah «namen ok»; Zeile 1 mit «b»). Quelle: UX-T
 | 48 | Die Seite, die die Liste einer Tour als Angebot zeigt (Teile, Gewicht, Weggelassen, Fehlt, wie letztes Mal) | Packvorschlag, Listen-Assistent, Smart-Liste | **«Dein Vorschlag»** (`#/pack/vorschlag`); der Knopf in «Neue Tour» heisst **«Vorschlag in einer Minute»** (Noah 22.11.2026 «1b», «5a») |
 | 49 | Die Seite-im-Reiter, die die Rennliste aus der Datei zeigt (Liste mit Filtern, Zeitstrahl, Karte) | Rennliste, Saison-Raster, Atlas | **«Rennatlas»** (Reiter in Touren › Rennen); die Zeitstrahl-Ansicht heisst **«Zeitstrahl»**, der Titel **«Rennatlas 2027»** (Noah 24.11.2026 «1:1 wie das Mockup») |
 | 50 | Die sechs Kacheln der leeren Suche, die zu den Seiten eines Bereichs führen | Kategorien, Bereiche, Rubriken | **«Themen»** (Packen, Touren, Velo, Körper, Wetter, App) (Noah 24.11.2026 «1-5a») |
+| 51 | Die Zeile unter einer Frage in der Suche, die zur Seite des Assistenten führt | Gespräch öffnen, Chat öffnen | **«Assistent öffnen»** (Noah «1-3a» 24.11.2026; «Gespräch» stand nur im Entwurf, das Wort bleibt **Assistent**) |
 
 Umgesetzt wird die Umbenennung in eigenen kleinen PRs (nach Bereich). Die Zeilen oben gelten ab heute auch für alles Neue.
