@@ -65,22 +65,36 @@ test(`every line of What is new goes to its exact place, part ${part + 1}`, asyn
   }
   const missing = [];
   for (const [version, text, g] of rows) {
+    // the log names the line that is being tried: a part that runs into its 5 minutes then shows which line it stood on
+    console.log(`part ${part + 1}: ${version} «${text.slice(0, 80)}»`);
     await page.goto('./#/');
     await page.goto('./#/me/news');
     await page.locator('main h1').first().waitFor({ timeout: 8000 }).catch(() => {});
     await settle(page);
     let box = page.locator(`[data-newest="${version}"]`);
-    if (version !== NEWEST) {
-      await page.getByRole('searchbox', { name: T('Find an update') }).fill(version);
-      await page.locator(`[data-row="${version}"]`).first().click();
-      box = page.locator('.wn-vopen');
+    // A row whose update or line cannot be found says so within half a minute: a click without its own limit waits for the
+    // 5 minutes of the whole part (24.11.2026: the last part ended with «Target page … has been closed» and no line named).
+    try {
+      if (version !== NEWEST) {
+        await page.getByRole('searchbox', { name: T('Find an update') }).fill(version, { timeout: 30_000 });
+        await page.locator(`[data-row="${version}"]`).first().click({ timeout: 30_000 });
+        box = page.locator('.wn-vopen');
+      }
+    } catch {
+      missing.push(`${version} «${text}»: the update ${version} could not be opened on ${page.url().split('#')[1]}`);
+      continue;
     }
     // The line «New here» of the row before lives 8 s and survives page.goto (only the hash changes, the page is the same).
     // Left standing it would count as this row's own line, the row would pass at once, and the row before could still be
     // working (a ride line looks up the rides first, then opens Training): it then took the next row to Training right
     // after its goto («nothing lit on …», or the search box never came). Every row waits for its own line.
     await page.evaluate(() => document.querySelector('.spot-note')?.remove());
-    await box.getByRole('link', { name: T(text), exact: false }).first().click();
+    try {
+      await box.getByRole('link', { name: T(text), exact: false }).first().click({ timeout: 30_000 });
+    } catch {
+      missing.push(`${version} «${text}»: the line was not found in the update`);
+      continue;
+    }
     // a spot that lights up, or (a thing without a fixed place, or a function without a spot) the line at the bottom
     const lit = page.locator('[data-spot-on]').first();
     const said = page.locator('[data-spot-note]').first();
