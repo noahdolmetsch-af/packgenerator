@@ -206,5 +206,8 @@ export async function makeSample({ db, newTrip, putRace, today, title, tr }) {
   const base = newTrip({ title, startDate: sampleStart(today), days: 10, bike }, [], await db.items.toArray());
   await db.trips.put(sampleTrip(base, title, today));
   await putRace(SAMPLE_ID, sampleStored(today, tr));
+  // station 3 of the tour of the strengths: example bag photos (drawn), «Reset» puts them back as new too
+  const { putSampleBags } = await import('./samplebags.js');
+  await putSampleBags({ db, today, tr, force: true });
   return SAMPLE_ID;
 }

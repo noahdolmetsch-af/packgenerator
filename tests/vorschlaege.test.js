@@ -1,8 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import TOURS from '../src/lib/vorschlaege/data/netz.js';
 import KANTONE from '../src/lib/vorschlaege/data/kantone.js';
-import { kmMarks, stepFor } from '../src/lib/spur/kmmarks.js';
+import { kmMarks, stepFor, lineKm, pointAtKm, nearestOnLine } from '../src/lib/spur/kmmarks.js';
+import { fineOfTour, coarseOfTour, kmsOf, steepest, stretchOf } from '../src/lib/vorschlaege/steil.js';
 import { FRAME, lv95, toXY, pathOf, ZURICH, countBy, sizes, tipPos, TIP } from '../src/lib/vorschlaege/karte.js';
+import { crowKm, travelMin, anreiseOf, dayHours, fitsHalfDay, withinTravel, TRAVELS, ZURICH_HB } from '../src/lib/vorschlaege/anreise.js';
+import { freeToday, formFit, freeFit, bikeFit, doableToday, EASY_MAX_H } from '../src/lib/vorschlaege/passt.js';
 import { REGIONS, LEVELS, COND_STD, ARTS, artsOf, levelsOf, condOf, matchCond, matchTech, sortNear, nearKm, hoursOf, splitHours, snowOf, filterTours, splitNow, gridOf, densify, newShare, awayKm, whyOf, warnsOf, gpxOf } from '../src/lib/vorschlaege/regeln.js';
 
 const by = (id) => TOURS.find((t) => t.id === id);
@@ -151,7 +154,7 @@ describe('Tourenvorschläge: «Warum dieser Vorschlag?» und Warnungen', () => {
   it('nennt Zeit, Schnee, Stufe, neu und Abstand', () => {
     const t = by('sm-332');
     const w = whyOf(t, { month: 11, maxHours: 3, pace: null, grid: gridOf([[[46.0, 7.0]]]), home: { lat: 47.38, lon: 8.54 } });
-    expect(w.map((x) => x.k)).toEqual(['time', 'snow', 'level', 'new', 'away']);
+    expect(w.map((x) => x.k)).toEqual(['time', 'trip', 'snow', 'level', 'new', 'away']);
     expect(w.find((x) => x.k === 'time').tone).toBe('warn');
     expect(w.find((x) => x.k === 'snow').state).toBe('likely');
     expect(w.find((x) => x.k === 'new').share).toBe(100);
@@ -277,5 +280,223 @@ describe('Tourenvorschläge: km-Marken auf der Tourlinie', () => {
   it('ohne Linie gibt es keine Marken', () => {
     expect(kmMarks([])).toEqual([]);
     expect(kmMarks([[47, 8]])).toEqual([]);
+  });
+});
+
+describe('Tourenvorschläge: Ort auf der Linie (Profil und Karte zeigen dieselbe Stelle)', () => {
+  const t = by('sm-33');
+  it('die Länge der Linie passt ungefähr zur Tour', () => {
+    expect(lineKm(t.line)).toBeGreaterThan(t.km * 0.6);
+    expect(lineKm(t.line)).toBeLessThan(t.km * 1.4);
+  });
+  it('Anfang und Ende der Linie sind ihre Endpunkte', () => {
+    expect(pointAtKm(t.line, 0)).toEqual(t.line[0]);
+    const end = pointAtKm(t.line, lineKm(t.line));
+    expect(Math.abs(end[0] - t.line.at(-1)[0])).toBeLessThan(1e-3);
+  });
+  it('ein Punkt der Linie liegt bei seinem km und ist nicht entfernt', () => {
+    const km = lineKm(t.line) / 2;
+    const p = pointAtKm(t.line, km);
+    const n = nearestOnLine(t.line, p);
+    expect(Math.abs(n.km - km)).toBeLessThan(0.1);
+    expect(n.away).toBeLessThan(0.05);
+  });
+  it('ein Punkt weit weg meldet seine Entfernung', () => {
+    expect(nearestOnLine(t.line, [t.line[0][0] + 0.5, t.line[0][1]]).away).toBeGreaterThan(20);
+  });
+});
+
+describe('Tourenvorschläge: Höhenprofil aus den Höhen', () => {
+  const t = by('sm-33');
+  it('die km der Höhen liegen gleichmässig von 0 bis zur Länge', () => {
+    const ks = kmsOf(t.ele, t.km);
+    expect(ks[0]).toBe(0);
+    expect(ks.at(-1)).toBeCloseTo(t.km, 6);
+  });
+  it('grobes und feines Profil haben für jede Höhe einen Punkt oder mehr', () => {
+    expect(coarseOfTour(t)).toHaveLength(t.ele.length);
+    expect(fineOfTour(t)).toBeTruthy();
+  });
+  it('ohne Höhen gibt es kein Profil', () => {
+    expect(fineOfTour({ ele: [], km: 5 })).toBeNull();
+    expect(coarseOfTour({})).toEqual([]);
+  });
+});
+
+describe('Tourenvorschläge: die steilsten Stücke', () => {
+  const flat = { km: 10, ele: Array.from({ length: 101 }, (_, i) => 500 + i) }; // 1 m per 100 m = 1 %
+  it('eine flache Tour hat kein steiles Stück', () => {
+    expect(steepest(flat)).toEqual([]);
+    expect(steepest({ km: 0, ele: [] })).toEqual([]);
+  });
+  it('ein steiles Stück wird gefunden, mit km, Schnitt und Höhenmetern', () => {
+    // km 4–5 climbs 150 m over 1 km = 15 %
+    const ele = flat.ele.map((m, i) => (i < 40 ? 500 : i <= 50 ? 500 + (i - 40) * 15 : 650));
+    const r = steepest({ km: 10, ele });
+    expect(r).toHaveLength(1);
+    expect(r[0].fromKm).toBeGreaterThanOrEqual(3.5);
+    expect(r[0].toKm).toBeLessThanOrEqual(5.5);
+    expect(r[0].avg).toBeGreaterThanOrEqual(12);
+    expect(r[0].up).toBeGreaterThan(100);
+  });
+  it('höchstens drei Stücke, das steilste zuerst, ein Gefälle zählt nicht', () => {
+    const ele = [];
+    let m = 500;
+    for (let i = 0; i <= 200; i++) {
+      const up = [20, 60, 100, 140, 180].some((a) => i >= a && i < a + 5) ? 20 + [20, 60, 100, 140, 180].indexOf([20, 60, 100, 140, 180].find((a) => i >= a && i < a + 5)) : 0;
+      m += up ? up : i > 190 ? -30 : 0;
+      ele.push(m);
+    }
+    const r = steepest({ km: 20, ele });
+    expect(r.length).toBeLessThanOrEqual(3);
+    for (let i = 1; i < r.length; i++) expect(r[i - 1].avg).toBeGreaterThanOrEqual(r[i].avg);
+    expect(r.every((x) => x.up > 0)).toBe(true);
+  });
+  it('die Stücke der echten Touren sind plausibel (Prozent, km innerhalb der Tour)', () => {
+    for (const t of TOURS) {
+      for (const p of steepest(t)) {
+        expect(p.fromKm).toBeGreaterThanOrEqual(0);
+        expect(p.toKm).toBeLessThanOrEqual(t.km + 0.1);
+        expect(p.avg).toBeGreaterThanOrEqual(12);
+        expect(p.max).toBeGreaterThanOrEqual(p.avg);
+      }
+    }
+  });
+  it('das Stück auf der Linie beginnt und endet an Punkten der Linie', () => {
+    const t = by('sm-33');
+    const s = stretchOf(t.line, 5, 6, pointAtKm, 1);
+    expect(s.length).toBeGreaterThanOrEqual(2);
+    expect(nearestOnLine(t.line, s[0]).away).toBeLessThan(0.05);
+    expect(nearestOnLine(t.line, s.at(-1)).away).toBeLessThan(0.05);
+  });
+});
+
+describe('Tourenvorschläge: Anreise (Schätzung)', () => {
+  it('rechnet ÖV mit Velo und Auto aus der Luftlinie, in 5-Minuten-Schritten', () => {
+    expect(travelMin(0, 'pt')).toBe(30);
+    expect(travelMin(100, 'pt')).toBe(105);
+    expect(travelMin(100, 'car')).toBe(105);
+    expect(travelMin(20, 'car')).toBeLessThan(travelMin(20, 'pt'));
+    for (const km of [3, 17, 66, 143]) expect(travelMin(km, 'pt') % 5).toBe(0);
+    expect(crowKm([47, 8], [47, 8])).toBe(0);
+    expect(Math.round(crowKm([47.0, 8.0], [48.0, 8.0]))).toBe(111);
+  });
+  it('ohne Wohnort ab Zürich Hauptbahnhof; eine Strecke kommt vom Ende zurück, eine Runde vom Start', () => {
+    const one = by('sm-33'); // Winterthur → Hulftegg, Einweg
+    const a = anreiseOf(one, null, 'pt');
+    expect(a.fromHome).toBe(false);
+    expect(a.outKm).toBeGreaterThan(10);
+    expect(a.backKm).not.toBe(a.outKm);
+    const loop = by('sm-332'); // Davos, Runde
+    const b = anreiseOf(loop, { lat: ZURICH_HB.lat, lon: ZURICH_HB.lon }, 'pt');
+    expect(b.fromHome).toBe(true);
+    expect(b.out).toBe(b.back);
+    expect(anreiseOf({ line: [] }, null)).toBeNull();
+  });
+  it('ganzer Tag und halber Tag', () => {
+    const a = { out: 60, back: 90 };
+    expect(dayHours(4, a)).toBe(6.5);
+    expect(dayHours(4, null)).toBe(4);
+    expect(fitsHalfDay(2, { out: 30, back: 30 })).toBe(true);
+    expect(fitsHalfDay(4, a)).toBe(false);
+  });
+  it('Filter: die längste Anreise (hin oder zurück) bis x Minuten; ohne Wahl alle', () => {
+    expect(withinTravel({ out: 60, back: 90 }, 60)).toBe(false);
+    expect(withinTravel({ out: 60, back: 90 }, 120)).toBe(true);
+    expect(withinTravel({ out: 60, back: 90 }, null)).toBe(true);
+    const all = filterTours(TOURS, { conds: [] });
+    const near = filterTours(TOURS, { conds: [], maxTravel: TRAVELS[0] });
+    expect(near.length).toBeGreaterThan(0);
+    expect(near.length).toBeLessThan(all.length);
+    for (const t of near) {
+      const a = anreiseOf(t, null, 'pt');
+      expect(Math.max(a.out, a.back)).toBeLessThanOrEqual(60);
+    }
+    expect(filterTours(TOURS, { conds: [], maxTravel: 60, mode: 'car' }).length).toBeGreaterThanOrEqual(near.length);
+  });
+  it('«Warum dieser Vorschlag?» nennt die Anreise und den ganzen Tag', () => {
+    const w = whyOf(by('sm-33'), { month: 11, mode: 'pt' }).find((x) => x.k === 'trip');
+    expect(w.out).toBeGreaterThan(0);
+    expect(w.day).toBeGreaterThan(w.out / 60);
+    expect(typeof w.half).toBe('boolean');
+    const far = whyOf(by('sm-332'), { month: 11, mode: 'pt' }).find((x) => x.k === 'trip');
+    expect(far.half).toBe(false);
+    expect(far.tone).toBe('warn');
+  });
+});
+
+describe('Tourenvorschläge: passt zu dir', () => {
+  // 23.11.2026, 08:00 Zürich (UTC+1); Sonnenuntergang 16:30
+  const OFF = 3600;
+  const at = (h, m = 0) => Date.parse('2026-11-23T00:00:00Z') + (h * 60 + m) * 6e4 - OFF * 1000;
+  const core = { offset: OFF, days: [{ date: '2026-11-23', set: at(16, 30), rise: at(7, 45) }] };
+  const now = at(8, 0);
+
+  it('freie Zeit: von jetzt plus Bereitmachen bis Sonnenuntergang', () => {
+    const w = freeToday(core, [], [], now);
+    expect(w.start).toBe(at(8, 30));
+    expect(w.end).toBe(at(16, 30));
+    expect(w.until).toBe('sunset');
+    expect(w.hours).toBeCloseTo(8, 5);
+  });
+  it('freie Zeit: ein eigener Termin begrenzt das Fenster; ohne Wetterdaten gibt es keins', () => {
+    const items = [{ kind: 'date', day: '2026-11-23', time: '12:00', mins: 60, title: 'Zahnarzt' }];
+    const w = freeToday(core, [], items, now);
+    expect(w.end).toBe(at(12, 0));
+    expect(w.until).toBe('date');
+    expect(w.hours).toBeCloseTo(3.5, 5);
+    expect(freeToday(null, [], [], now)).toBeNull();
+  });
+  it('freie Zeit: ein Termin am Anfang schiebt den Start nach hinten', () => {
+    const items = [{ kind: 'date', day: '2026-11-23', time: '08:00', mins: 120, title: 'Termin' }];
+    const w = freeToday(core, [], items, now);
+    expect(w.start).toBe(at(10, 0));
+  });
+  it('Form: Ruhe warnt immer, leicht warnt bei langen Touren, normal und bereit passen', () => {
+    const long = by('sm-332');
+    const t = TOURS.find((x) => hoursOf(x) <= EASY_MAX_H && (x.up ?? 0) <= 1200);
+    expect(formFit(t, 'rest').tone).toBe('warn');
+    expect(formFit(t, 'easy').tone).toBe('ok');
+    expect(formFit(long, 'easy').tone).toBe('warn');
+    expect(formFit(t, 'normal').key).toBe('fit');
+    expect(formFit(t, 'hard').tone).toBe('ok');
+    expect(formFit(t, null)).toBeNull();
+  });
+  it('freie Zeit gegen Tour: der ganze Tag (Fahrt plus Anreise) muss ins Fenster passen', () => {
+    const t = by('sm-332');
+    const small = freeFit(t, { hours: 1, end: at(10), until: 'date' });
+    expect(small.tone).toBe('warn');
+    const big = freeFit(t, { hours: 24, end: at(23), until: 'late' });
+    expect(big.tone).toBe('ok');
+    expect(freeFit(t, null)).toBeNull();
+  });
+  it('Velo: mit Mountainbike passt es, ohne warnt es, ohne Velos sagt es nichts', () => {
+    expect(bikeFit([])).toBeNull();
+    expect(bikeFit([{ id: 1, kind: 'mtb' }]).key).toBe('mtb');
+    expect(bikeFit([{ id: 2, kind: 'road' }]).key).toBe('nomtb');
+    expect(bikeFit([{ id: 3, kind: 'mtb', retired: true }])).toBeNull();
+  });
+  it('heute machbar: Ruhe sagt nein; mit Fenster zählt der ganze Tag; ohne Angaben ja', () => {
+    const t = by('sm-332');
+    expect(doableToday(t, {})).toBe(true);
+    expect(doableToday(t, { level: 'rest' })).toBe(false);
+    expect(doableToday(t, { level: 'hard', win: { hours: 1, end: at(10), until: 'date' } })).toBe(false);
+    expect(doableToday(t, { level: 'hard', win: { hours: 24, end: at(23), until: 'late' } })).toBe(true);
+  });
+  it('«Warum dieser Vorschlag?» hat die Zeilen frei, Form und Velo nur, wenn die App sie kennt', () => {
+    const t = by('sm-33');
+    const ks = (c) => whyOf(t, { month: 11, ...c }).map((r) => r.k);
+    expect(ks({})).not.toContain('free');
+    expect(ks({})).not.toContain('form');
+    expect(ks({})).not.toContain('bike');
+    const all = ks({ win: { hours: 5, end: at(14), until: 'date' }, form: 'normal', bikes: [{ id: 1, kind: 'mtb' }] });
+    expect(all).toEqual(expect.arrayContaining(['free', 'form', 'bike']));
+    expect(all.indexOf('free')).toBeLessThan(all.indexOf('snow'));
+  });
+  it('filterTours: ok(t) engt zusätzlich ein', () => {
+    const base = filterTours(TOURS, { conds: [] });
+    const some = filterTours(TOURS, { conds: [], ok: (t) => t.region === 'gr' });
+    expect(some.length).toBeGreaterThan(0);
+    expect(some.length).toBeLessThan(base.length);
   });
 });

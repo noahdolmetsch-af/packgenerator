@@ -58,7 +58,7 @@
     editing = null;
   }
   async function drop(x) {
-    if ((await askDelete({ title: t('Delete this listening tip?'), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Delete this listening tip?'), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = all;
     await deleteWithUndo({ run: () => save(dropTip(before, x.id)), undo: () => save(before), text: t('"{name}" deleted.', { name: x.name }), name: x.name });
   }

@@ -47,6 +47,16 @@ const ROUTES = [
   ['#/share/test_data_gtp_code', 'Trips|place'],
 ];
 
+/** The names of places in the menu without the number or dot of «Ruhige Punkte» and its hidden words. */
+const nameOf = (loc) =>
+  loc.evaluateAll((els) =>
+    els.map((a) => {
+      const c = a.cloneNode(true);
+      c.querySelectorAll('.due, .dotm, .sr').forEach((n) => n.remove());
+      return c.textContent.replace(/\s+/g, ' ').trim();
+    }),
+  );
+
 for (const lang of ['en', 'de']) {
   test(`every address marks its place, ${lang}`, async ({ page, context }) => {
     const T = tr(lang);
@@ -69,10 +79,11 @@ for (const lang of ['en', 'de']) {
       // the bottom bar has Woche instead of Material (BAR_PLACES)
       const side = await page.locator('.side li.pl').first().isVisible();
       // «Aktiv neu» «1a»: on a phone the slot of Velos reads «Velos und Material» (nav.js bar)
-      await expect(places, hash).toHaveText((side ? SIDE_PLACES : BAR_PLACES).map((p) => T((!side && p.bar) || p.label)));
+      // «Ruhige Punkte» (Noah 23.11.2026 «4a»): a number or dot beside a place (and its hidden words) is not part of its name
+      await expect.poll(() => nameOf(places), { message: hash }).toEqual((side ? SIDE_PLACES : BAR_PLACES).map((p) => T((!side && p.bar) || p.label)));
       const lit = page.locator('nav.bottom a[aria-current], .side li.pl > a.pa[aria-current]');
       if (['Gear|place', 'Bikes|place', 'Equipment|place'].includes(place)) await expect(lit, hash).toHaveText(T('Bikes and gear|place')); // V5 (Noah 21.11.2026): Velos, Material and Ausrüstung are one place, «Velos und Material»
-      else if (place) await expect(lit, hash).toHaveText(T(place));
+      else if (place) await expect.poll(() => nameOf(lit), { message: hash }).toEqual([T(place)]);
       else await expect(lit, hash).toHaveCount(0);
       await expect(page.locator('main'), hash).not.toBeEmpty();
       const sw = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -129,7 +140,7 @@ for (const [soon, button, step, wx] of [['2026-10-08', 'Pack|stage', 'Pack|stage
     await expect(page.locator('.trip-band nav a[aria-current="page"]')).toContainText(T(step === 'Pack|stage' ? BAR.pack : BAR.plan));
     if (step === 'Pack|stage') await expect(page.locator('.pd')).toHaveAttribute('aria-label', T('Packing day: {title}', { title: 'test_data_gtp_ sooner' }));
     // v0.67.0: the trip's steps are the StepBar (nav.stepbar), not a place
-    await expect(page.locator('nav[aria-label]:not(.steps):not(.stepbar) a[aria-current="page"]').filter({ visible: true })).toHaveText(T('Trips|place'));
+    await expect.poll(() => nameOf(page.locator('nav[aria-label]:not(.steps):not(.stepbar) a[aria-current="page"]').filter({ visible: true }))).toEqual([T('Trips|place')]); // «Ruhige Punkte»: the dot of a tour to pack is not part of the name
     expect(await page.evaluate(() => localStorage.getItem('pack.currentTrip'))).toBe('test_data_gtp_sooner');
   });
 }
@@ -168,7 +179,7 @@ test('Today folds nothing; First steps and the 16 functions on the wall', async 
   await context.addInitScript(() => localStorage.setItem('lang', 'de'));
   await page.goto('./');
   const T = tr('de');
-  await expect(page.getByRole('region', { name: T('First steps') })).toBeVisible();
+  await expect(page.getByRole('region', { name: T('Start here') })).toBeVisible();
   await expect(page.locator('main details.folded')).toHaveCount(0);
   // 0.188.0 H32 (Noah 24.10.2026 «1a», changed on purpose): an empty device shows the first steps; the wall after «Jetzt alles zeigen»
   await page.locator('[data-empty-wall]').getByRole('button', { name: T('Show everything now') }).click();

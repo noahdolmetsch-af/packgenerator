@@ -189,7 +189,7 @@
 </div>
 
 {#if editing && isKind(editing)}
-  <KindSheet todo={editing} onclose={() => (editing = null)} ondone={(r) => r?.removed && offerDone(t('Deleted.'), r.undo, 4000)} />
+  <KindSheet todo={editing} onclose={() => (editing = null)} ondone={(r) => r?.removed && offerDone(t('Deleted.'), r.undo)} />
 {:else if editing}
   <TodoSheet todo={editing} onclose={() => (editing = null)} />
 {/if}

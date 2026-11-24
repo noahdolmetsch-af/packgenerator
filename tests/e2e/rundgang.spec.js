@@ -23,7 +23,7 @@ test('Tour of the app with own data: six steps, the end card, then gone', async 
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto('./');
   const line = page.locator('[data-tourline]');
-  await expect(line).toContainText(T('New here? Take the tour'));
+  await expect(line).toContainText(`${T('New here?')} ${T('Tour, 2 minutes')}`); // «Starte hier» (Noah 23.11.2026 «1-5a», changed on purpose)
   await line.getByRole('button', { name: T('Start ›|tour') }).click();
   const ask = page.getByRole('dialog', { name: T('Tour of the app') });
   await expect(ask).toContainText(T('{n} short steps, about 2 minutes', { n: 6 }));

@@ -61,7 +61,7 @@ test.describe('HA Heute neu A', () => {
     // then «Dein Körper» with the weight, the body and Aktiv («Körperwerte» left the ready wall, 2a)
     // «Meine Tour» (Plan 2a): with a planned tour its card is first, the meditation card right under it
     // «Dein Körper heute» as a band (Noah 23.11.2026 «1-4a», point 1a, changed on purpose): the body band is first, right under the greeting
-    expect(order.slice(0, 4)).toEqual(['haken', 'body', 'meinetour', 'meditation']);
+    expect(order.slice(0, 3)).toEqual(['body', 'meinetour', 'meditation']); // «Heute abhaken» stands above the wall, under the chips (Noah 23.11.2026 «1a 2a»)
     const bodyArea = order.filter((id) => ['weighin', 'body', 'acts'].includes(id));
     expect(bodyArea).toEqual(HEAD_N2.filter((id) => ['weighin', 'body', 'acts'].includes(id) && order.includes(id)));
     for (const id of ['week', 'balance', 'bikes']) expect(order, id).toContain(id);
@@ -75,8 +75,9 @@ test.describe('HA Heute neu A', () => {
     // the top of the wall in the first screen; 0.180.0 P6 (Noah 21.10.2026 «2b», changed on purpose): that is the
     // meditation card now, the body follows under it (with the name question open it can be below the first screen)
     await page.evaluate(() => window.scrollTo(0, 0));
-    const top = await page.locator('.wall > [data-tile]').first().evaluate((el) => el.getBoundingClientRect().top);
-    expect(top, 'the top of the wall in the first screen').toBeLessThan(page.viewportSize().height);
+    // «Heute abhaken» under the chips (Noah 23.11.2026 «1a», changed on purpose): the first screen holds that block, the wall follows under the cards (no screen budget, rule 6)
+    const top = await page.locator('[data-haken-top]').evaluate((el) => el.getBoundingClientRect().top);
+    expect(top, 'the tick-off block in the first screen').toBeLessThan(page.viewportSize().height);
     // «Jetzt dran» keeps the ride idea; the check and meditation are on top now
     const today = page.locator('[data-section="today"]');
     await expect(today.locator('li[data-row="idea"]').getByRole('button', { name: T('Quick start'), exact: true })).toBeVisible();
@@ -96,7 +97,7 @@ test.describe('HA Heute neu A', () => {
       await expect(first).toHaveAttribute('aria-pressed', 'true');
     }
     await page.locator('[data-all-areas]').click();
-    await expect(page).toHaveURL(/#\/features/);
+    await expect(page).toHaveURL(/#\/me\/karte/);
     await page.goto('./#/me/news');
     await expect(page.locator('[data-tipweek-me]')).toBeVisible();
   });

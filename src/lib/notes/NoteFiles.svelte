@@ -48,7 +48,7 @@
     busy = '';
   }
   async function remove(f) {
-    if ((await askDelete({ title: t('Remove the file "{text}"?', { text: f.name.slice(0, 40) }), text: t('You can bring it back for 4 seconds afterwards.') })) !== 'delete') return;
+    if ((await askDelete({ title: t('Remove the file "{text}"?', { text: f.name.slice(0, 40) }), text: t('You can bring it back for 8 seconds afterwards.') })) !== 'delete') return;
     const before = note;
     const ok = await deleteWithUndo({
       run: async () => {

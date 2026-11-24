@@ -13,7 +13,7 @@
   import { snapDb, takeSnapshot, undoReset } from './maintenance/snapshots.js';
   import { SHARE_BACKUP_CACHE, SHARE_BACKUP_KEY } from './sharebackup.js';
   import { phone } from './media.svelte.js';
-  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks, Sparkles } from '@lucide/svelte';
+  import { Send, ChevronRight, Bike, Star, CirclePlay, QrCode, Check, FolderOpen, ListChecks, Sparkles, Trash2 } from '@lucide/svelte';
   import './ich/ich.css';
   import Help from './ui/Help.svelte';
   import BeforeUpdates from './maintenance/BeforeUpdates.svelte';
@@ -26,7 +26,8 @@
   import { take } from './nav.js';
   import { sync as autoSync, runSync } from './sync/auto.svelte.js';
   import { isDemoFile, startDemo, demoState } from './demo.js';
-  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, onlyExamples } from './firststart.js';
+  import { examplesLeft, exampleCount, removeExamples, undoExamples, addExamples, onlyExamples, interestsPresent, INTERESTS } from './firststart.js';
+  import AdjustExamples from './firststart/AdjustExamples.svelte';
   import { MORE_KEY } from './blocksmore.js';
   import { offerDone } from './ui/rename.svelte.js';
   import { localDay } from './localday.js';
@@ -59,7 +60,7 @@
   const LABELS = {
     items: 'Gear + wishlist', kits: 'Old kits (now templates)', trips: 'Trips', debriefs: 'Debriefs', learnings: 'Learnings',
     events: 'Events', maintenance: 'Maintenance tasks', bikes: 'Bikes', containers: 'Bags', weightChecks: 'Weight checks', settings: 'Settings',
-    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks', healthDays: 'Fitbit days', sportItems: 'Sports entries', inspections: 'Bike inspections', logbuch: 'Improvement log',
+    visits: 'Workshop visits', photos: 'Photos', notes: 'Notes', flowActs: 'Flow activities', flowLog: 'Flow ticks', flowChecks: 'Daily checks', healthDays: 'Fitbit days', sportItems: 'Sports entries', inspections: 'Bike inspections', logbuch: 'Improvement log', trash: 'Recently deleted',
   };
 
   // Noah 19.10.2026 «1a»: Ich › «Switch on» opens this page at «Phone and computer»
@@ -331,6 +332,8 @@
     await deleteWithUndo({ run: () => removeExamples(db), undo: (saved) => undoExamples(db, saved), text: t('Examples removed.'), name: t('Examples') });
   }
   // Noah 20.10.2026 «1-4 alle»: after an empty start (or once removed) the examples can come back
+  let adjust = $state();
+  const canAdjust = $derived(!!$examplesQ && interestsPresent($examplesQ).length < INTERESTS.length);
   let getting = $state(false);
   async function getExamples() {
     getting = true;
@@ -711,6 +714,8 @@
     <section class="ich-sec" aria-labelledby="od-h">
       <div class="ich-h"><div><h2 id="od-h">{t('Other data')}</h2></div></div>
       <ul class="card ich-list">
+        <!-- «Zuletzt gelöscht» (Noah 23.11.2026 «1a») -->
+        <li><a class="ich-row" href="#/me/trash" data-row="trash"><span class="ich-ib"><Trash2 size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Recently deleted')}</b><small>{t('Bring back what you deleted in the last 30 days')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
         <li><a class="ich-row" href="#/me/phone"><span class="ich-ib"><QrCode size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('To the phone')}</b><small>{t('Open the app on the phone with a code')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></a></li>
         <!-- the same import as «Import backup»: the app knows the kind of file by its content -->
         <!-- Paket Q #137: «Stimmt das noch?» any time (it also comes by itself once a year) -->
@@ -720,8 +725,10 @@
         <li><button type="button" class="ich-row" onclick={() => fileEl?.click()} data-row="demo-file"><span class="ich-ib"><CirclePlay size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Demo from a file')}</b><small>{t('The yellow bar on top brings your data back')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         {#if exampleN}<li><button type="button" class="ich-row" onclick={dropExamples} data-row="examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Remove the examples')}</b><small>{t('The made-up trips, bike and gear from the first start')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>
         {:else if $examplesQ}<li><button type="button" class="ich-row" onclick={getExamples} disabled={getting || !!$demoQ} data-row="get-examples"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Get the examples')}</b><small>{t('Two made-up trips, a bike and gear to try things out; your own data stays')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
+        {#if canAdjust}<li><button type="button" class="ich-row" onclick={() => adjust?.show()} disabled={!!$demoQ} data-row="examples-adjust"><span class="ich-ib"><Sparkles size={18} aria-hidden="true" /></span><span class="ich-m"><b>{t('Adjust the examples')}</b><small>{t('Pick what fits you: trips with a night out, day rides, active and everyday')}</small></span><ChevronRight class="ich-chev" size={18} aria-hidden="true" /></button></li>{/if}
       </ul>
     </section>
+    <AdjustExamples bind:this={adjust} />
     <NamesDe />
     <StartFresh />
     </MoreFold>
