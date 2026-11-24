@@ -288,10 +288,10 @@
       a: unitById(w.a) ? nameOf(unitById(w.a).type) : tpNameOf(w.a),
       b: unitById(w.b) ? nameOf(unitById(w.b).type) : tpNameOf(w.b),
     });
-  const said = (n) => n.key.startsWith('tp-') || n.key.startsWith('soll-'); // what TrainingPeaks and the hours goal do to the week is said where the hours are
+  const said = (n) => n.key.startsWith('tp-') || n.key.startsWith('tpl-') || n.key.startsWith('soll-'); // what TrainingPeaks and the hours goal do to the week is said where the hours are
   const notes = $derived(week.notes.filter((n) => !said(n)).map(noteText).filter(Boolean));
   // what TrainingPeaks does to the week is said where the hours are (never silent): how much it brings, what it replaced
-  const tpOver = $derived(week.tp.length > 0 && mins > goalNow * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over' || n.key === 'soll-over' || n.key === 'soll-cut')); // Noah «a»: stays as it is, with a hint
+  const tpOver = $derived(week.tp.length > 0 && mins > goalNow * 60 + 5 && !week.notes.some((n) => n.key === 'tp-over' || n.key === 'tpl-over' || n.key === 'soll-over' || n.key === 'soll-cut')); // Noah «a»: stays as it is, with a hint
   const tpLines = $derived([...week.notes.filter(said).map(noteText).filter(Boolean), ...(tpOver ? [t('With TrainingPeaks the week is above your {h} h. Nothing is taken away; take a unit out if it is too much.', { h: cfgW.hours })] : [])]);
   const hoursLine = $derived(
     modeShown.hard

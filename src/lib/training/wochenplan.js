@@ -237,6 +237,7 @@ export function medDays(monday) {
 
 /** The sessions that come from TrainingPeaks carry this `src` (lib/trainingpeaks.js). */
 export const TP_SRC = 'tp';
+export const PLAN_SRC = 'tpl:'; // the sessions of a training plan in use (plans.js: `tpl:<planId>`)
 const STRENGTH = /kraft|strength|gym|weights?\b/i;
 const INDOOR = /indoor|drinnen|trainer|zwift|rolle|treadmill|laufband/i;
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -259,16 +260,17 @@ export const tpLoad = (zone) => (zone >= 4 ? 'H' : zone === 3 || !zone ? 'M' : '
 
 /**
  * The TrainingPeaks sessions of one week, as the planner needs them: [{ id, d (0 Monday), mins, t ('HH:MM' or ''), load, type, name, kind }].
- * sessions: the sessions of `training.plan` (any source; only src 'tp' counts here). Pure.
+ * sessions: the sessions of `training.plan` (any source; only src 'tp' and the training plans 'tpl:…' count here). Pure.
  */
 export function tpWeek(sessions, monday) {
   const m0 = Date.parse(`${monday}T12:00:00Z`);
   const out = [];
   for (const s of Array.isArray(sessions) ? sessions : []) {
-    if (s?.src !== TP_SRC || !DAY_RE.test(s.day ?? '') || !(s.mins > 0)) continue;
+    const mine = String(s?.src ?? '').startsWith(PLAN_SRC); // a training plan in use («Trainingspläne», src 'tpl:<id>') stands fixed like TrainingPeaks (Noah 23.11.2026 «5a»)
+    if ((s?.src !== TP_SRC && !mine) || !DAY_RE.test(s.day ?? '') || !(s.mins > 0)) continue;
     const d = Math.round((Date.parse(`${s.day}T12:00:00Z`) - m0) / 864e5);
     if (d < 0 || d > 6) continue;
-    out.push({ id: `tp:${s.id}`, d, mins: Math.round(s.mins), t: timeOk(s.time) ? s.time : '', load: tpLoad(s.zone), type: tpTypeOf(s), name: String(s.name ?? ''), kind: s.kind });
+    out.push({ id: `tp:${s.id}`, d, mins: Math.round(s.mins), t: timeOk(s.time) ? s.time : '', load: tpLoad(s.zone), type: tpTypeOf(s), name: String(s.name ?? ''), kind: s.kind, ...(mine ? { plan: true } : {}) });
   }
   return out.sort((a, b) => a.d - b.d || a.t.localeCompare(b.t) || a.id.localeCompare(b.id));
 }
@@ -403,8 +405,13 @@ export function planWeek(cfg, ctx) {
     counts = r.counts;
     bikeHours = r.bikeHours;
     const all = tp.reduce((a, x) => a + x.mins, 0);
-    notes.push({ key: 'tp-in', n: tp.length, mins: all, hours: Math.round(all / 6) / 10 }, ...r.notes);
-    if (all > cfg.hours * 60) notes.push({ key: 'tp-over', hours: cfg.hours, mins: all });
+    const sum = (list) => list.reduce((a, x) => a + x.mins, 0);
+    const feed = tp.filter((x) => !x.plan);
+    const planned = tp.filter((x) => x.plan);
+    if (feed.length) notes.push({ key: 'tp-in', n: feed.length, mins: sum(feed), hours: Math.round(sum(feed) / 6) / 10 });
+    if (planned.length) notes.push({ key: 'tpl-in', n: planned.length, mins: sum(planned), hours: Math.round(sum(planned) / 6) / 10 });
+    notes.push(...r.notes.map((n) => (!feed.length && n.key === 'tp-replaces' ? { ...n, key: 'tpl-replaces' } : n)));
+    if (all > cfg.hours * 60) notes.push({ key: feed.length ? 'tp-over' : 'tpl-over', hours: cfg.hours, mins: all });
     // TrainingPeaks stands fixed: it goes in first, the rest plans around it
     for (const x of tp) {
       const start = x.t ? toM(x.t) : UNTIMED;
