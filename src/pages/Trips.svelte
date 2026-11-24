@@ -522,6 +522,8 @@ import { normState, skKey } from '../lib/sk/tiles.js';
       <!-- Paket U «Rennen» (Noah 19.10.2026 «1b»): the races have their own area under Touren -->
       <!-- Gesamttest 20.10.2026 Design 1: one head with at most one button; «Races» is a quiet link beside it -->
       {#if !onRides}<a class="btn btn-link racelink" href="#/race" data-to-races><Flag size={16} aria-hidden="true" />{t('Races')} ›</a>{/if}
+      <!-- «Sitemap» Touren (Noah 24.11.2026 «K7»): with a planned tour, «On the way» is one tap away (its day overview of the next tour) -->
+      {#if !onRides && plan.length}<a class="btn btn-link racelink" href="#/ride" data-to-ontheway><Route size={16} aria-hidden="true" />{t('On the way')} ›</a>{/if}
       <Btn icon={Upload} label={t('Upload ride')} href="#/debrief/ride" />
     </div>
   </header>
