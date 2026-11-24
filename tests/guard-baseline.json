@@ -46,6 +46,9 @@
     "src/lib/anpassen/TabsEdit.svelte": {
       "radius": 1
     },
+    "src/lib/auswerten/NormalBand.svelte": {
+      "radius": 1
+    },
     "src/lib/bedarf/NeedsSheet.svelte": {
       "radius": 1
     },
@@ -559,6 +562,9 @@
     "src/lib/kisuche/SearchFree.svelte": {
       "radius": 1
     },
+    "src/lib/know/NeuSeitSheet.svelte": {
+      "radius": 2
+    },
     "src/lib/know/NewsBild.svelte": {
       "shadow": 1
     },
@@ -910,6 +916,10 @@
     },
     "src/lib/race/AtlasList.svelte": {
       "radius": 4
+    },
+    "src/lib/race/AtlasMap.svelte": {
+      "radius": 2,
+      "shadow": 2
     },
     "src/lib/race/BikeCountdown.svelte": {
       "radius": 1
@@ -1480,7 +1490,8 @@
       "radius": 1
     },
     "src/pages/Vorschlaege.svelte": {
-      "radius": 2
+      "radius": 4,
+      "shadow": 1
     },
     "src/pages/Wardrobe.svelte": {
       "global": 3,
