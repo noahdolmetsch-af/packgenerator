@@ -166,6 +166,10 @@ test.describe('AB Deine Abfragen', () => {
     await addKaffee(false);
     const note = page.locator('.rtoast');
     await expect(note).toContainText('Frage gespeichert. Sie kommt');
+    // two buttons («Rückgängig», «Ansehen») must not squeeze the text into a thin column on a phone
+    const box = await note.locator('span').first().boundingBox();
+    expect(box.width).toBeGreaterThan(150);
+    expect((await note.boundingBox()).height).toBeLessThan(160);
     await expect(mine.locator('[data-q] b').getByText('Kaffee')).toBeVisible();
     await note.getByRole('button', { name: T('Undo') }).click();
     await expect(mine.getByText('Kaffee')).toHaveCount(0);
