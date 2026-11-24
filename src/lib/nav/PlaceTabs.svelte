@@ -55,7 +55,12 @@
     if (!box) return;
     const on = box.querySelector('a[aria-current="page"]');
     if (!on || box.scrollWidth <= box.clientWidth + 1) return;
-    box.scrollLeft = Math.max(0, on.offsetLeft - (box.clientWidth - on.offsetWidth) / 2);
+    // only as far as the chosen chip needs to stand fully in view, with a little air at the edge
+    const b = box.getBoundingClientRect();
+    const r = on.getBoundingClientRect();
+    const air = 24;
+    if (r.left - air < b.left) box.scrollLeft += r.left - air - b.left;
+    else if (r.right + air > b.right) box.scrollLeft += r.right + air - b.right;
   });
   function move(from, to) {
     if (to < 0 || to >= all.length || from === to) return;
