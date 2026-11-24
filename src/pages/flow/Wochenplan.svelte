@@ -22,7 +22,8 @@
   import Seg from '../../lib/ui/Seg.svelte';
   import Empty from '../../lib/ui/Empty.svelte';
   import { db } from '../../lib/db.js';
-  import { mondayOf, shiftDay, PLAN_KEY, plannerSessions as sessionsOf } from '../../lib/training.js';
+  import { mondayOf, shiftDay, PLAN_KEY, planValue, plannerSessions as sessionsOf } from '../../lib/training.js';
+  import { oldSuggestions, withoutOldSuggestions } from '../../lib/training/suggest.js';
   import { SP_KEY, prefsOf as spPrefsOf, teamSessions } from '../../lib/spielerplus.js';
   import { WEEKPLAN_KEY, GOAL_TYPES, FIXABLE, MAX_COUNT, MIN_HOURS, MAX_HOURS, LIGHT_SHARE, HARD_SHARE, TYPES, planOf, isSummer, defaultsFor, setHours, stepCount, toggleFix, setFixTime, modeCfg, followsHours, planWeek, plannedMins, countsMins } from '../../lib/training/wochenplan.js';
   import { startUnitDone } from '../../lib/flow/ui.svelte.js';
@@ -178,11 +179,24 @@
     return commit(next, t('{what}: {n} per week.', { what: nameOf(type), n: next.counts[type] }));
   };
   const reset = () => commit(defaultsFor(summer), t('Back to the basic plan.'));
+  // Noah 24.11.2026 «5a»: the sessions an older «Suggest the week» wrote are still in the week and count beside the plan's own units; one tap takes them out (Undo)
+  const oldSug = $derived(oldSuggestions($sessQ?.sessions ?? [], today));
+  async function dropOldSuggestions() {
+    const cur = (await db.settings.get(PLAN_KEY))?.value ?? null;
+    const gone = oldSuggestions(cur?.sessions ?? [], today).length;
+    if (!gone) return;
+    history = [...history.slice(-19), { sessions: cur }];
+    await db.settings.put({ key: PLAN_KEY, value: planValue(cur, withoutOldSuggestions(cur?.sessions ?? [], today)) });
+    msg = tn(gone, '1 old suggestion taken out. Your own units and TrainingPeaks stay.', '{n} old suggestions taken out. Your own units and TrainingPeaks stay.');
+  }
   async function undo() {
     if (!history.length) return;
     const last = history[history.length - 1];
     history = history.slice(0, -1);
-    if ('pins' in last) await writeLog((cur) => setPins(cur, last.monday, last.pins, today));
+    if ('sessions' in last) {
+      if (last.sessions === null) await db.settings.delete(PLAN_KEY);
+      else await db.settings.put({ key: PLAN_KEY, value: last.sessions });
+    } else if ('pins' in last) await writeLog((cur) => setPins(cur, last.monday, last.pins, today));
     else if ('mode' in last) await writeLog((cur) => setMode(cur, last.monday, last.mode, today));
     else if (last.plan === null) await db.settings.delete(WEEKPLAN_KEY);
     else await db.settings.put({ key: WEEKPLAN_KEY, value: last.plan });
@@ -346,6 +360,9 @@
           <span class="bar" role="img" aria-label={t('{n} percent of the goal', { n: pct })}><i style="width:{pct}%"></i></span>
           <p class="hint" data-wp-hint>{hoursLine}</p>
           {#each tpLines as line (line)}<p class="hint" data-wp-tp>{line}</p>{/each}
+          {#if oldSug.length}
+            <p class="hint" data-wp-oldsug>{tn(oldSug.length, '1 old suggestion from «Suggest the week» is still in your week.', '{n} old suggestions from «Suggest the week» are still in your week.')} <button type="button" class="btn sm" onclick={dropOldSuggestions} data-wp-oldsug-go>{t('Take them out')}</button></p>
+          {/if}
           {#if outsideWeeks}
             <div class="tpg" data-wp-tpgoal>
               <p class="sub">{t('Goal in weeks with TrainingPeaks')}</p>
